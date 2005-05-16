@@ -1,80 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261737AbVEPQis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261741AbVEPQqW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261737AbVEPQis (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 12:38:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVEPQis
+	id S261741AbVEPQqW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 12:46:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbVEPQqW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 12:38:48 -0400
-Received: from [80.247.74.3] ([80.247.74.3]:45966 "EHLO tavolara.isolaweb.it")
-	by vger.kernel.org with ESMTP id S261737AbVEPQif (ORCPT
+	Mon, 16 May 2005 12:46:22 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:11420 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261741AbVEPQqU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 12:38:35 -0400
-Message-Id: <6.2.1.2.2.20050516180151.04bc1eb0@mail.tekno-soft.it>
-X-Mailer: QUALCOMM Windows Eudora Version 6.2.1.2
-Date: Mon, 16 May 2005 18:37:50 +0200
-To: William Lee Irwin III <wli@holomorphy.com>
-From: Roberto Fichera <kernel@tekno-soft.it>
-Subject: Re: How to use memory over 4GB
-Cc: Michael Tokarev <mjt@tls.msk.ru>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050516155422.GM9304@holomorphy.com>
-References: <6.2.1.2.2.20050516142516.0313e860@mail.tekno-soft.it>
- <42889890.8090505@tls.msk.ru>
- <6.2.1.2.2.20050516150628.06682cd0@mail.tekno-soft.it>
- <20050516151023.GK9304@holomorphy.com>
- <6.2.1.2.2.20050516174053.07185270@mail.tekno-soft.it>
- <20050516155422.GM9304@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-IsolaWeb-MailScanner-Information: Please contact the ISP for more information
-X-IsolaWeb-MailScanner: Found to be clean
-X-MailScanner-From: kernel@tekno-soft.it
+	Mon, 16 May 2005 12:46:20 -0400
+Message-ID: <4288CE51.1050703@pobox.com>
+Date: Mon, 16 May 2005 12:46:09 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Grant Grundler <grundler@parisc-linux.org>
+CC: akpm@osdl.org, T-Bone@parisc-linux.org, varenet@parisc-linux.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev <netdev@oss.sgi.com>
+Subject: Re: patch tulip-natsemi-dp83840a-phy-fix.patch added to -mm tree
+References: <200505101955.j4AJtX9x032464@shell0.pdx.osdl.net> <42881C58.40001@pobox.com> <20050516050843.GA20107@colo.lackof.org>
+In-Reply-To: <20050516050843.GA20107@colo.lackof.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 17.54 16/05/2005, William Lee Irwin III wrote:
->At 17.10 16/05/2005, William Lee Irwin III wrote:
-> >> This approach has already been used in production by various major
-> >> applications and is even obsolete, now replaced by remap_file_pages()
-> >> (in Linux), where it and its counterparts in other operating systems
-> >> have been in use in production by various major applications for some 
-> time.
-> >> remap_file_pages() allows virtual pages in an mmap() area to correspond
-> >> in an unrestricted fashion to the pages of the underlying file, and to
-> >> alter this correspondence at will.
-> >> In particular, Oracle's "vlm" option does this.
->
->On Mon, May 16, 2005 at 05:47:31PM +0200, Roberto Fichera wrote:
-> > So, you are suggesting to create one big tmpfs area, 6GB for example, than
-> > mmap() it to the user process and use the remap_file_pages() for all
-> > the objects I want make "addressable" on the user process taking care
-> > the return value of -1 which implies to munmap() something to free vm 
-> space?
->
->I don't have any specific suggestion regarding layout or usage patterns
->besides pointing to remap_file_pages() being significantly lighter-weight
->than mmap() for the purposes of virtual windowing. The other aspects of
->all this (and even the use of remap_file_pages() at all) are, of course,
->at your own discretion. It is, however, notable that Oracle has had some
->success with a tactic similar to what you describe, where few objects are
->used and the application instead manages space within the objects
->dedicated to various purposes.
->
->In general, I'd recommend experimenting with different strategies to see
->which works best for you. This is all rather vague, and the mechanics of
->getting all this working with your application are sure to have enough
->alternative implementations to merit some decision-making and the like.
+Simply ensure that tulip_select_media() is always called from a process 
+context. Then can you delay all you want.  Several of the calls are 
+already this way, so that leaves two cases:
 
-Thanks to pointing me to another solution, I will start to experimenting 
-very soon :-)!
+1) called from timer context, from the media poll timer
+
+2) called from spin_lock_irqsave() context, in the ->tx_timeout hook.
+
+The first case can be fixed by moved all the timer code to a workqueue. 
+  Then when the existing timer fires, kick the workqueue.
+
+The second case can be fixed by kicking the workqueue upon tx_timeout 
+(which is the reason why I did not suggest queue_delayed_work() use).
+
+See, it's not rocket science :)
+
+	Jeff
 
 
-
->-- wli
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
-Roberto Fichera. 
 

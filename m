@@ -1,71 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261948AbVEPWIH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261926AbVEPWJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261948AbVEPWIH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 18:08:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbVEPWHv
+	id S261926AbVEPWJX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 18:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbVEPWJW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 18:07:51 -0400
-Received: from adsl-216-102-214-42.dsl.snfc21.pacbell.net ([216.102.214.42]:62216
-	"EHLO cynthia.pants.nu") by vger.kernel.org with ESMTP
-	id S261935AbVEPWEs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 18:04:48 -0400
-Date: Mon, 16 May 2005 15:04:45 -0700
-From: Brad Boyer <flar@allandria.com>
-To: Kenichi Okuyama <okuyamak@dd.iij4u.or.jp>
-Cc: Valdis.Kletnieks@vt.edu, fs@ercist.iscas.ac.cn,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [RFD] What error should FS return when I/O failure occurs?
-Message-ID: <20050516220445.GA3681@pants.nu>
-References: <200505160635.j4G6ZUcX023810@turing-police.cc.vt.edu> <20050517.051113.132843723.okuyamak@dd.iij4u.or.jp> <200505162035.j4GKZVCc018357@turing-police.cc.vt.edu> <20050517.063931.91280786.okuyamak@dd.iij4u.or.jp>
+	Mon, 16 May 2005 18:09:22 -0400
+Received: from fire.osdl.org ([65.172.181.4]:46290 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261926AbVEPWIa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 18:08:30 -0400
+Date: Mon, 16 May 2005 15:09:07 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: christoph <christoph@scalex86.org>
+Cc: linux-kernel@vger.kernel.org, shai@scalex86.org,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt.
+Message-Id: <20050516150907.6fde04d3.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0505161243580.13692@ScMPusgw>
+References: <Pine.LNX.4.62.0505161243580.13692@ScMPusgw>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050517.063931.91280786.okuyamak@dd.iij4u.or.jp>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 17, 2005 at 06:39:31AM +0900, Kenichi Okuyama wrote:
-> USB storage is gone. And it SEEMS to came back.
-> But how do you know that it's images were not changed.
+christoph <christoph@scalex86.org> wrote:
+>
+> Make the timer frequency selectable. The timer interrupt may cause bus
+> and memory contention in large NUMA systems since the interrupt occurs
+> on each processor HZ times per second.
 > 
-> Blocks you have cached might have different image. If you remount
-> the file system, the cache image should be updated as well.
+> Signed-off-by: Christoph Lameter <christoph@scale86.org>
+> Signed-off-by: Shai Fultheim <shai@scalex86.org>
 > 
-> But very fact that *cache image should be updated* means, old cache
-> image was invalid. And when did it become invalid?
-> 
-> When it was gone.
-> 
-> Think about thing this way. There was USB storage and it's cached
-> image. Storage is somewhat gone. It never returned before reboot.
-> Was cache image valid after storage gone? Ofcourse not. That cache
-> is nothing more than old data which came from LOST, and NEVER COMING
-> BACK device.
-> 
-> If device did come back but with change, we must read the data from
-> storage again. Old cache image was useless, and was harmful.
-> If device did come back without change, we can read the data from
-> storage again.
-> 
-> No need to keep the cache image, taking risk of cache not being
-> valid, especially while you have no control over the storage.
+> Index: linux-2.6.11/arch/i386/Kconfig
+> ===================================================================
+> --- linux-2.6.11.orig/arch/i386/Kconfig	2005-05-16 12:07:31.000000000 -0700
+> +++ linux-2.6.11/arch/i386/Kconfig	2005-05-16 12:39:48.000000000 -0700
+> @@ -939,6 +939,20 @@ config SECCOMP
+>  
+>  	  If unsure, say Y. Only embedded should say N here.
+>  
+> +config HZ
+> +	int "Frequency of the Timer Interrupt (1000 or 100)"
+> +	range 100 1000
 
-This is a difficult problem, but it's not as completely invalid as
-you seem to think. The use case I remember taking advantage of in
-actual experience is from the classic MacOS. The way the mac handled
-floppies was very interesting. There was a way to eject an HFS floppy
-without unmounting it. Using this trick, you could have multiple disks
-mounted using the same physical drive. It kept as much as it could
-in RAM to be able to use the files, and the system would block on
-unknown sectors until the correct disk was reinserted. However, it's
-very difficult to get this level of usage without full knowledge all
-the way from the device driver up to the UI. Since Apple controlled
-the whole thing, they could get away with this. I'm not sure we could
-do an equivalent thing in as different of an environment as we have.
-They could tell apart each filesystem, notify the user when a different
-disk was needed, and everything else to have a seamless experience.
+Linus spat this patch back a couple of years ago.  Last time we discussed
+it, a year ago, he said
 
-	Brad Boyer
-	flar@allandria.com
+  On Fri, 21 May 2004, Andrew Morton wrote:
+  > 
+  > Len, do you have any numbers on this?  Do you think we need to address
+  > this?  If so, is there any sane alternative to CONFIG_HZ?
 
+  100Hz is too little for a number of users, and yes, 1kHz is too high - I 
+  selected it partly because it made it oh-so-much-more-obvious when 
+  some pieces weren't converted. 
+
+  1kHz is also good in that it makes it easy to convert both to USER_HZ and 
+  to ms/ns. But maybe something like 250Hz would be better - still high 
+  enough that things like multimedia (which really wants higher frequencies 
+  in order to be able to sleep for fractional video-frames) should be happy, 
+  low enough that we use less CPU.
+
+(The issue being that the latency of entering ACPI low-power mode is of the
+order of one millisecond on some machines, so HZ=1000 whacks the battery).
+
+So yes, the time has come around again to work out what we're going to do
+about this.  I'd be a bit worried about allowing users to set HZ=724,
+simply because nobody tests with that, and it might expose odd timing
+relationships and unfortunate arithmetic rounding artifacts.  So if we're
+going to do this thing it might be better to just offer 100, 250 and 1000.

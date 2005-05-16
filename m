@@ -1,109 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbVEPIQ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVEPI1K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261474AbVEPIQ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 04:16:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbVEPIPx
+	id S261246AbVEPI1K (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 04:27:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVEPI1K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 04:15:53 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:59345 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261445AbVEPHRT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 03:17:19 -0400
-Date: Mon, 16 May 2005 15:21:23 +0800
-From: David Teigland <teigland@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, linux-cluster@redhat.com
-Subject: [PATCH 8/8] dlm: build
-Message-ID: <20050516072123.GM7094@redhat.com>
+	Mon, 16 May 2005 04:27:10 -0400
+Received: from zproxy.gmail.com ([64.233.162.202]:47233 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261246AbVEPHY5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 03:24:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=muA24omNkZ/wWTJJGaOLFqe3MUa7hDSar0tnRirABp3OglP1PXNM7tnqeVejccofUKWiEGFHirSV6xS86D0D/n5CngUWjKyvskv14ZT8WkT6o+vbDVO8LXd4ZTujq9JyYu8mBhDFkcXXKol9L9srLakcRrRz8Zng0m1AuYg60To=
+Message-ID: <b82a8917050516002466727179@mail.gmail.com>
+Date: Mon, 16 May 2005 12:54:57 +0530
+From: Niraj kumar <niraj17@gmail.com>
+Reply-To: niraj17@iitbombay.org
+To: lavin.p@redpinesignals.com
+Subject: Re: Timestamp API ??
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <42883FEF.5000404@redpinesignals.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+References: <42883FEF.5000404@redpinesignals.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adds the dlm to the build system.
+On 5/16/05, P Lavin <lavin.p@redpinesignals.com> wrote:
+> Hi All,
+> Can anyone tell me how to get the timestamp in my WLAN driver.
+> Please letme know weather any kernel API's are available for this ??
 
-Signed-off-by: Dave Teigland <teigland@redhat.com>
-Signed-off-by: Patrick Caulfield <pcaulfie@redhat.com>
+Check this :
+http://lwn.net/Articles/22808/
 
----
+Niraj
 
- drivers/Kconfig      |    2 ++
- drivers/Makefile     |    1 +
- drivers/dlm/Kconfig  |   27 +++++++++++++++++++++++++++
- drivers/dlm/Makefile |   23 +++++++++++++++++++++++
- 4 files changed, 53 insertions(+)
+> Thx & Rgds,
+> Lavin
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
---- a/drivers/dlm/Makefile	1970-01-01 07:30:00.000000000 +0730
-+++ b/drivers/dlm/Makefile	2005-05-12 23:13:15.832485056 +0800
-@@ -0,0 +1,23 @@
-+obj-$(CONFIG_DLM) +=		dlm.o
-+obj-$(CONFIG_DLM_DEVICE) +=	dlm_device.o
-+
-+dlm-y :=			ast.o \
-+				config.o \
-+				dir.o \
-+				lock.o \
-+				lockspace.o \
-+				lowcomms.o \
-+				main.o \
-+				member.o \
-+				member_sysfs.o \
-+				memory.o \
-+				midcomms.o \
-+				node_ioctl.o \
-+				rcom.o \
-+				recover.o \
-+				recoverd.o \
-+				requestqueue.o \
-+				util.o
-+dlm-$(CONFIG_DLM_DEBUG) +=	debug_fs.o
-+
-+dlm_device-y :=			device.o
---- a/drivers/Makefile  2005-04-25 15:40:15.000000000 +0800
-+++ b/drivers/Makefile  2005-04-25 16:10:10.228660648 +0800
-@@ -64,3 +64,4 @@
- obj-$(CONFIG_BLK_DEV_SGIIOC4)	+= sn/
- obj-y				+= firmware/
- obj-$(CONFIG_CRYPTO)		+= crypto/
-+obj-$(CONFIG_DLM)		+= dlm/
---- a/drivers/dlm/Kconfig	1970-01-01 07:30:00.000000000 +0730
-+++ b/drivers/dlm/Kconfig	2005-05-12 23:13:15.833484904 +0800
-@@ -0,0 +1,27 @@
-+menu "Distributed Lock Manager"
-+	depends on INET && EXPERIMENTAL
-+
-+config DLM 
-+	tristate "Distributed Lock Manager (DLM)"
-+	select IP_SCTP
-+	help
-+	A general purpose distributed lock manager for kernel or userspace
-+	applications.
-+
-+config DLM_DEVICE
-+	tristate "DLM device for userspace access"
-+	depends on DLM
-+	help
-+	This module creates a misc device through which the dlm lockspace
-+	and locking functions become available to userspace applications
-+	(usually through the libdlm library).
-+
-+config DLM_DEBUG
-+	bool "DLM debugging"
-+	depends on DLM
-+	help
-+	Under the debugfs mount point, the name of each lockspace will
-+	appear as a file in the "dlm" directory.  The output is the
-+	list of resource and locks the local node knows about.
-+
-+endmenu
---- a/drivers/Kconfig       2005-03-02 15:38:26.000000000 +0800
-+++ b/drivers/Kconfig       2005-04-25 16:01:50.476634504 +0800
-@@ -58,4 +58,6 @@
- 
- source "drivers/infiniband/Kconfig"
- 
-+source "drivers/dlm/Kconfig"
-+
- endmenu
+
+-- 
+-----------------------------------------------------------------
+http://www.nirajkumar.net

@@ -1,114 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261851AbVEPUXX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbVEPUbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261851AbVEPUXX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 16:23:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVEPUVR
+	id S261719AbVEPUbO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 16:31:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVEPUbO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 16:21:17 -0400
-Received: from rev.193.226.232.93.euroweb.hu ([193.226.232.93]:27401 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261854AbVEPUQ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 16:16:58 -0400
-To: linuxram@us.ibm.com
-CC: jamie@shareable.org, miklos@szeredi.hu,
-       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <1116301843.4154.88.camel@localhost> (message from Ram on Mon, 16
-	May 2005 20:50:44 -0700)
-Subject: Re: [PATCH] namespace.c: fix bind mount from foreign namespace
-References: <E1DWXeF-00017l-00@dorka.pomaz.szeredi.hu>
-	 <20050513170602.GI1150@parcelfarce.linux.theplanet.co.uk>
-	 <E1DWdn9-0004O2-00@dorka.pomaz.szeredi.hu>
-	 <1116005355.6248.372.camel@localhost>
-	 <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu>
-	 <1116012287.6248.410.camel@localhost>
-	 <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu>
-	 <1116013840.6248.429.camel@localhost>
-	 <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu>
-	 <1116256279.4154.41.camel@localhost>
-	 <20050516111408.GA21145@mail.shareable.org> <1116301843.4154.88.camel@localhost>
-Message-Id: <E1DXm08-0006XD-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 16 May 2005 22:15:44 +0200
+	Mon, 16 May 2005 16:31:14 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:15322 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261719AbVEPUbC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 16:31:02 -0400
+Date: Mon, 16 May 2005 13:27:36 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: john stultz <johnstul@us.ibm.com>
+cc: David Mosberger <davidm@hpl.hp.com>, lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Dominik Brodowski <linux@dominikbrodowski.de>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
+       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <darren@dvhart.com>,
+       "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org, linux-ia64@vger.kernel.org
+Subject: Re: IA64 implementation of timesource for new time of day subsystem
+In-Reply-To: <1116273055.13867.5.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.62.0505161325330.2509@schroedinger.engr.sgi.com>
+References: <1116029796.26454.2.camel@cog.beaverton.ibm.com> 
+ <1116029872.26454.4.camel@cog.beaverton.ibm.com>  <1116029971.26454.7.camel@cog.beaverton.ibm.com>
+  <1116030058.26454.10.camel@cog.beaverton.ibm.com> 
+ <1116030139.26454.13.camel@cog.beaverton.ibm.com> 
+ <Pine.LNX.4.62.0505141251490.18681@schroedinger.engr.sgi.com> 
+ <1116264858.26990.39.camel@cog.beaverton.ibm.com> 
+ <Pine.LNX.4.62.0505161100240.1653@schroedinger.engr.sgi.com> 
+ <1116269136.26990.67.camel@cog.beaverton.ibm.com> 
+ <Pine.LNX.4.62.0505161219570.2158@schroedinger.engr.sgi.com> 
+ <17032.62615.750699.18847@napali.hpl.hp.com> <1116273055.13867.5.camel@cog.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ok. less restriction without compromising security is a good idea.
+On Mon, 16 May 2005, john stultz wrote:
+
 > 
-> Under the premise that bind mounts across namespace should be allowed;
-> any insight why the "founding fathers" :) allowed only bind
-> and not recursive bind?  What issue would that create? One can
-> easily workaround that restriction by manually binding recursively.
-> So does the recursive bind restriction serve any purpose?
-> 
-> I remember Miklos saying its not a security issue but a
-> implementation/locking issue. That can be fixed aswell.
+> No. I intend to preserve the existing functionality (and performance) of
+> the current code. The current timeofday core should allow for this (as I
+> described in my last mail), so really its just a matter of either me or
+> someone else getting around to properly converting that arch with the
+> help of the arch maintainer. Until the arch is really ready to use the
+> new timeofday core, no changes are necessary.
 
-Yes, as pointed out by Jamie, both namespaces need to be locked for
-this to work.  Something like the attached should do it.
+Its not an arch specific issue. The time sources need to have a field that 
+specifies that jitter protection is needed and there needs to be some 
+logic to implement it. Otherwise we have to develop special functions for 
+each timesource that deal with jitter protection. Function will make a 
+fastcall for the clocks that use jitter protection not possible and thus 
+timer access will slow down.
 
-Miklos
+> What I'm trying to shake out, with Christoph's help, is any major
+> limitations in the core timeofday code that would keep an arch from
+> being able to use it.  I feel Christoph's concerns have been addressed,
+> but please let me know if you disagree.
 
+Please add jitter protection to the arch independent code.
 
-Index: linux/fs/namespace.c
-===================================================================
---- linux.orig/fs/namespace.c	2005-05-16 22:02:36.000000000 +0200
-+++ linux/fs/namespace.c	2005-05-16 22:13:30.000000000 +0200
-@@ -622,6 +622,8 @@ out_unlock:
- static int do_loopback(struct nameidata *nd, char *old_name, int recurse)
- {
- 	struct nameidata old_nd;
-+	struct namespace *ns1 = current->namespace;
-+	struct namespace *ns2 = NULL;
- 	struct vfsmount *mnt = NULL;
- 	int err = mount_is_safe(nd);
- 	if (err)
-@@ -632,15 +634,30 @@ static int do_loopback(struct nameidata 
- 	if (err)
- 		return err;
- 
--	down_write(&current->namespace->sem);
- 	err = -EINVAL;
--	if (check_mnt(nd->mnt) && (!recurse || check_mnt(old_nd.mnt))) {
--		err = -ENOMEM;
--		if (recurse)
--			mnt = copy_tree(old_nd.mnt, old_nd.dentry);
--		else
--			mnt = clone_mnt(old_nd.mnt, old_nd.dentry);
--	}
-+	if (!check_mnt(nd->mnt))
-+		goto out_path_release;
-+
-+	if (recurse && old_nd.mnt->mnt_namespace != ns1) {
-+		ns2 = old_nd.mnt->mnt_namespace;
-+		if (ns1 < ns2) {
-+			down_write(&ns1->sem);
-+			down_write(&ns2->sem);
-+		} else {
-+			down_write(&ns2->sem);
-+			down_write(&ns1->sem);
-+		}
-+	} else
-+		down_write(&ns1->sem);
-+
-+	err = -ENOMEM;
-+	if (recurse)
-+		mnt = copy_tree(old_nd.mnt, old_nd.dentry);
-+	else
-+		mnt = clone_mnt(old_nd.mnt, old_nd.dentry);
-+	
-+	if (ns2)
-+		up_write(&ns2->sem);
- 
- 	if (mnt) {
- 		/* stop bind mounts from expiring */
-@@ -657,7 +674,8 @@ static int do_loopback(struct nameidata 
- 			mntput(mnt);
- 	}
- 
--	up_write(&current->namespace->sem);
-+	up_write(&ns1->sem);
-+out_path_release:
- 	path_release(&old_nd);
- 	return err;
- }

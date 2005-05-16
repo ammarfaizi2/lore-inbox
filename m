@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVEPRtM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbVEPRy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261477AbVEPRtM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 13:49:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbVEPRtM
+	id S261542AbVEPRy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 13:54:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbVEPRy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 13:49:12 -0400
-Received: from mail.portrix.net ([212.202.157.208]:5557 "EHLO
-	zoidberg.portrix.net") by vger.kernel.org with ESMTP
-	id S261477AbVEPRsw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 13:48:52 -0400
-Message-ID: <4288DC6D.1020606@ppp0.net>
-Date: Mon, 16 May 2005 19:46:21 +0200
-From: Jan Dittmer <jdittmer@ppp0.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050331 Thunderbird/1.0.2 Mnenhy/0.6.0.104
-X-Accept-Language: en-us, en
+	Mon, 16 May 2005 13:54:59 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:20950 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261712AbVEPRyt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 13:54:49 -0400
+Date: Mon, 16 May 2005 10:54:33 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       shai@scalex86.org, steiner@sgi.com
+Subject: Re: NUMA aware slab allocator V3
+In-Reply-To: <1116264135.1005.73.camel@localhost>
+Message-ID: <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com> 
+ <20050512000444.641f44a9.akpm@osdl.org>  <Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com>
+  <20050513000648.7d341710.akpm@osdl.org>  <Pine.LNX.4.58.0505130411300.4500@schroedinger.engr.sgi.com>
+  <20050513043311.7961e694.akpm@osdl.org>  <Pine.LNX.4.62.0505131823210.12315@schroedinger.engr.sgi.com>
+  <1116251568.1005.29.camel@localhost>  <Pine.LNX.4.62.0505160943140.1330@schroedinger.engr.sgi.com>
+ <1116264135.1005.73.camel@localhost>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc4-mm2, alpha and mips broke
-References: <20050516021302.13bd285a.akpm@osdl.org>
-In-Reply-To: <20050516021302.13bd285a.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Comparing 2.6.12-rc4-mm1 to 2.6.12-rc4-mm2 (defconfig)
-======================================================
+On Mon, 16 May 2005, Dave Hansen wrote:
 
-- alpha: broke
-    AR      arch/alpha/lib/lib.a
-    GEN     .version
-    CHK     include/linux/compile.h
-    UPD     include/linux/compile.h
-    CC      init/version.o
-    LD      init/built-in.o
-    LD      .tmp_vmlinux1
-  mm/built-in.o(.text+0xe79c):/usr/src/ctest/mm/kernel/mm/slab.c:339: undefined reference to `__bad_size'
-  mm/built-in.o(.text+0xe7a0):/usr/src/ctest/mm/kernel/mm/slab.c:339: undefined reference to `__bad_size'
-  make[1]: *** [.tmp_vmlinux1] Error 1
-  make: *** [_all] Error 2
+> > How do the concepts of numa node id relate to discontig node ids?
+> 
+> I believe there are quite a few assumptions on some architectures that,
+> when NUMA is on, they are equivalent.  It appears to be pretty much
+> assumed everywhere that CONFIG_NUMA=y means one pg_data_t per NUMA node.
 
-  Details: http://l4x.org/k/?d=3741
+Ah. That sounds much better.
 
-- mips: broke
-    CC      mm/mempool.o
-    CC      mm/oom_kill.o
-    CC      mm/fadvise.o
-    CC      mm/page_alloc.o
-    CC      mm/page-writeback.o
-    CC      mm/pdflush.o
-    CC      mm/readahead.o
-    CC      mm/slab.o
-  mm/slab.c:117:2: #error "Broken Configuration: CONFIG_NUMA not set but MAX_NUMNODES !=1 !!"
-  make[1]: *** [mm/slab.o] Error 1
-  make: *** [mm] Error 2
+> Remember, as you saw, you can't assume that MAX_NUMNODES=1 when NUMA=n
+> because of the DISCONTIG=y case.
 
-  Details: http://l4x.org/k/?d=3753
+I have never seen such a machine. A SMP machine with multiple 
+"nodes"? So essentially one NUMA node has multiple discontig "nodes"?
 
+This means that the concept of a node suddenly changes if there is just 
+one numa node(CONFIG_NUMA off implies one numa node)? 
 
--- 
-Jan
+> So, in summary, if you want to do it right: use the
+> CONFIG_NEED_MULTIPLE_NODES that you see in -mm.  As plain DISCONTIG=y
+> gets replaced by sparsemem any code using this is likely to stay
+> working.
+
+s/CONFIG_NUMA/CONFIG_NEED_MULTIPLE_NODES?
+
+That will not work because the idea is the localize the slabs to each 
+node. 
+
+If there are multiple nodes per numa node then invariable one node in the 
+numa node (sorry for this duplication of what node means but I did not 
+do it) must be preferred since numa_node_id() does not return a set of 
+discontig nodes.
+ 
+Sorry but this all sounds like an flaw in the design. There is no 
+consistent notion of node. Are you sure that this is not a ppc64 screwup?
+

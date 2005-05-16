@@ -1,80 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261821AbVEPTTH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261831AbVEPTdX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261821AbVEPTTH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 15:19:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261817AbVEPTRd
+	id S261831AbVEPTdX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 15:33:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVEPTdX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 15:17:33 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:63918 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261821AbVEPTN5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 15:13:57 -0400
-Message-ID: <4288F122.5090002@tmr.com>
-Date: Mon, 16 May 2005 15:14:42 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
-X-Accept-Language: en-us, en
+	Mon, 16 May 2005 15:33:23 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:28570 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S261832AbVEPTT7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 15:19:59 -0400
+To: Andi Kleen <ak@muc.de>
+Cc: Andy Isaacson <adi@hexapodia.org>, "Richard F. Rebel" <rrebel@whenu.com>,
+       Gabor MICSKO <gmicsko@szintezis.hu>, linux-kernel@vger.kernel.org,
+       mpm@selenic.com, tytso@mit.edu
+Subject: Re: Hyper-Threading Vulnerability
+References: <1115963481.1723.3.camel@alderaan.trey.hu> <m164xnatpt.fsf@muc.de>
+	<1116009483.4689.803.camel@rebel.corp.whenu.com>
+	<20050513190549.GB47131@muc.de> <20050513212620.GA12522@hexapodia.org>
+	<20050515094352.GB68736@muc.de>
+	<m1oebbwsrf.fsf@ebiederm.dsl.xmission.com>
+	<20050516110359.GA70871@muc.de>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 16 May 2005 13:14:23 -0600
+In-Reply-To: <20050516110359.GA70871@muc.de>
+Message-ID: <m1ekc7vv8w.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: Michael Tokarev <mjt@tls.msk.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to use memory over 4GB
-References: <6.2.1.2.2.20050516142516.0313e860@mail.tekno-soft.it> <42889890.8090505@tls.msk.ru>
-In-Reply-To: <42889890.8090505@tls.msk.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Tokarev wrote:
-> Roberto Fichera wrote:
-> 
->>Hi All,
->>
->>I've a dual Xeon 3.2GHz HT with 8GB of memory running kernel 2.6.11.
->>I whould like to know the way how to use all the memory in a single
->>process, the application is a big simulation which needs big memory
->>chuncks.
->>I have readed about hugetlbfs, shmfs and tmpfs, but don't understand how
->>I can access
->>the whole memory. Ok! I can create a big file on tmpfs using shm_open() and
->>than map it by using mmap() or mmap2() but how can I access over 4GB using
->>standard pointers (if I had to use it)?
-> 
-> 
-> There's no "standard" and simple way to utilize more than 4Gb memory on
-> i386 hardware, especially in a userspace.  That is, the size of a pointer
-> is 32bits, which is 4GB addresspace maximum.  i386 architecture just can't
-> have a pointer of greather size.
+Andi Kleen <ak@muc.de> writes:
 
-And the original i286 couldn't address more than 64k, either. But of 
-course it could and did, using the large model which used segment 
-registers to address additional memory. In terms of hardware this 
-certainly could be done using 4GB segments on newer processors. In terms 
-of available compiler and O/S support, you're stuck with using tricks, 
-as various people have noted.
-
-In terms of generating correct code, with all the bad things people have 
-said about the cost of doing segmentation, it was vastly more likely to 
-be correct code if you could just pretend that you have linear address 
-space and let the compiler/lib/os play let's pretend for you.
-
-If you really need to address more than 4GB perhaps a 64 bit hardware is 
-the better solution.
+> > The only solution I have seen proposed so far that seems to work
+> > is to not schedule untrusted processes simultaneously with 
+> > the security code.  With the current API that sounds like
+> > a root process killing off, or at least stopping all non-root
+> > processes until the critical process has finished.
 > 
-> All "extra" (>4GB) space can be used like a file in a filesystem, not like
-> a plain memory.  Think of read()/write() (or pread()/pwrite() for that matter),
-> but much faster ones compared to disk-based storage -- in tmpfs.  You can
-> also mmap() *parts* of such a file, but will be still limited to 4GB at
-> once -- in order to have more, you will have to unmap() something.
-> 
-> All the "large applications" (most notable large database systems such as
-> Oracle) can't use more than 4GB memory directly, but can utilize it for
-> database cache.  In directly-addressible space there's a "table of content"
-> of cached buffers is keept, and when a buffer is needed, it is mmap()'ed
-> into the application's address space, and unmapped right away when it isn't
-> needed anymore (but it is still in memory).  Ofcourse you can't have
-> usual pointers into that memory, but you can use something like
-> (block-number,offset) instead of a pointer (pagetables).
-> 
-> /mjt
+> With virtualization and a hypervisor freely scheduling it is quite 
+> impossible to guarantee this. Of course as always the signal 
+> is quite noisy so it is unclear if it is exploitable in practical 
+> settings. On virtualized environments you cannot use ps to see
+> if a crypto process is running. 
 
+Interesting.  I think that is a problem for the hypervisor maintainer.
+Although that is about enough to convince me to request a
+OS flag that says "please give me privacy" and later that can be passed
+down to the hypervisor.  My gut feel is running under a hypervisor
+is when things will at their most vulnerable.
+
+Where this is a threat is when there will be a lot of RSA
+key transactions.  At which point it is likely that the attacker
+can reproduce enough of the setup to figure out the fine details.
+
+I think discovering a crypto process will simply be a matter
+finding a https sever.  As for getting the timing how about
+initiating a https connection?  Getting rid of the noise will certainly
+be a challenge but you will have multiple attempts.
+
+> > And those same processors will have the same problem if the share
+> > significant cpu resources.  Ideally the entire problem set
+> > would fit in the cache and the cpu designers would allow cache
+> > blocks to be locked but that is not currently the case.  So a shared
+> > L3 cache with dual core processors will have the same problem.
+> 
+> At some point the signal gets noisy enough and the assumptions
+> an attacker has to make too great for it being an useful attack.
+> For me it is not even clear it is a real attack on native Linux, at 
+> least the setup in the paper looked highly artifical and quite impractical. 
+> e.g. I suppose it would be quite difficult to really synchronize
+> to the beginning and end of the RSA encryptions on a server that
+> does other things too.
+
+Possibly.  But then buffer overflow attacks when you don't know the exact
+stack layout are similarly difficult and ways have been found.  And if
+you have multiple chances things get easier.  And if you are aiming
+at something easier then brute forcing a private key even the littlest
+bit is a help.
+
+When people mmap pages we zero them for the same reason so that
+we don't have unintentional information leaks.
+
+I agree that for now because little is known this is a highly specialized
+attack.  However the trend is now towards increasingly big SMP's.
+That increases the number of resources that can be shared so the
+possibility of a problem increases.  At the rate Intel's cpus are
+going we may see throttling of one cpu core when the other one
+generates too much heat, because it is busy doing something else cpu
+intensive.  And other optimizations lead to much easier to imagine
+vulnerabilities.
+
+As for noise with the area cpu designers are getting into things
+are becoming increasingly fine grained so information is leaking
+at an increasingly fine level.  As the L2 cache issue has shown
+that information starts to leak below the level an application
+designer has control of.  At which point things get very difficult
+to manage.  
+
+Information leaks are more difficult than simply gaining root on
+the box where you can simply take the information you want.  But
+that means that is exactly where a locked down well administered
+box will be vulnerable if a way is not found to avoid the problem.
+I don't know what the consequences of having your private key
+discovered are, but I have never heard a case where identity theft
+was something pleasant to fix.
+
+Eric

@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbVEPPfw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261713AbVEPPfF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261703AbVEPPfw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 11:35:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVEPPfY
+	id S261713AbVEPPfF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 11:35:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbVEPPfE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 11:35:24 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:45952 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261697AbVEPPb2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 11:31:28 -0400
-Message-ID: <4288BCA6.9000002@nortel.com>
-Date: Mon, 16 May 2005 09:30:46 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: James Courtier-Dutton <James@superbug.co.uk>,
-       Christoph Lameter <clameter@engr.sgi.com>,
-       john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, paulus@samba.org,
-       schwidefsky@de.ibm.com, keith maanthey <kmannth@us.ibm.com>,
-       Chris McDermott <lcm@us.ibm.com>, Max Asbock <masbock@us.ibm.com>,
-       mahuja@us.ibm.com, Nishanth Aravamudan <nacc@us.ibm.com>,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org, linux-ia64@vger.kernel.org
-Subject: Re: IA64 implementation of timesource for new time of day subsystem
-References: <1116029796.26454.2.camel@cog.beaverton.ibm.com> <1116029872.26454.4.camel@cog.beaverton.ibm.com> <1116029971.26454.7.camel@cog.beaverton.ibm.com> <1116030058.26454.10.camel@cog.beaverton.ibm.com> <1116030139.26454.13.camel@cog.beaverton.ibm.com> <Pine.LNX.4.62.0505141251490.18681@schroedinger.engr.sgi.com> <428722E3.6040202@superbug.co.uk> <20050515101705.GC26242@wotan.suse.de>
-In-Reply-To: <20050515101705.GC26242@wotan.suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 16 May 2005 11:35:04 -0400
+Received: from yue.linux-ipv6.org ([203.178.140.15]:42509 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261713AbVEPPeL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 11:34:11 -0400
+Date: Tue, 17 May 2005 00:37:01 +0900 (JST)
+Message-Id: <20050517.003701.96868957.yoshfuji@linux-ipv6.org>
+To: william@erg.abdn.ac.uk
+Cc: linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
+Subject: Re: UDP-Lite Patch for linux kernel 2.6.11.x
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <200505161505.j4GF5tAY026358@erg.abdn.ac.uk>
+References: <200505161505.j4GF5tAY026358@erg.abdn.ac.uk>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
->>Will this mean that Linux will have a monotonic time source?
-> 
-> 2.6 has had one for a long time (posix_gettime(CLOCK_MONOTONIC))
+In article <200505161505.j4GF5tAY026358@erg.abdn.ac.uk> (at Mon, 16 May 2005 16:05:47 +0100), "William StanisLaus" <william@erg.abdn.ac.uk> says:
 
-I think that's clock_gettime(), no?
+> Please take a look at UDP-Lite document @
+> http://www.erg.abdn.ac.uk/users/william/udp-lite/Linux%20Kernel%20Update%20f
+> or%20UDPLite%20protocol.doc
 
-Chris
+Grr, why doc...
+
+UDP-Lite is SOCK_DGRAM, not SOCK_LDGRAM.
+And, It is almost duplicate of UDP code.
+I think it is much better to share code.
+Please avoid cosmetic changes.
+
+BTW, what's happened with checksum offloading?
+
+--yoshfuji

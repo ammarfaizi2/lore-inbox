@@ -1,50 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261741AbVEPQqW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261745AbVEPQrv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261741AbVEPQqW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 12:46:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbVEPQqW
+	id S261745AbVEPQrv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 12:47:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261747AbVEPQru
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 12:46:22 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:11420 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261741AbVEPQqU (ORCPT
+	Mon, 16 May 2005 12:47:50 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:61607 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261745AbVEPQre (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 12:46:20 -0400
-Message-ID: <4288CE51.1050703@pobox.com>
-Date: Mon, 16 May 2005 12:46:09 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
+	Mon, 16 May 2005 12:47:34 -0400
+Date: Mon, 16 May 2005 09:47:08 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       shai@scalex86.org, steiner@sgi.com
+Subject: Re: NUMA aware slab allocator V3
+In-Reply-To: <1116251568.1005.29.camel@localhost>
+Message-ID: <Pine.LNX.4.62.0505160943140.1330@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com> 
+ <20050512000444.641f44a9.akpm@osdl.org>  <Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com>
+  <20050513000648.7d341710.akpm@osdl.org>  <Pine.LNX.4.58.0505130411300.4500@schroedinger.engr.sgi.com>
+  <20050513043311.7961e694.akpm@osdl.org>  <Pine.LNX.4.62.0505131823210.12315@schroedinger.engr.sgi.com>
+ <1116251568.1005.29.camel@localhost>
 MIME-Version: 1.0
-To: Grant Grundler <grundler@parisc-linux.org>
-CC: akpm@osdl.org, T-Bone@parisc-linux.org, varenet@parisc-linux.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Netdev <netdev@oss.sgi.com>
-Subject: Re: patch tulip-natsemi-dp83840a-phy-fix.patch added to -mm tree
-References: <200505101955.j4AJtX9x032464@shell0.pdx.osdl.net> <42881C58.40001@pobox.com> <20050516050843.GA20107@colo.lackof.org>
-In-Reply-To: <20050516050843.GA20107@colo.lackof.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Simply ensure that tulip_select_media() is always called from a process 
-context. Then can you delay all you want.  Several of the calls are 
-already this way, so that leaves two cases:
+On Mon, 16 May 2005, Dave Hansen wrote:
 
-1) called from timer context, from the media poll timer
+> There are some broken assumptions in the kernel that
+> CONFIG_DISCONTIG==CONFIG_NUMA.  These usually manifest when code assumes
+> that one pg_data_t means one NUMA node.
+> 
+> However, NUMA node ids are actually distinct from "discontigmem nodes".
+> A "discontigmem node" is just one physically contiguous area of memory,
+> thus one pg_data_t.  Some (non-NUMA) Mac G5's have a gap in their
+> address space, so they get two discontigmem nodes.
 
-2) called from spin_lock_irqsave() context, in the ->tx_timeout hook.
+I thought the discontigous memory in one node was handled through zones? 
+I.e. ZONE_HIGHMEM in i386?
 
-The first case can be fixed by moved all the timer code to a workqueue. 
-  Then when the existing timer fires, kick the workqueue.
+> So, that #error is bogus.  It's perfectly valid to have multiple
+> discontigmem nodes, when the number of NUMA nodes is 1.  MAX_NUMNODES
+> refers to discontigmem nodes, not NUMA nodes.
 
-The second case can be fixed by kicking the workqueue upon tx_timeout 
-(which is the reason why I did not suggest queue_delayed_work() use).
+Ok. We looked through the code and saw that the check may be removed 
+without causing problems. However, there is still a feeling of uneasiness 
+about this.
 
-See, it's not rocket science :)
-
-	Jeff
-
-
-
+To what node does numa_node_id() refer? And it is legit to use 
+numa_node_id() to index cpu maps and stuff? How do the concepts of numa 
+node id relate to discontig node ids?

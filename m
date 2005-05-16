@@ -1,83 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbVEPOsl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbVEPOwk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261668AbVEPOsl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 10:48:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261669AbVEPOsl
+	id S261674AbVEPOwk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 10:52:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbVEPOwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 10:48:41 -0400
-Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:34208 "EHLO
-	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
-	id S261668AbVEPOsg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 10:48:36 -0400
-Date: Mon, 16 May 2005 16:48:31 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org
-Subject: Re: Linux does not care for data integrity (was: Disk write cache)
-Message-ID: <20050516144831.GA949@merlin.emma.line.org>
-Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0505151657230.19181@artax.karlin.mff.cuni.cz> <200505151121.36243.gene.heskett@verizon.net> <20050515152956.GA25143@havoc.gtf.org> <20050516.012740.93615022.okuyamak@dd.iij4u.or.jp> <42877C1B.2030008@pobox.com> <20050516110203.GA13387@merlin.emma.line.org> <1116241957.6274.36.camel@laptopd505.fenrus.org> <20050516112956.GC13387@merlin.emma.line.org> <1116252157.6274.41.camel@laptopd505.fenrus.org>
+	Mon, 16 May 2005 10:52:38 -0400
+Received: from [80.247.74.3] ([80.247.74.3]:9874 "EHLO tavolara.isolaweb.it")
+	by vger.kernel.org with ESMTP id S261670AbVEPOu6 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 10:50:58 -0400
+Message-Id: <6.2.1.2.2.20050516164236.05922a30@mail.tekno-soft.it>
+X-Mailer: QUALCOMM Windows Eudora Version 6.2.1.2
+Date: Mon, 16 May 2005 16:50:55 +0200
+To: Eric Dumazet <dada1@cosmosbay.com>
+From: Roberto Fichera <kernel@tekno-soft.it>
+Subject: Re: How to use memory over 4GB
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <4288AB6A.3060106@cosmosbay.com>
+References: <6.2.1.2.2.20050516142516.0313e860@mail.tekno-soft.it>
+ <428898CF.5060908@cosmosbay.com>
+ <6.2.1.2.2.20050516151659.077cceb0@mail.tekno-soft.it>
+ <4288AB6A.3060106@cosmosbay.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1116252157.6274.41.camel@laptopd505.fenrus.org>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset="iso-8859-1"; format=flowed
+Content-Transfer-Encoding: 8BIT
+X-IsolaWeb-MailScanner-Information: Please contact the ISP for more information
+X-IsolaWeb-MailScanner: Found to be clean
+X-MailScanner-From: kernel@tekno-soft.it
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 May 2005, Arjan van de Ven wrote:
+At 16.17 16/05/2005, Eric Dumazet wrote:
 
-> > See the problem: "I assume", "IIRC selected...". There is no
-> > list of corroborated facts which systems work and which don't. I have
-> > made several attempts in compiling one, posting public calls for data
-> > here, no response.
-> 
-> well what stops you from building that list yourself by doing the actual
-> work yourself?
+>Roberto Fichera a écrit :
+>
+>>
+>>>But still you need a 4GB/4GB user/kernel split, because the standard is 
+>>>3GB/1GB.
+>>
+>>Why I need 4GB/4GB split? What are the beneficts?
+>
+>Well... 4GB for your process is better than 3GB, that's 33% more space...
 
-Two things.
+Right! So, the 4GB/4GB split and tmpfs pair should be the best solution to
+address as much memory possible on a single user process.
 
-#1 it's the subsystem maintainer's responsibility to arrange for such
-information. I searched Documentation/* to no avail, see below.
+>If your process is cpu bounded (and not issuing too many system calls),
+>then 4GB/4GB split let it address more ram, reducing the need to shift 
+>windows in
+>mmaped files for example.
 
-#2 That I would need to get acquainted with and understand several dozen
-subsystems, drivers and so on to be able to make a substantiated
-statement.
+... any source code that explain better what you say ;-)!
 
-Subsystem maintainers will usually know the shape their code is in and
-just need to state "not yet", "not planned", "not needed, different
-layer", "work in progress" or "working since kernel version 2.6.42".
 
-Takes a minute per maintainer, rather than wasting countless hours on
-working through foreign code only to forget all this after I know what I
-wanted to know. Sounds like an unreasonable expectation? Not to me. I
-had hoped, several times, that asking here would give the first dozen of
-answers as a starting point.
+>Eric
+>
 
-It's not as though I could go forth and just take two weeks off a shelf
-and read all common block devices code...
+Roberto Fichera. 
 
-I still have insufficient information even for ext3 on traditional
-parallel ATA interfaces, so how do I start a list without information?
-
-$ cd linux-2.6/Documentation/
-$ find -iname '*barr*'
-./arm/Sharp-LH/IOBarrier
-$ head -4 ../Makefile
-VERSION = 2
-PATCHLEVEL = 6
-SUBLEVEL = 11
-EXTRAVERSION = .9
-$
-
-Documentation/block/biodoc.txt has some information about how it could
-look like two years from now. filesystems/ext3 mentions it requires a
-barrier=1 mount option. No information what block interfaces support it.
-
-AIC7XXX was once reported to have it, experimentally, I don't know what
-has become of the code, and I don't have AIC7XXX here, too expensive.
-
--- 
-Matthias Andree

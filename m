@@ -1,56 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261881AbVEPVNk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbVEPVNl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261881AbVEPVNk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 17:13:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbVEPVNP
+	id S261879AbVEPVNl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 17:13:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbVEPVNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 17:13:15 -0400
-Received: from serv01.siteground.net ([70.85.91.68]:9912 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S261881AbVEPVKX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 17:10:23 -0400
-Date: Mon, 16 May 2005 13:12:11 -0700 (PDT)
-From: christoph <christoph@scalex86.org>
-X-X-Sender: christoph@ScMPusgw
-To: Dave Hansen <haveblue@us.ibm.com>
-cc: linux-mm <linux-mm@kvack.org>, shai@scalex86.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Factor in buddy allocator alignment requirements in node
- memory alignment
-In-Reply-To: <1116277014.1005.113.camel@localhost>
-Message-ID: <Pine.LNX.4.62.0505161308010.25748@ScMPusgw>
-References: <Pine.LNX.4.62.0505161204540.4977@ScMPusgw> 
- <1116274451.1005.106.camel@localhost>  <Pine.LNX.4.62.0505161240240.13692@ScMPusgw>
-  <1116276439.1005.110.camel@localhost>  <Pine.LNX.4.62.0505161253090.20839@ScMPusgw>
- <1116277014.1005.113.camel@localhost>
+	Mon, 16 May 2005 17:13:07 -0400
+Received: from sccrmhc14.comcast.net ([204.127.202.59]:11151 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S261879AbVEPVLB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 17:11:01 -0400
+From: Jesse Barnes <jbarnes@virtuousgeek.org>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Subject: Re: NUMA aware slab allocator V3
+Date: Mon, 16 May 2005 14:10:43 -0700
+User-Agent: KMail/1.8
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com> <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com> <714210000.1116266915@flay>
+In-Reply-To: <714210000.1116266915@flay>
+Cc: Christoph Lameter <clameter@engr.sgi.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Andy Whitcroft <apw@shadowen.org>,
+       Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       shai@scalex86.org, steiner@sgi.com
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505161410.43382.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 May 2005, Dave Hansen wrote:
+On Monday, May 16, 2005 11:08 am, Martin J. Bligh wrote:
+> > I have never seen such a machine. A SMP machine with multiple
+> > "nodes"? So essentially one NUMA node has multiple discontig
+> > "nodes"?
+>
+> I believe you (SGI) make one ;-) Anywhere where you have large gaps
+> in the physical address range within a node, this is what you really
+> need. Except ia64 has this wierd virtual mem_map thing that can go
+> away once we have sparsemem.
 
-> > > Do you know which pieces of code actually break if the alignment doesn't
-> > > meet what that warning says?
-> > 
-> > I have seen nothing break but 4 MB allocations f.e. will not be allocated 
-> > on a 4MB boundary with a 2 MB zone alignment. The page allocator always 
-> > returnes properly aligned pages but 4MB allocations are an exception? 
-> 
-> I wasn't aware there was an alignment exception in the allocator for 4MB
-> pages.  Could you provide some examples?
+Right, the SGI boxes have discontiguous memory within a node, but it's 
+not represented by pgdats (like you said, one 'virtual memmap' spans 
+the whole address space of a node).  Sparse can help simplify this 
+across platforms, but has the potential to be more expensive for 
+systems with dynamically sized holes, due to the additional calculation 
+and potential cache miss associated with indexing into the correct 
+memmap (Dave can probably correct me here, it's been awhile).  With a 
+virtual memmap, you only occasionally take a TLB miss on the struct 
+page access after indexing into the array.
 
-I never said that there was an aligment exception. The special case for 
-4MB pages is created by the failure to properly align the zones in 
-discontig.c.
+> The end point of where we're getting to is 1 node = 1 pgdat (which we
+> can then rename to struct node or something). All this confusing mess
+> of config options is just a migration path, which I'll leave it to
+> Andy to explain ;-)
 
-But may be that is okay? Then we just need to remove the lines that 
-detect the misalignment in the page allocator.
+Yes!
+
+> No, it's a discontigmem screwup. Currently a pgdat represents 2
+> different scenarios:
+>
+> (1) physically discontiguous memory chunk.
+> (2) a NUMA node.
+>
+> I don't think we support both at the same time with the old code. So
+> it seems to me like your numa aware slab code (which I'm still
+> intending to go read, but haven't yet) is only interested in real
+> nodes. Logically speaking, that would be CONFIG_NUMA. The current
+> transition config options are a bit of a mess ... Andy, I presume
+> CONFIG_NEED_MULTIPLE_NODES is really CONFIG_NEED_MULTIPLE_PGDATS ?
+
+Yeah, makes sense for the NUMA aware slab allocator to depend on 
+CONFIG_NUMA.
+
+Jesse

@@ -1,119 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbVEPPH6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVEPPGa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbVEPPH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 11:07:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbVEPPH5
+	id S261676AbVEPPGa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 11:06:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbVEPPEB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 11:07:57 -0400
-Received: from iai.speak-friend.de ([62.75.222.128]:65156 "EHLO
-	iai.speak-friend.de") by vger.kernel.org with ESMTP id S261680AbVEPPFo
+	Mon, 16 May 2005 11:04:01 -0400
+Received: from mail.dif.dk ([193.138.115.101]:64192 "EHLO saerimmer.dif.dk")
+	by vger.kernel.org with ESMTP id S261680AbVEPO7z convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 11:05:44 -0400
-From: Christian Parpart <trapni@gentoo.org>
-Organization: Gentoo Linux Foundation
-To: Brian Gerst <bgerst@didntduck.org>
-Subject: Re: I'm having 4GB RAM, but Linux sees just 3GB???
-Date: Mon, 16 May 2005 17:01:04 +0200
-User-Agent: KMail/1.8
+	Mon, 16 May 2005 10:59:55 -0400
+Date: Mon, 16 May 2005 17:03:56 +0200 (CEST)
+From: Jesper Juhl <juhl-lkml@dif.dk>
+To: =?iso-8859-1?Q?Gr=E9goire?= Favre <gregoire.favre@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-References: <200505161604.10881.trapni@gentoo.org> <4288B1BC.5050207@didntduck.org>
-In-Reply-To: <4288B1BC.5050207@didntduck.org>
-X-Face: $-3HTEy*5}2A{'R'VPim$,8KKX$l|:P^RhP{;yQ)g;]4isyohrOfk\)=?utf-8?q?Q=2Ep=23F3RWB=7D!m=24zn=0A=097=5CPUKBYRKDFUU=3A=5CZ+U=5Fa-/=5BhI?=
- =?utf-8?q?8DJZ?="WPC2j~}(N."(JB&VNb}kU&`>
- =?utf-8?q?9=3B=5FN=3BfnM=7BD=7B8=2EI+5=0A=09dg=60p=5EQ?=(:yE{eVgArPf190vEkbGis0vx];"
- =?utf-8?q?1O!L=7ByKN4J=5B4=27=7E=7Eh+o+=7D=2EgzkmqNs=60=7D=7C0uq8a=0A=09?=
- =?utf-8?q?=25WQg=3F=3D=25y7X74tMWEkL=5DQQ?=(_Yc"m*aC+HD%!,6/k>L7S%'<}_B2&cI}/W(p+;rJ%2`0A<)
- =?utf-8?q?F=0A=09P7P=2E=60=3Dy=7C=7DU=7E=3F!?=<z?6Bj!TDP-w|q0K<{P)%u~}q3&#|Zh)Fa]!D8t
+Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
+In-Reply-To: <20050516085832.GA9558@gmail.com>
+Message-ID: <Pine.LNX.4.62.0505161701410.2390@dragon.hyggekrogen.localhost>
+References: <20050516085832.GA9558@gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1392062.OW0lcv92zF";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200505161701.06558.trapni@gentoo.org>
+Content-Type: TEXT/PLAIN; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1392062.OW0lcv92zF
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Mon, 16 May 2005, Grégoire Favre wrote:
 
-On Monday 16 May 2005 4:44 pm, Brian Gerst wrote:
-> Christian Parpart wrote:
-> > Hi all,
-> >
-> > I was asking this in gentoo-server mailing list before, however, they
-> > finally pointed me to this place as it could also be a bug in the kerne=
-l.
-> >
-> > I'm having a TYAN board with two AMD Opteron 248 and 4x 1GB ECC RAM on
-> > it. The BIOS reflects what I've plugged in, however, the operating syst=
-em
-> > does not.
-> >
-> > my `uname -a` output is:
-> > Linux battousai 2.6.11-gentoo-r8 #1 SMP Sat May 14 02:42:15 CEST 2005
-> > x86_64 AMD Opteron(tm) Processor 248 AuthenticAMD GNU/Linux
-> >
-> > and my `dmidecode` output is located at [0]. For ANY reason, dmidecode
-> > even knows about my 4GB RAM, but `free -m` nor `kinfocenter` of KDE
-> > claims to see just 3GB.
-> >
-> > free -m:
-> >              total       used       free     shared    buffers     cach=
-ed
-> > Mem:          3015       2993         22          0         15       26=
-38
-> > -/+ buffers/cache:        338       2677
-> > Swap:          511          1        510
-> >
-> > This is rather sad to see 1GB RAM plugged in for nothing.
-> >
-> > Has anyone a hint for my WHY this is happening and HOW I could get rid =
-of
-> > it?
-> >
-> > Thanks in advance,
-> > Christian Parpart.
-> >
-> > [0] http://dev.gentoo.org/~trapni/dmidecode.txt
->
-> Are you running a 64-bit kernel?  What does "dmesg | grep e820" show?
+> Hello,
+> 
+> as I reported in
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=111554477416794&w=2
+> 
+> I have lots of problem with aic7xxx (and till 2.6.12-rc2 everything
+> works perfectly). I have tried to compil 2.6.12-rc4-mm1 without probe
+> all Lun and it don't change anything at all to this problem.
+> 
+> I have two different controllers :
+> 
+> 0000:00:05.0 SCSI storage controller: Adaptec AIC-7892A U160/m (rev 02)
+> 0000:00:0a.0 SCSI storage controller: Adaptec AHA-2940U/UW/D / AIC-7881U
+> 
+> And I also use libsata.
+> 
+> Anyone got an idea on what's going wrong ?
+> 
+Not me, it works perfectly here, but then I have different hardware (but 
+using the aic7xxx driver).
 
- BIOS-e820: 0000000000000000 - 0000000000094800 (usable)
- BIOS-e820: 0000000000094800 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000c2000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 00000000bff20000 (usable)
- BIOS-e820: 00000000bff20000 - 00000000bff2e000 (ACPI data)
- BIOS-e820: 00000000bff2e000 - 00000000bff80000 (ACPI NVS)
- BIOS-e820: 00000000bff80000 - 00000000c0000000 (reserved)
- BIOS-e820: 00000000e0000000 - 00000000f0000000 (reserved)
- BIOS-e820: 00000000fec00000 - 00000000fec00400 (reserved)
- BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
- BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
+Here's what 2.6.12-rc4-mm1 has to say about my devices : 
 
-hmm... what does this mean?
+[   33.618922] scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
+[   33.618925]         <Adaptec 29160N Ultra160 SCSI adapter>
+[   33.618927]         aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
+[   33.618930]
+[   49.640570] (scsi0:A:4:0): refuses WIDE negotiation.  Using 8bit transfers
+[   49.644190]   Vendor: PIONEER   Model: DVD-ROM DVD-305   Rev: 1.03
+[   49.646714]   Type:   CD-ROM                             ANSI SCSI revision: 02
+[   49.649172]  target0:0:4: Beginning Domain Validation
+[   49.651858] (scsi0:A:4:0): refuses WIDE negotiation.  Using 8bit transfers
+[   49.657561]  target0:0:4: Domain Validation skipping write tests
+[   49.660414] (scsi0:A:4): 20.000MB/s transfers (20.000MHz, offset 16)
+[   49.665476]  target0:0:4: Ending Domain Validation
+[   49.673599]   Vendor: PLEXTOR   Model: CD-R   PX-W1210S  Rev: 1.01
+[   49.676263]   Type:   CD-ROM                             ANSI SCSI revision: 02
+[   49.678814]  target0:0:5: Beginning Domain Validation
+[   49.683510]  target0:0:5: Domain Validation skipping write tests
+[   49.686322] (scsi0:A:5): 20.000MB/s transfers (20.000MHz, offset 16)
+[   49.690423]  target0:0:5: Ending Domain Validation
+[   49.694849]   Vendor: IBM       Model: DDYS-T36950N      Rev: S96H
+[   49.697572]   Type:   Direct-Access                      ANSI SCSI revision: 03
+[   49.700193] scsi0:A:6:0: Tagged Queuing enabled.  Depth 250
+[   49.702793]  target0:0:6: Beginning Domain Validation
+[   49.708229] WIDTH IS 1
+[   49.711280] (scsi0:A:6): 6.600MB/s transfers (16bit)
+[   49.718361] (scsi0:A:6): 80.000MB/s transfers (40.000MHz, offset 63, 16bit)
+[   49.730609]  target0:0:6: Ending Domain Validation
+[   51.784340] SCSI device sda: 71687340 512-byte hdwr sectors (36704 MB)
+[   51.788211] SCSI device sda: drive cache: write back
+[   51.791748] SCSI device sda: 71687340 512-byte hdwr sectors (36704 MB)
+[   51.795598] SCSI device sda: drive cache: write back
+[   51.798176]  sda: sda1 sda2 sda3 sda4
+[   51.817055] Attached scsi disk sda at scsi0, channel 0, id 6, lun 0
+[   51.821630] sr0: scsi3-mmc drive: 16x/40x cd/rw xa/form2 cdda tray
+[   51.824276] Uniform CD-ROM driver Revision: 3.20
+[   51.826937] Attached scsi CD-ROM sr0 at scsi0, channel 0, id 4, lun 0
+[   51.831792] sr1: scsi3-mmc drive: 32x/32x writer cd/rw xa/form2 cdda tray
+[   51.834486] Attached scsi CD-ROM sr1 at scsi0, channel 0, id 5, lun 0
 
-Well, yeah, the whole system is 64bit compiled.
 
-Regards,
-Christian Parpart.
+--
+Jesper Juhl
 
-=2D-=20
-Netiquette: http://www.ietf.org/rfc/rfc1855.txt
- 17:00:30 up 54 days,  6:06,  0 users,  load average: 0.64, 0.45, 0.46
 
---nextPart1392062.OW0lcv92zF
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCiLWyPpa2GmDVhK0RAplmAJ9WI94I1FwS0fyx7rWaFYH7nX64QwCfdbAk
-5VJyfPcgzmojlKOPgIpDowE=
-=s4l2
------END PGP SIGNATURE-----
-
---nextPart1392062.OW0lcv92zF--

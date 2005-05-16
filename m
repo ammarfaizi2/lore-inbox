@@ -1,61 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbVEPRkJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261506AbVEPRmB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261536AbVEPRkJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 13:40:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVEPRkI
+	id S261506AbVEPRmB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 13:42:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVEPRkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 13:40:08 -0400
-Received: from rproxy.gmail.com ([64.233.170.207]:58817 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261477AbVEPRjK (ORCPT
+	Mon, 16 May 2005 13:40:36 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:64427 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261506AbVEPRi6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 13:39:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=j6JPjOqnKuIROoSnpfYsLMVDfQn6VU25MAHPbdDhHQb1P7PTeKDOL4ndpvgFbz1heTW7XJLAb3edYGDEMWKV3c7cSYZVcAX+vFvDVCT6TTyt8x9pPO7wbo67ZzKr5ESU1TfGad7nERBkek74Iw+2yw87U2rvPGcmrTOuqOx2OLY=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Danny ter Haar <dth@picard.cistron.nl>
-Subject: Re: 2.6.12-rc4-mm2
-Date: Mon, 16 May 2005 21:43:07 +0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <20050516021302.13bd285a.akpm@osdl.org> <200505161615.50884.adobriyan@gmail.com> <d6ak89$vr8$1@news.cistron.nl>
-In-Reply-To: <d6ak89$vr8$1@news.cistron.nl>
+	Mon, 16 May 2005 13:38:58 -0400
+Date: Mon, 16 May 2005 12:33:06 -0500 (CDT)
+From: Kylene Hall <kjhall@us.ibm.com>
+X-X-Sender: kjhall@localhost.localdomain
+To: Andrew Morton <akpm@osdl.org>
+cc: greg@kroah.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] tpm: improve output in sysfs files when the TPM fails
+In-Reply-To: <20050513223003.4f9dc539.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.62.0505161230240.6712@localhost.localdomain>
+References: <Pine.LNX.4.62.0505121717240.11837@localhost.localdomain>
+ <20050512225541.GA29958@kroah.com> <Pine.LNX.4.62.0505131422350.13489@localhost.localdomain>
+ <20050513223003.4f9dc539.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505162143.08155.adobriyan@gmail.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 16 May 2005 21:11, Danny ter Haar wrote:
-> Alexey Dobriyan  <adobriyan@gmail.com> wrote:
-> >> Alexey Dobriyan  <adobriyan@gmail.com> wrote:
-> >> >Does this help?
-> >> Nope, (unfortunatly)
-> >Please, try this.
-> 
-> [Patch #2 applied]
-> 
-> Still not succesful..
-> 
-> Error is at
-> http://newsgate.newsserver.nl/kernel/2.6.12-rc4-mm2-patch%232-error-out.txt
+On Fri, 13 May 2005, Andrew Morton wrote:
 
-Urgh... ACPI uses catch-all header file.
+> Kylene Hall <kjhall@us.ibm.com> wrote:
+> >
+> >  On Thu, 12 May 2005, Greg KH wrote:
+> >  > On Thu, May 12, 2005 at 05:20:22PM -0500, Kylene Hall wrote:
+> >  > > When the TPM is in a disabled or deactivated state the sysfs pcrs and 
+> >  > > pubek files will appear empty.  To remove any confusion this might cause, 
+> >  > > the files will instead contain the error the TPM returned (also indicative 
+> >  > > of what state the TPM is in and what actions might be needed to change 
+> >  > > that state).
+> >  > 
+> >  > No, sysfs files are not error logs.  Please use the standard system wide
+> >  > error log for this (syslog).
+> >  > 
+> >  > Why not just change the mode of the sysfs file instead, or delete it
+> >  > entirely in this case?
+> > 
+> >  Ok, instead of putting error information in the sysfs file this new patch 
+> >  will put an error entry in syslog.  The sysfs files can't easily be 
+> >  removed in these cases as the driver does not know this information and it 
+> >  can be changed by commands sent to the TPM from userspace.
+> 
+> Will this change permit unprivileged users to create large amounts of
+> syslog output?  If so, this is considered poor form.
+> 
+> IOW: please confirm that the relevant sysfs files are root-read-only?
+> 
+> 
 
-If this won't work, I'll get a cross-compiler.
+Please back this patch out since it is undesirable to use the sysfs 
+file or syslog for the error reporting for various reasons and is 
+desirable to keep the files not root-read-only.  The status of the TPM can 
+be gleaned from other sources.
 
---- linux-2.6.12-rc4-mm2/arch/x86_64/kernel/time.c	2005-05-16 21:38:04.000000000 +0400
-+++ linux-2.6.12-rc4-mm2-acpi/arch/x86_64/kernel/time.c	2005-05-16 21:38:49.000000000 +0400
-@@ -27,7 +27,7 @@
- #include <linux/bcd.h>
- #include <linux/kallsyms.h>
- #include <linux/acpi.h>
--#include <acpi/achware.h>	/* for PM timer frequency */
-+#include <acpi/acpi.h>
- #include <asm/8253pit.h>
- #include <asm/pgtable.h>
- #include <asm/vsyscall.h>
+Thanks,
+Kylie  

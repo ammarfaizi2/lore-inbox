@@ -1,49 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261713AbVEPPfF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261726AbVEPPkj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261713AbVEPPfF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 11:35:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbVEPPfE
+	id S261726AbVEPPkj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 11:40:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVEPPjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 11:35:04 -0400
-Received: from yue.linux-ipv6.org ([203.178.140.15]:42509 "EHLO
-	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261713AbVEPPeL
+	Mon, 16 May 2005 11:39:46 -0400
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:54433 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S261717AbVEPPi5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 11:34:11 -0400
-Date: Tue, 17 May 2005 00:37:01 +0900 (JST)
-Message-Id: <20050517.003701.96868957.yoshfuji@linux-ipv6.org>
-To: william@erg.abdn.ac.uk
-Cc: linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
-Subject: Re: UDP-Lite Patch for linux kernel 2.6.11.x
-From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
-	<yoshfuji@linux-ipv6.org>
-In-Reply-To: <200505161505.j4GF5tAY026358@erg.abdn.ac.uk>
-References: <200505161505.j4GF5tAY026358@erg.abdn.ac.uk>
-Organization: USAGI Project
-X-URL: http://www.yoshifuji.org/%7Ehideaki/
-X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
-X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
-X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
- $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
-X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Mon, 16 May 2005 11:38:57 -0400
+X-ORBL: [69.107.61.180]
+From: David Brownell <david-b@pacbell.net>
+Subject: Fwd: ANNOUNCE:  usbutils 0.71
+Date: Mon, 16 May 2005 08:38:55 -0700
+User-Agent: KMail/1.7.1
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505160838.56045.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <200505161505.j4GF5tAY026358@erg.abdn.ac.uk> (at Mon, 16 May 2005 16:05:47 +0100), "William StanisLaus" <william@erg.abdn.ac.uk> says:
 
-> Please take a look at UDP-Lite document @
-> http://www.erg.abdn.ac.uk/users/william/udp-lite/Linux%20Kernel%20Update%20f
-> or%20UDPLite%20protocol.doc
 
-Grr, why doc...
+----------  Forwarded Message  ----------
 
-UDP-Lite is SOCK_DGRAM, not SOCK_LDGRAM.
-And, It is almost duplicate of UDP code.
-I think it is much better to share code.
-Please avoid cosmetic changes.
+Subject: ANNOUNCE:  usbutils 0.71
+Date: Monday 16 May 2005 8:36 am
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
 
-BTW, what's happened with checksum offloading?
+A new version of "usbutils" is available from the linux-usb download
+area at SourceForge.net:
 
---yoshfuji
+  http://sourceforge.net/project/showfiles.php?group_id=3581&package_id=142529
+
+Changes in the 4+ months since version 0.70 are primarily small bugfixes
+and cleanups, plus parsing for some more CDC class descriptors.  ChangeLog
+entries are below.
+
+Thanks to those of you who've contributed patches (see below), Stephen
+Gowdy (helping maintain that download area), and Vojtech Pavlik (for
+maintaining the usb.ids file).
+
+- Dave
+
+
+
+
+2005-05-14 David Brownell <dbrownell nospam users.sourceforge.net>
+        Label as version 0.71
+        * usb.ids: update to current version
+
+2005-05-13 Toby Ernst <tee nospam sgi.com>
+        * lsusb.c: /proc/bus/usb/BBB/DDD numbers are decimal not octal
+        * lsusb.8: ditto
+
+2005-04-29 Olaf Hering <olh nospam suse.de>
+        * lsusb.c: fix some compiler warnings
+
+2005-04-14 David Brownell <dbrownell nospam users.sourceforge.net>
+        * lsusb.c: add some more CDC WHCM dumping, matching a Sony 3G phone
+
+2005-03-28 Aurelien Jarno <aurelien nospam aurel32.net>
+        * lsusb.c: disallow decimal product and vendor codes (hex only)
+
+2005-03-05 David Brownell <dbrownell nospam users.sourceforge.net>
+        * lsusb.c: add basic CDC MDLM dumping, to cope with new CDC
+          conformance lies from a Zaurus C-860
+
+2005-02-11 Thierry Vignaud <tvignaud nospam mandrakesoft.com>
+        * usbmodules.8: fix --device /proc/usb/usb/BBB/DDD typo
+
+2005-02-02 David Brownell <dbrownell nospam users.sourceforge.net>
+        * configure.in: fix typo, recommend libusb 0.1.8 not 1.8
+
+2005-01-30 David Brownell <dbrownell nospam users.sourceforge.net>
+        Fix some more warnings reported by Aurelian, and configure
+        gcc for "-W -Wunused" to discourage more from appearing.
+
+2005-01-27 Aurelien Jarno <aurelien nospam aurel32.net>
+        Fix "configure --enable-usbmodules" glitch, and remove
+        some warnings reported by GCC 4.0 (and "gcc -Wall -W").
+
+
+
+-------------------------------------------------------

@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVEPDIN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbVEPDRh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbVEPDIN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 15 May 2005 23:08:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVEPDIN
+	id S261257AbVEPDRh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 15 May 2005 23:17:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVEPDRd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 15 May 2005 23:08:13 -0400
-Received: from vms048pub.verizon.net ([206.46.252.48]:65494 "EHLO
-	vms048pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261256AbVEPDIG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 15 May 2005 23:08:06 -0400
-Date: Sun, 15 May 2005 23:08:04 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Disk write cache (Was: Hyper-Threading Vulnerability)
-In-reply-to: <42880620.8000300@rtr.ca>
-To: linux-kernel@vger.kernel.org
-Message-id: <200505152308.04960.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <1115963481.1723.3.camel@alderaan.trey.hu>
- <200505152156.18194.gene.heskett@verizon.net> <42880620.8000300@rtr.ca>
-User-Agent: KMail/1.7
+	Sun, 15 May 2005 23:17:33 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:61849 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261257AbVEPDRb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 15 May 2005 23:17:31 -0400
+Message-ID: <428810C3.3060308@pobox.com>
+Date: Sun, 15 May 2005 23:17:23 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] hp100: fix card names
+References: <20050421111541.GA24697@elf.ucw.cz>
+In-Reply-To: <20050421111541.GA24697@elf.ucw.cz>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 15 May 2005 22:32, Mark Lord wrote:
-> >took place on another list, and wrote a test gizmo that copied a
-> >large file, then slept for 1 second and issued a sync command.  No
-> >drive led activity until the usual 5 second delay of the
-> > filesystem had expired.  To me, that indicated that the sync
-> > command was being
->
->There's your clue.  The drive LEDs normally reflect activity
->over the ATA bus (the cable!). If they're not on, then the drive
->isn't receiving data/commands from the host.
->
->Cheers
+Pavel Machek wrote:
+> Those cards really need A in their names. Otherwise it is pretty hard
+> to find anything about them on the net.
+> 
+> Signed-off-by: Pavel Machek <pavel@suse.cz>
+> 
+> --- clean/drivers/net/hp100.c	2005-03-03 12:34:19.000000000 +0100
+> +++ linux/drivers/net/hp100.c	2005-03-22 12:20:53.000000000 +0100
+> @@ -13,8 +13,8 @@
+>  ** This driver has only been tested with
+>  ** -- HP J2585B 10/100 Mbit/s PCI Busmaster
+>  ** -- HP J2585A 10/100 Mbit/s PCI 
+> -** -- HP J2970  10 Mbit/s PCI Combo 10base-T/BNC
+> -** -- HP J2973  10 Mbit/s PCI 10base-T
+> +** -- HP J2970A 10 Mbit/s PCI Combo 10base-T/BNC
+> +** -- HP J2973A 10 Mbit/s PCI 10base-T
 
-That was my theory too Mark, but Jeff G. says its not a valid 
-indicator.  So who's right?
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.34% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+OK, but failed to apply.
+
+

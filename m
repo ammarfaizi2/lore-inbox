@@ -1,99 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261798AbVEPSPR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbVEPSOU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbVEPSPR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 14:15:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbVEPSOv
+	id S261802AbVEPSOU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 14:14:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbVEPSM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 14:14:51 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:23233 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261780AbVEPSMo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 14:12:44 -0400
-Subject: Re: NUMA aware slab allocator V3
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       shai@scalex86.org, steiner@sgi.com
-In-Reply-To: <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>
-	 <20050512000444.641f44a9.akpm@osdl.org>
-	 <Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com>
-	 <20050513000648.7d341710.akpm@osdl.org>
-	 <Pine.LNX.4.58.0505130411300.4500@schroedinger.engr.sgi.com>
-	 <20050513043311.7961e694.akpm@osdl.org>
-	 <Pine.LNX.4.62.0505131823210.12315@schroedinger.engr.sgi.com>
-	 <1116251568.1005.29.camel@localhost>
-	 <Pine.LNX.4.62.0505160943140.1330@schroedinger.engr.sgi.com>
-	 <1116264135.1005.73.camel@localhost>
-	 <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Date: Mon, 16 May 2005 11:12:29 -0700
-Message-Id: <1116267149.1005.85.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+	Mon, 16 May 2005 14:12:28 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:1180 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261786AbVEPSLZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 14:11:25 -0400
+Date: Mon, 16 May 2005 11:09:05 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: john stultz <johnstul@us.ibm.com>
+cc: lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
+       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <darren@dvhart.com>,
+       "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org, linux-ia64@vger.kernel.org
+Subject: Re: IA64 implementation of timesource for new time of day subsystem
+In-Reply-To: <1116264858.26990.39.camel@cog.beaverton.ibm.com>
+Message-ID: <Pine.LNX.4.62.0505161100240.1653@schroedinger.engr.sgi.com>
+References: <1116029796.26454.2.camel@cog.beaverton.ibm.com> 
+ <1116029872.26454.4.camel@cog.beaverton.ibm.com>  <1116029971.26454.7.camel@cog.beaverton.ibm.com>
+  <1116030058.26454.10.camel@cog.beaverton.ibm.com> 
+ <1116030139.26454.13.camel@cog.beaverton.ibm.com> 
+ <Pine.LNX.4.62.0505141251490.18681@schroedinger.engr.sgi.com>
+ <1116264858.26990.39.camel@cog.beaverton.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-05-16 at 10:54 -0700, Christoph Lameter wrote:
-> > Remember, as you saw, you can't assume that MAX_NUMNODES=1 when NUMA=n
-> > because of the DISCONTIG=y case.
+On Mon, 16 May 2005, john stultz wrote:
+
+> Actually that shouldn't be necessary. Look at my arch-x86-64 patch or
+> vsyscall-i386 patch for how the arch_vsyscall_gtod_update() function is
+> used. It provides an arch specific hook called by the timeofday core to
+> provide the information you desire. 
 > 
-> I have never seen such a machine. A SMP machine with multiple 
-> "nodes"?
+> Please let me know if it is not sufficient for some reason. 
 
-Yes.  "discontigmem nodes" 
+Obviously this wont work since you cannot execute C code nor functions in 
+an ia64 fastcall. I need the variables exported.
 
-> So essentially one NUMA node has multiple discontig "nodes"?
-
-Yes, in theory.
-
-A discontig node is just a contiguous area of physical memory.
-
-> This means that the concept of a node suddenly changes if there is just 
-> one numa node(CONFIG_NUMA off implies one numa node)? 
-
-Correct as well.
-
-> > So, in summary, if you want to do it right: use the
-> > CONFIG_NEED_MULTIPLE_NODES that you see in -mm.  As plain DISCONTIG=y
-> > gets replaced by sparsemem any code using this is likely to stay
-> > working.
+> > I would recommend to add jitter compensation to the time sources. Otherwise
+> > each ITC/TSC like timesource will have to implement that on its own.
 > 
-> s/CONFIG_NUMA/CONFIG_NEED_MULTIPLE_NODES?
-> 
-> That will not work because the idea is the localize the slabs to each 
-> node. 
-> 
-> If there are multiple nodes per numa node then invariable one node in the 
-> numa node (sorry for this duplication of what node means but I did not 
-> do it) must be preferred since numa_node_id() does not return a set of 
-> discontig nodes.
+> Just to clarify for others, this is the same unsynced cpu cycle counter
+> problem that affects the TSC on i386 and x86-64. ia64 gets around the
+> problem by checking on every call to gettimeofday() if the ITC value is
+> less then the ITC value used on the previous call to gettimeofday(). If
+> the value is less (ie: would result in time going backwards) it just
+> uses the last value to calculate time. It then uses cmpxchg to
+> atomically update the last ITC value. 
 
-I know it's confusing.  I feel your pain :)
+Nope. You are way off here. Unsynched cpu cycle counters lead to the ITC 
+timesource not being registered.
 
-You're right, I think you completely want CONFIG_NUMA, not
-NEED_MULTIPLE_NODES.  So, toss out that #ifdef, and everything should be
-in pretty good shape.  Just don't make any assumptions about how many
-'struct zone' or 'pg_data_t's a single "node's" pages can come from.
+> The problem I have with this is it that if the ITCs are not synced, they
+> really are not good timesources. If one cpu's ITC is behind another, the
+> net result of the above algorithm is cpu 2 will always just use cpu 1's
+> last calculated time. This could cause jumps in time when a process
+> moves from cpu2 to cpu1.
 
-Although it doesn't help your issue, you may want to read the comments
-in here, I wrote it when my brain was twisting around the same issues:
+Note again that the use of cmpxchg is NOT covering the case of ITCs not 
+being synced. If the ITCs are not synced then no timesource will be 
+established for ITC!
 
-http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc4/2.6.12-rc4-mm2/broken-out/introduce-new-kconfig-option-for-numa-or-discontig.patch
+This is the case of ITC's running synchronous but at a tiny offset. The 
+startup on IA64 syncs the ITCs but cannot guarantee a complete sync. There 
+may be a small offset of a few clock ticks. The cmpxchg is 
+needed to compensate for that small offset. I imagine that other 
+architectures have similar issues.
 
-> Sorry but this all sounds like an flaw in the design. There is no 
-> consistent notion of node.
+> Since it only affects the TSC and ITC, I think keeping the decision to
+> use cmpxchg in the timesource code, as you've implemented with the ITC
+> is the best way to go. If you really want to you can special case the
+> arch specific fsyscall code by switching on the time source .name, and
+> that would allow you to use a similar cmpxchg algorithm there as well. 
 
-It's not really a flaw in the design, it's a misinterpretation of the
-original design as new architectures implemented things.  I hope to
-completely ditch DISCONTIGMEM, eventually.
+Again this will not work on IA64 since it does the fast system calls in a 
+different way.
 
-> Are you sure that this is not a ppc64 screwup?
-
-Yeah, ppc64 is not at fault, it just provides the most obvious exposure
-of the issue.
-
--- Dave
+Clock jitter can affect multiple clock sources that may fluctuate
+in a minor way due to a variety of influences. Jitter compensation may 
+help in these situations.
 

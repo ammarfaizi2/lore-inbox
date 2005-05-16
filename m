@@ -1,161 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVEPVpm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbVEPVpn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbVEPVpm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 17:45:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261907AbVEPVoa
+	id S261907AbVEPVpn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 17:45:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261933AbVEPVne
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 17:44:30 -0400
-Received: from mail.kroah.org ([69.55.234.183]:22692 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261908AbVEPVkD (ORCPT
+	Mon, 16 May 2005 17:43:34 -0400
+Received: from mo00.iij4u.or.jp ([210.130.0.19]:53198 "EHLO mo00.iij4u.or.jp")
+	by vger.kernel.org with ESMTP id S261904AbVEPVjw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 17:40:03 -0400
-Date: Mon, 16 May 2005 13:58:25 -0700
-From: Greg KH <greg@kroah.com>
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       Paul Mackerras <paulus@samba.org>, Anton Blanchard <anton@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: [PATCH 7/8] ppc64: SPU file system
-Message-ID: <20050516205825.GB11938@kroah.com>
-References: <200505132117.37461.arnd@arndb.de> <200505132129.07603.arnd@arndb.de> <20050514074524.GC20021@kroah.com> <200505141505.08999.arnd@arndb.de>
+	Mon, 16 May 2005 17:39:52 -0400
+Date: Tue, 17 May 2005 06:39:31 +0900 (JST)
+Message-Id: <20050517.063931.91280786.okuyamak@dd.iij4u.or.jp>
+To: Valdis.Kletnieks@vt.edu
+Cc: fs@ercist.iscas.ac.cn, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [RFD] What error should FS return when I/O failure occurs? 
+From: Kenichi Okuyama <okuyamak@dd.iij4u.or.jp>
+In-Reply-To: <200505162035.j4GKZVCc018357@turing-police.cc.vt.edu>
+References: <200505160635.j4G6ZUcX023810@turing-police.cc.vt.edu>
+	<20050517.051113.132843723.okuyamak@dd.iij4u.or.jp>
+	<200505162035.j4GKZVCc018357@turing-police.cc.vt.edu>
+X-Mailer: Mew version 4.0.65 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200505141505.08999.arnd@arndb.de>
-User-Agent: Mutt/1.5.8i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 14, 2005 at 03:05:06PM +0200, Arnd Bergmann wrote:
-> On S?nnavend 14 Mai 2005 09:45, Greg KH wrote:
-> > On Fri, May 13, 2005 at 09:29:06PM +0200, Arnd Bergmann wrote:
-> > > /run	A stub file that lets us do ioctl.
-> > 
-> > No, as Ben said, do not do this.  Use write.  And as you are only doing
-> > 1 type of ioctl, it shouldn't be an issue.  Also it will be faster than
-> > the ioctl due to lack of BKL usage :)
-> 
-> I've been back and forth between a number of interfaces here and haven't
-> found one that I'm really happy with. Using write() is probably my least
-> favorite one, but these are the alternatives I've come up with so far:
-> 
-> 1. ioctl:
->  pro:
->      - easy to do in a file system
->      - can have both input and output arguments
->  contra:
->      - ugly
->      - weakly typed
->      - unpopular
-> 
-> 2. sys_spufs_run(int fd, __u32 pc, __u32 *new_pc, __u32 *status):
->  pro:
->      - strong types
->      - can have both input and output arguments
->  contra:
->      - does not fit file system semantics well
->      - bad for prototyping
+>>>>> "Valdis" == Valdis Kletnieks <Valdis.Kletnieks@vt.edu> writes:
 
-I suggest you do this.  Based on what you say you want the code to do, I
-agree, write() doesn't really work out well (but it might, and if you
-want an example of how to do it, look at the ibmasm driver, it
-implements write() in a way much like what you are wanting to do.)
+Valdis> On Tue, 17 May 2005 05:11:13 +0900, Kenichi Okuyama said:
+>> According to QuFuPing's test, USB cable was UNPLUGGED. That means,
+>> device is gone, and device driver instantly (well.. within second or
+>> two) detected that fact.  How could ext3 mounted device that does
+>> not exist, as Read Only?
 
-> > > +/**** spufs attributes
-> > > + *
-> 
-> > > + * Perhaps these file operations could be put in debugfs or libfs instead,
-> > > + * they are not really SPU specific.
-> > 
-> > Yes they should.  I'll gladly take them for debugfs or like you state,
-> > libfs is probably the better place for them so everyone can use them.
-> > 
-> > If you make up a patch, I'll fix up debugfs to use them properly.
-> 
-> Ok. I'll do the patch for libfs then. I've been thinking about
-> changing
-> 
-> +#define spufs_attribute(name)						   \
-> +static int name ## _open(struct inode *inode, struct file *file)	   \
-> +{									   \
-> +	return spufs_attr_open(inode, file, &name ## _get, &name ## _set); \
-> +}									   \
-> +static struct file_operations name = {					   \
-> +	.open	 = name ## _open,					   \
-> +	.release = spufs_attr_close,					   \
-> +	.read	 = spufs_attr_read,					   \
-> +	.write	 = spufs_attr_write,					   \
-> +};
-> 
-> to take a format string argument as well, which is then used in the
-> spufs_attr_read function instead of the hardcoded "%ld\n". Do you think
-> I should do that or rather keep the current implementation?
+Valdis> I thought we were talking about write requests - which were getting short-circuited
+Valdis> because the file system was R/O before we even tried to talk to the actual
+Valdis> file system.  No sense in queueing a write I/O when it's known to be R/O.
 
-yeah, you probably need the format string.
+Wrong. Did you check what Qu have said?
 
-> > > +#define spufs_attribute(name)						   \
-> > > +static int name ## _open(struct inode *inode, struct file *file)	   \
-> > > +{									   \
-> > > +	return spufs_attr_open(inode, file, &name ## _get, &name ## _set); \
-> > > +}									   \
-> > > +static struct file_operations name = {					   \
-> > > +	.open	 = name ## _open,					   \
-> > > +	.release = spufs_attr_close,					   \
-> > > +	.read	 = spufs_attr_read,					   \
-> > > +	.write	 = spufs_attr_write,					   \
-> > > +};
-> > 
-> > No module owner set?  Be careful if not...
-> 
-> Right. Is there ever a reason to have file operations without owner?
+1) USB storage exist as READ/WRITE mounted.
+2) Then he unplugged USB cable, making USB storage unavailble.
+3) EXT3 FS reported the error EROFS.
 
-Code built into the kernel?
+So, it is at the time somewhere between "after USB cable unplug" and
+"write(2) return" that EXT3 remounted the file system as RO.
+It was not RO from beginning.
 
-> Maybe dentry_open() could warn about this.
 
-Would die a horrible death due to the above :)
+Valdis> If you're trying to *read* from the now-absent disk and encounter a page
+Valdis> that's not already in the cache, yes, you'll probably be returning an EIO.
+>> I don't see the reason why cache is still available.
+>> # I mean why such a implementation is valid.
+>> 
+>> If storage is known to be lost by device driver, we should not use
+>> that cache anymore.
 
-> > > +/* This looks really wrong! */
-> > > +static int spufs_rmdir(struct inode *root, struct dentry *dir_dentry)
-> > 
-> > Why do you need this?  Doesn't 'simple_rmdir' work for you?
-> 
-> The idea was to keep the file system contents consistant with the
-> underlying data structures. If I allow users to unlink context
-> directories or files in there, there is no longer a way to extract
-> reliable information from the file system, e.g. for the debugger
-> or for implementing something like spu_ps.
-> 
-> My solution was to force the dentries in each directory to be
-> present. When the directory is created, the files are already
-> there and unlinking a single file is impossible. To destroy the
-> spu context, the user has to rmdir it, which will either remove
-> all files in there as well or fail in the case that any file is
-> still open.
+Valdis> Why?  If the disk disappeared out from under us because it was an unplugged USB
+Valdis> device, there's at least a possibility of it reappearing via hotplug - presumably
+Valdis> if you verify the UUID that it's the *same* file system, hotplug could do a
+Valdis> 'mount -o remount' and recover the situation....
 
-Ick.
+I don't think that's good idea.
 
-> Of course that is not really Posix behavior, but it avoids some
-> other pitfalls.
+USB storage is gone. And it SEEMS to came back.
+But how do you know that it's images were not changed.
 
-Go with a syscall :)
+Blocks you have cached might have different image. If you remount
+the file system, the cache image should be updated as well.
 
-> > Remember __u16 and friends for structures that cross the user/kernel
-> > boundry (like your ioctl that you will be rewriting...)
-> 
-> Yes. There are no data structures that are shared with user space
-> except the current ioctl argument. The MFC_TagSizeClassCmd (yes, I
-> need to remember to change the name some day, currently this still
-> uses the identifiers from the spec) and the others are defined
-> by the hardware interface.
+But very fact that *cache image should be updated* means, old cache
+image was invalid. And when did it become invalid?
 
-Identifiers that are named as per a spec are ok to leave alone.  We did
-that with USB, as it makes sense to do it that way for anyone who reads
-the spec and the code.
+When it was gone.
 
-But if your spec is only for the Linux OS, well, that's a different
-issue...
+Think about thing this way. There was USB storage and it's cached
+image. Storage is somewhat gone. It never returned before reboot.
+Was cache image valid after storage gone? Ofcourse not. That cache
+is nothing more than old data which came from LOST, and NEVER COMING
+BACK device.
 
-thanks,
+If device did come back but with change, we must read the data from
+storage again. Old cache image was useless, and was harmful.
+If device did come back without change, we can read the data from
+storage again.
 
-greg k-h
+No need to keep the cache image, taking risk of cache not being
+valid, especially while you have no control over the storage.
+
+
+By the way.
+
+Try umount, and then mount it again manually for any device.  You'll
+find all the cache images for that file system are gone.
+If your assumption about cache is correct, why isn't this
+umount/remount feature keeping the cache image?
+
+You'll, at least, see that there is some inconsistency about cache
+handling when we *umount->mount* and *remount*.
+
+regards,
+---- 
+Kenichi OKuyama

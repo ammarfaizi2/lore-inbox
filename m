@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261829AbVEPTTH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261838AbVEPTXP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261829AbVEPTTH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 15:19:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbVEPTRn
+	id S261838AbVEPTXP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 15:23:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261831AbVEPTT2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 15:17:43 -0400
-Received: from igw2.watson.ibm.com ([129.34.20.6]:9698 "EHLO
-	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S261818AbVEPTQv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 15:16:51 -0400
-Date: Mon, 16 May 2005 15:15:22 -0400 (Eastern Daylight Time)
-From: Reiner Sailer <sailer@us.ibm.com>
-To: linux-crypto@vger.kernel.org
-cc: herbert@gondor.apana.org.au, davem@davemloft.net,
-       linux-kernel@vger.kernel.org
-Subject: crypto api initialized late
-Message-ID: <Pine.WNT.4.63.0505161359560.840@laptop>
-X-Warning: UNAuthenticated Sender
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 16 May 2005 15:19:28 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:32518 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261818AbVEPTS3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 15:18:29 -0400
+Date: Mon, 16 May 2005 21:18:27 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, Mauricio Lin <mauriciolin@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.12-rc4-mm2: proc-pid-smaps.patch broke nommu
+Message-ID: <20050516191827.GG5112@stusta.de>
+References: <20050516021302.13bd285a.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050516021302.13bd285a.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+It seems proc-pid-smaps.patch is guilty for this nommu breakage in -mm:
 
-I am writing a Linux Security Module that needs SHA1 support very early in 
-the kernel startup (before any fs are mounted,modules are loaded,  or 
-files are mapped; including initrd). Therefore, I use the __initcall 
-to initialize the security module. SHA1 can currently be used only 
-through the crypto-api (static definitions and hidden context structure).
+<--  snip  -->
 
-This crypto-API, however, initializes AFTER the security module
-code in the __initicall block. Currently, I use the following patch into 
-the main Linux Makefile to start up the crypto-API earlier:
+...
+  LD      vmlinux
+fs/built-in.o(.text+0x32b08): In function `smaps_open':
+/usr/src/ctest/mm/kernel/fs/proc/base.c:560: undefined reference to `_proc_pid_smaps_op'
+make[1]: *** [vmlinux] Error 1
 
-diff -uprN linux-2.6.12-rc3_orig/Makefile 
-linux-2.6.12-rc3-ima-newpatch/Makefile
---- linux-2.6.12-rc3_orig/Makefile	2005-04-20 20:03:12.000000000 -0400
-+++ linux-2.6.12-rc3-ima-newpatch/Makefile	2005-05-11 15:18:32.000000000 -0400
-@@ -560,7 +560,7 @@ export MODLIB
+<--  snip  -->
 
+cu
+Adrian
 
-  ifeq ($(KBUILD_EXTMOD),)
--core-y		+= kernel/ mm/ fs/ ipc/ security/ crypto/
-+core-y		+= kernel/ mm/ fs/ ipc/ crypto/ security/
+-- 
 
-  vmlinux-dirs	:= $(patsubst %/,%,$(filter %/, $(init-y) $(init-m) \
-  		     $(core-y) $(core-m) $(drivers-y) $(drivers-m) \
-
-
-Generally, I can think of the following solutions:
-a) initialize crypto api in a initblock earlier than __initcall
-b) make crypto functions global in the kernel and make crypto-api
-    usage optional (goes against the idea of the api)
-c) re-implement SHA1 for my LSM (won't be accepted)
-d) the above patch (acceptable?)
-
-Is there a preferred/accepted way to handle this startup-sequence problem?
-
-Reiner
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

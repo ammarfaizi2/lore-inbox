@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbVEPVfa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261905AbVEPViL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261906AbVEPVfa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 17:35:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbVEPVeZ
+	id S261905AbVEPViL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 17:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbVEPViK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 17:34:25 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:26636 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261896AbVEPVeK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 17:34:10 -0400
-To: Eric Dumazet <dada1@cosmosbay.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to use memory over 4GB
-References: <6.2.1.2.2.20050516142516.0313e860@mail.tekno-soft.it>
-	<428898CF.5060908@cosmosbay.com>
-	<6.2.1.2.2.20050516151659.077cceb0@mail.tekno-soft.it>
-	<4288AB6A.3060106@cosmosbay.com>
-	<6.2.1.2.2.20050516164236.05922a30@mail.tekno-soft.it>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: anything free is worth what you paid for it.
-Date: Mon, 16 May 2005 22:34:00 +0100
-In-Reply-To: <6.2.1.2.2.20050516164236.05922a30@mail.tekno-soft.it> (Roberto
- Fichera's message of "16 May 2005 15:54:37 +0100")
-Message-ID: <87hdh2am9j.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Mon, 16 May 2005 17:38:10 -0400
+Received: from dvhart.com ([64.146.134.43]:62881 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S261905AbVEPVgZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 17:36:25 -0400
+Date: Mon, 16 May 2005 14:36:21 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: 2.6.12-rc4-mm2 boot failure
+Message-ID: <743780000.1116279381@flay>
+In-Reply-To: <20050516142504.696b443b.akpm@osdl.org>
+References: <735450000.1116277481@flay> <20050516142504.696b443b.akpm@osdl.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 16 May 2005, Roberto Fichera whispered secretively:
-> At 16.17 16/05/2005, Eric Dumazet wrote:
->>If your process is cpu bounded (and not issuing too many system calls),
->> then 4GB/4GB split let it address more ram, reducing the need to shift windows in
->>mmaped files for example.
+
+
+--On Monday, May 16, 2005 14:25:04 -0700 Andrew Morton <akpm@osdl.org> wrote:
+
+> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
+>> 
+>> PPC64 NUMA box. Maybe this is the same NUMA slab problem you were 
+>> hitting before ...
 > 
-> ... any source code that explain better what you say ;-)!
+> Probably.  Christoph, this patch has crossed the grief threshold - I'll
+> drop it.
 
-<http://lkml.org/lkml/2003/7/8/246> perhaps?
+OK, fair enough. Christoph, I am interested in seeing your patch work 
+... is something that's needed. If you want, I can help you offline 
+with some testing on a variety of platforms.
 
-(In a nutshell: it gives processes an extra 1Gb of virtual memory, at
-the cost of making system calls --- and everything else that must
-transition to kernel space --- *much* slower.)
+M.
+

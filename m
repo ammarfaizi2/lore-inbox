@@ -1,47 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVEQFr5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVEQFys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbVEQFr5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 01:47:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbVEQFr5
+	id S261174AbVEQFys (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 01:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVEQFys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 01:47:57 -0400
-Received: from ercist.iscas.ac.cn ([159.226.5.94]:16910 "EHLO
-	ercist.iscas.ac.cn") by vger.kernel.org with ESMTP id S261164AbVEQFrx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 01:47:53 -0400
-Subject: RE: [RFD] What error should FS return when I/O failure occurs?
-From: fs <fs@ercist.iscas.ac.cn>
-To: "Hua Zhong (hzhong)" <hzhong@cisco.com>
-Cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Kenichi Okuyama <okuyama@intellilink.co.jp>
-In-Reply-To: <75D9B5F4E50C8B4BB27622BD06C2B82B2264F6@xmb-sjc-235.amer.cisco.com>
-References: <75D9B5F4E50C8B4BB27622BD06C2B82B2264F6@xmb-sjc-235.amer.cisco.com>
-Content-Type: text/plain
-Organization: iscas
-Message-Id: <1116348944.2428.42.camel@CoolQ>
+	Tue, 17 May 2005 01:54:48 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63646 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261182AbVEQFye (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 01:54:34 -0400
+Date: Tue, 17 May 2005 06:54:52 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Greg K-H <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, petero2@telia.com
+Subject: Re: [PATCH] Fix root hole in pktcdvd
+Message-ID: <20050517055452.GQ1150@parcelfarce.linux.theplanet.co.uk>
+References: <11163046681444@kroah.com> <11163046692974@kroah.com> <20050517050025.GP1150@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 17 May 2005 12:55:44 -0400
-Content-Transfer-Encoding: 7bit
-X-ArGoMail-Authenticated: fs@ercist.iscas.ac.cn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050517050025.GP1150@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-17 at 01:36, Hua Zhong (hzhong) wrote:
-> > What you said is based on the FS implementor's perspective.
-> > But from user's perspective, they open a file with O_RDWR, get a
-> > success, then write returns EROFS?
-> > Besides, EXT3 ALWAYS return EROFS for the 1st and 2nd case, even
-> > you specify errors=continue, things are still the same.
-> 
-> Which version of kernel you are using?
-My test environment is based on 2.6.11 kernel
-> It was probably the case in kernel before 2.4.20. The old ext3 had a
-> problem that it ignored IO error at journal commit time. I submitted a
-> patch to fix that around the time of 2.4.20. 2.6 should be fine too,
-> unless someone else broke it again.
-> 
-> Hua
+On Tue, May 17, 2005 at 06:00:25AM +0100, Al Viro wrote:
+> Same comment as for previous patch.  I'll take a look at that sucker,
+> it might happen to be OK, seeing that most of the bdev ->ioctl() instances
+> ignore file argument and we might get away with passing odd stuff to
+> anything that could occur here.
 
-
+Oh, lovely - pkt_open() opens underlying device, unless we already have our
+device opened.  Guess what happens if you open() with O_RDONLY and
+then - with O_RDWR?

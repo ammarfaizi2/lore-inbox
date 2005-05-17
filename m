@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbVEQGlz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVEQGyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261228AbVEQGlz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 02:41:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbVEQGlz
+	id S261249AbVEQGyS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 02:54:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVEQGyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 02:41:55 -0400
-Received: from mail.gmx.net ([213.165.64.20]:3755 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261228AbVEQGlw (ORCPT
+	Tue, 17 May 2005 02:54:18 -0400
+Received: from ozlabs.org ([203.10.76.45]:6590 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261267AbVEQGyN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 02:41:52 -0400
-X-Authenticated: #23875046
-From: Alexey Fisher <fishor@gmx.net>
-Reply-To: fishor@gmx.net
-To: Jean Delvare <khali@linux-fr.org>
-Subject: Re: clean up and warnings patch for 2.6.12-rc4-mm1 i2c-chip
-Date: Tue, 17 May 2005 08:41:19 +0200
-User-Agent: KMail/1.8
-References: <200505160014.36016.fishor@gmx.net> <20050516191942.0cd51155.khali@linux-fr.org>
-In-Reply-To: <20050516191942.0cd51155.khali@linux-fr.org>
-Cc: LKML <linux-kernel@vger.kernel.org>
+	Tue, 17 May 2005 02:54:13 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505170841.20079.fishor@gmx.net>
-X-Y-GMX-Trusted: 0
+Message-ID: <17033.37831.789240.709268@cargo.ozlabs.ibm.com>
+Date: Tue, 17 May 2005 16:48:39 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: akpm@osdl.org, torvalds@osdl.org
+CC: Kumar Gala <galak@freescale.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] ppc32: enable use of early_param
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jean
-with module w83627hf  i found useful due  detection return -ENODEV
-because I can see in commandline if it's some thing wrong. If it's not correct, there is a bug 
-in the w83627hf and some other drivers.
+We need to call parse_early_param() early on to allow usage of
+early_param() for command line parsing.
 
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
+---
+commit d9aa16f3736be7e3ff97ead1a710b8061e9990f8
+tree ad05fc7300bdd058ecfb5cbbf022c4c19f4e13c5
+parent 704da4a5c793087584fa5d0ed73440dd4ac44294
+author Kumar K. Gala <kumar.gala@freescale.com> Mon, 16 May 2005 20:29:56 -0500
+committer Kumar K. Gala <kumar.gala@freescale.com> Mon, 16 May 2005 20:29:56 -0500
 
-int w83627hf_detect(struct i2c_adapter *adapter, int address,
-                   int kind)
-{
-        int val;
-        struct i2c_client *new_client;
-        struct w83627hf_data *data;
-        int err = 0;
-        const char *client_name = "";
+ ppc/kernel/setup.c |    2 ++
+ 1 files changed, 2 insertions(+)
 
-        if (!i2c_is_isa_adapter(adapter)) {
-                err = -ENODEV;
-                goto ERROR0;
-        }
+Index: arch/ppc/kernel/setup.c
+===================================================================
+--- 1702b9dd418707a930969079b460df0ace2f1c1a/arch/ppc/kernel/setup.c  (mode:100644)
++++ ad05fc7300bdd058ecfb5cbbf022c4c19f4e13c5/arch/ppc/kernel/setup.c  (mode:100644)
+@@ -753,6 +753,8 @@
+ 	strlcpy(saved_command_line, cmd_line, COMMAND_LINE_SIZE);
+ 	*cmdline_p = cmd_line;
+ 
++	parse_early_param();
++
+ 	/* set up the bootmem stuff with available memory */
+ 	do_init_bootmem();
+ 	if ( ppc_md.progress ) ppc_md.progress("setup_arch: bootmem", 0x3eab);

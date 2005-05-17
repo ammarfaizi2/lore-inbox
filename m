@@ -1,81 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVEQAg2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVEQAjT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbVEQAg2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 20:36:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVEQAg2
+	id S261343AbVEQAjT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 20:39:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261635AbVEQAjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 20:36:28 -0400
-Received: from HELIOUS.MIT.EDU ([18.248.3.87]:38101 "EHLO neo.rr.com")
-	by vger.kernel.org with ESMTP id S261332AbVEQAgX (ORCPT
+	Mon, 16 May 2005 20:39:19 -0400
+Received: from graphe.net ([209.204.138.32]:30984 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261631AbVEQAjR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 20:36:23 -0400
-Date: Mon, 16 May 2005 20:35:25 -0400
-From: Adam Belay <ambx1@neo.rr.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Andrew Morton <akpm@osdl.org>, perex@suse.cz, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] drivers/pnp/: possible cleanups
-Message-ID: <20050517003525.GB11189@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-	perex@suse.cz, linux-kernel@vger.kernel.org
-References: <20050517000853.GN5112@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050517000853.GN5112@stusta.de>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 16 May 2005 20:39:17 -0400
+Date: Mon, 16 May 2005 17:39:13 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Alexey Dobriyan <adobriyan@gmail.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Martin J. Bligh" <mbligh@mbligh.org>
+Subject: Re: 2.6.12-rc4-mm2 build failure
+In-Reply-To: <200505170433.59091.adobriyan@gmail.com>
+Message-ID: <Pine.LNX.4.62.0505161737310.22102@graphe.net>
+References: <200505162320.j4GNKDLN002527@shell0.pdx.osdl.net>
+ <200505170433.59091.adobriyan@gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 17, 2005 at 02:08:53AM +0200, Adrian Bunk wrote:
+On Tue, 17 May 2005, Alexey Dobriyan wrote:
 
-Hi Adrian,
+> On Tuesday 17 May 2005 03:21, akpm@osdl.org wrote:
+> > From: Christoph Lameter <christoph@lameter.com>
+> 
+> > asm-generic/topology.h must also be included if CONFIG_NUMA is not set 
+> > in order to provide the fall back pcibus_to_node function.
+> 
+> It should be "included if CONFIG_NUMA is set".
 
-I'll apply this patch if you comment out or use "#if 0" on the exported
-symbols.  Also do not remove isapnp_read_byte or pnp_auto_config_dev because
-they are part of the device driver API.  I would like you to only target the
-protocol API.  I'll have the time to seriously work on features like modular
-isapnp in about a week.
+Where will we define the fallback functions for new functions to 
+be added to topology.h?
 
-Thanks,
-Adam
+> P. S.: alpha has the same "#ifdef #else #endif" pattern in asm/topology.h
+
+ia64 and i386 do not. 
 
 
-> 
-> This patch contains the following possible cleanups:
-> - make needlessly global code static
-> - #if 0 the following unused global function:
->   - core.c: pnp_remove_device
-> - remove the following unneeded EXPORT_SYMBOL's:
->   - card.c: pnp_add_card
->   - card.c: pnp_remove_card
->   - card.c: pnp_add_card_device
->   - card.c: pnp_remove_card_device
->   - card.c: pnp_add_card_id
->   - core.c: pnp_register_protocol
->   - core.c: pnp_unregister_protocol
->   - core.c: pnp_add_device
->   - core.c: pnp_remove_device
->   - pnpacpi/core.c: pnpacpi_protocol
->   - driver.c: pnp_add_id
->   - isapnp/core.c: isapnp_read_byte
->   - manager.c: pnp_auto_config_dev
->   - resource.c: pnp_register_dependent_option
->   - resource.c: pnp_register_independent_option
->   - resource.c: pnp_register_irq_resource
->   - resource.c: pnp_register_dma_resource
->   - resource.c: pnp_register_port_resource
->   - resource.c: pnp_register_mem_resource
-> 
-> Note that this patch #if 0's exactly one functions and removes no
-> functions. Most it does is the removal of EXPORT_SYMBOL's, so if any
-> modular code will use any of them, re-adding will be trivial.
-> 
-> Modular ISAPnP might be interesting in some cases, but this is more
-> legacy code. If someone would work on it to sort all the issues out
-> (starting with the point that most users of __ISAPNP__ will have to be
-> fixed) re-adding the required EXPORT_SYMBOL's won't be hard for him.
-> 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-> 
-> ---

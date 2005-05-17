@@ -1,56 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVEQOCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVEQOJT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261303AbVEQOCe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 10:02:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVEQOCe
+	id S261216AbVEQOJT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 10:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVEQOJT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 10:02:34 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:21429 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261303AbVEQOBm (ORCPT
+	Tue, 17 May 2005 10:09:19 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:1685 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261216AbVEQOJQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 10:01:42 -0400
-Date: Tue, 17 May 2005 07:01:40 -0700
-From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@sw.ru>
-cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NMI watchdog config option (was: Re: [PATCH] NMI lockup and AltSysRq-P dumping calltraces on _all_ cpus via NMI IPI)
-Message-ID: <293160000.1116338500@[10.10.2.4]>
-In-Reply-To: <20050517001542.40e6c6b7.akpm@osdl.org>
-References: <42822B5F.8040901@sw.ru><768860000.1116282855@flay><42899797.2090702@sw.ru> <20050517001542.40e6c6b7.akpm@osdl.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Tue, 17 May 2005 10:09:16 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20050516210815.GW27549@shell0.pdx.osdl.net> 
+References: <20050516210815.GW27549@shell0.pdx.osdl.net>  <20050516184501.GD5112@stusta.de> 
+To: Chris Wright <chrisw@osdl.org>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-security-module@wirex.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] security/: possible cleanups 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 22.0.50.1
+Date: Tue, 17 May 2005 15:08:01 +0100
+Message-ID: <17465.1116338881@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Chris Wright <chrisw@osdl.org> wrote:
 
+> I see no issue with the keys changes, except I'd rather see key_duplicate
+> removed entirely if it's not getting used.  David, is there a plan to
+> put it to use, or can Adrian remove it?
 
---Andrew Morton <akpm@osdl.org> wrote (on Tuesday, May 17, 2005 00:15:42 -0700):
+There was a keyctl call for it, I thought. I wonder what happened to it. Let
+me think about what I want to do with it. Note that if key_duplicate() gets
+removed, then the key_type->duplicate() op may as well be rooted out and shot
+too.
 
-> Kirill Korotaev <dev@sw.ru> wrote:
->> 
->> BTW, why NMI watchdog is disabled by default?
-> 
-> There was a significantly large string of reports of dying PCs in the
-> 2.4.early timeframe.  These machines would mysteriously lock up after
-> considerable periods of time and the problem was cured by disabling the NMI
-> watchdog.  Nobody was ever able to solve it, so we changed it to default to
-> off.
-> 
-> So much has changed in there that we might have fixed it by accident, and I
-> do recall a couple of fundamental and subtle NMI bugs being fixed.  So
-> yeah, it might be worth enabling it by default again.  Care to send a patch
-> which does that?
+The rest of the patch looks vaguely okay.
 
-There are some unfixable machine issues - for instance, the IBM
-Netfinity 8500R corrupts one of the registers (ebx?) every time we get
-an NMI for us, and panics. Probably other boxes you mention above have
-similar issues? But it's not our code that's at fault ...
-
-In light of this, I don't think it's a good idea to enable NMI by default,
-at least not without a blacklist function of some sort?
-
-M.
-
+David

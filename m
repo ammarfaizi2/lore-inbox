@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVEQW0V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbVEQW1T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261964AbVEQW0V (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 18:26:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbVEQWYT
+	id S261988AbVEQW1T (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 18:27:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVEQW1R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 18:24:19 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:14762 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S262022AbVEQWTd (ORCPT
+	Tue, 17 May 2005 18:27:17 -0400
+Received: from dvhart.com ([64.146.134.43]:19618 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S261988AbVEQW0Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 18:19:33 -0400
-Message-ID: <428A6DF2.2010604@drzeus.cx>
-Date: Wed, 18 May 2005 00:19:30 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-5861-1116368372-0001-2"
-To: LKML <linux-kernel@vger.kernel.org>
-CC: Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [PATCH 2/2] Proper MMC command classes support
-References: <428A6C3A.40505@drzeus.cx>
-In-Reply-To: <428A6C3A.40505@drzeus.cx>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Tue, 17 May 2005 18:26:24 -0400
+Date: Tue, 17 May 2005 15:26:14 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: dev@sw.ru, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NMI watchdog config option (was: Re: [PATCH] NMI lockup and AltSysRq-P dumping calltraces on _all_ cpus via NMI IPI)
+Message-ID: <896520000.1116368774@flay>
+In-Reply-To: <20050517151648.2abff61e.akpm@osdl.org>
+References: <42822B5F.8040901@sw.ru><768860000.1116282855@flay><42899797.2090702@sw.ru><20050517001542.40e6c6b7.akpm@osdl.org><293160000.1116338500@[10.10.2.4]> <20050517151648.2abff61e.akpm@osdl.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+>> > So much has changed in there that we might have fixed it by accident, and I
+>> > do recall a couple of fundamental and subtle NMI bugs being fixed.  So
+>> > yeah, it might be worth enabling it by default again.  Care to send a patch
+>> > which does that?
+>> 
+>> There are some unfixable machine issues - for instance, the IBM
+>> Netfinity 8500R corrupts one of the registers (ebx?) every time we get
+>> an NMI for us, and panics. Probably other boxes you mention above have
+>> similar issues? But it's not our code that's at fault ...
+> 
+> That sounds like an instant crash.  The problems which were reported a few
+> years back were different - mysterious lockups after hours or days of
+> operation.
 
---=_hermes.drzeus.cx-5861-1116368372-0001-2
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-
-Removes the check for high command classes and instead checks that the
-command classes needed are present.
-Previous solution killed forward compatibility at no apparent gain.
-
-Signed-of-by: Pierre Ossman <drzeus@drzeus.cx>
-
-This patch only checks for CCC_BLOCK_READ even though CCC_BLOCK_WRITE is
-also needed. My intention is to make the card read-only if the write
-command class is unavailable. But such a patch will conflict with the SD
-patches previously submitted. So I need to know which version should be
-used as a base.
-
-
---=_hermes.drzeus.cx-5861-1116368372-0001-2
-Content-Type: text/x-patch; name="mmc-block-ccc.patch"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mmc-block-ccc.patch"
-
-Index: linux-wbsd/drivers/mmc/mmc_block.c
-===================================================================
---- linux-wbsd/drivers/mmc/mmc_block.c	(revision 134)
-+++ linux-wbsd/drivers/mmc/mmc_block.c	(working copy)
-@@ -443,7 +443,10 @@
- 	struct mmc_blk_data *md;
- 	int err;
+Dunno, might have been a race, or only happened if the wind was blowing
+North at the time. More likely different machines had different forms of
+failures caused by various obscure bugs ;-) If you're really curious, I 
+could go test it I spose.
  
--	if (card->csd.cmdclass & ~0x1ff)
-+	/*
-+	 * Check that the card supports the command class(es) we need.
-+	 */
-+	if (!(card->csd.cmdclass & CCC_BLOCK_READ))
- 		return -ENODEV;
- 
- 	if (card->csd.read_blkbits < 9) {
+>> In light of this, I don't think it's a good idea to enable NMI by default,
+>> at least not without a blacklist function of some sort?
+> 
+> OK, thanks - I'll leave things as they stand.
 
---=_hermes.drzeus.cx-5861-1116368372-0001-2--
+Thanks. I think it's safer that way ...
+
+M.
+

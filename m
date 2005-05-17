@@ -1,93 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbVEQVfH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261965AbVEQVgm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbVEQVfH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 17:35:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261974AbVEQVfH
+	id S261965AbVEQVgm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 17:36:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVEQVgm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 17:35:07 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:39140 "HELO machine.sinus.cz")
-	by vger.kernel.org with SMTP id S261973AbVEQVes (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 17:34:48 -0400
-Date: Tue, 17 May 2005 23:34:47 +0200
-From: Petr Baudis <pasky@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: git@vger.kernel.org, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>,
-       "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
-Subject: Re: [PATCH] uml: remove elf.h
-Message-ID: <20050517213447.GN7136@pasky.ji.cz>
-References: <200505171704.j4HH4Ne8002532@hera.kernel.org> <20050517142113.59097a3d.akpm@osdl.org>
+	Tue, 17 May 2005 17:36:42 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:11453 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261965AbVEQVgc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 17:36:32 -0400
+Subject: Re: software mixing in alsa
+From: Lee Revell <rlrevell@joe-job.com>
+To: Karel Kulhavy <clock@twibright.com>
+Cc: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050517210444.GA21257@kestrel>
+References: <20050517095613.GA9947@kestrel>
+	 <200505171208.04052.jan@spitalnik.net> <20050517141307.GA7759@kestrel>
+	 <1116354762.31830.12.camel@mindpipe> <428A45C3.8060904@stud.feec.vutbr.cz>
+	 <20050517210444.GA21257@kestrel>
+Content-Type: text/plain
+Date: Tue, 17 May 2005 17:36:30 -0400
+Message-Id: <1116365790.32210.29.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050517142113.59097a3d.akpm@osdl.org>
-User-Agent: Mutt/1.4i
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear diary, on Tue, May 17, 2005 at 11:21:13PM CEST, I got a letter
-where Andrew Morton <akpm@osdl.org> told me that...
-> Linux Kernel Mailing List <linux-kernel@vger.kernel.org> wrote:
-> >
-> > tree a3d85d9f43f64bbd8437c973caf98f79d95b5f3e
-> > parent a123edab03ac39e08c2f9cb4fc1af07e099c68bc
-> > author Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it> Tue, 17 May 2005 11:53:14 -0700
-> > committer Linus Torvalds <torvalds@ppc970.osdl.org> Tue, 17 May 2005 21:59:11 -0700
+On Tue, 2005-05-17 at 23:04 +0200, Karel Kulhavy wrote:
+> On Tue, May 17, 2005 at 09:28:03PM +0200, Michal Schmidt wrote:
+> > Lee Revell wrote:
+> > >mpg123 is an open source application so there's no excuse for it not to
+> > >support ALSA in 2005.
 > > 
-> > [PATCH] uml: remove elf.h
+> > Its COPYING file says:
+> >   This software may be distributed freely, provided that it is
+> >   distributed in its entirety, without modifications, ...
+> > This doesn't look like an open source license at all.
+> > That's why Debian puts mpg123 in non-free.
 > > 
-> > Actually remove elf.h in the tree.  The previous patch, due to a quilt
-> > bug/misuse, left it in the tree as a 0-length file, preventing the build to
-> > see it as missing and to generate a symlink in its place.
-> > 
-> > Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-> > Signed-off-by: Andrew Morton <akpm@osdl.org>
-> > Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-> > 
-> >  asm-um/elf.h |    0 
-> >  1 files changed
-> > 
-> > Index: include/asm-um/elf.h
+> > Karel, you may want to try mpg321 instead. It already has ALSA support.
 > 
-> Hot damn, this zero-length file is hard to get rid of.  I pulled Linus's
-> tree this morning with this bizarre concoction:
+> Tried with the same result: fast forward.
 > 
-> 	cd $GIT_TREE
-> 	cg-pull origin
-> 	tagsha1=$(cat .git/refs/tags/v$(kversion))
-> 	t=$(cat-file tag $tagsha1 | head -n 1 | sed -e 's/object //')
-> 	cg-diff -r $t -r $(cat .git/refs/heads/origin) > $PULL/linus.patch
-> 
-> and the resulting diff has:
-> 
-> Index: include/asm-ia64/ioctl32.h
-> ===================================================================
-> --- eed337ef5e9ae7d62caa84b7974a11fddc7f06e0/include/asm-ia64/ioctl32.h  (mode:100644 sha1:d0d227f45e05d23705ac849f4bd5c06a28288b58)
-> +++ 6bb5a1cf91bbda8308ec7e6d900cb89071907dcd/include/asm-ia64/ioctl32.h  (mode:100644 sha1:e69de29bb2d1d6434b8b29ae775ad8c2e48c5391)
-> @@ -1 +0,0 @@
-> -#include <linux/ioctl32.h>
-> Index: include/asm-um/elf.h
-> ===================================================================
-> Index: include/asm-x86_64/apicdef.h
-> ===================================================================
-> 
-> which of course doesn't remove that file at all.
-> 
-> And I bet that when Linus releases patch-2.6.12-rc5.gz and patch-2.6.12.gz,
-> they will have the same construct.  AFAICT, the patch-based people will
-> need to download a full new tarball to get rid of this dang file.
 
-Feeding
---- include/asm-um/elf.h
-+++ /dev/null
-patch to cg-patch would make Cogito kill it. No help for regular patch
-though, I fear. Perhaps some artificial timestamp could help to the file
-removal heuristic in GNU patch. Or passing it -E, but that will
-obviously do the wrong thing to any other zero-sized files.
+Then the problem is probably with your ALSA configuration, or (less
+likely) an ALSA bug.  I suspect your MP3s are 44100 KHz and they are
+being played at 48000 KHz.  Please try ALSA CVS, there have been many
+improvements since the version in the kernel.  If the problem persists,
+report it on the alsa-user list.
 
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-C++: an octopus made by nailing extra legs onto a dog. -- Steve Taylor
+Lee
+

@@ -1,61 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbVEQSBl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbVEQSMx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261816AbVEQSBl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 14:01:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbVEQSBl
+	id S261200AbVEQSMx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 14:12:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261233AbVEQSMx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 14:01:41 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:1808 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261874AbVEQSBb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 14:01:31 -0400
-Message-Id: <200505171801.j4HI1TWC023029@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Linux Audit Discussion <linux-audit@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc4-mm2 - sleeping function called from invalid context at mm/slab.c:2502 
-In-Reply-To: Your message of "Tue, 17 May 2005 09:55:28 PDT."
-             <20050517165528.GB27549@shell0.pdx.osdl.net> 
-From: Valdis.Kletnieks@vt.edu
-References: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu>
-            <20050517165528.GB27549@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1116352889_5349P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 17 May 2005 14:01:29 -0400
+	Tue, 17 May 2005 14:12:53 -0400
+Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:16838 "EHLO
+	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S261200AbVEQSMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 14:12:45 -0400
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Greg K-H <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Fix root hole in pktcdvd
+References: <11163046681444@kroah.com> <11163046692974@kroah.com>
+	<20050517050025.GP1150@parcelfarce.linux.theplanet.co.uk>
+	<20050517055452.GQ1150@parcelfarce.linux.theplanet.co.uk>
+From: Peter Osterlund <petero2@telia.com>
+Date: 17 May 2005 20:12:18 +0200
+In-Reply-To: <20050517055452.GQ1150@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <m31x85k9h9.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1116352889_5349P
-Content-Type: text/plain; charset=us-ascii
+Al Viro <viro@parcelfarce.linux.theplanet.co.uk> writes:
 
-On Tue, 17 May 2005 09:55:28 PDT, Chris Wright said:
-> * Valdis.Kletnieks@vt.edu (Valdis.Kletnieks@vt.edu) wrote:
-> > It threw 5 of them in short succession.  Different entry points into
-> > avc_has_perm(). Here's the tracebacks:
+> On Tue, May 17, 2005 at 06:00:25AM +0100, Al Viro wrote:
+> > Same comment as for previous patch.  I'll take a look at that sucker,
+> > it might happen to be OK, seeing that most of the bdev ->ioctl() instances
+> > ignore file argument and we might get away with passing odd stuff to
+> > anything that could occur here.
 > 
-> I'm guessing this is from my change to use single skb for audit buffer
-> instead of a temp buffer.
-> 
-> > [4295584.974000] Debug: sleeping function called from invalid context at mm/slab.c:2502
-> > [4295584.974000] in_atomic():1, irqs_disabled():0
-> 
-> This is gfp_any() flag that's used here, which I think is the problem.
+> Oh, lovely - pkt_open() opens underlying device, unless we already have our
+> device opened.  Guess what happens if you open() with O_RDONLY and
+> then - with O_RDWR?
 
-I'll be more than happy to test any patches...
+You get I/O errors when you submit write requests, which is definitely
+not good. I don't know if it also has security implications.
 
+A check got lost in the char dev control device conversion patch. The
+patch below fixes it.
 
---==_Exmh_1116352889_5349P
-Content-Type: application/pgp-signature
+-
+If you tried to open a packet device first in read-only mode and then
+a second time in read-write mode, the second open succeeded even
+though the device was not correctly set up for writing. If you then
+tried to write data to the device, the writes would fail with I/O
+errors.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+This patch prevents that problem by making the second open fail with
+-EBUSY.
 
-iD8DBQFCijF5cC3lWbTT17ARAt0jAKDc++0MTAe1XIALi+ypoPq2WqST1QCgikQP
-HudY+5Ri4Wd4ID4KcBvKIZs=
-=y+cu
------END PGP SIGNATURE-----
+Signed-off-by: Peter Osterlund <petero2@telia.com>
+---
 
---==_Exmh_1116352889_5349P--
+ linux-petero/drivers/block/pktcdvd.c |    8 +++++++-
+ 1 files changed, 7 insertions(+), 1 deletion(-)
+
+diff -puN drivers/block/pktcdvd.c~packet-multi-open-fix drivers/block/pktcdvd.c
+--- linux/drivers/block/pktcdvd.c~packet-multi-open-fix	2005-05-17 19:52:30.000000000 +0200
++++ linux-petero/drivers/block/pktcdvd.c	2005-05-17 19:52:30.000000000 +0200
+@@ -2025,7 +2025,13 @@ static int pkt_open(struct inode *inode,
+ 	BUG_ON(pd->refcnt < 0);
+ 
+ 	pd->refcnt++;
+-	if (pd->refcnt == 1) {
++	if (pd->refcnt > 1) {
++		if ((file->f_mode & FMODE_WRITE) &&
++		    !test_bit(PACKET_WRITABLE, &pd->flags)) {
++			ret = -EBUSY;
++			goto out_dec;
++		}
++	} else {
+ 		if (pkt_open_dev(pd, file->f_mode & FMODE_WRITE)) {
+ 			ret = -EIO;
+ 			goto out_dec;
+_
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

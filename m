@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVEQN6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVEQOCe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbVEQN6j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 09:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVEQN6j
+	id S261303AbVEQOCe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 10:02:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVEQOCe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 09:58:39 -0400
-Received: from mail.suse.de ([195.135.220.2]:12730 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261184AbVEQN6h (ORCPT
+	Tue, 17 May 2005 10:02:34 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:21429 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261303AbVEQOBm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 09:58:37 -0400
-Date: Tue, 17 May 2005 15:58:34 +0200
-From: Andi Kleen <ak@suse.de>
-To: Joe Korty <joe.korty@ccur.com>
-Cc: Christoph Lameter <christoph@lameter.com>,
-       Linus Torvalds <torvalds@osdl.org>, randy_dunlap <rdunlap@xenotime.net>,
-       akpm@osdl.org, linux-kernel@vger.kernel.org, shai@scalex86.org,
-       ak@suse.de
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt.
-Message-ID: <20050517135834.GG9699@wotan.suse.de>
-References: <Pine.LNX.4.62.0505161243580.13692@ScMPusgw> <20050516150907.6fde04d3.akpm@osdl.org> <Pine.LNX.4.62.0505161934220.25315@graphe.net> <20050516194651.1debabfd.rdunlap@xenotime.net> <Pine.LNX.4.62.0505161954470.25647@graphe.net> <Pine.LNX.4.58.0505162029240.18337@ppc970.osdl.org> <Pine.LNX.4.62.0505162225260.28022@graphe.net> <20050517134434.GA26822@tsunami.ccur.com>
-Mime-Version: 1.0
+	Tue, 17 May 2005 10:01:42 -0400
+Date: Tue, 17 May 2005 07:01:40 -0700
+From: "Martin J. Bligh" <Martin.Bligh@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>, Kirill Korotaev <dev@sw.ru>
+cc: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NMI watchdog config option (was: Re: [PATCH] NMI lockup and AltSysRq-P dumping calltraces on _all_ cpus via NMI IPI)
+Message-ID: <293160000.1116338500@[10.10.2.4]>
+In-Reply-To: <20050517001542.40e6c6b7.akpm@osdl.org>
+References: <42822B5F.8040901@sw.ru><768860000.1116282855@flay><42899797.2090702@sw.ru> <20050517001542.40e6c6b7.akpm@osdl.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050517134434.GA26822@tsunami.ccur.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > +	help
-> > +	  100 HZ is a typical choice for servers, SMP and NUMA systems
-> > +	  with lots of processors that may show reduced performance if
-> > +	  too many timer interrupts are occurring.
+
+
+--Andrew Morton <akpm@osdl.org> wrote (on Tuesday, May 17, 2005 00:15:42 -0700):
+
+> Kirill Korotaev <dev@sw.ru> wrote:
+>> 
+>> BTW, why NMI watchdog is disabled by default?
 > 
-> One of the options should mention the power savings benefit on laptops.
-> How about:
+> There was a significantly large string of reports of dying PCs in the
+> 2.4.early timeframe.  These machines would mysteriously lock up after
+> considerable periods of time and the problem was cured by disabling the NMI
+> watchdog.  Nobody was ever able to solve it, so we changed it to default to
+> off.
+> 
+> So much has changed in there that we might have fixed it by accident, and I
+> do recall a couple of fundamental and subtle NMI bugs being fixed.  So
+> yeah, it might be worth enabling it by default again.  Care to send a patch
+> which does that?
 
-Actually it is not 100% clear. The ACPI idle code relies on
-the timer right now to go from C1 to C2/C3.  It basically
-goes down in a staircase, first staying in C1, then when woken
-up and still idle go down lower etc.
+There are some unfixable machine issues - for instance, the IBM
+Netfinity 8500R corrupts one of the registers (ebx?) every time we get
+an NMI for us, and panics. Probably other boxes you mention above have
+similar issues? But it's not our code that's at fault ...
 
-With HZ=100 the minimal latency (assuming no other interrupts) to go from C1 
-to C2 is 10ms, not 1ms, which might be even a power loss in some workloads.
+In light of this, I don't think it's a good idea to enable NMI by default,
+at least not without a blacklist function of some sort?
 
--Andi
-
-P.S.: The SUSE 2.4 kernels had for some time variable HZ, settable at boot. 
-It surprisingly didn't cause too much slowdown or code bloat and only
-needed minor fixes over the tree. Might be worth considering at least
-as a CONFIG
+M.
 

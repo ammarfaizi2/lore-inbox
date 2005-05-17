@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261858AbVEQRK0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbVEQRPI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261858AbVEQRK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 13:10:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbVEQRKR
+	id S261917AbVEQRPI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 13:15:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262040AbVEQRGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 13:10:17 -0400
-Received: from dvhart.com ([64.146.134.43]:13474 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261858AbVEQRJw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 13:09:52 -0400
-Date: Tue, 17 May 2005 10:09:47 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Christoph Lameter <christoph@lameter.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.12-rc4-mm2 build failure
-Message-ID: <828790000.1116349787@flay>
-In-Reply-To: <826450000.1116349699@flay>
-References: <734820000.1116277209@flay> <Pine.LNX.4.62.0505161602460.20110@graphe.net> <826450000.1116349699@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 17 May 2005 13:06:43 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:25805 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261949AbVEQRE3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 13:04:29 -0400
+Subject: Re: 2.6.12-rc4-mm2 - sleeping function called from invalid context
+	at mm/slab.c:2502
+From: David Woodhouse <dwmw2@infradead.org>
+To: Linux Audit Discussion <linux-audit@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050517165528.GB27549@shell0.pdx.osdl.net>
+References: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu>
+	 <20050517165528.GB27549@shell0.pdx.osdl.net>
+Content-Type: text/plain
+Date: Tue, 17 May 2005 18:04:23 +0100
+Message-Id: <1116349464.23972.118.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-1.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-05-17 at 09:55 -0700, Chris Wright wrote:
+> Here and up we are in netlink code which does netlink_trim to reduce
+> the skb data size before queing to socket.  This does skb_clone with
+> gfp_any() flag.  We aren't in softirq, so we get GFP_KERNEL flag set
+> even though in_atomic() is true (spin_lock held I'm assuming).
 
+netlink_unicast() is only calling skb_clone() because we artificially
+increased the refcount on the skb in question. 
 
---On Tuesday, May 17, 2005 10:08:19 -0700 "Martin J. Bligh" <mbligh@mbligh.org> wrote:
+As I understand it, we do that in order to prevent the skb from being
+lost if netlink_unicast() returns an error -- it normally frees the skb
+before returning in that case. Am I alone in thinking that behaviour is
+strange?
 
-> 
-> 
->> There was a prior discussion with the ppc64 folks about the way that 
->> asm-generic/topology.h was included only for CONFIG_NUMA. I thought that 
->> was fixed?
->> 
->> asm-generic/topology.h must also be included if CONFIG_NUMA is not set 
->> inorder to provide the fall back pcibus_to_node function.
-> 
-> Nope. same failure.
+I'm really not fond of the refcount trick -- I suspect I'd be happier if
+we were just to try to keep track of sk_rmem_alloc so we never hit the
+condition in netlink_attachskb() which might cause it to fail.
 
-Oops. I lie. Now it gets the other failure (the panic on boot we were
-discussing before). So yes, that patch worked.
-
-M.
+-- 
+dwmw2
 

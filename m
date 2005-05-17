@@ -1,78 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbVEQDfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbVEQDkl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261662AbVEQDfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 23:35:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVEQDfZ
+	id S261310AbVEQDkl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 23:40:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVEQDkl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 23:35:25 -0400
-Received: from fire.osdl.org ([65.172.181.4]:57774 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261233AbVEQDfM (ORCPT
+	Mon, 16 May 2005 23:40:41 -0400
+Received: from mx2.suse.de ([195.135.220.15]:25767 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261310AbVEQDke (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 23:35:12 -0400
-Date: Mon, 16 May 2005 20:37:04 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Christoph Lameter <christoph@lameter.com>
-cc: randy_dunlap <rdunlap@xenotime.net>, akpm@osdl.org,
+	Mon, 16 May 2005 23:40:34 -0400
+Date: Tue, 17 May 2005 05:40:28 +0200
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Christoph Lameter <christoph@lameter.com>,
+       randy_dunlap <rdunlap@xenotime.net>, akpm@osdl.org,
        linux-kernel@vger.kernel.org, shai@scalex86.org, ak@suse.de
 Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt.
-In-Reply-To: <Pine.LNX.4.62.0505161954470.25647@graphe.net>
-Message-ID: <Pine.LNX.4.58.0505162029240.18337@ppc970.osdl.org>
-References: <Pine.LNX.4.62.0505161243580.13692@ScMPusgw>
- <20050516150907.6fde04d3.akpm@osdl.org> <Pine.LNX.4.62.0505161934220.25315@graphe.net>
- <20050516194651.1debabfd.rdunlap@xenotime.net> <Pine.LNX.4.62.0505161954470.25647@graphe.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20050517034028.GC9699@wotan.suse.de>
+References: <Pine.LNX.4.62.0505161243580.13692@ScMPusgw> <20050516150907.6fde04d3.akpm@osdl.org> <Pine.LNX.4.62.0505161934220.25315@graphe.net> <20050516194651.1debabfd.rdunlap@xenotime.net> <Pine.LNX.4.62.0505161954470.25647@graphe.net> <Pine.LNX.4.58.0505162029240.18337@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0505162029240.18337@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 16 May 2005, Christoph Lameter wrote:
+> 	choice
+> 		prompt "Timer frequency"
+> 		default HZ_250
 > 
-> That would not allow to set the value of CONFIG_HZ to a numeric value.
-> I would have CONFIG_HZ_100 CONFIG_HZ_250 etc. Gets a bit complicated
-> to handle.
+> 	config HZ_100
+> 		bool "100 Hz"
+> 
+> 	confic HZ_250
+> 		bool "250 Hz"
+> 
+> 	config HZ_1000
+> 		bool "1000 Hz"
 
-I don't think it gets any more complex to handle than the stuff you need 
-to do now (#ifdef's, and the #define HZ CONFIG_HZ games).
+I would add a 
 
-Also, I think you can do it in the Kconfig file, which at least makes it a 
-fairly localized thing:
+	config HZ_10 if EMBEDDED 
+		bool "10 Hz" 
 
-	choice
-		prompt "Timer frequency"
-		default HZ_250
+that is useful for compute servers (although it will violate the TCP
+specification). EMBEDDED would ensure only people who know what they're
+doing set it.
 
-	config HZ_100
-		bool "100 Hz"
+-Andi
 
-	confic HZ_250
-		bool "250 Hz"
-
-	config HZ_1000
-		bool "1000 Hz"
-
-	endchoice
-
-	config HZ
-		int
-		default 100 if HZ_100
-		default 250 if HZ_250
-		default 1000 if HZ_1000
-
-and now you can just do
-
-	#define HZ CONFIG_HZ
-
-or something. You can even maje the Kconfig parts be a separate Kconfig.HZ
-file, and have both the x86 and x86-64 Kconfig files just include the
-common part (since it's a generic issue, not even PC-related: we might
-want to allow things like 60Hz frequencies for CONFIG_EMBEDDED etc, and
-these choices are really valid on any system that allows for the timer to
-be reprogrammed)
-
-The above is obviously totally untested, but it doesn't look any more
-complex than having a fairly ugly (and much less user-friendly) check at
-compile-time.
-
-		Linus

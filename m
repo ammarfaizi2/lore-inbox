@@ -1,42 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVEQQxg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261828AbVEQQxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261836AbVEQQxg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 12:53:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261854AbVEQQxg
+	id S261828AbVEQQxH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 12:53:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVEQQxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 12:53:36 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:15572 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261836AbVEQQxb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 12:53:31 -0400
-Date: Tue, 17 May 2005 17:53:53 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: "Stephen C. Tweedie" <sct@redhat.com>
-Cc: Greg K-H <greg@kroah.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix root hole in raw device
-Message-ID: <20050517165353.GB29811@parcelfarce.linux.theplanet.co.uk>
-References: <11163046682662@kroah.com> <11163046681444@kroah.com> <20050517045748.GO1150@parcelfarce.linux.theplanet.co.uk> <1116335082.1963.58.camel@sisko.sctweedie.blueyonder.co.uk>
+	Tue, 17 May 2005 12:53:07 -0400
+Received: from wproxy.gmail.com ([64.233.184.207]:44301 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261828AbVEQQxA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 12:53:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:content-transfer-encoding:in-reply-to:user-agent:from;
+        b=m4/gNhWZU0VTIHlwYLBq3Yls2rzoy6Mqd3UUujzU+U3WIPRityfbR7tEsG0l9I6mfgGEIzKNPuM06ccRTKiviMdmKVIyhnMexIA/8TUXKtBr3za6C+DRtxXTe1AoyFFt4XftE69oq7aSh8nvNAn/lo3EDNzXh4kKxaf3/9Suy/g=
+Date: Tue, 17 May 2005 18:52:55 +0200
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Andrew Morton <akpm@osdl.org>, dino@in.ibm.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
+Message-ID: <20050517165255.GD9590@gmail.com>
+References: <20050516085832.GA9558@gmail.com> <20050517071307.GA4794@in.ibm.com> <20050517002908.005a9ba7.akpm@osdl.org> <1116340465.4989.2.camel@mulgrave> <20050517155731.GA9590@gmail.com> <1116347914.4989.24.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <1116335082.1963.58.camel@sisko.sctweedie.blueyonder.co.uk>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1116347914.4989.24.camel@mulgrave>
+User-Agent: Mutt/1.5.6i
+From: =?iso-8859-1?Q?Gr=E9goire?= Favre <gregoire.favre@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 17, 2005 at 02:04:42PM +0100, Stephen C. Tweedie wrote:
-> Hi,
+On Tue, May 17, 2005 at 11:38:34AM -0500, James Bottomley wrote:
+> On Tue, 2005-05-17 at 17:57 +0200, Grégoire Favre wrote:
+> > On this controler I have :
+> > 
+> > Host: scsi0 Channel: 00 Id: 00 Lun: 00
+> >   Vendor: IBM      Model: DDRS-39130D      Rev: DC1B
+> >   Type:   Direct-Access                    ANSI SCSI revision: 02
+> > Host: scsi0 Channel: 00 Id: 15 Lun: 00
+> >   Vendor: SEAGATE  Model: ST336706LW       Rev: 0108
+> >   Type:   Direct-Access                    ANSI SCSI revision: 03
 > 
-> On Tue, 2005-05-17 at 05:57, Al Viro wrote:
+> Erm, that doesn't square with the bug report:
 > 
-> > That is not quite correct.  You are passing very odd filp to ->ioctl()...
-> > Old variant gave NULL, which is also not too nice, though.
-> 
-> Which would you prefer?  I guess that if there _are_ going to be
-> problems, we'd be better off finding them early by passing in the NULL
-> value.
+> >   Vendor: IBM-PSG   Model: ST39103LC     !#  Rev: B227
+> >   Type:   Direct-Access                      ANSI SCSI revision: 02
+> > scsi0:A:0:0: Tagged Queuing enabled.  Depth 32
+> [...]
+> >   Vendor: IBM-PSG   Model: ST39103LC     !#  Rev: B227
+> >   Type:   Direct-Access                      ANSI SCSI revision: 02
+> > scsi0:A:1:0: Tagged Queuing enabled.  Depth 32
 
-For now I'd rather pass NULL.  Longer term (== post 2.6.12, since There Is No
-2.7(tm)) - just remove the struct file * argument of bdev ioctl and have
-int flags used instead, with "opened for write" and "opened non-blocking"
-passed in it.  And switch the inode argument to bdev...
+Well,
+
+I just did some copy, and I didn't swap hardware ???
+
+What does that mean ?
+-- 
+	Grégoire Favre

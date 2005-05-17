@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVEQQa7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261751AbVEQQi5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbVEQQa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 12:30:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbVEQQa7
+	id S261751AbVEQQi5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 12:38:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbVEQQi5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 12:30:59 -0400
-Received: from fire.osdl.org ([65.172.181.4]:6833 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261522AbVEQQaw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 12:30:52 -0400
-Date: Tue, 17 May 2005 09:32:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-cc: Kirill Korotaev <dev@sw.ru>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NMI watchdog config option (was: Re: [PATCH] NMI lockup
- and AltSysRq-P dumping calltraces on _all_ cpus via NMI IPI)
-In-Reply-To: <Pine.LNX.4.61L.0505171656300.17529@blysk.ds.pg.gda.pl>
-Message-ID: <Pine.LNX.4.58.0505170928220.18337@ppc970.osdl.org>
-References: <42822B5F.8040901@sw.ru> <768860000.1116282855@flay>
- <42899797.2090702@sw.ru> <Pine.LNX.4.58.0505170844550.18337@ppc970.osdl.org>
- <Pine.LNX.4.61L.0505171656300.17529@blysk.ds.pg.gda.pl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 17 May 2005 12:38:57 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:42178 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261795AbVEQQix (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 12:38:53 -0400
+Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: =?ISO-8859-1?Q?Gr=E9goire?= Favre <gregoire.favre@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, dino@in.ibm.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20050517155731.GA9590@gmail.com>
+References: <20050516085832.GA9558@gmail.com>
+	 <20050517071307.GA4794@in.ibm.com> <20050517002908.005a9ba7.akpm@osdl.org>
+	 <1116340465.4989.2.camel@mulgrave>  <20050517155731.GA9590@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Tue, 17 May 2005 11:38:34 -0500
+Message-Id: <1116347914.4989.24.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 17 May 2005, Maciej W. Rozycki wrote:
->
-> On Tue, 17 May 2005, Linus Torvalds wrote:
-> > 
-> > I really don't want NMI watchdogs enabled by default. It's historically 
-> > been _very_ fragile on some systems. Whether that has been due to harware 
-> > or sw bugs, I dunno, but it's definitely been problematic.
+On Tue, 2005-05-17 at 17:57 +0200, Grégoire Favre wrote:
+> On this controler I have :
 > 
->  Mostly or perhaps even exclusively due to BIOS bugs -- you know, that 
-> piece of hidden firmware that runs in the SMM under our feet and fiddles 
-> randomly with hardware we can do nothing about.
+> Host: scsi0 Channel: 00 Id: 00 Lun: 00
+>   Vendor: IBM      Model: DDRS-39130D      Rev: DC1B
+>   Type:   Direct-Access                    ANSI SCSI revision: 02
+> Host: scsi0 Channel: 00 Id: 15 Lun: 00
+>   Vendor: SEAGATE  Model: ST336706LW       Rev: 0108
+>   Type:   Direct-Access                    ANSI SCSI revision: 03
 
-I'd love to just blame the BIOS, but we've definitely had our own share of
-bugs too. NMI makes all the fast system call etc stuff much more
-"exciting", and we've several times had code that does actually disable
-interrupts for a long time - which may be exceedingly impolite, but then
-the NMI watchdog makes it a fatal error rather than something that is just
-a nuisanse.
+Erm, that doesn't square with the bug report:
 
-Of course, our own bugs we can fix (and hopefully we have done so - many
-people _do_ obviously use the NMI watchdog as-is), so yes, in that sense 
-BIOS (and hardware) bugs end up being a special case.
+>   Vendor: IBM-PSG   Model: ST39103LC     !#  Rev: B227
+>   Type:   Direct-Access                      ANSI SCSI revision: 02
+> scsi0:A:0:0: Tagged Queuing enabled.  Depth 32
+[...]
+>   Vendor: IBM-PSG   Model: ST39103LC     !#  Rev: B227
+>   Type:   Direct-Access                      ANSI SCSI revision: 02
+> scsi0:A:1:0: Tagged Queuing enabled.  Depth 32
 
-		Linus
+James
+

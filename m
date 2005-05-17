@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbVEQUYk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261922AbVEQU2A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261557AbVEQUYk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 16:24:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVEQUYf
+	id S261922AbVEQU2A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 16:28:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbVEQU2A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 16:24:35 -0400
-Received: from mail.suse.de ([195.135.220.2]:51143 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261922AbVEQUY3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 16:24:29 -0400
-Date: Tue, 17 May 2005 22:24:28 +0200
-From: Andi Kleen <ak@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, "Yu, Luming" <luming.yu@intel.com>,
-       "Guo, Racing" <racing.guo@intel.com>, Andi Kleen <ak@suse.de>,
-       Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] x86 port lockless MCE quirky bank0
-Message-ID: <20050517202428.GD307@wotan.suse.de>
-References: <Pine.LNX.4.61.0505172107490.5585@goblin.wat.veritas.com>
+	Tue, 17 May 2005 16:28:00 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:58382 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261922AbVEQU1z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 16:27:55 -0400
+Message-Id: <200505172027.j4HKRjTV029545@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Karel Kulhavy <clock@twibright.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: software mixing in alsa 
+In-Reply-To: Your message of "Tue, 17 May 2005 21:24:12 +0200."
+             <20050517192412.GA19431@kestrel.twibright.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <20050517095613.GA9947@kestrel> <200505171208.04052.jan@spitalnik.net> <20050517141307.GA7759@kestrel> <1116354762.31830.12.camel@mindpipe>
+            <20050517192412.GA19431@kestrel.twibright.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0505172107490.5585@goblin.wat.veritas.com>
+Content-Type: multipart/signed; boundary="==_Exmh_1116361664_5349P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 17 May 2005 16:27:44 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> +	if ((c->x86_vendor == X86_VENDOR_AMD ||
-> +	     c->x86_vendor == X86_VENDOR_INTEL) && c->x86 == 6) {
-> +		/*
-> +		 * Intel P6 cores go bang quickly when bank0 is enabled.
-> +	 	 * Some Athlons cause spurious MCEs when bank0 is enabled.
-> +		 */
-> +		quirky_bank0 = 1;
-> +	}
+--==_Exmh_1116361664_5349P
+Content-Type: text/plain; charset=us-ascii
 
-That's wrong on K8 AMD machines at least. You need to check c->x86
-there too.
+On Tue, 17 May 2005 21:24:12 +0200, Karel Kulhavy said:
+> Lee Revell wrote:
+> 
+> > Finally, these questions are all OT for LKML.  Try alsa-user at
+> > lists.sf.net and alsa-devel at lists.sf.net.  Also there's a bug
+> 
+> ALSA is a part of Linux kernel, right? This is linux-kernel. Why
+> is it OT here? Doesn't make sense for me.
 
-And better would be to just do bank[0] = 0 instead of
-adding the new variable.
+I was hoping somebody would explain how to get 'dmix' plugin working in the
+kernel - then I could get rid of esd ;)  (Note that running something in
+userspace that accepts connections, runs dmix on them, and then creates one
+thing spewing to /dev/pcm isn't a solution - I've already *got* esd, warts and all)
 
--Andi
+--==_Exmh_1116361664_5349P
+Content-Type: application/pgp-signature
 
-P.S.: Also Yu Luming can you please submit an updated patch that keeps mce.c
-in arch/x86_64 like we discussed earlier?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFCilPAcC3lWbTT17ARAjSEAJsHDlffl89lbxjN5+Ll24bT6h+3SACgmG2+
+9irInz5eeM0T3sdydriWXGE=
+=HFsa
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1116361664_5349P--

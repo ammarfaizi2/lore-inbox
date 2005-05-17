@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262022AbVEQW0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVEQW0V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262022AbVEQW0t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 18:26:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbVEQWXc
+	id S261964AbVEQW0V (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 18:26:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbVEQWYT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 18:23:32 -0400
-Received: from mail.kroah.org ([69.55.234.183]:30885 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261748AbVEQWLn (ORCPT
+	Tue, 17 May 2005 18:24:19 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:14762 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S262022AbVEQWTd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 18:11:43 -0400
-Date: Tue, 17 May 2005 15:11:39 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [GIT PATCH] Driver Core patches for 2.6.12-rc4
-Message-ID: <20050517221136.GA29232@kroah.com>
+	Tue, 17 May 2005 18:19:33 -0400
+Message-ID: <428A6DF2.2010604@drzeus.cx>
+Date: Wed, 18 May 2005 00:19:30 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-5861-1116368372-0001-2"
+To: LKML <linux-kernel@vger.kernel.org>
+CC: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: [PATCH 2/2] Proper MMC command classes support
+References: <428A6C3A.40505@drzeus.cx>
+In-Reply-To: <428A6C3A.40505@drzeus.cx>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are 2 patches for the 2.6.12-rc4 tree that clean up some driver
-core stuff.  Both of these patches have been in the -mm tree for a
-while.
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-Please pull from:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-2.6.git/
+--=_hermes.drzeus.cx-5861-1116368372-0001-2
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
 
-Full patches will be sent to the linux-kernel mailing list, if anyone
-wants to see them.
+Removes the check for high command classes and instead checks that the
+command classes needed are present.
+Previous solution killed forward compatibility at no apparent gain.
 
-thanks,
+Signed-of-by: Pierre Ossman <drzeus@drzeus.cx>
 
-greg k-h
+This patch only checks for CCC_BLOCK_READ even though CCC_BLOCK_WRITE is
+also needed. My intention is to make the card read-only if the write
+command class is unavailable. But such a patch will conflict with the SD
+patches previously submitted. So I need to know which version should be
+used as a base.
 
- Documentation/filesystems/sysfs-pci.txt |    6 +--
- Documentation/power/devices.txt         |   21 -------------
- Documentation/powerpc/hvcs.txt          |    4 +-
- drivers/base/Makefile                   |    2 -
- drivers/base/bus.c                      |    1 
- drivers/base/core.c                     |    3 -
- drivers/base/interface.c                |   51 --------------------------------
- drivers/base/power/power.h              |   11 ------
- drivers/base/power/resume.c             |   11 ++++++
- drivers/base/power/shutdown.c           |   29 ++++--------------
- drivers/base/power/suspend.c            |   17 +++++++++-
- include/linux/device.h                  |    3 -
- kernel/power/main.c                     |    6 +--
- 13 files changed, 40 insertions(+), 125 deletions(-)
 
-David Brownell:
-  o Driver Core: remove driver model detach_state
-  o Driver Core: pm diagnostics update, check for errors
+--=_hermes.drzeus.cx-5861-1116368372-0001-2
+Content-Type: text/x-patch; name="mmc-block-ccc.patch"; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="mmc-block-ccc.patch"
 
+Index: linux-wbsd/drivers/mmc/mmc_block.c
+===================================================================
+--- linux-wbsd/drivers/mmc/mmc_block.c	(revision 134)
++++ linux-wbsd/drivers/mmc/mmc_block.c	(working copy)
+@@ -443,7 +443,10 @@
+ 	struct mmc_blk_data *md;
+ 	int err;
+ 
+-	if (card->csd.cmdclass & ~0x1ff)
++	/*
++	 * Check that the card supports the command class(es) we need.
++	 */
++	if (!(card->csd.cmdclass & CCC_BLOCK_READ))
+ 		return -ENODEV;
+ 
+ 	if (card->csd.read_blkbits < 9) {
+
+--=_hermes.drzeus.cx-5861-1116368372-0001-2--

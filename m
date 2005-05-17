@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261808AbVEQQHQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261755AbVEQQMV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261808AbVEQQHQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 12:07:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbVEQQFT
+	id S261755AbVEQQMV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 12:12:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbVEQQHr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 12:05:19 -0400
-Received: from opersys.com ([64.40.108.71]:6 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261778AbVEQPzP (ORCPT
+	Tue, 17 May 2005 12:07:47 -0400
+Received: from pop.gmx.net ([213.165.64.20]:30385 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261738AbVEQQFu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 11:55:15 -0400
-Message-ID: <428A1667.7030503@opersys.com>
-Date: Tue, 17 May 2005 12:05:59 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Tue, 17 May 2005 12:05:50 -0400
+Date: Tue, 17 May 2005 18:05:47 +0200 (MEST)
+From: "Manfred Schwarb" <manfred99@gmx.ch>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: marcelo.tosatti@cyclades.com, linux-kernel@vger.kernel.org,
+       davem@redhat.com, netdev@oss.sgi.com
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: A few articles on RTAI/fusion, the next gen RTAI
-Content-Type: text/plain; charset=us-ascii
+References: <20050514110516.GA1238@gondor.apana.org.au>
+Subject: Re: 2.4.30-hf1 do_IRQ stack overflows
+X-Priority: 3 (Normal)
+X-Authenticated: #17170890
+Message-ID: <23492.1116345947@www33.gmx.net>
+X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
+X-Flags: 0001
+Content-Type: text/plain; charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-I thought I'd pass these articles along for those who are interested.
-They were written by Philippe Gerum, who currently maintains Adeos
-and is the chief architect/maintainer of RTAI/fusion (which only
-retains the name for historical reasons, but is actually a complete
-rewrite):
-http://download.gna.org/rtai/documentation/fusion/pdf/Life-with-Adeos.pdf
-http://download.gna.org/rtai/documentation/fusion/pdf/Introduction-to-UVMs.pdf
-http://download.gna.org/rtai/documentation/fusion/pdf/Native-API-Tour.pdf
+> >
+> > Trace; f8b531fc <[reiserfs]reiserfs_insert_item+14c/150>
+> > Trace; c02387be <__kfree_skb+fe/160>
+> > Trace; c02387be <__kfree_skb+fe/160>
+> > Trace; f90dd5f4 <[8139too]rtl8139_start_xmit+84/180>
+> 
+> Do you have any funky netfilter/iptables modules loaded?
 
-Karim
+I use a iptables based firewall, but no additional netfilter modules
+are loaded. The network configuration is as it is shipped by SuSE
+(i.e. no CONFIG_IP_NF_* modules, but most of the "Networking options"
+are set to y).
+And as I told in an earlier mail, I had scheduling built in
+the kernel (CONFIG_NET_SCHED=y, CONFIG_NET_QOS=y, 
+CONFIG_NET_ESTIMATOR=y, CONFIG_NET_CLS=y, CONFIG_NET_CLS_ROUTE=y).
+
+I have disabled NET_SCHED now (as Marcelo suggested), and I got no 
+overflows since then (4 days uptime).
+
+Seems to work so far.
+Thanks and regards,
+Manfred
+
+
+
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Weitersagen: GMX DSL-Flatrates mit Tempo-Garantie!
+Ab 4,99 Euro/Monat: http://www.gmx.net/de/go/dsl

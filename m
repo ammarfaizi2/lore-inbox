@@ -1,60 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVEQKjN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVEQKkR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261359AbVEQKjN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 06:39:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbVEQKjN
+	id S261361AbVEQKkR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 06:40:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbVEQKkR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 06:39:13 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:27213 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261359AbVEQKjH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 06:39:07 -0400
+	Tue, 17 May 2005 06:40:17 -0400
+Received: from rproxy.gmail.com ([64.233.170.202]:4217 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261364AbVEQKje (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 06:39:34 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=LGu4RTtKP8ng0H6MeF+eI1YHlp8GH+acdrqIPYlmJqpW4Zn7sdu3Bo8eHZinydoJPwj0apju4dC2Ca+1EDEIQAGQM30gDB7jiEeTpunCO2zx3cxxirhYtw7vn34U/YxDO0NgUaXl9/c6/DF/z4y+1GtKMwn8uTl3K3X/A4U+310=
-Message-ID: <2538186705051703394944e949@mail.gmail.com>
-Date: Tue, 17 May 2005 06:39:07 -0400
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
+        b=p5x2QD5kLwUnQa24s8ojZ/RCNpxjl4fEUvXjP/jLMyqWvHAy6o6bOu0BIQshI8ZANahUOqG+B5FzZrFRNVjyqs7IbgxGZB/A7OzJLPf8F3yzEQmoD1wB3+HaXv6H7RJYWZ/HcITUh/W6Sgl74m7dqx5lvbKQxh7IOpKkZxVhoCc=
+Message-ID: <253818670505170339187ebecd@mail.gmail.com>
+Date: Tue, 17 May 2005 06:39:34 -0400
 From: Yani Ioannou <yani.ioannou@gmail.com>
 Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
 To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
        lm-sensors@lm-sensors.org
-Subject: [PATCH 2.6.12-rc4 1/15] (dynamic sysfs callbacks) device attribute callbacks - take 2
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: [PATCH 2.6.12-rc4 2/15] drivers/base/core.c, include/linux/device.h: change device_attribute callbacks
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_252_18578562.1116326374179"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+------=_Part_252_18578562.1116326374179
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-The following patches implement dynamic sysfs callbacks for
-device_attribute, and provide a possible standard sensor attribute
-macro for the majority of the i2c sensor chip/hwmon drivers. Finally a
-patch against adm1026 shows how the patch can be used to reduce the
-footprint and clean up an existing driver.
-
-The new form of dynamic sysfs callback simply passes a reference to
-the device_attribute struct, instead of a void *, along the lines of
-the suggestion by Russell King (see
-http://lkml.org/lkml/2005/5/14/116). Embedding the device_attribute
-struct in a custom struct one can use a macro based on container_of to
-access the custom attribute specific data.
-
-Although functionally as capable as the void *, this solution I feel
-is better in that it rids of some error-prone casting, and the
-resulting code seems generally cleaner and easier to understand, there
-is also no need for the extra void * member in the base sysfs
-attribute. On the other hand a bit more work is required to implement
-this on a grand scale, and in many cases a new attribute struct might
-have to be defined for a driver, along with any convenience macros. My
-example patch implements a new attribute struct
-sensor_device_attribute that should be reusable by the majority of i2c
-chip drivers (as suggested by Greg).
+This patch adds the device_attribute paramerter to the
+device_attribute store and show sysfs callback functions, and passes a
+reference to the attribute when the callbacks are called.
 
 Signed-off-by: Yani Ioannou <yani.ioannou@gmail.com>
 
-Thanks,
-Yani
+---
+
+------=_Part_252_18578562.1116326374179
+Content-Type: text/plain; 
+	name=patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr.diff.diffstat.txt; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr.diff.diffstat.txt"
+
+ drivers/base/core.c    |    4 ++--
+ include/linux/device.h |    5 +++--
+ 2 files changed, 5 insertions(+), 4 deletions(-)
+
+
+------=_Part_252_18578562.1116326374179
+Content-Type: text/x-patch; 
+	name=patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr.diff; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr.diff"
+
+diff -uprN -X dontdiff linux-2.6.12-rc4/drivers/base/core.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/base/core.c
+--- linux-2.6.12-rc4/drivers/base/core.c	2005-05-07 03:37:15.000000000 -0400
++++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/base/core.c	2005-05-16 20:50:02.000000000 -0400
+@@ -41,7 +41,7 @@ dev_attr_show(struct kobject * kobj, str
+ 	ssize_t ret = 0;
+ 
+ 	if (dev_attr->show)
+-		ret = dev_attr->show(dev, buf);
++		ret = dev_attr->show(dev, dev_attr, buf);
+ 	return ret;
+ }
+ 
+@@ -54,7 +54,7 @@ dev_attr_store(struct kobject * kobj, st
+ 	ssize_t ret = 0;
+ 
+ 	if (dev_attr->store)
+-		ret = dev_attr->store(dev, buf, count);
++		ret = dev_attr->store(dev, dev_attr, buf, count);
+ 	return ret;
+ }
+ 
+diff -uprN -X dontdiff linux-2.6.12-rc4/include/linux/device.h linux-2.6.12-rc4-sysfsdyncallback-deviceattr/include/linux/device.h
+--- linux-2.6.12-rc4/include/linux/device.h	2005-05-07 03:37:24.000000000 -0400
++++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr/include/linux/device.h	2005-05-16 20:58:43.000000000 -0400
+@@ -335,8 +335,9 @@ extern void driver_attach(struct device_
+ 
+ struct device_attribute {
+ 	struct attribute	attr;
+-	ssize_t (*show)(struct device * dev, char * buf);
+-	ssize_t (*store)(struct device * dev, const char * buf, size_t count);
++	ssize_t (*show)(struct device * dev, struct device_attribute *attr, char * buf);
++	ssize_t (*store)(struct device * dev, struct device_attribute *attr, 
++			const char * buf, size_t count);
+ };
+ 
+ #define DEVICE_ATTR(_name,_mode,_show,_store) \
+
+
+------=_Part_252_18578562.1116326374179--

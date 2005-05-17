@@ -1,60 +1,200 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbVEQXfd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262028AbVEQXjH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262016AbVEQXfd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 19:35:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbVEQXfc
+	id S262028AbVEQXjH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 19:39:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbVEQXgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 19:35:32 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:7366 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261970AbVEQXcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 19:32:24 -0400
-Subject: Re: software mixing in alsa
-From: Lee Revell <rlrevell@joe-job.com>
-To: Karel Kulhavy <clock@twibright.com>
-Cc: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>, linux-kernel@vger.kernel.org
-In-Reply-To: <1116365790.32210.29.camel@mindpipe>
-References: <20050517095613.GA9947@kestrel>
-	 <200505171208.04052.jan@spitalnik.net> <20050517141307.GA7759@kestrel>
-	 <1116354762.31830.12.camel@mindpipe> <428A45C3.8060904@stud.feec.vutbr.cz>
-	 <20050517210444.GA21257@kestrel>  <1116365790.32210.29.camel@mindpipe>
-Content-Type: text/plain
-Date: Tue, 17 May 2005 19:32:22 -0400
-Message-Id: <1116372742.2567.1.camel@mindpipe>
+	Tue, 17 May 2005 19:36:55 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:19646 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261998AbVEQXef
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 19:34:35 -0400
+Date: Tue, 17 May 2005 16:34:25 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org
+Subject: [RFC][PATCH 1/4] move arch-specific timeofday core to asm
+Message-ID: <20050517233425.GF2735@us.ibm.com>
+References: <1116029796.26454.2.camel@cog.beaverton.ibm.com> <20050517233300.GE2735@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050517233300.GE2735@us.ibm.com>
+X-Operating-System: Linux 2.6.12-rc4 (i686)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-17 at 17:36 -0400, Lee Revell wrote:
-> On Tue, 2005-05-17 at 23:04 +0200, Karel Kulhavy wrote:
-> > On Tue, May 17, 2005 at 09:28:03PM +0200, Michal Schmidt wrote:
-> > > Lee Revell wrote:
-> > > >mpg123 is an open source application so there's no excuse for it not to
-> > > >support ALSA in 2005.
-> > > 
-> > > Its COPYING file says:
-> > >   This software may be distributed freely, provided that it is
-> > >   distributed in its entirety, without modifications, ...
-> > > This doesn't look like an open source license at all.
-> > > That's why Debian puts mpg123 in non-free.
-> > > 
-> > > Karel, you may want to try mpg321 instead. It already has ALSA support.
+On 17.05.2005 [16:33:00 -0700], Nishanth Aravamudan wrote:
+> On 13.05.2005 [17:16:35 -0700], john stultz wrote:
+> > All,
+> > 	This patch implements the architecture independent portion of the new
+> > time of day subsystem. For a brief description on the rework, see here:
+> > http://lwn.net/Articles/120850/ (Many thanks to the LWN team for that
+> > easy to understand writeup!)
 > > 
-> > Tried with the same result: fast forward.
-> > 
+> > 	I intend this to be the last RFC release and to submit this patch to
+> > Andrew for for testing near the end of this month. So please, if you
+> > have any complaints, suggestions, or blocking issues, let me know.
 > 
-> Then the problem is probably with your ALSA configuration, or (less
-> likely) an ALSA bug.  I suspect your MP3s are 44100 KHz and they are
-> being played at 48000 KHz.
+> I have been working closely with John to re-work the soft-timer subsytem
+> to use the new timeofday() subsystem. The following patches attempts to
+> begin this process. I would greatly appreciate any comments.
 
-OK, I found this bug report that describes the same problem:
+Description: Updates the timeofday-rework to move arch-specific code
+into asm headers files.
 
-https://bugtrack.alsa-project.org/alsa-bug/view.php?id=1098
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 
-The short answer is that you need to have mpg321 use the "plug:dmix"
-device.
-
-Lee
-
+diff -urpN 2.6.12-rc4-tod-lkml/arch/i386/kernel/time.c 2.6.12-rc4-tod/arch/i386/kernel/time.c
+--- 2.6.12-rc4-tod-lkml/arch/i386/kernel/time.c	2005-05-17 15:30:06.000000000 -0700
++++ 2.6.12-rc4-tod/arch/i386/kernel/time.c	2005-05-17 13:01:12.000000000 -0700
+@@ -56,6 +56,7 @@
+ #include <asm/uaccess.h>
+ #include <asm/processor.h>
+ #include <asm/timer.h>
++#include <asm/timeofday.h>
+ 
+ #include "mach_time.h"
+ 
+@@ -68,8 +69,6 @@
+ 
+ #include "io_ports.h"
+ 
+-#include <linux/timeofday.h>
+-
+ extern spinlock_t i8259A_lock;
+ int pit_latch_buggy;              /* extern */
+ 
+diff -urpN 2.6.12-rc4-tod-lkml/include/asm-generic/timeofday.h 2.6.12-rc4-tod/include/asm-generic/timeofday.h
+--- 2.6.12-rc4-tod-lkml/include/asm-generic/timeofday.h	1969-12-31 16:00:00.000000000 -0800
++++ 2.6.12-rc4-tod/include/asm-generic/timeofday.h	2005-05-17 13:01:12.000000000 -0700
+@@ -0,0 +1,26 @@
++/*  linux/include/asm-generic/timeofday.h
++ *
++ *  This file contains the asm-generic interface
++ *  to the arch specific calls used by the time of day subsystem
++ */
++#ifndef _ASM_GENERIC_TIMEOFDAY_H
++#define _ASM_GENERIC_TIMEOFDAY_H
++#include <linux/types.h>
++#include <linux/time.h>
++#include <linux/timex.h>
++#include <asm/div64.h>
++#ifdef CONFIG_NEWTOD
++
++/* Required externs */
++extern nsec_t read_persistent_clock(void);
++extern void sync_persistent_clock(struct timespec ts);
++
++#ifdef CONFIG_NEWTOD_VSYSCALL
++extern void arch_update_vsyscall_gtod(nsec_t wall_time, cycle_t offset_base,
++				struct timesource_t* timesource, int ntp_adj);
++#else
++#define arch_update_vsyscall_gtod(x,y,z,w) {}
++#endif /* CONFIG_NEWTOD_VSYSCALL */
++
++#endif /* CONFIG_NEWTOD */
++#endif
+diff -urpN 2.6.12-rc4-tod-lkml/include/asm-i386/timeofday.h 2.6.12-rc4-tod/include/asm-i386/timeofday.h
+--- 2.6.12-rc4-tod-lkml/include/asm-i386/timeofday.h	1969-12-31 16:00:00.000000000 -0800
++++ 2.6.12-rc4-tod/include/asm-i386/timeofday.h	2005-05-17 13:01:12.000000000 -0700
+@@ -0,0 +1,4 @@
++#ifndef _ASM_I386_TIMEOFDAY_H
++#define _ASM_I386_TIMEOFDAY_H
++#include <asm-generic/timeofday.h>
++#endif
+diff -urpN 2.6.12-rc4-tod-lkml/include/asm-ia64/timeofday.h 2.6.12-rc4-tod/include/asm-ia64/timeofday.h
+--- 2.6.12-rc4-tod-lkml/include/asm-ia64/timeofday.h	1969-12-31 16:00:00.000000000 -0800
++++ 2.6.12-rc4-tod/include/asm-ia64/timeofday.h	2005-05-17 13:01:12.000000000 -0700
+@@ -0,0 +1,4 @@
++#ifndef _ASM_IA64_TIMEOFDAY_H
++#define _ASM_IA64_TIMEOFDAY_H
++#include <asm-generic/timeofday.h>
++#endif
+diff -urpN 2.6.12-rc4-tod-lkml/include/asm-ppc/timeofday.h 2.6.12-rc4-tod/include/asm-ppc/timeofday.h
+--- 2.6.12-rc4-tod-lkml/include/asm-ppc/timeofday.h	1969-12-31 16:00:00.000000000 -0800
++++ 2.6.12-rc4-tod/include/asm-ppc/timeofday.h	2005-05-17 13:01:12.000000000 -0700
+@@ -0,0 +1,4 @@
++#ifndef _ASM_PPC_TIMEOFDAY_H
++#define _ASM_PPC_TIMEOFDAY_H
++#include <asm-generic/timeofday.h>
++#endif
+diff -urpN 2.6.12-rc4-tod-lkml/include/asm-ppc64/timeofday.h 2.6.12-rc4-tod/include/asm-ppc64/timeofday.h
+--- 2.6.12-rc4-tod-lkml/include/asm-ppc64/timeofday.h	1969-12-31 16:00:00.000000000 -0800
++++ 2.6.12-rc4-tod/include/asm-ppc64/timeofday.h	2005-05-17 13:01:12.000000000 -0700
+@@ -0,0 +1,4 @@
++#ifndef _ASM_PPC64_TIMEOFDAY_H
++#define _ASM_PPC64_TIMEOFDAY_H
++#include <asm-generic/timeofday.h>
++#endif
+diff -urpN 2.6.12-rc4-tod-lkml/include/asm-s390/timeofday.h 2.6.12-rc4-tod/include/asm-s390/timeofday.h
+--- 2.6.12-rc4-tod-lkml/include/asm-s390/timeofday.h	1969-12-31 16:00:00.000000000 -0800
++++ 2.6.12-rc4-tod/include/asm-s390/timeofday.h	2005-05-17 13:01:12.000000000 -0700
+@@ -0,0 +1,4 @@
++#ifndef _ASM_S390_TIMEOFDAY_H
++#define _ASM_S390_TIMEOFDAY_H
++#include <asm-generic/timeofday.h>
++#endif
+diff -urpN 2.6.12-rc4-tod-lkml/include/asm-x86_64/timeofday.h 2.6.12-rc4-tod/include/asm-x86_64/timeofday.h
+--- 2.6.12-rc4-tod-lkml/include/asm-x86_64/timeofday.h	1969-12-31 16:00:00.000000000 -0800
++++ 2.6.12-rc4-tod/include/asm-x86_64/timeofday.h	2005-05-17 13:01:12.000000000 -0700
+@@ -0,0 +1,4 @@
++#ifndef _ASM_X86_64_TIMEOFDAY_H
++#define _ASM_X86_64_TIMEOFDAY_H
++#include <asm-generic/timeofday.h>
++#endif
+diff -urpN 2.6.12-rc4-tod-lkml/include/linux/timeofday.h 2.6.12-rc4-tod/include/linux/timeofday.h
+--- 2.6.12-rc4-tod-lkml/include/linux/timeofday.h	2005-05-17 15:29:29.000000000 -0700
++++ 2.6.12-rc4-tod/include/linux/timeofday.h	2005-05-17 13:01:12.000000000 -0700
+@@ -7,7 +7,6 @@
+ #include <linux/types.h>
+ #include <linux/time.h>
+ #include <linux/timex.h>
+-#include <linux/timesource.h>
+ #include <asm/div64.h>
+ 
+ #ifdef CONFIG_NEWTOD
+@@ -23,19 +22,6 @@ extern int do_adjtimex(struct timex *tx)
+ 
+ extern void timeofday_init(void);
+ 
+-
+-/* Required externs */
+-/* XXX - should this go elsewhere? */
+-extern nsec_t read_persistent_clock(void);
+-extern void sync_persistent_clock(struct timespec ts);
+-#ifdef CONFIG_NEWTOD_VSYSCALL
+-extern void arch_update_vsyscall_gtod(nsec_t wall_time, cycle_t offset_base,
+-				struct timesource_t* timesource, int ntp_adj);
+-#else
+-#define arch_update_vsyscall_gtod(x,y,z,w) {}
+-#endif
+-
+-
+ /* Inline helper functions */
+ static inline struct timeval ns_to_timeval(nsec_t ns)
+ {
+diff -urpN 2.6.12-rc4-tod-lkml/kernel/timeofday.c 2.6.12-rc4-tod/kernel/timeofday.c
+--- 2.6.12-rc4-tod-lkml/kernel/timeofday.c	2005-05-17 15:29:29.000000000 -0700
++++ 2.6.12-rc4-tod/kernel/timeofday.c	2005-05-17 13:01:12.000000000 -0700
+@@ -58,6 +58,7 @@
+ #include <linux/sched.h> /* Needed for capable() */
+ #include <linux/sysdev.h>
+ #include <linux/jiffies.h>
++#include <asm/timeofday.h>
+ 
+ /* XXX - remove later */
+ #define TIME_DBG 0

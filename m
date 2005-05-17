@@ -1,45 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261952AbVEQVIQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbVEQVRQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261952AbVEQVIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 17:08:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVEQVIQ
+	id S261946AbVEQVRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 17:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbVEQVRQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 17:08:16 -0400
-Received: from 6.219.203.62.cust.bluewin.ch ([62.203.219.6]:44337 "EHLO
-	kestrel.twibright.com") by vger.kernel.org with ESMTP
-	id S261952AbVEQVIH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 17:08:07 -0400
-Date: Tue, 17 May 2005 23:04:44 +0200
-From: Karel Kulhavy <clock@twibright.com>
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: software mixing in alsa
-Message-ID: <20050517210444.GA21257@kestrel>
-References: <20050517095613.GA9947@kestrel> <200505171208.04052.jan@spitalnik.net> <20050517141307.GA7759@kestrel> <1116354762.31830.12.camel@mindpipe> <428A45C3.8060904@stud.feec.vutbr.cz>
+	Tue, 17 May 2005 17:17:16 -0400
+Received: from ojjektum.uhulinux.hu ([62.112.194.64]:11486 "EHLO
+	ojjektum.uhulinux.hu") by vger.kernel.org with ESMTP
+	id S261946AbVEQVRL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 17:17:11 -0400
+Date: Tue, 17 May 2005 23:17:04 +0200
+From: =?iso-8859-1?Q?Pozs=E1r_Bal=E1zs?= <pozsy@uhulinux.hu>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Cc: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Oops on CF removal and "convert device drivers to driver-model"
+Message-ID: <20050517211704.GB7452@ojjektum.uhulinux.hu>
+References: <20050514135019.0b3252f1.zaitcev@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <428A45C3.8060904@stud.feec.vutbr.cz>
-X-Orientation: Gay
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <20050514135019.0b3252f1.zaitcev@redhat.com>
+User-Agent: Mutt/1.5.7i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 17, 2005 at 09:28:03PM +0200, Michal Schmidt wrote:
-> Lee Revell wrote:
-> >mpg123 is an open source application so there's no excuse for it not to
-> >support ALSA in 2005.
-> 
-> Its COPYING file says:
->   This software may be distributed freely, provided that it is
->   distributed in its entirety, without modifications, ...
-> This doesn't look like an open source license at all.
-> That's why Debian puts mpg123 in non-free.
-> 
-> Karel, you may want to try mpg321 instead. It already has ALSA support.
+On Sat, May 14, 2005 at 01:50:19PM -0700, Pete Zaitcev wrote:
+> @@ -1138,7 +1133,8 @@ static int idescsi_attach(ide_drive_t *d
+>  	idescsi->host = host;
+>  	idescsi->disk = g;
+>  	g->private_data = &idescsi->driver;
+> -	err = ide_register_subdriver(drive, &idescsi_driver);
+> +	ide_register_subdriver(drive, &idescsi_driver);
+> +	err = 0;
+>  	if (!err) {
+>  		idescsi_setup (drive, idescsi);
+>  		g->fops = &idescsi_ops;
 
-Tried with the same result: fast forward.
 
-CL<
-> 
-> Michal
+!err cannot be true here, so this seems buggy.
+
+
+
+
+-- 
+pozsy
+

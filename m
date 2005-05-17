@@ -1,202 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbVEQWEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261953AbVEQWEs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261937AbVEQWEs (ORCPT <rfc822;willy@w.ods.org>);
+	id S261953AbVEQWEs (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 17 May 2005 18:04:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbVEQWCD
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbVEQWD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 18:02:03 -0400
-Received: from mail.kroah.org ([69.55.234.183]:64923 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262000AbVEQVo6 convert rfc822-to-8bit
+	Tue, 17 May 2005 18:03:59 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:55496 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S262013AbVEQV5Y
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 17:44:58 -0400
-Cc: scottm@somanetworks.com
-Subject: [PATCH] PCI Hotplug: remove pci_visit_dev
-In-Reply-To: <11163663062856@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 17 May 2005 14:45:06 -0700
-Message-Id: <1116366306935@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+	Tue, 17 May 2005 17:57:24 -0400
+Message-ID: <428A68BC.1020303@namesys.com>
+Date: Tue, 17 May 2005 14:57:16 -0700
+From: Hans Reiser <reiser@namesys.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Berck E. Nash" <flyboy@gmail.com>
+CC: linux-kernel@vger.kernel.org, vs <vs@thebsh.namesys.com>
+Subject: Re: Scheduling while atomic lockups, Reiser4, DAC960
+References: <428A40EC.8050206@gmail.com>
+In-Reply-To: <428A40EC.8050206@gmail.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] PCI Hotplug: remove pci_visit_dev
+vs will look at it.
 
-If my CPCI hotplug update patch is applied, then there are no longer any
-in tree users of the pci_visit_dev API, and it and its related code can be
-removed.
+Hans
 
-Signed-off-by: Scott Murray <scottm@somanetworks.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Berck E. Nash wrote:
 
----
-commit c22610dadc0452b1273494f2b5157123c6cd60e1
-tree 150d5315df21f02605ad5a6541ef7cb00176d023
-parent 43b7d7cfb157b5c8c5cc0933f4e96fd81adc81ca
-author Scott Murray <scottm@somanetworks.com> Mon, 09 May 2005 17:36:27 -0400
-committer Greg KH <gregkh@suse.de> Tue, 17 May 2005 14:31:11 -0700
-
- drivers/pci/hotplug.c |  109 --------------------------------------------------
- drivers/pci/pci.h     |   27 ------------
- 2 files changed, 136 deletions(-)
-
-Index: drivers/pci/hotplug.c
-===================================================================
---- 2af3b43ed8ee9468b1e0418c10275f33d23ced19/drivers/pci/hotplug.c  (mode:100644)
-+++ 150d5315df21f02605ad5a6541ef7cb00176d023/drivers/pci/hotplug.c  (mode:100644)
-@@ -56,112 +56,3 @@
- 
- 	return 0;
- }
--
--static int pci_visit_bus (struct pci_visit * fn, struct pci_bus_wrapped *wrapped_bus, struct pci_dev_wrapped *wrapped_parent)
--{
--	struct list_head *ln;
--	struct pci_dev *dev;
--	struct pci_dev_wrapped wrapped_dev;
--	int result = 0;
--
--	pr_debug("PCI: Scanning bus %04x:%02x\n", pci_domain_nr(wrapped_bus->bus),
--		wrapped_bus->bus->number);
--
--	if (fn->pre_visit_pci_bus) {
--		result = fn->pre_visit_pci_bus(wrapped_bus, wrapped_parent);
--		if (result)
--			return result;
--	}
--
--	ln = wrapped_bus->bus->devices.next; 
--	while (ln != &wrapped_bus->bus->devices) {
--		dev = pci_dev_b(ln);
--		ln = ln->next;
--
--		memset(&wrapped_dev, 0, sizeof(struct pci_dev_wrapped));
--		wrapped_dev.dev = dev;
--
--		result = pci_visit_dev(fn, &wrapped_dev, wrapped_bus);
--		if (result)
--			return result;
--	}
--
--	if (fn->post_visit_pci_bus)
--		result = fn->post_visit_pci_bus(wrapped_bus, wrapped_parent);
--
--	return result;
--}
--
--static int pci_visit_bridge (struct pci_visit * fn,
--			     struct pci_dev_wrapped *wrapped_dev,
--			     struct pci_bus_wrapped *wrapped_parent)
--{
--	struct pci_bus *bus;
--	struct pci_bus_wrapped wrapped_bus;
--	int result = 0;
--
--	pr_debug("PCI: Scanning bridge %s\n", pci_name(wrapped_dev->dev));
--
--	if (fn->visit_pci_dev) {
--		result = fn->visit_pci_dev(wrapped_dev, wrapped_parent);
--		if (result)
--			return result;
--	}
--
--	bus = wrapped_dev->dev->subordinate;
--	if (bus) {
--		memset(&wrapped_bus, 0, sizeof(struct pci_bus_wrapped));
--		wrapped_bus.bus = bus;
--
--		result = pci_visit_bus(fn, &wrapped_bus, wrapped_dev);
--	}
--	return result;
--}
--
--/**
-- * pci_visit_dev - scans the pci buses.
-- * @fn: callback functions that are called while visiting
-- * @wrapped_dev: the device to scan
-- * @wrapped_parent: the bus where @wrapped_dev is connected to
-- *
-- * Every bus and every function is presented to a custom
-- * function that can act upon it.
-- */
--int pci_visit_dev(struct pci_visit *fn, struct pci_dev_wrapped *wrapped_dev,
--		  struct pci_bus_wrapped *wrapped_parent)
--{
--	struct pci_dev* dev = wrapped_dev ? wrapped_dev->dev : NULL;
--	int result = 0;
--
--	if (!dev)
--		return 0;
--
--	if (fn->pre_visit_pci_dev) {
--		result = fn->pre_visit_pci_dev(wrapped_dev, wrapped_parent);
--		if (result)
--			return result;
--	}
--
--	switch (dev->class >> 8) {
--		case PCI_CLASS_BRIDGE_PCI:
--			result = pci_visit_bridge(fn, wrapped_dev,
--						  wrapped_parent);
--			if (result)
--				return result;
--			break;
--		default:
--			pr_debug("PCI: Scanning device %s\n", pci_name(dev));
--			if (fn->visit_pci_dev) {
--				result = fn->visit_pci_dev (wrapped_dev,
--							    wrapped_parent);
--				if (result)
--					return result;
--			}
--	}
--
--	if (fn->post_visit_pci_dev)
--		result = fn->post_visit_pci_dev(wrapped_dev, wrapped_parent);
--
--	return result;
--}
--EXPORT_SYMBOL(pci_visit_dev);
-Index: drivers/pci/pci.h
-===================================================================
---- 2af3b43ed8ee9468b1e0418c10275f33d23ced19/drivers/pci/pci.h  (mode:100644)
-+++ 150d5315df21f02605ad5a6541ef7cb00176d023/drivers/pci/pci.h  (mode:100644)
-@@ -32,33 +32,6 @@
- extern unsigned char pci_bus_max_busnr(struct pci_bus *bus);
- extern int pci_bus_find_capability (struct pci_bus *bus, unsigned int devfn, int cap);
- 
--struct pci_dev_wrapped {
--	struct pci_dev	*dev;
--	void		*data;
--};
--
--struct pci_bus_wrapped {
--	struct pci_bus	*bus;
--	void		*data;
--};
--
--struct pci_visit {
--	int (* pre_visit_pci_bus)	(struct pci_bus_wrapped *,
--					 struct pci_dev_wrapped *);
--	int (* post_visit_pci_bus)	(struct pci_bus_wrapped *,
--					 struct pci_dev_wrapped *);
--
--	int (* pre_visit_pci_dev)	(struct pci_dev_wrapped *,
--					 struct pci_bus_wrapped *);
--	int (* visit_pci_dev)		(struct pci_dev_wrapped *,
--					 struct pci_bus_wrapped *);
--	int (* post_visit_pci_dev)	(struct pci_dev_wrapped *,
--					 struct pci_bus_wrapped *);
--};
--
--extern int pci_visit_dev(struct pci_visit *fn,
--			 struct pci_dev_wrapped *wrapped_dev,
--			 struct pci_bus_wrapped *wrapped_parent);
- extern void pci_remove_legacy_files(struct pci_bus *bus);
- 
- /* Lock for read/write access to pci device and bus lists */
+>Linux luna 2.6.12-rc4-mm1 i686
+>Debian unstable, AMD Athlon
+>
+>The error seems to occur with my reiser4 partition.   The physical
+>device is  an 8-disk RAID-0 array on a Mylex Extreme RAID 1100 using the
+>DAC960 driver.  The error is sometimes followed by a lockup, but not always.
+>
+>Not sure if it's a hardware problem or kernel problem.
+>
+>There's pages and pages of errors that look like this.  If there's
+>anything I can do to provide more information, I will gladly do so.
+>
+>Just a user, not a hacker.  I'm not subscribed to the list, so cc's on
+>reply would be appreciated.
+>
+>Thanks,
+>Berck
+>
+> scheduling while atomic: pdflush/0xffffffff/92
+>May 16 03:36:43 luna kernel:  [<c02f6ac4>] schedule+0x604/0x610
+>May 16 03:36:43 luna kernel:  [<c02f6265>] __down+0x85/0x120
+>May 16 03:36:43 luna kernel:  [<c0115020>] default_wake_function+0x0/0x10
+>May 16 03:36:43 luna kernel:  [<c02f645f>] __down_failed+0x7/0xc
+>May 16 03:36:43 luna kernel:  [<c024b420>] blk_backing_dev_unplug+0x0/0x10
+>May 16 03:36:43 luna kernel:  [<c01c5ca3>] .text.lock.flush_queue+0x8/0x25
+>May 16 03:36:43 luna kernel:  [<c01c5524>] finish_fq+0x14/0x40
+>May 16 03:36:43 luna kernel:  [<c01c55ae>] finish_all_fq+0x5e/0xa0
+>May 16 03:36:43 luna kernel:  [<c01c560e>]
+>current_atom_finish_all_fq+0x1e/0x70
+>May 16 03:36:43 luna kernel:  [<c01c167c>] reiser4_write_logs+0x20c/0x2b0
+>May 16 03:36:43 luna kernel:  [<c01ba599>] commit_current_atom+0x109/0x1e0
+>May 16 03:36:43 luna kernel:  [<c01c5957>] release_prepped_list+0xf7/0x130
+>May 16 03:36:43 luna kernel:  [<c01bae23>] try_commit_txnh+0x113/0x190
+>May 16 03:36:43 luna kernel:  [<c01baec8>] commit_txnh+0x28/0xa0
+>May 16 03:36:43 luna kernel:  [<c01b9d7c>] txn_end+0x2c/0x30
+>May 16 03:36:43 luna kernel:  [<c01bab2b>] flush_some_atom+0x1fb/0x290
+>May 16 03:36:43 luna kernel:  [<c01c9368>] writeout+0x68/0xb0
+>May 16 03:36:43 luna kernel:  [<c01c940b>] reiser4_sync_inodes+0x5b/0xa0
+>May 16 03:36:43 luna kernel:  [<c01c93b0>] reiser4_sync_inodes+0x0/0xa0
+>May 16 03:36:43 luna kernel:  [<c0174a59>] sync_sb_inodes+0x19/0x20
+>May 16 03:36:43 luna kernel:  [<c0174b1e>] writeback_inodes+0xbe/0xd0
+>May 16 03:36:43 luna kernel:  [<c013be15>] background_writeout+0x65/0xa0
+>May 16 03:36:43 luna kernel:  [<c013c748>] __pdflush+0xc8/0x1c0
+>May 16 03:36:43 luna kernel:  [<c013c840>] pdflush+0x0/0x20
+>May 16 03:36:43 luna kernel:  [<c013c85a>] pdflush+0x1a/0x20
+>May 16 03:36:43 luna kernel:  [<c013bdb0>] background_writeout+0x0/0xa0
+>May 16 03:36:43 luna kernel:  [<c013c840>] pdflush+0x0/0x20
+>May 16 03:36:43 luna kernel:  [<c012bb44>] kthread+0x94/0xa0
+>May 16 03:36:43 luna kernel:  [<c012bab0>] kthread+0x0/0xa0
+>May 16 03:36:43 luna kernel:  [<c0100f1d>] kernel_thread_helper+0x5/0x18
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>
+>  
+>
 

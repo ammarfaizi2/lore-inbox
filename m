@@ -1,112 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbVEQGSg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVEQGZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261173AbVEQGSg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 02:18:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbVEQGSg
+	id S261208AbVEQGZv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 02:25:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVEQGZu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 02:18:36 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:40904 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261173AbVEQGSR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 02:18:17 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Elladan <elladan@eskimo.com>, Kenichi Okuyama <okuyamak@dd.iij4u.or.jp>
-Subject: Re: [RFD] What error should FS return when I/O failure occurs?
-Date: Tue, 17 May 2005 09:17:47 +0300
-User-Agent: KMail/1.5.4
-Cc: Valdis.Kletnieks@vt.edu, fs@ercist.iscas.ac.cn,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-References: <200505160635.j4G6ZUcX023810@turing-police.cc.vt.edu> <20050517.063931.91280786.okuyamak@dd.iij4u.or.jp> <20050516223058.GG18792@eskimo.com>
-In-Reply-To: <20050516223058.GG18792@eskimo.com>
+	Tue, 17 May 2005 02:25:50 -0400
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:25252 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261219AbVEQGZm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 02:25:42 -0400
+Message-ID: <42898E61.3060304@yahoo.com.au>
+Date: Tue, 17 May 2005 16:25:37 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: dino@in.ibm.com
+CC: Paul Jackson <pj@sgi.com>, Simon Derr <Simon.Derr@bull.net>,
+       lkml <linux-kernel@vger.kernel.org>,
+       lse-tech <lse-tech@lists.sourceforge.net>,
+       Matthew Dobson <colpatch@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/3] Dynamic sched domains (v0.6)
+References: <20050517041031.GA4596@in.ibm.com> <20050517041219.GB4596@in.ibm.com>
+In-Reply-To: <20050517041219.GB4596@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505170917.47301.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 May 2005 01:30, Elladan wrote:
-> > I don't think that's good idea.
-> > 
-> > USB storage is gone. And it SEEMS to came back.
-> > But how do you know that it's images were not changed.
-
-Original poster seems to be a bit confused between what device driver
-is responsible for, and what FS is responsible for.
-
-IIRC, currently FS has no code to understand that device was removed.
-It just gets failures on read/write ops, but does not do much with
-error codes. It does not 'unmount on the fly' etc. It may do
-something like this, but currently it is not coded.
-Errors are simply propagated up to callers.
-
-> > Blocks you have cached might have different image. If you remount
-> > the file system, the cache image should be updated as well.
-> > 
-> > But very fact that *cache image should be updated* means, old cache
-> > image was invalid. And when did it become invalid?
+Dinakar Guniguntala wrote:
+> o Patch2 has updated cpusets documentation and the core update_cpu_domains
+>   function
+> o I have also moved the dentry d_lock as discussed previously
 > 
-> [...]
->  
-> > You'll, at least, see that there is some inconsistency about cache
-> > handling when we *umount->mount* and *remount*.
-> 
-> This is basically the problem people have had with removable storage for
-> years...  You can't really solve it perfectly, since as you note one
-> could always place the storage in another machine and change it.
 
-Linux is worse than "other OSes" because it treats removable storage
-either the same as ordinary disks: caches writes, starts writeback
-sometime in the future (thus we do not notice removals ASAP),
-or Linux can mount removables O_SYNC: writes are not cached at all
-(too aggressive/slow in many circumstances) and you can be positively
-sure data is on disk if I/O indicator diode is off.
+Hi Dinakar,
+patch1 looks good. Just one tiny little minor thing:
 
-A new, less aggressive sync option which means "okay to cache writes,
-but start writeback at once and write out all dirty data for this device"
-would bring the best of both worlds.
+> +
+> +	lock_cpu_hotplug();
+> +	partition_sched_domains(&pspan, &cspan);
+> +	unlock_cpu_hotplug();
+> +}
+> +
 
-Users of USB sticks not dying anymore from O_SYNC mounts will be
-quite happy, too :)
+I don't think the cpu hotplug lock isn't supposed to provide
+synchronisation between readers (for example, it may be turned
+into an rwsem), but only between the thread and the cpu hotplug
+callbacks.
 
-Further step could be a way to keep such FSes as unjournalled ext2
-in 'clean' state between write bursts (if FS is mounted with abm
-'lazy sync' flag) and auto-unmounting of removed media. Although
-I suspect even current hotplug can be configured to do auto-unmount,
-I just did not try it myself.
+In that case, can you move this locking into kernel/sched.c, and
+add the comment in partition_sched_domains that the callers must
+take care of synchronisation (which without reading the code, I
+assume you're doing with the cpuset sem?).
 
-> But I think it's instructive to note what most other systems have done
-> in this situation...  The solution seems similar in most cases, from eg.
-> Mac, Amiga, DOS, Windows, etc.
-> 
-> The typical solution is, when a removable device is yanked when dirty
-> blocks exist, is to keep the dirty blocks around, and put the device
-> into some sort of pending-reinsert state.
-> 
-> Then most systems typically display a large message to the user of the
-> form: "You idiot!  Put the disk/cd/flash/etc. back in!"
+If you agree with that change, you can add an
+Acked-by: Nick Piggin <nickpiggin@yahoo.com.au>
+to patch 1 and send it to Andrew whenever you're ready (better
+CC Ingo as well). If not, please discuss! :)
 
-Such message may be doable with hotplug. We need 'only' a
-'pending-reinsert state' bits coded.
- 
-> The cache and dirty blocks would then only be cleared on a user cancel.
-> If the same device (according to some ID test) reappears, then it's
-> reactivated and usage continues normally.
-> 
-> Obviously, this sort of approach requires some user interaction to get
-> right.  It has the distinct advantage of not throwing away the data the
-> user wrote after an inadvertant disconnect, for example if they thought
-> the device was done writing when it really wasn't.  It can also keep
-> from corrupting the FS metadata.
-> 
-> The downside is that it might not really work, if there wasn't a good
-> way to know when sectors actually are in stable storage, since a few
-> blocks could be lost around the time the device was pulled.
-
-I think it is sensible to try to improve clean removals first,
-then tackle dirty ones.
---
-vda
+Thanks,
+Nick
 

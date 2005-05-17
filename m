@@ -1,77 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbVEQX16@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVEQXaw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261951AbVEQX16 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 19:27:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVEQX16
+	id S261448AbVEQXaw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 19:30:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVEQXav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 19:27:58 -0400
-Received: from smtp4.netcabo.pt ([212.113.174.31]:65092 "EHLO
-	exch01smtp10.hdi.tvcabo") by vger.kernel.org with ESMTP
-	id S261951AbVEQX1h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 19:27:37 -0400
-X-Antivirus-bastov-Mail-From: sergio@sergiomb.no-ip.org via bastov
-X-Antivirus-bastov: 1.25-st-qms (Clear:RC:1(192.168.1.2):. Processed in 0.242305 secs Process 14687)
-Subject: Re: [ACPI] [PATCH 1/2] IPMI and acpi=off|ht :
-	acpi-get-firmware-failure.patch
-From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-Reply-To: sergio@sergiomb.no-ip.org
-To: Yann Droneaud <ydroneaud@mandriva.com>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       ACPI Developers <acpi-devel@lists.sourceforge.net>,
-       "Moore, Robert" <robert.moore@intel.com>
-In-Reply-To: <m23bsmzw35.fsf@firedrake.mandriva.com>
-References: <m27jhyzwj6.fsf@firedrake.mandriva.com>
-	 <m23bsmzw35.fsf@firedrake.mandriva.com>
-Content-Type: text/plain; charset=ISO-8859-15
-Date: Wed, 18 May 2005 00:27:31 +0100
-Message-Id: <1116372451.14534.17.camel@bastov>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 17 May 2005 23:27:36.0251 (UTC) FILETIME=[0229B0B0:01C55B38]
+	Tue, 17 May 2005 19:30:51 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:55171 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261448AbVEQX3W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 19:29:22 -0400
+Message-ID: <428A7E48.6060909@us.ibm.com>
+Date: Tue, 17 May 2005 16:29:12 -0700
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Christoph Lameter <clameter@engr.sgi.com>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, shai@scalex86.org
+Subject: Re: NUMA aware slab allocator V2
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>	<20050512000444.641f44a9.akpm@osdl.org>	<Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com> <20050513000648.7d341710.akpm@osdl.org>
+In-Reply-To: <20050513000648.7d341710.akpm@osdl.org>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I am CCing to Robert Moore because is about acpi/tables/tbxfroot.c. This
-is code from ACPICA
-http://developer.intel.com/technology/iapc/acpi/downloads.htm
-So we have to wait for the next version of ACPICA, on dmesg we can find
-it, for example:  
+Excuse for the week-late response...
 
-ACPI: Subsystem revision 20050211
+Andrew Morton wrote:
+> Christoph Lameter <clameter@engr.sgi.com> wrote:
+> 
+>> Could we boot the box without quiet so that we can get better debug
+>> messages?
+> 
+> 
+> It didn't produce anything interesting.  For some reason the console output
+> stops when start_kernel() runs console_init() (I guess it all comes out
+> later) so the machine is running blind when we run kmem_cache_init(). 
+> Irritating.  I just moved the console_init() call to happen later on.
+> 
+> It's going BUG() in kmem_cache_init()->set_up_list3s->is_node_online
+> because for some reason the !CONFIG_NUMA ppc build has MAX_NUMNODES=16,
+> even though there's only one node.
+> 
+> Doing
+> 
+> #define is_node_online(node) node_online(node)
 
-thanks,
+As Dave Hansen mentioned elsewhere in this thread, there is no need to
+define this is_node_online() macro, as node_online() does EXACTLY the same
+thing (minus the BUG() which is probably overkill).
 
-On Mon, 2005-05-16 at 23:42 +0200, Yann Droneaud wrote:
-> This patch check that rsdt_info->pointer is not NULL before trying to
-> unmap ACPI tables, which can happen if acpi_tb_get_rsdt_address() failed.
-> 
-> In my case, with ipmi_si_intf module and acpi=ht|off parameter, the call
-> failed because acpi_gbl_table_flags is not initialised, so the
-> address.pointer_type is not setup correctly, leading to message like:
-> 
-> May 16 11:18:29 localhost kernel:     ACPI-0166: *** Error: Invalid address flags 8
-> 
-> and rsdt_info->pointer equal to NULL leading to the Oops.
-> 
-> --- linux-2.6.11.9/drivers/acpi/tables/tbxfroot.c	2005-05-11 18:42:39.000000000 -0400
-> +++ linux-2.6.11.9-fixes/drivers/acpi/tables/tbxfroot.c	2005-05-16 16:51:33.115768232 -0400
-> @@ -313,7 +313,9 @@ acpi_get_firmware_table (
->  
-> 
->  cleanup:
-> -	acpi_os_unmap_memory (rsdt_info->pointer, (acpi_size) rsdt_info->pointer->length);
-> +	if (rsdt_info->pointer) {
-> +		acpi_os_unmap_memory (rsdt_info->pointer, (acpi_size) rsdt_info->pointer->length);
-> +	}
->  	ACPI_MEM_FREE (rsdt_info);
->  
->  	if (header) {
-> 
-> 
-> Signed-Off-by: ydroneaud@mandriva.com
-> 
--- 
-Sérgio M.B.
 
+> unconditionally fixes that up (your patch shuld be using
+> for_each_online_node() everywhere?) but it oopses later - I think it's the
+> first time kmem_cache_alloc() is called.
+
+Christoph should replace all the for (i = 0; i < MAX_NUMNODES; i++) loops
+with for_each_node(i) and the one loop that does this:
+for (i = 0; i < MAX_NUMNODES; i++) {
+	if (!node_online(i))
+		continue;
+(or something similar) with for_each_online_node(i)
+
+Also, there is a similar loop for CPUs which should be replaced with
+for_each_online_cpu(i).
+
+These for_each_FOO macros are cleaner and less likely to break in the
+future, since we can simply modify the one definition if the way to
+itterate over nodes/cpus changes, rather than auditing 100 open coded
+implementations and trying to determine the intent of the loop's author.
+
+-Matt

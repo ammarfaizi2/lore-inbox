@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVEQJzB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVEQJ7u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbVEQJzB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 05:55:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbVEQJzA
+	id S261355AbVEQJ7u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 05:59:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbVEQJ7u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 05:55:00 -0400
-Received: from web41415.mail.yahoo.com ([66.218.93.81]:49750 "HELO
-	web41415.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261353AbVEQJyw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 05:54:52 -0400
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=5IKz0E7Ur/EQThneerNPOvO5TdbryShamOd63XSDYjHpJzkdYJ1A9faE/9rL4JSTvTBRCpbgyxEl3dq5ghRn7BBMuZ1w8nn+BR3QGmtLvwTKx07jDugu8NMKngJCZ1gWmtWDe115vhsmxpQ9xF8dgIN8OHjjMzqtPiKPU39RT7U=  ;
-Message-ID: <20050517095448.25725.qmail@web41415.mail.yahoo.com>
-Date: Tue, 17 May 2005 02:54:48 -0700 (PDT)
-From: cranium2003 <cranium2003@yahoo.com>
-Subject: network device structure help
-To: kernerl mail <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
+	Tue, 17 May 2005 05:59:50 -0400
+Received: from [83.76.34.4] ([83.76.34.4]:24396 "EHLO kestrel.twibright.com")
+	by vger.kernel.org with ESMTP id S261355AbVEQJ7s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 05:59:48 -0400
+Date: Tue, 17 May 2005 11:56:13 +0200
+From: Karel Kulhavy <clock@twibright.com>
+To: linux-kernel@vger.kernel.org
+Subject: software mixing in alsa
+Message-ID: <20050517095613.GA9947@kestrel>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Orientation: Gay
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
-        Is there any way in linux kernel network stack
-at IP layer before adding IP header to know that
-packet is transmitted to eth1 or forwarded to eth1 if
-linux machine has 2 NIC's eth0 and eth1?
-       I check net_device structre and found that
-ifindex is the field that gives proper incoming packet
-network interface at IP layer but same for packet
-trasmission not works.
-regards,
-cranium
+Hello
 
+http://www.math.tu-berlin.de/~sbartels/alsa/driver/driver.html says
+"For example, there is currently ongoing work to allow mixing multiple
+inputs to the pcm devices."
 
+Does ALSA already support software mixing? If I run xmms with alsa
+output plugin and then mpg123 into it, I get 'can't open /dev/dsp'
+message.
 
+Kernel version is 2.6.11-gentoo-r5
 
+CL<
 
-		
-__________________________________ 
-Do you Yahoo!? 
-Yahoo! Mail - Find what you need with new enhanced search. 
-http://info.mail.yahoo.com/mail_250

@@ -1,136 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262001AbVEPXsd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262004AbVEQAAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262001AbVEPXsd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 19:48:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261997AbVEPXsd
+	id S262004AbVEQAAn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 20:00:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbVEQAAj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 19:48:33 -0400
-Received: from waste.org ([216.27.176.166]:60886 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S262001AbVEPXsE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 19:48:04 -0400
-Date: Mon, 16 May 2005 16:47:57 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: YhLu@tyan.com, linux-tiny@selenic.com, linux-kernel@vger.kernel.org
-Subject: Re: serial console
-Message-ID: <20050516234757.GG5914@waste.org>
-References: <3174569B9743D511922F00A0C943142309F80D9F@TYANWEB> <20050516205731.GA5914@waste.org> <20050516231508.GD5914@waste.org> <20050516163712.66a1a058.akpm@osdl.org>
+	Mon, 16 May 2005 20:00:39 -0400
+Received: from mail.shareable.org ([81.29.64.88]:29399 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261316AbVEQAAc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 20:00:32 -0400
+Date: Tue, 17 May 2005 01:00:16 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Ram <linuxram@us.ibm.com>
+Cc: Miklos Szeredi <miklos@szeredi.hu>, viro@parcelfarce.linux.theplanet.co.uk,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] namespace.c: fix bind mount from foreign namespace
+Message-ID: <20050517000016.GA32226@mail.shareable.org>
+References: <E1DWdn9-0004O2-00@dorka.pomaz.szeredi.hu> <1116005355.6248.372.camel@localhost> <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu> <1116012287.6248.410.camel@localhost> <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu> <1116013840.6248.429.camel@localhost> <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu> <1116256279.4154.41.camel@localhost> <20050516111408.GA21145@mail.shareable.org> <1116301843.4154.88.camel@localhost>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050516163712.66a1a058.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1116301843.4154.88.camel@localhost>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 16, 2005 at 04:37:12PM -0700, Andrew Morton wrote:
-> 
-> It would be nicer if this was a static inline, so all the function call
-> code at the callsites is removed by the compiler.
+Ram wrote:
+> Under the premise that bind mounts across namespace should be allowed;
+> any insight why the "founding fathers" :) allowed only bind
+> and not recursive bind?  What issue would that create?
 
-Better yet, a patch that's actually right. add_preferred_console is
-setting the console used by init and so on, so it's still relevant
-with CONFIG_PRINTK off. So I just move it out of the ifdef. Obviously
-more correct(tm).
+Recursive bind traverses the subtree of vfsmnts rooted at the source
+mount (following mnt->mnt_mounts, see copy_tree()).  That requires the
+source mount's namespace semaphore to be held.
 
+> One can easily workaround that restriction by manually binding
+> recursively.
 
-Move add_preferred_console out of CONFIG_PRINTK so serial console does
-the right thing.
+Yes, if you know which mounts they are.
 
-Signed-off-by: Matt Mackall <mpm@selenic.com>
+> I remember Miklos saying its not a security issue but a
+> implementation/locking issue. That can be fixed aswell.
 
-Index: l-p/kernel/printk.c
-===================================================================
---- l-p.orig/kernel/printk.c	2005-05-16 16:37:15.000000000 -0700
-+++ l-p/kernel/printk.c	2005-05-16 16:40:31.000000000 -0700
-@@ -160,42 +160,6 @@ static int __init console_setup(char *st
- 
- __setup("console=", console_setup);
- 
--/**
-- * add_preferred_console - add a device to the list of preferred consoles.
-- *
-- * The last preferred console added will be used for kernel messages
-- * and stdin/out/err for init.  Normally this is used by console_setup
-- * above to handle user-supplied console arguments; however it can also
-- * be used by arch-specific code either to override the user or more
-- * commonly to provide a default console (ie from PROM variables) when
-- * the user has not supplied one.
-- */
--int __init add_preferred_console(char *name, int idx, char *options)
--{
--	struct console_cmdline *c;
--	int i;
--
--	/*
--	 *	See if this tty is not yet registered, and
--	 *	if we have a slot free.
--	 */
--	for(i = 0; i < MAX_CMDLINECONSOLES && console_cmdline[i].name[0]; i++)
--		if (strcmp(console_cmdline[i].name, name) == 0 &&
--			  console_cmdline[i].index == idx) {
--				selected_console = i;
--				return 0;
--		}
--	if (i == MAX_CMDLINECONSOLES)
--		return -E2BIG;
--	selected_console = i;
--	c = &console_cmdline[i];
--	memcpy(c->name, name, sizeof(c->name));
--	c->name[sizeof(c->name) - 1] = 0;
--	c->options = options;
--	c->index = idx;
--	return 0;
--}
--
- static int __init log_buf_len_setup(char *str)
- {
- 	unsigned long size = memparse(str, &str);
-@@ -671,6 +635,42 @@ static void call_console_drivers(unsigne
- #endif
- 
- /**
-+ * add_preferred_console - add a device to the list of preferred consoles.
-+ *
-+ * The last preferred console added will be used for kernel messages
-+ * and stdin/out/err for init.  Normally this is used by console_setup
-+ * above to handle user-supplied console arguments; however it can also
-+ * be used by arch-specific code either to override the user or more
-+ * commonly to provide a default console (ie from PROM variables) when
-+ * the user has not supplied one.
-+ */
-+int __init add_preferred_console(char *name, int idx, char *options)
-+{
-+	struct console_cmdline *c;
-+	int i;
-+
-+	/*
-+	 *	See if this tty is not yet registered, and
-+	 *	if we have a slot free.
-+	 */
-+	for(i = 0; i < MAX_CMDLINECONSOLES && console_cmdline[i].name[0]; i++)
-+		if (strcmp(console_cmdline[i].name, name) == 0 &&
-+			  console_cmdline[i].index == idx) {
-+				selected_console = i;
-+				return 0;
-+		}
-+	if (i == MAX_CMDLINECONSOLES)
-+		return -E2BIG;
-+	selected_console = i;
-+	c = &console_cmdline[i];
-+	memcpy(c->name, name, sizeof(c->name));
-+	c->name[sizeof(c->name) - 1] = 0;
-+	c->options = options;
-+	c->index = idx;
-+	return 0;
-+}
-+
-+/**
-  * acquire_console_sem - lock the console system for exclusive use.
-  *
-  * Acquires a semaphore which guarantees that the caller has
+Yes, by taking the source namespace semaphore while traversing the
+subtree.  That involves taking _two_ semaphores, so they have to be
+ordered to avoid deadlock (see double-locking elsewhere in the kernel).
 
-
--- 
-Mathematics is the supreme nostalgia of our time.
+- Jamie

@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVEQTao@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbVEQTe4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261444AbVEQTao (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 15:30:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVEQTan
+	id S261912AbVEQTe4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 15:34:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbVEQTeb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 15:30:43 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:40625 "HELO
+	Tue, 17 May 2005 15:34:31 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:53425 "HELO
 	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261444AbVEQTaW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 15:30:22 -0400
-Subject: Re: ALSA make menuconfig Help description missing
+	id S261788AbVEQTcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 15:32:48 -0400
+Subject: Re: software mixing in alsa
 From: Lee Revell <rlrevell@joe-job.com>
 To: Karel Kulhavy <clock@twibright.com>
-Cc: Takashi Iwai <tiwai@suse.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050517145931.GA11564@kestrel>
-References: <20050517123549.GA2378@kestrel> <s5hfywmotdd.wl@alsa2.suse.de>
-	 <20050517145931.GA11564@kestrel>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050517192412.GA19431@kestrel.twibright.com>
+References: <20050517095613.GA9947@kestrel>
+	 <200505171208.04052.jan@spitalnik.net> <20050517141307.GA7759@kestrel>
+	 <1116354762.31830.12.camel@mindpipe>
+	 <20050517192412.GA19431@kestrel.twibright.com>
 Content-Type: text/plain
-Date: Tue, 17 May 2005 15:30:16 -0400
-Message-Id: <1116358216.32062.7.camel@mindpipe>
+Date: Tue, 17 May 2005 15:32:47 -0400
+Message-Id: <1116358367.32062.11.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.3.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-17 at 16:59 +0200, Karel Kulhavy wrote:
-> Yes, tried, fixes ;-)
+On Tue, 2005-05-17 at 21:24 +0200, Karel Kulhavy wrote:
+> Lee Revell wrote:
 > 
-> However I suggest that a pointer to user documentation for ALSA be added
-> to the Help.
+> > Finally, these questions are all OT for LKML.  Try alsa-user at
+> > lists.sf.net and alsa-devel at lists.sf.net.  Also there's a bug
 > 
-> For example I have a problem when I run XMMS, Skype says something like
-> "can't open /dev/dsp" and don't know where to start.  The only thing I
-> know is that 1) I have ALSA turned on and 2) I want to know how to make
-> it accept more data streams from the programs and mix them together.
+> ALSA is a part of Linux kernel, right? This is linux-kernel. Why
+> is it OT here? Doesn't make sense for me.
 
-There is no official user level documentation for dmix (which runs in
-userspace anyway), because it was not intended to be configured by the
-end user.  The current ALSA version, 1.0.9-rcX, uses dmix by default.
+Well, sort of.  The parts of ALSA you are interested in (software mixing
+and volume control) are implemented in userspace.  They live in
+alsa-lib.
 
-It's always a pain to get OSS apps to play nice with dmix, which is why
-the real solution is to get proper ALSA support in Skype.
+You should at least cc: alsa-devel (non-subscribers can post) when
+posting ALSA related questions to LKML.
 
 Lee
-
-
 

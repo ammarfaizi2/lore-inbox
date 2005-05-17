@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVEQXXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261974AbVEQXZ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261947AbVEQXXA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 19:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbVEQXXA
+	id S261974AbVEQXZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 19:25:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbVEQXZ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 19:23:00 -0400
-Received: from dvhart.com ([64.146.134.43]:21922 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261947AbVEQXWs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 19:22:48 -0400
-Date: Tue, 17 May 2005 16:22:44 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Christoph Lameter <clameter@engr.sgi.com>
-Subject: Re: 2.6.12-rc4-mm2 boot failure
-Message-ID: <919250000.1116372164@flay>
-In-Reply-To: <743780000.1116279381@flay>
-References: <735450000.1116277481@flay> <20050516142504.696b443b.akpm@osdl.org> <743780000.1116279381@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 17 May 2005 19:25:59 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:51141 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261998AbVEQXZq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 19:25:46 -0400
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt.
+From: Lee Revell <rlrevell@joe-job.com>
+To: christoph <christoph@scalex86.org>
+Cc: George Anzinger <george@mvista.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, shai@scalex86.org,
+       akpm@osdl.org
+In-Reply-To: <Pine.LNX.4.62.0505161755110.9418@ScMPusgw>
+References: <Pine.LNX.4.62.0505161243580.13692@ScMPusgw>
+	 <1116276689.28764.1.camel@mindpipe>
+	 <Pine.LNX.4.62.0505161755110.9418@ScMPusgw>
+Content-Type: text/plain
+Date: Tue, 17 May 2005 19:25:41 -0400
+Message-Id: <1116372341.32210.39.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---On Monday, May 16, 2005 14:36:21 -0700 "Martin J. Bligh" <mbligh@mbligh.org> wrote:
-
+On Mon, 2005-05-16 at 17:55 -0700, christoph wrote:
 > 
+> Runtime? That seems to be a bad idea. It would be better to rewrite
+> the timer subsystem to be able to work tickless.
 > 
-> --On Monday, May 16, 2005 14:25:04 -0700 Andrew Morton <akpm@osdl.org> wrote:
-> 
->> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
->>> 
->>> PPC64 NUMA box. Maybe this is the same NUMA slab problem you were 
->>> hitting before ...
->> 
->> Probably.  Christoph, this patch has crossed the grief threshold - I'll
->> drop it.
-> 
-> OK, fair enough. Christoph, I am interested in seeing your patch work 
-> ... is something that's needed. If you want, I can help you offline 
-> with some testing on a variety of platforms.
 
-OK, I backed out the slab patches from -mm2, and confirmed the problem 
-went away.
+I agree 100%, I think it's especially crazy to allow selecting 100, 250,
+500, etc, whether at runtime or compile time.  Might as well just go
+tickless.
 
-M.
+How do you expect application developers to handle not being able to
+count on the resolution of nanosleep()?  Currently they can at least
+assume 10ms on 2.4, 1ms on 2.6.  Seems to me that if you are no longer
+guaranteed to be able to sleep 5ms on 2.6, you would just have to
+busywait.  Is it me, or does that way lie madness?
+
+Lee
 

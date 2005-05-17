@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261515AbVEQOQp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVEQOSU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261515AbVEQOQp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 10:16:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbVEQOQp
+	id S261466AbVEQOSU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 10:18:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVEQOST
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 10:16:45 -0400
-Received: from 4.34.76.83.cust.bluewin.ch ([83.76.34.4]:33086 "EHLO
-	kestrel.twibright.com") by vger.kernel.org with ESMTP
-	id S261466AbVEQOQf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 10:16:35 -0400
-Date: Tue, 17 May 2005 16:13:07 +0200
-From: Karel Kulhavy <clock@twibright.com>
-To: Jan Spitalnik <jan@spitalnik.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: software mixing in alsa
-Message-ID: <20050517141307.GA7759@kestrel>
-References: <20050517095613.GA9947@kestrel> <200505171208.04052.jan@spitalnik.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200505171208.04052.jan@spitalnik.net>
-X-Orientation: Gay
-User-Agent: Mutt/1.5.8i
+	Tue, 17 May 2005 10:18:19 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:40455 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S261466AbVEQOQs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 10:16:48 -0400
+Message-ID: <4289FCB7.9080007@shadowen.org>
+Date: Tue, 17 May 2005 15:16:23 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Dave Hansen <haveblue@us.ibm.com>, christoph <christoph@scalex86.org>,
+       linux-mm <linux-mm@kvack.org>, shai@scalex86.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Factor in buddy allocator alignment requirements in node
+ memory alignment
+References: <Pine.LNX.4.62.0505161204540.4977@ScMPusgw> <1116274451.1005.106.camel@localhost> <Pine.LNX.4.62.0505161240240.13692@ScMPusgw> <1116276439.1005.110.camel@localhost> <20050517131202.GQ26073@g5.random>
+In-Reply-To: <20050517131202.GQ26073@g5.random>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 17, 2005 at 12:08:03PM +0200, Jan Spitalnik wrote:
-> Dne út 17. kvìtna 2005 11:56 Karel Kulhavy napsal(a):
-> > Hello
-> >
-> > http://www.math.tu-berlin.de/~sbartels/alsa/driver/driver.html says
-> > "For example, there is currently ongoing work to allow mixing multiple
-> > inputs to the pcm devices."
-> >
+Andrea Arcangeli wrote:
+> On Mon, May 16, 2005 at 01:47:19PM -0700, Dave Hansen wrote:
 > 
-> Hi,
+>>Just because it complains doesn't mean that anything is actually
+>>wrong :)
+>>
+>>Do you know which pieces of code actually break if the alignment doesn't
+>>meet what that warning says?
 > 
-> yes, ALSA can mix multiple inputs with its dmix plugin.
-> http://alsa.opensrc.org/index.php?page=DmixPlugin
+> 
+> Be sure in early 2001 the alpha wildfire wasn't booting without having
+> natural alingment from the 2^order allocation, after several days of
+> debugging and crashing eventually I figured it out and added the printk
+> (it couldn't be a BUG since it was early in the boot to see it). The
+> kernel stack on x86 w/o 4k stacks depends on the natural alignment of
+> the 2^order buddy allocations for example. No idea how much other code
+> would break with not naturally aligned 2^order allocations.
 
-Thanks for your reply.  I have proceeded according to this "Dmix Howto",
-however it doesn't work. I have proceeded successfully up to the command
-"aoss mpg123 some.mp3". When I run this, mp3 is played very fast, in
-about 1-2 seconds (normal pitch, but skipping very fast forward).
+Absolutly there are cases which will break if the alignment of
+allocations arn't correct.  The key here is the free algorithm will now
+correctly merge buddies at the physical alignement.  This allows the
+boundries of the zones to be miss-aligned.  Partial pages simply have no
+buddies at the nigher level and do not coalesce.  The warning is
+checking for such a miss-alignment and now is no longer required.
 
-mpg123 Version 0.59s-r9 (2000/Oct/27)
-aoss doesn't have --version option
-alsaplayer 0.99.76
-
-The document doesn't contain any contact where to send bugreports that
-the course described actually doesn't work.
-
-Any other idea how to make Skype & XMMS run at the same time on Linux?
-
-CL<
+-apw

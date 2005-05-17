@@ -1,134 +1,151 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbVEQUqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVEQUqK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbVEQUqg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 16:46:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVEQUqg
+	id S261891AbVEQUqK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 16:46:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVEQUqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 16:46:36 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:32212 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261942AbVEQUpV (ORCPT
+	Tue, 17 May 2005 16:46:09 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:13780 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261891AbVEQUof (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 16:45:21 -0400
-Date: Tue, 17 May 2005 22:45:10 +0200 (MEST)
-Message-Id: <200505172045.j4HKjA0X026784@alkaid.it.uu.se>
+	Tue, 17 May 2005 16:44:35 -0400
+Date: Tue, 17 May 2005 22:44:22 +0200 (MEST)
+Message-Id: <200505172044.j4HKiMTY026776@alkaid.it.uu.se>
 From: Mikael Pettersson <mikpe@csd.uu.se>
 To: akpm@osdl.org
-Subject: [PATCH 2.6.12-rc4-mm2] perfctr: ppc64 wraparound fixes
+Subject: [PATCH 2.6.12-rc4-mm2] perfctr: x86 update with K8 multicore fixes, take 2
 Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Andrew,
 
-Here's an update for perfctr's ppc64 low-level driver
-which fixes counter wraparound issues in the driver.
+Here's an update for perfctr's x86/x86-64 low-level driver
+which works around issues with current K8 multicore chips.
 
-This patch was written by David Gibson; here's his description:
+Following Andi's comments about the original patch, this
+version uses cpu_core_map[] instead of deriving that info
+manually.
 
-"Problem was that with the conversion of the perfctr state
-"start" values from 32 to 64 bits, my typing/sign-extension was no
-longer correct, leading to overflows if the hardware counter rolled
-over during a run.  With this patch the PAPI testcase failures appear
-to be back down to the two that we know about."
+- Added code to detect multicore K8s and prevent threads in the
+  thread-centric API from using northbridge events. This avoids
+  resource conflicts, and an erratum in Revision E chips.
 
 Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
 
- drivers/perfctr/ppc64.c |   28 ++++++++++++++--------------
- 1 files changed, 14 insertions(+), 14 deletions(-)
+ drivers/perfctr/x86.c |   59 +++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 files changed, 56 insertions(+), 3 deletions(-)
 
-diff -rupN linux-2.6.12-rc4-mm2/drivers/perfctr/ppc64.c linux-2.6.12-rc4-mm2.perfctr-ppc64-wrap-fix/drivers/perfctr/ppc64.c
---- linux-2.6.12-rc4-mm2/drivers/perfctr/ppc64.c	2005-05-16 18:20:56.000000000 +0200
-+++ linux-2.6.12-rc4-mm2.perfctr-ppc64-wrap-fix/drivers/perfctr/ppc64.c	2005-05-17 22:10:22.000000000 +0200
-@@ -32,8 +32,8 @@ static DEFINE_PER_CPU(struct per_cpu_cac
+diff -rupN linux-2.6.12-rc4-mm2/drivers/perfctr/x86.c linux-2.6.12-rc4-mm2.perfctr-k8-mc-fix/drivers/perfctr/x86.c
+--- linux-2.6.12-rc4-mm2/drivers/perfctr/x86.c	2005-05-16 18:20:56.000000000 +0200
++++ linux-2.6.12-rc4-mm2.perfctr-k8-mc-fix/drivers/perfctr/x86.c	2005-05-17 21:47:06.000000000 +0200
+@@ -66,6 +66,9 @@ struct perfctr_low_ctrs {
+ #define MSR_K7_EVNTSEL0		0xC0010000	/* .. 0xC0010003 */
+ #define MSR_K7_PERFCTR0		0xC0010004	/* .. 0xC0010007 */
  
- /* Structure for counter snapshots, as 32-bit values. */
- struct perfctr_low_ctrs {
--	unsigned int tsc;
--	unsigned int pmc[8];
-+	u64 tsc;
-+	u32 pmc[8];
- };
++/* AMD K8 */
++#define IS_K8_NB_EVENT(EVNTSEL)	((((EVNTSEL) >> 5) & 0x7) == 0x7)
++
+ /* Intel P4, Intel Pentium M */
+ #define MSR_IA32_MISC_ENABLE	0x1A0
+ #define MSR_IA32_MISC_ENABLE_PERF_AVAIL (1<<7)	/* read-only status bit */
+@@ -398,8 +401,10 @@ static void c6_write_control(const struc
+  * - Most events are symmetric, but a few are not.
+  */
  
- static unsigned int new_id(void)
-@@ -48,7 +48,7 @@ static unsigned int new_id(void)
- 	return id;
- }
- 
--static inline unsigned int read_pmc(unsigned int pmc)
-+static inline u32 read_pmc(int pmc)
++static int k8_is_multicore;	/* affects northbridge events */
++
+ /* shared with K7 */
+-static int p6_like_check_control(struct perfctr_cpu_state *state, int is_k7)
++static int p6_like_check_control(struct perfctr_cpu_state *state, int is_k7, int is_global)
  {
- 	switch (pmc) {
- 	case 0:
-@@ -81,7 +81,7 @@ static inline unsigned int read_pmc(unsi
- 	}
- }
+ 	unsigned int evntsel, i, nractrs, nrctrs, pmc_mask, pmc;
  
--static inline void write_pmc(int pmc, s32 val)
-+static inline void write_pmc(int pmc, u32 val)
+@@ -415,6 +420,9 @@ static int p6_like_check_control(struct 
+ 			return -EINVAL;
+ 		pmc_mask |= (1<<pmc);
+ 		evntsel = state->control.evntsel[pmc];
++		/* prevent the K8 multicore NB event clobber erratum */
++		if (!is_global && k8_is_multicore && IS_K8_NB_EVENT(evntsel))
++			return -EPERM;
+ 		/* protect reserved bits */
+ 		if (evntsel & P6_EVNTSEL_RESERVED)
+ 			return -EPERM;
+@@ -451,7 +459,7 @@ static int p6_like_check_control(struct 
+ 
+ static int p6_check_control(struct perfctr_cpu_state *state, int is_global)
  {
- 	switch (pmc) {
- 	case 0:
-@@ -241,7 +241,7 @@ static void perfctr_cpu_read_counters(st
- 
- 	cstatus = state->user.cstatus;
- 	if (perfctr_cstatus_has_tsc(cstatus))
--		ctrs->tsc = mftb() & 0xffffffff;
-+		ctrs->tsc = mftb();
- 
- 	for (i = 0; i < perfctr_cstatus_nractrs(cstatus); ++i) {
- 		pmc = state->control.pmc_map[i];
-@@ -260,10 +260,10 @@ static void perfctr_cpu_isuspend(struct 
- 	cstatus = state->user.cstatus;
- 	nrctrs = perfctr_cstatus_nrctrs(cstatus);
- 	for (i = perfctr_cstatus_nractrs(cstatus); i < nrctrs; ++i) {
--		unsigned int pmc = state->control.pmc_map[i];
--		unsigned int now = read_pmc(pmc);
-+		int pmc = state->control.pmc_map[i];
-+		u32 now = read_pmc(pmc);
- 
--		state->user.pmc[i].sum += now - state->user.pmc[i].start;
-+		state->user.pmc[i].sum += (u32)(now-state->user.pmc[i].start);
- 		state->user.pmc[i].start = now;
- 	}
- }
-@@ -335,18 +335,18 @@ unsigned int perfctr_cpu_identify_overfl
- 	 * about. */
- 	for (i = 0; i < nractrs; ++i) {
- 		int pmc = state->control.pmc_map[i];
--		unsigned int val = read_pmc(pmc);
-+		u32 val = read_pmc(pmc);
- 
- 		/* For actrs, force a sample if they overflowed */
- 
--		if ((int)val < 0) {
--			state->user.pmc[i].sum += val - state->user.pmc[i].start;
-+		if ((s32)val < 0) {
-+			state->user.pmc[i].sum += (u32)(val - state->user.pmc[i].start);
- 			state->user.pmc[i].start = 0;
- 			write_pmc(pmc, 0);
- 		}
- 	}
- 	for (; i < nrctrs; ++i) {
--		if ((int)state->user.pmc[i].start < 0) { /* PPC64-specific */
-+		if ((s32)state->user.pmc[i].start < 0) { /* PPC64-specific */
- 			int pmc = state->control.pmc_map[i];
- 			/* XXX: "+=" to correct for overshots */
- 			state->user.pmc[i].start = state->control.ireset[pmc];
-@@ -550,7 +550,7 @@ void perfctr_cpu_suspend(struct perfctr_
- 		state->user.tsc_sum += now.tsc - state->user.tsc_start;
- 
- 	for (i = 0; i < perfctr_cstatus_nractrs(cstatus); ++i)
--		state->user.pmc[i].sum += now.pmc[i] - state->user.pmc[i].start;
-+		state->user.pmc[i].sum += (u32)(now.pmc[i]-state->user.pmc[i].start);
+-	return p6_like_check_control(state, 0);
++	return p6_like_check_control(state, 0, is_global);
  }
  
- void perfctr_cpu_resume(struct perfctr_cpu_state *state)
-@@ -586,7 +586,7 @@ void perfctr_cpu_sample(struct perfctr_c
- 	}
- 	nractrs = perfctr_cstatus_nractrs(cstatus);
- 	for(i = 0; i < nractrs; ++i) {
--		state->user.pmc[i].sum += now.pmc[i] - state->user.pmc[i].start;
-+		state->user.pmc[i].sum += (u32)(now.pmc[i]-state->user.pmc[i].start);
- 		state->user.pmc[i].start = now.pmc[i];
- 	}
- 	++state->user.samplecnt;
+ #ifdef CONFIG_X86_LOCAL_APIC
+@@ -592,7 +600,7 @@ static void p6_clear_counters(void)
+ 
+ static int k7_check_control(struct perfctr_cpu_state *state, int is_global)
+ {
+-	return p6_like_check_control(state, 1);
++	return p6_like_check_control(state, 1, is_global);
+ }
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
+@@ -1409,6 +1417,49 @@ static int __init intel_init(void)
+ 	return -ENODEV;
+ }
+ 
++/*
++ * Multicore K8s have issues with northbridge events:
++ * 1. The NB is shared between the cores, so two different cores
++ *    in the same node cannot count NB events simultaneously.
++ *    This can be handled by using perfctr_cpus_forbidden_mask to
++ *    restrict NB-using threads to core0 of all nodes.
++ * 2. The initial multicore chips (Revision E) have an erratum
++ *    which causes the NB counters to be reset when either core
++ *    reprograms its evntsels (even for non-NB events).
++ *    This is only an issue because of scheduling of threads, so
++ *    we restrict NB events to the non thread-centric API.
++ *
++ * For now we only implement the workaround for issue 2, as this
++ * also handles issue 1.
++ *
++ * TODO: Detect post Revision E chips and implement a weaker
++ * workaround for them.
++ */
++#ifdef CONFIG_SMP
++static void __init k8_multicore_init(void)
++{
++	cpumask_t non0cores;
++	int i;
++
++	cpus_clear(non0cores);
++	for(i = 0; i < NR_CPUS; ++i) {
++		cpumask_t cores = cpu_core_map[i];
++		int core0 = first_cpu(cores);
++		if (core0 >= NR_CPUS)
++			continue;
++		cpu_clear(core0, cores);
++		cpus_or(non0cores, non0cores, cores);
++	}
++	if (cpus_empty(non0cores))
++		return;
++	k8_is_multicore = 1;
++	printk(KERN_INFO "perfctr/x86.c: multi-core K8s detected:"
++	       " restricting access to northbridge events\n");
++}
++#else
++#define k8_multicore_init()	do{}while(0)
++#endif
++
+ static int __init amd_init(void)
+ {
+ 	static char amd_name[] __initdata = "AMD K7/K8";
+@@ -1417,7 +1468,9 @@ static int __init amd_init(void)
+ 		return -ENODEV;
+ 	switch (current_cpu_data.x86) {
+ 	case 6: /* K7 */
++		break;
+ 	case 15: /* K8. Like a K7 with a different event set. */
++		k8_multicore_init();
+ 		break;
+ 	default:
+ 		return -ENODEV;

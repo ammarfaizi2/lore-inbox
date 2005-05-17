@@ -1,92 +1,147 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVEQHBt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVEQHDW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbVEQHBt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 03:01:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVEQHBt
+	id S261283AbVEQHDW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 03:03:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVEQHDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 03:01:49 -0400
-Received: from smtp11.wanadoo.fr ([193.252.22.31]:43873 "EHLO
-	smtp11.wanadoo.fr") by vger.kernel.org with ESMTP id S261252AbVEQHBn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 03:01:43 -0400
-X-ME-UUID: 20050517070142159.26EFA1C000CA@mwinf1107.wanadoo.fr
-Message-ID: <428996D5.9090309@wanadoo.fr>
-Date: Tue, 17 May 2005 09:01:41 +0200
-From: Yves Crespin <crespin.quartz@wanadoo.fr>
-Organization: Quartz
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Unable to handle kernel NULL pointer dereference at virtual address
- 00000009
-Content-Type: multipart/mixed;
- boundary="------------000203030206060004020809"
+	Tue, 17 May 2005 03:03:21 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:5631 "EHLO e35.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261283AbVEQHCt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 03:02:49 -0400
+Date: Tue, 17 May 2005 12:43:07 +0530
+From: Dinakar Guniguntala <dino@in.ibm.com>
+To: =?iso-8859-1?Q?Gr=E9goire?= Favre <gregoire.favre@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
+Message-ID: <20050517071307.GA4794@in.ibm.com>
+Reply-To: dino@in.ibm.com
+References: <20050516085832.GA9558@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050516085832.GA9558@gmail.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------000203030206060004020809
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-I have a lot of trouble on machines with USB disk.
-Some time process which access to this disk are blocked and shutdown command don't stop the system (unable to remove usb-uhci module).
+Here's a me too report. 
 
-I'm using 2.4.26 kernel
+This is controller that I have
 
-Do you need more information ?
+00:0e.0 SCSI storage controller: Adaptec AIC-7896U2/7897U2
 
-To solve my problem, is it possible to take usb module from 2.4.30 ?
+I never used to get warning such as "refuses WIDE negotiation"
+in kernels prior to 2.6.12-rc3-mm3.
+The machine (x86) boots up fine though.
 
-Thanks,
+Here's the relevant dmesg output from 2.6.12-rc4-mm1
 
- Yves
+======================================================================
 
-<6>usb.c: USB disconnect on device 00:07.3-0 address 1
-<1>Unable to handle kernel NULL pointer dereference at virtual address 00000009
-<4> printing eip:
-<4>d0d04bf2
-<1>*pde = 00000000
-<4>Oops: 0000
-<4>CPU:    0
-<4>EIP:    0010:[<d0d04bf2>]    Not tainted
-<4>EFLAGS: 00010246
-<4>eax: ceb9da00   ebx: 00000001   ecx: fffffffd   edx: d0d08bec
-<4>esi: 00000000   edi: c84200fb   ebp: 00000000   esp: cd4e5ef8
-<4>ds: 0018   es: 0018   ss: 0018
-<4>Process maitre (pid: 686, stackpage=cd4e5000)
-<4>Stack: 00000000 ce5fd200 c8421f00 00000000 00000000 d0d04e5c 00000000 c84200d4 
-<4>       c8421f00 ceb9da00 00000001 c8421f00 c8420071 c8420000 ce5fd200 d0d04fa9 
-<4>       c8420071 c8421f00 ce5fd200 ce72d144 000000dd cdf8c370 d0d09d80 00000000 
-<4>Call Trace:    [<d0d04e5c>] [<d0d04fa9>] [<d0d09d80>] [<d0d051a6>] [<c0131c16>]
-<4>  [<c0108843>]
-<4>
-<4>Code: 3b 73 08 7d 23 3b 7c 24 20 77 94 56 53 8b 54 24 28 52 57 8b 
-<4> <4>usb-uhci.c: interrupt, status 20, frame# 0
-<6>usb.c: USB bus 2 deregistered
+scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
+        <Adaptec aic7896/97 Ultra2 SCSI adapter>
+        aic7896/97: Ultra2 Wide Channel B, SCSI Id=7, 32/253 SCBs
+
+  Vendor: IBM-PSG   Model: ST39103LC     !#  Rev: B227
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+scsi0:A:0:0: Tagged Queuing enabled.  Depth 32
+ target0:0:0: Beginning Domain Validation
+WIDTH IS 1
+(scsi0:A:0): 6.600MB/s transfers (16bit)
+ target0:0:0: Domain Validation skipping write tests
+(scsi0:A:0): 80.000MB/s transfers (40.000MHz, offset 15, 16bit)
+ target0:0:0: Ending Domain Validation
+  Vendor: IBM-PSG   Model: ST39103LC     !#  Rev: B227
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+scsi0:A:1:0: Tagged Queuing enabled.  Depth 32
+ target0:0:1: Beginning Domain Validation
+WIDTH IS 1
+(scsi0:A:1): 6.600MB/s transfers (16bit)
+ target0:0:1: Domain Validation skipping write tests
+(scsi0:A:1): 80.000MB/s transfers (40.000MHz, offset 15, 16bit)
+ target0:0:1: Ending Domain Validation
+(scsi0:A:15:0): refuses WIDE negotiation.  Using 8bit transfers   <============
+scsi0:0:15:0: Attempting to queue an ABORT message
+CDB: 0x12 0x0 0x0 0x0 0x36 0x0
+scsi0: At time of recovery, card was not paused
+>>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
+scsi0: Dumping Card State in Data-in phase, at SEQADDR 0x85
+Card was paused
+ACCUM = 0x40, SINDEX = 0xa, DINDEX = 0xe4, ARG_2 = 0x0
+HCNT = 0x36 SCBPTR = 0x0
+SCSISIGI[0x46] ERROR[0x0] SCSIBUSL[0x3] LASTPHASE[0x40]
+SCSISEQ[0x12] SBLKCTL[0xa] SCSIRATE[0x0] SEQCTL[0x10]
+SEQ_FLAGS[0x20] SSTAT0[0x0] SSTAT1[0x2] SSTAT2[0x40]
+SSTAT3[0x0] SIMODE0[0x8] SIMODE1[0xac] SXFRCTL0[0x80]
+DFCNTRL[0x28] DFSTATUS[0x80]
+STACK: 0x0 0x160 0x176 0x83
+SCB count = 4
+Kernel NEXTQSCB = 3
+Card NEXTQSCB = 3
+QINFIFO entries:
+Waiting Queue entries:
+Disconnected Queue entries:
+QOUTFIFO entries:
+Sequencer Free SCB List: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
+Sequencer SCB Info:
+  0 SCB_CONTROL[0x40] SCB_SCSIID[0xf7] SCB_LUN[0x0] SCB_TAG[0x2]
+  1 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+  2 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+  3 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+  4 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+  5 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+  6 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+  7 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+  8 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+  9 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 10 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 11 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 12 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 13 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 14 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 15 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 16 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 17 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 18 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 19 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 20 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 21 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 22 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 23 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 24 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 25 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 26 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 27 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 28 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 29 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 30 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+ 31 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff]
+Pending list:
+  2 SCB_CONTROL[0x40] SCB_SCSIID[0xf7] SCB_LUN[0x0]
+Kernel Free SCB list: 1 0
+Untagged Q(15): 2
+DevQ(0:0:0): 0 waiting
+DevQ(0:1:0): 0 waiting
+DevQ(0:15:0): 0 waiting
+
+<<<<<<<<<<<<<<<<< Dump Card State Ends >>>>>>>>>>>>>>>>>>
+scsi0:0:15:0: Device is active, asserting ATN
+Recovery code sleeping
+Recovery code awake
+Timer Expired
+aic7xxx_abort returns 0x2003
+scsi0:0:15:0: Attempting to queue a TARGET RESET message
+CDB: 0x12 0x0 0x0 0x0 0x36 0x0
+aic7xxx_dev_reset returns 0x2003
+Recovery SCB completes
+(scsi0:A:15:0): refuses WIDE negotiation.  Using 8bit transfers
+(scsi0:A:15:0): refuses WIDE negotiation.  Using 8bit transfers
+scsi0:0:15:0: Attempting to queue an ABORT message
+CDB: 0x12 0x0 0x0 0x0 0x36 0x0
+scsi0: At time of recovery, card was not paused
 
 
---------------000203030206060004020809
-Content-Type: text/x-vcard; charset=utf-8;
- name="crespin.quartz.vcf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
- filename="crespin.quartz.vcf"
-
-begin:vcard
-fn:Yves Crespin
-n:Crespin;Yves
-org:Quartz
-adr:Les Ardillais;;104, Impasse Moissan;CROLLES;;38920;France
-email;internet:Crespin.Quartz@Wanadoo.fr
-tel;work:04.76.92.21.91
-tel;cell:06.86.42.86.81
-x-mozilla-html:FALSE
-url:http://crespin.quartz.free.fr/
-version:2.1
-end:vcard
-
-
---------------000203030206060004020809--
+======================================================================
 

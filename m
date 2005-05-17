@@ -1,59 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVEQDbC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbVEQDfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261232AbVEQDbC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 23:31:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261310AbVEQDbB
+	id S261662AbVEQDfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 23:35:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVEQDfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 23:31:01 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:58082 "EHLO
-	pd2mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S261233AbVEQDax (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 23:30:53 -0400
-Date: Mon, 16 May 2005 21:29:47 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Disk write cache (Was: Hyper-Threading Vulnerability)
-In-reply-to: <44PRr-6mz-33@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <4289652B.7020408@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
-X-Accept-Language: en-us, en
-References: <43Bnu-Ut-9@gated-at.bofh.it> <44sLm-3Mg-33@gated-at.bofh.it>
- <44sUX-42h-11@gated-at.bofh.it> <44teb-4fb-1@gated-at.bofh.it>
- <44uaj-4Z3-5@gated-at.bofh.it> <44LXu-2W6-15@gated-at.bofh.it>
- <44OVj-5xS-3@gated-at.bofh.it> <44PRr-6mz-33@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+	Mon, 16 May 2005 23:35:25 -0400
+Received: from fire.osdl.org ([65.172.181.4]:57774 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261233AbVEQDfM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 23:35:12 -0400
+Date: Mon, 16 May 2005 20:37:04 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Christoph Lameter <christoph@lameter.com>
+cc: randy_dunlap <rdunlap@xenotime.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, shai@scalex86.org, ak@suse.de
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt.
+In-Reply-To: <Pine.LNX.4.62.0505161954470.25647@graphe.net>
+Message-ID: <Pine.LNX.4.58.0505162029240.18337@ppc970.osdl.org>
+References: <Pine.LNX.4.62.0505161243580.13692@ScMPusgw>
+ <20050516150907.6fde04d3.akpm@osdl.org> <Pine.LNX.4.62.0505161934220.25315@graphe.net>
+ <20050516194651.1debabfd.rdunlap@xenotime.net> <Pine.LNX.4.62.0505161954470.25647@graphe.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> Then I suggest you never use such a drive. Anything that does this,
-> will end up replacing a good track with garbage. Unless a disk drive
-> has a built-in power source such as super-capacitors or batteries, what
-> happens during a power-failure is that all electronics stops and
-> the discs start coasting. Eventually the heads will crash onto
 
-If the power to the drive is truly just cut, then this is basically what 
-will happen. However, I have heard, for what it's worth, that in many 
-cases if you pull the AC power from a typical PC, the Power Good signal 
-from the PSU will be de-asserted, which triggers the Reset line on all 
-the buses, which triggers the ATA reset line, which triggers the drive 
-to finish writing out the sector it is doing. There is likely enough 
-capacitance in the power supply to do that before the voltage drops off.
 
-> the platter. Older discs had a magnetically released latch which would
-> send the heads to an inside landing zone. Nobody bothers anymore.
+On Mon, 16 May 2005, Christoph Lameter wrote:
+> 
+> That would not allow to set the value of CONFIG_HZ to a numeric value.
+> I would have CONFIG_HZ_100 CONFIG_HZ_250 etc. Gets a bit complicated
+> to handle.
 
-Sure they do. All current or remotely recent drives (to my knowledge, 
-anyway) will park the heads properly at the landing zone on power-off. 
-If the drive is told to power off cleanly, this works as expected, and 
-if the power is simply cut, the remaining energy in the spinning 
-platters is used like a generator to provide power to move the head 
-actuator to the park positon.
+I don't think it gets any more complex to handle than the stuff you need 
+to do now (#ifdef's, and the #define HZ CONFIG_HZ games).
 
--- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
+Also, I think you can do it in the Kconfig file, which at least makes it a 
+fairly localized thing:
 
+	choice
+		prompt "Timer frequency"
+		default HZ_250
+
+	config HZ_100
+		bool "100 Hz"
+
+	confic HZ_250
+		bool "250 Hz"
+
+	config HZ_1000
+		bool "1000 Hz"
+
+	endchoice
+
+	config HZ
+		int
+		default 100 if HZ_100
+		default 250 if HZ_250
+		default 1000 if HZ_1000
+
+and now you can just do
+
+	#define HZ CONFIG_HZ
+
+or something. You can even maje the Kconfig parts be a separate Kconfig.HZ
+file, and have both the x86 and x86-64 Kconfig files just include the
+common part (since it's a generic issue, not even PC-related: we might
+want to allow things like 60Hz frequencies for CONFIG_EMBEDDED etc, and
+these choices are really valid on any system that allows for the timer to
+be reprogrammed)
+
+The above is obviously totally untested, but it doesn't look any more
+complex than having a fairly ugly (and much less user-friendly) check at
+compile-time.
+
+		Linus

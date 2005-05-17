@@ -1,59 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261949AbVEQRoJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbVEQRpp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261949AbVEQRoJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 13:44:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262026AbVEQRoH
+	id S261932AbVEQRpp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 13:45:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVEQRpd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 13:44:07 -0400
-Received: from fire.osdl.org ([65.172.181.4]:5069 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262030AbVEQRnI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 13:43:08 -0400
-Date: Tue, 17 May 2005 10:43:00 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Linux Audit Discussion <linux-audit@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc4-mm2 - sleeping function called from invalid context at mm/slab.c:2502
-Message-ID: <20050517174300.GE27549@shell0.pdx.osdl.net>
-References: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu> <20050517165528.GB27549@shell0.pdx.osdl.net> <1116349464.23972.118.camel@hades.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1116349464.23972.118.camel@hades.cambridge.redhat.com>
-User-Agent: Mutt/1.5.6i
+	Tue, 17 May 2005 13:45:33 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:16910 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261937AbVEQRob
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 13:44:31 -0400
+Date: Tue, 17 May 2005 18:44:39 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kirill Korotaev <dev@sw.ru>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NMI watchdog config option (was: Re: [PATCH] NMI lockup
+ and AltSysRq-P dumping calltraces on _all_ cpus via NMI IPI)
+In-Reply-To: <Pine.LNX.4.58.0505171017480.18337@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.61L.0505171839490.17529@blysk.ds.pg.gda.pl>
+References: <42822B5F.8040901@sw.ru> <768860000.1116282855@flay>
+ <42899797.2090702@sw.ru> <Pine.LNX.4.58.0505170844550.18337@ppc970.osdl.org>
+ <Pine.LNX.4.61L.0505171656300.17529@blysk.ds.pg.gda.pl>
+ <Pine.LNX.4.58.0505170928220.18337@ppc970.osdl.org>
+ <Pine.LNX.4.61L.0505171747540.17529@blysk.ds.pg.gda.pl>
+ <Pine.LNX.4.58.0505171017480.18337@ppc970.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* David Woodhouse (dwmw2@infradead.org) wrote:
-> On Tue, 2005-05-17 at 09:55 -0700, Chris Wright wrote:
-> > Here and up we are in netlink code which does netlink_trim to reduce
-> > the skb data size before queing to socket.  This does skb_clone with
-> > gfp_any() flag.  We aren't in softirq, so we get GFP_KERNEL flag set
-> > even though in_atomic() is true (spin_lock held I'm assuming).
-> 
-> netlink_unicast() is only calling skb_clone() because we artificially
-> increased the refcount on the skb in question. 
+On Tue, 17 May 2005, Linus Torvalds wrote:
 
-It would call pskb_expand_head() otherwise, so we'd hit the same
-warning.
+> IOW, testing is good, but it's _not_ good if you test your users to 
+> destruction.  User testing should be limited (as far as humanly possible) 
+> to things that they can sanely report.
 
-> As I understand it, we do that in order to prevent the skb from being
-> lost if netlink_unicast() returns an error -- it normally frees the skb
-> before returning in that case. Am I alone in thinking that behaviour is
-> strange?
+ Oh, absolutely.  I do agree -- I've just wanted to point out the 
+advantages and drawbacks of the watchdog in case someone (not necessarily 
+you) misses them. ;-)
 
-I think the idea is build skb, hand off to netlink layer and never think
-about it again.  Fire and forget, what's not to like? ;-))
-
-> I'm really not fond of the refcount trick -- I suspect I'd be happier if
-> we were just to try to keep track of sk_rmem_alloc so we never hit the
-> condition in netlink_attachskb() which might cause it to fail.
-
-This has some issues w.r.t. truesize and socket buffer space.  The trim
-is done to keep accounting sane, so we'd either have to trim ourselves
-or take into account the change in size.  And ultimately, we'd still get
-trimmed by netlink, so the GFP issue is still there.  Ideally, gfp_any()
-would really be _any_
-
-thanks,
--chris
+  Maciej

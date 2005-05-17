@@ -1,155 +1,162 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261697AbVEQFDG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVEQFbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261697AbVEQFDG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 01:03:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVEQFDE
+	id S261153AbVEQFbm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 01:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261151AbVEQFbm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 01:03:04 -0400
-Received: from smtp811.mail.sc5.yahoo.com ([66.163.170.81]:15522 "HELO
-	smtp811.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261697AbVEQE6W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 00:58:22 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Kris Karas <ktk@enterprise.bidmc.harvard.edu>
-Subject: Re: Problem report: 2.6.12-rc4 ps2 keyboard being misdetected as /dev/input/mouse0
-Date: Mon, 16 May 2005 23:58:14 -0500
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, Greg Stark <gsstark@mit.edu>
-References: <87zmuveoty.fsf@stark.xeocode.com> <200505160036.30628.dtor_core@ameritech.net> <4289682B.8060403@enterprise.bidmc.harvard.edu>
-In-Reply-To: <4289682B.8060403@enterprise.bidmc.harvard.edu>
+	Tue, 17 May 2005 01:31:42 -0400
+Received: from graphe.net ([209.204.138.32]:62477 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261153AbVEQFbc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 01:31:32 -0400
+Date: Mon, 16 May 2005 22:31:25 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Linus Torvalds <torvalds@osdl.org>
+cc: randy_dunlap <rdunlap@xenotime.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, shai@scalex86.org, ak@suse.de
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt.
+In-Reply-To: <Pine.LNX.4.58.0505162029240.18337@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.62.0505162225260.28022@graphe.net>
+References: <Pine.LNX.4.62.0505161243580.13692@ScMPusgw>
+ <20050516150907.6fde04d3.akpm@osdl.org> <Pine.LNX.4.62.0505161934220.25315@graphe.net>
+ <20050516194651.1debabfd.rdunlap@xenotime.net> <Pine.LNX.4.62.0505161954470.25647@graphe.net>
+ <Pine.LNX.4.58.0505162029240.18337@ppc970.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505162358.15099.dtor_core@ameritech.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 16 May 2005 22:42, Kris Karas wrote:
-> Dmitry Torokhov wrote:
-> 
-> >On Monday 16 May 2005 00:12, Greg Stark wrote:
-> >  
-> >
-> >>I just updated to 2.6.12-rc4 and now /dev/input/mouse0 seems to be my ps2
-> >>keyboard.
-> >>
-> >Please use /dev/input/mice for accessing your mouse.
-> >
-> 
-> One possibly interesting mouse issue in 2.6.12-rc[1..4] is that when 
-> using /dev/psaux, I have found that my mouse cursor under GPM seems to 
-> be triggered into un-hiding when I issue some random number of 
-> non-hiding key-down events.  That is, press and release the keyboard 
-> shift key say 3 or 5 or 10 times, and the console mouse cursor will 
-> appear, just as if the mouse had been moved.  This bug is not in 2.6.11 
-> (nor Alan's 2.6.11-ac7, fwiw).
-> 
+On Mon, 16 May 2005, Linus Torvalds wrote:
 
-This is caused by atkbd's scrolling support + GPM not expecting to see a
-0-motion packets from devices... I'd say we need to fix GPM not to set
-GPM_MOVE in these cases; I have looked into adjusting mousedev but it is
-too ugly for words to suppress them there.
+> or something. You can even maje the Kconfig parts be a separate Kconfig.HZ
+> file, and have both the x86 and x86-64 Kconfig files just include the
+> common part (since it's a generic issue, not even PC-related: we might
+> want to allow things like 60Hz frequencies for CONFIG_EMBEDDED etc, and
+> these choices are really valid on any system that allows for the timer to
+> be reprogrammed)
 
-Although... maybe the patch below is not too ugly.
+Ok. Here is the patch redone. The location for Kconfig.hz is in the
+kernel directory since the other timer related stuff is there too:
 
--- 
-Dmitry
+---
 
-Input: mousedev - try not to report 0-motion 0-button mouse events
-       to userspace. GPM considers such packets motion data and
-       starts displaying selection cursor.
+Make the timer frequency selectable. The timer interrupt may cause bus
+and memory contention in large NUMA systems since the interrupt occurs
+on each processor HZ times per second.
 
-Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
---
+Signed-off-by: Christoph Lameter <christoph@lameter.com>
+Signed-off-by: Shai Fultheim <shai@scalex86.org>
 
- mousedev.c |   23 ++++++++++++++---------
- 1 files changed, 14 insertions(+), 9 deletions(-)
-
-Index: dtor/drivers/input/mousedev.c
+Index: linux-2.6.12-rc4/arch/i386/Kconfig
 ===================================================================
---- dtor.orig/drivers/input/mousedev.c
-+++ dtor/drivers/input/mousedev.c
-@@ -9,7 +9,7 @@
-  * the Free Software Foundation.
-  */
+--- linux-2.6.12-rc4.orig/arch/i386/Kconfig	2005-05-17 02:19:55.000000000 +0000
++++ linux-2.6.12-rc4/arch/i386/Kconfig	2005-05-17 05:27:31.000000000 +0000
+@@ -1133,6 +1133,8 @@
+ 	  a work-around for a number of buggy BIOSes. Switch this option on if
+ 	  your computer crashes instead of powering off properly.
  
--#define MOUSEDEV_MINOR_BASE 	32
-+#define MOUSEDEV_MINOR_BASE	32
- #define MOUSEDEV_MINORS		32
- #define MOUSEDEV_MIX		31
- 
-@@ -101,6 +101,7 @@ struct mousedev_list {
- 	unsigned char ready, buffer, bufsiz;
- 	unsigned char imexseq, impsseq;
- 	enum mousedev_emul mode;
-+	unsigned long last_buttons;
- };
- 
- #define MOUSEDEV_SEQ_LEN	6
-@@ -202,7 +203,7 @@ static void mousedev_key_event(struct mo
- 		case BTN_SIDE:		index = 3; break;
- 		case BTN_4:
- 		case BTN_EXTRA:		index = 4; break;
--		default: 		return;
-+		default:		return;
- 	}
- 
- 	if (value) {
-@@ -224,7 +225,7 @@ static void mousedev_notify_readers(stru
- 		spin_lock_irqsave(&list->packet_lock, flags);
- 
- 		p = &list->packets[list->head];
--		if (list->ready && p->buttons != packet->buttons) {
-+		if (list->ready && p->buttons != mousedev->packet.buttons) {
- 			unsigned int new_head = (list->head + 1) % PACKET_QUEUE_LEN;
- 			if (new_head != list->tail) {
- 				p = &list->packets[list->head = new_head];
-@@ -249,10 +250,13 @@ static void mousedev_notify_readers(stru
- 		p->dz += packet->dz;
- 		p->buttons = mousedev->packet.buttons;
- 
--		list->ready = 1;
-+		if (p->dx || p->dy || p->dz || p->buttons != list->last_buttons)
-+			list->ready = 1;
- 
- 		spin_unlock_irqrestore(&list->packet_lock, flags);
--		kill_fasync(&list->fasync, SIGIO, POLL_IN);
++source kernel/Kconfig.hz
 +
-+		if (list->ready)
-+			kill_fasync(&list->fasync, SIGIO, POLL_IN);
- 	}
+ endmenu
  
- 	wake_up_interruptible(&mousedev->wait);
-@@ -320,7 +324,7 @@ static void mousedev_event(struct input_
- 					mousedev->pkt_count++;
- 					/* Input system eats duplicate events, but we need all of them
- 					 * to do correct averaging so apply present one forward
--			 		 */
-+					 */
- 					fx(0) = fx(1);
- 					fy(0) = fy(1);
- 				}
-@@ -477,9 +481,10 @@ static void mousedev_packet(struct mouse
- 	}
+ source "arch/i386/kernel/cpu/cpufreq/Kconfig"
+Index: linux-2.6.12-rc4/include/asm-i386/param.h
+===================================================================
+--- linux-2.6.12-rc4.orig/include/asm-i386/param.h	2005-05-17 05:08:56.000000000 +0000
++++ linux-2.6.12-rc4/include/asm-i386/param.h	2005-05-17 05:10:08.000000000 +0000
+@@ -1,8 +1,10 @@
++#include <linux/config.h>
++
+ #ifndef _ASMi386_PARAM_H
+ #define _ASMi386_PARAM_H
  
- 	if (!p->dx && !p->dy && !p->dz) {
--		if (list->tail == list->head)
-+		if (list->tail == list->head) {
- 			list->ready = 0;
--		else
-+			list->last_buttons = p->buttons;
-+		} else
- 			list->tail = (list->tail + 1) % PACKET_QUEUE_LEN;
- 	}
+ #ifdef __KERNEL__
+-# define HZ		1000		/* Internal kernel timer frequency */
++# define HZ		CONFIG_HZ	/* Internal kernel timer frequency */
+ # define USER_HZ	100		/* .. some user interfaces are in "ticks" */
+ # define CLOCKS_PER_SEC		(USER_HZ)	/* like times() */
+ #endif
+Index: linux-2.6.12-rc4/arch/x86_64/Kconfig
+===================================================================
+--- linux-2.6.12-rc4.orig/arch/x86_64/Kconfig	2005-05-17 02:19:54.000000000 +0000
++++ linux-2.6.12-rc4/arch/x86_64/Kconfig	2005-05-17 05:20:49.000000000 +0000
+@@ -410,6 +410,8 @@
  
-@@ -695,7 +700,7 @@ static struct input_device_id mousedev_i
- 		.absbit = { BIT(ABS_X) | BIT(ABS_Y) | BIT(ABS_PRESSURE) | BIT(ABS_TOOL_WIDTH) },
- 	},	/* A touchpad */
+ 	  If unsure, say Y. Only embedded should say N here.
  
--	{ }, 	/* Terminating entry */
-+	{ },	/* Terminating entry */
- };
++source kernel/Kconfig.hz
++
+ endmenu
  
- MODULE_DEVICE_TABLE(input, mousedev_ids);
+ #
+Index: linux-2.6.12-rc4/include/asm-x86_64/param.h
+===================================================================
+--- linux-2.6.12-rc4.orig/include/asm-x86_64/param.h	2005-05-17 05:08:52.000000000 +0000
++++ linux-2.6.12-rc4/include/asm-x86_64/param.h	2005-05-17 05:09:42.000000000 +0000
+@@ -1,9 +1,11 @@
++#include <linux/config.h>
++
+ #ifndef _ASMx86_64_PARAM_H
+ #define _ASMx86_64_PARAM_H
+ 
+ #ifdef __KERNEL__
+-# define HZ            1000            /* Internal kernel timer frequency */
+-# define USER_HZ       100          /* .. some user interfaces are in "ticks */
++# define HZ            CONFIG_HZ	/* Internal kernel timer frequency */
++# define USER_HZ       100		/* .. some user interfaces are in "ticks */
+ #define CLOCKS_PER_SEC        (USER_HZ)       /* like times() */
+ #endif
+ 
+Index: linux-2.6.12-rc4/kernel/Kconfig.hz
+===================================================================
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.12-rc4/kernel/Kconfig.hz	2005-05-17 05:24:01.000000000 +0000
+@@ -0,0 +1,46 @@
++#
++# Timer Interrupt Frequency Configuration
++#
++
++choice
++	prompt "Timer frequency"
++	default HZ_250
++	help
++	 Allows the configuration of the timer frequency. It is customary
++	 to have the timer interrupt run at 1000 HZ but 100 HZ may be more
++	 beneficial for servers and NUMA systems that do not need to have
++	 a fast response for user interaction and that may experience bus
++	 contention and cacheline bounces as a result of timer interrupts.
++	 Note that the timer interrupt occurs on each processor in an SMP
++	 environment leading to NR_CPUS * HZ number of timer interrupts
++	 per second.
++
++
++	config HZ_100
++		bool "100 HZ"
++	help
++	  100 HZ is a typical choice for servers, SMP and NUMA systems
++	  with lots of processors that may show reduced performance if
++	  too many timer interrupts are occurring.
++
++	config HZ_250
++		bool "250 HZ"
++	help
++	 250 HZ is a good compromise choice allowing server performance
++	 while also showing good interactive responsiveness even
++	 on SMP and NUMA systems.
++
++	config HZ_1000
++		bool "1000 HZ"
++	help
++	 1000 HZ is the preferred choice for desktop systems and other
++	 systems requiring fast interactive responses to events.
++
++endchoice
++
++config HZ
++	int
++	default 100 if HZ_100
++	default 250 if HZ_250
++	default 1000 if HZ_1000
++

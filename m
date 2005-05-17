@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVEQLZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVEQLZP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbVEQLZN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 07:25:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbVEQLYz
+	id S261384AbVEQLZP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 07:25:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbVEQLYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 07:24:55 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:17318 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261395AbVEQLVz convert rfc822-to-8bit
+	Tue, 17 May 2005 07:24:21 -0400
+Received: from zone4.gcu-squad.org ([213.91.10.50]:45531 "EHLO
+	zone4.gcu-squad.org") by vger.kernel.org with ESMTP id S261393AbVEQLM1 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 07:21:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=d4YhsvwwHfT/NBbhPnKXjSNwkXnGIQH8iES47TA1fxg5aL426q2/8uCEEnF5V8g8j8XYlGfHGwwXFmfWjHm/BBKwpSmVqUjceapORACLkhwEadH6gOLJbrGYmumVrgBNhsmvxUwSG62hLoyk88qUItvVCIf2BqQLqF7ktbNAc2s=
-Message-ID: <73e1f59805051704216bc4c78f@mail.gmail.com>
-Date: Tue, 17 May 2005 13:21:53 +0200
-From: =?WINDOWS-1252?Q?Lubo=9A_Dole=9Eel?= <lubosd@gmail.com>
-Reply-To: =?WINDOWS-1252?Q?Lubo=9A_Dole=9Eel?= <lubosd@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: "loop device recursion avoidance" patch causes difficulties
-Mime-Version: 1.0
+	Tue, 17 May 2005 07:12:27 -0400
+Date: Tue, 17 May 2005 13:04:39 +0200 (CEST)
+To: yani.ioannou@gmail.com
+Subject: Re: [lm-sensors] [PATCH 2.6.12-rc4 15/15] drivers/i2c/chips/adm1026.c: use dynamic sysfs callbacks
+X-IlohaMail-Blah: khali@localhost
+X-IlohaMail-Method: mail() [mem]
+X-IlohaMail-Dummy: moo
+X-Mailer: IlohaMail/0.8.14 (On: webmail.gcu.info)
+Message-ID: <e9iUj0EZ.1116327879.1515720.khali@localhost>
+In-Reply-To: <2538186705051703479bd0c29@mail.gmail.com>
+From: "Jean Delvare" <khali@linux-fr.org>
+Bounce-To: "Jean Delvare" <khali@linux-fr.org>
+CC: "Greg KH" <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <lm-sensors@lm-sensors.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I've created a bugreport at http://bugme.osdl.org/show_bug.cgi?id=4472
-and I was advised to write to this list.
+Hi Yani,
 
-A patch called "loop device recursion avoidance" which appeared in
-2.6.11 kernel has complicated ISO image mounting from another mounted
-media.
+> Again I'd prefer someone test this particular patch before it be
+> applied, because I haven't got an adm1026 to test it with :-).
 
-Example:
+If you could come up with an additional demonstration patch for either
+the lm90 driver or the it87 driver, I would happily give it a try. The
+adm1026 has very few users AFAIK so it might not be the best choice to
+find testers, although I agree that it was a convenient way to
+demonstrate how drivers could benefit from the proposed change.
 
-# mount /mnt/dvd
-# mount -o loop /mnt/dvd/file.iso /somedir
+And, once again, thanks *a lot* for looking into this, this is very much
+appreciated.
 
-The mount command produces this error: "ioctl: LOOP_SET_FD: Invalid argument".
-
-This operation maybe is a kind of recursion but I think that recursion
-should be limited - not disabled.
-Now I have to copy the ISO image to my hdd before mounting. I used to
-put CD backups on DVDs; now it's more complicated to use.
-
-I am not a "linux-kernel" subscriber so please CC me to: lubosd at gmail com.
-
-Best regards,
-Lubos Dolezel
+--
+Jean Delvare

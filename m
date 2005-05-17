@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVEQQRB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVEQQHT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261546AbVEQQRB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 12:17:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVEQQNy
+	id S261783AbVEQQHT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 12:07:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVEQQF1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 12:13:54 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:3788 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261795AbVEQQJK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 12:09:10 -0400
-Date: Tue, 17 May 2005 17:09:00 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Michael Halcrow <mhalcrow@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Chris Wright <chrisw@osdl.org>, Serge Hallyn <serue@us.ibm.com>
-Subject: Re: [patch 2/7] BSD Secure Levels: move bd claim from inode to filp
-Message-ID: <20050517160900.GB32436@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Michael Halcrow <mhalcrow@us.ibm.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Chris Wright <chrisw@osdl.org>, Serge Hallyn <serue@us.ibm.com>
-References: <20050517152303.GA2814@halcrow.us> <20050517152545.GA2944@halcrow.us>
+	Tue, 17 May 2005 12:05:27 -0400
+Received: from wproxy.gmail.com ([64.233.184.201]:5732 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261751AbVEQP5e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 11:57:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:content-transfer-encoding:in-reply-to:user-agent:from;
+        b=T+RSDl01CyCtuJjv0XFHVroiasQZN2p+kgyV1ONYyOOoPRk4qUwvQKlQzO8LmTjwWeFVaIdjt0HZkENZN3JAdrA0gA4OnVFPToV/DFmjn2hXzwCmQjSdjJaS2r7YkNDAO1rqDUnvVbo8i6A80DmXBE1ZE6xyCTflMqyhPG4VvOU=
+Date: Tue, 17 May 2005 17:57:31 +0200
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Andrew Morton <akpm@osdl.org>, dino@in.ibm.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
+Message-ID: <20050517155731.GA9590@gmail.com>
+References: <20050516085832.GA9558@gmail.com> <20050517071307.GA4794@in.ibm.com> <20050517002908.005a9ba7.akpm@osdl.org> <1116340465.4989.2.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050517152545.GA2944@halcrow.us>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1116340465.4989.2.camel@mulgrave>
+User-Agent: Mutt/1.5.6i
+From: =?iso-8859-1?Q?Gr=E9goire?= Favre <gregoire.favre@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 17, 2005 at 10:25:46AM -0500, Michael Halcrow wrote:
-> +/**
-> + * Claim the blockdev to exclude mounters; release on file close.
-> + */
-> +static int seclvl_bd_claim(struct file *filp)
->  {
-> -	int holder;
->  	struct block_device *bdev = NULL;
-> -	dev_t dev = inode->i_rdev;
-> +	dev_t dev = filp->f_dentry->d_inode->i_rdev;
->  	bdev = open_by_devnum(dev, FMODE_WRITE);
->  	if (bdev) {
-> -		if (bd_claim(bdev, &holder)) {
-> +		if (bd_claim(bdev, filp)) {
->  			blkdev_put(bdev);
->  			return -EPERM;
->  		}
-> -		/* claimed, mark it to release on close */
-> -		inode->i_security = current;
-> +		/* Claimed; mark it to release on close */
-> +		filp->f_security = filp;
->  	}
->  	return 0;
+On Tue, May 17, 2005 at 09:34:25AM -0500, James Bottomley wrote:
 
-While we're at it this code is crap before and after your patch.  There's absolutely
-no point at all to use open_by_devnum if you already have an inode or file that you
-can get the struct block_device from easily.
+> Actually, this isn't a me too.  The previous one looks like some strange
+> DV failure.  This is a problem with the initial inquiry.  What's the
+> device at target 15?
 
+On this controler I have :
+
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: IBM      Model: DDRS-39130D      Rev: DC1B
+  Type:   Direct-Access                    ANSI SCSI revision: 02
+Host: scsi0 Channel: 00 Id: 15 Lun: 00
+  Vendor: SEAGATE  Model: ST336706LW       Rev: 0108
+  Type:   Direct-Access                    ANSI SCSI revision: 03
+
+Should I change anything in the BIOS ?
+
+Thank you, and please keep CC to me as I am not on this ml :-)
+-- 
+	Grégoire Favre

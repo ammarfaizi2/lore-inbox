@@ -1,264 +1,261 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVEQAK7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVEQAP5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbVEQAK7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 20:10:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVEQAKK
+	id S261320AbVEQAP5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 20:15:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVEQAP5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 20:10:10 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4362 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261222AbVEQAI5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 20:08:57 -0400
-Date: Tue, 17 May 2005 02:08:56 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] lib/zlib*: possible cleanups
-Message-ID: <20050517000855.GO5112@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Mon, 16 May 2005 20:15:57 -0400
+Received: from graphe.net ([209.204.138.32]:54033 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261320AbVEQAPN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 20:15:13 -0400
+Date: Mon, 16 May 2005 17:14:53 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+cc: Jesse Barnes <jbarnes@virtuousgeek.org>,
+       Christoph Lameter <clameter@engr.sgi.com>,
+       Dave Hansen <haveblue@us.ibm.com>, Andy Whitcroft <apw@shadowen.org>,
+       Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       shai@scalex86.org, steiner@sgi.com
+Subject: Re: NUMA aware slab allocator V3
+In-Reply-To: <740100000.1116278461@flay>
+Message-ID: <Pine.LNX.4.62.0505161713130.21512@graphe.net>
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>
+ <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com>
+ <714210000.1116266915@flay> <200505161410.43382.jbarnes@virtuousgeek.org>
+ <740100000.1116278461@flay>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- #if 0 the following unused functions:
-  - zlib_deflate/deflate.c: zlib_deflateSetDictionary
-  - zlib_deflate/deflate.c: zlib_deflateParams
-  - zlib_deflate/deflate.c: zlib_deflateCopy
-  - zlib_inflate/infblock.c: zlib_inflate_set_dictionary
-  - zlib_inflate/infblock.c: zlib_inflate_blocks_sync_point
-  - zlib_inflate/inflate_sync.c: zlib_inflateSync
-  - zlib_inflate/inflate_sync.c: zlib_inflateSyncPoint
-- remove the following unneeded EXPORT_SYMBOL's:
-  - zlib_deflate/deflate_syms.c: zlib_deflateCopy
-  - zlib_deflate/deflate_syms.c: zlib_deflateParams
-  - zlib_inflate/inflate_syms.c: zlib_inflateSync
-  - zlib_inflate/inflate_syms.c: zlib_inflateSyncPoint
+On Mon, 16 May 2005, Martin J. Bligh wrote:
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > Yeah, makes sense for the NUMA aware slab allocator to depend on 
+> > CONFIG_NUMA.
+> 
+> Andy confirmed offline that this is really CONFIG_NEED_MULTIPLE_PGDATS,
+> and is just named wrong.
 
----
+Hmmm.. In this case it may be necessary for the slab allocator to 
+determine what is the proper number of NUMA nodes. I do not really like it 
+but it seems that we need the following patch to rectify the situation.
 
-This patch was already sent on:
-- 6 May 2005
-
- include/linux/zlib.h            |   11 +++++++++++
- lib/zlib_deflate/deflate.c      |    6 ++++++
- lib/zlib_deflate/deflate_syms.c |    2 --
- lib/zlib_inflate/infblock.c     |    4 ++++
- lib/zlib_inflate/infblock.h     |    4 ++++
- lib/zlib_inflate/inflate_syms.c |    2 --
- lib/zlib_inflate/inflate_sync.c |    4 ++++
- 7 files changed, 29 insertions(+), 4 deletions(-)
-
---- linux-2.6.12-rc3-mm2-full/include/linux/zlib.h.old	2005-05-03 09:10:20.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/include/linux/zlib.h	2005-05-03 09:13:57.000000000 +0200
-@@ -442,9 +442,11 @@
-    not perform any compression: this will be done by deflate().
- */
-                             
-+#if 0
- extern int zlib_deflateSetDictionary (z_streamp strm,
- 						     const Byte *dictionary,
- 						     uInt  dictLength);
-+#endif
- /*
-      Initializes the compression dictionary from the given byte sequence
-    without producing any compressed output. This function must be called
-@@ -478,7 +480,10 @@
-    perform any compression: this will be done by deflate().
- */
- 
-+#if 0
- extern int zlib_deflateCopy (z_streamp dest, z_streamp source);
-+#endif
-+
- /*
-      Sets the destination stream as a complete copy of the source stream.
- 
-@@ -506,7 +511,9 @@
-    stream state was inconsistent (such as zalloc or state being NULL).
- */
- 
-+#if 0
- extern int zlib_deflateParams (z_streamp strm, int level, int strategy);
-+#endif
- /*
-      Dynamically update the compression level and compression strategy.  The
-    interpretation of level and strategy is as in deflateInit2.  This can be
-@@ -566,7 +573,9 @@
-    inflate().
- */
- 
-+#if 0
- extern int zlib_inflateSync (z_streamp strm);
-+#endif
- /* 
-     Skips invalid compressed data until a full flush point (see above the
-   description of deflate with Z_FULL_FLUSH) can be found, or until all
-@@ -631,7 +640,9 @@
+Index: linux-2.6.12-rc4/mm/slab.c
+===================================================================
+--- linux-2.6.12-rc4.orig/mm/slab.c	2005-05-16 16:58:44.000000000 -0700
++++ linux-2.6.12-rc4/mm/slab.c	2005-05-16 17:04:11.000000000 -0700
+@@ -112,10 +112,12 @@
+  * there is only a single node if CONFIG_NUMA is not set. Remove this check
+  * after the situation has stabilized.
+  */
+-#ifndef CONFIG_NUMA
+-#if MAX_NUMNODES != 1
+-#error "Broken Configuration: CONFIG_NUMA not set but MAX_NUMNODES !=1 !!"
+-#endif
++#ifdef CONFIG_NUMA
++#define NUMA_NODES MAX_NUMNODES
++#define NUMA_NODE_ID numa_node_id()
++#else
++#define NUMA_NODES 1
++#define NUMA_NODE_ID 0
  #endif
  
- extern const char  * zlib_zError           (int err);
-+#if 0
- extern int           zlib_inflateSyncPoint (z_streamp z);
-+#endif
- extern const uLong * zlib_get_crc_table    (void);
- 
- #endif /* _ZLIB_H */
---- linux-2.6.12-rc3-mm2-full/lib/zlib_deflate/deflate.c.old	2005-05-03 09:10:46.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/lib/zlib_deflate/deflate.c	2005-05-03 09:12:39.000000000 +0200
-@@ -255,6 +255,7 @@
- }
- 
- /* ========================================================================= */
-+#if 0
- int zlib_deflateSetDictionary(
- 	z_streamp strm,
- 	const Byte *dictionary,
-@@ -297,6 +298,7 @@
-     if (hash_head) hash_head = 0;  /* to make compiler happy */
-     return Z_OK;
- }
-+#endif  /*  0  */
- 
- /* ========================================================================= */
- int zlib_deflateReset(
-@@ -330,6 +332,7 @@
- }
- 
- /* ========================================================================= */
-+#if 0
- int zlib_deflateParams(
- 	z_streamp strm,
- 	int level,
-@@ -365,6 +368,7 @@
-     s->strategy = strategy;
-     return err;
- }
-+#endif  /*  0  */
- 
- /* =========================================================================
-  * Put a short in the pending buffer. The 16-bit value is put in MSB order.
-@@ -572,6 +576,7 @@
- /* =========================================================================
-  * Copy the source state to the destination state.
+ /*
+@@ -311,7 +313,7 @@
+ /*
+  * Need this for bootstrapping a per node allocator.
   */
-+#if 0
- int zlib_deflateCopy (
- 	z_streamp dest,
- 	z_streamp source
-@@ -624,6 +629,7 @@
-     return Z_OK;
- #endif
- }
-+#endif  /*  0  */
+-#define NUM_INIT_LISTS (2 + MAX_NUMNODES)
++#define NUM_INIT_LISTS (2 + NUMA_NODES)
+ struct kmem_list3 __initdata initkmem_list3[NUM_INIT_LISTS];
+ #define	CACHE_CACHE 0
+ #define	SIZE_AC 1
+@@ -385,7 +387,7 @@
+ 	} while (0)
  
- /* ===========================================================================
-  * Read a new buffer from the current input stream, update the adler32
---- linux-2.6.12-rc3-mm2-full/lib/zlib_deflate/deflate_syms.c.old	2005-05-03 09:11:13.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/lib/zlib_deflate/deflate_syms.c	2005-05-03 09:12:02.000000000 +0200
-@@ -16,6 +16,4 @@
- EXPORT_SYMBOL(zlib_deflateInit2_);
- EXPORT_SYMBOL(zlib_deflateEnd);
- EXPORT_SYMBOL(zlib_deflateReset);
--EXPORT_SYMBOL(zlib_deflateCopy);
--EXPORT_SYMBOL(zlib_deflateParams);
- MODULE_LICENSE("GPL");
---- linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/infblock.h.old	2005-05-03 09:12:49.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/infblock.h	2005-05-03 09:34:30.000000000 +0200
-@@ -33,12 +33,16 @@
-     inflate_blocks_statef *,
-     z_streamp);
+ #define list3_data(cachep) \
+-	((cachep->nodelists[numa_node_id()]))
++	((cachep->nodelists[NUMA_NODE_ID]))
  
-+#if 0
- extern void zlib_inflate_set_dictionary (
-     inflate_blocks_statef *s,
-     const Byte *d,  /* dictionary */
-     uInt  n);       /* dictionary length */
-+#endif  /*  0  */
- 
-+#if 0
- extern int zlib_inflate_blocks_sync_point (
-     inflate_blocks_statef *s);
-+#endif  /*  0  */
- 
- #endif /* _INFBLOCK_H */
---- linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/infblock.c.old	2005-05-03 09:13:13.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/infblock.c	2005-05-03 09:34:46.000000000 +0200
-@@ -338,6 +338,7 @@
- }
- 
- 
-+#if 0
- void zlib_inflate_set_dictionary(
- 	inflate_blocks_statef *s,
- 	const Byte *d,
-@@ -347,15 +348,18 @@
-   memcpy(s->window, d, n);
-   s->read = s->write = s->window + n;
- }
-+#endif  /*  0  */
- 
- 
- /* Returns true if inflate is currently at the end of a block generated
-  * by Z_SYNC_FLUSH or Z_FULL_FLUSH. 
-  * IN assertion: s != NULL
-  */
-+#if 0
- int zlib_inflate_blocks_sync_point(
- 	inflate_blocks_statef *s
- )
+ /* NUMA: per-node */
+ #define list3_data_ptr(cachep, ptr) \
+@@ -405,7 +407,7 @@
+ 	unsigned int 		shared;
+ 	unsigned int		objsize;
+ /* 2) touched by every alloc & free from the backend */
+-	struct kmem_list3	*nodelists[MAX_NUMNODES];
++	struct kmem_list3	*nodelists[NUMA_NODES];
+ 	unsigned int	 	flags;	/* constant flags */
+ 	unsigned int		num;	/* # of objs per slab */
+ 	spinlock_t		spinlock;
+@@ -792,7 +794,7 @@
+ static inline struct array_cache **alloc_alien_cache(int cpu, int limit)
  {
-   return s->mode == LENS;
- }
-+#endif  /*  0  */
---- linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/inflate_sync.c.old	2005-05-03 09:14:12.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/inflate_sync.c	2005-05-03 09:14:52.000000000 +0200
-@@ -7,6 +7,7 @@
- #include "infblock.h"
- #include "infutil.h"
+ 	struct array_cache **ac_ptr;
+-	int memsize = sizeof(void*)*MAX_NUMNODES;
++	int memsize = sizeof(void*)*NUMA_NODES;
+ 	int node = cpu_to_node(cpu);
+ 	int i;
  
-+#if 0
- int zlib_inflateSync(
- 	z_streamp z
- )
-@@ -57,6 +58,7 @@
-   z->state->mode = BLOCKS;
-   return Z_OK;
- }
-+#endif  /*  0  */
+@@ -800,7 +802,7 @@
+ 		limit = 12;
+ 	ac_ptr = kmalloc_node(memsize, GFP_KERNEL, node);
+ 	if (ac_ptr) {
+-		for (i = 0; i < MAX_NUMNODES; i++) {
++		for (i = 0; i < NUMA_NODES; i++) {
+ 			if (i == node) {
+ 				ac_ptr[i] = NULL;
+ 				continue;
+@@ -823,7 +825,7 @@
  
+ 	if (!ac_ptr)
+ 		return;
+-	for (i = 0; i < MAX_NUMNODES; i++)
++	for (i = 0; i < NUMA_NODES; i++)
+ 		kfree(ac_ptr[i]);
  
- /* Returns true if inflate is currently at the end of a block generated
-@@ -66,6 +68,7 @@
-  * decompressing, PPP checks that at the end of input packet, inflate is
-  * waiting for these length bytes.
-  */
-+#if 0
- int zlib_inflateSyncPoint(
- 	z_streamp z
- )
-@@ -74,6 +77,7 @@
-     return Z_STREAM_ERROR;
-   return zlib_inflate_blocks_sync_point(z->state->blocks);
- }
-+#endif  /*  0  */
+ 	kfree(ac_ptr);
+@@ -847,7 +849,7 @@
+ 	struct array_cache *ac;
+ 	unsigned long flags;
  
- /*
-  * This subroutine adds the data at next_in/avail_in to the output history
---- linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/inflate_syms.c.old	2005-05-03 09:15:06.000000000 +0200
-+++ linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/inflate_syms.c	2005-05-03 09:15:13.000000000 +0200
-@@ -15,8 +15,6 @@
- EXPORT_SYMBOL(zlib_inflateInit_);
- EXPORT_SYMBOL(zlib_inflateInit2_);
- EXPORT_SYMBOL(zlib_inflateEnd);
--EXPORT_SYMBOL(zlib_inflateSync);
- EXPORT_SYMBOL(zlib_inflateReset);
--EXPORT_SYMBOL(zlib_inflateSyncPoint);
- EXPORT_SYMBOL(zlib_inflateIncomp); 
- MODULE_LICENSE("GPL");
-
-
+-	for (i = 0; i < MAX_NUMNODES; i++) {
++	for (i = 0; i < NUMA_NODES; i++) {
+ 		ac = l3->alien[i];
+ 		if (ac) {
+ 			spin_lock_irqsave(&ac->lock, flags);
+@@ -1028,7 +1030,7 @@
+ 
+ 	for (i = 0; i < NUM_INIT_LISTS; i++) {
+ 		LIST3_INIT(&initkmem_list3[i]);
+-		if (i < MAX_NUMNODES)
++		if (i < NUMA_NODES)
+ 			cache_cache.nodelists[i] = NULL;
+ 	}
+ 
+@@ -1065,7 +1067,7 @@
+ 	list_add(&cache_cache.next, &cache_chain);
+ 	cache_cache.colour_off = cache_line_size();
+ 	cache_cache.array[smp_processor_id()] = &initarray_cache.cache;
+-	cache_cache.nodelists[numa_node_id()] = &initkmem_list3[CACHE_CACHE];
++	cache_cache.nodelists[NUMA_NODE_ID] = &initkmem_list3[CACHE_CACHE];
+ 
+ 	cache_cache.objsize = ALIGN(cache_cache.objsize, cache_line_size());
+ 
+@@ -1154,7 +1156,7 @@
+ 		int node;
+ 		/* Replace the static kmem_list3 structures for the boot cpu */
+ 		init_list(&cache_cache, &initkmem_list3[CACHE_CACHE],
+-				numa_node_id());
++				NUMA_NODE_ID);
+ 
+ 		for_each_online_node(node) {
+ 				init_list(malloc_sizes[INDEX_L3].cs_cachep,
+@@ -1163,7 +1165,7 @@
+ 		if (INDEX_AC != INDEX_L3) {
+ 			init_list(malloc_sizes[INDEX_AC].cs_cachep,
+ 					&initkmem_list3[SIZE_AC],
+-					numa_node_id());
++					NUMA_NODE_ID);
+ 		}
+ 	}
+ 
+@@ -1778,7 +1780,7 @@
+ 				set_up_list3s(cachep);
+ 				g_cpucache_up = PARTIAL_L3;
+ 			} else {
+-				cachep->nodelists[numa_node_id()] =
++				cachep->nodelists[NUMA_NODE_ID] =
+ 					&initkmem_list3[SIZE_AC];
+ 				g_cpucache_up = PARTIAL_AC;
+ 			}
+@@ -1791,18 +1793,18 @@
+ 				set_up_list3s(cachep);
+ 				g_cpucache_up = PARTIAL_L3;
+ 			} else {
+-				cachep->nodelists[numa_node_id()] =
++				cachep->nodelists[NUMA_NODE_ID] =
+ 					kmalloc(sizeof(struct kmem_list3),
+ 						GFP_KERNEL);
+-				LIST3_INIT(cachep->nodelists[numa_node_id()]);
++				LIST3_INIT(cachep->nodelists[NUMA_NODE_ID]);
+ 			}
+ 		}
+-		cachep->nodelists[numa_node_id()]->next_reap =
++		cachep->nodelists[NUMA_NODE_ID]->next_reap =
+ 			jiffies + REAPTIMEOUT_LIST3 +
+ 			((unsigned long)cachep)%REAPTIMEOUT_LIST3;
+ 
+ 		BUG_ON(!ac_data(cachep));
+-		BUG_ON(!cachep->nodelists[numa_node_id()]);
++		BUG_ON(!cachep->nodelists[NUMA_NODE_ID]);
+ 		ac_data(cachep)->avail = 0;
+ 		ac_data(cachep)->limit = BOOT_CPUCACHE_ENTRIES;
+ 		ac_data(cachep)->batchcount = 1;
+@@ -1986,7 +1988,7 @@
+ 	drain_cpu_caches(cachep);
+ 
+ 	check_irq_on();
+-	for (i = 0; i < MAX_NUMNODES; i++) {
++	for (i = 0; i < NUMA_NODES; i++) {
+ 		l3 = cachep->nodelists[i];
+ 		if (l3) {
+ 			spin_lock_irq(&l3->list_lock);
+@@ -2068,7 +2070,7 @@
+ 		kfree(cachep->array[i]);
+ 
+ 	/* NUMA: free the list3 structures */
+-	for (i = 0; i < MAX_NUMNODES; i++) {
++	for (i = 0; i < NUMA_NODES; i++) {
+ 		if ((l3 = cachep->nodelists[i])) {
+ 			kfree(l3->shared);
+ #ifdef CONFIG_NUMA
+@@ -2482,7 +2484,7 @@
+ 
+ 	if (unlikely(!ac->avail)) {
+ 		int x;
+-		x = cache_grow(cachep, flags, numa_node_id());
++		x = cache_grow(cachep, flags, NUMA_NODE_ID);
+ 
+ 		// cache_grow can reenable interrupts, then ac could change.
+ 		ac = ac_data(cachep);
+@@ -2786,7 +2788,7 @@
+ 	{
+ 		struct slab *slabp;
+ 		slabp = GET_PAGE_SLAB(virt_to_page(objp));
+-		if (unlikely(slabp->nodeid != numa_node_id())) {
++		if (unlikely(slabp->nodeid != NUMA_NODE_ID)) {
+ 			struct array_cache *alien = NULL;
+ 			int nodeid = slabp->nodeid;
+ 			struct kmem_list3 *l3 = list3_data(cachep);
+@@ -2896,7 +2898,7 @@
+ 	unsigned long save_flags;
+ 	void *ptr;
+ 
+-	if (nodeid == numa_node_id() || nodeid == -1)
++	if (nodeid == NUMA_NODE_ID || nodeid == -1)
+ 		return __cache_alloc(cachep, flags);
+ 
+ 	cache_alloc_debugcheck_before(cachep, flags);
+@@ -3437,7 +3439,7 @@
+ 		spin_lock_irq(&l3->list_lock);
+ 
+ 		drain_array_locked(searchp, ac_data(searchp), 0,
+-				numa_node_id());
++				NUMA_NODE_ID);
+ 
+ #if DEBUG
+ 		if (time_before(searchp->redzonetest, jiffies)) {
+@@ -3452,7 +3454,7 @@
+ 
+ 		if (l3->shared)
+ 			drain_array_locked(searchp, l3->shared, 0,
+-				numa_node_id());
++				NUMA_NODE_ID);
+ 
+ 		if (l3->free_touched) {
+ 			l3->free_touched = 0;

@@ -1,95 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVEQItO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVEQJGs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261338AbVEQItO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 04:49:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVEQItO
+	id S261336AbVEQJGs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 05:06:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbVEQJGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 04:49:14 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:10479 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261340AbVEQItD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 04:49:03 -0400
-Date: Tue, 17 May 2005 14:18:59 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Fastboot mailing list <fastboot@lists.osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Morton Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] Kexec: Kexec on panic fix with nmi watchdog enabled 
-Message-ID: <20050517084859.GB6196@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ZfOjI3PrQbgiZnxM"
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+	Tue, 17 May 2005 05:06:48 -0400
+Received: from bernache.ens-lyon.fr ([140.77.167.10]:29093 "EHLO
+	bernache.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261336AbVEQJGq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 05:06:46 -0400
+Message-ID: <4289B423.7050407@ens-lyon.org>
+Date: Tue, 17 May 2005 11:06:43 +0200
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc4-mm2
+References: <20050516021302.13bd285a.akpm@osdl.org>
+In-Reply-To: <20050516021302.13bd285a.akpm@osdl.org>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+X-Spam-Report: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton a écrit :
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc4/2.6.12-rc4-mm2/
 
---ZfOjI3PrQbgiZnxM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Hi Andrew,
 
+Cardmgr does not automatically start my pcmcia wireless card anymore.
+orinoco modules are not loaded at all.
+I still can modprobe orinoco_cs to get my wireless to work.
 
---ZfOjI3PrQbgiZnxM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="x86-hang-on-nmi-watchdog-fix.patch"
+Cardmgr says this when starting:
+cardmgr[27367]: no pcmcia driver in /proc/devices
 
+Is this a feature related to the upcoming deprecation of cardctl ?
+Am I supposed to use pcmcia-utils ?
 
-o Problem: Kexec on panic hangs if first kernel is booted with nmi_watchdog
-  command line parameter. This problem occurs because kexec crash shutdown
-  code replaces the NMI callback handler. This handler saves the cpu register
-  states and halts the cpu. If system is booted with nmi_watchdog parameter,
-  then crashing cpu also runs this nmi handler and halts itself.
-
-o This patch fixes the problem by keeping a track of crashing cpu and not
-  executing the new nmi handler on crashing cpu.
-
-o There is a dependence on smp_processor_id() function which might return
-  insane value for cpu, if cpu field of thread_info is corrupted.
-
-Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
----
-
- linux-2.6.12-rc4-mm2-nmi-vivek/arch/i386/kernel/crash.c |   12 ++++++++++++
- 1 files changed, 12 insertions(+)
-
-diff -puN arch/i386/kernel/crash.c~x86-hang-on-nmi-watchdog-fix arch/i386/kernel/crash.c
---- linux-2.6.12-rc4-mm2-nmi/arch/i386/kernel/crash.c~x86-hang-on-nmi-watchdog-fix	2005-05-17 14:11:24.724659160 +0530
-+++ linux-2.6.12-rc4-mm2-nmi-vivek/arch/i386/kernel/crash.c	2005-05-17 14:11:24.731658096 +0530
-@@ -28,6 +28,8 @@
- 
- 
- note_buf_t crash_notes[NR_CPUS];
-+/* This keeps a track of which one is crashing cpu. */
-+static int crashing_cpu;
- 
- static u32 *append_elf_note(u32 *buf,
- 	char *name, unsigned type, void *data, size_t data_len)
-@@ -113,6 +115,13 @@ static atomic_t waiting_for_crash_ipi;
- static int crash_nmi_callback(struct pt_regs *regs, int cpu)
- {
- 	struct pt_regs fixed_regs;
-+
-+	/* Don't do anything if this handler is invoked on crashing cpu.
-+	 * Otherwise, system will completely hang. Crashing cpu can get
-+	 * an NMI if system was initially booted with nmi_watchdog parameter.
-+	 */
-+	if (cpu == crashing_cpu)
-+		return 1;
- 	local_irq_disable();
- 
- 	/* CPU does not save ss and esp on stack if execution is already
-@@ -187,6 +196,9 @@ void machine_crash_shutdown(void)
- 	 */
- 	/* The kernel is broken so disable interrupts */
- 	local_irq_disable();
-+
-+	/* Make a note of crashing cpu. Will be used in NMI callback.*/
-+	crashing_cpu = smp_processor_id();
- 	nmi_shootdown_cpus();
- 	lapic_shutdown();
- #if defined(CONFIG_X86_IO_APIC)
-_
-
---ZfOjI3PrQbgiZnxM--
+Thanks,
+Brice

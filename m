@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261393AbVEQLZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVEQLgB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261393AbVEQLZN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 07:25:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261404AbVEQLYs
+	id S261386AbVEQLgB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 07:36:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbVEQLYN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 07:24:48 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:60647 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261366AbVEQLVc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 07:21:32 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH 4/8] ppc64: add BPA platform type
-Date: Tue, 17 May 2005 13:05:12 +0200
-User-Agent: KMail/1.7.2
-Cc: linuxppc64-dev@ozlabs.org, linux-kernel@vger.kernel.org,
-       Anton Blanchard <anton@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-References: <200505132117.37461.arnd@arndb.de> <200505132125.34358.arnd@arndb.de> <17033.38609.60873.138572@cargo.ozlabs.ibm.com>
-In-Reply-To: <17033.38609.60873.138572@cargo.ozlabs.ibm.com>
+	Tue, 17 May 2005 07:24:13 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:9935 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261386AbVEQKvP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 06:51:15 -0400
+Message-ID: <4289CC97.9010105@grupopie.com>
+Date: Tue, 17 May 2005 11:51:03 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200505171305.13471.arnd@arndb.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Andi Kleen <ak@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Christoph Lameter <christoph@lameter.com>,
+       randy_dunlap <rdunlap@xenotime.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, shai@scalex86.org
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt.
+References: <Pine.LNX.4.62.0505161243580.13692@ScMPusgw> <20050516150907.6fde04d3.akpm@osdl.org> <Pine.LNX.4.62.0505161934220.25315@graphe.net> <20050516194651.1debabfd.rdunlap@xenotime.net> <Pine.LNX.4.62.0505161954470.25647@graphe.net> <Pine.LNX.4.58.0505162029240.18337@ppc970.osdl.org> <20050517034028.GC9699@wotan.suse.de>
+In-Reply-To: <20050517034028.GC9699@wotan.suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Dinsdag 17 Mai 2005 09:01, Paul Mackerras wrote:
-> Arnd Bergmann writes:
+Andi Kleen wrote:
+>>[...]
+> I would add a 
 > 
-> > This adds the basic support for running on BPA machines.
-> > So far, this is only the IBM workstation, and it will
-> > not run on others without a little more generalization.
+> 	config HZ_10 if EMBEDDED 
+> 		bool "10 Hz" 
 > 
-> > +/* FIXME: consolidate this into rtas.c or similar */
-> > +static void __init pSeries_calibrate_decr(void)
-> 
-> Shouldn't this be called bpa_calibrate_decr or something similar?
+> that is useful for compute servers (although it will violate the TCP
+> specification). EMBEDDED would ensure only people who know what they're
+> doing set it.
 
-The function is identical to the one for pSeries, and I'd
-prefer to have only one copy of it with a more generic name.
-Actually, it looks like maple and perhaps pmac have a very
-similar *_calibrate_decr function, so I could perhaps
-just put this into time.c as generic_calibrate_decr().
+I thought the lowest frequency the PIT timer would give was around 18 Hz.
 
-[ Ben, can you tell if pSeries_calibrate_decr should work on
-  all G5 macs or if it can be changed to support them as well? ]
+Am I wrong, or are you thinking of other timing devices / different 
+platforms?
 
-On a similar issue, I just remembered that I wanted to
-create a rtas_time.c to hold the rtc access functions
-for pSeries and BPA. Do you think that's a good idea?
+-- 
+Paulo Marques - www.grupopie.com
 
-> > -#define	PV_630        	0x0040
-> > -#define	PV_630p	        0x0041
-> > +#define	PV_630		0x0040
-> > +#define	PV_630p		0x0041
-> 
-> Hmmm, I don't think your patch needs to clean up the whitespace here.
-
-ok.
-
-	Arnd <><
+An expert is a person who has made all the mistakes that can be
+made in a very narrow field.
+Niels Bohr (1885 - 1962)

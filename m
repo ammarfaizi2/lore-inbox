@@ -1,60 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261866AbVEQRPH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbVEQRYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261866AbVEQRPH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 13:15:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVEQRGU
+	id S261920AbVEQRYU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 13:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbVEQRYR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 13:06:20 -0400
-Received: from zproxy.gmail.com ([64.233.162.200]:15004 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261854AbVEQRCd (ORCPT
+	Tue, 17 May 2005 13:24:17 -0400
+Received: from zproxy.gmail.com ([64.233.162.197]:35597 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261920AbVEQRXq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 13:02:33 -0400
+	Tue, 17 May 2005 13:23:46 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=L/bfPIrFmUhNRZpNSqPdTZG3bbXXULwAefgBhuX3uDjh6086budfTLodgiH3MZ9MNly5FPbxbLg4fsBshqndmHRne3tmqMAknpRLZeRNMl+HNljRS897mTkO6+A/hW49DU3L9uys5RUl+xIrnqQPRL9JBeSOoSFSKhuXZYA+x7I=
+        b=MLwgXLBF4kLpVbYOXovFhSHO+O3/cPgB/MYbv1Q2S5JHTBAuUcScjUASfWndVwga+5Huf7uB1bKsPBQPaDS7tQU7hwzNnJExFl3BSgP26n6O7fyC42A7+I1emSbmrleoYk+L46d8QEUREyPCZ9Z3W8JMZGchI8ek/1wH3dPyygM=
 From: Alexey Dobriyan <adobriyan@gmail.com>
-To: teigland@redhat.com, pcaulfie@redhat.com
-Subject: Re: patch dlm-device-interface.patch added to -mm tree
-Date: Tue, 17 May 2005 21:06:32 +0400
+To: Michael Halcrow <mhalcrow@us.ibm.com>
+Subject: Re: [patch 4/7] BSD Secure Levels: memory alloc failure check
+Date: Tue, 17 May 2005 21:27:43 +0400
 User-Agent: KMail/1.7.2
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <200505170740.j4H7e4Qw021556@shell0.pdx.osdl.net>
-In-Reply-To: <200505170740.j4H7e4Qw021556@shell0.pdx.osdl.net>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Chris Wright <chrisw@osdl.org>, Serge Hallyn <serue@us.ibm.com>
+References: <20050517152303.GA2814@halcrow.us> <20050517152750.GC2944@halcrow.us>
+In-Reply-To: <20050517152750.GC2944@halcrow.us>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200505172106.32385.adobriyan@gmail.com>
+Message-Id: <200505172127.44147.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 May 2005 11:39, akpm@osdl.org wrote:
-> This is a separate module from the dlm.  It exports the dlm api to user space
-> through a misc device.  Applications use a library (libdlm) which communicates
-> with the kernel through this device.
+On Tuesday 17 May 2005 19:27, Michael Halcrow wrote:
+> It adds a check for a memory allocation failure
+> condition.
 
-> --- /dev/null
-> +++ 25-akpm/drivers/dlm/device.c
+And leaks tfm if such failure occurs.
 
-> +static struct lock_info *get_lockinfo(uint32_t lockid)
-> +{
-> +	struct lock_info *li;
-> +
-> +	read_lock(&lockinfo_lock);
-> +	li = idr_find(&lockinfo_idr, lockid);
-> +	read_lock(&lockinfo_lock);
-	^^^^^^^^^
-> +
-> +	return li;
-> +}
+> --- linux-2.6.12-rc4-mm2-seclvl.orig/security/seclvl.c
+> +++ linux-2.6.12-rc4-mm2-seclvl/security/seclvl.c
 
-read_unlock ?
+>  static int
+>  plaintext_to_sha1(unsigned char *hash, const char *plaintext, int len)
+>  {
 
-> +int __init dlm_device_init(void)
-> +{
-
-> +		printk(KERN_ERR "dlm: misc_register failed for control device");
-
-device\n
+	tfm = crypto_alloc_tfm("sha1", 0);
+	if (tfm == NULL) {
+		seclvl_printk(0, KERN_ERR, "Failed to load transform for SHA1\n");
+		return -ENOSYS;
+>  	}
+>  	// Just get a new page; don't play around with page boundaries
+>  	// and scatterlists.
+> -	pgVirtAddr = (char *)__get_free_page(GFP_KERNEL);
+> -	sg[0].page = virt_to_page(pgVirtAddr);
+> +	pg_virt_addr = (char *)__get_free_page(GFP_KERNEL);
+> +	if (!pg_virt_addr) {
+> +		seclvl_printk(0, KERN_ERR "%s: Out of memory\n", __FUNCTION__);
+> +		return -ENOMEM;
+> +	}

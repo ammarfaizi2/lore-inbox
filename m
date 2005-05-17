@@ -1,111 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262014AbVEQXfG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262016AbVEQXfd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262014AbVEQXfG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 19:35:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVEQXfF
+	id S262016AbVEQXfd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 19:35:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261985AbVEQXfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 19:35:05 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:28573 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261999AbVEQXdE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 19:33:04 -0400
-Date: Tue, 17 May 2005 16:33:00 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: john stultz <johnstul@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Christoph Lameter <clameter@sgi.com>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org
-Subject: [RFC][PATCH 0/4] new timeofday-based soft-timer subsystem
-Message-ID: <20050517233300.GE2735@us.ibm.com>
-References: <1116029796.26454.2.camel@cog.beaverton.ibm.com>
+	Tue, 17 May 2005 19:35:32 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:7366 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261970AbVEQXcY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 19:32:24 -0400
+Subject: Re: software mixing in alsa
+From: Lee Revell <rlrevell@joe-job.com>
+To: Karel Kulhavy <clock@twibright.com>
+Cc: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <1116365790.32210.29.camel@mindpipe>
+References: <20050517095613.GA9947@kestrel>
+	 <200505171208.04052.jan@spitalnik.net> <20050517141307.GA7759@kestrel>
+	 <1116354762.31830.12.camel@mindpipe> <428A45C3.8060904@stud.feec.vutbr.cz>
+	 <20050517210444.GA21257@kestrel>  <1116365790.32210.29.camel@mindpipe>
+Content-Type: text/plain
+Date: Tue, 17 May 2005 19:32:22 -0400
+Message-Id: <1116372742.2567.1.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1116029796.26454.2.camel@cog.beaverton.ibm.com>
-X-Operating-System: Linux 2.6.12-rc4 (i686)
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 13.05.2005 [17:16:35 -0700], john stultz wrote:
-> All,
-> 	This patch implements the architecture independent portion of the new
-> time of day subsystem. For a brief description on the rework, see here:
-> http://lwn.net/Articles/120850/ (Many thanks to the LWN team for that
-> easy to understand writeup!)
+On Tue, 2005-05-17 at 17:36 -0400, Lee Revell wrote:
+> On Tue, 2005-05-17 at 23:04 +0200, Karel Kulhavy wrote:
+> > On Tue, May 17, 2005 at 09:28:03PM +0200, Michal Schmidt wrote:
+> > > Lee Revell wrote:
+> > > >mpg123 is an open source application so there's no excuse for it not to
+> > > >support ALSA in 2005.
+> > > 
+> > > Its COPYING file says:
+> > >   This software may be distributed freely, provided that it is
+> > >   distributed in its entirety, without modifications, ...
+> > > This doesn't look like an open source license at all.
+> > > That's why Debian puts mpg123 in non-free.
+> > > 
+> > > Karel, you may want to try mpg321 instead. It already has ALSA support.
+> > 
+> > Tried with the same result: fast forward.
+> > 
 > 
-> 	I intend this to be the last RFC release and to submit this patch to
-> Andrew for for testing near the end of this month. So please, if you
-> have any complaints, suggestions, or blocking issues, let me know.
+> Then the problem is probably with your ALSA configuration, or (less
+> likely) an ALSA bug.  I suspect your MP3s are 44100 KHz and they are
+> being played at 48000 KHz.
 
-I have been working closely with John to re-work the soft-timer subsytem
-to use the new timeofday() subsystem. The following patches attempts to
-begin this process. I would greatly appreciate any comments.
+OK, I found this bug report that describes the same problem:
 
-Some design points:
+https://bugtrack.alsa-project.org/alsa-bug/view.php?id=1098
 
-1) The patch is small but does a lot.
-a) Renames timer_jiffies to last_timer_time (now that we are not
-	jiffies-based).
-b) Converts the soft-timer time-vector's/bucket's entries to
-	timerinterval (a new unit) width, instead of jiffy width.
-c) Defines timerintervals to be the current time as reported by the new
-	timeofday-subsystem shifted down by TIMERINTERVAL_BITS bits.
-	Thus, various pseudo-'human time' units can be emulated.
-d) Uses do_monotonic_clock() (converted to timerintervals) as the basis
-	for addition and expiration of timers instead of jiffies.
-e) Adds some new helper functions for dealing with nanosecond values.
+The short answer is that you need to have mpg321 use the "plug:dmix"
+device.
 
-2) The patch depends on John's timeofday core rework.  For arches that
-will not have the new timeofday (or for which the rework is still in
-progress), I can emulate the existing system with a separate patch (Such
-a possible patch will follow). The goal of this patch, though, is just
-to show how easy the new system can be implemented and the benefits. It
-has been tested on x86 and x86_64 archs; there may be some issues with
-ppc and ppc64 which I am working on resolving.
+Lee
 
-3) The reason for the re-work? Many people complain about all of the
-adding of 1 jiffy here or there to fix bugs. This new systems is
-fundamentally human-time oriented and deals with those issues correctly
-and, more importantly, sanely :)
-
-The code is reasonably well commented, but does expect readers to
-understand the current soft-timer subsystem.
-
-This is still an early working of this patch, so I expect criticism, and
-am happy to make changes.
-
-I will try to get some current benchmark differentials posted tomorrow.
-The previous patch I released showed little difference between mainline,
-John's timeofday rework and my soft-timer rework in kernbench.
-
-Overview:
-
-1/4: A small interdiff between John's current stack and what is
-necessary for my patch to work. Moves timeofday.h architecture-specific
-code to asm/timeofday.h. This is necessary for my patch.
-
-2/4: Converts the soft-timer subsystem to use timerinterval as the units
-of addition and expiration.
-
-3/4: Converts, as an example, sys_nanosleep() to use the new interfaces
-provided by patch 2. For instance, you (albeit somewhat rarely -- maybe
-once out of every 100,000 requests) may get only 10 usecs of actual
-sleep (instead of 2+ msecs no matter what).
-
-4/4: Enables non-NEWTOD archs to use the same interfaces, with some
-performance penalty (am working on a better alternative, this is just
-a POC).
-
-Thanks,
-Nish

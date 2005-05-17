@@ -1,45 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVEQTvl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbVEQTxl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbVEQTvl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 15:51:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbVEQTvl
+	id S261788AbVEQTxl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 15:53:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbVEQTxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 15:51:41 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:29655 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261309AbVEQTvi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 15:51:38 -0400
-Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: =?ISO-8859-1?Q?Gr=E9goire?= Favre <gregoire.favre@gmail.com>
-Cc: dino@in.ibm.com, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20050517192636.GB9121@gmail.com>
-References: <20050516085832.GA9558@gmail.com>
-	 <20050517071307.GA4794@in.ibm.com> <20050517002908.005a9ba7.akpm@osdl.org>
-	 <1116340465.4989.2.camel@mulgrave> <20050517170824.GA3931@in.ibm.com>
-	 <1116354894.4989.42.camel@mulgrave>  <20050517192636.GB9121@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Tue, 17 May 2005 14:50:31 -0500
-Message-Id: <1116359432.4989.48.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 8bit
+	Tue, 17 May 2005 15:53:41 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:50520 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261788AbVEQTxZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 15:53:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=AQy8hv+4S5iyDdM1Mb+joViujhFCU3oGQTQ/AYjmJqjAVphAB4gLtGUoYxXJLUu6KTJYCQcxnxu2GSifDarK3IUXgNuJAHknJ3QiutKsVomv1Xlb53U8Xb/Qwz9HPNW/9ejP2I+0RTs6H417qMTGh4p+7Mf2zz+aOfe5Dcx7S1Q=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Karel Kulhavy <clock@twibright.com>
+Subject: Re: make htmldocs doesn't work even with docbook stylesheets installed
+Date: Tue, 17 May 2005 23:56:45 +0400
+User-Agent: KMail/1.7.2
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+References: <20050512120358.GA8126@kestrel> <20050512212918.GA3603@stusta.de> <20050517192209.GB19373@kestrel.twibright.com>
+In-Reply-To: <20050517192209.GB19373@kestrel.twibright.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505172356.45232.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-17 at 21:26 +0200, Grégoire Favre wrote:
-> Well, it don't... I send you a private mail with a picture I take a boot
-> time.
+On Tuesday 17 May 2005 23:22, Karel Kulhavy wrote:
+> > >       Size of downloaded files: 1,514 kB
+> > >       Homepage:    http://docbook.sourceforge.net/
+> > >       Description: XSL Stylesheets for Docbook
+> > >       License:     || ( as-is BSD )
+> > > 
+> > > Is this a bug in Linux make htmldocs?
+> > 
+> > It sounds more like you are missing a package.
+> > 
+> > In Debian it's called "docbook-utils", I don't know whether it has the 
+> > same name in Gentoo.
+> 
+> gentoo doesn't have docbook-utils. How do I compile linux kernel
+> documentations on gentoo?
 
-Right, but the problem I think it will fix is the initial inquiry being
-sent with the wrong transport parameters.
+OK, once again...
 
-You have a different problem, I think ... it looks like your Toshiba DVD
-does somthing strange during Domain Validation ... the question I don't
-have an answer to yet, is what.
+1. Get 2.6.12-rc4 already.
+2. # emerge xmlto
 
-James
+> And btw why doesn't README or the error message that docbook-utils
+> package is required?
 
+Latest Documentation/Changes says:
 
+	DocBook Stylesheets
+	-------------------
+	o  <http://nwalsh.com/docbook/dsssl/>
+
+	XMLTO XSLT Frontend
+	-------------------
+	o  <http://cyberelk.net/tim/xmlto/>
+
+Not enough?

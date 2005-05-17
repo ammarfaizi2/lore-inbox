@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbVEQTcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVEQTao@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261753AbVEQTcM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 15:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261815AbVEQTcM
+	id S261444AbVEQTao (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 15:30:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVEQTan
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 15:32:12 -0400
-Received: from wproxy.gmail.com ([64.233.184.195]:48447 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261753AbVEQTbn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 15:31:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:content-transfer-encoding:in-reply-to:user-agent:from;
-        b=it6X5kKtqNqAskBdNc8ahzTqXwvzWLi53Si2TfxicObq1kY8sqA1cA2h3Y5r4l8FqkDZU7KlHKeJvjWdQu4Paet/ZtfizKZs04Cb5GEdWbS0HE5G658jx2hqSomoAkPvXr8zquhTs6XUgLcS09HbMLDJMABdMoNgR3WY68wlfKQ=
-Date: Tue, 17 May 2005 21:26:36 +0200
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: dino@in.ibm.com, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
-Message-ID: <20050517192636.GB9121@gmail.com>
-References: <20050516085832.GA9558@gmail.com> <20050517071307.GA4794@in.ibm.com> <20050517002908.005a9ba7.akpm@osdl.org> <1116340465.4989.2.camel@mulgrave> <20050517170824.GA3931@in.ibm.com> <1116354894.4989.42.camel@mulgrave>
+	Tue, 17 May 2005 15:30:43 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:40625 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261444AbVEQTaW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 15:30:22 -0400
+Subject: Re: ALSA make menuconfig Help description missing
+From: Lee Revell <rlrevell@joe-job.com>
+To: Karel Kulhavy <clock@twibright.com>
+Cc: Takashi Iwai <tiwai@suse.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050517145931.GA11564@kestrel>
+References: <20050517123549.GA2378@kestrel> <s5hfywmotdd.wl@alsa2.suse.de>
+	 <20050517145931.GA11564@kestrel>
+Content-Type: text/plain
+Date: Tue, 17 May 2005 15:30:16 -0400
+Message-Id: <1116358216.32062.7.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1116354894.4989.42.camel@mulgrave>
-User-Agent: Mutt/1.5.6i
-From: =?iso-8859-1?Q?Gr=E9goire?= Favre <gregoire.favre@gmail.com>
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 17, 2005 at 01:34:53PM -0500, James Bottomley wrote:
-
-> So, to get all of these changes, could you start with vanilla linus
-> kernel 2.6.12-rc4 (or tree based on this, but not -mm which already has
-> some of the SCSI tree included) and then apply the SCSI patch at
+On Tue, 2005-05-17 at 16:59 +0200, Karel Kulhavy wrote:
+> Yes, tried, fixes ;-)
 > 
-> http://parisc-linux.org/~jejb/scsi_diffs/scsi-misc-2.6.diff
+> However I suggest that a pointer to user documentation for ALSA be added
+> to the Help.
 > 
-> and see if it works?
+> For example I have a problem when I run XMMS, Skype says something like
+> "can't open /dev/dsp" and don't know where to start.  The only thing I
+> know is that 1) I have ALSA turned on and 2) I want to know how to make
+> it accept more data streams from the programs and mix them together.
 
-Well, it don't... I send you a private mail with a picture I take a boot
-time.
+There is no official user level documentation for dmix (which runs in
+userspace anyway), because it was not intended to be configured by the
+end user.  The current ALSA version, 1.0.9-rcX, uses dmix by default.
 
-Thank,
--- 
-	Grégoire Favre
+It's always a pain to get OSS apps to play nice with dmix, which is why
+the real solution is to get proper ALSA support in Skype.
+
+Lee
+
+
+

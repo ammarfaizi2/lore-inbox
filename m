@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVEQEw1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVEQE6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbVEQEw1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 00:52:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVEQEw0
+	id S261684AbVEQE6K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 00:58:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVEQE6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 00:52:26 -0400
-Received: from mail.kroah.org ([69.55.234.183]:53379 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261684AbVEQEwT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 00:52:19 -0400
-Date: Mon, 16 May 2005 21:52:16 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [GIT PATCH] USB bugfixes for 2.6.12-rc4
-Message-ID: <20050517045215.GA17567@kroah.com>
+	Tue, 17 May 2005 00:58:10 -0400
+Received: from ercist.iscas.ac.cn ([159.226.5.94]:11534 "EHLO
+	ercist.iscas.ac.cn") by vger.kernel.org with ESMTP id S261684AbVEQE55
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 00:57:57 -0400
+Subject: Re: [RFD] What error should FS return when I/O failure occurs?
+From: fs <fs@ercist.iscas.ac.cn>
+To: coywolf@lovecn.org
+Cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Kenichi Okuyama <okuyama@intellilink.co.jp>
+In-Reply-To: <2cd57c90050516155413b18b41@mail.gmail.com>
+References: <1116263665.2434.69.camel@CoolQ>
+	 <200505160635.j4G6ZUcX023810@turing-police.cc.vt.edu>
+	 <20050517.051113.132843723.okuyamak@dd.iij4u.or.jp>
+	 <2cd57c90050516155413b18b41@mail.gmail.com>
+Content-Type: text/plain
+Organization: iscas
+Message-Id: <1116345974.2428.17.camel@CoolQ>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 17 May 2005 12:06:14 -0400
+Content-Transfer-Encoding: 7bit
+X-ArGoMail-Authenticated: fs@ercist.iscas.ac.cn
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are 4 patches for the 2.6.12-rc4 tree that fix some USB bugs, and
-make it easier for userspace to autoload modules for USB devices.  All
-of these patches have been in the past few -mm releases.
+On Mon, 2005-05-16 at 18:54, Coywolf Qi Hunt wrote:
 
-Please pull from:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
+> Two kinds of HW failure,
+> 
+>    1. still readable, only write failure. 
+>    2. unreadable, unwriteable.
+> 
+> For the first case, if mount option errors=remount-ro is given or implied,
+> EROFS is appropriate, otherwise EIO.  For the second case, always EIO.
+> 
+> The current VFS design does not try to hide the problems from its
+> underlying fs'.
+> No need to make it transparent. Userland programs need to consider
+> both EROFS and EIO.
+What you said is based on the FS implementor's perspective.
+But from user's perspective, they open a file with O_RDWR, get a
+success, then write returns EROFS?
+Besides, EXT3 ALWAYS return EROFS for the 1st and 2nd case, even
+you specify errors=continue, things are still the same.
 
-Full patches will be sent to the linux-usb-devel mailing list, if anyone
-wants to see them.
+regards,
+----
+Qu Fuping
 
-thanks,
-
-greg k-h
-
- drivers/usb/core/sysfs.c        |   34 +++++++++++++++++++++++++
- drivers/usb/host/ehci-hub.c     |    1 
- drivers/usb/net/Kconfig         |   12 ++++++---
- drivers/usb/net/usbnet.c        |   53 +++++++++++++++++++---------------------
- drivers/usb/serial/cypress_m8.c |    2 +
- drivers/usb/serial/cypress_m8.h |    1 
- 6 files changed, 72 insertions(+), 31 deletions(-)
-
-David Brownell:
-  o USB: ehci suspend must stop timer
-  o USB: usbnet driver fixes
-
-Greg Kroah-Hartman:
-  o USB: add modalias sysfs file for usb devices
-
-Lonnie Mendez:
-  o USB: cypress_m8: add support for the DeLorme Earthmate lt-20
 

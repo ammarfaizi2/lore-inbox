@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVEQHQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVEQHRF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261292AbVEQHQq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 03:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbVEQHQq
+	id S261289AbVEQHRF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 03:17:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbVEQHRF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 03:16:46 -0400
-Received: from [80.247.74.3] ([80.247.74.3]:24247 "EHLO tavolara.isolaweb.it")
-	by vger.kernel.org with ESMTP id S261292AbVEQHQn (ORCPT
+	Tue, 17 May 2005 03:17:05 -0400
+Received: from fire.osdl.org ([65.172.181.4]:33244 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261289AbVEQHRA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 03:16:43 -0400
-Message-Id: <6.2.1.2.2.20050517091317.09915810@mail.tekno-soft.it>
-X-Mailer: QUALCOMM Windows Eudora Version 6.2.1.2
-Date: Tue, 17 May 2005 09:15:46 +0200
-To: Nix <nix@esperi.org.uk>
-From: Roberto Fichera <kernel@tekno-soft.it>
-Subject: Re: How to use memory over 4GB
-Cc: Eric Dumazet <dada1@cosmosbay.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <87hdh2am9j.fsf@amaterasu.srvr.nix>
-References: <6.2.1.2.2.20050516142516.0313e860@mail.tekno-soft.it>
- <428898CF.5060908@cosmosbay.com>
- <6.2.1.2.2.20050516151659.077cceb0@mail.tekno-soft.it>
- <4288AB6A.3060106@cosmosbay.com>
- <6.2.1.2.2.20050516164236.05922a30@mail.tekno-soft.it>
- <87hdh2am9j.fsf@amaterasu.srvr.nix>
+	Tue, 17 May 2005 03:17:00 -0400
+Date: Tue, 17 May 2005 00:15:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: mbligh@mbligh.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NMI watchdog config option (was: Re: [PATCH] NMI lockup
+ and AltSysRq-P dumping calltraces on _all_ cpus via NMI IPI)
+Message-Id: <20050517001542.40e6c6b7.akpm@osdl.org>
+In-Reply-To: <42899797.2090702@sw.ru>
+References: <42822B5F.8040901@sw.ru>
+	<768860000.1116282855@flay>
+	<42899797.2090702@sw.ru>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
-X-IsolaWeb-MailScanner-Information: Please contact the ISP for more information
-X-IsolaWeb-MailScanner: Found to be clean
-X-MailScanner-From: kernel@tekno-soft.it
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-At 23.34 16/05/2005, Nix wrote:
->On 16 May 2005, Roberto Fichera whispered secretively:
-> > At 16.17 16/05/2005, Eric Dumazet wrote:
-> >>If your process is cpu bounded (and not issuing too many system calls),
-> >> then 4GB/4GB split let it address more ram, reducing the need to shift 
-> windows in
-> >>mmaped files for example.
-> >
-> > ... any source code that explain better what you say ;-)!
+Kirill Korotaev <dev@sw.ru> wrote:
 >
-><http://lkml.org/lkml/2003/7/8/246> perhaps?
+> BTW, why NMI watchdog is disabled by default?
 
-Yes! I already know this patch ... I was asking for some user space code,
-just to show up the thinks ;-)!
+There was a significantly large string of reports of dying PCs in the
+2.4.early timeframe.  These machines would mysteriously lock up after
+considerable periods of time and the problem was cured by disabling the NMI
+watchdog.  Nobody was ever able to solve it, so we changed it to default to
+off.
 
-
->(In a nutshell: it gives processes an extra 1Gb of virtual memory, at
->the cost of making system calls --- and everything else that must
->transition to kernel space --- *much* slower.)
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
-
-Roberto Fichera. 
-
+So much has changed in there that we might have fixed it by accident, and I
+do recall a couple of fundamental and subtle NMI bugs being fixed.  So
+yeah, it might be worth enabling it by default again.  Care to send a patch
+which does that?

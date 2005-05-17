@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVEQT44@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbVEQUM6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbVEQT44 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 15:56:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVEQT44
+	id S261815AbVEQUM6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 16:12:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVEQUM5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 15:56:56 -0400
-Received: from wproxy.gmail.com ([64.233.184.200]:64213 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261631AbVEQT4x (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 15:56:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:content-transfer-encoding:in-reply-to:user-agent:from;
-        b=XhRUSyz8bYEQl1UHhNDeg23F5dnYZkaWXO5sxSc4BtjV+Vzjy8Q4p8sKdJRGEDabtXm1DD0H7Y1OXo/2R1Ec86V+HDYEw8QJTaoUXn2RYxl023dwEDB9OHwVCQHBl8fDlH8ABmKzvo+lM0w62+stRwjo22n7vn3qWy6scTKh59k=
-Date: Tue, 17 May 2005 21:56:50 +0200
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: dino@in.ibm.com, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
-Message-ID: <20050517195650.GC9121@gmail.com>
-References: <20050516085832.GA9558@gmail.com> <20050517071307.GA4794@in.ibm.com> <20050517002908.005a9ba7.akpm@osdl.org> <1116340465.4989.2.camel@mulgrave> <20050517170824.GA3931@in.ibm.com> <1116354894.4989.42.camel@mulgrave> <20050517192636.GB9121@gmail.com> <1116359432.4989.48.camel@mulgrave>
+	Tue, 17 May 2005 16:12:57 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29150 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261815AbVEQUMz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 16:12:55 -0400
+Date: Tue, 17 May 2005 21:13:10 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Michael Halcrow <mhalcrow@us.ibm.com>
+Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Chris Wright <chrisw@osdl.org>,
+       Serge Hallyn <serue@us.ibm.com>
+Subject: Re: [patch 2/7] BSD Secure Levels: move bd claim from inode to filp
+Message-ID: <20050517201310.GD29811@parcelfarce.linux.theplanet.co.uk>
+References: <20050517152303.GA2814@halcrow.us> <20050517152545.GA2944@halcrow.us> <20050517160900.GB32436@infradead.org> <20050517164922.GA29811@parcelfarce.linux.theplanet.co.uk> <20050517194616.GA14957@halcrow.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1116359432.4989.48.camel@mulgrave>
-User-Agent: Mutt/1.5.6i
-From: =?iso-8859-1?Q?Gr=E9goire?= Favre <gregoire.favre@gmail.com>
+In-Reply-To: <20050517194616.GA14957@halcrow.us>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 17, 2005 at 02:50:31PM -0500, James Bottomley wrote:
+On Tue, May 17, 2005 at 02:46:17PM -0500, Michael Halcrow wrote:
+> In my tests, utime() does not cause file_permission() to be called.
 
-> Right, but the problem I think it will fix is the initial inquiry being
-> sent with the wrong transport parameters.
+> > Use of current in setting/checking ->i_security is a bad joke.
+
+OK, these applied to the original.  Now to the patched version:
+
+	a) ->file_permission() is called on every write(2).  So you get
+an open() for each write().  And only one matching close() (aka. blkdev_put())
+	b) ->file_permission() is *not* called on mmap() path.  So much for
+protection, exclusion, etc.
+	c) you get bd_claim() on each write(); subsequent ones work just
+fine, since you use the same holder.  On close() you undo one of those.
+Leaving the rest there, with holder pointing to freed-and-soon-to-be-reused
+struct file.
+ 
+> > d) cargo-cult programming: ->f_dentry and ->f_dentry->d_inode are
+> > *not* NULL, TYVM.
 > 
-> You have a different problem, I think ... it looks like your Toshiba DVD
-> does somthing strange during Domain Validation ... the question I don't
-> have an answer to yet, is what.
+> Exactly what code are you refering to here?
 
-Oh, sorry, thank you for the patch :-)
--- 
-	Grégoire Favre
+seclvl_file_free_security(), but I have to lift that objection in part - this
+crap gets called from put_filp(), so ->f_dentry might be NULL.  If it is not
+NULL, though, we are guaranteed that ->f_dentry->d_inode will *not* be NULL.
+BTW, all your checks in that path can be replaced with a single check for
+f->f_security being non-NULL.  Not that it helped, though - see (a) and (c)
+above.

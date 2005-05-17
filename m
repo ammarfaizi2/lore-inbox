@@ -1,77 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVEQXaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261945AbVEQXbw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbVEQXaw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 19:30:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVEQXav
+	id S261945AbVEQXbw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 19:31:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261748AbVEQXb3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 19:30:51 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:55171 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261448AbVEQX3W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 19:29:22 -0400
-Message-ID: <428A7E48.6060909@us.ibm.com>
-Date: Tue, 17 May 2005 16:29:12 -0700
-From: Matthew Dobson <colpatch@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
-X-Accept-Language: en-us, en
+	Tue, 17 May 2005 19:31:29 -0400
+Received: from [195.23.16.24] ([195.23.16.24]:30601 "EHLO
+	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
+	id S261970AbVEQX3q convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 19:29:46 -0400
+Message-ID: <1116372428.428a7dccec930@webmail.grupopie.com>
+Date: Wed, 18 May 2005 00:27:08 +0100
+From: "" <pmarques@grupopie.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: "" <linux-kernel@vger.kernel.org>
+Subject: Re: CONFIG_KALLSYMS_EXTRA_PASS
+References: <1116365006.9737.42.camel@localhost.localdomain>
+In-Reply-To: <1116365006.9737.42.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Christoph Lameter <clameter@engr.sgi.com>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, shai@scalex86.org
-Subject: Re: NUMA aware slab allocator V2
-References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>	<20050512000444.641f44a9.akpm@osdl.org>	<Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com> <20050513000648.7d341710.akpm@osdl.org>
-In-Reply-To: <20050513000648.7d341710.akpm@osdl.org>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+User-Agent: Internet Messaging Program (IMP) 3.2.2
+X-Originating-IP: 82.154.142.236
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Excuse for the week-late response...
+Quoting Steven Rostedt <rostedt@goodmis.org>:
+> OK, I'm working on a custom kernel, and suddenly I'm getting the compile
+> error "Try setting CONFIG_KALLSYMS_EXTRA_PASS".  I've also just did a
+> debian update, but that doesn't seem to bother the vanilla kernel.
 
-Andrew Morton wrote:
-> Christoph Lameter <clameter@engr.sgi.com> wrote:
-> 
->> Could we boot the box without quiet so that we can get better debug
->> messages?
-> 
-> 
-> It didn't produce anything interesting.  For some reason the console output
-> stops when start_kernel() runs console_init() (I guess it all comes out
-> later) so the machine is running blind when we run kmem_cache_init(). 
-> Irritating.  I just moved the console_init() call to happen later on.
-> 
-> It's going BUG() in kmem_cache_init()->set_up_list3s->is_node_online
-> because for some reason the !CONFIG_NUMA ppc build has MAX_NUMNODES=16,
-> even though there's only one node.
-> 
-> Doing
-> 
-> #define is_node_online(node) node_online(node)
+This is probably the same problem that me and other people are having.
 
-As Dave Hansen mentioned elsewhere in this thread, there is no need to
-define this is_node_online() macro, as node_online() does EXACTLY the same
-thing (minus the BUG() which is probably overkill).
+It seems that sometimes the symbol that marks the end of a section changes
+position with the symbol that marks the beggining of the next section if they
+happen to on the same address (they might be on different addresses due to
+alignment issues).
 
+In this case the compression algorithm might produce different compression
+ratios and the kallsyms compressed data changes size.
 
-> unconditionally fixes that up (your patch shuld be using
-> for_each_online_node() everywhere?) but it oopses later - I think it's the
-> first time kmem_cache_alloc() is called.
+You can try the very crude (but effective) way to check if this is your problem
+or not. Go to scripts/kallsyms.c and change:
 
-Christoph should replace all the for (i = 0; i < MAX_NUMNODES; i++) loops
-with for_each_node(i) and the one loop that does this:
-for (i = 0; i < MAX_NUMNODES; i++) {
-	if (!node_online(i))
-		continue;
-(or something similar) with for_each_online_node(i)
+#define WORKING_SET             1024
 
-Also, there is a similar loop for CPUs which should be replaced with
-for_each_online_cpu(i).
+to:
 
-These for_each_FOO macros are cleaner and less likely to break in the
-future, since we can simply modify the one definition if the way to
-itterate over nodes/cpus changes, rather than auditing 100 open coded
-implementations and trying to determine the intent of the loop's author.
+#define WORKING_SET             65536
 
--Matt
+This will force kallsyms to use *all* the symbols for the compression, and the
+size of the result won't be affected by the symbol positions.
+
+Don't forget to turn off KALLSYMS_EXTRA_PASS to test this.
+
+If this turns out to be the problem _again_, I'll post a patch to fix this for
+good by storing the token data from the first pass and use it on the second
+pass. This will not only speed up compression, it will also guarantee that this
+kind of problems will never bite us again.
+
+--
+Paulo Marques
+

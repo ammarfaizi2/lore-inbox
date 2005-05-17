@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVEQHRF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVEQHSU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261289AbVEQHRF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 03:17:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbVEQHRF
+	id S261297AbVEQHSU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 03:18:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261301AbVEQHRO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 03:17:05 -0400
-Received: from fire.osdl.org ([65.172.181.4]:33244 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261289AbVEQHRA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 03:17:00 -0400
-Date: Tue, 17 May 2005 00:15:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: mbligh@mbligh.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] NMI watchdog config option (was: Re: [PATCH] NMI lockup
- and AltSysRq-P dumping calltraces on _all_ cpus via NMI IPI)
-Message-Id: <20050517001542.40e6c6b7.akpm@osdl.org>
-In-Reply-To: <42899797.2090702@sw.ru>
-References: <42822B5F.8040901@sw.ru>
-	<768860000.1116282855@flay>
-	<42899797.2090702@sw.ru>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Tue, 17 May 2005 03:17:14 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:30475 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261297AbVEQHRC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 03:17:02 -0400
+Date: Tue, 17 May 2005 09:03:05 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Greg K-H <greg@kroah.com>, linux-kernel@vger.kernel.org, sct@redhat.com
+Subject: Re: [PATCH] Fix root hole in raw device
+Message-ID: <20050517070305.GA31135@alpha.home.local>
+References: <11163046682662@kroah.com> <11163046681444@kroah.com> <20050517045748.GO1150@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050517045748.GO1150@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kirill Korotaev <dev@sw.ru> wrote:
->
-> BTW, why NMI watchdog is disabled by default?
+On Tue, May 17, 2005 at 05:57:48AM +0100, Al Viro wrote:
+> On Mon, May 16, 2005 at 09:37:48PM -0700, Greg KH wrote:
+> > @@ -122,7 +122,7 @@
+> >  {
+> >  	struct block_device *bdev = filp->private_data;
+> >  
+> > -	return ioctl_by_bdev(bdev, command, arg);
+> > +	return blkdev_ioctl(bdev->bd_inode, filp, command, arg);
+> >  }
+> 
+> That is not quite correct.  You are passing very odd filp to ->ioctl()...
+> Old variant gave NULL, which is also not too nice, though.
 
-There was a significantly large string of reports of dying PCs in the
-2.4.early timeframe.  These machines would mysteriously lock up after
-considerable periods of time and the problem was cured by disabling the NMI
-watchdog.  Nobody was ever able to solve it, so we changed it to default to
-off.
+2.4 already does it in a cleaner manner :
 
-So much has changed in there that we might have fixed it by accident, and I
-do recall a couple of fundamental and subtle NMI bugs being fixed.  So
-yeah, it might be worth enabling it by default again.  Care to send a patch
-which does that?
+        err = -EINVAL;
+        if (b && b->bd_inode && b->bd_op && b->bd_op->ioctl) {
+                err = b->bd_op->ioctl(b->bd_inode, NULL, command, arg);
+        }
+        return err;
+
+So may be something like this would be better (hand-written) :
+
+@@ -122,7 +122,9 @@
+ {
+ 	struct block_device *bdev = filp->private_data;
+ 	int err = -EINVAL;
+ 
+-	return ioctl_by_bdev(bdev, command, arg);
++	if (bdev && bdev->bd_inode)
++		err = blkdev_ioctl(bdev->bd_inode, filp, command, arg);
++	return err;
+ }
+
+Willy
+

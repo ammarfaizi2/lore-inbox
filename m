@@ -1,82 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVEQLis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVEQLuW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261395AbVEQLis (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 07:38:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbVEQLis
+	id S261383AbVEQLuW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 07:50:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbVEQLql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 07:38:48 -0400
-Received: from smtp1.dejazzd.com ([66.109.229.7]:1180 "EHLO
-	relay-2.smtp1.dejazzd.com") by vger.kernel.org with ESMTP
-	id S261395AbVEQLiV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 07:38:21 -0400
-From: "Sean E. Russell" <ser@germane-software.com>
-To: Mark Nipper <nipsy@bitgnome.net>
-Subject: Re: 2.6.1[01] freeze on x86_64
-Date: Tue, 17 May 2005 07:37:25 -0400
-User-Agent: KMail/1.8
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, Andi Kleen <ak@muc.de>,
-       linux-kernel@vger.kernel.org
-References: <423F5152.2010303@ser1.net> <Pine.LNX.4.61.0503221317220.10134@yvahk01.tjqt.qr> <20050322131116.GA15512@king.bitgnome.net>
-In-Reply-To: <20050322131116.GA15512@king.bitgnome.net>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart17455730.kpXhkadZbC";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200505170737.26227.ser@germane-software.com>
+	Tue, 17 May 2005 07:46:41 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:13422 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261522AbVEQLob convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 07:44:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=QEuEJbJjfrRdUo/cvVXaoGPTeOTm/U5kpTgPcLQbCl3w4IxVFu/J/7JpP2Pgl9ERyuEEaHHFiINecD0D2NfQUDIda61HZxFQS3CbQMRFTDQV2D1CNCnoqhvmrWZ/1YEbcMjgqIYsSa/CQCgfP4rlORyiPiEVf29Tbkgl7np1k2M=
+Message-ID: <b82a8917050517044428d61050@mail.gmail.com>
+Date: Tue, 17 May 2005 17:14:26 +0530
+From: Niraj kumar <niraj17@gmail.com>
+Reply-To: niraj17@iitbombay.org
+To: linux <kernel@wired-net.gr>
+Subject: Re: 2.6 kernel network programming
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <000b01c55ad2$5acaf690$0101010a@dioxide>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <2538186705051703441093903a@mail.gmail.com>
+	 <000b01c55ad2$5acaf690$0101010a@dioxide>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart17455730.kpXhkadZbC
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On 5/17/05, linux <kernel@wired-net.gr> wrote:
+> Hi all,
+> can someone tell me how i can listen and accept connections into a port from
+> the kernel-space???
+> I start listening with the following function :
+> 
+>         struct socket *sock;
+>         struct sockaddr_in sin;
+>         int error=0;
+> 
+>         error=sock_create(PF_INET,SOCK_STREAM,IPPROTO_TCP,&sock);
+> 
+>         sin.sin_family = AF_INET;
+>         sin.sin_addr.s_addr = INADDR_ANY;
+>         sin.sin_port = htons((unsigned short)port);
+> 
+>         error=sock->ops->bind(sock,(struct sockaddr*)&sin,sizeof(sin));
+>         sock->ops->listen(sock,48);
+> 
+> How about accepting connections and sending some kind of a message for
+> beggining?
+> Can someone help me please.
 
-On Tuesday 22 March 2005 08:11, Mark Nipper wrote:
-> 	I've actually got old dumb terminals sitting around.
-> I'll hook one up and set the oops=3Dpanic option also.  Maybe we
-> can nail this down as I've pretty much avoided using my x86-64
-> desktop ever since.  I'd been torn trying to decide whether or
-> not to migrate to a different file system.
+Looking at khttpd code in 2.4 kernel may  help you .
 
-Hah!
+http://lxr.linux.no/source/net/khttpd/sockets.c?v=2.4.28
 
-I haven't seen Mark post any follow-ups to this, but I have some more=20
-information of my own.
-
-Mark, are you running the IPW2200 drivers, by any chance?  I'm pretty sure=
-=20
-that's what is causing the lock-ups on my end; that, or something in the th=
-e=20
-kernel's wireless handlers.
-
-I did hook up an ethernet cable and started doing netconsole traces... only=
-=20
-then the problem disappeared!  To make a long story short, the system is=20
-entirely stable when running network over ethernet, but when I use the=20
-wireless network interface, it eventually locks up.  There are no error=20
-messages that I can associate with the wireless device or network traffic.
-
-=2D-=20
-=2D-- SER
-
-"As democracy is perfected, the office of president represents,=20
-more and more closely, the inner soul of the people.  On some=20
-great and glorious day the plain folks of the land will reach=20
-their heart's desire at last and the White House will be adorned=20
-by a downright moron."        -  H.L. Mencken (1880 - 1956)
-
---nextPart17455730.kpXhkadZbC
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1-ecc0.1.6 (GNU/Linux)
-
-iD8DBQBCidd2P0KxygnleI8RAmztAJ0drV6+mVLaqmExvc+Gx4QtU4v2VgCfYQKh
-XWtKaJd+Xgz6krk2yiLmsJo=
-=9Bry
------END PGP SIGNATURE-----
-
---nextPart17455730.kpXhkadZbC--
+Regards
+Niraj

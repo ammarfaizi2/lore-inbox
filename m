@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbVEQBY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbVEQB3I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261296AbVEQBY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 21:24:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVEQBY2
+	id S261914AbVEQB3I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 21:29:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261902AbVEQB3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 21:24:28 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:41671 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261296AbVEQBYY convert rfc822-to-8bit
+	Mon, 16 May 2005 21:29:08 -0400
+Received: from mail.shareable.org ([81.29.64.88]:33751 "EHLO
+	mail.shareable.org") by vger.kernel.org with ESMTP id S261631AbVEQB3B
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 21:24:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FZ0BmwE4pycV5ST31xezuV2EdMEMAVxnEpwtnW2mgUjTUEKpjC4TlYBHFI7Mk8ytMK1CfLGOm0ZWYO2o+vPVwHUQIG0yXKn2PYw6/Hdj9fHZ2VyuuLQ1MD6yaQoq/hvDH2MNtJinOqMKw6E3rSOm3xAFJC2D0InVyc8NAQm6gHw=
-Message-ID: <2cd57c9005051618243be2ae14@mail.gmail.com>
-Date: Tue, 17 May 2005 09:24:23 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@lovecn.org
-To: Matt Mackall <mpm@selenic.com>
-Subject: Re: serial console
-Cc: Andrew Morton <akpm@osdl.org>, YhLu@tyan.com, linux-tiny@selenic.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050516234757.GG5914@waste.org>
+	Mon, 16 May 2005 21:29:01 -0400
+Date: Tue, 17 May 2005 02:28:54 +0100
+From: Jamie Lokier <jamie@shareable.org>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linuxram@us.ibm.com, viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] namespace.c: fix bind mount from foreign namespace
+Message-ID: <20050517012854.GC32226@mail.shareable.org>
+References: <1116005355.6248.372.camel@localhost> <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu> <1116012287.6248.410.camel@localhost> <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu> <1116013840.6248.429.camel@localhost> <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu> <1116256279.4154.41.camel@localhost> <20050516111408.GA21145@mail.shareable.org> <1116301843.4154.88.camel@localhost> <E1DXm08-0006XD-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <3174569B9743D511922F00A0C943142309F80D9F@TYANWEB>
-	 <20050516205731.GA5914@waste.org> <20050516231508.GD5914@waste.org>
-	 <20050516163712.66a1a058.akpm@osdl.org>
-	 <20050516234757.GG5914@waste.org>
+In-Reply-To: <E1DXm08-0006XD-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/17/05, Matt Mackall <mpm@selenic.com> wrote:
-> On Mon, May 16, 2005 at 04:37:12PM -0700, Andrew Morton wrote:
-> >
-> > It would be nicer if this was a static inline, so all the function call
-> > code at the callsites is removed by the compiler.
-> 
-> Better yet, a patch that's actually right. add_preferred_console is
-> setting the console used by init and so on, so it's still relevant
-> with CONFIG_PRINTK off. So I just move it out of the ifdef. Obviously
-> more correct(tm).
-> 
-> Move add_preferred_console out of CONFIG_PRINTK so serial console does
-> the right thing.
+Miklos Szeredi wrote:
+> +		if (ns1 < ns2) {
+> +			down_write(&ns1->sem);
+> +			down_write(&ns2->sem);
+> +		} else {
+> +			down_write(&ns2->sem);
+> +			down_write(&ns1->sem);
+> +		}
 
+That's a bit smaller (source and compiled) as:
 
-What's the purpose of serial console if printk is disabled?  I suggest
-we put add_preferred_console and all its callers, console code etc
-into CONFIG_PRINTK.
+	if (ns2 < ns1)
+		down_write(&ns2->sem);
+	down_write(&ns1->sem);
+	if (ns2 > ns1)
+		down_write(&ns2->sem);
 
--- 
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+(And you'll notice that does the right thing if ns2==ns1 too, in case
+that gives you any ideas.)
+
+Otherwise, the patch looks convincing to me.
+
+-- Jamie

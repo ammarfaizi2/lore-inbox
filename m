@@ -1,93 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbVEQXPF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVEQXRI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261982AbVEQXPF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 19:15:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVEQXOb
+	id S261959AbVEQXRI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 19:17:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVEQXRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 19:14:31 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:50397 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S261966AbVEQXN5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 19:13:57 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: Yani Ioannou <yani.ioannou@gmail.com>
-Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <lm-sensors@lm-sensors.org>
-Subject: Re: [lm-sensors] [PATCH 2.6.12-rc4 15/15] drivers/i2c/chips/adm1026.c: use dynamic sysfs callbacks
-Date: Wed, 18 May 2005 09:13:48 +1000
-Organization: <http://scatter.mine.nu/>
-Message-ID: <lqrk81degqp2id4sf1f4rjsnithljnibhb@4ax.com>
-References: <2538186705051703479bd0c29@mail.gmail.com> <e9iUj0EZ.1116327879.1515720.khali@localhost> <2538186705051704181a70dbbf@mail.gmail.com> <0pik81hjboqvbf2jhgdut861cfpgl7sata@4ax.com> <2538186705051713565d07e66b@mail.gmail.com>
-In-Reply-To: <2538186705051713565d07e66b@mail.gmail.com>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
+	Tue, 17 May 2005 19:17:08 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:24050 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S261959AbVEQXQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 19:16:43 -0400
+Date: Tue, 17 May 2005 16:11:48 -0400
+From: Christopher Li <lkml@chrisli.org>
+To: Timur Tabi <timur.tabi@ammasso.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sparse error: unable to open 'stdarg.h'
+Message-ID: <20050517201148.GA12997@64m.dyndns.org>
+References: <428A661C.1030100@ammasso.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <428A661C.1030100@ammasso.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Yani,
+It is missing the gcc default include path.
 
-On Tue, 17 May 2005 16:56:04 -0400, Yani Ioannou <yani.ioannou@gmail.com> wrote:
->Those are the sysfs names? If so something looks wrong with the
+Check your pre-processor.h in sparse to see that match your gcc
+include path or not.
 
-Not the final ones, just from first macro expansion of driver 
-source, that's why I'd like to see changes on w83627hf driver 
-as I can test it right through.  
+If not, remove pre-processor.h and recompile sparse should solve
+the problem.
 
-I haven't looked at your patched source yet to see about applying 
-it to other drivers, 'cos I'm happy to do that part for you if I 
-can follow the changes :)
+Chris
 
->SENSOR_ ones..maybe an unintended effect of the new
->sensor_device_attribute macro. I can't seem to find anything like that
->in "gcc -I ../../../include/ -E adm1026.c" though, would you mind
->sending me your script? Also make sure you are including the new
->i2c-sysfs.h header file.
-
-No, I'm not doing a proper compile, I'm intentionally doing partial 
-compile of driver.c and _not_ including headers, ignoring errors due 
-to missing headers. 
-
-This technique seems valid for the type of testing I'm doing, which 
-is simply to pull out the first level macro expansion.
-
-Script is work in progress, updated to current version up at:
-
-  http://scatter.mine.nu/hwmon/sysfs-names/
-
->The group of attributes you've highlighted below don't use
->sensor_device_attribute on purpose because they don't benefit from the
->dynamic sysfs callbacks, mainly because they are singletons. Well its
-
-Not singletons, 3 of each (from an intermediate file):
-
-adm1026.c       temp1_crit_enable       S_IRUGO S_IWUSR
-adm1026.c       temp2_crit_enable       S_IRUGO S_IWUSR
-adm1026.c       temp3_crit_enable       S_IRUGO S_IWUSR
-adm1026.c       pwm1    S_IRUGO S_IWUSR
-adm1026.c       pwm2    S_IRUGO S_IWUSR
-adm1026.c       pwm3    S_IRUGO S_IWUSR
-adm1026.c       temp1_auto_point1_pwm   S_IRUGO S_IWUSR
-adm1026.c       temp2_auto_point1_pwm   S_IRUGO S_IWUSR
-adm1026.c       temp3_auto_point1_pwm   S_IRUGO S_IWUSR
-adm1026.c       temp1_auto_point2_pwm   S_IRUGO
-adm1026.c       temp2_auto_point2_pwm   S_IRUGO
-adm1026.c       temp3_auto_point2_pwm   S_IRUGO
-
-Yet, in related groups of three you have:
-
-adm1026.c       SENSOR_temp1_crit       S_IRUGO S_IWUSR
-adm1026.c       SENSOR_temp2_crit       S_IRUGO S_IWUSR
-adm1026.c       SENSOR_temp3_crit       S_IRUGO S_IWUSR
-
->BTW looks like a useful script :-), I'm always worried when doing
->these changes I might accidently change a sysfs attribute permission.
-
-Thank you, what I will do is remove the "SENSOR_" and flag attribute 
-column with an asterisk to indicate dynamic attribute, something 
-like that.  And flag singletons too.
-
-Thanks,
---Grant.
-
+On Tue, May 17, 2005 at 04:46:04PM -0500, Timur Tabi wrote:
+> I'm trying to run sparse on my external module, but sparse complains about 
+> not being able to find stdarg.h.  I know this bug was supposed to have been 
+> fixed back in January, but I'm using the latest code, so I can't explain 
+> what's wrong.  I've tried this on a couple different 2.6 kernels.
+> 
+> Here's the output I get:
+> 
+> make -C /lib/modules/2.6.8-24-smp/source 
+> SUBDIRS=/root/AMSO1100/software/host/linux/sys/devccil  C=1 V=2
+> make[2]: Entering directory `/usr/src/linux-2.6.8-24'
+>   CHECK   /root/AMSO1100/software/host/linux/sys/devccil/devnet.c
+> include/linux/kernel.h:10:11: error: unable to open 'stdarg.h'
+> make[3]: *** [/root/AMSO1100/software/host/linux/sys/devccil/devnet.o] 
+> Error 1
+> make[2]: *** [_module_/root/AMSO1100/software/host/linux/sys/devccil] Error 
+> 2
+> make[2]: Leaving directory `/usr/src/linux-2.6.8-24'
+> make[1]: *** [all] Error 2
+> make[1]: Leaving directory `/root/AMSO1100/software/host/linux/sys/devccil'
+> make: *** [build] Error 2
+> 
+> -- 
+> Timur Tabi
+> Staff Software Engineer
+> timur.tabi@ammasso.com
+> 
+> One thing a Southern boy will never say is,
+> "I don't think duct tape will fix it."
+>      -- Ed Smylie, NASA engineer for Apollo 13
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

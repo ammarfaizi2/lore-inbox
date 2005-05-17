@@ -1,48 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVEQFhK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVEQFjX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261154AbVEQFhK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 01:37:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVEQFhJ
+	id S261176AbVEQFjX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 01:39:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbVEQFjR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 01:37:09 -0400
-Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:7809 "EHLO
-	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
-	id S261154AbVEQFhB convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 01:37:01 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [RFD] What error should FS return when I/O failure occurs?
-Date: Mon, 16 May 2005 22:36:54 -0700
-Message-ID: <75D9B5F4E50C8B4BB27622BD06C2B82B2264F6@xmb-sjc-235.amer.cisco.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFD] What error should FS return when I/O failure occurs?
-Thread-Index: AcVanZSiAjaRyLPYTseJfnO1/U5eHQABCvZA
-From: "Hua Zhong \(hzhong\)" <hzhong@cisco.com>
-To: "fs" <fs@ercist.iscas.ac.cn>, <coywolf@lovecn.org>
-Cc: "linux-fsdevel" <linux-fsdevel@vger.kernel.org>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "Kenichi Okuyama" <okuyama@intellilink.co.jp>
-X-OriginalArrivalTime: 17 May 2005 05:36:55.0403 (UTC) FILETIME=[6FA233B0:01C55AA2]
+	Tue, 17 May 2005 01:39:17 -0400
+Received: from ercist.iscas.ac.cn ([159.226.5.94]:15374 "EHLO
+	ercist.iscas.ac.cn") by vger.kernel.org with ESMTP id S261155AbVEQFjA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 01:39:00 -0400
+Subject: Re: [RFD] What error should FS return when I/O failure occurs?
+From: fs <fs@ercist.iscas.ac.cn>
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Kenichi Okuyama <okuyama@intellilink.co.jp>
+In-Reply-To: <200505161758.j4GHw4EW009866@turing-police.cc.vt.edu>
+References: <1116263665.2434.69.camel@CoolQ>
+	 <200505160635.j4G6ZUcX023810@turing-police.cc.vt.edu>
+	 <1116266644.2434.86.camel@CoolQ>
+	 <200505161758.j4GHw4EW009866@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Organization: iscas
+Message-Id: <1116348446.2428.38.camel@CoolQ>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Tue, 17 May 2005 12:47:26 -0400
+Content-Transfer-Encoding: 7bit
+X-ArGoMail-Authenticated: fs@ercist.iscas.ac.cn
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> What you said is based on the FS implementor's perspective.
-> But from user's perspective, they open a file with O_RDWR, get a
-> success, then write returns EROFS?
-> Besides, EXT3 ALWAYS return EROFS for the 1st and 2nd case, even
-> you specify errors=continue, things are still the same.
+On Mon, 2005-05-16 at 13:58, Valdis.Kletnieks@vt.edu wrote:
 
-Which version of kernel you are using?
+> You'd be better off pointing out that 'man 2 write' lists the errors
+that
+> might be returned as:  EBAF, EINVAL, EFAULT, EFBIG, EPIPE, EAGAIN,
+EINTR,
+> ENOSPC, and EIO.
+> 
+> Does the POSIX spec allow write() to return -EROFS?
+If there is POSIX spec about this issue, I won't post this RFD.  
+> What happens if you're writing to an NFS-mounted file system, and the
+remote
+> system remounts the disk R/O?  What is reported in that case?
+So, it's necessary to define the right error in this case.
+Each FS will follow this standard, give the defined error;
+User can follow this standard, without caring what FS they're using.
+ 
+> > The purpose of this RFD, is to get the community to understand,
+> > all I/O related syscalls should return VFS error, not FS error.
+> 
+> All fine and good, until you hit a case like ext3 where reporting
+> the FS error code will better explain the *real* problem than forcing
+> it to fit into one of the provided VFS errors.
 
-It was probably the case in kernel before 2.4.20. The old ext3 had a
-problem that it ignored IO error at journal commit time. I submitted a
-patch to fix that around the time of 2.4.20. 2.6 should be fine too,
-unless someone else broke it again.
+So, if linux supports a new FS, which returns another error,
+does that mean the app should be rewritten to include the new
+error? There should be some standards constraint this behavour.
 
-Hua
+> > User mode app should not care about the FS they are using. 
+> > So, the community should define the ONLY VFS error first.
+> 
+> I think that's been done, and the VFS behavior is "if the FS reports
+> an error we pass it up to userspace".
+
+Then,from userspace, V (of VFS) loses its meaning, because the
+error is FS-related, not FS-unrelated.
+
+regards,
+----
+Qu Fuping 
+
+

@@ -1,129 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbVEQQWf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261738AbVEQQZ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261772AbVEQQWf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 12:22:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVEQQWe
+	id S261738AbVEQQZ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 12:25:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbVEQQZz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 12:22:34 -0400
-Received: from fire.osdl.org ([65.172.181.4]:12462 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261812AbVEQQR4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 12:17:56 -0400
-Date: Tue, 17 May 2005 09:19:34 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Andrew Morton <akpm@osdl.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [git patches] 2.6.x libata fixes
-In-Reply-To: <428A11C2.4030900@pobox.com>
-Message-ID: <Pine.LNX.4.58.0505170855170.18337@ppc970.osdl.org>
-References: <428A11C2.4030900@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 17 May 2005 12:25:55 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:9485 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261648AbVEQQYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 12:24:35 -0400
+Message-Id: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: linux-kernel@vger.kernel.org, linux-audit@redhat.com
+Subject: 2.6.12-rc4-mm2 - sleeping function called from invalid context at mm/slab.c:2502
+From: Valdis.Kletnieks@vt.edu
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1116347064_5349P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 17 May 2005 12:24:25 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1116347064_5349P
+Content-Type: text/plain; charset=us-ascii
+
+It threw 5 of them in short succession.  Different entry points into
+avc_has_perm(). Here's the tracebacks:
+
+[4295584.974000] Debug: sleeping function called from invalid context at mm/slab.c:2502
+[4295584.974000] in_atomic():1, irqs_disabled():0
+[4295584.974000]  [<c01035a8>] dump_stack+0x15/0x17
+[4295584.974000]  [<c013ba6d>] kmem_cache_alloc+0x1e/0x6a
+[4295584.974000]  [<c02de4fa>] skb_clone+0x14/0x183
+[4295584.974000]  [<c02ef64a>] netlink_unicast+0x7d/0x171
+[4295584.974000]  [<c0130947>] audit_log_end_fast+0xf5/0x188
+[4295584.974000]  [<c01c3c56>] avc_audit+0x94d/0x958
+[4295584.974000]  [<c01c3ffb>] avc_has_perm+0x3b/0x48
+[4295584.974000]  [<c01c8022>] selinux_socket_unix_stream_connect+0x6f/0xa8
+[4295584.974000]  [<c032b740>] unix_stream_connect+0x228/0x482
+[4295584.974000]  [<c02dbab6>] sys_connect+0x6a/0x81
+[4295584.974000]  [<c02dc23b>] sys_socketcall+0x6f/0x166
+[4295584.974000]  [<c01026cf>] sysenter_past_esp+0x54/0x75
+
+[4295592.398000] Debug: sleeping function called from invalid context at mm/slab.c:2502
+[4295592.398000] in_atomic():1, irqs_disabled():0
+[4295592.398000]  [<c01035a8>] dump_stack+0x15/0x17
+[4295592.398000]  [<c013ba6d>] kmem_cache_alloc+0x1e/0x6a
+[4295592.398000]  [<c02de4fa>] skb_clone+0x14/0x183
+[4295592.398000]  [<c02ef64a>] netlink_unicast+0x7d/0x171
+[4295592.398000]  [<c0130947>] audit_log_end_fast+0xf5/0x188
+[4295592.398000]  [<c01c3c56>] avc_audit+0x94d/0x958
+[4295592.398000]  [<c01c3ffb>] avc_has_perm+0x3b/0x48
+[4295592.398000]  [<c01c8790>] ipc_has_perm+0x52/0x5a
+[4295592.398000]  [<c01b808c>] ipcperms+0x89/0x93
+[4295592.398000]  [<c01bba55>] do_shmat+0x28d/0x2a2
+[4295592.398000]  [<c0107bfd>] sys_ipc+0xe8/0x143
+[4295592.398000]  [<c01026cf>] sysenter_past_esp+0x54/0x75
+
+[4295857.484000] Debug: sleeping function called from invalid context at mm/slab.c:2502
+[4295857.484000] in_atomic():1, irqs_disabled():0
+[4295857.484000]  [<c01035a8>] dump_stack+0x15/0x17
+[4295857.484000]  [<c013ba6d>] kmem_cache_alloc+0x1e/0x6a
+[4295857.484000]  [<c02de4fa>] skb_clone+0x14/0x183
+[4295857.484000]  [<c02ef64a>] netlink_unicast+0x7d/0x171
+[4295857.484000]  [<c0130947>] audit_log_end_fast+0xf5/0x188
+[4295857.484000]  [<c01c3c56>] avc_audit+0x94d/0x958
+[4295857.484000]  [<c01c3ffb>] avc_has_perm+0x3b/0x48
+[4295857.484000]  [<c01c8790>] ipc_has_perm+0x52/0x5a
+[4295857.484000]  [<c01b808c>] ipcperms+0x89/0x93
+[4295857.484000]  [<c01bba55>] do_shmat+0x28d/0x2a2
+[4295857.484000]  [<c0107bfd>] sys_ipc+0xe8/0x143
+[4295857.484000]  [<c01026cf>] sysenter_past_esp+0x54/0x75
+
+[4295859.266000] Debug: sleeping function called from invalid context at mm/slab.c:2502
+[4295859.266000] in_atomic():1, irqs_disabled():0
+[4295859.266000]  [<c01035a8>] dump_stack+0x15/0x17
+[4295859.266000]  [<c013ba6d>] kmem_cache_alloc+0x1e/0x6a
+[4295859.266000]  [<c02de4fa>] skb_clone+0x14/0x183
+[4295859.266000]  [<c02ef64a>] netlink_unicast+0x7d/0x171
+[4295859.266000]  [<c0130947>] audit_log_end_fast+0xf5/0x188
+[4295859.266000]  [<c01c3c56>] avc_audit+0x94d/0x958
+[4295859.266000]  [<c01c3ffb>] avc_has_perm+0x3b/0x48
+[4295859.266000]  [<c01c8022>] selinux_socket_unix_stream_connect+0x6f/0xa8
+[4295859.266000]  [<c032b740>] unix_stream_connect+0x228/0x482
+[4295859.266000]  [<c02dbab6>] sys_connect+0x6a/0x81
+[4295859.266000]  [<c02dc23b>] sys_socketcall+0x6f/0x166
+[4295859.266000]  [<c0102729>] syscall_call+0x7/0xb
+
+[4295873.575000] Debug: sleeping function called from invalid context at mm/slab.c:2502
+[4295873.575000] in_atomic():1, irqs_disabled():0
+[4295873.575000]  [<c01035a8>] dump_stack+0x15/0x17
+[4295873.576000]  [<c013ba6d>] kmem_cache_alloc+0x1e/0x6a
+[4295873.576000]  [<c02de4fa>] skb_clone+0x14/0x183
+[4295873.576000]  [<c02ef64a>] netlink_unicast+0x7d/0x171
+[4295873.576000]  [<c0130947>] audit_log_end_fast+0xf5/0x188
+[4295873.576000]  [<c01c3c56>] avc_audit+0x94d/0x958
+[4295873.576000]  [<c01c3ffb>] avc_has_perm+0x3b/0x48
+[4295873.576000]  [<c01c8022>] selinux_socket_unix_stream_connect+0x6f/0xa8
+[4295873.576000]  [<c032b740>] unix_stream_connect+0x228/0x482
+[4295873.576000]  [<c02dbab6>] sys_connect+0x6a/0x81
+[4295873.576000]  [<c02dc23b>] sys_socketcall+0x6f/0x166
+[4295873.576000]  [<c0102729>] syscall_call+0x7/0xb
 
 
-On Tue, 17 May 2005, Jeff Garzik wrote:
-> 
-> Please pull the master (HEAD) branch of
-> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-2.6.git
+--==_Exmh_1116347064_5349P
+Content-Type: application/pgp-signature
 
-Pulled.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-> Review contents (diffstat/changelog/patch) attached to this email.  I'm 
-> still new to git, so pull carefully.  :)
+iD8DBQFCihq4cC3lWbTT17ARAiePAJ0RE1Pucsyo8dJbmwnfBUqdF8E8swCfUFca
+eRonpAuTVaNgJ/I3BnRKheU=
+=KUEi
+-----END PGP SIGNATURE-----
 
-My pull gets the same diffstat as you claimed, and everything looks good.
-
-> Three git-related comments:
-> 
-> 1) James Bottomley's git-changes-script is darned useful, for this 
-> ex-BitKeeper user.  I've attached it.
-
-It should _really_ be updated to do a better job, modern git can do much 
-better. 
-
-See the answer to the next question, since that's really the same thing:
-
-> 2) What is the preferred way to generate a 'for Linus' diff?  I used to 
-> BitKeeper's "repogca" feature to find the GCA for the diff.
-
-You can use
-
-	"git-merge-base HEAD OTHER_HEAD"
-
-to get the global common ancestor. However, that's pretty pointless, since 
-what you're after is really "what are the differences", and that's what 
-"git-rev-tree" gives you for any arbitrary points.
-
-With modern git, what you do is something like this (totally untested, 
-but you hopefully get the idea):
-
-	local=.
-	remote=.
-	localhead=HEAD
-	remotehead=HEAD
-
-	#
-	# default to silent mode (changelog only),
-	# use "-p" to enable full patch information.
-	#
-	diff-tree-arg=-s
-
-	#
-	# Get the arguments
-	#
-	while true; do
-	   case "$1" in
-	      -R)     shift;
-	              remote="$1"
-	              shift;;
-	      -L)     shift;
-	              local="$1"
-	              shift;;
-	      -r)     shift;
-	              remotehead="$1"
-	              shift;;
-	      -p)     diff-tree-args=-p
-	              shift;;
-	       *)     localhead="$1"
-                      break;;
-	   esac
-	done
-	
-	#
-	# Tell git about where it can find all the objects
-	#
-	export GIT_OBJECT_DIRECTORY=$local/.git/objects
-	export GIT_ALTERNATE_OBJECT_DIRECTORIES=$remote/.git/objects
-
-	# ..and get the heads
-	head=$(cat $local/.git/$localhead)
-	other_head=$(cat $remote/.git/$remotehead)
-
-	# What exists in remote-head but not in the local head?
-	git-rev-tree $other_head ^$head |
-		cut -d' ' -f2 |
-		git-diff-tree --stdin -v $diff-tree-args
-
-and it should just DoTheRightThing(tm) modulo the inevitable
-ObviousBugs(tm).
-
-> 3) Note that my object database is not pruned.  When I used 
-> git-pull-script to locally merge my libata-dev.git#misc-fixes branch 
-> into libata-2.6.git, it pulled all the objects in libata-dev.  I was too 
-> slack to bother with pruning libata-2.6.git, knowing that eventually the 
-> other changesets will make their way upstream.
-
-I do keep my trees pruned and I still run fsck religiously, so I just 
-force a prune after a pull. I _prefer_ to see clean trees, though - not 
-because it matters from a techncial perspective, but because it tells me 
-that the other side didn't have any left-over strange objects that might 
-have been intended to be included.
-
-But your tree looked fine.
-
-		Linus
+--==_Exmh_1116347064_5349P--

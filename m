@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbVEQEiJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVEQEim@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261698AbVEQEiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 00:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVEQEiI
+	id S261699AbVEQEim (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 00:38:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVEQEim
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 00:38:08 -0400
-Received: from mail.kroah.org ([69.55.234.183]:18924 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261323AbVEQEho convert rfc822-to-8bit
+	Tue, 17 May 2005 00:38:42 -0400
+Received: from mail.kroah.org ([69.55.234.183]:19180 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261678AbVEQEhp convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 00:37:44 -0400
-Cc: gregkh@suse.de
-Subject: [PATCH] fix Linux kernel ELF core dump privilege elevation
-In-Reply-To: <20050517043700.GA17349@kroah.com>
+	Tue, 17 May 2005 00:37:45 -0400
+Cc: sct@redhat.com
+Subject: [PATCH] Fix root hole in raw device
+In-Reply-To: <11163046682662@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Mon, 16 May 2005 21:37:48 -0700
-Message-Id: <11163046682662@kroah.com>
+Message-Id: <11163046681444@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,44 +24,69 @@ From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] fix Linux kernel ELF core dump privilege elevation
+[PATCH] Fix root hole in raw device
 
-As reported by Paul Starzetz <ihaquer@isec.pl>
+[Patch] Fix raw device ioctl pass-through
 
-Reference: CAN-2005-1263
+Raw character devices are supposed to pass ioctls through to the block
+devices they are bound to.  Unfortunately, they are using the wrong
+function for this: ioctl_by_bdev(), instead of blkdev_ioctl().
 
+ioctl_by_bdev() performs a set_fs(KERNEL_DS) before calling the ioctl,
+redirecting the user-space buffer access to the kernel address space.
+This is, needless to say, a bad thing.
+
+This was noticed first on s390, where raw IO was non-functioning.  The
+s390 driver config does not actually allow raw IO to be enabled, which
+was the first part of the problem.  Secondly, the s390 kernel address
+space is distinct from user, causing legal raw ioctls to fail.  I've
+reproduced this on a kernel built with 4G:4G split on x86, which fails
+in the same way (-EFAULT if the address does not exist kernel-side;
+returns success without actually populating the user buffer if it does.)
+
+The patch below fixes both the config and address-space problems.  It's
+based closely on a patch by Jan Glauber <jang@de.ibm.com>, which has
+been tested on s390 at IBM.  I've tested it on x86 4G:4G (split address
+space) and x86_64 (common address space).
+
+Kernel-address-space access has been assigned CAN-2005-1264.
+
+Signed-off-by: Stephen Tweedie <sct@redhat.com>
+Signed-off-by: Dave Jones <davej@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
 ---
-commit a84a505956f5c795a9ab3d60d97b6b91a27aa571
-tree 440fdf47fcddf8b0d615667b418981a511d16e30
-parent d3f0fcec2d50a18a84c4f3dd7683206ed37ca009
-author Greg Kroah-Hartman <gregkh@suse.de> Wed, 11 May 2005 00:10:44 -0700
-committer Greg KH <gregkh@suse.de> Mon, 16 May 2005 21:07:05 -0700
+commit 68f66feb300423bb9ee5daecb1951af394425a38
+tree ae5ce87f061f76da06cb78ce5c9cf3c8284fc0fc
+parent a84a505956f5c795a9ab3d60d97b6b91a27aa571
+author Stephen Tweedie <sct@redhat.com> Fri, 13 May 2005 23:31:19 -0400
+committer Greg KH <gregkh@suse.de> Mon, 16 May 2005 21:07:21 -0700
 
- fs/binfmt_elf.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/block/ioctl.c |    2 ++
+ drivers/char/raw.c    |    2 +-
+ 2 files changed, 3 insertions(+), 1 deletion(-)
 
-Index: fs/binfmt_elf.c
+Index: drivers/block/ioctl.c
 ===================================================================
---- 6e56e97c81b5b8c4d556ffd90349e73a885a20dc/fs/binfmt_elf.c  (mode:100644)
-+++ 440fdf47fcddf8b0d615667b418981a511d16e30/fs/binfmt_elf.c  (mode:100644)
-@@ -251,7 +251,7 @@
+--- 440fdf47fcddf8b0d615667b418981a511d16e30/drivers/block/ioctl.c  (mode:100644)
++++ ae5ce87f061f76da06cb78ce5c9cf3c8284fc0fc/drivers/block/ioctl.c  (mode:100644)
+@@ -237,3 +237,5 @@
  	}
- 
- 	/* Populate argv and envp */
--	p = current->mm->arg_start;
-+	p = current->mm->arg_end = current->mm->arg_start;
- 	while (argc-- > 0) {
- 		size_t len;
- 		__put_user((elf_addr_t)p, argv++);
-@@ -1301,7 +1301,7 @@
- static int fill_psinfo(struct elf_prpsinfo *psinfo, struct task_struct *p,
- 		       struct mm_struct *mm)
+ 	return ret;
+ }
++
++EXPORT_SYMBOL_GPL(blkdev_ioctl);
+Index: drivers/char/raw.c
+===================================================================
+--- 440fdf47fcddf8b0d615667b418981a511d16e30/drivers/char/raw.c  (mode:100644)
++++ ae5ce87f061f76da06cb78ce5c9cf3c8284fc0fc/drivers/char/raw.c  (mode:100644)
+@@ -122,7 +122,7 @@
  {
--	int i, len;
-+	unsigned int i, len;
- 	
- 	/* first copy the parameters from user space */
- 	memset(psinfo, 0, sizeof(struct elf_prpsinfo));
+ 	struct block_device *bdev = filp->private_data;
+ 
+-	return ioctl_by_bdev(bdev, command, arg);
++	return blkdev_ioctl(bdev->bd_inode, filp, command, arg);
+ }
+ 
+ static void bind_device(struct raw_config_request *rq)
 

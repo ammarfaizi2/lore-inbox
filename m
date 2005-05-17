@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbVEQRZT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262040AbVEQRaW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261934AbVEQRZT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 13:25:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261931AbVEQRYa
+	id S262040AbVEQRaW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 13:30:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261864AbVEQR3K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 13:24:30 -0400
-Received: from [222.234.2.64] ([222.234.2.64]:38317 "EHLO yttnetwork.co.kr")
-	by vger.kernel.org with ESMTP id S261895AbVEQRWm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 13:22:42 -0400
-Date: Wed, 18 May 2005 02:30:28 +0900
-Message-Id: <200505171730.j4HHUSK15036@yttnetwork.co.kr>
-To: linux-kernel@vger.kernel.org
-Subject: Yukos oil and Bank Menatep SPB in Russia
-From: "Mrs. Larisa Nitskaya" <tafacho@walla.com>
-Reply-To: tafacho@walla.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 17 May 2005 13:29:10 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:49935 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261827AbVEQR0C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 13:26:02 -0400
+Message-Id: <200505171725.j4HHPnJ1021224@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Kirill Korotaev <dev@sw.ru>
+Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NMI watchdog config option (was: Re: [PATCH] NMI lockup and AltSysRq-P dumping calltraces on _all_ cpus via NMI IPI) 
+In-Reply-To: Your message of "Tue, 17 May 2005 11:04:55 +0400."
+             <42899797.2090702@sw.ru> 
+From: Valdis.Kletnieks@vt.edu
+References: <42822B5F.8040901@sw.ru> <768860000.1116282855@flay>
+            <42899797.2090702@sw.ru>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1116350744_5349P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 17 May 2005 13:25:49 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Friend,
+--==_Exmh_1116350744_5349P
+Content-Type: text/plain; charset=us-ascii
 
-My name is Mrs. Larisa Nitskaya, personal secretary of Mr. Boris Mikhail Khodorkovsky, the arrested Chairman/CEO of Yukos oil and Bank Menatep SPB in Russia.
+On Tue, 17 May 2005 11:04:55 +0400, Kirill Korotaev said:
 
-I have the documents of a large amount of funds which he handed over to me before he was arrested and detained and now been tried in Russia for financing political parties (the Union of the Right Forces, led by Boris Nemtsov and Yabloko, a liberal/social democratic party led by Gregor Yavlinsky) opposed to the government of Mr. Vladmir Putin, the president thereby leading to the freezing of his finances and assests. After searching through the books of your country's chambers of commerce and industries here in Russia I am contacting you to assist me to re-profile the funds and equally invest same on his behalf and you will be paid a commission of 12% for your management services.
+> BTW, why NMI watchdog is disabled by default? We constantly making it on 
+> by default in our kernels and had no problems with it.
+> I send a patch attached which tunes NMI watchdog by config option...
 
-As soon as I receive your acceptance, I will send you the necessary details and my identification.
+If you know how to get this to work on a Dell C840 laptop, please clue me in.
+As far as I can tell, this requires a working LAPIC. If I boot without 'lapic',
+no setting of nmi_watchdog increments the NMI counts in /proc/interrupts.
+If I boot with 'lapic', nmi_watchdog=0 or 1 don't do anything, and 2 causes
+a system hang during very early userspace (we don't live long enough to
+get out of the initrd).
 
-Yours sincerely,
-Mrs. Larisa Nitskaya
+(Yes, I'm running the latest Dell BIOS (A13, 2/14/2004) on it.)
 
-NB:YOU CAN READ MORE OF HIS ORDEAL FROM:
-http://newsfromrussia.com/main/2005/03/29/58914.html
-http://www.interfax.ru/e/B/politics/28.html?id_issue=11261041
-http://www.supportmbk.com
-http://news.bbc.co.uk/1/hi/business/4041115.stm
-http://www.nationmaster.com/encyclopedia/Mikhail-Khodorkovsky
+So if your patch was applied, my machine would hang at boot for no obvious
+reason.  Not something we want to do to users by default.  All boxes will
+boot with the NMI Watchdog turned off by default, so that's the *correct* default.
 
-NB:Kindly send all correspondence/ response to my confidential email address : tafacho@walla.com 
+--==_Exmh_1116350744_5349P
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFCiikXcC3lWbTT17ARApXxAKCUSxbqezOhxl3old2IJworzavRgQCg4vFF
+k8GlWRmdxCW1gNdSXx4LRWs=
+=dbrW
+-----END PGP SIGNATURE-----
 
+--==_Exmh_1116350744_5349P--

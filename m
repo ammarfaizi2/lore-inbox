@@ -1,97 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVEQKkR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVEQKlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261361AbVEQKkR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 06:40:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbVEQKkR
+	id S261360AbVEQKlh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 06:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVEQKlg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 06:40:17 -0400
-Received: from rproxy.gmail.com ([64.233.170.202]:4217 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261364AbVEQKje (ORCPT
+	Tue, 17 May 2005 06:41:36 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:64560 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261360AbVEQKk3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 06:39:34 -0400
+	Tue, 17 May 2005 06:40:29 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type;
-        b=p5x2QD5kLwUnQa24s8ojZ/RCNpxjl4fEUvXjP/jLMyqWvHAy6o6bOu0BIQshI8ZANahUOqG+B5FzZrFRNVjyqs7IbgxGZB/A7OzJLPf8F3yzEQmoD1wB3+HaXv6H7RJYWZ/HcITUh/W6Sgl74m7dqx5lvbKQxh7IOpKkZxVhoCc=
-Message-ID: <253818670505170339187ebecd@mail.gmail.com>
-Date: Tue, 17 May 2005 06:39:34 -0400
+        b=DP3oPi84H71pOlMvJ1F8qy7VnPe7hGT4jGi26HM1s4Z7fLLapVNYQ2SBAEUJKEbZUMwYQ2rQwF3Wbfo0lucvefWxWJGsIiUASbvI0gT1JGCSIi2O2fDFsZLmVvFey/9qR1p1K4FF86yS7wJSh8gdCQHKoDSUcxe6s7yRneDgooA=
+Message-ID: <2538186705051703406a12b66f@mail.gmail.com>
+Date: Tue, 17 May 2005 06:40:28 -0400
 From: Yani Ioannou <yani.ioannou@gmail.com>
 Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
 To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
        lm-sensors@lm-sensors.org
-Subject: [PATCH 2.6.12-rc4 2/15] drivers/base/core.c, include/linux/device.h: change device_attribute callbacks
+Subject: [PATCH 2.6.12-rc4 3/15] Documentation: update device attribute callbacks
 Mime-Version: 1.0
 Content-Type: multipart/mixed; 
-	boundary="----=_Part_252_18578562.1116326374179"
+	boundary="----=_Part_256_4622879.1116326428954"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_252_18578562.1116326374179
+------=_Part_256_4622879.1116326428954
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-This patch adds the device_attribute paramerter to the
-device_attribute store and show sysfs callback functions, and passes a
-reference to the attribute when the callbacks are called.
+The following 11 patches update all the device_attribute callback
+functions in the kernel to reflect the new function signatures. The
+patches were mainly automatically generated with scripts nearly
+identical to the previously submitted ones.
 
 Signed-off-by: Yani Ioannou <yani.ioannou@gmail.com>
 
 ---
 
-------=_Part_252_18578562.1116326374179
+------=_Part_256_4622879.1116326428954
 Content-Type: text/plain; 
-	name=patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr.diff.diffstat.txt; charset=us-ascii
+	name=patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr-update.diff-Documentation.diff.diffstat.txt; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr.diff.diffstat.txt"
+Content-Disposition: attachment; filename="patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr-update.diff-Documentation.diff.diffstat.txt"
 
- drivers/base/core.c    |    4 ++--
- include/linux/device.h |    5 +++--
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ sysfs.txt |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
 
-------=_Part_252_18578562.1116326374179
+
+
+------=_Part_256_4622879.1116326428954
 Content-Type: text/x-patch; 
-	name=patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr.diff; charset=us-ascii
+	name=patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr-update.diff-Documentation.diff; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr.diff"
+Content-Disposition: attachment; filename="patch-linux-2.6.12-rc4-sysfsdyncallback-deviceattr-update.diff-Documentation.diff"
 
-diff -uprN -X dontdiff linux-2.6.12-rc4/drivers/base/core.c linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/base/core.c
---- linux-2.6.12-rc4/drivers/base/core.c	2005-05-07 03:37:15.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr/drivers/base/core.c	2005-05-16 20:50:02.000000000 -0400
-@@ -41,7 +41,7 @@ dev_attr_show(struct kobject * kobj, str
- 	ssize_t ret = 0;
+diff -uprN -X dontdiff linux-2.6.12-rc4-sysfsdyncallback-deviceattr/Documentation/filesystems/sysfs.txt linux-2.6.12-rc4-sysfsdyncallback-deviceattr-update/Documentation/filesystems/sysfs.txt
+--- linux-2.6.12-rc4-sysfsdyncallback-deviceattr/Documentation/filesystems/sysfs.txt	2005-05-16 20:36:09.000000000 -0400
++++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr-update/Documentation/filesystems/sysfs.txt	2005-05-16 23:45:52.000000000 -0400
+@@ -214,7 +214,7 @@ Other notes:
  
- 	if (dev_attr->show)
--		ret = dev_attr->show(dev, buf);
-+		ret = dev_attr->show(dev, dev_attr, buf);
- 	return ret;
+ A very simple (and naive) implementation of a device attribute is:
+ 
+-static ssize_t show_name(struct device * dev, char * buf)
++static ssize_t show_name(struct device * dev, struct device_attribute *attr, char * buf)
+ {
+         return sprintf(buf,"%s\n",dev->name);
  }
- 
-@@ -54,7 +54,7 @@ dev_attr_store(struct kobject * kobj, st
- 	ssize_t ret = 0;
- 
- 	if (dev_attr->store)
--		ret = dev_attr->store(dev, buf, count);
-+		ret = dev_attr->store(dev, dev_attr, buf, count);
- 	return ret;
- }
- 
-diff -uprN -X dontdiff linux-2.6.12-rc4/include/linux/device.h linux-2.6.12-rc4-sysfsdyncallback-deviceattr/include/linux/device.h
---- linux-2.6.12-rc4/include/linux/device.h	2005-05-07 03:37:24.000000000 -0400
-+++ linux-2.6.12-rc4-sysfsdyncallback-deviceattr/include/linux/device.h	2005-05-16 20:58:43.000000000 -0400
-@@ -335,8 +335,9 @@ extern void driver_attach(struct device_
- 
- struct device_attribute {
- 	struct attribute	attr;
--	ssize_t (*show)(struct device * dev, char * buf);
--	ssize_t (*store)(struct device * dev, const char * buf, size_t count);
-+	ssize_t (*show)(struct device * dev, struct device_attribute *attr, char * buf);
-+	ssize_t (*store)(struct device * dev, struct device_attribute *attr, 
-+			const char * buf, size_t count);
- };
- 
- #define DEVICE_ATTR(_name,_mode,_show,_store) \
 
 
-------=_Part_252_18578562.1116326374179--
+
+
+------=_Part_256_4622879.1116326428954--

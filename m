@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVEQNTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVEQN0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261502AbVEQNTx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 09:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbVEQNTw
+	id S261505AbVEQN0O (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 09:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVEQN0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 09:19:52 -0400
-Received: from mail.suse.de ([195.135.220.2]:19104 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261502AbVEQNTk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 09:19:40 -0400
-Date: Tue, 17 May 2005 15:19:32 +0200
-From: Andi Kleen <ak@suse.de>
-To: Paulo Marques <pmarques@grupopie.com>
-Cc: Andi Kleen <ak@suse.de>, Linus Torvalds <torvalds@osdl.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       randy_dunlap <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, shai@scalex86.org
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt.
-Message-ID: <20050517131932.GF9699@wotan.suse.de>
-References: <Pine.LNX.4.62.0505161243580.13692@ScMPusgw> <20050516150907.6fde04d3.akpm@osdl.org> <Pine.LNX.4.62.0505161934220.25315@graphe.net> <20050516194651.1debabfd.rdunlap@xenotime.net> <Pine.LNX.4.62.0505161954470.25647@graphe.net> <Pine.LNX.4.58.0505162029240.18337@ppc970.osdl.org> <20050517034028.GC9699@wotan.suse.de> <4289CC97.9010105@grupopie.com>
+	Tue, 17 May 2005 09:26:14 -0400
+Received: from zproxy.gmail.com ([64.233.162.200]:44628 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261505AbVEQN0L convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 09:26:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DxIBhSYocLhUCgzyvalCDfn2JLqaUyQ+YFIQrCHYdhScieBIkyNhq4ZWl6+MB9cLwuxhCqNXbI01mNwi5I2fm8/JtmuKdcqSMLUQPou3gvZEerbnEPzcaqSj5FmHPAUhnBbjTsu4/46GjXKPovvDPrdbwPLSP5nATUx1sVNzh8w=
+Message-ID: <4ad99e0505051706265ea06f7@mail.gmail.com>
+Date: Tue, 17 May 2005 15:26:09 +0200
+From: Lars Roland <lroland@gmail.com>
+Reply-To: Lars Roland <lroland@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 0/8] dlm: overview
+Cc: David Teigland <teigland@redhat.com>, linux-kernel@vger.kernel.org,
+       linux-cluster@redhat.com
+In-Reply-To: <20050517001133.64d50d8c.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <4289CC97.9010105@grupopie.com>
+References: <20050516071949.GE7094@redhat.com>
+	 <20050517001133.64d50d8c.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 17, 2005 at 11:51:03AM +0100, Paulo Marques wrote:
-> Andi Kleen wrote:
-> >>[...]
-> >I would add a 
-> >
-> >	config HZ_10 if EMBEDDED 
-> >		bool "10 Hz" 
-> >
-> >that is useful for compute servers (although it will violate the TCP
-> >specification). EMBEDDED would ensure only people who know what they're
-> >doing set it.
-> 
-> I thought the lowest frequency the PIT timer would give was around 18 Hz.
-> 
-> Am I wrong, or are you thinking of other timing devices / different 
-> platforms?
+On 5/17/05, Andrew Morton <akpm@osdl.org> wrote:
+> The usual fallback is to identify all the stakeholders and get them to say
+> "yes Andrew, this code is cool and we can use it", but I don't think the
+> clustering teams have sufficent act-togetherness to be able to do that.
 
-I was thinking of HPET. You're right it would probably not work with 
-PIT. 
-
-Oh well, I guess it wasn't that great an idea anyways. I merely
-suggested it because I know some people do it already.
-
--Andi
+It is highly unlikely that this will ever happen because of the
+different nature of these projects. That said getting a kernel system
+for dlm and message passing should be doable given the wide variety
+off uses they have.

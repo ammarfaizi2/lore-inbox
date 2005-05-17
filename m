@@ -1,43 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVEQSQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVEQSS1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261233AbVEQSQY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 14:16:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261347AbVEQSQY
+	id S261271AbVEQSS1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 14:18:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVEQSS1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 14:16:24 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:24269 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261233AbVEQSQO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 14:16:14 -0400
-Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: =?ISO-8859-1?Q?Gr=E9goire?= Favre <gregoire.favre@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, dino@in.ibm.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20050517165255.GD9590@gmail.com>
-References: <20050516085832.GA9558@gmail.com>
-	 <20050517071307.GA4794@in.ibm.com> <20050517002908.005a9ba7.akpm@osdl.org>
-	 <1116340465.4989.2.camel@mulgrave> <20050517155731.GA9590@gmail.com>
-	 <1116347914.4989.24.camel@mulgrave>  <20050517165255.GD9590@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Tue, 17 May 2005 13:16:01 -0500
-Message-Id: <1116353761.4989.33.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 8bit
+	Tue, 17 May 2005 14:18:27 -0400
+Received: from serv01.siteground.net ([70.85.91.68]:19350 "EHLO
+	serv01.siteground.net") by vger.kernel.org with ESMTP
+	id S261271AbVEQSSN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 14:18:13 -0400
+Date: Tue, 17 May 2005 10:19:58 -0700 (PDT)
+From: christoph <christoph@scalex86.org>
+X-X-Sender: christoph@ScMPusgw
+cc: akpm@osdl.org, Andy Whitcroft <apw@shadowen.org>, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org, shai@scalex86.org
+Subject: Re: [PATCH] Factor in buddy allocator alignment requirements in node
+ memory alignment
+In-Reply-To: <E1DY18K-0002dJ-KM@pinky.shadowen.org>
+Message-ID: <Pine.LNX.4.62.0505171018560.2872@ScMPusgw>
+References: <E1DY18K-0002dJ-KM@pinky.shadowen.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - serv01.siteground.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-17 at 18:52 +0200, Grégoire Favre wrote:
-> I just did some copy, and I didn't swap hardware ???
+On Tue, 17 May 2005, Andy Whitcroft wrote:
+
+> Andrew, please consider this patch for -mm.
+
+I agree. Forget about my patch and include this one.
+
+> Originally __free_pages_bulk used the relative page number within
+> a zone to define its buddies.  This meant that to maintain the
+> "maximally aligned" requirements (that an allocation of size N will
+> be aligned at least to N physically) zones had to also be aligned to
+> 1<<MAX_ORDER pages.  When __free_pages_bulk was updated to use the
+> relative page frame numbers of the free'd pages to pair buddies this
+> released the alignment constraint on the 'left' edge of the zone.
+> This allows _either_ edge of the zone to contain partial MAX_ORDER
+> sized buddies.  These simply never will have matching buddies and
+> thus will never make it to the 'top' of the pyramid.
 > 
-> What does that mean ?
-
-I think the bug report that Andrew forwarded to linux-scsi with the
-above Subject: is from dino@in.ibm.com (at least, his information
-matches the trace).
-
-James
-
-
+> The patch below removes a now redundant check ensuring that the
+> mem_map was aligned to MAX_ORDER.
+> 
+> Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+> 
+> diffstat free_area_init_core-remove-bogus-warning
+> ---
+>  page_alloc.c |    4 ----
+>  1 files changed, 4 deletions(-)
+> 
+> diff -X /home/apw/brief/lib/vdiff.excl -rupN reference/mm/page_alloc.c current/mm/page_alloc.c
+> --- reference/mm/page_alloc.c
+> +++ current/mm/page_alloc.c
+> @@ -1942,7 +1942,6 @@ static void __init free_area_init_core(s
+>  		unsigned long *zones_size, unsigned long *zholes_size)
+>  {
+>  	unsigned long i, j;
+> -	const unsigned long zone_required_alignment = 1UL << (MAX_ORDER-1);
+>  	int cpu, nid = pgdat->node_id;
+>  	unsigned long zone_start_pfn = pgdat->node_start_pfn;
+>  
+> @@ -2033,9 +2032,6 @@ static void __init free_area_init_core(s
+>  		zone->zone_mem_map = pfn_to_page(zone_start_pfn);
+>  		zone->zone_start_pfn = zone_start_pfn;
+>  
+> -		if ((zone_start_pfn) & (zone_required_alignment-1))
+> -			printk(KERN_CRIT "BUG: wrong zone alignment, it will crash\n");
+> -
+>  		memmap_init(size, nid, j, zone_start_pfn);
+>  
+>  		zonetable_add(zone, nid, j, zone_start_pfn, size);
+> 
+> 
+> 

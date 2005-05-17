@@ -1,74 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbVEQVmU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261958AbVEQVp2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbVEQVmU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 17:42:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVEQVmU
+	id S261958AbVEQVp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 17:45:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbVEQVok
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 17:42:20 -0400
-Received: from smtpout.mac.com ([17.250.248.97]:12485 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261918AbVEQVmC (ORCPT
+	Tue, 17 May 2005 17:44:40 -0400
+Received: from mail.kroah.org ([69.55.234.183]:41371 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261986AbVEQVoQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 17:42:02 -0400
-In-Reply-To: <Pine.LNX.3.96.1050517090828.5118A-100000@gatekeeper.tmr.com>
-References: <Pine.LNX.3.96.1050517090828.5118A-100000@gatekeeper.tmr.com>
-Mime-Version: 1.0 (Apple Message framework v728)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <6A533A3B-685E-46C3-9A2A-948633715B97@mac.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Matthias Andree <matthias.andree@gmx.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: Disk write cache (Was: Hyper-Threading Vulnerability)
-Date: Tue, 17 May 2005 17:41:39 -0400
-To: Bill Davidsen <davidsen@tmr.com>
-X-Mailer: Apple Mail (2.728)
+	Tue, 17 May 2005 17:44:16 -0400
+Date: Tue, 17 May 2005 14:44:13 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [GIT PATCH] PCI bugfixes for 2.6.12-rc4
+Message-ID: <20050517214413.GA28629@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 17, 2005, at 09:15:52, Bill Davidsen wrote:
-> What would be ideal is some cache which didn't depend on power to  
-> maintain
-> state, like core (remember core?) or the bubble memory which spent  
-> almost
-> a decade being just slightly too {slow,costly} to replace disk. There
-> doesn't seem to be a cost effective technology yet.
+Here are 6 patches for the 2.6.12-rc4 tree that fix some PCI and PCI
+Hotplug bugs.  They also delete a lot of code that is no longer needed
+from the pci hotplug core.  There are also two patches in here that make
+it easier for userspace to autoload modules for PCI devices.  All of
+these patches have been in the past few -mm releases.
 
-I've seen some articles recently on a micro-punchcard technology that  
-uses
-grids of thousands of miniature needles and sheets of polymer plastic  
-that
-can be melted at somewhat low temperatures to create or remove  
-indentations
-in the plastic.  The device can read and write each position at a  
-very high
-rate, and since there are several thousand bits per position, with  
-one bit
-for each needle, the bandwidth is enormous.  (And it scales linearly  
-with
-the size of the device, too!)  Purportedly these grids can be easily  
-built
-with slight modifications to modern semiconductor etching  
-technologies, and
-the polymer plastic is reasonably simple to manufacture, so the  
-resultant
-cost per device is hundreds of times cheaper than today's drives.   
-Likewise,
-they have significantly higher memory density than current hardware  
-due to
-fewer relativistic and quantum effects (no magnetism).
+Please pull from:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
+
+Full patches will be sent to the linux-usb-devel and linux-pci mailing
+lists, if anyone wants to see them.
+
+thanks,
+
+greg k-h
+
+ drivers/pci/hotplug.c                   |  119 ----------
+ drivers/pci/hotplug/cpci_hotplug.h      |    2 
+ drivers/pci/hotplug/cpci_hotplug_core.c |  169 +++++++--------
+ drivers/pci/hotplug/cpci_hotplug_pci.c  |  352 ++------------------------------
+ drivers/pci/hotplug/pciehp.h            |    1 
+ drivers/pci/hotplug/pciehp_core.c       |    2 
+ drivers/pci/hotplug/pciehp_hpc.c        |  156 +++++++-------
+ drivers/pci/hotplug/shpchp_core.c       |    2 
+ drivers/pci/hotplug/shpchp_ctrl.c       |   30 +-
+ drivers/pci/pci-sysfs.c                 |   12 +
+ drivers/pci/pci.h                       |   27 --
+ drivers/pci/pcie/portdrv_bus.c          |    3 
+ 12 files changed, 233 insertions(+), 642 deletions(-)
 
 
-Cheers,
-Kyle Moffett
+Dely Sy:
+  o PCI Hotplug: get pciehp to work on the downstream port of a switch
+  o PCI Hotplug: Fix echoing 1 to power file of enabled slot problem with SHPC driver
 
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$  
-r  !y?(-)
-------END GEEK CODE BLOCK------
+Greg Kroah-Hartman:
+  o PCI: add MODALIAS to hotplug event for pci devices
+  o PCI: add modalias sysfs file for pci devices
 
-
+Scott Murray:
+  o PCI Hotplug: remove pci_visit_dev
+  o PCI Hotplug: CPCI update
 

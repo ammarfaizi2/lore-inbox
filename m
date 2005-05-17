@@ -1,57 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbVEQUfe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVEQUgk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbVEQUfe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 16:35:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVEQUfe
+	id S261941AbVEQUgk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 16:36:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVEQUgk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 16:35:34 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:13074 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261939AbVEQUfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 16:35:22 -0400
-Message-Id: <200505172035.j4HKZGgB029870@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Karel Kulhavy <clock@twibright.com>, Takashi Iwai <tiwai@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: ALSA make menuconfig Help description missing 
-In-Reply-To: Your message of "Tue, 17 May 2005 15:30:16 EDT."
-             <1116358216.32062.7.camel@mindpipe> 
-From: Valdis.Kletnieks@vt.edu
-References: <20050517123549.GA2378@kestrel> <s5hfywmotdd.wl@alsa2.suse.de> <20050517145931.GA11564@kestrel>
-            <1116358216.32062.7.camel@mindpipe>
+	Tue, 17 May 2005 16:36:40 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:49079 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261941AbVEQUgc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 16:36:32 -0400
+Subject: Re: software mixing in alsa
+From: Lee Revell <rlrevell@joe-job.com>
+To: Valdis.Kletnieks@vt.edu
+Cc: Karel Kulhavy <clock@twibright.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <200505172027.j4HKRjTV029545@turing-police.cc.vt.edu>
+References: <20050517095613.GA9947@kestrel>
+	 <200505171208.04052.jan@spitalnik.net> <20050517141307.GA7759@kestrel>
+	 <1116354762.31830.12.camel@mindpipe>
+	 <20050517192412.GA19431@kestrel.twibright.com>
+	 <200505172027.j4HKRjTV029545@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Date: Tue, 17 May 2005 16:36:30 -0400
+Message-Id: <1116362191.32210.24.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1116362115_5349P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+X-Mailer: Evolution 2.3.1 
 Content-Transfer-Encoding: 7bit
-Date: Tue, 17 May 2005 16:35:16 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1116362115_5349P
-Content-Type: text/plain; charset=us-ascii
-
-On Tue, 17 May 2005 15:30:16 EDT, Lee Revell said:
-
-> There is no official user level documentation for dmix (which runs in
-> userspace anyway), because it was not intended to be configured by the
-> end user.  The current ALSA version, 1.0.9-rcX, uses dmix by default.
+On Tue, 2005-05-17 at 16:27 -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Tue, 17 May 2005 21:24:12 +0200, Karel Kulhavy said:
+> > Lee Revell wrote:
+> > 
+> > > Finally, these questions are all OT for LKML.  Try alsa-user at
+> > > lists.sf.net and alsa-devel at lists.sf.net.  Also there's a bug
+> > 
+> > ALSA is a part of Linux kernel, right? This is linux-kernel. Why
+> > is it OT here? Doesn't make sense for me.
 > 
-> It's always a pain to get OSS apps to play nice with dmix, which is why
-> the real solution is to get proper ALSA support in Skype.
+> I was hoping somebody would explain how to get 'dmix' plugin working in the
+> kernel - then I could get rid of esd ;)  (Note that running something in
+> userspace that accepts connections, runs dmix on them, and then creates one
+> thing spewing to /dev/pcm isn't a solution - I've already *got* esd, warts and all)
 
-Blech. Explains why I can't find the kernel piece for it. ;)
+I don't understand your message very well.  The dmix plugin is part of
+alsa-lib, which is part of userspace.  From the application's point of
+view, it does not matter whether the mixing happens in kernel or not.
+ALSA follows the philosophy of doing as little as possible in the
+kernel, and since mixing and volume control work fine in userspace,
+that's where they live.
 
---==_Exmh_1116362115_5349P
-Content-Type: application/pgp-signature
+Lee 
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCilWDcC3lWbTT17ARAtXTAJ9NmuN8YOJ2GjckBeyIYTc4oq3y8ACeJ13P
-psREdbcNR5S62KMXXOoTISs=
-=Ky4f
------END PGP SIGNATURE-----
-
---==_Exmh_1116362115_5349P--

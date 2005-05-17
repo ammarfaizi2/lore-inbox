@@ -1,40 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbVEQOs4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbVEQPDG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261527AbVEQOs4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 10:48:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVEQOs4
+	id S261559AbVEQPDG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 11:03:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261553AbVEQPDF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 10:48:56 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:46054 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S261553AbVEQOsy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 10:48:54 -0400
-Subject: Re: Reproducible 2.6.11.9 NFS Kernel Crashing Bug!
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.63.0505140911580.2342@localhost.localdomain>
-References: <Pine.LNX.4.63.0505140911580.2342@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1116341217.21388.145.camel@localhost.localdomain>
+	Tue, 17 May 2005 11:03:05 -0400
+Received: from 4.34.76.83.cust.bluewin.ch ([83.76.34.4]:54346 "EHLO
+	kestrel.twibright.com") by vger.kernel.org with ESMTP
+	id S261559AbVEQPC7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 11:02:59 -0400
+Date: Tue, 17 May 2005 16:59:31 +0200
+From: Karel Kulhavy <clock@twibright.com>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ALSA make menuconfig Help description missing
+Message-ID: <20050517145931.GA11564@kestrel>
+References: <20050517123549.GA2378@kestrel> <s5hfywmotdd.wl@alsa2.suse.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 17 May 2005 15:47:00 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <s5hfywmotdd.wl@alsa2.suse.de>
+X-Orientation: Gay
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sad, 2005-05-14 at 14:18, Justin Piszcz wrote:
-> The mount options I am using are:
-> rw,hard,intr,rsize=65536,wsize=65536,nfsvers=3 0 0
+On Tue, May 17, 2005 at 03:49:02PM +0200, Takashi Iwai wrote:
+> At Tue, 17 May 2005 14:35:49 +0200,
+> Karel Kulhavy wrote:
+> > 
+> > Hello
+> > 
+> > v2.6.11 make menuconfig -> Device Drivers -> Sound -> Advanced Linux
+> > Sound Architecture and
+> > 
+> > v2.6.11 make menuconfig -> Device Drivers -> Sound -> Advanced Linux
+> > Sound Architecture -> Advanced Linux Sound Architecture
+> > 
+> > are missing their help descriptions:
+> > 
+> > "There is no help available for this kernel option."
+> > 
+> > Therefore the user is unable to determine how to use this subsystem
+> > at all.
+> 
+> Something like below fixes the problem?
 
-These are rather extreme r/wsizes especially if you are using UDP - I'm
-assuming this is TCP ?
+Yes, tried, fixes ;-)
 
-> Oh, and incase one may think there is a network issue, there is not, 
-> during normal operation when I am not running dd, there are no network 
-> problems, as shown below.
+However I suggest that a pointer to user documentation for ALSA be added
+to the Help.
 
-I would certainly expect it to be a memory issue. Does it occur with
-8192 as the size ?
+For example I have a problem when I run XMMS, Skype says something like
+"can't open /dev/dsp" and don't know where to start.  The only thing I
+know is that 1) I have ALSA turned on and 2) I want to know how to make
+it accept more data streams from the programs and mix them together.
 
+CL<
+> 
+> 
+> Takashi
+> 
+> 
+> --- linux/sound/Kconfig	22 Mar 2005 10:44:59 -0000	1.9
+> +++ linux/sound/Kconfig	17 May 2005 13:47:08 -0000
+> @@ -42,6 +42,8 @@
+>  config SND
+>  	tristate "Advanced Linux Sound Architecture"
+>  	depends on SOUND
+> +	help
+> +	  Say 'Y' or 'M' to enable ALSA (Advanced Linux Sound Architecture)
+>  
+>  source "sound/core/Kconfig"
+>  

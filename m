@@ -1,60 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVEQFfj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVEQFhK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbVEQFfj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 01:35:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVEQFfi
+	id S261154AbVEQFhK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 01:37:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVEQFhJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 01:35:38 -0400
-Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:21514 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261151AbVEQFf1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 01:35:27 -0400
-To: jamie@shareable.org
-CC: linuxram@us.ibm.com, viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <20050517012854.GC32226@mail.shareable.org> (message from Jamie
-	Lokier on Tue, 17 May 2005 02:28:54 +0100)
-Subject: Re: [PATCH] namespace.c: fix bind mount from foreign namespace
-References: <1116005355.6248.372.camel@localhost> <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu> <1116012287.6248.410.camel@localhost> <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu> <1116013840.6248.429.camel@localhost> <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu> <1116256279.4154.41.camel@localhost> <20050516111408.GA21145@mail.shareable.org> <1116301843.4154.88.camel@localhost> <E1DXm08-0006XD-00@dorka.pomaz.szeredi.hu> <20050517012854.GC32226@mail.shareable.org>
-Message-Id: <E1DXuiu-0007Mj-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 17 May 2005 07:34:32 +0200
+	Tue, 17 May 2005 01:37:09 -0400
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:7809 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S261154AbVEQFhB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 01:37:01 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [RFD] What error should FS return when I/O failure occurs?
+Date: Mon, 16 May 2005 22:36:54 -0700
+Message-ID: <75D9B5F4E50C8B4BB27622BD06C2B82B2264F6@xmb-sjc-235.amer.cisco.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFD] What error should FS return when I/O failure occurs?
+Thread-Index: AcVanZSiAjaRyLPYTseJfnO1/U5eHQABCvZA
+From: "Hua Zhong \(hzhong\)" <hzhong@cisco.com>
+To: "fs" <fs@ercist.iscas.ac.cn>, <coywolf@lovecn.org>
+Cc: "linux-fsdevel" <linux-fsdevel@vger.kernel.org>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "Kenichi Okuyama" <okuyama@intellilink.co.jp>
+X-OriginalArrivalTime: 17 May 2005 05:36:55.0403 (UTC) FILETIME=[6FA233B0:01C55AA2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That's a bit smaller (source and compiled) as:
-> 
-> 	if (ns2 < ns1)
-> 		down_write(&ns2->sem);
-> 	down_write(&ns1->sem);
-> 	if (ns2 > ns1)
-> 		down_write(&ns2->sem);
-> 
-> (And you'll notice that does the right thing if ns2==ns1 too, in case
-> that gives you any ideas.)
+> What you said is based on the FS implementor's perspective.
+> But from user's perspective, they open a file with O_RDWR, get a
+> success, then write returns EROFS?
+> Besides, EXT3 ALWAYS return EROFS for the 1st and 2nd case, even
+> you specify errors=continue, things are still the same.
 
-Nice.
+Which version of kernel you are using?
 
-> Otherwise, the patch looks convincing to me.
+It was probably the case in kernel before 2.4.20. The old ext3 had a
+problem that it ignored IO error at journal commit time. I submitted a
+patch to fix that around the time of 2.4.20. 2.6 should be fine too,
+unless someone else broke it again.
 
-There's another problem with it: we don't hold a reference to
-old_nd.mnt->mnt_namespace, and the namespace going away could race
-with this function.
-
-So first obtain the necessary reference:
-
-	spin_lock(&vfsmount_lock);
-	ns2 = old_nd.mnt->mnt_namespace;
-	if (ns2)
-		get_namespace(ns2);
-	spin_unlock(&vfsmount_lock);
-
-Then take the semaphores.
-
-Then recheck old_nd.mnt->mnt_namespace, because it might have been
-detached between the spin_unlock() and the down_write(&ns2->sem).
-
-It's starting to get a bit complex, and I'm wondering if it's worth it :)
-
-Miklos
-
+Hua

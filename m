@@ -1,40 +1,251 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbVEQMjV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVEQMry@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261430AbVEQMjV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 08:39:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbVEQMjV
+	id S261363AbVEQMry (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 08:47:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVEQMry
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 08:39:21 -0400
-Received: from 4.34.76.83.cust.bluewin.ch ([83.76.34.4]:21108 "EHLO
-	kestrel.twibright.com") by vger.kernel.org with ESMTP
-	id S261430AbVEQMjS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 08:39:18 -0400
-Date: Tue, 17 May 2005 14:35:49 +0200
-From: Karel Kulhavy <clock@twibright.com>
-To: linux-kernel@vger.kernel.org
-Subject: ALSA make menuconfig Help description missing
-Message-ID: <20050517123549.GA2378@kestrel>
+	Tue, 17 May 2005 08:47:54 -0400
+Received: from public.id2-vpn.continvity.gns.novell.com ([195.33.99.129]:27521
+	"EHLO emea1-mh.id2.novell.com") by vger.kernel.org with ESMTP
+	id S261363AbVEQMrR convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 08:47:17 -0400
+Message-Id: <s289f5e1.002@emea1-mh.id2.novell.com>
+X-Mailer: Novell GroupWise Internet Agent 6.5.4 
+Date: Tue, 17 May 2005 14:47:17 +0200
+From: "Jan Beulich" <JBeulich@novell.com>
+To: <akpm@osdl.org>
+Cc: <sam@ravnborg.org>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix file2alias for cross builds
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-X-Orientation: Gay
-User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+Could you point out what compiler version you saw this with? Assuming you did a native build, I tried (for HOSTCC) gcc 3.3.3, 3.4.3, and 4.0.0, none of which caused the problems you saw. Thanks, Jan
 
-v2.6.11 make menuconfig -> Device Drivers -> Sound -> Advanced Linux
-Sound Architecture and
+>>> Andrew Morton <akpm@osdl.org> 16.05.05 09:37:13 >>>
+"Jan Beulich" <JBeulich@novell.com> wrote:
+>
+> When doing cross builds for 64-bit targets on 32-bit platforms, 64-bit
+>  types may not have the same alignment on build and target platforms,
+>  causing problems when parsing the ieee1394_device_id structures. This
+>  adds explicit alignment to the 64-bit type used in file2alias.
+> 
+>  Signed-off-by: Jan Beulich <jbeulich@novell.com>
+> 
+>  diff -Npru linux-2.6.12-rc4.base/scripts/mod/file2alias.c linux-2.6.12-rc4/scripts/mod/file2alias.c
+>  --- linux-2.6.12-rc4.base/scripts/mod/file2alias.c	2005-05-11 17:28:26.866988056 +0200
+>  +++ linux-2.6.12-rc4/scripts/mod/file2alias.c	2005-05-11 17:50:36.316880952 +0200
+>  @@ -17,7 +17,8 @@
+>   #if KERNEL_ELFCLASS == ELFCLASS32
+>   typedef Elf32_Addr	kernel_ulong_t;
+>   #else
+>  -typedef Elf64_Addr	kernel_ulong_t;
+>  +/* This can't be a typedef as otherwise the attribute gets ignored. */
+>  +#define kernel_ulong_t __attribute__((__aligned__(8))) Elf64_Addr
+>   #endif
+>   #ifdef __sun__
+>   #include <inttypes.h>
 
-v2.6.11 make menuconfig -> Device Drivers -> Sound -> Advanced Linux
-Sound Architecture -> Advanced Linux Sound Architecture
+It breaks ia64:
 
-are missing their help descriptions:
+In file included from scripts/mod/file2alias.c:36:
+include/linux/mod_devicetable.h:21: parse error before `__attribute__'
+include/linux/mod_devicetable.h:21: warning: no semicolon at end of struct or union
+include/linux/mod_devicetable.h:36: parse error before `__attribute__'
+include/linux/mod_devicetable.h:36: warning: no semicolon at end of struct or union
+include/linux/mod_devicetable.h:118: parse error before `__attribute__'
+include/linux/mod_devicetable.h:118: warning: no semicolon at end of struct or union
+include/linux/mod_devicetable.h:142: parse error before `__attribute__'
+include/linux/mod_devicetable.h:142: warning: no semicolon at end of struct or union
+include/linux/mod_devicetable.h:156: parse error before `__attribute__'
+include/linux/mod_devicetable.h:156: warning: no semicolon at end of struct or union
+include/linux/mod_devicetable.h:161: parse error before `__attribute__'
+include/linux/mod_devicetable.h:161: warning: no semicolon at end of struct or union
+include/linux/mod_devicetable.h:165: parse error before `}'
+scripts/mod/file2alias.c: In function `do_usb_entry':
+scripts/mod/file2alias.c:60: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:60: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:60: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:60: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:60: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:62: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:62: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:62: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:62: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:62: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:73: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:76: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:76: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:76: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:76: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:76: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:78: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:78: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:78: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:78: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:78: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:81: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:81: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:81: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:81: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:81: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:84: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:84: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:84: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:84: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:84: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:87: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:87: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:87: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:87: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:87: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:90: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:90: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:90: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:90: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:90: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c: In function `do_usb_entry_multi':
+scripts/mod/file2alias.c:107: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:107: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:108: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:108: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:109: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:109: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:111: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:112: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:113: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:114: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:120: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:120: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:120: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:124: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c: In function `do_usb_table':
+scripts/mod/file2alias.c:149: sizeof applied to an incomplete type
+scripts/mod/file2alias.c: In function `do_ieee1394_entry':
+scripts/mod/file2alias.c:166: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:166: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:167: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:167: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:168: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:168: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:169: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:169: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:170: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:170: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:173: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:173: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:173: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:173: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:173: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:175: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:175: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:175: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:175: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:175: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:177: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:177: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:177: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:177: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:177: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:179: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:179: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:179: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:179: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:179: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c: In function `do_pci_entry':
+scripts/mod/file2alias.c:193: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:193: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:194: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:194: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:195: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:195: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:196: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:196: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:197: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:197: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:198: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:198: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:201: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:201: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:201: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:201: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:201: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:202: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:202: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:202: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:202: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:202: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:203: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:203: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:203: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:203: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:203: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:204: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:204: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:204: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:204: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:204: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:206: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:207: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:208: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:209: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:210: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:211: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:218: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:190: warning: `baseclass' might be used uninitialized in this function
+scripts/mod/file2alias.c:190: warning: `subclass' might be used uninitialized in this function
+scripts/mod/file2alias.c:190: warning: `interface' might be used uninitialized in this function
+scripts/mod/file2alias.c:191: warning: `baseclass_mask' might be used uninitialized in this function
+scripts/mod/file2alias.c:191: warning: `subclass_mask' might be used uninitialized in this function
+scripts/mod/file2alias.c:191: warning: `interface_mask' might be used uninitialized in this function
+scripts/mod/file2alias.c: In function `do_ccw_entry':
+scripts/mod/file2alias.c:232: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:232: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:233: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:233: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:234: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:234: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:235: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:235: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:236: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:236: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:239: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:239: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:239: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:239: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:239: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:241: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:241: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:241: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:241: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:241: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:243: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:243: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:243: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:243: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:243: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:245: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:245: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:245: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:245: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:245: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c: In function `do_pnp_entry':
+scripts/mod/file2alias.c:272: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c: In function `do_pnp_card_entry':
+scripts/mod/file2alias.c:282: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:284: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c:286: dereferencing pointer to incomplete type
+scripts/mod/file2alias.c: In function `handle_moddevtable':
+scripts/mod/file2alias.c:346: sizeof applied to an incomplete type
+scripts/mod/file2alias.c:352: sizeof applied to an incomplete type
+scripts/mod/file2alias.c:355: sizeof applied to an incomplete type
+scripts/mod/file2alias.c:361: sizeof applied to an incomplete type
+scripts/mod/file2alias.c:364: sizeof applied to an incomplete type
+make[2]: *** [scripts/mod/file2alias.o] Error 1
+make[1]: *** [scripts/mod] Error 2
+make: *** [scripts] Error 2
 
-"There is no help available for this kernel option."
-
-Therefore the user is unable to determine how to use this subsystem
-at all.
-
-CL<

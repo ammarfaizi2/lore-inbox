@@ -1,86 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVEQSS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbVEQScw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261271AbVEQSS1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 14:18:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVEQSS1
+	id S261889AbVEQScw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 14:32:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVEQScw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 14:18:27 -0400
-Received: from serv01.siteground.net ([70.85.91.68]:19350 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S261271AbVEQSSN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 14:18:13 -0400
-Date: Tue, 17 May 2005 10:19:58 -0700 (PDT)
-From: christoph <christoph@scalex86.org>
-X-X-Sender: christoph@ScMPusgw
-cc: akpm@osdl.org, Andy Whitcroft <apw@shadowen.org>, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org, shai@scalex86.org
-Subject: Re: [PATCH] Factor in buddy allocator alignment requirements in node
- memory alignment
-In-Reply-To: <E1DY18K-0002dJ-KM@pinky.shadowen.org>
-Message-ID: <Pine.LNX.4.62.0505171018560.2872@ScMPusgw>
-References: <E1DY18K-0002dJ-KM@pinky.shadowen.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-To: unlisted-recipients:; (no To-header on input)
+	Tue, 17 May 2005 14:32:52 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:7083 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261889AbVEQScn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 14:32:43 -0400
+Subject: Re: software mixing in alsa
+From: Lee Revell <rlrevell@joe-job.com>
+To: Karel Kulhavy <clock@twibright.com>
+Cc: Jan Spitalnik <jan@spitalnik.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050517141307.GA7759@kestrel>
+References: <20050517095613.GA9947@kestrel>
+	 <200505171208.04052.jan@spitalnik.net>  <20050517141307.GA7759@kestrel>
+Content-Type: text/plain; charset=iso-8859-2
+Date: Tue, 17 May 2005 14:32:41 -0400
+Message-Id: <1116354762.31830.12.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 May 2005, Andy Whitcroft wrote:
+On Tue, 2005-05-17 at 16:13 +0200, Karel Kulhavy wrote:
+> On Tue, May 17, 2005 at 12:08:03PM +0200, Jan Spitalnik wrote:
+> > Dne út 17. kvìtna 2005 11:56 Karel Kulhavy napsal(a):
+> > > Hello
+> > >
+> > > http://www.math.tu-berlin.de/~sbartels/alsa/driver/driver.html says
+> > > "For example, there is currently ongoing work to allow mixing multiple
+> > > inputs to the pcm devices."
+> > >
+> > 
+> > Hi,
+> > 
+> > yes, ALSA can mix multiple inputs with its dmix plugin.
+> > http://alsa.opensrc.org/index.php?page=DmixPlugin
+> 
+> Thanks for your reply.  I have proceeded according to this "Dmix Howto",
+> however it doesn't work. I have proceeded successfully up to the command
+> "aoss mpg123 some.mp3". When I run this, mp3 is played very fast, in
+> about 1-2 seconds (normal pitch, but skipping very fast forward).
+> 
+> mpg123 Version 0.59s-r9 (2000/Oct/27)
+> aoss doesn't have --version option
+> alsaplayer 0.99.76
+> 
+> The document doesn't contain any contact where to send bugreports that
+> the course described actually doesn't work.
+> 
+> Any other idea how to make Skype & XMMS run at the same time on Linux?
 
-> Andrew, please consider this patch for -mm.
+Yes, get the Skype developers to add proper ALSA support.  If Doom 3
+could do it, so can they.
 
-I agree. Forget about my patch and include this one.
+mpg123 is an open source application so there's no excuse for it not to
+support ALSA in 2005.
 
-> Originally __free_pages_bulk used the relative page number within
-> a zone to define its buddies.  This meant that to maintain the
-> "maximally aligned" requirements (that an allocation of size N will
-> be aligned at least to N physically) zones had to also be aligned to
-> 1<<MAX_ORDER pages.  When __free_pages_bulk was updated to use the
-> relative page frame numbers of the free'd pages to pair buddies this
-> released the alignment constraint on the 'left' edge of the zone.
-> This allows _either_ edge of the zone to contain partial MAX_ORDER
-> sized buddies.  These simply never will have matching buddies and
-> thus will never make it to the 'top' of the pyramid.
-> 
-> The patch below removes a now redundant check ensuring that the
-> mem_map was aligned to MAX_ORDER.
-> 
-> Signed-off-by: Andy Whitcroft <apw@shadowen.org>
-> 
-> diffstat free_area_init_core-remove-bogus-warning
-> ---
->  page_alloc.c |    4 ----
->  1 files changed, 4 deletions(-)
-> 
-> diff -X /home/apw/brief/lib/vdiff.excl -rupN reference/mm/page_alloc.c current/mm/page_alloc.c
-> --- reference/mm/page_alloc.c
-> +++ current/mm/page_alloc.c
-> @@ -1942,7 +1942,6 @@ static void __init free_area_init_core(s
->  		unsigned long *zones_size, unsigned long *zholes_size)
->  {
->  	unsigned long i, j;
-> -	const unsigned long zone_required_alignment = 1UL << (MAX_ORDER-1);
->  	int cpu, nid = pgdat->node_id;
->  	unsigned long zone_start_pfn = pgdat->node_start_pfn;
->  
-> @@ -2033,9 +2032,6 @@ static void __init free_area_init_core(s
->  		zone->zone_mem_map = pfn_to_page(zone_start_pfn);
->  		zone->zone_start_pfn = zone_start_pfn;
->  
-> -		if ((zone_start_pfn) & (zone_required_alignment-1))
-> -			printk(KERN_CRIT "BUG: wrong zone alignment, it will crash\n");
-> -
->  		memmap_init(size, nid, j, zone_start_pfn);
->  
->  		zonetable_add(zone, nid, j, zone_start_pfn, size);
-> 
-> 
-> 
+Finally, these questions are all OT for LKML.  Try alsa-user at
+lists.sf.net and alsa-devel at lists.sf.net.  Also there's a bug
+reporting system, linked from http://www.alsa-project.org.
+
+Lee
+

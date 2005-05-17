@@ -1,56 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbVEQQpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVEQQtM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261812AbVEQQpo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 12:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261807AbVEQQpo
+	id S261795AbVEQQtM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 12:49:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261816AbVEQQtL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 12:45:44 -0400
-Received: from solarneutrino.net ([66.199.224.43]:53770 "EHLO
-	tau.solarneutrino.net") by vger.kernel.org with ESMTP
-	id S261812AbVEQQph (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 12:45:37 -0400
-Date: Tue, 17 May 2005 12:45:27 -0400
-To: Dave Airlie <airlied@linux.ie>
-Cc: Andreas Stenglein <a.stenglein@gmx.net>, khaqq <khaqq@free.fr>,
-       dri-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: DRI lockup on R200, 2.6.11.7
-Message-ID: <20050517164527.GA23375@tau.solarneutrino.net>
-References: <20050426202916.GA2635@xarello> <21d7e99705042801227ed5438e@mail.gmail.com> <20050511162159.GA19046@tau.solarneutrino.net> <20050514105051.GC8956@buche.local> <20050514165705.GA20921@tau.solarneutrino.net> <20050514210047.2fff483f.khaqq@free.fr> <20050514191707.GB20921@tau.solarneutrino.net> <20050515115239.GA5773@buche.local> <Pine.LNX.4.58.0505151136310.24826@skynet>
+	Tue, 17 May 2005 12:49:11 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:62931 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261795AbVEQQtD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 12:49:03 -0400
+Date: Tue, 17 May 2005 17:49:22 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Christoph Hellwig <hch@infradead.org>,
+       Michael Halcrow <mhalcrow@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Chris Wright <chrisw@osdl.org>,
+       Serge Hallyn <serue@us.ibm.com>
+Subject: Re: [patch 2/7] BSD Secure Levels: move bd claim from inode to filp
+Message-ID: <20050517164922.GA29811@parcelfarce.linux.theplanet.co.uk>
+References: <20050517152303.GA2814@halcrow.us> <20050517152545.GA2944@halcrow.us> <20050517160900.GB32436@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0505151136310.24826@skynet>
-User-Agent: Mutt/1.5.9i
-From: Ryan Richter <ryan@tau.solarneutrino.net>
+In-Reply-To: <20050517160900.GB32436@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-So I just got around to testing this today.  Using NO_TCL locks the
-machine immediately:
+On Tue, May 17, 2005 at 05:09:00PM +0100, Christoph Hellwig wrote:
+> On Tue, May 17, 2005 at 10:25:46AM -0500, Michael Halcrow wrote:
+> > +/**
+> > + * Claim the blockdev to exclude mounters; release on file close.
+> > + */
+> > +static int seclvl_bd_claim(struct file *filp)
+> >  {
+> > -	int holder;
+> >  	struct block_device *bdev = NULL;
+> > -	dev_t dev = inode->i_rdev;
+> > +	dev_t dev = filp->f_dentry->d_inode->i_rdev;
+> >  	bdev = open_by_devnum(dev, FMODE_WRITE);
+> >  	if (bdev) {
+> > -		if (bd_claim(bdev, &holder)) {
+> > +		if (bd_claim(bdev, filp)) {
+> >  			blkdev_put(bdev);
+> >  			return -EPERM;
+> >  		}
+> > -		/* claimed, mark it to release on close */
+> > -		inode->i_security = current;
+> > +		/* Claimed; mark it to release on close */
+> > +		filp->f_security = filp;
+> >  	}
+> >  	return 0;
+> 
+> While we're at it this code is crap before and after your patch.  There's absolutely
+> no point at all to use open_by_devnum if you already have an inode or file that you
+> can get the struct block_device from easily.
 
-[drm:drm_lock_take] *ERROR* 4 holds heavyweight lock
+It's worse than you think.  No, they do *not* necessary have block_device
+there.  Guess what happens if some clown calls e.g. utime("/dev/sda", NULL)?
+That's right, we go checking if we have write permissions on the file in
+question.  Which happens to be block device node.  Which triggers a call
+of that junk.  At which point we
+	a) have caused open() on that device node, even though caller did
+not ask for that and actually had not planned to do anything with actual
+device.
+	b) have caused all subsequent permission() for MAY_WRITE fail for
+that sucker [*] until somebody opens and closes device in question (for
+read, obviously).
+	c) seclvl_bd_release() expects, for some reason, to be called when
+task that had called seclvl_bd_claim() to be still alive.  Use of current
+in setting/checking ->i_security is a bad joke.
+	d) cargo-cult programming: ->f_dentry and ->f_dentry->d_inode are
+*not* NULL, TYVM.
 
-X isn't spinning the CPU, but the overall effect is the same.  When I
-move the mouse it's doing:
+While we are at it...  Guys, you do realize that registering an object
+and then deciding to bail out of module_init requires unregistering it?
 
-ioctl(5, 0x4008642a, 0x7ffffffff448)    = ? ERESTARTSYS (To be restarted)
---- SIGIO (I/O possible) @ 0 (0) ---
-select(7, [5 6], NULL, NULL, {0, 0})    = 1 (in [6], left {0, 0})
-rt_sigprocmask(SIG_BLOCK, [IO], [IO], 8) = 0
-read(6, "\10\3\4\0", 64)                = 4
-rt_sigprocmask(SIG_BLOCK, [], [IO], 8)  = 0
-select(1024, [6], NULL, NULL, {0, 0})   = 0 (Timeout)
-rt_sigreturn(0x1)                       = -1 EINTR (Interrupted system call)
-ioctl(5, 0x4008642a, 0x7ffffffff448)    = ? ERESTARTSYS (To be restarted)
-
-
-Also, I tried to kill X using a sysrq-k and got:
-
-SysRq : SAK
-Badness in set_palette at drivers/char/vt.c:2918
-
-Call Trace:<ffffffff8022391c>{set_palette+60} <ffffffff802244db>{__handle_sysrq+107} 
-       <ffffffff80195bd5>{write_sysrq_trigger+53} <ffffffff80166510>{vfs_write+192} 
-       <ffffffff80166663>{sys_write+83} <ffffffff8010d13a>{system_call+126} 
-
--ryan
+[*] that is, unless they happen to get the same address of local variable
+when calling this Fine Piece Of Software - nice misuse of bd_claim() that
+should've warned that something is not right here.  As it is, just call
+utime() several times in row and you've won a cookie - device that had been
+opened that many times and will *never* get closed.

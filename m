@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVEQNPW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbVEQNQq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbVEQNPW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 09:15:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbVEQNPV
+	id S261498AbVEQNQq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 09:16:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVEQNQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 09:15:21 -0400
-Received: from one.firstfloor.org ([213.235.205.2]:19843 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261492AbVEQNPJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 09:15:09 -0400
-To: "Cabaniols, Sebastien" <sebastien.cabaniols@hp.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: What is needed to boot 2.6 on opteron dual core
-References: <213219CA6232F94E989A9A5354135D2F0936FE@frqexc04.emea.cpqcorp.net>
-From: Andi Kleen <ak@muc.de>
-Date: Tue, 17 May 2005 15:15:06 +0200
-In-Reply-To: <213219CA6232F94E989A9A5354135D2F0936FE@frqexc04.emea.cpqcorp.net> (Sebastien
- Cabaniols's message of "Tue, 17 May 2005 13:48:13 +0200")
-Message-ID: <m1br7a804l.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Tue, 17 May 2005 09:16:46 -0400
+Received: from mail.tmr.com ([64.65.253.246]:6415 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S261498AbVEQNQi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 09:16:38 -0400
+Date: Tue, 17 May 2005 09:15:52 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Matthias Andree <matthias.andree@gmx.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Disk write cache (Was: Hyper-Threading Vulnerability)
+In-Reply-To: <1116255270.21358.43.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.3.96.1050517090828.5118A-100000@gatekeeper.tmr.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Cabaniols, Sebastien" <sebastien.cabaniols@hp.com> writes:
+On Mon, 16 May 2005, Alan Cox wrote:
 
-> Hello lkml,
->
-> I am trying to boot a dual core Opteron box with linux 2.6 and it is
-> crashing very early (swapper process dies, backtrace shows SMP_boot....
-> Stuff) and I was wondering what patches are needed to boot a 2.6 kernel
-> on a dual core machine.
+> > flashes its cache to NVRAM, or uses rotational energy to save its cache
+> > on the platters, please name brand and model and where I can download
+> > the material that documents this behavior.
+> 
+> I am not aware of any IDE drive with these properties.
 
-It should work with most kernels. Just the level of tuning
-during runtime varies (with more tuning the newer the kernel) 
-Certainly does for me at least on the AMD reference motherboards/BIOS.
+I'm not sure I know of a SCSI drive which does that, either. It was a big
+thing a few decades to use rotational energy to park the heads, but I
+haven't seen discussion of save to nvram. Then again, I haven't been
+looking for it.
 
-Can you connect a serial console and boot with
-earlyprintk=serial,ttyS0,baudrate and post the full crash log?
-Please test in advance from a booting kernel if the serial cable etc. really 
-work.
+What would be ideal is some cache which didn't depend on power to maintain
+state, like core (remember core?) or the bubble memory which spent almost
+a decade being just slightly too {slow,costly} to replace disk. There
+doesn't seem to be a cost effective technology yet.
 
--Andi
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

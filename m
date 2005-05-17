@@ -1,190 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261986AbVEQWBk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbVEQWEr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261986AbVEQWBk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 18:01:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbVEQWAg
+	id S262006AbVEQWEr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 18:04:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbVEQWC5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 18:00:36 -0400
-Received: from mail.kroah.org ([69.55.234.183]:156 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262002AbVEQVo6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 17:44:58 -0400
-Cc: dlsy@snoqualmie.dp.intel.com
-Subject: [PATCH] PCI Hotplug: Fix echoing 1 to power file of enabled slot problem with SHPC driver
-In-Reply-To: <20050517214413.GA28629@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Tue, 17 May 2005 14:45:05 -0700
-Message-Id: <11163663054163@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+	Tue, 17 May 2005 18:02:57 -0400
+Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:1920 "EHLO
+	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
+	id S261953AbVEQVqK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 17:46:10 -0400
+Message-ID: <428A661C.1030100@ammasso.com>
+Date: Tue, 17 May 2005 16:46:04 -0500
+From: Timur Tabi <timur.tabi@ammasso.com>
+Reply-To: linux-kernel@vger.kernel.org
+Organization: Ammasso
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en, en-gb
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: sparse error: unable to open 'stdarg.h'
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] PCI Hotplug: Fix echoing 1 to power file of enabled slot problem with SHPC driver
+I'm trying to run sparse on my external module, but sparse complains about not being able 
+to find stdarg.h.  I know this bug was supposed to have been fixed back in January, but 
+I'm using the latest code, so I can't explain what's wrong.  I've tried this on a couple 
+different 2.6 kernels.
 
-Here is a patch to fix the problem of echoing 1 to "power" file
-to enabled slot causing the slot to power down, and echoing 0
-to disabled slot causing shpchp_disabled_slot() to be called
-twice. This problem was reported by kenji Kaneshige.
+Here's the output I get:
 
-Thanks,
-Dely
+make -C /lib/modules/2.6.8-24-smp/source 
+SUBDIRS=/root/AMSO1100/software/host/linux/sys/devccil  C=1 V=2
+make[2]: Entering directory `/usr/src/linux-2.6.8-24'
+   CHECK   /root/AMSO1100/software/host/linux/sys/devccil/devnet.c
+include/linux/kernel.h:10:11: error: unable to open 'stdarg.h'
+make[3]: *** [/root/AMSO1100/software/host/linux/sys/devccil/devnet.o] Error 1
+make[2]: *** [_module_/root/AMSO1100/software/host/linux/sys/devccil] Error 2
+make[2]: Leaving directory `/usr/src/linux-2.6.8-24'
+make[1]: *** [all] Error 2
+make[1]: Leaving directory `/root/AMSO1100/software/host/linux/sys/devccil'
+make: *** [build] Error 2
 
-Signed-off-by: Dely Sy <dely.l.sy@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+-- 
+Timur Tabi
+Staff Software Engineer
+timur.tabi@ammasso.com
 
----
-commit ee17fd93a5892c162b0a02d58cdfdb9c50cf8467
-tree d218eab66a47e883ddf84f5c30e9060cd99394ec
-parent ff0d2f90fdc4b564d47a7c26b16de81a16cfa28e
-author Dely Sy <dlsy@snoqualmie.dp.intel.com> Thu, 05 May 2005 11:57:25 -0700
-committer Greg KH <gregkh@suse.de> Tue, 17 May 2005 14:31:10 -0700
-
- drivers/pci/hotplug/shpchp_core.c |    2 +-
- drivers/pci/hotplug/shpchp_ctrl.c |   30 +++++++++++++++---------------
- 2 files changed, 16 insertions(+), 16 deletions(-)
-
-Index: drivers/pci/hotplug/shpchp_core.c
-===================================================================
---- 6bb5a1cf91bbda8308ec7e6d900cb89071907dcd/drivers/pci/hotplug/shpchp_core.c  (mode:100644)
-+++ d218eab66a47e883ddf84f5c30e9060cd99394ec/drivers/pci/hotplug/shpchp_core.c  (mode:100644)
-@@ -95,7 +95,7 @@
-  */
- static void release_slot(struct hotplug_slot *hotplug_slot)
- {
--	struct slot *slot = (struct slot *)hotplug_slot->private;
-+	struct slot *slot = hotplug_slot->private;
- 
- 	dbg("%s - physical_slot = %s\n", __FUNCTION__, hotplug_slot->name);
- 
-Index: drivers/pci/hotplug/shpchp_ctrl.c
-===================================================================
---- 6bb5a1cf91bbda8308ec7e6d900cb89071907dcd/drivers/pci/hotplug/shpchp_ctrl.c  (mode:100644)
-+++ d218eab66a47e883ddf84f5c30e9060cd99394ec/drivers/pci/hotplug/shpchp_ctrl.c  (mode:100644)
-@@ -1885,7 +1885,7 @@
- 	func = shpchp_slot_find(p_slot->bus, p_slot->device, 0);
- 	if (!func) {
- 		dbg("%s: Error! slot NULL\n", __FUNCTION__);
--		return 1;
-+		return -ENODEV;
- 	}
- 
- 	/* Check to see if (latch closed, card present, power off) */
-@@ -1894,19 +1894,19 @@
- 	if (rc || !getstatus) {
- 		info("%s: no adapter on slot(%x)\n", __FUNCTION__, p_slot->number);
- 		up(&p_slot->ctrl->crit_sect);
--		return 1;
-+		return -ENODEV;
- 	}
- 	rc = p_slot->hpc_ops->get_latch_status(p_slot, &getstatus);
- 	if (rc || getstatus) {
- 		info("%s: latch open on slot(%x)\n", __FUNCTION__, p_slot->number);
- 		up(&p_slot->ctrl->crit_sect);
--		return 1;
-+		return -ENODEV;
- 	}
- 	rc = p_slot->hpc_ops->get_power_status(p_slot, &getstatus);
- 	if (rc || getstatus) {
- 		info("%s: already enabled on slot(%x)\n", __FUNCTION__, p_slot->number);
- 		up(&p_slot->ctrl->crit_sect);
--		return 1;
-+		return -ENODEV;
- 	}
- 	up(&p_slot->ctrl->crit_sect);
- 
-@@ -1914,7 +1914,7 @@
- 
- 	func = shpchp_slot_create(p_slot->bus);
- 	if (func == NULL)
--		return 1;
-+		return -ENOMEM;
- 
- 	func->bus = p_slot->bus;
- 	func->device = p_slot->device;
-@@ -1939,7 +1939,7 @@
- 		/* Setup slot structure with entry for empty slot */
- 		func = shpchp_slot_create(p_slot->bus);
- 		if (func == NULL)
--			return (1);	/* Out of memory */
-+			return -ENOMEM;	/* Out of memory */
- 
- 		func->bus = p_slot->bus;
- 		func->device = p_slot->device;
-@@ -1972,7 +1972,7 @@
- 	struct pci_func *func;
- 
- 	if (!p_slot->ctrl)
--		return 1;
-+		return -ENODEV;
- 
- 	pci_bus = p_slot->ctrl->pci_dev->subordinate;
- 
-@@ -1983,19 +1983,19 @@
- 	if (ret || !getstatus) {
- 		info("%s: no adapter on slot(%x)\n", __FUNCTION__, p_slot->number);
- 		up(&p_slot->ctrl->crit_sect);
--		return 1;
-+		return -ENODEV;
- 	}
- 	ret = p_slot->hpc_ops->get_latch_status(p_slot, &getstatus);
- 	if (ret || getstatus) {
- 		info("%s: latch open on slot(%x)\n", __FUNCTION__, p_slot->number);
- 		up(&p_slot->ctrl->crit_sect);
--		return 1;
-+		return -ENODEV;
- 	}
- 	ret = p_slot->hpc_ops->get_power_status(p_slot, &getstatus);
- 	if (ret || !getstatus) {
- 		info("%s: already disabled slot(%x)\n", __FUNCTION__, p_slot->number);
- 		up(&p_slot->ctrl->crit_sect);
--		return 1;
-+		return -ENODEV;
- 	}
- 	up(&p_slot->ctrl->crit_sect);
- 
-@@ -2011,7 +2011,7 @@
- 		/* Check the Class Code */
- 		rc = pci_bus_read_config_byte (pci_bus, devfn, 0x0B, &class_code);
- 		if (rc)
--			return rc;
-+			return -ENODEV;
- 
- 		if (class_code == PCI_BASE_CLASS_DISPLAY) {
- 			/* Display/Video adapter (not supported) */
-@@ -2020,13 +2020,13 @@
- 			/* See if it's a bridge */
- 			rc = pci_bus_read_config_byte (pci_bus, devfn, PCI_HEADER_TYPE, &header_type);
- 			if (rc)
--				return rc;
-+				return -ENODEV;
- 
- 			/* If it's a bridge, check the VGA Enable bit */
- 			if ((header_type & 0x7F) == PCI_HEADER_TYPE_BRIDGE) {
- 				rc = pci_bus_read_config_byte (pci_bus, devfn, PCI_BRIDGE_CONTROL, &BCR);
- 				if (rc)
--					return rc;
-+					return -ENODEV;
- 
- 				/* If the VGA Enable bit is set, remove isn't supported */
- 				if (BCR & PCI_BRIDGE_CTL_VGA) {
-@@ -2042,12 +2042,12 @@
- 	if ((func != NULL) && !rc) {
- 		rc = remove_board(func, p_slot->ctrl);
- 	} else if (!rc)
--		rc = 1;
-+		rc = -ENODEV;
- 
- 	if (p_slot)
- 		update_slot_info(p_slot);
- 
--	return(rc);
-+	return rc;
- }
- 
- 
-
+One thing a Southern boy will never say is,
+"I don't think duct tape will fix it."
+      -- Ed Smylie, NASA engineer for Apollo 13

@@ -1,48 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261946AbVEQVRQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261956AbVEQVWR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261946AbVEQVRQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 17:17:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbVEQVRQ
+	id S261956AbVEQVWR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 17:22:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbVEQVWR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 17:17:16 -0400
-Received: from ojjektum.uhulinux.hu ([62.112.194.64]:11486 "EHLO
-	ojjektum.uhulinux.hu") by vger.kernel.org with ESMTP
-	id S261946AbVEQVRL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 17:17:11 -0400
-Date: Tue, 17 May 2005 23:17:04 +0200
-From: =?iso-8859-1?Q?Pozs=E1r_Bal=E1zs?= <pozsy@uhulinux.hu>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Cc: Bartlomiej Zolnierkiewicz <bzolnier@elka.pw.edu.pl>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Oops on CF removal and "convert device drivers to driver-model"
-Message-ID: <20050517211704.GB7452@ojjektum.uhulinux.hu>
-References: <20050514135019.0b3252f1.zaitcev@redhat.com>
+	Tue, 17 May 2005 17:22:17 -0400
+Received: from fire.osdl.org ([65.172.181.4]:7078 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261956AbVEQVV4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 17:21:56 -0400
+Date: Tue, 17 May 2005 14:21:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: git@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: Re: [PATCH] uml: remove elf.h
+Message-Id: <20050517142113.59097a3d.akpm@osdl.org>
+In-Reply-To: <200505171704.j4HH4Ne8002532@hera.kernel.org>
+References: <200505171704.j4HH4Ne8002532@hera.kernel.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050514135019.0b3252f1.zaitcev@redhat.com>
-User-Agent: Mutt/1.5.7i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 14, 2005 at 01:50:19PM -0700, Pete Zaitcev wrote:
-> @@ -1138,7 +1133,8 @@ static int idescsi_attach(ide_drive_t *d
->  	idescsi->host = host;
->  	idescsi->disk = g;
->  	g->private_data = &idescsi->driver;
-> -	err = ide_register_subdriver(drive, &idescsi_driver);
-> +	ide_register_subdriver(drive, &idescsi_driver);
-> +	err = 0;
->  	if (!err) {
->  		idescsi_setup (drive, idescsi);
->  		g->fops = &idescsi_ops;
+Linux Kernel Mailing List <linux-kernel@vger.kernel.org> wrote:
+>
+> tree a3d85d9f43f64bbd8437c973caf98f79d95b5f3e
+> parent a123edab03ac39e08c2f9cb4fc1af07e099c68bc
+> author Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it> Tue, 17 May 2005 11:53:14 -0700
+> committer Linus Torvalds <torvalds@ppc970.osdl.org> Tue, 17 May 2005 21:59:11 -0700
+> 
+> [PATCH] uml: remove elf.h
+> 
+> Actually remove elf.h in the tree.  The previous patch, due to a quilt
+> bug/misuse, left it in the tree as a 0-length file, preventing the build to
+> see it as missing and to generate a symlink in its place.
+> 
+> Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> 
+>  asm-um/elf.h |    0 
+>  1 files changed
+> 
+> Index: include/asm-um/elf.h
 
+Hot damn, this zero-length file is hard to get rid of.  I pulled Linus's
+tree this morning with this bizarre concoction:
 
-!err cannot be true here, so this seems buggy.
+	cd $GIT_TREE
+	cg-pull origin
+	tagsha1=$(cat .git/refs/tags/v$(kversion))
+	t=$(cat-file tag $tagsha1 | head -n 1 | sed -e 's/object //')
+	cg-diff -r $t -r $(cat .git/refs/heads/origin) > $PULL/linus.patch
 
+and the resulting diff has:
 
+Index: include/asm-ia64/ioctl32.h
+===================================================================
+--- eed337ef5e9ae7d62caa84b7974a11fddc7f06e0/include/asm-ia64/ioctl32.h  (mode:100644 sha1:d0d227f45e05d23705ac849f4bd5c06a28288b58)
++++ 6bb5a1cf91bbda8308ec7e6d900cb89071907dcd/include/asm-ia64/ioctl32.h  (mode:100644 sha1:e69de29bb2d1d6434b8b29ae775ad8c2e48c5391)
+@@ -1 +0,0 @@
+-#include <linux/ioctl32.h>
+Index: include/asm-um/elf.h
+===================================================================
+Index: include/asm-x86_64/apicdef.h
+===================================================================
 
+which of course doesn't remove that file at all.
 
--- 
-pozsy
+And I bet that when Linus releases patch-2.6.12-rc5.gz and patch-2.6.12.gz,
+they will have the same construct.  AFAICT, the patch-based people will
+need to download a full new tarball to get rid of this dang file.
 
+It all wouldn't really matter much, except apparently the mere presence of
+this file breaks the UML build.
+
+Frazzle.  Paolo, I'm almost wondering if we should change that test to also
+check for a zero-length file.

@@ -1,60 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbVEQPkt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbVEQPnh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261742AbVEQPkt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 11:40:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261730AbVEQPkt
+	id S261730AbVEQPnh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 11:43:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVEQPng
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 11:40:49 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:47853 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261742AbVEQPjr convert rfc822-to-8bit (ORCPT
+	Tue, 17 May 2005 11:43:36 -0400
+Received: from graphe.net ([209.204.138.32]:8457 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261730AbVEQPn1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 11:39:47 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 17 May 2005 11:43:27 -0400
+Date: Tue, 17 May 2005 08:43:17 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Joe Korty <joe.korty@ccur.com>
+cc: Linus Torvalds <torvalds@osdl.org>, randy_dunlap <rdunlap@xenotime.net>,
+       akpm@osdl.org, linux-kernel@vger.kernel.org, shai@scalex86.org,
+       ak@suse.de
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt.
+In-Reply-To: <20050517134434.GA26822@tsunami.ccur.com>
+Message-ID: <Pine.LNX.4.62.0505170842590.8002@graphe.net>
+References: <Pine.LNX.4.62.0505161243580.13692@ScMPusgw>
+ <20050516150907.6fde04d3.akpm@osdl.org> <Pine.LNX.4.62.0505161934220.25315@graphe.net>
+ <20050516194651.1debabfd.rdunlap@xenotime.net> <Pine.LNX.4.62.0505161954470.25647@graphe.net>
+ <Pine.LNX.4.58.0505162029240.18337@ppc970.osdl.org>
+ <Pine.LNX.4.62.0505162225260.28022@graphe.net> <20050517134434.GA26822@tsunami.ccur.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [RFC][PATCH] timers fixes/improvements
-Date: Tue, 17 May 2005 08:38:45 -0700
-Message-ID: <468F3FDA28AA87429AD807992E22D07E054DA776@orsmsx408>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [RFC][PATCH] timers fixes/improvements
-Thread-Index: AcVYDDCpjI3D+miGQMGvGytmaYDs8gC6TeKg
-From: "Sy, Dely L" <dely.l.sy@intel.com>
-To: "Greg KH" <greg@kroah.com>, "Christoph Lameter" <christoph@lameter.com>
-Cc: "Oleg Nesterov" <oleg@tv-sign.ru>, "Andrew Morton" <akpm@osdl.org>,
-       <linux-kernel@vger.kernel.org>, <mingo@elte.hu>,
-       "Chen, Kenneth W" <kenneth.w.chen@intel.com>, <shai@scalex86.org>
-X-OriginalArrivalTime: 17 May 2005 15:38:46.0598 (UTC) FILETIME=[83954660:01C55AF6]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, May 13, 2005 3:36 PM, Greg KH wrote:
-> > The definition of GET_INDEX is suspect:
-> > 
-> > #define GET_INDEX(a, b) (((a - PCI_DEVICE_ID_INTEL_MCH_PA) << 3) +
-b)
-> > 
-> > should this not be
-> > 
-> > #define GET_INDEX(a, b) ((((a) - PCI_DEVICE_ID_INTEL_MCH_PA) << 3) +
-\
-> > 				((b) & 7))
-> > 
-> > ?
->
-> Dely, any thoughts about this, or know who would know about it?
+On Tue, 17 May 2005, Joe Korty wrote:
 
-Greg,
+> One of the options should mention the power savings benefit on laptops.
+> How about:
 
-I looked at the code and talked with Steve on this.  The fix is correct;
-i.e. b has to be masked with 7.  Would Christoph or you send out a 
-patch for the fix or would you like us to do so?  Thanks for finding out
+I am not an expert on that. Submit a patch.
 
-the problem.
-
-Thanks,
-Dely

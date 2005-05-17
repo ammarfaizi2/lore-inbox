@@ -1,93 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261962AbVEQXn0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261999AbVEQXn2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261962AbVEQXn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 19:43:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbVEQXmN
+	id S261999AbVEQXn2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 19:43:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVEQXlj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 19:42:13 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:11729 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262008AbVEQXgv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 19:36:51 -0400
-Message-ID: <428A800D.8050902@us.ibm.com>
-Date: Tue, 17 May 2005 16:36:45 -0700
-From: Matthew Dobson <colpatch@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Hansen <haveblue@us.ibm.com>
-CC: Christoph Lameter <christoph@lameter.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Jesse Barnes <jbarnes@virtuousgeek.org>,
-       Christoph Lameter <clameter@engr.sgi.com>,
-       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       shai@scalex86.org, steiner@sgi.com
-Subject: Re: NUMA aware slab allocator V3
-References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>	 <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com>	 <714210000.1116266915@flay> <200505161410.43382.jbarnes@virtuousgeek.org>	 <740100000.1116278461@flay>  <Pine.LNX.4.62.0505161713130.21512@graphe.net> <1116289613.26955.14.camel@localhost>
-In-Reply-To: <1116289613.26955.14.camel@localhost>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 17 May 2005 19:41:39 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:38882 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262000AbVEQXhs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 19:37:48 -0400
+Date: Tue, 17 May 2005 16:37:39 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org
+Subject: [RFC][PATCH 3/4] convert sys_nanosleep() to use new soft-timer subsystem
+Message-ID: <20050517233739.GH2735@us.ibm.com>
+References: <1116029796.26454.2.camel@cog.beaverton.ibm.com> <20050517233300.GE2735@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050517233300.GE2735@us.ibm.com>
+X-Operating-System: Linux 2.6.12-rc4 (i686)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen wrote:
->>+#ifdef CONFIG_NUMA
->>+#define NUMA_NODES MAX_NUMNODES
->>+#define NUMA_NODE_ID numa_node_id()
->>+#else
->>+#define NUMA_NODES 1
->>+#define NUMA_NODE_ID 0
->> #endif
+On 17.05.2005 [16:33:00 -0700], Nishanth Aravamudan wrote:
+> On 13.05.2005 [17:16:35 -0700], john stultz wrote:
+> > All,
+> > 	This patch implements the architecture independent portion of the new
+> > time of day subsystem. For a brief description on the rework, see here:
+> > http://lwn.net/Articles/120850/ (Many thanks to the LWN team for that
+> > easy to understand writeup!)
+> > 
+> > 	I intend this to be the last RFC release and to submit this patch to
+> > Andrew for for testing near the end of this month. So please, if you
+> > have any complaints, suggestions, or blocking issues, let me know.
 > 
-> 
-> I think numa_node_id() should always do what you want.  It is never
-> related to discontig nodes, and #defines down to the same thing you have
-> in the end, anyway:
->         
->         #define numa_node_id()       (cpu_to_node(_smp_processor_id()))
->         
->         asm-i386/topology.h
->         #ifdef CONFIG_NUMA
->         ...
->         static inline int cpu_to_node(int cpu)
->         {
->                 return cpu_2_node[cpu];
->         }
->         
->         asm-generic/topology.h:
->         #ifndef cpu_to_node
->         #define cpu_to_node(cpu)        (0)
->         #endif
-> 
-> As for the MAX_NUMNODES, I'd just continue to use it, instead of a new
-> #define.  There is no case where there can be more NUMA nodes than
-> DISCONTIG nodes, and this assumption appears in plenty of other code.
-> 
-> I'm cc'ing Matt Dobson, who's touched this MAX_NUMNODES business a lot
-> more recently than I.
-> 
-> -- Dave
+> I have been working closely with John to re-work the soft-timer subsytem
+> to use the new timeofday() subsystem. The following patches attempts to
+> begin this process. I would greatly appreciate any comments.
 
+Description: Convert sys_nanosleep() to use the new timerinterval-based
+soft-timer interfaces.
 
-You're right, Dave.  The series of #defines at the top resolve to the same
-thing as numa_node_id().  Adding the above #defines will serve only to
-obfuscate the code.
+Signed-off-by: Nishanth Aravamudan <nacc@us.ibm.com>
 
-Another thing that will really help, Christoph, would be replacing all your
-open-coded for (i = 0; i < MAX_NUMNODES/NR_CPUS; i++) loops.  We have
-macros that make that all nice and clean and (should?) do the right thing
-for various combinations of SMP/DISCONTIG/NUMA/etc.  Use those and if they
-DON'T do the right thing, please let me know and we'll fix them ASAP.
-
-for_each_cpu(i)
-for_each_online_cpu(i)
-for_each_node(i)
-for_each_online_node(i)
-
-Those 4 macros should replace all your open-coded loops, Christoph.
-
--Matt
+diff -urpN 2.6.12-rc4-tod-timer-a/kernel/timer.c 2.6.12-rc4-tod-timer-b/kernel/timer.c
+--- 2.6.12-rc4-tod-timer-a/kernel/timer.c	2005-05-17 16:09:40.000000000 -0700
++++ 2.6.12-rc4-tod-timer-b/kernel/timer.c	2005-05-17 16:11:47.000000000 -0700
+@@ -1460,21 +1460,21 @@ asmlinkage long sys_gettid(void)
+ 
+ static long __sched nanosleep_restart(struct restart_block *restart)
+ {
+-	unsigned long expire = restart->arg0, now = jiffies;
++	nsec_t expire = restart->arg0, now = do_monotonic_clock();
+ 	struct timespec __user *rmtp = (struct timespec __user *) restart->arg1;
+ 	long ret;
+ 
+ 	/* Did it expire while we handled signals? */
+-	if (!time_after(expire, now))
++	if (now > expire)
+ 		return 0;
+ 
+-	current->state = TASK_INTERRUPTIBLE;
+-	expire = schedule_timeout(expire - now);
++	set_current_state(TASK_INTERRUPTIBLE);
++	expire = schedule_timeout_nsecs(expire - now);
+ 
+ 	ret = 0;
+ 	if (expire) {
+ 		struct timespec t;
+-		jiffies_to_timespec(expire, &t);
++		t = ns_to_timespec(expire);
+ 
+ 		ret = -ERESTART_RESTARTBLOCK;
+ 		if (rmtp && copy_to_user(rmtp, &t, sizeof(t)))
+@@ -1487,7 +1487,7 @@ static long __sched nanosleep_restart(st
+ asmlinkage long sys_nanosleep(struct timespec __user *rqtp, struct timespec __user *rmtp)
+ {
+ 	struct timespec t;
+-	unsigned long expire;
++	nsec_t expire;
+ 	long ret;
+ 
+ 	if (copy_from_user(&t, rqtp, sizeof(t)))
+@@ -1496,20 +1496,20 @@ asmlinkage long sys_nanosleep(struct tim
+ 	if ((t.tv_nsec >= 1000000000L) || (t.tv_nsec < 0) || (t.tv_sec < 0))
+ 		return -EINVAL;
+ 
+-	expire = timespec_to_jiffies(&t) + (t.tv_sec || t.tv_nsec);
+-	current->state = TASK_INTERRUPTIBLE;
+-	expire = schedule_timeout(expire);
++	expire = timespec_to_ns(&t);
++	set_current_state(TASK_INTERRUPTIBLE);
++	expire = schedule_timeout_nsecs(expire);
+ 
+ 	ret = 0;
+ 	if (expire) {
+ 		struct restart_block *restart;
+-		jiffies_to_timespec(expire, &t);
++		t = ns_to_timespec(expire);
+ 		if (rmtp && copy_to_user(rmtp, &t, sizeof(t)))
+ 			return -EFAULT;
+ 
+ 		restart = &current_thread_info()->restart_block;
+ 		restart->fn = nanosleep_restart;
+-		restart->arg0 = jiffies + expire;
++		restart->arg0 = do_monotonic_clock() + expire;
+ 		restart->arg1 = (unsigned long) rmtp;
+ 		ret = -ERESTART_RESTARTBLOCK;
+ 	}

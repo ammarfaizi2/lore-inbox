@@ -1,65 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbVEQRfl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261895AbVEQRip@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261909AbVEQRfl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 13:35:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVEQRem
+	id S261895AbVEQRip (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 13:38:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbVEQReW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 13:34:42 -0400
-Received: from twinlark.arctic.org ([207.7.145.18]:45464 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S261909AbVEQRdW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 13:33:22 -0400
-Date: Tue, 17 May 2005 10:33:17 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Michael Halcrow <mhalcrow@us.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Chris Wright <chrisw@osdl.org>, Serge Hallyn <serue@us.ibm.com>
-Subject: Re: [patch 1/7] BSD Secure Levels: printk overhaul
-In-Reply-To: <20050517152303.GA2814@halcrow.us>
-Message-ID: <Pine.LNX.4.62.0505171029310.8764@twinlark.arctic.org>
-References: <20050517152303.GA2814@halcrow.us>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 17 May 2005 13:34:22 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:62735 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261864AbVEQRao (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 13:30:44 -0400
+Message-Id: <200505171730.j4HHUXMQ021385@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Andrew Morton <akpm@osdl.org>
+Cc: Kirill Korotaev <dev@sw.ru>, mbligh@mbligh.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] NMI watchdog config option (was: Re: [PATCH] NMI lockup and AltSysRq-P dumping calltraces on _all_ cpus via NMI IPI) 
+In-Reply-To: Your message of "Tue, 17 May 2005 00:15:42 PDT."
+             <20050517001542.40e6c6b7.akpm@osdl.org> 
+From: Valdis.Kletnieks@vt.edu
+References: <42822B5F.8040901@sw.ru> <768860000.1116282855@flay> <42899797.2090702@sw.ru>
+            <20050517001542.40e6c6b7.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1116351030_5349P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 17 May 2005 13:30:30 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 17 May 2005, Michael Halcrow wrote:
+--==_Exmh_1116351030_5349P
+Content-Type: text/plain; charset=us-ascii
 
-> This is the first in a series of seven patches to the BSD Secure
-> Levels LSM.  It overhauls the printk mechanism in order to reduce the
-> unnecessary usage of the .text area.  Thanks to Brad Spengler for the
-> suggestion.
+On Tue, 17 May 2005 00:15:42 PDT, Andrew Morton said:
 
-it also changes the rate limiting from per message to global... so
-one noisy message could shut off other non-noisy messages.  was that
-intentional?
+> So much has changed in there that we might have fixed it by accident, and I
+> do recall a couple of fundamental and subtle NMI bugs being fixed.  So
+> yeah, it might be worth enabling it by default again.  Care to send a patch
+> which does that?
 
--dean
+There's still boxes with borked LAPICs out there - or will the "borked lapic"
+code override the NMI handler?
 
-> -#define seclvl_printk(verb, type, fmt, arg...)			\
-> -	do {							\
-> -		if (verbosity >= verb) {			\
-> -			static unsigned long _prior;		\
-> -			unsigned long _now = jiffies;		\
-> -			if ((_now - _prior) > HZ) {		\
-> -				printk(type "%s: %s: " fmt,	\
-> -					MY_NAME, __FUNCTION__ ,	\
-> -					## arg);		\
-> -				_prior = _now;			\
-> -			}					\
-> -		}						\
-> -	} while (0)
-> +static void seclvl_printk(int verb, const char *fmt, ...)
-> +{
-> +	va_list args;
-> +	va_start(args, fmt);
-> +	if (verbosity >= verb) {
-> +		static unsigned long _prior;
-> +		unsigned long _now = jiffies;
-> +		if ((_now - _prior) > HZ) {
-> +			vprintk(fmt, args);
-> +		}
-> +		_prior = _now;
-> +	}
-> +	va_end(args);
-> +}
+--==_Exmh_1116351030_5349P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCiio2cC3lWbTT17ARAmQTAKCZyuWEybXQhmsLiM8U1xqTrWeT/QCg3NgX
+jO0UIDAwNoVXyTjuCADwpfg=
+=x+CO
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1116351030_5349P--

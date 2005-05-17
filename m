@@ -1,35 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVEQFys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVEQGAm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVEQFys (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 01:54:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVEQFys
+	id S261159AbVEQGAm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 02:00:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbVEQGAl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 01:54:48 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63646 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261182AbVEQFye (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 01:54:34 -0400
-Date: Tue, 17 May 2005 06:54:52 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Greg K-H <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, petero2@telia.com
-Subject: Re: [PATCH] Fix root hole in pktcdvd
-Message-ID: <20050517055452.GQ1150@parcelfarce.linux.theplanet.co.uk>
-References: <11163046681444@kroah.com> <11163046692974@kroah.com> <20050517050025.GP1150@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050517050025.GP1150@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+	Tue, 17 May 2005 02:00:41 -0400
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:6811 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S261173AbVEQGAe convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 02:00:34 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [RFD] What error should FS return when I/O failure occurs?
+Date: Mon, 16 May 2005 23:00:24 -0700
+Message-ID: <75D9B5F4E50C8B4BB27622BD06C2B82B2264F7@xmb-sjc-235.amer.cisco.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFD] What error should FS return when I/O failure occurs?
+Thread-Index: AcVao8z1uauUWlgoRsCTRsJBYjpMogAAaBMg
+From: "Hua Zhong \(hzhong\)" <hzhong@cisco.com>
+To: "fs" <fs@ercist.iscas.ac.cn>
+Cc: "linux-fsdevel" <linux-fsdevel@vger.kernel.org>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>,
+       "Kenichi Okuyama" <okuyama@intellilink.co.jp>
+X-OriginalArrivalTime: 17 May 2005 06:00:25.0441 (UTC) FILETIME=[B814ED10:01C55AA5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 17, 2005 at 06:00:25AM +0100, Al Viro wrote:
-> Same comment as for previous patch.  I'll take a look at that sucker,
-> it might happen to be OK, seeing that most of the bdev ->ioctl() instances
-> ignore file argument and we might get away with passing odd stuff to
-> anything that could occur here.
+The thing is the EIO almost always happens at background so there is no
+way to return it to the user space. If you want to see EIO, do fsync
+explicitly.
 
-Oh, lovely - pkt_open() opens underlying device, unless we already have our
-device opened.  Guess what happens if you open() with O_RDONLY and
-then - with O_RDWR?
+> > Which version of kernel you are using?
+> My test environment is based on 2.6.11 kernel
+> > It was probably the case in kernel before 2.4.20. The old ext3 had a
+> > problem that it ignored IO error at journal commit time. I 
+> submitted a
+> > patch to fix that around the time of 2.4.20. 2.6 should be fine too,
+> > unless someone else broke it again.
+> > 
+> > Hua
+> 

@@ -1,55 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbVEQUM6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbVEQUSX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261815AbVEQUM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 16:12:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVEQUM5
+	id S261746AbVEQUSX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 16:18:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbVEQUSX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 16:12:57 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:29150 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261815AbVEQUMz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 16:12:55 -0400
-Date: Tue, 17 May 2005 21:13:10 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Michael Halcrow <mhalcrow@us.ibm.com>
-Cc: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Chris Wright <chrisw@osdl.org>,
-       Serge Hallyn <serue@us.ibm.com>
-Subject: Re: [patch 2/7] BSD Secure Levels: move bd claim from inode to filp
-Message-ID: <20050517201310.GD29811@parcelfarce.linux.theplanet.co.uk>
-References: <20050517152303.GA2814@halcrow.us> <20050517152545.GA2944@halcrow.us> <20050517160900.GB32436@infradead.org> <20050517164922.GA29811@parcelfarce.linux.theplanet.co.uk> <20050517194616.GA14957@halcrow.us>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050517194616.GA14957@halcrow.us>
-User-Agent: Mutt/1.4.1i
+	Tue, 17 May 2005 16:18:23 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:21759 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261746AbVEQUSQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 16:18:16 -0400
+Date: Tue, 17 May 2005 21:18:29 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: "Yu, Luming" <luming.yu@intel.com>, "Guo, Racing" <racing.guo@intel.com>,
+       Andi Kleen <ak@suse.de>, Dave Jones <davej@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH -mm] x86 port lockless MCE quirky bank0
+Message-ID: <Pine.LNX.4.61.0505172107490.5585@goblin.wat.veritas.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+X-OriginalArrivalTime: 17 May 2005 20:17:44.0504 (UTC) 
+    FILETIME=[7C270B80:01C55B1D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 17, 2005 at 02:46:17PM -0500, Michael Halcrow wrote:
-> In my tests, utime() does not cause file_permission() to be called.
+I've been avoiding -mm on the Dell Latitude with PIII Mobile for several
+weeks now, since APM resume from RAM locks up.  Just stole time to bisect
+and it's the x86-port-lockless-mce patches, which lack some of the wisdom
+of ages handed down in the earlier MCE source.
 
-> > Use of current in setting/checking ->i_security is a bad joke.
+The "Don't enable bank 0 on Intel P6 cores, it goes bang quickly" fix
+from the old mcheck/p6.c solves my PIII problem; but looking further,
+the old mcheck/k7.c says some Athlons also have a problem with bank 0.
 
-OK, these applied to the original.  Now to the patched version:
+So try to handle them both together: but this code is an amalgam of
+what was done slightly differently in the two cases, diverging from each
+- I don't want to add voodoo if it's unnecessary; and untested on AMD.
 
-	a) ->file_permission() is called on every write(2).  So you get
-an open() for each write().  And only one matching close() (aka. blkdev_put())
-	b) ->file_permission() is *not* called on mmap() path.  So much for
-protection, exclusion, etc.
-	c) you get bd_claim() on each write(); subsequent ones work just
-fine, since you use the same holder.  On close() you undo one of those.
-Leaving the rest there, with holder pointing to freed-and-soon-to-be-reused
-struct file.
+Worry: has more such wisdom got lost in the translation?
+
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+
+--- 2.6.12-rc4-mm2/arch/i386/kernel/cpu/mcheck/mce.c	2005-05-16 12:18:35.000000000 +0100
++++ linux/arch/i386/kernel/cpu/mcheck/mce.c	2005-05-17 20:21:17.000000000 +0100
+@@ -30,7 +30,7 @@ int __devinitdata mce_dont_init = 0;
+ /* 0: always panic, 1: panic if deadlock possible, 2: try to avoid panic,
+    3: never panic or exit (for testing only) */
+ static unsigned long tolerant = 1;
+-static int banks;
++static int banks, quirky_bank0;
+ static unsigned long bank[NR_BANKS] = { [0 ... NR_BANKS-1] = ~0UL };
+ static unsigned long console_logged;
+ static int notify_user;
+@@ -320,7 +320,8 @@ static void mce_init(void *dummy)
+ 		wrmsr(MSR_IA32_MCG_CTL, 0xffffffff, 0xffffffff);
  
-> > d) cargo-cult programming: ->f_dentry and ->f_dentry->d_inode are
-> > *not* NULL, TYVM.
-> 
-> Exactly what code are you refering to here?
-
-seclvl_file_free_security(), but I have to lift that objection in part - this
-crap gets called from put_filp(), so ->f_dentry might be NULL.  If it is not
-NULL, though, we are guaranteed that ->f_dentry->d_inode will *not* be NULL.
-BTW, all your checks in that path can be replaced with a single check for
-f->f_security being non-NULL.  Not that it helped, though - see (a) and (c)
-above.
+ 	for (i = 0; i < banks; i++) {
+-		wrmsrl(MSR_IA32_MC0_CTL+4*i, bank[i]);
++		if (i >= quirky_bank0)
++			wrmsrl(MSR_IA32_MC0_CTL+4*i, bank[i]);
+ 		wrmsrl(MSR_IA32_MC0_STATUS+4*i, 0);
+ 	}
+ }
+@@ -334,6 +335,14 @@ static void __devinit mce_cpu_quirks(str
+ 		   incorrectly with the IOMMU & 3ware & Cerberus. */
+ 		clear_bit(10, &bank[4]);
+ 	}
++	if ((c->x86_vendor == X86_VENDOR_AMD ||
++	     c->x86_vendor == X86_VENDOR_INTEL) && c->x86 == 6) {
++		/*
++		 * Intel P6 cores go bang quickly when bank0 is enabled.
++	 	 * Some Athlons cause spurious MCEs when bank0 is enabled.
++		 */
++		quirky_bank0 = 1;
++	}
+ }
+ 
+ static void __devinit mce_cpu_features(struct cpuinfo_x86 *c)

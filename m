@@ -1,71 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVEQXRI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261966AbVEQXWI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbVEQXRI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 19:17:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVEQXRI
+	id S261966AbVEQXWI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 19:22:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261947AbVEQXWI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 19:17:08 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:24050 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261959AbVEQXQn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 19:16:43 -0400
-Date: Tue, 17 May 2005 16:11:48 -0400
-From: Christopher Li <lkml@chrisli.org>
-To: Timur Tabi <timur.tabi@ammasso.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sparse error: unable to open 'stdarg.h'
-Message-ID: <20050517201148.GA12997@64m.dyndns.org>
-References: <428A661C.1030100@ammasso.com>
+	Tue, 17 May 2005 19:22:08 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:110 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261966AbVEQXVm convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 19:21:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pIRHP/T3RzaHBojdvFSSA35UQp1RZaeiGF+Hccl4M2z1L3RV+6f8sq9qggDCbwMDXbV9fIqHD7OsQGW1vnkV8dWke1BwiHWnddtVBlx3vUTM8bnzfyocuzBsl6ow/Ybk7MymAEJTlF4gLxT3l8MKYbX1J+Ok7p9Vebk5t1dyNoo=
+Message-ID: <25381867050517162126d18704@mail.gmail.com>
+Date: Tue, 17 May 2005 19:21:41 -0400
+From: Yani Ioannou <yani.ioannou@gmail.com>
+Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
+To: Grant Coady <grant_lkml@dodo.com.au>
+Subject: Re: [lm-sensors] [PATCH 2.6.12-rc4 15/15] drivers/i2c/chips/adm1026.c: use dynamic sysfs callbacks
+Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <lm-sensors@lm-sensors.org>
+In-Reply-To: <lqrk81degqp2id4sf1f4rjsnithljnibhb@4ax.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <428A661C.1030100@ammasso.com>
-User-Agent: Mutt/1.4.1i
+References: <2538186705051703479bd0c29@mail.gmail.com>
+	 <e9iUj0EZ.1116327879.1515720.khali@localhost>
+	 <2538186705051704181a70dbbf@mail.gmail.com>
+	 <0pik81hjboqvbf2jhgdut861cfpgl7sata@4ax.com>
+	 <2538186705051713565d07e66b@mail.gmail.com>
+	 <lqrk81degqp2id4sf1f4rjsnithljnibhb@4ax.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is missing the gcc default include path.
-
-Check your pre-processor.h in sparse to see that match your gcc
-include path or not.
-
-If not, remove pre-processor.h and recompile sparse should solve
-the problem.
-
-Chris
-
-On Tue, May 17, 2005 at 04:46:04PM -0500, Timur Tabi wrote:
-> I'm trying to run sparse on my external module, but sparse complains about 
-> not being able to find stdarg.h.  I know this bug was supposed to have been 
-> fixed back in January, but I'm using the latest code, so I can't explain 
-> what's wrong.  I've tried this on a couple different 2.6 kernels.
+On 5/17/05, Grant Coady <grant_lkml@dodo.com.au> wrote:
+> Hi Yani,
 > 
-> Here's the output I get:
+> On Tue, 17 May 2005 16:56:04 -0400, Yani Ioannou <yani.ioannou@gmail.com> wrote:
+> >Those are the sysfs names? If so something looks wrong with the
 > 
-> make -C /lib/modules/2.6.8-24-smp/source 
-> SUBDIRS=/root/AMSO1100/software/host/linux/sys/devccil  C=1 V=2
-> make[2]: Entering directory `/usr/src/linux-2.6.8-24'
->   CHECK   /root/AMSO1100/software/host/linux/sys/devccil/devnet.c
-> include/linux/kernel.h:10:11: error: unable to open 'stdarg.h'
-> make[3]: *** [/root/AMSO1100/software/host/linux/sys/devccil/devnet.o] 
-> Error 1
-> make[2]: *** [_module_/root/AMSO1100/software/host/linux/sys/devccil] Error 
-> 2
-> make[2]: Leaving directory `/usr/src/linux-2.6.8-24'
-> make[1]: *** [all] Error 2
-> make[1]: Leaving directory `/root/AMSO1100/software/host/linux/sys/devccil'
-> make: *** [build] Error 2
+> Not the final ones, just from first macro expansion of driver
+> source, that's why I'd like to see changes on w83627hf driver
+> as I can test it right through.
+>
+> No, I'm not doing a proper compile, I'm intentionally doing partial
+> compile of driver.c and _not_ including headers, ignoring errors due
+> to missing headers.
+
+Ah..OK, that is probably why, I've put the macros which would be
+expanded in the first level in a separate header because it will
+probably be shared amongst many drivers. Although I still don't see
+where SENSOR_blah is coming from at all at the moment, if you can
+track that down I'd be interested to know if its just something to do
+with the script or a problem with the patch.
+
+
+> Script is work in progress, updated to current version up at:
 > 
-> -- 
-> Timur Tabi
-> Staff Software Engineer
-> timur.tabi@ammasso.com
+>   http://scatter.mine.nu/hwmon/sysfs-names/
+
+Ok, I'll have a look at it later.
 > 
-> One thing a Southern boy will never say is,
-> "I don't think duct tape will fix it."
->      -- Ed Smylie, NASA engineer for Apollo 13
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> >The group of attributes you've highlighted below don't use
+> >sensor_device_attribute on purpose because they don't benefit from the
+> >dynamic sysfs callbacks, mainly because they are singletons. Well its
+> 
+> Not singletons, 3 of each (from an intermediate file):
+> 
+> adm1026.c       temp1_crit_enable       S_IRUGO S_IWUSR
+> adm1026.c       temp2_crit_enable       S_IRUGO S_IWUSR
+> adm1026.c       temp3_crit_enable       S_IRUGO S_IWUSR
+> adm1026.c       pwm1    S_IRUGO S_IWUSR
+> adm1026.c       pwm2    S_IRUGO S_IWUSR
+> adm1026.c       pwm3    S_IRUGO S_IWUSR
+> adm1026.c       temp1_auto_point1_pwm   S_IRUGO S_IWUSR
+> adm1026.c       temp2_auto_point1_pwm   S_IRUGO S_IWUSR
+> adm1026.c       temp3_auto_point1_pwm   S_IRUGO S_IWUSR
+> adm1026.c       temp1_auto_point2_pwm   S_IRUGO
+> adm1026.c       temp2_auto_point2_pwm   S_IRUGO
+> adm1026.c       temp3_auto_point2_pwm   S_IRUGO
+> 
+> Yet, in related groups of three you have:
+> 
+> adm1026.c       SENSOR_temp1_crit       S_IRUGO S_IWUSR
+> adm1026.c       SENSOR_temp2_crit       S_IRUGO S_IWUSR
+> adm1026.c       SENSOR_temp3_crit       S_IRUGO S_IWUSR
+
+Well I said mainly singletons :-), some of the attributes don't
+benefit from the dynamic sysfs callbacks simply because they already
+only use one callback for a few different attributes, I believe that's
+the case with the non-singletons in this case.
+
+Thanks,
+Yani

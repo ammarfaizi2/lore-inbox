@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261310AbVEQDkl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVEQDpP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261310AbVEQDkl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 23:40:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVEQDkl
+	id S261318AbVEQDpP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 23:45:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbVEQDpP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 23:40:41 -0400
-Received: from mx2.suse.de ([195.135.220.15]:25767 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261310AbVEQDke (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 23:40:34 -0400
-Date: Tue, 17 May 2005 05:40:28 +0200
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Christoph Lameter <christoph@lameter.com>,
-       randy_dunlap <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, shai@scalex86.org, ak@suse.de
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt.
-Message-ID: <20050517034028.GC9699@wotan.suse.de>
-References: <Pine.LNX.4.62.0505161243580.13692@ScMPusgw> <20050516150907.6fde04d3.akpm@osdl.org> <Pine.LNX.4.62.0505161934220.25315@graphe.net> <20050516194651.1debabfd.rdunlap@xenotime.net> <Pine.LNX.4.62.0505161954470.25647@graphe.net> <Pine.LNX.4.58.0505162029240.18337@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0505162029240.18337@ppc970.osdl.org>
+	Mon, 16 May 2005 23:45:15 -0400
+Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:16791 "EHLO
+	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
+	id S261318AbVEQDo2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 23:44:28 -0400
+Message-ID: <4289682B.8060403@enterprise.bidmc.harvard.edu>
+Date: Mon, 16 May 2005 23:42:35 -0400
+From: Kris Karas <ktk@enterprise.bidmc.harvard.edu>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Dmitry Torokhov <dtor_core@ameritech.net>, Greg Stark <gsstark@mit.edu>
+Subject: Re: Problem report: 2.6.12-rc4 ps2 keyboard being misdetected as
+ /dev/input/mouse0
+References: <87zmuveoty.fsf@stark.xeocode.com> <200505160036.30628.dtor_core@ameritech.net>
+In-Reply-To: <200505160036.30628.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	choice
-> 		prompt "Timer frequency"
-> 		default HZ_250
-> 
-> 	config HZ_100
-> 		bool "100 Hz"
-> 
-> 	confic HZ_250
-> 		bool "250 Hz"
-> 
-> 	config HZ_1000
-> 		bool "1000 Hz"
+Dmitry Torokhov wrote:
 
-I would add a 
+>On Monday 16 May 2005 00:12, Greg Stark wrote:
+>  
+>
+>>I just updated to 2.6.12-rc4 and now /dev/input/mouse0 seems to be my ps2
+>>keyboard.
+>>
+>Please use /dev/input/mice for accessing your mouse.
+>
 
-	config HZ_10 if EMBEDDED 
-		bool "10 Hz" 
+One possibly interesting mouse issue in 2.6.12-rc[1..4] is that when 
+using /dev/psaux, I have found that my mouse cursor under GPM seems to 
+be triggered into un-hiding when I issue some random number of 
+non-hiding key-down events.  That is, press and release the keyboard 
+shift key say 3 or 5 or 10 times, and the console mouse cursor will 
+appear, just as if the mouse had been moved.  This bug is not in 2.6.11 
+(nor Alan's 2.6.11-ac7, fwiw).
 
-that is useful for compute servers (although it will violate the TCP
-specification). EMBEDDED would ensure only people who know what they're
-doing set it.
-
--Andi
-
+Kris

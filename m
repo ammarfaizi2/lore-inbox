@@ -1,37 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262012AbVEQXn1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262025AbVEQXwq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262012AbVEQXn1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 19:43:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261999AbVEQXls
+	id S262025AbVEQXwq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 19:52:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261748AbVEQXuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 19:41:48 -0400
-Received: from smtp007.bizmail.sc5.yahoo.com ([66.163.170.10]:35427 "HELO
-	smtp007.bizmail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261748AbVEQXha (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 19:37:30 -0400
-Message-ID: <428A8034.801@metricsystems.com>
-Date: Tue, 17 May 2005 16:37:24 -0700
-From: John Clark <jclark@metricsystems.com>
-Organization: Metric Systems, Inc.
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8a6) Gecko/20050111
-X-Accept-Language: en-us, en
+	Tue, 17 May 2005 19:50:37 -0400
+Received: from graphe.net ([209.204.138.32]:46603 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S262025AbVEQXtn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 19:49:43 -0400
+Date: Tue, 17 May 2005 16:49:23 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Matthew Dobson <colpatch@us.ibm.com>
+cc: Dave Hansen <haveblue@us.ibm.com>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       Jesse Barnes <jbarnes@virtuousgeek.org>,
+       Christoph Lameter <clameter@engr.sgi.com>,
+       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       shai@scalex86.org, steiner@sgi.com
+Subject: Re: NUMA aware slab allocator V3
+In-Reply-To: <428A800D.8050902@us.ibm.com>
+Message-ID: <Pine.LNX.4.62.0505171648370.17681@graphe.net>
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com> 
+ <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com> 
+ <714210000.1116266915@flay> <200505161410.43382.jbarnes@virtuousgeek.org> 
+ <740100000.1116278461@flay>  <Pine.LNX.4.62.0505161713130.21512@graphe.net>
+ <1116289613.26955.14.camel@localhost> <428A800D.8050902@us.ibm.com>
 MIME-Version: 1.0
-To: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: GDB, pthreads, and kernel threads
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Most of my work has been in the kernel and I had not paid attention to
-user 'threads'. However, I have at the moment to a need to debug a
-user 'pthread' based applicaiton, that I may want to move into the kernel.
+On Tue, 17 May 2005, Matthew Dobson wrote:
 
-However, I can't seem to figure out how to get GDB to debug my user
-pthreads app. What is the correct setup to debug pthreads based applications
-now that it seems that pthreads implementation generates processes/threads
-in the kernel.
+> You're right, Dave.  The series of #defines at the top resolve to the same
+> thing as numa_node_id().  Adding the above #defines will serve only to
+> obfuscate the code.
 
-Thanks
-John Clark
+Ok.
+ 
+> Another thing that will really help, Christoph, would be replacing all your
+> open-coded for (i = 0; i < MAX_NUMNODES/NR_CPUS; i++) loops.  We have
+> macros that make that all nice and clean and (should?) do the right thing
+> for various combinations of SMP/DISCONTIG/NUMA/etc.  Use those and if they
+> DON'T do the right thing, please let me know and we'll fix them ASAP.
 
+Some of that was already done but I can check again.

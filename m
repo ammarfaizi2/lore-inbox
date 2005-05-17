@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbVEQHoB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVEQHt5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbVEQHoB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 03:44:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVEQHmd
+	id S261356AbVEQHt5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 03:49:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbVEQHt5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 03:42:33 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:41641 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261333AbVEQHiI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 03:38:08 -0400
-Date: Tue, 17 May 2005 08:38:27 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Greg K-H <greg@kroah.com>, linux-kernel@vger.kernel.org, sct@redhat.com
-Subject: Re: [PATCH] Fix root hole in raw device
-Message-ID: <20050517073827.GS1150@parcelfarce.linux.theplanet.co.uk>
-References: <11163046682662@kroah.com> <11163046681444@kroah.com> <20050517045748.GO1150@parcelfarce.linux.theplanet.co.uk> <20050517070305.GA31135@alpha.home.local> <20050517070735.GB31163@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050517070735.GB31163@alpha.home.local>
-User-Agent: Mutt/1.4.1i
+	Tue, 17 May 2005 03:49:57 -0400
+Received: from zone4.gcu-squad.org ([213.91.10.50]:38881 "EHLO
+	zone4.gcu-squad.org") by vger.kernel.org with ESMTP id S261356AbVEQHtm convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 03:49:42 -0400
+Date: Tue, 17 May 2005 09:41:55 +0200 (CEST)
+To: fishor@gmx.net
+Subject: Re: clean up and warnings patch for 2.6.12-rc4-mm1 i2c-chip
+X-IlohaMail-Blah: khali@localhost
+X-IlohaMail-Method: mail() [mem]
+X-IlohaMail-Dummy: moo
+X-Mailer: IlohaMail/0.8.14 (On: webmail.gcu.info)
+Message-ID: <ozwFbjSm.1116315715.7725280.khali@localhost>
+In-Reply-To: <200505170841.20079.fishor@gmx.net>
+From: "Jean Delvare" <khali@linux-fr.org>
+Bounce-To: "Jean Delvare" <khali@linux-fr.org>
+CC: "LKML" <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 17, 2005 at 09:07:35AM +0200, Willy Tarreau wrote:
-> >  	struct block_device *bdev = filp->private_data;
-> >  	int err = -EINVAL;
-> >  
-> > -	return ioctl_by_bdev(bdev, command, arg);
-> > +	if (bdev && bdev->bd_inode)
-> > +		err = blkdev_ioctl(bdev->bd_inode, filp, command, arg);
->                                                  ^^^^^^^
-> Sorry, I forgot it...
-> I meant the same with the NULL. Is it OK ?
 
-What is that if () doing there?  bdev->bd_inode is *never* NULL - it's
-set when we allocate the bdev and never changed; the code setting it
-is
-        if (inode->i_state & I_NEW) {
-                bdev->bd_contains = NULL;
-                bdev->bd_inode = inode;
-so you are not going to have it NULL, no matter what.
+Hi Alexey,
 
-And filp->private_data is set in raw_open() by
-        filp->private_data = bdev;
-a couple of lines after
-        filp->f_mapping = bdev->bd_inode->i_mapping;
-so it's not going to be NULL either.
+> with module w83627hf  i found useful due  detection return -ENODEV
+> because I can see in commandline if it's some thing wrong. If it's not
+> correct, there is a bug in the w83627hf and some other drivers.
+>
+> int w83627hf_detect(struct i2c_adapter *adapter, int address,
+>                    int kind)
+> {
+>         int val;
+>         struct i2c_client *new_client;
+>         struct w83627hf_data *data;
+>         int err = 0;
+>         const char *client_name = "";
+>
+>         if (!i2c_is_isa_adapter(adapter)) {
+>                 err = -ENODEV;
+>                 goto ERROR0;
+>         }
+
+This is actually not correct if you consider the i2c_detect() design, but
+happens to cause no problem in this specific case - and, ironically,
+might even speed up the detection loop.
+
+The way i2c_detect() works for now, it will stop probing a given adapter
+as soon as one address probed on that bus returned an error. As it
+happens that i2c_is_isa_adapter(adapter) is either true or false for all
+addresses of a given adapter, skipping to the next adapter directly when
+the bus type (isa or not) doesn't match actually makes sense.
+
+At any rate, I have plans to rework the way ISA hardware monitoring chips
+are handled, so this code is likely to be gone in a near future anyway
+(providing I can actually find the time to work on this... sigh). Things
+should be much clearer after that.
+
+Thanks,
+--
+Jean Delvare

@@ -1,61 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVEQLuW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVEQLuV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261383AbVEQLuW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 07:50:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbVEQLql
+	id S261404AbVEQLuV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 07:50:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbVEQLuN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 07:46:41 -0400
-Received: from zproxy.gmail.com ([64.233.162.196]:13422 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261522AbVEQLob convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 07:44:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=QEuEJbJjfrRdUo/cvVXaoGPTeOTm/U5kpTgPcLQbCl3w4IxVFu/J/7JpP2Pgl9ERyuEEaHHFiINecD0D2NfQUDIda61HZxFQS3CbQMRFTDQV2D1CNCnoqhvmrWZ/1YEbcMjgqIYsSa/CQCgfP4rlORyiPiEVf29Tbkgl7np1k2M=
-Message-ID: <b82a8917050517044428d61050@mail.gmail.com>
-Date: Tue, 17 May 2005 17:14:26 +0530
-From: Niraj kumar <niraj17@gmail.com>
-Reply-To: niraj17@iitbombay.org
-To: linux <kernel@wired-net.gr>
-Subject: Re: 2.6 kernel network programming
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <000b01c55ad2$5acaf690$0101010a@dioxide>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <2538186705051703441093903a@mail.gmail.com>
-	 <000b01c55ad2$5acaf690$0101010a@dioxide>
+	Tue, 17 May 2005 07:50:13 -0400
+Received: from zukmail03.zreo.compaq.com ([161.114.128.27]:56842 "EHLO
+	zukmail03.zreo.compaq.com") by vger.kernel.org with ESMTP
+	id S261514AbVEQLsS convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 07:48:18 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: What is needed to boot 2.6 on opteron dual core
+Date: Tue, 17 May 2005 13:48:13 +0200
+Message-ID: <213219CA6232F94E989A9A5354135D2F0936FE@frqexc04.emea.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: What is needed to boot 2.6 on opteron dual core
+Thread-Index: AcVaOTPuJBDXZfK3SY6HfVgSTl9F8QAnGU5g
+From: "Cabaniols, Sebastien" <sebastien.cabaniols@hp.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 17 May 2005 11:48:14.0127 (UTC) FILETIME=[4EC9B3F0:01C55AD6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/17/05, linux <kernel@wired-net.gr> wrote:
-> Hi all,
-> can someone tell me how i can listen and accept connections into a port from
-> the kernel-space???
-> I start listening with the following function :
-> 
->         struct socket *sock;
->         struct sockaddr_in sin;
->         int error=0;
-> 
->         error=sock_create(PF_INET,SOCK_STREAM,IPPROTO_TCP,&sock);
-> 
->         sin.sin_family = AF_INET;
->         sin.sin_addr.s_addr = INADDR_ANY;
->         sin.sin_port = htons((unsigned short)port);
-> 
->         error=sock->ops->bind(sock,(struct sockaddr*)&sin,sizeof(sin));
->         sock->ops->listen(sock,48);
-> 
-> How about accepting connections and sending some kind of a message for
-> beggining?
-> Can someone help me please.
+Hello lkml,
 
-Looking at khttpd code in 2.4 kernel may  help you .
+I am trying to boot a dual core Opteron box with linux 2.6 and it is
+crashing very early (swapper process dies, backtrace shows SMP_boot....
+Stuff) and I was wondering what patches are needed to boot a 2.6 kernel
+on a dual core machine.
 
-http://lxr.linux.no/source/net/khttpd/sockets.c?v=2.4.28
+I tried 2.6.11.9, 2.6.12-rc4 and 2.6.11-ac7 with the same error. It is
+difficult for me to copy the output since this is a workstation and not
+a server but I can give details if my question does not make sense. 
 
-Regards
-Niraj
+Thanks in advance.
+
+The machine works fine with redhat 3 update 5 I think but it is 2.4
+based.

@@ -1,53 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVEQQHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbVEQQWf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261783AbVEQQHT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 12:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261778AbVEQQF1
+	id S261772AbVEQQWf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 12:22:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVEQQWe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 12:05:27 -0400
-Received: from wproxy.gmail.com ([64.233.184.201]:5732 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261751AbVEQP5e (ORCPT
+	Tue, 17 May 2005 12:22:34 -0400
+Received: from fire.osdl.org ([65.172.181.4]:12462 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261812AbVEQQR4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 11:57:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:content-transfer-encoding:in-reply-to:user-agent:from;
-        b=T+RSDl01CyCtuJjv0XFHVroiasQZN2p+kgyV1ONYyOOoPRk4qUwvQKlQzO8LmTjwWeFVaIdjt0HZkENZN3JAdrA0gA4OnVFPToV/DFmjn2hXzwCmQjSdjJaS2r7YkNDAO1rqDUnvVbo8i6A80DmXBE1ZE6xyCTflMqyhPG4VvOU=
-Date: Tue, 17 May 2005 17:57:31 +0200
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Andrew Morton <akpm@osdl.org>, dino@in.ibm.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
-Message-ID: <20050517155731.GA9590@gmail.com>
-References: <20050516085832.GA9558@gmail.com> <20050517071307.GA4794@in.ibm.com> <20050517002908.005a9ba7.akpm@osdl.org> <1116340465.4989.2.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1116340465.4989.2.camel@mulgrave>
-User-Agent: Mutt/1.5.6i
-From: =?iso-8859-1?Q?Gr=E9goire?= Favre <gregoire.favre@gmail.com>
+	Tue, 17 May 2005 12:17:56 -0400
+Date: Tue, 17 May 2005 09:19:34 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Andrew Morton <akpm@osdl.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [git patches] 2.6.x libata fixes
+In-Reply-To: <428A11C2.4030900@pobox.com>
+Message-ID: <Pine.LNX.4.58.0505170855170.18337@ppc970.osdl.org>
+References: <428A11C2.4030900@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 17, 2005 at 09:34:25AM -0500, James Bottomley wrote:
 
-> Actually, this isn't a me too.  The previous one looks like some strange
-> DV failure.  This is a problem with the initial inquiry.  What's the
-> device at target 15?
 
-On this controler I have :
+On Tue, 17 May 2005, Jeff Garzik wrote:
+> 
+> Please pull the master (HEAD) branch of
+> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-2.6.git
 
-Host: scsi0 Channel: 00 Id: 00 Lun: 00
-  Vendor: IBM      Model: DDRS-39130D      Rev: DC1B
-  Type:   Direct-Access                    ANSI SCSI revision: 02
-Host: scsi0 Channel: 00 Id: 15 Lun: 00
-  Vendor: SEAGATE  Model: ST336706LW       Rev: 0108
-  Type:   Direct-Access                    ANSI SCSI revision: 03
+Pulled.
 
-Should I change anything in the BIOS ?
+> Review contents (diffstat/changelog/patch) attached to this email.  I'm 
+> still new to git, so pull carefully.  :)
 
-Thank you, and please keep CC to me as I am not on this ml :-)
--- 
-	Grégoire Favre
+My pull gets the same diffstat as you claimed, and everything looks good.
+
+> Three git-related comments:
+> 
+> 1) James Bottomley's git-changes-script is darned useful, for this 
+> ex-BitKeeper user.  I've attached it.
+
+It should _really_ be updated to do a better job, modern git can do much 
+better. 
+
+See the answer to the next question, since that's really the same thing:
+
+> 2) What is the preferred way to generate a 'for Linus' diff?  I used to 
+> BitKeeper's "repogca" feature to find the GCA for the diff.
+
+You can use
+
+	"git-merge-base HEAD OTHER_HEAD"
+
+to get the global common ancestor. However, that's pretty pointless, since 
+what you're after is really "what are the differences", and that's what 
+"git-rev-tree" gives you for any arbitrary points.
+
+With modern git, what you do is something like this (totally untested, 
+but you hopefully get the idea):
+
+	local=.
+	remote=.
+	localhead=HEAD
+	remotehead=HEAD
+
+	#
+	# default to silent mode (changelog only),
+	# use "-p" to enable full patch information.
+	#
+	diff-tree-arg=-s
+
+	#
+	# Get the arguments
+	#
+	while true; do
+	   case "$1" in
+	      -R)     shift;
+	              remote="$1"
+	              shift;;
+	      -L)     shift;
+	              local="$1"
+	              shift;;
+	      -r)     shift;
+	              remotehead="$1"
+	              shift;;
+	      -p)     diff-tree-args=-p
+	              shift;;
+	       *)     localhead="$1"
+                      break;;
+	   esac
+	done
+	
+	#
+	# Tell git about where it can find all the objects
+	#
+	export GIT_OBJECT_DIRECTORY=$local/.git/objects
+	export GIT_ALTERNATE_OBJECT_DIRECTORIES=$remote/.git/objects
+
+	# ..and get the heads
+	head=$(cat $local/.git/$localhead)
+	other_head=$(cat $remote/.git/$remotehead)
+
+	# What exists in remote-head but not in the local head?
+	git-rev-tree $other_head ^$head |
+		cut -d' ' -f2 |
+		git-diff-tree --stdin -v $diff-tree-args
+
+and it should just DoTheRightThing(tm) modulo the inevitable
+ObviousBugs(tm).
+
+> 3) Note that my object database is not pruned.  When I used 
+> git-pull-script to locally merge my libata-dev.git#misc-fixes branch 
+> into libata-2.6.git, it pulled all the objects in libata-dev.  I was too 
+> slack to bother with pruning libata-2.6.git, knowing that eventually the 
+> other changesets will make their way upstream.
+
+I do keep my trees pruned and I still run fsck religiously, so I just 
+force a prune after a pull. I _prefer_ to see clean trees, though - not 
+because it matters from a techncial perspective, but because it tells me 
+that the other side didn't have any left-over strange objects that might 
+have been intended to be included.
+
+But your tree looked fine.
+
+		Linus

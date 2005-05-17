@@ -1,85 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbVEQNJQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVEQNLH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261465AbVEQNJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 09:09:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbVEQNJQ
+	id S261461AbVEQNLH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 09:11:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbVEQNLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 09:09:16 -0400
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:25760
-	"EHLO pinky.shadowen.org") by vger.kernel.org with ESMTP
-	id S261465AbVEQNJM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 09:09:12 -0400
-To: akpm@osdl.org
-Subject: [PATCH] sparsemem-ppc64-flat-first-block-is-not-special
-Cc: anton@samba.org, apw@shadowen.org, haveblue@us.ibm.com,
-       jschopp@austin.ibm.com, kravetz@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-       linuxppc64-dev@ozlabs.org, olof@lixom.net, paulus@samba.org
-In-Reply-To: <4280D72C.4090203@shadowen.org>
-Message-Id: <E1DY1oW-0002hE-7B@pinky.shadowen.org>
-From: Andy Whitcroft <apw@shadowen.org>
-Date: Tue, 17 May 2005 14:08:48 +0100
+	Tue, 17 May 2005 09:11:06 -0400
+Received: from one.firstfloor.org ([213.235.205.2]:19075 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261461AbVEQNKv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 09:10:51 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-cluster@redhat.com
+Subject: Re: [PATCH 0/8] dlm: overview
+References: <20050516071949.GE7094@redhat.com>
+	<20050517001133.64d50d8c.akpm@osdl.org>
+From: Andi Kleen <ak@muc.de>
+Date: Tue, 17 May 2005 15:10:46 +0200
+In-Reply-To: <20050517001133.64d50d8c.akpm@osdl.org> (Andrew Morton's
+ message of "Tue, 17 May 2005 00:11:33 -0700")
+Message-ID: <m1fywm80bt.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok.  Testing seems to show that indeed the initial memory blocks
-do not need to be treated specially on ppc64 non-numa systems.
-Andrew could you add this to the sparsemem patches please.
-Applies on top of 2.6.12-rc4-mm2.
+Andrew Morton <akpm@osdl.org> writes:
+>
+> Squawk.
+>
+> Not only do I not know whether this stuff should be merged: I don't even
+> know how to find that out.  Unless I'm prepared to become a full-on
+> cluster/dlm person, which isn't looking likely.
+>
+> The usual fallback is to identify all the stakeholders and get them to say
+> "yes Andrew, this code is cool and we can use it", but I don't think the
+> clustering teams have sufficent act-togetherness to be able to do that.
 
--apw
+My impression is that it is unlikely everybody will agree on a single
+cluster setup anyways, so it might be best to use a similar strategy
+as with file systems ("multiple implementations - standard API to the
+outside world")
 
-Testing seems to confirm that we do not need to handle the first memory
-block specially in do_init_bootmem.
+This would mean the DLM could be merged if the other cluster people
+agree that the interface it presents to the outside world is good
+for them too. Is it? Perhaps these interfaces should be discussed
+first.
 
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+-Andi
 
-diffstat sparsemem-ppc64-flat-first-block-is-not-special
----
- init.c |   21 +++++++--------------
- 1 files changed, 7 insertions(+), 14 deletions(-)
-
-diff -upN reference/arch/ppc64/mm/init.c current/arch/ppc64/mm/init.c
---- reference/arch/ppc64/mm/init.c
-+++ current/arch/ppc64/mm/init.c
-@@ -538,14 +538,6 @@ void __init do_init_bootmem(void)
- 	unsigned long start, bootmap_pages;
- 	unsigned long total_pages = lmb_end_of_DRAM() >> PAGE_SHIFT;
- 	int boot_mapsize;
--	unsigned long start_pfn, end_pfn;
--	/*
--	 * Note presence of first (logical/coalasced) LMB which will
--	 * contain RMO region
--	 */
--	start_pfn = lmb.memory.region[0].physbase >> PAGE_SHIFT;
--	end_pfn = start_pfn + (lmb.memory.region[0].size >> PAGE_SHIFT);
--	memory_present(0, start_pfn, end_pfn);
- 
- 	/*
- 	 * Find an area to use for the bootmem bitmap.  Calculate the size of
-@@ -562,18 +554,19 @@ void __init do_init_bootmem(void)
- 	max_pfn = max_low_pfn;
- 
- 	/* Add all physical memory to the bootmem map, mark each area
--	 * present.  The first block has already been marked present above.
-+	 * present.
- 	 */
- 	for (i=0; i < lmb.memory.cnt; i++) {
- 		unsigned long physbase, size;
-+		unsigned long start_pfn, end_pfn;
- 
- 		physbase = lmb.memory.region[i].physbase;
- 		size = lmb.memory.region[i].size;
--		if (i) {
--			start_pfn = physbase >> PAGE_SHIFT;
--			end_pfn = start_pfn + (size >> PAGE_SHIFT);
--			memory_present(0, start_pfn, end_pfn);
--		}
-+
-+		start_pfn = physbase >> PAGE_SHIFT;
-+		end_pfn = start_pfn + (size >> PAGE_SHIFT);
-+		memory_present(0, start_pfn, end_pfn);
-+
- 		free_bootmem(physbase, size);
- 	}
- 

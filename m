@@ -1,96 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbVEQQRD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVEQQRB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261787AbVEQQRD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 12:17:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbVEQQN1
+	id S261546AbVEQQRB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 12:17:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVEQQNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 12:13:27 -0400
-Received: from smtp-102-tuesday.nerim.net ([62.4.16.102]:9487 "EHLO
-	kraid.nerim.net") by vger.kernel.org with ESMTP id S261738AbVEQQJe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 12:09:34 -0400
-Date: Tue, 17 May 2005 18:09:36 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Alexey Fisher <fishor@gmx.net>
-Cc: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
-Subject: [PATCH 2.6] I2C: chips/Kconfig corrections
-Message-Id: <20050517180936.4717aabf.khali@linux-fr.org>
-In-Reply-To: <200505170830.16998.fishor@gmx.net>
-References: <200505170830.16998.fishor@gmx.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 17 May 2005 12:13:54 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:3788 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261795AbVEQQJK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 12:09:10 -0400
+Date: Tue, 17 May 2005 17:09:00 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Michael Halcrow <mhalcrow@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Chris Wright <chrisw@osdl.org>, Serge Hallyn <serue@us.ibm.com>
+Subject: Re: [patch 2/7] BSD Secure Levels: move bd claim from inode to filp
+Message-ID: <20050517160900.GB32436@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Michael Halcrow <mhalcrow@us.ibm.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Chris Wright <chrisw@osdl.org>, Serge Hallyn <serue@us.ibm.com>
+References: <20050517152303.GA2814@halcrow.us> <20050517152545.GA2944@halcrow.us>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050517152545.GA2944@halcrow.us>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Alexey,
+On Tue, May 17, 2005 at 10:25:46AM -0500, Michael Halcrow wrote:
+> +/**
+> + * Claim the blockdev to exclude mounters; release on file close.
+> + */
+> +static int seclvl_bd_claim(struct file *filp)
+>  {
+> -	int holder;
+>  	struct block_device *bdev = NULL;
+> -	dev_t dev = inode->i_rdev;
+> +	dev_t dev = filp->f_dentry->d_inode->i_rdev;
+>  	bdev = open_by_devnum(dev, FMODE_WRITE);
+>  	if (bdev) {
+> -		if (bd_claim(bdev, &holder)) {
+> +		if (bd_claim(bdev, filp)) {
+>  			blkdev_put(bdev);
+>  			return -EPERM;
+>  		}
+> -		/* claimed, mark it to release on close */
+> -		inode->i_security = current;
+> +		/* Claimed; mark it to release on close */
+> +		filp->f_security = filp;
+>  	}
+>  	return 0;
 
-I had to slightly modify your original patch to have it apply properly.
-I also stripped the trailing white space. Here comes the modified
-version.
+While we're at it this code is crap before and after your patch.  There's absolutely
+no point at all to use open_by_devnum if you already have an inode or file that you
+can get the struct block_device from easily.
 
-Greg, please apply to your i2c tree.
-
----
-
-Here are some corrections for drivers/i2c/chips/Kconfig.
-
-Signed-off-by: Alexey Fisher <fishor@gmx.net>
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
-
-
- drivers/i2c/chips/Kconfig |    9 ++++++---
- 1 files changed, 6 insertions(+), 3 deletions(-)
-
---- linux-2.6.12-rc4.orig/drivers/i2c/chips/Kconfig	2005-05-16 22:51:53.000000000 +0200
-+++ linux-2.6.12-rc4/drivers/i2c/chips/Kconfig	2005-05-17 18:04:23.000000000 +0200
-@@ -29,6 +29,7 @@
- 	help
- 	  If you say yes here you get support for Analog Devices ADM1025
- 	  and Philips NE1619 sensor chips.
-+
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called adm1025.
- 
-@@ -38,6 +39,8 @@
- 	select I2C_SENSOR
- 	help
- 	  If you say yes here you get support for Analog Devices ADM1026
-+	  sensor chip.
-+
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called adm1026.
- 
-@@ -48,6 +51,7 @@
- 	help
- 	  If you say yes here you get support for Analog Devices ADM1031 
- 	  and ADM1030 sensor chips.
-+
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called adm1031.
- 
-@@ -198,8 +202,7 @@
- 	select I2C_SENSOR
- 	help
- 	  If you say yes here you get support for National Semiconductor LM78,
--	  LM78-J and LM79.  This can also be built as a module which can be
--	  inserted and removed while the kernel is running.
-+	  LM78-J and LM79.
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called lm78.
-@@ -232,7 +235,7 @@
- 	select I2C_SENSOR
- 	help
- 	  If you say yes here you get support for National Semiconductor LM85
--	  sensor chips and clones: ADT7463 and ADM1027.
-+	  sensor chips and clones: ADT7463, EMC6D100, EMC6D102 and ADM1027.
- 
- 	  This driver can also be built as a module.  If so, the module
- 	  will be called lm85.
-
-
-
--- 
-Jean Delvare

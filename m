@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVEQAJT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVEQAK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261316AbVEQAJT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 16 May 2005 20:09:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVEQAJT
+	id S261222AbVEQAK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 16 May 2005 20:10:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVEQAKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 16 May 2005 20:09:19 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:3338 "HELO
+	Mon, 16 May 2005 20:10:10 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:4362 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261316AbVEQAI4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 16 May 2005 20:08:56 -0400
-Date: Tue, 17 May 2005 02:08:53 +0200
+	id S261222AbVEQAI5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 16 May 2005 20:08:57 -0400
+Date: Tue, 17 May 2005 02:08:56 +0200
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: ambx1@neo.rr.com, perex@suse.cz, linux-kernel@vger.kernel.org
-Subject: [2.6 patch] drivers/pnp/: possible cleanups
-Message-ID: <20050517000853.GN5112@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [2.6 patch] lib/zlib*: possible cleanups
+Message-ID: <20050517000855.GO5112@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,194 +23,242 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 This patch contains the following possible cleanups:
-- make needlessly global code static
-- #if 0 the following unused global function:
-  - core.c: pnp_remove_device
+- #if 0 the following unused functions:
+  - zlib_deflate/deflate.c: zlib_deflateSetDictionary
+  - zlib_deflate/deflate.c: zlib_deflateParams
+  - zlib_deflate/deflate.c: zlib_deflateCopy
+  - zlib_inflate/infblock.c: zlib_inflate_set_dictionary
+  - zlib_inflate/infblock.c: zlib_inflate_blocks_sync_point
+  - zlib_inflate/inflate_sync.c: zlib_inflateSync
+  - zlib_inflate/inflate_sync.c: zlib_inflateSyncPoint
 - remove the following unneeded EXPORT_SYMBOL's:
-  - card.c: pnp_add_card
-  - card.c: pnp_remove_card
-  - card.c: pnp_add_card_device
-  - card.c: pnp_remove_card_device
-  - card.c: pnp_add_card_id
-  - core.c: pnp_register_protocol
-  - core.c: pnp_unregister_protocol
-  - core.c: pnp_add_device
-  - core.c: pnp_remove_device
-  - pnpacpi/core.c: pnpacpi_protocol
-  - driver.c: pnp_add_id
-  - isapnp/core.c: isapnp_read_byte
-  - manager.c: pnp_auto_config_dev
-  - resource.c: pnp_register_dependent_option
-  - resource.c: pnp_register_independent_option
-  - resource.c: pnp_register_irq_resource
-  - resource.c: pnp_register_dma_resource
-  - resource.c: pnp_register_port_resource
-  - resource.c: pnp_register_mem_resource
-
-Note that this patch #if 0's exactly one functions and removes no
-functions. Most it does is the removal of EXPORT_SYMBOL's, so if any
-modular code will use any of them, re-adding will be trivial.
-
-Modular ISAPnP might be interesting in some cases, but this is more
-legacy code. If someone would work on it to sort all the issues out
-(starting with the point that most users of __ISAPNP__ will have to be
-fixed) re-adding the required EXPORT_SYMBOL's won't be hard for him.
+  - zlib_deflate/deflate_syms.c: zlib_deflateCopy
+  - zlib_deflate/deflate_syms.c: zlib_deflateParams
+  - zlib_inflate/inflate_syms.c: zlib_inflateSync
+  - zlib_inflate/inflate_syms.c: zlib_inflateSyncPoint
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
 ---
 
 This patch was already sent on:
-- 2 May 2005
-- 11 Mar 2005
-- 27 Feb 2005
+- 6 May 2005
 
- drivers/pnp/card.c         |    7 +------
- drivers/pnp/core.c         |    7 ++-----
- drivers/pnp/driver.c       |    1 -
- drivers/pnp/isapnp/core.c  |    1 -
- drivers/pnp/manager.c      |    1 -
- drivers/pnp/pnpacpi/core.c |    5 ++---
- drivers/pnp/resource.c     |    8 --------
- include/linux/pnp.h        |    2 --
- 8 files changed, 5 insertions(+), 27 deletions(-)
+ include/linux/zlib.h            |   11 +++++++++++
+ lib/zlib_deflate/deflate.c      |    6 ++++++
+ lib/zlib_deflate/deflate_syms.c |    2 --
+ lib/zlib_inflate/infblock.c     |    4 ++++
+ lib/zlib_inflate/infblock.h     |    4 ++++
+ lib/zlib_inflate/inflate_syms.c |    2 --
+ lib/zlib_inflate/inflate_sync.c |    4 ++++
+ 7 files changed, 29 insertions(+), 4 deletions(-)
 
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/card.c.old	2005-02-26 15:54:16.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/card.c	2005-02-26 16:16:07.000000000 +0100
-@@ -19,7 +19,7 @@
- #include "base.h"
+--- linux-2.6.12-rc3-mm2-full/include/linux/zlib.h.old	2005-05-03 09:10:20.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/include/linux/zlib.h	2005-05-03 09:13:57.000000000 +0200
+@@ -442,9 +442,11 @@
+    not perform any compression: this will be done by deflate().
+ */
+                             
++#if 0
+ extern int zlib_deflateSetDictionary (z_streamp strm,
+ 						     const Byte *dictionary,
+ 						     uInt  dictLength);
++#endif
+ /*
+      Initializes the compression dictionary from the given byte sequence
+    without producing any compressed output. This function must be called
+@@ -478,7 +480,10 @@
+    perform any compression: this will be done by deflate().
+ */
  
- LIST_HEAD(pnp_cards);
--LIST_HEAD(pnp_card_drivers);
-+static LIST_HEAD(pnp_card_drivers);
++#if 0
+ extern int zlib_deflateCopy (z_streamp dest, z_streamp source);
++#endif
++
+ /*
+      Sets the destination stream as a complete copy of the source stream.
  
+@@ -506,7 +511,9 @@
+    stream state was inconsistent (such as zalloc or state being NULL).
+ */
  
- static const struct pnp_card_device_id * match_card(struct pnp_card_driver * drv, struct pnp_card * card)
-@@ -380,11 +380,6 @@
- 	pnp_unregister_driver(&drv->link);
++#if 0
+ extern int zlib_deflateParams (z_streamp strm, int level, int strategy);
++#endif
+ /*
+      Dynamically update the compression level and compression strategy.  The
+    interpretation of level and strategy is as in deflateInit2.  This can be
+@@ -566,7 +573,9 @@
+    inflate().
+ */
+ 
++#if 0
+ extern int zlib_inflateSync (z_streamp strm);
++#endif
+ /* 
+     Skips invalid compressed data until a full flush point (see above the
+   description of deflate with Z_FULL_FLUSH) can be found, or until all
+@@ -631,7 +640,9 @@
+ #endif
+ 
+ extern const char  * zlib_zError           (int err);
++#if 0
+ extern int           zlib_inflateSyncPoint (z_streamp z);
++#endif
+ extern const uLong * zlib_get_crc_table    (void);
+ 
+ #endif /* _ZLIB_H */
+--- linux-2.6.12-rc3-mm2-full/lib/zlib_deflate/deflate.c.old	2005-05-03 09:10:46.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/lib/zlib_deflate/deflate.c	2005-05-03 09:12:39.000000000 +0200
+@@ -255,6 +255,7 @@
  }
  
--EXPORT_SYMBOL(pnp_add_card);
--EXPORT_SYMBOL(pnp_remove_card);
--EXPORT_SYMBOL(pnp_add_card_device);
--EXPORT_SYMBOL(pnp_remove_card_device);
--EXPORT_SYMBOL(pnp_add_card_id);
- EXPORT_SYMBOL(pnp_request_card_device);
- EXPORT_SYMBOL(pnp_release_card_device);
- EXPORT_SYMBOL(pnp_register_card_driver);
---- linux-2.6.11-rc4-mm1-full/include/linux/pnp.h.old	2005-02-26 15:54:39.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/include/linux/pnp.h	2005-02-26 15:54:59.000000000 +0100
-@@ -353,7 +353,6 @@
- int pnp_register_protocol(struct pnp_protocol *protocol);
- void pnp_unregister_protocol(struct pnp_protocol *protocol);
- int pnp_add_device(struct pnp_dev *dev);
--void pnp_remove_device(struct pnp_dev *dev);
- int pnp_device_attach(struct pnp_dev *pnp_dev);
- void pnp_device_detach(struct pnp_dev *pnp_dev);
- extern struct list_head pnp_global;
-@@ -399,7 +398,6 @@
- static inline void pnp_unregister_protocol(struct pnp_protocol *protocol) { }
- static inline int pnp_init_device(struct pnp_dev *dev) { return -ENODEV; }
- static inline int pnp_add_device(struct pnp_dev *dev) { return -ENODEV; }
--static inline void pnp_remove_device(struct pnp_dev *dev) { }
- static inline int pnp_device_attach(struct pnp_dev *pnp_dev) { return -ENODEV; }
- static inline void pnp_device_detach(struct pnp_dev *pnp_dev) { ; }
- 
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/core.c.old	2005-02-26 15:55:56.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/core.c	2005-02-26 16:48:31.000000000 +0100
-@@ -158,13 +158,14 @@
-  *
-  * this function will free all mem used by dev
-  */
--
+ /* ========================================================================= */
 +#if 0
- void pnp_remove_device(struct pnp_dev *dev)
- {
- 	if (!dev || dev->card)
- 		return;
- 	__pnp_remove_device(dev);
+ int zlib_deflateSetDictionary(
+ 	z_streamp strm,
+ 	const Byte *dictionary,
+@@ -297,6 +298,7 @@
+     if (hash_head) hash_head = 0;  /* to make compiler happy */
+     return Z_OK;
  }
 +#endif  /*  0  */
  
- static int __init pnp_init(void)
+ /* ========================================================================= */
+ int zlib_deflateReset(
+@@ -330,6 +332,7 @@
+ }
+ 
+ /* ========================================================================= */
++#if 0
+ int zlib_deflateParams(
+ 	z_streamp strm,
+ 	int level,
+@@ -365,6 +368,7 @@
+     s->strategy = strategy;
+     return err;
+ }
++#endif  /*  0  */
+ 
+ /* =========================================================================
+  * Put a short in the pending buffer. The 16-bit value is put in MSB order.
+@@ -572,6 +576,7 @@
+ /* =========================================================================
+  * Copy the source state to the destination state.
+  */
++#if 0
+ int zlib_deflateCopy (
+ 	z_streamp dest,
+ 	z_streamp source
+@@ -624,6 +629,7 @@
+     return Z_OK;
+ #endif
+ }
++#endif  /*  0  */
+ 
+ /* ===========================================================================
+  * Read a new buffer from the current input stream, update the adler32
+--- linux-2.6.12-rc3-mm2-full/lib/zlib_deflate/deflate_syms.c.old	2005-05-03 09:11:13.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/lib/zlib_deflate/deflate_syms.c	2005-05-03 09:12:02.000000000 +0200
+@@ -16,6 +16,4 @@
+ EXPORT_SYMBOL(zlib_deflateInit2_);
+ EXPORT_SYMBOL(zlib_deflateEnd);
+ EXPORT_SYMBOL(zlib_deflateReset);
+-EXPORT_SYMBOL(zlib_deflateCopy);
+-EXPORT_SYMBOL(zlib_deflateParams);
+ MODULE_LICENSE("GPL");
+--- linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/infblock.h.old	2005-05-03 09:12:49.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/infblock.h	2005-05-03 09:34:30.000000000 +0200
+@@ -33,12 +33,16 @@
+     inflate_blocks_statef *,
+     z_streamp);
+ 
++#if 0
+ extern void zlib_inflate_set_dictionary (
+     inflate_blocks_statef *s,
+     const Byte *d,  /* dictionary */
+     uInt  n);       /* dictionary length */
++#endif  /*  0  */
+ 
++#if 0
+ extern int zlib_inflate_blocks_sync_point (
+     inflate_blocks_statef *s);
++#endif  /*  0  */
+ 
+ #endif /* _INFBLOCK_H */
+--- linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/infblock.c.old	2005-05-03 09:13:13.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/infblock.c	2005-05-03 09:34:46.000000000 +0200
+@@ -338,6 +338,7 @@
+ }
+ 
+ 
++#if 0
+ void zlib_inflate_set_dictionary(
+ 	inflate_blocks_statef *s,
+ 	const Byte *d,
+@@ -347,15 +348,18 @@
+   memcpy(s->window, d, n);
+   s->read = s->write = s->window + n;
+ }
++#endif  /*  0  */
+ 
+ 
+ /* Returns true if inflate is currently at the end of a block generated
+  * by Z_SYNC_FLUSH or Z_FULL_FLUSH. 
+  * IN assertion: s != NULL
+  */
++#if 0
+ int zlib_inflate_blocks_sync_point(
+ 	inflate_blocks_statef *s
+ )
  {
-@@ -174,7 +175,3 @@
- 
- subsys_initcall(pnp_init);
- 
--EXPORT_SYMBOL(pnp_register_protocol);
--EXPORT_SYMBOL(pnp_unregister_protocol);
--EXPORT_SYMBOL(pnp_add_device);
--EXPORT_SYMBOL(pnp_remove_device);
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/pnpacpi/core.c.old	2005-02-26 15:57:01.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/pnpacpi/core.c	2005-02-26 15:57:26.000000000 +0100
-@@ -124,7 +124,7 @@
- 	return ACPI_FAILURE(status) ? -ENODEV : 0;
+   return s->mode == LENS;
  }
++#endif  /*  0  */
+--- linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/inflate_sync.c.old	2005-05-03 09:14:12.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/inflate_sync.c	2005-05-03 09:14:52.000000000 +0200
+@@ -7,6 +7,7 @@
+ #include "infblock.h"
+ #include "infutil.h"
  
--struct pnp_protocol pnpacpi_protocol = {
-+static struct pnp_protocol pnpacpi_protocol = {
- 	.name	= "Plug and Play ACPI",
- 	.get	= pnpacpi_get_resources,
- 	.set	= pnpacpi_set_resources,
-@@ -242,7 +242,7 @@
++#if 0
+ int zlib_inflateSync(
+ 	z_streamp z
+ )
+@@ -57,6 +58,7 @@
+   z->state->mode = BLOCKS;
+   return Z_OK;
  }
++#endif  /*  0  */
  
- int pnpacpi_disabled __initdata;
--int __init pnpacpi_init(void)
-+static int __init pnpacpi_init(void)
- {
- 	if (acpi_disabled || pnpacpi_disabled) {
- 		pnp_info("PnP ACPI: disabled");
-@@ -266,4 +266,3 @@
+ 
+ /* Returns true if inflate is currently at the end of a block generated
+@@ -66,6 +68,7 @@
+  * decompressing, PPP checks that at the end of input packet, inflate is
+  * waiting for these length bytes.
+  */
++#if 0
+ int zlib_inflateSyncPoint(
+ 	z_streamp z
+ )
+@@ -74,6 +77,7 @@
+     return Z_STREAM_ERROR;
+   return zlib_inflate_blocks_sync_point(z->state->blocks);
  }
- __setup("pnpacpi=", pnpacpi_setup);
++#endif  /*  0  */
  
--EXPORT_SYMBOL(pnpacpi_protocol);
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/driver.c.old	2005-02-26 16:09:23.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/driver.c	2005-02-26 16:09:52.000000000 +0100
-@@ -217,6 +217,5 @@
- 
- EXPORT_SYMBOL(pnp_register_driver);
- EXPORT_SYMBOL(pnp_unregister_driver);
--EXPORT_SYMBOL(pnp_add_id);
- EXPORT_SYMBOL(pnp_device_attach);
- EXPORT_SYMBOL(pnp_device_detach);
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/isapnp/core.c.old	2005-02-26 16:11:16.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/isapnp/core.c	2005-02-26 16:11:39.000000000 +0100
-@@ -952,7 +952,6 @@
- EXPORT_SYMBOL(isapnp_present);
- EXPORT_SYMBOL(isapnp_cfg_begin);
- EXPORT_SYMBOL(isapnp_cfg_end);
--EXPORT_SYMBOL(isapnp_read_byte);
- EXPORT_SYMBOL(isapnp_write_byte);
- 
- static int isapnp_read_resources(struct pnp_dev *dev, struct pnp_resource_table *res)
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/manager.c.old	2005-02-26 16:11:47.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/manager.c	2005-02-26 16:12:11.000000000 +0100
-@@ -563,7 +563,6 @@
- 
- 
- EXPORT_SYMBOL(pnp_manual_config_dev);
--EXPORT_SYMBOL(pnp_auto_config_dev);
- EXPORT_SYMBOL(pnp_activate_dev);
- EXPORT_SYMBOL(pnp_disable_dev);
- EXPORT_SYMBOL(pnp_resource_change);
---- linux-2.6.11-rc4-mm1-full/drivers/pnp/resource.c.old	2005-02-26 16:12:19.000000000 +0100
-+++ linux-2.6.11-rc4-mm1-full/drivers/pnp/resource.c	2005-02-26 16:13:37.000000000 +0100
-@@ -478,14 +478,6 @@
- }
- 
- 
--EXPORT_SYMBOL(pnp_register_dependent_option);
--EXPORT_SYMBOL(pnp_register_independent_option);
--EXPORT_SYMBOL(pnp_register_irq_resource);
--EXPORT_SYMBOL(pnp_register_dma_resource);
--EXPORT_SYMBOL(pnp_register_port_resource);
--EXPORT_SYMBOL(pnp_register_mem_resource);
--
--
- /* format is: pnp_reserve_irq=irq1[,irq2] .... */
- 
- static int __init pnp_setup_reserve_irq(char *str)
+ /*
+  * This subroutine adds the data at next_in/avail_in to the output history
+--- linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/inflate_syms.c.old	2005-05-03 09:15:06.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/lib/zlib_inflate/inflate_syms.c	2005-05-03 09:15:13.000000000 +0200
+@@ -15,8 +15,6 @@
+ EXPORT_SYMBOL(zlib_inflateInit_);
+ EXPORT_SYMBOL(zlib_inflateInit2_);
+ EXPORT_SYMBOL(zlib_inflateEnd);
+-EXPORT_SYMBOL(zlib_inflateSync);
+ EXPORT_SYMBOL(zlib_inflateReset);
+-EXPORT_SYMBOL(zlib_inflateSyncPoint);
+ EXPORT_SYMBOL(zlib_inflateIncomp); 
+ MODULE_LICENSE("GPL");
+
 

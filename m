@@ -1,58 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVEQE6K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbVEQE5g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbVEQE6K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 00:58:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVEQE6K
+	id S261735AbVEQE5g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 00:57:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVEQE5f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 00:58:10 -0400
-Received: from ercist.iscas.ac.cn ([159.226.5.94]:11534 "EHLO
-	ercist.iscas.ac.cn") by vger.kernel.org with ESMTP id S261684AbVEQE55
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 00:57:57 -0400
-Subject: Re: [RFD] What error should FS return when I/O failure occurs?
-From: fs <fs@ercist.iscas.ac.cn>
-To: coywolf@lovecn.org
-Cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Kenichi Okuyama <okuyama@intellilink.co.jp>
-In-Reply-To: <2cd57c90050516155413b18b41@mail.gmail.com>
-References: <1116263665.2434.69.camel@CoolQ>
-	 <200505160635.j4G6ZUcX023810@turing-police.cc.vt.edu>
-	 <20050517.051113.132843723.okuyamak@dd.iij4u.or.jp>
-	 <2cd57c90050516155413b18b41@mail.gmail.com>
-Content-Type: text/plain
-Organization: iscas
-Message-Id: <1116345974.2428.17.camel@CoolQ>
+	Tue, 17 May 2005 00:57:35 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58779 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261735AbVEQE5a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 00:57:30 -0400
+Date: Tue, 17 May 2005 05:57:48 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Greg K-H <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, sct@redhat.com
+Subject: Re: [PATCH] Fix root hole in raw device
+Message-ID: <20050517045748.GO1150@parcelfarce.linux.theplanet.co.uk>
+References: <11163046682662@kroah.com> <11163046681444@kroah.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Tue, 17 May 2005 12:06:14 -0400
-Content-Transfer-Encoding: 7bit
-X-ArGoMail-Authenticated: fs@ercist.iscas.ac.cn
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <11163046681444@kroah.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-05-16 at 18:54, Coywolf Qi Hunt wrote:
+On Mon, May 16, 2005 at 09:37:48PM -0700, Greg KH wrote:
+> @@ -122,7 +122,7 @@
+>  {
+>  	struct block_device *bdev = filp->private_data;
+>  
+> -	return ioctl_by_bdev(bdev, command, arg);
+> +	return blkdev_ioctl(bdev->bd_inode, filp, command, arg);
+>  }
 
-> Two kinds of HW failure,
-> 
->    1. still readable, only write failure. 
->    2. unreadable, unwriteable.
-> 
-> For the first case, if mount option errors=remount-ro is given or implied,
-> EROFS is appropriate, otherwise EIO.  For the second case, always EIO.
-> 
-> The current VFS design does not try to hide the problems from its
-> underlying fs'.
-> No need to make it transparent. Userland programs need to consider
-> both EROFS and EIO.
-What you said is based on the FS implementor's perspective.
-But from user's perspective, they open a file with O_RDWR, get a
-success, then write returns EROFS?
-Besides, EXT3 ALWAYS return EROFS for the 1st and 2nd case, even
-you specify errors=continue, things are still the same.
-
-regards,
-----
-Qu Fuping
-
-
+That is not quite correct.  You are passing very odd filp to ->ioctl()...
+Old variant gave NULL, which is also not too nice, though.

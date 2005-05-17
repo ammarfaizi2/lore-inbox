@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVEQUgk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261936AbVEQUkw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261941AbVEQUgk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 16:36:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVEQUgk
+	id S261936AbVEQUkw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 16:40:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbVEQUkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 16:36:40 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:49079 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261941AbVEQUgc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 16:36:32 -0400
-Subject: Re: software mixing in alsa
-From: Lee Revell <rlrevell@joe-job.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: Karel Kulhavy <clock@twibright.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200505172027.j4HKRjTV029545@turing-police.cc.vt.edu>
-References: <20050517095613.GA9947@kestrel>
-	 <200505171208.04052.jan@spitalnik.net> <20050517141307.GA7759@kestrel>
-	 <1116354762.31830.12.camel@mindpipe>
-	 <20050517192412.GA19431@kestrel.twibright.com>
-	 <200505172027.j4HKRjTV029545@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Date: Tue, 17 May 2005 16:36:30 -0400
-Message-Id: <1116362191.32210.24.camel@mindpipe>
+	Tue, 17 May 2005 16:40:52 -0400
+Received: from orb.pobox.com ([207.8.226.5]:55215 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S261950AbVEQUki (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 16:40:38 -0400
+Date: Tue, 17 May 2005 15:40:29 -0500
+From: Nathan Lynch <ntl@pobox.com>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linuxppc64-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>,
+       linux-kernel@vger.kernel.org, Anton Blanchard <anton@samba.org>
+Subject: Re: [PATCH 3/8] ppc64: add a watchdog driver for rtas
+Message-ID: <20050517204029.GA2748@otto>
+References: <200505132117.37461.arnd@arndb.de> <200505132124.48963.arnd@arndb.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200505132124.48963.arnd@arndb.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-17 at 16:27 -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 17 May 2005 21:24:12 +0200, Karel Kulhavy said:
-> > Lee Revell wrote:
-> > 
-> > > Finally, these questions are all OT for LKML.  Try alsa-user at
-> > > lists.sf.net and alsa-devel at lists.sf.net.  Also there's a bug
-> > 
-> > ALSA is a part of Linux kernel, right? This is linux-kernel. Why
-> > is it OT here? Doesn't make sense for me.
-> 
-> I was hoping somebody would explain how to get 'dmix' plugin working in the
-> kernel - then I could get rid of esd ;)  (Note that running something in
-> userspace that accepts connections, runs dmix on them, and then creates one
-> thing spewing to /dev/pcm isn't a solution - I've already *got* esd, warts and all)
+Arnd Bergmann wrote:
+> +static volatile int wdrtas_miscdev_open = 0;
+...
+> +static int
+> +wdrtas_open(struct inode *inode, struct file *file)
+> +{
+> +	/* only open once */
+> +	if (xchg(&wdrtas_miscdev_open,1))
+> +		return -EBUSY;
 
-I don't understand your message very well.  The dmix plugin is part of
-alsa-lib, which is part of userspace.  From the application's point of
-view, it does not matter whether the mixing happens in kernel or not.
-ALSA follows the philosophy of doing as little as possible in the
-kernel, and since mixing and volume control work fine in userspace,
-that's where they live.
+The volatile and xchg strike me as an obscure method for ensuring only
+one process at a time can open this file.  Any reason a semaphore
+couldn't be used?
 
-Lee 
+> +static int
+> +wdrtas_close(struct inode *inode, struct file *file)
+> +{
+> +	/* only stop watchdog, if this was announced using 'V' before */
+> +	if (wdrtas_expect_close == WDRTAS_MAGIC_CHAR)
+> +		wdrtas_timer_stop();
+> +	else {
+> +		printk("wdrtas: got unexpected close. Watchdog "
+> +		       "not stopped.\n");
 
+printk's need a valid log level specified.  There are several in this
+file that lack them.
+
+
+Nathan

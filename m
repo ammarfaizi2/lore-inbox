@@ -1,198 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVEQGJ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVEQGKw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbVEQGJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 02:09:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbVEQGJ3
+	id S261167AbVEQGKw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 02:10:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVEQGKw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 02:09:29 -0400
-Received: from b2492.static.pacific.net.au ([210.23.143.146]:59588 "EHLO
-	b2492.static.pacific.net.au") by vger.kernel.org with ESMTP
-	id S261182AbVEQGJE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 02:09:04 -0400
-Message-ID: <42898A7D.9040103@peterskipworth.com>
-Date: Tue, 17 May 2005 16:09:01 +1000
-From: Peter Skipworth <pete@peterskipworth.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] BTTV support for Adlink RTV24 capture card
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 17 May 2005 02:10:52 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:431 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261167AbVEQGKY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 02:10:24 -0400
+Subject: [PATCH 2.6.12-rc4-mm2] fork connector: connector-send-status.patch
+From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       elsa-devel <elsa-devel@lists.sourceforge.net>,
+       Evgeniy Polyakov <johnpol@2ka.mipt.ru>,
+       Alexander Nyberg <alexn@dsv.su.se>, aq <aquynh@gmail.com>
+Date: Tue, 17 May 2005 08:10:18 +0200
+Message-Id: <1116310218.8374.11.camel@frecb000711.frec.bull.fr>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 17/05/2005 08:21:01,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 17/05/2005 08:21:02,
+	Serialize complete at 17/05/2005 08:21:02
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I submitted this earlier today against an older kernel version; this is 
-a new patch against 2.6.12-rc4
+Hello Andrew,
 
-The bttv module currently lacks support for the Adlink RTV24 capture 
-card. The following patch adds support for the Adlink RTV24 video 
-capture card to the bttv module.
+  This patch implements the sending of a message about the fork
+connector's state (enabled or disabled). Now, when a user space
+application asks the fork connector about its state, the fork connector
+sends a message through the appropriate netlink interface.
 
-In case my mailer mangles spaces/tabs, patch is available at 
-http://argo.peterskipworth.com/kernel/adlink-rtv24-patch.txt
+		
+Signed-off-by: guillaume.thouvenin@bull.net
 
+---
 
-diff -uprN -X dontdiff a/drivers/media/video/bttv-cards.c 
-b/drivers/media/video/bttv-cards.c
---- a/drivers/media/video/bttv-cards.c    2005-05-07 15:20:31.000000000 
-+1000
-+++ b/drivers/media/video/bttv-cards.c    2005-05-17 15:48:38.560339960 
-+1000
-@@ -51,6 +51,7 @@ static void avermedia_eeprom(struct bttv
- static void osprey_eeprom(struct bttv *btv);
- static void modtec_eeprom(struct bttv *btv);
- static void init_PXC200(struct bttv *btv);
-+static void init_RTV24(struct bttv *btv);
+ drivers/connector/cn_fork.c |   37 +++++++++++++++++++++++++++++++++++--
+ include/linux/cn_fork.h     |   20 +++++++++++++++-----
+ 2 files changed, 50 insertions(+), 7 deletions(-)
+
+Index: linux-2.6.12-rc4-mm2/drivers/connector/cn_fork.c
+===================================================================
+--- linux-2.6.12-rc4-mm2.orig/drivers/connector/cn_fork.c	2005-05-16 12:41:23.000000000 +0200
++++ linux-2.6.12-rc4-mm2/drivers/connector/cn_fork.c	2005-05-16 12:58:18.000000000 +0200
+@@ -44,6 +44,16 @@ struct cb_id cb_fork_id = { CN_IDX_FORK,
+ /* fork_counts is used as the sequence number of the netlink message */
+ static DEFINE_PER_CPU(unsigned long, fork_counts);
  
- static void winview_audio(struct bttv *btv, struct video_audio *v, int 
-set);
- static void lt9415_audio(struct bttv *btv, struct video_audio *v, int set);
-@@ -2252,6 +2253,19 @@ struct tvcard bttv_tvcards[] = {
-     .no_tda7432    = 1,
-     .no_tda9875    = 1,
-     .muxsel_hook    = kodicom4400r_muxsel,
-+},
-+{
-+    /* ---- card 0x86---------------------------------- */
-+    /* Michael Henson <mhenson@clarityvi.com> */
-+    /* Adlink RTV24 with special unlock codes */
-+    .name           = "Adlink RTV24",
-+    .video_inputs   = 4,
-+    .audio_inputs   = 1,
-+    .tuner          = 0,
-+    .svhs           = 2,
-+    .muxsel         = { 2, 3, 1, 0},
-+    .tuner_type     = -1,
-+    .pll            = PLL_28,
- }};
++/**
++ * fork_connector - send information about fork through a connector
++ * @ppid: Parent process ID
++ * @ptid: Parent thread ID
++ * @cpid: Child process ID
++ * @ctid: Child thread ID
++ *
++ * It sends information to a user space application through the
++ * connector when a new process is created.
++ */
+ void fork_connector(pid_t ppid, pid_t ptid, pid_t cpid, pid_t ctid)
+ {
+ 	if (cn_fork_enable) {
+@@ -60,6 +70,7 @@ void fork_connector(pid_t ppid, pid_t pt
  
- static const unsigned int bttv_num_tvcards = ARRAY_SIZE(bttv_tvcards);
-@@ -2749,6 +2763,9 @@ void __devinit bttv_init_card2(struct bt
-     case BTTV_KODICOM_4400R:
-         kodicom4400r_init(btv);
-         break;
-+        case BTTV_ADLINK_RTV24:
-+                init_RTV24( btv );
-+                break;
-     }
- 
-     /* pll configuration */
-@@ -3304,6 +3321,95 @@ static void __devinit init_PXC200(struct
-     printk(KERN_INFO "PXC200 Initialised.\n");
+ 		msg->len = CN_FORK_INFO_SIZE;
+ 		forkmsg = (struct cn_fork_msg *)msg->data;
++		forkmsg->type = FORK_CN_MSG_P;
+ 		forkmsg->cpu = smp_processor_id();
+ 		forkmsg->ppid = ppid;
+ 		forkmsg->ptid = ptid;
+@@ -73,10 +84,32 @@ void fork_connector(pid_t ppid, pid_t pt
+ 	}
  }
  
-+/* 
------------------------------------------------------------------------ */
-+/*
-+ *  The Adlink RTV-24 (aka Angelo) has some special initialisation to 
-unlock
-+ *  it. This apparently involves the following procedure for each 878 chip:
-+ *
-+ *  1) write 0x00C3FEFF to the GPIO_OUT_EN register
-+ *
-+ *  2)  write to GPIO_DATA
-+ *      - 0x0E
-+ *      - sleep 1ms
-+ *      - 0x10 + 0x0E
-+ *      - sleep 10ms
-+ *      - 0x0E
-+ *     read from GPIO_DATA into buf (uint_32)
-+ *      - if ( data>>18 & 0x01 != 0) || ( buf>>19 & 0x01 != 1 )
-+ *                 error. ERROR_CPLD_Check_Failed stop.
-+ *
-+ *  3) write to GPIO_DATA
-+ *      - write 0x4400 + 0x0E
-+ *      - sleep 10ms
-+ *      - write 0x4410 + 0x0E
-+ *      - sleep 1ms
-+ *      - write 0x0E
-+ *     read from GPIO_DATA into buf (uint_32)
-+ *      - if ( buf>>18 & 0x01 ) || ( buf>>19 && 0x01 != 0 )
-+ *                error. ERROR_CPLD_Check_Failed.
++/**
++ * cn_fork_send_status - send a message with the status
++ * 
++ * It sends information about the status of the fork connector 
++ * to a user space application through the connector. The status
++ * is stored in the global variable "cn_fork_enable".
 + */
-+/* 
------------------------------------------------------------------------ */
-+void init_RTV24(struct bttv *btv)
-+{
-+    uint32_t dataRead = 0;
-+    long watchdog_value = 0x0E;
+ static inline void cn_fork_send_status(void)
+ {
+-	/* TODO: An informational line in log is maybe not enough... */
+-	printk(KERN_INFO "cn_fork_enable == %d\n", cn_fork_enable);
++	struct cn_msg *msg;
++	struct cn_fork_msg *forkmsg;
++	__u8 buffer[CN_FORK_MSG_SIZE];
 +
-+    printk(
-+        KERN_INFO
-+        "bttv%d: Adlink RTV-24 initialisation in progress ...\n",
-+        btv->c.nr
-+    );
++	msg = (struct cn_msg *)buffer;
 +
-+    btwrite( 0x00c3feff, BT848_GPIO_OUT_EN );
++	memcpy(&msg->id, &cb_fork_id, sizeof(msg->id));
 +
-+    btwrite( 0 + watchdog_value, BT848_GPIO_DATA );
-+    msleep( 1 );
-+    btwrite( 0x10 + watchdog_value, BT848_GPIO_DATA );
-+    msleep( 10 );
-+    btwrite( 0 + watchdog_value, BT848_GPIO_DATA );
++	msg->ack = 0;	/* not used */
++	msg->seq = 0;	/* not used */
 +
-+    dataRead = btread( BT848_GPIO_DATA );
++	msg->len = CN_FORK_INFO_SIZE;
++	forkmsg = (struct cn_fork_msg *)msg->data;
++	forkmsg->type = FORK_CN_MSG_S;
++	forkmsg->status = cn_fork_enable;
 +
-+    if ( ( ( ( dataRead >> 18 ) & 0x01 ) != 0 ) ||
-+         ( ( ( dataRead >> 19 ) & 0x01 ) != 1 )
-+    )
-+     {
-+        printk(
-+            KERN_INFO
-+            "bttv%d: Adlink RTV-24 initialisation(1) 
-ERROR_CPLD_Check_Failed (read %d)\n",
-+            btv->c.nr, dataRead
-+        );
-+    }
-+
-+    btwrite( 0x4400 + watchdog_value, BT848_GPIO_DATA );
-+    msleep( 10 );
-+    btwrite( 0x4410 + watchdog_value, BT848_GPIO_DATA );
-+    msleep( 1 );
-+    btwrite( watchdog_value, BT848_GPIO_DATA );
-+    msleep( 1 );
-+    dataRead = btread( BT848_GPIO_DATA );
-+
-+    if ( ( ( ( dataRead >> 18 ) & 0x01 ) != 0 ) ||
-+         ( ( ( dataRead >> 19 ) & 0x01 ) != 0 )
-+    )
-+     {
-+        printk(
-+            KERN_INFO
-+            "bttv%d: Adlink RTV-24 initialisation(2) 
-ERROR_CPLD_Check_Failed (read %d)\n",
-+            btv->c.nr, dataRead
-+        );
-+
-+        return;
-+    }
-+
-+    printk(
-+        KERN_INFO
-+        "bttv%d: Adlink RTV-24 initialisation complete.\n",
-+        btv->c.nr
-+    );
-+}
-+
-+
++	cn_netlink_send(msg, CN_IDX_FORK, GFP_KERNEL);
+ }
  
- /* 
------------------------------------------------------------------------ */
- /* Miro Pro radio stuff -- the tea5757 is connected to some GPIO 
-ports     */
-diff -uprN -X dontdiff a/drivers/media/video/bttv.h 
-b/drivers/media/video/bttv.h
---- a/drivers/media/video/bttv.h    2005-05-07 15:20:31.000000000 +1000
-+++ b/drivers/media/video/bttv.h    2005-05-17 15:31:48.727905167 +1000
-@@ -135,6 +135,7 @@
- #define BTTV_DVICO_DVBT_LITE  0x80
- #define BTTV_TIBET_CS16  0x83
- #define BTTV_KODICOM_4400R  0x84
-+#define BTTV_ADLINK_RTV24   0x86
+ /**
+Index: linux-2.6.12-rc4-mm2/include/linux/cn_fork.h
+===================================================================
+--- linux-2.6.12-rc4-mm2.orig/include/linux/cn_fork.h	2005-05-16 12:41:38.000000000 +0200
++++ linux-2.6.12-rc4-mm2/include/linux/cn_fork.h	2005-05-17 08:07:35.000000000 +0200
+@@ -29,6 +29,9 @@
+ #define FORK_CN_START	1
+ #define FORK_CN_STATUS	2
  
- /* i2c address list */
- #define I2C_TSA5522        0xc2
++#define FORK_CN_MSG_P   0  /* Message about processes */
++#define FORK_CN_MSG_S   1  /* Message about fork connector's state */
++
+ /*
+  * The fork connector sends information to a user-space
+  * application. From the user's point of view, the process
+@@ -43,11 +46,18 @@
+  * child  thread  ID  =  child->pid
+  */
+ struct cn_fork_msg {
+-	int cpu;		/* ID of the cpu where the fork occured */
+-	pid_t ppid;		/* parent process ID */
+-	pid_t ptid;		/* parent thread ID  */
+-	pid_t cpid;		/* child process ID  */
+-	pid_t ctid;		/* child thread ID   */
++	int type;	/* 0: information about processes
++			   1: fork connector's state      */
++	int cpu;	/* ID of the cpu where the fork occurred */
++	union { 
++		struct {
++			pid_t ppid;	/* parent process ID */
++			pid_t ptid;	/* parent thread ID  */
++			pid_t cpid;	/* child process ID  */
++			pid_t ctid;	/* child thread ID   */
++		};
++		int status;
++	};
+ };
+ 
+ /* Code above is only inside the kernel */
+
 

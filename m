@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbVERNWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262140AbVERNZo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262180AbVERNWR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 09:22:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262175AbVERNWQ
+	id S262140AbVERNZo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 09:25:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbVERNZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 09:22:16 -0400
-Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:26383 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262169AbVERNWA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 09:22:00 -0400
-To: jamie@shareable.org
-CC: miklos@szeredi.hu, trond.myklebust@fys.uio.no, dhowells@redhat.com,
-       linuxram@us.ibm.com, viro@parcelfarce.linux.theplanet.co.uk,
-       akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-In-reply-to: <20050518125041.GA29107@mail.shareable.org> (message from Jamie
-	Lokier on Wed, 18 May 2005 13:50:41 +0100)
-Subject: Re: [PATCH] fix race in mark_mounts_for_expiry()
-References: <E1DXuiu-0007Mj-00@dorka.pomaz.szeredi.hu> <1116360352.24560.85.camel@localhost> <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu> <1116399887.24560.116.camel@localhost> <1116400118.24560.119.camel@localhost> <6865.1116412354@redhat.com> <7230.1116413175@redhat.com> <E1DYMB6-0000dw-00@dorka.pomaz.szeredi.hu> <1116414429.10773.57.camel@lade.trondhjem.org> <E1DYMn1-0000kp-00@dorka.pomaz.szeredi.hu> <20050518125041.GA29107@mail.shareable.org>
-Message-Id: <E1DYOTs-0000ub-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 18 May 2005 15:21:00 +0200
+	Wed, 18 May 2005 09:25:44 -0400
+Received: from [83.79.10.174] ([83.79.10.174]:57206 "EHLO
+	kestrel.twibright.com") by vger.kernel.org with ESMTP
+	id S262140AbVERNZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 09:25:37 -0400
+Date: Wed, 18 May 2005 15:21:49 +0200
+From: Karel Kulhavy <clock@twibright.com>
+To: ross@jose.lug.udel.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: software mixing in alsa
+Message-ID: <20050518132149.GB13695@kestrel>
+References: <20050517095613.GA9947@kestrel> <200505171208.04052.jan@spitalnik.net> <20050517141307.GA7759@kestrel> <1116354762.31830.12.camel@mindpipe> <20050517192412.GA19431@kestrel.twibright.com> <200505172027.j4HKRjTV029545@turing-police.cc.vt.edu> <20050518063014.GA7053@jose.lug.udel.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050518063014.GA7053@jose.lug.udel.edu>
+X-Orientation: Gay
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And I think you're just adding to the case for removing mnt_namespace
-> entirely.  We'd still keep CLONE_NS, and users currently using
-> namespaces (in the normal ways) would see no difference.
+On Wed, May 18, 2005 at 02:30:14AM -0400, ross@jose.lug.udel.edu wrote:
+> On Tue, May 17, 2005 at 04:27:44PM -0400, Valdis.Kletnieks@vt.edu wrote:
+> > I was hoping somebody would explain how to get 'dmix' plugin working in the
+> > kernel - then I could get rid of esd ;)  (Note that running something in
+> > userspace that accepts connections, runs dmix on them, and then creates one
+> > thing spewing to /dev/pcm isn't a solution - I've already *got* esd, warts and all)
 > 
-> mnt_namespace has these visible effects:
 > 
->     - Prevents some tasks from mounting/umounting in a "foreign"
->       namespace, even when they are granted access to the directory
->       tree of the foreign namespace.
-> 
->       It's not clear if the restriction is a useful security tool.
-> 
->     - Causes every mount in a mount tree to be detached (independently),
->       when last task associated with a namespace is destroyed.
+> In all honesty - don't bother.  esd does the job better, faster, more
+> flexibly, and without the hassle.
 
-I don't understand.  The tree _has_ to be detached when no task uses
-the namespace.  That is the main purpose of the namespace structure,
-to provide an anchor for the mount tree.
+Is there some generic in-kernel support for mixing? I couldn't make
+any of the userspace programs work.
 
-> And this invisible effect:
-> 
->     - More concurrency than a global mount lock would have.
+I tried esd and it does the same as without esd - only one app gets to
+the sound and the other waits.  The only difference was only (horrible)
+increase in sound latency.
 
-This is the key issue I think.  It may even have security implications
-in the future if we want to allow unprivileged mounts : a user could
-DoS the system by just doing lots of mounts umounts in a private
-namespace.
+Installed esd in gentoo by emerge, then added into the startiup scripts,
+/etc/init.d/esd start, switched xmms over to esd and skype on start said
+"using esd". 
 
-Miklos
+I would like to just run two sound programs concurrently. (Linux is a
+time-sharing operating system, right?) I am not interested in a delay
+line sound effect.
 
+I also tried artsd and jack, but didn't succeed too.
 
-
+CL<

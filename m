@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262312AbVERRCV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262372AbVERRDl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262312AbVERRCV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 13:02:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbVERRCN
+	id S262372AbVERRDl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 13:03:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262364AbVERRCs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 13:02:13 -0400
-Received: from fire.osdl.org ([65.172.181.4]:44465 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262380AbVERRBJ (ORCPT
+	Wed, 18 May 2005 13:02:48 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:454 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262374AbVERRAs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 13:01:09 -0400
-Date: Wed, 18 May 2005 10:00:33 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "David S. Miller" <davem@davemloft.net>,
-       Linux Audit Discussion <linux-audit@redhat.com>,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       Chris Wright <chrisw@osdl.org>
-Subject: Re: 2.6.12-rc4-mm2 - sleeping function called from invalid context at mm/slab.c:2502
-Message-ID: <20050518170033.GT27549@shell0.pdx.osdl.net>
-References: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu> <20050517165528.GB27549@shell0.pdx.osdl.net> <1116349464.23972.118.camel@hades.cambridge.redhat.com> <20050517174300.GE27549@shell0.pdx.osdl.net> <20050518083002.GA30689@gondor.apana.org.au>
+	Wed, 18 May 2005 13:00:48 -0400
+Date: Wed, 18 May 2005 10:00:39 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Jonathan Corbet <corbet@lwn.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC][UPDATE PATCH 2/4] convert soft-timer subsystem to timerintervals
+Message-ID: <20050518170039.GD4205@us.ibm.com>
+References: <20050518082141.GC4205@us.ibm.com> <20050518155927.8751.qmail@lwn.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050518083002.GA30689@gondor.apana.org.au>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20050518155927.8751.qmail@lwn.net>
+X-Operating-System: Linux 2.6.12-rc4 (i686)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Herbert Xu (herbert@gondor.apana.org.au) wrote:
-> Guys, please CC netdev on issues like this.
-
-Sorry Herbert, we hadn't yet concluded that it's not an issue that we
-need to resolve within audit.
-
-> On Tue, May 17, 2005 at 05:43:00PM +0000, Chris Wright wrote:
-> > 
-> > This has some issues w.r.t. truesize and socket buffer space.  The trim
-> > is done to keep accounting sane, so we'd either have to trim ourselves
-> > or take into account the change in size.  And ultimately, we'd still get
-> > trimmed by netlink, so the GFP issue is still there.  Ideally, gfp_any()
-> > would really be _any_
+On 18.05.2005 [09:59:27 -0600], Jonathan Corbet wrote:
+> Hi, Nishanth,
 > 
-> The trimming is completely optional.  That is, if the allocation fails
-> nothing bad will happen.  So the solution is to simply use GFP_ATOMIC.
+> To my uneducated eye, this patch looks like a useful cleaning-up of the
+> timer API.  I do have one question, though...
 
-Well, it does more pressure on atomic pool (for those cases that
-GFP_KERNEL would have sufficed).
+Thanks! I think one of the best side-effects (beyond a more accurate
+execution of sleep requests) of my patch is that the new interfaces are
+a heck of a lot saner :)
 
-thanks,
--chris
+> > @@ -238,15 +327,41 @@ void add_timer_on(struct timer_list *tim
+> >  	check_timer(timer);
+> >  
+> >  	spin_lock_irqsave(&base->lock, flags);
+> > +	timer->expires = jiffies_to_timerintervals(timer->expires);
+> 
+> It would appear that, depending on where you are, ->expires can be
+> expressed in two different units.  Users of add_timer() and mod_timer()
+> are expecting jiffies, but the internal code uses timer intervals.  What
+> happens when somebody does something like this?
+> 
+> 	mod_timer(&my_timer, my_timer.expires + additional_delay);
+> 
+> Might it be better to store the timerintervals value in a different
+> field, and leave ->expires as part of the legacy interface only?
+
+This is definitely an option. Currently, it is somewhat vague as to
+whether, once a timer has been submitted, whether the expires field is
+still valid to the caller. In the new system, it will clearly explicitly
+not be (I meant to modify the comment to add_timer(), mod_timer() and
+set_timer_nsecs() appropriately, but have not yet.
+
+The problem with the mod_timer() approach you suggest is that there is
+no guarantee that my_timer.expires represents anything close to the
+current time. And, as far as my experience with reviewing the current
+callers is concerned, there is no such usage.
+
+It definitely is feasible and reasonable, though, to make that change. I
+will look into it and see what I can do.
+
+Thanks for the feedback!
+
+-Nish

@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262188AbVERNsB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262202AbVERNu1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262188AbVERNsB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 09:48:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbVERNqJ
+	id S262202AbVERNu1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 09:50:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbVERNtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 09:46:09 -0400
-Received: from main.gmane.org ([80.91.229.2]:58562 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262188AbVERNpw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 09:45:52 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ian Soboroff <isoboroff@acm.org>
-Subject: ACPI S3/APM suspend
-Date: Wed, 18 May 2005 09:10:42 -0400
-Message-ID: <9cfvf5gel2l.fsf@rogue.ncsl.nist.gov>
-Mime-Version: 1.0
+	Wed, 18 May 2005 09:49:20 -0400
+Received: from mxsf02.cluster1.charter.net ([209.225.28.202]:46258 "EHLO
+	mxsf02.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S262193AbVERNsr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 09:48:47 -0400
+X-Ironport-AV: i="3.93,118,1115006400"; 
+   d="scan'208"; a="813314377:sNHT50865570"
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: rogue.ncsl.nist.gov
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
-Cancel-Lock: sha1:CG0QIvysuUQqiksMOM2hKYkUfoY=
+Content-Transfer-Encoding: 7bit
+Message-ID: <17035.18362.972972.148543@smtp.charter.net>
+Date: Wed, 18 May 2005 09:48:42 -0400
+From: "John Stoffel" <john@stoffel.org>
+To: "Lincoln Dale \(ltd\)" <ltd@cisco.com>
+Cc: "Eric D. Mudama" <edmudama@gmail.com>, "Robert Hancock" <hancockr@shaw.ca>,
+       "linux-kernel" <linux-kernel@vger.kernel.org>
+Subject: RE: Disk write cache (Was: Hyper-Threading Vulnerability)
+In-Reply-To: <26A66BC731DAB741837AF6B2E29C10171E5590@xmb-hkg-413.apac.cisco.com>
+References: <26A66BC731DAB741837AF6B2E29C10171E5590@xmb-hkg-413.apac.cisco.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>>>> "Lincoln" == Lincoln Dale \(ltd\) <Lincoln> writes:
 
-I recently reinstalled my laptop (Fujitsu P2110) with RHEL4, and I
-found that neither ACPI S3 or APM suspend (booting with acpi=off) work
-reliably with their stock kernel (a 2.6.9 derivative).  Sometimes
-resuming works, but more often the computer locks up, or the keyboard
-doesn't function respond.
+Lincoln> why don't drive vendors create firmware which reserved a
+Lincoln> cache-sized (e.g. 2MB) hole of internal drive space somewhere
+Lincoln> for such an event, and a "cache flush caused by hard-reset"
+Lincoln> simply caused it to write the cache to a fixed (contiguous)
+Lincoln> area of disk.
 
-APM suspend worked fine on the last kernel I tried it with (stock
-2.6.3) but I think the last time I tried a newer vanilla kernel
-(around 2.6.9 time), it didn't work.  I don't think I've ever seen
-Linux ACPI S3 suspend work reliably on this laptop, but since APM was
-always so solid I didn't test it much.
+Well, if you're losing power in the next Xmilliseconds, do you have
+the time to seek to the cache holding area and settle down the head
+(since you could have done a seek from the edge of the disk to the
+middle), start writing, etc?  Seems better to have a cache sized flash
+ram instead where you could just keep the data there in case of power
+loss.  
 
-Have there been any improvements in this area in more recent Linus
-kernels?  Any patches floating around which fix suspend-to-ram
-problems?
+But that's expensive, and not something most people need...
 
-Thanks,
-Ian
-
-
+John

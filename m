@@ -1,131 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262059AbVERCyX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbVERC6K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262059AbVERCyX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 22:54:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbVERCyX
+	id S262062AbVERC6K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 22:58:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262065AbVERC6K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 22:54:23 -0400
-Received: from gate.crashing.org ([63.228.1.57]:24197 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S262059AbVERCyJ (ORCPT
+	Tue, 17 May 2005 22:58:10 -0400
+Received: from gate.crashing.org ([63.228.1.57]:28293 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S262062AbVERC6E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 22:54:09 -0400
-Subject: [PATCH] ppc32: Fix Alsa PowerMac driver on old machines
+	Tue, 17 May 2005 22:58:04 -0400
+Subject: [PATCH] DRM: Fix radeon mapping of AGP
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alsa-Devel List <alsa-devel@lists.sourceforge.net>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
+To: Dave Airlie <airlied@gmail.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       dri-devel@lists.sourceforge.net
 Content-Type: text/plain
-Date: Wed, 18 May 2005 12:53:43 +1000
-Message-Id: <1116384823.6122.2.camel@gaston>
+Date: Wed, 18 May 2005 12:57:44 +1000
+Message-Id: <1116385064.6122.7.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+Hi David! 
 
-The g5 support code broke some earlier models unfortunately as those
-bail out early from the detect function, before the point where I added
-the code to locate the PCI device for use with DMA allocations.
+Here's my latest version of the patch for radeon_cp that fixes the
+possible overlap mapping we talked about. I went the paranoid way this
+time, by checking both CONFIG_MEMSIZE and MC_FB_LOCATION "top", in order
+to put the AGP aperture always above any of those. This should avoid bad
+surprises in the future and fix the problem with existing ppc r300's who
+have CONFIG_APER_SIZE < CONFIG_MEM_SIZE.
 
-This patch fixes it.
+The X.org side is still bogus, but at least, with this DRM fix, this
+won't break it all, X will just use only half of VRAM I suppose. I'll
+work on fixing X later.
 
-Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Let me know if that patch is ok, others on the list, I would appreciate
+if you could give it a try and make sure it doesn't cause any
+regression. It applies against current Linus git tree.
 
-Index: linux-work/sound/ppc/pmac.c
+Index: linux-work/drivers/char/drm/radeon_drv.h
 ===================================================================
---- linux-work.orig/sound/ppc/pmac.c	2005-05-02 10:51:00.000000000 +1000
-+++ linux-work/sound/ppc/pmac.c	2005-05-09 12:01:42.000000000 +1000
-@@ -876,7 +876,7 @@
-  */
- static int __init snd_pmac_detect(pmac_t *chip)
+--- linux-work.orig/drivers/char/drm/radeon_drv.h	2005-05-02 10:48:09.000000000 +1000
++++ linux-work/drivers/char/drm/radeon_drv.h	2005-05-18 11:39:00.000000000 +1000
+@@ -346,6 +346,7 @@
+ #define RADEON_CLOCK_CNTL_DATA		0x000c
+ #	define RADEON_PLL_WR_EN			(1 << 7)
+ #define RADEON_CLOCK_CNTL_INDEX		0x0008
++#define RADEON_CONFIG_MEMSIZE		0x00f8
+ #define RADEON_CONFIG_APER_SIZE		0x0108
+ #define RADEON_CRTC_OFFSET		0x0224
+ #define RADEON_CRTC_OFFSET_CNTL		0x0228
+Index: linux-work/drivers/char/drm/radeon_cp.c
+===================================================================
+--- linux-work.orig/drivers/char/drm/radeon_cp.c	2005-05-02 10:48:09.000000000 +1000
++++ linux-work/drivers/char/drm/radeon_cp.c	2005-05-18 12:00:07.000000000 +1000
+@@ -1267,7 +1267,8 @@
+ 
+ static int radeon_do_init_cp( drm_device_t *dev, drm_radeon_init_t *init )
  {
--	struct device_node *sound;
-+	struct device_node *sound = NULL;
- 	unsigned int *prop, l;
- 	struct macio_chip* macio;
+-	drm_radeon_private_t *dev_priv = dev->dev_private;;
++	drm_radeon_private_t *dev_priv = dev->dev_private;
++	u32 gart_loc, mem_size, mem_top;
+ 	DRM_DEBUG( "\n" );
  
-@@ -906,20 +906,22 @@
- 		chip->is_pbook_G3 = 1;
- 	chip->node = find_devices("awacs");
- 	if (chip->node)
--		return 0; /* ok */
-+		sound = chip->node;
+ 	dev_priv->is_pci = init->is_pci;
+@@ -1476,8 +1477,32 @@
  
- 	/*
- 	 * powermac G3 models have a node called "davbus"
- 	 * with a child called "sound".
- 	 */
--	chip->node = find_devices("davbus");
-+	if (!chip->node)
-+		chip->node = find_devices("davbus");
- 	/*
- 	 * if we didn't find a davbus device, try 'i2s-a' since
- 	 * this seems to be what iBooks have
- 	 */
- 	if (! chip->node) {
- 		chip->node = find_devices("i2s-a");
--		if (chip->node && chip->node->parent && chip->node->parent->parent) {
-+		if (chip->node && chip->node->parent &&
-+		    chip->node->parent->parent) {
- 			if (device_is_compatible(chip->node->parent->parent,
- 						 "K2-Keylargo"))
- 				chip->is_k2 = 1;
-@@ -928,9 +930,11 @@
- 	if (! chip->node)
- 		return -ENODEV;
  
--	sound = find_devices("sound");
--	while (sound && sound->parent != chip->node)
--		sound = sound->next;
-+	if (!sound) {
-+		sound = find_devices("sound");
-+		while (sound && sound->parent != chip->node)
-+			sound = sound->next;
+ 	dev_priv->gart_size = init->gart_size;
+-	dev_priv->gart_vm_start = dev_priv->fb_location
+-				+ RADEON_READ( RADEON_CONFIG_APER_SIZE );
++	mem_size = RADEON_READ(RADEON_CONFIG_MEMSIZE);
++	mem_top = RADEON_READ(RADEON_MC_FB_LOCATION) & 0xffff0000;
++
++	/* assume mem_size of 0 means one of those buggy M6 and thus
++	 * is 8Mb
++	 */
++	if (mem_size == 0)
++		mem_size = 0x00800000;
++	
++	/* if MC_FB_LOCATION was set for a bigger aperture, then adapt,
++	 * we really want to make sure there is no overlap between the
++	 * region defined by MC_FB_LOCATION and the AGP aperture
++	 */
++	if (((mem_top + 1) - dev_priv->fb_location) > mem_size)
++		mem_size = (mem_top + 1) - dev_priv->fb_location;
++	/* try to put the gart after the framebuffer */
++	gart_loc = dev_priv->fb_location + mem_size;
++	/* if it overflows, warn and try to put it _before_ the framebuffer */
++	if ((gart_loc + dev_priv->gart_size) < dev_priv->fb_location) {
++		DRM_INFO("Warning ! Gart does not fit above framebuffer in "
++			 "card space, moving it below. Risks collision with "
++			 " main memory ! ");
++		gart_loc = dev_priv->fb_location - dev_priv->gart_size;
 +	}
- 	if (! sound)
- 		return -ENODEV;
- 	prop = (unsigned int *) get_property(sound, "sub-frame", NULL);
-@@ -1019,7 +1023,8 @@
- 		}
- 	}
- 	if (chip->pdev == NULL)
--		printk(KERN_WARNING "snd-powermac: can't locate macio PCI device !\n");
-+		printk(KERN_WARNING "snd-powermac: can't locate macio PCI"
-+		       " device !\n");
++	
++	dev_priv->gart_vm_start = gart_loc;
  
- 	detect_byte_swap(chip);
- 
-@@ -1027,7 +1032,8 @@
- 	   are available */
- 	prop = (unsigned int *) get_property(sound, "sample-rates", &l);
- 	if (! prop)
--		prop = (unsigned int *) get_property(sound, "output-frame-rates", &l);
-+		prop = (unsigned int *) get_property(sound,
-+						     "output-frame-rates", &l);
- 	if (prop) {
- 		int i;
- 		chip->freqs_ok = 0;
-@@ -1054,7 +1060,8 @@
- /*
-  * exported - boolean info callbacks for ease of programming
-  */
--int snd_pmac_boolean_stereo_info(snd_kcontrol_t *kcontrol, snd_ctl_elem_info_t *uinfo)
-+int snd_pmac_boolean_stereo_info(snd_kcontrol_t *kcontrol,
-+				 snd_ctl_elem_info_t *uinfo)
- {
- 	uinfo->type = SNDRV_CTL_ELEM_TYPE_BOOLEAN;
- 	uinfo->count = 2;
-@@ -1063,7 +1070,8 @@
- 	return 0;
- }
- 
--int snd_pmac_boolean_mono_info(snd_kcontrol_t *kcontrol, snd_ctl_elem_info_t *uinfo)
-+int snd_pmac_boolean_mono_info(snd_kcontrol_t *kcontrol,
-+			       snd_ctl_elem_info_t *uinfo)
- {
- 	uinfo->type = SNDRV_CTL_ELEM_TYPE_BOOLEAN;
- 	uinfo->count = 1;
+ #if __OS_HAS_AGP
+ 	if ( !dev_priv->is_pci )
 
 

@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262075AbVERELV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbVEREMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262075AbVERELV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 00:11:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbVERELV
+	id S262076AbVEREMj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 00:12:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbVEREMi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 00:11:21 -0400
-Received: from rproxy.gmail.com ([64.233.170.196]:59820 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262075AbVERELT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 00:11:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rLM7JsZcFbS7Xvxtlz6HundulJLHRyDlQ3CwEVHeWbBH/y8kna/H/jz6Mfb+sozNa+vXR0cNWIRkpntbh2B16utpeduZYHNbFBTHMMjRRiCKMypOt6H8LaYdrL+H5VZ/qChcEhYYpOSNZh6hihk5udXoQ6AlSBAE+QR5Cu1hvQk=
-Message-ID: <311601c905051721114040b08a@mail.gmail.com>
-Date: Tue, 17 May 2005 22:11:19 -0600
-From: "Eric D. Mudama" <edmudama@gmail.com>
-Reply-To: "Eric D. Mudama" <edmudama@gmail.com>
-To: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: Disk write cache (Was: Hyper-Threading Vulnerability)
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4289652B.7020408@shaw.ca>
+	Wed, 18 May 2005 00:12:38 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:32523 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S262076AbVEREM0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 00:12:26 -0400
+Date: Wed, 18 May 2005 06:12:06 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: "Gilbert, John" <JGG@dolby.com>, linux-kernel@vger.kernel.org
+Subject: Re: Illegal use of reserved word in system.h
+Message-ID: <20050518041206.GG18600@alpha.home.local>
+References: <2692A548B75777458914AC89297DD7DA08B0866D@bronze.dolby.net> <1116384682.9737.61.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <43Bnu-Ut-9@gated-at.bofh.it> <44sLm-3Mg-33@gated-at.bofh.it>
-	 <44sUX-42h-11@gated-at.bofh.it> <44teb-4fb-1@gated-at.bofh.it>
-	 <44uaj-4Z3-5@gated-at.bofh.it> <44LXu-2W6-15@gated-at.bofh.it>
-	 <44OVj-5xS-3@gated-at.bofh.it> <44PRr-6mz-33@gated-at.bofh.it>
-	 <4289652B.7020408@shaw.ca>
+In-Reply-To: <1116384682.9737.61.camel@localhost.localdomain>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/16/05, Robert Hancock <hancockr@shaw.ca> wrote:
-> If the power to the drive is truly just cut, then this is basically what
-> will happen. However, I have heard, for what it's worth, that in many
-> cases if you pull the AC power from a typical PC, the Power Good signal
-> from the PSU will be de-asserted, which triggers the Reset line on all
-> the buses, which triggers the ATA reset line, which triggers the drive
-> to finish writing out the sector it is doing. There is likely enough
-> capacitance in the power supply to do that before the voltage drops off.
+On Tue, May 17, 2005 at 10:51:22PM -0400, Steven Rostedt wrote:
+> On Tue, 2005-05-17 at 17:51 -0700, Gilbert, John wrote:
+> (...)
+> > -----------------------------------------
+> > This message (including any attachments) may contain confidential
+> > information intended for a specific individual and purpose.  If you are not
+> > the intended recipient, delete this message.  If you are not the intended
+> > recipient, disclosing, copying, distributing, or taking any action based on
+> > this message is strictly prohibited.
+> 
+> Is this a joke? It doesn't make sense sending a disclaimer like this to
+> a mailing list!
 
-Yes, but as you said this isn't a power loss event.  It is a hard
-reset with a full write cache, which all drives on the market today
-respond to by flushing the cache.
+Perhaps he did not send this mail to the list after all, so we should all
+ignore it. I don't see my address in the To: field anyway :-)
 
-According to the spec the time to flush can exceed 30s, so your PSU
-better have some honkin caps on it to ensure data integrity when you
-yank the power cord out of the wall.
+Willy
 
---eric

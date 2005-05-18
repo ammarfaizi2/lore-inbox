@@ -1,48 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262384AbVERWQb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262410AbVERWVw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262384AbVERWQb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 18:16:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262283AbVERWQD
+	id S262410AbVERWVw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 18:21:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbVERWVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 18:16:03 -0400
-Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:11648 "EHLO
-	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
-	id S262379AbVERWPt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 18:15:49 -0400
-Message-ID: <428BBE54.8010904@ammasso.com>
-Date: Wed, 18 May 2005 17:14:44 -0500
-From: Timur Tabi <timur.tabi@ammasso.com>
-Organization: Ammasso
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7.2.0
-X-Accept-Language: en-us, en, en-gb
+	Wed, 18 May 2005 18:21:51 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:16308 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262283AbVERWQd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 18:16:33 -0400
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: sparse error: unable to open 'stdarg.h'
-References: <428A661C.1030100@ammasso.com> <428A729E.8040207@ammasso.com> <20050518182217.GA8130@mars.ravnborg.org>
-In-Reply-To: <20050518182217.GA8130@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17035.48794.636650.724153@sodium.jf.intel.com>
+Date: Wed, 18 May 2005 15:15:54 -0700
+To: linux-kernel@vger.kernel.org
+Cc: joe.korty@ccur.com, robustmutexes@lists.osdl.org, george@mvista.com
+Subject: [RFC] A more general timeout specification
+In-Reply-To: <20050518201517.GA16193@tsunami.ccur.com>
+References: <20050518201517.GA16193@tsunami.ccur.com>
+X-Mailer: VM 7.19 under Emacs 21.3.1
+From: Inaky Perez-Gonzalez <inaky@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
+>>>>> Joe Korty <joe.korty@ccur.com> writes:
 
-> Newer kbuild's do not use the -nostdinc -iwithprefix include trick.
-> Instead they use -nostdinc -isystem `gcc --print-file-name=include`
-> 
-> Wich is a more reliable way to find stdarg.h. Newer sparse understands
-> this too.
-> 
-> Please post make V=1 output with a newer kernel.
+> [ for comment only ] The fusyn (robust mutexes) project proposes the
+> creation of a more general data structure, 'struct timeout', for the
+> specification of timeouts in new services.  In this structure, the
+> user specifies:
 
-I downloaded and install 2.6.11.10, and everything works.  Thanks!
+>     a time, in timespec format.  the clock the time is specified
+> against (eg, CLOCK_MONOTONIC).  whether the time is absolute, or
+> relative to 'now'.
+
+> That is, all combinations of useful timeout attributes become
+> possible.
+...
+
+The main reason why we are asking for this is that timeouts in POSIX
+calls are always specified in an absolute form. Because most system
+calls take it in a relative form, glibc has to call the kernel twice
+(one to get the time, one to do the syscall with the computed delta).
+
+By having new syscalls that take advantage of this timeout interface,
+we can save this extra kernel call. 
+
+We believe it is generic enough for interfacing with user space
+timeouts, although we'd like to hear feedback :)
 
 -- 
-Timur Tabi
-Staff Software Engineer
-timur.tabi@ammasso.com
 
-One thing a Southern boy will never say is,
-"I don't think duct tape will fix it."
-      -- Ed Smylie, NASA engineer for Apollo 13
+Inaky
+

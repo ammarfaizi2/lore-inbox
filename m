@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262235AbVEROjv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262261AbVEROit@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262235AbVEROjv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 10:39:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262269AbVEROje
+	id S262261AbVEROit (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 10:38:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262235AbVEROid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 10:39:34 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:57840 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S262235AbVEROiw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 10:38:52 -0400
-Message-ID: <428B536E.6030700@freenet.de>
-Date: Wed, 18 May 2005 16:38:38 +0200
-From: Carsten Otte <cotte@freenet.de>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+	Wed, 18 May 2005 10:38:33 -0400
+Received: from [85.8.12.41] ([85.8.12.41]:25002 "EHLO smtp.drzeus.cx")
+	by vger.kernel.org with ESMTP id S262234AbVEROiH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 10:38:07 -0400
+Message-ID: <428B5349.5090207@drzeus.cx>
+Date: Wed, 18 May 2005 16:38:01 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       schwidefsky@de.ibm.com, akpm@osdl.org
-Subject: Re: [RFC/PATCH 4/5] loop: execute in place (V2)
-References: <1116422644.2202.1.camel@cotte.boeblingen.de.ibm.com> <1116424432.2202.19.camel@cotte.boeblingen.de.ibm.com> <20050518142849.GC23162@infradead.org>
-In-Reply-To: <20050518142849.GC23162@infradead.org>
+To: Takashi Iwai <tiwai@suse.de>
+CC: Valdis.Kletnieks@vt.edu, Karel Kulhavy <clock@twibright.com>,
+       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: software mixing in alsa
+References: <20050517095613.GA9947@kestrel>	<200505171208.04052.jan@spitalnik.net>	<20050517141307.GA7759@kestrel>	<1116354762.31830.12.camel@mindpipe>	<20050517192412.GA19431@kestrel.twibright.com>	<200505172027.j4HKRjTV029545@turing-police.cc.vt.edu> <s5hll6csl0b.wl@alsa2.suse.de>
+In-Reply-To: <s5hll6csl0b.wl@alsa2.suse.de>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Hellwig wrote:
+Takashi Iwai wrote:
+> 
+> esd is working fine together with dmix.  You should try the latest
+> versions (of esd and alsa-lib).  The old version of esd might have a
+> bug.
+> 
 
->On Wed, May 18, 2005 at 03:53:52PM +0200, Carsten Otte wrote:
->  
->
->>[RFC/PATCH 4/5] loop: execute in place (V2)
->>
->>    
->>
->
->This should be ifdef'ed to avoid bloat for non-XIP builds.  Or just be dropped
->completely.  How much difference does it make over read/write and where does
->loop performance matter?
->  
->
-I don't think loop on xip is performance critical. For page cache lookup
-I see a performance difference of factor 2 on our platform because we
-have decent memory bandwidth and lock contention slows things down
-with many CPUs. Given that even without this patch we don't do page
-cache lookups, I don't think there's much difference. Initially this patch
-was written for the old loop driver that won't work without this patch...
-Guess that dropping it is a good idea.
+I'd beg to differ. I have to apply the patch made by you to avoid
+getting a lot of distortions with esound and dmix:
 
+http://bugzilla.gnome.org/show_bug.cgi?id=140803
+
+Checking in the cvs, this still hasn't been commited.
+
+Rgds
+Pierre

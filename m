@@ -1,31 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbVERK2z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262155AbVERKbi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262157AbVERK2z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 06:28:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVERK2z
+	id S262155AbVERKbi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 06:31:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVERKbi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 06:28:55 -0400
-Received: from agf.customers.acn.gr ([213.5.17.156]:49540 "EHLO
-	enigma.wired-net.gr") by vger.kernel.org with ESMTP id S262155AbVERK2y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 06:28:54 -0400
-Message-ID: <004601c55b94$5ea29d50$0101010a@dioxide>
-From: "linux" <kernel@wired-net.gr>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Cc: "lkml" <linux-kernel@vger.kernel.org>
-References: <1116005355.6248.372.camel@localhost> <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu> <1116012287.6248.410.camel@localhost> <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu> <1116013840.6248.429.camel@localhost> <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu> <1116256279.4154.41.camel@localhost> <20050516111408.GA21145@mail.shareable.org> <1116301843.4154.88.camel@localhost> <E1DXm08-0006XD-00@dorka.pomaz.szeredi.hu> <20050517012854.GC32226@mail.shareable.org> <E1DXuiu-0007Mj-00@dorka.pomaz.szeredi.hu> <1116360352.24560.85.camel@localhost> <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu> <1116399887.24560.116.camel@localhost> <1116400118.24560.119.camel@localhost> <E1DYLCv-0000W7-00@dorka.pomaz.szeredi.hu> <001b01c55b92$1d09c6e0$0101010a@dioxide> <1116411888.6572.18.camel@laptopd505.fenrus.org>
-Subject: Re: 2.6 jiffies
-Date: Wed, 18 May 2005 13:28:44 +0300
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-7"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+	Wed, 18 May 2005 06:31:38 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:3856 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262155AbVERKbd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 06:31:33 -0400
+Date: Wed, 18 May 2005 12:31:29 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Norbert Preining <preining@logic.at>, linux-kernel@vger.kernel.org
+Subject: Re: hostap gone from 2.6.12-rc4-mm2?
+Message-ID: <20050518103129.GU5112@stusta.de>
+References: <20050518090255.GD28766@gamma.logic.tuwien.ac.at> <20050518021708.23e9ed51.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050518021708.23e9ed51.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ok.i see what u mean.
-But should this value on a stable version be 0 again???
+On Wed, May 18, 2005 at 02:17:08AM -0700, Andrew Morton wrote:
+> Norbert Preining <preining@logic.at> wrote:
+> >
+> >  The hostap wireless driver is missing from 2.6.12-rc4-mm2. I miss it ;-)
+> 
+> oop, I accidentally commented out the relevant tree.   With luck you can add
+> http://www.zip.com.au/~akpm/linux/patches/stuff/git-netdev-wifi.patch
+
+According to your 2.6.12-rc4-mm2 announcement, this was intentionally:
+
+<--  snip  -->
+
++#git-netdev-wifi.patch
+
+ This isn't included because it's busted.
+
+<--  snip  -->
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,60 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262112AbVERHEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262111AbVERHHD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262112AbVERHEK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 03:04:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262111AbVERHEJ
+	id S262111AbVERHHD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 03:07:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVERHHC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 03:04:09 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:61105 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262112AbVERHEE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 03:04:04 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Helge Hafting <helgehaf@aitel.hist.no>
-Subject: Re: Sync option destroys flash!
-Date: Wed, 18 May 2005 10:03:29 +0300
-User-Agent: KMail/1.5.4
-Cc: mhw@wittsend.com, linux-kernel@vger.kernel.org
-References: <1116001207.5239.38.camel@localhost.localdomain> <200505152200.26432.vda@ilport.com.ua> <20050516231839.GB8032@hh.idb.hist.no>
-In-Reply-To: <20050516231839.GB8032@hh.idb.hist.no>
+	Wed, 18 May 2005 03:07:02 -0400
+Received: from mta-fs-be-04.sunrise.ch ([194.158.229.33]:22696 "EHLO
+	mail-fs.sunrise.ch") by vger.kernel.org with ESMTP id S262111AbVERHGz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 03:06:55 -0400
+Message-ID: <428AE89C.2020503@email.it>
+Date: Wed, 18 May 2005 09:02:52 +0200
+From: Fabio Rosciano <malmostoso@email.it>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: jdz@aigc.net
+CC: linux-kernel@vger.kernel.org, vs@nl.linux.org, dsd@gentoo.org,
+       gfraser@online.no, linux-fsdevel@vger.kernel.org,
+       reiserfs-list@namesys.com, vs@namesys.com
+Subject: Re: [2.6.12-rc4] Oops in reiserfs_panic [please CC]
+References: <4255.24.115.31.119.1116366396.squirrel@mail.aigc.net>
+In-Reply-To: <4255.24.115.31.119.1116366396.squirrel@mail.aigc.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505181003.29501.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 17 May 2005 02:18, Helge Hafting wrote:
-> On Sun, May 15, 2005 at 10:00:26PM +0300, Denis Vlasenko wrote:
-> > 
-> > What we really need, is a less thorough version of O_SYNC.
-> > O_SYNC currently guarantees that when syscall returns, data
-> > is on media (or at least in disk drive's internal cache :).
-> > 
-> > This is exactly what really paranoid people want.
-> > Journalling labels, all that good stuff.
-> > 
-> > But there are many cases where people just want to say
-> > 'write out dirty data asap for this device', so that
-> > I can copy files to floppy, wait till it stops making
-> > noise, and eject a disk. Samr for flash if it has write
-> > indicator (mine has a diode).
-> > 
-> I don't really see the need for a new mode.
-> Mount without o_sync, but use the sync command
-> once to get things written out.  Or
-> use the umount command before ejecting, it syncs
-> the device before returning.  I use umount all the time
-> when using compactflash. The wear is minimal.
+Jesse D Zbikowski wrote:
+> This looks to be the same bug reported by two Gentoo users against
+> 2.6.12-rc4, as a regression from -rc3.  One reported data corruption.
+> You should be able to work around by compiling with
+> 
+> CONFIG_REISERFS_CHECK=n
+> 
+> http://bugs.gentoo.org/show_bug.cgi?id=91968
 
-I just want this to happen automatically
-(automounter helps with this) and at once
-(i.e. without delay prior to start of writeout).
+Yep, it worked. Nasty bug though.
 
-Caching (delaying) writes for hard disks makes tons of sense,
-but not as much for removable media.
---
-vda
+Thanks, for any other info just ask!
 
+-- 
+Best Regards, Jack
+Debian Sid PPC

@@ -1,59 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262376AbVERVPh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbVERVQj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262376AbVERVPh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 17:15:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262378AbVERVPf
+	id S262374AbVERVQj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 17:16:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbVERVQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 17:15:35 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:62350 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262376AbVERVPR (ORCPT
+	Wed, 18 May 2005 17:16:39 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:60310 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262382AbVERVQV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 17:15:17 -0400
-Message-ID: <428BB05B.6090704@us.ibm.com>
-Date: Wed, 18 May 2005 14:15:07 -0700
-From: Matthew Dobson <colpatch@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
-X-Accept-Language: en-us, en
+	Wed, 18 May 2005 17:16:21 -0400
+Date: Wed, 18 May 2005 17:16:14 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Arjan van de Ven <arjan@infradead.org>
+cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [PATCH] prevent NULL mmap in topdown model
+In-Reply-To: <1116448683.6572.43.camel@laptopd505.fenrus.org>
+Message-ID: <Pine.LNX.4.61.0505181714330.3645@chimarrao.boston.redhat.com>
+References: <Pine.LNX.4.61.0505181556190.3645@chimarrao.boston.redhat.com>
+ <1116448683.6572.43.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: Christoph Lameter <clameter@engr.sgi.com>
-CC: Christoph Lameter <christoph@lameter.com>,
-       Dave Hansen <haveblue@us.ibm.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Jesse Barnes <jbarnes@virtuousgeek.org>,
-       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       shai@scalex86.org, steiner@sgi.com
-Subject: Re: NUMA aware slab allocator V3
-References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>  <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com>  <714210000.1116266915@flay> <200505161410.43382.jbarnes@virtuousgeek.org>  <740100000.1116278461@flay>  <Pine.LNX.4.62.0505161713130.21512@graphe.net> <1116289613.26955.14.camel@localhost> <428A800D.8050902@us.ibm.com> <Pine.LNX.4.62.0505171648370.17681@graphe.net> <428B7B16.10204@us.ibm.com> <Pine.LNX.4.62.0505181046320.20978@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.62.0505181046320.20978@schroedinger.engr.sgi.com>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Wed, 18 May 2005, Matthew Dobson wrote:
+On Wed, 18 May 2005, Arjan van de Ven wrote:
+> On Wed, 2005-05-18 at 15:57 -0400, Rik van Riel wrote:
+> > This (trivial) patch prevents the topdown allocator from allocating
+> > mmap areas all the way down to address zero.  It's not the prettiest
+> > patch, so suggestions for improvement are welcome ;)
 > 
-> 
->>Thanks!  I just looked at V2 & V3 of the patch and saw some open-coded
->>loops.  I may have missed a later version of the patch which has fixes.
->>Feel free to CC me on future versions of the patch...
-> 
-> 
-> I will when I get everything together. The hold up at the moment is that 
-> Martin has found a boot failure with the new slab allocator on ppc64 that 
-> I am unable to explain.
->  
-> Strangely, the panic is in the page allocator. I have no means of 
-> testing since I do not have a ppc64 system available. Could you help me 
-> figure out what is going on?
+> it looks like you stop at brk() time.. isn't it better to just stop just 
+> above NULL instead?? Gives you more space and is less of an artificial 
+> barrier..
 
-I can't promise anything, but if you send me the latest version of your
-patch (preferably with the loops fixed to eliminate the possibility of it
-accessing an unavailable/unusable node), I can build & boot it on a PPC64
-box and see what happens.
+Firstly, there isn't much below brk() at all.  Secondly, do we
+really want to fill the randomized hole between the executable
+and the brk area with data ?
 
--Matt
+Thirdly, we do want to continue detecting NULL pointer dereferences
+inside large structs, ie. dereferencing an element 700kB into some
+large struct...
+
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

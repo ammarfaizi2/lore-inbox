@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262154AbVERKcj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262159AbVERKdg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262154AbVERKcj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 06:32:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbVERKch
+	id S262159AbVERKdg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 06:33:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbVERKcs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 06:32:37 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:1505 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262154AbVERKcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 06:32:31 -0400
+	Wed, 18 May 2005 06:32:48 -0400
+Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:17100 "EHLO
+	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262156AbVERKcg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 06:32:36 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: "linux" <kernel@wired-net.gr>
 Subject: Re: 2.6 jiffies
-From: Arjan van de Ven <arjan@infradead.org>
-To: linux <kernel@wired-net.gr>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <004601c55b94$5ea29d50$0101010a@dioxide>
-References: <1116005355.6248.372.camel@localhost>
-	 <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu>
-	 <1116012287.6248.410.camel@localhost>
-	 <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu>
-	 <1116013840.6248.429.camel@localhost>
-	 <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu>
-	 <1116256279.4154.41.camel@localhost>
-	 <20050516111408.GA21145@mail.shareable.org>
-	 <1116301843.4154.88.camel@localhost>
-	 <E1DXm08-0006XD-00@dorka.pomaz.szeredi.hu>
-	 <20050517012854.GC32226@mail.shareable.org>
-	 <E1DXuiu-0007Mj-00@dorka.pomaz.szeredi.hu>
-	 <1116360352.24560.85.camel@localhost>
-	 <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu>
-	 <1116399887.24560.116.camel@localhost>
-	 <1116400118.24560.119.camel@localhost>
-	 <E1DYLCv-0000W7-00@dorka.pomaz.szeredi.hu>
-	 <001b01c55b92$1d09c6e0$0101010a@dioxide>
-	 <1116411888.6572.18.camel@laptopd505.fenrus.org>
-	 <004601c55b94$5ea29d50$0101010a@dioxide>
-Content-Type: text/plain
-Date: Wed, 18 May 2005 12:32:28 +0200
-Message-Id: <1116412348.6572.21.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Date: Wed, 18 May 2005 20:32:54 +1000
+User-Agent: KMail/1.8
+Cc: "lkml" <linux-kernel@vger.kernel.org>
+References: <1116005355.6248.372.camel@localhost> <1116256279 <001b01c55b92$1d09c6e0$0101010a@dioxide>
+In-Reply-To: <001b01c55b92$1d09c6e0$0101010a@dioxide>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2639729.PceE539ysu";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Message-Id: <200505182032.57234.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-18 at 13:28 +0300, linux wrote:
-> ok.i see what u mean.
-> But should this value on a stable version be 0 again???
+--nextPart2639729.PceE539ysu
+Content-Type: text/plain;
+  charset="iso-8859-7"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-why? 
-"the absolute value has no meaning" -> why would "0" be special ???
-Answer: It's not. And actually -5 minutes is more useful than 0 because
-it keeps helping finding bugs... why do you want it to start at 0 ?
+On Wed, 18 May 2005 20:12, linux wrote:
+> Why jiffies start counting from a negative number and after 5minutes the
+> counter gets positive????
 
+It's an excellent way to test if jiffy wrap is handled well since it will=20
+happen in 5 minutes instead of 50 days.
 
+Cheers,
+Con
+
+--nextPart2639729.PceE539ysu
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
+
+iD8DBQBCixnZZUg7+tp6mRURAhJGAJ0St/an3zMZCW21B+r6HxEVfVyjaQCfZz5C
+QKQE2aHmozLLAvQ3AElsFjk=
+=EdSk
+-----END PGP SIGNATURE-----
+
+--nextPart2639729.PceE539ysu--

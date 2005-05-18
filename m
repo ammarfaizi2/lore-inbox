@@ -1,37 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262034AbVERBGU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262043AbVERBI1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262034AbVERBGU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 21:06:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261995AbVERBGU
+	id S262043AbVERBI1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 21:08:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbVERBI0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 21:06:20 -0400
-Received: from fire.osdl.org ([65.172.181.4]:20965 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262034AbVERBGQ (ORCPT
+	Tue, 17 May 2005 21:08:26 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:42902 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262043AbVERBIU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 21:06:16 -0400
-Date: Tue, 17 May 2005 18:05:27 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Tejun Heo <htejun@gmail.com>
-Cc: axboe@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH linux-2.6.12-rc4] block: cfq request selection
- improvement
-Message-Id: <20050517180527.139fe4d0.akpm@osdl.org>
-In-Reply-To: <20050517141441.GA26769@htj.dyndns.org>
-References: <20050517141441.GA26769@htj.dyndns.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 17 May 2005 21:08:20 -0400
+Date: Tue, 17 May 2005 18:07:42 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Matthew Dobson <colpatch@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, shai@scalex86.org
+Subject: Re: NUMA aware slab allocator V2
+In-Reply-To: <428A7E48.6060909@us.ibm.com>
+Message-ID: <Pine.LNX.4.62.0505171807280.12337@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>
+ <20050512000444.641f44a9.akpm@osdl.org> <Pine.LNX.4.58.0505121252390.32276@schroedinger.engr.sgi.com>
+ <20050513000648.7d341710.akpm@osdl.org> <428A7E48.6060909@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo <htejun@gmail.com> wrote:
->
->   Previously, each cfqq used separate sliding window (find_best_crq ==
->  1) or selected the first request (find_best_crq == 0).  This patch
->  implements global sliding window (find_bset_crq == 2) for request
->  selection from cfqq.
+On Tue, 17 May 2005, Matthew Dobson wrote:
 
-There's a great big revamp of the CFQ scheduler in -mm.  Perhaps you should
-be testing and patching that?
+> Also, there is a similar loop for CPUs which should be replaced with
+> for_each_online_cpu(i).
+> 
+> These for_each_FOO macros are cleaner and less likely to break in the
+> future, since we can simply modify the one definition if the way to
+> itterate over nodes/cpus changes, rather than auditing 100 open coded
+> implementations and trying to determine the intent of the loop's author.
+
+Ok. Done.
 

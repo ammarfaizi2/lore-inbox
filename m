@@ -1,50 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262359AbVERUiT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262357AbVERUme@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262359AbVERUiT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 16:38:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262356AbVERUiT
+	id S262357AbVERUme (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 16:42:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbVERUme
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 16:38:19 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:3566 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262359AbVERUiI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 16:38:08 -0400
-Subject: Re: [PATCH] prevent NULL mmap in topdown model
-From: Arjan van de Ven <arjan@infradead.org>
-To: Rik van Riel <riel@redhat.com>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-In-Reply-To: <Pine.LNX.4.61.0505181556190.3645@chimarrao.boston.redhat.com>
-References: <Pine.LNX.4.61.0505181556190.3645@chimarrao.boston.redhat.com>
-Content-Type: text/plain
-Date: Wed, 18 May 2005 22:38:02 +0200
-Message-Id: <1116448683.6572.43.camel@laptopd505.fenrus.org>
+	Wed, 18 May 2005 16:42:34 -0400
+Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:17282 "EHLO
+	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S262357AbVERUmc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 16:42:32 -0400
+X-ORBL: [67.117.73.34]
+Date: Wed, 18 May 2005 13:41:47 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Pavel Machek <pavel@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
+       Christoph Lameter <christoph@lameter.com>,
+       randy_dunlap <rdunlap@xenotime.net>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, shai@scalex86.org, ak@suse.de
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt.
+Message-ID: <20050518204147.GM27330@atomide.com>
+References: <Pine.LNX.4.62.0505161243580.13692@ScMPusgw> <20050516150907.6fde04d3.akpm@osdl.org> <Pine.LNX.4.62.0505161934220.25315@graphe.net> <20050516194651.1debabfd.rdunlap@xenotime.net> <Pine.LNX.4.62.0505161954470.25647@graphe.net> <Pine.LNX.4.58.0505162029240.18337@ppc970.osdl.org> <20050518185016.GD1952@elf.ucw.cz> <1116443033.5419.3.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1116443033.5419.3.camel@mindpipe>
+User-Agent: mutt-ng 1.5.9i (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-18 at 15:57 -0400, Rik van Riel wrote:
-> This (trivial) patch prevents the topdown allocator from allocating
-> mmap areas all the way down to address zero.  It's not the prettiest
-> patch, so suggestions for improvement are welcome ;)
+* Lee Revell <rlrevell@joe-job.com> [050518 12:06]:
+> On Wed, 2005-05-18 at 20:50 +0200, Pavel Machek wrote:
+> > Please don't do this, CONFIG_NO_IDLE_HZ patches are better solution,
+> > and they worked okay last time I tried them.
+> 
+> Last time the dynamic tick patches were posted, you reported they worked
+> fine.  The next question is, when do they get merged?
 
+Uh, I've been meaning to do some clean-up on the x86 patch, but been
+distracted every time I've tried... I'll try to do an updated patch
+soon... But meanwhile, I believe the dyn-tick patch works reliably
+on all machines if DYN_TICK_USE_APIC is not set in Kconfig.
 
-it looks like you stop at brk() time.. isn't it better to just stop just
-above NULL instead?? Gives you more space and is less of an artificial
-barrier..
-
-
+Tony

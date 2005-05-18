@@ -1,50 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262038AbVERALF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261985AbVERANl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262038AbVERALF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 20:11:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVERAJG
+	id S261985AbVERANl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 20:13:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVERANl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 20:09:06 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:60104 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262032AbVERAIn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 20:08:43 -0400
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt.
-From: Lee Revell <rlrevell@joe-job.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: christoph <christoph@scalex86.org>, George Anzinger <george@mvista.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, shai@scalex86.org,
-       akpm@osdl.org
-In-Reply-To: <200505180003.j4I03cJo008917@turing-police.cc.vt.edu>
-References: <Pine.LNX.4.62.0505161243580.13692@ScMPusgw>
-	 <1116276689.28764.1.camel@mindpipe>
-	 <Pine.LNX.4.62.0505161755110.9418@ScMPusgw>
-	 <1116372341.32210.39.camel@mindpipe>
-	 <200505180003.j4I03cJo008917@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Date: Tue, 17 May 2005 20:08:36 -0400
-Message-Id: <1116374916.2567.16.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 17 May 2005 20:13:41 -0400
+Received: from graphe.net ([209.204.138.32]:12044 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261985AbVERANd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 20:13:33 -0400
+Date: Tue, 17 May 2005 17:13:28 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org, shai@scalex86.org
+Subject: Re: [PATCH] Optimize sys_times for a single thread process
+In-Reply-To: <20050517161000.5e0fb0a9.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.62.0505171708250.18365@graphe.net>
+References: <Pine.LNX.4.62.0505171536080.15653@graphe.net>
+ <20050517161000.5e0fb0a9.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-17 at 20:03 -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Tue, 17 May 2005 19:25:41 EDT, Lee Revell said:
-> 
-> > How do you expect application developers to handle not being able to
-> > count on the resolution of nanosleep()?  Currently they can at least
-> > assume 10ms on 2.4, 1ms on 2.6.  Seems to me that if you are no longer
-> > guaranteed to be able to sleep 5ms on 2.6, you would just have to
-> > busywait.  Is it me, or does that way lie madness?
-> 
-> If you're running tickless, wouldn't a 'sleep 5ms' cause a timer event to be
-> queued, and we wake up (approx) 5ms later?
+On Tue, 17 May 2005, Andrew Morton wrote:
 
-Yes, exactly.  This is why I think going tickless is a good solution,
-and CONFIG_HZ is bad, because with HZ=100 "sleep 5ms" would cause us to
-sleep for 10ms.
+> Well, hrm, maybe.  If this task has one sibling thread, and that thread is
+> in the process of exitting then (current == next_thread(current)) may
+> become true before that sibling thread has had a chance to dump its process
+> accounting info into the signal structure.
 
-Lee
+The task is only "unhashed" after the counters have been added in 
+__exit_signal. See release_task in kernel/exit.c
+
+> If that dumping happens prior to the __detach_pid() call then things are
+> probably OK (modulo memory ordering issues).  Otherwise there's a little
+> window where the accounting will go wrong.
+
+__exit_signal takes various locks that will insure the proper sequencing.
+
+> Have you audited that code to ensure that the desired sequencing occurs in
+> all cases and that the appropriate barriers are in place?
+
+AFAIK release task is always called for task removal.
+
+> It all looks a bit fast-and-loose.  If there are significant performance
+> benefits and these issues are loudly commented (they aren't at present)
+> then maybe-OK, I guess.
+
+There are significant performance benefits in particular for one standard 
+NUMA benchmark that keeps calling sys_times over and over. I believe other 
+programs may exhibit the same brain dead behavior.
 

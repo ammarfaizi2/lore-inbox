@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262098AbVERHed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262116AbVERHkt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262098AbVERHed (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 03:34:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbVERHc1
+	id S262116AbVERHkt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 03:40:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbVERHkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 03:32:27 -0400
-Received: from mail.kroah.org ([69.55.234.183]:41141 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262116AbVERHcB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 03:32:01 -0400
-Date: Wed, 18 May 2005 00:37:56 -0700
-From: Greg KH <greg@kroah.com>
-To: Yani Ioannou <yani.ioannou@gmail.com>
-Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [PATCH 2.6.12-rc4 1/15] (dynamic sysfs callbacks) device attribute callbacks - take 2
-Message-ID: <20050518073756.GA12382@kroah.com>
-References: <2538186705051703394944e949@mail.gmail.com> <20050518072239.GA11889@kroah.com> <253818670505180028696cc991@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <253818670505180028696cc991@mail.gmail.com>
-User-Agent: Mutt/1.5.8i
+	Wed, 18 May 2005 03:40:49 -0400
+Received: from higgs.elka.pw.edu.pl ([194.29.160.5]:3807 "EHLO
+	higgs.elka.pw.edu.pl") by vger.kernel.org with ESMTP
+	id S262116AbVERHki (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 03:40:38 -0400
+Date: Wed, 18 May 2005 09:14:38 +0200 (CEST)
+From: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+To: Pete Zaitcev <zaitcev@redhat.com>
+cc: =?UTF-8?B?UG96c8OhciBCYWzDoXpz?= <pozsy@uhulinux.hu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Oops on CF removal and "convert device drivers to driver-model"
+In-Reply-To: <20050517145137.6b91f242.zaitcev@redhat.com>
+Message-ID: <Pine.GSO.4.62.0505180903580.7915@mion.elka.pw.edu.pl>
+References: <20050514135019.0b3252f1.zaitcev@redhat.com>
+ <20050517211704.GB7452@ojjektum.uhulinux.hu> <20050517145137.6b91f242.zaitcev@redhat.com>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-559023410-851401618-1116400097=:7915"
+Content-ID: <Pine.GSO.4.62.0505180909150.7915@mion.elka.pw.edu.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 18, 2005 at 03:28:23AM -0400, Yani Ioannou wrote:
-> Hi Greg,
-> 
-> On 5/18/05, Greg KH <greg@kroah.com> wrote:
-> > Ok, I think I got all of these patches applied properly (hint, don't
-> > label your intro message as 1/15, it should be 0/14, with 14 different
-> > patches, that threw me off for a bit.)  I've also included your i2c
-> > driver patch for the adm1026 driver only.  All of these patches are now
-> > in my tree and can be found on kernel.org in the place where my
-> > patchscripts notified you.  If you could verify them I would appreciate
-> > it (I also added a few patches for stuff that was in my tree only, like
-> > new i2c drivers and some usb and pci sysfs stuff to make them build
-> > properly.)  All of this should show up in the next -mm release too.
-> 
-> Thanks a lot! Sorry about the incorrect numbering, first time I've
-> done an intro. I'll have to send you a patch against the differences
-> between 2.6.12-rc4 and 2.6.12-rc4-mm2 so we don't run into a huge
-> amount of trouble when they merge...
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-That would be good.
+---559023410-851401618-1116400097=:7915
+Content-Type: TEXT/PLAIN; CHARSET=iso-8859-2; format=flowed
+Content-Transfer-Encoding: QUOTED-PRINTABLE
+Content-ID: <Pine.GSO.4.62.0505180909151.7915@mion.elka.pw.edu.pl>
 
-> A quick glance through everything looks fine, but I'll do a proper
-> check tomorrow using your git tree.
 
-I don't have a git tree for stuff that is not ready to be sent to Linus
-at that moment.  I'm using quilt to stage stuff and have them be sucked
-into the -mm releases.  It's easier that way for me right now.
+On Tue, 17 May 2005, Pete Zaitcev wrote:
 
-thanks,
+> On Tue, 17 May 2005 23:17:04 +0200, Pozs=E1r Bal=E1zs <pozsy@uhulinux.hu>=
+ wrote:
+>
+>> On Sat, May 14, 2005 at 01:50:19PM -0700, Pete Zaitcev wrote:
+>>> @@ -1138,7 +1133,8 @@ static int idescsi_attach(ide_drive_t *d
+>>>  =09idescsi->host =3D host;
+>>>  =09idescsi->disk =3D g;
+>>>  =09g->private_data =3D &idescsi->driver;
+>>> -=09err =3D ide_register_subdriver(drive, &idescsi_driver);
+>>> +=09ide_register_subdriver(drive, &idescsi_driver);
+>>> +=09err =3D 0;
+>>>  =09if (!err) {
+>>>  =09=09idescsi_setup (drive, idescsi);
+>>>  =09=09g->fops =3D &idescsi_ops;
+>>
+>> !err cannot be true here, so this seems buggy.
 
-greg k-h
+check for !err is always true here and can be removed
+
+> Indeed.
+>
+> Unfortunately, Andrew's scripts notified me that he added the patch to
+> his tree, so I'd need to wait for a turnaround before a fix-over-fix.
+
+Pete, the version of the patch you've posted is not the final one
+- it misses ->probe() return value fixes.
+
+I'll push the fixed one to Linus.
+
+Thanks,
+Bartlomiej
+---559023410-851401618-1116400097=:7915--

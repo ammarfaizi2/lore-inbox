@@ -1,74 +1,180 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262273AbVERVwt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262303AbVERVyJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262273AbVERVwt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 17:52:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262305AbVERVwi
+	id S262303AbVERVyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 17:54:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262313AbVERVyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 17:52:38 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:46700 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262215AbVERVwY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 17:52:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:organization:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:x-enigmail-version:x-enigmail-supports:content-type;
-        b=hE/GyQy6Dat8ndZ6fXW1R2PSVqWyZ9YwDYx4dMaCMsEEWa7LipvSTayn7XJummzneD65caj0eYJjpzxozmPDS4f96FlEXfYSLbbHP8V4LZQBRNra14p5KiybWJrUenFT4WHhy43o7WOYfcE/dkXfFl+U1z4Q8hFOiM8fAK5vR6w=
-Message-ID: <428BB907.5050000@gmail.com>
-Date: Thu, 19 May 2005 00:52:07 +0300
-From: Matan Peled <chaosite@gmail.com>
-Reply-To: chaosite@gmail.com
-Organization: Chaosite Destruction, inc.
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050429)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-os@analogic.com
-CC: Patrick McFarland <pmcfarland@downeast.net>,
-       Steven Rostedt <rostedt@goodmis.org>, "Gilbert, John" <JGG@dolby.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Illegal use of reserved word in system.h
-References: <2692A548B75777458914AC89297DD7DA08B0866D@bronze.dolby.net> <1116384682.9737.61.camel@localhost.localdomain> <200505180606.34340.pmcfarland@downeast.net> <Pine.LNX.4.61.0505180711040.13211@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0505180711040.13211@chaos.analogic.com>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigC6E023242ECBE4E3B848EBA7"
+	Wed, 18 May 2005 17:54:09 -0400
+Received: from ginger.cmf.nrl.navy.mil ([134.207.10.161]:28364 "EHLO
+	ginger.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
+	id S262303AbVERVw4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 17:52:56 -0400
+Message-Id: <200505182152.j4ILqb5M001881@ginger.cmf.nrl.navy.mil>
+To: davem@redhat.com
+cc: linux-kernel@vger.kernel.org, Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: [PATCH] atm: kill pointless NULL checks and casts before kfree() [take two] 
+In-reply-to: <Pine.LNX.4.62.0505102159270.2386@dragon.hyggekrogen.localhost> 
+Date: Wed, 18 May 2005 17:52:38 -0400
+From: "chas williams - CONTRACTOR" <chas@cmf.nrl.navy.mil>
+X-Spam-Score: () hits=-0.3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigC6E023242ECBE4E3B848EBA7
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+dave,
 
-Richard B. Johnson wrote:
-> 
-> There is some M$ crap mail-server that can be configured to
-> put that junk on the end of all the mail. There is no way
-> for an ordinary user to prevent it except by changing job.
-
-Why would it need to be a Microsoft mailserver in order to mangle outgoing mails
-... ?
-
--- 
-[Name      ]   ::  [Matan I. Peled    ]
-[Location  ]   ::  [Israel            ]
-[Public Key]   ::  [0xD6F42CA5        ]
-[Keyserver ]   ::  [keyserver.kjsl.com]
-encrypted/signed  plain text  preferred
+please apply to 2.6 head -- thanks!
 
 
---------------enigC6E023242ECBE4E3B848EBA7
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+[ATM]: [drivers] kill pointless NULL checks and casts before kfree()
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
+Signed-off-by: Chas Williams <chas@cmf.nrl.navy.mil>
 
-iD8DBQFCi7kKA7Qvptb0LKURAn5yAJ9Med6BPxdI8XeOZjyiPYtTo1BjCQCbBHgC
-UJQlwmSndKFEofvC9Z2OXsQ=
-=BCvo
------END PGP SIGNATURE-----
+---
+commit a44767a5b20b70aa4ba5fb423f5f251a37bea62f
+tree 5c19a71aeba54620a1843a94d692ca1926e6d172
+parent 70ac1c1be822318a3b706d00397b2bf24ffe0a6e
+author chas williams <chas@relax.(none)> Wed, 18 May 2005 15:26:49 -0400
+committer chas williams <chas@relax.(none)> Wed, 18 May 2005 15:26:49 -0400
 
---------------enigC6E023242ECBE4E3B848EBA7--
+ atm/fore200e.c |    6 ++----
+ atm/he.c       |    6 ++----
+ atm/nicstar.c  |   20 ++++++++++----------
+ atm/zatm.c     |   11 ++++-------
+ 4 files changed, 18 insertions(+), 25 deletions(-)
+
+Index: drivers/atm/fore200e.c
+===================================================================
+--- fe56ec270cfb1155e9370731e49900172ec73de6/drivers/atm/fore200e.c  (mode:100644)
++++ 5c19a71aeba54620a1843a94d692ca1926e6d172/drivers/atm/fore200e.c  (mode:100644)
+@@ -383,8 +383,7 @@
+     switch(fore200e->state) {
+ 
+     case FORE200E_STATE_COMPLETE:
+-	if (fore200e->stats)
+-	    kfree(fore200e->stats);
++	kfree(fore200e->stats);
+ 
+     case FORE200E_STATE_IRQ:
+ 	free_irq(fore200e->irq, fore200e->atm_dev);
+@@ -963,8 +962,7 @@
+ 		entry, txq->tail, entry->vc_map, entry->skb);
+ 
+ 	/* free copy of misaligned data */
+-	if (entry->data)
+-	    kfree(entry->data);
++	kfree(entry->data);
+ 	
+ 	/* remove DMA mapping */
+ 	fore200e->bus->dma_unmap(fore200e, entry->tpd->tsd[ 0 ].buffer, entry->tpd->tsd[ 0 ].length,
+Index: drivers/atm/he.c
+===================================================================
+--- fe56ec270cfb1155e9370731e49900172ec73de6/drivers/atm/he.c  (mode:100644)
++++ 5c19a71aeba54620a1843a94d692ca1926e6d172/drivers/atm/he.c  (mode:100644)
+@@ -412,8 +412,7 @@
+ init_one_failure:
+ 	if (atm_dev)
+ 		atm_dev_deregister(atm_dev);
+-	if (he_dev)
+-		kfree(he_dev);
++	kfree(he_dev);
+ 	pci_disable_device(pci_dev);
+ 	return err;
+ }
+@@ -2534,8 +2533,7 @@
+ open_failed:
+ 
+ 	if (err) {
+-		if (he_vcc)
+-			kfree(he_vcc);
++		kfree(he_vcc);
+ 		clear_bit(ATM_VF_ADDR, &vcc->flags);
+ 	}
+ 	else
+Index: drivers/atm/nicstar.c
+===================================================================
+--- fe56ec270cfb1155e9370731e49900172ec73de6/drivers/atm/nicstar.c  (mode:100644)
++++ 5c19a71aeba54620a1843a94d692ca1926e6d172/drivers/atm/nicstar.c  (mode:100644)
+@@ -676,10 +676,10 @@
+    PRINTK("nicstar%d: RSQ base at 0x%x.\n", i, (u32) card->rsq.base);
+       
+    /* Initialize SCQ0, the only VBR SCQ used */
+-   card->scq1 = (scq_info *) NULL;
+-   card->scq2 = (scq_info *) NULL;
++   card->scq1 = NULL;
++   card->scq2 = NULL;
+    card->scq0 = get_scq(VBR_SCQSIZE, NS_VRSCD0);
+-   if (card->scq0 == (scq_info *) NULL)
++   if (card->scq0 == NULL)
+    {
+       printk("nicstar%d: can't get SCQ0.\n", i);
+       error = 12;
+@@ -993,24 +993,24 @@
+    int i;
+ 
+    if (size != VBR_SCQSIZE && size != CBR_SCQSIZE)
+-      return (scq_info *) NULL;
++      return NULL;
+ 
+    scq = (scq_info *) kmalloc(sizeof(scq_info), GFP_KERNEL);
+-   if (scq == (scq_info *) NULL)
+-      return (scq_info *) NULL;
++   if (scq == NULL)
++      return NULL;
+    scq->org = kmalloc(2 * size, GFP_KERNEL);
+    if (scq->org == NULL)
+    {
+       kfree(scq);
+-      return (scq_info *) NULL;
++      return NULL;
+    }
+    scq->skb = (struct sk_buff **) kmalloc(sizeof(struct sk_buff *) *
+                                           (size / NS_SCQE_SIZE), GFP_KERNEL);
+-   if (scq->skb == (struct sk_buff **) NULL)
++   if (scq->skb == NULL)
+    {
+       kfree(scq->org);
+       kfree(scq);
+-      return (scq_info *) NULL;
++      return NULL;
+    }
+    scq->num_entries = size / NS_SCQE_SIZE;
+    scq->base = (ns_scqe *) ALIGN_ADDRESS(scq->org, size);
+@@ -1498,7 +1498,7 @@
+          vc->cbr_scd = NS_FRSCD + frscdi * NS_FRSCD_SIZE;
+ 
+          scq = get_scq(CBR_SCQSIZE, vc->cbr_scd);
+-         if (scq == (scq_info *) NULL)
++         if (scq == NULL)
+          {
+             PRINTK("nicstar%d: can't get fixed rate SCQ.\n", card->index);
+             card->scd2vc[frscdi] = NULL;
+Index: drivers/atm/zatm.c
+===================================================================
+--- fe56ec270cfb1155e9370731e49900172ec73de6/drivers/atm/zatm.c  (mode:100644)
++++ 5c19a71aeba54620a1843a94d692ca1926e6d172/drivers/atm/zatm.c  (mode:100644)
+@@ -902,7 +902,7 @@
+ 		zatm_dev->tx_bw += vcc->qos.txtp.min_pcr;
+ 		dealloc_shaper(vcc->dev,zatm_vcc->shaper);
+ 	}
+-	if (zatm_vcc->ring) kfree(zatm_vcc->ring);
++	kfree(zatm_vcc->ring);
+ }
+ 
+ 
+@@ -1339,12 +1339,9 @@
+ 	return 0;
+     out:
+ 	for (i = 0; i < NR_MBX; i++)
+-		if (zatm_dev->mbx_start[i] != 0)
+-			kfree((void *) zatm_dev->mbx_start[i]);
+-	if (zatm_dev->rx_map != NULL)
+-		kfree(zatm_dev->rx_map);
+-	if (zatm_dev->tx_map != NULL)
+-		kfree(zatm_dev->tx_map);
++		kfree(zatm_dev->mbx_start[i]);
++	kfree(zatm_dev->rx_map);
++	kfree(zatm_dev->tx_map);
+ 	free_irq(zatm_dev->irq, dev);
+ 	return error;
+ }

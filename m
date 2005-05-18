@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262183AbVERLdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVERLkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262183AbVERLdm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 07:33:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbVERLdl
+	id S261625AbVERLkn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 07:40:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbVERLkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 07:33:41 -0400
-Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:42510 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262168AbVERLd3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 07:33:29 -0400
-To: trond.myklebust@fys.uio.no
-CC: dhowells@redhat.com, linuxram@us.ibm.com, jamie@shareable.org,
-       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <1116414429.10773.57.camel@lade.trondhjem.org> (message from
-	Trond Myklebust on Wed, 18 May 2005 07:07:09 -0400)
-Subject: Re: [PATCH] fix race in mark_mounts_for_expiry()
-References: <E1DYLvb-0000as-00@dorka.pomaz.szeredi.hu>
-	 <E1DYLCv-0000W7-00@dorka.pomaz.szeredi.hu>
-	 <1116005355.6248.372.camel@localhost>
-	 <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu>
-	 <1116012287.6248.410.camel@localhost>
-	 <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu>
-	 <1116013840.6248.429.camel@localhost>
-	 <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu>
-	 <1116256279.4154.41.camel@localhost>
-	 <20050516111408.GA21145@mail.shareable.org>
-	 <1116301843.4154.88.camel@localhost>
-	 <E1DXm08-0006XD-00@dorka.pomaz.szeredi.hu>
-	 <20050517012854.GC32226@mail.shareable.org>
-	 <E1DXuiu-0007Mj-00@dorka.pomaz.szeredi.hu>
-	 <1116360352.24560.85.camel@localhost>
-	 <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu>
-	 <1116399887.24560.116.camel@localhost>
-	 <1116400118.24560.119.camel@localhost> <6865.1116412354@redhat.com>
-	 <7230.1116413175@redhat.com>  <E1DYMB6-0000dw-00@dorka.pomaz.szeredi.hu> <1116414429.10773.57.camel@lade.trondhjem.org>
-Message-Id: <E1DYMn1-0000kp-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 18 May 2005 13:32:39 +0200
+	Wed, 18 May 2005 07:40:43 -0400
+Received: from 13.2-host.augustakom.net ([80.81.2.13]:61061 "EHLO phoebee.mail")
+	by vger.kernel.org with ESMTP id S261625AbVERLkf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 07:40:35 -0400
+Date: Wed, 18 May 2005 13:40:31 +0200
+From: Martin Zwickel <martin.zwickel@technotrend.de>
+To: Filipe Abrantes <fla@inescporto.pt>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Detecting link up
+Message-ID: <20050518134031.53a3243a@phoebee>
+In-Reply-To: <428B1A60.6030505@inescporto.pt>
+References: <428B1A60.6030505@inescporto.pt>
+X-Mailer: Sylpheed-Claws 0.9.12cvs53 (GTK+ 1.2.10; i686-pc-linux-gnu)
+X-Operating-System: Linux Phoebee 2.6.7-rc2-mm2 i686 Intel(R) Pentium(R) 4
+ CPU 2.40GHz
+X-Face: $rTNP}#i,cVI9h"0NVvD.}[fsnGqI%3=N'~,}hzs<FnWK/T]rvIb6hyiSGL[L8S,Fj`u1t.
+ ?J0GVZ4&
+Organization: Technotrend AG
+Mime-Version: 1.0
+Content-Type: multipart/signed;
+ boundary="Signature_Wed__18_May_2005_13_40_31_+0200_TH8m=ESwG/_K6geF";
+ protocol="application/pgp-signature"; micalg=pgp-sha1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Some archs already have an atomic_dec_if_positive() (see for instance
-> the PPC). It won't take much work to convert that to an
-> atomic_inc_if_positive().
-> 
-> For those arches that don't have that sort of thing, then writing a
-> generic atomic_inc_if_positive() using cmpxchg() will often be possible,
-> but there are exceptions (for instance the original 386 does not have a
-> cmpxchg, so there you will have to use something else).
+--Signature_Wed__18_May_2005_13_40_31_+0200_TH8m=ESwG/_K6geF
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-The problem with introducing architecture specific code, is that it's
-just asking for new bugs.
+On Wed, 18 May 2005 11:35:12 +0100
+Filipe Abrantes <fla@inescporto.pt> bubbled:
 
-If it's something used all over the kernel, than obviously it's OK,
-but for the sake of just one caller it's a bit crazy I think.
+> Hi all,
+>=20
+> I need to detect when an interface (wired ethernet) has link up/down.
+> Is  there a system signal which is sent when this happens? What is the
+> best  way to this programatically?
 
-Miklos
+mii-tool?
+
+--=20
+MyExcuse:
+Not enough interrupts
+
+Martin Zwickel <martin.zwickel@technotrend.de>
+Research & Development
+
+TechnoTrend AG <http://www.technotrend.de>
+
+--Signature_Wed__18_May_2005_13_40_31_+0200_TH8m=ESwG/_K6geF
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFCiymwmjLYGS7fcG0RArm0AKCfJ6VI09uTTeWt5n91+ToNScCQRACdG3Tc
+hT+4FSZPFYRt7r5TO5tmNWo=
+=j43W
+-----END PGP SIGNATURE-----
+
+--Signature_Wed__18_May_2005_13_40_31_+0200_TH8m=ESwG/_K6geF--

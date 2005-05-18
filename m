@@ -1,67 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262292AbVERPP4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262247AbVERPVo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262292AbVERPP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 11:15:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbVERPOA
+	id S262247AbVERPVo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 11:21:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262251AbVERPTc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 11:14:00 -0400
-Received: from alog0356.analogic.com ([208.224.222.132]:36521 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262226AbVERPLk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 11:11:40 -0400
-Date: Wed, 18 May 2005 11:11:00 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Max Kellermann <max@duempel.org>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Detecting link up
-In-Reply-To: <20050518143712.GA21883@roonstrasse.net>
-Message-ID: <Pine.LNX.4.61.0505181102420.17255@chaos.analogic.com>
-References: <428B1A60.6030505@inescporto.pt> <20050518134031.53a3243a@phoebee>
- <20050518143712.GA21883@roonstrasse.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 18 May 2005 11:19:32 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:54699 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262264AbVERPSQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 11:18:16 -0400
+Date: Wed, 18 May 2005 08:23:07 -0700
+From: Matt Tolentino <metolent@snoqualmie.dp.intel.com>
+Message-Id: <200505181523.j4IFN7rs026902@snoqualmie.dp.intel.com>
+To: ak@muc.de, akpm@osdl.org
+Subject: [patch 1/4] remove direct ref to contig_page_data for x86-64
+Cc: apw@shadowen.org, haveblue@us.ibm.com, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 May 2005, Max Kellermann wrote:
 
-> On 2005/05/18 13:40, Martin Zwickel <martin.zwickel@technotrend.de> wrote:
->> On Wed, 18 May 2005 11:35:12 +0100
->> Filipe Abrantes <fla@inescporto.pt> bubbled:
->>> I need to detect when an interface (wired ethernet) has link up/down.
->>> Is  there a system signal which is sent when this happens? What is the
->>> best  way to this programatically?
->>
->> mii-tool?
->
-> A thought on a related topic:
->
-> When a NIC driver knows that there is no link, why does it even try to
-> transmit a packet? It could return immediately with an error code,
-> without applications having to wait for a timeout.
->
-> (I had a quick peek at two drivers, and they don't check the link
-> status)
->
-> Max
+This patch pulls out all remaining direct references to 
+contig_page_data from arch/x86-64, thus saving an ifdef
+in one case.  
 
-The driver(s) don't transmit directly. They put data into a buffer,
-usually a ring. The hardware will (depends upon the type) try to
-transmit up to 16 times, anything at the current buffer location.
-This allows hardware, not software, to try to get a packet on the
-wire. The wire can become active or inactive at any time. Usually
-the driver correctly assumes that the packet will eventually get
-out. If it doesn't, upper levels will send it again. Note that
-this is Ethernet, a noisy channel, sh* happens. If the protocol
-is connection oriented, the data will be retried forever in an
-attempt to get it through. Otherwise, the data is just dropped
-on the floor. That's how networking works. You don't waste
-valuable CPU resources checking to see if data got onto a wire
-when it might get trashed later anyway.
+Signed-off-by: Matt Tolentino <matthew.e.tolentino@intel.com>
+Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+---
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+ arch/x86_64/kernel/aperture.c |    4 ----
+ arch/x86_64/kernel/setup.c    |    2 +-
+ 2 files changed, 1 insertion(+), 5 deletions(-)
+
+diff -urNp linux-2.6.12-rc4-mm2/arch/x86_64/kernel/aperture.c linux-2.6.12-rc4-mm2-m/arch/x86_64/kernel/aperture.c
+--- linux-2.6.12-rc4-mm2/arch/x86_64/kernel/aperture.c	2005-05-07 01:20:31.000000000 -0400
++++ linux-2.6.12-rc4-mm2-m/arch/x86_64/kernel/aperture.c	2005-05-16 13:13:52.000000000 -0400
+@@ -42,11 +42,7 @@ static struct resource aper_res = {
+ 
+ static u32 __init allocate_aperture(void) 
+ {
+-#ifdef CONFIG_DISCONTIGMEM
+ 	pg_data_t *nd0 = NODE_DATA(0);
+-#else
+-	pg_data_t *nd0 = &contig_page_data;
+-#endif	
+ 	u32 aper_size;
+ 	void *p; 
+ 
+diff -urNp linux-2.6.12-rc4-mm2/arch/x86_64/kernel/setup.c linux-2.6.12-rc4-mm2-m/arch/x86_64/kernel/setup.c
+--- linux-2.6.12-rc4-mm2/arch/x86_64/kernel/setup.c	2005-05-16 13:17:18.000000000 -0400
++++ linux-2.6.12-rc4-mm2-m/arch/x86_64/kernel/setup.c	2005-05-16 13:13:52.000000000 -0400
+@@ -408,7 +408,7 @@ static void __init contig_initmem_init(v
+         if (bootmap == -1L) 
+                 panic("Cannot find bootmem map of size %ld\n",bootmap_size);
+         bootmap_size = init_bootmem(bootmap >> PAGE_SHIFT, end_pfn);
+-        e820_bootmem_free(&contig_page_data, 0, end_pfn << PAGE_SHIFT); 
++        e820_bootmem_free(NODE_DATA(0), 0, end_pfn << PAGE_SHIFT);
+         reserve_bootmem(bootmap, bootmap_size);
+ } 
+ #endif

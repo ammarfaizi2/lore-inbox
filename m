@@ -1,55 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262069AbVERDKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262066AbVERDPm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbVERDKk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 23:10:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262066AbVERDKk
+	id S262066AbVERDPm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 23:15:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbVERDPm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 23:10:40 -0400
-Received: from nevyn.them.org ([66.93.172.17]:49831 "EHLO nevyn.them.org")
-	by vger.kernel.org with ESMTP id S262073AbVERDKd (ORCPT
+	Tue, 17 May 2005 23:15:42 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:24234 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S262066AbVERDP2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 23:10:33 -0400
-Date: Tue, 17 May 2005 23:10:30 -0400
-From: Daniel Jacobowitz <dan@debian.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Paul LeoNerd Evans <leonerd@leonerd.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix to virtual terminal UTF-8 mode handling
-Message-ID: <20050518031030.GA20086@nevyn.them.org>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Paul LeoNerd Evans <leonerd@leonerd.org.uk>,
-	linux-kernel@vger.kernel.org
-References: <20050518030513.7fe55ef1@nim.leo> <20050517195848.4a09318d.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050517195848.4a09318d.akpm@osdl.org>
-User-Agent: Mutt/1.5.8i
+	Tue, 17 May 2005 23:15:28 -0400
+Message-ID: <0E3FA95632D6D047BA649F95DAB60E57060CCE9A@exa-atlanta>
+From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
+To: "'Christoph Hellwig'" <hch@infradead.org>
+Cc: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
+       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
+       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
+       Andrew Morton <akpm@osdl.org>,
+       "'James Bottomley'" <James.Bottomley@SteelEye.com>
+Subject: RE: [PATCH 2.6.12-rc4-mm1 4/4] megaraid_sas: updating the driver
+Date: Tue, 17 May 2005 22:59:13 -0400
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2657.72)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 17, 2005 at 07:58:48PM -0700, Andrew Morton wrote:
-> Paul LeoNerd Evans <leonerd@leonerd.org.uk> wrote:
-> >
-> >  This patch fixes a bug in the virtual terminal driver, whereby the UTF-8
-> >  mode is reset to "off" following a console reset, such as might be
-> >  delivered by mingetty, screen, vim, etc...
-> 
-> Is it a bug?  What did earlier kernels do?  2.4.x?
+>> +#define RD_OB_MSG_0(regs)	readl((void*)(&(regs)->outbound_msg_0))
+>> +#define WR_IN_MSG_0(v, regs)	
+>writel((v),(void*)(&(regs)->inbound_msg_0))
+>> +#define WR_IN_DOORBELL(v, regs)
+>> writel((v),(void*)(&(regs)->inbound_doorbell))
+>> +#define WR_IN_QPORT(v, regs)
+>> writel((v),(void*)(&(regs)->inbound_queue_port))
+>> +
+>> +#define RD_OB_INTR_STATUS(regs)
+>> readl((void*)(&(regs)->outbound_intr_status))
+>> +#define WR_OB_INTR_STATUS(v, regs)
+>> writel((v),(&(regs)->outbound_intr_status))
+>
+>The void * casats are not okay.  Please make sure all your variable
+>holding the I/O address are of type void __iomem * and use 
+>sparse to check
+>it.  I would have sent you sparse output if your mailer didn't mangle
+>the patch so it couldn't be applied..
+>
 
-I'd be inclined to think that this is more of a terminfo issue.  If you
-want your terminal to reset into UTF-8, use a terminfo entry with the
-appropriate command string instead of the current one - this would be
-the 'rs1' capability:
+I will remove these macros. What is sparse output?
 
-  rs1=\Ec\E]R
+>> +#define SCP2HOST(scp)		(scp)->device->host	
+>// to host
+>> +#define SCP2HOSTDATA(scp)	SCP2HOST(scp)->hostdata	// to soft state
+>> +#define SCP2CHANNEL(scp)	(scp)->device->channel	// to channel
+>> +#define SCP2TARGET(scp)		(scp)->device->id	
+>// to target
+>> +#define SCP2LUN(scp)		(scp)->device->lun	
+>// to LUN
+>
+>Please remove all these macros.
 
-That's reset console to default, reset palette.
+Christoph, I use these macros to have commonality between 2.4 and 2.6
+kernels. Please consider retaining them. 
 
-> Presumably userspace knows what mode the user wants the terminal to be
-> using.  Shouldn't userspace be resetting that mode after a reset?
+>
+>Also I can't find any endianess handling.  You should probably declare
+>all hardware structures __le* and use proper le*_to_cpu/cpu_to_le* when
+>accessing them.  sparse -Wbitwise helps finding errors in 
+>endianess handling
+>
 
-There's no standard way to represent this in userspace.  But yeah.
+I will do that.
 
--- 
-Daniel Jacobowitz
-CodeSourcery, LLC
+Thanks,
+Sreenivas

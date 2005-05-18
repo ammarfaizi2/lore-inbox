@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262271AbVERPqK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262293AbVERPsu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262271AbVERPqK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 11:46:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262293AbVERPo6
+	id S262293AbVERPsu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 11:48:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbVERPq2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 11:44:58 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:33520 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262234AbVERPnz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 11:43:55 -0400
-Date: Wed, 18 May 2005 08:38:54 -0400
-From: Christopher Li <lkml@chrisli.org>
-To: Timur Tabi <timur.tabi@ammasso.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sparse error: unable to open 'stdarg.h'
-Message-ID: <20050518123854.GA13452@64m.dyndns.org>
-References: <428A661C.1030100@ammasso.com> <20050517201148.GA12997@64m.dyndns.org> <428B4C67.5090307@ammasso.com>
+	Wed, 18 May 2005 11:46:28 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:2753 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262281AbVERPpK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 11:45:10 -0400
+Subject: Re: Share Wait Queue between different modules ?
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Dinesh Ahuja <mdlinux7@yahoo.co.in>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050518150200.88195.qmail@web8506.mail.in.yahoo.com>
+References: <20050518150200.88195.qmail@web8506.mail.in.yahoo.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 18 May 2005 11:45:03 -0400
+Message-Id: <1116431103.5014.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <428B4C67.5090307@ammasso.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 18, 2005 at 09:08:39AM -0500, Timur Tabi wrote:
+On Wed, 2005-05-18 at 16:02 +0100, Dinesh Ahuja wrote:
+> Thanks Steven for answer.
 > 
-> Nope, that didn't fix it.  I deleted pre-process.h and re-ran "make", and 
-> it created a new one:
-> 
-> #define GCC_INTERNAL_INCLUDE 
-> "/usr/lib/gcc-lib/i586-suse-linux/3.3.4/include"
-> 
-> vic1:~/sparse-bk # ll 
-> /usr/lib/gcc-lib/i586-suse-linux/3.3.4/include/stdarg.h
-> -rw-r--r--  1 root root 4325 Oct  1  2004 
-> /usr/lib/gcc-lib/i586-suse-linux/3.3.4/include/stdarg.h
-> 
-That is wired.  Can you try to edit a test.c contain just one line:
+> Could please tell me know how to share wait queue
+> between different modules and where will be pratical
+> implementation of that case.
 
-#include <stdarg.h>
+A wait_queue is where a task goes while waiting for some event. If you
+want to share it among modules you first need to determine where the
+wait queue would be declared.  If module A and module B use the same
+wait queue, and module A has declared it. Then module B would be
+dependent on module A.  Module A would also have to export the wait
+queue via the EXPORT_SYMBOL macro.  Or, the wait queue can be declared
+in the kernel itself and all modules can use it. 
 
-run sparse on that test.c and see if you get any complain or not?
+As for a practical implementation for doing this, I'm not sure what you
+are asking for since the question itself is quite abstract.  I haven't
+needed to export a wait queue from one module to the next. The best I
+can tell you is if one module supplies some functionality or driver for
+some device that has a wait queue for some event, and another module
+adds functionality or a sub system of the device that needs to have
+tasks wait on the same event, then I guess that would be one case.
 
-If you still get complain about file not found. Can you run
-"strace -e trace=file ./check test.c" and show me the out put?
+-- Steve
 
-Chris
 
-PS, here is what I get:
-
-[chrisl@64m sparse-be]$ strace -e trace=file ./check test.h 
-execve("./check", ["./check", "test.h"], [/* 26 vars */]) = 0
-open("/etc/ld.so.preload", O_RDONLY)    = -1 ENOENT (No such file or directory)
-open("/etc/ld.so.cache", O_RDONLY)      = 3
-fstat64(3, {st_mode=S_IFREG|0644, st_size=58983, ...}) = 0
-open("/lib/tls/libc.so.6", O_RDONLY)    = 3
-fstat64(3, {st_mode=S_IFREG|0755, st_size=1539996, ...}) = 0
-open("test.h", O_RDONLY)                = 3
-open("/usr/include/stdarg.h", O_RDONLY) = -1 ENOENT (No such file or directory)
-open("/usr/local/include/stdarg.h", O_RDONLY) = -1 ENOENT (No such file or directory)
-open("/usr/lib/gcc-lib/i386-redhat-linux/3.2.2/include/stdarg.h", O_RDONLY) = 3
-[chrisl@64m sparse-be]$ 

@@ -1,70 +1,235 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262372AbVERRDl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262364AbVERRDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262372AbVERRDl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 13:03:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262364AbVERRCs
+	id S262364AbVERRDm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 13:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbVERQ4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 13:02:48 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:454 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262374AbVERRAs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 13:00:48 -0400
-Date: Wed, 18 May 2005 10:00:39 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Jonathan Corbet <corbet@lwn.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC][UPDATE PATCH 2/4] convert soft-timer subsystem to timerintervals
-Message-ID: <20050518170039.GD4205@us.ibm.com>
-References: <20050518082141.GC4205@us.ibm.com> <20050518155927.8751.qmail@lwn.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050518155927.8751.qmail@lwn.net>
-X-Operating-System: Linux 2.6.12-rc4 (i686)
-User-Agent: Mutt/1.5.9i
+	Wed, 18 May 2005 12:56:49 -0400
+Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:17427 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262358AbVERQy7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 12:54:59 -0400
+To: miklos@szeredi.hu
+CC: dhowells@redhat.com, linuxram@us.ibm.com, jamie@shareable.org,
+       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-reply-to: <E1DYNjR-0000po-00@dorka.pomaz.szeredi.hu> (message from Miklos
+	Szeredi on Wed, 18 May 2005 14:33:01 +0200)
+Subject: Re: [PATCH] fix race in mark_mounts_for_expiry()
+References: <E1DYMVf-0000hD-00@dorka.pomaz.szeredi.hu>  <E1DYMB6-0000dw-00@dorka.pomaz.szeredi.hu> <E1DYLvb-0000as-00@dorka.pomaz.szeredi.hu> <E1DYLCv-0000W7-00@dorka.pomaz.szeredi.hu> <1116005355.6248.372.camel@localhost> <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu> <1116012287.6248.410.camel@localhost> <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu> <1116013840.6248.429.camel@localhost> <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu> <1116256279.4154.41.camel@localhost> <20050516111408.GA21145@mail.shareable.org> <1116301843.4154.88.camel@localhost> <E1DXm08-0006XD-00@dorka.pomaz.szeredi.hu> <20050517012854.GC32226@mail.shareable.org> <E1DXuiu-0007Mj-00@dorka.pomaz.szeredi.hu> <1116360352.24560.85.camel@localhost> <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu> <1116399887.24560.116.camel@localhost> <1116400118.24560.119.camel@localhost> <6865.1116412354@redhat.com> <7230.1116413175@redhat.com> <8247.1116413990@redhat.com> <9498.1116417099@redhat.com> <E1DYNLt-0000nu-00@dorka.pomaz.szeredi.hu> <E1DYNjR-0000po-00@dorka.pomaz.szeredi.hu>
+Message-Id: <E1DYRnw-0001J6-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 18 May 2005 18:53:56 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18.05.2005 [09:59:27 -0600], Jonathan Corbet wrote:
-> Hi, Nishanth,
+> E.g. having a separate task count, which is incremented/decremented
+> only by clone/exit.  If the task count goes to zero, umount_tree is
+> called on root, but namespace is not freed.
 > 
-> To my uneducated eye, this patch looks like a useful cleaning-up of the
-> timer API.  I do have one question, though...
-
-Thanks! I think one of the best side-effects (beyond a more accurate
-execution of sleep requests) of my patch is that the new interfaces are
-a heck of a lot saner :)
-
-> > @@ -238,15 +327,41 @@ void add_timer_on(struct timer_list *tim
-> >  	check_timer(timer);
-> >  
-> >  	spin_lock_irqsave(&base->lock, flags);
-> > +	timer->expires = jiffies_to_timerintervals(timer->expires);
+> And each mnt_namespace holds a proper reference to the namespace, so
+> it's safe to dereference it anytime.  When truly no more references
+> remain, the namespace can go away.
 > 
-> It would appear that, depending on where you are, ->expires can be
-> expressed in two different units.  Users of add_timer() and mod_timer()
-> are expecting jiffies, but the internal code uses timer intervals.  What
-> happens when somebody does something like this?
-> 
-> 	mod_timer(&my_timer, my_timer.expires + additional_delay);
-> 
-> Might it be better to store the timerintervals value in a different
-> field, and leave ->expires as part of the legacy interface only?
+> Hmm?
 
-This is definitely an option. Currently, it is somewhat vague as to
-whether, once a timer has been submitted, whether the expires field is
-still valid to the caller. In the new system, it will clearly explicitly
-not be (I meant to modify the comment to add_timer(), mod_timer() and
-set_timer_nsecs() appropriately, but have not yet.
+Here's a patch (compile and boot tested). 
 
-The problem with the mod_timer() approach you suggest is that there is
-no guarantee that my_timer.expires represents anything close to the
-current time. And, as far as my experience with reviewing the current
-callers is concerned, there is no such usage.
+Now there are two solutions to one problem, the previous one is ugly,
+this one is buggy.  Which should it be?
 
-It definitely is feasible and reasonable, though, to make that change. I
-will look into it and see what I can do.
+Thanks,
+Miklos
 
-Thanks for the feedback!
-
--Nish
+Index: linux/include/linux/namespace.h
+===================================================================
+--- linux.orig/include/linux/namespace.h	2005-05-18 18:02:24.000000000 +0200
++++ linux/include/linux/namespace.h	2005-05-18 18:28:48.000000000 +0200
+@@ -7,18 +7,26 @@
+ 
+ struct namespace {
+ 	atomic_t		count;
++	atomic_t		task_count; /* how many tasks use this */
+ 	struct vfsmount *	root;
+ 	struct list_head	list;
+ 	struct rw_semaphore	sem;
+ };
+ 
+ extern int copy_namespace(int, struct task_struct *);
+-extern void __put_namespace(struct namespace *namespace);
++extern void __exit_namespace(struct namespace *namespace);
+ 
+ static inline void put_namespace(struct namespace *namespace)
+ {
+-	if (atomic_dec_and_test(&namespace->count))
+-		__put_namespace(namespace);
++	if (namespace && atomic_dec_and_test(&namespace->count))
++		kfree(namespace);
++}
++
++static inline struct namespace *get_namespace(struct namespace *namespace)
++{
++	if (namespace)
++		atomic_inc(&namespace->count);
++	return namespace;
+ }
+ 
+ static inline void exit_namespace(struct task_struct *p)
+@@ -28,14 +36,10 @@ static inline void exit_namespace(struct
+ 		task_lock(p);
+ 		p->namespace = NULL;
+ 		task_unlock(p);
+-		put_namespace(namespace);
++		if (atomic_dec_and_test(&p->namespace->task_count))
++			__exit_namespace(p->namespace);
+ 	}
+ }
+ 
+-static inline void get_namespace(struct namespace *namespace)
+-{
+-	atomic_inc(&namespace->count);
+-}
+-
+ #endif
+ #endif
+Index: linux/fs/namespace.c
+===================================================================
+--- linux.orig/fs/namespace.c	2005-05-18 17:42:46.000000000 +0200
++++ linux/fs/namespace.c	2005-05-18 18:32:29.000000000 +0200
+@@ -160,7 +160,7 @@ clone_mnt(struct vfsmount *old, struct d
+ 		mnt->mnt_root = dget(root);
+ 		mnt->mnt_mountpoint = mnt->mnt_root;
+ 		mnt->mnt_parent = mnt;
+-		mnt->mnt_namespace = current->namespace;
++		mnt->mnt_namespace = get_namespace(current->namespace);
+ 
+ 		/* stick the duplicate mount on the same expiry list
+ 		 * as the original if that was on one */
+@@ -345,13 +345,15 @@ static void umount_tree(struct vfsmount 
+ 	for (p = mnt; p; p = next_mnt(p, mnt)) {
+ 		list_del(&p->mnt_list);
+ 		list_add(&p->mnt_list, &kill);
+-		p->mnt_namespace = NULL;
+ 	}
+ 
+ 	while (!list_empty(&kill)) {
++		struct namespace *n;
+ 		mnt = list_entry(kill.next, struct vfsmount, mnt_list);
+ 		list_del_init(&mnt->mnt_list);
+ 		list_del_init(&mnt->mnt_fslink);
++		n = mnt->mnt_namespace;
++		mnt->mnt_namespace = NULL;
+ 		if (mnt->mnt_parent == mnt) {
+ 			spin_unlock(&vfsmount_lock);
+ 		} else {
+@@ -361,6 +363,7 @@ static void umount_tree(struct vfsmount 
+ 			path_release(&old_nd);
+ 		}
+ 		mntput(mnt);
++		put_namespace(n);
+ 		spin_lock(&vfsmount_lock);
+ 	}
+ }
+@@ -866,12 +869,9 @@ void mark_mounts_for_expiry(struct list_
+ 		mnt = list_entry(graveyard.next, struct vfsmount, mnt_fslink);
+ 		list_del_init(&mnt->mnt_fslink);
+ 
+-		/* don't do anything if the namespace is dead - all the
+-		 * vfsmounts from it are going away anyway */
+-		namespace = mnt->mnt_namespace;
+-		if (!namespace || atomic_read(&namespace->count) <= 0)
++		namespace = get_namespace(mnt->mnt_namespace);
++		if (!namespace)
+ 			continue;
+-		get_namespace(namespace);
+ 
+ 		spin_unlock(&vfsmount_lock);
+ 		down_write(&namespace->sem);
+@@ -1073,8 +1073,10 @@ int copy_namespace(int flags, struct tas
+ 
+ 	get_namespace(namespace);
+ 
+-	if (!(flags & CLONE_NEWNS))
++	if (!(flags & CLONE_NEWNS)) {
++		atomic_inc(&namespace->task_count);
+ 		return 0;
++	}
+ 
+ 	if (!capable(CAP_SYS_ADMIN)) {
+ 		put_namespace(namespace);
+@@ -1086,6 +1088,7 @@ int copy_namespace(int flags, struct tas
+ 		goto out;
+ 
+ 	atomic_set(&new_ns->count, 1);
++	atomic_set(&new_ns->task_count, 1);
+ 	init_rwsem(&new_ns->sem);
+ 	INIT_LIST_HEAD(&new_ns->list);
+ 
+@@ -1109,7 +1112,9 @@ int copy_namespace(int flags, struct tas
+ 	p = namespace->root;
+ 	q = new_ns->root;
+ 	while (p) {
+-		q->mnt_namespace = new_ns;
++		struct namespace *oldns = q->mnt_namespace;
++		q->mnt_namespace = get_namespace(new_ns);
++		put_namespace(oldns);
+ 		if (fs) {
+ 			if (p == fs->rootmnt) {
+ 				rootmnt = p;
+@@ -1381,16 +1386,17 @@ static void __init init_mount_tree(void)
+ 	if (!namespace)
+ 		panic("Can't allocate initial namespace");
+ 	atomic_set(&namespace->count, 1);
++	atomic_set(&namespace->task_count, 0);
+ 	INIT_LIST_HEAD(&namespace->list);
+ 	init_rwsem(&namespace->sem);
+ 	list_add(&mnt->mnt_list, &namespace->list);
+ 	namespace->root = mnt;
+-	mnt->mnt_namespace = namespace;
++	mnt->mnt_namespace = get_namespace(namespace);
+ 
+ 	init_task.namespace = namespace;
+ 	read_lock(&tasklist_lock);
+ 	do_each_thread(g, p) {
+-		get_namespace(namespace);
++		atomic_inc(&namespace->task_count);
+ 		p->namespace = namespace;
+ 	} while_each_thread(g, p);
+ 	read_unlock(&tasklist_lock);
+@@ -1448,12 +1454,13 @@ void __init mnt_init(unsigned long mempa
+ 	init_mount_tree();
+ }
+ 
+-void __put_namespace(struct namespace *namespace)
++void __exit_namespace(struct namespace *namespace)
+ {
+ 	down_write(&namespace->sem);
+ 	spin_lock(&vfsmount_lock);
+ 	umount_tree(namespace->root);
++	namespace->root = NULL;
+ 	spin_unlock(&vfsmount_lock);
+ 	up_write(&namespace->sem);
+-	kfree(namespace);
++	put_namespace(namespace);
+ }
+Index: linux/fs/super.c
+===================================================================
+--- linux.orig/fs/super.c	2005-05-17 13:46:56.000000000 +0200
++++ linux/fs/super.c	2005-05-18 18:44:18.000000000 +0200
+@@ -37,6 +37,7 @@
+ #include <linux/writeback.h>		/* for the emergency remount stuff */
+ #include <linux/idr.h>
+ #include <linux/kobject.h>
++#include <linux/namespace.h>
+ #include <asm/uaccess.h>
+ 
+ 
+@@ -842,7 +843,7 @@ do_kern_mount(const char *fstype, int fl
+ 	mnt->mnt_root = dget(sb->s_root);
+ 	mnt->mnt_mountpoint = sb->s_root;
+ 	mnt->mnt_parent = mnt;
+-	mnt->mnt_namespace = current->namespace;
++	mnt->mnt_namespace = get_namespace(current->namespace);
+ 	up_write(&sb->s_umount);
+ 	put_filesystem(type);
+ 	return mnt;

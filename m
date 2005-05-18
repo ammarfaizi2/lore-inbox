@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262261AbVEROit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262254AbVEROjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262261AbVEROit (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 10:38:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262235AbVEROid
+	id S262254AbVEROjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 10:39:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbVEROit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 10:38:33 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:25002 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S262234AbVEROiH (ORCPT
+	Wed, 18 May 2005 10:38:49 -0400
+Received: from duempel.org ([81.209.165.42]:17938 "HELO duempel.org")
+	by vger.kernel.org with SMTP id S262254AbVEROhX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 10:38:07 -0400
-Message-ID: <428B5349.5090207@drzeus.cx>
-Date: Wed, 18 May 2005 16:38:01 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Takashi Iwai <tiwai@suse.de>
-CC: Valdis.Kletnieks@vt.edu, Karel Kulhavy <clock@twibright.com>,
-       Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
-Subject: Re: software mixing in alsa
-References: <20050517095613.GA9947@kestrel>	<200505171208.04052.jan@spitalnik.net>	<20050517141307.GA7759@kestrel>	<1116354762.31830.12.camel@mindpipe>	<20050517192412.GA19431@kestrel.twibright.com>	<200505172027.j4HKRjTV029545@turing-police.cc.vt.edu> <s5hll6csl0b.wl@alsa2.suse.de>
-In-Reply-To: <s5hll6csl0b.wl@alsa2.suse.de>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 18 May 2005 10:37:23 -0400
+Date: Wed, 18 May 2005 16:37:12 +0200
+From: Max Kellermann <max@duempel.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Detecting link up
+Message-ID: <20050518143712.GA21883@roonstrasse.net>
+Mail-Followup-To: linux-kernel@vger.kernel.org
+References: <428B1A60.6030505@inescporto.pt> <20050518134031.53a3243a@phoebee>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050518134031.53a3243a@phoebee>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Iwai wrote:
+On 2005/05/18 13:40, Martin Zwickel <martin.zwickel@technotrend.de> wrote:
+> On Wed, 18 May 2005 11:35:12 +0100
+> Filipe Abrantes <fla@inescporto.pt> bubbled:
+> > I need to detect when an interface (wired ethernet) has link up/down.
+> > Is  there a system signal which is sent when this happens? What is the
+> > best  way to this programatically?
 > 
-> esd is working fine together with dmix.  You should try the latest
-> versions (of esd and alsa-lib).  The old version of esd might have a
-> bug.
-> 
+> mii-tool?
 
-I'd beg to differ. I have to apply the patch made by you to avoid
-getting a lot of distortions with esound and dmix:
+A thought on a related topic:
 
-http://bugzilla.gnome.org/show_bug.cgi?id=140803
+When a NIC driver knows that there is no link, why does it even try to
+transmit a packet? It could return immediately with an error code,
+without applications having to wait for a timeout.
 
-Checking in the cvs, this still hasn't been commited.
+(I had a quick peek at two drivers, and they don't check the link
+status)
 
-Rgds
-Pierre
+Max
+

@@ -1,88 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262167AbVERLE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262171AbVERLH4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262167AbVERLE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 07:04:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbVERLE5
+	id S262171AbVERLH4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 07:07:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVERLH4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 07:04:57 -0400
-Received: from home.leonerd.org.uk ([217.147.80.44]:17352 "EHLO
-	home.leonerd.org.uk") by vger.kernel.org with ESMTP id S262168AbVERLEw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 07:04:52 -0400
-Date: Wed, 18 May 2005 12:04:46 +0100
-From: Paul LeoNerd Evans <leonerd@leonerd.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix to virtual terminal UTF-8 mode handling
-Message-ID: <20050518120446.2eeb559f@nim.leo>
-In-Reply-To: <20050517195848.4a09318d.akpm@osdl.org>
-References: <20050518030513.7fe55ef1@nim.leo>
-	<20050517195848.4a09318d.akpm@osdl.org>
-X-Mailer: Sylpheed-Claws 1.9.6cvs45 (GTK+ 2.6.4; i686-pc-linux-gnu)
+	Wed, 18 May 2005 07:07:56 -0400
+Received: from pat.uio.no ([129.240.130.16]:14843 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262170AbVERLHh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 07:07:37 -0400
+Subject: Re: [PATCH] fix race in mark_mounts_for_expiry()
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: dhowells@redhat.com, linuxram@us.ibm.com, jamie@shareable.org,
+       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <E1DYMB6-0000dw-00@dorka.pomaz.szeredi.hu>
+References: <E1DYLvb-0000as-00@dorka.pomaz.szeredi.hu>
+	 <E1DYLCv-0000W7-00@dorka.pomaz.szeredi.hu>
+	 <1116005355.6248.372.camel@localhost>
+	 <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu>
+	 <1116012287.6248.410.camel@localhost>
+	 <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu>
+	 <1116013840.6248.429.camel@localhost>
+	 <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu>
+	 <1116256279.4154.41.camel@localhost>
+	 <20050516111408.GA21145@mail.shareable.org>
+	 <1116301843.4154.88.camel@localhost>
+	 <E1DXm08-0006XD-00@dorka.pomaz.szeredi.hu>
+	 <20050517012854.GC32226@mail.shareable.org>
+	 <E1DXuiu-0007Mj-00@dorka.pomaz.szeredi.hu>
+	 <1116360352.24560.85.camel@localhost>
+	 <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu>
+	 <1116399887.24560.116.camel@localhost>
+	 <1116400118.24560.119.camel@localhost> <6865.1116412354@redhat.com>
+	 <7230.1116413175@redhat.com>  <E1DYMB6-0000dw-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Date: Wed, 18 May 2005 07:07:09 -0400
+Message-Id: <1116414429.10773.57.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
- boundary=Signature_Wed__18_May_2005_12_04_46_+0100_+nXq5IIiQRLMIzZQ;
- protocol="application/pgp-signature"; micalg=pgp-sha1
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-4.95, required 12,
+	autolearn=disabled, FORGED_RCVD_HELO 0.05,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature_Wed__18_May_2005_12_04_46_+0100_+nXq5IIiQRLMIzZQ
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+on den 18.05.2005 Klokka 12:53 (+0200) skreiv Miklos Szeredi:
+> > Yes you can. cmpxchg() is atomic. Several archs implement atomic_inc() and co
+> > with cmpxchg() or similar.
+> > 
+> > Something like:
+> > 
+> > 	static inline struct namespace *grab_namespace(struct namespace *n)
+> > 	{
+> > 		int old = atomic_read(&n->count);
+> > 
+> > 		while (old > 0) {
+> > 			/* attempt to increment the counter */
+> > 			old = cmpxchg(&n->count, old, old + 1);
+> > 		}
+> > 
+> > 		return old > 0 ? n : NULL;
+> > 	}
+> > 
+> 
+> Ahh OK :)
+> 
+> There's still the problem of cmpxchg meddling in the internals of an
+> atomic_t.  Is that OK?  Will that work on all archs?
 
-On Tue, 17 May 2005 19:58:48 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+Some archs already have an atomic_dec_if_positive() (see for instance
+the PPC). It won't take much work to convert that to an
+atomic_inc_if_positive().
 
-> Paul LeoNerd Evans <leonerd@leonerd.org.uk> wrote:
-> >
-> >  This patch fixes a bug in the virtual terminal driver, whereby the
-> > UTF-8 mode is reset to "off" following a console reset, such as might
-> > be delivered by mingetty, screen, vim, etc...
->=20
-> Is it a bug?  What did earlier kernels do?  2.4.x?
+For those arches that don't have that sort of thing, then writing a
+generic atomic_inc_if_positive() using cmpxchg() will often be possible,
+but there are exceptions (for instance the original 386 does not have a
+cmpxchg, so there you will have to use something else).
 
-I haven't checked earlier 2.4 kernels, but I know the 2.6 ones have done
-this for quite some time; a good year or so at least.
+Cheers,
+  Trond
 
-> Presumably userspace knows what mode the user wants the terminal to be
-> using.  Shouldn't userspace be resetting that mode after a reset?
-
-Well, that does require changes to a lot of the programs that talk to the
-console, moreover, they now need to be sensitive to whether it is in
-UTF-8 mode, where previously they did not. E.g. consider mingetty...
-
-Also, as I understand it, there is one keyboard map, and one console font
-for the entire virtual console system - either they are UTF-8, or not. It
-doesn't really make sense to be switching these about.
-
-Moreover, this code also affects dynamic creation of new virtual
-consoles. E.g. when debian's "oh no, I can't start the X server" ncurses
-dialog appears, without my patch it prints UTF-8 characters on a new
-console, tty8, on a console that isn't set to display them, and mass
-breakage results. Now, it all happens cleanly, because the new console is
-already in UTF-8 mode.
-
-Were this to be pushed to userland, every program that outputs data would
-need to detect the UTF-8 mode of the console, and set it appropriately.
-Moreover, they would need to perform this logic only on a Linux virtual
-console; such things as XTerm or Gnome-terminal do it automatically.
-
---=20
-Paul "LeoNerd" Evans
-
-leonerd@leonerd.org.uk
-ICQ# 4135350       |  Registered Linux# 179460
-http://www.leonerd.org.uk/
-
---Signature_Wed__18_May_2005_12_04_46_+0100_+nXq5IIiQRLMIzZQ
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCiyFRvcPg11V/1hgRAvCsAJ9NlCT3n0Rqlh0WP8W/6AVJUpUrgwCbBDSA
-Cl1p1GcNgG8YDpgEF+pLjag=
-=rSmx
------END PGP SIGNATURE-----
-
---Signature_Wed__18_May_2005_12_04_46_+0100_+nXq5IIiQRLMIzZQ--

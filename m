@@ -1,48 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262282AbVEROpu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262253AbVEROwc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbVEROpu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 10:45:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262240AbVEROcg
+	id S262253AbVEROwc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 10:52:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbVEROwK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 10:32:36 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:998 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262193AbVERO2t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 10:28:49 -0400
-Date: Wed, 18 May 2005 15:28:49 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: cotte@freenet.de
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       schwidefsky@de.ibm.com, akpm@osdl.org
-Subject: Re: [RFC/PATCH 4/5] loop: execute in place (V2)
-Message-ID: <20050518142849.GC23162@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>, cotte@freenet.de,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-	schwidefsky@de.ibm.com, akpm@osdl.org
-References: <1116422644.2202.1.camel@cotte.boeblingen.de.ibm.com> <1116424432.2202.19.camel@cotte.boeblingen.de.ibm.com>
+	Wed, 18 May 2005 10:52:10 -0400
+Received: from mailfe06.swip.net ([212.247.154.161]:55003 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S262283AbVEROvY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 10:51:24 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: [Fastboot] [2/2] kdump: Save trap information for later
+	analyzis
+From: Alexander Nyberg <alexn@telia.com>
+To: vgoyal@in.ibm.com
+Cc: fastboot@lists.osdl.org,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Morton Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050518124144.GB3657@in.ibm.com>
+References: <1116103800.6153.31.camel@localhost.localdomain>
+	 <20050518124144.GB3657@in.ibm.com>
+Content-Type: text/plain
+Date: Wed, 18 May 2005 16:51:03 +0200
+Message-Id: <1116427863.22324.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1116424432.2202.19.camel@cotte.boeblingen.de.ibm.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 18, 2005 at 03:53:52PM +0200, Carsten Otte wrote:
-> [RFC/PATCH 4/5] loop: execute in place (V2)
-> The old loop driver in 2.6.11. used the readpage/writepage aops to
-> transfer data. Now loop can also use read/write and direct_IO on the
-> file if readpage/writepage are not available. Unlike the old 2.6.11.
-> version, today's loop driver does work with files that do not have
-> readpage/writepage. Threrefore, this patch is optional.
-> This patch adds one more transport method to loop that uses the new
-> address space operation get_xip_page if available.
-> 
-> This patch is unchanged from previous version.
+If we are faulting in kernel it is quite possible this will lead to a
+panic. Save trap number, cr2 (in case of page fault) and error_code in
+the current thread (these fields already exist for signal delivery but
+are not used here). 
 
-This should be ifdef'ed to avoid bloat for non-XIP builds.  Or just be dropped
-completely.  How much difference does it make over read/write and where does
-loop performance matter?
+This helps later kdump crash analyzing from user-space (a script has
+been submitted to dig this info out in gdb).
+
+
+Signed-off-by: Alexander Nyberg <alexn@telia.com>
+
+Index: mm/arch/i386/mm/fault.c
+===================================================================
+--- mm.orig/arch/i386/mm/fault.c	2005-05-18 16:39:04.000000000 +0200
++++ mm/arch/i386/mm/fault.c	2005-05-18 16:39:20.000000000 +0200
+@@ -469,6 +469,9 @@
+ 		printk(KERN_ALERT "*pte = %08lx\n", page);
+ 	}
+ #endif
++	tsk->thread.cr2 = address;
++	tsk->thread.trap_no = 14;
++	tsk->thread.error_code = error_code;
+ 	die("Oops", regs, error_code);
+ 	bust_spinlocks(0);
+ 	do_exit(SIGKILL);
+Index: mm/arch/i386/kernel/traps.c
+===================================================================
+--- mm.orig/arch/i386/kernel/traps.c	2005-05-18 16:39:04.000000000 +0200
++++ mm/arch/i386/kernel/traps.c	2005-05-18 16:39:20.000000000 +0200
+@@ -410,6 +410,10 @@
+ static void do_trap(int trapnr, int signr, char *str, int vm86,
+ 			   struct pt_regs * regs, long error_code, siginfo_t *info)
+ {
++	struct task_struct *tsk = current;
++	tsk->thread.error_code = error_code;
++	tsk->thread.trap_no = trapnr;
++	
+ 	if (regs->eflags & VM_MASK) {
+ 		if (vm86)
+ 			goto vm86_trap;
+@@ -420,9 +424,6 @@
+ 		goto kernel_trap;
+ 
+ 	trap_signal: {
+-		struct task_struct *tsk = current;
+-		tsk->thread.error_code = error_code;
+-		tsk->thread.trap_no = trapnr;
+ 		if (info)
+ 			force_sig_info(signr, info, tsk);
+ 		else
+@@ -537,6 +538,9 @@
+ 	}
+ 	put_cpu();
+ 
++	current->thread.error_code = error_code;
++	current->thread.trap_no = 13;
++	
+ 	if (regs->eflags & VM_MASK)
+ 		goto gp_in_vm86;
+ 
+@@ -977,9 +981,9 @@
+ 					  error_code);
+ 			return;
+ 		}
+-		die_if_kernel("cache flush denied", regs, error_code);
+ 		current->thread.trap_no = 19;
+ 		current->thread.error_code = error_code;
++		die_if_kernel("cache flush denied", regs, error_code);
+ 		force_sig(SIGSEGV, current);
+ 	}
+ }
+
 

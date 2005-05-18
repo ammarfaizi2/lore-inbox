@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbVERTHU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262266AbVERTLT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262256AbVERTHU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 15:07:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbVERTHU
+	id S262266AbVERTLT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 15:11:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbVERTLS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 15:07:20 -0400
-Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:32016 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262218AbVERTHH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 15:07:07 -0400
-To: jamie@shareable.org
-CC: trond.myklebust@fys.uio.no, dhowells@redhat.com, linuxram@us.ibm.com,
-       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <20050518173419.GB993@mail.shareable.org> (message from Jamie
-	Lokier on Wed, 18 May 2005 18:34:19 +0100)
-Subject: Re: [PATCH] fix race in mark_mounts_for_expiry()
-References: <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu> <1116399887.24560.116.camel@localhost> <1116400118.24560.119.camel@localhost> <6865.1116412354@redhat.com> <7230.1116413175@redhat.com> <E1DYMB6-0000dw-00@dorka.pomaz.szeredi.hu> <1116414429.10773.57.camel@lade.trondhjem.org> <E1DYMn1-0000kp-00@dorka.pomaz.szeredi.hu> <20050518125041.GA29107@mail.shareable.org> <E1DYOTs-0000ub-00@dorka.pomaz.szeredi.hu> <20050518173419.GB993@mail.shareable.org>
-Message-Id: <E1DYTri-0001SL-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 18 May 2005 21:05:58 +0200
+	Wed, 18 May 2005 15:11:18 -0400
+Received: from mail.tmr.com ([64.65.253.246]:52754 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S262266AbVERTIN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 15:08:13 -0400
+Date: Wed, 18 May 2005 15:07:30 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Andi Kleen <ak@muc.de>, Gabor MICSKO <gmicsko@szintezis.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Hyper-Threading Vulnerability
+In-Reply-To: <1116009347.1448.489.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.3.96.1050518145842.14178B-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> That makes less sense if we allow other tasks to be using a namespace
-> through a passing a file descriptor, and then the last task which has
-> current->namespace equal to that namespace exits.  It makes no sense
-> to me that the mount which is still accessible through the file
-> descriptor is suddenly detached from it's parent and children mounts.
+On Fri, 13 May 2005, Alan Cox wrote:
 
-I see your point.  I don't yet see a solution.
+> > This is not a kernel problem, but a user space problem. The fix 
+> > is to change the user space crypto code to need the same number of cache line
+> > accesses on all keys. 
+> 
+> You actually also need to hit the same cache line sequence on all keys
+> if you take a bit more care about it.
+> 
+> > Disabling HT for this would the totally wrong approach, like throwing
+> > out the baby with the bath water.
+> 
+> HT for most users is pretty irrelevant, its a neat idea but the
+> benchmarks don't suggest its too big a hit
 
-Currently detach is an explicit action, not something automatic which
-happens when there are no more references to a vfsmount.
+This is one of those things which can give any result depending on the
+measurement. For kernel compiles I might see a 5-30% reduction in clock
+time, for threaded applications like web/mail/news not much, and for
+applications which communicate via shared memory up to 50% because some
+blocking system calls can be avoided and cache impact is lower.
 
-> Why is it not good enough to detach each vfsmnt when the last
-> reference to each vfsmnt is dropped?  In other words, simply when the
-> vfsmnt becomes unreachable?
+In general I have to agree with the "too big," but I haven't seen any
+indication that the hole can be exploited without being able to run a
+custom application on the machine, so for single users machines and
+servers the risk level seems low.
 
-Define unreachable.  Then define a mechanism, by which it can be
-detected.
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
 
-Miklos

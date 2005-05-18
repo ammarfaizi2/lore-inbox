@@ -1,66 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261979AbVERH2c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbVERH1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261979AbVERH2c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 03:28:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVERH2c
+	id S262079AbVERH1H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 03:27:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVERH1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 03:28:32 -0400
-Received: from rproxy.gmail.com ([64.233.170.207]:34336 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261979AbVERH2Z convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 03:28:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=GPMNg79hrq2j45G4KzooY798C99qsjJqI02DG0MrnSZFQrHVjlkuOzaafF+uqEXsLQMa0URUg3KgS0aEa0ckBuOGuPUIh06JWi8tFXHjz2iA5tJtKFnainOMIpGwnkTc1CzcHpQopeTp+o4R7RsF4Whjy72qjvSEG72NogLY1rU=
-Message-ID: <253818670505180028696cc991@mail.gmail.com>
-Date: Wed, 18 May 2005 03:28:23 -0400
-From: Yani Ioannou <yani.ioannou@gmail.com>
-Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2.6.12-rc4 1/15] (dynamic sysfs callbacks) device attribute callbacks - take 2
-Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-In-Reply-To: <20050518072239.GA11889@kroah.com>
+	Wed, 18 May 2005 03:27:07 -0400
+Received: from mail.kroah.org ([69.55.234.183]:42675 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262079AbVERH0f (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 03:26:35 -0400
+Date: Wed, 18 May 2005 00:32:30 -0700
+From: Greg KH <greg@kroah.com>
+To: Hannes Reinecke <hare@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Kay Sievers <Kay.Sievers@vrfy.org>
+Subject: Re: [PATCH] fix error handling in bus_add_device
+Message-ID: <20050518073230.GA12155@kroah.com>
+References: <428365EC.80906@suse.de> <20050518055602.GA11123@kroah.com> <428AEC89.5040301@suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <2538186705051703394944e949@mail.gmail.com>
-	 <20050518072239.GA11889@kroah.com>
+In-Reply-To: <428AEC89.5040301@suse.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+On Wed, May 18, 2005 at 09:19:37AM +0200, Hannes Reinecke wrote:
+> Greg KH wrote:
+> > On Thu, May 12, 2005 at 04:19:24PM +0200, Hannes Reinecke wrote:
+> >>Hi Greg,
+> >>
+> >>this patch fixes the error handling in bus_add_device() and
+> >>device_attach(). Previously it was 'interesting'.
+> >>And totally confusing to boot.
+> > 
+> > I agree, that's why it has been rewritten in the -mm tree :)
+> > 
+> > Anyway, your patch doesn't take into account that device_attach()'s
+> > return value is tested in the bus_rescan_devices_helper(), so if you
+> > change the return value, that also needs to be changed.
+> > 
+> > But even in the -mm tree, the bus_add_devices() function has not had the
+> > error handling added to it that you provided, is there any devices that
+> > you are seeing that need this?
+> > 
+> Not yet :-)
+> 
+> I'm just doing some cleanups here which me and Kay Sievers will be
+> exploiting in the near future.
+> My main point is:
+> either we do an error check in bus_add_device and return a proper
+> status, or we don't and fix bus_add_device to be of type 'void'.
+> And as some functions called by bus_add_device may fail I thought it
+> reasonable to evaluate the return status properly.
+> Unless you tell me that bus_add_device is a fire-and-forget procedure
+> and we don't care at all for any failures. But then we should at least
+> set the type of bus_add_device() to 'void'.
+> You're the maintainer, you have to decide :-).
+> I don't care either way, I just want to have it consistent.
+> 
+> But you're correct about the bus_rescan_devices_helper. Fixed and new
+> patch attached.
 
-On 5/18/05, Greg KH <greg@kroah.com> wrote:
-> Ok, I think I got all of these patches applied properly (hint, don't
-> label your intro message as 1/15, it should be 0/14, with 14 different
-> patches, that threw me off for a bit.)  I've also included your i2c
-> driver patch for the adm1026 driver only.  All of these patches are now
-> in my tree and can be found on kernel.org in the place where my
-> patchscripts notified you.  If you could verify them I would appreciate
-> it (I also added a few patches for stuff that was in my tree only, like
-> new i2c drivers and some usb and pci sysfs stuff to make them build
-> properly.)  All of this should show up in the next -mm release too.
+Ok, I agree that we should have error checks in there.  Now, could you
+make your patch against the latest -mm tree instead due to all of the
+changes involved in that area in my trees?  That way I can apply it :)
 
-Thanks a lot! Sorry about the incorrect numbering, first time I've
-done an intro. I'll have to send you a patch against the differences
-between 2.6.12-rc4 and 2.6.12-rc4-mm2 so we don't run into a huge
-amount of trouble when they merge...
+thanks,
 
-A quick glance through everything looks fine, but I'll do a proper
-check tomorrow using your git tree.
-
-> Thanks a lot for sticking with this process, I really appreciate it.
-> Now you can get back to actually fixing up the i2c drivers you wanted
-> to, which was what you wanted to do in the first place :)
-
-Yes it will be good to get back to my own area for a bit, maybe even
-finally get bmcsensors into a state where it can be accepted :-),
-however it has been a nice break and I can see other areas that could
-benefit from things along the line of this patch so I might yet
-intrude upon the rest of the kernel again ;-).
-
-Thanks,
-Yani
+greg k-h

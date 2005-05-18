@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbVEREDM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262074AbVEREGR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbVEREDM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 00:03:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVEREDM
+	id S262074AbVEREGR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 00:06:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262077AbVEREGQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 00:03:12 -0400
-Received: from rproxy.gmail.com ([64.233.170.202]:27379 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262073AbVEREDJ convert rfc822-to-8bit
+	Wed, 18 May 2005 00:06:16 -0400
+Received: from rproxy.gmail.com ([64.233.170.193]:60644 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262074AbVEREGL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 00:03:09 -0400
+	Wed, 18 May 2005 00:06:11 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=hLweQleG0oJRfDCrziEntUJtrP4xhbGCPUbNWr1kTE6UY3sjb74456T5IBHK0Nn1XtsxToVxNbKU+Tcbv1YmiiEtmRWIF/PHn/3FYrLFxNEXTtLvgHwGMXh8Nvcdq8dZU13m0TlN/rNQ8sxpTEhpl4hA5Npu2UZzMRUPOIrLluQ=
-Message-ID: <311601c905051721031221db0d@mail.gmail.com>
-Date: Tue, 17 May 2005 22:03:09 -0600
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=I8NVaTFhGKtoU5uaP53Cqe8BiqYwIoOEfB8QuqZv7US2zA10M8ggn8redN/6xQVmv9OVuSYyQnDSNhHPI2vXbEuwADYW5uXfQpnu6m9tKIzMv8pRmD/Z0bmVO1ixnDa9vISBjJ5m4YSd4R/mwbcC56x8zwsGtgcvAw2wv1XxfP4=
+Message-ID: <311601c9050517210657a20256@mail.gmail.com>
+Date: Tue, 17 May 2005 22:06:11 -0600
 From: "Eric D. Mudama" <edmudama@gmail.com>
 Reply-To: "Eric D. Mudama" <edmudama@gmail.com>
-To: Mark Lord <lkml@rtr.ca>
+To: linux-kernel@vger.kernel.org
 Subject: Re: Disk write cache (Was: Hyper-Threading Vulnerability)
-Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <42880620.8000300@rtr.ca>
+In-Reply-To: <20050516111859.GB13387@merlin.emma.line.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
 References: <1115963481.1723.3.camel@alderaan.trey.hu>
+	 <20050515145241.GA5627@irc.pl>
+	 <Pine.LNX.4.58.0505151657230.19181@artax.karlin.mff.cuni.cz>
 	 <200505151121.36243.gene.heskett@verizon.net>
-	 <20050515152956.GA25143@havoc.gtf.org>
-	 <200505152156.18194.gene.heskett@verizon.net>
-	 <42880620.8000300@rtr.ca>
+	 <Pine.LNX.4.58.0505151809240.26531@artax.karlin.mff.cuni.cz>
+	 <20050516111859.GB13387@merlin.emma.line.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/15/05, Mark Lord <lkml@rtr.ca> wrote:
-> There's your clue.  The drive LEDs normally reflect activity
-> over the ATA bus (the cable!). If they're not on, then the drive
-> isn't receiving data/commands from the host.
+On 5/16/05, Matthias Andree <matthias.andree@gmx.de> wrote:
+> I've heard that drives would be taking rotational energy from their
+> rotating platters and such, but never heard how the hardware compensates
+> the dilation with decreasing rotational frequency, which also requires
+> changed filter settings for the write channel, block encoding, delays,
+> possibly stepping the heads and so on. I don't believe these stories
+> until I see evidence.
 
-Mark is correct, activity indicators are associated with bus activity,
-not internal drive activity.
+I'm pretty sure that most drives out there will immediately attempt to
+safely retract or park the heads the instant that a power loss is
+detected.  There's too much potential damage that can occur if the
+heads aren't able to safely retract to a landing zone or ramp, that
+trying to save "one more block of cached data" just isn't worth the
+risk.
+
+--eric

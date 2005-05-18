@@ -1,103 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262090AbVEREhB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262088AbVEREy2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262090AbVEREhB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 00:37:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbVERE25
+	id S262088AbVEREy2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 00:54:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262077AbVEREy2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 00:28:57 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:25869 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S262079AbVEREZy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 00:25:54 -0400
-Message-Id: <200505180420.j4I4KYFd017349@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org, torvalds@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Subject: [PATCH 9/9] UML - Change printf to printk in console driver
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Wed, 18 May 2005 00:20:34 -0400
-From: Jeff Dike <jdike@addtoit.com>
+	Wed, 18 May 2005 00:54:28 -0400
+Received: from az33egw01.freescale.net ([192.88.158.102]:21739 "EHLO
+	az33egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S262088AbVERExx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 00:53:53 -0400
+Date: Tue, 17 May 2005 23:53:41 -0500 (CDT)
+From: Kumar Gala <galak@freescale.com>
+X-X-Sender: galak@nylon.am.freescale.net
+To: Andrew Morton <akpm@osdl.org>
+cc: linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] ppc32: Fix platform device initialization of 8250 serial
+ ports
+Message-ID: <Pine.LNX.4.61.0505172352170.28134@nylon.am.freescale.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From Al Viro - we have error messages with KERN_ERR in them, so they
-should be printk-ed rather than printf-ed.
+Andrew,
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+(This fixes a bug and should go into 2.6.12 if possible.)
 
-Index: linux-2.6.12-rc/arch/um/drivers/chan_kern.c
+Initialization of 8250 serial ports that are platform devices require that
+at empty entry exists in the array of plat_serial8250_port.  With out an
+empty entry we can get some pretty random behavior.
+
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+
+
+---
+commit 775d12402657efa10a3c76da6c764237afeca462
+tree ab87cb0c7a06314683657598ac6f011a7cc38884
+parent 995cccaa4c17395172a88369a7eda90ab98f9971
+author Kumar K. Gala <kumar.gala@freescale.com> Tue, 17 May 2005 23:51:13 -0500
+committer Kumar K. Gala <kumar.gala@freescale.com> Tue, 17 May 2005 23:51:13 -0500
+
+ ppc/syslib/mpc83xx_devices.c |    1 +
+ ppc/syslib/mpc85xx_devices.c |    1 +
+ 2 files changed, 2 insertions(+)
+
+Index: arch/ppc/syslib/mpc83xx_devices.c
 ===================================================================
---- linux-2.6.12-rc.orig/arch/um/drivers/chan_kern.c	2005-05-17 18:02:25.000000000 -0400
-+++ linux-2.6.12-rc/arch/um/drivers/chan_kern.c	2005-05-17 18:27:15.000000000 -0400
-@@ -20,9 +20,17 @@
- #include "os.h"
+--- afaee9b3b47f4d48902232740857f7b7d66e356f/arch/ppc/syslib/mpc83xx_devices.c  (mode:100644)
++++ ab87cb0c7a06314683657598ac6f011a7cc38884/arch/ppc/syslib/mpc83xx_devices.c  (mode:100644)
+@@ -61,6 +61,7 @@
+ 		.iotype		= UPIO_MEM,
+ 		.flags		= UPF_BOOT_AUTOCONF | UPF_SKIP_TEST,
+ 	},
++	{ },
+ };
  
- #ifdef CONFIG_NOCONFIG_CHAN
-+
-+/* The printk's here are wrong because we are complaining that there is no
-+ * output device, but printk is printing to that output device.  The user will 
-+ * never see the error.  printf would be better, except it can't run on a 
-+ * kernel stack because it will overflow it.  
-+ * Use printk for now since that will avoid crashing.
-+ */
-+
- static void *not_configged_init(char *str, int device, struct chan_opts *opts)
- {
--	printf(KERN_ERR "Using a channel type which is configured out of "
-+	printk(KERN_ERR "Using a channel type which is configured out of "
- 	       "UML\n");
- 	return(NULL);
- }
-@@ -30,27 +38,27 @@ static void *not_configged_init(char *st
- static int not_configged_open(int input, int output, int primary, void *data,
- 			      char **dev_out)
- {
--	printf(KERN_ERR "Using a channel type which is configured out of "
-+	printk(KERN_ERR "Using a channel type which is configured out of "
- 	       "UML\n");
- 	return(-ENODEV);
- }
+ struct platform_device ppc_sys_platform_devices[] = {
+Index: arch/ppc/syslib/mpc85xx_devices.c
+===================================================================
+--- afaee9b3b47f4d48902232740857f7b7d66e356f/arch/ppc/syslib/mpc85xx_devices.c  (mode:100644)
++++ ab87cb0c7a06314683657598ac6f011a7cc38884/arch/ppc/syslib/mpc85xx_devices.c  (mode:100644)
+@@ -61,6 +61,7 @@
+ 		.iotype		= UPIO_MEM,
+ 		.flags		= UPF_BOOT_AUTOCONF | UPF_SKIP_TEST | UPF_SHARE_IRQ,
+ 	},
++	{ },
+ };
  
- static void not_configged_close(int fd, void *data)
- {
--	printf(KERN_ERR "Using a channel type which is configured out of "
-+	printk(KERN_ERR "Using a channel type which is configured out of "
- 	       "UML\n");
- }
- 
- static int not_configged_read(int fd, char *c_out, void *data)
- {
--	printf(KERN_ERR "Using a channel type which is configured out of "
-+	printk(KERN_ERR "Using a channel type which is configured out of "
- 	       "UML\n");
- 	return(-EIO);
- }
- 
- static int not_configged_write(int fd, const char *buf, int len, void *data)
- {
--	printf(KERN_ERR "Using a channel type which is configured out of "
-+	printk(KERN_ERR "Using a channel type which is configured out of "
- 	       "UML\n");
- 	return(-EIO);
- }
-@@ -58,7 +66,7 @@ static int not_configged_write(int fd, c
- static int not_configged_console_write(int fd, const char *buf, int len,
- 				       void *data)
- {
--	printf(KERN_ERR "Using a channel type which is configured out of "
-+	printk(KERN_ERR "Using a channel type which is configured out of "
- 	       "UML\n");
- 	return(-EIO);
- }
-@@ -66,7 +74,7 @@ static int not_configged_console_write(i
- static int not_configged_window_size(int fd, void *data, unsigned short *rows,
- 				     unsigned short *cols)
- {
--	printf(KERN_ERR "Using a channel type which is configured out of "
-+	printk(KERN_ERR "Using a channel type which is configured out of "
- 	       "UML\n");
- 	return(-ENODEV);
- }
-
+ struct platform_device ppc_sys_platform_devices[] = {

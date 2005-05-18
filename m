@@ -1,46 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbVERAgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262000AbVERAqK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262008AbVERAgX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 20:36:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVERAgX
+	id S262000AbVERAqK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 20:46:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262011AbVERAqK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 20:36:23 -0400
-Received: from lucidpixels.com ([66.45.37.187]:2688 "EHLO lucidpixels.com")
-	by vger.kernel.org with ESMTP id S262008AbVERAgQ (ORCPT
+	Tue, 17 May 2005 20:46:10 -0400
+Received: from gaz.sfgoth.com ([69.36.241.230]:6353 "EHLO gaz.sfgoth.com")
+	by vger.kernel.org with ESMTP id S262000AbVERAqE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 20:36:16 -0400
-Date: Tue, 17 May 2005 20:36:15 -0400 (EDT)
-From: Justin Piszcz <jpiszcz@lucidpixels.com>
-X-X-Sender: jpiszcz@localhost.localdomain
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Reproducible 2.6.11.9 NFS Kernel Crashing Bug!
-In-Reply-To: <1116341217.21388.145.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.63.0505172036020.2028@localhost.localdomain>
-References: <Pine.LNX.4.63.0505140911580.2342@localhost.localdomain>
- <1116341217.21388.145.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 17 May 2005 20:46:04 -0400
+Date: Tue, 17 May 2005 18:03:37 -0700
+From: Mitchell Blank Jr <mitch@sfgoth.com>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, shai@scalex86.org
+Subject: Re: [PATCH] Optimize sys_times for a single thread process
+Message-ID: <20050518010337.GB44089@gaz.sfgoth.com>
+References: <Pine.LNX.4.62.0505171536080.15653@graphe.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0505171536080.15653@graphe.net>
+User-Agent: Mutt/1.4.2.1i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.2.2 (gaz.sfgoth.com [127.0.0.1]); Tue, 17 May 2005 18:03:37 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And I am using UDP, not TCP.
+Christoph Lameter wrote:
+> +		if (current == next_thread(current)) {
+> +			/*
+> +			 * Single thread case. We do not need to scan the tasklist
+> +			 * and thus can avoid the read_lock(&task_list_lock). We
+> +			 * also do not need to take the siglock since we
+> +			 * are the only thread in this process
+> +			 */
+> +			utime = cputime_add(current->signal->utime, current->utime);
+> +			stime = cputime_add(current->signal->utime, current->stime);
+> +			cutime = current->signal->cutime;
+> +			cstime = current->signal->cstime;
+> +		} else
 
-NFS Version 3.
+Maybe #ifdef CONFIG_SMP around this?  On uniproc you're still saving the
+sti/cli around reading the tsk->signal stuff but that's probably not
+enough to warrant the code bloat.
 
-On Tue, 17 May 2005, Alan Cox wrote:
+Or maybe this is a small enough amount of code not to matter... just a
+suggestion.
 
-> On Sad, 2005-05-14 at 14:18, Justin Piszcz wrote:
->> The mount options I am using are:
->> rw,hard,intr,rsize=65536,wsize=65536,nfsvers=3 0 0
->
-> These are rather extreme r/wsizes especially if you are using UDP - I'm
-> assuming this is TCP ?
->
->> Oh, and incase one may think there is a network issue, there is not,
->> during normal operation when I am not running dd, there are no network
->> problems, as shown below.
->
-> I would certainly expect it to be a memory issue. Does it occur with
-> 8192 as the size ?
->
+-Mitch

@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVEROOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262201AbVEROO3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261194AbVEROOb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 10:14:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbVERONX
+	id S262201AbVEROO3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 10:14:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbVERONi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 10:13:23 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:29658 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261194AbVEROM5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 10:12:57 -0400
-Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: dino@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, gregoire.favre@gmail.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20050518090722.GA3937@in.ibm.com>
-References: <20050516085832.GA9558@gmail.com>
-	 <20050517071307.GA4794@in.ibm.com> <20050517002908.005a9ba7.akpm@osdl.org>
-	 <1116340465.4989.2.camel@mulgrave> <20050517170824.GA3931@in.ibm.com>
-	 <1116354894.4989.42.camel@mulgrave>  <20050518090722.GA3937@in.ibm.com>
-Content-Type: text/plain
-Date: Wed, 18 May 2005 09:12:39 -0500
-Message-Id: <1116425559.5027.1.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Wed, 18 May 2005 10:13:38 -0400
+Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:3712 "EHLO
+	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
+	id S262193AbVEROLg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 10:11:36 -0400
+Message-ID: <428B4D14.2030104@ammasso.com>
+Date: Wed, 18 May 2005 09:11:32 -0500
+From: Timur Tabi <timur.tabi@ammasso.com>
+Reply-To: linux-kernel@vger.kernel.org
+Organization: Ammasso
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en, en-gb
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: linux.bkbits.net question: mapping cset to kernel version?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-18 at 14:37 +0530, Dinakar Guniguntala wrote:
-> It works !! Thanks.
-> 
-> So are these patches getting into -mm first or -rc5 ??
+Given a particular file and a particular bitkeeper revision for the file, how can I tell 
+which version of the kernel incorporated that changeset?
 
-Damn, I knew you were going to ask that ... the problem is it's the last
-in a long line of invasive adaptec patches that sit in my scsi-misc-2.6
-tree ... I suppose we can't have the aic driver slightly hosed for
-2.6.12; I'll see if I can extract them.
+In particular, I want to know about revision 1.65 of mm/rmap.c, which can be seen at 
+http://linux.bkbits.net:8080/linux-2.6/diffs/mm/rmap.c@1.65?nav=index.html|src/|src/mm|hist/mm/rmap.c
 
-James
+I want to know what the first version of Linux is to incorporate that change.
 
+And please don't tell me to do a diff on all the 2.6 versions, because that's not efficient.
 
+-- 
+Timur Tabi
+Staff Software Engineer
+timur.tabi@ammasso.com
+
+One thing a Southern boy will never say is,
+"I don't think duct tape will fix it."
+      -- Ed Smylie, NASA engineer for Apollo 13

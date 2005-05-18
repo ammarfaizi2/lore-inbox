@@ -1,44 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262279AbVERTEG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262238AbVERTIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262279AbVERTEG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 15:04:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVERTEF
+	id S262238AbVERTIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 15:08:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbVERTIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 15:04:05 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:29587 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262279AbVERTD6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 15:03:58 -0400
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt.
-From: Lee Revell <rlrevell@joe-job.com>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       randy_dunlap <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, shai@scalex86.org, ak@suse.de
-In-Reply-To: <20050518185016.GD1952@elf.ucw.cz>
-References: <Pine.LNX.4.62.0505161243580.13692@ScMPusgw>
-	 <20050516150907.6fde04d3.akpm@osdl.org>
-	 <Pine.LNX.4.62.0505161934220.25315@graphe.net>
-	 <20050516194651.1debabfd.rdunlap@xenotime.net>
-	 <Pine.LNX.4.62.0505161954470.25647@graphe.net>
-	 <Pine.LNX.4.58.0505162029240.18337@ppc970.osdl.org>
-	 <20050518185016.GD1952@elf.ucw.cz>
-Content-Type: text/plain
-Date: Wed, 18 May 2005 15:03:53 -0400
-Message-Id: <1116443033.5419.3.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 18 May 2005 15:08:09 -0400
+Received: from mail2.dolby.com ([204.156.147.24]:44549 "EHLO dolby.com")
+	by vger.kernel.org with ESMTP id S262238AbVERTHy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 15:07:54 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Illegal use of reserved word in system.h
+Date: Wed, 18 May 2005 12:07:29 -0700
+Message-ID: <2692A548B75777458914AC89297DD7DA08B0866F@bronze.dolby.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Illegal use of reserved word in system.h
+Thread-Index: AcVb3CWqR9jjHW+dQRCA1b6GzlTlWwAADnyw
+From: "Gilbert, John" <JGG@dolby.com>
+To: "Adrian Bunk" <bunk@stusta.de>
+Cc: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain;
+	charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-18 at 20:50 +0200, Pavel Machek wrote:
-> Please don't do this, CONFIG_NO_IDLE_HZ patches are better solution,
-> and they worked okay last time I tried them.
+Hi Adrian,
+This looks like the source of some stupidity.
+http://bugs.mysql.com/bug.php?id=555
 
-Last time the dynamic tick patches were posted, you reported they worked
-fine.  The next question is, when do they get merged?
+Which is even more fun when you see this.
+http://bugs.mysql.com/bug.php?id=10364
 
-Lee
+I think it's been in there a while, but only really blows up when built
+under recent kernels.
+I agree, it's probably not the right way to go.
+John G.
+
+-----Original Message-----
+From: Adrian Bunk [mailto:bunk@stusta.de] 
+Sent: Wednesday, May 18, 2005 12:02 PM
+To: Gilbert, John
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Illegal use of reserved word in system.h
+
+On Wed, May 18, 2005 at 11:23:33AM -0700, Gilbert, John wrote:
+
+> Hello all,
+
+Hi John,
+
+>...
+> Examples: The use of "new" in the macro __cmpxchg in system.h. This 
+>hits  MySQL which links into the kernel headers to determine if the 
+>platform  is SMP aware or not (don't ask me why.) ...
+
+I haven't ever seen MySQL doing something that stupid (stupid because if
+it's required, it _really_ has to be done at runtime).
+
+Which version of MySQL have you seen such an SMP check in?
+
+> John Gilbert
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+
+
+
+
+-----------------------------------------
+This message (including any attachments) may contain confidential
+information intended for a specific individual and purpose.  If you are not
+the intended recipient, delete this message.  If you are not the intended
+recipient, disclosing, copying, distributing, or taking any action based on
+this message is strictly prohibited.
 

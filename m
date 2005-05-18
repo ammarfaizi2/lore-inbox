@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262152AbVERKN3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262153AbVERKZS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262152AbVERKN3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 06:13:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262153AbVERKN3
+	id S262153AbVERKZS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 06:25:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbVERKZS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 06:13:29 -0400
-Received: from soundwarez.org ([217.160.171.123]:4580 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S262152AbVERKNV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 06:13:21 -0400
-Subject: Re: [PATCH] Driver Core: remove driver model detach_state
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Greg K-H <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, david-b@pacbell.net
-In-Reply-To: <11163679452255@kroah.com>
-References: <11163679452255@kroah.com>
+	Wed, 18 May 2005 06:25:18 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:40416 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262153AbVERKZN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 06:25:13 -0400
+Subject: Re: 2.6 jiffies
+From: Arjan van de Ven <arjan@infradead.org>
+To: linux <kernel@wired-net.gr>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <001b01c55b92$1d09c6e0$0101010a@dioxide>
+References: <1116005355.6248.372.camel@localhost>
+	 <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu>
+	 <1116012287.6248.410.camel@localhost>
+	 <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu>
+	 <1116013840.6248.429.camel@localhost>
+	 <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu>
+	 <1116256279.4154.41.camel@localhost>
+	 <20050516111408.GA21145@mail.shareable.org>
+	 <1116301843.4154.88.camel@localhost>
+	 <E1DXm08-0006XD-00@dorka.pomaz.szeredi.hu>
+	 <20050517012854.GC32226@mail.shareable.org>
+	 <E1DXuiu-0007Mj-00@dorka.pomaz.szeredi.hu>
+	 <1116360352.24560.85.camel@localhost>
+	 <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu>
+	 <1116399887.24560.116.camel@localhost>
+	 <1116400118.24560.119.camel@localhost>
+	 <E1DYLCv-0000W7-00@dorka.pomaz.szeredi.hu>
+	 <001b01c55b92$1d09c6e0$0101010a@dioxide>
 Content-Type: text/plain
-Date: Wed, 18 May 2005 12:13:11 +0200
-Message-Id: <1116411191.27701.4.camel@dhcp-188.off.vrfy.org>
+Date: Wed, 18 May 2005 12:24:47 +0200
+Message-Id: <1116411888.6572.18.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-17 at 15:12 -0700, Greg KH wrote:
-> [PATCH] Driver Core: remove driver model detach_state
-> 
-> The driver model has a "detach_state" mechanism that:
-> 
->  - Has never been used by any in-kernel drive;
->  - Is superfluous, since driver remove() methods can do the same thing;
->  - Became buggy when the suspend() parameter changed semantics and type;
->  - Could self-deadlock when called from certain suspend contexts;
->  - Is effectively wasted documentation, object code, and headspace.
-> 
-> This removes that "detach_state" mechanism; net code shrink, as well
-> as a per-device saving in the driver model and sysfs.
+On Wed, 2005-05-18 at 13:12 +0300, linux wrote:
+> Why jiffies start counting from a negative number and after 5minutes the
+> counter gets positive????
 
-Huh, we need to fix a lot of userspace programs now. libsysfs depends on
-finding that file, udev waits for this to recognize sysfs population. I
-will go fix this where I know this is used, but be prepared for stupid
-failures... :)
+to find bugs in broken drivers who think jiffies doesn't wrap or has an
+absolute value...
 
-Thanks,
-Kay
 

@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262412AbVERXtT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262413AbVERXwK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262412AbVERXtT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 19:49:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262413AbVERXtT
+	id S262413AbVERXwK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 19:52:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262414AbVERXwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 19:49:19 -0400
-Received: from one.firstfloor.org ([213.235.205.2]:18821 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S262412AbVERXtM
+	Wed, 18 May 2005 19:52:09 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:26098 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262413AbVERXv4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 19:49:12 -0400
-To: joe.korty@ccur.com
-Cc: robustmutexes@lists.osdl.org, george@mvista.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] A more general timeout specification
-References: <20050518201517.GA16193@tsunami.ccur.com>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 19 May 2005 01:49:11 +0200
-In-Reply-To: <20050518201517.GA16193@tsunami.ccur.com> (Joe Korty's message
- of "Wed, 18 May 2005 16:15:17 -0400")
-Message-ID: <m1hdh0yu14.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Wed, 18 May 2005 19:51:56 -0400
+Message-ID: <428BD501.5020905@mvista.com>
+Date: Wed, 18 May 2005 16:51:29 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: ganzinger@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Ingo Molnar <mingo@elte.hu>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+CC: Corey Minyard <cminyard@mvista.com>
+Subject: [PATCH] BUG_ON() in ksoftirqd is a bit too agressive...
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joe Korty <joe.korty@ccur.com> writes:
-
-> The fusyn (robust mutexes) project proposes the creation
-> of a more general data structure, 'struct timeout', for the
-> specification of timeouts in new services.  In this structure,
-> the user specifies:
->
->     a time, in timespec format.
->     the clock the time is specified against (eg, CLOCK_MONOTONIC).
->     whether the time is absolute, or relative to 'now'.
-
-If you do a new structure for this I would suggest adding a
-"precision" field (or the same with a different name). Basically
-precision would tell the kernel that the wakeup can be in a time
-range, not necessarily on the exact time specified. This helps
-optimizing the idle loop because you can batch timers better and is
-important for power management and virtualized environments. The
-kernel internally does not use support this yet, but there are plans
-to change the internal timers in this direction and if you're defining
-a new user interface I would add support for this.
-
-I am not sure precision would be the right name, other suggestions
-are welcome.
-
-> Also proposed are two new kernel routines for the manipulation
-> of timeouts:
->
-> 	timeout_validate()
-> 	timeout_sleep()
->
-> timeout_validate() error-checks the syntax of a timeout
-> argument and returns either zero or -EINVAL.  By breaking
-> timeout_validate() out from timeout_sleep(), it becomes possible
-
-It is also useful to avoid code duplication in compat. 
+Ksoftirqd is created by init, long after the timer system is up and running.  We 
+have hit the BUG_ON(tasklet_... in this code, i.e. tasklets pending at ksoftirqd 
+create time.  Since, with the RT option to push all softirq code to a thread, 
+any softirqs are defered to this time, it is easy to hit this bug.  Clearly only 
+a problem for cpu 0.  Here is a patch:
 
 
--Andi
+Index: linux-2.6.10/kernel/softirq.c
+===================================================================
+--- linux-2.6.10.orig/kernel/softirq.c
++++ linux-2.6.10/kernel/softirq.c
+@@ -514,8 +514,12 @@
+
+  	switch (action) {
+  	case CPU_UP_PREPARE:
+-		BUG_ON(per_cpu(tasklet_vec, hotcpu).list);
+-		BUG_ON(per_cpu(tasklet_hi_vec, hotcpu).list);
++		/* We may have tasklets already scheduled on
++		   processor 0, so don't check there. */
++		if (hotcpu != 0) {
++			BUG_ON(per_cpu(tasklet_vec, hotcpu).list);
++			BUG_ON(per_cpu(tasklet_hi_vec, hotcpu).list);
++		}
+  		p = kthread_create(ksoftirqd, hcpu, "ksoftirqd/%d", hotcpu);
+  		if (IS_ERR(p)) {
+  			printk("ksoftirqd for %i failed\n", hotcpu);
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/

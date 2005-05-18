@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262295AbVERTYC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262236AbVERTWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262295AbVERTYC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 15:24:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbVERTYC
+	id S262236AbVERTWj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 15:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbVERTWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 15:24:02 -0400
-Received: from fire.osdl.org ([65.172.181.4]:37084 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262295AbVERTXx (ORCPT
+	Wed, 18 May 2005 15:22:39 -0400
+Received: from mail.tyan.com ([66.122.195.4]:18181 "EHLO tyanweb.tyan")
+	by vger.kernel.org with ESMTP id S262236AbVERTWY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 15:23:53 -0400
-Date: Wed, 18 May 2005 12:25:07 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Pavel Machek <pavel@suse.cz>
-cc: Christoph Lameter <christoph@lameter.com>,
-       randy_dunlap <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, shai@scalex86.org, ak@suse.de
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt.
-In-Reply-To: <20050518185016.GD1952@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.58.0505181213580.18337@ppc970.osdl.org>
-References: <Pine.LNX.4.62.0505161243580.13692@ScMPusgw>
- <20050516150907.6fde04d3.akpm@osdl.org> <Pine.LNX.4.62.0505161934220.25315@graphe.net>
- <20050516194651.1debabfd.rdunlap@xenotime.net> <Pine.LNX.4.62.0505161954470.25647@graphe.net>
- <Pine.LNX.4.58.0505162029240.18337@ppc970.osdl.org> <20050518185016.GD1952@elf.ucw.cz>
+	Wed, 18 May 2005 15:22:24 -0400
+Message-ID: <3174569B9743D511922F00A0C943142309F80FE2@TYANWEB>
+From: YhLu <YhLu@tyan.com>
+To: "Ronald G. Minnich" <rminnich@lanl.gov>, ebiederman@lnxi.com,
+       Stefan Reinauer <stepan@openbios.org>, Li-Ta Lo <ollie@lanl.gov>
+Cc: linuxbios@openbios.org, Matt Mackall <mpm@selenic.com>,
+       linux-tiny@selenic.com, linux-kernel@vger.kernel.org
+Subject: Next step with LinuxBIOS
+Date: Wed, 18 May 2005 12:42:31 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+with Linuxtiny,  I enable the 
+1. serial console
+2. tcp/ip
+3. smp ( i need apic...)
+4. usb storage
+5. lsi scsi disk
+6. ide
 
+the kernel get 682k.
 
-On Wed, 18 May 2005, Pavel Machek wrote:
-> 
-> Please don't do this, CONFIG_NO_IDLE_HZ patches are better solution,
-> and they worked okay last time I tried them.
+actually space for normal payloads is 1024-128-90=806k.
 
-.. and they have nothing to do with this.
+how about the next step?
+another small program to provide 
+1. menu support
+2. flash
+3. cmos setting
+4. boot from Net.. (copy to ramdisk and kexec)
+5. boot from disk...(kexec...)
 
-A number of people who want lower tick frequency are apparently _server_
-people. Not because it makes any difference to idle time, but because it
-can lessen the impact of the timer interrupt under load.
+the small program in ramdisk or initramfs...?
 
-I don't know why, but I've actually gotten most of the complaints about
-the 1kHz timer from ia64 people, who use a 1024Hz timer. Somebody from
-Intel claimed a several percent reduction in performance between 1kHz and
-100Hz under some load, apparently because of bad cache interaction.
+Please comment
 
-At the same time, 100Hz really is too low for some desktop-like soft-RT
-stuff, where you want to delay until the next frame (and humans notice
-jitter at some fraction of a tenth of a second). With the 100Hz
-granularity, and the uncertainty on where the jiffy tick ends up being,
-you effectively have a ~50Hz clock you can depend on, which together with
-worries about synchronizing with the video refresh rate etc seems to make
-people unhappy.
-
-So this thing has nothing to do with "idle". 
-
-And the truly-variable-HZ stuff just makes me nervous, but regardless of 
-that, you actually do want a "limit HZ to some value" configuration option 
-anyway.
-
-Even with fully variable HZ, you need a limit just to say "this is the
-highest precision we'll ever use", because otherwise you'll just be
-wasting a lot of time on timers.
-
-		Linus
+YH

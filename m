@@ -1,109 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262229AbVERR6F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262200AbVERR5P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262229AbVERR6F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 13:58:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbVERR6F
+	id S262200AbVERR5P (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 13:57:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262218AbVERR5O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 13:58:05 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:38879 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262229AbVERR5X
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 13:57:23 -0400
-Date: Wed, 18 May 2005 23:36:52 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: Simon.Derr@bull.net, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net, colpatch@us.ibm.com,
-       dipankar@in.ibm.com, akpm@osdl.org
-Subject: Re: [Lse-tech] Re: [RFT PATCH] Dynamic sched domains (v0.6)
-Message-ID: <20050518180652.GA4293@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <20050517041031.GA4596@in.ibm.com> <20050517225354.025c3cca.pj@sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050517225354.025c3cca.pj@sgi.com>
-User-Agent: Mutt/1.4.2.1i
+	Wed, 18 May 2005 13:57:14 -0400
+Received: from 1-1-10-11a.has.sth.bostream.se ([82.182.131.18]:52930 "EHLO
+	DeepSpaceNine.stesmi.com") by vger.kernel.org with ESMTP
+	id S262200AbVERR4s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 13:56:48 -0400
+Message-ID: <428B82A5.6080705@stesmi.com>
+Date: Wed, 18 May 2005 20:00:05 +0200
+From: Stefan Smietanowski <stesmi@stesmi.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       MCU.Tools@silabs.com
+Subject: Re: Linux support for SiLabs CP210x devices
+References: <20041118173908.GA10667@kroah.com> <20050518155815.GA16544@kroah.com>
+In-Reply-To: <20050518155815.GA16544@kroah.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
+X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 17, 2005 at 10:53:54PM -0700, Paul Jackson wrote:
-> Looking good.  Some minor comments on these three patches ...
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+Hi Greg.
+
+> Back in November of last year, I wrote about how SiLabs were
+> distributing a binary only version of a usb-serial driver for Linux that
+> was violating the GPL <http://thread.gmane.org/gmane.linux.kernel/256403>
 > 
->  * The name 'nodemask' for the cpumask_t of CPUs that are siblings to CPU i
->    is a bit confusing (yes, that name was already there).  How about
->    something like 'siblings' ?
-
-Not sure which code you are referring to here ?? I dont see any nodemask
-referring to SMT siblings ? 
-
->    can be replaced with the one line:
+> Well, it looks like SiLabs and MCCI have finally released the source
+> code to their driver, but in obfuscated form.  I've attached the .zip
+> file to this message so that everyone can see this horrible nightmare of
+> a "driver".  As per the GPL, they are still violating the license as
+> obfuscated code releases is not allowed.  And as such, they are still
+> violating my copyright, and the copyrights of a few other kernel
+> developers.
 > 
-> 	cpus_andnot(cpu_default_map, *cpu_map, cpu_isolated_map);
-
-yeah, ok
-
->    I would mildly prefer to always spell this 'cpu_exclusive' (with
->    underscore, not hyphen).
-
-fine
-
->    Good work.
-
-Thanks !
-
+> So, just to re-iterate, I very soundly do not recommend ever buying any
+> devices from this company, as if this is the way they treat well
+> established legal issues, who know what else they have done...
 > 
->  * Question - any idea how much of a performance hiccup a system will feel
->    whenever someone changes the cpu_exclusive cpusets?  Could this lead
->    to a denial-of-service attack, if say some untrusted user were allowed
->    modify privileges on some small cpuset that was cpu_exclusive, and they
->    abused that privilege by turning on and off the cpu_exclusive property
->    on their little cpuset (or creating/destroying an exclusive child):
+> Oh, and if you don't want to go through the trouble of opening up the
+> zip file, I've included inline their header file, in all of it's glory,
+> with no changes made by me at all, below.
 > 
+> And yes, if you notice the 2.6 kernel does now support this device, but
+> that is because of some people reverse engineering the device.  It was
+> by no help of the company involved (when seeing this code, those
+> developers just laughed and said it would be more work to try to read it
+> than to finish up the driver itself.)
 
-I tried your script and see that it makes absolutely no impact on top.
-The CPU on which it is running is mostly 100% idle. However I'll run
-more tests to confirm that it has no impact
+Is this for real? What exactly do they think they're trying to pull
+here?
 
+I've seen borderline violations but this .. this .. this ..
 
-> 
->  * The cpuset 'oldcs' in update_flag() seems to only be used for its
->    cpu_exclusive flag.  We could save some stack space on my favorite
->    big honkin NUMA iron by just having a local variable for this
->    'old_cpu_exclusive' value, instead of the entire cpuset.
-> 
->  * Similarly, though with a bit less savings, one could replace 'oldcs'
->    in update_cpumask() with just the old_cpus_allowed mask.
->    Or, skip even that, and compute a boolean flag:
-> 	cpus_changed = cpus_equal(cs->cpus_allowed, trialcs.cpus_allowed);
->    before copying over the trialcs, so we only need one word of stack
->    for the boolean, not possibly many words for a cpumask.
+If the .h file was bad, the .c's are worse.
 
-ok for both
+// Stefan
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (MingW32)
 
-> 
->  * Non-traditional code style:
-> 	}
-> 	else {
->    should be instead:
-> 	} else {
-
-I dont know how that snuck back in, I'll change that
-
-> 
->  * Is it the case that update_cpu_domains() is called with cpuset_sem held?
->    Would it be a good idea to note in the comment for that routine:
-> 	 * Call with cpuset_sem held.  May nest a call to the
-> 	 * lock_cpu_hotplug()/unlock_cpu_hotplug() pair.
->    I didn't callout the cpuset_sem lock precondition on many routines,
->    but since this one can nest the cpu_hotplug lock, it might be worth
->    calling it out, for the benefit of engineers who are passing through,
->    needing to know how the hotplug lock nests with other semaphores.
-
-ok 
-
-I do feel with the above updates the patches can go into -mm.
-Appreciate all the review comments from everyone, Thanks
-
-
-	-Dinakar
+iD8DBQFCi4KkBrn2kJu9P78RAum2AJ9ead+TvBLTbPVW2gvfUXFlY/9cGwCfWmud
+Trfomjn4d+Wd1HHw/IAdlvQ=
+=WWVK
+-----END PGP SIGNATURE-----

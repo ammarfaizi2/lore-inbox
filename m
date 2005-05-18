@@ -1,51 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262334AbVERQxd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262287AbVERQ6I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262334AbVERQxd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 12:53:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbVERQwF
+	id S262287AbVERQ6I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 12:58:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbVERQ5T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 12:52:05 -0400
-Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:8832 "EHLO
-	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
-	id S262334AbVERQp6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 12:45:58 -0400
-Message-ID: <428B7143.4090607@ammasso.com>
-Date: Wed, 18 May 2005 11:45:55 -0500
-From: Timur Tabi <timur.tabi@ammasso.com>
-Organization: Ammasso
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7.2.0
-X-Accept-Language: en-us, en, en-gb
+	Wed, 18 May 2005 12:57:19 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:60346 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262287AbVERQvb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 12:51:31 -0400
+From: Daniel Phillips <phillips@redhat.com>
+Organization: Red Hat
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] Linux Cluster Summit 2005
+Date: Wed, 18 May 2005 12:54:59 -0400
+User-Agent: KMail/1.7
+Cc: linux-cluster@redhat.com, linux-ha@lists.linux-ha.org,
+       cgl_discussion@lists.osdl.org, dcl_discussion@lists.osdl.org,
+       linux-fsdevel@vger.kernel.org, ssic-linux-devel@lists.sourceforge.net,
+       clusters_sig@lists.osdl.org
 MIME-Version: 1.0
-To: Christopher Li <lkml@chrisli.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: sparse error: unable to open 'stdarg.h'
-References: <428A661C.1030100@ammasso.com> <20050517201148.GA12997@64m.dyndns.org> <428B4C67.5090307@ammasso.com> <20050518123854.GA13452@64m.dyndns.org> <428B646C.3030501@ammasso.com> <20050518132417.GA14488@64m.dyndns.org>
-In-Reply-To: <20050518132417.GA14488@64m.dyndns.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505181254.59790.phillips@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christopher Li wrote:
+Linux Cluster Summit 2005
 
-> I think I know that it is. There is a "-nostdinc" in the sparse
-> options, which I saw it in the other email you send out. It
-> drop the internal include path. Gcc is does the same thing.
-> 
-> gcc -c -nostdinc /tmp/test.c
-> /tmp/test.c:1:22: no include path in which to find stdarg.h
+June 20 and 21, Walldorf, Germany (Near Heidelberg)
 
-That option is set in the a_flags variable.  I'm looking through the kbuild files 
-(Makefile, etc) to see why a_flags is being used to build my driver.
+Sponsors: Red Hat, SAP AG, Oracle, HP, and Fujitsu-Siemens.
 
-As far as I'm concerned, this is a bug in kbuild, and I think it only shows up with 
-external modules.
+The goal of the two-day Linux Cluster Summit workshop is to bring
+together the key individuals who can realize a general purpose
+clustering API for Linux, including, kernel components, userspace
+libraries and internal and external interfaces.  Results of this
+workshop will be presented to the Kernel Summit the following month.
 
--- 
-Timur Tabi
-Staff Software Engineer
-timur.tabi@ammasso.com
+The workshop is to be held in Walldorf, the hometown of SAP, Europe's 
+biggest software company.
 
-One thing a Southern boy will never say is,
-"I don't think duct tape will fix it."
-      -- Ed Smylie, NASA engineer for Apollo 13
+This is in the south/central part of Germany, in an adjoining town of 
+Heidelberg.  Frankfurt and France (order the menu!) are within easy 
+driving distance.  It is very picturesque.  There is a lot to see and 
+do in the vicinity for those who are interested.  We are planning a 
+field trip for the day following the workshop for those who want to 
+stay an extra day and see some sights.  Details have not been finalized 
+yet.  Note that June 21 is the first day of tutorials at LinuxTag and 
+June 22 is the LinuxTag Business Congress.  You will be able to attend 
+the rest of LinuxTag if you wish.  It's free!
+
+Unfortunately, space is limited. We can accommodate about 100 attendees. 
+Registration is by invitation for 70 participants, including those who 
+attended last year, and 30 seats are available on a first come, first 
+served basis. There is no charge for this workshop.  You will only be 
+need to arrange travel and accommodation.  A list of recommended hotels 
+and other accommodation will be posted here.
+
+The full agenda will be posted here, in the next few days:
+
+   http://sourceware.org/cluster/events/summit2005/
+
+If you are interested in attending, or require further information, 
+please email:
+
+   Daniel Phillips <phillips@redhat.com>
+   Heinz Mauelshagen <mauelshagen@redhat.com>
+
+Regards,
+
+Daniel

@@ -1,105 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262101AbVERFyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbVERGCT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262101AbVERFyr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 01:54:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbVERFyr
+	id S262106AbVERGCT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 02:02:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbVERGCT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 01:54:47 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:433 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S262101AbVERFym (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 01:54:42 -0400
-Date: Tue, 17 May 2005 22:53:54 -0700
-From: Paul Jackson <pj@sgi.com>
-To: dino@in.ibm.com
-Cc: Simon.Derr@bull.net, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net, colpatch@us.ibm.com,
-       dipankar@in.ibm.com, akpm@osdl.org
-Subject: Re: [RFT PATCH] Dynamic sched domains (v0.6)
-Message-Id: <20050517225354.025c3cca.pj@sgi.com>
-In-Reply-To: <20050517041031.GA4596@in.ibm.com>
-References: <20050517041031.GA4596@in.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Wed, 18 May 2005 02:02:19 -0400
+Received: from ercist.iscas.ac.cn ([159.226.5.94]:58894 "EHLO
+	ercist.iscas.ac.cn") by vger.kernel.org with ESMTP id S262102AbVERGCJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 02:02:09 -0400
+Subject: Re: [RFD] What error should FS return when I/O failure occurs?
+From: fs <fs@ercist.iscas.ac.cn>
+To: Bryan Henderson <hbryan@us.ibm.com>
+Cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Kenichi Okuyama <okuyama@intellilink.co.jp>
+In-Reply-To: <OF18BF4790.4053D6B0-ON88257004.0063F34D-88257004.006557CA@us.ibm.com>
+References: <OF18BF4790.4053D6B0-ON88257004.0063F34D-88257004.006557CA@us.ibm.com>
+Content-Type: text/plain
+Organization: iscas
+Message-Id: <1116436224.2428.16.camel@CoolQ>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Wed, 18 May 2005 13:10:24 -0400
 Content-Transfer-Encoding: 7bit
+X-ArGoMail-Authenticated: fs@ercist.iscas.ac.cn
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Looking good.  Some minor comments on these three patches ...
+On Tue, 2005-05-17 at 14:26, Bryan Henderson wrote:
+> >Yes, we're sure to abort the operation, but we can't use 
+> >exit(EXIT_FAILURE) directly. For HA environment, we should
+> >identify the cause of the error, take correspondent action,
+> >right? So we need to get the right error.
+> 
+> You mean a computer program will take the correspondent action?  I think 
+> it would take a remarkably intelligent program to respond appropriately to 
+> particular failures -- especially if the program isn't tailored to a very 
+> specific environment.  In practice, all I ever see a binary response -- 
+> one for success, one for failure.  The errno is used at most for giving a 
+> three word explanation to a human so the human can respond.  That's why 
+> people don't take this issue seriously.
+> 
+> "pass the errno up" is definitely a layering violation and cheap 
+> architecture.  It's why the 3 word description you get is often 
+> meaningless -- it's telling you about a failure deep in computations you 
+> aren't even supposed to know about.  I myself stay away from errnos where 
+> possible and produce error information in English text, with each layer 
+> adding information meaningful at that layer.  But where we're sticking 
+> with classic errnos, it just doesn't make sense to work really hard on it.
+> 
+> Nonetheless, I think there's broad agreement, and the current discussion 
+> is consistent with it, that if write() fails due to an I/O error, the 
+> errno should be EIO.  Whether it's formally specified or not, the standard 
+> is there.  That ext3 returns EROFS is either a bug or an implementation 
+what standard do you mean?
+> convenience compromise or a case where the actual failure is more 
+> complicated than you imagine (maybe an operation fails and gets retried -- 
+> the original failure caused an automatic switch to R/O and the retry 
+> failed because of the R/O status.  Errnos are definitely not sufficient to 
+> give you the whole chain of causation for a failure -- if it gives you 
+> even the immediate cause, you should feel fortunate).
+I suggest you visit our project, see the testing result,
+http://developer.osdl.jp/projects/doubt/fs-consistency-and-coherency
+For each test case, different FS returns different result.
+>From user's perspective, it's really annoying, so, there should be a 
+standard which constraints the error type. Otherwise, different fs
+can return whatever they want, regardless of the user's need. 
+> --
+> Bryan Henderson                          IBM Almaden Research Center
+> San Jose CA                              Filesystems
+> 
 
- * The name 'nodemask' for the cpumask_t of CPUs that are siblings to CPU i
-   is a bit confusing (yes, that name was already there).  How about
-   something like 'siblings' ?
 
- * I suspect that the following two lines:
-
-	cpus_complement(cpu_default_map, cpu_isolated_map);
-	cpus_and(cpu_default_map, cpu_default_map, *cpu_map);
-
-   can be replaced with the one line:
-
-	cpus_andnot(cpu_default_map, *cpu_map, cpu_isolated_map);
-
- * You have 'cpu-exclusive' in some places in the Documentation.
-   I would mildly prefer to always spell this 'cpu_exclusive' (with
-   underscore, not hyphen).
-
- * I like how this design came out, as described in:
-	A cpuset that is cpu exclusive has a sched domain associated with it.
-	The sched domain consists of all cpus in the current cpuset that are not 
-	part of any exclusive child cpusets.
-   Good work.
-
- * Question - any idea how much of a performance hiccup a system will feel
-   whenever someone changes the cpu_exclusive cpusets?  Could this lead
-   to a denial-of-service attack, if say some untrusted user were allowed
-   modify privileges on some small cpuset that was cpu_exclusive, and they
-   abused that privilege by turning on and off the cpu_exclusive property
-   on their little cpuset (or creating/destroying an exclusive child):
-
-	cd /dev/cpuset/$(cat /proc/self/cpuset)
-	while true
-	do
-		for i in 0 1
-		do
-			echo $i > cpu_exclusive
-		done
-	done
-
-   If so, perhaps we should recommend that shared systems with untrusted
-   users avoid allowing a cpu_exclusive cpuset to be modifiable, or to have
-   a cpu_exclusive flag modifiable, by those untrusted users.
-
- * The cpuset 'oldcs' in update_flag() seems to only be used for its
-   cpu_exclusive flag.  We could save some stack space on my favorite
-   big honkin NUMA iron by just having a local variable for this
-   'old_cpu_exclusive' value, instead of the entire cpuset.
-
- * Similarly, though with a bit less savings, one could replace 'oldcs'
-   in update_cpumask() with just the old_cpus_allowed mask.
-   Or, skip even that, and compute a boolean flag:
-	cpus_changed = cpus_equal(cs->cpus_allowed, trialcs.cpus_allowed);
-   before copying over the trialcs, so we only need one word of stack
-   for the boolean, not possibly many words for a cpumask.
-
- * Non-traditional code style:
-	}
-	else {
-   should be instead:
-	} else {
-
- * Is it the case that update_cpu_domains() is called with cpuset_sem held?
-   Would it be a good idea to note in the comment for that routine:
-	 * Call with cpuset_sem held.  May nest a call to the
-	 * lock_cpu_hotplug()/unlock_cpu_hotplug() pair.
-   I didn't callout the cpuset_sem lock precondition on many routines,
-   but since this one can nest the cpu_hotplug lock, it might be worth
-   calling it out, for the benefit of engineers who are passing through,
-   needing to know how the hotplug lock nests with other semaphores.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

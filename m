@@ -1,78 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262360AbVERUrT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262362AbVERUus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262360AbVERUrT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 16:47:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262371AbVERUrS
+	id S262362AbVERUus (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 16:50:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbVERUus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 16:47:18 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:26259 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S262360AbVERUqp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 16:46:45 -0400
-X-ORBL: [67.117.73.34]
-Date: Wed, 18 May 2005 13:46:04 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Pavel Machek <pavel@suse.cz>, Christoph Lameter <christoph@lameter.com>,
-       randy_dunlap <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, shai@scalex86.org, ak@suse.de
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt.
-Message-ID: <20050518204604.GN27330@atomide.com>
-References: <Pine.LNX.4.62.0505161243580.13692@ScMPusgw> <20050516150907.6fde04d3.akpm@osdl.org> <Pine.LNX.4.62.0505161934220.25315@graphe.net> <20050516194651.1debabfd.rdunlap@xenotime.net> <Pine.LNX.4.62.0505161954470.25647@graphe.net> <Pine.LNX.4.58.0505162029240.18337@ppc970.osdl.org> <20050518185016.GD1952@elf.ucw.cz> <Pine.LNX.4.58.0505181213580.18337@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0505181213580.18337@ppc970.osdl.org>
-User-Agent: mutt-ng 1.5.9i (Linux)
+	Wed, 18 May 2005 16:50:48 -0400
+Received: from mail.wildbrain.com ([209.130.193.228]:27812 "EHLO
+	hermes.wildbrain.com") by vger.kernel.org with ESMTP
+	id S262362AbVERUtw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 16:49:52 -0400
+Message-ID: <428BA8E4.2040108@wildbrain.com>
+Date: Wed, 18 May 2005 13:43:16 -0700
+From: Gregory Brauer <greg@wildbrain.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
+CC: Joshua Baker-LePain <jlb17@duke.edu>,
+       Jakob Oestergaard <jakob@unthought.net>, Chris Wedgwood <cw@f00f.org>
+Subject: Re: kernel OOPS for XFS in xfs_iget_core (using NFS+SMP+MD)
+References: <428511F8.6020303@wildbrain.com> <20050514184711.GA27565@taniwha.stupidest.org> <428B7D7F.9000107@wildbrain.com> <20050518175925.GA22738@taniwha.stupidest.org> <20050518195251.GY422@unthought.net> <Pine.LNX.4.58.0505181556410.6834@chaos.egr.duke.edu>
+In-Reply-To: <Pine.LNX.4.58.0505181556410.6834@chaos.egr.duke.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-WB-MailScanner: Found to be clean
+X-WB-MailScanner-SpamCheck: not spam (whitelisted),
+	SpamAssassin (score=-1.845, required 5, BAYES_00 -2.60,
+	J_CHICKENPOX_45 0.60, TW_JB 0.08, TW_UH 0.08)
+X-MailScanner-From: greg@wildbrain.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Linus Torvalds <torvalds@osdl.org> [050518 12:28]:
+Joshua Baker-LePain wrote:
+> Do you have a test case that would show this up?  I've been testing a 
+> centos-4 based server with the RH-derived 2.6.9-based kernel tweaked to 
+> disable 4K stacks and enable XFS and haven't run into any issues yet.  
+> This includes running the parallel IOR benchmark from 10 clients (and 
+> getting 200MiB/s throughput on reads).
 > 
-> 
-> On Wed, 18 May 2005, Pavel Machek wrote:
-> > 
-> > Please don't do this, CONFIG_NO_IDLE_HZ patches are better solution,
-> > and they worked okay last time I tried them.
-> 
-> .. and they have nothing to do with this.
-> 
-> A number of people who want lower tick frequency are apparently _server_
-> people. Not because it makes any difference to idle time, but because it
-> can lessen the impact of the timer interrupt under load.
-> 
-> I don't know why, but I've actually gotten most of the complaints about
-> the 1kHz timer from ia64 people, who use a 1024Hz timer. Somebody from
-> Intel claimed a several percent reduction in performance between 1kHz and
-> 100Hz under some load, apparently because of bad cache interaction.
-> 
-> At the same time, 100Hz really is too low for some desktop-like soft-RT
-> stuff, where you want to delay until the next frame (and humans notice
-> jitter at some fraction of a tenth of a second). With the 100Hz
-> granularity, and the uncertainty on where the jiffy tick ends up being,
-> you effectively have a ~50Hz clock you can depend on, which together with
-> worries about synchronizing with the video refresh rate etc seems to make
-> people unhappy.
-> 
-> So this thing has nothing to do with "idle". 
 
-Yes, that's right. Setting HZ would just limit the max frequency
-with dyn-tick patch when system is busy. On OMAP, we're using HZ=128
-with dyn-tick.
+For Jakob,
+Note that the last OOPS I posted was for 2.6.11.10.
 
-> And the truly-variable-HZ stuff just makes me nervous, but regardless of 
-> that, you actually do want a "limit HZ to some value" configuration option 
-> anyway.
 
-The dyn-tick patch skips ticks only during idle, and the system is
-not doing anything at that point, so it should be safe. When the
-system is under load, there is normal HZ tick and timer is not being
-reprogrammed.
+For Joshua,
 
-> Even with fully variable HZ, you need a limit just to say "this is the
-> highest precision we'll ever use", because otherwise you'll just be
-> wasting a lot of time on timers.
+We first saw the problem after 5 days in production, but since then
+we took the server out of production and used the script
+nfs_fsstress.sh located in this package:
 
-Yeah.
+http://prdownloads.sourceforge.net/ltp/ltp-full-20050505.tgz?download
 
-Tony
+We run the script on 5 client machines that are running RedHat 9
+with kernel-smp-2.4.20-20.9 and nfs-utils-1.0.1-3.9.1.legacy and
+are NFS mounting our 2.6 kernel server.  The longest time to OOPS
+has been about 8 hours.  We have not tried the parallel IOR
+benchmark.  (Where can we get that?)
+
+You didn't mention if you are using md at all.  We have a
+software RAID-0 of 4 x 3ware 8506-4 controllers running the
+latest 3ware driver from their site.  The filesystem is XFS.
+The network driver is e1000 (two interfaces, not bonded).  The
+system is a dual Xeon.  We upped the number of NFS daemons
+from 8 to 64.  The nfs_fsstress.sh client mounts the servers
+both UDP and TCP, and our in-production oops likely happened
+with a combination of both protocols in use simultaneously as
+well.  We've seen the OOPS with both the default and with 32K
+read and write NFS block sizes.  The machine was stable for
+over a year with RedHat 9 and 2.4.20.
+
+I'm grasping for any subtle details that might help...
+
+Here is our list of loaded modules:
+
+Our server configuration is
+Module                  Size  Used by
+nfsd                  185569  65
+exportfs                9921  1 nfsd
+lockd                  59625  2 nfsd
+md5                     8001  1
+ipv6                  236769  16
+parport_pc             29701  1
+lp                     15405  0
+parport                37129  2 parport_pc,lp
+sunrpc                135077  28 nfsd,lockd
+xfs                   487809  1
+dm_mod                 57925  0
+video                  19653  0
+button                 10577  0
+battery                13253  0
+ac                      8773  0
+uhci_hcd               33497  0
+hw_random               9429  0
+i2c_i801               11981  0
+i2c_core               24513  1 i2c_i801
+e1000                  84629  0
+bonding                59817  0
+floppy                 56913  0
+ext3                  117961  2
+jbd                    57177  1 ext3
+raid0                  11840  1
+3w_xxxx                30561  4
+sd_mod                 20545  4
+scsi_mod              116033  2 3w_xxxx,sd_mod
+
+
+Let me know if there is anything else I can provide.
+
+Thanks.
+
+Greg

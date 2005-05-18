@@ -1,68 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261789AbVERMvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVERMxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261789AbVERMvU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 08:51:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbVERMvU
+	id S261509AbVERMxN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 08:53:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVERMxN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 08:51:20 -0400
-Received: from mail.shareable.org ([81.29.64.88]:27352 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261509AbVERMvK
+	Wed, 18 May 2005 08:53:13 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:35597 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261509AbVERMxH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 08:51:10 -0400
-Date: Wed, 18 May 2005 13:50:41 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: trond.myklebust@fys.uio.no, dhowells@redhat.com, linuxram@us.ibm.com,
-       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] fix race in mark_mounts_for_expiry()
-Message-ID: <20050518125041.GA29107@mail.shareable.org>
-References: <E1DXuiu-0007Mj-00@dorka.pomaz.szeredi.hu> <1116360352.24560.85.camel@localhost> <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu> <1116399887.24560.116.camel@localhost> <1116400118.24560.119.camel@localhost> <6865.1116412354@redhat.com> <7230.1116413175@redhat.com> <E1DYMB6-0000dw-00@dorka.pomaz.szeredi.hu> <1116414429.10773.57.camel@lade.trondhjem.org> <E1DYMn1-0000kp-00@dorka.pomaz.szeredi.hu>
+	Wed, 18 May 2005 08:53:07 -0400
+Message-Id: <200505180420.j4I4KDvv017310@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org, torvalds@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: [PATCH 2/9] UML - Page fault fixes
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DYMn1-0000kp-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.1i
+Date: Wed, 18 May 2005 00:20:13 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi wrote:
-> > Some archs already have an atomic_dec_if_positive() (see for instance
-> > the PPC). It won't take much work to convert that to an
-> > atomic_inc_if_positive().
-> > 
-> > For those arches that don't have that sort of thing, then writing a
-> > generic atomic_inc_if_positive() using cmpxchg() will often be possible,
-> > but there are exceptions (for instance the original 386 does not have a
-> > cmpxchg, so there you will have to use something else).
-> 
-> The problem with introducing architecture specific code, is that it's
-> just asking for new bugs.
-> 
-> If it's something used all over the kernel, than obviously it's OK,
-> but for the sake of just one caller it's a bit crazy I think.
+Any access to a PROT_NONE page should segfault the process.  A JVM seems to
+do this on purpose.  Also, Al noticed some bogus code, which is now deleted.
 
-I agree.
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-And I think you're just adding to the case for removing mnt_namespace
-entirely.  We'd still keep CLONE_NS, and users currently using
-namespaces (in the normal ways) would see no difference.
+Index: linux-2.6.12-rc/arch/um/kernel/trap_kern.c
+===================================================================
+--- linux-2.6.12-rc.orig/arch/um/kernel/trap_kern.c	2005-05-17 16:34:45.000000000 -0400
++++ linux-2.6.12-rc/arch/um/kernel/trap_kern.c	2005-05-17 18:03:10.000000000 -0400
+@@ -57,10 +57,11 @@ int handle_page_fault(unsigned long addr
+ 	*code_out = SEGV_ACCERR;
+ 	if(is_write && !(vma->vm_flags & VM_WRITE)) 
+ 		goto out;
++
++        if(!(vma->vm_flags & (VM_READ | VM_EXEC)))
++                goto out;
++
+ 	page = address & PAGE_MASK;
+-	pgd = pgd_offset(mm, page);
+-	pud = pud_offset(pgd, page);
+-	pmd = pmd_offset(pud, page);
+ 	do {
+  survive:
+ 		switch (handle_mm_fault(mm, vma, address, is_write)){
 
-mnt_namespace has these visible effects:
-
-    - Prevents some tasks from mounting/umounting in a "foreign"
-      namespace, even when they are granted access to the directory
-      tree of the foreign namespace.
-
-      It's not clear if the restriction is a useful security tool.
-
-    - Causes every mount in a mount tree to be detached (independently),
-      when last task associated with a namespace is destroyed.
-
-And this invisible effect:
-
-    - More concurrency than a global mount lock would have.
-
-Is that all?  Are any of these effects important enough to keep?
-
--- Jamie

@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262369AbVERVAL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262373AbVERVDC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262369AbVERVAL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 17:00:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbVERVAL
+	id S262373AbVERVDC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 17:03:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262374AbVERVDB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 17:00:11 -0400
-Received: from mail.wildbrain.com ([209.130.193.228]:35493 "EHLO
-	hermes.wildbrain.com") by vger.kernel.org with ESMTP
-	id S262369AbVERVAC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 17:00:02 -0400
-Message-ID: <428BAB42.8030501@wildbrain.com>
-Date: Wed, 18 May 2005 13:53:22 -0700
-From: Gregory Brauer <greg@wildbrain.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com
-CC: Jakob Oestergaard <jakob@unthought.net>,
-       Joshua Baker-LePain <jlb17@duke.edu>, Chris Wedgwood <cw@f00f.org>
-Subject: Re: kernel OOPS for XFS in xfs_iget_core (using NFS+SMP+MD)
-References: <428511F8.6020303@wildbrain.com> <20050514184711.GA27565@taniwha.stupidest.org> <428B7D7F.9000107@wildbrain.com> <20050518175925.GA22738@taniwha.stupidest.org> <20050518195251.GY422@unthought.net> <Pine.LNX.4.58.0505181556410.6834@chaos.egr.duke.edu> <20050518202014.GZ422@unthought.net>
-In-Reply-To: <20050518202014.GZ422@unthought.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 18 May 2005 17:03:01 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:9601 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S262373AbVERVCn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 17:02:43 -0400
+Date: Wed, 18 May 2005 14:02:13 -0700
+From: Paul Jackson <pj@sgi.com>
+To: dino@in.ibm.com
+Cc: Simon.Derr@bull.net, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, colpatch@us.ibm.com,
+       dipankar@in.ibm.com, akpm@osdl.org
+Subject: Re: [Lse-tech] Re: [RFT PATCH] Dynamic sched domains (v0.6)
+Message-Id: <20050518140213.39f59450.pj@sgi.com>
+In-Reply-To: <20050518180652.GA4293@in.ibm.com>
+References: <20050517041031.GA4596@in.ibm.com>
+	<20050517225354.025c3cca.pj@sgi.com>
+	<20050518180652.GA4293@in.ibm.com>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-WB-MailScanner: Found to be clean
-X-WB-MailScanner-SpamCheck: not spam (whitelisted),
-	SpamAssassin (score=-2.599, required 5, autolearn=not spam,
-	BAYES_00 -2.60)
-X-MailScanner-From: greg@wildbrain.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jakob Oestergaard wrote:
- > You want a few million files on the FS in order to confuse the server
- > sufficiently for it to screw up severely.
+Dinakar wrote:
+> >  * The name 'nodemask' for the cpumask_t of CPUs that are siblings to CPU i
+> >    is a bit confusing (yes, that name was already there).  How about
+> >    something like 'siblings' ?
+> 
+> Not sure which code you are referring to here ?? I dont see any nodemask
+> referring to SMT siblings ? 
 
-Here we reproduced the OOPS with an fresh and empty XFS volume using
-the nfs_fsstress.sh script.
+This comment was referring to lines such as the following, which appear
+a few places in your patch (though not lines you wrote, just nearby
+lines, in all but one case):
 
- > And don't run as root - common problems are also that files get wrong
- > ownership/modes (a file created by one unprivileged user shows up as
- > belonging to another unprivileged user - files can show up with modes
- > d---------)
+ 		cpumask_t nodemask = node_to_cpumask(cpu_to_node(i));
 
-Our nfs_fsstress.sh tests were running as root and writing only
-root-owned files (with no_root_squash, of course) and reproduced
-the OOPS twice.  We haven't seen the privileges problem yet.
+I was thinking to change such a line to:
 
-Greg
+ 		cpumask_t sibling = node_to_cpumask(cpu_to_node(i));
+
+However, it is no biggie, and since it is not in your actual new
+code, probably should not be part of your patch anyway.
+
+There is one place, arch_destroy_sched_domains(), where you added such a
+line, but there you should probably use the same 'nodemask' name as the
+other couple of places, unless and until these places change together.
+
+So bottom line - nevermind this comment.
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

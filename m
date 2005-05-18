@@ -1,37 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262344AbVERQfz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262340AbVERQbD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262344AbVERQfz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 12:35:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbVERQfr
+	id S262340AbVERQbD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 12:31:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262327AbVERQ17
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 12:35:47 -0400
-Received: from mail.kroah.org ([69.55.234.183]:46498 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262281AbVERQf3 (ORCPT
+	Wed, 18 May 2005 12:27:59 -0400
+Received: from colin.muc.de ([193.149.48.1]:49673 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S262281AbVERQ1O (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 12:35:29 -0400
-Date: Wed, 18 May 2005 09:41:22 -0700
-From: Greg KH <greg@kroah.com>
-To: Yani Ioannou <yani.ioannou@gmail.com>
-Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: [PATCH 2.6.12-rc4 1/15] (dynamic sysfs callbacks) device attribute callbacks - take 2
-Message-ID: <20050518164122.GA17307@kroah.com>
-References: <2538186705051703394944e949@mail.gmail.com> <20050518072239.GA11889@kroah.com> <253818670505180028696cc991@mail.gmail.com> <20050518073756.GA12382@kroah.com> <2538186705051800412ec07d5c@mail.gmail.com>
+	Wed, 18 May 2005 12:27:14 -0400
+Date: 18 May 2005 18:27:10 +0200
+Date: Wed, 18 May 2005 18:27:10 +0200
+From: Andi Kleen <ak@muc.de>
+To: Matt Tolentino <metolent@snoqualmie.dp.intel.com>
+Cc: akpm@osdl.org, apw@shadowen.org, haveblue@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [patch 4/4] add x86-64 specific support for sparsemem
+Message-ID: <20050518162710.GD88141@muc.de>
+References: <200505181528.j4IFSTo1026925@snoqualmie.dp.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2538186705051800412ec07d5c@mail.gmail.com>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <200505181528.j4IFSTo1026925@snoqualmie.dp.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 18, 2005 at 03:41:59AM -0400, Yani Ioannou wrote:
-> BTW I sent a patch against it87.c to lm_sensors so Jean could test
-> things (apparently adm1026 hasn't got many users).
+> @@ -400,9 +401,12 @@ static __init void parse_cmdline_early (
+>  }
+>  
+>  #ifndef CONFIG_NUMA
+> -static void __init contig_initmem_init(void)
+> +static void __init
+> +contig_initmem_init(unsigned long start_pfn, unsigned long end_pfn)
+>  {
+>          unsigned long bootmap_size, bootmap; 
+> +
+> +	memory_present(0, start_pfn, end_pfn);
 
-Yes, I was going to wait until I got a "ack" from him before applying
-that patch.
+Watch indentation.
 
-thanks,
+Rest looks good.
 
-greg k-h
+-Andi

@@ -1,74 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262066AbVERDPm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbVERDlK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262066AbVERDPm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 23:15:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbVERDPm
+	id S262071AbVERDlK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 23:41:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbVERDlK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 23:15:42 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:24234 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S262066AbVERDP2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 23:15:28 -0400
-Message-ID: <0E3FA95632D6D047BA649F95DAB60E57060CCE9A@exa-atlanta>
-From: "Bagalkote, Sreenivas" <sreenib@lsil.com>
-To: "'Christoph Hellwig'" <hch@infradead.org>
-Cc: "'linux-scsi@vger.kernel.org'" <linux-scsi@vger.kernel.org>,
-       "'linux-kernel@vger.kernel.org'" <linux-kernel@vger.kernel.org>,
-       "'Matt_Domsch@Dell.com'" <Matt_Domsch@Dell.com>,
-       Andrew Morton <akpm@osdl.org>,
-       "'James Bottomley'" <James.Bottomley@SteelEye.com>
-Subject: RE: [PATCH 2.6.12-rc4-mm1 4/4] megaraid_sas: updating the driver
-Date: Tue, 17 May 2005 22:59:13 -0400
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: text/plain
+	Tue, 17 May 2005 23:41:10 -0400
+Received: from rproxy.gmail.com ([64.233.170.192]:8250 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262073AbVERDk4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 23:40:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Z9gAdrnzqlo0GSJQhQaJlN+W412CEJwZoGxQ0aDaXVOMgbNVjdQbGUVTF6fOoHVf8tfZY4id0lXYPm9bKniT053CRD77MnONFm5tgclpR02vRBM2lVm00M1is/KmxJ0DAXxMXi5FT7BbU12N6BBTijfS/twlZo+mSMwLf5X6HWU=
+Message-ID: <253818670505172040f303003@mail.gmail.com>
+Date: Tue, 17 May 2005 23:40:55 -0400
+From: Yani Ioannou <yani.ioannou@gmail.com>
+Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
+To: Raj Gupta <gupta.raj@gmail.com>
+Subject: Re: [lm-sensors] Re: [PATCH 2.6.12-rc4 14/15] include/linux/i2c-sysfs.h: i2c sensor_device_attribute and macros
+Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
+In-Reply-To: <393213cd05051720137cc562b0@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <2538186705051703463587a54@mail.gmail.com>
+	 <253818670505171959f5cecb@mail.gmail.com>
+	 <393213cd05051720137cc562b0@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> +#define RD_OB_MSG_0(regs)	readl((void*)(&(regs)->outbound_msg_0))
->> +#define WR_IN_MSG_0(v, regs)	
->writel((v),(void*)(&(regs)->inbound_msg_0))
->> +#define WR_IN_DOORBELL(v, regs)
->> writel((v),(void*)(&(regs)->inbound_doorbell))
->> +#define WR_IN_QPORT(v, regs)
->> writel((v),(void*)(&(regs)->inbound_queue_port))
->> +
->> +#define RD_OB_INTR_STATUS(regs)
->> readl((void*)(&(regs)->outbound_intr_status))
->> +#define WR_OB_INTR_STATUS(v, regs)
->> writel((v),(&(regs)->outbound_intr_status))
+You will want to start a new thread (change the subject line) since
+this post is completely unrelated to the patch it references.
+
+As for your question I'm probably not the best person to ask, about
+those topics, but if you are looking for a kernel reference
+http://lxr.linux.no/ is invaluable. Linux Device Drivers 3 looks like
+a good reference for driver coding too, I just bought it. Greg KH
+would certainly recommend it to you since he is a co-author ;-).
+
+Good luck,
+Yani
+
+On 5/17/05, Raj Gupta <gupta.raj@gmail.com> wrote:
+> Hi,
+> I am joined as reseach scholar and going to work in the feild of wireless
+> technology in sensors with use of linux OS. Can someone suggest me good
+> material for tutorial on linux kernel and implementation of wireless
+> technology in linux middleware
+> 
+>  On 5/17/05, Yani Ioannou <yani.ioannou@gmail.com> wrote:
+> >
+> > Oops..I caught this simple typo while compile testing the adm1026
+> > patch with everything, but it looks like I forgot to update the patch,
+> > here is the corrected version (just adding the missing '=' ):
+> >
+> > Signed-off-by: Yani Ioannou <yani.ioannou@gmail.com>
+> >
+> > Yani
+> >
+> > On 5/17/05, Yani Ioannou <yani.ioannou@gmail.com> wrote:
+> > > This patch creates a new header with a potential standard i2c sensor
+> > > attribute type (which simply includes an int representing the sensor
+> > > number/index) and the associated macros, SENSOR_DEVICE_ATTR to define
+> > > a static attribute and to_sensor_dev_attr to get a
+> > > sensor_device_attribute reference from an embedded device_attribute
+> > > reference.
+> > >
+> > > Please see the next patch to see how these can be used.
+> > >
+> > > Signed-off-by: Yani Ioannou <yani.ioannou@gmail.com>
+> > >
+> > > ---
+> > >
+> > >
+> > >
+> >
+> >
+> >
+> 
+> --
+> thanks and regards
+> Raj Gupta
+> 
+> M.S. Research Scholar,
+> Residence, Distributed and Object Systems Lab.,
+> 545 Sector 15 - I , Department of CS & E,
+> Gurgaon - 122001, INDIA IIT Madras, Chennai - 600036,
+> Ph: +91-124-2301918 Tamil Nadu, INDIA
+> 9840623332 Ph: x5343 (Lab)
+> Email: gupta.raj@gmail.com Email: rgupta@cs.iitm.ernet.in
+> 
+> "Some things you just don't talk about | Hold on tight and pray for the best
+> "
+> _______________________________________________
+> lm-sensors mailing list
+> lm-sensors@lm-sensors.org
+> http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
 >
->The void * casats are not okay.  Please make sure all your variable
->holding the I/O address are of type void __iomem * and use 
->sparse to check
->it.  I would have sent you sparse output if your mailer didn't mangle
->the patch so it couldn't be applied..
->
-
-I will remove these macros. What is sparse output?
-
->> +#define SCP2HOST(scp)		(scp)->device->host	
->// to host
->> +#define SCP2HOSTDATA(scp)	SCP2HOST(scp)->hostdata	// to soft state
->> +#define SCP2CHANNEL(scp)	(scp)->device->channel	// to channel
->> +#define SCP2TARGET(scp)		(scp)->device->id	
->// to target
->> +#define SCP2LUN(scp)		(scp)->device->lun	
->// to LUN
->
->Please remove all these macros.
-
-Christoph, I use these macros to have commonality between 2.4 and 2.6
-kernels. Please consider retaining them. 
-
->
->Also I can't find any endianess handling.  You should probably declare
->all hardware structures __le* and use proper le*_to_cpu/cpu_to_le* when
->accessing them.  sparse -Wbitwise helps finding errors in 
->endianess handling
->
-
-I will do that.
-
-Thanks,
-Sreenivas

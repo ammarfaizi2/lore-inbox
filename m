@@ -1,40 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262415AbVERXvn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262419AbVERX7N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262415AbVERXvn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 19:51:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262419AbVERXvn
+	id S262419AbVERX7N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 19:59:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262417AbVERX7N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 19:51:43 -0400
-Received: from colin.muc.de ([193.149.48.1]:46343 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S262415AbVERXvc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 19:51:32 -0400
-Date: 19 May 2005 01:51:28 +0200
-Date: Thu, 19 May 2005 01:51:28 +0200
-From: Andi Kleen <ak@muc.de>
-To: Terence Ripperda <tripperda@nvidia.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: problems with 2.6.12 and ioremap/iounmap
-Message-ID: <20050518235128.GA45952@muc.de>
-References: <20050518224353.GL2596@hygelac> <m1zmusyuyq.fsf@muc.de> <20050518233425.GB8962@hygelac>
+	Wed, 18 May 2005 19:59:13 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:31492 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262419AbVERX7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 19:59:07 -0400
+Date: Thu, 19 May 2005 01:59:02 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andi Kleen <ak@muc.de>
+Cc: "Gilbert, John" <JGG@dolby.com>, linux-kernel@vger.kernel.org
+Subject: Re: Illegal use of reserved word in system.h
+Message-ID: <20050518235902.GB5112@stusta.de>
+References: <2692A548B75777458914AC89297DD7DA08B0866F@bronze.dolby.net> <m1ll6cyucb.fsf@muc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050518233425.GB8962@hygelac>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <m1ll6cyucb.fsf@muc.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 18, 2005 at 06:34:25PM -0500, Terence Ripperda wrote:
-> > > perhaps iounmap should be calling ioremap_change_attr rather than
-> > 
-> > What is ioremap_change_attr? 
+On Thu, May 19, 2005 at 01:42:28AM +0200, Andi Kleen wrote:
+> "Gilbert, John" <JGG@dolby.com> writes:
+> >
+> > I think it's been in there a while, but only really blows up when built
+> >
+> > under recent kernels.
+> >
+> > I agree, it's probably not the right way to go.
 > 
-> a static function in ioremap.c that is called by __ioremap. it's a
-> wrapper function around change_page_attr. I only see it in the x86_64
-> architecture, not i386.
+> It's quite dangerous. I suppose it uses this for atomic.h, but it
+> means that a mysql compiled under a uniprocessor kernel (or rather
+> with a autoconf.h of a uniprocessor kernel, it can even be SMP) will
+> have subtle races when run on a SMP system because the atomic
+> instructions will miss lock prefixes. Sounds like an open
+> deathtrap to me.
+>...
 
-Oh yes, indeed. I forgot that I wrote it :) Calling global_flush_tlb
-in iounmap is indeed a very good idea.
+They work around this issue by doing
 
--Andi
+#ifndef CONFIG_SMP
+#define CONFIG_SMP
+#endif
+
+> -Andi
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

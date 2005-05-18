@@ -1,57 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262126AbVERHcO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262118AbVERHb4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262126AbVERHcO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 03:32:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbVERHcN
+	id S262118AbVERHb4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 03:31:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262122AbVERHb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 03:32:13 -0400
-Received: from main.gmane.org ([80.91.229.2]:18891 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262121AbVERHbx (ORCPT
+	Wed, 18 May 2005 03:31:56 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:18593 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262118AbVERHbd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 03:31:53 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: [ANNOUNCE] hotplug-ng 002 release
-Date: Wed, 18 May 2005 09:23:16 +0200
-Message-ID: <1mfpgkwlxtuqr.1d08qu3xvpbwn.dlg@40tude.net>
-References: <41iyE-8mI-11@gated-at.bofh.it> <427KM-h4-9@gated-at.bofh.it> <42pRx-75A-19@gated-at.bofh.it> <42znJ-6x7-25@gated-at.bofh.it> <42zQL-70r-25@gated-at.bofh.it> <42CF0-YV-37@gated-at.bofh.it> <42GIH-4u3-31@gated-at.bofh.it> <42Jn3-6Qj-5@gated-at.bofh.it> <42KsY-7KW-33@gated-at.bofh.it> <E1DVga4-0001g7-4s@be1.7eggert.dyndns.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-ull-23-118.44-151.net24.it
-User-Agent: 40tude_Dialog/2.0.15.1
-Cc: linux-hotplug-devel@lists.sourceforge.net
+	Wed, 18 May 2005 03:31:33 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Nathan Lynch <ntl@pobox.com>
+Subject: Re: [PATCH 3/8] ppc64: add a watchdog driver for rtas
+Date: Wed, 18 May 2005 09:14:41 +0200
+User-Agent: KMail/1.7.2
+Cc: linuxppc64-dev@ozlabs.org, Paul Mackerras <paulus@samba.org>,
+       linux-kernel@vger.kernel.org, Anton Blanchard <anton@samba.org>,
+       Utz Bacher <utz.bacher@de.ibm.com>, Wim Van Sebroeck <wim@iguana.be>
+References: <200505132117.37461.arnd@arndb.de> <200505132124.48963.arnd@arndb.de> <20050517204029.GA2748@otto>
+In-Reply-To: <20050517204029.GA2748@otto>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200505180914.44336.arnd@arndb.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 11 May 2005 04:04:11 +0200, Bodo Eggert
-<harvested.in.lkml@posting.7eggert.dyndns.org> wrote:
-
-> Giuseppe Bilotta <bilotta78@hotpop.com> wrote:
+On Dinsdag 17 Mai 2005 22:40, Nathan Lynch wrote:
+> Arnd Bergmann wrote:
+> > +static volatile int wdrtas_miscdev_open = 0;
+> ...
+> > +static int
+> > +wdrtas_open(struct inode *inode, struct file *file)
+> > +{
+> > +	/* only open once */
+> > +	if (xchg(&wdrtas_miscdev_open,1))
+> > +		return -EBUSY;
 > 
->> Is there a way to control the order in which modules get loaded? For
->> example, I usually blacklist the parport module and only load it when
->> I need it, thus freeing an IRQ (for audio, IIRC). If parport loads
->> automatically, it grabs the IRQ; if it loads after the IRQ is grabbed
->> already, it'll resort to polled mode. Can these things be controlled
->> without the blacklist?
+> The volatile and xchg strike me as an obscure method for ensuring only
+> one process at a time can open this file.  Any reason a semaphore
+> couldn't be used?
+
+A semaphore would also be the wrong approach since we don't want
+processes to block but instead to fail opening the watchdog twice.
+Other watchdog drivers use atomic_t or bitops to guard open, which
+imho would be the better solution.
+
+Of course, there is also Wim's plan to do a unified watchdog driver
+that would solve this once and for all. 
+
+> > +		printk("wdrtas: got unexpected close. Watchdog "
+> > +		       "not stopped.\n");
 > 
-> Documentation/parport.txt
+> printk's need a valid log level specified.  There are several in this
+> file that lack them.
 
-Thanks for saying RTFD nicely :)
+Right.
 
-> The rest should be configurable in /etc/mod{ules,probe}.conf
+Utz, do you have time to fix up these issues? If not, I probably won't
+look into it this week either.
 
-Thanks again.
+Thanks,
 
--- 
-Giuseppe "Oblomov" Bilotta
-
-"Da grande lotterò per la pace"
-"A me me la compra il mio babbo"
-(Altan)
-("When I grow up, I will fight for peace"
- "I'll have my daddy buy it for me")
-
+	Arnd <><

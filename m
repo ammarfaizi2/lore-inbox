@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVERMB4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbVERMJ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbVERMB4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 08:01:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVERMB4
+	id S261235AbVERMJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 08:09:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVERMJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 08:01:56 -0400
-Received: from alog0273.analogic.com ([208.224.222.49]:46307 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261195AbVERMBx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 08:01:53 -0400
-Date: Wed, 18 May 2005 08:01:28 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: linux@horizon.com
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Sync option destroys flash!
-In-Reply-To: <20050518111328.7115.qmail@science.horizon.com>
-Message-ID: <Pine.LNX.4.61.0505180749390.15608@chaos.analogic.com>
-References: <20050518111328.7115.qmail@science.horizon.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 18 May 2005 08:09:58 -0400
+Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:528 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261345AbVERMJi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 08:09:38 -0400
+To: dhowells@redhat.com
+CC: miklos@szeredi.hu, linuxram@us.ibm.com, jamie@shareable.org,
+       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-reply-to: <9498.1116417099@redhat.com> (message from David Howells on Wed,
+	18 May 2005 12:51:39 +0100)
+Subject: Re: [PATCH] fix race in mark_mounts_for_expiry()
+References: <E1DYMVf-0000hD-00@dorka.pomaz.szeredi.hu>  <E1DYMB6-0000dw-00@dorka.pomaz.szeredi.hu> <E1DYLvb-0000as-00@dorka.pomaz.szeredi.hu> <E1DYLCv-0000W7-00@dorka.pomaz.szeredi.hu> <1116005355.6248.372.camel@localhost> <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu> <1116012287.6248.410.camel@localhost> <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu> <1116013840.6248.429.camel@localhost> <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu> <1116256279.4154.41.camel@localhost> <20050516111408.GA21145@mail.shareable.org> <1116301843.4154.88.camel@localhost> <E1DXm08-0006XD-00@dorka.pomaz.szeredi.hu> <20050517012854.GC32226@mail.shareable.org> <E1DXuiu-0007Mj-00@dorka.pomaz.szeredi.hu> <1116360352.24560.85.camel@localhost> <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu> <1116399887.24560.116.camel@localhost> <1116400118.24560.119.camel@localhost> <6865.1116412354@redhat.com> <7230.1116413175@redhat.com> <8247.1116413990@redhat.com> <9498.1116417099@redhat.com>
+Message-Id: <E1DYNLt-0000nu-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 18 May 2005 14:08:41 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 May 2005 linux@horizon.com wrote:
+> What you're doing is tricky. It's asking for a race.
 
->>> hda: read_intr: status=0x51 { DriveReady SeekComplete Error }
->>> hda: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=6, sector=6
->>> end_request: I/O error, dev 03:00 (hda), sector 6
->>> unable to read partition table
->> [SNIPPED...]
->>
->> You can "fix" this by writing all sectors. Although the data is lost,
->> the flash-RAM isn't. This can (read will) happen if you pull the
->> flash-RAM out of its socket with the power ON.
->
-> Er... no.  Trying to write 8K to /dev/hda, I get the above error
-> on sector 15.
->
+I know.  The comment above the function is there to make sure the user
+is aware of this.
 
-If you can boot DOS or FREE dos on your system, see if the disk
-emulation implimented the format-unit command. You can do it with
-debug...
+> Admittedly, it may not
+> occur in the particular situation you're looking at, but can you always
+> guarantee that?
 
-- mov dx, 81	; 81 is D: , 80 is C:
-- mov cx, 0	; Start at cylinder 0
-- mov ah, 7	; Format unit command
-- int 13	; BIOS hard-disk service
-- int 3		; Catch after call
+Yes, if it's always called under lock.
 
-If the call returned with CY not set and the command took some time
-it is likely that new sectors were written and all is well.
+> Remember, it may be a race against some piece of code that's not yet
+> written, by an author who doesn't realise what _you_ are doing here
+> because their changeset doesn't intersect with yours.
+> 
+> Remember: you have, in effect, made the usage count on that structure
+> non-atomic.
 
-> My *other* problems could be fixed by rewriting the affected sector, but
-> this one seems to be a doozy.  I never saw "SectorIdNotFound" before.
->
->>  Notice : All mail here is now cached for review by Dictator Bush.
->
-> As long as he has to read it personally, that's fine.  I'll get some
-> small pleasure watching his lips move.
->
+But _only after_ it's has gone to zero.  When in fact there are no
+more references to it, so it shouldn't matter.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+The fact that it does matter and that mark_mounts_for_expiry()
+derefences mnt->mnt_namespace without actually having a proper
+reference to the namespace is the real culprit here.
+
+This is the third bug found by Jamie Lokier, Ram and me in the
+mnt_namespace change.  So if we are looking at proper solutions I
+think that is what we should be examining.
+
+Thanks,
+Miklos

@@ -1,58 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262020AbVERABU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262021AbVERAET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262020AbVERABU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 20:01:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262042AbVERABU
+	id S262021AbVERAET (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 20:04:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVERAET
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 20:01:20 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:26254 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S262020AbVERABA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 20:01:00 -0400
-Subject: Re: CONFIG_KALLSYMS_EXTRA_PASS
-From: Steven Rostedt <rostedt@goodmis.org>
-To: pmarques@grupopie.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1116372428.428a7dccec930@webmail.grupopie.com>
-References: <1116365006.9737.42.camel@localhost.localdomain>
-	 <1116372428.428a7dccec930@webmail.grupopie.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Tue, 17 May 2005 20:00:51 -0400
-Message-Id: <1116374451.9737.47.camel@localhost.localdomain>
+	Tue, 17 May 2005 20:04:19 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:1029 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261748AbVERAEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 20:04:01 -0400
+Message-Id: <200505180003.j4I03cJo008917@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: christoph <christoph@scalex86.org>, George Anzinger <george@mvista.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>, shai@scalex86.org,
+       akpm@osdl.org
+Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt. 
+In-Reply-To: Your message of "Tue, 17 May 2005 19:25:41 EDT."
+             <1116372341.32210.39.camel@mindpipe> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.62.0505161243580.13692@ScMPusgw> <1116276689.28764.1.camel@mindpipe> <Pine.LNX.4.62.0505161755110.9418@ScMPusgw>
+            <1116372341.32210.39.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+Content-Type: multipart/signed; boundary="==_Exmh_1116374618_5349P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 17 May 2005 20:03:38 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-18 at 00:27 +0100, pmarques@grupopie.com wrote:
+--==_Exmh_1116374618_5349P
+Content-Type: text/plain; charset=us-ascii
 
-> You can try the very crude (but effective) way to check if this is your problem
-> or not. Go to scripts/kallsyms.c and change:
-> 
-> #define WORKING_SET             1024
-> 
-> to:
-> 
-> #define WORKING_SET             65536
-> 
+On Tue, 17 May 2005 19:25:41 EDT, Lee Revell said:
 
-Yep, that did the trick. Thanks.  And just to make sure, I put it back
-to 1024, recompiled, and got the error again.
+> How do you expect application developers to handle not being able to
+> count on the resolution of nanosleep()?  Currently they can at least
+> assume 10ms on 2.4, 1ms on 2.6.  Seems to me that if you are no longer
+> guaranteed to be able to sleep 5ms on 2.6, you would just have to
+> busywait.  Is it me, or does that way lie madness?
 
-> This will force kallsyms to use *all* the symbols for the compression, and the
-> size of the result won't be affected by the symbol positions.
-> 
-> Don't forget to turn off KALLSYMS_EXTRA_PASS to test this.
-> 
-> If this turns out to be the problem _again_, I'll post a patch to fix this for
-> good by storing the token data from the first pass and use it on the second
-> pass. This will not only speed up compression, it will also guarantee that this
-> kind of problems will never bite us again.
+If you're running tickless, wouldn't a 'sleep 5ms' cause a timer event to be
+queued, and we wake up (approx) 5ms later?
 
-Your patch sounds too good to not be included even if this wasn't the
-case. How come it hasn't been applied before?
+--==_Exmh_1116374618_5349P
+Content-Type: application/pgp-signature
 
--- Steve
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFCioZacC3lWbTT17ARAvxYAJ4jhASe2PD1esteazQireEMm4P/NwCguOPz
+J91CNJ95nl3hHRgOwnNQb4Y=
+=btUI
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1116374618_5349P--

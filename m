@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262206AbVEROBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262237AbVERPEk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262206AbVEROBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 10:01:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262223AbVEROA0
+	id S262237AbVERPEk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 11:04:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbVERPCb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 10:00:26 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:23304 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S262203AbVERNub
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 09:50:31 -0400
-To: ross@jose.lug.udel.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: software mixing in alsa
-References: <20050517095613.GA9947@kestrel>
-	<200505171208.04052.jan@spitalnik.net> <20050517141307.GA7759@kestrel>
-	<1116354762.31830.12.camel@mindpipe>
-	<20050517192412.GA19431@kestrel.twibright.com>
-	<200505172027.j4HKRjTV029545@turing-police.cc.vt.edu>
-	<20050518063014.GA7053@jose.lug.udel.edu>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: because you deserve a brk today.
-Date: Wed, 18 May 2005 14:50:24 +0100
-In-Reply-To: <20050518063014.GA7053@jose.lug.udel.edu> (ross@lug.udel.edu's
- message of "18 May 2005 07:32:44 +0100")
-Message-ID: <87acms63tr.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
+	Wed, 18 May 2005 11:02:31 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:52835 "EHLO
+	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262274AbVERPAV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 11:00:21 -0400
+Date: Wed, 18 May 2005 16:00:41 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Timur Tabi <timur.tabi@ammasso.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: linux.bkbits.net question: mapping cset to kernel version?
+In-Reply-To: <428B4D14.2030104@ammasso.com>
+Message-ID: <Pine.LNX.4.61.0505181559340.5111@goblin.wat.veritas.com>
+References: <428B4D14.2030104@ammasso.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset="us-ascii"
+X-OriginalArrivalTime: 18 May 2005 15:00:12.0435 (UTC) 
+    FILETIME=[4AA5C630:01C55BBA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18 May 2005, ross@lug.udel.edu uttered the following:
-> I use esd for all "consumer" level audio apps, and jackd for all
-> professional audio apps.  This is by far the simplest way to manage
-> audio
+On Wed, 18 May 2005, Timur Tabi wrote:
 
-In my experience, polypaudio replaces esd with something both simpler
-and more powerful. (Oh, and without esd's *horrible* stutter,
-interruption, mis-authentication, and code cleanliness problems.)
+> Given a particular file and a particular bitkeeper revision for the file, how
+> can I tell which version of the kernel incorporated that changeset?
 
-(For the professional stuff there is no replacement for JACK, I agree.)
+Someone else might answer that.
 
--- 
-`End users are just test loads for verifying that the system works, kind of
- like resistors in an electrical circuit.' - Kaz Kylheku in c.o.l.d.s
+> In particular, I want to know about revision 1.65 of mm/rmap.c, which can be
+> seen at
+> http://linux.bkbits.net:8080/linux-2.6/diffs/mm/rmap.c@1.65?nav=index.html|src/|src/mm|hist/mm/rmap.c
+> 
+> I want to know what the first version of Linux is to incorporate that change.
+
+The first mainline version of Linux to incorporate it was 2.6.7-rc3
+(SuSE, and the -mm tree, had it earlier).
+
+Hugh

@@ -1,85 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262171AbVERLH4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVERLL4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262171AbVERLH4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 07:07:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVERLH4
+	id S262181AbVERLL4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 07:11:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262182AbVERLKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 07:07:56 -0400
-Received: from pat.uio.no ([129.240.130.16]:14843 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262170AbVERLHh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 07:07:37 -0400
-Subject: Re: [PATCH] fix race in mark_mounts_for_expiry()
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: dhowells@redhat.com, linuxram@us.ibm.com, jamie@shareable.org,
-       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-Reply-To: <E1DYMB6-0000dw-00@dorka.pomaz.szeredi.hu>
-References: <E1DYLvb-0000as-00@dorka.pomaz.szeredi.hu>
-	 <E1DYLCv-0000W7-00@dorka.pomaz.szeredi.hu>
-	 <1116005355.6248.372.camel@localhost>
-	 <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu>
-	 <1116012287.6248.410.camel@localhost>
-	 <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu>
-	 <1116013840.6248.429.camel@localhost>
-	 <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu>
-	 <1116256279.4154.41.camel@localhost>
-	 <20050516111408.GA21145@mail.shareable.org>
-	 <1116301843.4154.88.camel@localhost>
-	 <E1DXm08-0006XD-00@dorka.pomaz.szeredi.hu>
-	 <20050517012854.GC32226@mail.shareable.org>
-	 <E1DXuiu-0007Mj-00@dorka.pomaz.szeredi.hu>
-	 <1116360352.24560.85.camel@localhost>
-	 <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu>
-	 <1116399887.24560.116.camel@localhost>
-	 <1116400118.24560.119.camel@localhost> <6865.1116412354@redhat.com>
-	 <7230.1116413175@redhat.com>  <E1DYMB6-0000dw-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain
-Date: Wed, 18 May 2005 07:07:09 -0400
-Message-Id: <1116414429.10773.57.camel@lade.trondhjem.org>
+	Wed, 18 May 2005 07:10:54 -0400
+Received: from home.leonerd.org.uk ([217.147.80.44]:22975 "EHLO
+	home.leonerd.org.uk") by vger.kernel.org with ESMTP id S262173AbVERLKS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 07:10:18 -0400
+Date: Wed, 18 May 2005 12:10:13 +0100
+From: Paul LeoNerd Evans <leonerd@leonerd.org.uk>
+To: Daniel Jacobowitz <dan@debian.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Fix to virtual terminal UTF-8 mode handling
+Message-ID: <20050518121013.65398e64@nim.leo>
+In-Reply-To: <20050518031030.GA20086@nevyn.them.org>
+References: <20050518030513.7fe55ef1@nim.leo>
+	<20050517195848.4a09318d.akpm@osdl.org>
+	<20050518031030.GA20086@nevyn.them.org>
+X-Mailer: Sylpheed-Claws 1.9.6cvs45 (GTK+ 2.6.4; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-4.95, required 12,
-	autolearn=disabled, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: multipart/signed;
+ boundary=Signature_Wed__18_May_2005_12_10_13_+0100_Ll.APH6dB29dvIgZ;
+ protocol="application/pgp-signature"; micalg=pgp-sha1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on den 18.05.2005 Klokka 12:53 (+0200) skreiv Miklos Szeredi:
-> > Yes you can. cmpxchg() is atomic. Several archs implement atomic_inc() and co
-> > with cmpxchg() or similar.
-> > 
-> > Something like:
-> > 
-> > 	static inline struct namespace *grab_namespace(struct namespace *n)
-> > 	{
-> > 		int old = atomic_read(&n->count);
-> > 
-> > 		while (old > 0) {
-> > 			/* attempt to increment the counter */
-> > 			old = cmpxchg(&n->count, old, old + 1);
-> > 		}
-> > 
-> > 		return old > 0 ? n : NULL;
-> > 	}
-> > 
-> 
-> Ahh OK :)
-> 
-> There's still the problem of cmpxchg meddling in the internals of an
-> atomic_t.  Is that OK?  Will that work on all archs?
+--Signature_Wed__18_May_2005_12_10_13_+0100_Ll.APH6dB29dvIgZ
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Some archs already have an atomic_dec_if_positive() (see for instance
-the PPC). It won't take much work to convert that to an
-atomic_inc_if_positive().
+On Tue, 17 May 2005 23:10:30 -0400
+Daniel Jacobowitz <dan@debian.org> wrote:
 
-For those arches that don't have that sort of thing, then writing a
-generic atomic_inc_if_positive() using cmpxchg() will often be possible,
-but there are exceptions (for instance the original 386 does not have a
-cmpxchg, so there you will have to use something else).
+> I'd be inclined to think that this is more of a terminfo issue.  If you
+> want your terminal to reset into UTF-8, use a terminfo entry with the
+> appropriate command string instead of the current one - this would be
+> the 'rs1' capability:
+>=20
+>   rs1=3D\Ec\E]R
+>=20
+> That's reset console to default, reset palette.
 
-Cheers,
-  Trond
+Unfortunately, that doesn't work. Doing it that way means that any
+program running on a host whose terminfo is so configured, would force
+UTF-8 mode on, when it issues a reset to a Linux console, regardless of
+which machine that is on (e.g. telnet, ssh,...). Furthermore, it would do
+so regardless of whether we want UTF-8 mode, or not. Again with my patch
+it is a user configurable matter whether they want UTF-8 or not. This
+terminfo entry forces it to happen.
 
+That said, I am planning a whole bunch of other changes to terminfo; my
+repeated wrestling with xterm recently on the regard of modified cursor
+keys (e.g. Ctrl+left) has lead me to conclude the whole system needs a
+bit of an overhaul... But that's somewhat off-topic to the kernel.. :)
+
+--=20
+Paul "LeoNerd" Evans
+
+leonerd@leonerd.org.uk
+ICQ# 4135350       |  Registered Linux# 179460
+http://www.leonerd.org.uk/
+
+--Signature_Wed__18_May_2005_12_10_13_+0100_Ll.APH6dB29dvIgZ
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFCiyKYvcPg11V/1hgRAsnLAKCBJZFFon1tkV/7gU8ToUA+I77qhACfXlCZ
+DQvgc4Fk8Laq4HAxcx8pWF8=
+=XYRQ
+-----END PGP SIGNATURE-----
+
+--Signature_Wed__18_May_2005_12_10_13_+0100_Ll.APH6dB29dvIgZ--

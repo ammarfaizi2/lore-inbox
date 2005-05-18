@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262237AbVERPEk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262246AbVERPEk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262237AbVERPEk (ORCPT <rfc822;willy@w.ods.org>);
+	id S262246AbVERPEk (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 18 May 2005 11:04:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbVERPCb
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbVERPBt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 11:02:31 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:52835 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S262274AbVERPAV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 11:00:21 -0400
-Date: Wed, 18 May 2005 16:00:41 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Timur Tabi <timur.tabi@ammasso.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: linux.bkbits.net question: mapping cset to kernel version?
-In-Reply-To: <428B4D14.2030104@ammasso.com>
-Message-ID: <Pine.LNX.4.61.0505181559340.5111@goblin.wat.veritas.com>
-References: <428B4D14.2030104@ammasso.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-X-OriginalArrivalTime: 18 May 2005 15:00:12.0435 (UTC) 
-    FILETIME=[4AA5C630:01C55BBA]
+	Wed, 18 May 2005 11:01:49 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:51131 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262246AbVEROav (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 10:30:51 -0400
+Date: Wed, 18 May 2005 20:10:34 +0530
+From: Dinakar Guniguntala <dino@in.ibm.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: Andrew Morton <akpm@osdl.org>, gregoire.favre@gmail.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
+Message-ID: <20050518144034.GB3937@in.ibm.com>
+Reply-To: dino@in.ibm.com
+References: <20050516085832.GA9558@gmail.com> <20050517071307.GA4794@in.ibm.com> <20050517002908.005a9ba7.akpm@osdl.org> <1116340465.4989.2.camel@mulgrave> <20050517170824.GA3931@in.ibm.com> <1116354894.4989.42.camel@mulgrave> <20050518090722.GA3937@in.ibm.com> <1116425559.5027.1.camel@mulgrave>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1116425559.5027.1.camel@mulgrave>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 May 2005, Timur Tabi wrote:
-
-> Given a particular file and a particular bitkeeper revision for the file, how
-> can I tell which version of the kernel incorporated that changeset?
-
-Someone else might answer that.
-
-> In particular, I want to know about revision 1.65 of mm/rmap.c, which can be
-> seen at
-> http://linux.bkbits.net:8080/linux-2.6/diffs/mm/rmap.c@1.65?nav=index.html|src/|src/mm|hist/mm/rmap.c
+On Wed, May 18, 2005 at 09:12:39AM -0500, James Bottomley wrote:
+> > 
+> > So are these patches getting into -mm first or -rc5 ??
 > 
-> I want to know what the first version of Linux is to incorporate that change.
+> Damn, I knew you were going to ask that ... the problem is it's the last
+> in a long line of invasive adaptec patches that sit in my scsi-misc-2.6
+> tree ... I suppose we can't have the aic driver slightly hosed for
+> 2.6.12; I'll see if I can extract them.
+> 
 
-The first mainline version of Linux to incorporate it was 2.6.7-rc3
-(SuSE, and the -mm tree, had it earlier).
+You actually thought you could get away with that ?? :)
 
-Hugh
+Seriously, scsi takes a long time to boot even normally, but with this
+bug, it takes forever and a few more retries before it finally boots up.
+
+I would really appreciate if you could extract and send them upstream,
+Thanks
+
+	-Dinakar

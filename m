@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbVERSV1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262281AbVERSVL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262297AbVERSV1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 14:21:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262300AbVERSV0
+	id S262281AbVERSVL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 14:21:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbVERSVK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 14:21:26 -0400
-Received: from fire.osdl.org ([65.172.181.4]:65226 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262297AbVERSUr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 14:20:47 -0400
-Message-ID: <428B876F.8080802@osdl.org>
-Date: Wed, 18 May 2005 11:20:31 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Filipe Abrantes <fla@inescporto.pt>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Detecting link up
-References: <428B1A60.6030505@inescporto.pt>
-In-Reply-To: <428B1A60.6030505@inescporto.pt>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 18 May 2005 14:21:10 -0400
+Received: from pfepc.post.tele.dk ([195.41.46.237]:61738 "EHLO
+	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262281AbVERSUl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 14:20:41 -0400
+Date: Wed, 18 May 2005 20:22:17 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: sparse error: unable to open 'stdarg.h'
+Message-ID: <20050518182217.GA8130@mars.ravnborg.org>
+References: <428A661C.1030100@ammasso.com> <428A729E.8040207@ammasso.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <428A729E.8040207@ammasso.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Filipe Abrantes wrote:
-> Hi all,
+On Tue, May 17, 2005 at 05:39:26PM -0500, Timur Tabi wrote:
+> Timur Tabi wrote:
 > 
-> I need to detect when an interface (wired ethernet) has link up/down. Is 
-> there a system signal which is sent when this happens? What is the best 
-> way to this programatically?
+> >make -C /lib/modules/2.6.8-24-smp/source 
+> >SUBDIRS=/root/AMSO1100/software/host/linux/sys/devccil  C=1 V=2
 > 
-> Best Regards
+> When I replace V=2 with V=1 (don't know how that happened), I get this 
+> output:
 > 
-> Filipe
-> 
-> 
+> sparse  -D__i386__=1 
+> -Wp,-MD,/root/AMSO1100/software/host/linux/sys/devccil/.devnet.o.d 
+> -nostdinc -iwithprefix include -D__KERNEL__ -Iinclude  -Wall 
 
-The best way is to open a netlink socket and look for the mesaages about
-link up/down there. Read iproute2 http://developer.osdl.org/dev/iproute2 
-source for ip command (ipmonitor.c).
+Newer kbuild's do not use the -nostdinc -iwithprefix include trick.
+Instead they use -nostdinc -isystem `gcc --print-file-name=include`
 
-This works for almost all devices unlike ethtool and mii which only
-work on a small subset of devices.
+Wich is a more reliable way to find stdarg.h. Newer sparse understands
+this too.
+
+Please post make V=1 output with a newer kernel.
+
+	Sam

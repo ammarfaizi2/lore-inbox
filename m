@@ -1,52 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbVERQdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262344AbVERQfz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262325AbVERQdm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 12:33:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbVERQbn
+	id S262344AbVERQfz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 12:35:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbVERQfr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 12:31:43 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:2454 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S262281AbVERQ3P (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 12:29:15 -0400
-Date: Wed, 18 May 2005 09:24:17 -0400
-From: Christopher Li <lkml@chrisli.org>
-To: Timur Tabi <timur.tabi@ammasso.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: sparse error: unable to open 'stdarg.h'
-Message-ID: <20050518132417.GA14488@64m.dyndns.org>
-References: <428A661C.1030100@ammasso.com> <20050517201148.GA12997@64m.dyndns.org> <428B4C67.5090307@ammasso.com> <20050518123854.GA13452@64m.dyndns.org> <428B646C.3030501@ammasso.com>
+	Wed, 18 May 2005 12:35:47 -0400
+Received: from mail.kroah.org ([69.55.234.183]:46498 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262281AbVERQf3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 12:35:29 -0400
+Date: Wed, 18 May 2005 09:41:22 -0700
+From: Greg KH <greg@kroah.com>
+To: Yani Ioannou <yani.ioannou@gmail.com>
+Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: [PATCH 2.6.12-rc4 1/15] (dynamic sysfs callbacks) device attribute callbacks - take 2
+Message-ID: <20050518164122.GA17307@kroah.com>
+References: <2538186705051703394944e949@mail.gmail.com> <20050518072239.GA11889@kroah.com> <253818670505180028696cc991@mail.gmail.com> <20050518073756.GA12382@kroah.com> <2538186705051800412ec07d5c@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <428B646C.3030501@ammasso.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <2538186705051800412ec07d5c@mail.gmail.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 18, 2005 at 10:51:08AM -0500, Timur Tabi wrote:
-> Christopher Li wrote:
-> 
-> >That is wired.  Can you try to edit a test.c contain just one line:
-> >
-> >#include <stdarg.h>
-> >
-> >run sparse on that test.c and see if you get any complain or not?
-> 
-> I did "sparse test.c" and got no output whatsoever.  No files were created, 
-> either.
+On Wed, May 18, 2005 at 03:41:59AM -0400, Yani Ioannou wrote:
+> BTW I sent a patch against it87.c to lm_sensors so Jean could test
+> things (apparently adm1026 hasn't got many users).
 
-The sparse checker does not create files. That means your sparse is
-fine. It should locate the stdarg.h
+Yes, I was going to wait until I got a "ack" from him before applying
+that patch.
 
-> There must be something specific about how kbuild calls sparse.
+thanks,
 
-I think I know that it is. There is a "-nostdinc" in the sparse
-options, which I saw it in the other email you send out. It
-drop the internal include path. Gcc is does the same thing.
-
-gcc -c -nostdinc /tmp/test.c
-/tmp/test.c:1:22: no include path in which to find stdarg.h
-
-Chris
-
+greg k-h

@@ -1,55 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262205AbVERPKz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262288AbVERPKu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262205AbVERPKz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 11:10:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262272AbVERPJf
+	id S262288AbVERPKu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 11:10:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262205AbVERPGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 11:09:35 -0400
-Received: from wproxy.gmail.com ([64.233.184.202]:26199 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262241AbVERPGe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 11:06:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nwtG9EWbmwpgSKLWaLJNZxqG40aX7esRKNhkPC3ec5+D1pjtEKKOBojNX4ecL+BDD17yGKS//2VmCZeJ9f0+DmeXE25AQ6AeVkZ4ZyB9HUODKacSo83WvzKFi4TuytloCELXkn82DEgFmqgIgrRRnNQmnF8wW3JsKu1M8yAZnaA=
-Message-ID: <2cd57c900505180806669beab@mail.gmail.com>
-Date: Wed, 18 May 2005 23:06:32 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@lovecn.org
+	Wed, 18 May 2005 11:06:00 -0400
+Received: from main.gmane.org ([80.91.229.2]:3210 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S262247AbVERPFb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 11:05:31 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: Re: Detecting link up
-In-Reply-To: <20050518143712.GA21883@roonstrasse.net>
+From: Ian Soboroff <isoboroff@acm.org>
+Subject: Re: ACPI S3/APM suspend
+Date: Wed, 18 May 2005 10:59:47 -0400
+Message-ID: <9cfzmusbmvw.fsf@rogue.ncsl.nist.gov>
+References: <9cfvf5gel2l.fsf@rogue.ncsl.nist.gov>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <428B1A60.6030505@inescporto.pt> <20050518134031.53a3243a@phoebee>
-	 <20050518143712.GA21883@roonstrasse.net>
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: rogue.ncsl.nist.gov
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
+Cancel-Lock: sha1:ScJg5T+YY3qGpXD+9xa2SgzVmrM=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/18/05, Max Kellermann <max@duempel.org> wrote:
-> On 2005/05/18 13:40, Martin Zwickel <martin.zwickel@technotrend.de> wrote:
-> > On Wed, 18 May 2005 11:35:12 +0100
-> > Filipe Abrantes <fla@inescporto.pt> bubbled:
-> > > I need to detect when an interface (wired ethernet) has link up/down.
-> > > Is  there a system signal which is sent when this happens? What is the
-> > > best  way to this programatically?
-> >
-> > mii-tool?
-> 
-> A thought on a related topic:
-> 
-> When a NIC driver knows that there is no link, why does it even try to
-> transmit a packet? It could return immediately with an error code,
-> without applications having to wait for a timeout.
-> 
-> (I had a quick peek at two drivers, and they don't check the link
-> status)
+Ian Soboroff <isoboroff@acm.org> writes:
 
-An NIC driver doesn't know if there's other links or not. One NIC
-driver is for one type of NIC.  And there's also interface lo.
--- 
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+> I recently reinstalled my laptop (Fujitsu P2110) with RHEL4, and I
+> found that neither ACPI S3 or APM suspend (booting with acpi=off) work
+> reliably with their stock kernel (a 2.6.9 derivative).  Sometimes
+> resuming works, but more often the computer locks up, or the keyboard
+> doesn't function respond.
+
+Just tried with 2.6.11.10 using ACPI.  On resume, the mouse doesn't
+respond (there isn't even a cursor).  If I C-A-Backspace out of X, GDM
+needs to be specially HUP'd to restart.  But the mouse still doesn't
+work.
+
+This was one of the failure modes in the RHEL 2.6.9-5.0.5 kernel.  (I
+know, I know, "ask RH for support", but they don't seem to have any of
+the ACPI or APM suspend bugs in their bugzilla anywhere near
+resolved.)
+
+Ian
+
+

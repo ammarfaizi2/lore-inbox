@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262385AbVERXBw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbVERXD6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262385AbVERXBw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 19:01:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVERXBw
+	id S262393AbVERXD6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 19:03:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262414AbVERXD6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 19:01:52 -0400
-Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:3057 "EHLO
-	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S262385AbVERXB3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 19:01:29 -0400
-Date: Thu, 19 May 2005 01:00:47 +0200
+	Wed, 18 May 2005 19:03:58 -0400
+Received: from pne-smtpout2-sn1.fre.skanova.net ([81.228.11.159]:36313 "EHLO
+	pne-smtpout2-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S262393AbVERXB7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 19:01:59 -0400
+Date: Thu, 19 May 2005 01:01:20 +0200
 From: Per Svennerbrandt <per.svennerbrandt@lbi.se>
 To: Per Liden <per@fukt.bth.se>, Greg KH <greg@kroah.com>
 Cc: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH][RFC] __request_module: fixed argument request_module with waitflag
-Message-ID: <20050518230046.GB3011@tsiryulnik>
+Subject: [PATCH][RFC] request_modalias: MODALIAS based module loading
+Message-ID: <20050518230120.GC3011@tsiryulnik>
 Mail-Followup-To: Per Liden <per@fukt.bth.se>, Greg KH <greg@kroah.com>,
 	linux-hotplug-devel@lists.sourceforge.net,
 	linux-kernel@vger.kernel.org
@@ -27,131 +27,99 @@ User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following extracts the code in request_module which is responsible
-for executing modprobe into a new helper function called __request_module.
-This new function takes the wait flag which gets passed down to
-call_usermodeheper as an argument, allowing async execution of modprobe.
+Ok, so here finally goes:
 
-During the writing of this I've had a bit of a mental struggle about
-whether or not maybe call_modprobe is a better name for this and thus
-I'm fine with either one if anyone else has a preference.
+The following adds a new function called request_modalias to
+lib/kobject_uevent.c and makes the kobject hotplug function call it
+whenever it gets called in response of an addition.
+
+Warning: The following also contains perhaps the worst abuse of strcmp
+ever to be recorded in the history of public mailinglists, so beware!!!
+
+This is the kind of stuff that has the potential for making pretty much
+anyone with only even the slightest hint of technical good taste,
+myself included, quickly rush for their b-p-b with a horrid expression
+on their faces and a thought on their minds about what's becomming of
+the world.
+
+On the other hand it also made the patch so nonintrusive that, for a
+proof-of-consept kind of thing, I just couldn't resist it. It also has
+the added benefit of making the various subsystems virtually "plug and
+play": As soon as they start exporting MODALIAS to the hotplug
+enviroment request_module will also, if activated, start requesting
+modules for them.
+
+Let's hope I'm not prematurely ending the lives of too many brave brown
+paper bags out there.
 
 Signed-off-by: Per Svennerbrandt <per.svennerbrandt@lbi.se>
 
---- linux-2.6.12-rc2/kernel/kmod.c.orig	2005-04-16 19:08:22.000000000 +0200
-+++ linux-2.6.12-rc2/kernel/kmod.c	2005-05-12 23:50:00.000000000 +0200
-@@ -49,6 +49,49 @@
- */
- char modprobe_path[KMOD_PATH_LEN] = "/sbin/modprobe";
+--- linux-2.6.12-rc2/lib/kobject_uevent.c.orig	2005-03-02 08:38:09.000000000 +0100
++++ linux-2.6.12-rc2/lib/kobject_uevent.c	2005-05-13 00:13:39.000000000 +0200
+@@ -19,6 +19,7 @@
+ #include <linux/skbuff.h>
+ #include <linux/netlink.h>
+ #include <linux/string.h>
++#include <linux/kmod.h>
+ #include <linux/kobject_uevent.h>
+ #include <linux/kobject.h>
+ #include <net/sock.h>
+@@ -175,6 +176,26 @@
  
-+int __request_module(char *name, int wait)
+ #endif /* CONFIG_KOBJECT_UEVENT */
+ 
++#ifdef CONFIG_REQUEST_MODALIAS
++/**
++ * request_modalias - try to load any modules specified 
++ * by MODALIAS in the enviroment
++ * @envp: pointer to an enviroment possibly containing a MODALIAS
++ */
++static void request_modalias(char **envp)
 +{
-+	int ret;
-+	unsigned int max_modprobes;
-+	static atomic_t kmod_concurrent = ATOMIC_INIT(0);
-+#define MAX_KMOD_CONCURRENT 50	/* Completely arbitrary value - KAO */
-+	static int kmod_loop_msg;
++	int i, len = strlen("MODALIAS=");
 +	
-+	char *argv[] = { modprobe_path, "-q", "--", name, NULL };
-+	static char *envp[] = { "HOME=/",
-+				"TERM=linux",
-+				"PATH=/sbin:/usr/sbin:/bin:/usr/bin",
-+				NULL };
-+				
-+	/* If modprobe needs a service that is in a module, we get a recursive
-+	 * loop.  Limit the number of running kmod threads to max_threads/2 or
-+	 * MAX_KMOD_CONCURRENT, whichever is the smaller.  A cleaner method
-+	 * would be to run the parents of this process, counting how many times
-+	 * kmod was invoked.  That would mean accessing the internals of the
-+	 * process tables to get the command line, proc_pid_cmdline is static
-+	 * and it is not worth changing the proc code just to handle this case. 
-+	 * KAO.
-+	 *
-+	 * "trace the ppid" is simple, but will fail if someone's
-+	 * parent exits.  I think this is as good as it gets. --RR
-+	 */
-+	max_modprobes = min(max_threads/2, MAX_KMOD_CONCURRENT);
-+	atomic_inc(&kmod_concurrent);
-+	if (atomic_read(&kmod_concurrent) > max_modprobes) {
-+		/* We may be blaming an innocent here, but unlikely */
-+		if (kmod_loop_msg++ < 5)
-+			printk(KERN_ERR
-+			       "request_module: runaway loop modprobe %s\n",
-+			       name);
-+		atomic_dec(&kmod_concurrent);
-+		return -ENOMEM;
-+	}
-+	ret = call_usermodehelper(modprobe_path, argv, envp, wait);
-+	atomic_dec(&kmod_concurrent);
-+	return ret;
++	if (envp == NULL) return;
++	
++	for (i = 0; envp[i]; i++)
++		if (!strncmp(envp[i], "MODALIAS=", len))
++			__request_module(envp[i] + len, 0);
 +}
-+EXPORT_SYMBOL(__request_module);
 +
- /**
-  * request_module - try to load a kernel module
-  * @fmt:     printf style format string for the name of the module
-@@ -67,50 +110,15 @@ int request_module(const char *fmt, ...)
- {
- 	va_list args;
- 	char module_name[MODULE_NAME_LEN];
--	unsigned int max_modprobes;
- 	int ret;
--	char *argv[] = { modprobe_path, "-q", "--", module_name, NULL };
--	static char *envp[] = { "HOME=/",
--				"TERM=linux",
--				"PATH=/sbin:/usr/sbin:/bin:/usr/bin",
--				NULL };
--	static atomic_t kmod_concurrent = ATOMIC_INIT(0);
--#define MAX_KMOD_CONCURRENT 50	/* Completely arbitrary value - KAO */
--	static int kmod_loop_msg;
++#else
++static void request_modalias(char **envp) { }
++#endif /* CONFIG_REQUEST_MODALIAS */
  
- 	va_start(args, fmt);
- 	ret = vsnprintf(module_name, MODULE_NAME_LEN, fmt, args);
- 	va_end(args);
- 	if (ret >= MODULE_NAME_LEN)
- 		return -ENAMETOOLONG;
+ #ifdef CONFIG_HOTPLUG
+ char hotplug_path[HOTPLUG_PATH_LEN] = "/sbin/hotplug";
+@@ -297,6 +318,10 @@ void kobject_hotplug(struct kobject *kob
+ 		  __FUNCTION__, argv[0], argv[1], (unsigned long long)seq,
+ 		  envp[0], envp[1], envp[2], envp[3], envp[4]);
  
--	/* If modprobe needs a service that is in a module, we get a recursive
--	 * loop.  Limit the number of running kmod threads to max_threads/2 or
--	 * MAX_KMOD_CONCURRENT, whichever is the smaller.  A cleaner method
--	 * would be to run the parents of this process, counting how many times
--	 * kmod was invoked.  That would mean accessing the internals of the
--	 * process tables to get the command line, proc_pid_cmdline is static
--	 * and it is not worth changing the proc code just to handle this case. 
--	 * KAO.
--	 *
--	 * "trace the ppid" is simple, but will fail if someone's
--	 * parent exits.  I think this is as good as it gets. --RR
--	 */
--	max_modprobes = min(max_threads/2, MAX_KMOD_CONCURRENT);
--	atomic_inc(&kmod_concurrent);
--	if (atomic_read(&kmod_concurrent) > max_modprobes) {
--		/* We may be blaming an innocent here, but unlikely */
--		if (kmod_loop_msg++ < 5)
--			printk(KERN_ERR
--			       "request_module: runaway loop modprobe %s\n",
--			       module_name);
--		atomic_dec(&kmod_concurrent);
--		return -ENOMEM;
--	}
--
--	ret = call_usermodehelper(modprobe_path, argv, envp, 1);
--	atomic_dec(&kmod_concurrent);
--	return ret;
-+	return __request_module(module_name, 1);
- }
- EXPORT_SYMBOL(request_module);
- #endif /* CONFIG_KMOD */
---- linux-2.6.12-rc2/include/linux/kmod.h.orig	2005-03-02 08:37:49.000000000 +0100
-+++ linux-2.6.12-rc2/include/linux/kmod.h	2005-05-12 23:53:22.000000000 +0200
-@@ -28,8 +28,10 @@
- #ifdef CONFIG_KMOD
- /* modprobe exit status on success, -ve on error.  Return value
-  * usually useless though. */
-+extern int __request_module(char *name, int wait);
- extern int request_module(const char * name, ...) __attribute__ ((format (printf, 1, 2)));
- #else
-+static inline int __request_module(char *name, int wait) { return -ENOSYS; }
- static inline int request_module(const char * name, ...) { return -ENOSYS; }
- #endif
++	if (action == KOBJ_ADD)
++		/* since we didn't specify MODALIAS here, it must be beyond i */
++		request_modalias(envp + i);
++
+ 	send_uevent(action_string, kobj_path, envp, GFP_KERNEL);
  
+ 	if (!hotplug_path[0])
+
+Here's also a patch to the relevant Kconfig to enable it:
+
+--- linux-2.6.12-rc2/init/Kconfig.orig	2005-05-06 23:42:20.000000000 +0200
++++ linux-2.6.12-rc2/init/Kconfig	2005-05-07 12:16:28.000000000 +0200
+@@ -454,6 +454,15 @@
+ 	  runs modprobe with the appropriate arguments, thereby
+ 	  loading the module if it is available.  If unsure, say Y.
+ 
++config REQUEST_MODALIAS
++	bool "MODALIAS based module loading"
++	depends on KMOD && HOTPLUG
++	help
++	  If you say Y here, the resulting kernel will also be able to 
++	  load the modules for most types of hardware attached to buses 
++	  such as PCI, USB and PCMCIA automatically, based on 
++	  information contained in their "module aliases".
++
+ config STOP_MACHINE
+ 	bool
+ 	default y

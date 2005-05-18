@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262198AbVERLPZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262173AbVERLS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262198AbVERLPZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 07:15:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbVERLPX
+	id S262173AbVERLS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 07:18:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262172AbVERLQT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 07:15:23 -0400
-Received: from science.horizon.com ([192.35.100.1]:36393 "HELO
-	science.horizon.com") by vger.kernel.org with SMTP id S262202AbVERLN3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 07:13:29 -0400
-Date: 18 May 2005 11:13:28 -0000
-Message-ID: <20050518111328.7115.qmail@science.horizon.com>
-From: linux@horizon.com
-To: linux-os@analogic.com
-Subject: Re: Sync option destroys flash!
-Cc: linux@horizon.com, linux-kernel@vger.kernel.org
+	Wed, 18 May 2005 07:16:19 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:53720 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262210AbVERLOq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 07:14:46 -0400
+Date: Wed, 18 May 2005 13:13:22 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: Kris Karas <ktk@enterprise.bidmc.harvard.edu>,
+       linux-kernel@vger.kernel.org, Greg Stark <gsstark@mit.edu>
+Subject: Re: Problem report: 2.6.12-rc4 ps2 keyboard being misdetected as /dev/input/mouse0
+Message-ID: <20050518111322.GC1952@elf.ucw.cz>
+References: <87zmuveoty.fsf@stark.xeocode.com> <200505160036.30628.dtor_core@ameritech.net> <4289682B.8060403@enterprise.bidmc.harvard.edu> <200505162358.15099.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200505162358.15099.dtor_core@ameritech.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> hda: read_intr: status=0x51 { DriveReady SeekComplete Error }
->> hda: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=6, sector=6
->> end_request: I/O error, dev 03:00 (hda), sector 6
->> unable to read partition table
-> [SNIPPED...]
+Hi!
+
+> > >>I just updated to 2.6.12-rc4 and now /dev/input/mouse0 seems to be my ps2
+> > >>keyboard.
+> > >>
+> > >Please use /dev/input/mice for accessing your mouse.
+> > >
+> > 
+> > One possibly interesting mouse issue in 2.6.12-rc[1..4] is that when 
+> > using /dev/psaux, I have found that my mouse cursor under GPM seems to 
+> > be triggered into un-hiding when I issue some random number of 
+> > non-hiding key-down events.  That is, press and release the keyboard 
+> > shift key say 3 or 5 or 10 times, and the console mouse cursor will 
+> > appear, just as if the mouse had been moved.  This bug is not in 2.6.11 
+> > (nor Alan's 2.6.11-ac7, fwiw).
+> > 
 > 
-> You can "fix" this by writing all sectors. Although the data is lost,
-> the flash-RAM isn't. This can (read will) happen if you pull the
-> flash-RAM out of its socket with the power ON.
+> This is caused by atkbd's scrolling support + GPM not expecting to see a
+> 0-motion packets from devices... I'd say we need to fix GPM not to set
+> GPM_MOVE in these cases; I have looked into adjusting mousedev but it is
+> too ugly for words to suppress them there.
+> 
+> Although... maybe the patch below is not too ugly.
 
-Er... no.  Trying to write 8K to /dev/hda, I get the above error
-on sector 15.
-
-My *other* problems could be fixed by rewriting the affected sector, but
-this one seems to be a doozy.  I never saw "SectorIdNotFound" before.
-
->  Notice : All mail here is now cached for review by Dictator Bush.
-
-As long as he has to read it personally, that's fine.  I'll get some
-small pleasure watching his lips move.
+Looks pretty much okay to me...
+								Pavel

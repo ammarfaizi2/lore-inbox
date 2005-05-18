@@ -1,55 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262320AbVERQIT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbVERQFy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262320AbVERQIT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 12:08:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbVERQGV
+	id S262337AbVERQFy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 12:05:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262286AbVERQEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 12:06:21 -0400
-Received: from mail.kroah.org ([69.55.234.183]:56725 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262332AbVERQFo (ORCPT
+	Wed, 18 May 2005 12:04:25 -0400
+Received: from mail.kroah.org ([69.55.234.183]:4245 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262317AbVERQD3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 12:05:44 -0400
-Date: Wed, 18 May 2005 09:11:43 -0700
+	Wed, 18 May 2005 12:03:29 -0400
+Date: Wed, 18 May 2005 09:09:30 -0700
 From: Greg KH <greg@kroah.com>
-To: Kay Sievers <kay.sievers@vrfy.org>
-Cc: linux-kernel@vger.kernel.org, david-b@pacbell.net
-Subject: Re: [PATCH] Driver Core: remove driver model detach_state
-Message-ID: <20050518161143.GB16756@kroah.com>
-References: <11163679452255@kroah.com> <1116411191.27701.4.camel@dhcp-188.off.vrfy.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: linux.bkbits.net question: mapping cset to kernel version?
+Message-ID: <20050518160930.GA16756@kroah.com>
+References: <428B4D14.2030104@ammasso.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1116411191.27701.4.camel@dhcp-188.off.vrfy.org>
+In-Reply-To: <428B4D14.2030104@ammasso.com>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 18, 2005 at 12:13:11PM +0200, Kay Sievers wrote:
-> On Tue, 2005-05-17 at 15:12 -0700, Greg KH wrote:
-> > [PATCH] Driver Core: remove driver model detach_state
-> > 
-> > The driver model has a "detach_state" mechanism that:
-> > 
-> >  - Has never been used by any in-kernel drive;
-> >  - Is superfluous, since driver remove() methods can do the same thing;
-> >  - Became buggy when the suspend() parameter changed semantics and type;
-> >  - Could self-deadlock when called from certain suspend contexts;
-> >  - Is effectively wasted documentation, object code, and headspace.
-> > 
-> > This removes that "detach_state" mechanism; net code shrink, as well
-> > as a per-device saving in the driver model and sysfs.
+On Wed, May 18, 2005 at 09:11:32AM -0500, Timur Tabi wrote:
+> Given a particular file and a particular bitkeeper revision for the file, 
+> how can I tell which version of the kernel incorporated that changeset?
 > 
-> Huh, we need to fix a lot of userspace programs now. libsysfs depends on
-> finding that file, udev waits for this to recognize sysfs population. I
-> will go fix this where I know this is used, but be prepared for stupid
-> failures... :)
+> In particular, I want to know about revision 1.65 of mm/rmap.c, which can 
+> be seen at 
+> http://linux.bkbits.net:8080/linux-2.6/diffs/mm/rmap.c@1.65?nav=index.html|src/|src/mm|hist/mm/rmap.c
+> 
+> I want to know what the first version of Linux is to incorporate that 
+> change.
+> 
+> And please don't tell me to do a diff on all the 2.6 versions, because 
+> that's not efficient.
 
-Yeah, good catch, so that's why udev stoped working for me on some
-custom rules...
+But that's how you have to do it, sorry.  You have the patches, why
+can't you just use grep?  :)
 
-Anyway, I think it was pretty stupid for libsysfs to depend on that
-file, I'll work on fixing that up.  Luckily, no one uses libsysfs :)
-
-thanks,
+Good luck,
 
 greg k-h

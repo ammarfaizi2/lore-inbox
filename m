@@ -1,180 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262303AbVERVyJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262305AbVERV4x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262303AbVERVyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 17:54:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262313AbVERVyJ
+	id S262305AbVERV4x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 17:56:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbVERV4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 17:54:09 -0400
-Received: from ginger.cmf.nrl.navy.mil ([134.207.10.161]:28364 "EHLO
-	ginger.cmf.nrl.navy.mil") by vger.kernel.org with ESMTP
-	id S262303AbVERVw4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 17:52:56 -0400
-Message-Id: <200505182152.j4ILqb5M001881@ginger.cmf.nrl.navy.mil>
-To: davem@redhat.com
-cc: linux-kernel@vger.kernel.org, Jesper Juhl <juhl-lkml@dif.dk>
-Subject: Re: [PATCH] atm: kill pointless NULL checks and casts before kfree() [take two] 
-In-reply-to: <Pine.LNX.4.62.0505102159270.2386@dragon.hyggekrogen.localhost> 
-Date: Wed, 18 May 2005 17:52:38 -0400
-From: "chas williams - CONTRACTOR" <chas@cmf.nrl.navy.mil>
-X-Spam-Score: () hits=-0.3
+	Wed, 18 May 2005 17:56:52 -0400
+Received: from mail19.syd.optusnet.com.au ([211.29.132.200]:9095 "EHLO
+	mail19.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S262305AbVERVzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 17:55:54 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: "Tetsuji \"Maverick\" Rai" <tetsuji.rai@gmail.com>
+Subject: Re: HT scheduler: is it really correct? or is it feature of HT?
+Date: Thu, 19 May 2005 07:56:13 +1000
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <377362e10505181142252ec930@mail.gmail.com>
+In-Reply-To: <377362e10505181142252ec930@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart7937152.cqMbBxRjDo";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200505190756.16413.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-dave,
+--nextPart7937152.cqMbBxRjDo
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-please apply to 2.6 head -- thanks!
+On Thu, 19 May 2005 04:42, Tetsuji "Maverick" Rai wrote:
+> I'm wondering linux kernel's HT support is correct or not, or whether
+> it's a feature of P4 HT.
+>
+> I'm running boinc/seti in the background with nice=3D19 on my P4 2.8G HT
+> enabled linux box, kernel 2.6.11.9, where SMT/HT is enabled.
+>
+> I often watch system monitor applet on gnome desktop or top command in
+> a termianl window and see when no other applications than boinc is
+> running, boinc takes full power of both virtual cpus.   It is designed
+> to run to "fill" the idle power of the cpu(s).   However any
+> application is running, there is always some "idle" part appears on
+> virtual cpus, hence it looks like it wastes up to half of cpu power as
+> "idle."
+>
+> For ex, see this "top" result while a vmware is running.   (HT is
+> enabled)  setiathome-4.7(blah--) are the background boinc applications
+> with nice=3D19.
 
+Hyperthread sibling cpus share cpu power. If you let a nice 19 task run ful=
+l=20
+power on the sibling cpu of a nice 0 task it will drain performance from th=
+e=20
+nice 0 task and make it run approximately 40% slower. The only way around=20
+this is to temporarily make the sibling run idle so that a nice 0 task gets=
+=20
+the appropriate proportion of cpu resources compared to a nice 19 task. It =
+is=20
+intentional and quite unique to the linux cpu scheduler as far as I can tel=
+l.=20
+On any other scheduler or OS a nice 19 "background" task will make your=20
+machine run much slower.
 
-[ATM]: [drivers] kill pointless NULL checks and casts before kfree()
+Cheers,
+Con
 
-Signed-off-by: Jesper Juhl <juhl-lkml@dif.dk>
-Signed-off-by: Chas Williams <chas@cmf.nrl.navy.mil>
+--nextPart7937152.cqMbBxRjDo
+Content-Type: application/pgp-signature
 
----
-commit a44767a5b20b70aa4ba5fb423f5f251a37bea62f
-tree 5c19a71aeba54620a1843a94d692ca1926e6d172
-parent 70ac1c1be822318a3b706d00397b2bf24ffe0a6e
-author chas williams <chas@relax.(none)> Wed, 18 May 2005 15:26:49 -0400
-committer chas williams <chas@relax.(none)> Wed, 18 May 2005 15:26:49 -0400
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.4 (GNU/Linux)
 
- atm/fore200e.c |    6 ++----
- atm/he.c       |    6 ++----
- atm/nicstar.c  |   20 ++++++++++----------
- atm/zatm.c     |   11 ++++-------
- 4 files changed, 18 insertions(+), 25 deletions(-)
+iD8DBQBCi7oAZUg7+tp6mRURAnSQAJ94h+tx+W2AVub5QwFBeKnVA+Sm6QCdHgUQ
+Ij8tgplQLmaYCCrrEC7g4R0=
+=P8Ju
+-----END PGP SIGNATURE-----
 
-Index: drivers/atm/fore200e.c
-===================================================================
---- fe56ec270cfb1155e9370731e49900172ec73de6/drivers/atm/fore200e.c  (mode:100644)
-+++ 5c19a71aeba54620a1843a94d692ca1926e6d172/drivers/atm/fore200e.c  (mode:100644)
-@@ -383,8 +383,7 @@
-     switch(fore200e->state) {
- 
-     case FORE200E_STATE_COMPLETE:
--	if (fore200e->stats)
--	    kfree(fore200e->stats);
-+	kfree(fore200e->stats);
- 
-     case FORE200E_STATE_IRQ:
- 	free_irq(fore200e->irq, fore200e->atm_dev);
-@@ -963,8 +962,7 @@
- 		entry, txq->tail, entry->vc_map, entry->skb);
- 
- 	/* free copy of misaligned data */
--	if (entry->data)
--	    kfree(entry->data);
-+	kfree(entry->data);
- 	
- 	/* remove DMA mapping */
- 	fore200e->bus->dma_unmap(fore200e, entry->tpd->tsd[ 0 ].buffer, entry->tpd->tsd[ 0 ].length,
-Index: drivers/atm/he.c
-===================================================================
---- fe56ec270cfb1155e9370731e49900172ec73de6/drivers/atm/he.c  (mode:100644)
-+++ 5c19a71aeba54620a1843a94d692ca1926e6d172/drivers/atm/he.c  (mode:100644)
-@@ -412,8 +412,7 @@
- init_one_failure:
- 	if (atm_dev)
- 		atm_dev_deregister(atm_dev);
--	if (he_dev)
--		kfree(he_dev);
-+	kfree(he_dev);
- 	pci_disable_device(pci_dev);
- 	return err;
- }
-@@ -2534,8 +2533,7 @@
- open_failed:
- 
- 	if (err) {
--		if (he_vcc)
--			kfree(he_vcc);
-+		kfree(he_vcc);
- 		clear_bit(ATM_VF_ADDR, &vcc->flags);
- 	}
- 	else
-Index: drivers/atm/nicstar.c
-===================================================================
---- fe56ec270cfb1155e9370731e49900172ec73de6/drivers/atm/nicstar.c  (mode:100644)
-+++ 5c19a71aeba54620a1843a94d692ca1926e6d172/drivers/atm/nicstar.c  (mode:100644)
-@@ -676,10 +676,10 @@
-    PRINTK("nicstar%d: RSQ base at 0x%x.\n", i, (u32) card->rsq.base);
-       
-    /* Initialize SCQ0, the only VBR SCQ used */
--   card->scq1 = (scq_info *) NULL;
--   card->scq2 = (scq_info *) NULL;
-+   card->scq1 = NULL;
-+   card->scq2 = NULL;
-    card->scq0 = get_scq(VBR_SCQSIZE, NS_VRSCD0);
--   if (card->scq0 == (scq_info *) NULL)
-+   if (card->scq0 == NULL)
-    {
-       printk("nicstar%d: can't get SCQ0.\n", i);
-       error = 12;
-@@ -993,24 +993,24 @@
-    int i;
- 
-    if (size != VBR_SCQSIZE && size != CBR_SCQSIZE)
--      return (scq_info *) NULL;
-+      return NULL;
- 
-    scq = (scq_info *) kmalloc(sizeof(scq_info), GFP_KERNEL);
--   if (scq == (scq_info *) NULL)
--      return (scq_info *) NULL;
-+   if (scq == NULL)
-+      return NULL;
-    scq->org = kmalloc(2 * size, GFP_KERNEL);
-    if (scq->org == NULL)
-    {
-       kfree(scq);
--      return (scq_info *) NULL;
-+      return NULL;
-    }
-    scq->skb = (struct sk_buff **) kmalloc(sizeof(struct sk_buff *) *
-                                           (size / NS_SCQE_SIZE), GFP_KERNEL);
--   if (scq->skb == (struct sk_buff **) NULL)
-+   if (scq->skb == NULL)
-    {
-       kfree(scq->org);
-       kfree(scq);
--      return (scq_info *) NULL;
-+      return NULL;
-    }
-    scq->num_entries = size / NS_SCQE_SIZE;
-    scq->base = (ns_scqe *) ALIGN_ADDRESS(scq->org, size);
-@@ -1498,7 +1498,7 @@
-          vc->cbr_scd = NS_FRSCD + frscdi * NS_FRSCD_SIZE;
- 
-          scq = get_scq(CBR_SCQSIZE, vc->cbr_scd);
--         if (scq == (scq_info *) NULL)
-+         if (scq == NULL)
-          {
-             PRINTK("nicstar%d: can't get fixed rate SCQ.\n", card->index);
-             card->scd2vc[frscdi] = NULL;
-Index: drivers/atm/zatm.c
-===================================================================
---- fe56ec270cfb1155e9370731e49900172ec73de6/drivers/atm/zatm.c  (mode:100644)
-+++ 5c19a71aeba54620a1843a94d692ca1926e6d172/drivers/atm/zatm.c  (mode:100644)
-@@ -902,7 +902,7 @@
- 		zatm_dev->tx_bw += vcc->qos.txtp.min_pcr;
- 		dealloc_shaper(vcc->dev,zatm_vcc->shaper);
- 	}
--	if (zatm_vcc->ring) kfree(zatm_vcc->ring);
-+	kfree(zatm_vcc->ring);
- }
- 
- 
-@@ -1339,12 +1339,9 @@
- 	return 0;
-     out:
- 	for (i = 0; i < NR_MBX; i++)
--		if (zatm_dev->mbx_start[i] != 0)
--			kfree((void *) zatm_dev->mbx_start[i]);
--	if (zatm_dev->rx_map != NULL)
--		kfree(zatm_dev->rx_map);
--	if (zatm_dev->tx_map != NULL)
--		kfree(zatm_dev->tx_map);
-+		kfree(zatm_dev->mbx_start[i]);
-+	kfree(zatm_dev->rx_map);
-+	kfree(zatm_dev->tx_map);
- 	free_irq(zatm_dev->irq, dev);
- 	return error;
- }
+--nextPart7937152.cqMbBxRjDo--

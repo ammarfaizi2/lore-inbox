@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262165AbVERKmr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262102AbVERKqo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262165AbVERKmr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 06:42:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbVERKmr
+	id S262102AbVERKqo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 06:46:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262145AbVERKqn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 06:42:47 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:22000 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262165AbVERKmf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 06:42:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EBe1Vv3cfb3WF0db85wTqnFUCrgvq42M9yeZQgqqRIwoe8lB5VC1alnwHaAoOiLZTQbLJC6TaqXQfOzlrntkeE1p9s552edwnCKp5H6hXSrfK5YmQCJlyCILaV+FYCR20CHIF9VrEbTferqb1m0a+qe88NSmbe/ejwfZCgJ9i9U=
-Message-ID: <2cd57c900505180342281248f4@mail.gmail.com>
-Date: Wed, 18 May 2005 18:42:33 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@lovecn.org
-To: Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6 jiffies
-Cc: linux <kernel@wired-net.gr>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1116412348.6572.21.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1116005355.6248.372.camel@localhost>
-	 <1116360352.24560.85.camel@localhost>
-	 <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu>
-	 <1116399887.24560.116.camel@localhost>
-	 <1116400118.24560.119.camel@localhost>
-	 <E1DYLCv-0000W7-00@dorka.pomaz.szeredi.hu>
-	 <001b01c55b92$1d09c6e0$0101010a@dioxide>
-	 <1116411888.6572.18.camel@laptopd505.fenrus.org>
-	 <004601c55b94$5ea29d50$0101010a@dioxide>
-	 <1116412348.6572.21.camel@laptopd505.fenrus.org>
+	Wed, 18 May 2005 06:46:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:48797 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262102AbVERKqc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 06:46:32 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <E1DYLvb-0000as-00@dorka.pomaz.szeredi.hu> 
+References: <E1DYLvb-0000as-00@dorka.pomaz.szeredi.hu>  <E1DYLCv-0000W7-00@dorka.pomaz.szeredi.hu> <1116005355.6248.372.camel@localhost> <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu> <1116012287.6248.410.camel@localhost> <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu> <1116013840.6248.429.camel@localhost> <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu> <1116256279.4154.41.camel@localhost> <20050516111408.GA21145@mail.shareable.org> <1116301843.4154.88.camel@localhost> <E1DXm08-0006XD-00@dorka.pomaz.szeredi.hu> <20050517012854.GC32226@mail.shareable.org> <E1DXuiu-0007Mj-00@dorka.pomaz.szeredi.hu> <1116360352.24560.85.camel@localhost> <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu> <1116399887.24560.116.camel@localhost> <1116400118.24560.119.camel@localhost> <6865.1116412354@redhat.com> 
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linuxram@us.ibm.com, jamie@shareable.org,
+       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] fix race in mark_mounts_for_expiry() 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 22.0.50.1
+Date: Wed, 18 May 2005 11:46:15 +0100
+Message-ID: <7230.1116413175@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/18/05, Arjan van de Ven <arjan@infradead.org> wrote:
-> On Wed, 2005-05-18 at 13:28 +0300, linux wrote:
-> > ok.i see what u mean.
-> > But should this value on a stable version be 0 again???
-> 
-> why?
-> "the absolute value has no meaning" -> why would "0" be special ???
-> Answer: It's not. And actually -5 minutes is more useful than 0 because
-> it keeps helping finding bugs... why do you want it to start at 0 ?
-> 
+Miklos Szeredi <miklos@szeredi.hu> wrote:
 
+> > How about using cmpxchg?
+> 
+> How?  If the count is nonzero, an incremented count must be stored.
+> You can't do that atomically with cmpxchg.
 
-The negative value doesn't hurt. It's unsigned. Maybe he was thinking
-reading jiffies as the  uptime directly.
--- 
-Coywolf Qi Hunt
-http://sosdg.org/~coywolf/
+Yes you can. cmpxchg() is atomic. Several archs implement atomic_inc() and co
+with cmpxchg() or similar.
+
+Something like:
+
+	static inline struct namespace *grab_namespace(struct namespace *n)
+	{
+		int old = atomic_read(&n->count);
+
+		while (old > 0) {
+			/* attempt to increment the counter */
+			old = cmpxchg(&n->count, old, old + 1);
+		}
+
+		return old > 0 ? n : NULL;
+	}
+
+David

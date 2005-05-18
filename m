@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262406AbVERXk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262412AbVERXtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262406AbVERXk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 19:40:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262409AbVERXk6
+	id S262412AbVERXtT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 19:49:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262413AbVERXtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 19:40:58 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:14596 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262406AbVERXk1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 19:40:27 -0400
-Date: Thu, 19 May 2005 01:40:22 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Mark Fasheh <mark.fasheh@oracle.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       ocfs2-devel@oss.oracle.com, torvalds@osdl.org, akpm@osdl.org,
-       wim.coekaerts@oracle.com, lmb@suse.de
-Subject: Re: [RFC] [PATCH] OCFS2
-Message-ID: <20050518234022.GA5112@stusta.de>
-References: <20050518223303.GE1340@ca-server1.us.oracle.com>
-Mime-Version: 1.0
+	Wed, 18 May 2005 19:49:19 -0400
+Received: from one.firstfloor.org ([213.235.205.2]:18821 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S262412AbVERXtM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 19:49:12 -0400
+To: joe.korty@ccur.com
+Cc: robustmutexes@lists.osdl.org, george@mvista.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] A more general timeout specification
+References: <20050518201517.GA16193@tsunami.ccur.com>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 19 May 2005 01:49:11 +0200
+In-Reply-To: <20050518201517.GA16193@tsunami.ccur.com> (Joe Korty's message
+ of "Wed, 18 May 2005 16:15:17 -0400")
+Message-ID: <m1hdh0yu14.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050518223303.GE1340@ca-server1.us.oracle.com>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 18, 2005 at 03:33:03PM -0700, Mark Fasheh wrote:
->...
-> A full patch can be downloaded from:
-> http://oss.oracle.com/projects/ocfs2/dist/files/patches/2.6.12-rc4/complete/ocfs2-configfs-all.patch
->...
+Joe Korty <joe.korty@ccur.com> writes:
 
-Some comments on this patch:
-- there's no reason to make JBD user-visible
-- is there any reason why CONFIGFS_FS is user-visible?
-- some global code might become static:
-  run "make namespacecheck" after compiling the kernel and check
-  the configfs and ocfs2 parts of the output
+> The fusyn (robust mutexes) project proposes the creation
+> of a more general data structure, 'struct timeout', for the
+> specification of timeouts in new services.  In this structure,
+> the user specifies:
+>
+>     a time, in timespec format.
+>     the clock the time is specified against (eg, CLOCK_MONOTONIC).
+>     whether the time is absolute, or relative to 'now'.
 
-> Mark Fasheh
+If you do a new structure for this I would suggest adding a
+"precision" field (or the same with a different name). Basically
+precision would tell the kernel that the wakeup can be in a time
+range, not necessarily on the exact time specified. This helps
+optimizing the idle loop because you can batch timers better and is
+important for power management and virtualized environments. The
+kernel internally does not use support this yet, but there are plans
+to change the internal timers in this direction and if you're defining
+a new user interface I would add support for this.
 
-cu
-Adrian
+I am not sure precision would be the right name, other suggestions
+are welcome.
 
--- 
+> Also proposed are two new kernel routines for the manipulation
+> of timeouts:
+>
+> 	timeout_validate()
+> 	timeout_sleep()
+>
+> timeout_validate() error-checks the syntax of a timeout
+> argument and returns either zero or -EINVAL.  By breaking
+> timeout_validate() out from timeout_sleep(), it becomes possible
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+It is also useful to avoid code duplication in compat. 
 
+
+-Andi

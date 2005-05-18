@@ -1,66 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262169AbVERRy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262229AbVERR6F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262169AbVERRy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 13:54:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbVERRy7
+	id S262229AbVERR6F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 13:58:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbVERR6F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 13:54:59 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:63722 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262169AbVERRy4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 13:54:56 -0400
-Subject: Re: 2.6.12-rc4-mm2 - sleeping function called from invalid context
-	at mm/slab.c:2502
-From: David Woodhouse <dwmw2@infradead.org>
-To: Linux Audit Discussion <linux-audit@redhat.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, netdev@oss.sgi.com,
-       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050518170033.GT27549@shell0.pdx.osdl.net>
-References: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu>
-	 <20050517165528.GB27549@shell0.pdx.osdl.net>
-	 <1116349464.23972.118.camel@hades.cambridge.redhat.com>
-	 <20050517174300.GE27549@shell0.pdx.osdl.net>
-	 <20050518083002.GA30689@gondor.apana.org.au>
-	 <20050518170033.GT27549@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Date: Wed, 18 May 2005 18:52:35 +0100
-Message-Id: <1116438756.25594.76.camel@localhost.localdomain>
+	Wed, 18 May 2005 13:58:05 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:38879 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262229AbVERR5X
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 13:57:23 -0400
+Date: Wed, 18 May 2005 23:36:52 +0530
+From: Dinakar Guniguntala <dino@in.ibm.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: Simon.Derr@bull.net, nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org,
+       lse-tech@lists.sourceforge.net, colpatch@us.ibm.com,
+       dipankar@in.ibm.com, akpm@osdl.org
+Subject: Re: [Lse-tech] Re: [RFT PATCH] Dynamic sched domains (v0.6)
+Message-ID: <20050518180652.GA4293@in.ibm.com>
+Reply-To: dino@in.ibm.com
+References: <20050517041031.GA4596@in.ibm.com> <20050517225354.025c3cca.pj@sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 2.9 (++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (2.9 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	2.8 RCVD_IN_SORBS_WEB      RBL: SORBS: sender is a abuseable web server
-	[193.113.235.174 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[193.113.235.174 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050517225354.025c3cca.pj@sgi.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-18 at 10:00 -0700, Chris Wright wrote:
-> * Herbert Xu (herbert@gondor.apana.org.au) wrote:
-> > Guys, please CC netdev on issues like this.
+On Tue, May 17, 2005 at 10:53:54PM -0700, Paul Jackson wrote:
+> Looking good.  Some minor comments on these three patches ...
 > 
-> Sorry Herbert, we hadn't yet concluded that it's not an issue that we
-> need to resolve within audit.
+>  * The name 'nodemask' for the cpumask_t of CPUs that are siblings to CPU i
+>    is a bit confusing (yes, that name was already there).  How about
+>    something like 'siblings' ?
 
-I suspect that it _is_ an issue we can resolve entirely within audit
-code. See the patch I posted half an hour or so ago to the linux-audit
-list. If we agree on that approach, I'll do the equivalent for the git
-tree either later this evening or tomorrow.
+Not sure which code you are referring to here ?? I dont see any nodemask
+referring to SMT siblings ? 
 
-I've reverted your recent change to put audit messages directly into
-skbs "in order to eliminate the extra copy", on the basis that it
-blatantly wasn't having that effect anyway. Now we copy from the
-audit_buffer into an optimally-sized skb which netlink_trim() won't have
-to mangle. I've also removed the skb_get() immediately before
-netlink_send() which always made me unhappy.
+>    can be replaced with the one line:
+> 
+> 	cpus_andnot(cpu_default_map, *cpu_map, cpu_isolated_map);
 
--- 
-dwmw2
+yeah, ok
 
+>    I would mildly prefer to always spell this 'cpu_exclusive' (with
+>    underscore, not hyphen).
+
+fine
+
+>    Good work.
+
+Thanks !
+
+> 
+>  * Question - any idea how much of a performance hiccup a system will feel
+>    whenever someone changes the cpu_exclusive cpusets?  Could this lead
+>    to a denial-of-service attack, if say some untrusted user were allowed
+>    modify privileges on some small cpuset that was cpu_exclusive, and they
+>    abused that privilege by turning on and off the cpu_exclusive property
+>    on their little cpuset (or creating/destroying an exclusive child):
+> 
+
+I tried your script and see that it makes absolutely no impact on top.
+The CPU on which it is running is mostly 100% idle. However I'll run
+more tests to confirm that it has no impact
+
+
+> 
+>  * The cpuset 'oldcs' in update_flag() seems to only be used for its
+>    cpu_exclusive flag.  We could save some stack space on my favorite
+>    big honkin NUMA iron by just having a local variable for this
+>    'old_cpu_exclusive' value, instead of the entire cpuset.
+> 
+>  * Similarly, though with a bit less savings, one could replace 'oldcs'
+>    in update_cpumask() with just the old_cpus_allowed mask.
+>    Or, skip even that, and compute a boolean flag:
+> 	cpus_changed = cpus_equal(cs->cpus_allowed, trialcs.cpus_allowed);
+>    before copying over the trialcs, so we only need one word of stack
+>    for the boolean, not possibly many words for a cpumask.
+
+ok for both
+
+> 
+>  * Non-traditional code style:
+> 	}
+> 	else {
+>    should be instead:
+> 	} else {
+
+I dont know how that snuck back in, I'll change that
+
+> 
+>  * Is it the case that update_cpu_domains() is called with cpuset_sem held?
+>    Would it be a good idea to note in the comment for that routine:
+> 	 * Call with cpuset_sem held.  May nest a call to the
+> 	 * lock_cpu_hotplug()/unlock_cpu_hotplug() pair.
+>    I didn't callout the cpuset_sem lock precondition on many routines,
+>    but since this one can nest the cpu_hotplug lock, it might be worth
+>    calling it out, for the benefit of engineers who are passing through,
+>    needing to know how the hotplug lock nests with other semaphores.
+
+ok 
+
+I do feel with the above updates the patches can go into -mm.
+Appreciate all the review comments from everyone, Thanks
+
+
+	-Dinakar

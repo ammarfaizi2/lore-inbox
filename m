@@ -1,78 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262332AbVERQmb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262310AbVERQpa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262332AbVERQmb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 12:42:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbVERQmR
+	id S262310AbVERQpa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 12:45:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbVERQm5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 12:42:17 -0400
-Received: from postfix3-2.free.fr ([213.228.0.169]:55772 "EHLO
-	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S262303AbVERPlJ
+	Wed, 18 May 2005 12:42:57 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:60072 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S262287AbVERPbQ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 11:41:09 -0400
-Date: Wed, 18 May 2005 17:55:40 +0200
-From: Bruno Boettcher <bboett@bboett.dyndns.org>
-To: linux-kernel@vger.kernel.org
-Subject: how to boot a linux on a sim 2010 laptop?
-Message-ID: <20050518155540.GV17695@adlp.org>
-Reply-To: bboett@adlp.org
-Mail-Followup-To: bboett@adlp.org, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="eu12+zRL7gQwOC+E"
-Content-Disposition: inline
-X-Gpg-Key-ID: E0807C30
-X-Gpg-Fingerprint: F236 5F20 B0C2 D28E DE70  A322 C7CA CBB5 E080 7C30
-User-Agent: Mutt/1.5.9i
+	Wed, 18 May 2005 11:31:16 -0400
+Message-ID: <428B5FC1.3090704@freenet.de>
+Date: Wed, 18 May 2005 17:31:13 +0200
+From: Carsten Otte <cotte@freenet.de>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       schwidefsky@de.ibm.com, akpm@osdl.org
+Subject: Re: [RFC/PATCH 2/5] mm/fs: execute in place (V2)
+References: <1116422644.2202.1.camel@cotte.boeblingen.de.ibm.com> <1116424413.2202.17.camel@cotte.boeblingen.de.ibm.com> <20050518142707.GA23162@infradead.org> <428B57AA.2030006@freenet.de> <20050518150053.GA24389@infradead.org>
+In-Reply-To: <20050518150053.GA24389@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christoph Hellwig wrote:
 
---eu12+zRL7gQwOC+E
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+>On Wed, May 18, 2005 at 04:56:42PM +0200, Carsten Otte wrote:
+>  
+>
+>>I do plainly agree that this would make the code more readable here.
+>>But it has a significant downside:
+>>Once you have a different set of file operations for either case, you
+>>also need to have a different file_operations struct in each individual
+>>filesystem using this. Also, this moves the check "do we have xip today?"
+>>from here to the filesystem that needs to decide which file operations
+>>struct to use.
+>>Looking forward, there may be multiple filesystems using this which
+>>leads to duplicating the need for this check.
+>>    
+>>
+>
+>I don't think that's much of a problem.  The filesystem has a new file_operations
+>instance and decided at read_inode time which one to use.  You already have different
+>address_space operations and a different truncate anyway.
+>
+>  
+>
+Yea, but in addition to the multiplication for the check it would duplicate
+significant part of filemap:
+- generic_file_read           => xip_file_read
+- generic_file_aio_read    => xip_file_aio_read
+- __generic_file_aio_read => __xip_file_aio_read
+- generic_file_sendfile     => xip_file_sendfile
+- generic file_readv          => xip_file_readv
+- generic_file_write          => xip_file_write
+- generic_file_aio_write_nolock => xip_file_write_nolock
+- __generic_file_write_nolock => __xip_file_write_nolock
+- generic_file_write_nolock => xip_file_write_nolock
+- generic_file_aio_write => xip_file_aio_write
+- generic_file_mmap => xip_file_mmap
+- generic_file_readonly_mmap => xip_file_readonly_mmap
 
-Hello!
+All changes to these functions would need to be mirrored, and the binary
+kernel images with xip enabled would grow by the size of those functions.
 
-i bought a medion sim 2010 laptop, put the info i collected under
-http://www.inforezo.org/~bboett/sim2010/
+But given that the copies of those function would be equivalent to their
+original, I honestly think that duplicating them is worse then splitting
+the read/write pathes at where handling is in fact different:
+- mapping_read
+- nopage
+- generic_file_write
+- truncate page
 
-whichever linux distribution i try to boot stops after loading the
-kernel....
-
-none of them is able to start a working kernel....
-
-i suppose its because of the graphiccard that shares its memory with the
-proc....
-
-is there any docu somewhere on how to boot such a thing?=20
-i take any hint about how to get a linux workign on that box....
-
-please add me as CC since the list robot doesn't like me, and the
-list-moderator has other things to do as to subscribe me by hand....
-
---=20
-ciao bboett
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-bboett@adlp.org
-http://inforezo.u-strasbg.fr/~bboett
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-
---eu12+zRL7gQwOC+E
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFCi2V8x8rLteCAfDARAqjNAJ4osIwkJhGhTMCzlJ7w5Fzxe0l0IgCfQmYm
-YrVJYu9XVVE8iVVDp6CBux0=
-=5Fu+
------END PGP SIGNATURE-----
-
---eu12+zRL7gQwOC+E--

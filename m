@@ -1,101 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262071AbVERDlK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbVEREDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262071AbVERDlK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 23:41:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262075AbVERDlK
+	id S262073AbVEREDM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 00:03:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVEREDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 23:41:10 -0400
-Received: from rproxy.gmail.com ([64.233.170.192]:8250 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262073AbVERDk4 convert rfc822-to-8bit
+	Wed, 18 May 2005 00:03:12 -0400
+Received: from rproxy.gmail.com ([64.233.170.202]:27379 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262073AbVEREDJ convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 23:40:56 -0400
+	Wed, 18 May 2005 00:03:09 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Z9gAdrnzqlo0GSJQhQaJlN+W412CEJwZoGxQ0aDaXVOMgbNVjdQbGUVTF6fOoHVf8tfZY4id0lXYPm9bKniT053CRD77MnONFm5tgclpR02vRBM2lVm00M1is/KmxJ0DAXxMXi5FT7BbU12N6BBTijfS/twlZo+mSMwLf5X6HWU=
-Message-ID: <253818670505172040f303003@mail.gmail.com>
-Date: Tue, 17 May 2005 23:40:55 -0400
-From: Yani Ioannou <yani.ioannou@gmail.com>
-Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
-To: Raj Gupta <gupta.raj@gmail.com>
-Subject: Re: [lm-sensors] Re: [PATCH 2.6.12-rc4 14/15] include/linux/i2c-sysfs.h: i2c sensor_device_attribute and macros
-Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
-In-Reply-To: <393213cd05051720137cc562b0@mail.gmail.com>
+        b=hLweQleG0oJRfDCrziEntUJtrP4xhbGCPUbNWr1kTE6UY3sjb74456T5IBHK0Nn1XtsxToVxNbKU+Tcbv1YmiiEtmRWIF/PHn/3FYrLFxNEXTtLvgHwGMXh8Nvcdq8dZU13m0TlN/rNQ8sxpTEhpl4hA5Npu2UZzMRUPOIrLluQ=
+Message-ID: <311601c905051721031221db0d@mail.gmail.com>
+Date: Tue, 17 May 2005 22:03:09 -0600
+From: "Eric D. Mudama" <edmudama@gmail.com>
+Reply-To: "Eric D. Mudama" <edmudama@gmail.com>
+To: Mark Lord <lkml@rtr.ca>
+Subject: Re: Disk write cache (Was: Hyper-Threading Vulnerability)
+Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <42880620.8000300@rtr.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <2538186705051703463587a54@mail.gmail.com>
-	 <253818670505171959f5cecb@mail.gmail.com>
-	 <393213cd05051720137cc562b0@mail.gmail.com>
+References: <1115963481.1723.3.camel@alderaan.trey.hu>
+	 <200505151121.36243.gene.heskett@verizon.net>
+	 <20050515152956.GA25143@havoc.gtf.org>
+	 <200505152156.18194.gene.heskett@verizon.net>
+	 <42880620.8000300@rtr.ca>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You will want to start a new thread (change the subject line) since
-this post is completely unrelated to the patch it references.
+On 5/15/05, Mark Lord <lkml@rtr.ca> wrote:
+> There's your clue.  The drive LEDs normally reflect activity
+> over the ATA bus (the cable!). If they're not on, then the drive
+> isn't receiving data/commands from the host.
 
-As for your question I'm probably not the best person to ask, about
-those topics, but if you are looking for a kernel reference
-http://lxr.linux.no/ is invaluable. Linux Device Drivers 3 looks like
-a good reference for driver coding too, I just bought it. Greg KH
-would certainly recommend it to you since he is a co-author ;-).
-
-Good luck,
-Yani
-
-On 5/17/05, Raj Gupta <gupta.raj@gmail.com> wrote:
-> Hi,
-> I am joined as reseach scholar and going to work in the feild of wireless
-> technology in sensors with use of linux OS. Can someone suggest me good
-> material for tutorial on linux kernel and implementation of wireless
-> technology in linux middleware
-> 
->  On 5/17/05, Yani Ioannou <yani.ioannou@gmail.com> wrote:
-> >
-> > Oops..I caught this simple typo while compile testing the adm1026
-> > patch with everything, but it looks like I forgot to update the patch,
-> > here is the corrected version (just adding the missing '=' ):
-> >
-> > Signed-off-by: Yani Ioannou <yani.ioannou@gmail.com>
-> >
-> > Yani
-> >
-> > On 5/17/05, Yani Ioannou <yani.ioannou@gmail.com> wrote:
-> > > This patch creates a new header with a potential standard i2c sensor
-> > > attribute type (which simply includes an int representing the sensor
-> > > number/index) and the associated macros, SENSOR_DEVICE_ATTR to define
-> > > a static attribute and to_sensor_dev_attr to get a
-> > > sensor_device_attribute reference from an embedded device_attribute
-> > > reference.
-> > >
-> > > Please see the next patch to see how these can be used.
-> > >
-> > > Signed-off-by: Yani Ioannou <yani.ioannou@gmail.com>
-> > >
-> > > ---
-> > >
-> > >
-> > >
-> >
-> >
-> >
-> 
-> --
-> thanks and regards
-> Raj Gupta
-> 
-> M.S. Research Scholar,
-> Residence, Distributed and Object Systems Lab.,
-> 545 Sector 15 - I , Department of CS & E,
-> Gurgaon - 122001, INDIA IIT Madras, Chennai - 600036,
-> Ph: +91-124-2301918 Tamil Nadu, INDIA
-> 9840623332 Ph: x5343 (Lab)
-> Email: gupta.raj@gmail.com Email: rgupta@cs.iitm.ernet.in
-> 
-> "Some things you just don't talk about | Hold on tight and pray for the best
-> "
-> _______________________________________________
-> lm-sensors mailing list
-> lm-sensors@lm-sensors.org
-> http://lists.lm-sensors.org/mailman/listinfo/lm-sensors
->
+Mark is correct, activity indicators are associated with bus activity,
+not internal drive activity.

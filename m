@@ -1,57 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262159AbVERKdg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262160AbVERKfW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262159AbVERKdg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 06:33:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbVERKcs
+	id S262160AbVERKfW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 06:35:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262144AbVERKds
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 06:32:48 -0400
-Received: from mail07.syd.optusnet.com.au ([211.29.132.188]:17100 "EHLO
-	mail07.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262156AbVERKcg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 06:32:36 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: "linux" <kernel@wired-net.gr>
-Subject: Re: 2.6 jiffies
-Date: Wed, 18 May 2005 20:32:54 +1000
-User-Agent: KMail/1.8
-Cc: "lkml" <linux-kernel@vger.kernel.org>
-References: <1116005355.6248.372.camel@localhost> <1116256279 <001b01c55b92$1d09c6e0$0101010a@dioxide>
-In-Reply-To: <001b01c55b92$1d09c6e0$0101010a@dioxide>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2639729.PceE539ysu";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200505182032.57234.kernel@kolivas.org>
+	Wed, 18 May 2005 06:33:48 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:12950 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262156AbVERKdV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 06:33:21 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <E1DYLCv-0000W7-00@dorka.pomaz.szeredi.hu> 
+References: <E1DYLCv-0000W7-00@dorka.pomaz.szeredi.hu>  <1116005355.6248.372.camel@localhost> <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu> <1116012287.6248.410.camel@localhost> <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu> <1116013840.6248.429.camel@localhost> <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu> <1116256279.4154.41.camel@localhost> <20050516111408.GA21145@mail.shareable.org> <1116301843.4154.88.camel@localhost> <E1DXm08-0006XD-00@dorka.pomaz.szeredi.hu> <20050517012854.GC32226@mail.shareable.org> <E1DXuiu-0007Mj-00@dorka.pomaz.szeredi.hu> <1116360352.24560.85.camel@localhost> <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu> <1116399887.24560.116.camel@localhost> <1116400118.24560.119.camel@localhost> 
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: linuxram@us.ibm.com, jamie@shareable.org,
+       viro@parcelfarce.linux.theplanet.co.uk, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] fix race in mark_mounts_for_expiry() 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 22.0.50.1
+Date: Wed, 18 May 2005 11:32:34 +0100
+Message-ID: <6865.1116412354@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2639729.PceE539ysu
-Content-Type: text/plain;
-  charset="iso-8859-7"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Miklos Szeredi <miklos@szeredi.hu> wrote:
 
-On Wed, 18 May 2005 20:12, linux wrote:
-> Why jiffies start counting from a negative number and after 5minutes the
-> counter gets positive????
+> 
+> How about this patch?  It tries to solve this race without additional
+> locking.  If refcount is already zero, it will increment and decrement
+> it.  So be careful to only call grab_namespace() with vfsmount_lock
+> held, otherwise it could race with itself.  (vfsmount_lock is also
+> needed in this case so that mnt->mnt_namespace, doesn't change, while
+> grabbing the namespace)
 
-It's an excellent way to test if jiffy wrap is handled well since it will=20
-happen in 5 minutes instead of 50 days.
+How about using cmpxchg?
 
-Cheers,
-Con
-
---nextPart2639729.PceE539ysu
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBCixnZZUg7+tp6mRURAhJGAJ0St/an3zMZCW21B+r6HxEVfVyjaQCfZz5C
-QKQE2aHmozLLAvQ3AElsFjk=
-=EdSk
------END PGP SIGNATURE-----
-
---nextPart2639729.PceE539ysu--
+David

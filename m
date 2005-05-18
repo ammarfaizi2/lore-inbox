@@ -1,48 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262288AbVERPKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262241AbVERPRY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262288AbVERPKu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 11:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262205AbVERPGA
+	id S262241AbVERPRY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 11:17:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262242AbVERPQZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 11:06:00 -0400
-Received: from main.gmane.org ([80.91.229.2]:3210 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S262247AbVERPFb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 11:05:31 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Ian Soboroff <isoboroff@acm.org>
-Subject: Re: ACPI S3/APM suspend
-Date: Wed, 18 May 2005 10:59:47 -0400
-Message-ID: <9cfzmusbmvw.fsf@rogue.ncsl.nist.gov>
-References: <9cfvf5gel2l.fsf@rogue.ncsl.nist.gov>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: rogue.ncsl.nist.gov
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/21.3 (gnu/linux)
-Cancel-Lock: sha1:ScJg5T+YY3qGpXD+9xa2SgzVmrM=
+	Wed, 18 May 2005 11:16:25 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:12655 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S262241AbVERPNs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 11:13:48 -0400
+Date: Wed, 18 May 2005 16:14:10 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Timur Tabi <timur.tabi@ammasso.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: linux.bkbits.net question: mapping cset to kernel version?
+In-Reply-To: <428B58CF.4080604@ammasso.com>
+Message-ID: <Pine.LNX.4.61.0505181604530.5145@goblin.wat.veritas.com>
+References: <428B4D14.2030104@ammasso.com> 
+    <Pine.LNX.4.61.0505181559340.5111@goblin.wat.veritas.com> 
+    <428B58CF.4080604@ammasso.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"
+X-OriginalArrivalTime: 18 May 2005 15:13:40.0739 (UTC) 
+    FILETIME=[2C6F2D30:01C55BBC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ian Soboroff <isoboroff@acm.org> writes:
+On Wed, 18 May 2005, Timur Tabi wrote:
+> Hugh Dickins wrote:
+> 
+> > The first mainline version of Linux to incorporate it was 2.6.7-rc3
+> > (SuSE, and the -mm tree, had it earlier).
+> 
+> How did you know that?
 
-> I recently reinstalled my laptop (Fujitsu P2110) with RHEL4, and I
-> found that neither ACPI S3 or APM suspend (booting with acpi=off) work
-> reliably with their stock kernel (a 2.6.9 derivative).  Sometimes
-> resuming works, but more often the computer locks up, or the keyboard
-> doesn't function respond.
+I know the patch because it went from Andrea to me to Andrew to Linus.
 
-Just tried with 2.6.11.10 using ACPI.  On resume, the mouse doesn't
-respond (there isn't even a cursor).  If I C-A-Backspace out of X, GDM
-needs to be specially HUP'd to restart.  But the mouse still doesn't
-work.
+I have a copy of the 2.6.N trees here on my laptop so can quickly
+verify my recollection that the first 2.6.N it appeared in was 2.6.7.
 
-This was one of the failure modes in the RHEL 2.6.9-5.0.5 kernel.  (I
-know, I know, "ask RH for support", but they don't seem to have any of
-the ACPI or APM suspend bugs in their bugzilla anywhere near
-resolved.)
+Then I searched through each ChangeLog-2.6.7-rcN at
+http://ftp.kernel.org/pub/linux/kernel/v2.6/testing/
+for comments on get_user_pages.
 
-Ian
-
-
+Hugh

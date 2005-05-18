@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262358AbVERQ6I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262312AbVERRCV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262358AbVERQ6I (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 12:58:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262366AbVERQ5E
+	id S262312AbVERRCV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 13:02:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262370AbVERRCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 12:57:04 -0400
-Received: from colin.muc.de ([193.149.48.1]:24836 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S262312AbVERQyA (ORCPT
+	Wed, 18 May 2005 13:02:13 -0400
+Received: from fire.osdl.org ([65.172.181.4]:44465 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262380AbVERRBJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 12:54:00 -0400
-Date: 18 May 2005 18:53:58 +0200
-Date: Wed, 18 May 2005 18:53:58 +0200
-From: Andi Kleen <ak@muc.de>
-To: Matt Tolentino <metolent@snoqualmie.dp.intel.com>
-Cc: akpm@osdl.org, apw@shadowen.org, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [patch 2/4] add x86-64 Kconfig options for sparsemem
-Message-ID: <20050518165358.GF88141@muc.de>
-References: <200505181643.j4IGhm7S026977@snoqualmie.dp.intel.com>
+	Wed, 18 May 2005 13:01:09 -0400
+Date: Wed, 18 May 2005 10:00:33 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "David S. Miller" <davem@davemloft.net>,
+       Linux Audit Discussion <linux-audit@redhat.com>,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+       Chris Wright <chrisw@osdl.org>
+Subject: Re: 2.6.12-rc4-mm2 - sleeping function called from invalid context at mm/slab.c:2502
+Message-ID: <20050518170033.GT27549@shell0.pdx.osdl.net>
+References: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu> <20050517165528.GB27549@shell0.pdx.osdl.net> <1116349464.23972.118.camel@hades.cambridge.redhat.com> <20050517174300.GE27549@shell0.pdx.osdl.net> <20050518083002.GA30689@gondor.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200505181643.j4IGhm7S026977@snoqualmie.dp.intel.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050518083002.GA30689@gondor.apana.org.au>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 18, 2005 at 09:43:48AM -0700, Matt Tolentino wrote:
-> >From: Andi Kleen <ak@muc.de>
-> >On Wed, May 18, 2005 at 08:24:41AM -0700, Matt Tolentino wrote:
-> >> 
-> >> Add the requisite arch specific Kconfig options to enable 
-> >> the use of the sparsemem implementation for NUMA kernels
-> >> on x86-64.
-> >
-> >How much did you test sparsemem on x86-64 NUMA ? 
-> >
-> >There are various cases that probably need to be checked,
-> >AMD with SRAT, AMD without SRAT, AMD with more than 4GB RAM, 
-> >Summit(?), NUMA EMULATION etc.
-> >
-> >If all that works I would have no problem with removing the
-> >old code.
+* Herbert Xu (herbert@gondor.apana.org.au) wrote:
+> Guys, please CC netdev on issues like this.
+
+Sorry Herbert, we hadn't yet concluded that it's not an issue that we
+need to resolve within audit.
+
+> On Tue, May 17, 2005 at 05:43:00PM +0000, Chris Wright wrote:
+> > 
+> > This has some issues w.r.t. truesize and socket buffer space.  The trim
+> > is done to keep accounting sane, so we'd either have to trim ourselves
+> > or take into account the change in size.  And ultimately, we'd still get
+> > trimmed by netlink, so the GFP issue is still there.  Ideally, gfp_any()
+> > would really be _any_
 > 
-> As my disclaimer said, this has only been tested using
-> the NUMA EMULATION config option.  That's a big part of
-> the reason for sending this out  - to get further testing 
-> on real x86-64 NUMA systems, but without breaking the
-> current discontigmem code.  
+> The trimming is completely optional.  That is, if the allocation fails
+> nothing bad will happen.  So the solution is to simply use GFP_ATOMIC.
 
-Hmm, I would have assumed IBM tested it, since Dave Hansen signed off - 
-they have a range of Opteron machines.   If not I can test it
-on a few boxes later.
+Well, it does more pressure on atomic pool (for those cases that
+GFP_KERNEL would have sufficed).
 
-A single box is not enough, there are various special cases. 
-e.g. one area I've been fighting with is that
-with SRAT and 3+GB memory the nodes don't span the PCI memory
-hole anymore, and when there is a virt_to_page() or similar for these
-addresses things go wrong because they do a uninitialized hash
-table lookup. If it's not that hard and doesn't cause code bloat
-I would recommend to harden sparsemem against this case, at least for 
-upto 4GB.
-
--Andi
-
+thanks,
+-chris

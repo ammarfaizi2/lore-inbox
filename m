@@ -1,87 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262238AbVERTIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbVERTHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262238AbVERTIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 15:08:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbVERTIJ
+	id S262256AbVERTHU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 15:07:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262238AbVERTHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 15:08:09 -0400
-Received: from mail2.dolby.com ([204.156.147.24]:44549 "EHLO dolby.com")
-	by vger.kernel.org with ESMTP id S262238AbVERTHy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 15:07:54 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Illegal use of reserved word in system.h
-Date: Wed, 18 May 2005 12:07:29 -0700
-Message-ID: <2692A548B75777458914AC89297DD7DA08B0866F@bronze.dolby.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Illegal use of reserved word in system.h
-Thread-Index: AcVb3CWqR9jjHW+dQRCA1b6GzlTlWwAADnyw
-From: "Gilbert, John" <JGG@dolby.com>
-To: "Adrian Bunk" <bunk@stusta.de>
-Cc: <linux-kernel@vger.kernel.org>
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 18 May 2005 15:07:20 -0400
+Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:32016 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262218AbVERTHH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 15:07:07 -0400
+To: jamie@shareable.org
+CC: trond.myklebust@fys.uio.no, dhowells@redhat.com, linuxram@us.ibm.com,
+       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-reply-to: <20050518173419.GB993@mail.shareable.org> (message from Jamie
+	Lokier on Wed, 18 May 2005 18:34:19 +0100)
+Subject: Re: [PATCH] fix race in mark_mounts_for_expiry()
+References: <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu> <1116399887.24560.116.camel@localhost> <1116400118.24560.119.camel@localhost> <6865.1116412354@redhat.com> <7230.1116413175@redhat.com> <E1DYMB6-0000dw-00@dorka.pomaz.szeredi.hu> <1116414429.10773.57.camel@lade.trondhjem.org> <E1DYMn1-0000kp-00@dorka.pomaz.szeredi.hu> <20050518125041.GA29107@mail.shareable.org> <E1DYOTs-0000ub-00@dorka.pomaz.szeredi.hu> <20050518173419.GB993@mail.shareable.org>
+Message-Id: <E1DYTri-0001SL-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 18 May 2005 21:05:58 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian,
-This looks like the source of some stupidity.
-http://bugs.mysql.com/bug.php?id=555
+> That makes less sense if we allow other tasks to be using a namespace
+> through a passing a file descriptor, and then the last task which has
+> current->namespace equal to that namespace exits.  It makes no sense
+> to me that the mount which is still accessible through the file
+> descriptor is suddenly detached from it's parent and children mounts.
 
-Which is even more fun when you see this.
-http://bugs.mysql.com/bug.php?id=10364
+I see your point.  I don't yet see a solution.
 
-I think it's been in there a while, but only really blows up when built
-under recent kernels.
-I agree, it's probably not the right way to go.
-John G.
+Currently detach is an explicit action, not something automatic which
+happens when there are no more references to a vfsmount.
 
------Original Message-----
-From: Adrian Bunk [mailto:bunk@stusta.de] 
-Sent: Wednesday, May 18, 2005 12:02 PM
-To: Gilbert, John
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Illegal use of reserved word in system.h
+> Why is it not good enough to detach each vfsmnt when the last
+> reference to each vfsmnt is dropped?  In other words, simply when the
+> vfsmnt becomes unreachable?
 
-On Wed, May 18, 2005 at 11:23:33AM -0700, Gilbert, John wrote:
+Define unreachable.  Then define a mechanism, by which it can be
+detected.
 
-> Hello all,
-
-Hi John,
-
->...
-> Examples: The use of "new" in the macro __cmpxchg in system.h. This 
->hits  MySQL which links into the kernel headers to determine if the 
->platform  is SMP aware or not (don't ask me why.) ...
-
-I haven't ever seen MySQL doing something that stupid (stupid because if
-it's required, it _really_ has to be done at runtime).
-
-Which version of MySQL have you seen such an SMP check in?
-
-> John Gilbert
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
-
-
-
------------------------------------------
-This message (including any attachments) may contain confidential
-information intended for a specific individual and purpose.  If you are not
-the intended recipient, delete this message.  If you are not the intended
-recipient, disclosing, copying, distributing, or taking any action based on
-this message is strictly prohibited.
-
+Miklos

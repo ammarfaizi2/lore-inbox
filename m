@@ -1,49 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262278AbVERSSX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbVERSV1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262278AbVERSSX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 14:18:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbVERSSW
+	id S262297AbVERSV1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 14:21:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262300AbVERSV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 14:18:22 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:684 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262267AbVERSST (ORCPT
+	Wed, 18 May 2005 14:21:26 -0400
+Received: from fire.osdl.org ([65.172.181.4]:65226 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262297AbVERSUr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 14:18:19 -0400
-Message-ID: <428B86E5.4090104@pobox.com>
-Date: Wed, 18 May 2005 14:18:13 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+	Wed, 18 May 2005 14:20:47 -0400
+Message-ID: <428B876F.8080802@osdl.org>
+Date: Wed, 18 May 2005 11:20:31 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Erik Slagter <erik@slagter.name>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: ICH6M not recognised as being AHCI capable (libata)
-References: <1116408671.3505.31.camel@localhost.localdomain>
-In-Reply-To: <1116408671.3505.31.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Filipe Abrantes <fla@inescporto.pt>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Detecting link up
+References: <428B1A60.6030505@inescporto.pt>
+In-Reply-To: <428B1A60.6030505@inescporto.pt>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Slagter wrote:
-> 1. ICH6M not recognised as being AHCI capable (libata)
+Filipe Abrantes wrote:
+> Hi all,
 > 
-> 2. During startup, libata refuses to talk to the ICH6 using AHCI, I get
-> these messages: 
+> I need to detect when an interface (wired ethernet) has link up/down. Is 
+> there a system signal which is sent when this happens? What is the best 
+> way to this programatically?
 > 
-> libata version 1.10 loaded.
-> ahci version 1.00
-> ACPI: PCI Interrupt 0000:00:1f.2[B] -> GSI 17 (level, low) -> IRQ 201
-> ahci: probe of 0000:00:1f.2 failed with error -12
-> ata_piix version 1.03
+> Best Regards
 > 
-> [-12 == ENOMEM???]
+> Filipe
+> 
+> 
 
-You need to either load ata_piix driver, or tell your BIOS to initialize 
-AHCI mode.
+The best way is to open a netlink socket and look for the mesaages about
+link up/down there. Read iproute2 http://developer.osdl.org/dev/iproute2 
+source for ip command (ipmonitor.c).
 
-	Jeff
-
-
-
+This works for almost all devices unlike ethtool and mii which only
+work on a small subset of devices.

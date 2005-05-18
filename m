@@ -1,48 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262343AbVERQlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262332AbVERQmb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262343AbVERQlI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 12:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbVERQi7
+	id S262332AbVERQmb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 12:42:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262331AbVERQmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 12:38:59 -0400
-Received: from [66.238.194.189] ([66.238.194.189]:30111 "EHLO
-	datapower.ducksong.com") by vger.kernel.org with ESMTP
-	id S262273AbVERQe3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 12:34:29 -0400
-Subject: Re: linux.bkbits.net question: mapping cset to kernel version?
-From: patrick mcmanus <mcmanus@ducksong.com>
+	Wed, 18 May 2005 12:42:17 -0400
+Received: from postfix3-2.free.fr ([213.228.0.169]:55772 "EHLO
+	postfix3-2.free.fr") by vger.kernel.org with ESMTP id S262303AbVERPlJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 11:41:09 -0400
+Date: Wed, 18 May 2005 17:55:40 +0200
+From: Bruno Boettcher <bboett@bboett.dyndns.org>
 To: linux-kernel@vger.kernel.org
-In-Reply-To: <428B4D14.2030104@ammasso.com>
-References: <428B4D14.2030104@ammasso.com>
-Content-Type: text/plain
-Message-Id: <1116434164.28096.9.camel@mcmanus.datapower.com>
+Subject: how to boot a linux on a sim 2010 laptop?
+Message-ID: <20050518155540.GV17695@adlp.org>
+Reply-To: bboett@adlp.org
+Mail-Followup-To: bboett@adlp.org, linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 18 May 2005 12:36:04 -0400
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="eu12+zRL7gQwOC+E"
+Content-Disposition: inline
+X-Gpg-Key-ID: E0807C30
+X-Gpg-Fingerprint: F236 5F20 B0C2 D28E DE70  A322 C7CA CBB5 E080 7C30
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-18 at 10:11, Timur Tabi wrote:
-> Given a particular file and a particular bitkeeper revision for the file, how can I tell 
-> which version of the kernel incorporated that changeset?
-> 
-> In particular, I want to know about revision 1.65 of mm/rmap.c, which can be seen at 
-> http://linux.bkbits.net:8080/linux-2.6/diffs/mm/rmap.c@1.65?nav=index.html|src/|src/mm|hist/mm/rmap.c
-> 
-> I want to know what the first version of Linux is to incorporate that change.
-> 
 
-The most pragmatic thing to do is to take the comment from the
-changeset, which in this case is "mm: get_user_pages vs. try_to_unmap" 
-and plop that into google as "changelog mm: get_user_pages vs.
-try_to_unmap".. and that will point you very quickly to the right
-release changelog that includes it, because the changelogs are generally
-driven right from the comments.. in this case
+--eu12+zRL7gQwOC+E
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- http://www.kernel.org/pub/linux/kernel/v2.6/testing/ChangeLog-2.6.7-rc3
+Hello!
 
-While this isn't scientific - it has a very high success rate and is
-easy as pi..
+i bought a medion sim 2010 laptop, put the info i collected under
+http://www.inforezo.org/~bboett/sim2010/
 
+whichever linux distribution i try to boot stops after loading the
+kernel....
 
+none of them is able to start a working kernel....
+
+i suppose its because of the graphiccard that shares its memory with the
+proc....
+
+is there any docu somewhere on how to boot such a thing?=20
+i take any hint about how to get a linux workign on that box....
+
+please add me as CC since the list robot doesn't like me, and the
+list-moderator has other things to do as to subscribe me by hand....
+
+--=20
+ciao bboett
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+bboett@adlp.org
+http://inforezo.u-strasbg.fr/~bboett
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+
+--eu12+zRL7gQwOC+E
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFCi2V8x8rLteCAfDARAqjNAJ4osIwkJhGhTMCzlJ7w5Fzxe0l0IgCfQmYm
+YrVJYu9XVVE8iVVDp6CBux0=
+=5Fu+
+-----END PGP SIGNATURE-----
+
+--eu12+zRL7gQwOC+E--

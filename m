@@ -1,72 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbVERIaw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262128AbVERImz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262070AbVERIaw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 04:30:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbVERIaw
+	id S262128AbVERImz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 04:42:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVERImz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 04:30:52 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:58886 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262135AbVERIam
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 04:30:42 -0400
-Date: Wed, 18 May 2005 18:30:02 +1000
-To: "David S. Miller" <davem@davemloft.net>
-Cc: Linux Audit Discussion <linux-audit@redhat.com>,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
-       Chris Wright <chrisw@osdl.org>
-Subject: Re: 2.6.12-rc4-mm2 - sleeping function called from invalid context at mm/slab.c:2502
-Message-ID: <20050518083002.GA30689@gondor.apana.org.au>
-References: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu> <20050517165528.GB27549@shell0.pdx.osdl.net> <1116349464.23972.118.camel@hades.cambridge.redhat.com> <20050517174300.GE27549@shell0.pdx.osdl.net>
+	Wed, 18 May 2005 04:42:55 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:33458 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262128AbVERImu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 04:42:50 -0400
+Subject: Re: software mixing in alsa
+From: Lee Revell <rlrevell@joe-job.com>
+To: ross@lug.udel.edu
+Cc: Valdis.Kletnieks@vt.edu, Karel Kulhavy <clock@twibright.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050518063014.GA7053@jose.lug.udel.edu>
+References: <20050517095613.GA9947@kestrel>
+	 <200505171208.04052.jan@spitalnik.net> <20050517141307.GA7759@kestrel>
+	 <1116354762.31830.12.camel@mindpipe>
+	 <20050517192412.GA19431@kestrel.twibright.com>
+	 <200505172027.j4HKRjTV029545@turing-police.cc.vt.edu>
+	 <20050518063014.GA7053@jose.lug.udel.edu>
+Content-Type: text/plain
+Date: Wed, 18 May 2005 04:42:49 -0400
+Message-Id: <1116405769.4153.6.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="vtzGhvizbBRQ85DL"
-Content-Disposition: inline
-In-Reply-To: <20050517174300.GE27549@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.6+20040907i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---vtzGhvizbBRQ85DL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-Guys, please CC netdev on issues like this.
-
-On Tue, May 17, 2005 at 05:43:00PM +0000, Chris Wright wrote:
+On Wed, 2005-05-18 at 02:30 -0400, ross@lug.udel.edu wrote:
+> On Tue, May 17, 2005 at 04:27:44PM -0400, Valdis.Kletnieks@vt.edu wrote:
+> > I was hoping somebody would explain how to get 'dmix' plugin working in the
+> > kernel - then I could get rid of esd ;)  (Note that running something in
+> > userspace that accepts connections, runs dmix on them, and then creates one
+> > thing spewing to /dev/pcm isn't a solution - I've already *got* esd, warts and all)
 > 
-> This has some issues w.r.t. truesize and socket buffer space.  The trim
-> is done to keep accounting sane, so we'd either have to trim ourselves
-> or take into account the change in size.  And ultimately, we'd still get
-> trimmed by netlink, so the GFP issue is still there.  Ideally, gfp_any()
-> would really be _any_
+> 
+> In all honesty - don't bother.  esd does the job better, faster, more
+> flexibly, and without the hassle.
+> 
 
-The trimming is completely optional.  That is, if the allocation fails
-nothing bad will happen.  So the solution is to simply use GFP_ATOMIC.
+This problem is fixed with the upcoming ALSA 1.0.9 release - dmix will
+"just work".  It's been a big area of development lately.
 
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Lee
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
-
---vtzGhvizbBRQ85DL
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=p
-
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -673,7 +673,7 @@ int netlink_unicast(struct sock *ssk, st
- 	int err;
- 	long timeo;
- 
--	skb = netlink_trim(skb, gfp_any());
-+	skb = netlink_trim(skb, GFP_ATOMIC);
- 
- 	timeo = sock_sndtimeo(ssk, nonblock);
- retry:
-
---vtzGhvizbBRQ85DL--

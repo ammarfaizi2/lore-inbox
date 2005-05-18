@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262410AbVERWVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262401AbVERWVU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262410AbVERWVw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 18:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262404AbVERWVv
+	id S262401AbVERWVU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 18:21:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262399AbVERWVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 18:21:51 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:16308 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262283AbVERWQd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 18:16:33 -0400
+	Wed, 18 May 2005 18:21:20 -0400
+Received: from enterprise.bidmc.harvard.edu ([134.174.118.50]:4279 "EHLO
+	enterprise.bidmc.harvard.edu") by vger.kernel.org with ESMTP
+	id S262396AbVERWTE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 18:19:04 -0400
+Message-ID: <428BBEED.6090608@enterprise.bidmc.harvard.edu>
+Date: Wed, 18 May 2005 18:17:17 -0400
+From: Kris Karas <ktk@enterprise.bidmc.harvard.edu>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: dtor_core@ameritech.net
+CC: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org,
+       Greg Stark <gsstark@mit.edu>
+Subject: Re: Problem report: 2.6.12-rc4 ps2 keyboard being misdetected as
+ /dev/input/mouse0
+References: <87zmuveoty.fsf@stark.xeocode.com>	 <200505160036.30628.dtor_core@ameritech.net>	 <4289682B.8060403@enterprise.bidmc.harvard.edu>	 <200505162358.15099.dtor_core@ameritech.net>	 <20050518111322.GC1952@elf.ucw.cz> <d120d500050518063926943e91@mail.gmail.com>
+In-Reply-To: <d120d500050518063926943e91@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17035.48794.636650.724153@sodium.jf.intel.com>
-Date: Wed, 18 May 2005 15:15:54 -0700
-To: linux-kernel@vger.kernel.org
-Cc: joe.korty@ccur.com, robustmutexes@lists.osdl.org, george@mvista.com
-Subject: [RFC] A more general timeout specification
-In-Reply-To: <20050518201517.GA16193@tsunami.ccur.com>
-References: <20050518201517.GA16193@tsunami.ccur.com>
-X-Mailer: VM 7.19 under Emacs 21.3.1
-From: Inaky Perez-Gonzalez <inaky@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> Joe Korty <joe.korty@ccur.com> writes:
+Dmitry Torokhov wrote:
 
-> [ for comment only ] The fusyn (robust mutexes) project proposes the
-> creation of a more general data structure, 'struct timeout', for the
-> specification of timeouts in new services.  In this structure, the
-> user specifies:
+>On 5/18/05, Pavel Machek <pavel@ucw.cz> wrote:
+>  
+>
+>>>Although... maybe the patch below is not too ugly.
+>>>      
+>>>
+>>Looks pretty much okay to me...
+>>    
+>>
+>
+>Does it work for you? If so I'll send it to Andrew to simmer in -mm.
+>  
+>
 
->     a time, in timespec format.  the clock the time is specified
-> against (eg, CLOCK_MONOTONIC).  whether the time is absolute, or
-> relative to 'now'.
+FWIW, I've tested the patch and it seems to be working just fine.  Thanks!
 
-> That is, all combinations of useful timeout attributes become
-> possible.
-...
+There is one exception, though it does not appear to be related to the 
+mouse code or the patch, as far as I can tell.   Pressing or releasing 
+the right-windows key sends a blank event to GPM (as reported by 'mev') 
+causing the mouse cursor to reappear.  If I use "showkey -s" to tell me 
+the scancode, nothing happens.  The key is evidently bound in the kernel 
+table, else I'd see the obligatory PRINTK encouraging me to bind it.  So 
+something is intercepting the key and sending it to GPM.   
+Experimentally, it appears as if the key press is delivered only if it 
+has not been pressed for roughly 3 seconds (256 Jiffies???).
 
-The main reason why we are asking for this is that timeouts in POSIX
-calls are always specified in an absolute form. Because most system
-calls take it in a relative form, glibc has to call the kernel twice
-(one to get the time, one to do the syscall with the computed delta).
-
-By having new syscalls that take advantage of this timeout interface,
-we can save this extra kernel call. 
-
-We believe it is generic enough for interfacing with user space
-timeouts, although we'd like to hear feedback :)
-
--- 
-
-Inaky
-
+Kris

@@ -1,56 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262140AbVERNZo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbVERNfy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262140AbVERNZo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 09:25:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbVERNZo
+	id S262162AbVERNfy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 09:35:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVERNfy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 09:25:44 -0400
-Received: from [83.79.10.174] ([83.79.10.174]:57206 "EHLO
+	Wed, 18 May 2005 09:35:54 -0400
+Received: from 174.10.79.83.cust.bluewin.ch ([83.79.10.174]:44665 "EHLO
 	kestrel.twibright.com") by vger.kernel.org with ESMTP
-	id S262140AbVERNZh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 09:25:37 -0400
-Date: Wed, 18 May 2005 15:21:49 +0200
+	id S262162AbVERNfs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 09:35:48 -0400
+Date: Wed, 18 May 2005 15:32:15 +0200
 From: Karel Kulhavy <clock@twibright.com>
-To: ross@jose.lug.udel.edu
+To: Lee Revell <rlrevell@joe-job.com>
 Cc: linux-kernel@vger.kernel.org
 Subject: Re: software mixing in alsa
-Message-ID: <20050518132149.GB13695@kestrel>
-References: <20050517095613.GA9947@kestrel> <200505171208.04052.jan@spitalnik.net> <20050517141307.GA7759@kestrel> <1116354762.31830.12.camel@mindpipe> <20050517192412.GA19431@kestrel.twibright.com> <200505172027.j4HKRjTV029545@turing-police.cc.vt.edu> <20050518063014.GA7053@jose.lug.udel.edu>
+Message-ID: <20050518133215.GB13736@kestrel>
+References: <20050517095613.GA9947@kestrel> <200505171208.04052.jan@spitalnik.net> <20050517141307.GA7759@kestrel> <1116354762.31830.12.camel@mindpipe> <20050517192412.GA19431@kestrel.twibright.com> <200505172027.j4HKRjTV029545@turing-police.cc.vt.edu> <1116362191.32210.24.camel@mindpipe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050518063014.GA7053@jose.lug.udel.edu>
+In-Reply-To: <1116362191.32210.24.camel@mindpipe>
 X-Orientation: Gay
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 18, 2005 at 02:30:14AM -0400, ross@jose.lug.udel.edu wrote:
-> On Tue, May 17, 2005 at 04:27:44PM -0400, Valdis.Kletnieks@vt.edu wrote:
-> > I was hoping somebody would explain how to get 'dmix' plugin working in the
-> > kernel - then I could get rid of esd ;)  (Note that running something in
-> > userspace that accepts connections, runs dmix on them, and then creates one
-> > thing spewing to /dev/pcm isn't a solution - I've already *got* esd, warts and all)
-> 
-> 
-> In all honesty - don't bother.  esd does the job better, faster, more
-> flexibly, and without the hassle.
+On Tue, May 17, 2005 at 04:36:30PM -0400, Lee Revell wrote:
 
-Is there some generic in-kernel support for mixing? I couldn't make
-any of the userspace programs work.
+[...]
 
-I tried esd and it does the same as without esd - only one app gets to
-the sound and the other waits.  The only difference was only (horrible)
-increase in sound latency.
+> alsa-lib, which is part of userspace.  From the application's point of
+> view, it does not matter whether the mixing happens in kernel or not.
+> ALSA follows the philosophy of doing as little as possible in the
+> kernel, and since mixing and volume control work fine in userspace,
+> that's where they live.
 
-Installed esd in gentoo by emerge, then added into the startiup scripts,
-/etc/init.d/esd start, switched xmms over to esd and skype on start said
-"using esd". 
+Mixing is IMHO action that should be in kernel because
 
-I would like to just run two sound programs concurrently. (Linux is a
-time-sharing operating system, right?) I am not interested in a delay
-line sound effect.
-
-I also tried artsd and jack, but didn't succeed too.
+1) needs realtime scheduling to keep latency down
+2) needs tight cooperation with the hardware to prevent dropouts
+on underruns
+3) Is a trivial linear algorithm involving memory blocks and linear
+   arithmetic, no complicated computations that are difficult to
+   check for BugFree(TM) so shouldn't present a great risk on kernel
+   stability
+4) Fits into the kernel philosophy. Kernel is a program meant to provide
+   time-sharing access to limited hardware resource. Sound card is a
+   limited hardware resource.
+5) From the knowledge of the exact hardware, the mixing routine in
+   kernel can know maximum allowable levels etc. to prevent clipping.
+   
 
 CL<

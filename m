@@ -1,75 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262106AbVERGCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbVERGLJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262106AbVERGCT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 02:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbVERGCT
+	id S262103AbVERGLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 02:11:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbVERGLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 02:02:19 -0400
-Received: from ercist.iscas.ac.cn ([159.226.5.94]:58894 "EHLO
-	ercist.iscas.ac.cn") by vger.kernel.org with ESMTP id S262102AbVERGCJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 02:02:09 -0400
-Subject: Re: [RFD] What error should FS return when I/O failure occurs?
-From: fs <fs@ercist.iscas.ac.cn>
-To: Bryan Henderson <hbryan@us.ibm.com>
-Cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Kenichi Okuyama <okuyama@intellilink.co.jp>
-In-Reply-To: <OF18BF4790.4053D6B0-ON88257004.0063F34D-88257004.006557CA@us.ibm.com>
-References: <OF18BF4790.4053D6B0-ON88257004.0063F34D-88257004.006557CA@us.ibm.com>
-Content-Type: text/plain
-Organization: iscas
-Message-Id: <1116436224.2428.16.camel@CoolQ>
+	Wed, 18 May 2005 02:11:09 -0400
+Received: from h80ad263e.async.vt.edu ([128.173.38.62]:50181 "EHLO
+	h80ad263e.async.vt.edu") by vger.kernel.org with ESMTP
+	id S262104AbVERGK7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 02:10:59 -0400
+Message-Id: <200505180610.j4I6AdsY004305@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: krishna <krishna.c@globaledgesoft.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Resources on Networking 
+In-Reply-To: Your message of "Wed, 18 May 2005 10:19:15 +0530."
+             <428AC94B.2020403@globaledgesoft.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <428AC94B.2020403@globaledgesoft.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Wed, 18 May 2005 13:10:24 -0400
+Content-Type: multipart/signed; boundary="==_Exmh_1116396638_3369P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-ArGoMail-Authenticated: fs@ercist.iscas.ac.cn
+Date: Wed, 18 May 2005 02:10:38 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-17 at 14:26, Bryan Henderson wrote:
-> >Yes, we're sure to abort the operation, but we can't use 
-> >exit(EXIT_FAILURE) directly. For HA environment, we should
-> >identify the cause of the error, take correspondent action,
-> >right? So we need to get the right error.
+--==_Exmh_1116396638_3369P
+Content-Type: text/plain; charset=us-ascii
+
+On Wed, 18 May 2005 10:19:15 +0530, krishna said:
+> Hi All,
 > 
-> You mean a computer program will take the correspondent action?  I think 
-> it would take a remarkably intelligent program to respond appropriately to 
-> particular failures -- especially if the program isn't tailored to a very 
-> specific environment.  In practice, all I ever see a binary response -- 
-> one for success, one for failure.  The errno is used at most for giving a 
-> three word explanation to a human so the human can respond.  That's why 
-> people don't take this issue seriously.
-> 
-> "pass the errno up" is definitely a layering violation and cheap 
-> architecture.  It's why the 3 word description you get is often 
-> meaningless -- it's telling you about a failure deep in computations you 
-> aren't even supposed to know about.  I myself stay away from errnos where 
-> possible and produce error information in English text, with each layer 
-> adding information meaningful at that layer.  But where we're sticking 
-> with classic errnos, it just doesn't make sense to work really hard on it.
-> 
-> Nonetheless, I think there's broad agreement, and the current discussion 
-> is consistent with it, that if write() fails due to an I/O error, the 
-> errno should be EIO.  Whether it's formally specified or not, the standard 
-> is there.  That ext3 returns EROFS is either a bug or an implementation 
-what standard do you mean?
-> convenience compromise or a case where the actual failure is more 
-> complicated than you imagine (maybe an operation fails and gets retried -- 
-> the original failure caused an automatic switch to R/O and the retry 
-> failed because of the R/O status.  Errnos are definitely not sufficient to 
-> give you the whole chain of causation for a failure -- if it gives you 
-> even the immediate cause, you should feel fortunate).
-I suggest you visit our project, see the testing result,
-http://developer.osdl.jp/projects/doubt/fs-consistency-and-coherency
-For each test case, different FS returns different result.
->From user's perspective, it's really annoying, so, there should be a 
-standard which constraints the error type. Otherwise, different fs
-can return whatever they want, regardless of the user's need. 
-> --
-> Bryan Henderson                          IBM Almaden Research Center
-> San Jose CA                              Filesystems
-> 
+> I am Interested in _understanding_ Networking.
+
+"To understand the network, you must the network.." 
+
+If you want to *understand* the network, I'd suggest starting off with a very
+heavy dose of math, in particularly emergent systems:
+
+http://en.wikipedia.org/wiki/Emergence has a lot of good references.
+
+However, you probably meant "understanding how to get the network to do something
+useful for me", which is a totally different question....
+
+> Can any one tell me the resources of Networking.
+
+Not a Linux kernel issue, but I'll be nice (even sorted in likely order
+of usefulness for somebody so in need of direction):
+
+0) A good book on C. (Yes, we start at 0. C, remember?)
+
+1) Stevens "Unix Network Programming"
+
+2) Douglas Comer "Internetworking with TCP/IP (Volume I): Protocol and Architecture"
+
+3) http://www.ietf.org/rfc - in particular, you want RFCs 768, 791, 792, 793, and 1149
+
+4) find /usr/src/linux/net -type f | xargs more
 
 
+--==_Exmh_1116396638_3369P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCitxdcC3lWbTT17ARAgL9AKDezg1HEIzchonQPKKT+R4C8dDaBgCgntz0
+mF/wDC3OjVXghNKCOrWB++o=
+=pcLt
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1116396638_3369P--

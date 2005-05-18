@@ -1,39 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVERKlD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262165AbVERKmr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262163AbVERKlD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 06:41:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbVERKlC
+	id S262165AbVERKmr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 06:42:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262166AbVERKmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 06:41:02 -0400
-Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:26643 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262162AbVERKiW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 06:38:22 -0400
-To: dhowells@redhat.com
-CC: linuxram@us.ibm.com, jamie@shareable.org,
-       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <6865.1116412354@redhat.com> (message from David Howells on Wed,
-	18 May 2005 11:32:34 +0100)
-Subject: Re: [PATCH] fix race in mark_mounts_for_expiry()
-References: <E1DYLCv-0000W7-00@dorka.pomaz.szeredi.hu>  <1116005355.6248.372.camel@localhost> <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu> <1116012287.6248.410.camel@localhost> <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu> <1116013840.6248.429.camel@localhost> <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu> <1116256279.4154.41.camel@localhost> <20050516111408.GA21145@mail.shareable.org> <1116301843.4154.88.camel@localhost> <E1DXm08-0006XD-00@dorka.pomaz.szeredi.hu> <20050517012854.GC32226@mail.shareable.org> <E1DXuiu-0007Mj-00@dorka.pomaz.szeredi.hu> <1116360352.24560.85.camel@localhost> <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu> <1116399887.24560.116.camel@localhost> <1116400118.24560.119.camel@localhost> <6865.1116412354@redhat.com>
-Message-Id: <E1DYLvb-0000as-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 18 May 2005 12:37:27 +0200
+	Wed, 18 May 2005 06:42:47 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:22000 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262165AbVERKmf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 06:42:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EBe1Vv3cfb3WF0db85wTqnFUCrgvq42M9yeZQgqqRIwoe8lB5VC1alnwHaAoOiLZTQbLJC6TaqXQfOzlrntkeE1p9s552edwnCKp5H6hXSrfK5YmQCJlyCILaV+FYCR20CHIF9VrEbTferqb1m0a+qe88NSmbe/ejwfZCgJ9i9U=
+Message-ID: <2cd57c900505180342281248f4@mail.gmail.com>
+Date: Wed, 18 May 2005 18:42:33 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: coywolf@lovecn.org
+To: Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6 jiffies
+Cc: linux <kernel@wired-net.gr>, lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1116412348.6572.21.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <1116005355.6248.372.camel@localhost>
+	 <1116360352.24560.85.camel@localhost>
+	 <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu>
+	 <1116399887.24560.116.camel@localhost>
+	 <1116400118.24560.119.camel@localhost>
+	 <E1DYLCv-0000W7-00@dorka.pomaz.szeredi.hu>
+	 <001b01c55b92$1d09c6e0$0101010a@dioxide>
+	 <1116411888.6572.18.camel@laptopd505.fenrus.org>
+	 <004601c55b94$5ea29d50$0101010a@dioxide>
+	 <1116412348.6572.21.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > How about this patch?  It tries to solve this race without additional
-> > locking.  If refcount is already zero, it will increment and decrement
-> > it.  So be careful to only call grab_namespace() with vfsmount_lock
-> > held, otherwise it could race with itself.  (vfsmount_lock is also
-> > needed in this case so that mnt->mnt_namespace, doesn't change, while
-> > grabbing the namespace)
+On 5/18/05, Arjan van de Ven <arjan@infradead.org> wrote:
+> On Wed, 2005-05-18 at 13:28 +0300, linux wrote:
+> > ok.i see what u mean.
+> > But should this value on a stable version be 0 again???
 > 
-> How about using cmpxchg?
+> why?
+> "the absolute value has no meaning" -> why would "0" be special ???
+> Answer: It's not. And actually -5 minutes is more useful than 0 because
+> it keeps helping finding bugs... why do you want it to start at 0 ?
+> 
 
-How?  If the count is nonzero, an incremented count must be stored.
-You can't do that atomically with cmpxchg.
 
-Miklos
-
+The negative value doesn't hurt. It's unsigned. Maybe he was thinking
+reading jiffies as the  uptime directly.
+-- 
+Coywolf Qi Hunt
+http://sosdg.org/~coywolf/

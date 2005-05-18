@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262158AbVERKyi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262145AbVERK5B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262158AbVERKyi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 06:54:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbVERKyi
+	id S262145AbVERK5B (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 06:57:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbVERK5B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 06:54:38 -0400
-Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:14863 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262158AbVERKyb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 06:54:31 -0400
-To: dhowells@redhat.com
-CC: miklos@szeredi.hu, linuxram@us.ibm.com, jamie@shareable.org,
-       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <7230.1116413175@redhat.com> (message from David Howells on Wed,
-	18 May 2005 11:46:15 +0100)
-Subject: Re: [PATCH] fix race in mark_mounts_for_expiry()
-References: <E1DYLvb-0000as-00@dorka.pomaz.szeredi.hu>  <E1DYLCv-0000W7-00@dorka.pomaz.szeredi.hu> <1116005355.6248.372.camel@localhost> <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu> <1116012287.6248.410.camel@localhost> <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu> <1116013840.6248.429.camel@localhost> <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu> <1116256279.4154.41.camel@localhost> <20050516111408.GA21145@mail.shareable.org> <1116301843.4154.88.camel@localhost> <E1DXm08-0006XD-00@dorka.pomaz.szeredi.hu> <20050517012854.GC32226@mail.shareable.org> <E1DXuiu-0007Mj-00@dorka.pomaz.szeredi.hu> <1116360352.24560.85.camel@localhost> <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu> <1116399887.24560.116.camel@localhost> <1116400118.24560.119.camel@localhost> <6865.1116412354@redhat.com> <7230.1116413175@redhat.com>
-Message-Id: <E1DYMB6-0000dw-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 18 May 2005 12:53:28 +0200
+	Wed, 18 May 2005 06:57:01 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:27301 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262145AbVERK4p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 06:56:45 -0400
+Subject: Re: Broken scsi on 2.6.12rc4 +
+	realtime-preempt-2.6.12-rc4-V0.7.47-03 ( adaptec aic7901a and lsi 53c1030
+	fusion-mpt )
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Serge Noiraud <serge.noiraud@bull.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1116408679.3391.48.camel@ibiza.btsn.frna.bull.fr>
+References: <1116408679.3391.48.camel@ibiza.btsn.frna.bull.fr>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 18 May 2005 06:56:38 -0400
+Message-Id: <1116413798.22094.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Yes you can. cmpxchg() is atomic. Several archs implement atomic_inc() and co
-> with cmpxchg() or similar.
+On Wed, 2005-05-18 at 11:31 +0200, Serge Noiraud wrote:
+> The kernel with the realtime-preempt-2.6.12-rc4-V0.7.47-03 patch works
+> well on IDE.
+> I have a cannot open root device at boot on two machines ( i386 ) with
+> aic79xx or LSI controler.
+> If I suppress the realtime patch, it works.
+> I tried to set different options for realtime without success.
+[...]
+> During boot the following error occurs :
+> ...
+> VFS: Cannot open root device "0806" or unknown-block(8,6)
+> Please append a correct "root=" boot option
+> Kernel panic - not syncing: VFS: Unable to mount root fs on
+> unknown-block(8,6)
 > 
-> Something like:
-> 
-> 	static inline struct namespace *grab_namespace(struct namespace *n)
-> 	{
-> 		int old = atomic_read(&n->count);
-> 
-> 		while (old > 0) {
-> 			/* attempt to increment the counter */
-> 			old = cmpxchg(&n->count, old, old + 1);
-> 		}
-> 
-> 		return old > 0 ? n : NULL;
-> 	}
-> 
+> Any idea ?
 
-Ahh OK :)
+This looks like the same error you would get if these drivers were
+compiled as modules and not placed in the initrd.  The RT patch adds the
+-V0.7.47-03 to the version of the kernel so the modules do get loaded
+into a different /lib/modules directory and should have a different
+initrd file.  Make sure that your initrd is correct, or just compile the
+necessary modules into the kernel (not as modules).
 
-There's still the problem of cmpxchg meddling in the internals of an
-atomic_t.  Is that OK?  Will that work on all archs?
+-- Steve
 
-Miklos
+

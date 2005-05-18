@@ -1,181 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262051AbVERCPg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbVERCvc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262051AbVERCPg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 22:15:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbVERCPg
+	id S262060AbVERCvc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 22:51:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262059AbVERCvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 22:15:36 -0400
-Received: from home.leonerd.org.uk ([217.147.80.44]:64689 "EHLO
-	home.leonerd.org.uk") by vger.kernel.org with ESMTP id S262051AbVERCPH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 22:15:07 -0400
-Date: Wed, 18 May 2005 03:15:03 +0100
-From: Paul LeoNerd Evans <leonerd@leonerd.org.uk>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Fix to virtual terminal UTF-8 mode handling
-Message-ID: <20050518031503.4ab46660@nim.leo>
-In-Reply-To: <20050518030513.7fe55ef1@nim.leo>
-References: <20050518030513.7fe55ef1@nim.leo>
-X-Mailer: Sylpheed-Claws 1.9.6cvs45 (GTK+ 2.6.4; i686-pc-linux-gnu)
+	Tue, 17 May 2005 22:51:32 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:61155 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262061AbVERCv3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 17 May 2005 22:51:29 -0400
+Subject: Re: Illegal use of reserved word in system.h
+From: Steven Rostedt <rostedt@goodmis.org>
+To: "Gilbert, John" <JGG@dolby.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <2692A548B75777458914AC89297DD7DA08B0866D@bronze.dolby.net>
+References: <2692A548B75777458914AC89297DD7DA08B0866D@bronze.dolby.net>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Tue, 17 May 2005 22:51:22 -0400
+Message-Id: <1116384682.9737.61.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed;
- boundary=Signature_Wed__18_May_2005_03_15_03_+0100_ZYI9erz2VDXD3EF4;
- protocol="application/pgp-signature"; micalg=pgp-sha1
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature_Wed__18_May_2005_03_15_03_+0100_ZYI9erz2VDXD3EF4
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: quoted-printable
+On Tue, 2005-05-17 at 17:51 -0700, Gilbert, John wrote:
+> Hello,
+> The use of "new" as a variable name in the macro "__cmpxchg" breaks
+> builds of other programs that link to include/asm-i386/system.h
+> I'd like to request that this be renamed to something else, like mynew
+> or krnew.
 
-Apologies, my mail client annoyingly wrapped the patch; here it is
-fixed.
+mynew is for beginner programmers (and perl scripts!).  The normal
+convention is to add a "k" as in printk or ksoftirqd, so it should be
+"knew". But who knew?
 
-
-diff -urN --exclude-from=3Ddiff-exclude linux-2.6.11/drivers/char/vt.c linu=
-x-2.6.11-utfswitch/drivers/char/vt.c
---- linux-2.6.11/drivers/char/vt.c	2005-05-04 02:01:08.000000000 +0100
-+++ linux-2.6.11-utfswitch/drivers/char/vt.c	2005-05-07 22:41:58.000000000 =
-+0100
-@@ -93,6 +93,7 @@
- #include <linux/pm.h>
- #include <linux/font.h>
- #include <linux/bitops.h>
-+#include <linux/proc_fs.h>
-=20
- #include <asm/io.h>
- #include <asm/system.h>
-@@ -162,6 +163,15 @@
- static int blankinterval =3D 10*60*HZ;
- static int vesa_off_interval;
-=20
-+/*
-+ * When resetting a console, do we start in UTF-8 mode or not?
-+ * 0 =3D no, 1 =3D yes
-+ */
-+static int default_utf8_mode =3D 0;
-+
-+struct proc_dir_entry *proc_vt_dir;
-+struct proc_dir_entry *proc_default_utf8_mode;
-+
- static DECLARE_WORK(console_work, console_callback, NULL);
-=20
- /*
-@@ -1472,7 +1482,7 @@
- 	charset		=3D 0;
- 	need_wrap	=3D 0;
- 	report_mouse	=3D 0;
--	utf             =3D 0;
-+	utf             =3D default_utf8_mode;
- 	utf_count       =3D 0;
-=20
- 	disp_ctrl	=3D 0;
-@@ -2530,6 +2540,63 @@
- 	reset_terminal(currcons, do_clear);
- }
-=20
-+static int proc_write_default_utf8_mode(struct file *file, const char *buf=
-fer,
-+			unsigned long count, void *data)
-+{
-+	char temp[16];
-+	int len;
-+
-+	if (count > sizeof(temp)-1)
-+		len =3D sizeof(temp)-1;
-+	else
-+		len =3D count;
-+
-+	if (copy_from_user(temp, buffer, len))
-+		return -EFAULT;
-+
-+	temp[len] =3D 0;
-+
-+	/* No effect if empty or >1 character long */
-+	if (temp[0] =3D=3D 0 || (temp[1] !=3D '\n' && temp[1] !=3D 0)) {
-+		return len;
-+	}
-+
-+	/* No effect if outside the range 0<=3Dx<=3D1 */
-+	if (temp[0] < '0' || temp[0] > '1') {
-+		return len;
-+	}
-+
-+	default_utf8_mode =3D (temp[0] - '0');
-+
-+	return len;
-+}
-+
-+static int proc_read_default_utf8_mode(char *page, char **start, off_t off,
-+			int count, int *eof, void *data)
-+{
-+	return sprintf(page, "default_utf8_mode =3D %d\n", default_utf8_mode);
-+}
-+
-+static int init_proc(void)
-+{
-+	proc_vt_dir =3D proc_mkdir("tty/vt", NULL);
-+
-+	if (!proc_vt_dir)
-+		return -ENOMEM;
-+
-+	proc_default_utf8_mode =3D create_proc_entry("default_utf8_mode", 0644, p=
-roc_vt_dir);
-+
-+	if (!proc_default_utf8_mode)
-+		return -ENOMEM;
-+
-+	proc_default_utf8_mode->owner =3D THIS_MODULE;
-+	proc_default_utf8_mode->data =3D &default_utf8_mode;
-+	proc_default_utf8_mode->write_proc =3D proc_write_default_utf8_mode;
-+	proc_default_utf8_mode->read_proc =3D proc_read_default_utf8_mode;
-+
-+	return 0;
-+}
-+
- /*
-  * This routine initializes console interrupts, and does nothing
-  * else. If you want the screen to clear, call tty_write with
-@@ -2612,6 +2679,8 @@
-=20
- int __init vty_init(void)
- {
-+	int ret;
-+
- 	vcs_init();
-=20
- 	console_driver =3D alloc_tty_driver(MAX_NR_CONSOLES);
-@@ -2638,6 +2707,11 @@
- #ifdef CONFIG_MDA_CONSOLE
- 	mda_console_init();
- #endif
-+
-+	ret =3D init_proc();
-+	if (ret)
-+		return ret;
-+
- 	return 0;
- }
-=20
+Besides, what programs are you compiling that are using kernel headers?
+That's always a no-no. Although I did notice that errno.h on debian
+includes bits/errno.h which includes linux/errno.h. But that's the
+distribution's linux headers, and I don't see any header including
+asm/system.h
 
 
+> Thanks.
+> John Gilbert
+> jgg@dolby.com
+> 
+> -----------------------------------------
+> This message (including any attachments) may contain confidential
+> information intended for a specific individual and purpose.  If you are not
+> the intended recipient, delete this message.  If you are not the intended
+> recipient, disclosing, copying, distributing, or taking any action based on
+> this message is strictly prohibited.
 
---=20
-Paul "LeoNerd" Evans
+Is this a joke? It doesn't make sense sending a disclaimer like this to
+a mailing list!
 
-leonerd@leonerd.org.uk
-ICQ# 4135350       |  Registered Linux# 179460
-http://www.leonerd.org.uk/
+-- Steve
 
---Signature_Wed__18_May_2005_03_15_03_+0100_ZYI9erz2VDXD3EF4
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCiqUqvcPg11V/1hgRAnkbAJ9Nv9SuVUU5UAZeOfPGOyiczVFDGwCeOrDV
-oT1RfrepIdart2KNrJfGOww=
-=acu9
------END PGP SIGNATURE-----
-
---Signature_Wed__18_May_2005_03_15_03_+0100_ZYI9erz2VDXD3EF4--

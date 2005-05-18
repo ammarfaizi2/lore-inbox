@@ -1,56 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262063AbVERCGG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262051AbVERCPg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262063AbVERCGG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 17 May 2005 22:06:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262062AbVERCGG
+	id S262051AbVERCPg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 17 May 2005 22:15:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262061AbVERCPg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 22:06:06 -0400
-Received: from home.leonerd.org.uk ([217.147.80.44]:36545 "EHLO
-	home.leonerd.org.uk") by vger.kernel.org with ESMTP id S262051AbVERCFW
+	Tue, 17 May 2005 22:15:36 -0400
+Received: from home.leonerd.org.uk ([217.147.80.44]:64689 "EHLO
+	home.leonerd.org.uk") by vger.kernel.org with ESMTP id S262051AbVERCPH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 22:05:22 -0400
-Date: Wed, 18 May 2005 03:05:13 +0100
+	Tue, 17 May 2005 22:15:07 -0400
+Date: Wed, 18 May 2005 03:15:03 +0100
 From: Paul LeoNerd Evans <leonerd@leonerd.org.uk>
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix to virtual terminal UTF-8 mode handling
-Message-ID: <20050518030513.7fe55ef1@nim.leo>
+Subject: Re: [PATCH] Fix to virtual terminal UTF-8 mode handling
+Message-ID: <20050518031503.4ab46660@nim.leo>
+In-Reply-To: <20050518030513.7fe55ef1@nim.leo>
+References: <20050518030513.7fe55ef1@nim.leo>
 X-Mailer: Sylpheed-Claws 1.9.6cvs45 (GTK+ 2.6.4; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: multipart/signed;
- boundary=Signature_Wed__18_May_2005_03_05_13_+0100_Jn.OwgC9gw6vaxXO;
+ boundary=Signature_Wed__18_May_2005_03_15_03_+0100_ZYI9erz2VDXD3EF4;
  protocol="application/pgp-signature"; micalg=pgp-sha1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature_Wed__18_May_2005_03_05_13_+0100_Jn.OwgC9gw6vaxXO
+--Signature_Wed__18_May_2005_03_15_03_+0100_ZYI9erz2VDXD3EF4
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: quoted-printable
 
-This patch fixes a bug in the virtual terminal driver, whereby the UTF-8
-mode is reset to "off" following a console reset, such as might be
-delivered by mingetty, screen, vim, etc...
-
-Rather than resetting to hardcoded "0", it gets reset on or off, as
-determined by a new sysctl located in /proc/tty/vt/default_utf8_mode.
-This patch is best accompanied with an addition of the following line to
-the system's init scripts:
-
-  echo 1 >/proc/tty/vt/default_utf8_mode
-
-Following this, all resets to the console will leave it with UTF-8 mode
-on.
-
-The default behaviour of this sysctl is as before, without the patch.
-Namely, UTF-8 mode is switched off on reset. [I.e applying this patch
-does not affect default behaviour].
+Apologies, my mail client annoyingly wrapped the patch; here it is
+fixed.
 
 
-Signed-off-by: Paul Evans <leonerd@leonerd.org.uk>
-
-
---- linux-2.6.11/drivers/char/vt.c	2005-05-04 02:01:08.000000000
-+0100 +++ linux-2.6.11-utfswitch/drivers/char/vt.c	2005-05-07
-22:41:58.000000000 +0100 @@ -93,6 +93,7 @@
+diff -urN --exclude-from=3Ddiff-exclude linux-2.6.11/drivers/char/vt.c linu=
+x-2.6.11-utfswitch/drivers/char/vt.c
+--- linux-2.6.11/drivers/char/vt.c	2005-05-04 02:01:08.000000000 +0100
++++ linux-2.6.11-utfswitch/drivers/char/vt.c	2005-05-07 22:41:58.000000000 =
++0100
+@@ -93,6 +93,7 @@
  #include <linux/pm.h>
  #include <linux/font.h>
  #include <linux/bitops.h>
@@ -87,8 +74,8 @@ Signed-off-by: Paul Evans <leonerd@leonerd.org.uk>
  	reset_terminal(currcons, do_clear);
  }
 =20
-+static int proc_write_default_utf8_mode(struct file *file, const char
-*buffer,
++static int proc_write_default_utf8_mode(struct file *file, const char *buf=
+fer,
 +			unsigned long count, void *data)
 +{
 +	char temp[16];
@@ -119,12 +106,11 @@ Signed-off-by: Paul Evans <leonerd@leonerd.org.uk>
 +	return len;
 +}
 +
-+static int proc_read_default_utf8_mode(char *page, char **start, off_t
-off,
++static int proc_read_default_utf8_mode(char *page, char **start, off_t off,
 +			int count, int *eof, void *data)
 +{
-+	return sprintf(page, "default_utf8_mode =3D %d\n",
-default_utf8_mode); +}
++	return sprintf(page, "default_utf8_mode =3D %d\n", default_utf8_mode);
++}
 +
 +static int init_proc(void)
 +{
@@ -133,15 +119,15 @@ default_utf8_mode); +}
 +	if (!proc_vt_dir)
 +		return -ENOMEM;
 +
-+	proc_default_utf8_mode =3D create_proc_entry("default_utf8_mode",
-0644, proc_vt_dir); +
++	proc_default_utf8_mode =3D create_proc_entry("default_utf8_mode", 0644, p=
+roc_vt_dir);
++
 +	if (!proc_default_utf8_mode)
 +		return -ENOMEM;
 +
 +	proc_default_utf8_mode->owner =3D THIS_MODULE;
 +	proc_default_utf8_mode->data =3D &default_utf8_mode;
-+	proc_default_utf8_mode->write_proc =3D
-proc_write_default_utf8_mode;
++	proc_default_utf8_mode->write_proc =3D proc_write_default_utf8_mode;
 +	proc_default_utf8_mode->read_proc =3D proc_read_default_utf8_mode;
 +
 +	return 0;
@@ -173,6 +159,7 @@ proc_write_default_utf8_mode;
 =20
 
 
+
 --=20
 Paul "LeoNerd" Evans
 
@@ -180,15 +167,15 @@ leonerd@leonerd.org.uk
 ICQ# 4135350       |  Registered Linux# 179460
 http://www.leonerd.org.uk/
 
---Signature_Wed__18_May_2005_03_05_13_+0100_Jn.OwgC9gw6vaxXO
+--Signature_Wed__18_May_2005_03_15_03_+0100_ZYI9erz2VDXD3EF4
 Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.2.5 (GNU/Linux)
 
-iD8DBQFCiqLdvcPg11V/1hgRAukeAJoCEJJWkPbRdcJiNfP3fh41Nkv7DwCfbuLP
-VSr8TlWLMsFLYZRD/Yjgn3A=
-=Tsja
+iD8DBQFCiqUqvcPg11V/1hgRAnkbAJ9Nv9SuVUU5UAZeOfPGOyiczVFDGwCeOrDV
+oT1RfrepIdart2KNrJfGOww=
+=acu9
 -----END PGP SIGNATURE-----
 
---Signature_Wed__18_May_2005_03_05_13_+0100_Jn.OwgC9gw6vaxXO--
+--Signature_Wed__18_May_2005_03_15_03_+0100_ZYI9erz2VDXD3EF4--

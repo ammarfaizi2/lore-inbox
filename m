@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262357AbVERUme@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262356AbVERUnU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262357AbVERUme (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 16:42:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbVERUme
+	id S262356AbVERUnU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 16:43:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262360AbVERUnU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 16:42:34 -0400
-Received: from ylpvm43-ext.prodigy.net ([207.115.57.74]:17282 "EHLO
-	ylpvm43.prodigy.net") by vger.kernel.org with ESMTP id S262357AbVERUmc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 16:42:32 -0400
-X-ORBL: [67.117.73.34]
-Date: Wed, 18 May 2005 13:41:47 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Pavel Machek <pavel@suse.cz>, Linus Torvalds <torvalds@osdl.org>,
-       Christoph Lameter <christoph@lameter.com>,
-       randy_dunlap <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, shai@scalex86.org, ak@suse.de
-Subject: Re: [PATCH] i386: Selectable Frequency of the Timer Interrupt.
-Message-ID: <20050518204147.GM27330@atomide.com>
-References: <Pine.LNX.4.62.0505161243580.13692@ScMPusgw> <20050516150907.6fde04d3.akpm@osdl.org> <Pine.LNX.4.62.0505161934220.25315@graphe.net> <20050516194651.1debabfd.rdunlap@xenotime.net> <Pine.LNX.4.62.0505161954470.25647@graphe.net> <Pine.LNX.4.58.0505162029240.18337@ppc970.osdl.org> <20050518185016.GD1952@elf.ucw.cz> <1116443033.5419.3.camel@mindpipe>
+	Wed, 18 May 2005 16:43:20 -0400
+Received: from fire.osdl.org ([65.172.181.4]:3208 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262356AbVERUnO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 16:43:14 -0400
+Date: Wed, 18 May 2005 13:42:50 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ganesh Venkatesan <ganesh.venkatesan@gmail.com>
+Cc: christoph@lameter.com, davem@davemloft.net, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, shai@scalex86.org
+Subject: Re: [PATCH] NUMA aware allocation of transmit and receive buffers
+ for e1000
+Message-Id: <20050518134250.3ee2703f.akpm@osdl.org>
+In-Reply-To: <5fc59ff305051808558f1ce59@mail.gmail.com>
+References: <Pine.LNX.4.62.0505171854490.20408@graphe.net>
+	<20050517190343.2e57fdd7.akpm@osdl.org>
+	<Pine.LNX.4.62.0505171941340.21153@graphe.net>
+	<20050517.195703.104034854.davem@davemloft.net>
+	<Pine.LNX.4.62.0505172125210.22920@graphe.net>
+	<20050517215845.2f87be2f.akpm@osdl.org>
+	<5fc59ff305051808558f1ce59@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1116443033.5419.3.camel@mindpipe>
-User-Agent: mutt-ng 1.5.9i (Linux)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Lee Revell <rlrevell@joe-job.com> [050518 12:06]:
-> On Wed, 2005-05-18 at 20:50 +0200, Pavel Machek wrote:
-> > Please don't do this, CONFIG_NO_IDLE_HZ patches are better solution,
-> > and they worked okay last time I tried them.
+Ganesh Venkatesan <ganesh.venkatesan@gmail.com> wrote:
+>
+> On 5/17/05, Andrew Morton <akpm@osdl.org> wrote:
+> > I think the e1000 driver is being a bit insane there.  I figure that
+> Do you mean insane to use vmalloc?
 > 
-> Last time the dynamic tick patches were posted, you reported they worked
-> fine.  The next question is, when do they get merged?
+> > sizeof(struct e1000_buffer) is 28 on 64-bit, so even with 4k pagesize we'll
+> > always succeed in being able to support a 32k/32 = 1024-entry Tx ring.
+> > 
+> > Is there any real-world reason for wanting larger ring sizes than that?
+> > 
+> > 
+> We have had cases where allocation of 32K of memory (via kmalloc) fails. 
+> 
 
-Uh, I've been meaning to do some clean-up on the x86 patch, but been
-distracted every time I've tried... I'll try to do an updated patch
-soon... But meanwhile, I believe the dyn-tick patch works reliably
-on all machines if DYN_TICK_USE_APIC is not set in Kconfig.
-
-Tony
+Are you sure?  The current page allocator will infinitely loop until
+success for <=32k GFP_KERNEL allocations - the only way it can fail is if
+the calling process gets oom-killed.

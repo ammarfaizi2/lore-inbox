@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262239AbVERRuY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262169AbVERRy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262239AbVERRuY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 13:50:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262229AbVERRt2
+	id S262169AbVERRy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 13:54:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262200AbVERRy7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 13:49:28 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:17035 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S262218AbVERRtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 13:49:19 -0400
-Date: Wed, 18 May 2005 10:48:37 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: Matthew Dobson <colpatch@us.ibm.com>
-cc: Christoph Lameter <christoph@lameter.com>,
-       Dave Hansen <haveblue@us.ibm.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Jesse Barnes <jbarnes@virtuousgeek.org>,
-       Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       shai@scalex86.org, steiner@sgi.com
-Subject: Re: NUMA aware slab allocator V3
-In-Reply-To: <428B7B16.10204@us.ibm.com>
-Message-ID: <Pine.LNX.4.62.0505181046320.20978@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com> 
- <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com> 
- <714210000.1116266915@flay> <200505161410.43382.jbarnes@virtuousgeek.org> 
- <740100000.1116278461@flay>  <Pine.LNX.4.62.0505161713130.21512@graphe.net>
- <1116289613.26955.14.camel@localhost> <428A800D.8050902@us.ibm.com>
- <Pine.LNX.4.62.0505171648370.17681@graphe.net> <428B7B16.10204@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 18 May 2005 13:54:59 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:63722 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262169AbVERRy4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 13:54:56 -0400
+Subject: Re: 2.6.12-rc4-mm2 - sleeping function called from invalid context
+	at mm/slab.c:2502
+From: David Woodhouse <dwmw2@infradead.org>
+To: Linux Audit Discussion <linux-audit@redhat.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, netdev@oss.sgi.com,
+       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050518170033.GT27549@shell0.pdx.osdl.net>
+References: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu>
+	 <20050517165528.GB27549@shell0.pdx.osdl.net>
+	 <1116349464.23972.118.camel@hades.cambridge.redhat.com>
+	 <20050517174300.GE27549@shell0.pdx.osdl.net>
+	 <20050518083002.GA30689@gondor.apana.org.au>
+	 <20050518170033.GT27549@shell0.pdx.osdl.net>
+Content-Type: text/plain
+Date: Wed, 18 May 2005 18:52:35 +0100
+Message-Id: <1116438756.25594.76.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 2.9 (++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (2.9 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	2.8 RCVD_IN_SORBS_WEB      RBL: SORBS: sender is a abuseable web server
+	[193.113.235.174 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[193.113.235.174 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 18 May 2005, Matthew Dobson wrote:
+On Wed, 2005-05-18 at 10:00 -0700, Chris Wright wrote:
+> * Herbert Xu (herbert@gondor.apana.org.au) wrote:
+> > Guys, please CC netdev on issues like this.
+> 
+> Sorry Herbert, we hadn't yet concluded that it's not an issue that we
+> need to resolve within audit.
 
-> Thanks!  I just looked at V2 & V3 of the patch and saw some open-coded
-> loops.  I may have missed a later version of the patch which has fixes.
-> Feel free to CC me on future versions of the patch...
+I suspect that it _is_ an issue we can resolve entirely within audit
+code. See the patch I posted half an hour or so ago to the linux-audit
+list. If we agree on that approach, I'll do the equivalent for the git
+tree either later this evening or tomorrow.
 
-I will when I get everything together. The hold up at the moment is that 
-Martin has found a boot failure with the new slab allocator on ppc64 that 
-I am unable to explain.
- 
-Strangely, the panic is in the page allocator. I have no means of 
-testing since I do not have a ppc64 system available. Could you help me 
-figure out what is going on?
+I've reverted your recent change to put audit messages directly into
+skbs "in order to eliminate the extra copy", on the basis that it
+blatantly wasn't having that effect anyway. Now we copy from the
+audit_buffer into an optimally-sized skb which netlink_trim() won't have
+to mangle. I've also removed the skb_get() immediately before
+netlink_send() which always made me unhappy.
+
+-- 
+dwmw2
 

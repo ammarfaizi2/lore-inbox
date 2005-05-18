@@ -1,235 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262364AbVERRDm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262187AbVERRY5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262364AbVERRDm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 13:03:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262365AbVERQ4t
+	id S262187AbVERRY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 13:24:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVERRY5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 12:56:49 -0400
-Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:17427 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262358AbVERQy7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 12:54:59 -0400
-To: miklos@szeredi.hu
-CC: dhowells@redhat.com, linuxram@us.ibm.com, jamie@shareable.org,
-       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <E1DYNjR-0000po-00@dorka.pomaz.szeredi.hu> (message from Miklos
-	Szeredi on Wed, 18 May 2005 14:33:01 +0200)
-Subject: Re: [PATCH] fix race in mark_mounts_for_expiry()
-References: <E1DYMVf-0000hD-00@dorka.pomaz.szeredi.hu>  <E1DYMB6-0000dw-00@dorka.pomaz.szeredi.hu> <E1DYLvb-0000as-00@dorka.pomaz.szeredi.hu> <E1DYLCv-0000W7-00@dorka.pomaz.szeredi.hu> <1116005355.6248.372.camel@localhost> <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu> <1116012287.6248.410.camel@localhost> <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu> <1116013840.6248.429.camel@localhost> <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu> <1116256279.4154.41.camel@localhost> <20050516111408.GA21145@mail.shareable.org> <1116301843.4154.88.camel@localhost> <E1DXm08-0006XD-00@dorka.pomaz.szeredi.hu> <20050517012854.GC32226@mail.shareable.org> <E1DXuiu-0007Mj-00@dorka.pomaz.szeredi.hu> <1116360352.24560.85.camel@localhost> <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu> <1116399887.24560.116.camel@localhost> <1116400118.24560.119.camel@localhost> <6865.1116412354@redhat.com> <7230.1116413175@redhat.com> <8247.1116413990@redhat.com> <9498.1116417099@redhat.com> <E1DYNLt-0000nu-00@dorka.pomaz.szeredi.hu> <E1DYNjR-0000po-00@dorka.pomaz.szeredi.hu>
-Message-Id: <E1DYRnw-0001J6-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 18 May 2005 18:53:56 +0200
+	Wed, 18 May 2005 13:24:57 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:43004 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262168AbVERRYy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 13:24:54 -0400
+Message-ID: <428B7A5F.9090404@us.ibm.com>
+Date: Wed, 18 May 2005 10:24:47 -0700
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Lameter <christoph@lameter.com>
+CC: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12-rc4-mm2 build failure
+References: <734820000.1116277209@flay> <Pine.LNX.4.62.0505161602460.20110@graphe.net> <428A8697.4010606@us.ibm.com> <Pine.LNX.4.62.0505171707100.18365@graphe.net>
+In-Reply-To: <Pine.LNX.4.62.0505171707100.18365@graphe.net>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> E.g. having a separate task count, which is incremented/decremented
-> only by clone/exit.  If the task count goes to zero, umount_tree is
-> called on root, but namespace is not freed.
+Christoph Lameter wrote:
+> On Tue, 17 May 2005, Matthew Dobson wrote:
 > 
-> And each mnt_namespace holds a proper reference to the namespace, so
-> it's safe to dereference it anytime.  When truly no more references
-> remain, the namespace can go away.
 > 
-> Hmm?
+>>Not a big fan of this patch.  It's not wrong, per-se, but it just doesn't
+>>sit right with me.  asm-generic/topology.h should be a fallback file for
+>>the arches that just want some sort of sane UP/SMP defaults.  The better
+>>(IMHO) solution is this patch.  Builds fine on PPC64.
+> 
+> 
+> And what happens if yet another function needs to be added for all arches? 
+> Then ppc64 will break again and you will fix it again?
 
-Here's a patch (compile and boot tested). 
+I think you explained it well yourself.  If another function needs to be
+added for ALL ARCHES, then ALL ARCHES will need to add the function.  In
+most cases there is no single function that is both CORRECT and GENERIC
+across all arches.  The way that i386, ia64, ppc64, etc. will map PCI Buses
+to Nodes (for instance) will NOT be the same.  Anyone who adds a new
+topology function has the responsibility of
+1) making sure it works for all arches which support topology, or
+2) getting the arch maintainers involved and helping them make sure it
+works for all arches.
 
-Now there are two solutions to one problem, the previous one is ugly,
-this one is buggy.  Which should it be?
+New topology functions don't really get added all that often.  We've got
+the basics (CPU, Mem, I/O Buses, Nodes) mapped in various ways, so there
+shouldn't be tons of new functions added.  If someone wants to add a new
+function, it's their responsibility to make sure that it doesn't break
+anyone's arch.
 
-Thanks,
-Miklos
+Regardless, I highly doubt Linus or Andrew will pick up a patch for a new
+topology function if it breaks some arch.
 
-Index: linux/include/linux/namespace.h
-===================================================================
---- linux.orig/include/linux/namespace.h	2005-05-18 18:02:24.000000000 +0200
-+++ linux/include/linux/namespace.h	2005-05-18 18:28:48.000000000 +0200
-@@ -7,18 +7,26 @@
- 
- struct namespace {
- 	atomic_t		count;
-+	atomic_t		task_count; /* how many tasks use this */
- 	struct vfsmount *	root;
- 	struct list_head	list;
- 	struct rw_semaphore	sem;
- };
- 
- extern int copy_namespace(int, struct task_struct *);
--extern void __put_namespace(struct namespace *namespace);
-+extern void __exit_namespace(struct namespace *namespace);
- 
- static inline void put_namespace(struct namespace *namespace)
- {
--	if (atomic_dec_and_test(&namespace->count))
--		__put_namespace(namespace);
-+	if (namespace && atomic_dec_and_test(&namespace->count))
-+		kfree(namespace);
-+}
-+
-+static inline struct namespace *get_namespace(struct namespace *namespace)
-+{
-+	if (namespace)
-+		atomic_inc(&namespace->count);
-+	return namespace;
- }
- 
- static inline void exit_namespace(struct task_struct *p)
-@@ -28,14 +36,10 @@ static inline void exit_namespace(struct
- 		task_lock(p);
- 		p->namespace = NULL;
- 		task_unlock(p);
--		put_namespace(namespace);
-+		if (atomic_dec_and_test(&p->namespace->task_count))
-+			__exit_namespace(p->namespace);
- 	}
- }
- 
--static inline void get_namespace(struct namespace *namespace)
--{
--	atomic_inc(&namespace->count);
--}
--
- #endif
- #endif
-Index: linux/fs/namespace.c
-===================================================================
---- linux.orig/fs/namespace.c	2005-05-18 17:42:46.000000000 +0200
-+++ linux/fs/namespace.c	2005-05-18 18:32:29.000000000 +0200
-@@ -160,7 +160,7 @@ clone_mnt(struct vfsmount *old, struct d
- 		mnt->mnt_root = dget(root);
- 		mnt->mnt_mountpoint = mnt->mnt_root;
- 		mnt->mnt_parent = mnt;
--		mnt->mnt_namespace = current->namespace;
-+		mnt->mnt_namespace = get_namespace(current->namespace);
- 
- 		/* stick the duplicate mount on the same expiry list
- 		 * as the original if that was on one */
-@@ -345,13 +345,15 @@ static void umount_tree(struct vfsmount 
- 	for (p = mnt; p; p = next_mnt(p, mnt)) {
- 		list_del(&p->mnt_list);
- 		list_add(&p->mnt_list, &kill);
--		p->mnt_namespace = NULL;
- 	}
- 
- 	while (!list_empty(&kill)) {
-+		struct namespace *n;
- 		mnt = list_entry(kill.next, struct vfsmount, mnt_list);
- 		list_del_init(&mnt->mnt_list);
- 		list_del_init(&mnt->mnt_fslink);
-+		n = mnt->mnt_namespace;
-+		mnt->mnt_namespace = NULL;
- 		if (mnt->mnt_parent == mnt) {
- 			spin_unlock(&vfsmount_lock);
- 		} else {
-@@ -361,6 +363,7 @@ static void umount_tree(struct vfsmount 
- 			path_release(&old_nd);
- 		}
- 		mntput(mnt);
-+		put_namespace(n);
- 		spin_lock(&vfsmount_lock);
- 	}
- }
-@@ -866,12 +869,9 @@ void mark_mounts_for_expiry(struct list_
- 		mnt = list_entry(graveyard.next, struct vfsmount, mnt_fslink);
- 		list_del_init(&mnt->mnt_fslink);
- 
--		/* don't do anything if the namespace is dead - all the
--		 * vfsmounts from it are going away anyway */
--		namespace = mnt->mnt_namespace;
--		if (!namespace || atomic_read(&namespace->count) <= 0)
-+		namespace = get_namespace(mnt->mnt_namespace);
-+		if (!namespace)
- 			continue;
--		get_namespace(namespace);
- 
- 		spin_unlock(&vfsmount_lock);
- 		down_write(&namespace->sem);
-@@ -1073,8 +1073,10 @@ int copy_namespace(int flags, struct tas
- 
- 	get_namespace(namespace);
- 
--	if (!(flags & CLONE_NEWNS))
-+	if (!(flags & CLONE_NEWNS)) {
-+		atomic_inc(&namespace->task_count);
- 		return 0;
-+	}
- 
- 	if (!capable(CAP_SYS_ADMIN)) {
- 		put_namespace(namespace);
-@@ -1086,6 +1088,7 @@ int copy_namespace(int flags, struct tas
- 		goto out;
- 
- 	atomic_set(&new_ns->count, 1);
-+	atomic_set(&new_ns->task_count, 1);
- 	init_rwsem(&new_ns->sem);
- 	INIT_LIST_HEAD(&new_ns->list);
- 
-@@ -1109,7 +1112,9 @@ int copy_namespace(int flags, struct tas
- 	p = namespace->root;
- 	q = new_ns->root;
- 	while (p) {
--		q->mnt_namespace = new_ns;
-+		struct namespace *oldns = q->mnt_namespace;
-+		q->mnt_namespace = get_namespace(new_ns);
-+		put_namespace(oldns);
- 		if (fs) {
- 			if (p == fs->rootmnt) {
- 				rootmnt = p;
-@@ -1381,16 +1386,17 @@ static void __init init_mount_tree(void)
- 	if (!namespace)
- 		panic("Can't allocate initial namespace");
- 	atomic_set(&namespace->count, 1);
-+	atomic_set(&namespace->task_count, 0);
- 	INIT_LIST_HEAD(&namespace->list);
- 	init_rwsem(&namespace->sem);
- 	list_add(&mnt->mnt_list, &namespace->list);
- 	namespace->root = mnt;
--	mnt->mnt_namespace = namespace;
-+	mnt->mnt_namespace = get_namespace(namespace);
- 
- 	init_task.namespace = namespace;
- 	read_lock(&tasklist_lock);
- 	do_each_thread(g, p) {
--		get_namespace(namespace);
-+		atomic_inc(&namespace->task_count);
- 		p->namespace = namespace;
- 	} while_each_thread(g, p);
- 	read_unlock(&tasklist_lock);
-@@ -1448,12 +1454,13 @@ void __init mnt_init(unsigned long mempa
- 	init_mount_tree();
- }
- 
--void __put_namespace(struct namespace *namespace)
-+void __exit_namespace(struct namespace *namespace)
- {
- 	down_write(&namespace->sem);
- 	spin_lock(&vfsmount_lock);
- 	umount_tree(namespace->root);
-+	namespace->root = NULL;
- 	spin_unlock(&vfsmount_lock);
- 	up_write(&namespace->sem);
--	kfree(namespace);
-+	put_namespace(namespace);
- }
-Index: linux/fs/super.c
-===================================================================
---- linux.orig/fs/super.c	2005-05-17 13:46:56.000000000 +0200
-+++ linux/fs/super.c	2005-05-18 18:44:18.000000000 +0200
-@@ -37,6 +37,7 @@
- #include <linux/writeback.h>		/* for the emergency remount stuff */
- #include <linux/idr.h>
- #include <linux/kobject.h>
-+#include <linux/namespace.h>
- #include <asm/uaccess.h>
- 
- 
-@@ -842,7 +843,7 @@ do_kern_mount(const char *fstype, int fl
- 	mnt->mnt_root = dget(sb->s_root);
- 	mnt->mnt_mountpoint = sb->s_root;
- 	mnt->mnt_parent = mnt;
--	mnt->mnt_namespace = current->namespace;
-+	mnt->mnt_namespace = get_namespace(current->namespace);
- 	up_write(&sb->s_umount);
- 	put_filesystem(type);
- 	return mnt;
+-Matt

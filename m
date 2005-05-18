@@ -1,71 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262383AbVERV0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262388AbVERVax@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262383AbVERV0e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 17:26:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbVERV0d
+	id S262388AbVERVax (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 17:30:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbVERVax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 17:26:33 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:21428 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262385AbVERV0R
+	Wed, 18 May 2005 17:30:53 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:39432 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262394AbVERVa0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 17:26:17 -0400
-Message-ID: <428BB335.9060204@tmr.com>
-Date: Wed, 18 May 2005 17:27:17 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: "loop device recursion avoidance" patch causes difficulties
-References: <73e1f59805051704216bc4c78f@mail.gmail.com>
-In-Reply-To: <73e1f59805051704216bc4c78f@mail.gmail.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 18 May 2005 17:30:26 -0400
+Date: Thu, 19 May 2005 07:29:47 +1000
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Linux Audit Discussion <linux-audit@redhat.com>, netdev@oss.sgi.com,
+       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc4-mm2 - sleeping function called from invalid context at mm/slab.c:2502
+Message-ID: <20050518212947.GA20204@gondor.apana.org.au>
+References: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu> <20050517165528.GB27549@shell0.pdx.osdl.net> <1116349464.23972.118.camel@hades.cambridge.redhat.com> <20050517174300.GE27549@shell0.pdx.osdl.net> <20050518083002.GA30689@gondor.apana.org.au> <20050518170033.GT27549@shell0.pdx.osdl.net> <1116438756.25594.76.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1116438756.25594.76.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6+20040907i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Luboš Doležel wrote:
-> Hello,
+On Wed, May 18, 2005 at 06:52:35PM +0100, David Woodhouse wrote:
 > 
-> I've created a bugreport at http://bugme.osdl.org/show_bug.cgi?id=4472
-> and I was advised to write to this list.
-> 
-> A patch called "loop device recursion avoidance" which appeared in
-> 2.6.11 kernel has complicated ISO image mounting from another mounted
-> media.
-> 
-> Example:
-> 
-> # mount /mnt/dvd
-> # mount -o loop /mnt/dvd/file.iso /somedir
-> 
-> The mount command produces this error: "ioctl: LOOP_SET_FD: Invalid argument".
-> 
-> This operation maybe is a kind of recursion but I think that recursion
-> should be limited - not disabled.
-> Now I have to copy the ISO image to my hdd before mounting. I used to
-> put CD backups on DVDs; now it's more complicated to use.
+> I've reverted your recent change to put audit messages directly into
+> skbs "in order to eliminate the extra copy", on the basis that it
+> blatantly wasn't having that effect anyway. Now we copy from the
+> audit_buffer into an optimally-sized skb which netlink_trim() won't have
+> to mangle. I've also removed the skb_get() immediately before
+> netlink_send() which always made me unhappy.
 
-Far worse than complicated, it just doesn't work... I'm glad you found 
-this before I did, I have loads of similar things, created when a number 
-  of small system were decomissioned and each partition was written raw 
-as a file. Like:
-   machineA/part1
-   machineA/part2
-   machineB/part1
-and similar. These were all 525MB drives, but the data is moderately 
-critical. I've been successful mounting with all older kernel, except 
-the SysVR4 images, which have a filesystem Linux can't handle (from 
-Dell's brief adventure with SysVR4). Now it appears that I will have to 
-copy the data to a drive to use it, which is a minor pain since the 
-process is in scripts.
+Even if the audit code is never going to call netlink_unicast with
+spin locks held, we simply cannot assume that for all current and
+future users of netlink_unicast.
 
-Another case of fixing a problem without completely understanding it, I 
-fear. At least one machine had a partition with floppy images, I hope 
-they weren't loop mounting them, although it's likely they just burn a 
-fresh floppy when needed (boot disks for control PCs).
+As a consequence we can't use gfp_any() in netlink_unicast.
 
+Cheers,
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

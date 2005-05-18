@@ -1,61 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261701AbVERMji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVERMmS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261701AbVERMji (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 08:39:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVERMhQ
+	id S261254AbVERMmS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 08:42:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261426AbVERMmS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 08:37:16 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:33244 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261426AbVERMgy (ORCPT
+	Wed, 18 May 2005 08:42:18 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:405 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261254AbVERMlv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 08:36:54 -0400
-Message-ID: <428B3664.7030906@redhat.com>
-Date: Wed, 18 May 2005 08:34:44 -0400
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Mozilla Thunderbird  (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Justin Piszcz <jpiszcz@lucidpixels.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Reproducible 2.6.11.9 NFS Kernel Crashing Bug!
-References: <Pine.LNX.4.63.0505140911580.2342@localhost.localdomain> <1116341217.21388.145.camel@localhost.localdomain> <Pine.LNX.4.63.0505172036020.2028@localhost.localdomain>
-In-Reply-To: <Pine.LNX.4.63.0505172036020.2028@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 18 May 2005 08:41:51 -0400
+Date: Wed, 18 May 2005 18:11:44 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Alexander Nyberg <alexn@telia.com>
+Cc: fastboot@lists.osdl.org,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Morton Andrew Morton <akpm@osdl.org>
+Subject: Re: [Fastboot] [2/2] kdump: Save trap information for later analyzis
+Message-ID: <20050518124144.GB3657@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <1116103800.6153.31.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1116103800.6153.31.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Justin Piszcz wrote:
+On Sat, May 14, 2005 at 10:50:00PM +0200, Alexander Nyberg wrote:
+> If we are faulting in kernel it is quite possible this will lead to a
+> panic. Save trap number, cr2 (in case of page fault) and error_code in
+> the current thread (these fields already exist for signal delivery but
+> are not used here). 
+> 
+> This helps later kdump crash analyzing from user-space (a script has
+> been submitted to dig this info out in gdb).
+> 
+> Signed-off-by: Alexander Nyberg <alexn@telia.com>
+> 
+> Index: mm/arch/i386/mm/fault.c
+> ===================================================================
+> --- mm.orig/arch/i386/mm/fault.c	2005-05-14 22:05:56.000000000 +0200
+> +++ mm/arch/i386/mm/fault.c	2005-05-14 22:06:21.000000000 +0200
+> @@ -469,6 +469,9 @@
+>  		printk(KERN_ALERT "*pte = %08lx\n", page);
+>  	}
+>  #endif
+> +	tsk->thread.cr2 = address;
+> +	tsk->thread.trap_no = 14;
+> +	tsk->thread.error_code = error_code;
+>  	die("Oops", regs, error_code);
+>  	bust_spinlocks(0);
+>  	do_exit(SIGKILL);
+> Index: mm/arch/i386/kernel/traps.c
+> ===================================================================
+> --- mm.orig/arch/i386/kernel/traps.c	2005-05-14 22:05:56.000000000 +0200
+> +++ mm/arch/i386/kernel/traps.c	2005-05-14 22:06:21.000000000 +0200
+> @@ -431,8 +431,11 @@
+>  	}
+>  
+>  	kernel_trap: {
+> -		if (!fixup_exception(regs))
+> +		if (!fixup_exception(regs)) {
+> +			current->thread.trap_no = trapnr;
+> +			current->thread.error_code = error_code;
+>  			die(str, regs, error_code);
+> +		}
+>  		return;
+>  	}
+>  
+> @@ -537,6 +540,9 @@
+>  	}
+>  	put_cpu();
+>  
+> +	current->thread.error_code = error_code;
+> +	current->thread.trap_no = 13;
+> +	
 
-> And I am using UDP, not TCP.
->
-> NFS Version 3.
+
+This assignment is being done again in case thread was running in user mode.
+That can now be done away with as above code will take care of both the cases.
+
+	if (!user_mode(regs))
+		goto gp_in_kernel;
+
+	current->thread.error_code = error_code;
+	current->thread.trap_no = 13;
+	force_sig(SIGSEGV, current);
 
 
-You may able to specify rsize and wsize of 65536 with NFS Version 3 running
-over UDP, but it is guaranteed not to work if either the client or the 
-server attempts
-a 64K transfer.
 
-The problem is that UDP is limited to a 64K datagram.  This datagram 
-must hold
-the data, some NFS protocol data structures, and some RPC data 
-structures.  This
-exceeds the 64K limit.  RPC over UDP will not allow the use of multiple UDP
-datagrams, so RPC over UDP is limited to less than 64K payloads.  RPC over
-TCP will allow larger operations because there is no such single 
-datagram limit.
+>  	if (regs->eflags & VM_MASK)
+>  		goto gp_in_vm86;
+>  
+> @@ -977,9 +983,9 @@
+>  					  error_code);
+>  			return;
+>  		}
+> -		die_if_kernel("cache flush denied", regs, error_code);
+>  		current->thread.trap_no = 19;
+>  		current->thread.error_code = error_code;
+> +		die_if_kernel("cache flush denied", regs, error_code);
+>  		force_sig(SIGSEGV, current);
+>  	}
+>  }
+> 
+> 
 
-You could specify 56K or 60K transfer sizes if you wanted to stay at a 
-multiple
-of 8K or 4K, but there doesn't seem to be much point.  The 32K number was
-chosen because it was the largest power of 2 below 64K and seems to work
-pretty well in most circumstances.
+> _______________________________________________
+> fastboot mailing list
+> fastboot@lists.osdl.org
+> http://lists.osdl.org/mailman/listinfo/fastboot
 
-In general, I wouldn't recommend mucking with the read/write transfer sizes
-unless you really know what you are doing and understand the target 
-environment
-very well.
-
-       ps

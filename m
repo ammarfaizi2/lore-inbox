@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262301AbVERQpb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262334AbVERQxd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262301AbVERQpb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 12:45:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262302AbVERQle
+	id S262334AbVERQxd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 12:53:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262312AbVERQwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 12:41:34 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:58066 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262319AbVERQi7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 12:38:59 -0400
-Date: Wed, 18 May 2005 09:43:48 -0700
-From: Matt Tolentino <metolent@snoqualmie.dp.intel.com>
-Message-Id: <200505181643.j4IGhm7S026977@snoqualmie.dp.intel.com>
-To: ak@muc.de, metolent@snoqualmie.dp.intel.com
-Subject: Re: [patch 2/4] add x86-64 Kconfig options for sparsemem
-Cc: akpm@osdl.org, apw@shadowen.org, haveblue@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
+	Wed, 18 May 2005 12:52:05 -0400
+Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:8832 "EHLO
+	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
+	id S262334AbVERQp6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 12:45:58 -0400
+Message-ID: <428B7143.4090607@ammasso.com>
+Date: Wed, 18 May 2005 11:45:55 -0500
+From: Timur Tabi <timur.tabi@ammasso.com>
+Organization: Ammasso
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en, en-gb
+MIME-Version: 1.0
+To: Christopher Li <lkml@chrisli.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: sparse error: unable to open 'stdarg.h'
+References: <428A661C.1030100@ammasso.com> <20050517201148.GA12997@64m.dyndns.org> <428B4C67.5090307@ammasso.com> <20050518123854.GA13452@64m.dyndns.org> <428B646C.3030501@ammasso.com> <20050518132417.GA14488@64m.dyndns.org>
+In-Reply-To: <20050518132417.GA14488@64m.dyndns.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Andi Kleen <ak@muc.de>
->On Wed, May 18, 2005 at 08:24:41AM -0700, Matt Tolentino wrote:
->> 
->> Add the requisite arch specific Kconfig options to enable 
->> the use of the sparsemem implementation for NUMA kernels
->> on x86-64.
->
->How much did you test sparsemem on x86-64 NUMA ? 
->
->There are various cases that probably need to be checked,
->AMD with SRAT, AMD without SRAT, AMD with more than 4GB RAM, 
->Summit(?), NUMA EMULATION etc.
->
->If all that works I would have no problem with removing the
->old code.
+Christopher Li wrote:
 
-As my disclaimer said, this has only been tested using
-the NUMA EMULATION config option.  That's a big part of
-the reason for sending this out  - to get further testing 
-on real x86-64 NUMA systems, but without breaking the
-current discontigmem code.  
+> I think I know that it is. There is a "-nostdinc" in the sparse
+> options, which I saw it in the other email you send out. It
+> drop the internal include path. Gcc is does the same thing.
+> 
+> gcc -c -nostdinc /tmp/test.c
+> /tmp/test.c:1:22: no include path in which to find stdarg.h
 
-I expect to be able to test this on at least one AMD system
-at the local University systems lab, but haven't had a
-chance to do so yet.
+That option is set in the a_flags variable.  I'm looking through the kbuild files 
+(Makefile, etc) to see why a_flags is being used to build my driver.
 
-matt
+As far as I'm concerned, this is a bug in kbuild, and I think it only shows up with 
+external modules.
 
+-- 
+Timur Tabi
+Staff Software Engineer
+timur.tabi@ammasso.com
+
+One thing a Southern boy will never say is,
+"I don't think duct tape will fix it."
+      -- Ed Smylie, NASA engineer for Apollo 13

@@ -1,97 +1,283 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262286AbVERSnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262219AbVERStI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262286AbVERSnV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 14:43:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbVERSnV
+	id S262219AbVERStI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 14:49:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbVERStI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 14:43:21 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:15295 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262313AbVERSmf convert rfc822-to-8bit
+	Wed, 18 May 2005 14:49:08 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:37560 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262209AbVERSsY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 14:42:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=rJmJCTw2RhrlWSlWdleQOl8dRl1T2+YQ9Lw06G9XuaeqMXZhMEpvS/mgwdkUX/Iy/CVtg4d3blKaKJ+91CsUXD46/u1n+R3l9HbsVn2/BAz9CQ5TQVWFKDFt0NFplV6bxwPFXkXaz3WxsXgm4QOBLkNKgPVZVd8peVywXFgTxBc=
-Message-ID: <377362e10505181142252ec930@mail.gmail.com>
-Date: Thu, 19 May 2005 03:42:31 +0900
-From: "Tetsuji \"Maverick\" Rai" <tetsuji.rai@gmail.com>
-Reply-To: "Tetsuji \"Maverick\" Rai" <tetsuji.rai@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: HT scheduler: is it really correct? or is it feature of HT?
+	Wed, 18 May 2005 14:48:24 -0400
+Subject: Re: [PATCH] fix race in mark_mounts_for_expiry()
+From: Ram <linuxram@us.ibm.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: dhowells@redhat.com, jamie@shareable.org,
+       viro@parcelfarce.linux.theplanet.co.uk, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+In-Reply-To: <E1DYRnw-0001J6-00@dorka.pomaz.szeredi.hu>
+References: <E1DYMVf-0000hD-00@dorka.pomaz.szeredi.hu>
+	 <E1DYMB6-0000dw-00@dorka.pomaz.szeredi.hu>
+	 <E1DYLvb-0000as-00@dorka.pomaz.szeredi.hu>
+	 <E1DYLCv-0000W7-00@dorka.pomaz.szeredi.hu>
+	 <1116005355.6248.372.camel@localhost>
+	 <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu>
+	 <1116012287.6248.410.camel@localhost>
+	 <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu>
+	 <1116013840.6248.429.camel@localhost>
+	 <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu>
+	 <1116256279.4154.41.camel@localhost>
+	 <20050516111408.GA21145@mail.shareable.org>
+	 <1116301843.4154.88.camel@localhost>
+	 <E1DXm08-0006XD-00@dorka.pomaz.szeredi.hu>
+	 <20050517012854.GC32226@mail.shareable.org>
+	 <E1DXuiu-0007Mj-00@dorka.pomaz.szeredi.hu>
+	 <1116360352.24560.85.camel@localhost>
+	 <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu>
+	 <1116399887.24560.116.camel@localhost>
+	 <1116400118.24560.119.camel@localhost> <6865.1116412354@redhat.com>
+	 <7230.1116413175@redhat.com> <8247.1116413990@redhat.com>
+	 <9498.1116417099@redhat.com> <E1DYNLt-0000nu-00@dorka.pomaz.szeredi! .hu>
+	 <E1DYNjR-0000po-00@dorka.pomaz.szeredi.hu>
+	 <E1DYRnw-0001J6-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain
+Organization: IBM 
+Message-Id: <1116442073.24560.142.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Wed, 18 May 2005 11:47:54 -0700
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm wondering linux kernel's HT support is correct or not, or whether
-it's a feature of P4 HT.
+On Wed, 2005-05-18 at 09:53, Miklos Szeredi wrote:
+> > E.g. having a separate task count, which is incremented/decremented
+> > only by clone/exit.  If the task count goes to zero, umount_tree is
+> > called on root, but namespace is not freed.
+> > 
+> > And each mnt_namespace holds a proper reference to the namespace, so
+> > it's safe to dereference it anytime.  When truly no more references
+> > remain, the namespace can go away.
+> > 
+> > Hmm?
 
-I'm running boinc/seti in the background with nice=19 on my P4 2.8G HT
-enabled linux box, kernel 2.6.11.9, where SMT/HT is enabled.
+First of all the reason this race exists implies Al Viro may have had
+assertion in his mind that "All tasks that have access to a namespace
+has a refcount on that namespace".  If that was what he was thinking,
+than the I would stick with that assertion being true. The overall idea
+I am thinking off is:
 
-I often watch system monitor applet on gnome desktop or top command in
-a termianl window and see when no other applications than boinc is
-running, boinc takes full power of both virtual cpus.   It is designed
-to run to "fill" the idle power of the cpu(s).   However any
-application is running, there is always some "idle" part appears on
-virtual cpus, hence it looks like it wastes up to half of cpu power as
-"idle."
+1) have the automounter hold a refcount on any new namespace created
+    the mounts in which the automounter has interest in.
+2) have a refcount on the namespace when a new task gains access to
+   a namespace through the file descriptor or any other 
+   similar mechanisms and remove the reference
+   once the fd gets closed. (bit tricky to implement)
 
-For ex, see this "top" result while a vmware is running.   (HT is
-enabled)  setiathome-4.7(blah--) are the background boinc applications
-with nice=19.
+Do you agree with the overall idea? 
+If so I will try to come up with a patch. 
 
------------------------------------------------------------------
-top - 03:21:30 up  1:58, 15 users,  load average: 4.53, 4.56, 4.78
-Tasks: 183 total,   5 running, 178 sleeping,   0 stopped,   0 zombie
-Cpu0  :  0.3% us, 94.0% sy,  4.7% ni,  0.7% id,  0.0% wa,  0.3% hi,  0.0% si
-Cpu1  :  2.7% us,  1.0% sy, 11.0% ni, 82.4% id,  3.0% wa,  0.0% hi,  0.0% si
-Mem:    905068k total,   893584k used,    11484k free,     3840k buffers
-Swap:  1662688k total,        0k used,  1662688k free,   526900k cached
+RP
 
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 8490 tetsuji   25   0  205m 164m 154m R 93.7 18.7  75:10.29 vmware-vmx
- 7092 boinc     39  19 22828  18m 2012 R  5.6  2.1  27:22.04 setiathome-4.7.
- 8605 boinc     39  19 24992  20m 3212 R  5.6  2.3  20:58.46 setiathome-4.7.
- 7091 boinc     39  19 22696  18m 2012 R  4.7  2.1  27:01.92 setiathome-4.7.
- 7220 root      16   0  180m  32m 9396 S  1.3  3.6   3:23.59 X
- 7295 tetsuji   15   0 40936  28m 8356 S  1.3  3.2   0:38.64 gnome-terminal
- 8483 tetsuji    6 -10  205m 164m 154m S  0.7 18.7   1:04.59 vmware-vmx
- 7370 tetsuji   17   0 18348 9356 7176 S  0.3  1.0   0:09.53 clock-applet
+> 
+> Here's a patch (compile and boot tested). 
+> 
+> Now there are two solutions to one problem, the previous one is ugly,
+> this one is buggy.  Which should it be?
+> 
+> Thanks,
+> Miklos
+> 
+> Index: linux/include/linux/namespace.h
+> ===================================================================
+> --- linux.orig/include/linux/namespace.h	2005-05-18 18:02:24.000000000 +0200
+> +++ linux/include/linux/namespace.h	2005-05-18 18:28:48.000000000 +0200
+> @@ -7,18 +7,26 @@
+>  
+>  struct namespace {
+>  	atomic_t		count;
+> +	atomic_t		task_count; /* how many tasks use this */
+>  	struct vfsmount *	root;
+>  	struct list_head	list;
+>  	struct rw_semaphore	sem;
+>  };
+>  
+>  extern int copy_namespace(int, struct task_struct *);
+> -extern void __put_namespace(struct namespace *namespace);
+> +extern void __exit_namespace(struct namespace *namespace);
+>  
+>  static inline void put_namespace(struct namespace *namespace)
+>  {
+> -	if (atomic_dec_and_test(&namespace->count))
+> -		__put_namespace(namespace);
+> +	if (namespace && atomic_dec_and_test(&namespace->count))
+> +		kfree(namespace);
+> +}
+> +
+> +static inline struct namespace *get_namespace(struct namespace *namespace)
+> +{
+> +	if (namespace)
+> +		atomic_inc(&namespace->count);
+> +	return namespace;
+>  }
+>  
+>  static inline void exit_namespace(struct task_struct *p)
+> @@ -28,14 +36,10 @@ static inline void exit_namespace(struct
+>  		task_lock(p);
+>  		p->namespace = NULL;
+>  		task_unlock(p);
+> -		put_namespace(namespace);
+> +		if (atomic_dec_and_test(&p->namespace->task_count))
+> +			__exit_namespace(p->namespace);
+>  	}
+>  }
+>  
+> -static inline void get_namespace(struct namespace *namespace)
+> -{
+> -	atomic_inc(&namespace->count);
+> -}
+> -
+>  #endif
+>  #endif
+> Index: linux/fs/namespace.c
+> ===================================================================
+> --- linux.orig/fs/namespace.c	2005-05-18 17:42:46.000000000 +0200
+> +++ linux/fs/namespace.c	2005-05-18 18:32:29.000000000 +0200
+> @@ -160,7 +160,7 @@ clone_mnt(struct vfsmount *old, struct d
+>  		mnt->mnt_root = dget(root);
+>  		mnt->mnt_mountpoint = mnt->mnt_root;
+>  		mnt->mnt_parent = mnt;
+> -		mnt->mnt_namespace = current->namespace;
+> +		mnt->mnt_namespace = get_namespace(current->namespace);
+>  
+>  		/* stick the duplicate mount on the same expiry list
+>  		 * as the original if that was on one */
+> @@ -345,13 +345,15 @@ static void umount_tree(struct vfsmount 
+>  	for (p = mnt; p; p = next_mnt(p, mnt)) {
+>  		list_del(&p->mnt_list);
+>  		list_add(&p->mnt_list, &kill);
+> -		p->mnt_namespace = NULL;
+>  	}
+>  
+>  	while (!list_empty(&kill)) {
+> +		struct namespace *n;
+>  		mnt = list_entry(kill.next, struct vfsmount, mnt_list);
+>  		list_del_init(&mnt->mnt_list);
+>  		list_del_init(&mnt->mnt_fslink);
+> +		n = mnt->mnt_namespace;
+> +		mnt->mnt_namespace = NULL;
+>  		if (mnt->mnt_parent == mnt) {
+>  			spin_unlock(&vfsmount_lock);
+>  		} else {
+> @@ -361,6 +363,7 @@ static void umount_tree(struct vfsmount 
+>  			path_release(&old_nd);
+>  		}
+>  		mntput(mnt);
+> +		put_namespace(n);
+>  		spin_lock(&vfsmount_lock);
+>  	}
+>  }
+> @@ -866,12 +869,9 @@ void mark_mounts_for_expiry(struct list_
+>  		mnt = list_entry(graveyard.next, struct vfsmount, mnt_fslink);
+>  		list_del_init(&mnt->mnt_fslink);
+>  
+> -		/* don't do anything if the namespace is dead - all the
+> -		 * vfsmounts from it are going away anyway */
+> -		namespace = mnt->mnt_namespace;
+> -		if (!namespace || atomic_read(&namespace->count) <= 0)
+> +		namespace = get_namespace(mnt->mnt_namespace);
+> +		if (!namespace)
+>  			continue;
+> -		get_namespace(namespace);
+>  
+>  		spin_unlock(&vfsmount_lock);
+>  		down_write(&namespace->sem);
+> @@ -1073,8 +1073,10 @@ int copy_namespace(int flags, struct tas
+>  
+>  	get_namespace(namespace);
+>  
+> -	if (!(flags & CLONE_NEWNS))
+> +	if (!(flags & CLONE_NEWNS)) {
+> +		atomic_inc(&namespace->task_count);
+>  		return 0;
+> +	}
+>  
+>  	if (!capable(CAP_SYS_ADMIN)) {
+>  		put_namespace(namespace);
+> @@ -1086,6 +1088,7 @@ int copy_namespace(int flags, struct tas
+>  		goto out;
+>  
+>  	atomic_set(&new_ns->count, 1);
+> +	atomic_set(&new_ns->task_count, 1);
+>  	init_rwsem(&new_ns->sem);
+>  	INIT_LIST_HEAD(&new_ns->list);
+>  
+> @@ -1109,7 +1112,9 @@ int copy_namespace(int flags, struct tas
+>  	p = namespace->root;
+>  	q = new_ns->root;
+>  	while (p) {
+> -		q->mnt_namespace = new_ns;
+> +		struct namespace *oldns = q->mnt_namespace;
+> +		q->mnt_namespace = get_namespace(new_ns);
+> +		put_namespace(oldns);
+>  		if (fs) {
+>  			if (p == fs->rootmnt) {
+>  				rootmnt = p;
+> @@ -1381,16 +1386,17 @@ static void __init init_mount_tree(void)
+>  	if (!namespace)
+>  		panic("Can't allocate initial namespace");
+>  	atomic_set(&namespace->count, 1);
+> +	atomic_set(&namespace->task_count, 0);
+>  	INIT_LIST_HEAD(&namespace->list);
+>  	init_rwsem(&namespace->sem);
+>  	list_add(&mnt->mnt_list, &namespace->list);
+>  	namespace->root = mnt;
+> -	mnt->mnt_namespace = namespace;
+> +	mnt->mnt_namespace = get_namespace(namespace);
+>  
+>  	init_task.namespace = namespace;
+>  	read_lock(&tasklist_lock);
+>  	do_each_thread(g, p) {
+> -		get_namespace(namespace);
+> +		atomic_inc(&namespace->task_count);
+>  		p->namespace = namespace;
+>  	} while_each_thread(g, p);
+>  	read_unlock(&tasklist_lock);
+> @@ -1448,12 +1454,13 @@ void __init mnt_init(unsigned long mempa
+>  	init_mount_tree();
+>  }
+>  
+> -void __put_namespace(struct namespace *namespace)
+> +void __exit_namespace(struct namespace *namespace)
+>  {
+>  	down_write(&namespace->sem);
+>  	spin_lock(&vfsmount_lock);
+>  	umount_tree(namespace->root);
+> +	namespace->root = NULL;
+>  	spin_unlock(&vfsmount_lock);
+>  	up_write(&namespace->sem);
+> -	kfree(namespace);
+> +	put_namespace(namespace);
+>  }
+> Index: linux/fs/super.c
+> ===================================================================
+> --- linux.orig/fs/super.c	2005-05-17 13:46:56.000000000 +0200
+> +++ linux/fs/super.c	2005-05-18 18:44:18.000000000 +0200
+> @@ -37,6 +37,7 @@
+>  #include <linux/writeback.h>		/* for the emergency remount stuff */
+>  #include <linux/idr.h>
+>  #include <linux/kobject.h>
+> +#include <linux/namespace.h>
+>  #include <asm/uaccess.h>
+>  
+> 
+> @@ -842,7 +843,7 @@ do_kern_mount(const char *fstype, int fl
+>  	mnt->mnt_root = dget(sb->s_root);
+>  	mnt->mnt_mountpoint = sb->s_root;
+>  	mnt->mnt_parent = mnt;
+> -	mnt->mnt_namespace = current->namespace;
+> +	mnt->mnt_namespace = get_namespace(current->namespace);
+>  	up_write(&sb->s_umount);
+>  	put_filesystem(type);
+>  	return mnt;
 
------------------------------------------------------------------
-
-When HT is disabled, top looks like this: note idle is 0.   nice fills
-the vacant cpu power.
-
------------------------------------------------------------------
-top - 03:37:25 up 10 min, 13 users,  load average: 5.31, 3.49, 1.66
-Tasks: 137 total,   3 running, 134 sleeping,   0 stopped,   0 zombie
-Cpu(s):  1.7% us, 43.9% sy, 51.2% ni,  0.0% id,  0.0% wa,  3.3% hi,  0.0% si
-Mem:    905068k total,   895784k used,     9284k free,     1328k buffers
-Swap:  1662688k total,        0k used,  1662688k free,   672892k cached
-Change delay from 3.0 to:
-  PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+  COMMAND
- 7350 boinc     39  19 22620  18m 2012 R 54.2  2.1   5:46.97 setiathome-4.7.
- 8126 tetsuji   15   0 93104  52m  47m S 35.2  6.0   1:14.76 vmware-vmx
- 8118 root      18   0  2200  876  724 R  5.7  0.1   0:13.71 tar
-   97 root      10  -5     0    0    0 S  1.0  0.0   0:02.98 kblockd/0
-  157 root      15   0     0    0    0 S  1.0  0.0   0:04.26 kswapd0
- 7169 root      15   0  171m  23m 7840 S  0.7  2.6   0:06.90 X
- 8166 root      15   0     0    0    0 S  0.7  0.0   0:00.06 pdflush
- 5182 root      15   0     0    0    0 S  0.3  0.0   0:02.84 kjournald
- 7242 tetsuji   15   0 29556  17m 8184 S  0.3  2.0   0:02.94 gnome-terminal
------------------------------------------------------------------
-
-Overall power is higher when HT is enabled, so I want to use it with HT enabled.
-
-regards,
-
--- 
-Luckiest in the world / Weapon of Mass Distraction
-http://maverick6664.bravehost.com/
-Aviation Jokes: http://www.geocities.com/tetsuji_rai/
-Background: http://maverick.ns1.name/

@@ -1,95 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262398AbVERVZk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262383AbVERV0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262398AbVERVZk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 17:25:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVERVY3
+	id S262383AbVERV0e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 17:26:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbVERV0d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 17:24:29 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:6382 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262394AbVERVX4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 17:23:56 -0400
-Message-ID: <428BB267.30809@us.ibm.com>
-Date: Wed, 18 May 2005 14:23:51 -0700
-From: Darren Hart <dvhltc@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
+	Wed, 18 May 2005 17:26:33 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:21428 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S262385AbVERV0R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 17:26:17 -0400
+Message-ID: <428BB335.9060204@tmr.com>
+Date: Wed, 18 May 2005 17:27:17 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "lkml, " <linux-kernel@vger.kernel.org>
-Subject: [PATCH] vm: try_to_free_pages unused argument
-Content-Type: multipart/mixed;
- boundary="------------080907020209060709070105"
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: "loop device recursion avoidance" patch causes difficulties
+References: <73e1f59805051704216bc4c78f@mail.gmail.com>
+In-Reply-To: <73e1f59805051704216bc4c78f@mail.gmail.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080907020209060709070105
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Luboš Doležel wrote:
+> Hello,
+> 
+> I've created a bugreport at http://bugme.osdl.org/show_bug.cgi?id=4472
+> and I was advised to write to this list.
+> 
+> A patch called "loop device recursion avoidance" which appeared in
+> 2.6.11 kernel has complicated ISO image mounting from another mounted
+> media.
+> 
+> Example:
+> 
+> # mount /mnt/dvd
+> # mount -o loop /mnt/dvd/file.iso /somedir
+> 
+> The mount command produces this error: "ioctl: LOOP_SET_FD: Invalid argument".
+> 
+> This operation maybe is a kind of recursion but I think that recursion
+> should be limited - not disabled.
+> Now I have to copy the ISO image to my hdd before mounting. I used to
+> put CD backups on DVDs; now it's more complicated to use.
 
-try_to_free_pages accepts a third argument, order, but hasn't used it 
-since before 2.6.0.  The following patch removes the argument and 
-updates all the calls to try_to_free_pages.
+Far worse than complicated, it just doesn't work... I'm glad you found 
+this before I did, I have loads of similar things, created when a number 
+  of small system were decomissioned and each partition was written raw 
+as a file. Like:
+   machineA/part1
+   machineA/part2
+   machineB/part1
+and similar. These were all 525MB drives, but the data is moderately 
+critical. I've been successful mounting with all older kernel, except 
+the SysVR4 images, which have a filesystem Linux can't handle (from 
+Dell's brief adventure with SysVR4). Now it appears that I will have to 
+copy the data to a drive to use it, which is a minor pain since the 
+process is in scripts.
 
-Tested on a 4 way x86 box running kernbench.  No problems detected.
+Another case of fixing a problem without completely understanding it, I 
+fear. At least one machine had a partition with floppy images, I hope 
+they weren't loop mounting them, although it's likely they just burn a 
+fresh floppy when needed (boot disks for control PCs).
 
-Signed-off-by: Darren Hart <dvhltc@us.ibm.com>
-
---------------080907020209060709070105
-Content-Type: text/plain;
- name="try_to_free_pages-order"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="try_to_free_pages-order"
-
-diff -purN -X /home/dvhart/.diff.exclude /home/linux/views/linux-2.6.12-rc4/fs/buffer.c 2.6.12-rc4-order/fs/buffer.c
---- /home/linux/views/linux-2.6.12-rc4/fs/buffer.c	2005-05-06 23:22:28.000000000 -0700
-+++ 2.6.12-rc4-order/fs/buffer.c	2005-05-18 11:52:05.000000000 -0700
-@@ -528,7 +528,7 @@ static void free_more_memory(void)
- 	for_each_pgdat(pgdat) {
- 		zones = pgdat->node_zonelists[GFP_NOFS&GFP_ZONEMASK].zones;
- 		if (*zones)
--			try_to_free_pages(zones, GFP_NOFS, 0);
-+			try_to_free_pages(zones, GFP_NOFS);
- 	}
- }
- 
-diff -purN -X /home/dvhart/.diff.exclude /home/linux/views/linux-2.6.12-rc4/include/linux/swap.h 2.6.12-rc4-order/include/linux/swap.h
---- /home/linux/views/linux-2.6.12-rc4/include/linux/swap.h	2005-05-06 23:22:33.000000000 -0700
-+++ 2.6.12-rc4-order/include/linux/swap.h	2005-05-18 11:52:05.000000000 -0700
-@@ -172,7 +172,7 @@ extern int rotate_reclaimable_page(struc
- extern void swap_setup(void);
- 
- /* linux/mm/vmscan.c */
--extern int try_to_free_pages(struct zone **, unsigned int, unsigned int);
-+extern int try_to_free_pages(struct zone **, unsigned int);
- extern int shrink_all_memory(int);
- extern int vm_swappiness;
- 
-diff -purN -X /home/dvhart/.diff.exclude /home/linux/views/linux-2.6.12-rc4/mm/page_alloc.c 2.6.12-rc4-order/mm/page_alloc.c
---- /home/linux/views/linux-2.6.12-rc4/mm/page_alloc.c	2005-05-06 23:22:34.000000000 -0700
-+++ 2.6.12-rc4-order/mm/page_alloc.c	2005-05-18 11:52:05.000000000 -0700
-@@ -829,7 +829,7 @@ rebalance:
- 	reclaim_state.reclaimed_slab = 0;
- 	p->reclaim_state = &reclaim_state;
- 
--	did_some_progress = try_to_free_pages(zones, gfp_mask, order);
-+	did_some_progress = try_to_free_pages(zones, gfp_mask);
- 
- 	p->reclaim_state = NULL;
- 	p->flags &= ~PF_MEMALLOC;
-diff -purN -X /home/dvhart/.diff.exclude /home/linux/views/linux-2.6.12-rc4/mm/vmscan.c 2.6.12-rc4-order/mm/vmscan.c
---- /home/linux/views/linux-2.6.12-rc4/mm/vmscan.c	2005-05-06 23:22:34.000000000 -0700
-+++ 2.6.12-rc4-order/mm/vmscan.c	2005-05-18 11:52:05.000000000 -0700
-@@ -907,8 +907,7 @@ shrink_caches(struct zone **zones, struc
-  * holds filesystem locks which prevent writeout this might not work, and the
-  * allocation attempt will fail.
-  */
--int try_to_free_pages(struct zone **zones,
--		unsigned int gfp_mask, unsigned int order)
-+int try_to_free_pages(struct zone **zones, unsigned int gfp_mask)
- {
- 	int priority;
- 	int ret = 0;
-
---------------080907020209060709070105--
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

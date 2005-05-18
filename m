@@ -1,37 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262136AbVERJQO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262131AbVERJSY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262136AbVERJQO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 05:16:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbVERJQO
+	id S262131AbVERJSY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 05:18:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262137AbVERJSY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 05:16:14 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:34966 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S262136AbVERJQL (ORCPT
+	Wed, 18 May 2005 05:18:24 -0400
+Received: from fire.osdl.org ([65.172.181.4]:45189 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262131AbVERJSW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 05:16:11 -0400
-Message-ID: <428B09A6.DD188E8D@tv-sign.ru>
-Date: Wed, 18 May 2005 13:23:50 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Christoph Lameter <christoph@lameter.com>
-Cc: linux-kernel@vger.kernel.org, Mitchell Blank Jr <mitch@sfgoth.com>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] Optimize sys_times for a single thread process
-Content-Type: text/plain; charset=us-ascii
+	Wed, 18 May 2005 05:18:22 -0400
+Date: Wed, 18 May 2005 02:17:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Norbert Preining <preining@logic.at>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: hostap gone from 2.6.12-rc4-mm2?
+Message-Id: <20050518021708.23e9ed51.akpm@osdl.org>
+In-Reply-To: <20050518090255.GD28766@gamma.logic.tuwien.ac.at>
+References: <20050518090255.GD28766@gamma.logic.tuwien.ac.at>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
+Norbert Preining <preining@logic.at> wrote:
 >
-> +#ifdef CONFIG_SMP
-> +		if (current == next_thread(current)) {
-> +			/*
-> +			 * Single thread case without the use of any locks.
+>  The hostap wireless driver is missing from 2.6.12-rc4-mm2. I miss it ;-)
 
-A nitpick, but wouldn't be it clearer to to use
-thread_group_empty(current)?
-
-Oleg.
+oop, I accidentally commented out the relevant tree.   With luck you can add
+http://www.zip.com.au/~akpm/linux/patches/stuff/git-netdev-wifi.patch

@@ -1,86 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262308AbVERS3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262322AbVERSbL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262308AbVERS3A (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 14:29:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262302AbVERS2y
+	id S262322AbVERSbL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 14:31:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbVERS3O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 14:28:54 -0400
-Received: from mail2.dolby.com ([204.156.147.24]:36357 "EHLO dolby.com")
-	by vger.kernel.org with ESMTP id S262311AbVERSYR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 14:24:17 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Illegal use of reserved word in system.h
-Date: Wed, 18 May 2005 11:23:33 -0700
-Message-ID: <2692A548B75777458914AC89297DD7DA08B0866E@bronze.dolby.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Illegal use of reserved word in system.h
-Thread-Index: AcVbRKTuz1VVU1T1R9S3/QU8Umw/8gAhp4dQ
-From: "Gilbert, John" <JGG@dolby.com>
-To: <linux-kernel@vger.kernel.org>
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 18 May 2005 14:29:14 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:59789 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262313AbVERSZJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 14:25:09 -0400
+Subject: Re: software mixing in alsa
+From: Lee Revell <rlrevell@joe-job.com>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: Takashi Iwai <tiwai@suse.de>, Valdis.Kletnieks@vt.edu,
+       Karel Kulhavy <clock@twibright.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <428B5349.5090207@drzeus.cx>
+References: <20050517095613.GA9947@kestrel>
+	 <200505171208.04052.jan@spitalnik.net>	<20050517141307.GA7759@kestrel>
+	 <1116354762.31830.12.camel@mindpipe>
+	 <20050517192412.GA19431@kestrel.twibright.com>
+	 <200505172027.j4HKRjTV029545@turing-police.cc.vt.edu>
+	 <s5hll6csl0b.wl@alsa2.suse.de>  <428B5349.5090207@drzeus.cx>
+Content-Type: text/plain
+Date: Wed, 18 May 2005 14:25:04 -0400
+Message-Id: <1116440704.4866.3.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Wed, 2005-05-18 at 16:38 +0200, Pierre Ossman wrote:
+> Takashi Iwai wrote:
+> > 
+> > esd is working fine together with dmix.  You should try the latest
+> > versions (of esd and alsa-lib).  The old version of esd might have a
+> > bug.
+> > 
+> 
+> I'd beg to differ. I have to apply the patch made by you to avoid
+> getting a lot of distortions with esound and dmix:
+> 
+> http://bugzilla.gnome.org/show_bug.cgi?id=140803
+> 
+> Checking in the cvs, this still hasn't been commited.
 
-Sorry about the automatic disclaimer at the bottom of these emails, it's
-part of working here at Dolby. I'm sure it doesn't apply to this
-discussion.
+You really need to bug the Gnome developers about it.  Takashi-san
+posted the patch in January, and the bug is still listed as NEW.
 
-I had a few responses to this bug fix request (which I did mail to this
-list), none were what I was hoping for, namely "This will be fixed in
-the next release", so allow me to clarify.
-
-The problem: Linux kernel headers use C++ reserved words as variable
-names. This breaks builds of C++ code that include kernel headers.
-
-Examples: The use of "new" in the macro __cmpxchg in system.h. This hits
-MySQL which links into the kernel headers to determine if the platform
-is SMP aware or not (don't ask me why.) 
-	The use of "virtual" in the structure drm_buf_map in drm.h, used
-by drm_bufs.c. This hits C++ code that uses the DRI interface to lock
-with vertical retrace.
-
-The solution: rename these variables, keep C++ reserved words out of
-headers, make this practice part of the style guide.
-
-I'm not advocating writing parts of the kernel in C++, or cleaning out
-reserved words in the entire kernel. I know the one and only true
-language is C, but for Linux to achieve world domination it needs to be
-inclusive at running (and building) any software in whatever language.
-
-As to the comments stating that "Userspace code shouldn't include kernel
-headers", that's fine in the "Hello, World", but in the real world,
-applications need access to devices and system resources, which means
-communicating with the kernel with the proper ioctls, flags, system
-configuration, data structures, etc., which are kept in kernel headers.
-For this reason, breaking these apart from the application build
-environment is a really bad idea, no mater what Linus Torvalds has to
-say about it (see
-http://uwsg.iu.edu/hypermail/linux/kernel/0007.3/0587.html). It needs to
-be an fully integrated system for everything to run correctly.
-
-Besides, I don't have time to rewrite MySQL in C to make it "correct".
-I've got more important things to do. ;^)
-
-So please, keep your headers clean.
-
-John Gilbert
-jgg@dolby.com
-
-Ignore the sig.
-###############
-
------------------------------------------
-This message (including any attachments) may contain confidential
-information intended for a specific individual and purpose.  If you are not
-the intended recipient, delete this message.  If you are not the intended
-recipient, disclosing, copying, distributing, or taking any action based on
-this message is strictly prohibited.
+Lee
 

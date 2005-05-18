@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262281AbVERSVL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262331AbVERSZb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262281AbVERSVL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 14:21:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262267AbVERSVK
+	id S262331AbVERSZb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 14:25:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262273AbVERSZB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 14:21:10 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:61738 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S262281AbVERSUl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 14:20:41 -0400
-Date: Wed, 18 May 2005 20:22:17 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: sparse error: unable to open 'stdarg.h'
-Message-ID: <20050518182217.GA8130@mars.ravnborg.org>
-References: <428A661C.1030100@ammasso.com> <428A729E.8040207@ammasso.com>
+	Wed, 18 May 2005 14:25:01 -0400
+Received: from mail.kroah.org ([69.55.234.183]:37076 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262267AbVERSXJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 14:23:09 -0400
+Date: Wed, 18 May 2005 11:28:23 -0700
+From: Greg KH <greg@kroah.com>
+To: Stefan Smietanowski <stesmi@stesmi.com>
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net,
+       MCU.Tools@silabs.com
+Subject: Re: Linux support for SiLabs CP210x devices
+Message-ID: <20050518182821.GA18855@kroah.com>
+References: <20041118173908.GA10667@kroah.com> <20050518155815.GA16544@kroah.com> <428B82A5.6080705@stesmi.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <428A729E.8040207@ammasso.com>
+In-Reply-To: <428B82A5.6080705@stesmi.com>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 17, 2005 at 05:39:26PM -0500, Timur Tabi wrote:
-> Timur Tabi wrote:
+On Wed, May 18, 2005 at 08:00:05PM +0200, Stefan Smietanowski wrote:
+> Is this for real? What exactly do they think they're trying to pull
+> here?
+
+Yes this is for real, and I have no idea what they are trying to do.
+
+> I've seen borderline violations but this .. this .. this ..
 > 
-> >make -C /lib/modules/2.6.8-24-smp/source 
-> >SUBDIRS=/root/AMSO1100/software/host/linux/sys/devccil  C=1 V=2
-> 
-> When I replace V=2 with V=1 (don't know how that happened), I get this 
-> output:
-> 
-> sparse  -D__i386__=1 
-> -Wp,-MD,/root/AMSO1100/software/host/linux/sys/devccil/.devnet.o.d 
-> -nostdinc -iwithprefix include -D__KERNEL__ -Iinclude  -Wall 
+> If the .h file was bad, the .c's are worse.
 
-Newer kbuild's do not use the -nostdinc -iwithprefix include trick.
-Instead they use -nostdinc -isystem `gcc --print-file-name=include`
+Yes it is.  And because of this I know of at least one company that has
+switched their hardware design away from using this chip already.
+Hopefully everyone else will do the same (with the prolifieration of
+cheap, usb to serial chips, that work well with Linux, there is no
+reason anyone should use this device.)
 
-Wich is a more reliable way to find stdarg.h. Newer sparse understands
-this too.
+thanks,
 
-Please post make V=1 output with a newer kernel.
-
-	Sam
+greg k-h

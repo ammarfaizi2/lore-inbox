@@ -1,90 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVESUaN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVESUr2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261198AbVESUaN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 16:30:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbVESUaN
+	id S261251AbVESUr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 16:47:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbVESUr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 16:30:13 -0400
-Received: from zproxy.gmail.com ([64.233.162.194]:14220 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261245AbVESUaB (ORCPT
+	Thu, 19 May 2005 16:47:28 -0400
+Received: from mail.kroah.org ([69.55.234.183]:48057 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261251AbVESUrW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 16:30:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:from:to:cc:references:subject:date:mime-version:content-type:content-transfer-encoding:x-priority:x-msmail-priority:x-mailer:x-mimeole;
-        b=fv4Srl5VQu9xDb2ICwAoPGf5bjidlTv2FbrqLozZRN/tXEcXC66vB6uxDn3yPPTQYe+PPu+VH4rBvGeP714itMKl9DouJCUgXBaYnOx95oj0Au7+bDqCpjvntf5VbhU7UI8n0fhUsWhiF0ApvDK6Ps45xqSo4dJt58taU3J475M=
-Message-ID: <039001c55cb1$5f7ad760$1a4da8c0@NELSON2>
-From: "Gianluca Varenni" <gianluca.varenni@gmail.com>
-To: <linux-os@analogic.com>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-References: <02e801c55ca5$7a9d1000$1a4da8c0@NELSON2> <Pine.LNX.4.61.0505191533590.2987@chaos.analogic.com>
-Subject: Re: Problem mapping small PCI memory space.
-Date: Thu, 19 May 2005 13:28:51 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=response
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2527
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+	Thu, 19 May 2005 16:47:22 -0400
+Date: Thu, 19 May 2005 13:52:22 -0700
+From: Greg KH <greg@kroah.com>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: Yani Ioannou <yani.ioannou@gmail.com>,
+       LM Sensors <lm-sensors@lm-sensors.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [lm-sensors] [PATCH 2.6.12-rc4 15/15] drivers/i2c/chips/adm1026.c: use dynamic sysfs callbacks
+Message-ID: <20050519205222.GA311@kroah.com>
+References: <2538186705051703479bd0c29@mail.gmail.com> <e9iUj0EZ.1116327879.1515720.khali@localhost> <2538186705051704181a70dbbf@mail.gmail.com> <253818670505172136613abb43@mail.gmail.com> <20050519220235.3946f880.khali@linux-fr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050519220235.3946f880.khali@linux-fr.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, May 19, 2005 at 10:02:35PM +0200, Jean Delvare wrote:
+> If we are into code refactoring and driver size shrinking, you may want
+> to take a look at the following patch, which makes it87 even smaller
+> (from 18976 bytes down to 16992 bytes on my system) and IMHO more
+> cleaner.
 
------ Original Message ----- 
-From: "Richard B. Johnson" <linux-os@analogic.com>
-To: "Gianluca Varenni" <gianluca.varenni@gmail.com>
-Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
-Sent: Thursday, May 19, 2005 12:43 PM
-Subject: Re: Problem mapping small PCI memory space.
+But this doesn't reduce the binary size of the module, right?
 
+>  	/* Register sysfs hooks */
+> -	device_create_file(&new_client->dev, &sensor_dev_attr_in0_input.dev_attr);
+> -	device_create_file(&new_client->dev, &sensor_dev_attr_in1_input.dev_attr);
+> -	device_create_file(&new_client->dev, &sensor_dev_attr_in2_input.dev_attr);
+> -	device_create_file(&new_client->dev, &sensor_dev_attr_in3_input.dev_attr);
 
-> On Thu, 19 May 2005, Gianluca Varenni wrote:
->
->> Hi all.
->>
->> I'm writing a driver for a PCI board that exposes two memory spaces (out 
->> of
->> the 6 IO address regions).
->>
->> One of them is 1MB, and I can map it to user level without problems. The
->> other one is only 512 bytes.
->> If I try to open it with /dev/mem, it returns EINVAL (the 1MB memory 
->> space
->> is opened without any problem). If I try to expose it through mmap, mmap
->> succeeds, but I only see garbage at user level. At kernel level, I can
->> access that 512 bytes memory by using ioremap() on the physical address
->> returned by pci_resource_start().
->>
->> Are there any lower limits on the size of a PCI memory region?
->>
->> Have a nice day
->> GV
->>
->
-> You impliment mmap() in your driver. It accesses the first megabyte
-> as 256 pages. Then you tack on the additional page that your 512
-> bytes resides at. mmap() only works with pages. The pages must
-> be ioremap_nocache and they must be reserved. The reserved part
-> is important to have them visible from user-space using mmap.
->
-> That's IFF you really need to see the stuff in user-mode. Normally,
-> you write a driver that accesses everything using the PCI primatives
-> provided in the kernel, for the kernel.
+<snip>
 
-Do you have any link to a linux driver working exactly like this?
+You know, we do have arrays of attributes that can be registered with a
+single call...
 
-Have a nice day
-GV
+I'd recommend using that over this mess anyday :)
 
->
->
-> Cheers,
-> Dick Johnson
-> Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
->  Notice : All mail here is now cached for review by Dictator Bush.
->                  98.36% of all statistics are fiction. 
+> +#define SENSOR_DEVICE_ATTR_ARRAY_HEAD(_name,_size)		\
+> +struct sensor_device_attribute sensor_dev_attr_##_name[_size] = {
+> +
+> +#define SENSOR_DEVICE_ATTR_ARRAY_ITEM(_name,_mode,_show,_store,_index)	\
+> +	{ .dev_attr=__ATTR(_name,_mode,_show,_store),		\
+> +	  .index=_index, },
+> +
+> +#define SENSOR_DEVICE_ATTR_ARRAY_TAIL				\
+> +}
 
+No, I hate HEAD and TAIL macros.  This really isn't buying you much code
+savings, you could do it yourself with the __ATTR() macro yourself with
+the same ammount of code I bet...
+
+Or use the new macro that Yani created, that will make it even smaller
+:)
+
+thanks,
+
+greg k-h

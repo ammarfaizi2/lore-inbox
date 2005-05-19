@@ -1,53 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVESSGX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVESSIa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbVESSGX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 14:06:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVESSGX
+	id S261194AbVESSIa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 14:08:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVESSIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 14:06:23 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:45732 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261184AbVESSGV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 14:06:21 -0400
-Subject: Re: Why yield in coredump_wait? [was: Re: Resent: BUG in RT 45-01
-	when RT program dumps core]
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: dwalker@mvista.com, Linus Torvalds <torvalds@osdl.org>,
-       kus Kusche Klaus <kus@keba.com>, Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1116524583.21388.299.camel@localhost.localdomain>
-References: <AAD6DA242BC63C488511C611BD51F367323212@MAILIT.keba.co.at>
-	 <1116503763.15866.9.camel@localhost.localdomain>
-	 <1116509820.15866.28.camel@localhost.localdomain>
-	 <1116523552.14229.64.camel@dhcp153.mvista.com>
-	 <1116524583.21388.299.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Thu, 19 May 2005 14:05:53 -0400
-Message-Id: <1116525953.4097.15.camel@localhost.localdomain>
+	Thu, 19 May 2005 14:08:30 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:23054 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261194AbVESSI1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 14:08:27 -0400
+Date: Thu, 19 May 2005 14:01:55 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [PATCH 1/9] UML - small fixes left over from rc4
+Message-ID: <20050519180155.GA7020@ccure.user-mode-linux.org>
+References: <200505180420.j4I4K5CS017303@ccure.user-mode-linux.org> <20050518052940.GE29811@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050518052940.GE29811@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-05-19 at 18:43 +0100, Alan Cox wrote:
-> On Iau, 2005-05-19 at 18:25, Daniel Walker wrote:
-> > I've seen a RT yield warning on this yield while running the FUSYN
-> > tests .. I can't imagine why it's there either.
-> 
-> Would it not make more sense to kick a task out of hard real time at the
-> point it begins dumping core. The core dumping sequence was never
-> something that thread intended to execute at real time priority
-> 
+On Wed, May 18, 2005 at 06:29:40AM +0100, Al Viro wrote:
+> Wrong.  If you want it to work, you need 0x80000000 here (or changed START
+> in x86_64 makefile.
 
-That's what I recommended in an earlier email.  I figured I'd wait to
-see Ingo's response before sending him any patches.  The drop from RT
-should probably be after the zap_threads, that way it can kill those
-using the same mm right away.  Which also goes to say, we should get rid
-of that yield.
+Oops, missed that.  That'll be in the next set of patches.
 
--- Steve
-
-
+				Jeff

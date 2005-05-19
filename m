@@ -1,74 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVESVat@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbVESVcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261266AbVESVat (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 17:30:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261264AbVESVat
+	id S261263AbVESVcz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 17:32:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVESVcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 17:30:49 -0400
-Received: from mail.kroah.org ([69.55.234.183]:17099 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261262AbVESVag (ORCPT
+	Thu, 19 May 2005 17:32:55 -0400
+Received: from mail.adic.com ([63.81.117.2]:17986 "EHLO mail00hq.adic.com")
+	by vger.kernel.org with ESMTP id S261263AbVESVcu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 17:30:36 -0400
-Date: Thu, 19 May 2005 14:35:51 -0700
-From: Greg KH <greg@kroah.com>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Yani Ioannou <yani.ioannou@gmail.com>,
-       LM Sensors <lm-sensors@lm-sensors.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [lm-sensors] [PATCH 2.6.12-rc4 15/15] drivers/i2c/chips/adm1026.c: use dynamic sysfs callbacks
-Message-ID: <20050519213551.GA806@kroah.com>
-References: <2538186705051703479bd0c29@mail.gmail.com> <e9iUj0EZ.1116327879.1515720.khali@localhost> <2538186705051704181a70dbbf@mail.gmail.com> <253818670505172136613abb43@mail.gmail.com> <20050519220235.3946f880.khali@linux-fr.org> <20050519205222.GA311@kroah.com> <20050519225712.02137a47.khali@linux-fr.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050519225712.02137a47.khali@linux-fr.org>
-User-Agent: Mutt/1.5.8i
+	Thu, 19 May 2005 17:32:50 -0400
+Message-ID: <428D05FF.6090305@xfs.org>
+Date: Thu, 19 May 2005 16:32:47 -0500
+From: Steve Lord <lord@xfs.org>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Steve Lord <lord@xfs.org>
+CC: Joshua Baker-LePain <jlb17@duke.edu>, Lee Revell <rlrevell@joe-job.com>,
+       Gregory Brauer <greg@wildbrain.com>, linux-kernel@vger.kernel.org,
+       linux-xfs@oss.sgi.com, Jakob Oestergaard <jakob@unthought.net>,
+       Chris Wedgwood <cw@f00f.org>
+Subject: Re: kernel OOPS for XFS in xfs_iget_core (using NFS+SMP+MD)
+References: <428511F8.6020303@wildbrain.com>  <20050514184711.GA27565@taniwha.stupidest.org>  <428B7D7F.9000107@wildbrain.com>  <20050518175925.GA22738@taniwha.stupidest.org>  <20050518195251.GY422@unthought.net>  <Pine.LNX.4.58.0505181556410.6834@chaos.egr.duke.edu>  <428BA8E4.2040108@wildbrain.com>  <Pine.LNX.4.58.0505191537560.7094@chaos.egr.duke.edu>  <Pine.LNX.4.58.0505191650580.7094@chaos.egr.duke.edu> <1116536963.23186.2.camel@mindpipe> <Pine.LNX.4.58.0505191713540.7094@chaos.egr.duke.edu> <428D0540.4000107@xfs.org>
+In-Reply-To: <428D0540.4000107@xfs.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 May 2005 21:32:49.0462 (UTC) FILETIME=[4E249560:01C55CBA]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 19, 2005 at 10:57:12PM +0200, Jean Delvare wrote:
-> Hi Greg,
+Steve Lord wrote:
+
 > 
-> > > If we are into code refactoring and driver size shrinking, you may
-> > > want to take a look at the following patch, which makes it87 even
-> > > smaller (from 18976 bytes down to 16992 bytes on my system) and IMHO
-> > > more cleaner.
-> > 
-> > But this doesn't reduce the binary size of the module, right?
+> Try setting /proc/sys/fs/xfs/error_level to 1 and running again,
+> it should spout out some more information about what it thinks
+> is corrupted.
 > 
-> It does, as I just said. The benefit is probably mainly due to the
-> introduction of loops around device_create_file() calls. The patch
-> reduces the number of calls (in the binary) from 59 to 20.
 
-Ah, sorry, I mistook that for a code decrease and not binary decrease.
+Never mind, you already did that didn't you. I will now go back to
+my day job.....
 
-> > No, I hate HEAD and TAIL macros.  This really isn't buying you much
-> > code savings, you could do it yourself with the __ATTR() macro
-> > yourself with the same ammount of code I bet...
-> >
-> > Or use the new macro that Yani created, that will make it even smaller
-> > :)
-> 
-> Agreed. This was really a quick hack, not meant for inclusion. Maybe I
-> should have polished it a bit more before I dared sending it. I'll do so
-> next time, sorry for the noise.
-
-No, don't feel like this was noise at all, it wasn't.  I was just
-commenting on the patch, letting you know that it was a great place to
-start, but it might be tweaked a bit in places.
-
-Don't worry about polishing stuff up before sending it in, you have seen
-some of my patches, right?  :)
-
-Also, there is a neat trick that you can do every once in a while if you
-use it sparingly.  Propose a patch that you know is wrong, just to get
-someone else (usually the maintainer of the area) to do it correctly as
-they don't like your way at all.  It's very effective when used in small
-doses.
-
-Hm, which makes me want to go look at trying to convert those attributes
-to an array right now...
-
-thanks,
-
-greg k-h
+Steve

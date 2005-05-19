@@ -1,53 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVESUVL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVESUaN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbVESUVL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 16:21:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVESUVL
+	id S261198AbVESUaN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 16:30:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbVESUaN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 16:21:11 -0400
-Received: from hnexfe09.hetnet.nl ([195.121.6.175]:57469 "EHLO
-	hnexfe09.hetnet.nl") by vger.kernel.org with ESMTP id S261239AbVESUU4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 16:20:56 -0400
-Subject: 2.6.12rc4 (ppc32): Oops: kernel access of bad area, sig: 11 [#1]
-From: Michel Roelofs <kimmichel@zonnet.nl>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Organization: 
-Message-Id: <1116534047.3432.11.camel@maan>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 19 May 2005 22:20:47 +0200
+	Thu, 19 May 2005 16:30:13 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:14220 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261245AbVESUaB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 16:30:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:from:to:cc:references:subject:date:mime-version:content-type:content-transfer-encoding:x-priority:x-msmail-priority:x-mailer:x-mimeole;
+        b=fv4Srl5VQu9xDb2ICwAoPGf5bjidlTv2FbrqLozZRN/tXEcXC66vB6uxDn3yPPTQYe+PPu+VH4rBvGeP714itMKl9DouJCUgXBaYnOx95oj0Au7+bDqCpjvntf5VbhU7UI8n0fhUsWhiF0ApvDK6Ps45xqSo4dJt58taU3J475M=
+Message-ID: <039001c55cb1$5f7ad760$1a4da8c0@NELSON2>
+From: "Gianluca Varenni" <gianluca.varenni@gmail.com>
+To: <linux-os@analogic.com>
+Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
+References: <02e801c55ca5$7a9d1000$1a4da8c0@NELSON2> <Pine.LNX.4.61.0505191533590.2987@chaos.analogic.com>
+Subject: Re: Problem mapping small PCI memory space.
+Date: Thu, 19 May 2005 13:28:51 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=response
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 May 2005 20:20:47.0780 (UTC) FILETIME=[3E383E40:01C55CB0]
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2527
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When 2.6.12rc4 boots on my ppc32 (powertower pro 250), I get the
-following oops (manually copied):
 
-Oops: kernel access of bad area, sig: 11 [#1]
-PREEMPT
-
-<register dump>
-
-
-TASK=c0981ae0[1] 'swapper'
-THREAD c09de000
-
-Last Syscall 120
-snd_pmac_dbdma_alloc+0x38/0x104
-snd_pmac_new+0x8c/0x450
-snd_pmac_probe+0x44/0x320
-alsa_card_pmac_init+0x10/0x2c
-do_initcalls+0x5c/0xfc
-do_basic_setup+0x24/0x34
-init+0x30/0xf8
-kernel_thread+0x44/0x60
+----- Original Message ----- 
+From: "Richard B. Johnson" <linux-os@analogic.com>
+To: "Gianluca Varenni" <gianluca.varenni@gmail.com>
+Cc: "Linux kernel" <linux-kernel@vger.kernel.org>
+Sent: Thursday, May 19, 2005 12:43 PM
+Subject: Re: Problem mapping small PCI memory space.
 
 
+> On Thu, 19 May 2005, Gianluca Varenni wrote:
+>
+>> Hi all.
+>>
+>> I'm writing a driver for a PCI board that exposes two memory spaces (out 
+>> of
+>> the 6 IO address regions).
+>>
+>> One of them is 1MB, and I can map it to user level without problems. The
+>> other one is only 512 bytes.
+>> If I try to open it with /dev/mem, it returns EINVAL (the 1MB memory 
+>> space
+>> is opened without any problem). If I try to expose it through mmap, mmap
+>> succeeds, but I only see garbage at user level. At kernel level, I can
+>> access that 512 bytes memory by using ioremap() on the physical address
+>> returned by pci_resource_start().
+>>
+>> Are there any lower limits on the size of a PCI memory region?
+>>
+>> Have a nice day
+>> GV
+>>
+>
+> You impliment mmap() in your driver. It accesses the first megabyte
+> as 256 pages. Then you tack on the additional page that your 512
+> bytes resides at. mmap() only works with pages. The pages must
+> be ioremap_nocache and they must be reserved. The reserved part
+> is important to have them visible from user-space using mmap.
+>
+> That's IFF you really need to see the stuff in user-mode. Normally,
+> you write a driver that accesses everything using the PCI primatives
+> provided in the kernel, for the kernel.
 
-When needed, I'll make a more accurate screen dump.
+Do you have any link to a linux driver working exactly like this?
 
-Michel
+Have a nice day
+GV
+
+>
+>
+> Cheers,
+> Dick Johnson
+> Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
+>  Notice : All mail here is now cached for review by Dictator Bush.
+>                  98.36% of all statistics are fiction. 
 

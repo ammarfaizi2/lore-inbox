@@ -1,64 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVESSo5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVESSpw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261214AbVESSo5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 14:44:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVESSo4
+	id S261212AbVESSpw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 14:45:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbVESSpw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 14:44:56 -0400
-Received: from zak.futurequest.net ([69.5.6.152]:23723 "HELO
-	zak.futurequest.net") by vger.kernel.org with SMTP id S261214AbVESSoy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 14:44:54 -0400
-Date: Thu, 19 May 2005 12:44:49 -0600
-From: Bruce Guenter <bruceg@em.ca>
-To: Alexander Nyberg <alexn@dsv.su.se>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: How to diagnose a kernel memory leak
-Message-ID: <20050519184449.GK6103@em.ca>
-Mail-Followup-To: Alexander Nyberg <alexn@dsv.su.se>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20050509035823.GA13715@em.ca> <1115627361.936.11.camel@localhost.localdomain> <20050511193726.GA29463@em.ca> <20050512171825.12599c1e.akpm@osdl.org> <20050513212816.GA29230@em.ca> <1116441173.23209.17.camel@localhost.localdomain>
+	Thu, 19 May 2005 14:45:52 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:3601 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261218AbVESSpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 14:45:40 -0400
+Message-Id: <200505191845.j4JIjVtq006262@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Linux Audit Discussion <linux-audit@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc4-mm2 - sleeping function called from invalid context at mm/slab.c:2502 
+In-Reply-To: Your message of "Thu, 19 May 2005 12:34:08 BST."
+             <1116502449.23972.207.camel@hades.cambridge.redhat.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu>
+            <1116502449.23972.207.camel@hades.cambridge.redhat.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fNagykWcDoSVAmSd"
-Content-Disposition: inline
-In-Reply-To: <1116441173.23209.17.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.8i
+Content-Type: multipart/signed; boundary="==_Exmh_1116528331_5456P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 19 May 2005 14:45:31 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---fNagykWcDoSVAmSd
+--==_Exmh_1116528331_5456P
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Wed, May 18, 2005 at 08:32:53PM +0200, Alexander Nyberg wrote:
-> > > It all looks pretty innocent.  Please send the contents of /proc/memi=
-nfo
-> > > rather than the `free' output.  /proc/meminfo has much more info.=20
-> >=20
-> > Here are the current meminfo numbers:
->=20
-> What's happening with this? It's been a week now so I'm curious.
+On Thu, 19 May 2005 12:34:08 BST, David Woodhouse said:
+> On Tue, 2005-05-17 at 12:24 -0400, Valdis.Kletnieks@vt.edu wrote:
+> > [4295584.974000] Debug: sleeping function called from invalid context
+> > at mm/slab.c:2502
 
-It appears the memory consumption I thought I was seeing is now gone,
-and only conclusively appeared with the Gentoo kernels.  I will take
-this back to their bug tracker.  Sorry for the false alarm.
---=20
-Bruce Guenter <bruceg@em.ca> http://em.ca/~bruceg/ http://untroubled.org/
-OpenPGP key: 699980E8 / D0B7 C8DD 365D A395 29DA  2E2A E96F B2DC 6999 80E8
+> OK, we'll just let audit_log() assemble its own skb and queue it for a
+> separate kernel thread to feed up to auditd. We'll fix up the horrid
+> error handling mess we had before too, where we used to clone the skb
+> because we know netlink_unicast() would free it even on temporary errors
+> (like the SO_RCVBUF limit being reached).
+> 
+> This includes one of Steve's earlier patches which ensures that messages
+> in the skb are NUL-terminated. It should all appear some time soon in
+> http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/dwmw2/audit-2.6.git;a
+=summary
+> or more perhaps more usefully (since Thomas allows us to distinguish
+> between local and merged commits) in
+> http://www.tglx.de/cgi-bin/gittracker/commit/tracker-linux/audit-2.6.git?proj
+ect=tracker-linux%2Fdwmw2%2Faudit-2.6.git&pagelen=10&exclude=tracker-linux%2Fto
+rvalds%2Flinux-2.6.git&offset=0
+> 
+> Index: kernel/audit.c
+> ===================================================================
+> --- e45ee43e7af31f847377e8bb3a0a61581732b653/kernel/audit.c  (mode:100644)
+> +++ c1096ff7ae35b77bf8108c3a60b856551c50a9d7/kernel/audit.c  (mode:100644)
 
---fNagykWcDoSVAmSd
+Patch applies with a few offsets against 12-rc4-mm2, and I'm not
+seeing the messages any more...
+
+--==_Exmh_1116528331_5456P
 Content-Type: application/pgp-signature
-Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
-iD8DBQFCjN6h6W+y3GmZgOgRAnJdAJ45FCNWGIQC4gi4TBhZnlxvVRtI6QCbB4c3
-9YISW6wIQPxkYyFa82QezxQ=
-=HuUz
+iD8DBQFCjN7LcC3lWbTT17ARAv89AKDXM1YaQOdDYHibDgK94RVYKt3bkACeO7nC
+ZE5djAyM+3MlCvSTOnkwhDA=
+=aJAX
 -----END PGP SIGNATURE-----
 
---fNagykWcDoSVAmSd--
+--==_Exmh_1116528331_5456P--

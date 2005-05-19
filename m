@@ -1,63 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262443AbVESBwM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262444AbVESByS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262443AbVESBwM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 21:52:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbVESBwM
+	id S262444AbVESByS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 21:54:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbVESByS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 21:52:12 -0400
-Received: from mail2.dolby.com ([204.156.147.24]:3079 "EHLO dolby.com")
-	by vger.kernel.org with ESMTP id S262442AbVESBv6 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 21:51:58 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Illegal use of reserved word in system.h
-Date: Wed, 18 May 2005 18:51:20 -0700
-Message-ID: <2692A548B75777458914AC89297DD7DA05EC7245@bronze.dolby.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Illegal use of reserved word in system.h
-Thread-Index: AcVb41YbQOXVwtuASGeXaaVClNHiWQALba4A
-From: "Gilbert, John" <JGG@dolby.com>
-To: <linux-kernel@vger.kernel.org>
-Content-Type: text/plain;
-	charset="us-ascii"
+	Wed, 18 May 2005 21:54:18 -0400
+Received: from b3162.static.pacific.net.au ([203.143.238.98]:51879 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S262444AbVESByI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 21:54:08 -0400
+Subject: Re: ACPI S3/APM suspend
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Ian Soboroff <isoboroff@acm.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <9cfzmusbmvw.fsf@rogue.ncsl.nist.gov>
+References: <9cfvf5gel2l.fsf@rogue.ncsl.nist.gov>
+	 <9cfzmusbmvw.fsf@rogue.ncsl.nist.gov>
+Content-Type: text/plain
+Organization: Cycades
+Message-Id: <1116466723.5346.26.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 19 May 2005 11:38:44 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk writes:
+Hi.
 
-that's not a check whether the system supports SMP.
+On Thu, 2005-05-19 at 00:59, Ian Soboroff wrote:
+> Ian Soboroff <isoboroff@acm.org> writes:
+> 
+> > I recently reinstalled my laptop (Fujitsu P2110) with RHEL4, and I
+> > found that neither ACPI S3 or APM suspend (booting with acpi=off) work
+> > reliably with their stock kernel (a 2.6.9 derivative).  Sometimes
+> > resuming works, but more often the computer locks up, or the keyboard
+> > doesn't function respond.
+> 
+> Just tried with 2.6.11.10 using ACPI.  On resume, the mouse doesn't
+> respond (there isn't even a cursor).  If I C-A-Backspace out of X, GDM
+> needs to be specially HUP'd to restart.  But the mouse still doesn't
+> work.
 
-Looking at the source code of MySQL, it seems MySQL does some dirty
-tricks for using the inlines from asm/atomic.h in userspace.
+You will probably be able to address this by building psmouse and evdev
+as modules and doing the following sequence:
 
-It's _really_ wrong to do this.
+1) chvt away from X
+2) rmmod psmouse & evdev
+3) suspend & resume as normal
+4) modprobe psmouse & evdev
+5) switch back
 
-#JG
-So the really, really stupid, idiotic, yet quick and effective hack to
-get MySQL to build under a later 2.6 kernel is as follows. In
-mysql-4.1.12/include/my_global.h, right after the three #ifndef
-CONFIG_SMP lines, add these lines...
-#ifndef CONFIG_NR_CPUS
-#define CONFIG_NR_CPUS
-#endif /* CONFIG_NR_CPUS */
+The hibernate script (see http://suspend2.net) can make this less
+painful if you want it.
 
-This way, MySQL can continue depending on the SMP atomic macros in
-asm-i386 from the Linux kernel, without going into kernel space. I
-strongly doubt this is truly multithreaded (or SMP) safe, but that's how
-MySQL has been running since 4.0 at least. Someone in the know should
-fix this, and end this silliness.
+In the case of USB mice, you will probably want to unload not just
+psmouse & evdev, but the whole set of USB modules.
 
-John Gilbert
-Thanks for ignoring the sig.
+Regards,
 
------------------------------------------
-This message (including any attachments) may contain confidential
-information intended for a specific individual and purpose.  If you are not
-the intended recipient, delete this message.  If you are not the intended
-recipient, disclosing, copying, distributing, or taking any action based on
-this message is strictly prohibited.
+Nigel
+
+> This was one of the failure modes in the RHEL 2.6.9-5.0.5 kernel.  (I
+> know, I know, "ask RH for support", but they don't seem to have any of
+> the ACPI or APM suspend bugs in their bugzilla anywhere near
+> resolved.)
+> 
+> Ian
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+-- 
 

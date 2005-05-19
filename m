@@ -1,54 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262463AbVESMMG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262470AbVESMVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262463AbVESMMG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 08:12:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262466AbVESMMF
+	id S262470AbVESMVn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 08:21:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262481AbVESMVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 08:12:05 -0400
-Received: from rproxy.gmail.com ([64.233.170.203]:61601 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262463AbVESMMB convert rfc822-to-8bit
+	Thu, 19 May 2005 08:21:43 -0400
+Received: from alog0191.analogic.com ([208.224.220.206]:46470 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262470AbVESMVh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 08:12:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nvvbbMCKL1vxb9yGFI+7aGowKaWhK+NtZmbtP9Q2HKxlI4CgLlD61znMIPzQ2ZC/45Li3Im1haMNxnWK0Ka6kx78marnbfvO/YE1X/SqpCW5zJN+htYZfyt3XzxE/UxfVCEVRel0iVKDqnGgVATwMDXt93OPah9/R7GwxR6zVm4=
-Message-ID: <377362e1050519051228ae3e72@mail.gmail.com>
-Date: Thu, 19 May 2005 21:12:01 +0900
-From: "Tetsuji \"Maverick\" Rai" <tetsuji.rai@gmail.com>
-Reply-To: "Tetsuji \"Maverick\" Rai" <tetsuji.rai@gmail.com>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: HT scheduler: is it really correct? or is it feature of HT?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200505192123.24784.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <377362e10505181142252ec930@mail.gmail.com>
-	 <377362e105051902467cae323e@mail.gmail.com>
-	 <377362e105051903462a4d8949@mail.gmail.com>
-	 <200505192123.24784.kernel@kolivas.org>
+	Thu, 19 May 2005 08:21:37 -0400
+Date: Thu, 19 May 2005 08:19:04 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Adrian Bunk <bunk@stusta.de>
+cc: Kyle Moffett <mrmacman_g4@mac.com>, "Gilbert, John" <JGG@dolby.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Illegal use of reserved word in system.h
+In-Reply-To: <20050519112840.GE5112@stusta.de>
+Message-ID: <Pine.LNX.4.61.0505190734110.29439@chaos.analogic.com>
+References: <2692A548B75777458914AC89297DD7DA08B0866F@bronze.dolby.net>
+ <20050518195337.GX5112@stusta.de> <6EA08D88-7C67-48ED-A9EF-FEAAB92D8B8F@mac.com>
+ <20050519112840.GE5112@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for nice hints!!  I'm trying with several values, and found
-actually as you said, it affects the nice=0 process.
+On Thu, 19 May 2005, Adrian Bunk wrote:
 
-On 5/19/05, Con Kolivas <kernel@kolivas.org> wrote:
-> Your code does not do what you think it is doing either. If you want to change
-> the bias between nice levels across logical cores search the code for where
-> the value of sd->per_cpu_gain is set. It is currently set to 25% and you want
-> to increase it (although as I said you will derive no real world benefit as
-> your nice 0 task will just slow down).
-> 
-> Cheers,
-> Con
-> 
+> On Wed, May 18, 2005 at 10:22:24PM -0400, Kyle Moffett wrote:
+>>
+>> On May 18, 2005, at 15:53:37, Adrian Bunk wrote:
+>>> Looking at the source code of MySQL, it seems MySQL does some dirty
+>>> tricks for using the inlines from asm/atomic.h in userspace.
+>>>
+>>> It's _really_ wrong to do this.
+>>
+>> A project that had some discussion a while ago was to clean up the
+>> kernel headers and separate them from the kernel-ABI ones, such that
+>> the ABI headers don't need to use CONFIG_* defines or anything else.
+>> that might be iffy.
+>> ...
+>
+> The whole kernel headers issue contains real problems that have to be
+> solved properly.
+>
+> But in this case, this is not the problem:
+>
+> What MySQL uses from asm/atomic.h doesn't seem to have anything to do
+> with any kind of kernel <-> userspace interface (which is what userspace
+> might validly require kernel headers for).
+>
+>> Cheers,
+>> Kyle Moffett
+>
+> cu
+> Adrian
 
+First off, I think we need a system-call that will return some of
+the information that now comes from headers. PAGE_SIZE comes to
+mind. You need this for mmap() but there doesn't seem to be any
+way to get it. getpagesize() 'C' library just returns something
+it's swiped from kernel headers when the library was compiled.
+There are other things like the following that sometimes need
+to be known also.
 
--- 
-Luckiest in the world / Weapon of Mass Distraction
-http://maverick6664.bravehost.com/
-Aviation Jokes: http://www.geocities.com/tetsuji_rai/
-Background: http://maverick.ns1.name/
+ 	HZ
+ 	TASK_SIZE
+ 	SMP
+ 	MAXHOSTNAMELEN
+ 	_NSIG
+ 	Number of errno values
+ 	Highest ioctl value used
+ 	A default 'struct termios'
+
+These things are gotten from 'kernel' headers used when the
+'C' runtime library was built. They can all change. If these
+and others were returned all at once in a structure, then
+the 'C' runtime library could make a single call during
+initialization and have the correct information for the
+existing kernel.
+
+>
+> -- 
+>
+>       "Is there not promise of rain?" Ling Tan asked suddenly out
+>        of the darkness. There had been need of rain for many days.
+>       "Only a promise," Lao Er said.
+>                                       Pearl S. Buck - Dragon Seed
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

@@ -1,76 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVESSCd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVESSGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbVESSCd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 14:02:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVESSCd
+	id S261184AbVESSGX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 14:06:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVESSGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 14:02:33 -0400
-Received: from moutng.kundenserver.de ([212.227.126.187]:43210 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261194AbVESSC0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 14:02:26 -0400
-Message-ID: <428CD458.6010203@free.fr>
-Date: Thu, 19 May 2005 20:00:56 +0200
-From: Olivier Croquette <ocroquette@free.fr>
-User-Agent: Mozilla Thunderbird 1.0.2 (Macintosh/20050317)
-X-Accept-Language: fr-fr, en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: Ingo Molnar <mingo@elte.hu>
-Subject: Thread and process dentifiers (CPU affinity, kill)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 19 May 2005 14:06:23 -0400
+Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:45732 "EHLO
+	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261184AbVESSGV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 14:06:21 -0400
+Subject: Re: Why yield in coredump_wait? [was: Re: Resent: BUG in RT 45-01
+	when RT program dumps core]
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: dwalker@mvista.com, Linus Torvalds <torvalds@osdl.org>,
+       kus Kusche Klaus <kus@keba.com>, Ingo Molnar <mingo@elte.hu>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1116524583.21388.299.camel@localhost.localdomain>
+References: <AAD6DA242BC63C488511C611BD51F367323212@MAILIT.keba.co.at>
+	 <1116503763.15866.9.camel@localhost.localdomain>
+	 <1116509820.15866.28.camel@localhost.localdomain>
+	 <1116523552.14229.64.camel@dhcp153.mvista.com>
+	 <1116524583.21388.299.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 19 May 2005 14:05:53 -0400
+Message-Id: <1116525953.4097.15.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:e39ae1980843c849592344a98bbbf26f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2005-05-19 at 18:43 +0100, Alan Cox wrote:
+> On Iau, 2005-05-19 at 18:25, Daniel Walker wrote:
+> > I've seen a RT yield warning on this yield while running the FUSYN
+> > tests .. I can't imagine why it's there either.
+> 
+> Would it not make more sense to kick a task out of hard real time at the
+> point it begins dumping core. The core dumping sequence was never
+> something that thread intended to execute at real time priority
+> 
 
-It seems that the thread ids in Linux are unique within the complete 
-operating system, and not only within their corresponding processes. 
-This is explicitely allowed by the POSIX standard (it also states that 
-applications shall no rely on it).
+That's what I recommended in an earlier email.  I figured I'd wait to
+see Ingo's response before sending him any patches.  The drop from RT
+should probably be after the zap_threads, that way it can kill those
+using the same mm right away.  Which also goes to say, we should get rid
+of that yield.
 
-Apparently some system calls which normally require a process id also 
-work with thread ids.
+-- Steve
 
-- a system call requiring a PID can have  the same effect if a thread id 
-of the same process was given.
-Example: kill(tid,SIGTERM) will kill the entire process the thread
-belongs to. I think that this is not POSIX compliant. It shall trigger
-ESRCH!
-
-Sometimes, the system call has another effect, potentialy providing
-additional functionality.
-Example: sched_setaffinity(). The man page and the prototype (which 
-requires a pid_t) both show that a process id is required. Nothing 
-indicates that it works with threads, and AFAIK there is no documented 
-way to set affinity for a specific thread.
-But if you give a TID to sched_setaffinity, it will put the *thread* on 
-the given cpu set.
-If you give a PID to sched_setaffinity, it will put the *main thread* on
-the given cpu set. The other threads won't be impacted.
-Even if sched_setaffinity() is no standard, I find it confusing to give
-it a pid_t and that it affects only threads!
-
-
-Some open questions:
-
-- is it a guaranted behaviour within Linux that thread ids and process 
-ids do not overlap? is it documented anywhere?
-
-- is there a real confusion at API level within Linux between threads
-and processes or are kill() and sched_setaffinity() isolated examples? 
-or bugs?
-
-- is Linux kill() POSIX compliant in this regard?
-
-- do we want to limit the sched_setaffinity() functionality to
-correspond to its documentation, or do we want to update the
-documentation so that its covers all the functionality?
-
-
-Regards
-
-
-Olivier
 

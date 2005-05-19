@@ -1,63 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262434AbVESAj5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262427AbVESA4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262434AbVESAj5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 20:39:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbVESAj0
+	id S262427AbVESA4S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 20:56:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262432AbVESA4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 20:39:26 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:46834 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262423AbVESAjT
+	Wed, 18 May 2005 20:56:18 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:53935 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262431AbVESA4B
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 20:39:19 -0400
-Message-ID: <428BE01D.40205@mvista.com>
-Date: Wed, 18 May 2005 17:38:53 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+	Wed, 18 May 2005 20:56:01 -0400
+Message-ID: <428BE417.4050402@us.ibm.com>
+Date: Wed, 18 May 2005 17:55:51 -0700
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: kernel@wired-net.gr
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.4 timer and helper functions
-References: <20050513215905.GY5914@waste.org>    <1116024419.20646.41.camel@localhost.localdomain>    <1116025212.6380.50.camel@mindpipe> <20050513232708.GC13846@redhat.com>    <1116027488.6380.55.camel@mindpipe>    <1116084186.20545.47.camel@localhost.localdomain>    <1116088229.8880.7.camel@mindpipe>    <1116089068.6007.13.camel@laptopd505.fenrus.org>    <1116093396.9141.11.camel@mindpipe>    <1116093694.6007.15.camel@laptopd505.fenrus.org>    <20050515100147.GA72234@muc.de> <32786.62.38.142.220.1116152602.squirrel@webmail.wired-net.gr>
-In-Reply-To: <32786.62.38.142.220.1116152602.squirrel@webmail.wired-net.gr>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Christoph Lameter <christoph@lameter.com>
+CC: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12-rc4-mm2 build failure
+References: <734820000.1116277209@flay> <Pine.LNX.4.62.0505161602460.20110@graphe.net> <428A8697.4010606@us.ibm.com> <Pine.LNX.4.62.0505171707100.18365@graphe.net> <428B7A5F.9090404@us.ibm.com> <Pine.LNX.4.62.0505181035140.6359@graphe.net>
+In-Reply-To: <Pine.LNX.4.62.0505181035140.6359@graphe.net>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kernel@wired-net.gr wrote:
-> Hi all,
-> i am running a 2.6.4 kernel on my system , and i am playing a little bit
-> with kernel time issues and helper functions,just to understand how the
-> things really work.
-> While doing that on my x86 system and loaded a module from LDD 3rd
-> edition,jit.c, which uses a dynamic /proc file to return textual
-> information.
-> The info that returns is in this format and uses the kernel functions
-> ,do_gettimeofday,current_kernel_time and jiffies_to_timespec.
-> The output format is:
-> 0x0009073c 0x000000010009073c 1116162967.247441
->                               1116162967.246530656        591.586065248
-> 0x0009073c 0x000000010009073c 1116162967.247463
->                               1116162967.246530656        591.586065248
-> 0x0009073c 0x000000010009073c 1116162967.247476
->                               1116162967.246530656        591.586065248
-> 0x0009073c 0x000000010009073c 1116162967.247489
->                               1116162967.246530656        591.586065248
-> where the first two values are the jiffies and jiffies_64.The next two are
-> the do_gettimeofday and current_kernel_time and the last value is the
-> jiffies_to_timespec.This output text is "recorded" after 16 minutes of
-> uptime.Shouldnt the last value be the same as uptime.I have attached an
-> output file from the boot time until the time the function resets the
-> struct and starts count from the beggining.Is this a bug or i am missing
-> sth here???
-
-You are assuming that jiffies starts at zero at boot time.  This is clearly not 
-so even from your print outs.  (It starts at a value near overflow of the low 
-order 32-bits to flush out problems with the roll over.)
+Christoph Lameter wrote:
+> On Wed, 18 May 2005, Matthew Dobson wrote:
 > 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+> 
+>>I think you explained it well yourself.  If another function needs to be
+>>added for ALL ARCHES, then ALL ARCHES will need to add the function.  In
+>>most cases there is no single function that is both CORRECT and GENERIC
+>>across all arches.  The way that i386, ia64, ppc64, etc. will map PCI Buses
+>>to Nodes (for instance) will NOT be the same.  Anyone who adds a new
+>>topology function has the responsibility of
+>>1) making sure it works for all arches which support topology, or
+>>2) getting the arch maintainers involved and helping them make sure it
+>>works for all arches.
+> 
+> 
+> The topology function in generic may just do nothing
+> if not defined by the arch like pcibus_to_node. If the arch does not
+> define it return indeterminate and make all node specific allocations fall
+> back to unspecific allocation. This works for all arches and preserves
+> the existing behavior.
+
+Which is the way it was designed.  Arches which just want a safe/sane
+default (yet likely inefficient) topology behavior that makes the system
+look like a UP/SMP box should include asm-generic/topology.h from their own
+asm/topology.h.  Arches that want to provide a useful and accurate topology
+behavior should define their own implementation of the functions in
+asm/topology.h.
+
+The compilation breakage from defining a new topology function for some
+arches and using it in generic code without defining it for all arches that
+implement topology was intentional.  It's a sign that whoever made that new
+function should at least solicit some feedback from other arches to make
+sure that they are doing something sane, and so that we just don't add new
+topology functions on a whim.  It was hoped that this would encourage some
+discussion amongst arches to come up with interfaces that would be usable
+across multiple (all?) arches.
+
+
+>>New topology functions don't really get added all that often.  We've got
+>>the basics (CPU, Mem, I/O Buses, Nodes) mapped in various ways, so there
+>>shouldn't be tons of new functions added.  If someone wants to add a new
+>>function, it's their responsibility to make sure that it doesn't break
+>>anyone's arch.
+> 
+> 
+> Its best to have the kernel setup in such a way that functions can be 
+> added without having to cause breakage.
+> 
+> It is imaginable that someone will add more hardware something to node
+> functions in the near future given that pcibus_to_node is just for pci.
+
+I agree.  The way (historically) to not cause breakage is to implement your
+new topology function for arches that care, or just stick a sane default in
+their topology.h.  Every arch does it the way I'm suggesting, except IA64 &
+x86_64.
+
+x86_64 surprisingly does define pcibus_to_cpumask, but NOT
+pcibus_to_node().  That means when they unconditionally #include
+<asm-generic/topology.h> at the bottom of asm-x86_64/topology.h they get a
+confusing mish-mash of pcibus functions.  What I mean is, on x86_64
+pcibus_to_cpumask will do the right thing but pcibus_to_node will not.
+This is broken.  The correct thing to do would be to define pcibus_to_node
+in asm-x86_64/topology.h and only include asm-generic/topology.h if
+DISCONTIG/NUMA isn't defined.
+
+IA64 seems to define all the topo functions except pcibus related ones.
+They also include the generic topology functions, but at least their
+pcibus_to_FOO functions are consistent.  Ideally, IA64 would also implement
+a version of pcibus_to_FOO that does the right thing, but for now I guess
+it isn't a priority for them.
+
+Either way, I suppose it's not a terribly interesting argument.  Both of
+our patches solve the build problem.  Whichever one Andrew wants is the fix
+we'll go with.  I'd obviously prefer mine, since it remains consistent with
+the way I designed the topology system in the first place, but since 2
+other arches do it the way your patch does, I won't throw a fit if your
+patch gets in.
+
+-Matt

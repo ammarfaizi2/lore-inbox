@@ -1,65 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVESW6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbVESW67@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbVESW6P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 18:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261296AbVESW5W
+	id S261300AbVESW67 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 18:58:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbVESW60
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 18:57:22 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:50082 "EHLO
+	Thu, 19 May 2005 18:58:26 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59810 "EHLO
 	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261284AbVESWzz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 18:55:55 -0400
+	id S261312AbVESW5L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 18:57:11 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [CFR][PATCH] namei fixes (4/19)
+Subject: [CFR][PATCH] namei fixes (19/19)
 Cc: akpm@osdl.org
-Message-Id: <E1DYtwD-0007r1-25@parcelfarce.linux.theplanet.co.uk>
+Message-Id: <E1DYtxQ-0007tt-Ni@parcelfarce.linux.theplanet.co.uk>
 From: Al Viro <viro@www.linux.org.uk>
-Date: Thu, 19 May 2005 23:56:21 +0100
+Date: Thu, 19 May 2005 23:57:36 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(4/19)
+(19/19)
 
-path.mnt in open_namei() set to mirror nd->mnt.
-
-nd->mnt is set in 3 places in that function - path_lookup() in the
-beginning, __follow_down() loop after do_last: and __do_follow_link()
-call after do_link:.
-
-We set path.mnt to nd->mnt after path_lookup() and __do_follow_link().
-In __follow_down() loop we use &path.mnt instead of &nd->mnt and set
-nd->mnt to path.mnt immediately after that loop.
-
-Obviously equivalent transformation.
+__do_follow_link() passes potentially worng vfsmount to touch_atime().
+It matters only in (currently impossible) case of symlink mounted on
+something, but it's trivial to fix and that actually makes more sense.
 
 Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 ----
-diff -urN RC12-rc4-3/fs/namei.c RC12-rc4-4/fs/namei.c
---- RC12-rc4-3/fs/namei.c	2005-05-19 16:39:31.314263905 -0400
-+++ RC12-rc4-4/fs/namei.c	2005-05-19 16:39:32.418043961 -0400
-@@ -1442,6 +1442,7 @@
- 	nd->flags &= ~LOOKUP_PARENT;
- 	down(&dir->d_inode->i_sem);
- 	path.dentry = __lookup_hash(&nd->last, nd->dentry, nd);
-+	path.mnt = nd->mnt;
+diff -urN RC12-rc4-18/fs/namei.c RC12-rc4-19/fs/namei.c
+--- RC12-rc4-18/fs/namei.c	2005-05-19 16:39:48.010936857 -0400
++++ RC12-rc4-19/fs/namei.c	2005-05-19 16:39:49.096720499 -0400
+@@ -503,7 +503,7 @@
+ 	int error;
+ 	struct dentry *dentry = path->dentry;
  
- do_last:
- 	error = PTR_ERR(path.dentry);
-@@ -1479,7 +1480,8 @@
- 		error = -ELOOP;
- 		if (flag & O_NOFOLLOW)
- 			goto exit_dput;
--		while (__follow_down(&nd->mnt,&path.dentry) && d_mountpoint(path.dentry));
-+		while (__follow_down(&path.mnt,&path.dentry) && d_mountpoint(path.dentry));
-+		nd->mnt = path.mnt;
- 	}
- 	error = -ENOENT;
- 	if (!path.dentry->d_inode)
-@@ -1524,6 +1526,7 @@
- 		goto exit_dput;
- 	error = __do_follow_link(path.dentry, nd);
- 	dput(path.dentry);
-+	path.mnt = nd->mnt;
- 	if (error)
- 		return error;
- 	nd->flags &= ~LOOKUP_PARENT;
+-	touch_atime(nd->mnt, dentry);
++	touch_atime(path->mnt, dentry);
+ 	nd_set_link(nd, NULL);
+ 
+ 	if (path->mnt == nd->mnt)

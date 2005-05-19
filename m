@@ -1,250 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262365AbVESL2U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262473AbVESLb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262365AbVESL2U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 07:28:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262276AbVESL2U
+	id S262473AbVESLb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 07:31:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262474AbVESLb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 07:28:20 -0400
-Received: from relay01.pair.com ([209.68.5.15]:6149 "HELO relay01.pair.com")
-	by vger.kernel.org with SMTP id S262365AbVESL1q (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 07:27:46 -0400
-X-pair-Authenticated: 24.241.238.70
-Message-ID: <428C7830.5070302@cybsft.com>
-Date: Thu, 19 May 2005 06:27:44 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-CC: dino@in.ibm.com, Andrew Morton <akpm@osdl.org>, gregoire.favre@gmail.com,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
-References: <20050516085832.GA9558@gmail.com>	 <20050517071307.GA4794@in.ibm.com> <20050517002908.005a9ba7.akpm@osdl.org>	 <1116340465.4989.2.camel@mulgrave>  <20050517170824.GA3931@in.ibm.com>	 <1116354894.4989.42.camel@mulgrave>  <428C030E.8030102@cybsft.com> <1116476630.5867.2.camel@mulgrave>
-In-Reply-To: <1116476630.5867.2.camel@mulgrave>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 19 May 2005 07:31:56 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:2341 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261537AbVESLbW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 07:31:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=shr7+pRbwZBk5q0KjO+gst609iXHG07j2JGaf2VSdHsupnqpHl7KGEBKn8P1XoJ9fHziDNgwkwEm7A89zi63bgRFncjbgqpesCcSmSraz3oRREcAQedlK8I+frX98qzcyk6FN4t8dSnhuspsalaJXUYQfFsamylz3SjsXgHVRwI=
+Message-ID: <377362e105051904314229b43@mail.gmail.com>
+Date: Thu, 19 May 2005 20:31:18 +0900
+From: "Tetsuji \"Maverick\" Rai" <tetsuji.rai@gmail.com>
+Reply-To: "Tetsuji \"Maverick\" Rai" <tetsuji.rai@gmail.com>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: HT scheduler: is it really correct? or is it feature of HT?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200505192123.24784.kernel@kolivas.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <377362e10505181142252ec930@mail.gmail.com>
+	 <377362e105051902467cae323e@mail.gmail.com>
+	 <377362e105051903462a4d8949@mail.gmail.com>
+	 <200505192123.24784.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> On Wed, 2005-05-18 at 22:07 -0500, K.R. Foley wrote: 
+okay,   I'm tired of my temporary hacking (yes, it's just temporary;
+only even "nice" values are allowed) and I've just returned to the
+original 2.6.11.10  kernel  and read your message :)
+
+I understand it is the "destiny" of HT.
+
+Thanks!
+
+On 5/19/05, Con Kolivas <kernel@kolivas.org> wrote:
+> On Thu, 19 May 2005 08:46 pm, Tetsuji "Maverick" Rai wrote:
+> > I've done a temporary minor hacking, which tells kernel only the half
+> > value of nice in all processes.  Actually idle percentage was lowered,
+> > but the response of the main application became slower (as a matter of
+> > course.)
+> >
+> > I'm not sure which is better..if possible I want to take advantages of
+> > each one :)   Am I expecting too much?
 > 
->>This also solves my problem that I reported in this thread
->>http://marc.theaimsgroup.com/?l=linux-scsi&m=111422854418964&w=2
+> Yes you are. Hyperthreading (currently depending on workload) only gives you
+> on average 15-25% more cpu with multiple threads. You can't get something for
+> nothing. Either the nice 0 task runs slower because a low priority task is
+> bound to the sibling, or it runs at the same speed and the low priority task
+> runs for less. If you want the nice 19 task to use more cpu run it at nice 0
+> - because this is effectively what you are trying to do. If you want more cpu
+> you need extra true physical cpus, not logical cores.
 > 
+> Your code does not do what you think it is doing either. If you want to change
+> the bias between nice levels across logical cores search the code for where
+> the value of sd->per_cpu_gain is set. It is currently set to 25% and you want
+> to increase it (although as I said you will derive no real world benefit as
+> your nice 0 task will just slow down).
 > 
-> OK, I think the patch below is the extract of this.  Could you see if it
-> works by simply patching vanilla 2.6.12-rc4 with no other SCSI patches
-> (if it does, I'll push it for 2.6.12 final).
+> Cheers,
+> Con
 > 
-> James
-<snip>
-
-James,
-
-Below is what I get WHEN IT BOOTS. There are also a couple more logs and
-notes in between.
-
-#########################################################################
-May 19 06:04:22 porky kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI
-HBA DRIVER, Rev 6.2.36
-May 19 06:04:22 porky kernel:         <Adaptec aic7899 Ultra160 SCSI
-adapter>
-May 19 06:04:22 porky kernel:         aic7899: Ultra160 Wide Channel A,
-SCSI Id=7, 32/253 SCBs
-May 19 06:04:22 porky kernel:
-May 19 06:04:22 porky kernel:   Vendor: QUANTUM   Model:
-ATLAS10K2-TY092L  Rev: DA40
-May 19 06:04:22 porky kernel:   Type:   Direct-Access
-   ANSI SCSI revision: 03
-May 19 06:04:22 porky kernel: scsi0:A:0:0: Tagged Queuing enabled.  Depth 32
-May 19 06:04:22 porky kernel:  target0:0:0: Beginning Domain Validation
-May 19 06:04:22 porky kernel: (scsi0:A:0): 6.600MB/s transfers (16bit)
-May 19 06:04:22 porky kernel: (scsi0:A:0): 80.000MB/s transfers
-(40.000MHz, offset 127, 16bit)
-May 19 06:04:22 porky kernel:  target0:0:0: Ending Domain Validation
-May 19 06:04:22 porky kernel: scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI
-HBA DRIVER, Rev 6.2.36
-May 19 06:04:22 porky kernel:         <Adaptec aic7899 Ultra160 SCSI
-adapter>
-May 19 06:04:22 porky kernel:         aic7899: Ultra160 Wide Channel B,
-SCSI Id=7, 32/253 SCBs
-May 19 06:04:22 porky kernel:
-May 19 06:04:22 porky kernel:   Vendor: SEAGATE   Model: SX118273LC
-   Rev: 6679
-May 19 06:04:22 porky kernel:   Type:   Direct-Access
-   ANSI SCSI revision: 02
-May 19 06:04:22 porky kernel: scsi1:A:0:0: Tagged Queuing enabled.  Depth 32
-May 19 06:04:22 porky kernel:  target1:0:0: Beginning Domain Validation
-May 19 06:04:22 porky kernel: (scsi1:A:0): 6.600MB/s transfers (16bit)
-May 19 06:04:22 porky kernel: (scsi1:A:0:0): parity error detected in
-Data-in phase. SEQADDR(0x1a6) SCSIRATE(0x80)
-May 19 06:04:22 porky kernel: (scsi1:A:0:0): parity error detected in
-Message-in phase. SEQADDR(0x1a6) SCSIRATE(0x80)
-May 19 06:04:22 porky kernel: (scsi1:A:0:0): Unexpected busfree in
-Message-out phase
-May 19 06:04:22 porky kernel: SEQADDR == 0x16b
-May 19 06:04:22 porky kernel:  target1:0:0: Wide Transfers Fail
-May 19 06:04:22 porky kernel: (scsi1:A:0): 3.300MB/s transfers
-May 19 06:04:22 porky kernel:  target1:0:0: Domain Validation skipping
-write tests
-May 19 06:04:22 porky kernel: (scsi1:A:0): 20.000MB/s transfers
-(20.000MHz, offset 15)
-May 19 06:04:22 porky kernel:  target1:0:0: Ending Domain Validation
-May 19 06:04:22 porky kernel: SCSI device sda: 17783239 512-byte hdwr
-sectors (9105 MB)
-May 19 06:04:22 porky kernel: SCSI device sda: drive cache: write back
-May 19 06:04:22 porky kernel: SCSI device sda: 17783239 512-byte hdwr
-sectors (9105 MB)
-May 19 06:04:22 porky kernel: SCSI device sda: drive cache: write back
-May 19 06:04:22 porky kernel:  sda: sda1 sda2 sda3
-May 19 06:04:22 porky kernel: Attached scsi disk sda at scsi0, channel
-0, id 0, lun 0
-May 19 06:04:22 porky kernel: SCSI device sdb: 35566480 512-byte hdwr
-sectors (18210 MB)
-May 19 06:04:22 porky kernel: SCSI device sdb: drive cache: write through
-May 19 06:04:22 porky kernel: SCSI device sdb: 35566480 512-byte hdwr
-sectors (18210 MB)
-May 19 06:04:22 porky kernel: SCSI device sdb: drive cache: write through
-May 19 01:04:03 porky rc.sysinit: -e
-May 19 06:04:22 porky kernel:  sdb: sdb1
-May 19 01:04:04 porky udevsend[1251]: starting udevd daemon
-May 19 06:04:22 porky kernel: Attached scsi disk sdb at scsi1, channel
-0, id 0, lun 0
-May 19 01:04:05 porky scsi.agent[1263]: disk at
-/devices/pci0000:00/0000:00:1e.0/0000:04:05.0/host0/target0:0:0/0:0:0:0
-May 19 06:04:23 porky kernel: Attached scsi generic sg0 at scsi0,
-channel 0, id 0, lun 0,  type 0
-May 19 01:04:05 porky scsi.agent[1288]: disk at
-/devices/pci0000:00/0000:00:1e.0/0000:04:05.1/host1/target1:0:0/1:0:0:0
-May 19 06:04:23 porky kernel: Attached scsi generic sg1 at scsi1,
-channel 0, id 0, lun 0,  type 0
-
-###############################################################################
-
-Even with the patch that you posted last night something still isn't
-quite right. Notice in the output below that the faster drive is setup
-at 80MB/s instead of 160MB/s. It's like going back to the days before
-U160 stuff worked properly :)
-
-###############################################################################
-May 18 21:56:25 porky kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI
-HBA DRIVER, Rev 6.2.36
-May 18 21:56:25 porky kernel:         <Adaptec aic7899 Ultra160 SCSI
-adapter>
-May 18 21:56:25 porky kernel:         aic7899: Ultra160 Wide Channel A,
-SCSI Id=7, 32/253 SCBs
-May 18 21:56:25 porky kernel:
-May 18 21:56:25 porky kernel:   Vendor: QUANTUM   Model:
-ATLAS10K2-TY092L  Rev: DA40
-May 18 21:56:25 porky kernel:   Type:   Direct-Access
-   ANSI SCSI revision: 03
-May 18 21:56:25 porky kernel: scsi0:A:0:0: Tagged Queuing enabled.  Depth 32
-May 18 21:56:25 porky kernel:  target0:0:0: Beginning Domain Validation
-May 18 21:56:25 porky kernel: WIDTH IS 1
-May 18 21:56:25 porky kernel: (scsi0:A:0): 6.600MB/s transfers (16bit)
-May 18 21:56:25 porky kernel: (scsi0:A:0): 80.000MB/s transfers
-(40.000MHz, offset 127, 16bit)
-May 18 21:56:25 porky kernel:  target0:0:0: Ending Domain Validation
-May 18 21:56:25 porky kernel: scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI
-HBA DRIVER, Rev 6.2.36
-May 18 21:56:25 porky kernel:         <Adaptec aic7899 Ultra160 SCSI
-adapter>
-May 18 21:56:25 porky kernel:         aic7899: Ultra160 Wide Channel B,
-SCSI Id=7, 32/253 SCBs
-May 18 21:56:25 porky kernel:
-May 18 21:56:25 porky kernel:   Vendor: SEAGATE   Model: SX118273LC
-   Rev: 6679
-May 18 21:56:25 porky kernel:   Type:   Direct-Access
-   ANSI SCSI revision: 02
-May 18 21:56:25 porky kernel: scsi1:A:0:0: Tagged Queuing enabled.  Depth 32
-May 18 21:56:25 porky kernel:  target1:0:0: Beginning Domain Validation
-May 18 21:56:25 porky kernel:  target1:0:0: Domain Validation skipping
-write tests
-May 18 21:56:25 porky kernel: (scsi1:A:0): 20.000MB/s transfers
-(20.000MHz, offset 15)
-May 18 21:56:25 porky kernel:  target1:0:0: Ending Domain Validation
-May 18 21:56:25 porky kernel: SCSI device sda: 17783239 512-byte hdwr
-sectors (9105 MB)
-May 18 21:56:25 porky kernel: SCSI device sda: drive cache: write back
-May 18 21:56:25 porky kernel: SCSI device sda: 17783239 512-byte hdwr
-sectors (9105 MB)
-May 18 21:56:25 porky kernel: SCSI device sda: drive cache: write back
-May 18 21:56:25 porky kernel:  sda: sda1 sda2 sda3
-May 18 21:56:25 porky kernel: Attached scsi disk sda at scsi0, channel
-0, id 0, lun 0
-May 18 21:56:25 porky kernel: SCSI device sdb: 35566480 512-byte hdwr
-sectors (18210 MB)
-May 18 21:56:25 porky kernel: SCSI device sdb: drive cache: write through
-May 18 16:56:04 porky rc.sysinit: -e
-May 18 21:56:25 porky kernel: SCSI device sdb: 35566480 512-byte hdwr
-sectors (18210 MB)
-May 18 16:56:06 porky udevsend[1281]: starting udevd daemon
-May 18 21:56:25 porky kernel: SCSI device sdb: drive cache: write through
-May 18 16:56:06 porky scsi.agent[1293]: disk at
-/devices/pci0000:00/0000:00:1e.0/0000:04:05.0/host0/target0:0:0/0:0:0:0
-May 18 21:56:25 porky kernel:  sdb: sdb1
-May 18 16:56:06 porky scsi.agent[1318]: disk at
-/devices/pci0000:00/0000:00:1e.0/0000:04:05.1/host1/target1:0:0/1:0:0:0
-May 18 21:56:25 porky kernel: Attached scsi disk sdb at scsi1, channel
-0, id 0, lun 0
-May 18 16:56:06 porky udevsend[1334]: starting udevd daemon
-May 18 21:56:25 porky kernel: Attached scsi generic sg0 at scsi0,
-channel 0, id 0, lun 0,  type 0
-May 18 16:56:11 porky start_udev: Starting udev:  succeeded
-May 18 21:56:25 porky kernel: Attached scsi generic sg1 at scsi1,
-channel 0, id 0, lun 0,  type 0
-
-#################################################################################
-
-And then finally the output this morning of booting 2.6.12-rc2 (with RT
-patches applied, which is irrelevant to this conversation). This one
-does properly setup all of the drives.
-
-#################################################################################
-May 19 05:52:00 porky kernel: scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI
-HBA DRIVER, Rev 6.2.36
-May 19 05:52:00 porky kernel:         <Adaptec aic7899 Ultra160 SCSI
-adapter>
-May 19 05:52:00 porky kernel:         aic7899: Ultra160 Wide Channel A,
-SCSI Id=7, 32/253 SCBs
-May 19 05:52:00 porky kernel:
-May 19 05:52:00 porky kernel: (scsi0:A:0): 160.000MB/s transfers
-(80.000MHz DT, offset 127, 16bit)
-May 19 05:52:00 porky kernel:   Vendor: QUANTUM   Model:
-ATLAS10K2-TY092L  Rev: DA40
-May 19 05:52:00 porky kernel:   Type:   Direct-Access
-   ANSI SCSI revision: 03
-May 19 05:52:00 porky kernel: scsi0:A:0:0: Tagged Queuing enabled.  Depth 32
-May 19 05:52:00 porky kernel: scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI
-HBA DRIVER, Rev 6.2.36
-May 19 05:52:00 porky kernel:         <Adaptec aic7899 Ultra160 SCSI
-adapter>
-May 19 05:52:00 porky kernel:         aic7899: Ultra160 Wide Channel B,
-SCSI Id=7, 32/253 SCBs
-May 19 05:52:00 porky kernel:
-May 19 05:52:00 porky kernel: (scsi1:A:0): 20.000MB/s transfers
-(20.000MHz, offset 15)
-May 19 05:52:00 porky kernel:   Vendor: SEAGATE   Model: SX118273LC
-   Rev: 6679
-May 19 05:52:00 porky netfs: Mounting other filesystems:  succeeded
-May 19 05:52:00 porky kernel:   Type:   Direct-Access
-   ANSI SCSI revision: 02
-May 19 05:52:00 porky kernel: scsi1:A:0:0: Tagged Queuing enabled.  Depth 32
-May 19 05:52:00 porky kernel: SCSI device sda: 17783239 512-byte hdwr
-sectors (9105 MB)
-May 19 05:52:00 porky kernel: SCSI device sda: drive cache: write back
-May 19 05:52:00 porky kernel: SCSI device sda: 17783239 512-byte hdwr
-sectors (9105 MB)
-May 19 05:52:00 porky kernel: SCSI device sda: drive cache: write back
-May 19 05:52:00 porky kernel:  sda: sda1 sda2 sda3
-May 19 05:52:00 porky kernel: Attached scsi disk sda at scsi0, channel
-0, id 0, lun 0
 
 
 -- 
-   kr
+Luckiest in the world / Weapon of Mass Distraction
+http://maverick6664.bravehost.com/
+Aviation Jokes: http://www.geocities.com/tetsuji_rai/
+Background: http://maverick.ns1.name/

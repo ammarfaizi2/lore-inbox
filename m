@@ -1,91 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVESVlp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261268AbVESVmb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261267AbVESVlp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 17:41:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbVESVlp
+	id S261268AbVESVmb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 17:42:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261270AbVESVma
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 17:41:45 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:33452 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261267AbVESVlP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 17:41:15 -0400
-Date: Thu, 19 May 2005 16:41:07 -0500
-From: Michael Halcrow <mhalcrow@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Chris Wright <chrisw@osdl.org>,
-       Serge Hallyn <serue@us.ibm.com>
-Subject: Re: [updated patch 1/7] BSD Secure Levels: printk overhaul
-Message-ID: <20050519214036.GC11385@halcrow.us>
-Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
-References: <20050517152303.GA2814@halcrow.us> <20050519205525.GB16215@halcrow.us>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050519205525.GB16215@halcrow.us>
-User-Agent: Mutt/1.5.9i
+	Thu, 19 May 2005 17:42:30 -0400
+Received: from chaos.egr.duke.edu ([152.3.195.82]:5765 "EHLO
+	chaos.egr.duke.edu") by vger.kernel.org with ESMTP id S261268AbVESVmE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 17:42:04 -0400
+Date: Thu, 19 May 2005 17:42:01 -0400 (EDT)
+From: Joshua Baker-LePain <jlb17@duke.edu>
+X-X-Sender: jlb@chaos.egr.duke.edu
+To: Gregory Brauer <greg@wildbrain.com>
+cc: linux-kernel@vger.kernel.org, linux-xfs@oss.sgi.com,
+       Jakob Oestergaard <jakob@unthought.net>, Chris Wedgwood <cw@f00f.org>
+Subject: Re: kernel OOPS for XFS in xfs_iget_core (using NFS+SMP+MD)
+In-Reply-To: <Pine.LNX.4.58.0505191650580.7094@chaos.egr.duke.edu>
+Message-ID: <Pine.LNX.4.58.0505191740550.7094@chaos.egr.duke.edu>
+References: <428511F8.6020303@wildbrain.com> <20050514184711.GA27565@taniwha.stupidest.org>
+ <428B7D7F.9000107@wildbrain.com> <20050518175925.GA22738@taniwha.stupidest.org>
+ <20050518195251.GY422@unthought.net> <Pine.LNX.4.58.0505181556410.6834@chaos.egr.duke.edu>
+ <428BA8E4.2040108@wildbrain.com> <Pine.LNX.4.58.0505191537560.7094@chaos.egr.duke.edu>
+ <Pine.LNX.4.58.0505191650580.7094@chaos.egr.duke.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 19, 2005 at 01:58:06PM -0700, Andrew Morton wrote:
-> Did anyone mention printk_ratelimit()?
+And now I've got some OOPSes:
 
-Third time's a charm.  :-)
+Unable to handle kernel NULL pointer dereference at virtual address 
+00000000
+ printing eip:
+00000000
+*pde = 37137001
+Oops: 0000 [#1]
+SMP 
+Modules linked in: ipt_REJECT ipt_state ip_conntrack iptable_filter 
+ip_tables nfsd exportfs lockd xfs md5 ipv6 parport_pc lp parport i2c_dev 
+i2c_core sunrpc raid0 dm_mod button battery ac uhci_hcd hw_random e1000 
+floppy ext3 jbd 3w_9xxx 3w_xxxx sd_mod scsi_mod
+CPU:    2
+EIP:    0060:[<00000000>]    Not tainted VLI
+EFLAGS: 00010286   (2.6.9-5.0.5.EL.XFSsmp) 
+EIP is at 0x0
+eax: ca9a8dac   ebx: c03f03e0   ecx: 00000000   edx: d8cc689c
+esi: d8cc689c   edi: f2be7f04   ebp: 00000000   esp: f2be7ee8
+ds: 007b   es: 007b   ss: 0068
+Process nfsd (pid: 3255, threadinfo=f2be6000 task=f0a5e830)
+Stack: c0161332 ca9a8dac ffffffff e8f5608d 112f5575 f6b56f24 c01613a6 112f5575 
+       00000005 e8f56088 ca9a8e1c ca9a8e1c ca9a8dac f6b56f24 e8f55804 f8c18aa8 
+       e8f56088 f7fba800 f699c940 f7fba800 00000246 e8f4a000 e8f55800 e8f559d4 
+Call Trace:
+ [<c0161332>] __lookup_hash+0x70/0x89
+ [<c01613a6>] lookup_one_len+0x54/0x63
+ [<f8c18aa8>] nfsd_lookup+0x321/0x3ad [nfsd]
+ [<f8c20061>] nfsd3_proc_lookup+0xa9/0xb3 [nfsd]
+ [<f8c21fe4>] nfs3svc_decode_diropargs+0x0/0xfa [nfsd]
+ [<f8c165d7>] nfsd_dispatch+0xba/0x16f [nfsd]
+ [<f8b43446>] svc_process+0x420/0x6d6 [sunrpc]
+ [<f8c163b7>] nfsd+0x1cc/0x332 [nfsd]
+ [<f8c161eb>] nfsd+0x0/0x332 [nfsd]
+ [<c01041f1>] kernel_thread_helper+0x5/0xb
+Code:  Bad EIP value.
+ <1>Unable to handle kernel NULL pointer dereference at virtual address 
+00000000
+ printing eip:
+00000000
+*pde = 1d5c4001
+Oops: 0000 [#2]
+SMP 
+Modules linked in: ipt_REJECT ipt_state ip_conntrack iptable_filter 
+ip_tables nfsd exportfs lockd xfs md5 ipv6 parport_pc lp parport i2c_dev 
+i2c_core sunrpc raid0 dm_mod button battery ac uhci_hcd hw_random e1000 
+floppy ext3 jbd 3w_9xxx 3w_xxxx sd_mod scsi_mod
+CPU:    0
+EIP:    0060:[<00000000>]    Not tainted VLI
+EFLAGS: 00010286   (2.6.9-5.0.5.EL.XFSsmp) 
+EIP is at 0x0
+eax: c325cc30   ebx: c03f03e0   ecx: 00000000   edx: f0ee79cc
+esi: f0ee79cc   edi: e9d99f0c   ebp: 00000000   esp: e9d99ef0
+ds: 007b   es: 007b   ss: 0068
+Process nfsd (pid: 3353, threadinfo=e9d98000 task=ea2130b0)
+Stack: c0161332 c325cc30 ffffffff d61f10cf 002249be dad2017c c01613a6 002249be 
+       00000003 d61f10cc c325cca0 c325cca0 c325cc30 dad2017c e88a9000 f8c18aa8 
+       d61f10cc f7d74c00 f699ca00 c234b780 f7d74d60 ea3f7800 e88a9000 ea3f78e8 
+Call Trace:
+ [<c0161332>] __lookup_hash+0x70/0x89
+ [<c01613a6>] lookup_one_len+0x54/0x63
+ [<f8c18aa8>] nfsd_lookup+0x321/0x3ad [nfsd]
+ [<f8c16c7c>] nfsd_proc_lookup+0x5f/0x71 [nfsd]
+ [<f8c1e13d>] nfssvc_decode_diropargs+0x0/0xa7 [nfsd]
+ [<f8c165d7>] nfsd_dispatch+0xba/0x16f [nfsd]
+ [<f8b43446>] svc_process+0x420/0x6d6 [sunrpc]
+ [<f8c163b7>] nfsd+0x1cc/0x332 [nfsd]
+ [<f8c161eb>] nfsd+0x0/0x332 [nfsd]
+ [<c01041f1>] kernel_thread_helper+0x5/0xb
+Code:  Bad EIP value.
 
-I think this makes the most sense.  Module size is 18284; messages are
-globally limited, but the space savings is significant.
 
-Signed-off by: Michael Halcrow <mhalcrow@us.ibm.com>
-
-Index: linux-2.6.12-rc4-mm2-seclvl/security/seclvl.c
-===================================================================
---- linux-2.6.12-rc4-mm2-seclvl.orig/security/seclvl.c	2005-05-19 15:49:51.000000000 -0500
-+++ linux-2.6.12-rc4-mm2-seclvl/security/seclvl.c	2005-05-19 16:33:20.000000000 -0500
-@@ -102,21 +102,25 @@
- #define MY_NAME "seclvl"
- 
- /**
-- * This time-limits log writes to one per second.
-+ * This time-limits log writes to one per second for every message
-+ * type.
-  */
--#define seclvl_printk(verb, type, fmt, arg...)			\
--	do {							\
--		if (verbosity >= verb) {			\
--			static unsigned long _prior;		\
--			unsigned long _now = jiffies;		\
--			if ((_now - _prior) > HZ) {		\
--				printk(type "%s: %s: " fmt,	\
--					MY_NAME, __FUNCTION__ ,	\
--					## arg);		\
--				_prior = _now;			\
--			}					\
--		}						\
--	} while (0)
-+static void __seclvl_printk(int verb, const char *fmt, ...)
-+{
-+	va_list args;
-+	va_start(args, fmt);
-+	if (verbosity >= verb && printk_ratelimit()) {
-+		vprintk(fmt, args);
-+	}
-+	va_end(args);
-+}
-+
-+/**
-+ * Breaking the printk up into a macro and a function saves some text
-+ * space.
-+ */
-+#define seclvl_printk(verb, type, fmt, arg...) \
-+        __seclvl_printk((verb), type "%s: " fmt, __FUNCTION__, ## arg);
- 
- /**
-  * kobject stuff
-@@ -711,7 +715,7 @@
- 		goto exit;
- 	}
- 	seclvl_printk(0, KERN_INFO, "seclvl: Successfully initialized.\n");
-- exit:
-+      exit:
- 	if (rc) {
- 		printk(KERN_ERR "seclvl: Error during initialization: rc = "
- 		       "[%d]\n", rc);
+-- 
+Joshua Baker-LePain
+Department of Biomedical Engineering
+Duke University

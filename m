@@ -1,99 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262479AbVESMyj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262485AbVESMzf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262479AbVESMyj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 08:54:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbVESMyj
+	id S262485AbVESMzf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 08:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbVESMzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 08:54:39 -0400
-Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:53261 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262479AbVESMyD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 08:54:03 -0400
-To: linuxram@us.ibm.com
-CC: miklos@szeredi.hu, dhowells@redhat.com, jamie@shareable.org,
-       viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <1116448514.24560.209.camel@localhost> (message from Ram on Wed,
-	18 May 2005 13:35:15 -0700)
-Subject: Re: [PATCH] fix race in mark_mounts_for_expiry()
-References: <E1DYMVf-0000hD-00@dorka.pomaz.szeredi.hu>
-	 <E1DYMB6-0000dw-00@dorka.pomaz.szeredi.hu>
-	 <E1DYLvb-0000as-00@dorka.pomaz.szeredi.hu>
-	 <E1DYLCv-0000W7-00@dorka.pomaz.szeredi.hu>
-	 <1116005355.6248.372.camel@localhost>
-	 <E1DWf54-0004Z8-00@dorka.pomaz.szeredi.hu>
-	 <1116012287.6248.410.camel@localhost>
-	 <E1DWfqJ-0004eP-00@dorka.pomaz.szeredi.hu>
-	 <1116013840.6248.429.camel@localhost>
-	 <E1DWprs-0005D1-00@dorka.pomaz.szeredi.hu>
-	 <1116256279.4154.41.camel@localhost>
-	 <20050516111408.GA21145@mail.shareable.org>
-	 <1116301843.4154.88.camel@localhost>
-	 <E1DXm08-0006XD-00@dorka.pomaz.szeredi.hu>
-	 <20050517012854.GC32226@mail.shareable.org>
-	 <E1DXuiu-0007Mj-00@dorka.pomaz.szeredi.hu>
-	 <1116360352.24560.85.camel@localhost>
-	 <E1DYI0m-0000K5-00@dorka.pomaz.szeredi.hu>
-	 <1116399887.24560.116.camel@localhost>
-	 <1116400118.24560.119.camel@localhost> <6865.1116412354@redhat.com>
-	 <7230.1116413175@redhat.com> <8247.1116413990@redhat.com>
-	 <9498.1116417099@redhat.com> <E1DYNLt-0000nu-00@dorka.pomaz.szeredi! .hu>
-	 <E1DYNjR-0000po-00@dorka.pomaz.szeredi.hu>
-	 <E1DYRnw-0001J6-00@dorka.pomaz.szeredi.hu>
-	 <1116442073.24560.142.camel@localhost>
-	 <E1DYU4Z-0001U5-00@dorka.pomaz.szeredi.hu> <1116448514.24560.209.camel@localhost>
-Message-Id: <E1DYkWA-0002Jl-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Thu, 19 May 2005 14:52:50 +0200
+	Thu, 19 May 2005 08:55:35 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:19368 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262485AbVESMzV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 08:55:21 -0400
+Message-ID: <428C8C32.2030803@redhat.com>
+Date: Thu, 19 May 2005 08:53:06 -0400
+From: Peter Staubach <staubach@redhat.com>
+User-Agent: Mozilla Thunderbird  (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: steve <lingxiang@huawei.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "zhangtiger@huawei.com" <zhangtiger@huawei.com>
+Subject: Re: why nfs server delay 10ms in nfsd_write()?
+References: <0IGP00IZRULADZ@szxml02-in.huawei.com> <1116472423.11327.1.camel@mindpipe>
+In-Reply-To: <1116472423.11327.1.camel@mindpipe>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ok. One more attempt to be clear.
-> 
-> All the places where get_namespace() is called currently except
-> in mark_mounts_for_expiry() are safe because they are called in
-> places where it is guaranteed that they will not race with 
-> __put_namespace(). 
-> 
-> For example in clone_namespace(), get_namespace() will not race
-> because the task that called the clone has a refcount on the
-> namespace and since that task is currently  in the kernel, there is
-> no chance for  the task  to go away  decrementing the refcount 
-> on that namespace. 
-> 
-> But the case where the call to get_namespace() is buggy in 
-> mark_mounts_for_expiry() is because:
-> it is called in a timer context, and the last process referring
-> the namespace may just disapper right than.  
->  So what I am proposing is:
-> in automouter, while the automount takes place in 
-> afs_mntpt_follow_link() increment the refcount of the namespace,
-> by calling get_namespace(). This call will not race with __put_namespace
-> because the process that is trying to access the
-> mountpoint already has a refcount on the namespace and it won't be 
-> able to decrement the refcount currently. agree?
-> 
-> Now later when the automounter tries to unmount the mount 
-> call put_namespace() after unmounting. I mean do it in
-> mark_mounts_for_expiry(). Also delete the call to get_namespace()) 
-> 
-> So the race will not happen at all.
-> 
-> Makes sense? 
+Lee Revell wrote:
 
-Well I imagine it could work, but again it's just a special case for
-the automounter stuff.
+>On Thu, 2005-05-19 at 10:46 +0800, steve wrote:
+>  
+>
+>>i have 2 questions:
+>>1.i don't know why do we have to sleep for 10 ms, why not do sync immediately?
+>>2.what will happen if we don't sleep for 10ms?
+>>when i delete these codes, i get a good result, and the write performace improved from 300KB/s to 18MB/s
+>>
+>>    
+>>
+>
+>Did you read the comments in the code?
+>
+>                /*
+>                 * Gathered writes: If another process is currently
+>                 * writing to the file, there's a high chance
+>                 * this is another nfsd (triggered by a bulk write
+>                 * from a client's biod). Rather than syncing the
+>                 * file with each write request, we sleep for 10 msec.
+>                 *
+>                 * I don't know if this roughly approximates
+>                 * C. Juszak's idea of gathered writes, but it's a
+>                 * nice and simple solution (IMHO), and it seems to
+>                 * work:-)
+>                 */
+>  
+>
 
-It still won't solve the recursive mount problem that this discussion
-(and your discovery of the race) originated from.
+There are certainly many others way to get gathering, without adding an
+artificial delay.  There are already delay slots built into the code 
+which could
+be used to trigger the gathering, so with a little bit different 
+architecture, the
+performance increases could be achieved.
 
-My second patch solves the problem generally (though I'm sure that
-it's full of bugs yet), by keeping a reference to the namespace from
-each vfsmount in that namespace.  That way, until the vfsmount remains
-in the namespace (i.e. until it's unmounted) mnt_namespace can be
-safely used for whatever reason (recursive bind, atomount, etc).
+Some implementations actually do write gathering with NFSv3, even.  Is
+this interesting enough to play with?  I suspect that just doing the 
+work for
+NFSv2 is not...
 
-So why does it make sense to solve this problem only for the
-automounter?
+    Thanx...
 
-Miklos
+       ps

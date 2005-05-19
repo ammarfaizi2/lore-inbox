@@ -1,82 +1,192 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262474AbVESMsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262477AbVESMwf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262474AbVESMsV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 08:48:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262483AbVESMsV
+	id S262477AbVESMwf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 08:52:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262484AbVESMwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 08:48:21 -0400
-Received: from odin2.bull.net ([192.90.70.84]:15266 "EHLO odin2.bull.net")
-	by vger.kernel.org with ESMTP id S262474AbVESMsL convert rfc822-to-8bit
+	Thu, 19 May 2005 08:52:34 -0400
+Received: from alog0431.analogic.com ([208.224.222.207]:13184 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262477AbVESMuw
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 08:48:11 -0400
-Subject: Re: Resent: BUG in RT 45-01 when RT program dumps core
-From: "Serge Noiraud" <serge.noiraud@bull.net>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: kus Kusche Klaus <kus@keba.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1116503763.15866.9.camel@localhost.localdomain>
-References: <AAD6DA242BC63C488511C611BD51F367323212@MAILIT.keba.co.at>
-	 <1116503763.15866.9.camel@localhost.localdomain>
-Content-Type: text/plain; charset=iso-8859-15
-Organization: BTS
-Message-Id: <1116506317.17833.34.camel@ibiza.btsn.frna.bull.fr>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-5.1.100mdk 
-Date: Thu, 19 May 2005 14:38:38 +0200
-Content-Transfer-Encoding: 8BIT
+	Thu, 19 May 2005 08:50:52 -0400
+Date: Thu, 19 May 2005 08:50:07 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: "Michael H. Warfield" <mhw@wittsend.com>
+cc: linux@horizon.com, lsorense@csclub.uwaterloo.ca,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Sync option destroys flash!  Now I'm confused...
+In-Reply-To: <1116450529.4384.135.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0505190821080.29560@chaos.analogic.com>
+References: <20050517203117.10588.qmail@science.horizon.com>
+ <Pine.LNX.4.61.0505171638560.10811@chaos.analogic.com>
+ <1116450529.4384.135.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le jeu 19/05/2005 à 13:56, Steven Rostedt a écrit :
-> On Thu, 2005-05-19 at 08:36 +0200, kus Kusche Klaus wrote:
-> > Quoting my mail from Apr 11th (received no response up to now):
-...
-> > > Apr 11 13:44:23 OF455 kern.err kernel: BUG: rtc2:833 RT task 
-> > > yield()-ing!
-> 
-> This is a check that we have to flag when a RT task calls yield.  This
-> in itself may not really be a bug, but it can be. There's places in the
-> kernel that call yield to wait for a bit to clear or a lock to become
-> unlock (doesn't grab it directly to prevent deadlocking).  This may be
-> OK with non RT tasks, since other tasks will get a chance to run. But
-> with RT tasks, a yield won't yield to any task with less priority than
-> the RT task. So if the RT task is yielding to let a lower priority task
-> do something it needs, it will in effect deadlock the system for all
-> tasks lower in priority than itself.
-> 
-> > This is still absolutely reproducable, in RT 7.47-01,
-> > with slight variations in the stack trace.
-> > 
-> > Is this something to worry about?
-> 
-> I'll take a look into it.
-> 
-> 
-> Ingo,
-> 
-> Did you get my patch to fix the kstop_machine yielding problem?
-> 
-> -- Steve
+On Wed, 18 May 2005, Michael H. Warfield wrote:
 
-Does it solve this problem ? is it the same ? I'm in RT 47-03.
-If yes, I'm interested in this patch.
-...
-May 16 09:59:52 dtb2 kernel: BUG: kstopmachine:1037 RT task yield()-ing!
-May 16 09:59:52 dtb2 kernel: [dump_stack+35/48]  (20)
-May 16 09:59:52 dtb2 kernel: [<c01044b3>]  (20)
-May 16 09:59:52 dtb2 kernel: [yield+101/112]  (20)
-May 16 09:59:52 dtb2 kernel: [<c0344c55>]  (20)
-May 16 09:59:52 dtb2 kernel: [stop_machine+261/368]  (40)
-May 16 09:59:52 dtb2 kernel: [<c014c915>]  (40)
-May 16 09:59:52 dtb2 kernel: [do_stop+21/128]  (20)
-May 16 09:59:52 dtb2 kernel: [<c014c9b5>]  (20)
-May 16 09:59:52 dtb2 kernel: [kthread+182/256]  (48)
-May 16 09:59:52 dtb2 kernel: [<c013a576>]  (48)
-May 16 09:59:52 dtb2 kernel: [kernel_thread_helper+5/16]  (140156956)
-May 16 09:59:52 dtb2 kernel: [<c0101515>]  (140156956)
-May 16 09:59:53 dtb2 kernel: ts: Compaq touchscreen protocol output
-May 16 09:59:53 dtb2 kernel: Generic RTC Driver v1.07
-...
+> 	All right...  Now I'm really confused.
+>
+> 	There are, obviously, some individuals on this list who are a LOT more
+> knowledgeable about the internal workings of flash, so I'm hoping for a
+> clear(er) understanding of just WHAT is going on here.
+>
+> On Tue, 2005-05-17 at 16:43 -0400, Richard B. Johnson wrote:
+>> On Tue, 17 May 2005 linux@horizon.com wrote:
+>
+>>>> It can also respond to loosing power during write by getting it's state
+>>>> so mixed up the whole card is dead (it identifies but all sectors fail
+>>>> to read).
+>
+>>> Gee, that just happened to me!  Well, actually, thanks to Linux's
+>>> *insistence* on reading the partition table, I haven't managed to
+>>> get I/O errors on anything bit sectors 0 through 7, but I am quite
+>>> sure I wasn't writing those sectors when I pulled the plug:
+>
+>>> hda: read_intr: status=0x51 { DriveReady SeekComplete Error }
+>>> hda: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=6, sector=6
+>>> hda: read_intr: status=0x51 { DriveReady SeekComplete Error }
+>>> hda: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=6, sector=6
+>>> hda: read_intr: status=0x51 { DriveReady SeekComplete Error }
+>>> hda: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=6, sector=6
+>>> hda: read_intr: status=0x51 { DriveReady SeekComplete Error }
+>>> hda: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=6, sector=6
+>>> ide0: reset: success
+>>> hda: read_intr: status=0x51 { DriveReady SeekComplete Error }
+>>> hda: read_intr: error=0x10 { SectorIdNotFound }, LBAsect=6, sector=6
+>>> end_request: I/O error, dev 03:00 (hda), sector 6
+>>> unable to read partition table
+>> [SNIPPED...]
+>
+>> You can "fix" this by writing all sectors. Although the data is lost,
+>> the flash-RAM isn't. This can (read will) happen if you pull the
+>> flash-RAM out of its socket with the power ON.
+>
+> 	I'm the original poster and someone in another message remarked about
+> not having enough details on the damage to the card...  So I just did
+> some spot checking on the card for some details.
+>
+> 	Block checking with dd bs=512 if=/dev/sda gave me some indicators...
+>
+> Blocks 0-7 DOA, hard read errors, 0+0 records in.
+>
+> Blocks 8-31 would read 8 blocks at a time and then give me an error, but
+> the next 8 blocks would read fine.  So 24 consecutive blocks SEEMED to
+> read but strangely.
+>
+> Blocks 32-39 DOA
+>
+> Blocks 40-71 would read 8 blocks at a time.
+>
+> Roughly 1/3 of the blocks seem to be dead in multiples of 8 blocks on 8
+> block boundries early on.  No real pattern to which ones were dead and
+> which ones would read 8 and then error.
+>
+> Once past block 512, huge blocks would be readable but eventually give
+> me an error.
+>
+> Dead fields (0 records read) were always multiples of 8 512 byte blocks,
+> 4KBytes falling on an 4K boundry.
+>
+> Reading with dd bs=4096 gave similar results for 4K blocks with skip
+> count less than 64.  Skip count 64 and greater gave me large swaths that
+> were readable.  No time did I see a partial record read (indicating a
+> failure off a 4K boundry).
+>
+> 	Basically, that re-enforced my option that it was block wear-out from
+> uneven wear leveling when copying that 700 Meg file and beating the
+> bejesus out of the FAT tables.  Front part of the flash was heavily
+> damaged with sporatic damage deeper in the flash.
+>
+> 	Now, I saw this message...  Well...  I didn't remove the key when it
+> was being written to but, what the hell...  The key is dead, I've got
+> nothing to loose, and it might yield some more information as to the
+> nature of the failure.  So I copied zeros to the entire key with "dd
+> if=/dev/zero of=/dev/sda bs=16M".  I'll be a son of a bitch but that key
+> recovered.  I've partitioned it and read the whole damn thing back end
+> to end and it's perfect.
+>
+> 	Ok...  So, WTF?  It wasn't (AFAICT) due to loss of power or pulling it
+> while writing.  What was this failure and why did overwriting it fix it?
+> Did the stick just flaw out all the burned out blocks or did it really
+> recover the ECC errors?  I'm really baffled now.
+>
+> 	BTW...  I've killed the "sync" option in hal (you just have to create
+> an XML policy file in the right location to specify that option as false
+> in all cases) and have been beating the crap out of several other keys
+> without a single failure.  I'm going to try this key again...
+>
+> 	Thank you very VERY much for this hint to recover the damaged key.
+> That's a trick I've used for damaged IDE & SCSI hard drives (recover
+> head drift and soft errors) and I never thought to try it with a flash
+> key.  I'll be damned if I understand just what has happened at this
+> point but I really appreciate that trick.
+>
+>> Cheers,
+>> Dick Johnson
+>> Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
+>>   Notice : All mail here is now cached for review by Dictator Bush.
+>>                   98.36% of all statistics are fiction.
+>
+> 	Regards,
+> 	Mike
 
+The problem is that it's a RAM disk that uses flash-RAM, plus a
+little bit of SRAM for one page of I/O. Some devices use two
+pages of SRAM to ping-pong for speed. The size of the 'pages'
+might vary with the manufacturer. The only thing known is that
+these pages will be a multiple of the de facto 512 byte 'sector'
+size of a physical disk.
 
+You fixed the device by writing to the whole device without
+an intervening read. Writes work like this. The data written goes
+into a SRAM page that is shadowed. When that page is filled,
+before another page is switched, the flash-RAM page that was
+shadowed is now written to the real flash-RAM. This is necessary
+because flash-RAM can only be written by resetting bits, not
+setting them. So first the page is erased which takes a lot of
+time and sets all the bits high. The writing process sends an
+unlock-sequence to the flash-RAM controller, followed by the
+offset into the page, followed by the data byte. This also
+takes time so flash-RAM without the SRAM random-access shadow
+page is somewhat limited in value. This process continues util
+you have written the whole device.
+
+Normal random access works like this, the page to be accessed
+is calculated by dividing the offset you want, by the real
+page-size. The offset into that page is the remainder from
+the division. Any unflushed data in the SRAM gets written to
+the device as previously shown. The newly calculated page
+is read into the SRAM. You do I/O from the SRAM. The chip
+remembers if any writes occur. If a write occurs, the contents
+of the SRAM is flushed to the calculated page any time the
+page is about to be changed. There is also a "stale" alogrithm
+that writes out a page that hasn't been accessed for some
+time.
+
+Now, if you interrupt this sequence by killing the power at
+some 'bad' time, data will not be correct. In fact, you could
+have an erased page with all bits set.
+
+Now, when you have a file-system that has inodes scattered
+all through it, any inodes that are on an erased page will
+cause the next access to be at some offset (sector) that
+doesn't exist. Since there are no 'sector IDs' as shown
+in the errors reported, they must be created by the hard-disk
+emulation. So, looking at errors with Sector ID=6, etc.,
+simply means that the emulator was 'confused'. It was probably
+the Nth wrap of some hardware variable.
+
+Anyway, I've used the SanDisk and PNY flash-RAM that emulates
+a 'type 3' IDE drive since they first became available. I haven't
+killed any yet. But.... I've destroyed many file-systems by
+unplugging them while accesses were occurring.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

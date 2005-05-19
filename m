@@ -1,42 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVESQUx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVESQXC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbVESQUx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 12:20:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVESQUj
+	id S261152AbVESQXC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 12:23:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVESQXC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 12:20:39 -0400
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:17872 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S261168AbVESQUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 12:20:03 -0400
-From: Jesse Barnes <jbarnes@virtuousgeek.org>
-To: "linux" <kernel@wired-net.gr>, linux-kernel@vger.kernel.org
-Subject: Re: 2.4 kernel threads
-Date: Thu, 19 May 2005 09:19:55 -0700
-User-Agent: KMail/1.8
-References: <20050518223303.GE1340@ca-server1.us.oracle.com> <20050519094517.GD5112@stusta.de> <00e301c55c5c$eb83d7c0$0101010a@dioxide>
-In-Reply-To: <00e301c55c5c$eb83d7c0$0101010a@dioxide>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Thu, 19 May 2005 12:23:02 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:19661 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261152AbVESQWx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 12:22:53 -0400
+Subject: Re: Illegal use of reserved word in system.h
+From: Steven Rostedt <rostedt@goodmis.org>
+To: linux-os@analogic.com
+Cc: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org,
+       "Gilbert, John" <JGG@dolby.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Adrian Bunk <bunk@stusta.de>, Arjan van de Ven <arjan@infradead.org>,
+       "Maciej W. Rozycki" <macro@linux-mips.org>
+In-Reply-To: <Pine.LNX.4.61.0505191150070.30960@chaos.analogic.com>
+References: <2692A548B75777458914AC89297DD7DA08B0866F@bronze.dolby.net>
+	 <20050518195337.GX5112@stusta.de>
+	 <6EA08D88-7C67-48ED-A9EF-FEAAB92D8B8F@mac.com>
+	 <20050519112840.GE5112@stusta.de>
+	 <Pine.LNX.4.61.0505190734110.29439@chaos.analogic.com>
+	 <1116505655.6027.45.camel@laptopd505.fenrus.org>
+	 <Pine.LNX.4.61L.0505191342460.10681@blysk.ds.pg.gda.pl>
+	 <Pine.LNX.4.61.0505190853310.29611@chaos.analogic.com>
+	 <jeacmr5mzk.fsf@sykes.suse.de>
+	 <1116512140.15866.42.camel@localhost.localdomain>
+	 <Pine.LNX.4.61.0505191024110.30237@chaos.analogic.com>
+	 <je64xf450i.fsf@sykes.suse.de>
+	 <Pine.LNX.4.61.0505191150070.30960@chaos.analogic.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 19 May 2005 12:22:19 -0400
+Message-Id: <1116519739.4075.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505190919.55774.jbarnes@virtuousgeek.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, May 19, 2005 3:24 am, you wrote:
-> While attempting to unload the kernel module which has created a
-> kernel thread whoch runs perfectly i get this oops:
-> Unable to handle kernel paging request at virtual address d08f364c
+On Thu, 2005-05-19 at 11:58 -0400, Richard B. Johnson wrote:
 
-Your messages keep showing up as replies to other threads.  It looks 
-like you're just hitting 'reply' to the latest message in your lkml 
-mailbox in order to post a new message (at least the headers of your 
-mail contain references to unrelated messages).  Please don't do this.  
-Just create a new message with 'linux-kernel@vger.kernel.org' in the To 
-field.  People will be more likely to see your message this way since 
-it won't be buried in a thread they may or may not be interested in.
+> 
+> 0 = 00000020
+> 1 = ffffe400
+> 2 = 00000021
+> 3 = ffffe000
+> 4 = 00000010	Seems to start here?
+> 5 = bfebfbff	Some bits
+> 6 = 00000006	AT_PAGESZ
+> 7 = 00001000	Correct
+> 8 = 00000011	AT_CLKTCK
+> 9 = 00000064	Correct
+> 10 = 00000003
+> 11 = 08048034
+> 12 = 00000004
+> 13 = 00000020
+> 14 = 00000005
+> 15 = 00000003
+> 
+> Nothing that makes any sense with the extra stuff in front.
+> I don't know where it came from.
+> 
 
-Thanks,
-Jesse
+You forgot to include ARCH_DL_INFO which is defined in asm-i386/elf.h
+as:
+
+#define ARCH_DLINFO						\
+do {								\
+		NEW_AUX_ENT(AT_SYSINFO,	VSYSCALL_ENTRY);	\
+		NEW_AUX_ENT(AT_SYSINFO_EHDR, VSYSCALL_BASE);	\
+} while (0)
+
+AT_SYSINFO = 32 or 0x20  and AT_SYSINFO_EHDR = 33 or 0x21
+
+-- Steve
+
+

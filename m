@@ -1,104 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbVESXac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVESXWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbVESXac (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 19:30:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVESXYF
+	id S261307AbVESXWV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 19:22:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVESXVa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 19:24:05 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53922 "EHLO
+	Thu, 19 May 2005 19:21:30 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56994 "EHLO
 	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261303AbVESW4Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 18:56:25 -0400
+	id S261307AbVESW4p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 18:56:45 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [CFR][PATCH] namei fixes (10/19)
+Subject: [CFR][PATCH] namei fixes (14/19)
 Cc: akpm@osdl.org
-Message-Id: <E1DYtwh-0007ry-At@parcelfarce.linux.theplanet.co.uk>
+Message-Id: <E1DYtx1-0007sp-H6@parcelfarce.linux.theplanet.co.uk>
 From: Al Viro <viro@www.linux.org.uk>
-Date: Thu, 19 May 2005 23:56:51 +0100
+Date: Thu, 19 May 2005 23:57:11 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(10/19)
+(14/19)
 
-In open_namei(), __follow_down() loop turned into __follow_mount().
-Instead of
-	if we are on a mountpoint dentry
-		if O_NOFOLLOW checks fail
-			drop path.dentry
-			drop nd
-			return
-		do equivalent of follow_mount(&path.mnt, &path.dentry)
-		nd->mnt = path.mnt
-we do
-	if __follow_mount(path) had, indeed, traversed mountpoint
-		/* now both nd->mnt and path.mnt are pinned down */
-		if O_NOFOLLOW checks fail
-			drop path.dentry
-			drop path.mnt
-			drop nd
-			return
-		mntput(nd->mnt)
-		nd->mnt = path.mnt
+shifted conditional mntput() into do_follow_link() - all callers
+were doing the same thing.
 
-Now __follow_down() can be folded into follow_down() - no other callers
-left.  We need to reorder dput()/mntput() there - same problem as in
-follow_mount().
-
-Equivalent transformation + fix for a bug in O_NOFOLLOW handling - we
-used to get -ELOOP if we had the same fs mounted on /foo and /bar, had
-something bound on /bar/baz and tried to open /foo/baz with O_NOFOLLOW.
-And fix of too-early-mntput() race in follow_down()
+Obviously equivalent transformation.
 
 Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 ----
-diff -urN RC12-rc4-9/fs/namei.c RC12-rc4-10/fs/namei.c
---- RC12-rc4-9/fs/namei.c	2005-05-19 16:39:38.069917746 -0400
-+++ RC12-rc4-10/fs/namei.c	2005-05-19 16:39:39.207691029 -0400
-@@ -612,26 +612,21 @@
- /* no need for dcache_lock, as serialization is taken care in
-  * namespace.c
-  */
--static inline int __follow_down(struct vfsmount **mnt, struct dentry **dentry)
-+int follow_down(struct vfsmount **mnt, struct dentry **dentry)
- {
- 	struct vfsmount *mounted;
- 
- 	mounted = lookup_mnt(*mnt, *dentry);
- 	if (mounted) {
-+		dput(*dentry);
- 		mntput(*mnt);
- 		*mnt = mounted;
--		dput(*dentry);
- 		*dentry = dget(mounted->mnt_root);
- 		return 1;
- 	}
- 	return 0;
- }
- 
--int follow_down(struct vfsmount **mnt, struct dentry **dentry)
--{
--	return __follow_down(mnt,dentry);
--}
-- 
- static inline void follow_dotdot(struct vfsmount **mnt, struct dentry **dentry)
- {
- 	while(1) {
-@@ -1498,11 +1493,14 @@
- 	if (flag & O_EXCL)
- 		goto exit_dput;
- 
--	if (d_mountpoint(path.dentry)) {
-+	if (__follow_mount(&path)) {
- 		error = -ELOOP;
--		if (flag & O_NOFOLLOW)
--			goto exit_dput;
--		while (__follow_down(&path.mnt,&path.dentry) && d_mountpoint(path.dentry));
-+		if (flag & O_NOFOLLOW) {
-+			dput(path.dentry);
-+			mntput(path.mnt);
-+			goto exit;
-+		}
+diff -urN RC12-rc4-13/fs/namei.c RC12-rc4-14/fs/namei.c
+--- RC12-rc4-13/fs/namei.c	2005-05-19 16:39:42.545026018 -0400
++++ RC12-rc4-14/fs/namei.c	2005-05-19 16:39:43.660803683 -0400
+@@ -543,11 +543,15 @@
+ 	current->link_count++;
+ 	current->total_link_count++;
+ 	nd->depth++;
++	if (path->mnt != nd->mnt)
 +		mntput(nd->mnt);
- 		nd->mnt = path.mnt;
- 	}
- 	error = -ENOENT;
+ 	err = __do_follow_link(path, nd);
+ 	current->link_count--;
+ 	nd->depth--;
+ 	return err;
+ loop:
++	if (path->mnt != nd->mnt)
++		mntput(nd->mnt);
+ 	dput(path->dentry);
+ 	path_release(nd);
+ 	return err;
+@@ -801,8 +805,6 @@
+ 			goto out_dput;
+ 
+ 		if (inode->i_op->follow_link) {
+-			if (nd->mnt != next.mnt)
+-				mntput(nd->mnt);
+ 			err = do_follow_link(&next, nd);
+ 			if (err)
+ 				goto return_err;
+@@ -856,8 +858,6 @@
+ 		inode = next.dentry->d_inode;
+ 		if ((lookup_flags & LOOKUP_FOLLOW)
+ 		    && inode && inode->i_op && inode->i_op->follow_link) {
+-			if (next.mnt != nd->mnt)
+-				mntput(nd->mnt);
+ 			err = do_follow_link(&next, nd);
+ 			if (err)
+ 				goto return_err;

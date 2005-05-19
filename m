@@ -1,493 +1,541 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVESLfq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262231AbVESLhu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbVESLfq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 07:35:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbVESLfp
+	id S262231AbVESLhu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 07:37:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbVESLhu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 07:35:45 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:31120 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261537AbVESLeO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 07:34:14 -0400
-Subject: Re: 2.6.12-rc4-mm2 - sleeping function called from invalid context
-	at mm/slab.c:2502
-From: David Woodhouse <dwmw2@infradead.org>
-To: Linux Audit Discussion <linux-audit@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu>
-References: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Date: Thu, 19 May 2005 12:34:08 +0100
-Message-Id: <1116502449.23972.207.camel@hades.cambridge.redhat.com>
+	Thu, 19 May 2005 07:37:50 -0400
+Received: from rproxy.gmail.com ([64.233.170.194]:11931 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262231AbVESLfg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 07:35:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type;
+        b=ur2x2pZYoJPNU/dDHVlhHS2E5IinIt8l1Eos1TqReeeXRKzCCjdEJH4hAUyb8emXRUZ8usG+cKZgkiGMQ2I9hg/Wb94cVQhjlDwWwAZaYbdUwKSYxa/2ObYRmIBwe44G7zINdFuIkaBPiO9coR8uF6sJcBPD6dXaNtujpleslSg=
+Message-ID: <253818670505190435648367db@mail.gmail.com>
+Date: Thu, 19 May 2005 07:35:35 -0400
+From: Yani Ioannou <yani.ioannou@gmail.com>
+Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: [PATCH 2.6.12-rc4-mm2] drivers: (dynamic sysfs callbacks) update device attribute callbacks
+Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-1.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_156_17059740.1116502535960"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-17 at 12:24 -0400, Valdis.Kletnieks@vt.edu wrote:
-> [4295584.974000] Debug: sleeping function called from invalid context
-> at mm/slab.c:2502
-> [4295584.974000] in_atomic():1, irqs_disabled():0
-> [4295584.974000]  [<c01035a8>] dump_stack+0x15/0x17
-> [4295584.974000]  [<c013ba6d>] kmem_cache_alloc+0x1e/0x6a
-> [4295584.974000]  [<c02de4fa>] skb_clone+0x14/0x183
-> [4295584.974000]  [<c02ef64a>] netlink_unicast+0x7d/0x171
-> [4295584.974000]  [<c0130947>] audit_log_end_fast+0xf5/0x188
-> [4295584.974000]  [<c01c3c56>] avc_audit+0x94d/0x958
+------=_Part_156_17059740.1116502535960
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-OK, we'll just let audit_log() assemble its own skb and queue it for a
-separate kernel thread to feed up to auditd. We'll fix up the horrid
-error handling mess we had before too, where we used to clone the skb
-because we know netlink_unicast() would free it even on temporary errors
-(like the SO_RCVBUF limit being reached).
+Hi Greg,
 
-This includes one of Steve's earlier patches which ensures that messages
-in the skb are NUL-terminated. It should all appear some time soon in
-http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/dwmw2/audit-2.6.git;a=summary
-or more perhaps more usefully (since Thomas allows us to distinguish
-between local and merged commits) in
-http://www.tglx.de/cgi-bin/gittracker/commit/tracker-linux/audit-2.6.git?project=tracker-linux%2Fdwmw2%2Faudit-2.6.git&pagelen=10&exclude=tracker-linux%2Ftorvalds%2Flinux-2.6.git&offset=0
+I'm taking two steps here to try and mitigate the pain of a potential -mm m=
+erge.
 
-Index: kernel/audit.c
-===================================================================
---- e45ee43e7af31f847377e8bb3a0a61581732b653/kernel/audit.c  (mode:100644)
-+++ c1096ff7ae35b77bf8108c3a60b856551c50a9d7/kernel/audit.c  (mode:100644)
-@@ -46,6 +46,8 @@
- #include <asm/types.h>
- #include <linux/mm.h>
- #include <linux/module.h>
-+#include <linux/err.h>
-+#include <linux/kthread.h>
- 
- #include <linux/audit.h>
- 
-@@ -77,7 +79,6 @@
- 
- /* Number of outstanding audit_buffers allowed. */
- static int	audit_backlog_limit = 64;
--static atomic_t	audit_backlog	    = ATOMIC_INIT(0);
- 
- /* The identity of the user shutting down the audit system. */
- uid_t		audit_sig_uid = -1;
-@@ -95,19 +96,17 @@
- /* The netlink socket. */
- static struct sock *audit_sock;
- 
--/* There are two lists of audit buffers.  The txlist contains audit
-- * buffers that cannot be sent immediately to the netlink device because
-- * we are in an irq context (these are sent later in a tasklet).
-- *
-- * The second list is a list of pre-allocated audit buffers (if more
-+/* The audit_freelist is a list of pre-allocated audit buffers (if more
-  * than AUDIT_MAXFREE are in use, the audit buffer is freed instead of
-  * being placed on the freelist). */
--static DEFINE_SPINLOCK(audit_txlist_lock);
- static DEFINE_SPINLOCK(audit_freelist_lock);
- static int	   audit_freelist_count = 0;
--static LIST_HEAD(audit_txlist);
- static LIST_HEAD(audit_freelist);
- 
-+static struct sk_buff_head audit_skb_queue;
-+static struct task_struct *kauditd_task;
-+static DECLARE_WAIT_QUEUE_HEAD(kauditd_wait);
-+
- /* There are three lists of rules -- one to search at task creation
-  * time, one to search at syscall entry time, and another to search at
-  * syscall exit time. */
-@@ -151,9 +150,6 @@
- 	struct audit_rule rule;
+I'm including a patch against 2.4.12-rc4-mm2 to fix the failed hunks
+when applying my 2.4.12-rc4 patch and update the callbacks in the new
+drivers that exist in -mm2.
+
+In reply to this patch I'll include the latest perl script I'm using
+to update callbacks in code which can be used to update any old
+callbacks in a single file/source tree to the new callbacks. A warning
+along the lines of  "warning: assignment from incompatible pointer
+type" when compiling is a good sign of an old callback that needs
+updating..
+
+It is important to note that unlike before, updating the callbacks
+isn't just removing warnings/good practice. The new device_attribute *
+parameter was not added on the end of callback function's parameter
+list as the void * parameter was in previous device_attribute patches,
+but as the second parameter (mainly because of style and Russell did
+it that way). Thus if a device_attribute callback isn't updated it
+will very likely be broken...
+
+If you can think of anything else I can do let me know to ease things
+let me know.
+
+Yani
+
+---
+char/tpm/tpm.c            |    8 ++++----
+  char/tpm/tpm.h            |    8 ++++----
+ i2c/chips/adm1025.c       |    8 ++++----
+ i2c/chips/adm9240.c       |   32 ++++++++++++++++----------------
+ i2c/chips/atxp1.c         |   12 ++++++------
+ i2c/chips/w83627ehf.c     |   18 +++++++++---------
+  input/serio/serio.c       |   12 ++++++------
+  message/fusion/mptscsih.c |    2 +-
+  message/fusion/mptscsih.h |    2 +-
+  pci/pci-sysfs.c           |    2 +-
+  pcmcia/ds.c               |    2 +-
+  usb/core/sysfs.c          |    2 +-
+ 12 files changed, 54 insertions(+), 54 deletions(-)
+---
+
+------=_Part_156_17059740.1116502535960
+Content-Type: text/x-patch; 
+	name=patch-linux-2.6.12-rc4-mm2-sysfsdyncallback-deviceattr-update.diff; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="patch-linux-2.6.12-rc4-mm2-sysfsdyncallback-deviceattr-update.diff"
+
+diff -uprN -X dontdiff linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/char/tpm/tpm.c linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/char/tpm/tpm.c
+--- linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/char/tpm/tpm.c	2005-05-18 20:35:25.000000000 -0400
++++ linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/char/tpm/tpm.c	2005-05-18 20:41:11.000000000 -0400
+@@ -216,7 +216,7 @@ static const u8 pcrread[] = {
+ 	0, 0, 0, 0		/* PCR index */
  };
  
--static void audit_log_end_irq(struct audit_buffer *ab);
--static void audit_log_end_fast(struct audit_buffer *ab);
--
- static void audit_panic(const char *message)
+-ssize_t tpm_show_pcrs(struct device *dev, char *buf)
++ssize_t tpm_show_pcrs(struct device *dev, struct device_attribute *attr, char *buf)
  {
- 	switch (audit_failure)
-@@ -224,10 +220,8 @@
+ 	u8 data[READ_PCR_RESULT_SIZE];
+ 	ssize_t len;
+@@ -268,7 +268,7 @@ static const u8 readpubek[] = {
+ 	0, 0, 0, 124,		/* TPM_ORD_ReadPubek */
+ };
  
- 	if (print) {
- 		printk(KERN_WARNING
--		       "audit: audit_lost=%d audit_backlog=%d"
--		       " audit_rate_limit=%d audit_backlog_limit=%d\n",
-+		       "audit: audit_lost=%d audit_rate_limit=%d audit_backlog_limit=%d\n",
- 		       atomic_read(&audit_lost),
--		       atomic_read(&audit_backlog),
- 		       audit_rate_limit,
- 		       audit_backlog_limit);
- 		audit_panic(message);
-@@ -281,6 +275,38 @@
- 	return old;
- }
- 
-+int kauditd_thread(void *dummy)
-+{
-+	struct sk_buff *skb;
-+
-+	while (1) {
-+		skb = skb_dequeue(&audit_skb_queue);
-+		if (skb) {
-+			if (audit_pid) {
-+				int err = netlink_unicast(audit_sock, skb, audit_pid, 0);
-+				if (err < 0) {
-+					BUG_ON(err != -ECONNREFUSED); /* Shoudn't happen */
-+					printk(KERN_ERR "audit: *NO* daemon at audit_pid=%d\n", audit_pid);
-+					audit_pid = 0;
-+				}
-+			} else {
-+				printk(KERN_ERR "%s\n", skb->data + NLMSG_SPACE(0));
-+				kfree_skb(skb);
-+			}
-+		} else {
-+			DECLARE_WAITQUEUE(wait, current);
-+			set_current_state(TASK_INTERRUPTIBLE);
-+			add_wait_queue(&kauditd_wait, &wait);
-+
-+			if (!skb_queue_len(&audit_skb_queue))
-+				schedule();
-+
-+			__set_current_state(TASK_RUNNING);
-+			remove_wait_queue(&kauditd_wait, &wait);
-+		}
-+	}
-+}
-+
- void audit_send_reply(int pid, int seq, int type, int done, int multi,
- 		      void *payload, int size)
+-ssize_t tpm_show_pubek(struct device *dev, char *buf)
++ssize_t tpm_show_pubek(struct device *dev, struct device_attribute *attr, char *buf)
  {
-@@ -293,13 +319,16 @@
+ 	u8 *data;
+ 	ssize_t len;
+@@ -349,7 +349,7 @@ static const u8 cap_manufacturer[] = {
+ 	0, 0, 1, 3
+ };
  
- 	skb = alloc_skb(len, GFP_KERNEL);
- 	if (!skb)
--		goto nlmsg_failure;
-+		return;
- 
--	nlh		 = NLMSG_PUT(skb, pid, seq, t, len - sizeof(*nlh));
-+	nlh		 = NLMSG_PUT(skb, pid, seq, t, size);
- 	nlh->nlmsg_flags = flags;
- 	data		 = NLMSG_DATA(nlh);
- 	memcpy(data, payload, size);
--	netlink_unicast(audit_sock, skb, pid, MSG_DONTWAIT);
-+
-+	/* Ignore failure. It'll only happen if the sender goes away,
-+	   because our timeout is set to infinite. */
-+	netlink_unicast(audit_sock, skb, pid, 0);
- 	return;
- 
- nlmsg_failure:			/* Used by NLMSG_PUT */
-@@ -351,6 +380,15 @@
- 	if (err)
- 		return err;
- 
-+	/* As soon as there's any sign of userspace auditd, start kauditd to talk to it */
-+	if (!kauditd_task)
-+		kauditd_task = kthread_run(kauditd_thread, NULL, "kauditd");
-+	if (IS_ERR(kauditd_task)) {
-+		err = PTR_ERR(kauditd_task);
-+		kauditd_task = NULL;
-+		return err;
-+	}
-+
- 	pid  = NETLINK_CREDS(skb)->pid;
- 	uid  = NETLINK_CREDS(skb)->uid;
- 	loginuid = NETLINK_CB(skb).loginuid;
-@@ -365,7 +403,7 @@
- 		status_set.rate_limit	 = audit_rate_limit;
- 		status_set.backlog_limit = audit_backlog_limit;
- 		status_set.lost		 = atomic_read(&audit_lost);
--		status_set.backlog	 = atomic_read(&audit_backlog);
-+		status_set.backlog	 = skb_queue_len(&audit_skb_queue);
- 		audit_send_reply(NETLINK_CB(skb).pid, seq, AUDIT_GET, 0, 0,
- 				 &status_set, sizeof(status_set));
- 		break;
-@@ -471,44 +509,6 @@
- 	up(&audit_netlink_sem);
- }
- 
--/* Grab skbuff from the audit_buffer and send to user space. */
--static inline int audit_log_drain(struct audit_buffer *ab)
--{
--	struct sk_buff *skb = ab->skb;
--
--	if (skb) {
--		int retval = 0;
--
--		if (audit_pid) {
--			struct nlmsghdr *nlh = (struct nlmsghdr *)skb->data;
--			nlh->nlmsg_len = skb->len - NLMSG_SPACE(0);
--			skb_get(skb); /* because netlink_* frees */
--			retval = netlink_unicast(audit_sock, skb, audit_pid,
--						 MSG_DONTWAIT);
--		}
--		if (retval == -EAGAIN &&
--		    (atomic_read(&audit_backlog)) < audit_backlog_limit) {
--			audit_log_end_irq(ab);
--			return 1;
--		}
--		if (retval < 0) {
--			if (retval == -ECONNREFUSED) {
--				printk(KERN_ERR
--				       "audit: *NO* daemon at audit_pid=%d\n",
--				       audit_pid);
--				audit_pid = 0;
--			} else
--				audit_log_lost("netlink socket too busy");
--		}
--		if (!audit_pid) { /* No daemon */
--			int offset = NLMSG_SPACE(0);
--			int len    = skb->len - offset;
--			skb->data[offset + len] = '\0';
--			printk(KERN_ERR "%s\n", skb->data + offset);
--		}
--	}
--	return 0;
--}
- 
- /* Initialize audit support at boot time. */
- static int __init audit_init(void)
-@@ -519,6 +519,8 @@
- 	if (!audit_sock)
- 		audit_panic("cannot initialize netlink socket");
- 
-+	audit_sock->sk_sndtimeo = MAX_SCHEDULE_TIMEOUT;
-+	skb_queue_head_init(&audit_skb_queue);
- 	audit_initialized = 1;
- 	audit_enabled = audit_default;
- 	audit_log(NULL, AUDIT_KERNEL, "initialized");
-@@ -549,7 +551,7 @@
- 
- 	if (ab->skb)
- 		kfree_skb(ab->skb);
--	atomic_dec(&audit_backlog);
-+
- 	spin_lock_irqsave(&audit_freelist_lock, flags);
- 	if (++audit_freelist_count > AUDIT_MAXFREE)
- 		kfree(ab);
-@@ -579,13 +581,12 @@
- 		if (!ab)
- 			goto err;
- 	}
--	atomic_inc(&audit_backlog);
- 
- 	ab->skb = alloc_skb(AUDIT_BUFSIZ, gfp_mask);
- 	if (!ab->skb)
- 		goto err;
- 
--	ab->ctx   = ctx;
-+	ab->ctx = ctx;
- 	nlh = (struct nlmsghdr *)skb_put(ab->skb, NLMSG_SPACE(0));
- 	nlh->nlmsg_type = type;
- 	nlh->nlmsg_flags = 0;
-@@ -612,18 +613,6 @@
- 	if (!audit_initialized)
- 		return NULL;
- 
--	if (audit_backlog_limit
--	    && atomic_read(&audit_backlog) > audit_backlog_limit) {
--		if (audit_rate_check())
--			printk(KERN_WARNING
--			       "audit: audit_backlog=%d > "
--			       "audit_backlog_limit=%d\n",
--			       atomic_read(&audit_backlog),
--			       audit_backlog_limit);
--		audit_log_lost("backlog limit exceeded");
--		return NULL;
--	}
--
- 	ab = audit_buffer_alloc(ctx, GFP_ATOMIC, type);
- 	if (!ab) {
- 		audit_log_lost("out of memory in audit_log_start");
-@@ -692,7 +681,8 @@
- 			goto out;
- 		len = vsnprintf(skb->tail, avail, fmt, args2);
- 	}
--	skb_put(skb, (len < avail) ? len : avail);
-+	if (len > 0)
-+		skb_put(skb, len);
- out:
- 	return;
- }
-@@ -710,20 +700,47 @@
- 	va_end(args);
- }
- 
--void audit_log_hex(struct audit_buffer *ab, const unsigned char *buf, size_t len)
-+/* This function will take the passed buf and convert it into a string of
-+ * ascii hex digits. The new string is placed onto the skb. */
-+void audit_log_hex(struct audit_buffer *ab, const unsigned char *buf, 
-+		size_t len)
+-ssize_t tpm_show_caps(struct device *dev, char *buf)
++ssize_t tpm_show_caps(struct device *dev, struct device_attribute *attr, char *buf)
  {
--	int i;
-+	int i, avail, new_len;
-+	unsigned char *ptr;
-+	struct sk_buff *skb;
-+	static const unsigned char *hex = "0123456789ABCDEF";
-+
-+	BUG_ON(!ab->skb);
-+	skb = ab->skb;
-+	avail = skb_tailroom(skb);
-+	new_len = len<<1;
-+	if (new_len >= avail) {
-+		/* Round the buffer request up to the next multiple */
-+		new_len = AUDIT_BUFSIZ*(((new_len-avail)/AUDIT_BUFSIZ) + 1);
-+		avail = audit_expand(ab, new_len);
-+		if (!avail)
-+			return;
-+	}
+ 	u8 data[sizeof(cap_manufacturer)];
+ 	ssize_t len;
+@@ -385,7 +385,7 @@ ssize_t tpm_show_caps(struct device *dev
  
--	for (i=0; i<len; i++)
--		audit_log_format(ab, "%02x", buf[i]);
-+	ptr = skb->tail;
-+	for (i=0; i<len; i++) {
-+		*ptr++ = hex[(buf[i] & 0xF0)>>4]; /* Upper nibble */
-+		*ptr++ = hex[buf[i] & 0x0F];	  /* Lower nibble */
-+	}
-+	*ptr = 0;
-+	skb_put(skb, len << 1); /* new string is twice the old string */
- }
+ EXPORT_SYMBOL_GPL(tpm_show_caps);
  
-+/* This code will escape a string that is passed to it if the string
-+ * contains a control character, unprintable character, double quote mark, 
-+ * or a space. Unescaped strings will start and end with a double quote mark.
-+ * Strings that are escaped are printed in hex (2 digits per char). */
- void audit_log_untrustedstring(struct audit_buffer *ab, const char *string)
+-ssize_t tpm_store_cancel(struct device * dev, const char *buf,
++ssize_t tpm_store_cancel(struct device * dev, struct device_attribute *attr, const char *buf,
+ 			 size_t count)
  {
- 	const unsigned char *p = string;
+ 	struct tpm_chip *chip = dev_get_drvdata(dev);
+diff -uprN -X dontdiff linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/char/tpm/tpm.h linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/char/tpm/tpm.h
+--- linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/char/tpm/tpm.h	2005-05-18 20:31:03.000000000 -0400
++++ linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/char/tpm/tpm.h	2005-05-18 20:41:11.000000000 -0400
+@@ -35,10 +35,10 @@ enum tpm_addr {
+ 	TPM_DATA = 0x4F
+ };
  
- 	while (*p) {
--		if (*p == '"' || *p == ' ' || *p < 0x20 || *p > 0x7f) {
-+		if (*p == '"' || *p < 0x21 || *p > 0x7f) {
- 			audit_log_hex(ab, string, strlen(string));
- 			return;
- 		}
-@@ -732,97 +749,54 @@
- 	audit_log_format(ab, "\"%s\"", string);
- }
+-extern ssize_t tpm_show_pubek(struct device *, char *);
+-extern ssize_t tpm_show_pcrs(struct device *, char *);
+-extern ssize_t tpm_show_caps(struct device *, char *);
+-extern ssize_t tpm_store_cancel(struct device *, const char *, size_t);
++extern ssize_t tpm_show_pubek(struct device *, struct device_attribute *attr, char *);
++extern ssize_t tpm_show_pcrs(struct device *, struct device_attribute *attr, char *);
++extern ssize_t tpm_show_caps(struct device *, struct device_attribute *attr, char *);
++extern ssize_t tpm_store_cancel(struct device *, struct device_attribute *attr, const char *, size_t);
  
--
--/* This is a helper-function to print the d_path without using a static
-- * buffer or allocating another buffer in addition to the one in
-- * audit_buffer. */
-+/* This is a helper-function to print the escaped d_path */
- void audit_log_d_path(struct audit_buffer *ab, const char *prefix,
- 		      struct dentry *dentry, struct vfsmount *vfsmnt)
+ 
+ struct tpm_chip;
+diff -uprN -X dontdiff linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/i2c/chips/adm1025.c linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/i2c/chips/adm1025.c
+--- linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/i2c/chips/adm1025.c	2005-05-18 20:35:25.000000000 -0400
++++ linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/i2c/chips/adm1025.c	2005-05-18 20:40:53.000000000 -0400
+@@ -274,14 +274,14 @@ static DEVICE_ATTR(temp##offset##_max, S
+ set_temp(1);
+ set_temp(2);
+ 
+-static ssize_t show_alarms(struct device *dev, char *buf)
++static ssize_t show_alarms(struct device *dev, struct device_attribute *attr, char *buf)
  {
--	char *p;
--	struct sk_buff *skb = ab->skb;
--	int  len, avail;
-+	char *p, *path;
- 
- 	if (prefix)
- 		audit_log_format(ab, " %s", prefix);
- 
--	avail = skb_tailroom(skb);
--	p = d_path(dentry, vfsmnt, skb->tail, avail);
--	if (IS_ERR(p)) {
--		/* FIXME: can we save some information here? */
--		audit_log_format(ab, "<toolong>");
--	} else {
--		/* path isn't at start of buffer */
--		len = ((char *)skb->tail + avail - 1) - p;
--		memmove(skb->tail, p, len);
--		skb_put(skb, len);
--	}
--}
--
--/* Remove queued messages from the audit_txlist and send them to user space. */
--static void audit_tasklet_handler(unsigned long arg)
--{
--	LIST_HEAD(list);
--	struct audit_buffer *ab;
--	unsigned long	    flags;
--
--	spin_lock_irqsave(&audit_txlist_lock, flags);
--	list_splice_init(&audit_txlist, &list);
--	spin_unlock_irqrestore(&audit_txlist_lock, flags);
--
--	while (!list_empty(&list)) {
--		ab = list_entry(list.next, struct audit_buffer, list);
--		list_del(&ab->list);
--		audit_log_end_fast(ab);
-+	/* We will allow 11 spaces for ' (deleted)' to be appended */
-+	path = kmalloc(PATH_MAX+11, GFP_KERNEL);
-+	if (!path) {
-+		audit_log_format(ab, "<no memory>");
-+		return;
- 	}
-+	p = d_path(dentry, vfsmnt, path, PATH_MAX+11);
-+	if (IS_ERR(p)) { /* Should never happen since we send PATH_MAX */
-+		/* FIXME: can we save some information here? */
-+		audit_log_format(ab, "<too long>");
-+	} else 
-+		audit_log_untrustedstring(ab, p);
-+	kfree(path);
+ 	struct adm1025_data *data = adm1025_update_device(dev);
+ 	return sprintf(buf, "%u\n", data->alarms);
  }
+ static DEVICE_ATTR(alarms, S_IRUGO, show_alarms, NULL);
  
--static DECLARE_TASKLET(audit_tasklet, audit_tasklet_handler, 0);
--
- /* The netlink_* functions cannot be called inside an irq context, so
-  * the audit buffer is places on a queue and a tasklet is scheduled to
-  * remove them from the queue outside the irq context.  May be called in
-  * any context. */
--static void audit_log_end_irq(struct audit_buffer *ab)
--{
--	unsigned long flags;
--
--	if (!ab)
--		return;
--	spin_lock_irqsave(&audit_txlist_lock, flags);
--	list_add_tail(&ab->list, &audit_txlist);
--	spin_unlock_irqrestore(&audit_txlist_lock, flags);
--
--	tasklet_schedule(&audit_tasklet);
--}
--
--/* Send the message in the audit buffer directly to user space.  May not
-- * be called in an irq context. */
--static void audit_log_end_fast(struct audit_buffer *ab)
-+void audit_log_end(struct audit_buffer *ab)
+-static ssize_t show_vid(struct device *dev, char *buf)
++static ssize_t show_vid(struct device *dev, struct device_attribute *attr, char *buf)
  {
--	BUG_ON(in_irq());
- 	if (!ab)
- 		return;
- 	if (!audit_rate_check()) {
- 		audit_log_lost("rate limit exceeded");
- 	} else {
--		if (audit_log_drain(ab))
--			return;
-+		if (audit_pid) {
-+			struct nlmsghdr *nlh = (struct nlmsghdr *)ab->skb->data;
-+			nlh->nlmsg_len = ab->skb->len - NLMSG_SPACE(0);
-+			skb_queue_tail(&audit_skb_queue, ab->skb);
-+			ab->skb = NULL;
-+			wake_up_interruptible(&kauditd_wait);
-+		} else {
-+			printk("%s\n", ab->skb->data + NLMSG_SPACE(0));
-+		}
- 	}
- 	audit_buffer_free(ab);
+ 	struct adm1025_data *data = adm1025_update_device(dev);
+ 	return sprintf(buf, "%u\n", vid_from_reg(data->vid, data->vrm));
+@@ -290,12 +290,12 @@ static ssize_t show_vid(struct device *d
+ static DEVICE_ATTR(in1_ref, S_IRUGO, show_vid, NULL);
+ static DEVICE_ATTR(cpu0_vid, S_IRUGO, show_vid, NULL);
+ 
+-static ssize_t show_vrm(struct device *dev, char *buf)
++static ssize_t show_vrm(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct adm1025_data *data = adm1025_update_device(dev);
+ 	return sprintf(buf, "%u\n", data->vrm);
+ }
+-static ssize_t set_vrm(struct device *dev, const char *buf, size_t count)
++static ssize_t set_vrm(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct adm1025_data *data = i2c_get_clientdata(client);
+diff -uprN -X dontdiff linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/i2c/chips/adm9240.c linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/i2c/chips/adm9240.c
+--- linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/i2c/chips/adm9240.c	2005-05-18 20:30:41.000000000 -0400
++++ linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/i2c/chips/adm9240.c	2005-05-18 20:40:53.000000000 -0400
+@@ -185,7 +185,7 @@ static int adm9240_write_value(struct i2
+ 
+ /* temperature */
+ #define show_temp(value, scale)					\
+-static ssize_t show_##value(struct device *dev, char *buf)	\
++static ssize_t show_##value(struct device *dev, struct device_attribute *attr, char *buf)	\
+ {								\
+ 	struct adm9240_data *data = adm9240_update_device(dev);	\
+ 	return sprintf(buf, "%d\n", data->value * scale);	\
+@@ -195,7 +195,7 @@ show_temp(temp_hyst, 1000);
+ show_temp(temp, 500);
+ 
+ #define set_temp(value, reg)					\
+-static ssize_t set_##value(struct device *dev, const char *buf,	\
++static ssize_t set_##value(struct device *dev, struct device_attribute *attr, const char *buf,	\
+ 		size_t count)					\
+ {								\
+ 	struct i2c_client *client = to_i2c_client(dev);		\
+@@ -266,26 +266,26 @@ static ssize_t set_in_max(struct device 
  }
  
--/* Send or queue the message in the audit buffer, depending on the
-- * current context.  (A convenience function that may be called in any
-- * context.) */
--void audit_log_end(struct audit_buffer *ab)
--{
--	if (in_irq())
--		audit_log_end_irq(ab);
--	else
--		audit_log_end_fast(ab);
--}
--
- /* Log an audit record.  This is a convenience function that calls
-  * audit_log_start, audit_log_vformat, and audit_log_end.  It may be
-  * called in any context. */
+ #define show_in_offset(offset)						\
+-static ssize_t show_in##offset(struct device *dev, char *buf)		\
++static ssize_t show_in##offset(struct device *dev, struct device_attribute *attr, char *buf)		\
+ {									\
+ 	return show_in(dev, buf, offset);				\
+ }									\
+ static DEVICE_ATTR(in##offset##_input, S_IRUGO, show_in##offset, NULL);	\
+-static ssize_t show_in##offset##_min(struct device *dev, char *buf)	\
++static ssize_t show_in##offset##_min(struct device *dev, struct device_attribute *attr, char *buf)	\
+ {									\
+ 	return show_in_min(dev, buf, offset);				\
+ }									\
+-static ssize_t show_in##offset##_max(struct device *dev, char *buf)	\
++static ssize_t show_in##offset##_max(struct device *dev, struct device_attribute *attr, char *buf)	\
+ {									\
+ 	return show_in_max(dev, buf, offset);				\
+ }									\
+ static ssize_t								\
+-set_in##offset##_min(struct device *dev, const char *buf, size_t count)	\
++set_in##offset##_min(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)	\
+ {									\
+ 	return set_in_min(dev, buf, count, offset);			\
+ }									\
+ static ssize_t								\
+-set_in##offset##_max(struct device *dev, const char *buf, size_t count)	\
++set_in##offset##_max(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)	\
+ {									\
+ 	return set_in_max(dev, buf, count, offset);			\
+ }									\
+@@ -401,19 +401,19 @@ static ssize_t set_fan_min(struct device
+ }
+ 
+ #define show_fan_offset(offset)						\
+-static ssize_t show_fan_##offset (struct device *dev, char *buf)	\
++static ssize_t show_fan_##offset (struct device *dev, struct device_attribute *attr, char *buf)	\
+ {									\
+ return show_fan(dev, buf, offset - 1);					\
+ }									\
+-static ssize_t show_fan_##offset##_div (struct device *dev, char *buf)	\
++static ssize_t show_fan_##offset##_div (struct device *dev, struct device_attribute *attr, char *buf)	\
+ {									\
+ return show_fan_div(dev, buf, offset - 1);				\
+ }									\
+-static ssize_t show_fan_##offset##_min (struct device *dev, char *buf)	\
++static ssize_t show_fan_##offset##_min (struct device *dev, struct device_attribute *attr, char *buf)	\
+ {									\
+ return show_fan_min(dev, buf, offset - 1);				\
+ }									\
+-static ssize_t set_fan_##offset##_min (struct device *dev, 		\
++static ssize_t set_fan_##offset##_min (struct device *dev, struct device_attribute *attr, 		\
+ const char *buf, size_t count)						\
+ {									\
+ return set_fan_min(dev, buf, count, offset - 1);			\
+@@ -429,7 +429,7 @@ show_fan_offset(1);
+ show_fan_offset(2);
+ 
+ /* alarms */
+-static ssize_t show_alarms(struct device *dev, char *buf)
++static ssize_t show_alarms(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct adm9240_data *data = adm9240_update_device(dev);
+ 	return sprintf(buf, "%u\n", data->alarms);
+@@ -437,7 +437,7 @@ static ssize_t show_alarms(struct device
+ static DEVICE_ATTR(alarms, S_IRUGO, show_alarms, NULL);
+ 
+ /* vid */
+-static ssize_t show_vid(struct device *dev, char *buf)
++static ssize_t show_vid(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct adm9240_data *data = adm9240_update_device(dev);
+ 	return sprintf(buf, "%d\n", vid_from_reg(data->vid, data->vrm));
+@@ -445,13 +445,13 @@ static ssize_t show_vid(struct device *d
+ static DEVICE_ATTR(cpu0_vid, S_IRUGO, show_vid, NULL);
+ 
+ /* analog output */
+-static ssize_t show_aout(struct device *dev, char *buf)
++static ssize_t show_aout(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct adm9240_data *data = adm9240_update_device(dev);
+ 	return sprintf(buf, "%d\n", AOUT_FROM_REG(data->aout));
+ }
+ 
+-static ssize_t set_aout(struct device *dev, const char *buf, size_t count)
++static ssize_t set_aout(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	struct adm9240_data *data = i2c_get_clientdata(client);
+@@ -466,7 +466,7 @@ static ssize_t set_aout(struct device *d
+ static DEVICE_ATTR(aout_output, S_IRUGO | S_IWUSR, show_aout, set_aout);
+ 
+ /* chassis_clear */
+-static ssize_t chassis_clear(struct device *dev, const char *buf, size_t count)
++static ssize_t chassis_clear(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+ {
+ 	struct i2c_client *client = to_i2c_client(dev);
+ 	unsigned long val = simple_strtol(buf, NULL, 10);
+diff -uprN -X dontdiff linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/i2c/chips/atxp1.c linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/i2c/chips/atxp1.c
+--- linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/i2c/chips/atxp1.c	2005-05-18 20:30:41.000000000 -0400
++++ linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/i2c/chips/atxp1.c	2005-05-18 20:40:53.000000000 -0400
+@@ -99,7 +99,7 @@ static struct atxp1_data * atxp1_update_
+ }
+ 
+ /* sys file functions for cpu0_vid */
+-static ssize_t atxp1_showvcore(struct device *dev, char *buf)
++static ssize_t atxp1_showvcore(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	int size;
+ 	struct atxp1_data *data;
+@@ -111,7 +111,7 @@ static ssize_t atxp1_showvcore(struct de
+ 	return size;
+ }
+ 
+-static ssize_t atxp1_storevcore(struct device *dev, const char* buf, size_t count)
++static ssize_t atxp1_storevcore(struct device *dev, struct device_attribute *attr, const char* buf, size_t count)
+ {
+ 	struct atxp1_data *data;
+ 	struct i2c_client *client;
+@@ -169,7 +169,7 @@ static ssize_t atxp1_storevcore(struct d
+ static DEVICE_ATTR(cpu0_vid, S_IRUGO | S_IWUSR, atxp1_showvcore, atxp1_storevcore);
+ 
+ /* sys file functions for GPIO1 */
+-static ssize_t atxp1_showgpio1(struct device *dev, char *buf)
++static ssize_t atxp1_showgpio1(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	int size;
+ 	struct atxp1_data *data;
+@@ -181,7 +181,7 @@ static ssize_t atxp1_showgpio1(struct de
+ 	return size;
+ }
+ 
+-static ssize_t atxp1_storegpio1(struct device *dev, const char* buf, size_t count)
++static ssize_t atxp1_storegpio1(struct device *dev, struct device_attribute *attr, const char* buf, size_t count)
+ {
+ 	struct atxp1_data *data;
+ 	struct i2c_client *client;
+@@ -211,7 +211,7 @@ static ssize_t atxp1_storegpio1(struct d
+ static DEVICE_ATTR(gpio1, S_IRUGO | S_IWUSR, atxp1_showgpio1, atxp1_storegpio1);
+ 
+ /* sys file functions for GPIO2 */
+-static ssize_t atxp1_showgpio2(struct device *dev, char *buf)
++static ssize_t atxp1_showgpio2(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	int size;
+ 	struct atxp1_data *data;
+@@ -223,7 +223,7 @@ static ssize_t atxp1_showgpio2(struct de
+ 	return size;
+ }
+ 
+-static ssize_t atxp1_storegpio2(struct device *dev, const char* buf, size_t count)
++static ssize_t atxp1_storegpio2(struct device *dev, struct device_attribute *attr, const char* buf, size_t count)
+ {
+ 	struct atxp1_data *data;
+ 	struct i2c_client *client;
+diff -uprN -X dontdiff linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/i2c/chips/w83627ehf.c linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/i2c/chips/w83627ehf.c
+--- linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/i2c/chips/w83627ehf.c	2005-05-18 20:30:41.000000000 -0400
++++ linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/i2c/chips/w83627ehf.c	2005-05-18 20:40:53.000000000 -0400
+@@ -486,7 +486,7 @@ store_fan_min(struct device *dev, const 
+ 
+ #define sysfs_fan_offset(offset) \
+ static ssize_t \
+-show_reg_fan_##offset(struct device *dev, char *buf) \
++show_reg_fan_##offset(struct device *dev, struct device_attribute *attr, char *buf) \
+ { \
+ 	return show_fan(dev, buf, offset-1); \
+ } \
+@@ -495,12 +495,12 @@ static DEVICE_ATTR(fan##offset##_input, 
+ 
+ #define sysfs_fan_min_offset(offset) \
+ static ssize_t \
+-show_reg_fan##offset##_min(struct device *dev, char *buf) \
++show_reg_fan##offset##_min(struct device *dev, struct device_attribute *attr, char *buf) \
+ { \
+ 	return show_fan_min(dev, buf, offset-1); \
+ } \
+ static ssize_t \
+-store_reg_fan##offset##_min(struct device *dev, const char *buf, \
++store_reg_fan##offset##_min(struct device *dev, struct device_attribute *attr, const char *buf, \
+ 			    size_t count) \
+ { \
+ 	return store_fan_min(dev, buf, count, offset-1); \
+@@ -511,7 +511,7 @@ static DEVICE_ATTR(fan##offset##_min, S_
+ 
+ #define sysfs_fan_div_offset(offset) \
+ static ssize_t \
+-show_reg_fan##offset##_div(struct device *dev, char *buf) \
++show_reg_fan##offset##_div(struct device *dev, struct device_attribute *attr, char *buf) \
+ { \
+ 	return show_fan_div(dev, buf, offset - 1); \
+ } \
+@@ -536,7 +536,7 @@ sysfs_fan_div_offset(5);
+ 
+ #define show_temp1_reg(reg) \
+ static ssize_t \
+-show_##reg(struct device *dev, char *buf) \
++show_##reg(struct device *dev, struct device_attribute *attr, char *buf) \
+ { \
+ 	struct w83627ehf_data *data = w83627ehf_update_device(dev); \
+ 	return sprintf(buf, "%d\n", temp1_from_reg(data->reg)); \
+@@ -547,7 +547,7 @@ show_temp1_reg(temp1_max_hyst);
+ 
+ #define store_temp1_reg(REG, reg) \
+ static ssize_t \
+-store_temp1_##reg(struct device *dev, const char *buf, size_t count) \
++store_temp1_##reg(struct device *dev, struct device_attribute *attr, const char *buf, size_t count) \
+ { \
+ 	struct i2c_client *client = to_i2c_client(dev); \
+ 	struct w83627ehf_data *data = i2c_get_clientdata(client); \
+@@ -601,7 +601,7 @@ store_temp_reg(HYST, temp_max_hyst);
+ 
+ #define sysfs_temp_offset(offset) \
+ static ssize_t \
+-show_reg_temp##offset (struct device *dev, char *buf) \
++show_reg_temp##offset (struct device *dev, struct device_attribute *attr, char *buf) \
+ { \
+ 	return show_temp(dev, buf, offset - 2); \
+ } \
+@@ -610,12 +610,12 @@ static DEVICE_ATTR(temp##offset##_input,
+ 
+ #define sysfs_temp_reg_offset(reg, offset) \
+ static ssize_t \
+-show_reg_temp##offset##_##reg(struct device *dev, char *buf) \
++show_reg_temp##offset##_##reg(struct device *dev, struct device_attribute *attr, char *buf) \
+ { \
+ 	return show_temp_##reg(dev, buf, offset - 2); \
+ } \
+ static ssize_t \
+-store_reg_temp##offset##_##reg(struct device *dev, const char *buf, \
++store_reg_temp##offset##_##reg(struct device *dev, struct device_attribute *attr, const char *buf, \
+ 			       size_t count) \
+ { \
+ 	return store_temp_##reg(dev, buf, count, offset - 2); \
+diff -uprN -X dontdiff linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/input/serio/serio.c linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/input/serio/serio.c
+--- linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/input/serio/serio.c	2005-05-18 20:35:26.000000000 -0400
++++ linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/input/serio/serio.c	2005-05-18 20:41:24.000000000 -0400
+@@ -358,31 +358,31 @@ static int serio_thread(void *nothing)
+  * Serio port operations
+  */
+ 
+-static ssize_t serio_show_description(struct device *dev, char *buf)
++static ssize_t serio_show_description(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct serio *serio = to_serio_port(dev);
+ 	return sprintf(buf, "%s\n", serio->name);
+ }
+ 
+-static ssize_t serio_show_id_type(struct device *dev, char *buf)
++static ssize_t serio_show_id_type(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct serio *serio = to_serio_port(dev);
+ 	return sprintf(buf, "%02x\n", serio->id.type);
+ }
+ 
+-static ssize_t serio_show_id_proto(struct device *dev, char *buf)
++static ssize_t serio_show_id_proto(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct serio *serio = to_serio_port(dev);
+ 	return sprintf(buf, "%02x\n", serio->id.proto);
+ }
+ 
+-static ssize_t serio_show_id_id(struct device *dev, char *buf)
++static ssize_t serio_show_id_id(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct serio *serio = to_serio_port(dev);
+ 	return sprintf(buf, "%02x\n", serio->id.id);
+ }
+ 
+-static ssize_t serio_show_id_extra(struct device *dev, char *buf)
++static ssize_t serio_show_id_extra(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct serio *serio = to_serio_port(dev);
+ 	return sprintf(buf, "%02x\n", serio->id.extra);
+@@ -406,7 +406,7 @@ static struct attribute_group serio_id_a
+ 	.attrs	= serio_device_id_attrs,
+ };
+ 
+-static ssize_t serio_rebind_driver(struct device *dev, const char *buf, size_t count)
++static ssize_t serio_rebind_driver(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+ {
+ 	struct serio *serio = to_serio_port(dev);
+ 	struct device_driver *drv;
+diff -uprN -X dontdiff linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/message/fusion/mptscsih.c linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/message/fusion/mptscsih.c
+--- linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/message/fusion/mptscsih.c	2005-05-18 20:35:26.000000000 -0400
++++ linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/message/fusion/mptscsih.c	2005-05-18 20:41:31.000000000 -0400
+@@ -2352,7 +2352,7 @@ slave_configure_exit:
+ }
+ 
+ ssize_t
+-mptscsih_store_queue_depth(struct device *dev, const char *buf, size_t count)
++mptscsih_store_queue_depth(struct device *dev, struct device_attribute *attr, const char *buf, size_t count)
+ {
+ 	int			 depth;
+ 	struct scsi_device	*sdev = to_scsi_device(dev);
+diff -uprN -X dontdiff linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/message/fusion/mptscsih.h linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/message/fusion/mptscsih.h
+--- linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/message/fusion/mptscsih.h	2005-05-18 20:31:19.000000000 -0400
++++ linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/message/fusion/mptscsih.h	2005-05-18 20:41:31.000000000 -0400
+@@ -103,5 +103,5 @@ extern int mptscsih_taskmgmt_complete(MP
+ extern int mptscsih_scandv_complete(MPT_ADAPTER *ioc, MPT_FRAME_HDR *mf, MPT_FRAME_HDR *r);
+ extern int mptscsih_event_process(MPT_ADAPTER *ioc, EventNotificationReply_t *pEvReply);
+ extern int mptscsih_ioc_reset(MPT_ADAPTER *ioc, int post_reset);
+-extern ssize_t mptscsih_store_queue_depth(struct device *dev, const char *buf, size_t count);
++extern ssize_t mptscsih_store_queue_depth(struct device *dev, struct device_attribute *attr, const char *buf, size_t count);
+ extern void mptscsih_timer_expired(unsigned long data);
+diff -uprN -X dontdiff linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/pci/pci-sysfs.c linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/pci/pci-sysfs.c
+--- linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/pci/pci-sysfs.c	2005-05-18 20:35:26.000000000 -0400
++++ linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/pci/pci-sysfs.c	2005-05-18 20:41:03.000000000 -0400
+@@ -76,7 +76,7 @@ resource_show(struct device * dev, struc
+ 	return (str - buf);
+ }
+ 
+-static ssize_t modalias_show(struct device *dev, char *buf)
++static ssize_t modalias_show(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct pci_dev *pci_dev = to_pci_dev(dev);
+ 
+diff -uprN -X dontdiff linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/pcmcia/ds.c linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/pcmcia/ds.c
+--- linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/pcmcia/ds.c	2005-05-18 20:35:26.000000000 -0400
++++ linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/pcmcia/ds.c	2005-05-18 20:41:32.000000000 -0400
+@@ -848,7 +848,7 @@ pcmcia_device_stringattr(prod_id3, prod_
+ pcmcia_device_stringattr(prod_id4, prod_id[3]);
+ 
+ 
+-static ssize_t pcmcia_store_allow_func_id_match (struct device * dev, const char * buf, size_t count)
++static ssize_t pcmcia_store_allow_func_id_match (struct device * dev, struct device_attribute *attr, const char * buf, size_t count)
+ {
+ 	struct pcmcia_device *p_dev = to_pcmcia_dev(dev);
+         if (!count)
+diff -uprN -X dontdiff linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/usb/core/sysfs.c linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/usb/core/sysfs.c
+--- linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers/usb/core/sysfs.c	2005-05-18 20:35:27.000000000 -0400
++++ linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr/drivers/usb/core/sysfs.c	2005-05-18 20:41:04.000000000 -0400
+@@ -286,7 +286,7 @@ static ssize_t show_interface_string(str
+ }
+ static DEVICE_ATTR(interface, S_IRUGO, show_interface_string, NULL);
+ 
+-static ssize_t show_modalias(struct device *dev, char *buf)
++static ssize_t show_modalias(struct device *dev, struct device_attribute *attr, char *buf)
+ {
+ 	struct usb_interface *intf;
+ 	struct usb_device *udev;
 
 
--- 
-dwmw2
-
+------=_Part_156_17059740.1116502535960--

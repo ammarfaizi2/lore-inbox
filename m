@@ -1,74 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262485AbVESMzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262484AbVESNEX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262485AbVESMzf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 08:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbVESMzf
+	id S262484AbVESNEX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 09:04:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262487AbVESNEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 08:55:35 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:19368 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S262485AbVESMzV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 08:55:21 -0400
-Message-ID: <428C8C32.2030803@redhat.com>
-Date: Thu, 19 May 2005 08:53:06 -0400
-From: Peter Staubach <staubach@redhat.com>
-User-Agent: Mozilla Thunderbird  (X11/20050322)
-X-Accept-Language: en-us, en
+	Thu, 19 May 2005 09:04:23 -0400
+Received: from alog0431.analogic.com ([208.224.222.207]:60308 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262484AbVESNEP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 09:04:15 -0400
+Date: Thu, 19 May 2005 09:01:19 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: "Maciej W. Rozycki" <macro@linux-mips.org>
+cc: Arjan van de Ven <arjan@infradead.org>, Adrian Bunk <bunk@stusta.de>,
+       Kyle Moffett <mrmacman_g4@mac.com>, "Gilbert, John" <JGG@dolby.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Illegal use of reserved word in system.h
+In-Reply-To: <Pine.LNX.4.61L.0505191342460.10681@blysk.ds.pg.gda.pl>
+Message-ID: <Pine.LNX.4.61.0505190853310.29611@chaos.analogic.com>
+References: <2692A548B75777458914AC89297DD7DA08B0866F@bronze.dolby.net> 
+ <20050518195337.GX5112@stusta.de>  <6EA08D88-7C67-48ED-A9EF-FEAAB92D8B8F@mac.com>
+  <20050519112840.GE5112@stusta.de>  <Pine.LNX.4.61.0505190734110.29439@chaos.analogic.com>
+ <1116505655.6027.45.camel@laptopd505.fenrus.org>
+ <Pine.LNX.4.61L.0505191342460.10681@blysk.ds.pg.gda.pl>
 MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: steve <lingxiang@huawei.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "zhangtiger@huawei.com" <zhangtiger@huawei.com>
-Subject: Re: why nfs server delay 10ms in nfsd_write()?
-References: <0IGP00IZRULADZ@szxml02-in.huawei.com> <1116472423.11327.1.camel@mindpipe>
-In-Reply-To: <1116472423.11327.1.camel@mindpipe>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
+On Thu, 19 May 2005, Maciej W. Rozycki wrote:
 
->On Thu, 2005-05-19 at 10:46 +0800, steve wrote:
->  
+> On Thu, 19 May 2005, Arjan van de Ven wrote:
 >
->>i have 2 questions:
->>1.i don't know why do we have to sleep for 10 ms, why not do sync immediately?
->>2.what will happen if we don't sleep for 10ms?
->>when i delete these codes, i get a good result, and the write performace improved from 300KB/s to 18MB/s
+>>> First off, I think we need a system-call that will return some of
+>>> the information that now comes from headers. PAGE_SIZE comes to
+>>> mind. You need this for mmap() but there doesn't seem to be any
+>>> way to get it. getpagesize() 'C' library just returns something
+>>> it's swiped from kernel headers when the library was compiled.
+>>> There are other things like the following that sometimes need
 >>
->>    
->>
+>> for getpagesize() I can see the point
 >
->Did you read the comments in the code?
+> If that is the case, then that's a bug in that C library, which should be
+> reported and fixed.  When starting a program, i.e. as a result of
+> execve(), Linux passes the current page size in use in the auxiliary
+> vector.  That value should be retrieved and used by a C library for
+> platforms that support various page sizes and returned by library calls
+> like getconf().  For example glibc gets it right.
 >
->                /*
->                 * Gathered writes: If another process is currently
->                 * writing to the file, there's a high chance
->                 * this is another nfsd (triggered by a bulk write
->                 * from a client's biod). Rather than syncing the
->                 * file with each write request, we sleep for 10 msec.
->                 *
->                 * I don't know if this roughly approximates
->                 * C. Juszak's idea of gathered writes, but it's a
->                 * nice and simple solution (IMHO), and it seems to
->                 * work:-)
->                 */
->  
+>  Maciej
 >
 
-There are certainly many others way to get gathering, without adding an
-artificial delay.  There are already delay slots built into the code 
-which could
-be used to trigger the gathering, so with a little bit different 
-architecture, the
-performance increases could be achieved.
+Would you please explain 'auxiliary' vector???
 
-Some implementations actually do write gathering with NFSv3, even.  Is
-this interesting enough to play with?  I suspect that just doing the 
-work for
-NFSv2 is not...
+According to the documentation, the following information
+is passed to a program:
 
-    Thanx...
+#
+#   %edx        Contains a function pointer to be registered with `atexit'.
+#               This is how the dynamic linker arranges to have DT_FINI
+#               functions called for shared libraries that have been loaded
+#               before this code runs.
+#
+#   %esp        The stack contains the arguments and environment:
+#               (%esp)                  argc
+#               4(%esp)                 argv[0]
+#               ...
+#               (4*argc)(%esp)          NULL
+#               (4*(argc+1))(%esp)      envp[0]
+#               ...
+#                                       NULL
+#
 
-       ps
+Now, where is that 'auxiliary vevtor'??? I got a pointer to
+something to be executed before calling exit, I have an
+argument count, then a bunch of pointers (argv), terminating
+with a NULL, then another bunch of pointers (envp) terminating
+with a NULL.  Is there something after that??? If so, what's
+the contents of this thing?
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

@@ -1,84 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVESXWW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVESX7U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261308AbVESXWW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 19:22:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVESXVR
+	id S261303AbVESX7U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 19:59:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVESXUl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 19:21:17 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:57506 "EHLO
+	Thu, 19 May 2005 19:20:41 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:59042 "EHLO
 	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261308AbVESW4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 18:56:50 -0400
+	id S261310AbVESW5B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 18:57:01 -0400
 To: linux-kernel@vger.kernel.org
-Subject: [CFR][PATCH] namei fixes (15/19)
+Subject: [CFR][PATCH] namei fixes (17/19)
 Cc: akpm@osdl.org
-Message-Id: <E1DYtx6-0007tC-IF@parcelfarce.linux.theplanet.co.uk>
+Message-Id: <E1DYtxG-0007td-Kx@parcelfarce.linux.theplanet.co.uk>
 From: Al Viro <viro@www.linux.org.uk>
-Date: Thu, 19 May 2005 23:57:16 +0100
+Date: Thu, 19 May 2005 23:57:26 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(15/19)
+(17/19)
 
-Getting rid of sloppy logics:
+follow_mount() made void, reordered dput()/mntput() in it.
 
-a) in do_follow_link() we have the wrong vfsmount dropped if our symlink
-had been mounted on something.  Currently it worls only because we never
-get such situation (modulo filesystem playing dirty tricks on us).  And
-it obfuscates already convoluted logics...
+follow_dotdot() switched from struct vfmount ** + struct dentry ** to
+struct nameidata *; callers updated.
 
-b) same goes for open_namei().
-
-c) in __link_path_walk() we have another "it should never happen" sloppiness -
-out_dput: there does double-free on underlying vfsmount and leaks the covering
-one if we hit it just after crossing a mountpoint.  Again, wrong vfsmount
-getting dropped.
-
-d) another too-early-mntput() race - in do_follow_mount() we need to postpone
-conditional mntput(path->mnt) until after dput(path->dentry).  Again, this one
-happens only in it-currently-never-happens-unless-some-fs-plays-dirty
-scenario...
+Equivalent transformation + fix for too-early-mntput() race.
 
 Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
 ----
-diff -urN RC12-rc4-14/fs/namei.c RC12-rc4-15/fs/namei.c
---- RC12-rc4-14/fs/namei.c	2005-05-19 16:39:43.660803683 -0400
-+++ RC12-rc4-15/fs/namei.c	2005-05-19 16:39:44.743587923 -0400
-@@ -544,15 +544,15 @@
- 	current->total_link_count++;
- 	nd->depth++;
- 	if (path->mnt != nd->mnt)
--		mntput(nd->mnt);
-+		mntput(path->mnt);
- 	err = __do_follow_link(path, nd);
- 	current->link_count--;
- 	nd->depth--;
- 	return err;
- loop:
--	if (path->mnt != nd->mnt)
--		mntput(nd->mnt);
- 	dput(path->dentry);
-+	if (path->mnt != nd->mnt)
-+		mntput(path->mnt);
- 	path_release(nd);
- 	return err;
+diff -urN RC12-rc4-16/fs/namei.c RC12-rc4-17/fs/namei.c
+--- RC12-rc4-16/fs/namei.c	2005-05-19 16:39:45.837369971 -0400
++++ RC12-rc4-17/fs/namei.c	2005-05-19 16:39:46.911156004 -0400
+@@ -596,20 +596,17 @@
+ 	return res;
  }
-@@ -906,7 +906,7 @@
- out_dput:
- 		dput(next.dentry);
- 		if (nd->mnt != next.mnt)
--			mntput(nd->mnt);
-+			mntput(next.mnt);
- 		break;
+ 
+-static int follow_mount(struct vfsmount **mnt, struct dentry **dentry)
++static void follow_mount(struct vfsmount **mnt, struct dentry **dentry)
+ {
+-	int res = 0;
+ 	while (d_mountpoint(*dentry)) {
+ 		struct vfsmount *mounted = lookup_mnt(*mnt, *dentry);
+ 		if (!mounted)
+ 			break;
++		dput(*dentry);
+ 		mntput(*mnt);
+ 		*mnt = mounted;
+-		dput(*dentry);
+ 		*dentry = dget(mounted->mnt_root);
+-		res = 1;
  	}
- 	path_release(nd);
-@@ -1551,8 +1551,7 @@
- 	if (error)
- 		goto exit_dput;
- 	if (nd->mnt != path.mnt)
--		mntput(nd->mnt);
--	nd->mnt = path.mnt;
-+		mntput(path.mnt);
- 	error = __do_follow_link(&path, nd);
- 	if (error)
- 		return error;
+-	return res;
+ }
+ 
+ /* no need for dcache_lock, as serialization is taken care in
+@@ -630,41 +627,41 @@
+ 	return 0;
+ }
+ 
+-static inline void follow_dotdot(struct vfsmount **mnt, struct dentry **dentry)
++static inline void follow_dotdot(struct nameidata *nd)
+ {
+ 	while(1) {
+ 		struct vfsmount *parent;
+-		struct dentry *old = *dentry;
++		struct dentry *old = nd->dentry;
+ 
+                 read_lock(&current->fs->lock);
+-		if (*dentry == current->fs->root &&
+-		    *mnt == current->fs->rootmnt) {
++		if (nd->dentry == current->fs->root &&
++		    nd->mnt == current->fs->rootmnt) {
+                         read_unlock(&current->fs->lock);
+ 			break;
+ 		}
+                 read_unlock(&current->fs->lock);
+ 		spin_lock(&dcache_lock);
+-		if (*dentry != (*mnt)->mnt_root) {
+-			*dentry = dget((*dentry)->d_parent);
++		if (nd->dentry != nd->mnt->mnt_root) {
++			nd->dentry = dget(nd->dentry->d_parent);
+ 			spin_unlock(&dcache_lock);
+ 			dput(old);
+ 			break;
+ 		}
+ 		spin_unlock(&dcache_lock);
+ 		spin_lock(&vfsmount_lock);
+-		parent = (*mnt)->mnt_parent;
+-		if (parent == *mnt) {
++		parent = nd->mnt->mnt_parent;
++		if (parent == nd->mnt) {
+ 			spin_unlock(&vfsmount_lock);
+ 			break;
+ 		}
+ 		mntget(parent);
+-		*dentry = dget((*mnt)->mnt_mountpoint);
++		nd->dentry = dget(nd->mnt->mnt_mountpoint);
+ 		spin_unlock(&vfsmount_lock);
+ 		dput(old);
+-		mntput(*mnt);
+-		*mnt = parent;
++		mntput(nd->mnt);
++		nd->mnt = parent;
+ 	}
+-	follow_mount(mnt, dentry);
++	follow_mount(&nd->mnt, &nd->dentry);
+ }
+ 
+ /*
+@@ -772,7 +769,7 @@
+ 			case 2:	
+ 				if (this.name[1] != '.')
+ 					break;
+-				follow_dotdot(&nd->mnt, &nd->dentry);
++				follow_dotdot(nd);
+ 				inode = nd->dentry->d_inode;
+ 				/* fallthrough */
+ 			case 1:
+@@ -839,7 +836,7 @@
+ 			case 2:	
+ 				if (this.name[1] != '.')
+ 					break;
+-				follow_dotdot(&nd->mnt, &nd->dentry);
++				follow_dotdot(nd);
+ 				inode = nd->dentry->d_inode;
+ 				/* fallthrough */
+ 			case 1:

@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVESRpx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVESR6c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261185AbVESRpx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 13:45:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261183AbVESRpw
+	id S261189AbVESR6c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 13:58:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261184AbVESR6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 13:45:52 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:39306 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S261185AbVESRpf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 13:45:35 -0400
-Subject: Re: Why yield in coredump_wait? [was: Re: Resent: BUG in RT 45-01
-	when RT program dumps core]
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: dwalker@mvista.com
-Cc: Steven Rostedt <rostedt@goodmis.org>, Linus Torvalds <torvalds@osdl.org>,
-       kus Kusche Klaus <kus@keba.com>, Ingo Molnar <mingo@elte.hu>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1116523552.14229.64.camel@dhcp153.mvista.com>
-References: <AAD6DA242BC63C488511C611BD51F367323212@MAILIT.keba.co.at>
-	 <1116503763.15866.9.camel@localhost.localdomain>
-	 <1116509820.15866.28.camel@localhost.localdomain>
-	 <1116523552.14229.64.camel@dhcp153.mvista.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1116524583.21388.299.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 19 May 2005 18:43:04 +0100
+	Thu, 19 May 2005 13:58:32 -0400
+Received: from relay2.uol.com.br ([200.221.4.109]:19910 "EHLO
+	relay2.uol.com.br") by vger.kernel.org with ESMTP id S261189AbVESR63 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 13:58:29 -0400
+Date: Thu, 19 May 2005 15:03:21 -0300
+Message-Id: <IGR0TL$5874C2BBFE4864F4F73B4D5FA4A79349@uol.com.br>
+Subject: How start in Kernel Development
+MIME-Version: 1.0
+X-Sensitivity: 3
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
+From: "Weber Ress (UOL)" <weber.ress@uol.com.br>
+To: "linux-kernel" <linux-kernel@vger.kernel.org>
+X-XaM3-API-Version: 4.1 (B79)
+X-type: 0
+X-SenderIP: 200.177.106.34
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-05-19 at 18:25, Daniel Walker wrote:
-> I've seen a RT yield warning on this yield while running the FUSYN
-> tests .. I can't imagine why it's there either.
+Hi,
 
-Would it not make more sense to kick a task out of hard real time at the
-point it begins dumping core. The core dumping sequence was never
-something that thread intended to execute at real time priority
+I finished my BSc Computer Science. How I start in Kernel Development ? What's the first's steps ?
+
+Thank's
+
+Weber Ress
+ 
+__________________________________________________________________________
+UOL Fone: Fale com o Brasil e o Mundo com até 90% de economia. 
+http://www.uol.com.br/fone
+
 

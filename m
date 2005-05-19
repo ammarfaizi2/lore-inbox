@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262487AbVESNZs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262490AbVESN0w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262487AbVESNZs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 09:25:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262492AbVESNZs
+	id S262490AbVESN0w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 09:26:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbVESN0w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 09:25:48 -0400
-Received: from users.ccur.com ([208.248.32.211]:24697 "EHLO gamx.iccur.com")
-	by vger.kernel.org with ESMTP id S262487AbVESNZm (ORCPT
+	Thu, 19 May 2005 09:26:52 -0400
+Received: from pat.uio.no ([129.240.130.16]:9392 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262490AbVESN0p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 09:25:42 -0400
-Date: Thu, 19 May 2005 09:24:57 -0400
-From: Joe Korty <joe.korty@ccur.com>
-To: Andi Kleen <ak@muc.de>
-Cc: robustmutexes@lists.osdl.org, george@mvista.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] A more general timeout specification
-Message-ID: <20050519132457.GA9357@tsunami.ccur.com>
-Reply-To: joe.korty@ccur.com
-References: <20050518201517.GA16193@tsunami.ccur.com> <m1hdh0yu14.fsf@muc.de>
+	Thu, 19 May 2005 09:26:45 -0400
+Subject: Re: why nfs server delay 10ms in nfsd_write()?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Peter Staubach <staubach@redhat.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, steve <lingxiang@huawei.com>,
+       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "zhangtiger@huawei.com" <zhangtiger@huawei.com>
+In-Reply-To: <428C8C32.2030803@redhat.com>
+References: <0IGP00IZRULADZ@szxml02-in.huawei.com>
+	 <1116472423.11327.1.camel@mindpipe>  <428C8C32.2030803@redhat.com>
+Content-Type: text/plain
+Date: Thu, 19 May 2005 09:26:06 -0400
+Message-Id: <1116509166.10911.41.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1hdh0yu14.fsf@muc.de>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.624, required 12,
+	autolearn=disabled, AWL 1.33, FORGED_RCVD_HELO 0.05,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 19, 2005 at 01:49:11AM +0200, Andi Kleen wrote:
-> Joe Korty <joe.korty@ccur.com> writes:
+to den 19.05.2005 Klokka 08:53 (-0400) skreiv Peter Staubach:
+> There are certainly many others way to get gathering, without adding an
+> artificial delay.  There are already delay slots built into the code 
+> which could
+> be used to trigger the gathering, so with a little bit different 
+> architecture, the
+> performance increases could be achieved.
 > 
-> > The fusyn (robust mutexes) project proposes the creation
-> > of a more general data structure, 'struct timeout', for the
-> > specification of timeouts in new services.  In this structure,
-> > the user specifies:
-> >
-> >     a time, in timespec format.
-> >     the clock the time is specified against (eg, CLOCK_MONOTONIC).
-> >     whether the time is absolute, or relative to 'now'.
-> 
-> If you do a new structure for this I would suggest adding a
-> "precision" field (or the same with a different name). Basically
-> precision would tell the kernel that the wakeup can be in a time
-> range, not necessarily on the exact time specified.
+> Some implementations actually do write gathering with NFSv3, even.  Is
+> this interesting enough to play with?  I suspect that just doing the 
+> work for
+> NFSv2 is not...
 
-Very cool.
-Joe
+Write gathering does still apply to stable NFSv3/v4 writes, so an
+optimisation may yet benefit applications that use O_DIRECT writes, or
+that require the use of the "noac" or "sync" mount options.
+
+I'm not aware of any ongoing projects to work on this, though, so it
+would probably be up to those parties that see it as beneficial to step
+up to the plate.
+
+Cheers,
+  Trond
+

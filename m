@@ -1,59 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVESXWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVESXeY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbVESXWX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 19:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261295AbVESXUz
+	id S261355AbVESXeY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 19:34:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVESXdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 19:20:55 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:58530 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261309AbVESW44 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 18:56:56 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [CFR][PATCH] namei fixes (16/19)
-Cc: akpm@osdl.org
-Message-Id: <E1DYtxB-0007tU-Ji@parcelfarce.linux.theplanet.co.uk>
-From: Al Viro <viro@www.linux.org.uk>
-Date: Thu, 19 May 2005 23:57:21 +0100
+	Thu, 19 May 2005 19:33:09 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:19585 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261318AbVESXaP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 19:30:15 -0400
+Message-ID: <428D2181.2080106@acm.org>
+Date: Thu, 19 May 2005 18:30:09 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fixes for IPMI use of timers
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------070309000602010401020509"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(16/19)
+This is a multi-part message in MIME format.
+--------------070309000602010401020509
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Conditional mntput() moved into __do_follow_link().  There it collapses with
-unconditional mntget() on the same sucker, closing another too-early-mntput()
-race.
 
-Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-----
-diff -urN RC12-rc4-15/fs/namei.c RC12-rc4-16/fs/namei.c
---- RC12-rc4-15/fs/namei.c	2005-05-19 16:39:44.743587923 -0400
-+++ RC12-rc4-16/fs/namei.c	2005-05-19 16:39:45.837369971 -0400
-@@ -506,7 +506,8 @@
- 	touch_atime(nd->mnt, dentry);
- 	nd_set_link(nd, NULL);
+
+--------------070309000602010401020509
+Content-Type: text/x-patch;
+ name="ipmi_hrt_fixes.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ipmi_hrt_fixes.diff"
+
+Fix some problems with the high-res timer support.
+
+Signed-off-by: Corey Minyard <minyard@acm.org>
+
+Index: linux-2.6.12-rc4/drivers/char/ipmi/ipmi_si_intf.c
+===================================================================
+--- linux-2.6.12-rc4.orig/drivers/char/ipmi/ipmi_si_intf.c
++++ linux-2.6.12-rc4/drivers/char/ipmi/ipmi_si_intf.c
+@@ -769,10 +769,11 @@
  
--	mntget(path->mnt);
-+	if (path->mnt == nd->mnt)
-+		mntget(path->mnt);
- 	error = dentry->d_inode->i_op->follow_link(dentry, nd);
- 	if (!error) {
- 		char *s = nd_get_link(nd);
-@@ -543,8 +544,6 @@
- 	current->link_count++;
- 	current->total_link_count++;
- 	nd->depth++;
--	if (path->mnt != nd->mnt)
--		mntput(path->mnt);
- 	err = __do_follow_link(path, nd);
- 	current->link_count--;
- 	nd->depth--;
-@@ -1550,8 +1549,6 @@
- 	error = security_inode_follow_link(path.dentry, nd);
- 	if (error)
- 		goto exit_dput;
--	if (nd->mnt != path.mnt)
--		mntput(path.mnt);
- 	error = __do_follow_link(&path, nd);
- 	if (error)
- 		return error;
+ 		/* We already have irqsave on, so no need for it
+                    here. */
+-		read_lock(&xtime_lock);
++		read_lock_irqsave(&xtime_lock, flags);
+ 		jiffies_now = jiffies;
+ 		smi_info->si_timer.expires = jiffies_now;
+ 		smi_info->si_timer.sub_expires = get_arch_cycles(jiffies_now);
++		read_unlock_irqrestore(&xtime_lock, flags);
+ 
+ 		add_usec_to_timer(&smi_info->si_timer, SI_SHORT_TIMEOUT_USEC);
+ 
+@@ -830,11 +831,11 @@
+ 		smi_info->short_timeouts++;
+ 		spin_unlock_irqrestore(&smi_info->count_lock, flags);
+ #if defined(CONFIG_HIGH_RES_TIMERS)
+-		read_lock(&xtime_lock);
++		read_lock_irqsave(&xtime_lock, flags);
+                 smi_info->si_timer.expires = jiffies;
+                 smi_info->si_timer.sub_expires
+                         = get_arch_cycles(smi_info->si_timer.expires);
+-                read_unlock(&xtime_lock);
++		read_unlock_irqrestore(&xtime_lock, flags);
+ 		add_usec_to_timer(&smi_info->si_timer, SI_SHORT_TIMEOUT_USEC);
+ #else
+ 		smi_info->si_timer.expires = jiffies + 1;
+
+--------------070309000602010401020509--

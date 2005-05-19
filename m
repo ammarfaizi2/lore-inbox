@@ -1,64 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262430AbVESBaC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262438AbVESBa5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262430AbVESBaC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 21:30:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVESBaC
+	id S262438AbVESBa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 21:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVESBag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 21:30:02 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:51153 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262430AbVESB36
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 21:29:58 -0400
-Subject: Re: [patch 1/7] BSD Secure Levels: printk overhaul
-From: Dave Hansen <haveblue@us.ibm.com>
-To: Michael Halcrow <mhalcrow@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Wright <chrisw@osdl.org>, Serge Hallyn <serue@us.ibm.com>
-In-Reply-To: <20050517152303.GA2814@halcrow.us>
-References: <20050517152303.GA2814@halcrow.us>
-Content-Type: text/plain
-Date: Wed, 18 May 2005 18:29:40 -0700
-Message-Id: <1116466180.26955.104.camel@localhost>
+	Wed, 18 May 2005 21:30:36 -0400
+Received: from agminet03.oracle.com ([141.146.126.230]:20912 "EHLO
+	agminet03.oracle.com") by vger.kernel.org with ESMTP
+	id S262438AbVESBaV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 21:30:21 -0400
+Date: Wed, 18 May 2005 18:26:58 -0700
+From: Manish Singh <manish.singh@oracle.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Mark Fasheh <mark.fasheh@oracle.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, torvalds@osdl.org,
+       linux-fsdevel@vger.kernel.org, ocfs2-devel@oss.oracle.com
+Subject: Re: [Ocfs2-devel] Re: [RFC] [PATCH] OCFS2
+Message-ID: <20050519012658.GA27595@ca-server1.us.oracle.com>
+Reply-To: Manish Singh <manish.singh@oracle.com>
+References: <20050518223303.GE1340@ca-server1.us.oracle.com> <20050518234022.GA5112@stusta.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050518234022.GA5112@stusta.de>
+Organization: Oracle
+X-Unexpected-Header: Hah! Nobody expects the unexpected header!
+User-Agent: Mutt/1.5.9i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-17 at 10:23 -0500, Michael Halcrow wrote:
->  struct seclvl_attribute {
->  	struct attribute attr;
-> -	ssize_t(*show) (struct seclvl_obj *, char *);
-> -	ssize_t(*store) (struct seclvl_obj *, const char *, size_t);
-> +	 ssize_t(*show) (struct seclvl_obj *, char *);
-> +	 ssize_t(*store) (struct seclvl_obj *, const char *, size_t);
->  };
+On Thu, May 19, 2005 at 01:40:22AM +0200, Adrian Bunk wrote:
+> On Wed, May 18, 2005 at 03:33:03PM -0700, Mark Fasheh wrote:
+> >...
+> > A full patch can be downloaded from:
+> > http://oss.oracle.com/projects/ocfs2/dist/files/patches/2.6.12-rc4/complete/ocfs2-configfs-all.patch
+> >...
+> 
+> Some comments on this patch:
+> - there's no reason to make JBD user-visible
 
-You've changed tabs to spaces.
+Sure, the only reason I made it visible was because of the comment in
+there:
 
->  /**
-> @@ -198,15 +196,15 @@
->  static int seclvl_sanity(int reqlvl)
->  {
->  	if ((reqlvl < -1) || (reqlvl > 2)) {
-> -		seclvl_printk(1, KERN_WARNING, "Attempt to set seclvl out of "
-> -			      "range: [%d]\n", reqlvl);
-> +		seclvl_printk(1, KERN_WARNING "%s: Attempt to set seclvl out "
-> +			      "of range: [%d]\n", __FUNCTION__, reqlvl);
+# CONFIG_JBD could be its own option (even modular), but until there are
+# other users than ext3, we will simply make it be the same as CONFIG_EXT3_FS
 
-Instead of changing each and every seclvl_printk() call to add
-__FUNCTION__, why not do this:
+I don't really have a preference either way.
 
-+static void __seclvl_printk(int verb, const char *fmt, ...)
-...
+> - is there any reason why CONFIGFS_FS is user-visible?
 
-#define seclvl_printk(verb, fmt, arg...) \
-	__seclvl_printk(verb, __FUNCTION__ ": " fmt, arg)
+It's a generic mechanism for userspace driven configuration of kernel
+functionality. There's nothing specific to OCFS2 about it. Other kernel
+subsystems/projects could use it too, for their own configuration
+mechanisms. More details are in configfs.txt, which is included in the
+above patch. Note the example used in the documentation text is an NBD
+driver.
 
-It requires that the fmt be a string literal, but it saves a lot of code
-duplication.  I'm sure there are some more examples of this around as
-well.
+> - some global code might become static:
+>   run "make namespacecheck" after compiling the kernel and check
+>   the configfs and ocfs2 parts of the output
 
--- Dave
+Yeah, there's some stuff that that scripts catches. Thanks.
+
+-Manish
 

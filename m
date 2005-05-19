@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262436AbVESBtP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262443AbVESBwM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262436AbVESBtP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 21:49:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262444AbVESBtP
+	id S262443AbVESBwM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 21:52:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbVESBwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 21:49:15 -0400
-Received: from one.firstfloor.org ([213.235.205.2]:26501 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S262436AbVESBtK
+	Wed, 18 May 2005 21:52:12 -0400
+Received: from mail2.dolby.com ([204.156.147.24]:3079 "EHLO dolby.com")
+	by vger.kernel.org with ESMTP id S262442AbVESBv6 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 21:49:10 -0400
-To: "Zhang, Yanmin" <yanmin.zhang@intel.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 32bit processes at compatbility mode on x86_64 machines fail to
- restart syscall after processing a signal
-References: <8126E4F969BA254AB43EA03C59F44E84021E9C58@pdsmsx404>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 19 May 2005 03:49:10 +0200
-In-Reply-To: <8126E4F969BA254AB43EA03C59F44E84021E9C58@pdsmsx404> (Yanmin
- Zhang's message of "Thu, 19 May 2005 09:18:59 +0800")
-Message-ID: <m164xgyoh5.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Wed, 18 May 2005 21:51:58 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Illegal use of reserved word in system.h
+Date: Wed, 18 May 2005 18:51:20 -0700
+Message-ID: <2692A548B75777458914AC89297DD7DA05EC7245@bronze.dolby.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Illegal use of reserved word in system.h
+Thread-Index: AcVb41YbQOXVwtuASGeXaaVClNHiWQALba4A
+From: "Gilbert, John" <JGG@dolby.com>
+To: <linux-kernel@vger.kernel.org>
+Content-Type: text/plain;
+	charset="us-ascii"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Zhang, Yanmin" <yanmin.zhang@intel.com> writes:
+Adrian Bunk writes:
 
-> The test case at
-> http://cvs.sourceforge.net/viewcvs.py/posixtest/posixtestsuite/conforman
-> ce/interfaces/clock_nanosleep/1-5.c fails if it runs as a 32bit process
-> on x86_86 machines.
->
-> The root cause is the sub 32bit process fails to restart the syscall
-> after it is interrupted
-> by a signal.
->
-> The syscall number of sys_restart_syscall in table sys_call_table is 
-> __NR_restart_syscall (219) while it's __NR_ia32_restart_syscall (0) in
-> ia32_sys_call_table. When regs->rax==(unsigned
-> long)-ERESTART_RESTARTBLOCK,
-> function do_signal doesn't distinguish if the process is 64bit or 32bit,
-> and always sets
-> restart syscall number as __NR_restart_syscall (219).
+that's not a check whether the system supports SMP.
 
-Thanks for tracking this down. Queued.
+Looking at the source code of MySQL, it seems MySQL does some dirty
+tricks for using the inlines from asm/atomic.h in userspace.
 
--Andi
+It's _really_ wrong to do this.
+
+#JG
+So the really, really stupid, idiotic, yet quick and effective hack to
+get MySQL to build under a later 2.6 kernel is as follows. In
+mysql-4.1.12/include/my_global.h, right after the three #ifndef
+CONFIG_SMP lines, add these lines...
+#ifndef CONFIG_NR_CPUS
+#define CONFIG_NR_CPUS
+#endif /* CONFIG_NR_CPUS */
+
+This way, MySQL can continue depending on the SMP atomic macros in
+asm-i386 from the Linux kernel, without going into kernel space. I
+strongly doubt this is truly multithreaded (or SMP) safe, but that's how
+MySQL has been running since 4.0 at least. Someone in the know should
+fix this, and end this silliness.
+
+John Gilbert
+Thanks for ignoring the sig.
+
+-----------------------------------------
+This message (including any attachments) may contain confidential
+information intended for a specific individual and purpose.  If you are not
+the intended recipient, delete this message.  If you are not the intended
+recipient, disclosing, copying, distributing, or taking any action based on
+this message is strictly prohibited.
 

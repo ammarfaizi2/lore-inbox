@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262426AbVESGyc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262435AbVESG6O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262426AbVESGyc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 02:54:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbVESGyc
+	id S262435AbVESG6O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 02:58:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbVESG6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 02:54:32 -0400
-Received: from rgminet02.oracle.com ([148.87.122.31]:25898 "EHLO
-	rgminet02.oracle.com") by vger.kernel.org with ESMTP
-	id S262404AbVESGy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 02:54:27 -0400
-Date: Wed, 18 May 2005 23:54:05 -0700
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: Daniel Phillips <phillips@istop.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       ocfs2-devel@oss.oracle.com, torvalds@osdl.org, akpm@osdl.org,
-       wim.coekaerts@oracle.com, lmb@suse.de
-Subject: Re: [RFC] [PATCH] OCFS2
-Message-ID: <20050519065405.GI1340@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <20050518223303.GE1340@ca-server1.us.oracle.com> <200505190230.23624.phillips@istop.com>
+	Thu, 19 May 2005 02:58:14 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:6679 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262435AbVESG6I convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 02:58:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=et0guOfjrXE/0h9SCwlJeAlRQlKk8g/vJqvJgnBF0ghVR5SOsmjJVR44q5SPz01OV1ZElVuOnJMR6n/UUW2pALY49Ecf07BCKsFjDCrkodciXJNsV2c9TxalkmQjOMViyMj/7gVd72r3bVjA5ltfwCOiM5WofeYE5ILaeeHpjn0=
+Message-ID: <377362e1050518235812f1cbbb@mail.gmail.com>
+Date: Thu, 19 May 2005 15:58:07 +0900
+From: "Tetsuji \"Maverick\" Rai" <tetsuji.rai@gmail.com>
+Reply-To: "Tetsuji \"Maverick\" Rai" <tetsuji.rai@gmail.com>
+To: Con Kolivas <kernel@kolivas.org>
+Subject: Re: HT scheduler: is it really correct? or is it feature of HT?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200505190756.16413.kernel@kolivas.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200505190230.23624.phillips@istop.com>
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.9i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+References: <377362e10505181142252ec930@mail.gmail.com>
+	 <200505190756.16413.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 19, 2005 at 02:30:23AM -0400, Daniel Phillips wrote:
-> Zero terminated strings for lock names is bad taste.  It generates a bunch of 
-> useless strlen executions and you force an ascii namespace for no apparent 
-> reason.  Add a 9th parameter, namelen, to the lock call maybe?
-Or perhaps pass in a qstr? Anyway I have to agree. That shouldn't be
-difficult to fix up.
-	--Mark
+On 5/19/05, Con Kolivas <kernel@kolivas.org> wrote:
+> ------------snip---------------
+> Hyperthread sibling cpus share cpu power. If you let a nice 19 task run full
+> power on the sibling cpu of a nice 0 task it will drain performance from the
+> nice 0 task and make it run approximately 40% slower. The only way around
+> this is to temporarily make the sibling run idle so that a nice 0 task gets
+> the appropriate proportion of cpu resources compared to a nice 19 task. It is
+> intentional and quite unique to the linux cpu scheduler as far as I can tell.
+> On any other scheduler or OS a nice 19 "background" task will make your
+> machine run much slower.
+> 
+> Cheers,
+> Con
+> 
 
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com
+Thanks.   I understood it's a feature of linux kernel and am satisfied
+with it.  Actually on Windows xp my application sometimes slows down
+maybe due to inpropoer scheduler.
 
+-- 
+Luckiest in the world / Weapon of Mass Distraction
+http://maverick6664.bravehost.com/
+Aviation Jokes: http://www.geocities.com/tetsuji_rai/
+Background: http://maverick.ns1.name/

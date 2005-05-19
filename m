@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262454AbVESCuV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262460AbVESDJQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262454AbVESCuV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 22:50:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbVESCuV
+	id S262460AbVESDJQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 23:09:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbVESDJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 22:50:21 -0400
-Received: from szxga03-in.huawei.com ([61.144.161.55]:4516 "EHLO huawei.com")
-	by vger.kernel.org with ESMTP id S262454AbVESCuN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 22:50:13 -0400
-Date: Thu, 19 May 2005 10:46:53 +0800
-From: steve <lingxiang@huawei.com>
-Subject: why nfs server delay 10ms in nfsd_write()?
-To: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Cc: "zhangtiger@huawei.com" <zhangtiger@huawei.com>,
-       "lingxiang@huawei.com" <lingxiang@huawei.com>
-Message-id: <0IGP00IZRULADZ@szxml02-in.huawei.com>
-MIME-version: 1.0
-X-Mailer: Foxmail 4.2 [cn]
-Content-type: text/plain; charset=GB2312
-Content-transfer-encoding: 8BIT
+	Wed, 18 May 2005 23:09:16 -0400
+Received: from pat.uio.no ([129.240.130.16]:15313 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S262459AbVESDJL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 23:09:11 -0400
+Subject: Re: why nfs server delay 10ms in nfsd_write()?
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: steve <lingxiang@huawei.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "zhangtiger@huawei.com" <zhangtiger@huawei.com>
+In-Reply-To: <0IGP00IZRULADZ@szxml02-in.huawei.com>
+References: <0IGP00IZRULADZ@szxml02-in.huawei.com>
+Content-Type: text/plain
+Date: Wed, 18 May 2005 23:08:48 -0400
+Message-Id: <1116472128.11340.24.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.623, required 12,
+	autolearn=disabled, AWL 1.33, FORGED_RCVD_HELO 0.05,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all£¬
-when i build nfs server with linux 2.6.9, i found nfs write performance is very low, and with 
-tcpdump, i found the time to process write is very long, please refer as follows:
+to den 19.05.2005 Klokka 10:46 (+0800) skreiv steve:
 
-14:59:22.844977 IP  192.168.0.1.3376789825 >  linux.site.nfs: 660 write [|nfs]
-14:59:22.855134 IP  linux.site.nfs >  192.168.0.1.3376789825: reply ok 136 write POST: [|nfs]
+> i have 2 questions:
+> 1.i don't know why do we have to sleep for 10 ms, why not do sync immediately?
+> 2.what will happen if we don't sleep for 10ms?
+> when i delete these codes, i get a good result, and the write performace improved from 300KB/s to 18MB/s
 
-the write operation cost nearly 10ms, so i look up the source code and find the following code 
-in nfsd_write():
+See
+http://www.usenix.org/publications/library/proceedings/sf94/full_papers/juszczak.a
 
-{
-..
-if (atomic_read(&inode-> i_writecount) >  1
-    || (last_ino == inode-> i_ino && last_dev == inode-> i_sb-> s_dev)) {
-dprintk("nfsd: write defer %d\n", current-> pid);
-set_current_state(TASK_UNINTERRUPTIBLE);
-schedule_timeout((HZ+99)/100);
-dprintk("nfsd: write resume %d\n", current-> pid);
-}
-..
-}
+Write gathering is basically a method for improving NFSv2 writes without
+any protocol changes. Later, NFSv3 introduced the more efficient concept
+of "unstable" writes into the protocol (see
+http://www.netapp.com/ftp/NFSv3_Rev_3.pdf).
 
-so it will sleep for 10ms if the condition matches.
+You can turn NFSv2 write gathering on and off using the wdelay/no_wdelay
+export options ('man 5 exports')
 
-i have 2 questions:
-1.i don't know why do we have to sleep for 10 ms, why not do sync immediately?
-2.what will happen if we don't sleep for 10ms?
-when i delete these codes, i get a good result, and the write performace improved from 300KB/s to 18MB/s
-
-Regards!  
-Steve
-2005-05-19
-
+Trond
 

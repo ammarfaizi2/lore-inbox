@@ -1,41 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262451AbVESIYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262469AbVESIiv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262451AbVESIYE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 04:24:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262442AbVESIYE
+	id S262469AbVESIiv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 04:38:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262442AbVESIiv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 04:24:04 -0400
-Received: from fire.osdl.org ([65.172.181.4]:31926 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262451AbVESIYB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 04:24:01 -0400
-Date: Thu, 19 May 2005 01:23:45 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Chris Wright <chrisw@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
-       linux-mm@kvack.org
-Subject: Re: [PATCH] prevent NULL mmap in topdown model
-Message-ID: <20050519082345.GI23013@shell0.pdx.osdl.net>
-References: <Pine.LNX.4.61.0505181556190.3645@chimarrao.boston.redhat.com> <Pine.LNX.4.58.0505181535210.18337@ppc970.osdl.org> <Pine.LNX.4.61.0505182224250.29123@chimarrao.boston.redhat.com> <Pine.LNX.4.58.0505181946300.2322@ppc970.osdl.org> <20050519064657.GH23013@shell0.pdx.osdl.net> <1116490511.6027.25.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1116490511.6027.25.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.6i
+	Thu, 19 May 2005 04:38:51 -0400
+Received: from tassadar.physics.auth.gr ([155.207.123.25]:15536 "EHLO
+	tassadar.physics.auth.gr") by vger.kernel.org with ESMTP
+	id S262469AbVESIir (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 04:38:47 -0400
+Date: Thu, 19 May 2005 11:38:37 +0300 (EEST)
+From: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
+To: ted creedon <tcreedon@easystreet.com>
+cc: openafs-info@openafs.org, linux-kernel@vger.kernel.org
+Subject: RE: [OpenAFS] Re: Openafs 1.3.78 and kernel 2.4.29 oopses , same
+ for 2.4.30 and openafs 1.3.82
+In-Reply-To: <20050512140505.6574EB01E@smtpauth.easystreet.com>
+Message-ID: <Pine.LNX.4.62.0505191135590.32055@tassadar.physics.auth.gr>
+References: <20050512140505.6574EB01E@smtpauth.easystreet.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-AntiVirus: checked by AntiVir Milter (version: 1.1.0-4; AVE: 6.30.0.12; VDF: 6.30.0.183; host: tassadar)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Arjan van de Ven (arjan@infradead.org) wrote:
-> On Wed, 2005-05-18 at 23:46 -0700, Chris Wright wrote:
-> > I gave it a quick and simple test.  Worked as expected.  Last page got
-> > mapped at 0x1000, leaving first page unmapped.  Of course, either with
-> > MAP_FIXED or w/out MAP_FIXED but proper hint (like -1) you can still
-> > map first page.  This isn't to say I was extra creative in testing.
-> 
-> sure. Making it *impossible* to mmap that page is bad. People should be
-> able to do that if they really want to, just doing it if they don't ask
-> for it is bad.
 
-Heh, that was actually my intended point ;-)  At any rate, you made it
-clearer, thanks.
+
+> Dimitris,
+>
+> Glad to be of help. Send a response to the mailing list after a week or so
+> of operation.
+>
+> This is a very important step and not documented.
+>
+> ted
+>
+> -----Original Message-----
+> From: Dimitris Zilaskos [mailto:dzila@tassadar.physics.auth.gr]
+> Sent: Wednesday, May 11, 2005 10:07 PM
+> To: ted creedon
+> Cc: openafs-info@openafs.org; linux-kernel@vger.kernel.org
+> Subject: RE: [OpenAFS] Re: Openafs 1.3.78 and kernel 2.4.29 oopses , same
+> for 2.4.30 and openafs 1.3.82
+>
+> On Mon, 9 May 2005, ted creedon wrote:
+>
+>> Looks like a compile problem if there's a symbol table error.
+>>
+>> To eliminate that as a cause:
+>> Make bzImage;make modules;make modules_install;make install; Reboot
+>> into the new image Run regen.sh then ./configure and built a new
+>> openafs system; install ane test it.
+>>
+>> I think there may be small differences in the m4 macros between
+>> various operating systems.
+>>
+>> This is the only way I can get reliable compiles. I have had one
+>> server crash with 1.3.81 but I suspect the software raid filesystem.
+>>
+
+ 	It's been 9 days now of heavy usage , and not a single oops 
+occured again. Problem solved:)
+
+
+Best regards ,
+
+
+--
+=============================================================================
+
+Dimitris Zilaskos
+
+Department of Physics @ Aristotle University of Thessaloniki , Greece
+PGP key : http://tassadar.physics.auth.gr/~dzila/pgp_public_key.asc
+ 	  http://egnatia.ee.auth.gr/~dzila/pgp_public_key.asc
+MD5sum  : de2bd8f73d545f0e4caf3096894ad83f  pgp_public_key.asc
+=============================================================================
+
+

@@ -1,68 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbVESUS6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVESUVL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbVESUS6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 16:18:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261239AbVESUS6
+	id S261239AbVESUVL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 16:21:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVESUVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 16:18:58 -0400
-Received: from mail2.dolby.com ([204.156.147.24]:62468 "EHLO dolby.com")
-	by vger.kernel.org with ESMTP id S261241AbVESUSz convert rfc822-to-8bit
+	Thu, 19 May 2005 16:21:11 -0400
+Received: from hnexfe09.hetnet.nl ([195.121.6.175]:57469 "EHLO
+	hnexfe09.hetnet.nl") by vger.kernel.org with ESMTP id S261239AbVESUU4
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 16:18:55 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Illegal use of reserved word in system.h
-Date: Thu, 19 May 2005 13:18:18 -0700
-Message-ID: <2692A548B75777458914AC89297DD7DA05EC7246@bronze.dolby.net>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Illegal use of reserved word in system.h
-Thread-Index: AcVcmbrmkoYs0UlqRA2J8fQabMNS5gAFLCcQ
-From: "Gilbert, John" <JGG@dolby.com>
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, <linux-kernel@vger.kernel.org>
-Content-Type: text/plain;
-	charset="us-ascii"
+	Thu, 19 May 2005 16:20:56 -0400
+Subject: 2.6.12rc4 (ppc32): Oops: kernel access of bad area, sig: 11 [#1]
+From: Michel Roelofs <kimmichel@zonnet.nl>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: 
+Message-Id: <1116534047.3432.11.camel@maan>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 19 May 2005 22:20:47 +0200
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 19 May 2005 20:20:47.0780 (UTC) FILETIME=[3E383E40:01C55CB0]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+When 2.6.12rc4 boots on my ppc32 (powertower pro 250), I get the
+following oops (manually copied):
+
+Oops: kernel access of bad area, sig: 11 [#1]
+PREEMPT
+
+<register dump>
 
 
-On Mer, 2005-05-18 at 22:31, Gilbert, John wrote:
-> #JG
-> Sorry, I was borrowing the term from the g++ error that this created.
-> I'm not trying to imply that someone should be arrested. ;^) Also, 
-> like a few people have already mentioned, it doesn't effect the kernel
+TASK=c0981ae0[1] 'swapper'
+THREAD c09de000
 
-> at all as it's strictly a C program.
+Last Syscall 120
+snd_pmac_dbdma_alloc+0x38/0x104
+snd_pmac_new+0x8c/0x450
+snd_pmac_probe+0x44/0x320
+alsa_card_pmac_init+0x10/0x2c
+do_initcalls+0x5c/0xfc
+do_basic_setup+0x24/0x34
+init+0x30/0xf8
+kernel_thread+0x44/0x60
 
-#Alan Cox 
-And that wants submitting to the GNU compiler people as a bug I guess ;)
 
-MySQL using kernel headers is a bit sad given that the same macros were
-put into proper user mode headers and under even more open licenses by
-the Mozilla people with Linus permission.
 
-DRI one does seem to be a real bug.
+When needed, I'll make a more accurate screen dump.
 
-#JG
-Would that be the drm.h use of "virtual", or the lack of an standard
-interrupt driven vertical sync interface?
-If it's the later, I know of hundreds, if not thousands of programs that
-would greatly benefit from such a feature. This, coupled with Andrew
-Morton's low latency patch and the already available high resolution
-timer support, and Linux could quickly become the multi-media king of
-operating systems (not to mention gaming).
-Thanks.
-
-John Gilbert
-jgg@dolby.com
-
------------------------------------------
-This message (including any attachments) may contain confidential
-information intended for a specific individual and purpose.  If you are not
-the intended recipient, delete this message.  If you are not the intended
-recipient, disclosing, copying, distributing, or taking any action based on
-this message is strictly prohibited.
+Michel
 

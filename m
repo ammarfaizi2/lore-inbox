@@ -1,81 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262437AbVESBVR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262430AbVESBaC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262437AbVESBVR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 21:21:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbVESBVR
+	id S262430AbVESBaC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 21:30:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVESBaC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 21:21:17 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:8376 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262437AbVESBVK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 21:21:10 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C55C11.0859DAC7"
-Subject: 32bit processes at compatbility mode on x86_64 machines fail to restart syscall after processing a signal
-Date: Thu, 19 May 2005 09:18:59 +0800
-Message-ID: <8126E4F969BA254AB43EA03C59F44E84021E9C58@pdsmsx404>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: 32bit processes at compatbility mode on x86_64 machines fail to restart syscall after processing a signal
-Thread-Index: AcVcELwcI2AK7Nv9QCuZqlKSgRbZJQ==
-From: "Zhang, Yanmin" <yanmin.zhang@intel.com>
-To: <discuss@x86-64.org>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 19 May 2005 01:21:07.0917 (UTC) FILETIME=[08A52FD0:01C55C11]
+	Wed, 18 May 2005 21:30:02 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:51153 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262430AbVESB36
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 21:29:58 -0400
+Subject: Re: [patch 1/7] BSD Secure Levels: printk overhaul
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Michael Halcrow <mhalcrow@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chris Wright <chrisw@osdl.org>, Serge Hallyn <serue@us.ibm.com>
+In-Reply-To: <20050517152303.GA2814@halcrow.us>
+References: <20050517152303.GA2814@halcrow.us>
+Content-Type: text/plain
+Date: Wed, 18 May 2005 18:29:40 -0700
+Message-Id: <1116466180.26955.104.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
+On Tue, 2005-05-17 at 10:23 -0500, Michael Halcrow wrote:
+>  struct seclvl_attribute {
+>  	struct attribute attr;
+> -	ssize_t(*show) (struct seclvl_obj *, char *);
+> -	ssize_t(*store) (struct seclvl_obj *, const char *, size_t);
+> +	 ssize_t(*show) (struct seclvl_obj *, char *);
+> +	 ssize_t(*store) (struct seclvl_obj *, const char *, size_t);
+>  };
 
-------_=_NextPart_001_01C55C11.0859DAC7
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+You've changed tabs to spaces.
 
-The test case at
-http://cvs.sourceforge.net/viewcvs.py/posixtest/posixtestsuite/conforman
-ce/interfaces/clock_nanosleep/1-5.c fails if it runs as a 32bit process
-on x86_86 machines.
+>  /**
+> @@ -198,15 +196,15 @@
+>  static int seclvl_sanity(int reqlvl)
+>  {
+>  	if ((reqlvl < -1) || (reqlvl > 2)) {
+> -		seclvl_printk(1, KERN_WARNING, "Attempt to set seclvl out of "
+> -			      "range: [%d]\n", reqlvl);
+> +		seclvl_printk(1, KERN_WARNING "%s: Attempt to set seclvl out "
+> +			      "of range: [%d]\n", __FUNCTION__, reqlvl);
 
-The root cause is the sub 32bit process fails to restart the syscall
-after it is interrupted
-by a signal.
+Instead of changing each and every seclvl_printk() call to add
+__FUNCTION__, why not do this:
 
-The syscall number of sys_restart_syscall in table sys_call_table is=20
-__NR_restart_syscall (219) while it's __NR_ia32_restart_syscall (0) in
-ia32_sys_call_table. When regs->rax=3D=3D(unsigned
-long)-ERESTART_RESTARTBLOCK,
-function do_signal doesn't distinguish if the process is 64bit or 32bit,
-and always sets
-restart syscall number as __NR_restart_syscall (219).
++static void __seclvl_printk(int verb, const char *fmt, ...)
+...
 
-Here is a patch against kernel 2.6.12-rc4.
+#define seclvl_printk(verb, fmt, arg...) \
+	__seclvl_printk(verb, __FUNCTION__ ": " fmt, arg)
 
-Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
+It requires that the fmt be a string literal, but it saves a lot of code
+duplication.  I'm sure there are some more examples of this around as
+well.
 
+-- Dave
 
-
-------_=_NextPart_001_01C55C11.0859DAC7
-Content-Type: application/octet-stream;
-	name="32bit_process_fail_restart_syscall.patch"
-Content-Transfer-Encoding: base64
-Content-Description: 32bit_process_fail_restart_syscall.patch
-Content-Disposition: attachment;
-	filename="32bit_process_fail_restart_syscall.patch"
-
-ZGlmZiAtTnJhdXAgbGludXgtMi42LjEyLXJjNC9hcmNoL3g4Nl82NC9rZXJuZWwvc2lnbmFsLmMg
-bGludXgtMi42LjEyLXJjNF9maXgvYXJjaC94ODZfNjQva2VybmVsL3NpZ25hbC5jCi0tLSBsaW51
-eC0yLjYuMTItcmM0L2FyY2gveDg2XzY0L2tlcm5lbC9zaWduYWwuYwkyMDA1LTA1LTEyIDIyOjE5
-OjQwLjAwMDAwMDAwMCAtMDcwMAorKysgbGludXgtMi42LjEyLXJjNF9maXgvYXJjaC94ODZfNjQv
-a2VybmVsL3NpZ25hbC5jCTIwMDUtMDUtMTggMDk6NTc6MDAuMDAwMDAwMDAwIC0wNzAwCkBAIC00
-NTIsNyArNDUyLDEwIEBAIGludCBkb19zaWduYWwoc3RydWN0IHB0X3JlZ3MgKnJlZ3MsIHNpZ3MK
-IAkJCXJlZ3MtPnJpcCAtPSAyOwogCQl9CiAJCWlmIChyZWdzLT5yYXggPT0gKHVuc2lnbmVkIGxv
-bmcpLUVSRVNUQVJUX1JFU1RBUlRCTE9DSykgewotCQkJcmVncy0+cmF4ID0gX19OUl9yZXN0YXJ0
-X3N5c2NhbGw7CisJCQlpZiAodGVzdF90aHJlYWRfZmxhZyhUSUZfSUEzMikpCisJCQkJcmVncy0+
-cmF4ID0gX19OUl9pYTMyX3Jlc3RhcnRfc3lzY2FsbDsKKwkJCWVsc2UKKwkJCQlyZWdzLT5yYXgg
-PSBfX05SX3Jlc3RhcnRfc3lzY2FsbDsKIAkJCXJlZ3MtPnJpcCAtPSAyOwogCQl9CiAJfQo=
-
-------_=_NextPart_001_01C55C11.0859DAC7--

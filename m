@@ -1,78 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVESXeY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVESXeZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261355AbVESXeY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 19:34:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVESXdJ
+	id S261350AbVESXeZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 19:34:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVESXcs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 19:33:09 -0400
-Received: from rwcrmhc11.comcast.net ([204.127.198.35]:19585 "EHLO
-	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
-	id S261318AbVESXaP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 19:30:15 -0400
-Message-ID: <428D2181.2080106@acm.org>
-Date: Thu, 19 May 2005 18:30:09 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Fixes for IPMI use of timers
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------070309000602010401020509"
+	Thu, 19 May 2005 19:32:48 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:51947 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261350AbVESX3W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 19:29:22 -0400
+Date: Thu, 19 May 2005 16:29:16 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: john stultz <johnstul@us.ibm.com>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org
+Subject: Re: [RFC][PATCH 0/4] new timeofday-based soft-timer subsystem
+Message-ID: <20050519232916.GC2673@us.ibm.com>
+References: <1116029796.26454.2.camel@cog.beaverton.ibm.com> <20050517233300.GE2735@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050517233300.GE2735@us.ibm.com>
+X-Operating-System: Linux 2.6.12-rc4 (i686)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070309000602010401020509
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On 17.05.2005 [16:33:00 -0700], Nishanth Aravamudan wrote:
+> On 13.05.2005 [17:16:35 -0700], john stultz wrote:
+> > All,
+> > 	This patch implements the architecture independent portion of the new
+> > time of day subsystem. For a brief description on the rework, see here:
+> > http://lwn.net/Articles/120850/ (Many thanks to the LWN team for that
+> > easy to understand writeup!)
+> > 
+> > 	I intend this to be the last RFC release and to submit this patch to
+> > Andrew for for testing near the end of this month. So please, if you
+> > have any complaints, suggestions, or blocking issues, let me know.
+> 
+> I have been working closely with John to re-work the soft-timer subsytem
+> to use the new timeofday() subsystem. The following patches attempts to
+> begin this process. I would greatly appreciate any comments.
 
+<snip>
 
+> I will try to get some current benchmark differentials posted tomorrow.
+> The previous patch I released showed little difference between mainline,
+> John's timeofday rework and my soft-timer rework in kernbench.
 
---------------070309000602010401020509
-Content-Type: text/x-patch;
- name="ipmi_hrt_fixes.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ipmi_hrt_fixes.diff"
+<snip>
 
-Fix some problems with the high-res timer support.
+Hrm, "tomorrow" became "two days from now," but here they are, kernbench
+comparisons (in percent relative to mainline) for x86 and x86_64, 10
+iterations each.
 
-Signed-off-by: Corey Minyard <minyard@acm.org>
+The x86_64 machine is a 2-way 2.0 GHz with 3.5 GB of RAM.
+The x86 machine is 16-way (32 with HT) 1.4 GHz Xeon with 15 GB of RAM.
 
-Index: linux-2.6.12-rc4/drivers/char/ipmi/ipmi_si_intf.c
-===================================================================
---- linux-2.6.12-rc4.orig/drivers/char/ipmi/ipmi_si_intf.c
-+++ linux-2.6.12-rc4/drivers/char/ipmi/ipmi_si_intf.c
-@@ -769,10 +769,11 @@
- 
- 		/* We already have irqsave on, so no need for it
-                    here. */
--		read_lock(&xtime_lock);
-+		read_lock_irqsave(&xtime_lock, flags);
- 		jiffies_now = jiffies;
- 		smi_info->si_timer.expires = jiffies_now;
- 		smi_info->si_timer.sub_expires = get_arch_cycles(jiffies_now);
-+		read_unlock_irqrestore(&xtime_lock, flags);
- 
- 		add_usec_to_timer(&smi_info->si_timer, SI_SHORT_TIMEOUT_USEC);
- 
-@@ -830,11 +831,11 @@
- 		smi_info->short_timeouts++;
- 		spin_unlock_irqrestore(&smi_info->count_lock, flags);
- #if defined(CONFIG_HIGH_RES_TIMERS)
--		read_lock(&xtime_lock);
-+		read_lock_irqsave(&xtime_lock, flags);
-                 smi_info->si_timer.expires = jiffies;
-                 smi_info->si_timer.sub_expires
-                         = get_arch_cycles(smi_info->si_timer.expires);
--                read_unlock(&xtime_lock);
-+		read_unlock_irqrestore(&xtime_lock, flags);
- 		add_usec_to_timer(&smi_info->si_timer, SI_SHORT_TIMEOUT_USEC);
- #else
- 		smi_info->si_timer.expires = jiffies + 1;
+				x86
 
---------------070309000602010401020509--
+					Elapsed	User	System	CPU
+
+2.6.12-rc4:				100%	100%	100%	100%
+
+2.6.12-rc4 + John's patch:		100.3%	100%	99.8%	99.6%
+
+2.6.12-rc4 + John's patch + my patch:	102.1%	101%	100%	98%
+
+				x86_64
+
+					Elapsed	User	System	CPU
+
+2.6.12-rc4:				100%	100%	100%	100%
+
+2.6.12-rc4 + John's patch:		99.5%	99.5%	99.1%	99.9%
+
+2.6.12-rc4 + John's patch + my patch:	99.7%	99.7%	99.5%	100%
+
+----
+
+All in all, pretty consistent across the board.
+
+Thanks,
+Nish

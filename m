@@ -1,91 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVESVJg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVESVOu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261259AbVESVJg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 17:09:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVESVJg
+	id S261215AbVESVOu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 17:14:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVESVOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 17:09:36 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:21223 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261259AbVESVJZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 17:09:25 -0400
-Subject: Re: kernel OOPS for XFS in xfs_iget_core (using NFS+SMP+MD)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Joshua Baker-LePain <jlb17@duke.edu>
-Cc: Gregory Brauer <greg@wildbrain.com>, linux-kernel@vger.kernel.org,
-       linux-xfs@oss.sgi.com, Jakob Oestergaard <jakob@unthought.net>,
-       Chris Wedgwood <cw@f00f.org>
-In-Reply-To: <Pine.LNX.4.58.0505191650580.7094@chaos.egr.duke.edu>
-References: <428511F8.6020303@wildbrain.com>
-	 <20050514184711.GA27565@taniwha.stupidest.org>
-	 <428B7D7F.9000107@wildbrain.com>
-	 <20050518175925.GA22738@taniwha.stupidest.org>
-	 <20050518195251.GY422@unthought.net>
-	 <Pine.LNX.4.58.0505181556410.6834@chaos.egr.duke.edu>
-	 <428BA8E4.2040108@wildbrain.com>
-	 <Pine.LNX.4.58.0505191537560.7094@chaos.egr.duke.edu>
-	 <Pine.LNX.4.58.0505191650580.7094@chaos.egr.duke.edu>
-Content-Type: text/plain
-Date: Thu, 19 May 2005 17:09:23 -0400
-Message-Id: <1116536963.23186.2.camel@mindpipe>
+	Thu, 19 May 2005 17:14:50 -0400
+Received: from rproxy.gmail.com ([64.233.170.201]:47026 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261262AbVESVOp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 17:14:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=R0qNgoYmBPU4eFj8zE/NhmTjlvDP+ZrTFnz4VvG8TStuX6ZMs/c/tlW8hfJBwrFjeqkrxtWtY80eP8QASm8OZ0Y/asVKaRpdQXRaFzMQ9qNYLKxkq4sv0N+vTGb4V53+RrfNCUpn2JKTFTly0MdDaNEuCoI8yS0/wGv/leLu8nY=
+Message-ID: <253818670505191414175ca12@mail.gmail.com>
+Date: Thu, 19 May 2005 17:14:44 -0400
+From: Yani Ioannou <yani.ioannou@gmail.com>
+Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
+To: Jean Delvare <khali@linux-fr.org>
+Subject: Re: [lm-sensors] [PATCH 2.6.12-rc4 15/15] drivers/i2c/chips/adm1026.c: use dynamic sysfs callbacks
+Cc: Greg KH <greg@kroah.com>, LM Sensors <lm-sensors@lm-sensors.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050519220235.3946f880.khali@linux-fr.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <2538186705051703479bd0c29@mail.gmail.com>
+	 <e9iUj0EZ.1116327879.1515720.khali@localhost>
+	 <2538186705051704181a70dbbf@mail.gmail.com>
+	 <253818670505172136613abb43@mail.gmail.com>
+	 <20050519220235.3946f880.khali@linux-fr.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-05-19 at 17:00 -0400, Joshua Baker-LePain wrote:
-> May 19 16:47:10 norbert kernel: Filesystem "md0": XFS internal error xfs_da_do_buf(1) at line 2176 of file fs/xfs/xfs_da_btree.c.  Caller 0xf8c90148
-> May 19 16:47:10 norbert kernel:  [<f8c8fd5b>] xfs_da_do_buf+0x357/0x70d [xfs]
-> May 19 16:47:10 norbert kernel:  [<f8c90148>] xfs_da_read_buf+0x19/0x1e [xfs]
-> May 19 16:47:10 norbert kernel:  [<c013e67c>] buffered_rmqueue+0x17d/0x1a5
-> May 19 16:47:10 norbert kernel:  [<f8c90148>] xfs_da_read_buf+0x19/0x1e [xfs]
-> May 19 16:47:10 norbert kernel:  [<f8c8e7e7>] xfs_da_node_lookup_int+0x9d/0x2c0 [xfs]
-> May 19 16:47:10 norbert kernel:  [<f8c8e7e7>] xfs_da_node_lookup_int+0x9d/0x2c0 [xfs]
-> May 19 16:47:10 norbert kernel:  [<f8cc103e>] kmem_zone_alloc+0x3b/0x70 [xfs]
-> May 19 16:47:10 norbert kernel:  [<f8c98300>] xfs_dir2_node_lookup+0x34/0x96 [xfs]
-> May 19 16:47:10 norbert kernel:  [<f8c91a23>] xfs_dir2_lookup+0xde/0x107 [xfs]
-> May 19 16:47:10 norbert kernel:  [<c019e09d>] avc_has_perm_noaudit+0x8d/0xda
-> May 19 16:47:10 norbert kernel:  [<c019e09d>] avc_has_perm_noaudit+0x8d/0xda
-> May 19 16:47:10 norbert kernel:  [<f8cb8c1f>] xfs_dir_lookup_int+0x26/0xa8 [xfs]
-> May 19 16:47:10 norbert kernel:  [<f8cbd09b>] xfs_lookup+0x40/0x69 [xfs]
-> May 19 16:47:10 norbert kernel:  [<c016b6c2>] wake_up_inode+0x6/0x29
-> May 19 16:47:10 norbert kernel:  [<f8cc953d>] vfs_init_vnode+0x1e/0x22 [xfs]
-> May 19 16:47:10 norbert kernel:  [<f8cc910f>] linvfs_get_parent+0x43/0x75 [xfs]
-> May 19 16:47:10 norbert kernel:  [<c02c4022>] __cond_resched+0x14/0x39
-> May 19 16:47:10 norbert kernel:  [<c02c4022>] __cond_resched+0x14/0x39
-> May 19 16:47:10 norbert kernel:  [<c016941e>] d_alloc+0x197/0x1a1
-> May 19 16:47:10 norbert kernel:  [<c0169587>] d_alloc_anon+0xd1/0xee
-> May 19 16:47:10 norbert kernel:  [<c02c4022>] __cond_resched+0x14/0x39
-> May 19 16:47:10 norbert kernel:  [<f8b1c303>] find_exported_dentry+0x303/0x5e8 [exportfs]
-> May 19 16:47:10 norbert kernel:  [<c026f9c2>] skb_copy_datagram_iovec+0x4f/0x1e1
-> May 19 16:47:10 norbert kernel:  [<c026d423>] release_sock+0xf/0x4f
-> May 19 16:47:10 norbert kernel:  [<c0291ab6>] tcp_recvmsg+0x64a/0x681
-> May 19 16:47:10 norbert kernel:  [<c026d550>] sock_common_recvmsg+0x30/0x46
-> May 19 16:47:10 norbert kernel:  [<c026a230>] sock_recvmsg+0xef/0x10c
-> May 19 16:47:10 norbert kernel:  [<c028b67f>] dst_output+0x0/0x1a
-> May 19 16:47:10 norbert kernel:  [<c011b3ee>] recalc_task_prio+0x128/0x133
-> May 19 16:47:10 norbert kernel:  [<c011b481>] activate_task+0x88/0x95
-> May 19 16:47:10 norbert kernel:  [<c011b902>] try_to_wake_up+0x222/0x22d
-> May 19 16:47:10 norbert kernel:  [<c011cdbd>] __wake_up_common+0x36/0x51
-> May 19 16:47:11 norbert kernel:  [<c011ce01>] __wake_up+0x29/0x3c
-> May 19 16:47:11 norbert kernel:  [<f8b438d2>] svc_sock_enqueue+0x1d6/0x212 [sunrpc]
-> May 19 16:47:11 norbert kernel:  [<f8b4485d>] svc_tcp_recvfrom+0x304/0x376 [sunrpc]
-> May 19 16:47:11 norbert kernel:  [<f8c1beb5>] svc_expkey_lookup+0x1fc/0x330 [nfsd]
-> May 19 16:47:11 norbert kernel:  [<f8b1c88e>] export_decode_fh+0x61/0x6d [exportfs]
-> May 19 16:47:11 norbert kernel:  [<f8c17884>] nfsd_acceptable+0x0/0xba [nfsd]
-> May 19 16:47:11 norbert kernel:  [<f8b1c82d>] export_decode_fh+0x0/0x6d [exportfs]
-> May 19 16:47:11 norbert kernel:  [<f8c17cfa>] fh_verify+0x3bc/0x5bd [nfsd]
-> May 19 16:47:11 norbert kernel:  [<f8c17884>] nfsd_acceptable+0x0/0xba [nfsd]
-> May 19 16:47:11 norbert kernel:  [<f8c1ff2a>] nfsd3_proc_getattr+0x6f/0x77 [nfsd]
-> May 19 16:47:11 norbert kernel:  [<f8c21b06>] nfs3svc_decode_fhandle+0x0/0x8d [nfsd]
-> May 19 16:47:11 norbert kernel:  [<f8c165d7>] nfsd_dispatch+0xba/0x16f [nfsd]
-> May 19 16:47:11 norbert kernel:  [<f8b43446>] svc_process+0x420/0x6d6 [sunrpc]
-> May 19 16:47:11 norbert kernel:  [<f8c163b7>] nfsd+0x1cc/0x332 [nfsd]
-> May 19 16:47:11 norbert kernel:  [<f8c161eb>] nfsd+0x0/0x332 [nfsd]
-> May 19 16:47:11 norbert kernel:  [<c01041f1>] kernel_thread_helper+0x5/0xb
+On 5/19/05, Jean Delvare <khali@linux-fr.org> wrote:
+> I finally gave a try to your patches, including the one for it87 which I
+> used for testing. It all works like a charm, pretty impressive
+> considering the overall complexity of the change. Congratulations :)
 
-Couldn't this be a stack overflow?  That's a very large kernel stack.
+I'm impressed too ;), and very happy to finally have confirmation it
+works as planned without blowing up anything.
 
-Lee
+> I'd like to add that the technical solution you came up with pleases me
+> much (which may or may not be relevant).
 
+Well I guess a happy Jean doesn't hurt! I really can't accept full
+credit for this though, I think the end solution was a good mix of
+ideas/comments from a range of people especially Greg, Russell and
+you.
+
+I like the idea of aggregating the related sensor attributes into
+arrays, I did things the same way in bmcsensors but of course that was
+all dynamic, and would just use more memory if we tried to do that
+here. As Greg points out there is probably a nicer way to create the
+arrays and register the attributes, but the basic idea has merit I
+think, and if we can standardize a method across all the sensors then
+its even better.
+
+Thanks,
+Yani

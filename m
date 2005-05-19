@@ -1,46 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262541AbVESPSz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262551AbVESPUb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262541AbVESPSz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 11:18:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262551AbVESPSz
+	id S262551AbVESPUb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 11:20:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbVESPUa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 11:18:55 -0400
-Received: from alog0469.analogic.com ([208.224.222.245]:10414 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262541AbVESPSt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 11:18:49 -0400
-Date: Thu, 19 May 2005 11:18:22 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: linux <kernel@wired-net.gr>
-cc: lkml <linux-kernel@vger.kernel.org>
-Subject: Re: 2.4 Kernel thread start/stop
-In-Reply-To: <001c01c55c83$1df6ec80$0101010a@dioxide>
-Message-ID: <Pine.LNX.4.61.0505191117150.30623@chaos.analogic.com>
-References: <001c01c55c83$1df6ec80$0101010a@dioxide>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 19 May 2005 11:20:30 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:32428 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262551AbVESPUK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 11:20:10 -0400
+Subject: Re: [RFC] [PATCH] OCFS2
+From: Lee Revell <rlrevell@joe-job.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Daniel Phillips <phillips@istop.com>, Mark Fasheh <mark.fasheh@oracle.com>,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       ocfs2-devel@oss.oracle.com, torvalds@osdl.org, akpm@osdl.org,
+       wim.coekaerts@oracle.com, lmb@suse.de
+In-Reply-To: <428C69EA.6080001@pobox.com>
+References: <20050518223303.GE1340@ca-server1.us.oracle.com>
+	 <200505190230.23624.phillips@istop.com>  <428C69EA.6080001@pobox.com>
+Content-Type: text/plain
+Date: Thu, 19 May 2005 11:20:08 -0400
+Message-Id: <1116516008.21685.25.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 May 2005, linux wrote:
+On Thu, 2005-05-19 at 06:26 -0400, Jeff Garzik wrote:
+> Daniel Phillips wrote:
+> > Zero terminated strings for lock names is bad taste.  It generates a bunch of 
+> > useless strlen executions and you force an ascii namespace for no apparent 
+> > reason.  Add a 9th parameter, namelen, to the lock call maybe?
+> 
+> What's wrong with ascii strings?
+> 
+> We call those 'UTF8' these days.
 
-> Hi all,
-> i am starting from inside a module a kernel thread*,but in some time later
-> i
-> want to remove that module and stop the thread.
-> What is the process while unloading a module to release a kernel thread in
-> 2.4.x kernel series.?????
->
-> Thanks in advance.
+I think you just answered your own question.
 
-Look at code that uses kernel threads. You send the task a signal
-and synchronize its exit with a semaphore.
+Lee
 
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

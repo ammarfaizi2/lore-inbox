@@ -1,48 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262466AbVESMr2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262474AbVESMsV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262466AbVESMr2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 08:47:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262474AbVESMr2
+	id S262474AbVESMsV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 08:48:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262483AbVESMsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 08:47:28 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:28690 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262466AbVESMrO
+	Thu, 19 May 2005 08:48:21 -0400
+Received: from odin2.bull.net ([192.90.70.84]:15266 "EHLO odin2.bull.net")
+	by vger.kernel.org with ESMTP id S262474AbVESMsL convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 08:47:14 -0400
-Date: Thu, 19 May 2005 13:47:11 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: linux-os@analogic.com, Adrian Bunk <bunk@stusta.de>,
-       Kyle Moffett <mrmacman_g4@mac.com>, "Gilbert, John" <JGG@dolby.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Illegal use of reserved word in system.h
-In-Reply-To: <1116505655.6027.45.camel@laptopd505.fenrus.org>
-Message-ID: <Pine.LNX.4.61L.0505191342460.10681@blysk.ds.pg.gda.pl>
-References: <2692A548B75777458914AC89297DD7DA08B0866F@bronze.dolby.net> 
- <20050518195337.GX5112@stusta.de>  <6EA08D88-7C67-48ED-A9EF-FEAAB92D8B8F@mac.com>
-  <20050519112840.GE5112@stusta.de>  <Pine.LNX.4.61.0505190734110.29439@chaos.analogic.com>
- <1116505655.6027.45.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 19 May 2005 08:48:11 -0400
+Subject: Re: Resent: BUG in RT 45-01 when RT program dumps core
+From: "Serge Noiraud" <serge.noiraud@bull.net>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: kus Kusche Klaus <kus@keba.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1116503763.15866.9.camel@localhost.localdomain>
+References: <AAD6DA242BC63C488511C611BD51F367323212@MAILIT.keba.co.at>
+	 <1116503763.15866.9.camel@localhost.localdomain>
+Content-Type: text/plain; charset=iso-8859-15
+Organization: BTS
+Message-Id: <1116506317.17833.34.camel@ibiza.btsn.frna.bull.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-5.1.100mdk 
+Date: Thu, 19 May 2005 14:38:38 +0200
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 May 2005, Arjan van de Ven wrote:
-
-> > First off, I think we need a system-call that will return some of
-> > the information that now comes from headers. PAGE_SIZE comes to
-> > mind. You need this for mmap() but there doesn't seem to be any
-> > way to get it. getpagesize() 'C' library just returns something
-> > it's swiped from kernel headers when the library was compiled.
-> > There are other things like the following that sometimes need
+Le jeu 19/05/2005 à 13:56, Steven Rostedt a écrit :
+> On Thu, 2005-05-19 at 08:36 +0200, kus Kusche Klaus wrote:
+> > Quoting my mail from Apr 11th (received no response up to now):
+...
+> > > Apr 11 13:44:23 OF455 kern.err kernel: BUG: rtc2:833 RT task 
+> > > yield()-ing!
 > 
-> for getpagesize() I can see the point
+> This is a check that we have to flag when a RT task calls yield.  This
+> in itself may not really be a bug, but it can be. There's places in the
+> kernel that call yield to wait for a bit to clear or a lock to become
+> unlock (doesn't grab it directly to prevent deadlocking).  This may be
+> OK with non RT tasks, since other tasks will get a chance to run. But
+> with RT tasks, a yield won't yield to any task with less priority than
+> the RT task. So if the RT task is yielding to let a lower priority task
+> do something it needs, it will in effect deadlock the system for all
+> tasks lower in priority than itself.
+> 
+> > This is still absolutely reproducable, in RT 7.47-01,
+> > with slight variations in the stack trace.
+> > 
+> > Is this something to worry about?
+> 
+> I'll take a look into it.
+> 
+> 
+> Ingo,
+> 
+> Did you get my patch to fix the kstop_machine yielding problem?
+> 
+> -- Steve
 
- If that is the case, then that's a bug in that C library, which should be 
-reported and fixed.  When starting a program, i.e. as a result of 
-execve(), Linux passes the current page size in use in the auxiliary 
-vector.  That value should be retrieved and used by a C library for 
-platforms that support various page sizes and returned by library calls 
-like getconf().  For example glibc gets it right.
+Does it solve this problem ? is it the same ? I'm in RT 47-03.
+If yes, I'm interested in this patch.
+...
+May 16 09:59:52 dtb2 kernel: BUG: kstopmachine:1037 RT task yield()-ing!
+May 16 09:59:52 dtb2 kernel: [dump_stack+35/48]  (20)
+May 16 09:59:52 dtb2 kernel: [<c01044b3>]  (20)
+May 16 09:59:52 dtb2 kernel: [yield+101/112]  (20)
+May 16 09:59:52 dtb2 kernel: [<c0344c55>]  (20)
+May 16 09:59:52 dtb2 kernel: [stop_machine+261/368]  (40)
+May 16 09:59:52 dtb2 kernel: [<c014c915>]  (40)
+May 16 09:59:52 dtb2 kernel: [do_stop+21/128]  (20)
+May 16 09:59:52 dtb2 kernel: [<c014c9b5>]  (20)
+May 16 09:59:52 dtb2 kernel: [kthread+182/256]  (48)
+May 16 09:59:52 dtb2 kernel: [<c013a576>]  (48)
+May 16 09:59:52 dtb2 kernel: [kernel_thread_helper+5/16]  (140156956)
+May 16 09:59:52 dtb2 kernel: [<c0101515>]  (140156956)
+May 16 09:59:53 dtb2 kernel: ts: Compaq touchscreen protocol output
+May 16 09:59:53 dtb2 kernel: Generic RTC Driver v1.07
+...
 
-  Maciej
+

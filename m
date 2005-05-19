@@ -1,82 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262231AbVESLhu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbVESLqg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262231AbVESLhu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 07:37:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbVESLhu
+	id S261768AbVESLqg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 07:46:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262355AbVESLqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 07:37:50 -0400
-Received: from rproxy.gmail.com ([64.233.170.194]:11931 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262231AbVESLfg (ORCPT
+	Thu, 19 May 2005 07:46:36 -0400
+Received: from rproxy.gmail.com ([64.233.170.202]:49336 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261768AbVESLpB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 07:35:36 -0400
+	Thu, 19 May 2005 07:45:01 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type;
-        b=ur2x2pZYoJPNU/dDHVlhHS2E5IinIt8l1Eos1TqReeeXRKzCCjdEJH4hAUyb8emXRUZ8usG+cKZgkiGMQ2I9hg/Wb94cVQhjlDwWwAZaYbdUwKSYxa/2ObYRmIBwe44G7zINdFuIkaBPiO9coR8uF6sJcBPD6dXaNtujpleslSg=
-Message-ID: <253818670505190435648367db@mail.gmail.com>
-Date: Thu, 19 May 2005 07:35:35 -0400
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=JHJ3/SKlhJZptYtLUqM8nxpNXdBl2J4MV87v/5jEH9v/8LEccM3pBHT5AJu6yUazYKNpTsvJ0C+EI2ideMf1fEx9S6/OQTDyeeETy/pF7Y09sufjAUC3dwbHk/rUeh99pIsGLWpScM2JADjKxwBQrkTwP82hg8giwpp9ja5iWVY=
+Message-ID: <253818670505190445647685ed@mail.gmail.com>
+Date: Thu, 19 May 2005 07:45:00 -0400
 From: Yani Ioannou <yani.ioannou@gmail.com>
 Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
 To: Greg KH <greg@kroah.com>
-Subject: [PATCH 2.6.12-rc4-mm2] drivers: (dynamic sysfs callbacks) update device attribute callbacks
+Subject: Re: [PATCH 2.6.12-rc4-mm2] drivers: (dynamic sysfs callbacks) update device attribute callbacks
 Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
+In-Reply-To: <253818670505190435648367db@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: multipart/mixed; 
-	boundary="----=_Part_156_17059740.1116502535960"
+	boundary="----=_Part_168_10500592.1116503100694"
+References: <253818670505190435648367db@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_156_17059740.1116502535960
+------=_Part_168_10500592.1116503100694
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-Hi Greg,
+Ugh, forgot to sign it off, resubmitting.
 
-I'm taking two steps here to try and mitigate the pain of a potential -mm m=
-erge.
-
-I'm including a patch against 2.4.12-rc4-mm2 to fix the failed hunks
-when applying my 2.4.12-rc4 patch and update the callbacks in the new
-drivers that exist in -mm2.
-
-In reply to this patch I'll include the latest perl script I'm using
-to update callbacks in code which can be used to update any old
-callbacks in a single file/source tree to the new callbacks. A warning
-along the lines of  "warning: assignment from incompatible pointer
-type" when compiling is a good sign of an old callback that needs
-updating..
-
-It is important to note that unlike before, updating the callbacks
-isn't just removing warnings/good practice. The new device_attribute *
-parameter was not added on the end of callback function's parameter
-list as the void * parameter was in previous device_attribute patches,
-but as the second parameter (mainly because of style and Russell did
-it that way). Thus if a device_attribute callback isn't updated it
-will very likely be broken...
-
-If you can think of anything else I can do let me know to ease things
-let me know.
+Signed-off-by: Yani Ioannou <yani.ioannou@gmail.com>
 
 Yani
 
----
-char/tpm/tpm.c            |    8 ++++----
-  char/tpm/tpm.h            |    8 ++++----
+On 5/19/05, Yani Ioannou <yani.ioannou@gmail.com> wrote:
+> Hi Greg,
+>=20
+> I'm taking two steps here to try and mitigate the pain of a potential -mm=
+ merge.
+>=20
+> I'm including a patch against 2.4.12-rc4-mm2 to fix the failed hunks
+> when applying my 2.4.12-rc4 patch and update the callbacks in the new
+> drivers that exist in -mm2.
+>=20
+> In reply to this patch I'll include the latest perl script I'm using
+> to update callbacks in code which can be used to update any old
+> callbacks in a single file/source tree to the new callbacks. A warning
+> along the lines of  "warning: assignment from incompatible pointer
+> type" when compiling is a good sign of an old callback that needs
+> updating..
+>=20
+> It is important to note that unlike before, updating the callbacks
+> isn't just removing warnings/good practice. The new device_attribute *
+> parameter was not added on the end of callback function's parameter
+> list as the void * parameter was in previous device_attribute patches,
+> but as the second parameter (mainly because of style and Russell did
+> it that way). Thus if a device_attribute callback isn't updated it
+> will very likely be broken...
+>=20
+> If you can think of anything else I can do let me know to ease things
+> let me know.
+>=20
+> Yani
+
+ char/tpm/tpm.c            |    8 ++++----
+ char/tpm/tpm.h            |    8 ++++----
  i2c/chips/adm1025.c       |    8 ++++----
  i2c/chips/adm9240.c       |   32 ++++++++++++++++----------------
  i2c/chips/atxp1.c         |   12 ++++++------
  i2c/chips/w83627ehf.c     |   18 +++++++++---------
-  input/serio/serio.c       |   12 ++++++------
-  message/fusion/mptscsih.c |    2 +-
-  message/fusion/mptscsih.h |    2 +-
-  pci/pci-sysfs.c           |    2 +-
-  pcmcia/ds.c               |    2 +-
-  usb/core/sysfs.c          |    2 +-
+ input/serio/serio.c       |   12 ++++++------
+ message/fusion/mptscsih.c |    2 +-
+ message/fusion/mptscsih.h |    2 +-
+ pci/pci-sysfs.c           |    2 +-
+ pcmcia/ds.c               |    2 +-
+ usb/core/sysfs.c          |    2 +-
  12 files changed, 54 insertions(+), 54 deletions(-)
 ---
 
-------=_Part_156_17059740.1116502535960
+------=_Part_168_10500592.1116503100694
 Content-Type: text/x-patch; 
 	name=patch-linux-2.6.12-rc4-mm2-sysfsdyncallback-deviceattr-update.diff; charset=us-ascii
 Content-Transfer-Encoding: 7bit
@@ -538,4 +546,4 @@ diff -uprN -X dontdiff linux-2.6.12-rc4-mm2-sysfsdyncallback-devattr.old/drivers
  	struct usb_device *udev;
 
 
-------=_Part_156_17059740.1116502535960--
+------=_Part_168_10500592.1116503100694--

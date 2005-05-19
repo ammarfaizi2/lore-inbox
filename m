@@ -1,87 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262431AbVESBFM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbVESBGo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262431AbVESBFM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 21:05:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262437AbVESBE3
+	id S262432AbVESBGo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 21:06:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262437AbVESBGo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 21:04:29 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:65262 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262431AbVESBET
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 21:04:19 -0400
-Message-ID: <428BE5F9.6070100@mvista.com>
-Date: Wed, 18 May 2005 18:03:53 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
+	Wed, 18 May 2005 21:06:44 -0400
+Received: from titan.genwebhost.com ([209.9.226.66]:3025 "EHLO
+	titan.genwebhost.com") by vger.kernel.org with ESMTP
+	id S262438AbVESBGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 21:06:12 -0400
+Message-ID: <49224.63.126.101.126.1116464767.squirrel@63.126.101.126>
+In-Reply-To: <2692A548B75777458914AC89297DD7DA08B0866E@bronze.dolby.net>
+References: <2692A548B75777458914AC89297DD7DA08B0866E@bronze.dolby.net>
+Date: Wed, 18 May 2005 18:06:07 -0700 (PDT)
+Subject: RE: Illegal use of reserved word in system.h
+From: rdunlap@xenotime.net
+To: "Gilbert, John" <JGG@dolby.com>
+Cc: linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.3a
+X-Mailer: SquirrelMail/1.4.3a
 MIME-Version: 1.0
-To: Coywolf Qi Hunt <coywolf@lovecn.org>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch] time_after_eq fix
-References: <20050518224415.GA5768@lovecn.org>
-In-Reply-To: <20050518224415.GA5768@lovecn.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - titan.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [32625 32003] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: /usr/local/cpanel/3rdparty/bin/php
+X-Source-Args: /usr/local/cpanel/3rdparty/bin/php /usr/local/cpanel/base/3rdparty/squirrelmail/src/compose.php 
+X-Source-Dir: :/base/3rdparty/squirrelmail/src
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Coywolf Qi Hunt wrote:
-> Hello,
-> 
-> The two macros time_after and time_after_eq were added to do wrapping
-> correctly, but only time_after does it the right way, time_after_eq has
-> been wrong since the very beginning(v2.1.127, 07-Nov-1998).  Now this
-> patch fixes it.
 
-I may be especially dense today, but could you give an example where your change 
-actually gives a result different from what exists?
+Gilbert, John said:
+> Hello all,
+>
 
-george
+Hi,
+
+FWIW, I agree with you.  I have a 'sparse' extension (that
+Linus mostly wrote) that detects/warns on all C++ reserved words.
+
+This could be part of a needed general headers cleanup,
+although a fairly low priority part of it.
+
+>
+> Sorry about the automatic disclaimer at the bottom of these emails, it's
+>
+> part of working here at Dolby. I'm sure it doesn't apply to this
+>
+> discussion.
+>
+>
+>
+> I had a few responses to this bug fix request (which I did mail to this
+>
+> list), none were what I was hoping for, namely "This will be fixed in
+>
+> the next release", so allow me to clarify.
+>
+>
+>
+> The problem: Linux kernel headers use C++ reserved words as variable
+>
+> names. This breaks builds of C++ code that include kernel headers.
+>
+>
+>
+> Examples: The use of "new" in the macro __cmpxchg in system.h. This hits
+>
+> MySQL which links into the kernel headers to determine if the platform
+>
+> is SMP aware or not (don't ask me why.)
+>
+> 	The use of "virtual" in the structure drm_buf_map in drm.h, used
+>
+> by drm_bufs.c. This hits C++ code that uses the DRI interface to lock
+>
+> with vertical retrace.
+>
+>
+>
+> The solution: rename these variables, keep C++ reserved words out of
+>
+> headers, make this practice part of the style guide.
+>
+>
+>
+> I'm not advocating writing parts of the kernel in C++, or cleaning out
+>
+> reserved words in the entire kernel. I know the one and only true
+>
+> language is C, but for Linux to achieve world domination it needs to be
+>
+> inclusive at running (and building) any software in whatever language.
+>
+>
+>
+> As to the comments stating that "Userspace code shouldn't include kernel
+>
+> headers", that's fine in the "Hello, World", but in the real world,
+>
+> applications need access to devices and system resources, which means
+>
+> communicating with the kernel with the proper ioctls, flags, system
+>
+> configuration, data structures, etc., which are kept in kernel headers.
+>
+> For this reason, breaking these apart from the application build
+>
+> environment is a really bad idea, no mater what Linus Torvalds has to
+>
+> say about it (see
+>
+> http://uwsg.iu.edu/hypermail/linux/kernel/0007.3/0587.html). It needs to
+>
+> be an fully integrated system for everything to run correctly.
+>
+>
+>
+> Besides, I don't have time to rewrite MySQL in C to make it "correct".
+>
+> I've got more important things to do. ;^)
+>
+>
+>
+> So please, keep your headers clean.
+>
+>
+>
+> John Gilbert
+>
+> jgg@dolby.com
+>
+>
+>
+> Ignore the sig.
+>
+> ###############
+>
+> -----------------------------------------
+>
+> This message (including any attachments) may contain confidential
+>
+> information intended for a specific individual and purpose.  If you are
+> not
+>
+> the intended recipient, delete this message.  If you are not the intended
+>
+> recipient, disclosing, copying, distributing, or taking any action based
+> on
+>
+> this message is strictly prohibited.
+
+
+
 -- 
-> 
-> And I don't agree with the the original code comment. I don't think this
-> is gcc's fault.  If it is "a good compiler" or "a really good compiler",
-> trying to be smarter than human, it wouldn't still be a C compiler.
-> So I'd like it be removed.
-> 
-> Signed-off-by: Coywolf Qi Hunt <coywolf@lovecn.org>
-> ---
-> 
->  jiffies.h |    6 ++----
->  1 files changed, 2 insertions(+), 4 deletions(-)
-> 
-> diff -pruN 2.6.12-rc4-mm2/include/linux/jiffies.h 2.6.12-rc4-mm2-cy/include/linux/jiffies.h
-> --- 2.6.12-rc4-mm2/include/linux/jiffies.h	2005-03-03 17:12:13.000000000 +0800
-> +++ 2.6.12-rc4-mm2-cy/include/linux/jiffies.h	2005-05-19 05:32:52.000000000 +0800
-> @@ -102,9 +102,7 @@ static inline u64 get_jiffies_64(void)
->   *
->   * time_after(a,b) returns true if the time a is after time b.
->   *
-> - * Do this with "<0" and ">=0" to only test the sign of the result. A
-> - * good compiler would generate better code (and a really good compiler
-> - * wouldn't care). Gcc is currently neither.
-> + * Do this with "<0" and "<=0" to only test the sign of the result.
->   */
->  #define time_after(a,b)		\
->  	(typecheck(unsigned long, a) && \
-> @@ -115,7 +113,7 @@ static inline u64 get_jiffies_64(void)
->  #define time_after_eq(a,b)	\
->  	(typecheck(unsigned long, a) && \
->  	 typecheck(unsigned long, b) && \
-> -	 ((long)(a) - (long)(b) >= 0))
-> +	 ((long)(b) - (long)(a) <= 0))
->  #define time_before_eq(a,b)	time_after_eq(b,a)
->  
->  /*
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+~Randy

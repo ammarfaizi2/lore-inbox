@@ -1,56 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262490AbVESN0w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262496AbVESNhV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262490AbVESN0w (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 09:26:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262493AbVESN0w
+	id S262496AbVESNhV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 09:37:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262495AbVESNhV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 09:26:52 -0400
-Received: from pat.uio.no ([129.240.130.16]:9392 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262490AbVESN0p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 09:26:45 -0400
-Subject: Re: why nfs server delay 10ms in nfsd_write()?
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Peter Staubach <staubach@redhat.com>
-Cc: Lee Revell <rlrevell@joe-job.com>, steve <lingxiang@huawei.com>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-       "zhangtiger@huawei.com" <zhangtiger@huawei.com>
-In-Reply-To: <428C8C32.2030803@redhat.com>
-References: <0IGP00IZRULADZ@szxml02-in.huawei.com>
-	 <1116472423.11327.1.camel@mindpipe>  <428C8C32.2030803@redhat.com>
+	Thu, 19 May 2005 09:37:21 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:37791 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262496AbVESNhN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 09:37:13 -0400
+Subject: Why yield in coredump_wait? [was: Re: Resent: BUG in RT 45-01 when
+	RT program dumps core]
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: kus Kusche Klaus <kus@keba.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1116503763.15866.9.camel@localhost.localdomain>
+References: <AAD6DA242BC63C488511C611BD51F367323212@MAILIT.keba.co.at>
+	 <1116503763.15866.9.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Thu, 19 May 2005 09:26:06 -0400
-Message-Id: <1116509166.10911.41.camel@lade.trondhjem.org>
+Organization: Kihon Technologies
+Date: Thu, 19 May 2005 09:37:00 -0400
+Message-Id: <1116509820.15866.28.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.624, required 12,
-	autolearn=disabled, AWL 1.33, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-to den 19.05.2005 Klokka 08:53 (-0400) skreiv Peter Staubach:
-> There are certainly many others way to get gathering, without adding an
-> artificial delay.  There are already delay slots built into the code 
-> which could
-> be used to trigger the gathering, so with a little bit different 
-> architecture, the
-> performance increases could be achieved.
-> 
-> Some implementations actually do write gathering with NFSv3, even.  Is
-> this interesting enough to play with?  I suspect that just doing the 
-> work for
-> NFSv2 is not...
+In the function coredump_wait there's a yield called:
 
-Write gathering does still apply to stable NFSv3/v4 writes, so an
-optimisation may yet benefit applications that use O_DIRECT writes, or
-that require the use of the "noac" or "sync" mount options.
+static void coredump_wait(struct mm_struct *mm)
+{
+[...]
+        /* give other threads a chance to run: */
+        yield();
 
-I'm not aware of any ongoing projects to work on this, though, so it
-would probably be up to those parties that see it as beneficial to step
-up to the plate.
+        zap_threads(mm);
+[...]
 
-Cheers,
-  Trond
+I don't see any reason for this.  Although the comment says it's giving
+other threads a chance to run, but the zap_threads below it will just
+send a kill signal to all those sharing the mm and then this thread will
+wait for completion (if there were threads to wait on).
+
+Now if there were no other threads to wait on it would just continue.
+So, is there some real reason that this yield is there? Or is it just
+trying to be nice, as in saying, "I'm dieing now and just don't want to
+waste others time" (which I highly doubt is the case).
+
+The reason I'm asking this, is that RT tasks should not call yield,
+since it is pretty much meaningless, since an RT task won't yield to any
+task of lesser priority, and in Ingo's current kernel the yield will
+send a bug message if it was called by an RT task.
+
+Thanks,
+
+-- Steve
+
+
 

@@ -1,81 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262441AbVESLxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262445AbVESL4W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262441AbVESLxO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 07:53:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262445AbVESLxO
+	id S262445AbVESL4W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 07:56:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262470AbVESL4W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 07:53:14 -0400
-Received: from rproxy.gmail.com ([64.233.170.193]:33756 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262441AbVESLxH convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 07:53:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cPjowJ034SIXSpR07mBf9xMvwPQ2S83490kk/X6vZritM+a/qK2hEaZYHsykfeZHyQdIviL+jVnzsHODw6MvkPMMYVi5HHJDrjXREpzj+kP5rmpnxC3ivfEgOrmaHG+3FnjlR4NYfKyY6NnAL25j55/UucTyhL4+sDJM6MqEzxQ=
-Message-ID: <2538186705051904531382021a@mail.gmail.com>
-Date: Thu, 19 May 2005 07:53:06 -0400
-From: Yani Ioannou <yani.ioannou@gmail.com>
-Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 2.6.12-rc4-mm2] drivers: (dynamic sysfs callbacks) update device attribute callbacks
-Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org
-In-Reply-To: <253818670505190445647685ed@mail.gmail.com>
+	Thu, 19 May 2005 07:56:22 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:58054 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262445AbVESL4N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 07:56:13 -0400
+Subject: Re: Resent: BUG in RT 45-01 when RT program dumps core
+From: Steven Rostedt <rostedt@goodmis.org>
+To: kus Kusche Klaus <kus@keba.com>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <AAD6DA242BC63C488511C611BD51F367323212@MAILIT.keba.co.at>
+References: <AAD6DA242BC63C488511C611BD51F367323212@MAILIT.keba.co.at>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 19 May 2005 07:56:03 -0400
+Message-Id: <1116503763.15866.9.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <253818670505190435648367db@mail.gmail.com>
-	 <253818670505190445647685ed@mail.gmail.com>
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is the previously mentioned perl script. Its quite simplistic,
-and accepts the filename of a source file to update as a parameter, or
-uses stdin/stdout if no parameters are given. To update a whole tree
-using the below just use something like:
+On Thu, 2005-05-19 at 08:36 +0200, kus Kusche Klaus wrote:
+> Quoting my mail from Apr 11th (received no response up to now):
 
-find linux-2.6.12-rc4 -type f -exec ./updatedyncallbackdevattr.pl {} \;
+Sorry, I must have missed it, I try to keep up on all mail associated to
+Ingo's RT kernel. Including Ingo on the list is the right thing to do.
 
-This script should catch every device_attribute callback, including
-multiline function signatures and embedded in macros. If it fails to
-catch something please let me know.
+> > When a process running with RT priority dumps core,
+> > I get the following BUG:
+> > 
+> > Apr 11 13:44:23 OF455 kern.err kernel: BUG: rtc2:833 RT task 
+> > yield()-ing!
 
-Thanks,
-Yani
+This is a check that we have to flag when a RT task calls yield.  This
+in itself may not really be a bug, but it can be. There's places in the
+kernel that call yield to wait for a bit to clear or a lock to become
+unlock (doesn't grab it directly to prevent deadlocking).  This may be
+OK with non RT tasks, since other tasks will get a chance to run. But
+with RT tasks, a yield won't yield to any task with less priority than
+the RT task. So if the RT task is yielding to let a lower priority task
+do something it needs, it will in effect deadlock the system for all
+tasks lower in priority than itself.
 
----
-#!/usr/bin/perl
+> This is still absolutely reproducable, in RT 7.47-01,
+> with slight variations in the stack trace.
+> 
+> Is this something to worry about?
 
-use strict;
+I'll take a look into it.
 
-my $infile=shift;
 
-if(!defined $infile){
-        open(IN,"<&STDIN") or die "Could not open an input stream";
-}else{
-        open(IN,"<$infile") or die "Could not open an input stream";
-}
+Ingo,
 
-my $subs = 0;
-my $code = "";
+Did you get my patch to fix the kstop_machine yielding problem?
 
-while(<IN>){$code.=$_};
-close(IN);
+-- Steve
 
-$code =~ s/(ssize_t[\s\\]+?[^(;]+?\(\s*?struct[\s\\]+?(?:device)[\s\\]*?\*[^,);]*?,)([\s\\]*?char[\s\\]*?\*[^,);]*?[\s\\]*?\))/$1
-struct device_attribute *attr,$2/gs && $subs++;
-$code =~ s/(ssize_t[\s\\]+?[^(;]+?\(\s*?struct[\s\\]+?(?:device)[\s\\]*?\*[^,);]*?,)([\s\\]*?const[\s\\]+?char[\s\\]*?\*[^,);]*?[\s\\]*?,[\s\\]*size_t[^,);]*?[\s\\]*\))/$1
-struct device_attribute *attr,$2/gs && $subs++;
 
-if($subs){
-        if(!defined $infile){
-                open(OUT,">&STDOUT") or die "Could not open an output stream";
-        }else{
-                open(OUT,">$infile") or die "Could not open an output stream";
-        }
-        $|;
-        print OUT $code;
-        close(OUT);
-        $infile && print STDOUT "$infile updated.\n";
-}

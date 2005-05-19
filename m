@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262532AbVESOnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262534AbVESOyJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262532AbVESOnE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 10:43:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262539AbVESOnD
+	id S262534AbVESOyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 10:54:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262536AbVESOyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 10:43:03 -0400
-Received: from graphe.net ([209.204.138.32]:21769 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S262532AbVESOl6 (ORCPT
+	Thu, 19 May 2005 10:54:09 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:13988 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262534AbVESOyF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 10:41:58 -0400
-Date: Thu, 19 May 2005 07:41:41 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Oleg Nesterov <oleg@tv-sign.ru>
-cc: linux-kernel@vger.kernel.org, Mitchell Blank Jr <mitch@sfgoth.com>,
-       Andrew Morton <akpm@osdl.org>, shai@scalex86.org
-Subject: Re: [PATCH] Optimize sys_times for a single thread process
-In-Reply-To: <428C3ABB.61B552E@tv-sign.ru>
-Message-ID: <Pine.LNX.4.62.0505190737500.28714@graphe.net>
-References: <428B09A6.DD188E8D@tv-sign.ru> <Pine.LNX.4.62.0505181503520.10958@graphe.net>
- <428C3ABB.61B552E@tv-sign.ru>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+	Thu, 19 May 2005 10:54:05 -0400
+Subject: Re: [patch 2/4] add x86-64 Kconfig options for sparsemem
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Matt Tolentino <metolent@snoqualmie.dp.intel.com>,
+       Andrew Morton <akpm@osdl.org>, Andy Whitcroft <apw@shadowen.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-mm <linux-mm@kvack.org>
+In-Reply-To: <20050518165358.GF88141@muc.de>
+References: <200505181643.j4IGhm7S026977@snoqualmie.dp.intel.com>
+	 <20050518165358.GF88141@muc.de>
+Content-Type: text/plain
+Date: Thu, 19 May 2005 07:53:44 -0700
+Message-Id: <1116514424.26955.119.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 May 2005, Oleg Nesterov wrote:
+On Wed, 2005-05-18 at 18:53 +0200, Andi Kleen wrote:
+> Hmm, I would have assumed IBM tested it, since Dave Hansen signed off - 
+> they have a range of Opteron machines.   If not I can test it
+> on a few boxes later.
 
-> > The thread ist needs to contain only one element which is current.
-> > thread_group_empty checks for no threads.
-> 
-> I think that thread_group_empty() means that there are no *other*
-> threads in the thread group, that means that we have only one thread.
-> 
-> In any case (p == next_thread(p)) == thread_group_empty(p).
-> 
-> But it is a very minor issue indeed, let's forget it.
+I actually don't personally have any access to Opteron machines.  But, I
+know Keith Mannthey has been testing it all along on his various x86_64
+machines.  I'll certainly make sure we get another run on all of those
+once it goes into -mm.
 
-No no. If you are right then you are right and I am 
-wrong.
+-- Dave
 
-Index: linux-2.6.12-rc4/kernel/sys.c
-===================================================================
---- linux-2.6.12-rc4.orig/kernel/sys.c	2005-05-19 03:23:29.000000000 +0000
-+++ linux-2.6.12-rc4/kernel/sys.c	2005-05-19 14:40:32.000000000 +0000
-@@ -920,7 +920,7 @@
- 		cputime_t utime, stime, cutime, cstime;
- 
- #ifdef CONFIG_SMP
--		if (current == next_thread(current)) {
-+		if (thread_group_empty(current)) {
- 			/*
- 			 * Single thread case without the use of any locks.
- 			 *

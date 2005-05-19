@@ -1,41 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVESWlc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVESW4N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261285AbVESWlc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 18:41:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbVESWlc
+	id S261290AbVESW4N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 18:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVESW4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 18:41:32 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:523 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261285AbVESWlb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 18:41:31 -0400
-Date: Thu, 19 May 2005 23:41:26 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Illegal use of reserved word in system.h
-Message-ID: <20050519234126.A31656@flint.arm.linux.org.uk>
-Mail-Followup-To: "J.A. Magallon" <jamagallon@able.es>,
-	linux-kernel@vger.kernel.org
-References: <20050518195337.GX5112@stusta.de> <6EA08D88-7C67-48ED-A9EF-FEAAB92D8B8F@mac.com> <20050519112840.GE5112@stusta.de> <Pine.LNX.4.61.0505190734110.29439@chaos.analogic.com> <1116505655.6027.45.camel@laptopd505.fenrus.org> <428CCD19.6030909@candelatech.com> <428CCE87.2010308@nortel.com> <428CCFA7.6010206@candelatech.com> <jeacmqg8ww.fsf@sykes.suse.de> <1116541832l.2940l.1l@werewolf.able.es>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1116541832l.2940l.1l@werewolf.able.es>; from jamagallon@able.es on Thu, May 19, 2005 at 10:30:32PM +0000
+	Thu, 19 May 2005 18:56:12 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:48290 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261290AbVESWzl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 18:55:41 -0400
+To: linux-kernel@vger.kernel.org
+Subject: [CFR][PATCH] namei fixes (1/19)
+Cc: akpm@osdl.org
+Message-Id: <E1DYtvx-0007qX-UN@parcelfarce.linux.theplanet.co.uk>
+From: Al Viro <viro@www.linux.org.uk>
+Date: Thu, 19 May 2005 23:56:05 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 19, 2005 at 10:30:32PM +0000, J.A. Magallon wrote:
-> Stupid and portable C++ code follows:
->...
-> # ifdef __linux__
-> 	strcpy(arch,"x86");
+[Note: that will be a long series of very small steps massaging namei.c to
+fix too-early-mntput() bugs; I apologize for the length of that animal,
+but I *really* want to be extremely careful in that area]
 
-These two appear to be self-contradictory, unless you define "portable"
-to mean "x86 only"... which would be hardly portable.
+(1/19)
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Declaration of struct path moved up.
+The first argument of do_follow_link() switched to struct path *; all callers
+used to pass foo.dentry there, now they pass &foo instead.
+
+Obviously equivalent transformations.
+
+Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+----
+diff -urN RC12-rc4-0/fs/namei.c RC12-rc4-1/fs/namei.c
+--- RC12-rc4-0/fs/namei.c	2005-05-07 04:04:51.000000000 -0400
++++ RC12-rc4-1/fs/namei.c	2005-05-19 16:39:29.104704191 -0400
+@@ -493,6 +493,11 @@
+ 	return PTR_ERR(link);
+ }
+ 
++struct path {
++	struct vfsmount *mnt;
++	struct dentry *dentry;
++};
++
+ static inline int __do_follow_link(struct dentry *dentry, struct nameidata *nd)
+ {
+ 	int error;
+@@ -518,7 +523,7 @@
+  * Without that kind of total limit, nasty chains of consecutive
+  * symlinks can cause almost arbitrarily long lookups. 
+  */
+-static inline int do_follow_link(struct dentry *dentry, struct nameidata *nd)
++static inline int do_follow_link(struct path *path, struct nameidata *nd)
+ {
+ 	int err = -ELOOP;
+ 	if (current->link_count >= MAX_NESTED_LINKS)
+@@ -527,13 +532,13 @@
+ 		goto loop;
+ 	BUG_ON(nd->depth >= MAX_NESTED_LINKS);
+ 	cond_resched();
+-	err = security_inode_follow_link(dentry, nd);
++	err = security_inode_follow_link(path->dentry, nd);
+ 	if (err)
+ 		goto loop;
+ 	current->link_count++;
+ 	current->total_link_count++;
+ 	nd->depth++;
+-	err = __do_follow_link(dentry, nd);
++	err = __do_follow_link(path->dentry, nd);
+ 	current->link_count--;
+ 	nd->depth--;
+ 	return err;
+@@ -641,11 +646,6 @@
+ 	follow_mount(mnt, dentry);
+ }
+ 
+-struct path {
+-	struct vfsmount *mnt;
+-	struct dentry *dentry;
+-};
+-
+ /*
+  *  It's more convoluted than I'd like it to be, but... it's still fairly
+  *  small and for now I'd prefer to have fast path as straight as possible.
+@@ -784,7 +784,7 @@
+ 
+ 		if (inode->i_op->follow_link) {
+ 			mntget(next.mnt);
+-			err = do_follow_link(next.dentry, nd);
++			err = do_follow_link(&next, nd);
+ 			dput(next.dentry);
+ 			mntput(next.mnt);
+ 			if (err)
+@@ -838,7 +838,7 @@
+ 		if ((lookup_flags & LOOKUP_FOLLOW)
+ 		    && inode && inode->i_op && inode->i_op->follow_link) {
+ 			mntget(next.mnt);
+-			err = do_follow_link(next.dentry, nd);
++			err = do_follow_link(&next, nd);
+ 			dput(next.dentry);
+ 			mntput(next.mnt);
+ 			if (err)

@@ -1,73 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262424AbVESAg0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262434AbVESAj5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262424AbVESAg0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 20:36:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262423AbVESAg0
+	id S262434AbVESAj5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 20:39:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbVESAj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 20:36:26 -0400
-Received: from zproxy.gmail.com ([64.233.162.201]:13 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262424AbVESAgR convert rfc822-to-8bit
+	Wed, 18 May 2005 20:39:26 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:46834 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262423AbVESAjT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 20:36:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SLejDWR+W095n8On9XTi1PSIWUHJX6nR4ZBZYxUvbtCp3paobCJnwiKvpi3ZZ1I1JI4td75laKPA48iVTdD53LpsqsT9md4kmkti0yXxTuo4raPnGbnjCoeKaVwWGIlHYatSKgsFfdmlC1pp1vcmShkNtavSEn520kL+jC5HHUo=
-Message-ID: <90f56e4805051817361eaa02bd@mail.gmail.com>
-Date: Wed, 18 May 2005 17:36:17 -0700
-From: Ajay Patel <patela@gmail.com>
-Reply-To: Ajay Patel <patela@gmail.com>
-To: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: GDB, pthreads, and kernel threads
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <428BDA56.5030502@shaw.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <45k9a-7DD-11@gated-at.bofh.it> <45xIX-2bR-31@gated-at.bofh.it>
-	 <45zKO-3RV-45@gated-at.bofh.it> <428BDA56.5030502@shaw.ca>
+	Wed, 18 May 2005 20:39:19 -0400
+Message-ID: <428BE01D.40205@mvista.com>
+Date: Wed, 18 May 2005 17:38:53 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: kernel@wired-net.gr
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.4 timer and helper functions
+References: <20050513215905.GY5914@waste.org>    <1116024419.20646.41.camel@localhost.localdomain>    <1116025212.6380.50.camel@mindpipe> <20050513232708.GC13846@redhat.com>    <1116027488.6380.55.camel@mindpipe>    <1116084186.20545.47.camel@localhost.localdomain>    <1116088229.8880.7.camel@mindpipe>    <1116089068.6007.13.camel@laptopd505.fenrus.org>    <1116093396.9141.11.camel@mindpipe>    <1116093694.6007.15.camel@laptopd505.fenrus.org>    <20050515100147.GA72234@muc.de> <32786.62.38.142.220.1116152602.squirrel@webmail.wired-net.gr>
+In-Reply-To: <32786.62.38.142.220.1116152602.squirrel@webmail.wired-net.gr>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have an exactly same problem.
-My platform is PPC, Linux 2.6.11.4, glibc 2.3.4 with linux threads.
+kernel@wired-net.gr wrote:
+> Hi all,
+> i am running a 2.6.4 kernel on my system , and i am playing a little bit
+> with kernel time issues and helper functions,just to understand how the
+> things really work.
+> While doing that on my x86 system and loaded a module from LDD 3rd
+> edition,jit.c, which uses a dynamic /proc file to return textual
+> information.
+> The info that returns is in this format and uses the kernel functions
+> ,do_gettimeofday,current_kernel_time and jiffies_to_timespec.
+> The output format is:
+> 0x0009073c 0x000000010009073c 1116162967.247441
+>                               1116162967.246530656        591.586065248
+> 0x0009073c 0x000000010009073c 1116162967.247463
+>                               1116162967.246530656        591.586065248
+> 0x0009073c 0x000000010009073c 1116162967.247476
+>                               1116162967.246530656        591.586065248
+> 0x0009073c 0x000000010009073c 1116162967.247489
+>                               1116162967.246530656        591.586065248
+> where the first two values are the jiffies and jiffies_64.The next two are
+> the do_gettimeofday and current_kernel_time and the last value is the
+> jiffies_to_timespec.This output text is "recorded" after 16 minutes of
+> uptime.Shouldnt the last value be the same as uptime.I have attached an
+> output file from the boot time until the time the function resets the
+> struct and starts count from the beggining.Is this a bug or i am missing
+> sth here???
 
-One thing I observed that the problem only occurs
-when break point is set in non-main thread.
-
-Thanks
-Ajay
-
-
-On 5/18/05, Robert Hancock <hancockr@shaw.ca> wrote:
-> John Clark wrote:
-> > I built the latest GDB-6.3, as well as rebuilt glibc-2.3.5, and now when
-> > I step through the
-> > main code line, which creates the tasks (I'm using the pthreads.c from
-> > the GDB testsuite), I do
-> > not getany output from:
-> >
-> > info threads
-> >
-> > When I set a break point on the entry point of one of the
-> > soon-to-be-created threads,
-> > I get a diagnostic message:
-> >
-> > Program terminated with signal SIGTRAP, Trace/Breakpoint trap.
-> > The program no longer exists.
+You are assuming that jiffies starts at zero at boot time.  This is clearly not 
+so even from your print outs.  (It starts at a value near overflow of the low 
+order 32-bits to flush out problems with the roll over.)
 > 
-> Are you sure your glibc and gdb were both configured to support threads
-> when they were compiled?
-> 
-> --
-> Robert Hancock      Saskatoon, SK, Canada
-> To email, remove "nospam" from hancockr@nospamshaw.ca
-> Home Page: http://www.roberthancock.com/
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/

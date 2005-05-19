@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVESR1t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbVESRbY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261177AbVESR1t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 13:27:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbVESR1t
+	id S261172AbVESRbY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 13:31:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVESRbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 13:27:49 -0400
-Received: from smtp001.bizmail.yahoo.com ([216.136.172.125]:15025 "HELO
-	smtp001.bizmail.yahoo.com") by vger.kernel.org with SMTP
-	id S261177AbVESR1d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 13:27:33 -0400
-Message-ID: <428CCC80.1010908@metricsystems.com>
-Date: Thu, 19 May 2005 10:27:28 -0700
-From: John Clark <jclark@metricsystems.com>
-Organization: Metric Systems, Inc.
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8a6) Gecko/20050111
+	Thu, 19 May 2005 13:31:24 -0400
+Received: from ns1.lanforge.com ([66.165.47.210]:51934 "EHLO www.lanforge.com")
+	by vger.kernel.org with ESMTP id S261172AbVESRbT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 13:31:19 -0400
+Message-ID: <428CCD19.6030909@candelatech.com>
+Date: Thu, 19 May 2005 10:30:01 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.7) Gecko/20050417 Fedora/1.7.7-1.3.1
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Douglas McNaught <doug@mcnaught.org>
-CC: Robert Hancock <hancockr@shaw.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>, patela@gmail.com
-Subject: Re: GDB, pthreads, and kernel threads
-References: <45k9a-7DD-11@gated-at.bofh.it> <45xIX-2bR-31@gated-at.bofh.it>	<45zKO-3RV-45@gated-at.bofh.it> <428BDA56.5030502@shaw.ca>	<428CBD63.8020704@metricsystems.com> <m21x839n0b.fsf@Douglas-McNaughts-Powerbook.local>
-In-Reply-To: <m21x839n0b.fsf@Douglas-McNaughts-Powerbook.local>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Arjan van de Ven <arjan@infradead.org>
+CC: linux-os@analogic.com, Adrian Bunk <bunk@stusta.de>,
+       Kyle Moffett <mrmacman_g4@mac.com>, "Gilbert, John" <JGG@dolby.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Illegal use of reserved word in system.h
+References: <2692A548B75777458914AC89297DD7DA08B0866F@bronze.dolby.net>	 <20050518195337.GX5112@stusta.de>	 <6EA08D88-7C67-48ED-A9EF-FEAAB92D8B8F@mac.com>	 <20050519112840.GE5112@stusta.de>	 <Pine.LNX.4.61.0505190734110.29439@chaos.analogic.com> <1116505655.6027.45.camel@laptopd505.fenrus.org>
+In-Reply-To: <1116505655.6027.45.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Douglas McNaught wrote:
+Arjan van de Ven wrote:
 
->John Clark <jclark@metricsystems.com> writes:
->
->  
->
->>Also, I do believe I'm using the NPTL package for threads. Is there a
->>way to absolutely tell without
->>question?
->>    
->>
->
->If you see multiple 'ps' entries for threads (without using any
->special flags to ps) you are not using NPTL.  NPTL is in 2.6 and in
->some vendor 2.4 kernels, but not in kernel.org 2.4.X.
->  
->
+> HZ may not exist. At all; people are trying to remove it. And userspace
+> has no business knowing about it either.
 
-I used the hint from Ajay Patel and found that in my 'installed' glibc 
-on my host 'linuxthreads' was being
-used. However, I did compile glibc-2.3.5 for the host and results from 
-that indicate that the nptl threads
-version is begin used.
+It can be helpful to know what HZ you are running at, for instance if you care
+very much about the (average) precision of a select/poll timeout.
 
-I will see if 1) the Gentoo distribution which was installed on the host 
-machine I'm using has an updated
-version of everything to the nptl threads, or 2) compile gdb against the 
-glibc-2.3.5 which has the
-ntpl threads.
+You can hack work-arounds to poor precision here using the /dev/rtc, but
+it isn't fun...
 
-Also, I'm using a 2.6.5 kernel in my host development environment, and 
-using a 2.6.11.6 kernel
-in my target. The target is actually using uClibc, and so I will check 
-for the type of threads package
-that is being supported there as well.
+Ben
 
-Thanks
-John Clark
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
 

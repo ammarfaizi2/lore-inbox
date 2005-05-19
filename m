@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262435AbVESG6O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262421AbVESG5t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262435AbVESG6O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 02:58:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262440AbVESG6O
+	id S262421AbVESG5t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 02:57:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262435AbVESG5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 02:58:14 -0400
-Received: from rproxy.gmail.com ([64.233.170.199]:6679 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262435AbVESG6I convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 02:58:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=et0guOfjrXE/0h9SCwlJeAlRQlKk8g/vJqvJgnBF0ghVR5SOsmjJVR44q5SPz01OV1ZElVuOnJMR6n/UUW2pALY49Ecf07BCKsFjDCrkodciXJNsV2c9TxalkmQjOMViyMj/7gVd72r3bVjA5ltfwCOiM5WofeYE5ILaeeHpjn0=
-Message-ID: <377362e1050518235812f1cbbb@mail.gmail.com>
-Date: Thu, 19 May 2005 15:58:07 +0900
-From: "Tetsuji \"Maverick\" Rai" <tetsuji.rai@gmail.com>
-Reply-To: "Tetsuji \"Maverick\" Rai" <tetsuji.rai@gmail.com>
-To: Con Kolivas <kernel@kolivas.org>
-Subject: Re: HT scheduler: is it really correct? or is it feature of HT?
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200505190756.16413.kernel@kolivas.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <377362e10505181142252ec930@mail.gmail.com>
-	 <200505190756.16413.kernel@kolivas.org>
+	Thu, 19 May 2005 02:57:49 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:30080 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S262421AbVESG5q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 02:57:46 -0400
+Message-ID: <428C3ABB.61B552E@tv-sign.ru>
+Date: Thu, 19 May 2005 11:05:31 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christoph Lameter <christoph@lameter.com>
+Cc: linux-kernel@vger.kernel.org, Mitchell Blank Jr <mitch@sfgoth.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] Optimize sys_times for a single thread process
+References: <428B09A6.DD188E8D@tv-sign.ru> <Pine.LNX.4.62.0505181503520.10958@graphe.net>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/19/05, Con Kolivas <kernel@kolivas.org> wrote:
-> ------------snip---------------
-> Hyperthread sibling cpus share cpu power. If you let a nice 19 task run full
-> power on the sibling cpu of a nice 0 task it will drain performance from the
-> nice 0 task and make it run approximately 40% slower. The only way around
-> this is to temporarily make the sibling run idle so that a nice 0 task gets
-> the appropriate proportion of cpu resources compared to a nice 19 task. It is
-> intentional and quite unique to the linux cpu scheduler as far as I can tell.
-> On any other scheduler or OS a nice 19 "background" task will make your
-> machine run much slower.
-> 
-> Cheers,
-> Con
-> 
+Christoph Lameter wrote:
+>
+> On Wed, 18 May 2005, Oleg Nesterov wrote:
+>
+> > Christoph Lameter wrote:
+> > >
+> > > +#ifdef CONFIG_SMP
+> > > +		if (current == next_thread(current)) {
+> > > +			/*
+> > > +			 * Single thread case without the use of any locks.
+> >
+> > A nitpick, but wouldn't be it clearer to to use
+> > thread_group_empty(current)?
+>
+> The thread ist needs to contain only one element which is current.
+> thread_group_empty checks for no threads.
 
-Thanks.   I understood it's a feature of linux kernel and am satisfied
-with it.  Actually on Windows xp my application sometimes slows down
-maybe due to inpropoer scheduler.
+I think that thread_group_empty() means that there are no *other*
+threads in the thread group, that means that we have only one thread.
 
--- 
-Luckiest in the world / Weapon of Mass Distraction
-http://maverick6664.bravehost.com/
-Aviation Jokes: http://www.geocities.com/tetsuji_rai/
-Background: http://maverick.ns1.name/
+In any case (p == next_thread(p)) == thread_group_empty(p).
+
+But it is a very minor issue indeed, let's forget it.
+
+Oleg.

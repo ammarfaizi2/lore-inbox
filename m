@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262417AbVESAOz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262416AbVESAYn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262417AbVESAOz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 18 May 2005 20:14:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbVESAOz
+	id S262416AbVESAYn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 18 May 2005 20:24:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbVESAYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 18 May 2005 20:14:55 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:20210 "EHLO
-	pd3mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S262421AbVESAOx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 18 May 2005 20:14:53 -0400
-Date: Wed, 18 May 2005 18:14:14 -0600
-From: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: GDB, pthreads, and kernel threads
-In-reply-to: <45zKO-3RV-45@gated-at.bofh.it>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Message-id: <428BDA56.5030502@shaw.ca>
-MIME-version: 1.0
-Content-type: text/plain; format=flowed; charset=ISO-8859-1
-Content-transfer-encoding: 7bit
+	Wed, 18 May 2005 20:24:42 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:14835 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262421AbVESAYj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 18 May 2005 20:24:39 -0400
+Message-ID: <428BDCAD.2090307@mvista.com>
+Date: Wed, 18 May 2005 17:24:13 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
 X-Accept-Language: en-us, en
-References: <45k9a-7DD-11@gated-at.bofh.it> <45xIX-2bR-31@gated-at.bofh.it>
- <45zKO-3RV-45@gated-at.bofh.it>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: Dave Jones <davej@redhat.com>, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: tickle nmi watchdog whilst doing serial writes.
+References: <20050513184806.GA24166@redhat.com> <m1u0l4afdx.fsf@muc.de>	<20050515130742.A29619@flint.arm.linux.org.uk> <m1ekc8adfl.fsf@muc.de>
+In-Reply-To: <m1ekc8adfl.fsf@muc.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Clark wrote:
-> I built the latest GDB-6.3, as well as rebuilt glibc-2.3.5, and now when 
-> I step through the
-> main code line, which creates the tasks (I'm using the pthreads.c from 
-> the GDB testsuite), I do
-> not getany output from:
+Andi Kleen wrote:
+> Russell King <rmk+lkml@arm.linux.org.uk> writes:
 > 
-> info threads
 > 
-> When I set a break point on the entry point of one of the 
-> soon-to-be-created threads,
-> I get a diagnostic message:
-> 
-> Program terminated with signal SIGTRAP, Trace/Breakpoint trap.
-> The program no longer exists.
+>>On Sun, May 15, 2005 at 01:38:02PM +0200, Andi Kleen wrote:
+>>
+>>>Dave Jones <davej@redhat.com> writes:
+>>>
+>>>> 
+>>>> #include <asm/io.h>
+>>>> #include <asm/irq.h>
+>>>>@@ -2099,8 +2100,10 @@ static inline void wait_for_xmitr(struct
+>>>> 	if (up->port.flags & UPF_CONS_FLOW) {
+>>>> 		tmout = 1000000;
+>>>> 		while (--tmout &&
+>>>>-		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0))
+>>>>+		       ((serial_in(up, UART_MSR) & UART_MSR_CTS) == 0)) {
+>>>> 			udelay(1);
+>>>>+			touch_nmi_watchdog();
+>>>
+>>>Note that touch_nmi_watchdog is not exported on i386 - Linus vetoed
+>>>that some time ago. The real fix of course is to use schedule_timeout(),
+>>>but that might break printk() with interrupts off :/
+>>
+>>Not to mention printk() from atomic contexts and panic().  No,
+>>schedule_timeout() is _not_ a "real fix" but a kludge.
 
-Are you sure your glibc and gdb were both configured to support threads 
-when they were compiled?
+Um... I would think the real fix is to set the UART up to generate the modem 
+status interrupt and eliminate the pole loop.  Why can't this be done?  I, for 
+one, don't want my cpu looping in the serial driver, even more so with the 
+interrupt system off.  This, in my mind, is a real bug in the serial driver and 
+should be so handled.
+
 
 -- 
-Robert Hancock      Saskatoon, SK, Canada
-To email, remove "nospam" from hancockr@nospamshaw.ca
-Home Page: http://www.roberthancock.com/
-
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/

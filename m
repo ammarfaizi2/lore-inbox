@@ -1,82 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVESW6O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVESXNe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261316AbVESW6O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 18:58:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbVESW5i
+	id S261312AbVESXNe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 19:13:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVESXNb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 18:57:38 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51106 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261300AbVESW4F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 18:56:05 -0400
+	Thu, 19 May 2005 19:13:31 -0400
+Received: from smtp06.auna.com ([62.81.186.16]:51598 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S261324AbVESXKb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 19:10:31 -0400
+Date: Thu, 19 May 2005 23:10:29 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: Illegal use of reserved word in system.h
 To: linux-kernel@vger.kernel.org
-Subject: [CFR][PATCH] namei fixes (6/19)
-Cc: akpm@osdl.org
-Message-Id: <E1DYtwN-0007rL-5L@parcelfarce.linux.theplanet.co.uk>
-From: Al Viro <viro@www.linux.org.uk>
-Date: Thu, 19 May 2005 23:56:31 +0100
+References: <20050518195337.GX5112@stusta.de>
+	<6EA08D88-7C67-48ED-A9EF-FEAAB92D8B8F@mac.com>
+	<20050519112840.GE5112@stusta.de>
+	<Pine.LNX.4.61.0505190734110.29439@chaos.analogic.com>
+	<1116505655.6027.45.camel@laptopd505.fenrus.org>
+	<428CCD19.6030909@candelatech.com> <428CCE87.2010308@nortel.com>
+	<428CCFA7.6010206@candelatech.com> <jeacmqg8ww.fsf@sykes.suse.de>
+	<1116541832l.2940l.1l@werewolf.able.es>
+	<20050519234126.A31656@flint.arm.linux.org.uk>
+In-Reply-To: <20050519234126.A31656@flint.arm.linux.org.uk> (from
+	rmk+lkml@arm.linux.org.uk on Fri May 20 00:41:26 2005)
+X-Mailer: Balsa 2.3.2
+Message-Id: <1116544229l.2940l.2l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+X-Auth-Info: Auth:LOGIN IP:[83.138.219.120] Login:jamagallon@able.es Fecha:Fri, 20 May 2005 01:10:29 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(6/19)
 
-mntget(path->mnt) in do_follow_link() moved down to right before the
-__do_follow_link() call and rigth after loop: resp.
+On 05.20, Russell King wrote:
+> On Thu, May 19, 2005 at 10:30:32PM +0000, J.A. Magallon wrote:
+> > Stupid and portable C++ code follows:
+> >...
+> > # ifdef __linux__
+> > 	strcpy(arch,"x86");
+> 
+> These two appear to be self-contradictory, unless you define "portable"
+> to mean "x86 only"... which would be hardly portable.
+> 
 
-dput()+mntput() on non-ELOOP branch moved up to right after __do_follow_link()
-call.
+Yup, portable to what I needed to port it ;). Will be refined...
+It was just a note about how to get info about ram, cpu, os and so on.
+Probably soft (MySQL) that needs to know on what processors is being built
+just needs to know on how many is being run to start a thread on each one,
+or know about the ram to size its caches...
 
-resulting
-loop:
-	mntget(path->mnt);
-	path_release(nd);
-	dput(path->mnt);
-	mntput(path->mnt);
-replaced with equivalent
-	dput(path->mnt);
-	path_release(nd);
+At build time, cpp -dM /dev/null:
 
-Equivalent transformations - the reason why we have that mntget() is
-that __do_follow_link() can drop a reference to nd->mnt and that's what
-holds path->mnt.  So that call can happen at any point prior to
-__do_follow_link() touching nd->mnt.  The rest is obvious.
+linux-x86:
+#define i386 1
+#define __i386 1
+#define __i386__ 1
+#define __tune_pentium__ 1
+#define __tune_i586__ 1
 
-NOTE: current tree relies on symlinks *never* being mounted on anything.
-It's not hard to get rid of that assumption (actually, that will come for
-free later in the series).  For now we are just not making the situation
-worse than it is.
+darwin-ppc:
+#define __ppc__ 1
 
-Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-----
-diff -urN RC12-rc4-5/fs/namei.c RC12-rc4-6/fs/namei.c
---- RC12-rc4-5/fs/namei.c	2005-05-19 16:39:33.566815053 -0400
-+++ RC12-rc4-6/fs/namei.c	2005-05-19 16:39:34.668595507 -0400
-@@ -526,7 +526,6 @@
- static inline int do_follow_link(struct path *path, struct nameidata *nd)
- {
- 	int err = -ELOOP;
--	mntget(path->mnt);
- 	if (current->link_count >= MAX_NESTED_LINKS)
- 		goto loop;
- 	if (current->total_link_count >= 40)
-@@ -539,16 +538,16 @@
- 	current->link_count++;
- 	current->total_link_count++;
- 	nd->depth++;
-+	mntget(path->mnt);
- 	err = __do_follow_link(path->dentry, nd);
--	current->link_count--;
--	nd->depth--;
- 	dput(path->dentry);
- 	mntput(path->mnt);
-+	current->link_count--;
-+	nd->depth--;
- 	return err;
- loop:
--	path_release(nd);
- 	dput(path->dentry);
--	mntput(path->mnt);
-+	path_release(nd);
- 	return err;
- }
- 
+But the interesting part would be how to know at runtime on what
+processor I'm running. Will have to look at x86info...
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandriva Linux release 2006.0 (Cooker) for i586
+Linux 2.6.11-jam19 (gcc 4.0.0 (4.0.0-3mdk for Mandriva Linux release 2006.0))
+
+

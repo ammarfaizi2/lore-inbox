@@ -1,96 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVESX00@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVESXaI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbVESX00 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 19:26:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVESXYd
+	id S261299AbVESXaI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 19:30:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVESX1g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 19:24:33 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:53154 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261302AbVESW4U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 18:56:20 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [CFR][PATCH] namei fixes (9/19)
-Cc: akpm@osdl.org
-Message-Id: <E1DYtwc-0007rp-9B@parcelfarce.linux.theplanet.co.uk>
-From: Al Viro <viro@www.linux.org.uk>
-Date: Thu, 19 May 2005 23:56:46 +0100
+	Thu, 19 May 2005 19:27:36 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:51845 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261299AbVESX0M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 19:26:12 -0400
+Message-ID: <428D208C.1000307@acm.org>
+Date: Thu, 19 May 2005 18:26:04 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Add sysfs support for the IPMI device interface
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(9/19)
+Linus,
 
-New helper: __follow_mount(struct path *path).  Same as follow_mount(),
-except that we do *not* do mntput() after the first lookup_mnt().
+Could you please add this patch to the main tree?  I can't send it to 
+Andrew because he has a rework of this in his tree that has not made it 
+into yours yet, and I'd like to have this in before 2.6.12 is released.
 
-IOW, original path->mnt stays pinned down.  We also take care to do dput()
-before mntput() in the loop body (follow_mount() also needs that reordering,
-but that will be done later in the series).
+-Corey
 
-The following are equivalent, assuming that path.mnt == x:
-(1)
-	follow_mount(&path.mnt, &path.dentry)
-(2)
-	__follow_mount(&path);
-	if (path->mnt != x)
-		mntput(x);
-(3)
-	if (__follow_mount(&path))
-		mntput(x);
 
-Callers of follow_mount() in __link_path_walk() converted to (2).
+Add support for sysfs to the IPMI device interface.
 
-Equivalent transformation + fix for too-late-mntput() race in __follow_mount()
-loop.
+Signed-off-by: Corey Minyard <minyard@acm.org>
 
-Signed-off-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-----
-diff -urN RC12-rc4-8/fs/namei.c RC12-rc4-9/fs/namei.c
---- RC12-rc4-8/fs/namei.c	2005-05-19 16:39:36.950140877 -0400
-+++ RC12-rc4-9/fs/namei.c	2005-05-19 16:39:38.069917746 -0400
-@@ -576,6 +576,23 @@
- /* no need for dcache_lock, as serialization is taken care in
-  * namespace.c
-  */
-+static int __follow_mount(struct path *path)
-+{
-+	int res = 0;
-+	while (d_mountpoint(path->dentry)) {
-+		struct vfsmount *mounted = lookup_mnt(path->mnt, path->dentry);
-+		if (!mounted)
-+			break;
-+		dput(path->dentry);
-+		if (res)
-+			mntput(path->mnt);
-+		path->mnt = mounted;
-+		path->dentry = dget(mounted->mnt_root);
-+		res = 1;
-+	}
-+	return res;
-+}
-+
- static int follow_mount(struct vfsmount **mnt, struct dentry **dentry)
- {
- 	int res = 0;
-@@ -778,7 +795,9 @@
- 		if (err)
- 			break;
- 		/* Check mountpoints.. */
--		follow_mount(&next.mnt, &next.dentry);
-+		__follow_mount(&next);
-+		if (nd->mnt != next.mnt)
-+			mntput(nd->mnt);
+Index: linux-2.6.11-mm1/drivers/char/ipmi/ipmi_devintf.c
+===================================================================
+--- linux-2.6.11-mm1.orig/drivers/char/ipmi/ipmi_devintf.c
++++ linux-2.6.11-mm1/drivers/char/ipmi/ipmi_devintf.c
+@@ -44,6 +44,7 @@
+ #include <linux/ipmi.h>
+ #include <asm/semaphore.h>
+ #include <linux/init.h>
++#include <linux/device.h>
  
- 		err = -ENOENT;
- 		inode = next.dentry->d_inode;
-@@ -836,7 +855,9 @@
- 		err = do_lookup(nd, &this, &next);
- 		if (err)
- 			break;
--		follow_mount(&next.mnt, &next.dentry);
-+		__follow_mount(&next);
-+		if (nd->mnt != next.mnt)
-+			mntput(nd->mnt);
- 		inode = next.dentry->d_inode;
- 		if ((lookup_flags & LOOKUP_FOLLOW)
- 		    && inode && inode->i_op && inode->i_op->follow_link) {
+ #define IPMI_DEVINTF_VERSION "v33"
+ 
+@@ -519,15 +520,24 @@
+          " interface.  Other values will set the major device number"
+          " to that value.");
+ 
++static struct class_simple *ipmi_class;
++
+ static void ipmi_new_smi(int if_num)
+ {
++    char                  name[10];
++    dev_t                 dev = MKDEV(ipmi_major, if_num);
++
+     devfs_mk_cdev(MKDEV(ipmi_major, if_num),
+               S_IFCHR | S_IRUSR | S_IWUSR,
+               "ipmidev/%d", if_num);
++
++    snprintf(name, sizeof(name), "ipmi%d", if_num);
++    class_simple_device_add(ipmi_class, dev, NULL, name);
+ }
+ 
+ static void ipmi_smi_gone(int if_num)
+ {
++    class_simple_device_remove(MKDEV(ipmi_major, if_num));
+     devfs_remove("ipmidev/%d", if_num);
+ }
+ 
+@@ -548,8 +558,15 @@
+     printk(KERN_INFO "ipmi device interface version "
+            IPMI_DEVINTF_VERSION "\n");
+ 
++    ipmi_class = class_simple_create(THIS_MODULE, "ipmi");
++    if (IS_ERR(ipmi_class)) {
++        printk(KERN_ERR "ipmi: can't register device class\n");
++        return PTR_ERR(ipmi_class);
++    }
++
+     rv = register_chrdev(ipmi_major, DEVICE_NAME, &ipmi_fops);
+     if (rv < 0) {
++        class_simple_destroy(ipmi_class);
+         printk(KERN_ERR "ipmi: can't get major %d\n", ipmi_major);
+         return rv;
+     }
+@@ -563,6 +580,7 @@
+     rv = ipmi_smi_watcher_register(&smi_watcher);
+     if (rv) {
+         unregister_chrdev(ipmi_major, DEVICE_NAME);
++        class_simple_destroy(ipmi_class);
+         printk(KERN_WARNING "ipmi: can't register smi watcher\n");
+         return rv;
+     }
+@@ -573,6 +591,7 @@
+ 
+ static __exit void cleanup_ipmi(void)
+ {
++    class_simple_destroy(ipmi_class);
+     ipmi_smi_watcher_unregister(&smi_watcher);
+     devfs_remove(DEVICE_NAME);
+     unregister_chrdev(ipmi_major, DEVICE_NAME);
+

@@ -1,126 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVETGLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVETGMs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbVETGLI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 02:11:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVETGLI
+	id S261357AbVETGMs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 02:12:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVETGMs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 02:11:08 -0400
-Received: from c-24-10-253-213.hsd1.ut.comcast.net ([24.10.253.213]:4224 "EHLO
-	linux.site") by vger.kernel.org with ESMTP id S261353AbVETGKs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 02:10:48 -0400
-Subject: [patch 1/1] Proposed: Let's not waste precious IRQs...
-To: akpm@osdl.org
-Cc: ak@suse.de, zwane@arm.linux.org.uk, len.brown@intel.com,
-       bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org,
-       Natalie.Protasevich@unisys.com
-From: Natalie.Protasevich@unisys.com
-Date: Thu, 19 May 2005 04:06:13 -0700
-Message-Id: <20050519110613.B817D27266@linux.site>
+	Fri, 20 May 2005 02:12:48 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:8603 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S261357AbVETGMW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 02:12:22 -0400
+Date: Fri, 20 May 2005 08:12:20 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
+       Christian Borntraeger <cborntra@de.ibm.com>
+Subject: Running OOM and worse with broken signal handler
+Message-ID: <20050520061125.GA12656@osiris.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi all,
 
+we experienced some interesting behaviour with an out of
+memory condition caused by signal handling (on s390x).
+The following program ran our system in an OOM situation
+and couldn't be killed because the SIGKILL signal couldn't
+be delivered.
+Necessary for this to happen is that the stack size limit
+is set to unlimited.
 
-I suggest to change the way IRQs are handed out to PCI devices. Currently, each I/O APIC pin gets associated with an IRQ, no matter if the pin is used or not. It is expected that each pin can potentually be engaged by a device inserted into the corresponding PCI slot. However, this imposes severe limitation on systems that have designs that employ many  I/O APICs, only utilizing couple lines of each, such as P64H2 chipset. It is used in ES7000, and currently, there is no way to boot the system with more that 9 I/O APICs. The simple change below allows to boot a system with say 64 (or more) I/O APICs, each providing 1 slot, which otherwise impossible because of the IRQ gaps created for unused lines on each I/O APIC. It does not resolve the problem with number of devices that exceeds number of possible IRQs, but eases up a tension for IRQs on any large system with potentually large number of devices. I only implemented this for the ACPI boot, since if the system is this big and
-  using newer chipsets it is probably (better be!) an ACPI based system :). The change is completely "mechanical" and does not alter any internal structures or interrupt model/implementation. The patch works for both i386 and x86_64 archs. It works with MSIs just fine, and should not intervene with implementations like shared vectors, when they get worked out and incorporated.
+sig_handler(int sig)
+{
+  asm volatile(".long 0\n");
+}
 
+int main (int argc, char **argv)
+{
+  struct sigaction act;
 
-To illustrate, below is the interrupt distribution for 2-cell ES7000 with 20 I/O APICs, and an Ethernet card in the last slot, which should be eth1 and which was not configured because its IRQ exceeded allowable number (it actially turned out huge - 480!):
+  act.sa_handler = &sig_handler;
+  act.sa_restorer = 0;
+  act.sa_flags = SA_NOMASK | SA_RESTART;
 
-zorro-tb2:~ # cat /proc/interrupts
-           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7
-  0:      65716      30012      30007      30002      30009      30010      30010      30010    IO-APIC-edge  timer
-  4:        373          0        725        280          0          0          0          0    IO-APIC-edge  serial
-  8:          0          0          0          0          0          0          0          0    IO-APIC-edge  rtc
-  9:          0          0          0          0          0          0          0          0   IO-APIC-level  acpi
- 14:         39          3          0          0          0          0          0          0    IO-APIC-edge  ide0
- 16:        108         13          0          0          0          0          0          0   IO-APIC-level  uhci_hcd:usb1
- 18:          0          0          0          0          0          0          0          0   IO-APIC-level  uhci_hcd:usb3
- 19:         15          0          0          0          0          0          0          0   IO-APIC-level  uhci_hcd:usb2
- 23:          3          0          0          0          0          0          0          0   IO-APIC-level  ehci_hcd:usb4
- 96:       4240        397         18          0          0          0          0          0   IO-APIC-level  aic7xxx
- 97:         15          0          0          0          0          0          0          0   IO-APIC-level  aic7xxx
-192:        847          0          0          0          0          0          0          0   IO-APIC-level  eth0
-NMI:          0          0          0          0          0          0          0          0
-LOC:     273423     274528     272829     274228     274092     273761     273827     273694
-ERR:          7
-MIS:          0
+  sigaction(SIGILL, &act, 0);
+  sigaction(SIGSEGV, &act, 0);
 
-Even thouigh the system doesn't have that many devices, some don't get enabled only because of IRQ numbering model.
+  asm volatile(".long 0\n");
+}
 
-This is the IRQ picture after the patch was applied:
+The instruction in the asm block is suppossed to be an
+illegal opcode which enforces a SIGILL.
+When executed the following happens:
+The illegal instruction causes a SIGILL to be delivered to
+the process. Since the signal handler itself contains an
+illegal instruction this causes another SIGILL to
+be delivered, thus causing the stack to grow unlimited.
+When we are finally out of memory the OOM killer selects
+our process and sends it a SIGKILL.
+Only problem in this scenario is that the SIGKILL never
+will be sent to our process simply because there is
+always a SIGILL pending too, which will be handled before
+the SIGKILL because of its lower number (see next_signal()
+in kernel/signal.c).
+The only possibly way this signal would be handled would
+be that the process is running in userspace while trying
+to handle the delivered SIGILL, where it would be interrupted
+by an interrupt and upon return to userspace do_signal()
+would be called again. This is unfortunately very unlikely
+if you are running a nearly timer interrupt free kernel
+like we do on s390/s390x.
+Since the OOM killer set the TIF_MEMDIE flag for our
+process it now is allowed to eat up all the memory left
+and our system is more or less dead until you're lucky
+and an interrupt hits at the right time and finally
+causing the process to be terminated...
 
-zorro-tb2:~ # cat /proc/interrupts
-           CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7
-  0:      44169      10004      10004      10001      10004      10003      10004       6135    IO-APIC-edge  timer
-  4:        345          0          0          0          0        244          0          0    IO-APIC-edge  serial
-  8:          0          0          0          0          0          0          0          0    IO-APIC-edge  rtc
-  9:          0          0          0          0          0          0          0          0   IO-APIC-level  acpi
- 14:         39          0          3          0          0          0          0          0    IO-APIC-edge  ide0
- 17:       4425          0          9          0          0          0          0          0   IO-APIC-level  aic7xxx
- 18:         15          0          0          0          0          0          0          0   IO-APIC-level  aic7xxx, uhci_hcd:usb3
- 21:        231          0          0          0          0          0          0          0   IO-APIC-level  uhci_hcd:usb1
- 22:         26          0          0          0          0          0          0          0   IO-APIC-level  uhci_hcd:usb2
- 23:          3          0          0          0          0          0          0          0   IO-APIC-level  ehci_hcd:usb4
- 24:        348          0          0          0          0          0          0          0   IO-APIC-level  eth0
- 25:          6        192          0          0          0          0          0          0   IO-APIC-level  eth1
-NMI:          0          0          0          0          0          0          0          0
-LOC:     107981     107636     108899     108698     108489     108326     108331     108254
-ERR:          7
-MIS:          0
+Maybe the OOM killer or signal handling would need
+a change to fix this?
 
-Not only we see the card in the last I/O APIC, but we are not even close to using up available IRQs, since we didn't waste any.
-
-Signed-off-by: Natalie Protasevich  <Natalie.Protasevich@unisys.com>
----
-
-
-diff -puN arch/x86_64/kernel/mpparse.c~irq-pack-x86_64 arch/x86_64/kernel/mpparse.c
---- linux-2.6.12-rc4-mm2/arch/x86_64/kernel/mpparse.c~irq-pack-x86_64	2005-05-18 15:32:19.369637392 -0700
-+++ linux-2.6.12-rc4-mm2-root/arch/x86_64/kernel/mpparse.c	2005-05-19 02:36:07.017914536 -0700
-@@ -903,11 +903,20 @@ void __init mp_config_acpi_legacy_irqs (
- 	return;
- }
- 
-+#define MAX_GSI_NUM	4096
-+
- int mp_register_gsi(u32 gsi, int edge_level, int active_high_low)
- {
- 	int			ioapic = -1;
- 	int			ioapic_pin = 0;
- 	int			idx, bit = 0;
-+	static int		pci_irq = 16;
-+	/*
-+	 * Mapping between Global System Interrupts, which
-+	 * represent all possible interrupts, to the IRQs 
-+	 * assigned to actual devices.
-+	 */
-+	static int		gsi_to_irq[MAX_GSI_NUM];
- 
- 	if (acpi_irq_model != ACPI_IRQ_MODEL_IOAPIC)
- 		return gsi;
-@@ -942,11 +951,21 @@ int mp_register_gsi(u32 gsi, int edge_le
- 	if ((1<<bit) & mp_ioapic_routing[ioapic].pin_programmed[idx]) {
- 		Dprintk(KERN_DEBUG "Pin %d-%d already programmed\n",
- 			mp_ioapic_routing[ioapic].apic_id, ioapic_pin);
--		return gsi;
-+		return gsi_to_irq[gsi];
- 	}
- 
- 	mp_ioapic_routing[ioapic].pin_programmed[idx] |= (1<<bit);
- 
-+	if (edge_level) {
-+		/*
-+		 * For PCI devices assign IRQs in order, avoiding gaps
-+		 * due to unused I/O APIC pins.
-+		 */
-+		int irq = gsi;
-+		gsi = pci_irq++;
-+		gsi_to_irq[irq] = gsi;
-+	}
-+
- 	io_apic_set_pci_routing(ioapic, ioapic_pin, gsi,
- 		edge_level == ACPI_EDGE_SENSITIVE ? 0 : 1,
- 		active_high_low == ACPI_ACTIVE_HIGH ? 0 : 1);
-_
+Thanks,
+Heiko

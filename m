@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbVETLuA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVETMHr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261433AbVETLuA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 07:50:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVETLuA
+	id S261442AbVETMHr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 08:07:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVETMHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 07:50:00 -0400
-Received: from rproxy.gmail.com ([64.233.170.192]:23521 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261433AbVETLt7 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 07:49:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dExGyVYLsGG20EeeC9oZFfofPoHFkVN27ISk1bsuzQI1ZM2VPbAhaDTOYw293VjIIIS4R8jAvyd1tMEktS7v12Yzd2uFxaglTyKI7QBmTyMxRbrVTeued21JtE+QbfYyHgesY3fi9IvgwRzE89tLx7sLk8qS4KXTuHJD2UUI9kY=
-Message-ID: <21d7e99705052004493a4cdcd2@mail.gmail.com>
-Date: Fri, 20 May 2005 21:49:58 +1000
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Illegal use of reserved word in system.h
-Cc: "Gilbert, John" <JGG@dolby.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1116524233.21358.292.camel@localhost.localdomain>
+	Fri, 20 May 2005 08:07:46 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:51674 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261438AbVETMHj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 08:07:39 -0400
+Date: Fri, 20 May 2005 13:08:01 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: akpm@osdl.org, linuxram@us.ibm.com, dhowells@redhat.com,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH retry 2] namespace.c: fix race in mark_mounts_for_expiry()
+Message-ID: <20050520120801.GN29811@parcelfarce.linux.theplanet.co.uk>
+References: <E1DZ5EX-0003cN-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <2692A548B75777458914AC89297DD7DA08B08670@bronze.dolby.net>
-	 <1116524233.21358.292.camel@localhost.localdomain>
+In-Reply-To: <E1DZ5EX-0003cN-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 20, 2005 at 01:00:01PM +0200, Miklos Szeredi wrote:
+> I'll get there, I know!
 > 
-> DRI one does seem to be a real bug.
+> This patch fixes a race found by Ram in mark_mounts_for_expiry() in
+> fs/namespace.c.
+> 
+> The bug can only be triggered with simultaneous exiting of a process
+> having a private namespace, and expiry of a mount from within that
+> namespace.  It's practically impossible to trigger, and I haven't even
+> tried.  But still, a bug is a bug.
+> 
+> The race happens when put_namespace() is called by another task, while
+> mark_mounts_for_expiry() is between atomic_read() and get_namespace().
+> In that case get_namespace() will be called on an already dead
+> namespace with unforeseeable results.
 
-Well not a bug :-) but lets call it a C++ incompatibility .. I'll see
-how much work it is to change this everywhere it is used..  I don't
-really want to break loads of userspace apps.. not that many drm apps
-exist.. and probably very few of them use the virtual pointer...
+ACK, provided that situation with extern vfsmount_lock is sorted out.
+There's no need to declare it in namespace.h; it's already done in
+mount.h and namespace.h includes the sucker.
 
-Dave.
+IOW, lose that extern in namespace.h and you've got an ACK.

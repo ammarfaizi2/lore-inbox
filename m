@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261530AbVETSEl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261524AbVETSDc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261530AbVETSEl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 14:04:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVETSE1
+	id S261524AbVETSDc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 14:03:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVETSDc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 14:04:27 -0400
-Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:50121 "EHLO
-	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
-	id S261526AbVETSET (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 14:04:19 -0400
-Message-ID: <428E2669.7010507@ammasso.com>
-Date: Fri, 20 May 2005 13:03:21 -0500
-From: Timur Tabi <timur.tabi@ammasso.com>
-Organization: Ammasso
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7.2.0
-X-Accept-Language: en-us, en, en-gb
+	Fri, 20 May 2005 14:03:32 -0400
+Received: from [67.137.28.188] ([67.137.28.188]:39297 "EHLO vger")
+	by vger.kernel.org with ESMTP id S261524AbVETSD0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 14:03:26 -0400
+Message-ID: <428E1808.9020505@utah-nac.org>
+Date: Fri, 20 May 2005 11:02:00 -0600
+From: jmerkey <jmerkey@utah-nac.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040510
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Sam Ravnborg <sam@ravnborg.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kbuild: specifying phony targets?
-References: <428B4CF5.1070507@ammasso.com> <20050520053741.GB16699@mars.ravnborg.org>
-In-Reply-To: <20050520053741.GB16699@mars.ravnborg.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Patrick McFarland <pmcfarland@downeast.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Joerg Schilling flames Linux on his Blog
+References: <200505201345.15584.pmcfarland@downeast.net>
+In-Reply-To: <200505201345.15584.pmcfarland@downeast.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sam Ravnborg wrote:
 
-> A phony target is not possible.
-> But use 'always' to tell kbuild what needs to be done.
-> Se also kbuild documentation: Documentation/kbuild/makefile.txt
 
-I added these lines to my makefile:
+As Linus once commented to me, just let this stuff roll off your back 
+and ignore it. 
+Patrick, just ignore this smuck.  If this is his opinion, people will 
+evaluate it
+as such.  Linux speaks for itself, and it's worldwide use speaks for itself.
 
-always := syscall
+Jeff
 
-syscall:
-         @echo ${SYSCALL_METHOD}
+Patrick McFarland wrote:
 
-and I got this error:
+>As everyone knows, Joerg Schilling has a blog, and he often pushes his 
+>pro-Solaris agenda, and flames the LKML about how Linux breaks cdrecord 
+>(instead of just admitting cdrecord is broken) or how much more awesome 
+>Solaris is compared to Linux.
+>
+>Well, he just fired yet another salvo at the Linux community: 
+>http://schily.blogspot.com/2005/04/value-marketing-and-freedom.html
+>
+>I commented on his blog entry, but I am afraid of being censored as my views 
+>do not align with his, so I am including the text of my comment here:
+>
+>////
+>I suggest people don't read too much into what Schily says. He thinks Solaris 
+>is this almighty perfect operating system that crushes all others: The reason 
+>Solaris is failing is because more and more people are switching to other 
+>operating systems. And yes, Linux just happens to be the one that most are 
+>switching to; BSD and QNX are also other choices.
+>
+>Most of the people switching to Linux are not doing so because its GPL, not 
+>because its associated with other Free Software, and not because the source 
+>is available. They are switching simply because it is the best product out 
+>there at this time; and as I see it, it will continue to be the best product 
+>because Linux software developers are not sitting around arguing about what 
+>license is better, or what features other operating systems have or don't 
+>have.
+>
+>Linux developers code, OpenSolaris developers sit around and flame Linux 
+>developers instead of coding. Which operating system would _you_ choose?
+>////
+>
+>  
+>
 
-make[3]: *** No rule to make target 
-`/root/AMSO1100/software/host/linux/sys/devccil/syscall', needed by `__build'.  Stop.
-
-I need to specify a target that is NOT a file.  How can I tell kbuild that my target isn't 
-a file, but just a rule that needs to be run?
-
--- 
-Timur Tabi
-Staff Software Engineer
-timur.tabi@ammasso.com
-
-One thing a Southern boy will never say is,
-"I don't think duct tape will fix it."
-      -- Ed Smylie, NASA engineer for Apollo 13

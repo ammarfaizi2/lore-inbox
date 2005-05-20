@@ -1,57 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVETUBz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbVETUDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261565AbVETUBz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 16:01:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbVETUBp
+	id S261562AbVETUDj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 16:03:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbVETUDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 16:01:45 -0400
-Received: from fire.osdl.org ([65.172.181.4]:63129 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261565AbVETUBd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 16:01:33 -0400
-Date: Fri, 20 May 2005 13:03:36 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: "Richard B. Johnson" <linux-os@analogic.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Screen regen buffer at 0x00b8000
-In-Reply-To: <Pine.LNX.4.61.0505200944060.5921@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.58.0505201259560.2206@ppc970.osdl.org>
-References: <Pine.LNX.4.61.0505200944060.5921@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 May 2005 16:03:39 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:55254 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261562AbVETUDf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 16:03:35 -0400
+Date: Fri, 20 May 2005 16:03:34 -0400
+To: Adam Miller <amiller@gravity.phys.uwm.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: software RAID
+Message-ID: <20050520200334.GF23621@csclub.uwaterloo.ca>
+References: <Pine.LNX.4.62.0505201246520.13530@gannon.phys.uwm.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0505201246520.13530@gannon.phys.uwm.edu>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 20, 2005 at 12:56:13PM -0500, Adam Miller wrote:
+>   We're looking to set up either software RAID 1 or RAID 10 using 2 SATA 
+> disks.  If a disk in drive A has a bad sector, can it be setup so that the 
+> array will read the sector from drive B and then have it rewrite the 
+> bad sector on drive A?  Please CC me in the response.
 
+If a harddisk has a bad sector that is visible to the user (and hence
+not remapped by the drive) then it is time to retire the drive since it
+is out of spares and very damaged by that point.
 
-On Fri, 20 May 2005, Richard B. Johnson wrote:
-> 
-> Why can't I consistantly write to the VGA screen regen buffer
-> and have it appear on the screen????
+If you have a bad sector, it doesn't go away by writing to it again.  On
+modern drives, if you see bad sectors the disk is just about dead, and
+will probably be seen as such by the raid system which will then stop
+using the disk entirely and expect you to replace it ASAP.
 
-Don't do it.
-
-> It looks like access there is cached??? One needs to change
-> VT consoles to make it appear!!
-
-No. 
-
-> The screen-regen buffer at this address is hardware, in the
-> chip! It should not be cached!
-
-It's not cached, and it's hardware, and you don't know your VGA well 
-enough.
-
-0x00b8000 may be the beginning of video memory (in certain text
-configurations) but it is _not_ where the screen is. That is offset by the
-text offset register (I forget what index that is), and what you're seeing
-is almost certainly due to the fact that the kernel VGA console driver
-scrolls by just changing that offset, instead of moving lots of slow PCI
-memory around.
-
-Switching consoles works for you, because it ends up resetting the offset.
-
-Anyway, you really _really_ shouldn't do anything like this in the first 
-place.
-
-		Linus
+Len Sorensen

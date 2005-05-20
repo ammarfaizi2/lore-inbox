@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbVETPAs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbVETPCV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261430AbVETPAs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 11:00:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVETPAs
+	id S261423AbVETPCV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 11:02:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVETPCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 11:00:48 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:65489 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261430AbVETPAl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 11:00:41 -0400
-Message-ID: <428DF95E.2070703@free.fr>
-Date: Fri, 20 May 2005 16:51:10 +0200
-From: Olivier Croquette <ocroquette@free.fr>
-User-Agent: Mozilla Thunderbird 1.0.2 (Macintosh/20050317)
-X-Accept-Language: fr-fr, en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-CC: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Subject: Re: Thread and process dentifiers (CPU affinity, kill)
-References: <428CD458.6010203@free.fr> <20050519182302.GE23621@csclub.uwaterloo.ca> <428CED0C.9020607@nortel.com> <20050520125511.GC23488@csclub.uwaterloo.ca>
-In-Reply-To: <20050520125511.GC23488@csclub.uwaterloo.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 20 May 2005 11:02:20 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:18097 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261423AbVETPCH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 11:02:07 -0400
+Subject: Re: 2.6.12-rc4-mm2 - sleeping function called from invalid context
+	at mm/slab.c:2502
+From: David Woodhouse <dwmw2@infradead.org>
+To: Linux Audit Discussion <linux-audit@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200505201430.j4KEUFD0012985@turing-police.cc.vt.edu>
+References: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu>
+	 <1116502449.23972.207.camel@hades.cambridge.redhat.com>
+	 <200505191845.j4JIjVtq006262@turing-police.cc.vt.edu>
+	 <200505201430.j4KEUFD0012985@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Date: Fri, 20 May 2005 15:59:54 +0100
+Message-Id: <1116601195.29037.18.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:e39ae1980843c849592344a98bbbf26f
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen wrote:
+On Fri, 2005-05-20 at 10:30 -0400, Valdis.Kletnieks@vt.edu wrote:
+> Looks like we either only swatted half the bug, or the patch moved it
+> around. Slightly different trace this time:
 
- > I believe Linux currently implements threads as seperate processes (at
- > least top and ps sees them that way).
+OK. Steve's audit_log_d_path() change, which I pulled in because it had
+the side-effect of NUL-terminating the buffer, is now using GFP_KERNEL
+where previously it was not. 
 
-> Have you tried NPTL (native posix threading library) which is supposed
-> to become the threading standard on linux in the future (if it works
-> out)?
+We could make it use GFP_ATOMIC, but I suspect the better answer if at
+all possible would be to make sure that avc_audit doesn't call it with
+spinlocks held. Or maybe to make avc_audit() pass a gfp_mask to it, but
+I don't like that much.
 
-Lennart,
-
- From the beginning we are talking about the present GNU/Linux systems, 
-which do already use NTPL in standard. NPTL is no future standard, it is 
-present standard.
-
-This means basicly that 50% of your assertions (like the above) are 
-wrong, and your conclusions "suffer" from that :)
-
-The point is that if you make a ps on a decent Linux based system, you 
-will *NOT* see one process for each thread. Nor they do appear in /proc.
-
-This means there are *NOT* userland processes.
-
-And therefore, you shall *NOT* be able to reference them as such where a 
-process ID is required.
+-- 
+dwmw2
 

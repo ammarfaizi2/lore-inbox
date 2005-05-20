@@ -1,133 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVETOlo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbVETOoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261243AbVETOlo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 10:41:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbVETOlo
+	id S261377AbVETOoG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 10:44:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261398AbVETOoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 10:41:44 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:56078 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261243AbVETOlb
+	Fri, 20 May 2005 10:44:06 -0400
+Received: from rost.dti.supsi.ch ([193.5.152.238]:49803 "EHLO
+	rost.dti.supsi.ch") by vger.kernel.org with ESMTP id S261377AbVETOoD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 10:41:31 -0400
-Message-Id: <200505201436.j4KEZxjh006235@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [PATCH 4/9] UML - Delay loop cleanups 
-In-Reply-To: Your message of "Wed, 18 May 2005 14:18:00 PDT."
-             <20050518141800.299476d9.akpm@osdl.org> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 20 May 2005 10:35:57 -0400
-From: Jeff Dike <jdike@addtoit.com>
+	Fri, 20 May 2005 10:44:03 -0400
+Date: Fri, 20 May 2005 16:43:58 +0200 (CEST)
+From: Marco Rogantini <marco.rogantini@supsi.ch>
+X-X-Sender: rogantin@rost.dti.supsi.ch
+To: "Richard B. Johnson" <linux-os@analogic.com>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Screen regen buffer at 0x00b8000
+In-Reply-To: <20050520141434.GZ2417@lug-owl.de>
+Message-ID: <Pine.LNX.4.62.0505201639170.14709@rost.dti.supsi.ch>
+References: <Pine.LNX.4.61.0505200944060.5921@chaos.analogic.com>
+ <20050520141434.GZ2417@lug-owl.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-akpm@osdl.org said:
-> I'll drop this in light of the review comments - pls redo&&resend 
+On Fri, 2005-05-20 09:48:35 -0400, Richard B. Johnson <linux-os@analogic.com> wrote:
 
-Here 'tis.
+>     if((fd = open("/dev/mem", O_RDWR)) == FAIL)
+>         ERRORS("open");
+>     if((sp = mmap((void *)SCREEN, len, PROT, TYPE, fd, SCREEN))==MAP_FAILED)
+>         ERRORS("mmap");
 
-This patch cleans up the delay implementations a bit, makes the loops
-unoptimizable, and exports __udelay and __const_udelay.
+Try to open("/dev/mem", O_RDWR | O_SYNC). Without this the mapping
+will be chached.
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
-
-Index: linux-2.6.11/arch/um/sys-i386/delay.c
-===================================================================
---- linux-2.6.11.orig/arch/um/sys-i386/delay.c	2005-05-19 13:18:50.000000000 -0400
-+++ linux-2.6.11/arch/um/sys-i386/delay.c	2005-05-19 13:19:40.000000000 -0400
-@@ -1,5 +1,7 @@
--#include "linux/delay.h"
--#include "asm/param.h"
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/delay.h>
-+#include <asm/param.h>
- 
- void __delay(unsigned long time)
- {
-@@ -20,13 +22,19 @@ void __udelay(unsigned long usecs)
- 	int i, n;
- 
- 	n = (loops_per_jiffy * HZ * usecs) / MILLION;
--	for(i=0;i<n;i++) ;
-+        for(i=0;i<n;i++)
-+                cpu_relax();
- }
- 
-+EXPORT_SYMBOL(__udelay);
-+
- void __const_udelay(unsigned long usecs)
- {
- 	int i, n;
- 
- 	n = (loops_per_jiffy * HZ * usecs) / MILLION;
--	for(i=0;i<n;i++) ;
-+        for(i=0;i<n;i++)
-+                cpu_relax();
- }
-+
-+EXPORT_SYMBOL(__const_udelay);
-Index: linux-2.6.11/arch/um/sys-x86_64/delay.c
-===================================================================
---- linux-2.6.11.orig/arch/um/sys-x86_64/delay.c	2005-05-19 13:18:50.000000000 -0400
-+++ linux-2.6.11/arch/um/sys-x86_64/delay.c	2005-05-19 13:19:40.000000000 -0400
-@@ -5,40 +5,37 @@
-  * Licensed under the GPL
-  */
- 
--#include "linux/delay.h"
--#include "asm/processor.h"
--#include "asm/param.h"
-+#include <linux/module.h>
-+#include <linux/delay.h>
-+#include <asm/processor.h>
-+#include <asm/param.h>
- 
- void __delay(unsigned long loops)
- {
- 	unsigned long i;
- 
--	for(i = 0; i < loops; i++) ;
-+        for(i = 0; i < loops; i++)
-+                cpu_relax();
- }
- 
- void __udelay(unsigned long usecs)
- {
--	int i, n;
-+	unsigned long i, n;
- 
- 	n = (loops_per_jiffy * HZ * usecs) / MILLION;
--	for(i=0;i<n;i++) ;
-+        for(i=0;i<n;i++)
-+                cpu_relax();
- }
- 
-+EXPORT_SYMBOL(__udelay);
-+
- void __const_udelay(unsigned long usecs)
- {
--	int i, n;
-+	unsigned long i, n;
- 
- 	n = (loops_per_jiffy * HZ * usecs) / MILLION;
--	for(i=0;i<n;i++) ;
-+        for(i=0;i<n;i++)
-+                cpu_relax();
- }
- 
--/*
-- * Overrides for Emacs so that we follow Linus's tabbing style.
-- * Emacs will notice this stuff at the end of the file and automatically
-- * adjust the settings for this buffer only.  This must remain at the end
-- * of the file.
-- * ---------------------------------------------------------------------------
-- * Local variables:
-- * c-file-style: "linux"
-- * End:
-- */
-+EXPORT_SYMBOL(__const_udelay);
+ 	-marco
 

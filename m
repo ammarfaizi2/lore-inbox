@@ -1,47 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbVETRQR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbVETRSU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261520AbVETRQR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 13:16:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVETRQR
+	id S261484AbVETRSU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 13:18:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVETRSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 13:16:17 -0400
-Received: from zombie.ncsc.mil ([144.51.88.131]:62868 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S261520AbVETRQL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 13:16:11 -0400
-Subject: Re: 2.6.12-rc4-mm2 - sleeping function called from invalid context
-	at mm/slab.c:2502
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Linux Audit Discussion <linux-audit@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1116608730.29037.60.camel@localhost.localdomain>
-References: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu>
-	 <1116502449.23972.207.camel@hades.cambridge.redhat.com>
-	 <200505191845.j4JIjVtq006262@turing-police.cc.vt.edu>
-	 <200505201430.j4KEUFD0012985@turing-police.cc.vt.edu>
-	 <1116601195.29037.18.camel@localhost.localdomain>
-	 <1116601757.12489.130.camel@moss-spartans.epoch.ncsc.mil>
-	 <1116603414.29037.36.camel@localhost.localdomain>
-	 <1116607223.12489.155.camel@moss-spartans.epoch.ncsc.mil>
-	 <1116608730.29037.60.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Fri, 20 May 2005 13:06:47 -0400
-Message-Id: <1116608807.12489.174.camel@moss-spartans.epoch.ncsc.mil>
+	Fri, 20 May 2005 13:18:20 -0400
+Received: from fed1rmmtao02.cox.net ([68.230.241.37]:44018 "EHLO
+	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
+	id S261484AbVETRSK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 13:18:10 -0400
+Date: Fri, 20 May 2005 10:18:08 -0700
+From: Tom Rini <trini@kernel.crashing.org>
+To: Kay Sievers <kay.sievers@vrfy.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 2.6.12-rc4] Add EXPORT_SYMBOL for hotplug_path
+Message-ID: <20050520171808.GM3771@smtp.west.cox.net>
+References: <20050519164323.GK3771@smtp.west.cox.net> <1116573175.7647.4.camel@dhcp-188.off.vrfy.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-16) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1116573175.7647.4.camel@dhcp-188.off.vrfy.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-05-20 at 18:05 +0100, David Woodhouse wrote:
-> It gets freed at this point too, not just in audit_free_aux(). So you
-> have to do the mntput and dput here too.
+On Fri, May 20, 2005 at 09:12:55AM +0200, Kay Sievers wrote:
+> On Thu, 2005-05-19 at 09:43 -0700, Tom Rini wrote:
+> > If CONFIG_INPUT is set as a module, it will not load as hotplug_path is
+> > not a defined symbol.  Trivial fix is to EXPORT_SYMBOL hotplug_path.
+> > 
+> > Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+> > 
+> > Index: lib/kobject_uevent.c
+> > ===================================================================
+> > --- c7d7a187a2125518e655dfeadffd38156239ffc3/lib/kobject_uevent.c  (mode:100644)
+> > +++ uncommitted/lib/kobject_uevent.c  (mode:100644)
+> > @@ -21,6 +21,7 @@
+> >  #include <linux/string.h>
+> >  #include <linux/kobject_uevent.h>
+> >  #include <linux/kobject.h>
+> > +#include <linux/module.h>
+> >  #include <net/sock.h>
+> >  
+> >  #define BUFFER_SIZE	1024	/* buffer for the hotplug env */
+> > @@ -178,6 +179,7 @@
+> >  
+> >  #ifdef CONFIG_HOTPLUG
+> >  char hotplug_path[HOTPLUG_PATH_LEN] = "/sbin/hotplug";
+> > +EXPORT_SYMBOL(hotplug_path);
+> >  u64 hotplug_seqnum;
+> >  static DEFINE_SPINLOCK(sequence_lock);
+> 
+> Please don't export it again. We're on the way to make it private.
+> Nobody should ever have access to it outside of the driver core. The
+> input layer event stuff is completely broken and we are already working
+> on fixing this to use the driver core instead of calling /sbin/hotplug,
+> which is completely nonsense these days.
 
-Ah, good point.  Thanks for catching it.  I'll update the patch once I
-get clarification on the other issues (type value, general struct).
+So Greg said he's ACK this since the "make it private" stuff isn't done
+yet.  Will this go in or no?
 
 -- 
-Stephen Smalley
-National Security Agency
-
+Tom Rini
+http://gate.crashing.org/~trini/

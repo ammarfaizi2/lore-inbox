@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVETHN1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbVETHPh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261374AbVETHN1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 03:13:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbVETHN0
+	id S261368AbVETHPh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 03:15:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbVETHPh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 03:13:26 -0400
-Received: from soundwarez.org ([217.160.171.123]:57537 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S261374AbVETHNL (ORCPT
+	Fri, 20 May 2005 03:15:37 -0400
+Received: from zproxy.gmail.com ([64.233.162.195]:50672 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261368AbVETHPU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 03:13:11 -0400
-Subject: Re: [PATCH 2.6.12-rc4] Add EXPORT_SYMBOL for hotplug_path
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Tom Rini <trini@kernel.crashing.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050519164323.GK3771@smtp.west.cox.net>
-References: <20050519164323.GK3771@smtp.west.cox.net>
-Content-Type: text/plain
-Date: Fri, 20 May 2005 09:12:55 +0200
-Message-Id: <1116573175.7647.4.camel@dhcp-188.off.vrfy.org>
+	Fri, 20 May 2005 03:15:20 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=rGzmoAnFCvHXIYUqpPTKOf4BwMmVsHlhzQurdQ2Ei5L15ArOS/fQ2E++mpCvdxR1DTN27m10WqUrowV8BZfIvXzzRti9Jye8ciAVs4hgbOXs0D4PKgkGM/+FZueGg7VRdwnLA32QpVTYbVy8hCOOZBLshGY6hp77ZJgRncHbVl0=
+Date: Fri, 20 May 2005 16:15:13 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] kprobes-HERE!
+Message-ID: <20050520071513.GA22944@htj.dyndns.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-05-19 at 09:43 -0700, Tom Rini wrote:
-> If CONFIG_INPUT is set as a module, it will not load as hotplug_path is
-> not a defined symbol.  Trivial fix is to EXPORT_SYMBOL hotplug_path.
-> 
-> Signed-off-by: Tom Rini <trini@kernel.crashing.org>
-> 
-> Index: lib/kobject_uevent.c
-> ===================================================================
-> --- c7d7a187a2125518e655dfeadffd38156239ffc3/lib/kobject_uevent.c  (mode:100644)
-> +++ uncommitted/lib/kobject_uevent.c  (mode:100644)
-> @@ -21,6 +21,7 @@
->  #include <linux/string.h>
->  #include <linux/kobject_uevent.h>
->  #include <linux/kobject.h>
-> +#include <linux/module.h>
->  #include <net/sock.h>
->  
->  #define BUFFER_SIZE	1024	/* buffer for the hotplug env */
-> @@ -178,6 +179,7 @@
->  
->  #ifdef CONFIG_HOTPLUG
->  char hotplug_path[HOTPLUG_PATH_LEN] = "/sbin/hotplug";
-> +EXPORT_SYMBOL(hotplug_path);
->  u64 hotplug_seqnum;
->  static DEFINE_SPINLOCK(sequence_lock);
+ Hello, guys.
 
-Please don't export it again. We're on the way to make it private.
-Nobody should ever have access to it outside of the driver core. The
-input layer event stuff is completely broken and we are already working
-on fixing this to use the driver core instead of calling /sbin/hotplug,
-which is completely nonsense these days.
+ I've implemented a very dumb and simple kprobes wrapper which
+basically just prints "HERE!" messages.  It's consisted of a kernel
+module and a perl script.  It compiles happily as an external module
+without any modification to the kernel.  It only requires kprobes and
+kallsyms to be compiled in.
 
-Thanks,
-Kay
+ Message printing can be filtered on several conditions (uid, pid, irq
+count...), and it also supports simple %x substitutions to report
+runtime variables.  Please take a look at the following page for more
+information.
 
+ http://home-tj.org/kphere/
+
+ Thanks.
+
+-- 
+tejun

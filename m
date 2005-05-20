@@ -1,68 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVETUXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261571AbVETU05@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbVETUXA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 16:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVETUW7
+	id S261571AbVETU05 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 16:26:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVETU04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 16:22:59 -0400
-Received: from turing-police.cirt.vt.edu ([128.173.54.129]:15880 "EHLO
-	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
-	id S261568AbVETUVS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 16:21:18 -0400
-Message-Id: <200505202021.j4KKLC3E015961@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
-Cc: Adam Miller <amiller@gravity.phys.uwm.edu>, linux-kernel@vger.kernel.org
-Subject: Re: software RAID 
-In-Reply-To: Your message of "Fri, 20 May 2005 16:03:34 EDT."
-             <20050520200334.GF23621@csclub.uwaterloo.ca> 
-From: Valdis.Kletnieks@vt.edu
-References: <Pine.LNX.4.62.0505201246520.13530@gannon.phys.uwm.edu>
-            <20050520200334.GF23621@csclub.uwaterloo.ca>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1116620471_13523P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Fri, 20 May 2005 16:26:56 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:27856 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S261571AbVETU0o (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 16:26:44 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Ashok Raj <ashok.raj@intel.com>
+Subject: Re: [patch 1/1] Proposed: Let's not waste precious IRQs...
+Date: Fri, 20 May 2005 14:26:21 -0600
+User-Agent: KMail/1.8
+Cc: Natalie.Protasevich@unisys.com, akpm@osdl.org, ak@suse.de,
+       zwane@arm.linux.org.uk, "Brown, Len" <len.brown@intel.com>,
+       linux-kernel@vger.kernel.org
+References: <20050519110613.B817D27266@linux.site> <20050520064531.A14497@unix-os.sc.intel.com>
+In-Reply-To: <20050520064531.A14497@unix-os.sc.intel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Fri, 20 May 2005 16:21:11 -0400
+Content-Disposition: inline
+Message-Id: <200505201426.21527.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1116620471_13523P
-Content-Type: text/plain; charset=us-ascii
+On Friday 20 May 2005 7:45 am, Ashok Raj wrote:
+> have you taken a look a the Vector Sharing Patch posted by Kaneshige for IA64?
 
-On Fri, 20 May 2005 16:03:34 EDT, Lennart Sorensen said:
+Vector sharing has a performance cost, so we should avoid it when
+we can.
 
-> If you have a bad sector, it doesn't go away by writing to it again.  On
-> modern drives, if you see bad sectors the disk is just about dead, and
-> will probably be seen as such by the raid system which will then stop
-> using the disk entirely and expect you to replace it ASAP.
-
-The one exception here is if you have a miswritten sector (usually caused by
-unexpected power-down), which won't read back correctly - but running badblocks
-with one of the 'write-verify' options will resurrect it.
-
-If you have a drive that has a bad block in it even *after* badblocks has
-re-written it, it's time to replace the drive *now*....
-
-For the original poster: Breaking the mirror and then re-mirroring from the
-"good" drive *might* recover the bad block when it re-writes it.  But don't bet
-on it...
-
-("power fail" is about the only cause of recoverable bad blocks that I know of -
-and if you're having power-fail issues on a RAID, I'd recommend you fix
-*THAT* problem before it causes you more grief.  A good UPS will more than pay
-for itself in sysadmin sanity and peace of mind....)
-
---==_Exmh_1116620471_13523P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCjka3cC3lWbTT17ARAkzKAKD9X6Vj9kaIZ0Q8ABFTJuAIFCEFRQCfVyy/
-NJ6ag2uJtSL1aBfMg89jF10=
-=w2z9
------END PGP SIGNATURE-----
-
---==_Exmh_1116620471_13523P--
+I think you should bounds-check the gsi_to_irq[] references.  When
+you finally get a machine with GSI values larger than MAX_GSI_NUM,
+things will start failing mysteriously as you corrupt things after
+the gsi_to_irq[] array.

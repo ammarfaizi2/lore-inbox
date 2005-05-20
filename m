@@ -1,105 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVETMVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbVETMXl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbVETMVu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 08:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVETMVt
+	id S261439AbVETMXl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 08:23:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbVETMXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 08:21:49 -0400
-Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:18701 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261449AbVETMV1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 08:21:27 -0400
-To: akpm@osdl.org, viro@parcelfarce.linux.theplanet.co.uk
-CC: linuxram@us.ibm.com, dhowells@redhat.com, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org
-Subject: [PATCH retry 3] namespace.c: fix race in mark_mounts_for_expiry()
-Message-Id: <E1DZ6UL-0003hh-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 20 May 2005 14:20:25 +0200
+	Fri, 20 May 2005 08:23:41 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:26886 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261439AbVETMXW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 08:23:22 -0400
+Date: Fri, 20 May 2005 13:23:21 +0100 (BST)
+From: "Maciej W. Rozycki" <macro@linux-mips.org>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org,
+       "Gilbert, John" <JGG@dolby.com>, Kyle Moffett <mrmacman_g4@mac.com>,
+       Adrian Bunk <bunk@stusta.de>, Arjan van de Ven <arjan@infradead.org>,
+       linux-os@analogic.com
+Subject: Re: Illegal use of reserved word in system.h
+In-Reply-To: <1116514780.27471.8.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61L.0505191622060.10681@blysk.ds.pg.gda.pl>
+References: <2692A548B75777458914AC89297DD7DA08B0866F@bronze.dolby.net> 
+ <20050518195337.GX5112@stusta.de>  <6EA08D88-7C67-48ED-A9EF-FEAAB92D8B8F@mac.com>
+  <20050519112840.GE5112@stusta.de>  <Pine.LNX.4.61.0505190734110.29439@chaos.analogic.com>
+  <1116505655.6027.45.camel@laptopd505.fenrus.org> 
+ <Pine.LNX.4.61L.0505191342460.10681@blysk.ds.pg.gda.pl> 
+ <Pine.LNX.4.61.0505190853310.29611@chaos.analogic.com>  <jeacmr5mzk.fsf@sykes.suse.de>
+  <1116512140.15866.42.camel@localhost.localdomain> 
+ <Pine.LNX.4.61L.0505191532120.10681@blysk.ds.pg.gda.pl>
+ <1116514780.27471.8.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ Yesss! :) ]
+On Thu, 19 May 2005, Steven Rostedt wrote:
 
-This patch fixes a race found by Ram in mark_mounts_for_expiry() in
-fs/namespace.c.
+> Well, they probably are the same, but then what's the reason for the
+> lines in binfmt_elf.c:
+> 
+> #if ELF_EXEC_PAGESIZE > PAGE_SIZE
+> # define ELF_MIN_ALIGN	ELF_EXEC_PAGESIZE
+> #else
+> # define ELF_MIN_ALIGN	PAGE_SIZE
+> #endif
+> 
+> 
+> This looks to me that ELF_EXEC_PAGESIZE and PAGE_SIZE may not be the
+> same. And what's passed to AT_PAGESZ is ELF_EXEC_PAGESIZE.  In mips (as
+> your email address shows you are interested in) ELF_EXEC_PAGESIZE is
+> simply defined as PAGE_SIZE.  But in intel i386, it is defined as 4096,
 
-The bug can only be triggered with simultaneous exiting of a process
-having a private namespace, and expiry of a mount from within that
-namespace.  It's practically impossible to trigger, and I haven't even
-tried.  But still, a bug is a bug.
+ And for MIPS PAGE_SIZE is also variable (currently one of: 4k, 16k, 64k).
 
-The race happens when put_namespace() is called by another task, while
-mark_mounts_for_expiry() is between atomic_read() and get_namespace().
-In that case get_namespace() will be called on an already dead
-namespace with unforeseeable results.
+> which coincidentally is the same as PAGE_SIZE but there's no guarantee
+> that this will be the same, unless who ever changes PAGE_SIZE also
+> remembers to change ELF_EXEC_PAGESIZE.
 
-The solution was suggested by Al Viro, with his own words:
+ That's the maintainer's problem.
 
-      Instead of screwing with atomic_read() in there, why don't we
-      simply do the following:
-      	a) atomic_dec_and_lock() in put_namespace()
-      	b) __put_namespace() called without dropping lock
-      	c) the first thing done by __put_namespace would be
-      struct vfsmount *root = namespace->root;
-      namespace->root = NULL;
-      spin_unlock(...);
-      ....
-      umount_tree(root);
-      ...
-      	d) check in mark_... would be simply namespace && namespace->root.
-      
-      And we are all set; no screwing around with atomic_read(), no magic
-      at all.  Dying namespace gets NULL ->root.
-      All changes of ->root happen under spinlock.
-      If under a spinlock we see non-NULL ->mnt_namespace, it won't be
-      freed until we drop the lock (we will set ->mnt_namespace to NULL
-      under that lock before we get to freeing namespace).
-      If under a spinlock we see non-NULL ->mnt_namespace and
-      ->mnt_namespace->root, we can grab a reference to namespace and be
-      sure that it won't go away.
+> In arm26 the PAGE_SIZE is configurable (16k or 32k) but the
+> ELF_EXEC_PAGESIZE stays as 32k.  So is this a bug?
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
-Acked-by: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+ I guess so.  Unless these smaller pages are always handled in pairs by 
+Linux.  That would be a legitimate case of ELF_EXEC_PAGESIZE != PAGE_SIZE.
 
-Index: linux/include/linux/namespace.h
-===================================================================
---- linux.orig/include/linux/namespace.h	2005-05-20 12:42:05.000000000 +0200
-+++ linux/include/linux/namespace.h	2005-05-20 14:14:31.000000000 +0200
-@@ -17,7 +17,8 @@ extern void __put_namespace(struct names
- 
- static inline void put_namespace(struct namespace *namespace)
- {
--	if (atomic_dec_and_test(&namespace->count))
-+	if (atomic_dec_and_lock(&namespace->count, &vfsmount_lock))
-+		/* releases vfsmount_lock */
- 		__put_namespace(namespace);
- }
- 
-Index: linux/fs/namespace.c
-===================================================================
---- linux.orig/fs/namespace.c	2005-05-20 11:47:06.000000000 +0200
-+++ linux/fs/namespace.c	2005-05-20 12:49:46.000000000 +0200
-@@ -869,7 +869,7 @@ void mark_mounts_for_expiry(struct list_
- 		/* don't do anything if the namespace is dead - all the
- 		 * vfsmounts from it are going away anyway */
- 		namespace = mnt->mnt_namespace;
--		if (!namespace || atomic_read(&namespace->count) <= 0)
-+		if (!namespace || !namespace->root)
- 			continue;
- 		get_namespace(namespace);
- 
-@@ -1450,9 +1450,12 @@ void __init mnt_init(unsigned long mempa
- 
- void __put_namespace(struct namespace *namespace)
- {
-+	struct vfsmount *root = namespace->root;
-+	namespace->root = NULL;
-+	spin_unlock(&vfsmount_lock);
- 	down_write(&namespace->sem);
- 	spin_lock(&vfsmount_lock);
--	umount_tree(namespace->root);
-+	umount_tree(root);
- 	spin_unlock(&vfsmount_lock);
- 	up_write(&namespace->sem);
- 	kfree(namespace);
+  Maciej

@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVETEeC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVETFJQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261320AbVETEeC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 00:34:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVETEeC
+	id S261331AbVETFJQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 01:09:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVETFJQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 00:34:02 -0400
-Received: from chilli.pcug.org.au ([203.10.76.44]:33948 "EHLO smtps.tip.net.au")
-	by vger.kernel.org with ESMTP id S261320AbVETEdp (ORCPT
+	Fri, 20 May 2005 01:09:16 -0400
+Received: from mail.kroah.org ([69.55.234.183]:26315 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261331AbVETFJN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 00:33:45 -0400
-Date: Fri, 20 May 2005 14:33:37 +1000
-From: Stephen Rothwell <sfr@canb.auug.org.au>
+	Fri, 20 May 2005 01:09:13 -0400
+Date: Thu, 19 May 2005 22:15:55 -0700
+From: Greg KH <greg@kroah.com>
 To: Corey Minyard <minyard@acm.org>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, jordan_hargrave@dell.com
-Subject: Re: [PATCH] Add 32-bit ioctl translations for 64-bit platforms
-Message-Id: <20050520143337.38b6b5a6.sfr@canb.auug.org.au>
-In-Reply-To: <428D2241.5070005@acm.org>
-References: <428D2241.5070005@acm.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Cc: Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add sysfs support for the IPMI device interface
+Message-ID: <20050520051554.GA10394@kroah.com>
+References: <428D208C.1000307@acm.org>
 Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Fri__20_May_2005_14_33_37_+1000_fn8f.ArKhI7CifVS"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <428D208C.1000307@acm.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Fri__20_May_2005_14_33_37_+1000_fn8f.ArKhI7CifVS
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Thu, May 19, 2005 at 06:26:04PM -0500, Corey Minyard wrote:
+> Linus,
+> 
+> Could you please add this patch to the main tree?  I can't send it to 
+> Andrew because he has a rework of this in his tree that has not made it 
+> into yours yet, and I'd like to have this in before 2.6.12 is released.
+> 
+> -Corey
+> 
+> 
+> Add support for sysfs to the IPMI device interface.
 
-Hi Cory,
+Your patch has had it's tabs eaten and can't be applied :(
 
-On Thu, 19 May 2005 18:33:21 -0500 Corey Minyard <minyard@acm.org> wrote:
->
-> +struct ipmi_msg32
-> +{
-> +	uint8_t	      netfn;
-> +	uint8_t	      cmd;
-> +	uint16_t      data_len;
-> +	compat_uptr_t data;
-> +};
+thanks,
 
-Why are you using unint8_t etc when we have perfectly good kernel types u8
-etc?
-
---=20
-Cheers,
-Stephen Rothwell                    sfr@canb.auug.org.au
-http://www.canb.auug.org.au/~sfr/
-
---Signature=_Fri__20_May_2005_14_33_37_+1000_fn8f.ArKhI7CifVS
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFCjWih4CJfqux9a+8RAmXNAJ4phvwKmY1YAg/cW/Z4ZuBwFQzScgCfYixO
-DMN38dgjoXNpD5fU+0F2q5g=
-=hC1L
------END PGP SIGNATURE-----
-
---Signature=_Fri__20_May_2005_14_33_37_+1000_fn8f.ArKhI7CifVS--
+greg k-h

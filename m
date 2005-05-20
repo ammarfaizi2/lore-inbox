@@ -1,51 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261592AbVETVOV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVETVRe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261592AbVETVOV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 17:14:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVETVOU
+	id S261582AbVETVRe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 17:17:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbVETVRe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 17:14:20 -0400
-Received: from usbb-lacimss1.unisys.com ([192.63.108.51]:42254 "EHLO
-	usbb-lacimss1.unisys.com") by vger.kernel.org with ESMTP
-	id S261592AbVETVOR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 17:14:17 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Fri, 20 May 2005 17:17:34 -0400
+Received: from gannon.phys.uwm.edu ([129.89.61.108]:35506 "EHLO
+	gannon.phys.uwm.edu") by vger.kernel.org with ESMTP id S261582AbVETVR2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 17:17:28 -0400
+Date: Fri, 20 May 2005 16:17:27 -0500 (CDT)
+From: Adam Miller <amiller@gravity.phys.uwm.edu>
+X-X-Sender: amiller@gannon.phys.uwm.edu
+To: lsorense@csclub.uwaterloo.ca
+cc: linux-kernel@vger.kernel.org
+Subject: Re: software RAID  (fwd)
+Message-ID: <Pine.LNX.4.62.0505201616370.16608@gannon.phys.uwm.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch 1/1] Proposed: Let's not waste precious IRQs...
-Date: Fri, 20 May 2005 16:14:05 -0500
-Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04BA3@USRV-EXCH4.na.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 1/1] Proposed: Let's not waste precious IRQs...
-Thread-Index: AcVdejzG7ctZOYq7R2+/YgvHKLwsFAABWIcA
-From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
-To: "Bjorn Helgaas" <bjorn.helgaas@hp.com>, "Ashok Raj" <ashok.raj@intel.com>
-Cc: <akpm@osdl.org>, <ak@suse.de>, <zwane@arm.linux.org.uk>,
-       "Brown, Len" <len.brown@intel.com>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 20 May 2005 21:14:03.0005 (UTC) FILETIME=[D922A2D0:01C55D80]
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Friday 20 May 2005 7:45 am, Ashok Raj wrote:
-> > have you taken a look a the Vector Sharing Patch posted by 
-> Kaneshige for IA64?
-> 
-> Vector sharing has a performance cost, so we should avoid it 
-> when we can.
-> 
-> I think you should bounds-check the gsi_to_irq[] references.  
-> When you finally get a machine with GSI values larger than 
-> MAX_GSI_NUM, things will start failing mysteriously as you 
-> corrupt things after the gsi_to_irq[] array.
->
-Yes, indeed, I will do that. Next round I will submit ACPI cases for
-i386 and x86_64 then, with correction above, and will start working on
-the MPS cases.
 
-Thanks,
---Natalie 
+Here is a response from Bruce Allen.
+
+>> If you have a bad sector, it doesn't go away by writing to it again.  On
+>> modern drives, if you see bad sectors the disk is just about dead, and
+>> will probably be seen as such by the raid system which will then stop
+>> using the disk entirely and expect you to replace it ASAP.
+
+This is false.
+
+Modern ATA and SCSI disk drives have several thousand spare sectors.
+When a sector is unreadable (UNC) which means that the ECC codes are
+inconsistent, the drive will REALLOCATE the sector, assigning a spare
+sector the LBA of the failed sector.  However it will only do this when
+you WRITE to the LBA of the failed sector.
+
+> The one exception here is if you have a miswritten sector (usually
+> caused by unexpected power-down), which won't read back correctly -
+> but running badblocks with one of the 'write-verify' options will
+> resurrect it.
+
+Sectors can have inconsistent ECC codes for a number of reasons:
+   -- failed write during sudden power-down
+   -- damage to magnetic media at this LBA
+   -- other reasons
+
+> If you have a drive that has a bad block in it even *after* badblocks has
+> re-written it, it's time to replace the drive *now*....
+
+Not true.  Disks which have reallocated large numbers of blocks are
+usually failing. But most good disks have some reallocated blocks.
+
+> For the original poster: Breaking the mirror and then re-mirroring
+> from the "good" drive *might* recover the bad block when it re-writes
+> it.  But don't bet on it...
+
+It won't 'recover' the bad block.  It will write the data (obtained from
+the good drive) to a newly allocated spare sector on the bad drive.
+
+Cheers,
+ 	Bruce

@@ -1,86 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVETGMs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVETGZz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbVETGMs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 02:12:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVETGMs
+	id S261360AbVETGZz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 02:25:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVETGZz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 02:12:48 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:8603 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S261357AbVETGMW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 02:12:22 -0400
-Date: Fri, 20 May 2005 08:12:20 +0200
-From: Heiko Carstens <heiko.carstens@de.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Christian Borntraeger <cborntra@de.ibm.com>
-Subject: Running OOM and worse with broken signal handler
-Message-ID: <20050520061125.GA12656@osiris.boeblingen.de.ibm.com>
+	Fri, 20 May 2005 02:25:55 -0400
+Received: from mail.kroah.org ([69.55.234.183]:26759 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261360AbVETGZt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 02:25:49 -0400
+Date: Thu, 19 May 2005 22:37:01 -0700
+From: Greg KH <greg@kroah.com>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: linux-kernel@vger.kernel.org, Tom Rini <trini@kernel.crashing.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2.6.12-rc4] Add EXPORT_SYMBOL for hotplug_path
+Message-ID: <20050520053701.GA10697@kroah.com>
+References: <20050519164323.GK3771@smtp.west.cox.net> <20050520051839.GB10394@kroah.com> <200505200018.24129.dtor_core@ameritech.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200505200018.24129.dtor_core@ameritech.net>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Fri, May 20, 2005 at 12:18:23AM -0500, Dmitry Torokhov wrote:
+> On Friday 20 May 2005 00:18, Greg KH wrote:
+> > On Thu, May 19, 2005 at 09:43:23AM -0700, Tom Rini wrote:
+> > > If CONFIG_INPUT is set as a module, it will not load as hotplug_path is
+> > > not a defined symbol.  Trivial fix is to EXPORT_SYMBOL hotplug_path.
+> > > 
+> > > Signed-off-by: Tom Rini <trini@kernel.crashing.org>
+> > 
+> > Ick, no, I thought we got rid of that usage.  no one should be calling
+> > hotplug on their own, lots of bad things happen to udevd and HAL if they
+> > do.
+> > 
+> > What caused the input code to be added back into the kernel?  I'll try
+> > to go track that down...
+> >
+> 
+> The change never made it into the kernel. And I need to finish proper
+> input_dev sysfs conversion...
 
-we experienced some interesting behaviour with an out of
-memory condition caused by signal handling (on s390x).
-The following program ran our system in an OOM situation
-and couldn't be killed because the SIGKILL signal couldn't
-be delivered.
-Necessary for this to happen is that the stack size limit
-is set to unlimited.
+Ah, ok, thanks.  So I'll ACK the EXPORT_SYMBOL_GPL() version of this
+patch for now.
 
-sig_handler(int sig)
-{
-  asm volatile(".long 0\n");
-}
+thanks,
 
-int main (int argc, char **argv)
-{
-  struct sigaction act;
-
-  act.sa_handler = &sig_handler;
-  act.sa_restorer = 0;
-  act.sa_flags = SA_NOMASK | SA_RESTART;
-
-  sigaction(SIGILL, &act, 0);
-  sigaction(SIGSEGV, &act, 0);
-
-  asm volatile(".long 0\n");
-}
-
-The instruction in the asm block is suppossed to be an
-illegal opcode which enforces a SIGILL.
-When executed the following happens:
-The illegal instruction causes a SIGILL to be delivered to
-the process. Since the signal handler itself contains an
-illegal instruction this causes another SIGILL to
-be delivered, thus causing the stack to grow unlimited.
-When we are finally out of memory the OOM killer selects
-our process and sends it a SIGKILL.
-Only problem in this scenario is that the SIGKILL never
-will be sent to our process simply because there is
-always a SIGILL pending too, which will be handled before
-the SIGKILL because of its lower number (see next_signal()
-in kernel/signal.c).
-The only possibly way this signal would be handled would
-be that the process is running in userspace while trying
-to handle the delivered SIGILL, where it would be interrupted
-by an interrupt and upon return to userspace do_signal()
-would be called again. This is unfortunately very unlikely
-if you are running a nearly timer interrupt free kernel
-like we do on s390/s390x.
-Since the OOM killer set the TIF_MEMDIE flag for our
-process it now is allowed to eat up all the memory left
-and our system is more or less dead until you're lucky
-and an interrupt hits at the right time and finally
-causing the process to be terminated...
-
-Maybe the OOM killer or signal handling would need
-a change to fix this?
-
-Thanks,
-Heiko
+greg k-h

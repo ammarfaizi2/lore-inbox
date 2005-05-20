@@ -1,101 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVETFUZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261344AbVETFaY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261348AbVETFUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 01:20:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVETFUY
+	id S261344AbVETFaY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 01:30:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbVETFaY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 01:20:24 -0400
-Received: from rproxy.gmail.com ([64.233.170.206]:3022 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261326AbVETFTt convert rfc822-to-8bit
+	Fri, 20 May 2005 01:30:24 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:46497 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261344AbVETFaR convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 01:19:49 -0400
+	Fri, 20 May 2005 01:30:17 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=DqQN3YnsABsechDpcwCU2WdL1aAwdCNrnPcmmVND0fa6liONKAtSZOkaMpe+X+oYw1yjP39RrQqtVuRYQcQSE6DDm81qY/aDRK/69SXnqDJnQ1Xnxgekz4W7gxvmSHNMuBfVQhV6iytXFlWhtFEdG756gWaP24MBNbtovnsRxVo=
-Message-ID: <9cde8bff05051922193d4fd495@mail.gmail.com>
-Date: Fri, 20 May 2005 14:19:46 +0900
-From: aq <aquynh@gmail.com>
-Reply-To: aq <aquynh@gmail.com>
-To: Michael Halcrow <mhalcrow@us.ibm.com>
-Subject: Re: [updated patch 1/7] BSD Secure Levels: printk overhaul
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Chris Wright <chrisw@osdl.org>, Serge Hallyn <serue@us.ibm.com>
-In-Reply-To: <20050519214036.GC11385@halcrow.us>
+        b=NPltBco7oBIpUp+POr7RU3qwOBYKGIK6YtyvyYCMpMB5WLyeKdcMaeU5PFZlIVKEzmhhKdmpBfEu3NdRF4eWav2PlrwhJga/llZbqoqmx7Dzf77WRaXm6bF2MJYYJyK7djrZBqbaDzcAWGF6APi8c2Bv46rsKzm+He9U4byS490=
+Message-ID: <b82a891705051922307b7971e4@mail.gmail.com>
+Date: Fri, 20 May 2005 11:00:16 +0530
+From: Niraj kumar <niraj17@gmail.com>
+Reply-To: niraj17@iitbombay.org
+To: "Weber Ress (UOL)" <weber.ress@uol.com.br>
+Subject: Re: How start in Kernel Development
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <IGR0TL$5874C2BBFE4864F4F73B4D5FA4A79349@uol.com.br>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-References: <20050517152303.GA2814@halcrow.us>
-	 <20050519205525.GB16215@halcrow.us>
-	 <20050519214036.GC11385@halcrow.us>
+References: <IGR0TL$5874C2BBFE4864F4F73B4D5FA4A79349@uol.com.br>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/20/05, Michael Halcrow <mhalcrow@us.ibm.com> wrote:
-> On Thu, May 19, 2005 at 01:58:06PM -0700, Andrew Morton wrote:
-> > Did anyone mention printk_ratelimit()?
+On 5/19/05, Weber Ress (UOL) <weber.ress@uol.com.br> wrote:
+> Hi,
 > 
-> Third time's a charm.  :-)
+> I finished my BSc Computer Science. How I start in Kernel Development ? What's the first's steps ?
+
+Look at this page  , there are lots of good pointers ...
+
+http://jungla.dit.upm.es/~jmseyas/linux/kernel/hackers-docs.html
+
+Niraj
 > 
-> I think this makes the most sense.  Module size is 18284; messages are
-> globally limited, but the space savings is significant.
+> Thank's
 > 
-> Signed-off by: Michael Halcrow <mhalcrow@us.ibm.com>
+> Weber Ress
 > 
-> Index: linux-2.6.12-rc4-mm2-seclvl/security/seclvl.c
-> ===================================================================
-> --- linux-2.6.12-rc4-mm2-seclvl.orig/security/seclvl.c  2005-05-19 15:49:51.000000000 -0500
-> +++ linux-2.6.12-rc4-mm2-seclvl/security/seclvl.c       2005-05-19 16:33:20.000000000 -0500
-> @@ -102,21 +102,25 @@
->  #define MY_NAME "seclvl"
+> __________________________________________________________________________
+> UOL Fone: Fale com o Brasil e o Mundo com até 90% de economia.
+> http://www.uol.com.br/fone
 > 
->  /**
-> - * This time-limits log writes to one per second.
-> + * This time-limits log writes to one per second for every message
-> + * type.
->  */
-> -#define seclvl_printk(verb, type, fmt, arg...)                 \
-> -       do {                                                    \
-> -               if (verbosity >= verb) {                        \
-> -                       static unsigned long _prior;            \
-> -                       unsigned long _now = jiffies;           \
-> -                       if ((_now - _prior) > HZ) {             \
-> -                               printk(type "%s: %s: " fmt,     \
-> -                                       MY_NAME, __FUNCTION__ , \
-> -                                       ## arg);                \
-> -                               _prior = _now;                  \
-> -                       }                                       \
-> -               }                                               \
-> -       } while (0)
-> +static void __seclvl_printk(int verb, const char *fmt, ...)
-> +{
-> +       va_list args;
-> +       va_start(args, fmt);
-> +       if (verbosity >= verb && printk_ratelimit()) {
-> +               vprintk(fmt, args);
-> +       }
-> +       va_end(args);
-> +}
-> +
-> +/**
-> + * Breaking the printk up into a macro and a function saves some text
-> + * space.
-> + */
-> +#define seclvl_printk(verb, type, fmt, arg...) \
-> +        __seclvl_printk((verb), type "%s: " fmt, __FUNCTION__, ## arg);
 > 
->  /**
->  * kobject stuff
-> @@ -711,7 +715,7 @@
->                goto exit;
->        }
->        seclvl_printk(0, KERN_INFO, "seclvl: Successfully initialized.\n");
-> - exit:
-> +      exit:
->        if (rc) {
->                printk(KERN_ERR "seclvl: Error during initialization: rc = "
->                       "[%d]\n", rc);
 > -
 > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 > the body of a message to majordomo@vger.kernel.org
@@ -103,10 +56,7 @@ On 5/20/05, Michael Halcrow <mhalcrow@us.ibm.com> wrote:
 > Please read the FAQ at  http://www.tux.org/lkml/
 > 
 
-i disklike the fact that the rate limit is based on 1 sec. how about
-finer-grain limit?
 
-it is best to let user to config the litmit. 1 sec is too raw to some purpose.
-
-regards,
-aq
+-- 
+-----------------------------------------------------------------
+http://www.nirajkumar.net

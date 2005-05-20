@@ -1,66 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVETT1Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVETTfc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261550AbVETT1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 15:27:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVETT1Y
+	id S261206AbVETTfc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 15:35:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261552AbVETTfc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 15:27:24 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:54204 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261550AbVETT1S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 15:27:18 -0400
-Date: Fri, 20 May 2005 21:26:59 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: "Richard B. Johnson" <linux-os@analogic.com>
-cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Screen regen buffer at 0x00b8000
-In-Reply-To: <Pine.LNX.4.61.0505201124230.5107@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.62.0505202125440.18326@numbat.sonytel.be>
-References: <Pine.LNX.4.61.0505200944060.5921@chaos.analogic.com>
- <20050520141434.GZ2417@lug-owl.de> <Pine.LNX.4.61.0505201124230.5107@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 May 2005 15:35:32 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:48533 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S261206AbVETTfI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 15:35:08 -0400
+Date: Fri, 20 May 2005 21:37:06 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Timur Tabi <timur.tabi@ammasso.com>
+Cc: Christopher Li <lkml@chrisli.org>, linux-kernel@vger.kernel.org
+Subject: Kbuild trick
+Message-ID: <20050520193706.GA8225@mars.ravnborg.org>
+References: <428A661C.1030100@ammasso.com> <20050517201148.GA12997@64m.dyndns.org> <428B4C67.5090307@ammasso.com> <20050518123854.GA13452@64m.dyndns.org> <428B646C.3030501@ammasso.com> <20050518132417.GA14488@64m.dyndns.org> <428B7143.4090607@ammasso.com> <20050518182250.GB8130@mars.ravnborg.org> <428B8809.8060406@ammasso.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <428B8809.8060406@ammasso.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 May 2005, Richard B. Johnson wrote:
-> On Fri, 20 May 2005, Jan-Benedict Glaw wrote:
-> > On Fri, 2005-05-20 09:48:35 -0400, Richard B. Johnson
-> > <linux-os@analogic.com> wrote:
-> > >     len = getpagesize();
-> > >     if((fd = open("/dev/mem", O_RDWR)) == FAIL)
-> > >         ERRORS("open");
-> > >     if((sp = mmap((void *)SCREEN, len, PROT, TYPE, fd,
-> > > SCREEN))==MAP_FAILED)
-> > >         ERRORS("mmap");
-> > 
-> > Maybe you'd better not fiddle with physical memory, but use the device
-> > abstraction that's ment to offer that interface? That is, use a
-> > framebuffer driver and open /dev/fb* .
 
-/dev/vcs*?
+Hi Timur.
+Some tricks/hints.
 
-> No room for any more drivers. This just writes to a small LCD on an
-> embedded controller. There should be no reason why I can't
-> write directly to the physical memory. Anything written to the
-> physical screen buffer will show up on the screen, as long
-> as page zero is selected.
+For both kernel 2.4 and 2.6 you can split up your makefile like this:
+makefile <= all the external modules specific part
+Makefile <= the kbuild specific part
+
+Recent 2.6 kernels looks for a fine named Kbuild before Makefile
+so you can use the file Kbuild for a 2.6 compatible kbuild file, and
+Makefile for a 2.4 compatible kbuild file.
+
+ 
+> # Only if the Config.mk file exists will the next line include it.
+> # (Inside Ammasso, the needed information is derived differently.)
+> ifneq (${wildcard ${SOFTWARE}/../Config.mk},)
+>     include ${SOFTWARE}/../Config.mk
+> endif
+-include does the same
+
+ 
+> # Determine the kernel version.  We only really care about 2.4 vs 2.6, so 
+> this
+> # simple code will work with version.h files that have multiple 
+> UTS_RELEASEs.
+
+In the kbuild part of the file you can check for KERNELRELEASE.
+And a lot of what is below ought to be in the kbuild part of the file.
+
+ 
+> # If O= is specified on the make command line, then you must have write
+> # access to KERNEL_SOURCE, otherwise the build will fail.  So we only pass
+> # O= if it is specified in Config.mk.
+O= does not require write access to KERNEL_SOURCE. Thats one one the
+main concpets. KERNEL_SOURCE may be owned by whoever.
+
+ 
+> # Define DO_MUNMAP_API_CHANGE if this kernel uses the version of do_unmap()
+> # that has four parameters instead of just three.
 > 
-> I think that I've discovered a bug. I know that what I have written gets
-> to the screen buffer because I can read in back! This doesn't make
-> any sense.
+> ifneq (${shell grep -c -m 1 do_munmap.*acct 
+> ${KERNEL_SOURCE}/include/linux/mm.h}, 0)
+>     EXTRA_CFLAGS += -DDO_MUNMAP_API_CHANGE
+> endif
 
-Even if it's only in the CPU cache, of course you can read it back (using the
-CPU, not DMA ;-).
+A macro can simplify this:
 
-Gr{oetje,eeting}s,
+feature = $(if $(shell grep -m 1 $(1) $(srctree)/include/$(2)), $(3))
 
-						Geert
+Usage:
+EXTRA_CFLAGS += $(call feature, do_munmap.*acct, linux/mm.h, -DDO_MUNMAP_API_CHANGE)
+EXTRA_CFLAGS += $(call feature, remap_page_range.*vm_area_struct, \
+                  linux/mm.h, -DREMAP_API_CHANGE)
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+etc..
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+> 
+>     ifneq (${wildcard /proc/ksyms},)
+>         SYMFILE = /proc/ksyms
+>     else
+>         ifneq (${wildcard /proc/kallsyms},)
+>             SYMFILE = /proc/kallsyms
+>         endif
+>     endif
+This looks wrong. Either you shall check kernel source or running
+kernel.
+But mixing it like this is to call for troubles.
+
+
+ 
+> # Source files
+> 
+> CFILES = \
+>         devnet.c \
+>         ccilnet.c \
+>         devccil.c \
+>         devccil_adapter.c \
+>         devccil_rnic.c \
+>         devccil_mem.c \
+>         devccil_vq.c \
+>         devccil_eh.c \
+>         devccil_cq.c \
+>         devccil_mq.c \
+>         devccil_pd.c \
+>         devccil_srq.c \
+>         devccil_qp.c \
+>         devccil_mm.c \
+>         devccil_ep.c \
+>         devccil_wrappers.c \
+>         devccil_ae.c \
+>         devccil_logging.c
+> 
+> COMMON_CFILES   = \
+> 		cc_cq_common.c \
+>                 cc_mq_common.c \
+>                 cc_qp_common.c
+> 
+In kbuild files the usual pattern is to specify the .o files not the
+source files. So for anyone familiar with kbuild files this looks wrong.
+And be explicit. No reason to hide directories behind the addprefix
+macro below. This is not an obscufating contest.
+> # Fix the paths for the common .c files
+> CFILES += $(addprefix ../../common/, ${COMMON_CFILES})
+
+> # Generate an assembly listing for each file
+> 
+> EXTRA_CFLAGS += -Wa,-aldh=$*.lst
+If needed you can use: make cc_mp_common.lst to let kbuild generate
+them. Dunno if it works for external modules btw.
+
+> 
+> 
+> # Linker parameters
+> 
+> obj-m := ccil.o
+> 
+> ccil-objs := ${CFILES:.c=.o}
+> 
+> syscall:
+> 	@echo ${SYSCALL_METHOD}
+
+As you have noticed in another mail - this does not work.
+An untested approch would be to use:
+.PHONY: syscall
+$(obj)/ccil.o: syscall
+
+	Sam

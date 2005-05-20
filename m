@@ -1,63 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVETUSK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVETUTj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261354AbVETUSK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 16:18:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbVETUSK
+	id S261567AbVETUTj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 16:19:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVETUTi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 16:18:10 -0400
-Received: from alog0356.analogic.com ([208.224.222.132]:25025 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261354AbVETUSE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 16:18:04 -0400
-Date: Fri, 20 May 2005 16:17:43 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Screen regen buffer at 0x00b8000
-In-Reply-To: <Pine.LNX.4.58.0505201259560.2206@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.61.0505201612360.6833@chaos.analogic.com>
-References: <Pine.LNX.4.61.0505200944060.5921@chaos.analogic.com>
- <Pine.LNX.4.58.0505201259560.2206@ppc970.osdl.org>
+	Fri, 20 May 2005 16:19:38 -0400
+Received: from moutng.kundenserver.de ([212.227.126.186]:49653 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261567AbVETUTW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 16:19:22 -0400
+Message-ID: <428E45EA.3040603@free.fr>
+Date: Fri, 20 May 2005 22:17:46 +0200
+From: Olivier Croquette <ocroquette@free.fr>
+User-Agent: Mozilla Thunderbird 1.0.2 (Macintosh/20050317)
+X-Accept-Language: fr-fr, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Thread and process dentifiers (CPU affinity, kill)
+References: <428CD458.6010203@free.fr> <20050520125511.GC23488@csclub.uwaterloo.ca> <428DF95E.2070703@free.fr> <20050520165307.GG23488@csclub.uwaterloo.ca> <d6l9cs$l1t$1@news.cistron.nl>
+In-Reply-To: <d6l9cs$l1t$1@news.cistron.nl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:e39ae1980843c849592344a98bbbf26f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 May 2005, Linus Torvalds wrote:
+Miquel van Smoorenburg wrote:
 
->
->
-> On Fri, 20 May 2005, Richard B. Johnson wrote:
->>
->> Why can't I consistantly write to the VGA screen regen buffer
->> and have it appear on the screen????
->
-> Don't do it.
->
+> No. On modern systems, glibc contains both LinuxThreads and NPTL.
+> They have the same ABI. At runtime one of the two is selected,
+> depending on if the currently running kernel supports NTPL.
+> You can also force it by setting the LD_ASSUME_KERNEL environment
+> variable to 2.4 or 2.6.
 
-Well I started out opening /dev/vcs, lseeking to 64, and writing
-a string. This "sort of" worked, but screen attributes got messed
-up so the "blue" screen attribute 0x17 ended up eventually being
-black.
+More info about that from:
+http://linuxdevices.com/articles/AT6753699732.html
 
-So, I decided to directly write. It doesn't work as you explain
-because hardware scroll is being used.
-
->
-> Anyway, you really _really_ shouldn't do anything like this in the first
-> place.
->
-> 		Linus
->
-
-Yes, and I didn't want to. However a customer wants some status to
-be always displayed in the upper-right-hand corner of a 4x5 LCD
-with a tiny CPU board.
+Some Linux vendors, such as later versions of Red Hat Linux, have 
+backported NPTL to earlier kernels and have even made the threading 
+environment for specific processes selectable through an environment 
+variable (LD_ASSUME_KERNEL). On systems that support this feature, the 
+variable is set via a command such as the following:
+# export LD_ASSUME_KERNEL=2.4.1
+This is a clever way to enable some existing applications that rely on 
+LinuxThreads to continue to work in an NPTL environment, but is a 
+short-term solution. To make the most of the design and performance 
+benefits provided by NPTL, you should update the code for any existing 
+applications that use threading.
 
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11.9 on an i686 machine (5554.17 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+[...]
+
+Simply using a 2.6 based kernel does not mean that you are automatically 
+using the NPTL. To determine the threading library that a system uses, 
+you can execute the getconf command (part of the glibc package), to 
+examine the GNU_LIBPTHREAD_VERSION environment variable, as in the 
+following command example:
+# getconf GNU_LIBPTHREAD_VERSION
+linuxthreads-0.10
+If your system uses the NPTL, the command would return the value of NPTL 
+that your system was using, as in the following example:
+# getconf GNU_LIBPTHREAD_VERSION
+nptl-0.60
+

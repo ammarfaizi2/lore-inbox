@@ -1,67 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbVETMXl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVETMzW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261439AbVETMXl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 08:23:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbVETMXl
+	id S261453AbVETMzW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 08:55:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVETMzW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 08:23:41 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:26886 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261439AbVETMXW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 08:23:22 -0400
-Date: Fri, 20 May 2005 13:23:21 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Andreas Schwab <schwab@suse.de>, linux-kernel@vger.kernel.org,
-       "Gilbert, John" <JGG@dolby.com>, Kyle Moffett <mrmacman_g4@mac.com>,
-       Adrian Bunk <bunk@stusta.de>, Arjan van de Ven <arjan@infradead.org>,
-       linux-os@analogic.com
-Subject: Re: Illegal use of reserved word in system.h
-In-Reply-To: <1116514780.27471.8.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61L.0505191622060.10681@blysk.ds.pg.gda.pl>
-References: <2692A548B75777458914AC89297DD7DA08B0866F@bronze.dolby.net> 
- <20050518195337.GX5112@stusta.de>  <6EA08D88-7C67-48ED-A9EF-FEAAB92D8B8F@mac.com>
-  <20050519112840.GE5112@stusta.de>  <Pine.LNX.4.61.0505190734110.29439@chaos.analogic.com>
-  <1116505655.6027.45.camel@laptopd505.fenrus.org> 
- <Pine.LNX.4.61L.0505191342460.10681@blysk.ds.pg.gda.pl> 
- <Pine.LNX.4.61.0505190853310.29611@chaos.analogic.com>  <jeacmr5mzk.fsf@sykes.suse.de>
-  <1116512140.15866.42.camel@localhost.localdomain> 
- <Pine.LNX.4.61L.0505191532120.10681@blysk.ds.pg.gda.pl>
- <1116514780.27471.8.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 20 May 2005 08:55:22 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:60806 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261453AbVETMzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 08:55:11 -0400
+Date: Fri, 20 May 2005 08:55:11 -0400
+To: Chris Friesen <cfriesen@nortel.com>
+Cc: Olivier Croquette <ocroquette@free.fr>,
+       LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: Thread and process dentifiers (CPU affinity, kill)
+Message-ID: <20050520125511.GC23488@csclub.uwaterloo.ca>
+References: <428CD458.6010203@free.fr> <20050519182302.GE23621@csclub.uwaterloo.ca> <428CED0C.9020607@nortel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <428CED0C.9020607@nortel.com>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 May 2005, Steven Rostedt wrote:
+On Thu, May 19, 2005 at 01:46:20PM -0600, Chris Friesen wrote:
+> Doesn't matter.  From a userspace point of view there is no process with 
+> that PID, so kill() should return ESRCH.  In the kernel, I think this 
+> means that kill() should actually be looking up tgids rather than pids.
 
-> Well, they probably are the same, but then what's the reason for the
-> lines in binfmt_elf.c:
+If you look in the list of processes running, you WILL see that PID in
+the list.  ERSCH should only be returned if you ask for a thread that
+either never existed or doesn't exist anymore.  Since a thread is a
+process to the kernel (at least as far as cheduling and PIDs are
+concerned) you can send a kill to the thread, which will probably be
+sent to the parent process id instead.
+
+> PID="process ID"
 > 
-> #if ELF_EXEC_PAGESIZE > PAGE_SIZE
-> # define ELF_MIN_ALIGN	ELF_EXEC_PAGESIZE
-> #else
-> # define ELF_MIN_ALIGN	PAGE_SIZE
-> #endif
-> 
-> 
-> This looks to me that ELF_EXEC_PAGESIZE and PAGE_SIZE may not be the
-> same. And what's passed to AT_PAGESZ is ELF_EXEC_PAGESIZE.  In mips (as
-> your email address shows you are interested in) ELF_EXEC_PAGESIZE is
-> simply defined as PAGE_SIZE.  But in intel i386, it is defined as 4096,
+> You have one PID per process.
 
- And for MIPS PAGE_SIZE is also variable (currently one of: 4k, 16k, 64k).
+No, you have at least one PID per process.  I have never heard anyone
+claim before that implementing threads as extra processes in the kernel
+is violating posix.  It sure makes the scheduler simpler to implement.
+Much more efficient than user space threading.
 
-> which coincidentally is the same as PAGE_SIZE but there's no guarantee
-> that this will be the same, unless who ever changes PAGE_SIZE also
-> remembers to change ELF_EXEC_PAGESIZE.
+> No, they are implemented as separately schedulable entities with lots of 
+> shared state.  "process" and "thread" are POSIX terms that don't really 
+> mean anything in the kernel.
 
- That's the maintainer's problem.
+Certainly process and thread does have meanings in the kernel.
 
-> In arm26 the PAGE_SIZE is configurable (16k or 32k) but the
-> ELF_EXEC_PAGESIZE stays as 32k.  So is this a bug?
+> Pthreads define signal handling.  Signals are delivered to the process 
+> as a whole, not to any particular thread.  If you specify a TID that is 
+> not a valid PID, then the kernel should return an error.
 
- I guess so.  Unless these smaller pages are always handled in pairs by 
-Linux.  That would be a legitimate case of ELF_EXEC_PAGESIZE != PAGE_SIZE.
+Well as long as the kernel send the signals sent to any of the PIDs of a
+multithreaded process, to that process, then that seems fine to me.
 
-  Maciej
+> If the syscall is supposed to operate on processes, it should operate on 
+> all threads within a process.  It would be nice to have a way to specify 
+> affinity for threads.  POSIX doesn't define one though.
+
+Hmm, well I guess the current way it works you can set the affinity per
+thread since you had a PID per thread to operate on.  If you want to do
+it for the whole process, perhaps if you set it on the starting thread
+before it creates more threads they would probably inherit the affinity
+of the original thread.
+
+Have you tried NPTL (native posix threading library) which is supposed
+to become the threading standard on linux in the future (if it works
+out)?  I was under the impression amd64 systems with 2.6 kernels at
+least tend to use that by default, but I might be remembering something
+else unrelated.  I wonder if NPTL doesn't do more the way you want than
+the way linuxthreads have worked so far.
+
+Len Sorensen

@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVETLgB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbVETLuA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261424AbVETLgB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 07:36:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbVETLgB
+	id S261433AbVETLuA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 07:50:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVETLuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 07:36:01 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:40638 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261424AbVETLfx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 07:35:53 -0400
-Date: Fri, 20 May 2005 13:34:48 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: chen Shang <shangcs@gmail.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux-kernel@vger.kernel.org, rml@tech9.net,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] kernel <linux-2.6.11.10> kernel/sched.c
-Message-ID: <20050520113448.GA20486@elte.hu>
-References: <855e4e4605051909561f47351@mail.gmail.com> <855e4e46050520001215be7cde@mail.gmail.com> <20050520094909.GA16923@elte.hu> <200505202040.51329.kernel@kolivas.org>
+	Fri, 20 May 2005 07:50:00 -0400
+Received: from rproxy.gmail.com ([64.233.170.192]:23521 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261433AbVETLt7 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 07:49:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dExGyVYLsGG20EeeC9oZFfofPoHFkVN27ISk1bsuzQI1ZM2VPbAhaDTOYw293VjIIIS4R8jAvyd1tMEktS7v12Yzd2uFxaglTyKI7QBmTyMxRbrVTeued21JtE+QbfYyHgesY3fi9IvgwRzE89tLx7sLk8qS4KXTuHJD2UUI9kY=
+Message-ID: <21d7e99705052004493a4cdcd2@mail.gmail.com>
+Date: Fri, 20 May 2005 21:49:58 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Illegal use of reserved word in system.h
+Cc: "Gilbert, John" <JGG@dolby.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1116524233.21358.292.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <200505202040.51329.kernel@kolivas.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+References: <2692A548B75777458914AC89297DD7DA08B08670@bronze.dolby.net>
+	 <1116524233.21358.292.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Con Kolivas <kernel@kolivas.org> wrote:
-
-> On Fri, 20 May 2005 19:49, Ingo Molnar wrote:
-> > * chen Shang <shangcs@gmail.com> wrote:
-> > > I minimized my patch and against to 2.6.12-rc4 this time, see below.
-> >
-> > looks good - i've done some small style/whitespace cleanups and renamed
-> > prio to old_prio, patch against -rc4 below.
 > 
-> We should inline requeue_task as well.
+> DRI one does seem to be a real bug.
 
-yeah.
+Well not a bug :-) but lets call it a C++ incompatibility .. I'll see
+how much work it is to change this everywhere it is used..  I don't
+really want to break loads of userspace apps.. not that many drm apps
+exist.. and probably very few of them use the virtual pointer...
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
-
-	Ingo
+Dave.

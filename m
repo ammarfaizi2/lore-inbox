@@ -1,75 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbVETVbm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVETVd0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261599AbVETVbm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 17:31:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbVETVbl
+	id S261373AbVETVd0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 17:33:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVETVd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 17:31:41 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:30080 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261599AbVETVag
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 17:30:36 -0400
-Message-ID: <428E56EE.4050400@us.ibm.com>
-Date: Fri, 20 May 2005 14:30:22 -0700
-From: Matthew Dobson <colpatch@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Lameter <christoph@lameter.com>
-CC: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: NUMA aware slab allocator V3
-References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>  <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com>  <714210000.1116266915@flay> <200505161410.43382.jbarnes@virtuousgeek.org>  <740100000.1116278461@flay>  <Pine.LNX.4.62.0505161713130.21512@graphe.net> <1116289613.26955.14.camel@localhost> <428A800D.8050902@us.ibm.com> <Pine.LNX.4.62.0505171648370.17681@graphe.net> <428B7B16.10204@us.ibm.com> <Pine.LNX.4.62.0505181046320.20978@schroedinger.engr.sgi.com> <428BB05B.6090704@us.ibm.com> <Pine.LNX.4.62.0505181439080.10598@graphe.net> <Pine.LNX.4.62.0505182105310.17811@graphe.net> <428E3497.3080406@us.ibm.com> <Pine.LNX.4.62.0505201210460.390@graphe.net>
-In-Reply-To: <Pine.LNX.4.62.0505201210460.390@graphe.net>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 20 May 2005 17:33:26 -0400
+Received: from mail.kroah.org ([69.55.234.183]:64947 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261606AbVETVbs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 17:31:48 -0400
+Date: Fri, 20 May 2005 14:38:39 -0700
+From: Greg KH <greg@kroah.com>
+To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] udev 058 release
+Message-ID: <20050520213839.GB16567@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Fri, 20 May 2005, Matthew Dobson wrote:
-> 
-> 
->>Christoph, I'm getting the following errors building rc4-mm2 w/ GCC 2.95.4:
-> 
-> 
-> Works fine here with gcc 2.95.4.ds15-22 but that is a debian gcc 
-> 2.95.4 patched up to work correctly. If you need to address the pathology in pristine 
-> gcc 2.95.4 by changing the source then declare the entry field with 0 
-> members.
-> 
-> Index: linux-2.6.12-rc4/mm/slab.c
-> ===================================================================
-> --- linux-2.6.12-rc4.orig/mm/slab.c	2005-05-19 21:29:45.000000000 +0000
-> +++ linux-2.6.12-rc4/mm/slab.c	2005-05-20 19:18:22.000000000 +0000
-> @@ -267,7 +267,7 @@
->  #ifdef CONFIG_NUMA
->  	spinlock_t lock;
->  #endif
-> -	void *entry[];
-> +	void *entry[0];
->  };
->  
->  /* bootstrap: The caches do not work without cpuarrays anymore,
-> 
-> 
-> 
-> gcc 2.95 can produce proper code for ppc64?
-> 
-> 
-> 
-> 
->>mm/slab.c:281: field `entry' has incomplete typemm/slab.c: In function
->>'cache_alloc_refill':
-> 
-> 
-> See patch above?
+I've released the 058 version of udev.  It can be found at:
+  	kernel.org/pub/linux/utils/kernel/hotplug/udev-058.tar.gz
 
-I can't for the life of me explain why, but the above patch makes ALL the
-warnings go away, despite the fact that they seem unrelated.  I dunno...
-Maybe we should upgrade the compiler on that box?
+udev allows users to have a dynamic /dev and provides the ability to
+have persistent device names.  It uses sysfs and /sbin/hotplug and runs
+entirely in userspace.  It requires a 2.6 kernel with CONFIG_HOTPLUG
+enabled to run.  Please see the udev FAQ for any questions about it:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev-FAQ
 
--Matt
+For any udev vs devfs questions anyone might have, please see:
+	kernel.org/pub/linux/utils/kernel/hotplug/udev_vs_devfs
+
+And there is a general udev web page at:
+	http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev.html
+
+Note, if you are running a kernel newer than 2.6.12-rc4 (including the
+-mm releases) and you have any custom udev rules, you MUST upgrade to
+the latest version to allow udev to work properly.  This change happened
+because of a previously-unrealized reliance in libsysfs on the presence
+of a useless sysfs file that has recently been removed.  Hopefully the
+libsysfs people will be releasing a new version shortly with this change
+in it for those packages who rely on it.
+
+Also, the rules file structure and use is changing again, in more
+powerful ways.  For more details on this, and if you currently rely on
+the /etc/dev.d/ feature, please read the RELEASE-NOTES file in the main
+udev directory.  A online version can be found here:
+http://www.kernel.org/git/?p=linux/hotplug/udev.git;a=blob;h=9b7fa3133013c4dfc1bc5d759cd198e8aafdef83;hb=5e65ab9a191268fec7cddf6b7d8c0fefd2a6b920;f=RELEASE-NOTES
+
+Thanks go do Dan Stekloff for the libsysfs patch, and for Kay Sievers
+figuring out what the problem was.  Also a big thanks to Kay for all of
+the recent changes to the rules file logic.  A full list of everyone,
+and their changes is below.
+
+udev has also switched over to using git.  The main udev git repo can be
+found at:
+	rsync://rsync.kernel.org/pub/scm/linux/hotplug/udev.git
+and can be browsed online at:
+	http://www.kernel.org/git/?p=linux/hotplug/udev.git
+
+thanks,
+
+greg k-h
+
+Summary of changes from v057 to v058
+============================================
+
+Daniel Drake:
+  o Writing udev rules docs update
+
+Darren Salt:
+  o update cdsymlinks to latest version
+
+Greg Kroah-Hartman:
+  o remove detach_state files from the sysfs test tree
+  o Update permissions on test scripts so they will run properly now
+  o hopefully fix up the symlinks in the test directory
+  o Removed klibc/klibc.spec as it is autogenerated
+  o Added symlinks thanks to Kay's script and git hacking
+  o add Red Hat/Fedora html documenation
+  o Update Red Hat default udev rules
+
+Kay Sievers:
+  o selinux: fix handling during creation of symlinks
+  o Fedora udev.rules update
+  o libsysfs: version 2.0
+  o klibc: version 1.0.7
+
+Masanao Igarashi:
+  o Fix libsysfs issue with relying on the detach_state file to be
+
+Summary of changes from v056 to v057
+============================================
+
+<tklauser:access.unizh.ch>:
+  o fix stupid all_partitions bug
+
+Kay Sievers:
+  o add test for make -j4 to build-check
+  o klibc: version 1.0.6
+  o update Debian rules
+  o apply default permissions only for devices that will need it
+  o adapt RELEASE-NOTES
+  o udev_volume_id: fix endianess macros
+  o udev-test.pl: add test for DEVNAME export to RUN environment
+  o update the man page to reflect the recent changes
+  o export DEVNAME to RUN-key executed programs
+  o fix make -j4 and the local klibc-install
+  o update RELEASE-NOTES
+  o add RUN key to be able to run rule based notification
+  o fix udevtest to print the error if logging is disabled
+  o move execute_program to utils + add action to init_device
+  o correct correction for error path for PROGRAM execution
+  o correct error path for PROGRAM execution
+  o klibc: version 1.0.5
+  o check for strlen()==0 before accessing strlen()-1
+  o allow to match against empty key values
+  o read %s{}-sysfs values at any device in the chain
+  o udev_rules.c: don't change sysfs_device while walking up the device chain
+  o klibc: strlcpy/strlcat - don't alter destination if size == 0
+  o fix klibc's broken strlcpy/strlcat
+  o udevinfo: print SYSFS attribute the same way we match it
+  o remove untrusted chars read from sysfs-values or returned by PROGRAM
+  o udevinfo: print errors to stderr instead of stdout
+  o klibc: version 1.0.4
+  o support log-priority levels in udev.conf
+  o test-suite: remove UDEV_TEST, it's not needed anymore
+  o libsysfs: remove trailing slash on SYSFS_PATH override
+
+
+Summary of changes from v055 to v056
+============================================
+
+<tklauser:access.unizh.ch>:
+  o fix header paths in udev_libc_wrapper.c
+
+Kay Sievers:
+  o udev-test.pl: use more common user/group names
+  o klibc: remove SCCS directories from the temporary klibc install
+  o udev-test.pl: add a test where the group cannot be found in /etc/passwd
+  o udev-test.pl: add check for textual uid/gid
+  o fix bad typo that prevents the GROUP to be applied
+  o udevd: don't delay events with TIMEOUT in the environment
+  o klibc: use klcc wrapper instead of our own Makefile
+  o change call_foreach_file to return a list
+
+

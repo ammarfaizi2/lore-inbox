@@ -1,75 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVETFdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbVETFfw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261338AbVETFdW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 01:33:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVETFdW
+	id S261349AbVETFfw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 01:35:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVETFfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 01:33:22 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:6580 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S261338AbVETFdS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 01:33:18 -0400
-Message-ID: <428D7680.5040304@sw.ru>
-Date: Fri, 20 May 2005 09:32:48 +0400
-From: Vasily Averin <vvs@sw.ru>
-Organization: SW-soft
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20021224
-X-Accept-Language: en-us, en, ru
-MIME-Version: 1.0
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH 2.4] random poolsize sysctl fix
-X-Enigmail-Version: 0.70.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------030503080306090904010502"
+	Fri, 20 May 2005 01:35:51 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:46744 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S261351AbVETFfq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 01:35:46 -0400
+Date: Fri, 20 May 2005 07:37:41 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: linux-kernel@vger.kernel.org
+Subject: Re: kbuild: specifying phony targets?
+Message-ID: <20050520053741.GB16699@mars.ravnborg.org>
+References: <428B4CF5.1070507@ammasso.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <428B4CF5.1070507@ammasso.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030503080306090904010502
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Wed, May 18, 2005 at 09:11:01AM -0500, Timur Tabi wrote:
+> I have a Makefile that works with 2.4 and 2.6 kernels.  On the 2.4 side, I 
+> have a rule like this:
+> 
+> all: mytext ${TARGET_DIR} ${TARGET_DIR}/ccil.o
+> 
+> mytext:
+>     @echo ${SOMETEXT}
+> 
+> This causes the text in variable SOMETEXT to be displayed right when the 
+> build starts.
+> 
+> How do I do the same thing with kbuild?  Is there a way I can get a kbuild 
+> makefile to run a phony target right at the beginning?
 
-Hello Marcelo,
+A phony target is not possible.
+But use 'always' to tell kbuild what needs to be done.
+Se also kbuild documentation: Documentation/kbuild/makefile.txt
 
-SWSoft Linux kernel Team has discovered that your patch 
-http://linux.bkbits.net:8080/linux-2.4/gnupatch@41e2c4fetTJmVti-Xxql21xXjfbpag
-which should fix a random poolsize sysctl handler integer overflow, is 
-wrong.
-You have changed a variable definition in function proc_do_poolsize(), 
-but you had to fix an another function, poolsize_strategy()
-
-Vasily Averin
-SWSoft Linux kernel Team
-
---------------030503080306090904010502
-Content-Type: text/plain;
- name="diff-security-rndpoolsize-20050520"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="diff-security-rndpoolsize-20050520"
-
---- ./drivers/char/random.c.rndps	Wed Jan 19 17:09:48 2005
-+++ ./drivers/char/random.c	Fri May 20 09:09:18 2005
-@@ -1771,7 +1771,7 @@ static int change_poolsize(int poolsize)
- static int proc_do_poolsize(ctl_table *table, int write, struct file *filp,
- 			    void *buffer, size_t *lenp)
- {
--	unsigned int	ret;
-+	int	ret;
- 
- 	sysctl_poolsize = random_state->poolinfo.POOLBYTES;
- 
-@@ -1787,7 +1787,7 @@ static int poolsize_strategy(ctl_table *
- 			     void *oldval, size_t *oldlenp,
- 			     void *newval, size_t newlen, void **context)
- {
--	int	len;
-+	unsigned int	len;
- 	
- 	sysctl_poolsize = random_state->poolinfo.POOLBYTES;
- 
-
---------------030503080306090904010502--
-
+	Sam

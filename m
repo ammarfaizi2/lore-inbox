@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVETPXU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbVETPYd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261485AbVETPXU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 11:23:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbVETPW7
+	id S261450AbVETPYd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 11:24:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbVETPYd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 11:22:59 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:37267 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261495AbVETPUT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 11:20:19 -0400
-Date: Fri, 20 May 2005 10:20:03 -0500
-From: Michael Halcrow <mhalcrow@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Chris Wright <chrisw@osdl.org>,
-       Serge Hallyn <serue@us.ibm.com>, mhalcrow@us.ibm.com
-Subject: [patch 8/7] BSD Secure Levels: unregister on sysfs failure
-Message-ID: <20050520152002.GG5534@halcrow.us>
-Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
-References: <20050517152303.GA2814@halcrow.us> <20050519205525.GB16215@halcrow.us>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050519205525.GB16215@halcrow.us>
-User-Agent: Mutt/1.5.9i
+	Fri, 20 May 2005 11:24:33 -0400
+Received: from alog0374.analogic.com ([208.224.222.150]:29162 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261450AbVETPYV
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 11:24:21 -0400
+Date: Fri, 20 May 2005 11:24:06 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Marco Rogantini <marco.rogantini@supsi.ch>
+cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Screen regen buffer at 0x00b8000
+In-Reply-To: <Pine.LNX.4.62.0505201639170.14709@rost.dti.supsi.ch>
+Message-ID: <Pine.LNX.4.61.0505201123140.5107@chaos.analogic.com>
+References: <Pine.LNX.4.61.0505200944060.5921@chaos.analogic.com>
+ <20050520141434.GZ2417@lug-owl.de> <Pine.LNX.4.62.0505201639170.14709@rost.dti.supsi.ch>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As a feeble ode to Douglas Adams, this is the 8th in a series of 7
-patches.  It fixes the issue where the security ops were not being
-released on sysfs registration failure.
+On Fri, 20 May 2005, Marco Rogantini wrote:
 
-Signed off by: Michael Halcrow <mhalcrow@us.ibm.com>
+> On Fri, 2005-05-20 09:48:35 -0400, Richard B. Johnson <linux-os@analogic.com> wrote:
+>
+>>     if((fd = open("/dev/mem", O_RDWR)) == FAIL)
+>>         ERRORS("open");
+>>     if((sp = mmap((void *)SCREEN, len, PROT, TYPE, fd, SCREEN))==MAP_FAILED)
+>>         ERRORS("mmap");
+>
+> Try to open("/dev/mem", O_RDWR | O_SYNC). Without this the mapping
+> will be chached.
+>
+> 	-marco
+>
 
-Index: linux-2.6.12-rc4-mm2-seclvl/security/seclvl.c
-===================================================================
---- linux-2.6.12-rc4-mm2-seclvl.orig/security/seclvl.c	2005-05-20 09:09:42.000000000 -0500
-+++ linux-2.6.12-rc4-mm2-seclvl/security/seclvl.c	2005-05-20 09:09:46.000000000 -0500
-@@ -766,6 +766,7 @@
- 	} /* if we registered ourselves with the security framework */
- 	if ((rc = do_sysfs_registrations())) {
- 		seclvl_printk(0, KERN_ERR, "Error registering with sysfs\n");
-+		unregister_security(&seclvl_ops);
- 		goto exit;
- 	}
- 	seclvl_printk(0, KERN_INFO, "seclvl: Successfully initialized.\n");
+Doesn't help.
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

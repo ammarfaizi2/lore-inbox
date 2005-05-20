@@ -1,69 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVETXNa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVETXT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261477AbVETXNa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 19:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVETXNa
+	id S261341AbVETXT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 19:19:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVETXT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 19:13:30 -0400
-Received: from mail.shareable.org ([81.29.64.88]:63193 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261211AbVETXNU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 19:13:20 -0400
-Date: Sat, 21 May 2005 00:13:12 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH] FUSE: don't allow restarting of system calls
-Message-ID: <20050520231312.GD29155@mail.shareable.org>
-References: <E1DZ3Mx-0003ST-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DZ3Mx-0003ST-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.1i
+	Fri, 20 May 2005 19:19:56 -0400
+Received: from mxout.hispeed.ch ([62.2.95.247]:17793 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S261341AbVETXTx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 19:19:53 -0400
+Message-Id: <428E70B3.1050007@khandalf.com>
+Date: Sat, 21 May 2005 01:20:19 +0200
+From: "Brian O'Mahoney" <omb@khandalf.com>
+Reply-To: omb@bluewin.ch
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Patrick McFarland <pmcfarland@downeast.net>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Joerg Schilling flames Linux on his Blog
+References: <200505201345.15584.pmcfarland@downeast.net>
+In-Reply-To: <200505201345.15584.pmcfarland@downeast.net>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+X-Md5-Body: fb18f36500a09e4c50aefc7d155d2404
+X-Transmit-Date: Saturday, 21 May 2005 1:20:33 +0200
+X-Message-Uid: 0000b49cec9d9b610000000200000000428e70c10004a23d00000001000a387f
+Replyto: omb@bluewin.ch
+X-Sender-Postmaster: Postmaster@80-218-57-125.dclient.hispeed.ch.
+Read-Receipt-To: omb@bluewin.ch
+X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-03.tornado.cablecom.ch 32701; Body=2
+	Fuz1=2 Fuz2=2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi wrote:
-> This patch removes ability to interrupt and restart operations while
-> there hasn't been any side-effect.
-> 
-> The reason: applications.  There are some apps it seems that generate
-> signals at a fast rate.  This means, that if the operation cannot make
-> enough progress between two signals, it will be restarted for ever.
-> This bug actually manifested itself with 'krusader' trying to open a
-> file for writing under sshfs.  Thanks to Eduard Czimbalmos for the
-> report.
+I agree that Joerg Schilling should be entirely ignored; cdrecord is
+hopelessly broken writing DVDs and looking at the code, I am not
+surprised, it is designed to make you buy the his PRO-DVD product but
+fortunately Open Source healed itself, in the usual way.
 
-Caching and prefetching would solve that probem much more usefully.
+Solaris is a hostage to the SUN QA group, which is FAR too powerful,
+so they argue "keep it out" so vanilla Solaris just sucks, but, within
+SUN there is an OS tool-chain group which builds useful tools
+and publishes a DVD and runs a download service, This stuff needs
+to be pushed into the mainstream. There is NO evidence that SUN
+management, increasingly PHB, even understands the issue.
 
-Does sshfs not cache or prefetch any of the data?
+If I need a Python or Ruby platform do I use sun or Linux on X-arc?
 
-IMHO, caching and prefetching makes a lot of sense for this situation
-- in fact, it does for any kind of filesystem operation during a
-sequence of file operations where a program does not use locks (flock
-etc.), fsyncs, or open/close.
+This and the failure to see that they must open source Java just
+indicate how clueless SUN senior leadership now is.
 
-Surely caching and prefetching should be a generic feature of FUSE for
-all its filesystems unless disabled.  Is there a reason why this is
-not done, or is it just not implemented?
+The real problem is insecure sys admins, throughout the industry, who
+resist what developers are trying to do, cos it isnt on the (Solaris)
+distribution CDs
 
-> The problem can be solved just by making open() uninterruptible,
-> because in this case it was the truncate operation that slowed down
-> the progress.  But it's better to solve this by simply not allowing
-> interrupts at all (except SIGKILL), because applications don't expect
-> file operations to be interruptible anyway.  As an added bonus the
-> code is simplified somewhat.
+Finally SUN should move from the pkg* abortion, written by idiots
+at AT&T, some 25 years ago to RPM.
 
-NFS makes file operations interruptible when they're mounted with
-"intr".
-
-It's a life-saver, when the server or network gets wedged, to be able
-to Control-C a program instead of it being stuck in D-state and
-requiring a reboot.
-
-Having a program be stuck in read/write ignoring signals, so that
-Control-C, Control-Z and kill don't work on it, while it's waiting for
-some network operation, is a horrible thing.
-
--- Jamie
+-- 
+mit freundlichen Grüßen, Brian.

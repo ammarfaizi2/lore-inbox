@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVETVRe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbVETVVI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261582AbVETVRe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 17:17:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbVETVRe
+	id S261588AbVETVVI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 17:21:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbVETVVI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 17:17:34 -0400
-Received: from gannon.phys.uwm.edu ([129.89.61.108]:35506 "EHLO
-	gannon.phys.uwm.edu") by vger.kernel.org with ESMTP id S261582AbVETVR2
+	Fri, 20 May 2005 17:21:08 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:56468 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261588AbVETVVD convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 17:17:28 -0400
-Date: Fri, 20 May 2005 16:17:27 -0500 (CDT)
-From: Adam Miller <amiller@gravity.phys.uwm.edu>
-X-X-Sender: amiller@gannon.phys.uwm.edu
-To: lsorense@csclub.uwaterloo.ca
-cc: linux-kernel@vger.kernel.org
-Subject: Re: software RAID  (fwd)
-Message-ID: <Pine.LNX.4.62.0505201616370.16608@gannon.phys.uwm.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 20 May 2005 17:21:03 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=uvAJNbtaInp9iyUkj5eWIvQ4+wSzSBXyLqHEAijasUZM4nEThIittbs22KzB1q4oZlnjMg/NzFLpBGKy5ude6RLp7kYBlZsmVScVl1yMDnoksxBgDZrC+9LuJ0JB3PgbNga2rV76eRGX6Xwao7dXV8641Ghepc6EYcT9J1Y0b/I=
+Message-ID: <9e4733910505201421cf36902@mail.gmail.com>
+Date: Fri, 20 May 2005 17:21:03 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: linux-os@analogic.com
+Subject: Re: Screen regen buffer at 0x00b8000
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0505201612360.6833@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <Pine.LNX.4.61.0505200944060.5921@chaos.analogic.com>
+	 <Pine.LNX.4.58.0505201259560.2206@ppc970.osdl.org>
+	 <Pine.LNX.4.61.0505201612360.6833@chaos.analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 5/20/05, Richard B. Johnson <linux-os@analogic.com> wrote:
+> On Fri, 20 May 2005, Linus Torvalds wrote:
+> Yes, and I didn't want to. However a customer wants some status to
+> be always displayed in the upper-right-hand corner of a 4x5 LCD
+> with a tiny CPU board.
 
-Here is a response from Bruce Allen.
+The console implements a tiny terminal emulator. Does the emulator
+implement the escape sequence for locking an unscrollable line at the
+top of the screen? If so lock the line, write your info there, and the
+rest of the display will work like normal.
 
->> If you have a bad sector, it doesn't go away by writing to it again.  On
->> modern drives, if you see bad sectors the disk is just about dead, and
->> will probably be seen as such by the raid system which will then stop
->> using the disk entirely and expect you to replace it ASAP.
-
-This is false.
-
-Modern ATA and SCSI disk drives have several thousand spare sectors.
-When a sector is unreadable (UNC) which means that the ECC codes are
-inconsistent, the drive will REALLOCATE the sector, assigning a spare
-sector the LBA of the failed sector.  However it will only do this when
-you WRITE to the LBA of the failed sector.
-
-> The one exception here is if you have a miswritten sector (usually
-> caused by unexpected power-down), which won't read back correctly -
-> but running badblocks with one of the 'write-verify' options will
-> resurrect it.
-
-Sectors can have inconsistent ECC codes for a number of reasons:
-   -- failed write during sudden power-down
-   -- damage to magnetic media at this LBA
-   -- other reasons
-
-> If you have a drive that has a bad block in it even *after* badblocks has
-> re-written it, it's time to replace the drive *now*....
-
-Not true.  Disks which have reallocated large numbers of blocks are
-usually failing. But most good disks have some reallocated blocks.
-
-> For the original poster: Breaking the mirror and then re-mirroring
-> from the "good" drive *might* recover the bad block when it re-writes
-> it.  But don't bet on it...
-
-It won't 'recover' the bad block.  It will write the data (obtained from
-the good drive) to a newly allocated spare sector on the bad drive.
-
-Cheers,
- 	Bruce
+-- 
+Jon Smirl
+jonsmirl@gmail.com

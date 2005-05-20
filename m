@@ -1,96 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbVETKlC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbVETKqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261401AbVETKlC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 06:41:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261406AbVETKlC
+	id S261406AbVETKqT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 06:46:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbVETKqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 06:41:02 -0400
-Received: from mail06.syd.optusnet.com.au ([211.29.132.187]:44719 "EHLO
-	mail06.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261401AbVETKkr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 06:40:47 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] kernel <linux-2.6.11.10> kernel/sched.c
-Date: Fri, 20 May 2005 20:40:48 +1000
-User-Agent: KMail/1.8
-Cc: chen Shang <shangcs@gmail.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux-kernel@vger.kernel.org, rml@tech9.net,
-       Andrew Morton <akpm@osdl.org>
-References: <855e4e4605051909561f47351@mail.gmail.com> <855e4e46050520001215be7cde@mail.gmail.com> <20050520094909.GA16923@elte.hu>
-In-Reply-To: <20050520094909.GA16923@elte.hu>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart7220697.WPHIdGkbkj";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200505202040.51329.kernel@kolivas.org>
+	Fri, 20 May 2005 06:46:19 -0400
+Received: from szxga01-in.huawei.com ([61.144.161.53]:7384 "EHLO huawei.com")
+	by vger.kernel.org with ESMTP id S261406AbVETKqL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 06:46:11 -0400
+Date: Fri, 20 May 2005 18:44:01 +0800
+From: steve <lingxiang@huawei.com>
+Subject: Re: Re: why nfs server delay 10ms in nfsd_write()?
+To: Peter Staubach <staubach@redhat.com>, Lee Revell <rlrevell@joe-job.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "zhangtiger@huawei.com" <zhangtiger@huawei.com>
+Message-id: <0IGS00FKJBCKRE@szxml02-in.huawei.com>
+MIME-version: 1.0
+X-Mailer: Foxmail 4.2 [cn]
+Content-type: text/plain; charset=GB2312
+Content-transfer-encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart7220697.WPHIdGkbkj
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_x6bjC+hcCYJVmxh"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi Peter,
+My envionment looks like that:
 
---Boundary-01=_x6bjC+hcCYJVmxh
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+NFS Server£ºSuse9 Enterprise 
+NFS Client£ºRedhat AS3.0(kernel 2.4.21) 
 
-On Fri, 20 May 2005 19:49, Ingo Molnar wrote:
-> * chen Shang <shangcs@gmail.com> wrote:
-> > I minimized my patch and against to 2.6.12-rc4 this time, see below.
+I made a ramdisk and export it with nfs
+Server and Client are connected with 1000Mbps
+
+mount the ramdisk on the client with parameters: -t nfs -o rw,noac
+
+then test with iometer and the parameters are: 
+Outstanding IO is 32, transfer request size is 512, sequential write
+the result is about 300KB/s, iops is about 600
+
+with dd test i find the delay most cost at the server.
+
+i agree with Avi that "if the NFS client has no (or low) concurrency, then write gathering would
+reduce preformance"
+
+
+Regards! 				
+Steve
+2005-05-20
+
+======= 2005-05-19 10:10:00 =======
+
+>Lee Revell wrote:
 >
-> looks good - i've done some small style/whitespace cleanups and renamed
-> prio to old_prio, patch against -rc4 below.
+>>On Thu, 2005-05-19 at 08:53 -0400, Peter Staubach wrote:
+>>  
+>>
+>>>There are certainly many others way to get gathering, without adding an
+>>>artificial delay.  There are already delay slots built into the code 
+>>>which could
+>>>be used to trigger the gathering, so with a little bit different 
+>>>architecture, the
+>>>performance increases could be achieved.
+>>>
+>>>Some implementations actually do write gathering with NFSv3, even.  Is
+>>>this interesting enough to play with?  I suspect that just doing the 
+>>>work for
+>>>NFSv2 is not...
+>>>    
+>>>
+>>
+>>Also, how do you explain the big performance hit that steve observed?
+>>Write gathering is supposed to help performance, but it's a big loss on
+>>his test...
+>>
+>
+>Well, a little bit more information about what he is doing would be 
+>helpful.  I'd
+>like to better understand the environment and what the traffic from the 
+>client
+>looks like.
+>
+>Write gathering is not a panacea for all of the ills caused by the NFSv2 
+>WRITE
+>stable storage requirements.  In fact, if done wrong, it can cause 
+>performance
+>regressions, such as those being noticed by Steve.
+>
+>--
+>
+>I implemented the write gathering used in Solaris and experimented with
+>several (many?) different approachs.  Adding a delay in order to allow
+>subsequent WRITE requests to arrive seems like a good thing, but can
+>end up just adding latency to the entire process if not done right.
+>
+>A suggestion might be to use the delay caused by the nfsd_sync() call
+>and synchronize other WRITE requests around that.  The delay caused by
+>doing real i/o to the storage subsystem should allow write gathering to
+>take place, assuming that the client is generating concurrent WRITE
+>requests.
+>
+>       ps
 
-We should inline requeue_task as well.
 
-Con
-----
 
---Boundary-01=_x6bjC+hcCYJVmxh
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="inline_requeue_task.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="inline_requeue_task.diff"
 
-Putting requeue_task into the common fast path code in schedule() will
-benefit generically from inlining the requeue_task function.
 
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
-
-Index: linux-2.6.12-rc4/kernel/sched.c
-===================================================================
---- linux-2.6.12-rc4.orig/kernel/sched.c	2005-05-20 20:28:29.000000000 +1000
-+++ linux-2.6.12-rc4/kernel/sched.c	2005-05-20 20:28:55.000000000 +1000
-@@ -560,7 +560,7 @@ static void enqueue_task(struct task_str
-  * Put task to the end of the run list without the overhead of dequeue
-  * followed by enqueue.
-  */
--static void requeue_task(struct task_struct *p, prio_array_t *array)
-+static inline void requeue_task(struct task_struct *p, prio_array_t *array)
- {
- 	list_move_tail(&p->run_list, array->queue + p->prio);
- }
-
---Boundary-01=_x6bjC+hcCYJVmxh--
-
---nextPart7220697.WPHIdGkbkj
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
-
-iD8DBQBCjb6zZUg7+tp6mRURAokoAJ4r1CZl+0Uspjc9rYKCYkp05lPSFQCffTMa
-9uIZbJWg3wht/KaxwYZAD+E=
-=hQSk
------END PGP SIGNATURE-----
-
---nextPart7220697.WPHIdGkbkj--

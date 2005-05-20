@@ -1,50 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbVETSNu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261526AbVETSQQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261525AbVETSNu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 14:13:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261526AbVETSNu
+	id S261526AbVETSQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 14:16:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbVETSQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 14:13:50 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:5863 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S261525AbVETSNs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 14:13:48 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: Thread and process dentifiers (CPU affinity, kill)
-Date: Fri, 20 May 2005 18:13:48 +0000 (UTC)
-Organization: Cistron
-Message-ID: <d6l9cs$l1t$1@news.cistron.nl>
-References: <428CD458.6010203@free.fr> <20050520125511.GC23488@csclub.uwaterloo.ca> <428DF95E.2070703@free.fr> <20050520165307.GG23488@csclub.uwaterloo.ca>
+	Fri, 20 May 2005 14:16:16 -0400
+Received: from MAIL.13thfloor.at ([212.16.62.50]:45727 "EHLO mail.13thfloor.at")
+	by vger.kernel.org with ESMTP id S261526AbVETSQH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 14:16:07 -0400
+Date: Fri, 20 May 2005 20:16:06 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: David Lang <david.lang@digitalinsight.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Rik van Riel <riel@redhat.com>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] how do we move the VM forward? (was Re: [RFC] cleanup ofuse-once)
+Message-ID: <20050520181606.GB6002@MAIL.13thfloor.at>
+Mail-Followup-To: David Lang <david.lang@digitalinsight.com>,
+	Nick Piggin <nickpiggin@yahoo.com.au>,
+	Rik van Riel <riel@redhat.com>, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.61.0505030037100.27756@chimarrao.boston.redhat.com> <42771904.7020404@yahoo.com.au> <Pine.LNX.4.61.0505030913480.27756@chimarrao.boston.redhat.com> <42781AC5.1000201@yahoo.com.au> <Pine.LNX.4.62.0505031749010.12818@qynat.qvtvafvgr.pbz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1116612828 21565 194.109.0.112 (20 May 2005 18:13:48 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: mikevs@cistron.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0505031749010.12818@qynat.qvtvafvgr.pbz>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <20050520165307.GG23488@csclub.uwaterloo.ca>,
-Lennart Sorensen <lsorense@csclub.uwaterloo.ca> wrote:
->On Fri, May 20, 2005 at 04:51:10PM +0200, Olivier Croquette wrote:
->> From the beginning we are talking about the present GNU/Linux systems, 
->> which do already use NTPL in standard. NPTL is no future standard, it is 
->> present standard.
->
->Hmm, I just noticed the page I found about NPTL had 2005 date one place
->and 2002 in another.  Yeah that is what people are using already.
->
->Most current i386 systems do NOT use NPTL yet by default since it only
->works on 2.6 kernels, and even then probably only if glibc was compiled
->that way.
+On Tue, May 03, 2005 at 05:51:43PM -0700, David Lang wrote:
+> On Wed, 4 May 2005, Nick Piggin wrote:
+> 
+> >
+> >Also having a box or two for running regression and stress
+> >testing is a must. I can do a bit here, but unfortunately
+> >"kernel compiles until it hurts" is probably not the best
+> >workload to target.
 
-No. On modern systems, glibc contains both LinuxThreads and NPTL.
-They have the same ABI. At runtime one of the two is selected,
-depending on if the currently running kernel supports NTPL.
-You can also force it by setting the LD_ASSUME_KERNEL environment
-variable to 2.4 or 2.6.
+if there are some tests or output (kernel logs, etc)
+or proc info or vmstat or whatever, which doesn't take
+100% cpu time, I'm able and willing to test it on different
+workloads (including compiling the kernel until it hurts ;)
 
-Mike.
+> >In general most systems and their workloads aren't constantly
+> >swapping, so we should aim to minimise IO for normal
+> >workloads. Databases that use the pagecache (eg. postgresql)
+> >would be a good test. But again we don't want to focus on one
+> >thing.
+> >
+> >That said, of course we don't want to hurt the "really
+> >thrashing" case - and hopefully improve it if possible.
+> 
+> may I suggest useing OpenOffice as one test, it can eat up horrendous 
+> amounts of ram in operation (I have one spreadsheet I can send you if 
+> needed that takes 45min of cpu time on a Athlon64 3200 with 1G of ram just 
+> to open, at which time it shows openoffice takeing more then 512M of ram)
 
+cool, looks like they are taking the MS compatibility
+really serious nowadays ...
+
+best,
+Herbert
+
+> David Lang
+> 
+> -- 
+> There are two ways of constructing a software design. One way is to make it 
+> so simple that there are obviously no deficiencies. And the other way is to 
+> make it so complicated that there are no obvious deficiencies.
+>  -- C.A.R. Hoare
+> --
+> To unsubscribe, send a message with 'unsubscribe linux-mm' in
+> the body to majordomo@kvack.org.  For more info on Linux MM,
+> see: http://www.linux-mm.org/ .
+> Don't email: <a href=mailto:"aart@kvack.org"> aart@kvack.org </a>

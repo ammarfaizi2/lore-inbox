@@ -1,76 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVETJ4P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVETKAU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261404AbVETJ4P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 05:56:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbVETJ4P
+	id S261408AbVETKAU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 06:00:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVETKAU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 05:56:15 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:24496 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261394AbVETJ4I (ORCPT
+	Fri, 20 May 2005 06:00:20 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:8943 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261394AbVETKAO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 05:56:08 -0400
-Date: Fri, 20 May 2005 11:49:09 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: chen Shang <shangcs@gmail.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org,
-       rml@tech9.net, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] kernel <linux-2.6.11.10> kernel/sched.c
-Message-ID: <20050520094909.GA16923@elte.hu>
-References: <855e4e4605051909561f47351@mail.gmail.com> <428D58E6.8050001@yahoo.com.au> <855e4e460505192117155577e@mail.gmail.com> <428D71F9.10503@yahoo.com.au> <855e4e46050520001215be7cde@mail.gmail.com>
+	Fri, 20 May 2005 06:00:14 -0400
+Date: Fri, 20 May 2005 15:39:29 +0530
+From: Dinakar Guniguntala <dino@in.ibm.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: "K.R. Foley" <kr@cybsft.com>, Andrew Morton <akpm@osdl.org>,
+       gregoire.favre@gmail.com, Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
+Message-ID: <20050520100928.GA3963@in.ibm.com>
+Reply-To: dino@in.ibm.com
+References: <20050516085832.GA9558@gmail.com> <20050517071307.GA4794@in.ibm.com> <20050517002908.005a9ba7.akpm@osdl.org> <1116340465.4989.2.camel@mulgrave> <20050517170824.GA3931@in.ibm.com> <1116354894.4989.42.camel@mulgrave> <428C030E.8030102@cybsft.com> <1116476630.5867.2.camel@mulgrave> <20050519095143.GA3972@in.ibm.com> <1116546970.5037.137.camel@mulgrave>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <855e4e46050520001215be7cde@mail.gmail.com>
+In-Reply-To: <1116546970.5037.137.camel@mulgrave>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, May 19, 2005 at 06:56:10PM -0500, James Bottomley wrote:
+> 
+> OK, could you try this one (also against vanilla 2.6.12-rc4).  Hopefully
+> it's a rollup of all the aic7xxx changes plus the necessary supporting
+> infrastructure in my scsi-misc tree.
+> 
 
-* chen Shang <shangcs@gmail.com> wrote:
+This works fine for me with 2.6.12-rc4, Thanks
 
-> I minimized my patch and against to 2.6.12-rc4 this time, see below.
+I would appreciate if you can send this to -mm too
 
-looks good - i've done some small style/whitespace cleanups and renamed 
-prio to old_prio, patch against -rc4 below.
-
-	Ingo
-
-From: Chen Shang <shangcs@gmail.com>
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
---- linux/kernel/sched.c.orig
-+++ linux/kernel/sched.c
-@@ -2613,7 +2613,7 @@ asmlinkage void __sched schedule(void)
- 	struct list_head *queue;
- 	unsigned long long now;
- 	unsigned long run_time;
--	int cpu, idx;
-+	int cpu, idx, old_prio;
- 
- 	/*
- 	 * Test if we are atomic.  Since do_exit() needs to call into
-@@ -2735,9 +2735,15 @@ go_idle:
- 			delta = delta * (ON_RUNQUEUE_WEIGHT * 128 / 100) / 128;
- 
- 		array = next->array;
--		dequeue_task(next, array);
-+		old_prio = next->prio;
-+
- 		recalc_task_prio(next, next->timestamp + delta);
--		enqueue_task(next, array);
-+
-+		if (unlikely(old_prio != next->prio)) {
-+			dequeue_task(next, array);
-+			enqueue_task(next, array);
-+		} else
-+			requeue_task(next, array);
- 	}
- 	next->activated = 0;
- switch_tasks:
+	-Dinakar

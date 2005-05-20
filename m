@@ -1,40 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVETWLZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261434AbVETWNB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbVETWLZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 18:11:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbVETWLZ
+	id S261434AbVETWNB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 18:13:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVETWNA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 18:11:25 -0400
-Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:35476 "EHLO
-	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
-	id S261426AbVETWLW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 18:11:22 -0400
-From: Neil Brown <neilb@cse.unsw.edu.au>
-To: Adam Miller <amiller@gravity.phys.uwm.edu>
-Date: Sat, 21 May 2005 08:11:14 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17038.24706.571479.471268@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: software RAID
-In-Reply-To: message from Adam Miller on Friday May 20
-References: <Pine.LNX.4.62.0505201246520.13530@gannon.phys.uwm.edu>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+	Fri, 20 May 2005 18:13:00 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:33173 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261434AbVETWMI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 18:12:08 -0400
+Subject: [RFC][PATCH] rbind across namespaces
+From: Ram <linuxram@us.ibm.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
+       Miklos Szeredi <miklos@szeredi.hu>, jamie@shareable.org
+Content-Type: multipart/mixed; boundary="=-rN9ols8Am5NrW+teKjJu"
+Organization: IBM 
+Message-Id: <1116627099.4397.43.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 
+Date: Fri, 20 May 2005 15:11:40 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday May 20, amiller@gravity.phys.uwm.edu wrote:
-> Hi,
->    We're looking to set up either software RAID 1 or RAID 10 using 2 SATA 
-> disks.  If a disk in drive A has a bad sector, can it be setup so that the 
-> array will read the sector from drive B and then have it rewrite the 
-> bad sector on drive A?  Please CC me in the response.
 
-Not yet, but it is this functionality is very near the top of my TODO
-list for md.
+--=-rN9ols8Am5NrW+teKjJu
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-NeilBrown
+I have enclosed a patch that allows rbinds across any two namespaces.
+NOTE: currenly bind from foriegn namespace to current namespace is
+allowed. This patch now allows:
+
+binds/rbinds from any namespace to any other namespace, under the
+assumption that if a process has access to a namespace, it ought to
+have permission to manipulate that namespace.
+
+The patch incorporates ideas from Miklos and Jamie, and is dependent
+on Miklos's 'fix race in mark_mounts_for_expiry' patch to function
+correctly. Also it depends on Miklos's 'fix bind mount from foreign
+namespace' patch, because without that patch umounts would fail.
+
+Though we have not come up with any security reason towards why
+this functionality should not be allowed, I am sure it may open
+up some concerns.
+
+
+RP
+
+
+--=-rN9ols8Am5NrW+teKjJu
+Content-Disposition: attachment; filename=rbind_across_namespace.patch
+Content-Type: text/x-patch; name=rbind_across_namespace.patch; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+Signed-off-by: Ram Pai <linuxram@us.ibm.com>
+
+--- /home/linux/views/linux-2.6.12-rc4/fs/namespace.c	2005-05-06 23:22:29.000000000 -0700
++++ 2.6.12-rc4/fs/namespace.c	2005-05-20 14:44:57.000000000 -0700
+@@ -616,11 +616,15 @@ out_unlock:
+ }
+ 
+ /*
+- * do loopback mount.
++ * do loopback mount.  The loopback mount can be done from any namespace
++ * to any other namespace including the current namespace, as long as
++ * the task acquired rights to manipulate them.
+  */
+ static int do_loopback(struct nameidata *nd, char *old_name, int recurse)
+ {
+ 	struct nameidata old_nd;
++	struct namespace *mntpt_ns = nd->mnt->mnt_namespace, *old_ns;
++	int mntpt_ns_flag=0, old_ns_flag=0;
+ 	struct vfsmount *mnt = NULL;
+ 	int err = mount_is_safe(nd);
+ 	if (err)
+@@ -631,16 +635,54 @@ static int do_loopback(struct nameidata 
+ 	if (err)
+ 		return err;
+ 
+-	down_write(&current->namespace->sem);
++	old_ns = old_nd.mnt->mnt_namespace;
++
++	/* 
++	 * make sure the namespaces do not disapper while
++	 * we operate on it
++	 */
+ 	err = -EINVAL;
+-	if (check_mnt(nd->mnt) && (!recurse || check_mnt(old_nd.mnt))) {
+-		err = -ENOMEM;
+-		if (recurse)
+-			mnt = copy_tree(old_nd.mnt, old_nd.dentry);
+-		else
+-			mnt = clone_mnt(old_nd.mnt, old_nd.dentry);
++	if (mntpt_ns != current->namespace) {
++		spin_lock(&vfsmount_lock);
++		if (!mntpt_ns->root) {
++			spin_unlock(&vfsmount_lock);
++			goto out;
++		}
++		get_namespace(mntpt_ns);
++		spin_unlock(&vfsmount_lock);
++		mntpt_ns_flag=1;
+ 	}
+ 
++	if (old_ns != current->namespace) {
++		spin_lock(&vfsmount_lock);
++		if (!old_ns->root) {
++			spin_unlock(&vfsmount_lock);
++			goto release_mntpt_ns;
++		}
++		get_namespace(old_ns);
++		spin_unlock(&vfsmount_lock);
++		old_ns_flag=1;
++	}
++
++	/* 
++	 * make sure we don't race with some
++	 * other thread manipulating the
++	 * namespaces.
++	 */
++	if (old_ns < mntpt_ns) {
++		down_write(&old_ns->sem);
++	}
++	down_write(&mntpt_ns->sem);
++	if (old_ns > mntpt_ns) {
++		down_write(&old_ns->sem);
++	}
++
++	err = -ENOMEM;
++	if (recurse)
++		mnt = copy_tree(old_nd.mnt, old_nd.dentry);
++	else
++		mnt = clone_mnt(old_nd.mnt, old_nd.dentry);
++
+ 	if (mnt) {
+ 		/* stop bind mounts from expiring */
+ 		spin_lock(&vfsmount_lock);
+@@ -656,7 +698,23 @@ static int do_loopback(struct nameidata 
+ 			mntput(mnt);
+ 	}
+ 
+-	up_write(&current->namespace->sem);
++	if (old_ns < mntpt_ns) {
++		up_write(&old_ns->sem);
++	}
++	up_write(&mntpt_ns->sem);
++	if (old_ns > mntpt_ns) {
++		up_write(&old_ns->sem);
++	}
++
++	if (old_ns_flag) {
++		put_namespace(old_ns);
++	}
++
++release_mntpt_ns:
++	if (mntpt_ns_flag) {
++		put_namespace(mntpt_ns);
++	}
++out:
+ 	path_release(&old_nd);
+ 	return err;
+ }
+
+--=-rN9ols8Am5NrW+teKjJu--
+

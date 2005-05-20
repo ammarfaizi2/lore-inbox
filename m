@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVETPTr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVETPTV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261499AbVETPTr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 11:19:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVETPTf
+	id S261494AbVETPTV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 11:19:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVETPTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 11:19:35 -0400
-Received: from mummy.ncsc.mil ([144.51.88.129]:14529 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S261470AbVETPSu (ORCPT
+	Fri, 20 May 2005 11:19:21 -0400
+Received: from iona.labri.fr ([147.210.8.143]:8666 "EHLO iona.labri.fr")
+	by vger.kernel.org with ESMTP id S261492AbVETPSy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 11:18:50 -0400
-Subject: Re: 2.6.12-rc4-mm2 - sleeping function called from invalid context
-	at mm/slab.c:2502
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Linux Audit Discussion <linux-audit@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1116601195.29037.18.camel@localhost.localdomain>
-References: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu>
-	 <1116502449.23972.207.camel@hades.cambridge.redhat.com>
-	 <200505191845.j4JIjVtq006262@turing-police.cc.vt.edu>
-	 <200505201430.j4KEUFD0012985@turing-police.cc.vt.edu>
-	 <1116601195.29037.18.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Fri, 20 May 2005 11:09:17 -0400
-Message-Id: <1116601757.12489.130.camel@moss-spartans.epoch.ncsc.mil>
+	Fri, 20 May 2005 11:18:54 -0400
+Date: Fri, 20 May 2005 17:18:46 +0200
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+To: linux-kernel@vger.kernel.org
+Subject: spin_unlock_bh() and preempt_check_resched()
+Message-ID: <20050520151846.GP3690@bouh.labri.fr>
+Mail-Followup-To: Samuel Thibault <samuel.thibault@ens-lyon.org>,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-16) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i-nntp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-05-20 at 15:59 +0100, David Woodhouse wrote:
-> On Fri, 2005-05-20 at 10:30 -0400, Valdis.Kletnieks@vt.edu wrote:
-> > Looks like we either only swatted half the bug, or the patch moved it
-> > around. Slightly different trace this time:
-> 
-> OK. Steve's audit_log_d_path() change, which I pulled in because it had
-> the side-effect of NUL-terminating the buffer, is now using GFP_KERNEL
-> where previously it was not. 
-> 
-> We could make it use GFP_ATOMIC, but I suspect the better answer if at
-> all possible would be to make sure that avc_audit doesn't call it with
-> spinlocks held. Or maybe to make avc_audit() pass a gfp_mask to it, but
-> I don't like that much.
+Hi,
 
-The lock is being held by the af_unix code (unix_state_wlock), not
-avc_audit; the AVC is called under all kinds of circumstances (softirq,
-hard irq, caller holding locks on relevant objects) for permission
-checking and must never sleep.
+I'm wondering about macros like _spin_unlock_bh(lock):
+do { \
+        _raw_spin_unlock(lock); \
+        preempt_enable(); \
+        local_bh_enable(); \
+        __release(lock); \
+} while (0)
 
-One option might be to defer some of the AVC auditing to the audit
-framework (e.g. save the vfsmount and dentry on the current audit
-context and let audit_log_exit perform the audit_log_d_path).
+Is there a reason for using preempt_enable() instead of a simple
+preempt_enable_no_resched() ?
 
--- 
-Stephen Smalley
-National Security Agency
+Since we know bottom halves are disabled, preempt_schedule() will always
+return at once (preempt_count!=0), and hence preempt_check_resched() is
+useless here...
 
+Regards,
+Samuel

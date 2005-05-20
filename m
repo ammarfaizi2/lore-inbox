@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbVETS7L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbVETTED@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261549AbVETS7L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 14:59:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVETS7L
+	id S261162AbVETTED (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 15:04:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVETTED
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 14:59:11 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:42168 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261549AbVETS7G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 14:59:06 -0400
-Message-ID: <428E3372.403@pobox.com>
-Date: Fri, 20 May 2005 14:58:58 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+	Fri, 20 May 2005 15:04:03 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:29945 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261162AbVETTEA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 15:04:00 -0400
+Message-ID: <428E3497.3080406@us.ibm.com>
+Date: Fri, 20 May 2005 12:03:51 -0700
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Grant Grundler <grundler@parisc-linux.org>, akpm@osdl.org
-CC: T-Bone@parisc-linux.org, varenet@parisc-linux.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Netdev <netdev@oss.sgi.com>
-Subject: Re: patch tulip-natsemi-dp83840a-phy-fix.patch added to -mm tree
-References: <200505101955.j4AJtX9x032464@shell0.pdx.osdl.net> <42881C58.40001@pobox.com> <20050516050843.GA20107@colo.lackof.org> <4288CE51.1050703@pobox.com> <20050516222612.GD9282@colo.lackof.org>
-In-Reply-To: <20050516222612.GD9282@colo.lackof.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Christoph Lameter <christoph@lameter.com>
+CC: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: NUMA aware slab allocator V3
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>  <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com>  <714210000.1116266915@flay> <200505161410.43382.jbarnes@virtuousgeek.org>  <740100000.1116278461@flay>  <Pine.LNX.4.62.0505161713130.21512@graphe.net> <1116289613.26955.14.camel@localhost> <428A800D.8050902@us.ibm.com> <Pine.LNX.4.62.0505171648370.17681@graphe.net> <428B7B16.10204@us.ibm.com> <Pine.LNX.4.62.0505181046320.20978@schroedinger.engr.sgi.com> <428BB05B.6090704@us.ibm.com> <Pine.LNX.4.62.0505181439080.10598@graphe.net> <Pine.LNX.4.62.0505182105310.17811@graphe.net>
+In-Reply-To: <Pine.LNX.4.62.0505182105310.17811@graphe.net>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Grundler wrote:
-> After three years of using/maintaining the (trivial) tulip patch
-> in parisc-linux tree (and shipped with RH/SuSe ia64 releases),
-> I don't recall anyone complaining that udelays in tulip phy reset
-> caused them problems. Sorry, I'm unmotivated to revisit this.
-> Convince someone else to make tulip to use workqueues and I'll
-> resubmit a clean patch on top of that for the phy init sequences.
+Christoph, I'm getting the following errors building rc4-mm2 w/ GCC 2.95.4:
 
+mm/slab.c:281: field `entry' has incomplete typemm/slab.c: In function
+'cache_alloc_refill':
+mm/slab.c:2497: warning: control reaches end of non-void function
+mm/slab.c: In function `kmem_cache_alloc':
+mm/slab.c:2567: warning: `objp' might be used uninitialized in this function
+mm/slab.c: In function `kmem_cache_alloc_node':
+mm/slab.c:2567: warning: `objp' might be used uninitialized in this function
+mm/slab.c: In function `__kmalloc':
+mm/slab.c:2567: warning: `objp' might be used uninitialized in this function
+make[1]: *** [mm/slab.o] Error 1
+make[1]: *** Waiting for unfinished jobs....
 
-Long delays are unacceptable in new drivers, and we are working to 
-remove them from older drivers.  Lack of complaints is irrelevant -- its 
-a design requirement of all drivers.
-
-Ingo and the real-time crowd are fighting against every delay, because 
-every delay causes a spin, a blip in latency, an increase in CPU usage, 
-and a complete stoppage of ALL work on a uniprocessor machine.
-
-Your patch is not a special case.  We have been communicating this 
-message on udelay/mdelay for -years-.  All your patch [as-is] does is 
-cause more work for someone else.
-
-This also presents a problem that Andrew points out on occasion:
-what happens when a patch is useful, but the patch author isn't (for 
-whatever reason) doing the legwork necessary to get it into the mainline 
-kernel?  We certainly DON'T want to lose this patch, as the changes are 
-useful.
-
-	Jeff
-
-
+-Matt

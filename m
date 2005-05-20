@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbVETVue@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVETWLZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261388AbVETVue (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 17:50:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbVETVue
+	id S261426AbVETWLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 18:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbVETWLZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 17:50:34 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:29279 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S261388AbVETVu2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 17:50:28 -0400
-Message-ID: <428E5BA1.8040301@tls.msk.ru>
-Date: Sat, 21 May 2005 01:50:25 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Fri, 20 May 2005 18:11:25 -0400
+Received: from tone.orchestra.cse.unsw.EDU.AU ([129.94.242.59]:35476 "EHLO
+	tone.orchestra.cse.unsw.EDU.AU") by vger.kernel.org with ESMTP
+	id S261426AbVETWLW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 18:11:22 -0400
+From: Neil Brown <neilb@cse.unsw.edu.au>
 To: Adam Miller <amiller@gravity.phys.uwm.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: software RAID
-References: <Pine.LNX.4.62.0505201246520.13530@gannon.phys.uwm.edu>
-In-Reply-To: <Pine.LNX.4.62.0505201246520.13530@gannon.phys.uwm.edu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Date: Sat, 21 May 2005 08:11:14 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17038.24706.571479.471268@cse.unsw.edu.au>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: software RAID
+In-Reply-To: message from Adam Miller on Friday May 20
+References: <Pine.LNX.4.62.0505201246520.13530@gannon.phys.uwm.edu>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Miller wrote:
+On Friday May 20, amiller@gravity.phys.uwm.edu wrote:
 > Hi,
->   We're looking to set up either software RAID 1 or RAID 10 using 2 SATA 
-> disks.  If a disk in drive A has a bad sector, can it be setup so that 
-> the array will read the sector from drive B and then have it rewrite the 
+>    We're looking to set up either software RAID 1 or RAID 10 using 2 SATA 
+> disks.  If a disk in drive A has a bad sector, can it be setup so that the 
+> array will read the sector from drive B and then have it rewrite the 
 > bad sector on drive A?  Please CC me in the response.
 
-Adam,
+Not yet, but it is this functionality is very near the top of my TODO
+list for md.
 
-There's no such functionality in linux software raid exists now.
-Instead, as it is implemented now, the whole drive is kicked off
-the array in case of *any* error in I/O path.  There are patches
-by Peter T. Breuer for 2.4 kernel for raid1, named "robust read",
-which does just that, but the patches aren't accepted in mainline,
-and in 2.6, the subsystem is too different.  Maybe in some future...
-
-And BTW, there's no reason to set up RAID10 array on top of 2 drives ;)
-
-/mjt
+NeilBrown

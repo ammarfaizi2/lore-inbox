@@ -1,92 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261552AbVETTkR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbVETTpq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261552AbVETTkR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 15:40:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVETTkR
+	id S261534AbVETTpq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 15:45:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261559AbVETTpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 15:40:17 -0400
-Received: from ns1.suse.de ([195.135.220.2]:6579 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261552AbVETTkD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 15:40:03 -0400
-Date: Fri, 20 May 2005 21:39:57 +0200
-From: Andi Kleen <ak@suse.de>
-To: Natalie.Protasevich@unisys.com
-Cc: akpm@osdl.org, ak@suse.de, zwane@arm.linux.org.uk, len.brown@intel.com,
-       bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/1] Proposed: Let's not waste precious IRQs...
-Message-ID: <20050520193957.GH16164@wotan.suse.de>
-References: <20050519110613.B817D27266@linux.site>
+	Fri, 20 May 2005 15:45:46 -0400
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:22797 "EHLO
+	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
+	id S261534AbVETTpi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 15:45:38 -0400
+Message-Id: <200505201945.j4KJjSAW014218@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: "Richard B. Johnson" <linux-os@analogic.com>,
+       Jan-Benedict Glaw <jbglaw@lug-owl.de>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Screen regen buffer at 0x00b8000 
+In-Reply-To: Your message of "Fri, 20 May 2005 21:26:59 +0200."
+             <Pine.LNX.4.62.0505202125440.18326@numbat.sonytel.be> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.61.0505200944060.5921@chaos.analogic.com> <20050520141434.GZ2417@lug-owl.de> <Pine.LNX.4.61.0505201124230.5107@chaos.analogic.com>
+            <Pine.LNX.4.62.0505202125440.18326@numbat.sonytel.be>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20050519110613.B817D27266@linux.site>
+Content-Type: multipart/signed; boundary="==_Exmh_1116618328_13523P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 20 May 2005 15:45:28 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 19, 2005 at 04:06:13AM -0700, Natalie.Protasevich@unisys.com wrote:
-> 
-> 
-> I suggest to change the way IRQs are handed out to PCI devices. Currently, each I/O APIC pin gets associated with an IRQ, no matter if the pin is used or not. It is expected that each pin can potentually be engaged by a device inserted into the corresponding PCI slot. However, this imposes severe limitation on systems that have designs that employ many  I/O APICs, only utilizing couple lines of each, such as P64H2 chipset. It is used in ES7000, and currently, there is no way to boot the system with more that 9 I/O APICs. The simple change below allows to boot a system with say 64 (or more) I/O APICs, each providing 1 slot, which otherwise impossible because of the IRQ gaps created for unused lines on each I/O APIC. It does not resolve the problem with number of devices that exceeds number of possible IRQs, but eases up a tension for IRQs on any large system with potentually large number of devices. I only implemented this for the ACPI boot, since if the system is this big and
->   using newer chipsets it is probably (better be!) an ACPI based system :). The change is completely "mechanical" and does not alter any internal structures or interrupt model/implementation. The patch works for both i386 and x86_64 archs. It works with MSIs just fine, and should not intervene with implementations like shared vectors, when they get worked out and incorporated.
-> 
-> 
-> To illustrate, below is the interrupt distribution for 2-cell ES7000 with 20 I/O APICs, and an Ethernet card in the last slot, which should be eth1 and which was not configured because its IRQ exceeded allowable number (it actially turned out huge - 480!):
-> 
-> zorro-tb2:~ # cat /proc/interrupts
->            CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7
->   0:      65716      30012      30007      30002      30009      30010      30010      30010    IO-APIC-edge  timer
->   4:        373          0        725        280          0          0          0          0    IO-APIC-edge  serial
->   8:          0          0          0          0          0          0          0          0    IO-APIC-edge  rtc
->   9:          0          0          0          0          0          0          0          0   IO-APIC-level  acpi
->  14:         39          3          0          0          0          0          0          0    IO-APIC-edge  ide0
->  16:        108         13          0          0          0          0          0          0   IO-APIC-level  uhci_hcd:usb1
->  18:          0          0          0          0          0          0          0          0   IO-APIC-level  uhci_hcd:usb3
->  19:         15          0          0          0          0          0          0          0   IO-APIC-level  uhci_hcd:usb2
->  23:          3          0          0          0          0          0          0          0   IO-APIC-level  ehci_hcd:usb4
->  96:       4240        397         18          0          0          0          0          0   IO-APIC-level  aic7xxx
->  97:         15          0          0          0          0          0          0          0   IO-APIC-level  aic7xxx
-> 192:        847          0          0          0          0          0          0          0   IO-APIC-level  eth0
-> NMI:          0          0          0          0          0          0          0          0
-> LOC:     273423     274528     272829     274228     274092     273761     273827     273694
-> ERR:          7
-> MIS:          0
-> 
-> Even thouigh the system doesn't have that many devices, some don't get enabled only because of IRQ numbering model.
-> 
-> This is the IRQ picture after the patch was applied:
-> 
-> zorro-tb2:~ # cat /proc/interrupts
->            CPU0       CPU1       CPU2       CPU3       CPU4       CPU5       CPU6       CPU7
->   0:      44169      10004      10004      10001      10004      10003      10004       6135    IO-APIC-edge  timer
->   4:        345          0          0          0          0        244          0          0    IO-APIC-edge  serial
->   8:          0          0          0          0          0          0          0          0    IO-APIC-edge  rtc
->   9:          0          0          0          0          0          0          0          0   IO-APIC-level  acpi
->  14:         39          0          3          0          0          0          0          0    IO-APIC-edge  ide0
->  17:       4425          0          9          0          0          0          0          0   IO-APIC-level  aic7xxx
->  18:         15          0          0          0          0          0          0          0   IO-APIC-level  aic7xxx, uhci_hcd:usb3
->  21:        231          0          0          0          0          0          0          0   IO-APIC-level  uhci_hcd:usb1
->  22:         26          0          0          0          0          0          0          0   IO-APIC-level  uhci_hcd:usb2
->  23:          3          0          0          0          0          0          0          0   IO-APIC-level  ehci_hcd:usb4
->  24:        348          0          0          0          0          0          0          0   IO-APIC-level  eth0
->  25:          6        192          0          0          0          0          0          0   IO-APIC-level  eth1
-> NMI:          0          0          0          0          0          0          0          0
-> LOC:     107981     107636     108899     108698     108489     108326     108331     108254
-> ERR:          7
-> MIS:          0
-> 
-> Not only we see the card in the last I/O APIC, but we are not even close to using up available IRQs, since we didn't waste any.
+--==_Exmh_1116618328_13523P
+Content-Type: text/plain; charset=us-ascii
 
-Thanks. Looks good to me and makes a lot of sense.
+On Fri, 20 May 2005 21:26:59 +0200, Geert Uytterhoeven said:
+> On Fri, 20 May 2005, Richard B. Johnson wrote:
 
-Eventually the non ACPI case will need to be fixed too. At least
-on some distributions there are "failsafe" boot loader entries
-which disable ACPI, and users tend to use them occasionally
-and get unhappy when they dont work.
+> > I think that I've discovered a bug. I know that what I have written gets
+> > to the screen buffer because I can read in back! This doesn't make
+> > any sense.
+> 
+> Even if it's only in the CPU cache, of course you can read it back (using the
+> CPU, not DMA ;-).
 
--Andi
+No, the bug is in Richard's assuming that because he can read it back in means
+that it's in the screen buffer.  In fact, it only means he wrote it into some
+memory location that he can read back in. ;)
 
-P.S.: Could you please line wrap your emails at 80 chars/line. That
-would make it easier to quote.
+Now if he added a description that verified that a read *from the screen buffer*
+(rather than "from where he wrote") shows his changes, *then* he'd have something...
 
+--==_Exmh_1116618328_13523P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCjj5XcC3lWbTT17ARAtyPAKDRIQy00wXtaVrO32L1Smh+WF3IjgCgl1Dw
+1eKn6XgxTnr+s5UojbExC0A=
+=JYhi
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1116618328_13523P--

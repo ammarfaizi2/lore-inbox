@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261545AbVETSxl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbVETS7L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261545AbVETSxl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 14:53:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261548AbVETSxl
+	id S261549AbVETS7L (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 14:59:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVETS7L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 14:53:41 -0400
-Received: from tassadar.physics.auth.gr ([155.207.123.25]:16258 "EHLO
-	tassadar.physics.auth.gr") by vger.kernel.org with ESMTP
-	id S261545AbVETSxj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 14:53:39 -0400
-Date: Fri, 20 May 2005 21:53:30 +0300 (EEST)
-From: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
-To: ted creedon <tcreedon@easystreet.com>
-cc: openafs-info@openafs.org, linux-kernel@vger.kernel.org
-Subject: RE: [OpenAFS] Re: Openafs 1.3.78 and kernel 2.4.29 oopses , same
- for 2.4.30 and openafs 1.3.82
-In-Reply-To: <20050520180632.0A04D2952E@smtpauth.easystreet.com>
-Message-ID: <Pine.LNX.4.62.0505202152200.3235@tassadar.physics.auth.gr>
-References: <20050520180632.0A04D2952E@smtpauth.easystreet.com>
+	Fri, 20 May 2005 14:59:11 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:42168 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261549AbVETS7G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 14:59:06 -0400
+Message-ID: <428E3372.403@pobox.com>
+Date: Fri, 20 May 2005 14:58:58 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-AntiVirus: checked by AntiVir Milter (version: 1.1.0-4; AVE: 6.30.0.12; VDF: 6.30.0.188; host: tassadar)
+To: Grant Grundler <grundler@parisc-linux.org>, akpm@osdl.org
+CC: T-Bone@parisc-linux.org, varenet@parisc-linux.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev <netdev@oss.sgi.com>
+Subject: Re: patch tulip-natsemi-dp83840a-phy-fix.patch added to -mm tree
+References: <200505101955.j4AJtX9x032464@shell0.pdx.osdl.net> <42881C58.40001@pobox.com> <20050516050843.GA20107@colo.lackof.org> <4288CE51.1050703@pobox.com> <20050516222612.GD9282@colo.lackof.org>
+In-Reply-To: <20050516222612.GD9282@colo.lackof.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Grant Grundler wrote:
+> After three years of using/maintaining the (trivial) tulip patch
+> in parisc-linux tree (and shipped with RH/SuSe ia64 releases),
+> I don't recall anyone complaining that udelays in tulip phy reset
+> caused them problems. Sorry, I'm unmotivated to revisit this.
+> Convince someone else to make tulip to use workqueues and I'll
+> resubmit a clean patch on top of that for the phy init sequences.
 
 
-> What processor chip are you running on? A 686 has one different instruction
-> than a 586 does.
+Long delays are unacceptable in new drivers, and we are working to 
+remove them from older drivers.  Lack of complaints is irrelevant -- its 
+a design requirement of all drivers.
 
-dual Pentium III (Coppermine) @ 600 Mhz
+Ingo and the real-time crowd are fighting against every delay, because 
+every delay causes a spin, a blip in latency, an increase in CPU usage, 
+and a complete stoppage of ALL work on a uniprocessor machine.
+
+Your patch is not a special case.  We have been communicating this 
+message on udelay/mdelay for -years-.  All your patch [as-is] does is 
+cause more work for someone else.
+
+This also presents a problem that Andrew points out on occasion:
+what happens when a patch is useful, but the patch author isn't (for 
+whatever reason) doing the legwork necessary to get it into the mainline 
+kernel?  We certainly DON'T want to lose this patch, as the changes are 
+useful.
+
+	Jeff
 
 
---
-=============================================================================
-
-Dimitris Zilaskos
-
-Department of Physics @ Aristotle University of Thessaloniki , Greece
-PGP key : http://tassadar.physics.auth.gr/~dzila/pgp_public_key.asc
- 	  http://egnatia.ee.auth.gr/~dzila/pgp_public_key.asc
-MD5sum  : de2bd8f73d545f0e4caf3096894ad83f  pgp_public_key.asc
-=============================================================================

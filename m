@@ -1,60 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVETUde@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVETUes@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261575AbVETUde (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 16:33:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVETUdd
+	id S261578AbVETUes (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 16:34:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbVETUes
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 16:33:33 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:11197 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261575AbVETUdT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 16:33:19 -0400
-Date: Fri, 20 May 2005 16:32:58 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Reiner Sailer <sailer@us.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
-       Emily Ratliff <emilyr@us.ibm.com>, Kent E Yoder <yoder1@us.ibm.com>,
-       <kjhall@us.ibm.com>, <linux-kernel@vger.kernel.org>,
-       Tom Lendacky <toml@us.ibm.com>
-Subject: Re: [PATCH 1 of 4] ima: related TPM device driver interal kernel
- interface
-In-Reply-To: <OF78B8C5CF.5EB676A1-ON85257007.005EA7BF-85257007.005FF5F9@us.ibm.com>
-Message-ID: <Xine.LNX.4.44.0505201622410.21141-100000@thoron.boston.redhat.com>
+	Fri, 20 May 2005 16:34:48 -0400
+Received: from tassadar.physics.auth.gr ([155.207.123.25]:61829 "EHLO
+	tassadar.physics.auth.gr") by vger.kernel.org with ESMTP
+	id S261578AbVETUei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 16:34:38 -0400
+Date: Fri, 20 May 2005 23:34:30 +0300 (EEST)
+From: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
+To: ted creedon <tcreedon@easystreet.com>
+cc: openafs-info@openafs.org, linux-kernel@vger.kernel.org
+Subject: RE: [OpenAFS] Re: Openafs 1.3.78 and kernel 2.4.29 oopses , same
+ for 2.4.30 and openafs 1.3.82
+In-Reply-To: <20050520191207.15E3D29528@smtpauth.easystreet.com>
+Message-ID: <Pine.LNX.4.62.0505202326440.5106@tassadar.physics.auth.gr>
+References: <20050520191207.15E3D29528@smtpauth.easystreet.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-AntiVirus: checked by AntiVir Milter (version: 1.1.0-4; AVE: 6.30.0.12; VDF: 6.30.0.188; host: tassadar)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 May 2005, Reiner Sailer wrote:
 
-> > Why are you using LSM for this?
-> > 
-> > LSM should be used for comprehensive access control frameworks which 
-> > significantly enhance or even replace existing Unix DAC security.
-> 
-> I see LSM is framework for security. IMA is an architecture that
-> enforces access control in a different way than SELinux. IMA guarantees 
-> that executable content is measured and accounted for before
-> it is loaded and can access (and possibly corrupt) system resources.
+> Gcc -dumpmachine  #should prints out i586-suse-linux for a P III here.
 
-LSM is an access control framework.  Your (few) LSM hooks always return
-zero, and don't enforce access control at all.  You even have a separate
-measurement hook for modules.
+here it prints: i486-slackware-linux
+>
+> I'd try a fresh single processor machine and force a 2.6 kernel, module and
+> afs recompile for a i586.
+>
+> SuSE 9.3 costs $90 and it solved a similar problem noted in the mailings. In
+> fact the YasT installed openafs binaries ran fine.
 
-I suggest implementing all of your code via distinct measurement hooks, so 
-measurement becomes a distinct and well defined security entity within the 
-kernel.
+ 	Do you have any pointers to Suse's solution and source code?I 
+could check what they did and try it...
 
-LSM should not be used just because it has a few hooks in the right place
-for your code.
+> The ksymoops man page has a script to tail -f /var/log/messages|ksymoops1
+> explained.
 
+ 	I will try that , thnx :)
 
-- James
--- 
-James Morris
-<jmorris@redhat.com>
+> Are you sure there isn't a memory problem? I'm running out of ideas.
+> tedc
+
+ 	It's been a while since I memtested the box , I will try that also 
+when I return at the office ( in about a week).
 
 
 
+--
+=============================================================================
+
+Dimitris Zilaskos
+
+Department of Physics @ Aristotle University of Thessaloniki , Greece
+PGP key : http://tassadar.physics.auth.gr/~dzila/pgp_public_key.asc
+ 	  http://egnatia.ee.auth.gr/~dzila/pgp_public_key.asc
+MD5sum  : de2bd8f73d545f0e4caf3096894ad83f  pgp_public_key.asc
+=============================================================================
 

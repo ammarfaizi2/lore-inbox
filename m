@@ -1,52 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbVETJWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVETJa0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261400AbVETJWK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 05:22:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVETJWK
+	id S261399AbVETJa0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 05:30:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVETJa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 05:22:10 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:61195 "HELO
+	Fri, 20 May 2005 05:30:26 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:1292 "HELO
 	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S261400AbVETJV6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 05:21:58 -0400
-Message-ID: <428DAD71.4050105@aitel.hist.no>
-Date: Fri, 20 May 2005 11:27:13 +0200
+	id S261399AbVETJaS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 05:30:18 -0400
+Message-ID: <428DAF67.70105@aitel.hist.no>
+Date: Fri, 20 May 2005 11:35:35 +0200
 From: Helge Hafting <helge.hafting@aitel.hist.no>
 User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ben Greear <greearb@candelatech.com>
-CC: Arjan van de Ven <arjan@infradead.org>, linux-os@analogic.com,
-       Adrian Bunk <bunk@stusta.de>, Kyle Moffett <mrmacman_g4@mac.com>,
-       "Gilbert, John" <JGG@dolby.com>, linux-kernel@vger.kernel.org
-Subject: Re: Illegal use of reserved word in system.h
-References: <2692A548B75777458914AC89297DD7DA08B0866F@bronze.dolby.net>	 <20050518195337.GX5112@stusta.de>	 <6EA08D88-7C67-48ED-A9EF-FEAAB92D8B8F@mac.com>	 <20050519112840.GE5112@stusta.de>	 <Pine.LNX.4.61.0505190734110.29439@chaos.analogic.com> <1116505655.6027.45.camel@laptopd505.fenrus.org> <428CCD19.6030909@candelatech.com>
-In-Reply-To: <428CCD19.6030909@candelatech.com>
+To: sylvanino b <sylvanino@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: questions about system function: mmap / fwrite
+References: <d14685de050520021439e48c8d@mail.gmail.com>
+In-Reply-To: <d14685de050520021439e48c8d@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Greear wrote:
+sylvanino b wrote:
 
-> Arjan van de Ven wrote:
+>Hello,
 >
->> HZ may not exist. At all; people are trying to remove it. And userspace
->> has no business knowing about it either.
+>I have a question about ways of accessing a file. 
 >
+>I know it is possible to use: fseek + fwrite/fread to access a file.
+>and It is also possible to map file in memory with  "mmap" function,
+>and access it by adressing memory.
 >
-> It can be helpful to know what HZ you are running at, for instance if 
-> you care
-> very much about the (average) precision of a select/poll timeout.
+>Currently I use the frame buffer of  mobile phones with mmap function.
+>For my understanding, I would like to know what is the difference
+>between using fseek+fwrite compared to mmap style.
+>Dont hesitate to be precise or to use technical terms.
 >
-Will  knowing it help?  You may find out that you don't have much precision,
-but then theres nothing to do about it.  And there may not even be a HZ,
-as mentioned.  Less cpu is used if there is no periodic interrupts when
-there is nothing to do.  People are trying to *not* have a regular timer
-interrupt; instead, a one-shot timer can be programmed for the next
-necessary timeout which may very well be quite a few "ticks" into
-the future. In this case there is no notion of HZ at all.
+>Thanks you,
+>  
+>
+There may be subtle performance differences, but I'd say the most
+important here is to use the API that best suits the problem at hand.
+fwrite/fread is sequential in nature, useful when you want to read/write
+large contigous chunks of data, and when the notion of a "current position"
+in the file is useful.
+
+mmap is nice when you find it useful to access the file as a random-access
+array of bytes. mmap style access seems to be the best fit for a 
+framebuffer.
 
 Helge Hafting
 
+Helge Hafting
 

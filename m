@@ -1,40 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261392AbVETJTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbVETJWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261392AbVETJTo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 05:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbVETJTo
+	id S261400AbVETJWK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 05:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVETJWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 05:19:44 -0400
-Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:8456 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261392AbVETJTl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 05:19:41 -0400
-To: viro@parcelfarce.linux.theplanet.co.uk
-CC: akpm@osdl.org, linuxram@us.ibm.com, dhowells@redhat.com,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <20050520091129.GL29811@parcelfarce.linux.theplanet.co.uk>
-	(message from Al Viro on Fri, 20 May 2005 10:11:29 +0100)
-Subject: Re: [PATCH] namespace.c: fix race in mark_mounts_for_expiry()
-References: <E1DZ34O-0003RL-00@dorka.pomaz.szeredi.hu> <20050520091129.GL29811@parcelfarce.linux.theplanet.co.uk>
-Message-Id: <E1DZ3ec-0003Uq-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Fri, 20 May 2005 11:18:50 +0200
+	Fri, 20 May 2005 05:22:10 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:61195 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S261400AbVETJV6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 05:21:58 -0400
+Message-ID: <428DAD71.4050105@aitel.hist.no>
+Date: Fri, 20 May 2005 11:27:13 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ben Greear <greearb@candelatech.com>
+CC: Arjan van de Ven <arjan@infradead.org>, linux-os@analogic.com,
+       Adrian Bunk <bunk@stusta.de>, Kyle Moffett <mrmacman_g4@mac.com>,
+       "Gilbert, John" <JGG@dolby.com>, linux-kernel@vger.kernel.org
+Subject: Re: Illegal use of reserved word in system.h
+References: <2692A548B75777458914AC89297DD7DA08B0866F@bronze.dolby.net>	 <20050518195337.GX5112@stusta.de>	 <6EA08D88-7C67-48ED-A9EF-FEAAB92D8B8F@mac.com>	 <20050519112840.GE5112@stusta.de>	 <Pine.LNX.4.61.0505190734110.29439@chaos.analogic.com> <1116505655.6027.45.camel@laptopd505.fenrus.org> <428CCD19.6030909@candelatech.com>
+In-Reply-To: <428CCD19.6030909@candelatech.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > This patch fixes a race found by Ram in mark_mounts_for_expiry() in
-> > The solution is to make the atomic_read() and the get_namespace() into
-> > a single atomic operation.  The patch does this in a fairly ugly way
-> > (see comment above fix), which should be safe regardless.
-> 
-> That it certainly is.  What's more, there is a trivial way to deal with
-> that crap - have put_namespace() do atomic_dec_and_lock() instead of
-> atomic_dec_and_test().  And use the same spinlock (vfsmount_lock would be
-> an obvious choice) to protect the atomicity here.  End of story.
+Ben Greear wrote:
 
-Right.
+> Arjan van de Ven wrote:
+>
+>> HZ may not exist. At all; people are trying to remove it. And userspace
+>> has no business knowing about it either.
+>
+>
+> It can be helpful to know what HZ you are running at, for instance if 
+> you care
+> very much about the (average) precision of a select/poll timeout.
+>
+Will  knowing it help?  You may find out that you don't have much precision,
+but then theres nothing to do about it.  And there may not even be a HZ,
+as mentioned.  Less cpu is used if there is no periodic interrupts when
+there is nothing to do.  People are trying to *not* have a regular timer
+interrupt; instead, a one-shot timer can be programmed for the next
+necessary timeout which may very well be quite a few "ticks" into
+the future. In this case there is no notion of HZ at all.
 
-Question is, why did nobody think of that before :)
+Helge Hafting
 
-Thanks,
-Miklos
+

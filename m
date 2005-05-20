@@ -1,106 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVETCUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVETCat@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261314AbVETCUk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 19 May 2005 22:20:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbVETCUk
+	id S261298AbVETCat (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 19 May 2005 22:30:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVETCat
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 19 May 2005 22:20:40 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:30200 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261314AbVETCUY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 19 May 2005 22:20:24 -0400
-Message-ID: <428D4966.20506@acm.org>
-Date: Thu, 19 May 2005 21:20:22 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fixes for IPMI use of timers
-References: <428D2181.2080106@acm.org> <1116546667.23807.0.camel@mindpipe>
-In-Reply-To: <1116546667.23807.0.camel@mindpipe>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------050504040502030708060803"
+	Thu, 19 May 2005 22:30:49 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:12756 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261323AbVETCaf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 19 May 2005 22:30:35 -0400
+Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: dino@in.ibm.com, Andrew Morton <akpm@osdl.org>, gregoire.favre@gmail.com,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <428D4371.6020809@cybsft.com>
+References: <20050516085832.GA9558@gmail.com>
+	 <20050517071307.GA4794@in.ibm.com> <20050517002908.005a9ba7.akpm@osdl.org>
+	 <1116340465.4989.2.camel@mulgrave> <20050517170824.GA3931@in.ibm.com>
+	 <1116354894.4989.42.camel@mulgrave> <428C030E.8030102@cybsft.com>
+	 <1116476630.5867.2.camel@mulgrave>  <20050519095143.GA3972@in.ibm.com>
+	 <1116546970.5037.137.camel@mulgrave>  <428D37CF.5070903@cybsft.com>
+	 <1116551853.5037.145.camel@mulgrave>  <428D3E1C.2020802@cybsft.com>
+	 <1116553229.5037.155.camel@mulgrave>  <428D4371.6020809@cybsft.com>
+Content-Type: text/plain
+Date: Thu, 19 May 2005 21:30:13 -0500
+Message-Id: <1116556213.5037.161.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050504040502030708060803
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 2005-05-19 at 20:54 -0500, K.R. Foley wrote:
+> the dt setting is 0. can't set it to 1, at least not so that you can see
+> it stay that way. tried setting period to 12.5, stays at 25. min_period
+> is set to 12.5 but doesn't seem to matter. what's next :)
 
-Lee Revell wrote:
+Well, I think it's my fault.  I naively assumed the aic7xxx core setting
+code would do the right thing with coupled parameters, which, as I read
+through it, apparently it doesn't do.
 
->On Thu, 2005-05-19 at 18:30 -0500, Corey Minyard wrote:
->  
->
->>                /* We already have irqsave on, so no need for it
->>                    here. */
->>-               read_lock(&xtime_lock);
->>+               read_lock_irqsave(&xtime_lock, flags); 
->>    
->>
->
->The comment is now wrong.
->
->Lee
->  
->
-I know I deleted that at least once.  Oh well, here it is with the 
-comment removed.
+My excuse is that I can't test any of this because my fastest aic7xxx
+card is only a U2 ...
 
-Thanks.
+Could you try this, I think it does the correct thing with the coupled
+parameters.
 
--Corey
+Thanks,
 
+James
 
-
---------------050504040502030708060803
-Content-Type: text/x-patch;
- name="ipmi_hrt_fixes.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ipmi_hrt_fixes.diff"
-
-Fix some problems with the high-res timer support.
-
-Signed-off-by: Corey Minyard <minyard@acm.org>
-
-Index: linux-2.6.12-rc4/drivers/char/ipmi/ipmi_si_intf.c
-===================================================================
---- linux-2.6.12-rc4.orig/drivers/char/ipmi/ipmi_si_intf.c
-+++ linux-2.6.12-rc4/drivers/char/ipmi/ipmi_si_intf.c
-@@ -767,12 +767,11 @@
- 		   immediately, anyway.  So we only process if we
- 		   actually delete the timer. */
+--- a/drivers/scsi/aic7xxx/aic7xxx_osm.c
++++ b/drivers/scsi/aic7xxx/aic7xxx_osm.c
+@@ -2679,6 +2679,11 @@ static void ahc_linux_set_period(struct 
+ 	if (offset == 0)
+ 		offset = MAX_OFFSET;
  
--		/* We already have irqsave on, so no need for it
--                   here. */
--		read_lock(&xtime_lock);
-+		read_lock_irqsave(&xtime_lock, flags);
- 		jiffies_now = jiffies;
- 		smi_info->si_timer.expires = jiffies_now;
- 		smi_info->si_timer.sub_expires = get_arch_cycles(jiffies_now);
-+		read_unlock_irqrestore(&xtime_lock, flags);
++	if (period < 9)
++		period = 9;	/* 12.5ns is our minimum */
++	if (period == 9)
++		ppr_options |= MSG_EXT_PPR_DT_REQ;
++
+ 	ahc_compile_devinfo(&devinfo, shost->this_id, starget->id, 0,
+ 			    starget->channel + 'A', ROLE_INITIATOR);
  
- 		add_usec_to_timer(&smi_info->si_timer, SI_SHORT_TIMEOUT_USEC);
+@@ -2764,6 +2769,12 @@ static void ahc_linux_set_dt(struct scsi
+ 	unsigned long flags;
+ 	struct ahc_syncrate *syncrate;
  
-@@ -830,11 +829,11 @@
- 		smi_info->short_timeouts++;
- 		spin_unlock_irqrestore(&smi_info->count_lock, flags);
- #if defined(CONFIG_HIGH_RES_TIMERS)
--		read_lock(&xtime_lock);
-+		read_lock_irqsave(&xtime_lock, flags);
-                 smi_info->si_timer.expires = jiffies;
-                 smi_info->si_timer.sub_expires
-                         = get_arch_cycles(smi_info->si_timer.expires);
--                read_unlock(&xtime_lock);
-+		read_unlock_irqrestore(&xtime_lock, flags);
- 		add_usec_to_timer(&smi_info->si_timer, SI_SHORT_TIMEOUT_USEC);
- #else
- 		smi_info->si_timer.expires = jiffies + 1;
++	if (dt) {
++		period = 9;	/* 12.5ns is the only period valid for DT */
++		ppr_options |= MSG_EXT_PPR_DT_REQ;
++	} else if (period == 9)
++		period = 10;	/* if resetting DT, period must be >= 25ns */
++
+ 	ahc_compile_devinfo(&devinfo, shost->this_id, starget->id, 0,
+ 			    starget->channel + 'A', ROLE_INITIATOR);
+ 	syncrate = ahc_find_syncrate(ahc, &period, &ppr_options,AHC_SYNCRATE_DT);
 
---------------050504040502030708060803--
+

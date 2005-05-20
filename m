@@ -1,79 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVETMzW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVETNAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbVETMzW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 08:55:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVETMzW
+	id S261455AbVETNAu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 09:00:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVETNAu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 08:55:22 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:60806 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261453AbVETMzL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 08:55:11 -0400
-Date: Fri, 20 May 2005 08:55:11 -0400
-To: Chris Friesen <cfriesen@nortel.com>
-Cc: Olivier Croquette <ocroquette@free.fr>,
-       LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: Thread and process dentifiers (CPU affinity, kill)
-Message-ID: <20050520125511.GC23488@csclub.uwaterloo.ca>
-References: <428CD458.6010203@free.fr> <20050519182302.GE23621@csclub.uwaterloo.ca> <428CED0C.9020607@nortel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <428CED0C.9020607@nortel.com>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+	Fri, 20 May 2005 09:00:50 -0400
+Received: from sccrmhc11.comcast.net ([204.127.202.55]:20617 "EHLO
+	sccrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261455AbVETNAa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 09:00:30 -0400
+Message-ID: <428DDF6C.5080701@acm.org>
+Date: Fri, 20 May 2005 08:00:28 -0500
+From: Corey Minyard <minyard@acm.org>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20041217
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Philipp Matthias Hahn <pmhahn@titan.lahn.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Add sysfs support for the IPMI device interface
+References: <428D208C.1000307@acm.org> <20050520065623.GA11075@titan.lahn.de>
+In-Reply-To: <20050520065623.GA11075@titan.lahn.de>
+X-Enigmail-Version: 0.89.6.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 19, 2005 at 01:46:20PM -0600, Chris Friesen wrote:
-> Doesn't matter.  From a userspace point of view there is no process with 
-> that PID, so kill() should return ESRCH.  In the kernel, I think this 
-> means that kill() should actually be looking up tgids rather than pids.
+Philipp Matthias Hahn wrote:
 
-If you look in the list of processes running, you WILL see that PID in
-the list.  ERSCH should only be returned if you ask for a thread that
-either never existed or doesn't exist anymore.  Since a thread is a
-process to the kernel (at least as far as cheduling and PIDs are
-concerned) you can send a kill to the thread, which will probably be
-sent to the parent process id instead.
+>
+>
+>What happend to Dimitry Torokovs comment in
+>http://marc.theaimsgroup.com/?l=linux-kernel&m=111232712029756&w=2
+>and your reply in
+>http://marc.theaimsgroup.com/?l=linux-kernel&m=111232954415119&w=2
+>According to linux/device.h:250, class_simple_device_add() has a
+>printf() like argument, so you don't need to snprintf() the name on your
+>own.
+>  
+>
+Thank you.  My stupid mailer ate the tabs, and you fixed that, too.  
+This looks good to go in.
 
-> PID="process ID"
+-Corey
+
+>Add support for sysfs to the IPMI device interface.
+>
+>Signed-off-by: Corey Minyard <minyard@acm.org>
+>Signed-off-by: Philipp Hahn <pmhahn@titan.lahn.de>
+>
+>Index: linux-2.6.12-rc1/drivers/char/ipmi/ipmi_devintf.c
+>===================================================================
+>--- linux-2.6.12-rc1.orig/drivers/char/ipmi/ipmi_devintf.c
+>+++ linux-2.6.12-rc1/drivers/char/ipmi/ipmi_devintf.c
+>@@ -44,6 +44,7 @@
+> #include <linux/ipmi.h>
+> #include <asm/semaphore.h>
+> #include <linux/init.h>
+>+#include <linux/device.h>
 > 
-> You have one PID per process.
+> #define IPMI_DEVINTF_VERSION "v33"
+> 
+>@@ -519,15 +520,21 @@
+> 		 " interface.  Other values will set the major device number"
+> 		 " to that value.");
+> 
+>+static struct class *ipmi_class;
+>+
+> static void ipmi_new_smi(int if_num)
+> {
+>-	devfs_mk_cdev(MKDEV(ipmi_major, if_num),
+>-		      S_IFCHR | S_IRUSR | S_IWUSR,
+>+	dev_t dev = MKDEV(ipmi_major, if_num);
+>+
+>+	devfs_mk_cdev(dev, S_IFCHR | S_IRUSR | S_IWUSR,
+> 		      "ipmidev/%d", if_num);
+>+
+>+	class_simple_device_add(ipmi_class, dev, NULL, "ipmi%d", if_num);
+> }
+> 
+> static void ipmi_smi_gone(int if_num)
+> {
+>+	class_simple_device_remove(ipmi_class, MKDEV(ipmi_major, if_num));
+> 	devfs_remove("ipmidev/%d", if_num);
+> }
+> 
+>@@ -548,8 +555,15 @@
+> 	printk(KERN_INFO "ipmi device interface version "
+> 	       IPMI_DEVINTF_VERSION "\n");
+> 
+>+	ipmi_class = class_simple_create(THIS_MODULE, "ipmi");
+>+	if (IS_ERR(ipmi_class)) {
+>+		printk(KERN_ERR "ipmi: can't register device class\n");
+>+		return PTR_ERR(ipmi_class);
+>+	}
+>+
+> 	rv = register_chrdev(ipmi_major, DEVICE_NAME, &ipmi_fops);
+> 	if (rv < 0) {
+>+		class_simple_destroy(ipmi_class);
+> 		printk(KERN_ERR "ipmi: can't get major %d\n", ipmi_major);
+> 		return rv;
+> 	}
+>@@ -563,6 +577,7 @@
+> 	rv = ipmi_smi_watcher_register(&smi_watcher);
+> 	if (rv) {
+> 		unregister_chrdev(ipmi_major, DEVICE_NAME);
+>+		class_simple_destroy(ipmi_class);
+> 		printk(KERN_WARNING "ipmi: can't register smi watcher\n");
+> 		return rv;
+> 	}
+>@@ -573,6 +588,7 @@
+> 
+> static __exit void cleanup_ipmi(void)
+> {
+>+	class_simple_destroy(ipmi_class);
+> 	ipmi_smi_watcher_unregister(&smi_watcher);
+> 	devfs_remove(DEVICE_NAME);
+> 	unregister_chrdev(ipmi_major, DEVICE_NAME);
+>
+>BYtE
+>Philipp
+>  
+>
 
-No, you have at least one PID per process.  I have never heard anyone
-claim before that implementing threads as extra processes in the kernel
-is violating posix.  It sure makes the scheduler simpler to implement.
-Much more efficient than user space threading.
-
-> No, they are implemented as separately schedulable entities with lots of 
-> shared state.  "process" and "thread" are POSIX terms that don't really 
-> mean anything in the kernel.
-
-Certainly process and thread does have meanings in the kernel.
-
-> Pthreads define signal handling.  Signals are delivered to the process 
-> as a whole, not to any particular thread.  If you specify a TID that is 
-> not a valid PID, then the kernel should return an error.
-
-Well as long as the kernel send the signals sent to any of the PIDs of a
-multithreaded process, to that process, then that seems fine to me.
-
-> If the syscall is supposed to operate on processes, it should operate on 
-> all threads within a process.  It would be nice to have a way to specify 
-> affinity for threads.  POSIX doesn't define one though.
-
-Hmm, well I guess the current way it works you can set the affinity per
-thread since you had a PID per thread to operate on.  If you want to do
-it for the whole process, perhaps if you set it on the starting thread
-before it creates more threads they would probably inherit the affinity
-of the original thread.
-
-Have you tried NPTL (native posix threading library) which is supposed
-to become the threading standard on linux in the future (if it works
-out)?  I was under the impression amd64 systems with 2.6 kernels at
-least tend to use that by default, but I might be remembering something
-else unrelated.  I wonder if NPTL doesn't do more the way you want than
-the way linuxthreads have worked so far.
-
-Len Sorensen

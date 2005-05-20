@@ -1,105 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbVETUUl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVETUXA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261572AbVETUUl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 16:20:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVETUUl
+	id S261187AbVETUXA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 16:23:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVETUW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 16:20:41 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:62706 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261572AbVETUUM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 16:20:12 -0400
-Message-ID: <428E4671.7020207@us.ibm.com>
-Date: Fri, 20 May 2005 13:20:01 -0700
-From: Matthew Dobson <colpatch@us.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Lameter <christoph@lameter.com>
-CC: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: NUMA aware slab allocator V3
-References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>  <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com>  <714210000.1116266915@flay> <200505161410.43382.jbarnes@virtuousgeek.org>  <740100000.1116278461@flay>  <Pine.LNX.4.62.0505161713130.21512@graphe.net> <1116289613.26955.14.camel@localhost> <428A800D.8050902@us.ibm.com> <Pine.LNX.4.62.0505171648370.17681@graphe.net> <428B7B16.10204@us.ibm.com> <Pine.LNX.4.62.0505181046320.20978@schroedinger.engr.sgi.com> <428BB05B.6090704@us.ibm.com> <Pine.LNX.4.62.0505181439080.10598@graphe.net> <Pine.LNX.4.62.0505182105310.17811@graphe.net> <428E3497.3080406@us.ibm.com> <Pine.LNX.4.62.0505201210460.390@graphe.net>
-In-Reply-To: <Pine.LNX.4.62.0505201210460.390@graphe.net>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 20 May 2005 16:22:59 -0400
+Received: from turing-police.cirt.vt.edu ([128.173.54.129]:15880 "EHLO
+	turing-police.cirt.vt.edu") by vger.kernel.org with ESMTP
+	id S261568AbVETUVS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 16:21:18 -0400
+Message-Id: <200505202021.j4KKLC3E015961@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+Cc: Adam Miller <amiller@gravity.phys.uwm.edu>, linux-kernel@vger.kernel.org
+Subject: Re: software RAID 
+In-Reply-To: Your message of "Fri, 20 May 2005 16:03:34 EDT."
+             <20050520200334.GF23621@csclub.uwaterloo.ca> 
+From: Valdis.Kletnieks@vt.edu
+References: <Pine.LNX.4.62.0505201246520.13530@gannon.phys.uwm.edu>
+            <20050520200334.GF23621@csclub.uwaterloo.ca>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1116620471_13523P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Fri, 20 May 2005 16:21:11 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Fri, 20 May 2005, Matthew Dobson wrote:
-> 
-> 
->>Christoph, I'm getting the following errors building rc4-mm2 w/ GCC 2.95.4:
-> 
-> 
-> Works fine here with gcc 2.95.4.ds15-22 but that is a debian gcc 
-> 2.95.4 patched up to work correctly. If you need to address the pathology in pristine 
-> gcc 2.95.4 by changing the source then declare the entry field with 0 
-> members.
-> 
-> Index: linux-2.6.12-rc4/mm/slab.c
-> ===================================================================
-> --- linux-2.6.12-rc4.orig/mm/slab.c	2005-05-19 21:29:45.000000000 +0000
-> +++ linux-2.6.12-rc4/mm/slab.c	2005-05-20 19:18:22.000000000 +0000
-> @@ -267,7 +267,7 @@
->  #ifdef CONFIG_NUMA
->  	spinlock_t lock;
->  #endif
-> -	void *entry[];
-> +	void *entry[0];
->  };
->  
->  /* bootstrap: The caches do not work without cpuarrays anymore,
-> 
-> 
-> 
-> gcc 2.95 can produce proper code for ppc64?
+--==_Exmh_1116620471_13523P
+Content-Type: text/plain; charset=us-ascii
 
-Apparently...?
+On Fri, 20 May 2005 16:03:34 EDT, Lennart Sorensen said:
 
+> If you have a bad sector, it doesn't go away by writing to it again.  On
+> modern drives, if you see bad sectors the disk is just about dead, and
+> will probably be seen as such by the raid system which will then stop
+> using the disk entirely and expect you to replace it ASAP.
 
->>mm/slab.c:281: field `entry' has incomplete typemm/slab.c: In function
->>'cache_alloc_refill':
-> 
-> 
-> See patch above?
+The one exception here is if you have a miswritten sector (usually caused by
+unexpected power-down), which won't read back correctly - but running badblocks
+with one of the 'write-verify' options will resurrect it.
 
-Will do.
+If you have a drive that has a bad block in it even *after* badblocks has
+re-written it, it's time to replace the drive *now*....
 
+For the original poster: Breaking the mirror and then re-mirroring from the
+"good" drive *might* recover the bad block when it re-writes it.  But don't bet
+on it...
 
->>mm/slab.c:2497: warning: control reaches end of non-void function
-> 
-> 
-> That is the end of cache_alloc_debug_check right? This is a void 
-> function in my source.
+("power fail" is about the only cause of recoverable bad blocks that I know of -
+and if you're having power-fail issues on a RAID, I'd recommend you fix
+*THAT* problem before it causes you more grief.  A good UPS will more than pay
+for itself in sysadmin sanity and peace of mind....)
 
-Nope.  It's the end of this function:
-static void *cache_alloc_refill(kmem_cache_t *cachep, unsigned int __nocast
-flags)
+--==_Exmh_1116620471_13523P
+Content-Type: application/pgp-signature
 
-Though I'm not sure why I'm getting this warning, since the function ends
-like this:
-	ac->touched = 1;
-	return ac->entry[--ac->avail];
-} <<--  Line 2497
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFCjka3cC3lWbTT17ARAkzKAKD9X6Vj9kaIZ0Q8ABFTJuAIFCEFRQCfVyy/
+NJ6ag2uJtSL1aBfMg89jF10=
+=w2z9
+-----END PGP SIGNATURE-----
 
->>mm/slab.c: In function `kmem_cache_alloc':
->>mm/slab.c:2567: warning: `objp' might be used uninitialized in this function
->>mm/slab.c: In function `kmem_cache_alloc_node':
->>mm/slab.c:2567: warning: `objp' might be used uninitialized in this function
->>mm/slab.c: In function `__kmalloc':
->>mm/slab.c:2567: warning: `objp' might be used uninitialized in this function
-> 
-> 
-> There is a branch there and the object is initialized in either branch.
-
-I agree.  Not sure why this warning is occurring, either.
-
-I tried to build this twice on this particular box, to no avail.  3x == charm?
-
--Matt
+--==_Exmh_1116620471_13523P--

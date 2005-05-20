@@ -1,55 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVETV2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261599AbVETVbm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261598AbVETV2i (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 17:28:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbVETV2h
+	id S261599AbVETVbm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 17:31:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbVETVbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 17:28:37 -0400
-Received: from alog0213.analogic.com ([208.224.220.228]:59085 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261596AbVETV2C
+	Fri, 20 May 2005 17:31:41 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:30080 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261599AbVETVag
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 17:28:02 -0400
-Date: Fri, 20 May 2005 17:27:36 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Jon Smirl <jonsmirl@gmail.com>
-cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Screen regen buffer at 0x00b8000
-In-Reply-To: <9e4733910505201421cf36902@mail.gmail.com>
-Message-ID: <Pine.LNX.4.61.0505201725460.4930@chaos.analogic.com>
-References: <Pine.LNX.4.61.0505200944060.5921@chaos.analogic.com>
- <Pine.LNX.4.58.0505201259560.2206@ppc970.osdl.org>
- <Pine.LNX.4.61.0505201612360.6833@chaos.analogic.com>
- <9e4733910505201421cf36902@mail.gmail.com>
+	Fri, 20 May 2005 17:30:36 -0400
+Message-ID: <428E56EE.4050400@us.ibm.com>
+Date: Fri, 20 May 2005 14:30:22 -0700
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Christoph Lameter <christoph@lameter.com>
+CC: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: NUMA aware slab allocator V3
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>  <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com>  <714210000.1116266915@flay> <200505161410.43382.jbarnes@virtuousgeek.org>  <740100000.1116278461@flay>  <Pine.LNX.4.62.0505161713130.21512@graphe.net> <1116289613.26955.14.camel@localhost> <428A800D.8050902@us.ibm.com> <Pine.LNX.4.62.0505171648370.17681@graphe.net> <428B7B16.10204@us.ibm.com> <Pine.LNX.4.62.0505181046320.20978@schroedinger.engr.sgi.com> <428BB05B.6090704@us.ibm.com> <Pine.LNX.4.62.0505181439080.10598@graphe.net> <Pine.LNX.4.62.0505182105310.17811@graphe.net> <428E3497.3080406@us.ibm.com> <Pine.LNX.4.62.0505201210460.390@graphe.net>
+In-Reply-To: <Pine.LNX.4.62.0505201210460.390@graphe.net>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 May 2005, Jon Smirl wrote:
+Christoph Lameter wrote:
+> On Fri, 20 May 2005, Matthew Dobson wrote:
+> 
+> 
+>>Christoph, I'm getting the following errors building rc4-mm2 w/ GCC 2.95.4:
+> 
+> 
+> Works fine here with gcc 2.95.4.ds15-22 but that is a debian gcc 
+> 2.95.4 patched up to work correctly. If you need to address the pathology in pristine 
+> gcc 2.95.4 by changing the source then declare the entry field with 0 
+> members.
+> 
+> Index: linux-2.6.12-rc4/mm/slab.c
+> ===================================================================
+> --- linux-2.6.12-rc4.orig/mm/slab.c	2005-05-19 21:29:45.000000000 +0000
+> +++ linux-2.6.12-rc4/mm/slab.c	2005-05-20 19:18:22.000000000 +0000
+> @@ -267,7 +267,7 @@
+>  #ifdef CONFIG_NUMA
+>  	spinlock_t lock;
+>  #endif
+> -	void *entry[];
+> +	void *entry[0];
+>  };
+>  
+>  /* bootstrap: The caches do not work without cpuarrays anymore,
+> 
+> 
+> 
+> gcc 2.95 can produce proper code for ppc64?
+> 
+> 
+> 
+> 
+>>mm/slab.c:281: field `entry' has incomplete typemm/slab.c: In function
+>>'cache_alloc_refill':
+> 
+> 
+> See patch above?
 
-> On 5/20/05, Richard B. Johnson <linux-os@analogic.com> wrote:
->> On Fri, 20 May 2005, Linus Torvalds wrote:
->> Yes, and I didn't want to. However a customer wants some status to
->> be always displayed in the upper-right-hand corner of a 4x5 LCD
->> with a tiny CPU board.
->
-> The console implements a tiny terminal emulator. Does the emulator
-> implement the escape sequence for locking an unscrollable line at the
-> top of the screen? If so lock the line, write your info there, and the
-> rest of the display will work like normal.
->
-> -- 
-> Jon Smirl
-> jonsmirl@gmail.com
->
+I can't for the life of me explain why, but the above patch makes ALL the
+warnings go away, despite the fact that they seem unrelated.  I dunno...
+Maybe we should upgrade the compiler on that box?
 
-I'll experiment. I know that real VT100s can set a scrolling region
-so I could set a scrolling region from line 2 to 25 if it works.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11.9 on an i686 machine (5554.17 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+-Matt

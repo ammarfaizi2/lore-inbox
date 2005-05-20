@@ -1,77 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261526AbVETSQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbVETSQx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261526AbVETSQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 14:16:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbVETSQQ
+	id S261531AbVETSQx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 14:16:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261533AbVETSQs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 14:16:16 -0400
-Received: from MAIL.13thfloor.at ([212.16.62.50]:45727 "EHLO mail.13thfloor.at")
-	by vger.kernel.org with ESMTP id S261526AbVETSQH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 14:16:07 -0400
-Date: Fri, 20 May 2005 20:16:06 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: David Lang <david.lang@digitalinsight.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Rik van Riel <riel@redhat.com>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] how do we move the VM forward? (was Re: [RFC] cleanup ofuse-once)
-Message-ID: <20050520181606.GB6002@MAIL.13thfloor.at>
-Mail-Followup-To: David Lang <david.lang@digitalinsight.com>,
-	Nick Piggin <nickpiggin@yahoo.com.au>,
-	Rik van Riel <riel@redhat.com>, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.61.0505030037100.27756@chimarrao.boston.redhat.com> <42771904.7020404@yahoo.com.au> <Pine.LNX.4.61.0505030913480.27756@chimarrao.boston.redhat.com> <42781AC5.1000201@yahoo.com.au> <Pine.LNX.4.62.0505031749010.12818@qynat.qvtvafvgr.pbz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0505031749010.12818@qynat.qvtvafvgr.pbz>
-User-Agent: Mutt/1.5.6i
+	Fri, 20 May 2005 14:16:48 -0400
+Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:35852 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261531AbVETSQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 14:16:22 -0400
+To: akpm@osdl.org, viro@parcelfarce.linux.theplanet.co.uk
+CC: dhowells@redhat.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: [PATCH 1/2] namespace.c: split mark_mounts_for_expiry()
+Message-Id: <E1DZC22-0005oO-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Fri, 20 May 2005 20:15:34 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 03, 2005 at 05:51:43PM -0700, David Lang wrote:
-> On Wed, 4 May 2005, Nick Piggin wrote:
-> 
-> >
-> >Also having a box or two for running regression and stress
-> >testing is a must. I can do a bit here, but unfortunately
-> >"kernel compiles until it hurts" is probably not the best
-> >workload to target.
+[This applies on top of the previous namepace.c patches]
 
-if there are some tests or output (kernel logs, etc)
-or proc info or vmstat or whatever, which doesn't take
-100% cpu time, I'm able and willing to test it on different
-workloads (including compiling the kernel until it hurts ;)
+This patch splits the mark_mounts_for_expiry() function.  It's too
+complex and too deeply nested, even without the bugfix in the
+following patch.
 
-> >In general most systems and their workloads aren't constantly
-> >swapping, so we should aim to minimise IO for normal
-> >workloads. Databases that use the pagecache (eg. postgresql)
-> >would be a good test. But again we don't want to focus on one
-> >thing.
-> >
-> >That said, of course we don't want to hurt the "really
-> >thrashing" case - and hopefully improve it if possible.
-> 
-> may I suggest useing OpenOffice as one test, it can eat up horrendous 
-> amounts of ram in operation (I have one spreadsheet I can send you if 
-> needed that takes 45min of cpu time on a Athlon64 3200 with 1G of ram just 
-> to open, at which time it shows openoffice takeing more then 512M of ram)
+Otherwise code is completely the same.
 
-cool, looks like they are taking the MS compatibility
-really serious nowadays ...
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
 
-best,
-Herbert
+Index: linux/fs/namespace.c
+===================================================================
+--- linux.orig/fs/namespace.c	2005-05-20 19:05:20.000000000 +0200
++++ linux/fs/namespace.c	2005-05-20 19:58:07.000000000 +0200
+@@ -825,6 +825,40 @@ unlock:
+ 
+ EXPORT_SYMBOL_GPL(do_add_mount);
+ 
++static void expire_mount(struct vfsmount *mnt, struct list_head *mounts)
++{
++	spin_lock(&vfsmount_lock);
++
++	/* check that it is still dead: the count should now be 2 - as
++	 * contributed by the vfsmount parent and the mntget above */
++	if (atomic_read(&mnt->mnt_count) == 2) {
++		struct nameidata old_nd;
++
++		/* delete from the namespace */
++		list_del_init(&mnt->mnt_list);
++		detach_mnt(mnt, &old_nd);
++		spin_unlock(&vfsmount_lock);
++		path_release(&old_nd);
++
++		/* now lay it to rest if this was the last ref on the
++		 * superblock */
++		if (atomic_read(&mnt->mnt_sb->s_active) == 1) {
++			/* last instance - try to be smart */
++			lock_kernel();
++			DQUOT_OFF(mnt->mnt_sb);
++			acct_auto_close(mnt->mnt_sb);
++			unlock_kernel();
++		}
++
++		mntput(mnt);
++	} else {
++		/* someone brought it back to life whilst we didn't have any
++		 * locks held so return it to the expiration list */
++		list_add_tail(&mnt->mnt_fslink, mounts);
++		spin_unlock(&vfsmount_lock);
++	}
++}
++
+ /*
+  * process a list of expirable mountpoints with the intent of discarding any
+  * mountpoints that aren't in use and haven't been touched since last we came
+@@ -875,38 +909,7 @@ void mark_mounts_for_expiry(struct list_
+ 
+ 		spin_unlock(&vfsmount_lock);
+ 		down_write(&namespace->sem);
+-		spin_lock(&vfsmount_lock);
+-
+-		/* check that it is still dead: the count should now be 2 - as
+-		 * contributed by the vfsmount parent and the mntget above */
+-		if (atomic_read(&mnt->mnt_count) == 2) {
+-			struct nameidata old_nd;
+-
+-			/* delete from the namespace */
+-			list_del_init(&mnt->mnt_list);
+-			detach_mnt(mnt, &old_nd);
+-			spin_unlock(&vfsmount_lock);
+-			path_release(&old_nd);
+-
+-			/* now lay it to rest if this was the last ref on the
+-			 * superblock */
+-			if (atomic_read(&mnt->mnt_sb->s_active) == 1) {
+-				/* last instance - try to be smart */
+-				lock_kernel();
+-				DQUOT_OFF(mnt->mnt_sb);
+-				acct_auto_close(mnt->mnt_sb);
+-				unlock_kernel();
+-			}
+-
+-			mntput(mnt);
+-		} else {
+-			/* someone brought it back to life whilst we didn't
+-			 * have any locks held so return it to the expiration
+-			 * list */
+-			list_add_tail(&mnt->mnt_fslink, mounts);
+-			spin_unlock(&vfsmount_lock);
+-		}
+-
++		expire_mount(mnt, mounts);
+ 		up_write(&namespace->sem);
+ 
+ 		mntput(mnt);
 
-> David Lang
-> 
-> -- 
-> There are two ways of constructing a software design. One way is to make it 
-> so simple that there are obviously no deficiencies. And the other way is to 
-> make it so complicated that there are no obvious deficiencies.
->  -- C.A.R. Hoare
-> --
-> To unsubscribe, send a message with 'unsubscribe linux-mm' in
-> the body to majordomo@kvack.org.  For more info on Linux MM,
-> see: http://www.linux-mm.org/ .
-> Don't email: <a href=mailto:"aart@kvack.org"> aart@kvack.org </a>

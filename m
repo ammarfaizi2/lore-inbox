@@ -1,49 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVETUjG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbVETUll@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261581AbVETUjG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 16:39:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVETUjG
+	id S261577AbVETUll (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 16:41:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261582AbVETUll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 16:39:06 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:65254 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261581AbVETUjA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 16:39:00 -0400
-Subject: Re: Thread and process dentifiers (CPU affinity, kill)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Olivier Croquette <ocroquette@free.fr>
-Cc: Miquel van Smoorenburg <miquels@cistron.nl>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <428E45EA.3040603@free.fr>
-References: <428CD458.6010203@free.fr>
-	 <20050520125511.GC23488@csclub.uwaterloo.ca> <428DF95E.2070703@free.fr>
-	 <20050520165307.GG23488@csclub.uwaterloo.ca> <d6l9cs$l1t$1@news.cistron.nl>
-	 <428E45EA.3040603@free.fr>
-Content-Type: text/plain
-Date: Fri, 20 May 2005 16:38:58 -0400
-Message-Id: <1116621539.29740.29.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 20 May 2005 16:41:41 -0400
+Received: from igw2.watson.ibm.com ([129.34.20.6]:63916 "EHLO
+	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S261577AbVETUl0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 16:41:26 -0400
+Date: Fri, 20 May 2005 16:41:23 -0400 (Eastern Daylight Time)
+From: Reiner Sailer <sailer@us.ibm.com>
+To: James Morris <jmorris@redhat.com>
+cc: Andrew Morton <akpm@osdl.org>, Chris Wright <chrisw@osdl.org>,
+       emilyr@us.ibm.com, yoder1@us.ibm.com, kylene@us.ibm.com,
+       linux-kernel@vger.kernel.org, toml@us.ibm.com
+Subject: Re: [PATCH 1 of 4] ima: related TPM device driver interal kernel
+ interface
+Message-ID: <Pine.WNT.4.63.0505201634370.3360@laptop>
+X-Warning: UNAuthenticated Sender
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-05-20 at 22:17 +0200, Olivier Croquette wrote:
-> # export LD_ASSUME_KERNEL=2.4.1
-> This is a clever way to enable some existing applications that rely on 
-> LinuxThreads to continue to work in an NPTL environment, but is a 
-> short-term solution. To make the most of the design and performance 
-> benefits provided by NPTL, you should update the code for any existing 
-> applications that use threading.
+James Morris <jmorris@redhat.com> wrote on 05/20/2005 04:32:58 PM:
 
-Applications that rely on linuxthreads, heh, that's a good one.
+> On Fri, 20 May 2005, Reiner Sailer wrote:
+> 
+> > > Why are you using LSM for this?
+> > > 
+> > > LSM should be used for comprehensive access control frameworks which 
+> > > significantly enhance or even replace existing Unix DAC security.
+> > 
+> > I see LSM is framework for security. IMA is an architecture that
+> > enforces access control in a different way than SELinux. IMA guarantees 
+> > that executable content is measured and accounted for before
+> > it is loaded and can access (and possibly corrupt) system resources.
+> 
+> LSM is an access control framework.  Your (few) LSM hooks always return
+> zero, and don't enforce access control at all.  You even have a separate
+> measurement hook for modules.
+> 
+> I suggest implementing all of your code via distinct measurement hooks, so 
+> measurement becomes a distinct and well defined security entity within the 
+> kernel.
 
-The most common use of LD_ASSUME_KERNEL is to force Linuxthreads to be
-used in order to work around a bad bug in NPTL 0.60, often present on
-Debian systems.  Ubuntu still reports NPTL 0.60, but they at least fixed
-the bug for the Hoary release.  The Debian people refuse to.
+This is certainly possible. This means that there will be 5 more hooks
+(such as the one in kernel/module.c, see PATCH 4 of 4).
 
-The issue is very well known to JACK users.
+If the kernel maintainers are in favor of this approach, then there is not
+much that stands against this.
 
-Lee
+> LSM should not be used just because it has a few hooks in the right place
+> for your code.
+>
+> 
+> - James
+> -- 
+> James Morris
+> <jmorris@redhat.com>
+> 
+> 
+> 
+> 
+
+Thanks
+Reiner
 

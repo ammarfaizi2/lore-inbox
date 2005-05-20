@@ -1,52 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVETPjI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261472AbVETPuN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261462AbVETPjI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 11:39:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVETPjI
+	id S261472AbVETPuN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 11:50:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbVETPuN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 11:39:08 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:22194 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261462AbVETPjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 11:39:04 -0400
-Subject: Re: 2.6.12-rc4-mm2 - sleeping function called from invalid context
-	at mm/slab.c:2502
-From: David Woodhouse <dwmw2@infradead.org>
-To: Linux Audit Discussion <linux-audit@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1116601757.12489.130.camel@moss-spartans.epoch.ncsc.mil>
-References: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu>
-	 <1116502449.23972.207.camel@hades.cambridge.redhat.com>
-	 <200505191845.j4JIjVtq006262@turing-police.cc.vt.edu>
-	 <200505201430.j4KEUFD0012985@turing-police.cc.vt.edu>
-	 <1116601195.29037.18.camel@localhost.localdomain>
-	 <1116601757.12489.130.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Fri, 20 May 2005 16:36:53 +0100
-Message-Id: <1116603414.29037.36.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 20 May 2005 11:50:13 -0400
+Received: from ns.suse.de ([195.135.220.2]:12504 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261472AbVETPuI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 11:50:08 -0400
+Message-ID: <428E0202.8090709@suse.de>
+Date: Fri, 20 May 2005 17:28:02 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041207 Thunderbird/1.0 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Erik Slagter <erik@slagter.name>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: PROBLEM: computer freezes / harddisk led stays on after S3 resume
+References: <1116408408.3505.26.camel@localhost.localdomain>
+In-Reply-To: <1116408408.3505.26.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-05-20 at 11:09 -0400, Stephen Smalley wrote:
-> The lock is being held by the af_unix code (unix_state_wlock), not
-> avc_audit; the AVC is called under all kinds of circumstances (softirq,
-> hard irq, caller holding locks on relevant objects) for permission
-> checking and must never sleep.
-> 
-> One option might be to defer some of the AVC auditing to the audit
-> framework (e.g. save the vfsmount and dentry on the current audit
-> context and let audit_log_exit perform the audit_log_d_path).
+Erik Slagter wrote:
+> 1. computer freezes / harddisk led stays on after S3 resume
 
-Yeah, maybe. Assuming you pin them, it's easy enough to hang something
-off the audit context's aux list which refers to them. I'm really not
-that fond of the idea of allocating a whole PATH_MAX with GFP_ATOMIC.
+> 7.7. Dell Inspiron 9300, Pentium M, ICH6(M), Fujitsu SATA harddisk, SONY
+> ATAPI DVD+R/W. libata is running using piix according to dmesg, ahci
+> doesn't work (see other problem report).
 
+SATA had no suspend support until a few weeks ago, when Jens Axboe
+started fixing it. I have no idea in which kernel version his patches
+will appear, but they were on the list some days ago.
 -- 
-dwmw2
+Stefan Seyfried
+QA / R&D Team Mobile Devices        |              "Any ideas, John?"
+SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out."
 

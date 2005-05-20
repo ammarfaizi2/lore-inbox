@@ -1,52 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbVETRTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbVETR1o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261521AbVETRTk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 13:19:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261513AbVETRT0
+	id S261488AbVETR1o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 13:27:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVETR1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 13:19:26 -0400
-Received: from fire.osdl.org ([65.172.181.4]:11999 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261488AbVETRTP (ORCPT
+	Fri, 20 May 2005 13:27:44 -0400
+Received: from usbb-lacimss2.unisys.com ([192.63.108.52]:57105 "EHLO
+	usbb-lacimss2.unisys.com") by vger.kernel.org with ESMTP
+	id S261488AbVETR1j convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 13:19:15 -0400
-Date: Fri, 20 May 2005 10:19:06 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Linux Audit Discussion <linux-audit@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc4-mm2 - sleeping function called from invalid context at mm/slab.c:2502
-Message-ID: <20050520171906.GZ27549@shell0.pdx.osdl.net>
-References: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu> <1116502449.23972.207.camel@hades.cambridge.redhat.com> <200505191845.j4JIjVtq006262@turing-police.cc.vt.edu> <200505201430.j4KEUFD0012985@turing-police.cc.vt.edu> <1116601195.29037.18.camel@localhost.localdomain> <1116601757.12489.130.camel@moss-spartans.epoch.ncsc.mil> <1116603414.29037.36.camel@localhost.localdomain> <1116607223.12489.155.camel@moss-spartans.epoch.ncsc.mil> <20050520170158.GY27549@shell0.pdx.osdl.net> <1116608736.12489.170.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1116608736.12489.170.camel@moss-spartans.epoch.ncsc.mil>
-User-Agent: Mutt/1.5.6i
+	Fri, 20 May 2005 13:27:39 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch 1/1] Proposed: Let's not waste precious IRQs...
+Date: Fri, 20 May 2005 12:27:09 -0500
+Message-ID: <19D0D50E9B1D0A40A9F0323DBFA04ACCE04BA0@USRV-EXCH4.na.uis.unisys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch 1/1] Proposed: Let's not waste precious IRQs...
+Thread-Index: AcVdXWHATt6aBdmST12u/J2FGzB/rgAAP3sA
+From: "Protasevich, Natalie" <Natalie.Protasevich@UNISYS.com>
+To: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>
+Cc: <akpm@osdl.org>, <ak@suse.de>, <len.brown@intel.com>,
+       <bjorn.helgaas@hp.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 20 May 2005 17:27:10.0165 (UTC) FILETIME=[27401850:01C55D61]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Stephen Smalley (sds@tycho.nsa.gov) wrote:
-> On Fri, 2005-05-20 at 10:01 -0700, Chris Wright wrote:
-> > > +struct audit_aux_data_avc {
-> > 
-> > I guess it's not really avc specific (although it's primary user).
 > 
-> You mean generalize the struct for possible re-use by other audit
-> helpers but keep the type value and function distinct?
-> audit_aux_data_path?  Analogous to struct path in namei.c.
-
-Yup.
-
-> > Won't this change the order quite a bit?  And how do you correlate path
-> > vs. exe, etc.?  Oh, I see, you're not using it for exe...
+> Hi Natalie,
 > 
-> Could be an issue for syscalls that involve multiple files, e.g. rename.
-> We are at least still logging the last component name, device, and inode
-> number with the avc message, and only deferring logging of the full
-> pathname.
+> On Thu, 19 May 2005 Natalie.Protasevich@unisys.com wrote:
+> 
+> > I suggest to change the way IRQs are handed out to PCI devices. 
+> > Currently, each I/O APIC pin gets associated with an IRQ, 
+> no matter if 
+> > the pin is used or not. It is expected that each pin can 
+> potentually 
+> > be engaged by a device inserted into the corresponding PCI slot. 
+> > However, this imposes severe limitation on systems that 
+> have designs 
+> > that employ many I/O APICs, only utilizing couple lines of 
+> each, such 
+> > as P64H2 chipset. It is used in ES7000, and currently, 
+> there is no way 
+> > to boot the system with more that 9 I/O APICs. The simple 
+> change below 
+> > allows to boot a system with say 64 (or more) I/O APICs, each 
+> > providing 1 slot, which otherwise impossible because of the 
+> IRQ gaps 
+> > created for unused lines on each I/O APIC. It does not resolve the 
+> > problem with number of devices that exceeds number of 
+> possible IRQs, 
+> > but eases up a tension for IRQs on any large system with 
+> potentually 
+> > large number of devices. I only implemented this for the ACPI boot, 
+> > since if the system is this big and
+> 
+> Can you determine number of slots in use?
 
-If it works for you, it's really only effecting your messages at this point.
-I took David's idea to mean replace audit_log_d_path altogether, and all
-paths logged on exit with aux data.
+I think it is possible, but then it will probably be back to something
+like "pci=routeirq" philosophy.
+ 
+> >   using newer chipsets it is probably (better be!) an ACPI based 
+> > system :). The change is completely "mechanical" and does not alter 
+> > any internal structures or interrupt model/implementation. 
+> The patch 
+> > works for both i386 and x86_64 archs. It works with MSIs just fine, 
+> > and should not intervene with implementations like shared vectors, 
+> > when they get worked out and incorporated.
+> 
+> Well we ran into similar problems on older MPS systems 
+> (NUMAQ) but those don't really matter right now anyway. So i 
+> think fixing this for ACPI is fine.
 
-thanks,
--chris
+ACPI is well organized and easily manipulated, that's why I stopped
+right there. I tried adjusting the MPS case, it is possible, but then I
+thought no one would need it anyway. It would take multiple changes and
+won't be pretty, but if you insist I can work it out :)  
+> But i like your patch =)
+
+:)
+ 
+> Thanks,
+> 	Zwane
+> 
+> 

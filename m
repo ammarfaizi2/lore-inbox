@@ -1,150 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261373AbVETVd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVETVf6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261373AbVETVd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 17:33:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVETVd0
+	id S261330AbVETVf6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 17:35:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVETVf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 17:33:26 -0400
-Received: from mail.kroah.org ([69.55.234.183]:64947 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261606AbVETVbs (ORCPT
+	Fri, 20 May 2005 17:35:58 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:2490 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261330AbVETVec (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 17:31:48 -0400
-Date: Fri, 20 May 2005 14:38:39 -0700
-From: Greg KH <greg@kroah.com>
-To: linux-hotplug-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] udev 058 release
-Message-ID: <20050520213839.GB16567@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+	Fri, 20 May 2005 17:34:32 -0400
+Message-ID: <428E57E2.2090204@pobox.com>
+Date: Fri, 20 May 2005 17:34:26 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Grant Grundler <grundler@parisc-linux.org>
+CC: akpm@osdl.org, T-Bone@parisc-linux.org, varenet@parisc-linux.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev <netdev@oss.sgi.com>
+Subject: Re: patch tulip-natsemi-dp83840a-phy-fix.patch added to -mm tree
+References: <200505101955.j4AJtX9x032464@shell0.pdx.osdl.net> <42881C58.40001@pobox.com> <20050516050843.GA20107@colo.lackof.org> <4288CE51.1050703@pobox.com> <20050516222612.GD9282@colo.lackof.org> <428E3372.403@pobox.com> <20050520211229.GA2411@colo.lackof.org>
+In-Reply-To: <20050520211229.GA2411@colo.lackof.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've released the 058 version of udev.  It can be found at:
-  	kernel.org/pub/linux/utils/kernel/hotplug/udev-058.tar.gz
+Grant Grundler wrote:
+> On Fri, May 20, 2005 at 02:58:58PM -0400, Jeff Garzik wrote:
+> 
+>>Grant Grundler wrote:
+>>
+>>>After three years of using/maintaining the (trivial) tulip patch
+>>>in parisc-linux tree (and shipped with RH/SuSe ia64 releases),
+>>>I don't recall anyone complaining that udelays in tulip phy reset
+>>>caused them problems. Sorry, I'm unmotivated to revisit this.
+>>>Convince someone else to make tulip to use workqueues and I'll
+>>>resubmit a clean patch on top of that for the phy init sequences.
+>>
+>>
+>>Long delays are unacceptable in new drivers,
+> 
+> 
+> Agreed. But that didn't stop tg3 from having a 1.5 *SECOND*
+> spin delay during fiber phy init with interrupts off.
+> That is certainly a much newer driver than tulip.
+> 
+> (It's not obvious to me by code inspection which context
+>  tg3_setup_fiber_by_hand() gets called from now.)
 
-udev allows users to have a dynamic /dev and provides the ability to
-have persistent device names.  It uses sysfs and /sbin/hotplug and runs
-entirely in userspace.  It requires a 2.6 kernel with CONFIG_HOTPLUG
-enabled to run.  Please see the udev FAQ for any questions about it:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev-FAQ
+Yes, tg3 is awful in this regard.  I have made a bit of progress by 
+moving some of the stuff into a workqueue.
 
-For any udev vs devfs questions anyone might have, please see:
-	kernel.org/pub/linux/utils/kernel/hotplug/udev_vs_devfs
-
-And there is a general udev web page at:
-	http://www.kernel.org/pub/linux/utils/kernel/hotplug/udev.html
-
-Note, if you are running a kernel newer than 2.6.12-rc4 (including the
--mm releases) and you have any custom udev rules, you MUST upgrade to
-the latest version to allow udev to work properly.  This change happened
-because of a previously-unrealized reliance in libsysfs on the presence
-of a useless sysfs file that has recently been removed.  Hopefully the
-libsysfs people will be releasing a new version shortly with this change
-in it for those packages who rely on it.
-
-Also, the rules file structure and use is changing again, in more
-powerful ways.  For more details on this, and if you currently rely on
-the /etc/dev.d/ feature, please read the RELEASE-NOTES file in the main
-udev directory.  A online version can be found here:
-http://www.kernel.org/git/?p=linux/hotplug/udev.git;a=blob;h=9b7fa3133013c4dfc1bc5d759cd198e8aafdef83;hb=5e65ab9a191268fec7cddf6b7d8c0fefd2a6b920;f=RELEASE-NOTES
-
-Thanks go do Dan Stekloff for the libsysfs patch, and for Kay Sievers
-figuring out what the problem was.  Also a big thanks to Kay for all of
-the recent changes to the rules file logic.  A full list of everyone,
-and their changes is below.
-
-udev has also switched over to using git.  The main udev git repo can be
-found at:
-	rsync://rsync.kernel.org/pub/scm/linux/hotplug/udev.git
-and can be browsed online at:
-	http://www.kernel.org/git/?p=linux/hotplug/udev.git
-
-thanks,
-
-greg k-h
-
-Summary of changes from v057 to v058
-============================================
-
-Daniel Drake:
-  o Writing udev rules docs update
-
-Darren Salt:
-  o update cdsymlinks to latest version
-
-Greg Kroah-Hartman:
-  o remove detach_state files from the sysfs test tree
-  o Update permissions on test scripts so they will run properly now
-  o hopefully fix up the symlinks in the test directory
-  o Removed klibc/klibc.spec as it is autogenerated
-  o Added symlinks thanks to Kay's script and git hacking
-  o add Red Hat/Fedora html documenation
-  o Update Red Hat default udev rules
-
-Kay Sievers:
-  o selinux: fix handling during creation of symlinks
-  o Fedora udev.rules update
-  o libsysfs: version 2.0
-  o klibc: version 1.0.7
-
-Masanao Igarashi:
-  o Fix libsysfs issue with relying on the detach_state file to be
-
-Summary of changes from v056 to v057
-============================================
-
-<tklauser:access.unizh.ch>:
-  o fix stupid all_partitions bug
-
-Kay Sievers:
-  o add test for make -j4 to build-check
-  o klibc: version 1.0.6
-  o update Debian rules
-  o apply default permissions only for devices that will need it
-  o adapt RELEASE-NOTES
-  o udev_volume_id: fix endianess macros
-  o udev-test.pl: add test for DEVNAME export to RUN environment
-  o update the man page to reflect the recent changes
-  o export DEVNAME to RUN-key executed programs
-  o fix make -j4 and the local klibc-install
-  o update RELEASE-NOTES
-  o add RUN key to be able to run rule based notification
-  o fix udevtest to print the error if logging is disabled
-  o move execute_program to utils + add action to init_device
-  o correct correction for error path for PROGRAM execution
-  o correct error path for PROGRAM execution
-  o klibc: version 1.0.5
-  o check for strlen()==0 before accessing strlen()-1
-  o allow to match against empty key values
-  o read %s{}-sysfs values at any device in the chain
-  o udev_rules.c: don't change sysfs_device while walking up the device chain
-  o klibc: strlcpy/strlcat - don't alter destination if size == 0
-  o fix klibc's broken strlcpy/strlcat
-  o udevinfo: print SYSFS attribute the same way we match it
-  o remove untrusted chars read from sysfs-values or returned by PROGRAM
-  o udevinfo: print errors to stderr instead of stdout
-  o klibc: version 1.0.4
-  o support log-priority levels in udev.conf
-  o test-suite: remove UDEV_TEST, it's not needed anymore
-  o libsysfs: remove trailing slash on SYSFS_PATH override
+I got multiple reports from embedded tg3 platform developers, who had to 
+really muck up the driver to fix the delay issue.  It was apparently 
+_really_ noticeable on one embedded platform.
 
 
-Summary of changes from v055 to v056
-============================================
+>>and we are working to remove them from older drivers.
+>>
+>>Lack of complaints is irrelevant -- its 
+>>a design requirement of all drivers.
+> 
+> 
+> It's totally relevant.
+> Complaints (bug reports) and patches drive change.  That's how both
+> commercial *and* non-commercial developers prioritize.
+> 
+> "Ingo and the real-time crowd" are a good example of a change
+> in priorities driven by non-commercial users.
 
-<tklauser:access.unizh.ch>:
-  o fix header paths in udev_libc_wrapper.c
+No, these are commercial users.  Embedded space really cares about this 
+stuff.
 
-Kay Sievers:
-  o udev-test.pl: use more common user/group names
-  o klibc: remove SCCS directories from the temporary klibc install
-  o udev-test.pl: add a test where the group cannot be found in /etc/passwd
-  o udev-test.pl: add check for textual uid/gid
-  o fix bad typo that prevents the GROUP to be applied
-  o udevd: don't delay events with TIMEOUT in the environment
-  o klibc: use klcc wrapper instead of our own Makefile
-  o change call_foreach_file to return a list
+
+>>Ingo and the real-time crowd are fighting against every delay, because 
+>>every delay causes a spin, a blip in latency, an increase in CPU usage, 
+>>and a complete stoppage of ALL work on a uniprocessor machine.
+> 
+> 
+> Understood. But they were not the first ones. Donald Becker has a fairly
+> well known digust for use of CPU spin loops.  But we can't eliminate
+> *all* udelay just becuase of the way HW is designed and has bugs.
+> I think it would be reasonable to get rid of many udelay calls
+> (replace them with PCI read delay loops like Donald has advocated)
+> and get the rest into a context where it matters less.
+> I have no objection to people fixing those sorts of issues.
+
+If you recognize the issue, you should object to new changes adding new 
+issues!
+
+
+>>Your patch is not a special case.  We have been communicating this 
+>>message on udelay/mdelay for -years-.  All your patch [as-is] does is 
+>>cause more work for someone else.
+> 
+> 
+> Not true. This patch brings the tulip driver into compliance with
+> published specs and makes the driver functional for parisc/mips/ia64 users.
+
+Ok, yes, it fixes the tulip issue AND causes work for others.
+
+
+>>This also presents a problem that Andrew points out on occasion:
+>>what happens when a patch is useful, but the patch author isn't (for 
+>>whatever reason) doing the legwork necessary to get it into the mainline 
+>>kernel?
+> 
+> 
+> The "whatever reason" is clearly decided by the mainline kernel maintainer.
+> If we treat other people's labor as "free", then the right answer is
+> to drop the patch and wait for some subset of "we" to do the extra legwork.
+
+Um, this is how all kernel development works :)
+
+Maintainers are not supposed to merge patches into upstream, if they 
+have flaws still remaining to be corrected.
+
+
+> Several people care if tulip phy init works right. OTOH, I'm only aware of
+> one person who specifically cares if tulip is holding the CPU hostage for
+> 1 or 2 ms during the occasional phy init.
+> 
+> Is being a technology purist more important than moving forward with
+> what people care about?
+
+There will _always_ be ugly patches that get hardware going for some users.
+
+Tons of changes are kept outside the kernel until they are ready.  This 
+is just one more example.
+
+Merging code into the kernel is a big deal.  That code will have to be 
+maintained for years, maybe decades.  "when in doubt, don't merge" is 
+generally the right answer.
+
+I don't want your patch to become an issue that embedded developers must 
+address (like the tg3 example above), causing further patching and 
+headache in that area.
+
+	Jeff
 
 

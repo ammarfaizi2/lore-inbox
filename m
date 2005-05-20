@@ -1,69 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbVETRis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVETRqG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261511AbVETRis (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 13:38:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVETRir
+	id S261518AbVETRqG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 13:46:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbVETRqG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 13:38:47 -0400
-Received: from igw2.watson.ibm.com ([129.34.20.6]:18060 "EHLO
-	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S261511AbVETRii
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 13:38:38 -0400
-Date: Fri, 20 May 2005 13:38:28 -0400 (Eastern Daylight Time)
-From: Reiner Sailer <sailer@us.ibm.com>
-To: James Morris <jmorris@redhat.com>
-cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Chris Wright <chrisw@osdl.org>, emilyr@us.ibm.com, yoder1@us.ibm.com,
-       kjhall@us.ltcfwd.linux.ibm.com, linux-kernel@vger.kernel.org,
-       toml@us.ibm.com
-Subject: Re: [PATCH 1 of 4] ima: related TPM device driver interal kernel
- interface
-Message-ID: <Pine.WNT.4.63.0505201332400.4052@laptop>
-X-Warning: UNAuthenticated Sender
+	Fri, 20 May 2005 13:46:06 -0400
+Received: from downeast.net ([12.149.251.230]:23008 "EHLO downeast.net")
+	by vger.kernel.org with ESMTP id S261522AbVETRpx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 13:45:53 -0400
+From: Patrick McFarland <pmcfarland@downeast.net>
+To: linux-kernel@vger.kernel.org
+Subject: [OT] Joerg Schilling flames Linux on his Blog
+Date: Fri, 20 May 2005 13:45:03 -0400
+User-Agent: KMail/1.8
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: multipart/signed;
+  boundary="nextPart3341048.FmyJk9GBU1";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200505201345.15584.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart3341048.FmyJk9GBU1
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-James Morris <jmorris@redhat.com> wrote on 05/20/2005 10:56:20 AM:
+As everyone knows, Joerg Schilling has a blog, and he often pushes his=20
+pro-Solaris agenda, and flames the LKML about how Linux breaks cdrecord=20
+(instead of just admitting cdrecord is broken) or how much more awesome=20
+Solaris is compared to Linux.
 
-> Why are you using LSM for this?
-> 
-> LSM should be used for comprehensive access control frameworks which 
-> significantly enhance or even replace existing Unix DAC security.
+Well, he just fired yet another salvo at the Linux community:=20
+http://schily.blogspot.com/2005/04/value-marketing-and-freedom.html
 
-I see LSM is framework for security. IMA is an architecture that
-enforces access control in a different way than SELinux. IMA guarantees 
-that executable content is measured and accounted for before
-it is loaded and can access (and possibly corrupt) system resources.
+I commented on his blog entry, but I am afraid of being censored as my view=
+s=20
+do not align with his, so I am including the text of my comment here:
 
-> We're going to end up with a proliferation of arbitrary security 
-features 
-> lacking an overall architectural view (I've written about this before, 
-> see http://www.ussg.iu.edu/hypermail/linux/kernel/0503.1/0300.html).
->
-> I think it would be better to implement this directly.
+////
+I suggest people don't read too much into what Schily says. He thinks Solar=
+is=20
+is this almighty perfect operating system that crushes all others: The reas=
+on=20
+Solaris is failing is because more and more people are switching to other=20
+operating systems. And yes, Linux just happens to be the one that most are=
+=20
+switching to; BSD and QNX are also other choices.
 
-The reason IMA is implemented as a Linux security module is that the LSM
-interface allows the least intrusive implementation with regard to existing
-kernel code. IMA is non-intrusive (its hooks return always nicely) and 
-implements security guarantees that are orthogonal to those of, e.g., 
-SELinux. Interactions with other LSM users are not expected. Experience 
-shows that maintining IMA as LSM is simple.
+Most of the people switching to Linux are not doing so because its GPL, not=
+=20
+because its associated with other Free Software, and not because the source=
+=20
+is available. They are switching simply because it is the best product out=
+=20
+there at this time; and as I see it, it will continue to be the best produc=
+t=20
+because Linux software developers are not sitting around arguing about what=
+=20
+license is better, or what features other operating systems have or don't=20
+have.
 
-There is no reason though why IMA must use LSM; however, it seems not the
-straightforward solution to replicate LSM hooks that are already 
-available.
+Linux developers code, OpenSolaris developers sit around and flame Linux=20
+developers instead of coding. Which operating system would _you_ choose?
+////
 
-> 
-> - James
-> -- 
-> James Morris
-> <jmorris@redhat.com>
-> 
-> 
+=2D-=20
+Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
+e'd=20
+all be running around in darkened rooms, munching magic pills and listening=
+ to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
 
-Thanks
-Reiner
+--nextPart3341048.FmyJk9GBU1
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBCjiIr8Gvouk7G1cURAolcAJ98PaiJQq6T2zV3uhDLNfU6QP8phwCgsrfh
+67933JGP+EwLO8U0ZZ0L2lA=
+=3lT1
+-----END PGP SIGNATURE-----
+
+--nextPart3341048.FmyJk9GBU1--

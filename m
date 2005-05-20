@@ -1,97 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbVETNXf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVETNYo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261463AbVETNXf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 09:23:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVETNXf
+	id S261475AbVETNYo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 09:24:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVETNYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 09:23:35 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36501 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261463AbVETNXZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 09:23:25 -0400
-Date: Fri, 20 May 2005 09:23:25 -0400
-From: Neil Horman <nhorman@redhat.com>
-To: linux-kernel@vger.kernel.org
-Subject: [Patch] vfs: increase scope of critical locked path in fget_light to avoid race
-Message-ID: <20050520132325.GE19229@hmsendeavour.rdu.redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="HcAYCG3uE/tztfnV"
+	Fri, 20 May 2005 09:24:35 -0400
+Received: from mail.baslerweb.com ([145.253.187.130]:20965 "EHLO
+	mail.baslerweb.com") by vger.kernel.org with ESMTP id S261468AbVETNYR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 09:24:17 -0400
+From: Thomas Koeller <thomas.koeller@baslerweb.com>
+Organization: Basler AG
+To: "Linux/MIPS Development" <linux-mips@linux-mips.org>,
+       linux-kernel@vger.kernel.org
+Subject: vmap() problem, possible bug?
+Date: Fri, 20 May 2005 15:23:52 +0200
+User-Agent: KMail/1.6.2
+MIME-Version: 1.0
+Message-Id: <200505201523.52194.thomas.koeller@baslerweb.com>
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---HcAYCG3uE/tztfnV
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+writing a device driver I came across something that looks
+to me like a bug in the vmap() function. I am using kernel
+2.6.11-rc1 (from linux-mips.org cvs, but the problem is
+probably not mips-specific).
 
-Patch to increase the scope of the locked critical path in fget_light to in=
-clude
-the conditional where there is only one reference to the passed file_struct.
-Currently there is no protection against someone modifying that reference c=
-ount
-after it has been read in fget_light and falling into a code path where the=
- fd
-array is modified.  The result is a race condition that leads to a corrupte=
-d fd
-table and potential oopses.  This patch corrects that by enforcing the lock=
-ing
-protocol that is used by all other accessors of the fd table on the 1 refer=
-ence
-case in fget_light.  Smoke tested by me, with no failures.
+My driver transfers large amounts of data using DMA to a
+buffer passed in from userland and translated to a page
+list via get_user_pages(). Due to alignment restrictions
+imposed by the DMA hardware, I have to use a temporary
+buffer page for a part of the data buffer, and to copy
+the data from this page to the actual buffer using
+memcpy(). To be able to to so, I am using vmap() to create
+a temporary mapping for the part of the buffer where the
+data is to be copied, do the copy, and then call vunmap()
+to remove the mapping:
 
-Signed-off-by: Neil Horman <nhorman@redhat.com>
 
- file_table.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
 
-=20
---- linux-2.6.git/fs/file_table.c.racefix	2005-05-20 07:32:12.000000000 -04=
-00
-+++ linux-2.6.git/fs/file_table.c	2005-05-20 08:53:03.000000000 -0400
-@@ -174,17 +174,17 @@ struct file fastcall *fget_light(unsigne
- 	struct files_struct *files =3D current->files;
-=20
- 	*fput_needed =3D 0;
-+	spin_lock(&files->file_lock);
- 	if (likely((atomic_read(&files->count) =3D=3D 1))) {
- 		file =3D fcheck_files(files, fd);
- 	} else {
--		spin_lock(&files->file_lock);
- 		file =3D fcheck_files(files, fd);
- 		if (file) {
- 			get_file(file);
- 			*fput_needed =3D 1;
- 		}
--		spin_unlock(&files->file_lock);
- 	}
-+	spin_unlock(&files->file_lock);
- 	return file;
- }
-=20
---=20
-/***************************************************
- *Neil Horman
- *Software Engineer
- *Red Hat, Inc.
- *nhorman@redhat.com
- *gpg keyid: 1024D / 0x92A74FA1
- *http://pgp.mit.edu
- ***************************************************/
+if (pkt->copy_size) {
+	const unsigned int page_order =
+		(pkt->copy_size > PAGE_SIZE) ? 1 : 0;
+	void * const dst = vmap(pkt->copy_pg, 0x1 << page_order,
+				VM_MAP, PAGE_USERIO);
 
---HcAYCG3uE/tztfnV
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+	if (dst) {
+		memcpy(dst + pkt->copy_offs, pkt->copy_src,
+		       pkt->copy_size);
+		free_pages((unsigned long) pkt->copy_src, page_order);
+		vunmap(dst);
+	} else {
+		pkt->pset->status = XICAP_BUFSTAT_VMERR;
+	}
+}
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
 
-iD8DBQFCjeTNM+bEoZKnT6ERAmjKAJ93nRM9GdElxN+XGlXelQh93qkVVgCfRWSU
-V6zBC0NV7TZEVJhUOh7FqM4=
-=dDV9
------END PGP SIGNATURE-----
 
---HcAYCG3uE/tztfnV--
+The code above is executed once for every data buffer
+processed. It works as expected most of the time, but
+every once in a while the data copied is not written to
+the correct location, but to the previously processed
+buffer instead. It looks as if the mapping established
+for that buffer had survived the vunmap() / vmap() sequence.
+
+In case it matters, my system is single core (not SMP).
+Any ideas, anybody?
+
+tk
+-- 
+--------------------------------------------------
+
+Thomas Koeller, Software Development
+Basler Vision Technologies
+
+thomas dot koeller at baslerweb dot com
+http://www.baslerweb.com
+
+==============================
+

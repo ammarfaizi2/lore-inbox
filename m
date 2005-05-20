@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVETX3u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVETXjL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbVETX3u (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 19:29:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVETX3u
+	id S261601AbVETXjL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 19:39:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbVETXjL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 19:29:50 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:11196 "EHLO
+	Fri, 20 May 2005 19:39:11 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:25020 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261601AbVETX3s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 19:29:48 -0400
-Subject: Re: 2.6.12-rc4-mm2 - sleeping function called from invalid context
-	at mm/slab.c:2502
-From: David Woodhouse <dwmw2@infradead.org>
-To: Linux Audit Discussion <linux-audit@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1116609983.12489.180.camel@moss-spartans.epoch.ncsc.mil>
-References: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu>
-	 <1116502449.23972.207.camel@hades.cambridge.redhat.com>
-	 <200505191845.j4JIjVtq006262@turing-police.cc.vt.edu>
-	 <200505201430.j4KEUFD0012985@turing-police.cc.vt.edu>
-	 <1116601195.29037.18.camel@localhost.localdomain>
-	 <1116601757.12489.130.camel@moss-spartans.epoch.ncsc.mil>
-	 <1116603414.29037.36.camel@localhost.localdomain>
-	 <1116607223.12489.155.camel@moss-spartans.epoch.ncsc.mil>
-	 <1116608144.29037.55.camel@localhost.localdomain>
-	 <1116609983.12489.180.camel@moss-spartans.epoch.ncsc.mil>
-Content-Type: text/plain
-Date: Sat, 21 May 2005 00:27:34 +0100
-Message-Id: <1116631655.29037.72.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
-Content-Transfer-Encoding: 7bit
+	id S261601AbVETXjJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 19:39:09 -0400
+Date: Sat, 21 May 2005 00:39:03 +0100 (BST)
+From: James Simmons <jsimmons@www.infradead.org>
+X-X-Sender: jsimmons@pentafluge.infradead.org
+To: Jon Smirl <jonsmirl@gmail.com>
+cc: linux-os@analogic.com, Linus Torvalds <torvalds@osdl.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Screen regen buffer at 0x00b8000
+In-Reply-To: <9e4733910505201421cf36902@mail.gmail.com>
+Message-ID: <Pine.LNX.4.56.0505210037290.18193@pentafluge.infradead.org>
+References: <Pine.LNX.4.61.0505200944060.5921@chaos.analogic.com> 
+ <Pine.LNX.4.58.0505201259560.2206@ppc970.osdl.org> 
+ <Pine.LNX.4.61.0505201612360.6833@chaos.analogic.com>
+ <9e4733910505201421cf36902@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-05-20 at 13:26 -0400, Stephen Smalley wrote:
+> > Yes, and I didn't want to. However a customer wants some status to
+> > be always displayed in the upper-right-hand corner of a 4x5 LCD
+> > with a tiny CPU board.
 > 
-> This patch changes the SELinux AVC to defer logging of paths to the audit
-> framework upon syscall exit, by saving a reference to the (dentry,vfsmount)
-> pair in an auxiliary audit item on the current audit context for processing
-> by audit_log_exit.
-> 
-> Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
+> The console implements a tiny terminal emulator. Does the emulator
+> implement the escape sequence for locking an unscrollable line at the
+> top of the screen? If so lock the line, write your info there, and the
+> rest of the display will work like normal.
 
-Applied; thanks.
-
--- 
-dwmw2
+Yes it does. This is how the penguin is displayed without scrolling in the 
+framebuffer console.
 

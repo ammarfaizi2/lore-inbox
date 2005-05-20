@@ -1,55 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVETVY4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVETV2Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbVETVY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 17:24:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbVETVYz
+	id S261594AbVETV2Y (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 17:28:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbVETV2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 17:24:55 -0400
-Received: from dvhart.com ([64.146.134.43]:53922 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261603AbVETVYb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 17:24:31 -0400
-Date: Fri, 20 May 2005 14:24:27 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Herbert Poetzl <herbert@13thfloor.at>,
-       David Lang <david.lang@digitalinsight.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Rik van Riel <riel@redhat.com>,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] how do we move the VM forward? (was Re: [RFC] cleanup ofuse-once)
-Message-ID: <89480000.1116624266@flay>
-In-Reply-To: <20050520181606.GB6002@MAIL.13thfloor.at>
-References: <Pine.LNX.4.61.0505030037100.27756@chimarrao.boston.redhat.com> <42771904.7020404@yahoo.com.au> <Pine.LNX.4.61.0505030913480.27756@chimarrao.boston.redhat.com> <42781AC5.1000201@yahoo.com.au> <Pine.LNX.4.62.0505031749010.12818@qynat.qvtvafvgr.pbz> <20050520181606.GB6002@MAIL.13thfloor.at>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	Fri, 20 May 2005 17:28:23 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:60102 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261594AbVETV2B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 17:28:01 -0400
+Date: Fri, 20 May 2005 22:28:24 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Neil Horman <nhorman@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [Patch] vfs: increase scope of critical locked path in fget_light to avoid race
+Message-ID: <20050520212824.GS29811@parcelfarce.linux.theplanet.co.uk>
+References: <20050520132325.GE19229@hmsendeavour.rdu.redhat.com> <20050520133337.GP29811@parcelfarce.linux.theplanet.co.uk> <20050520134046.GQ29811@parcelfarce.linux.theplanet.co.uk> <20050520152550.GF19229@hmsendeavour.rdu.redhat.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20050520152550.GF19229@hmsendeavour.rdu.redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 20, 2005 at 11:25:50AM -0400, Neil Horman wrote:
+> I don't have the complete race scenario, just a stack that suggests that
+> files->fd was corrupted.  This problem isn't recreatable at will (yet), so this
+> is really based on a thought experiment more than anything else.  The conditions
+> that I was envisioning was a multithreaded application in which two threads
+> modified  the same file descriptor at the same time.  Its my understanding, from
+> the way I read the code that the ref count on a file_struct will still be one
+> for a multithreaded application, and as such it would be possible, using the
+> fget_light routine for one thread to be be preforming an operation on an
+> descriptor in the fd array, while another thread preformed another operation
 
+Incorrect.  References to files_struct are held by task_struct.  Kernel
+stack is determined by task_struct.  So your two threads would have
+to share task_struct (i.e. be purely userland ones) and could not
+run in the kernel at the same time for very obvious reasons.
 
---On Friday, May 20, 2005 20:16:06 +0200 Herbert Poetzl <herbert@13thfloor.at> wrote:
+The rules are simple:
+	* all access to files_struct is done from upper-half (i.e. is
+process-synchronous).
+	* the only files_struct you can modify is *(current->files)
+	* each task_struct that has ->files pointing to given files_struct
+contributes 1 to ->count of that files_struct.  There might be other holders
+of temporary references and they also contribute to ->count.
+	* all changes of task->files itself are process-synchronous.  Only
+two kinds of changes are possible:
+	1) current->files can be set to NULL.  That drops a reference to
+original files_struct.
+	2) current->files can be replaced with a pointer to a new copy of
+previous files_struct.  This operations drops a reference to old one and
+sets the refcount on a copy to 1.  It could either be done explicitly (when
+unshare(2) gets merged into Linus' tree) or implicitly at the clone()/fork()
+time.  In the latter case that's done by parent to child before the child
+gets a chance to run.
+	* at task creation time, child inherits ->files from parent; that
+acquires a new reference to it.  That might be followed by implicit unshare()
+(see above).  fork(2) always unshares ->files, clone(2) does that unless
+CLONE_FILES had been passed to it in flags.
 
-> On Tue, May 03, 2005 at 05:51:43PM -0700, David Lang wrote:
->> On Wed, 4 May 2005, Nick Piggin wrote:
->> 
->> > 
->> > Also having a box or two for running regression and stress
->> > testing is a must. I can do a bit here, but unfortunately
->> > "kernel compiles until it hurts" is probably not the best
->> > workload to target.
-> 
-> if there are some tests or output (kernel logs, etc)
-> or proc info or vmstat or whatever, which doesn't take
-> 100% cpu time, I'm able and willing to test it on different
-> workloads (including compiling the kernel until it hurts ;)
-
-I did take that patch and run a bunch of tests on it across a few
-different architectures. everything worked fine, no perf differnences
-either way ... but then I may not have actually put it under memory
-pressure, so it might not be ideal testing ;-)
-
-M.
-
+IOW, the only way for two tasks to have ->files pointing to the same object
+is to have it unchanged all the way back to common ancestor.  In particular,
+if current->files->count is 1, we know that no other task has ->files pointing
+to our files_struct and that will remain true until we call clone().  It does
+*not* mean that current->files->count will remain 1; somebody might acquire
+a temporary reference to our files_struct.  However, we are guaranteed that
+all such references will be used only for read-only access (that happens,
+e.g., when somebody does ls /proc/<our_pid>/fd - they will grab a reference
+to our ->files and go looking at the descriptor table; they are not allowed
+to change it, though).

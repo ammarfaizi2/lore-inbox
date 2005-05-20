@@ -1,98 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbVETQe6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVETQls@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261403AbVETQe6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 12:34:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbVETQe6
+	id S261478AbVETQls (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 12:41:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261480AbVETQls
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 12:34:58 -0400
-Received: from rost.dti.supsi.ch ([193.5.152.238]:18817 "EHLO
-	rost.dti.supsi.ch") by vger.kernel.org with ESMTP id S261403AbVETQek
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 12:34:40 -0400
-Date: Fri, 20 May 2005 18:34:37 +0200 (CEST)
-From: Marco Rogantini <marco.rogantini@supsi.ch>
-X-X-Sender: rogantin@rost.dti.supsi.ch
-To: "Richard B. Johnson" <linux-os@analogic.com>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Screen regen buffer at 0x00b8000
-In-Reply-To: <Pine.LNX.4.61.0505201123140.5107@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.62.0505201819040.16866@rost.dti.supsi.ch>
-References: <Pine.LNX.4.61.0505200944060.5921@chaos.analogic.com>
- <20050520141434.GZ2417@lug-owl.de> <Pine.LNX.4.62.0505201639170.14709@rost.dti.supsi.ch>
- <Pine.LNX.4.61.0505201123140.5107@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 20 May 2005 12:41:48 -0400
+Received: from fire.osdl.org ([65.172.181.4]:40914 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261478AbVETQlq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 12:41:46 -0400
+Date: Fri, 20 May 2005 09:41:38 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Linux Audit Discussion <linux-audit@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc4-mm2 - sleeping function called from invalid context at mm/slab.c:2502
+Message-ID: <20050520164138.GX27549@shell0.pdx.osdl.net>
+References: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu> <1116502449.23972.207.camel@hades.cambridge.redhat.com> <200505191845.j4JIjVtq006262@turing-police.cc.vt.edu> <200505201430.j4KEUFD0012985@turing-police.cc.vt.edu> <1116601195.29037.18.camel@localhost.localdomain> <1116601757.12489.130.camel@moss-spartans.epoch.ncsc.mil> <1116603414.29037.36.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1116603414.29037.36.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 May 2005, Richard B. Johnson wrote:
+* David Woodhouse (dwmw2@infradead.org) wrote:
+> On Fri, 2005-05-20 at 11:09 -0400, Stephen Smalley wrote:
+> > The lock is being held by the af_unix code (unix_state_wlock), not
+> > avc_audit; the AVC is called under all kinds of circumstances (softirq,
+> > hard irq, caller holding locks on relevant objects) for permission
+> > checking and must never sleep.
+> > 
+> > One option might be to defer some of the AVC auditing to the audit
+> > framework (e.g. save the vfsmount and dentry on the current audit
+> > context and let audit_log_exit perform the audit_log_d_path).
+> 
+> Yeah, maybe. Assuming you pin them, it's easy enough to hang something
+> off the audit context's aux list which refers to them. I'm really not
+> that fond of the idea of allocating a whole PATH_MAX with GFP_ATOMIC.
 
-> Why can't I consistantly write to the VGA screen regen buffer
-> and have it appear on the screen????
-
-I wrote the following little program and understood the effect you are
-seeing...
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <unistd.h>
-#include <string.h>
-#include <signal.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <time.h>
-#include <sys/mman.h>
-
-
-#define SCREEN 0x000b8000
-#define ATTRIB 0x1700
-
-int main (int argc, char **argv) {
-
- 	int fd;
- 	void *va;
- 	size_t page_size = getpagesize();
- 	unsigned short c = ATTRIB | '0';
- 	int i;
-
- 	fd = open("/dev/mem", O_RDWR | O_SYNC);
- 	if (!fd) {
- 		perror("open");
- 		exit(1);
- 	}
-
- 	va = mmap(0, page_size, PROT_READ | PROT_WRITE, MAP_SHARED,
- 			fd, SCREEN);
- 	if (va == (void *) -1) {
- 		perror ("mmap");
- 		exit(1);
- 	}
-
- 	/* first column of second line of the hardware buffer */
- 	va += 160;
-
- 	/* printing ascii '0' to '9' */
- 	for (i = 0; i < 10; i++) {
- 		*((unsigned short *) va) = c;
- 		c += 1;
- 		sleep(1);
- 	}
-
- 	return 0;
-}
-
-
-Do you remember that the linux console uses hardware buffers for
-its scrolling capabilities (shift-pgup and shift-pgdown)?
-
-When you hit enter to run your program the display line you are
-addressing in your program has gone off by one so it is out of visual.
-
-To see your line you must go to the begginning of the buffer in the
-console (shift-pgup until at the top) since you write to the first
-line in the hardware buffer.
-
-Hope this helps
-
- 	-marco
+I agree, PATH_MAX atomic is greedy.  But the calling convention could
+be a bit awkward.  Currently it's as got as audit_log_format.  Tacking
+vfsmount/dentry pair on might be tough to format the message with.
+Got a good idea?

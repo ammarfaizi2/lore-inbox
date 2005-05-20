@@ -1,167 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261434AbVETWNB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVETWkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261434AbVETWNB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 18:13:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVETWNA
+	id S261276AbVETWkF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 18:40:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVETWkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 18:13:00 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:33173 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261434AbVETWMI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 18:12:08 -0400
-Subject: [RFC][PATCH] rbind across namespaces
-From: Ram <linuxram@us.ibm.com>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       Miklos Szeredi <miklos@szeredi.hu>, jamie@shareable.org
-Content-Type: multipart/mixed; boundary="=-rN9ols8Am5NrW+teKjJu"
-Organization: IBM 
-Message-Id: <1116627099.4397.43.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Fri, 20 May 2005 15:11:40 -0700
+	Fri, 20 May 2005 18:40:05 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:65455 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261276AbVETWjv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 18:39:51 -0400
+Message-Id: <20050520221622.124069000@csdlinux-2.jf.intel.com>
+Date: Fri, 20 May 2005 15:16:22 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: ak@muc.de
+Cc: zwane@arm.linux.org.uk, discuss@x86-64.org, shaohua.li@intel.com,
+       linux-kernel@vger.kernel.org
+Subject: [patch 0/4] CPU hot-plug support for x86_64
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andi
 
---=-rN9ols8Am5NrW+teKjJu
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Attached are patches that would apply over 2.6.12-rc4-mm2 to provide
+cpu hotplug support. It seems to hold up to stress (make -j's) on a 4way
+HT system)
 
-I have enclosed a patch that allows rbinds across any two namespaces.
-NOTE: currenly bind from foriegn namespace to current namespace is
-allowed. This patch now allows:
+FYI: Iam sending this via quilt mail, hopefully it makes its way ok, 
+otherwise please pardon, and i will resend my usuall way again if this 
+doesn't work.
 
-binds/rbinds from any namespace to any other namespace, under the
-assumption that if a process has access to a namespace, it ought to
-have permission to manipulate that namespace.
+- I tested with booting maxcpus=1, then you can kick each cpu online.
+  * I also manually migrate interrupts to the new CPU, and ensure they are off
+    when that same cpu is being offlined.
+  * Seems to have trouble with CONFIG_SCHED_SMT, i need to look into this
+    later.
+- Offline works as well
 
-The patch incorporates ideas from Miklos and Jamie, and is dependent
-on Miklos's 'fix race in mark_mounts_for_expiry' patch to function
-correctly. Also it depends on Miklos's 'fix bind mount from foreign
-namespace' patch, because without that patch umounts would fail.
+Andi: You had mentioned that you would not prefer to replace the broadcast IPI
+      with the mask version for performance. Currently this seems to be the
+	  most optimal way without putting a sledge hammer on the cpu_up process.
 
-Though we have not come up with any security reason towards why
-this functionality should not be allowed, I am sure it may open
-up some concerns.
+	  If there are any known performance issues that we are worried about
+	  we should look for alternative mechanism. 
+
+TBD: 
+0. Verify with CONFIG_NUMA (not done yet)
+1. ACPI integration for physical cpu hotplug support.
+2. replace fixup_irqs() with a correct implementation. This works fine for now
+   but has potential to miss interrupts. (in works).
 
 
-RP
-
-
---=-rN9ols8Am5NrW+teKjJu
-Content-Disposition: attachment; filename=rbind_across_namespace.patch
-Content-Type: text/x-patch; name=rbind_across_namespace.patch; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-
-Signed-off-by: Ram Pai <linuxram@us.ibm.com>
-
---- /home/linux/views/linux-2.6.12-rc4/fs/namespace.c	2005-05-06 23:22:29.000000000 -0700
-+++ 2.6.12-rc4/fs/namespace.c	2005-05-20 14:44:57.000000000 -0700
-@@ -616,11 +616,15 @@ out_unlock:
- }
- 
- /*
-- * do loopback mount.
-+ * do loopback mount.  The loopback mount can be done from any namespace
-+ * to any other namespace including the current namespace, as long as
-+ * the task acquired rights to manipulate them.
-  */
- static int do_loopback(struct nameidata *nd, char *old_name, int recurse)
- {
- 	struct nameidata old_nd;
-+	struct namespace *mntpt_ns = nd->mnt->mnt_namespace, *old_ns;
-+	int mntpt_ns_flag=0, old_ns_flag=0;
- 	struct vfsmount *mnt = NULL;
- 	int err = mount_is_safe(nd);
- 	if (err)
-@@ -631,16 +635,54 @@ static int do_loopback(struct nameidata 
- 	if (err)
- 		return err;
- 
--	down_write(&current->namespace->sem);
-+	old_ns = old_nd.mnt->mnt_namespace;
-+
-+	/* 
-+	 * make sure the namespaces do not disapper while
-+	 * we operate on it
-+	 */
- 	err = -EINVAL;
--	if (check_mnt(nd->mnt) && (!recurse || check_mnt(old_nd.mnt))) {
--		err = -ENOMEM;
--		if (recurse)
--			mnt = copy_tree(old_nd.mnt, old_nd.dentry);
--		else
--			mnt = clone_mnt(old_nd.mnt, old_nd.dentry);
-+	if (mntpt_ns != current->namespace) {
-+		spin_lock(&vfsmount_lock);
-+		if (!mntpt_ns->root) {
-+			spin_unlock(&vfsmount_lock);
-+			goto out;
-+		}
-+		get_namespace(mntpt_ns);
-+		spin_unlock(&vfsmount_lock);
-+		mntpt_ns_flag=1;
- 	}
- 
-+	if (old_ns != current->namespace) {
-+		spin_lock(&vfsmount_lock);
-+		if (!old_ns->root) {
-+			spin_unlock(&vfsmount_lock);
-+			goto release_mntpt_ns;
-+		}
-+		get_namespace(old_ns);
-+		spin_unlock(&vfsmount_lock);
-+		old_ns_flag=1;
-+	}
-+
-+	/* 
-+	 * make sure we don't race with some
-+	 * other thread manipulating the
-+	 * namespaces.
-+	 */
-+	if (old_ns < mntpt_ns) {
-+		down_write(&old_ns->sem);
-+	}
-+	down_write(&mntpt_ns->sem);
-+	if (old_ns > mntpt_ns) {
-+		down_write(&old_ns->sem);
-+	}
-+
-+	err = -ENOMEM;
-+	if (recurse)
-+		mnt = copy_tree(old_nd.mnt, old_nd.dentry);
-+	else
-+		mnt = clone_mnt(old_nd.mnt, old_nd.dentry);
-+
- 	if (mnt) {
- 		/* stop bind mounts from expiring */
- 		spin_lock(&vfsmount_lock);
-@@ -656,7 +698,23 @@ static int do_loopback(struct nameidata 
- 			mntput(mnt);
- 	}
- 
--	up_write(&current->namespace->sem);
-+	if (old_ns < mntpt_ns) {
-+		up_write(&old_ns->sem);
-+	}
-+	up_write(&mntpt_ns->sem);
-+	if (old_ns > mntpt_ns) {
-+		up_write(&old_ns->sem);
-+	}
-+
-+	if (old_ns_flag) {
-+		put_namespace(old_ns);
-+	}
-+
-+release_mntpt_ns:
-+	if (mntpt_ns_flag) {
-+		put_namespace(mntpt_ns);
-+	}
-+out:
- 	path_release(&old_nd);
- 	return err;
- }
-
---=-rN9ols8Am5NrW+teKjJu--
-
+Cheers,
+Ashok Raj

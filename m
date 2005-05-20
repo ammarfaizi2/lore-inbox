@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVETULL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVETUNA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbVETULL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 16:11:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbVETULL
+	id S261570AbVETUNA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 16:13:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbVETUNA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 16:11:11 -0400
-Received: from rproxy.gmail.com ([64.233.170.202]:25575 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261567AbVETULD convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 16:11:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AYB9QrguDvjkquA4QR34n0hNQr1t1Um76r8tS0CvQlBA+RJ3Sl3Qkj7J1lojB3sWxtt+xcVe8JcdWecVhNlQm3HWBr1o4afz6vmv7CoVhwBvH4+oXJ/TvVHOhZTK8pXrmOSm0gPad2z/7BLS6HNpCpCCq+8YMB8XtKY9K53oi40=
-Message-ID: <d120d500050520131118e42cc5@mail.gmail.com>
-Date: Fri, 20 May 2005 15:11:02 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Kay Sievers <kay.sievers@vrfy.org>
-Subject: Re: [PATCH 2.6.12-rc4] Add EXPORT_SYMBOL for hotplug_path
-Cc: Tom Rini <trini@kernel.crashing.org>, Greg KH <greg@kroah.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1116618493.12975.48.camel@dhcp-188>
+	Fri, 20 May 2005 16:13:00 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:48343 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261570AbVETUM4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 16:12:56 -0400
+Date: Fri, 20 May 2005 16:12:55 -0400
+To: Miquel van Smoorenburg <miquels@cistron.nl>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Thread and process dentifiers (CPU affinity, kill)
+Message-ID: <20050520201255.GG23621@csclub.uwaterloo.ca>
+References: <428CD458.6010203@free.fr> <20050520125511.GC23488@csclub.uwaterloo.ca> <428DF95E.2070703@free.fr> <20050520165307.GG23488@csclub.uwaterloo.ca> <d6l9cs$l1t$1@news.cistron.nl>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050519164323.GK3771@smtp.west.cox.net>
-	 <1116573175.7647.4.camel@dhcp-188.off.vrfy.org>
-	 <20050520171808.GM3771@smtp.west.cox.net>
-	 <1116611802.12975.19.camel@dhcp-188>
-	 <d120d5000505201207227edf4a@mail.gmail.com>
-	 <1116618493.12975.48.camel@dhcp-188>
+In-Reply-To: <d6l9cs$l1t$1@news.cistron.nl>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/20/05, Kay Sievers <kay.sievers@vrfy.org> wrote:
-> On Fri, 2005-05-20 at 14:07 -0500, Dmitry Torokhov wrote:
-> > On 5/20/05, Kay Sievers <kay.sievers@vrfy.org> wrote:
-> > >
-> > > Well, it doesn't depend on "make it private" it depends on Dimitry, who
-> > > wanted to tweak our patch for the input layer. But we wait for weeeks
-> > > for that. The SUSE kernel already ships a driver-core input layer
-> > > without the /sbin/hotplug stuff.
-> > >
-> >
-> > Kay,
-> >
-> > I am sorry for being slow with these patches but I really do spend all
-> > time that I can on kernel.
-> 
-> Oh well, I know that problem. :) We need to move completely away from
-> unmanaged kernel-forked processes in the hotplug area. SUSE 9.3 already
-> ships a udevd that listens only on netlink for hotplug messages
-> and /proc/sys/kernel/hotplug is set to "".
-> Hannes converted the input layer to a input_device class to get the
-> event through netlink. Maybe you can have a second look at it, so that
-> we can get that thing upstream soon to fix the last broken hotplug-user
-> and make hotplug_path finally private.
-> 
+On Fri, May 20, 2005 at 06:13:48PM +0000, Miquel van Smoorenburg wrote:
+> No. On modern systems, glibc contains both LinuxThreads and NPTL.
+> They have the same ABI. At runtime one of the two is selected,
+> depending on if the currently running kernel supports NTPL.
+> You can also force it by setting the LD_ASSUME_KERNEL environment
+> variable to 2.4 or 2.6.
 
-Could you send me the tlatest version, please? Lats time I think there
-were some concerns about lifetime rules...
+Well so far my tests show that glibc 2.3.2.ds1-21 on Debian Sarge when
+running 2.6.11 kernel on i386 uses LinuxThreads, while on amd64 version
+of Sarge it uses NPTL (and won't run with 2.4 kernel at all either).
 
--- 
-Dmitry
+Maybe Debian compiled their glibc to not do NPTL on i386 yet.  Not sure.
+
+Hmm, after checking, it turns out if you use errno in your program, it
+drops to linuxthreads, while using #include <errno.h> makes it able to
+use NPTL when using 2.6 kernel.  Now my program works the same on i386
+as on amd64 (I had to fix the errno to make it run on amd64 so that does
+make some sense).  Well I learned something new.
+
+Len Sorensen

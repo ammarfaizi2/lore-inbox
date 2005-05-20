@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVETUes@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVETUjG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261578AbVETUes (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 16:34:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbVETUes
+	id S261581AbVETUjG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 16:39:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVETUjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 16:34:48 -0400
-Received: from tassadar.physics.auth.gr ([155.207.123.25]:61829 "EHLO
-	tassadar.physics.auth.gr") by vger.kernel.org with ESMTP
-	id S261578AbVETUei (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 16:34:38 -0400
-Date: Fri, 20 May 2005 23:34:30 +0300 (EEST)
-From: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
-To: ted creedon <tcreedon@easystreet.com>
-cc: openafs-info@openafs.org, linux-kernel@vger.kernel.org
-Subject: RE: [OpenAFS] Re: Openafs 1.3.78 and kernel 2.4.29 oopses , same
- for 2.4.30 and openafs 1.3.82
-In-Reply-To: <20050520191207.15E3D29528@smtpauth.easystreet.com>
-Message-ID: <Pine.LNX.4.62.0505202326440.5106@tassadar.physics.auth.gr>
-References: <20050520191207.15E3D29528@smtpauth.easystreet.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-AntiVirus: checked by AntiVir Milter (version: 1.1.0-4; AVE: 6.30.0.12; VDF: 6.30.0.188; host: tassadar)
+	Fri, 20 May 2005 16:39:06 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:65254 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261581AbVETUjA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 16:39:00 -0400
+Subject: Re: Thread and process dentifiers (CPU affinity, kill)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Olivier Croquette <ocroquette@free.fr>
+Cc: Miquel van Smoorenburg <miquels@cistron.nl>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <428E45EA.3040603@free.fr>
+References: <428CD458.6010203@free.fr>
+	 <20050520125511.GC23488@csclub.uwaterloo.ca> <428DF95E.2070703@free.fr>
+	 <20050520165307.GG23488@csclub.uwaterloo.ca> <d6l9cs$l1t$1@news.cistron.nl>
+	 <428E45EA.3040603@free.fr>
+Content-Type: text/plain
+Date: Fri, 20 May 2005 16:38:58 -0400
+Message-Id: <1116621539.29740.29.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2005-05-20 at 22:17 +0200, Olivier Croquette wrote:
+> # export LD_ASSUME_KERNEL=2.4.1
+> This is a clever way to enable some existing applications that rely on 
+> LinuxThreads to continue to work in an NPTL environment, but is a 
+> short-term solution. To make the most of the design and performance 
+> benefits provided by NPTL, you should update the code for any existing 
+> applications that use threading.
 
-> Gcc -dumpmachine  #should prints out i586-suse-linux for a P III here.
+Applications that rely on linuxthreads, heh, that's a good one.
 
-here it prints: i486-slackware-linux
->
-> I'd try a fresh single processor machine and force a 2.6 kernel, module and
-> afs recompile for a i586.
->
-> SuSE 9.3 costs $90 and it solved a similar problem noted in the mailings. In
-> fact the YasT installed openafs binaries ran fine.
+The most common use of LD_ASSUME_KERNEL is to force Linuxthreads to be
+used in order to work around a bad bug in NPTL 0.60, often present on
+Debian systems.  Ubuntu still reports NPTL 0.60, but they at least fixed
+the bug for the Hoary release.  The Debian people refuse to.
 
- 	Do you have any pointers to Suse's solution and source code?I 
-could check what they did and try it...
+The issue is very well known to JACK users.
 
-> The ksymoops man page has a script to tail -f /var/log/messages|ksymoops1
-> explained.
-
- 	I will try that , thnx :)
-
-> Are you sure there isn't a memory problem? I'm running out of ideas.
-> tedc
-
- 	It's been a while since I memtested the box , I will try that also 
-when I return at the office ( in about a week).
-
-
-
---
-=============================================================================
-
-Dimitris Zilaskos
-
-Department of Physics @ Aristotle University of Thessaloniki , Greece
-PGP key : http://tassadar.physics.auth.gr/~dzila/pgp_public_key.asc
- 	  http://egnatia.ee.auth.gr/~dzila/pgp_public_key.asc
-MD5sum  : de2bd8f73d545f0e4caf3096894ad83f  pgp_public_key.asc
-=============================================================================
+Lee
 

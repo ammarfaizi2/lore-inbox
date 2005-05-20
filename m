@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVETU1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVETUaE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbVETU1S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 16:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbVETU1R
+	id S261568AbVETUaE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 16:30:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261574AbVETUaD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 16:27:17 -0400
-Received: from tassadar.physics.auth.gr ([155.207.123.25]:40069 "EHLO
-	tassadar.physics.auth.gr") by vger.kernel.org with ESMTP
-	id S261576AbVETU0o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 16:26:44 -0400
-Date: Fri, 20 May 2005 23:26:32 +0300 (EEST)
-From: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
-To: ted creedon <tcreedon@easystreet.com>
-cc: openafs-info@openafs.org, linux-kernel@vger.kernel.org
-Subject: RE: [OpenAFS] Re: Openafs 1.3.78 and kernel 2.4.29 oopses , same
- for 2.4.30 and openafs 1.3.82
-In-Reply-To: <20050520182030.3AD68B03C@smtpauth.easystreet.com>
-Message-ID: <Pine.LNX.4.62.0505202321080.5106@tassadar.physics.auth.gr>
-References: <20050520182030.3AD68B03C@smtpauth.easystreet.com>
+	Fri, 20 May 2005 16:30:03 -0400
+Received: from alpha.polcom.net ([217.79.151.115]:55465 "EHLO alpha.polcom.net")
+	by vger.kernel.org with ESMTP id S261568AbVETU22 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 16:28:28 -0400
+Date: Fri, 20 May 2005 22:36:26 +0200 (CEST)
+From: Grzegorz Kulewski <kangur@polcom.net>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: Adam Miller <amiller@gravity.phys.uwm.edu>, linux-kernel@vger.kernel.org
+Subject: Re: software RAID
+In-Reply-To: <20050520200334.GF23621@csclub.uwaterloo.ca>
+Message-ID: <Pine.LNX.4.63.0505202226460.5241@alpha.polcom.net>
+References: <Pine.LNX.4.62.0505201246520.13530@gannon.phys.uwm.edu>
+ <20050520200334.GF23621@csclub.uwaterloo.ca>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-AntiVirus: checked by AntiVir Milter (version: 1.1.0-4; AVE: 6.30.0.12; VDF: 6.30.0.188; host: tassadar)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 20 May 2005, Lennart Sorensen wrote:
 
-> If a new kernel was built, what was it named?
-
-Linux system 2.4.30 #2 SMP Sat May 7 14:54:35 EEST 2005 i686 unknown 
-unknown GNU/Linux
-
-> Looks like the existing kernel was overwritten. Normally the
-> CONIFG_LOCALVERSION is changed to differentiate from a working kernel. (I.e.
-> if the new kernel fails one can reboot with an existing stable kernel).
-> tedc
+> On Fri, May 20, 2005 at 12:56:13PM -0500, Adam Miller wrote:
+>>   We're looking to set up either software RAID 1 or RAID 10 using 2 SATA
+>> disks.  If a disk in drive A has a bad sector, can it be setup so that the
+>> array will read the sector from drive B and then have it rewrite the
+>> bad sector on drive A?  Please CC me in the response.
 >
+> If a harddisk has a bad sector that is visible to the user (and hence
+> not remapped by the drive) then it is time to retire the drive since it
+> is out of spares and very damaged by that point.
+>
+> If you have a bad sector, it doesn't go away by writing to it again.  On
+> modern drives, if you see bad sectors the disk is just about dead, and
+> will probably be seen as such by the raid system which will then stop
+> using the disk entirely and expect you to replace it ASAP.
 
-that does not seem to exist in my 2.4 kernel...
+What do you mean "see bad sectors"?
+
+Modern drives are trying to relocate sectors that can become bad in short 
+time. But this does not work 100% reliably. And sometimes disk wants to 
+relocate sector but the sector can not be read anymore. If this happens 
+disk will return read error when reading the sector _but_ when you will 
+write it again it will relocate it (with new data). And I think this was 
+the idea behind first post... To allow disk A to relocate not readable 
+sectors with correct data from disk B.
 
 
-
---
-=============================================================================
-
-Dimitris Zilaskos
-
-Department of Physics @ Aristotle University of Thessaloniki , Greece
-PGP key : http://tassadar.physics.auth.gr/~dzila/pgp_public_key.asc
- 	  http://egnatia.ee.auth.gr/~dzila/pgp_public_key.asc
-MD5sum  : de2bd8f73d545f0e4caf3096894ad83f  pgp_public_key.asc
-=============================================================================
-
+Grzegorz Kulewski

@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVETS3L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261539AbVETSbD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261532AbVETS3L (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 14:29:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVETS3L
+	id S261539AbVETSbD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 14:31:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbVETSbC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 14:29:11 -0400
-Received: from scl-ims.phoenix.com ([216.148.212.222]:37908 "EHLO
-	scl-exch2k.phoenix.com") by vger.kernel.org with ESMTP
-	id S261532AbVETS3J convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 14:29:09 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: vm86 question
-Date: Fri, 20 May 2005 11:28:55 -0700
-Message-ID: <0EF82802ABAA22479BC1CE8E2F60E8C3150485@scl-exch2k3.phoenix.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: vm86 question
-Thread-Index: AcVdacgFUj6CIjLOQjeI87Yzny2eSQ==
-From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 20 May 2005 18:29:08.0951 (UTC) FILETIME=[CFD1CE70:01C55D69]
+	Fri, 20 May 2005 14:31:02 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:37851 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261539AbVETSas (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 14:30:48 -0400
+Subject: Re: [RFC] how do we move the VM forward? (was Re: [RFC] cleanup
+	ofuse-once)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Herbert Poetzl <herbert@13thfloor.at>
+Cc: David Lang <david.lang@digitalinsight.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Rik van Riel <riel@redhat.com>,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050520181606.GB6002@MAIL.13thfloor.at>
+References: <Pine.LNX.4.61.0505030037100.27756@chimarrao.boston.redhat.com>
+	 <42771904.7020404@yahoo.com.au>
+	 <Pine.LNX.4.61.0505030913480.27756@chimarrao.boston.redhat.com>
+	 <42781AC5.1000201@yahoo.com.au>
+	 <Pine.LNX.4.62.0505031749010.12818@qynat.qvtvafvgr.pbz>
+	 <20050520181606.GB6002@MAIL.13thfloor.at>
+Content-Type: text/plain
+Date: Fri, 20 May 2005 14:30:43 -0400
+Message-Id: <1116613844.29740.14.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 2005-05-20 at 20:16 +0200, Herbert Poetzl wrote:
+> cool, looks like they are taking the MS compatibility
+> really serious nowadays ...
+> 
 
-  vm86 seems to 'forget' (mask out) virtual interrupt pending flag (VIP)
-on exit - for example, due to software interrupt. Is it a bug or a
-feature ?
+Um... I don't know when you last used Windows, but most Linux desktop
+GUI apps are way more bloated than the Windows counterparts.  Take a
+look at some of the Gnome bounties for reducing bloat - some of them are
+just embarassing.
 
-Thanks,
-Aleks.
+Quick demo: with a recent Gnome, open the file selector dialog, and
+browse to /usr/bin.  The disk goes nuts for 20 seconds before the file
+list is even displayed.  Now hit cancel and try it again.  No disk
+activity this time, but the CPU pegs for 7-8 seconds before the files
+are displayed.
+
+Now try the same on Windows.  It's instantaneous.
+
+Lee
+

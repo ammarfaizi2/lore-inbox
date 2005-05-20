@@ -1,56 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbVETEcf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVETEeC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbVETEcf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 00:32:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVETEcf
+	id S261320AbVETEeC (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 00:34:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVETEeC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 00:32:35 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:45459 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261244AbVETEcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 00:32:31 -0400
-Subject: Re: [PATCH] kernel <linux-2.6.11.10> kernel/sched.c
-From: Lee Revell <rlrevell@joe-job.com>
-To: chen Shang <shangcs@gmail.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-In-Reply-To: <855e4e460505192117155577e@mail.gmail.com>
-References: <855e4e4605051909561f47351@mail.gmail.com>
-	 <428D58E6.8050001@yahoo.com.au>  <855e4e460505192117155577e@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 20 May 2005 00:32:30 -0400
-Message-Id: <1116563550.25721.2.camel@mindpipe>
+	Fri, 20 May 2005 00:34:02 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:33948 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S261320AbVETEdp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 00:33:45 -0400
+Date: Fri, 20 May 2005 14:33:37 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Corey Minyard <minyard@acm.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, jordan_hargrave@dell.com
+Subject: Re: [PATCH] Add 32-bit ioctl translations for 64-bit platforms
+Message-Id: <20050520143337.38b6b5a6.sfr@canb.auug.org.au>
+In-Reply-To: <428D2241.5070005@acm.org>
+References: <428D2241.5070005@acm.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Fri__20_May_2005_14_33_37_+1000_fn8f.ArKhI7CifVS"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-05-19 at 21:17 -0700, chen Shang wrote:
-> > Hi Chen,
-> > With the added branch and the extra icache footprint, it isn't clear
-> > that this would be a win.
-> > 
-> > Also, you didn't say where your statistics came from (what workload).
-> > 
-> > So you really need to start by demonstrating some increase on some workload.
-> > 
-> > Also, minor comments on the patch: please work against mm kernels,
-> > please follow
-> > kernel coding style, and don't change schedstat output format in the
-> > same patch
-> > (makes it easier for those with schedstat parsing tools).
-> > 
-> Hi Nick,
-> 
-> Thank you very much for your comments. This is the first time of my
-> kernel hacking. I will reduce the lines of changes as much as
-> possible. As regard to the statistics, there are just count, ie, the
-> total number of priority-recalculations vs. the number of priority
-> changed from the former recalculation.
+--Signature=_Fri__20_May_2005_14_33_37_+1000_fn8f.ArKhI7CifVS
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-A kernel profile (check list archives for oprofile) would easily
-demonstrate any performance gain.  On my system the residency of
-schedule() is around 1% so this will be easy to spot.
+Hi Cory,
 
-Lee
+On Thu, 19 May 2005 18:33:21 -0500 Corey Minyard <minyard@acm.org> wrote:
+>
+> +struct ipmi_msg32
+> +{
+> +	uint8_t	      netfn;
+> +	uint8_t	      cmd;
+> +	uint16_t      data_len;
+> +	compat_uptr_t data;
+> +};
 
+Why are you using unint8_t etc when we have perfectly good kernel types u8
+etc?
+
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+--Signature=_Fri__20_May_2005_14_33_37_+1000_fn8f.ArKhI7CifVS
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFCjWih4CJfqux9a+8RAmXNAJ4phvwKmY1YAg/cW/Z4ZuBwFQzScgCfYixO
+DMN38dgjoXNpD5fU+0F2q5g=
+=hC1L
+-----END PGP SIGNATURE-----
+
+--Signature=_Fri__20_May_2005_14_33_37_+1000_fn8f.ArKhI7CifVS--

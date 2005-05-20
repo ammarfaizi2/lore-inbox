@@ -1,121 +1,198 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVETRbw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVETRg2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbVETRbw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 13:31:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVETRbw
+	id S261503AbVETRg2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 13:36:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261517AbVETRg2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 13:31:52 -0400
-Received: from tassadar.physics.auth.gr ([155.207.123.25]:55680 "EHLO
-	tassadar.physics.auth.gr") by vger.kernel.org with ESMTP
-	id S261503AbVETRbj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 13:31:39 -0400
-Date: Fri, 20 May 2005 19:17:17 +0300 (EEST)
-From: Dimitris Zilaskos <dzila@tassadar.physics.auth.gr>
-To: ted creedon <tcreedon@easystreet.com>
-cc: openafs-info@openafs.org, linux-kernel@vger.kernel.org
-Subject: RE: [OpenAFS] Re: Openafs 1.3.78 and kernel 2.4.29 oopses , same
- for 2.4.30 and openafs 1.3.82
-In-Reply-To: <20050519131517.B0079B01C@smtpauth.easystreet.com>
-Message-ID: <Pine.LNX.4.62.0505201915320.5473@tassadar.physics.auth.gr>
-References: <20050519131517.B0079B01C@smtpauth.easystreet.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-AntiVirus: checked by AntiVir Milter (version: 1.1.0-4; AVE: 6.30.0.12; VDF: 6.30.0.188; host: tassadar)
+	Fri, 20 May 2005 13:36:28 -0400
+Received: from zombie.ncsc.mil ([144.51.88.131]:25754 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S261503AbVETRf5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 13:35:57 -0400
+Subject: Re: 2.6.12-rc4-mm2 - sleeping function called from invalid context
+	at mm/slab.c:2502
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Linux Audit Discussion <linux-audit@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1116608144.29037.55.camel@localhost.localdomain>
+References: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu>
+	 <1116502449.23972.207.camel@hades.cambridge.redhat.com>
+	 <200505191845.j4JIjVtq006262@turing-police.cc.vt.edu>
+	 <200505201430.j4KEUFD0012985@turing-police.cc.vt.edu>
+	 <1116601195.29037.18.camel@localhost.localdomain>
+	 <1116601757.12489.130.camel@moss-spartans.epoch.ncsc.mil>
+	 <1116603414.29037.36.camel@localhost.localdomain>
+	 <1116607223.12489.155.camel@moss-spartans.epoch.ncsc.mil>
+	 <1116608144.29037.55.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Fri, 20 May 2005 13:26:23 -0400
+Message-Id: <1116609983.12489.180.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-16) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2005-05-20 at 17:55 +0100, David Woodhouse wrote:
+> Yeah, basically. Although it would be better to introduce AUDIT_AVC_PATH
+> instead of using AUDIT_AVC for the type. If there's general agreement
+> this this is a sane answer, I'll stick it in the git tree. Can I see a
+> Signed-off-by line please?
 
- 	Unfortunately , it seems our conclusions were premature:
+This patch changes the SELinux AVC to defer logging of paths to the audit
+framework upon syscall exit, by saving a reference to the (dentry,vfsmount)
+pair in an auxiliary audit item on the current audit context for processing
+by audit_log_exit.
 
-ksymoops 2.4.11 on i686 2.4.30.  Options used
-      -V (default)
-      -k /proc/ksyms (default)
-      -l /proc/modules (default)
-      -o /lib/modules/2.4.30/ (default)
-      -m /usr/src/linux/System.map (default)
+Signed-off-by:  Stephen Smalley <sds@tycho.nsa.gov>
 
-Warning: You did not tell me where to find symbol information.  I will
-assume that the log matches the kernel and modules that are running
-right now and I'll use the default options above for symbol resolution.
-If the current kernel and/or modules do not match the log, you can get
-more accurate output by telling me the kernel version and where to find
-map, modules, ksyms etc.  ksymoops -h explains the options.
+---
 
-Warning (compare_maps): libafs-2.4.30.mp symbol kallsyms_address_to_symbol not found in /usr/local/lib/openafs/libafs-2.4.30.mp.o.  Ignoring /usr/local/lib/openafs/libafs-2.4.30.mp.o entry
-Warning (compare_maps): libafs-2.4.30.mp symbol kallsyms_symbol_to_address not found in /usr/local/lib/openafs/libafs-2.4.30.mp.o.  Ignoring /usr/local/lib/openafs/libafs-2.4.30.mp.o entry
-Warning (compare_maps): libafs-2.4.30.mp symbol sys_chdir not found in /usr/local/lib/openafs/libafs-2.4.30.mp.o.  Ignoring /usr/local/lib/openafs/libafs-2.4.30.mp.o entry
-Warning (compare_maps): libafs-2.4.30.mp symbol sys_exit not found in /usr/local/lib/openafs/libafs-2.4.30.mp.o.  Ignoring /usr/local/lib/openafs/libafs-2.4.30.mp.o entry
-Warning (compare_maps): libafs-2.4.30.mp symbol sys_ioctl not found in /usr/local/lib/openafs/libafs-2.4.30.mp.o.  Ignoring /usr/local/lib/openafs/libafs-2.4.30.mp.o entry
-Warning (compare_maps): libafs-2.4.30.mp symbol sys_open not found in /usr/local/lib/openafs/libafs-2.4.30.mp.o.  Ignoring /usr/local/lib/openafs/libafs-2.4.30.mp.o entry
-Warning (compare_maps): libafs-2.4.30.mp symbol sys_wait4 not found in /usr/local/lib/openafs/libafs-2.4.30.mp.o.  Ignoring /usr/local/lib/openafs/libafs-2.4.30.mp.o entry
-Warning (compare_maps): libafs-2.4.30.mp symbol sys_write not found in /usr/local/lib/openafs/libafs-2.4.30.mp.o.  Ignoring /usr/local/lib/openafs/libafs-2.4.30.mp.o entry
-May 20 15:31:15 system kernel: dcache hc<1>Unable to handle kernel paging request at virtual address ffffffff
-May 20 15:31:15 system kernel: f09de170
-May 20 15:31:15 system kernel: *pde = 00004063
-May 20 15:31:15 system kernel: Oops: 0002
-May 20 15:31:15 system kernel: CPU:    1
-May 20 15:31:15 system kernel: EIP:    0010:[<f09de170>]    Tainted: P
-Using defaults from ksymoops -t elf32-i386 -a i386
-May 20 15:31:15 system kernel: EFLAGS: 00010282
-May 20 15:31:15 system kernel: eax: 00000009   ebx: 000a93f4   ecx: 00000082   edx: ef0c7f84
-May 20 15:31:15 system kernel: esi: f1e0f5f8   edi: f0ae2000   ebp: 00000001   esp: c8d15dd4
-May 20 15:31:15 system kernel: ds: 0018   es: 0018   ss: 0018
-May 20 15:31:15 system kernel: Process afs_cachetrim (pid: 938, stackpage=c8d15000)
-May 20 15:31:15 system kernel: Stack: f0a03fe1 f099fc43 00000010 f1e0f66c f1e0f5f8 0000000f 00000001 f099fc0f
-May 20 15:31:15 system kernel:        f0a03fe1 f099fc43 00000010 f1e0f66c 00528f57 f1e0f5f8 0000000f f099f897
-May 20 15:31:15 system kernel:        f1e0f5f8 00000000 00000000 000003aa ecf4a7f0 00000000 00000000 c8d14000
-May 20 15:31:15 system kernel: Call Trace:    [<f0a03fe1>] [<f099fc43>] [<f099fc0f>] [<f0a03fe1>] [<f099fc43>]
-May 20 15:31:15 system kernel:   [<f099f897>] [<f099ef5e>] [<f0a0caa0>] [<f0a0caa0>] [<f09efe39>] [<f0a0509c>]
-May 20 15:31:15 system kernel:   [<c010740e>] [<f09efad0>]
-May 20 15:31:15 system kernel: Code: c6 05 ff ff ff ff 2a 83 c4 1c c3 90 8d 74 26 00 b8 f9 4a a0
+ include/linux/audit.h  |    3 +++
+ kernel/auditsc.c       |   39 +++++++++++++++++++++++++++++++++++++++
+ security/selinux/avc.c |   17 ++++++++---------
+ 3 files changed, 50 insertions(+), 9 deletions(-)
+
+--- linux-2.6.12-rc4-mm2/include/linux/audit.h.orig	2005-05-20 12:37:41.000000000 -0400
++++ linux-2.6.12-rc4-mm2/include/linux/audit.h	2005-05-20 13:17:21.000000000 -0400
+@@ -75,6 +75,7 @@
+ 
+ #define AUDIT_AVC		1400	/* SE Linux avc denial or grant */
+ #define AUDIT_SELINUX_ERR	1401	/* Internal SE Linux Errors */
++#define AUDIT_AVC_PATH		1402	/* dentry, vfsmount pair from avc */
+ 
+ #define AUDIT_KERNEL		2000	/* Asynchronous audit record. NOT A REQUEST. */
+ 
+@@ -238,6 +239,7 @@ extern uid_t audit_get_loginuid(struct a
+ extern int audit_ipc_perms(unsigned long qbytes, uid_t uid, gid_t gid, mode_t mode);
+ extern int audit_socketcall(int nargs, unsigned long *args);
+ extern int audit_sockaddr(int len, void *addr);
++extern int audit_avc_path(struct dentry *dentry, struct vfsmount *mnt);
+ extern void audit_signal_info(int sig, struct task_struct *t);
+ #else
+ #define audit_alloc(t) ({ 0; })
+@@ -253,6 +255,7 @@ extern void audit_signal_info(int sig, s
+ #define audit_ipc_perms(q,u,g,m) ({ 0; })
+ #define audit_socketcall(n,a) ({ 0; })
+ #define audit_sockaddr(len, addr) ({ 0; })
++#define audit_avc_path(dentry, mnt) ({ 0; })
+ #define audit_signal_info(s,t) do { ; } while (0)
+ #endif
+ 
+--- linux-2.6.12-rc4-mm2/kernel/auditsc.c.orig	2005-05-20 12:37:19.000000000 -0400
++++ linux-2.6.12-rc4-mm2/kernel/auditsc.c	2005-05-20 13:21:40.000000000 -0400
+@@ -34,6 +34,7 @@
+ #include <asm/types.h>
+ #include <linux/mm.h>
+ #include <linux/module.h>
++#include <linux/mount.h>
+ #include <linux/socket.h>
+ #include <linux/audit.h>
+ #include <linux/personality.h>
+@@ -124,6 +125,11 @@ struct audit_aux_data_sockaddr {
+ 	char			a[0];
+ };
+ 
++struct audit_aux_data_path {
++	struct audit_aux_data	d;
++	struct dentry		*dentry;
++	struct vfsmount		*mnt;
++};
+ 
+ /* The per-task audit context. */
+ struct audit_context {
+@@ -553,6 +559,11 @@ static inline void audit_free_aux(struct
+ 	struct audit_aux_data *aux;
+ 
+ 	while ((aux = context->aux)) {
++		if (aux->type == AUDIT_AVC_PATH) {
++			struct audit_aux_data_path *axi = (void *)aux;
++			dput(axi->dentry);
++			mntput(axi->mnt);
++		}
+ 		context->aux = aux->next;
+ 		kfree(aux);
+ 	}
+@@ -728,6 +739,13 @@ static void audit_log_exit(struct audit_
+ 			} /* case AUDIT_SOCKADDR */
+ 			break;
+ 
++		case AUDIT_AVC_PATH: {
++			struct audit_aux_data_path *axi = (void *)aux;
++			audit_log_d_path(ab, "path=", axi->dentry, axi->mnt);
++			dput(axi->dentry);
++			mntput(axi->mnt);
++			} /* case AUDIT_AVC_PATH */
++			break;
+ 		}
+ 		audit_log_end(ab);
+ 
+@@ -1128,6 +1146,27 @@ int audit_sockaddr(int len, void *a)
+ 	return 0;
+ }
+ 
++int audit_avc_path(struct dentry *dentry, struct vfsmount *mnt)
++{
++	struct audit_aux_data_path *ax;
++	struct audit_context *context = current->audit_context;
++
++	if (likely(!context))
++		return 0;
++
++	ax = kmalloc(sizeof(*ax), GFP_ATOMIC);
++	if (!ax)
++		return -ENOMEM;
++
++	ax->dentry = dget(dentry);
++	ax->mnt = mntget(mnt);
++
++	ax->d.type = AUDIT_AVC_PATH;
++	ax->d.next = context->aux;
++	context->aux = (void *)ax;
++	return 0;
++}
++
+ void audit_signal_info(int sig, struct task_struct *t)
+ {
+ 	extern pid_t audit_sig_pid;
+--- linux-2.6.12-rc4-mm2/security/selinux/avc.c.orig	2005-05-20 12:37:41.000000000 -0400
++++ linux-2.6.12-rc4-mm2/security/selinux/avc.c	2005-05-20 12:39:06.000000000 -0400
+@@ -566,13 +566,10 @@ void avc_audit(u32 ssid, u32 tsid,
+ 		case AVC_AUDIT_DATA_FS:
+ 			if (a->u.fs.dentry) {
+ 				struct dentry *dentry = a->u.fs.dentry;
+-				if (a->u.fs.mnt) {
+-					audit_log_d_path(ab, "path=", dentry,
+-							a->u.fs.mnt);
+-				} else {
+-					audit_log_format(ab, " name=%s",
+-							 dentry->d_name.name);
+-				}
++				if (a->u.fs.mnt)
++					audit_avc_path(dentry, a->u.fs.mnt);
++				audit_log_format(ab, " name=%s",
++						 dentry->d_name.name);
+ 				inode = dentry->d_inode;
+ 			} else if (a->u.fs.inode) {
+ 				struct dentry *dentry;
+@@ -623,8 +620,10 @@ void avc_audit(u32 ssid, u32 tsid,
+ 				case AF_UNIX:
+ 					u = unix_sk(sk);
+ 					if (u->dentry) {
+-						audit_log_d_path(ab, "path=",
+-							u->dentry, u->mnt);
++						audit_avc_path(u->dentry, u->mnt);
++						audit_log_format(ab, " name=%s",
++								 u->dentry->d_name.name);
++
+ 						break;
+ 					}
+ 					if (!u->addr)
 
 
->>EIP; f09de170 <[libafs-2.4.30.mp]osi_Panic+20/40>   <=====
 
->>edx; ef0c7f84 <_end+2ec5fb44/3042bc20>
->>esp; c8d15dd4 <_end+88ad994/3042bc20>
-
-Trace; f0a03fe1 <[libafs-2.4.30.mp].rodata.end+60e6/e545>
-Trace; f099fc43 <[libafs-2.4.30.mp]afs_HashOutDCache+b3/120>
-Trace; f099fc0f <[libafs-2.4.30.mp]afs_HashOutDCache+7f/120>
-Trace; f0a03fe1 <[libafs-2.4.30.mp].rodata.end+60e6/e545>
-Trace; f099fc43 <[libafs-2.4.30.mp]afs_HashOutDCache+b3/120>
-Trace; f099f897 <[libafs-2.4.30.mp]afs_GetDownD+567/860>
-Trace; f099ef5e <[libafs-2.4.30.mp]afs_CacheTruncateDaemon+10e/460>
-Trace; f0a0caa0 <[libafs-2.4.30.mp]afs_global_lock+0/20>
-Trace; f0a0caa0 <[libafs-2.4.30.mp]afs_global_lock+0/20>
-Trace; f09efe39 <[libafs-2.4.30.mp]afsd_thread+369/5d0>
-Trace; f0a0509c <[libafs-2.4.30.mp].rodata.end+71a1/e545>
-Trace; c010740e <arch_kernel_thread+2e/40>
-Trace; f09efad0 <[libafs-2.4.30.mp]afsd_thread+0/5d0>
-
-Code;  f09de170 <[libafs-2.4.30.mp]osi_Panic+20/40>
-00000000 <_EIP>:
-Code;  f09de170 <[libafs-2.4.30.mp]osi_Panic+20/40>   <=====
-    0:   c6 05 ff ff ff ff 2a      movb   $0x2a,0xffffffff   <=====
-Code;  f09de177 <[libafs-2.4.30.mp]osi_Panic+27/40>
-    7:   83 c4 1c                  add    $0x1c,%esp
-Code;  f09de17a <[libafs-2.4.30.mp]osi_Panic+2a/40>
-    a:   c3                        ret 
-Code;  f09de17b <[libafs-2.4.30.mp]osi_Panic+2b/40>
-    b:   90                        nop 
-Code;  f09de17c <[libafs-2.4.30.mp]osi_Panic+2c/40>
-    c:   8d 74 26 00               lea    0x0(%esi),%esi
-Code;  f09de180 <[libafs-2.4.30.mp]osi_Panic+30/40>
-   10:   b8 f9 4a a0 00            mov    $0xa04af9,%eax
-
-
-9 warnings issued.  Results may not be reliable.
-
-
---
-=============================================================================
-
-Dimitris Zilaskos
-
-Department of Physics @ Aristotle University of Thessaloniki , Greece
-PGP key : http://tassadar.physics.auth.gr/~dzila/pgp_public_key.asc
- 	  http://egnatia.ee.auth.gr/~dzila/pgp_public_key.asc
-MD5sum  : de2bd8f73d545f0e4caf3096894ad83f  pgp_public_key.asc
-=============================================================================
+-- 
+Stephen Smalley
+National Security Agency
 

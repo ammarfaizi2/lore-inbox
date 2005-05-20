@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVETXmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVETXo2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbVETXmz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 19:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbVETXmz
+	id S261492AbVETXo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 19:44:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261597AbVETXo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 19:42:55 -0400
-Received: from graphe.net ([209.204.138.32]:60683 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S261605AbVETXmy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 19:42:54 -0400
-Date: Fri, 20 May 2005 16:42:44 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Matthew Dobson <colpatch@us.ibm.com>
-cc: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: NUMA aware slab allocator V3
-In-Reply-To: <428E56EE.4050400@us.ibm.com>
-Message-ID: <Pine.LNX.4.62.0505201640110.4740@graphe.net>
-References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com> 
- <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com> 
- <714210000.1116266915@flay> <200505161410.43382.jbarnes@virtuousgeek.org> 
- <740100000.1116278461@flay>  <Pine.LNX.4.62.0505161713130.21512@graphe.net>
- <1116289613.26955.14.camel@localhost> <428A800D.8050902@us.ibm.com>
- <Pine.LNX.4.62.0505171648370.17681@graphe.net> <428B7B16.10204@us.ibm.com>
- <Pine.LNX.4.62.0505181046320.20978@schroedinger.engr.sgi.com>
- <428BB05B.6090704@us.ibm.com> <Pine.LNX.4.62.0505181439080.10598@graphe.net>
- <Pine.LNX.4.62.0505182105310.17811@graphe.net> <428E3497.3080406@us.ibm.com>
- <Pine.LNX.4.62.0505201210460.390@graphe.net> <428E56EE.4050400@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+	Fri, 20 May 2005 19:44:28 -0400
+Received: from rgminet02.oracle.com ([148.87.122.31]:26187 "EHLO
+	rgminet02.oracle.com") by vger.kernel.org with ESMTP
+	id S261492AbVETXoM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 19:44:12 -0400
+Date: Fri, 20 May 2005 16:43:53 -0700
+From: Joel Becker <Joel.Becker@oracle.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Timur Tabi <timur.tabi@ammasso.com>, Christopher Li <lkml@chrisli.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kbuild trick
+Message-ID: <20050520234353.GM22946@ca-server1.us.oracle.com>
+Mail-Followup-To: Sam Ravnborg <sam@ravnborg.org>,
+	Timur Tabi <timur.tabi@ammasso.com>,
+	Christopher Li <lkml@chrisli.org>, linux-kernel@vger.kernel.org
+References: <428A661C.1030100@ammasso.com> <20050517201148.GA12997@64m.dyndns.org> <428B4C67.5090307@ammasso.com> <20050518123854.GA13452@64m.dyndns.org> <428B646C.3030501@ammasso.com> <20050518132417.GA14488@64m.dyndns.org> <428B7143.4090607@ammasso.com> <20050518182250.GB8130@mars.ravnborg.org> <428B8809.8060406@ammasso.com> <20050520193706.GA8225@mars.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050520193706.GA8225@mars.ravnborg.org>
+X-Burt-Line: Trees are cool.
+X-Red-Smith: Ninety feet between bases is perhaps as close as man has ever come to perfection.
+User-Agent: Mutt/1.5.9i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 May 2005, Matthew Dobson wrote:
+On Fri, May 20, 2005 at 09:37:06PM +0200, Sam Ravnborg wrote:
+> For both kernel 2.4 and 2.6 you can split up your makefile like this:
+> makefile <= all the external modules specific part
+> Makefile <= the kbuild specific part
 
-> > See patch above?
-> 
-> I can't for the life of me explain why, but the above patch makes ALL the
-> warnings go away, despite the fact that they seem unrelated.  I dunno...
-> Maybe we should upgrade the compiler on that box?
+	You could also use our fake-2.6-kbuild-for-2.4 makefile,
+retrievable via:
 
-I better not comment on gcc 2.95 since I may say something that would 
-not be so helpful...,.
+svn cat -r 2205 http://oss.oracle.com/projects/ocfs2/src/trunk/Kbuild-24.make
+
+	Just include it and set your target to build-modules,
+clean-modules, or install-modules.
+
+Joel
+
+-- 
+
+To spot the expert, pick the one who predicts the job will take the
+longest and cost the most.
+
+Joel Becker
+Senior Member of Technical Staff
+Oracle
+E-mail: joel.becker@oracle.com
+Phone: (650) 506-8127

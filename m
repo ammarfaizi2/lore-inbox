@@ -1,275 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVETOBY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVETOBX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbVETOBY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 10:01:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVETOAt
+	id S261466AbVETOBX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 10:01:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVETOBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 10:00:49 -0400
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:49854 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S261446AbVETN5V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 09:57:21 -0400
-Message-ID: <428DECBE.8040902@acm.org>
-Date: Fri, 20 May 2005 08:57:18 -0500
-From: Corey Minyard <minyard@acm.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20041217
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, jordan_hargrave@dell.com
-Subject: Re: [PATCH] Add 32-bit ioctl translations for 64-bit platforms
-References: <428D2241.5070005@acm.org> <20050520143337.38b6b5a6.sfr@canb.auug.org.au>
-In-Reply-To: <20050520143337.38b6b5a6.sfr@canb.auug.org.au>
-X-Enigmail-Version: 0.89.6.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------080409080402060805020404"
+	Fri, 20 May 2005 10:01:00 -0400
+Received: from pacific.moreton.com.au ([203.143.235.130]:8324 "EHLO
+	moreton.com.au") by vger.kernel.org with ESMTP id S261466AbVETN50
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 09:57:26 -0400
+Date: Fri, 20 May 2005 23:57:23 +1000
+From: David McCullough <davidm@snapgear.com>
+To: linux-crypto@vger.kernel.org
+Cc: cryptoapi@lists.logix.cz, linux-kernel@vger.kernel.org
+Subject: ocf-linux-20050520 - Asynchronous Crypto support for linux
+Message-ID: <20050520135723.GB26883@beast>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080409080402060805020404
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Stephen Rothwell wrote:
+Hi all,
 
->Hi Cory,
->
->On Thu, 19 May 2005 18:33:21 -0500 Corey Minyard <minyard@acm.org> wrote:
->  
->
->>+struct ipmi_msg32
->>+{
->>+	uint8_t	      netfn;
->>+	uint8_t	      cmd;
->>+	uint16_t      data_len;
->>+	compat_uptr_t data;
->>+};
->>    
->>
->
->Why are you using unint8_t etc when we have perfectly good kernel types u8
->etc?
->  
->
-I would say "Why does the kernel have its own types when there are 
-perfectly good types from the C standard?"  However, it's no big deal to 
-me, here's a version with the kernel types.
+A new release of the ocf-linux package is up:
 
--Corey
+	http://ocf-linux.sourceforge.net/
 
+A lot of changes in this release.  Best to check the Changelog below
+for the specifics.  Most of the changes have centered around RNG, PKE
+or getting Openswan running with OCF.
 
---------------080409080402060805020404
-Content-Type: text/x-patch;
- name="ipmi-32-bit-compat.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ipmi-32-bit-compat.patch"
+No 2.6 testing was done for this release,  but it should be close
+if it doesn't work.
 
-This contains the patch for supporting 32-bit compatible
-ioctls on x86_64 systems. The current x86_64 driver
-will not work with 32-bit applications.
+The OpenSwan 2.3.0 patch of accelerates receive packets only
+at this point.  This is just to get the basics out there for comment
+while the transmit side is coded.
 
-Signed-off-by: Jordan Hargave <jordan_hargrave@dell.com>
-Signed-off-by: Corey Minyard <minyard@acm.org>
+Changes:
+* Mostly complete SKB processing for all drivers
+* Numerous fixes to all drivers (esp. cryptosoft)
+* All drivers can now do ESP/AH processing on buffers, skb's
+  or iovecs.
+* Re-work of the ixp4xx driver (multiple  outstanding requests)
+* PKE support working in safenet
+* New demand driven RNG support with optional FIPS140 testing of data
+* Openswan RX-only support for comment
+* Fixed race condition in ocf driver startup
 
-Index: linux-2.6.12-rc4/drivers/char/ipmi/ipmi_devintf.c
-===================================================================
---- linux-2.6.12-rc4.orig/drivers/char/ipmi/ipmi_devintf.c
-+++ linux-2.6.12-rc4/drivers/char/ipmi/ipmi_devintf.c
-@@ -45,6 +45,7 @@
- #include <asm/semaphore.h>
- #include <linux/init.h>
- #include <linux/device.h>
-+#include <linux/compat.h>
- 
- #define IPMI_DEVINTF_VERSION "v33"
- 
-@@ -500,10 +501,184 @@
- 	return rv;
- }
- 
-+#ifdef CONFIG_COMPAT
-+/* 
-+ * The following code contains code for supporting 32-bit compatible
-+ * ioctls on 64-bit kernels.  This allows running 32-bit apps on the
-+ * 64-bit kernel
-+ */
-+#define IPMICTL_SEND_COMMAND32	       _IOR(IPMI_IOC_MAGIC, 13,	 struct ipmi_req32)
-+#define IPMICTL_SEND_COMMAND_SETTIME32 _IOR(IPMI_IOC_MAGIC, 21,	 struct ipmi_req_settime32)
-+#define IPMICTL_RECEIVE_MSG32	       _IOWR(IPMI_IOC_MAGIC, 12, struct ipmi_recv32)
-+#define IPMICTL_RECEIVE_MSG_TRUNC32    _IOWR(IPMI_IOC_MAGIC, 11, struct ipmi_recv32)
-+
-+struct ipmi_msg32
-+{
-+	u8	      netfn;
-+	u8	      cmd;
-+	u16	      data_len;
-+	compat_uptr_t data;
-+};
-+
-+struct ipmi_req32
-+{
-+	compat_uptr_t addr;
-+	u32	      addr_len;
-+	s32	      msgid;
-+
-+	struct ipmi_msg32 msg;
-+};
-+
-+struct ipmi_recv32
-+{
-+	s32	      recv_type;
-+	compat_uptr_t addr;
-+	u32	      addr_len;
-+	u32	      msgid;
-+
-+	struct ipmi_msg32 msg;
-+};
-+
-+struct ipmi_req_settime32
-+{
-+	struct ipmi_req32  req;
-+	s32		   retries;
-+	u32		   retry_time_ms;
-+};
-+
-+/*
-+ * Define some helper functions for copying IPMI data
-+ */
-+static void ipmi_copymsg64(struct ipmi_msg *p64, struct ipmi_msg32 *p32)
-+{
-+	p64->netfn    = p32->netfn;
-+	p64->cmd      = p32->cmd;
-+	p64->data_len = p32->data_len;
-+	p64->data     = (char __user *)(u64)p32->data;
-+}
-+static void ipmi_copymsg32(struct ipmi_msg32 *p32, struct ipmi_msg *p64)
-+{
-+	p32->netfn    = p64->netfn;
-+	p32->cmd      = p64->cmd;
-+	p32->data_len = p64->data_len;
-+}
-+static void ipmi_copyreq64(struct ipmi_req *p64, struct ipmi_req32 *p32)
-+{
-+	p64->addr     = (char __user *)(u64)p32->addr;
-+	p64->addr_len = p32->addr_len;
-+	p64->msgid    = p32->msgid;
-+	ipmi_copymsg64(&p64->msg, &p32->msg);
-+}
-+static void ipmi_copyrecv64(struct ipmi_recv *p64, struct ipmi_recv32 *p32)
-+{
-+	p64->recv_type = p32->recv_type;
-+	p64->addr      = (char __user *)(u64)p32->addr;
-+	p64->addr_len  = p32->addr_len;
-+	p64->msgid     = p32->msgid;
-+	ipmi_copymsg64(&p64->msg, &p32->msg);
-+}
-+static void ipmi_copyrecv32(struct ipmi_recv32 *p32, struct ipmi_recv *p64)
-+{
-+	p32->recv_type = p64->recv_type;
-+	p32->addr_len  = p64->addr_len;
-+	p32->msgid     = p64->msgid;
-+	ipmi_copymsg32(&p32->msg, &p64->msg);
-+}
-+
-+/*
-+ * Handle 32-bit ioctls on 64-bit kernel
-+ */
-+static long ipmi_ioctl32(struct file *filep, unsigned int cmd,
-+			 unsigned long arg)
-+{
-+	int rc;
-+
-+	switch(cmd) {
-+	case IPMICTL_SEND_COMMAND32:
-+	{
-+		struct ipmi_req	  *preq64, req64;
-+		struct ipmi_req32  req32;
-+      
-+		/*
-+		 * Copy in the 32-bit ioctl structure from userspace,
-+		 * move fields to 64-bit ioctl structure, copy back to
-+		 * userspace and issue 64-bit ioctl
-+		 */
-+		if (copy_from_user(&req32, compat_ptr(arg), sizeof(req32)))
-+			return -EFAULT;
-+
-+		ipmi_copyreq64(&req64, &req32);
-+
-+		preq64 = compat_alloc_user_space(sizeof(req64));
-+		if (copy_to_user(preq64, &req64, sizeof(req64)))
-+			return -EFAULT;
-+
-+		return ipmi_ioctl(filep->f_dentry->d_inode, filep,
-+				  IPMICTL_SEND_COMMAND, (long) preq64);
-+	}
-+	case IPMICTL_SEND_COMMAND_SETTIME32:
-+	{
-+		struct ipmi_req_settime	 *preq64, req64;
-+		struct ipmi_req_settime32 req32;
-+
-+		if (copy_from_user(&req32, compat_ptr(arg), sizeof(req32)))
-+			return -EFAULT;
-+
-+		ipmi_copyreq64(&req64.req, &req32.req); 
-+		req64.retries = req32.retries;
-+		req64.retry_time_ms = req32.retry_time_ms;
-+
-+		preq64 = compat_alloc_user_space(sizeof(req64));
-+		if (copy_to_user(preq64, &req64, sizeof(req64)))
-+			return -EFAULT;
-+
-+		return ipmi_ioctl(filep->f_dentry->d_inode, filep,
-+				  IPMICTL_SEND_COMMAND_SETTIME, (long) preq64);
-+	}
-+	case IPMICTL_RECEIVE_MSG32:
-+	case IPMICTL_RECEIVE_MSG_TRUNC32:
-+	{
-+		struct ipmi_recv   *precv64, recv64;
-+		struct ipmi_recv32  recv32;
-+
-+		if (copy_from_user(&recv32, compat_ptr(arg), sizeof(recv32)))
-+			return -EFAULT;
-+
-+		ipmi_copyrecv64(&recv64, &recv32);
-+
-+		precv64 = compat_alloc_user_space(sizeof(recv64));
-+		if (copy_to_user(precv64, &recv64, sizeof(recv64)))
-+			return -EFAULT;
-+
-+		rc = ipmi_ioctl(filep->f_dentry->d_inode, filep, 
-+				((cmd == IPMICTL_RECEIVE_MSG32)
-+				 ? IPMICTL_RECEIVE_MSG
-+				 : IPMICTL_RECEIVE_MSG_TRUNC),
-+				(long) precv64);
-+		if (rc != 0)
-+			return rc;
-+
-+		if (copy_from_user(&recv64, precv64, sizeof(recv64))) 
-+			return -EFAULT;
-+
-+		ipmi_copyrecv32(&recv32, &recv64);
-+		if (copy_to_user(compat_ptr(arg), &recv32, sizeof(recv32)))
-+			return -EFAULT;
-+
-+		return rc;
-+	}
-+	default:
-+		return ipmi_ioctl(filep->f_dentry->d_inode, filep, cmd, arg);
-+	}
-+}
-+#endif
- 
- static struct file_operations ipmi_fops = {
- 	.owner		= THIS_MODULE,
- 	.ioctl		= ipmi_ioctl,
-+#ifdef CONFIG_COMPAT
-+	.compat_ioctl   = ipmi_ioctl32,
-+#endif
- 	.open		= ipmi_open,
- 	.release	= ipmi_release,
- 	.fasync		= ipmi_fasync,
+Cheers,
+Davidm
 
---------------080409080402060805020404--
+-- 
+David McCullough, davidm@snapgear.com  Ph:+61 7 34352815 http://www.SnapGear.com
+Custom Embedded Solutions + Security   Fx:+61 7 38913630 http://www.uCdot.org

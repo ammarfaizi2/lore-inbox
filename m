@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVETPbh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVETPjI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbVETPbh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 11:31:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbVETPbh
+	id S261462AbVETPjI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 11:39:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVETPjI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 11:31:37 -0400
-Received: from alog0374.analogic.com ([208.224.222.150]:14533 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261347AbVETPb3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 11:31:29 -0400
-Date: Fri, 20 May 2005 11:31:15 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-cc: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Screen regen buffer at 0x00b8000
-In-Reply-To: <20050520141434.GZ2417@lug-owl.de>
-Message-ID: <Pine.LNX.4.61.0505201124230.5107@chaos.analogic.com>
-References: <Pine.LNX.4.61.0505200944060.5921@chaos.analogic.com>
- <20050520141434.GZ2417@lug-owl.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 20 May 2005 11:39:08 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:22194 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261462AbVETPjE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 11:39:04 -0400
+Subject: Re: 2.6.12-rc4-mm2 - sleeping function called from invalid context
+	at mm/slab.c:2502
+From: David Woodhouse <dwmw2@infradead.org>
+To: Linux Audit Discussion <linux-audit@redhat.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1116601757.12489.130.camel@moss-spartans.epoch.ncsc.mil>
+References: <200505171624.j4HGOQwo017312@turing-police.cc.vt.edu>
+	 <1116502449.23972.207.camel@hades.cambridge.redhat.com>
+	 <200505191845.j4JIjVtq006262@turing-police.cc.vt.edu>
+	 <200505201430.j4KEUFD0012985@turing-police.cc.vt.edu>
+	 <1116601195.29037.18.camel@localhost.localdomain>
+	 <1116601757.12489.130.camel@moss-spartans.epoch.ncsc.mil>
+Content-Type: text/plain
+Date: Fri, 20 May 2005 16:36:53 +0100
+Message-Id: <1116603414.29037.36.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 20 May 2005, Jan-Benedict Glaw wrote:
+On Fri, 2005-05-20 at 11:09 -0400, Stephen Smalley wrote:
+> The lock is being held by the af_unix code (unix_state_wlock), not
+> avc_audit; the AVC is called under all kinds of circumstances (softirq,
+> hard irq, caller holding locks on relevant objects) for permission
+> checking and must never sleep.
+> 
+> One option might be to defer some of the AVC auditing to the audit
+> framework (e.g. save the vfsmount and dentry on the current audit
+> context and let audit_log_exit perform the audit_log_d_path).
 
-> On Fri, 2005-05-20 09:48:35 -0400, Richard B. Johnson <linux-os@analogic.com> wrote:
->>     len = getpagesize();
->>     if((fd = open("/dev/mem", O_RDWR)) == FAIL)
->>         ERRORS("open");
->>     if((sp = mmap((void *)SCREEN, len, PROT, TYPE, fd, SCREEN))==MAP_FAILED)
->>         ERRORS("mmap");
->
-> Maybe you'd better not fiddle with physical memory, but use the device
-> abstraction that's ment to offer that interface? That is, use a
-> framebuffer driver and open /dev/fb* .
->
-> MfG, JBG
+Yeah, maybe. Assuming you pin them, it's easy enough to hang something
+off the audit context's aux list which refers to them. I'm really not
+that fond of the idea of allocating a whole PATH_MAX with GFP_ATOMIC.
 
-No room for any more drivers. This just writes to a small LCD on an
-embedded controller. There should be no reason why I can't
-write directly to the physical memory. Anything written to the
-physical screen buffer will show up on the screen, as long
-as page zero is selected.
+-- 
+dwmw2
 
-I think that I've discovered a bug. I know that what I have written gets
-to the screen buffer because I can read in back! This doesn't make
-any sense.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

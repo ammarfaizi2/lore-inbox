@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVETFJQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVETFMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261331AbVETFJQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 01:09:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVETFJQ
+	id S261334AbVETFMK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 01:12:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVETFMJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 01:09:16 -0400
-Received: from mail.kroah.org ([69.55.234.183]:26315 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261331AbVETFJN (ORCPT
+	Fri, 20 May 2005 01:12:09 -0400
+Received: from mail.kroah.org ([69.55.234.183]:55500 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261334AbVETFL6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 01:09:13 -0400
-Date: Thu, 19 May 2005 22:15:55 -0700
+	Fri, 20 May 2005 01:11:58 -0400
+Date: Thu, 19 May 2005 22:18:39 -0700
 From: Greg KH <greg@kroah.com>
-To: Corey Minyard <minyard@acm.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add sysfs support for the IPMI device interface
-Message-ID: <20050520051554.GA10394@kroah.com>
-References: <428D208C.1000307@acm.org>
+To: Tom Rini <trini@kernel.crashing.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.12-rc4] Add EXPORT_SYMBOL for hotplug_path
+Message-ID: <20050520051839.GB10394@kroah.com>
+References: <20050519164323.GK3771@smtp.west.cox.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <428D208C.1000307@acm.org>
+In-Reply-To: <20050519164323.GK3771@smtp.west.cox.net>
 User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 19, 2005 at 06:26:04PM -0500, Corey Minyard wrote:
-> Linus,
+On Thu, May 19, 2005 at 09:43:23AM -0700, Tom Rini wrote:
+> If CONFIG_INPUT is set as a module, it will not load as hotplug_path is
+> not a defined symbol.  Trivial fix is to EXPORT_SYMBOL hotplug_path.
 > 
-> Could you please add this patch to the main tree?  I can't send it to 
-> Andrew because he has a rework of this in his tree that has not made it 
-> into yours yet, and I'd like to have this in before 2.6.12 is released.
-> 
-> -Corey
-> 
-> 
-> Add support for sysfs to the IPMI device interface.
+> Signed-off-by: Tom Rini <trini@kernel.crashing.org>
 
-Your patch has had it's tabs eaten and can't be applied :(
+Ick, no, I thought we got rid of that usage.  no one should be calling
+hotplug on their own, lots of bad things happen to udevd and HAL if they
+do.
+
+What caused the input code to be added back into the kernel?  I'll try
+to go track that down...
 
 thanks,
 

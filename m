@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVEUTkw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbVEUTme@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261650AbVEUTkw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 May 2005 15:40:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbVEUTkw
+	id S261611AbVEUTme (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 May 2005 15:42:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVEUTmd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 May 2005 15:40:52 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:46183 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261650AbVEUTkr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 May 2005 15:40:47 -0400
-Date: Thu, 19 May 2005 18:48:44 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Guo Racing <racing.guo@intel.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] porting lockless mce from x86_64 to i386
-In-Reply-To: <1116495706.18666.55.camel@guorj.sh.intel.com>
-Message-ID: <Pine.LNX.4.61.0505191834480.13030@goblin.wat.veritas.com>
-References: <1116495351.18666.47.camel@guorj.sh.intel.com> 
-    <1116495706.18666.55.camel@guorj.sh.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-X-OriginalArrivalTime: 21 May 2005 19:40:42.0459 (UTC) 
-    FILETIME=[F95CE2B0:01C55E3C]
+	Sat, 21 May 2005 15:42:33 -0400
+Received: from zproxy.gmail.com ([64.233.162.206]:32461 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261611AbVEUTmS convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 May 2005 15:42:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KqtggDyH0ELTILAMTckCJH92BleeDx8RJ7qa4RXJKo38wt39+ggrFS83esmdn61fYPX+mjcQaEFev0lkjUEjZCHSp3TQHb9kPdCBTYXnD8pBTrtBCyoK8fEhe6/2Sv49moAzr6P9jZukhxXZFQFst6h9JqaNj58gRKX0CVppa9w=
+Message-ID: <d93f04c705052112426ee35154@mail.gmail.com>
+Date: Sat, 21 May 2005 21:42:16 +0200
+From: Hendrik Visage <hvjunk@gmail.com>
+Reply-To: Hendrik Visage <hvjunk@gmail.com>
+To: Bernd Paysan <bernd.paysan@gmx.de>
+Subject: Re: False "lost ticks" on dual-Opteron system (=> timer twice as fast)
+Cc: suse-amd64@suse.com, linux-kernel@vger.kernel.org
+In-Reply-To: <200505081445.26663.bernd.paysan@gmx.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200505081445.26663.bernd.paysan@gmx.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 19 May 2005, Guo Racing wrote:
+On 5/8/05, Bernd Paysan <bernd.paysan@gmx.de> wrote:
+> Hi,
+> 
+> I've recently set up a dual Opteron RAID server (AMD-8000-based Tyan
+> Thunder K8S Pro SCSI board, 2 246 Opterons, stepping 10). Kernel is a
+> modified 2.6.11.4-20a from SuSE 9.3 (SMP version, sure). The Opterons
+> are capable of changing the CPU frequency (between 1GHz and 2GHz).
 
-> Lockless MCE(machine check exception) is ported from
-> x86-64 to i386. This patch is for implementation.
+I'll be delving deeper into this thread soon, but I'm seeing similar
+strangeness
+on a Athlon64 (rated:3G+ real:2009MHz clock), 2.6.11-r8 (gentoo), MSI
+K8N Neo Platinum.
 
-You seem to be missing most of the issues people raise:
-perhaps your spamfilter is too eager.
+ntp syncs time, then I start a couple of compiles, and I see ntp
+losing track of time, big jitter etc. (and the one time source is in
+on the local LAN syncing to the same remote servers). openntp I
+noticed it also.
 
-Where is Brice Goglin's #include <asm/apic.h> in mce_intel.c?
+What I have noticed in my dmesg output is that I see "lost timer ticks
+CPU Frequency change?" messages very early in the boot up.
 
-i386 machine_check_init misses calling mcheck_init in Intel
-and Centaur cases, so a lot of the code is largely untested.
+> What I can't believe is that I'm the only one who has this problem.
 
-You need to avoid the P6 and AMD problems with bank0,
-as the replaced code did.
+I've seen this for about a week or three, and somehow I believe it
+wasn't a problem before 2.6.11.
 
-I fear there may be more.
-
-Hugh
+-- 
+Hendrik Visage

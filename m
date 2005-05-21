@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbVEUM76@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbVEUNNe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261734AbVEUM76 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 May 2005 08:59:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbVEUM76
+	id S261736AbVEUNNe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 May 2005 09:13:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVEUNNe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 May 2005 08:59:58 -0400
-Received: from igw2.watson.ibm.com ([129.34.20.6]:58305 "EHLO
-	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S261734AbVEUM74
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 May 2005 08:59:56 -0400
-Date: Sat, 21 May 2005 08:59:50 -0400 (Eastern Daylight Time)
-From: Reiner Sailer <sailer@us.ibm.com>
-To: Greg KH <greg@kroah.com>
-cc: Emilyr@us.ibm.com, Kylene@us.ibm.com, linux-kernel@vger.kernel.org,
-       linux-security-module@mail.wirex.com,
-       Reiner Sailer <sailer@watson.ibm.com>, toml@us.ibm.com
-Subject: Re: [PATCH 4 of 4] ima: module measure extension
-Message-ID: <Pine.WNT.4.63.0505210838390.2580@laptop>
-X-Warning: UNAuthenticated Sender
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 21 May 2005 09:13:34 -0400
+Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:19462 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261736AbVEUNN2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 May 2005 09:13:28 -0400
+To: linuxram@us.ibm.com
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk, jamie@shareable.org
+In-reply-to: <1116670073.4397.77.camel@localhost> (message from Ram on Sat, 21
+	May 2005 03:07:53 -0700)
+Subject: Re: [RFC][PATCH] rbind across namespaces
+References: <1116627099.4397.43.camel@localhost>
+	 <E1DZNSN-0006cU-00@dorka.pomaz.szeredi.hu>
+	 <1116660380.4397.66.camel@localhost>
+	 <E1DZP37-0006hH-00@dorka.pomaz.szeredi.hu>
+	 <1116665101.4397.71.camel@localhost>
+	 <E1DZPzS-0006kw-00@dorka.pomaz.szeredi.hu> <1116670073.4397.77.camel@localhost>
+Message-Id: <E1DZTmi-0006up-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Sat, 21 May 2005 15:12:56 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Ok. look at the enclosed patch. Does it look any better? The special
+> casing for detached mounts ate up some brain cells and made the code
+> less simpler.
 
-Greg KH <greg@kroah.com> wrote on 05/21/2005 02:31:51 AM:
+Yes, this isn't trivial stuff.
 
-> On Fri, May 20, 2005 at 10:01:18AM -0400, Reiner Sailer wrote:
-> > @@ -1441,6 +1442,8 @@ static struct module *load_module(void _
-> >     if (len < hdr->e_shoff + hdr->e_shnum * sizeof(Elf_Shdr))
-> >        goto truncated;
-> >  
-> > +   ima_measure_module((void *)hdr, len, (void *)uargs);
-> > +
-> 
-> I see you did not run this code through sparse...
-> 
-> Gotta love security code that makes the overall system less secure...
-> 
-> greg k-h
+I realized one more thing: nd->mnt (the destination vfsmount) might be
+detached while waiting for the semaphore.  So that needs to be
+rechecked after taking the semaphores.
 
-[accumulative to your e-mails today on this topic]
+And the same for old_nd->mnt in case of rbind.  Though I'm
+not sure what the semantics should be in this case:
 
-Thanks Greg for all your work going (painfully) through the 
-patches I submitted.
+  1) rbind always fails if the source is detached
 
-Time for me to start learning from my mistakes and getting
-a better version out.
+  2) rbind always succeeds, and if the source is detached it just
+     copies that single mount
 
-Thanks
-Reiner
+I like 2) better.  Is there anything against it?
 
-
+Miklos

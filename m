@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVEUUzJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVEUVEG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261596AbVEUUzJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 May 2005 16:55:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbVEUUzJ
+	id S261603AbVEUVEG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 May 2005 17:04:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVEUVEF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 May 2005 16:55:09 -0400
-Received: from smtpout01-04.mesa1.secureserver.net ([64.202.165.79]:16337 "HELO
-	smtpout01-04.mesa1.secureserver.net") by vger.kernel.org with SMTP
-	id S261596AbVEUUzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 May 2005 16:55:03 -0400
-Message-ID: <428F9FEE.5000003@coyotegulch.com>
-Date: Sat, 21 May 2005 16:54:06 -0400
-From: Scott Robert Ladd <lkml@coyotegulch.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050512)
-X-Accept-Language: en-us, en
+	Sat, 21 May 2005 17:04:05 -0400
+Received: from wildsau.idv.uni.linz.at ([193.170.194.34]:897 "EHLO
+	wildsau.enemy.org") by vger.kernel.org with ESMTP id S261603AbVEUVEB
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 May 2005 17:04:01 -0400
+From: Herbert Rosmanith <kernel@wildsau.enemy.org>
+Message-Id: <200505212103.j4LL3u3G017183@wildsau.enemy.org>
+Subject: [PATH] binutils-2.16.90.0.3 kernel-2.4.30 apm.c
+To: linux-kernel@vger.kernel.org
+Date: Sat, 21 May 2005 23:03:56 +0200 (MET DST)
+CC: Herbert Rosmanith <kernel@wildsau.enemy.org>
+X-Mailer: ELM [version 2.4ME+ PL100 (25)]
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: False "lost ticks" on dual-Opteron system (=> timer twice as
- fast)
-References: <200505081445.26663.bernd.paysan@gmx.de> <d93f04c705052112426ee35154@mail.gmail.com>
-In-Reply-To: <d93f04c705052112426ee35154@mail.gmail.com>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Paysan <bernd.paysan@gmx.de> wrote:
->>I've recently set up a dual Opteron RAID server (AMD-8000-based Tyan
->>Thunder K8S Pro SCSI board, 2 246 Opterons, stepping 10). Kernel is a
->>modified 2.6.11.4-20a from SuSE 9.3 (SMP version, sure). The Opterons
->>are capable of changing the CPU frequency (between 1GHz and 2GHz).
->>
->>What I can't believe is that I'm the only one who has this problem.
 
-Hendrik Visage wrote:
-> I'll be delving deeper into this thread soon, but I'm seeing similar
-> strangeness
-> on a Athlon64 (rated:3G+ real:2009MHz clock), 2.6.11-r8 (gentoo), MSI
-> K8N Neo Platinum.
-> 
-> ntp syncs time, then I start a couple of compiles, and I see ntp
-> losing track of time, big jitter etc. (and the one time source is in
-> on the local LAN syncing to the same remote servers). openntp I
-> noticed it also.
-> 
-> What I have noticed in my dmesg output is that I see "lost timer ticks
-> CPU Frequency change?" messages very early in the boot up.
-> 
-> I've seen this for about a week or three, and somehow I believe it
-> wasn't a problem before 2.6.11.
+sorry, I didn't notice this file also affected (see previous email)
+probably there are other places around too.... I probably should
+recompile with all kernel-options enabled.
 
-I *don't* have any timer problems running 2.6.11-r8 (gentoo) on a dual
-Opteron 250 system using a Tyan K8W 2885. Perhaps the problem is that
-the two of you are running SCSI main drives, and I'm not?
+anyway ...
 
-..Scott
+
+--- linux-2.4.30/arch/i386/kernel/apm.c Mon Aug 25 13:44:39 2003
++++ linux-2.4.30.rescue/arch/i386/kernel/apm.c  Sat May 21 22:54:50 2005
+@@ -15,6 +15,8 @@
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  * General Public License for more details.
+  *
++ * Sat May 21 22:54:03 MEST 2005 herp - Herbert Rosmanith
++ *    make it compile with as-2.16 again
+  * October 1995, Rik Faith (faith@cs.unc.edu):
+  *    Minor enhancements and updates (to the patch set) for 1.3.x
+  *    Documentation
+@@ -327,7 +329,7 @@
+  * Save a segment register away
+  */
+ #define savesegment(seg, where) \
+-               __asm__ __volatile__("movl %%" #seg ",%0" : "=m" (where))
++               __asm__ __volatile__("movw %%" #seg ",%0" : "=m" (where))
+ 
+ /*
+  * Maximum number of events stored
 

@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVEULxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261731AbVEUMZE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261732AbVEULxT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 May 2005 07:53:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbVEULxT
+	id S261731AbVEUMZE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 May 2005 08:25:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbVEUMZE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 May 2005 07:53:19 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:33451 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261732AbVEULxP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 May 2005 07:53:15 -0400
-Date: Sat, 21 May 2005 13:49:33 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Greg KH <greg@kroah.com>
-cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove the obsolete raw driver
-In-Reply-To: <20050521053558.GA23542@kroah.com>
-Message-ID: <Pine.LNX.4.61.0505211348010.997@scrub.home>
-References: <20050521001925.GQ5112@stusta.de> <20050521053558.GA23542@kroah.com>
+	Sat, 21 May 2005 08:25:04 -0400
+Received: from clem.clem-digital.net ([68.16.168.10]:57539 "EHLO
+	clem.clem-digital.net") by vger.kernel.org with ESMTP
+	id S261731AbVEUMY7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 May 2005 08:24:59 -0400
+From: Pete Clements <clem@clem.clem-digital.net>
+Message-Id: <200505211224.j4LCOrk5000537@clem.clem-digital.net>
+Subject: 2.6.12-rc4-git5 fails compile -- aic7xxx_osm.c
+To: linux-kernel@vger.kernel.org (linux-kernel)
+Date: Sat, 21 May 2005 08:24:53 -0400 (EDT)
+X-Mailer: ELM [version 2.5 PL7]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+fyi:
 
-On Fri, 20 May 2005, Greg KH wrote:
+  CC      drivers/scsi/aic7xxx/aic7xxx_osm.o
+drivers/scsi/aic7xxx/aic7xxx_osm.c: In function `ahc_linux_slave_alloc':
+drivers/scsi/aic7xxx/aic7xxx_osm.c:663: parse error before `struct'
+drivers/scsi/aic7xxx/aic7xxx_osm.c:667: `sc' undeclared (first use in this function)
+drivers/scsi/aic7xxx/aic7xxx_osm.c:667: (Each undeclared identifier is reported only once
+drivers/scsi/aic7xxx/aic7xxx_osm.c:667: for each function it appears in.)
+drivers/scsi/aic7xxx/aic7xxx_osm.c:668: warning: `scsirate' might be used uninitialized in this function
+make[3]: *** [drivers/scsi/aic7xxx/aic7xxx_osm.o] Error 1
+make[2]: *** [drivers/scsi/aic7xxx] Error 2
+make[1]: *** [drivers/scsi] Error 2
+make: *** [drivers] Error 2
 
-> On Sat, May 21, 2005 at 02:19:25AM +0200, Adrian Bunk wrote:
-> > Since kernel 2.6.3 the Kconfig text explicitely stated this driver was 
-> > obsolete.
-> > 
-> > It seems to be time to remove it.
-> 
-> As much as I would like to agree with you, no, not yet.  Mark it as
-> going to go away in the Documenation/feature-removal.txt file 6-8 months
-> from now (or longer if people object, but no longer than a year) and
-> then after that time expires, we can delete it.
-
-Adding a warning message to the open function would be nice too.
-Which user really reads that file?
-
-bye, Roman
+-- 
+Pete Clements 

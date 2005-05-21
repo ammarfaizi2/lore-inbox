@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbVEULln@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVEULxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261730AbVEULln (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 May 2005 07:41:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVEULln
+	id S261732AbVEULxT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 May 2005 07:53:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbVEULxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 May 2005 07:41:43 -0400
-Received: from mail1.skjellin.no ([80.239.42.67]:58498 "EHLO mx1.skjellin.no")
-	by vger.kernel.org with ESMTP id S261731AbVEULll (ORCPT
+	Sat, 21 May 2005 07:53:19 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:33451 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261732AbVEULxP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 May 2005 07:41:41 -0400
-Message-ID: <428F1E71.6010000@tomt.net>
-Date: Sat, 21 May 2005 13:41:37 +0200
-From: =?ISO-8859-1?Q?Andr=E9_Tomt?= <andre@tomt.net>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Sat, 21 May 2005 07:53:15 -0400
+Date: Sat, 21 May 2005 13:49:33 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Greg KH <greg@kroah.com>
+cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] remove the obsolete raw driver
+In-Reply-To: <20050521053558.GA23542@kroah.com>
+Message-ID: <Pine.LNX.4.61.0505211348010.997@scrub.home>
+References: <20050521001925.GQ5112@stusta.de> <20050521053558.GA23542@kroah.com>
 MIME-Version: 1.0
-To: Bernd Petrovitsch <bernd@firmix.at>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Joerg Schilling flames Linux on his Blog
-References: <200505201345.15584.pmcfarland@downeast.net>	 <428E70B3.1050007@khandalf.com>  <20050521073826.GR5112@stusta.de> <1116674703.5301.14.camel@gimli.at.home>
-In-Reply-To: <1116674703.5301.14.camel@gimli.at.home>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bernd Petrovitsch wrote:
-> Did you ever see Solaris installations without GNU-tools from
-> sunfreeware.com installed?
+Hi,
 
-Hnngh! Missing dependencies (do the package format support it at all?), 
-no splitting (why should I need apache2 for the portability library 
-libapr?), odd things like needing sunfreeware gzip instead of the 
-solaris one in some packages (something that you don't notice until its 
-too late)... its like going way back in time to slackware.
+On Fri, 20 May 2005, Greg KH wrote:
 
-</rant>
+> On Sat, May 21, 2005 at 02:19:25AM +0200, Adrian Bunk wrote:
+> > Since kernel 2.6.3 the Kconfig text explicitely stated this driver was 
+> > obsolete.
+> > 
+> > It seems to be time to remove it.
+> 
+> As much as I would like to agree with you, no, not yet.  Mark it as
+> going to go away in the Documenation/feature-removal.txt file 6-8 months
+> from now (or longer if people object, but no longer than a year) and
+> then after that time expires, we can delete it.
 
--- 
-Cheers,
-André Tomt
-With his rookie Solaris admin hat on.
+Adding a warning message to the open function would be nice too.
+Which user really reads that file?
+
+bye, Roman

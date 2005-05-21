@@ -1,40 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVEUNqk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261579AbVEUO0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261356AbVEUNqk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 May 2005 09:46:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261583AbVEUNqh
+	id S261579AbVEUO0E (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 May 2005 10:26:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261591AbVEUO0D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 May 2005 09:46:37 -0400
-Received: from mail.shareable.org ([81.29.64.88]:17882 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261356AbVEUNq0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 May 2005 09:46:26 -0400
-Date: Sat, 21 May 2005 14:46:15 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linuxram@us.ibm.com, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [RFC][PATCH] rbind across namespaces
-Message-ID: <20050521134615.GB4274@mail.shareable.org>
-References: <1116627099.4397.43.camel@localhost> <E1DZNSN-0006cU-00@dorka.pomaz.szeredi.hu> <1116660380.4397.66.camel@localhost> <E1DZP37-0006hH-00@dorka.pomaz.szeredi.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 21 May 2005 10:26:03 -0400
+Received: from smtp07.web.de ([217.72.192.225]:46038 "EHLO smtp07.web.de")
+	by vger.kernel.org with ESMTP id S261579AbVEUOZ7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 May 2005 10:25:59 -0400
+From: Gregor Jasny <gjasny@web.de>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: What happened to Cyrix 6x86 support in 2.6?
+Date: Sat, 21 May 2005 16:25:56 +0200
+User-Agent: KMail/1.8
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <E1DZP37-0006hH-00@dorka.pomaz.szeredi.hu>
-User-Agent: Mutt/1.4.1i
+Message-Id: <200505211625.56664.gjasny@web.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi wrote:
-> I still see a problem: what if old_nd.mnt is already detached, and
-> bind is non-recursive.  Now it fails with EINVAL, though it used to
-> work (and I think is very useful).
+Hi,
 
-Hey, you just made another argument for not detaching mounts when the
-last task with that current->namespace exits, but instead detaching
-mounts when the last reference to any vfsmnt in the namespace is dropped.
+I have an old machine with a Cyrix 6x86 processor. When running Linux 2.4 it is recognized as a Cyrix and MTRR is enabled:
 
-Hint :)
+kernel: Linux version 2.4.22 (root@Rincewind) (gcc version 2.95.4 20011002 (Debian prerelease)) #2 Fri Nov 28 15:43:13 CET 2003
+...
+kernel: Enabling CPUID on Cyrix processor.
+kernel: CPU:     After generic, caps: 00000105 00000000 00000000 00000004
+kernel: CPU:             Common caps: 00000105 00000000 00000000 00000004
+kernel: CPU: Cyrix 6x86L 2x Core/Bus Clock stepping 02
 
--- Jamie
+But when I boot a Linux 2.6 kernel with CONFIG_M586=y it recognizes only a 486.
+
+Can somebody explain this behavior? Was support for Cyrix 6x86 dropped?
+
+Cheers,
+Gregor

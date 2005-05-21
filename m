@@ -1,176 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVEUH1Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbVEUHeX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbVEUH1Q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 May 2005 03:27:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVEUH1Q
+	id S261698AbVEUHeX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 May 2005 03:34:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbVEUHeW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 May 2005 03:27:16 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:50864 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261684AbVEUH0w
+	Sat, 21 May 2005 03:34:22 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:47538 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S261694AbVEUHeH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 May 2005 03:26:52 -0400
-Subject: Re: [RFC][PATCH] rbind across namespaces
-From: Ram <linuxram@us.ibm.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       jamie@shareable.org
-In-Reply-To: <E1DZNSN-0006cU-00@dorka.pomaz.szeredi.hu>
-References: <1116627099.4397.43.camel@localhost>
-	 <E1DZNSN-0006cU-00@dorka.pomaz.szeredi.hu>
-Content-Type: multipart/mixed; boundary="=-S09cCfwaXfZJikH7iXvy"
-Organization: IBM 
-Message-Id: <1116660380.4397.66.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sat, 21 May 2005 00:26:20 -0700
+	Sat, 21 May 2005 03:34:07 -0400
+In-Reply-To: <428DFA8D.6060204@sw.ru>
+To: Kirill Korotaev <dev@sw.ru>, Andrew Morton <akpm@osdl.org>
+Cc: Christian Borntraeger <cborntra@de.ibm.com>, linux-kernel@vger.kernel.org,
+       Martin Schwidefsky <schwidefsky@de.ibm.com>
+MIME-Version: 1.0
+Subject: Re: Running OOM and worse with broken signal handler
+X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
+Message-ID: <OF65FF28C6.9C7B30EE-ONC1257008.0029505D-C1257008.00297392@de.ibm.com>
+From: Heiko Carstens <Heiko.Carstens@de.ibm.com>
+Date: Sat, 21 May 2005 09:34:01 +0200
+X-MIMETrack: S/MIME Sign by Notes Client on Heiko Carstens/Germany/IBM(Release 6.0.2CF1|June
+ 9, 2003) at 21.05.2005 09:32:45,
+	Serialize by Notes Client on Heiko Carstens/Germany/IBM(Release 6.0.2CF1|June
+ 9, 2003) at 21.05.2005 09:32:45,
+	Serialize complete at 21.05.2005 09:32:45,
+	S/MIME Sign failed at 21.05.2005 09:32:45: The cryptographic key was not
+ found,
+	Serialize by Router on D12ML064/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
+ 21/05/2005 09:34:05,
+	Serialize complete at 21/05/2005 09:34:05
+Content-Type: text/plain; charset="US-ASCII"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Kirill,
 
---=-S09cCfwaXfZJikH7iXvy
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+your patch fixes this issue. Thanks!
+Andrew, any chances to get this merged?
 
-On Fri, 2005-05-20 at 23:27, Miklos Szeredi wrote:
-> > I have enclosed a patch that allows rbinds across any two namespaces.
-> > NOTE: currenly bind from foriegn namespace to current namespace is
-> > allowed. This patch now allows:
+Heiko
+
+> Can you test this patch, please?
 > 
-> Note: you are accessing ->mnt_namespace without holding vfsmount_lock.
-
-I realized that just after sending the patch :( . Have corrected it in
-the new patch.
-
+> Alexey Kuznetsov discovered long ago that SIGKILL is low priority than 
+> signalls 1-8, so it can be delivered very long... But we didn't 
+> succedded to reproduce this in real life, looks like you did it :)
 > 
-> Also why check current->namespace?  It doesn't hurt to do
-> get_namespace() even if it's not strictly needed.  And it would
-> simplify the code.
-
-however get_namespace() will chew up some extra cycles
-sometimes unnecessarily. I did incorporate your comment and
-got much simpler code.
-
- 
-
+> Kirill
 > 
-> In fact all uses of current->namespace and check_mnt() could be
-> eliminated from namespace.c.  The only use of ->namespace would be in
-> copy_namespace() and exit_namespace().
-
-Yes. I will make this a separate patch, which I will send out soon.
-Will have to look at each of the cases deeply.
-
-Enclosed the simplified patch,
-RP
-
---=-S09cCfwaXfZJikH7iXvy
-Content-Disposition: attachment; filename=rbind_across_namespace1.patch
-Content-Type: text/x-patch; name=rbind_across_namespace1.patch
-Content-Transfer-Encoding: 7bit
-
-
-Summary:
-
-Allows rbinds across any two namespaces.  NOTE: currenly bind from foriegn
-namespace to current namespace is allowed. This patch now allows:
-
-binds/rbinds from any namespace to any other namespace, under the assumption
-that if a process has access to a namespace, it ought to have permission to
-manipulate that namespace.
-
-The patch incorporates ideas from Miklos and Jamie, and is dependent on
-Miklos's "fix race in mark_mounts_for_expiry" patch to function correctly. Also
-it depends on Miklos's "fix bind mount from foreign namespace" patch, because
-without that patch umounts would fail.
-
-
-Signed off by Ram Pai <linuxram@us.ibm.com>
-
---- /home/linux/views/linux-2.6.12-rc4/fs/namespace.c	2005-05-06 23:22:29.000000000 -0700
-+++ linux-2.6.12-rc4/fs/namespace.c	2005-05-21 00:17:31.000000000 -0700
-@@ -616,11 +616,14 @@ out_unlock:
- }
- 
- /*
-- * do loopback mount.
-+ * do loopback mount.  The loopback mount can be done from any namespace
-+ * to any other namespace including the current namespace, as long as
-+ * the task acquired rights to manipulate them.
-  */
- static int do_loopback(struct nameidata *nd, char *old_name, int recurse)
- {
- 	struct nameidata old_nd;
-+	struct namespace *mntpt_ns, *old_ns;
- 	struct vfsmount *mnt = NULL;
- 	int err = mount_is_safe(nd);
- 	if (err)
-@@ -631,16 +634,39 @@ static int do_loopback(struct nameidata 
- 	if (err)
- 		return err;
- 
--	down_write(&current->namespace->sem);
- 	err = -EINVAL;
--	if (check_mnt(nd->mnt) && (!recurse || check_mnt(old_nd.mnt))) {
--		err = -ENOMEM;
--		if (recurse)
--			mnt = copy_tree(old_nd.mnt, old_nd.dentry);
--		else
--			mnt = clone_mnt(old_nd.mnt, old_nd.dentry);
-+	spin_lock(&vfsmount_lock);
-+
-+	mntpt_ns = nd->mnt->mnt_namespace;
-+	old_ns = old_nd.mnt->mnt_namespace;
-+	if (!mntpt_ns || !mntpt_ns->root || !old_ns || !old_ns->root) {
-+		spin_unlock(&vfsmount_lock);
-+		goto out;
-+	}
-+	get_namespace(mntpt_ns);
-+	get_namespace(old_ns);
-+
-+	spin_unlock(&vfsmount_lock);
-+
-+	/* 
-+	 * make sure we don't race with some
-+	 * other thread manipulating the
-+	 * namespaces.
-+	 */
-+	if (old_ns < mntpt_ns) {
-+		down_write(&old_ns->sem);
-+	}
-+	down_write(&mntpt_ns->sem);
-+	if (old_ns > mntpt_ns) {
-+		down_write(&old_ns->sem);
- 	}
- 
-+	err = -ENOMEM;
-+	if (recurse)
-+		mnt = copy_tree(old_nd.mnt, old_nd.dentry);
-+	else
-+		mnt = clone_mnt(old_nd.mnt, old_nd.dentry);
-+
- 	if (mnt) {
- 		/* stop bind mounts from expiring */
- 		spin_lock(&vfsmount_lock);
-@@ -656,7 +682,17 @@ static int do_loopback(struct nameidata 
- 			mntput(mnt);
- 	}
- 
--	up_write(&current->namespace->sem);
-+	if (old_ns < mntpt_ns) {
-+		up_write(&old_ns->sem);
-+	}
-+	up_write(&mntpt_ns->sem);
-+	if (old_ns > mntpt_ns) {
-+		up_write(&old_ns->sem);
-+	}
-+
-+	put_namespace(old_ns);
-+	put_namespace(mntpt_ns);
-+out:
- 	path_release(&old_nd);
- 	return err;
- }
-
---=-S09cCfwaXfZJikH7iXvy--
+> > Hi all,
+> > 
+> > we experienced some interesting behaviour with an out of
+> > memory condition caused by signal handling (on s390x).
+> > The following program ran our system in an OOM situation
+> > and couldn't be killed because the SIGKILL signal couldn't
+> > be delivered.
+> > Necessary for this to happen is that the stack size limit
+> > is set to unlimited.
+> > 
+> > sig_handler(int sig)
+> > {
+> >   asm volatile(".long 0\n");
+> > }
+> > 
+> > int main (int argc, char **argv)
+> > {
+> >   struct sigaction act;
+> > 
+> >   act.sa_handler = &sig_handler;
+> >   act.sa_restorer = 0;
+> >   act.sa_flags = SA_NOMASK | SA_RESTART;
+> > 
+> >   sigaction(SIGILL, &act, 0);
+> >   sigaction(SIGSEGV, &act, 0);
+> > 
+> >   asm volatile(".long 0\n");
+> > }
+> > 
+> > The instruction in the asm block is suppossed to be an
+> > illegal opcode which enforces a SIGILL.
+> > When executed the following happens:
+> > The illegal instruction causes a SIGILL to be delivered to
+> > the process. Since the signal handler itself contains an
+> > illegal instruction this causes another SIGILL to
+> > be delivered, thus causing the stack to grow unlimited.
+> > When we are finally out of memory the OOM killer selects
+> > our process and sends it a SIGKILL.
+> > Only problem in this scenario is that the SIGKILL never
+> > will be sent to our process simply because there is
+> > always a SIGILL pending too, which will be handled before
+> > the SIGKILL because of its lower number (see next_signal()
+> > in kernel/signal.c).
+> > The only possibly way this signal would be handled would
+> > be that the process is running in userspace while trying
+> > to handle the delivered SIGILL, where it would be interrupted
+> > by an interrupt and upon return to userspace do_signal()
+> > would be called again. This is unfortunately very unlikely
+> > if you are running a nearly timer interrupt free kernel
+> > like we do on s390/s390x.
+> > Since the OOM killer set the TIF_MEMDIE flag for our
+> > process it now is allowed to eat up all the memory left
+> > and our system is more or less dead until you're lucky
+> > and an interrupt hits at the right time and finally
+> > causing the process to be terminated...
+> > 
+> > Maybe the OOM killer or signal handling would need
+> > a change to fix this?
+> > 
+> > Thanks,
+> > Heiko
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe 
+linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> 
+> diff -ur orig/linux-2.6.8.1/kernel/signal.c 
+linux-2.6.8.1/kernel/signal.c
+> --- orig/linux-2.6.8.1/kernel/signal.c   2005-05-12 02:44:12.000000000 
++0400
+> +++ linux-2.6.8.1/kernel/signal.c   2005-05-13 12:07:04.000000000 +0400
+> @@ -519,7 +520,16 @@
+>  {
+>     int sig = 0;
+> 
+> -   sig = next_signal(pending, mask);
+> +   /* SIGKILL must have priority, otherwise it is quite easy
+> +    * to create an unkillable process, sending sig < SIGKILL
+> +    * to self */
+> +   if (unlikely(sigismember(&pending->signal, SIGKILL))) {
+> +      if (!sigismember(mask, SIGKILL))
+> +         sig = SIGKILL;
+> +   }
+> +
+> +   if (likely(!sig))
+> +      sig = next_signal(pending, mask);
+>     if (sig) {
+>        if (current->notifier) {
+>           if (sigismember(current->notifier_mask, sig)) {
 

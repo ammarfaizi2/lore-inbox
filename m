@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261646AbVEUDbM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVEUDpr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261646AbVEUDbM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 23:31:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261648AbVEUDbL
+	id S261651AbVEUDpr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 23:45:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVEUDpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 23:31:11 -0400
-Received: from pop.gmx.de ([213.165.64.20]:59051 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261646AbVEUDbF (ORCPT
+	Fri, 20 May 2005 23:45:46 -0400
+Received: from rproxy.gmail.com ([64.233.170.207]:60841 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261653AbVEUDpm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 23:31:05 -0400
-X-Authenticated: #428038
-Date: Sat, 21 May 2005 05:31:02 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Neil Brown <neilb@cse.unsw.edu.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: software RAID
-Message-ID: <20050521033102.GB354@merlin.emma.line.org>
-Mail-Followup-To: Neil Brown <neilb@cse.unsw.edu.au>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.62.0505201246520.13530@gannon.phys.uwm.edu> <17038.24706.571479.471268@cse.unsw.edu.au>
+	Fri, 20 May 2005 23:45:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=qP1JX5Y/iv3Gxur3R0TOd6nFKShAu84w7Rxo1j/8k7bZGskSaBJJpd9WCmGBjuj8hLbLu6LS2q0UKiUgOEcsTWI8BzI8wBl+OGlnOD2HwVZIgbf+j7MzDhzYyDuZoP1KXSA//YcSIx4NJZPrpXn7G6aNqYOk7wVMX3yjEMultzw=
+Date: Sat, 21 May 2005 12:45:38 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] kprobes-HERE! 20050521
+Message-ID: <20050521034538.GA5999@htj.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17038.24706.571479.471268@cse.unsw.edu.au>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
 User-Agent: Mutt/1.5.9i
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 21 May 2005, Neil Brown wrote:
+ Hello guys.
 
-> On Friday May 20, amiller@gravity.phys.uwm.edu wrote:
-> > Hi,
-> >    We're looking to set up either software RAID 1 or RAID 10 using 2 SATA 
-> > disks.  If a disk in drive A has a bad sector, can it be setup so that the 
-> > array will read the sector from drive B and then have it rewrite the 
-> > bad sector on drive A?  Please CC me in the response.
-> 
-> Not yet, but it is this functionality is very near the top of my TODO
-> list for md.
+ --regs option is added to kphere, which calls show_registers(), so
+now you can dump register contents + contents in the top of the stack.
 
-Speaking of consistency, what is md's support for barriers like? Is it
-safe to use write caches on the drives? (RAID1 assumed)
+ http://home-tj.org/kphere/files/kphere-20050521.tar.gz
 
-What if I'm using different drive models with different cache sizes
-(isn't as unreasonable as it sounds as different drives may have
-different margins WRT environmental influences), how does md figure what
-is missing from one drive?
+ For more info.
 
-Is there anything short of break mirror and rebuild to guarantee
-consistency until next reboot?
+ http://home-tj.org/kphere/
 
-Documentation/md.txt is a bit lacking in these respects.
+ Thanks.
 
 -- 
-Matthias Andree
+tejun

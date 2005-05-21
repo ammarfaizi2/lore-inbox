@@ -1,46 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVEUGT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVEUGWZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbVEUGT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 May 2005 02:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVEUGT1
+	id S261677AbVEUGWZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 May 2005 02:22:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261674AbVEUGWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 May 2005 02:19:27 -0400
-Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:32779 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261680AbVEUGTJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 May 2005 02:19:09 -0400
-To: hbryan@us.ibm.com
-CC: jamie@shareable.org, akpm@osdl.org, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-reply-to: <OF220824D5.86601CDE-ON88257008.0003590B-88257008.0003D5B4@us.ibm.com>
-	(message from Bryan Henderson on Fri, 20 May 2005 17:41:21 -0700)
-Subject: Re: [PATCH] FUSE: don't allow restarting of system calls
-References: <OF220824D5.86601CDE-ON88257008.0003590B-88257008.0003D5B4@us.ibm.com>
-Message-Id: <E1DZNJf-0006b4-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sat, 21 May 2005 08:18:31 +0200
+	Sat, 21 May 2005 02:22:24 -0400
+Received: from mail.kroah.org ([69.55.234.183]:50825 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261679AbVEUGVW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 May 2005 02:21:22 -0400
+Date: Fri, 20 May 2005 23:28:17 -0700
+From: Greg KH <greg@kroah.com>
+To: Reiner Sailer <sailer@watson.ibm.com>
+Cc: linux-kernel@vger.kernel.org, linux-security-module@mail.wirex.com,
+       kylene@us.ibm.com, emilyr@us.ibm.com, toml@us.ibm.com
+Subject: Re: [PATCH 3 of 4] ima: Linux Security Module implementation
+Message-ID: <20050521062817.GD24597@kroah.com>
+References: <1116596614.8156.11.camel@secureip.watson.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1116596614.8156.11.camel@secureip.watson.ibm.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >Having a program be stuck in read/write ignoring signals, so that
-> >Control-C, Control-Z and kill don't work on it, while it's waiting for
-> >some network operation, is a horrible thing.
-> 
-> I've made it a personal crusade to eliminate D state.  In addition to all 
-> the damage done by computer resources being locked up, something about my 
-> computer ignoring me rankles me on a personal level.
+On Fri, May 20, 2005 at 09:43:34AM -0400, Reiner Sailer wrote:
+> +/* security structure appended to inodes */
+> +#define IMA_MAGIC 0x9999
+> +struct ima_inode {
+> +	unsigned short magic;
+> +	atomic_t measure_count;	/* # processes currently using this file in measure-mode */
+> +	ima_entry_flags dirty;
+> +	char *file_name;	/* points to measure entry->fileName */
+> +};
+> +
+> +/* security structure appended to measured files*/
+> +struct ima_file {
+> +	unsigned short magic;	/* identify our struct format */
+> +	char is_measuring;	/* identify fds that are "measuring" */
+> +};
 
-Very true.  FUSE currently handles it by allowing SIGKILL, but no
-other signals.  Interrupting file operations would be very nice, but
-unfortunately apps just don't handle it very well (even in case SuS
-actually allows EINTR).
+magic values for structures protect you from nothing.  Do not use them.
 
-> I believe this proposal is about making open() hang, which I think is even 
-> more painful than having read/write hang.  open() is often designed to 
-> block much more casually.
 
-Then why the hack do people write programs that get some alarm signal
-100 times a second _while_ doing the open.  If they do that then
-trying to make it interruptible is sort of useless.
+> +static u32 decode_u32(u8 * buf)
+> +{
+> +	u32 val = buf[0];
+> +	val = (val << 8) | (u8) buf[1];
+> +	val = (val << 8) | (u8) buf[2];
+> +	val = (val << 8) | (u8) buf[3];
+> +	return val;
+> +}
+> +
+> +static void encode_u32(u8 * buf, u32 val)
+> +{
+> +	buf[0] = (u8) val >> 24;
+> +	buf[1] = (u8) val >> 16;
+> +	buf[2] = (u8) val >> 8;
+> +	buf[3] = (u8) val >> 0;
+> +}
 
-Miklos
+Hm, what's wrong with the standard kernel functions to do this kind of
+thing?
+
+
+> diff -uprN linux-2.6.12-rc4/security/ima/INSTALL linux-2.6.12-rc4-ima/security/ima/INSTALL
+> --- linux-2.6.12-rc4/security/ima/INSTALL	1969-12-31 19:00:00.000000000 -0500
+> +++ linux-2.6.12-rc4-ima/security/ima/INSTALL	2005-05-19 17:59:20.000000000 -0400
+
+Kernel directories do not get a INSTALL file.  Stuff like that goes into
+the Documentation/ directory.
+
+greg k-h

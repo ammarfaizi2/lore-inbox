@@ -1,39 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbVEUG1z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVEUHSa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbVEUG1z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 May 2005 02:27:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbVEUG1z
+	id S261683AbVEUHSa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 May 2005 03:18:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbVEUHSa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 May 2005 02:27:55 -0400
-Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:33035 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261678AbVEUG1l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 May 2005 02:27:41 -0400
-To: linuxram@us.ibm.com
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk, jamie@shareable.org
-In-reply-to: <1116627099.4397.43.camel@localhost> (message from Ram on Fri, 20
-	May 2005 15:11:40 -0700)
-Subject: Re: [RFC][PATCH] rbind across namespaces
-References: <1116627099.4397.43.camel@localhost>
-Message-Id: <E1DZNSN-0006cU-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sat, 21 May 2005 08:27:31 +0200
+	Sat, 21 May 2005 03:18:30 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:53513 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261683AbVEUHS0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 May 2005 03:18:26 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: kernel@linuxace.com (Phil Oester)
+Subject: Re: 2.6.12-rc4 random oopses
+Cc: linux-kernel@vger.kernel.org
+Organization: Core
+In-Reply-To: <20050519153324.GA17914@linuxace.com>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1DZOFT-0001JJ-00@gondolin.me.apana.org.au>
+Date: Sat, 21 May 2005 17:18:15 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I have enclosed a patch that allows rbinds across any two namespaces.
-> NOTE: currenly bind from foriegn namespace to current namespace is
-> allowed. This patch now allows:
+Phil Oester <kernel@linuxace.com> wrote:
+> I've been attempting to upgrade a 2.6.10 box to 2.6.11 or 2.6.12-rc4,
+> and keep getting seemingly random oopses.  I've attached 4 of them below
+> for review.  The first 2 occurred without frame pointers enabled, the
+> second 2 with.  nmi_watchdog was enabled on all but the last one, as
+> I read about some potential problems with it recently.
+> 
+> Any ideas?
 
-Note: you are accessing ->mnt_namespace without holding vfsmount_lock.
+How long can your machine stay up under 2.6.11/2.6.12-rc4? Is 2.6.10
+still stable if rebuild it?
 
-Also why check current->namespace?  It doesn't hurt to do
-get_namespace() even if it's not strictly needed.  And it would
-simplify the code.
+If 2.6.10 is still proving to be stable, then please do a bisection
+search on the releases between 2.6.10/2.6.11.  That may be the only
+way we can track this problem down.
 
-In fact all uses of current->namespace and check_mnt() could be
-eliminated from namespace.c.  The only use of ->namespace would be in
-copy_namespace() and exit_namespace().
-
-Miklos
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

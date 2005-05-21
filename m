@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVEUO5P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbVEUPYS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261587AbVEUO5P (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 May 2005 10:57:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261591AbVEUO5P
+	id S261716AbVEUPYS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 May 2005 11:24:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVEUPYS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 May 2005 10:57:15 -0400
-Received: from adsl-67-120-171-161.dsl.lsan03.pacbell.net ([67.120.171.161]:51217
-	"HELO linuxace.com") by vger.kernel.org with SMTP id S261587AbVEUO5M
+	Sat, 21 May 2005 11:24:18 -0400
+Received: from mailhub3.nextra.sk ([195.168.1.146]:29966 "EHLO
+	mailhub3.nextra.sk") by vger.kernel.org with ESMTP id S261716AbVEUPYO
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 May 2005 10:57:12 -0400
-Date: Sat, 21 May 2005 07:57:11 -0700
-From: Phil Oester <kernel@linuxace.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc4 random oopses
-Message-ID: <20050521145711.GA28132@linuxace.com>
-References: <20050519153324.GA17914@linuxace.com> <E1DZOFT-0001JJ-00@gondolin.me.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <E1DZOFT-0001JJ-00@gondolin.me.apana.org.au>
-User-Agent: Mutt/1.4.1i
+	Sat, 21 May 2005 11:24:14 -0400
+Message-ID: <428F52A2.4060905@rainbow-software.org>
+Date: Sat, 21 May 2005 17:24:18 +0200
+From: Ondrej Zary <linux@rainbow-software.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Gregor Jasny <gjasny@web.de>
+CC: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: What happened to Cyrix 6x86 support in 2.6?
+References: <200505211625.56664.gjasny@web.de>
+In-Reply-To: <200505211625.56664.gjasny@web.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 21, 2005 at 05:18:15PM +1000, Herbert Xu wrote:
-> How long can your machine stay up under 2.6.11/2.6.12-rc4? Is 2.6.10
-> still stable if rebuild it?
+Gregor Jasny wrote:
+> Hi,
+> 
+> I have an old machine with a Cyrix 6x86 processor. When running Linux 2.4 it is recognized as a Cyrix and MTRR is enabled:
+> 
+> kernel: Linux version 2.4.22 (root@Rincewind) (gcc version 2.95.4 20011002 (Debian prerelease)) #2 Fri Nov 28 15:43:13 CET 2003
+> ...
+> kernel: Enabling CPUID on Cyrix processor.
+> kernel: CPU:     After generic, caps: 00000105 00000000 00000000 00000004
+> kernel: CPU:             Common caps: 00000105 00000000 00000000 00000004
+> kernel: CPU: Cyrix 6x86L 2x Core/Bus Clock stepping 02
+> 
+> But when I boot a Linux 2.6 kernel with CONFIG_M586=y it recognizes only a 486.
 
-Machine stays up 'forever' on 2.6.10, dies within ~4 hours on 2.6.11+.
-Yes, I have rebuilt 2.6.10 with some backported patches, and it still
-works fine.
+Something like that also happened with my UMC 486. It's now detected as:
 
-> If 2.6.10 is still proving to be stable, then please do a bisection
-> search on the releases between 2.6.10/2.6.11.  That may be the only
-> way we can track this problem down.
+Linux version 2.6.8.1-router (root@pentium) (gcc version 3.3.4) #1 Thu 
+Sep 9 12:42:25 CEST 2004
+...
+CPU: After generic identify, caps: 00000000 00000000 00000000 00000000
+CPU: After all inits, caps:        00000000 00000000 00000000 00000000
+CPU: UMC UMC UMC  ff/02 stepping 03
 
-Unfortunately the box is the firewall for my employer's west coast office
-so I can only get away with one unexplained natural phenomenon per
-day.  May take awhile...
+It used to be detected more nicely in 2.4.x (I don't remember exact string).
 
-Phil 
+-- 
+Ondrej Zary

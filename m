@@ -1,64 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261609AbVEUAKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVEUATV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261609AbVEUAKd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 20:10:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVEUAKd
+	id S261612AbVEUATV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 20:19:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbVEUATU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 20:10:33 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:12776 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261613AbVEUAKV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 20:10:21 -0400
-Subject: [GIT PATCH] SCSI Bug Fixes for 2.6.12-rc4
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
+	Fri, 20 May 2005 20:19:20 -0400
+Received: from gate.crashing.org ([63.228.1.57]:53165 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261612AbVEUATL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 20:19:11 -0400
+Subject: Re: Problem mapping small PCI memory space.
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: linux-os@analogic.com
+Cc: Gianluca Varenni <gianluca.varenni@gmail.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0505191533590.2987@chaos.analogic.com>
+References: <02e801c55ca5$7a9d1000$1a4da8c0@NELSON2>
+	 <Pine.LNX.4.61.0505191533590.2987@chaos.analogic.com>
 Content-Type: text/plain
-Date: Fri, 20 May 2005 19:10:11 -0500
-Message-Id: <1116634211.5174.89.camel@mulgrave>
+Date: Sat, 21 May 2005 10:17:29 +1000
+Message-Id: <1116634649.5153.157.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This represents the accumulated set of fixes that solve the aic7xxx
-problems that have been cropping up recently.
+On Thu, 2005-05-19 at 15:43 -0400, Richard B. Johnson wrote:
+> On Thu, 19 May 2005, Gianluca Varenni wrote:
+> 
+> > Hi all.
+> >
+> > I'm writing a driver for a PCI board that exposes two memory spaces (out of
+> > the 6 IO address regions).
+> >
+> > One of them is 1MB, and I can map it to user level without problems. The
+> > other one is only 512 bytes.
+> > If I try to open it with /dev/mem, it returns EINVAL (the 1MB memory space
+> > is opened without any problem). If I try to expose it through mmap, mmap
+> > succeeds, but I only see garbage at user level. At kernel level, I can
+> > access that 512 bytes memory by using ioremap() on the physical address
+> > returned by pci_resource_start().
+> >
+> > Are there any lower limits on the size of a PCI memory region?
+> >
+> > Have a nice day
+> > GV
+> >
+> 
+> You impliment mmap() in your driver. It accesses the first megabyte
+> as 256 pages. Then you tack on the additional page that your 512
+> bytes resides at. mmap() only works with pages. The pages must
+> be ioremap_nocache and they must be reserved. The reserved part
+> is important to have them visible from user-space using mmap.
 
-The patch is available from
+There are a number of totally bogus statements above.
 
-rsync://www.parisc-linux.org/~jejb/git/scsi-for-linus-2.6.git
+First of all, you don't have to implement mmap in your driver (though it
+would probably better to do so). You can perfectly map your PCI memory
+space from userland without help of a specific driver (see below).
 
-The short changelog is
+Then, ioremap has absolutely nothing to do with the mapping done to
+userland (unless there is some gory x86 in there, but I really doubt
+it). ioremap_* has to do with mapping the memory in kernel space, not
+user space. Thus your statement "must be ioremap_nocache" is wrong.
 
-Christoph Hellwig:
-  o aic7xxx: remove usage of obsolete typedefs
-  o remove dma_mask hacks
-  o aic7xxx: remove Linux 2.4 ifdefs
-  o aic7xxx: remove some DV leftovers
+I don't know why you think the pages should be reserved as well, damn,
+he's not mapping RAM, he's mapping PCI MMIO space, do you know what you
+are talking about at all ? There is usually no struct page for PCI MMIO
+space.
+ 
+> That's IFF you really need to see the stuff in user-mode. Normally,
+> you write a driver that accesses everything using the PCI primatives
+> provided in the kernel, for the kernel.
 
-James Bottomley:
-  o aic7xxx: fix U160 mode
-  o aic7xxx: add back locking
-  o aic7xxx: make correct use of slave_alloc/destroy and remove the per device timer
-  o aic7xxx: remove the completeq
-  o aic7xxx: remove the last vestiges of the runq
-  o remove aic7xxx busyq
-  o correct aic7xxx period setting routines
-  o implement parameter limits in the SPI transport class
+Oh well, Ginancula, here is what you can do:
 
-And the diffstat:
+ - If you want to stick to /dev/mem, which is not recommended and may
+not work on all platforms but is fine for a quick hack, just make sure
+you are mmap'ing a full page. That is, your 512 bytes will be
+512-bytes-aligned somewhere in a page of 4k on most platforms, maybe
+more. You have to map this entire page, and then take an offset in the
+resulting mapping to the 512 bytes.
+Basically, you use getpagesize() to get the page size, then you mmap
+your base_addr & ~(page_size - 1), and you access your data at the
+resulting address + base_addr & (page_size - 1)
 
- drivers/scsi/aic7xxx/aic7770_osm.c     |   52 -
- drivers/scsi/aic7xxx/aic7xxx_osm.c     | 1402 +++++++--------------------------
- drivers/scsi/aic7xxx/aic7xxx_osm.h     |  169 ---
- drivers/scsi/aic7xxx/aic7xxx_osm_pci.c |   11 
- drivers/scsi/aic7xxx/aic7xxx_proc.c    |   13 
- drivers/scsi/aic7xxx/aiclib.c          |    1 
- drivers/scsi/scsi_transport_spi.c      |  188 +++-
- include/scsi/scsi_transport_spi.h      |    6 
- 8 files changed, 531 insertions(+), 1311 deletions(-)
+ - Best is to use the PCI mmap facility. The "old" one via /proc/bus/pci
+or the "new one" via /sys/...path to your device.../resourceN. You
+directly mmap the resource file you want. HOWEVER, the alignement
+restriction will still be there, thus you should also look at the
+"resource" file to get the actual base address, and deduce the
+alignement, and then map a whole page and add the alignement offset to
+the result as for /dev/mem.
 
-James
+Ben.
+
 

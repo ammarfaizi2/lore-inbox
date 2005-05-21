@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261696AbVEUHzk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbVEUIHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261696AbVEUHzk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 May 2005 03:55:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261695AbVEUHzk
+	id S261695AbVEUIHv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 May 2005 04:07:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbVEUIHu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 May 2005 03:55:40 -0400
-Received: from holomorphy.com ([66.93.40.71]:13461 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261697AbVEUHzf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 May 2005 03:55:35 -0400
-Date: Sat, 21 May 2005 00:52:23 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove the obsolete raw driver
-Message-ID: <20050521075223.GE2057@holomorphy.com>
-References: <20050521001925.GQ5112@stusta.de> <20050521012505.GD2057@holomorphy.com> <20050521074110.GS5112@stusta.de>
+	Sat, 21 May 2005 04:07:50 -0400
+Received: from rproxy.gmail.com ([64.233.170.200]:27274 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261695AbVEUIHp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 May 2005 04:07:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=G8zVX+JDqf6tpdp2UyiUUjrVYztrCFY3GWvMh7LQcH23Fh/BwEElt0VYsY7IWhjr0ZhF/+CUxr8XWFZ7TKL9uP9uXGJRmfjQteZGqSJaJxuM1o3AZCA9gyLJ0tIsX7ll7YbUoVE8TR6/WoGU66rhSF2D1+X7X6PIRFEml82Qsio=
+Message-ID: <9cde8bff05052101079a51fe6@mail.gmail.com>
+Date: Sat, 21 May 2005 01:07:43 -0700
+From: aq <aquynh@gmail.com>
+Reply-To: aq <aquynh@gmail.com>
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 3 of 4] ima: Linux Security Module implementation
+Cc: Reiner Sailer <sailer@watson.ibm.com>, toml@us.ibm.com, emilyr@us.ibm.com,
+       linux-kernel@vger.kernel.org, kylene@us.ibm.com,
+       linux-security-module@wirex.com
+In-Reply-To: <20050521062251.GC24597@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050521074110.GS5112@stusta.de>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.9i
+References: <1116596614.8156.11.camel@secureip.watson.ibm.com>
+	 <20050521062251.GC24597@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 20, 2005 at 06:25:05PM -0700, William Lee Irwin III wrote:
->> 9 point releases is nowhere long enough. This removal needs to wait for
->> similar amounts of time as other removed interfaces (c.f. devfs, which
->> is far more offensive).
->> In general there are staging rules for this sort of affair, and although
->> I'm no expert in their fine points, nor can I even say what the exact
->> criteria are, but it's rather clear in this instance it's over the line.
->> I suspect a major release, planned as a staging ground for things like
->> e.g. this and removing devfs, would be the most appropriate time for it.
+On 5/20/05, Greg KH <greg@kroah.com> wrote:
+...
+> 
+> Wow, for such a small file, every single function was incorrect.  And
+> you abused sysfs in a new and intersting way that I didn't think was
+> even possible.  I think this is two new records you have set here,
+> congratulations.
+> 
+> greg k-h
+> 
 
-On Sat, May 21, 2005 at 09:41:10AM +0200, Adrian Bunk wrote:
-> The current rules are simply "put it for 6-12 months in 
-> Documentation/feature-removal-schedule.txt and remove it then".
-> 2.6.3 is more than a year go, and the date when the raw driver was 
-> declared obsolete predates the introduction of 
-> feature-removal-schedule.txt (at that time, we were still in the belief
-> a 2.7 kernel would come some day).
+never doubt that this should be the "quote of the week" for lwn.net ;-))
 
-This sounds a little shaky but I'll let someone higher up roll dice or
-whatever to decide.
+just kidding ;-))
 
-
--- wli
+regards,
+aq

@@ -1,101 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbVEUGMw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261671AbVEUGQL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261672AbVEUGMw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 May 2005 02:12:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbVEUGMw
+	id S261671AbVEUGQL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 May 2005 02:16:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261668AbVEUGQL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 May 2005 02:12:52 -0400
-Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:16649 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261670AbVEUGMl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 May 2005 02:12:41 -0400
-To: jamie@shareable.org
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-In-reply-to: <20050520231312.GD29155@mail.shareable.org> (message from Jamie
-	Lokier on Sat, 21 May 2005 00:13:12 +0100)
-Subject: Re: [PATCH] FUSE: don't allow restarting of system calls
-References: <E1DZ3Mx-0003ST-00@dorka.pomaz.szeredi.hu> <20050520231312.GD29155@mail.shareable.org>
-Message-Id: <E1DZNDc-0006aR-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sat, 21 May 2005 08:12:16 +0200
+	Sat, 21 May 2005 02:16:11 -0400
+Received: from mail.kroah.org ([69.55.234.183]:16519 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261673AbVEUGQC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 May 2005 02:16:02 -0400
+Date: Fri, 20 May 2005 22:57:06 -0700
+From: Greg KH <greg@kroah.com>
+To: Reiner Sailer <sailer@us.ibm.com>
+Cc: James Morris <jmorris@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Chris Wright <chrisw@osdl.org>, emilyr@us.ibm.com, yoder1@us.ibm.com,
+       kylene@us.ibm.com, linux-kernel@vger.kernel.org, toml@us.ibm.com
+Subject: Re: [PATCH 1 of 4] ima: related TPM device driver interal kernel interface
+Message-ID: <20050521055705.GA24597@kroah.com>
+References: <Pine.WNT.4.63.0505201634370.3360@laptop>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.WNT.4.63.0505201634370.3360@laptop>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Caching and prefetching would solve that probem much more usefully.
+On Fri, May 20, 2005 at 04:41:23PM -0400, Reiner Sailer wrote:
+> James Morris <jmorris@redhat.com> wrote on 05/20/2005 04:32:58 PM:
+> > On Fri, 20 May 2005, Reiner Sailer wrote:
+> > 
+> > > > Why are you using LSM for this?
+> > > > 
+> > > > LSM should be used for comprehensive access control frameworks which 
+> > > > significantly enhance or even replace existing Unix DAC security.
+> > > 
+> > > I see LSM is framework for security. IMA is an architecture that
+> > > enforces access control in a different way than SELinux. IMA guarantees 
+> > > that executable content is measured and accounted for before
+> > > it is loaded and can access (and possibly corrupt) system resources.
+> > 
+> > LSM is an access control framework.  Your (few) LSM hooks always return
+> > zero, and don't enforce access control at all.  You even have a separate
+> > measurement hook for modules.
+> > 
+> > I suggest implementing all of your code via distinct measurement hooks, so 
+> > measurement becomes a distinct and well defined security entity within the 
+> > kernel.
 > 
-> Does sshfs not cache or prefetch any of the data?
-
-It does.
-
-It doesn't try to eliminate setattr, etc. calls though.  That's a bit
-dangerous, because anything can change on the other end anytime, so I
-feel safer if these calls go through every single time.
-
-Here it was truncate (from O_TRUNC) that was holding up open.
-
-> IMHO, caching and prefetching makes a lot of sense for this situation
-> - in fact, it does for any kind of filesystem operation during a
-> sequence of file operations where a program does not use locks (flock
-> etc.), fsyncs, or open/close.
+> This is certainly possible. This means that there will be 5 more hooks
+> (such as the one in kernel/module.c, see PATCH 4 of 4).
 > 
-> Surely caching and prefetching should be a generic feature of FUSE for
-> all its filesystems unless disabled.  Is there a reason why this is
-> not done, or is it just not implemented?
+> If the kernel maintainers are in favor of this approach, then there is not
+> much that stands against this.
 
-There are all kinds of caching: name cache (dcache), attribute cache
-(icache), file cache (page cache), directory cache (no support in
-VFS).  FUSE deals with each differently:
+Yes, and it will force you to justify those hooks :)
 
-On lookup the userspace filesystem can specify a timeout for caching
-the name.  On getattr (built into lookup as well) it can specify the
-timeout for caching the attributes.  There's no explicit invalidate
-callback.  Names/attributes are automatically invalidated on certain
-other operations (see source for more info).  The library always sets
-these timeouts to 1s, but it's only a question of making a nice
-low-level API for all these little features.
+Good luck,
 
-For the page cache there's a mount option: "kernel_cache" which if
-turned on the page cache is never invalidated.  This should only be
-used by filesystems for which the file data may never change
-externally.  If the option is not specified, the file pages are always
-invalidated on open().  This is very crude, and could be done much
-better.  I have been plannig to add explicit control by the filesystem
-if open should invalidate the data or not (and the library could do
-this automatically for example by checking mtime/size).  But it has
-not yet happened
-
-Sshfs does it's own caching of directory contents and attributes.
-Actually the kernel attribute cache is not all that useful here, since
-sftp returns file attributes with a readdir.
-
-> > The problem can be solved just by making open() uninterruptible,
-> > because in this case it was the truncate operation that slowed down
-> > the progress.  But it's better to solve this by simply not allowing
-> > interrupts at all (except SIGKILL), because applications don't expect
-> > file operations to be interruptible anyway.  As an added bonus the
-> > code is simplified somewhat.
-> 
-> NFS makes file operations interruptible when they're mounted with
-> "intr".
-> 
-> It's a life-saver, when the server or network gets wedged, to be able
-> to Control-C a program instead of it being stuck in D-state and
-> requiring a reboot.
-
-If you read the FUSE kernel source carefully, you'll notice that it
-never does uninterruptible sleep (only for _limited_ time).  So it
-never ever gets stuck in a D-state.  SIGKILL will always kill the the
-offender, and if task didn't override default handler for SIGINT, that
-will also generate a SIGKILL, and happily kill off the blocked task.
-
-> Having a program be stuck in read/write ignoring signals, so that
-> Control-C, Control-Z and kill don't work on it, while it's waiting for
-> some network operation, is a horrible thing.
-
-Yes.  If there's no chance that the thing will come back to life, you
-can also kill the fuse daemon.  That will make all operations return
-an error.
-
-So FUSE is actually very nice in this respect.
-
-Miklos
+greg k-h

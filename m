@@ -1,77 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbVEUBPE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261627AbVEUB2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261628AbVEUBPE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 20 May 2005 21:15:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbVEUBPE
+	id S261627AbVEUB2X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 20 May 2005 21:28:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVEUB2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 20 May 2005 21:15:04 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:43511 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261560AbVEUBOq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 20 May 2005 21:14:46 -0400
-Message-ID: <428E8B68.6040909@mvista.com>
-Date: Fri, 20 May 2005 18:14:16 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Corey Minyard <minyard@acm.org>
-CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fixes for IPMI use of timers
-References: <428D2181.2080106@acm.org>
-In-Reply-To: <428D2181.2080106@acm.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 20 May 2005 21:28:23 -0400
+Received: from holomorphy.com ([66.93.40.71]:6875 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261627AbVEUB2U (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 20 May 2005 21:28:20 -0400
+Date: Fri, 20 May 2005 18:25:05 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] remove the obsolete raw driver
+Message-ID: <20050521012505.GD2057@holomorphy.com>
+References: <20050521001925.GQ5112@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050521001925.GQ5112@stusta.de>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Corey Minyard wrote:
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> Fix some problems with the high-res timer support.
-> 
-> Signed-off-by: Corey Minyard <minyard@acm.org>
-> 
-> Index: linux-2.6.12-rc4/drivers/char/ipmi/ipmi_si_intf.c
-> ===================================================================
-> --- linux-2.6.12-rc4.orig/drivers/char/ipmi/ipmi_si_intf.c
-> +++ linux-2.6.12-rc4/drivers/char/ipmi/ipmi_si_intf.c
-> @@ -769,10 +769,11 @@
->  
->  		/* We already have irqsave on, so no need for it
->                     here. */
-> -		read_lock(&xtime_lock);
-> +		read_lock_irqsave(&xtime_lock, flags);
+On Sat, May 21, 2005 at 02:19:25AM +0200, Adrian Bunk wrote:
+> Since kernel 2.6.3 the Kconfig text explicitely stated this driver was 
+> obsolete.
+> It seems to be time to remove it.
+> Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-I rather hope this fails to compile :)  xtime_lock is a sequence lock in the 2.6 
-kernel.
+9 point releases is nowhere long enough. This removal needs to wait for
+similar amounts of time as other removed interfaces (c.f. devfs, which
+is far more offensive).
 
->  		jiffies_now = jiffies;
->  		smi_info->si_timer.expires = jiffies_now;
->  		smi_info->si_timer.sub_expires = get_arch_cycles(jiffies_now);
-> +		read_unlock_irqrestore(&xtime_lock, flags);
->  
->  		add_usec_to_timer(&smi_info->si_timer, SI_SHORT_TIMEOUT_USEC);
->  
-> @@ -830,11 +831,11 @@
->  		smi_info->short_timeouts++;
->  		spin_unlock_irqrestore(&smi_info->count_lock, flags);
->  #if defined(CONFIG_HIGH_RES_TIMERS)
-> -		read_lock(&xtime_lock);
-> +		read_lock_irqsave(&xtime_lock, flags);
->                  smi_info->si_timer.expires = jiffies;
->                  smi_info->si_timer.sub_expires
->                          = get_arch_cycles(smi_info->si_timer.expires);
-> -                read_unlock(&xtime_lock);
-> +		read_unlock_irqrestore(&xtime_lock, flags);
->  		add_usec_to_timer(&smi_info->si_timer, SI_SHORT_TIMEOUT_USEC);
->  #else
->  		smi_info->si_timer.expires = jiffies + 1;
+In general there are staging rules for this sort of affair, and although
+I'm no expert in their fine points, nor can I even say what the exact
+criteria are, but it's rather clear in this instance it's over the line.
+I suspect a major release, planned as a staging ground for things like
+e.g. this and removing devfs, would be the most appropriate time for it.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+
+-- wli

@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbVEUGY5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbVEUG1z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261674AbVEUGY5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 May 2005 02:24:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVEUGY5
+	id S261681AbVEUG1z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 May 2005 02:27:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbVEUG1z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 May 2005 02:24:57 -0400
-Received: from mail.kroah.org ([69.55.234.183]:39307 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261674AbVEUGYw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 May 2005 02:24:52 -0400
-Date: Fri, 20 May 2005 23:31:51 -0700
-From: Greg KH <greg@kroah.com>
-To: Reiner Sailer <sailer@watson.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-security-module@mail.wirex.com,
-       kylene@us.ibm.com, emilyr@us.ibm.com, toml@us.ibm.com
-Subject: Re: [PATCH 4 of 4] ima: module measure extension
-Message-ID: <20050521063150.GE24597@kroah.com>
-References: <1116597678.8426.3.camel@secureip.watson.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1116597678.8426.3.camel@secureip.watson.ibm.com>
-User-Agent: Mutt/1.5.8i
+	Sat, 21 May 2005 02:27:55 -0400
+Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:33035 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261678AbVEUG1l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 May 2005 02:27:41 -0400
+To: linuxram@us.ibm.com
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk, jamie@shareable.org
+In-reply-to: <1116627099.4397.43.camel@localhost> (message from Ram on Fri, 20
+	May 2005 15:11:40 -0700)
+Subject: Re: [RFC][PATCH] rbind across namespaces
+References: <1116627099.4397.43.camel@localhost>
+Message-Id: <E1DZNSN-0006cU-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Sat, 21 May 2005 08:27:31 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 20, 2005 at 10:01:18AM -0400, Reiner Sailer wrote:
-> @@ -1441,6 +1442,8 @@ static struct module *load_module(void _
->  	if (len < hdr->e_shoff + hdr->e_shnum * sizeof(Elf_Shdr))
->  		goto truncated;
->  
-> +	ima_measure_module((void *)hdr, len, (void *)uargs);
-> +
+> I have enclosed a patch that allows rbinds across any two namespaces.
+> NOTE: currenly bind from foriegn namespace to current namespace is
+> allowed. This patch now allows:
 
-I see you did not run this code through sparse...
+Note: you are accessing ->mnt_namespace without holding vfsmount_lock.
 
-Gotta love security code that makes the overall system less secure...
+Also why check current->namespace?  It doesn't hurt to do
+get_namespace() even if it's not strictly needed.  And it would
+simplify the code.
 
-greg k-h
+In fact all uses of current->namespace and check_mnt() could be
+eliminated from namespace.c.  The only use of ->namespace would be in
+copy_namespace() and exit_namespace().
+
+Miklos

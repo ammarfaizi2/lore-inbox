@@ -1,38 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbVEUJtS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbVEUKCa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261719AbVEUJtS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 May 2005 05:49:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVEUJtS
+	id S261487AbVEUKCa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 May 2005 06:02:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVEUKCa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 May 2005 05:49:18 -0400
-Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:15123 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261715AbVEUJtO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 May 2005 05:49:14 -0400
-To: linuxram@us.ibm.com
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk, jamie@shareable.org
-In-reply-to: <1116665101.4397.71.camel@localhost> (message from Ram on Sat, 21
-	May 2005 01:45:01 -0700)
-Subject: Re: [RFC][PATCH] rbind across namespaces
-References: <1116627099.4397.43.camel@localhost>
-	 <E1DZNSN-0006cU-00@dorka.pomaz.szeredi.hu>
-	 <1116660380.4397.66.camel@localhost>
-	 <E1DZP37-0006hH-00@dorka.pomaz.szeredi.hu> <1116665101.4397.71.camel@localhost>
-Message-Id: <E1DZQbI-0006mp-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sat, 21 May 2005 11:48:56 +0200
+	Sat, 21 May 2005 06:02:30 -0400
+Received: from smtp.gentoo.org ([134.68.220.30]:23021 "EHLO smtp.gentoo.org")
+	by vger.kernel.org with ESMTP id S261487AbVEUKC0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 May 2005 06:02:26 -0400
+Subject: pm_message_t fix for radeon_pm.c
+From: Henrik Brix Andersen <brix@gentoo.org>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Organization: Gentoo Linux
+Date: Sat, 21 May 2005 12:02:24 +0200
+Message-Id: <1116669744.14475.7.camel@sponge.fungus>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am not getting this comment.  R u assuming that a detached mount
-> will have NULL namespace?  If so I dont see it being the case.
-> Or am I missing some subtle point?
+This patch adds a missing .event to pm_message_t handling in
+drivers/video/aty/radeon_pm.c for linux-2.6.12-rc4.
 
-On a related note: now that it's not necessarily current->namespace
-that's used as a destination for the mount, you'll have to pass
-mntpt_ns into copy_tree() and clone_mnt() so that mnt->mnt_namespace
-can correctly be set.  That will also enable some cleanup in
-copy_namespace(), where you can remove the of setting ->mnt_namespace.
+--- linux-2.6.12-rc4/drivers/video/aty/radeon_pm.c	2005-05-21 11:31:32.000000000 +0200
++++ linux-2.6.12-rc4-radeon_pm/drivers/video/aty/radeon_pm.c	2005-05-21 11:34:51.000000000 +0200
+@@ -2526,11 +2526,11 @@ int radeonfb_pci_suspend(struct pci_dev 
+         struct radeonfb_info *rinfo = info->par;
+ 	int i;
+ 
+-	if (state == pdev->dev.power.power_state)
++	if (state.event == pdev->dev.power.power_state.event)
+ 		return 0;
+ 
+ 	printk(KERN_DEBUG "radeonfb (%s): suspending to state: %d...\n",
+-	       pci_name(pdev), state);
++	       pci_name(pdev), state.event);
+ 
+ 	/* For suspend-to-disk, we cheat here. We don't suspend anything and
+ 	 * let fbcon continue drawing until we are all set. That shouldn't
 
-Miklos
+Sincerely,
+Brix
+
+Please CC: me on replies as I am not subscribed to LKML.
+-- 
+Henrik Brix Andersen <brix@gentoo.org>
+Gentoo Linux
+

@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261695AbVEUIHv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbVEUIKE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261695AbVEUIHv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 May 2005 04:07:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbVEUIHu
+	id S261703AbVEUIKE (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 May 2005 04:10:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbVEUIKE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 May 2005 04:07:50 -0400
-Received: from rproxy.gmail.com ([64.233.170.200]:27274 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261695AbVEUIHp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 May 2005 04:07:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=G8zVX+JDqf6tpdp2UyiUUjrVYztrCFY3GWvMh7LQcH23Fh/BwEElt0VYsY7IWhjr0ZhF/+CUxr8XWFZ7TKL9uP9uXGJRmfjQteZGqSJaJxuM1o3AZCA9gyLJ0tIsX7ll7YbUoVE8TR6/WoGU66rhSF2D1+X7X6PIRFEml82Qsio=
-Message-ID: <9cde8bff05052101079a51fe6@mail.gmail.com>
-Date: Sat, 21 May 2005 01:07:43 -0700
-From: aq <aquynh@gmail.com>
-Reply-To: aq <aquynh@gmail.com>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 3 of 4] ima: Linux Security Module implementation
-Cc: Reiner Sailer <sailer@watson.ibm.com>, toml@us.ibm.com, emilyr@us.ibm.com,
-       linux-kernel@vger.kernel.org, kylene@us.ibm.com,
-       linux-security-module@wirex.com
-In-Reply-To: <20050521062251.GC24597@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <1116596614.8156.11.camel@secureip.watson.ibm.com>
-	 <20050521062251.GC24597@kroah.com>
+	Sat, 21 May 2005 04:10:04 -0400
+Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:61712 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261697AbVEUIJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 May 2005 04:09:52 -0400
+To: linuxram@us.ibm.com
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk, jamie@shareable.org
+In-reply-to: <1116660380.4397.66.camel@localhost> (message from Ram on Sat, 21
+	May 2005 00:26:20 -0700)
+Subject: Re: [RFC][PATCH] rbind across namespaces
+References: <1116627099.4397.43.camel@localhost>
+	 <E1DZNSN-0006cU-00@dorka.pomaz.szeredi.hu> <1116660380.4397.66.camel@localhost>
+Message-Id: <E1DZP37-0006hH-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Sat, 21 May 2005 10:09:33 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/20/05, Greg KH <greg@kroah.com> wrote:
-...
-> 
-> Wow, for such a small file, every single function was incorrect.  And
-> you abused sysfs in a new and intersting way that I didn't think was
-> even possible.  I think this is two new records you have set here,
-> congratulations.
-> 
-> greg k-h
-> 
+> Enclosed the simplified patch,
 
-never doubt that this should be the "quote of the week" for lwn.net ;-))
+Looks much better :)
 
-just kidding ;-))
+I still see a problem: what if old_nd.mnt is already detached, and
+bind is non-recursive.  Now it fails with EINVAL, though it used to
+work (and I think is very useful).
 
-regards,
-aq
+When doing up_write(...) you don't have to keep the order, just check
+if the namespaces are not equal for the second up_write().
+
+And why don't you do this:
+
+	if (old_ns < mntpt_ns)
+		down_write(&old_ns->sem);
+
+instead of this
+
+	if (old_ns < mntpt_ns) {
+		down_write(&old_ns->sem);
+	}
+
+Miklos

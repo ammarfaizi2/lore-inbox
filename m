@@ -1,44 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbVEUFQK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbVEUFaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261659AbVEUFQK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 May 2005 01:16:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVEUFQK
+	id S261667AbVEUFaK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 May 2005 01:30:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVEUFaK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 May 2005 01:16:10 -0400
-Received: from v6.netlin.pl ([62.121.136.6]:20997 "EHLO pointblue.com.pl")
-	by vger.kernel.org with ESMTP id S261659AbVEUFQE (ORCPT
+	Sat, 21 May 2005 01:30:10 -0400
+Received: from mail.kroah.org ([69.55.234.183]:24799 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261667AbVEUFaG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 May 2005 01:16:04 -0400
-Message-ID: <428EC3FB.6090509@pointblue.com.pl>
-Date: Sat, 21 May 2005 07:15:39 +0200
-From: Grzegorz Piotr Jaskiewicz <gj@pointblue.com.pl>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel-Mailing-list <linux-kernel@vger.kernel.org>
-Subject: microsoft fingerprint reader (former digiPersona product) driver
- for linux
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sat, 21 May 2005 01:30:06 -0400
+Date: Fri, 20 May 2005 22:35:58 -0700
+From: Greg KH <greg@kroah.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6 patch] remove the obsolete raw driver
+Message-ID: <20050521053558.GA23542@kroah.com>
+References: <20050521001925.GQ5112@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050521001925.GQ5112@stusta.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Sat, May 21, 2005 at 02:19:25AM +0200, Adrian Bunk wrote:
+> Since kernel 2.6.3 the Kconfig text explicitely stated this driver was 
+> obsolete.
+> 
+> It seems to be time to remove it.
 
-anyone have knowledge about product in subject ?
-any work for Linux done/started, etc ?
-Would like to hear if someone took the effort already
-Thanks.
+As much as I would like to agree with you, no, not yet.  Mark it as
+going to go away in the Documenation/feature-removal.txt file 6-8 months
+from now (or longer if people object, but no longer than a year) and
+then after that time expires, we can delete it.
 
-- --
-GJ
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
+thanks,
 
-iD8DBQFCjsP6i0HtPCVkDAURAtl2AJ9mMusUBsybAZKyRP4x/UN537VjcACfcXeF
-aOvoyE+T4L7UrB2hskOLHB0=
-=o/wS
------END PGP SIGNATURE-----
+greg k-h

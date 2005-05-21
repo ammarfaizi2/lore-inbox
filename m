@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVEUNRj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVEUNeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbVEUNRj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 May 2005 09:17:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbVEUNRi
+	id S261413AbVEUNeq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 May 2005 09:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVEUNeq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 May 2005 09:17:38 -0400
-Received: from wproxy.gmail.com ([64.233.184.202]:49226 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261279AbVEUNRW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 May 2005 09:17:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=d47qB6dHsgsC/NvHEv7Sd6qBBNpBIYuxAAsV151jDS4rysZULL11DPePiTP12NNo1HzRvlEPQZsifP+7KaKnxIorsvw1jsg6sE5P5fEw45HItbJ9A8g5cfR60uKewEydFqEvMNSFJlQRgod+fCPp4KkyCK79eJXkXi7xjtF7kl4=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Pete Clements <clem@clem.clem-digital.net>
-Subject: Re: 2.6.12-rc4-git5 fails compile -- aic7xxx_osm.c
-Date: Sat, 21 May 2005 17:21:28 +0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <200505211224.j4LCOrk5000537@clem.clem-digital.net>
-In-Reply-To: <200505211224.j4LCOrk5000537@clem.clem-digital.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 21 May 2005 09:34:46 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:65042 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261420AbVEUNed (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 May 2005 09:34:33 -0400
+Date: Sat, 21 May 2005 14:34:28 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: latest sparse warnings with latest kernel
+Message-ID: <20050521143428.A25980@flint.arm.linux.org.uk>
+Mail-Followup-To: Linux Kernel List <linux-kernel@vger.kernel.org>,
+	Linus Torvalds <torvalds@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200505211721.28395.adobriyan@gmail.com>
+User-Agent: Mutt/1.2.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 21 May 2005 16:24, Pete Clements wrote:
+Hi,
 
->   CC      drivers/scsi/aic7xxx/aic7xxx_osm.o
-> drivers/scsi/aic7xxx/aic7xxx_osm.c: In function `ahc_linux_slave_alloc':
-> drivers/scsi/aic7xxx/aic7xxx_osm.c:663: parse error before `struct'
-> drivers/scsi/aic7xxx/aic7xxx_osm.c:667: `sc' undeclared (first use in this function)
+I'm seeing a lot of the following warnings when building the latest
+-git kernel with the latest sparse checker:
 
-Just sent this to James Bottomley.
+/usr/local/lib/gcc-lib/arm-linux/3.3/include/stdarg.h:54:9: warning: preprocessor token va_copy redefined
+/home/rmk/git/linux-2.6-rmk/include/linux/compiler-gcc2.h:29:9: this was the original definition
 
---- linux-20050521140543-000/drivers/scsi/aic7xxx/aic7xxx_osm.c	2005-05-21 14:11:06.000000000 +0400
-+++ linux-20050521140543-001/drivers/scsi/aic7xxx/aic7xxx_osm.c	2005-05-21 16:49:32.000000000 +0400
-@@ -659,8 +659,10 @@ ahc_linux_slave_alloc(struct scsi_device
- 	ahc_lock(ahc, &flags);
- 	targ = ahc->platform_data->targets[target_offset];
- 	if (targ == NULL) {
-+		struct seeprom_config *sc;
-+
- 		targ = ahc_linux_alloc_target(ahc, starget->channel, starget->id);
--		struct seeprom_config *sc = ahc->seep_config;
-+		sc = ahc->seep_config;
- 		if (targ == NULL)
- 			goto out;
- 
+Since sparse pretends to be a gcc 2.95 compiler, should it really
+be using the gcc 3.3 header files?
+
+Shouldn't it provide its own headers to correspond with the version
+it pretends to be? 8)
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

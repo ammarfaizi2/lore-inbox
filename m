@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbVEUTme@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVEUTwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261611AbVEUTme (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 21 May 2005 15:42:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVEUTmd
+	id S261186AbVEUTwO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 21 May 2005 15:52:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbVEUTwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 21 May 2005 15:42:33 -0400
-Received: from zproxy.gmail.com ([64.233.162.206]:32461 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261611AbVEUTmS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 21 May 2005 15:42:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KqtggDyH0ELTILAMTckCJH92BleeDx8RJ7qa4RXJKo38wt39+ggrFS83esmdn61fYPX+mjcQaEFev0lkjUEjZCHSp3TQHb9kPdCBTYXnD8pBTrtBCyoK8fEhe6/2Sv49moAzr6P9jZukhxXZFQFst6h9JqaNj58gRKX0CVppa9w=
-Message-ID: <d93f04c705052112426ee35154@mail.gmail.com>
-Date: Sat, 21 May 2005 21:42:16 +0200
-From: Hendrik Visage <hvjunk@gmail.com>
-Reply-To: Hendrik Visage <hvjunk@gmail.com>
-To: Bernd Paysan <bernd.paysan@gmx.de>
-Subject: Re: False "lost ticks" on dual-Opteron system (=> timer twice as fast)
-Cc: suse-amd64@suse.com, linux-kernel@vger.kernel.org
-In-Reply-To: <200505081445.26663.bernd.paysan@gmx.de>
+	Sat, 21 May 2005 15:52:13 -0400
+Received: from main.gmane.org ([80.91.229.2]:48553 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261420AbVEUTwK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 21 May 2005 15:52:10 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: sean <seandarcy2@gmail.com>
+Subject: Re: [ANNOUNCE] udev 058 release
+Date: Sat, 21 May 2005 15:50:57 -0400
+Message-ID: <d6o3cn$e4b$1@sea.gmane.org>
+References: <20050520213839.GB16567@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200505081445.26663.bernd.paysan@gmx.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: ool-4356fcdd.dyn.optonline.net
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8a6) Gecko/20041209
+X-Accept-Language: en-us, en
+In-Reply-To: <20050520213839.GB16567@kroah.com>
+Cc: linux-hotplug-devel@lists.sourceforge.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/8/05, Bernd Paysan <bernd.paysan@gmx.de> wrote:
-> Hi,
+Greg KH wrote:
+> I've released the 058 version of udev.  It can be found at:
+>   	kernel.org/pub/linux/utils/kernel/hotplug/udev-058.tar.gz
 > 
-> I've recently set up a dual Opteron RAID server (AMD-8000-based Tyan
-> Thunder K8S Pro SCSI board, 2 246 Opterons, stepping 10). Kernel is a
-> modified 2.6.11.4-20a from SuSE 9.3 (SMP version, sure). The Opterons
-> are capable of changing the CPU frequency (between 1GHz and 2GHz).
+..............
+> 
+> Also, the rules file structure and use is changing again, in more
+> powerful ways.  For more details on this, and if you currently rely on
+> the /etc/dev.d/ feature, please read the RELEASE-NOTES file in the main
+> udev directory.  A online version can be found here:
+> http://www.kernel.org/git/?p=linux/hotplug/udev.git;a=blob;h=9b7fa3133013c4dfc1bc5d759cd198e8aafdef83;hb=5e65ab9a191268fec7cddf6b7d8c0fefd2a6b920;f=RELEASE-NOTES
+> 
 
-I'll be delving deeper into this thread soon, but I'm seeing similar
-strangeness
-on a Athlon64 (rated:3G+ real:2009MHz clock), 2.6.11-r8 (gentoo), MSI
-K8N Neo Platinum.
+This only goes through 0.57 :(.
 
-ntp syncs time, then I start a couple of compiles, and I see ntp
-losing track of time, big jitter etc. (and the one time source is in
-on the local LAN syncing to the same remote servers). openntp I
-noticed it also.
+sean
 
-What I have noticed in my dmesg output is that I see "lost timer ticks
-CPU Frequency change?" messages very early in the boot up.
-
-> What I can't believe is that I'm the only one who has this problem.
-
-I've seen this for about a week or three, and somehow I believe it
-wasn't a problem before 2.6.11.
-
--- 
-Hendrik Visage

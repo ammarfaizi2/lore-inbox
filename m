@@ -1,68 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbVEVN0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbVEVNje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261802AbVEVN0H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 May 2005 09:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbVEVN0H
+	id S261209AbVEVNje (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 May 2005 09:39:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbVEVNje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 May 2005 09:26:07 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:6361 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261802AbVEVNZ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 May 2005 09:25:58 -0400
-Subject: Re: When we detect that a 16550 was in fact part of a NatSemi
-	SuperIO chip
-From: David Woodhouse <dwmw2@infradead.org>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org
-In-Reply-To: <20050522135943.E12146@flint.arm.linux.org.uk>
-References: <200505220008.j4M08uE9025378@hera.kernel.org>
-	 <1116763033.19183.14.camel@localhost.localdomain>
-	 <20050522135943.E12146@flint.arm.linux.org.uk>
-Content-Type: text/plain
-Date: Sun, 22 May 2005 14:23:23 +0100
-Message-Id: <1116768204.19183.44.camel@localhost.localdomain>
+	Sun, 22 May 2005 09:39:34 -0400
+Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:24079 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261209AbVEVNj2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 May 2005 09:39:28 -0400
+Date: Sun, 22 May 2005 15:39:45 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Yani Ioannou <yani.ioannou@gmail.com>
+Cc: Greg KH <greg@kroah.com>, Dmitry Torokhov <dtor_core@ameritech.net>,
+       LKML <linux-kernel@vger.kernel.org>,
+       LM Sensors <lm-sensors@lm-sensors.org>
+Subject: Re: [lm-sensors] [PATCH 2.6.12-rc4 15/15]
+ drivers/i2c/chips/adm1026.c: use dynamic sysfs callbacks
+Message-Id: <20050522153945.04690929.khali@linux-fr.org>
+In-Reply-To: <25381867050522060561a288c@mail.gmail.com>
+References: <20050519213551.GA806@kroah.com>
+	<200505212058.14851.dtor_core@ameritech.net>
+	<20050522085026.40e73d49.khali@linux-fr.org>
+	<200505220204.52907.dtor_core@ameritech.net>
+	<25381867050522051524ea93ec@mail.gmail.com>
+	<20050522143244.3648427a.khali@linux-fr.org>
+	<25381867050522060561a288c@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-05-22 at 13:59 +0100, Russell King wrote:
-> Until then, your opinions are only opinions and I don't have to take
-> any notice what so ever of you.
+Hi Yani,
 
-You're right that my opinions are irrelevant. 
+> And i2c-ipmi remember? :) Does that mean Mark's class is finalized and
+> I can work with it? Or is there some more work to be done on that
+> front too? If so I can probably help out.
 
-However, if you are right in thinking that you're affected by the DPA,
-then my request as a 'data subject' that you correct your copy of my
-personal information would be entirely relevant, and you would be
-legally obliged to obey.
+I can't tell, I didn't even give his code a try :( If you have some
+spare time, try applying the proposed patches, see how they work for you
+and how you could use the new class in bmcsensors.
 
-> It's rather a shame that you can't be patient and work this out in
-> a civilised manner isn't it?
-
-Russell, you took a patch which I had Cc'd to you merely as a courtesy,
-mangled the attribution and passed it on, despite the fact that I had
-previously asked you not to do so.
-
-When I asked you again not to do that, you were abusive. I'm sorry if
-you feel that asking Linus not to apply such things isn't civilised --
-but I did ask you politely first, only to receive an abusive reply:
-
-<dwmw2_gone> rmk: I know your policy and that's why I sent the patch to
-    akpm instead of to you. I Cc'd you as a courtesy. Yet you still
-    mangled the attribution and sent my patch on.
-<dwmw2_gone> So... are you going to refrain from doing that in future,
-    or am I going to stop Ccing you?
-<rmk> dwmw2: oh fuck you, sorry.  I'm really not in the mood for your 
-    bloody mindedness.
-
-All you needed to say was "OK, then I won't apply your patches".
+However, as I understand it, the hwmon class will be added to the
+drivers, it isn't meant to replace anything. This will simply let us
+search for hwmon stuff by class rather than assuming that all hwmon
+drivers are devices on i2c busses, so it's more like a helper for
+user-space tools. I don't think it solves the hwmon-is-not-i2c issue on
+the kernel side at all.
 
 -- 
-dwmw2
-
+Jean Delvare

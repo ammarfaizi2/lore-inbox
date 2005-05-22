@@ -1,49 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbVEVNFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbVEVN0H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261801AbVEVNFU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 May 2005 09:05:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbVEVNFU
+	id S261802AbVEVN0H (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 May 2005 09:26:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbVEVN0H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 May 2005 09:05:20 -0400
-Received: from rproxy.gmail.com ([64.233.170.202]:13448 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261801AbVEVNFI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 May 2005 09:05:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=RNEc2hUSy4RGgdUjxFSVrPe7/OY7aRU8sMoEXAI9AGzydV8f+LwidphaL3LkiXcABTVMvwR5ttrhtw4PR8725ajCVZjKtClWaMf7I1tIWIbbqr0AVv0eUl4Ip4MWqC1Uyb/DUvmfO9lAVkjUiKbxrKSqcR9HaAOk6OSFHUz4lB0=
-Message-ID: <25381867050522060561a288c@mail.gmail.com>
-Date: Sun, 22 May 2005 09:05:04 -0400
-From: Yani Ioannou <yani.ioannou@gmail.com>
-Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
-To: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [lm-sensors] [PATCH 2.6.12-rc4 15/15] drivers/i2c/chips/adm1026.c: use dynamic sysfs callbacks
-Cc: Greg KH <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
-       LM Sensors <lm-sensors@lm-sensors.org>,
-       Dmitry Torokhov <dtor_core@ameritech.net>
-In-Reply-To: <20050522143244.3648427a.khali@linux-fr.org>
+	Sun, 22 May 2005 09:26:07 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:6361 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261802AbVEVNZ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 May 2005 09:25:58 -0400
+Subject: Re: When we detect that a 16550 was in fact part of a NatSemi
+	SuperIO chip
+From: David Woodhouse <dwmw2@infradead.org>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+In-Reply-To: <20050522135943.E12146@flint.arm.linux.org.uk>
+References: <200505220008.j4M08uE9025378@hera.kernel.org>
+	 <1116763033.19183.14.camel@localhost.localdomain>
+	 <20050522135943.E12146@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Sun, 22 May 2005 14:23:23 +0100
+Message-Id: <1116768204.19183.44.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050519213551.GA806@kroah.com>
-	 <200505212058.14851.dtor_core@ameritech.net>
-	 <20050522085026.40e73d49.khali@linux-fr.org>
-	 <200505220204.52907.dtor_core@ameritech.net>
-	 <25381867050522051524ea93ec@mail.gmail.com>
-	 <20050522143244.3648427a.khali@linux-fr.org>
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Anyway there's a long long way to go before there is a true separation
-> between i2c and hwmon. Mark introduced a hwmon class, which is needed
-> but not sufficient. The biggest part of the work will be to move all
-> drivers abusing the i2c subsystem to the subsystem where they really
-> belong (isa/platform or superio), and get rid of i2c-isa. 
+On Sun, 2005-05-22 at 13:59 +0100, Russell King wrote:
+> Until then, your opinions are only opinions and I don't have to take
+> any notice what so ever of you.
 
-And i2c-ipmi remember? :) Does that mean Mark's class is finalized and
-I can work with it? Or is there some more work to be done on that
-front too? If so I can probably help out.
+You're right that my opinions are irrelevant. 
 
-Yani
+However, if you are right in thinking that you're affected by the DPA,
+then my request as a 'data subject' that you correct your copy of my
+personal information would be entirely relevant, and you would be
+legally obliged to obey.
+
+> It's rather a shame that you can't be patient and work this out in
+> a civilised manner isn't it?
+
+Russell, you took a patch which I had Cc'd to you merely as a courtesy,
+mangled the attribution and passed it on, despite the fact that I had
+previously asked you not to do so.
+
+When I asked you again not to do that, you were abusive. I'm sorry if
+you feel that asking Linus not to apply such things isn't civilised --
+but I did ask you politely first, only to receive an abusive reply:
+
+<dwmw2_gone> rmk: I know your policy and that's why I sent the patch to
+    akpm instead of to you. I Cc'd you as a courtesy. Yet you still
+    mangled the attribution and sent my patch on.
+<dwmw2_gone> So... are you going to refrain from doing that in future,
+    or am I going to stop Ccing you?
+<rmk> dwmw2: oh fuck you, sorry.  I'm really not in the mood for your 
+    bloody mindedness.
+
+All you needed to say was "OK, then I won't apply your patches".
+
+-- 
+dwmw2
+

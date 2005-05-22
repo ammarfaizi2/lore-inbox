@@ -1,68 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261757AbVEVVLM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbVEVVSy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261757AbVEVVLM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 May 2005 17:11:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbVEVVLM
+	id S261772AbVEVVSy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 May 2005 17:18:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVEVVSy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 May 2005 17:11:12 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:14307 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261772AbVEVVLA (ORCPT
+	Sun, 22 May 2005 17:18:54 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:59803 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S261772AbVEVVSv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 May 2005 17:11:00 -0400
-Subject: Re: [RFC][PATCH] rbind across namespaces
-From: Ram <linuxram@us.ibm.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: jamie@shareable.org, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       viro@parcelfarce.linux.theplanet.co.uk
-In-Reply-To: <E1DZlVn-0007a6-00@dorka.pomaz.szeredi.hu>
-References: <1116627099.4397.43.camel@localhost>
-	 <E1DZNSN-0006cU-00@dorka.pomaz.szeredi.hu>
-	 <1116660380.4397.66.camel@localhost>
-	 <E1DZP37-0006hH-00@dorka.pomaz.szeredi.hu>
-	 <20050521134615.GB4274@mail.shareable.org>
-	 <E1DZlVn-0007a6-00@dorka.pomaz.szeredi.hu>
+	Sun, 22 May 2005 17:18:51 -0400
+Subject: Re: When we detect that a 16550 was in fact part of a NatSemi
+	SuperIO chip
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org
+In-Reply-To: <20050522144123.F12146@flint.arm.linux.org.uk>
+References: <200505220008.j4M08uE9025378@hera.kernel.org>
+	 <1116763033.19183.14.camel@localhost.localdomain>
+	 <20050522135943.E12146@flint.arm.linux.org.uk>
+	 <20050522144123.F12146@flint.arm.linux.org.uk>
 Content-Type: text/plain
-Organization: IBM 
-Message-Id: <1116796229.4397.117.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 22 May 2005 14:10:29 -0700
 Content-Transfer-Encoding: 7bit
+Message-Id: <1116796612.5730.15.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 22 May 2005 22:16:54 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-05-22 at 01:08, Miklos Szeredi wrote:
-> > > I still see a problem: what if old_nd.mnt is already detached, and
-> > > bind is non-recursive.  Now it fails with EINVAL, though it used to
-> > > work (and I think is very useful).
-> > 
-> > Hey, you just made another argument for not detaching mounts when the
-> > last task with that current->namespace exits, but instead detaching
-> > mounts when the last reference to any vfsmnt in the namespace is dropped.
-> > 
-> > Hint :)
-> 
-> I have a better idea:
-> 
->  - create a "dead_mounts" namespace.
->  - chain each detached mount's ->mnt_list on dead_mounts->list
->  - set mnt_namespace to dead_mounts
->  - export the list via proc through the usual mount list interface
-> 
-> The last would be a nice bonus: I've always wanted to see the list of
-> detached, but not-yet destroyed mounts.
-> 
-> Does anybody see a problem with that?
+> So, regretfully, this leaves me with the only option but to ignore
+> David via all forms of communication until the reason for deference
+> is resolved - namely the completion of OSDLs investigation.
 
+Would a few people mind growing up ?
 
-Yes. :) because I will have to change my 'rbind across namespace' patch
-because now detached mounts will have dead_mounts namespace instead of
-null namespace.
+Let me make the obvious little point that nobody has it seems bothered
+to notice. Dwmw2 asked you to not mangle his headers. Whatever the data
+protection legislation covers is open to some debate but he has clearly
+giving you permission to include them unmangled. End of debate both in
+DP law and by estoppel.
 
-RP
+There is also a really simple and trivial way to deal with data
+protection questions in this case with complete clarity, without
+tantrums and without an army of lawyers - that is to follow the whole
+point and goal of such systems.
 
+Take the existing OSDL statement which must be attached to all
+submissions by reference or directly and update it to include
 
-> 
-> Miklos
+"A public record of contributions is kept which includes the name and
+email address of each contributor. By contributing to the kernel project
+I accept that my email address provided will be part of that public
+record."
+
+and the problem goes away. 
+
+I think this change is worth making anyway, perceived privacy is an ever
+growing issue of importance in our surveillance and database society
+worldwide.
+
+Alan
+
 

@@ -1,76 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbVEVFV7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbVEVGuS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261725AbVEVFV7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 May 2005 01:21:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbVEVFV7
+	id S261748AbVEVGuS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 May 2005 02:50:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVEVGuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 May 2005 01:21:59 -0400
-Received: from titan.genwebhost.com ([209.9.226.66]:14548 "EHLO
-	titan.genwebhost.com") by vger.kernel.org with ESMTP
-	id S261725AbVEVFV4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 May 2005 01:21:56 -0400
-Date: Sat, 21 May 2005 22:21:51 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: Patrick Plattes <patrick@erdbeere.net>
-Cc: linux-kernel@vger.kernel.org, manfred@colorfullife.com
-Subject: Re: semaphore understanding: sys_semtimedop()
-Message-Id: <20050521222151.15bb0eb4.rdunlap@xenotime.net>
-In-Reply-To: <20050516201704.GA9836@erdbeere.net>
-References: <20050516201704.GA9836@erdbeere.net>
-Organization: YPO4
+	Sun, 22 May 2005 02:50:18 -0400
+Received: from smtp-100-sunday.noc.nerim.net ([62.4.17.100]:36102 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S261748AbVEVGuL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 May 2005 02:50:11 -0400
+Date: Sun, 22 May 2005 08:50:26 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: LM Sensors <lm-sensors@lm-sensors.org>, Greg KH <greg@kroah.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [lm-sensors] [PATCH 2.6.12-rc4 15/15]
+ drivers/i2c/chips/adm1026.c: use dynamic sysfs callbacks
+Message-Id: <20050522085026.40e73d49.khali@linux-fr.org>
+In-Reply-To: <200505212058.14851.dtor_core@ameritech.net>
+References: <20050519213551.GA806@kroah.com>
+	<v0eBIb5C.1116575188.8501740.khali@localhost>
+	<25381867050520015339f02e9b@mail.gmail.com>
+	<200505212058.14851.dtor_core@ameritech.net>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - titan.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 16 May 2005 22:17:04 +0200 Patrick Plattes wrote:
+Hi Dmitry,
 
-| Hello,
-| 
-| i have a question about this little code snippet, found in
-| sys_semtimedop() (ipc/sem.c):
-| 
-|         for (sop = sops; sop < sops + nsops; sop++) {
-|                 if (sop->sem_num >= max)
-|                         max = sop->sem_num;
-|                 if (sop->sem_flg & SEM_UNDO)
-|                         undos++;
-|                 if (sop->sem_op < 0)
-|                         decrease = 1;
-|                 if (sop->sem_op > 0)
-|                         alter = 1;
-|         }
-|         alter |= decrease;
-| 
-| The variable decrease will never be used again in this 
-| function, so why this intricate code? Isn't this much easier and works
-| also:
-| 
-|         for (sop = sops; sop < sops + nsops; sop++) {
-|                 if (sop->sem_num >= max)
-|                         max = sop->sem_num;
-|                 if (sop->sem_flg & SEM_UNDO)
-|                         undos++;
-|                 if (sop->sem_op != 0)
-|                         alter = 1;
-|         }
-| 
-| Maybe i'm totally wrong, so please correct me and don't shoot me up,
-| 'cause i'm not a os developer.
+> I really think that as far as I2C subsystem goes instead of creating
+> arrays of attributes we should move in direction of drivers
+> registering individual sensor class devices. So for example it87 would
+> register 3 fans, 3 temp, sensors and 8 voltage sensors...
 
-Looks like a reasonable and correct optimization to me.
+First, it's a matter of hardware monitoring drivers, not i2c subsystem
+(both are tightly binded at the moment but I'd like this to change).
 
-Let's see what Manfred thinks or has to say...
+Second, not all devices have the same attributes for a temperature, fan
+or voltage channel. Sure there are commonly found feature sets, but some
+channels will lack some feature (e.g. it87's in8 has no min and max
+limits), other chips will provide additional features (extra limits or
+enhanced configurability). So I don't think you can have all devices
+(and thus all drivers) fit into a single sensor class.
 
----
-~Randy
+But of course I can be convinced your approach is better, with patches.
+I don't know classes that well myself.
+
+Thanks,
+-- 
+Jean Delvare

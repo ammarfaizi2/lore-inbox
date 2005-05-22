@@ -1,211 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbVEVUvz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVEVUzP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261688AbVEVUvz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 May 2005 16:51:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVEVUvz
+	id S261720AbVEVUzP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 May 2005 16:55:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbVEVUzP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 May 2005 16:51:55 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:41141 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261688AbVEVUvb (ORCPT
+	Sun, 22 May 2005 16:55:15 -0400
+Received: from mxout.hispeed.ch ([62.2.95.247]:4775 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S261724AbVEVUzC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 May 2005 16:51:31 -0400
-Subject: Re: [RFC][PATCH] rbind across namespaces
-From: Ram <linuxram@us.ibm.com>
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, viro@parcelfarce.linux.theplanet.co.uk,
-       jamie@shareable.org
-In-Reply-To: <1116793554.4397.102.camel@localhost>
-References: <1116627099.4397.43.camel@localhost>
-	 <E1DZNSN-0006cU-00@dorka.pomaz.szeredi.hu>
-	 <1116660380.4397.66.camel@localhost>
-	 <E1DZP37-0006hH-00@dorka.pomaz.szeredi.hu>
-	 <1116665101.4397.71.camel@localhost>
-	 <E1DZPzS-0006kw-00@dorka.pomaz.szeredi.hu>
-	 <1116670073.4397.77.camel@localhost>
-	 <E1DZTmi-0006up-00@dorka.pomaz.szeredi.hu>
-	 <1116793554.4397.102.camel@localhost>
-Content-Type: multipart/mixed; boundary="=-4ofLeChH8fGgZrGRxMoa"
-Organization: IBM 
-Message-Id: <1116795059.4397.111.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 
-Date: Sun, 22 May 2005 13:51:00 -0700
+	Sun, 22 May 2005 16:55:02 -0400
+Message-Id: <4290F1B9.6040102@khandalf.com>
+Date: Sun, 22 May 2005 22:55:21 +0200
+From: "Brian O'Mahoney" <omb@khandalf.com>
+Reply-To: omb@bluewin.ch
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: When we detect that a 16550 was in fact part of a NatSemi
+    SuperIO chip
+References: <200505220008.j4M08uE9025378@hera.kernel.org>
+    <1116763033.19183.14.camel@localhost.localdomain>
+    <Pine.LNX.4.58.0505220953300.2307@ppc970.osdl.org>
+    <1116785646.6285.24.camel@laptopd505.fenrus.org>
+    <20050522194438.A9854@flint.arm.linux.org.uk>
+    <1116787877.6285.26.camel@laptopd505.fenrus.org>
+    <20050522200344.B9854@flint.arm.linux.org.uk>
+    <Pine.LNX.4.58.0505221324300.2307@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0505221324300.2307@ppc970.osdl.org>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+X-Md5-Body: 311cbf5f7abf045d0e6a69ae7af082b8
+X-Transmit-Date: Sunday, 22 May 2005 22:55:43 +0200
+X-Message-Uid: 0000b49cec9d690500000002000000004290f1cf0001f8bb00000001000a3a07
+Replyto: omb@bluewin.ch
+X-Sender-Postmaster: Postmaster@80-218-57-125.dclient.hispeed.ch.
+Read-Receipt-To: omb@bluewin.ch
+X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-06.tornado.cablecom.ch 32701; Body=4
+	Fuz1=4 Fuz2=4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Please see below.
 
---=-4ofLeChH8fGgZrGRxMoa
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-
-On Sun, 2005-05-22 at 13:25, Ram wrote:
-> On Sat, 2005-05-21 at 06:12, Miklos Szeredi wrote:
-> > > Ok. look at the enclosed patch. Does it look any better? The special
-> > > casing for detached mounts ate up some brain cells and made the code
-> > > less simpler.
-> > 
-> > Yes, this isn't trivial stuff.
-> > 
-> > I realized one more thing: nd->mnt (the destination vfsmount) might be
-> > detached while waiting for the semaphore.  So that needs to be
-> > rechecked after taking the semaphores.
+Linus Torvalds wrote:
 > 
-> Ok. fixed that. that was surprisingly trivial though initially it looked
-> like some complex locking.
+> On Sun, 22 May 2005, Russell King wrote:
 > 
-> > 
-> > And the same for old_nd->mnt in case of rbind.  Though I'm
-> > not sure what the semantics should be in this case:
-> > 
-> >   1) rbind always fails if the source is detached
-> >   2) rbind always succeeds, and if the source is detached it just
-> >      copies that single mount
+>>Therefore, I put forward that this thing which appears to be called
+>>"author" does not reflect authorship, but who submitted it.
 > 
-> > I like 2) better.  Is there anything against it?
 > 
-> sure. as much functionality as we can get. I have incorporated (2).
+> It _is_ supposed to reflect authorship, but it does so within the context 
+> of the SCM, not in any other larger context. In git, "author:" is a fairly 
+> descriptive TAG, nothing more.
 > 
-> Take a look at the enclosed patch,
- 
-The patch failed rbinds in some cases. Fixed it. The enclosed patch
-has a high chance of being bug free.
+> Don't get hung up about technicalities. If the field said
+> 
+> 	frog: Arjan van de Ven <arjan@infradead.org>
+> 
+> that wouldn't mean that Arjan would have been magically transformed into a
+> frog in the real world sense, would it?
+> 
+> The fact that the field says "author:" does not mean that the person named
+> is necessarily the "author" in the _copyright_ sense, it only means that
+> he is the author in the limited sense that "git" gives it. And in the 
+> limited "git" sense, it's really an educated guess, aka "we're tryign to 
+> give credit where credit is due".
 
-RP
+There is an argument, after SCO, for a
 
+copyright: xxx
 
-> RP
-> > 
-> > Miklos
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+tag, and a clear public statement on the kernel.org home page about
+assignment, the GPL and submission.
 
---=-4ofLeChH8fGgZrGRxMoa
-Content-Disposition: attachment; filename=rbind_across_namespace4.patch
-Content-Type: text/x-patch; name=rbind_across_namespace4.patch
-Content-Transfer-Encoding: 7bit
+> 
+> The fact is, trying to be technical about single words in human language
+> and thinking that that a meaning in one specific context carries over to
+> some other usage of a word in another context is simply not true. Not 
+> here, not _anywhere_. 
+> 
+> And btw, lawyers and judges aren't idiots either. They're human beings, 
+> and they can tell the difference between two contexts. Trying to argue 
+> some silly technicality with a judge is not likely to get you very far in 
+> general.
 
-Summary:
+Absolutely right, and outside the US, the Costs in Cause, principle
+means that any attempt at vexatious litigation is likely to prove an
+expensive mistake.
 
-Allows rbinds across any two namespaces.  NOTE: currenly bind from foriegn
-namespace to current namespace is allowed. This patch now allows:
+-- 
+mit freundlichen Grüßen, Brian.
 
-binds/rbinds from any namespace to any other namespace, under the assumption
-that if a process has access to a namespace, it ought to have permission to
-manipulate that namespace. The only case disallowed is binds/rbinds
-to a detached vfsmount.
-
-The patch incorporates ideas from Miklos and Jamie, and is dependent on
-Miklos's "fix race in mark_mounts_for_expiry" patch to function correctly. Also
-it depends on Miklos's "fix bind mount from foreign namespace" patch, because
-without that patch umounts would fail.
-
-
-Signed off by Ram Pai <linuxram@us.ibm.com>
-
---- /home/linux/views/linux-2.6.12-rc4/fs/namespace.c	2005-05-06 23:22:29.000000000 -0700
-+++ linux-2.6.12-rc4/fs/namespace.c	2005-05-22 13:40:12.000000000 -0700
-@@ -616,11 +616,14 @@ out_unlock:
- }
- 
- /*
-- * do loopback mount.
-+ * do loopback mount.  The loopback mount can be done from any namespace
-+ * to any other namespace including the current namespace, as long as
-+ * the task acquired rights to manipulate them.
-  */
- static int do_loopback(struct nameidata *nd, char *old_name, int recurse)
- {
- 	struct nameidata old_nd;
-+	struct namespace *mntpt_ns, *old_ns;
- 	struct vfsmount *mnt = NULL;
- 	int err = mount_is_safe(nd);
- 	if (err)
-@@ -631,16 +634,58 @@ static int do_loopback(struct nameidata 
- 	if (err)
- 		return err;
- 
--	down_write(&current->namespace->sem);
- 	err = -EINVAL;
--	if (check_mnt(nd->mnt) && (!recurse || check_mnt(old_nd.mnt))) {
--		err = -ENOMEM;
--		if (recurse)
--			mnt = copy_tree(old_nd.mnt, old_nd.dentry);
--		else
--			mnt = clone_mnt(old_nd.mnt, old_nd.dentry);
-+	spin_lock(&vfsmount_lock);
-+
-+	/* 
-+	 * Allow all kinds of binds and rbinds except
-+	 * recursive bind to a detached mount
-+	 */
-+	mntpt_ns = nd->mnt->mnt_namespace;
-+	old_ns = old_nd.mnt->mnt_namespace;
-+	if (!mntpt_ns || !mntpt_ns->root) {
-+		spin_unlock(&vfsmount_lock);
-+		goto out;
- 	}
- 
-+	if (!old_ns || !old_ns->root)
-+		recurse = 0;
-+
-+	get_namespace(mntpt_ns);
-+	if (recurse && old_ns != mntpt_ns)
-+		get_namespace(old_ns);
-+
-+	spin_unlock(&vfsmount_lock);
-+
-+	/* 
-+	 * make sure we don't race with some other thread manipulating the
-+	 * namespaces.
-+	 */
-+	if (recurse && (old_ns < mntpt_ns))
-+		down_write(&old_ns->sem);
-+	down_write(&mntpt_ns->sem);
-+	if (recurse && (old_ns > mntpt_ns))
-+		down_write(&old_ns->sem);
-+
-+
-+	/* 
-+	 * well... mounts might have detached while we acquired
-+	 * the semaphores. Revalidate that the destination mount 
-+	 * is still attached. 
-+	 */
-+	if (!nd->mnt->mnt_namespace)
-+		goto error_out;
-+
-+	/* 
-+	 * and if the source mount is detached, than just do
-+	 * a bind, instead of a rbind
-+	 */
-+	err = -ENOMEM;
-+	if (recurse && old_nd.mnt->mnt_namespace)
-+		mnt = copy_tree(old_nd.mnt, old_nd.dentry);
-+	else
-+		mnt = clone_mnt(old_nd.mnt, old_nd.dentry);
-+
- 	if (mnt) {
- 		/* stop bind mounts from expiring */
- 		spin_lock(&vfsmount_lock);
-@@ -656,7 +701,15 @@ static int do_loopback(struct nameidata 
- 			mntput(mnt);
- 	}
- 
--	up_write(&current->namespace->sem);
-+error_out:
-+	up_write(&mntpt_ns->sem);
-+	if (recurse && (old_ns != mntpt_ns)) {
-+		up_write(&old_ns->sem);
-+		put_namespace(old_ns);
-+	}
-+	put_namespace(mntpt_ns);
-+
-+out:
- 	path_release(&old_nd);
- 	return err;
- }
-
---=-4ofLeChH8fGgZrGRxMoa--
 

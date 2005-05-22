@@ -1,81 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVEVRiJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVEVRpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbVEVRiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 May 2005 13:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbVEVRiJ
+	id S261396AbVEVRpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 May 2005 13:45:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVEVRpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 May 2005 13:38:09 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:17828 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261211AbVEVRh5 (ORCPT
+	Sun, 22 May 2005 13:45:16 -0400
+Received: from main.gmane.org ([80.91.229.2]:6893 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261396AbVEVRpL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 May 2005 13:37:57 -0400
-Message-ID: <4290C36A.7020006@colorfullife.com>
-Date: Sun, 22 May 2005 19:37:46 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.7) Gecko/20050417 Fedora/1.7.7-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: patrick@erdbeere.net, rdunlap@xenotime.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] ipcsem: remove superflous decrease variable from sys_semtimedop
-Content-Type: multipart/mixed;
- boundary="------------050709060801050904090600"
+	Sun, 22 May 2005 13:45:11 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Subject: Re: [OT] Joerg Schilling flames Linux on his Blog/cdrecord replacement
+Date: Sun, 22 May 2005 19:42:47 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2005.05.22.17.42.47.82115@smurf.noris.de>
+References: <200505201345.15584.pmcfarland@downeast.net> <105c793f050521182269294d64@mail.gmail.com> <42900929.1000408@khandalf.com> <20050522143612.GC13232@merlin.emma.line.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050709060801050904090600
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Hi, Matthias Andree wrote:
 
-Hi Andrew,
+> his complaints about ide-scsi not working
+> properly and the Kernel inventing SG_IO for ide-cd and the command
+> filtering behind it and all that fuss were fundamentally right,
 
-Patrick noticed that the initial scan of the semaphore operations logs 
-decrease and increase operations seperately, but then both cases are 
-or'ed together and decrease is never used.
-The attached patch removes the decrease parameter - it shrinks 
-sys_semtimedop() by 56 bytes.
-Could you add it to your tree?
+He might even have been listened to -- if he hadn't conflated that
+argument with his silly insistence on using fake SCSI numbers instead of
+device names...
 
-Signed-Of-By: Manfred Spraul <manfred@colorfullife.com>
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
 
---
-    Manfred
 
---------------050709060801050904090600
-Content-Type: text/plain;
- name="patch-ipcsem-nodecrease"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch-ipcsem-nodecrease"
-
---- 2.6/ipc/sem.c	2005-05-16 20:03:40.000000000 +0200
-+++ build-2.6/ipc/sem.c	2005-05-22 09:23:00.000000000 +0200
-@@ -1054,7 +1054,7 @@
- 	struct sembuf fast_sops[SEMOPM_FAST];
- 	struct sembuf* sops = fast_sops, *sop;
- 	struct sem_undo *un;
--	int undos = 0, decrease = 0, alter = 0, max;
-+	int undos = 0, alter = 0, max;
- 	struct sem_queue queue;
- 	unsigned long jiffies_left = 0;
- 
-@@ -1089,13 +1089,10 @@
- 		if (sop->sem_num >= max)
- 			max = sop->sem_num;
- 		if (sop->sem_flg & SEM_UNDO)
--			undos++;
--		if (sop->sem_op < 0)
--			decrease = 1;
--		if (sop->sem_op > 0)
-+			undos = 1;
-+		if (sop->sem_op != 0)
- 			alter = 1;
- 	}
--	alter |= decrease;
- 
- retry_undos:
- 	if (undos) {
-
---------------050709060801050904090600--

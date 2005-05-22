@@ -1,77 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVEVTAO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbVEVTDx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261604AbVEVTAO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 May 2005 15:00:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbVEVTAO
+	id S261437AbVEVTDx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 May 2005 15:03:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVEVTDx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 May 2005 15:00:14 -0400
-Received: from downeast.net ([12.149.251.230]:7157 "EHLO downeast.net")
-	by vger.kernel.org with ESMTP id S261604AbVEVTAE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 May 2005 15:00:04 -0400
-From: Patrick McFarland <pmcfarland@downeast.net>
-To: Eric Boutilier <Eric.Boutilier@Sun.COM>
-Subject: Re: [OT] Tact (Was: [OT] Joerg Schilling flames Linux on his Blog)
-Date: Sun, 22 May 2005 14:59:48 -0400
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org
-References: <Pine.GSO.4.58.0505220938340.45390@sr-uita01-02>
-In-Reply-To: <Pine.GSO.4.58.0505220938340.45390@sr-uita01-02>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2201731.FWSpJauyjl";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200505221459.57680.pmcfarland@downeast.net>
+	Sun, 22 May 2005 15:03:53 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59662 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261437AbVEVTDt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 May 2005 15:03:49 -0400
+Date: Sun, 22 May 2005 20:03:44 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: When we detect that a 16550 was in fact part of a NatSemi SuperIO chip
+Message-ID: <20050522200344.B9854@flint.arm.linux.org.uk>
+Mail-Followup-To: Arjan van de Ven <arjan@infradead.org>,
+	Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+References: <200505220008.j4M08uE9025378@hera.kernel.org> <1116763033.19183.14.camel@localhost.localdomain> <Pine.LNX.4.58.0505220953300.2307@ppc970.osdl.org> <1116785646.6285.24.camel@laptopd505.fenrus.org> <20050522194438.A9854@flint.arm.linux.org.uk> <1116787877.6285.26.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1116787877.6285.26.camel@laptopd505.fenrus.org>; from arjan@infradead.org on Sun, May 22, 2005 at 08:51:17PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2201731.FWSpJauyjl
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Sun, May 22, 2005 at 08:51:17PM +0200, Arjan van de Ven wrote:
+> On Sun, 2005-05-22 at 19:44 +0100, Russell King wrote:
+> > On Sun, May 22, 2005 at 08:14:06PM +0200, Arjan van de Ven wrote:
+> > > On Sun, 2005-05-22 at 09:59 -0700, Linus Torvalds wrote:
+> > > > 
+> > > > On Sun, 22 May 2005, David Woodhouse wrote:
+> > > > > 
+> > > > > Linus, please do not apply patches from me which have my personal
+> > > > > information mangled or removed.
+> > > > 
+> > > > I've asked Russell not to do it, but the fact is, he's worried about legal 
+> > > > issues, and while I've also tried to resolve those (by having the OSDL 
+> > > > lawyer try to contact some lawyers in the UK), that hasn't been clarified 
+> > > > yet.
+> > > 
+> > > there is a potential nasty interaction with the UK moral rights thing
+> > > where an author can demand that his authorship claim remains intact...
+> > > so if David objects to his authorship being mangled (and partially
+> > > removed) he may have a strong legal position to do so.
+> > 
+> > Actually, that only depends on whether you decide that Signed-off-by:
+> > reflects authorship.
+> 
+> 
+> author David Woodhouse <dwmw2@org.rmk.(none)> Sat, 21 May 2005 15:52:23 +0100
+> 
+> that looks far more like an authorship statement and is also munged.
 
-On Sunday 22 May 2005 11:40 am, Eric Boutilier wrote:
-> So for what it's worth, I just wanted to respond and say that I'd be
-> more than happy to engage people in a tactful discussion about
-> opensolaris -- either here, some other list, off-list, or whatever --
-> as would, I'm sure, any of the more official opensolaris ambassadors,
-> see:  http://opensolaris.org/cab.
+In which case we have a problem:
 
-I didn't even know there were any other developers besides Schilly and his=
-=20
-SchillyX crew. I appologize to all of the real OpenSolaris developers.
+http://www.kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=12f49643bc44c428919b210148a930496827dd26
 
-> Eric
->
-> P.S. In case this helps, AFAICT Joerg is not selective. I've seen him
-> also dis Sun Solaris engineers on more than one occasion, the most
-> recent incident occurring just a few days ago on the opensolaris pilot
-> mailing list.
+Therefore, I put forward that this thing which appears to be called
+"author" does not reflect authorship, but who submitted it.
 
-If he hates Linux and OpenSolaris and BSD, what does he use? Windows? I mea=
-n,=20
-that /would/ explain a few things.
+Alternatively, if you are right, we must not wrongfully claim people
+"author" code in this way, and the above log entry needs fixing.
+Since that's not possible, we must refuse patches from people who
+aren't themselves the authors of the submitted code.  But how do we
+positively know that in every case?
 
-=2D-=20
-Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
-e'd=20
-all be running around in darkened rooms, munching magic pills and listening=
- to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
+That's another very interesting problem you've just brought up with
+public project systems.  And of course now that it's been identified
+it needs addressing.  8(
 
---nextPart2201731.FWSpJauyjl
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBCkNat8Gvouk7G1cURAoxRAJ9sbEdcU029aMLMftS/Nxe3NJvazgCeNx+O
-3SVZTmyEuT9o7TtZ/y7GrV4=
-=TiQj
------END PGP SIGNATURE-----
-
---nextPart2201731.FWSpJauyjl--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

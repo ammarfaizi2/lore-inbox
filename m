@@ -1,108 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVEVEWr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261583AbVEVElV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261315AbVEVEWr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 May 2005 00:22:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbVEVEWr
+	id S261583AbVEVElV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 May 2005 00:41:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbVEVElV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 May 2005 00:22:47 -0400
-Received: from mxout.hispeed.ch ([62.2.95.247]:29630 "EHLO smtp.hispeed.ch")
-	by vger.kernel.org with ESMTP id S261315AbVEVEWm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 May 2005 00:22:42 -0400
-Message-Id: <42900929.1000408@khandalf.com>
-Date: Sun, 22 May 2005 06:23:05 +0200
-From: "Brian O'Mahoney" <omb@khandalf.com>
-Reply-To: omb@bluewin.ch
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Joerg Schilling flames Linux on his Blog/cdrecord
-    replacement
-References: <200505201345.15584.pmcfarland@downeast.net>
-    <105c793f050521182269294d64@mail.gmail.com>
-In-Reply-To: <105c793f050521182269294d64@mail.gmail.com>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-X-Md5-Body: 9f1b46b569f524da1d94d127cebaa2f0
-X-Transmit-Date: Sunday, 22 May 2005 6:23:22 +0200
-X-Message-Uid: 0000b49cec9df2a600000002000000004290093a000b081b00000001000a3972
-Replyto: omb@bluewin.ch
-X-Sender-Postmaster: Postmaster@80-218-57-125.dclient.hispeed.ch.
-Read-Receipt-To: omb@bluewin.ch
-X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-05.tornado.cablecom.ch 32701; Body=1
-	Fuz1=1 Fuz2=1
+	Sun, 22 May 2005 00:41:21 -0400
+Received: from wproxy.gmail.com ([64.233.184.203]:39456 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261583AbVEVElI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 May 2005 00:41:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JYIglByRu9KG/w+Vmbu3pC5g4AGoeNXALHwnVm2ZWMEGewel64dz6Mhav3HI3kZVwuOYjRN/z+YXnj/wZQUHICeugTLGDYIMaCBJbGEn846NJRiaF3SQuv0Il/j8R4D42Bbx/OGI2tjf+JshNmaFlyKkGZhferK3lK1zuy3RDIA=
+Message-ID: <855e4e460505212141105e6b43@mail.gmail.com>
+Date: Sat, 21 May 2005 21:41:07 -0700
+From: Chen Shang <shangcs@gmail.com>
+Reply-To: Chen Shang <shangcs@gmail.com>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH] kernel <linux-2.6.11.10> kernel/sched.c
+Cc: Con Kolivas <kernel@kolivas.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-kernel@vger.kernel.org, rml@tech9.net,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050520113448.GA20486@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <855e4e4605051909561f47351@mail.gmail.com>
+	 <855e4e46050520001215be7cde@mail.gmail.com>
+	 <20050520094909.GA16923@elte.hu>
+	 <200505202040.51329.kernel@kolivas.org>
+	 <20050520113448.GA20486@elte.hu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't want to pour gasoline on an incipient flame war, but
-my two points here are:
+/*===== ISSUE ====*/
+My second version of patch has a defect.
 
-1--
-SUN uses RPM internally, but continues to insist its Solaris
-customers countinue to put up with pkg*, which makes system
-administration of solaris a nightmare after a while especially
-when mixed in with binary patches and patch dependancies with
-major vendors like Oracle, SAP and Veritas and all of this
-brings the Solaris admin/developer no benefit at all.
++  if (unlikely(old_prio != next->prio))             {
++      dequeue_task(next, array);  --> ### dequeue should against
+old_prio, NOT next->prio ###
++      enqueue_task(next, array);
++  }
 
-RPM is free software so SUN could just use it, and if they
-did the major platform vendors would in a New York minute.
+unforunately, dequeue_task does not accept the third parameter to make
+adjustment. Personally, I feel it's good to add extra function as my
+first version of patch to combine dequeue and enqueue together.
+Reasons as following:
+1) adding the third parameter to dequeue_task() would cause other
+places' code change;
+2) for schedule functions, performance is the first consideration.
+Notice both dequeue_task() and enqueue_task() are NOT inline.
+Combining those two in one saves one function call overhead;
 
-And SUN do this so they can sell the Update Service
+
+/* ===== NEW PATCH ===== */
+The new patch, see below, adds new function change_queue_task() to
+dequeue from "old_prio queue" and enqueue the "next task" to
+"next->prio queue".
+
+The patch also inlines requeue_task().
+
+The patch has been tested with 2.6.11.10, looks good. -For somehow,
+2.6.12-rc4 is still not stable on my machine (Fedora 3).
 
 
-2--
-There was little wrong with cdrecord until DVDs came out and
-H Schilling decided to take DVD PRO private and became petty
-about his build system, smake, and others extending a fork
-of cdrecord to support DVDs; which was done by both SuSE and
-Debian -- but with weird add in Copyright, and you can't change
-this, and "Inofficial Version" junk from Schilling.
+/* ===== [PATCH 2.6.11.?] kernel/sched.c =====*/
+--- linux-2.6.12-rc4.orig/kernel/sched.c	2005-05-06 22:20:31.000000000 -0700
++++ linux12/kernel/sched.c	2005-05-21 16:19:11.000000000 -0700
+@@ -556,11 +556,23 @@
+ 	p->array = array;
+ }
+ 
++static void change_queue_task(struct task_struct *p, prio_array_t
+*array, int old_prio)
++{
++	list_del(&p->run_list);
++	if (list_empty(array->queue + old_prio))
++		__clear_bit(old_prio, array->bitmap);
++
++	sched_info_queued(p);
++	list_add_tail(&p->run_list, array->queue + p->prio);
++	__set_bit(p->prio, array->bitmap);
++	p->array = array;
++}
++
+ /*
+  * Put task to the end of the run list without the overhead of dequeue
+  * followed by enqueue.
+  */
+-static void requeue_task(struct task_struct *p, prio_array_t *array)
++static inline void requeue_task(struct task_struct *p, prio_array_t *array)
+ {
+ 	list_move_tail(&p->run_list, array->queue + p->prio);
+ }
+@@ -2613,7 +2625,7 @@
+ 	struct list_head *queue;
+ 	unsigned long long now;
+ 	unsigned long run_time;
+-	int cpu, idx;
++	int cpu, idx, old_prio;
+ 
+ 	/*
+ 	 * Test if we are atomic.  Since do_exit() needs to call into
+@@ -2735,9 +2747,14 @@
+ 			delta = delta * (ON_RUNQUEUE_WEIGHT * 128 / 100) / 128;
+ 
+ 		array = next->array;
+-		dequeue_task(next, array);
++		old_prio = next->prio;
++
+ 		recalc_task_prio(next, next->timestamp + delta);
+-		enqueue_task(next, array);
++		
++		if (unlikely(old_prio != next->prio)) 
++			change_queue_task(next, array, old_prio);
++		else
++			requeue_task(next, array);
+ 	}
+ 	next->activated = 0;
+ switch_tasks:
 
-And then there was the Solaris/Linux flames, and most of us
-just got tired of all the hassle, I just wanted to write
-DVD-R and DVD-ROM media.
+/* ===== PATCH END ===== */
 
-After wasting a lot of time and coasters I note that
+Thanks,
+-chen
 
-dvdrtools from 'http://www.nongnu.org/dvdrtools/'
-
-and
-the dvd+rw package from
-http://fy.chalmers.se/~appro/linux/DVD+RW/
-
-both work well, and without any hassle, and now use DVD+RW
-which, now, writes all formats of DVD
-
-so I _nolonger_care_ about Schilling, smake, cdrecord or
-his Linux flames, since the fact that DVD+RW can, reliably
-write DVDs and even DVD PRO can't means to me that there is
-nothing wrong with Linux and something wrong with cdrecord.
-
-Or am I missing something here?
-
-Andrew Haninger wrote:
->>... flames the LKML about how Linux breaks cdrecord
->>(instead of just admitting cdrecord is broken)
+On 5/20/05, Ingo Molnar <mingo@elte.hu> wrote:
 > 
+> * Con Kolivas <kernel@kolivas.org> wrote:
 > 
-> I've always used cdr-tools on Linux and Windows since it is the
-> only/best tool for mastering CDs. It takes the installation of Joerg's
-> library, but after that, it's worked wonderfully. This is even the
-> tool that is suggested by the HOWTOs that newbies are told to read. It
-> has always appeared to me that it was the only/best tool.
-
-See above
-
-> (This is really only a half-sarcastic reply. I really would like to
-> know if there's a better tool. However, I'm also trying to point out
-> that Joerg's software seems to be all that can be used at the moment
-> and so it's hard for me as a humble end-user to really care if his
-> software is broken since it works.)
-
--- 
-mit freundlichen Grüßen, Brian.
-
+> > On Fri, 20 May 2005 19:49, Ingo Molnar wrote:
+> > > * chen Shang <shangcs@gmail.com> wrote:
+> > > > I minimized my patch and against to 2.6.12-rc4 this time, see below.
+> > >
+> > > looks good - i've done some small style/whitespace cleanups and renamed
+> > > prio to old_prio, patch against -rc4 below.
+> >
+> > We should inline requeue_task as well.
+> 
+> yeah.
+> 
+> Acked-by: Ingo Molnar <mingo@elte.hu>
+> 
+>         Ingo
+>

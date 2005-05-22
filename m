@@ -1,48 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVEVOnw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVEVOtW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261813AbVEVOnw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 May 2005 10:43:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261814AbVEVOnw
+	id S261814AbVEVOtW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 May 2005 10:49:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVEVOtW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 May 2005 10:43:52 -0400
-Received: from wproxy.gmail.com ([64.233.184.194]:30540 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261813AbVEVOnu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 May 2005 10:43:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=ZwIHMmXC38xUNGDgmoWgz8wuhyPKK0FpfLYGJ0x3hRdpkiHQlSSY/0/g6X9Z1EQQxbqr+ckHSueHhxNp2pSWwW8UMxnImIsHsF6C1Dk25+AVjl73O54LY463YA//uPPHJFPNAdGhClbxyFpXpxzTnGyInMcR3ba00VbwZSyym+4=
-Message-ID: <9e47339105052207431634c341@mail.gmail.com>
-Date: Sun, 22 May 2005 10:43:50 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: keymaps, event interface and multiple keyboards
-Cc: vojtech@suse.cz, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Sun, 22 May 2005 10:49:22 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:24214 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261814AbVEVOtJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 May 2005 10:49:09 -0400
+Message-ID: <42909DBC.686D4544@tv-sign.ru>
+Date: Sun, 22 May 2005 18:57:00 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: George Anzinger <george@mvista.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH rc4-mm2 1/2] timers: introduce try_to_del_timer_sync()
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm working on keyboard support for Xgl (the OpenGL based accelerated
-Xserver). X implements it's own keymaps but since this is all new code
-I can look at using the kernel ones.  I haven't been a fan of having
-two separate systems. Since I have little experience with keyboard
-support I could use some help in getting the code right.
+This patch splits del_timer_sync() into 2 functions. The new one,
+try_to_del_timer_sync(), returns -1 when it hits executing timer.
 
-One goal of XGL is to allow multiuser. It does this by using
-independent framebuffers and the event interface for keyboard/mouse.
-This all works but it ignores the VT system.
+It can be used in interrupt context, or when the caller hold locks
+which can prevent completion of the timer's handler.
 
-Now I'm starting to look at the kernel keymap support. Kernel keymaps
-are tied to the VT system. There is only one VT system and it is not
-multiuser. So how do I get support for multiple users (maybe with
-different keyboards) using kernel keymap? Should keymap support be
-broken out of the VT code and moved to input?
+NOTE. Currently it can't be used in interrupt context in UP case,
+because ->running_timer is used only with CONFIG_SMP.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Should the need arise, it is possible to kill #ifdef CONFIG_SMP in
+set_running_timer(), it is cheap.
+
+Signed-off-by: Oleg Nesterov <oleg@tv-sign.ru>
+
+--- 2.6.12-rc4-mm2/include/linux/timer.h~1_TRY	2005-05-22 15:41:51.000000000 +0400
++++ 2.6.12-rc4-mm2/include/linux/timer.h	2005-05-22 17:34:00.000000000 +0400
+@@ -76,9 +76,11 @@ static inline void add_timer(struct time
+ }
+ 
+ #ifdef CONFIG_SMP
++  extern int try_to_del_timer_sync(struct timer_list *timer);
+   extern int del_timer_sync(struct timer_list *timer);
+ #else
+-# define del_timer_sync(t) del_timer(t)
++# define try_to_del_timer_sync(t)	del_timer(t)
++# define del_timer_sync(t)		del_timer(t)
+ #endif
+ 
+ #define del_singleshot_timer_sync(t) del_timer_sync(t)
+--- 2.6.12-rc4-mm2/kernel/timer.c~1_TRY	2005-05-22 15:41:51.000000000 +0400
++++ 2.6.12-rc4-mm2/kernel/timer.c	2005-05-22 18:08:15.000000000 +0400
+@@ -366,6 +366,34 @@ int del_timer(struct timer_list *timer)
+ EXPORT_SYMBOL(del_timer);
+ 
+ #ifdef CONFIG_SMP
++/*
++ * This function tries to deactivate a timer. Upon successful (ret >= 0)
++ * exit the timer is not queued and the handler is not running on any CPU.
++ *
++ * It must not be called from interrupt contexts.
++ */
++int try_to_del_timer_sync(struct timer_list *timer)
++{
++	timer_base_t *base;
++	unsigned long flags;
++	int ret = -1;
++
++	base = lock_timer_base(timer, &flags);
++
++	if (base->running_timer == timer)
++		goto out;
++
++	ret = 0;
++	if (timer_pending(timer)) {
++		detach_timer(timer, 1);
++		ret = 1;
++	}
++out:
++	spin_unlock_irqrestore(&base->lock, flags);
++
++	return ret;
++}
++
+ /***
+  * del_timer_sync - deactivate a timer and wait for the handler to finish.
+  * @timer: the timer to be deactivated
+@@ -385,28 +413,13 @@ EXPORT_SYMBOL(del_timer);
+  */
+ int del_timer_sync(struct timer_list *timer)
+ {
+-	timer_base_t *base;
+-	unsigned long flags;
+-	int ret = -1;
+-
+ 	check_timer(timer);
+ 
+-	do {
+-		base = lock_timer_base(timer, &flags);
+-
+-		if (base->running_timer == timer)
+-			goto unlock;
+-
+-		ret = 0;
+-		if (timer_pending(timer)) {
+-			detach_timer(timer, 1);
+-			ret = 1;
+-		}
+-unlock:
+-		spin_unlock_irqrestore(&base->lock, flags);
+-	} while (ret < 0);
+-
+-	return ret;
++	for (;;) {
++		int ret = try_to_del_timer_sync(timer);
++		if (ret >= 0)
++			return ret;
++	}
+ }
+ 
+ EXPORT_SYMBOL(del_timer_sync);

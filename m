@@ -1,148 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261583AbVEVElV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261715AbVEVExH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261583AbVEVElV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 May 2005 00:41:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbVEVElV
+	id S261715AbVEVExH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 May 2005 00:53:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVEVExH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 May 2005 00:41:21 -0400
-Received: from wproxy.gmail.com ([64.233.184.203]:39456 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261583AbVEVElI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 May 2005 00:41:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JYIglByRu9KG/w+Vmbu3pC5g4AGoeNXALHwnVm2ZWMEGewel64dz6Mhav3HI3kZVwuOYjRN/z+YXnj/wZQUHICeugTLGDYIMaCBJbGEn846NJRiaF3SQuv0Il/j8R4D42Bbx/OGI2tjf+JshNmaFlyKkGZhferK3lK1zuy3RDIA=
-Message-ID: <855e4e460505212141105e6b43@mail.gmail.com>
-Date: Sat, 21 May 2005 21:41:07 -0700
-From: Chen Shang <shangcs@gmail.com>
-Reply-To: Chen Shang <shangcs@gmail.com>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH] kernel <linux-2.6.11.10> kernel/sched.c
-Cc: Con Kolivas <kernel@kolivas.org>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       linux-kernel@vger.kernel.org, rml@tech9.net,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20050520113448.GA20486@elte.hu>
+	Sun, 22 May 2005 00:53:07 -0400
+Received: from colo.lackof.org ([198.49.126.79]:9629 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S261715AbVEVEww (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 May 2005 00:52:52 -0400
+Date: Sat, 21 May 2005 22:56:04 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Francois Romieu <romieu@fr.zoreil.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Grant Grundler <grundler@parisc-linux.org>, akpm@osdl.org,
+       T-Bone@parisc-linux.org, varenet@parisc-linux.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev <netdev@oss.sgi.com>
+Subject: Re: patch tulip-natsemi-dp83840a-phy-fix.patch added to -mm tree
+Message-ID: <20050522045604.GC2733@colo.lackof.org>
+References: <200505101955.j4AJtX9x032464@shell0.pdx.osdl.net> <42881C58.40001@pobox.com> <20050516050843.GA20107@colo.lackof.org> <4288CE51.1050703@pobox.com> <20050521223959.GA4337@electric-eye.fr.zoreil.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <855e4e4605051909561f47351@mail.gmail.com>
-	 <855e4e46050520001215be7cde@mail.gmail.com>
-	 <20050520094909.GA16923@elte.hu>
-	 <200505202040.51329.kernel@kolivas.org>
-	 <20050520113448.GA20486@elte.hu>
+In-Reply-To: <20050521223959.GA4337@electric-eye.fr.zoreil.com>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-/*===== ISSUE ====*/
-My second version of patch has a defect.
-
-+  if (unlikely(old_prio != next->prio))             {
-+      dequeue_task(next, array);  --> ### dequeue should against
-old_prio, NOT next->prio ###
-+      enqueue_task(next, array);
-+  }
-
-unforunately, dequeue_task does not accept the third parameter to make
-adjustment. Personally, I feel it's good to add extra function as my
-first version of patch to combine dequeue and enqueue together.
-Reasons as following:
-1) adding the third parameter to dequeue_task() would cause other
-places' code change;
-2) for schedule functions, performance is the first consideration.
-Notice both dequeue_task() and enqueue_task() are NOT inline.
-Combining those two in one saves one function call overhead;
-
-
-/* ===== NEW PATCH ===== */
-The new patch, see below, adds new function change_queue_task() to
-dequeue from "old_prio queue" and enqueue the "next task" to
-"next->prio queue".
-
-The patch also inlines requeue_task().
-
-The patch has been tested with 2.6.11.10, looks good. -For somehow,
-2.6.12-rc4 is still not stable on my machine (Fedora 3).
-
-
-/* ===== [PATCH 2.6.11.?] kernel/sched.c =====*/
---- linux-2.6.12-rc4.orig/kernel/sched.c	2005-05-06 22:20:31.000000000 -0700
-+++ linux12/kernel/sched.c	2005-05-21 16:19:11.000000000 -0700
-@@ -556,11 +556,23 @@
- 	p->array = array;
- }
- 
-+static void change_queue_task(struct task_struct *p, prio_array_t
-*array, int old_prio)
-+{
-+	list_del(&p->run_list);
-+	if (list_empty(array->queue + old_prio))
-+		__clear_bit(old_prio, array->bitmap);
-+
-+	sched_info_queued(p);
-+	list_add_tail(&p->run_list, array->queue + p->prio);
-+	__set_bit(p->prio, array->bitmap);
-+	p->array = array;
-+}
-+
- /*
-  * Put task to the end of the run list without the overhead of dequeue
-  * followed by enqueue.
-  */
--static void requeue_task(struct task_struct *p, prio_array_t *array)
-+static inline void requeue_task(struct task_struct *p, prio_array_t *array)
- {
- 	list_move_tail(&p->run_list, array->queue + p->prio);
- }
-@@ -2613,7 +2625,7 @@
- 	struct list_head *queue;
- 	unsigned long long now;
- 	unsigned long run_time;
--	int cpu, idx;
-+	int cpu, idx, old_prio;
- 
- 	/*
- 	 * Test if we are atomic.  Since do_exit() needs to call into
-@@ -2735,9 +2747,14 @@
- 			delta = delta * (ON_RUNQUEUE_WEIGHT * 128 / 100) / 128;
- 
- 		array = next->array;
--		dequeue_task(next, array);
-+		old_prio = next->prio;
-+
- 		recalc_task_prio(next, next->timestamp + delta);
--		enqueue_task(next, array);
-+		
-+		if (unlikely(old_prio != next->prio)) 
-+			change_queue_task(next, array, old_prio);
-+		else
-+			requeue_task(next, array);
- 	}
- 	next->activated = 0;
- switch_tasks:
-
-/* ===== PATCH END ===== */
-
-Thanks,
--chen
-
-On 5/20/05, Ingo Molnar <mingo@elte.hu> wrote:
+On Sun, May 22, 2005 at 12:39:59AM +0200, Francois Romieu wrote:
+> Jeff Garzik <jgarzik@pobox.com> :
+> [tulip_media_select]
+> > 1) called from timer context, from the media poll timer
+> > 
+> > 2) called from spin_lock_irqsave() context, in the ->tx_timeout hook.
+> > 
+> > The first case can be fixed by moved all the timer code to a workqueue. 
+> >  Then when the existing timer fires, kick the workqueue.
+> > 
+> > The second case can be fixed by kicking the workqueue upon tx_timeout 
+> > (which is the reason why I did not suggest queue_delayed_work() use).
 > 
-> * Con Kolivas <kernel@kolivas.org> wrote:
-> 
-> > On Fri, 20 May 2005 19:49, Ingo Molnar wrote:
-> > > * chen Shang <shangcs@gmail.com> wrote:
-> > > > I minimized my patch and against to 2.6.12-rc4 this time, see below.
-> > >
-> > > looks good - i've done some small style/whitespace cleanups and renamed
-> > > prio to old_prio, patch against -rc4 below.
-> >
-> > We should inline requeue_task as well.
-> 
-> yeah.
-> 
-> Acked-by: Ingo Molnar <mingo@elte.hu>
-> 
->         Ingo
->
+> First try below. It only moves tulip_select_media() to process context.
+
+Cool - thanks.
+
+> The original patch (with s/udelay/msleep/ or such) is not included.
+
+That's fine. I'll take care of that once Jeff is happy with this.
+
+
+> Comments/suggestions ?
+
+Basic workqueue create/destroy looks correct - but I've only played with
+workqueues once before.
+It wouldn't hurt if someone else double checked too.
+
+Comments below are mostly about the other parts.
+
+
+> +static inline int tulip_create_workqueue(void)
+> +{
+> +	ktulipd_workqueue = create_workqueue("ktulipd");
+> +	return ktulipd_workqueue ? 0 : -ENOMEM;
+> +}
+
+This just obfuscates the code. It's only called in one place.
+Please just directly call create_workqueue("ktulipd") from tulip_init()
+and check the return value.
+
+> +static inline void tulip_destroy_workqueue(void)
+> +{
+> +	destroy_workqueue(ktulipd_workqueue);
+> +}
+
+Same thing.
+
+> @@ -526,20 +549,9 @@ static void tulip_tx_timeout(struct net_
+...
+> +		tp->timeout_recovery = 1;
+> +		queue_work(ktulipd_workqueue, &tp->media_work);
+> +		goto out_unlock;
+
+This is the key bit.
+
+> -	/* Stop and restart the chip's Tx processes . */
+> -
+> -	tulip_restart_rxtx(tp);
+> -	/* Trigger an immediate transmit demand. */
+> -	iowrite32(0, ioaddr + CSR1);
+> -
+> -	tp->stats.tx_errors++;
+> +	tulip_tx_timeout_complete(tp, ioaddr);
+
+This doesn't fix the existing issue with tulip_restart_rxtx().
+Even without the patch to tulip_select_media(),
+tulip_restart_rxtx() does not comply with jgarzik's linux driver
+requirements becuase it can spin delay up to 1200us.
+
+
+>  static void __exit tulip_cleanup (void)
+>  {
+>  	pci_unregister_driver (&tulip_driver);
+> +	tulip_destroy_workqueue();
+>  }
+
+Only one workqueue for all instances of tulip cards, right?
+
+
+...
+> @@ -127,6 +128,14 @@ void tulip_timer(unsigned long data)
+>  	}
+>  	break;
+>  	}
+> +
+> +	spin_lock_irqsave (&tp->lock, flags);
+> +	if (tp->timeout_recovery) {
+> +		tp->timeout_recovery = 0;
+> +		tulip_tx_timeout_complete(tp, ioaddr);
+> +	}
+> +	spin_unlock_irqrestore (&tp->lock, flags);
+
+
+This suffers the original issue: blocked IRQs while CPU might spin
+for 1200us in tulip_tx_timeout_complete().
+
+If tp->timeout_recovery acts as a sort of semaphore for us,
+do we even need the spinlock?
+
+I suspect "yes" because timeout_recovery is a bitfield and clearing
+it is a read/modify/write operation. This is why I don't like bitfields.
+
+ie. something like:
+	if (tp->timeout_recovery) {
+		tulip_tx_timeout_complete(tp, ioaddr);
+
+		spin_lock_irqsave (&tp->lock, flags);
+		tp->timeout_recovery = 0;	/* Bitfields are NOT atomic. */
+		spin_unlock_irqrestore (&tp->lock, flags);
+	}
+
+thanks,
+grant

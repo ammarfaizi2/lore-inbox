@@ -1,61 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbVEVHE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbVEVHNy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261702AbVEVHE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 May 2005 03:04:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261755AbVEVHE5
+	id S261761AbVEVHNy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 May 2005 03:13:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261762AbVEVHNy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 May 2005 03:04:57 -0400
-Received: from smtp815.mail.sc5.yahoo.com ([66.163.170.1]:55186 "HELO
-	smtp815.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261702AbVEVHEz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 May 2005 03:04:55 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Jean Delvare <khali@linux-fr.org>
-Subject: Re: [lm-sensors] [PATCH 2.6.12-rc4 15/15] drivers/i2c/chips/adm1026.c: use dynamic sysfs callbacks
-Date: Sun, 22 May 2005 02:04:52 -0500
-User-Agent: KMail/1.8
-Cc: LM Sensors <lm-sensors@lm-sensors.org>, Greg KH <greg@kroah.com>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <20050519213551.GA806@kroah.com> <200505212058.14851.dtor_core@ameritech.net> <20050522085026.40e73d49.khali@linux-fr.org>
-In-Reply-To: <20050522085026.40e73d49.khali@linux-fr.org>
+	Sun, 22 May 2005 03:13:54 -0400
+Received: from wildsau.idv.uni.linz.at ([193.170.194.34]:14209 "EHLO
+	wildsau.enemy.org") by vger.kernel.org with ESMTP id S261761AbVEVHNx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 May 2005 03:13:53 -0400
+From: Herbert Rosmanith <kernel@wildsau.enemy.org>
+Message-Id: <200505220713.j4M7DoI2017423@wildsau.enemy.org>
+Subject: Re: [PATCH] binutils-2.16 & kernel-2.6.11.10
+In-Reply-To: <E1DZfPw-0001u4-HT@be1.7eggert.dyndns.org>
+To: 7eggert@gmx.de
+Date: Sun, 22 May 2005 09:13:48 +0200 (MET DST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL100 (25)]
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505220204.52907.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 22 May 2005 01:50, Jean Delvare wrote:
-> Hi Dmitry,
+> Herbert Rosmanith <kernel@wildsau.enemy.org> wrote:
 > 
-> > I really think that as far as I2C subsystem goes instead of creating
-> > arrays of attributes we should move in direction of drivers
-> > registering individual sensor class devices. So for example it87 would
-> > register 3 fans, 3 temp, sensors and 8 voltage sensors...
+> > (by the way - I once found an webpage which allowed viewing LKML in
+> > "realtime", but I've lost the adress - would anyone be so kind and tell
+> > me where I can find this?)
 > 
-> First, it's a matter of hardware monitoring drivers, not i2c subsystem
-> (both are tightly binded at the moment but I'd like this to change).
->
+> http://groups-beta.google.com/group/linux.kernel
 
-Right, it's just i2c is pretty much the only supplier of these for now.
- 
-> Second, not all devices have the same attributes for a temperature, fan
-> or voltage channel. Sure there are commonly found feature sets, but some
-> channels will lack some feature (e.g. it87's in8 has no min and max
-> limits), other chips will provide additional features (extra limits or
-> enhanced configurability). So I don't think you can have all devices
-> (and thus all drivers) fit into a single sensor class.
->
+*lol*
 
-Well, userspace code manages it somehow, plus nothing stops driver from
-adding some additional attributes to class devices.
- 
-> But of course I can be convinced your approach is better, with patches.
+did you try that?
+the first entry that is returns tells me about:
 
-Heh, I was afraid you'd say so... Input sysfs conversion first and then
-we'll see...
+"Real teen p0rn0 Portal with downloadable Full-Length Movies"
 
--- 
-Dmitry
+

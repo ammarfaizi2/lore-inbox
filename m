@@ -1,1549 +1,3105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVEWADD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbVEWAMX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261827AbVEWADD (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 May 2005 20:03:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbVEWADD
+	id S261786AbVEWAMX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 May 2005 20:12:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbVEWAMW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 May 2005 20:03:03 -0400
-Received: from ipx10786.ipxserver.de ([80.190.251.108]:35460 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S261833AbVEVXyh
+	Sun, 22 May 2005 20:12:22 -0400
+Received: from ipx10786.ipxserver.de ([80.190.251.108]:36228 "EHLO
+	allen.werkleitz.de") by vger.kernel.org with ESMTP id S261834AbVEVXyl
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 May 2005 19:54:37 -0400
-Message-Id: <20050522235336.731021000@abc>
+	Sun, 22 May 2005 19:54:41 -0400
+Message-Id: <20050522235336.090499000@abc>
 References: <20050522235233.190143000@abc>
-Date: Mon, 23 May 2005 01:52:38 +0200
+Date: Mon, 23 May 2005 01:52:34 +0200
 From: Johannes Stezenbach <js@linuxtv.org>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Patrick Boettcher <pb@linuxtv.org>
-Content-Disposition: inline; filename=dvb-flexcop-air2pc-bcm3510.patch
+Content-Disposition: inline; filename=dvb-remove-dibusb-driver.patch
 X-SA-Exim-Connect-IP: 84.189.216.198
-Subject: [DVB patch 5/5] flexcop: add BCM3510 ATSC frontend support for Air2PC card
+Subject: [DVB patch 1/5] drop obsolete dibusb driver
 X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
 X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-added support for the Broadcom BCM3510 ATSC (8VSB/16VSB & ITU J83 AnnexB FEC
-QAM64/256) demodulator used in the first generation of Air2PC ATSC
-PCI-cards/USB-boxes made by B2C2.
+Remove the dibusb driver which has been obsoleted by the
+generalized dvb-usb driver.
 
 Signed-off-by: Patrick Boettcher <pb@linuxtv.org>
 Signed-off-by: Johannes Stezenbach <js@linuxtv.org>
 ---
- drivers/media/dvb/b2c2/Kconfig             |    1 
- drivers/media/dvb/b2c2/flexcop-fe-tuner.c  |   26 
- drivers/media/dvb/b2c2/flexcop-misc.c      |   11 
- drivers/media/dvb/b2c2/flexcop-reg.h       |    3 
- drivers/media/dvb/frontends/Kconfig        |    8 
- drivers/media/dvb/frontends/Makefile       |    1 
- drivers/media/dvb/frontends/bcm3510.c      |  851 +++++++++++++++++++++++++++++
- drivers/media/dvb/frontends/bcm3510.h      |   40 +
- drivers/media/dvb/frontends/bcm3510_priv.h |  460 +++++++++++++++
- 9 files changed, 1387 insertions(+), 14 deletions(-)
+ Documentation/dvb/README.dibusb                |  285 ------------
+ drivers/media/dvb/Kconfig                      |    1 
+ drivers/media/dvb/Makefile                     |    2 
+ drivers/media/dvb/dibusb/Kconfig               |   62 --
+ drivers/media/dvb/dibusb/Makefile              |   11 
+ drivers/media/dvb/dibusb/dvb-dibusb-core.c     |  558 -----------------------
+ drivers/media/dvb/dibusb/dvb-dibusb-dvb.c      |  185 -------
+ drivers/media/dvb/dibusb/dvb-dibusb-fe-i2c.c   |  582 -------------------------
+ drivers/media/dvb/dibusb/dvb-dibusb-firmware.c |   87 ---
+ drivers/media/dvb/dibusb/dvb-dibusb-remote.c   |  316 -------------
+ drivers/media/dvb/dibusb/dvb-dibusb-usb.c      |  303 -------------
+ drivers/media/dvb/dibusb/dvb-dibusb.h          |  327 --------------
+ drivers/media/dvb/dibusb/dvb-fe-dtt200u.c      |  263 -----------
+ 13 files changed, 1 insertion(+), 2981 deletions(-)
 
-Index: linux-2.6.12-rc4-git3/drivers/media/dvb/b2c2/Kconfig
+Index: linux-2.6.12-rc4-git3/Documentation/dvb/README.dibusb
 ===================================================================
---- linux-2.6.12-rc4-git3.orig/drivers/media/dvb/b2c2/Kconfig	2005-05-19 22:52:12.000000000 +0200
-+++ linux-2.6.12-rc4-git3/drivers/media/dvb/b2c2/Kconfig	2005-05-23 00:57:25.000000000 +0200
-@@ -6,6 +6,7 @@ config DVB_B2C2_FLEXCOP
- 	select DVB_MT312
- 	select DVB_NXT2002
- 	select DVB_STV0297
-+	select DVB_BCM3510
- 	help
- 	  Support for the digital TV receiver chip made by B2C2 Inc. included in
- 	  Technisats PCI cards and USB boxes.
-Index: linux-2.6.12-rc4-git3/drivers/media/dvb/b2c2/flexcop-fe-tuner.c
-===================================================================
---- linux-2.6.12-rc4-git3.orig/drivers/media/dvb/b2c2/flexcop-fe-tuner.c	2005-05-19 22:52:12.000000000 +0200
-+++ linux-2.6.12-rc4-git3/drivers/media/dvb/b2c2/flexcop-fe-tuner.c	2005-05-23 00:57:25.000000000 +0200
-@@ -10,6 +10,7 @@
- #include "stv0299.h"
- #include "mt352.h"
- #include "nxt2002.h"
-+#include "bcm3510.h"
- #include "stv0297.h"
- #include "mt312.h"
- 
-@@ -285,21 +286,25 @@ static int samsung_tdtc9251dh0_pll_set(s
- }
- 
- static struct mt352_config samsung_tdtc9251dh0_config = {
+--- linux-2.6.12-rc4-git3.orig/Documentation/dvb/README.dibusb	2005-05-19 22:52:13.000000000 +0200
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,285 +0,0 @@
+-Documentation for dib3000* frontend drivers and dibusb device driver
+-====================================================================
 -
- 	.demod_address = 0x0f,
--	.demod_init = samsung_tdtc9251dh0_demod_init,
--	.pll_set = samsung_tdtc9251dh0_pll_set,
-+	.demod_init    = samsung_tdtc9251dh0_demod_init,
-+	.pll_set       = samsung_tdtc9251dh0_pll_set,
- };
+-Copyright (C) 2004-5 Patrick Boettcher (patrick.boettcher@desy.de),
+-
+-dibusb and dib3000mb/mc drivers based on GPL code, which has
+-
+-Copyright (C) 2004 Amaury Demol for DiBcom (ademol@dibcom.fr)
+-
+-This program is free software; you can redistribute it and/or
+-modify it under the terms of the GNU General Public License as
+-published by the Free Software Foundation, version 2.
+-
+-
+-Supported devices USB1.1
+-========================
+-
+-Produced and reselled by Twinhan:
+----------------------------------
+-- TwinhanDTV USB-Ter DVB-T Device (VP7041)
+-	http://www.twinhan.com/product_terrestrial_3.asp
+-
+-- TwinhanDTV Magic Box (VP7041e)
+-	http://www.twinhan.com/product_terrestrial_4.asp
+-
+-- HAMA DVB-T USB device
+-	http://www.hama.de/portal/articleId*110620/action*2598
+-
+-- CTS Portable (Chinese Television System) (2)
+-	http://www.2cts.tv/ctsportable/
+-
+-- Unknown USB DVB-T device with vendor ID Hyper-Paltek
+-
+-
+-Produced and reselled by KWorld:
+---------------------------------
+-- KWorld V-Stream XPERT DTV DVB-T USB
+-	http://www.kworld.com.tw/en/product/DVBT-USB/DVBT-USB.html
+-
+-- JetWay DTV DVB-T USB
+-	http://www.jetway.com.tw/evisn/product/lcd-tv/DVT-USB/dtv-usb.htm
+-
+-- ADSTech Instant TV DVB-T USB
+-	http://www.adstech.com/products/PTV-333/intro/PTV-333_intro.asp?pid=PTV-333
+-
+-
+-Others:
+--------
+-- Ultima Electronic/Artec T1 USB TVBOX (AN2135, AN2235, AN2235 with Panasonic Tuner)
+-	http://82.161.246.249/products-tvbox.html
+-
+-- Compro Videomate DVB-U2000 - DVB-T USB (2)
+-	http://www.comprousa.com/products/vmu2000.htm
+-
+-- Grandtec USB DVB-T
+-	http://www.grand.com.tw/
+-
+-- Avermedia AverTV DVBT USB (2)
+-	http://www.avermedia.com/
+-
+-- DiBcom USB DVB-T reference device (non-public)
+-
+-
+-Supported devices USB2.0
+-========================
+-- Twinhan MagicBox II (2)
+-	http://www.twinhan.com/product_terrestrial_7.asp
+-
+-- Hanftek UMT-010 (1)
+-	http://www.globalsources.com/si/6008819757082/ProductDetail/Digital-TV/product_id-100046529
+-
+-- Typhoon/Yakumo/HAMA DVB-T mobile USB2.0 (1)
+-	http://www.yakumo.de/produkte/index.php?pid=1&ag=DVB-T
+-
+-- Artec T1 USB TVBOX (FX2) (2)
+-
+-- Hauppauge WinTV NOVA-T USB2
+-	http://www.hauppauge.com/
+-
+-- KWorld/ADSTech Instant DVB-T USB2.0 (DiB3000M-B)
+-
+-- DiBcom USB2.0 DVB-T reference device (non-public)
+-
+-1) It is working almost.
+-2) No test reports received yet.
+-
+-
+-0. NEWS:
+-  2005-02-11 - added support for the KWorld/ADSTech Instant DVB-T USB2.0. Thanks a lot to Joachim von Caron
+-  2005-02-02 - added support for the Hauppauge Win-TV Nova-T USB2
+-  2005-01-31 - distorted streaming is finally gone for USB1.1 devices
+-  2005-01-13 - moved the mirrored pid_filter_table back to dvb-dibusb
+-             - first almost working version for HanfTek UMT-010
+-             - found out, that Yakumo/HAMA/Typhoon are predessors of the HanfTek UMT-010
+-  2005-01-10 - refactoring completed, now everything is very delightful
+-             - tuner quirks for some weird devices (Artec T1 AN2235 device has sometimes a
+-               Panasonic Tuner assembled). Tunerprobing implemented. Thanks a lot to Gunnar Wittich.
+-  2004-12-29 - after several days of struggling around bug of no returning URBs fixed.
+-  2004-12-26 - refactored the dibusb-driver, splitted into separate files
+-             - i2c-probing enabled
+-  2004-12-06 - possibility for demod i2c-address probing
+-             - new usb IDs (Compro,Artec)
+-  2004-11-23 - merged changes from DiB3000MC_ver2.1
+-             - revised the debugging
+-             - possibility to deliver the complete TS for USB2.0
+-  2004-11-21 - first working version of the dib3000mc/p frontend driver.
+-  2004-11-12 - added additional remote control keys. Thanks to Uwe Hanke.
+-  2004-11-07 - added remote control support. Thanks to David Matthews.
+-  2004-11-05 - added support for a new devices (Grandtec/Avermedia/Artec)
+-             - merged my changes (for dib3000mb/dibusb) to the FE_REFACTORING, because it became HEAD
+-             - moved transfer control (pid filter, fifo control) from usb driver to frontend, it seems
+-               better settled there (added xfer_ops-struct)
+-             - created a common files for frontends (mc/p/mb)
+-  2004-09-28 - added support for a new device (Unkown, vendor ID is Hyper-Paltek)
+-  2004-09-20 - added support for a new device (Compro DVB-U2000), thanks
+-               to Amaury Demol for reporting
+-             - changed usb TS transfer method (several urbs, stopping transfer
+-               before setting a new pid)
+-  2004-09-13 - added support for a new device (Artec T1 USB TVBOX), thanks
+-               to Christian Motschke for reporting
+-  2004-09-05 - released the dibusb device and dib3000mb-frontend driver
+-
+-  (old news for vp7041.c)
+-  2004-07-15 - found out, by accident, that the device has a TUA6010XS for
+-               PLL
+-  2004-07-12 - figured out, that the driver should also work with the
+-               CTS Portable (Chinese Television System)
+-  2004-07-08 - firmware-extraction-2.422-problem solved, driver is now working
+-               properly with firmware extracted from 2.422
+-			 - #if for 2.6.4 (dvb), compile issue
+-			 - changed firmware handling, see vp7041.txt sec 1.1
+-  2004-07-02 - some tuner modifications, v0.1, cleanups, first public
+-  2004-06-28 - now using the dvb_dmx_swfilter_packets, everything
+-               runs fine now
+-  2004-06-27 - able to watch and switching channels (pre-alpha)
+-             - no section filtering yet
+-  2004-06-06 - first TS received, but kernel oops :/
+-  2004-05-14 - firmware loader is working
+-  2004-05-11 - start writing the driver
+-
+-1. How to use?
+-NOTE: This driver was developed using Linux 2.6.6.,
+-it is working with 2.6.7 and above.
+-
+-Linux 2.4.x support is not planned, but patches are very welcome.
+-
+-NOTE: I'm using Debian testing, so the following explaination (especially
+-the hotplug-path) needn't match your system, but probably it will :).
+-
+-The driver is included in the kernel since Linux 2.6.10.
+-
+-1.1. Firmware
+-
+-The USB driver needs to download a firmware to start working.
+-
+-You can either use "get_dvb_firmware dibusb" to download the firmware or you
+-can get it directly via
+-
+-for USB1.1 (AN2135)
+-http://www.linuxtv.org/downloads/firmware/dvb-dibusb-5.0.0.11.fw
+-
+-for USB1.1 (AN2235) (a few Artec T1 devices)
+-http://www.linuxtv.org/downloads/firmware/dvb-dibusb-an2235-1.fw
+-
+-for USB2.0 (FX2) Hauppauge, DiBcom
+-http://www.linuxtv.org/downloads/firmware/dvb-dibusb-6.0.0.5.fw
+-
+-for USB2.0 ADSTech/Kworld USB2.0
+-http://www.linuxtv.org/downloads/firmware/dvb-dibusb-adstech-usb2-1.fw
+-
+-for USB2.0 HanfTek
+-http://www.linuxtv.org/downloads/firmware/dvb-dibusb-an2235-1.fw
+-
+-
+-1.2. Compiling
+-
+-Since the driver is in the linux kernel, activating the driver in
+-your favorite config-environment should sufficient. I recommend
+-to compile the driver as module. Hotplug does the rest.
+-
+-1.3. Loading the drivers
+-
+-Hotplug is able to load the driver, when it is needed (because you plugged
+-in the device).
+-
+-If you want to enable debug output, you have to load the driver manually and
+-from withing the dvb-kernel cvs repository.
+-
+-first have a look, which debug level are available:
+-
+-modinfo dib3000mb
+-modinfo dib3000-common
+-modinfo dib3000mc
+-modinfo dvb-dibusb
+-
+-modprobe dib3000-common debug=<level>
+-modprobe dib3000mb debug=<level>
+-modprobe dib3000mc debug=<level>
+-modprobe dvb-dibusb debug=<level>
+-
+-should do the trick.
+-
+-When the driver is loaded successfully, the firmware file was in
+-the right place and the device is connected, the "Power"-LED should be
+-turned on.
+-
+-At this point you should be able to start a dvb-capable application. For myself
+-I used mplayer, dvbscan, tzap and kaxtv, they are working. Using the device
+-in vdr is working now also.
+-
+-2. Known problems and bugs
+-
+-- Don't remove the USB device while running an DVB application, your system will die.
+-
+-2.1. Adding support for devices
+-
+-It is not possible to determine the range of devices based on the DiBcom
+-reference designs. This is because the reference design of DiBcom can be sold
+-to thirds, without telling DiBcom (so done with the Twinhan VP7041 and
+-the HAMA device).
+-
+-When you think you have a device like this and the driver does not recognizes it,
+-please send the ****load*.inf and the ****cap*.inf of the Windows driver to me.
+-
+-Sometimes the Vendor or Product ID is identical to the ones of Twinhan, even
+-though it is not a Twinhan device (e.g. HAMA), then please send me the name
+-of the device. I will add it to this list in order to make this clear to
+-others.
+-
+-If you are familar with C you can also add the VID and PID of the device to
+-the dvb-dibusb-core.c-file and create a patch and send it over to me or to
+-the linux-dvb mailing list, _after_ you have tried compiling and modprobing
+-it.
+-
+-2.2. USB1.1 Bandwidth limitation
+-
+-Most of the currently supported devices are USB1.1 and thus they have a
+-maximum bandwidth of about 5-6 MBit/s when connected to a USB2.0 hub.
+-This is not enough for receiving the complete transport stream of a
+-DVB-T channel (which can be about 16 MBit/s). Normally this is not a
+-problem, if you only want to watch TV (this does not apply for HDTV),
+-but watching a channel while recording another channel on the same
+-frequency simply does not work very well. This applies to all USB1.1
+-DVB-T devices, not just dibusb)
+-
+-Update: For the USB1.1 and VDR some work has been done (patches and comments
+-are still very welcome). Maybe the problem is solved in the meantime because I
+-now use the dmx_sw_filter function instead of dmx_sw_filter_packet. I hope the
+-linux-dvb software filter is able to get the best of the garbled TS.
+-
+-The bug, where the TS is distorted by a heavy usage of the device is gone
+-definitely. All dibusb-devices I was using (Twinhan, Kworld, DiBcom) are
+-working like charm now with VDR. Sometimes I even was able to record a channel
+-and watch another one.
+-
+-2.3. Comments
+-
+-Patches, comments and suggestions are very very welcome.
+-
+-3. Acknowledgements
+-	Amaury Demol (ademol@dibcom.fr) and Francois Kanounnikoff from DiBcom for
+-    providing specs, code and help, on which the dvb-dibusb, dib3000mb and
+-    dib3000mc are based.
+-
+-   David Matthews for identifying a new device type (Artec T1 with AN2235)
+-    and for extending dibusb with remote control event handling. Thank you.
+-
+-   Alex Woods for frequently answering question about usb and dvb
+-    stuff, a big thank you.
+-
+-   Bernd Wagner for helping with huge bug reports and discussions.
+-
+-   Gunnar Wittich and Joachim von Caron for their trust for giving me
+-    root-shells on their machines to implement support for new devices.
+-
+-   Some guys on the linux-dvb mailing list for encouraging me
+-
+-   Peter Schildmann >peter.schildmann-nospam-at-web.de< for his
+-    user-level firmware loader, which saves a lot of time
+-    (when writing the vp7041 driver)
+-
+-   Ulf Hermenau for helping me out with traditional chinese.
+-
+-   André Smoktun and Christian Frömmel for supporting me with
+-    hardware and listening to my problems very patient
+Index: linux-2.6.12-rc4-git3/drivers/media/dvb/Makefile
+===================================================================
+--- linux-2.6.12-rc4-git3.orig/drivers/media/dvb/Makefile	2005-05-19 22:52:13.000000000 +0200
++++ linux-2.6.12-rc4-git3/drivers/media/dvb/Makefile	2005-05-23 00:54:29.000000000 +0200
+@@ -2,4 +2,4 @@
+ # Makefile for the kernel multimedia device drivers.
+ #
  
--static int nxt2002_request_firmware(struct dvb_frontend* fe, const struct firmware **fw, char* name)
-+static int flexcop_fe_request_firmware(struct dvb_frontend* fe, const struct firmware **fw, char* name)
- {
- 	struct flexcop_device *fc = fe->dvb->priv;
- 	return request_firmware(fw, name, fc->dev);
- }
+-obj-y        := dvb-core/ frontends/ ttpci/ ttusb-dec/ ttusb-budget/ b2c2/ bt8xx/ dibusb/ cinergyT2/
++obj-y        := dvb-core/ frontends/ ttpci/ ttusb-dec/ ttusb-budget/ b2c2/ bt8xx/ cinergyT2/
+Index: linux-2.6.12-rc4-git3/drivers/media/dvb/Kconfig
+===================================================================
+--- linux-2.6.12-rc4-git3.orig/drivers/media/dvb/Kconfig	2005-05-19 22:52:13.000000000 +0200
++++ linux-2.6.12-rc4-git3/drivers/media/dvb/Kconfig	2005-05-23 00:54:29.000000000 +0200
+@@ -29,7 +29,6 @@ comment "Supported USB Adapters"
+ 	depends on DVB_CORE && USB
+ source "drivers/media/dvb/ttusb-budget/Kconfig"
+ source "drivers/media/dvb/ttusb-dec/Kconfig"
+-source "drivers/media/dvb/dibusb/Kconfig"
+ source "drivers/media/dvb/cinergyT2/Kconfig"
  
- static struct nxt2002_config samsung_tbmv_config = {
--	.demod_address = 0x0a,
--	.request_firmware = nxt2002_request_firmware,
-+	.demod_address    = 0x0a,
-+	.request_firmware = flexcop_fe_request_firmware,
-+};
-+
-+static struct bcm3510_config air2pc_atsc_first_gen_config = {
-+	.demod_address    = 0x0f,
-+	.request_firmware = flexcop_fe_request_firmware,
- };
- 
- static int skystar23_samsung_tbdu18132_pll_set(struct dvb_frontend* fe, struct dvb_frontend_parameters* params)
-@@ -354,11 +359,16 @@ int flexcop_frontend_init(struct flexcop
- 		fc->dev_type          = FC_AIR_DVB;
- 		info("found the mt352 at i2c address: 0x%02x",samsung_tdtc9251dh0_config.demod_address);
- 	} else
--	/* try the air atsc (nxt2002) */
-+	/* try the air atsc 2nd generation (nxt2002) */
- 	if ((fc->fe = nxt2002_attach(&samsung_tbmv_config, &fc->i2c_adap)) != NULL) {
--		fc->dev_type          = FC_AIR_ATSC;
-+		fc->dev_type          = FC_AIR_ATSC2;
- 		info("found the nxt2002 at i2c address: 0x%02x",samsung_tbmv_config.demod_address);
- 	} else
-+	/* try the air atsc 1nd generation (bcm3510)/panasonic ct10s */
-+	if ((fc->fe = bcm3510_attach(&air2pc_atsc_first_gen_config, &fc->i2c_adap)) != NULL) {
-+		fc->dev_type          = FC_AIR_ATSC1;
-+		info("found the bcm3510 at i2c address: 0x%02x",air2pc_atsc_first_gen_config.demod_address);
-+	} else
- 	/* try the cable dvb (stv0297) */
- 	if ((fc->fe = stv0297_attach(&alps_tdee4_stv0297_config, &fc->i2c_adap, 0xf8)) != NULL) {
- 		fc->dev_type                        = FC_CABLE;
-Index: linux-2.6.12-rc4-git3/drivers/media/dvb/b2c2/flexcop-misc.c
+ comment "Supported FlexCopII (B2C2) Adapters"
+Index: linux-2.6.12-rc4-git3/drivers/media/dvb/dibusb/Makefile
 ===================================================================
---- linux-2.6.12-rc4-git3.orig/drivers/media/dvb/b2c2/flexcop-misc.c	2005-05-19 22:52:12.000000000 +0200
-+++ linux-2.6.12-rc4-git3/drivers/media/dvb/b2c2/flexcop-misc.c	2005-05-23 00:57:25.000000000 +0200
-@@ -45,11 +45,12 @@ const char *flexcop_revision_names[] = {
- 
- const char *flexcop_device_names[] = {
- 	"Unkown device",
--	"AirStar 2 DVB-T",
--	"AirStar 2 ATSC",
--	"SkyStar 2 DVB-S",
--	"SkyStar 2 DVB-S (old version)",
--	"CableStar 2 DVB-C",
-+	"Air2PC/AirStar 2 DVB-T",
-+	"Air2PC/AirStar 2 ATSC 1st generation",
-+	"Air2PC/AirStar 2 ATSC 2nd generation",
-+	"Sky2PC/SkyStar 2 DVB-S",
-+	"Sky2PC/SkyStar 2 DVB-S (old version)",
-+	"Cable2PC/CableStar 2 DVB-C",
- };
- 
- const char *flexcop_bus_names[] = {
-Index: linux-2.6.12-rc4-git3/drivers/media/dvb/b2c2/flexcop-reg.h
+--- linux-2.6.12-rc4-git3.orig/drivers/media/dvb/dibusb/Makefile	2005-05-19 22:52:13.000000000 +0200
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,11 +0,0 @@
+-dvb-dibusb-objs = dvb-dibusb-core.o \
+-	dvb-dibusb-dvb.o \
+-	dvb-dibusb-fe-i2c.o \
+-	dvb-dibusb-firmware.o \
+-	dvb-dibusb-remote.o \
+-	dvb-dibusb-usb.o \
+-	dvb-fe-dtt200u.o
+-
+-obj-$(CONFIG_DVB_DIBUSB) += dvb-dibusb.o
+-
+-EXTRA_CFLAGS = -Idrivers/media/dvb/dvb-core/ -Idrivers/media/dvb/frontends/
+Index: linux-2.6.12-rc4-git3/drivers/media/dvb/dibusb/dvb-fe-dtt200u.c
 ===================================================================
---- linux-2.6.12-rc4-git3.orig/drivers/media/dvb/b2c2/flexcop-reg.h	2005-05-19 22:52:12.000000000 +0200
-+++ linux-2.6.12-rc4-git3/drivers/media/dvb/b2c2/flexcop-reg.h	2005-05-23 00:57:25.000000000 +0200
-@@ -21,7 +21,8 @@ extern const char *flexcop_revision_name
- typedef enum {
- 	FC_UNK = 0,
- 	FC_AIR_DVB,
--	FC_AIR_ATSC,
-+	FC_AIR_ATSC1,
-+	FC_AIR_ATSC2,
- 	FC_SKY,
- 	FC_SKY_OLD,
- 	FC_CABLE,
-Index: linux-2.6.12-rc4-git3/drivers/media/dvb/frontends/Kconfig
+--- linux-2.6.12-rc4-git3.orig/drivers/media/dvb/dibusb/dvb-fe-dtt200u.c	2005-05-19 22:52:13.000000000 +0200
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,263 +0,0 @@
+-/*
+- * dvb-dtt200u-fe.c is a driver which implements the frontend-part of the
+- * Yakumo/Typhoon/Hama USB2.0 boxes. It is hard-wired to the dibusb-driver as
+- * it uses the usb-transfer functions directly (maybe creating a
+- * generic-dvb-usb-lib for all usb-drivers will be reduce some more code.)
+- *
+- * Copyright (C) 2005 Patrick Boettcher <patrick.boettcher@desy.de>
+- *
+- * see dvb-dibusb-core.c for copyright details.
+- */
+-
+-/* guessed protocol description (reverse engineered):
+- * read
+- *  00 - USB type 0x02 for usb2.0, 0x01 for usb1.1
+- *  81 - <TS_LOCK> <current frequency divided by 250000>
+- *  82 - crash - do not touch
+- *  83 - crash - do not touch
+- *  84 - remote control
+- *  85 - crash - do not touch (OK, stop testing here)
+- *  88 - locking 2 bytes (0x80 0x40 == no signal, 0x89 0x20 == nice signal)
+- *  89 - noise-to-signal
+- *	8a - unkown 1 byte - signal_strength
+- *  8c - ber ???
+- *  8d - ber
+- *  8e - unc
+- *
+- * write
+- *  02 - bandwidth
+- *  03 - frequency (divided by 250000)
+- *  04 - pid table (index pid(7:0) pid(12:8))
+- *  05 - reset the pid table
+- *  08 - demod transfer enabled or not (FX2 transfer is enabled by default)
+- */
+-
+-#include "dvb-dibusb.h"
+-#include "dvb_frontend.h"
+-
+-struct dtt200u_fe_state {
+-	struct usb_dibusb *dib;
+-
+-	struct dvb_frontend_parameters fep;
+-	struct dvb_frontend frontend;
+-};
+-
+-#define moan(which,what) info("unexpected value in '%s' for cmd '%02x' - please report to linux-dvb@linuxtv.org",which,what)
+-
+-static int dtt200u_fe_read_status(struct dvb_frontend* fe, fe_status_t *stat)
+-{
+-	struct dtt200u_fe_state *state = fe->demodulator_priv;
+-	u8 bw[1] = { 0x81 };
+-	u8 br[3] = { 0 };
+-//	u8 bdeb[5] = { 0 };
+-
+-	dibusb_readwrite_usb(state->dib,bw,1,br,3);
+-	switch (br[0]) {
+-		case 0x01:
+-			*stat = FE_HAS_SIGNAL | FE_HAS_CARRIER | FE_HAS_VITERBI | FE_HAS_SYNC | FE_HAS_LOCK;
+-			break;
+-		case 0x00:
+-			*stat = 0;
+-			break;
+-		default:
+-			moan("br[0]",0x81);
+-			break;
+-	}
+-
+-//	bw[0] = 0x88;
+-//	dibusb_readwrite_usb(state->dib,bw,1,bdeb,5);
+-
+-//	deb_info("%02x: %02x %02x %02x %02x %02x\n",bw[0],bdeb[0],bdeb[1],bdeb[2],bdeb[3],bdeb[4]);
+-
+-	return 0;
+-}
+-static int dtt200u_fe_read_ber(struct dvb_frontend* fe, u32 *ber)
+-{
+-	struct dtt200u_fe_state *state = fe->demodulator_priv;
+-	u8 bw[1] = { 0x8d };
+-	*ber = 0;
+-	dibusb_readwrite_usb(state->dib,bw,1,(u8*) ber, 3);
+-	return 0;
+-}
+-
+-static int dtt200u_fe_read_unc_blocks(struct dvb_frontend* fe, u32 *unc)
+-{
+-	struct dtt200u_fe_state *state = fe->demodulator_priv;
+-	u8 bw[1] = { 0x8c };
+-	*unc = 0;
+-	dibusb_readwrite_usb(state->dib,bw,1,(u8*) unc, 3);
+-	return 0;
+-}
+-
+-static int dtt200u_fe_read_signal_strength(struct dvb_frontend* fe, u16 *strength)
+-{
+-	struct dtt200u_fe_state *state = fe->demodulator_priv;
+-	u8 bw[1] = { 0x8a };
+-	u8 b;
+-	dibusb_readwrite_usb(state->dib,bw,1,&b, 1);
+-	*strength = (b << 8) | b;
+-	return 0;
+-}
+-
+-static int dtt200u_fe_read_snr(struct dvb_frontend* fe, u16 *snr)
+-{
+-	struct dtt200u_fe_state *state = fe->demodulator_priv;
+-	u8 bw[1] = { 0x89 };
+-	u8 br[1] = { 0 };
+-	dibusb_readwrite_usb(state->dib,bw,1,br,1);
+-	*snr = ((0xff - br[0]) << 8) | (0xff - br[0]);
+-	return 0;
+-}
+-
+-static int dtt200u_fe_init(struct dvb_frontend* fe)
+-{
+-	struct dtt200u_fe_state *state = fe->demodulator_priv;
+-	u8 b[] = { 0x01 };
+-	return dibusb_write_usb(state->dib,b,1);
+-}
+-
+-static int dtt200u_fe_sleep(struct dvb_frontend* fe)
+-{
+-	return dtt200u_fe_init(fe);
+-}
+-
+-static int dtt200u_fe_get_tune_settings(struct dvb_frontend* fe, struct dvb_frontend_tune_settings *tune)
+-{
+-	tune->min_delay_ms = 1500;
+-	tune->step_size = 166667;
+-	tune->max_drift = 166667 * 2;
+-	return 0;
+-}
+-
+-static int dtt200u_fe_set_frontend(struct dvb_frontend* fe,
+-				  struct dvb_frontend_parameters *fep)
+-{
+-	struct dtt200u_fe_state *state = fe->demodulator_priv;
+-	u16 freq = fep->frequency / 250000;
+-	u8 bw,bwbuf[2] = { 0x03, 0 }, freqbuf[3] = { 0x02, 0, 0 };
+-
+-	switch (fep->u.ofdm.bandwidth) {
+-		case BANDWIDTH_8_MHZ: bw = 8; break;
+-		case BANDWIDTH_7_MHZ: bw = 7; break;
+-		case BANDWIDTH_6_MHZ: bw = 6; break;
+-		case BANDWIDTH_AUTO: return -EOPNOTSUPP;
+-		default:
+-			return -EINVAL;
+-	}
+-	deb_info("set_frontend\n");
+-
+-	bwbuf[1] = bw;
+-	dibusb_write_usb(state->dib,bwbuf,2);
+-
+-	freqbuf[1] = freq & 0xff;
+-	freqbuf[2] = (freq >> 8) & 0xff;
+-	dibusb_write_usb(state->dib,freqbuf,3);
+-
+-	memcpy(&state->fep,fep,sizeof(struct dvb_frontend_parameters));
+-
+-	return 0;
+-}
+-
+-static int dtt200u_fe_get_frontend(struct dvb_frontend* fe,
+-				  struct dvb_frontend_parameters *fep)
+-{
+-	struct dtt200u_fe_state *state = fe->demodulator_priv;
+-	memcpy(fep,&state->fep,sizeof(struct dvb_frontend_parameters));
+-	return 0;
+-}
+-
+-static void dtt200u_fe_release(struct dvb_frontend* fe)
+-{
+-	struct dtt200u_fe_state *state = (struct dtt200u_fe_state*) fe->demodulator_priv;
+-	kfree(state);
+-}
+-
+-static int dtt200u_pid_control(struct dvb_frontend *fe,int index, int pid,int onoff)
+-{
+-	struct dtt200u_fe_state *state = (struct dtt200u_fe_state*) fe->demodulator_priv;
+-	u8 b_pid[4];
+-	pid = onoff ? pid : 0;
+-
+-	b_pid[0] = 0x04;
+-	b_pid[1] = index;
+-	b_pid[2] = pid & 0xff;
+-	b_pid[3] = (pid >> 8) & 0xff;
+-
+-	dibusb_write_usb(state->dib,b_pid,4);
+-	return 0;
+-}
+-
+-static int dtt200u_fifo_control(struct dvb_frontend *fe, int onoff)
+-{
+-	struct dtt200u_fe_state *state = (struct dtt200u_fe_state*) fe->demodulator_priv;
+-	u8 b_streaming[2] = { 0x08, onoff };
+-	u8 b_rst_pid[1] = { 0x05 };
+-
+-	dibusb_write_usb(state->dib,b_streaming,2);
+-
+-	if (!onoff)
+-		dibusb_write_usb(state->dib,b_rst_pid,1);
+-	return 0;
+-}
+-
+-static struct dvb_frontend_ops dtt200u_fe_ops;
+-
+-struct dvb_frontend* dtt200u_fe_attach(struct usb_dibusb *dib, struct dib_fe_xfer_ops *xfer_ops)
+-{
+-	struct dtt200u_fe_state* state = NULL;
+-
+-	/* allocate memory for the internal state */
+-	state = (struct dtt200u_fe_state*) kmalloc(sizeof(struct dtt200u_fe_state), GFP_KERNEL);
+-	if (state == NULL)
+-		goto error;
+-	memset(state,0,sizeof(struct dtt200u_fe_state));
+-
+-	deb_info("attaching frontend dtt200u\n");
+-
+-	state->dib = dib;
+-
+-	state->frontend.ops = &dtt200u_fe_ops;
+-	state->frontend.demodulator_priv = state;
+-
+-	xfer_ops->fifo_ctrl = dtt200u_fifo_control;
+-	xfer_ops->pid_ctrl = dtt200u_pid_control;
+-
+-	goto success;
+-error:
+-	return NULL;
+-success:
+-	return &state->frontend;
+-}
+-
+-static struct dvb_frontend_ops dtt200u_fe_ops = {
+-	.info = {
+-		.name			= "DTT200U (Yakumo/Typhoon/Hama) DVB-T",
+-		.type			= FE_OFDM,
+-		.frequency_min		= 44250000,
+-		.frequency_max		= 867250000,
+-		.frequency_stepsize	= 250000,
+-		.caps = FE_CAN_INVERSION_AUTO |
+-				FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 | FE_CAN_FEC_3_4 |
+-				FE_CAN_FEC_5_6 | FE_CAN_FEC_7_8 | FE_CAN_FEC_AUTO |
+-				FE_CAN_QPSK | FE_CAN_QAM_16 | FE_CAN_QAM_64 | FE_CAN_QAM_AUTO |
+-				FE_CAN_TRANSMISSION_MODE_AUTO |
+-				FE_CAN_GUARD_INTERVAL_AUTO |
+-				FE_CAN_RECOVER |
+-				FE_CAN_HIERARCHY_AUTO,
+-	},
+-
+-	.release = dtt200u_fe_release,
+-
+-	.init = dtt200u_fe_init,
+-	.sleep = dtt200u_fe_sleep,
+-
+-	.set_frontend = dtt200u_fe_set_frontend,
+-	.get_frontend = dtt200u_fe_get_frontend,
+-	.get_tune_settings = dtt200u_fe_get_tune_settings,
+-
+-	.read_status = dtt200u_fe_read_status,
+-	.read_ber = dtt200u_fe_read_ber,
+-	.read_signal_strength = dtt200u_fe_read_signal_strength,
+-	.read_snr = dtt200u_fe_read_snr,
+-	.read_ucblocks = dtt200u_fe_read_unc_blocks,
+-};
+Index: linux-2.6.12-rc4-git3/drivers/media/dvb/dibusb/dvb-dibusb-firmware.c
 ===================================================================
---- linux-2.6.12-rc4-git3.orig/drivers/media/dvb/frontends/Kconfig	2005-05-19 22:52:12.000000000 +0200
-+++ linux-2.6.12-rc4-git3/drivers/media/dvb/frontends/Kconfig	2005-05-23 00:57:25.000000000 +0200
-@@ -173,4 +173,12 @@ config DVB_OR51132
- 	  An ATSC 8VSB and QAM64/256 tuner module. Say Y when you want
- 	  to support this frontend.
- 
-+config DVB_BCM3510
-+	tristate "Broadcom BCM3510"
-+	depends on DVB_CORE
-+	select FW_LOADER
-+	help
-+	  An ATSC 8VSB/16VSB and QAM64/256 tuner module. Say Y when you want to
-+	  support this frontend.
-+
- endmenu
-Index: linux-2.6.12-rc4-git3/drivers/media/dvb/frontends/Makefile
+--- linux-2.6.12-rc4-git3.orig/drivers/media/dvb/dibusb/dvb-dibusb-firmware.c	2005-05-19 22:52:13.000000000 +0200
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,87 +0,0 @@
+-/*
+- * dvb-dibusb-firmware.c is part of the driver for mobile USB Budget DVB-T devices 
+- * based on reference design made by DiBcom (http://www.dibcom.fr/)
+- *
+- * Copyright (C) 2004-5 Patrick Boettcher (patrick.boettcher@desy.de)
+- *
+- * see dvb-dibusb-core.c for more copyright details.
+- *
+- * This file contains functions for downloading the firmware to the device.
+- */
+-#include "dvb-dibusb.h"
+-
+-#include <linux/firmware.h>
+-#include <linux/usb.h>
+-
+-/*
+- * load a firmware packet to the device 
+- */
+-static int dibusb_writemem(struct usb_device *udev,u16 addr,u8 *data, u8 len)
+-{
+-	return usb_control_msg(udev, usb_sndctrlpipe(udev,0),
+-			0xa0, USB_TYPE_VENDOR, addr, 0x00, data, len, 5000);
+-}
+-
+-int dibusb_loadfirmware(struct usb_device *udev, struct dibusb_usb_device *dibdev)
+-{
+-	const struct firmware *fw = NULL;
+-	u16 addr;
+-	u8 *b,*p;
+-	int ret = 0,i;
+-	
+-	if ((ret = request_firmware(&fw, dibdev->dev_cl->firmware, &udev->dev)) != 0) {
+-		err("did not find the firmware file. (%s) "
+-			"Please see linux/Documentation/dvb/ for more details on firmware-problems.",
+-			dibdev->dev_cl->firmware);
+-		return ret;
+-	}
+-
+-	info("downloading firmware from file '%s'.",dibdev->dev_cl->firmware);
+-	
+-	p = kmalloc(fw->size,GFP_KERNEL);	
+-	if (p != NULL) {
+-		u8 reset;
+-		/*
+-		 * you cannot use the fw->data as buffer for 
+-		 * usb_control_msg, a new buffer has to be
+-		 * created
+-		 */
+-		memcpy(p,fw->data,fw->size);
+-
+-		/* stop the CPU */
+-		reset = 1;
+-		if ((ret = dibusb_writemem(udev,dibdev->dev_cl->usb_ctrl->cpu_cs_register,&reset,1)) != 1) 
+-			err("could not stop the USB controller CPU.");
+-		for(i = 0; p[i+3] == 0 && i < fw->size; ) { 
+-			b = (u8 *) &p[i];
+-			addr = *((u16 *) &b[1]);
+-
+-			ret = dibusb_writemem(udev,addr,&b[4],b[0]);
+-		
+-			if (ret != b[0]) {
+-				err("error while transferring firmware "
+-					"(transferred size: %d, block size: %d)",
+-					ret,b[0]);
+-				ret = -EINVAL;
+-				break;
+-			}
+-			i += 5 + b[0];
+-		}
+-		/* length in ret */
+-		if (ret > 0)
+-			ret = 0;
+-		/* restart the CPU */
+-		reset = 0;
+-		if (ret || dibusb_writemem(udev,dibdev->dev_cl->usb_ctrl->cpu_cs_register,&reset,1) != 1) {
+-			err("could not restart the USB controller CPU.");
+-			ret = -EINVAL;
+-		}
+-
+-		kfree(p);
+-	} else { 
+-		ret = -ENOMEM;
+-	}
+-	release_firmware(fw);
+-
+-	return ret;
+-}
+Index: linux-2.6.12-rc4-git3/drivers/media/dvb/dibusb/dvb-dibusb-fe-i2c.c
 ===================================================================
---- linux-2.6.12-rc4-git3.orig/drivers/media/dvb/frontends/Makefile	2005-05-19 22:52:12.000000000 +0200
-+++ linux-2.6.12-rc4-git3/drivers/media/dvb/frontends/Makefile	2005-05-23 00:57:25.000000000 +0200
-@@ -28,3 +28,4 @@ obj-$(CONFIG_DVB_STV0297) += stv0297.o
- obj-$(CONFIG_DVB_NXT2002) += nxt2002.o
- obj-$(CONFIG_DVB_OR51211) += or51211.o
- obj-$(CONFIG_DVB_OR51132) += or51132.o
-+obj-$(CONFIG_DVB_BCM3510) += bcm3510.o
-Index: linux-2.6.12-rc4-git3/drivers/media/dvb/frontends/bcm3510.c
+--- linux-2.6.12-rc4-git3.orig/drivers/media/dvb/dibusb/dvb-dibusb-fe-i2c.c	2005-05-19 22:52:13.000000000 +0200
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,582 +0,0 @@
+-/*
+- * dvb-dibusb-fe-i2c.c is part of the driver for mobile USB Budget DVB-T devices
+- * based on reference design made by DiBcom (http://www.dibcom.fr/)
+- *
+- * Copyright (C) 2004-5 Patrick Boettcher (patrick.boettcher@desy.de)
+- *
+- * see dvb-dibusb-core.c for more copyright details.
+- *
+- * This file contains functions for attaching, initializing of an appropriate
+- * demodulator/frontend. I2C-stuff is also located here.
+- *
+- */
+-#include "dvb-dibusb.h"
+-
+-#include <linux/usb.h>
+-
+-static int dibusb_i2c_msg(struct usb_dibusb *dib, u8 addr,
+-			  u8 *wbuf, u16 wlen, u8 *rbuf, u16 rlen)
+-{
+-	u8 sndbuf[wlen+4]; /* lead(1) devaddr,direction(1) addr(2) data(wlen) (len(2) (when reading)) */
+-	/* write only ? */
+-	int wo = (rbuf == NULL || rlen == 0),
+-		len = 2 + wlen + (wo ? 0 : 2);
+-
+-	sndbuf[0] = wo ? DIBUSB_REQ_I2C_WRITE : DIBUSB_REQ_I2C_READ;
+-	sndbuf[1] = (addr << 1) | (wo ? 0 : 1);
+-
+-	memcpy(&sndbuf[2],wbuf,wlen);
+-
+-	if (!wo) {
+-		sndbuf[wlen+2] = (rlen >> 8) & 0xff;
+-		sndbuf[wlen+3] = rlen & 0xff;
+-	}
+-
+-	return dibusb_readwrite_usb(dib,sndbuf,len,rbuf,rlen);
+-}
+-
+-/*
+- * I2C master xfer function
+- */
+-static int dibusb_i2c_xfer(struct i2c_adapter *adap,struct i2c_msg *msg,int num)
+-{
+-	struct usb_dibusb *dib = i2c_get_adapdata(adap);
+-	int i;
+-
+-	if (down_interruptible(&dib->i2c_sem) < 0)
+-		return -EAGAIN;
+-
+-	if (num > 2)
+-		warn("more than 2 i2c messages at a time is not handled yet. TODO.");
+-
+-	for (i = 0; i < num; i++) {
+-		/* write/read request */
+-		if (i+1 < num && (msg[i+1].flags & I2C_M_RD)) {
+-			if (dibusb_i2c_msg(dib, msg[i].addr, msg[i].buf,msg[i].len,
+-						msg[i+1].buf,msg[i+1].len) < 0)
+-				break;
+-			i++;
+-		} else
+-			if (dibusb_i2c_msg(dib, msg[i].addr, msg[i].buf,msg[i].len,NULL,0) < 0)
+-				break;
+-	}
+-
+-	up(&dib->i2c_sem);
+-	return i;
+-}
+-
+-static u32 dibusb_i2c_func(struct i2c_adapter *adapter)
+-{
+-	return I2C_FUNC_I2C;
+-}
+-
+-static struct i2c_algorithm dibusb_algo = {
+-	.name			= "DiBcom USB i2c algorithm",
+-	.id				= I2C_ALGO_BIT,
+-	.master_xfer	= dibusb_i2c_xfer,
+-	.functionality	= dibusb_i2c_func,
+-};
+-
+-static int dibusb_general_demod_init(struct dvb_frontend *fe);
+-static u8 dibusb_general_pll_addr(struct dvb_frontend *fe);
+-static int dibusb_general_pll_init(struct dvb_frontend *fe, u8 pll_buf[5]);
+-static int dibusb_general_pll_set(struct dvb_frontend *fe,
+-		struct dvb_frontend_parameters* params, u8 pll_buf[5]);
+-
+-static struct mt352_config mt352_hanftek_umt_010_config = {
+-	.demod_address = 0x1e,
+-	.demod_init = dibusb_general_demod_init,
+-	.pll_set = dibusb_general_pll_set,
+-};
+-
+-static int dibusb_tuner_quirk(struct usb_dibusb *dib)
+-{
+-	switch (dib->dibdev->dev_cl->id) {
+-		case DIBUSB1_1: /* some these device have the ENV77H11D5 and some the THOMSON CABLE */
+-		case DIBUSB1_1_AN2235: { /* actually its this device, but in warm state they are indistinguishable */
+-			struct dibusb_tuner *t;
+-			u8 b[2] = { 0,0 } ,b2[1];
+-			struct i2c_msg msg[2] = {
+-				{ .flags = 0, .buf = b, .len = 2 },
+-				{ .flags = I2C_M_RD, .buf = b2, .len = 1},
+-			};
+-
+-			t = &dibusb_tuner[DIBUSB_TUNER_COFDM_PANASONIC_ENV77H11D5];
+-
+-			msg[0].addr = msg[1].addr = t->pll_addr;
+-
+-			if (dib->xfer_ops.tuner_pass_ctrl != NULL)
+-				dib->xfer_ops.tuner_pass_ctrl(dib->fe,1,t->pll_addr);
+-			dibusb_i2c_xfer(&dib->i2c_adap,msg,2);
+-			if (dib->xfer_ops.tuner_pass_ctrl != NULL)
+-				dib->xfer_ops.tuner_pass_ctrl(dib->fe,0,t->pll_addr);
+-
+-			if (b2[0] == 0xfe)
+-				info("this device has the Thomson Cable onboard. Which is default.");
+-			else {
+-				dib->tuner = t;
+-				info("this device has the Panasonic ENV77H11D5 onboard.");
+-			}
+-			break;
+-		}
+-		default:
+-			break;
+-	}
+-	return 0;
+-}
+-
+-int dibusb_fe_init(struct usb_dibusb* dib)
+-{
+-	struct dib3000_config demod_cfg;
+-	int i;
+-
+-	if (dib->init_state & DIBUSB_STATE_I2C) {
+-		for (i = 0; i < sizeof(dib->dibdev->dev_cl->demod->i2c_addrs) / sizeof(unsigned char) &&
+-				dib->dibdev->dev_cl->demod->i2c_addrs[i] != 0; i++) {
+-
+-			demod_cfg.demod_address = dib->dibdev->dev_cl->demod->i2c_addrs[i];
+-			demod_cfg.pll_addr = dibusb_general_pll_addr;
+-			demod_cfg.pll_set = dibusb_general_pll_set;
+-			demod_cfg.pll_init = dibusb_general_pll_init;
+-
+-			deb_info("demod id: %d %d\n",dib->dibdev->dev_cl->demod->id,DTT200U_FE);
+-
+-			switch (dib->dibdev->dev_cl->demod->id) {
+-				case DIBUSB_DIB3000MB:
+-					dib->fe = dib3000mb_attach(&demod_cfg,&dib->i2c_adap,&dib->xfer_ops);
+-				break;
+-				case DIBUSB_DIB3000MC:
+-					dib->fe = dib3000mc_attach(&demod_cfg,&dib->i2c_adap,&dib->xfer_ops);
+-				break;
+-				case DIBUSB_MT352:
+-					mt352_hanftek_umt_010_config.demod_address = dib->dibdev->dev_cl->demod->i2c_addrs[i];
+-					dib->fe = mt352_attach(&mt352_hanftek_umt_010_config, &dib->i2c_adap);
+-				break;
+-				case DTT200U_FE:
+-					dib->fe = dtt200u_fe_attach(dib,&dib->xfer_ops);
+-				break;
+-			}
+-			if (dib->fe != NULL) {
+-				info("found demodulator at i2c address 0x%x",dib->dibdev->dev_cl->demod->i2c_addrs[i]);
+-				break;
+-			}
+-		}
+-		/* if a frontend was found */
+-		if (dib->fe != NULL) {
+-			if (dib->fe->ops->sleep != NULL)
+-				dib->fe_sleep = dib->fe->ops->sleep;
+-			dib->fe->ops->sleep = dibusb_hw_sleep;
+-
+-			if (dib->fe->ops->init != NULL )
+-				dib->fe_init = dib->fe->ops->init;
+-			dib->fe->ops->init = dibusb_hw_wakeup;
+-
+-			/* setting the default tuner */
+-			dib->tuner = dib->dibdev->dev_cl->tuner;
+-
+-			/* check which tuner is mounted on this device, in case this is unsure */
+-			dibusb_tuner_quirk(dib);
+-		}
+-	}
+-	if (dib->fe == NULL) {
+-		err("A frontend driver was not found for device '%s'.",
+-		       dib->dibdev->name);
+-		return -ENODEV;
+-	} else {
+-		if (dvb_register_frontend(&dib->adapter, dib->fe)) {
+-			err("Frontend registration failed.");
+-			if (dib->fe->ops->release)
+-				dib->fe->ops->release(dib->fe);
+-			dib->fe = NULL;
+-			return -ENODEV;
+-		}
+-	}
+-
+-	return 0;
+-}
+-
+-int dibusb_fe_exit(struct usb_dibusb *dib)
+-{
+-	if (dib->fe != NULL)
+-		dvb_unregister_frontend(dib->fe);
+-	return 0;
+-}
+-
+-int dibusb_i2c_init(struct usb_dibusb *dib)
+-{
+-	int ret = 0;
+-
+-	dib->adapter.priv = dib;
+-
+-	strncpy(dib->i2c_adap.name,dib->dibdev->name,I2C_NAME_SIZE);
+-#ifdef I2C_ADAP_CLASS_TV_DIGITAL
+-	dib->i2c_adap.class = I2C_ADAP_CLASS_TV_DIGITAL,
+-#else
+-	dib->i2c_adap.class = I2C_CLASS_TV_DIGITAL,
+-#endif
+-	dib->i2c_adap.algo		= &dibusb_algo;
+-	dib->i2c_adap.algo_data = NULL;
+-	dib->i2c_adap.id		= I2C_ALGO_BIT;
+-
+-	i2c_set_adapdata(&dib->i2c_adap, dib);
+-
+-	if ((ret = i2c_add_adapter(&dib->i2c_adap)) < 0)
+-		err("could not add i2c adapter");
+-
+-	dib->init_state |= DIBUSB_STATE_I2C;
+-
+-	return ret;
+-}
+-
+-int dibusb_i2c_exit(struct usb_dibusb *dib)
+-{
+-	if (dib->init_state & DIBUSB_STATE_I2C)
+-		i2c_del_adapter(&dib->i2c_adap);
+-	dib->init_state &= ~DIBUSB_STATE_I2C;
+-	return 0;
+-}
+-
+-
+-/* pll stuff, maybe removed soon (thx to Gerd/Andrew in advance) */
+-static int thomson_cable_eu_pll_set(struct dvb_frontend_parameters *fep, u8 pllbuf[4])
+-{
+-	u32 tfreq = (fep->frequency + 36125000) / 62500;
+-	int vu,p0,p1,p2;
+-
+-	if (fep->frequency > 403250000)
+-		vu = 1, p2 = 1, p1 = 0, p0 = 1;
+-	else if (fep->frequency > 115750000)
+-		vu = 0, p2 = 1, p1 = 1, p0 = 0;
+-	else if (fep->frequency > 44250000)
+-		vu = 0, p2 = 0, p1 = 1, p0 = 1;
+-	else
+-		return -EINVAL;
+-
+-	pllbuf[0] = (tfreq >> 8) & 0x7f;
+-	pllbuf[1] = tfreq & 0xff;
+-	pllbuf[2] = 0x8e;
+-	pllbuf[3] = (vu << 7) | (p2 << 2) | (p1 << 1) | p0;
+-	return 0;
+-}
+-
+-static int panasonic_cofdm_env57h1xd5_pll_set(struct dvb_frontend_parameters *fep, u8 pllbuf[4])
+-{
+-	u32 freq_khz = fep->frequency / 1000;
+-	u32 tfreq = ((freq_khz + 36125)*6 + 500) / 1000;
+-	u8 TA, T210, R210, ctrl1, cp210, p4321;
+-	if (freq_khz > 858000) {
+-		err("frequency cannot be larger than 858 MHz.");
+-		return -EINVAL;
+-	}
+-
+-	// contol data 1 : 1 | T/A=1 | T2,T1,T0 = 0,0,0 | R2,R1,R0 = 0,1,0
+-	TA = 1;
+-	T210 = 0;
+-	R210 = 0x2;
+-	ctrl1 = (1 << 7) | (TA << 6) | (T210 << 3) | R210;
+-
+-// ********    CHARGE PUMP CONFIG vs RF FREQUENCIES     *****************
+-	if (freq_khz < 470000)
+-		cp210 = 2;  // VHF Low and High band ch E12 to E4 to E12
+-	else if (freq_khz < 526000)
+-		cp210 = 4;  // UHF band Ch E21 to E27
+-	else // if (freq < 862000000)
+-		cp210 = 5;  // UHF band ch E28 to E69
+-
+-//*********************    BW select  *******************************
+-	if (freq_khz < 153000)
+-		p4321  = 1; // BW selected for VHF low
+-	else if (freq_khz < 470000)
+-		p4321  = 2; // BW selected for VHF high E5 to E12
+-	else // if (freq < 862000000)
+-		p4321  = 4; // BW selection for UHF E21 to E69
+-
+-	pllbuf[0] = (tfreq >> 8) & 0xff;
+-	pllbuf[1] = (tfreq >> 0) & 0xff;
+-	pllbuf[2] = 0xff & ctrl1;
+-	pllbuf[3] =  (cp210 << 5) | (p4321);
+-
+-	return 0;
+-}
+-
+-/*
+- *			    7	6		5	4	3	2	1	0
+- * Address Byte             1	1		0	0	0	MA1	MA0	R/~W=0
+- *
+- * Program divider byte 1   0	n14		n13	n12	n11	n10	n9	n8
+- * Program divider byte 2	n7	n6		n5	n4	n3	n2	n1	n0
+- *
+- * Control byte 1           1	T/A=1	T2	T1	T0	R2	R1	R0
+- *                          1	T/A=0	0	0	ATC	AL2	AL1	AL0
+- *
+- * Control byte 2           CP2	CP1		CP0	BS5	BS4	BS3	BS2	BS1
+- *
+- * MA0/1 = programmable address bits
+- * R/~W  = read/write bit (0 for writing)
+- * N14-0 = programmable LO frequency
+- *
+- * T/A   = test AGC bit (0 = next 6 bits AGC setting,
+- *                       1 = next 6 bits test and reference divider ratio settings)
+- * T2-0  = test bits
+- * R2-0  = reference divider ratio and programmable frequency step
+- * ATC   = AGC current setting and time constant
+- *         ATC = 0: AGC current = 220nA, AGC time constant = 2s
+- *         ATC = 1: AGC current = 9uA, AGC time constant = 50ms
+- * AL2-0 = AGC take-over point bits
+- * CP2-0 = charge pump current
+- * BS5-1 = PMOS ports control bits;
+- *             BSn = 0 corresponding port is off, high-impedance state (at power-on)
+- *             BSn = 1 corresponding port is on
+- */
+-static int panasonic_cofdm_env77h11d5_tda6650_init(struct dvb_frontend *fe, u8 pllbuf[4])
+-{
+-	pllbuf[0] = 0x0b;
+-	pllbuf[1] = 0xf5;
+-	pllbuf[2] = 0x85;
+-	pllbuf[3] = 0xab;
+-	return 0;
+-}
+-
+-static int panasonic_cofdm_env77h11d5_tda6650_set (struct dvb_frontend_parameters *fep,u8 pllbuf[4])
+-{
+-	int tuner_frequency = 0;
+-	u8 band, cp, filter;
+-
+-	// determine charge pump
+-	tuner_frequency = fep->frequency + 36166000;
+-	if (tuner_frequency < 87000000)
+-		return -EINVAL;
+-	else if (tuner_frequency < 130000000)
+-		cp = 3;
+-	else if (tuner_frequency < 160000000)
+-		cp = 5;
+-	else if (tuner_frequency < 200000000)
+-		cp = 6;
+-	else if (tuner_frequency < 290000000)
+-		cp = 3;
+-	else if (tuner_frequency < 420000000)
+-		cp = 5;
+-	else if (tuner_frequency < 480000000)
+-		cp = 6;
+-	else if (tuner_frequency < 620000000)
+-		cp = 3;
+-	else if (tuner_frequency < 830000000)
+-		cp = 5;
+-	else if (tuner_frequency < 895000000)
+-		cp = 7;
+-	else
+-		return -EINVAL;
+-
+-	// determine band
+-	if (fep->frequency < 49000000)
+-		return -EINVAL;
+-	else if (fep->frequency < 161000000)
+-		band = 1;
+-	else if (fep->frequency < 444000000)
+-		band = 2;
+-	else if (fep->frequency < 861000000)
+-		band = 4;
+-	else
+-		return -EINVAL;
+-
+-	// setup PLL filter
+-	switch (fep->u.ofdm.bandwidth) {
+-		case BANDWIDTH_6_MHZ:
+-		case BANDWIDTH_7_MHZ:
+-			filter = 0;
+-			break;
+-		case BANDWIDTH_8_MHZ:
+-			filter = 1;
+-			break;
+-		default:
+-			return -EINVAL;
+-	}
+-
+-	// calculate divisor
+-	// ((36166000+((1000000/6)/2)) + Finput)/(1000000/6)
+-	tuner_frequency = (((fep->frequency / 1000) * 6) + 217496) / 1000;
+-
+-	// setup tuner buffer
+-	pllbuf[0] = (tuner_frequency >> 8) & 0x7f;
+-	pllbuf[1] = tuner_frequency & 0xff;
+-	pllbuf[2] = 0xca;
+-	pllbuf[3] = (cp << 5) | (filter << 3) | band;
+-	return 0;
+-}
+-
+-/*
+- *			    7	6	5	4	3	2	1	0
+- * Address Byte             1	1	0	0	0	MA1	MA0	R/~W=0
+- *
+- * Program divider byte 1   0	n14	n13	n12	n11	n10	n9	n8
+- * Program divider byte 2	n7	n6	n5	n4	n3	n2	n1	n0
+- *
+- * Control byte             1	CP	T2	T1	T0	RSA	RSB	OS
+- *
+- * Band Switch byte         X	X	X	P4	P3	P2	P1	P0
+- *
+- * Auxiliary byte           ATC	AL2	AL1	AL0	0	0	0	0
+- *
+- * Address: MA1	MA0	Address
+- *          0	0	c0
+- *          0	1	c2 (always valid)
+- *          1	0	c4
+- *          1	1	c6
+- */
+-static int lg_tdtp_e102p_tua6034(struct dvb_frontend_parameters* fep, u8 pllbuf[4])
+-{
+-	u32 div;
+-	u8 p210, p3;
+-
+-#define TUNER_MUL 62500
+-
+-	div = (fep->frequency + 36125000 + TUNER_MUL / 2) / TUNER_MUL;
+-//	div = ((fep->frequency/1000 + 36166) * 6) / 1000;
+-
+-	if (fep->frequency < 174500000)
+-		p210 = 1; // not supported by the tdtp_e102p
+-	else if (fep->frequency < 230000000) // VHF
+-		p210 = 2;
+-	else
+-		p210 = 4;
+-
+-	if (fep->u.ofdm.bandwidth == BANDWIDTH_7_MHZ)
+-		p3 = 0;
+-	else
+-		p3 = 1;
+-
+-	pllbuf[0] = (div >> 8) & 0x7f;
+-	pllbuf[1] = div & 0xff;
+-	pllbuf[2] = 0xce;
+-//	pllbuf[2] = 0xcc;
+-	pllbuf[3] = (p3 << 3) | p210;
+-
+-	return 0;
+-}
+-
+-static int lg_tdtp_e102p_mt352_demod_init(struct dvb_frontend *fe)
+-{
+-	static u8 mt352_clock_config[] = { 0x89, 0xb8, 0x2d };
+-	static u8 mt352_reset[] = { 0x50, 0x80 };
+-	static u8 mt352_mclk_ratio[] = { 0x8b, 0x00 };
+-	static u8 mt352_adc_ctl_1_cfg[] = { 0x8E, 0x40 };
+-	static u8 mt352_agc_cfg[] = { 0x67, 0x10, 0xa0 };
+-
+-	static u8 mt352_sec_agc_cfg1[] = { 0x6a, 0xff };
+-	static u8 mt352_sec_agc_cfg2[] = { 0x6d, 0xff };
+-	static u8 mt352_sec_agc_cfg3[] = { 0x70, 0x40 };
+-	static u8 mt352_sec_agc_cfg4[] = { 0x7b, 0x03 };
+-	static u8 mt352_sec_agc_cfg5[] = { 0x7d, 0x0f };
+-
+-	static u8 mt352_acq_ctl[] = { 0x53, 0x50 };
+-	static u8 mt352_input_freq_1[] = { 0x56, 0x31, 0x06 };
+-
+-	mt352_write(fe, mt352_clock_config, sizeof(mt352_clock_config));
+-	udelay(2000);
+-	mt352_write(fe, mt352_reset, sizeof(mt352_reset));
+-	mt352_write(fe, mt352_mclk_ratio, sizeof(mt352_mclk_ratio));
+-
+-	mt352_write(fe, mt352_adc_ctl_1_cfg, sizeof(mt352_adc_ctl_1_cfg));
+-	mt352_write(fe, mt352_agc_cfg, sizeof(mt352_agc_cfg));
+-
+-	mt352_write(fe, mt352_sec_agc_cfg1, sizeof(mt352_sec_agc_cfg1));
+-	mt352_write(fe, mt352_sec_agc_cfg2, sizeof(mt352_sec_agc_cfg2));
+-	mt352_write(fe, mt352_sec_agc_cfg3, sizeof(mt352_sec_agc_cfg3));
+-	mt352_write(fe, mt352_sec_agc_cfg4, sizeof(mt352_sec_agc_cfg4));
+-	mt352_write(fe, mt352_sec_agc_cfg5, sizeof(mt352_sec_agc_cfg5));
+-
+-	mt352_write(fe, mt352_acq_ctl, sizeof(mt352_acq_ctl));
+-	mt352_write(fe, mt352_input_freq_1, sizeof(mt352_input_freq_1));
+-
+-	return 0;
+-}
+-
+-static int dibusb_general_demod_init(struct dvb_frontend *fe)
+-{
+-	struct usb_dibusb* dib = (struct usb_dibusb*) fe->dvb->priv;
+-	switch (dib->dibdev->dev_cl->id) {
+-		case UMT2_0:
+-			return lg_tdtp_e102p_mt352_demod_init(fe);
+-		default: /* other device classes do not have device specific demod inits */
+-			break;
+-	}
+-	return 0;
+-}
+-
+-static u8 dibusb_general_pll_addr(struct dvb_frontend *fe)
+-{
+-	struct usb_dibusb* dib = (struct usb_dibusb*) fe->dvb->priv;
+-	return dib->tuner->pll_addr;
+-}
+-
+-static int dibusb_pll_i2c_helper(struct usb_dibusb *dib, u8 pll_buf[5], u8 buf[4])
+-{
+-	if (pll_buf == NULL) {
+-		struct i2c_msg msg = {
+-			.addr = dib->tuner->pll_addr,
+-			.flags = 0,
+-			.buf = buf,
+-			.len = sizeof(buf)
+-		};
+-		if (i2c_transfer (&dib->i2c_adap, &msg, 1) != 1)
+-			return -EIO;
+-		msleep(1);
+-	} else {
+-		pll_buf[0] = dib->tuner->pll_addr << 1;
+-		memcpy(&pll_buf[1],buf,4);
+-	}
+-
+-	return 0;
+-}
+-
+-static int dibusb_general_pll_init(struct dvb_frontend *fe,
+-		u8 pll_buf[5])
+-{
+-	struct usb_dibusb* dib = (struct usb_dibusb*) fe->dvb->priv;
+-	u8 buf[4];
+-	int ret=0;
+-	switch (dib->tuner->id) {
+-		case DIBUSB_TUNER_COFDM_PANASONIC_ENV77H11D5:
+-			ret = panasonic_cofdm_env77h11d5_tda6650_init(fe,buf);
+-			break;
+-		default:
+-			break;
+-	}
+-
+-	if (ret)
+-		return ret;
+-
+-	return dibusb_pll_i2c_helper(dib,pll_buf,buf);
+-}
+-
+-static int dibusb_general_pll_set(struct dvb_frontend *fe,
+-		struct dvb_frontend_parameters *fep, u8 pll_buf[5])
+-{
+-	struct usb_dibusb* dib = (struct usb_dibusb*) fe->dvb->priv;
+-	u8 buf[4];
+-	int ret=0;
+-
+-	switch (dib->tuner->id) {
+-		case DIBUSB_TUNER_CABLE_THOMSON:
+-			ret = thomson_cable_eu_pll_set(fep, buf);
+-			break;
+-		case DIBUSB_TUNER_COFDM_PANASONIC_ENV57H1XD5:
+-			ret = panasonic_cofdm_env57h1xd5_pll_set(fep, buf);
+-			break;
+-		case DIBUSB_TUNER_CABLE_LG_TDTP_E102P:
+-			ret = lg_tdtp_e102p_tua6034(fep, buf);
+-			break;
+-		case DIBUSB_TUNER_COFDM_PANASONIC_ENV77H11D5:
+-			ret = panasonic_cofdm_env77h11d5_tda6650_set(fep,buf);
+-			break;
+-		default:
+-			warn("no pll programming routine found for tuner %d.\n",dib->tuner->id);
+-			ret = -ENODEV;
+-			break;
+-	}
+-
+-	if (ret)
+-		return ret;
+-
+-	return dibusb_pll_i2c_helper(dib,pll_buf,buf);
+-}
+Index: linux-2.6.12-rc4-git3/drivers/media/dvb/dibusb/dvb-dibusb-usb.c
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.12-rc4-git3/drivers/media/dvb/frontends/bcm3510.c	2005-05-23 00:57:25.000000000 +0200
-@@ -0,0 +1,851 @@
-+/*
-+ * Support for the Broadcom BCM3510 ATSC demodulator (1st generation Air2PC)
-+ *
-+ *  Copyright (C) 2001-5, B2C2 inc.
-+ *
-+ *  GPL/Linux driver written by Patrick Boettcher <patrick.boettcher@desy.de>
-+ *
-+ *  This driver is "hard-coded" to be used with the 1st generation of
-+ *  Technisat/B2C2's Air2PC ATSC PCI/USB cards/boxes. The pll-programming
-+ *  (Panasonic CT10S) is located here, which is actually wrong. Unless there is
-+ *  another device with a BCM3510, this is no problem.
-+ *
-+ *  The driver works also with QAM64 DVB-C, but had an unreasonable high
-+ *  UNC. (Tested with the Air2PC ATSC 1st generation)
-+ *
-+ *  You'll need a firmware for this driver in order to get it running. It is
-+ *  called "dvb-fe-bcm3510-01.fw".
-+ *
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful, but WITHOUT
-+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
-+ * more details.
-+ *
-+ * You should have received a copy of the GNU General Public License along with
-+ * this program; if not, write to the Free Software Foundation, Inc., 675 Mass
-+ * Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/moduleparam.h>
-+#include <linux/device.h>
-+#include <linux/firmware.h>
-+
-+#include "dvb_frontend.h"
-+#include "bcm3510.h"
-+#include "bcm3510_priv.h"
-+
-+struct bcm3510_state {
-+
-+	struct i2c_adapter* i2c;
-+	struct dvb_frontend_ops ops;
-+	const struct bcm3510_config* config;
-+	struct dvb_frontend frontend;
-+
-+	/* demodulator private data */
-+	struct semaphore hab_sem;
-+	u8 firmware_loaded:1;
-+
-+	unsigned long next_status_check;
-+	unsigned long status_check_interval;
-+	struct bcm3510_hab_cmd_status1 status1;
-+	struct bcm3510_hab_cmd_status2 status2;
-+};
-+
-+static int debug;
-+module_param(debug, int, 0644);
-+MODULE_PARM_DESC(debug, "set debugging level (1=info,2=i2c (|-able)).");
-+
-+#define dprintk(level,x...) if (level & debug) printk(x)
-+#define dbufout(b,l,m) {\
-+	    int i; \
-+	    for (i = 0; i < l; i++) \
-+	        m("%02x ",b[i]); \
-+}
-+#define deb_info(args...) dprintk(0x01,args)
-+#define deb_i2c(args...)  dprintk(0x02,args)
-+#define deb_hab(args...)  dprintk(0x04,args)
-+
-+/* transfer functions */
-+static int bcm3510_writebytes (struct bcm3510_state *state, u8 reg, u8 *buf, u8 len)
-+{
-+	u8 b[256];
-+	int err;
-+	struct i2c_msg msg = { .addr = state->config->demod_address, .flags = 0, .buf = b, .len = len + 1 };
-+
-+	b[0] = reg;
-+	memcpy(&b[1],buf,len);
-+
-+	deb_i2c("i2c wr %02x: ",reg);
-+	dbufout(buf,len,deb_i2c);
-+	deb_i2c("\n");
-+
-+	if ((err = i2c_transfer (state->i2c, &msg, 1)) != 1) {
-+
-+		deb_info("%s: i2c write error (addr %02x, reg %02x, err == %i)\n",
-+			__FUNCTION__, state->config->demod_address, reg,  err);
-+		return -EREMOTEIO;
-+	}
-+
-+	return 0;
-+}
-+
-+static int bcm3510_readbytes (struct bcm3510_state *state, u8 reg, u8 *buf, u8 len)
-+{
-+	struct i2c_msg msg[] = {
-+		{ .addr = state->config->demod_address, .flags = 0,        .buf = &reg, .len = 1 },
-+		{ .addr = state->config->demod_address, .flags = I2C_M_RD, .buf = buf,  .len = len }
-+	};
-+	int err;
-+
-+	memset(buf,0,len);
-+
-+	if ((err = i2c_transfer (state->i2c, msg, 2)) != 2) {
-+		deb_info("%s: i2c read error (addr %02x, reg %02x, err == %i)\n",
-+			__FUNCTION__, state->config->demod_address, reg,  err);
-+		return -EREMOTEIO;
-+	}
-+	deb_i2c("i2c rd %02x: ",reg);
-+	dbufout(buf,len,deb_i2c);
-+	deb_i2c("\n");
-+
-+	return 0;
-+}
-+
-+static int bcm3510_writeB(struct bcm3510_state *state, u8 reg, bcm3510_register_value v)
-+{
-+	return bcm3510_writebytes(state,reg,&v.raw,1);
-+}
-+
-+static int bcm3510_readB(struct bcm3510_state *state, u8 reg, bcm3510_register_value *v)
-+{
-+	return bcm3510_readbytes(state,reg,&v->raw,1);
-+}
-+
-+/* Host Access Buffer transfers */
-+static int bcm3510_hab_get_response(struct bcm3510_state *st, u8 *buf, int len)
-+{
-+	bcm3510_register_value v;
-+	int ret,i;
-+
-+	v.HABADR_a6.HABADR = 0;
-+	if ((ret = bcm3510_writeB(st,0xa6,v)) < 0)
-+		return ret;
-+
-+	for (i = 0; i < len; i++) {
-+		if ((ret = bcm3510_readB(st,0xa7,&v)) < 0)
-+			return ret;
-+		buf[i] = v.HABDATA_a7;
-+	}
-+	return 0;
-+}
-+
-+static int bcm3510_hab_send_request(struct bcm3510_state *st, u8 *buf, int len)
-+{
-+	bcm3510_register_value v,hab;
-+	int ret,i;
-+	unsigned long t;
-+
-+/* Check if any previous HAB request still needs to be serviced by the
-+ * Aquisition Processor before sending new request */
-+	if ((ret = bcm3510_readB(st,0xa8,&v)) < 0)
-+		return ret;
-+	if (v.HABSTAT_a8.HABR) {
-+		deb_info("HAB is running already - clearing it.\n");
-+		v.HABSTAT_a8.HABR = 0;
-+		bcm3510_writeB(st,0xa8,v);
-+//		return -EBUSY;
-+	}
-+
-+/* Send the start HAB Address (automatically incremented after write of
-+ * HABDATA) and write the HAB Data */
-+	hab.HABADR_a6.HABADR = 0;
-+	if ((ret = bcm3510_writeB(st,0xa6,hab)) < 0)
-+		return ret;
-+
-+	for (i = 0; i < len; i++) {
-+		hab.HABDATA_a7 = buf[i];
-+		if ((ret = bcm3510_writeB(st,0xa7,hab)) < 0)
-+			return ret;
-+	}
-+
-+/* Set the HABR bit to indicate AP request in progress (LBHABR allows HABR to
-+ * be written) */
-+	v.raw = 0; v.HABSTAT_a8.HABR = 1; v.HABSTAT_a8.LDHABR = 1;
-+	if ((ret = bcm3510_writeB(st,0xa8,v)) < 0)
-+		return ret;
-+
-+/* Polling method: Wait until the AP finishes processing the HAB request */
-+	t = jiffies + 1*HZ;
-+	while (time_before(jiffies, t)) {
-+		deb_info("waiting for HAB to complete\n");
-+		msleep(10);
-+		if ((ret = bcm3510_readB(st,0xa8,&v)) < 0)
-+			return ret;
-+
-+		if (!v.HABSTAT_a8.HABR)
-+			return 0;
-+	}
-+
-+	deb_info("send_request execution timed out.\n");
-+	return -ETIMEDOUT;
-+}
-+
-+static int bcm3510_do_hab_cmd(struct bcm3510_state *st, u8 cmd, u8 msgid, u8 *obuf, u8 olen, u8 *ibuf, u8 ilen)
-+{
-+	u8 ob[olen+2],ib[ilen+2];
-+	int ret = 0;
-+
-+	ob[0] = cmd;
-+	ob[1] = msgid;
-+	memcpy(&ob[2],obuf,olen);
-+
-+	deb_hab("hab snd: ");
-+	dbufout(ob,olen+2,deb_hab);
-+	deb_hab("\n");
-+
-+	if (down_interruptible(&st->hab_sem) < 0)
-+		return -EAGAIN;
-+
-+	if ((ret = bcm3510_hab_send_request(st, ob, olen+2)) < 0 ||
-+		(ret = bcm3510_hab_get_response(st, ib, ilen+2)) < 0)
-+		goto error;
-+
-+	deb_hab("hab get: ");
-+	dbufout(ib,ilen+2,deb_hab);
-+	deb_hab("\n");
-+
-+	memcpy(ibuf,&ib[2],ilen);
-+error:
-+	up(&st->hab_sem);
-+	return ret;
-+}
-+
-+#if 0
-+/* not needed, we use a semaphore to prevent HAB races */
-+static int bcm3510_is_ap_ready(struct bcm3510_state *st)
-+{
-+	bcm3510_register_value ap,hab;
-+	int ret;
-+
-+	if ((ret = bcm3510_readB(st,0xa8,&hab)) < 0 ||
-+		(ret = bcm3510_readB(st,0xa2,&ap) < 0))
-+		return ret;
-+
-+	if (ap.APSTAT1_a2.RESET || ap.APSTAT1_a2.IDLE || ap.APSTAT1_a2.STOP || hab.HABSTAT_a8.HABR) {
-+		deb_info("AP is busy\n");
-+		return -EBUSY;
-+	}
-+
-+	return 0;
-+}
-+#endif
-+
-+static int bcm3510_bert_reset(struct bcm3510_state *st)
-+{
-+	bcm3510_register_value b;
-+	int ret;
-+
-+	if ((ret < bcm3510_readB(st,0xfa,&b)) < 0)
-+		return ret;
-+
-+	b.BERCTL_fa.RESYNC = 0; bcm3510_writeB(st,0xfa,b);
-+	b.BERCTL_fa.RESYNC = 1; bcm3510_writeB(st,0xfa,b);
-+	b.BERCTL_fa.RESYNC = 0; bcm3510_writeB(st,0xfa,b);
-+	b.BERCTL_fa.CNTCTL = 1; b.BERCTL_fa.BITCNT = 1; bcm3510_writeB(st,0xfa,b);
-+
-+	/* clear residual bit counter TODO  */
-+	return 0;
-+}
-+
-+static int bcm3510_refresh_state(struct bcm3510_state *st)
-+{
-+	if (time_after(jiffies,st->next_status_check)) {
-+		bcm3510_do_hab_cmd(st, CMD_STATUS, MSGID_STATUS1, NULL,0, (u8 *)&st->status1, sizeof(st->status1));
-+		bcm3510_do_hab_cmd(st, CMD_STATUS, MSGID_STATUS2, NULL,0, (u8 *)&st->status2, sizeof(st->status2));
-+		st->next_status_check = jiffies + (st->status_check_interval*HZ)/1000;
-+	}
-+	return 0;
-+}
-+
-+static int bcm3510_read_status(struct dvb_frontend *fe, fe_status_t *status)
-+{
-+	struct bcm3510_state* st = fe->demodulator_priv;
-+	bcm3510_refresh_state(st);
-+
-+	*status = 0;
-+	if (st->status1.STATUS1.RECEIVER_LOCK)
-+		*status |= FE_HAS_LOCK | FE_HAS_SYNC;
-+
-+	if (st->status1.STATUS1.FEC_LOCK)
-+		*status |= FE_HAS_VITERBI;
-+
-+	if (st->status1.STATUS1.OUT_PLL_LOCK)
-+		*status |= FE_HAS_SIGNAL | FE_HAS_CARRIER;
-+
-+	if (*status & FE_HAS_LOCK)
-+		st->status_check_interval = 1500;
-+	else /* more frequently checks if no lock has been achieved yet */
-+		st->status_check_interval = 500;
-+
-+	deb_info("real_status: %02x\n",*status);
-+	return 0;
-+}
-+
-+static int bcm3510_read_ber(struct dvb_frontend* fe, u32* ber)
-+{
-+	struct bcm3510_state* st = fe->demodulator_priv;
-+	bcm3510_refresh_state(st);
-+
-+	*ber = (st->status2.LDBER0 << 16) | (st->status2.LDBER1 << 8) | st->status2.LDBER2;
-+	return 0;
-+}
-+
-+static int bcm3510_read_unc(struct dvb_frontend* fe, u32* unc)
-+{
-+	struct bcm3510_state* st = fe->demodulator_priv;
-+	bcm3510_refresh_state(st);
-+	*unc = (st->status2.LDUERC0 << 8) | st->status2.LDUERC1;
-+	return 0;
-+}
-+
-+static int bcm3510_read_signal_strength(struct dvb_frontend* fe, u16* strength)
-+{
-+	struct bcm3510_state* st = fe->demodulator_priv;
-+	bcm3510_refresh_state(st);
-+	s32 t = st->status2.SIGNAL;
-+
-+	if (t > 190)
-+		t = 190;
-+	if (t < 90)
-+		t = 90;
-+
-+	t -= 90;
-+	t = t * 0xff / 100;
-+	/* normalize if necessary */
-+	*strength = (t << 8) | t;
-+	return 0;
-+}
-+
-+static int bcm3510_read_snr(struct dvb_frontend* fe, u16* snr)
-+{
-+	struct bcm3510_state* st = fe->demodulator_priv;
-+	bcm3510_refresh_state(st);
-+
-+	*snr = st->status1.SNR_EST0*1000 + ((st->status1.SNR_EST1*1000) >> 8);
-+	return 0;
-+}
-+
-+/* tuner frontend programming */
-+static int bcm3510_tuner_cmd(struct bcm3510_state* st,u8 bc, u16 n, u8 a)
-+{
-+	struct bcm3510_hab_cmd_tune c;
-+	memset(&c,0,sizeof(struct bcm3510_hab_cmd_tune));
-+
-+/* I2C Mode disabled,  set 16 control / Data pairs */
-+	c.length = 0x10;
-+	c.clock_width = 0;
-+/* CS1, CS0, DATA, CLK bits control the tuner RF_AGC_SEL pin is set to
-+ * logic high (as Configuration) */
-+	c.misc = 0x10;
-+/* Set duration of the initial state of TUNCTL = 3.34 micro Sec */
-+	c.TUNCTL_state = 0x40;
-+
-+/* PRESCALER DEVIDE RATIO | BC1_2_3_4; (band switch), 1stosc REFERENCE COUNTER REF_S12 and REF_S11 */
-+	c.ctl_dat[0].ctrl.size = BITS_8;
-+	c.ctl_dat[0].data      = 0x80 | bc;
-+
-+/* Control DATA pin, 1stosc REFERENCE COUNTER REF_S10 to REF_S3 */
-+	c.ctl_dat[1].ctrl.size = BITS_8;
-+	c.ctl_dat[1].data      = 4;
-+
-+/* set CONTROL BIT 1 to 1, 1stosc REFERENCE COUNTER REF_S2 to REF_S1 */
-+	c.ctl_dat[2].ctrl.size = BITS_3;
-+	c.ctl_dat[2].data      = 0x20;
-+
-+/* control CS0 pin, pulse byte ? */
-+	c.ctl_dat[3].ctrl.size = BITS_3;
-+	c.ctl_dat[3].ctrl.clk_off = 1;
-+	c.ctl_dat[3].ctrl.cs0  = 1;
-+	c.ctl_dat[3].data      = 0x40;
-+
-+/* PGM_S18 to PGM_S11 */
-+	c.ctl_dat[4].ctrl.size = BITS_8;
-+	c.ctl_dat[4].data      = n >> 3;
-+
-+/* PGM_S10 to PGM_S8, SWL_S7 to SWL_S3 */
-+	c.ctl_dat[5].ctrl.size = BITS_8;
-+	c.ctl_dat[5].data      = ((n & 0x7) << 5) | (a >> 2);
-+
-+/* SWL_S2 and SWL_S1, set CONTROL BIT 2 to 0 */
-+	c.ctl_dat[6].ctrl.size = BITS_3;
-+	c.ctl_dat[6].data      = (a << 6) & 0xdf;
-+
-+/* control CS0 pin, pulse byte ? */
-+	c.ctl_dat[7].ctrl.size = BITS_3;
-+	c.ctl_dat[7].ctrl.clk_off = 1;
-+	c.ctl_dat[7].ctrl.cs0  = 1;
-+	c.ctl_dat[7].data      = 0x40;
-+
-+/* PRESCALER DEVIDE RATIO, 2ndosc REFERENCE COUNTER REF_S12 and REF_S11 */
-+	c.ctl_dat[8].ctrl.size = BITS_8;
-+	c.ctl_dat[8].data      = 0x80;
-+
-+/* 2ndosc REFERENCE COUNTER REF_S10 to REF_S3 */
-+	c.ctl_dat[9].ctrl.size = BITS_8;
-+	c.ctl_dat[9].data      = 0x10;
-+
-+/* set CONTROL BIT 1 to 1, 2ndosc REFERENCE COUNTER REF_S2 to REF_S1 */
-+	c.ctl_dat[10].ctrl.size = BITS_3;
-+	c.ctl_dat[10].data      = 0x20;
-+
-+/* pulse byte */
-+	c.ctl_dat[11].ctrl.size = BITS_3;
-+	c.ctl_dat[11].ctrl.clk_off = 1;
-+	c.ctl_dat[11].ctrl.cs1  = 1;
-+	c.ctl_dat[11].data      = 0x40;
-+
-+/* PGM_S18 to PGM_S11 */
-+	c.ctl_dat[12].ctrl.size = BITS_8;
-+	c.ctl_dat[12].data      = 0x2a;
-+
-+/* PGM_S10 to PGM_S8 and SWL_S7 to SWL_S3 */
-+	c.ctl_dat[13].ctrl.size = BITS_8;
-+	c.ctl_dat[13].data      = 0x8e;
-+
-+/* SWL_S2 and SWL_S1 and set CONTROL BIT 2 to 0 */
-+	c.ctl_dat[14].ctrl.size = BITS_3;
-+	c.ctl_dat[14].data      = 0;
-+
-+/* Pulse Byte */
-+	c.ctl_dat[15].ctrl.size = BITS_3;
-+	c.ctl_dat[15].ctrl.clk_off = 1;
-+	c.ctl_dat[15].ctrl.cs1  = 1;
-+	c.ctl_dat[15].data      = 0x40;
-+
-+	return bcm3510_do_hab_cmd(st,CMD_TUNE, MSGID_TUNE,(u8 *) &c,sizeof(c), NULL, 0);
-+}
-+
-+static int bcm3510_set_freq(struct bcm3510_state* st,u32 freq)
-+{
-+	u8 bc,a;
-+	u16 n;
-+	s32 YIntercept,Tfvco1;
-+
-+	freq /= 1000;
-+
-+	deb_info("%dkHz:",freq);
-+	/* set Band Switch */
-+	if (freq <= 168000)
-+		bc = 0x1c;
-+	else if (freq <= 378000)
-+		bc = 0x2c;
-+	else
-+		bc = 0x30;
-+
-+	if (freq >= 470000) {
-+		freq -= 470001;
-+		YIntercept = 18805;
-+	} else if (freq >= 90000) {
-+		freq -= 90001;
-+		YIntercept = 15005;
-+	} else if (freq >= 76000){
-+		freq -= 76001;
-+		YIntercept = 14865;
-+	} else {
-+		freq -= 54001;
-+		YIntercept = 14645;
-+	}
-+
-+	Tfvco1 = (((freq/6000)*60 + YIntercept)*4)/10;
-+
-+	n = Tfvco1 >> 6;
-+	a = Tfvco1 & 0x3f;
-+
-+	deb_info(" BC1_2_3_4: %x, N: %x A: %x\n", bc, n, a);
-+	if (n >= 16 && n <= 2047)
-+		return bcm3510_tuner_cmd(st,bc,n,a);
-+
-+	return -EINVAL;
-+}
-+
-+static int bcm3510_set_frontend(struct dvb_frontend* fe,
-+					     struct dvb_frontend_parameters *p)
-+{
-+	struct bcm3510_state* st = fe->demodulator_priv;
-+	struct bcm3510_hab_cmd_ext_acquire cmd;
-+	struct bcm3510_hab_cmd_bert_control bert;
-+	int ret;
-+
-+	memset(&cmd,0,sizeof(cmd));
-+	switch (p->u.vsb.modulation) {
-+		case QAM_256:
-+			cmd.ACQUIRE0.MODE = 0x1;
-+			cmd.ACQUIRE1.SYM_RATE = 0x1;
-+			cmd.ACQUIRE1.IF_FREQ = 0x1;
-+			break;
-+		case QAM_64:
-+			cmd.ACQUIRE0.MODE = 0x2;
-+			cmd.ACQUIRE1.SYM_RATE = 0x2;
-+			cmd.ACQUIRE1.IF_FREQ = 0x1;
-+			break;
-+/*		case QAM_256:
-+			cmd.ACQUIRE0.MODE = 0x3;
-+			break;
-+		case QAM_128:
-+			cmd.ACQUIRE0.MODE = 0x4;
-+			break;
-+		case QAM_64:
-+			cmd.ACQUIRE0.MODE = 0x5;
-+			break;
-+		case QAM_32:
-+			cmd.ACQUIRE0.MODE = 0x6;
-+			break;
-+		case QAM_16:
-+			cmd.ACQUIRE0.MODE = 0x7;
-+			break;*/
-+		case VSB_8:
-+			cmd.ACQUIRE0.MODE = 0x8;
-+			cmd.ACQUIRE1.SYM_RATE = 0x0;
-+			cmd.ACQUIRE1.IF_FREQ = 0x0;
-+			break;
-+		case VSB_16:
-+			cmd.ACQUIRE0.MODE = 0x9;
-+			cmd.ACQUIRE1.SYM_RATE = 0x0;
-+			cmd.ACQUIRE1.IF_FREQ = 0x0;
-+		default:
-+			return -EINVAL;
-+	};
-+	cmd.ACQUIRE0.OFFSET = 0;
-+	cmd.ACQUIRE0.NTSCSWEEP = 1;
-+	cmd.ACQUIRE0.FA = 1;
-+	cmd.ACQUIRE0.BW = 0;
-+
-+/*	if (enableOffset) {
-+		cmd.IF_OFFSET0 = xx;
-+		cmd.IF_OFFSET1 = xx;
-+
-+		cmd.SYM_OFFSET0 = xx;
-+		cmd.SYM_OFFSET1 = xx;
-+		if (enableNtscSweep) {
-+			cmd.NTSC_OFFSET0;
-+			cmd.NTSC_OFFSET1;
-+		}
-+	} */
-+	bcm3510_do_hab_cmd(st, CMD_ACQUIRE, MSGID_EXT_TUNER_ACQUIRE, (u8 *) &cmd, sizeof(cmd), NULL, 0);
-+
-+/* doing it with different MSGIDs, data book and source differs */
-+	bert.BE = 0;
-+	bert.unused = 0;
-+	bcm3510_do_hab_cmd(st, CMD_STATE_CONTROL, MSGID_BERT_CONTROL, (u8 *) &bert, sizeof(bert), NULL, 0);
-+	bcm3510_do_hab_cmd(st, CMD_STATE_CONTROL, MSGID_BERT_SET, (u8 *) &bert, sizeof(bert), NULL, 0);
-+
-+	bcm3510_bert_reset(st);
-+
-+	if ((ret = bcm3510_set_freq(st,p->frequency)) < 0)
-+		return ret;
-+
-+	memset(&st->status1,0,sizeof(st->status1));
-+	memset(&st->status2,0,sizeof(st->status2));
-+	st->status_check_interval = 500;
-+
-+/* Give the AP some time */
-+	msleep(200);
-+
-+	return 0;
-+}
-+
-+static int bcm3510_sleep(struct dvb_frontend* fe)
-+{
-+	return 0;
-+}
-+
-+static int bcm3510_get_tune_settings(struct dvb_frontend *fe, struct dvb_frontend_tune_settings *s)
-+{
-+	s->min_delay_ms = 1000;
-+	s->step_size = 0;
-+	s->max_drift = 0;
-+	return 0;
-+}
-+
-+static void bcm3510_release(struct dvb_frontend* fe)
-+{
-+	struct bcm3510_state* state = fe->demodulator_priv;
-+	kfree(state);
-+}
-+
-+/* firmware download:
-+ * firmware file is build up like this:
-+ * 16bit addr, 16bit length, 8byte of length
-+ */
-+#define BCM3510_DEFAULT_FIRMWARE "dvb-fe-bcm3510-01.fw"
-+
-+static int bcm3510_write_ram(struct bcm3510_state *st, u16 addr, u8 *b, u16 len)
-+{
-+	int ret = 0,i;
-+	bcm3510_register_value vH, vL,vD;
-+
-+	vH.MADRH_a9 = addr >> 8;
-+	vL.MADRL_aa = addr;
-+	if ((ret = bcm3510_writeB(st,0xa9,vH)) < 0) return ret;
-+	if ((ret = bcm3510_writeB(st,0xaa,vL)) < 0) return ret;
-+
-+	for (i = 0; i < len; i++) {
-+		vD.MDATA_ab = b[i];
-+		if ((ret = bcm3510_writeB(st,0xab,vD)) < 0)
-+			return ret;
-+	}
-+
-+	return 0;
-+}
-+
-+static int bcm3510_download_firmware(struct dvb_frontend* fe)
-+{
-+	struct bcm3510_state* st = fe->demodulator_priv;
-+	const struct firmware *fw;
-+	u16 addr,len;
-+	u8  *b;
-+	int ret,i;
-+
-+	deb_info("requesting firmware\n");
-+	if ((ret = st->config->request_firmware(fe, &fw, BCM3510_DEFAULT_FIRMWARE)) < 0) {
-+		err("could not load firmware (%s): %d",BCM3510_DEFAULT_FIRMWARE,ret);
-+		return ret;
-+	}
-+	deb_info("got firmware: %d\n",fw->size);
-+
-+	b = fw->data;
-+	for (i = 0; i < fw->size;) {
-+		addr = le16_to_cpu( *( (u16 *)&b[i] ) );
-+		len  = le16_to_cpu( *( (u16 *)&b[i+2] ) );
-+		deb_info("firmware chunk, addr: 0x%04x, len: 0x%04x, total length: 0x%04x\n",addr,len,fw->size);
-+		if ((ret = bcm3510_write_ram(st,addr,&b[i+4],len)) < 0) {
-+			err("firmware download failed: %d\n",ret);
-+			return ret;
-+		}
-+		i += 4 + len;
-+	}
-+	release_firmware(fw);
-+	deb_info("firmware download successfully completed\n");
-+	return 0;
-+}
-+
-+static int bcm3510_check_firmware_version(struct bcm3510_state *st)
-+{
-+	struct bcm3510_hab_cmd_get_version_info ver;
-+	bcm3510_do_hab_cmd(st,CMD_GET_VERSION_INFO,MSGID_GET_VERSION_INFO,NULL,0,(u8*)&ver,sizeof(ver));
-+
-+	deb_info("Version information: 0x%02x 0x%02x 0x%02x 0x%02x\n",
-+		ver.microcode_version, ver.script_version, ver.config_version, ver.demod_version);
-+
-+	if (ver.script_version == BCM3510_DEF_SCRIPT_VERSION &&
-+		ver.config_version == BCM3510_DEF_CONFIG_VERSION &&
-+		ver.demod_version  == BCM3510_DEF_DEMOD_VERSION)
-+		return 0;
-+
-+	deb_info("version check failed\n");
-+	return -ENODEV;
-+}
-+
-+/* (un)resetting the AP */
-+static int bcm3510_reset(struct bcm3510_state *st)
-+{
-+	int ret;
-+	unsigned long  t;
-+	bcm3510_register_value v;
-+
-+	bcm3510_readB(st,0xa0,&v); v.HCTL1_a0.RESET = 1;
-+	if ((ret = bcm3510_writeB(st,0xa0,v)) < 0)
-+		return ret;
-+
-+    t = jiffies + 3*HZ;
-+	while (time_before(jiffies, t)) {
-+		msleep(10);
-+		if ((ret = bcm3510_readB(st,0xa2,&v)) < 0)
-+			return ret;
-+
-+		if (v.APSTAT1_a2.RESET)
-+			return 0;
-+	}
-+	deb_info("reset timed out\n");
-+	return -ETIMEDOUT;
-+}
-+
-+static int bcm3510_clear_reset(struct bcm3510_state *st)
-+{
-+	bcm3510_register_value v;
-+	int ret;
-+	unsigned long t;
-+
-+	v.raw = 0;
-+	if ((ret = bcm3510_writeB(st,0xa0,v)) < 0)
-+		return ret;
-+
-+    t = jiffies + 3*HZ;
-+	while (time_before(jiffies, t)) {
-+		msleep(10);
-+		if ((ret = bcm3510_readB(st,0xa2,&v)) < 0)
-+			return ret;
-+
-+		/* verify that reset is cleared */
-+		if (!v.APSTAT1_a2.RESET)
-+			return 0;
-+	}
-+	deb_info("reset clear timed out\n");
-+	return -ETIMEDOUT;
-+}
-+
-+static int bcm3510_init_cold(struct bcm3510_state *st)
-+{
-+	int ret;
-+	bcm3510_register_value v;
-+
-+	/* read Acquisation Processor status register and check it is not in RUN mode */
-+	if ((ret = bcm3510_readB(st,0xa2,&v)) < 0)
-+		return ret;
-+	if (v.APSTAT1_a2.RUN) {
-+		deb_info("AP is already running - firmware already loaded.\n");
-+		return 0;
-+	}
-+
-+	deb_info("reset?\n");
-+	if ((ret = bcm3510_reset(st)) < 0)
-+		return ret;
-+
-+	deb_info("tristate?\n");
-+	/* tri-state */
-+	v.TSTCTL_2e.CTL = 0;
-+	if ((ret = bcm3510_writeB(st,0x2e,v)) < 0)
-+		return ret;
-+
-+	deb_info("firmware?\n");
-+	if ((ret = bcm3510_download_firmware(&st->frontend)) < 0 ||
-+		(ret = bcm3510_clear_reset(st)) < 0)
-+		return ret;
-+
-+	/* anything left here to Let the acquisition processor begin execution at program counter 0000 ??? */
-+
-+	return 0;
-+}
-+
-+static int bcm3510_init(struct dvb_frontend* fe)
-+{
-+	struct bcm3510_state* st = fe->demodulator_priv;
-+	bcm3510_register_value j;
-+	struct bcm3510_hab_cmd_set_agc c;
-+	int ret;
-+
-+	if ((ret = bcm3510_readB(st,0xca,&j)) < 0)
-+		return ret;
-+
-+	deb_info("JDEC: %02x\n",j.raw);
-+
-+	switch (j.JDEC_ca.JDEC) {
-+		case JDEC_WAIT_AT_RAM:
-+			deb_info("attempting to download firmware\n");
-+			if ((ret = bcm3510_init_cold(st)) < 0)
-+				return ret;
-+		case JDEC_EEPROM_LOAD_WAIT: /* fall-through is wanted */
-+			deb_info("firmware is loaded\n");
-+			bcm3510_check_firmware_version(st);
-+			break;
-+		default:
-+			return -ENODEV;
-+	}
-+
-+	memset(&c,0,1);
-+	c.SEL = 1;
-+	bcm3510_do_hab_cmd(st,CMD_AUTO_PARAM,MSGID_SET_RF_AGC_SEL,(u8 *)&c,sizeof(c),NULL,0);
-+
-+	return 0;
-+}
-+
-+
-+static struct dvb_frontend_ops bcm3510_ops;
-+
-+struct dvb_frontend* bcm3510_attach(const struct bcm3510_config *config,
-+				   struct i2c_adapter *i2c)
-+{
-+	struct bcm3510_state* state = NULL;
-+	int ret;
-+	bcm3510_register_value v;
-+
-+	/* allocate memory for the internal state */
-+	state = kmalloc(sizeof(struct bcm3510_state), GFP_KERNEL);
-+	if (state == NULL)
-+		goto error;
-+	memset(state,0,sizeof(struct bcm3510_state));
-+
-+	/* setup the state */
-+
-+	state->config = config;
-+	state->i2c = i2c;
-+	memcpy(&state->ops, &bcm3510_ops, sizeof(struct dvb_frontend_ops));
-+
-+	/* create dvb_frontend */
-+	state->frontend.ops = &state->ops;
-+	state->frontend.demodulator_priv = state;
-+
-+	sema_init(&state->hab_sem, 1);
-+
-+	if ((ret = bcm3510_readB(state,0xe0,&v)) < 0)
-+		goto error;
-+
-+	deb_info("Revision: 0x%1x, Layer: 0x%1x.\n",v.REVID_e0.REV,v.REVID_e0.LAYER);
-+
-+	if ((v.REVID_e0.REV != 0x1 && v.REVID_e0.LAYER != 0xb) && /* cold */
-+		(v.REVID_e0.REV != 0x8 && v.REVID_e0.LAYER != 0x0))   /* warm */
-+		goto error;
-+
-+	info("Revision: 0x%1x, Layer: 0x%1x.",v.REVID_e0.REV,v.REVID_e0.LAYER);
-+
-+	bcm3510_reset(state);
-+
-+	return &state->frontend;
-+
-+error:
-+	kfree(state);
-+	return NULL;
-+}
-+EXPORT_SYMBOL(bcm3510_attach);
-+
-+static struct dvb_frontend_ops bcm3510_ops = {
-+
-+	.info = {
-+		.name = "Broadcom BCM3510 VSB/QAM frontend",
-+		.type = FE_ATSC,
-+		.frequency_min =  54000000,
-+		.frequency_max = 803000000,
-+                /* stepsize is just a guess */
-+		.frequency_stepsize = 0,
-+		.caps =
-+			FE_CAN_FEC_1_2 | FE_CAN_FEC_2_3 | FE_CAN_FEC_3_4 |
-+			FE_CAN_FEC_5_6 | FE_CAN_FEC_7_8 | FE_CAN_FEC_AUTO |
-+			FE_CAN_8VSB | FE_CAN_16VSB |
-+			FE_CAN_QAM_16 | FE_CAN_QAM_64 | FE_CAN_QAM_128 | FE_CAN_QAM_256
-+	},
-+
-+	.release = bcm3510_release,
-+
-+	.init = bcm3510_init,
-+	.sleep = bcm3510_sleep,
-+
-+	.set_frontend = bcm3510_set_frontend,
-+	.get_tune_settings = bcm3510_get_tune_settings,
-+
-+	.read_status = bcm3510_read_status,
-+	.read_ber = bcm3510_read_ber,
-+	.read_signal_strength = bcm3510_read_signal_strength,
-+	.read_snr = bcm3510_read_snr,
-+	.read_ucblocks = bcm3510_read_unc,
-+};
-+
-+MODULE_DESCRIPTION("Broadcom BCM3510 ATSC (8VSB/16VSB & ITU J83 AnnexB FEC QAM64/256) demodulator driver");
-+MODULE_AUTHOR("Patrick Boettcher <patrick.boettcher@desy.de>");
-+MODULE_LICENSE("GPL");
-Index: linux-2.6.12-rc4-git3/drivers/media/dvb/frontends/bcm3510.h
+--- linux-2.6.12-rc4-git3.orig/drivers/media/dvb/dibusb/dvb-dibusb-usb.c	2005-05-19 22:52:13.000000000 +0200
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,303 +0,0 @@
+-/*
+- * dvb-dibusb-usb.c is part of the driver for mobile USB Budget DVB-T devices
+- * based on reference design made by DiBcom (http://www.dibcom.fr/)
+- *
+- * Copyright (C) 2004-5 Patrick Boettcher (patrick.boettcher@desy.de)
+- *
+- * see dvb-dibusb-core.c for more copyright details.
+- *
+- * This file contains functions for initializing and handling the
+- * usb specific stuff.
+- */
+-#include "dvb-dibusb.h"
+-
+-#include <linux/version.h>
+-#include <linux/pci.h>
+-
+-int dibusb_readwrite_usb(struct usb_dibusb *dib, u8 *wbuf, u16 wlen, u8 *rbuf,
+-		u16 rlen)
+-{
+-	int actlen,ret = -ENOMEM;
+-
+-	if (wbuf == NULL || wlen == 0)
+-		return -EINVAL;
+-
+-	if ((ret = down_interruptible(&dib->usb_sem)))
+-		return ret;
+-
+-	debug_dump(wbuf,wlen);
+-
+-	ret = usb_bulk_msg(dib->udev,usb_sndbulkpipe(dib->udev,
+-			dib->dibdev->dev_cl->pipe_cmd), wbuf,wlen,&actlen,
+-			DIBUSB_I2C_TIMEOUT);
+-
+-	if (ret)
+-		err("bulk message failed: %d (%d/%d)",ret,wlen,actlen);
+-	else
+-		ret = actlen != wlen ? -1 : 0;
+-
+-	/* an answer is expected, and no error before */
+-	if (!ret && rbuf && rlen) {
+-		ret = usb_bulk_msg(dib->udev,usb_rcvbulkpipe(dib->udev,
+-				dib->dibdev->dev_cl->pipe_cmd),rbuf,rlen,&actlen,
+-				DIBUSB_I2C_TIMEOUT);
+-
+-		if (ret)
+-			err("recv bulk message failed: %d",ret);
+-		else {
+-			deb_alot("rlen: %d\n",rlen);
+-			debug_dump(rbuf,actlen);
+-		}
+-	}
+-
+-	up(&dib->usb_sem);
+-	return ret;
+-}
+-
+-/*
+- * Cypress controls
+- */
+-int dibusb_write_usb(struct usb_dibusb *dib, u8 *buf, u16 len)
+-{
+-	return dibusb_readwrite_usb(dib,buf,len,NULL,0);
+-}
+-
+-#if 0
+-/*
+- * #if 0'ing the following functions as they are not in use _now_,
+- * but probably will be sometime.
+- */
+-/*
+- * do not use this, just a workaround for a bug,
+- * which will hopefully never occur :).
+- */
+-int dibusb_interrupt_read_loop(struct usb_dibusb *dib)
+-{
+-	u8 b[1] = { DIBUSB_REQ_INTR_READ };
+-	return dibusb_write_usb(dib,b,1);
+-}
+-#endif
+-
+-/*
+- * ioctl for the firmware
+- */
+-static int dibusb_ioctl_cmd(struct usb_dibusb *dib, u8 cmd, u8 *param, int plen)
+-{
+-	u8 b[34];
+-	int size = plen > 32 ? 32 : plen;
+-	memset(b,0,34);
+-	b[0] = DIBUSB_REQ_SET_IOCTL;
+-	b[1] = cmd;
+-
+-	if (size > 0)
+-		memcpy(&b[2],param,size);
+-
+-	return dibusb_write_usb(dib,b,34); //2+size);
+-}
+-
+-/*
+- * ioctl for power control
+- */
+-int dibusb_hw_wakeup(struct dvb_frontend *fe)
+-{
+-	struct usb_dibusb *dib = (struct usb_dibusb *) fe->dvb->priv;
+-	u8 b[1] = { DIBUSB_IOCTL_POWER_WAKEUP };
+-	deb_info("dibusb-device is getting up.\n");
+-
+-	switch (dib->dibdev->dev_cl->id) {
+-		case DTT200U:
+-			break;
+-		default:
+-			dibusb_ioctl_cmd(dib,DIBUSB_IOCTL_CMD_POWER_MODE, b,1);
+-			break;
+-	}
+-
+-	if (dib->fe_init)
+-		return dib->fe_init(fe);
+-
+-	return 0;
+-}
+-
+-int dibusb_hw_sleep(struct dvb_frontend *fe)
+-{
+-	struct usb_dibusb *dib = (struct usb_dibusb *) fe->dvb->priv;
+-	u8 b[1] = { DIBUSB_IOCTL_POWER_SLEEP };
+-	deb_info("dibusb-device is going to bed.\n");
+-	/* workaround, something is wrong, when dibusb 1.1 device are going to bed too late */
+-	switch (dib->dibdev->dev_cl->id) {
+-		case DIBUSB1_1:
+-		case NOVAT_USB2:
+-		case DTT200U:
+-			break;
+-		default:
+-			dibusb_ioctl_cmd(dib,DIBUSB_IOCTL_CMD_POWER_MODE, b,1);
+-			break;
+-	}
+-	if (dib->fe_sleep)
+-		return dib->fe_sleep(fe);
+-
+-	return 0;
+-}
+-
+-int dibusb_set_streaming_mode(struct usb_dibusb *dib,u8 mode)
+-{
+-	u8 b[2] = { DIBUSB_REQ_SET_STREAMING_MODE, mode };
+-	return dibusb_readwrite_usb(dib,b,2,NULL,0);
+-}
+-
+-static int dibusb_urb_kill(struct usb_dibusb *dib)
+-{
+-	int i;
+-deb_info("trying to kill urbs\n");
+-	if (dib->init_state & DIBUSB_STATE_URB_SUBMIT) {
+-		for (i = 0; i < dib->dibdev->dev_cl->urb_count; i++) {
+-			deb_info("killing URB no. %d.\n",i);
+-
+-			/* stop the URB */
+-			usb_kill_urb(dib->urb_list[i]);
+-		}
+-	} else
+-	deb_info(" URBs not killed.\n");
+-	dib->init_state &= ~DIBUSB_STATE_URB_SUBMIT;
+-	return 0;
+-}
+-
+-static int dibusb_urb_submit(struct usb_dibusb *dib)
+-{
+-	int i,ret;
+-	if (dib->init_state & DIBUSB_STATE_URB_INIT) {
+-		for (i = 0; i < dib->dibdev->dev_cl->urb_count; i++) {
+-			deb_info("submitting URB no. %d\n",i);
+-			if ((ret = usb_submit_urb(dib->urb_list[i],GFP_ATOMIC))) {
+-				err("could not submit buffer urb no. %d - get them all back\n",i);
+-				dibusb_urb_kill(dib);
+-				return ret;
+-			}
+-			dib->init_state |= DIBUSB_STATE_URB_SUBMIT;
+-		}
+-	}
+-	return 0;
+-}
+-
+-int dibusb_streaming(struct usb_dibusb *dib,int onoff)
+-{
+-	if (onoff)
+-		dibusb_urb_submit(dib);
+-	else
+-		dibusb_urb_kill(dib);
+-
+-	switch (dib->dibdev->dev_cl->id) {
+-		case DIBUSB2_0:
+-		case DIBUSB2_0B:
+-		case NOVAT_USB2:
+-		case UMT2_0:
+-			if (onoff)
+-				return dibusb_ioctl_cmd(dib,DIBUSB_IOCTL_CMD_ENABLE_STREAM,NULL,0);
+-			else
+-				return dibusb_ioctl_cmd(dib,DIBUSB_IOCTL_CMD_DISABLE_STREAM,NULL,0);
+-			break;
+-		default:
+-			break;
+-	}
+-	return 0;
+-}
+-
+-int dibusb_urb_init(struct usb_dibusb *dib)
+-{
+-	int i,bufsize,def_pid_parse = 1;
+-
+-	/*
+-	 * when reloading the driver w/o replugging the device
+-	 * a timeout occures, this helps
+-	 */
+-	usb_clear_halt(dib->udev,usb_sndbulkpipe(dib->udev,dib->dibdev->dev_cl->pipe_cmd));
+-	usb_clear_halt(dib->udev,usb_rcvbulkpipe(dib->udev,dib->dibdev->dev_cl->pipe_cmd));
+-	usb_clear_halt(dib->udev,usb_rcvbulkpipe(dib->udev,dib->dibdev->dev_cl->pipe_data));
+-
+-	/* allocate the array for the data transfer URBs */
+-	dib->urb_list = kmalloc(dib->dibdev->dev_cl->urb_count*sizeof(struct urb *),GFP_KERNEL);
+-	if (dib->urb_list == NULL)
+-		return -ENOMEM;
+-	memset(dib->urb_list,0,dib->dibdev->dev_cl->urb_count*sizeof(struct urb *));
+-
+-	dib->init_state |= DIBUSB_STATE_URB_LIST;
+-
+-	bufsize = dib->dibdev->dev_cl->urb_count*dib->dibdev->dev_cl->urb_buffer_size;
+-	deb_info("allocate %d bytes as buffersize for all URBs\n",bufsize);
+-	/* allocate the actual buffer for the URBs */
+-	if ((dib->buffer = pci_alloc_consistent(NULL,bufsize,&dib->dma_handle)) == NULL) {
+-		deb_info("not enough memory.\n");
+-		return -ENOMEM;
+-	}
+-	deb_info("allocation complete\n");
+-	memset(dib->buffer,0,bufsize);
+-
+-	dib->init_state |= DIBUSB_STATE_URB_BUF;
+-
+-	/* allocate and submit the URBs */
+-	for (i = 0; i < dib->dibdev->dev_cl->urb_count; i++) {
+-		if (!(dib->urb_list[i] = usb_alloc_urb(0,GFP_ATOMIC))) {
+-			return -ENOMEM;
+-		}
+-
+-		usb_fill_bulk_urb( dib->urb_list[i], dib->udev,
+-				usb_rcvbulkpipe(dib->udev,dib->dibdev->dev_cl->pipe_data),
+-				&dib->buffer[i*dib->dibdev->dev_cl->urb_buffer_size],
+-				dib->dibdev->dev_cl->urb_buffer_size,
+-				dibusb_urb_complete, dib);
+-
+-		dib->urb_list[i]->transfer_flags = 0;
+-
+-		dib->init_state |= DIBUSB_STATE_URB_INIT;
+-	}
+-
+-	/* dib->pid_parse here contains the value of the module parameter */
+-	/* decide if pid parsing can be deactivated:
+-	 * is possible (by device type) and wanted (by user)
+-	 */
+-	switch (dib->dibdev->dev_cl->id) {
+-		case DIBUSB2_0:
+-		case DIBUSB2_0B:
+-			if (dib->udev->speed == USB_SPEED_HIGH && !dib->pid_parse) {
+-				def_pid_parse = 0;
+-				info("running at HIGH speed, will deliver the complete TS.");
+-			} else
+-				info("will use pid_parsing.");
+-			break;
+-		default:
+-			break;
+-	}
+-	/* from here on it contains the device and user decision */
+-	dib->pid_parse = def_pid_parse;
+-
+-	return 0;
+-}
+-
+-int dibusb_urb_exit(struct usb_dibusb *dib)
+-{
+-	int i;
+-
+-	dibusb_urb_kill(dib);
+-
+-	if (dib->init_state & DIBUSB_STATE_URB_LIST) {
+-		for (i = 0; i < dib->dibdev->dev_cl->urb_count; i++) {
+-			if (dib->urb_list[i] != NULL) {
+-				deb_info("freeing URB no. %d.\n",i);
+-				/* free the URBs */
+-				usb_free_urb(dib->urb_list[i]);
+-			}
+-		}
+-		/* free the urb array */
+-		kfree(dib->urb_list);
+-		dib->init_state &= ~DIBUSB_STATE_URB_LIST;
+-	}
+-
+-	if (dib->init_state & DIBUSB_STATE_URB_BUF)
+-		pci_free_consistent(NULL,
+-			dib->dibdev->dev_cl->urb_buffer_size*dib->dibdev->dev_cl->urb_count,
+-			dib->buffer,dib->dma_handle);
+-
+-	dib->init_state &= ~DIBUSB_STATE_URB_BUF;
+-	dib->init_state &= ~DIBUSB_STATE_URB_INIT;
+-	return 0;
+-}
+Index: linux-2.6.12-rc4-git3/drivers/media/dvb/dibusb/dvb-dibusb.h
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.12-rc4-git3/drivers/media/dvb/frontends/bcm3510.h	2005-05-23 00:57:25.000000000 +0200
-@@ -0,0 +1,40 @@
-+/*
-+ * Support for the Broadcom BCM3510 ATSC demodulator (1st generation Air2PC)
-+ *
-+ *  Copyright (C) 2001-5, B2C2 inc.
-+ *
-+ *  GPL/Linux driver written by Patrick Boettcher <patrick.boettcher@desy.de>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+#ifndef BCM3510_H
-+#define BCM3510_H
-+
-+#include <linux/dvb/frontend.h>
-+#include <linux/firmware.h>
-+
-+struct bcm3510_config
-+{
-+	/* the demodulator's i2c address */
-+	u8 demod_address;
-+
-+	/* request firmware for device */
-+	int (*request_firmware)(struct dvb_frontend* fe, const struct firmware **fw, char* name);
-+};
-+
-+extern struct dvb_frontend* bcm3510_attach(const struct bcm3510_config* config,
-+					   struct i2c_adapter* i2c);
-+
-+#endif
-Index: linux-2.6.12-rc4-git3/drivers/media/dvb/frontends/bcm3510_priv.h
+--- linux-2.6.12-rc4-git3.orig/drivers/media/dvb/dibusb/dvb-dibusb.h	2005-05-19 22:52:13.000000000 +0200
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,327 +0,0 @@
+-/*
+- * dvb-dibusb.h
+- *
+- * Copyright (C) 2004-5 Patrick Boettcher (patrick.boettcher@desy.de)
+- *
+- *	This program is free software; you can redistribute it and/or
+- *	modify it under the terms of the GNU General Public License as
+- *	published by the Free Software Foundation, version 2.
+- *
+- * for more information see dvb-dibusb-core.c .
+- */
+-#ifndef __DVB_DIBUSB_H__
+-#define __DVB_DIBUSB_H__
+-
+-#include <linux/input.h>
+-#include <linux/config.h>
+-#include <linux/usb.h>
+-
+-#include "dvb_frontend.h"
+-#include "dvb_demux.h"
+-#include "dvb_net.h"
+-#include "dmxdev.h"
+-
+-#include "dib3000.h"
+-#include "mt352.h"
+-
+-/* debug */
+-#ifdef CONFIG_DVB_DIBCOM_DEBUG
+-#define dprintk(level,args...) \
+-	    do { if ((dvb_dibusb_debug & level)) { printk(args); } } while (0)
+-
+-#define debug_dump(b,l) {\
+-	int i; \
+-	for (i = 0; i < l; i++) deb_xfer("%02x ", b[i]); \
+-	deb_xfer("\n");\
+-}
+-
+-#else
+-#define dprintk(args...)
+-#define debug_dump(b,l)
+-#endif
+-
+-extern int dvb_dibusb_debug;
+-
+-/* Version information */
+-#define DRIVER_VERSION "0.3"
+-#define DRIVER_DESC "DiBcom based USB Budget DVB-T device"
+-#define DRIVER_AUTHOR "Patrick Boettcher, patrick.boettcher@desy.de"
+-
+-#define deb_info(args...) dprintk(0x01,args)
+-#define deb_xfer(args...) dprintk(0x02,args)
+-#define deb_alot(args...) dprintk(0x04,args)
+-#define deb_ts(args...)   dprintk(0x08,args)
+-#define deb_err(args...)  dprintk(0x10,args)
+-#define deb_rc(args...)   dprintk(0x20,args)
+-
+-/* generic log methods - taken from usb.h */
+-#undef err
+-#define err(format, arg...)  printk(KERN_ERR     "dvb-dibusb: " format "\n" , ## arg)
+-#undef info
+-#define info(format, arg...) printk(KERN_INFO    "dvb-dibusb: " format "\n" , ## arg)
+-#undef warn
+-#define warn(format, arg...) printk(KERN_WARNING "dvb-dibusb: " format "\n" , ## arg)
+-
+-struct dibusb_usb_controller {
+-	const char *name;       /* name of the usb controller */
+-	u16 cpu_cs_register;    /* needs to be restarted, when the firmware has been downloaded. */
+-};
+-
+-typedef enum {
+-	DIBUSB1_1 = 0,
+-	DIBUSB1_1_AN2235,
+-	DIBUSB2_0,
+-	UMT2_0,
+-	DIBUSB2_0B,
+-	NOVAT_USB2,
+-	DTT200U,
+-} dibusb_class_t;
+-
+-typedef enum {
+-	DIBUSB_TUNER_CABLE_THOMSON = 0,
+-	DIBUSB_TUNER_COFDM_PANASONIC_ENV57H1XD5,
+-	DIBUSB_TUNER_CABLE_LG_TDTP_E102P,
+-	DIBUSB_TUNER_COFDM_PANASONIC_ENV77H11D5,
+-} dibusb_tuner_t;
+-
+-typedef enum {
+-	DIBUSB_DIB3000MB = 0,
+-	DIBUSB_DIB3000MC,
+-	DIBUSB_MT352,
+-	DTT200U_FE,
+-} dibusb_demodulator_t;
+-
+-typedef enum {
+-	DIBUSB_RC_NO = 0,
+-	DIBUSB_RC_NEC_PROTOCOL,
+-	DIBUSB_RC_HAUPPAUGE_PROTO,
+-} dibusb_remote_t;
+-
+-struct dibusb_tuner {
+-	dibusb_tuner_t id;
+-
+-	u8 pll_addr;       /* tuner i2c address */
+-};
+-extern struct dibusb_tuner dibusb_tuner[];
+-
+-#define DIBUSB_POSSIBLE_I2C_ADDR_NUM 4
+-struct dibusb_demod {
+-	dibusb_demodulator_t id;
+-
+-	int pid_filter_count;                       /* counter of the internal pid_filter */
+-	u8 i2c_addrs[DIBUSB_POSSIBLE_I2C_ADDR_NUM]; /* list of possible i2c addresses of the demod */
+-};
+-
+-#define DIBUSB_MAX_TUNER_NUM 2
+-struct dibusb_device_class {
+-	dibusb_class_t id;
+-
+-	const struct dibusb_usb_controller *usb_ctrl; /* usb controller */
+-	const char *firmware;                         /* valid firmware filenames */
+-
+-	int pipe_cmd;                                 /* command pipe (read/write) */
+-	int pipe_data;                                /* data pipe */
+-
+-	int urb_count;                                /* number of data URBs to be submitted */
+-	int urb_buffer_size;                          /* the size of the buffer for each URB */
+-
+-	dibusb_remote_t remote_type;                  /* does this device have a ir-receiver */
+-
+-	struct dibusb_demod *demod;                   /* which demodulator is mount */
+-	struct dibusb_tuner *tuner;                   /* which tuner can be found here */
+-};
+-
+-#define DIBUSB_ID_MAX_NUM 15
+-struct dibusb_usb_device {
+-	const char *name;                                 /* real name of the box */
+-	struct dibusb_device_class *dev_cl;               /* which dibusb_device_class is this device part of */
+-
+-	struct usb_device_id *cold_ids[DIBUSB_ID_MAX_NUM]; /* list of USB ids when this device is at pre firmware state */
+-	struct usb_device_id *warm_ids[DIBUSB_ID_MAX_NUM]; /* list of USB ids when this device is at post firmware state */
+-};
+-
+-/* a PID for the pid_filter list, when in use */
+-struct dibusb_pid
+-{
+-	int index;
+-	u16 pid;
+-	int active;
+-};
+-
+-struct usb_dibusb {
+-	/* usb */
+-	struct usb_device * udev;
+-
+-	struct dibusb_usb_device * dibdev;
+-
+-#define DIBUSB_STATE_INIT       0x000
+-#define DIBUSB_STATE_URB_LIST   0x001
+-#define DIBUSB_STATE_URB_BUF    0x002
+-#define DIBUSB_STATE_URB_INIT	0x004
+-#define DIBUSB_STATE_DVB        0x008
+-#define DIBUSB_STATE_I2C        0x010
+-#define DIBUSB_STATE_REMOTE		0x020
+-#define DIBUSB_STATE_URB_SUBMIT 0x040
+-	int init_state;
+-
+-	int feedcount;
+-	struct dib_fe_xfer_ops xfer_ops;
+-
+-	struct dibusb_tuner *tuner;
+-
+-	struct urb **urb_list;
+-	u8 *buffer;
+-	dma_addr_t dma_handle;
+-
+-	/* I2C */
+-	struct i2c_adapter i2c_adap;
+-
+-	/* locking */
+-	struct semaphore usb_sem;
+-	struct semaphore i2c_sem;
+-
+-	/* dvb */
+-	struct dvb_adapter adapter;
+-	struct dmxdev dmxdev;
+-	struct dvb_demux demux;
+-	struct dvb_net dvb_net;
+-	struct dvb_frontend* fe;
+-
+-	int (*fe_sleep) (struct dvb_frontend *);
+-	int (*fe_init) (struct dvb_frontend *);
+-
+-	/* remote control */
+-	struct input_dev rc_input_dev;
+-	struct work_struct rc_query_work;
+-	int last_event;
+-	int last_state; /* for Hauppauge RC protocol */
+-	int repeat_key_count;
+-	int rc_key_repeat_count; /* module parameter */
+-
+-	/* module parameters */
+-	int pid_parse;
+-	int rc_query_interval;
+-};
+-
+-/* commonly used functions in the separated files */
+-
+-/* dvb-dibusb-firmware.c */
+-int dibusb_loadfirmware(struct usb_device *udev, struct dibusb_usb_device *dibdev);
+-
+-/* dvb-dibusb-remote.c */
+-int dibusb_remote_exit(struct usb_dibusb *dib);
+-int dibusb_remote_init(struct usb_dibusb *dib);
+-
+-/* dvb-dibusb-fe-i2c.c */
+-int dibusb_fe_init(struct usb_dibusb* dib);
+-int dibusb_fe_exit(struct usb_dibusb *dib);
+-int dibusb_i2c_init(struct usb_dibusb *dib);
+-int dibusb_i2c_exit(struct usb_dibusb *dib);
+-
+-/* dvb-dibusb-dvb.c */
+-void dibusb_urb_complete(struct urb *urb, struct pt_regs *ptregs);
+-int dibusb_dvb_init(struct usb_dibusb *dib);
+-int dibusb_dvb_exit(struct usb_dibusb *dib);
+-
+-/* dvb-dibusb-usb.c */
+-int dibusb_readwrite_usb(struct usb_dibusb *dib, u8 *wbuf, u16 wlen, u8 *rbuf,
+-	u16 rlen);
+-int dibusb_write_usb(struct usb_dibusb *dib, u8 *buf, u16 len);
+-
+-int dibusb_hw_wakeup(struct dvb_frontend *);
+-int dibusb_hw_sleep(struct dvb_frontend *);
+-int dibusb_set_streaming_mode(struct usb_dibusb *,u8);
+-int dibusb_streaming(struct usb_dibusb *,int);
+-
+-int dibusb_urb_init(struct usb_dibusb *);
+-int dibusb_urb_exit(struct usb_dibusb *);
+-
+-/* dvb-fe-dtt200u.c */
+-struct dvb_frontend* dtt200u_fe_attach(struct usb_dibusb *,struct dib_fe_xfer_ops *);
+-
+-/* i2c and transfer stuff */
+-#define DIBUSB_I2C_TIMEOUT				5000
+-
+-/*
+- * protocol of all dibusb related devices
+- */
+-
+-/*
+- * bulk msg to/from endpoint 0x01
+- *
+- * general structure:
+- * request_byte parameter_bytes
+- */
+-
+-#define DIBUSB_REQ_START_READ			0x00
+-#define DIBUSB_REQ_START_DEMOD			0x01
+-
+-/*
+- * i2c read
+- * bulk write: 0x02 ((7bit i2c_addr << 1) & 0x01) register_bytes length_word
+- * bulk read:  byte_buffer (length_word bytes)
+- */
+-#define DIBUSB_REQ_I2C_READ			0x02
+-
+-/*
+- * i2c write
+- * bulk write: 0x03 (7bit i2c_addr << 1) register_bytes value_bytes
+- */
+-#define DIBUSB_REQ_I2C_WRITE			0x03
+-
+-/*
+- * polling the value of the remote control
+- * bulk write: 0x04
+- * bulk read:  byte_buffer (5 bytes)
+- *
+- * first byte of byte_buffer shows the status (0x00, 0x01, 0x02)
+- */
+-#define DIBUSB_REQ_POLL_REMOTE			0x04
+-
+-#define DIBUSB_RC_NEC_EMPTY				0x00
+-#define DIBUSB_RC_NEC_KEY_PRESSED		0x01
+-#define DIBUSB_RC_NEC_KEY_REPEATED		0x02
+-
+-/* additional status values for Hauppauge Remote Control Protocol */
+-#define DIBUSB_RC_HAUPPAUGE_KEY_PRESSED	0x01
+-#define DIBUSB_RC_HAUPPAUGE_KEY_EMPTY	0x03
+-
+-/* streaming mode:
+- * bulk write: 0x05 mode_byte
+- *
+- * mode_byte is mostly 0x00
+- */
+-#define DIBUSB_REQ_SET_STREAMING_MODE	0x05
+-
+-/* interrupt the internal read loop, when blocking */
+-#define DIBUSB_REQ_INTR_READ			0x06
+-
+-/* io control
+- * 0x07 cmd_byte param_bytes
+- *
+- * param_bytes can be up to 32 bytes
+- *
+- * cmd_byte function    parameter name
+- * 0x00     power mode
+- *                      0x00      sleep
+- *                      0x01      wakeup
+- *
+- * 0x01     enable streaming
+- * 0x02     disable streaming
+- *
+- *
+- */
+-#define DIBUSB_REQ_SET_IOCTL			0x07
+-
+-/* IOCTL commands */
+-
+-/* change the power mode in firmware */
+-#define DIBUSB_IOCTL_CMD_POWER_MODE		0x00
+-#define DIBUSB_IOCTL_POWER_SLEEP			0x00
+-#define DIBUSB_IOCTL_POWER_WAKEUP			0x01
+-
+-/* modify streaming of the FX2 */
+-#define DIBUSB_IOCTL_CMD_ENABLE_STREAM	0x01
+-#define DIBUSB_IOCTL_CMD_DISABLE_STREAM	0x02
+-
+-#endif
+Index: linux-2.6.12-rc4-git3/drivers/media/dvb/dibusb/dvb-dibusb-core.c
 ===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.12-rc4-git3/drivers/media/dvb/frontends/bcm3510_priv.h	2005-05-23 00:57:25.000000000 +0200
-@@ -0,0 +1,460 @@
-+/*
-+ * Support for the Broadcom BCM3510 ATSC demodulator (1st generation Air2PC)
-+ *
-+ *  Copyright (C) 2001-5, B2C2 inc.
-+ *
-+ *  GPL/Linux driver written by Patrick Boettcher <patrick.boettcher@desy.de>
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+#ifndef __BCM3510_PRIV_H__
-+#define __BCM3510_PRIV_H__
-+
-+#define PACKED __attribute__((packed))
-+
-+#undef err
-+#define err(format, arg...)  printk(KERN_ERR     "bcm3510: " format "\n" , ## arg)
-+#undef info
-+#define info(format, arg...) printk(KERN_INFO    "bcm3510: " format "\n" , ## arg)
-+#undef warn
-+#define warn(format, arg...) printk(KERN_WARNING "bcm3510: " format "\n" , ## arg)
-+
-+
-+#define PANASONIC_FIRST_IF_BASE_IN_KHz  1407500
-+#define BCM3510_SYMBOL_RATE             5381000
-+
-+typedef union {
-+	u8 raw;
-+
-+	struct {
-+		u8 CTL   :8;
-+	} TSTCTL_2e;
-+
-+	u8 LDCERC_4e;
-+	u8 LDUERC_4f;
-+	u8 LD_BER0_65;
-+	u8 LD_BER1_66;
-+	u8 LD_BER2_67;
-+	u8 LD_BER3_68;
-+
-+	struct {
-+		u8 RESET :1;
-+		u8 IDLE  :1;
-+		u8 STOP  :1;
-+		u8 HIRQ0 :1;
-+		u8 HIRQ1 :1;
-+		u8 na0   :1;
-+		u8 HABAV :1;
-+		u8 na1   :1;
-+	} HCTL1_a0;
-+
-+	struct {
-+		u8 na0    :1;
-+		u8 IDLMSK :1;
-+		u8 STMSK  :1;
-+		u8 I0MSK  :1;
-+		u8 I1MSK  :1;
-+		u8 na1    :1;
-+		u8 HABMSK :1;
-+		u8 na2    :1;
-+	} HCTLMSK_a1;
-+
-+	struct {
-+		u8 RESET  :1;
-+		u8 IDLE   :1;
-+		u8 STOP   :1;
-+		u8 RUN    :1;
-+		u8 HABAV  :1;
-+		u8 MEMAV  :1;
-+		u8 ALDONE :1;
-+		u8 REIRQ  :1;
-+	} APSTAT1_a2;
-+
-+	struct {
-+		u8 RSTMSK :1;
-+		u8 IMSK   :1;
-+		u8 SMSK   :1;
-+		u8 RMSK   :1;
-+		u8 HABMSK :1;
-+		u8 MAVMSK :1;
-+		u8 ALDMSK :1;
-+		u8 REMSK  :1;
-+	} APMSK1_a3;
-+
-+	u8 APSTAT2_a4;
-+	u8 APMSK2_a5;
-+
-+	struct {
-+		u8 HABADR :7;
-+		u8 na     :1;
-+	} HABADR_a6;
-+
-+	u8 HABDATA_a7;
-+
-+	struct {
-+		u8 HABR   :1;
-+		u8 LDHABR :1;
-+		u8 APMSK  :1;
-+		u8 HMSK   :1;
-+		u8 LDMSK  :1;
-+		u8 na     :3;
-+	} HABSTAT_a8;
-+
-+	u8 MADRH_a9;
-+	u8 MADRL_aa;
-+	u8 MDATA_ab;
-+
-+	struct {
-+#define JDEC_WAIT_AT_RAM      0x7
-+#define JDEC_EEPROM_LOAD_WAIT 0x4
-+		u8 JDEC   :3;
-+		u8 na     :5;
-+	} JDEC_ca;
-+
-+	struct {
-+		u8 REV   :4;
-+		u8 LAYER :4;
-+	} REVID_e0;
-+
-+	struct {
-+		u8 unk0   :1;
-+		u8 CNTCTL :1;
-+		u8 BITCNT :1;
-+		u8 unk1   :1;
-+		u8 RESYNC :1;
-+		u8 unk2   :3;
-+	} BERCTL_fa;
-+
-+	struct {
-+		u8 CSEL0  :1;
-+		u8 CLKED0 :1;
-+		u8 CSEL1  :1;
-+		u8 CLKED1 :1;
-+		u8 CLKLEV :1;
-+		u8 SPIVAR :1;
-+		u8 na     :2;
-+	} TUNSET_fc;
-+
-+	struct {
-+		u8 CLK    :1;
-+		u8 DATA   :1;
-+		u8 CS0    :1;
-+		u8 CS1    :1;
-+		u8 AGCSEL :1;
-+		u8 na0    :1;
-+		u8 TUNSEL :1;
-+		u8 na1    :1;
-+	} TUNCTL_fd;
-+
-+	u8 TUNSEL0_fe;
-+	u8 TUNSEL1_ff;
-+
-+} bcm3510_register_value;
-+
-+/* HAB commands */
-+
-+/* version */
-+#define CMD_GET_VERSION_INFO   0x3D
-+#define MSGID_GET_VERSION_INFO 0x15
-+struct bcm3510_hab_cmd_get_version_info {
-+	u8 microcode_version;
-+	u8 script_version;
-+	u8 config_version;
-+	u8 demod_version;
-+} PACKED;
-+
-+#define BCM3510_DEF_MICROCODE_VERSION 0x0E
-+#define BCM3510_DEF_SCRIPT_VERSION    0x06
-+#define BCM3510_DEF_CONFIG_VERSION    0x01
-+#define BCM3510_DEF_DEMOD_VERSION     0xB1
-+
-+/* acquire */
-+#define CMD_ACQUIRE            0x38
-+
-+#define MSGID_EXT_TUNER_ACQUIRE 0x0A
-+struct bcm3510_hab_cmd_ext_acquire {
-+	struct {
-+		u8 MODE      :4;
-+		u8 BW        :1;
-+		u8 FA        :1;
-+		u8 NTSCSWEEP :1;
-+		u8 OFFSET    :1;
-+	} PACKED ACQUIRE0; /* control_byte */
-+
-+	struct {
-+		u8 IF_FREQ  :3;
-+		u8 zero0    :1;
-+		u8 SYM_RATE :3;
-+		u8 zero1    :1;
-+	} PACKED ACQUIRE1; /* sym_if */
-+
-+	u8 IF_OFFSET0;   /* IF_Offset_10hz */
-+	u8 IF_OFFSET1;
-+	u8 SYM_OFFSET0;  /* SymbolRateOffset */
-+	u8 SYM_OFFSET1;
-+	u8 NTSC_OFFSET0; /* NTSC_Offset_10hz */
-+	u8 NTSC_OFFSET1;
-+} PACKED;
-+
-+#define MSGID_INT_TUNER_ACQUIRE 0x0B
-+struct bcm3510_hab_cmd_int_acquire {
-+	struct {
-+		u8 MODE      :4;
-+		u8 BW        :1;
-+		u8 FA        :1;
-+		u8 NTSCSWEEP :1;
-+		u8 OFFSET    :1;
-+	} PACKED ACQUIRE0; /* control_byte */
-+
-+	struct {
-+		u8 IF_FREQ  :3;
-+		u8 zero0    :1;
-+		u8 SYM_RATE :3;
-+		u8 zero1    :1;
-+	} PACKED ACQUIRE1; /* sym_if */
-+
-+	u8 TUNER_FREQ0;
-+	u8 TUNER_FREQ1;
-+	u8 TUNER_FREQ2;
-+	u8 TUNER_FREQ3;
-+	u8 IF_OFFSET0;   /* IF_Offset_10hz */
-+	u8 IF_OFFSET1;
-+	u8 SYM_OFFSET0;  /* SymbolRateOffset */
-+	u8 SYM_OFFSET1;
-+	u8 NTSC_OFFSET0; /* NTSC_Offset_10hz */
-+	u8 NTSC_OFFSET1;
-+} PACKED;
-+
-+/* modes */
-+#define BCM3510_QAM16           =   0x01
-+#define BCM3510_QAM32           =   0x02
-+#define BCM3510_QAM64           =   0x03
-+#define BCM3510_QAM128          =   0x04
-+#define BCM3510_QAM256          =   0x05
-+#define BCM3510_8VSB            =   0x0B
-+#define BCM3510_16VSB           =   0x0D
-+
-+/* IF_FREQS */
-+#define BCM3510_IF_TERRESTRIAL 0x0
-+#define BCM3510_IF_CABLE       0x1
-+#define BCM3510_IF_USE_CMD     0x7
-+
-+/* SYM_RATE */
-+#define BCM3510_SR_8VSB        0x0 /* 5381119 s/sec */
-+#define BCM3510_SR_256QAM      0x1 /* 5360537 s/sec */
-+#define BCM3510_SR_16QAM       0x2 /* 5056971 s/sec */
-+#define BCM3510_SR_MISC        0x3 /* 5000000 s/sec */
-+#define BCM3510_SR_USE_CMD     0x7
-+
-+/* special symbol rate */
-+#define CMD_SET_VALUE_NOT_LISTED  0x2d
-+#define MSGID_SET_SYMBOL_RATE_NOT_LISTED 0x0c
-+struct bcm3510_hab_cmd_set_sr_not_listed {
-+	u8 HOST_SYM_RATE0;
-+	u8 HOST_SYM_RATE1;
-+	u8 HOST_SYM_RATE2;
-+	u8 HOST_SYM_RATE3;
-+} PACKED;
-+
-+/* special IF */
-+#define MSGID_SET_IF_FREQ_NOT_LISTED 0x0d
-+struct bcm3510_hab_cmd_set_if_freq_not_listed {
-+	u8 HOST_IF_FREQ0;
-+	u8 HOST_IF_FREQ1;
-+	u8 HOST_IF_FREQ2;
-+	u8 HOST_IF_FREQ3;
-+} PACKED;
-+
-+/* auto reacquire */
-+#define CMD_AUTO_PARAM       0x2a
-+#define MSGID_AUTO_REACQUIRE 0x0e
-+struct bcm3510_hab_cmd_auto_reacquire {
-+	u8 ACQ    :1; /* on/off*/
-+	u8 unused :7;
-+} PACKED;
-+
-+#define MSGID_SET_RF_AGC_SEL 0x12
-+struct bcm3510_hab_cmd_set_agc {
-+	u8 LVL    :1;
-+	u8 unused :6;
-+	u8 SEL    :1;
-+} PACKED;
-+
-+#define MSGID_SET_AUTO_INVERSION 0x14
-+struct bcm3510_hab_cmd_auto_inversion {
-+	u8 AI     :1;
-+	u8 unused :7;
-+} PACKED;
-+
-+
-+/* bert control */
-+#define CMD_STATE_CONTROL  0x12
-+#define MSGID_BERT_CONTROL 0x0e
-+#define MSGID_BERT_SET     0xfa
-+struct bcm3510_hab_cmd_bert_control {
-+	u8 BE     :1;
-+	u8 unused :7;
-+} PACKED;
-+
-+#define MSGID_TRI_STATE 0x2e
-+struct bcm3510_hab_cmd_tri_state {
-+	u8 RE :1; /* a/d ram port pins */
-+	u8 PE :1; /* baud clock pin */
-+	u8 AC :1; /* a/d clock pin */
-+	u8 BE :1; /* baud clock pin */
-+	u8 unused :4;
-+} PACKED;
-+
-+
-+/* tune */
-+#define CMD_TUNE   0x38
-+#define MSGID_TUNE 0x16
-+struct bcm3510_hab_cmd_tune_ctrl_data_pair {
-+	struct {
-+#define BITS_8 0x07
-+#define BITS_7 0x06
-+#define BITS_6 0x05
-+#define BITS_5 0x04
-+#define BITS_4 0x03
-+#define BITS_3 0x02
-+#define BITS_2 0x01
-+#define BITS_1 0x00
-+		u8 size    :3;
-+		u8 unk     :2;
-+		u8 clk_off :1;
-+		u8 cs0     :1;
-+		u8 cs1     :1;
-+
-+	} PACKED ctrl;
-+
-+	u8 data;
-+} PACKED;
-+
-+struct bcm3510_hab_cmd_tune {
-+	u8 length;
-+	u8 clock_width;
-+	u8 misc;
-+	u8 TUNCTL_state;
-+
-+	struct bcm3510_hab_cmd_tune_ctrl_data_pair ctl_dat[16];
-+} PACKED;
-+
-+#define CMD_STATUS    0x38
-+#define MSGID_STATUS1 0x08
-+struct bcm3510_hab_cmd_status1 {
-+	struct {
-+		u8 EQ_MODE       :4;
-+		u8 reserved      :2;
-+		u8 QRE           :1; /* if QSE and the spectrum is inversed */
-+		u8 QSE           :1; /* automatic spectral inversion */
-+	} PACKED STATUS0;
-+
-+	struct {
-+		u8 RECEIVER_LOCK :1;
-+		u8 FEC_LOCK      :1;
-+		u8 OUT_PLL_LOCK  :1;
-+		u8 reserved      :5;
-+	} PACKED STATUS1;
-+
-+	struct {
-+		u8 reserved      :2;
-+		u8 BW            :1;
-+		u8 NTE           :1; /* NTSC filter sweep enabled */
-+		u8 AQI           :1; /* currently acquiring */
-+		u8 FA            :1; /* fast acquisition */
-+		u8 ARI           :1; /* auto reacquire */
-+		u8 TI            :1; /* programming the tuner */
-+	} PACKED STATUS2;
-+	u8 STATUS3;
-+	u8 SNR_EST0;
-+	u8 SNR_EST1;
-+	u8 TUNER_FREQ0;
-+	u8 TUNER_FREQ1;
-+	u8 TUNER_FREQ2;
-+	u8 TUNER_FREQ3;
-+	u8 SYM_RATE0;
-+	u8 SYM_RATE1;
-+	u8 SYM_RATE2;
-+	u8 SYM_RATE3;
-+	u8 SYM_OFFSET0;
-+	u8 SYM_OFFSET1;
-+	u8 SYM_ERROR0;
-+	u8 SYM_ERROR1;
-+	u8 IF_FREQ0;
-+	u8 IF_FREQ1;
-+	u8 IF_FREQ2;
-+	u8 IF_FREQ3;
-+	u8 IF_OFFSET0;
-+	u8 IF_OFFSET1;
-+	u8 IF_ERROR0;
-+	u8 IF_ERROR1;
-+	u8 NTSC_FILTER0;
-+	u8 NTSC_FILTER1;
-+	u8 NTSC_FILTER2;
-+	u8 NTSC_FILTER3;
-+	u8 NTSC_OFFSET0;
-+	u8 NTSC_OFFSET1;
-+	u8 NTSC_ERROR0;
-+	u8 NTSC_ERROR1;
-+	u8 INT_AGC_LEVEL0;
-+	u8 INT_AGC_LEVEL1;
-+	u8 EXT_AGC_LEVEL0;
-+	u8 EXT_AGC_LEVEL1;
-+} PACKED;
-+
-+#define MSGID_STATUS2 0x14
-+struct bcm3510_hab_cmd_status2 {
-+	struct {
-+		u8 EQ_MODE  :4;
-+		u8 reserved :2;
-+		u8 QRE      :1;
-+		u8 QSR      :1;
-+	} PACKED STATUS0;
-+	struct {
-+		u8 RL       :1;
-+		u8 FL       :1;
-+		u8 OL       :1;
-+		u8 reserved :5;
-+	} PACKED STATUS1;
-+	u8 SYMBOL_RATE0;
-+	u8 SYMBOL_RATE1;
-+	u8 SYMBOL_RATE2;
-+	u8 SYMBOL_RATE3;
-+	u8 LDCERC0;
-+	u8 LDCERC1;
-+	u8 LDCERC2;
-+	u8 LDCERC3;
-+	u8 LDUERC0;
-+	u8 LDUERC1;
-+	u8 LDUERC2;
-+	u8 LDUERC3;
-+	u8 LDBER0;
-+	u8 LDBER1;
-+	u8 LDBER2;
-+	u8 LDBER3;
-+	struct {
-+		u8 MODE_TYPE :4; /* acquire mode 0 */
-+		u8 reservd   :4;
-+	} MODE_TYPE;
-+	u8 SNR_EST0;
-+	u8 SNR_EST1;
-+	u8 SIGNAL;
-+} PACKED;
-+
-+#define CMD_SET_RF_BW_NOT_LISTED   0x3f
-+#define MSGID_SET_RF_BW_NOT_LISTED 0x11
-+/* TODO */
-+
-+#endif
+--- linux-2.6.12-rc4-git3.orig/drivers/media/dvb/dibusb/dvb-dibusb-core.c	2005-05-19 22:52:13.000000000 +0200
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,558 +0,0 @@
+-/*
+- * Driver for mobile USB Budget DVB-T devices based on reference 
+- * design made by DiBcom (http://www.dibcom.fr/)
+- * 
+- * dvb-dibusb-core.c
+- * 
+- * Copyright (C) 2004-5 Patrick Boettcher (patrick.boettcher@desy.de)
+- * 
+- * based on GPL code from DiBcom, which has
+- * Copyright (C) 2004 Amaury Demol for DiBcom (ademol@dibcom.fr)
+- *
+- * Remote control code added by David Matthews (dm@prolingua.co.uk)
+- * 
+- *	This program is free software; you can redistribute it and/or
+- *	modify it under the terms of the GNU General Public License as
+- *	published by the Free Software Foundation, version 2.
+- *
+- * Acknowledgements
+- * 
+- *  Amaury Demol (ademol@dibcom.fr) from DiBcom for providing specs and driver
+- *  sources, on which this driver (and the dib3000mb/mc/p frontends) are based.
+- * 
+- * see Documentation/dvb/README.dibusb for more information
+- */
+-#include "dvb-dibusb.h"
+-
+-#include <linux/moduleparam.h>
+-
+-/* debug */
+-int dvb_dibusb_debug;
+-module_param_named(debug, dvb_dibusb_debug,  int, 0644);
+-
+-#ifdef CONFIG_DVB_DIBCOM_DEBUG
+-#define DBSTATUS ""
+-#else
+-#define DBSTATUS " (debugging is not enabled)"
+-#endif
+-MODULE_PARM_DESC(debug, "set debugging level (1=info,2=xfer,4=alotmore,8=ts,16=err,32=rc (|-able))." DBSTATUS);
+-#undef DBSTATUS
+-
+-static int pid_parse;
+-module_param(pid_parse, int, 0644);
+-MODULE_PARM_DESC(pid_parse, "enable pid parsing (filtering) when running at USB2.0");
+-
+-static int rc_query_interval = 100;
+-module_param(rc_query_interval, int, 0644);
+-MODULE_PARM_DESC(rc_query_interval, "interval in msecs for remote control query (default: 100; min: 40)");
+-
+-static int rc_key_repeat_count = 2;
+-module_param(rc_key_repeat_count, int, 0644);
+-MODULE_PARM_DESC(rc_key_repeat_count, "how many key repeats will be dropped before passing the key event again (default: 2)");
+-
+-/* Vendor IDs */
+-#define USB_VID_ADSTECH						0x06e1
+-#define USB_VID_ANCHOR						0x0547
+-#define USB_VID_AVERMEDIA					0x14aa
+-#define USB_VID_COMPRO						0x185b
+-#define USB_VID_COMPRO_UNK					0x145f
+-#define USB_VID_CYPRESS						0x04b4
+-#define USB_VID_DIBCOM						0x10b8
+-#define USB_VID_EMPIA						0xeb1a
+-#define USB_VID_GRANDTEC					0x5032
+-#define USB_VID_HANFTEK						0x15f4
+-#define USB_VID_HAUPPAUGE					0x2040
+-#define USB_VID_HYPER_PALTEK				0x1025
+-#define USB_VID_IMC_NETWORKS				0x13d3
+-#define USB_VID_TWINHAN						0x1822
+-#define USB_VID_ULTIMA_ELECTRONIC			0x05d8
+-
+-/* Product IDs */
+-#define USB_PID_ADSTECH_USB2_COLD			0xa333
+-#define USB_PID_ADSTECH_USB2_WARM			0xa334
+-#define USB_PID_AVERMEDIA_DVBT_USB_COLD		0x0001
+-#define USB_PID_AVERMEDIA_DVBT_USB_WARM		0x0002
+-#define USB_PID_COMPRO_DVBU2000_COLD		0xd000
+-#define USB_PID_COMPRO_DVBU2000_WARM		0xd001
+-#define USB_PID_COMPRO_DVBU2000_UNK_COLD	0x010c
+-#define USB_PID_COMPRO_DVBU2000_UNK_WARM	0x010d
+-#define USB_PID_DIBCOM_MOD3000_COLD			0x0bb8
+-#define USB_PID_DIBCOM_MOD3000_WARM			0x0bb9
+-#define USB_PID_DIBCOM_MOD3001_COLD			0x0bc6
+-#define USB_PID_DIBCOM_MOD3001_WARM			0x0bc7
+-#define USB_PID_DIBCOM_ANCHOR_2135_COLD		0x2131
+-#define USB_PID_GRANDTEC_DVBT_USB_COLD		0x0fa0
+-#define USB_PID_GRANDTEC_DVBT_USB_WARM		0x0fa1
+-#define USB_PID_KWORLD_VSTREAM_COLD			0x17de
+-#define USB_PID_KWORLD_VSTREAM_WARM			0x17df
+-#define USB_PID_TWINHAN_VP7041_COLD			0x3201
+-#define USB_PID_TWINHAN_VP7041_WARM			0x3202
+-#define USB_PID_ULTIMA_TVBOX_COLD			0x8105
+-#define USB_PID_ULTIMA_TVBOX_WARM			0x8106
+-#define USB_PID_ULTIMA_TVBOX_AN2235_COLD	0x8107
+-#define USB_PID_ULTIMA_TVBOX_AN2235_WARM	0x8108
+-#define USB_PID_ULTIMA_TVBOX_ANCHOR_COLD	0x2235
+-#define USB_PID_ULTIMA_TVBOX_USB2_COLD		0x8109
+-#define USB_PID_ULTIMA_TVBOX_USB2_FX_COLD	0x8613
+-#define USB_PID_ULTIMA_TVBOX_USB2_FX_WARM	0x1002
+-#define USB_PID_UNK_HYPER_PALTEK_COLD		0x005e
+-#define USB_PID_UNK_HYPER_PALTEK_WARM		0x005f
+-#define USB_PID_HANFTEK_UMT_010_COLD		0x0001
+-#define USB_PID_HANFTEK_UMT_010_WARM		0x0015
+-#define USB_PID_YAKUMO_DTT200U_COLD			0x0201
+-#define USB_PID_YAKUMO_DTT200U_WARM			0x0301
+-#define USB_PID_WINTV_NOVA_T_USB2_COLD		0x9300
+-#define USB_PID_WINTV_NOVA_T_USB2_WARM		0x9301
+-
+-/* USB Driver stuff
+- * table of devices that this driver is working with
+- *
+- * ATTENTION: Never ever change the order of this table, the particular 
+- * devices depend on this order 
+- *
+- * Each entry is used as a reference in the device_struct. Currently this is 
+- * the only non-redundant way of assigning USB ids to actual devices I'm aware 
+- * of, because there is only one place in the code where the assignment of 
+- * vendor and product id is done, here.
+- */
+-static struct usb_device_id dib_table [] = {
+-/* 00 */	{ USB_DEVICE(USB_VID_AVERMEDIA,		USB_PID_AVERMEDIA_DVBT_USB_COLD)},
+-/* 01 */	{ USB_DEVICE(USB_VID_AVERMEDIA,		USB_PID_AVERMEDIA_DVBT_USB_WARM)},
+-/* 02 */	{ USB_DEVICE(USB_VID_AVERMEDIA,		USB_PID_YAKUMO_DTT200U_COLD) },
+-/* 03 */	{ USB_DEVICE(USB_VID_AVERMEDIA,		USB_PID_YAKUMO_DTT200U_WARM) },
+-
+-/* 04 */	{ USB_DEVICE(USB_VID_COMPRO,		USB_PID_COMPRO_DVBU2000_COLD) },
+-/* 05 */	{ USB_DEVICE(USB_VID_COMPRO,		USB_PID_COMPRO_DVBU2000_WARM) },
+-/* 06 */	{ USB_DEVICE(USB_VID_COMPRO_UNK,	USB_PID_COMPRO_DVBU2000_UNK_COLD) },
+-/* 07 */	{ USB_DEVICE(USB_VID_DIBCOM,		USB_PID_DIBCOM_MOD3000_COLD) },
+-/* 08 */	{ USB_DEVICE(USB_VID_DIBCOM,		USB_PID_DIBCOM_MOD3000_WARM) },
+-/* 09 */	{ USB_DEVICE(USB_VID_DIBCOM,		USB_PID_DIBCOM_MOD3001_COLD) },
+-/* 10 */	{ USB_DEVICE(USB_VID_DIBCOM,		USB_PID_DIBCOM_MOD3001_WARM) },
+-/* 11 */	{ USB_DEVICE(USB_VID_EMPIA,			USB_PID_KWORLD_VSTREAM_COLD) },
+-/* 12 */	{ USB_DEVICE(USB_VID_EMPIA,			USB_PID_KWORLD_VSTREAM_WARM) },
+-/* 13 */	{ USB_DEVICE(USB_VID_GRANDTEC,		USB_PID_GRANDTEC_DVBT_USB_COLD) },
+-/* 14 */	{ USB_DEVICE(USB_VID_GRANDTEC,		USB_PID_GRANDTEC_DVBT_USB_WARM) },
+-/* 15 */	{ USB_DEVICE(USB_VID_GRANDTEC,		USB_PID_DIBCOM_MOD3000_COLD) },
+-/* 16 */	{ USB_DEVICE(USB_VID_GRANDTEC,		USB_PID_DIBCOM_MOD3000_WARM) },
+-/* 17 */	{ USB_DEVICE(USB_VID_HYPER_PALTEK,	USB_PID_UNK_HYPER_PALTEK_COLD) },
+-/* 18 */	{ USB_DEVICE(USB_VID_HYPER_PALTEK,	USB_PID_UNK_HYPER_PALTEK_WARM) },
+-/* 19 */	{ USB_DEVICE(USB_VID_IMC_NETWORKS,	USB_PID_TWINHAN_VP7041_COLD) },
+-/* 20 */	{ USB_DEVICE(USB_VID_IMC_NETWORKS,	USB_PID_TWINHAN_VP7041_WARM) },
+-/* 21 */	{ USB_DEVICE(USB_VID_TWINHAN, 		USB_PID_TWINHAN_VP7041_COLD) },
+-/* 22 */	{ USB_DEVICE(USB_VID_TWINHAN, 		USB_PID_TWINHAN_VP7041_WARM) },
+-/* 23 */	{ USB_DEVICE(USB_VID_ULTIMA_ELECTRONIC, USB_PID_ULTIMA_TVBOX_COLD) },
+-/* 24 */	{ USB_DEVICE(USB_VID_ULTIMA_ELECTRONIC, USB_PID_ULTIMA_TVBOX_WARM) },
+-/* 25 */	{ USB_DEVICE(USB_VID_ULTIMA_ELECTRONIC, USB_PID_ULTIMA_TVBOX_AN2235_COLD) },
+-/* 26 */	{ USB_DEVICE(USB_VID_ULTIMA_ELECTRONIC, USB_PID_ULTIMA_TVBOX_AN2235_WARM) },
+-/* 27 */	{ USB_DEVICE(USB_VID_ULTIMA_ELECTRONIC,	USB_PID_ULTIMA_TVBOX_USB2_COLD) },
+-	
+-/* 28 */	{ USB_DEVICE(USB_VID_HANFTEK,		USB_PID_HANFTEK_UMT_010_COLD) },
+-/* 29 */	{ USB_DEVICE(USB_VID_HANFTEK,		USB_PID_HANFTEK_UMT_010_WARM) },
+-
+-/* 30 */	{ USB_DEVICE(USB_VID_HAUPPAUGE,		USB_PID_WINTV_NOVA_T_USB2_COLD) },
+-/* 31 */	{ USB_DEVICE(USB_VID_HAUPPAUGE,		USB_PID_WINTV_NOVA_T_USB2_WARM) },
+-/* 32 */	{ USB_DEVICE(USB_VID_ADSTECH,		USB_PID_ADSTECH_USB2_COLD) },
+-/* 33 */	{ USB_DEVICE(USB_VID_ADSTECH,		USB_PID_ADSTECH_USB2_WARM) },
+-/* 
+- * activate the following define when you have one of the devices and want to 
+- * build it from build-2.6 in dvb-kernel
+- */
+-// #define CONFIG_DVB_DIBUSB_MISDESIGNED_DEVICES
+-#ifdef CONFIG_DVB_DIBUSB_MISDESIGNED_DEVICES
+-/* 34 */	{ USB_DEVICE(USB_VID_ANCHOR,		USB_PID_ULTIMA_TVBOX_ANCHOR_COLD) },
+-/* 35 */	{ USB_DEVICE(USB_VID_CYPRESS,		USB_PID_ULTIMA_TVBOX_USB2_FX_COLD) },
+-/* 36 */	{ USB_DEVICE(USB_VID_ANCHOR,		USB_PID_ULTIMA_TVBOX_USB2_FX_WARM) },
+-/* 37 */	{ USB_DEVICE(USB_VID_ANCHOR,		USB_PID_DIBCOM_ANCHOR_2135_COLD) },
+-#endif
+-			{ }		/* Terminating entry */
+-};
+-
+-MODULE_DEVICE_TABLE (usb, dib_table);
+-
+-static struct dibusb_usb_controller dibusb_usb_ctrl[] = {
+-	{ .name = "Cypress AN2135", .cpu_cs_register = 0x7f92 },
+-	{ .name = "Cypress AN2235", .cpu_cs_register = 0x7f92 },
+-	{ .name = "Cypress FX2",    .cpu_cs_register = 0xe600 },
+-};
+-
+-struct dibusb_tuner dibusb_tuner[] = {
+-	{ DIBUSB_TUNER_CABLE_THOMSON, 
+-	  0x61 
+-	},
+-	{ DIBUSB_TUNER_COFDM_PANASONIC_ENV57H1XD5,
+-	  0x60 
+-	},
+-	{ DIBUSB_TUNER_CABLE_LG_TDTP_E102P,
+-	  0x61
+-	},
+-	{ DIBUSB_TUNER_COFDM_PANASONIC_ENV77H11D5,
+-	  0x60
+-	},
+-};
+-
+-static struct dibusb_demod dibusb_demod[] = {
+-	{ DIBUSB_DIB3000MB,
+-	  16,
+-	  { 0x8, 0 },
+-	},
+-	{ DIBUSB_DIB3000MC,
+-	  32,
+-	  { 0x9, 0xa, 0xb, 0xc }, 
+-	},
+-	{ DIBUSB_MT352,
+-	  254,
+-	  { 0xf, 0 }, 
+-	},
+-	{ DTT200U_FE,
+-	  8,
+-	  { 0xff,0 }, /* there is no i2c bus in this device */
+-	}
+-};
+-
+-static struct dibusb_device_class dibusb_device_classes[] = {
+-	{ .id = DIBUSB1_1, .usb_ctrl = &dibusb_usb_ctrl[0],
+-	  .firmware = "dvb-dibusb-5.0.0.11.fw",
+-	  .pipe_cmd = 0x01, .pipe_data = 0x02, 
+-	  .urb_count = 7, .urb_buffer_size = 4096,
+-	  DIBUSB_RC_NEC_PROTOCOL,
+-	  &dibusb_demod[DIBUSB_DIB3000MB],
+-	  &dibusb_tuner[DIBUSB_TUNER_CABLE_THOMSON],
+-	},
+-	{ DIBUSB1_1_AN2235, &dibusb_usb_ctrl[1],
+-	  "dvb-dibusb-an2235-1.fw",
+-	  0x01, 0x02, 
+-	  7, 4096,
+-	  DIBUSB_RC_NEC_PROTOCOL,
+-	  &dibusb_demod[DIBUSB_DIB3000MB],
+-	  &dibusb_tuner[DIBUSB_TUNER_CABLE_THOMSON],
+-	},
+-	{ DIBUSB2_0,&dibusb_usb_ctrl[2],
+-	  "dvb-dibusb-6.0.0.5.fw",
+-	  0x01, 0x06, 
+-	  7, 4096,
+-	  DIBUSB_RC_NEC_PROTOCOL,
+-	  &dibusb_demod[DIBUSB_DIB3000MC],
+-	  &dibusb_tuner[DIBUSB_TUNER_COFDM_PANASONIC_ENV57H1XD5],
+-	},
+-	{ UMT2_0, &dibusb_usb_ctrl[2],
+-	  "dvb-dibusb-umt-2.fw",
+-	  0x01, 0x06,
+-	  20, 512,
+-	  DIBUSB_RC_NO,
+-	  &dibusb_demod[DIBUSB_MT352],
+-	  &dibusb_tuner[DIBUSB_TUNER_CABLE_LG_TDTP_E102P],
+-	},
+-	{ DIBUSB2_0B,&dibusb_usb_ctrl[2],
+-	  "dvb-dibusb-adstech-usb2-1.fw",
+-	  0x01, 0x06,
+-	  7, 4096,
+-	  DIBUSB_RC_NEC_PROTOCOL,
+-	  &dibusb_demod[DIBUSB_DIB3000MB],
+-	  &dibusb_tuner[DIBUSB_TUNER_CABLE_THOMSON],
+-	},
+-	{ NOVAT_USB2,&dibusb_usb_ctrl[2],
+-	  "dvb-dibusb-nova-t-1.fw",
+-	  0x01, 0x06,
+-	  7, 4096,
+-	  DIBUSB_RC_HAUPPAUGE_PROTO,
+-	  &dibusb_demod[DIBUSB_DIB3000MC],
+-	  &dibusb_tuner[DIBUSB_TUNER_COFDM_PANASONIC_ENV57H1XD5],
+-	},
+-	{ DTT200U,&dibusb_usb_ctrl[2],
+-	  "dvb-dtt200u-1.fw",
+-	  0x01, 0x02,
+-	  7, 4096,
+-	  DIBUSB_RC_NO,
+-	  &dibusb_demod[DTT200U_FE],
+-	  NULL, /* no explicit tuner/pll-programming necessary (it has the ENV57H1XD5) */
+-	},
+-};
+-
+-static struct dibusb_usb_device dibusb_devices[] = {
+-	{	"TwinhanDTV USB1.1 / Magic Box / HAMA USB1.1 DVB-T device",
+-		&dibusb_device_classes[DIBUSB1_1],
+-		{ &dib_table[19], &dib_table[21], NULL},
+-		{ &dib_table[20], &dib_table[22], NULL},
+-	},
+-	{	"KWorld V-Stream XPERT DTV - DVB-T USB1.1",
+-		&dibusb_device_classes[DIBUSB1_1],
+-		{ &dib_table[11], NULL },
+-		{ &dib_table[12], NULL },
+-	},
+-	{	"Grandtec USB1.1 DVB-T",
+-		&dibusb_device_classes[DIBUSB1_1],
+-		{ &dib_table[13], &dib_table[15], NULL },
+-		{ &dib_table[14], &dib_table[16], NULL },
+-	},
+-	{	"DiBcom USB1.1 DVB-T reference design (MOD3000)",
+-		&dibusb_device_classes[DIBUSB1_1],
+-		{ &dib_table[7],  NULL },
+-		{ &dib_table[8],  NULL },
+-	},
+-	{	"Artec T1 USB1.1 TVBOX with AN2135",
+-		&dibusb_device_classes[DIBUSB1_1],
+-		{ &dib_table[23], NULL },
+-		{ &dib_table[24], NULL },
+-	},
+-	{	"Artec T1 USB1.1 TVBOX with AN2235",
+-		&dibusb_device_classes[DIBUSB1_1_AN2235],
+-		{ &dib_table[25], NULL },
+-		{ &dib_table[26], NULL },
+-	},
+-	{	"Avermedia AverTV DVBT USB1.1",
+-		&dibusb_device_classes[DIBUSB1_1],
+-		{ &dib_table[0],  NULL },
+-		{ &dib_table[1],  NULL },
+-	},
+-	{	"Compro Videomate DVB-U2000 - DVB-T USB1.1 (please confirm to linux-dvb)",
+-		&dibusb_device_classes[DIBUSB1_1],
+-		{ &dib_table[4], &dib_table[6], NULL},
+-		{ &dib_table[5], NULL },
+-	},
+-	{	"Unkown USB1.1 DVB-T device ???? please report the name to the author",
+-		&dibusb_device_classes[DIBUSB1_1],
+-		{ &dib_table[17], NULL },
+-		{ &dib_table[18], NULL },
+-	},
+-	{	"DiBcom USB2.0 DVB-T reference design (MOD3000P)",
+-		&dibusb_device_classes[DIBUSB2_0],
+-		{ &dib_table[9],  NULL },
+-		{ &dib_table[10], NULL },
+-	},
+-	{	"Artec T1 USB2.0 TVBOX (please report the warm ID)",
+-		&dibusb_device_classes[DIBUSB2_0],
+-		{ &dib_table[27], NULL },
+-		{ NULL },
+-	},
+-	{	"Hauppauge WinTV NOVA-T USB2",
+-		&dibusb_device_classes[NOVAT_USB2],
+-		{ &dib_table[30], NULL },
+-		{ &dib_table[31], NULL },
+-	},
+-	{	"DTT200U (Yakumo/Hama/Typhoon) DVB-T USB2.0",
+-		&dibusb_device_classes[DTT200U],
+-		{ &dib_table[2], NULL },
+-		{ &dib_table[3], NULL },
+-	},	
+-	{	"Hanftek UMT-010 DVB-T USB2.0",
+-		&dibusb_device_classes[UMT2_0],
+-		{ &dib_table[28], NULL },
+-		{ &dib_table[29], NULL },
+-	},	
+-	{	"KWorld/ADSTech Instant DVB-T USB 2.0",
+-		&dibusb_device_classes[DIBUSB2_0B],
+-		{ &dib_table[32], NULL },
+-		{ &dib_table[33], NULL }, /* device ID with default DIBUSB2_0-firmware */
+-	},
+-#ifdef CONFIG_DVB_DIBUSB_MISDESIGNED_DEVICES
+-	{	"Artec T1 USB1.1 TVBOX with AN2235 (misdesigned)",
+-		&dibusb_device_classes[DIBUSB1_1_AN2235],
+-		{ &dib_table[34], NULL },
+-		{ NULL },
+-	},
+-	{	"Artec T1 USB2.0 TVBOX with FX2 IDs (misdesigned, please report the warm ID)",
+-		&dibusb_device_classes[DTT200U],
+-		{ &dib_table[35], NULL },
+-		{ &dib_table[36], NULL }, /* undefined, it could be that the device will get another USB ID in warm state */
+-	},
+-	{	"DiBcom USB1.1 DVB-T reference design (MOD3000) with AN2135 default IDs",
+-		&dibusb_device_classes[DIBUSB1_1],
+-		{ &dib_table[37], NULL },
+-		{ NULL },
+-	},
+-#endif
+-};
+-
+-static int dibusb_exit(struct usb_dibusb *dib)
+-{
+-	deb_info("init_state before exiting everything: %x\n",dib->init_state);
+-	dibusb_remote_exit(dib);
+-	dibusb_fe_exit(dib);
+-	dibusb_i2c_exit(dib);
+-	dibusb_dvb_exit(dib);
+-	dibusb_urb_exit(dib);
+-	deb_info("init_state should be zero now: %x\n",dib->init_state);
+-	dib->init_state = DIBUSB_STATE_INIT;
+-	kfree(dib);
+-	return 0;
+-}
+-
+-static int dibusb_init(struct usb_dibusb *dib)
+-{
+-	int ret = 0;
+-	sema_init(&dib->usb_sem, 1);
+-	sema_init(&dib->i2c_sem, 1);
+-
+-	dib->init_state = DIBUSB_STATE_INIT;
+-	
+-	if ((ret = dibusb_urb_init(dib)) ||
+-		(ret = dibusb_dvb_init(dib)) || 
+-		(ret = dibusb_i2c_init(dib))) {
+-		dibusb_exit(dib);
+-		return ret;
+-	}
+-
+-	if ((ret = dibusb_fe_init(dib)))
+-		err("could not initialize a frontend.");
+-	
+-	if ((ret = dibusb_remote_init(dib)))
+-		err("could not initialize remote control.");
+-	
+-	return 0;
+-}
+-
+-static struct dibusb_usb_device * dibusb_device_class_quirk(struct usb_device *udev, struct dibusb_usb_device *dev)
+-{
+-	int i;
+-
+-	/* Quirk for the Kworld/ADSTech Instant USB2.0 device. It has the same USB
+-	 * IDs like the USB1.1 KWorld after loading the firmware. Which is a bad
+-	 * idea and make this quirk necessary.
+-	 */
+-	if (dev->dev_cl->id == DIBUSB1_1 && udev->speed == USB_SPEED_HIGH) {
+-		info("this seems to be the Kworld/ADSTech Instant USB2.0 device or equal.");
+-		for (i = 0; i < sizeof(dibusb_devices)/sizeof(struct dibusb_usb_device); i++) {
+-			if (dibusb_devices[i].dev_cl->id == DIBUSB2_0B) {
+-				dev = &dibusb_devices[i];
+-				break;
+-			}
+-		}
+-	}
+-
+-	return dev;
+-}
+-
+-static struct dibusb_usb_device * dibusb_find_device (struct usb_device *udev,int *cold)
+-{
+-	int i,j;
+-	struct dibusb_usb_device *dev = NULL;
+-	*cold = -1;
+-
+-	for (i = 0; i < sizeof(dibusb_devices)/sizeof(struct dibusb_usb_device); i++) {
+-		for (j = 0; j < DIBUSB_ID_MAX_NUM && dibusb_devices[i].cold_ids[j] != NULL; j++) {
+-			deb_info("check for cold %x %x\n",dibusb_devices[i].cold_ids[j]->idVendor, dibusb_devices[i].cold_ids[j]->idProduct);
+-			if (dibusb_devices[i].cold_ids[j]->idVendor == le16_to_cpu(udev->descriptor.idVendor) &&
+-				dibusb_devices[i].cold_ids[j]->idProduct == le16_to_cpu(udev->descriptor.idProduct)) {
+-				*cold = 1;
+-				dev = &dibusb_devices[i];
+-				break;
+-			}
+-		}
+-
+-		if (dev != NULL)
+-			break;
+-
+-		for (j = 0; j < DIBUSB_ID_MAX_NUM && dibusb_devices[i].warm_ids[j] != NULL; j++) {
+-			deb_info("check for warm %x %x\n",dibusb_devices[i].warm_ids[j]->idVendor, dibusb_devices[i].warm_ids[j]->idProduct);
+-			if (dibusb_devices[i].warm_ids[j]->idVendor == le16_to_cpu(udev->descriptor.idVendor) &&
+-				dibusb_devices[i].warm_ids[j]->idProduct == le16_to_cpu(udev->descriptor.idProduct)) {
+-				*cold = 0;
+-				dev = &dibusb_devices[i];
+-				break;
+-			}
+-		}
+-	}
+-
+-	if (dev != NULL)
+-		dev = dibusb_device_class_quirk(udev,dev);
+-
+-	return dev;
+-}
+-
+-/*
+- * USB 
+- */
+-static int dibusb_probe(struct usb_interface *intf, 
+-		const struct usb_device_id *id)
+-{
+-	struct usb_device *udev = interface_to_usbdev(intf);
+-	struct usb_dibusb *dib = NULL;
+-	struct dibusb_usb_device *dibdev = NULL;
+-	
+-	int ret = -ENOMEM,cold=0;
+-
+-	if ((dibdev = dibusb_find_device(udev,&cold)) == NULL) {
+-		err("something went very wrong, "
+-				"unknown product ID: %.4x",le16_to_cpu(udev->descriptor.idProduct));
+-		return -ENODEV;
+-	}
+-	
+-	if (cold == 1) {
+-		info("found a '%s' in cold state, will try to load a firmware",dibdev->name);
+-		ret = dibusb_loadfirmware(udev,dibdev);
+-	} else {
+-		info("found a '%s' in warm state.",dibdev->name);
+-		dib = kmalloc(sizeof(struct usb_dibusb),GFP_KERNEL);
+-		if (dib == NULL) {
+-			err("no memory");
+-			return ret;
+-		}
+-		memset(dib,0,sizeof(struct usb_dibusb));
+-		
+-		dib->udev = udev;
+-		dib->dibdev = dibdev;
+-
+-		/* store parameters to structures */
+-		dib->rc_query_interval = rc_query_interval;
+-		dib->pid_parse = pid_parse;
+-		dib->rc_key_repeat_count = rc_key_repeat_count;
+-
+-		usb_set_intfdata(intf, dib);
+-		
+-		ret = dibusb_init(dib);
+-	}
+-	
+-	if (ret == 0)
+-		info("%s successfully initialized and connected.",dibdev->name);
+-	else 
+-		info("%s error while loading driver (%d)",dibdev->name,ret);
+-	return ret;
+-}
+-
+-static void dibusb_disconnect(struct usb_interface *intf)
+-{
+-	struct usb_dibusb *dib = usb_get_intfdata(intf);
+-	const char *name = DRIVER_DESC;
+-	
+-	usb_set_intfdata(intf,NULL);
+-	if (dib != NULL && dib->dibdev != NULL) {
+-		name = dib->dibdev->name;
+-		dibusb_exit(dib);
+-	}
+-	info("%s successfully deinitialized and disconnected.",name);
+-	
+-}
+-
+-/* usb specific object needed to register this driver with the usb subsystem */
+-static struct usb_driver dibusb_driver = {
+-	.owner		= THIS_MODULE,
+-	.name		= DRIVER_DESC,
+-	.probe 		= dibusb_probe,
+-	.disconnect = dibusb_disconnect,
+-	.id_table 	= dib_table,
+-};
+-
+-/* module stuff */
+-static int __init usb_dibusb_init(void)
+-{
+-	int result;
+-	if ((result = usb_register(&dibusb_driver))) {
+-		err("usb_register failed. Error number %d",result);
+-		return result;
+-	}
+-	
+-	return 0;
+-}
+-
+-static void __exit usb_dibusb_exit(void)
+-{
+-	/* deregister this driver from the USB subsystem */
+-	usb_deregister(&dibusb_driver);
+-}
+-
+-module_init (usb_dibusb_init);
+-module_exit (usb_dibusb_exit);
+-
+-MODULE_AUTHOR(DRIVER_AUTHOR);
+-MODULE_DESCRIPTION(DRIVER_DESC);
+-MODULE_LICENSE("GPL");
+Index: linux-2.6.12-rc4-git3/drivers/media/dvb/dibusb/dvb-dibusb-remote.c
+===================================================================
+--- linux-2.6.12-rc4-git3.orig/drivers/media/dvb/dibusb/dvb-dibusb-remote.c	2005-05-19 22:52:13.000000000 +0200
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,316 +0,0 @@
+-/*
+- * dvb-dibusb-remote.c is part of the driver for mobile USB Budget DVB-T devices
+- * based on reference design made by DiBcom (http://www.dibcom.fr/)
+- *
+- * Copyright (C) 2004-5 Patrick Boettcher (patrick.boettcher@desy.de)
+- *
+- * see dvb-dibusb-core.c for more copyright details.
+- *
+- * This file contains functions for handling the event device on the software
+- * side and the remote control on the hardware side.
+- */
+-#include "dvb-dibusb.h"
+-
+-/* Table to map raw key codes to key events.  This should not be hard-wired
+-   into the kernel.  */
+-static const struct { u8 c0, c1, c2; uint32_t key; } nec_rc_keys [] =
+-{
+-	/* Key codes for the little Artec T1/Twinhan/HAMA/ remote. */
+-	{ 0x00, 0xff, 0x16, KEY_POWER },
+-	{ 0x00, 0xff, 0x10, KEY_MUTE },
+-	{ 0x00, 0xff, 0x03, KEY_1 },
+-	{ 0x00, 0xff, 0x01, KEY_2 },
+-	{ 0x00, 0xff, 0x06, KEY_3 },
+-	{ 0x00, 0xff, 0x09, KEY_4 },
+-	{ 0x00, 0xff, 0x1d, KEY_5 },
+-	{ 0x00, 0xff, 0x1f, KEY_6 },
+-	{ 0x00, 0xff, 0x0d, KEY_7 },
+-	{ 0x00, 0xff, 0x19, KEY_8 },
+-	{ 0x00, 0xff, 0x1b, KEY_9 },
+-	{ 0x00, 0xff, 0x15, KEY_0 },
+-	{ 0x00, 0xff, 0x05, KEY_CHANNELUP },
+-	{ 0x00, 0xff, 0x02, KEY_CHANNELDOWN },
+-	{ 0x00, 0xff, 0x1e, KEY_VOLUMEUP },
+-	{ 0x00, 0xff, 0x0a, KEY_VOLUMEDOWN },
+-	{ 0x00, 0xff, 0x11, KEY_RECORD },
+-	{ 0x00, 0xff, 0x17, KEY_FAVORITES }, /* Heart symbol - Channel list. */
+-	{ 0x00, 0xff, 0x14, KEY_PLAY },
+-	{ 0x00, 0xff, 0x1a, KEY_STOP },
+-	{ 0x00, 0xff, 0x40, KEY_REWIND },
+-	{ 0x00, 0xff, 0x12, KEY_FASTFORWARD },
+-	{ 0x00, 0xff, 0x0e, KEY_PREVIOUS }, /* Recall - Previous channel. */
+-	{ 0x00, 0xff, 0x4c, KEY_PAUSE },
+-	{ 0x00, 0xff, 0x4d, KEY_SCREEN }, /* Full screen mode. */
+-	{ 0x00, 0xff, 0x54, KEY_AUDIO }, /* MTS - Switch to secondary audio. */
+-	/* additional keys TwinHan VisionPlus, the Artec seemingly not have */
+-	{ 0x00, 0xff, 0x0c, KEY_CANCEL }, /* Cancel */
+-	{ 0x00, 0xff, 0x1c, KEY_EPG }, /* EPG */
+-	{ 0x00, 0xff, 0x00, KEY_TAB }, /* Tab */
+-	{ 0x00, 0xff, 0x48, KEY_INFO }, /* Preview */
+-	{ 0x00, 0xff, 0x04, KEY_LIST }, /* RecordList */
+-	{ 0x00, 0xff, 0x0f, KEY_TEXT }, /* Teletext */
+-	/* Key codes for the KWorld/ADSTech/JetWay remote. */
+-	{ 0x86, 0x6b, 0x12, KEY_POWER },
+-	{ 0x86, 0x6b, 0x0f, KEY_SELECT }, /* source */
+-	{ 0x86, 0x6b, 0x0c, KEY_UNKNOWN }, /* scan */
+-	{ 0x86, 0x6b, 0x0b, KEY_EPG },
+-	{ 0x86, 0x6b, 0x10, KEY_MUTE },
+-	{ 0x86, 0x6b, 0x01, KEY_1 },
+-	{ 0x86, 0x6b, 0x02, KEY_2 },
+-	{ 0x86, 0x6b, 0x03, KEY_3 },
+-	{ 0x86, 0x6b, 0x04, KEY_4 },
+-	{ 0x86, 0x6b, 0x05, KEY_5 },
+-	{ 0x86, 0x6b, 0x06, KEY_6 },
+-	{ 0x86, 0x6b, 0x07, KEY_7 },
+-	{ 0x86, 0x6b, 0x08, KEY_8 },
+-	{ 0x86, 0x6b, 0x09, KEY_9 },
+-	{ 0x86, 0x6b, 0x0a, KEY_0 },
+-	{ 0x86, 0x6b, 0x18, KEY_ZOOM },
+-	{ 0x86, 0x6b, 0x1c, KEY_UNKNOWN }, /* preview */
+-	{ 0x86, 0x6b, 0x13, KEY_UNKNOWN }, /* snap */
+-	{ 0x86, 0x6b, 0x00, KEY_UNDO },
+-	{ 0x86, 0x6b, 0x1d, KEY_RECORD },
+-	{ 0x86, 0x6b, 0x0d, KEY_STOP },
+-	{ 0x86, 0x6b, 0x0e, KEY_PAUSE },
+-	{ 0x86, 0x6b, 0x16, KEY_PLAY },
+-	{ 0x86, 0x6b, 0x11, KEY_BACK },
+-	{ 0x86, 0x6b, 0x19, KEY_FORWARD },
+-	{ 0x86, 0x6b, 0x14, KEY_UNKNOWN }, /* pip */
+-	{ 0x86, 0x6b, 0x15, KEY_ESC },
+-	{ 0x86, 0x6b, 0x1a, KEY_UP },
+-	{ 0x86, 0x6b, 0x1e, KEY_DOWN },
+-	{ 0x86, 0x6b, 0x1f, KEY_LEFT },
+-	{ 0x86, 0x6b, 0x1b, KEY_RIGHT },
+-};
+-
+-/* Hauppauge NOVA-T USB2 keys */
+-static const struct { u16 raw; uint32_t key; } haupp_rc_keys [] = {
+-	{ 0xddf, KEY_GOTO },
+-	{ 0xdef, KEY_POWER },
+-	{ 0xce7, KEY_TV },
+-	{ 0xcc7, KEY_VIDEO },
+-	{ 0xccf, KEY_AUDIO },
+-	{ 0xcd7, KEY_MEDIA },
+-	{ 0xcdf, KEY_EPG },
+-	{ 0xca7, KEY_UP },
+-	{ 0xc67, KEY_RADIO },
+-	{ 0xcb7, KEY_LEFT },
+-	{ 0xd2f, KEY_OK },
+-	{ 0xcbf, KEY_RIGHT },
+-	{ 0xcff, KEY_BACK },
+-	{ 0xcaf, KEY_DOWN },
+-	{ 0xc6f, KEY_MENU },
+-	{ 0xc87, KEY_VOLUMEUP },
+-	{ 0xc8f, KEY_VOLUMEDOWN },
+-	{ 0xc97, KEY_CHANNEL },
+-	{ 0xc7f, KEY_MUTE },
+-	{ 0xd07, KEY_CHANNELUP },
+-	{ 0xd0f, KEY_CHANNELDOWN },
+-	{ 0xdbf, KEY_RECORD },
+-	{ 0xdb7, KEY_STOP },
+-	{ 0xd97, KEY_REWIND },
+-	{ 0xdaf, KEY_PLAY },
+-	{ 0xda7, KEY_FASTFORWARD },
+-	{ 0xd27, KEY_LAST }, /* Skip backwards */
+-	{ 0xd87, KEY_PAUSE },
+-	{ 0xcf7, KEY_NEXT },
+-	{ 0xc07, KEY_0 },
+-	{ 0xc0f, KEY_1 },
+-	{ 0xc17, KEY_2 },
+-	{ 0xc1f, KEY_3 },
+-	{ 0xc27, KEY_4 },
+-	{ 0xc2f, KEY_5 },
+-	{ 0xc37, KEY_6 },
+-	{ 0xc3f, KEY_7 },
+-	{ 0xc47, KEY_8 },
+-	{ 0xc4f, KEY_9 },
+-	{ 0xc57, KEY_KPASTERISK },
+-	{ 0xc77, KEY_GRAVE }, /* # */
+-	{ 0xc5f, KEY_RED },
+-	{ 0xd77, KEY_GREEN },
+-	{ 0xdc7, KEY_YELLOW },
+-	{ 0xd4f, KEY_BLUE},
+-};
+-
+-static int dibusb_key2event_nec(struct usb_dibusb *dib,u8 rb[5])
+-{
+-	int i;
+-	switch (rb[0]) {
+-		case DIBUSB_RC_NEC_KEY_PRESSED:
+-			/* rb[1-3] is the actual key, rb[4] is a checksum */
+-			deb_rc("raw key code 0x%02x, 0x%02x, 0x%02x, 0x%02x\n",
+-				rb[1], rb[2], rb[3], rb[4]);
+-
+-			if ((0xff - rb[3]) != rb[4]) {
+-				deb_rc("remote control checksum failed.\n");
+-				break;
+-			}
+-
+-			/* See if we can match the raw key code. */
+-			for (i = 0; i < sizeof(nec_rc_keys)/sizeof(nec_rc_keys[0]); i++) {
+-				if (nec_rc_keys[i].c0 == rb[1] &&
+-					nec_rc_keys[i].c1 == rb[2] &&
+-					nec_rc_keys[i].c2 == rb[3]) {
+-
+-					dib->last_event = nec_rc_keys[i].key;
+-					return 1;
+-				}
+-			}
+-			break;
+-		case DIBUSB_RC_NEC_KEY_REPEATED:
+-			/* rb[1]..rb[4] are always zero.*/
+-			/* Repeats often seem to occur so for the moment just ignore this. */
+-			return 0;
+-		case DIBUSB_RC_NEC_EMPTY: /* No (more) remote control keys. */
+-		default:
+-			break;
+-	}
+-	return -1;
+-}
+-
+-static int dibusb_key2event_hauppauge(struct usb_dibusb *dib,u8 rb[4])
+-{
+-	u16 raw;
+-	int i,state;
+-	switch (rb[0]) {
+-		case DIBUSB_RC_HAUPPAUGE_KEY_PRESSED:
+-			raw = ((rb[1] & 0x0f) << 8) | rb[2];
+-
+-			state = !!(rb[1] & 0x40);
+-
+-			deb_rc("raw key code 0x%02x, 0x%02x, 0x%02x to %04x state: %d\n",rb[1],rb[2],rb[3],raw,state);
+-			for (i = 0; i < sizeof(haupp_rc_keys)/sizeof(haupp_rc_keys[0]); i++) {
+-				if (haupp_rc_keys[i].raw == raw) {
+-					if (dib->last_event == haupp_rc_keys[i].key &&
+-						dib->last_state == state) {
+-						deb_rc("key repeat\n");
+-						return 0;
+-					} else {
+-						dib->last_event = haupp_rc_keys[i].key;
+-						dib->last_state = state;
+-						return 1;
+-					}
+-				}
+-			}
+-
+-			break;
+-		case DIBUSB_RC_HAUPPAUGE_KEY_EMPTY:
+-		default:
+-			break;
+-	}
+-	return -1;
+-}
+-
+-/*
+- * Read the remote control and feed the appropriate event.
+- * NEC protocol is used for remote controls
+- */
+-static int dibusb_read_remote_control(struct usb_dibusb *dib)
+-{
+-	u8 b[1] = { DIBUSB_REQ_POLL_REMOTE }, rb[5];
+-	int ret,event = 0;
+-
+-	if ((ret = dibusb_readwrite_usb(dib,b,1,rb,5)))
+-		return ret;
+-
+-	switch (dib->dibdev->dev_cl->remote_type) {
+-		case DIBUSB_RC_NEC_PROTOCOL:
+-			event = dibusb_key2event_nec(dib,rb);
+-			break;
+-		case DIBUSB_RC_HAUPPAUGE_PROTO:
+-			event = dibusb_key2event_hauppauge(dib,rb);
+-		default:
+-			break;
+-	}
+-
+-	/* key repeat */
+-	if (event == 0)
+-		if (++dib->repeat_key_count < dib->rc_key_repeat_count) {
+-			deb_rc("key repeat dropped. (%d)\n",dib->repeat_key_count);
+-			event = -1; /* skip this key repeat */
+-		}
+-
+-	if (event == 1 || event == 0) {
+-		deb_rc("Translated key 0x%04x\n",event);
+-
+-		/* Signal down and up events for this key. */
+-		input_report_key(&dib->rc_input_dev, dib->last_event, 1);
+-		input_report_key(&dib->rc_input_dev, dib->last_event, 0);
+-		input_sync(&dib->rc_input_dev);
+-
+-		if (event == 1)
+-			dib->repeat_key_count = 0;
+-	}
+-	return 0;
+-}
+-
+-/* Remote-control poll function - called every dib->rc_query_interval ms to see
+-   whether the remote control has received anything. */
+-static void dibusb_remote_query(void *data)
+-{
+-	struct usb_dibusb *dib = (struct usb_dibusb *) data;
+-	/* TODO: need a lock here.  We can simply skip checking for the remote control
+-	   if we're busy. */
+-	dibusb_read_remote_control(dib);
+-	schedule_delayed_work(&dib->rc_query_work,
+-			      msecs_to_jiffies(dib->rc_query_interval));
+-}
+-
+-int dibusb_remote_init(struct usb_dibusb *dib)
+-{
+-	int i;
+-
+-	if (dib->dibdev->dev_cl->remote_type == DIBUSB_RC_NO)
+-		return 0;
+-	
+-	/* Initialise the remote-control structures.*/
+-	init_input_dev(&dib->rc_input_dev);
+-
+-	dib->rc_input_dev.evbit[0] = BIT(EV_KEY);
+-	dib->rc_input_dev.keycodesize = sizeof(unsigned char);
+-	dib->rc_input_dev.keycodemax = KEY_MAX;
+-	dib->rc_input_dev.name = DRIVER_DESC " remote control";
+-
+-	switch (dib->dibdev->dev_cl->remote_type) {
+-		case DIBUSB_RC_NEC_PROTOCOL:
+-			for (i=0; i<sizeof(nec_rc_keys)/sizeof(nec_rc_keys[0]); i++)
+-				set_bit(nec_rc_keys[i].key, dib->rc_input_dev.keybit);
+-			break;
+-		case DIBUSB_RC_HAUPPAUGE_PROTO:
+-			for (i=0; i<sizeof(haupp_rc_keys)/sizeof(haupp_rc_keys[0]); i++)
+-				set_bit(haupp_rc_keys[i].key, dib->rc_input_dev.keybit);
+-			break;
+-		default:
+-			break;
+-	}
+-
+-
+-	input_register_device(&dib->rc_input_dev);
+-
+-	INIT_WORK(&dib->rc_query_work, dibusb_remote_query, dib);
+-
+-	/* Start the remote-control polling. */
+-	if (dib->rc_query_interval < 40)
+-		dib->rc_query_interval = 100; /* default */
+-
+-	info("schedule remote query interval to %d msecs.",dib->rc_query_interval);
+-	schedule_delayed_work(&dib->rc_query_work,msecs_to_jiffies(dib->rc_query_interval));
+-
+-	dib->init_state |= DIBUSB_STATE_REMOTE;
+-	
+-	return 0;
+-}
+-
+-int dibusb_remote_exit(struct usb_dibusb *dib)
+-{
+-	if (dib->dibdev->dev_cl->remote_type == DIBUSB_RC_NO)
+-		return 0;
+-
+-	if (dib->init_state & DIBUSB_STATE_REMOTE) {
+-		cancel_delayed_work(&dib->rc_query_work);
+-		flush_scheduled_work();
+-		input_unregister_device(&dib->rc_input_dev);
+-	}
+-	dib->init_state &= ~DIBUSB_STATE_REMOTE;
+-	return 0;
+-}
+Index: linux-2.6.12-rc4-git3/drivers/media/dvb/dibusb/Kconfig
+===================================================================
+--- linux-2.6.12-rc4-git3.orig/drivers/media/dvb/dibusb/Kconfig	2005-05-19 22:52:13.000000000 +0200
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,62 +0,0 @@
+-config DVB_DIBUSB
+-	tristate "DiBcom USB DVB-T devices (see help for a complete device list)"
+-	depends on DVB_CORE && USB
+-	select FW_LOADER
+-	select DVB_DIB3000MB
+-	select DVB_DIB3000MC
+-	select DVB_MT352
+-	help
+-	  Support for USB 1.1 and 2.0 DVB-T devices based on reference designs made by
+-	  DiBcom (http://www.dibcom.fr) and C&E.
+-
+-	  Devices supported by this driver:
+-
+-	    TwinhanDTV USB-Ter (VP7041)
+-		TwinhanDTV Magic Box (VP7041e)
+-	    KWorld/JetWay/ADSTech V-Stream XPERT DTV - DVB-T USB1.1 and USB2.0
+-	    Hama DVB-T USB-Box
+-	    DiBcom reference devices (non-public)
+-	    Ultima Electronic/Artec T1 USB TVBOX
+-	    Compro Videomate DVB-U2000 - DVB-T USB
+-	    Grandtec DVB-T USB
+-	    Avermedia AverTV DVBT USB
+-	    Artec T1 USB1.1 and USB2.0 boxes
+-	    Yakumo/Typhoon DVB-T USB2.0
+-	    Hanftek UMT-010 USB2.0
+-	    Hauppauge WinTV NOVA-T USB2
+-
+-	  The VP7041 seems to be identical to "CTS Portable" (Chinese
+-	  Television System).
+-
+-	  These devices can be understood as budget ones, they "only" deliver
+-	  (a part of) the MPEG2 transport stream.
+-
+-	  A firmware is needed to get the device working. See Documentation/dvb/README.dibusb
+-	  details.
+-
+-	  Say Y if you own such a device and want to use it. You should build it as
+-	  a module.
+-
+-config DVB_DIBUSB_MISDESIGNED_DEVICES
+-	bool "Enable support for some misdesigned (see help) devices, which identify with wrong IDs"
+-	depends on DVB_DIBUSB
+-	help
+-	  Somehow Artec/Ultima Electronic forgot to program the eeprom of some of their
+-	  USB1.1/USB2.0 devices.
+-	  So comes that they identify with the default Vendor and Product ID of the Cypress
+-	  CY7C64613 (AN2235) or Cypress FX2.
+-
+-	  Affected device IDs:
+-	    0x0574:0x2235 (Artec T1 USB1.1, cold)
+-	    0x04b4:0x8613 (Artec T1 USB2.0, cold)
+-	    0x0574:0x1002 (Artec T1 USB2.0, warm)
+-	    0x0574:0x2131 (aged DiBcom USB1.1 test device)
+-
+-	  Say Y if your device has one of the mentioned IDs.
+-
+-config DVB_DIBCOM_DEBUG
+-	bool "Enable extended debug support for DiBcom USB device"
+-	depends on DVB_DIBUSB
+-	help
+-	  Say Y if you want to enable debuging. See modinfo dvb-dibusb for
+-	  debug levels.
+Index: linux-2.6.12-rc4-git3/drivers/media/dvb/dibusb/dvb-dibusb-dvb.c
+===================================================================
+--- linux-2.6.12-rc4-git3.orig/drivers/media/dvb/dibusb/dvb-dibusb-dvb.c	2005-05-19 22:52:13.000000000 +0200
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,185 +0,0 @@
+-/*
+- * dvb-dibusb-dvb.c is part of the driver for mobile USB Budget DVB-T devices 
+- * based on reference design made by DiBcom (http://www.dibcom.fr/)
+- *
+- * Copyright (C) 2004-5 Patrick Boettcher (patrick.boettcher@desy.de)
+- *
+- * see dvb-dibusb-core.c for more copyright details.
+- *
+- * This file contains functions for initializing and handling the 
+- * linux-dvb API.
+- */
+-#include "dvb-dibusb.h"
+-
+-#include <linux/usb.h>
+-#include <linux/version.h>
+-
+-static u32 urb_compl_count;
+-
+-/*
+- * MPEG2 TS DVB stuff 
+- */
+-void dibusb_urb_complete(struct urb *urb, struct pt_regs *ptregs)
+-{
+-	struct usb_dibusb *dib = urb->context;
+-
+-	deb_ts("urb complete feedcount: %d, status: %d, length: %d\n",dib->feedcount,urb->status,
+-			urb->actual_length);
+-
+-	urb_compl_count++;
+-	if (urb_compl_count % 1000 == 0)
+-		deb_info("%d urbs completed so far.\n",urb_compl_count);
+-
+-	switch (urb->status) {
+-		case 0:         /* success */
+-		case -ETIMEDOUT:    /* NAK */
+-			break;
+-		case -ECONNRESET:   /* kill */
+-		case -ENOENT:
+-		case -ESHUTDOWN:
+-			return;
+-		default:        /* error */
+-			deb_ts("urb completition error %d.", urb->status);
+-			break;
+-	}
+-
+-	if (dib->feedcount > 0 && urb->actual_length > 0) {
+-		if (dib->init_state & DIBUSB_STATE_DVB)
+-			dvb_dmx_swfilter(&dib->demux, (u8*) urb->transfer_buffer,urb->actual_length);
+-	} else 
+-		deb_ts("URB dropped because of feedcount.\n");
+-
+-	usb_submit_urb(urb,GFP_ATOMIC);
+-}
+-
+-static int dibusb_ctrl_feed(struct dvb_demux_feed *dvbdmxfeed, int onoff) 
+-{
+-	struct usb_dibusb *dib = dvbdmxfeed->demux->priv;
+-	int newfeedcount;
+-	
+-	if (dib == NULL)
+-		return -ENODEV;
+-
+-	newfeedcount = dib->feedcount + (onoff ? 1 : -1);
+-
+-	/* 
+-	 * stop feed before setting a new pid if there will be no pid anymore 
+-	 */
+-	if (newfeedcount == 0) {
+-		deb_ts("stop feeding\n");
+-		if (dib->xfer_ops.fifo_ctrl != NULL) {
+-			if (dib->xfer_ops.fifo_ctrl(dib->fe,0)) {
+-				err("error while inhibiting fifo.");
+-				return -ENODEV;
+-			}
+-		}
+-		dibusb_streaming(dib,0);
+-	}
+-	
+-	dib->feedcount = newfeedcount;
+-
+-	/* activate the pid on the device specific pid_filter */
+-	deb_ts("setting pid: %5d %04x at index %d '%s'\n",dvbdmxfeed->pid,dvbdmxfeed->pid,dvbdmxfeed->index,onoff ? "on" : "off");
+-	if (dib->pid_parse && dib->xfer_ops.pid_ctrl != NULL)
+-		dib->xfer_ops.pid_ctrl(dib->fe,dvbdmxfeed->index,dvbdmxfeed->pid,onoff);
+-
+-	/* 
+-	 * start the feed if this was the first pid to set and there is still a pid
+-	 * for reception.
+-	 */
+-	if (dib->feedcount == onoff && dib->feedcount > 0) {
+-
+-		deb_ts("controlling pid parser\n");
+-		if (dib->xfer_ops.pid_parse != NULL) {
+-			if (dib->xfer_ops.pid_parse(dib->fe,dib->pid_parse) < 0) {
+-				err("could not handle pid_parser");
+-			}
+-		}
+-		
+-		deb_ts("start feeding\n");
+-		if (dib->xfer_ops.fifo_ctrl != NULL) {
+-			if (dib->xfer_ops.fifo_ctrl(dib->fe,1)) {
+-				err("error while enabling fifo.");
+-				return -ENODEV;
+-			}
+-		}
+-		dibusb_streaming(dib,1);
+-	}
+-	return 0;
+-}
+-
+-static int dibusb_start_feed(struct dvb_demux_feed *dvbdmxfeed)
+-{
+-	deb_ts("start pid: 0x%04x, feedtype: %d\n", dvbdmxfeed->pid,dvbdmxfeed->type);
+-	return dibusb_ctrl_feed(dvbdmxfeed,1);
+-}
+-
+-static int dibusb_stop_feed(struct dvb_demux_feed *dvbdmxfeed)
+-{
+-	deb_ts("stop pid: 0x%04x, feedtype: %d\n", dvbdmxfeed->pid, dvbdmxfeed->type);
+-	return dibusb_ctrl_feed(dvbdmxfeed,0);
+-}
+-
+-int dibusb_dvb_init(struct usb_dibusb *dib)
+-{
+-	int ret;
+-
+-	urb_compl_count = 0;
+-
+-	if ((ret = dvb_register_adapter(&dib->adapter, DRIVER_DESC,
+-			THIS_MODULE)) < 0) {
+-		deb_info("dvb_register_adapter failed: error %d", ret);
+-		goto err;
+-	}
+-	dib->adapter.priv = dib;
+-	
+-/* i2c is done in dibusb_i2c_init */
+-	
+-	dib->demux.dmx.capabilities = DMX_TS_FILTERING | DMX_SECTION_FILTERING;
+-
+-	dib->demux.priv = (void *)dib;
+-	/* get pidcount from demod */
+-	dib->demux.feednum = dib->demux.filternum = 255;
+-	dib->demux.start_feed = dibusb_start_feed;
+-	dib->demux.stop_feed = dibusb_stop_feed;
+-	dib->demux.write_to_decoder = NULL;
+-	if ((ret = dvb_dmx_init(&dib->demux)) < 0) {
+-		err("dvb_dmx_init failed: error %d",ret);
+-		goto err_dmx;
+-	}
+-
+-	dib->dmxdev.filternum = dib->demux.filternum;
+-	dib->dmxdev.demux = &dib->demux.dmx;
+-	dib->dmxdev.capabilities = 0;
+-	if ((ret = dvb_dmxdev_init(&dib->dmxdev, &dib->adapter)) < 0) {
+-		err("dvb_dmxdev_init failed: error %d",ret);
+-		goto err_dmx_dev;
+-	}
+-
+-	dvb_net_init(&dib->adapter, &dib->dvb_net, &dib->demux.dmx);
+-
+-	goto success;
+-err_dmx_dev:
+-	dvb_dmx_release(&dib->demux);
+-err_dmx:
+-	dvb_unregister_adapter(&dib->adapter);
+-err:
+-	return ret;
+-success:
+-	dib->init_state |= DIBUSB_STATE_DVB;
+-	return 0;
+-}
+-
+-int dibusb_dvb_exit(struct usb_dibusb *dib)
+-{
+-	if (dib->init_state & DIBUSB_STATE_DVB) {
+-		dib->init_state &= ~DIBUSB_STATE_DVB;
+-		deb_info("unregistering DVB part\n");
+-		dvb_net_release(&dib->dvb_net);
+-		dib->demux.dmx.close(&dib->demux.dmx);
+-		dvb_dmxdev_release(&dib->dmxdev);
+-		dvb_dmx_release(&dib->demux);
+-		dvb_unregister_adapter(&dib->adapter);
+-	}
+-	return 0;
+-}
 
 --
 

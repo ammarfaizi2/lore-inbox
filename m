@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbVEVGt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261753AbVEVG50@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261746AbVEVGt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 May 2005 02:49:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261748AbVEVGt5
+	id S261753AbVEVG50 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 May 2005 02:57:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbVEVG50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 May 2005 02:49:57 -0400
-Received: from dbl.q-ag.de ([213.172.117.3]:36769 "EHLO dbl.q-ag.de")
-	by vger.kernel.org with ESMTP id S261746AbVEVGty (ORCPT
+	Sun, 22 May 2005 02:57:26 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:46266 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261753AbVEVG5V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 May 2005 02:49:54 -0400
-Message-ID: <42902B8C.1070401@colorfullife.com>
-Date: Sun, 22 May 2005 08:49:48 +0200
-From: Manfred Spraul <manfred@colorfullife.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; fr-FR; rv:1.7.7) Gecko/20050417 Fedora/1.7.7-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: randy_dunlap <rdunlap@xenotime.net>
-CC: Patrick Plattes <patrick@erdbeere.net>, linux-kernel@vger.kernel.org
-Subject: Re: semaphore understanding: sys_semtimedop()
-References: <20050516201704.GA9836@erdbeere.net> <20050521222151.15bb0eb4.rdunlap@xenotime.net>
-In-Reply-To: <20050521222151.15bb0eb4.rdunlap@xenotime.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 22 May 2005 02:57:21 -0400
+Date: Sun, 22 May 2005 02:57:09 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: minyard@acm.org
+Subject: Re: [PATCH] Add sysfs support for the IPMI device interface
+Message-ID: <20050522065709.GA31888@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	minyard@acm.org
+References: <200505201511.j4KFBgHG002490@hera.kernel.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200505201511.j4KFBgHG002490@hera.kernel.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-randy_dunlap wrote:
+On Fri, May 20, 2005 at 08:11:42AM -0700, Linux Kernel wrote:
+ > tree e327b635e017dfcfd989b203c16ebd55e1d2526b
+ > parent 45fed46f5b98aaf439e9ef125992ec853cd98499
+ > author Corey Minyard <minyard@acm.org> Fri, 20 May 2005 08:56:23 +0200
+ > committer Linus Torvalds <torvalds@ppc970.osdl.org> Fri, 20 May 2005 21:58:04 -0700
+ > 
+ > [PATCH] Add sysfs support for the IPMI device interface
+ > 
+ > Add support for sysfs to the IPMI device interface.
+ > 
+ > Clean-ups based on Dimitry Torokovs comment by Philipp Hahn.
+ > 
 
->On Mon, 16 May 2005 22:17:04 +0200 Patrick Plattes wrote:
->
->| The variable decrease will never be used again in this 
->| function, so why this intricate code? Isn't this much easier and works
->| also:
->| 
->|         for (sop = sops; sop < sops + nsops; sop++) {
->|                 if (sop->sem_num >= max)
->|                         max = sop->sem_num;
->|                 if (sop->sem_flg & SEM_UNDO)
->|                         undos++;
->|                 if (sop->sem_op != 0)
->|                         alter = 1;
->|         }
->| 
->| Maybe i'm totally wrong, so please correct me and don't shoot me up,
->| 'cause i'm not a os developer.
->
->Looks like a reasonable and correct optimization to me.
->
->  
->
-It looks correct:
-decrease was added during 2.1 development: it's not in 2.0.40, it's in 
-2.2.26: I think the idea was that operations with decrease can cause 
-other threads to block, therefore a different wakeup strategy was used. 
-The wakeup implementation was rewritten, but the loop remained unchanged.
-I'll write a patch, thanks Patrick.
+This doesn't compile..
 
---
-    Manfred
+drivers/char/ipmi/ipmi_devintf.c: In function 'ipmi_new_smi':
+drivers/char/ipmi/ipmi_devintf.c:532: warning: passing argument 1 of 'class_simple_device_add' from incompatible pointer type
+drivers/char/ipmi/ipmi_devintf.c: In function 'ipmi_smi_gone':
+drivers/char/ipmi/ipmi_devintf.c:537: warning: passing argument 1 of 'class_simple_device_remove' makes integer from pointer without a cast
+drivers/char/ipmi/ipmi_devintf.c:537: error: too many arguments to function 'class_simple_device_remove'
+drivers/char/ipmi/ipmi_devintf.c: In function 'init_ipmi_devintf':
+drivers/char/ipmi/ipmi_devintf.c:558: warning: assignment from incompatible pointer type
+drivers/char/ipmi/ipmi_devintf.c:566: warning: passing argument 1 of 'class_simple_destroy' from incompatible
+pointer type
+drivers/char/ipmi/ipmi_devintf.c:580: warning: passing argument 1 of 'class_simple_destroy' from incompatible
+pointer type
+drivers/char/ipmi/ipmi_devintf.c: In function 'cleanup_ipmi':
+drivers/char/ipmi/ipmi_devintf.c:591: warning: passing argument 1 of 'class_simple_destroy' from incompatible
+pointer type
+make[3]: *** [drivers/char/ipmi/ipmi_devintf.o] Error 1
+
+
+		Dave
+

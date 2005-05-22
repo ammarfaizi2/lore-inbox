@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbVEVWBX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVEVWYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261778AbVEVWBX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 May 2005 18:01:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbVEVWBX
+	id S261754AbVEVWYv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 May 2005 18:24:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVEVWYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 May 2005 18:01:23 -0400
-Received: from fire.osdl.org ([65.172.181.4]:20939 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261724AbVEVWBV (ORCPT
+	Sun, 22 May 2005 18:24:51 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:22174 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S261755AbVEVWYc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 May 2005 18:01:21 -0400
-Date: Sun, 22 May 2005 15:00:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: [bugfix] try_to_unmap_cluster() passes out-of-bounds pte to
- pte_unmap()
-Message-Id: <20050522150031.7a4058a2.akpm@osdl.org>
-In-Reply-To: <20050522212734.GF2057@holomorphy.com>
-References: <20050516021302.13bd285a.akpm@osdl.org>
-	<20050522212734.GF2057@holomorphy.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 22 May 2005 18:24:32 -0400
+Subject: Re: When we detect that a 16550 was in fact part of a NatSemi
+	SuperIO chip
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0505221438260.2307@ppc970.osdl.org>
+References: <200505220008.j4M08uE9025378@hera.kernel.org>
+	 <1116763033.19183.14.camel@localhost.localdomain>
+	 <20050522135943.E12146@flint.arm.linux.org.uk>
+	 <20050522144123.F12146@flint.arm.linux.org.uk>
+	 <1116796612.5730.15.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0505221438260.2307@ppc970.osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Message-Id: <1116800555.5744.21.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sun, 22 May 2005 23:22:35 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->
-> try_to_unmap_cluster() does:
->          for (pte = pte_offset_map(pmd, address);
->                          address < end; pte++, address += PAGE_SIZE) {
->  		...
->  	}
+On Sul, 2005-05-22 at 22:50, Linus Torvalds wrote:
+> You mean DCO, not OSDL ("Developer's Certificate of Origin").
 > 
->  	pte_unmap(pte);
-> 
->  It may take a little staring to notice, but pte can actually fall off
->  the end of the pte page in this iteration,
+> And yes, I'll update the SubmittingPatches to state explicitly that the 
+> sign-off is a public record.
 
-That's about the third place we've had this bug.  Whoever keeps adding it
-really should stop.
+The DCO yes.
 
-Thanks.
+> So how about just something like the appended? Along with making a very 
+> public announcement on linux-kernel for the next kernel release (rather 
+> than this discussion that is taking place under a fairly obscure subject), 
+> that should make sure that people are aware of the fact that the thing 
+> isn't exactly private.
+
+It actually doesn't help. EU privacy law rather sensibly is "opt-in".
+Putting the statement in the DCO, which is a document and submission
+agreement works because you have to agree to it, putting it in a
+document is probably not "opt-in".
+
+You have to -actively- agree to the DCO to submit a change, and that is
+what makes it work (whether you put something in submitting patches or
+not that is more explanatory).
+
+

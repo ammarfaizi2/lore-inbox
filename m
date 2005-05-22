@@ -1,145 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261715AbVEVExH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbVEVEwk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261715AbVEVExH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 May 2005 00:53:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVEVExH
+	id S261692AbVEVEwk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 May 2005 00:52:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261715AbVEVEwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 May 2005 00:53:07 -0400
-Received: from colo.lackof.org ([198.49.126.79]:9629 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S261715AbVEVEww (ORCPT
+	Sun, 22 May 2005 00:52:40 -0400
+Received: from downeast.net ([12.149.251.230]:6619 "EHLO downeast.net")
+	by vger.kernel.org with ESMTP id S261692AbVEVEwh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 May 2005 00:52:52 -0400
-Date: Sat, 21 May 2005 22:56:04 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Francois Romieu <romieu@fr.zoreil.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Grant Grundler <grundler@parisc-linux.org>, akpm@osdl.org,
-       T-Bone@parisc-linux.org, varenet@parisc-linux.org,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Netdev <netdev@oss.sgi.com>
-Subject: Re: patch tulip-natsemi-dp83840a-phy-fix.patch added to -mm tree
-Message-ID: <20050522045604.GC2733@colo.lackof.org>
-References: <200505101955.j4AJtX9x032464@shell0.pdx.osdl.net> <42881C58.40001@pobox.com> <20050516050843.GA20107@colo.lackof.org> <4288CE51.1050703@pobox.com> <20050521223959.GA4337@electric-eye.fr.zoreil.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050521223959.GA4337@electric-eye.fr.zoreil.com>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+	Sun, 22 May 2005 00:52:37 -0400
+From: Patrick McFarland <pmcfarland@downeast.net>
+To: Andrew Haninger <ahaning@gmail.com>
+Subject: Re: [OT] Joerg Schilling flames Linux on his Blog
+Date: Sun, 22 May 2005 00:50:56 -0400
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <200505201345.15584.pmcfarland@downeast.net> <105c793f050521182269294d64@mail.gmail.com>
+In-Reply-To: <105c793f050521182269294d64@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart8168467.eIPcGkjeIx";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200505220051.23222.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 22, 2005 at 12:39:59AM +0200, Francois Romieu wrote:
-> Jeff Garzik <jgarzik@pobox.com> :
-> [tulip_media_select]
-> > 1) called from timer context, from the media poll timer
-> > 
-> > 2) called from spin_lock_irqsave() context, in the ->tx_timeout hook.
-> > 
-> > The first case can be fixed by moved all the timer code to a workqueue. 
-> >  Then when the existing timer fires, kick the workqueue.
-> > 
-> > The second case can be fixed by kicking the workqueue upon tx_timeout 
-> > (which is the reason why I did not suggest queue_delayed_work() use).
-> 
-> First try below. It only moves tulip_select_media() to process context.
+--nextPart8168467.eIPcGkjeIx
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Cool - thanks.
+On Saturday 21 May 2005 09:22 pm, Andrew Haninger wrote:
+> > ... flames the LKML about how Linux breaks cdrecord
+> > (instead of just admitting cdrecord is broken)
+>
+> I've always used cdr-tools on Linux and Windows since it is the
+> only/best tool for mastering CDs. It takes the installation of Joerg's
+> library, but after that, it's worked wonderfully. This is even the
+> tool that is suggested by the HOWTOs that newbies are told to read. It
+> has always appeared to me that it was the only/best tool.
 
-> The original patch (with s/udelay/msleep/ or such) is not included.
+I was refering to the 2.6 permissions bug in cdrecord. It wouldn't work usi=
+ng=20
+a non-root user, even if they had the correct permissions. 2.6 changed (for=
+=20
+the better, mind you), and Joerg refused to fix cdrecord. (I don't know if=
+=20
+its even fixed now). Theres been other cases of cdrecord breaking on Linux=
+=20
+only, but I can't think of them atm.
 
-That's fine. I'll take care of that once Jeff is happy with this.
+> If it's broken, then surely there's an unbroken drop-in replacement
+> program that should be used. And surely it works much better than
+> cdr-tools and is easier to use. However, after a few seconds of Google
+> searches, I was unable to find it.
 
+I really wish someone would build a replacement for cdrecord, but Joerg jus=
+t=20
+hasn't pissed off that potential author enough.
 
-> Comments/suggestions ?
+=2D-=20
+Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
+e'd=20
+all be running around in darkened rooms, munching magic pills and listening=
+ to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
 
-Basic workqueue create/destroy looks correct - but I've only played with
-workqueues once before.
-It wouldn't hurt if someone else double checked too.
+--nextPart8168467.eIPcGkjeIx
+Content-Type: application/pgp-signature
 
-Comments below are mostly about the other parts.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
 
+iD8DBQBCkA/L8Gvouk7G1cURAmbKAJ93JOKR/nTu2GVYZgJ3LyYgkCLMjQCfaJB5
+GfrU9P9M0XpLM020ojiFRAE=
+=zzV+
+-----END PGP SIGNATURE-----
 
-> +static inline int tulip_create_workqueue(void)
-> +{
-> +	ktulipd_workqueue = create_workqueue("ktulipd");
-> +	return ktulipd_workqueue ? 0 : -ENOMEM;
-> +}
-
-This just obfuscates the code. It's only called in one place.
-Please just directly call create_workqueue("ktulipd") from tulip_init()
-and check the return value.
-
-> +static inline void tulip_destroy_workqueue(void)
-> +{
-> +	destroy_workqueue(ktulipd_workqueue);
-> +}
-
-Same thing.
-
-> @@ -526,20 +549,9 @@ static void tulip_tx_timeout(struct net_
-...
-> +		tp->timeout_recovery = 1;
-> +		queue_work(ktulipd_workqueue, &tp->media_work);
-> +		goto out_unlock;
-
-This is the key bit.
-
-> -	/* Stop and restart the chip's Tx processes . */
-> -
-> -	tulip_restart_rxtx(tp);
-> -	/* Trigger an immediate transmit demand. */
-> -	iowrite32(0, ioaddr + CSR1);
-> -
-> -	tp->stats.tx_errors++;
-> +	tulip_tx_timeout_complete(tp, ioaddr);
-
-This doesn't fix the existing issue with tulip_restart_rxtx().
-Even without the patch to tulip_select_media(),
-tulip_restart_rxtx() does not comply with jgarzik's linux driver
-requirements becuase it can spin delay up to 1200us.
-
-
->  static void __exit tulip_cleanup (void)
->  {
->  	pci_unregister_driver (&tulip_driver);
-> +	tulip_destroy_workqueue();
->  }
-
-Only one workqueue for all instances of tulip cards, right?
-
-
-...
-> @@ -127,6 +128,14 @@ void tulip_timer(unsigned long data)
->  	}
->  	break;
->  	}
-> +
-> +	spin_lock_irqsave (&tp->lock, flags);
-> +	if (tp->timeout_recovery) {
-> +		tp->timeout_recovery = 0;
-> +		tulip_tx_timeout_complete(tp, ioaddr);
-> +	}
-> +	spin_unlock_irqrestore (&tp->lock, flags);
-
-
-This suffers the original issue: blocked IRQs while CPU might spin
-for 1200us in tulip_tx_timeout_complete().
-
-If tp->timeout_recovery acts as a sort of semaphore for us,
-do we even need the spinlock?
-
-I suspect "yes" because timeout_recovery is a bitfield and clearing
-it is a read/modify/write operation. This is why I don't like bitfields.
-
-ie. something like:
-	if (tp->timeout_recovery) {
-		tulip_tx_timeout_complete(tp, ioaddr);
-
-		spin_lock_irqsave (&tp->lock, flags);
-		tp->timeout_recovery = 0;	/* Bitfields are NOT atomic. */
-		spin_unlock_irqrestore (&tp->lock, flags);
-	}
-
-thanks,
-grant
+--nextPart8168467.eIPcGkjeIx--

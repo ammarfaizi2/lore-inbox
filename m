@@ -1,113 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbVEVV1s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261780AbVEVVsm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261735AbVEVV1s (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 May 2005 17:27:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbVEVV1s
+	id S261780AbVEVVsm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 May 2005 17:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbVEVVsm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 May 2005 17:27:48 -0400
-Received: from holomorphy.com ([66.93.40.71]:4836 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261735AbVEVV1m (ORCPT
+	Sun, 22 May 2005 17:48:42 -0400
+Received: from fire.osdl.org ([65.172.181.4]:18122 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261780AbVEVVse (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 May 2005 17:27:42 -0400
-Date: Sun, 22 May 2005 14:27:34 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: [bugfix] try_to_unmap_cluster() passes out-of-bounds pte to pte_unmap()
-Message-ID: <20050522212734.GF2057@holomorphy.com>
-References: <20050516021302.13bd285a.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="2Z2K0IlrPCVsbNpk"
-Content-Disposition: inline
-In-Reply-To: <20050516021302.13bd285a.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.9i
+	Sun, 22 May 2005 17:48:34 -0400
+Date: Sun, 22 May 2005 14:50:27 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: When we detect that a 16550 was in fact part of a NatSemi SuperIO
+ chip
+In-Reply-To: <1116796612.5730.15.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.58.0505221438260.2307@ppc970.osdl.org>
+References: <200505220008.j4M08uE9025378@hera.kernel.org> 
+ <1116763033.19183.14.camel@localhost.localdomain>  <20050522135943.E12146@flint.arm.linux.org.uk>
+  <20050522144123.F12146@flint.arm.linux.org.uk> <1116796612.5730.15.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---2Z2K0IlrPCVsbNpk
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-On Mon, May 16, 2005 at 02:13:02AM -0700, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc4/2.6.12-rc4-mm2/
-> - davem has set up a mm-commits mailing list so people can review things
->   which are added to or removed from the -mm tree.  Do
-> 	echo subscribe mm-commits | mail majordomo@vger.kernel.org
-> - x86_64 architecture update from Andi.
-> - Everything up to and including `spurious-interrupt-fix.patch' is planned
->   for 2.6.12 merging.  Plus a few other things in there.
-> - Another DVB subsystem update
+On Sun, 22 May 2005, Alan Cox wrote:
+> 
+> Take the existing OSDL statement which must be attached to all
+> submissions by reference or directly and update it to include
 
-try_to_unmap_cluster() does:
-        for (pte = pte_offset_map(pmd, address);
-                        address < end; pte++, address += PAGE_SIZE) {
-		...
-	}
+You mean DCO, not OSDL ("Developer's Certificate of Origin").
 
-	pte_unmap(pte);
+And yes, I'll update the SubmittingPatches to state explicitly that the 
+sign-off is a public record.
 
-It may take a little staring to notice, but pte can actually fall off
-the end of the pte page in this iteration, which makes life difficult
-for kmap_atomic() and the users not expecting it to BUG(). Of course,
-we're somewhat lucky in that arithmetic elsewhere in the function
-guarantees that at least one iteration is made, lest this force larger
-rearrangements to be made. This issue and patch also apply to non-mm
-mainline and with trivial adjustments, at least two related kernels.
+> "A public record of contributions is kept which includes the name and
+> email address of each contributor. By contributing to the kernel project
+> I accept that my email address provided will be part of that public
+> record."
 
-Discovered during internal testing at Oracle. Sample BUG() message
-included along with patch as a MIME attachment.
+Note that we've never _required_ that the sign-off has an email address 
+per se. I much much prefer people to have them, because the sign-off lines 
+really have been very useful when we've had issues with some patch 
+(several times I've just been able to send a directed email to everybody 
+involved), but I don't actually want this to be a requirement. After all, 
+10 years goes by, and many people will end up having different email 
+addresses anyway.
 
-Signed-off-by: William Irwin <wli@holomorphy.com>
+So I'll just update the documentation that explains the DCO to say 
+something like this, and not make it part of the official DCO itself. 
+After all, all we really want the sign-off to signify is that you've been 
+involved and have the right to pass changes on - the fact that the end 
+result is public is really a different issue.
 
+So how about just something like the appended? Along with making a very 
+public announcement on linux-kernel for the next kernel release (rather 
+than this discussion that is taking place under a fairly obscure subject), 
+that should make sure that people are aware of the fact that the thing 
+isn't exactly private.
 
--- wli
+(I think everybody realized that anyway, since a private sign-off would be 
+totally pointless, but hey, let's make things as explicit as possible).
 
---2Z2K0IlrPCVsbNpk
-Content-Type: text/plain; charset=us-ascii
-Content-Description: vlm-kunmap-atomic-fix.patch
-Content-Disposition: attachment; filename="vlm-kunmap-atomic-fix.patch"
+		Linus
 
---- ./mm/rmap.c.orig	2005-05-20 01:29:14.066467151 -0700
-+++ ./mm/rmap.c	2005-05-20 01:30:06.620649901 -0700
-@@ -694,7 +694,7 @@
- 		(*mapcount)--;
- 	}
+----
+diff --git a/Documentation/SubmittingPatches b/Documentation/SubmittingPatches
+--- a/Documentation/SubmittingPatches
++++ b/Documentation/SubmittingPatches
+@@ -299,6 +299,16 @@ Some people also put extra tags at the e
+ now, but you can do this to mark internal company procedures or just
+ point out some special detail about the sign-off. 
  
--	pte_unmap(pte);
-+	pte_unmap(pte-1);
- out_unlock:
- 	spin_unlock(&mm->page_table_lock);
- }
-
---2Z2K0IlrPCVsbNpk
-Content-Type: text/plain; charset=us-ascii
-Content-Description: vlm.oops
-Content-Disposition: attachment; filename="vlm.oops"
-
-May 18 23:50:30 palnx1 kernel: ------------[ cut here ]------------
-May 18 23:50:30 palnx1 kernel: kernel BUG at arch/i386/mm/highmem.c:96!
-May 18 23:50:30 palnx1 kernel: invalid operand: 0000 [#1]
-May 18 23:50:30 palnx1 kernel: SMP
-May 18 23:50:30 palnx1 kernel: Modules linked in: nfsd exportfs md5 ipv6 parport_pc lp parport autofs4 i2c_dev i2c_core nfs lockd sunrpc dm_mod button battery ac uhci_hcd e1000 e100 mii floppy ext3 jbd qla2300 qla2xxx scsi_transport_fc aic79xx sd_mod scsi_mod
-May 18 23:50:30 palnx1 kernel: CPU:    2
-May 18 23:50:30 palnx1 kernel: EIP:    0060:[<c011bfc4>]    Not tainted VLI
-May 18 23:50:30 palnx1 kernel: EFLAGS: 00010206   (2.6.9-9.ELsmp)
-May 18 23:50:30 palnx1 kernel: EIP is at kunmap_atomic+0x2e/0x58
-May 18 23:50:30 palnx1 kernel: eax: 00074000   ebx: 00000001   ecx: fff8b000  edx: 0000005e
-May 18 23:50:30 palnx1 kernel: esi: fff8c000   edi: d5dac000   ebp: fff8c000  esp: d5daccd0
-May 18 23:50:30 palnx1 kernel: ds: 007b   es: 007b   ss: 0068
-May 18 23:50:30 palnx1 kernel: Process oracle (pid: 23771, threadinfo=d5dac000 task=f4df4bb0)
-May 18 23:50:30 palnx1 kernel: Stack: 00000001 97800000 c402e480 c014e1fa 81724007 00000001 97800000 d6d59c80
-May 18 23:50:30 palnx1 kernel:        e3a41c24 d5dacd18 00100000 e3a41c24 f73012fc c1198580 c014e3e4 20000000
-May 18 23:50:30 palnx1 kernel:        00100000 00000001 ffffffe1 00000000 00000000 00000000 00000000 f7301318
-May 18 23:50:30 palnx1 kernel: Call Trace:
-May 18 23:50:30 palnx1 kernel:  [<c014e1fa>] try_to_unmap_cluster+0x1b1/0x1c4
-May 18 23:50:30 palnx1 kernel:  [<c014e3e4>] try_to_unmap_file+0x16d/0x21c
-May 18 23:50:30 palnx1 kernel:  [<c014e4c9>] try_to_unmap+0x36/0x49
-May 18 23:50:30 palnx1 kernel:  [<c01451d6>] shrink_list+0x1ba/0x3ed
-May 18 23:50:30 palnx1 kernel:  [<c02c7d6a>] invalidate_interrupt+0x1a/0x20
-May 18 23:50:30 palnx1 kernel:  [<c01455e6>] shrink_cache+0x1dd/0x34d
-
---2Z2K0IlrPCVsbNpk--
++PRIVACY NOTE! This sign-off - with full name and preferably email
++address - is for obvious reasons going to be very publicly archived with
++the kernel, and as such we are _not_ going to keep these things private. 
++
++If you want to use a special email address for sign-off procedures for
++this reason, feel free to do that, but since the email address ends up
++being very useful if it turns out that the patch had a bug, we really do
++prefer an active and live email address.  We encourage people to use
++spamassassin etc tools to fight spam. 
++
+ 
+ -----------------------------------
+ SECTION 2 - HINTS, TIPS, AND TRICKS

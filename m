@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVEVThf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVEVTrb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261339AbVEVThf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 May 2005 15:37:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVEVThf
+	id S261275AbVEVTrb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 May 2005 15:47:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbVEVTrb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 May 2005 15:37:35 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:9188 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261339AbVEVTha (ORCPT
+	Sun, 22 May 2005 15:47:31 -0400
+Received: from rproxy.gmail.com ([64.233.170.206]:43102 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261275AbVEVTr0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 May 2005 15:37:30 -0400
-Date: Sun, 22 May 2005 21:37:17 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Reiner Sailer <sailer@watson.ibm.com>
-Cc: linux-kernel@vger.kernel.org, linux-security-module@mail.wirex.com,
-       kylene@us.ibm.com, emilyr@us.ibm.com, toml@us.ibm.com
-Subject: Re: [PATCH 2 of 4] ima: related Makefile compile order change and Readme
-Message-ID: <20050522193717.GB3685@elf.ucw.cz>
-References: <1116596180.8156.8.camel@secureip.watson.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1116596180.8156.8.camel@secureip.watson.ibm.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sun, 22 May 2005 15:47:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=lo24WPf4/dBh9tUCfQ4PO7L+uzk/yww2TJqhHxGNuE4TN8c5Htq7AXvCH537idblSnzyrm0iTHnjTtL1Ue/vfFJGvxnqwV+bDKJFbsLNOsNfsj8G8hW6G3zDO6AvLTla7c9TtSouZvyAhg7Cx6sLPSgc//0d0RzOHJ01Wwyy5uU=
+Message-ID: <4290E1C6.9070709@gmail.com>
+Date: Sun, 22 May 2005 21:47:18 +0200
+From: Eric BEGOT <eric.begot@gmail.com>
+Reply-To: eric.begot@gmail.com
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Jeff Dike <jdike@addtoit.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: [PATCH] UML - 2.6.12-rc4-mm2 Compile error
+References: <200505201436.j4KEZxjh006235@ccure.user-mode-linux.org>
+In-Reply-To: <200505201436.j4KEZxjh006235@ccure.user-mode-linux.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Here is a patch to correct a compile error on linux 2.6.12-rc4-mm2 for uml.
+At the compilation of init/main.c, it complains because it doens't find 
+the 2 constants FIXADDR_USER_START and FIXADDR_USER_END
 
-> +Limitations: IMA does not detect corruption of software once it is
-> +loaded into main memory. Instead, it indicates known vulnerabilities
-> +in such software (e.g., buffer overflow) by securely identifying the
-> +software at load-time. Only executable files (binaries, libraries,
-> +kernel modules) are measured by default. However, IMA offers a
-> +sysfs-interface that allows applications to instruct the kernel to
-> +measure files that they have opened.
 
-What is it good for, then? So I have to put my backdoor into script,
-not into an executable...
+--- linux-2.6.12-rc4-mm2/include/asm/fixmap.h.orig 2005-05-22 
+21:37:13.000000000 +0200
++++ linux-2.6.12-rc4-mm2/include/asm/fixmap.h 2005-05-22 
+21:38:17.000000000 +0200
+@@ -60,7 +60,8 @@ extern unsigned long get_kmem_end(void);
 
-> +Some of our work shows that IMA is very useful to detect Rootkit
-> +exploits that totally take over the software of a Linux system but
-> +cannot hide themselves from contributing to the TPM aggregate and this
-> +will be detectable from a non-corrupted platform. While the corrupted
-> +system might not show the Rootkit, a remote party can securely
-> +identify known bad or unknown software having been loaded into the
-> +system.
+#define FIXADDR_TOP (get_kmem_end() - 0x2000)
+#define FIXADDR_SIZE (__end_of_fixed_addresses << PAGE_SHIFT)
+-#define FIXADDR_START (FIXADDR_TOP - FIXADDR_SIZE)
++#define FIXADDR_USER_START (FIXADDR_TOP - FIXADDR_SIZE)
++#define FIXADDR_USER_END FIXADDR_TOP
 
-How does it work? It is corrupted software, not your TPM chip that is
-talking over network.... Do you sign the measurements inside TPM chip?
+#define __fix_to_virt(x) (FIXADDR_TOP - ((x) << PAGE_SHIFT))
+#define __virt_to_fix(x) ((FIXADDR_TOP - ((x)&PAGE_MASK)) >> PAGE_SHIFT)
+@@ -91,7 +92,7 @@ static inline unsigned long fix_to_virt(
 
-								Pavel
+static inline unsigned long virt_to_fix(const unsigned long vaddr)
+{
+- BUG_ON(vaddr >= FIXADDR_TOP || vaddr < FIXADDR_START);
++ BUG_ON(vaddr >= FIXADDR_TOP || vaddr < FIXADDR_USER_START);
+return __virt_to_fix(vaddr);
+}
+

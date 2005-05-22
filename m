@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261807AbVEVNye@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVEVN74@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261807AbVEVNye (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 May 2005 09:54:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbVEVNye
+	id S261806AbVEVN74 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 May 2005 09:59:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbVEVN74
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 May 2005 09:54:34 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:50602 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261808AbVEVNy2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 May 2005 09:54:28 -0400
-Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: =?ISO-8859-1?Q?Gr=E9goire?= Favre <gregoire.favre@gmail.com>
-Cc: dino@in.ibm.com, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20050521232220.GD28654@gmail.com>
-References: <20050516085832.GA9558@gmail.com>
-	 <20050517071307.GA4794@in.ibm.com> <20050517002908.005a9ba7.akpm@osdl.org>
-	 <1116340465.4989.2.camel@mulgrave> <20050517170824.GA3931@in.ibm.com>
-	 <1116354894.4989.42.camel@mulgrave> <20050517192636.GB9121@gmail.com>
-	 <1116359432.4989.48.camel@mulgrave> <20050517195650.GC9121@gmail.com>
-	 <1116363971.4989.51.camel@mulgrave>  <20050521232220.GD28654@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Sun, 22 May 2005 08:54:00 -0500
-Message-Id: <1116770040.5002.13.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 8bit
+	Sun, 22 May 2005 09:59:56 -0400
+Received: from iai.speak-friend.de ([62.75.222.128]:9350 "EHLO
+	iai.speak-friend.de") by vger.kernel.org with ESMTP id S261806AbVEVN7x
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 22 May 2005 09:59:53 -0400
+From: Christian Parpart <trapni@gentoo.org>
+To: Takashi Iwai <tiwai@suse.de>
+Subject: Re: snd-intel8x0 buggy on Nvidia CK804, TYAN, AMD Opteron board?
+Date: Sun, 22 May 2005 15:59:51 +0200
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org
+References: <200505200938.17065.trapni@gentoo.org> <s5hpsvmp940.wl@alsa2.suse.de>
+In-Reply-To: <s5hpsvmp940.wl@alsa2.suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505221559.51729.trapni@gentoo.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-05-22 at 01:22 +0200, Grégoire Favre wrote:
-> I have found a way to fetch the console :-)
-> 
-> Against which kernel revision is your patch made for ?
+On Friday, 20. May 2005 10:58, Takashi Iwai wrote:
+> At Fri, 20 May 2005 09:38:15 +0200,
+>
+> Christian Parpart wrote:
+> > Hi all,
+> >
+> > well, I'm just trying to listen to my music, however, it's either a no-go
+> > (using ALSA-OSS emulation) or just a plain pain to listen to (via ALSA
+> > directly).
+> >
+> > In first case, I just hear nothing. A `dd if=/dev/urandom of=/dev/dsp`
+> > stops at a certain byte and in my headset I hear a very high beep tone.
+> >
+> > in second case, the music seems very deformed and the output is very
+> > buggy at all (meaning, that it played just for a few minutes).
+> > deformed means, that the foreground singer has been somewhat in the very
+> > background and it overall has been very unfunny to listen to.
+> >
+> > I was trying different players and versions anyway.
+> >
+> > So, is this supposed to be a bug in the kernel sound driver for my
+> > certain hardware?
+>
+> Do you run cpufreq or something related with that?
 
-It should work against any recent kernel with the scsi patches.
+Nope, sorry, I even didnt install any of these cpufreq-alike tools on my host:
+AMD Opteron on a TYAN board with nForce4 chipset.
 
-James
-
-
+Regards,
+Christian Parpart.

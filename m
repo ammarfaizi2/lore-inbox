@@ -1,92 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbVEVEAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVEVEWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261723AbVEVEAY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 22 May 2005 00:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVEVEAY
+	id S261315AbVEVEWr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 22 May 2005 00:22:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261692AbVEVEWr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 May 2005 00:00:24 -0400
-Received: from c-24-10-253-213.hsd1.ut.comcast.net ([24.10.253.213]:2688 "EHLO
-	linux.site") by vger.kernel.org with ESMTP id S261315AbVEVEAM (ORCPT
+	Sun, 22 May 2005 00:22:47 -0400
+Received: from mxout.hispeed.ch ([62.2.95.247]:29630 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S261315AbVEVEWm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 May 2005 00:00:12 -0400
-Subject: [patch 1/1] Avoid wasting IRQs for PCI devices (i386)
-To: akpm@osdl.org
-Cc: ak@suse.de, zwane@arm.linux.org.uk, len.brown@intel.com,
-       bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org,
-       Natalie.Protasevich@unisys.com
-From: Natalie.Protasevich@unisys.com
-Date: Sat, 21 May 2005 01:55:42 -0700
-Message-Id: <20050521085543.489D62732C@linux.site>
+	Sun, 22 May 2005 00:22:42 -0400
+Message-Id: <42900929.1000408@khandalf.com>
+Date: Sun, 22 May 2005 06:23:05 +0200
+From: "Brian O'Mahoney" <omb@khandalf.com>
+Reply-To: omb@bluewin.ch
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Joerg Schilling flames Linux on his Blog/cdrecord
+    replacement
+References: <200505201345.15584.pmcfarland@downeast.net>
+    <105c793f050521182269294d64@mail.gmail.com>
+In-Reply-To: <105c793f050521182269294d64@mail.gmail.com>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
+X-Md5-Body: 9f1b46b569f524da1d94d127cebaa2f0
+X-Transmit-Date: Sunday, 22 May 2005 6:23:22 +0200
+X-Message-Uid: 0000b49cec9df2a600000002000000004290093a000b081b00000001000a3972
+Replyto: omb@bluewin.ch
+X-Sender-Postmaster: Postmaster@80-218-57-125.dclient.hispeed.ch.
+Read-Receipt-To: omb@bluewin.ch
+X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-05.tornado.cablecom.ch 32701; Body=1
+	Fuz1=1 Fuz2=1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have submitted the patch for x86_64, this is submission for i386.
+I don't want to pour gasoline on an incipient flame war, but
+my two points here are:
 
-<--snip-->
+1--
+SUN uses RPM internally, but continues to insist its Solaris
+customers countinue to put up with pkg*, which makes system
+administration of solaris a nightmare after a while especially
+when mixed in with binary patches and patch dependancies with
+major vendors like Oracle, SAP and Veritas and all of this
+brings the Solaris admin/developer no benefit at all.
 
-The patch changes the way IRQs are handed out to PCI devices. Currently, each I/O APIC pin gets associated 
-with an IRQ, no matter if the pin is used or not. This imposes severe limitation on systems that have designs 
-that employ many  I/O APICs, only utilizing couple lines of each, such as P64H2 chipset. It is used in ES7000, 
-and currently, there is no way to boot the system with more that 9 I/O APICs. The simple change below allows 
-to boot a system with say 64 (or more) I/O APICs, each providing 1 slot, which otherwise impossible because of 
-the IRQ gaps created for unused lines on each I/O APIC. It does not resolve the problem with number of devices 
-that exceeds number of possible IRQs, but eases up a tension for IRQs on any large system with potentually large 
-number of devices.
+RPM is free software so SUN could just use it, and if they
+did the major platform vendors would in a New York minute.
 
-Signed-off-by: Natalie Protasevich  <Natalie.Protasevich@unisys.com>
----
+And SUN do this so they can sell the Update Service
 
 
-diff -puN arch/i386/kernel/mpparse.c~irq-pack-i386 arch/i386/kernel/mpparse.c
---- linux-2.6.12-rc4-mm2/arch/i386/kernel/mpparse.c~irq-pack-i386	2005-05-20 02:10:04.046408256 -0700
-+++ linux-2.6.12-rc4-mm2-root/arch/i386/kernel/mpparse.c	2005-05-20 22:41:48.178272472 -0700
-@@ -1056,11 +1056,20 @@ void __init mp_config_acpi_legacy_irqs (
- 	}
- }
- 
-+#define MAX_GSI_NUM	4096
-+
- int mp_register_gsi (u32 gsi, int edge_level, int active_high_low)
- {
- 	int			ioapic = -1;
- 	int			ioapic_pin = 0;
- 	int			idx, bit = 0;
-+	static int		pci_irq = 16;
-+	/*
-+	 * Mapping between Global System Interrups, which
-+	 * represent all possible interrupts, and IRQs
-+	 * assigned to actual devices.
-+	 */
-+	static int		gsi_to_irq[MAX_GSI_NUM];
- 
- #ifdef CONFIG_ACPI_BUS
- 	/* Don't set up the ACPI SCI because it's already set up */
-@@ -1095,11 +1104,26 @@ int mp_register_gsi (u32 gsi, int edge_l
- 	if ((1<<bit) & mp_ioapic_routing[ioapic].pin_programmed[idx]) {
- 		Dprintk(KERN_DEBUG "Pin %d-%d already programmed\n",
- 			mp_ioapic_routing[ioapic].apic_id, ioapic_pin);
--		return gsi;
-+		return gsi_to_irq[gsi];
- 	}
- 
- 	mp_ioapic_routing[ioapic].pin_programmed[idx] |= (1<<bit);
- 
-+	if (edge_level) {
-+		/*
-+		 * For PCI devices assign IRQs in order, avoiding gaps
-+		 * due to unused I/O APIC pins.
-+		 */
-+		int irq = gsi;
-+		if (gsi < MAX_GSI_NUM) {
-+			gsi = pci_irq++;
-+			gsi_to_irq[irq] = gsi;
-+		} else {
-+			printk(KERN_ERR "GSI %u is too high\n", gsi);
-+			return gsi;
-+		}
-+	}
-+
- 	io_apic_set_pci_routing(ioapic, ioapic_pin, gsi,
- 		    edge_level == ACPI_EDGE_SENSITIVE ? 0 : 1,
- 		    active_high_low == ACPI_ACTIVE_HIGH ? 0 : 1);
-_
+2--
+There was little wrong with cdrecord until DVDs came out and
+H Schilling decided to take DVD PRO private and became petty
+about his build system, smake, and others extending a fork
+of cdrecord to support DVDs; which was done by both SuSE and
+Debian -- but with weird add in Copyright, and you can't change
+this, and "Inofficial Version" junk from Schilling.
+
+And then there was the Solaris/Linux flames, and most of us
+just got tired of all the hassle, I just wanted to write
+DVD-R and DVD-ROM media.
+
+After wasting a lot of time and coasters I note that
+
+dvdrtools from 'http://www.nongnu.org/dvdrtools/'
+
+and
+the dvd+rw package from
+http://fy.chalmers.se/~appro/linux/DVD+RW/
+
+both work well, and without any hassle, and now use DVD+RW
+which, now, writes all formats of DVD
+
+so I _nolonger_care_ about Schilling, smake, cdrecord or
+his Linux flames, since the fact that DVD+RW can, reliably
+write DVDs and even DVD PRO can't means to me that there is
+nothing wrong with Linux and something wrong with cdrecord.
+
+Or am I missing something here?
+
+Andrew Haninger wrote:
+>>... flames the LKML about how Linux breaks cdrecord
+>>(instead of just admitting cdrecord is broken)
+> 
+> 
+> I've always used cdr-tools on Linux and Windows since it is the
+> only/best tool for mastering CDs. It takes the installation of Joerg's
+> library, but after that, it's worked wonderfully. This is even the
+> tool that is suggested by the HOWTOs that newbies are told to read. It
+> has always appeared to me that it was the only/best tool.
+
+See above
+
+> (This is really only a half-sarcastic reply. I really would like to
+> know if there's a better tool. However, I'm also trying to point out
+> that Joerg's software seems to be all that can be used at the moment
+> and so it's hard for me as a humble end-user to really care if his
+> software is broken since it works.)
+
+-- 
+mit freundlichen Grüßen, Brian.
+

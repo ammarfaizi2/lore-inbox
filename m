@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261845AbVEWFft@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbVEWGn7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261845AbVEWFft (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 01:35:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbVEWFfs
+	id S261272AbVEWGn7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 02:43:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVEWGn7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 01:35:48 -0400
-Received: from [202.125.86.130] ([202.125.86.130]:36227 "EHLO
-	ns2.astrainfonets.net") by vger.kernel.org with ESMTP
-	id S261845AbVEWFfo convert rfc822-to-8bit (ORCPT
+	Mon, 23 May 2005 02:43:59 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:1482 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261272AbVEWGn4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 01:35:44 -0400
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: Tune the Touch driver co-ordinates .. help
-X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
-Date: Mon, 23 May 2005 11:13:42 +0530
-Message-ID: <4EE0CBA31942E547B99B3D4BFAB348114BF2F4@mail.esn.co.in>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Tune the Touch driver co-ordinates .. help
-thread-index: AcVfV82DaFXDmvPTTfGcdY0GyoAkPg==
-From: "Mukund JB." <mukundjb@esntechnologies.co.in>
-To: <linux-kernel@vger.kernel.org>
+	Mon, 23 May 2005 02:43:56 -0400
+Date: Mon, 23 May 2005 12:12:29 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Borislav Petkov <petkov@uni-muenster.de>
+Cc: vgoyal@in.ibm.com, coywolf@lovecn.org,
+       Ralf Hildebrandt <Ralf.Hildebrandt@charite.de>,
+       linux-kernel@vger.kernel.org,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: kexec?
+Message-ID: <20050523064229.GA3611@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20050508202050.GB13789@charite.de> <200505180958.03570.petkov@uni-muenster.de> <20050520105259.GC3637@in.ibm.com> <200505211020.35982.petkov@uni-muenster.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200505211020.35982.petkov@uni-muenster.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
-Hi All,
- 
-I have a touch driver whose architecture is as follows:-
- 
-My touch driver is a misc registered driver which has 2 ISRs. One is the touch screen ISR whereas the other is the timer ISR. When a touch made on the screen, the touch ISR is invoked which then initiates the timer interrupt. The timer interrupt will continuously call the timer ISR, which will read the X, Y, Z1, Z2 values from the H/W registers. The driver finds the valid X, Y co-ordinates and supplies to the application when read from the device.
- 
-In a touch driver with this architecture, I am facing a touch calibration problem.
- 
-Now, if I want to tune the calibration how do I resolve this?
- 
-Thanks in advance.
- 
-Regards,
-Mukund Jampala
+On Sat, May 21, 2005 at 10:20:35AM +0200, Borislav Petkov wrote:
+> <snip>
+> > Second kernel did not have serial console output enabled in config file. Is
+> > it possible to test it out once again with serial console enabled. May be
+> > disable kgdb in first kernel.
+> >
+> > With --console-serial option enabled while loading panic kernel (kexec -p)
+> > I am expecting at least following message on serial console after Sysrq-c.
+> >
+> > "I am in purgatory".
+> >
+> HI Vivek,
+> 
+> well kgdb was the offending problem here. After disabling it and booting into 
+> the first kernel, everything worked just fine. I even got to 
+> save /proc/vmcore successfully so kdump works also :) Log attached.
+> 
+> Regards,
+> Boris.
 
+Thanks Boris, I have updated this on the test webpage. I have also noted the 
+issue of kgdb interactions.
+
+http://lse.sourceforge.net/kdump/kdump-test.html
+
+
+Thanks
+Maneesh
+
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM India Software Labs,
+Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044990

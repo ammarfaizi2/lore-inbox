@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261887AbVEWRp1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbVEWRkv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261887AbVEWRp1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 13:45:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVEWRnm
+	id S261932AbVEWRkv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 13:40:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbVEWRkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 13:43:42 -0400
-Received: from fmr24.intel.com ([143.183.121.16]:54746 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261887AbVEWRlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 13:41:42 -0400
-Date: Mon, 23 May 2005 10:40:46 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Ashok Raj <ashok.raj@intel.com>, zwane@arm.linux.org.uk,
-       discuss@x86-64.org, shaohua.li@intel.com, linux-kernel@vger.kernel.org,
-       rusty@rustycorp.com.au, vatsa@in.ibm.com
-Subject: Re: [discuss] Re: [patch 0/4] CPU hot-plug support for x86_64
-Message-ID: <20050523104046.B8692@unix-os.sc.intel.com>
-References: <20050520221622.124069000@csdlinux-2.jf.intel.com> <20050523164046.GB39821@muc.de> <20050523095450.A8193@unix-os.sc.intel.com> <20050523171212.GF39821@muc.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 23 May 2005 13:40:10 -0400
+Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:44986 "HELO
+	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261932AbVEWRe0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 13:34:26 -0400
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] [PATCH] UML - 2.6.12-rc4-mm2 Compile error
+Date: Mon, 23 May 2005 19:36:00 +0200
+User-Agent: KMail/1.7.2
+Cc: Miklos Szeredi <miklos@szeredi.hu>, eric.begot@gmail.com,
+       jdike@addtoit.com, akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <200505201436.j4KEZxjh006235@ccure.user-mode-linux.org> <200505231609.48425.blaisorblade@yahoo.it> <E1DaDj3-0002Xf-00@dorka.pomaz.szeredi.hu>
+In-Reply-To: <E1DaDj3-0002Xf-00@dorka.pomaz.szeredi.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050523171212.GF39821@muc.de>; from ak@muc.de on Mon, May 23, 2005 at 07:12:12PM +0200
+Message-Id: <200505231936.01102.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 23, 2005 at 07:12:12PM +0200, Andi Kleen wrote:
-> > The only other workable alternate would be to use the stop_machine() 
-> > like thing which we use to automically update cpu_online_map. This means we 
-> > execute a high priority thread on all cpus, bringing the system to knees before
-> 
-> That is not nice agreed.
-> 
-> > just adding a new cpu. On very large systems this will definitly be 
-> > visible.
-> 
-> I still dont quite get it why it is not enough to keep interrupts
-> off until the CPU enters idle. Currently we enable them shortly
-> in the middle of the initialization (whcih is already dangerous
-> because interrupts can see half initialized state like out of date TSC),
-> but I hope to get rid of that soon too. With the full startup
-> in CLI would you problems be gone?
-> 
+On Monday 23 May 2005 16:16, Miklos Szeredi wrote:
+> > > Here is a patch to correct a compile error on linux 2.6.12-rc4-mm2 for
+> > > uml. At the compilation of init/main.c, it complains because it doens't
+> > > find the 2 constants FIXADDR_USER_START and FIXADDR_USER_END
+> >
+> > Why deleting FIXADDR_START? Also FIXADDR_USER_* are defined, just in a
+> > different way (and the patch below is IIRC uncorrect).
+>
+> I've seen this error too after 'make menuconfig ARCH=um' on a clean
+> tree.
+>
+> The following fixes it:
+>
+>   cp .config /tmp
+>   make mrproper ARCH=um
+>   cp /tmp/.config .
+>   make ARCH=um
+>
+> So there's definitely something wrong with the build on UML.
+Yes, an empty include/asm-um/elf.h which is not by default replaced by a 
+symlink. Sadly a patch which should have been deleted it simply emptied it 
+(courtesy of quilt). So
 
-I think so, if we can ensure none is delivered to the partially up cpu
-we probably are covered.
+include/asm-um/elf.h:
+	$(call create_the_symlink)
+(which is pseudo-code) won't create it.
 
-Iam not a 100% sure about above either, if the smp_call_function 
-is started with 3 cpus initially, and 1 just came up, the counts in 
-the smp_call data struct could be set to 3 as a result of the new cpu 
-received this broadcast as well, and we might quit earlier in the wait.
+As a last resort I'll force that symlink to be unconditional (I hope not 
+needing this).
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Skype user "PaoloGiarrusso"
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade
 
-sending to only relevant cpus removes that ambiquity. 
-
-[Vatsa would know this better, since was the corner case man then :-)]

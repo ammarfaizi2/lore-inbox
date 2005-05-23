@@ -1,27 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261867AbVEWHzM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261866AbVEWH4H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261867AbVEWHzM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 03:55:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVEWHzM
+	id S261866AbVEWH4H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 03:56:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVEWH4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 03:55:12 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:40581 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261867AbVEWHyn (ORCPT
+	Mon, 23 May 2005 03:56:06 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:46571 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261866AbVEWHz3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 03:54:43 -0400
-Date: Mon, 23 May 2005 09:54:24 +0200
+	Mon, 23 May 2005 03:55:29 -0400
+Date: Mon, 23 May 2005 09:55:08 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: Lee Revell <rlrevell@joe-job.com>
-Cc: Mingming Cao <cmm@us.ibm.com>, kus Kusche Klaus <kus@keba.com>,
-       linux-kernel@vger.kernel.org, inaky.perez-gonzalez@intel.com,
-       dwalker@mvista.com
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-00
-Message-ID: <20050523075424.GB9287@elte.hu>
-References: <AAD6DA242BC63C488511C611BD51F367323202@MAILIT.keba.co.at> <20050509091709.GA27126@elte.hu> <1116201764.25898.44.camel@mindpipe>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: weird X problem - priority inversion?
+Message-ID: <20050523075508.GC9287@elte.hu>
+References: <1113428938.16635.13.camel@mindpipe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1116201764.25898.44.camel@mindpipe>
+In-Reply-To: <1113428938.16635.13.camel@mindpipe>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -34,15 +32,18 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Lee Revell <rlrevell@joe-job.com> wrote:
-
-> Ingo,
-> 
-> Can you add Mingming's ext3 patch to the next version?  For my 
-> workload at least, this seems to be the last important latency breaker 
-> that we need to go upstream.
-
-yeah, agreed - i've applied it to my tree and it's looking good in my 
-ext3 tests.
+does this still occur with the latest tree? (.47-05 or later)
 
 	Ingo
+
+* Lee Revell <rlrevell@joe-job.com> wrote:
+
+> I am having a problem with the RT preempt kernels where xscreensaver
+> will cause the X server to consume excessive CPU, starving other
+> processes.  This should not happen as xscreensaver runs at the highest
+> nice value.  It seems that there's some kind of priority inversion
+> happening between the high prio X server and low prio xscreensaver.
+> 
+> This seems like an X problem to me, but could the kernel be involved?
+> 
+> Lee

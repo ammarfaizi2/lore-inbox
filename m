@@ -1,70 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVEWXIZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVEWXLm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbVEWXIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 19:08:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVEWXIY
+	id S261205AbVEWXLm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 19:11:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVEWXJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 19:08:24 -0400
-Received: from mail.kroah.org ([69.55.234.183]:28822 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261177AbVEWWnf (ORCPT
+	Mon, 23 May 2005 19:09:12 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:2507 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261183AbVEWW4E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 18:43:35 -0400
-Date: Mon, 23 May 2005 15:50:26 -0700
-From: Greg KH <greg@kroah.com>
-To: torvalds@osdl.org, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, kay.sievers@vrfy.org
-Subject: [PATCH] driver core: restore event order for device_add()
-Message-ID: <20050523225026.GA531@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+	Mon, 23 May 2005 18:56:04 -0400
+Message-ID: <42925F7F.2000809@pobox.com>
+Date: Mon, 23 May 2005 18:55:59 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Haumesser <chris@mail-test.us>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: promise sx8 sata driver
+References: <42924E38.7070003@mail-test.us>
+In-Reply-To: <42924E38.7070003@mail-test.us>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please apply this to your 2.6.12-rc4 git tree, the SCSI, HAL, and
-udev people need to restore the original order of hotplug events (as
-2.6.11 and before kernels provide) until they work out the details of
-how to do this better.
+Chris Haumesser wrote:
+> The sx8 driver does not use libata, and it is a separate block device,
+> outside of the scsi and ata hierarchies.  If I compile the driver into
+> my kernel, I end up with /dev/sx8/0 and /dev/sx8/0p1, etc.  However, no
+> scsi disk devices are created, and grub does not recognize that
+> /dev/sx8/ devices are disks.  There's no indication in /proc/scsi/ that
+> they are being registered with the scsi subsystem; this is clearly
+> different from every other sata controller I've used.  I've been
+> googling this for days, with no real luck.  I have found changelogs for
+> grub that suggest that my version (0.95) should support booting from the
+> sx8.
 
-----------
+sx8 is a separate block driver, and has nothing whatsoever to do with scsi.
 
-From: Kay Sievers <kay.sievers@vrfy.org>
-As a result of the split of the kobject-registration and the
-corresponding hotplug event, the order of events for device_add() has
-changed. This restores the old order, cause it confused some userspace
-applications.
 
-Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> So my question is, how does one use this driver for sata disks?  Is my
+> problem a grub problem, or does it have something to do with the fact
 
----
- drivers/base/core.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+a grub problem
 
---- gregkh-2.6.orig/drivers/base/core.c	2005-05-23 14:59:20.000000000 -0700
-+++ gregkh-2.6/drivers/base/core.c	2005-05-23 14:59:23.000000000 -0700
-@@ -245,6 +245,7 @@
- 
- 	if ((error = kobject_add(&dev->kobj)))
- 		goto Error;
-+	kobject_hotplug(&dev->kobj, KOBJ_ADD);
- 	if ((error = device_pm_add(dev)))
- 		goto PMError;
- 	if ((error = bus_add_device(dev)))
-@@ -257,14 +258,13 @@
- 	/* notify platform of device entry */
- 	if (platform_notify)
- 		platform_notify(dev);
--
--	kobject_hotplug(&dev->kobj, KOBJ_ADD);
-  Done:
- 	put_device(dev);
- 	return error;
-  BusError:
- 	device_pm_remove(dev);
-  PMError:
-+	kobject_hotplug(&dev->kobj, KOBJ_REMOVE);
- 	kobject_del(&dev->kobj);
-  Error:
- 	if (parent)
+
+> What is the relationship between the promise driver and the one included
+> in the kernel?  Why does one work differently from the other?  Is there
+
+Promise SX8 provides neither an ATA nor SCSI interface to the developer, 
+so its not written as an ATA or SCSI driver.
+
+	Jeff
+
+

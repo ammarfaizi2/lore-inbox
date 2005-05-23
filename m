@@ -1,61 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261733AbVEWPEj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbVEWPMg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261733AbVEWPEj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 11:04:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbVEWPEd
+	id S261885AbVEWPMg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 11:12:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261884AbVEWPMf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 11:04:33 -0400
-Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:24070 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261733AbVEWPCw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 11:02:52 -0400
-To: raven@themaw.net
-CC: linux-fsdevel@vger.kernel.org, autofs@linux.kernel.org,
-       linux-kernel@vger.kernel.org
-In-reply-to: <Pine.LNX.4.62.0505232041410.8361@donald.themaw.net>
-	(raven@themaw.net)
-Subject: Re: [VFS-RFC] autofs4 and bind, rbind and move mount requests
-References: <Pine.LNX.4.62.0505232041410.8361@donald.themaw.net>
-Message-Id: <E1DaERw-0002cC-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 23 May 2005 17:02:36 +0200
+	Mon, 23 May 2005 11:12:35 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:41198 "EHLO
+	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S261881AbVEWPM3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 11:12:29 -0400
+Date: Mon, 23 May 2005 08:12:18 -0700 (PDT)
+From: Daniel Walker <dwalker@mvista.com>
+To: Oleg Nesterov <oleg@tv-sign.ru>
+cc: Ingo Molnar <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
+       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
+In-Reply-To: <4291F134.4338A50B@tv-sign.ru>
+Message-ID: <Pine.LNX.4.44.0505230800580.863-100000@dhcp153.mvista.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I've been investigating a bug report about bind mounting an autofs 
-> controlled mount point. It is indeed disastrous for autofs. It would be 
-> simple enough it to check and fail silently but that won't give sensible 
-> behavior.
+On Mon, 23 May 2005, Oleg Nesterov wrote:
+
+> So the very first node will be skipped, iteration will be out of order,
+> and you will have the plist's *head* as a last element (which is not
+> struct rt_mutex_waiter, of course).
+
+True, but the first node is the list head which must be static, 
+It's not an actual list member.
+ 
+> >  unsigned plist_empty(const struct plist *plist)
+> >  {
+> > -	return list_empty (&plist->dp_node);
+> > +	return list_empty(&plist->dp_node) && list_empty(&plist->sp_node);
+> >  }
 > 
-> What should the semantics be for these type of mount requests against 
-> autofs?
+> It's enough to check list_empty(&plist->sp_node) only.
+
+True. 
+
+> 	new_sp_head:
+> 		itr_pl2 = container_of(itr_pl->dp_node.prev, struct plist, dp_node);
+> 		list_add(&pl->sp_node, &itr_pl2->sp_node);
 > 
-> First, a move mount doesn't make sense as it places the autofs 
-> filesystem in a location that is not specified in the autofs map to which 
-> it belongs. It looks like the user space daemon would loose contact with 
-> the newly mounted filesystem and so it would become useless and probably 
-> not umountable, not to mention how the daemon would handle it. I believe 
-> that this shouldn't be allowed. What do people think? If we don't treat 
-> these as invalid then how should they behave?
+> Why?  Just list_add_tail(&pl->sp_node, itr_pl->sp_node), you don't
+> need itr_pl2 at all.
 
-Move is very similar to rbind + umount.  So if you find sane semantics
-for the rbind case, that should do for move as well.
+Wouldn't work . What if itr_pl has 15 elements at it's priority?
 
-> Bind mount requests are another question.
-> 
-> In the case of a bind mount we can find ourselves with a dentry in the 
-> bound filesystem that is marked as mounted but can't be followed 
-> because the parent vfsmount is in the source filesystem.
+> Daniel, if you accepted all-nodes-tied-via-sp_node idea, could you
+> also look at the code I've suggested. I think it is much simpler
+> and understandable.
 
-I don't understand this.  A bind will just copy a vfsmount and add the
-copy to some other place in the mount tree.  It should not matter if
-the original mount was automounted or not.  What am I missing?
+I will/have. The sp_node all connect idea came from your stuff.
+ 
+> Personally, I think it is better to have pl_head for plist's head,
+> and pl_node for nodes. It is pointless to store ->prio in the plist's
+> head, it can be found in plist_first()->prio. This way we can trim
+> the size of rt_mutex to 32 bytes, and it is good for typechecking.
 
-> Should the automount functionality go along with the bind mount 
-> filesystem?
+I like that idea, I just haven't done it yet.
 
-No.  With bind you copy the mount to another place.  Now it has
-nothing to do with the automouter, it becomes a perfectly ordinary
-mount.
 
-Miklos
+Daniel
+

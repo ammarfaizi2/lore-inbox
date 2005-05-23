@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVEWXRK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVEWXVC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261233AbVEWXRK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 19:17:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVEWXQc
+	id S261236AbVEWXVC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 19:21:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVEWXRr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 19:16:32 -0400
-Received: from fire.osdl.org ([65.172.181.4]:42733 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261233AbVEWXP6 (ORCPT
+	Mon, 23 May 2005 19:17:47 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:8651 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261165AbVEWXJG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 19:15:58 -0400
-Date: Mon, 23 May 2005 16:15:29 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       zwane mwaikambo <zwane@arm.linux.org.uk>,
-       "theodore ts'o" <tytso@mit.edu>, "randy.dunlap" <rdunlap@xenotime.net>,
-       chuck wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
-Subject: [00/16] -stable review
-Message-ID: <20050523231529.GL27549@shell0.pdx.osdl.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6i
+	Mon, 23 May 2005 19:09:06 -0400
+Message-ID: <4292628E.4090209@pobox.com>
+Date: Mon, 23 May 2005 19:09:02 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: akpm@osdl.org
+CC: andystewart@comcast.net, Linux Kernel <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: enable-reads-on-plextor-712-sa-on-26115.patch added to -mm tree
+References: <200505232245.j4NMjtk4024089@shell0.pdx.osdl.net>
+In-Reply-To: <200505232245.j4NMjtk4024089@shell0.pdx.osdl.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is the start of the stable review cycle for the 2.6.11.11 release.  There
-are 16 patches in this series, all will be posted as a response to this one.
-If anyone has any issues with these being applied, please let us know.  If
-anyone is a maintainer of the proper subsystem, and wants to add a
-signed-off-by: line to the patch, please respond with it.
+akpm@osdl.org wrote:
+> The patch titled
+> 
+>      Enable reads on Plextor 712-SA on 2.6.11.5
+> 
+> has been added to the -mm tree.  Its filename is
+> 
+>      enable-reads-on-plextor-712-sa-on-26115.patch
+> 
+> Patches currently in -mm which might be from andystewart@comcast.net are
+> 
+> enable-reads-on-plextor-712-sa-on-26115.patch
 
-These patches are sent out with a number of different people on the Cc: line.
-If you wish to be a reviewer, please email stable@kernel.org to add your name to
-the list.  If you want to be off the reviewer list, also email us.
+Andrew -- The use of the word 'hack' didn't trigger any response??
 
-Responses should be made by Wed, May 25, 23:00 UTC.  Anything received after
-that time, might be too late.
+By hardcoding so much of the inquiry data, this patch -overwrites- valid 
+inquiry data provided by the device, with generic data.  This patch 
+makes generic the probe data that the SCSI layer -depends on to be 
+different-.
 
-thanks,
+Effectively you made one CD-ROM device work, killed all the others, and 
+enabled an oops generator.
 
-the -stable release team (i.e. the ones wearing the joker hat in the corner...)
+Good show.
+
+Even if this patch worked, you still need to fix the following:
+
+* Patch INQUIRY data -slightly- to fool the SCSI layer into working 
+correctly.  This is what Andy's patch [poorly] attempts to address.
+* Handling DRQ interrupts (early patch exists)
+* Padding DMA data (50% patch exists)
+* Fix error handling (patch exists)
+* Fix all FIS-based drivers so that an error doesn't cause an oops
+* Implement non-polled REQUEST SENSE error handling for FIS-based drivers
+

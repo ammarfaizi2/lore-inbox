@@ -1,47 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261903AbVEWQiU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261910AbVEWQkf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261903AbVEWQiU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 12:38:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbVEWQiT
+	id S261910AbVEWQkf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 12:40:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261912AbVEWQkf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 12:38:19 -0400
-Received: from colin.muc.de ([193.149.48.1]:22279 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S261903AbVEWQiS (ORCPT
+	Mon, 23 May 2005 12:40:35 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:28043 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261910AbVEWQka (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 12:38:18 -0400
-Date: 23 May 2005 18:38:16 +0200
-Date: Mon, 23 May 2005 18:38:16 +0200
-From: Andi Kleen <ak@muc.de>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: zwane@arm.linux.org.uk, discuss@x86-64.org, shaohua.li@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/4] CPU hot-plug support for x86_64
-Message-ID: <20050523163816.GA39821@muc.de>
-References: <20050520221622.124069000@csdlinux-2.jf.intel.com> <20050520223417.532048000@csdlinux-2.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050520223417.532048000@csdlinux-2.jf.intel.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 23 May 2005 12:40:30 -0400
+Message-ID: <42920958.B67C742F@tv-sign.ru>
+Date: Mon, 23 May 2005 20:48:24 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
+References: <Pine.LNX.4.44.0505230800580.863-100000@dhcp153.mvista.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 20, 2005 at 03:16:24PM -0700, Ashok Raj wrote:
-> Experimental CPU hotplug patch for x86_64
-> -----------------------------------------
-> - Most of init code that needs to be there for hotplug marked now as __devinit
-> 	(Didn't use cpuinit, simply because the main framework code in kernel
-> 	 is not the same way, just trying to be consistent)
+Another problem in plist_add:
 
-I dont like that. Can you keep it as __cpuinit please?  e.g. 
-if cpuhot plug turns out to be a lot of code we could later
-mark it free when we detect at boot the system does not support
-cpu hotplug. With devinit that is pretty much impossible these days.
+> existing_sp_head:
+> 	itr_pl2 = container_of(itr_pl->dp_node.prev, struct plist, dp_node);
+> 	list_add(&pl->sp_node, &itr_pl2->sp_node);
 
-Also it is better for documentation purposes.
+This breaks fifo ordering.
 
-Havent read the full patch yet sorry, but it seems to mostly 
-consist of these changes anyways?
-
-
--Andi
+Oleg.

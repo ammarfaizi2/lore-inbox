@@ -1,67 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261868AbVEWI1x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbVEWIcG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261868AbVEWI1x (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 04:27:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVEWI1w
+	id S261857AbVEWIcG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 04:32:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261870AbVEWIcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 04:27:52 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:64386 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261868AbVEWI1b (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 04:27:31 -0400
-Date: Mon, 23 May 2005 10:26:37 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: dwalker@mvista.com, Joe King <atom_bomb@rocketmail.com>,
-       ganzinger@mvista.com, Lee Revell <rlrevell@joe-job.com>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
-Message-ID: <20050523082637.GA15696@elte.hu>
+	Mon, 23 May 2005 04:32:06 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:29570 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261857AbVEWIbz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 04:31:55 -0400
+Date: Mon, 23 May 2005 14:00:24 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Phil Oester <kernel@linuxace.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc4 random oopses
+Message-ID: <20050523083024.GB3611@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <20050519153324.GA17914@linuxace.com> <E1DZOFT-0001JJ-00@gondolin.me.apana.org.au> <20050521145711.GA28132@linuxace.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050521145711.GA28132@linuxace.com>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, May 21, 2005 at 03:02:08PM +0000, Phil Oester wrote:
+> On Sat, May 21, 2005 at 05:18:15PM +1000, Herbert Xu wrote:
+> > How long can your machine stay up under 2.6.11/2.6.12-rc4? Is 2.6.10
+> > still stable if rebuild it?
+> 
+> Machine stays up 'forever' on 2.6.10, dies within ~4 hours on 2.6.11+.
+> Yes, I have rebuilt 2.6.10 with some backported patches, and it still
+> works fine.
+> 
+> > If 2.6.10 is still proving to be stable, then please do a bisection
+> > search on the releases between 2.6.10/2.6.11.  That may be the only
+> > way we can track this problem down.
+> 
+> Unfortunately the box is the firewall for my employer's west coast office
+> so I can only get away with one unexplained natural phenomenon per
+> day.  May take awhile...
+> 
+> Phil 
 
-i have released the -V0.7.47-06 Real-Time Preemption patch, which can be 
-downloaded from the usual place:
+Hello,
 
-    http://redhat.com/~mingo/realtime-preempt/
+Is it possilbe to try recreating the problems with 2.6.12-rc4-mm2 with kdump 
+enabled? Please refer Documentation/kdump.txt in 2.6.12-rc4-mm2 kernel 
+sources. I think kernel crash dump could provide here more info.
 
-there was more stabilization activity during the past couple of weeks - 
-i think i have all pending patches applied, let me know if something 
-went MIA. I've also applied Mingming's ext3 reservation latency 
-reductions.
 
-Changes:
+Thanks
+Maneesh
 
- - more plist fixes (Daniel Walker)
-
- - SMP global-RT-reschedule fix (Steven Rostedt)
-
- - x86_64 fixes - it builds & boots now (Joe King)
-
- - ext3 reservations latency reductions (Mingming Cao)
-
- - kstopmachine yield() fixes (Steven Rostedt)
-
- - ksoftirqd init fix (George Anzinger)
-
- - removed yield() uses from coredumping (suggested by many)
-
-to build a -V0.7.47-06 tree, the following patches have to be applied:
-
-   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.11.tar.bz2
-   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.12-rc4.bz2
-   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.12-rc4-V0.7.47-06
-
-	Ingo
+-- 
+Maneesh Soni
+Linux Technology Center, 
+IBM India Software Labs,
+Bangalore, India
+email: maneesh@in.ibm.com
+Phone: 91-80-25044990

@@ -1,43 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVEXADP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVEXADQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbVEXADP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 20:03:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVEXACr
+	id S261199AbVEXADQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 20:03:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbVEXACb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 20:02:47 -0400
-Received: from gate.crashing.org ([63.228.1.57]:9932 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261222AbVEWX7A (ORCPT
+	Mon, 23 May 2005 20:02:31 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:54239 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261228AbVEWX7R (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 19:59:00 -0400
-Subject: Re: [CRYPTO]: Only reschedule if !in_atomic()
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-crypto@vger.kernel.org
-In-Reply-To: <20050523162806.0e70ae4f.akpm@osdl.org>
-References: <200505232300.j4NN07lE012726@hera.kernel.org>
-	 <20050523162806.0e70ae4f.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 24 May 2005 09:58:10 +1000
-Message-Id: <1116892690.30513.13.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Mon, 23 May 2005 19:59:17 -0400
+Date: Mon, 23 May 2005 19:59:09 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Reiner Sailer <sailer@us.ibm.com>
+cc: Pavel Machek <pavel@ucw.cz>, <Valdis.Kletnieks@vt.edu>, <Toml@us.ibm.com>,
+       <linux-security-module@wirex.com>, <linux-kernel@vger.kernel.org>,
+       <Emilyr@us.ibm.com>, <Kylene@us.ibm.com>
+Subject: Re: [PATCH 2 of 4] ima: related Makefile compile order change and
+ Readme
+In-Reply-To: <Pine.WNT.4.63.0505231657140.2372@laptop>
+Message-ID: <Xine.LNX.4.44.0505231938340.890-100000@thoron.boston.redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-05-23 at 16:28 -0700, Andrew Morton wrote:
+On Mon, 23 May 2005, Reiner Sailer wrote:
 
-> This code can cause deadlocks on CONFIG_SMP && !CONFIG_PREEMPT kernels.
+> > It seems to me that the mechanism is sound... it does what the docs
+> > says. Another questions is "is it usefull"?
+> > 
+> >                         Pavel 
+> > 
 > 
-> Please see http://lkml.org/lkml/2005/3/10/358
-> 
-> You (the programmer) *have* to know what context you're running in before
-> doing a voluntary yield.  There is simply no way to work this out at
-> runtime.
+> We implemented some exemplary IMA-applications. If you like, visit our 
+> project page and check out the references:
+> http://www.research.ibm.com/secure_systems_department/projects/tcglinux/
+> There you also find a complete  measurement list and a response of a measured 
+> system replying to an authorized remote measurement-list-request.
 
-Hrm... Linus just merged it though...
+How did you retrieve the TPM-aggregate?
 
-Ben.
+I'm still not sure why exporting just the kernel measurement values via 
+proc is useful.
+
+Wouldn't you need to retrieve the measurement list atomically with the 
+TPM-aggregate?
+
+In which case, we'd need an interface which takes a nonce and returns the
+kernel measurement list and the TPM-aggregate together.
+
+Is the source of your example IMA attestation application available?
+
+
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
+
 
 

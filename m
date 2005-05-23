@@ -1,62 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVEWNR3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261490AbVEWNZs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261445AbVEWNR3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 09:17:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbVEWNR3
+	id S261490AbVEWNZs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 09:25:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261591AbVEWNZs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 09:17:29 -0400
-Received: from 41-052.adsl.zetnet.co.uk ([194.247.41.52]:19987 "EHLO
-	mail.esperi.org.uk") by vger.kernel.org with ESMTP id S261445AbVEWNRY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 09:17:24 -0400
-To: Patrick McFarland <pmcfarland@downeast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] Joerg Schilling flames Linux on his Blog
-References: <200505201345.15584.pmcfarland@downeast.net>
-From: Nix <nix@esperi.org.uk>
-X-Emacs: (setq software-quality (/ 1 number-of-authors))
-Date: Mon, 23 May 2005 14:17:16 +0100
-In-Reply-To: <200505201345.15584.pmcfarland@downeast.net> (Patrick
- McFarland's message of "20 May 2005 18:47:53 +0100")
-Message-ID: <87acmmf5er.fsf@amaterasu.srvr.nix>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Corporate Culture,
- linux)
-MIME-Version: 1.0
+	Mon, 23 May 2005 09:25:48 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:47003 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261490AbVEWNZ3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 09:25:29 -0400
+Date: Mon, 23 May 2005 15:25:25 +0200
+From: Heinz Mauelshagen <mauelshagen@redhat.com>
+To: linux-kernel@vger.kernel.org
+Subject: *** Announcement: dmraid 1.0.0.rc8 ***
+Message-ID: <20050523132525.GA30792@redhat.com>
+Reply-To: mauelshagen@redhat.com
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20 May 2005, Patrick McFarland suggested tentatively:
-> As everyone knows, Joerg Schilling has a blog, and he often pushes his 
-> pro-Solaris agenda, and flames the LKML about how Linux breaks cdrecord 
-> (instead of just admitting cdrecord is broken) or how much more awesome 
-> Solaris is compared to Linux.
-> 
-> Well, he just fired yet another salvo at the Linux community: 
-> http://schily.blogspot.com/2005/04/value-marketing-and-freedom.html
 
-His research sucks.
+               *** Announcement: dmraid 1.0.0.rc8 ***
 
-: Later, the LGPL has been created and parts of the GCC (libgcc) has
-: been put under LGPL.
+dmraid 1.0.0.rc8 is available at
+http://people.redhat.com:/heinzm/sw/dmraid/ in source tarball,
+source rpm and i386 rpm (with shared and static dietlibc binary).
 
-Wrong. It is trivial to check gcc/libgcc*c and observe that libgcc is
-*not* LGPLed, but licensed under the GPL plus an exception permitting
-unrestricted linkage to proprietary software. (Related exceptions are
-used for the libstdc++ headers and the Ada runtime.)
+This release fixes a stripe size bug in NVidia and avoids using
+the Silicon Image incarnation number for RAID name creation
+(should avoid some sets not grouping properly).
+It adds an '--ignorelocking' in order to allow dmraid to run in
+early boot where no read/write access to /var is given.
 
-Just before that, he said:
 
-: This acceptance has not been present from the beginning. In the
-: beginning, the whole GCC has been published under the GPL and thus could
-: not be used to compile software that itself has not been published under
-: the GPL. For this reason, there has been an excited discussion about the
-: usability of GCC.
+dmraid (Device-Mapper RAID tool) discovers, [de]activates and displays
+properties of software RAID sets (i.e. ATARAID) and contained DOS
+partitions using the device-mapper runtime of the 2.6 kernel.
 
-Note that in Joerg's worldview, a mistake equals conspiracy. This is a
-classic kook's mindview. Jeff's right: the best thing we can do is to
-just ignore him.
+The following ATARAID types are supported on Linux 2.6:
 
--- 
-`Once again, I must remark on the far-reaching extent of my
- ladylike nature.' --- Rosie Taylor
+Highpoint HPT37X
+Highpoint HPT45X
+Intel Software RAID
+LSI Logic MegaRAID
+NVidia NForce
+Promise FastTrack
+Silicon Image Medley
+VIA Software RAID
+
+Please provide insight to support those metadata formats completely.
+
+Thanks.
+
+
+See files README and CHANGELOG, which come with the source tarball for
+prerequisites to run this software, further instructions on installing
+and using dmraid!
+
+
+Call for testers:
+-----------------
+
+I need testers with the above ATARAID types, to check that the mapping
+created by this tool is correct (see options "-t -ay") and access to the
+ATARAID data is proper.
+
+In case you have a different ATARAID solution from those listed above,
+please feel free to contact me about supporting it in dmraid.
+
+You can activate your ATARAID sets without danger of overwriting
+your metadata, because dmraid accesses it read-only unless you use
+option -E together with -r in order to erase ATARAID metadata
+(see 'man dmraid')!
+
+This is a release candidate version so you want to have backups of your valuable
+data *and* you want to test accessing your data read-only first in order to
+make sure that the mapping is correct before you go for read-write access.
+
+
+Contacts:
+---------
+
+The author is reachable at <Mauelshagen@RedHat.com>.
+
+For test results, mapping information, discussions, questions, patches,
+enhancement requests and the like, please subscribe and mail to
+<ataraid-list@redhat.com>.
+
+--
+
+Regards,
+Heinz    -- The LVM Guy --
+
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+Heinz Mauelshagen                                 Red Hat GmbH
+Consulting Development Engineer                   Am Sonnenhang 11
+                                                  56242 Marienrachdorf
+                                                  Germany
+Mauelshagen@RedHat.com                            +49 2626 141200
+                                                       FAX 924446
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbVEWRku@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbVEWRku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261920AbVEWRku (ORCPT <rfc822;willy@w.ods.org>);
+	id S261918AbVEWRku (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 23 May 2005 13:40:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVEWRjs
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261928AbVEWRjh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 13:39:48 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:5793 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261931AbVEWRdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 13:33:14 -0400
-Date: Mon, 23 May 2005 10:32:12 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Ashok Raj <ashok.raj@intel.com>, zwane@arm.linux.org.uk,
-       discuss@x86-64.org, shaohua.li@intel.com, linux-kernel@vger.kernel.org,
-       rusty@rustycorp.com.au, vatsa@in.ibm.com
-Subject: Re: [patch 2/4] CPU hot-plug support for x86_64
-Message-ID: <20050523103211.A8692@unix-os.sc.intel.com>
-References: <20050520221622.124069000@csdlinux-2.jf.intel.com> <20050520223417.532048000@csdlinux-2.jf.intel.com> <20050523163816.GA39821@muc.de> <20050523095816.B8193@unix-os.sc.intel.com> <20050523172424.GG39821@muc.de>
+	Mon, 23 May 2005 13:39:37 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:41176 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP id S261926AbVEWRap
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 13:30:45 -0400
+Subject: [RFC/PATCH 4/4] madvice/fadvice: execute in place (3rd version)
+From: Carsten Otte <cotte@de.ibm.com>
+Reply-To: cotte@freenet.de
+To: linux-kernel@vger.kernel.org
+Cc: linux-fsdevel@vger.kernel.org, schwidefsky@de.ibm.com, akpm@osdl.org,
+       Christoph Hellwig <hch@infradead.org>
+In-Reply-To: <1116866094.12153.12.camel@cotte.boeblingen.de.ibm.com>
+References: <1116866094.12153.12.camel@cotte.boeblingen.de.ibm.com>
+Content-Type: text/plain
+Organization: IBM Deutschland Entwicklung
+Date: Mon, 23 May 2005 19:30:42 +0200
+Message-Id: <1116869442.12153.34.camel@cotte.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050523172424.GG39821@muc.de>; from ak@muc.de on Mon, May 23, 2005 at 07:24:24PM +0200
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 23, 2005 at 07:24:24PM +0200, Andi Kleen wrote:
-> On Mon, May 23, 2005 at 09:58:17AM -0700, Ashok Raj wrote:
-> > 
-> > If its for documentation, then its ok, the reason i thought it will
-> > be dead code/documentation soon is since 90% of the hotplug code is
-> > generic kernel code, which is not under __cpuinit, just some pieces of 
-> > x86_64 would alone exist this way, and will not serve real purpose very soon.
-> 
-> I would hope these other pieces get converted over. I will probably
-> look into that soon if nobody beats me.
-> 
+[RFC/PATCH 4/4] madvice/fadvice: execute in place (3rd version)
 
-If my IRC, this is how we got started early days. I remember rusty changed them
-during the end of the real development. 
+Make sys_madvice/fadvice return sane with xip. Patch is unchanged from
+previous version.
 
-Rusty/Vatsa would know the exact scope on why we went away from __cpuinit.
+Signed-off-by: Carsten Otte <cotte@de.ibm.com>
+--- 
+diff -ruN linux-git/mm/fadvise.c linux-git-xip/mm/fadvise.c
+--- linux-git/mm/fadvise.c	2005-05-23 13:51:17.000000000 +0200
++++ linux-git-xip/mm/fadvise.c	2005-05-23 17:55:49.000000000 +0200
+@@ -43,6 +43,10 @@
+ 		goto out;
+ 	}
+ 
++	if (mapping->a_ops->get_xip_page)
++		/* no bad return value, but ignore advice */
++		goto out;
++
+ 	/* Careful about overflows. Len == 0 means "as much as possible" */
+ 	endbyte = offset + len;
+ 	if (!len || endbyte < len)
+diff -ruN linux-git/mm/madvise.c linux-git-xip/mm/madvise.c
+--- linux-git/mm/madvise.c	2005-05-23 13:51:17.000000000 +0200
++++ linux-git-xip/mm/madvise.c	2005-05-23 17:55:49.000000000 +0200
+@@ -65,6 +65,10 @@
+ 	if (!file)
+ 		return -EBADF;
+ 
++	if (file->f_mapping->a_ops->get_xip_page)
++		/* no bad return value, but ignore advice */
++		return 0;
++
+ 	start = ((start - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
+ 	if (end > vma->vm_end)
+ 		end = vma->vm_end;
 
-[Both who's names i missed accidently in ccing, when i was trying the new
-quilt mail, i exited by mistake, and it sent to the partial list, sorry guys]
 
-
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center

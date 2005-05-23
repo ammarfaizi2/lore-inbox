@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVEWObg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVEWOfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261759AbVEWObg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 10:31:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbVEWObd
+	id S261595AbVEWOfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 10:35:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbVEWOfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 10:31:33 -0400
-Received: from mail3.utc.com ([192.249.46.192]:12497 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S261595AbVEWOba (ORCPT
+	Mon, 23 May 2005 10:35:09 -0400
+Received: from mxout.hispeed.ch ([62.2.95.247]:29921 "EHLO smtp.hispeed.ch")
+	by vger.kernel.org with ESMTP id S261595AbVEWOfE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 10:31:30 -0400
-Message-ID: <4291E913.6050700@cybsft.com>
-Date: Mon, 23 May 2005 09:30:43 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
+	Mon, 23 May 2005 10:35:04 -0400
+Message-Id: <4291EA2D.60504@khandalf.com>
+Date: Mon, 23 May 2005 16:35:25 +0200
+From: "Brian O'Mahoney" <omb@khandalf.com>
+Reply-To: omb@bluewin.ch
 User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Serge Noiraud <serge.noiraud@bull.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>, dwalker@mvista.com,
-       Joe King <atom_bomb@rocketmail.com>, ganzinger@mvista.com,
-       Lee Revell <rlrevell@joe-job.com>, Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
-References: <20050523082637.GA15696@elte.hu> <1116840848.1498.4.camel@ibiza.btsn.frna.bull.fr> <20050523112317.GA10579@elte.hu>
-In-Reply-To: <20050523112317.GA10579@elte.hu>
-X-Enigmail-Version: 0.89.5.0
+To: Nix <nix@esperi.org.uk>
+CC: Patrick McFarland <pmcfarland@downeast.net>, linux-kernel@vger.kernel.org
+Subject: Re: [OT] Joerg Schilling flames Linux on his Blog
+References: <200505201345.15584.pmcfarland@downeast.net>
+    <87acmmf5er.fsf@amaterasu.srvr.nix>
+In-Reply-To: <87acmmf5er.fsf@amaterasu.srvr.nix>
+X-Enigmail-Version: 0.90.2.0
 X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 8bit
+X-Md5-Body: d96ac12a90700ec08664128ae844855a
+X-Transmit-Date: Monday, 23 May 2005 16:35:45 +0200
+X-Message-Uid: 0000b49cec9d1fe800000002000000004291ea410009cae000000001000a3a90
+Replyto: omb@bluewin.ch
+X-Sender-Postmaster: Postmaster@80-218-57-125.dclient.hispeed.ch.
+Read-Receipt-To: omb@bluewin.ch
+X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-01.tornado.cablecom.ch 32701; Body=3
+	Fuz1=3 Fuz2=3
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Serge Noiraud <serge.noiraud@bull.net> wrote:
-> 
-> 
->>Le lun 23/05/2005 à 10:26, Ingo Molnar a écrit :
->>
->>>i have released the -V0.7.47-06 Real-Time Preemption patch, which can be 
->>>downloaded from the usual place:
->>>
->>>    http://redhat.com/~mingo/realtime-preempt/
->>
->>Cannot generate correctly for i686 :
-> 
-> 
-> i've uploaded -07, does it work now?
-> 
-> 	Ingo
+1__
 
-Ingo,
+The GPL says nothing about using a GPL, or non-free tool to create
+something else, and cannot since it is a copyright based licence.
 
-This one oopses on my dual P4 Xeon system before getting booted. I will 
-dig into this when I get a free minute. I am knee deep in different 
-alligators at the moment.
+2__
+
+He has decided what the answer MUST be ... now the reasoning. Here we
+have a Solaris shill!
 
 -- 
-    kr
+mit freundlichen Grüßen, Brian.

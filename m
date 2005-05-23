@@ -1,61 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVEWXf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVEWXf7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbVEWXf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 19:35:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261238AbVEWXeA
+	id S261191AbVEWXf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 19:35:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVEWXdp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 19:34:00 -0400
-Received: from fire.osdl.org ([65.172.181.4]:21894 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261191AbVEWX1X (ORCPT
+	Mon, 23 May 2005 19:33:45 -0400
+Received: from fire.osdl.org ([65.172.181.4]:27526 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261238AbVEWX1z (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 19:27:23 -0400
-Date: Mon, 23 May 2005 16:28:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: linux-crypto@vger.kernel.org
-Subject: Re: [CRYPTO]: Only reschedule if !in_atomic()
-Message-Id: <20050523162806.0e70ae4f.akpm@osdl.org>
-In-Reply-To: <200505232300.j4NN07lE012726@hera.kernel.org>
-References: <200505232300.j4NN07lE012726@hera.kernel.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 23 May 2005 19:27:55 -0400
+Date: Mon, 23 May 2005 16:27:14 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, gjasny@web.de,
+       annabellesgarden@yahoo.de
+Subject: [patch 10/16] usbusx2y: prevent oops & dead keyboard on usb unplugging
+Message-ID: <20050523232714.GV27549@shell0.pdx.osdl.net>
+References: <20050523231529.GL27549@shell0.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050523231529.GL27549@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Mailing List <linux-kernel@vger.kernel.org> wrote:
->
-> The netlink gfp_any() problem made me double-check the uses of in_softirq()
-> in crypto/*.  It seems to me that we should be checking in_atomic() instead
-> of in_softirq() in crypto_yield.  Otherwise people calling the crypto ops
-> with spin locks held or preemption disabled will get burnt, right?
-> 
+Summary: prevent oops & dead keyboard on usb unplugging while the device is being used
 
-Sort-of, but the code is still wrong.
+Without this patch, some usb kobjects, which are parents to
+the usx2y's kobjects can be freed before the usx2y's.
+This led to an oops in get_kobj_path_length() and a dead
+keyboard, when the usx2y's kobjects were freed.
+The patch ensures the correct sequence.
+Tested ok on kernel 2.6.12-rc2.
 
-> 
->  crypto/internal.h |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> Index: crypto/internal.h
-> ===================================================================
-> --- dade029a8df8b249d14282d8f8023a0de0f6c1e7/crypto/internal.h  (mode:100644 sha1:e68e43886d3cc23439f30210e88b517911bf395e)
-> +++ c48106158bce4c7af328c486b7f33ad2133459ee/crypto/internal.h  (mode:100644 sha1:964b9a60ca24413f07b1fe8410f7ac3198642135)
-> @@ -38,7 +38,7 @@ static inline void crypto_kunmap(void *v
->  
->  static inline void crypto_yield(struct crypto_tfm *tfm)
->  {
-> -	if (!in_softirq())
-> +	if (!in_atomic())
->  		cond_resched();
->  }
+Present in ALSA cvs
 
-This code can cause deadlocks on CONFIG_SMP && !CONFIG_PREEMPT kernels.
+Signed-off-by: Karsten Wiese <annabellesgarden@yahoo.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-Please see http://lkml.org/lkml/2005/3/10/358
 
-You (the programmer) *have* to know what context you're running in before
-doing a voluntary yield.  There is simply no way to work this out at
-runtime.
+---
+ sound/usb/usx2y/usbusx2y.c |   11 +++++++----
+ 1 files changed, 7 insertions(+), 4 deletions(-)
 
+--- linux-2.6.11.10.orig/sound/usb/usx2y/usbusx2y.c	2005-05-16 10:52:18.000000000 -0700
++++ linux-2.6.11.10/sound/usb/usx2y/usbusx2y.c	2005-05-20 09:36:42.067778552 -0700
+@@ -1,6 +1,11 @@
+ /*
+  * usbusy2y.c - ALSA USB US-428 Driver
+  *
++2005-04-14 Karsten Wiese
++	Version 0.8.7.2:
++	Call snd_card_free() instead of snd_card_free_in_thread() to prevent oops with dead keyboard symptom.
++	Tested ok with kernel 2.6.12-rc2.
++
+ 2004-12-14 Karsten Wiese
+ 	Version 0.8.7.1:
+ 	snd_pcm_open for rawusb pcm-devices now returns -EBUSY if called without rawusb's hwdep device being open.
+@@ -143,7 +148,7 @@
+ 
+ 
+ MODULE_AUTHOR("Karsten Wiese <annabellesgarden@yahoo.de>");
+-MODULE_DESCRIPTION("TASCAM "NAME_ALLCAPS" Version 0.8.7.1");
++MODULE_DESCRIPTION("TASCAM "NAME_ALLCAPS" Version 0.8.7.2");
+ MODULE_LICENSE("GPL");
+ MODULE_SUPPORTED_DEVICE("{{TASCAM(0x1604), "NAME_ALLCAPS"(0x8001)(0x8005)(0x8007) }}");
+ 
+@@ -430,8 +435,6 @@
+ 	if (ptr) {
+ 		usX2Ydev_t* usX2Y = usX2Y((snd_card_t*)ptr);
+ 		struct list_head* p;
+-		if (usX2Y->chip_status == USX2Y_STAT_CHIP_HUP)	// on 2.6.1 kernel snd_usbmidi_disconnect()
+-			return;					// calls us back. better leave :-) .
+ 		usX2Y->chip.shutdown = 1;
+ 		usX2Y->chip_status = USX2Y_STAT_CHIP_HUP;
+ 		usX2Y_unlinkSeq(&usX2Y->AS04);
+@@ -443,7 +446,7 @@
+ 		}
+ 		if (usX2Y->us428ctls_sharedmem) 
+ 			wake_up(&usX2Y->us428ctls_wait_queue_head);
+-		snd_card_free_in_thread((snd_card_t*)ptr);
++		snd_card_free((snd_card_t*)ptr);
+ 	}
+ }
+ 

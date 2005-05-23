@@ -1,232 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261940AbVEWTxu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVEWT4q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261940AbVEWTxu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 15:53:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261937AbVEWTxt
+	id S261941AbVEWT4q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 15:56:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVEWT4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 15:53:49 -0400
-Received: from scl-ims.phoenix.com ([216.148.212.222]:38756 "EHLO
-	scl-exch2k.phoenix.com") by vger.kernel.org with ESMTP
-	id S261941AbVEWTxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 15:53:37 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 23 May 2005 15:56:46 -0400
+Received: from igw2.watson.ibm.com ([129.34.20.6]:18905 "EHLO
+	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S261941AbVEWT4b
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 15:56:31 -0400
+Date: Mon, 23 May 2005 15:56:23 -0400 (Eastern Daylight Time)
+From: Reiner Sailer <sailer@us.ibm.com>
+To: Valdis.Kletnieks@vt.edu
+cc: James Morris <jmorris@redhat.com>, sailer@us.ibm.com, Toml@us.ibm.com,
+       linux-security-module@wirex.com, linux-kernel@vger.kernel.org,
+       Pavel Machek <pavel@ucw.cz>, Emilyr@us.ibm.com, Kylene@us.ibm.com
+Subject: Re: [PATCH 2 of 4] ima: related Makefile compile order change and
+ Readme
+Message-ID: <Pine.WNT.4.63.0505231351590.4028@laptop>
+X-Warning: UNAuthenticated Sender
 MIME-Version: 1.0
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_001_01C55FD1.15C9C588"
-Subject: RE: [PATCH] bug in VIA PCI IRQ routing
-Date: Mon, 23 May 2005 12:53:41 -0700
-Message-ID: <0EF82802ABAA22479BC1CE8E2F60E8C31B4902@scl-exch2k3.phoenix.com>
-X-MS-Has-Attach: yes
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] bug in VIA PCI IRQ routing
-Thread-Index: AcVfxIcJY+b9DhzqRjKIhA2HkKwI9AAC/+UA
-From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-To: "Ondrej Zary" <linux@rainbow-software.org>
-Cc: "Karsten Keil" <kkeil@suse.de>, <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>, <jgarzik@pobox.com>
-X-OriginalArrivalTime: 23 May 2005 19:53:36.0387 (UTC) FILETIME=[1B7C6D30:01C55FD1]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
 
-------_=_NextPart_001_01C55FD1.15C9C588
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+Valdis.Kletnieks@vt.edu wrote on 05/23/2005 12:52:13 AM:
 
-=20
+> On Mon, 23 May 2005 00:30:15 EDT, James Morris said:
+> 
+> > Perhaps I don't understand things fully, but what is the purpose of 
+> > providing measurement values locally via proc?
+> > 
+> > How can they be trusted without the TPM signing an externally generated 
+> > nonce?
+> 
+> If you can't trust what the kernel is outputting in /proc, you're screwed.
 
->-----Original Message-----
->From: Ondrej Zary [mailto:linux@rainbow-software.org]=20
->Sent: Monday, May 23, 2005 11:25 AM
->To: Aleksey Gorelov
->Cc: Karsten Keil; linux-kernel@vger.kernel.org; Andrew Morton;=20
->jgarzik@pobox.com
->Subject: Re: [PATCH] bug in VIA PCI IRQ routing
->
->Aleksey Gorelov wrote:
->>>-----Original Message-----
->>>From: Karsten Keil [mailto:kkeil@suse.de]=20
->>>Sent: Monday, May 23, 2005 5:59 AM
->>>To: linux-kernel@vger.kernel.org
->>>Cc: Andrew Morton; Aleksey Gorelov
->>>Subject: [PATCH] bug in VIA PCI IRQ routing
->>>
->>>Hi,
->>>
->>>during certification of some systems with VIA 82C586_0 chipset
->>>we found that the PCI IRQ routing of PIRQD line goes wrong and=20
->>>the system
->>>will get stuck because of unacknowledged IRQs.
->>>It seems that the special case for PIRQD (pirq 4) is not=20
->needed for all
->>>VIA versions. With this patch, the IRQ routing on these systems works
->>>again (It did work with older 2.4 kernel versions prior the=20
->>>PIRQD change)
->>=20
->>=20
->>  Does anybody have 82C586 datasheet to verify 0x57 register ?=20
->> For all I can say, both 82C686 & 8231 DO need special handling for
->> PIRQD,=20
->> since PIRQD routing is setup via bits 7-4 in 0x57 (see=20
->datasheets from
->> VIA=20
->> website). It seems like 82C586 might be different...
->>=20
->> Aleks.
->>=20
->
->This is from 82C586B datasheet (the 82C586A datasheet shows the same=20
->register layout):
->
->Note: The definitions of the fields of the following three
->registers were incorrectly documented in some earlier
->revisions of this document. The silicon has not changed
->and the following definition should be used for all silicon
->revisions:
->
->Offset 55 - PNP IRQ Routing 1=20
->....................................... RW
->These bits control routing for external IRQ inputs MIRQ0-1.
->7-4 PIRQD# Routing (see PnP IRQ routing table)
->3-0 MIRQ0 Routing (see PnP IRQ routing table)
->
->Offset 56 - PNP IRQ Routing 2=20
->....................................... RW
->7-4 PIRQA# Routing (see PnP IRQ routing table)
->3-0 PIRQB# Routing (see PnP IRQ routing table)
->
->Offset 57 - PNP IRQ Routing 3=20
->....................................... RW
->7-4 PIRQC# Routing (see PnP IRQ routing table)
->3-0 MIRQ1 Routing (see PnP IRQ routing table)
->
->Note: these bits must be set to 0 if Rx48[4]=3D1 and
->Rx59[1]=3D1 (input IRQ8# on MIRQ1 pin 106)
->
->PnP IRQ Routing Table
->0000 Disabled................................................. default
->0001 IRQ1
->0010 Reserved
->0011 IRQ3
->0100 IRQ4
->0101 IRQ5
->0110 IRQ6
->0111 IRQ7
->1000 Reserved
->1001 IRQ9
->1010 IRQ10
->1011 IRQ11
->1100 IRQ12
->1101 Reserved
->1110 IRQ14
->1111 IRQ15
+No, this is not the case. You can establish trust into the measurements 
+read through /proc by validating the TPM signature over the measurement 
+aggregate on a separate, trusted system. IMA measurements are not intended 
+to be used on the local system but on a separate system that is trusted not 
+to be compromised. The system validating the measurements does not trust 
+the origin; the TPM signature is the part that (i) verifies 
+the integrity of the measurement list, and (ii) verifies the platform 
+where the signature was created and links the validated measurement list 
+to this system.
 
-Hmm, this is way different.
+You can think of IMA as a reliable, Hardware-root-of-trust (TPM) 
+based logging mechanism for loaded executables. IMA is a usage-example of 
+the TPM HW root-of-trust used to gain confidence into what was loaded into 
+another system. Since IMA is released opensource (GPL), people can experiment 
+with services putting value to the IMA load-time guarantees. We did experiment 
+with IMA, and we found it interesting enough to make it available.
 
-Karsten,=20
+> And for that matter, how would you verify that it's the TPM that signed the
+> externally generated nonce? (Remember - if you can't trust /proc, then you
+> have to assume that *any* attempt at talking to the TPM from userspace *is*
+> a MITM attack - and you don't have access to any out-of-band info.  If the
+> now-untrusted kernel did a MITM on your nonce and signed it with a fake key,
+> then it can *also* MITM your attempt to read the "correct" key from /etc/tpm.key
+> or wherever it is....
 
-  could you please verify if attached patch works for you ?
-  Another unknown C596 south bridge. I wonder if it the same as 586, or
-closer to 686 ?
+Your concern would be relevant if measurements were validated on 
+the (measured) system that creates them, which is not the intended use.
 
-Aleks.
+Verification is based on the public TPM signature key: The remote party 
+has a certificate of the public key of the system from which it retrieves 
+measurements. If the public key does not 'validate' the TPM signature 
+(delivered with a measurement list) then the retrieved  measurement list 
+is not trusted. All signature keys used by the TPM are protected when stored 
+outside the TPM chip. A system cannot use TPM signature keys outside the TPM
+and cannot create valid signatures over manipulated measurement lists.
 
->
->
->>=20
->>>diff -urN linux-2.6.12-rc4-git7.org/arch/i386/pci/irq.c=20
->>>linux-2.6.12-rc4-git7/arch/i386/pci/irq.c
->>>--- linux-2.6.12-rc4-git7.org/arch/i386/pci/irq.c=09
->>>2005-05-23 13:35:48.562759583 +0200
->>>+++ linux-2.6.12-rc4-git7/arch/i386/pci/irq.c	2005-05-23=20
->>>13:41:47.349473060 +0200
->>>@@ -26,6 +26,7 @@
->>>
->>>static int broken_hp_bios_irq9;
->>>static int acer_tm360_irqrouting;
->>>+static int via_pirq_patch_value =3D 5;
->>>
->>>static struct irq_routing_table *pirq_table;
->>>
->>>@@ -217,12 +218,12 @@
->>> */
->>>static int pirq_via_get(struct pci_dev *router, struct=20
->>>pci_dev *dev, int pirq)
->>>{
->>>-	return read_config_nybble(router, 0x55, pirq =3D=3D 4 ? 5 : pirq);
->>>+	return read_config_nybble(router, 0x55, pirq =3D=3D 4 ?=20
->>>via_pirq_patch_value : pirq);
->>>}
->>>
->>>static int pirq_via_set(struct pci_dev *router, struct=20
->>>pci_dev *dev, int pirq, int irq)
->>>{
->>>-	write_config_nybble(router, 0x55, pirq =3D=3D 4 ? 5 : pirq, irq);
->>>+	write_config_nybble(router, 0x55, pirq =3D=3D 4 ?=20
->>>via_pirq_patch_value : pirq, irq);
->>>	return 1;
->>>}
->>>
->>>@@ -512,6 +513,7 @@
->>>	switch(device)
->>>	{
->>>		case PCI_DEVICE_ID_VIA_82C586_0:
->>>+			via_pirq_patch_value =3D 4;
->>>		case PCI_DEVICE_ID_VIA_82C596:
->>>		case PCI_DEVICE_ID_VIA_82C686:
->>>		case PCI_DEVICE_ID_VIA_8231:
->>>
->>>--=20
->>>Karsten Keil
->>>SuSE Labs
->>>ISDN development
->>>
->>=20
->>=20
->> -
->> To unsubscribe from this list: send the line "unsubscribe=20
->linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>=20
->
->
->--=20
->Ondrej Zary
->
+Man-in-the-middle-attacks on the measurement-list-retrieval are only successful
+if the entity controlling the measured system can guess the 160bit random 
+number (nonce) that will be used in the future by a remote party
+or if a remote party re-uses nonces. In this case, old measurement lists can be 
+replayed; this is very unlikely if the nonces / random numbers are chosen as 
+directed in the TPM specs.
 
-------_=_NextPart_001_01C55FD1.15C9C588
-Content-Type: application/octet-stream;
-	name="via.patch"
-Content-Transfer-Encoding: base64
-Content-Description: via.patch
-Content-Disposition: attachment;
-	filename="via.patch"
+Thanks
+Reiner
 
-LS0tIGxpbnV4LTIuNi4xMS4xMC9hcmNoL2kzODYvcGNpL2lycS5jCTIwMDUtMDUtMTYgMTA6NTA6
-MzAuMDAwMDAwMDAwIC0wNzAwCisrKyBuZXcvYXJjaC9pMzg2L3BjaS9pcnEuYwkyMDA1LTA1LTIz
-IDEyOjQ3OjE5LjAwMDAwMDAwMCAtMDcwMApAQCAtMjI3LDYgKzIyNywyNCBAQAogfQogCiAvKgor
-ICogVGhlIFZJQSBwaXJxIHJ1bGVzIGFyZSBuaWJibGUtYmFzZWQsIGxpa2UgQUxJLAorICogYnV0
-IHdpdGhvdXQgdGhlIHVnbHkgaXJxIG51bWJlciBtdW5naW5nLgorICogSG93ZXZlciwgZm9yIDgy
-QzU4NiwgbmliYmxlIG1hcCBpcyBkaWZmZXJlbnQgLgorICovCitzdGF0aWMgaW50IHBpcnFfdmlh
-NTg2X2dldChzdHJ1Y3QgcGNpX2RldiAqcm91dGVyLCBzdHJ1Y3QgcGNpX2RldiAqZGV2LCBpbnQg
-cGlycSkKK3sKKwlzdGF0aWMgdW5zaWduZWQgaW50IHBpcnFtYXBbNF0gPSB7IDMsIDIsIDUsIDEg
-fTsKKwlyZXR1cm4gcmVhZF9jb25maWdfbnliYmxlKHJvdXRlciwgMHg1NSwgcGlycW1hcFtwaXJx
-LTFdKTsKK30KKworc3RhdGljIGludCBwaXJxX3ZpYTU4Nl9zZXQoc3RydWN0IHBjaV9kZXYgKnJv
-dXRlciwgc3RydWN0IHBjaV9kZXYgKmRldiwgaW50IHBpcnEsIGludCBpcnEpCit7CisJc3RhdGlj
-IHVuc2lnbmVkIGludCBwaXJxbWFwWzRdID0geyAzLCAyLCA1LCAxIH07CisJd3JpdGVfY29uZmln
-X255YmJsZShyb3V0ZXIsIDB4NTUsIHBpcnFtYXBbcGlycS0xXSwgaXJxKTsKKwlyZXR1cm4gMTsK
-K30KKworLyoKICAqIElURSA4MzMwRyBwaXJxIHJ1bGVzIGFyZSBuaWJibGUtYmFzZWQKICAqIEZJ
-WE1FOiBwaXJxbWFwIG1heSBiZSB7IDEsIDAsIDMsIDIgfSwKICAqIAkgIDIrMyBhcmUgYm90aCBt
-YXBwZWQgdG8gaXJxIDkgb24gbXkgc3lzdGVtCkBAIC01MDksNiArNTI3LDEwIEBACiAJc3dpdGNo
-KGRldmljZSkKIAl7CiAJCWNhc2UgUENJX0RFVklDRV9JRF9WSUFfODJDNTg2XzA6CisJCQlyLT5u
-YW1lID0gIlZJQSI7CisJCQlyLT5nZXQgPSBwaXJxX3ZpYTU4Nl9nZXQ7CisJCQlyLT5zZXQgPSBw
-aXJxX3ZpYTU4Nl9zZXQ7CisJCQlyZXR1cm4gMTsKIAkJY2FzZSBQQ0lfREVWSUNFX0lEX1ZJQV84
-MkM1OTY6CiAJCWNhc2UgUENJX0RFVklDRV9JRF9WSUFfODJDNjg2OgogCQljYXNlIFBDSV9ERVZJ
-Q0VfSURfVklBXzgyMzE6Cg==
-
-------_=_NextPart_001_01C55FD1.15C9C588--

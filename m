@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbVEWPnk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261893AbVEWPqP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbVEWPnk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 11:43:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbVEWPnk
+	id S261893AbVEWPqP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 11:46:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261897AbVEWPqP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 11:43:40 -0400
-Received: from mail.kroah.org ([69.55.234.183]:15580 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261892AbVEWPnb (ORCPT
+	Mon, 23 May 2005 11:46:15 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:137 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261893AbVEWPqD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 11:43:31 -0400
-Date: Mon, 23 May 2005 08:50:23 -0700
-From: Greg KH <greg@kroah.com>
-To: Abhay_Salunke@Dell.com
-Cc: marcel@holtmann.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Matt_Domsch@Dell.com
-Subject: Re: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new DellBIOS update driver
-Message-ID: <20050523155023.GA10909@kroah.com>
-References: <367215741E167A4CA813C8F12CE0143B3ED389@ausx2kmpc115.aus.amer.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <367215741E167A4CA813C8F12CE0143B3ED389@ausx2kmpc115.aus.amer.dell.com>
-User-Agent: Mutt/1.5.8i
+	Mon, 23 May 2005 11:46:03 -0400
+Message-ID: <4291FC90.7791036C@tv-sign.ru>
+Date: Mon, 23 May 2005 19:53:52 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
+References: <Pine.LNX.4.44.0505230800580.863-100000@dhcp153.mvista.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 23, 2005 at 10:36:37AM -0500, Abhay_Salunke@Dell.com wrote:
-> > > > Also, what's wrong with using the existing firmware interface in the
-> > > > kernel?
-> > > request_firmware requires the $FIRMWARE env to be populated with the
-> > > firmware image name or the firmware image name needs to be hardcoded
-> > > within  the call to request_firmware.
-> > 
-> > the latter one. Don't mess with the $FIRMWARE env, because this comes
-> > from the kernel hotplug call.
-> > 
-> > > Since the user is free to change
-> > > the BIOS update image at will, it may not be possible if we use
-> > > $FIRMWARE also I am not sure if this env variable might be conflicting
-> > > to some other driver.
-> > 
-> > I am not quite sure what's the problem here. Tell the kernel what
-> > firmware image to request. Something like
-> > 
-> > 	echo "firmware-filename" > /sys/firmware/dell_rbu/download
-> > 
-> Looks like request_firmware is causing lots of changes in my code. For
-> now I would just focus on getting the size parameters in normal sysfs
-> attribute and do request_firmware some time later as a separate patch.
+Daniel Walker wrote:
+>
+> On Mon, 23 May 2005, Oleg Nesterov wrote:
+>
+> > So the very first node will be skipped, iteration will be out of order,
+> > and you will have the plist's *head* as a last element (which is not
+> > struct rt_mutex_waiter, of course).
+>
+> True, but the first node is the list head which must be static,
+> It's not an actual list member.
 
-Well, as they will be the "correct" type of changes, I recommend you do
-them too :)
+No. Look, plist_for_each() is just list_for_each_entry() now.
+So, the the first iteration will play with head->sp_node.next,
+not with head! And then you are doing ->dp_node.next again in
+plist_entry().
 
-thanks,
+I'd suggest you to write simple programm, and test. I bet I'm
+right.
 
-greg k-h
+> > 	new_sp_head:
+> > 		itr_pl2 = container_of(itr_pl->dp_node.prev, struct plist, dp_node);
+> > 		list_add(&pl->sp_node, &itr_pl2->sp_node);
+> >
+> > Why?  Just list_add_tail(&pl->sp_node, itr_pl->sp_node), you don't
+> > need itr_pl2 at all.
+>
+> Wouldn't work . What if itr_pl has 15 elements at it's priority?
+
+15 or 0, I think it would work. Look, it is *new* priority, and
+pl->prio < itr_pl->prio, so pl should stay just before itr_pl
+in ->sp_node list. That is why list_add_tail(&pl->sp_node, itr_pl->sp_node)
+is enough.
+
+Oleg.

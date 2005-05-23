@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVEWXLl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVEWXRK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261207AbVEWXLl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 19:11:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVEWXJY
+	id S261233AbVEWXRK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 19:17:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVEWXQc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 19:09:24 -0400
-Received: from zproxy.gmail.com ([64.233.162.195]:20595 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261218AbVEWXEq convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 19:04:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=uHzDoQOTyrKJ/szKba3HTccrtl12Yw3l7NiiqwGEVELVqzbc2VLzi0mLsE11rOCsmMLaVWHls0dBMYR1+qOGbxVaDTqkkSnzWf6Iuvc399mcj3Ct4ann/cMpLW/sYkOnG77vVmPze+Uj1XhbG5suGw+0JhU7EOloL4E14WcW+eI=
-Message-ID: <d93f04c7050523160430f34d1d@mail.gmail.com>
-Date: Tue, 24 May 2005 01:04:46 +0200
-From: Hendrik Visage <hvjunk@gmail.com>
-Reply-To: Hendrik Visage <hvjunk@gmail.com>
-To: Scott Robert Ladd <lkml@coyotegulch.com>
-Subject: Re: False "lost ticks" on dual-Opteron system (=> timer twice as fast)
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <4291C38D.1040705@coyotegulch.com>
+	Mon, 23 May 2005 19:16:32 -0400
+Received: from fire.osdl.org ([65.172.181.4]:42733 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261233AbVEWXP6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 19:15:58 -0400
+Date: Mon, 23 May 2005 16:15:29 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       zwane mwaikambo <zwane@arm.linux.org.uk>,
+       "theodore ts'o" <tytso@mit.edu>, "randy.dunlap" <rdunlap@xenotime.net>,
+       chuck wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+Subject: [00/16] -stable review
+Message-ID: <20050523231529.GL27549@shell0.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200505081445.26663.bernd.paysan@gmx.de>
-	 <d93f04c705052112426ee35154@mail.gmail.com>
-	 <428F9FA6.1000800@coyotegulch.com>
-	 <d93f04c70505211500216d8614@mail.gmail.com>
-	 <4291C38D.1040705@coyotegulch.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/23/05, Scott Robert Ladd <lkml@coyotegulch.com> wrote:
+This is the start of the stable review cycle for the 2.6.11.11 release.  There
+are 16 patches in this series, all will be posted as a response to this one.
+If anyone has any issues with these being applied, please let us know.  If
+anyone is a maintainer of the proper subsystem, and wants to add a
+signed-off-by: line to the patch, please respond with it.
 
-> 
-> Perhaps a comparison of my .config to yours might identify the source of
-> your problem.
+These patches are sent out with a number of different people on the Cc: line.
+If you wish to be a reviewer, please email stable@kernel.org to add your name to
+the list.  If you want to be off the reviewer list, also email us.
 
-I think I've isolated the problem child: MSI's Dynamic Overclocking features...
+Responses should be made by Wed, May 25, 23:00 UTC.  Anything received after
+that time, might be too late.
 
-The MSI "Core Cell" chipset will modify the CPU frequency within
-certain parameters as the CPU needs more oomph (like a kernel
-recompile :^P ), but will drop it once it heats up or things become
-"unstable" or the CPU is getting idle again.
+thanks,
 
-What I still need to ascertain, is whether the MSI K8N Neo Platinum
-(nForce2 250) *do* have a HPET implementation or not, as my timer.c
-only reports a PIT timer :(
-
--- 
-Hendrik Visage
+the -stable release team (i.e. the ones wearing the joker hat in the corner...)

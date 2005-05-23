@@ -1,53 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261923AbVEWRYs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVEWRaD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261923AbVEWRYs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 13:24:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbVEWRYa
+	id S261925AbVEWRaD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 13:30:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVEWRaD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 13:24:30 -0400
-Received: from colin.muc.de ([193.149.48.1]:13065 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S261918AbVEWRYZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 13:24:25 -0400
-Date: 23 May 2005 19:24:24 +0200
-Date: Mon, 23 May 2005 19:24:24 +0200
-From: Andi Kleen <ak@muc.de>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: zwane@arm.linux.org.uk, discuss@x86-64.org, shaohua.li@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch 2/4] CPU hot-plug support for x86_64
-Message-ID: <20050523172424.GG39821@muc.de>
-References: <20050520221622.124069000@csdlinux-2.jf.intel.com> <20050520223417.532048000@csdlinux-2.jf.intel.com> <20050523163816.GA39821@muc.de> <20050523095816.B8193@unix-os.sc.intel.com>
+	Mon, 23 May 2005 13:30:03 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:26078 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S261919AbVEWR37
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 13:29:59 -0400
+Subject: [RFC/PATCH 0/4] execute in place (3rd version)
+From: Carsten Otte <cotte@de.ibm.com>
+Reply-To: cotte@freenet.de
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Cc: schwidefsky@de.ibm.com, akpm@osdl.org,
+       Christoph Hellwig <hch@infradead.org>
+Content-Type: text/plain
+Organization: IBM Deutschland Entwicklung
+Date: Mon, 23 May 2005 19:29:53 +0200
+Message-Id: <1116869393.12153.30.camel@cotte.boeblingen.de.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050523095816.B8193@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 23, 2005 at 09:58:17AM -0700, Ashok Raj wrote:
-> On Mon, May 23, 2005 at 06:38:16PM +0200, Andi Kleen wrote:
-> > On Fri, May 20, 2005 at 03:16:24PM -0700, Ashok Raj wrote:
-> > > Experimental CPU hotplug patch for x86_64
-> > > -----------------------------------------
-> > > - Most of init code that needs to be there for hotplug marked now as __devinit
-> > > 	(Didn't use cpuinit, simply because the main framework code in kernel
-> > > 	 is not the same way, just trying to be consistent)
-> > 
-> > I dont like that. Can you keep it as __cpuinit please?  e.g. 
-> > if cpuhot plug turns out to be a lot of code we could later
-> > mark it free when we detect at boot the system does not support
-> > cpu hotplug. With devinit that is pretty much impossible these days.
-> > 
-> > Also it is better for documentation purposes.
-> 
-> If its for documentation, then its ok, the reason i thought it will
-> be dead code/documentation soon is since 90% of the hotplug code is
-> generic kernel code, which is not under __cpuinit, just some pieces of 
-> x86_64 would alone exist this way, and will not serve real purpose very soon.
+Folks,
 
-I would hope these other pieces get converted over. I will probably
-look into that soon if nobody beats me.
+this is the 3rd iteration of the execute in place patches. All apply
+against git tree as of today. Description of changes are in the patch
+mails. 
+Christoph, having read this version I do think you're pushing the right
+direction...
 
--Andi
+cheers,
+Carsten
+
+

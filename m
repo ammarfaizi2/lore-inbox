@@ -1,86 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVEWXpE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVEWXpD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261192AbVEWXpE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 19:45:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVEWXIv
+	id S261212AbVEWXpD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 19:45:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbVEWXlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 19:08:51 -0400
-Received: from 1-1-4-20a.ras.sth.bostream.se ([82.182.72.90]:53907 "EHLO
-	garbo.kenjo.org") by vger.kernel.org with ESMTP id S261167AbVEWWrK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 18:47:10 -0400
-Subject: NFS corruption on 2.6.11.7
-From: Kenneth Johansson <ken@kenjo.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-1KmljD9N/kUQ3qtuFE1M"
-Date: Tue, 24 May 2005 00:47:07 +0200
-Message-Id: <1116888428.5206.14.camel@tiger>
+	Mon, 23 May 2005 19:41:25 -0400
+Received: from fire.osdl.org ([65.172.181.4]:12679 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261222AbVEWXc7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 19:32:59 -0400
+Date: Mon, 23 May 2005 16:32:35 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, ak@suse.de
+Subject: [patch 16/16] x86_64: Don't look up struct page pointer of physical address in iounmap
+Message-ID: <20050523233235.GB27549@shell0.pdx.osdl.net>
+References: <20050523231529.GL27549@shell0.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050523231529.GL27549@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[PATCH] x86_64: Don't look up struct page pointer of physical address in iounmap
 
---=-1KmljD9N/kUQ3qtuFE1M
-Content-Type: multipart/mixed; boundary="=-SSrSctI2uuI5DhDkITxF"
+It could be in a memory hole not mapped in mem_map and that causes the hash
+lookup to go off to nirvana.
 
+Back port to -stable tree by Chris Wright
 
---=-SSrSctI2uuI5DhDkITxF
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Signed-off-by: Andi Kleen <ak@suse.de>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Signed-off-by: Chris Wright <chrisw@osdl.org>
+---
 
-I have both the server and client running  2.6.11.7 and have some severe
-data corruption when reading from the server (maybe on write also I have
-not tested).
+ ioremap.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-If I copy the data over with scp or ftp I get correct data. Also  nfs
-works OK with a mac os x 10.4 client.
-
-Running gen.sh on the server and then cmp.sh on the client results in a
-md5 checksum difference on 5-12 files I have never done one run where
-there was no errors.=20
-
-This is what cat /proc/mounts reports on the nfs mount
-
-:/export/home/ken /home/ken nfs rw,v3,rsize=3D32768,wsize=3D32768,hard,udp,=
-lock,addr=3Damd 0 0
-
-
-
---=-SSrSctI2uuI5DhDkITxF
-Content-Disposition: attachment; filename=gen.sh
-Content-Type: application/x-shellscript; name=gen.sh
-Content-Transfer-Encoding: base64
-
-IyEgL2Jpbi9lbnYgYmFzaAoKCmxldCBudW09MAoKcm0gc3VtX29yZwo6PnN1bV9vcmcKd2hpbGUg
-dGVzdCAkbnVtIC1sdCAzMApkbyAKICBkZCBpZj0vZGV2L3VyYW5kb20gb2Y9JG51bSBicz0xNTAw
-MDAwMCBjb3VudD0xICAKICBtZDVzdW0gJG51bSA+PnN1bV9vcmcKICBsZXQgbnVtPSRudW0rMQpk
-b25lCgo=
-
-
---=-SSrSctI2uuI5DhDkITxF
-Content-Disposition: attachment; filename=cmp.sh
-Content-Type: application/x-shellscript; name=cmp.sh
-Content-Transfer-Encoding: base64
-
-IyEgL2Jpbi9lbnYgYmFzaAoKCmxldCBudW09MAoKcm0gc3VtX25ldwo6PnN1bV9uZXcKd2hpbGUg
-dGVzdCAkbnVtIC1sdCAzMApkbyAKICBtZDVzdW0gJG51bSA+PnN1bV9uZXcKICBsZXQgbnVtPSRu
-dW0rMQpkb25lCgpkaWZmIHN1bV9vcmcgc3VtX25ldwoK
-
-
---=-SSrSctI2uuI5DhDkITxF--
-
---=-1KmljD9N/kUQ3qtuFE1M
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCkl1rmDGOmJIy9x8RAtKqAJ4pRE+AoNEUWs4++6SN8wlXak0U9ACeJfTB
-a9I60QCD+4IZboeU4JngK4k=
-=bU1Y
------END PGP SIGNATURE-----
-
---=-1KmljD9N/kUQ3qtuFE1M--
-
+Index: release-2.6.11/arch/x86_64/mm/ioremap.c
+===================================================================
+--- release-2.6.11.orig/arch/x86_64/mm/ioremap.c
++++ release-2.6.11/arch/x86_64/mm/ioremap.c
+@@ -266,7 +266,7 @@ void iounmap(volatile void __iomem *addr
+ 	if ((p->flags >> 20) &&
+ 		p->phys_addr + p->size - 1 < virt_to_phys(high_memory)) {
+ 		/* p->size includes the guard page, but cpa doesn't like that */
+-		change_page_attr(virt_to_page(__va(p->phys_addr)),
++		change_page_attr_addr((unsigned long)(__va(p->phys_addr)),
+ 				 (p->size - PAGE_SIZE) >> PAGE_SHIFT,
+ 				 PAGE_KERNEL); 				 
+ 		global_flush_tlb();

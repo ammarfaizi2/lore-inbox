@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbVEWVEv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261958AbVEWVHG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261968AbVEWVEv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 17:04:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVEWVEv
+	id S261958AbVEWVHG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 17:07:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVEWVHG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 17:04:51 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:34506 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261968AbVEWVEj (ORCPT
+	Mon, 23 May 2005 17:07:06 -0400
+Received: from fire.osdl.org ([65.172.181.4]:13246 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261958AbVEWVGm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 17:04:39 -0400
-Message-ID: <42924560.9070307@pobox.com>
-Date: Mon, 23 May 2005 17:04:32 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Helge Pomorin <dotkomm@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: DMA not works in Linux 2.6.12, but in Windows works fine.
-References: <web-135595327@mail5.rambler.ru>	 <20050523193010.5bf72481.vsu@altlinux.ru> <3fc35c7e05052313523ab43067@mail.gmail.com>
-In-Reply-To: <3fc35c7e05052313523ab43067@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Mon, 23 May 2005 17:06:42 -0400
+Date: Mon, 23 May 2005 14:06:29 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: mingo@elte.hu, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] mmap topdown fix for large stack limit, large allocation
+Message-ID: <20050523210629.GH27549@shell0.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Helge Pomorin wrote:
-> 2005/5/23, Sergey Vlasov <vsu@altlinux.ru>:
-> 
->>This is a known problem - if the Intel ICH5/6 controller is used in
->>combined mode (SATA mapped to legacy IDE ports), DMA for PATA devices
->>does not work.  If you reconfigure the controller in BIOS to not use the
->>combined mode (so that the SATA part becomes a separate PCI device), DMA
->>for PATA devices will work fine.
->>
->>To IDE developers: Is something planned to work around this problem?
->>AFAIK, there are some machines where BIOS does not provide an option to
->>turn off the combined mode.
->>
-> 
-> Hi there,
-> Got similar looking problem here,
+The topdown changes in 2.6.12-rc1 can cause large allocations with
+large stack limit to fail, despite there being space available.  The
+mmap_base-len is only valid when len >= mmap_base.  However, nothing in
+topdown allocator checks this.  It's only (now) caught at higher level,
+which will cause allocation to simply fail.  The following change restores
+the fallback to bottom-up path, which will allow large allocations with
+large stack limit to potentially still succeed.
 
-It's completely different.
+Signed-off-by: Chris Wright <chrisw@osdl.org>
+---
 
+ mm/mmap.c |    4 ++++
+ 1 files changed, 4 insertions(+)
 
-> i cant change sata modes or something alike...
-
-That doesn't matter under SATA.
-
-
-> I get *disabling irq* message with Intel ICH 4 / SIL 3112 A rev 01
-> SATA Controller on Asus P4G8X Deluxe board (P4 Northwood, Intel
-> *granite bay* E702 Chipsets) at distros which using newer kernel than
-
-This is a totally different problem.
-
-	Jeff
-
-
-
+mm/mmap.c: de54acd9942f9929004921042721df5cdfe2b6c7
+--- k/mm/mmap.c
++++ l/mm/mmap.c
+@@ -1251,6 +1251,9 @@ arch_get_unmapped_area_topdown(struct fi
+ 			return (mm->free_area_cache = addr-len);
+ 	}
+ 
++	if (mm->mmap_base < len)
++		goto bottomup;
++
+ 	addr = mm->mmap_base-len;
+ 
+ 	do {
+@@ -1268,6 +1271,7 @@ arch_get_unmapped_area_topdown(struct fi
+ 		addr = vma->vm_start-len;
+ 	} while (len < vma->vm_start);
+ 
++bottomup:
+ 	/*
+ 	 * A failed mmap() very likely causes application failure,
+ 	 * so fall back to the bottom-up function here. This scenario

@@ -1,108 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVEWRkw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261887AbVEWRp1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261345AbVEWRkw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 13:40:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261941AbVEWRkf
+	id S261887AbVEWRp1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 13:45:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVEWRnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 13:40:35 -0400
-Received: from scl-ims.phoenix.com ([216.148.212.222]:2013 "EHLO
-	scl-exch2k.phoenix.com") by vger.kernel.org with ESMTP
-	id S261937AbVEWRe3 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 13:34:29 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] bug in VIA PCI IRQ routing
-Date: Mon, 23 May 2005 10:34:01 -0700
-Message-ID: <0EF82802ABAA22479BC1CE8E2F60E8C31B4894@scl-exch2k3.phoenix.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] bug in VIA PCI IRQ routing
-Thread-Index: AcVflzBsWrTZuh9zQ82pQgNN3eJeLAAJWKGQ
-From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-To: "Karsten Keil" <kkeil@suse.de>, <linux-kernel@vger.kernel.org>
-Cc: "Andrew Morton" <akpm@osdl.org>, <jgarzik@pobox.com>
-X-OriginalArrivalTime: 23 May 2005 17:34:27.0131 (UTC) FILETIME=[AAF110B0:01C55FBD]
+	Mon, 23 May 2005 13:43:42 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:54746 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261887AbVEWRlm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 13:41:42 -0400
+Date: Mon, 23 May 2005 10:40:46 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Ashok Raj <ashok.raj@intel.com>, zwane@arm.linux.org.uk,
+       discuss@x86-64.org, shaohua.li@intel.com, linux-kernel@vger.kernel.org,
+       rusty@rustycorp.com.au, vatsa@in.ibm.com
+Subject: Re: [discuss] Re: [patch 0/4] CPU hot-plug support for x86_64
+Message-ID: <20050523104046.B8692@unix-os.sc.intel.com>
+References: <20050520221622.124069000@csdlinux-2.jf.intel.com> <20050523164046.GB39821@muc.de> <20050523095450.A8193@unix-os.sc.intel.com> <20050523171212.GF39821@muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050523171212.GF39821@muc.de>; from ak@muc.de on Mon, May 23, 2005 at 07:12:12PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->-----Original Message-----
->From: Karsten Keil [mailto:kkeil@suse.de] 
->Sent: Monday, May 23, 2005 5:59 AM
->To: linux-kernel@vger.kernel.org
->Cc: Andrew Morton; Aleksey Gorelov
->Subject: [PATCH] bug in VIA PCI IRQ routing
->
->Hi,
->
->during certification of some systems with VIA 82C586_0 chipset
->we found that the PCI IRQ routing of PIRQD line goes wrong and 
->the system
->will get stuck because of unacknowledged IRQs.
->It seems that the special case for PIRQD (pirq 4) is not needed for all
->VIA versions. With this patch, the IRQ routing on these systems works
->again (It did work with older 2.4 kernel versions prior the 
->PIRQD change)
+On Mon, May 23, 2005 at 07:12:12PM +0200, Andi Kleen wrote:
+> > The only other workable alternate would be to use the stop_machine() 
+> > like thing which we use to automically update cpu_online_map. This means we 
+> > execute a high priority thread on all cpus, bringing the system to knees before
+> 
+> That is not nice agreed.
+> 
+> > just adding a new cpu. On very large systems this will definitly be 
+> > visible.
+> 
+> I still dont quite get it why it is not enough to keep interrupts
+> off until the CPU enters idle. Currently we enable them shortly
+> in the middle of the initialization (whcih is already dangerous
+> because interrupts can see half initialized state like out of date TSC),
+> but I hope to get rid of that soon too. With the full startup
+> in CLI would you problems be gone?
+> 
 
- Does anybody have 82C586 datasheet to verify 0x57 register ? 
-For all I can say, both 82C686 & 8231 DO need special handling for
-PIRQD, 
-since PIRQD routing is setup via bits 7-4 in 0x57 (see datasheets from
-VIA 
-website). It seems like 82C586 might be different...
+I think so, if we can ensure none is delivered to the partially up cpu
+we probably are covered.
 
-Aleks.
+Iam not a 100% sure about above either, if the smp_call_function 
+is started with 3 cpus initially, and 1 just came up, the counts in 
+the smp_call data struct could be set to 3 as a result of the new cpu 
+received this broadcast as well, and we might quit earlier in the wait.
 
->
->diff -urN linux-2.6.12-rc4-git7.org/arch/i386/pci/irq.c 
->linux-2.6.12-rc4-git7/arch/i386/pci/irq.c
->--- linux-2.6.12-rc4-git7.org/arch/i386/pci/irq.c	
->2005-05-23 13:35:48.562759583 +0200
->+++ linux-2.6.12-rc4-git7/arch/i386/pci/irq.c	2005-05-23 
->13:41:47.349473060 +0200
->@@ -26,6 +26,7 @@
-> 
-> static int broken_hp_bios_irq9;
-> static int acer_tm360_irqrouting;
->+static int via_pirq_patch_value = 5;
-> 
-> static struct irq_routing_table *pirq_table;
-> 
->@@ -217,12 +218,12 @@
->  */
-> static int pirq_via_get(struct pci_dev *router, struct 
->pci_dev *dev, int pirq)
-> {
->-	return read_config_nybble(router, 0x55, pirq == 4 ? 5 : pirq);
->+	return read_config_nybble(router, 0x55, pirq == 4 ? 
->via_pirq_patch_value : pirq);
-> }
-> 
-> static int pirq_via_set(struct pci_dev *router, struct 
->pci_dev *dev, int pirq, int irq)
-> {
->-	write_config_nybble(router, 0x55, pirq == 4 ? 5 : pirq, irq);
->+	write_config_nybble(router, 0x55, pirq == 4 ? 
->via_pirq_patch_value : pirq, irq);
-> 	return 1;
-> }
-> 
->@@ -512,6 +513,7 @@
-> 	switch(device)
-> 	{
-> 		case PCI_DEVICE_ID_VIA_82C586_0:
->+			via_pirq_patch_value = 4;
-> 		case PCI_DEVICE_ID_VIA_82C596:
-> 		case PCI_DEVICE_ID_VIA_82C686:
-> 		case PCI_DEVICE_ID_VIA_8231:
->
->-- 
->Karsten Keil
->SuSE Labs
->ISDN development
->
+sending to only relevant cpus removes that ambiquity. 
 
+[Vatsa would know this better, since was the corner case man then :-)]

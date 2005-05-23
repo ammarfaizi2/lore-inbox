@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVEWLZl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVEWL01@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261219AbVEWLZl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 07:25:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVEWLZl
+	id S261232AbVEWL01 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 07:26:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVEWL01
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 07:25:41 -0400
-Received: from wildsau.idv.uni.linz.at ([193.170.194.34]:40321 "EHLO
-	wildsau.enemy.org") by vger.kernel.org with ESMTP id S261219AbVEWLZe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 07:25:34 -0400
-From: Herbert Rosmanith <kernel@wildsau.enemy.org>
-Message-Id: <200505231125.j4NBPQoZ018751@wildsau.enemy.org>
-Subject: Re: [PATCH] binutils-2.16.90.0.3: can't compile 2.4.30
-In-Reply-To: <200505231113.j4NBDxLp018742@wildsau.enemy.org>
-To: linux-kernel@vger.kernel.org
-Date: Mon, 23 May 2005 13:25:26 +0200 (MET DST)
-CC: Herbert Rosmanith <kernel@wildsau.enemy.org>
-X-Mailer: ELM [version 2.4ME+ PL100 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 23 May 2005 07:26:27 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:41900 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261232AbVEWL0V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 07:26:21 -0400
+Date: Mon, 23 May 2005 13:23:17 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Serge Noiraud <serge.noiraud@bull.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, dwalker@mvista.com,
+       Joe King <atom_bomb@rocketmail.com>, ganzinger@mvista.com,
+       Lee Revell <rlrevell@joe-job.com>, Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
+Message-ID: <20050523112317.GA10579@elte.hu>
+References: <20050523082637.GA15696@elte.hu> <1116840848.1498.4.camel@ibiza.btsn.frna.bull.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1116840848.1498.4.camel@ibiza.btsn.frna.bull.fr>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> bash-2.05# cat test.nasm 
+
+* Serge Noiraud <serge.noiraud@bull.net> wrote:
+
+> Le lun 23/05/2005 à 10:26, Ingo Molnar a écrit :
+> > i have released the -V0.7.47-06 Real-Time Preemption patch, which can be 
+> > downloaded from the usual place:
+> > 
+> >     http://redhat.com/~mingo/realtime-preempt/
 > 
-> bits    32
-> section .text
-> 
->         mov     eax,ds
->         mov     ds,eax
- 
-> of course, it's still not possible to move 32 bits into a segreg,
-> so what? the processor will silently ignore the upper word, I guess.
+> Cannot generate correctly for i686 :
 
-oops ... as doesn't complain about that either .... the error is produced
-when moving a segreg to a 32bit memory location, e.g.:
+i've uploaded -07, does it work now?
 
-(nasm)
-        mov     ds,long [ebx]
-(as)
-#APP
-        movl %ds,636(%ebx)
-        movl %gs,640(%ebx)
-#NO_APP
-
-neither nasm nor as do like that. I wonder which code the previous
-binutils produced in that case?
-
-sorry for the superfluos posting, I really should brush up on my assembly;-)
-the consequence still is to apply the patches to the kernel.
-
-best regards,
-herbert rosmanith
-
+	Ingo

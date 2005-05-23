@@ -1,47 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261912AbVEWQky@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbVEWQmv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261912AbVEWQky (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 12:40:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261914AbVEWQkx
+	id S261917AbVEWQmv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 12:42:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbVEWQmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 12:40:53 -0400
-Received: from colin.muc.de ([193.149.48.1]:30731 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S261912AbVEWQkq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 12:40:46 -0400
-Date: 23 May 2005 18:40:46 +0200
-Date: Mon, 23 May 2005 18:40:46 +0200
-From: Andi Kleen <ak@muc.de>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: zwane@arm.linux.org.uk, discuss@x86-64.org, shaohua.li@intel.com,
+	Mon, 23 May 2005 12:42:50 -0400
+Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:12048 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261915AbVEWQmJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 12:42:09 -0400
+To: raven@themaw.net
+CC: linux-fsdevel@vger.kernel.org, autofs@linux.kernel.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/4] CPU hot-plug support for x86_64
-Message-ID: <20050523164046.GB39821@muc.de>
-References: <20050520221622.124069000@csdlinux-2.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050520221622.124069000@csdlinux-2.jf.intel.com>
-User-Agent: Mutt/1.4.1i
+In-reply-to: <Pine.LNX.4.62.0505232339250.3469@donald.themaw.net>
+	(raven@themaw.net)
+Subject: Re: [VFS-RFC] autofs4 and bind, rbind and move mount requests
+References: <Pine.LNX.4.62.0505232041410.8361@donald.themaw.net>
+ <E1DaERw-0002cC-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.62.0505232339250.3469@donald.themaw.net>
+Message-Id: <E1DaG04-0002hk-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Mon, 23 May 2005 18:41:56 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 20, 2005 at 03:16:22PM -0700, Ashok Raj wrote:
-> Andi: You had mentioned that you would not prefer to replace the broadcast IPI
->       with the mask version for performance. Currently this seems to be the
-> 	  most optimal way without putting a sledge hammer on the cpu_up process.
+> Perhaps not in this case.
 
-I already put a sledgehammer to __cpu_up with that last
-patch. Some more hammering surely wouldnt be a big issue. Unlike i386
-we actually still have a chance to test all relevant platforms, so I 
-dont think it is a big issue.
+Maybe I'm misunderstanding.
 
-What changes did you plan?
+Are you talking about an automounted filesystem, or the autofs
+filesystem itself.
 
-P.S.: An alternative would be to define a new genapic subarch that
-you only enable when you detect cpuhotplug support at boot.
+With the later I can well imagine that you have problems with bind and
+move.
 
-
-Again just commenting on the text, not patch sorry.
-
--Andi
+Miklos

@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261971AbVEWVMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbVEWVNj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261971AbVEWVMc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 17:12:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261970AbVEWVMb
+	id S261970AbVEWVNj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 17:13:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261973AbVEWVNi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 17:12:31 -0400
-Received: from hell.sks3.muni.cz ([147.251.210.30]:44995 "EHLO
-	hell.sks3.muni.cz") by vger.kernel.org with ESMTP id S261971AbVEWVMU
+	Mon, 23 May 2005 17:13:38 -0400
+Received: from wproxy.gmail.com ([64.233.184.199]:14368 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261970AbVEWVNd convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 17:12:20 -0400
-Date: Mon, 23 May 2005 23:12:15 +0200
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+	Mon, 23 May 2005 17:13:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=bvNUWqOhkxvayZnY2/r+BM+AXWSU9Wz9X2OJxaW/CIPCnoNQAsXEdNPHgeI1NDse50KM16hx/0o44aJXoJE6L7tsvt07OuSnaJjzG9jp5yPB9MaOOQSC9lWm00quAJ8Bb0g1GUFaQJ1wfSlWKi4de9TkIWydqREQP1wvwM8zbyU=
+Message-ID: <c775eb9b0505231413189c035b@mail.gmail.com>
+Date: Mon, 23 May 2005 17:13:32 -0400
+From: Bharath Ramesh <krosswindz@gmail.com>
+Reply-To: Bharath Ramesh <krosswindz@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: DVD eject
-Message-ID: <20050523211215.GB2604@mail.muni.cz>
+Subject: Dual opteron freezed with Machine Check Exception
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I have a dual opteron storage server running Gentoo with 2.6.9-gentoo-r1 kernel.
 
-I have problem with my dvd+-r/rw driver in laptop. 
+The machine freezes on reboot with last line printing the following mce
 
-It's: (kernel 2.6.12-rc3)
-hdb: TSSTcorpCD/DVDW TS-L532A, ATAPI CD/DVD-ROM drive
+CPU 0: Machine Check exception                    7 Bank 4: b442200000000a13
+RIP 10: <ffffffff8010fb44> {default_idle+0x24/0x30}
+TSC c39e79e0c ADDR 3d1c2870
+Kernel Panic - not syncing: Uncorrected machine check
 
-When I mount and umount any disk, then tray cannot be ejected using cdrom
-button. Eject program works but it complains with errors:
+I need to perform a hard reboot. It starts working fine. This happens
+only during reboots and I never see any other machine check exceptions
+when the system is up and running. Any help as to what could be going
+wrong.
 
-hdb: irq timeout: status=0xd0 { Busy }
-ide: failed opcode was: unknown
-hdb: DMA disabled
-hdb: ATAPI reset complete
-hdb: irq timeout: status=0xd0 { Busy }
-ide: failed opcode was: unknown
-hdb: ATAPI reset complete
+Thanks
 
-Is there something I could try? (Mainly to get cdrom eject button working)
-
--- 
-Luká¹ Hejtmánek
+Bharath

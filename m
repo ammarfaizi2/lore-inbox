@@ -1,70 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVEWXpI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVEWX6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261214AbVEWXpI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 19:45:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVEWXbi
+	id S261220AbVEWX6j (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 19:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVEWX5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 19:31:38 -0400
-Received: from fire.osdl.org ([65.172.181.4]:51078 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261151AbVEWXak (ORCPT
+	Mon, 23 May 2005 19:57:54 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:920 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261199AbVEWXpY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 19:30:40 -0400
-Date: Mon, 23 May 2005 16:30:02 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, ak@suse.de
-Subject: [patch 13/16] x86_64: Fix canonical checking for segment registers in ptrace
-Message-ID: <20050523233002.GY27549@shell0.pdx.osdl.net>
-References: <20050523231529.GL27549@shell0.pdx.osdl.net>
+	Mon, 23 May 2005 19:45:24 -0400
+Date: Tue, 24 May 2005 01:44:54 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Reiner Sailer <sailer@us.ibm.com>
+Cc: Valdis.Kletnieks@vt.edu, James Morris <jmorris@redhat.com>,
+       Toml@us.ibm.com, linux-security-module@wirex.com,
+       linux-kernel@vger.kernel.org, Emilyr@us.ibm.com, Kylene@us.ibm.com
+Subject: Re: [PATCH 2 of 4] ima: related Makefile compile order change and Readme
+Message-ID: <20050523234454.GB1940@elf.ucw.cz>
+References: <Pine.WNT.4.63.0505231657140.2372@laptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050523231529.GL27549@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <Pine.WNT.4.63.0505231657140.2372@laptop>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] x86_64: Fix canonical checking for segment registers in ptrace
+Hi!
 
-Allowed user programs to set a non canonical segment base, which would cause
-oopses in the kernel later.
+> > Actually, you "could" also cat /proc files, then verify the signature
+> > by hand (using pen and paper :-).
+> 
+> Theoretically, yes. The signature is 2048bit and to validate the signed 
+> aggregate requires recursively applying SHA1 over all measurements.
 
-Credit-to: Alexander Nyberg <alexn@dsv.su.se>
+:-)
 
- For identifying and reporting this bug.
+> > It seems to me that the mechanism is sound... it does what the docs
+> > says. Another questions is "is it usefull"?
 
-Signed-off-by: Andi Kleen <ak@suse.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-Signed-off-by: Chris Wright <chrisw@osdl.org>
----
+> We implemented some exemplary IMA-applications. If you like, visit our 
+> project page and check out the references:
+> http://www.research.ibm.com/secure_systems_department/projects/tcglinux/
+> There you also find a complete  measurement list and a response of a measured 
+> system replying to an authorized remote measurement-list-request.
 
- ptrace.c |    8 ++++----
- 1 files changed, 4 insertions(+), 4 deletions(-)
+To make this usefull, you need to:
 
-Index: release-2.6.11/arch/x86_64/kernel/ptrace.c
-===================================================================
---- release-2.6.11.orig/arch/x86_64/kernel/ptrace.c
-+++ release-2.6.11/arch/x86_64/kernel/ptrace.c
-@@ -129,13 +129,13 @@ static int putreg(struct task_struct *ch
- 			value &= 0xffff;
- 			return 0;
- 		case offsetof(struct user_regs_struct,fs_base):
--			if (!((value >> 48) == 0 || (value >> 48) == 0xffff))
--				return -EIO; 
-+			if (value >= TASK_SIZE)
-+				return -EIO;
- 			child->thread.fs = value;
- 			return 0;
- 		case offsetof(struct user_regs_struct,gs_base):
--			if (!((value >> 48) == 0 || (value >> 48) == 0xffff))
--				return -EIO; 
-+			if (value >= TASK_SIZE)
-+				return -EIO;
- 			child->thread.gs = value;
- 			return 0;
- 		case offsetof(struct user_regs_struct, eflags):
+* have TPM chip
+
+* modify all the interpreters
+
+* modify all the programs that security-relevant config files. I.e. if
+	there's /etc/keylogger.conf with default
+
+	# No keyboard logging enabled
+
+	and attacker changes it to
+
+	do_log_keys_to_remote evil.com
+
+	... you need that config file to be hashed.
+
+* remove all the buffer overflows. I.e. if grub contains buffer
+	overflow in parsing menu.conf... that is not a security hole
+	(as of now) because only administrator can modify menu.conf.
+	With IMA enabled, it would make your certification useless...
+
+[probably something more].
+
+...seems to me you need to do quite a lot of work to make this
+usefull...
+
+[And now, remote-buffer-overrun in inetd probably breaks your
+attestation, no? I'll just load my evil code over the network, without
+changing any on-disk executables, then install my evil rootkit into
+kernel by writing into /dev/kmem. How do you prevent that one?]
+								Pavel
+

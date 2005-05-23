@@ -1,53 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVEWVA2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbVEWVEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261964AbVEWVA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 17:00:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVEWVA2
+	id S261968AbVEWVEv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 17:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVEWVEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 17:00:28 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:13326 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S261963AbVEWVAT (ORCPT
+	Mon, 23 May 2005 17:04:51 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:34506 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261968AbVEWVEj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 17:00:19 -0400
-Date: Mon, 23 May 2005 17:00:15 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Anil Kumar <anilsr@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: kernel BUG at pageattr:107
-Message-ID: <20050523210014.GC24089@tuxdriver.com>
-Mail-Followup-To: Anil Kumar <anilsr@gmail.com>,
-	linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-References: <d3a6bba005052313382d7a81a4@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d3a6bba005052313382d7a81a4@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 23 May 2005 17:04:39 -0400
+Message-ID: <42924560.9070307@pobox.com>
+Date: Mon, 23 May 2005 17:04:32 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Helge Pomorin <dotkomm@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: DMA not works in Linux 2.6.12, but in Windows works fine.
+References: <web-135595327@mail5.rambler.ru>	 <20050523193010.5bf72481.vsu@altlinux.ru> <3fc35c7e05052313523ab43067@mail.gmail.com>
+In-Reply-To: <3fc35c7e05052313523ab43067@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 23, 2005 at 01:38:05PM -0700, Anil Kumar wrote:
-
-> I am getting the following error message as part of stack trace. 
-> I have a system with > 4G mem with RHEL4 x86_64. I installed the OS
-> and when I did the reboot, the system failed with a stack trace with
-> errors as follows:
+Helge Pomorin wrote:
+> 2005/5/23, Sergey Vlasov <vsu@altlinux.ru>:
 > 
-> Intializing hardware.....
-> kernel BUG at pageattr:107
+>>This is a known problem - if the Intel ICH5/6 controller is used in
+>>combined mode (SATA mapped to legacy IDE ports), DMA for PATA devices
+>>does not work.  If you reconfigure the controller in BIOS to not use the
+>>combined mode (so that the SATA part becomes a separate PCI device), DMA
+>>for PATA devices will work fine.
+>>
+>>To IDE developers: Is something planned to work around this problem?
+>>AFAIK, there are some machines where BIOS does not provide an option to
+>>turn off the combined mode.
+>>
+> 
+> Hi there,
+> Got similar looking problem here,
 
-Anil,
+It's completely different.
 
-Please try the kernels here:
 
-	http://people.redhat.com/linville/kernels/rhel4/
+> i cant change sata modes or something alike...
 
-They contain a patch that I believe applies to your situation.
-Please let me know the results of using those kernels.
+That doesn't matter under SATA.
 
-Thanks,
 
-John
--- 
-John W. Linville
-linville@tuxdriver.com
+> I get *disabling irq* message with Intel ICH 4 / SIL 3112 A rev 01
+> SATA Controller on Asus P4G8X Deluxe board (P4 Northwood, Intel
+> *granite bay* E702 Chipsets) at distros which using newer kernel than
+
+This is a totally different problem.
+
+	Jeff
+
+
+

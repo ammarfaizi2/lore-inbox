@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261978AbVEWVWJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261975AbVEWVg7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261978AbVEWVWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 17:22:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVEWVWJ
+	id S261975AbVEWVg7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 17:36:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVEWVg6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 17:22:09 -0400
-Received: from ns2.suse.de ([195.135.220.15]:53673 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261985AbVEWVWE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 17:22:04 -0400
-Date: Mon, 23 May 2005 23:21:57 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>
-Cc: Ondrej Zary <linux@rainbow-software.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, jgarzik@pobox.com
-Subject: Re: [PATCH] bug in VIA PCI IRQ routing
-Message-ID: <20050523212157.GA18624@pingi3.kke.suse.de>
-Mail-Followup-To: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>,
-	Ondrej Zary <linux@rainbow-software.org>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	jgarzik@pobox.com
-References: <0EF82802ABAA22479BC1CE8E2F60E8C31B4902@scl-exch2k3.phoenix.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0EF82802ABAA22479BC1CE8E2F60E8C31B4902@scl-exch2k3.phoenix.com>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.8-24.10-default i686
-User-Agent: Mutt/1.5.6i
+	Mon, 23 May 2005 17:36:58 -0400
+Received: from igw2.watson.ibm.com ([129.34.20.6]:6118 "EHLO
+	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S261975AbVEWVgz
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 17:36:55 -0400
+Date: Mon, 23 May 2005 17:36:55 -0400 (Eastern Daylight Time)
+From: Reiner Sailer <sailer@us.ibm.com>
+To: Pavel Machek <pavel@ucw.cz>
+cc: Valdis.Kletnieks@vt.edu, James Morris <jmorris@redhat.com>,
+       Toml@us.ibm.com, linux-security-module@wirex.com,
+       linux-kernel@vger.kernel.org, Emilyr@us.ibm.com, Kylene@us.ibm.com
+Subject: Re: [PATCH 2 of 4] ima: related Makefile compile order change and
+ Readme
+Message-ID: <Pine.WNT.4.63.0505231657140.2372@laptop>
+X-Warning: UNAuthenticated Sender
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Pavel Machek <pavel@ucw.cz> wrote on 05/23/2005 04:39:29 PM:
 
-thanks to Ondrej for the datasheet snippet.
-
-On Mon, May 23, 2005 at 12:53:41PM -0700, Aleksey Gorelov wrote:
-...
 > 
-> Hmm, this is way different.
+> Actually, you "could" also cat /proc files, then verify the signature
+> by hand (using pen and paper :-).
+
+Theoretically, yes. The signature is 2048bit and to validate the signed 
+aggregate requires recursively applying SHA1 over all measurements.
+
+> It seems to me that the mechanism is sound... it does what the docs
+> says. Another questions is "is it usefull"?
 > 
-> Karsten, 
+>                         Pavel 
 > 
->   could you please verify if attached patch works for you ?
 
-Will do so, since the systems are not under my control, it may take some
-time.
-Thanks for the patch.
+We implemented some exemplary IMA-applications. If you like, visit our 
+project page and check out the references:
+http://www.research.ibm.com/secure_systems_department/projects/tcglinux/
+There you also find a complete  measurement list and a response of a measured 
+system replying to an authorized remote measurement-list-request.
 
->   Another unknown C596 south bridge. I wonder if it the same as 586, or
-> closer to 686 ?
+Thanks
+Reiner
 
-It is a 82C586B south bridge (printed on the chip).
 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development

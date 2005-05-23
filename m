@@ -1,51 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVEWOfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbVEWOmn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbVEWOfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 10:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbVEWOfJ
+	id S261752AbVEWOmn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 10:42:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVEWOmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 10:35:09 -0400
-Received: from mxout.hispeed.ch ([62.2.95.247]:29921 "EHLO smtp.hispeed.ch")
-	by vger.kernel.org with ESMTP id S261595AbVEWOfE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 10:35:04 -0400
-Message-Id: <4291EA2D.60504@khandalf.com>
-Date: Mon, 23 May 2005 16:35:25 +0200
-From: "Brian O'Mahoney" <omb@khandalf.com>
-Reply-To: omb@bluewin.ch
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Mon, 23 May 2005 10:42:43 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:19213 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S261737AbVEWOmc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 10:42:32 -0400
+Date: Mon, 23 May 2005 22:34:38 +0800 (WST)
+From: raven@themaw.net
+To: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [VFS-RFC] autofs4 and bind, rbind and move mount requests
+Message-ID: <Pine.LNX.4.62.0505232041410.8361@donald.themaw.net>
 MIME-Version: 1.0
-To: Nix <nix@esperi.org.uk>
-CC: Patrick McFarland <pmcfarland@downeast.net>, linux-kernel@vger.kernel.org
-Subject: Re: [OT] Joerg Schilling flames Linux on his Blog
-References: <200505201345.15584.pmcfarland@downeast.net>
-    <87acmmf5er.fsf@amaterasu.srvr.nix>
-In-Reply-To: <87acmmf5er.fsf@amaterasu.srvr.nix>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-X-Md5-Body: d96ac12a90700ec08664128ae844855a
-X-Transmit-Date: Monday, 23 May 2005 16:35:45 +0200
-X-Message-Uid: 0000b49cec9d1fe800000002000000004291ea410009cae000000001000a3a90
-Replyto: omb@bluewin.ch
-X-Sender-Postmaster: Postmaster@80-218-57-125.dclient.hispeed.ch.
-Read-Receipt-To: omb@bluewin.ch
-X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-01.tornado.cablecom.ch 32701; Body=3
-	Fuz1=3 Fuz2=3
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-98.1, required 8,
+	NO_REAL_NAME, RCVD_IN_ORBS, RCVD_IN_OSIRUSOFT_COM, USER_AGENT_PINE,
+	USER_IN_WHITELIST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-1__
 
-The GPL says nothing about using a GPL, or non-free tool to create
-something else, and cannot since it is a copyright based licence.
+I've been investigating a bug report about bind mounting an autofs 
+controlled mount point. It is indeed disastrous for autofs. It would be 
+simple enough it to check and fail silently but that won't give sensible 
+behavior.
 
-2__
+What should the semantics be for these type of mount requests against 
+autofs?
 
-He has decided what the answer MUST be ... now the reasoning. Here we
-have a Solaris shill!
+First, a move mount doesn't make sense as it places the autofs 
+filesystem in a location that is not specified in the autofs map to which 
+it belongs. It looks like the user space daemon would loose contact with 
+the newly mounted filesystem and so it would become useless and probably 
+not umountable, not to mention how the daemon would handle it. I believe 
+that this shouldn't be allowed. What do people think? If we don't treat 
+these as invalid then how should they behave?
 
--- 
-mit freundlichen Grüßen, Brian.
+Should there be a way for a filesystem to veto a mount request?
+This doesn't appear possible atm.
+
+This couls be done by adding a method such as "mount_begin" to match the 
+"umount_begin". Should the methods simply be named "mount" and "umount" 
+instead?
+
+Is there a reason that the umount_begin is called only as a special case 
+instead of leaving it to the filesystem which implements it to decide 
+what needs to be done?
+
+Bind mount requests are another question.
+
+In the case of a bind mount we can find ourselves with a dentry in the 
+bound filesystem that is marked as mounted but can't be followed 
+because the parent vfsmount is in the source filesystem.
+
+Should the automount functionality go along with the bind mount 
+filesystem? At this stage there's no straight forward way for autofs to 
+handle two independent mount trees from the same automount daemon. It's 
+just not designed to do that.
+
+It's probably possible to make this behave as though the automounted 
+filesystem is mirrored under the filesystem to which it is bound. But it's 
+likely problematic. What do people think about this?
+
+I've not really thought enough about recursive bind mounts yet but on 
+the face of it they look fairly ugly as well.
+
+I know this post is short on detail but hopefully that will come out if 
+there are people interested in discussing it further.
+
+I look forward to some feedback and hope I can find a realistic approach 
+to solving this problem.
+
+Ian

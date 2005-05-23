@@ -1,38 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbVEWFKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVEWFQM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261846AbVEWFKB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 01:10:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbVEWFJa
+	id S261847AbVEWFQM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 01:16:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261852AbVEWFQL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 01:09:30 -0400
-Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:6664 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261846AbVEWFJX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 01:09:23 -0400
-To: linuxram@us.ibm.com
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk, jamie@shareable.org
-In-reply-to: <1116795059.4397.111.camel@localhost> (message from Ram on Sun,
-	22 May 2005 13:51:00 -0700)
-Subject: Re: [RFC][PATCH] rbind across namespaces
-References: <1116627099.4397.43.camel@localhost>
-	 <E1DZNSN-0006cU-00@dorka.pomaz.szeredi.hu>
-	 <1116660380.4397.66.camel@localhost>
-	 <E1DZP37-0006hH-00@dorka.pomaz.szeredi.hu>
-	 <1116665101.4397.71.camel@localhost>
-	 <E1DZPzS-0006kw-00@dorka.pomaz.szeredi.hu>
-	 <1116670073.4397.77.camel@localhost>
-	 <E1DZTmi-0006up-00@dorka.pomaz.szeredi.hu>
-	 <1116793554.4397.102.camel@localhost> <1116795059.4397.111.camel@localhost>
-Message-Id: <E1Da5BO-00027F-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 23 May 2005 07:08:54 +0200
+	Mon, 23 May 2005 01:16:11 -0400
+Received: from smtp800.mail.sc5.yahoo.com ([66.163.168.179]:57422 "HELO
+	smtp800.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261850AbVEWFQG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 01:16:06 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: When we detect that a 16550 was in fact part of a NatSemi SuperIO chip
+Date: Mon, 23 May 2005 00:15:48 -0500
+User-Agent: KMail/1.8
+Cc: Willy Tarreau <willy@w.ods.org>, Linus Torvalds <torvalds@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+References: <200505220008.j4M08uE9025378@hera.kernel.org> <Pine.LNX.4.58.0505221535370.2307@ppc970.osdl.org> <20050523040905.GH18600@alpha.home.local>
+In-Reply-To: <20050523040905.GH18600@alpha.home.local>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505230015.48938.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> The patch failed rbinds in some cases. Fixed it. The enclosed patch
-> has a high chance of being bug free.
+On Sunday 22 May 2005 23:09, Willy Tarreau wrote:
+> Linus,
+> 
+> On Sun, May 22, 2005 at 03:40:24PM -0700, Linus Torvalds wrote:
+> (...)
+> > -        Developer's Certificate of Origin 1.0
+> > +        Developer's Certificate of Origin 1.1
+> (...)
+> >  then you just add a line saying
+> >  
+> >  	Signed-off-by: Random J Developer <random@developer.org>
+> 
+> Why not change this slightly to something like :
+> 
+>        DCO-1.1-Signed-off-by: Random J Developer <random@developer.org>
+> 
+> which would imply that this person has read (and agreed with) version 1.1 ?
+>
 
-Except not setting mnt_namespace corretly, it does seem to be ok.
+Ugh, that's ugly, long and redundant. You could have:
 
-Miklos
+      DCO-m.n: Random J Developer <random@developer.org>
+
+but it still looks ugly.   
+
+-- 
+Dmitry

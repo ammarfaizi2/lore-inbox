@@ -1,116 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261967AbVEWUxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261966AbVEWUwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261967AbVEWUxV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 16:53:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261958AbVEWUxV
+	id S261966AbVEWUwl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 16:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVEWUwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 16:53:21 -0400
-Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:27577 "EHLO
-	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
-	id S261969AbVEWUwQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 16:52:16 -0400
-Message-ID: <42924278.9010501@ammasso.com>
-Date: Mon, 23 May 2005 15:52:08 -0500
-From: Timur Tabi <timur.tabi@ammasso.com>
-Organization: Ammasso
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7.2.0
-X-Accept-Language: en-us, en, en-gb
-MIME-Version: 1.0
-To: Anil Kumar <anilsr@gmail.com>
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: kernel BUG at pageattr:107
-References: <d3a6bba005052313382d7a81a4@mail.gmail.com>
-In-Reply-To: <d3a6bba005052313382d7a81a4@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 23 May 2005 16:52:41 -0400
+Received: from zproxy.gmail.com ([64.233.162.195]:42646 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261966AbVEWUwH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 16:52:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=OWdvM9k9dh1fU2/ehWtCoFwLULaeZCGjT59AeiEpIhKvijIiNiP7W9jbpq+Ef3v5z/sIBjUspzr8WGEmdZyDRyN6jZexVoyka5APy+EKgpRsy1o/b0xhdb8JRlvr21KB+wjYtcEhyXnrd75d6woeHrDFBWpMMoyG5SkLSvDezT8=
+Message-ID: <3fc35c7e05052313523ab43067@mail.gmail.com>
+Date: Mon, 23 May 2005 22:52:02 +0200
+From: Helge Pomorin <dotkomm@gmail.com>
+Reply-To: Helge Pomorin <dotkomm@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: DMA not works in Linux 2.6.12, but in Windows works fine.
+In-Reply-To: <20050523193010.5bf72481.vsu@altlinux.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <web-135595327@mail5.rambler.ru>
+	 <20050523193010.5bf72481.vsu@altlinux.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This was fixed a few days ago in a recent patch, titled:
-
-x86_64: Don't look up struct page pointer of physical address in iounmap
-
-It's only a one-line change:
-
-tree b5d1e3e603823d798b77a91641f63f10a0a733b1
-parent 1f5ee8da005f50d9f46ae5a7edba9a9c2d37b32e
-author Andi Kleen <ak@suse.de> Tue, 17 May 2005 11:53:24 -0700
-committer Linus Torvalds <torvalds@ppc970.osdl.org> Tue, 17 May 2005 21:59:14 -0700
-
-[PATCH] x86_64: Don't look up struct page pointer of physical address in iounmap
-
-It could be in a memory hole not mapped in mem_map and that causes the hash
-lookup to go off to nirvana.
-
-Signed-off-by: Andi Kleen <ak@suse.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-
-  arch/x86_64/mm/ioremap.c |    2 +-
-  1 files changed, 1 insertion(+), 1 deletion(-)
-
-Index: arch/x86_64/mm/ioremap.c
-===================================================================
---- 4abd4f432bd1d8def0992ee55bb00a0d556122d3/arch/x86_64/mm/ioremap.c  (mode:100644 
-sha1:74ec8554b195de6c5a9b87ce5d39f08d9c5da544)
-+++ b5d1e3e603823d798b77a91641f63f10a0a733b1/arch/x86_64/mm/ioremap.c  (mode:100644 
-sha1:c6fb0cb69992bbf14a2f42d4ddde10b298cd9316)
-@@ -272,7 +272,7 @@ void iounmap(volatile void __iomem *addr
-  	if ((p->flags >> 20) &&
-  		p->phys_addr + p->size - 1 < virt_to_phys(high_memory)) {
-  		/* p->size includes the guard page, but cpa doesn't like that */
--		change_page_attr(virt_to_page(__va(p->phys_addr)),
-+		change_page_attr_addr((unsigned long)__va(p->phys_addr),
-  				 p->size >> PAGE_SHIFT,
-  				 PAGE_KERNEL);
-  		global_flush_tlb();
-
-Anil Kumar wrote:
-> Hi,
+2005/5/23, Sergey Vlasov <vsu@altlinux.ru>:
+> This is a known problem - if the Intel ICH5/6 controller is used in
+> combined mode (SATA mapped to legacy IDE ports), DMA for PATA devices
+> does not work.  If you reconfigure the controller in BIOS to not use the
+> combined mode (so that the SATA part becomes a separate PCI device), DMA
+> for PATA devices will work fine.
 > 
-> I am getting the following error message as part of stack trace. 
-> I have a system with > 4G mem with RHEL4 x86_64. I installed the OS
-> and when I did the reboot, the system failed with a stack trace with
-> errors as follows:
+> To IDE developers: Is something planned to work around this problem?
+> AFAIK, there are some machines where BIOS does not provide an option to
+> turn off the combined mode.
 > 
-> Intializing hardware.....
-> kernel BUG at pageattr:107
-> Invalid operand:0000 [1] SMP
-> Modules linked in: hw_random tg3 floppy sd_mod aic79xx(U) scsi_mod
-> dm_snapshot dm_zero dm_mirror ext3 jbd dm_mod
-> pid: 1217,comm:modprobe....
-> ..............
-> ................
-> ...............
-> RIP ...{__change_page_attr+1039}
-> /etc/rc.d/rc.sysinit: line 167: 1217 Segmentation fault modprobe $1
-> 
->>/dev/null 2>&1
-> 
-> 
-> I wanted to know if aic79xx driver is having some problems or is it
-> kernel/scsi subsystem. I don't see the stack trace pointing to aic79xx
-> driver at all.
-> 
-> Also, the above issue is only for > 4G mem.
-> 
-> Thanks in advance for the help.
-> 
-> with regards,
->    Anil
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Hi there,
+Got similar looking problem here,
+i cant change sata modes or something alike...
 
+I get *disabling irq* message with Intel ICH 4 / SIL 3112 A rev 01
+SATA Controller on Asus P4G8X Deluxe board (P4 Northwood, Intel
+*granite bay* E702 Chipsets) at distros which using newer kernel than
+2.6.5, manual installation of kernel >= 2.6.7 fails
+(well i think udev isnt creating devices or something cause after i
+did try compile the kernel on my own etc...
+kernel modules  found the sata controller, the devices and the
+partitions, but hangsup with an *waiting for /dev/sda3 (my root disk)
+to appear*)
 
--- 
-Timur Tabi
-Staff Software Engineer
-timur.tabi@ammasso.com
+my messages are known i think... but for completion: 
+(i did copied it from net this isn exactly my error
+cause i dont know how to copy the error, after failed boot...)
+ata1: SATA max UDMA/100 cmd 0xE09FC080 ctl 0xE09FC08A bmdma 0xE09FC000
+irq 11
+ata2: SATA max UDMA/100 cmd 0xE09FC0C0 ctl 0xE09FC0CA bmdma
+0xE09FC008 irq 11
+irq 11: nobody cared!
+[<c012fbea>] __report_bad_irq+0x2a/0x90
+[<c012f5a0>] handle_IRQ_event+0x30/0x70
+[<c012fcdc>] note_interrupt+0x6c/0xd0
+[<c012f710>] __do_IRQ+0x130/0x160
+[<c01042b9>] do_IRQ+0x19/0x30
+[<c010289a>] common_interrupt+0x1a/0x20
+[<c0117830>] __do_softirq+0x30/0x90
+[<c01178b6>] do_softirq+0x26/0x30
+[<c012f564>] irq_exit+0x34/0x40
+[<c01042be>] do_IRQ+0x1e/0x30
+[<c010289a>] common_interrupt+0x1a/0x20
+[<c01005f0>] default_idle+0x0/0x30
+[<c0100613>] default_idle+0x23/0x30
+[<c010068a>] cpu_idle+0x3a/0x60
+[<c03ca767>] start_kernel+0x147/0x160
+[<c03ca360>] unknown_bootoption+0x0/0x1b0
+handlers:
+[<c0273770>] (usb_hcd_irq+0x0/0x70)
+[<e0a65460>] (ata_interrupt+0x0/0x1c0 [libata])
+Disabling IRQ #11
+ata1: dev 0 cfg 49:2f00 82:346b 83:7f21 84:4003 85:3469 86:3c01
+87:4003 88:203f
+ata1: dev 0 ATA, max UDMA/100, 390721968 sectors: lba48 
 
-One thing a Southern boy will never say is,
-"I don't think duct tape will fix it."
-      -- Ed Smylie, NASA engineer for Apollo 13
+i got that problem after a new installation of my system, before that
+it worked with a 2.6.10 kernel on same system (something about 4 weeks
+ago dont know settings anymore sorry...)
+
+well im trying some different partition style layouts,
+cause i just get that message with an seperate boot partition formated
+with ext3,
+if i set up a blank installation without that */boot* it works fine,
+even with newer version's...
+
+if u got an idea, need some logs infos etc message me :-)
+
+greets
+Helge Pomorin
+Berlin, Germany

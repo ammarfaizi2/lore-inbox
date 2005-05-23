@@ -1,39 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVEWRaD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261930AbVEWRav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbVEWRaD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 13:30:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVEWRaD
+	id S261930AbVEWRav (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 13:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVEWRam
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 13:30:03 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:26078 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S261919AbVEWR37
+	Mon, 23 May 2005 13:30:42 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:49570 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S261918AbVEWRaJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 13:29:59 -0400
-Subject: [RFC/PATCH 0/4] execute in place (3rd version)
+	Mon, 23 May 2005 13:30:09 -0400
+Subject: [RFC/PATCH 1/4] bdev: execute in place (3rd version)
 From: Carsten Otte <cotte@de.ibm.com>
 Reply-To: cotte@freenet.de
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Cc: schwidefsky@de.ibm.com, akpm@osdl.org,
+To: linux-kernel@vger.kernel.org
+Cc: linux-fsdevel@vger.kernel.org, schwidefsky@de.ibm.com, akpm@osdl.org,
        Christoph Hellwig <hch@infradead.org>
+In-Reply-To: <1116865131.12153.8.camel@cotte.boeblingen.de.ibm.com>
+References: <1116865131.12153.8.camel@cotte.boeblingen.de.ibm.com>
 Content-Type: text/plain
 Organization: IBM Deutschland Entwicklung
-Date: Mon, 23 May 2005 19:29:53 +0200
-Message-Id: <1116869393.12153.30.camel@cotte.boeblingen.de.ibm.com>
+Date: Mon, 23 May 2005 19:30:04 +0200
+Message-Id: <1116869405.12153.31.camel@cotte.boeblingen.de.ibm.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Folks,
+[RFC/PATCH 1/4] bdev: execute in place (3rd version)
 
-this is the 3rd iteration of the execute in place patches. All apply
-against git tree as of today. Description of changes are in the patch
-mails. 
-Christoph, having read this version I do think you're pushing the right
-direction...
+This is the block device related part. The block device operation
+direct_access now has a struct block_device as first parameter.
 
-cheers,
-Carsten
+Signed-off-by: Carsten Otte <cotte@de.ibm.com>
+--- 
+diff -ruN linux-git/drivers/s390/block/dcssblk.c linux-git-xip/drivers/s390/block/dcssblk.c
+--- linux-git/drivers/s390/block/dcssblk.c	2005-05-23 13:50:29.000000000 +0200
++++ linux-git-xip/drivers/s390/block/dcssblk.c	2005-05-23 17:14:15.391098768 +0200
+@@ -35,14 +35,17 @@
+ static int dcssblk_open(struct inode *inode, struct file *filp);
+ static int dcssblk_release(struct inode *inode, struct file *filp);
+ static int dcssblk_make_request(struct request_queue *q, struct bio *bio);
++static int dcssblk_direct_access(struct block_device *bdev, sector_t secnum,
++				 unsigned long *data);
+ 
+ static char dcssblk_segments[DCSSBLK_PARM_LEN] = "\0";
+ 
+ static int dcssblk_major;
+ static struct block_device_operations dcssblk_devops = {
+-	.owner   = THIS_MODULE,
+-	.open    = dcssblk_open,
+-	.release = dcssblk_release,
++	.owner   	= THIS_MODULE,
++	.open    	= dcssblk_open,
++	.release 	= dcssblk_release,
++	.direct_access 	= dcssblk_direct_access,
+ };
+ 
+ static ssize_t dcssblk_add_store(struct device * dev, const char * buf,
+@@ -641,6 +644,20 @@
+ 		/* Request beyond end of DCSS segment. */
+ 		goto fail;
+ 	}
++	/* verify data transfer direction */
++	if (dev_info->is_shared) {
++		switch (dev_info->segment_type) {
++		case SEG_TYPE_SR:
++		case SEG_TYPE_ER:
++		case SEG_TYPE_SC:
++			/* cannot write to these segments */
++			if (bio_data_dir(bio) == WRITE) {
++				PRINT_WARN("rejecting write to ro segment %s\n", dev_info->dev.bus_id);
++				goto fail;
++			}
++		}
++	}
++
+ 	index = (bio->bi_sector >> 3);
+ 	bio_for_each_segment(bvec, bio, i) {
+ 		page_addr = (unsigned long)
+@@ -661,7 +678,26 @@
+ 	bio_endio(bio, bytes_done, 0);
+ 	return 0;
+ fail:
+-	bio_io_error(bio, bytes_done);
++	bio_io_error(bio, bio->bi_size);
++	return 0;
++}
++
++static int
++dcssblk_direct_access (struct block_device *bdev, sector_t secnum,
++			unsigned long *data)
++{
++	struct dcssblk_dev_info *dev_info;
++	unsigned long pgoff;
++
++	dev_info = bdev->bd_disk->private_data;
++	if (!dev_info)
++		return -ENODEV;
++	if (secnum % (PAGE_SIZE/512))
++		return -EINVAL;
++	pgoff = secnum / (PAGE_SIZE / 512);
++	if ((pgoff+1)*PAGE_SIZE-1 > dev_info->end - dev_info->start)
++		return -ERANGE;
++	*data = (unsigned long) (dev_info->start+pgoff*PAGE_SIZE);
+ 	return 0;
+ }
+ 
+diff -ruN linux-git/include/linux/fs.h linux-git-xip/include/linux/fs.h
+--- linux-git/include/linux/fs.h	2005-05-23 13:51:10.000000000 +0200
++++ linux-git-xip/include/linux/fs.h	2005-05-23 17:14:15.393098464 +0200
+@@ -884,6 +884,7 @@
+ 	int (*release) (struct inode *, struct file *);
+ 	int (*ioctl) (struct inode *, struct file *, unsigned, unsigned long);
+ 	long (*compat_ioctl) (struct file *, unsigned, unsigned long);
++	int (*direct_access) (struct block_device *, sector_t, unsigned long *);
+ 	int (*media_changed) (struct gendisk *);
+ 	int (*revalidate_disk) (struct gendisk *);
+ 	struct module *owner;
 
 

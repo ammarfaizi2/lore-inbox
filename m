@@ -1,42 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVEWMPO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVEWMgM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbVEWMPO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 08:15:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbVEWMPN
+	id S261319AbVEWMgM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 08:36:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261378AbVEWMgM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 08:15:13 -0400
-Received: from femail.waymark.net ([206.176.148.84]:4772 "EHLO
-	femail.waymark.net") by vger.kernel.org with ESMTP id S261249AbVEWMPC convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 08:15:02 -0400
-Date: 23 May 2005 12:00:44 GMT
-From: Kenneth Parrish <Kenneth.Parrish@family-bbs.org>
-Subject: [2.6.12-rc4-mm1|2] [Cyrix MII] C2 au revoir?
-To: linux-kernel@vger.kernel.org
-Message-ID: <20324c.b73816@family-bbs.org>
-Organization: FamilyNet HQ
-X-Mailer: BBBS/NT v4.01 Flag-5
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 23 May 2005 08:36:12 -0400
+Received: from nwkea-mail-2.sun.com ([192.18.42.14]:21445 "EHLO
+	nwkea-mail-2.sun.com") by vger.kernel.org with ESMTP
+	id S261319AbVEWMgC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 08:36:02 -0400
+Date: Mon, 23 May 2005 07:35:42 -0500 (CDT)
+From: Eric Boutilier <Eric.Boutilier@Sun.COM>
+Subject: Re: [OT] Tact
+In-reply-to: <200505221459.57680.pmcfarland@downeast.net>
+X-X-Sender: bout@sr-uita01-02
+To: Patrick McFarland <pmcfarland@downeast.net>
+Cc: linux-kernel@vger.kernel.org
+Message-id: <Pine.GSO.4.58.0505230722590.2126@sr-uita01-02>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+References: <200505221459.57680.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        /proc/acpi/power 2.6.12-rc4
+I hope it's OK to continue an off-topic thread like this...
 
-active state:            C2
-max_cstate:              C8
-bus master activity:     00000000
-states:
-    C1:                  type[C1] promotion[C2] demotion[--] latency[000]
-usage[00001360]
-   *C2:                  type[C2] promotion[--] demotion[C1] latency[100]
-usage[00139993]
+On Sun, 22 May 2005, Patrick McFarland wrote:
+> On Sunday 22 May 2005 11:40 am, Eric Boutilier wrote:
+> > ...
+> > So for what it's worth, I just wanted to respond and say that I'd be
+> > more than happy to engage people in a tactful discussion about
+> > opensolaris -- either here, some other list, off-list, or whatever --
+> > as would, I'm sure, any of the more official opensolaris ambassadors,
+> > see:  http://opensolaris.org/cab.
+> >
+>
+> I didn't even know there were any other developers besides...
 
-..kernels 2.6.12-rc4-mm1|2 miss the C2 entry, and tho experi-
-mental ACPI sleep state support puts things to sleep, it won't
-wake up now. I haven't checked to see if ACPI resume works yet
-with a cs4235 ALSA.
+Actually the other developers of OpenSolaris, primarily, are all the
+developers on the Solaris engineering teams. The reason being, under
+the new Solaris/Opensolaris model, in order for a Sun developer to put
+code into regular Solaris (the Solaris that Sun ships), he/she will
+have to put it into Opensolaris first. In other words, Solaris is
+becoming a distro, so to speak, of OpenSolaris. And Solaris engineering
+is already well down the path to making this happen.
 
-... Chernobyl released more than fifty tons of radioactive material
---- MultiMail/Linux v0.46 [Currently BlueWave packet type]
+The problem is, I don't think we (Sun) have been doing a great job of
+communicating to the world what Opensolaris is exactly, so a lot of
+people seem to think the same thing you did -- that the OpenSolaris
+development process is a separate thing.
+
+Eric
+
+
+> Schilly and his SchillyX crew. I appologize to all of the real
+> OpenSolaris developers.
+>
+> > P.S. In case this helps, AFAICT Joerg is not selective. I've seen him
+> > also dis Sun Solaris engineers on more than one  occasion, the most
+> > recent incident occurring just a few days ago on the opensolaris pilot
+> > mailing list.
+>
+> If he hates Linux and OpenSolaris and BSD, what does he
+> use? Windows? I mean, that /would/ explain a few things.

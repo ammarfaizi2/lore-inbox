@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVEWQzu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261916AbVEWQ7I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261913AbVEWQzu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 12:55:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbVEWQzu
+	id S261916AbVEWQ7I (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 12:59:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbVEWQ7I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 12:55:50 -0400
-Received: from fmr23.intel.com ([143.183.121.15]:31650 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261913AbVEWQzk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 12:55:40 -0400
-Date: Mon, 23 May 2005 09:54:51 -0700
+	Mon, 23 May 2005 12:59:08 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:7897 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261916AbVEWQ7D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 12:59:03 -0400
+Date: Mon, 23 May 2005 09:58:17 -0700
 From: Ashok Raj <ashok.raj@intel.com>
 To: Andi Kleen <ak@muc.de>
 Cc: Ashok Raj <ashok.raj@intel.com>, zwane@arm.linux.org.uk,
        discuss@x86-64.org, shaohua.li@intel.com, linux-kernel@vger.kernel.org
-Subject: Re: [patch 0/4] CPU hot-plug support for x86_64
-Message-ID: <20050523095450.A8193@unix-os.sc.intel.com>
-References: <20050520221622.124069000@csdlinux-2.jf.intel.com> <20050523164046.GB39821@muc.de>
+Subject: Re: [patch 2/4] CPU hot-plug support for x86_64
+Message-ID: <20050523095816.B8193@unix-os.sc.intel.com>
+References: <20050520221622.124069000@csdlinux-2.jf.intel.com> <20050520223417.532048000@csdlinux-2.jf.intel.com> <20050523163816.GA39821@muc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050523164046.GB39821@muc.de>; from ak@muc.de on Mon, May 23, 2005 at 06:40:46PM +0200
+In-Reply-To: <20050523163816.GA39821@muc.de>; from ak@muc.de on Mon, May 23, 2005 at 06:38:16PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 23, 2005 at 06:40:46PM +0200, Andi Kleen wrote:
-> On Fri, May 20, 2005 at 03:16:22PM -0700, Ashok Raj wrote:
-> > Andi: You had mentioned that you would not prefer to replace the broadcast IPI
-> >       with the mask version for performance. Currently this seems to be the
-> > 	  most optimal way without putting a sledge hammer on the cpu_up process.
+On Mon, May 23, 2005 at 06:38:16PM +0200, Andi Kleen wrote:
+> On Fri, May 20, 2005 at 03:16:24PM -0700, Ashok Raj wrote:
+> > Experimental CPU hotplug patch for x86_64
+> > -----------------------------------------
+> > - Most of init code that needs to be there for hotplug marked now as __devinit
+> > 	(Didn't use cpuinit, simply because the main framework code in kernel
+> > 	 is not the same way, just trying to be consistent)
 > 
-> I already put a sledgehammer to __cpu_up with that last
-
-Yours was a good sledge hammer :-) the way it should have been done
-but carried legacy boot from i386 that wasnt pretty. The one iam referring
-to is pretty darn slow, and think it wont be liked my many to slow down the
-system just to add a new cpu.
-
-> patch. Some more hammering surely wouldnt be a big issue. Unlike i386
-> we actually still have a chance to test all relevant platforms, so I 
-> dont think it is a big issue.
+> I dont like that. Can you keep it as __cpuinit please?  e.g. 
+> if cpuhot plug turns out to be a lot of code we could later
+> mark it free when we detect at boot the system does not support
+> cpu hotplug. With devinit that is pretty much impossible these days.
 > 
-> What changes did you plan?
+> Also it is better for documentation purposes.
 
-The only other workable alternate would be to use the stop_machine() 
-like thing which we use to automically update cpu_online_map. This means we 
-execute a high priority thread on all cpus, bringing the system to knees before
-just adding a new cpu. On very large systems this will definitly be 
-visible.
+If its for documentation, then its ok, the reason i thought it will
+be dead code/documentation soon is since 90% of the hotplug code is
+generic kernel code, which is not under __cpuinit, just some pieces of 
+x86_64 would alone exist this way, and will not serve real purpose very soon.
 
-Just curious, what performance impact did you allude to that would be lost
-if we dont use the shortcut IPI version?
+If you still prefer to exist as __cpuinit, i dont have a problem leaving them
+around for the time being.
 
-> 
-> P.S.: An alternative would be to define a new genapic subarch that
-> you only enable when you detect cpuhotplug support at boot.
-> 
-
-There is nothing currently there to find out if something is hotplug
-capable in a generic way at platform level, other than adding cmdline options 
-etc.  
-
-Also FYI: ACPI folks are experimenting using CPU hotplug to suspend/resume
-support. So hotplug support may be required not just on platforms that support
-it but also for other related uses.
-
+-- 
 Cheers,
 Ashok Raj
 - Open Source Technology Center

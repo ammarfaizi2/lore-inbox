@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261975AbVEWVg7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbVEWVmB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261975AbVEWVg7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 17:36:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVEWVg6
+	id S261977AbVEWVmB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 17:42:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVEWVmB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 17:36:58 -0400
-Received: from igw2.watson.ibm.com ([129.34.20.6]:6118 "EHLO
-	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S261975AbVEWVgz
+	Mon, 23 May 2005 17:42:01 -0400
+Received: from w002.z065106067.sjc-ca.dsl.cnc.net ([65.106.67.2]:39846 "EHLO
+	smtp.mail-test.us") by vger.kernel.org with ESMTP id S261977AbVEWVl5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 17:36:55 -0400
-Date: Mon, 23 May 2005 17:36:55 -0400 (Eastern Daylight Time)
-From: Reiner Sailer <sailer@us.ibm.com>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Valdis.Kletnieks@vt.edu, James Morris <jmorris@redhat.com>,
-       Toml@us.ibm.com, linux-security-module@wirex.com,
-       linux-kernel@vger.kernel.org, Emilyr@us.ibm.com, Kylene@us.ibm.com
-Subject: Re: [PATCH 2 of 4] ima: related Makefile compile order change and
- Readme
-Message-ID: <Pine.WNT.4.63.0505231657140.2372@laptop>
-X-Warning: UNAuthenticated Sender
+	Mon, 23 May 2005 17:41:57 -0400
+Message-ID: <42924E38.7070003@mail-test.us>
+Date: Mon, 23 May 2005 14:42:16 -0700
+From: Chris Haumesser <chris@mail-test.us>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050328)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: promise sx8 sata driver
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> wrote on 05/23/2005 04:39:29 PM:
+Hi,
 
-> 
-> Actually, you "could" also cat /proc files, then verify the signature
-> by hand (using pen and paper :-).
+I hope this isn't entirely inappropriate for this list, but I am trying
+to learn more about the promise sx8 driver in the current 2.6-series
+kernel. 
 
-Theoretically, yes. The signature is 2048bit and to validate the signed 
-aggregate requires recursively applying SHA1 over all measurements.
+I'm currently running debian-sarge with a custom 2.6.11.10 kernel.
 
-> It seems to me that the mechanism is sound... it does what the docs
-> says. Another questions is "is it usefull"?
-> 
->                         Pavel 
-> 
+The sx8 driver does not use libata, and it is a separate block device,
+outside of the scsi and ata hierarchies.  If I compile the driver into
+my kernel, I end up with /dev/sx8/0 and /dev/sx8/0p1, etc.  However, no
+scsi disk devices are created, and grub does not recognize that
+/dev/sx8/ devices are disks.  There's no indication in /proc/scsi/ that
+they are being registered with the scsi subsystem; this is clearly
+different from every other sata controller I've used.  I've been
+googling this for days, with no real luck.  I have found changelogs for
+grub that suggest that my version (0.95) should support booting from the
+sx8.
 
-We implemented some exemplary IMA-applications. If you like, visit our 
-project page and check out the references:
-http://www.research.ibm.com/secure_systems_department/projects/tcglinux/
-There you also find a complete  measurement list and a response of a measured 
-system replying to an authorized remote measurement-list-request.
+So my question is, how does one use this driver for sata disks?  Is my
+problem a grub problem, or does it have something to do with the fact
+that this is a separate block device from the ata/scsi subsystems?
 
-Thanks
-Reiner
+There is a different open source driver directly available from promise,
+which seems to work better for my needs; however, I would like to be
+able to have the driver built directly into the kernel rather than
+modularized.  When I insert the SATAIIS150.ko kernel module from this
+driver, dmesg immediately shows my disks; they are assigned standard
+scsi device nodes (sda, sdb, etc); and they are recognized by grub. 
 
+What is the relationship between the promise driver and the one included
+in the kernel?  Why does one work differently from the other?  Is there
+something else I need to activate in my kernel configuration to get the
+standard 2.6 kernel driver to work the way I expect?
+
+I hope someone can shed some light.  I can't seem to find any
+documentation or info anywhere.
+
+
+Many thanks,
+
+
+-C-
 

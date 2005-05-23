@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261721AbVEWORC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbVEWO0L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261721AbVEWORC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 10:17:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVEWORC
+	id S261727AbVEWO0L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 10:26:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVEWO0L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 10:17:02 -0400
-Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:10250 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261721AbVEWOQ7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 10:16:59 -0400
-To: blaisorblade@yahoo.it
-CC: user-mode-linux-devel@lists.sourceforge.net, eric.begot@gmail.com,
-       jdike@addtoit.com, akpm@osdl.org, linux-kernel@vger.kernel.org
-In-reply-to: <200505231609.48425.blaisorblade@yahoo.it> (message from
-	Blaisorblade on Mon, 23 May 2005 16:09:47 +0200)
-Subject: Re: [uml-devel] [PATCH] UML - 2.6.12-rc4-mm2 Compile error
-References: <200505201436.j4KEZxjh006235@ccure.user-mode-linux.org> <4290E1C6.9070709@gmail.com> <200505231609.48425.blaisorblade@yahoo.it>
-Message-Id: <E1DaDj3-0002Xf-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Mon, 23 May 2005 16:16:13 +0200
+	Mon, 23 May 2005 10:26:11 -0400
+Received: from fire.osdl.org ([65.172.181.4]:34485 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261727AbVEWO0C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 10:26:02 -0400
+Date: Mon, 23 May 2005 07:27:56 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Willy Tarreau <willy@w.ods.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Russell King <rmk+lkml@arm.linux.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: When we detect that a 16550 was in fact part of a NatSemi SuperIO
+ chip
+In-Reply-To: <20050523040905.GH18600@alpha.home.local>
+Message-ID: <Pine.LNX.4.58.0505230723170.2307@ppc970.osdl.org>
+References: <200505220008.j4M08uE9025378@hera.kernel.org>
+ <1116763033.19183.14.camel@localhost.localdomain> <20050522135943.E12146@flint.arm.linux.org.uk>
+ <20050522144123.F12146@flint.arm.linux.org.uk> <1116796612.5730.15.camel@localhost.localdomain>
+ <Pine.LNX.4.58.0505221438260.2307@ppc970.osdl.org>
+ <1116800555.5744.21.camel@localhost.localdomain> <Pine.LNX.4.58.0505221535370.2307@ppc970.osdl.org>
+ <20050523040905.GH18600@alpha.home.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Here is a patch to correct a compile error on linux 2.6.12-rc4-mm2 for uml.
-> > At the compilation of init/main.c, it complains because it doens't find
-> > the 2 constants FIXADDR_USER_START and FIXADDR_USER_END
-> Why deleting FIXADDR_START? Also FIXADDR_USER_* are defined, just in a 
-> different way (and the patch below is IIRC uncorrect).
 
-I've seen this error too after 'make menuconfig ARCH=um' on a clean
-tree.
 
-The following fixes it:
+On Mon, 23 May 2005, Willy Tarreau wrote:
+> 
+> Why not change this slightly to something like :
+> 
+>        DCO-1.1-Signed-off-by: Random J Developer <random@developer.org>
+> 
+> which would imply that this person has read (and agreed with) version 1.1 ?
 
-  cp .config /tmp
-  make mrproper ARCH=um
-  cp /tmp/.config .
-  make ARCH=um
+This is one reason I wanted to avoid the 1.0->1.1 change.
 
-So there's definitely something wrong with the build on UML.
+I think that if somebody really cares about the version, the above is 
+certainly acceptable.
 
-Miklos
+In general, I'd personally not use it, and it seems pointless. If we make
+some _real_ changes to the DCO that really matter rather than the 1.0->1.1
+thing that I'd consider "obvious clarifications", we'll probably have to 
+change the sign-off.
+
+As it is, I think we should just make the change very public and let
+people know about it, and go with it, because quite frankly, even if
+somebody claims that they didn't know about the new version of the DCO,
+he'd have to be crazy to claim that he didn't know Linux was public and 
+that the resulting sign-off is public too, so I see it as a "comfort 
+level" thing, not anything fundamental.
+
+(And note that even the "comfort level" is not for the people doing the
+sign-off, but for the person _receiving_ the sign-off).
+
+		Linus

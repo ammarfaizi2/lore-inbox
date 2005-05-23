@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbVEWO0L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261759AbVEWObg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261727AbVEWO0L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 10:26:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVEWO0L
+	id S261759AbVEWObg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 10:31:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbVEWObd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 10:26:11 -0400
-Received: from fire.osdl.org ([65.172.181.4]:34485 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261727AbVEWO0C (ORCPT
+	Mon, 23 May 2005 10:31:33 -0400
+Received: from mail3.utc.com ([192.249.46.192]:12497 "EHLO mail3.utc.com")
+	by vger.kernel.org with ESMTP id S261595AbVEWOba (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 10:26:02 -0400
-Date: Mon, 23 May 2005 07:27:56 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Willy Tarreau <willy@w.ods.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Russell King <rmk+lkml@arm.linux.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: When we detect that a 16550 was in fact part of a NatSemi SuperIO
- chip
-In-Reply-To: <20050523040905.GH18600@alpha.home.local>
-Message-ID: <Pine.LNX.4.58.0505230723170.2307@ppc970.osdl.org>
-References: <200505220008.j4M08uE9025378@hera.kernel.org>
- <1116763033.19183.14.camel@localhost.localdomain> <20050522135943.E12146@flint.arm.linux.org.uk>
- <20050522144123.F12146@flint.arm.linux.org.uk> <1116796612.5730.15.camel@localhost.localdomain>
- <Pine.LNX.4.58.0505221438260.2307@ppc970.osdl.org>
- <1116800555.5744.21.camel@localhost.localdomain> <Pine.LNX.4.58.0505221535370.2307@ppc970.osdl.org>
- <20050523040905.GH18600@alpha.home.local>
+	Mon, 23 May 2005 10:31:30 -0400
+Message-ID: <4291E913.6050700@cybsft.com>
+Date: Mon, 23 May 2005 09:30:43 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ingo Molnar <mingo@elte.hu>
+CC: Serge Noiraud <serge.noiraud@bull.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>, dwalker@mvista.com,
+       Joe King <atom_bomb@rocketmail.com>, ganzinger@mvista.com,
+       Lee Revell <rlrevell@joe-job.com>, Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
+References: <20050523082637.GA15696@elte.hu> <1116840848.1498.4.camel@ibiza.btsn.frna.bull.fr> <20050523112317.GA10579@elte.hu>
+In-Reply-To: <20050523112317.GA10579@elte.hu>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 23 May 2005, Willy Tarreau wrote:
+Ingo Molnar wrote:
+> * Serge Noiraud <serge.noiraud@bull.net> wrote:
 > 
-> Why not change this slightly to something like :
 > 
->        DCO-1.1-Signed-off-by: Random J Developer <random@developer.org>
+>>Le lun 23/05/2005 à 10:26, Ingo Molnar a écrit :
+>>
+>>>i have released the -V0.7.47-06 Real-Time Preemption patch, which can be 
+>>>downloaded from the usual place:
+>>>
+>>>    http://redhat.com/~mingo/realtime-preempt/
+>>
+>>Cannot generate correctly for i686 :
 > 
-> which would imply that this person has read (and agreed with) version 1.1 ?
+> 
+> i've uploaded -07, does it work now?
+> 
+> 	Ingo
 
-This is one reason I wanted to avoid the 1.0->1.1 change.
+Ingo,
 
-I think that if somebody really cares about the version, the above is 
-certainly acceptable.
+This one oopses on my dual P4 Xeon system before getting booted. I will 
+dig into this when I get a free minute. I am knee deep in different 
+alligators at the moment.
 
-In general, I'd personally not use it, and it seems pointless. If we make
-some _real_ changes to the DCO that really matter rather than the 1.0->1.1
-thing that I'd consider "obvious clarifications", we'll probably have to 
-change the sign-off.
-
-As it is, I think we should just make the change very public and let
-people know about it, and go with it, because quite frankly, even if
-somebody claims that they didn't know about the new version of the DCO,
-he'd have to be crazy to claim that he didn't know Linux was public and 
-that the resulting sign-off is public too, so I see it as a "comfort 
-level" thing, not anything fundamental.
-
-(And note that even the "comfort level" is not for the people doing the
-sign-off, but for the person _receiving_ the sign-off).
-
-		Linus
+-- 
+    kr

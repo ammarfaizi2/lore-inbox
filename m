@@ -1,27 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVEXSsX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVEXSxE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261353AbVEXSsX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 14:48:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVEXSsW
+	id S261375AbVEXSxE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 14:53:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVEXSxE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 14:48:22 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:14489 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261353AbVEXSsT (ORCPT
+	Tue, 24 May 2005 14:53:04 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:48260 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261375AbVEXSxB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 14:48:19 -0400
-Date: Tue, 24 May 2005 20:47:52 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Reiner Sailer <sailer@us.ibm.com>
-Cc: Emilyr@us.ibm.com, James Morris <jmorris@redhat.com>, Kylene@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-security-module@wirex.com,
-       Toml@us.ibm.com, Valdis.Kletnieks@vt.edu
-Subject: Re: [PATCH 2 of 4] ima: related Makefile compile order change and Readme
-Message-ID: <20050524184752.GB2268@elf.ucw.cz>
-References: <Pine.WNT.4.63.0505240841220.3152@laptop>
+	Tue, 24 May 2005 14:53:01 -0400
+Date: Tue, 24 May 2005 20:52:41 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Jiri Benc <jbenc@suse.cz>
+Cc: NetDev <netdev@oss.sgi.com>, LKML <linux-kernel@vger.kernel.org>,
+       jgarzik@pobox.com
+Subject: Re: [0/5] Improvements to the ieee80211 layer
+Message-ID: <20050524185241.GB2470@elf.ucw.cz>
+References: <20050524150711.01632672@griffin.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.WNT.4.63.0505240841220.3152@laptop>
+In-Reply-To: <20050524150711.01632672@griffin.suse.cz>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -29,22 +28,16 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > * remove all the buffer overflows. I.e. if grub contains buffer
-> >    overflow in parsing menu.conf... that is not a security hole
-> >    (as of now) because only administrator can modify menu.conf.
-> >    With IMA enabled, it would make your certification useless...
+> The ieee80211 layer, now present in -mm, lacks many important features
+> (actually it's just a part of the ipw2100/ipw2200 driver; these cards do
+> a lot of the processing in the hardware/firmware and thus the layer
+> currently can not be used for simpler devices).
 > 
-> Taking your example: Even if you run a buffer-overflow grub, IMA will 
-> enable remote parties to differentiate between systems that run
-> the vulnerable grub and systems that don't. IMA in this case actually
-> can put value to running better software.
+> This is the first series of patches that try to convert it to a generic
+> IEEE 802.11 layer, usable for most of today's wireless cards.
 
-Yes, but see above: that buffer overflow in grub was *not* a
-vulnerability... not until you introduce IMA.
+Are they against -rc4-mm2?
 
-That is my biggest concern. You are completely changing rules for
-userland code. Buffer overflow that only root could exploit used to be
-okay. It used to be okay to read config files without communicating
-with TPM.
+Would it be possible to put agregate patch on the web somewhere (or
+git tree?). I would certainly be easier to test....
 								Pavel
-

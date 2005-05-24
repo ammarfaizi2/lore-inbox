@@ -1,63 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262090AbVEXPSR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262091AbVEXPWT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262090AbVEXPSR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 11:18:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbVEXPSR
+	id S262091AbVEXPWT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 11:22:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbVEXPWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 11:18:17 -0400
-Received: from quark.didntduck.org ([69.55.226.66]:55527 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP id S262091AbVEXPRv
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 11:17:51 -0400
-Message-ID: <429345D5.7070406@didntduck.org>
-Date: Tue, 24 May 2005 11:18:45 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
+	Tue, 24 May 2005 11:22:09 -0400
+Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:30610 "HELO
+	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262092AbVEXPVY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 11:21:24 -0400
+Message-ID: <4293466B.5070200@yahoo.com.au>
+Date: Wed, 25 May 2005 01:21:15 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: rol@as2917.net
-CC: linux-kernel@vger.kernel.org, rol@witbe.net
-Subject: Re: Linux and Initrd used to access disk : how does it work ?
-References: <200505241356.j4ODuaR07145@tag.witbe.net>
-In-Reply-To: <200505241356.j4ODuaR07145@tag.witbe.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Ingo Molnar <mingo@elte.hu>
+CC: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Voluntary Kernel Preemption, 2.6.12-rc4-mm2
+References: <20050524121541.GA17049@elte.hu> <20050524132105.GA29477@elte.hu> <20050524145636.GA15943@infradead.org> <20050524150950.GA10736@elte.hu>
+In-Reply-To: <20050524150950.GA10736@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul Rolland wrote:
-> Hello,
+Ingo Molnar wrote:
+> * Christoph Hellwig <hch@infradead.org> wrote:
 > 
-> I've been fighting for a few days with binary modules from some manufacturer
-> for hardware support of disk controler, and I'm at a point where I need
-> some more understanding.
 > 
-> 1 - My machine contains an Adaptec SATA Raid based on Marvel 88SX60xx
->     so I need to used the aar81xxx binary module,
+>>I still disagree with this one violently. [...]
 > 
-> 2 - This module is presented as required to access the disk (when 
->     installing a RH kernel, it says that no disk is present unless the
->     module is loaded),
 > 
-> 3 - When booting the kernel from disk after installation, the module is 
->     loaded so the machine can access the disk...
+> (then you must be disagreeing with CONFIG_PREEMPT too to a certain 
+> degree i guess?)
 > 
-> ... BUT ... how can the machine /
->  - boot the kernel,
->  - access the initrd image and uncompress it,
->  - read the binary module inside and load it
-> BEFORE loading the module itself, if it is mandatory to access the disk.
-> 
-> And if it is not, then how can I do the installation ?
-> 
-> I suspect this should be fairly trivial, but I've been thinking about
-> for long, and it looks like chicken and egg to me...
-> 
-> Any help ?
 
-The kernel and initrd images are loaded by the bootloader (grub, lilo, 
-etc.), which uses the BIOS to read from the disk.  So as long as your 
-controller has BIOS support you should be ok.
+CONFIG_PREEMPT is different in that it explicitly defines and
+delimits preempt critical sections, and allows maximum possible
+preemption (whether or not the critical sections themselves are
+too big is not really a CONFIG_PREEMPT issue).
 
---
-				Brian Gerst
+Jamming in cond_resched in as many places as possible seems to
+work quite well pragmatically, but is just pretty ugly for the
+reasons Christoph mentioned (IMO).
+
+The other thing is - if the users don't care about some extra
+overhead, why don't they just use CONFIG_PREEMPT? Surely the case
+is not that they can tolerate .5% overhead but not 1.5% (pulling
+numbers out my bum).
+
+IIRC, the reason (when you wrote the code) was that you didn't
+want to enable preempt either because of binary compatibility, or
+because of bugs? Well I think the bug issue is no more since your
+debug patches went in, and the compatibility reason may be a fine
+one for a distro kernel, but not a kernel.org one.
+
+> 
+>>[...] If you want a cond_resched() add it where nessecary, but don't 
+>>hide it behind might_sleep - there could be quite a lot might_sleeps 
+>>in common codepathes and they should stay purely a debug aid.
+> 
+> 
+
+[...]
+
+> or if you think we can get away with using just a couple of 
+> cond_resched()s then you are my guest to prove me wrong: take the -RT 
+[...]
+
+How about using CONFIG_PREEMPT instead?
+
+-- 
+SUSE Labs, Novell Inc.
+

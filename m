@@ -1,45 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262148AbVEXQfw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262146AbVEXQk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262148AbVEXQfw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 12:35:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbVEXQaR
+	id S262146AbVEXQk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 12:40:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbVEXQiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 12:30:17 -0400
-Received: from web88008.mail.re2.yahoo.com ([206.190.37.195]:28810 "HELO
-	web88008.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S262137AbVEXQ1N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 12:27:13 -0400
-Message-ID: <20050524162710.55401.qmail@web88008.mail.re2.yahoo.com>
-Date: Tue, 24 May 2005 12:27:10 -0400 (EDT)
-From: Shawn Starr <shawn.starr@rogers.com>
-Subject: [PATCH][2.6.12-rc4][SATA] sil driver - Blacklist Maxtor disk
-To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, jgarzik@pobox.com
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 24 May 2005 12:38:25 -0400
+Received: from loon.tech9.net ([69.20.54.92]:35459 "EHLO loon.tech9.net")
+	by vger.kernel.org with ESMTP id S262147AbVEXQfY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 12:35:24 -0400
+Subject: Re: inotify 0.23 errno 28 (ENOSPC)
+From: Robert Love <rlove@rlove.org>
+To: bryanwilkerson@yahoo.com
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050524163309.74541.qmail@web53401.mail.yahoo.com>
+References: <20050524163309.74541.qmail@web53401.mail.yahoo.com>
+Content-Type: text/plain
+Date: Tue, 24 May 2005 12:35:20 -0400
+Message-Id: <1116952520.13324.38.camel@betsy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I know we shouldn't do this, but at the current
-time, this seems to fix DMA READ/WRITE timeout
-problems. This also may fix the sata_nv driver as
-well, but this seems indicate that there is a lowlevel
-problem with the SATA subsystem. 
+On Tue, 2005-05-24 at 09:33 -0700, Bryan Wilkerson wrote:
 
-Signed-off-by: Shawn Starr <shawn.starr@rogers.com>
+> I read an earlier thread where you said that it was
+> possible to manually walk a tree and add all
+> directories to an inotify watch descriptor.  I wrote
+> some code to do this and the ioctl call fails on my
+> machine after adding 9,977 directories with ENOSPC.  
+> 
+> I've attached a small repro case.  Just point it at
+> the base of a large dir tree (e.g. inotify-r ~) to
+> use. 
+> 
+> My kernel is 2.6.12-rc3 with the inotify 0.23 patch. 
+> Let me know if you need more information.  
 
---- sata_sil.c.old      2005-05-24 12:19:20.312197269
--0400
-+++ sata_sil.c  2005-05-11 14:05:26.000000000 -0400
-@@ -93,6 +93,7 @@ struct sil_drivelist {
-        { "ST380011ASL",        SIL_QUIRK_MOD15WRITE
-},
-        { "ST3120022ASL",       SIL_QUIRK_MOD15WRITE
-},
-        { "ST3160021ASL",       SIL_QUIRK_MOD15WRITE
-},
-+       { "Maxtor 6Y080M0",     SIL_QUIRK_MOD15WRITE
-},
-        { "Maxtor 4D060H3",     SIL_QUIRK_UDMA5MAX },
-        { }
- };
+This is intended.  There is a per-user limit on the number of watches.
+By default, that limit is 8192.
+
+You can view and edit the number via
+	/sys/class/misc/inotify/max_user_watches
+
+Best,
+
+	Robert Love
+
 

@@ -1,54 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVEXRCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261740AbVEXRHG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261385AbVEXRCx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 13:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVEXRCn
+	id S261740AbVEXRHG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 13:07:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbVEXRG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 13:02:43 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:65459 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S261154AbVEXRBX
+	Tue, 24 May 2005 13:06:29 -0400
+Received: from pyxis.pixelized.ch ([213.239.200.113]:34308 "EHLO
+	pyxis.pixelized.ch") by vger.kernel.org with ESMTP id S261292AbVEXRDW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 13:01:23 -0400
-Message-ID: <42935DE1.4040301@freenet.de>
-Date: Tue, 24 May 2005 19:01:21 +0200
-From: Carsten Otte <cotte@freenet.de>
+	Tue, 24 May 2005 13:03:22 -0400
+Message-ID: <42935D89.90603@debian.org>
+Date: Tue, 24 May 2005 18:59:53 +0200
+From: "Giacomo A. Catenazzi" <cate@debian.org>
 User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: suparna@in.ibm.com
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       schwidefsky@de.ibm.com, akpm@osdl.org,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [RFC/PATCH 2/4] fs/mm: execute in place (3rd version)
-References: <1116866094.12153.12.camel@cotte.boeblingen.de.ibm.com> <1116869420.12153.32.camel@cotte.boeblingen.de.ibm.com> <20050524093029.GA4390@in.ibm.com>
-In-Reply-To: <20050524093029.GA4390@in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Compiler error in last git kernel [drivers/char/ipmi/ipmi_devintf.c]
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Suparna Bhattacharya wrote:
 
-> OK, though this leaves filemap.c alone which is good, I have to admit
->
->that this entire duplication of read/write routines really worries me.
->
->There has to be a third way.
->  
->
-Just thinking loud here:
-When looking at patch v2, the read split is done in do_generic_mapping_read
-vs do_xip_mapping read. In the write path, the split is at
-generic_file_xip_write,
-generic_file_buffered_write and generic_file_direct_write.
-How about abstracting on that interface? Like make those become address
-space operations. This way, the filesystems could select the corresponding
-function. No need to distinguish between xip, direct_IO, and classic
-readpage/writepage in the generic code anymore.
-Would this go in the direction you're thinking Suparna? Is it worth a
-try to see
-how it comes out? Opinions anyone?
+   CC [M]  drivers/char/ipmi/ipmi_devintf.o
+drivers/char/ipmi/ipmi_devintf.c: In function `ipmi_new_smi':
+drivers/char/ipmi/ipmi_devintf.c:532: warning: passing arg 1 of `class_simple_device_add' from incompatible pointer type
+drivers/char/ipmi/ipmi_devintf.c: In function `ipmi_smi_gone':
+drivers/char/ipmi/ipmi_devintf.c:537: warning: passing arg 1 of `class_simple_device_remove' makes integer from pointer without a cast
+drivers/char/ipmi/ipmi_devintf.c:537: error: too many arguments to function `class_simple_device_remove'
+drivers/char/ipmi/ipmi_devintf.c: In function `init_ipmi_devintf':
+drivers/char/ipmi/ipmi_devintf.c:558: warning: assignment from incompatible pointer type
+drivers/char/ipmi/ipmi_devintf.c:566: warning: passing arg 1 of `class_simple_destroy' from incompatible pointer type
+drivers/char/ipmi/ipmi_devintf.c:580: warning: passing arg 1 of `class_simple_destroy' from incompatible pointer type
+drivers/char/ipmi/ipmi_devintf.c: In function `cleanup_ipmi':
+drivers/char/ipmi/ipmi_devintf.c:591: warning: passing arg 1 of `class_simple_destroy' from incompatible pointer type
+make[3]: *** [drivers/char/ipmi/ipmi_devintf.o] Error 1
 
-cheers,
-Carsten
-
+ciao
+	cate

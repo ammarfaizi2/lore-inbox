@@ -1,95 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVEXDaf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVEXDtE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261359AbVEXDaf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 23:30:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbVEXDaf
+	id S261189AbVEXDtE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 23:49:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVEXDtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 23:30:35 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:20684 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261338AbVEXDaL (ORCPT
+	Mon, 23 May 2005 23:49:04 -0400
+Received: from opersys.com ([64.40.108.71]:8967 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261189AbVEXDsk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 23:30:11 -0400
-Message-ID: <42929FBB.3060707@pobox.com>
-Date: Mon, 23 May 2005 23:30:03 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
+	Mon, 23 May 2005 23:48:40 -0400
+Message-ID: <4292A69C.4070605@opersys.com>
+Date: Mon, 23 May 2005 23:59:24 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-To: Andy Stewart <andystewart@comcast.net>
-CC: akpm@osdl.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: enable-reads-on-plextor-712-sa-on-26115.patch added to -mm tree
-References: <200505232245.j4NMjtk4024089@shell0.pdx.osdl.net> <4292628E.4090209@pobox.com> <4292743C.4040409@comcast.net>
-In-Reply-To: <4292743C.4040409@comcast.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Jens Axboe <axboe@suse.de>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ide-cd vs. DMA
+References: <1116891772.30513.6.camel@gaston> <42929F2F.8000101@opersys.com> <1116905090.4992.7.camel@gaston>
+In-Reply-To: <1116905090.4992.7.camel@gaston>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andy Stewart wrote:
-> Jeff Garzik wrote:
->>By hardcoding so much of the inquiry data, this patch -overwrites- valid
->>inquiry data provided by the device, with generic data.  This patch
->>makes generic the probe data that the SCSI layer -depends on to be
->>different-.
 
-> The SCSI inquiry command does not work on this device for reasons
-> unknown to me.  I saw in the code where the SCSI inquiry command was
-> "emulated", or handled in software, for ATA devices.  I simply copied
-> that method for ATAPI devices.  At least that was my intent.  I cloned
-> one function, modified it slightly, and (I thought) called it in a
-> reasonable place.
+Benjamin Herrenschmidt wrote:
+> Well, not sure what's wrong here, but ATAPI errors shouldn't normally
+> result in stopping DMA. We may want to just blacklist your drive rather
+> than having this stupid fallback. In this case, I suspect it's
+> CSS/region issue with a DVD.
 
-All of SCSI is emulated for ATA; for ATAPI, 99% of SCSI is passed 
-through to the underlying device.  The two must be treated very differently.
+Here's a little bit more info:
 
-The SCSI layer needs to see the per-device data returned by passing the 
-INQUIRY command to the device via the ATA PACKET command.
+Here's from dmesg:
+hdc: SAMSUNG SC-140B, ATAPI CD/DVD-ROM drive
+hdc: ATAPI 40X CD-ROM drive, 128kB Cache, UDMA(33)
 
+hdparm -i /dev/hdc:
 
->>Effectively you made one CD-ROM device work, killed all the others, and
->>enabled an oops generator.
-> 
-> 
-> I fail to see how other devices would have been killed by this patch.
+/dev/hdc:
 
-The SCSI layer discovers, and interprets devices based on the data 
-returned by the INQUIRY command.  Your patch causes the kernel to act as 
-if all ATAPI devices behave just like your Plextor, which is very very 
-wrong.
+ Model=SAMSUNG SC-140B, FwRev=d005, SerialNo=
+ Config={ SpinMotCtl Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
+ RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
+ BuffType=unknown, BuffSize=0kB, MaxMultSect=0
+ (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  sdma0 sdma1 sdma2 mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 *udma2
+ AdvancedPM=no
 
-It's a good thing nobody tried to use an ATAPI tape drive with your 
-patch, for example.  The kernel would have thought it was a CD-ROM, and 
-tried to talk to it as such.
+Here's what happens on the first mount attempt:
+hdc: DMA interrupt recovery
+hdc: lost interrupt
+hdc: status timeout: status=0xd0 { Busy }
+hdc: status timeout: error=0x00
+hdc: DMA disabled
+hdc: drive not ready for command
+hdc: ATAPI reset complete
 
+Now, if I'm stuborn and re-enable DMA using a "hdparm -d1 /dev/hdc" and then
+try again, now I get:
+hdc: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
+hdc: media error (bad sector): error=0x34
+ide: failed opcode was 100
+end_request: I/O error, dev hdc, sector 16
 
-> I tested this patch on my system with many different reads, mounts, and
-> unmounts and never generated an oops.  Would you tell me what you did
-> that caused an oops?  That would help me to improve my testing before
-> attempting to submit future patches.
+The last error being repeated ad-nauseam for every "sector" on the
+disk. Again, note that this is a CD drive, not a hard disk.
 
-Any use of ATAPI in certain drivers (like AHCI) will cause an oops, 
-because those drivers are not yet fully ATAPI aware.
+Here's from lspci:
+00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03)
+00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
+00:11.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 24)
+01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 1X/2X (rev 5c)
 
+In attempting to isolate the problem, I ran into a spurious issue with
+another drive I have in that machine:
+hda: dma_timer_expiry: dma status == 0x61
+hda: DMA timeout error
+hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: dma_timer_expiry: dma status == 0x61
+hda: DMA timeout error
+hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: dma_timer_expiry: dma status == 0x61
+hda: DMA timeout error
+hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: dma_timer_expiry: dma status == 0x61
+hda: DMA timeout error
+hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: DMA disabled
 
->>Good show.
-> 
-> 
-> Aw, come on, Jeff.  I gave it a shot, I'm trying to give back to the
-> community rather than simply complain.  OK, so my work isn't perfect,
-> and you've pointed ont valid technical reasons why.  At least *I tried*
-> to contribute code rather than just offering complaints, and I'm willing
-> to admit that I'll need to try harder in the future.
+Try as I may, however, I haven't been able to reproduce this problem with
+hda (from dmesg: hda: WDC AC22500L, ATA DISK drive). It's worthy pointing
+out that the machine came with a drive on which it was found that there
+were actual bad sectors (tested on another machine.) ... the thought of
+a buggy controller came to mind, but (though this may be possible), I've
+never heard about a bad controller generating bad sectors ...
 
-There's nothing wrong with contributing to ATAPI debugging and development!
-
-We just don't need to be merging such a broken patch into -mm, where it 
-will cause more headaches than it will solve.
-
-Thou Shalt Not Turn On ATAPI Before Its Time.  It's still in the realm 
-of debugging patches.
-
-	Jeff
-
-
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

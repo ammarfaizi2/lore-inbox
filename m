@@ -1,79 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVEXKq4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbVEXJZl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261947AbVEXKq4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 06:46:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbVEXJ1C
+	id S262026AbVEXJZl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 05:25:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbVEXJVC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 05:27:02 -0400
-Received: from smtp.nexlab.net ([213.173.188.110]:3778 "EHLO smtp.nexlab.net")
-	by vger.kernel.org with ESMTP id S261985AbVEXJRo (ORCPT
+	Tue, 24 May 2005 05:21:02 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:43714 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S261939AbVEXJSH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:17:44 -0400
+	Tue, 24 May 2005 05:18:07 -0400
 X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
 X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
 	08:27:20 2005 signatures 31.893
-Message-Id: <20050524091743.57515FA3F@smtp.nexlab.net>
-Date: Tue, 24 May 2005 11:17:43 +0200 (CEST)
+Message-Id: <20050524091805.EF904F9D5@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:18:05 +0200 (CEST)
 From: root@smtp.nexlab.net
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	by smtp.nexlab.net (Postfix) with ESMTP id 7FFC0FA56
+	by smtp.nexlab.net (Postfix) with ESMTP id 5BA05FB7A
 
-	for <chiakotay@nexlab.it>; Tue, 24 May 2005 06:39:37 +0200 (CEST)
+	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:49 +0200 (CEST)
 
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
 
-	id S261359AbVEXDaf (ORCPT <rfc822;chiakotay@nexlab.it>);
+	id S261251AbVEXEnF (ORCPT <rfc822;chiakotay@nexlab.it>);
 
-	Mon, 23 May 2005 23:30:35 -0400
+	Tue, 24 May 2005 00:43:05 -0400
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbVEXDaf
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVEXEnF
 
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 
-	Mon, 23 May 2005 23:30:35 -0400
+	Tue, 24 May 2005 00:43:05 -0400
 
-Received: from mail.dvmed.net ([216.237.124.58]:20684 "EHLO mail.dvmed.net")
+Received: from gate.crashing.org ([63.228.1.57]:46286 "EHLO gate.crashing.org")
 
-	by vger.kernel.org with ESMTP id S261338AbVEXDaL (ORCPT
+	by vger.kernel.org with ESMTP id S261251AbVEXEnD (ORCPT
 
 	<rfc822;linux-kernel@vger.kernel.org>);
 
-	Mon, 23 May 2005 23:30:11 -0400
+	Tue, 24 May 2005 00:43:03 -0400
 
-Received: from cpe-065-184-065-144.nc.res.rr.com ([65.184.65.144] helo=[10.10.10.88])
+Received: from gaston (localhost [127.0.0.1])
 
-	by mail.dvmed.net with esmtpsa (Exim 4.51 #1 (Red Hat Linux))
+	by gate.crashing.org (8.12.8/8.12.8) with ESMTP id j4O4ZZZn000557;
 
-	id 1DaQ7L-0001CU-2J; Tue, 24 May 2005 03:30:07 +0000
+	Mon, 23 May 2005 23:35:36 -0500
 
-Message-ID: <42929FBB.3060707@pobox.com>
+Subject: RE: ide-cd vs. DMA
 
-Date:	Mon, 23 May 2005 23:30:03 -0400
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Chad Kitching <CKitching@powerlandcomputers.com>
+Cc: karim@opersys.com, Jens Axboe <axboe@suse.de>,
+	Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <18DFD6B776308241A200853F3F83D50702128D31@pl6w2kex.lan.powerlandcomputers.com>
 
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+References: <18DFD6B776308241A200853F3F83D50702128D31@pl6w2kex.lan.powerlandcomputers.com>
 
-X-Accept-Language: en-us, en
+Content-Type: text/plain
 
-MIME-Version: 1.0
+Date:	Tue, 24 May 2005 14:42:45 +1000
 
-To: Andy Stewart <andystewart@comcast.net>
-Cc: akpm@osdl.org, Linux Kernel <linux-kernel@vger.kernel.org>,
-	"linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: enable-reads-on-plextor-712-sa-on-26115.patch added to -mm tree
+Message-Id: <1116909765.4992.21.camel@gaston>
 
-References: <200505232245.j4NMjtk4024089@shell0.pdx.osdl.net> <4292628E.4090209@pobox.com> <4292743C.4040409@comcast.net>
+Mime-Version: 1.0
 
-In-Reply-To: <4292743C.4040409@comcast.net>
-
-Content-Type: text/plain; charset=us-ascii; format=flowed
+X-Mailer: Evolution 2.2.2 
 
 Content-Transfer-Encoding: 7bit
-
-X-Spam-Score: 0.0 (/)
 
 Sender: linux-kernel-owner@vger.kernel.org
 Precedence: bulk
@@ -82,71 +78,17 @@ X-Mailing-List:	linux-kernel@vger.kernel.org
 
 
 
-Andy Stewart wrote:
-> Jeff Garzik wrote:
->>By hardcoding so much of the inquiry data, this patch -overwrites- valid
->>inquiry data provided by the device, with generic data.  This patch
->>makes generic the probe data that the SCSI layer -depends on to be
->>different-.
+On Mon, 2005-05-23 at 23:26 -0500, Chad Kitching wrote:
+> Are you using hdparm -k1 to keep your settings over a reset?  If you're 
+> not, then this behaviour is really by-design.
 
-> The SCSI inquiry command does not work on this device for reasons
-> unknown to me.  I saw in the code where the SCSI inquiry command was
-> "emulated", or handled in software, for ATA devices.  I simply copied
-> that method for ATAPI devices.  At least that was my intent.  I cloned
-> one function, modified it slightly, and (I thought) called it in a
-> reasonable place.
+And is broken. You can't expect users to play with hdparm and it's quite
+common to have things like CSS or region errors on a DVD, taht shouldn't
+turn your DMA off on the CD.
 
-All of SCSI is emulated for ATA; for ATAPI, 99% of SCSI is passed 
-through to the underlying device.  The two must be treated very differently.
+Damn, we are in 2005 folks !
 
-The SCSI layer needs to see the per-device data returned by passing the 
-INQUIRY command to the device via the ATA PACKET command.
-
-
->>Effectively you made one CD-ROM device work, killed all the others, and
->>enabled an oops generator.
-> 
-> 
-> I fail to see how other devices would have been killed by this patch.
-
-The SCSI layer discovers, and interprets devices based on the data 
-returned by the INQUIRY command.  Your patch causes the kernel to act as 
-if all ATAPI devices behave just like your Plextor, which is very very 
-wrong.
-
-It's a good thing nobody tried to use an ATAPI tape drive with your 
-patch, for example.  The kernel would have thought it was a CD-ROM, and 
-tried to talk to it as such.
-
-
-> I tested this patch on my system with many different reads, mounts, and
-> unmounts and never generated an oops.  Would you tell me what you did
-> that caused an oops?  That would help me to improve my testing before
-> attempting to submit future patches.
-
-Any use of ATAPI in certain drivers (like AHCI) will cause an oops, 
-because those drivers are not yet fully ATAPI aware.
-
-
->>Good show.
-> 
-> 
-> Aw, come on, Jeff.  I gave it a shot, I'm trying to give back to the
-> community rather than simply complain.  OK, so my work isn't perfect,
-> and you've pointed ont valid technical reasons why.  At least *I tried*
-> to contribute code rather than just offering complaints, and I'm willing
-> to admit that I'll need to try harder in the future.
-
-There's nothing wrong with contributing to ATAPI debugging and development!
-
-We just don't need to be merging such a broken patch into -mm, where it 
-will cause more headaches than it will solve.
-
-Thou Shalt Not Turn On ATAPI Before Its Time.  It's still in the realm 
-of debugging patches.
-
-	Jeff
-
+Ben;
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbVEXDRH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVEXDUv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbVEXDRH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 23:17:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVEXDRH
+	id S261346AbVEXDUv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 23:20:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVEXDUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 23:17:07 -0400
-Received: from opersys.com ([64.40.108.71]:65286 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261323AbVEXDRD (ORCPT
+	Mon, 23 May 2005 23:20:51 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:12499 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261324AbVEXDUi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 23:17:03 -0400
-Message-ID: <42929F2F.8000101@opersys.com>
-Date: Mon, 23 May 2005 23:27:43 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Mon, 23 May 2005 23:20:38 -0400
+Date: Mon, 23 May 2005 23:20:26 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Herbert Xu <herbert@gondor.apana.org.au>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <linux-crypto@vger.kernel.org>, <davem@davemloft.net>
+Subject: Re: [CRYPTO]: Only reschedule if !in_atomic()
+In-Reply-To: <20050524024318.GB29242@gondor.apana.org.au>
+Message-ID: <Xine.LNX.4.44.0505232319450.1507-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Jens Axboe <axboe@suse.de>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ide-cd vs. DMA
-References: <1116891772.30513.6.camel@gaston>
-In-Reply-To: <1116891772.30513.6.camel@gaston>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 24 May 2005, Herbert Xu wrote:
 
-Benjamin Herrenschmidt wrote:
-> hdb: command error: status=0x51 { DriveReady SeekComplete Error }
-> hdb: command error: error=0x54 { AbortedCommand LastFailedSense=0x05 }
-> ide: failed opcode was: unknown
-> end_request: I/O error, dev hdb, sector 42872
+> On Mon, May 23, 2005 at 07:31:16PM -0700, Andrew Morton wrote:
+> > 
+> > Are you sure it's actually needed? Have significant scheduling latencies
+> > actually been observed?
+> 
+> I certainly don't have any problems with removing the yield altogether.
+> 
+> > Bear in mind that anyone who cares a lot about latency will be running
+> > CONFIG_PREEMPT kernels, in which case the whole thing is redundant anyway. 
+> > I generally take the position that if we're going to put a scheduling point
+> > into a non-premept kernel then it'd better be for a pretty bad latency
+> > point - more than 10 milliseconds, say.
+> 
+> The crypt() function can easily take more than 10 milliseconds with
+> a large enough buffer.
+> 
+> James & Dave, do you have any opinions on this?
 
-Got plenty of these an old Dell Optiplex GX1 (PIII-450) with
-vanilla FC3. ... you've got to wonder when the kernel says there
-are bad sectors on a CD (?) and then they disappear with:
-hdparm -d0 /dev/hdc
+a) remove the scheudling point and see if anyone complains
+b) if so, add a flag
 
-Karim
+
+
+- James
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+James Morris
+<jmorris@redhat.com>
+
+

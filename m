@@ -1,136 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261368AbVEXGzb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVEXHLm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261368AbVEXGzb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 02:55:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbVEXGzb
+	id S261380AbVEXHLm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 03:11:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVEXHLm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 02:55:31 -0400
-Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:33937 "EHLO
-	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
-	id S261368AbVEXGzQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 02:55:16 -0400
-Date: Tue, 24 May 2005 08:55:06 +0200
-From: Martin Waitz <tali@admingilde.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] DocBook: update comments
-Message-ID: <20050524065506.GL14161@admingilde.org>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	linux-kernel@vger.kernel.org
+	Tue, 24 May 2005 03:11:42 -0400
+Received: from wproxy.gmail.com ([64.233.184.198]:55599 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261380AbVEXHLf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 03:11:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=tvIhVOeAzDNbsvJvSQ5uiPWVf1N9fUHV/ILTH1RV6NCU8oFfa/Deuwxu8gnPnKO2oOPcW9uTpMLIC9RWUkUYORUvUUF5ovlT66teN2p4kc1mPLda7J/oL/8dMHdOkC54WTfaWuiTjdCwq+AD65PTFOYTBk4bAGyeGa/JpWda7Uo=
+Message-ID: <84144f0205052400113c6f40fc@mail.gmail.com>
+Date: Tue, 24 May 2005 10:11:34 +0300
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: "ericvh@gmail.com" <ericvh@gmail.com>
+Subject: Re: [RFC][patch 4/7] v9fs: VFS superblock operations (2.0-rc6)
+Cc: linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net,
+       viro@parcelfarce.linux.theplanet.co.uk, linux-fsdevel@vger.kernel.org,
+       penberg@cs.helsinki.fi
+In-Reply-To: <200505232225.j4NMPte1029529@ms-smtp-02-eri0.texas.rr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-X-Habeas-SWE-1: winter into spring
-X-Habeas-SWE-2: brightly anticipated
-X-Habeas-SWE-3: like Habeas SWE (tm)
-X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
-X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
-X-Habeas-SWE-6: email in exchange for a license for this Habeas
-X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
-X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
-X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
-User-Agent: Mutt/1.5.9i
+References: <200505232225.j4NMPte1029529@ms-smtp-02-eri0.texas.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-DocBook: update comments
+Hi,
 
-This patch updates some comments to match code changes.
+On 5/24/05, ericvh@gmail.com <ericvh@gmail.com> wrote:
+> Index: fs/9p/v9fs.c
+> ===================================================================
+> --- /dev/null  (tree:0bf32353105286a5624aeea862d35a4bbae09851)
+> +++ 178666ee376655ef8ec19a2ffc0490241b428110/fs/9p/v9fs.c  (mode:100644)
+> @@ -0,0 +1,573 @@
+> +/*
+> +  * Fcall Slab Accounting
+> +  */
+> +
+> +struct v9fs_slab {
+> +       struct list_head list;
+> +
+> +       int size;
+> +       kmem_cache_t *slab;
+> +};
+> +
+> +static LIST_HEAD(v9fs_slab_list);
 
-Signed-off-by: Martin Waitz <tali@admingilde.org>
+[snip]
 
----
- Documentation/DocBook/kernel-api.tmpl |    2 +-
- drivers/pnp/card.c                    |    3 +--
- drivers/pnp/manager.c                 |    1 +
- fs/sysfs/file.c                       |    5 +++--
- mm/memory.c                           |    2 +-
- 5 files changed, 7 insertions(+), 6 deletions(-)
+> +
+> +/**
+> + * find_slab - look up a slab by size
+> + * @size: size of slab data
+> + *
+> + */
+> +
+> +static inline kmem_cache_t *find_slab(int size)
 
-Index: linux-docbook/mm/memory.c
-===================================================================
---- linux-docbook.orig/mm/memory.c	2005-05-23 22:21:04.299019913 +0200
-+++ linux-docbook/mm/memory.c	2005-05-23 22:22:52.763609544 +0200
-@@ -1483,7 +1483,7 @@ restart:
-  * unmap_mapping_range - unmap the portion of all mmaps
-  * in the specified address_space corresponding to the specified
-  * page range in the underlying file.
-- * @address_space: the address space containing mmaps to be unmapped.
-+ * @mapping: the address space containing mmaps to be unmapped.
-  * @holebegin: byte in first page to unmap, relative to the start of
-  * the underlying file.  This will be rounded down to a PAGE_SIZE
-  * boundary.  Note that this is different from vmtruncate(), which
-Index: linux-docbook/drivers/pnp/card.c
-===================================================================
---- linux-docbook.orig/drivers/pnp/card.c	2005-04-27 11:47:01.000000000 +0200
-+++ linux-docbook/drivers/pnp/card.c	2005-05-23 22:40:39.385145380 +0200
-@@ -259,7 +259,6 @@ int pnp_add_card_device(struct pnp_card 
- 
- /**
-  * pnp_remove_card_device- removes a device from the specified card
-- * @card: pointer to the card to remove from
-  * @dev: pointer to the device to remove
-  */
- 
-@@ -274,7 +273,7 @@ void pnp_remove_card_device(struct pnp_d
- 
- /**
-  * pnp_request_card_device - Searches for a PnP device under the specified card
-- * @lcard: pointer to the card link, cannot be NULL
-+ * @clink: pointer to the card link, cannot be NULL
-  * @id: pointer to a PnP ID structure that explains the rules for finding the device
-  * @from: Starting place to search from. If NULL it will start from the begining.
-  */
-Index: linux-docbook/drivers/pnp/manager.c
-===================================================================
---- linux-docbook.orig/drivers/pnp/manager.c	2005-05-02 09:16:20.000000000 +0200
-+++ linux-docbook/drivers/pnp/manager.c	2005-05-23 22:39:01.494968432 +0200
-@@ -390,6 +390,7 @@ fail:
-  * pnp_manual_config_dev - Disables Auto Config and Manually sets the resource table
-  * @dev: pointer to the desired device
-  * @res: pointer to the new resource config
-+ * @mode: 0 or PNP_CONFIG_FORCE
-  *
-  * This function can be used by drivers that want to manually set thier resources.
-  */
-Index: linux-docbook/fs/sysfs/file.c
-===================================================================
---- linux-docbook.orig/fs/sysfs/file.c	2005-05-02 09:16:20.000000000 +0200
-+++ linux-docbook/fs/sysfs/file.c	2005-05-23 22:36:14.817206097 +0200
-@@ -13,7 +13,7 @@
- #define to_subsys(k) container_of(k,struct subsystem,kset.kobj)
- #define to_sattr(a) container_of(a,struct subsys_attribute,attr)
- 
--/**
-+/*
-  * Subsystem file operations.
-  * These operations allow subsystems to have files that can be 
-  * read/written. 
-@@ -191,8 +191,9 @@ fill_write_buffer(struct sysfs_buffer * 
- 
- /**
-  *	flush_write_buffer - push buffer to kobject.
-- *	@file:		file pointer.
-+ *	@dentry:	dentry to the attribute
-  *	@buffer:	data buffer for file.
-+ *	@count:		number of bytes
-  *
-  *	Get the correct pointers for the kobject and the attribute we're
-  *	dealing with, then call the store() method for the attribute, 
-Index: linux-docbook/Documentation/DocBook/kernel-api.tmpl
-===================================================================
---- linux-docbook.orig/Documentation/DocBook/kernel-api.tmpl	2005-05-02 09:16:19.000000000 +0200
-+++ linux-docbook/Documentation/DocBook/kernel-api.tmpl	2005-05-23 22:31:44.727097652 +0200
-@@ -266,7 +266,7 @@ X!Ekernel/module.c
-   <chapter id="hardware">
-      <title>Hardware Interfaces</title>
-      <sect1><title>Interrupt Handling</title>
--!Iarch/i386/kernel/irq.c
-+!Ikernel/irq/manage.c
-      </sect1>
- 
-      <sect1><title>Resources Management</title>
+Hmm? Why do you need this? If you're missing functionality from the
+slab allocator, please put that in mm/slab.c, not your filesystem!
 
--- 
-Martin Waitz
+> +void v9fs_session_close(struct v9fs_session_info *v9ses)
+> +{
+
+[snip]
+
+> +       if (v9ses->name) {
+> +               kfree(v9ses->name);
+> +       }
+
+kfree() handles NULL pointers just fine, so please drop the redundant
+check (here and in various other places too).
+
+                       Pekka

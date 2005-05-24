@@ -1,79 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVEXNpo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVEXN4n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbVEXNpo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 09:45:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVEXNpo
+	id S261253AbVEXN4n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 09:56:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbVEXN4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 09:45:44 -0400
-Received: from igw2.watson.ibm.com ([129.34.20.6]:59018 "EHLO
-	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S261156AbVEXNpc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 09:45:32 -0400
-Date: Tue, 24 May 2005 09:45:18 -0400 (Eastern Daylight Time)
-From: Reiner Sailer <sailer@us.ibm.com>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Emilyr@us.ibm.com, James Morris <jmorris@redhat.com>, Kylene@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-security-module@wirex.com,
-       Toml@us.ibm.com, Valdis.Kletnieks@vt.edu
-Subject: Re: [PATCH 2 of 4] ima: related Makefile compile order change and
- Readme
-Message-ID: <Pine.WNT.4.63.0505240841220.3152@laptop>
-X-Warning: UNAuthenticated Sender
+	Tue, 24 May 2005 09:56:43 -0400
+Received: from tag.witbe.net ([81.88.96.48]:28590 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S261310AbVEXN4h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 09:56:37 -0400
+Message-Id: <200505241356.j4ODuaR07145@tag.witbe.net>
+Reply-To: <rol@as2917.net>
+From: "Paul Rolland" <rol@as2917.net>
+To: <linux-kernel@vger.kernel.org>
+Cc: <rol@witbe.net>
+Subject: Linux and Initrd used to access disk : how does it work ?
+Date: Tue, 24 May 2005 15:56:36 +0200
+Organization: AS2917
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+thread-index: AcVgaGZ1KR8BfKlSSjKvjJW1ScbrTQ==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek <pavel@ucw.cz> wrote on 05/23/2005 07:44:54 PM:
-> 
-> To make this usefull, you need to:
-> 
-> * have TPM chip
+Hello,
 
-TPM chips are becoming broadly available in many new
-desktop and laptop systems. Drivers are open-source, see tpmdd
-and TrouSerS projects on sourceforge.
+I've been fighting for a few days with binary modules from some manufacturer
+for hardware support of disk controler, and I'm at a point where I need
+some more understanding.
 
-> * remove all the buffer overflows. I.e. if grub contains buffer
->    overflow in parsing menu.conf... that is not a security hole
->    (as of now) because only administrator can modify menu.conf.
->    With IMA enabled, it would make your certification useless...
+1 - My machine contains an Adaptec SATA Raid based on Marvel 88SX60xx
+    so I need to used the aar81xxx binary module,
 
-Taking your example: Even if you run a buffer-overflow grub, IMA will 
-enable remote parties to differentiate between systems that run
-the vulnerable grub and systems that don't. IMA in this case actually
-can put value to running better software.
+2 - This module is presented as required to access the disk (when 
+    installing a RH kernel, it says that no disk is present unless the
+    module is loaded),
 
-Additionally, you can see whether the operating system implements 
-'useful' measures against buffer overflows. Information you don't easily 
-get otherwise when communicating with /logging into a  
-remote system. So you can determine if buffer-overflow-vulnerable 
-applications run in operating environments that actually allow attackers 
-to exploit such vulnerabilities.
+3 - When booting the kernel from disk after installation, the module is 
+    loaded so the machine can access the disk...
 
-> [probably something more].
-> 
-> ...seems to me you need to do quite a lot of work to make this
-> usefull...
+... BUT ... how can the machine /
+ - boot the kernel,
+ - access the initrd image and uncompress it,
+ - read the binary module inside and load it
+BEFORE loading the module itself, if it is mandatory to access the disk.
 
-Things can be useful even though they don't solve all security problems. 
-Think of IPSEC,  SSL, firewalls, tripwire. I find them useful even though 
-they are not  offering total security. The experiments are aimed at 
-finding useful trade-offs for different usage pattern (e.g., remote 
-access) that raise the bar for attackers.
+And if it is not, then how can I do the installation ?
+
+I suspect this should be fairly trivial, but I've been thinking about
+for long, and it looks like chicken and egg to me...
+
+Any help ?
+
+Regards,
+Paul
+
+Paul Rolland, rol(at)as2917.net
+ex-AS2917 Network administrator and Peering Coordinator
+
+--
+
+Please no HTML, I'm not a browser - Pas d'HTML, je ne suis pas un navigateur
+"Some people dream of success... while others wake up and work hard at it" 
+
+"I worry about my child and the Internet all the time, even though she's 
+too young to have logged on yet. Here's what I worry about. I worry that 
+10 or 15 years from now, she will come to me and say 'Daddy, where were 
+you when they took freedom of the press away from the Internet?'"
+--Mike Godwin, Electronic Frontier Foundation 
  
-> [And now, remote-buffer-overrun in inetd probably breaks your
-> attestation, no? I'll just load my evil code over the network, without
-> changing any on-disk executables, then install my evil rootkit into
-> kernel by writing into /dev/kmem. How do you prevent that one?]
->                         Pavel
-
-We have IMA kernel configuration options to detect direct writes onto 
-/dev/kmem and some other devices. If /dev/kmem is directly opened for 
-writing, the aggregate in the TPM is invalidated. This system will not be 
-able to deliver a measurement list with a fitting TPM aggregate signature 
-until next reboot and clearing of all state.
-
-Thanks 
-Reiner
 

@@ -1,114 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbVEXVXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262196AbVEXVXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262193AbVEXVXr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 17:23:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbVEXVXr
+	id S262196AbVEXVXy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 17:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbVEXVXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 17:23:47 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:45812 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262193AbVEXVXY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 17:23:24 -0400
-From: "Sven Dietrich" <sdietrich@mvista.com>
-To: <karim@opersys.com>, "'Ingo Molnar'" <mingo@elte.hu>
-Cc: "'Esben Nielsen'" <simlo@phys.au.dk>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "'Daniel Walker'" <dwalker@mvista.com>, <linux-kernel@vger.kernel.org>,
-       <akpm@osdl.org>, "'Philippe Gerum'" <rpm@xenomai.org>
-Subject: RE: RT patch acceptance
-Date: Tue, 24 May 2005 14:23:11 -0700
-Message-ID: <001701c560a6$cafbe2b0$c800a8c0@mvista.com>
+	Tue, 24 May 2005 17:23:54 -0400
+Received: from ftp.ardi.com ([207.188.170.178]:51729 "EHLO www.ardi.com")
+	by vger.kernel.org with ESMTP id S262195AbVEXVXZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 17:23:25 -0400
+From: "Clifford T. Matthews" <ctm@ardi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <42935389.5030309@opersys.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Importance: Normal
+Message-ID: <17043.39755.573568.293067@newbie.ardi.com>
+Date: Tue, 24 May 2005 15:23:23 -0600
+To: Chris Wright <chrisw@osdl.org>
+Cc: "Clifford T. Matthews" <ctm@ardi.com>, linux-kernel@vger.kernel.org
+Subject: Re: trouble trapping SEGV on 2.6.11.2 & 2.6.12-rc4
+In-Reply-To: <20050524204310.GJ23013@shell0.pdx.osdl.net>
+References: <17043.36668.164277.860295@newbie.ardi.com>
+	<20050524204310.GJ23013@shell0.pdx.osdl.net>
+X-Mailer: VM 7.17 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karim wrote:
-> 
-> Ingo Molnar wrote:
-> > just to make sure, by "much more complicated" are you 
-> referring to the
-> > PREEMPT_RT feature? Right now PREEMPT_RT consists of 8000 
-> new lines of 
-> > code (of which 2000 is debugging code) and 2000 lines of 
-> modified kernel 
-> > code. One of the primary goals i had was to keep it simple 
-> and robust.
-> 
-> I'm refering to the complexity of the behavior. Turning 
-> interrupts to threads and spinlocks to mutexes makes vanilla 
-> Linux's behavior much more complicated than it already is. 
->
+>>>>> "Chris" == Chris Wright <chrisw@osdl.org> writes:
 
-Linux has been distributing and decoupling locking and
-data structures since the first multi CPU kernel was booted.
+    Chris> 2.6 has been fixed...  So your program (which happens to be
+    Chris> slightly buggy) no longer works as you expected.  See
+    Chris> below.
 
-All data integrity is just as consistent in RT, so HOW does 
-the behavior change? 
+Thanks for the quick response.  Using sigsetjmp and siglongjmp makes
+the program print two lines.
 
-SMP is mainstream now (Pentium IV, to start). 
+I read the setjmp / sigsetjmp documentation and misunderstood it.
 
-The kernel development is just taking the logical next step. 
+I had already seen that if I inserted "signal (SIGSEGV, segv_handler)"
+before the second setjmp (not sigsetjmp), the program (under 2.6
+kernels) still would die.
 
-RT is eco-friendly, even, if you can bear it, in preventing
-high-powered CPUs from burning megawatts spinning on
-a bit in memory. Watch the temperature spikes when that
-happens.
+I guess what happens there is that after coming back from the longjmp,
+the error handler is still segv_handler, but the receipt of the SEGV
+signal itself is blocked and if you take a SEGV when the receipt of
+SEGV is blocked a program dies with a SEGV, even if you have a SEGV
+handler.
 
-Basically, the reality is, that software loading can always
-exceed the given hardware, for any system. If you want 
-some things to always work smoothly, you need to have some 
-way to bound response time and prioritize deterministically.
-
-The more the computer becomes an entertainment device in the
-mainstream (ahem, Ipod), the more this will be an opportunity
-for Linux. People are of course running Linux on their Ipods
-already. But - can it play the music without skipping? 
-
-With RT it CAN.
-
-Also keep in mind the time-critical response requirements of
-multimedia systems. Its not just Linux in embedded devices. 
-Its going to Linux in your TV some day soon (or already).
-
-Take a look at all the big Sony TVs. All MontaVista Linux.
-
-But Linux is behind, somewhat in a lot of this technology,
-as pointed out by others. IRQ threads is not radical, untested,
-new technology. Nor is a mutex, priority inheritance or not.
-
-Linux is consistent with the Unix legacy - resource sharing,
-fairness, progress. All good things, endemic to the evolution
-of Linux. But the other Unixes have moved past that - to keep up.
-
-Most of the Unixes are clustering back-room systems now, but some
-are still foraging alongside the north-western American 
-Tyrannosaurus. They are evolving, and trying not to get chomped.
-
-The pressure is going to increase, the question is do
-we lead, or do we follow and pay, whereever they want to 
-take us today?
-
-Basically this technology could go into the kernel, to quote Ingo, 
-as "no-drag". You turn it off and it goes away, no overhead. 
-No pain, no worries, no stress, no flaming. 
-
-And Linux leads the way, and the multimedia / audio folks are happy, 
-able to push open source further, opening the door for more folks to 
-contribute, best they know how.
-
-There is absolutely nothing, btw. in any of the the 
-sub-kernels, patented or not, that can't be done in Linux.
-
-
-Sven
-
-
+--Cliff Matthews <ctm@ardi.com>

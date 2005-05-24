@@ -1,95 +1,154 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262037AbVEXNIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262036AbVEXNLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262037AbVEXNIs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 09:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbVEXNIs
+	id S262036AbVEXNLU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 09:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262054AbVEXNLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 09:08:48 -0400
-Received: from lug-owl.de ([195.71.106.12]:46513 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S262054AbVEXNIi (ORCPT
+	Tue, 24 May 2005 09:11:19 -0400
+Received: from styx.suse.cz ([82.119.242.94]:62394 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S262036AbVEXNKV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 09:08:38 -0400
-Date: Tue, 24 May 2005 15:08:37 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Mateusz Berezecki <mateuszb@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: __udivdi3 and linux kernel u64 division question [x86]
-Message-ID: <20050524130837.GR2417@lug-owl.de>
-Mail-Followup-To: Mateusz Berezecki <mateuszb@gmail.com>,
-	linux-kernel@vger.kernel.org
-References: <42931E38.6030403@gmail.com>
+	Tue, 24 May 2005 09:10:21 -0400
+Date: Tue, 24 May 2005 15:10:18 +0200
+From: Jiri Benc <jbenc@suse.cz>
+To: NetDev <netdev@oss.sgi.com>
+Cc: LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com, pavel@suse.cz
+Subject: [1/5] ieee80211: cleanup
+Message-ID: <20050524151018.3304fbeb@griffin.suse.cz>
+In-Reply-To: <20050524150711.01632672@griffin.suse.cz>
+References: <20050524150711.01632672@griffin.suse.cz>
+X-Mailer: Sylpheed-Claws 1.0.4a (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="VmlJMtejgecKmNHY"
-Content-Disposition: inline
-In-Reply-To: <42931E38.6030403@gmail.com>
-X-Operating-System: Linux mail 2.6.11.10lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Cleanup of unused and duplicated constants and structures in the ieee80211
+header.
 
---VmlJMtejgecKmNHY
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Tue, 2005-05-24 14:29:44 +0200, Mateusz Berezecki <mateuszb@gmail.com> w=
-rote:
-> u64 mconst =3D somebig64bitvalue;
-> u64 tmp =3D some32bitvalue;
-> u64 r =3D mconst / tmp;
->=20
-> I encounter compilation error and gcc reporting __udivdi3 has not been
-> found!
-> After firing up cscope I found that this function has never(?) been
-> implemented for
-> x86 architecture. How is it possible that during compilation process of
-> some module
-> make system tries to link with nonexisting function?
->=20
-> I've also found a do_div() and it was sufficent for my purposes but Im
-> still curious about
-> __udivdi3. Can someone explain this issue to me?
+Signed-off-by: Jiri Benc <jbenc@suse.cz>
+Signed-off-by: Jirka Bohac <jbohac@suse.cz>
 
-In some cases, gcc decides that a given division is too complicated to
-do it in one assembler instruction. That's especially true for things
-that newer CPUs support but older lack.  In these cases, gcc emits a
-function call instead of the actual division and normally, libgcc would
-provide these functions.
+--- orig/include/net/ieee80211.h	2005-05-12 11:36:27.000000000 +0200
++++ new/include/net/ieee80211.h	2005-05-17 15:37:38.000000000 +0200
+@@ -93,6 +93,8 @@
+ 	u16 length;
+ } __attribute__ ((packed));
+ 
++#define IEEE80211_1ADDR_LEN 10
++#define IEEE80211_2ADDR_LEN 16
+ #define IEEE80211_3ADDR_LEN 24
+ #define IEEE80211_4ADDR_LEN 30
+ #define IEEE80211_FCS_LEN    4
+@@ -299,23 +301,6 @@
+ #define WLAN_REASON_STA_REQ_ASSOC_WITHOUT_AUTH 9
+ 
+ 
+-/* Information Element IDs */
+-#define WLAN_EID_SSID 0
+-#define WLAN_EID_SUPP_RATES 1
+-#define WLAN_EID_FH_PARAMS 2
+-#define WLAN_EID_DS_PARAMS 3
+-#define WLAN_EID_CF_PARAMS 4
+-#define WLAN_EID_TIM 5
+-#define WLAN_EID_IBSS_PARAMS 6
+-#define WLAN_EID_CHALLENGE 16
+-#define WLAN_EID_RSN 48
+-#define WLAN_EID_GENERIC 221
+-
+-#define IEEE80211_MGMT_HDR_LEN 24
+-#define IEEE80211_DATA_HDR3_LEN 24
+-#define IEEE80211_DATA_HDR4_LEN 30
+-
+-
+ #define IEEE80211_STATMASK_SIGNAL (1<<0)
+ #define IEEE80211_STATMASK_RSSI (1<<1)
+ #define IEEE80211_STATMASK_NOISE (1<<2)
+@@ -489,15 +474,6 @@
+ 
+ */
+ 
+-struct ieee80211_header_data {
+-	u16 frame_ctl;
+-	u16 duration_id;
+-	u8 addr1[6];
+-	u8 addr2[6];
+-	u8 addr3[6];
+-	u16 seq_ctrl;
+-};
+-
+ #define BEACON_PROBE_SSID_ID_POSITION 12
+ 
+ /* Management Frame Information Element Types */
+@@ -542,7 +518,7 @@
+ */
+ 
+ struct ieee80211_authentication {
+-	struct ieee80211_header_data header;
++	struct ieee80211_hdr_3addr header;
+ 	u16 algorithm;
+ 	u16 transaction;
+ 	u16 status;
+@@ -551,7 +527,7 @@
+ 
+ 
+ struct ieee80211_probe_response {
+-	struct ieee80211_header_data header;
++	struct ieee80211_hdr_3addr header;
+ 	u32 time_stamp[2];
+ 	u16 beacon_interval;
+ 	u16 capability;
+@@ -793,21 +769,21 @@
+ 
+ extern inline int ieee80211_get_hdrlen(u16 fc)
+ {
+-	int hdrlen = 24;
++	int hdrlen = IEEE80211_3ADDR_LEN;
+ 
+ 	switch (WLAN_FC_GET_TYPE(fc)) {
+ 	case IEEE80211_FTYPE_DATA:
+ 		if ((fc & IEEE80211_FCTL_FROMDS) && (fc & IEEE80211_FCTL_TODS))
+-			hdrlen = 30; /* Addr4 */
++			hdrlen = IEEE80211_4ADDR_LEN;
+ 		break;
+ 	case IEEE80211_FTYPE_CTL:
+ 		switch (WLAN_FC_GET_STYPE(fc)) {
+ 		case IEEE80211_STYPE_CTS:
+ 		case IEEE80211_STYPE_ACK:
+-			hdrlen = 10;
++			hdrlen = IEEE80211_1ADDR_LEN;
+ 			break;
+ 		default:
+-			hdrlen = 16;
++			hdrlen = IEEE80211_2ADDR_LEN;
+ 			break;
+ 		}
+ 		break;
+--- orig/net/ieee80211/ieee80211_rx.c	2005-05-12 11:36:29.000000000 +0200
++++ new/net/ieee80211/ieee80211_rx.c	2005-05-17 15:37:38.000000000 +0200
+@@ -475,7 +475,7 @@
+ #endif
+ 
+ 	/* Data frame - extract src/dst addresses */
+-	if (skb->len < IEEE80211_DATA_HDR3_LEN)
++	if (skb->len < IEEE80211_3ADDR_LEN)
+ 		goto rx_dropped;
+ 
+ 	switch (fc & (IEEE80211_FCTL_FROMDS | IEEE80211_FCTL_TODS)) {
+@@ -488,7 +488,7 @@
+ 		memcpy(src, hdr->addr2, ETH_ALEN);
+ 		break;
+ 	case IEEE80211_FCTL_FROMDS | IEEE80211_FCTL_TODS:
+-		if (skb->len < IEEE80211_DATA_HDR4_LEN)
++		if (skb->len < IEEE80211_4ADDR_LEN)
+ 			goto rx_dropped;
+ 		memcpy(dst, hdr->addr3, ETH_ALEN);
+ 		memcpy(src, hdr->addr4, ETH_ALEN);
 
-However, it's each architecture's decision to link-in libgcc or not,
-because it can open another can of worms. Alternatively, you can
-implement these little functions on your own and put them somewhere in
-some library file.
 
-MfG, JBG
 
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
-k!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---VmlJMtejgecKmNHY
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCkydVHb1edYOZ4bsRAruRAJ0aOUfPLfQzJGXEpte547+YcB+eVgCfQcZI
-XQY8EsOeMuAmIETAcoOTvhw=
-=NWJN
------END PGP SIGNATURE-----
-
---VmlJMtejgecKmNHY--
+--
+Jiri Benc
+SUSE Labs

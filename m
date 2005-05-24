@@ -1,60 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262094AbVEXQU3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbVEXQVj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262094AbVEXQU3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 12:20:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262112AbVEXQU3
+	id S262119AbVEXQVj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 12:21:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262118AbVEXQVj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 12:20:29 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:15597 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262094AbVEXQUL convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 12:20:11 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 24 May 2005 12:21:39 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:6671 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S262112AbVEXQVd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 12:21:33 -0400
+Message-ID: <4293548B.2000100@rtr.ca>
+Date: Tue, 24 May 2005 12:21:31 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch 1/4] Kprobes support for IA64 
-Date: Tue, 24 May 2005 09:20:08 -0700
-Message-ID: <032EB457B9DBC540BFB1B7B519C78B0E07340747@orsmsx404.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 1/4] Kprobes support for IA64 
-thread-index: AcVgIzVqtl8kdPD8QqaeK+hCxZejuAAWRF9A
-From: "Lynch, Rusty" <rusty.lynch@intel.com>
-To: "Keith Owens" <kaos@sgi.com>,
-       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>
-Cc: <akpm@osdl.org>, "Luck, Tony" <tony.luck@intel.com>,
-       "Seth, Rohit" <rohit.seth@intel.com>, <prasanna@in.ibm.com>,
-       <ananth@in.ibm.com>, <systemtap@sources.redhat.com>,
-       <linux-ia64@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 24 May 2005 16:19:47.0583 (UTC) FILETIME=[675608F0:01C5607C]
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Sergey Vlasov <vsu@altlinux.ru>, Ivan G <g-i-v@rambler.ru>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: DMA not works in Linux 2.6.12, but in Windows works fine.
+References: <web-135595327@mail5.rambler.ru> <20050523193010.5bf72481.vsu@altlinux.ru> <42922232.90206@pobox.com>
+In-Reply-To: <42922232.90206@pobox.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Keith Owens [mailto:kaos@sgi.com]
->Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com> wrote:
->>
->>This patch adds the kdebug die notification mechanism needed by
-Kprobes.
->> 	      case 0: /* unknown error (used by GCC for
-__builtin_abort()) */
->>+		if (notify_die(DIE_BREAK, "kprobe", regs, break_num,
->TRAP_BRKPT, SIGTRAP)
->>+			       	== NOTIFY_STOP) {
->>+			return;
->>+		}
->> 		die_if_kernel("bugcheck!", regs, break_num);
->> 		sig = SIGILL; code = ILL_ILLOPC;
->> 		break;
->
->Nit pick.  Any break instruction in a B slot will set break_num 0, so
->you cannot tell if the break was inserted by kprobe or by another
->debugger.  Setting the string to "kprobe" is misleading here, change it
->to "break 0".
+Note to others:
 
-Good catch.  We'll update the informational string.
+If you are brave and pull down Jeff's libata-dev tree,
+then it already has ATAPI DMA working (mostly) therein.
 
-    --rusty
+That's what I've done on my newest ICH6M machine here,
+and both the PATA HD and PATA DVD-RW are working just fine
+in "combined mode" using ata_piix.  After applying a bugfix
+patch for ATAPI error handling (which Jeff has just posted
+here today somewhere for general comments).
+
+Cheers.

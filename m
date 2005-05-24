@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVEWXpD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261296AbVEXAQm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261212AbVEWXpD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 19:45:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbVEWXlZ
+	id S261296AbVEXAQm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 20:16:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbVEXAQf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 19:41:25 -0400
-Received: from fire.osdl.org ([65.172.181.4]:12679 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261222AbVEWXc7 (ORCPT
+	Mon, 23 May 2005 20:16:35 -0400
+Received: from fire.osdl.org ([65.172.181.4]:31377 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261253AbVEXAN0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 19:32:59 -0400
-Date: Mon, 23 May 2005 16:32:35 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, ak@suse.de
-Subject: [patch 16/16] x86_64: Don't look up struct page pointer of physical address in iounmap
-Message-ID: <20050523233235.GB27549@shell0.pdx.osdl.net>
-References: <20050523231529.GL27549@shell0.pdx.osdl.net>
+	Mon, 23 May 2005 20:13:26 -0400
+Date: Mon, 23 May 2005 17:14:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org, gregkh@suse.de,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [bugfix] try_to_unmap_cluster() passes out-of-bounds pte to
+ pte_unmap()
+Message-Id: <20050523171406.483cdf69.akpm@osdl.org>
+In-Reply-To: <20050522212734.GF2057@holomorphy.com>
+References: <20050516021302.13bd285a.akpm@osdl.org>
+	<20050522212734.GF2057@holomorphy.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050523231529.GL27549@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] x86_64: Don't look up struct page pointer of physical address in iounmap
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>
+> --- ./mm/rmap.c.orig	2005-05-20 01:29:14.066467151 -0700
+> +++ ./mm/rmap.c	2005-05-20 01:30:06.620649901 -0700
+> @@ -694,7 +694,7 @@
+>  		(*mapcount)--;
+>  	}
+>  
+> -	pte_unmap(pte);
+> +	pte_unmap(pte-1);
+>  out_unlock:
+>  	spin_unlock(&mm->page_table_lock);
+>  }
 
-It could be in a memory hole not mapped in mem_map and that causes the hash
-lookup to go off to nirvana.
+I must say that I continue to find this approach a bit queazifying.
 
-Back port to -stable tree by Chris Wright
+After some reading of the code I'd agree that yes, it's not possible for us
+to get here with `pte' pointing at the first slot of the pte page, but it's
+not 100% obvious and it's possible that someone will come along later and
+will change things in try_to_unmap_cluster() which cause this unmap to
+suddenly do the wrong thing in rare circumstances.
 
-Signed-off-by: Andi Kleen <ak@suse.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-Signed-off-by: Chris Wright <chrisw@osdl.org>
----
+IOW: I'd sleep better at night if we took a temporary and actually unmapped
+the thing which we we got back from pte_offset_map()..  Am I being silly?
 
- ioremap.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
-
-Index: release-2.6.11/arch/x86_64/mm/ioremap.c
-===================================================================
---- release-2.6.11.orig/arch/x86_64/mm/ioremap.c
-+++ release-2.6.11/arch/x86_64/mm/ioremap.c
-@@ -266,7 +266,7 @@ void iounmap(volatile void __iomem *addr
- 	if ((p->flags >> 20) &&
- 		p->phys_addr + p->size - 1 < virt_to_phys(high_memory)) {
- 		/* p->size includes the guard page, but cpa doesn't like that */
--		change_page_attr(virt_to_page(__va(p->phys_addr)),
-+		change_page_attr_addr((unsigned long)(__va(p->phys_addr)),
- 				 (p->size - PAGE_SIZE) >> PAGE_SHIFT,
- 				 PAGE_KERNEL); 				 
- 		global_flush_tlb();

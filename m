@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVEXGsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVEXGwi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbVEXGsu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 02:48:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVEXGst
+	id S261355AbVEXGwi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 02:52:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbVEXGwi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 02:48:49 -0400
-Received: from fire.osdl.org ([65.172.181.4]:20097 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261334AbVEXGsj (ORCPT
+	Tue, 24 May 2005 02:52:38 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:24245 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261355AbVEXGwe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 02:48:39 -0400
-Date: Mon, 23 May 2005 23:50:36 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Andrew Morton <akpm@osdl.org>, Netdev <netdev@oss.sgi.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [git patches] 2.6.x net driver updates
-In-Reply-To: <4292CB01.6090506@pobox.com>
-Message-ID: <Pine.LNX.4.58.0505232349020.2307@ppc970.osdl.org>
-References: <4292BA66.8070806@pobox.com> <Pine.LNX.4.58.0505232253160.2307@ppc970.osdl.org>
- <4292CB01.6090506@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 May 2005 02:52:34 -0400
+Date: Tue, 24 May 2005 08:45:22 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Christoph Hellwig <hch@infradead.org>, Daniel Walker <dwalker@mvista.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, sdietrich@mvista.com
+Subject: Re: RT patch acceptance
+Message-ID: <20050524064522.GA9385@elte.hu>
+References: <1116890066.13086.61.camel@dhcp153.mvista.com> <20050524054722.GA6160@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050524054722.GA6160@infradead.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+* Christoph Hellwig <hch@infradead.org> wrote:
 
-On Tue, 24 May 2005, Jeff Garzik wrote:
-> 
-> You really can't beat
-> 
-> 	cp .git/refs/heads/master .git/refs/heads/new-branch
-> 
-> as the fastest way to create a new branch off the tip.
+> Personally I think interrupt threads, spinlocks as sleeping mutexes 
+> and PI is something we should keep out of the kernel tree. [...]
 
-So? It's the fastest, but it's also BROKEN. Exactly because the way you do 
-things, the merge messages are meaningless.
+it's not really a problem - they integrate nicely. They also found 
+dozens of hard-to-catch bugs already so if you dont care about embedded 
+systems at all then worst-case you can consider it a spinlock debugging 
+mechanism, with the difference that DEBUG_SPINLOCK is far uglier ;) 
+Anyway, this discussion is premature, as i'm not submitting all these 
+patches yet.
 
-So fix your merge messages. 
-
-		Linus
+	Ingo

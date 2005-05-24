@@ -1,27 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262105AbVEXQDh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262155AbVEXPzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262105AbVEXQDh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 12:03:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVEXQBW
+	id S262155AbVEXPzU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 11:55:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbVEXPqz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 12:01:22 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:55241 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262112AbVEXP4l (ORCPT
+	Tue, 24 May 2005 11:46:55 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:7879 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262119AbVEXPmp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 11:56:41 -0400
-Date: Tue, 24 May 2005 17:56:19 +0200
+	Tue, 24 May 2005 11:42:45 -0400
+Date: Tue, 24 May 2005 17:42:30 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: "K.R. Foley" <kr@cybsft.com>, Christoph Hellwig <hch@infradead.org>,
-       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, sdietrich@mvista.com
-Subject: Re: RT patch acceptance
-Message-ID: <20050524155619.GA21570@elte.hu>
-References: <1116890066.13086.61.camel@dhcp153.mvista.com> <20050524054722.GA6160@infradead.org> <20050524064522.GA9385@elte.hu> <4292DFC3.3060108@yahoo.com.au> <20050524081517.GA22205@elte.hu> <4292E559.3080302@yahoo.com.au> <42930E79.1030305@cybsft.com> <42934674.30406@yahoo.com.au>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] remove set_tsk_need_resched() from init_idle()
+Message-ID: <20050524154230.GA17814@elte.hu>
+References: <20050524121541.GA17049@elte.hu> <20050524140623.GA3500@elte.hu> <4293420C.8080400@yahoo.com.au> <20050524150537.GA11829@elte.hu> <42934748.8020501@yahoo.com.au> <20050524152759.GA15411@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42934674.30406@yahoo.com.au>
+In-Reply-To: <20050524152759.GA15411@elte.hu>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -34,24 +32,103 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-> Well, yes. There are lots of things Linux isn't suited for. There are 
-> likewise a lot of patches that SGI would love to get into the kernel 
-> so it runs better on their 500+ CPU systems. [...]
+> 
+> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+> 
+> > > we could do it in the other direction just as much - i only touched 
+> > > 3 architectures. Up to Andrew i guess.
+> > 
+> > How about just setting need_resched at the start of the cpu_idle 
+> > function instead? Rather than changing the structure of the idle loops 
+> > themselves. That would suit me best.
+> 
+> that's fine with me too.
 
-this reminds me. PREEMPT_RT found a handful of SMP races that not even
-100+ CPU systems triggered in any deterministic way.
+updated patch below.
 
-(I have mentioned this before but it seems worth repeating: the
-preemption model of PREEMPT_RT is similar to a SMP Linux kernel running
-on an system that has an 'infinite' number of CPUs. Each task can be
-thought of having its own separate CPU - and SMP-alike instruction
-overlap can happen at any instruction boundary.)
+--
 
-So the very small meets (and helps) the very large in interesting ways.
-PREEMPT_RT very much depends on a good SMP implementation and on a good
-CONFIG_PREEMPT implementation. The synergies are much wider than just
-enabling deterministic behavior in embedded systems.
+this patch (ontop of the current -mm scheduler patchset) tweaks 
+cpu_idle() semantics a bit: it changes the idle loops (that do 
+preemption) to call the first schedule() unconditionally.
 
-	Ingo
+the advantage is that as a result we dont have to set the idle thread's 
+NEED_RESCHED flag in init_idle(), which in turn makes cond_resched() 
+even more of an invariant: it can be called even from init code without 
+it having any effect. A cond resched in the init codepath hangs 
+otherwise.
+
+this patch, while having no negative side-effects, enables wider use of 
+cond_resched()s. (which might happen in the stock kernel too, but it's 
+particulary important for voluntary-preempt) (note that for now this 
+patch only covers architectures that use kernel/Kconfig.preempt, but all 
+other architectures will work just fine too.)
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+ arch/i386/kernel/process.c   |    2 ++
+ arch/ppc64/kernel/idle.c     |    1 +
+ arch/x86_64/kernel/process.c |    2 ++
+ kernel/sched.c               |   10 +++++++++-
+ 4 files changed, 14 insertions(+), 1 deletion(-)
+
+--- linux/kernel/sched.c.orig
++++ linux/kernel/sched.c
+@@ -4163,6 +4163,15 @@ void show_state(void)
+ 	read_unlock(&tasklist_lock);
+ }
+ 
++/**
++ * init_idle - set up an idle thread for a given CPU
++ * @idle: task in question
++ * @cpu: cpu the idle task belongs to
++ *
++ * NOTE: this function does not set the idle thread's NEED_RESCHED
++ * flag, to make booting more robust. Architecture-level cpu_idle()
++ * functions should set it explicitly, before entering their idle-loop.
++ */
+ void __devinit init_idle(task_t *idle, int cpu)
+ {
+ 	runqueue_t *rq = cpu_rq(cpu);
+@@ -4180,7 +4189,6 @@ void __devinit init_idle(task_t *idle, i
+ #if defined(CONFIG_SMP) && defined(__ARCH_WANT_UNLOCKED_CTXSW)
+ 	idle->oncpu = 1;
+ #endif
+-	set_tsk_need_resched(idle);
+ 	spin_unlock_irqrestore(&rq->lock, flags);
+ 
+ 	/* Set the preempt count _outside_ the spinlocks! */
+--- linux/arch/x86_64/kernel/process.c.orig
++++ linux/arch/x86_64/kernel/process.c
+@@ -162,6 +162,8 @@ EXPORT_SYMBOL_GPL(cpu_idle_wait);
+  */
+ void cpu_idle (void)
+ {
++	set_tsk_need_resched(current);
++
+ 	/* endless idle loop with no priority at all */
+ 	while (1) {
+ 		while (!need_resched()) {
+--- linux/arch/ppc64/kernel/idle.c.orig
++++ linux/arch/ppc64/kernel/idle.c
+@@ -305,6 +305,7 @@ static int native_idle(void)
+ 
+ void cpu_idle(void)
+ {
++	set_tsk_need_resched(current);
+ 	idle_loop();
+ }
+ 
+--- linux/arch/i386/kernel/process.c.orig
++++ linux/arch/i386/kernel/process.c
+@@ -179,6 +179,8 @@ void cpu_idle(void)
+ {
+ 	int cpu = _smp_processor_id();
+ 
++	set_tsk_need_resched(current);
++
+ 	/* endless idle loop with no priority at all */
+ 	while (1) {
+ 		while (!need_resched()) {

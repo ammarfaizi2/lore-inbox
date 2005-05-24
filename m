@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262171AbVEXXrN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbVEXXtG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262171AbVEXXrN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 19:47:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbVEXXrN
+	id S262176AbVEXXtG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 19:49:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbVEXXtE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 19:47:13 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:2709 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262172AbVEXXqZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 19:46:25 -0400
-Subject: Re: RT patch acceptance
-From: Lee Revell <rlrevell@joe-job.com>
-To: karim@opersys.com
-Cc: Sven Dietrich <sdietrich@mvista.com>, "'Ingo Molnar'" <mingo@elte.hu>,
-       "'Esben Nielsen'" <simlo@phys.au.dk>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "'Daniel Walker'" <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, "'Philippe Gerum'" <rpm@xenomai.org>
-In-Reply-To: <4293AB4D.4030506@opersys.com>
-References: <001701c560a6$cafbe2b0$c800a8c0@mvista.com>
-	 <4293AB4D.4030506@opersys.com>
-Content-Type: text/plain
-Date: Tue, 24 May 2005 19:46:24 -0400
-Message-Id: <1116978384.2912.53.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
+	Tue, 24 May 2005 19:49:04 -0400
+Received: from pfepa.post.tele.dk ([195.41.46.235]:20004 "EHLO
+	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262174AbVEXXsm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 19:48:42 -0400
+Message-ID: <4293BD80.1050503@danbbs.dk>
+Date: Wed, 25 May 2005 01:49:20 +0200
+From: Mogens Valentin <monz@danbbs.dk>
+Reply-To: monz@danbbs.dk
+Organization: Mr Dev
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: dougg@torque.net
+CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [ANNOUNCE] sdparm 0.92
+References: <428DC633.5050403@torque.net>
+In-Reply-To: <428DC633.5050403@torque.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-24 at 18:31 -0400, Karim Yaghmour wrote:
-> I've taken enough bandwidth as it is
-> on this thread, and I frankly don't think that any of what I
-> said above has added any more information for those who've
-> read my previous postings. I only got into this thread to point
-> out that some info about RTAI was wrong. So like I told Ingo,
-> if rt-preempt gets in, then so be it.
+Douglas Gilbert wrote:
+> sdparm is a command line utility designed to get and set
+> SCSI disk parameters (cf hdparm for ATA disks). More generally
+> it gets and sets mode page information on SCSI devices or devices
+> that use a SCSI command set (e.g. CD/DVD drives (any transport)
+> and SCSI tape drives). It also can list VPD pages including
+> the device identification page.
+> 
+> For more information and downloads (tarball, rpm and deb
+> packages) see:
+> http://www.torque.net/sg/sdparm.html
 
-Here's my favorite excerpt: 
+Nice! Just got it and tried on an external usb disk.
+One feature I could use, probably others as well:
+Could you add the ability to spin down/up a scsi disk?
+I'd really like this for exteral (usb) disks.
 
-On Sat, 2004-10-09 at 16:11, Karim Yaghmour wrote:
-> And this has been demonstrated mathematically/algorithmically to be
-> true 100% of the time, regardless of the load and the driver set? IOW,
-> if I was building an automated industrial saw (based on a VP+IRQ-thread
-> kernel or a combination of the above-mentioned agregate) with a
-> safety mechanism that depended on the kernel's responsivness to
-> outside events to avoid bodily harm, would you be willing to put your
-> hand beneath it?
+Doesn't seem it can; if I missed it, I'm sorry..
 
-Maybe -RT should be merged when Ingo puts his hand under the saw.
-
-Lee
-
- 
+-- 
+Kind regards,
+Mogens Valentin
 

@@ -1,80 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262098AbVEXJ4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262101AbVEXJ4H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262098AbVEXJ4F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 05:56:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbVEXJuQ
+	id S262101AbVEXJ4H (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 05:56:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVEXJso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 05:50:16 -0400
-Received: from smtp.nexlab.net ([213.173.188.110]:26821 "EHLO smtp.nexlab.net")
-	by vger.kernel.org with ESMTP id S261890AbVEXJTo (ORCPT
+	Tue, 24 May 2005 05:48:44 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:3784 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S261939AbVEXJVI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:19:44 -0400
+	Tue, 24 May 2005 05:21:08 -0400
 X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
 X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
 	08:27:20 2005 signatures 31.893
-Message-Id: <20050524091934.B4E59FA09@smtp.nexlab.net>
-Date: Tue, 24 May 2005 11:19:34 +0200 (CEST)
+Message-Id: <20050524092103.35C2BFA6C@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:21:03 +0200 (CEST)
 From: root@smtp.nexlab.net
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	by smtp.nexlab.net (Postfix) with ESMTP id C7748FA66
+	by smtp.nexlab.net (Postfix) with ESMTP id 501C0FB6B
 
-	for <chiakotay@nexlab.it>; Tue, 24 May 2005 06:39:39 +0200 (CEST)
+	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:42 +0200 (CEST)
 
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
 
-	id S261189AbVEXDtE (ORCPT <rfc822;chiakotay@nexlab.it>);
+	id S261410AbVEXH34 (ORCPT <rfc822;chiakotay@nexlab.it>);
 
-	Mon, 23 May 2005 23:49:04 -0400
+	Tue, 24 May 2005 03:29:56 -0400
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVEXDtE
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbVEXH34
 
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 
-	Mon, 23 May 2005 23:49:04 -0400
+	Tue, 24 May 2005 03:29:56 -0400
 
-Received: from opersys.com ([64.40.108.71]:8967 "EHLO www.opersys.com")
+Received: from mail.dvmed.net ([216.237.124.58]:21709 "EHLO mail.dvmed.net")
 
-	by vger.kernel.org with ESMTP id S261189AbVEXDsk (ORCPT
+	by vger.kernel.org with ESMTP id S261414AbVEXH3p (ORCPT
 
 	<rfc822;linux-kernel@vger.kernel.org>);
 
-	Mon, 23 May 2005 23:48:40 -0400
+	Tue, 24 May 2005 03:29:45 -0400
 
-Received: from [127.0.0.1] (www.opersys.com [64.40.108.71])
+Received: from cpe-065-184-065-144.nc.res.rr.com ([65.184.65.144] helo=[10.10.10.88])
 
-	by www.opersys.com (8.9.3/8.9.3) with ESMTP id VAA32223;
+	by mail.dvmed.net with esmtpsa (Exim 4.51 #1 (Red Hat Linux))
 
-	Mon, 23 May 2005 21:26:39 -0700
+	id 1DaTrB-0001Q6-FC; Tue, 24 May 2005 07:29:44 +0000
 
-Message-ID: <4292A69C.4070605@opersys.com>
+Message-ID: <4292D7E1.80601@pobox.com>
 
-Date:	Mon, 23 May 2005 23:59:24 -0400
+Date:	Tue, 24 May 2005 03:29:37 -0400
 
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
 
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+X-Accept-Language: en-us, en
 
 MIME-Version: 1.0
 
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Jens Axboe <axboe@suse.de>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ide-cd vs. DMA
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Netdev <netdev@oss.sgi.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [git patches] 2.6.x net driver updates
 
-References: <1116891772.30513.6.camel@gaston> <42929F2F.8000101@opersys.com> <1116905090.4992.7.camel@gaston>
+References: <4292BA66.8070806@pobox.com> <Pine.LNX.4.58.0505232253160.2307@ppc970.osdl.org> <4292C8EF.3090307@pobox.com> <Pine.LNX.4.58.0505232343260.2307@ppc970.osdl.org>
 
-In-Reply-To: <1116905090.4992.7.camel@gaston>
+In-Reply-To: <Pine.LNX.4.58.0505232343260.2307@ppc970.osdl.org>
 
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=us-ascii; format=flowed
 
 Content-Transfer-Encoding: 7bit
+
+X-Spam-Score: 0.0 (/)
 
 Sender: linux-kernel-owner@vger.kernel.org
 Precedence: bulk
@@ -83,91 +82,44 @@ X-Mailing-List:	linux-kernel@vger.kernel.org
 
 
 
+Linus Torvalds wrote:
+> 
+> On Tue, 24 May 2005, Jeff Garzik wrote:
+> 
+>>You are getting precisely the same thing you got under BitKeeper:  pull 
+>>from X, you get my tree, which was composed from $N repositories.  The 
+>>tree you pull was created by my running 'bk pull' locally $N times.
+> 
+> 
+> No. Under BK, you had DIFFERENT TREES.
+> 
+> What does that mean? They had DIFFERENT NAMES.
+> 
+> Which meant that the commit message was MEANINGFUL.
 
-Benjamin Herrenschmidt wrote:
-> Well, not sure what's wrong here, but ATAPI errors shouldn't normally
-> result in stopping DMA. We may want to just blacklist your drive rather
-> than having this stupid fallback. In this case, I suspect it's
-> CSS/region issue with a DVD.
+Ok, I'll fix the commit message.
 
-Here's a little bit more info:
+As for different trees, I'm afraid you've written something that is _too 
+useful_ to be used in that manner.
 
-Here's from dmesg:
-hdc: SAMSUNG SC-140B, ATAPI CD/DVD-ROM drive
-hdc: ATAPI 40X CD-ROM drive, 128kB Cache, UDMA(33)
+Git has brought with it a _major_ increase in my productivity because I 
+can now easily share ~50 branches with 50 different kernel hackers, 
+without spending all day running rsync.  Suddenly my kernel development 
+is a whole lot more _open_ to the world, with a single "./push".  And 
+it's awesome.
 
-hdparm -i /dev/hdc:
+That wasn't possible before with BitKeeper, just due to sheer network 
+overhead of 50 trees.  With BitKeeper, the _only_ thing that kernel 
+hackers and users could get from me is a mush tree with everything 
+merged into a big 'ALL' repository.
 
-/dev/hdc:
+So I'll continue to be the oddball, because more people can work in 
+parallel with me that way.  I'll just have to make sure the commit 
+messages look right to you.
 
- Model=SAMSUNG SC-140B, FwRev=d005, SerialNo=
- Config={ SpinMotCtl Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
- RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
- BuffType=unknown, BuffSize=0kB, MaxMultSect=0
- (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  sdma0 sdma1 sdma2 mdma0 mdma1 mdma2
- UDMA modes: udma0 udma1 *udma2
- AdvancedPM=no
+	Jeff
 
-Here's what happens on the first mount attempt:
-hdc: DMA interrupt recovery
-hdc: lost interrupt
-hdc: status timeout: status=0xd0 { Busy }
-hdc: status timeout: error=0x00
-hdc: DMA disabled
-hdc: drive not ready for command
-hdc: ATAPI reset complete
 
-Now, if I'm stuborn and re-enable DMA using a "hdparm -d1 /dev/hdc" and then
-try again, now I get:
-hdc: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
-hdc: media error (bad sector): error=0x34
-ide: failed opcode was 100
-end_request: I/O error, dev hdc, sector 16
-
-The last error being repeated ad-nauseam for every "sector" on the
-disk. Again, note that this is a CD drive, not a hard disk.
-
-Here's from lspci:
-00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
-00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03)
-00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
-00:11.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 24)
-01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 1X/2X (rev 5c)
-
-In attempting to isolate the problem, I ran into a spurious issue with
-another drive I have in that machine:
-hda: dma_timer_expiry: dma status == 0x61
-hda: DMA timeout error
-hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
-hda: dma_timer_expiry: dma status == 0x61
-hda: DMA timeout error
-hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
-hda: dma_timer_expiry: dma status == 0x61
-hda: DMA timeout error
-hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
-hda: dma_timer_expiry: dma status == 0x61
-hda: DMA timeout error
-hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
-hda: DMA disabled
-
-Try as I may, however, I haven't been able to reproduce this problem with
-hda (from dmesg: hda: WDC AC22500L, ATA DISK drive). It's worthy pointing
-out that the machine came with a drive on which it was found that there
-were actual bad sectors (tested on another machine.) ... the thought of
-a buggy controller came to mind, but (though this may be possible), I've
-never heard about a bad controller generating bad sectors ...
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

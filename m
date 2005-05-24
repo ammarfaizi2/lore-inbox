@@ -1,37 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262021AbVEXKiy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbVEXKiZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262021AbVEXKiy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 06:38:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVEXKis
+	id S262073AbVEXKiZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 06:38:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbVEXKa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 06:38:48 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:16576 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S262021AbVEXKed (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 06:34:33 -0400
-Date: Tue, 24 May 2005 23:31:56 -0400
-From: "Lqq.Cervantes@comcast.net" <Umt.Doyle@comcast.net>
-To: linux-kernel-announce@vger.kernel.org
-Subject: 3.25 rate confirmation #07684445TW Tue, 24 May 2005 19:38:56 -0800
-X-Mailer: Ximian Evolution 1.0.3
-Message-Id: <2.20020816120021.01316aUmt.Doyle@comcast.net>
+	Tue, 24 May 2005 06:30:29 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:58250 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S262063AbVEXK2f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 06:28:35 -0400
+Date: Tue, 24 May 2005 12:28:40 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Suparna Bhattacharya <suparna@in.ibm.com>
+Cc: cotte@freenet.de, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, schwidefsky@de.ibm.com, akpm@osdl.org,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [RFC/PATCH 2/4] fs/mm: execute in place (3rd version)
+Message-ID: <20050524102839.GA17254@wohnheim.fh-wedel.de>
+References: <1116866094.12153.12.camel@cotte.boeblingen.de.ibm.com> <1116869420.12153.32.camel@cotte.boeblingen.de.ibm.com> <20050524093029.GA4390@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050524093029.GA4390@in.ibm.com>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Tue, 24 May 2005 15:00:29 +0530, Suparna Bhattacharya wrote:
+> 
+> OK, though this leaves filemap.c alone which is good, I have to admit
+> that this entire duplication of read/write routines really worries me.
+> 
+> There has to be a third way.
 
-We sent you an email a while ago, because you now qualify
-for a much lower rate based on the biggest rate drop in years.
+There is.  I'm not convinced it's a good idea, but maybe someone
+smarter can comment on it.
 
-You can now get $327,000 for as little as $617 a month!
-Bad credit? Doesn't matter, ^low rates are fixed no matter what!
+v1 and v2 basically contained the generic code with an extra check
+here and there.
 
-Follow this link to process your application and a 24 hour approval:
+int do_shtuff(...)
+{
+	if (xip)
+		do_xip_shtuff(...);
+	/* shtuff */
+	...
+}
 
-http://www.parefi.net
+v3 contains a copy of the generic code in filemap_xip.c.
 
-Best Regards,
-Wilfredo Gleason
+int do_shtuff_xip(...)
+{
+	do_xip_shtuff(...);
+	/* shtuff copied from filemap.c */
+	...
+}
 
+v4 could do something like this:
 
-http://www.parefi.net/book.php
+int __do_generic_shtuff(...)
+{
+	/* the generic shtuff */
+	...
+}
+
+int do_shtuff(...)
+{
+	return __do_generic_shtuff(...);
+}
+
+int do_shtuff_xip(...)
+{
+	do_xip_shtuff(...);
+	return __do_generic_shtuff(...);
+}
+
+Jörn
+
+-- 
+You cannot suppose that Moliere ever troubled himself to be original in the
+matter of ideas. You cannot suppose that the stories he tells in his plays
+have never been told before. They were culled, as you very well know.
+-- Andre-Louis Moreau in Scarabouche

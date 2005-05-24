@@ -1,43 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVEXRCL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVEXRCx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261237AbVEXRCL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 13:02:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVEXRA0
+	id S261385AbVEXRCx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 13:02:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVEXRCn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 13:00:26 -0400
-Received: from loon.tech9.net ([69.20.54.92]:45187 "EHLO loon.tech9.net")
-	by vger.kernel.org with ESMTP id S261830AbVEXQzt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 12:55:49 -0400
-Subject: Re: inotify 0.23 errno 28 (ENOSPC)
-From: Robert Love <rlove@rlove.org>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: bryanwilkerson@yahoo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1116953555.6280.31.camel@laptopd505.fenrus.org>
-References: <20050524163309.74541.qmail@web53401.mail.yahoo.com>
-	 <1116952520.13324.38.camel@betsy>
-	 <1116953555.6280.31.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Tue, 24 May 2005 12:55:39 -0400
-Message-Id: <1116953739.13324.42.camel@betsy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
+	Tue, 24 May 2005 13:02:43 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:65459 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S261154AbVEXRBX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 13:01:23 -0400
+Message-ID: <42935DE1.4040301@freenet.de>
+Date: Tue, 24 May 2005 19:01:21 +0200
+From: Carsten Otte <cotte@freenet.de>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: suparna@in.ibm.com
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       schwidefsky@de.ibm.com, akpm@osdl.org,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [RFC/PATCH 2/4] fs/mm: execute in place (3rd version)
+References: <1116866094.12153.12.camel@cotte.boeblingen.de.ibm.com> <1116869420.12153.32.camel@cotte.boeblingen.de.ibm.com> <20050524093029.GA4390@in.ibm.com>
+In-Reply-To: <20050524093029.GA4390@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-24 at 18:52 +0200, Arjan van de Ven wrote:
+Suparna Bhattacharya wrote:
 
-> why isn't this an rlimit instead ?
+> OK, though this leaves filemap.c alone which is good, I have to admit
+>
+>that this entire duplication of read/write routines really worries me.
+>
+>There has to be a third way.
+>  
+>
+Just thinking loud here:
+When looking at patch v2, the read split is done in do_generic_mapping_read
+vs do_xip_mapping read. In the write path, the split is at
+generic_file_xip_write,
+generic_file_buffered_write and generic_file_direct_write.
+How about abstracting on that interface? Like make those become address
+space operations. This way, the filesystems could select the corresponding
+function. No need to distinguish between xip, direct_IO, and classic
+readpage/writepage in the generic code anymore.
+Would this go in the direction you're thinking Suparna? Is it worth a
+try to see
+how it comes out? Opinions anyone?
 
-Definitely could be.
-
-Since inotify is built as a driver, the sysfs entry made sense, and it
-sure is easier to implement.
-
-But I'd have no problem with an rlimit.  We don't seem to add those
-frequently, though.
-
-	Robert Love
-
+cheers,
+Carsten
 

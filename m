@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262039AbVEXUdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261392AbVEXUp4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262039AbVEXUdG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 16:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262043AbVEXUdG
+	id S261392AbVEXUp4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 16:45:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbVEXUp4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 16:33:06 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:42632 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S262039AbVEXUdC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 16:33:02 -0400
-Date: Tue, 24 May 2005 22:33:00 +0200
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Prakash Punnoor <prakash@punnoor.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: cpufreq/speedstep won't work on Sony Vaio PCG-F807K
-Message-ID: <20050524203300.GA24187@isilmar.linta.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Prakash Punnoor <prakash@punnoor.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <42935600.5090008@punnoor.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42935600.5090008@punnoor.de>
-User-Agent: Mutt/1.5.9i
+	Tue, 24 May 2005 16:45:56 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:18612 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S261392AbVEXUpL convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 16:45:11 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH 2.6.12-rc4-mm1 3/4] megaraid_sas: updating the driver
+Date: Tue, 24 May 2005 16:45:05 -0400
+Message-ID: <60807403EABEB443939A5A7AA8A7458B01399B22@otce2k01.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH 2.6.12-rc4-mm1 3/4] megaraid_sas: updating the driver
+Thread-Index: AcVaI7buUXFwsud3RM2sZH+FXr8cUAGeOYFw
+From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+To: "James Bottomley" <James.Bottomley@SteelEye.com>,
+       "Arjan van de Ven" <arjan@infradead.org>
+Cc: "Bagalkote, Sreenivas" <sreenib@lsil.com>, <linux-scsi@vger.kernel.org>,
+       <linux-kernel@vger.kernel.org>, <Matt_Domsch@Dell.com>,
+       "Andrew Morton" <akpm@osdl.org>,
+       "Christoph Hellwig" <hch@infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+James Bottomley writes:
+> On Mon, 2005-05-16 at 10:06 +0200, Arjan van de Ven wrote:
+>> > +			spin_lock( instance->host_lock );
+>> > +			cmd->scmd->scsi_done( cmd->scmd );
+>> > +			spin_unlock( instance->host_lock );
+>> 
+>> are you really sure you don't want to use spin_lock_irqsave() here ?
+>
+>Actually, don't bother with the lock at all.  scsi_done() is designed
+to
+>be called locklessly.
 
-On Tue, May 24, 2005 at 06:27:44PM +0200, Prakash Punnoor wrote:
-> Hi,
-> 
-> subject says it all. The cpufreq interface won't show up (using kernel
-> 2.6.12-rc4). I tried the speedstep-smi and acpi-cpufreq module. When I try to
-> insert one of them, modprobe just report: No such device.
+Could I get an historical (2.4 & Distribution) perspective on this. At
+which point, or what code/include/manifest/version delineating it, would
+you say the driver is no longer, if ever, required to place a lock
+(host_lock or io_request_lock) around the scsi_done call?
 
-Please compile the kernel with CPUFREQ_DEBUG enabled, boot the kernel with
-the option cpufreq.debug=2 and (try to) modprobe both modules again. Then
-send me or the cpufreq list (see MAINTAINERS) the output of "dmesg".
+I expect (or hope) the answer to be: always needs io_request_lock in
+2.4, never needed the host_lock in 2.5+.
 
-	Dominik
+-- Mark Salyzyn

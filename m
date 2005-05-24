@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262198AbVEXVeF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262200AbVEXViG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262198AbVEXVeF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 17:34:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbVEXVeF
+	id S262200AbVEXViG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 17:38:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262199AbVEXViG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 17:34:05 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:50581 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262198AbVEXVeC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 17:34:02 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: Henrik Storner <henrik-kernel@hswn.dk>
-Newsgroups: linux.kernel
-Subject: Re: surprisingly slow accept/connect cycle time
-Date: Tue, 24 May 2005 21:34:00 +0000 (UTC)
-Organization: Linux Users Inc.
-Message-ID: <d706k8$kam$1@voodoo.hswn.dk>
-References: <17043.37997.993745.877259@newbie.ardi.com>
-NNTP-Posting-Host: osiris.hswn.dk
-X-Trace: voodoo.hswn.dk 1116970440 20822 172.16.10.100 (24 May 2005 21:34:00 GMT)
-X-Complaints-To: usenet@voodoo.hswn.dk
-NNTP-Posting-Date: Tue, 24 May 2005 21:34:00 +0000 (UTC)
-User-Agent: nn/6.6.5+RFC1522
+	Tue, 24 May 2005 17:38:06 -0400
+Received: from graphe.net ([209.204.138.32]:45969 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S262200AbVEXViE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 17:38:04 -0400
+Date: Tue, 24 May 2005 14:37:54 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: Matthew Dobson <colpatch@us.ibm.com>
+cc: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: NUMA aware slab allocator V3
+In-Reply-To: <428E56EE.4050400@us.ibm.com>
+Message-ID: <Pine.LNX.4.62.0505241436460.3878@graphe.net>
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com> 
+ <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com> 
+ <714210000.1116266915@flay> <200505161410.43382.jbarnes@virtuousgeek.org> 
+ <740100000.1116278461@flay>  <Pine.LNX.4.62.0505161713130.21512@graphe.net>
+ <1116289613.26955.14.camel@localhost> <428A800D.8050902@us.ibm.com>
+ <Pine.LNX.4.62.0505171648370.17681@graphe.net> <428B7B16.10204@us.ibm.com>
+ <Pine.LNX.4.62.0505181046320.20978@schroedinger.engr.sgi.com>
+ <428BB05B.6090704@us.ibm.com> <Pine.LNX.4.62.0505181439080.10598@graphe.net>
+ <Pine.LNX.4.62.0505182105310.17811@graphe.net> <428E3497.3080406@us.ibm.com>
+ <Pine.LNX.4.62.0505201210460.390@graphe.net> <428E56EE.4050400@us.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In <17043.37997.993745.877259@newbie.ardi.com> "Clifford T. Matthews" <ctm@ardi.com> writes:
+On Fri, 20 May 2005, Matthew Dobson wrote:
 
->While writing some test code, I was surprised to find a couple
->processes running very slowly.  The attached program illustrates this.
->The program forks and the child attempts to accept 1000 connections.
->The parent attempts to connect 1000 times.  This often takes minutes
->to run, on 2.4 kernels and 2.6 kernels (including 2.6.12-rc4).
+> I can't for the life of me explain why, but the above patch makes ALL the
+> warnings go away, despite the fact that they seem unrelated.  I dunno...
+> Maybe we should upgrade the compiler on that box?
 
-Have you tried using non-blocking sockets ?
-
-I've been doing some network programming myself lately, and my apps 
-have no problem handling a sustained load of 40 connections/second -
-which should handle your testcase in 25 seconds. And I'm quite sure it
-will be less, because it has handled peak loads of several hundred
-connections per second.
-
-But my program uses non-blocking sockets exclusively.
-
-
-Henrik
+Is the NUMA slab patch now working on ppc64?
 

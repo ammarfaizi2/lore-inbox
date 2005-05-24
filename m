@@ -1,138 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262004AbVEXMBr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbVEXMFi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262004AbVEXMBr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 08:01:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVEXMBr
+	id S262007AbVEXMFi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 08:05:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbVEXMFh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 08:01:47 -0400
-Received: from pat.uio.no ([129.240.130.16]:47799 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S262006AbVEXMBk (ORCPT
+	Tue, 24 May 2005 08:05:37 -0400
+Received: from ns2.suse.de ([195.135.220.15]:37783 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262007AbVEXMF2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 08:01:40 -0400
-Subject: Re: NFS corruption on 2.6.11.7
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Kenneth Johansson <ken@kenjo.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1116929711.6237.8.camel@tiger>
-References: <1116888428.5206.14.camel@tiger>
-	 <1116894917.11483.111.camel@lade.trondhjem.org>
-	 <1116929711.6237.8.camel@tiger>
-Content-Type: text/plain
-Date: Tue, 24 May 2005 08:01:28 -0400
-Message-Id: <1116936088.10707.39.camel@lade.trondhjem.org>
+	Tue, 24 May 2005 08:05:28 -0400
+Date: Tue, 24 May 2005 14:05:27 +0200
+From: Andi Kleen <ak@suse.de>
+To: Rajesh Shah <rajesh.shah@intel.com>
+Cc: Andi Kleen <ak@suse.de>, len.brown@intel.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       acpi-devel@lists.sourceforge.net
+Subject: Re: [patch 2/2] x86_64: Collect host bridge resources
+Message-ID: <20050524120527.GB15326@wotan.suse.de>
+References: <20050521004239.581618000@csdlinux-1> <20050521004506.842235000@csdlinux-1> <20050523161507.GN16164@wotan.suse.de> <20050523175706.A12032@unix-os.sc.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.543, required 12,
-	autolearn=disabled, AWL 1.41, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050523175706.A12032@unix-os.sc.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ty den 24.05.2005 Klokka 12:15 (+0200) skreiv Kenneth Johansson:
-
-> > > :/export/home/ken /home/ken nfs rw,v3,rsize=32768,wsize=32768,hard,udp,lock,addr=amd 0 0
+On Mon, May 23, 2005 at 05:57:08PM -0700, Rajesh Shah wrote:
+> On Mon, May 23, 2005 at 06:15:07PM +0200, Andi Kleen wrote:
+> > On Fri, May 20, 2005 at 05:42:41PM -0700, rajesh.shah@intel.com wrote:
+> > > This patch reads and stores host bridge resources reported by
+> > > ACPI BIOS for x86_64 systems. This is needed since ACPI hotplug
+> > > code now uses the PCI core for resource management. This patch
+> > > simply adds the boot parameter (acpi=root_resources) to enable
+> > > the functionality that is implemented in arch/i386.
 > > > 
 > > 
-> > I'm seeing no problems at all with this on a loopback mount with
-> > 2.6.12-rc4. Mind giving us some more details on your setup?
+> > This means all hot plug users have to pass this strange parameter?
+> > That does not sound very user friendly. Especially since you usually
+> > only need pci hotplug in emergencies, and then you likely didnt pass it.
 > > 
-> > Cheers,
-> >   Trond
+> > Cant you find a way to do this without parameters? Any reason
+> > to not make it default?
+> > 
+> I found several systems in which the host bridge was decoding 6+
+> resource ranges. In the pci_bus structure, I only have room for 4,
+> so I'm forced to drop some ranges that are in fact being passed
 
-Does the above export line mean that you are running with amd? If so,
-could you retry using an ordinary NFS mount (preferably a loopback mount
-- i.e. mount something over "localhost").
+How about you allocate an extended structure with kmalloc in this case?
+Or if it is only 6 ranges max (it is not, is it?) you could extend
+the array.
 
-Again, please could you give us more details on how you are doing these
-tests: what hardware (i.e. what NIC, switch, server, memory,...), lsmod
-output, (and ditto for the server).
-How are you using your scripts? Are you first running one on the server,
-then the other on the client, are you deleting the old files before you
-start a new run, etc.
+I doubt this information will need *that* much memory, so it should
+be reasonable to just teach the PCI subsystem about it.
 
+> Another option I'd thought of but never really pursued was to
+> implement this as a late_initcall. I'll look into that some more.
+> In that case, we'd continue to think that all host bridges decode
+> all unclaimed resources at boot time and depend on BIOS to program
+> resources for boot time devices correctly. Later, we'd collect the
+> more accurate host bridge resource picture to make hotplug work
+> correctly. Kind of hackish, but I can't think of another way to
+> avoid the boot parameter.
 
-> I did some more investigation what type of data error I get and it looks
-> a bit strange. I always get 28 bytes wrong in a sequence some times this
-> is data repeated from previous in the file but not always.  Anybody know
-> what cache line size this cpu has?
-> 
-> processor       : 0
-> vendor_id       : AuthenticAMD
-> cpu family      : 6
-> model           : 8
-> model name      : AMD Athlon(TM) XP 2200+
-> stepping        : 0
-> cpu MHz         : 1802.998
-> cache size      : 256 KB
-> fdiv_bug        : no
-> hlt_bug         : no
-> f00f_bug        : no
-> coma_bug        : no
-> fpu             : yes
-> fpu_exception   : yes
-> cpuid level     : 1
-> wp              : yes
-> flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 mmx fxsr sse pni syscall mmxext 3dnowext 3dnow
-> bogomips        : 3547.13
-> 
-> Here is a sample if three files with errors in them.
-> 
-> file 13 "od -Ax -tx1z"
-> 
-> 
-> -924dc0 df b3 0c 89 2d a2 83 da 1c 08 f2 66 da f6 6b f4  >....-......f..k.<
-> +924dc0 43 11 2a f4 98 09 d5 76 aa 26 83 00 24 3d 11 fd  >C.*....v.&..$=..<
-> 
-> -924dd0 af c2 44 57 9a 13 01 43 84 bf 99 c3 1b 16 8a 00  >..DW...C........<
-> +924dd0 3e 64 d7 bd 4f 8d 26 cf 4f 4f 2c 62 1b 16 8a 00  >>d..O.&.OO,b....<
-> 
-> 
-> 28 bytes wrong in a sequence
-> The data is a repeat from previous data in the file.
-> 
-> >grep "43 11 2a f4 98 09 d5 76 aa 26 83 00 24 3d 11 fd" 13_org 
-> 924d40 43 11 2a f4 98 09 d5 76 aa 26 83 00 24 3d 11 fd  >C.*....v.&..$=..<
-> 
-> >grep "43 11 2a f4 98 09 d5 76 aa 26 83 00 24 3d 11 fd" 13_err 
-> 924d40 43 11 2a f4 98 09 d5 76 aa 26 83 00 24 3d 11 fd  >C.*....v.&..$=..<
-> 924dc0 43 11 2a f4 98 09 d5 76 aa 26 83 00 24 3d 11 fd  >C.*....v.&..$=..<
-> 
-> 924dc0 is a copy of 924d40
-> 128 bytes offset
-> 
-> 
-> file 14 "od -Ax -tx1z"
-> 
-> -0912f0 91 45 bb cd eb 4f 01 d3 69 27 88 b5 7d 7d 17 8d  >.E...O..i'..}}..<
-> +0912f0 b8 3f 4e 5d 2e 86 ed c0 51 79 fe ec 3e 53 c9 29  >.?N]....Qy..>S.)<
-> 
-> -091300 7d 94 8e f9 81 d0 c2 4a b5 8e c6 af b0 03 4c 16  >}......J......L.<
-> +091300 d9 05 ac 0d fc eb 00 71 17 bd fb 3e b0 03 4c 16  >.......q...>..L.<
-> 
-> >grep "b8 3f 4e 5d 2e 86 ed c0 51 79 fe ec 3e 53 c9 29" 14_err
-> 0912b0 b8 3f 4e 5d 2e 86 ed c0 51 79 fe ec 3e 53 c9 29  >.?N]....Qy..>S.)<
-> 0912f0 b8 3f 4e 5d 2e 86 ed c0 51 79 fe ec 3e 53 c9 29  >.?N]....Qy..>S.)<
-> 
-> 28 bytes wrong
-> 64 bytes offset
-> 
-> 
-> file 16 "od -Ax -tx1z"
-> 
-> -635200 c3 1d f2 b8 c4 d5 12 c1 3f 48 e6 9d dc 98 1f e5  >........?H......<
-> +635200 c3 1d f2 b8 c4 d5 12 c1 00 10 00 00 00 d0 ec 08  >................<
-> 
-> -635210 9e 54 e7 f1 49 5b 1e d0 9f e2 7c 26 24 cb 98 24  >.T..I[....|&$..$<
-> +635210 00 10 00 00 00 90 14 08 00 10 00 00 00 50 25 06  >.............P%.<
-> 
-> -635220 25 fc 63 2a bf 07 b4 c0 cf a1 67 9b ef 01 5d 6d  >%.c*......g...]m<
-> +635220 00 10 00 00 bf 07 b4 c0 cf a1 67 9b ef 01 5d 6d  >..........g...]m<
-> 
-> 28 bytes wrong 
-> This time the data is not from this file.
-> 
-> 
-> 
-> 
+It sounds preferable to me to just give PCI the full picture from
+the beginning instead of using such hacks which will likely
+come back later to hurt us.
 
+-Andi

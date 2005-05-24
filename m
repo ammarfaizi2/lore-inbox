@@ -1,67 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVEWXpD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVEXAXy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbVEWXpD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 19:45:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbVEWX1K
+	id S261177AbVEXAXy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 20:23:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVEXAXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 19:27:10 -0400
-Received: from fire.osdl.org ([65.172.181.4]:48773 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261246AbVEWXYx (ORCPT
+	Mon, 23 May 2005 20:23:54 -0400
+Received: from fire.osdl.org ([65.172.181.4]:8851 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261151AbVEXAXf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 19:24:53 -0400
-Date: Mon, 23 May 2005 16:24:14 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: linux-kernel@vger.kernel.org, stable@kernel.org
-Cc: Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, bzolnier@gmail.com,
-       dsd@gentoo.org
-Subject: [patch 07/16] ide-disk: Fix LBA8 DMA
-Message-ID: <20050523232414.GS27549@shell0.pdx.osdl.net>
-References: <20050523231529.GL27549@shell0.pdx.osdl.net>
+	Mon, 23 May 2005 20:23:35 -0400
+Date: Mon, 23 May 2005 17:24:21 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
+Subject: Re: [CRYPTO]: Only reschedule if !in_atomic()
+Message-Id: <20050523172421.75e33b04.akpm@osdl.org>
+In-Reply-To: <1116892690.30513.13.camel@gaston>
+References: <200505232300.j4NN07lE012726@hera.kernel.org>
+	<20050523162806.0e70ae4f.akpm@osdl.org>
+	<1116892690.30513.13.camel@gaston>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050523231529.GL27549@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Daniel Drake <dsd@gentoo.org>
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+>
+> On Mon, 2005-05-23 at 16:28 -0700, Andrew Morton wrote:
+> 
+> > This code can cause deadlocks on CONFIG_SMP && !CONFIG_PREEMPT kernels.
+> > 
+> > Please see http://lkml.org/lkml/2005/3/10/358
+> > 
+> > You (the programmer) *have* to know what context you're running in before
+> > doing a voluntary yield.  There is simply no way to work this out at
+> > runtime.
+> 
+> Hrm... Linus just merged it though...
+> 
 
-This is from Gentoo's 2.6.11 patchset. A problem was introduced in 2.6.10
-where some users could not enable DMA on their disks (particularly ALi15x3
-users). This was a small mistake with the no_lba48_dma flag.
+The old version was:
 
-I can't find the exact commit but this is definately included in 2.6.12-rc4.
+	if (!in_softirq())
+		cond_resched();
 
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Which I guess is OK if the programmer knows that this code is only ever called
 
+a) from softirq context or
 
----
- drivers/ide/ide-disk.c |    4 +++-
- 1 files changed, 3 insertions(+), 1 deletion(-)
+b) from process context with no locks/smp_processor_id/etc held.
 
---- linux-2.6.11.10.orig/drivers/ide/ide-disk.c	2005-05-16 10:50:31.000000000 -0700
-+++ linux-2.6.11.10/drivers/ide/ide-disk.c	2005-05-20 09:36:31.933319224 -0700
-@@ -133,6 +133,8 @@
- 	if (hwif->no_lba48_dma && lba48 && dma) {
- 		if (block + rq->nr_sectors > 1ULL << 28)
- 			dma = 0;
-+               else
-+                       lba48 = 0;
- 	}
- 
- 	if (!dma) {
-@@ -146,7 +148,7 @@
- 	/* FIXME: SELECT_MASK(drive, 0) ? */
- 
- 	if (drive->select.b.lba) {
--		if (drive->addressing == 1) {
-+               if (lba48) {
- 			task_ioreg_t tasklets[10];
- 
- 			pr_debug("%s: LBA=0x%012llx\n", drive->name, block);
+The new version is:
+
+	if (!in_atomic())
+		cond_resched();
+
+which happens to still be correct as long as a) and b) still hold, which I
+assume they do.
+
+Both versions are deadlocky if b) is violated.
+
+So.  It sucks before and it sucks after, but we might not be deadlocky. 
+Problem is, !CONFIG_PREEMPT also disable the beancounting which
+might_sleep() depends upon, so it's harder to tell whether all callers are
+correct.

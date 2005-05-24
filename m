@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbVEXB43@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbVEXCDR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261301AbVEXB43 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 21:56:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVEXB43
+	id S261300AbVEXCDR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 22:03:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVEXCDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 21:56:29 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:59595 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261300AbVEXB41 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 21:56:27 -0400
-Message-ID: <429289C6.9080707@pobox.com>
-Date: Mon, 23 May 2005 21:56:22 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+	Mon, 23 May 2005 22:03:17 -0400
+Received: from mail.timesys.com ([65.117.135.102]:23125 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S261300AbVEXCDO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 22:03:14 -0400
+Message-ID: <42928AFF.7010503@timesys.com>
+Date: Mon, 23 May 2005 22:01:35 -0400
+From: john cooper <john.cooper@timesys.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Brent Casavant <bcasavan@sgi.com>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] ioc4: Driver rework
-References: <20050523192157.V75588@chenjesu.americas.sgi.com>
-In-Reply-To: <20050523192157.V75588@chenjesu.americas.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: dwalker@mvista.com
+CC: linux-kernel@vger.kernel.org, mingo@elte.hu, akpm@osdl.org,
+       sdietrich@mvista.com, john cooper <john.cooper@timesys.com>
+Subject: Re: RT patch acceptance
+References: <1116890066.13086.61.camel@dhcp153.mvista.com>
+In-Reply-To: <1116890066.13086.61.camel@dhcp153.mvista.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+X-OriginalArrivalTime: 24 May 2005 01:56:41.0000 (UTC) FILETIME=[D4209280:01C56003]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brent Casavant wrote:
-> - The IOC4 chip implements multiple functions (serial, IDE, others not
->   yet implemented in the mainline kernel) but is not a multifunction
->   PCI device.  In order to properly handle device addition and removal
->   as well as module insertion and deletion, an intermediary IOC4-specific
->   driver layer is needed to handle these operations cleanly.
+Daniel Walker wrote:
+> I went to see Andrew Morton speak at Xerox PARC and he indicated that
+> some of the RT patch was a little crazy . Specifically interrupts in
+> threads (Correct me if I'm wrong Andrew). It seems a lot of the
+> maintainers haven't really warmed up to it. 
 
-I disagree that a layer is needed.
+Understandably at first encounter it may seem rather
+unconventional.  However scheduled interrupt execution
+has existed in Solaris for years.
 
-Just write a PCI driver that does the following in probe:
+What are the objections?
 
-	register IDE
-	register serial
-	...
-
-and undoes all that in remove.
-
-Device addition and removal work just fine with that scheme.
-
-	Jeff
+-john
 
 
+-- 
+john.cooper@timesys.com

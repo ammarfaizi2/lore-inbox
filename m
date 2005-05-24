@@ -1,88 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261407AbVEXH3u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVEXHrr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261407AbVEXH3u (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 03:29:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbVEXH3u
+	id S261416AbVEXHrr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 03:47:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbVEXHrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 03:29:50 -0400
-Received: from ns2.suse.de ([195.135.220.15]:11926 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261410AbVEXH3g (ORCPT
+	Tue, 24 May 2005 03:47:47 -0400
+Received: from fire.osdl.org ([65.172.181.4]:48015 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261416AbVEXHrp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 03:29:36 -0400
-Date: Tue, 24 May 2005 09:29:29 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>
-Cc: Ondrej Zary <linux@rainbow-software.org>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, jgarzik@pobox.com
-Subject: Re: [PATCH] bug in VIA PCI IRQ routing
-Message-ID: <20050524072929.GD22182@pingi3.kke.suse.de>
-Mail-Followup-To: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>,
-	Ondrej Zary <linux@rainbow-software.org>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	jgarzik@pobox.com
-References: <0EF82802ABAA22479BC1CE8E2F60E8C31B4902@scl-exch2k3.phoenix.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0EF82802ABAA22479BC1CE8E2F60E8C31B4902@scl-exch2k3.phoenix.com>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.8-24.10-default i686
-User-Agent: Mutt/1.5.6i
+	Tue, 24 May 2005 03:47:45 -0400
+Date: Tue, 24 May 2005 00:46:35 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Andrew Morton <akpm@osdl.org>, Netdev <netdev@oss.sgi.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [git patches] 2.6.x net driver updates
+In-Reply-To: <4292D7E1.80601@pobox.com>
+Message-ID: <Pine.LNX.4.58.0505240042550.2307@ppc970.osdl.org>
+References: <4292BA66.8070806@pobox.com> <Pine.LNX.4.58.0505232253160.2307@ppc970.osdl.org>
+ <4292C8EF.3090307@pobox.com> <Pine.LNX.4.58.0505232343260.2307@ppc970.osdl.org>
+ <4292D7E1.80601@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Mon, May 23, 2005 at 12:53:41PM -0700, Aleksey Gorelov wrote:
+
+On Tue, 24 May 2005, Jeff Garzik wrote:
 > 
-> Karsten, 
+> Ok, I'll fix the commit message.
 > 
->   could you please verify if attached patch works for you ?
+> As for different trees, I'm afraid you've written something that is _too 
+> useful_ to be used in that manner.
 
-Works and seems to be OK, according to the specs. So this
-patch should go into the kernel, also into 2.4 I think.
-These chipset is still used on small special purpose systems.
+I really think you'll eventually confuse yourself terminally, but as long 
+as the commit messages end up being meaningful, your "mush everything 
+together" clearly is the thing that is going to perform best.
 
---- linux-2.6.11.10/arch/i386/pci/irq.c	2005-05-16 10:50:30.000000000 -0700
-+++ new/arch/i386/pci/irq.c	2005-05-23 12:47:19.000000000 -0700
-@@ -227,6 +227,24 @@
- }
- 
- /*
-+ * The VIA pirq rules are nibble-based, like ALI,
-+ * but without the ugly irq number munging.
-+ * However, for 82C586, nibble map is different .
-+ */
-+static int pirq_via586_get(struct pci_dev *router, struct pci_dev *dev, int pirq)
-+{
-+	static unsigned int pirqmap[4] = { 3, 2, 5, 1 };
-+	return read_config_nybble(router, 0x55, pirqmap[pirq-1]);
-+}
-+
-+static int pirq_via586_set(struct pci_dev *router, struct pci_dev *dev, int pirq, int irq)
-+{
-+	static unsigned int pirqmap[4] = { 3, 2, 5, 1 };
-+	write_config_nybble(router, 0x55, pirqmap[pirq-1], irq);
-+	return 1;
-+}
-+
-+/*
-  * ITE 8330G pirq rules are nibble-based
-  * FIXME: pirqmap may be { 1, 0, 3, 2 },
-  * 	  2+3 are both mapped to irq 9 on my system
-@@ -509,6 +527,10 @@
- 	switch(device)
- 	{
- 		case PCI_DEVICE_ID_VIA_82C586_0:
-+			r->name = "VIA";
-+			r->get = pirq_via586_get;
-+			r->set = pirq_via586_set;
-+			return 1;
- 		case PCI_DEVICE_ID_VIA_82C596:
- 		case PCI_DEVICE_ID_VIA_82C686:
- 		case PCI_DEVICE_ID_VIA_8231:
+> Git has brought with it a _major_ increase in my productivity because I 
+> can now easily share ~50 branches with 50 different kernel hackers, 
+> without spending all day running rsync.
 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+Hey, I'm happy it works for you, but are you sure those 50 other kernel 
+hackers aren't confused?
+
+IOW, your work model is pretty extreme, and I'm much more worried about 
+mixing up trees by mistake than about the technical side of git per se. 
+That's also why I think it's important that the commit logs are 
+meaningful: they do end up containing the SHA1 key, so clearly "all the 
+information" is there, but if something gets mixed up, I'd like some human 
+to be able to eventualyl say "Aaahhh.. _that's_ where it got mixed up".
+
+		Linus

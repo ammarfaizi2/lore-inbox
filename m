@@ -1,50 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVEXDvg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVEXEDj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261286AbVEXDvg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 23:51:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261283AbVEXDve
+	id S261216AbVEXEDj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 00:03:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVEXEDj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 23:51:34 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:61963 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261265AbVEXDvL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 23:51:11 -0400
-Date: Tue, 24 May 2005 13:50:56 +1000
-To: James Morris <jmorris@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org, davem@davemloft.net
-Subject: Re: [CRYPTO]: Only reschedule if !in_atomic()
-Message-ID: <20050524035056.GB29699@gondor.apana.org.au>
-References: <20050524024318.GB29242@gondor.apana.org.au> <Xine.LNX.4.44.0505232319450.1507-100000@thoron.boston.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Xine.LNX.4.44.0505232319450.1507-100000@thoron.boston.redhat.com>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Tue, 24 May 2005 00:03:39 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:31436 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261216AbVEXEDc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 00:03:32 -0400
+Message-ID: <4292A78C.4070600@pobox.com>
+Date: Tue, 24 May 2005 00:03:24 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Corey Minyard <minyard@mvista.com>
+CC: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: IPMI breaks 'make all{yes|mod}config'
+Content-Type: multipart/mixed;
+ boundary="------------020507090404070903060208"
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 23, 2005 at 11:20:26PM -0400, James Morris wrote:
-> 
-> a) remove the scheudling point and see if anyone complains
-> b) if so, add a flag
+This is a multi-part message in MIME format.
+--------------020507090404070903060208
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-OK.  I think we should go with the flag though since it could
-also be used for memory allocation.
 
-I've just added some code which allocates a scratch space for
-unaligned input to the VIA Padlock (IPv4 ESP traffic is normally
-unaligned due to the 20-byte IP header).  It could use this flag
-to determine whether it should do GFP_KERNEL or GFP_ATOMIC.
+Everything else seems to build, here on x86 32-bit all{yes|mod}config, 
+except IPMI.  See attached build log for output.
 
-Actually, has anyone considered using a 4-byte IP option padding?
-It's legal per RFC-791 but it'd be interesting to know how well
-it works in the field.
+	Jeff
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+
+
+
+--------------020507090404070903060208
+Content-Type: text/plain;
+ name="build.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="build.txt"
+
+  CHK     include/linux/version.h
+make[1]: `arch/i386/kernel/asm-offsets.s' is up to date.
+  CHK     include/linux/compile.h
+  CHK     usr/initramfs_list
+  AS      arch/i386/kernel/vsyscall-note.o
+  SYSCALL arch/i386/kernel/vsyscall-int80.so
+  SYSCALL arch/i386/kernel/vsyscall-sysenter.so
+  AS      arch/i386/kernel/vsyscall.o
+  SYSCALL arch/i386/kernel/vsyscall-syms.o
+  LD      arch/i386/kernel/built-in.o
+  CC      drivers/char/ipmi/ipmi_devintf.o
+drivers/char/ipmi/ipmi_devintf.c: In function `ipmi_new_smi':
+drivers/char/ipmi/ipmi_devintf.c:532: warning: passing arg 1 of `class_simple_device_add' from incompatible pointer type
+drivers/char/ipmi/ipmi_devintf.c: In function `ipmi_smi_gone':
+drivers/char/ipmi/ipmi_devintf.c:537: warning: passing arg 1 of `class_simple_device_remove' makes integer from pointer without a cast
+drivers/char/ipmi/ipmi_devintf.c:537: error: too many arguments to function `class_simple_device_remove'
+drivers/char/ipmi/ipmi_devintf.c: In function `init_ipmi_devintf':
+drivers/char/ipmi/ipmi_devintf.c:558: warning: assignment from incompatible pointer type
+drivers/char/ipmi/ipmi_devintf.c:566: warning: passing arg 1 of `class_simple_destroy' from incompatible pointer type
+drivers/char/ipmi/ipmi_devintf.c:580: warning: passing arg 1 of `class_simple_destroy' from incompatible pointer type
+drivers/char/ipmi/ipmi_devintf.c: In function `cleanup_ipmi':
+drivers/char/ipmi/ipmi_devintf.c:591: warning: passing arg 1 of `class_simple_destroy' from incompatible pointer type
+make[3]: *** [drivers/char/ipmi/ipmi_devintf.o] Error 1
+make[2]: *** [drivers/char/ipmi] Error 2
+make[1]: *** [drivers/char] Error 2
+make: *** [drivers] Error 2
+
+--------------020507090404070903060208--

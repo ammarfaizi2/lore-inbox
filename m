@@ -1,66 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVEXW7m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261926AbVEXXDR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262125AbVEXW7m (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 18:59:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbVEXW7Z
+	id S261926AbVEXXDR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 19:03:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262151AbVEXXDQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 18:59:25 -0400
-Received: from tiere.net.avaya.com ([198.152.12.100]:57566 "EHLO
-	tiere.net.avaya.com") by vger.kernel.org with ESMTP id S262099AbVEXW7R
+	Tue, 24 May 2005 19:03:16 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:47810 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261926AbVEXXDD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 18:59:17 -0400
-Subject: 2.6.11 timeval_to_jiffies() wrong for ms resolution timers
-From: "Bhavesh P. Davda" <bhavesh@avaya.com>
-Reply-To: bhavesh@avaya.com
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	Tue, 24 May 2005 19:03:03 -0400
+Message-ID: <4293B292.6010301@us.ibm.com>
+Date: Tue, 24 May 2005 16:02:42 -0700
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Lameter <christoph@lameter.com>
+CC: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: NUMA aware slab allocator V3
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>  <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com>  <714210000.1116266915@flay> <200505161410.43382.jbarnes@virtuousgeek.org>  <740100000.1116278461@flay>  <Pine.LNX.4.62.0505161713130.21512@graphe.net> <1116289613.26955.14.camel@localhost> <428A800D.8050902@us.ibm.com> <Pine.LNX.4.62.0505171648370.17681@graphe.net> <428B7B16.10204@us.ibm.com> <Pine.LNX.4.62.0505181046320.20978@schroedinger.engr.sgi.com> <428BB05B.6090704@us.ibm.com> <Pine.LNX.4.62.0505181439080.10598@graphe.net> <Pine.LNX.4.62.0505182105310.17811@graphe.net> <428E3497.3080406@us.ibm.com> <Pine.LNX.4.62.0505201210460.390@graphe.net> <428E56EE.4050400@us.ibm.com> <Pine.LNX.4.62.0505241436460.3878@graphe.net>
+In-Reply-To: <Pine.LNX.4.62.0505241436460.3878@graphe.net>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Organization: Avaya, Inc.
-Date: Tue, 24 May 2005 16:59:15 -0600
-Message-Id: <1116975555.2050.10.camel@cof110earth.dr.avaya.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-16) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-setitimer for 20ms was firing at 21ms, so I wrote a simple debug module
-for 2.6.11.10 kernel on i386 to do something like this:
+Christoph Lameter wrote:
+> On Fri, 20 May 2005, Matthew Dobson wrote:
+> 
+> 
+>>I can't for the life of me explain why, but the above patch makes ALL the
+>>warnings go away, despite the fact that they seem unrelated.  I dunno...
+>>Maybe we should upgrade the compiler on that box?
+> 
+> 
+> Is the NUMA slab patch now working on ppc64?
 
-struct timeval tv;
-unsigned long jif;
+No...  It does compile with that trivial patch, though! :)
 
-tv.tv_usec = 20000;
-tv.tv_sec = 0;
+-mm2 isn't booting on my 32-way x86 box, nor does it boot on my PPC64 box.
+ I figured -mm3 would be out shortly and I'd give the boxes another kick in
+the pants then...
 
-jif = timeval_to_jiffies(&tv);
-printk("%lu usec = %lu jiffies\n", tv.tv_usec, jif);
-
-This yields:
-
-20000 usec = 21 jiffies
-
-Egad!
-
-I looked at the timeval_to_jiffies() inline function in
-include/linux/jiffies.h, and after pulling my hair for a few minutes
-(okay almost an hour), I decided to ask much smarter people than myself
-on why it is behaving this way, and what it would take to fix it so that
-"20000 usec = 20 jiffies".
-
-I got as far as this in figuring it out for i386:
-
-HZ=1000
-SEC_CONVERSION=4194941632
-USEC_CONVERSION=2199357558
-USEC_ROUND=2199023255551
-USEC_JIFFIE_SC=41
-SEC_JIFFIE_SC=22
-
-Thanks in advance for saving me from going bald!
-
-- Bhavesh
-
--- 
-Bhavesh P. Davda | Distinguished Member of Technical Staff | Avaya |
-1300 West 120th Avenue | B3-B03 | Westminster, CO 80234 | U.S.A. |
-Voice/Fax: 303.538.4438 | bhavesh@avaya.com
+-Matt

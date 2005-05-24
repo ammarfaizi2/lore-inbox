@@ -1,80 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVEXJLe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbVEXJMP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261458AbVEXJLe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 05:11:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261483AbVEXJLe
+	id S261459AbVEXJMP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 05:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261510AbVEXJMO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 05:11:34 -0400
-Received: from smtp.nexlab.net ([213.173.188.110]:51893 "EHLO smtp.nexlab.net")
-	by vger.kernel.org with ESMTP id S261458AbVEXJJ7 (ORCPT
+	Tue, 24 May 2005 05:12:14 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:41654 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S261459AbVEXJK3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:09:59 -0400
+	Tue, 24 May 2005 05:10:29 -0400
 X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
 X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
 	08:27:20 2005 signatures 31.893
-Message-Id: <20050524090958.13A2CF9DC@smtp.nexlab.net>
-Date: Tue, 24 May 2005 11:09:58 +0200 (CEST)
+Message-Id: <20050524091025.C96F6FA29@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:10:25 +0200 (CEST)
 From: root@smtp.nexlab.net
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	by smtp.nexlab.net (Postfix) with ESMTP id 7AD88FAC5
+	by smtp.nexlab.net (Postfix) with ESMTP id 0E929FB77
 
-	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:20:44 +0200 (CEST)
+	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:48 +0200 (CEST)
 
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
 
-	id S261430AbVEXIQ3 (ORCPT <rfc822;chiakotay@nexlab.it>);
+	id S261331AbVEXGbe (ORCPT <rfc822;chiakotay@nexlab.it>);
 
-	Tue, 24 May 2005 04:16:29 -0400
+	Tue, 24 May 2005 02:31:34 -0400
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVEXIQ3
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVEXGbe
 
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 
-	Tue, 24 May 2005 04:16:29 -0400
+	Tue, 24 May 2005 02:31:34 -0400
 
-Received: from fmr17.intel.com ([134.134.136.16]:35548 "EHLO
+Received: from sccrmhc14.comcast.net ([204.127.202.59]:54738 "EHLO
 
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
 
-	id S261430AbVEXIOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S261331AbVEXGbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 
-	Tue, 24 May 2005 04:14:00 -0400
+	Tue, 24 May 2005 02:31:24 -0400
 
-Received: from orsfmr100.jf.intel.com (orsfmr100.jf.intel.com [10.7.209.16])
+Received: from [192.168.111.3] (c-24-6-245-209.hsd1.ca.comcast.net[24.6.245.209])
 
-	by orsfmr002.jf.intel.com (8.12.10/8.12.10/d: major-outer.mc,v 1.1 2004/09/17 17:50:56 root Exp $) with ESMTP id j4O8CfKm030199;
+          by comcast.net (sccrmhc14) with SMTP
 
-	Tue, 24 May 2005 08:12:41 GMT
+          id <2005052406281001400i8unfe>; Tue, 24 May 2005 06:31:24 +0000
 
-Received: from csdlinux-2.jf.intel.com (csdlinux-2.jf.intel.com [10.23.61.107])
+Subject: Re: promise sx8 sata driver
 
-	by orsfmr100.jf.intel.com (8.12.10/8.12.10/d: major-inner.mc,v 1.2 2004/09/17 18:05:01 root Exp $) with ESMTP id j4O8CeAx015527;
+From: Kallol Biswas <kallol@nucleodyne.com>
+Reply-To: kallol@nucleodyne.com
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Chris Haumesser <chris@mail-test.us>,
+	linux-kernel@vger.kernel.org
+In-Reply-To: <42925F7F.2000809@pobox.com>
 
-	Tue, 24 May 2005 08:12:40 GMT
+References: <42924E38.7070003@mail-test.us>  <42925F7F.2000809@pobox.com>
 
-Received: by csdlinux-2.jf.intel.com (Postfix, from userid 47353)
+Content-Type: text/plain
 
-	id 147152BCFB3; Tue, 24 May 2005 01:08:01 -0700 (PDT)
+Organization: NucleoDyne Systems Inc.
 
-Message-Id: <20050524080800.879055000@csdlinux-2.jf.intel.com>
+Message-Id: <1116909972.15027.3.camel@driver>
 
-References: <20050524075201.351504000@csdlinux-2.jf.intel.com>
+Mime-Version: 1.0
 
-Date:	Tue, 24 May 2005 00:27:52 -0700
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
 
-From: Ashok Raj <ashok.raj@intel.com>
-To: ak@muc.de, akpm@osdl.org
-Cc: zwane@arm.linux.org.uk, rusty@rustycorp.com.au, vatsa@in.ibm.com,
-	shaohua.li@intel.com, linux-kernel@vger.kernel.org,
-	discuss@x86-64.org, ashok.raj@intel.com
-Subject: [patch 3/4] CPU Hotplug support for X86_64
+Date:	23 May 2005 23:16:03 -0700
 
-Content-Disposition: inline; filename=x86_64-sibling-map-fixup.patch
-
-X-Scanned-By: MIMEDefang 2.44
+Content-Transfer-Encoding: 7bit
 
 Sender: linux-kernel-owner@vger.kernel.org
 Precedence: bulk
@@ -83,157 +81,47 @@ X-Mailing-List:	linux-kernel@vger.kernel.org
 
 
 
-Subject: [patch 3/4] x86_64: CPU hotplug sibling map cleanup
-From: Ashok Raj <ashok.raj@intel.com>
+How good is 2.6.6 carmel.c driver for sx8 adapters? Does it support
+the promise adapter? Why have you developed sx8.c?
+ 
 
-This patch is a minor cleanup to the cpu sibling/core map.
-It is required that this setup happens on a per-cpu bringup
-time.
+On Mon, 2005-05-23 at 15:55, Jeff Garzik wrote:
+> Chris Haumesser wrote:
+> > The sx8 driver does not use libata, and it is a separate block device,
+> > outside of the scsi and ata hierarchies.  If I compile the driver into
+> > my kernel, I end up with /dev/sx8/0 and /dev/sx8/0p1, etc.  However, no
+> > scsi disk devices are created, and grub does not recognize that
+> > /dev/sx8/ devices are disks.  There's no indication in /proc/scsi/ that
+> > they are being registered with the scsi subsystem; this is clearly
+> > different from every other sata controller I've used.  I've been
+> > googling this for days, with no real luck.  I have found changelogs for
+> > grub that suggest that my version (0.95) should support booting from the
+> > sx8.
+> 
+> sx8 is a separate block driver, and has nothing whatsoever to do with scsi.
+> 
+> 
+> > So my question is, how does one use this driver for sata disks?  Is my
+> > problem a grub problem, or does it have something to do with the fact
+> 
+> a grub problem
+> 
+> 
+> > What is the relationship between the promise driver and the one included
+> > in the kernel?  Why does one work differently from the other?  Is there
+> 
+> Promise SX8 provides neither an ATA nor SCSI interface to the developer, 
+> so its not written as an ATA or SCSI driver.
+> 
+> 	Jeff
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
-
-------------------------------
- smpboot.c |   89 ++++++++++++++++++++++++++++----------------------------------
- 1 files changed, 41 insertions(+), 48 deletions(-)
-
-Index: linux-2.6.12-rc4-mm2/arch/x86_64/kernel/smpboot.c
-===================================================================
---- linux-2.6.12-rc4-mm2.orig/arch/x86_64/kernel/smpboot.c
-+++ linux-2.6.12-rc4-mm2/arch/x86_64/kernel/smpboot.c
-@@ -62,9 +62,12 @@
- /* Number of siblings per CPU package */
- int smp_num_siblings = 1;
- /* Package ID of each logical CPU */
--u8 phys_proc_id[NR_CPUS] = { [0 ... NR_CPUS-1] = BAD_APICID };
--u8 cpu_core_id[NR_CPUS] = { [0 ... NR_CPUS-1] = BAD_APICID };
-+u8 phys_proc_id[NR_CPUS] __cacheline_aligned = 
-+	{ [0 ... NR_CPUS-1] = BAD_APICID };
- EXPORT_SYMBOL(phys_proc_id);
-+
-+u8 cpu_core_id[NR_CPUS] __cacheline_aligned = 
-+	{ [0 ... NR_CPUS-1] = BAD_APICID };
- EXPORT_SYMBOL(cpu_core_id);
- 
- /* Bitmask of currently online CPUs */
-@@ -434,6 +437,34 @@ void __cpuinit smp_callin(void)
- 	local_flush_tlb();
- }
- 
-+static inline void
-+set_cpu_sibling_map(int cpu)
-+{
-+	int i;
-+
-+	if (smp_num_siblings > 1) {
-+		for_each_online_cpu(i) {
-+			if (cpu_core_id[cpu] == cpu_core_id[i]) {
-+				cpu_set(i, cpu_sibling_map[cpu]);
-+				cpu_set(cpu, cpu_sibling_map[i]);
-+			}
-+		}
-+	} else {
-+		cpu_set(cpu, cpu_sibling_map[cpu]);
-+	}
-+
-+	if (current_cpu_data.x86_num_cores > 1) {
-+		for_each_online_cpu(i) {
-+			if (phys_proc_id[cpu] == phys_proc_id[i]) {
-+				cpu_set(i, cpu_core_map[cpu]);
-+				cpu_set(cpu, cpu_core_map[i]);
-+			}
-+		}
-+	} else {
-+		cpu_core_map[cpu] = cpu_sibling_map[cpu];
-+	}
-+}
-+
- /*
-  * Setup code on secondary processor (after comming out of the trampoline)
-  */
-@@ -463,6 +494,12 @@ void __cpuinit start_secondary(void)
- 
- 	enable_APIC_timer();
- 
-+	/* 
-+	 * The sibling maps must be set before turing the online map on for 
-+	 * this cpu 
-+	 */
-+	set_cpu_sibling_map(smp_processor_id());
-+
- 	/*
- 	 * Allow the master to continue.
- 	 */
-@@ -798,51 +835,6 @@ cycles_t cacheflush_time;
- unsigned long cache_decay_ticks;
- 
- /*
-- * Construct cpu_sibling_map[], so that we can tell the sibling CPU
-- * on SMT systems efficiently.
-- */
--static __cpuinit void detect_siblings(void)
--{
--	int cpu;
--
--	for (cpu = 0; cpu < NR_CPUS; cpu++) {
--		cpus_clear(cpu_sibling_map[cpu]);
--		cpus_clear(cpu_core_map[cpu]);
--	}
--
--	for_each_online_cpu (cpu) {
--		struct cpuinfo_x86 *c = cpu_data + cpu;
--		int siblings = 0;
--		int i;
--		if (smp_num_siblings > 1) {
--			for_each_online_cpu (i) {
--				if (cpu_core_id[cpu] == cpu_core_id[i]) {
--					siblings++;
--					cpu_set(i, cpu_sibling_map[cpu]);
--				}
--			}
--		} else {
--			siblings++;
--			cpu_set(cpu, cpu_sibling_map[cpu]);
--		}
--
--		if (siblings != smp_num_siblings) {
--			printk(KERN_WARNING
--	       "WARNING: %d siblings found for CPU%d, should be %d\n",
--			       siblings, cpu, smp_num_siblings);
--			smp_num_siblings = siblings;
--		}
--		if (c->x86_num_cores > 1) {
--			for_each_online_cpu(i) {
--				if (phys_proc_id[cpu] == phys_proc_id[i])
--					cpu_set(i, cpu_core_map[cpu]);
--			}
--		} else
--			cpu_core_map[cpu] = cpu_sibling_map[cpu];
--	}
--}
--
--/*
-  * Cleanup possible dangling ends...
-  */
- static __cpuinit void smp_cleanup_boot(void)
-@@ -1036,6 +1028,8 @@ void __init smp_prepare_boot_cpu(void)
- 	int me = smp_processor_id();
- 	cpu_set(me, cpu_online_map);
- 	cpu_set(me, cpu_callout_map);
-+	cpu_set(0, cpu_sibling_map[0]);
-+	cpu_set(0, cpu_core_map[0]);
- }
- 
- /*
-@@ -1100,7 +1094,6 @@ void __init smp_cpus_done(unsigned int m
- 	setup_ioapic_dest();
- #endif
- 
--	detect_siblings();
- 	time_init_gtod();
- 
- 	check_nmi_watchdog();
-
---
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

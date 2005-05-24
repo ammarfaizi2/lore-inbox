@@ -1,103 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261962AbVEXTkf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261986AbVEXUA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261962AbVEXTkf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 15:40:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261963AbVEXTkf
+	id S261986AbVEXUA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 16:00:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVEXUA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 15:40:35 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:44966 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261962AbVEXTkS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 15:40:18 -0400
-Date: Tue, 24 May 2005 14:39:30 -0500 (CDT)
-From: Brent Casavant <bcasavan@sgi.com>
-Reply-To: Brent Casavant <bcasavan@sgi.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Andrew Morton <akpm@osdl.org>, Robin Holt <holt@sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] ioc4: Driver rework
-In-Reply-To: <429289C6.9080707@pobox.com>
-Message-ID: <20050524135944.D80608@chenjesu.americas.sgi.com>
-References: <20050523192157.V75588@chenjesu.americas.sgi.com>
- <429289C6.9080707@pobox.com>
-Organization: "Silicon Graphics, Inc."
+	Tue, 24 May 2005 16:00:56 -0400
+Received: from jaragua.fcav.unesp.br ([200.145.101.9]:32736 "EHLO
+	jaragua.fcav.unesp.br") by vger.kernel.org with ESMTP
+	id S261986AbVEXUAi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 16:00:38 -0400
+Message-ID: <429389DA.7080408@fcav.unesp.br>
+Date: Tue, 24 May 2005 17:08:58 -0300
+From: Marcelo Luiz de Laia <mlaia@fcav.unesp.br>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: pt-br, pt
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Problem with optical mouse PS/2 on Linux 2.6.8.1-kanotix-10
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 May 2005, Jeff Garzik wrote:
+Hi guys,
 
-> Brent Casavant wrote:
-> > - The IOC4 chip implements multiple functions (serial, IDE, others not
-> >   yet implemented in the mainline kernel) but is not a multifunction
-> >   PCI device.  In order to properly handle device addition and removal
-> >   as well as module insertion and deletion, an intermediary IOC4-specific
-> >   driver layer is needed to handle these operations cleanly.
-> 
-> I disagree that a layer is needed.
-> 
-> Just write a PCI driver that does the following in probe:
-> 
-> 	register IDE
-> 	register serial
-> 	...
-> 
-> and undoes all that in remove.
+Previous to send, I send this question to my native language debian 
+mailing (Brazilian Portuguese) and, after breaf answers, I send it to 
+the debian-users mailing lists, as well the first, I receive a few 
+answers. Then, I post this questions on a forum and I dont get any 
+replay. In this mean time, I do a lot of search on google linux 
+http://www.google.com/linux. On google, I found this thread 
+http://www.ussg.iu.edu/hypermail/linux/kernel/0406.2/1498.html and I 
+suspect that are the some problem or maybe very closed problem. I am not 
+subscribed on kernel.org mailling. This mail is my "parting breath" on 
+this problem.
 
-Robin Holt just stopped by my office and clued me in to something I
-may not have made clear, and which may be why you disagree with me.
+I receive answers like this: change your mouse..." But, am very curious 
+and I suspect that I woudl get knowledg after solve this question. But, 
+I am send my apologizes if this problem is very simple.
 
-The IOC4 hardware is very strange PCI-wise.  While it implements
-what are a disparate set of features (IDE, serial ports, kbd/mouse,
-etc), in PCI-speak IOC4 is not a multifunction device. That is, in
-all ways it appears to the PCI infrastructure as a single device
-(e.g.  a single shared interrupt for all these features, no subdevice
-IDs for each independent feature, etc).
+The problem:
 
-This complicates the driver model fairly significantly.  The PCI
-infrastructure cannot natively deal with this situation because
-multiple kernel modules cannot register themselves for the same
-PCI subdevice because pci_device_probe_dynamic() will find only
-the first match.  Consequently we cannot write free-standing drivers
-for the seperate IOC4 features; actions that would normally be
-invoked by a probe function must be handled by some sort of IOC4
-core code which knows about the various IOC4 features, and how to
-probe these features whenever the core code has its probe function
-invoked.
+When the system is on boot up, when peripherals are be detected, the 
+light of my mouse is turned off. Then, my mouse didin't is recognized by 
+Xserver.
 
-(Yes, I suppose I could alter the PCI code to deal with this situation,
-but considering the complications that may cause for less-weird devices,
-it hardly seems like a good path to pursue.)
+I suppose that I have a problem with my kernel, because the red lights 
+(laser) is turned off as soon as the next message is showed on the 
+screen in the start up system:
 
-The main thrust of my code changes is to allow these logically
-independent features of the IOC4 to be implemented as independent
-(from eachother, not the core driver) kernel modules.  Rather than
-the IOC4 core module having hard-coded knowledge of each feature of
-the chip, it instead relies on the per-feature kernel modules to
-register their comings and goings.
+mice: PS/2 mouse device common for all mice
+serio: i8042 AUX port at 0x60,0x64 irq 12
+input: ImExPS/2 Generic Explorer Mouse on isa0060/serio1
+serio: i8042 KBD port at 0x60,0x64 irq 1
 
-This provides a very useful level of flexibility, requiring neither
-RAM nor disk space (which can be quite contended for install media
-or initrd images) for unused features.  It certainly speeds up
-driver debugging iterations.  And (personal opinion here), the
-resulting code structure is cleaner than the existing code.
 
-In some ways, you could conceptualize the IOC4 chip as a bus.  In
-fact, I once toyed with the idea of implementing it as a new bus
-type.  If you view it in those terms, the IOC4 core driver is
-essentially a "PCI to IOC4 bridge" driver, and the IOC4 feature
-drivers would be independent IOC4 devices.  However, IOC4 isn't
-a bridge, and implementing it as a bus would be overkill. Thus
-a simple core driver that allows feature registration and
-deregistration seems a fitting solution.
+*Then, my problem don't is with the X configuration, it appear before 
+the X start.*
 
-Thoughts?
+I read these thread 
+http://www.ussg.iu.edu/hypermail/linux/kernel/0406.2/1498.html but I 
+dont know how I do that suggestions: compile a new kernel? How version? 
+A patch?
 
-Thanks,
-Brent
+Any one could be tell me what I do in this case? Or suggest me another 
+maillist or maintainer?
 
--- 
-Brent Casavant                          If you had nothing to fear,
-bcasavan@sgi.com                        how then could you be brave?
-Silicon Graphics, Inc.                    -- Queen Dama, Source Wars
+When I use another optical mouse, it is detected as:
+
+input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
+
+and it works fine!
+
+I use Debian-like Linux 2.6.8.1-kanotix-10 #1 Sun Oct 31 19:57:19 BRT 
+2004 i686 GNU/Linux
+
+PS.: ImExPS/2 mouse is different from ImPS/2 mouse!? I suppose that here 
+are the problem.
+
+Thanks
+
+Marcelo

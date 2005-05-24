@@ -1,117 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262011AbVEXJrx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbVEXJry@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262011AbVEXJrx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 05:47:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVEXJrT
+	id S262009AbVEXJry (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 05:47:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262073AbVEXJqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 05:47:19 -0400
-Received: from smtp.nexlab.net ([213.173.188.110]:35015 "EHLO smtp.nexlab.net")
-	by vger.kernel.org with ESMTP id S262011AbVEXJUz (ORCPT
+	Tue, 24 May 2005 05:46:52 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:51398 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S262009AbVEXJUg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:20:55 -0400
+	Tue, 24 May 2005 05:20:36 -0400
 X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
 X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
 	08:27:20 2005 signatures 31.893
-Message-Id: <20050524092049.6FDC1FA5E@smtp.nexlab.net>
-Date: Tue, 24 May 2005 11:20:49 +0200 (CEST)
+Message-Id: <20050524092029.8F849FA33@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:20:29 +0200 (CEST)
 From: root@smtp.nexlab.net
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	by smtp.nexlab.net (Postfix) with ESMTP id ECF37FB79
+	by smtp.nexlab.net (Postfix) with ESMTP id 58A23FB70
 
-	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:48 +0200 (CEST)
+	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:45 +0200 (CEST)
 
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
 
-	id S261271AbVEXFr3 (ORCPT <rfc822;chiakotay@nexlab.it>);
+	id S261270AbVEXBs7 (ORCPT <rfc822;chiakotay@nexlab.it>);
 
-	Tue, 24 May 2005 01:47:29 -0400
+	Mon, 23 May 2005 21:48:59 -0400
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVEXFr3
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVEXBs7
 
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 
-	Tue, 24 May 2005 01:47:29 -0400
+	Mon, 23 May 2005 21:48:59 -0400
 
-Received: from pentafluge.infradead.org ([213.146.154.40]:53900 "EHLO
+Received: from fmr20.intel.com ([134.134.136.19]:30157 "EHLO
 
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
 
-	id S261271AbVEXFrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S261270AbVEXBsz convert rfc822-to-8bit (ORCPT
 
-	Tue, 24 May 2005 01:47:23 -0400
+	<rfc822;linux-kernel@vger.kernel.org>);
 
-Received: from hch by pentafluge.infradead.org with local (Exim 4.43 #1 (Red Hat Linux))
+	Mon, 23 May 2005 21:48:55 -0400
 
-	id 1DaSGA-0001eE-LR; Tue, 24 May 2005 06:47:22 +0100
+Received: from orsfmr100.jf.intel.com (orsfmr100.jf.intel.com [10.7.209.16])
 
-Date:	Tue, 24 May 2005 06:47:22 +0100
+	by orsfmr005.jf.intel.com (8.12.10/8.12.10/d: major-outer.mc,v 1.1 2004/09/17 17:50:56 root Exp $) with ESMTP id j4O1mYt0028798;
 
-From: Christoph Hellwig <hch@infradead.org>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, akpm@osdl.org,
-	sdietrich@mvista.com
-Subject: Re: RT patch acceptance
+	Tue, 24 May 2005 01:48:34 GMT
 
-Message-ID: <20050524054722.GA6160@infradead.org>
+Received: from orsmsxvs040.jf.intel.com (orsmsxvs040.jf.intel.com [192.168.65.206])
 
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-	mingo@elte.hu, akpm@osdl.org, sdietrich@mvista.com
-References: <1116890066.13086.61.camel@dhcp153.mvista.com>
+	by orsfmr100.jf.intel.com (8.12.10/8.12.10/d: major-inner.mc,v 1.2 2004/09/17 18:05:01 root Exp $) with SMTP id j4O1mTXf003520;
 
-Mime-Version: 1.0
+	Tue, 24 May 2005 01:48:33 GMT
 
-Content-Type: text/plain; charset=us-ascii
+Received: from orsmsx331.amr.corp.intel.com ([192.168.65.56])
 
-Content-Disposition: inline
+ by orsmsxvs040.jf.intel.com (SAVSMTP 3.1.7.47) with SMTP id M2005052318483323882
 
-In-Reply-To: <1116890066.13086.61.camel@dhcp153.mvista.com>
+ ; Mon, 23 May 2005 18:48:33 -0700
 
-User-Agent: Mutt/1.4.1i
+Received: from orsmsx407.amr.corp.intel.com ([192.168.65.50]) by orsmsx331.amr.corp.intel.com with Microsoft SMTPSVC(6.0.3790.211);
 
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	 Mon, 23 May 2005 18:48:33 -0700
 
-	See http://www.infradead.org/rpr.html
+x-mimeole: Produced By Microsoft Exchange V6.5.7226.0
+
+Content-class: urn:content-classes:message
+
+MIME-Version: 1.0
+
+Content-Type: text/plain;
+
+	charset="us-ascii"
+
+Subject: RE: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
+
+Date:	Mon, 23 May 2005 18:47:19 -0700
+
+Message-ID: <F989B1573A3A644BAB3920FBECA4D25A0354AC06@orsmsx407>
+
+X-MS-Has-Attach: 
+
+X-MS-TNEF-Correlator: 
+
+Thread-Topic: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
+
+Thread-Index: AcVfp8XeLo2UCHswQ3y8C8/NFsPwNwAWkJXg
+
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "Oleg Nesterov" <oleg@tv-sign.ru>, "Ingo Molnar" <mingo@elte.hu>
+Cc: <linux-kernel@vger.kernel.org>,
+	"Daniel Walker" <dwalker@mvista.com>
+X-OriginalArrivalTime: 24 May 2005 01:48:33.0281 (UTC) FILETIME=[B16C8F10:01C56002]
+
+X-Scanned-By: MIMEDefang 2.44
 
 Sender: linux-kernel-owner@vger.kernel.org
 Precedence: bulk
 
 X-Mailing-List:	linux-kernel@vger.kernel.org
 
+Content-Transfer-Encoding: quoted-printable
 
 
-On Mon, May 23, 2005 at 04:14:26PM -0700, Daniel Walker wrote:
-> Hello World!
-> 
-> I went to see Andrew Morton speak at Xerox PARC and he indicated that
-> some of the RT patch was a little crazy . Specifically interrupts in
-> threads (Correct me if I'm wrong Andrew). It seems a lot of the
-> maintainers haven't really warmed up to it. 
-> 
-> I don't know to what extent Ingo has lobbied to try to get acceptance
-> into an unstable or stable kernel. However, since I know Andrew is cold
-> to accepting it , I thought I would ask what would need to be done to
-> the RT patch so that it could be accepted?
-> 
-> I think the fact that some distributions are including RT patched
-> kernels is a sign that this technology is getting mature. Not to mention
-> the fact that it's a 600k+ patch and getting bigger everyday. 
-> 
-> I'm sure there are some people fiercely opposed to it, some of whom I've
-> already run into. What is it about RT that gets people's skin crawling?
-> It is a configure option after all.
 
-Personally I think interrupt threads, spinlocks as sleeping mutexes and PI
-is something we should keep out of the kernel tree.  If you want such
-advanced RT features use a special microkernel and run Linux as user
-process, using RTAI or maybe soon some of the more sofisticated virtualization
-technologies.
+>From: tmp@several.ru [mailto:tmp@several.ru] On Behalf Of Oleg Nesterov
+>Ingo Molnar wrote:
+>>
+>> Changes:
+>>
+>>  - more plist fixes (Daniel Walker)
+
+>Why should we consider ->prio =3D=3D INT_MAX as a special case?
+
+This is a fusyn-specific optimization. INT_MAX is set to be the lowest
+prio and the one used by non-PI waiters, so it will never interfere with
+normal priorities. Because this is probably going to be most of the=20
+cases and we know it will always be the last one, it is a shortcut for
+it.
+
+It makes some sense, but in a more generic scenario, I might not.
+
+-- Inaky=20
 
 -
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" i=
+n
 the body of a message to majordomo@vger.kernel.org
 More majordomo info at  http://vger.kernel.org/majordomo-info.html
 Please read the FAQ at  http://www.tux.org/lkml/

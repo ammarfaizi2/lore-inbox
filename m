@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262076AbVEXO4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVEXO4z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262076AbVEXO4h (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 10:56:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbVEXO4h
+	id S261277AbVEXO4z (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 10:56:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVEXO4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 10:56:37 -0400
-Received: from mailwasher.lanl.gov ([192.65.95.54]:53380 "EHLO
-	mailwasher.lanl.gov") by vger.kernel.org with ESMTP id S262074AbVEXO4Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 10:56:25 -0400
-Date: Tue, 24 May 2005 08:56:16 -0600 (MDT)
-From: "Ronald G. Minnich" <rminnich@lanl.gov>
-To: Miklos Szeredi <miklos@szeredi.hu>
-cc: penberg@gmail.com, ericvh@gmail.com, linux-kernel@vger.kernel.org,
-       v9fs-developer@lists.sourceforge.net,
-       viro@parcelfarce.linux.theplanet.co.uk, linux-fsdevel@vger.kernel.org,
-       penberg@cs.helsinki.fi
-Subject: Re: [V9fs-developer] Re: [RFC][patch 3/7] v9fs: VFS inode operations
- (2.0-rc6)
-In-Reply-To: <E1DaaLl-0004Ap-00@dorka.pomaz.szeredi.hu>
-Message-ID: <Pine.LNX.4.58.0505240855310.9339@enigma.lanl.gov>
-References: <200505232225.j4NMPmH9014347@ms-smtp-01-eri0.texas.rr.com>
- <84144f0205052401432ffa1075@mail.gmail.com> <Pine.LNX.4.58.0505240803410.9237@enigma.lanl.gov>
- <E1DaaLl-0004Ap-00@dorka.pomaz.szeredi.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-PMX-Version: 4.7.0.111621
+	Tue, 24 May 2005 10:56:54 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:13206 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261277AbVEXO4j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 10:56:39 -0400
+Date: Tue, 24 May 2005 15:56:36 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: [patch] Voluntary Kernel Preemption, 2.6.12-rc4-mm2
+Message-ID: <20050524145636.GA15943@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+	Arjan van de Ven <arjanv@infradead.org>,
+	Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
+References: <20050524121541.GA17049@elte.hu> <20050524132105.GA29477@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050524132105.GA29477@elte.hu>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 24, 2005 at 03:21:05PM +0200, Ingo Molnar wrote:
+> 
+> this patch (ontop of the current -mm scheduler patchset plus the 
+> previous 2 patches from me) adds a new preemption model: 'Voluntary 
+> Kernel Preemption'. The 3 models can be selected from a new menu:
+> 
+>             (X) No Forced Preemption (Server)
+>             ( ) Voluntary Kernel Preemption (Desktop)
+>             ( ) Preemptible Kernel (Low-Latency Desktop)
+> 
+> we still default to the stock (Server) preemption model.
+> 
+> Voluntary preemption works by adding a cond_resched() 
+> (reschedule-if-needed) call to every might_sleep() check.
 
+I still disagree with this one violently.  If you want a cond_resched()
+add it where nessecary, but don't hide it behind might_sleep - there
+could be quite a lot might_sleeps in common codepathes and they should
+stay purely a debug aid.
 
-On Tue, 24 May 2005, Miklos Szeredi wrote:
-
-> Why don't you just use 'finish'.  That prints the return value.
-
-assuming gdb, but ok, it's fine by me if them's the rules. 
-
-> Every unnecessary line in a function makes it harder to read.  That
-> includes over-commenting and overuse of empty lines.
-
-ok
-
-thanks
-
-ron

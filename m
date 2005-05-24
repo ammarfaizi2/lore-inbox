@@ -1,83 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261986AbVEXUA4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261992AbVEXURp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261986AbVEXUA4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 16:00:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVEXUA4
+	id S261992AbVEXURp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 16:17:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbVEXURp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 16:00:56 -0400
-Received: from jaragua.fcav.unesp.br ([200.145.101.9]:32736 "EHLO
-	jaragua.fcav.unesp.br") by vger.kernel.org with ESMTP
-	id S261986AbVEXUAi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 16:00:38 -0400
-Message-ID: <429389DA.7080408@fcav.unesp.br>
-Date: Tue, 24 May 2005 17:08:58 -0300
-From: Marcelo Luiz de Laia <mlaia@fcav.unesp.br>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: pt-br, pt
-MIME-Version: 1.0
+	Tue, 24 May 2005 16:17:45 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36830 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261992AbVEXURj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 16:17:39 -0400
+Date: Tue, 24 May 2005 11:34:30 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
 To: linux-kernel@vger.kernel.org
-Subject: Problem with optical mouse PS/2 on Linux 2.6.8.1-kanotix-10
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Linux 2.4.31-rc1
+Message-ID: <20050524143430.GA12779@logos.cnet>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi guys,
 
-Previous to send, I send this question to my native language debian 
-mailing (Brazilian Portuguese) and, after breaf answers, I send it to 
-the debian-users mailing lists, as well the first, I receive a few 
-answers. Then, I post this questions on a forum and I dont get any 
-replay. In this mean time, I do a lot of search on google linux 
-http://www.google.com/linux. On google, I found this thread 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0406.2/1498.html and I 
-suspect that are the some problem or maybe very closed problem. I am not 
-subscribed on kernel.org mailling. This mail is my "parting breath" on 
-this problem.
+Here goes 2.4.31-rc1.
 
-I receive answers like this: change your mouse..." But, am very curious 
-and I suspect that I woudl get knowledg after solve this question. But, 
-I am send my apologizes if this problem is very simple.
+It contains a small number of simple scattered fixes and a 
+tg3 update.
 
-The problem:
+Refer to the changelog for details
 
-When the system is on boot up, when peripherals are be detected, the 
-light of my mouse is turned off. Then, my mouse didin't is recognized by 
-Xserver.
+Summary of changes from v2.4.31-pre2 to v2.4.31-rc1
+============================================
 
-I suppose that I have a problem with my kernel, because the red lights 
-(laser) is turned off as soon as the next message is showed on the 
-screen in the start up system:
+<aleksey_gorelov:phoenix.com>:
+  o Fix bug in VIA 82C586B PCI IRQ routing
 
-mice: PS/2 mouse device common for all mice
-serio: i8042 AUX port at 0x60,0x64 irq 12
-input: ImExPS/2 Generic Explorer Mouse on isa0060/serio1
-serio: i8042 KBD port at 0x60,0x64 irq 1
+<julien.tinnes:francetelecom.com>:
+  o Off-by-one in loop.c
 
+<mkasick:club.cc.cmu.edu>:
+  o JFS oops fix
 
-*Then, my problem don't is with the X configuration, it appear before 
-the X start.*
+<vvs:sw.ru>:
+  o random poolsize sysctl fix
 
-I read these thread 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0406.2/1498.html but I 
-dont know how I do that suggestions: compile a new kernel? How version? 
-A patch?
+<wtarreau:exosec.fr>:
+  o fix compilation error introduced by moxa correction
 
-Any one could be tell me what I do in this case? Or suggest me another 
-maillist or maintainer?
+Christoph Hellwig:
+  o XFS: fix compilation error
 
-When I use another optical mouse, it is detected as:
+David S. Miller:
+  o Add basic bcm5752 support
+  o Add bcm5752 to tg3_pci_tbl
+  o Add bcm5752 entry to pci_ids.h
+  o use TG3_FLG2_5705_PLUS instead of multi-way if's
+  o define TG3_FLG2_5750_PLUS flag
+  o use new TG3_FLG2_5750_PLUS flag
+  o more use of TG3_FLG2_5705_PLUS flag
+  o use TG3_FLG2_57{05,50}_PLUS flags in tg3_get_invariants
+  o check TG3_FLG2_5750_PLUS flag to set TG3_FLG2_5705_PLUS flag
+  o add support for bcm5752 rev a1
+  o Minor 5752 fixes
+  o Split tg3_phy_probe into 2
+  o Setup proper GPIO settings
+  o Fix tg3_set_power_state()
+  o Workaround 5752 A0 chip ID
+  o Add GPIO3 for 5752
+  o Add nvram detection for 5752
+  o Add nvram lock-out support for
+  o Fix bug in tg3_set_eeprom()
+  o Add msi support
+  o Add msi test
+  o Update driver version and release date
+  o Set SA_SAMPLE_RANDOM in request_irq() calls
+  o Elide tg3_stop_block messages when such events are normal
+  o Ignore tg3_stop_block() errors
+  o Add tagged status support
+  o Set minimal hw interrupt mitigation
+  o Refine DMA boundary setting
+  o In tg3_poll(), resample status_tag after doing work
+  o Fix stretch ACK performance killer when doing ucopy
+  o Fix off-by-one error in rtnetlink.c
 
-input: ImPS/2 Generic Wheel Mouse on isa0060/serio1
+Luca Tettamanti:
+  o fbmem: previous radeonfb fix limits the amount of mmap()'able VRAM to the same amount reserved for the framebuffer
 
-and it works fine!
+Marcelo Tosatti:
+  o USB: fix oops in io_edgeport.c driver (2.6 backport)
+  o Change VERSION to 2.4.31-rc1
 
-I use Debian-like Linux 2.6.8.1-kanotix-10 #1 Sun Oct 31 19:57:19 BRT 
-2004 i686 GNU/Linux
+Mikael Pettersson:
+  o x86_64 linkage error on UP_IOAPIC
 
-PS.: ImExPS/2 mouse is different from ImPS/2 mouse!? I suppose that here 
-are the problem.
+Mike Miller:
+  o cciss: fix for passthru ioctls
 
-Thanks
+Suresh B. Siddha:
+  o x86_64: fix pci config space access race condition
+  o x86_64: Try harder to allocate memory in pci_alloc_consistent()
 
-Marcelo
+Willy Tarreau:
+  o floppy typo fix
+
+Xose Vazquez Perez:
+  o Add 5752M device ID
+

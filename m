@@ -1,80 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262081AbVEXKEB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262053AbVEXKDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262081AbVEXKEB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 06:04:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbVEXJoK
+	id S262053AbVEXKDv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 06:03:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbVEXJpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 05:44:10 -0400
-Received: from smtp.nexlab.net ([213.173.188.110]:32712 "EHLO smtp.nexlab.net")
-	by vger.kernel.org with ESMTP id S262017AbVEXJV0 (ORCPT
+	Tue, 24 May 2005 05:45:11 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:25286 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S262006AbVEXJUV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:21:26 -0400
+	Tue, 24 May 2005 05:20:21 -0400
 X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
 X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
 	08:27:20 2005 signatures 31.893
-Message-Id: <20050524092121.6CE37FA7B@smtp.nexlab.net>
-Date: Tue, 24 May 2005 11:21:21 +0200 (CEST)
+Message-Id: <20050524092013.57A93F9FE@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:20:13 +0200 (CEST)
 From: root@smtp.nexlab.net
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	by smtp.nexlab.net (Postfix) with ESMTP id DE1F8FB74
+	by smtp.nexlab.net (Postfix) with ESMTP id B462DFB80
 
-	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:46 +0200 (CEST)
+	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:51 +0200 (CEST)
 
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
 
-	id S261332AbVEXG12 (ORCPT <rfc822;chiakotay@nexlab.it>);
+	id S261424AbVEXH7w (ORCPT <rfc822;chiakotay@nexlab.it>);
 
-	Tue, 24 May 2005 02:27:28 -0400
+	Tue, 24 May 2005 03:59:52 -0400
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVEXG12
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261423AbVEXH7w
 
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 
-	Tue, 24 May 2005 02:27:28 -0400
+	Tue, 24 May 2005 03:59:52 -0400
 
-Received: from mail.dvmed.net ([216.237.124.58]:6349 "EHLO mail.dvmed.net")
+Received: from mx1.elte.hu ([157.181.1.137]:54227 "EHLO mx1.elte.hu")
 
-	by vger.kernel.org with ESMTP id S261259AbVEXG1M (ORCPT
+	by vger.kernel.org with ESMTP id S261431AbVEXH7k (ORCPT
 
 	<rfc822;linux-kernel@vger.kernel.org>);
 
-	Tue, 24 May 2005 02:27:12 -0400
+	Tue, 24 May 2005 03:59:40 -0400
 
-Received: from cpe-065-184-065-144.nc.res.rr.com ([65.184.65.144] helo=[10.10.10.88])
+Received: from chiara.elte.hu (chiara.elte.hu [157.181.150.200])
 
-	by mail.dvmed.net with esmtpsa (Exim 4.51 #1 (Red Hat Linux))
+	by mx1.elte.hu (Postfix) with ESMTP id 9302432329E;
 
-	id 1DaSsf-0001On-LK; Tue, 24 May 2005 06:27:10 +0000
+	Tue, 24 May 2005 09:58:04 +0200 (CEST)
 
-Message-ID: <4292C93B.9000009@pobox.com>
+Received: by chiara.elte.hu (Postfix, from userid 17806)
 
-Date:	Tue, 24 May 2005 02:27:07 -0400
+	id AB1CA1FC2; Tue, 24 May 2005 09:59:37 +0200 (CEST)
 
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+Date:	Tue, 24 May 2005 09:59:27 +0200
 
-X-Accept-Language: en-us, en
+From: Ingo Molnar <mingo@elte.hu>
+To: George Anzinger <george@mvista.com>
+Cc: linux-kernel@vger.kernel.org, dwalker@mvista.com
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-00
 
-MIME-Version: 1.0
+Message-ID: <20050524075927.GA20462@elte.hu>
 
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-	"linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [git patches] 2.6.x libata new PCI ids
+References: <20050509073702.GA13615@elte.hu> <427FBFE1.5020204@mvista.com>
 
-References: <4292BA93.801@pobox.com> <Pine.LNX.4.58.0505232310590.2307@ppc970.osdl.org>
+Mime-Version: 1.0
 
-In-Reply-To: <Pine.LNX.4.58.0505232310590.2307@ppc970.osdl.org>
+Content-Type: text/plain; charset=us-ascii
 
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <427FBFE1.5020204@mvista.com>
 
-X-Spam-Score: 0.0 (/)
+User-Agent: Mutt/1.4.2.1i
+
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+
+X-ELTE-VirusStatus: clean
+
+X-ELTE-SpamCheck: no
+
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+
+	autolearn=not spam, BAYES_00 -4.90
+
+X-ELTE-SpamLevel: 
+
+X-ELTE-SpamScore: -4
 
 Sender: linux-kernel-owner@vger.kernel.org
 Precedence: bulk
@@ -83,26 +95,19 @@ X-Mailing-List:	linux-kernel@vger.kernel.org
 
 
 
-Linus Torvalds wrote:
-> 
-> On Tue, 24 May 2005, Jeff Garzik wrote:
-> 
->>Please pull the 'new-ids' branch from
->>
->>rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
->>
->>This add new PCI ids to some SATA drivers.
-> 
-> 
-> So here the trees are identical in between the two versions, so the later 
-> commit is definitely not doing anything. What's up?
 
-pass 'refs/heads/new-ids' as the second arg to git-pull-script.
+* George Anzinger <george@mvista.com> wrote:
 
-	Jeff
+> Also, I think that del_timer_sync and friends need to be turned on if 
+> soft_irq is preemptable.
 
+you mean the #ifdef CONFIG_SMP should be:
 
+	#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT_SOFTIRQS)
 
+?
+
+	Ingo
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

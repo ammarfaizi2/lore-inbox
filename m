@@ -1,99 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262189AbVEXVQX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262184AbVEXVRT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262189AbVEXVQX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 17:16:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262184AbVEXVQX
+	id S262184AbVEXVRT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 17:17:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262193AbVEXVRS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 17:16:23 -0400
-Received: from alog0666.analogic.com ([208.224.223.203]:17105 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262189AbVEXVP1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 17:15:27 -0400
-Date: Tue, 24 May 2005 17:14:50 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: "Clifford T. Matthews" <ctm@ardi.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: trouble trapping SEGV on 2.6.11.2 & 2.6.12-rc4
-In-Reply-To: <17043.36668.164277.860295@newbie.ardi.com>
-Message-ID: <Pine.LNX.4.61.0505241712570.4930@chaos.analogic.com>
-References: <17043.36668.164277.860295@newbie.ardi.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 24 May 2005 17:17:18 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:33693 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262192AbVEXVRF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 17:17:05 -0400
+Subject: RE: [PATCH 2.6.12-rc4-mm1 3/4] megaraid_sas: updating the driver
+From: Arjan van de Ven <arjan@infradead.org>
+To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       "Bagalkote, Sreenivas" <sreenib@lsil.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Matt_Domsch@Dell.com,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>
+In-Reply-To: <60807403EABEB443939A5A7AA8A7458B01399B22@otce2k01.adaptec.com>
+References: <60807403EABEB443939A5A7AA8A7458B01399B22@otce2k01.adaptec.com>
+Content-Type: text/plain
+Date: Tue, 24 May 2005 23:16:49 +0200
+Message-Id: <1116969409.6280.42.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-To jump out of signal handlers, you now need sigsetjmp() and
-siglongjmp().
+> I expect (or hope) the answer to be: always needs io_request_lock in
+> 2.4, never needed the host_lock in 2.5+.
+
+afaik in RHEL3 you don't need it either but are allowed to.
 
 
-On Tue, 24 May 2005, Clifford T. Matthews wrote:
-
-> The included program dies with a SEGV under 2.6.11.2 and 2.6.12-rc4.
-> It doesn't die under 2.4.25.  I compiled the kernels myself.  The
-> distribution is Fedora Core release 3, with glibc 2.3.5.
->
-> I don't have any earlier 2.6 kernels to test it on, so I have no idea
-> when this bug first appeared.
->
-> I only skim LKML through fa.linux.kernel, so please CC me on any reply
-> that I should see.
->
-> --Cliff Matthews <ctm@ardi.com>
-> +1 505 363 5754 Cell
->
-> #include <stdio.h>
-> #include <unistd.h>
-> #include <sys/mman.h>
-> #include <stdbool.h>
-> #include <assert.h>
-> #include <setjmp.h>
-> #include <signal.h>
->
-> static jmp_buf segv_return;
->
-> static void
-> segv_handler (int signum_ignored __attribute__((unused)))
-> {
->  longjmp (segv_return, 1);
-> }
->
-> int
-> main (void)
-> {
->  volatile char *volatile addr;
->  volatile int n_failures;
->
->  addr = (void *) 0x10000L;
->  n_failures = 0;
->
->  signal (SIGSEGV, segv_handler);
->  if (setjmp (segv_return) != 0)
->    ++n_failures;
->  else
->    *addr;
->
->  printf ("n_failures = %d\n", n_failures);
->
->  if (setjmp (segv_return) != 0)
->    ++n_failures;
->  else
->    *addr;
->
->  printf ("n_failures = %d\n", n_failures);
->
->  return 0;
-> }
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

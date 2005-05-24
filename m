@@ -1,116 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbVEXJeZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261890AbVEXKV6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261954AbVEXJeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 05:34:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262044AbVEXJbU
+	id S261890AbVEXKV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 06:21:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262018AbVEXKVj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 05:31:20 -0400
-Received: from smtp.nexlab.net ([213.173.188.110]:34494 "EHLO smtp.nexlab.net")
-	by vger.kernel.org with ESMTP id S261954AbVEXJPo (ORCPT
+	Tue, 24 May 2005 06:21:39 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:56028 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261890AbVEXKOH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:15:44 -0400
-X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
-X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
-	08:27:20 2005 signatures 31.893
-Message-Id: <20050524091537.9E737F9EE@smtp.nexlab.net>
-Date: Tue, 24 May 2005 11:15:37 +0200 (CEST)
-From: root@smtp.nexlab.net
-To: undisclosed-recipients:;
+	Tue, 24 May 2005 06:14:07 -0400
+Date: Tue, 24 May 2005 15:45:32 +0530
+From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+To: akpm@osdl.org, ak@muc.de, davem@davemloft.net
+Cc: linux-kernel@vger.kernel.org, systemtap@sources.redhat.com
+Subject: [PATCH 1/5] Kprobes: Temporary disarming of reentrant probe
+Message-ID: <20050524101532.GA27215@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	by smtp.nexlab.net (Postfix) with ESMTP id A8568FB6B
+Hi,
 
-	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:40 +0200 (CEST)
+Please provide your feedback on this patchset.
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+Thanks
+Prasanna
 
-	id S261269AbVEXFmL (ORCPT <rfc822;chiakotay@nexlab.it>);
+In situations where a kprobes handler calls a routine which has a probe on it,
+then kprobes_handler() disarms the new probe forever. This patch removes the
+above limitation by temporarily disarming the new probe. When the another probe
+hits while handling the old probe, the kprobes_handler() saves previous kprobes
+state and handles the new probe without calling the new kprobes registered
+handlers. kprobe_post_handler() restores back the previous kprobes state and the
+normal execution continues.
+However on x86_64 architecture, re-rentrancy is provided only through
+pre_handler(). If a routine having probe is referenced through post_handler(),
+then the probes on that routine are disarmed forever, since the exception stack
+is gets changed after the processor single steps the instruction of the new
+probe.
 
-	Tue, 24 May 2005 01:42:11 -0400
+This patch includes generic changes to support temporary disarming on
+reentrancy of probes.
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVEXFmK
-
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-
-	Tue, 24 May 2005 01:42:10 -0400
-
-Received: from omx2-ext.sgi.com ([192.48.171.19]:48580 "EHLO omx2.sgi.com")
-
-	by vger.kernel.org with ESMTP id S261269AbVEXFlZ (ORCPT
-
-	<rfc822;linux-kernel@vger.kernel.org>);
-
-	Tue, 24 May 2005 01:41:25 -0400
-
-Received: from larry.melbourne.sgi.com (larry.melbourne.sgi.com [134.14.52.130])
-
-	by omx2.sgi.com (8.12.11/8.12.9/linux-outbound_gateway-1.1) with SMTP id j4O7QNoS007911;
-
-	Tue, 24 May 2005 00:26:24 -0700
-
-Received: from kao2.melbourne.sgi.com (kao2.melbourne.sgi.com [134.14.55.180]) by larry.melbourne.sgi.com (950413.SGI.8.6.12/950213.SGI.AUTOCF) via ESMTP id PAA17209; Tue, 24 May 2005 15:40:40 +1000
-
-Received: by kao2.melbourne.sgi.com (Postfix, from userid 16331)
-
-	id 470C270010B; Tue, 24 May 2005 15:40:40 +1000 (EST)
-
-Received: from kao2.melbourne.sgi.com (localhost [127.0.0.1])
-
-	by kao2.melbourne.sgi.com (Postfix) with ESMTP id 439671000F2;
-
-	Tue, 24 May 2005 15:40:40 +1000 (EST)
-
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-
-From: Keith Owens <kaos@sgi.com>
-To: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-Cc: akpm@osdl.org, tony.luck@intel.com, rohit.seth@intel.com,
-	rusty.lynch@intel.com, prasanna@in.ibm.com, ananth@in.ibm.com,
-	systemtap@sources.redhat.com, linux-ia64@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/4] Kprobes support for IA64 
-
-In-reply-to: Your message of "Mon, 23 May 2005 08:39:07 MST."
-
-             <20050523154228.049327000@csdlinux-2.jf.intel.com> 
-
-Mime-Version: 1.0
-
-Content-Type: text/plain; charset=us-ascii
-
-Date:	Tue, 24 May 2005 15:40:40 +1000
-
-Message-ID: <6261.1116913240@kao2.melbourne.sgi.com>
-
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-
-X-Mailing-List:	linux-kernel@vger.kernel.org
+Signed-of-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+---
 
 
+---
 
-On Mon, 23 May 2005 08:39:07 -0700, 
-Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com> wrote:
->
->This patch adds the kdebug die notification mechanism needed by Kprobes.
-> 	      case 0: /* unknown error (used by GCC for __builtin_abort()) */
->+		if (notify_die(DIE_BREAK, "kprobe", regs, break_num, TRAP_BRKPT, SIGTRAP)
->+			       	== NOTIFY_STOP) {
->+			return;
->+		}
-> 		die_if_kernel("bugcheck!", regs, break_num);
-> 		sig = SIGILL; code = ILL_ILLOPC;
-> 		break;
+ linux-2.6.12-rc4-mm2-prasanna/include/linux/kprobes.h |    9 +++++++++
+ linux-2.6.12-rc4-mm2-prasanna/kernel/kprobes.c        |    1 +
+ 2 files changed, 10 insertions(+)
 
-Nit pick.  Any break instruction in a B slot will set break_num 0, so
-you cannot tell if the break was inserted by kprobe or by another
-debugger.  Setting the string to "kprobe" is misleading here, change it
-to "break 0".
+diff -puN include/linux/kprobes.h~kprobes-temporary-disarming-on-reentrancy-generic include/linux/kprobes.h
+--- linux-2.6.12-rc4-mm2/include/linux/kprobes.h~kprobes-temporary-disarming-on-reentrancy-generic	2005-05-24 15:28:08.000000000 +0530
++++ linux-2.6.12-rc4-mm2-prasanna/include/linux/kprobes.h	2005-05-24 15:28:08.000000000 +0530
+@@ -36,6 +36,12 @@
+ 
+ #include <asm/kprobes.h>
+ 
++/* kprobe_status settings */
++#define KPROBE_HIT_ACTIVE	0x00000001
++#define KPROBE_HIT_SS		0x00000002
++#define KPROBE_REENTER		0x00000004
++#define KPROBE_HIT_SSDONE	0x00000008
++
+ struct kprobe;
+ struct pt_regs;
+ struct kretprobe;
+@@ -55,6 +61,9 @@ struct kprobe {
+ 	/* list of kprobes for multi-handler support */
+ 	struct list_head list;
+ 
++	/*count the number of times this probe was temporarily disarmed */
++	unsigned long nmissed;
++
+ 	/* location of the probe point */
+ 	kprobe_opcode_t *addr;
+ 
+diff -puN kernel/kprobes.c~kprobes-temporary-disarming-on-reentrancy-generic kernel/kprobes.c
+--- linux-2.6.12-rc4-mm2/kernel/kprobes.c~kprobes-temporary-disarming-on-reentrancy-generic	2005-05-24 15:28:08.000000000 +0530
++++ linux-2.6.12-rc4-mm2-prasanna/kernel/kprobes.c	2005-05-24 15:28:08.000000000 +0530
+@@ -334,6 +334,7 @@ int register_kprobe(struct kprobe *p)
+ 	}
+ 	spin_lock_irqsave(&kprobe_lock, flags);
+ 	old_p = get_kprobe(p->addr);
++	p->nmissed = 0;
+ 	if (old_p) {
+ 		ret = register_aggr_kprobe(old_p, p);
+ 		goto out;
 
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+_
+-- 
 
+Prasanna S Panchamukhi
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Ph: 91-80-25044636
+<prasanna@in.ibm.com>

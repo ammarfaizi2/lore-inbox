@@ -1,31 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVEXWax@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbVEXW0p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261185AbVEXWax (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 18:30:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbVEXW2M
+	id S261381AbVEXW0p (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 18:26:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbVEXWYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 18:28:12 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:11473 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261321AbVEXW1u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 18:27:50 -0400
-From: kernel-stuff@comcast.net (Parag Warudkar)
-To: "Clifford T. Matthews" <ctm@ardi.com>, linux-kernel@vger.kernel.org
-Cc: Cliff Matthews <ctm@ardi.com>
-Subject: Re: surprisingly slow accept/connect cycle time
-Date: Tue, 24 May 2005 22:27:41 +0000
-Message-Id: <052420052227.599.4293AA5D00008DF100000257220075074400009A9B9CD3040A029D0A05@comcast.net>
-X-Mailer: AT&T Message Center Version 1 (Dec 17 2004)
-X-Authenticated-Sender: a2VybmVsLXN0dWZmQGNvbWNhc3QubmV0
+	Tue, 24 May 2005 18:24:37 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:59044 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S261182AbVEXWVY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 18:21:24 -0400
+Message-ID: <4293A7A6.9080804@dacodecz.org>
+Date: Wed, 25 May 2005 03:46:06 +0530
+From: Kernel Hacker <kernel@dacodecz.org>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: What the hell :-(
+Content-Type: multipart/signed; protocol="application/x-pkcs7-signature"; micalg=sha1; boundary="------------ms030306000400090300020104"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I can confirm that it takes ages to complete without the sched_yield. (2.6.11-gentoo). With sched_yield it's very fast.
+This is a cryptographically signed message in MIME format.
 
-Funny thing is that strace'ing the running process (without sched_yield) makes it run very fast. 
+--------------ms030306000400090300020104
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-I tried to oprofile it but no kernel or process stats changed due to the process run. (It might be doing nothing at all..)
-
-Parag
+root@smtp.nexlab.net is on leak or what, destroying thread here ........
 
 
+
+
+Regards
+DAC
+
+--------------ms030306000400090300020104
+Content-Type: application/x-pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIJhDCC
+BL4wggKmoAMCAQICAwEa6DANBgkqhkiG9w0BAQQFADB5MRAwDgYDVQQKEwdSb290IENBMR4w
+HAYDVQQLExVodHRwOi8vd3d3LmNhY2VydC5vcmcxIjAgBgNVBAMTGUNBIENlcnQgU2lnbmlu
+ZyBBdXRob3JpdHkxITAfBgkqhkiG9w0BCQEWEnN1cHBvcnRAY2FjZXJ0Lm9yZzAeFw0wNTA1
+MTAyMjIwMzhaFw0wNjA1MTAyMjIwMzhaMD4xGDAWBgNVBAMTD0NBY2VydCBXb1QgVXNlcjEi
+MCAGCSqGSIb3DQEJARYTa2VybmVsQGRhY29kZWN6Lm9yZzCCASIwDQYJKoZIhvcNAQEBBQAD
+ggEPADCCAQoCggEBAL5q1pz89VaZWM7fOGzwxPAw1Ce1/s7qHTFmks2GMsYAUWS2VF6QsylV
+/NjR5bXEuYh/0Ut1E0Z0f0whElLmkXz7EDQkaK+Aq/3AyE6C6cZk3WpA43Z8xYjlWCPv6rrT
+iircQOrRojEjJyqNsJN7d2KULoKyYgtw3iQIvVu6BkKYv4qpwsAa5mY4eRqkTcX5fCMt1309
+1OlU1TES8jVbLCUO4N4RqY0c572hcOXsFjR1ZFjczl/cOKK79fQeRMSWBNh0wOsYAFeIYK5i
+4EMJ3y4a6tr+6OW8f+zuNvGq2IEKRqa2sYPlvfJCfO4iHyVJFn5Aw3ouYoZKkkQWk0IF/WUC
+AwEAAaOBiTCBhjAMBgNVHRMBAf8EAjAAMFYGCWCGSAGG+EIBDQRJFkdUbyBnZXQgeW91ciBv
+d24gY2VydGlmaWNhdGUgZm9yIEZSRUUgaGVhZCBvdmVyIHRvIGh0dHA6Ly93d3cuQ0FjZXJ0
+Lm9yZzAeBgNVHREEFzAVgRNrZXJuZWxAZGFjb2RlY3oub3JnMA0GCSqGSIb3DQEBBAUAA4IC
+AQAERDTWGnwe5vXioL67RNXh4P4HamBwyUHzRtVvPDfGKDD1K9cYYP+ynUDPfL5NcYsODmOl
+EYSiblEGyc7KOnGnWYpdz0p+nU+XDI3koB/mRNDHSY2E5xCcDTefceoJYgEwBCTnhjbmGMBv
+7gU5/Pv+VpTDRxrLYnWveo3kIGD66pbLgXTvVMbPPQvbLJzO/rU8GIZRoTCYT0lKnYCpd78R
+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
+QzAKBggqhkiG9w0DBzAOBggqhkiG9w0DAgICAIAwDQYIKoZIhvcNAwICAUAwBwYFKw4DAgcw
+DQYIKoZIhvcNAwICASgwgZEGCSsGAQQBgjcQBDGBgzCBgDB5MRAwDgYDVQQKEwdSb290IENB
+MR4wHAYDVQQLExVodHRwOi8vd3d3LmNhY2VydC5vcmcxIjAgBgNVBAMTGUNBIENlcnQgU2ln
+bmluZyBBdXRob3JpdHkxITAfBgkqhkiG9w0BCQEWEnN1cHBvcnRAY2FjZXJ0Lm9yZwIDARro
+MIGTBgsqhkiG9w0BCRACCzGBg6CBgDB5MRAwDgYDVQQKEwdSb290IENBMR4wHAYDVQQLExVo
+dHRwOi8vd3d3LmNhY2VydC5vcmcxIjAgBgNVBAMTGUNBIENlcnQgU2lnbmluZyBBdXRob3Jp
+dHkxITAfBgkqhkiG9w0BCQEWEnN1cHBvcnRAY2FjZXJ0Lm9yZwIDARroMA0GCSqGSIb3DQEB
+AQUABIIBABZngo8mDt4OiuzTXg/ksqagx2+OkO+jzL+KAH7Rj+0PdzKRLASf5IL2cWFQ/xMo
+wtAID2HdLmtSwXOL2pC1byGayi3ttRMHlyJXqqHQNycoYhS5W2hrrJ93kWKKhSi+Q0hoX1nQ
+dTgvqGuY+1Ny2dMBWH9OMD/qO9E7eyeFiI9riHzppy62AwaLzyd0Iv8y1EKkNGiA0NxMD3nI
+djhyH2nrhXUp1NEpOLIkWBleEzQzEDeN62HcwYFeWfXBoWvo6msG1rmHBt/W/7B4yTQuGt4p
+4NZoEj8lKbIR11+/b/29YZlNGk4oXQa7JF+EtV9mhT/hWfsq/XK8aA3Fxhf4lScAAAAAAAA=
+--------------ms030306000400090300020104--

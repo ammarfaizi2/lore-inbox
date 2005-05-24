@@ -1,46 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVEXPPa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262084AbVEXPRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261266AbVEXPPa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 11:15:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262086AbVEXPPa
+	id S262084AbVEXPRW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 11:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbVEXPRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 11:15:30 -0400
-Received: from wproxy.gmail.com ([64.233.184.193]:38359 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261266AbVEXPPZ convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 11:15:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Olnhq1XQG/dx+Wd7p1JcbzXX5DKcCFiXEzHhxEkDe9qKqW3jk4ffeof/QHxdhM3N1bO24nDizlpKbrBekHIT0s2MDW0qnm4QuFr9Q5OVPsn0RI0U4LWqPp+p0ioOvUgSOY1nV725oF6116IUIHXr85cjr7taVRi7KETSaHq/p3A=
-Message-ID: <187e0cd605052408154bef1566@mail.gmail.com>
-Date: Tue, 24 May 2005 17:15:23 +0200
-From: "Aurelien B." <kerusursaone@gmail.com>
-Reply-To: "Aurelien B." <kerusursaone@gmail.com>
+	Tue, 24 May 2005 11:17:22 -0400
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:20679 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S262084AbVEXPRI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 11:17:08 -0400
+Message-ID: <4293456F.8070608@telia.com>
+Date: Tue, 24 May 2005 17:17:03 +0200
+From: Simon Strandman <simon.strandman@telia.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: sv, en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: RE: ide-scsi problems
-In-Reply-To: <187e0cd605052407383eb425b1@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <187e0cd605052407383eb425b1@mail.gmail.com>
+Subject: 2.6.12-rc4-git7 fails to build on x86_64 if CONFIG_BUG is off.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
----------- Forwarded message ----------
-From: Aurelien B. <kerusursaone@gmail.com>
-Date: 24 mai 2005 16:38
-Subject: ide-scsi problems
-To: linux-ide@vger.kernel.org
+Hi!
 
+I don't know if this is a supported configuration, but I tried turning 
+off CONFIG_BUG just to see what difference it would make. But it fails 
+to build with this error:
 
-Hello,
-maybe im on the wrong, i dont really know if i can find help here.
-i compiled the 2.6.12-rc4, everything works fine, and i tried ide-scsi
-module to get better dvd burning speed.
-it works, i get 5x transfer, but once its finished, the dvd burner is
-no longer recognized and doesnt want to eject, i have to reboot to get
-it work again.
-without ide-scsi, i only have a 1x burning speed and the dvd can eject
-and burn another one without pb.
+  CC      arch/x86_64/kernel/process.o
+  CC      arch/x86_64/kernel/semaphore.o
+  CC      arch/x86_64/kernel/signal.o
+  AS      arch/x86_64/kernel/entry.o
+  CC      arch/x86_64/kernel/traps.o
+  CC      arch/x86_64/kernel/irq.o
+  CC      arch/x86_64/kernel/ptrace.o
+  CC      arch/x86_64/kernel/time.o
+  CC      arch/x86_64/kernel/ioport.o
+  CC      arch/x86_64/kernel/ldt.o
+  CC      arch/x86_64/kernel/setup.o
+In file included from include/linux/dma-mapping.h:19,
+                 from include/asm-generic/pci-dma-compat.h:7,
+                 from include/asm/pci.h:94,
+                 from include/linux/pci.h:904,
+                 from arch/x86_64/kernel/setup.c:39:
+include/asm/dma-mapping.h: In function `dma_sync_single_for_cpu':
+include/asm/dma-mapping.h:67: varning: implicit deklaration av funktion 
+"out_of_line_bug"
+  CC      arch/x86_64/kernel/i8259.o
+  CC      arch/x86_64/kernel/sys_x86_64.o
+  CC      arch/x86_64/kernel/x8664_ksyms.o
+In file included from include/linux/dma-mapping.h:19,
+                 from include/asm-generic/pci-dma-compat.h:7,
+                 from include/asm/pci.h:94,
+                 from include/linux/pci.h:904,
+                 from arch/x86_64/kernel/x8664_ksyms.c:10:
+include/asm/dma-mapping.h: In function `dma_sync_single_for_cpu':
+include/asm/dma-mapping.h:67: varning: implicit deklaration av funktion 
+"out_of_line_bug"
+arch/x86_64/kernel/x8664_ksyms.c: At top level:
+arch/x86_64/kernel/x8664_ksyms.c:196: error: conflicting types for 
+'out_of_line_bug'
+include/asm/dma-mapping.h:67: error: previous implicit declaration of 
+'out_of_line_bug' was here
+make[1]: *** [arch/x86_64/kernel/x8664_ksyms.o] Fel 1
+make: *** [arch/x86_64/kernel] Fel 2
+
+This is with gcc 3.4.3, binutils 2.16 and I have the -ck patch applied. 
+It works fine with CONFIG_BUG set to y. My kernel config: 
+http://snigel.no-ip.com/~nxsty/linux/config
+
+-- 
+Simon Strandman <simon.strandman@telia.com>
+

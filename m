@@ -1,112 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262139AbVEXQke@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262135AbVEXQkd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262139AbVEXQke (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 12:40:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262140AbVEXQht
+	id S262135AbVEXQkd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 12:40:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbVEXQhO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 12:37:49 -0400
-Received: from wproxy.gmail.com ([64.233.184.193]:54477 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262164AbVEXQfb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 12:35:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=GyWZr1y96KTA0QmXDfNClNats5okMRvmi9QKCoqOq4Ofj4TWyVGkKuEYPHmKJ7R5FHeD8CExtjSPnh+F7FqVhAVFpAOWX2+5OpLg2YQT7PkT88m6XhON/DsHVbzJD5GA5YKCMtBvWPTsRA8GloI859R5zxbGdtQxIShXToDLgck=
-From: Tejun Heo <htejun@gmail.com>
-To: axboe@suse.de
-Cc: linux-kernel@vger.kernel.org
-User-Agent: lksp 0.3
-Content-Type: text/plain; charset=US-ASCII
-References: <20050524163518.0DA61D6C@htj.dyndns.org>
-In-Reply-To: <20050524163518.0DA61D6C@htj.dyndns.org>
-Subject: Re: [PATCH Linux 2.6.12-rc4-mm2 01/03] cfq: cfq ELEVATOR_INSERT_BACK fix
-Message-ID: <20050524163518.B14862D0@htj.dyndns.org>
-Date: Wed, 25 May 2005 01:35:24 +0900 (KST)
+	Tue, 24 May 2005 12:37:14 -0400
+Received: from mail.timesys.com ([65.117.135.102]:1162 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S262157AbVEXQeD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 12:34:03 -0400
+Message-ID: <42935715.2000505@timesys.com>
+Date: Tue, 24 May 2005 12:32:21 -0400
+From: john cooper <john.cooper@timesys.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: john cooper <john.cooper@timesys.com>, Daniel Walker <dwalker@mvista.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: RT and Cascade interrupts
+References: <Pine.LNX.4.44.0505120740270.31369-100000@dhcp153.mvista.com> <20050513074439.GB25458@elte.hu> <4284A7B6.4090408@timesys.com>
+In-Reply-To: <4284A7B6.4090408@timesys.com>
+Content-Type: multipart/mixed;
+ boundary="------------040704090006050607070900"
+X-OriginalArrivalTime: 24 May 2005 16:27:40.0328 (UTC) FILETIME=[811D3280:01C5607D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-01_cfq_INSERT_BACK_fix.patch
+This is a multi-part message in MIME format.
+--------------040704090006050607070900
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-	When inserting INSERT_BACK request, cfq_insert_request() calls
-	cfq_dispatch_requests() repetitively until it returns zero
-	indicating no request is dispatched.  This used to flush all
-	the requests in the queue to the dispatch queue but, with idle
-	slice implemented, the current active queue may decide to wait
-	for new request using slice_timer.  When this happens, 0 is
-	returned from cfq_dispatch_requests() even when other cfqq's
-	have pending requests.  This breaks INSRET_BACK semantics.
+john cooper wrote:
+> I'm seeing the BUG assert in kernel/timers.c:cascade()
+> kick in (tmp->base is somehow 0) during a test which
+> creates a few tasks of priority higher than ksoftirqd.
+> This race doesn't happen if ksoftirqd's priority is
+> elevated (eg: chrt -f -p 75 2) so the -RT patch might
+> be opening up a window here.
 
-	This patch adds @force argument which, when set to non-zero,
-	disables idle_slice, and uses the argument when flushing
-	cfqq's for INSERT_BACK.  While at it, use INT_MAX instead of
-	cfq_quantum when flushing cfqq's, as we're gonna dump all the
-	requests and using cfq_quantum does nothing but adding
-	unnecessary iterations.
+There is a window in rpc_run_timer() which allows
+it to lose track of timer ownership when ksoftirqd
+(and thus itself) are preempted.  This doesn't
+immediately cause a problem but does corrupt
+the timer cascade list when the timer struct is
+recycled/requeued.  This shows up some time later
+as the list is processed.  The failure mode is cascade()
+attempting to percolate a timer with poisoned
+next/prev *s and a NULL base causing the assertion
+BUG(tmp->base != base) to kick in.
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
+The RPC code is attempting to replicate state of
+timer ownership for a given rpc_task via RPC_TASK_HAS_TIMER
+in rpc_task.tk_runstate.  Besides not working
+correctly in the case of preemptable context it is
+a replication of state of a timer pending in the
+cascade structure (ie: timer->base).  The fix
+changes the RPC code to use timer->base when
+deciding whether an outstanding timer registration
+exists during rpc_task tear down.
 
- cfq-iosched.c |   14 ++++++++------
- 1 files changed, 8 insertions(+), 6 deletions(-)
+Note: this failure occurred in the 40-04 version of
+the patch though it applies to more current versions.
+It was seen when executing stress tests on a number
+of PPC targets running on an NFS mounted root though
+was not observed on a x86 target under similar
+conditions.
 
-Index: blk-fixes/drivers/block/cfq-iosched.c
-===================================================================
---- blk-fixes.orig/drivers/block/cfq-iosched.c	2005-05-25 01:35:16.000000000 +0900
-+++ blk-fixes/drivers/block/cfq-iosched.c	2005-05-25 01:35:16.000000000 +0900
-@@ -991,7 +991,7 @@ cfq_prio_to_maxrq(struct cfq_data *cfqd,
- /*
-  * get next queue for service
-  */
--static struct cfq_queue *cfq_select_queue(struct cfq_data *cfqd)
-+static struct cfq_queue *cfq_select_queue(struct cfq_data *cfqd, int force)
- {
- 	unsigned long now = jiffies;
- 	struct cfq_queue *cfqq;
-@@ -1012,7 +1012,8 @@ static struct cfq_queue *cfq_select_queu
- 	 */
- 	if (!RB_EMPTY(&cfqq->sort_list))
- 		goto keep_queue;
--	else if (cfq_cfqq_sync(cfqq) && time_before(now, cfqq->slice_end)) {
-+	else if (!force && cfq_cfqq_sync(cfqq) &&
-+		 time_before(now, cfqq->slice_end)) {
- 		if (cfq_arm_slice_timer(cfqd, cfqq))
- 			return NULL;
+-john
+
+
+-- 
+john.cooper@timesys.com
+
+--------------040704090006050607070900
+Content-Type: text/plain;
+ name="RPC.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="RPC.patch"
+
+./include/linux/sunrpc/sched.h
+./net/sunrpc/sched.c
+=================================================================
+--- ./include/linux/sunrpc/sched.h.ORG	2005-05-24 10:29:24.000000000 -0400
++++ ./include/linux/sunrpc/sched.h	2005-05-24 10:47:56.000000000 -0400
+@@ -142,7 +142,6 @@ typedef void			(*rpc_action)(struct rpc_
+ #define RPC_TASK_RUNNING	0
+ #define RPC_TASK_QUEUED		1
+ #define RPC_TASK_WAKEUP		2
+-#define RPC_TASK_HAS_TIMER	3
+ 
+ #define RPC_IS_RUNNING(t)	(test_bit(RPC_TASK_RUNNING, &(t)->tk_runstate))
+ #define rpc_set_running(t)	(set_bit(RPC_TASK_RUNNING, &(t)->tk_runstate))
+=================================================================
+--- ./net/sunrpc/sched.c.ORG	2005-05-24 10:29:52.000000000 -0400
++++ ./net/sunrpc/sched.c	2005-05-24 11:02:44.000000000 -0400
+@@ -103,9 +103,6 @@ static void rpc_run_timer(struct rpc_tas
+ 		dprintk("RPC: %4d running timer\n", task->tk_pid);
+ 		callback(task);
  	}
-@@ -1078,7 +1079,8 @@ __cfq_dispatch_requests(struct cfq_data 
- 	return dispatched;
+-	smp_mb__before_clear_bit();
+-	clear_bit(RPC_TASK_HAS_TIMER, &task->tk_runstate);
+-	smp_mb__after_clear_bit();
  }
  
--static int cfq_dispatch_requests(request_queue_t *q, int max_dispatch)
-+static int
-+cfq_dispatch_requests(request_queue_t *q, int max_dispatch, int force)
+ /*
+@@ -124,7 +121,6 @@ __rpc_add_timer(struct rpc_task *task, r
+ 		task->tk_timeout_fn = timer;
+ 	else
+ 		task->tk_timeout_fn = __rpc_default_timer;
+-	set_bit(RPC_TASK_HAS_TIMER, &task->tk_runstate);
+ 	mod_timer(&task->tk_timer, jiffies + task->tk_timeout);
+ }
+ 
+@@ -135,7 +131,7 @@ __rpc_add_timer(struct rpc_task *task, r
+ static inline void
+ rpc_delete_timer(struct rpc_task *task)
  {
- 	struct cfq_data *cfqd = q->elevator->elevator_data;
- 	struct cfq_queue *cfqq;
-@@ -1086,7 +1088,7 @@ static int cfq_dispatch_requests(request
- 	if (!cfqd->busy_queues)
- 		return 0;
- 
--	cfqq = cfq_select_queue(cfqd);
-+	cfqq = cfq_select_queue(cfqd, force);
- 	if (cfqq) {
- 		cfqq->wait_request = 0;
- 		cfqq->must_dispatch = 0;
-@@ -1172,7 +1174,7 @@ dispatch:
- 		return rq;
+-	if (test_and_clear_bit(RPC_TASK_HAS_TIMER, &task->tk_runstate)) {
++	if (task->tk_timer.base) {
+ 		del_singleshot_timer_sync(&task->tk_timer);
+ 		dprintk("RPC: %4d deleting timer\n", task->tk_pid);
  	}
- 
--	if (cfq_dispatch_requests(q, cfqd->cfq_quantum))
-+	if (cfq_dispatch_requests(q, cfqd->cfq_quantum, 0))
- 		goto dispatch;
- 
- 	return NULL;
-@@ -1707,7 +1709,7 @@ cfq_insert_request(request_queue_t *q, s
- 
- 	switch (where) {
- 		case ELEVATOR_INSERT_BACK:
--			while (cfq_dispatch_requests(q, cfqd->cfq_quantum))
-+			while (cfq_dispatch_requests(q, INT_MAX, 1))
- 				;
- 			list_add_tail(&rq->queuelist, &q->queue_head);
- 			break;
 
+--------------040704090006050607070900--

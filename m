@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262100AbVEXPdr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262136AbVEXPzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262100AbVEXPdr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 11:33:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbVEXPb5
+	id S262136AbVEXPzU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 11:55:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262147AbVEXPxC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 11:31:57 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:52676 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262112AbVEXP2N (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 11:28:13 -0400
-Date: Tue, 24 May 2005 17:27:59 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] remove set_tsk_need_resched() from init_idle()
-Message-ID: <20050524152759.GA15411@elte.hu>
-References: <20050524121541.GA17049@elte.hu> <20050524140623.GA3500@elte.hu> <4293420C.8080400@yahoo.com.au> <20050524150537.GA11829@elte.hu> <42934748.8020501@yahoo.com.au>
+	Tue, 24 May 2005 11:53:02 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:26528 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262140AbVEXPwZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 11:52:25 -0400
+Date: Tue, 24 May 2005 08:51:13 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Ashok Raj <ashok.raj@intel.com>, akpm@osdl.org, zwane@arm.linux.org.uk,
+       rusty@rustycorp.com.au, vatsa@in.ibm.com, shaohua.li@intel.com,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: [patch 1/4] CPU Hotplug support for X86_64
+Message-ID: <20050524085112.A20866@unix-os.sc.intel.com>
+References: <20050524081113.409604000@csdlinux-2.jf.intel.com> <20050524081304.011927000@csdlinux-2.jf.intel.com> <20050524121542.GA86182@muc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42934748.8020501@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050524121542.GA86182@muc.de>; from ak@muc.de on Tue, May 24, 2005 at 02:15:42PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-
-> > we could do it in the other direction just as much - i only touched 
-> > 3 architectures. Up to Andrew i guess.
+On Tue, May 24, 2005 at 02:15:42PM +0200, Andi Kleen wrote:
+> On Tue, May 24, 2005 at 01:11:14AM -0700, Ashok Raj wrote:
+> >   * RED-PEN audit/test this more. I bet there is more state messed up here.
+> >   */
+> > -static __cpuinit void disable_smp(void)
+> > +static __init void disable_smp(void)
 > 
-> How about just setting need_resched at the start of the cpu_idle 
-> function instead? Rather than changing the structure of the idle loops 
-> themselves. That would suit me best.
+> Why all these cpuinit->init changes? I think they should stay __cpuinit
+> 
+> The other way round looks ok.
 
-that's fine with me too.
+disable_smp() is called only in smp_prepare_cpus() which is not required 
+for hotplug. Its currently only required only for startup, and not later.
 
-	Ingo
+I changed the ones from __cpuinit to __init, just in functions marked 
+with paranoia... i think it can stay cpuinit, unless there is another reason
+i didnt catch.
+
+> 
+> -Andi
+
+-- 
+Cheers,
+Ashok Raj
+- Open Source Technology Center

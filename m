@@ -1,90 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261973AbVEXJjE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVEXJjL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261973AbVEXJjE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 05:39:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262048AbVEXJiZ
+	id S262048AbVEXJjL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 05:39:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbVEXJhg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 05:38:25 -0400
-Received: from smtp.nexlab.net ([213.173.188.110]:61886 "EHLO smtp.nexlab.net")
-	by vger.kernel.org with ESMTP id S261973AbVEXJP7 (ORCPT
+	Tue, 24 May 2005 05:37:36 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:38847 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S261448AbVEXJQY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:15:59 -0400
+	Tue, 24 May 2005 05:16:24 -0400
 X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
 X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
 	08:27:20 2005 signatures 31.893
-Message-Id: <20050524091553.E8F18F9F3@smtp.nexlab.net>
-Date: Tue, 24 May 2005 11:15:53 +0200 (CEST)
+Message-Id: <20050524091619.F3216FA35@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:16:19 +0200 (CEST)
 From: root@smtp.nexlab.net
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	by smtp.nexlab.net (Postfix) with ESMTP id B721DFB6B
+	by smtp.nexlab.net (Postfix) with ESMTP id 8C315FB6B
 
-	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:42 +0200 (CEST)
+	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:41 +0200 (CEST)
 
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
 
-	id S261152AbVEXGCP (ORCPT <rfc822;chiakotay@nexlab.it>);
+	id S261350AbVEXGeu (ORCPT <rfc822;chiakotay@nexlab.it>);
 
-	Tue, 24 May 2005 02:02:15 -0400
+	Tue, 24 May 2005 02:34:50 -0400
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbVEXGCP
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVEXGeu
 
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 
-	Tue, 24 May 2005 02:02:15 -0400
+	Tue, 24 May 2005 02:34:50 -0400
 
-Received: from fmr24.intel.com ([143.183.121.16]:49288 "EHLO
+Received: from mail.dvmed.net ([216.237.124.58]:8141 "EHLO mail.dvmed.net")
 
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	by vger.kernel.org with ESMTP id S261353AbVEXGep (ORCPT
 
-	id S261152AbVEXGCJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	<rfc822;linux-kernel@vger.kernel.org>);
 
-	Tue, 24 May 2005 02:02:09 -0400
+	Tue, 24 May 2005 02:34:45 -0400
 
-Received: from scsfmr101.sc.intel.com (scsfmr101.sc.intel.com [10.3.253.10])
+Received: from cpe-065-184-065-144.nc.res.rr.com ([65.184.65.144] helo=[10.10.10.88])
 
-	by scsfmr004.sc.intel.com (8.12.10/8.12.10/d: major-outer.mc,v 1.1 2004/09/17 17:50:56 root Exp $) with ESMTP id j4O6176s012734;
+	by mail.dvmed.net with esmtpsa (Exim 4.51 #1 (Red Hat Linux))
 
-	Tue, 24 May 2005 06:01:07 GMT
+	id 1DaT00-0001Ow-FO; Tue, 24 May 2005 06:34:44 +0000
 
-Received: from unix-os.sc.intel.com (unix-os.sc.intel.com [172.25.110.7])
+Message-ID: <4292CB01.6090506@pobox.com>
 
-	by scsfmr101.sc.intel.com (8.12.10/8.12.10/d: major-inner.mc,v 1.2 2004/09/17 18:05:01 root Exp $) with ESMTP id j4O5tOoM023909;
+Date:	Tue, 24 May 2005 02:34:41 -0400
 
-	Tue, 24 May 2005 05:55:25 GMT
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
 
-Received: (from araj@localhost)
+X-Accept-Language: en-us, en
 
-	by unix-os.sc.intel.com (8.11.6/8.11.2) id j4O616v13984;
+MIME-Version: 1.0
 
-	Mon, 23 May 2005 23:01:06 -0700
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, Netdev <netdev@oss.sgi.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [git patches] 2.6.x net driver updates
 
-Date:	Mon, 23 May 2005 23:01:06 -0700
+References: <4292BA66.8070806@pobox.com> <Pine.LNX.4.58.0505232253160.2307@ppc970.osdl.org>
 
-From: Ashok Raj <ashok.raj@intel.com>
-To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-Cc: Ashok Raj <ashok.raj@intel.com>, Andi Kleen <ak@muc.de>,
-	zwane@arm.linux.org.uk, discuss@x86-64.org, shaohua.li@intel.com,
-	linux-kernel@vger.kernel.org, rusty@rustycorp.com.au
-Subject: Re: [discuss] Re: [patch 0/4] CPU hot-plug support for x86_64
+In-Reply-To: <Pine.LNX.4.58.0505232253160.2307@ppc970.osdl.org>
 
-Message-ID: <20050523230106.A13839@unix-os.sc.intel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 
-References: <20050520221622.124069000@csdlinux-2.jf.intel.com> <20050523164046.GB39821@muc.de> <20050523095450.A8193@unix-os.sc.intel.com> <20050523171212.GF39821@muc.de> <20050523104046.B8692@unix-os.sc.intel.com> <20050524054617.GA5510@in.ibm.com>
+Content-Transfer-Encoding: 7bit
 
-Mime-Version: 1.0
-
-Content-Type: text/plain; charset=us-ascii
-
-Content-Disposition: inline
-
-User-Agent: Mutt/1.2.5.1i
-
-In-Reply-To: <20050524054617.GA5510@in.ibm.com>; from vatsa@in.ibm.com on Tue, May 24, 2005 at 11:16:17AM +0530
-
-X-Scanned-By: MIMEDefang 2.44
+X-Spam-Score: 0.0 (/)
 
 Sender: linux-kernel-owner@vger.kernel.org
 Precedence: bulk
@@ -93,44 +82,19 @@ X-Mailing-List:	linux-kernel@vger.kernel.org
 
 
 
-On Tue, May 24, 2005 at 11:16:17AM +0530, Srivatsa Vaddagiri wrote:
-> On Mon, May 23, 2005 at 10:40:46AM -0700, Ashok Raj wrote:
-> > Iam not a 100% sure about above either, if the smp_call_function 
-> > is started with 3 cpus initially, and 1 just came up, the counts in 
-> > the smp_call data struct could be set to 3 as a result of the new cpu 
-> > received this broadcast as well, and we might quit earlier in the wait.
-> 
-> True.
+Linus Torvalds wrote:
+> I don't understand why you don't use different trees, like you did with
+> BK. You can share the object directory with the different trees, but the
 
-Thanks for confirming. 
+You really can't beat
 
-I think the window would be a little bit more narrow, but not completely 
-closed even if we bring cpu in cli state completely.
+	cp .git/refs/heads/master .git/refs/heads/new-branch
 
-> 
-> > sending to only relevant cpus removes that ambiquity. 
-> 
-> Or grab the 'call_lock' before setting the upcoming cpu in the online_map.
-> This should also avoid the race when a CPU is coming online.
-> 
+as the fastest way to create a new branch off the tip.
 
-We do this today in x86_64 case when we setup this upcomming cpu in 
-cpu_online_map. But the issue is when we use ipi broadcast, its an ugly
-case when we dont know if the new cpu is receiving this as well, and 
-we dont have real control there.
+	Jeff
 
-i converted to use send_IPI_mask(cpu_online_map, CALL_FUNCTION_VECTOR)
-instead of the send_IPI_allbutself(CALL_FUNCTION_VECTOR) in 
-__smp_call_function(), apart from taking the call_lock before setting the
-bit in online_map.
 
-Since Andi is concerned about tlb flush intr performance in the 8cpu and less
-case, iam planning temporarily use a startup cmd or choose this option 
-automatically if CONFIG_HOTPLUG_CPU is set for the time being, until we can 
-find a clean solution that satisfies everyone.
-
-Cheers,
-Ashok Raj
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

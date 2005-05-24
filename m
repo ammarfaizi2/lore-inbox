@@ -1,107 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVEXONt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261370AbVEXO0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261314AbVEXONt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 10:13:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbVEXONt
+	id S261370AbVEXO0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 10:26:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261404AbVEXO0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 10:13:49 -0400
-Received: from grivedraine.passereaux.jmsp.net ([212.23.162.45]:54203 "EHLO
-	grivedraine.passereaux.jmsp.net") by vger.kernel.org with ESMTP
-	id S261314AbVEXONg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 10:13:36 -0400
-X-decod-Pamela: v0.2; le 24/05/2005 16:13:32;
-	+ mdf=0; lda=1; ea=1; eab=1; fdv=0;
-	+ from original: "julien.combes.i-carre.net" <julien.combes@i-carre.net>
-Message-ID: <4293368B.50808@i-carre.net>
-Date: Tue, 24 May 2005 16:13:31 +0200
-From: "COMBES Julien - CETE Lyon/DI/ET/PAMELA" <julien.combes@i-carre.net>
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: megaraid irq disable after days
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+	Tue, 24 May 2005 10:26:16 -0400
+Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:22795 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261371AbVEXO0M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 10:26:12 -0400
+To: rminnich@lanl.gov
+CC: penberg@gmail.com, ericvh@gmail.com, linux-kernel@vger.kernel.org,
+       v9fs-developer@lists.sourceforge.net,
+       viro@parcelfarce.linux.theplanet.co.uk, linux-fsdevel@vger.kernel.org,
+       penberg@cs.helsinki.fi
+In-reply-to: <Pine.LNX.4.58.0505240803410.9237@enigma.lanl.gov>
+	(rminnich@lanl.gov)
+Subject: Re: [V9fs-developer] Re: [RFC][patch 3/7] v9fs: VFS inode operations
+ (2.0-rc6)
+References: <200505232225.j4NMPmH9014347@ms-smtp-01-eri0.texas.rr.com>
+ <84144f0205052401432ffa1075@mail.gmail.com> <Pine.LNX.4.58.0505240803410.9237@enigma.lanl.gov>
+Message-Id: <E1DaaLl-0004Ap-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Tue, 24 May 2005 16:25:41 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+> The reason I prefer the 'retval = blah blah; return retval;' usage is that
+> I frequently have run v9fs in UML, and debugging is just easier. Set the
+> breakpoint in v9fs_vfs_create, step through, maybe skip over that
+> v9fs_create function, look at retval.
 
-I have a problem with a kernel 2.6.10 (sources from debian) which
-disable IRQ of my megraid (driver megaraid_mbox) on several servers
-after days of work and several millions of interuptions.
-When the IRQ is disable, the servers do that :
+Why don't you just use 'finish'.  That prints the return value.
 
-May 22 03:02:20 relternet-01 kernel: irq 17: nobody cared!
-May 22 03:02:20 relternet-01 kernel:  [__report_bad_irq+42/160]
-__report_bad_irq+0x2a/0xa0
-May 22 03:02:20 relternet-01 kernel:  [handle_IRQ_event+48/112]
-handle_IRQ_event+0x30/0x70
-May 22 03:02:20 relternet-01 kernel:  [note_interrupt+112/176]
-note_interrupt+0x70/0xb0
-May 22 03:02:20 relternet-01 kernel:  [__do_IRQ+304/320]
-__do_IRQ+0x130/0x140
-May 22 03:02:20 relternet-01 kernel:  [do_IRQ+25/48] do_IRQ+0x19/0x30
-May 22 03:02:20 relternet-01 kernel:  [common_interrupt+26/32]
-common_interrupt+0x1a/0x20
-May 22 03:02:20 relternet-01 kernel:  [mwait_idle+51/80]
-mwait_idle+0x33/0x50
-May 22 03:02:20 relternet-01 kernel:  [cpu_idle+59/80] cpu_idle+0x3b/0x50
-May 22 03:02:20 relternet-01 kernel: handlers:
-May 22 03:02:20 relternet-01 kernel: [pg0+944120576/1069794304]
-(megaraid_isr+0x0/0x1e0 [megaraid_mbox])
-May 22 03:02:20 relternet-01 kernel: Disabling IRQ #17
+Every unnecessary line in a function makes it harder to read.  That
+includes over-commenting and overuse of empty lines.
 
-I haven't noticed something else curious on the servers.
-
-hardware of these servers :
- - bi Intel Xeon 2.4Ghz
- - 4.5 GB of RAM
- - MegaRaid SCSI 320-2 [1]
-
-The kernel use  SMP, HT, high memory support 64GB, megaraid_mbox driver
-(v2.20.4.1, in module with initrd until yesterday) and don't use preempt.
-
-As I didn't find anything that match IRQ disable and megaraid under
-internet, I have tried several ways :
- - at the beginning, the IRQ of eth0 and megaraid was shared. I have
-corrected this [2] but the problem is staying.
- - I have try newer version of the kernel 2.6.9 to 2.6.10. No benefic
-result.
- - I have try the boot option "acpi=ht". No benefic result.
- - the firmeware of the megaraid has been upgraded (to the 1L37
-version). No benefic result.
-
-Since yesterday, I am trying, on all server which have the problem,
-kernel  2.6.11.10 (source take kernel.org) with megaraid_mbox built-in
-(v2.20.4.5) and with differents boot options on servers :
- - "noirqdebug" and "acpi=ht"
- - "noirqdebug" and "acpi=off"
- - "acpi=off"
- - "acpi=ht"
-
-I have this problem  since I installed them few weeks ago with my new
-FAI (Debian Fully autmatic Installation). I have a lot of difficulty for
-solving the probleme because servers can run without problem one or two
-weeks. These servers are not yet in production but still in tests of
-charge; they should be in production in one or two weeks... if I find a
-way to correct this problem !
-
-Do you have any ideas of which way I can search ?
-
-Regards,
-Julien
-
-[1] 0000:03:08.0 RAID bus controller: LSI Logic / Symbios Logic MegaRAID
-(rev 01)
-        Subsystem: LSI Logic / Symbios Logic MegaRAID 518 SCSI 320-2
-Controller
-        Flags: bus master, fast Back2Back, 66MHz, slow devsel, latency
-32, IRQ 17
-        Memory at d0500000 (32-bit, prefetchable) [size=64K]
-        Capabilities: [80] Power Management version 2
-
-[2]
-irq  0:  88018734 timer                 irq 16:  21659113 eth0
-irq  1:         9 i8042                 irq 17:  12532775 megaraid
-irq  2:         0 cascade [4]           irq 18:        30 aic79xx
-irq 12:         3                       irq 19:        30 aic79xx
-irq 14:         1 ide0                  irq 23:         0 ehci_hcd
+Miklos

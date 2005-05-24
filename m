@@ -1,51 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVEXCne@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVEXCtD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261348AbVEXCne (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 22:43:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVEXCnd
+	id S261343AbVEXCtD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 22:49:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVEXCtC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 22:43:33 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:7691 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261309AbVEXCn1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 22:43:27 -0400
-Date: Tue, 24 May 2005 12:43:18 +1000
+	Mon, 23 May 2005 22:49:02 -0400
+Received: from holomorphy.com ([66.93.40.71]:36253 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261343AbVEXCsx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 22:48:53 -0400
+Date: Mon, 23 May 2005 19:48:49 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-       davem@davemloft.net, jmorris@redhat.com
-Subject: Re: [CRYPTO]: Only reschedule if !in_atomic()
-Message-ID: <20050524024318.GB29242@gondor.apana.org.au>
-References: <200505232300.j4NN07lE012726@hera.kernel.org> <20050523162806.0e70ae4f.akpm@osdl.org> <20050524022106.GA29081@gondor.apana.org.au> <20050523193116.62844826.akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, gregkh@suse.de,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [bugfix] try_to_unmap_cluster() passes out-of-bounds pte to pte_unmap()
+Message-ID: <20050524024849.GH2057@holomorphy.com>
+References: <20050516021302.13bd285a.akpm@osdl.org> <20050522212734.GF2057@holomorphy.com> <20050523171406.483cdf69.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050523193116.62844826.akpm@osdl.org>
+In-Reply-To: <20050523171406.483cdf69.akpm@osdl.org>
+Organization: The Domain of Holomorphy
 User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 23, 2005 at 07:31:16PM -0700, Andrew Morton wrote:
-> 
-> Are you sure it's actually needed? Have significant scheduling latencies
-> actually been observed?
+William Lee Irwin III <wli@holomorphy.com> wrote:
+>> --- ./mm/rmap.c.orig	2005-05-20 01:29:14.066467151 -0700
+>> +++ ./mm/rmap.c	2005-05-20 01:30:06.620649901 -0700
+[...]
 
-I certainly don't have any problems with removing the yield altogether.
+On Mon, May 23, 2005 at 05:14:06PM -0700, Andrew Morton wrote:
+> I must say that I continue to find this approach a bit queazifying.
+> After some reading of the code I'd agree that yes, it's not possible for us
+> to get here with `pte' pointing at the first slot of the pte page, but it's
+> not 100% obvious and it's possible that someone will come along later and
+> will change things in try_to_unmap_cluster() which cause this unmap to
+> suddenly do the wrong thing in rare circumstances.
+> IOW: I'd sleep better at night if we took a temporary and actually unmapped
+> the thing which we we got back from pte_offset_map()..  Am I being silly?
 
-> Bear in mind that anyone who cares a lot about latency will be running
-> CONFIG_PREEMPT kernels, in which case the whole thing is redundant anyway. 
-> I generally take the position that if we're going to put a scheduling point
-> into a non-premept kernel then it'd better be for a pretty bad latency
-> point - more than 10 milliseconds, say.
+Not at all. I merely attempt to minimize diffsize by default. An
+alternative implementation follows (changelog etc. to be taken
+from the prior patch) in case it saves the time (however short) needed
+to write it yourself.
 
-The crypt() function can easily take more than 10 milliseconds with
-a large enough buffer.
 
-James & Dave, do you have any opinions on this?
+-- wli
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Index: mm2-2.6.12-rc4/mm/rmap.c
+===================================================================
+--- mm2-2.6.12-rc4.orig/mm/rmap.c	2005-05-20 01:44:18.000000000 -0700
++++ mm2-2.6.12-rc4/mm/rmap.c	2005-05-23 19:13:29.000000000 -0700
+@@ -626,7 +626,7 @@
+ 	pgd_t *pgd;
+ 	pud_t *pud;
+ 	pmd_t *pmd;
+-	pte_t *pte;
++	pte_t *pte, *original_pte;
+ 	pte_t pteval;
+ 	struct page *page;
+ 	unsigned long address;
+@@ -658,7 +658,7 @@
+ 	if (!pmd_present(*pmd))
+ 		goto out_unlock;
+ 
+-	for (pte = pte_offset_map(pmd, address);
++	for (original_pte = pte = pte_offset_map(pmd, address);
+ 			address < end; pte++, address += PAGE_SIZE) {
+ 
+ 		if (!pte_present(*pte))
+@@ -694,7 +694,7 @@
+ 		(*mapcount)--;
+ 	}
+ 
+-	pte_unmap(pte);
++	pte_unmap(original_pte);
+ out_unlock:
+ 	spin_unlock(&mm->page_table_lock);
+ }

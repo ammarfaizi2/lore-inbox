@@ -1,70 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbVEXHzr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVEXH7w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261414AbVEXHzr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 03:55:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbVEXHzr
+	id S261424AbVEXH7w (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 03:59:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261423AbVEXH7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 03:55:47 -0400
-Received: from warden2-p.diginsite.com ([209.195.52.120]:17349 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S261414AbVEXHzi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 03:55:38 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Netdev <netdev@oss.sgi.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Date: Tue, 24 May 2005 00:55:03 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: [git patches] 2.6.x net driver updates
-In-Reply-To: <4292D7E1.80601@pobox.com>
-Message-ID: <Pine.LNX.4.62.0505240051490.9001@qynat.qvtvafvgr.pbz>
-References: <4292BA66.8070806@pobox.com> <Pine.LNX.4.58.0505232253160.2307@ppc970.osdl.org>
- <4292C8EF.3090307@pobox.com> <Pine.LNX.4.58.0505232343260.2307@ppc970.osdl.org>
- <4292D7E1.80601@pobox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 24 May 2005 03:59:52 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:54227 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261431AbVEXH7k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 03:59:40 -0400
+Date: Tue, 24 May 2005 09:59:27 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: George Anzinger <george@mvista.com>
+Cc: linux-kernel@vger.kernel.org, dwalker@mvista.com
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-00
+Message-ID: <20050524075927.GA20462@elte.hu>
+References: <20050509073702.GA13615@elte.hu> <427FBFE1.5020204@mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <427FBFE1.5020204@mvista.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 May 2005, Jeff Garzik wrote:
 
-> Linus Torvalds wrote:
->> 
->> On Tue, 24 May 2005, Jeff Garzik wrote:
->> 
->>> You are getting precisely the same thing you got under BitKeeper:  pull 
->>> from X, you get my tree, which was composed from $N repositories.  The 
->>> tree you pull was created by my running 'bk pull' locally $N times.
->> 
->> 
->> No. Under BK, you had DIFFERENT TREES.
->> 
->> What does that mean? They had DIFFERENT NAMES.
->> 
->> Which meant that the commit message was MEANINGFUL.
->
-> Ok, I'll fix the commit message.
->
-> As for different trees, I'm afraid you've written something that is _too 
-> useful_ to be used in that manner.
->
-> Git has brought with it a _major_ increase in my productivity because I can 
-> now easily share ~50 branches with 50 different kernel hackers, without 
-> spending all day running rsync.  Suddenly my kernel development is a whole 
-> lot more _open_ to the world, with a single "./push".  And it's awesome.
->
-> That wasn't possible before with BitKeeper, just due to sheer network 
-> overhead of 50 trees.  With BitKeeper, the _only_ thing that kernel hackers 
-> and users could get from me is a mush tree with everything merged into a big 
-> 'ALL' repository.
+* George Anzinger <george@mvista.com> wrote:
 
-couldn't you just have your multiple 'trees' use the same object 
-repository directory (still a single group of files to push), but still 
-have your trees with different names? it would be just a little more then 
-the copy of the HEAD object (you'd have to change the name in it), but it 
-should be easily scriptable)
+> Also, I think that del_timer_sync and friends need to be turned on if 
+> soft_irq is preemptable.
 
-or is there a limit in git that I'm overlooking that would prohibit this?
+you mean the #ifdef CONFIG_SMP should be:
 
-David Lang
+	#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT_SOFTIRQS)
+
+?
+
+	Ingo

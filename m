@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262128AbVEXW6M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262125AbVEXW7m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262128AbVEXW6M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 18:58:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbVEXW6M
+	id S262125AbVEXW7m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 18:59:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbVEXW7Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 18:58:12 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:24029 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261926AbVEXW6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 18:58:03 -0400
-Subject: Re: [PATCH] Fix reference counting for failed SCSI devices
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Hannes Reinecke <hare@suse.de>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <4292F631.9090300@suse.de>
-References: <4292F631.9090300@suse.de>
+	Tue, 24 May 2005 18:59:25 -0400
+Received: from tiere.net.avaya.com ([198.152.12.100]:57566 "EHLO
+	tiere.net.avaya.com") by vger.kernel.org with ESMTP id S262099AbVEXW7R
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 18:59:17 -0400
+Subject: 2.6.11 timeval_to_jiffies() wrong for ms resolution timers
+From: "Bhavesh P. Davda" <bhavesh@avaya.com>
+Reply-To: bhavesh@avaya.com
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Date: Tue, 24 May 2005 17:57:58 -0500
-Message-Id: <1116975478.7710.28.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
+Organization: Avaya, Inc.
+Date: Tue, 24 May 2005 16:59:15 -0600
+Message-Id: <1116975555.2050.10.camel@cof110earth.dr.avaya.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-16) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-24 at 11:38 +0200, Hannes Reinecke wrote:
-> whenever the scsi-ml tries to scan non-existent devices the reference
-> count in scsi_alloc_sdev() and scsi_probe_and_add_lun() is not adjusted
-> properly. Every call to XXX_initialize in the driver core sets the
-> reference count to 1, so for a proper deallocation an explicit XXX_put()
-> has to be done.
+setitimer for 20ms was firing at 21ms, so I wrote a simple debug module
+for 2.6.11.10 kernel on i386 to do something like this:
 
-That's true, but I don't see what the problem is if the device has never
-been made visible.
+struct timeval tv;
+unsigned long jif;
 
-> +			put_device(&starget->dev);
+tv.tv_usec = 20000;
+tv.tv_sec = 0;
 
-this would amount to a double put, since the parent put method is called
-in the device release.
+jif = timeval_to_jiffies(&tv);
+printk("%lu usec = %lu jiffies\n", tv.tv_usec, jif);
 
-> +	class_device_put(&sdev->sdev_classdev);
+This yields:
 
-This is unnecessary since the class device is simply occupying a private
-area in the scsi_device.  As long as its never made visible to the
-system, its refcount is irrelevant
+20000 usec = 21 jiffies
 
->  	put_device(&sdev->sdev_gendev);
->  out:
->  	if (display_failure_msg)
-> @@ -855,6 +857,8 @@ static int scsi_probe_and_add_lun(struct
->  		if (sdev->host->hostt->slave_destroy)
->  			sdev->host->hostt->slave_destroy(sdev);
->  		transport_destroy_device(&sdev->sdev_gendev);
-> +		class_device_put(&sdev->sdev_classdev);
-> +		put_device(sdev->sdev_gendev.parent);
+Egad!
 
-same should apply here.  As long as this cascade occurs before
-scsi_add_lun() (which calls scsi_sysfs_add_sdev()), which is what makes
-the whole set of devices and classes visible.
+I looked at the timeval_to_jiffies() inline function in
+include/linux/jiffies.h, and after pulling my hair for a few minutes
+(okay almost an hour), I decided to ask much smarter people than myself
+on why it is behaving this way, and what it would take to fix it so that
+"20000 usec = 20 jiffies".
 
-James
+I got as far as this in figuring it out for i386:
 
+HZ=1000
+SEC_CONVERSION=4194941632
+USEC_CONVERSION=2199357558
+USEC_ROUND=2199023255551
+USEC_JIFFIE_SC=41
+SEC_JIFFIE_SC=22
 
+Thanks in advance for saving me from going bald!
+
+- Bhavesh
+
+-- 
+Bhavesh P. Davda | Distinguished Member of Technical Staff | Avaya |
+1300 West 120th Avenue | B3-B03 | Westminster, CO 80234 | U.S.A. |
+Voice/Fax: 303.538.4438 | bhavesh@avaya.com

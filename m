@@ -1,85 +1,187 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262073AbVEXKiZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262079AbVEXKmg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262073AbVEXKiZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 06:38:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbVEXKa3
+	id S262079AbVEXKmg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 06:42:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbVEXKkg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 06:30:29 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:58250 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S262063AbVEXK2f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 06:28:35 -0400
-Date: Tue, 24 May 2005 12:28:40 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Suparna Bhattacharya <suparna@in.ibm.com>
-Cc: cotte@freenet.de, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, schwidefsky@de.ibm.com, akpm@osdl.org,
-       Christoph Hellwig <hch@infradead.org>
-Subject: Re: [RFC/PATCH 2/4] fs/mm: execute in place (3rd version)
-Message-ID: <20050524102839.GA17254@wohnheim.fh-wedel.de>
-References: <1116866094.12153.12.camel@cotte.boeblingen.de.ibm.com> <1116869420.12153.32.camel@cotte.boeblingen.de.ibm.com> <20050524093029.GA4390@in.ibm.com>
+	Tue, 24 May 2005 06:40:36 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:35546 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261961AbVEXKbK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 06:31:10 -0400
+Date: Tue, 24 May 2005 12:30:47 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
+Subject: [patch] consolidate PREEMPT options into kernel/Kconfig.preempt
+Message-ID: <20050524103047.GA26586@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050524093029.GA4390@in.ibm.com>
-User-Agent: Mutt/1.3.28i
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 May 2005 15:00:29 +0530, Suparna Bhattacharya wrote:
-> 
-> OK, though this leaves filemap.c alone which is good, I have to admit
-> that this entire duplication of read/write routines really worries me.
-> 
-> There has to be a third way.
 
-There is.  I'm not convinced it's a good idea, but maybe someone
-smarter can comment on it.
+any objections? This is against the tail of the scheduler-patchset in 
+-mm. For now i only included architectures that support the full range 
+of preemption features - other architectures can still cherry-pick them 
+if they want to. (I did not do a Kconfig.sched, because other scheduler 
+features are much more hardware-dependent.)
 
-v1 and v2 basically contained the generic code with an extra check
-here and there.
+--
 
-int do_shtuff(...)
-{
-	if (xip)
-		do_xip_shtuff(...);
-	/* shtuff */
-	...
-}
+this patch consolidates the CONFIG_PREEMPT and CONFIG_PREEMPT_BKL 
+preemption options into kernel/Kconfig.preempt. This, besides reducing 
+source-code, also enables more centralized tweaking of preemption 
+related options.
 
-v3 contains a copy of the generic code in filemap_xip.c.
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-int do_shtuff_xip(...)
-{
-	do_xip_shtuff(...);
-	/* shtuff copied from filemap.c */
-	...
-}
+ arch/i386/Kconfig      |   23 +----------------------
+ arch/ppc64/Kconfig     |   21 +--------------------
+ arch/x86_64/Kconfig    |   29 ++---------------------------
+ kernel/Kconfig.preempt |   24 ++++++++++++++++++++++++
+ 4 files changed, 28 insertions(+), 69 deletions(-)
 
-v4 could do something like this:
-
-int __do_generic_shtuff(...)
-{
-	/* the generic shtuff */
-	...
-}
-
-int do_shtuff(...)
-{
-	return __do_generic_shtuff(...);
-}
-
-int do_shtuff_xip(...)
-{
-	do_xip_shtuff(...);
-	return __do_generic_shtuff(...);
-}
-
-Jörn
-
--- 
-You cannot suppose that Moliere ever troubled himself to be original in the
-matter of ideas. You cannot suppose that the stories he tells in his plays
-have never been told before. They were culled, as you very well know.
--- Andre-Louis Moreau in Scarabouche
+--- linux/kernel/Kconfig.preempt.orig
++++ linux/kernel/Kconfig.preempt
+@@ -0,0 +1,24 @@
++
++config PREEMPT
++	bool "Preemptible Kernel"
++	help
++	  This option reduces the latency of the kernel when reacting to
++	  real-time or interactive events by allowing a low priority process to
++	  be preempted even if it is in kernel mode executing a system call.
++	  This allows applications to run more reliably even when the system is
++	  under load.
++
++	  Say Y here if you are building a kernel for a desktop, embedded
++	  or real-time system.  Say N if you are unsure.
++
++config PREEMPT_BKL
++	bool "Preempt The Big Kernel Lock"
++	depends on PREEMPT
++	default y
++	help
++	  This option reduces the latency of the kernel by making the
++	  big kernel lock preemptible.
++
++	  Say Y here if you are building a kernel for a desktop system.
++	  Say N if you are unsure.
++
+--- linux/arch/x86_64/Kconfig.orig
++++ linux/arch/x86_64/Kconfig
+@@ -207,33 +207,6 @@ config SMP
+ 
+ 	  If you don't know what to do here, say N.
+ 
+-config PREEMPT
+-	bool "Preemptible Kernel"
+-	---help---
+-	  This option reduces the latency of the kernel when reacting to
+-	  real-time or interactive events by allowing a low priority process to
+-	  be preempted even if it is in kernel mode executing a system call.
+-	  This allows applications to run more reliably even when the system is
+-	  under load. On contrary it may also break your drivers and add
+-	  priority inheritance problems to your system. Don't select it if
+-	  you rely on a stable system or have slightly obscure hardware.
+-	  It's also not very well tested on x86-64 currently.
+-	  You have been warned.
+-
+-	  Say Y here if you are feeling brave and building a kernel for a
+-	  desktop, embedded or real-time system.  Say N if you are unsure.
+-
+-config PREEMPT_BKL
+-	bool "Preempt The Big Kernel Lock"
+-	depends on PREEMPT
+-	default y
+-	help
+-	  This option reduces the latency of the kernel by making the
+-	  big kernel lock preemptible.
+-
+-	  Say Y here if you are building a kernel for a desktop system.
+-	  Say N if you are unsure.
+-
+ config SCHED_SMT
+ 	bool "SMT (Hyperthreading) scheduler support"
+ 	depends on SMP
+@@ -244,6 +217,8 @@ config SCHED_SMT
+ 	  cost of slightly increased overhead in some places. If unsure say
+ 	  N here.
+ 
++ource "kernel/Kconfig.preempt"
++
+ config K8_NUMA
+        bool "K8 NUMA support"
+        select NUMA
+--- linux/arch/ppc64/Kconfig.orig
++++ linux/arch/ppc64/Kconfig
+@@ -268,26 +268,7 @@ config SCHED_SMT
+ 	  when dealing with POWER5 cpus at a cost of slightly increased
+ 	  overhead in some places. If unsure say N here.
+ 
+-config PREEMPT
+-	bool "Preemptible Kernel"
+-	help
+-	  This option reduces the latency of the kernel when reacting to
+-	  real-time or interactive events by allowing a low priority process to
+-	  be preempted even if it is in kernel mode executing a system call.
+-
+-	  Say Y here if you are building a kernel for a desktop, embedded
+-	  or real-time system.  Say N if you are unsure.
+-
+-config PREEMPT_BKL
+-	bool "Preempt The Big Kernel Lock"
+-	depends on PREEMPT
+-	default y
+-	help
+-	  This option reduces the latency of the kernel by making the
+-	  big kernel lock preemptible.
+-
+-	  Say Y here if you are building a kernel for a desktop system.
+-	  Say N if you are unsure.
++source "kernel/Kconfig.preempt"
+ 
+ config EEH
+ 	bool "PCI Extended Error Handling (EEH)" if EMBEDDED
+--- linux/arch/i386/Kconfig.orig
++++ linux/arch/i386/Kconfig
+@@ -510,28 +510,7 @@ config SCHED_SMT
+ 	  cost of slightly increased overhead in some places. If unsure say
+ 	  N here.
+ 
+-config PREEMPT
+-	bool "Preemptible Kernel"
+-	help
+-	  This option reduces the latency of the kernel when reacting to
+-	  real-time or interactive events by allowing a low priority process to
+-	  be preempted even if it is in kernel mode executing a system call.
+-	  This allows applications to run more reliably even when the system is
+-	  under load.
+-
+-	  Say Y here if you are building a kernel for a desktop, embedded
+-	  or real-time system.  Say N if you are unsure.
+-
+-config PREEMPT_BKL
+-	bool "Preempt The Big Kernel Lock"
+-	depends on PREEMPT
+-	default y
+-	help
+-	  This option reduces the latency of the kernel by making the
+-	  big kernel lock preemptible.
+-
+-	  Say Y here if you are building a kernel for a desktop system.
+-	  Say N if you are unsure.
++source "kernel/Kconfig.preempt"
+ 
+ config X86_UP_APIC
+ 	bool "Local APIC support on uniprocessors"

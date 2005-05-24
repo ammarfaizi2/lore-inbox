@@ -1,109 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVEXFmF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVEXFmL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261307AbVEXFmF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 01:42:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVEXFmF
+	id S261269AbVEXFmL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 01:42:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVEXFmK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 01:42:05 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:52684 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261307AbVEXFYi (ORCPT
+	Tue, 24 May 2005 01:42:10 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:48580 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261269AbVEXFlZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 01:24:38 -0400
-Message-ID: <4292BA93.801@pobox.com>
-Date: Tue, 24 May 2005 01:24:35 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-CC: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: [git patches] 2.6.x libata new PCI ids
-Content-Type: multipart/mixed;
- boundary="------------020908040206020909070108"
-X-Spam-Score: 0.0 (/)
+	Tue, 24 May 2005 01:41:25 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Cc: akpm@osdl.org, tony.luck@intel.com, rohit.seth@intel.com,
+       rusty.lynch@intel.com, prasanna@in.ibm.com, ananth@in.ibm.com,
+       systemtap@sources.redhat.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/4] Kprobes support for IA64 
+In-reply-to: Your message of "Mon, 23 May 2005 08:39:07 MST."
+             <20050523154228.049327000@csdlinux-2.jf.intel.com> 
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 24 May 2005 15:40:40 +1000
+Message-ID: <6261.1116913240@kao2.melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020908040206020909070108
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+On Mon, 23 May 2005 08:39:07 -0700, 
+Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com> wrote:
+>
+>This patch adds the kdebug die notification mechanism needed by Kprobes.
+> 	      case 0: /* unknown error (used by GCC for __builtin_abort()) */
+>+		if (notify_die(DIE_BREAK, "kprobe", regs, break_num, TRAP_BRKPT, SIGTRAP)
+>+			       	== NOTIFY_STOP) {
+>+			return;
+>+		}
+> 		die_if_kernel("bugcheck!", regs, break_num);
+> 		sig = SIGILL; code = ILL_ILLOPC;
+> 		break;
 
-Please pull the 'new-ids' branch from
+Nit pick.  Any break instruction in a B slot will set break_num 0, so
+you cannot tell if the break was inserted by kprobe or by another
+debugger.  Setting the string to "kprobe" is misleading here, change it
+to "break 0".
 
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
-
-This add new PCI ids to some SATA drivers.
-
-diffstat, changelog, and patch attached.
-
-
-
---------------020908040206020909070108
-Content-Type: text/plain;
- name="libata-2.6.txt"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="libata-2.6.txt"
-
-
- drivers/scsi/sata_promise.c |    2 ++
- drivers/scsi/sata_sil.c     |    1 +
- 2 files changed, 3 insertions(+)
-
-
-commit 37c15447c565ab458ee3778e198d08f4041caa99
-tree 2eda289903e3bf19eebce7d5f9aaed2240a02479
-parent 9422e59ddf6cae68e46d7a2c3afe1ce4e739d3eb
-author Martin Povolny <martin.povolny@solnet.cz> Mon, 16 May 2005 02:41:00 -0400
-committer Jeff Garzik <jgarzik@pobox.com> Mon, 16 May 2005 02:41:00 -0400
-
-[PATCH] sata_promise: new PCI ID for TX4200
-
-[note - blank changeset]
-
---------------------------
-commit 9422e59ddf6cae68e46d7a2c3afe1ce4e739d3eb
-tree 2eda289903e3bf19eebce7d5f9aaed2240a02479
-parent eeff84cc026e73d12fbe4484b5fa0d01efa8dc60
-author Francisco Javier <ffelix@sshinf.com> Mon, 16 May 2005 02:39:00 -0400
-committer Jeff Garzik <jgarzik@pobox.com> Mon, 16 May 2005 02:39:00 -0400
-
-[PATCH] sata_promise: add PCI ID for FastTrak TX2200 2-ports
-
---------------------------
-commit eeff84cc026e73d12fbe4484b5fa0d01efa8dc60
-tree 136a26c73b90d0dd1c4088bb9a65409b5a2d806d
-parent 88d7bd8cb9eb8d64bf7997600b0d64f7834047c5
-author NAKAMURA Kenta <kenta@c.csce.kyushu-u.ac.jp> Mon, 16 May 2005 02:35:41 -0400
-committer Jeff Garzik <jgarzik@pobox.com> Mon, 16 May 2005 02:35:41 -0400
-
-[PATCH] sata_sil: new ID 1002:437A for ATI IXP400
-
---------------------------
-diff --git a/drivers/scsi/sata_promise.c b/drivers/scsi/sata_promise.c
---- a/drivers/scsi/sata_promise.c
-+++ b/drivers/scsi/sata_promise.c
-@@ -151,6 +151,8 @@ static struct ata_port_info pdc_port_inf
- static struct pci_device_id pdc_ata_pci_tbl[] = {
- 	{ PCI_VENDOR_ID_PROMISE, 0x3371, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
- 	  board_2037x },
-+	{ PCI_VENDOR_ID_PROMISE, 0x3571, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+	  board_2037x },
- 	{ PCI_VENDOR_ID_PROMISE, 0x3373, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
- 	  board_2037x },
- 	{ PCI_VENDOR_ID_PROMISE, 0x3375, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-diff --git a/drivers/scsi/sata_sil.c b/drivers/scsi/sata_sil.c
---- a/drivers/scsi/sata_sil.c
-+++ b/drivers/scsi/sata_sil.c
-@@ -82,6 +82,7 @@ static struct pci_device_id sil_pci_tbl[
- 	{ 0x1095, 0x3114, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sil_3114 },
- 	{ 0x1002, 0x436e, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sil_3112 },
- 	{ 0x1002, 0x4379, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sil_3112 },
-+	{ 0x1002, 0x437a, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sil_3112 },
- 	{ }	/* terminate list */
- };
- 
-
---------------020908040206020909070108--

@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262196AbVEXVXy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262198AbVEXVeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262196AbVEXVXy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 17:23:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262194AbVEXVXy
+	id S262198AbVEXVeF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 17:34:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbVEXVeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 17:23:54 -0400
-Received: from ftp.ardi.com ([207.188.170.178]:51729 "EHLO www.ardi.com")
-	by vger.kernel.org with ESMTP id S262195AbVEXVXZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 17:23:25 -0400
-From: "Clifford T. Matthews" <ctm@ardi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17043.39755.573568.293067@newbie.ardi.com>
-Date: Tue, 24 May 2005 15:23:23 -0600
-To: Chris Wright <chrisw@osdl.org>
-Cc: "Clifford T. Matthews" <ctm@ardi.com>, linux-kernel@vger.kernel.org
-Subject: Re: trouble trapping SEGV on 2.6.11.2 & 2.6.12-rc4
-In-Reply-To: <20050524204310.GJ23013@shell0.pdx.osdl.net>
-References: <17043.36668.164277.860295@newbie.ardi.com>
-	<20050524204310.GJ23013@shell0.pdx.osdl.net>
-X-Mailer: VM 7.17 under 21.4 (patch 14) "Reasonable Discussion" XEmacs Lucid
+	Tue, 24 May 2005 17:34:05 -0400
+Received: from pfepb.post.tele.dk ([195.41.46.236]:50581 "EHLO
+	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262198AbVEXVeC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 17:34:02 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: Henrik Storner <henrik-kernel@hswn.dk>
+Newsgroups: linux.kernel
+Subject: Re: surprisingly slow accept/connect cycle time
+Date: Tue, 24 May 2005 21:34:00 +0000 (UTC)
+Organization: Linux Users Inc.
+Message-ID: <d706k8$kam$1@voodoo.hswn.dk>
+References: <17043.37997.993745.877259@newbie.ardi.com>
+NNTP-Posting-Host: osiris.hswn.dk
+X-Trace: voodoo.hswn.dk 1116970440 20822 172.16.10.100 (24 May 2005 21:34:00 GMT)
+X-Complaints-To: usenet@voodoo.hswn.dk
+NNTP-Posting-Date: Tue, 24 May 2005 21:34:00 +0000 (UTC)
+User-Agent: nn/6.6.5+RFC1522
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Chris" == Chris Wright <chrisw@osdl.org> writes:
+In <17043.37997.993745.877259@newbie.ardi.com> "Clifford T. Matthews" <ctm@ardi.com> writes:
 
-    Chris> 2.6 has been fixed...  So your program (which happens to be
-    Chris> slightly buggy) no longer works as you expected.  See
-    Chris> below.
+>While writing some test code, I was surprised to find a couple
+>processes running very slowly.  The attached program illustrates this.
+>The program forks and the child attempts to accept 1000 connections.
+>The parent attempts to connect 1000 times.  This often takes minutes
+>to run, on 2.4 kernels and 2.6 kernels (including 2.6.12-rc4).
 
-Thanks for the quick response.  Using sigsetjmp and siglongjmp makes
-the program print two lines.
+Have you tried using non-blocking sockets ?
 
-I read the setjmp / sigsetjmp documentation and misunderstood it.
+I've been doing some network programming myself lately, and my apps 
+have no problem handling a sustained load of 40 connections/second -
+which should handle your testcase in 25 seconds. And I'm quite sure it
+will be less, because it has handled peak loads of several hundred
+connections per second.
 
-I had already seen that if I inserted "signal (SIGSEGV, segv_handler)"
-before the second setjmp (not sigsetjmp), the program (under 2.6
-kernels) still would die.
+But my program uses non-blocking sockets exclusively.
 
-I guess what happens there is that after coming back from the longjmp,
-the error handler is still segv_handler, but the receipt of the SEGV
-signal itself is blocked and if you take a SEGV when the receipt of
-SEGV is blocked a program dies with a SEGV, even if you have a SEGV
-handler.
 
---Cliff Matthews <ctm@ardi.com>
+Henrik
+

@@ -1,134 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262155AbVEXPzU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262134AbVEXQJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262155AbVEXPzU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 11:55:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262136AbVEXPqz
+	id S262134AbVEXQJv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 12:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262151AbVEXQIj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 11:46:55 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:7879 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262119AbVEXPmp (ORCPT
+	Tue, 24 May 2005 12:08:39 -0400
+Received: from opersys.com ([64.40.108.71]:29962 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S262134AbVEXQGu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 11:42:45 -0400
-Date: Tue, 24 May 2005 17:42:30 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] remove set_tsk_need_resched() from init_idle()
-Message-ID: <20050524154230.GA17814@elte.hu>
-References: <20050524121541.GA17049@elte.hu> <20050524140623.GA3500@elte.hu> <4293420C.8080400@yahoo.com.au> <20050524150537.GA11829@elte.hu> <42934748.8020501@yahoo.com.au> <20050524152759.GA15411@elte.hu>
-Mime-Version: 1.0
+	Tue, 24 May 2005 12:06:50 -0400
+Message-ID: <42935389.5030309@opersys.com>
+Date: Tue, 24 May 2005 12:17:13 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Esben Nielsen <simlo@phys.au.dk>, Christoph Hellwig <hch@infradead.org>,
+       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, sdietrich@mvista.com, Philippe Gerum <rpm@xenomai.org>
+Subject: Re: RT patch acceptance
+References: <Pine.OSF.4.05.10505241532040.29908-100000@da410.phys.au.dk> <42933D71.8060706@opersys.com> <20050524152351.GA10489@elte.hu>
+In-Reply-To: <20050524152351.GA10489@elte.hu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050524152759.GA15411@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+Ingo Molnar wrote:
+> just to make sure, by "much more complicated" are you referring to the 
+> PREEMPT_RT feature? Right now PREEMPT_RT consists of 8000 new lines of 
+> code (of which 2000 is debugging code) and 2000 lines of modified kernel 
+> code. One of the primary goals i had was to keep it simple and robust.
 
-> 
-> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> 
-> > > we could do it in the other direction just as much - i only touched 
-> > > 3 architectures. Up to Andrew i guess.
-> > 
-> > How about just setting need_resched at the start of the cpu_idle 
-> > function instead? Rather than changing the structure of the idle loops 
-> > themselves. That would suit me best.
-> 
-> that's fine with me too.
+I'm refering to the complexity of the behavior. Turning interrupts to
+threads and spinlocks to mutexes makes vanilla Linux's behavior much
+more complicated than it already is. But before a bunch of mouth-foaming
+rugby players tackle me to the ground, please keep in mind that this is
+my appreciation of things. Others have claimed that they are perfectly
+fine with this ...
 
-updated patch below.
+> That's more than 3 times smaller than UML and it's almost an order of
+> magnitude smaller than a nanokernel codebase i just checked, and it
+> boots/works on just about everything where the stock Linux kernel boots.
+> I challenge you to write a nanokernel/hypervisor with a comparable
+> feature-set in that many lines of code.
 
---
+No challenge needed, I'm not refering to codebase. No to mention that I'm
+not even going to get near claiming knowing the kernel's guts anywhere
+as much as you do :)
 
-this patch (ontop of the current -mm scheduler patchset) tweaks 
-cpu_idle() semantics a bit: it changes the idle loops (that do 
-preemption) to call the first schedule() unconditionally.
+Here's running the risk of comparing apples to oranges:
+$ ll adeos-linux-2.6.11-i386-r10c3.patch realtime-preempt-2.6.12-rc4-V0.7.47-07
+-rw-rw-r--    1 karim    karim      195105 May 24 10:19 adeos-linux-2.6.11-i386-r10c3.patch
+-rw-rw-r--    1 karim    karim      610509 May 24 00:14 realtime-preempt-2.6.12-rc4-V0.7.47-07
 
-the advantage is that as a result we dont have to set the idle thread's 
-NEED_RESCHED flag in init_idle(), which in turn makes cond_resched() 
-even more of an invariant: it can be called even from init code without 
-it having any effect. A cond resched in the init codepath hangs 
-otherwise.
+> anyway, as always, the devil is in the details. I certainly dont suggest 
+> that nanokernels/hypervisors are not nice (to the contrary!), or that 
+> all component technologies of the -RT patchset will be accepted into 
+> Linux. PREEMPT_RT started out as an experiment to reduce scheduling 
+> latencies within the constraints of the Linux kernel. It is not an 
+> all-or-nothing feature, it's more of a collection of incremental 
+> patches. It is one, nonexclusive way of doing things.
 
-this patch, while having no negative side-effects, enables wider use of 
-cond_resched()s. (which might happen in the stock kernel too, but it's 
-particulary important for voluntary-preempt) (note that for now this 
-patch only covers architectures that use kernel/Kconfig.preempt, but all 
-other architectures will work just fine too.)
+Here's from a previous posting back in october:
+> development pace. Let's face it, no self-respecting effort that has
+> ever labeled itself as wanting to provide "hard real-time Linux"
+> has been active on the LKML on the same level as Ingo (though many
+> have concentrated a lot of effort and talent on other lists.)
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Clearly I recognize the work you have accomplished, and you are correct
+in stating that the approach is nonexclusive. If the patch does indeed
+make it into the kernel, then so be it. It's worth considering though
+that there are other methods which can provide hard-rt without increasing
+the kernel's complexity even when enabled; the most basic of which would
+be turning the interrupt-handling/disable to function pointers. At the
+next level, you could have something like the interrupt pipeline from
+adeos on top (possibly as a loadable module), and at a third level you
+could have something like RTAI/fusion (as additional loadable modules) ...
 
- arch/i386/kernel/process.c   |    2 ++
- arch/ppc64/kernel/idle.c     |    1 +
- arch/x86_64/kernel/process.c |    2 ++
- kernel/sched.c               |   10 +++++++++-
- 4 files changed, 14 insertions(+), 1 deletion(-)
-
---- linux/kernel/sched.c.orig
-+++ linux/kernel/sched.c
-@@ -4163,6 +4163,15 @@ void show_state(void)
- 	read_unlock(&tasklist_lock);
- }
- 
-+/**
-+ * init_idle - set up an idle thread for a given CPU
-+ * @idle: task in question
-+ * @cpu: cpu the idle task belongs to
-+ *
-+ * NOTE: this function does not set the idle thread's NEED_RESCHED
-+ * flag, to make booting more robust. Architecture-level cpu_idle()
-+ * functions should set it explicitly, before entering their idle-loop.
-+ */
- void __devinit init_idle(task_t *idle, int cpu)
- {
- 	runqueue_t *rq = cpu_rq(cpu);
-@@ -4180,7 +4189,6 @@ void __devinit init_idle(task_t *idle, i
- #if defined(CONFIG_SMP) && defined(__ARCH_WANT_UNLOCKED_CTXSW)
- 	idle->oncpu = 1;
- #endif
--	set_tsk_need_resched(idle);
- 	spin_unlock_irqrestore(&rq->lock, flags);
- 
- 	/* Set the preempt count _outside_ the spinlocks! */
---- linux/arch/x86_64/kernel/process.c.orig
-+++ linux/arch/x86_64/kernel/process.c
-@@ -162,6 +162,8 @@ EXPORT_SYMBOL_GPL(cpu_idle_wait);
-  */
- void cpu_idle (void)
- {
-+	set_tsk_need_resched(current);
-+
- 	/* endless idle loop with no priority at all */
- 	while (1) {
- 		while (!need_resched()) {
---- linux/arch/ppc64/kernel/idle.c.orig
-+++ linux/arch/ppc64/kernel/idle.c
-@@ -305,6 +305,7 @@ static int native_idle(void)
- 
- void cpu_idle(void)
- {
-+	set_tsk_need_resched(current);
- 	idle_loop();
- }
- 
---- linux/arch/i386/kernel/process.c.orig
-+++ linux/arch/i386/kernel/process.c
-@@ -179,6 +179,8 @@ void cpu_idle(void)
- {
- 	int cpu = _smp_processor_id();
- 
-+	set_tsk_need_resched(current);
-+
- 	/* endless idle loop with no priority at all */
- 	while (1) {
- 		while (!need_resched()) {
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

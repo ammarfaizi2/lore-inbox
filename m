@@ -1,639 +1,367 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbVEXIUK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVEXIWr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbVEXIUK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 04:20:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbVEXIUJ
+	id S261431AbVEXIWr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 04:22:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVEXIWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 04:20:09 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:22223 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261440AbVEXIOH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 04:14:07 -0400
-Message-Id: <20050524080800.499897000@csdlinux-2.jf.intel.com>
+	Tue, 24 May 2005 04:22:13 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:35552 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261431AbVEXIOc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 04:14:32 -0400
+Message-Id: <20050524080800.148542000@csdlinux-2.jf.intel.com>
 References: <20050524075201.351504000@csdlinux-2.jf.intel.com>
-Date: Tue, 24 May 2005 00:27:51 -0700
+Date: Tue, 24 May 2005 00:27:50 -0700
 From: Ashok Raj <ashok.raj@intel.com>
 To: ak@muc.de, akpm@osdl.org
 Cc: zwane@arm.linux.org.uk, rusty@rustycorp.com.au, vatsa@in.ibm.com,
        shaohua.li@intel.com, linux-kernel@vger.kernel.org, discuss@x86-64.org,
        ashok.raj@intel.com
-Subject: [patch 2/4] CPU Hotplug support for X86_64
-Content-Disposition: inline; filename=x86_64-cpuhotplug.patch
+Subject: [patch 1/4] CPU Hotplug support for X86_64
+Content-Disposition: inline; filename=x86_64-cpuhp-initcall-cleanup.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: [patch 2/4] x86_64: CPU hotplug support.
-From: Ashok Raj <ashok.raj@intel.com>
+Subject: [patch 1/4] x86_64: Change init sections for CPU hotplug support
 
-Experimental CPU hotplug patch for x86_64
------------------------------------------
-This supports logical CPU online and offline.
-- Test with maxcpus=1, and then kick other cpu's off to test if init code
-  is all cleaned up.
-- idle threads are forked on demand from keventd threads for clean startup
+This patch adds __cpuinit and __cpuinitdata sections that need to exist
+past boot to support cpu hotplug.
 
-TBD: 
+Caveat: This is done *only* for EM64T CPU Hotplug support, on request from
+Andi Kleen. Much of the generic hotplug code in kernel, and none of the 
+other archs that support CPU hotplug today, i386, ia64, ppc64, s390 and
+parisc dont do this, and only mark them as __devinit, and __devinitdata.
 
-1. Not tested on a real NUMA machine (tested with numa=fake=2)
-2. CONFIG_SCHED_SMT seems to have trouble handling cpu add/removal
-3. Handle ACPI pieces for physical hotplug support.
+If someone is motivated to change generic code, we need to make sure all
+existing hotplug code does not break.
 
 Signed-off-by: Ashok Raj <ashok.raj@intel.com>
------------
+-----------------------------------------
+ arch/x86_64/kernel/apic.c    |    8 ++++----
+ arch/x86_64/kernel/i387.c    |    2 +-
+ arch/x86_64/kernel/nmi.c     |    4 ++--
+ arch/x86_64/kernel/process.c |    2 +-
+ arch/x86_64/kernel/setup.c   |   18 +++++++++---------
+ arch/x86_64/kernel/setup64.c |    6 +++---
+ arch/x86_64/kernel/smpboot.c |   15 +++++----------
+ arch/x86_64/mm/numa.c        |    2 +-
+ include/linux/init.h         |   13 +++++++++++++
+ mm/page_alloc.c              |    2 +-
+ 10 files changed, 40 insertions(+), 32 deletions(-)
 
- arch/i386/mach-default/topology.c |    7 -
- arch/x86_64/Kconfig               |    9 +
- arch/x86_64/kernel/irq.c          |   30 +++++
- arch/x86_64/kernel/process.c      |   33 +++++
- arch/x86_64/kernel/smp.c          |   12 ++
- arch/x86_64/kernel/smpboot.c      |  213 ++++++++++++++++++++++++++++++++++----
- arch/x86_64/kernel/traps.c        |    9 +
- include/asm-x86_64/irq.h          |    5 
- include/asm-x86_64/smp.h          |    4 
- 9 files changed, 297 insertions(+), 25 deletions(-)
-
-Index: linux-2.6.12-rc4-mm2/arch/x86_64/Kconfig
+Index: linux-2.6.12-rc4-mm2/include/linux/init.h
 ===================================================================
---- linux-2.6.12-rc4-mm2.orig/arch/x86_64/Kconfig
-+++ linux-2.6.12-rc4-mm2/arch/x86_64/Kconfig
-@@ -294,6 +294,15 @@ config NR_CPUS
- 	  This is purely to save memory - each supported CPU requires
- 	  memory in the static kernel configuration.
- 
-+config HOTPLUG_CPU
-+	bool "Support for hot-pluggable CPUs (EXPERIMENTAL)"
-+	depends on SMP && HOTPLUG && EXPERIMENTAL
-+	help
-+		Say Y here to experiment with turning CPUs off and on.  CPUs
-+		can be controlled through /sys/devices/system/cpu/cpu#.
-+		Say N if you want to disable CPU hotplug.
+--- linux-2.6.12-rc4-mm2.orig/include/linux/init.h
++++ linux-2.6.12-rc4-mm2/include/linux/init.h
+@@ -222,6 +222,19 @@ void __init parse_early_param(void);
+ #define __devinitdata
+ #define __devexit
+ #define __devexitdata
 +
++#ifdef CONFIG_HOTPLUG_CPU
++#define __cpuinit
++#define __cpuinitdata
++#define __cpuexit
++#define __cpuexitdata
++#else
++#define __cpuinit	__init
++#define __cpuinitdata __initdata
++#define __cpuexit __exit
++#define __cpuexitdata	__exitdata
++#endif
 +
- config HPET_TIMER
- 	bool
- 	default y
+ #else
+ #define __devinit __init
+ #define __devinitdata __initdata
 Index: linux-2.6.12-rc4-mm2/arch/x86_64/kernel/smpboot.c
 ===================================================================
 --- linux-2.6.12-rc4-mm2.orig/arch/x86_64/kernel/smpboot.c
 +++ linux-2.6.12-rc4-mm2/arch/x86_64/kernel/smpboot.c
-@@ -34,6 +34,7 @@
-  *      Andi Kleen              :       Converted to new state machine.
-  *					Various cleanups.
-  *					Probably mostly hotplug CPU ready now.
-+ *	Ashok Raj			: CPU hotplug support
-  */
+@@ -58,11 +58,6 @@
+ #include <asm/proto.h>
+ #include <asm/nmi.h>
  
- 
-@@ -68,7 +69,6 @@ EXPORT_SYMBOL(cpu_core_id);
- 
- /* Bitmask of currently online CPUs */
- cpumask_t cpu_online_map;
+-/* Change for real CPU hotplug. Note other files need to be fixed
+-   first too. */
+-#define __cpuinit __init
+-#define __cpuinitdata __initdata
 -
- EXPORT_SYMBOL(cpu_online_map);
- 
- /*
-@@ -97,6 +97,26 @@ cpumask_t cpu_core_map[NR_CPUS] __cachel
- extern unsigned char trampoline_data[];
- extern unsigned char trampoline_end[];
- 
-+/* State of each CPU */
-+DEFINE_PER_CPU(int, cpu_state) = { 0 };
-+
-+#ifdef CONFIG_HOTPLUG_CPU
-+/*
-+ * Store all idle threads, this can be reused instead of creating
-+ * a new thread. Also avoids complicated thread destroy functionality
-+ * for idle threads.
-+ */
-+struct task_struct *idle_thread_array[NR_CPUS];
-+
-+#define get_idle_for_cpu(x)     (idle_thread_array[(x)])
-+#define set_idle_for_cpu(x,p)   (idle_thread_array[(x)] = (p))
-+
-+#else
-+
-+#define get_idle_for_cpu(x)     (NULL)
-+#define set_idle_for_cpu(x,p)
-+#endif
-+
- /*
-  * Currently trivial. Write the real->protected mode
-  * bootstrap into the page concerned. The caller
-@@ -182,9 +202,9 @@ static void __cpuinit smp_store_cpu_info
-    latency and low latency is the primary objective here. -AK */
- #define no_cpu_relax() barrier()
- 
--static __cpuinitdata DEFINE_SPINLOCK(tsc_sync_lock);
--static volatile __cpuinitdata unsigned long go[SLAVE + 1];
--static int notscsync __cpuinitdata;
-+static __devinitdata DEFINE_SPINLOCK(tsc_sync_lock);
-+static volatile __devinitdata unsigned long go[SLAVE + 1];
-+static int notscsync __devinitdata;
- 
- #undef DEBUG_TSC_SYNC
- 
-@@ -192,7 +212,7 @@ static int notscsync __cpuinitdata;
- #define NUM_ITERS	5	/* likewise */
- 
- /* Callback on boot CPU */
--static __cpuinit void sync_master(void *arg)
-+static __devinit void sync_master(void *arg)
- {
- 	unsigned long flags, i;
- 
-@@ -247,7 +267,7 @@ get_delta(long *rt, long *master)
- 	return tcenter - best_tm;
- }
- 
--static __cpuinit void sync_tsc(void)
-+static __devinit void sync_tsc(void)
- {
- 	int i, done = 0;
- 	long delta, adj, adjust_latency = 0;
-@@ -258,7 +278,7 @@ static __cpuinit void sync_tsc(void)
- 		long master;	/* master's timestamp */
- 		long diff;	/* difference between midpoint and master's timestamp */
- 		long lat;	/* estimate of tsc adjustment latency */
--	} t[NUM_ROUNDS] __cpuinitdata;
-+	} t[NUM_ROUNDS] __devinitdata;
- #endif
- 
- 	go[MASTER] = 1;
-@@ -310,7 +330,7 @@ static __cpuinit void sync_tsc(void)
- 	       smp_processor_id(), boot_cpu_id, delta, rt);
- }
- 
--static void __cpuinit tsc_sync_wait(void)
-+static void __devinit tsc_sync_wait(void)
- {
- 	if (notscsync || !cpu_has_tsc)
- 		return;
-@@ -410,6 +430,8 @@ void __cpuinit smp_callin(void)
- 	 * Allow the master to continue.
- 	 */
- 	cpu_set(cpuid, cpu_callin_map);
-+	mb();
-+	local_flush_tlb();
- }
- 
- /*
-@@ -444,8 +466,10 @@ void __cpuinit start_secondary(void)
- 	/*
- 	 * Allow the master to continue.
- 	 */
-+	lock_ipi_calllock();
- 	cpu_set(smp_processor_id(), cpu_online_map);
- 	mb();
-+	unlock_ipi_calllock();
- 
- 	/* Wait for TSC sync to not schedule things before.
- 	   We still process interrupts, which could see an inconsistent
-@@ -622,33 +646,67 @@ static int __cpuinit wakeup_secondary_vi
- 	return (send_status | accept_status);
- }
- 
-+struct create_idle {
-+	struct task_struct *idle;
-+	struct completion done;
-+	int cpu;
-+};
-+
-+void do_fork_idle(void *_c_idle)
-+{
-+	struct create_idle *c_idle = _c_idle;
-+
-+	c_idle->idle = fork_idle(c_idle->cpu);
-+	complete(&c_idle->done);
-+}
-+
- /*
-  * Boot one CPU.
+ /* Number of siblings per CPU package */
+ int smp_num_siblings = 1;
+ /* Package ID of each logical CPU */
+@@ -822,7 +817,7 @@ static __cpuinit void smp_cleanup_boot(v
+  *
+  * RED-PEN audit/test this more. I bet there is more state messed up here.
   */
- static int __cpuinit do_boot_cpu(int cpu, int apicid)
+-static __cpuinit void disable_smp(void)
++static __init void disable_smp(void)
  {
--	struct task_struct *idle;
- 	unsigned long boot_error;
- 	int timeout;
- 	unsigned long start_rip;
--	/*
--	 * We can't use kernel_thread since we must avoid to
--	 * reschedule the child.
--	 */
--	idle = fork_idle(cpu);
--	if (IS_ERR(idle)) {
-+	struct create_idle c_idle = {
-+		.cpu = cpu,
-+		.done = COMPLETION_INITIALIZER(c_idle.done),
-+	};
-+	DECLARE_WORK(work, do_fork_idle, &c_idle);
-+
-+	c_idle.idle = get_idle_for_cpu(cpu);
-+
-+	if (c_idle.idle) {
-+		c_idle.idle->thread.rsp = (unsigned long) (((struct pt_regs *)
-+			(THREAD_SIZE + (unsigned long) c_idle.idle->thread_info)) - 1);
-+		init_idle(c_idle.idle, cpu);
-+		goto do_rest;
-+	}
-+
-+	if (!keventd_up() || current_is_keventd())
-+		work.func(work.data);
-+	else {
-+		schedule_work(&work);
-+		wait_for_completion(&c_idle.done);
-+	}
-+
-+	if (IS_ERR(c_idle.idle)) {
- 		printk("failed fork for CPU %d\n", cpu);
--		return PTR_ERR(idle);
-+		return PTR_ERR(c_idle.idle);
- 	}
- 
--	cpu_pda[cpu].pcurrent = idle;
-+	set_idle_for_cpu(cpu, c_idle.idle);
-+
-+do_rest:
-+
-+	cpu_pda[cpu].pcurrent = c_idle.idle;
- 
- 	start_rip = setup_trampoline();
- 
--	init_rsp = idle->thread.rsp;
-+	init_rsp = c_idle.idle->thread.rsp;
- 	per_cpu(init_tss,cpu).rsp0 = init_rsp;
- 	initial_code = start_secondary;
--	clear_ti_thread_flag(idle->thread_info, TIF_FORK);
-+	clear_ti_thread_flag(c_idle.idle->thread_info, TIF_FORK);
- 
- 	printk(KERN_INFO "Booting processor %d/%d rip %lx rsp %lx\n", cpu, apicid,
- 	       start_rip, init_rsp);
-@@ -926,8 +984,14 @@ void __init smp_prepare_cpus(unsigned in
- 			cpu_set(i, cpu_present_map);
- 			/* possible map would be different if we supported real
- 			   CPU hotplug. */
-+#ifndef CONFIG_HOTPLUG_CPU
- 			cpu_set(i, cpu_possible_map);
-+#endif
- 		}
-+#ifdef CONFIG_HOTPLUG_CPU
-+			printk ("Setting possible cpus %d\n", i);
-+			cpu_set(i, cpu_possible_map);
-+#endif
- 	}
- 
- 	if (smp_sanity_check(max_cpus) < 0) {
-@@ -994,12 +1058,21 @@ int __cpuinit __cpu_up(unsigned int cpu)
- 		printk("__cpu_up: bad cpu %d\n", cpu);
- 		return -EINVAL;
- 	}
-+ 
-+	/*
-+	 * FIXME: This is temporary.. will go away.
-+	 * Already booted CPU, so just enable it.
-+	 */
-+ 	if (cpu_isset(cpu, cpu_callin_map)) {
-+		Dprintk ("do_boot_cpu %d Already started\n", cpu);
-+ 		return -ENOSYS;
-+	}
- 
- 	/* Boot it! */
- 	err = do_boot_cpu(cpu, apicid);
- 	if (err < 0) {
- 		Dprintk("do_boot_cpu failed %d\n", err);
--		return err;
-+		goto ret;
- 	}
- 
- 	/* Unleash the CPU! */
-@@ -1007,7 +1080,10 @@ int __cpuinit __cpu_up(unsigned int cpu)
- 
- 	while (!cpu_isset(cpu, cpu_online_map))
- 		cpu_relax();
--	return 0;
-+	err = 0;
-+ret:
-+	flush_tlb_all();
-+	return err;
- }
- 
+ 	cpu_present_map = cpumask_of_cpu(0);
+ 	cpu_possible_map = cpumask_of_cpu(0);
+@@ -837,7 +832,7 @@ static __cpuinit void disable_smp(void)
  /*
-@@ -1015,7 +1091,9 @@ int __cpuinit __cpu_up(unsigned int cpu)
+  * Handle user cpus=... parameter.
   */
- void __init smp_cpus_done(unsigned int max_cpus)
+-static __cpuinit void enforce_max_cpus(unsigned max_cpus)
++static __init void enforce_max_cpus(unsigned max_cpus)
  {
-+#ifndef CONFIG_HOTPLUG_CPU
+ 	int i, k;
+ 	k = 0;
+@@ -854,7 +849,7 @@ static __cpuinit void enforce_max_cpus(u
+ /*
+  * Various sanity checks.
+  */
+-static int __cpuinit smp_sanity_check(unsigned max_cpus)
++static int __init smp_sanity_check(unsigned max_cpus)
+ {
+ 	if (!physid_isset(hard_smp_processor_id(), phys_cpu_present_map)) {
+ 		printk("weird, boot CPU (#%d) not listed by the BIOS.\n",
+@@ -912,7 +907,7 @@ static int __cpuinit smp_sanity_check(un
+  * Prepare for SMP bootup.  The MP table or ACPI has been read
+  * earlier.  Just do some sanity checking here and enable APIC mode.
+  */
+-void __cpuinit smp_prepare_cpus(unsigned int max_cpus)
++void __init smp_prepare_cpus(unsigned int max_cpus)
+ {
+ 	int i;
+ 
+@@ -1018,7 +1013,7 @@ int __cpuinit __cpu_up(unsigned int cpu)
+ /*
+  * Finish the SMP boot.
+  */
+-void __cpuinit smp_cpus_done(unsigned int max_cpus)
++void __init smp_cpus_done(unsigned int max_cpus)
+ {
  	zap_low_mappings();
-+#endif
  	smp_cleanup_boot();
- 
- #ifdef CONFIG_X86_IO_APIC
-@@ -1027,3 +1105,96 @@ void __init smp_cpus_done(unsigned int m
- 
- 	check_nmi_watchdog();
- }
-+
-+#ifdef CONFIG_HOTPLUG_CPU
-+
-+static void
-+remove_siblinginfo(int cpu)
-+{
-+	int sibling;
-+
-+	for_each_cpu_mask(sibling, cpu_sibling_map[cpu])
-+		cpu_clear(cpu, cpu_sibling_map[sibling]);
-+	for_each_cpu_mask(sibling, cpu_core_map[cpu])
-+		cpu_clear(cpu, cpu_core_map[sibling]);
-+	cpus_clear(cpu_sibling_map[cpu]);
-+	cpus_clear(cpu_core_map[cpu]);
-+	phys_proc_id[cpu] = BAD_APICID;
-+	cpu_core_id[cpu] = BAD_APICID;
-+}
-+
-+void remove_cpu_from_maps(void)
-+{
-+	int cpu = smp_processor_id();
-+
-+	cpu_clear(cpu, cpu_callout_map);
-+	cpu_clear(cpu, cpu_callin_map);
-+	clear_bit(cpu, &cpu_initialized); /* was set by cpu_init() */
-+}
-+
-+int __cpu_disable(void)
-+{
-+	int cpu = smp_processor_id();
-+
-+	/*
-+	 * Perhaps use cpufreq to drop frequency, but that could go
-+	 * into generic code.
-+ 	 *
-+	 * We won't take down the boot processor on i386 due to some
-+	 * interrupts only being able to be serviced by the BSP.
-+	 * Especially so if we're not using an IOAPIC	-zwane
-+	 */
-+	if (cpu == 0)
-+		return -EBUSY;
-+
-+	disable_APIC_timer();
-+
-+	/* Allow any queued timer interrupts to get serviced */
-+	local_irq_enable();
-+	mdelay(1);
-+
-+	/*
-+	 * Need this per zwane, but this uses IPI, so cannot be used 
-+	 * in the machine down state. Need to find something else
-+	 *
-+	 * flush_tlb_all(); 
-+	 */
-+	local_flush_tlb();
-+	local_irq_disable();
-+	remove_siblinginfo(cpu);
-+
-+	/* It's now safe to remove this processor from the online map */
-+	cpu_clear(cpu, cpu_online_map);
-+	remove_cpu_from_maps();
-+	fixup_irqs(cpu_online_map);
-+	return 0;
-+}
-+
-+void __cpu_die(unsigned int cpu)
-+{
-+	/* We don't do anything here: idle task is faking death itself. */
-+	unsigned int i;
-+
-+	for (i = 0; i < 10; i++) {
-+		/* They ack this in play_dead by setting CPU_DEAD */
-+		if (per_cpu(cpu_state, cpu) == CPU_DEAD)
-+			return;
-+		current->state = TASK_UNINTERRUPTIBLE;
-+		schedule_timeout(HZ/10);
-+	}
-+ 	printk(KERN_ERR "CPU %u didn't die...\n", cpu);
-+}
-+
-+#else /* ... !CONFIG_HOTPLUG_CPU */
-+
-+int __cpu_disable(void)
-+{
-+	return -ENOSYS;
-+}
-+
-+void __cpu_die(unsigned int cpu)
-+{
-+	/* We said "no" in __cpu_disable */
-+	BUG();
-+}
-+#endif /* CONFIG_HOTPLUG_CPU */
-Index: linux-2.6.12-rc4-mm2/arch/x86_64/kernel/irq.c
-===================================================================
---- linux-2.6.12-rc4-mm2.orig/arch/x86_64/kernel/irq.c
-+++ linux-2.6.12-rc4-mm2/arch/x86_64/kernel/irq.c
-@@ -14,6 +14,7 @@
- #include <linux/interrupt.h>
- #include <linux/seq_file.h>
- #include <linux/module.h>
-+#include <linux/delay.h>
- #include <asm/uaccess.h>
- #include <asm/io_apic.h>
- 
-@@ -106,3 +107,32 @@ asmlinkage unsigned int do_IRQ(struct pt
- 
- 	return 1;
- }
-+
-+#ifdef CONFIG_HOTPLUG_CPU
-+void fixup_irqs(cpumask_t map)
-+{
-+	unsigned int irq;
-+	static int warned;
-+
-+	for (irq = 0; irq < NR_IRQS; irq++) {
-+		cpumask_t mask;
-+		if (irq == 2)
-+			continue;
-+
-+		cpus_and(mask, irq_affinity[irq], map);
-+		if (any_online_cpu(mask) == NR_CPUS) {
-+			printk("Breaking affinity for irq %i\n", irq);
-+			mask = map;
-+		}
-+		if (irq_desc[irq].handler->set_affinity)
-+			irq_desc[irq].handler->set_affinity(irq, mask);
-+		else if (irq_desc[irq].action && !(warned++))
-+			printk("Cannot set affinity for irq %i\n", irq);
-+	}
-+
-+	/* That doesn't seem sufficient.  Give it 1ms. */
-+	local_irq_enable();
-+	mdelay(1);
-+	local_irq_disable();
-+}
-+#endif
-Index: linux-2.6.12-rc4-mm2/include/asm-x86_64/irq.h
-===================================================================
---- linux-2.6.12-rc4-mm2.orig/include/asm-x86_64/irq.h
-+++ linux-2.6.12-rc4-mm2/include/asm-x86_64/irq.h
-@@ -52,4 +52,9 @@ struct irqaction;
- struct pt_regs;
- int handle_IRQ_event(unsigned int, struct pt_regs *, struct irqaction *);
- 
-+#ifdef CONFIG_HOTPLUG_CPU
-+#include <linux/cpumask.h>
-+extern void fixup_irqs(cpumask_t map);
-+#endif
-+
- #endif /* _ASM_IRQ_H */
 Index: linux-2.6.12-rc4-mm2/arch/x86_64/kernel/process.c
 ===================================================================
 --- linux-2.6.12-rc4-mm2.orig/arch/x86_64/kernel/process.c
 +++ linux-2.6.12-rc4-mm2/arch/x86_64/kernel/process.c
-@@ -8,7 +8,8 @@
-  * 
-  *  X86-64 port
-  *	Andi Kleen.
-- * 
-+ *
-+ *	CPU hotplug support - ashok.raj@intel.com
-  *  $Id: process.c,v 1.38 2002/01/15 10:08:03 ak Exp $
-  */
- 
-@@ -18,6 +19,7 @@
- 
- #include <stdarg.h>
- 
-+#include <linux/cpu.h>
- #include <linux/errno.h>
- #include <linux/sched.h>
- #include <linux/kernel.h>
-@@ -154,6 +156,33 @@ void cpu_idle_wait(void)
- }
- EXPORT_SYMBOL_GPL(cpu_idle_wait);
- 
-+#ifdef CONFIG_HOTPLUG_CPU
-+DECLARE_PER_CPU(int, cpu_state);
-+
-+#include <asm/nmi.h>
-+/* We don't actually take CPU down, just spin without interrupts. */
-+static inline void play_dead(void)
-+{
-+	idle_task_exit();
-+	mb();
-+	/* Ack it */
-+	__get_cpu_var(cpu_state) = CPU_DEAD;
-+
-+	local_irq_disable();
-+	while (1)
-+		safe_halt();
-+#if 0
-+	while (1)
-+		__asm__ __volatile__("hlt":::"memory");
-+#endif
-+}
-+#else
-+static inline void play_dead(void)
-+{
-+	BUG();
-+}
-+#endif /* CONFIG_HOTPLUG_CPU */
-+
- /*
-  * The idle thread. There's no useful work to be
-  * done, so just try to conserve power and have a
-@@ -174,6 +203,8 @@ void cpu_idle (void)
- 			idle = pm_idle;
- 			if (!idle)
- 				idle = default_idle;
-+			if (cpu_is_offline(smp_processor_id()))
-+				play_dead();
- 			idle();
- 		}
- 
-Index: linux-2.6.12-rc4-mm2/include/asm-x86_64/smp.h
-===================================================================
---- linux-2.6.12-rc4-mm2.orig/include/asm-x86_64/smp.h
-+++ linux-2.6.12-rc4-mm2/include/asm-x86_64/smp.h
-@@ -44,6 +44,8 @@ extern void smp_alloc_memory(void);
- extern volatile unsigned long smp_invalidate_needed;
- extern int pic_mode;
- extern int smp_num_siblings;
-+extern void lock_ipi_calllock(void);
-+extern void unlock_ipi_calllock(void);
- extern void smp_flush_tlb(void);
- extern void smp_message_irq(int cpl, void *dev_id, struct pt_regs *regs);
- extern void smp_send_reschedule(int cpu);
-@@ -77,6 +79,8 @@ extern __inline int hard_smp_processor_i
+@@ -204,7 +204,7 @@ static void mwait_idle(void)
+ 	}
  }
  
- extern int safe_smp_processor_id(void);
-+extern int __cpu_disable(void);
-+extern void __cpu_die(unsigned int cpu);
- 
- #endif /* !ASSEMBLY */
- 
-Index: linux-2.6.12-rc4-mm2/arch/x86_64/kernel/traps.c
-===================================================================
---- linux-2.6.12-rc4-mm2.orig/arch/x86_64/kernel/traps.c
-+++ linux-2.6.12-rc4-mm2/arch/x86_64/kernel/traps.c
-@@ -587,11 +587,18 @@ static void unknown_nmi_error(unsigned c
- asmlinkage void default_do_nmi(struct pt_regs *regs)
+-void __init select_idle_routine(const struct cpuinfo_x86 *c)
++void __cpuinit select_idle_routine(const struct cpuinfo_x86 *c)
  {
- 	unsigned char reason = 0;
-+	int cpu;
-+
-+	cpu = smp_processor_id();
- 
- 	/* Only the BSP gets external NMIs from the system.  */
--	if (!smp_processor_id())
-+	if (!cpu)
- 		reason = get_nmi_reason();
- 
-+#ifdef CONFIG_HOTPLUG_CPU
-+	if (!cpu_online(cpu))
-+		return;
-+#endif
- 	if (!(reason & 0xc0)) {
- 		if (notify_die(DIE_NMI_IPI, "nmi_ipi", regs, reason, 0, SIGINT)
- 								== NOTIFY_STOP)
-Index: linux-2.6.12-rc4-mm2/arch/x86_64/kernel/smp.c
+ 	static int printed;
+ 	if (cpu_has(c, X86_FEATURE_MWAIT)) {
+Index: linux-2.6.12-rc4-mm2/arch/x86_64/kernel/setup.c
 ===================================================================
---- linux-2.6.12-rc4-mm2.orig/arch/x86_64/kernel/smp.c
-+++ linux-2.6.12-rc4-mm2/arch/x86_64/kernel/smp.c
-@@ -295,6 +295,18 @@ struct call_data_struct {
+--- linux-2.6.12-rc4-mm2.orig/arch/x86_64/kernel/setup.c
++++ linux-2.6.12-rc4-mm2/arch/x86_64/kernel/setup.c
+@@ -696,7 +696,7 @@ void __init setup_arch(char **cmdline_p)
+ #endif
+ }
  
- static struct call_data_struct * call_data;
+-static int __init get_model_name(struct cpuinfo_x86 *c)
++static int __cpuinit get_model_name(struct cpuinfo_x86 *c)
+ {
+ 	unsigned int *v;
  
-+void
-+lock_ipi_calllock(void)
-+{
-+	spin_lock_irq(&call_lock);
-+}
-+
-+void
-+unlock_ipi_calllock(void)
-+{
-+	spin_unlock_irq(&call_lock);
-+}
-+
+@@ -712,7 +712,7 @@ static int __init get_model_name(struct 
+ }
+ 
+ 
+-static void __init display_cacheinfo(struct cpuinfo_x86 *c)
++static void __cpuinit display_cacheinfo(struct cpuinfo_x86 *c)
+ {
+ 	unsigned int n, dummy, eax, ebx, ecx, edx;
+ 
+@@ -823,7 +823,7 @@ static int __init init_amd(struct cpuinf
+ 	return r;
+ }
+ 
+-static void __init detect_ht(struct cpuinfo_x86 *c)
++static void __cpuinit detect_ht(struct cpuinfo_x86 *c)
+ {
+ #ifdef CONFIG_SMP
+ 	u32 	eax, ebx, ecx, edx;
+@@ -884,7 +884,7 @@ static void __init detect_ht(struct cpui
  /*
-  * this function sends a 'generic call function' IPI to all other CPUs
-  * in the system.
-Index: linux-2.6.12-rc4-mm2/arch/i386/mach-default/topology.c
-===================================================================
---- linux-2.6.12-rc4-mm2.orig/arch/i386/mach-default/topology.c
-+++ linux-2.6.12-rc4-mm2/arch/i386/mach-default/topology.c
-@@ -88,8 +88,11 @@ static int __init topology_init(void)
+  * find out the number of processor cores on the die
+  */
+-static int __init intel_num_cpu_cores(struct cpuinfo_x86 *c)
++static int __cpuinit intel_num_cpu_cores(struct cpuinfo_x86 *c)
+ {
+ 	unsigned int eax;
+ 
+@@ -902,7 +902,7 @@ static int __init intel_num_cpu_cores(st
+ 		return 1;
+ }
+ 
+-static void __init init_intel(struct cpuinfo_x86 *c)
++static void __cpuinit init_intel(struct cpuinfo_x86 *c)
+ {
+ 	/* Cache sizes */
+ 	unsigned n;
+@@ -922,7 +922,7 @@ static void __init init_intel(struct cpu
+  	c->x86_num_cores = intel_num_cpu_cores(c);
+ }
+ 
+-void __init get_cpu_vendor(struct cpuinfo_x86 *c)
++void __cpuinit get_cpu_vendor(struct cpuinfo_x86 *c)
+ {
+ 	char *v = c->x86_vendor_id;
+ 
+@@ -943,7 +943,7 @@ struct cpu_model_info {
+ /* Do some early cpuid on the boot CPU to get some parameter that are
+    needed before check_bugs. Everything advanced is in identify_cpu
+    below. */
+-void __init early_identify_cpu(struct cpuinfo_x86 *c)
++void __cpuinit early_identify_cpu(struct cpuinfo_x86 *c)
+ {
+ 	u32 tfms;
+ 
+@@ -998,7 +998,7 @@ void __init early_identify_cpu(struct cp
+ /*
+  * This does the hard work of actually picking apart the CPU stuff...
+  */
+-void __init identify_cpu(struct cpuinfo_x86 *c)
++void __cpuinit identify_cpu(struct cpuinfo_x86 *c)
  {
  	int i;
+ 	u32 xlvl;
+@@ -1075,7 +1075,7 @@ void __init identify_cpu(struct cpuinfo_
+ }
+  
  
--	for (i = 0; i < NR_CPUS; i++)
--		if (cpu_possible(i)) arch_register_cpu(i);
-+	for (i = 0; i < NR_CPUS; i++) {
-+		if (cpu_possible(i))  {
-+			arch_register_cpu(i);
-+		}
-+	}
- 	return 0;
+-void __init print_cpu_info(struct cpuinfo_x86 *c)
++void __cpuinit print_cpu_info(struct cpuinfo_x86 *c)
+ {
+ 	if (c->x86_model_id[0])
+ 		printk("%s", c->x86_model_id);
+Index: linux-2.6.12-rc4-mm2/arch/x86_64/kernel/apic.c
+===================================================================
+--- linux-2.6.12-rc4-mm2.orig/arch/x86_64/kernel/apic.c
++++ linux-2.6.12-rc4-mm2/arch/x86_64/kernel/apic.c
+@@ -321,7 +321,7 @@ void __init init_bsp_APIC(void)
+ 	apic_write_around(APIC_LVT1, value);
  }
  
+-void __init setup_local_APIC (void)
++void __cpuinit setup_local_APIC (void)
+ {
+ 	unsigned int value, ver, maxlvt;
+ 
+@@ -570,7 +570,7 @@ static struct sys_device device_lapic = 
+ 	.cls		= &lapic_sysclass,
+ };
+ 
+-static void __init apic_pm_activate(void)
++static void __cpuinit apic_pm_activate(void)
+ {
+ 	apic_pm_state.active = 1;
+ }
+@@ -810,14 +810,14 @@ void __init setup_boot_APIC_clock (void)
+ 	local_irq_enable();
+ }
+ 
+-void __init setup_secondary_APIC_clock(void)
++void __cpuinit setup_secondary_APIC_clock(void)
+ {
+ 	local_irq_disable(); /* FIXME: Do we need this? --RR */
+ 	setup_APIC_timer(calibration_result);
+ 	local_irq_enable();
+ }
+ 
+-void __init disable_APIC_timer(void)
++void __cpuinit disable_APIC_timer(void)
+ {
+ 	if (using_apic_timer) {
+ 		unsigned long v;
+Index: linux-2.6.12-rc4-mm2/arch/x86_64/kernel/setup64.c
+===================================================================
+--- linux-2.6.12-rc4-mm2.orig/arch/x86_64/kernel/setup64.c
++++ linux-2.6.12-rc4-mm2/arch/x86_64/kernel/setup64.c
+@@ -29,7 +29,7 @@
+ 
+ char x86_boot_params[BOOT_PARAM_SIZE] __initdata = {0,};
+ 
+-cpumask_t cpu_initialized __initdata = CPU_MASK_NONE;
++cpumask_t cpu_initialized __cpuinitdata = CPU_MASK_NONE;
+ 
+ struct x8664_pda cpu_pda[NR_CPUS] __cacheline_aligned; 
+ 
+@@ -171,7 +171,7 @@ void syscall_init(void)
+ 	wrmsrl(MSR_SYSCALL_MASK, EF_TF|EF_DF|EF_IE|0x3000); 
+ }
+ 
+-void __init check_efer(void)
++void __cpuinit check_efer(void)
+ {
+ 	unsigned long efer;
+ 
+@@ -188,7 +188,7 @@ void __init check_efer(void)
+  * 'CPU state barrier', nothing should get across.
+  * A lot of state is already set up in PDA init.
+  */
+-void __init cpu_init (void)
++void __cpuinit cpu_init (void)
+ {
+ #ifdef CONFIG_SMP
+ 	int cpu = stack_smp_processor_id();
+Index: linux-2.6.12-rc4-mm2/arch/x86_64/kernel/i387.c
+===================================================================
+--- linux-2.6.12-rc4-mm2.orig/arch/x86_64/kernel/i387.c
++++ linux-2.6.12-rc4-mm2/arch/x86_64/kernel/i387.c
+@@ -42,7 +42,7 @@ void mxcsr_feature_mask_init(void)
+  * Called at bootup to set up the initial FPU state that is later cloned
+  * into all processes.
+  */
+-void __init fpu_init(void)
++void __cpuinit fpu_init(void)
+ {
+ 	unsigned long oldcr0 = read_cr0();
+ 	extern void __bad_fxsave_alignment(void);
+Index: linux-2.6.12-rc4-mm2/mm/page_alloc.c
+===================================================================
+--- linux-2.6.12-rc4-mm2.orig/mm/page_alloc.c
++++ linux-2.6.12-rc4-mm2/mm/page_alloc.c
+@@ -72,7 +72,7 @@ EXPORT_SYMBOL(zone_table);
+ 
+ #ifdef CONFIG_NUMA
+ static struct per_cpu_pageset
+-	pageset_table[MAX_NR_ZONES*MAX_NUMNODES*NR_CPUS] __initdata;
++	pageset_table[MAX_NR_ZONES*MAX_NUMNODES*NR_CPUS] __cpuinitdata;
+ #endif
+ 
+ static char *zone_names[MAX_NR_ZONES] = { "DMA", "Normal", "HighMem" };
+Index: linux-2.6.12-rc4-mm2/arch/x86_64/kernel/nmi.c
+===================================================================
+--- linux-2.6.12-rc4-mm2.orig/arch/x86_64/kernel/nmi.c
++++ linux-2.6.12-rc4-mm2/arch/x86_64/kernel/nmi.c
+@@ -98,7 +98,7 @@ static unsigned int nmi_p4_cccr_val;
+ 	(P4_CCCR_OVF_PMI0|P4_CCCR_THRESHOLD(15)|P4_CCCR_COMPLEMENT|	\
+ 	 P4_CCCR_COMPARE|P4_CCCR_REQUIRED|P4_CCCR_ESCR_SELECT(4)|P4_CCCR_ENABLE)
+ 
+-static __init inline int nmi_known_cpu(void)
++static __cpuinit inline int nmi_known_cpu(void)
+ {
+ 	switch (boot_cpu_data.x86_vendor) {
+ 	case X86_VENDOR_AMD:
+@@ -110,7 +110,7 @@ static __init inline int nmi_known_cpu(v
+ }
+ 
+ /* Run after command line and cpu_init init, but before all other checks */
+-void __init nmi_watchdog_default(void)
++void __cpuinit nmi_watchdog_default(void)
+ {
+ 	if (nmi_watchdog != NMI_DEFAULT)
+ 		return;
+Index: linux-2.6.12-rc4-mm2/arch/x86_64/mm/numa.c
+===================================================================
+--- linux-2.6.12-rc4-mm2.orig/arch/x86_64/mm/numa.c
++++ linux-2.6.12-rc4-mm2/arch/x86_64/mm/numa.c
+@@ -243,7 +243,7 @@ void __init numa_initmem_init(unsigned l
+ 	setup_node_bootmem(0, start_pfn << PAGE_SHIFT, end_pfn << PAGE_SHIFT);
+ }
+ 
+-__init void numa_add_cpu(int cpu)
++__cpuinit void numa_add_cpu(int cpu)
+ {
+ 	/* BP is initialized elsewhere */
+ 	if (cpu) 
 
 --

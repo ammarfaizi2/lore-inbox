@@ -1,79 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262060AbVEXNVc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbVEXNZN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262060AbVEXNVc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 09:21:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262093AbVEXNVb
+	id S261401AbVEXNZN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 09:25:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVEXNXy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 09:21:31 -0400
-Received: from mailfe04.swip.net ([212.247.154.97]:42428 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S262060AbVEXNNy (ORCPT
+	Tue, 24 May 2005 09:23:54 -0400
+Received: from opersys.com ([64.40.108.71]:18697 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261470AbVEXNS6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 09:13:54 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: kdump test update
-From: Alexander Nyberg <alexn@telia.com>
-To: Nagesh Sharyathi <sharyathi@in.ibm.com>
-Cc: pbadari <pbadari@us.ibm.com>, mjbligh <Martin.Bligh@us.ibm.com>,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <OFA0D3C130.0ED83C93-ON6525700B.0030EAEB-6525700B.0032C0D5@in.ibm.com>
-References: <OFA0D3C130.0ED83C93-ON6525700B.0030EAEB-6525700B.0032C0D5@in.ibm.com>
-Content-Type: text/plain
-Date: Tue, 24 May 2005 15:13:51 +0200
-Message-Id: <1116940431.999.6.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Tue, 24 May 2005 09:18:58 -0400
+Message-ID: <42932C32.8040500@opersys.com>
+Date: Tue, 24 May 2005 09:29:22 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Esben Nielsen <simlo@phys.au.dk>
+CC: Christoph Hellwig <hch@infradead.org>, Daniel Walker <dwalker@mvista.com>,
+       linux-kernel@vger.kernel.org, mingo@elte.hu, akpm@osdl.org,
+       sdietrich@mvista.com, Philippe Gerum <rpm@xenomai.org>
+Subject: Re: RT patch acceptance
+References: <Pine.OSF.4.05.10505241123240.5002-100000@da410.phys.au.dk>
+In-Reply-To: <Pine.OSF.4.05.10505241123240.5002-100000@da410.phys.au.dk>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tis 2005-05-24 klockan 14:38 +0530 skrev Nagesh Sharyathi:
-> These I have tested on the kernel 2.6.12-rc4-mm1 with the following test
-> suites , with kdump enabled 
-> 
-> Once test suites PASS/SUCCESS, force the machine to hang(lock up) by 
-> disabling irqs with the attached SPINLOCK test module from Badari 
-> Pulavarthy, 
-> try to take dump either with sysrq key or nmi_watchdog=2 kernel parameter.
-> 
-> Test Suite: 
-> -----------
-> LTP Runall, FSracer(race condition in file system) with LVM partitions 
-> (over ext2, ext3, JFS, XFS), FS stress, Mem Test/Bash Memory, Cerberus, 
-> KernBench, NetPerf.
-> 
-> System Info:
-> ------------
-> Distro: SLES 9 SP1
-> 
-> Software/kernel variables:
-> --------------------------
-> 1. kernel - linux-2.6.12-rc4-mm1 
-> 2. kexec-tools-1.101 + kdump patches
-> 3. kernel.sysrq=1
->  
-> Command line parameters for first kernel:
-> -----------------------------------------
->   root = <> vga=0x31a selinux=0 splash=silent resume=<> elevator=cfq 
-> showpts
->   crashkernel=48M@16M console=tty0 console=ttyS0,38400n1
->  
-> Hardwares on which is test cases are run:
-> -----------------------------------------
-> 
-> A) 1way, Pentium IV 2.8GHz, 2G RAM
->    - Network Interface (e1000)
->    - Disk I/O: SCSI storage controller: Adaptec Ultra320
-> 
->    o Ran test suite KERNBENCH and CERBERUS test ran successfully. Forced 
->      system hang by inserting spinlock test module and tried to invoke 
->      panic with sysrq+c, but it failed to force Panic. I failed to take 
-> the 
->      dump as sysrq keys failed to respond during hang.
 
-This is expected, your spinlock module disables interrupts so
-sysrq-crashdump has not a chance to get through. NMI watchdog is highly
-necessary. (this is even more reason to have NMI watchdog on by default
-on at least newer cpus even on x86 if kdump enters mainline and wants to
-be useful).
+Esben Nielsen wrote:
+> I find that a bad approach:
+> 1) You don't have RT in userspace.
+> 2) You can't use Linux drivers for standeard hardware when you want it to
+> be part of your deterministic RT application.
 
+Please have a look at RTAI/fusion. For the record, RTAI has been providing
+hard-rt in standard Linux user-space for over 5 years now. With RTAI/Fusion
+this gets even better as there isn't even a special API ...
 
+Here are a few links if you're interested:
+http://www.rtai.org/modules.php?name=Content&pa=showpage&pid=1
+http://marc.theaimsgroup.com/?l=linux-kernel&m=111634653913840&w=2
+
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

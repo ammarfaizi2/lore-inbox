@@ -1,204 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVEXNZO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVEXN35@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbVEXNZO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 09:25:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261185AbVEXNXn
+	id S261395AbVEXN35 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 09:29:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbVEXN1B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 09:23:43 -0400
-Received: from brmx1.fl.icn.siemens.com ([12.147.96.32]:18318 "EHLO
-	brmx1.boca.ssc.siemens.com") by vger.kernel.org with ESMTP
-	id S262077AbVEXNPK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 09:15:10 -0400
-Message-ID: <2DA8F872430BE8469BF0F403A6103F9205D01B@stca20aa.bocc.icn.siemens.com>
-From: "Bloch, Jack" <jack.bloch@siemens.com>
-To: "'linux-kernel@vger.kernel.org.'" <linux-kernel@vger.kernel.org>
-Subject: grpof question
-Date: Tue, 24 May 2005 06:14:52 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2657.72)
-Content-Type: multipart/mixed;
-	boundary="----_=_NextPart_000_01C56061.FC07CDD2"
+	Tue, 24 May 2005 09:27:01 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:15756 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261372AbVEXNZJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 09:25:09 -0400
+Date: Tue, 24 May 2005 15:21:05 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Arjan van de Ven <arjanv@infradead.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: [patch] Voluntary Kernel Preemption, 2.6.12-rc4-mm2
+Message-ID: <20050524132105.GA29477@elte.hu>
+References: <20050524121541.GA17049@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050524121541.GA17049@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This message is in MIME format. Since your mail reader does not understand
-this format, some or all of this message may not be legible.
 
-------_=_NextPart_000_01C56061.FC07CDD2
-Content-Type: text/plain;
-	charset="iso-8859-1"
+this patch (ontop of the current -mm scheduler patchset plus the 
+previous 2 patches from me) adds a new preemption model: 'Voluntary 
+Kernel Preemption'. The 3 models can be selected from a new menu:
 
-I hope that this list is the correct place. I ran a small test program with
-compiled as follows
+            (X) No Forced Preemption (Server)
+            ( ) Voluntary Kernel Preemption (Desktop)
+            ( ) Preemptible Kernel (Low-Latency Desktop)
 
+we still default to the stock (Server) preemption model.
 
-gcc -pg -g -o testit testit.c
+Voluntary preemption works by adding a cond_resched() 
+(reschedule-if-needed) call to every might_sleep() check. It is lighter 
+than CONFIG_PREEMPT - at the cost of not having as tight latencies. It 
+represents a different latency/complexity/overhead tradeoff.
 
-I then ran the program and it created a gmon.out.
+it has no runtime impact at all if disabled. Here are size stats that 
+show how the various preemption models impact the kernel's size:
 
-I ran gprof as follows gprof testit > testit.prof
+    text    data     bss     dec     hex filename
+ 3618774  547184  179896 4345854  424ffe vmlinux.stock
+ 3626406  547184  179896 4353486  426dce vmlinux.voluntary   +0.2%
+ 3748414  548640  179896 4476950  445016 vmlinux.preempt     +3.5%
 
+voluntary-preempt is +0.2% of .text, preempt is +3.5%.
 
-All of my times are zero in the profiler. I have attached the testit.prof.
+this feature has been tested for many months by lots of people (and it's 
+also included in the RHEL4 distribution and earlier variants were in 
+Fedora as well), and it's intended for users and distributions who dont 
+want to use full-blown CONFIG_PREEMPT for one reason or another.
 
+the patched kernel builds/boots on my testsystems (x86 and x64) but it 
+obviously needs more testing. It's simple and straightforward enough to 
+be considered for upstream inclusion as well, after it gets exposure in 
+-mm.
 
-I'm running a SuSE 2.6 SLES 9 Kernel.
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 
-Any hints?   Please CC me directly.
+ include/linux/kernel.h |   18 +++++++++++----
+ kernel/Kconfig.preempt |   57 ++++++++++++++++++++++++++++++++++++++++++-------
+ 2 files changed, 62 insertions(+), 13 deletions(-)
 
-
-Regards,
-
-
-Jack
-
-
-
- <<testit.prof>> 
-
-------_=_NextPart_000_01C56061.FC07CDD2
-Content-Type: application/octet-stream;
-	name="testit.prof"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: attachment;
-	filename="testit.prof"
-
-Flat profile:
-
-Each sample counts as 0.01 seconds.
- no time accumulated
-
-  %   cumulative   self              self     total          =20
- time   seconds   seconds    calls  Ts/call  Ts/call  name   =20
-  0.00      0.00     0.00       10     0.00     0.00  do_work
-  0.00      0.00     0.00       10     0.00     0.00  proc_1
-
- %         the percentage of the total running time of the
-time       program used by this function.
-
-cumulative a running sum of the number of seconds accounted
- seconds   for by this function and those listed above it.
-
- self      the number of seconds accounted for by this
-seconds    function alone.  This is the major sort for this
-           listing.
-
-calls      the number of times this function was invoked, if
-           this function is profiled, else blank.
-=20
- self      the average number of milliseconds spent in this
-ms/call    function per call, if this function is profiled,
-	   else blank.
-
- total     the average number of milliseconds spent in this
-ms/call    function and its descendents per call, if this=20
-	   function is profiled, else blank.
-
-name       the name of the function.  This is the minor sort
-           for this listing. The index shows the location of
-	   the function in the gprof listing. If the index is
-	   in parenthesis it shows where it would appear in
-	   the gprof listing if it were to be printed.
-=0C
-		     Call graph (explanation follows)
-
-
-granularity: each sample hit covers 4 byte(s) no time propagated
-
-index % time    self  children    called     name
-                0.00    0.00      10/10          proc_1 [2]
-[1]      0.0    0.00    0.00      10         do_work [1]
------------------------------------------------
-                0.00    0.00      10/10          main [9]
-[2]      0.0    0.00    0.00      10         proc_1 [2]
-                0.00    0.00      10/10          do_work [1]
------------------------------------------------
-
- This table describes the call tree of the program, and was sorted by
- the total amount of time spent in each function and its children.
-
- Each entry in this table consists of several lines.  The line with the
- index number at the left hand margin lists the current function.
- The lines above it list the functions that called this function,
- and the lines below it list the functions this one called.
- This line lists:
-     index	A unique number given to each element of the table.
-		Index numbers are sorted numerically.
-		The index number is printed next to every function name so
-		it is easier to look up where the function in the table.
-
-     % time	This is the percentage of the `total' time that was spent
-		in this function and its children.  Note that due to
-		different viewpoints, functions excluded by options, etc,
-		these numbers will NOT add up to 100%.
-
-     self	This is the total amount of time spent in this function.
-
-     children	This is the total amount of time propagated into this
-		function by its children.
-
-     called	This is the number of times the function was called.
-		If the function called itself recursively, the number
-		only includes non-recursive calls, and is followed by
-		a `+' and the number of recursive calls.
-
-     name	The name of the current function.  The index number is
-		printed after it.  If the function is a member of a
-		cycle, the cycle number is printed between the
-		function's name and the index number.
-
-
- For the function's parents, the fields have the following meanings:
-
-     self	This is the amount of time that was propagated directly
-		from the function into this parent.
-
-     children	This is the amount of time that was propagated from
-		the function's children into this parent.
-
-     called	This is the number of times this parent called the
-		function `/' the total number of times the function
-		was called.  Recursive calls to the function are not
-		included in the number after the `/'.
-
-     name	This is the name of the parent.  The parent's index
-		number is printed after it.  If the parent is a
-		member of a cycle, the cycle number is printed between
-		the name and the index number.
-
- If the parents of the function cannot be determined, the word
- `<spontaneous>' is printed in the `name' field, and all the other
- fields are blank.
-
- For the function's children, the fields have the following meanings:
-
-     self	This is the amount of time that was propagated directly
-		from the child into the function.
-
-     children	This is the amount of time that was propagated from the
-		child's children to the function.
-
-     called	This is the number of times the function called
-		this child `/' the total number of times the child
-		was called.  Recursive calls by the child are not
-		listed in the number after the `/'.
-
-     name	This is the name of the child.  The child's index
-		number is printed after it.  If the child is a
-		member of a cycle, the cycle number is printed
-		between the name and the index number.
-
- If there are any cycles (circles) in the call graph, there is an
- entry for the cycle-as-a-whole.  This entry shows who called the
- cycle (as parents) and the members of the cycle (as children.)
- The `+' recursive calls entry shows the number of function calls that
- were internal to the cycle, and the calls entry for each member shows,
- for that member, how many times it was called from other members of
- the cycle.
-
-=0C
-Index by function name
-
-   [1] do_work                 [2] proc_1
-
-------_=_NextPart_000_01C56061.FC07CDD2--
+--- linux/kernel/Kconfig.preempt.orig
++++ linux/kernel/Kconfig.preempt
+@@ -1,15 +1,56 @@
+ 
+-config PREEMPT
+-	bool "Preemptible Kernel"
++choice
++	prompt "Preemption Model"
++	default PREEMPT_NONE
++
++config PREEMPT_NONE
++	bool "No Forced Preemption (Server)"
++	help
++	  This is the traditional Linux preemption model, geared towards
++	  throughput. It will still provide good latencies most of the
++	  time, but there are no guarantees and occasional longer delays
++	  are possible.
++
++	  Select this option if you are building a kernel for a server or
++	  scientific/computation system, or if you want to maximize the
++	  raw processing power of the kernel, irrespective of scheduling
++	  latencies.
++
++config PREEMPT_VOLUNTARY
++	bool "Voluntary Kernel Preemption (Desktop)"
+ 	help
+-	  This option reduces the latency of the kernel when reacting to
+-	  real-time or interactive events by allowing a low priority process to
+-	  be preempted even if it is in kernel mode executing a system call.
+-	  This allows applications to run more reliably even when the system is
++	  This option reduces the latency of the kernel by adding more
++	  "explicit preemption points" to the kernel code. These new
++	  preemption points have been selected to reduce the maximum
++	  latency of rescheduling, providing faster application reactions,
++	  at the cost of slighly lower throughput.
++
++	  This allows reaction to interactive events by allowing a
++	  low priority process to voluntarily preempt itself even if it
++	  is in kernel mode executing a system call. This allows
++	  applications to run more 'smoothly' even when the system is
+ 	  under load.
+ 
+-	  Say Y here if you are building a kernel for a desktop, embedded
+-	  or real-time system.  Say N if you are unsure.
++	  Select this if you are building a kernel for a desktop system.
++
++config PREEMPT
++	bool "Preemptible Kernel (Low-Latency Desktop)"
++	help
++	  This option reduces the latency of the kernel by making
++	  all kernel code (that is not executing in a critical section)
++	  preemptible.  This allows reaction to interactive events by
++	  permitting a low priority process to be preempted involuntarily
++	  even if it is in kernel mode executing a system call and would
++	  otherwise not be about to reach a natural preemption point.
++	  This allows applications to run more 'smoothly' even when the
++	  system is under load, at the cost of slighly lower throughput
++	  and a slight runtime overhead to kernel code.
++
++	  Select this if you are building a kernel for a desktop or
++	  embedded system with latency requirements in the milliseconds
++	  range.
++
++endchoice
+ 
+ config PREEMPT_BKL
+ 	bool "Preempt The Big Kernel Lock"
+--- linux/include/linux/kernel.h.orig
++++ linux/include/linux/kernel.h
+@@ -58,15 +58,23 @@ struct completion;
+  * be biten later when the calling function happens to sleep when it is not
+  * supposed to.
+  */
++#ifdef CONFIG_PREEMPT_VOLUNTARY
++extern int cond_resched(void);
++# define might_resched() cond_resched()
++#else
++# define might_resched() do { } while (0)
++#endif
++
+ #ifdef CONFIG_DEBUG_SPINLOCK_SLEEP
+-#define might_sleep() __might_sleep(__FILE__, __LINE__)
+-#define might_sleep_if(cond) do { if (unlikely(cond)) might_sleep(); } while (0)
+-void __might_sleep(char *file, int line);
++  void __might_sleep(char *file, int line);
++# define might_sleep() \
++	do { __might_sleep(__FILE__, __LINE__); might_resched(); } while (0)
+ #else
+-#define might_sleep() do {} while(0)
+-#define might_sleep_if(cond) do {} while (0)
++# define might_sleep() do { might_resched(); } while (0)
+ #endif
+ 
++#define might_sleep_if(cond) do { if (unlikely(cond)) might_sleep(); } while (0)
++
+ #define abs(x) ({				\
+ 		int __x = (x);			\
+ 		(__x < 0) ? -__x : __x;		\

@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVEXCcd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVEXCne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbVEXCcd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 22:32:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261336AbVEXCcd
+	id S261348AbVEXCne (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 22:43:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVEXCnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 22:32:33 -0400
-Received: from fire.osdl.org ([65.172.181.4]:41910 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261303AbVEXCc2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 22:32:28 -0400
-Date: Mon, 23 May 2005 19:31:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>
+	Mon, 23 May 2005 22:43:33 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:7691 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261309AbVEXCn1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 22:43:27 -0400
+Date: Tue, 24 May 2005 12:43:18 +1000
+To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
        davem@davemloft.net, jmorris@redhat.com
 Subject: Re: [CRYPTO]: Only reschedule if !in_atomic()
-Message-Id: <20050523193116.62844826.akpm@osdl.org>
-In-Reply-To: <20050524022106.GA29081@gondor.apana.org.au>
-References: <200505232300.j4NN07lE012726@hera.kernel.org>
-	<20050523162806.0e70ae4f.akpm@osdl.org>
-	<20050524022106.GA29081@gondor.apana.org.au>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Message-ID: <20050524024318.GB29242@gondor.apana.org.au>
+References: <200505232300.j4NN07lE012726@hera.kernel.org> <20050523162806.0e70ae4f.akpm@osdl.org> <20050524022106.GA29081@gondor.apana.org.au> <20050523193116.62844826.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050523193116.62844826.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu <herbert@gondor.apana.org.au> wrote:
->
-> Perhaps we should code this into the crypto API instead? For instance,
->  we can have a tfm flag that says whether we can sleep or not.
+On Mon, May 23, 2005 at 07:31:16PM -0700, Andrew Morton wrote:
+> 
+> Are you sure it's actually needed? Have significant scheduling latencies
+> actually been observed?
 
-Are you sure it's actually needed? Have significant scheduling latencies
-actually been observed?
+I certainly don't have any problems with removing the yield altogether.
 
-Bear in mind that anyone who cares a lot about latency will be running
-CONFIG_PREEMPT kernels, in which case the whole thing is redundant anyway. 
-I generally take the position that if we're going to put a scheduling point
-into a non-premept kernel then it'd better be for a pretty bad latency
-point - more than 10 milliseconds, say.
+> Bear in mind that anyone who cares a lot about latency will be running
+> CONFIG_PREEMPT kernels, in which case the whole thing is redundant anyway. 
+> I generally take the position that if we're going to put a scheduling point
+> into a non-premept kernel then it'd better be for a pretty bad latency
+> point - more than 10 milliseconds, say.
 
+The crypt() function can easily take more than 10 milliseconds with
+a large enough buffer.
+
+James & Dave, do you have any opinions on this?
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

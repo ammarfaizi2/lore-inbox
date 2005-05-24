@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVEXIyS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261972AbVEXIpa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbVEXIyS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 04:54:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261423AbVEXIyI
+	id S261972AbVEXIpa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 04:45:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261459AbVEXIml
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 04:54:08 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:1533 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261890AbVEXIxZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 04:53:25 -0400
-Date: Tue, 24 May 2005 14:23:30 +0530
-From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: Andi Kleen <ak@muc.de>, zwane@arm.linux.org.uk, discuss@x86-64.org,
-       shaohua.li@intel.com, linux-kernel@vger.kernel.org,
-       rusty@rustycorp.com.au
-Subject: Re: [discuss] Re: [patch 0/4] CPU hot-plug support for x86_64
-Message-ID: <20050524085330.GB8279@in.ibm.com>
-Reply-To: vatsa@in.ibm.com
-References: <20050520221622.124069000@csdlinux-2.jf.intel.com> <20050523164046.GB39821@muc.de> <20050523095450.A8193@unix-os.sc.intel.com> <20050523171212.GF39821@muc.de> <20050523104046.B8692@unix-os.sc.intel.com> <20050524054617.GA5510@in.ibm.com> <20050523230106.A13839@unix-os.sc.intel.com>
+	Tue, 24 May 2005 04:42:41 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:59817 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261457AbVEXIUM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 04:20:12 -0400
+Date: Tue, 24 May 2005 10:20:10 +0200
+From: Jan Kara <jack@suse.cz>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: viro@parcelfarce.linux.theplanet.co.uk, akpm@osdl.org, dhowells@redhat.com,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] namespace.c: cleanup in mark_mounts_for_expiry()
+Message-ID: <20050524082010.GA26254@atrey.karlin.mff.cuni.cz>
+References: <E1DZ7xj-0003ol-00@dorka.pomaz.szeredi.hu> <20050520144737.GR29811@parcelfarce.linux.theplanet.co.uk> <E1DZAAs-000418-00@dorka.pomaz.szeredi.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050523230106.A13839@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <E1DZAAs-000418-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 23, 2005 at 11:01:06PM -0700, Ashok Raj wrote:
-> We do this today in x86_64 case when we setup this upcomming cpu in 
-> cpu_online_map. But the issue is when we use ipi broadcast, its an ugly
-
-I don't know of x86-64, but atleast on x86 ipi broadcast will send 
-to _all_ CPUs present, right? I mean the h/w does not know of the offline
-CPUs and will send to them also. This could lead to a problem for the offline 
-CPUs when they come online and can take a spurious IPI (unless
-there is support in h/w to clear pending IPI before doing STI).
-
-> case when we dont know if the new cpu is receiving this as well, and 
-> we dont have real control there.
+> > Looks sane.  However, we still have a problem here - just what would
+> > happen if vfsmount is detached while we were grabbing namespace
+> > semaphore?  Refcount alone is not useful here - we might be held by
+> > whoever had detached the vfsmount.  IOW, we should check that it's
+> > still attached (i.e. that mnt->mnt_parent != mnt).  If it's not -
+> > just leave it alone, do mntput() and let whoever holds it deal with
+> > the sucker.  No need to put it back on lists.
 > 
-> i converted to use send_IPI_mask(cpu_online_map, CALL_FUNCTION_VECTOR)
-> instead of the send_IPI_allbutself(CALL_FUNCTION_VECTOR) in 
-> __smp_call_function(), apart from taking the call_lock before setting the
-> bit in online_map.
+> Right.  I'll fix that too.
 > 
-> Since Andi is concerned about tlb flush intr performance in the 8cpu and less
-> case, iam planning temporarily use a startup cmd or choose this option 
-> automatically if CONFIG_HOTPLUG_CPU is set for the time being, until we can 
-> find a clean solution that satisfies everyone.
+> On a bit unrelated node, in do_unmount() why is that
+> DQUOT_OFF()/acct_auto_close() thing only called for the base of a tree
+> being detached, and not for any submounts?  Is that how it's supposed
+> to work?
+  I guess the code is there since the good old times when each
+filesystem could be mounted at most once and you had to call umount on
+it directly ;). I see two possibilites there:
+  1) Call DQUOT_OFF() when the last reference to the superblock should
+  be dropped. This has a problem that currently quota code holds the
+  reference to the vfsmount of the mountpoint it was called on (to
+  protect itself against umount). So if you try something like
+  mount /home, quotaon /home, mount --bind /home /home2, umount /home,
+  it will fail with EBUSY.
+  2) Make quota code protect against umount in a different way without
+  holding the vfsmount references (any ideas?). Then the above described
+  use will work. But I'm not sure it's worth the problems especially
+  with userspace tools not being able to see the proper mount options
+  and so on.
 
+So personally I'd prefer 1). For the namespace code it means only that
+it should call DQUOT_OFF() whenever it intends to drop the last
+reference to the superblock (and check for business only after quota
+has been turned off).
 
-I think this should be the recommended approach (using send_IPI_mask if 
-CONFIG_HOTPLUG_CPU is defined) unless h/w is intelligent enough 
-that it avoids sending IPIs to offline CPUs or it supports clearing 
-pending interrupts. 
-
+								Honza
 -- 
-
-
-Thanks and Regards,
-Srivatsa Vaddagiri,
-Linux Technology Center,
-IBM Software Labs,
-Bangalore, INDIA - 560017
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

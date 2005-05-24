@@ -1,58 +1,174 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261897AbVEXI3e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVEXIcU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261897AbVEXI3e (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 04:29:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVEXI1n
+	id S261449AbVEXIcU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 04:32:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbVEXIcQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 04:27:43 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:62416 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261456AbVEXITC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 04:19:02 -0400
-Message-Id: <20050524081113.409604000@csdlinux-2.jf.intel.com>
-Date: Tue, 24 May 2005 01:11:13 -0700
+	Tue, 24 May 2005 04:32:16 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:58846 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261449AbVEXISy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 04:18:54 -0400
+Message-Id: <20050524081304.805933000@csdlinux-2.jf.intel.com>
+References: <20050524081113.409604000@csdlinux-2.jf.intel.com>
+Date: Tue, 24 May 2005 01:11:16 -0700
 From: Ashok Raj <ashok.raj@intel.com>
 To: ak@muc.de, akpm@osdl.org
 Cc: zwane@arm.linux.org.uk, rusty@rustycorp.com.au, vatsa@in.ibm.com,
        shaohua.li@intel.com, linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: [patch 0/4] CPU Hotplug support for X86_64
+Subject: [patch 3/4] CPU Hotplug support for X86_64
+Content-Disposition: inline; filename=x86_64-sibling-map-fixup.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Oops: This is correct version: i send from the wrong directory earlier]
-[Sorry about that spam... now i thin i know how to use quilt :-)]
+Subject: [patch 3/4] x86_64: CPU hotplug sibling map cleanup
+From: Ashok Raj <ashok.raj@intel.com>
 
-This implements cpu hotplug support for X86_64. 
-Modified after initial feedback from Andi.
+This patch is a minor cleanup to the cpu sibling/core map.
+It is required that this setup happens on a per-cpu bringup
+time.
 
-[PS: hopefully subject is now fixed with different subject lines]
+Signed-off-by: Ashok Raj <ashok.raj@intel.com>
 
-Seems to hold up for make -j, with online/offline activity.
+------------------------------
+ smpboot.c |   89 ++++++++++++++++++++++++++++----------------------------------
+ 1 files changed, 41 insertions(+), 48 deletions(-)
 
-The series of patches are split as follows:
+Index: linux-2.6.12-rc4-mm2/arch/x86_64/kernel/smpboot.c
+===================================================================
+--- linux-2.6.12-rc4-mm2.orig/arch/x86_64/kernel/smpboot.c
++++ linux-2.6.12-rc4-mm2/arch/x86_64/kernel/smpboot.c
+@@ -62,9 +62,12 @@
+ /* Number of siblings per CPU package */
+ int smp_num_siblings = 1;
+ /* Package ID of each logical CPU */
+-u8 phys_proc_id[NR_CPUS] = { [0 ... NR_CPUS-1] = BAD_APICID };
+-u8 cpu_core_id[NR_CPUS] = { [0 ... NR_CPUS-1] = BAD_APICID };
++u8 phys_proc_id[NR_CPUS] __cacheline_aligned = 
++	{ [0 ... NR_CPUS-1] = BAD_APICID };
+ EXPORT_SYMBOL(phys_proc_id);
++
++u8 cpu_core_id[NR_CPUS] __cacheline_aligned = 
++	{ [0 ... NR_CPUS-1] = BAD_APICID };
+ EXPORT_SYMBOL(cpu_core_id);
+ 
+ /* Bitmask of currently online CPUs */
+@@ -434,6 +437,34 @@ void __cpuinit smp_callin(void)
+ 	local_flush_tlb();
+ }
+ 
++static inline void
++set_cpu_sibling_map(int cpu)
++{
++	int i;
++
++	if (smp_num_siblings > 1) {
++		for_each_online_cpu(i) {
++			if (cpu_core_id[cpu] == cpu_core_id[i]) {
++				cpu_set(i, cpu_sibling_map[cpu]);
++				cpu_set(cpu, cpu_sibling_map[i]);
++			}
++		}
++	} else {
++		cpu_set(cpu, cpu_sibling_map[cpu]);
++	}
++
++	if (current_cpu_data.x86_num_cores > 1) {
++		for_each_online_cpu(i) {
++			if (phys_proc_id[cpu] == phys_proc_id[i]) {
++				cpu_set(i, cpu_core_map[cpu]);
++				cpu_set(cpu, cpu_core_map[i]);
++			}
++		}
++	} else {
++		cpu_core_map[cpu] = cpu_sibling_map[cpu];
++	}
++}
++
+ /*
+  * Setup code on secondary processor (after comming out of the trampoline)
+  */
+@@ -463,6 +494,12 @@ void __cpuinit start_secondary(void)
+ 
+ 	enable_APIC_timer();
+ 
++	/* 
++	 * The sibling maps must be set before turing the online map on for 
++	 * this cpu 
++	 */
++	set_cpu_sibling_map(smp_processor_id());
++
+ 	/*
+ 	 * Allow the master to continue.
+ 	 */
+@@ -798,51 +835,6 @@ cycles_t cacheflush_time;
+ unsigned long cache_decay_ticks;
+ 
+ /*
+- * Construct cpu_sibling_map[], so that we can tell the sibling CPU
+- * on SMT systems efficiently.
+- */
+-static __cpuinit void detect_siblings(void)
+-{
+-	int cpu;
+-
+-	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+-		cpus_clear(cpu_sibling_map[cpu]);
+-		cpus_clear(cpu_core_map[cpu]);
+-	}
+-
+-	for_each_online_cpu (cpu) {
+-		struct cpuinfo_x86 *c = cpu_data + cpu;
+-		int siblings = 0;
+-		int i;
+-		if (smp_num_siblings > 1) {
+-			for_each_online_cpu (i) {
+-				if (cpu_core_id[cpu] == cpu_core_id[i]) {
+-					siblings++;
+-					cpu_set(i, cpu_sibling_map[cpu]);
+-				}
+-			}
+-		} else {
+-			siblings++;
+-			cpu_set(cpu, cpu_sibling_map[cpu]);
+-		}
+-
+-		if (siblings != smp_num_siblings) {
+-			printk(KERN_WARNING
+-	       "WARNING: %d siblings found for CPU%d, should be %d\n",
+-			       siblings, cpu, smp_num_siblings);
+-			smp_num_siblings = siblings;
+-		}
+-		if (c->x86_num_cores > 1) {
+-			for_each_online_cpu(i) {
+-				if (phys_proc_id[cpu] == phys_proc_id[i])
+-					cpu_set(i, cpu_core_map[cpu]);
+-			}
+-		} else
+-			cpu_core_map[cpu] = cpu_sibling_map[cpu];
+-	}
+-}
+-
+-/*
+  * Cleanup possible dangling ends...
+  */
+ static __cpuinit void smp_cleanup_boot(void)
+@@ -1036,6 +1028,8 @@ void __init smp_prepare_boot_cpu(void)
+ 	int me = smp_processor_id();
+ 	cpu_set(me, cpu_online_map);
+ 	cpu_set(me, cpu_callout_map);
++	cpu_set(0, cpu_sibling_map[0]);
++	cpu_set(0, cpu_core_map[0]);
+ }
+ 
+ /*
+@@ -1100,7 +1094,6 @@ void __init smp_cpus_done(unsigned int m
+ 	setup_ioapic_dest();
+ #endif
+ 
+-	detect_siblings();
+ 	time_init_gtod();
+ 
+ 	check_nmi_watchdog();
 
-1. initcall cleanup
-	- Left __cpuinit cases as before per Andi
-	- Added a few new ones, and removed couple that could stay __init
-	  even with cpu hotplug.
-2. Core logical online/offline of cpus
-	- start with maxcpus=1, and then echo 1 to /sys/devices/system/online
-	- Can also bringup all cpus and then bring up/down all but cpu0.
-	- Also tested with numa=fake=2
-3. Cleanup sibling map for cpu hotplug support.
-4. Dont use IPI broadcast in smp_call_function() when using CPU hotplug.
-   Hopefully this is some reasonable middle ground starting point.
-	- Dont let a new cpu respond to IPI's. 
-	- Automaticaly selected if CPU hotplus is choosen. 
-	- Can also be turned on cmdline via safe_ipi=1
-
-
-TBD: 
-
-1. Track down CONFIG_SCHED_SMT Oops with both cpu up/down.
-2. Test on real NUMA hw. 
-
-
-Cheers,
-Ashok Raj
 --

@@ -1,55 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261392AbVEXUp4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262063AbVEXUpt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261392AbVEXUp4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 16:45:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbVEXUp4
+	id S262063AbVEXUpt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 16:45:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262033AbVEXUpt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 16:45:56 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:18612 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S261392AbVEXUpL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 16:45:11 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH 2.6.12-rc4-mm1 3/4] megaraid_sas: updating the driver
-Date: Tue, 24 May 2005 16:45:05 -0400
-Message-ID: <60807403EABEB443939A5A7AA8A7458B01399B22@otce2k01.adaptec.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH 2.6.12-rc4-mm1 3/4] megaraid_sas: updating the driver
-Thread-Index: AcVaI7buUXFwsud3RM2sZH+FXr8cUAGeOYFw
-From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-To: "James Bottomley" <James.Bottomley@SteelEye.com>,
-       "Arjan van de Ven" <arjan@infradead.org>
-Cc: "Bagalkote, Sreenivas" <sreenib@lsil.com>, <linux-scsi@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>, <Matt_Domsch@Dell.com>,
-       "Andrew Morton" <akpm@osdl.org>,
-       "Christoph Hellwig" <hch@infradead.org>
+	Tue, 24 May 2005 16:45:49 -0400
+Received: from fire.osdl.org ([65.172.181.4]:45528 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262063AbVEXUnN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 16:43:13 -0400
+Date: Tue, 24 May 2005 13:43:10 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: "Clifford T. Matthews" <ctm@ardi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: trouble trapping SEGV on 2.6.11.2 & 2.6.12-rc4
+Message-ID: <20050524204310.GJ23013@shell0.pdx.osdl.net>
+References: <17043.36668.164277.860295@newbie.ardi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17043.36668.164277.860295@newbie.ardi.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley writes:
-> On Mon, 2005-05-16 at 10:06 +0200, Arjan van de Ven wrote:
->> > +			spin_lock( instance->host_lock );
->> > +			cmd->scmd->scsi_done( cmd->scmd );
->> > +			spin_unlock( instance->host_lock );
->> 
->> are you really sure you don't want to use spin_lock_irqsave() here ?
->
->Actually, don't bother with the lock at all.  scsi_done() is designed
-to
->be called locklessly.
+* Clifford T. Matthews (ctm@ardi.com) wrote:
+> The included program dies with a SEGV under 2.6.11.2 and 2.6.12-rc4.
+> It doesn't die under 2.4.25.  I compiled the kernels myself.  The
+> distribution is Fedora Core release 3, with glibc 2.3.5.
 
-Could I get an historical (2.4 & Distribution) perspective on this. At
-which point, or what code/include/manifest/version delineating it, would
-you say the driver is no longer, if ever, required to place a lock
-(host_lock or io_request_lock) around the scsi_done call?
+2.6 has been fixed...  So your program (which happens to be slightly
+buggy) no longer works as you expected.  See below.
 
-I expect (or hope) the answer to be: always needs io_request_lock in
-2.4, never needed the host_lock in 2.5+.
+> #include <stdio.h>
+> #include <unistd.h>
+> #include <sys/mman.h>
+> #include <stdbool.h>
+> #include <assert.h>
+> #include <setjmp.h>
+> #include <signal.h>
+> 
+> static jmp_buf segv_return;
+> 
+> static void
+> segv_handler (int signum_ignored __attribute__((unused)))
+> {
+>   longjmp (segv_return, 1);
 
--- Mark Salyzyn
+siglongjmp
+
+> }
+> 
+> int
+> main (void)
+> {
+>   volatile char *volatile addr;
+>   volatile int n_failures;
+> 
+>   addr = (void *) 0x10000L;
+>   n_failures = 0;
+> 
+>   signal (SIGSEGV, segv_handler);
+>   if (setjmp (segv_return) != 0)
+
+sigsetjmp
+
+>     ++n_failures;
+>   else
+>     *addr;
+> 
+>   printf ("n_failures = %d\n", n_failures);
+> 
+>   if (setjmp (segv_return) != 0)
+
+sigsetjmp
+
+>     ++n_failures;
+>   else
+>     *addr;
+> 
+>   printf ("n_failures = %d\n", n_failures);
+> 
+>   return 0;
+> }

@@ -1,88 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262015AbVEXJne@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262011AbVEXJrx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262015AbVEXJne (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 05:43:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262053AbVEXJm7
+	id S262011AbVEXJrx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 05:47:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVEXJrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 05:42:59 -0400
-Received: from smtp.nexlab.net ([213.173.188.110]:24520 "EHLO smtp.nexlab.net")
-	by vger.kernel.org with ESMTP id S262015AbVEXJVW (ORCPT
+	Tue, 24 May 2005 05:47:19 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:35015 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S262011AbVEXJUz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:21:22 -0400
+	Tue, 24 May 2005 05:20:55 -0400
 X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
 X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
 	08:27:20 2005 signatures 31.893
-Message-Id: <20050524092118.3D249FA0A@smtp.nexlab.net>
-Date: Tue, 24 May 2005 11:21:18 +0200 (CEST)
+Message-Id: <20050524092049.6FDC1FA5E@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:20:49 +0200 (CEST)
 From: root@smtp.nexlab.net
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	by smtp.nexlab.net (Postfix) with ESMTP id 04D50FB32
+	by smtp.nexlab.net (Postfix) with ESMTP id ECF37FB79
 
-	for <chiakotay@nexlab.it>; Tue, 24 May 2005 09:42:29 +0200 (CEST)
+	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:48 +0200 (CEST)
 
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
 
-	id S261175AbVEXGM1 (ORCPT <rfc822;chiakotay@nexlab.it>);
+	id S261271AbVEXFr3 (ORCPT <rfc822;chiakotay@nexlab.it>);
 
-	Tue, 24 May 2005 02:12:27 -0400
+	Tue, 24 May 2005 01:47:29 -0400
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbVEXGM1
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVEXFr3
 
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 
-	Tue, 24 May 2005 02:12:27 -0400
+	Tue, 24 May 2005 01:47:29 -0400
 
-Received: from fire.osdl.org ([65.172.181.4]:55784 "EHLO smtp.osdl.org")
+Received: from pentafluge.infradead.org ([213.146.154.40]:53900 "EHLO
 
-	by vger.kernel.org with ESMTP id S261175AbVEXGMQ (ORCPT
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
 
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S261271AbVEXFrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 
-	Tue, 24 May 2005 02:12:16 -0400
+	Tue, 24 May 2005 01:47:23 -0400
 
-Received: from shell0.pdx.osdl.net (fw.osdl.org [65.172.181.6])
+Received: from hch by pentafluge.infradead.org with local (Exim 4.43 #1 (Red Hat Linux))
 
-	by smtp.osdl.org (8.12.8/8.12.8) with ESMTP id j4O6CDjA023732
+	id 1DaSGA-0001eE-LR; Tue, 24 May 2005 06:47:22 +0100
 
-	(version=TLSv1/SSLv3 cipher=EDH-RSA-DES-CBC3-SHA bits=168 verify=NO);
+Date:	Tue, 24 May 2005 06:47:22 +0100
 
-	Mon, 23 May 2005 23:12:14 -0700
+From: Christoph Hellwig <hch@infradead.org>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, akpm@osdl.org,
+	sdietrich@mvista.com
+Subject: Re: RT patch acceptance
 
-Received: from localhost (shell0.pdx.osdl.net [10.9.0.31])
+Message-ID: <20050524054722.GA6160@infradead.org>
 
-	by shell0.pdx.osdl.net (8.13.1/8.11.6) with ESMTP id j4O6CCMO011308;
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
+	mingo@elte.hu, akpm@osdl.org, sdietrich@mvista.com
+References: <1116890066.13086.61.camel@dhcp153.mvista.com>
 
-	Mon, 23 May 2005 23:12:13 -0700
+Mime-Version: 1.0
 
-Date:	Mon, 23 May 2005 23:14:18 -0700 (PDT)
+Content-Type: text/plain; charset=us-ascii
 
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-	"linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [git patches] 2.6.x libata new PCI ids
+Content-Disposition: inline
 
-In-Reply-To: <4292BA93.801@pobox.com>
+In-Reply-To: <1116890066.13086.61.camel@dhcp153.mvista.com>
 
-Message-ID: <Pine.LNX.4.58.0505232310590.2307@ppc970.osdl.org>
+User-Agent: Mutt/1.4.1i
 
-References: <4292BA93.801@pobox.com>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 
-MIME-Version: 1.0
-
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-
-X-Spam-Status: No, hits=0 required=5 tests=
-
-X-Spam-Checker-Version:	SpamAssassin 2.63-osdl_revision__1.40__
-
-X-MIMEDefang-Filter: osdl$Revision: 1.109 $
-
-X-Scanned-By: MIMEDefang 2.36
+	See http://www.infradead.org/rpr.html
 
 Sender: linux-kernel-owner@vger.kernel.org
 Precedence: bulk
@@ -91,53 +83,32 @@ X-Mailing-List:	linux-kernel@vger.kernel.org
 
 
 
-
-
-On Tue, 24 May 2005, Jeff Garzik wrote:
->
-> Please pull the 'new-ids' branch from
+On Mon, May 23, 2005 at 04:14:26PM -0700, Daniel Walker wrote:
+> Hello World!
 > 
-> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+> I went to see Andrew Morton speak at Xerox PARC and he indicated that
+> some of the RT patch was a little crazy . Specifically interrupts in
+> threads (Correct me if I'm wrong Andrew). It seems a lot of the
+> maintainers haven't really warmed up to it. 
 > 
-> This add new PCI ids to some SATA drivers.
+> I don't know to what extent Ingo has lobbied to try to get acceptance
+> into an unstable or stable kernel. However, since I know Andrew is cold
+> to accepting it , I thought I would ask what would need to be done to
+> the RT patch so that it could be accepted?
+> 
+> I think the fact that some distributions are including RT patched
+> kernels is a sign that this technology is getting mature. Not to mention
+> the fact that it's a 600k+ patch and getting bigger everyday. 
+> 
+> I'm sure there are some people fiercely opposed to it, some of whom I've
+> already run into. What is it about RT that gets people's skin crawling?
+> It is a configure option after all.
 
-So here the trees are identical in between the two versions, so the later 
-commit is definitely not doing anything. What's up?
-
-I don't have a "git-undo" script, but it looks something like this:
-
-	echo [top-you-want-to-save] > .git/HEAD
-	git-read-tree -m HEAD
-	git-update-cache -f -u -a
-
-and you're done - it should take less than half a second.
-
-You can do "git-prune-script" at some point if you want to throw away the
-objects that are no longer reachable, but the way you work, you'll never 
-even notice - you'll just have another stale head that isn't reachable 
-from anywhere any more.
-
-		Linus
-----
-
-commit 37c15447c565ab458ee3778e198d08f4041caa99
-tree 2eda289903e3bf19eebce7d5f9aaed2240a02479
-parent 9422e59ddf6cae68e46d7a2c3afe1ce4e739d3eb
-author Martin Povolny <martin.povolny@solnet.cz> Mon, 16 May 2005 02:41:00 -0400
-committer Jeff Garzik <jgarzik@pobox.com> Mon, 16 May 2005 02:41:00 -0400
-
-[PATCH] sata_promise: new PCI ID for TX4200
-
-[note - blank changeset]
-
---------------------------
-commit 9422e59ddf6cae68e46d7a2c3afe1ce4e739d3eb
-tree 2eda289903e3bf19eebce7d5f9aaed2240a02479
-parent eeff84cc026e73d12fbe4484b5fa0d01efa8dc60
-author Francisco Javier <ffelix@sshinf.com> Mon, 16 May 2005 02:39:00 -0400
-committer Jeff Garzik <jgarzik@pobox.com> Mon, 16 May 2005 02:39:00 -0400
-
-[PATCH] sata_promise: add PCI ID for FastTrak TX2200 2-ports
+Personally I think interrupt threads, spinlocks as sleeping mutexes and PI
+is something we should keep out of the kernel tree.  If you want such
+advanced RT features use a special microkernel and run Linux as user
+process, using RTAI or maybe soon some of the more sofisticated virtualization
+technologies.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

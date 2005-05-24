@@ -1,82 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVEXCtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbVEXDRH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbVEXCtD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 22:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVEXCtC
+	id S261323AbVEXDRH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 23:17:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVEXDRH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 22:49:02 -0400
-Received: from holomorphy.com ([66.93.40.71]:36253 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261343AbVEXCsx (ORCPT
+	Mon, 23 May 2005 23:17:07 -0400
+Received: from opersys.com ([64.40.108.71]:65286 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261323AbVEXDRD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 22:48:53 -0400
-Date: Mon, 23 May 2005 19:48:49 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, gregkh@suse.de,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: [bugfix] try_to_unmap_cluster() passes out-of-bounds pte to pte_unmap()
-Message-ID: <20050524024849.GH2057@holomorphy.com>
-References: <20050516021302.13bd285a.akpm@osdl.org> <20050522212734.GF2057@holomorphy.com> <20050523171406.483cdf69.akpm@osdl.org>
-Mime-Version: 1.0
+	Mon, 23 May 2005 23:17:03 -0400
+Message-ID: <42929F2F.8000101@opersys.com>
+Date: Mon, 23 May 2005 23:27:43 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Jens Axboe <axboe@suse.de>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ide-cd vs. DMA
+References: <1116891772.30513.6.camel@gaston>
+In-Reply-To: <1116891772.30513.6.camel@gaston>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050523171406.483cdf69.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->> --- ./mm/rmap.c.orig	2005-05-20 01:29:14.066467151 -0700
->> +++ ./mm/rmap.c	2005-05-20 01:30:06.620649901 -0700
-[...]
 
-On Mon, May 23, 2005 at 05:14:06PM -0700, Andrew Morton wrote:
-> I must say that I continue to find this approach a bit queazifying.
-> After some reading of the code I'd agree that yes, it's not possible for us
-> to get here with `pte' pointing at the first slot of the pte page, but it's
-> not 100% obvious and it's possible that someone will come along later and
-> will change things in try_to_unmap_cluster() which cause this unmap to
-> suddenly do the wrong thing in rare circumstances.
-> IOW: I'd sleep better at night if we took a temporary and actually unmapped
-> the thing which we we got back from pte_offset_map()..  Am I being silly?
+Benjamin Herrenschmidt wrote:
+> hdb: command error: status=0x51 { DriveReady SeekComplete Error }
+> hdb: command error: error=0x54 { AbortedCommand LastFailedSense=0x05 }
+> ide: failed opcode was: unknown
+> end_request: I/O error, dev hdb, sector 42872
 
-Not at all. I merely attempt to minimize diffsize by default. An
-alternative implementation follows (changelog etc. to be taken
-from the prior patch) in case it saves the time (however short) needed
-to write it yourself.
+Got plenty of these an old Dell Optiplex GX1 (PIII-450) with
+vanilla FC3. ... you've got to wonder when the kernel says there
+are bad sectors on a CD (?) and then they disappear with:
+hdparm -d0 /dev/hdc
 
-
--- wli
-
-Index: mm2-2.6.12-rc4/mm/rmap.c
-===================================================================
---- mm2-2.6.12-rc4.orig/mm/rmap.c	2005-05-20 01:44:18.000000000 -0700
-+++ mm2-2.6.12-rc4/mm/rmap.c	2005-05-23 19:13:29.000000000 -0700
-@@ -626,7 +626,7 @@
- 	pgd_t *pgd;
- 	pud_t *pud;
- 	pmd_t *pmd;
--	pte_t *pte;
-+	pte_t *pte, *original_pte;
- 	pte_t pteval;
- 	struct page *page;
- 	unsigned long address;
-@@ -658,7 +658,7 @@
- 	if (!pmd_present(*pmd))
- 		goto out_unlock;
- 
--	for (pte = pte_offset_map(pmd, address);
-+	for (original_pte = pte = pte_offset_map(pmd, address);
- 			address < end; pte++, address += PAGE_SIZE) {
- 
- 		if (!pte_present(*pte))
-@@ -694,7 +694,7 @@
- 		(*mapcount)--;
- 	}
- 
--	pte_unmap(pte);
-+	pte_unmap(original_pte);
- out_unlock:
- 	spin_unlock(&mm->page_table_lock);
- }
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

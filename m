@@ -1,91 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbVEXJO7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVEXJO7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261483AbVEXJO7 (ORCPT <rfc822;willy@w.ods.org>);
+	id S261468AbVEXJO7 (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 24 May 2005 05:14:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbVEXJOj
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261483AbVEXJON
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 05:14:39 -0400
-Received: from smtp.nexlab.net ([213.173.188.110]:3001 "EHLO smtp.nexlab.net")
-	by vger.kernel.org with ESMTP id S261460AbVEXJMD (ORCPT
+	Tue, 24 May 2005 05:14:13 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:52408 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S261448AbVEXJLx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:12:03 -0400
+	Tue, 24 May 2005 05:11:53 -0400
 X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
 X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
 	08:27:20 2005 signatures 31.893
-Message-Id: <20050524091201.3BCE0FB16@smtp.nexlab.net>
-Date: Tue, 24 May 2005 11:12:01 +0200 (CEST)
+Message-Id: <20050524091152.68D65FA3F@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:11:52 +0200 (CEST)
 From: root@smtp.nexlab.net
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	by smtp.nexlab.net (Postfix) with ESMTP id 4E3C4FB60
+	by smtp.nexlab.net (Postfix) with ESMTP id AC3BBFAEE
 
-	for <chiakotay@nexlab.it>; Tue, 24 May 2005 09:58:21 +0200 (CEST)
+	for <chiakotay@nexlab.it>; Tue, 24 May 2005 09:59:59 +0200 (CEST)
 
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
 
-	id S261383AbVEXHOX (ORCPT <rfc822;chiakotay@nexlab.it>);
+	id S261348AbVEXCne (ORCPT <rfc822;chiakotay@nexlab.it>);
 
-	Tue, 24 May 2005 03:14:23 -0400
+	Mon, 23 May 2005 22:43:34 -0400
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVEXHOT
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVEXCnd
 
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 
-	Tue, 24 May 2005 03:14:19 -0400
+	Mon, 23 May 2005 22:43:33 -0400
 
-Received: from wproxy.gmail.com ([64.233.184.193]:33354 "EHLO wproxy.gmail.com")
+Received: from arnor.apana.org.au ([203.14.152.115]:7691 "EHLO
 
-	by vger.kernel.org with ESMTP id S261383AbVEXHON convert rfc822-to-8bit
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261309AbVEXCn1
 
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 
-	Tue, 24 May 2005 03:14:13 -0400
+	Mon, 23 May 2005 22:43:27 -0400
 
-Received: by wproxy.gmail.com with SMTP id 68so2500606wri
+Received: from gondolin.me.apana.org.au ([192.168.0.6] ident=mail)
 
-        for <linux-kernel@vger.kernel.org>; Tue, 24 May 2005 00:14:13 -0700 (PDT)
+	by arnor.apana.org.au with esmtp (Exim 3.35 #1 (Debian))
 
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+	id 1DaPO4-0002pd-00; Tue, 24 May 2005 12:43:20 +1000
 
-        s=beta; d=gmail.com;
+Received: from herbert by gondolin.me.apana.org.au with local (Exim 3.36 #1 (Debian))
 
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+	id 1DaPO2-0007dP-00; Tue, 24 May 2005 12:43:18 +1000
 
-        b=Y+AtHMac8HQzy5TaUfp4m0PBpzm0oAMdJiagefK39WeGGEUJ5tsNmxB8/E8QQ7ogyF+wwNow0lFWPQSmPezl80gGMfsCCrapBjh+Y3kxnJgLm65p+UG0vlwELW1k6BUnnasteKf0+Tw6+L+5o+csx3BfGv0UYJXZvu2OxvCB+hw=
+Date:	Tue, 24 May 2005 12:43:18 +1000
 
-Received: by 10.54.117.4 with SMTP id p4mr4023181wrc;
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+	davem@davemloft.net, jmorris@redhat.com
+Subject: Re: [CRYPTO]: Only reschedule if !in_atomic()
 
-        Tue, 24 May 2005 00:14:13 -0700 (PDT)
+Message-ID: <20050524024318.GB29242@gondor.apana.org.au>
 
-Received: by 10.54.66.13 with HTTP; Tue, 24 May 2005 00:14:12 -0700 (PDT)
-
-Message-ID: <84144f0205052400143e97796e@mail.gmail.com>
-
-Date:	Tue, 24 May 2005 10:14:12 +0300
-
-From: Pekka Enberg <penberg@gmail.com>
-Reply-To: Pekka Enberg <penberg@gmail.com>
-To: "ericvh@gmail.com" <ericvh@gmail.com>
-Subject: Re: [RFC][patch 2/7] v9fs: VFS file and directory operations (2.0-rc6)
-
-Cc: linux-kernel@vger.kernel.org,
-	v9fs-developer@lists.sourceforge.net,
-	viro@parcelfarce.linux.theplanet.co.uk,
-	linux-fsdevel@vger.kernel.org, penberg@cs.helsinki.fi
-In-Reply-To: <200505232225.j4NMPXe1029024@ms-smtp-02-eri0.texas.rr.com>
+References: <200505232300.j4NN07lE012726@hera.kernel.org> <20050523162806.0e70ae4f.akpm@osdl.org> <20050524022106.GA29081@gondor.apana.org.au> <20050523193116.62844826.akpm@osdl.org>
 
 Mime-Version: 1.0
 
-Content-Type:	text/plain; charset=US-ASCII
-
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 
 Content-Disposition: inline
 
-References: <200505232225.j4NMPXe1029024@ms-smtp-02-eri0.texas.rr.com>
+In-Reply-To: <20050523193116.62844826.akpm@osdl.org>
 
+User-Agent: Mutt/1.5.9i
+
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 Precedence: bulk
 
@@ -93,27 +82,30 @@ X-Mailing-List:	linux-kernel@vger.kernel.org
 
 
 
-Hi,
+On Mon, May 23, 2005 at 07:31:16PM -0700, Andrew Morton wrote:
+> 
+> Are you sure it's actually needed? Have significant scheduling latencies
+> actually been observed?
 
-On 5/24/05, ericvh@gmail.com <ericvh@gmail.com> wrote:
-> +static ssize_t
-> +v9fs_file_write(struct file *filp, const char __user * data,
-> +               size_t count, loff_t * offset)
-> +{
-> +       int ret = -1;
-> +       char *buffer;
-> +
-> +       buffer = kmalloc(count, GFP_KERNEL);
-> +       if (buffer == NULL) {
-> +               BUG();
+I certainly don't have any problems with removing the yield altogether.
 
-I think simply returning -ENOMEM is sufficient. BUG seems way too
-aggressive. (Found this in other places as well.)
+> Bear in mind that anyone who cares a lot about latency will be running
+> CONFIG_PREEMPT kernels, in which case the whole thing is redundant anyway. 
+> I generally take the position that if we're going to put a scheduling point
+> into a non-premept kernel then it'd better be for a pretty bad latency
+> point - more than 10 milliseconds, say.
 
-> +               return -ENOMEM;
-> +       }
+The crypt() function can easily take more than 10 milliseconds with
+a large enough buffer.
 
-                    Pekka
+James & Dave, do you have any opinions on this?
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,148 +1,242 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVEXJI4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVEXJLe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbVEXJI4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 05:08:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVEXJI4
+	id S261458AbVEXJLe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 05:11:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261483AbVEXJLe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 05:08:56 -0400
-Received: from ausmtp02.au.ibm.com ([202.81.18.187]:4756 "EHLO
-	ausmtp02.au.ibm.com") by vger.kernel.org with ESMTP id S261453AbVEXJIr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:08:47 -0400
-To: linux-kernel@vger.kernel.org, fastboot@lists.osdl.org
-Cc: mjbligh <Martin.Bligh@us.ibm.com>, pbadari <pbadari@us.ibm.com>
-MIME-Version: 1.0
-Subject: kdump test update
-X-Mailer: Lotus Notes Release 6.0.2CF1 June 9, 2003
-Message-ID: <OFA0D3C130.0ED83C93-ON6525700B.0030EAEB-6525700B.0032C0D5@in.ibm.com>
-From: Nagesh Sharyathi <sharyathi@in.ibm.com>
-Date: Tue, 24 May 2005 14:38:42 +0530
-X-MIMETrack: Serialize by Router on d23m0069/23/M/IBM(Release 6.51HF653 | October 18, 2004) at
- 24/05/2005 14:38:43
-Content-Type: multipart/mixed; boundary="=_mixed 0032C0D36525700B_="
+	Tue, 24 May 2005 05:11:34 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:51893 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S261458AbVEXJJ7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 05:09:59 -0400
+X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
+X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
+	08:27:20 2005 signatures 31.893
+Message-Id: <20050524090958.13A2CF9DC@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:09:58 +0200 (CEST)
+From: root@smtp.nexlab.net
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---=_mixed 0032C0D36525700B_=
-Content-Type: text/plain; charset="US-ASCII"
+	by smtp.nexlab.net (Postfix) with ESMTP id 7AD88FAC5
 
-These I have tested on the kernel 2.6.12-rc4-mm1 with the following test
-suites , with kdump enabled 
+	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:20:44 +0200 (CEST)
 
-Once test suites PASS/SUCCESS, force the machine to hang(lock up) by 
-disabling irqs with the attached SPINLOCK test module from Badari 
-Pulavarthy, 
-try to take dump either with sysrq key or nmi_watchdog=2 kernel parameter.
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
 
-Test Suite: 
------------
-LTP Runall, FSracer(race condition in file system) with LVM partitions 
-(over ext2, ext3, JFS, XFS), FS stress, Mem Test/Bash Memory, Cerberus, 
-KernBench, NetPerf.
+	id S261430AbVEXIQ3 (ORCPT <rfc822;chiakotay@nexlab.it>);
 
-System Info:
-------------
-Distro: SLES 9 SP1
+	Tue, 24 May 2005 04:16:29 -0400
 
-Software/kernel variables:
---------------------------
-1. kernel - linux-2.6.12-rc4-mm1 
-2. kexec-tools-1.101 + kdump patches
-3. kernel.sysrq=1
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVEXIQ3
+
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+
+	Tue, 24 May 2005 04:16:29 -0400
+
+Received: from fmr17.intel.com ([134.134.136.16]:35548 "EHLO
+
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+
+	id S261430AbVEXIOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+
+	Tue, 24 May 2005 04:14:00 -0400
+
+Received: from orsfmr100.jf.intel.com (orsfmr100.jf.intel.com [10.7.209.16])
+
+	by orsfmr002.jf.intel.com (8.12.10/8.12.10/d: major-outer.mc,v 1.1 2004/09/17 17:50:56 root Exp $) with ESMTP id j4O8CfKm030199;
+
+	Tue, 24 May 2005 08:12:41 GMT
+
+Received: from csdlinux-2.jf.intel.com (csdlinux-2.jf.intel.com [10.23.61.107])
+
+	by orsfmr100.jf.intel.com (8.12.10/8.12.10/d: major-inner.mc,v 1.2 2004/09/17 18:05:01 root Exp $) with ESMTP id j4O8CeAx015527;
+
+	Tue, 24 May 2005 08:12:40 GMT
+
+Received: by csdlinux-2.jf.intel.com (Postfix, from userid 47353)
+
+	id 147152BCFB3; Tue, 24 May 2005 01:08:01 -0700 (PDT)
+
+Message-Id: <20050524080800.879055000@csdlinux-2.jf.intel.com>
+
+References: <20050524075201.351504000@csdlinux-2.jf.intel.com>
+
+Date:	Tue, 24 May 2005 00:27:52 -0700
+
+From: Ashok Raj <ashok.raj@intel.com>
+To: ak@muc.de, akpm@osdl.org
+Cc: zwane@arm.linux.org.uk, rusty@rustycorp.com.au, vatsa@in.ibm.com,
+	shaohua.li@intel.com, linux-kernel@vger.kernel.org,
+	discuss@x86-64.org, ashok.raj@intel.com
+Subject: [patch 3/4] CPU Hotplug support for X86_64
+
+Content-Disposition: inline; filename=x86_64-sibling-map-fixup.patch
+
+X-Scanned-By: MIMEDefang 2.44
+
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+
+X-Mailing-List:	linux-kernel@vger.kernel.org
+
+
+
+Subject: [patch 3/4] x86_64: CPU hotplug sibling map cleanup
+From: Ashok Raj <ashok.raj@intel.com>
+
+This patch is a minor cleanup to the cpu sibling/core map.
+It is required that this setup happens on a per-cpu bringup
+time.
+
+Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+
+------------------------------
+ smpboot.c |   89 ++++++++++++++++++++++++++++----------------------------------
+ 1 files changed, 41 insertions(+), 48 deletions(-)
+
+Index: linux-2.6.12-rc4-mm2/arch/x86_64/kernel/smpboot.c
+===================================================================
+--- linux-2.6.12-rc4-mm2.orig/arch/x86_64/kernel/smpboot.c
++++ linux-2.6.12-rc4-mm2/arch/x86_64/kernel/smpboot.c
+@@ -62,9 +62,12 @@
+ /* Number of siblings per CPU package */
+ int smp_num_siblings = 1;
+ /* Package ID of each logical CPU */
+-u8 phys_proc_id[NR_CPUS] = { [0 ... NR_CPUS-1] = BAD_APICID };
+-u8 cpu_core_id[NR_CPUS] = { [0 ... NR_CPUS-1] = BAD_APICID };
++u8 phys_proc_id[NR_CPUS] __cacheline_aligned = 
++	{ [0 ... NR_CPUS-1] = BAD_APICID };
+ EXPORT_SYMBOL(phys_proc_id);
++
++u8 cpu_core_id[NR_CPUS] __cacheline_aligned = 
++	{ [0 ... NR_CPUS-1] = BAD_APICID };
+ EXPORT_SYMBOL(cpu_core_id);
  
-Command line parameters for first kernel:
------------------------------------------
-  root = <> vga=0x31a selinux=0 splash=silent resume=<> elevator=cfq 
-showpts
-  crashkernel=48M@16M console=tty0 console=ttyS0,38400n1
+ /* Bitmask of currently online CPUs */
+@@ -434,6 +437,34 @@ void __cpuinit smp_callin(void)
+ 	local_flush_tlb();
+ }
  
-Hardwares on which is test cases are run:
------------------------------------------
-
-A) 1way, Pentium IV 2.8GHz, 2G RAM
-   - Network Interface (e1000)
-   - Disk I/O: SCSI storage controller: Adaptec Ultra320
-
-   o Ran test suite KERNBENCH and CERBERUS test ran successfully. Forced 
-     system hang by inserting spinlock test module and tried to invoke 
-     panic with sysrq+c, but it failed to force Panic. I failed to take 
-the 
-     dump as sysrq keys failed to respond during hang.
-
-   o Booted with nmi_watchdog=2 and ran similar tests and then forced 
-system 
-     hang by inserting spinlock module, nmi_watchdog caused kernel panic 
-and 
-     the system booted to panic kernel. I was able to take dump. The first 
-
-     kernel was rebuilt after applying Vivek's following patch to fix 
-kexec 
-     on panic with nmi watchdog enabled
-                 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111631994607762&w=2
-
-B) SMP, 2way, Pentium III (Coppermine) 1 GHz, 1.3G RAM
-   - Network Interface (e100)
-   - Disk I/O: SCSI storage controller: Adaptec Ultra160
-
-   o Ran test suite MemTest and Bash Memory, after running the test for 
-some
-     time (< 1hr.), forced system hang by inserting spinlock test module 
-     and tried to invoke kernel panic with sysrq-c, but it failed to force 
-
-     panic and hence couldn't initiate kdump. 
-
-   o Booted with nmi_watchdog=2 and ran similar tests and then forced 
-system 
-     hang by inserting spinlock module, nmi_watchdog caused kernel panic 
-and 
-     the system booted to panic kernel. I was able to take dump. The first 
-
-     kernel was rebuilt after applying Vivek's following patch to fix 
-kexec 
-     on panic with nmi watchdog enabled
-                 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111631994607762&w=2
++static inline void
++set_cpu_sibling_map(int cpu)
++{
++	int i;
++
++	if (smp_num_siblings > 1) {
++		for_each_online_cpu(i) {
++			if (cpu_core_id[cpu] == cpu_core_id[i]) {
++				cpu_set(i, cpu_sibling_map[cpu]);
++				cpu_set(cpu, cpu_sibling_map[i]);
++			}
++		}
++	} else {
++		cpu_set(cpu, cpu_sibling_map[cpu]);
++	}
++
++	if (current_cpu_data.x86_num_cores > 1) {
++		for_each_online_cpu(i) {
++			if (phys_proc_id[cpu] == phys_proc_id[i]) {
++				cpu_set(i, cpu_core_map[cpu]);
++				cpu_set(cpu, cpu_core_map[i]);
++			}
++		}
++	} else {
++		cpu_core_map[cpu] = cpu_sibling_map[cpu];
++	}
++}
++
+ /*
+  * Setup code on secondary processor (after comming out of the trampoline)
+  */
+@@ -463,6 +494,12 @@ void __cpuinit start_secondary(void)
  
-   o Ran the same test suite, after running the test for more than 10hours 
-
-     kernel OOps have occured (bugme 4653) but kdump failed to boot to 
-     secondary kernel as there was no kernel panic and just an kernel 
-oops.
-
-     Now I have set kernel sysctl parameter kernel.panic_on_oops=1, 
-testing in 
-     progress to capture the oops in kdump 
+ 	enable_APIC_timer();
  
-   o While testing the functionality of kdump, encountered this driver 
-hardening
-     issue (bugme:4631) also.
-
-
-C) SMP, 2way, Xeon TM 2.8GHz, 1.5G RAM
-   - Network Interface (Tigon3)
-   - Disk I/O: SCSI storage controller: IBM Serve RAID
++	/* 
++	 * The sibling maps must be set before turing the online map on for 
++	 * this cpu 
++	 */
++	set_cpu_sibling_map(smp_processor_id());
++
+ 	/*
+ 	 * Allow the master to continue.
+ 	 */
+@@ -798,51 +835,6 @@ cycles_t cacheflush_time;
+ unsigned long cache_decay_ticks;
  
-   o Ran test suite FSracer over LVM partition and the test ran without 
-     failures. Forced system hang by inserting spinlock test module and 
-then 
-     invoked kernel panic with sysrq-c. Secondary kernel booted properly 
-     without any issues. I was able to take the dump using sysrq keys.
+ /*
+- * Construct cpu_sibling_map[], so that we can tell the sibling CPU
+- * on SMT systems efficiently.
+- */
+-static __cpuinit void detect_siblings(void)
+-{
+-	int cpu;
+-
+-	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+-		cpus_clear(cpu_sibling_map[cpu]);
+-		cpus_clear(cpu_core_map[cpu]);
+-	}
+-
+-	for_each_online_cpu (cpu) {
+-		struct cpuinfo_x86 *c = cpu_data + cpu;
+-		int siblings = 0;
+-		int i;
+-		if (smp_num_siblings > 1) {
+-			for_each_online_cpu (i) {
+-				if (cpu_core_id[cpu] == cpu_core_id[i]) {
+-					siblings++;
+-					cpu_set(i, cpu_sibling_map[cpu]);
+-				}
+-			}
+-		} else {
+-			siblings++;
+-			cpu_set(cpu, cpu_sibling_map[cpu]);
+-		}
+-
+-		if (siblings != smp_num_siblings) {
+-			printk(KERN_WARNING
+-	       "WARNING: %d siblings found for CPU%d, should be %d\n",
+-			       siblings, cpu, smp_num_siblings);
+-			smp_num_siblings = siblings;
+-		}
+-		if (c->x86_num_cores > 1) {
+-			for_each_online_cpu(i) {
+-				if (phys_proc_id[cpu] == phys_proc_id[i])
+-					cpu_set(i, cpu_core_map[cpu]);
+-			}
+-		} else
+-			cpu_core_map[cpu] = cpu_sibling_map[cpu];
+-	}
+-}
+-
+-/*
+  * Cleanup possible dangling ends...
+  */
+ static __cpuinit void smp_cleanup_boot(void)
+@@ -1036,6 +1028,8 @@ void __init smp_prepare_boot_cpu(void)
+ 	int me = smp_processor_id();
+ 	cpu_set(me, cpu_online_map);
+ 	cpu_set(me, cpu_callout_map);
++	cpu_set(0, cpu_sibling_map[0]);
++	cpu_set(0, cpu_core_map[0]);
+ }
+ 
+ /*
+@@ -1100,7 +1094,6 @@ void __init smp_cpus_done(unsigned int m
+ 	setup_ioapic_dest();
+ #endif
+ 
+-	detect_siblings();
+ 	time_init_gtod();
+ 
+ 	check_nmi_watchdog();
 
+--
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
-For more details please mail me
-
-Attachment:
-
---=_mixed 0032C0D36525700B_=
-Content-Type: application/octet-stream; name="spinlock.c"
-Content-Disposition: attachment; filename="spinlock.c"
-Content-Transfer-Encoding: base64
-
-I2luY2x1ZGU8bGludXgvaW5pdC5oPg0KI2luY2x1ZGU8YXNtL3VhY2Nlc3MuaD4NCiNpbmNsdWRl
-PGxpbnV4L3NwaW5sb2NrLmg+DQoNCnNwaW5sb2NrX3QgbXlsb2NrID0gU1BJTl9MT0NLX1VOTE9D
-S0VEOw0KLy9zdGF0aWMgaW50IGhhbmdfaW5pdCh2b2lkKQ0Kc3RhdGljIGludCBfX2luaXQgaGFu
-Z19pbml0KHZvaWQpDQp7DQoJc3Bpbl9sb2NrX2lycSgmbXlsb2NrKTsNCglzcGluX2xvY2tfaXJx
-KCZteWxvY2spOw0KCXJldHVybigxKTsNCn0NCg0KbW9kdWxlX2luaXQoaGFuZ19pbml0KTsNCg0K
-
---=_mixed 0032C0D36525700B_=--

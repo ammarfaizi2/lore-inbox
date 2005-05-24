@@ -1,89 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbVEXLWC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262005AbVEXLUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261419AbVEXLWC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 07:22:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261998AbVEXLSv
+	id S262005AbVEXLUV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 07:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261999AbVEXLTe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 07:18:51 -0400
-Received: from smtp.nexlab.net ([213.173.188.110]:22213 "EHLO smtp.nexlab.net")
-	by vger.kernel.org with ESMTP id S262004AbVEXJTd (ORCPT
+	Tue, 24 May 2005 07:19:34 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:25021 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S261537AbVEXJOz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:19:33 -0400
+	Tue, 24 May 2005 05:14:55 -0400
 X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
 X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
 	08:27:20 2005 signatures 31.893
-Message-Id: <20050524091930.25477F9FE@smtp.nexlab.net>
-Date: Tue, 24 May 2005 11:19:30 +0200 (CEST)
+Message-Id: <20050524091453.EBF28FA17@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:14:53 +0200 (CEST)
 From: root@smtp.nexlab.net
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	by smtp.nexlab.net (Postfix) with ESMTP id 1D584FB7C
+	by smtp.nexlab.net (Postfix) with ESMTP id 1C84EFB6B
 
-	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:50 +0200 (CEST)
+	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:41 +0200 (CEST)
 
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
 
-	id S261302AbVEXGrF (ORCPT <rfc822;chiakotay@nexlab.it>);
+	id S261200AbVEXG0J (ORCPT <rfc822;chiakotay@nexlab.it>);
 
-	Tue, 24 May 2005 02:47:05 -0400
+	Tue, 24 May 2005 02:26:09 -0400
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVEXGrF
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVEXG0J
 
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 
-	Tue, 24 May 2005 02:47:05 -0400
+	Tue, 24 May 2005 02:26:09 -0400
 
-Received: from fire.osdl.org ([65.172.181.4]:42880 "EHLO smtp.osdl.org")
+Received: from mail.dvmed.net ([216.237.124.58]:4813 "EHLO mail.dvmed.net")
 
-	by vger.kernel.org with ESMTP id S261302AbVEXGqf (ORCPT
+	by vger.kernel.org with ESMTP id S261200AbVEXGZ5 (ORCPT
 
 	<rfc822;linux-kernel@vger.kernel.org>);
 
-	Tue, 24 May 2005 02:46:35 -0400
+	Tue, 24 May 2005 02:25:57 -0400
 
-Received: from shell0.pdx.osdl.net (fw.osdl.org [65.172.181.6])
+Received: from cpe-065-184-065-144.nc.res.rr.com ([65.184.65.144] helo=[10.10.10.88])
 
-	by smtp.osdl.org (8.12.8/8.12.8) with ESMTP id j4O6kTjA025713
+	by mail.dvmed.net with esmtpsa (Exim 4.51 #1 (Red Hat Linux))
 
-	(version=TLSv1/SSLv3 cipher=EDH-RSA-DES-CBC3-SHA bits=168 verify=NO);
+	id 1DaSrU-0001Og-4d; Tue, 24 May 2005 06:25:56 +0000
 
-	Mon, 23 May 2005 23:46:29 -0700
+Message-ID: <4292C8EF.3090307@pobox.com>
 
-Received: from localhost (shell0.pdx.osdl.net [10.9.0.31])
+Date:	Tue, 24 May 2005 02:25:51 -0400
 
-	by shell0.pdx.osdl.net (8.13.1/8.11.6) with ESMTP id j4O6kScg012582;
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
 
-	Mon, 23 May 2005 23:46:28 -0700
+X-Accept-Language: en-us, en
 
-Date:	Mon, 23 May 2005 23:48:33 -0700 (PDT)
+MIME-Version: 1.0
 
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
+To: Linus Torvalds <torvalds@osdl.org>
 Cc: Andrew Morton <akpm@osdl.org>, Netdev <netdev@oss.sgi.com>,
 	Linux Kernel <linux-kernel@vger.kernel.org>
 Subject: Re: [git patches] 2.6.x net driver updates
 
-In-Reply-To: <4292C8EF.3090307@pobox.com>
-
-Message-ID: <Pine.LNX.4.58.0505232343260.2307@ppc970.osdl.org>
-
 References: <4292BA66.8070806@pobox.com> <Pine.LNX.4.58.0505232253160.2307@ppc970.osdl.org>
 
- <4292C8EF.3090307@pobox.com>
+In-Reply-To: <Pine.LNX.4.58.0505232253160.2307@ppc970.osdl.org>
 
-MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii; format=flowed
 
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-X-Spam-Status: No, hits=0 required=5 tests=
-
-X-Spam-Checker-Version:	SpamAssassin 2.63-osdl_revision__1.40__
-
-X-MIMEDefang-Filter: osdl$Revision: 1.109 $
-
-X-Scanned-By: MIMEDefang 2.36
+X-Spam-Score: 0.0 (/)
 
 Sender: linux-kernel-owner@vger.kernel.org
 Precedence: bulk
@@ -92,59 +82,66 @@ X-Mailing-List:	linux-kernel@vger.kernel.org
 
 
 
-
-
-On Tue, 24 May 2005, Jeff Garzik wrote:
+Linus Torvalds wrote:
 > 
-> You are getting precisely the same thing you got under BitKeeper:  pull 
-> from X, you get my tree, which was composed from $N repositories.  The 
-> tree you pull was created by my running 'bk pull' locally $N times.
-
-No. Under BK, you had DIFFERENT TREES.
-
-What does that mean? They had DIFFERENT NAMES.
-
-Which meant that the commit message was MEANINGFUL.
-
-> Ultimately, you appear to be complaining about:
+> On Tue, 24 May 2005, Jeff Garzik wrote:
 > 
-> * your own git-pull-script, which doesn't record the $2 (branch) 
-> argument in the commit message.
+> 
+>>Please pull the 'for-linus' branch from
+>>
+>>rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
+> 
+> 
+> Is this really what you meant to do? There's seven merges there, none of
+> which have _any_ information about _what_ you merged, because you've mixed
+> everything up in one tree, so that there's absolutely no record of the
+> fact that you actually had seven different repositories that you pulled..
+> 
+> That sucks, Jeff.
+> 
+> I don't understand why you don't use different trees, like you did with
+> BK. You can share the object directory with the different trees, but the
+> way you work now, it all looks like mush.
+> 
+> Even if you don't get confused youself, you sure are confusing everybody 
+> else with it..
 
-Yes, because _my_ pull script is meant to work with the way _I_ have told 
-people (including you) they should work.
+You are getting precisely the same thing you got under BitKeeper:  pull 
+from X, you get my tree, which was composed from $N repositories.  The 
+tree you pull was created by my running 'bk pull' locally $N times.
 
-The fact that you mush everything up in one tree _despite_ me having told 
-you that isn't a good thing to do is the problem.
+Ultimately, you appear to be complaining about:
 
-Git can technically do it, but then you shouldn't use my scripts, which 
-aren't written for that behaviour.
+* your own git-pull-script, which doesn't record the $2 (branch) 
+argument in the commit message.
 
-> Hey, I didn't write git-pull-script, I just use it :)
+* the fact that my changelog includes the merge csets that were 
+present-but-invisible by my BitKeeper submissions.  i.e. I lack a 
+shortlog that filters out merge csets.
 
-You don't use it, you MIS-use it. Which is what I'm complaining about.
 
-> Switching heads around?  It sounds like you did not pull from the branch 
-> I mentioned.
 
-No, I pulled exactly from the head you mentioned.
+> Anyway, if you really want to work this way, with one big mushed-together
+> thing that has different heads that you keep track of, can you _please_ at
+> least make the commit message tell what you're doing. It's not a complex 
 
-In fact, go look at YOUR OWN changelog. And then compare that changelog to 
-the changelog you had when you used BK, and realize that IT IS NOT AT ALL 
-EQUIVALENT. You used to have valid changelogs, even for the merge heads. 
-You don't any more:
+Hey, I didn't write git-pull-script, I just use it :)
 
-	Automatic merge of /spare/repo/netdev-2.6/.git
-	Automatic merge of /spare/repo/netdev-2.6/.git
-	Automatic merge of /spare/repo/netdev-2.6/.git
-	Automatic merge of /spare/repo/netdev-2.6/.git
-	Merge of /spare/repo/netdev-2.6/.git
 
-See a pattern?
+> script, and you're definitely mis-using it as things stand now by 
+> switching heads around inside one repository, and not telling other people 
+> about it.
 
-Your BK usage was equivalent to having multiple GIT repositories.
+Switching heads around?  It sounds like you did not pull from the branch 
+I mentioned.  This is how git-pull-script pulls from a branch:
 
-		Linus
+git-pull-script \
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git\
+  refs/heads/for-linus
+
+	Jeff
+
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

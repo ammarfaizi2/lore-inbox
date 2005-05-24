@@ -1,48 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVEXGnN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbVEXGrF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbVEXGnN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 02:43:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVEXGnD
+	id S261302AbVEXGrF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 02:47:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVEXGrF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 02:43:03 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:38285 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261367AbVEXGkv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 02:40:51 -0400
-Subject: Re: [CRYPTO]: Only reschedule if !in_atomic()
-From: Arjan van de Ven <arjan@infradead.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: davem@davemloft.net
-In-Reply-To: <200505232300.j4NN07lE012726@hera.kernel.org>
-References: <200505232300.j4NN07lE012726@hera.kernel.org>
-Content-Type: text/plain
-Date: Tue, 24 May 2005 08:40:45 +0200
-Message-Id: <1116916845.6280.8.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 24 May 2005 02:47:05 -0400
+Received: from fire.osdl.org ([65.172.181.4]:42880 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261302AbVEXGqf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 02:46:35 -0400
+Date: Mon, 23 May 2005 23:48:33 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+cc: Andrew Morton <akpm@osdl.org>, Netdev <netdev@oss.sgi.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [git patches] 2.6.x net driver updates
+In-Reply-To: <4292C8EF.3090307@pobox.com>
+Message-ID: <Pine.LNX.4.58.0505232343260.2307@ppc970.osdl.org>
+References: <4292BA66.8070806@pobox.com> <Pine.LNX.4.58.0505232253160.2307@ppc970.osdl.org>
+ <4292C8EF.3090307@pobox.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> -	if (!in_softirq())
-> +	if (!in_atomic())
->  		cond_resched();
 
-this looks wrong. in_atomic() isn't doing what I think you think it
-does; for one it doesn't get set inside spinlock regions (unless preempt
-is enabled) 
+On Tue, 24 May 2005, Jeff Garzik wrote:
+> 
+> You are getting precisely the same thing you got under BitKeeper:  pull 
+> from X, you get my tree, which was composed from $N repositories.  The 
+> tree you pull was created by my running 'bk pull' locally $N times.
 
+No. Under BK, you had DIFFERENT TREES.
+
+What does that mean? They had DIFFERENT NAMES.
+
+Which meant that the commit message was MEANINGFUL.
+
+> Ultimately, you appear to be complaining about:
+> 
+> * your own git-pull-script, which doesn't record the $2 (branch) 
+> argument in the commit message.
+
+Yes, because _my_ pull script is meant to work with the way _I_ have told 
+people (including you) they should work.
+
+The fact that you mush everything up in one tree _despite_ me having told 
+you that isn't a good thing to do is the problem.
+
+Git can technically do it, but then you shouldn't use my scripts, which 
+aren't written for that behaviour.
+
+> Hey, I didn't write git-pull-script, I just use it :)
+
+You don't use it, you MIS-use it. Which is what I'm complaining about.
+
+> Switching heads around?  It sounds like you did not pull from the branch 
+> I mentioned.
+
+No, I pulled exactly from the head you mentioned.
+
+In fact, go look at YOUR OWN changelog. And then compare that changelog to 
+the changelog you had when you used BK, and realize that IT IS NOT AT ALL 
+EQUIVALENT. You used to have valid changelogs, even for the merge heads. 
+You don't any more:
+
+	Automatic merge of /spare/repo/netdev-2.6/.git
+	Automatic merge of /spare/repo/netdev-2.6/.git
+	Automatic merge of /spare/repo/netdev-2.6/.git
+	Automatic merge of /spare/repo/netdev-2.6/.git
+	Merge of /spare/repo/netdev-2.6/.git
+
+See a pattern?
+
+Your BK usage was equivalent to having multiple GIT repositories.
+
+		Linus

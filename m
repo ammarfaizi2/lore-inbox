@@ -1,48 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbVEXRQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbVEXRSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261907AbVEXRQd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 13:16:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbVEXRQQ
+	id S261465AbVEXRSO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 13:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbVEXRR7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 13:16:16 -0400
-Received: from mailtir.platform.com ([192.219.104.248]:63112 "EHLO
-	mailtir.platform.com") by vger.kernel.org with ESMTP
-	id S261292AbVEXRNh convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 13:13:37 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
+	Tue, 24 May 2005 13:17:59 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:21802 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S261904AbVEXRQp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 13:16:45 -0400
+Message-ID: <4293612F.3000708@google.com>
+Date: Tue, 24 May 2005 10:15:27 -0700
+From: Mike Waychison <mikew@google.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050207)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: [PATCH][2.6.12-rc4][SATA] sil driver - Blacklist Maxtor disk - Redux
-Date: Tue, 24 May 2005 13:13:35 -0400
-Message-ID: <9CD190F4AD92EC499A9397F49C8B0E4E01E8EC86@catoexm04.noam.corp.platform.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH][2.6.12-rc4][SATA] sil driver - Blacklist Maxtor disk - Redux
-Thread-Index: AcVgg+tEBK6y3aySSr+Ad2Hg/rHThQ==
-From: "Shawn Starr" <sstarr@platform.com>
-To: <linux-kernel@vger.kernel.org>
-Cc: <linux-ide@vger.kernel.org>, <jgarzik@pobox.com>
+To: Miklos Szeredi <miklos@szeredi.hu>
+CC: jamie@shareable.org, linuxram@us.ibm.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [RFC][PATCH] rbind across namespaces
+References: <1116627099.4397.43.camel@localhost> <E1DZNSN-0006cU-00@dorka.pomaz.szeredi.hu> <1116660380.4397.66.camel@localhost> <E1DZP37-0006hH-00@dorka.pomaz.szeredi.hu> <20050521134615.GB4274@mail.shareable.org> <E1DZlVn-0007a6-00@dorka.pomaz.szeredi.hu> <429277CA.9050300@google.com> <E1DaSCb-0003Tw-00@dorka.pomaz.szeredi.hu> <4292D416.5070001@waychison.com> <E1DaVYK-0003ko-00@dorka.pomaz.szeredi.hu>
+In-Reply-To: <E1DaVYK-0003ko-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Yes, I know we shouldn't do this, but at the current
-time, this seems to fix DMA READ/WRITE timeout
-problems. This also may fix the sata_nv driver as
-well, but this seems indicate that there is a lowlevel
-problem with the SATA subsystem. 
+Miklos Szeredi wrote:
+> (Sorry for replying in two parts, I missed this in the first reading)
+> 
+> 
+>>>>walking mountpoints in userspace: 
+>>>>http://marc.theaimsgroup.com/?l=linux-kernel&m=109875012510262&w=2
+>>>
+>>>
+>>>Is this needed?  Userspace can find out mountpoints from /proc/mounts
+>>>(or something similar for detached trees).
+>>>
+>>
+>>With detached mountpoints (and especially with detached mountpoint
+>>_trees_) it can become very difficult to assess which trees are which.
+>>
+>>Also, just like /proc/PID/fd/*, /proc/mounts is built according to
+>>_current_'s root.  This only gives a skewed view of what is going on.
+> 
+> 
+> I'm thinking of /proc/PID/fdinfo/FD/mounts or similar.
+> 
+> 
+>>>>attaching mountpoints in userspace:
+>>>>http://marc.theaimsgroup.com/?l=linux-fsdevel&m=109875063100111&w=2
+>>>
+>>>
+>>>Again, bind from/to /proc/PID/fd/FD should work without any new
+>>>interfaces.
+>>
+>>No..  It wouldn't.  Pathname resolution is doing everything according to
+>>the ->readlink information provided by this magic proc files, again in
+>>current's namespace.  If you care to hijack ->follow_link, prepare
+>>yourself for a slew of corner cases.
+> 
+> 
+> No need to hijack, it's already done.  Removing calls to
+> proc_check_root() will allow access to different namespaces detached
+> mounts, etc.  It's been tried and actually works.
+> 
 
-Signed-off-by: Shawn Starr <shawn.starr@rogers.com>
+See previous message as why we don't want to allow this.
 
---- sata_sil.c.old      2005-05-24 12:19:20.312197269 -0400
-+++ sata_sil.c  2005-05-11 14:05:26.000000000 -0400
-@@ -93,6 +93,7 @@ struct sil_drivelist {
-        { "ST380011ASL",        SIL_QUIRK_MOD15WRITE },
-        { "ST3120022ASL",       SIL_QUIRK_MOD15WRITE },
-        { "ST3160021ASL",       SIL_QUIRK_MOD15WRITE },
-+       { "Maxtor 6Y080M0",     SIL_QUIRK_MOD15WRITE },
-        { "Maxtor 4D060H3",     SIL_QUIRK_UDMA5MAX },
-        { }
- };
+> What's more you don't even need /proc, just pass a file descriptor
+> (with reference to mount in different namespace, etc.) to another
+> process with SCM_RIGHTS, do fchrdir(fd), and then do mount --bind,
+> etc.  This actually works with an unmodified kernel.
+
+It shouldn't.  An unmodified kernel has check_mnt to keep you from doing 
+this.
+
+> 
+> 
+>>>>detaching mountpoints in userspace:
+>>>>http://marc.theaimsgroup.com/?l=linux-kernel&m=109880051800963&w=2
+>>>
+>>>
+>>>What's wrong with sys_umount()?
+>>
+>>sys_umount only works with paths in current's namespace. It doesn't
+>>allow you to handle vfsmounts as primaries in userspace.
+> 
+> 
+> But it does.  Again, either with fchdir() or /proc.
+> 
+> fchdir() has the drawback of only working on directories, and that a
+> process has only one CWD.  The /proc approach has no such limitations.
+> 
+
+Again, check_mnt won't let this happen.
+
+Another limitation is that manipulating mounts in another namespace 
+breaks namespace->list locking..    Add that to a todo list if you still 
+think this is a good idea.
+
+Mike Waychison

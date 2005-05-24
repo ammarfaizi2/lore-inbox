@@ -1,58 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262057AbVEXM37@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbVEXMhr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262057AbVEXM37 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 08:29:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbVEXM1k
+	id S262031AbVEXMhr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 08:37:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262037AbVEXMhr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 08:27:40 -0400
-Received: from colin.muc.de ([193.149.48.1]:45326 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S262035AbVEXM1B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 08:27:01 -0400
-Date: 24 May 2005 14:27:00 +0200
-Date: Tue, 24 May 2005 14:27:00 +0200
-From: Andi Kleen <ak@muc.de>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: akpm@osdl.org, zwane@arm.linux.org.uk, rusty@rustycorp.com.au,
-       vatsa@in.ibm.com, shaohua.li@intel.com, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org
-Subject: Re: [patch 3/4] CPU Hotplug support for X86_64
-Message-ID: <20050524122700.GC86182@muc.de>
-References: <20050524081113.409604000@csdlinux-2.jf.intel.com> <20050524081304.805933000@csdlinux-2.jf.intel.com>
+	Tue, 24 May 2005 08:37:47 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:39315 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262031AbVEXMhk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 08:37:40 -0400
+Subject: Re: __udivdi3 and linux kernel u64 division question [x86]
+From: Arjan van de Ven <arjan@infradead.org>
+To: Mateusz Berezecki <mateuszb@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <42931E38.6030403@gmail.com>
+References: <42931E38.6030403@gmail.com>
+Content-Type: text/plain
+Date: Tue, 24 May 2005 14:37:37 +0200
+Message-Id: <1116938257.6280.21.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050524081304.805933000@csdlinux-2.jf.intel.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 24, 2005 at 01:11:16AM -0700, Ashok Raj wrote:
-> ===================================================================
-> --- linux-2.6.12-rc4-mm2.orig/arch/x86_64/kernel/smpboot.c
-> +++ linux-2.6.12-rc4-mm2/arch/x86_64/kernel/smpboot.c
-> @@ -62,9 +62,12 @@
->  /* Number of siblings per CPU package */
->  int smp_num_siblings = 1;
->  /* Package ID of each logical CPU */
-> -u8 phys_proc_id[NR_CPUS] = { [0 ... NR_CPUS-1] = BAD_APICID };
-> -u8 cpu_core_id[NR_CPUS] = { [0 ... NR_CPUS-1] = BAD_APICID };
-> +u8 phys_proc_id[NR_CPUS] __cacheline_aligned = 
-> +	{ [0 ... NR_CPUS-1] = BAD_APICID };
+On Tue, 2005-05-24 at 14:29 +0200, Mateusz Berezecki wrote:
+> Hi list members,
+> 
+> After a failure of compilation of the similar code snippet
+> 
+> 
+> u64 mconst = somebig64bitvalue;
+> u64 tmp = some32bitvalue;
+> u64 r = mconst / tmp;
 
-Why this change?
+you shouldn't do this in linux
 
->  EXPORT_SYMBOL(phys_proc_id);
-> +
-> +u8 cpu_core_id[NR_CPUS] __cacheline_aligned = 
-> +	{ [0 ... NR_CPUS-1] = BAD_APICID };
+> I've also found a do_div() and it was sufficent for my purposes but Im
+> still curious about
+> __udivdi3. Can someone explain this issue to me?
 
-And that one?
+do_div is a very small subset of divides.
 
-It does not seem related to CPUhotplug. May as a separate patch,
-but in this case the "per cpu readonly" section C.Lameter recently
-added should be used for these which are near always read-only
-(I hope the section made it into -mm* now)
+Also.. you forgot to put the URL of your module into your email..
 
 
--Andi
+

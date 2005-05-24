@@ -1,96 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262067AbVEXWyt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262128AbVEXW6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262067AbVEXWyt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 18:54:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbVEXWyt
+	id S262128AbVEXW6M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 18:58:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbVEXW6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 18:54:49 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:13810 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262067AbVEXWyo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 18:54:44 -0400
-From: "Sven Dietrich" <sdietrich@mvista.com>
-To: <karim@opersys.com>
-Cc: "'Ingo Molnar'" <mingo@elte.hu>, "'Esben Nielsen'" <simlo@phys.au.dk>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "'Daniel Walker'" <dwalker@mvista.com>, <linux-kernel@vger.kernel.org>,
-       <akpm@osdl.org>, "'Philippe Gerum'" <rpm@xenomai.org>
-Subject: RE: RT patch acceptance
-Date: Tue, 24 May 2005 15:54:36 -0700
-Message-ID: <002201c560b3$904969f0$c800a8c0@mvista.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	Tue, 24 May 2005 18:58:12 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:24029 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261926AbVEXW6D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 18:58:03 -0400
+Subject: Re: [PATCH] Fix reference counting for failed SCSI devices
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Hannes Reinecke <hare@suse.de>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4292F631.9090300@suse.de>
+References: <4292F631.9090300@suse.de>
+Content-Type: text/plain
+Date: Tue, 24 May 2005 17:57:58 -0500
+Message-Id: <1116975478.7710.28.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <4293AB4D.4030506@opersys.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2005-05-24 at 11:38 +0200, Hannes Reinecke wrote:
+> whenever the scsi-ml tries to scan non-existent devices the reference
+> count in scsi_alloc_sdev() and scsi_probe_and_add_lun() is not adjusted
+> properly. Every call to XXX_initialize in the driver core sets the
+> reference count to 1, so for a proper deallocation an explicit XXX_put()
+> has to be done.
 
-Karim wrote:
-> Sven Dietrich wrote:
-> > Linux has been distributing and decoupling locking and
-> > data structures since the first multi CPU kernel was booted.
-> > 
-> > All data integrity is just as consistent in RT, so HOW does
-> > the behavior change? 
-> 
-> Here's quoting Arjan from another thread just today:
-> > PREEMPT was (and is?) a stability risk and so you'll see RHEL4 not 
-> > having it enabled.
-> 
-> ... and that's for simple preemption ...
-> 
+That's true, but I don't see what the problem is if the device has never
+been made visible.
 
-Any stability risk in PREEMPT is a stability risk in SMP.
+> +			put_device(&starget->dev);
 
-I've been looking at some form of this RT code for over a year now. 
+this would amount to a double put, since the parent put method is called
+in the device release.
 
-And 99 % of failures is buggy / dirty code that 
-could fail under SMP as well, if not worse. 
+> +	class_device_put(&sdev->sdev_classdev);
 
-We've pushed all that back to Ingo 
-and elsewhere.
+This is unnecessary since the class device is simply occupying a private
+area in the scsi_device.  As long as its never made visible to the
+system, its refcount is irrelevant
 
-And the bugs keep on coming. This is the fast-track to exposing
-concurrency problems all over the place, which makes better code
-in Linux.
+>  	put_device(&sdev->sdev_gendev);
+>  out:
+>  	if (display_failure_msg)
+> @@ -855,6 +857,8 @@ static int scsi_probe_and_add_lun(struct
+>  		if (sdev->host->hostt->slave_destroy)
+>  			sdev->host->hostt->slave_destroy(sdev);
+>  		transport_destroy_device(&sdev->sdev_gendev);
+> +		class_device_put(&sdev->sdev_classdev);
+> +		put_device(sdev->sdev_gendev.parent);
 
-The RT stuff has the potential to enhance SMP scalability.
+same should apply here.  As long as this cascade occurs before
+scsi_add_lun() (which calls scsi_sysfs_add_sdev()), which is what makes
+the whole set of devices and classes visible.
 
-> Beyond that, I must admit that I'm probably missing the point 
-> of your question: fact is that running interrupt handlers as 
-> threads != dealing with interrupts in a linear fashion (as is 
-> now.) That's behavior change right there, to mention just that.
-> 
-
-Linear is maybe not a good term to use. Do you mean the order in which
-IRQs execute, or just that you execute IRQ code in process context.
-
-A good generic IRQ handler that can run on multiple architectures,
-doesn't care what the CPU flags are.
-
-If it does have to be so down and dirty, it probably doesn't run 
-as a thread, and its likely SA, as well.
-
-If its about the order in which pending IRQs are processed, then lets take
-a leap and ask why does that matter. The IRQs shouldn't care less what 
-order they are processed in, if they are truly asynchronous / sporadic.
-
-After all, how would the system know which IRQ arrived first to begin with,
-when you happen to enable IRQs somewhere, and there happen to be 3 IRQs pending?
-
-> 
-> There is, in fact, nothing precluding rt-preemption from 
-> co-existing with a nanokernel. </repeating-myself>
-> 
-
-Except complexity, as the performance differential between the
-Linux kernel and the nanokernel vanishes.
+James
 
 

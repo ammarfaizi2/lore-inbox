@@ -1,79 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262048AbVEXJjL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261976AbVEXJnf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262048AbVEXJjL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 05:39:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbVEXJhg
+	id S261976AbVEXJnf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 05:43:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbVEXJmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 05:37:36 -0400
-Received: from smtp.nexlab.net ([213.173.188.110]:38847 "EHLO smtp.nexlab.net")
-	by vger.kernel.org with ESMTP id S261448AbVEXJQY (ORCPT
+	Tue, 24 May 2005 05:42:25 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:26056 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S261976AbVEXJVW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:16:24 -0400
+	Tue, 24 May 2005 05:21:22 -0400
 X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
 X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
 	08:27:20 2005 signatures 31.893
-Message-Id: <20050524091619.F3216FA35@smtp.nexlab.net>
-Date: Tue, 24 May 2005 11:16:19 +0200 (CEST)
+Message-Id: <20050524092118.4F404FA75@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:21:18 +0200 (CEST)
 From: root@smtp.nexlab.net
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	by smtp.nexlab.net (Postfix) with ESMTP id 8C315FB6B
+	by smtp.nexlab.net (Postfix) with ESMTP id 399D6FB6B
 
-	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:41 +0200 (CEST)
+	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:40 +0200 (CEST)
 
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
 
-	id S261350AbVEXGeu (ORCPT <rfc822;chiakotay@nexlab.it>);
+	id S261300AbVEXCDR (ORCPT <rfc822;chiakotay@nexlab.it>);
 
-	Tue, 24 May 2005 02:34:50 -0400
+	Mon, 23 May 2005 22:03:17 -0400
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVEXGeu
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261299AbVEXCDR
 
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 
-	Tue, 24 May 2005 02:34:50 -0400
+	Mon, 23 May 2005 22:03:17 -0400
 
-Received: from mail.dvmed.net ([216.237.124.58]:8141 "EHLO mail.dvmed.net")
+Received: from mail.timesys.com ([65.117.135.102]:23125 "EHLO
 
-	by vger.kernel.org with ESMTP id S261353AbVEXGep (ORCPT
+	exchange.timesys.com") by vger.kernel.org with ESMTP
 
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S261300AbVEXCDO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 
-	Tue, 24 May 2005 02:34:45 -0400
+	Mon, 23 May 2005 22:03:14 -0400
 
-Received: from cpe-065-184-065-144.nc.res.rr.com ([65.184.65.144] helo=[10.10.10.88])
+Received: from [127.0.0.1] ([192.168.2.230]) by exchange.timesys.com with Microsoft SMTPSVC(5.0.2195.6713);
 
-	by mail.dvmed.net with esmtpsa (Exim 4.51 #1 (Red Hat Linux))
+	 Mon, 23 May 2005 21:56:39 -0400
 
-	id 1DaT00-0001Ow-FO; Tue, 24 May 2005 06:34:44 +0000
+Message-ID: <42928AFF.7010503@timesys.com>
 
-Message-ID: <4292CB01.6090506@pobox.com>
+Date:	Mon, 23 May 2005 22:01:35 -0400
 
-Date:	Tue, 24 May 2005 02:34:41 -0400
-
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+From: john cooper <john.cooper@timesys.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
 
 X-Accept-Language: en-us, en
 
 MIME-Version: 1.0
 
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, Netdev <netdev@oss.sgi.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [git patches] 2.6.x net driver updates
+To: dwalker@mvista.com
+Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, akpm@osdl.org,
+	sdietrich@mvista.com, john cooper <john.cooper@timesys.com>
+Subject: Re: RT patch acceptance
 
-References: <4292BA66.8070806@pobox.com> <Pine.LNX.4.58.0505232253160.2307@ppc970.osdl.org>
+References: <1116890066.13086.61.camel@dhcp153.mvista.com>
 
-In-Reply-To: <Pine.LNX.4.58.0505232253160.2307@ppc970.osdl.org>
+In-Reply-To: <1116890066.13086.61.camel@dhcp153.mvista.com>
 
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 
 Content-Transfer-Encoding: 7bit
 
-X-Spam-Score: 0.0 (/)
+X-OriginalArrivalTime: 24 May 2005 01:56:41.0000 (UTC) FILETIME=[D4209280:01C56003]
 
 Sender: linux-kernel-owner@vger.kernel.org
 Precedence: bulk
@@ -82,19 +80,23 @@ X-Mailing-List:	linux-kernel@vger.kernel.org
 
 
 
-Linus Torvalds wrote:
-> I don't understand why you don't use different trees, like you did with
-> BK. You can share the object directory with the different trees, but the
+Daniel Walker wrote:
+> I went to see Andrew Morton speak at Xerox PARC and he indicated that
+> some of the RT patch was a little crazy . Specifically interrupts in
+> threads (Correct me if I'm wrong Andrew). It seems a lot of the
+> maintainers haven't really warmed up to it. 
 
-You really can't beat
+Understandably at first encounter it may seem rather
+unconventional.  However scheduled interrupt execution
+has existed in Solaris for years.
 
-	cp .git/refs/heads/master .git/refs/heads/new-branch
+What are the objections?
 
-as the fastest way to create a new branch off the tip.
-
-	Jeff
+-john
 
 
+-- 
+john.cooper@timesys.com
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

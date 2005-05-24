@@ -1,78 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbVEXJMP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261483AbVEXJO7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261459AbVEXJMP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 05:12:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261510AbVEXJMO
+	id S261483AbVEXJO7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 05:14:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbVEXJOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 05:12:14 -0400
-Received: from smtp.nexlab.net ([213.173.188.110]:41654 "EHLO smtp.nexlab.net")
-	by vger.kernel.org with ESMTP id S261459AbVEXJK3 (ORCPT
+	Tue, 24 May 2005 05:14:39 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:3001 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S261460AbVEXJMD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:10:29 -0400
+	Tue, 24 May 2005 05:12:03 -0400
 X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
 X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
 	08:27:20 2005 signatures 31.893
-Message-Id: <20050524091025.C96F6FA29@smtp.nexlab.net>
-Date: Tue, 24 May 2005 11:10:25 +0200 (CEST)
+Message-Id: <20050524091201.3BCE0FB16@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:12:01 +0200 (CEST)
 From: root@smtp.nexlab.net
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	by smtp.nexlab.net (Postfix) with ESMTP id 0E929FB77
+	by smtp.nexlab.net (Postfix) with ESMTP id 4E3C4FB60
 
-	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:48 +0200 (CEST)
+	for <chiakotay@nexlab.it>; Tue, 24 May 2005 09:58:21 +0200 (CEST)
 
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
 
-	id S261331AbVEXGbe (ORCPT <rfc822;chiakotay@nexlab.it>);
+	id S261383AbVEXHOX (ORCPT <rfc822;chiakotay@nexlab.it>);
 
-	Tue, 24 May 2005 02:31:34 -0400
+	Tue, 24 May 2005 03:14:23 -0400
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVEXGbe
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVEXHOT
 
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 
-	Tue, 24 May 2005 02:31:34 -0400
+	Tue, 24 May 2005 03:14:19 -0400
 
-Received: from sccrmhc14.comcast.net ([204.127.202.59]:54738 "EHLO
+Received: from wproxy.gmail.com ([64.233.184.193]:33354 "EHLO wproxy.gmail.com")
 
-	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	by vger.kernel.org with ESMTP id S261383AbVEXHON convert rfc822-to-8bit
 
-	id S261331AbVEXGbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 
-	Tue, 24 May 2005 02:31:24 -0400
+	Tue, 24 May 2005 03:14:13 -0400
 
-Received: from [192.168.111.3] (c-24-6-245-209.hsd1.ca.comcast.net[24.6.245.209])
+Received: by wproxy.gmail.com with SMTP id 68so2500606wri
 
-          by comcast.net (sccrmhc14) with SMTP
+        for <linux-kernel@vger.kernel.org>; Tue, 24 May 2005 00:14:13 -0700 (PDT)
 
-          id <2005052406281001400i8unfe>; Tue, 24 May 2005 06:31:24 +0000
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
 
-Subject: Re: promise sx8 sata driver
+        s=beta; d=gmail.com;
 
-From: Kallol Biswas <kallol@nucleodyne.com>
-Reply-To: kallol@nucleodyne.com
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Chris Haumesser <chris@mail-test.us>,
-	linux-kernel@vger.kernel.org
-In-Reply-To: <42925F7F.2000809@pobox.com>
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
 
-References: <42924E38.7070003@mail-test.us>  <42925F7F.2000809@pobox.com>
+        b=Y+AtHMac8HQzy5TaUfp4m0PBpzm0oAMdJiagefK39WeGGEUJ5tsNmxB8/E8QQ7ogyF+wwNow0lFWPQSmPezl80gGMfsCCrapBjh+Y3kxnJgLm65p+UG0vlwELW1k6BUnnasteKf0+Tw6+L+5o+csx3BfGv0UYJXZvu2OxvCB+hw=
 
-Content-Type: text/plain
+Received: by 10.54.117.4 with SMTP id p4mr4023181wrc;
 
-Organization: NucleoDyne Systems Inc.
+        Tue, 24 May 2005 00:14:13 -0700 (PDT)
 
-Message-Id: <1116909972.15027.3.camel@driver>
+Received: by 10.54.66.13 with HTTP; Tue, 24 May 2005 00:14:12 -0700 (PDT)
+
+Message-ID: <84144f0205052400143e97796e@mail.gmail.com>
+
+Date:	Tue, 24 May 2005 10:14:12 +0300
+
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: "ericvh@gmail.com" <ericvh@gmail.com>
+Subject: Re: [RFC][patch 2/7] v9fs: VFS file and directory operations (2.0-rc6)
+
+Cc: linux-kernel@vger.kernel.org,
+	v9fs-developer@lists.sourceforge.net,
+	viro@parcelfarce.linux.theplanet.co.uk,
+	linux-fsdevel@vger.kernel.org, penberg@cs.helsinki.fi
+In-Reply-To: <200505232225.j4NMPXe1029024@ms-smtp-02-eri0.texas.rr.com>
 
 Mime-Version: 1.0
 
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Content-Type:	text/plain; charset=US-ASCII
 
-Date:	23 May 2005 23:16:03 -0700
+Content-Transfer-Encoding: 7BIT
 
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+
+References: <200505232225.j4NMPXe1029024@ms-smtp-02-eri0.texas.rr.com>
 
 Sender: linux-kernel-owner@vger.kernel.org
 Precedence: bulk
@@ -81,47 +93,27 @@ X-Mailing-List:	linux-kernel@vger.kernel.org
 
 
 
-How good is 2.6.6 carmel.c driver for sx8 adapters? Does it support
-the promise adapter? Why have you developed sx8.c?
- 
+Hi,
 
-On Mon, 2005-05-23 at 15:55, Jeff Garzik wrote:
-> Chris Haumesser wrote:
-> > The sx8 driver does not use libata, and it is a separate block device,
-> > outside of the scsi and ata hierarchies.  If I compile the driver into
-> > my kernel, I end up with /dev/sx8/0 and /dev/sx8/0p1, etc.  However, no
-> > scsi disk devices are created, and grub does not recognize that
-> > /dev/sx8/ devices are disks.  There's no indication in /proc/scsi/ that
-> > they are being registered with the scsi subsystem; this is clearly
-> > different from every other sata controller I've used.  I've been
-> > googling this for days, with no real luck.  I have found changelogs for
-> > grub that suggest that my version (0.95) should support booting from the
-> > sx8.
-> 
-> sx8 is a separate block driver, and has nothing whatsoever to do with scsi.
-> 
-> 
-> > So my question is, how does one use this driver for sata disks?  Is my
-> > problem a grub problem, or does it have something to do with the fact
-> 
-> a grub problem
-> 
-> 
-> > What is the relationship between the promise driver and the one included
-> > in the kernel?  Why does one work differently from the other?  Is there
-> 
-> Promise SX8 provides neither an ATA nor SCSI interface to the developer, 
-> so its not written as an ATA or SCSI driver.
-> 
-> 	Jeff
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+On 5/24/05, ericvh@gmail.com <ericvh@gmail.com> wrote:
+> +static ssize_t
+> +v9fs_file_write(struct file *filp, const char __user * data,
+> +               size_t count, loff_t * offset)
+> +{
+> +       int ret = -1;
+> +       char *buffer;
+> +
+> +       buffer = kmalloc(count, GFP_KERNEL);
+> +       if (buffer == NULL) {
+> +               BUG();
 
+I think simply returning -ENOMEM is sufficient. BUG seems way too
+aggressive. (Found this in other places as well.)
+
+> +               return -ENOMEM;
+> +       }
+
+                    Pekka
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

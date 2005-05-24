@@ -1,92 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262053AbVEXKDv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262049AbVEXKIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262053AbVEXKDv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 06:03:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262047AbVEXJpL
+	id S262049AbVEXKIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 06:08:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262019AbVEXJmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 05:45:11 -0400
-Received: from smtp.nexlab.net ([213.173.188.110]:25286 "EHLO smtp.nexlab.net")
-	by vger.kernel.org with ESMTP id S262006AbVEXJUV (ORCPT
+	Tue, 24 May 2005 05:42:00 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:11465 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S262021AbVEXJVw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:20:21 -0400
+	Tue, 24 May 2005 05:21:52 -0400
 X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
 X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
 	08:27:20 2005 signatures 31.893
-Message-Id: <20050524092013.57A93F9FE@smtp.nexlab.net>
-Date: Tue, 24 May 2005 11:20:13 +0200 (CEST)
+Message-Id: <20050524092149.22645FA7D@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:21:49 +0200 (CEST)
 From: root@smtp.nexlab.net
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	by smtp.nexlab.net (Postfix) with ESMTP id B462DFB80
+	by smtp.nexlab.net (Postfix) with ESMTP id D9E1AFA5A
 
-	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:51 +0200 (CEST)
+	for <chiakotay@nexlab.it>; Tue, 24 May 2005 06:39:35 +0200 (CEST)
 
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
 
-	id S261424AbVEXH7w (ORCPT <rfc822;chiakotay@nexlab.it>);
+	id S261346AbVEXDUv (ORCPT <rfc822;chiakotay@nexlab.it>);
 
-	Tue, 24 May 2005 03:59:52 -0400
+	Mon, 23 May 2005 23:20:51 -0400
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261423AbVEXH7w
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVEXDUv
 
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 
-	Tue, 24 May 2005 03:59:52 -0400
+	Mon, 23 May 2005 23:20:51 -0400
 
-Received: from mx1.elte.hu ([157.181.1.137]:54227 "EHLO mx1.elte.hu")
+Received: from mx1.redhat.com ([66.187.233.31]:12499 "EHLO mx1.redhat.com")
 
-	by vger.kernel.org with ESMTP id S261431AbVEXH7k (ORCPT
+	by vger.kernel.org with ESMTP id S261324AbVEXDUi (ORCPT
 
 	<rfc822;linux-kernel@vger.kernel.org>);
 
-	Tue, 24 May 2005 03:59:40 -0400
+	Mon, 23 May 2005 23:20:38 -0400
 
-Received: from chiara.elte.hu (chiara.elte.hu [157.181.150.200])
+Received: from int-mx1.corp.redhat.com (int-mx1.corp.redhat.com [172.16.52.254])
 
-	by mx1.elte.hu (Postfix) with ESMTP id 9302432329E;
+	by mx1.redhat.com (8.12.11/8.12.11) with ESMTP id j4O3KR8X000397;
 
-	Tue, 24 May 2005 09:58:04 +0200 (CEST)
+	Mon, 23 May 2005 23:20:27 -0400
 
-Received: by chiara.elte.hu (Postfix, from userid 17806)
+Received: from mail.boston.redhat.com (mail.boston.redhat.com [172.16.76.12])
 
-	id AB1CA1FC2; Tue, 24 May 2005 09:59:37 +0200 (CEST)
+	by int-mx1.corp.redhat.com (8.11.6/8.11.6) with ESMTP id j4O3KRO05468;
 
-Date:	Tue, 24 May 2005 09:59:27 +0200
+	Mon, 23 May 2005 23:20:27 -0400
 
-From: Ingo Molnar <mingo@elte.hu>
-To: George Anzinger <george@mvista.com>
-Cc: linux-kernel@vger.kernel.org, dwalker@mvista.com
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-00
+Received: from thoron.boston.redhat.com (thoron.boston.redhat.com [172.16.80.63])
 
-Message-ID: <20050524075927.GA20462@elte.hu>
+	by mail.boston.redhat.com (8.12.8/8.12.8) with ESMTP id j4O3KQpW029577;
 
-References: <20050509073702.GA13615@elte.hu> <427FBFE1.5020204@mvista.com>
+	Mon, 23 May 2005 23:20:26 -0400
 
-Mime-Version: 1.0
+Date:	Mon, 23 May 2005 23:20:26 -0400 (EDT)
 
-Content-Type: text/plain; charset=us-ascii
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
 
-Content-Disposition: inline
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+	<linux-crypto@vger.kernel.org>, <davem@davemloft.net>
+Subject: Re: [CRYPTO]: Only reschedule if !in_atomic()
 
-In-Reply-To: <427FBFE1.5020204@mvista.com>
+In-Reply-To: <20050524024318.GB29242@gondor.apana.org.au>
 
-User-Agent: Mutt/1.4.2.1i
+Message-ID: <Xine.LNX.4.44.0505232319450.1507-100000@thoron.boston.redhat.com>
 
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+MIME-Version: 1.0
 
-X-ELTE-VirusStatus: clean
-
-X-ELTE-SpamCheck: no
-
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-
-	autolearn=not spam, BAYES_00 -4.90
-
-X-ELTE-SpamLevel: 
-
-X-ELTE-SpamScore: -4
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
 Sender: linux-kernel-owner@vger.kernel.org
 Precedence: bulk
@@ -95,19 +86,37 @@ X-Mailing-List:	linux-kernel@vger.kernel.org
 
 
 
+On Tue, 24 May 2005, Herbert Xu wrote:
 
-* George Anzinger <george@mvista.com> wrote:
+> On Mon, May 23, 2005 at 07:31:16PM -0700, Andrew Morton wrote:
+> > 
+> > Are you sure it's actually needed? Have significant scheduling latencies
+> > actually been observed?
+> 
+> I certainly don't have any problems with removing the yield altogether.
+> 
+> > Bear in mind that anyone who cares a lot about latency will be running
+> > CONFIG_PREEMPT kernels, in which case the whole thing is redundant anyway. 
+> > I generally take the position that if we're going to put a scheduling point
+> > into a non-premept kernel then it'd better be for a pretty bad latency
+> > point - more than 10 milliseconds, say.
+> 
+> The crypt() function can easily take more than 10 milliseconds with
+> a large enough buffer.
+> 
+> James & Dave, do you have any opinions on this?
 
-> Also, I think that del_timer_sync and friends need to be turned on if 
-> soft_irq is preemptable.
+a) remove the scheudling point and see if anyone complains
+b) if so, add a flag
 
-you mean the #ifdef CONFIG_SMP should be:
 
-	#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT_SOFTIRQS)
 
-?
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
-	Ingo
+
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

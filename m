@@ -1,90 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbVEXPdq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262109AbVEXPgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262103AbVEXPdq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 11:33:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbVEXPcc
+	id S262109AbVEXPgR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 11:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbVEXPeC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 11:32:32 -0400
-Received: from alog0402.analogic.com ([208.224.222.178]:29070 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262105AbVEXPbJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 11:31:09 -0400
-Date: Tue, 24 May 2005 11:30:28 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Paul Rolland <rol@as2917.net>
-cc: Linux kernel <linux-kernel@vger.kernel.org>, rol@witbe.net
-Subject: Re: Linux and Initrd used to access disk : how does it work ?
-In-Reply-To: <200505241519.j4OFJUR24338@tag.witbe.net>
-Message-ID: <Pine.LNX.4.61.0505241125500.16448@chaos.analogic.com>
-References: <200505241519.j4OFJUR24338@tag.witbe.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 24 May 2005 11:34:02 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:1175 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262106AbVEXPdW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 11:33:22 -0400
+Subject: Re: [patch] Voluntary Kernel Preemption, 2.6.12-rc4-mm2
+From: Arjan van de Ven <arjan@infradead.org>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjanv@infradead.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <4293466B.5070200@yahoo.com.au>
+References: <20050524121541.GA17049@elte.hu>
+	 <20050524132105.GA29477@elte.hu> <20050524145636.GA15943@infradead.org>
+	 <20050524150950.GA10736@elte.hu>  <4293466B.5070200@yahoo.com.au>
+Content-Type: text/plain
+Date: Tue, 24 May 2005 17:33:12 +0200
+Message-Id: <1116948792.6280.26.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 May 2005, Paul Rolland wrote:
+On Wed, 2005-05-25 at 01:21 +1000, Nick Piggin wrote:
+> IIRC, the reason (when you wrote the code) was that you didn't
+> want to enable preempt either because of binary compatibility, or
+> because of bugs? Well I think the bug issue is no more since your
+> debug patches went in, and the compatibility reason may be a fine
+> one for a distro kernel, but not a kernel.org one.
 
-> Hello Dick,
->
->> initrd means Initial RAM disk.
->>
->> The boot image is put onto your Hard disk. The hard disk needs
->> to be accessible from the BIOS to boot from it. Most controllers
->> have a BIOS module that lets it be accessed during boot so you
->> don't need a chicken before the egg to start the boot.
->
-> Ok, basically, the trick is that the BIOS knows how to access the
-> disk, and Linux doesn't because it doesnt use the BIOS ? Or is it
-> some more subtle (though I doubt) thing in which only a part of the
-> disk can be accessed by the BIOS.
->
+I can't imagine binary compatibility having been a reason. At least for
+the RH distros it really isn't kernel wise. At All.
+PREEMPT was (and is?) a stability risk and so you'll see RHEL4 not
+having it enabled. But it has nothing to do with in-kernel binary
+compatibility; that just doesn't exist, kernel.org or distro alike.
 
-Linux needs to load a driver before it can access the disk. The
-BIOS only works for 16-bit real-mode access.
 
->> Then, when booting, LILO or grub starts linux which uncompresses
->> a RAM disk and mounts it instead of your hard disk. A special
->> version of `init` (called nash) gets started which reads a script
->> called linuxrc. It contains commands like:
-> Yes, I've seen that in my .img file...
->
->> The module(s) are in the /lib directory of the RAM disk.
->> They are put there by a build-script that installs initrd.
->> This script gets executed when you do 'make install' in
->> the kernel directory. If you have private modules, you
->> can copy them to the appropriate /lib/modules/`uname
->> -r`/kernel/drivers
->> directory. You put the module(s) name(s) you need to boot
->> in /etc/modprobe.conf or /etc/modules.conf (depends upon the
->> module tools version) as:
->>
->> alias scsi_hostadapter aic7xxx
->> alias scsi_hostadapter1 ata_piix
->>
->> ... any scsi_hostadapter stuff will be put into initrd when
->> you execute the script, /sbin/mkinitrd.
->>
->
-> Hmmm... I didn't know this part, thanks for the details.
->
-> So, it seems that I'm stuck with my binary module unless I can find a
-> way to tell the kernel to use the BIOS to access the disk ;-)))
->
-
-No. You are "stuck with a driver" just like everybody else. You
-either have drivers built-in (getting rare, because there are so
-many), or you load a driver while booting. This is the usual
-way. From the boot perspective, it doesn't matter if the module
-is a 'binary' one or a GPL one.
-
-> Cheers,
-> Paul
->
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

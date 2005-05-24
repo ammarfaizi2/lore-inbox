@@ -1,79 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVEXAmn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVEXAki@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbVEXAmn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 20:42:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVEXAmY
+	id S261255AbVEXAki (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 20:40:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVEXAki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 20:42:24 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:63902 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S261256AbVEXAkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 20:40:43 -0400
-Message-ID: <429277CA.9050300@google.com>
-Date: Mon, 23 May 2005 17:39:38 -0700
-From: Mike Waychison <mikew@google.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050207)
+	Mon, 23 May 2005 20:40:38 -0400
+Received: from omta02sl.mx.bigpond.com ([144.140.93.154]:53671 "EHLO
+	omta02sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S261256AbVEXAjA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 20:39:00 -0400
+Message-ID: <429277A2.50100@bigpond.net.au>
+Date: Tue, 24 May 2005 10:38:58 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Miklos Szeredi <miklos@szeredi.hu>
-CC: linuxram@us.ibm.com, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [RFC][PATCH] rbind across namespaces
-References: <1116627099.4397.43.camel@localhost> <E1DZNSN-0006cU-00@dorka.pomaz.szeredi.hu> <1116660380.4397.66.camel@localhost> <E1DZP37-0006hH-00@dorka.pomaz.szeredi.hu> <20050521134615.GB4274@mail.shareable.org> <E1DZlVn-0007a6-00@dorka.pomaz.szeredi.hu>
-In-Reply-To: <E1DZlVn-0007a6-00@dorka.pomaz.szeredi.hu>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: [ANNOUNCE][RFC] PlugSched-5.0 for 2.6.11, 2.6.12-rc4 and 2.6.12-rc4-mm2
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta02sl.mx.bigpond.com from [147.10.132.202] using ID pwil3058@bigpond.net.au at Tue, 24 May 2005 00:38:58 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi wrote:
->>>I still see a problem: what if old_nd.mnt is already detached, and
->>>bind is non-recursive.  Now it fails with EINVAL, though it used to
->>>work (and I think is very useful).
->>
->>Hey, you just made another argument for not detaching mounts when the
->>last task with that current->namespace exits, but instead detaching
->>mounts when the last reference to any vfsmnt in the namespace is dropped.
->>
->>Hint :)
-> 
-> 
-> I have a better idea:
-> 
->  - create a "dead_mounts" namespace.
->  - chain each detached mount's ->mnt_list on dead_mounts->list
->  - set mnt_namespace to dead_mounts
->  - export the list via proc through the usual mount list interface
-> 
-> The last would be a nice bonus: I've always wanted to see the list of
-> detached, but not-yet destroyed mounts.
-> 
-> Does anybody see a problem with that?
-> 
+A patch of PlugSched-5.0 (containing ingosched, nicksched, staircase,
+spa_no_frills and zaphod CPU schedulers) against a 2.6.11 kernel is
+available for download from:
 
-FWIW, all this stuff has already been done and posted here.
+<http://prdownloads.sourceforge.net/cpuse/plugsched-5.0-for-2.6.11.patch?download>
 
-Detachable chunks of vfsmounts:
-http://marc.theaimsgroup.com/?l=linux-fsdevel&m=109872862003192&w=2
+for 2.6.12-rc4 at:
 
-'Soft' reference counts for manipulating vfsmounts without pinning them 
-down:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109872797030644&w=2
+<http://prdownloads.sourceforge.net/cpuse/plugsched-5.0-for-2.6.12-rc4.patch?download>
 
-Referencing vfsmounts in userspace using a file descriptor:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109871948812782&w=2
+and for 2.6.12-rc4-mm2 at:
 
-walking mountpoints in userspace: 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109875012510262&w=2
+<http://prdownloads.sourceforge.net/cpuse/plugsched-5.0-for-2.6.12-rc4-mm2.patch?download>
 
-attaching mountpoints in userspace:
-http://marc.theaimsgroup.com/?l=linux-fsdevel&m=109875063100111&w=2
+PlugSched's version number has been bumped to 5.0 as further reductions
+in the scheduler drive interface have been introduced.  Con Kolivas's 
+"nice" aware load balancing patch has also been applied.
 
-detaching mountpoints in userspace:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109880051800963&w=2
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-getting info from a vfsmount:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=109875135030473&w=2
-
-Mike Waychison
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

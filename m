@@ -1,78 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVEXJZa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVEXLHa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262041AbVEXJZa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 05:25:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbVEXJXT
+	id S261386AbVEXLHa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 07:07:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbVEXJZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 05:23:19 -0400
-Received: from smtp.nexlab.net ([213.173.188.110]:21188 "EHLO smtp.nexlab.net")
-	by vger.kernel.org with ESMTP id S261993AbVEXJSx (ORCPT
+	Tue, 24 May 2005 05:25:14 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:39361 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S261876AbVEXJR3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:18:53 -0400
+	Tue, 24 May 2005 05:17:29 -0400
 X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
 X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
 	08:27:20 2005 signatures 31.893
-Message-Id: <20050524091852.43480FA5B@smtp.nexlab.net>
-Date: Tue, 24 May 2005 11:18:52 +0200 (CEST)
+Message-Id: <20050524091726.71E33F9E5@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:17:26 +0200 (CEST)
 From: root@smtp.nexlab.net
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	by smtp.nexlab.net (Postfix) with ESMTP id 84712FB78
+	by smtp.nexlab.net (Postfix) with ESMTP id CCC3BFB6B
 
-	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:48 +0200 (CEST)
+	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:39 +0200 (CEST)
 
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
 
-	id S261301AbVEXB43 (ORCPT <rfc822;chiakotay@nexlab.it>);
+	id S261367AbVEXGnN (ORCPT <rfc822;chiakotay@nexlab.it>);
 
-	Mon, 23 May 2005 21:56:29 -0400
+	Tue, 24 May 2005 02:43:13 -0400
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVEXB43
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVEXGnD
 
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 
-	Mon, 23 May 2005 21:56:29 -0400
+	Tue, 24 May 2005 02:43:03 -0400
 
-Received: from mail.dvmed.net ([216.237.124.58]:59595 "EHLO mail.dvmed.net")
+Received: from pentafluge.infradead.org ([213.146.154.40]:38285 "EHLO
 
-	by vger.kernel.org with ESMTP id S261300AbVEXB41 (ORCPT
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
 
-	<rfc822;linux-kernel@vger.kernel.org>);
+	id S261367AbVEXGkv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 
-	Mon, 23 May 2005 21:56:27 -0400
+	Tue, 24 May 2005 02:40:51 -0400
 
-Received: from cpe-065-184-065-144.nc.res.rr.com ([65.184.65.144] helo=[10.10.10.88])
+Received: from g133107.upc-g.chello.nl ([80.57.133.107] helo=[172.31.3.43])
 
-	by mail.dvmed.net with esmtpsa (Exim 4.51 #1 (Red Hat Linux))
+	by pentafluge.infradead.org with esmtpsa (Exim 4.43 #1 (Red Hat Linux))
 
-	id 1DaOee-00018N-Sq; Tue, 24 May 2005 01:56:25 +0000
+	id 1DaT5s-0001rg-46; Tue, 24 May 2005 07:40:48 +0100
 
-Message-ID: <429289C6.9080707@pobox.com>
+Subject: Re: [CRYPTO]: Only reschedule if !in_atomic()
 
-Date:	Mon, 23 May 2005 21:56:22 -0400
+From: Arjan van de Ven <arjan@infradead.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: davem@davemloft.net
+In-Reply-To: <200505232300.j4NN07lE012726@hera.kernel.org>
 
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+References: <200505232300.j4NN07lE012726@hera.kernel.org>
 
-X-Accept-Language: en-us, en
+Content-Type: text/plain
 
-MIME-Version: 1.0
+Date:	Tue, 24 May 2005 08:40:45 +0200
 
-To: Brent Casavant <bcasavan@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] ioc4: Driver rework
+Message-Id: <1116916845.6280.8.camel@laptopd505.fenrus.org>
 
-References: <20050523192157.V75588@chenjesu.americas.sgi.com>
+Mime-Version: 1.0
 
-In-Reply-To: <20050523192157.V75588@chenjesu.americas.sgi.com>
-
-Content-Type: text/plain; charset=us-ascii; format=flowed
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 
 Content-Transfer-Encoding: 7bit
 
-X-Spam-Score: 0.0 (/)
+X-Spam-Score: 3.7 (+++)
+
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+
+	Content analysis details:   (3.7 points, 5.0 required)
+
+	pts rule name              description
+
+	---- ---------------------- --------------------------------------------------
+
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+
+	[<http://dsbl.org/listing?80.57.133.107>]
+
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+
+	See http://www.infradead.org/rpr.html
 
 Sender: linux-kernel-owner@vger.kernel.org
 Precedence: bulk
@@ -81,27 +103,14 @@ X-Mailing-List:	linux-kernel@vger.kernel.org
 
 
 
-Brent Casavant wrote:
-> - The IOC4 chip implements multiple functions (serial, IDE, others not
->   yet implemented in the mainline kernel) but is not a multifunction
->   PCI device.  In order to properly handle device addition and removal
->   as well as module insertion and deletion, an intermediary IOC4-specific
->   driver layer is needed to handle these operations cleanly.
 
-I disagree that a layer is needed.
+> -	if (!in_softirq())
+> +	if (!in_atomic())
+>  		cond_resched();
 
-Just write a PCI driver that does the following in probe:
-
-	register IDE
-	register serial
-	...
-
-and undoes all that in remove.
-
-Device addition and removal work just fine with that scheme.
-
-	Jeff
-
+this looks wrong. in_atomic() isn't doing what I think you think it
+does; for one it doesn't get set inside spinlock regions (unless preempt
+is enabled) 
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in

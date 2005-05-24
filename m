@@ -1,161 +1,161 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262051AbVEXKWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262070AbVEXK3n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262051AbVEXKWA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 06:22:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262055AbVEXKVA
+	id S262070AbVEXK3n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 06:29:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262045AbVEXKUG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 06:21:00 -0400
-Received: from 1-1-4-20a.ras.sth.bostream.se ([82.182.72.90]:61844 "EHLO
-	garbo.kenjo.org") by vger.kernel.org with ESMTP id S262057AbVEXKPP
+	Tue, 24 May 2005 06:20:06 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:46562 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262021AbVEXKPp
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 06:15:15 -0400
-Subject: Re: NFS corruption on 2.6.11.7
-From: Kenneth Johansson <ken@kenjo.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1116894917.11483.111.camel@lade.trondhjem.org>
-References: <1116888428.5206.14.camel@tiger>
-	 <1116894917.11483.111.camel@lade.trondhjem.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-HC6I6jWxkX0leW6nI99L"
-Date: Tue, 24 May 2005 12:15:11 +0200
-Message-Id: <1116929711.6237.8.camel@tiger>
+	Tue, 24 May 2005 06:15:45 -0400
+Date: Tue, 24 May 2005 15:47:12 +0530
+From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
+To: akpm@osdl.org, ak@muc.de, davem@davemloft.net
+Cc: linux-kernel@vger.kernel.org, systemtap@sources.redhat.com
+Subject: Re: [PATCH 2/5] Kprobes: Temporary disarming of reentrant probe for i386
+Message-ID: <20050524101712.GA27186@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
+References: <20050524101532.GA27215@in.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050524101532.GA27215@in.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-HC6I6jWxkX0leW6nI99L
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+This patch includes i386 architecture specific changes to support temporary
+disarming on reentrancy of probes.
 
-On Mon, 2005-05-23 at 20:35 -0400, Trond Myklebust wrote:
-> ty den 24.05.2005 Klokka 00:47 (+0200) skreiv Kenneth Johansson:
-> > I have both the server and client running  2.6.11.7 and have some sever=
-e
-> > data corruption when reading from the server (maybe on write also I hav=
-e
-> > not tested).
-> >=20
-> > If I copy the data over with scp or ftp I get correct data. Also  nfs
-> > works OK with a mac os x 10.4 client.
-> >=20
-> > Running gen.sh on the server and then cmp.sh on the client results in a
-> > md5 checksum difference on 5-12 files I have never done one run where
-> > there was no errors.=20
-> >=20
-> > This is what cat /proc/mounts reports on the nfs mount
-> >=20
-> > :/export/home/ken /home/ken nfs rw,v3,rsize=3D32768,wsize=3D32768,hard,=
-udp,lock,addr=3Damd 0 0
-> >=20
->=20
-> I'm seeing no problems at all with this on a loopback mount with
-> 2.6.12-rc4. Mind giving us some more details on your setup?
->=20
-> Cheers,
->   Trond
+Signed-of-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
 
-I did some more investigation what type of data error I get and it looks
-a bit strange. I always get 28 bytes wrong in a sequence some times this
-is data repeated from previous in the file but not always.  Anybody know
-what cache line size this cpu has?
-
-processor       : 0
-vendor_id       : AuthenticAMD
-cpu family      : 6
-model           : 8
-model name      : AMD Athlon(TM) XP 2200+
-stepping        : 0
-cpu MHz         : 1802.998
-cache size      : 256 KB
-fdiv_bug        : no
-hlt_bug         : no
-f00f_bug        : no
-coma_bug        : no
-fpu             : yes
-fpu_exception   : yes
-cpuid level     : 1
-wp              : yes
-flags           : fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca =
-cmov pat pse36 mmx fxsr sse pni syscall mmxext 3dnowext 3dnow
-bogomips        : 3547.13
-
-Here is a sample if three files with errors in them.
-
-file 13 "od -Ax -tx1z"
+---
 
 
--924dc0 df b3 0c 89 2d a2 83 da 1c 08 f2 66 da f6 6b f4  >....-......f..k.<
-+924dc0 43 11 2a f4 98 09 d5 76 aa 26 83 00 24 3d 11 fd  >C.*....v.&..$=3D.=
-.<
+---
 
--924dd0 af c2 44 57 9a 13 01 43 84 bf 99 c3 1b 16 8a 00  >..DW...C........<
-+924dd0 3e 64 d7 bd 4f 8d 26 cf 4f 4f 2c 62 1b 16 8a 00  >>d..O.&.OO,b....<
+ linux-2.6.12-rc4-mm2-prasanna/arch/i386/kernel/kprobes.c |   62 +++++++++++----
+ 1 files changed, 49 insertions(+), 13 deletions(-)
 
+diff -puN arch/i386/kernel/kprobes.c~kprobes-temporary-disarming-on-reentrancy-i386 arch/i386/kernel/kprobes.c
+--- linux-2.6.12-rc4-mm2/arch/i386/kernel/kprobes.c~kprobes-temporary-disarming-on-reentrancy-i386	2005-05-24 15:28:48.000000000 +0530
++++ linux-2.6.12-rc4-mm2-prasanna/arch/i386/kernel/kprobes.c	2005-05-24 15:28:48.000000000 +0530
+@@ -37,12 +37,10 @@
+ #include <asm/kdebug.h>
+ #include <asm/desc.h>
+ 
+-/* kprobe_status settings */
+-#define KPROBE_HIT_ACTIVE	0x00000001
+-#define KPROBE_HIT_SS		0x00000002
+-
+ static struct kprobe *current_kprobe;
+ static unsigned long kprobe_status, kprobe_old_eflags, kprobe_saved_eflags;
++static struct kprobe *kprobe_prev;
++static unsigned long kprobe_status_prev, kprobe_old_eflags_prev, kprobe_saved_eflags_prev;
+ static struct pt_regs jprobe_saved_regs;
+ static long *jprobe_saved_esp;
+ /* copy of the kernel stack at the probe fire time */
+@@ -93,6 +91,31 @@ void arch_remove_kprobe(struct kprobe *p
+ {
+ }
+ 
++static inline void save_previous_kprobe(void)
++{
++	kprobe_prev = current_kprobe;
++	kprobe_status_prev = kprobe_status;
++	kprobe_old_eflags_prev = kprobe_old_eflags;
++	kprobe_saved_eflags_prev = kprobe_saved_eflags;
++}
++
++static inline void restore_previous_kprobe(void)
++{
++	current_kprobe = kprobe_prev;
++	kprobe_status = kprobe_status_prev;
++	kprobe_old_eflags = kprobe_old_eflags_prev;
++	kprobe_saved_eflags = kprobe_saved_eflags_prev;
++}
++
++static inline void set_current_kprobe(struct kprobe *p, struct pt_regs *regs)
++{
++	current_kprobe = p;
++	kprobe_saved_eflags = kprobe_old_eflags
++		= (regs->eflags & (TF_MASK | IF_MASK));
++	if (is_IF_modifier(p->opcode))
++		kprobe_saved_eflags &= ~IF_MASK;
++}
++
+ static inline void prepare_singlestep(struct kprobe *p, struct pt_regs *regs)
+ {
+ 	regs->eflags |= TF_MASK;
+@@ -184,9 +207,18 @@ static int kprobe_handler(struct pt_regs
+ 				unlock_kprobes();
+ 				goto no_kprobe;
+ 			}
+-			arch_disarm_kprobe(p);
+-			regs->eip = (unsigned long)p->addr;
+-			ret = 1;
++			/* We have reentered the kprobe_handler(), since
++			 * another probe was hit while within the handler.
++			 * We here save the original kprobes variables and
++			 * just single step on the instruction of the new probe
++			 * without calling any user handlers.
++			 */
++			save_previous_kprobe();
++			set_current_kprobe(p, regs);
++			p->nmissed++;
++			prepare_singlestep(p, regs);
++			kprobe_status = KPROBE_REENTER;
++			return 1;
+ 		} else {
+ 			p = current_kprobe;
+ 			if (p->break_handler && p->break_handler(p, regs)) {
+@@ -221,11 +253,7 @@ static int kprobe_handler(struct pt_regs
+ 	}
+ 
+ 	kprobe_status = KPROBE_HIT_ACTIVE;
+-	current_kprobe = p;
+-	kprobe_saved_eflags = kprobe_old_eflags
+-	    = (regs->eflags & (TF_MASK | IF_MASK));
+-	if (is_IF_modifier(p->opcode))
+-		kprobe_saved_eflags &= ~IF_MASK;
++	set_current_kprobe(p, regs);
+ 
+ 	if (p->pre_handler && p->pre_handler(p, regs))
+ 		/* handler has already set things up, so skip ss setup */
+@@ -370,14 +398,22 @@ static inline int post_kprobe_handler(st
+ 	if (!kprobe_running())
+ 		return 0;
+ 
+-	if (current_kprobe->post_handler)
++	if ((kprobe_status != KPROBE_REENTER) && current_kprobe->post_handler) {
++		kprobe_status = KPROBE_HIT_SSDONE;
+ 		current_kprobe->post_handler(current_kprobe, regs, 0);
++	}
+ 
+ 	if (current_kprobe->post_handler != trampoline_post_handler)
+ 		resume_execution(current_kprobe, regs);
+ 	regs->eflags |= kprobe_saved_eflags;
+ 
++	/*Restore back the original saved kprobes variables and continue. */
++	if (kprobe_status == KPROBE_REENTER) {
++		restore_previous_kprobe();
++		goto out;
++	}
+ 	unlock_kprobes();
++out:
+ 	preempt_enable_no_resched();
+ 
+ 	/*
 
-28 bytes wrong in a sequence
-The data is a repeat from previous data in the file.
+_
+-- 
+Have a Nice Day!
 
->grep "43 11 2a f4 98 09 d5 76 aa 26 83 00 24 3d 11 fd" 13_org=20
-924d40 43 11 2a f4 98 09 d5 76 aa 26 83 00 24 3d 11 fd  >C.*....v.&..$=3D..=
-<
-
->grep "43 11 2a f4 98 09 d5 76 aa 26 83 00 24 3d 11 fd" 13_err=20
-924d40 43 11 2a f4 98 09 d5 76 aa 26 83 00 24 3d 11 fd  >C.*....v.&..$=3D..=
-<
-924dc0 43 11 2a f4 98 09 d5 76 aa 26 83 00 24 3d 11 fd  >C.*....v.&..$=3D..=
-<
-
-924dc0 is a copy of 924d40
-128 bytes offset
-
-
-file 14 "od -Ax -tx1z"
-
--0912f0 91 45 bb cd eb 4f 01 d3 69 27 88 b5 7d 7d 17 8d  >.E...O..i'..}}..<
-+0912f0 b8 3f 4e 5d 2e 86 ed c0 51 79 fe ec 3e 53 c9 29  >.?N]....Qy..>S.)<
-
--091300 7d 94 8e f9 81 d0 c2 4a b5 8e c6 af b0 03 4c 16  >}......J......L.<
-+091300 d9 05 ac 0d fc eb 00 71 17 bd fb 3e b0 03 4c 16  >.......q...>..L.<
-
->grep "b8 3f 4e 5d 2e 86 ed c0 51 79 fe ec 3e 53 c9 29" 14_err
-0912b0 b8 3f 4e 5d 2e 86 ed c0 51 79 fe ec 3e 53 c9 29  >.?N]....Qy..>S.)<
-0912f0 b8 3f 4e 5d 2e 86 ed c0 51 79 fe ec 3e 53 c9 29  >.?N]....Qy..>S.)<
-
-28 bytes wrong
-64 bytes offset
-
-
-file 16 "od -Ax -tx1z"
-
--635200 c3 1d f2 b8 c4 d5 12 c1 3f 48 e6 9d dc 98 1f e5  >........?H......<
-+635200 c3 1d f2 b8 c4 d5 12 c1 00 10 00 00 00 d0 ec 08  >................<
-
--635210 9e 54 e7 f1 49 5b 1e d0 9f e2 7c 26 24 cb 98 24  >.T..I[....|&$..$<
-+635210 00 10 00 00 00 90 14 08 00 10 00 00 00 50 25 06  >.............P%.<
-
--635220 25 fc 63 2a bf 07 b4 c0 cf a1 67 9b ef 01 5d 6d  >%.c*......g...]m<
-+635220 00 10 00 00 bf 07 b4 c0 cf a1 67 9b ef 01 5d 6d  >..........g...]m<
-
-28 bytes wrong=20
-This time the data is not from this file.
-
-
-
-
-
---=-HC6I6jWxkX0leW6nI99L
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCkv6vmDGOmJIy9x8RAnLsAJ9txdWkwmCdJq9BbVlYfxDJ9LMp5gCffvGy
-h9gzc1UAnB+yYesURixmJu4=
-=8xkO
------END PGP SIGNATURE-----
-
---=-HC6I6jWxkX0leW6nI99L--
-
+Thanks & Regards
+Prasanna S Panchamukhi
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Ph: 91-80-25044636
+<prasanna@in.ibm.com>

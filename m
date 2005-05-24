@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261980AbVEXSW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbVEXSUE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261980AbVEXSW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 14:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbVEXSW0
+	id S261425AbVEXSUE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 14:20:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVEXSUE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 14:22:26 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:22992 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261935AbVEXSUr (ORCPT
+	Tue, 24 May 2005 14:20:04 -0400
+Received: from colin.muc.de ([193.149.48.1]:9481 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S261946AbVEXSSx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 14:20:47 -0400
-Message-ID: <42937079.5010905@pobox.com>
-Date: Tue, 24 May 2005 14:20:41 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Chris Haumesser <chris@mail-test.us>
-CC: kallol@nucleodyne.com, linux-kernel@vger.kernel.org
-Subject: Re: promise sx8 sata driver
-References: <42924E38.7070003@mail-test.us>  <42925F7F.2000809@pobox.com> <1116909972.15027.3.camel@driver> <42936BB8.3070903@mail-test.us>
-In-Reply-To: <42936BB8.3070903@mail-test.us>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Tue, 24 May 2005 14:18:53 -0400
+Date: 24 May 2005 20:18:51 +0200
+Date: Tue, 24 May 2005 20:18:51 +0200
+From: Andi Kleen <ak@muc.de>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: akpm@osdl.org, zwane@arm.linux.org.uk, rusty@rustycorp.com.au,
+       vatsa@in.ibm.com, shaohua.li@intel.com, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org
+Subject: Re: [patch 1/4] CPU Hotplug support for X86_64
+Message-ID: <20050524181851.GH86233@muc.de>
+References: <20050524081113.409604000@csdlinux-2.jf.intel.com> <20050524081304.011927000@csdlinux-2.jf.intel.com> <20050524121542.GA86182@muc.de> <20050524085112.A20866@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050524085112.A20866@unix-os.sc.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Haumesser wrote:
-> I don't understand either.  The Promise driver (I think this is carmel?)
-> found at
-> http://www.promise.com/support/download/download2_eng.asp?productID=125&category=all&os=100#
-> seems to be GPL.  I haven't tested it extensively yet, but it appears to
-> provide scsi device nodes that grub recognizes readily.
+On Tue, May 24, 2005 at 08:51:13AM -0700, Ashok Raj wrote:
+> On Tue, May 24, 2005 at 02:15:42PM +0200, Andi Kleen wrote:
+> > On Tue, May 24, 2005 at 01:11:14AM -0700, Ashok Raj wrote:
+> > >   * RED-PEN audit/test this more. I bet there is more state messed up here.
+> > >   */
+> > > -static __cpuinit void disable_smp(void)
+> > > +static __init void disable_smp(void)
+> > 
+> > Why all these cpuinit->init changes? I think they should stay __cpuinit
+> > 
+> > The other way round looks ok.
 > 
-> Why are there two GPL driver projects for this card, and what is the
-> difference?  Is there something wrong with promise's driver, or
-> inherently superior in the kernel driver?  How is one supposed to
-> choose?  There is very little documentation for either driver, so it is
-> quite unclear which is appropriate for a given application.
+> disable_smp() is called only in smp_prepare_cpus() which is not required 
+> for hotplug. Its currently only required only for startup, and not later.
+> 
+> I changed the ones from __cpuinit to __init, just in functions marked 
+> with paranoia... i think it can stay cpuinit, unless there is another reason
+> i didnt catch.
 
-Promise SX8 is not SCSI, and should not be a SCSI driver.
+Ok. Makes sense.
 
-	Jeff
+But how about all the other functions that you changed too? Can you
+double check them. SOme looked suspicious.
 
-
-
+-Andi

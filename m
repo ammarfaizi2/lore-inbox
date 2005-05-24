@@ -1,89 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262089AbVEXJwT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262098AbVEXJ4F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262089AbVEXJwT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 05:52:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbVEXJun
+	id S262098AbVEXJ4F (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 05:56:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262076AbVEXJuQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 05:50:43 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:56259 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261768AbVEXJaS (ORCPT
+	Tue, 24 May 2005 05:50:16 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:26821 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S261890AbVEXJTo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:30:18 -0400
-Message-ID: <4292F5FF.1A92086C@tv-sign.ru>
-Date: Tue, 24 May 2005 13:38:07 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: george@mvista.com
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH rc4-mm2 2/2] posix-timers: use try_to_del_timer_sync()
-References: <42909DC2.7922E05D@tv-sign.ru> <42926F83.9050608@mvista.com>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Tue, 24 May 2005 05:19:44 -0400
+X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
+X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
+	08:27:20 2005 signatures 31.893
+Message-Id: <20050524091934.B4E59FA09@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:19:34 +0200 (CEST)
+From: root@smtp.nexlab.net
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George Anzinger wrote:
->
-> Oleg Nesterov wrote:
-> >
-> > This patch removes timer_active/set_timer_inactive which plays with
-> > timer_list's internals in favour of using try_to_del_timer_sync(),
-> > which was introduced in the previous patch.
->
-> Is there a particular reason for this, like it does not work, for example, or
-> are you just trying to clean up code?
+	by smtp.nexlab.net (Postfix) with ESMTP id C7748FA66
 
-It's a cleanup, I think that current code is correct.
+	for <chiakotay@nexlab.it>; Tue, 24 May 2005 06:39:39 +0200 (CEST)
 
-> If this currently works, please leave it alone.
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
 
-Ok.
+	id S261189AbVEXDtE (ORCPT <rfc822;chiakotay@nexlab.it>);
 
-> We also note that this code is the subject of a patch to the RT patch to cover
-> the same issue when softirqs are run from threads and therefor allow
-> posix_timer_fn to be preempted.  (That fix being mainly to expand usage from
-> just SMP to SMP || SOFTIRQ_PREEMPT.)
+	Mon, 23 May 2005 23:49:04 -0400
 
-I guess you are talking about this patch:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111566867218576
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVEXDtE
 
-> Also, I think that del_timer_sync and friends need to be turned on if soft_irq
-> is preemptable.
+	(ORCPT <rfc822;linux-kernel-outgoing>);
 
-I agree completely.
+	Mon, 23 May 2005 23:49:04 -0400
 
-> + * For RT the timer call backs are preemptable.  This means that folks
-> + * trying to delete timers may run into timers that are "active" for
-> + * long times.  To help out with this we provide a wake up function to
-> + * wake up a caller who wants waking when a timer clears the call back.
-> + * This is the same sort of thing that the del_timer_sync does, but we
-> + * need (in the HRT case) to cover two lists and not just the one.
-> + */
-> +#ifdef CONFIG_PREEMPT_SOFTIRQS
-> +#include <linux/wait.h>
-> +static DECLARE_WAIT_QUEUE_HEAD(timer_wake_queue);
-> +#define wake_timer_waiters() wake_up(&timer_wake_queue)
-> +#define wait_for_timer(timer) wait_event(timer_wake_queue, !timer_active(timer))
+Received: from opersys.com ([64.40.108.71]:8967 "EHLO www.opersys.com")
 
-I'm not an expert at all, so I may be wrong, but I don't think
-it's a good idea.
+	by vger.kernel.org with ESMTP id S261189AbVEXDsk (ORCPT
 
-I think it is bad if __run_timers() could be preempted while
-->running_timer != NULL. This will interact badly with __mod_timer,
-del_timer_sync. I think that __run_timers() should do:
+	<rfc822;linux-kernel@vger.kernel.org>);
 
-	set_running_timer(base, timer);
-	preempt_disable();
-	spin_unlock_irq(&base->lock);
+	Mon, 23 May 2005 23:48:40 -0400
 
-	timer->function();
+Received: from [127.0.0.1] (www.opersys.com [64.40.108.71])
 
-	set_running_timer(base, NULL);
-	preempt_enable();
-	spin_lock_irq(&base->lock);
+	by www.opersys.com (8.9.3/8.9.3) with ESMTP id VAA32223;
 
-What do you think?
+	Mon, 23 May 2005 21:26:39 -0700
 
-Oleg.
+Message-ID: <4292A69C.4070605@opersys.com>
+
+Date:	Mon, 23 May 2005 23:59:24 -0400
+
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+
+MIME-Version: 1.0
+
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Jens Axboe <axboe@suse.de>,
+	Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ide-cd vs. DMA
+
+References: <1116891772.30513.6.camel@gaston> <42929F2F.8000101@opersys.com> <1116905090.4992.7.camel@gaston>
+
+In-Reply-To: <1116905090.4992.7.camel@gaston>
+
+Content-Type: text/plain; charset=us-ascii
+
+Content-Transfer-Encoding: 7bit
+
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+
+X-Mailing-List:	linux-kernel@vger.kernel.org
+
+
+
+
+Benjamin Herrenschmidt wrote:
+> Well, not sure what's wrong here, but ATAPI errors shouldn't normally
+> result in stopping DMA. We may want to just blacklist your drive rather
+> than having this stupid fallback. In this case, I suspect it's
+> CSS/region issue with a DVD.
+
+Here's a little bit more info:
+
+Here's from dmesg:
+hdc: SAMSUNG SC-140B, ATAPI CD/DVD-ROM drive
+hdc: ATAPI 40X CD-ROM drive, 128kB Cache, UDMA(33)
+
+hdparm -i /dev/hdc:
+
+/dev/hdc:
+
+ Model=SAMSUNG SC-140B, FwRev=d005, SerialNo=
+ Config={ SpinMotCtl Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
+ RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
+ BuffType=unknown, BuffSize=0kB, MaxMultSect=0
+ (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
+ IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
+ PIO modes:  pio0 pio1 pio2 pio3 pio4
+ DMA modes:  sdma0 sdma1 sdma2 mdma0 mdma1 mdma2
+ UDMA modes: udma0 udma1 *udma2
+ AdvancedPM=no
+
+Here's what happens on the first mount attempt:
+hdc: DMA interrupt recovery
+hdc: lost interrupt
+hdc: status timeout: status=0xd0 { Busy }
+hdc: status timeout: error=0x00
+hdc: DMA disabled
+hdc: drive not ready for command
+hdc: ATAPI reset complete
+
+Now, if I'm stuborn and re-enable DMA using a "hdparm -d1 /dev/hdc" and then
+try again, now I get:
+hdc: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
+hdc: media error (bad sector): error=0x34
+ide: failed opcode was 100
+end_request: I/O error, dev hdc, sector 16
+
+The last error being repeated ad-nauseam for every "sector" on the
+disk. Again, note that this is a CD drive, not a hard disk.
+
+Here's from lspci:
+00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
+00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03)
+00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
+00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
+00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
+00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
+00:11.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 24)
+01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 1X/2X (rev 5c)
+
+In attempting to isolate the problem, I ran into a spurious issue with
+another drive I have in that machine:
+hda: dma_timer_expiry: dma status == 0x61
+hda: DMA timeout error
+hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: dma_timer_expiry: dma status == 0x61
+hda: DMA timeout error
+hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: dma_timer_expiry: dma status == 0x61
+hda: DMA timeout error
+hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: dma_timer_expiry: dma status == 0x61
+hda: DMA timeout error
+hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
+hda: DMA disabled
+
+Try as I may, however, I haven't been able to reproduce this problem with
+hda (from dmesg: hda: WDC AC22500L, ATA DISK drive). It's worthy pointing
+out that the machine came with a drive on which it was found that there
+were actual bad sectors (tested on another machine.) ... the thought of
+a buggy controller came to mind, but (though this may be possible), I've
+never heard about a bad controller generating bad sectors ...
+
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
+

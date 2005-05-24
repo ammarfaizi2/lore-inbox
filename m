@@ -1,45 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVEXWjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262137AbVEXWqg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbVEXWjx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 18:39:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbVEXWjx
+	id S262137AbVEXWqg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 18:46:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbVEXWqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 18:39:53 -0400
-Received: from smtp.lnxw.com ([207.21.185.24]:27410 "EHLO smtp.lnxw.com")
-	by vger.kernel.org with ESMTP id S261357AbVEXWhZ (ORCPT
+	Tue, 24 May 2005 18:46:35 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:13480 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261421AbVEXWqb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 18:37:25 -0400
-Date: Tue, 24 May 2005 15:41:57 -0700
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, sdietrich@mvista.com
-Subject: Re: RT patch acceptance
-Message-ID: <20050524224157.GA17781@nietzsche.lynx.com>
-References: <1116890066.13086.61.camel@dhcp153.mvista.com> <20050524054722.GA6160@infradead.org> <20050524064522.GA9385@elte.hu> <4292DFC3.3060108@yahoo.com.au> <20050524081517.GA22205@elte.hu> <4292E559.3080302@yahoo.com.au> <20050524090240.GA13129@elte.hu> <4292F074.7010104@yahoo.com.au> <1116957953.31174.37.camel@dhcp153.mvista.com>
+	Tue, 24 May 2005 18:46:31 -0400
+Date: Wed, 25 May 2005 00:41:44 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Reiner Sailer <sailer@us.ibm.com>
+Cc: Emilyr@us.ibm.com, James Morris <jmorris@redhat.com>, Kylene@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-security-module@wirex.com,
+       Toml@us.ibm.com, Valdis.Kletnieks@vt.edu
+Subject: Re: [PATCH 2 of 4] ima: related Makefile compile order change and Readme
+Message-ID: <20050524224144.GA8109@elf.ucw.cz>
+References: <Pine.WNT.4.63.0505241524170.828@laptop>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1116957953.31174.37.camel@dhcp153.mvista.com>
+In-Reply-To: <Pine.WNT.4.63.0505241524170.828@laptop>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
-From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 24, 2005 at 11:05:53AM -0700, Daniel Walker wrote:
-> I think Ingo is just confident that in time things will get merged. I
-> know that there are some people who don't want/like the RT changes. I'm
-> interested to know what people's objections are. So far in this thread
-> the only objection that I've feel is valid is the added complexity the
-> RT patch would add to Linux.
+Hi!
 
-There's a process to this that has to happen before inclusion. Ingo
-outlined that earlier. This patch isn't terribly well known and really
-needs to be hammered much harder by a larger community to trigger
-breakage.
+> > > > * remove all the buffer overflows. I.e. if grub contains buffer
+> > > >    overflow in parsing menu.conf... that is not a security hole
+> > > >    (as of now) because only administrator can modify menu.conf.
+> > > >    With IMA enabled, it would make your certification useless...
+> > > 
+> > > Taking your example: Even if you run a buffer-overflow grub, IMA will 
+> > > enable remote parties to differentiate between systems that run
+> > > the vulnerable grub and systems that don't. IMA in this case actually
+> > > can put value to running better software.
+> > 
+> > Yes, but see above: that buffer overflow in grub was *not* a
+> > vulnerability... not until you introduce IMA.
+> > 
+> > That is my biggest concern. You are completely changing rules for
+> > userland code. Buffer overflow that only root could exploit used to be
+> > okay. It used to be okay to read config files without communicating
+> > with TPM.
+> 
+> I don't follow your argumentation.
 
-I think there's a lot of general ignorance regarding this patch, the
-usefulness of it and this thread is partially addressing them.
+Maybe I'm just wrong... I definitely chosen bad example (grub) because
+it is also bootloader...
 
-billl
+> (iv) From then on, the IMA in the kernel is responsible for measuring 
+> executables/modules before loading them and for maintaining the 
+> measurement list and its TPM aggregate. 
+
+Kernel does not know what is exacutable and what is data. Thanks to
+buffer overflows, the line between executable and data is extremely
+blury.
+
+Now, to my argumentation. Imagine bootscripts containing
+"show_etc_issue" command. (That shows /etc/issue). If there's buffer
+overflow in "show_etc_issue" command, it is *not* security issue as of
+now, because it only works on data provided by root. But it becomes
+issue when IMA system is in use, because now /etc/issue can be used to
+inject code into system; something that was not possible before.
+
+OTOH buffer overrun in show_etc_issue is certainly bad thing, because
+it is unexpected behaviour; and if IMA means such stuff is fixed...
+
+It just seems like a lot of work. You are basically adding check at
+every place where user can
+shoot_himself_in_the_foot^W^W^W^W^Wdo_something_stupid_to_system_security
+. I suspect many config files can be used to compromise system
+security...
+
+								Pavel
 

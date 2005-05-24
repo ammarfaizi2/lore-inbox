@@ -1,124 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261884AbVEXRjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbVEXRqC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261884AbVEXRjB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 13:39:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261904AbVEXRiv
+	id S261168AbVEXRqC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 13:46:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVEXRqC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 13:38:51 -0400
-Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:60936 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S261884AbVEXRiC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 13:38:02 -0400
-To: raven@themaw.net
-CC: linux-fsdevel@vger.kernel.org, autofs@linux.kernel.org,
-       linux-kernel@vger.kernel.org
-In-reply-to: <Pine.LNX.4.62.0505242215330.8219@donald.themaw.net>
-	(raven@themaw.net)
-Subject: Re: [VFS-RFC] autofs4 and bind, rbind and move mount requests
-References: <Pine.LNX.4.62.0505232041410.8361@donald.themaw.net>
- <E1DaERw-0002cC-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.62.0505232339250.3469@donald.themaw.net>
- <E1DaG04-0002hk-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0505240846410.26293@wombat.indigo.net.au>
- <E1DaSRW-0003V9-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.62.0505242215330.8219@donald.themaw.net>
-Message-Id: <E1Dad0Y-0004RN-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Tue, 24 May 2005 19:15:58 +0200
+	Tue, 24 May 2005 13:46:02 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:20281 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S261165AbVEXRpk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 13:45:40 -0400
+Message-ID: <42936807.2000807@google.com>
+Date: Tue, 24 May 2005 10:44:39 -0700
+From: Mike Waychison <mikew@google.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Miklos Szeredi <miklos@szeredi.hu>
+CC: jamie@shareable.org, linuxram@us.ibm.com, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, akpm@osdl.org,
+       viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [RFC][PATCH] rbind across namespaces
+References: <1116627099.4397.43.camel@localhost> <E1DZNSN-0006cU-00@dorka.pomaz.szeredi.hu> <1116660380.4397.66.camel@localhost> <E1DZP37-0006hH-00@dorka.pomaz.szeredi.hu> <20050521134615.GB4274@mail.shareable.org> <E1DZlVn-0007a6-00@dorka.pomaz.szeredi.hu> <429277CA.9050300@google.com> <E1DaSCb-0003Tw-00@dorka.pomaz.szeredi.hu> <4292D416.5070001@waychison.com> <E1DaUj1-0003eq-00@dorka.pomaz.szeredi.hu> <42935FCB.1010809@google.com> <E1DadFv-0004Te-00@dorka.pomaz.szeredi.hu>
+In-Reply-To: <E1DadFv-0004Te-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Does it work if somebody renames a directory in the path leading to
-> > the autofs mountpoint?  The result is very similar to move mount.
+Miklos Szeredi wrote:
+>>>>In what sense?  readlink of /proc/PID/fd/* will provide a pathname
+>>>>relative to current's root: useless for any paths not in current's
+>>>>namespace.
+>>>
+>>>
+>>>Not readlink, but actual dereference of link will give you exactly the
+>>>vfsmount/dentry the file was opened on.  If you want to bind/move
+>>>whatever on that mount, that's possible, even if it's a "detached
+>>>tree".
+>>
+>>Removing proc_check_root essentially removes any protection that 
+>>namespaces provided in the first place.
+>>
+>>Think of it like virtual memory.  You can fork off and create your own 
+>>COW instance, and no one can see what you are doing unless they ptrace 
+>>you or explicitly ask you.  The mountfd model allows for explicit 
+>>handing off of vfsmounts between namespaces without allowing arbitrary 
+>>access.
 > 
-> Don't know but I doubt it.
-> I don't think it should because autofs needs be true to the mount maps 
-> that define what automounts are to be provided.
-
-OK.  Then you can just say that move mount isn't supported.  
-
-You can't stop a stupid sysadmin from messing up the system, so you
-shouldn't really try.
-
-Of course even in this case there shouldn't be anything nasty (like
-Oops or panic), but I think it's OK if it simply won't work anymore.
-
-> > You could solve both, by having the automoutnter daemon chdir to the
-> > autofs root, and then it would just not care about any namespace
-> > changes outside it's own filesystem.
 > 
-> Perhaps but I think it will not be that simple.
-> It's worth thinking about.
+> Note: I didn't say we should remove proc_check_root().  I said _if_
+> you remove it, _then_ mounting on foreign namespace will work, which
+> has actually been confirmed experimentally.
 > 
-> I'm working on providing full direct mount support atm (I have limited 
-> functionality now).
 
-Can you please explain what "direct mount" is?  I'm not really
-familiar with automount terminology.
+OK.
 
-> I will have many autofs mounts handled by a single daemon. So that
-> makes it a bit harder. This will be done using a file handle to
-> identify (for map entry lookup) each direct mount point in the map,
-> but still I suspect the corresponding vfsmount will end up being
-> wrong. I'm also thinking of doing this for indirect mounts during
-> this rework. A similar approach I think, to what you describe below.
+> So your follow_link argument doesn't hold.  The proc code does the
+> follow_link in some clever way, that the looked up object will end up
+> with the same vfsmount/dentry pair as the file.
 > 
-> I must point out that my current focus is to push the current autofs 
-> implementation as far as it can go within its original design. Which is 
-> probably not much further than implementing functionaly workable direct 
-> mounts. This means that multiple namespace support is not under 
-> consideration. Indeed the current design will not easily lend itself to 
-> it.
+
+Yes.  I hadn't realized that the only safe-guard in place was 
+proc_check_root.  I had made the assumption that follow_link was using 
+vfs_follow_link with the readlink info.
+
 > 
-> Mike Waychison was working on a new version to address this and other 
-> limitations of the current design but development of this seems to have 
-> stopped.
-
-I've just seen those patches (Mike pointed them out to me in another
-thread).
-
-> I saw that code when I was looking at this problem.
-> It looks quite interesting.
-> Again, I'll have to think about it.
-> Changes of that magnitude won't happen quickly.
-> It's already been a hard slog to get autofs to a reasonably stable state.
+>>Yet even this doesn't allow userspace to define it's own policy for 
+>>inter-namespace manipulation.
 > 
-> When I was looking at it I didn't see anything that would help with some 
-> of the issues such as:
 > 
-> 1) lazy mount/umount/expire of a tree of mount points (needs to be handled 
-> atomically).
-> 2) Didn't see anything relating to expire timeouts just busyness.
-> 3) I don't think that item (1) in the file you refer to above is correct. 
-> The nameidata struct passed to follow_link assumes that a mount point has 
-> not been followed prior to the call. So this approach can't work for 
-> direct mounts without some more work in the VFS. Maybe it can be done 
-> another way but I'm not aware of it.
-> 5) It seems that exporting the vfsmount_lock so it can be used in a 
-> module is not good pratice (at least that was the case the last time I 
-> needed it).
+> OK.  Let's keep the kernel policy simple: just allow a process to
+> access it's _own_ file descriptors in proc.  I.e. allow access to
+> /proc/self/fd/* even if it comes from a foreign namespace.
 > 
-> Please don't get me wrong. I did notice this code (but not the doco) and 
-> it does look really useful to me but it means a significant redesign of 
-> autofs. I need what's currently in place to work as it's likely to be 
-> around for quite a while yet.
+> Then the policy (who passes whom the file descriptors) is entirely up
+> to userspace (just as with your scheme).
+> 
+> /proc/self/fd/FD doesn't give any extra rights to the process, it just
+> makes mounting from/to detached mounts, and foreign namespaces
+> possible without new interfaces.
 
-I'm not too familiar with that code either, and I'm not trying to
-convince you either way :)
+So you'd say 'mount /dev/foo /proc/self/fd/4' if 4 was an fd pointing to 
+a directory in another namespace?
 
-I think it does address the atomicity issue, but requires special
-do_add_mount() call (which places the vfsmount on the expiry list), so
-it probably needs some work to export that functionality to userspace
-mounts.
+That does require proc_check_root be removed.  :\
 
-> What I really need is agreement that adding a super_operations method such 
-> as "mount" is acceptable so that I can veto bind and move mounts with the 
-> current version. Perhaps I can do it another way ?????
+> 
+> 
+>>Beware that due to the detached-subtrees bit, the locking became a bit 
+>>ugly, requiring a global rw_lock for mntget/mntput.  I still haven't 
+>>figured out a better way to keep per-vfsmounts counts and per-subtree 
+>>counts in sync.
+> 
+> 
+> Did you measure the effect on performace?  Maybe it isn't so bad.
 
-If you just want to disable bind (so that it doesn't cause trouble),
-the simplest way seems to be to remember the original vfsmount, and
-just ignore any lookups in other vfsmounts.  You can do this, since
-the vfsmount is passed in the nameidata parameter of dir->lookup().
+As far as I could tell without doing high-smp benchmarks, it doesn't 
+slow anything down.  In this case, we aren't on the fastest path anyway, 
+as we are usually
 
-Then bind will succeed, but the autofs will simply not do anything in
-the copied mount.  I think that would be much cleaner than trying to
-veto a bind request.
+a) walking a path across a mountpoint, requiring the global 
+vfsmount_lock anyway.
+b) closing a file, which isn't fast either.
 
-Miklos
+You could micro-optimize the pivoting of from one vfsmount to another 
+during a walk to only grab the lock once, but there may be no profound 
+effect and any gains would be lost in the noise.
+
+Mike Waychison

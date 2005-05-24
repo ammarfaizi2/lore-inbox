@@ -1,110 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVEXRM6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVEXRCK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbVEXRM6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 13:12:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVEXRMu
+	id S261229AbVEXRCK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 13:02:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261740AbVEXRAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 13:12:50 -0400
-Received: from 216-239-45-4.google.com ([216.239.45.4]:18149 "EHLO
-	216-239-45-4.google.com") by vger.kernel.org with ESMTP
-	id S261889AbVEXRK5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 13:10:57 -0400
-Message-ID: <42935FCB.1010809@google.com>
-Date: Tue, 24 May 2005 10:09:31 -0700
-From: Mike Waychison <mikew@google.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Miklos Szeredi <miklos@szeredi.hu>
-CC: jamie@shareable.org, linuxram@us.ibm.com, linux-kernel@vger.kernel.org,
-       linux-fsdevel@vger.kernel.org, akpm@osdl.org,
-       viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [RFC][PATCH] rbind across namespaces
-References: <1116627099.4397.43.camel@localhost> <E1DZNSN-0006cU-00@dorka.pomaz.szeredi.hu> <1116660380.4397.66.camel@localhost> <E1DZP37-0006hH-00@dorka.pomaz.szeredi.hu> <20050521134615.GB4274@mail.shareable.org> <E1DZlVn-0007a6-00@dorka.pomaz.szeredi.hu> <429277CA.9050300@google.com> <E1DaSCb-0003Tw-00@dorka.pomaz.szeredi.hu> <4292D416.5070001@waychison.com> <E1DaUj1-0003eq-00@dorka.pomaz.szeredi.hu>
-In-Reply-To: <E1DaUj1-0003eq-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 24 May 2005 13:00:36 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:38081 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S261154AbVEXQ7W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 12:59:22 -0400
+Date: Tue, 24 May 2005 20:58:55 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: Rajesh Shah <rajesh.shah@intel.com>
+Cc: Andi Kleen <ak@suse.de>, len.brown@intel.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       acpi-devel@lists.sourceforge.net, gregkh@suse.de
+Subject: Re: [patch 2/2] x86_64: Collect host bridge resources
+Message-ID: <20050524205855.A8367@jurassic.park.msu.ru>
+References: <20050521004239.581618000@csdlinux-1> <20050521004506.842235000@csdlinux-1> <20050523161507.GN16164@wotan.suse.de> <20050523175706.A12032@unix-os.sc.intel.com> <20050524120527.GB15326@wotan.suse.de> <20050524185856.A7639@jurassic.park.msu.ru> <20050524084533.A20567@unix-os.sc.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050524084533.A20567@unix-os.sc.intel.com>; from rajesh.shah@intel.com on Tue, May 24, 2005 at 08:45:36AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Miklos Szeredi wrote:
->>>>Referencing vfsmounts in userspace using a file descriptor:
->>>>http://marc.theaimsgroup.com/?l=linux-kernel&m=109871948812782&w=2
->>>
->>>
->>>Why not just use /proc/PID/fd/FD?
->>
->>In what sense?  readlink of /proc/PID/fd/* will provide a pathname
->>relative to current's root: useless for any paths not in current's
->>namespace.
-> 
-> 
-> Not readlink, but actual dereference of link will give you exactly the
-> vfsmount/dentry the file was opened on.  If you want to bind/move
-> whatever on that mount, that's possible, even if it's a "detached
-> tree".
+On Tue, May 24, 2005 at 08:45:36AM -0700, Rajesh Shah wrote:
+> The concern here isn't just increasing the size of pci_bus. The
+> resource pointers in pci_bus point to resource structures in the
+> corresponding pci_dev structure for p2p bridges. If we want to
+> maintain this scheme, we'd have to increase the number of resources
+> in the pci_dev structure too, which increases it for every single
+> pci device in the system.
 
-Removing proc_check_root essentially removes any protection that 
-namespaces provided in the first place.
+No. The pci_bus resource pointers are just pointers to _some_ resources
+and generally aren't tied to particular pci device. For example, the
+root pci buses often don't even have corresponding bus->self structure,
+and bus resources are pointers to global io[mem,port]_resource.
+And definitely we must not touch resource layout in struct pci_dev -
+it's defined by pci specs.
 
-Think of it like virtual memory.  You can fork off and create your own 
-COW instance, and no one can see what you are doing unless they ptrace 
-you or explicitly ask you.  The mountfd model allows for explicit 
-handing off of vfsmounts between namespaces without allowing arbitrary 
-access.
+> Probably ok for big server machines, but
+> would others (e.g. embedded folks) complain?
 
-> 
-> 
->>Also, if we were to hijack /proc/PID/fd/* for cross namespace
->>manipulation, then we'd be enabling any root user on the system to
->>modify anyone's namespace.
-> 
-> 
-> No.  Obviously there must be limitations on which process can access
-> /proc/PID/fd.  It's obviously safe to allow 'self' for example.  But
-> any process you can ptrace should also be safe.
-> 
+Increasing the size of pci_bus by 8 or 16 bytes shouldn't be a problem -
+I don't think embedded machines have a lot of pci buses. :-)
+Anyway, the default PCI_BUS_NUM_RESOURCES value can be overridden in 
+arch specific headers.
 
-Yet even this doesn't allow userspace to define it's own policy for 
-inter-namespace manipulation.
-
-> 
->>This interface also has the huge advantage that you gain all the goodies
->>of using file descriptors, such as SCM_RIGHTS.  You can hand of entire
->>trees of mountpoints between applications without ever even binding them
->>to any namespace whatsoever.
-> 
-> 
-> Why is that dependent on the interface?  The /proc interface already
-> allows _everything_ you want to do with file descriptors.  Only the
-> the necessary restrictions should be worked out.
-> 
-
-Worked out where?  Allowing this stuff to happen in /proc forces you to 
-set this policy in the kernel.
-
-> 
->>Tie this in with some userspace code that can mount devices for users
->>with restrictions and appropriate policy, you can create some API+daemon
->>for regular user apps to get things mounted in a way that guarantees
->>hiding from other users.
-> 
-> 
-> Yes.  And I think that can be done without any new magic ioctls.  Just
-> with mount/umount and /proc.
-> 
-> The implementation is another question.  I'll look through your
-> patches to see how you achieve all this.
-> 
-
-Beware that due to the detached-subtrees bit, the locking became a bit 
-ugly, requiring a global rw_lock for mntget/mntput.  I still haven't 
-figured out a better way to keep per-vfsmounts counts and per-subtree 
-counts in sync.
-
-That said, the common case is a read lock, for shared access. Only on 
-mnt_attach / mnt_detach (usually a slowpath anyway) do we require 
-exclusive access.  This would have been a good candidate for brlocks if 
-they were still around.
-
-Mike Waychison
+Ivan.

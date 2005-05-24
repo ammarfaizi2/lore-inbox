@@ -1,228 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262118AbVEXQ3y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262143AbVEXQbu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262118AbVEXQ3y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 12:29:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbVEXQ20
+	id S262143AbVEXQbu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 12:31:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVEXQbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 12:28:26 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:15815 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262129AbVEXQ0L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 12:26:11 -0400
-Message-ID: <42935600.5090008@punnoor.de>
-Date: Tue, 24 May 2005 18:27:44 +0200
-From: Prakash Punnoor <prakash@punnoor.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050511)
-X-Accept-Language: de-DE, de, en-us, en
+	Tue, 24 May 2005 12:31:23 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:55172 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S262143AbVEXQ3E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 12:29:04 -0400
+From: Jeff Moyer <jmoyer@redhat.com>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: cpufreq/speedstep won't work on Sony Vaio PCG-F807K
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig1741C85891483420ABFBDACE"
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:cec1af1025af73746bdd9be3587eb485
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17043.22045.971680.964834@segfault.boston.redhat.com>
+Date: Tue, 24 May 2005 12:28:13 -0400
+To: raven@themaw.net
+Cc: linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       autofs mailing list <autofs@linux.kernel.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [VFS-RFC] autofs4 and bind, rbind and move mount requests
+In-Reply-To: <Pine.LNX.4.62.0505232041410.8361@donald.themaw.net>
+References: <Pine.LNX.4.62.0505232041410.8361@donald.themaw.net>
+X-Mailer: VM 7.19 under 21.4 (patch 13) "Rational FORTRAN" XEmacs Lucid
+Reply-To: jmoyer@redhat.com
+X-PGP-KeyID: 1F78E1B4
+X-PGP-CertKey: F6FE 280D 8293 F72C 65FD  5A58 1FF8 A7CA 1F78 E1B4
+X-PCLoadLetter: What the f**k does that mean?
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig1741C85891483420ABFBDACE
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+==> Regarding [VFS-RFC] autofs4 and bind, rbind and move mount requests; raven@themaw.net adds:
 
-Hi,
+raven> I've been investigating a bug report about bind mounting an autofs
+raven> controlled mount point. It is indeed disastrous for autofs. It would
+raven> be simple enough it to check and fail silently but that won't give
+raven> sensible behavior.
 
-subject says it all. The cpufreq interface won't show up (using kernel
-2.6.12-rc4). I tried the speedstep-smi and acpi-cpufreq module. When I try to
-insert one of them, modprobe just report: No such device.
+raven> What should the semantics be for these type of mount requests
+raven> against autofs?
 
-At least the acpi on eshould work, as the bios allows to change freq via ACPI.
-I laos fixed the dsdt and tried to use this one, but no difference.
+raven> First, a move mount doesn't make sense as it places the autofs
+raven> filesystem in a location that is not specified in the autofs map to
+raven> which it belongs. It looks like the user space daemon would loose
+raven> contact with the newly mounted filesystem and so it would become
+raven> useless and probably not umountable, not to mention how the daemon
+raven> would handle it. I believe that this shouldn't be allowed. What do
+raven> people think? If we don't treat these as invalid then how should
+raven> they behave?
 
-An ideas?
+I think it is reasonable to not allow this.
 
-Cheers,
+[snip]
 
-Prakash
+raven> Bind mount requests are another question.
 
+raven> In the case of a bind mount we can find ourselves with a dentry in
+raven> the bound filesystem that is marked as mounted but can't be followed
+raven> because the parent vfsmount is in the source filesystem.
 
-0000:00:00.0 Host bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX Host
-bridge (rev 03)
-        Subsystem: Sony Corporation: Unknown device 806f
-        Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR+ FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort+ >SERR- <PERR-
-        Latency: 64
-        Region 0: Memory at 40000000 (32-bit, prefetchable)
-        Capabilities: [a0] AGP version 1.0
-                Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans-
-64bit- FW- AGP3- Rate=x1,x2
-                Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW-
-Rate=<none>
+raven> Should the automount functionality go along with the bind mount
+raven> filesystem? At this stage there's no straight forward way for autofs
+raven> to handle two independent mount trees from the same automount
+raven> daemon. It's just not designed to do that.
 
-0000:00:01.0 PCI bridge: Intel Corporation 440BX/ZX/DX - 82443BX/ZX/DX AGP
-bridge (rev 03) (prog-if 00 [Normal decode])
-        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV+ VGASnoop- ParErr-
-Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 128
-        Bus: primary=00, secondary=01, subordinate=01, sec-latency=64
-        I/O behind bridge: 0000e000-0000efff
-        Memory behind bridge: fd000000-fecfffff
-        Prefetchable memory behind bridge: fff00000-000fffff
-        Expansion ROM at 0000e000 [disabled] [size=4K]
-        BridgeCtl: Parity- SERR- NoISA+ VGA+ MAbort- >Reset- FastB2B+
+raven> It's probably possible to make this behave as though the automounted
+raven> filesystem is mirrored under the filesystem to which it is
+raven> bound. But it's likely problematic. What do people think about this?
 
-0000:00:07.0 ISA bridge: Intel Corporation 82371AB/EB/MB PIIX4 ISA (rev 02)
-        Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 0
+raven> I've not really thought enough about recursive bind mounts yet but
+raven> on the face of it they look fairly ugly as well.
 
-0000:00:07.1 IDE interface: Intel Corporation 82371AB/EB/MB PIIX4 IDE (rev 01)
-(prog-if 80 [Master])
-        Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 64
-        Region 4: I/O ports at fc90 [size=16]
+raven> I know this post is short on detail but hopefully that will come out
+raven> if there are people interested in discussing it further.
 
-0000:00:07.2 USB Controller: Intel Corporation 82371AB/EB/MB PIIX4 USB (rev
-01) (prog-if 00 [UHCI])
-        Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin D routed to IRQ 9
-        Region 4: I/O ports at fca0 [size=32]
+raven> I look forward to some feedback and hope I can find a realistic
+raven> approach to solving this problem.
 
-0000:00:07.3 Bridge: Intel Corporation 82371AB/EB/MB PIIX4 ACPI (rev 03)
-        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B-
-        Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin ? routed to IRQ 9
+Yeah, this is really a tricky matter.  On the surface, it really doesn't
+make sense to me to do a mount -bind with a source directory of the
+automount point.  Given the current semantics of bind mounts, what does
+this gain you?  Likely it gains you access to an emtpy directory, or a
+directory full of empty directories (in the case of ghosting).
 
-0000:00:08.0 FireWire (IEEE 1394): Sony Corporation CXD3222 i.LINK Controller
-(rev 02) (prog-if 10 [OHCI])
-        Subsystem: Sony Corporation: Unknown device 8071
-        Control: I/O- Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin A routed to IRQ 9
-        Region 0: Memory at fedf7000 (32-bit, non-prefetchable)
-        Region 1: Memory at fedf7c00 (32-bit, non-prefetchable) [size=512]
-        Capabilities: [dc] Power Management version 1
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+Mount -rbind is equally nonsensical, if you agree with the last paragraph.
+You will only get a copy of the vfsmount tree at the time of the mount
+-rbind call.  Who knows what was mounted at that time, it really isn't
+deterministic.
 
-0000:00:09.0 Multimedia audio controller: Yamaha Corporation YMF-744B [DS-1S
-Audio Controller] (rev 02)
-        Subsystem: Sony Corporation: Unknown device 8072
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR+
-        Latency: 64 (1250ns min, 6250ns max)
-        Interrupt: pin A routed to IRQ 9
-        Region 0: Memory at fedf8000 (32-bit, non-prefetchable)
-        Region 1: I/O ports at fcc0 [size=64]
-        Region 2: I/O ports at fc8c [size=4]
-        Capabilities: [50] Power Management version 1
-                Flags: PMEClk- DSI- D1- D2+ AuxCurrent=0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-0000:00:0a.0 Communication controller: Conexant HSF 56k Data/Fax Modem (Mob
-WorldW SmartDAA) (rev 01)
-        Subsystem: Sony Corporation Modem
-        Control: I/O+ Mem+ BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin A routed to IRQ 9
-        Region 0: Memory at fede0000 (32-bit, non-prefetchable)
-        Region 1: I/O ports at fc78 [size=8]
-        Capabilities: [40] Power Management version 2
-                Flags: PMEClk- DSI+ D1- D2- AuxCurrent=0mA
-PME(D0+,D1-,D2-,D3hot+,D3cold+)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-0000:00:0c.0 CardBus bridge: Ricoh Co Ltd RL5c478 (rev 80)
-        Subsystem: Sony Corporation: Unknown device 8073
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 168
-        Interrupt: pin A routed to IRQ 9
-        Region 0: Memory at 10000000 (32-bit, non-prefetchable)
-        Bus: primary=00, secondary=02, subordinate=05, sec-latency=176
-        Memory window 0: 10400000-107ff000 (prefetchable)
-        Memory window 1: 10800000-10bff000
-        I/O window 0: 00004000-000040ff
-        I/O window 1: 00004400-000044ff
-        BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
-        16-bit legacy interface ports at 0001
-
-0000:00:0c.1 CardBus bridge: Ricoh Co Ltd RL5c478 (rev 80)
-        Subsystem: Sony Corporation: Unknown device 8073
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 168
-        Interrupt: pin B routed to IRQ 9
-        Region 0: Memory at 10001000 (32-bit, non-prefetchable)
-        Bus: primary=00, secondary=06, subordinate=09, sec-latency=176
-        Memory window 0: 10c00000-10fff000 (prefetchable)
-        Memory window 1: 11000000-113ff000
-        I/O window 0: 00004800-000048ff
-        I/O window 1: 00004c00-00004cff
-        BridgeCtl: Parity- SERR- ISA- VGA- MAbort- >Reset- 16bInt+ PostWrite+
-        16-bit legacy interface ports at 0001
-
-0000:01:00.0 VGA compatible controller: ATI Technologies Inc Rage Mobility P/M
-AGP 2x (rev 64) (prog-if 00 [VGA])
-        Subsystem: Sony Corporation: Unknown device 80ae
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr-
-Stepping+ SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort-
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 66 (2000ns min), cache line size 08
-        Interrupt: pin A routed to IRQ 9
-        Region 0: Memory at fd000000 (32-bit, non-prefetchable)
-        Region 1: I/O ports at e800 [size=256]
-        Region 2: Memory at fecff000 (32-bit, non-prefetchable) [size=4K]
-        Capabilities: [50] AGP version 1.0
-                Status: RQ=256 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans-
-64bit- FW- AGP3- Rate=x1,x2
-                Command: RQ=1 ArqSz=0 Cal=0 SBA- AGP- GART64- 64bit- FW-
-Rate=<none>
-        Capabilities: [5c] Power Management version 1
-                Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-
---------------enig1741C85891483420ABFBDACE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFCk1YDxU2n/+9+t5gRApDhAKClTcMC7VI8kip8yNJJjeBhUZHNVQCg+v7h
-DyK3Swsz3seWdUNoEseQ1tY=
-=LH3+
------END PGP SIGNATURE-----
-
---------------enig1741C85891483420ABFBDACE--
+-Jeff

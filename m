@@ -1,98 +1,195 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262026AbVEXJZl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262058AbVEXKuY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262026AbVEXJZl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 05:25:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262013AbVEXJVC
+	id S262058AbVEXKuY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 06:50:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVEXKsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 05:21:02 -0400
-Received: from smtp.nexlab.net ([213.173.188.110]:43714 "EHLO smtp.nexlab.net")
-	by vger.kernel.org with ESMTP id S261939AbVEXJSH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:18:07 -0400
-X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
-X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
-	08:27:20 2005 signatures 31.893
-Message-Id: <20050524091805.EF904F9D5@smtp.nexlab.net>
-Date: Tue, 24 May 2005 11:18:05 +0200 (CEST)
-From: root@smtp.nexlab.net
-To: undisclosed-recipients:;
+	Tue, 24 May 2005 06:48:43 -0400
+Received: from lug-owl.de ([195.71.106.12]:17814 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S262032AbVEXJ1n convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 05:27:43 -0400
+Date: Tue, 24 May 2005 11:27:37 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: sam@ravnborg.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Kbuild-Packaging: Create tarballs
+Message-ID: <20050524092737.GQ2417@lug-owl.de>
+Mail-Followup-To: sam@ravnborg.org, linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+X-Operating-System: Linux mail 2.6.11.10lug-owl
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	by smtp.nexlab.net (Postfix) with ESMTP id 5BA05FB7A
+Hi Sam!
 
-	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:49 +0200 (CEST)
+I propose this patch for ./scripts/packag/ .  It adds tarball packaging,
+which I prefer for distribution. Also one of the two blanks after @echo
+is removed. One seems to be enough :)
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+Signed-off-by: Jan-Benedict Glaw <jbglaw@lug-owl.de>
 
-	id S261251AbVEXEnF (ORCPT <rfc822;chiakotay@nexlab.it>);
+---
 
-	Tue, 24 May 2005 00:43:05 -0400
+ scripts/package/Makefile  |   19 ++++++-
+ scripts/package/buildtar  |  111 ++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 127 insertions(+), 3 deletions(-)
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVEXEnF
+--- linux-2.6.12-rc4-git7/scripts/package/Makefile	Wed Mar  2 08:38:11 2005
++++ linux-tarball/scripts/package/Makefile	Tue May 24 11:04:41 2005
+@@ -80,10 +80,23 @@ deb-pkg:
+ clean-dirs += $(objtree)/debian/
+ 
+ 
++# tarball targets
++# ---------------------------------------------------------------------------
++.PHONY: tar%pkg
++tar%pkg:
++	$(MAKE)
++	$(CONFIG_SHELL) $(srctree)/scripts/package/buildtar $@
++
++clean-dirs += $(objtree)/tar-install/
++
++
+ # Help text displayed when executing 'make help'
+ # ---------------------------------------------------------------------------
+ help:
+-	@echo  '  rpm-pkg         - Build the kernel as an RPM package'
+-	@echo  '  binrpm-pkg      - Build an rpm package containing the compiled kernel & modules'
+-	@echo  '  deb-pkg         - Build the kernel as an deb package'
++	@echo '  rpm-pkg         - Build the kernel as an RPM package'
++	@echo '  binrpm-pkg      - Build an rpm package containing the compiled kernel & modules'
++	@echo '  deb-pkg         - Build the kernel as an deb package'
++	@echo '  tar-pkg         - Build the kernel as an uncompressed tarball'
++	@echo '  targz-pkg       - Build the kernel as a gzip compressed tarball'
++	@echo '  tarbz2-pkg      - Build the kernel as a bzip2 compressed tarball'
+ 
+--- linux-2.6.12-rc4-git7/scripts/package/buildtar	Thu Jan  1 01:00:00 1970
++++ linux-tarball/scripts/package/buildtar	Tue May 24 10:58:51 2005
+@@ -0,0 +1,111 @@
++#!/bin/sh
++
++#
++# buildtar 0.0.3
++#
++# (C) 2004-2005 by Jan-Benedict Glaw <jbglaw@lug-owl.de>
++#
++# This script is used to compile a tarball from the currently
++# prepared kernel. Based upon the builddeb script from
++# Wichert Akkerman <wichert@wiggy.net>.
++#
++
++set -e
++
++#
++# Some variables and settings used throughout the script
++#
++version="${VERSION}.${PATCHLEVEL}.${SUBLEVEL}${EXTRAVERSION}${EXTRANAME}"
++tmpdir="${objtree}/tar-install"
++tarball="${objtree}/linux-${version}.tar"
++
++
++#
++# Figure out how to compress, if requested at all
++#
++case "${1}" in
++	tar-pkg)
++		compress="cat"
++		file_ext=""
++		;;
++	targz-pkg)
++		compress="gzip -c9"
++		file_ext=".gz"
++		;;
++	tarbz2-pkg)
++		compress="bzip2 -c9"
++		file_ext=".bz2"
++		;;
++	*)
++		echo "Unknown tarball target \"${1}\" requested, please add it to ${0}." >&2
++		exit 1
++		;;
++esac
++
++
++#
++# Clean-up and re-create the temporary directory
++#
++rm -rf -- "${tmpdir}"
++mkdir -p -- "${tmpdir}/boot"
++
++
++#
++# Try to install modules
++#
++if ! make INSTALL_MOD_PATH="${tmpdir}" modules_install; then
++	echo "" >&2
++	echo "Ignoring error at module_install time, since that could be" >&2
++	echo "a result of missing local modutils/module-init-tools," >&2
++	echo "or you just didn't compile in module support at all..." >&2
++	echo "" >&2
++fi
++
++
++#
++# Install basic kernel files
++#
++cp -v -- System.map "${tmpdir}/boot/System.map-${version}"
++cp -v -- .config "${tmpdir}/boot/config-${version}"
++cp -v -- vmlinux "${tmpdir}/boot/vmlinux-${version}"
++
++
++#
++# Install arch-specific kernel image(s)
++#
++case "${ARCH}" in
++	i386)
++		[ -f arch/i386/boot/bzImage ] && cp -v -- arch/i386/boot/bzImage "${tmpdir}/boot/vmlinuz-${version}"
++		;;
++	alpha)
++		[ -f arch/alpha/boot/vmlinux.gz ] && cp -v -- arch/alpha/boot/vmlinux.gz "${tmpdir}/boot/vmlinuz-${version}"
++		;;
++	vax)
++		[ -f vmlinux.SYS ] && cp -v -- vmlinux.SYS "${tmpdir}/boot/vmlinux-${version}.SYS"
++		[ -f vmlinux.dsk ] && cp -v -- vmlinux.dsk "${tmpdir}/boot/vmlinux-${version}.dsk"
++		;;
++	*)
++		[ -f "${KBUILD_IMAGE}" ] && cp -v -- "${KBUILD_IMAGE}" "${tmpdir}/boot/vmlinux-kbuild-${version}"
++		echo "" >&2
++		echo '** ** **  WARNING  ** ** **' >&2
++		echo "" >&2
++		echo "Your architecture did not define any architecture-dependant files" >&2
++		echo "to be placed into the tarball. Please add those to ${0} ..." >&2
++		echo "" >&2
++		sleep 5
++		;;
++esac
++
++
++#
++# Create the tarball
++#
++(
++	cd "${tmpdir}"
++	tar cf - . | ${compress} > "${tarball}${file_ext}"
++)
++
++echo "Tarball successfully created in ${tarball}${file_ext}"
++
++exit 0
++
 
-	(ORCPT <rfc822;linux-kernel-outgoing>);
 
-	Tue, 24 May 2005 00:43:05 -0400
-
-Received: from gate.crashing.org ([63.228.1.57]:46286 "EHLO gate.crashing.org")
-
-	by vger.kernel.org with ESMTP id S261251AbVEXEnD (ORCPT
-
-	<rfc822;linux-kernel@vger.kernel.org>);
-
-	Tue, 24 May 2005 00:43:03 -0400
-
-Received: from gaston (localhost [127.0.0.1])
-
-	by gate.crashing.org (8.12.8/8.12.8) with ESMTP id j4O4ZZZn000557;
-
-	Mon, 23 May 2005 23:35:36 -0500
-
-Subject: RE: ide-cd vs. DMA
-
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Chad Kitching <CKitching@powerlandcomputers.com>
-Cc: karim@opersys.com, Jens Axboe <axboe@suse.de>,
-	Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <18DFD6B776308241A200853F3F83D50702128D31@pl6w2kex.lan.powerlandcomputers.com>
-
-References: <18DFD6B776308241A200853F3F83D50702128D31@pl6w2kex.lan.powerlandcomputers.com>
-
-Content-Type: text/plain
-
-Date:	Tue, 24 May 2005 14:42:45 +1000
-
-Message-Id: <1116909765.4992.21.camel@gaston>
-
-Mime-Version: 1.0
-
-X-Mailer: Evolution 2.2.2 
-
-Content-Transfer-Encoding: 7bit
-
-Sender: linux-kernel-owner@vger.kernel.org
-Precedence: bulk
-
-X-Mailing-List:	linux-kernel@vger.kernel.org
-
-
-
-On Mon, 2005-05-23 at 23:26 -0500, Chad Kitching wrote:
-> Are you using hdparm -k1 to keep your settings over a reset?  If you're 
-> not, then this behaviour is really by-design.
-
-And is broken. You can't expect users to play with hdparm and it's quite
-common to have things like CSS or region errors on a DVD, taht shouldn't
-turn your DMA off on the CD.
-
-Damn, we are in 2005 folks !
-
-Ben;
-
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
-
+-- 
+Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             _ O _
+"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  _ _ O
+ fuer einen Freien Staat voll Freier Bürger" | im Internet! |   im Irak!   O O O
+ret = do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA));

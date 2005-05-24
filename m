@@ -1,82 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261464AbVEXJO7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261460AbVEXJOz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbVEXJO7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 05:14:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbVEXJNy
+	id S261460AbVEXJOz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 05:14:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261768AbVEXJND
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 05:13:54 -0400
-Received: from smtp.nexlab.net ([213.173.188.110]:27832 "EHLO smtp.nexlab.net")
-	by vger.kernel.org with ESMTP id S261483AbVEXJLj (ORCPT
+	Tue, 24 May 2005 05:13:03 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:30391 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S261464AbVEXJLC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:11:39 -0400
+	Tue, 24 May 2005 05:11:02 -0400
 X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
 X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
 	08:27:20 2005 signatures 31.893
-Message-Id: <20050524091136.23735FAEB@smtp.nexlab.net>
-Date: Tue, 24 May 2005 11:11:36 +0200 (CEST)
+Message-Id: <20050524091059.9F308FA7B@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:10:59 +0200 (CEST)
 From: root@smtp.nexlab.net
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	by smtp.nexlab.net (Postfix) with ESMTP id 17CD3FB6B
+	by smtp.nexlab.net (Postfix) with ESMTP id B7FC8FB7B
 
-	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:38 +0200 (CEST)
+	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:49 +0200 (CEST)
 
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
 
-	id S261393AbVEXHRd (ORCPT <rfc822;chiakotay@nexlab.it>);
+	id S261407AbVEXH3u (ORCPT <rfc822;chiakotay@nexlab.it>);
 
-	Tue, 24 May 2005 03:17:33 -0400
+	Tue, 24 May 2005 03:29:50 -0400
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVEXHRB
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbVEXH3u
 
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 
-	Tue, 24 May 2005 03:17:01 -0400
+	Tue, 24 May 2005 03:29:50 -0400
 
-Received: from dsl081-242-086.sfo1.dsl.speakeasy.net ([64.81.242.86]:32665
+Received: from ns2.suse.de ([195.135.220.15]:11926 "EHLO mx2.suse.de")
 
-	"EHLO lapdance.christiehouse.net") by vger.kernel.org with ESMTP
+	by vger.kernel.org with ESMTP id S261410AbVEXH3g (ORCPT
 
-	id S261393AbVEXHPB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	<rfc822;linux-kernel@vger.kernel.org>);
 
-	Tue, 24 May 2005 03:15:01 -0400
+	Tue, 24 May 2005 03:29:36 -0400
 
-Received: from lapdance.christiehouse.net ([127.0.0.1] ident=crlf)
+Received: from hermes.suse.de (hermes-ext.suse.de [195.135.221.8])
 
-	by lapdance.christiehouse.net with esmtp (Exim 3.36 #1 (Debian))
+	(using TLSv1 with cipher EDH-RSA-DES-CBC3-SHA (168/168 bits))
 
-	id 1DaTbg-0004UP-00; Tue, 24 May 2005 03:13:40 -0400
+	(No client certificate requested)
 
-Message-ID: <4292D416.5070001@waychison.com>
+	by mx2.suse.de (Postfix) with ESMTP id 4FA8911A90;
 
-Date:	Tue, 24 May 2005 03:13:26 -0400
+	Tue, 24 May 2005 09:29:36 +0200 (CEST)
 
-From: Mike Waychison <mike@waychison.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+Date:	Tue, 24 May 2005 09:29:29 +0200
 
-X-Accept-Language: en-us, en
+From: Karsten Keil <kkeil@suse.de>
+To: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>
+Cc: Ondrej Zary <linux@rainbow-software.org>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+	jgarzik@pobox.com
+Subject: Re: [PATCH] bug in VIA PCI IRQ routing
 
-MIME-Version: 1.0
+Message-ID: <20050524072929.GD22182@pingi3.kke.suse.de>
 
-Newsgroups: gmane.linux.file-systems,gmane.linux.kernel
+Mail-Followup-To: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>,
+	Ondrej Zary <linux@rainbow-software.org>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+	jgarzik@pobox.com
+References: <0EF82802ABAA22479BC1CE8E2F60E8C31B4902@scl-exch2k3.phoenix.com>
 
-To: Miklos Szeredi <miklos@szeredi.hu>
-Cc: jamie@shareable.org, linuxram@us.ibm.com,
-	linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-	akpm@osdl.org, viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [RFC][PATCH] rbind across namespaces
+Mime-Version: 1.0
 
-References: <1116627099.4397.43.camel@localhost> <E1DZNSN-0006cU-00@dorka.pomaz.szeredi.hu> <1116660380.4397.66.camel@localhost> <E1DZP37-0006hH-00@dorka.pomaz.szeredi.hu> <20050521134615.GB4274@mail.shareable.org> <E1DZlVn-0007a6-00@dorka.pomaz.szeredi.hu> <429277CA.9050300@google.com> <E1DaSCb-0003Tw-00@dorka.pomaz.szeredi.hu>
+Content-Type: text/plain; charset=us-ascii
 
-In-Reply-To: <E1DaSCb-0003Tw-00@dorka.pomaz.szeredi.hu>
+Content-Disposition: inline
 
-X-Enigmail-Version: 0.91.0.0
+In-Reply-To: <0EF82802ABAA22479BC1CE8E2F60E8C31B4902@scl-exch2k3.phoenix.com>
 
-Content-Type: text/plain; charset=ISO-8859-1
+Organization: SuSE Linux AG
 
-Content-Transfer-Encoding: 7bit
+X-Operating-System: Linux 2.6.8-24.10-default i686
+
+User-Agent: Mutt/1.5.6i
 
 Sender: linux-kernel-owner@vger.kernel.org
 Precedence: bulk
@@ -85,123 +91,61 @@ X-Mailing-List:	linux-kernel@vger.kernel.org
 
 
 
-Miklos Szeredi wrote:
->>FWIW, all this stuff has already been done and posted here.
->>
->>Detachable chunks of vfsmounts:
->>http://marc.theaimsgroup.com/?l=linux-fsdevel&m=109872862003192&w=2
->>
->>'Soft' reference counts for manipulating vfsmounts without pinning them 
->>down:
->>http://marc.theaimsgroup.com/?l=linux-kernel&m=109872797030644&w=2
-> 
-> 
-> I think this might just interest Jamie Lokier.  He had a very similar
-> poposal recently, but without reference to this patch, so I guess he
-> wasn't aware of it.
-> 
+Hi,
 
-Interesting.  I haven't been following LKML/fsdevel lately due to lack
-of time.
+On Mon, May 23, 2005 at 12:53:41PM -0700, Aleksey Gorelov wrote:
+> 
+> Karsten, 
+> 
+>   could you please verify if attached patch works for you ?
 
-> 
->>Referencing vfsmounts in userspace using a file descriptor:
->>http://marc.theaimsgroup.com/?l=linux-kernel&m=109871948812782&w=2
-> 
-> 
-> Why not just use /proc/PID/fd/FD?
+Works and seems to be OK, according to the specs. So this
+patch should go into the kernel, also into 2.4 I think.
+These chipset is still used on small special purpose systems.
 
-In what sense?  readlink of /proc/PID/fd/* will provide a pathname
-relative to current's root: useless for any paths not in current's
-namespace.
+--- linux-2.6.11.10/arch/i386/pci/irq.c	2005-05-16 10:50:30.000000000 -0700
++++ new/arch/i386/pci/irq.c	2005-05-23 12:47:19.000000000 -0700
+@@ -227,6 +227,24 @@
+ }
+ 
+ /*
++ * The VIA pirq rules are nibble-based, like ALI,
++ * but without the ugly irq number munging.
++ * However, for 82C586, nibble map is different .
++ */
++static int pirq_via586_get(struct pci_dev *router, struct pci_dev *dev, int pirq)
++{
++	static unsigned int pirqmap[4] = { 3, 2, 5, 1 };
++	return read_config_nybble(router, 0x55, pirqmap[pirq-1]);
++}
++
++static int pirq_via586_set(struct pci_dev *router, struct pci_dev *dev, int pirq, int irq)
++{
++	static unsigned int pirqmap[4] = { 3, 2, 5, 1 };
++	write_config_nybble(router, 0x55, pirqmap[pirq-1], irq);
++	return 1;
++}
++
++/*
+  * ITE 8330G pirq rules are nibble-based
+  * FIXME: pirqmap may be { 1, 0, 3, 2 },
+  * 	  2+3 are both mapped to irq 9 on my system
+@@ -509,6 +527,10 @@
+ 	switch(device)
+ 	{
+ 		case PCI_DEVICE_ID_VIA_82C586_0:
++			r->name = "VIA";
++			r->get = pirq_via586_get;
++			r->set = pirq_via586_set;
++			return 1;
+ 		case PCI_DEVICE_ID_VIA_82C596:
+ 		case PCI_DEVICE_ID_VIA_82C686:
+ 		case PCI_DEVICE_ID_VIA_8231:
 
-Also, if we were to hijack /proc/PID/fd/* for cross namespace
-manipulation, then we'd be enabling any root user on the system to
-modify anyone's namespace.  Any security *cough* provided by namespaces
-is lost.  A more secure way is to have root in namespace A allow root in
-namespace B do the mounts.  If you further restrict how this hand-off
-happens, such as the walking constraints in the patch mentioned below,
-we can restrict modification of a namespace to a given sub-tree of
-vfsmounts.
-
-This interface also has the huge advantage that you gain all the goodies
-of using file descriptors, such as SCM_RIGHTS.  You can hand of entire
-trees of mountpoints between applications without ever even binding them
-to any namespace whatsoever.
-
-Tie this in with some userspace code that can mount devices for users
-with restrictions and appropriate policy, you can create some API+daemon
-for regular user apps to get things mounted in a way that guarantees
-hiding from other users.
-
-> 
-> 
->>walking mountpoints in userspace: 
->>http://marc.theaimsgroup.com/?l=linux-kernel&m=109875012510262&w=2
-> 
-> 
-> Is this needed?  Userspace can find out mountpoints from /proc/mounts
-> (or something similar for detached trees).
-> 
-
-With detached mountpoints (and especially with detached mountpoint
-_trees_) it can become very difficult to assess which trees are which.
-
-Also, just like /proc/PID/fd/*, /proc/mounts is built according to
-_current_'s root.  This only gives a skewed view of what is going on.
-
-> 
->>attaching mountpoints in userspace:
->>http://marc.theaimsgroup.com/?l=linux-fsdevel&m=109875063100111&w=2
-> 
-> 
-> Again, bind from/to /proc/PID/fd/FD should work without any new
-> interfaces.
-
-No..  It wouldn't.  Pathname resolution is doing everything according to
-the ->readlink information provided by this magic proc files, again in
-current's namespace.  If you care to hijack ->follow_link, prepare
-yourself for a slew of corner cases.
-
-> 
-> 
->>detaching mountpoints in userspace:
->>http://marc.theaimsgroup.com/?l=linux-kernel&m=109880051800963&w=2
-> 
-> 
-> What's wrong with sys_umount()?
-
-sys_umount only works with paths in current's namespace. It doesn't
-allow you to handle vfsmounts as primaries in userspace.
-
-> 
-> 
->>getting info from a vfsmount:
->>http://marc.theaimsgroup.com/?l=linux-kernel&m=109875135030473&w=2
-> 
-> 
-> /proc or /sys should do fine for this purpose I think.
-> 
-
-Sure, if you can look it up somehow.  Even if you could currently walk
-around in another namespace using fchdir+chdir, you couldn't pull out
-kernel-knowledge of mountpoints, you have to fall back to /etc/mtab,
-which is completely broken when you mix in namespaces anyway..
-
-> I agree, that having "floating trees" could be useful, but I don't see
-> the point of adding new interfaces to support it.
-> 
-
-I'm not hugely tied to the idea at the moment.  I implemented it as part
-of this interface cause it was a simple extension to what was being done.
-
-> Miklos
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-fsdevel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
-
+-- 
+Karsten Keil
+SuSE Labs
+ISDN development
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

@@ -1,115 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVEXDtE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVEXDse@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261189AbVEXDtE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 23:49:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVEXDtE
+	id S261198AbVEXDse (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 23:48:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVEXDsd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 23:49:04 -0400
-Received: from opersys.com ([64.40.108.71]:8967 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261189AbVEXDsk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 23:48:40 -0400
-Message-ID: <4292A69C.4070605@opersys.com>
-Date: Mon, 23 May 2005 23:59:24 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Jens Axboe <axboe@suse.de>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ide-cd vs. DMA
-References: <1116891772.30513.6.camel@gaston> <42929F2F.8000101@opersys.com> <1116905090.4992.7.camel@gaston>
-In-Reply-To: <1116905090.4992.7.camel@gaston>
+	Mon, 23 May 2005 23:48:33 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:58635 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261178AbVEXDsX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 23:48:23 -0400
+Date: Tue, 24 May 2005 13:47:44 +1000
+To: "David S. Miller" <davem@davemloft.net>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       jmorris@redhat.com
+Subject: Re: [CRYPTO]: Only reschedule if !in_atomic()
+Message-ID: <20050524034744.GA29699@gondor.apana.org.au>
+References: <200505232300.j4NN07lE012726@hera.kernel.org> <20050523162806.0e70ae4f.akpm@osdl.org> <20050524022106.GA29081@gondor.apana.org.au> <20050523.193612.08320356.davem@davemloft.net>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20050523.193612.08320356.davem@davemloft.net>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 23, 2005 at 07:36:12PM -0700, David S. Miller wrote:
+> 
+> See how ugly this stuff gets once you start letting some people call
+> this stuff with locks and some not?
 
-Benjamin Herrenschmidt wrote:
-> Well, not sure what's wrong here, but ATAPI errors shouldn't normally
-> result in stopping DMA. We may want to just blacklist your drive rather
-> than having this stupid fallback. In this case, I suspect it's
-> CSS/region issue with a DVD.
+But we already do that anyway.  For example, IPsec calls the crypto
+functions with a spin lock on the xfrm_state.  As it is, you're
+allowed to call crypto functions while holding spin locks if and
+only if you're in softirq context.
 
-Here's a little bit more info:
+Incidentally, that is something I intend on changing.  There is no
+reason why we can't do away with that spin lock on the fast path
+for IPsec.
 
-Here's from dmesg:
-hdc: SAMSUNG SC-140B, ATAPI CD/DVD-ROM drive
-hdc: ATAPI 40X CD-ROM drive, 128kB Cache, UDMA(33)
+> Crypto operations, especially the software operations, are extremely
+> expensive compute bound tasks.  It is very desirable, as a result, for
+> them to be allowed to relinquish the cpu from time to time.
 
-hdparm -i /dev/hdc:
+Agreed.
 
-/dev/hdc:
+> That being said, I guess a flag isn't so bad.
 
- Model=SAMSUNG SC-140B, FwRev=d005, SerialNo=
- Config={ SpinMotCtl Removeable DTR<=5Mbs DTR>10Mbs nonMagnetic }
- RawCHS=0/0/0, TrkSize=0, SectSize=0, ECCbytes=0
- BuffType=unknown, BuffSize=0kB, MaxMultSect=0
- (maybe): CurCHS=0/0/0, CurSects=0, LBA=yes, LBAsects=0
- IORDY=on/off, tPIO={min:120,w/IORDY:120}, tDMA={min:120,rec:120}
- PIO modes:  pio0 pio1 pio2 pio3 pio4
- DMA modes:  sdma0 sdma1 sdma2 mdma0 mdma1 mdma2
- UDMA modes: udma0 udma1 *udma2
- AdvancedPM=no
+The other thing we could do with a flag is to use it to set GFP
+flags for memory allocation.
 
-Here's what happens on the first mount attempt:
-hdc: DMA interrupt recovery
-hdc: lost interrupt
-hdc: status timeout: status=0xd0 { Busy }
-hdc: status timeout: error=0x00
-hdc: DMA disabled
-hdc: drive not ready for command
-hdc: ATAPI reset complete
-
-Now, if I'm stuborn and re-enable DMA using a "hdparm -d1 /dev/hdc" and then
-try again, now I get:
-hdc: media error (bad sector): status=0x51 { DriveReady SeekComplete Error }
-hdc: media error (bad sector): error=0x34
-ide: failed opcode was 100
-end_request: I/O error, dev hdc, sector 16
-
-The last error being repeated ad-nauseam for every "sector" on the
-disk. Again, note that this is a CD drive, not a hard disk.
-
-Here's from lspci:
-00:00.0 Host bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX Host bridge (rev 03)
-00:01.0 PCI bridge: Intel Corp. 440BX/ZX/DX - 82443BX/ZX/DX AGP bridge (rev 03)
-00:07.0 ISA bridge: Intel Corp. 82371AB/EB/MB PIIX4 ISA (rev 02)
-00:07.1 IDE interface: Intel Corp. 82371AB/EB/MB PIIX4 IDE (rev 01)
-00:07.2 USB Controller: Intel Corp. 82371AB/EB/MB PIIX4 USB (rev 01)
-00:07.3 Bridge: Intel Corp. 82371AB/EB/MB PIIX4 ACPI (rev 02)
-00:11.0 Ethernet controller: 3Com Corporation 3c905B 100BaseTX [Cyclone] (rev 24)
-01:00.0 VGA compatible controller: ATI Technologies Inc 3D Rage Pro AGP 1X/2X (rev 5c)
-
-In attempting to isolate the problem, I ran into a spurious issue with
-another drive I have in that machine:
-hda: dma_timer_expiry: dma status == 0x61
-hda: DMA timeout error
-hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
-hda: dma_timer_expiry: dma status == 0x61
-hda: DMA timeout error
-hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
-hda: dma_timer_expiry: dma status == 0x61
-hda: DMA timeout error
-hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
-hda: dma_timer_expiry: dma status == 0x61
-hda: DMA timeout error
-hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
-hda: DMA disabled
-
-Try as I may, however, I haven't been able to reproduce this problem with
-hda (from dmesg: hda: WDC AC22500L, ATA DISK drive). It's worthy pointing
-out that the machine came with a drive on which it was found that there
-were actual bad sectors (tested on another machine.) ... the thought of
-a buggy controller came to mind, but (though this may be possible), I've
-never heard about a bad controller generating bad sectors ...
-
-Karim
+Cheers,
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

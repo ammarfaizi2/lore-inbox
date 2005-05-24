@@ -1,95 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbVEXWsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262067AbVEXWyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261421AbVEXWsc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 18:48:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbVEXWsc
+	id S262067AbVEXWyt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 18:54:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbVEXWyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 18:48:32 -0400
-Received: from rubis.org ([82.230.33.161]:687 "EHLO rubis.org")
-	by vger.kernel.org with ESMTP id S261421AbVEXWsJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 18:48:09 -0400
-Date: Wed, 25 May 2005 00:48:02 +0200
-From: Stephane Jourdois <kwisatz@rubis.org>
-To: LKML <linux-kernel@vger.kernel.org>, reiserfs-list@namesys.com
-Message-ID: <20050524224802.GA11957@diamant.rubis.org>
-Mail-Followup-To: LKML <linux-kernel@vger.kernel.org>,
-	reiserfs-list@namesys.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Operating-System: Linux 2.6.11-1-686
-X-Send-From: diamant.rubis.org
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: 192.168.0.15
-X-SA-Exim-Mail-From: kwisatz@rubis.org
-Subject: BUG() in radix-tree.c, 2.6.11, reiserfs ?
-X-SA-Exim-Version: 4.2 (built Fri, 04 Mar 2005 01:30:41 +0100)
-X-SA-Exim-Scanned: Yes (on rubis.org)
+	Tue, 24 May 2005 18:54:49 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:13810 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262067AbVEXWyo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 18:54:44 -0400
+From: "Sven Dietrich" <sdietrich@mvista.com>
+To: <karim@opersys.com>
+Cc: "'Ingo Molnar'" <mingo@elte.hu>, "'Esben Nielsen'" <simlo@phys.au.dk>,
+       "'Christoph Hellwig'" <hch@infradead.org>,
+       "'Daniel Walker'" <dwalker@mvista.com>, <linux-kernel@vger.kernel.org>,
+       <akpm@osdl.org>, "'Philippe Gerum'" <rpm@xenomai.org>
+Subject: RE: RT patch acceptance
+Date: Tue, 24 May 2005 15:54:36 -0700
+Message-ID: <002201c560b3$904969f0$c800a8c0@mvista.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <4293AB4D.4030506@opersys.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
 
-I was burning a DVD-R at 16x speed on IDE, the .iso was on /dev/sda1,
-which is a reiserfs part on a SATA disk.  I was at the same time
-building another .iso on /dev/sda1, with files from an lvm spawned on
-/dev/sd{b,c,d}.
+Karim wrote:
+> Sven Dietrich wrote:
+> > Linux has been distributing and decoupling locking and
+> > data structures since the first multi CPU kernel was booted.
+> > 
+> > All data integrity is just as consistent in RT, so HOW does
+> > the behavior change? 
+> 
+> Here's quoting Arjan from another thread just today:
+> > PREEMPT was (and is?) a stability risk and so you'll see RHEL4 not 
+> > having it enabled.
+> 
+> ... and that's for simple preemption ...
+> 
 
-dvdrecord and mkisofs both finished, and the system froze hard
-2 minutes later.
+Any stability risk in PREEMPT is a stability risk in SMP.
+
+I've been looking at some form of this RT code for over a year now. 
+
+And 99 % of failures is buggy / dirty code that 
+could fail under SMP as well, if not worse. 
+
+We've pushed all that back to Ingo 
+and elsewhere.
+
+And the bugs keep on coming. This is the fast-track to exposing
+concurrency problems all over the place, which makes better code
+in Linux.
+
+The RT stuff has the potential to enhance SMP scalability.
+
+> Beyond that, I must admit that I'm probably missing the point 
+> of your question: fact is that running interrupt handlers as 
+> threads != dealing with interrupts in a linear fashion (as is 
+> now.) That's behavior change right there, to mention just that.
+> 
+
+Linear is maybe not a good term to use. Do you mean the order in which
+IRQs execute, or just that you execute IRQ code in process context.
+
+A good generic IRQ handler that can run on multiple architectures,
+doesn't care what the CPU flags are.
+
+If it does have to be so down and dirty, it probably doesn't run 
+as a thread, and its likely SA, as well.
+
+If its about the order in which pending IRQs are processed, then lets take
+a leap and ask why does that matter. The IRQs shouldn't care less what 
+order they are processed in, if they are truly asynchronous / sporadic.
+
+After all, how would the system know which IRQ arrived first to begin with,
+when you happen to enable IRQs somewhere, and there happen to be 3 IRQs pending?
+
+> 
+> There is, in fact, nothing precluding rt-preemption from 
+> co-existing with a nanokernel. </repeating-myself>
+> 
+
+Except complexity, as the performance differential between the
+Linux kernel and the nanokernel vanishes.
 
 
-A similar problem has already been reported as seen in :
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111514360829643&w=4
-This makes me feel it's a reiserfs problem, and as the other report
-was on a p4 it is not specific to amd64...
-
-
-The kernel comes with debian port for amd64, dunno much more.
-It's a 2.6.11-9-amd64-k8.
-
-I'll provide any information if requested (and if I can :-).
-
-
-Thanks for reading,
-
-Stephane.
-
-
------------ [cut here ] --------- [please bite here ] --------- 
-Kernel BUG at radix_tree:344
-invalid operand: 0000 [1] 
-CPU 0 
-Modules linked in: isofs md5 ipv6 af_packet ipt_MASQUERADE iptable_nat ipt_LOG ipt_state ip_conntrack iptable_filter iptable_mangle ip_tables emu10k1_gp gameport snd_emu10k1 snd_rawmidi snd_seq_device snd_util_mem snd_hwdep tulip tuner bttv video_buf firmware_class i2c_algo_bit v4l2_common btcx_risc tveeprom videodev shpchp pci_hotplug amd74xx snd_intel8x0 snd_ac97_codec snd_pcm_oss snd_mixer_oss snd_pcm snd_timer snd soundcore snd_page_alloc ohci_hcd i2c_nforce2 usblp eth1394 ehci_hcd natsemi de4x5 forcedeth ohci1394 dm_mod evdev powernow_k8 freq_table processor cpufreq_userspace it87 eeprom tsdev i2c_sensor i2c_isa i2c_core rtc nvidia psmouse sbp2 ieee1394 ide_generic ide_cd ide_disk ide_core reiserfs sr_mod cdrom sd_mod sata_nv unix fbcon font bitblit vesafb cfbcopyarea cfbimgblt cfbfillrect sata_sil libata scsi_mod
-Pid: 173, comm: kswapd0 Tainted: P      2.6.11-9-amd64-k8
-RIP: 0010:[radix_tree_tag_set+121/160] <ffffffff801cd5f9>{radix_tree_tag_set+121}
-RSP: 0018:ffff81003f4b3950  EFLAGS: 00010046
-RAX: ffff810010e99e00 RBX: ffff810001db7b40 RCX: ffff810010e99d10
-RDX: 0000000000000008 RSI: 00000000000cbfdf RDI: ffff810010e99e08
-RBP: 0000000000000000 R08: 000000000000001f R09: ffff810010e99d08
-R10: 0000000000000000 R11: 0000000000000001 R12: ffff81003e250c08
-R13: ffff81003f4b3e48 R14: ffff810013c95ce8 R15: ffff81003e250af0
-FS:  00002aaaaae006d0(0000) GS:ffffffff803f6a80(0000) knlGS:0000000000000000
-CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-CR2: 00002aaaaaac1000 CR3: 0000000018496000 CR4: 00000000000006e0
-Process kswapd0 (pid: 173, threadinfo ffff81003f4b2000, task ffff81003f49c780)
-Stack: ffffffff80155996 ffff8100011aa270 0000000000000282 0000000000000000
-       0000000000000000 0000000000000000 ffffffff8808320c 0000000000000008
-       000000000000001b ffff81003ffbe9a0 
-Call Trace:<ffffffff80155996>{test_set_page_writeback+134} <ffffffff8808320c>{:reiserfs:reiserfs_writepage+2140}                      <ffffffff801cdb0b>{radix_tree_delete+347} <ffffffff80153c65>{__pagevec_free+37}
-       <ffffffff8015882e>{__pagevec_release_nonlru+126} <ffffffff801704df>{free_buffer_head+47}
-       <ffffffff80170562>{try_to_free_buffers+114} <ffffffff8015a217>{shrink_zone+2839}
-       <ffffffff801448d0>{autoremove_wake_function+0} <ffffffff8015aa85>{balance_pgdat+565}
-       <ffffffff802aff01>{schedule+1} <ffffffff8015ad17>{kswapd+295}
-       <ffffffff801448d0>{autoremove_wake_function+0} <ffffffff801448d0>{autoremove_wake_function+0}
-       <ffffffff8010ec7b>{child_rip+8} <ffffffff8015abf0>{kswapd+0}                                                                   <ffffffff8010ec73>{child_rip+0}
-
-Code: 0f 0b be 5b 2d 80 ff ff ff ff 58 01 41 83 ea 06 41 ff cb 75
-RIP <ffffffff801cd5f9>{radix_tree_tag_set+121} RSP <ffff81003f4b3950>
-
--- 
- ///  Stephane Jourdois     /"\  ASCII RIBBON CAMPAIGN \\\
-(((    Consultant securite  \ /    AGAINST HTML MAIL    )))
- \\\   24 rue Cauchy         X                         ///
-  \\\  75015  Paris         / \    +33 6 8643 3085    ///

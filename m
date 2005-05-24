@@ -1,67 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbVEXBHS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261318AbVEXBMK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbVEXBHS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 21:07:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbVEXBEN
+	id S261318AbVEXBMK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 21:12:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVEXBHf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 21:04:13 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:34318 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S261292AbVEXA6v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 20:58:51 -0400
-Date: Tue, 24 May 2005 09:06:07 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-X-X-Sender: raven@wombat.indigo.net.au
-To: Miklos Szeredi <miklos@szeredi.hu>
-cc: linux-fsdevel@vger.kernel.org, autofs@linux.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [VFS-RFC] autofs4 and bind, rbind and move mount requests
-In-Reply-To: <E1DaG04-0002hk-00@dorka.pomaz.szeredi.hu>
-Message-ID: <Pine.LNX.4.58.0505240846410.26293@wombat.indigo.net.au>
-References: <Pine.LNX.4.62.0505232041410.8361@donald.themaw.net>
- <E1DaERw-0002cC-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.62.0505232339250.3469@donald.themaw.net>
- <E1DaG04-0002hk-00@dorka.pomaz.szeredi.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-102.5, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, REFERENCES,
-	REPLY_WITH_QUOTES, USER_AGENT_PINE, USER_IN_WHITELIST)
+	Mon, 23 May 2005 21:07:35 -0400
+Received: from pat.uio.no ([129.240.130.16]:52136 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261318AbVEXBEa convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 21:04:30 -0400
+Subject: Re: NFS corruption on 2.6.11.7
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Kenneth Johansson <ken@kenjo.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1116894917.11483.111.camel@lade.trondhjem.org>
+References: <1116888428.5206.14.camel@tiger>
+	 <1116894917.11483.111.camel@lade.trondhjem.org>
+Content-Type: text/plain; charset=UTF-8
+Date: Mon, 23 May 2005 21:04:24 -0400
+Message-Id: <1116896664.11483.114.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 8BIT
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.866, required 12,
+	autolearn=disabled, AWL 1.13, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 23 May 2005, Miklos Szeredi wrote:
+må den 23.05.2005 Klokka 20:35 (-0400) skreiv Trond Myklebust:
+> ty den 24.05.2005 Klokka 00:47 (+0200) skreiv Kenneth Johansson:
 
-> > Perhaps not in this case.
-> 
-> Maybe I'm misunderstanding.
-> 
-> Are you talking about an automounted filesystem, or the autofs
-> filesystem itself.
+> > This is what cat /proc/mounts reports on the nfs mount
+> > 
+> > :/export/home/ken /home/ken nfs rw,v3,rsize=32768,wsize=32768,hard,udp,lock,addr=amd 0 0
+> > 
 
-I'm talking about the autofs filesystem (actually the autofs4 module).
+BTW: Why is /proc/mounts reporting the server as being an empty string?
+Normally, the "mount" program should be setting that to whatever you
+specified on the command line.
 
-> 
-> With the later I can well imagine that you have problems with bind and
-> move.
+Cheers,
+  Trond
 
-yep.
-
-I'm not really concerned about whether bind and move mounts work or not. I 
-just need to establish whether these should be supported and if so, how 
-they should work so I can resolve the problem. Personally, I would be 
-happy to say these types of mounts are not supported by autofs if I could 
-veto the requests.
-
-atm I can easily panic the kernel. As I said, it would be fairly easy to 
-fail silently but ....
-
-There's not much in it but see:
-http://bugme.osdl.org/show_bug.cgi?id=4589
-
-Sorry that my initial post was unclear and perhaps incomplete but mostly 
-people are not that familiar with automounting and often they don't really 
-want to know about it. I guess they have their own priorities.
-
-Thanks for your interest.
-Ian

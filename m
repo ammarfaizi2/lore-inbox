@@ -1,52 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262201AbVEXVv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262209AbVEXWKu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262201AbVEXVv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 17:51:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262204AbVEXVv0
+	id S262209AbVEXWKu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 18:10:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbVEXWKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 17:51:26 -0400
-Received: from mail.shareable.org ([81.29.64.88]:62171 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S262201AbVEXVvW
+	Tue, 24 May 2005 18:10:50 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:43251 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262202AbVEXWKk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 17:51:22 -0400
-Date: Tue, 24 May 2005 22:51:01 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Mike Waychison <mikew@google.com>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, linuxram@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       akpm@osdl.org, viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [RFC][PATCH] rbind across namespaces
-Message-ID: <20050524215101.GA15902@mail.shareable.org>
-References: <E1DZP37-0006hH-00@dorka.pomaz.szeredi.hu> <20050521134615.GB4274@mail.shareable.org> <E1DZlVn-0007a6-00@dorka.pomaz.szeredi.hu> <429277CA.9050300@google.com> <E1DaSCb-0003Tw-00@dorka.pomaz.szeredi.hu> <4292D416.5070001@waychison.com> <E1DaVYK-0003ko-00@dorka.pomaz.szeredi.hu> <4293612F.3000708@google.com> <20050524181554.GA13760@mail.shareable.org> <42937360.8090007@google.com>
+	Tue, 24 May 2005 18:10:40 -0400
+Date: Tue, 24 May 2005 18:10:38 -0400
+From: "George G. Davis" <gdavis@mvista.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] net: Add netconsole support to cs89x0 driver
+Message-ID: <20050524221038.GR438@mvista.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42937360.8090007@google.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Waychison wrote:
-> >   1. Deny access to /proc/NNN/fd/, /proc/NNN/cwd, /proc/NNN/root
-> >      if task NNN cannot be ptraced.
-> >
-> >   3. Allow entry to /proc/NNN/fd/, /proc/NNN/cwd, /proc/NNN/root
-> >      if ptrace is allowed; the namespace being irrelevant.
-> >
-> >   3. Use _exactly_ the same condition as for ptracing,
-> >      i.e. MAY_PTRACE in fs/proc/base.c.  Ensure that condition is
-> >      consistent with the tests in kernel/ptrace.c, possibly putting
-> >      the condition in a common header file to keep it consistent in
-> >      future.
-> >
-> >   4. If further restrictions are desired, to make namespaces more
-> >      strict, those should be implemented by further restrictions on
-> >      which tasks are allowed to ptrace other tasks.
-> >
-> 
-> Indeed.  A combination of MAY_PTRACE ||ed with a check against current 
-> sounds reasonable to me.
+Greetings,
 
-Note that MAY_PTRACE already includes a check against current.
+I've compile tested this on linux-2.6.12-rc4-git8 and tested kgdboe on
+"Some Random (ARM) V6 Processor" using a linux-2.6.10 based kernel. Please
+apply. TIA!
 
--- Jamie
+--
+Regards,
+George
+
+Add netconsole support to cs89x0 driver
+
+Signed-off-by: George G. Davis <gdavis@mvista.com>
+
+ cs89x0.c |   16 ++++++++++++++++
+ 1 files changed, 16 insertions(+)
+
+Index: linux-2.6.12-rc4-git8/drivers/net/cs89x0.c
+===================================================================
+--- linux-2.6.12-rc4-git8.orig/drivers/net/cs89x0.c
++++ linux-2.6.12-rc4-git8/drivers/net/cs89x0.c
+@@ -404,6 +404,19 @@
+ 	return -1;
+ }
+ 
++#ifdef CONFIG_NET_POLL_CONTROLLER
++/*
++ * Polling receive - used by netconsole and other diagnostic tools
++ * to allow network i/o with interrupts disabled.
++ */
++static void cs89x0_poll_controller(struct net_device *dev)
++{
++	disable_irq(dev->irq);
++	net_interrupt(dev->irq, dev, NULL);
++	enable_irq(dev->irq);
++}
++#endif
++
+ /* This is the real probe routine.  Linux has a history of friendly device
+    probes on the ISA bus.  A good device probes avoids doing writes, and
+    verifies that the correct device exists and functions.
+@@ -731,6 +744,9 @@
+ 	dev->get_stats		= net_get_stats;
+ 	dev->set_multicast_list = set_multicast_list;
+ 	dev->set_mac_address 	= set_mac_address;
++#ifdef CONFIG_NET_POLL_CONTROLLER
++	dev->poll_controller	= cs89x0_poll_controller;
++#endif
+ 
+ 	printk("\n");
+ 	if (net_debug)

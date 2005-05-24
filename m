@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVEXFr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVEXGCP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261271AbVEXFr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 01:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVEXFr3
+	id S261152AbVEXGCP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 02:02:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbVEXGCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 01:47:29 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:53900 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261271AbVEXFrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 01:47:23 -0400
-Date: Tue, 24 May 2005 06:47:22 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, akpm@osdl.org,
-       sdietrich@mvista.com
-Subject: Re: RT patch acceptance
-Message-ID: <20050524054722.GA6160@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-	mingo@elte.hu, akpm@osdl.org, sdietrich@mvista.com
-References: <1116890066.13086.61.camel@dhcp153.mvista.com>
+	Tue, 24 May 2005 02:02:15 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:49288 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261152AbVEXGCJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 02:02:09 -0400
+Date: Mon, 23 May 2005 23:01:06 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Cc: Ashok Raj <ashok.raj@intel.com>, Andi Kleen <ak@muc.de>,
+       zwane@arm.linux.org.uk, discuss@x86-64.org, shaohua.li@intel.com,
+       linux-kernel@vger.kernel.org, rusty@rustycorp.com.au
+Subject: Re: [discuss] Re: [patch 0/4] CPU hot-plug support for x86_64
+Message-ID: <20050523230106.A13839@unix-os.sc.intel.com>
+References: <20050520221622.124069000@csdlinux-2.jf.intel.com> <20050523164046.GB39821@muc.de> <20050523095450.A8193@unix-os.sc.intel.com> <20050523171212.GF39821@muc.de> <20050523104046.B8692@unix-os.sc.intel.com> <20050524054617.GA5510@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1116890066.13086.61.camel@dhcp153.mvista.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050524054617.GA5510@in.ibm.com>; from vatsa@in.ibm.com on Tue, May 24, 2005 at 11:16:17AM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 23, 2005 at 04:14:26PM -0700, Daniel Walker wrote:
-> Hello World!
+On Tue, May 24, 2005 at 11:16:17AM +0530, Srivatsa Vaddagiri wrote:
+> On Mon, May 23, 2005 at 10:40:46AM -0700, Ashok Raj wrote:
+> > Iam not a 100% sure about above either, if the smp_call_function 
+> > is started with 3 cpus initially, and 1 just came up, the counts in 
+> > the smp_call data struct could be set to 3 as a result of the new cpu 
+> > received this broadcast as well, and we might quit earlier in the wait.
 > 
-> I went to see Andrew Morton speak at Xerox PARC and he indicated that
-> some of the RT patch was a little crazy . Specifically interrupts in
-> threads (Correct me if I'm wrong Andrew). It seems a lot of the
-> maintainers haven't really warmed up to it. 
-> 
-> I don't know to what extent Ingo has lobbied to try to get acceptance
-> into an unstable or stable kernel. However, since I know Andrew is cold
-> to accepting it , I thought I would ask what would need to be done to
-> the RT patch so that it could be accepted?
-> 
-> I think the fact that some distributions are including RT patched
-> kernels is a sign that this technology is getting mature. Not to mention
-> the fact that it's a 600k+ patch and getting bigger everyday. 
-> 
-> I'm sure there are some people fiercely opposed to it, some of whom I've
-> already run into. What is it about RT that gets people's skin crawling?
-> It is a configure option after all.
+> True.
 
-Personally I think interrupt threads, spinlocks as sleeping mutexes and PI
-is something we should keep out of the kernel tree.  If you want such
-advanced RT features use a special microkernel and run Linux as user
-process, using RTAI or maybe soon some of the more sofisticated virtualization
-technologies.
+Thanks for confirming. 
 
+I think the window would be a little bit more narrow, but not completely 
+closed even if we bring cpu in cli state completely.
+
+> 
+> > sending to only relevant cpus removes that ambiquity. 
+> 
+> Or grab the 'call_lock' before setting the upcoming cpu in the online_map.
+> This should also avoid the race when a CPU is coming online.
+> 
+
+We do this today in x86_64 case when we setup this upcomming cpu in 
+cpu_online_map. But the issue is when we use ipi broadcast, its an ugly
+case when we dont know if the new cpu is receiving this as well, and 
+we dont have real control there.
+
+i converted to use send_IPI_mask(cpu_online_map, CALL_FUNCTION_VECTOR)
+instead of the send_IPI_allbutself(CALL_FUNCTION_VECTOR) in 
+__smp_call_function(), apart from taking the call_lock before setting the
+bit in online_map.
+
+Since Andi is concerned about tlb flush intr performance in the 8cpu and less
+case, iam planning temporarily use a startup cmd or choose this option 
+automatically if CONFIG_HOTPLUG_CPU is set for the time being, until we can 
+find a clean solution that satisfies everyone.
+
+Cheers,
+Ashok Raj

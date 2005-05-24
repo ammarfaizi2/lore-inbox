@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVEXTBP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261938AbVEXTIu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbVEXTBP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 15:01:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbVEXTBP
+	id S261938AbVEXTIu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 15:08:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbVEXTIu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 15:01:15 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:34791 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261397AbVEXTBI convert rfc822-to-8bit
+	Tue, 24 May 2005 15:08:50 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:53778 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261499AbVEXTIp convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 15:01:08 -0400
-Date: Tue, 24 May 2005 15:01:07 -0400
-From: Neil Horman <nhorman@redhat.com>
-To: "Giacomo A. Catenazzi" <cate@debian.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [Patch] ipmi: Compiler error in last git kernel [drivers/char/ipmi/ipmi_devintf.c]
-Message-ID: <20050524190107.GH17607@hmsendeavour.rdu.redhat.com>
-References: <42935D89.90603@debian.org>
+	Tue, 24 May 2005 15:08:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=I3wckEvv7Kg3xgN829uDXo/5kMBeiTfNt4QqKX4o7HxP+oN6pLbVAWf7dXBa1I/k02OWiZjHfdYWR0Z8WO1Z9sBDEz9yR4y3s5L3psrk5hkXsykrMArmi5b6khRn7ymGTv+Tvl1n7PQG/UGpCRkWcGHa4zPuD3WOvLYobMfT9yI=
+Message-ID: <a4e6962a0505241208214a200f@mail.gmail.com>
+Date: Tue, 24 May 2005 14:08:44 -0500
+From: Eric Van Hensbergen <ericvh@gmail.com>
+Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
+To: Pekka Enberg <penberg@gmail.com>
+Subject: Re: [RFC][patch 4/7] v9fs: VFS superblock operations (2.0-rc6)
+Cc: linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net,
+       viro@parcelfarce.linux.theplanet.co.uk, linux-fsdevel@vger.kernel.org,
+       penberg@cs.helsinki.fi
+In-Reply-To: <84144f0205052400113c6f40fc@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <42935D89.90603@debian.org>
-User-Agent: Mutt/1.4.1i
+References: <200505232225.j4NMPte1029529@ms-smtp-02-eri0.texas.rr.com>
+	 <84144f0205052400113c6f40fc@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Heres the fix.  Looks pretty straight forward
+On 5/24/05, Pekka Enberg <penberg@gmail.com> wrote:
+> 
+> > +
+> > +/**
+> > + * find_slab - look up a slab by size
+> > + * @size: size of slab data
+> > + *
+> > + */
+> > +
+> > +static inline kmem_cache_t *find_slab(int size)
+> 
+> Hmm? Why do you need this? If you're missing functionality from the
+> slab allocator, please put that in mm/slab.c, not your filesystem!
+> 
 
-Signed-off-by: Neil Horman <nhorman@redhat.com>
+Thanks for the comments!  A bit of a clarification on slab policy - I
+did my own find_slab() so I could keep tight control over my own slabs
+(and monitor for slab leaks, etc.).  There seems to be similar
+functionality for the malloc slabs (kmem_find_general_cachep), but I'm
+not sure if this is really something that is generally useful.  What
+do folks think?  Is this something that would be generally useful to
+add to slab.c?  Or is there something like this that I just
+overlooked?
 
- ipmi_devintf.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-
---- linux-2.6.git/drivers/char/ipmi/ipmi_devintf.c.buildbreak	2005-05-24 14:40:58.000000000 -0400
-+++ linux-2.6.git/drivers/char/ipmi/ipmi_devintf.c	2005-05-24 14:48:45.000000000 -0400
-@@ -520,7 +520,7 @@ MODULE_PARM_DESC(ipmi_major, "Sets the m
- 		 " interface.  Other values will set the major device number"
- 		 " to that value.");
- 
--static struct class *ipmi_class;
-+static struct class_simple *ipmi_class;
- 
- static void ipmi_new_smi(int if_num)
- {
-@@ -534,7 +534,7 @@ static void ipmi_new_smi(int if_num)
- 
- static void ipmi_smi_gone(int if_num)
- {
--	class_simple_device_remove(ipmi_class, MKDEV(ipmi_major, if_num));
-+	class_simple_device_remove(MKDEV(ipmi_major, if_num));
- 	devfs_remove("ipmidev/%d", if_num);
- }
- 
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *Red Hat, Inc.
- *nhorman@redhat.com
- *gpg keyid: 1024D / 0x92A74FA1
- *http://pgp.mit.edu
- ***************************************************/
+             -eric

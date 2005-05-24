@@ -1,77 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262091AbVEXPWT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262093AbVEXPVa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262091AbVEXPWT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 11:22:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbVEXPWJ
+	id S262093AbVEXPVa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 11:21:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbVEXPV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 11:22:09 -0400
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:30610 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262092AbVEXPVY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 11:21:24 -0400
-Message-ID: <4293466B.5070200@yahoo.com.au>
-Date: Wed, 25 May 2005 01:21:15 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
+	Tue, 24 May 2005 11:21:26 -0400
+Received: from tag.witbe.net ([81.88.96.48]:22196 "EHLO tag.witbe.net")
+	by vger.kernel.org with ESMTP id S262093AbVEXPTb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 11:19:31 -0400
+Message-Id: <200505241519.j4OFJUR24338@tag.witbe.net>
+Reply-To: <rol@as2917.net>
+From: "Paul Rolland" <rol@as2917.net>
+To: <linux-os@analogic.com>
+Cc: <linux-kernel@vger.kernel.org>, <rol@witbe.net>
+Subject: Re: Linux and Initrd used to access disk : how does it work ?
+Date: Tue, 24 May 2005 17:19:30 +0200
+Organization: AS2917
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjanv@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] Voluntary Kernel Preemption, 2.6.12-rc4-mm2
-References: <20050524121541.GA17049@elte.hu> <20050524132105.GA29477@elte.hu> <20050524145636.GA15943@infradead.org> <20050524150950.GA10736@elte.hu>
-In-Reply-To: <20050524150950.GA10736@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+In-Reply-To: <Pine.LNX.4.61.0505241032250.16158@chaos.analogic.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+thread-index: AcVgcAcAWRs3gVrrRM2uik40OlyceAAA0s7A
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Christoph Hellwig <hch@infradead.org> wrote:
+Hello Dick,
+
+> initrd means Initial RAM disk.
 > 
-> 
->>I still disagree with this one violently. [...]
-> 
-> 
-> (then you must be disagreeing with CONFIG_PREEMPT too to a certain 
-> degree i guess?)
-> 
+> The boot image is put onto your Hard disk. The hard disk needs
+> to be accessible from the BIOS to boot from it. Most controllers
+> have a BIOS module that lets it be accessed during boot so you
+> don't need a chicken before the egg to start the boot.
 
-CONFIG_PREEMPT is different in that it explicitly defines and
-delimits preempt critical sections, and allows maximum possible
-preemption (whether or not the critical sections themselves are
-too big is not really a CONFIG_PREEMPT issue).
+Ok, basically, the trick is that the BIOS knows how to access the
+disk, and Linux doesn't because it doesnt use the BIOS ? Or is it
+some more subtle (though I doubt) thing in which only a part of the
+disk can be accessed by the BIOS.
 
-Jamming in cond_resched in as many places as possible seems to
-work quite well pragmatically, but is just pretty ugly for the
-reasons Christoph mentioned (IMO).
+> Then, when booting, LILO or grub starts linux which uncompresses
+> a RAM disk and mounts it instead of your hard disk. A special
+> version of `init` (called nash) gets started which reads a script
+> called linuxrc. It contains commands like:
+Yes, I've seen that in my .img file...
 
-The other thing is - if the users don't care about some extra
-overhead, why don't they just use CONFIG_PREEMPT? Surely the case
-is not that they can tolerate .5% overhead but not 1.5% (pulling
-numbers out my bum).
-
-IIRC, the reason (when you wrote the code) was that you didn't
-want to enable preempt either because of binary compatibility, or
-because of bugs? Well I think the bug issue is no more since your
-debug patches went in, and the compatibility reason may be a fine
-one for a distro kernel, but not a kernel.org one.
-
+> The module(s) are in the /lib directory of the RAM disk.
+> They are put there by a build-script that installs initrd.
+> This script gets executed when you do 'make install' in
+> the kernel directory. If you have private modules, you
+> can copy them to the appropriate /lib/modules/`uname 
+> -r`/kernel/drivers
+> directory. You put the module(s) name(s) you need to boot
+> in /etc/modprobe.conf or /etc/modules.conf (depends upon the
+> module tools version) as:
 > 
->>[...] If you want a cond_resched() add it where nessecary, but don't 
->>hide it behind might_sleep - there could be quite a lot might_sleeps 
->>in common codepathes and they should stay purely a debug aid.
+> alias scsi_hostadapter aic7xxx
+> alias scsi_hostadapter1 ata_piix
 > 
+> ... any scsi_hostadapter stuff will be put into initrd when
+> you execute the script, /sbin/mkinitrd.
 > 
 
-[...]
+Hmmm... I didn't know this part, thanks for the details.
 
-> or if you think we can get away with using just a couple of 
-> cond_resched()s then you are my guest to prove me wrong: take the -RT 
-[...]
+So, it seems that I'm stuck with my binary module unless I can find a
+way to tell the kernel to use the BIOS to access the disk ;-)))
 
-How about using CONFIG_PREEMPT instead?
-
--- 
-SUSE Labs, Novell Inc.
+Cheers,
+Paul
 

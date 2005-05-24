@@ -1,46 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbVEXW2a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVEXWax@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbVEXW2a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 18:28:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261510AbVEXW2a
+	id S261185AbVEXWax (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 18:30:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbVEXW2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 18:28:30 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:30590 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262099AbVEXW11 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 18:27:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=SgBHyBBtYVezalXv5mgigMh4AJzI6PGEsoPzLqVPrQJimDgDWWrE2jAoq4ONOJxBMKIkqJsX/62FErjtkB/fxAjFno3RCVg013CXuovODjaTKifLU9MKJDSejdnnkGR540yl7Wb92zaTP7azYBnziO2fAjl+thprU8tpPV1weXI=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 1/2] #include asm/uaccess.h in asm/checksum.h
-Date: Wed, 25 May 2005 02:31:44 +0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505250231.44207.adobriyan@gmail.com>
+	Tue, 24 May 2005 18:28:12 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:11473 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261321AbVEXW1u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 18:27:50 -0400
+From: kernel-stuff@comcast.net (Parag Warudkar)
+To: "Clifford T. Matthews" <ctm@ardi.com>, linux-kernel@vger.kernel.org
+Cc: Cliff Matthews <ctm@ardi.com>
+Subject: Re: surprisingly slow accept/connect cycle time
+Date: Tue, 24 May 2005 22:27:41 +0000
+Message-Id: <052420052227.599.4293AA5D00008DF100000257220075074400009A9B9CD3040A029D0A05@comcast.net>
+X-Mailer: AT&T Message Center Version 1 (Dec 17 2004)
+X-Authenticated-Sender: a2VybmVsLXN0dWZmQGNvbWNhc3QubmV0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-csum_and_copy_to_user is static inline and uses VERIFY_WRITE. Patch allows to
-remove asm/uaccess.h from i386_ksyms.c without dependency surprises.
+I can confirm that it takes ages to complete without the sched_yield. (2.6.11-gentoo). With sched_yield it's very fast.
 
-Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+Funny thing is that strace'ing the running process (without sched_yield) makes it run very fast. 
 
---- linux-vanilla/include/asm-i386/checksum.h	2005-05-24 08:48:20.000000000 +0400
-+++ linux-ksyms/include/asm-i386/checksum.h	2005-05-25 01:28:45.000000000 +0400
-@@ -3,6 +3,8 @@
- 
- #include <linux/in6.h>
- 
-+#include <asm/uaccess.h>
-+
- /*
-  * computes the checksum of a memory block at buff, length len,
-  * and adds in "sum" (32-bit)
+I tried to oprofile it but no kernel or process stats changed due to the process run. (It might be doing nothing at all..)
+
+Parag
+
+

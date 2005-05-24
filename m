@@ -1,75 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262093AbVEXPVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262108AbVEXPZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262093AbVEXPVa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 11:21:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262099AbVEXPV0
+	id S262108AbVEXPZq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 11:25:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262117AbVEXPZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 11:21:26 -0400
-Received: from tag.witbe.net ([81.88.96.48]:22196 "EHLO tag.witbe.net")
-	by vger.kernel.org with ESMTP id S262093AbVEXPTb (ORCPT
+	Tue, 24 May 2005 11:25:45 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:63647 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262108AbVEXPYK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 11:19:31 -0400
-Message-Id: <200505241519.j4OFJUR24338@tag.witbe.net>
-Reply-To: <rol@as2917.net>
-From: "Paul Rolland" <rol@as2917.net>
-To: <linux-os@analogic.com>
-Cc: <linux-kernel@vger.kernel.org>, <rol@witbe.net>
-Subject: Re: Linux and Initrd used to access disk : how does it work ?
-Date: Tue, 24 May 2005 17:19:30 +0200
-Organization: AS2917
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-In-Reply-To: <Pine.LNX.4.61.0505241032250.16158@chaos.analogic.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
-thread-index: AcVgcAcAWRs3gVrrRM2uik40OlyceAAA0s7A
+	Tue, 24 May 2005 11:24:10 -0400
+Date: Tue, 24 May 2005 17:23:51 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Esben Nielsen <simlo@phys.au.dk>, Christoph Hellwig <hch@infradead.org>,
+       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, sdietrich@mvista.com, Philippe Gerum <rpm@xenomai.org>
+Subject: Re: RT patch acceptance
+Message-ID: <20050524152351.GA10489@elte.hu>
+References: <Pine.OSF.4.05.10505241532040.29908-100000@da410.phys.au.dk> <42933D71.8060706@opersys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42933D71.8060706@opersys.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Dick,
 
-> initrd means Initial RAM disk.
-> 
-> The boot image is put onto your Hard disk. The hard disk needs
-> to be accessible from the BIOS to boot from it. Most controllers
-> have a BIOS module that lets it be accessed during boot so you
-> don't need a chicken before the egg to start the boot.
+* Karim Yaghmour <karim@opersys.com> wrote:
 
-Ok, basically, the trick is that the BIOS knows how to access the
-disk, and Linux doesn't because it doesnt use the BIOS ? Or is it
-some more subtle (though I doubt) thing in which only a part of the
-disk can be accessed by the BIOS.
 
-> Then, when booting, LILO or grub starts linux which uncompresses
-> a RAM disk and mounts it instead of your hard disk. A special
-> version of `init` (called nash) gets started which reads a script
-> called linuxrc. It contains commands like:
-Yes, I've seen that in my .img file...
+> I've visited these issues before. It all boils down to a simple 
+> question: is it worth making the kernel so much more complicated for 
+> such a minority when 90% of the problems encountered in the field 
+> revolve around the necessity of responding to an interrupt in a 
+> deterministic fashion?
+>
+> And for those 90% of cases, a simple hyper-visor/nanokernel layer is 
+> good enough. For the remaining 10% of cases, that's where something 
+> like the rt-preempt or RTAI become necessary. [...]
 
-> The module(s) are in the /lib directory of the RAM disk.
-> They are put there by a build-script that installs initrd.
-> This script gets executed when you do 'make install' in
-> the kernel directory. If you have private modules, you
-> can copy them to the appropriate /lib/modules/`uname 
-> -r`/kernel/drivers
-> directory. You put the module(s) name(s) you need to boot
-> in /etc/modprobe.conf or /etc/modules.conf (depends upon the
-> module tools version) as:
-> 
-> alias scsi_hostadapter aic7xxx
-> alias scsi_hostadapter1 ata_piix
-> 
-> ... any scsi_hostadapter stuff will be put into initrd when
-> you execute the script, /sbin/mkinitrd.
-> 
+just to make sure, by "much more complicated" are you referring to the 
+PREEMPT_RT feature? Right now PREEMPT_RT consists of 8000 new lines of 
+code (of which 2000 is debugging code) and 2000 lines of modified kernel 
+code. One of the primary goals i had was to keep it simple and robust.
 
-Hmmm... I didn't know this part, thanks for the details.
+That's more than 3 times smaller than UML and it's almost an order of
+magnitude smaller than a nanokernel codebase i just checked, and it
+boots/works on just about everything where the stock Linux kernel boots.
+I challenge you to write a nanokernel/hypervisor with a comparable
+feature-set in that many lines of code.
 
-So, it seems that I'm stuck with my binary module unless I can find a
-way to tell the kernel to use the BIOS to access the disk ;-)))
+anyway, as always, the devil is in the details. I certainly dont suggest 
+that nanokernels/hypervisors are not nice (to the contrary!), or that 
+all component technologies of the -RT patchset will be accepted into 
+Linux. PREEMPT_RT started out as an experiment to reduce scheduling 
+latencies within the constraints of the Linux kernel. It is not an 
+all-or-nothing feature, it's more of a collection of incremental 
+patches. It is one, nonexclusive way of doing things.
 
-Cheers,
-Paul
-
+	Ingo

@@ -1,89 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVEXHNP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261383AbVEXHOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261384AbVEXHNP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 03:13:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVEXHNO
+	id S261383AbVEXHOX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 03:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVEXHOT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 03:13:14 -0400
-Received: from ns9.hostinglmi.net ([213.194.149.146]:41633 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261384AbVEXHMt
+	Tue, 24 May 2005 03:14:19 -0400
+Received: from wproxy.gmail.com ([64.233.184.193]:33354 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261383AbVEXHON convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 03:12:49 -0400
-Date: Tue, 24 May 2005 09:14:07 +0200
-From: DervishD <lkml@dervishd.net>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [RESEND] Hard disk LBA sector count is not always the same
-Message-ID: <20050524071407.GA60@DervishD>
-Mail-Followup-To: Petr Vandrovec <vandrove@vc.cvut.cz>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Linux-kernel <linux-kernel@vger.kernel.org>
-References: <20050523121424.GB339@DervishD> <42922175.8090005@pobox.com> <20050523200221.GE57@DervishD> <42925760.9010603@vc.cvut.cz>
+	Tue, 24 May 2005 03:14:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Y+AtHMac8HQzy5TaUfp4m0PBpzm0oAMdJiagefK39WeGGEUJ5tsNmxB8/E8QQ7ogyF+wwNow0lFWPQSmPezl80gGMfsCCrapBjh+Y3kxnJgLm65p+UG0vlwELW1k6BUnnasteKf0+Tw6+L+5o+csx3BfGv0UYJXZvu2OxvCB+hw=
+Message-ID: <84144f0205052400143e97796e@mail.gmail.com>
+Date: Tue, 24 May 2005 10:14:12 +0300
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: "ericvh@gmail.com" <ericvh@gmail.com>
+Subject: Re: [RFC][patch 2/7] v9fs: VFS file and directory operations (2.0-rc6)
+Cc: linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net,
+       viro@parcelfarce.linux.theplanet.co.uk, linux-fsdevel@vger.kernel.org,
+       penberg@cs.helsinki.fi
+In-Reply-To: <200505232225.j4NMPXe1029024@ms-smtp-02-eri0.texas.rr.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <42925760.9010603@vc.cvut.cz>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+References: <200505232225.j4NMPXe1029024@ms-smtp-02-eri0.texas.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Petr :)
+Hi,
 
-    Thanks for your answer :)
+On 5/24/05, ericvh@gmail.com <ericvh@gmail.com> wrote:
+> +static ssize_t
+> +v9fs_file_write(struct file *filp, const char __user * data,
+> +               size_t count, loff_t * offset)
+> +{
+> +       int ret = -1;
+> +       char *buffer;
+> +
+> +       buffer = kmalloc(count, GFP_KERNEL);
+> +       if (buffer == NULL) {
+> +               BUG();
 
- * Petr Vandrovec <vandrove@vc.cvut.cz> dixit:
-> >>DervishD wrote:
-> >>>  current capacity is 156299375
-> >>>  native capacity is 156301488
-> >>Hard drives have a feature that can reserve a certain amount of space 
-> >>away from the user.
-> >    Yes, I know, but the problem is that 2.4 kernels *does* reserve
-> >that space but 2.6 certainly not, and if I boot into 2.6 and then
-> >reboot into 2.4, then 2.4 *does NOT* reserve that space.
-> Yes.  It is normal...
+I think simply returning -ENOMEM is sufficient. BUG seems way too
+aggressive. (Found this in other places as well.)
 
-    I'm surprised :??? Does 2.6 'stroking' by default? I supposed
-that maybe Debian people had activated stroking...
- 
-> >    See the paragraph above: if I partition the disk under 2.6 the
-> >partition will have a bigger address than the one that will be
-> >available under 2.4, and that can give errors while accessing that
-> >extra sectors. What can I do? For technical limitations in my box, I
-> >have to use 2.6 for repartitioning that disk (and I will be doing
-> >that in less than a month) and this will lead to unaccesible sectors
-> >when I boot back into my usual 2.4 kernel :(
-> (1) You do not have to create partition over full disk.
+> +               return -ENOMEM;
+> +       }
 
-    I would prefer to do it. Otherwise I have to calculate where the
-partition must end in order to not disturb the kernel. Moreover, in
-that space will go the swap partition, probably...
- 
-> (2) If you'll build your 2.4.x kernel with CONFIG_IDEDISK_STROKE=y
-> ('Auto-Geometry Resizing support'), I bet that your problems with 2.4.x
-> kernels disappear.
-
-    I'll try right now... YES, it works!. I don't understand, my BIOS
-is AMI, not Awards, and I assumed that the stroke option was used
-only for Awards BIOS'es. I've looked at the code in the kernel and it
-doesn't seem to be particular for Award :?? It should be specified in
-the documentation.
-
-    Thanks a lot for your suggestion and for solving my problem :)
-
-    Raúl Núñez de Arenas Coronado
-
--- 
-Linux Registered User 88736 | http://www.dervishd.net
-http://www.pleyades.net & http://www.gotesdelluna.net
-It's my PC and I'll cry if I want to...
+                    Pekka

@@ -1,122 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262047AbVEXOvc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262056AbVEXOyL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262047AbVEXOvc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 10:51:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbVEXOvc
+	id S262056AbVEXOyL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 10:54:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbVEXOyL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 10:51:32 -0400
-Received: from alog0263.analogic.com ([208.224.222.39]:53900 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S262047AbVEXOvN
+	Tue, 24 May 2005 10:54:11 -0400
+Received: from alog0263.analogic.com ([208.224.222.39]:53455 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262056AbVEXOx7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 10:51:13 -0400
-Date: Tue, 24 May 2005 10:50:35 -0400 (EDT)
+	Tue, 24 May 2005 10:53:59 -0400
+Date: Tue, 24 May 2005 10:53:24 -0400 (EDT)
 From: "Richard B. Johnson" <linux-os@analogic.com>
 Reply-To: linux-os@analogic.com
-To: Paul Rolland <rol@as2917.net>
-cc: linux-kernel@vger.kernel.org, rol@witbe.net
-Subject: Re: Linux and Initrd used to access disk : how does it work ?
-In-Reply-To: <200505241356.j4ODuaR07145@tag.witbe.net>
-Message-ID: <Pine.LNX.4.61.0505241032250.16158@chaos.analogic.com>
-References: <200505241356.j4ODuaR07145@tag.witbe.net>
+To: COMBES Julien - CETE Lyon/DI/ET/PAMELA <julien.combes@i-carre.net>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: megaraid irq disable after days
+In-Reply-To: <4293368B.50808@i-carre.net>
+Message-ID: <Pine.LNX.4.61.0505241051310.16158@chaos.analogic.com>
+References: <4293368B.50808@i-carre.net>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 May 2005, Paul Rolland wrote:
 
+This is usually caused by the driver not returning IRQ_HANDLED.
+
+
+On Tue, 24 May 2005, COMBES Julien - CETE Lyon/DI/ET/PAMELA wrote:
 > Hello,
 >
-> I've been fighting for a few days with binary modules from some manufacturer
-> for hardware support of disk controler, and I'm at a point where I need
-> some more understanding.
+> I have a problem with a kernel 2.6.10 (sources from debian) which
+> disable IRQ of my megraid (driver megaraid_mbox) on several servers
+> after days of work and several millions of interuptions.
+> When the IRQ is disable, the servers do that :
 >
-> 1 - My machine contains an Adaptec SATA Raid based on Marvel 88SX60xx
->    so I need to used the aar81xxx binary module,
+> May 22 03:02:20 relternet-01 kernel: irq 17: nobody cared!
+> May 22 03:02:20 relternet-01 kernel:  [__report_bad_irq+42/160]
+> __report_bad_irq+0x2a/0xa0
+> May 22 03:02:20 relternet-01 kernel:  [handle_IRQ_event+48/112]
+> handle_IRQ_event+0x30/0x70
+> May 22 03:02:20 relternet-01 kernel:  [note_interrupt+112/176]
+> note_interrupt+0x70/0xb0
+> May 22 03:02:20 relternet-01 kernel:  [__do_IRQ+304/320]
+> __do_IRQ+0x130/0x140
+> May 22 03:02:20 relternet-01 kernel:  [do_IRQ+25/48] do_IRQ+0x19/0x30
+> May 22 03:02:20 relternet-01 kernel:  [common_interrupt+26/32]
+> common_interrupt+0x1a/0x20
+> May 22 03:02:20 relternet-01 kernel:  [mwait_idle+51/80]
+> mwait_idle+0x33/0x50
+> May 22 03:02:20 relternet-01 kernel:  [cpu_idle+59/80] cpu_idle+0x3b/0x50
+> May 22 03:02:20 relternet-01 kernel: handlers:
+> May 22 03:02:20 relternet-01 kernel: [pg0+944120576/1069794304]
+> (megaraid_isr+0x0/0x1e0 [megaraid_mbox])
+> May 22 03:02:20 relternet-01 kernel: Disabling IRQ #17
 >
-> 2 - This module is presented as required to access the disk (when
->    installing a RH kernel, it says that no disk is present unless the
->    module is loaded),
+> I haven't noticed something else curious on the servers.
 >
-> 3 - When booting the kernel from disk after installation, the module is
->    loaded so the machine can access the disk...
+> hardware of these servers :
+> - bi Intel Xeon 2.4Ghz
+> - 4.5 GB of RAM
+> - MegaRaid SCSI 320-2 [1]
 >
-> ... BUT ... how can the machine /
-> - boot the kernel,
-> - access the initrd image and uncompress it,
-> - read the binary module inside and load it
-> BEFORE loading the module itself, if it is mandatory to access the disk.
+> The kernel use  SMP, HT, high memory support 64GB, megaraid_mbox driver
+> (v2.20.4.1, in module with initrd until yesterday) and don't use preempt.
 >
-> And if it is not, then how can I do the installation ?
+> As I didn't find anything that match IRQ disable and megaraid under
+> internet, I have tried several ways :
+> - at the beginning, the IRQ of eth0 and megaraid was shared. I have
+> corrected this [2] but the problem is staying.
+> - I have try newer version of the kernel 2.6.9 to 2.6.10. No benefic
+> result.
+> - I have try the boot option "acpi=ht". No benefic result.
+> - the firmeware of the megaraid has been upgraded (to the 1L37
+> version). No benefic result.
 >
-> I suspect this should be fairly trivial, but I've been thinking about
-> for long, and it looks like chicken and egg to me...
+> Since yesterday, I am trying, on all server which have the problem,
+> kernel  2.6.11.10 (source take kernel.org) with megaraid_mbox built-in
+> (v2.20.4.5) and with differents boot options on servers :
+> - "noirqdebug" and "acpi=ht"
+> - "noirqdebug" and "acpi=off"
+> - "acpi=off"
+> - "acpi=ht"
 >
-> Any help ?
+> I have this problem  since I installed them few weeks ago with my new
+> FAI (Debian Fully autmatic Installation). I have a lot of difficulty for
+> solving the probleme because servers can run without problem one or two
+> weeks. These servers are not yet in production but still in tests of
+> charge; they should be in production in one or two weeks... if I find a
+> way to correct this problem !
+>
+> Do you have any ideas of which way I can search ?
 >
 > Regards,
-> Paul
-
-initrd means Initial RAM disk.
-
-The boot image is put onto your Hard disk. The hard disk needs
-to be accessible from the BIOS to boot from it. Most controllers
-have a BIOS module that lets it be accessed during boot so you
-don't need a chicken before the egg to start the boot.
-Then, when booting, LILO or grub starts linux which uncompresses
-a RAM disk and mounts it instead of your hard disk. A special
-version of `init` (called nash) gets started which reads a script
-called linuxrc. It contains commands like:
-
-#!/bin/nash
-mount -t proc /proc /proc
-setquiet
-echo Mounted /proc filesystem
-echo Mounting sysfs
-mount -t sysfs none /sys
-echo "Loading scsi_mod.ko module"
-insmod /lib/scsi_mod.ko 
-echo "Loading sd_mod.ko module"
-insmod /lib/sd_mod.ko 
-echo "Loading aic7xxx.ko module"
-insmod /lib/aic7xxx.ko 
-echo "Loading libata.ko module"
-insmod /lib/libata.ko 
-echo "Loading ata_piix.ko module"
-insmod /lib/ata_piix.ko 
-echo "Loading jbd.ko module"
-insmod /lib/jbd.ko 
-echo "Loading ext3.ko module"
-insmod /lib/ext3.ko 
-echo Creating block devices
-mkdevices /dev
-echo Creating root device
-mkrootdev /dev/root
-umount /sys
-echo 0x0100 > /proc/sys/kernel/real-root-dev
-echo Mounting root filesystem
-mount -o defaults --ro -t ext3 /dev/root /sysroot
-pivot_root /sysroot /sysroot/initrd
-umount /initrd/proc
-
-In this case, it loads my SCSI disk (aic7xxx) module and other
-stuff necessary to access the disk and its filesystem.
-
-The module(s) are in the /lib directory of the RAM disk.
-They are put there by a build-script that installs initrd.
-This script gets executed when you do 'make install' in
-the kernel directory. If you have private modules, you
-can copy them to the appropriate /lib/modules/`uname -r`/kernel/drivers
-directory. You put the module(s) name(s) you need to boot
-in /etc/modprobe.conf or /etc/modules.conf (depends upon the
-module tools version) as:
-
-alias scsi_hostadapter aic7xxx
-alias scsi_hostadapter1 ata_piix
-
-... any scsi_hostadapter stuff will be put into initrd when
-you execute the script, /sbin/mkinitrd.
-
+> Julien
+>
+> [1] 0000:03:08.0 RAID bus controller: LSI Logic / Symbios Logic MegaRAID
+> (rev 01)
+>        Subsystem: LSI Logic / Symbios Logic MegaRAID 518 SCSI 320-2
+> Controller
+>        Flags: bus master, fast Back2Back, 66MHz, slow devsel, latency
+> 32, IRQ 17
+>        Memory at d0500000 (32-bit, prefetchable) [size=64K]
+>        Capabilities: [80] Power Management version 2
+>
+> [2]
+> irq  0:  88018734 timer                 irq 16:  21659113 eth0
+> irq  1:         9 i8042                 irq 17:  12532775 megaraid
+> irq  2:         0 cascade [4]           irq 18:        30 aic79xx
+> irq 12:         3                       irq 19:        30 aic79xx
+> irq 14:         1 ide0                  irq 23:         0 ehci_hcd
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
 
 Cheers,
 Dick Johnson

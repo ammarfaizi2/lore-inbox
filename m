@@ -1,60 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262151AbVEXXVV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262159AbVEXX1n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262151AbVEXXVV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 19:21:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVEXXVV
+	id S262159AbVEXX1n (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 19:27:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262160AbVEXX1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 19:21:21 -0400
-Received: from downeast.net ([12.149.251.230]:64194 "EHLO downeast.net")
-	by vger.kernel.org with ESMTP id S262151AbVEXXVT (ORCPT
+	Tue, 24 May 2005 19:27:43 -0400
+Received: from 64-30-195-78.dsl.linkline.com ([64.30.195.78]:62620 "EHLO
+	jg555.com") by vger.kernel.org with ESMTP id S262159AbVEXX1d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 19:21:19 -0400
-From: Patrick McFarland <pmcfarland@downeast.net>
-To: Kernel Hacker <kernel@dacodecz.org>
-Subject: Re: What the hell :-(
-Date: Tue, 24 May 2005 19:20:39 -0400
-User-Agent: KMail/1.8
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <4293A7A6.9080804@dacodecz.org>
-In-Reply-To: <4293A7A6.9080804@dacodecz.org>
+	Tue, 24 May 2005 19:27:33 -0400
+Message-ID: <4293B859.3070609@jg555.com>
+Date: Tue, 24 May 2005 16:27:21 -0700
+From: Jim Gifford <maillist@jg555.com>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1215945.JheHp8yYKF";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Random IDE Lock ups with via IDE
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200505241920.47772.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1215945.JheHp8yYKF
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+I have been using the 2.6.10.x series kernel for a while on my other 
+systems with no issues at all.
 
-On Tuesday 24 May 2005 06:16 pm, Kernel Hacker wrote:
-> root@smtp.nexlab.net is on leak or what, destroying thread here ........
+But on my laptop which has the via 686 chipset, I started having some 
+wierd issues. This happens after about 2 weeks of non-shutting down
 
-I think its just it's MTA slowly going insane. It seems to have been fixed.
+Here is a sample of the data from my kernel log
+About the device
+May 24 16:22:22 laptop kernel: Uniform Multi-Platform E-IDE driver 
+Revision: 7.00alpha2
+May 24 16:22:22 laptop kernel: ide: Assuming 33MHz system bus speed for 
+PIO modes; override with idebus=xx
+May 24 16:22:22 laptop kernel: VP_IDE: IDE controller at PCI slot 
+0000:00:07.1
+May 24 16:22:22 laptop kernel: VP_IDE: chipset revision 16
+May 24 16:22:22 laptop kernel: VP_IDE: not 100%% native mode: will probe 
+irqs later
+May 24 16:22:22 laptop kernel: VP_IDE: VIA vt82c686a (rev 22) IDE UDMA66 
+controller on pci0000:00:07.1
+May 24 16:22:22 laptop kernel:     ide0: BM-DMA at 0x1100-0x1107, BIOS 
+settings: hda:DMA, hdb:pio
+May 24 16:22:22 laptop kernel:     ide1: BM-DMA at 0x1108-0x110f, BIOS 
+settings: hdc:DMA, hdd:pio
+May 24 16:22:22 laptop kernel: Probing IDE interface ide0...
+May 24 16:22:22 laptop kernel: hda: FUJITSU MHS2030AT, ATA DISK drive
+May 24 16:22:22 laptop kernel: ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+May 24 16:22:22 laptop kernel: Probing IDE interface ide1...
+May 24 16:22:22 laptop kernel: hdc: DW-224E, ATAPI CD/DVD-ROM drive
+May 24 16:22:22 laptop kernel: ide1 at 0x170-0x177,0x376 on irq 15
+May 24 16:22:22 laptop kernel: hda: max request size: 128KiB
+May 24 16:22:22 laptop kernel: hda: 58605120 sectors (30005 MB) 
+w/2048KiB Cache, CHS=58140/16/63
+May 24 16:22:22 laptop kernel: hda: cache flushes supported
+May 24 16:22:22 laptop kernel:  hda: hda1 hda2 hda3 hda4
 
-=2D-=20
-Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
-e'd=20
-all be running around in darkened rooms, munching magic pills and listening=
- to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
+Error Messages
+First sign of the problem
+May 24 01:37:03 laptop kernel: ide: failed opcode was: unknown
+May 24 01:37:03 laptop kernel: ide0: reset: success
+May 24 01:38:15 laptop kernel: hda: irq timeout: status=0xd0 { Busy }
+May 24 01:38:15 laptop kernel:
+May 24 01:38:15 laptop kernel: ide: failed opcode was: unknown
+May 24 01:38:17 laptop kernel: ide0: reset: success
+May 24 01:47:57 laptop kernel: hda: irq timeout: status=0xd0 { Busy }
+May 24 01:47:57 laptop kernel:
+May 24 01:47:57 laptop kernel: ide: failed opcode was: unknown
+May 24 01:48:32 laptop kernel: ide0: reset timed-out, status=0xd0
+May 24 01:48:32 laptop kernel: hda: status timeout: status=0xd0 { Busy }
+May 24 01:48:32 laptop kernel:
+May 24 01:48:32 laptop kernel: ide: failed opcode was: unknown
+May 24 01:48:32 laptop kernel: hda: drive not ready for command
+May 24 01:48:32 laptop kernel: ide0: reset: success
+May 24 01:50:59 laptop kernel: hda: irq timeout: status=0xd0 { Busy }
+May 24 01:50:59 laptop kernel:
+May 24 01:50:59 laptop kernel: ide: failed opcode was: unknown
+May 24 01:51:04 laptop kernel: ide0: reset: success
+May 24 01:53:44 laptop kernel: hda: irq timeout: status=0xd0 { Busy }
+May 24 01:53:49 laptop kernel:
+May 24 01:53:49 laptop kernel: ide: failed opcode was: unknown
+May 24 01:53:49 laptop kernel: ide0: reset: success
+May 24 01:54:14 laptop kernel: hda: irq timeout: status=0xd0 { Busy }
+May 24 01:54:25 laptop kernel:
+May 24 01:54:25 laptop kernel: ide: failed opcode was: unknown
+May 24 01:54:25 laptop kernel: ide0: reset: success
+May 24 02:00:12 laptop kernel: hda: irq timeout: status=0xd0 { Busy }
+May 24 02:00:12 laptop kernel:
+May 24 02:00:12 laptop kernel: ide: failed opcode was: unknown
+May 24 02:00:16 laptop kernel: ide0: reset: success
+May 24 02:00:35 laptop kernel: hda: irq timeout: status=0xd0 { Busy }
+May 24 02:00:35 laptop kernel:
+May 24 02:00:35 laptop kernel: ide: failed opcode was: unknown
+May 24 02:00:47 laptop kernel: ide0: reset: success
+May 24 02:23:36 laptop kernel: hda: status timeout: status=0xd0 { Busy }
 
---nextPart1215945.JheHp8yYKF
-Content-Type: application/pgp-signature
+Different error messages
+May 24 16:10:47 laptop kernel: hda: status timeout: status=0xd0 { Busy }
+May 24 16:10:47 laptop kernel:
+May 24 16:10:47 laptop kernel: ide: failed opcode was: unknown
+May 24 16:10:47 laptop kernel: hda: no DRQ after issuing MULTWRITE
+May 24 16:10:50 laptop kernel: ide0: reset: success
+May 24 16:14:50 laptop kernel: hda: status timeout: status=0xd0 { Busy }
+May 24 16:14:50 laptop kernel:
+May 24 16:14:50 laptop kernel: ide: failed opcode was: unknown
+May 24 16:14:50 laptop kernel: hda: no DRQ after issuing MULTWRITE
+May 24 16:14:55 laptop kernel: ide0: reset: success
+May 24 16:15:35 laptop kernel: hda: irq timeout: status=0xd0 { Busy }
+May 24 16:15:35 laptop kernel:
+May 24 16:15:35 laptop kernel: ide: failed opcode was: unknown
+May 24 16:15:37 laptop kernel: ide0: reset: success
+May 24 16:16:01 laptop kernel: hda: status timeout: status=0xd0 { Busy }
+May 24 16:16:01 laptop kernel:
+May 24 16:16:01 laptop kernel: ide: failed opcode was: unknown
+May 24 16:16:01 laptop kernel: hda: no DRQ after issuing MULTWRITE
+May 24 16:16:01 laptop kernel: ide0: reset: success
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
+The issue is also described here in this forum post from someone else
+http://forums.viaarena.com/messageview.aspx?catid=28&threadid=66084&enterthread=y
 
-iD8DBQBCk7bP8Gvouk7G1cURAgSjAJ9l4rG8c1l5eDyld3pFpRhrMhRT9QCeIVHE
-sbcpJMxjshZ/P1VyrlJSEOo=
-=/NZt
------END PGP SIGNATURE-----
+-- 
+----
+Jim Gifford
+maillist@jg555.com
 
---nextPart1215945.JheHp8yYKF--

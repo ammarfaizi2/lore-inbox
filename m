@@ -1,43 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVEXSxE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVEXTBP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbVEXSxE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 14:53:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVEXSxE
+	id S261397AbVEXTBP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 15:01:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbVEXTBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 14:53:04 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:48260 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261375AbVEXSxB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 14:53:01 -0400
-Date: Tue, 24 May 2005 20:52:41 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jiri Benc <jbenc@suse.cz>
-Cc: NetDev <netdev@oss.sgi.com>, LKML <linux-kernel@vger.kernel.org>,
-       jgarzik@pobox.com
-Subject: Re: [0/5] Improvements to the ieee80211 layer
-Message-ID: <20050524185241.GB2470@elf.ucw.cz>
-References: <20050524150711.01632672@griffin.suse.cz>
+	Tue, 24 May 2005 15:01:15 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34791 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261397AbVEXTBI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 15:01:08 -0400
+Date: Tue, 24 May 2005 15:01:07 -0400
+From: Neil Horman <nhorman@redhat.com>
+To: "Giacomo A. Catenazzi" <cate@debian.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [Patch] ipmi: Compiler error in last git kernel [drivers/char/ipmi/ipmi_devintf.c]
+Message-ID: <20050524190107.GH17607@hmsendeavour.rdu.redhat.com>
+References: <42935D89.90603@debian.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050524150711.01632672@griffin.suse.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <42935D89.90603@debian.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Heres the fix.  Looks pretty straight forward
 
-> The ieee80211 layer, now present in -mm, lacks many important features
-> (actually it's just a part of the ipw2100/ipw2200 driver; these cards do
-> a lot of the processing in the hardware/firmware and thus the layer
-> currently can not be used for simpler devices).
-> 
-> This is the first series of patches that try to convert it to a generic
-> IEEE 802.11 layer, usable for most of today's wireless cards.
+Signed-off-by: Neil Horman <nhorman@redhat.com>
 
-Are they against -rc4-mm2?
+ ipmi_devintf.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Would it be possible to put agregate patch on the web somewhere (or
-git tree?). I would certainly be easier to test....
-								Pavel
+
+--- linux-2.6.git/drivers/char/ipmi/ipmi_devintf.c.buildbreak	2005-05-24 14:40:58.000000000 -0400
++++ linux-2.6.git/drivers/char/ipmi/ipmi_devintf.c	2005-05-24 14:48:45.000000000 -0400
+@@ -520,7 +520,7 @@ MODULE_PARM_DESC(ipmi_major, "Sets the m
+ 		 " interface.  Other values will set the major device number"
+ 		 " to that value.");
+ 
+-static struct class *ipmi_class;
++static struct class_simple *ipmi_class;
+ 
+ static void ipmi_new_smi(int if_num)
+ {
+@@ -534,7 +534,7 @@ static void ipmi_new_smi(int if_num)
+ 
+ static void ipmi_smi_gone(int if_num)
+ {
+-	class_simple_device_remove(ipmi_class, MKDEV(ipmi_major, if_num));
++	class_simple_device_remove(MKDEV(ipmi_major, if_num));
+ 	devfs_remove("ipmidev/%d", if_num);
+ }
+ 
+-- 
+/***************************************************
+ *Neil Horman
+ *Software Engineer
+ *Red Hat, Inc.
+ *nhorman@redhat.com
+ *gpg keyid: 1024D / 0x92A74FA1
+ *http://pgp.mit.edu
+ ***************************************************/

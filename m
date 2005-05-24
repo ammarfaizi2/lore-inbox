@@ -1,54 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbVEXSUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbVEXSZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261425AbVEXSUE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 14:20:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVEXSUE
+	id S261988AbVEXSZL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 14:25:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVEXSYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 14:20:04 -0400
-Received: from colin.muc.de ([193.149.48.1]:9481 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S261946AbVEXSSx (ORCPT
+	Tue, 24 May 2005 14:24:31 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:63184 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261951AbVEXSXk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 14:18:53 -0400
-Date: 24 May 2005 20:18:51 +0200
-Date: Tue, 24 May 2005 20:18:51 +0200
-From: Andi Kleen <ak@muc.de>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: akpm@osdl.org, zwane@arm.linux.org.uk, rusty@rustycorp.com.au,
-       vatsa@in.ibm.com, shaohua.li@intel.com, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org
-Subject: Re: [patch 1/4] CPU Hotplug support for X86_64
-Message-ID: <20050524181851.GH86233@muc.de>
-References: <20050524081113.409604000@csdlinux-2.jf.intel.com> <20050524081304.011927000@csdlinux-2.jf.intel.com> <20050524121542.GA86182@muc.de> <20050524085112.A20866@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050524085112.A20866@unix-os.sc.intel.com>
-User-Agent: Mutt/1.4.1i
+	Tue, 24 May 2005 14:23:40 -0400
+Message-ID: <4293709E.6040702@redhat.com>
+Date: Tue, 24 May 2005 14:21:18 -0400
+From: Ananth N Mavinakayanahalli <amavin@redhat.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: Prasanna S Panchamukhi <prasanna@in.ibm.com>, akpm@osdl.org,
+       davem@davemloft.net, linux-kernel@vger.kernel.org,
+       systemtap@sources.redhat.com
+Subject: Re: [PATCH 1/5] Kprobes: Temporary disarming of reentrant probe
+References: <20050524101532.GA27215@in.ibm.com> <20050524181525.GF86233@muc.de>
+In-Reply-To: <20050524181525.GF86233@muc.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 24, 2005 at 08:51:13AM -0700, Ashok Raj wrote:
-> On Tue, May 24, 2005 at 02:15:42PM +0200, Andi Kleen wrote:
-> > On Tue, May 24, 2005 at 01:11:14AM -0700, Ashok Raj wrote:
-> > >   * RED-PEN audit/test this more. I bet there is more state messed up here.
-> > >   */
-> > > -static __cpuinit void disable_smp(void)
-> > > +static __init void disable_smp(void)
-> > 
-> > Why all these cpuinit->init changes? I think they should stay __cpuinit
-> > 
-> > The other way round looks ok.
+Andi Kleen wrote:
+
+Hi Andi,
+
+>>@@ -55,6 +61,9 @@ struct kprobe {
+>> 	/* list of kprobes for multi-handler support */
+>> 	struct list_head list;
+>> 
+>>+	/*count the number of times this probe was temporarily disarmed */
+>>+	unsigned long nmissed;
 > 
-> disable_smp() is called only in smp_prepare_cpus() which is not required 
-> for hotplug. Its currently only required only for startup, and not later.
 > 
-> I changed the ones from __cpuinit to __init, just in functions marked 
-> with paranoia... i think it can stay cpuinit, unless there is another reason
-> i didnt catch.
+> You declare a variable.
+> 
+> 
+>>+
+>> 	/* location of the probe point */
+>> 	kprobe_opcode_t *addr;
+>> 
+>>diff -puN kernel/kprobes.c~kprobes-temporary-disarming-on-reentrancy-generic kernel/kprobes.c
+>>--- linux-2.6.12-rc4-mm2/kernel/kprobes.c~kprobes-temporary-disarming-on-reentrancy-generic	2005-05-24 15:28:08.000000000 +0530
+>>+++ linux-2.6.12-rc4-mm2-prasanna/kernel/kprobes.c	2005-05-24 15:28:08.000000000 +0530
+>>@@ -334,6 +334,7 @@ int register_kprobe(struct kprobe *p)
+>> 	}
+>> 	spin_lock_irqsave(&kprobe_lock, flags);
+>> 	old_p = get_kprobe(p->addr);
+>>+	p->nmissed = 0;
+> 
+> 
+> And then you set it to 0.
+> 
+> And nothing more. Surely this patch does not do anything. Looks like
+> some code is missing.
 
-Ok. Makes sense.
+No Andi - nmissed is incremented in the arch/xxx/kernel/kprobes.c
+everytime the probe is "reentered". This is part of the subsequent
+patches in the series.
 
-But how about all the other functions that you changed too? Can you
-double check them. SOme looked suspicious.
+Ananth
 
--Andi

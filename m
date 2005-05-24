@@ -1,122 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbVEXOry@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262047AbVEXOvc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261470AbVEXOry (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 10:47:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVEXOry
+	id S262047AbVEXOvc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 10:51:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262067AbVEXOvc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 10:47:54 -0400
-Received: from vms040pub.verizon.net ([206.46.252.40]:16294 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261470AbVEXOrs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 10:47:48 -0400
-Date: Tue, 24 May 2005 10:47:43 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: RT patch acceptance
-In-reply-to: <Pine.OSF.4.05.10505241532040.29908-100000@da410.phys.au.dk>
-To: linux-kernel@vger.kernel.org
-Message-id: <200505241047.43473.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <Pine.OSF.4.05.10505241532040.29908-100000@da410.phys.au.dk>
-User-Agent: KMail/1.7
+	Tue, 24 May 2005 10:51:32 -0400
+Received: from alog0263.analogic.com ([208.224.222.39]:53900 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262047AbVEXOvN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 10:51:13 -0400
+Date: Tue, 24 May 2005 10:50:35 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Paul Rolland <rol@as2917.net>
+cc: linux-kernel@vger.kernel.org, rol@witbe.net
+Subject: Re: Linux and Initrd used to access disk : how does it work ?
+In-Reply-To: <200505241356.j4ODuaR07145@tag.witbe.net>
+Message-ID: <Pine.LNX.4.61.0505241032250.16158@chaos.analogic.com>
+References: <200505241356.j4ODuaR07145@tag.witbe.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 24 May 2005 09:58, Esben Nielsen wrote:
+On Tue, 24 May 2005, Paul Rolland wrote:
 
-As a user working on makeing a small mill into a CNC machine, using 
-emc, I'll comment as needed here.
-
->On Tue, 24 May 2005, Karim Yaghmour wrote:
->> Esben Nielsen wrote:
->> > I find that a bad approach:
->> > 1) You don't have RT in userspace.
->> > 2) You can't use Linux drivers for standeard hardware when you
->> > want it to be part of your deterministic RT application.
->>
->> Please have a look at RTAI/fusion. For the record, RTAI has been
->> providing hard-rt in standard Linux user-space for over 5 years
->> now. With RTAI/Fusion this gets even better as there isn't even a
->> special API ...
+> Hello,
 >
->The tests I have read (I can't remember the links, but it was on
-> lwn.net) states that the worst case latency is even worse than for
-> a standeard 2.6 kernel!
-
-It is worse, by a quite noticeable amount.  Keyboard events often take 
-noticeable fractions of a second to show, or to take effect if its 
-the apps own interface that you are entering control data to.
-
->If you gonna make usefull deterministic real-time in userspace you
-> got to change stuff in kernel space and implement stuff like
-> priority inheritance, priority ceiling or similar.  It can only
-> turn up to be an ugly hack which will end up being as intruesive
-> into the kernel as Ingo's approach. If you don't do anything like
-> that you can not use _any_ Linux kernel resources from your RT
-> processes even though you have reimplemented the pthread library to
-> know about the "super RT" priorities.
+> I've been fighting for a few days with binary modules from some manufacturer
+> for hardware support of disk controler, and I'm at a point where I need
+> some more understanding.
 >
->But I give you: You will gain better interrupt latencies because
->interrupts are executed below the Linux proper. I.e. when the Linux
->kernel runs with interrupt disabled, they are really enabled in the
-> RTAI subsystem.
+> 1 - My machine contains an Adaptec SATA Raid based on Marvel 88SX60xx
+>    so I need to used the aar81xxx binary module,
 >
->My estimate is that RTAI is good when you have a very small
-> subsystem you need to run RT with very low latencies. Forinstance,
-> controlling a fast device with limiting hardware resources to
-> buffer events.
-
-This is true, and in order to be able to run emc with anything like a 
-decent motor speed at the motors, I had to buy a new board and video 
-card to replace the one I was going to use, which was a 266mhz p2.  
-The p2 could do it, but there was no time left to run linux, so 
-controlling the application wasn't possible.  Without changing the 
-RTAI cycle time, a 1400mhz athlon runs linux at fairly normal speed 
-while emc is running.
-
->For large control systems I don't think it is the proper way to do
-> it. There it is much better to run the control tasks as normal
-> Linux user-space processes with RT-priority. I can see Ingo's
-> kernel doing that, I can't see RTAI doing it except for very
-> special situations where you don't make _any_ Linux system calls at
-> all! You can't even use a normal Linux network device or character
-> device from your RT application!
-
-I agree.  Use RTAI if you are building a specialized box that will 
-never be asked to do anything else, mostly because thats all it will 
-be capable of doing unless it has horsepower to burn, lots of it.
-
-Ingo's RT patches allow me to do some play time and driver development 
-on this box for that application with a reasonable expectation that 
-it will work on that box when I haul the code down there and 
-recompile it there.
-
-I've also noted that Jack users need this as its not very usable 
-without it, or wasn't half a year ago.  I'm not a die hard Jack user, 
-but I'd really like to import my movie camera without any dropped 
-frames, so I expect what fixes one will fix the other.
-
-If, at the same time, it will give me back a keyboard when SA is 
-filtering the incoming mail on this machine, thats a huge plus.  I'm 
-about to find that out as I just built the -07 version.
-
->> Here are a few links if you're interested:
->> http://www.rtai.org/modules.php?name=Content&pa=showpage&pid=1
->> http://marc.theaimsgroup.com/?l=linux-kernel&m=111634653913840&w=2
->>
->> Karim
+> 2 - This module is presented as required to access the disk (when
+>    installing a RH kernel, it says that no disk is present unless the
+>    module is loaded),
 >
->Esben
+> 3 - When booting the kernel from disk after installation, the module is
+>    loaded so the machine can access the disk...
+>
+> ... BUT ... how can the machine /
+> - boot the kernel,
+> - access the initrd image and uncompress it,
+> - read the binary module inside and load it
+> BEFORE loading the module itself, if it is mandatory to access the disk.
+>
+> And if it is not, then how can I do the installation ?
+>
+> I suspect this should be fairly trivial, but I've been thinking about
+> for long, and it looks like chicken and egg to me...
+>
+> Any help ?
+>
+> Regards,
+> Paul
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.34% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+initrd means Initial RAM disk.
+
+The boot image is put onto your Hard disk. The hard disk needs
+to be accessible from the BIOS to boot from it. Most controllers
+have a BIOS module that lets it be accessed during boot so you
+don't need a chicken before the egg to start the boot.
+Then, when booting, LILO or grub starts linux which uncompresses
+a RAM disk and mounts it instead of your hard disk. A special
+version of `init` (called nash) gets started which reads a script
+called linuxrc. It contains commands like:
+
+#!/bin/nash
+mount -t proc /proc /proc
+setquiet
+echo Mounted /proc filesystem
+echo Mounting sysfs
+mount -t sysfs none /sys
+echo "Loading scsi_mod.ko module"
+insmod /lib/scsi_mod.ko 
+echo "Loading sd_mod.ko module"
+insmod /lib/sd_mod.ko 
+echo "Loading aic7xxx.ko module"
+insmod /lib/aic7xxx.ko 
+echo "Loading libata.ko module"
+insmod /lib/libata.ko 
+echo "Loading ata_piix.ko module"
+insmod /lib/ata_piix.ko 
+echo "Loading jbd.ko module"
+insmod /lib/jbd.ko 
+echo "Loading ext3.ko module"
+insmod /lib/ext3.ko 
+echo Creating block devices
+mkdevices /dev
+echo Creating root device
+mkrootdev /dev/root
+umount /sys
+echo 0x0100 > /proc/sys/kernel/real-root-dev
+echo Mounting root filesystem
+mount -o defaults --ro -t ext3 /dev/root /sysroot
+pivot_root /sysroot /sysroot/initrd
+umount /initrd/proc
+
+In this case, it loads my SCSI disk (aic7xxx) module and other
+stuff necessary to access the disk and its filesystem.
+
+The module(s) are in the /lib directory of the RAM disk.
+They are put there by a build-script that installs initrd.
+This script gets executed when you do 'make install' in
+the kernel directory. If you have private modules, you
+can copy them to the appropriate /lib/modules/`uname -r`/kernel/drivers
+directory. You put the module(s) name(s) you need to boot
+in /etc/modprobe.conf or /etc/modules.conf (depends upon the
+module tools version) as:
+
+alias scsi_hostadapter aic7xxx
+alias scsi_hostadapter1 ata_piix
+
+... any scsi_hostadapter stuff will be put into initrd when
+you execute the script, /sbin/mkinitrd.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

@@ -1,210 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbVEXLAU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262041AbVEXJZa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262065AbVEXLAU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 07:00:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262014AbVEXK5b
+	id S262041AbVEXJZa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 05:25:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbVEXJXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 06:57:31 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:12939 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261514AbVEXKzH (ORCPT
+	Tue, 24 May 2005 05:23:19 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:21188 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S261993AbVEXJSx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 06:55:07 -0400
-Date: Tue, 24 May 2005 12:54:48 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-Subject: Re: [patch] consolidate PREEMPT options into kernel/Kconfig.preempt
-Message-ID: <20050524105448.GA29863@elte.hu>
-References: <20050524103047.GA26586@elte.hu>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="ReaqsoxgOBHFXBhH"
-Content-Disposition: inline
-In-Reply-To: <20050524103047.GA26586@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Tue, 24 May 2005 05:18:53 -0400
+X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
+X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
+	08:27:20 2005 signatures 31.893
+Message-Id: <20050524091852.43480FA5B@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:18:52 +0200 (CEST)
+From: root@smtp.nexlab.net
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	by smtp.nexlab.net (Postfix) with ESMTP id 84712FB78
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:48 +0200 (CEST)
+
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+
+	id S261301AbVEXB43 (ORCPT <rfc822;chiakotay@nexlab.it>);
+
+	Mon, 23 May 2005 21:56:29 -0400
+
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVEXB43
+
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+
+	Mon, 23 May 2005 21:56:29 -0400
+
+Received: from mail.dvmed.net ([216.237.124.58]:59595 "EHLO mail.dvmed.net")
+
+	by vger.kernel.org with ESMTP id S261300AbVEXB41 (ORCPT
+
+	<rfc822;linux-kernel@vger.kernel.org>);
+
+	Mon, 23 May 2005 21:56:27 -0400
+
+Received: from cpe-065-184-065-144.nc.res.rr.com ([65.184.65.144] helo=[10.10.10.88])
+
+	by mail.dvmed.net with esmtpsa (Exim 4.51 #1 (Red Hat Linux))
+
+	id 1DaOee-00018N-Sq; Tue, 24 May 2005 01:56:25 +0000
+
+Message-ID: <429289C6.9080707@pobox.com>
+
+Date:	Mon, 23 May 2005 21:56:22 -0400
+
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+
+X-Accept-Language: en-us, en
+
+MIME-Version: 1.0
+
+To: Brent Casavant <bcasavan@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] ioc4: Driver rework
+
+References: <20050523192157.V75588@chenjesu.americas.sgi.com>
+
+In-Reply-To: <20050523192157.V75588@chenjesu.americas.sgi.com>
+
+Content-Type: text/plain; charset=us-ascii; format=flowed
+
+Content-Transfer-Encoding: 7bit
+
+X-Spam-Score: 0.0 (/)
+
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+
+X-Mailing-List:	linux-kernel@vger.kernel.org
 
 
-typo in the x86_64 change, fix below. (i've also attached a respun full 
-patch)
 
-	Ingo
+Brent Casavant wrote:
+> - The IOC4 chip implements multiple functions (serial, IDE, others not
+>   yet implemented in the mainline kernel) but is not a multifunction
+>   PCI device.  In order to properly handle device addition and removal
+>   as well as module insertion and deletion, an intermediary IOC4-specific
+>   driver layer is needed to handle these operations cleanly.
 
---- linux/arch/x86_64/Kconfig.orig
-+++ linux/arch/x86_64/Kconfig
-@@ -217,7 +217,7 @@ config SCHED_SMT
- 	  cost of slightly increased overhead in some places. If unsure say
- 	  N here.
- 
--ource "kernel/Kconfig.preempt"
-+source "kernel/Kconfig.preempt"
- 
- config K8_NUMA
-        bool "K8 NUMA support"
+I disagree that a layer is needed.
 
---ReaqsoxgOBHFXBhH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="consolidate-preempt-options.patch"
+Just write a PCI driver that does the following in probe:
+
+	register IDE
+	register serial
+	...
+
+and undoes all that in remove.
+
+Device addition and removal work just fine with that scheme.
+
+	Jeff
 
 
-this patch consolidates the CONFIG_PREEMPT and CONFIG_PREEMPT_BKL 
-preemption options into kernel/Kconfig.preempt. This, besides reducing 
-source-code, also enables more centralized tweaking of preemption 
-related options.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-
- arch/i386/Kconfig      |   23 +----------------------
- arch/ppc64/Kconfig     |   21 +--------------------
- arch/x86_64/Kconfig    |   29 ++---------------------------
- kernel/Kconfig.preempt |   24 ++++++++++++++++++++++++
- 4 files changed, 28 insertions(+), 69 deletions(-)
-
---- linux/kernel/Kconfig.preempt.orig
-+++ linux/kernel/Kconfig.preempt
-@@ -0,0 +1,24 @@
-+
-+config PREEMPT
-+	bool "Preemptible Kernel"
-+	help
-+	  This option reduces the latency of the kernel when reacting to
-+	  real-time or interactive events by allowing a low priority process to
-+	  be preempted even if it is in kernel mode executing a system call.
-+	  This allows applications to run more reliably even when the system is
-+	  under load.
-+
-+	  Say Y here if you are building a kernel for a desktop, embedded
-+	  or real-time system.  Say N if you are unsure.
-+
-+config PREEMPT_BKL
-+	bool "Preempt The Big Kernel Lock"
-+	depends on PREEMPT
-+	default y
-+	help
-+	  This option reduces the latency of the kernel by making the
-+	  big kernel lock preemptible.
-+
-+	  Say Y here if you are building a kernel for a desktop system.
-+	  Say N if you are unsure.
-+
---- linux/arch/x86_64/Kconfig.orig
-+++ linux/arch/x86_64/Kconfig
-@@ -207,33 +207,6 @@ config SMP
- 
- 	  If you don't know what to do here, say N.
- 
--config PREEMPT
--	bool "Preemptible Kernel"
--	---help---
--	  This option reduces the latency of the kernel when reacting to
--	  real-time or interactive events by allowing a low priority process to
--	  be preempted even if it is in kernel mode executing a system call.
--	  This allows applications to run more reliably even when the system is
--	  under load. On contrary it may also break your drivers and add
--	  priority inheritance problems to your system. Don't select it if
--	  you rely on a stable system or have slightly obscure hardware.
--	  It's also not very well tested on x86-64 currently.
--	  You have been warned.
 -
--	  Say Y here if you are feeling brave and building a kernel for a
--	  desktop, embedded or real-time system.  Say N if you are unsure.
--
--config PREEMPT_BKL
--	bool "Preempt The Big Kernel Lock"
--	depends on PREEMPT
--	default y
--	help
--	  This option reduces the latency of the kernel by making the
--	  big kernel lock preemptible.
--
--	  Say Y here if you are building a kernel for a desktop system.
--	  Say N if you are unsure.
--
- config SCHED_SMT
- 	bool "SMT (Hyperthreading) scheduler support"
- 	depends on SMP
-@@ -244,6 +217,8 @@ config SCHED_SMT
- 	  cost of slightly increased overhead in some places. If unsure say
- 	  N here.
- 
-+source "kernel/Kconfig.preempt"
-+
- config K8_NUMA
-        bool "K8 NUMA support"
-        select NUMA
---- linux/arch/ppc64/Kconfig.orig
-+++ linux/arch/ppc64/Kconfig
-@@ -268,26 +268,7 @@ config SCHED_SMT
- 	  when dealing with POWER5 cpus at a cost of slightly increased
- 	  overhead in some places. If unsure say N here.
- 
--config PREEMPT
--	bool "Preemptible Kernel"
--	help
--	  This option reduces the latency of the kernel when reacting to
--	  real-time or interactive events by allowing a low priority process to
--	  be preempted even if it is in kernel mode executing a system call.
--
--	  Say Y here if you are building a kernel for a desktop, embedded
--	  or real-time system.  Say N if you are unsure.
--
--config PREEMPT_BKL
--	bool "Preempt The Big Kernel Lock"
--	depends on PREEMPT
--	default y
--	help
--	  This option reduces the latency of the kernel by making the
--	  big kernel lock preemptible.
--
--	  Say Y here if you are building a kernel for a desktop system.
--	  Say N if you are unsure.
-+source "kernel/Kconfig.preempt"
- 
- config EEH
- 	bool "PCI Extended Error Handling (EEH)" if EMBEDDED
---- linux/arch/i386/Kconfig.orig
-+++ linux/arch/i386/Kconfig
-@@ -510,28 +510,7 @@ config SCHED_SMT
- 	  cost of slightly increased overhead in some places. If unsure say
- 	  N here.
- 
--config PREEMPT
--	bool "Preemptible Kernel"
--	help
--	  This option reduces the latency of the kernel when reacting to
--	  real-time or interactive events by allowing a low priority process to
--	  be preempted even if it is in kernel mode executing a system call.
--	  This allows applications to run more reliably even when the system is
--	  under load.
--
--	  Say Y here if you are building a kernel for a desktop, embedded
--	  or real-time system.  Say N if you are unsure.
--
--config PREEMPT_BKL
--	bool "Preempt The Big Kernel Lock"
--	depends on PREEMPT
--	default y
--	help
--	  This option reduces the latency of the kernel by making the
--	  big kernel lock preemptible.
--
--	  Say Y here if you are building a kernel for a desktop system.
--	  Say N if you are unsure.
-+source "kernel/Kconfig.preempt"
- 
- config X86_UP_APIC
- 	bool "Local APIC support on uniprocessors"
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 
---ReaqsoxgOBHFXBhH--

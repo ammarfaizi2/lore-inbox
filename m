@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261299AbVEXCMX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVEXCV1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261299AbVEXCMX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 23 May 2005 22:12:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVEXCMX
+	id S261306AbVEXCV1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 23 May 2005 22:21:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVEXCV1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 23 May 2005 22:12:23 -0400
-Received: from mta5.srv.hcvlny.cv.net ([167.206.4.200]:27455 "EHLO
-	mta5.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
-	id S261299AbVEXCMQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 23 May 2005 22:12:16 -0400
-Date: Mon, 23 May 2005 22:12:15 -0400
-From: Nick Orlov <bugfixer@list.ru>
-Subject: Re: 2.6.12-rc4-mm[12] - ULOG problem
-In-reply-to: <20050519031049.GA18130@nikolas.hn.org>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Mail-followup-to: linux-kernel@vger.kernel.org, akpm@osdl.org
-Message-id: <20050524021215.GA4237@nikolas.hn.org>
-MIME-version: 1.0
-Content-type: text/plain; charset=koi8-r
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
+	Mon, 23 May 2005 22:21:27 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:39434 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261306AbVEXCVX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 23 May 2005 22:21:23 -0400
+Date: Tue, 24 May 2005 12:21:06 +1000
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-crypto@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+       James Morris <jmorris@redhat.com>
+Subject: Re: [CRYPTO]: Only reschedule if !in_atomic()
+Message-ID: <20050524022106.GA29081@gondor.apana.org.au>
+References: <200505232300.j4NN07lE012726@hera.kernel.org> <20050523162806.0e70ae4f.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050523162806.0e70ae4f.akpm@osdl.org>
 User-Agent: Mutt/1.5.9i
-References: <20050519031049.GA18130@nikolas.hn.org>
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 18, 2005 at 11:10:49PM -0400, Nick Orlov wrote:
-> ipt_ULOG fails to load starting from 2.6.12-rc4-mm1 with the following
-> error message:
+On Mon, May 23, 2005 at 11:28:06PM +0000, Andrew Morton wrote:
 > 
+> This code can cause deadlocks on CONFIG_SMP && !CONFIG_PREEMPT kernels.
 > 
-> FATAL: Error inserting ipt_ULOG (/lib/modules/2.6.12-rc4-mm1-2/kernel/net/ipv4/netfilter/ipt_ULOG.ko): Cannot allocate memory
+> Please see http://lkml.org/lkml/2005/3/10/358
 > 
-> rc3-mm3 works fine.
-> 
+> You (the programmer) *have* to know what context you're running in before
+> doing a voluntary yield.  There is simply no way to work this out at
+> runtime.
 
-I'd like to confirm that reverting the following connector related patches
-solves the problem for me.
+You're right.
 
-1.patch -> ../full/broken-out/connector-add-a-fork-connector-build-fix.patch
-2.patch -> ../full/broken-out/connector-add-a-fork-connector.patch
-3.patch -> ../full/broken-out/connector-export-initialization-flag.patch
-4.patch -> ../full/broken-out/connector-warning-fixes.patch
-5.patch -> ../full/broken-out/connector.patch
+Perhaps we should code this into the crypto API instead? For instance,
+we can have a tfm flag that says whether we can sleep or not.
 
+Dave & James, What do you think?
 
-Thank you,
-	Nick Orlov.
-
+Cheers,
 -- 
-With best wishes,
-	Nick Orlov.
-
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

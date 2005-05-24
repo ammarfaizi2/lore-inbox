@@ -1,69 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbVEXMFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbVEXMMV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262007AbVEXMFi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 08:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbVEXMFh
+	id S262006AbVEXMMV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 08:12:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262016AbVEXMMV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 08:05:37 -0400
-Received: from ns2.suse.de ([195.135.220.15]:37783 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262007AbVEXMF2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 08:05:28 -0400
-Date: Tue, 24 May 2005 14:05:27 +0200
-From: Andi Kleen <ak@suse.de>
-To: Rajesh Shah <rajesh.shah@intel.com>
-Cc: Andi Kleen <ak@suse.de>, len.brown@intel.com, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       acpi-devel@lists.sourceforge.net
-Subject: Re: [patch 2/2] x86_64: Collect host bridge resources
-Message-ID: <20050524120527.GB15326@wotan.suse.de>
-References: <20050521004239.581618000@csdlinux-1> <20050521004506.842235000@csdlinux-1> <20050523161507.GN16164@wotan.suse.de> <20050523175706.A12032@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 24 May 2005 08:12:21 -0400
+Received: from berlioz.imada.sdu.dk ([130.225.128.12]:1513 "EHLO
+	berlioz.imada.sdu.dk") by vger.kernel.org with ESMTP
+	id S262006AbVEXMMO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 08:12:14 -0400
+From: Hans Henrik Happe <hhh@imada.sdu.dk>
+To: DervishD <lkml@dervishd.net>
+Subject: Re: Issues with INET sockets through loopback (lo)
+Date: Tue, 24 May 2005 14:12:17 +0200
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <200505231317.44716.hhh@imada.sdu.dk> <20050523120900.GA339@DervishD>
+In-Reply-To: <20050523120900.GA339@DervishD>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050523175706.A12032@unix-os.sc.intel.com>
+Message-Id: <200505241412.17887.hhh@imada.sdu.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 23, 2005 at 05:57:08PM -0700, Rajesh Shah wrote:
-> On Mon, May 23, 2005 at 06:15:07PM +0200, Andi Kleen wrote:
-> > On Fri, May 20, 2005 at 05:42:41PM -0700, rajesh.shah@intel.com wrote:
-> > > This patch reads and stores host bridge resources reported by
-> > > ACPI BIOS for x86_64 systems. This is needed since ACPI hotplug
-> > > code now uses the PCI core for resource management. This patch
-> > > simply adds the boot parameter (acpi=root_resources) to enable
-> > > the functionality that is implemented in arch/i386.
-> > > 
-> > 
-> > This means all hot plug users have to pass this strange parameter?
-> > That does not sound very user friendly. Especially since you usually
-> > only need pci hotplug in emergencies, and then you likely didnt pass it.
-> > 
-> > Cant you find a way to do this without parameters? Any reason
-> > to not make it default?
-> > 
-> I found several systems in which the host bridge was decoding 6+
-> resource ranges. In the pci_bus structure, I only have room for 4,
-> so I'm forced to drop some ranges that are in fact being passed
+On Monday 23 May 2005 14:09, DervishD wrote:
+> With 3-1 I get an usage of 20% more or less. But with 16-1 the
+> CPU usage is nearly 0! and with 16-16 the usage is 5% more or less.
 
-How about you allocate an extended structure with kmalloc in this case?
-Or if it is only 6 ranges max (it is not, is it?) you could extend
-the array.
+That even worse than what I have experienced.
+  
+> > I have tried more regular communication patterns but this gives full CPU 
+> > utilization as expected. For instance sending messages in a ring (attach: 
+> > ring-inet.c). 
+> 
+> Not here. It uses 29% instead of 20% with 3-1, but drops to 6%
+> when using 16 processes. Far from full CPU usage. A test with 16-160
+> doesn't make the system slower or irresponsive, at least here...
 
-I doubt this information will need *that* much memory, so it should
-be reasonable to just teach the PCI subsystem about it.
+Again, even worse.
+ 
+> Not here. I haven't noticed any slow-down or latency increase
+> using high number of messages. Using 16-160 only uses at most 7% of
+> CPU per process, and I don't feel the system irresponsive.
 
-> Another option I'd thought of but never really pursued was to
-> implement this as a late_initcall. I'll look into that some more.
-> In that case, we'd continue to think that all host bridges decode
-> all unclaimed resources at boot time and depend on BIOS to program
-> resources for boot time devices correctly. Later, we'd collect the
-> more accurate host bridge resource picture to make hotplug work
-> correctly. Kind of hackish, but I can't think of another way to
-> avoid the boot parameter.
+That's strange. Maybe I should try an AMD system myself. Btw the number of 
+processes is an upper bound of the number of messages. This is just a 
+simplification in the code.
 
-It sounds preferable to me to just give PCI the full picture from
-the beginning instead of using such hacks which will likely
-come back later to hurt us.
+> If you want more accurate results, try to modify your test
+> programs: make them run for a couple of minutes (you decide how much
+> time, the longer, the better) and kill all children processes. After
+> that, use getrusage() (with RUSAGE_CHILDREN) or wait3(). That should
+> give more accurate results.
 
--Andi
+I could do that, but my point is that kernel goes into the idle state even 
+though there always should be a runable process. Your tests supports this.
+I don't believe that more accuracy would help because it is quite clear that 
+CPU is in the idle state.
+ 
+> Hope that helps. If you want to make any other test, tell me.
+> I'll try to help.
+
+Thanx. Your tests actually confirms the first issue, which also is the one 
+that I have been most concerned about. 
+
+I hope that someone with knowledge of how this part of the kernel work can 
+confirm that this is a problem with the kernel or explain why it is supposed 
+to behave in this manor.
+
+Hans Henrik Happe

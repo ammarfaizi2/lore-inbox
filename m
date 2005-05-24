@@ -1,52 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVEXNem@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVEXNeI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261485AbVEXNem (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 09:34:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVEXNek
+	id S261408AbVEXNeI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 09:34:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbVEXNcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 09:34:40 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:55743 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261314AbVEXNbI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 09:31:08 -0400
-Message-ID: <42932CD2.3040204@tmr.com>
-Date: Tue, 24 May 2005 09:32:02 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
-       davem@davemloft.net, jmorris@redhat.com
-Subject: Re: [CRYPTO]: Only reschedule if !in_atomic()
-References: <200505232300.j4NN07lE012726@hera.kernel.org>	<20050523162806.0e70ae4f.akpm@osdl.org>	<20050524022106.GA29081@gondor.apana.org.au> <20050523193116.62844826.akpm@osdl.org>
-In-Reply-To: <20050523193116.62844826.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 24 May 2005 09:32:04 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:63374 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261156AbVEXNWv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 09:22:51 -0400
+Date: Tue, 24 May 2005 19:02:11 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Carsten Otte <cotte@freenet.de>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       schwidefsky@de.ibm.com, akpm@osdl.org,
+       Christoph Hellwig <hch@infradead.org>
+Subject: Re: [RFC/PATCH 2/4] fs/mm: execute in place (3rd version)
+Message-ID: <20050524133211.GA4896@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <1116866094.12153.12.camel@cotte.boeblingen.de.ibm.com> <1116869420.12153.32.camel@cotte.boeblingen.de.ibm.com> <20050524093029.GA4390@in.ibm.com> <42930B64.2060105@freenet.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42930B64.2060105@freenet.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Herbert Xu <herbert@gondor.apana.org.au> wrote:
+On Tue, May 24, 2005 at 01:09:24PM +0200, Carsten Otte wrote:
+> Suparna Bhattacharya wrote:
 > 
->>Perhaps we should code this into the crypto API instead? For instance,
->> we can have a tfm flag that says whether we can sleep or not.
+> >On Mon, May 23, 2005 at 07:30:20PM +0200, Carsten Otte wrote:
+> >  
+> >
+> >>diff -ruN linux-git/mm/filemap.h linux-git-xip/mm/filemap.h
+> >>--- linux-git/mm/filemap.h	1970-01-01 01:00:00.000000000 +0100
+> >>+++ linux-git-xip/mm/filemap.h	2005-05-23 19:01:27.000000000 +0200
+> >>@@ -0,0 +1,94 @@
+> >>+/*
+> >>+ *	linux/mm/filemap.c
+> >>+ *
+> >>    
+> >>
+> >
+> >I guess you meant "filemap.h" not "filemap.c" ? Shouldn't this be
+> >in include/linux instead ?
+> >  
+> >
+> Yea, Andrew Morton fixed this one while merging into -mm. Cut&Paste - sorry
 > 
-> 
-> Are you sure it's actually needed? Have significant scheduling latencies
-> actually been observed?
-> 
-> Bear in mind that anyone who cares a lot about latency will be running
-> CONFIG_PREEMPT kernels, in which case the whole thing is redundant anyway. 
-> I generally take the position that if we're going to put a scheduling point
-> into a non-premept kernel then it'd better be for a pretty bad latency
-> point - more than 10 milliseconds, say.
-> 
-People do run crypto on old slow machines, and also laptops configured 
-to use as little power as possible. I wouldn't be surprised if latencies 
-got in the >10ms range pretty regularly on some systems which are pretty 
-mainstream.
+> > OK, though this leaves filemap.c alone which is good, I have to admit
+> >
+> >that this entire duplication of read/write routines really worries me.
+> >
+> >There has to be a third way.
+> >  
+> >
+> Well those carbon copied functions are -as Christoph pointed out- just
+> wrappers. In addition,
+> we don't have sync read/write, just aio_read/aio_write, readv/writev,
+> and sendfile.
+> We saved almost as much patches to filemap.c as we have added stuff to
+> filemap_xip:
+> cotte@cotte:~/patches$ cat v2/linux-2.6-xip-2-filemap.patch |wc -l
+> 789
+> cotte@cotte:~/patches$ cat v3/linux-2.6-xip-2-filemap.patch |wc -l
+> 868
+> Given that the copied wrappers add just 80 lines after all, I agree with
+> Christoph that this is
+> worth buying reduced complexity for.
 
-Just my read on it, if a flag will prevent deadlock without relying on 
-callers doing the right thing, that's probably a desirable change WRT 
-future stability.
+
+The issue is not about the lines of code (though in my quick skim through I see
+a duplication of at least 300 lines for read/write alone between filemap.c
+and filemap_xip.c ... the total duplication is likely higher). It is
+the concern of having one more area of code to change/fix if there are
+modifications to these routines. If it is worth having generic code for
+XIP, then I guess it should be worth doing it right ... 
+
+BTW, your calculation between your previous patch and current one is a
+reasonable argument for not reverting back to the earlier version, but
+then that wasn't what I was suggesting. Hope that was clear. Not complicating
+the common path in filemap.c with if (xip) branches is a good idea.
+
+Right now you have chosen what is possibly the lesser of two evils,
+but having had to end up modifying code in multiple places in read/write and
+inadvertant bugs introduced thus in the past and paid for over time :( 
+has made me quite wary of code duplication in this particular area, simple
+as it seems.
+
+I'll take a closer look and see if I can think of any other way to abstract
+this better. Maybe the long term solution is what Christoph suggested
+in terms of collapsing interfaces.
+
+Regards
+Suparna
+
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
+

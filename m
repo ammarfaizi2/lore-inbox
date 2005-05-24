@@ -1,65 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbVEXRMY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbVEXR0h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261213AbVEXRMY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 13:12:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbVEXQ7t
+	id S261406AbVEXR0h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 13:26:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVEXR0h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 12:59:49 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:50072 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261327AbVEXQwr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 12:52:47 -0400
-Subject: Re: inotify 0.23 errno 28 (ENOSPC)
-From: Arjan van de Ven <arjan@infradead.org>
-To: Robert Love <rlove@rlove.org>
-Cc: bryanwilkerson@yahoo.com, linux-kernel@vger.kernel.org
-In-Reply-To: <1116952520.13324.38.camel@betsy>
-References: <20050524163309.74541.qmail@web53401.mail.yahoo.com>
-	 <1116952520.13324.38.camel@betsy>
+	Tue, 24 May 2005 13:26:37 -0400
+Received: from mail.dslreports.com ([209.123.192.187]:51618 "EHLO
+	mail.dslr.net") by vger.kernel.org with ESMTP id S261812AbVEXRZH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 13:25:07 -0400
+Subject: Re: clock drift with 2x Promise Ultra133 TX2 (PDC 20269) (again)
+From: Drew Winstel <raw@dslr.net>
+To: Oskar Liljeblad <oskar@osk.mine.nu>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+In-Reply-To: <20050524165339.GA16577@oskar>
+References: <20050524165339.GA16577@oskar>
 Content-Type: text/plain
-Date: Tue, 24 May 2005 18:52:35 +0200
-Message-Id: <1116953555.6280.31.camel@laptopd505.fenrus.org>
+Date: Tue, 24 May 2005 12:24:59 -0500
+Message-Id: <1116955499.30458.18.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-24 at 12:35 -0400, Robert Love wrote:
-> On Tue, 2005-05-24 at 09:33 -0700, Bryan Wilkerson wrote:
-> 
-> > I read an earlier thread where you said that it was
-> > possible to manually walk a tree and add all
-> > directories to an inotify watch descriptor.  I wrote
-> > some code to do this and the ioctl call fails on my
-> > machine after adding 9,977 directories with ENOSPC.  
-> > 
-> > I've attached a small repro case.  Just point it at
-> > the base of a large dir tree (e.g. inotify-r ~) to
-> > use. 
-> > 
-> > My kernel is 2.6.12-rc3 with the inotify 0.23 patch. 
-> > Let me know if you need more information.  
-> 
-> This is intended.  There is a per-user limit on the number of watches.
-> By default, that limit is 8192.
-> 
-> You can view and edit the number via
-> 	/sys/class/misc/inotify/max_user_watches
+On Tue, 2005-05-24 at 18:53 +0200, Oskar Liljeblad wrote:
 
-why isn't this an rlimit instead ?
+>   Asus A7V266-C with AMD AthlonXP 2000+ (i686) - problem occurs
+>   Asus A7V600-X with AMD Sempron 2600+  (i686) - problem occurs
+>   Abit KV8 Pro  with AMD Athlon64 3000+ (i686) - problem does not occur!
+> 
+> So what makes the Abit motherboard different?
+> 
 
+Are you running the AMD64 machine on a 32- or 64-bit distribution?  
+
+That was just the first thought that came into my head.
+
+Drew
 

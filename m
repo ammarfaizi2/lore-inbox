@@ -1,69 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbVEXSZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVEXSeV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbVEXSZL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 14:25:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261984AbVEXSYb
+	id S261166AbVEXSeV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 14:34:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVEXSeV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 14:24:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:63184 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261951AbVEXSXk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 14:23:40 -0400
-Message-ID: <4293709E.6040702@redhat.com>
-Date: Tue, 24 May 2005 14:21:18 -0400
-From: Ananth N Mavinakayanahalli <amavin@redhat.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+	Tue, 24 May 2005 14:34:21 -0400
+Received: from 216-239-45-4.google.com ([216.239.45.4]:11623 "EHLO
+	216-239-45-4.google.com") by vger.kernel.org with ESMTP
+	id S261166AbVEXSeM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 14:34:12 -0400
+Message-ID: <42937360.8090007@google.com>
+Date: Tue, 24 May 2005 11:33:04 -0700
+From: Mike Waychison <mikew@google.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050207)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: Prasanna S Panchamukhi <prasanna@in.ibm.com>, akpm@osdl.org,
-       davem@davemloft.net, linux-kernel@vger.kernel.org,
-       systemtap@sources.redhat.com
-Subject: Re: [PATCH 1/5] Kprobes: Temporary disarming of reentrant probe
-References: <20050524101532.GA27215@in.ibm.com> <20050524181525.GF86233@muc.de>
-In-Reply-To: <20050524181525.GF86233@muc.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Jamie Lokier <jamie@shareable.org>
+CC: Miklos Szeredi <miklos@szeredi.hu>, linuxram@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       akpm@osdl.org, viro@parcelfarce.linux.theplanet.co.uk
+Subject: Re: [RFC][PATCH] rbind across namespaces
+References: <E1DZNSN-0006cU-00@dorka.pomaz.szeredi.hu> <1116660380.4397.66.camel@localhost> <E1DZP37-0006hH-00@dorka.pomaz.szeredi.hu> <20050521134615.GB4274@mail.shareable.org> <E1DZlVn-0007a6-00@dorka.pomaz.szeredi.hu> <429277CA.9050300@google.com> <E1DaSCb-0003Tw-00@dorka.pomaz.szeredi.hu> <4292D416.5070001@waychison.com> <E1DaVYK-0003ko-00@dorka.pomaz.szeredi.hu> <4293612F.3000708@google.com> <20050524181554.GA13760@mail.shareable.org>
+In-Reply-To: <20050524181554.GA13760@mail.shareable.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
+Jamie Lokier wrote:
+> Mike Waychison wrote:
+> 
+>>>No need to hijack, it's already done.  Removing calls to
+>>>proc_check_root() will allow access to different namespaces detached
+>>>mounts, etc.  It's been tried and actually works.
+>>
+>>See previous message as why we don't want to allow this.
+> 
+> 
+> If you can ptrace any process which is in another namespace, then you
+> _effectively_ have full access to that namespace.  It's quite easy to
+> do, and negates the supposed security of namespaces.
+> 
+> Because of that, there's _no_ real security benefit from denying
+> access to /proc/NNN/fd/ if you are able to ptrace task NNN.
+> 
+> What I think makes sense is this:
+> 
+>    1. Deny access to /proc/NNN/fd/, /proc/NNN/cwd, /proc/NNN/root
+>       if task NNN cannot be ptraced.
+> 
+>    3. Allow entry to /proc/NNN/fd/, /proc/NNN/cwd, /proc/NNN/root
+>       if ptrace is allowed; the namespace being irrelevant.
+> 
+>    3. Use _exactly_ the same condition as for ptracing,
+>       i.e. MAY_PTRACE in fs/proc/base.c.  Ensure that condition is
+>       consistent with the tests in kernel/ptrace.c, possibly putting
+>       the condition in a common header file to keep it consistent in
+>       future.
+> 
+>    4. If further restrictions are desired, to make namespaces more
+>       strict, those should be implemented by further restrictions on
+>       which tasks are allowed to ptrace other tasks.
+> 
 
-Hi Andi,
+Indeed.  A combination of MAY_PTRACE ||ed with a check against current 
+sounds reasonable to me.
 
->>@@ -55,6 +61,9 @@ struct kprobe {
->> 	/* list of kprobes for multi-handler support */
->> 	struct list_head list;
->> 
->>+	/*count the number of times this probe was temporarily disarmed */
->>+	unsigned long nmissed;
-> 
-> 
-> You declare a variable.
-> 
-> 
->>+
->> 	/* location of the probe point */
->> 	kprobe_opcode_t *addr;
->> 
->>diff -puN kernel/kprobes.c~kprobes-temporary-disarming-on-reentrancy-generic kernel/kprobes.c
->>--- linux-2.6.12-rc4-mm2/kernel/kprobes.c~kprobes-temporary-disarming-on-reentrancy-generic	2005-05-24 15:28:08.000000000 +0530
->>+++ linux-2.6.12-rc4-mm2-prasanna/kernel/kprobes.c	2005-05-24 15:28:08.000000000 +0530
->>@@ -334,6 +334,7 @@ int register_kprobe(struct kprobe *p)
->> 	}
->> 	spin_lock_irqsave(&kprobe_lock, flags);
->> 	old_p = get_kprobe(p->addr);
->>+	p->nmissed = 0;
-> 
-> 
-> And then you set it to 0.
-> 
-> And nothing more. Surely this patch does not do anything. Looks like
-> some code is missing.
-
-No Andi - nmissed is incremented in the arch/xxx/kernel/kprobes.c
-everytime the probe is "reentered". This is part of the subsequent
-patches in the series.
-
-Ananth
-
+Mike Waychison

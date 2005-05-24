@@ -1,140 +1,211 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262002AbVEXJTd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbVEXLSD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262002AbVEXJTd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 05:19:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbVEXJSj
+	id S261514AbVEXLSD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 07:18:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261510AbVEXLSD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 05:18:39 -0400
-Received: from smtp.nexlab.net ([213.173.188.110]:52157 "EHLO smtp.nexlab.net")
-	by vger.kernel.org with ESMTP id S261901AbVEXJPT (ORCPT
+	Tue, 24 May 2005 07:18:03 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:23493 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S262005AbVEXJTg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:15:19 -0400
+	Tue, 24 May 2005 05:19:36 -0400
 X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
 X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
 	08:27:20 2005 signatures 31.893
-Message-Id: <20050524091512.3AF11FA17@smtp.nexlab.net>
-Date: Tue, 24 May 2005 11:15:12 +0200 (CEST)
+Message-Id: <20050524091932.BA088FA1A@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:19:32 +0200 (CEST)
 From: root@smtp.nexlab.net
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	by smtp.nexlab.net (Postfix) with ESMTP id 8F97FFB6E
+	by smtp.nexlab.net (Postfix) with ESMTP id 81DEEF9F8
 
-	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:44 +0200 (CEST)
+	for <buffer@sniffo.org>; Tue, 24 May 2005 08:13:15 +0200 (CEST)
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+Received: from oss (localhost [127.0.0.1])
 
-	id S261343AbVEXCtD (ORCPT <rfc822;chiakotay@nexlab.it>);
+	by oss.sgi.com (8.12.10/8.12.10/SuSE Linux 0.7) with ESMTP id j4O68kF3022359;
 
-	Mon, 23 May 2005 22:49:03 -0400
+	Mon, 23 May 2005 23:08:46 -0700
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVEXCtC
+Received: with ECARTIS (v1.0.0; list netdev); Mon, 23 May 2005 23:07:10 -0700 (PDT)
 
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+Received: from smtp.osdl.org (fire.osdl.org [65.172.181.4])
 
-	Mon, 23 May 2005 22:49:02 -0400
+	by oss.sgi.com (8.12.10/8.12.10/SuSE Linux 0.7) with ESMTP id j4O676F3022037
 
-Received: from holomorphy.com ([66.93.40.71]:36253 "EHLO holomorphy.com")
+	for <netdev@oss.sgi.com>; Mon, 23 May 2005 23:07:06 -0700
 
-	by vger.kernel.org with ESMTP id S261343AbVEXCsx (ORCPT
+Received: from shell0.pdx.osdl.net (fw.osdl.org [65.172.181.6])
 
-	<rfc822;linux-kernel@vger.kernel.org>);
+	by smtp.osdl.org (8.12.8/8.12.8) with ESMTP id j4O66LjA023291
 
-	Mon, 23 May 2005 22:48:53 -0400
+	(version=TLSv1/SSLv3 cipher=EDH-RSA-DES-CBC3-SHA bits=168 verify=NO);
 
-Received: from wli by holomorphy.com with local (Exim 3.36 #1 (Debian))
+	Mon, 23 May 2005 23:06:21 -0700
 
-	id 1DaPTN-0001dX-00; Mon, 23 May 2005 19:48:49 -0700
+Received: from localhost (shell0.pdx.osdl.net [10.9.0.31])
 
-Date:	Mon, 23 May 2005 19:48:49 -0700
+	by shell0.pdx.osdl.net (8.13.1/8.11.6) with ESMTP id j4O66KuD011104;
 
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, gregkh@suse.de,
-	Hugh Dickins <hugh@veritas.com>
-Subject: Re: [bugfix] try_to_unmap_cluster() passes out-of-bounds pte to pte_unmap()
+	Mon, 23 May 2005 23:06:20 -0700
 
-Message-ID: <20050524024849.GH2057@holomorphy.com>
+Date: Mon, 23 May 2005 23:08:25 -0700 (PDT)
 
-References: <20050516021302.13bd285a.akpm@osdl.org> <20050522212734.GF2057@holomorphy.com> <20050523171406.483cdf69.akpm@osdl.org>
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, Netdev <netdev@oss.sgi.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [git patches] 2.6.x net driver updates
 
-Mime-Version: 1.0
+In-Reply-To: <4292BA66.8070806@pobox.com>
 
-Content-Type: text/plain; charset=us-ascii
+Message-ID: <Pine.LNX.4.58.0505232253160.2307@ppc970.osdl.org>
 
-Content-Disposition: inline
+References: <4292BA66.8070806@pobox.com>
 
-In-Reply-To: <20050523171406.483cdf69.akpm@osdl.org>
+MIME-Version: 1.0
 
-Organization: The Domain of Holomorphy
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-User-Agent: Mutt/1.5.9i
+X-MIMEDefang-Filter: osdl$Revision: 1.109 $
 
-Sender: linux-kernel-owner@vger.kernel.org
+X-Scanned-By: MIMEDefang 2.36
+
+X-archive-position: 1545
+
+X-ecartis-version: Ecartis v1.0.0
+
+Sender: netdev-bounce@oss.sgi.com
+Errors-To: netdev-bounce@oss.sgi.com
+X-original-sender: torvalds@osdl.org
+
 Precedence: bulk
 
-X-Mailing-List:	linux-kernel@vger.kernel.org
+X-list: netdev
+
+X-Virus-Scanned: ClamAV 0.83/892/Mon May 23 10:52:19 2005 on oss.sgi.com
+
+X-Virus-Status: Clean
 
 
 
-William Lee Irwin III <wli@holomorphy.com> wrote:
->> --- ./mm/rmap.c.orig	2005-05-20 01:29:14.066467151 -0700
->> +++ ./mm/rmap.c	2005-05-20 01:30:06.620649901 -0700
-[...]
-
-On Mon, May 23, 2005 at 05:14:06PM -0700, Andrew Morton wrote:
-> I must say that I continue to find this approach a bit queazifying.
-> After some reading of the code I'd agree that yes, it's not possible for us
-> to get here with `pte' pointing at the first slot of the pte page, but it's
-> not 100% obvious and it's possible that someone will come along later and
-> will change things in try_to_unmap_cluster() which cause this unmap to
-> suddenly do the wrong thing in rare circumstances.
-> IOW: I'd sleep better at night if we took a temporary and actually unmapped
-> the thing which we we got back from pte_offset_map()..  Am I being silly?
-
-Not at all. I merely attempt to minimize diffsize by default. An
-alternative implementation follows (changelog etc. to be taken
-from the prior patch) in case it saves the time (however short) needed
-to write it yourself.
 
 
--- wli
+On Tue, 24 May 2005, Jeff Garzik wrote:
 
-Index: mm2-2.6.12-rc4/mm/rmap.c
-===================================================================
---- mm2-2.6.12-rc4.orig/mm/rmap.c	2005-05-20 01:44:18.000000000 -0700
-+++ mm2-2.6.12-rc4/mm/rmap.c	2005-05-23 19:13:29.000000000 -0700
-@@ -626,7 +626,7 @@
- 	pgd_t *pgd;
- 	pud_t *pud;
- 	pmd_t *pmd;
--	pte_t *pte;
-+	pte_t *pte, *original_pte;
- 	pte_t pteval;
- 	struct page *page;
- 	unsigned long address;
-@@ -658,7 +658,7 @@
- 	if (!pmd_present(*pmd))
- 		goto out_unlock;
- 
--	for (pte = pte_offset_map(pmd, address);
-+	for (original_pte = pte = pte_offset_map(pmd, address);
- 			address < end; pte++, address += PAGE_SIZE) {
- 
- 		if (!pte_present(*pte))
-@@ -694,7 +694,7 @@
- 		(*mapcount)--;
- 	}
- 
--	pte_unmap(pte);
-+	pte_unmap(original_pte);
- out_unlock:
- 	spin_unlock(&mm->page_table_lock);
- }
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+> Please pull the 'for-linus' branch from
+> 
+> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
+
+Is this really what you meant to do? There's seven merges there, none of
+which have _any_ information about _what_ you merged, because you've mixed
+everything up in one tree, so that there's absolutely no record of the
+fact that you actually had seven different repositories that you pulled..
+
+That sucks, Jeff.
+
+I don't understand why you don't use different trees, like you did with
+BK. You can share the object directory with the different trees, but the
+way you work now, it all looks like mush.
+
+Even if you don't get confused youself, you sure are confusing everybody 
+else with it..
+
+Anyway, if you really want to work this way, with one big mushed-together
+thing that has different heads that you keep track of, can you _please_ at
+least make the commit message tell what you're doing. It's not a complex 
+script, and you're definitely mis-using it as things stand now by 
+switching heads around inside one repository, and not telling other people 
+about it.
+
+--- side note ---
+
+Also, the way you work, I think you actually may want to do a multi-parent
+merge. That is, you may want to merge multiple parents in _one_ commit,
+rather than having seven commits for it.
+
+The way to do that is to just do "git-read-tree -m" (and the subsequent 
+merge) several times. You do not have to commit in between each step, you 
+just need to remember the parents, and then you do the final commit with
+
+	git-commit-tree $result_tree -p $head -p $p1 -p $p2 -p $p3 ...
+
+ie you build up a commit command line that grows one more "-p xxxx" for 
+each parent you have merged. That requires a bit more work, but as it is, 
+your merges just look like crap.
+
+--- end side note ----
+
+Please?
+
+		Linus
+
+----
+commit fd3fac6ffe20bc6ca75b3ad38be0a8be6666b5d3
+tree 49b4cfa6c95094612438b1ddeb0c9511a19125fe
+parent c97f5a778ed33aef8f62496d7b82ba3cb896a587
+parent b3dd65f958354226275522b5a64157834bdc5415
+author <jgarzik@pretzel.yyz.us> Tue, 24 May 2005 00:47:58 -0400
+committer Jeff Garzik <jgarzik@pobox.com> Tue, 24 May 2005 00:47:58 -0400
+
+    Automatic merge of /spare/repo/netdev-2.6/.git
+
+commit c97f5a778ed33aef8f62496d7b82ba3cb896a587
+tree c72dbed812b0ffa83700a1896895714248407daf
+parent 09fc75b6757852798969e7585456499784a982e1
+parent 1bcd315362e215a72b56d1330bbf32f1c74eefb5
+author <jgarzik@pretzel.yyz.us> Tue, 24 May 2005 00:47:43 -0400
+committer Jeff Garzik <jgarzik@pobox.com> Tue, 24 May 2005 00:47:43 -0400
+
+    Automatic merge of /spare/repo/netdev-2.6/.git
+
+commit 09fc75b6757852798969e7585456499784a982e1
+tree 60a2d2893cb757307edf0a0c450689610644cac2
+parent b5545f2a2d915f5b6d86fb57e6ccc96b3010259e
+parent ac79c82e793bc2440c4765e5eb1b834d2c18edf2
+author <jgarzik@pretzel.yyz.us> Tue, 24 May 2005 00:47:28 -0400
+committer Jeff Garzik <jgarzik@pobox.com> Tue, 24 May 2005 00:47:28 -0400
+
+    Automatic merge of /spare/repo/netdev-2.6/.git
+
+commit b5545f2a2d915f5b6d86fb57e6ccc96b3010259e
+tree 0ece2dd139d1fa4a6b0c5f61fc2be75692d0ea47
+parent f180e742711ce512e62161436d166eb4df92b34d
+parent 2648345fcbadfae8e7113112ff9402e465a184dc
+author <jgarzik@pretzel.yyz.us> Tue, 24 May 2005 00:47:20 -0400
+committer Jeff Garzik <jgarzik@pobox.com> Tue, 24 May 2005 00:47:20 -0400
+
+    Automatic merge of /spare/repo/netdev-2.6/.git
+
+commit f180e742711ce512e62161436d166eb4df92b34d
+tree 21fcfc0ca4a47776bc1182898d9b394529aa1daf
+parent 7b5c2db59567052805771e1de2ad4e089b88c847
+parent 042e2fb70006f135469d546726451b7d14768980
+author <jgarzik@pretzel.yyz.us> Tue, 24 May 2005 00:47:12 -0400
+committer Jeff Garzik <jgarzik@pobox.com> Tue, 24 May 2005 00:47:12 -0400
+
+    Automatic merge of /spare/repo/netdev-2.6/.git
+
+commit 7b5c2db59567052805771e1de2ad4e089b88c847
+tree d18dc44dcfd34a99ac11a83e6d324730784b7d81
+parent 02dd6b49b3f75dacfa7eddf7f2faa8b810906e47
+parent 9092f46b5aed4515d9a427d5dab3be1584851f07
+author <jgarzik@pretzel.yyz.us> Tue, 24 May 2005 00:45:05 -0400
+committer Jeff Garzik <jgarzik@pobox.com> Tue, 24 May 2005 00:45:05 -0400
+
+    Merge of /spare/repo/netdev-2.6/.git
+
+commit 02dd6b49b3f75dacfa7eddf7f2faa8b810906e47
+tree 240cfa2396a6ed006ee28f3848b4cceebfc35b11
+parent 187a1a94d629621d1471b42308e63573b1150773
+parent dfa1b73ffb414b64dc0452260132a090eb25bf52
+author <jgarzik@pretzel.yyz.us> Tue, 24 May 2005 00:44:49 -0400
+committer Jeff Garzik <jgarzik@pobox.com> Tue, 24 May 2005 00:44:49 -0400
+
+    Automatic merge of /spare/repo/netdev-2.6/.git
+
+
+
 

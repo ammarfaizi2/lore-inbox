@@ -1,97 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262182AbVEXVUn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262193AbVEXVXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262182AbVEXVUn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 17:20:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262195AbVEXVUn
+	id S262193AbVEXVXr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 17:23:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262196AbVEXVXr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 17:20:43 -0400
-Received: from igw2.watson.ibm.com ([129.34.20.6]:15067 "EHLO
-	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S262193AbVEXVR6
+	Tue, 24 May 2005 17:23:47 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:45812 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262193AbVEXVXY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 17:17:58 -0400
-Date: Tue, 24 May 2005 17:17:53 -0400 (Eastern Daylight Time)
-From: Reiner Sailer <sailer@us.ibm.com>
-To: Pavel Machek <pavel@ucw.cz>
-cc: Emilyr@us.ibm.com, James Morris <jmorris@redhat.com>, Kylene@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-security-module@wirex.com,
-       Toml@us.ibm.com, Valdis.Kletnieks@vt.edu
-Subject: Re: [PATCH 2 of 4] ima: related Makefile compile order change and
- Readme
-Message-ID: <Pine.WNT.4.63.0505241524170.828@laptop>
-X-Warning: UNAuthenticated Sender
+	Tue, 24 May 2005 17:23:24 -0400
+From: "Sven Dietrich" <sdietrich@mvista.com>
+To: <karim@opersys.com>, "'Ingo Molnar'" <mingo@elte.hu>
+Cc: "'Esben Nielsen'" <simlo@phys.au.dk>,
+       "'Christoph Hellwig'" <hch@infradead.org>,
+       "'Daniel Walker'" <dwalker@mvista.com>, <linux-kernel@vger.kernel.org>,
+       <akpm@osdl.org>, "'Philippe Gerum'" <rpm@xenomai.org>
+Subject: RE: RT patch acceptance
+Date: Tue, 24 May 2005 14:23:11 -0700
+Message-ID: <001701c560a6$cafbe2b0$c800a8c0@mvista.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <42935389.5030309@opersys.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Pavel Machek <pavel@ucw.cz> wrote on 05/24/2005 02:47:52 PM:
-
-> Hi!
+Karim wrote:
 > 
-> > > * remove all the buffer overflows. I.e. if grub contains buffer
-> > >    overflow in parsing menu.conf... that is not a security hole
-> > >    (as of now) because only administrator can modify menu.conf.
-> > >    With IMA enabled, it would make your certification useless...
-> > 
-> > Taking your example: Even if you run a buffer-overflow grub, IMA will 
-> > enable remote parties to differentiate between systems that run
-> > the vulnerable grub and systems that don't. IMA in this case actually
-> > can put value to running better software.
+> Ingo Molnar wrote:
+> > just to make sure, by "much more complicated" are you 
+> referring to the
+> > PREEMPT_RT feature? Right now PREEMPT_RT consists of 8000 
+> new lines of 
+> > code (of which 2000 is debugging code) and 2000 lines of 
+> modified kernel 
+> > code. One of the primary goals i had was to keep it simple 
+> and robust.
 > 
-> Yes, but see above: that buffer overflow in grub was *not* a
-> vulnerability... not until you introduce IMA.
-> 
-> That is my biggest concern. You are completely changing rules for
-> userland code. Buffer overflow that only root could exploit used to be
-> okay. It used to be okay to read config files without communicating
-> with TPM.
->                         Pavel
-> 
+> I'm refering to the complexity of the behavior. Turning 
+> interrupts to threads and spinlocks to mutexes makes vanilla 
+> Linux's behavior much more complicated than it already is. 
+>
 
-I don't follow your argumentation.
+Linux has been distributing and decoupling locking and
+data structures since the first multi CPU kernel was booted.
 
-Measuring a file is done by new IMA code (hook) that opens the file, 
-calculates the SHA1, closes the file, and saves new SHA1 measurements in the 
-measurement list. This code must be carefully inspected. The only code 
-that a user can trigger through IMA is the IMA kernel code that calculates 
-the SHA1 over a file that the user has already opened (requires file 
-descriptor).
+All data integrity is just as consistent in RT, so HOW does 
+the behavior change? 
 
-Can you be more specific about how IMA affects existing buffer overflow 
-vulnerabilities in grub or other applications?
+SMP is mainstream now (Pentium IV, to start). 
+
+The kernel development is just taking the logical next step. 
+
+RT is eco-friendly, even, if you can bear it, in preventing
+high-powered CPUs from burning megawatts spinning on
+a bit in memory. Watch the temperature spikes when that
+happens.
+
+Basically, the reality is, that software loading can always
+exceed the given hardware, for any system. If you want 
+some things to always work smoothly, you need to have some 
+way to bound response time and prioritize deterministically.
+
+The more the computer becomes an entertainment device in the
+mainstream (ahem, Ipod), the more this will be an opportunity
+for Linux. People are of course running Linux on their Ipods
+already. But - can it play the music without skipping? 
+
+With RT it CAN.
+
+Also keep in mind the time-critical response requirements of
+multimedia systems. Its not just Linux in embedded devices. 
+Its going to Linux in your TV some day soon (or already).
+
+Take a look at all the big Sony TVs. All MontaVista Linux.
+
+But Linux is behind, somewhat in a lot of this technology,
+as pointed out by others. IRQ threads is not radical, untested,
+new technology. Nor is a mutex, priority inheritance or not.
+
+Linux is consistent with the Unix legacy - resource sharing,
+fairness, progress. All good things, endemic to the evolution
+of Linux. But the other Unixes have moved past that - to keep up.
+
+Most of the Unixes are clustering back-room systems now, but some
+are still foraging alongside the north-western American 
+Tyrannosaurus. They are evolving, and trying not to get chomped.
+
+The pressure is going to increase, the question is do
+we lead, or do we follow and pay, whereever they want to 
+take us today?
+
+Basically this technology could go into the kernel, to quote Ingo, 
+as "no-drag". You turn it off and it goes away, no overhead. 
+No pain, no worries, no stress, no flaming. 
+
+And Linux leads the way, and the multimedia / audio folks are happy, 
+able to push open source further, opening the door for more folks to 
+contribute, best they know how.
+
+There is absolutely nothing, btw. in any of the the 
+sub-kernels, patented or not, that can't be done in Linux.
 
 
-Also, grub/grub.conf is not measured by users or the kernel but by the stages 
-loading it (see below) according to the  "measure-before-load" principle, 
-coined by the Trusted Computing Group.
+Sven
 
-I shortly summarize the steps involving TPM and measurements when booting 
-a system to avoid misunderstandings of "who is measuring what and when":
- 
-(i) On TPM-enabled systems, the BIOS automatically measures the first 
-bootstage (MBR) and some platform configuration parameters (usually 
-configurable in the BIOS setup).
-
-(ii) Then tcg-grub (if installed) measures its configuration file and 
-later tcg-grub stages. Grub finally measures kernel and initrd before 
-booting the kernel. This requires a grub-patch that creates the 
-SHA1 measurements and extends TPM PCRs. There are to my knowlege 
-opensource versions of grub extensions for tpm support already available 
-and there are patches in preparation to be released soon.
-
-(iii) Once started, the kernel part of IMA (the currently submitted ima 
-patches) picks up these boot measurements and integrates them as the 
-very first measurement into the measurement list and TPM PCR aggregate 
-(look for it in the initialization code of the IMA patches submitted).
-
-(iv) From then on, the IMA in the kernel is responsible for measuring 
-executables/modules before loading them and for maintaining the 
-measurement list and its TPM aggregate. 
-
-(v) Remote parties will validate the boot stages with the very first
-measurement, which they receive as part of the measurement list from IMA.
-
-Thanks
-Reiner
 

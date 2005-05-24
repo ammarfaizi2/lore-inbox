@@ -1,92 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262064AbVEXN34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVEXNem@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262064AbVEXN34 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 09:29:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVEXNWc
+	id S261485AbVEXNem (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 09:34:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVEXNek
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 09:22:32 -0400
-Received: from styx.suse.cz ([82.119.242.94]:18619 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S262076AbVEXNNl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 09:13:41 -0400
-Date: Tue, 24 May 2005 15:13:41 +0200
-From: Jiri Benc <jbenc@suse.cz>
-To: NetDev <netdev@oss.sgi.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, jgarzik@pobox.com, pavel@suse.cz
-Subject: [5/5] ieee80211: add sequence numbers
-Message-ID: <20050524151341.612245e8@griffin.suse.cz>
-In-Reply-To: <20050524150711.01632672@griffin.suse.cz>
-References: <20050524150711.01632672@griffin.suse.cz>
-X-Mailer: Sylpheed-Claws 1.0.4a (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 24 May 2005 09:34:40 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:55743 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261314AbVEXNbI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 09:31:08 -0400
+Message-ID: <42932CD2.3040204@tmr.com>
+Date: Tue, 24 May 2005 09:32:02 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org,
+       davem@davemloft.net, jmorris@redhat.com
+Subject: Re: [CRYPTO]: Only reschedule if !in_atomic()
+References: <200505232300.j4NN07lE012726@hera.kernel.org>	<20050523162806.0e70ae4f.akpm@osdl.org>	<20050524022106.GA29081@gondor.apana.org.au> <20050523193116.62844826.akpm@osdl.org>
+In-Reply-To: <20050523193116.62844826.akpm@osdl.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adds sequence numbers to IEEE 802.11 headers.
+Andrew Morton wrote:
+> Herbert Xu <herbert@gondor.apana.org.au> wrote:
+> 
+>>Perhaps we should code this into the crypto API instead? For instance,
+>> we can have a tfm flag that says whether we can sleep or not.
+> 
+> 
+> Are you sure it's actually needed? Have significant scheduling latencies
+> actually been observed?
+> 
+> Bear in mind that anyone who cares a lot about latency will be running
+> CONFIG_PREEMPT kernels, in which case the whole thing is redundant anyway. 
+> I generally take the position that if we're going to put a scheduling point
+> into a non-premept kernel then it'd better be for a pretty bad latency
+> point - more than 10 milliseconds, say.
+> 
+People do run crypto on old slow machines, and also laptops configured 
+to use as little power as possible. I wouldn't be surprised if latencies 
+got in the >10ms range pretty regularly on some systems which are pretty 
+mainstream.
 
-
-Signed-off-by: Jiri Benc <jbenc@suse.cz>
-Signed-off-by: Jirka Bohac <jbohac@suse.cz>
-
---- a/include/net/ieee80211.h
-+++ b/include/net/ieee80211.h
-@@ -711,6 +711,8 @@
- 	unsigned int frag_next_idx;
- 	u16 fts; /* Fragmentation Threshold */
- 
-+	u16 seq_number;	/* sequence number in transmitted frames */
-+
- 	/* Association info */
- 	u8 bssid[IEEE80211_ALEN];
- 
---- a/net/ieee80211/ieee80211_module.c
-+++ b/net/ieee80211/ieee80211_module.c
-@@ -333,6 +333,7 @@
- 
- 	/* Default fragmentation threshold is maximum payload size */
- 	ieee->fts = DEFAULT_FTS;
-+	ieee->seq_number = 0;
- 	ieee->scan_age = DEFAULT_MAX_SCAN_AGE;
- 	ieee->open_wep = 1;
- 
---- a/net/ieee80211/ieee80211_tx.c
-+++ b/net/ieee80211/ieee80211_tx.c
-@@ -277,6 +277,13 @@
- 	else
- 		bytes_last_frag = bytes_per_frag;
- 
-+	if (nr_frags > 16) {
-+		/* Should never happen */
-+		printk(KERN_WARNING "%s: Fragmentation threshold too low\n",
-+			dev->name);
-+		goto failed;
-+	}
-+
- 	/* When we allocate the TXB we allocate enough space for the reserve
- 	 * and full fragment bytes (bytes_per_frag doesn't include prefix,
- 	 * postfix, header, FCS, etc.) */
-@@ -300,6 +307,8 @@
- 		frag_hdr = (struct ieee80211_hdr *)skb_put(skb_frag, hdr_len);
- 		memcpy(frag_hdr, header, hdr_len);
- 
-+		frag_hdr->seq_ctl = cpu_to_le16(ieee->seq_number | i);
-+
- 		/* If this is not the last fragment, then add the MOREFRAGS
- 		 * bit to the frame control */
- 		if (i != nr_frags - 1) {
-@@ -324,7 +333,7 @@
- 		    (CFG_IEEE80211_COMPUTE_FCS | CFG_IEEE80211_RESERVE_FCS))
- 			skb_put(skb_frag, 4);
- 	}
--
-+	ieee->seq_number += 0x10;
- 
-  success:
- 	spin_unlock_irqrestore(&ieee->lock, flags);
-
-
---
-Jiri Benc
-SUSE Labs
+Just my read on it, if a flag will prevent deadlock without relying on 
+callers doing the right thing, that's probably a desirable change WRT 
+future stability.

@@ -1,144 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262127AbVEXP7U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262107AbVEXP4K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262127AbVEXP7U (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 11:59:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262125AbVEXP5o
+	id S262107AbVEXP4K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 11:56:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262105AbVEXPzh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 11:57:44 -0400
-Received: from p-mail1.rd.francetelecom.com ([195.101.245.15]:33554 "EHLO
-	p-mail1.rd.francetelecom.com") by vger.kernel.org with ESMTP
-	id S262134AbVEXPqc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 11:46:32 -0400
-Message-ID: <42934C4D.2040501@cr0.org>
-Date: Tue, 24 May 2005 17:46:21 +0200
-From: Julien TINNES <julien-lkml@cr0.org>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: tytso@mit.edu
-CC: linux-kernel@vger.kernel.org
-Subject: Potential null pointer dereference in serial driver (2.4) and amiga
- serial driver (2.6)
-Content-Type: multipart/mixed;
- boundary="------------030402060204090806030608"
-X-OriginalArrivalTime: 24 May 2005 15:46:21.0683 (UTC) FILETIME=[BBB9FC30:01C56077]
+	Tue, 24 May 2005 11:55:37 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:37115 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262116AbVEXPpC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 11:45:02 -0400
+Subject: Re: RT patch acceptance
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050524081517.GA22205@elte.hu>
+References: <1116890066.13086.61.camel@dhcp153.mvista.com>
+	 <20050524054722.GA6160@infradead.org> <20050524064522.GA9385@elte.hu>
+	 <4292DFC3.3060108@yahoo.com.au>  <20050524081517.GA22205@elte.hu>
+Content-Type: text/plain
+Organization: MontaVista
+Date: Tue, 24 May 2005 08:44:58 -0700
+Message-Id: <1116949498.28841.19.camel@dhcp153.mvista.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------030402060204090806030608
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+On Tue, 2005-05-24 at 10:15 +0200, Ingo Molnar wrote:
 
-This is an example of a pointer which is dereferenced (two times),
-before beeing null checked.
+> so it's well worth the effort, but there's no hurry and all the changes 
+> are incremental anyway. I can understand Daniel's desire for more action 
+> (he's got a product to worry about), but upstream isnt ready for this 
+> yet.
 
-Patches are attached.
+Ouch.. Let me disclaim my email , I'm writing for me and no one else.
+I'm just a sponsored kernel hacker... Are you worried about RedHat
+products?
 
-Signed-off-by: Julien TINNES <julien@cr0.org>
+The main reason for my email is that I know Andrew and Linus don't want
+interrupts in threads. Without that there is no PREEMPT_RT . If you want
+to narrow the discussion to just interrupts in threads that's fine with
+me, cause that's what I'm concerned about.
 
---------------030402060204090806030608
-Content-Type: text/x-patch;
- name="2.4-serial.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.4-serial.patch"
+There has been some version of interrupts in threads running around for
+almost a year now. To me that's mature enough to be "unstable".
 
---- linux-2.4.30.orig/drivers/char/serial.c	2005-01-19 15:09:50.000000000 +0100
-+++ linux-2.4.30/drivers/char/serial.c	2005-05-24 17:23:26.000000000 +0200
-@@ -1827,13 +1827,18 @@
- 
- static void rs_put_char(struct tty_struct *tty, unsigned char ch)
- {
--	struct async_struct *info = (struct async_struct *)tty->driver_data;
-+	struct async_struct *info;
- 	unsigned long flags;
- 
-+	if (!tty)
-+		return;
-+	
-+	info =  (struct async_struct *)tty->driver_data;
-+	
- 	if (serial_paranoia_check(info, tty->device, "rs_put_char"))
- 		return;
- 
--	if (!tty || !info->xmit.buf)
-+	if (!info->xmit.buf)
- 		return;
- 
- 	save_flags(flags); cli();
-@@ -1873,13 +1878,18 @@
- 		    const unsigned char *buf, int count)
- {
- 	int	c, ret = 0;
--	struct async_struct *info = (struct async_struct *)tty->driver_data;
-+	struct async_struct *info;
- 	unsigned long flags;
- 				
-+	if (!tty)
-+		return 0;
-+
-+	info = (struct async_struct *)tty->driver_data;
-+	
- 	if (serial_paranoia_check(info, tty->device, "rs_write"))
- 		return 0;
- 
--	if (!tty || !info->xmit.buf || !tmp_buf)
-+	if (!info->xmit.buf || !tmp_buf)
- 		return 0;
- 
- 	save_flags(flags);
+Daniel
 
---------------030402060204090806030608
-Content-Type: text/x-patch;
- name="2.6-amiserial.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.6-amiserial.patch"
-
---- linux-2.6.11.orig/drivers/char/amiserial.c	2005-05-17 10:55:03.000000000 +0200
-+++ linux-2.6.11/drivers/char/amiserial.c	2005-05-24 17:10:16.000000000 +0200
-@@ -861,13 +861,18 @@
- 
- static void rs_put_char(struct tty_struct *tty, unsigned char ch)
- {
--	struct async_struct *info = (struct async_struct *)tty->driver_data;
-+	struct async_struct *info;
- 	unsigned long flags;
- 
-+	if(!tty)
-+		return;
-+	
-+	info = (struct async_struct *)tty->driver_data;
-+	
- 	if (serial_paranoia_check(info, tty->name, "rs_put_char"))
- 		return;
- 
--	if (!tty || !info->xmit.buf)
-+	if (!info->xmit.buf)
- 		return;
- 
- 	local_irq_save(flags);
-@@ -910,13 +915,18 @@
- static int rs_write(struct tty_struct * tty, const unsigned char *buf, int count)
- {
- 	int	c, ret = 0;
--	struct async_struct *info = (struct async_struct *)tty->driver_data;
-+	struct async_struct *info;
- 	unsigned long flags;
- 
-+	if(!tty)
-+		return 0;
-+
-+	info = (struct async_struct *)tty->driver_data;
-+	
- 	if (serial_paranoia_check(info, tty->name, "rs_write"))
- 		return 0;
- 
--	if (!tty || !info->xmit.buf || !tmp_buf)
-+	if (!info->xmit.buf || !tmp_buf)
- 		return 0;
- 
- 	local_save_flags(flags);
-
---------------030402060204090806030608--

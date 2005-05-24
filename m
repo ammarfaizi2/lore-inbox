@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbVEXSQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbVEXSSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261950AbVEXSQe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 14:16:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbVEXSQe
+	id S261961AbVEXSSP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 14:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261946AbVEXSSK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 14:16:34 -0400
-Received: from mail.shareable.org ([81.29.64.88]:55515 "EHLO
-	mail.shareable.org") by vger.kernel.org with ESMTP id S261425AbVEXSQW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 14:16:22 -0400
-Date: Tue, 24 May 2005 19:15:54 +0100
-From: Jamie Lokier <jamie@shareable.org>
-To: Mike Waychison <mikew@google.com>
-Cc: Miklos Szeredi <miklos@szeredi.hu>, linuxram@us.ibm.com,
-       linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       akpm@osdl.org, viro@parcelfarce.linux.theplanet.co.uk
-Subject: Re: [RFC][PATCH] rbind across namespaces
-Message-ID: <20050524181554.GA13760@mail.shareable.org>
-References: <E1DZNSN-0006cU-00@dorka.pomaz.szeredi.hu> <1116660380.4397.66.camel@localhost> <E1DZP37-0006hH-00@dorka.pomaz.szeredi.hu> <20050521134615.GB4274@mail.shareable.org> <E1DZlVn-0007a6-00@dorka.pomaz.szeredi.hu> <429277CA.9050300@google.com> <E1DaSCb-0003Tw-00@dorka.pomaz.szeredi.hu> <4292D416.5070001@waychison.com> <E1DaVYK-0003ko-00@dorka.pomaz.szeredi.hu> <4293612F.3000708@google.com>
+	Tue, 24 May 2005 14:18:10 -0400
+Received: from colin.muc.de ([193.149.48.1]:8207 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S261961AbVEXSRt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 14:17:49 -0400
+Date: 24 May 2005 20:17:43 +0200
+Date: Tue, 24 May 2005 20:17:43 +0200
+From: Andi Kleen <ak@muc.de>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+Cc: Ashok Raj <ashok.raj@intel.com>, zwane@arm.linux.org.uk,
+       discuss@x86-64.org, shaohua.li@intel.com, linux-kernel@vger.kernel.org,
+       rusty@rustycorp.com.au
+Subject: Re: [discuss] Re: [patch 0/4] CPU hot-plug support for x86_64
+Message-ID: <20050524181743.GG86233@muc.de>
+References: <20050520221622.124069000@csdlinux-2.jf.intel.com> <20050523164046.GB39821@muc.de> <20050523095450.A8193@unix-os.sc.intel.com> <20050523171212.GF39821@muc.de> <20050523104046.B8692@unix-os.sc.intel.com> <20050524054617.GA5510@in.ibm.com> <20050523230106.A13839@unix-os.sc.intel.com> <20050524085330.GB8279@in.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4293612F.3000708@google.com>
+In-Reply-To: <20050524085330.GB8279@in.ibm.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mike Waychison wrote:
-> >No need to hijack, it's already done.  Removing calls to
-> >proc_check_root() will allow access to different namespaces detached
-> >mounts, etc.  It's been tried and actually works.
+On Tue, May 24, 2005 at 02:23:30PM +0530, Srivatsa Vaddagiri wrote:
+> On Mon, May 23, 2005 at 11:01:06PM -0700, Ashok Raj wrote:
+> > We do this today in x86_64 case when we setup this upcomming cpu in 
+> > cpu_online_map. But the issue is when we use ipi broadcast, its an ugly
 > 
-> See previous message as why we don't want to allow this.
+> I don't know of x86-64, but atleast on x86 ipi broadcast will send 
+> to _all_ CPUs present, right? I mean the h/w does not know of the offline
+> CPUs and will send to them also. This could lead to a problem for the offline 
+> CPUs when they come online and can take a spurious IPI (unless
+> there is support in h/w to clear pending IPI before doing STI).
 
-If you can ptrace any process which is in another namespace, then you
-_effectively_ have full access to that namespace.  It's quite easy to
-do, and negates the supposed security of namespaces.
+x86-64 works the same here. 
 
-Because of that, there's _no_ real security benefit from denying
-access to /proc/NNN/fd/ if you are able to ptrace task NNN.
+The hardware does not clear pending IPIs AFAIK, but software could
+do that manually during cpu bootup. Races can be avoided by taking
+call_lock and the tlb flush lock while doing that.
 
-What I think makes sense is this:
-
-   1. Deny access to /proc/NNN/fd/, /proc/NNN/cwd, /proc/NNN/root
-      if task NNN cannot be ptraced.
-
-   3. Allow entry to /proc/NNN/fd/, /proc/NNN/cwd, /proc/NNN/root
-      if ptrace is allowed; the namespace being irrelevant.
-
-   3. Use _exactly_ the same condition as for ptracing,
-      i.e. MAY_PTRACE in fs/proc/base.c.  Ensure that condition is
-      consistent with the tests in kernel/ptrace.c, possibly putting
-      the condition in a common header file to keep it consistent in
-      future.
-
-   4. If further restrictions are desired, to make namespaces more
-      strict, those should be implemented by further restrictions on
-      which tasks are allowed to ptrace other tasks.
-
--- Jamie
+-Andi

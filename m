@@ -1,81 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVEXHLm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVEXHNP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbVEXHLm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 03:11:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVEXHLm
+	id S261384AbVEXHNP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 03:13:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVEXHNO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 03:11:42 -0400
-Received: from wproxy.gmail.com ([64.233.184.198]:55599 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261380AbVEXHLf convert rfc822-to-8bit
+	Tue, 24 May 2005 03:13:14 -0400
+Received: from ns9.hostinglmi.net ([213.194.149.146]:41633 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261384AbVEXHMt
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 03:11:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=tvIhVOeAzDNbsvJvSQ5uiPWVf1N9fUHV/ILTH1RV6NCU8oFfa/Deuwxu8gnPnKO2oOPcW9uTpMLIC9RWUkUYORUvUUF5ovlT66teN2p4kc1mPLda7J/oL/8dMHdOkC54WTfaWuiTjdCwq+AD65PTFOYTBk4bAGyeGa/JpWda7Uo=
-Message-ID: <84144f0205052400113c6f40fc@mail.gmail.com>
-Date: Tue, 24 May 2005 10:11:34 +0300
-From: Pekka Enberg <penberg@gmail.com>
-Reply-To: Pekka Enberg <penberg@gmail.com>
-To: "ericvh@gmail.com" <ericvh@gmail.com>
-Subject: Re: [RFC][patch 4/7] v9fs: VFS superblock operations (2.0-rc6)
-Cc: linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net,
-       viro@parcelfarce.linux.theplanet.co.uk, linux-fsdevel@vger.kernel.org,
-       penberg@cs.helsinki.fi
-In-Reply-To: <200505232225.j4NMPte1029529@ms-smtp-02-eri0.texas.rr.com>
+	Tue, 24 May 2005 03:12:49 -0400
+Date: Tue, 24 May 2005 09:14:07 +0200
+From: DervishD <lkml@dervishd.net>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       Linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RESEND] Hard disk LBA sector count is not always the same
+Message-ID: <20050524071407.GA60@DervishD>
+Mail-Followup-To: Petr Vandrovec <vandrove@vc.cvut.cz>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Linux-kernel <linux-kernel@vger.kernel.org>
+References: <20050523121424.GB339@DervishD> <42922175.8090005@pobox.com> <20050523200221.GE57@DervishD> <42925760.9010603@vc.cvut.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-References: <200505232225.j4NMPte1029529@ms-smtp-02-eri0.texas.rr.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <42925760.9010603@vc.cvut.cz>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+    Hi Petr :)
 
-On 5/24/05, ericvh@gmail.com <ericvh@gmail.com> wrote:
-> Index: fs/9p/v9fs.c
-> ===================================================================
-> --- /dev/null  (tree:0bf32353105286a5624aeea862d35a4bbae09851)
-> +++ 178666ee376655ef8ec19a2ffc0490241b428110/fs/9p/v9fs.c  (mode:100644)
-> @@ -0,0 +1,573 @@
-> +/*
-> +  * Fcall Slab Accounting
-> +  */
-> +
-> +struct v9fs_slab {
-> +       struct list_head list;
-> +
-> +       int size;
-> +       kmem_cache_t *slab;
-> +};
-> +
-> +static LIST_HEAD(v9fs_slab_list);
+    Thanks for your answer :)
 
-[snip]
+ * Petr Vandrovec <vandrove@vc.cvut.cz> dixit:
+> >>DervishD wrote:
+> >>>  current capacity is 156299375
+> >>>  native capacity is 156301488
+> >>Hard drives have a feature that can reserve a certain amount of space 
+> >>away from the user.
+> >    Yes, I know, but the problem is that 2.4 kernels *does* reserve
+> >that space but 2.6 certainly not, and if I boot into 2.6 and then
+> >reboot into 2.4, then 2.4 *does NOT* reserve that space.
+> Yes.  It is normal...
 
-> +
-> +/**
-> + * find_slab - look up a slab by size
-> + * @size: size of slab data
-> + *
-> + */
-> +
-> +static inline kmem_cache_t *find_slab(int size)
+    I'm surprised :??? Does 2.6 'stroking' by default? I supposed
+that maybe Debian people had activated stroking...
+ 
+> >    See the paragraph above: if I partition the disk under 2.6 the
+> >partition will have a bigger address than the one that will be
+> >available under 2.4, and that can give errors while accessing that
+> >extra sectors. What can I do? For technical limitations in my box, I
+> >have to use 2.6 for repartitioning that disk (and I will be doing
+> >that in less than a month) and this will lead to unaccesible sectors
+> >when I boot back into my usual 2.4 kernel :(
+> (1) You do not have to create partition over full disk.
 
-Hmm? Why do you need this? If you're missing functionality from the
-slab allocator, please put that in mm/slab.c, not your filesystem!
+    I would prefer to do it. Otherwise I have to calculate where the
+partition must end in order to not disturb the kernel. Moreover, in
+that space will go the swap partition, probably...
+ 
+> (2) If you'll build your 2.4.x kernel with CONFIG_IDEDISK_STROKE=y
+> ('Auto-Geometry Resizing support'), I bet that your problems with 2.4.x
+> kernels disappear.
 
-> +void v9fs_session_close(struct v9fs_session_info *v9ses)
-> +{
+    I'll try right now... YES, it works!. I don't understand, my BIOS
+is AMI, not Awards, and I assumed that the stroke option was used
+only for Awards BIOS'es. I've looked at the code in the kernel and it
+doesn't seem to be particular for Award :?? It should be specified in
+the documentation.
 
-[snip]
+    Thanks a lot for your suggestion and for solving my problem :)
 
-> +       if (v9ses->name) {
-> +               kfree(v9ses->name);
-> +       }
+    Raúl Núñez de Arenas Coronado
 
-kfree() handles NULL pointers just fine, so please drop the redundant
-check (here and in various other places too).
-
-                       Pekka
+-- 
+Linux Registered User 88736 | http://www.dervishd.net
+http://www.pleyades.net & http://www.gotesdelluna.net
+It's my PC and I'll cry if I want to...

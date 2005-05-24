@@ -1,67 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVEXH34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261407AbVEXH3u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261410AbVEXH34 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 03:29:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbVEXH34
+	id S261407AbVEXH3u (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 03:29:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261402AbVEXH3u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 03:29:56 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:21709 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261414AbVEXH3p (ORCPT
+	Tue, 24 May 2005 03:29:50 -0400
+Received: from ns2.suse.de ([195.135.220.15]:11926 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261410AbVEXH3g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 03:29:45 -0400
-Message-ID: <4292D7E1.80601@pobox.com>
-Date: Tue, 24 May 2005 03:29:37 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andrew Morton <akpm@osdl.org>, Netdev <netdev@oss.sgi.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [git patches] 2.6.x net driver updates
-References: <4292BA66.8070806@pobox.com> <Pine.LNX.4.58.0505232253160.2307@ppc970.osdl.org> <4292C8EF.3090307@pobox.com> <Pine.LNX.4.58.0505232343260.2307@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0505232343260.2307@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Tue, 24 May 2005 03:29:36 -0400
+Date: Tue, 24 May 2005 09:29:29 +0200
+From: Karsten Keil <kkeil@suse.de>
+To: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>
+Cc: Ondrej Zary <linux@rainbow-software.org>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, jgarzik@pobox.com
+Subject: Re: [PATCH] bug in VIA PCI IRQ routing
+Message-ID: <20050524072929.GD22182@pingi3.kke.suse.de>
+Mail-Followup-To: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>,
+	Ondrej Zary <linux@rainbow-software.org>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+	jgarzik@pobox.com
+References: <0EF82802ABAA22479BC1CE8E2F60E8C31B4902@scl-exch2k3.phoenix.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0EF82802ABAA22479BC1CE8E2F60E8C31B4902@scl-exch2k3.phoenix.com>
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.6.8-24.10-default i686
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+Hi,
+
+On Mon, May 23, 2005 at 12:53:41PM -0700, Aleksey Gorelov wrote:
 > 
-> On Tue, 24 May 2005, Jeff Garzik wrote:
+> Karsten, 
 > 
->>You are getting precisely the same thing you got under BitKeeper:  pull 
->>from X, you get my tree, which was composed from $N repositories.  The 
->>tree you pull was created by my running 'bk pull' locally $N times.
-> 
-> 
-> No. Under BK, you had DIFFERENT TREES.
-> 
-> What does that mean? They had DIFFERENT NAMES.
-> 
-> Which meant that the commit message was MEANINGFUL.
+>   could you please verify if attached patch works for you ?
 
-Ok, I'll fix the commit message.
+Works and seems to be OK, according to the specs. So this
+patch should go into the kernel, also into 2.4 I think.
+These chipset is still used on small special purpose systems.
 
-As for different trees, I'm afraid you've written something that is _too 
-useful_ to be used in that manner.
+--- linux-2.6.11.10/arch/i386/pci/irq.c	2005-05-16 10:50:30.000000000 -0700
++++ new/arch/i386/pci/irq.c	2005-05-23 12:47:19.000000000 -0700
+@@ -227,6 +227,24 @@
+ }
+ 
+ /*
++ * The VIA pirq rules are nibble-based, like ALI,
++ * but without the ugly irq number munging.
++ * However, for 82C586, nibble map is different .
++ */
++static int pirq_via586_get(struct pci_dev *router, struct pci_dev *dev, int pirq)
++{
++	static unsigned int pirqmap[4] = { 3, 2, 5, 1 };
++	return read_config_nybble(router, 0x55, pirqmap[pirq-1]);
++}
++
++static int pirq_via586_set(struct pci_dev *router, struct pci_dev *dev, int pirq, int irq)
++{
++	static unsigned int pirqmap[4] = { 3, 2, 5, 1 };
++	write_config_nybble(router, 0x55, pirqmap[pirq-1], irq);
++	return 1;
++}
++
++/*
+  * ITE 8330G pirq rules are nibble-based
+  * FIXME: pirqmap may be { 1, 0, 3, 2 },
+  * 	  2+3 are both mapped to irq 9 on my system
+@@ -509,6 +527,10 @@
+ 	switch(device)
+ 	{
+ 		case PCI_DEVICE_ID_VIA_82C586_0:
++			r->name = "VIA";
++			r->get = pirq_via586_get;
++			r->set = pirq_via586_set;
++			return 1;
+ 		case PCI_DEVICE_ID_VIA_82C596:
+ 		case PCI_DEVICE_ID_VIA_82C686:
+ 		case PCI_DEVICE_ID_VIA_8231:
 
-Git has brought with it a _major_ increase in my productivity because I 
-can now easily share ~50 branches with 50 different kernel hackers, 
-without spending all day running rsync.  Suddenly my kernel development 
-is a whole lot more _open_ to the world, with a single "./push".  And 
-it's awesome.
-
-That wasn't possible before with BitKeeper, just due to sheer network 
-overhead of 50 trees.  With BitKeeper, the _only_ thing that kernel 
-hackers and users could get from me is a mush tree with everything 
-merged into a big 'ALL' repository.
-
-So I'll continue to be the oddball, because more people can work in 
-parallel with me that way.  I'll just have to make sure the commit 
-messages look right to you.
-
-	Jeff
-
-
+-- 
+Karsten Keil
+SuSE Labs
+ISDN development

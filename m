@@ -1,100 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVEXLHa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262000AbVEXLHb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261386AbVEXLHa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 07:07:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262038AbVEXJZO
+	id S262000AbVEXLHb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 07:07:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262036AbVEXJYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 05:25:14 -0400
-Received: from smtp.nexlab.net ([213.173.188.110]:39361 "EHLO smtp.nexlab.net")
-	by vger.kernel.org with ESMTP id S261876AbVEXJR3 (ORCPT
+	Tue, 24 May 2005 05:24:48 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:12997 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S261999AbVEXJT0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:17:29 -0400
+	Tue, 24 May 2005 05:19:26 -0400
 X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
 X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
 	08:27:20 2005 signatures 31.893
-Message-Id: <20050524091726.71E33F9E5@smtp.nexlab.net>
-Date: Tue, 24 May 2005 11:17:26 +0200 (CEST)
+Message-Id: <20050524091925.73B67F9FE@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:19:25 +0200 (CEST)
 From: root@smtp.nexlab.net
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	by smtp.nexlab.net (Postfix) with ESMTP id CCC3BFB6B
+	by smtp.nexlab.net (Postfix) with ESMTP id 7C555FB73
 
-	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:39 +0200 (CEST)
+	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:46 +0200 (CEST)
 
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
 
-	id S261367AbVEXGnN (ORCPT <rfc822;chiakotay@nexlab.it>);
+	id S261416AbVEXHrr (ORCPT <rfc822;chiakotay@nexlab.it>);
 
-	Tue, 24 May 2005 02:43:13 -0400
+	Tue, 24 May 2005 03:47:47 -0400
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVEXGnD
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbVEXHrr
 
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 
-	Tue, 24 May 2005 02:43:03 -0400
+	Tue, 24 May 2005 03:47:47 -0400
 
-Received: from pentafluge.infradead.org ([213.146.154.40]:38285 "EHLO
+Received: from fire.osdl.org ([65.172.181.4]:48015 "EHLO smtp.osdl.org")
 
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	by vger.kernel.org with ESMTP id S261416AbVEXHrp (ORCPT
 
-	id S261367AbVEXGkv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	<rfc822;linux-kernel@vger.kernel.org>);
 
-	Tue, 24 May 2005 02:40:51 -0400
+	Tue, 24 May 2005 03:47:45 -0400
 
-Received: from g133107.upc-g.chello.nl ([80.57.133.107] helo=[172.31.3.43])
+Received: from shell0.pdx.osdl.net (fw.osdl.org [65.172.181.6])
 
-	by pentafluge.infradead.org with esmtpsa (Exim 4.43 #1 (Red Hat Linux))
+	by smtp.osdl.org (8.12.8/8.12.8) with ESMTP id j4O7iVjA029720
 
-	id 1DaT5s-0001rg-46; Tue, 24 May 2005 07:40:48 +0100
+	(version=TLSv1/SSLv3 cipher=EDH-RSA-DES-CBC3-SHA bits=168 verify=NO);
 
-Subject: Re: [CRYPTO]: Only reschedule if !in_atomic()
+	Tue, 24 May 2005 00:44:31 -0700
 
-From: Arjan van de Ven <arjan@infradead.org>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: davem@davemloft.net
-In-Reply-To: <200505232300.j4NN07lE012726@hera.kernel.org>
+Received: from localhost (shell0.pdx.osdl.net [10.9.0.31])
 
-References: <200505232300.j4NN07lE012726@hera.kernel.org>
+	by shell0.pdx.osdl.net (8.13.1/8.11.6) with ESMTP id j4O7iUjI014722;
 
-Content-Type: text/plain
+	Tue, 24 May 2005 00:44:30 -0700
 
-Date:	Tue, 24 May 2005 08:40:45 +0200
+Date:	Tue, 24 May 2005 00:46:35 -0700 (PDT)
 
-Message-Id: <1116916845.6280.8.camel@laptopd505.fenrus.org>
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, Netdev <netdev@oss.sgi.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [git patches] 2.6.x net driver updates
 
-Mime-Version: 1.0
+In-Reply-To: <4292D7E1.80601@pobox.com>
 
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Message-ID: <Pine.LNX.4.58.0505240042550.2307@ppc970.osdl.org>
 
-Content-Transfer-Encoding: 7bit
+References: <4292BA66.8070806@pobox.com> <Pine.LNX.4.58.0505232253160.2307@ppc970.osdl.org>
 
-X-Spam-Score: 3.7 (+++)
+ <4292C8EF.3090307@pobox.com> <Pine.LNX.4.58.0505232343260.2307@ppc970.osdl.org>
 
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+ <4292D7E1.80601@pobox.com>
 
-	Content analysis details:   (3.7 points, 5.0 required)
+MIME-Version: 1.0
 
-	pts rule name              description
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 
-	---- ---------------------- --------------------------------------------------
+X-Spam-Status: No, hits=0 required=5 tests=
 
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+X-Spam-Checker-Version:	SpamAssassin 2.63-osdl_revision__1.40__
 
-	[<http://dsbl.org/listing?80.57.133.107>]
+X-MIMEDefang-Filter: osdl$Revision: 1.109 $
 
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-
-	See http://www.infradead.org/rpr.html
+X-Scanned-By: MIMEDefang 2.36
 
 Sender: linux-kernel-owner@vger.kernel.org
 Precedence: bulk
@@ -104,14 +95,33 @@ X-Mailing-List:	linux-kernel@vger.kernel.org
 
 
 
-> -	if (!in_softirq())
-> +	if (!in_atomic())
->  		cond_resched();
 
-this looks wrong. in_atomic() isn't doing what I think you think it
-does; for one it doesn't get set inside spinlock regions (unless preempt
-is enabled) 
+On Tue, 24 May 2005, Jeff Garzik wrote:
+> 
+> Ok, I'll fix the commit message.
+> 
+> As for different trees, I'm afraid you've written something that is _too 
+> useful_ to be used in that manner.
 
+I really think you'll eventually confuse yourself terminally, but as long 
+as the commit messages end up being meaningful, your "mush everything 
+together" clearly is the thing that is going to perform best.
+
+> Git has brought with it a _major_ increase in my productivity because I 
+> can now easily share ~50 branches with 50 different kernel hackers, 
+> without spending all day running rsync.
+
+Hey, I'm happy it works for you, but are you sure those 50 other kernel 
+hackers aren't confused?
+
+IOW, your work model is pretty extreme, and I'm much more worried about 
+mixing up trees by mistake than about the technical side of git per se. 
+That's also why I think it's important that the commit logs are 
+meaningful: they do end up containing the SHA1 key, so clearly "all the 
+information" is there, but if something gets mixed up, I'd like some human 
+to be able to eventualyl say "Aaahhh.. _that's_ where it got mixed up".
+
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

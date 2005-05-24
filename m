@@ -1,115 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262096AbVEXPbr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbVEXPdq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262096AbVEXPbr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 11:31:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262123AbVEXPbl
+	id S262103AbVEXPdq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 11:33:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbVEXPcc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 11:31:41 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:24815 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262115AbVEXP2d
+	Tue, 24 May 2005 11:32:32 -0400
+Received: from alog0402.analogic.com ([208.224.222.178]:29070 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S262105AbVEXPbJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 11:28:33 -0400
-Message-ID: <429347FA.8060203@mvista.com>
-Date: Tue, 24 May 2005 08:27:54 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
+	Tue, 24 May 2005 11:31:09 -0400
+Date: Tue, 24 May 2005 11:30:28 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Paul Rolland <rol@as2917.net>
+cc: Linux kernel <linux-kernel@vger.kernel.org>, rol@witbe.net
+Subject: Re: Linux and Initrd used to access disk : how does it work ?
+In-Reply-To: <200505241519.j4OFJUR24338@tag.witbe.net>
+Message-ID: <Pine.LNX.4.61.0505241125500.16448@chaos.analogic.com>
+References: <200505241519.j4OFJUR24338@tag.witbe.net>
 MIME-Version: 1.0
-To: Oleg Nesterov <oleg@tv-sign.ru>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH rc4-mm2 2/2] posix-timers: use try_to_del_timer_sync()
-References: <42909DC2.7922E05D@tv-sign.ru> <42926F83.9050608@mvista.com> <4292F5FF.1A92086C@tv-sign.ru>
-In-Reply-To: <4292F5FF.1A92086C@tv-sign.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Oleg Nesterov wrote:
-> George Anzinger wrote:
-> 
->>Oleg Nesterov wrote:
+On Tue, 24 May 2005, Paul Rolland wrote:
+
+> Hello Dick,
+>
+>> initrd means Initial RAM disk.
 >>
->>>This patch removes timer_active/set_timer_inactive which plays with
->>>timer_list's internals in favour of using try_to_del_timer_sync(),
->>>which was introduced in the previous patch.
+>> The boot image is put onto your Hard disk. The hard disk needs
+>> to be accessible from the BIOS to boot from it. Most controllers
+>> have a BIOS module that lets it be accessed during boot so you
+>> don't need a chicken before the egg to start the boot.
+>
+> Ok, basically, the trick is that the BIOS knows how to access the
+> disk, and Linux doesn't because it doesnt use the BIOS ? Or is it
+> some more subtle (though I doubt) thing in which only a part of the
+> disk can be accessed by the BIOS.
+>
+
+Linux needs to load a driver before it can access the disk. The
+BIOS only works for 16-bit real-mode access.
+
+>> Then, when booting, LILO or grub starts linux which uncompresses
+>> a RAM disk and mounts it instead of your hard disk. A special
+>> version of `init` (called nash) gets started which reads a script
+>> called linuxrc. It contains commands like:
+> Yes, I've seen that in my .img file...
+>
+>> The module(s) are in the /lib directory of the RAM disk.
+>> They are put there by a build-script that installs initrd.
+>> This script gets executed when you do 'make install' in
+>> the kernel directory. If you have private modules, you
+>> can copy them to the appropriate /lib/modules/`uname
+>> -r`/kernel/drivers
+>> directory. You put the module(s) name(s) you need to boot
+>> in /etc/modprobe.conf or /etc/modules.conf (depends upon the
+>> module tools version) as:
 >>
->>Is there a particular reason for this, like it does not work, for example, or
->>are you just trying to clean up code?
-> 
-> 
-> It's a cleanup, I think that current code is correct.
-> 
-> 
->>If this currently works, please leave it alone.
-> 
-> 
-> Ok.
-> 
-> 
->>We also note that this code is the subject of a patch to the RT patch to cover
->>the same issue when softirqs are run from threads and therefor allow
->>posix_timer_fn to be preempted.  (That fix being mainly to expand usage from
->>just SMP to SMP || SOFTIRQ_PREEMPT.)
-> 
-> 
-> I guess you are talking about this patch:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=111566867218576
-> 
-> 
->>Also, I think that del_timer_sync and friends need to be turned on if soft_irq
->>is preemptable.
-> 
-> 
-> I agree completely.
-> 
-> 
->>+ * For RT the timer call backs are preemptable.  This means that folks
->>+ * trying to delete timers may run into timers that are "active" for
->>+ * long times.  To help out with this we provide a wake up function to
->>+ * wake up a caller who wants waking when a timer clears the call back.
->>+ * This is the same sort of thing that the del_timer_sync does, but we
->>+ * need (in the HRT case) to cover two lists and not just the one.
->>+ */
->>+#ifdef CONFIG_PREEMPT_SOFTIRQS
->>+#include <linux/wait.h>
->>+static DECLARE_WAIT_QUEUE_HEAD(timer_wake_queue);
->>+#define wake_timer_waiters() wake_up(&timer_wake_queue)
->>+#define wait_for_timer(timer) wait_event(timer_wake_queue, !timer_active(timer))
-> 
-> 
-> I'm not an expert at all, so I may be wrong, but I don't think
-> it's a good idea.
-> 
-> I think it is bad if __run_timers() could be preempted while
-> ->running_timer != NULL. This will interact badly with __mod_timer,
-> del_timer_sync. I think that __run_timers() should do:
-> 
-> 	set_running_timer(base, timer);
-> 	preempt_disable();
-> 	spin_unlock_irq(&base->lock);
-> 
-> 	timer->function();
-> 
-> 	set_running_timer(base, NULL);
-> 	preempt_enable();
-> 	spin_lock_irq(&base->lock);
-> 
-> What do you think?
+>> alias scsi_hostadapter aic7xxx
+>> alias scsi_hostadapter1 ata_piix
+>>
+>> ... any scsi_hostadapter stuff will be put into initrd when
+>> you execute the script, /sbin/mkinitrd.
+>>
+>
+> Hmmm... I didn't know this part, thanks for the details.
+>
+> So, it seems that I'm stuck with my binary module unless I can find a
+> way to tell the kernel to use the BIOS to access the disk ;-)))
+>
 
-First, I think we need to get Ingo in the discussion. :)
+No. You are "stuck with a driver" just like everybody else. You
+either have drivers built-in (getting rare, because there are so
+many), or you load a driver while booting. This is the usual
+way. From the boot perspective, it doesn't matter if the module
+is a 'binary' one or a GPL one.
 
-Second, the RT patch has been running this way with little problems, save a 
-REALLY intense test we (Monta Vista) have run that, from time to time, shows 
-this to be a problem in the posix-timer code that is fixed by including 
-SOFTIRQ_PREEMPT as well as SMP in the timer ifdefs.
+> Cheers,
+> Paul
+>
+>
 
-One thing I do see there (in the RT patch) is a change to del_timer_sync to wait 
-for the timer call back to complete rather than to loop...
-> 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

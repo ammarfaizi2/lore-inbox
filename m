@@ -1,68 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262069AbVEXKRc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbVEXJeZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262069AbVEXKRc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 06:17:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262078AbVEXKNi
+	id S261954AbVEXJeZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 05:34:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262044AbVEXJbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 06:13:38 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:64479 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S262058AbVEXJj2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:39:28 -0400
-Date: Tue, 24 May 2005 11:38:40 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, akpm@osdl.org, sdietrich@mvista.com
-Subject: Re: RT patch acceptance
-In-Reply-To: <20050524054722.GA6160@infradead.org>
-Message-Id: <Pine.OSF.4.05.10505241123240.5002-100000@da410.phys.au.dk>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 24 May 2005 05:31:20 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:34494 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S261954AbVEXJPo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 05:15:44 -0400
+X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
+X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
+	08:27:20 2005 signatures 31.893
+Message-Id: <20050524091537.9E737F9EE@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:15:37 +0200 (CEST)
+From: root@smtp.nexlab.net
+To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+	by smtp.nexlab.net (Postfix) with ESMTP id A8568FB6B
 
-On Tue, 24 May 2005, Christoph Hellwig wrote:
+	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:40 +0200 (CEST)
 
-> On Mon, May 23, 2005 at 04:14:26PM -0700, Daniel Walker wrote:
-> 
-> Personally I think interrupt threads, spinlocks as sleeping mutexes and PI
-> is something we should keep out of the kernel tree.  
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
 
-A general threaded interrupt is not a good thing. Ingo made this to see
-how far he can press it. But having serial drivers running in interrupt is
-way overkill. Even network drivers can (provided they use DMA) run in
-interrupt without hurting the overall latencies. It all depends on the
-driver and how it interfaces with the rest of the kernel, especially what
-locks are shared and how long the lock are taken. If they are small
-enough, interrupt context and thus raw spinlocks are good enough.
-In general, I think each driver ought to be configurable: Either it runs
-in interrupt context or it runs in a thread. The locks have to be changed
-accordingly from raw spinlocks to mutexes.
+	id S261269AbVEXFmL (ORCPT <rfc822;chiakotay@nexlab.it>);
 
-As for PI: Well, I don't think it will affect the overall stability to
-have it as something you can switch on/off compile time. Will it even hurt
-anyone except for a tiny overhead of checking wether there are RT waiters
-or not?
+	Tue, 24 May 2005 01:42:11 -0400
 
-I think the configuration space ought to be something like:
-1) Server: No interrupt threads, raw spinlocks and no preemption.
-2) RT: Preemption, mutexes with PI in almost all places,
-interrupts are threaded per configuration per device.
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVEXFmK
 
-Desktops ought to run as RT!! Most of all to force people to test the RT
-setup, but also to make sure people can run a audio device etc.
+	(ORCPT <rfc822;linux-kernel-outgoing>);
 
-> If you want such
-> advanced RT features use a special microkernel and run Linux as user
-> process, using RTAI or maybe soon some of the more sofisticated virtualization
-> technologies.
+	Tue, 24 May 2005 01:42:10 -0400
 
-I find that a bad approach:
-1) You don't have RT in userspace.
-2) You can't use Linux drivers for standeard hardware when you want it to
-be part of your deterministic RT application.
+Received: from omx2-ext.sgi.com ([192.48.171.19]:48580 "EHLO omx2.sgi.com")
 
-Esben
+	by vger.kernel.org with ESMTP id S261269AbVEXFlZ (ORCPT
+
+	<rfc822;linux-kernel@vger.kernel.org>);
+
+	Tue, 24 May 2005 01:41:25 -0400
+
+Received: from larry.melbourne.sgi.com (larry.melbourne.sgi.com [134.14.52.130])
+
+	by omx2.sgi.com (8.12.11/8.12.9/linux-outbound_gateway-1.1) with SMTP id j4O7QNoS007911;
+
+	Tue, 24 May 2005 00:26:24 -0700
+
+Received: from kao2.melbourne.sgi.com (kao2.melbourne.sgi.com [134.14.55.180]) by larry.melbourne.sgi.com (950413.SGI.8.6.12/950213.SGI.AUTOCF) via ESMTP id PAA17209; Tue, 24 May 2005 15:40:40 +1000
+
+Received: by kao2.melbourne.sgi.com (Postfix, from userid 16331)
+
+	id 470C270010B; Tue, 24 May 2005 15:40:40 +1000 (EST)
+
+Received: from kao2.melbourne.sgi.com (localhost [127.0.0.1])
+
+	by kao2.melbourne.sgi.com (Postfix) with ESMTP id 439671000F2;
+
+	Tue, 24 May 2005 15:40:40 +1000 (EST)
+
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+
+From: Keith Owens <kaos@sgi.com>
+To: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
+Cc: akpm@osdl.org, tony.luck@intel.com, rohit.seth@intel.com,
+	rusty.lynch@intel.com, prasanna@in.ibm.com, ananth@in.ibm.com,
+	systemtap@sources.redhat.com, linux-ia64@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/4] Kprobes support for IA64 
+
+In-reply-to: Your message of "Mon, 23 May 2005 08:39:07 MST."
+
+             <20050523154228.049327000@csdlinux-2.jf.intel.com> 
+
+Mime-Version: 1.0
+
+Content-Type: text/plain; charset=us-ascii
+
+Date:	Tue, 24 May 2005 15:40:40 +1000
+
+Message-ID: <6261.1116913240@kao2.melbourne.sgi.com>
+
+Sender: linux-kernel-owner@vger.kernel.org
+Precedence: bulk
+
+X-Mailing-List:	linux-kernel@vger.kernel.org
+
+
+
+On Mon, 23 May 2005 08:39:07 -0700, 
+Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com> wrote:
+>
+>This patch adds the kdebug die notification mechanism needed by Kprobes.
+> 	      case 0: /* unknown error (used by GCC for __builtin_abort()) */
+>+		if (notify_die(DIE_BREAK, "kprobe", regs, break_num, TRAP_BRKPT, SIGTRAP)
+>+			       	== NOTIFY_STOP) {
+>+			return;
+>+		}
+> 		die_if_kernel("bugcheck!", regs, break_num);
+> 		sig = SIGILL; code = ILL_ILLOPC;
+> 		break;
+
+Nit pick.  Any break instruction in a B slot will set break_num 0, so
+you cannot tell if the break was inserted by kprobe or by another
+debugger.  Setting the string to "kprobe" is misleading here, change it
+to "break 0".
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

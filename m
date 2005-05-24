@@ -1,71 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262050AbVEXJaH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262046AbVEXJeY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262050AbVEXJaH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 05:30:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262049AbVEXJ3w
+	id S262046AbVEXJeY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 05:34:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVEXJcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 05:29:52 -0400
-Received: from smtp.nexlab.net ([213.173.188.110]:19134 "EHLO smtp.nexlab.net")
-	by vger.kernel.org with ESMTP id S261768AbVEXJPg (ORCPT
+	Tue, 24 May 2005 05:32:04 -0400
+Received: from smtp.nexlab.net ([213.173.188.110]:58814 "EHLO smtp.nexlab.net")
+	by vger.kernel.org with ESMTP id S261961AbVEXJP6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 05:15:36 -0400
+	Tue, 24 May 2005 05:15:58 -0400
 X-Postfix-Filter: PDFilter By Nexlab, Version 0.1 on mail01.nexlab.net
 X-Virus-Checker-Version: clamassassin 1.2.1 with ClamAV 0.83/893/Tue May 24
 	08:27:20 2005 signatures 31.893
-Message-Id: <20050524091529.D0B6FFA21@smtp.nexlab.net>
-Date: Tue, 24 May 2005 11:15:29 +0200 (CEST)
+Message-Id: <20050524091552.E3D05F9EE@smtp.nexlab.net>
+Date: Tue, 24 May 2005 11:15:52 +0200 (CEST)
 From: root@smtp.nexlab.net
 To: undisclosed-recipients:;
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	by smtp.nexlab.net (Postfix) with ESMTP id DD358FB7E
+	by smtp.nexlab.net (Postfix) with ESMTP id 2366BFB72
 
-	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:50 +0200 (CEST)
+	for <chiakotay@nexlab.it>; Tue, 24 May 2005 10:01:46 +0200 (CEST)
 
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
 
-	id S261364AbVEXGjR (ORCPT <rfc822;chiakotay@nexlab.it>);
+	id S261334AbVEXGsu (ORCPT <rfc822;chiakotay@nexlab.it>);
 
-	Tue, 24 May 2005 02:39:17 -0400
+	Tue, 24 May 2005 02:48:50 -0400
 
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVEXGjR
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVEXGst
 
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 
-	Tue, 24 May 2005 02:39:17 -0400
+	Tue, 24 May 2005 02:48:49 -0400
 
-Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:37129 "EHLO
+Received: from fire.osdl.org ([65.172.181.4]:20097 "EHLO smtp.osdl.org")
 
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	by vger.kernel.org with ESMTP id S261334AbVEXGsj (ORCPT
 
-	id S261353AbVEXGiQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	<rfc822;linux-kernel@vger.kernel.org>);
 
-	Tue, 24 May 2005 02:38:16 -0400
+	Tue, 24 May 2005 02:48:39 -0400
 
-Received: from miko by dorka.pomaz.szeredi.hu with local (Exim 3.36 #1 (Debian))
+Received: from shell0.pdx.osdl.net (fw.osdl.org [65.172.181.6])
 
-	id 1DaSRW-0003V9-00; Tue, 24 May 2005 07:59:06 +0200
+	by smtp.osdl.org (8.12.8/8.12.8) with ESMTP id j4O6mWjA025872
 
-To: raven@themaw.net
-Cc: linux-fsdevel@vger.kernel.org, autofs@linux.kernel.org,
-	linux-kernel@vger.kernel.org
-In-reply-to: <Pine.LNX.4.58.0505240846410.26293@wombat.indigo.net.au> (message
+	(version=TLSv1/SSLv3 cipher=EDH-RSA-DES-CBC3-SHA bits=168 verify=NO);
 
-	from Ian Kent on Tue, 24 May 2005 09:06:07 +0800 (WST))
+	Mon, 23 May 2005 23:48:32 -0700
 
-Subject: Re: [VFS-RFC] autofs4 and bind, rbind and move mount requests
+Received: from localhost (shell0.pdx.osdl.net [10.9.0.31])
 
-References: <Pine.LNX.4.62.0505232041410.8361@donald.themaw.net>
+	by shell0.pdx.osdl.net (8.13.1/8.11.6) with ESMTP id j4O6mVWw012672;
 
- <E1DaERw-0002cC-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.62.0505232339250.3469@donald.themaw.net>
+	Mon, 23 May 2005 23:48:31 -0700
 
- <E1DaG04-0002hk-00@dorka.pomaz.szeredi.hu> <Pine.LNX.4.58.0505240846410.26293@wombat.indigo.net.au>
+Date:	Mon, 23 May 2005 23:50:36 -0700 (PDT)
 
-Message-Id: <E1DaSRW-0003V9-00@dorka.pomaz.szeredi.hu>
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, Netdev <netdev@oss.sgi.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [git patches] 2.6.x net driver updates
 
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date:	Tue, 24 May 2005 07:59:06 +0200
+In-Reply-To: <4292CB01.6090506@pobox.com>
+
+Message-ID: <Pine.LNX.4.58.0505232349020.2307@ppc970.osdl.org>
+
+References: <4292BA66.8070806@pobox.com> <Pine.LNX.4.58.0505232253160.2307@ppc970.osdl.org>
+
+ <4292CB01.6090506@pobox.com>
+
+MIME-Version: 1.0
+
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+
+X-Spam-Status: No, hits=0 required=5 tests=
+
+X-Spam-Checker-Version:	SpamAssassin 2.63-osdl_revision__1.40__
+
+X-MIMEDefang-Filter: osdl$Revision: 1.109 $
+
+X-Scanned-By: MIMEDefang 2.36
 
 Sender: linux-kernel-owner@vger.kernel.org
 Precedence: bulk
@@ -74,52 +92,22 @@ X-Mailing-List:	linux-kernel@vger.kernel.org
 
 
 
-> > > Perhaps not in this case.
-> > 
-> > Maybe I'm misunderstanding.
-> > 
-> > Are you talking about an automounted filesystem, or the autofs
-> > filesystem itself.
+
+
+On Tue, 24 May 2005, Jeff Garzik wrote:
 > 
-> I'm talking about the autofs filesystem (actually the autofs4 module).
-
-OK.
-
-> > 
-> > With the later I can well imagine that you have problems with bind and
-> > move.
+> You really can't beat
 > 
-> yep.
+> 	cp .git/refs/heads/master .git/refs/heads/new-branch
 > 
-> I'm not really concerned about whether bind and move mounts work or not. I 
-> just need to establish whether these should be supported and if so, how 
-> they should work so I can resolve the problem. Personally, I would be 
-> happy to say these types of mounts are not supported by autofs if I could 
-> veto the requests.
+> as the fastest way to create a new branch off the tip.
 
-Does it work if somebody renames a directory in the path leading to
-the autofs mountpoint?  The result is very similar to move mount.
+So? It's the fastest, but it's also BROKEN. Exactly because the way you do 
+things, the merge messages are meaningless.
 
-You could solve both, by having the automoutnter daemon chdir to the
-autofs root, and then it would just not care about any namespace
-changes outside it's own filesystem.
+So fix your merge messages. 
 
-Bind and clone(... CLONE_NEWNS) are trickier if you want to make
-automounting work in the new instance.  It should be workable, if the
-autofs kernel module returns a reference not just to the dentry but
-the dentry/vfsmount pair to the daemon.  For example it could open a
-file descriptor with dentry_open() refering to the mountpoint, and
-pass that to userspace.  The daemon then can do the mount on in
-(either by doing fchdir(fd) and 'mount blah .', or 'mount blah
-/proc/PID/fd/FD').
-
-This is all very theoretical, I don't know how the internals of
-autofs...
-
-On a related note, have you looked at using the kernel atumounter
-support for autofs? (Documentation/filesystems/automount-support.txt)
-
-Miklos
+		Linus
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
 the body of a message to majordomo@vger.kernel.org

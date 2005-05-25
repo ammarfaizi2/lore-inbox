@@ -1,81 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262262AbVEYDjC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262261AbVEYDmW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262262AbVEYDjC (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 23:39:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbVEYDjC
+	id S262261AbVEYDmW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 23:42:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262260AbVEYDmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 23:39:02 -0400
-Received: from vms042pub.verizon.net ([206.46.252.42]:38624 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S262257AbVEYDih (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 23:38:37 -0400
-Date: Tue, 24 May 2005 23:38:33 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: RT patch acceptance
-In-reply-to: <1116978384.2912.53.camel@mindpipe>
-To: linux-kernel@vger.kernel.org
-Message-id: <200505242338.33641.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <001701c560a6$cafbe2b0$c800a8c0@mvista.com>
- <4293AB4D.4030506@opersys.com> <1116978384.2912.53.camel@mindpipe>
-User-Agent: KMail/1.7
+	Tue, 24 May 2005 23:42:21 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:22690 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S262261AbVEYDl4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 23:41:56 -0400
+Date: Wed, 25 May 2005 13:41:26 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus <torvalds@osdl.org>, ppc64-dev <linuxppc64-dev@ozlabs.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ppc64: fix initialisation of gettimeofday calculations
+Message-Id: <20050525134126.3382e519.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Wed__25_May_2005_13_41_26_+1000_/oyvLL.NX1TjFYay"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 24 May 2005 19:46, Lee Revell wrote:
->On Tue, 2005-05-24 at 18:31 -0400, Karim Yaghmour wrote:
->> I've taken enough bandwidth as it is
->> on this thread, and I frankly don't think that any of what I
->> said above has added any more information for those who've
->> read my previous postings. I only got into this thread to point
->> out that some info about RTAI was wrong. So like I told Ingo,
->> if rt-preempt gets in, then so be it.
->
->Here's my favorite excerpt:
->
->On Sat, 2004-10-09 at 16:11, Karim Yaghmour wrote:
->> And this has been demonstrated mathematically/algorithmically to
->> be true 100% of the time, regardless of the load and the driver
->> set? IOW, if I was building an automated industrial saw (based on
->> a VP+IRQ-thread kernel or a combination of the above-mentioned
->> agregate) with a safety mechanism that depended on the kernel's
->> responsivness to outside events to avoid bodily harm, would you be
->> willing to put your hand beneath it?
->
->Maybe -RT should be merged when Ingo puts his hand under the saw.
->
->Lee
+--Signature=_Wed__25_May_2005_13_41_26_+1000_/oyvLL.NX1TjFYay
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Off topic sorry, can't resist.
+Hi Andrew,
 
-Maybe so Lee, but first we'ed better check with the USTPO, as one of 
-the major table saw makers is actually selling a saw that you can 
-stick a weiner into while its running, and a common bandaid can cover 
-the damage.  The blade is stopped before the next tooth after the one 
-that initially contacts the weiner can come around and do more than 
-scratch the weiner.  The stop is a bit noisy I assume considering you 
-are stopping a blade turning 3k to 6k rpms in 1/4" of linear motion 
-at the rim of the blade, and rather expensive, ISTR a $400 option in 
-their top of the line 10 inch table saws.  Because of the larger 
-components, the 14" saw carries over $1k premium for that option.
+On PPC64, we keep track of when we need to update jiffies (and the
+variables used to calculate the time of day) based on the time base.  If
+the time base frequence is sufficiently high compared to the processor
+clock frequency, then it is possible for the time of day variables to be
+corrupted by at the time of the first decrementer interrupt we take.  This
+became obvious on a legacy iSeries where the time base frequency is the
+same as the processor clock.  This one line patch fixes the initialisation
+so that the time of day variables and the indicator we use to tell when
+updates are due are better synchronised.
 
->
->-
->To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+Signed-off-by:  Stephen Rothwell <sfr@canb.auug.org.au>
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.34% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+Please apply and send to Linus.
+--=20
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+diff -ruNp linus/arch/ppc64/kernel/time.c linus-clock.1/arch/ppc64/kernel/t=
+ime.c
+--- linus/arch/ppc64/kernel/time.c	2005-05-17 09:23:08.000000000 +1000
++++ linus-clock.1/arch/ppc64/kernel/time.c	2005-05-25 13:11:14.000000000 +1=
+000
+@@ -515,6 +515,7 @@ void __init time_init(void)
+ 	do_gtod.varp =3D &do_gtod.vars[0];
+ 	do_gtod.var_idx =3D 0;
+ 	do_gtod.varp->tb_orig_stamp =3D tb_last_stamp;
++	get_paca()->next_jiffy_update_tb =3D tb_last_stamp + tb_ticks_per_jiffy;
+ 	do_gtod.varp->stamp_xsec =3D xtime.tv_sec * XSEC_PER_SEC;
+ 	do_gtod.tb_ticks_per_sec =3D tb_ticks_per_sec;
+ 	do_gtod.varp->tb_to_xs =3D tb_to_xs;
+
+--Signature=_Wed__25_May_2005_13_41_26_+1000_/oyvLL.NX1TjFYay
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFCk/Ps4CJfqux9a+8RAgQ9AJ0XuYh+mVwbi5kUffIGRCe1bM4vEgCglTzu
+Ej3fj4rziVwEWzAHqGwsGBE=
+=NViH
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__25_May_2005_13_41_26_+1000_/oyvLL.NX1TjFYay--

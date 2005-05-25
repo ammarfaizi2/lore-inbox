@@ -1,38 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262384AbVEYSis@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262379AbVEYS3w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262384AbVEYSis (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 14:38:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVEYSdy
+	id S262379AbVEYS3w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 14:29:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVEYS00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 14:33:54 -0400
-Received: from fire.osdl.org ([65.172.181.4]:16558 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262392AbVEYScf (ORCPT
+	Wed, 25 May 2005 14:26:26 -0400
+Received: from mail.tyan.com ([66.122.195.4]:50698 "EHLO tyanweb.tyan")
+	by vger.kernel.org with ESMTP id S261476AbVEYSKb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 14:32:35 -0400
-Date: Wed, 25 May 2005 11:32:31 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Subject: 2.6.12-rc5-tcp3
-Message-ID: <20050525113231.4b5fef39@dxpl.pdx.osdl.net>
-In-Reply-To: <20050524163939.0fb86509@dxpl.pdx.osdl.net>
-References: <20050524163939.0fb86509@dxpl.pdx.osdl.net>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 25 May 2005 14:10:31 -0400
+Message-ID: <3174569B9743D511922F00A0C943142309F815C1@TYANWEB>
+From: YhLu <YhLu@tyan.com>
+To: Andi Kleen <ak@muc.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: RE: RT patch acceptance
+Date: Wed, 25 May 2005 11:10:55 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://developer.osdl.org/shemminger/patches/2.6.12-rc5-tcp3
+Andi,
 
-Keep up with the new 2.6.12-rc5
-More minor tweaks:
-	- tcp_ack26 is already in rc5
-	+ change to min_cwnd to be same (ie ssthresh/2) for all reno like protocols
-	  eventually plan to fix the cwnd undershoot bug 
-		http://thread.gmane.org/gmane.linux.network/2094 
-		http://oss.sgi.com/projects/netdev/archive/2005-04/msg00338.html
+the 2.6.12-rc5 is broken in nvidia Ck804 Opteron MB.
+
+the Core id seems to be right now.
+
+the core 0 of node 1 can not be started and hang there.
+
+YH
+
+CPU 0(2) -> Node 0 -> Core 0
+enabled ExtINT on CPU#0
+ENABLING IO-APIC IRQs
+Using IO-APIC 4
+...changing IO-APIC physical APIC ID to 4 ... ok.
+Using IO-APIC 5
+...changing IO-APIC physical APIC ID to 5 ... ok.
+Using IO-APIC 6
+...changing IO-APIC physical APIC ID to 6 ... ok.
+Using IO-APIC 7
+...changing IO-APIC physical APIC ID to 7 ... ok.
+Synchronizing Arb IDs.
+testing the IO APIC.......................
+
+
+
+
+.................................... done.
+Using local APIC timer interrupts.
+Detected 12.564 MHz APIC timer.
+Booting processor 1/1 rip 6000 rsp ffff81007ff07f58
+Initializing CPU#1
+masked ExtINT on CPU#1
+CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+CPU: L2 Cache: 1024K (64 bytes/line)
+CPU 1(2) -> Node 0 -> Core 1
+ stepping 00
+CPU 1: Syncing TSC to CPU 0.
+Booting processor 2/2 rip 6000 rsp ffff81013ff11f58
+Initializing CPU#2
+masked ExtINT on CPU#2

@@ -1,71 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbVEYNPt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262342AbVEYNRM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262157AbVEYNPt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 09:15:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbVEYNPt
+	id S262342AbVEYNRM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 09:17:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262339AbVEYNQA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 09:15:49 -0400
-Received: from mail.timesys.com ([65.117.135.102]:9995 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S262157AbVEYNPi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 09:15:38 -0400
-Message-ID: <42947A1D.2090005@timesys.com>
-Date: Wed, 25 May 2005 09:14:05 -0400
-From: john cooper <john.cooper@timesys.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Esben Nielsen <simlo@phys.au.dk>
-CC: Sven Dietrich <sdietrich@mvista.com>, Andrew Morton <akpm@osdl.org>,
-       dwalker@mvista.com, bhuey@lnxw.com, nickpiggin@yahoo.com.au,
-       mingo@elte.hu, hch@infradead.org, linux-kernel@vger.kernel.org,
-       john cooper <john.cooper@timesys.com>
-Subject: Re: RT patch acceptance
-References: <Pine.OSF.4.05.10505251323490.28057-100000@da410.phys.au.dk>
-In-Reply-To: <Pine.OSF.4.05.10505251323490.28057-100000@da410.phys.au.dk>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+	Wed, 25 May 2005 09:16:00 -0400
+Received: from mailfe01.swip.net ([212.247.154.1]:32242 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S262185AbVEYNPk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 09:15:40 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: [Fastboot] [1/2] kdump: Use real pt_regs from exception
+From: Alexander Nyberg <alexn@telia.com>
+To: vgoyal@in.ibm.com
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       fastboot@lists.osdl.org
+In-Reply-To: <20050525130607.GB3658@in.ibm.com>
+References: <1116103798.6153.30.camel@localhost.localdomain>
+	 <20050518123500.GA3657@in.ibm.com>
+	 <1116427862.22324.5.camel@localhost.localdomain>
+	 <20050525020749.1ad56a80.akpm@osdl.org>
+	 <1117023296.877.11.camel@localhost.localdomain>
+	 <20050525130607.GB3658@in.ibm.com>
+Content-Type: text/plain
+Date: Wed, 25 May 2005 15:14:38 +0200
+Message-Id: <1117026878.877.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 25 May 2005 13:09:11.0781 (UTC) FILETIME=[F17AE150:01C5612A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Esben Nielsen wrote:
-> On Tue, 24 May 2005, john cooper wrote:
->>I'd like to hear some technical arguments of why IRQ threads
->>are held with such suspicion...
+ons 2005-05-25 klockan 18:36 +0530 skrev Vivek Goyal:
+> On Wed, May 25, 2005 at 02:14:56PM +0200, Alexander Nyberg wrote:
+> > ons 2005-05-25 klockan 02:07 -0700 skrev Andrew Morton:
+> > > Alexander Nyberg <alexn@telia.com> wrote:
+> > > >
+> > > > -extern void machine_crash_shutdown(void);
+> > > >  +extern void machine_crash_shutdown(struct pt_regs *);
+> > > 
+> > > That'll break x86_64, ppc, ppc64 and s/390.
+> > 
+> > I'm such an idiot.
+> > 
+> > Make sure all arches take pt_regs * as argument to
+> > machine_crash_shutdown(). (now cross-compiled on above arches except
+> > s/390).
+> > 
 > 
-> Performance! Even on RT systems you do NOT make all interrupts run in
-> threads. Simple devices like UARTS run everything in interrupt context.
-> Introducing a context switch for every character received on such a
-> channel can be _very_ expensive.
+> Alexander, I face following warning if I build my kernel without HIGHMEM
+> support. Fianally linker fails in the end.
+> 
+> CC      kernel/kexec.o
+> kernel/kexec.c: In function `kexec_should_crash':
+> kernel/kexec.c:37: warning: implicit declaration of function `in_interrupt'
+> 
+> If I include HIGHMEM support, it compiles fine.
+> 
+> You might have to include include/linux/hardirq.h in kexec.c to 
+> resolve the problem.
+> 
 
-The IRQ thread mechanism introduces a facility which offers
-a benefit at an associated cost.  For cases where the interrupt
-payload processing is small in comparison to the associated
-context switch, overhead in this case may be optimized
-by running the payload processing in exception context.
+Yeah this is fixed in -mm, thanks
 
-But "performance" here is a vague term.  It may in some cases
-be preferable to incur an increased overhead of interrupt payload
-processing in task context to improve overall CPU availability
-or reduce interrupt lockout in code associated with the
-interrupt.  It is a system-wide issue depending on the system
-goals.
 
-I agree for simple devices which generate high frequency interrupts
-and have trivial interrupt payload processing, the addition of
-deferring the latter to task context may be unneeded overhead.
-But even here it is a system-wide design issue and I don't see
-a simple, universal right-way/wrong-way.  In any case the choice
-of either mechanisms is available.
-
-As a data point, commercial OSes exist which strive to optimize
-for non-RT throughput which by default defer all interrupt payload
-processing into task context.  Not that this is necessarily
-conclusive here but it should offer reassurance this isn't as
-radical a concept as it may seem.
-
--john
-
--- 
-john.cooper@timesys.com

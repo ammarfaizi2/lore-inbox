@@ -1,74 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262231AbVEYBkv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262234AbVEYBpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262231AbVEYBkv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 21:40:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbVEYBku
+	id S262234AbVEYBpM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 21:45:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbVEYBpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 21:40:50 -0400
-Received: from zorg.st.net.au ([203.16.233.9]:62640 "EHLO borg.st.net.au")
-	by vger.kernel.org with ESMTP id S262233AbVEYBke (ORCPT
+	Tue, 24 May 2005 21:45:11 -0400
+Received: from fire.osdl.org ([65.172.181.4]:54468 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262234AbVEYBpE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 21:40:34 -0400
-Message-ID: <4293D798.4020606@torque.net>
-Date: Wed, 25 May 2005 11:40:40 +1000
-From: Douglas Gilbert <dougg@torque.net>
-Reply-To: dougg@torque.net
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: monz@danbbs.dk
-CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com
-Subject: Re: [ANNOUNCE] sdparm 0.92
-References: <428DC633.5050403@torque.net> <4293BD80.1050503@danbbs.dk>
-In-Reply-To: <4293BD80.1050503@danbbs.dk>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 24 May 2005 21:45:04 -0400
+Date: Tue, 24 May 2005 18:43:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: dwalker@mvista.com
+Cc: bhuey@lnxw.com, nickpiggin@yahoo.com.au, mingo@elte.hu, hch@infradead.org,
+       linux-kernel@vger.kernel.org, sdietrich@mvista.com
+Subject: Re: RT patch acceptance
+Message-Id: <20050524184351.47d1a147.akpm@osdl.org>
+In-Reply-To: <1116982977.19926.63.camel@dhcp153.mvista.com>
+References: <4292DFC3.3060108@yahoo.com.au>
+	<20050524081517.GA22205@elte.hu>
+	<4292E559.3080302@yahoo.com.au>
+	<20050524090240.GA13129@elte.hu>
+	<4292F074.7010104@yahoo.com.au>
+	<1116957953.31174.37.camel@dhcp153.mvista.com>
+	<20050524224157.GA17781@nietzsche.lynx.com>
+	<1116978244.19926.41.camel@dhcp153.mvista.com>
+	<20050525001019.GA18048@nietzsche.lynx.com>
+	<1116981913.19926.58.camel@dhcp153.mvista.com>
+	<20050525005942.GA24893@nietzsche.lynx.com>
+	<1116982977.19926.63.camel@dhcp153.mvista.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mogens Valentin wrote:
-> Douglas Gilbert wrote:
-> 
->> sdparm is a command line utility designed to get and set
->> SCSI disk parameters (cf hdparm for ATA disks). More generally
->> it gets and sets mode page information on SCSI devices or devices
->> that use a SCSI command set (e.g. CD/DVD drives (any transport)
->> and SCSI tape drives). It also can list VPD pages including
->> the device identification page.
->>
->> For more information and downloads (tarball, rpm and deb
->> packages) see:
->> http://www.torque.net/sg/sdparm.html
-> 
-> 
-> Nice! Just got it and tried on an external usb disk.
-> One feature I could use, probably others as well:
-> Could you add the ability to spin down/up a scsi disk?
-> I'd really like this for exteral (usb) disks.
+Daniel Walker <dwalker@mvista.com> wrote:
+>
+> I'm not going to ignore any of the discussion, but it would be nice to
+>  hear Andrew's, or Linus's specific objections..
 
-Mogens,
-With sg_start (in the sg3_utils package) I have tried
-to spin up and down an ATA disk inside a USB enclosure
-without success. The same command on a USB connected
-CD/DVD combo drive did work.
+I have no specific objections - this all started out from my general
+observation that things like process-context IRQ handlers and
+priority-inheriting mutexes have had a tough reception in the past, and are
+likely to do so in the future as well.
 
-Could you try sg_start on your USB external enclosure
-which I assume contains an ATA disk rather than a
-SCSI (SPI) disk and report if it works?
+This thing will be discussed on a patch-by-patch basis.  Contra this email
+thread, we won't consider it from an all-or-nothing perspective.
 
-BTW I just checked libata (for SATA disks) and it does
-not seem to support the START STOP UNIT command.
-Jeff, could that one be added?
-
-> Doesn't seem it can; if I missed it, I'm sorry..
-
-It is hard to know where to stop with sdparm ;-)
-At the moment I am adding transport (protocol) specific
-mode page support. So currently sdparm specializes
-in mode pages (for all SCSI command sets) and INQUIRY
-information (including the device identification VPD
-page).
-
-Doug Gilbert
+(That being said, it's already a mighty task to decrypt your way through
+the maze-like implementation of spin_lock(), lock_kernel(),
+smp_processor_id() etc, etc.  I really do wish there was some way we could
+clean up/simplify that stuff before getting in and adding more source-level
+complexity).
 

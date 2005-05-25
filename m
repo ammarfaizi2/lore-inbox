@@ -1,60 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262229AbVEYBcA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVEYBjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262229AbVEYBcA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 21:32:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262230AbVEYBb7
+	id S261241AbVEYBjn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 21:39:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbVEYBjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 21:31:59 -0400
-Received: from dsl017-059-236.wdc2.dsl.speakeasy.net ([69.17.59.236]:17599
-	"EHLO marta.kurtwerks.com") by vger.kernel.org with ESMTP
-	id S262229AbVEYBb5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 21:31:57 -0400
-From: Kurt Wall <kwall@kurtwerks.com>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ide-cd vs. DMA
-Date: Tue, 24 May 2005 21:31:46 -0400
-User-Agent: KMail/1.8
-References: <1116891772.30513.6.camel@gaston> <42929F2F.8000101@opersys.com> <1116905090.4992.7.camel@gaston>
-In-Reply-To: <1116905090.4992.7.camel@gaston>
+	Tue, 24 May 2005 21:39:43 -0400
+Received: from tls.sendmail.com ([209.246.26.40]:18090 "EHLO foon.sendmail.com")
+	by vger.kernel.org with ESMTP id S261241AbVEYBjk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 21:39:40 -0400
+X-DomainKeys: Sendmail DomainKeys Filter v0.2.7 foon.sendmail.com j4P1dcS9011641
+DomainKey-Signature: a=rsa-sha1; s=tls; d=sendmail.com; c=nofws; q=dns;
+	b=Hvp8FKh9axVvg8eqxhR4KMnPcuwbWnCh2QxwtyO9872pWuhqnSGQcRC6Pm3akM+Kf
+	DVWWXkKCK+BlOKYBejKtEsjMwLD3sf8PSo7DiVgj/5RxHrWV2JM3o1ku4Q34Nhxca1H
+	T8WADxfJvZ09NfkDFDQPcuwV6LTCx9yfPyuy4yw=
+Message-ID: <4293D4AF.4050903@sendmail.com>
+Date: Tue, 24 May 2005 18:28:15 -0700
+From: Ashish Gawarikar <ashish@sendmail.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
+X-Accept-Language: en-us, es, ja, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: linux-kernel@vger.kernel.org
+Subject: Memory leak in 2.6.11.10/2.6.12-rc4?
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505242131.46827.kwall@kurtwerks.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 23 May 2005 23:24, Benjamin Herrenschmidt enlightened us 
-thusly:
-> On Mon, 2005-05-23 at 23:27 -0400, Karim Yaghmour wrote:
-> > Benjamin Herrenschmidt wrote:
-> > > hdb: command error: status=0x51 { DriveReady SeekComplete Error }
-> > > hdb: command error: error=0x54 { AbortedCommand
-> > > LastFailedSense=0x05 } ide: failed opcode was: unknown
-> > > end_request: I/O error, dev hdb, sector 42872
-> >
-> > Got plenty of these an old Dell Optiplex GX1 (PIII-450) with
-> > vanilla FC3. ... you've got to wonder when the kernel says there
-> > are bad sectors on a CD (?) and then they disappear with:
-> > hdparm -d0 /dev/hdc
->
-> Well, not sure what's wrong here, but ATAPI errors shouldn't normally
-> result in stopping DMA. We may want to just blacklist your drive
-> rather than having this stupid fallback. In this case, I suspect it's
-> CSS/region issue with a DVD.
+I am using 2.6.11.10 (and have also tried the same with 2.6.12-rc4). I 
+have a Dell Poweredge 850, with 2 GB RAM. I am trying a simple test like:
 
-I see the same thing here on a plain vanilla CD-ROM (pardon the 
-unsightly wrapping):
-
-May 23 21:52:34 luther kernel: hdc: packet command error: status=0x51 
-{ DriveReady SeekComplete Error }
-May 23 21:52:34 luther kernel: hdc: packet command error: error=0x54 
-{ AbortedCommand LastFailedSense=0x05 }
-May 23 23:12:37 luther kernel: hdc: packet command error: status=0x51 
-{ DriveReady SeekComplete Error }
-May 23 23:12:37 luther kernel: hdc: packet command error: error=0x54 
-{ AbortedCommand LastFailedSense=0x05 }
+#!/bin/sh
+cd /var/tmp
+while true;
+do
+    find /usr -name "*" | xargs strings > /var/tmp/spin.txt
+done
 
 
-Kurt
+And after sometime (less than 20 mins)I do see that the free command returns:
+
+
+
+#free
+             total       used       free     shared    buffers     cached
+Mem:       2075060    1872904     202156          0      27696     453404
+-/+ buffers/cache:    1391804     683256
+Swap:      2097136          0    2097136
+#
+
+And after 15 mins:
+
+#free
+             total       used       free     shared    buffers     cached
+Mem:       2075060    2002064      72996          0      11840     393372
+-/+ buffers/cache:    1596852     478208
+Swap:      2097136          0    2097136
+#
+
+(The only patch applied to the kernel is aacraid 2391).
+
+After having stopped the program the free returns this:
+
+# free
+             total       used       free     shared    buffers     cached
+Mem:       2075060    1951632     123428          0      15988     330064
+-/+ buffers/cache:    1605580     469480
+Swap:      2097136          0    2097136
+
+
+Can someone please help me on this?
+
+Thanks in advance,
+
+Ashish

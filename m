@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262340AbVEYOvG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbVEYO6X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262340AbVEYOvG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 10:51:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbVEYOvG
+	id S261390AbVEYO6X (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 10:58:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262351AbVEYO6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 10:51:06 -0400
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:31423 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262351AbVEYOuw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 10:50:52 -0400
-Message-ID: <429490BD.6070606@yahoo.com.au>
-Date: Thu, 26 May 2005 00:50:37 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Bill Huey (hui)" <bhuey@lnxw.com>
-CC: Sven Dietrich <sdietrich@mvista.com>,
-       "'Lee Revell'" <rlrevell@joe-job.com>,
-       "'Andrew Morton'" <akpm@osdl.org>, dwalker@mvista.com, mingo@elte.hu,
-       hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance (scheduler)
-References: <005801c560da$ec624f50$c800a8c0@mvista.com> <429407B6.1000105@yahoo.com.au> <20050525060919.GA25959@nietzsche.lynx.com> <4294228D.1040809@yahoo.com.au> <20050525092737.GA28976@nietzsche.lynx.com>
-In-Reply-To: <20050525092737.GA28976@nietzsche.lynx.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 25 May 2005 10:58:23 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:65513 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261390AbVEYO6R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 10:58:17 -0400
+Subject: Re: [PATCH] Fix reference counting for failed SCSI devices
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Hannes Reinecke <hare@suse.de>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <429473A1.6010402@suse.de>
+References: <4292F631.9090300@suse.de> <1116975478.7710.28.camel@mulgrave>
+	 <4294201D.4070304@suse.de> <1117024043.5071.6.camel@mulgrave>
+	 <429473A1.6010402@suse.de>
+Content-Type: text/plain
+Date: Wed, 25 May 2005 09:58:08 -0500
+Message-Id: <1117033088.4956.5.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Huey (hui) wrote:
+On Wed, 2005-05-25 at 14:46 +0200, Hannes Reinecke wrote:
+> > so it's contained within the scsi_device.  Freeing the scsi_device frees
+> > the classdev (and the gendev).
+> > 
+> But does not call the ->release function.
 
-[snip helpful explanations]
-^
-thanks for that.
+Please just read the code like I asked.  If you do, you'll find that the
+sdev_classdev release method is NULL until scsi_sysfs_add_sdev()
+precisely for the reason that the class references don't matter until
+that point.  We're free to kill the whole thing without bothering about
+the class devices until scsi_add_lun detects something and calls
+scsi_sysfs_add_sdev() to make the whole thing visible.  Then all
+classdevs get a ref on the parent gendev which their release method
+relinquishes.
 
-> Sorry, yeah, I'm a bit jumpy from dealing with chronic irrationality
-> from the FreeBSD group, which has created low expectations from various
-> open source groups at times. Interaction with other jumpy kernel
-> conservatives in this community doesn't the help the matter.
-> 
+> Put it the other way round: does 'rmmod aic7xxx' work for you?
+> It certainly did _not_ work for aic79xx, hence the fix.
 
-Well no that's OK, and no hard feelings. I think there was a bit
-of misunderstanding on my behalf as well :)
+Well, I know aic7xxx works perfectly on a dual channel card, because I
+actually test the failure paths and insmod/rmmod is one of my tests.  I
+can't comment on aic79xx because I don't have the hardware.
 
-And I perhaps didn't make it so clear that I was taking a neutral
-stance, and not actually commenting on the patch specifically.
+James
 
-> Basically, the more you read http://linuxdevices.com the more you'll
-> understand why folks are edgy about this. :)
-> 
 
-Well I think obviously any improvement in Linux's capability is a
-good thing. And at the end of the day it sounds like most or maybe
-all this stuff should be able to get included. But it is always
-going to be a slow process, and you'll probably have to put up with
-some flames along the way :P
-
-Well I'll be quiet now, unfortunately I didn't add much to the
-discussion myself!
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 

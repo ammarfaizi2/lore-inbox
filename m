@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262373AbVEYPWu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262344AbVEYPdP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262373AbVEYPWu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 11:22:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262377AbVEYPUw
+	id S262344AbVEYPdP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 11:33:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbVEYPdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 11:20:52 -0400
-Received: from mail3.utc.com ([192.249.46.192]:45448 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S262373AbVEYPUg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 11:20:36 -0400
-Message-ID: <429497B8.2070200@cybsft.com>
-Date: Wed, 25 May 2005 10:20:24 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Wed, 25 May 2005 11:33:15 -0400
+Received: from igw2.watson.ibm.com ([129.34.20.6]:35207 "EHLO
+	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S262344AbVEYPdL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 11:33:11 -0400
+Date: Wed, 25 May 2005 11:32:57 -0400 (Eastern Daylight Time)
+From: Reiner Sailer <sailer@us.ibm.com>
+To: Pavel Machek <pavel@ucw.cz>
+cc: Emilyr@us.ibm.com, James Morris <jmorris@redhat.com>, Kylene@us.ibm.com,
+       linux-kernel@vger.kernel.org, linux-security-module@wirex.com,
+       Toml@us.ibm.com, Valdis.Kletnieks@vt.edu
+Subject: Re: [PATCH 2 of 4] ima: related Makefile compile order change and
+ Readme
+Message-ID: <Pine.WNT.4.63.0505251116180.3308@laptop>
+X-Warning: UNAuthenticated Sender
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, dwalker@mvista.com,
-       Joe King <atom_bomb@rocketmail.com>, ganzinger@mvista.com,
-       Lee Revell <rlrevell@joe-job.com>, Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
-References: <20050523082637.GA15696@elte.hu> <42935890.2010109@cybsft.com> <20050525113424.GA1867@elte.hu> <20050525113514.GA9145@elte.hu> <42947D84.2000409@cybsft.com> <20050525140316.GA29996@elte.hu>
-In-Reply-To: <20050525140316.GA29996@elte.hu>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * K.R. Foley <kr@cybsft.com> wrote:
-> 
-> 
->>No it doesn't crash if I boot only a single CPU. I'll go one better 
->>than that. It doesn't crash if I boot both CPUs but without 
->>hyper-threading (turned off in the bios but still enabled in the 
->>config). :-(
-> 
-> 
-> hm, must be some race. I tried it on a HT system too - will try on 
-> another HT system.
-> 
-> can you work it around (or turn it into another type of crash) by 
-> disabling STOP_MACHINE? (you can do that by turning off MODULE_UNLOAD)
-> 
-> 	Ingo
-> 
+Pavel Machek <pavel@ucw.cz> wrote on 05/25/2005 11:06:01 AM:
 
-OK. Unfortunately with MODULE_UNLOAD not set, I can't seem to make it 
-crash. :-/
+> > 
+> > If I understand you, then you are claiming that steps (ii) to (v) 
+> > introduce buffer overflows in bash or show_etc_issue. How?
+> 
+> No, I'm not claiming that. You are certainly *not* introducing any new
+> problems.
+> 
+> But some problems that used to be harmless (buffer overrun in
+> show_etc_issue command) are not harmless any more.
+>                         Pavel
 
--- 
-    kr
+How is a buffer overrun in a script/application less "harmless" with IMA? 
+Please be specific. Preliminary IMA patches are out on the mailing lists.
+
+The only thing that IMA does with respect to existing known buffer 
+overruns is that it enables remote parties to know that there is an application 
+with a known buffer overrun if this application/script was measured. Such 
+information is sensitive and this is one reason why direct access to the 
+measurements are restricted to authorized/trusted parties.
+
+Thanks
+Reiner
+

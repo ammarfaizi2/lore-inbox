@@ -1,52 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVEYVnz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVEYVwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbVEYVnz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 17:43:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbVEYVnz
+	id S261240AbVEYVwO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 17:52:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVEYVwO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 17:43:55 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:36489 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261186AbVEYVni
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 17:43:38 -0400
-Date: Wed, 25 May 2005 23:43:27 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Tom Vier <tmv@comcast.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-In-Reply-To: <20050525212538.GC28913@zero>
-Message-Id: <Pine.OSF.4.05.10505252331160.23201-100000@da410.phys.au.dk>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 25 May 2005 17:52:14 -0400
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:54417 "EHLO
+	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261240AbVEYVwI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 17:52:08 -0400
+Message-ID: <4294F35A.9090602@ens-lyon.org>
+Date: Wed, 25 May 2005 23:51:22 +0200
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc5-mm1
+References: <20050525134933.5c22234a.akpm@osdl.org>
+In-Reply-To: <20050525134933.5c22234a.akpm@osdl.org>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: multipart/mixed;
+ boundary="------------050208030707000809020209"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 May 2005, Tom Vier wrote:
+This is a multi-part message in MIME format.
+--------------050208030707000809020209
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 
-> On Wed, May 25, 2005 at 11:05:05PM +0200, Esben Nielsen wrote:
-> > Long interrupt handlers can be interrupt by _tasks_, not only other
-> > interrupts! An audio application running in userspace can be scheduled
-> > over an ethernet interrupt handler copying data from the
-> > controller into RAM (without DMA).
-> 
-> Doesn't that greatly increase the risk of the hardware overrunning it's
-> buffer?
+Andrew Morton a écrit :
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc5/2.6.12-rc5-mm1/
 
-Hopefully you do not have much hardware on your PC you have to service
-within very short timeframes without getting into serious trouble - if so
-you need a RTOS :-) 
-By not servicing you ethernet device you might loose packages - but the IP
-protocols are supposed to handle that in the first place so there is no
-real problem there. 
-The whole point of putting it into threads is that you can decide which is
-the most important: Your audio application or your slow ethernet 
-device with no DMA. If the driver for the netcard is fast small enough,
-run it with higher priority than your RT application, otherwise give it a
-lower priority. Then if your RT application takes too much CPU you will
-loose packages. You can't get both (without adding more CPUs). 
-Without threading the ethernet device and giving it sufficient low
-priority, somebody can DOS attack your RT application by spamming the
-local network!
+Hi Andrew,
 
-Esben
+It looks like dlm assumes that CONFIG_DLM_DEBUG is set.
+The attached patch fixes this.
+
+Regards,
+Brice
+
+--------------050208030707000809020209
+Content-Type: text/x-patch;
+ name="fix-dlm-without-debug.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fix-dlm-without-debug.patch"
+
+--- linux-mm/drivers/dlm/main.c.old	2005-05-25 23:44:27.000000000 +0200
++++ linux-mm/drivers/dlm/main.c	2005-05-25 23:46:41.000000000 +0200
+@@ -19,8 +19,20 @@
+ #include "memory.h"
+ #include "lowcomms.h"
+ 
++#ifdef CONFIG_DLM_DEBUG
+ int dlm_register_debugfs(void);
+ void dlm_unregister_debugfs(void);
++#else
++int dlm_register_debugfs(void)
++{
++	return 0;
++}
++
++void dlm_unregister_debugfs(void)
++{
++}
++#endif
++
+ int dlm_node_ioctl_init(void);
+ void dlm_node_ioctl_exit(void);
+ 
+
+--------------050208030707000809020209--
 

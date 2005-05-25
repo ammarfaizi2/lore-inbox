@@ -1,125 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262298AbVEYMP3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262300AbVEYMPj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262298AbVEYMP3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 08:15:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbVEYMP2
+	id S262300AbVEYMPj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 08:15:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbVEYMPi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 08:15:28 -0400
-Received: from mailfe10.tele2.se ([212.247.155.33]:58342 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S262298AbVEYMPA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 08:15:00 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: [Fastboot] [1/2] kdump: Use real pt_regs from exception
-From: Alexander Nyberg <alexn@telia.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: vgoyal@in.ibm.com, linux-kernel@vger.kernel.org, fastboot@lists.osdl.org
-In-Reply-To: <20050525020749.1ad56a80.akpm@osdl.org>
-References: <1116103798.6153.30.camel@localhost.localdomain>
-	 <20050518123500.GA3657@in.ibm.com>
-	 <1116427862.22324.5.camel@localhost.localdomain>
-	 <20050525020749.1ad56a80.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 25 May 2005 14:14:56 +0200
-Message-Id: <1117023296.877.11.camel@localhost.localdomain>
+	Wed, 25 May 2005 08:15:38 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:35276 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S262300AbVEYMPH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 08:15:07 -0400
+References: <200505232225.j4NMPte1029529@ms-smtp-02-eri0.texas.rr.com>
+            <84144f0205052400113c6f40fc@mail.gmail.com>
+            <a4e6962a0505241208214a200f@mail.gmail.com>
+            <1116996843.9580.8.camel@localhost>
+            <a4e6962a0505250455605faec9@mail.gmail.com>
+In-Reply-To: <a4e6962a0505250455605faec9@mail.gmail.com>
+From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
+To: Eric Van Hensbergen <ericvh@gmail.com>
+Cc: Pekka Enberg <penberg@gmail.com>, linux-kernel@vger.kernel.org,
+       v9fs-developer@lists.sourceforge.net,
+       viro@parcelfarce.linux.theplanet.co.uk, linux-fsdevel@vger.kernel.org
+Subject: Re: v9fs: VFS superblock operations (2.0-rc6)
+Date: Wed, 25 May 2005 15:15:05 +0300
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-ID: <courier.42946C49.00007170@courier.cs.helsinki.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ons 2005-05-25 klockan 02:07 -0700 skrev Andrew Morton:
-> Alexander Nyberg <alexn@telia.com> wrote:
-> >
-> > -extern void machine_crash_shutdown(void);
-> >  +extern void machine_crash_shutdown(struct pt_regs *);
+Hi, 
+
+On Wed, 2005-05-25 at 06:55 -0500, Eric Van Hensbergen wrote:
+> Well, I'm not using slabs as a custom allocator just to track leaks. 
+> I'm using them for two specific structures which end up getting
+> allocated and freed quite often (which is what I thought slab
+> allocators were for).  The two structures I'm slab allocating are the
+> directory structure (which has a fixed size), and the packet structure
+> (which has a fixed size per session, and may grow or shrink based on
+> protocol negotiation/command-line options).  I use the find_slab
+> routine to see if there is a slab (that I created) that already
+> matches the protocol negotiated size so I don't create a
+> slab-per-session unnecessarily. 
 > 
-> That'll break x86_64, ppc, ppc64 and s/390.
+> Is this not the right way to use slabs?  Should I just be using
+> kmalloc/kcalloc? (Is that what you mean by drop the custom allocator?)
 
-I'm such an idiot.
+You can create your own slab for known fixed-size objects (your
+directory structure). Look at other filesystems for an example. They
+usually create a cache for their inode_info structs. 
 
-Make sure all arches take pt_regs * as argument to
-machine_crash_shutdown(). (now cross-compiled on above arches except
-s/390).
+The problem with your approach on packet structure slab is that we
+potentially get slabs with little or no activity. You would have to
+write custom code to tear down unused slabs but now you've got something
+that clearly does not belong in filesystem code. So yes, I think you'd
+be better of using kmalloc()/kcalloc() for your packet structures. 
 
-
-Signed-off-by: Alexander Nyberg <alexn@telia.com>
-
-Index: mm/arch/ppc/kernel/machine_kexec.c
-===================================================================
---- mm.orig/arch/ppc/kernel/machine_kexec.c	2005-05-25 13:17:41.000000000 +0200
-+++ mm/arch/ppc/kernel/machine_kexec.c	2005-05-25 13:18:06.000000000 +0200
-@@ -34,7 +34,7 @@
- 	}
- }
- 
--void machine_crash_shutdown(void)
-+void machine_crash_shutdown(struct pt_regs *regs)
- {
- 	if (ppc_md.machine_crash_shutdown) {
- 		ppc_md.machine_crash_shutdown();
-Index: mm/arch/x86_64/kernel/crash.c
-===================================================================
---- mm.orig/arch/x86_64/kernel/crash.c	2005-05-25 13:13:18.000000000 +0200
-+++ mm/arch/x86_64/kernel/crash.c	2005-05-25 13:15:44.000000000 +0200
-@@ -22,7 +22,7 @@
- 
- note_buf_t crash_notes[NR_CPUS];
- 
--void machine_crash_shutdown(void)
-+void machine_crash_shutdown(struct pt_regs *regs)
- {
- 	/* This function is only called after the system
- 	 * has paniced or is otherwise in a critical state.
-Index: mm/arch/s390/kernel/crash.c
-===================================================================
---- mm.orig/arch/s390/kernel/crash.c	2005-05-25 13:13:18.000000000 +0200
-+++ mm/arch/s390/kernel/crash.c	2005-05-25 13:15:58.000000000 +0200
-@@ -12,6 +12,6 @@
- 
- note_buf_t crash_notes[NR_CPUS];
- 
--void machine_crash_shutdown(void)
-+void machine_crash_shutdown(struct pt_regs *regs)
- {
- }
-Index: mm/arch/ppc64/kernel/machine_kexec.c
-===================================================================
---- mm.orig/arch/ppc64/kernel/machine_kexec.c	2005-05-25 13:13:18.000000000 +0200
-+++ mm/arch/ppc64/kernel/machine_kexec.c	2005-05-25 13:15:07.000000000 +0200
-@@ -34,7 +34,7 @@
-  * and if what it will achieve. Letting it be now to compile the code
-  * in generic kexec environment
-  */
--void machine_crash_shutdown(void)
-+void machine_crash_shutdown(struct pt_regs *regs)
- {
- 	/* do nothing right now */
- 	/* smp_relase_cpus() if we want smp on panic kernel */
-Index: mm/include/linux/reboot.h
-===================================================================
---- mm.orig/include/linux/reboot.h	2005-05-25 13:13:39.000000000 +0200
-+++ mm/include/linux/reboot.h	2005-05-25 13:51:49.000000000 +0200
-@@ -52,6 +52,7 @@
- extern void machine_power_off(void);
- 
- extern void machine_shutdown(void);
-+struct pt_regs;
- extern void machine_crash_shutdown(struct pt_regs *);
- 
- #endif
-Index: mm/include/linux/kexec.h
-===================================================================
---- mm.orig/include/linux/kexec.h	2005-05-25 13:13:39.000000000 +0200
-+++ mm/include/linux/kexec.h	2005-05-25 13:47:47.000000000 +0200
-@@ -124,6 +124,8 @@
- extern struct resource crashk_res;
- 
- #else /* !CONFIG_KEXEC */
-+struct pt_regs;
-+struct task_struct;
- static inline void crash_kexec(struct pt_regs *regs) { }
- static inline int kexec_should_crash(struct task_struct *p) { return 0; }
- #endif /* CONFIG_KEXEC */
-
+                       Pekka 
 

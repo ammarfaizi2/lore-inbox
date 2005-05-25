@@ -1,54 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbVEYAtI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262215AbVEYAzK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262213AbVEYAtI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 20:49:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbVEYAtI
+	id S262215AbVEYAzK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 20:55:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbVEYAzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 20:49:08 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:44187 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262217AbVEYAs5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 20:48:57 -0400
-Message-ID: <4293C51A.1010100@opersys.com>
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2)
-	Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Sven Dietrich <sdietrich@mvista.com>, "'Ingo Molnar'" <mingo@elte.hu>,
-       "'Esben Nielsen'" <simlo@phys.au.dk>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       "'Daniel Walker'" <dwalker@mvista.com>, akpm@osdl.org,
-       "'Philippe Gerum'" <rpm@xenomai.org>
-References: <001701c560a6$cafbe2b0$c800a8c0@mvista.com>
-	 <4293AB4D.4030506@opersys.com>  <1116978085.2912.48.camel@mindpipe>
-	 <1116979434.2912.63.camel@mindpipe>
-In-Reply-To: <1116979434.2912.63.camel@mindpipe>
-Content-Type: text/plain; charset=us-ascii
+	Tue, 24 May 2005 20:55:09 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:14599 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S262215AbVEYAzE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 20:55:04 -0400
+Date: Tue, 24 May 2005 17:59:42 -0700
+To: Daniel Walker <dwalker@mvista.com>, Andrew Morton <akpm@osdl.org>
+Cc: Bill Huey <bhuey@lnxw.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, sdietrich@mvista.com
 Subject: Re: RT patch acceptance
-Date: Tue, 24 May 2005 20:48:55 -0400
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+Message-ID: <20050525005942.GA24893@nietzsche.lynx.com>
+References: <4292DFC3.3060108@yahoo.com.au> <20050524081517.GA22205@elte.hu> <4292E559.3080302@yahoo.com.au> <20050524090240.GA13129@elte.hu> <4292F074.7010104@yahoo.com.au> <1116957953.31174.37.camel@dhcp153.mvista.com> <20050524224157.GA17781@nietzsche.lynx.com> <1116978244.19926.41.camel@dhcp153.mvista.com> <20050525001019.GA18048@nietzsche.lynx.com> <1116981913.19926.58.camel@dhcp153.mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1116981913.19926.58.camel@dhcp153.mvista.com>
+User-Agent: Mutt/1.5.9i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Lee Revell wrote:
-> Apologies to anyone who got blank/bizarre messages from me, I just found
-> out they are due to this bug:
+On Tue, May 24, 2005 at 05:45:13PM -0700, Daniel Walker wrote:
+> I think some of it is volatile still, but there are plenty of pieces
+> that could go in now. Threaded interrupts is up for discussion, this is
+> the reason why I started the thread. People appear to have specific
+> objections to that feature, which are still not clear.
 > 
-> https://bugzilla.ubuntu.com/show_bug.cgi?id=10942
+> Whole patch, no, small chunks yes. 
 
-For a moment there I thought you were trying to make a point and
-decided to put your own hand under the saw ... phew ;)
+You should have CCed Andrew originally.
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+All objections I've seen so far have been vague, from folks that
+don't/or refuse to understand the fundamentals of how this patch
+works nor has tracked the development of it carefully. Until
+specific questions and objections are articulated, nothing can be
+addressed at this time. I'm biased to ignoring all talk until
+then.
 
+bill
 

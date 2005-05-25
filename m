@@ -1,64 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262379AbVEYS3w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbVEYSmf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262379AbVEYS3w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 14:29:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVEYS00
+	id S261521AbVEYSmf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 14:42:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbVEYSjm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 14:26:26 -0400
-Received: from mail.tyan.com ([66.122.195.4]:50698 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S261476AbVEYSKb (ORCPT
+	Wed, 25 May 2005 14:39:42 -0400
+Received: from mail.murom.net ([213.177.124.17]:15489 "EHLO ns1.murom.ru")
+	by vger.kernel.org with ESMTP id S262392AbVEYSeH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 14:10:31 -0400
-Message-ID: <3174569B9743D511922F00A0C943142309F815C1@TYANWEB>
-From: YhLu <YhLu@tyan.com>
-To: Andi Kleen <ak@muc.de>
+	Wed, 25 May 2005 14:34:07 -0400
+Date: Wed, 25 May 2005 22:33:27 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Chris Friesen <cfriesen@nortel.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: RE: RT patch acceptance
-Date: Wed, 25 May 2005 11:10:55 -0700
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Subject: Re: proper API for sched_setaffinity ?
+Message-Id: <20050525223327.511ee381.vsu@altlinux.ru>
+In-Reply-To: <4294BAD8.4030300@nortel.com>
+References: <4294BAD8.4030300@nortel.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i586-alt-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="pgp-sha1";
+ boundary="Signature=_Wed__25_May_2005_22_33_27_+0400_38y6ryolXgyRyxsz"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
+--Signature=_Wed__25_May_2005_22_33_27_+0400_38y6ryolXgyRyxsz
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-the 2.6.12-rc5 is broken in nvidia Ck804 Opteron MB.
+On Wed, 25 May 2005 11:50:16 -0600 Chris Friesen wrote:
 
-the Core id seems to be right now.
+> On my system (Mandrake 10.0) the man page for sched_setaffinity() lists 
+> the prototype as:
+> 
+> int  sched_setaffinity(pid_t  pid,  unsigned  int  len,  unsigned  long
+>         *mask);
+> 
+> 
+> But /usr/include/sched.h gives it as
+> 
+> extern int sched_setaffinity (__pid_t __pid, __const cpu_set_t *__mask)
+> 
+> Which is correct?
 
-the core 0 of node 1 can not be started and hang there.
+Here "man sched_setaffinity" says:
 
-YH
+HISTORY
+       The affinity syscalls were  introduced  in  Linux  kernel  2.5.8.   The
+       library  calls  were  introduced  in  glibc 2.3, and are still in glibc
+       2.3.2. Later glibc 2.3.2 development versions changed this interface to
+       one without the len field, and still later versions reverted again. The
+       glibc prototype is now
 
-CPU 0(2) -> Node 0 -> Core 0
-enabled ExtINT on CPU#0
-ENABLING IO-APIC IRQs
-Using IO-APIC 4
-...changing IO-APIC physical APIC ID to 4 ... ok.
-Using IO-APIC 5
-...changing IO-APIC physical APIC ID to 5 ... ok.
-Using IO-APIC 6
-...changing IO-APIC physical APIC ID to 6 ... ok.
-Using IO-APIC 7
-...changing IO-APIC physical APIC ID to 7 ... ok.
-Synchronizing Arb IDs.
-testing the IO APIC.......................
+       /* Set the CPU affinity for a task */
+       extern int sched_setaffinity (pid_t pid, size_t cpusetsize,
+                                     const cpu_set_t *cpuset);
 
+       /* Get the CPU affinity for a task */
+       extern int sched_getaffinity (pid_t pid, size_t cpusetsize,
+                                     cpu_set_t *cpuset);
 
+So looks like you have a version of glibc with a broken interface (and
+2.3.5 here has correct prototypes).
 
+--Signature=_Wed__25_May_2005_22_33_27_+0400_38y6ryolXgyRyxsz
+Content-Type: application/pgp-signature
 
-.................................... done.
-Using local APIC timer interrupts.
-Detected 12.564 MHz APIC timer.
-Booting processor 1/1 rip 6000 rsp ffff81007ff07f58
-Initializing CPU#1
-masked ExtINT on CPU#1
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-CPU: L2 Cache: 1024K (64 bytes/line)
-CPU 1(2) -> Node 0 -> Core 1
- stepping 00
-CPU 1: Syncing TSC to CPU 0.
-Booting processor 2/2 rip 6000 rsp ffff81013ff11f58
-Initializing CPU#2
-masked ExtINT on CPU#2
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQFClMT6W82GfkQfsqIRAvLJAJ9CApDnmFO1L5zRNbTwYy1l2iI2aACggXkO
+GjypMH/Dud+31ouqZs/dNmE=
+=yoGL
+-----END PGP SIGNATURE-----
+
+--Signature=_Wed__25_May_2005_22_33_27_+0400_38y6ryolXgyRyxsz--

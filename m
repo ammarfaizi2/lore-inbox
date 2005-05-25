@@ -1,46 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262393AbVEYS3u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262320AbVEYS7C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262393AbVEYS3u (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 14:29:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbVEYS2p
+	id S262320AbVEYS7C (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 14:59:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbVEYS6t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 14:28:45 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:20438 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261484AbVEYSRp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 14:17:45 -0400
-Message-ID: <4294C0FD.2080705@nortel.com>
-Date: Wed, 25 May 2005 12:16:29 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Sven-Thorsten Dietrich <sdietrich@mvista.com>
-CC: karim@opersys.com, Ingo Molnar <mingo@elte.hu>,
-       "Bill Huey (hui)" <bhuey@lnxw.com>, Daniel Walker <dwalker@mvista.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: RT patch acceptance
-References: <20050524054722.GA6160@infradead.org>	 <20050524064522.GA9385@elte.hu> <4292DFC3.3060108@yahoo.com.au>	 <20050524081517.GA22205@elte.hu> <4292E559.3080302@yahoo.com.au>	 <20050524090240.GA13129@elte.hu> <4292F074.7010104@yahoo.com.au>	 <1116957953.31174.37.camel@dhcp153.mvista.com>	 <20050524224157.GA17781@nietzsche.lynx.com> <4293E4ED.7030804@opersys.com>	 <20050525081644.GA23336@elte.hu>  <42947D30.6020509@opersys.com> <1117042345.5840.6.camel@sdietrich-xp.vilm.net>
-In-Reply-To: <1117042345.5840.6.camel@sdietrich-xp.vilm.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 25 May 2005 14:58:49 -0400
+Received: from colin.muc.de ([193.149.48.1]:17669 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S262407AbVEYSui (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 14:50:38 -0400
+Date: 25 May 2005 20:50:33 +0200
+Date: Wed, 25 May 2005 20:50:33 +0200
+From: Andi Kleen <ak@muc.de>
+To: YhLu <YhLu@tyan.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc5 is broken in nvidia Ck804 Opteron MB/with dual core du al way
+Message-ID: <20050525185033.GT86087@muc.de>
+References: <3174569B9743D511922F00A0C943142309F815CD@TYANWEB>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <3174569B9743D511922F00A0C943142309F815CD@TYANWEB>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sven-Thorsten Dietrich wrote:
-
-> I have submitted a proposal, but its obviously very very late.
+On Wed, May 25, 2005 at 11:45:47AM -0700, YhLu wrote:
+> Andi,
 > 
-> I suggest that folks should contact any powers that be at OLS,
-> and express their interest in an RT presentation.
+> following patch solve the problem.
+> 
+> YH
+> 
+>  --- smpboot.o.c 2005-05-25 12:36:20.793913936 -0700
+> +++ smpboot.c   2005-05-25 12:36:31.569275832 -0700
+> @@ -764,7 +764,7 @@
+>                 int i;
+>                 if (smp_num_siblings > 1) {
+>                         for_each_online_cpu (i) {
+> -                               if (cpu_core_id[cpu] == cpu_core_id[i]) {
+> +                               if (cpu_to_node[cpu] == cpu_to_node[i]) {
 
-There will be a board for informal BOF sessions.  That would be one 
-possibility if the formal presentation is declined.
+This is not correct though, it doesnt make any sense on non NUMA systems
+like Intel ones.
 
-I suspect there will be a decent number of interested people, just cause 
-it's kind of a neat topic.
+-Andi
 
-Chris
+>                                         siblings++;
+>                                         cpu_set(i, cpu_sibling_map[cpu]);
+>                                 }
+> 
+> > -----Original Message-----
+> > From: YhLu 
+> > Sent: Wednesday, May 25, 2005 11:10 AM
+> > To: 'Andi Kleen'
+> > Cc: linux-kernel@vger.kernel.org
+> > Subject: RE: RT patch acceptance
+> > 
+> > Andi,
+> > 
+> > the 2.6.12-rc5 is broken in nvidia Ck804 Opteron MB.
+> > 
+> > the Core id seems to be right now.
+> > 
+> > the core 0 of node 1 can not be started and hang there.
+> > 
+> > YH
+> > 
+> > CPU 0(2) -> Node 0 -> Core 0
+> > enabled ExtINT on CPU#0
+> > ENABLING IO-APIC IRQs
+> > Using IO-APIC 4
+> > ...changing IO-APIC physical APIC ID to 4 ... ok.
+> > Using IO-APIC 5
+> > ...changing IO-APIC physical APIC ID to 5 ... ok.
+> > Using IO-APIC 6
+> > ...changing IO-APIC physical APIC ID to 6 ... ok.
+> > Using IO-APIC 7
+> > ...changing IO-APIC physical APIC ID to 7 ... ok.
+> > Synchronizing Arb IDs.
+> > testing the IO APIC.......................
+> > 
+> > 
+> > 
+> > 
+> > .................................... done.
+> > Using local APIC timer interrupts.
+> > Detected 12.564 MHz APIC timer.
+> > Booting processor 1/1 rip 6000 rsp ffff81007ff07f58 
+> > Initializing CPU#1 masked ExtINT on CPU#1
+> > CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+> > CPU: L2 Cache: 1024K (64 bytes/line)
+> > CPU 1(2) -> Node 0 -> Core 1
+> >  stepping 00
+> > CPU 1: Syncing TSC to CPU 0.
+> > Booting processor 2/2 rip 6000 rsp ffff81013ff11f58 
+> > Initializing CPU#2 masked ExtINT on CPU#2

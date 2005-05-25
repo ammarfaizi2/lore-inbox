@@ -1,76 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVEYUeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbVEYUfB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261550AbVEYUeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 16:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVEYUeJ
+	id S261544AbVEYUfB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 16:35:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVEYUfB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 16:34:09 -0400
-Received: from 1-1-4-20a.ras.sth.bostream.se ([82.182.72.90]:48792 "EHLO
-	garbo.kenjo.org") by vger.kernel.org with ESMTP id S261550AbVEYUeD
+	Wed, 25 May 2005 16:35:01 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:13560 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261544AbVEYUe6 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 16:34:03 -0400
-Subject: Re: NFS corruption on 2.6.11.7
-From: Kenneth Johansson <ken@kenjo.org>
-To: "David S.Miller" <davem@davemloft.net>
-Cc: trond.myklebust@fys.uio.no, linux-kernel@vger.kernel.org
-In-Reply-To: <20050525.131616.59655785.davem@davemloft.net>
-References: <1116929711.6237.8.camel@tiger>
-	 <1116936088.10707.39.camel@lade.trondhjem.org>
-	 <1117052007.9884.10.camel@tiger>
-	 <20050525.131616.59655785.davem@davemloft.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-7wzjPmMhINxi3v1e0EsM"
-Date: Wed, 25 May 2005 22:34:01 +0200
-Message-Id: <1117053241.9884.18.camel@tiger>
+	Wed, 25 May 2005 16:34:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=KXYK3K4e3PRka4jxQ0DCk0FV88vEAIn2D1/zRx49mqV6ZaHJhsVz+SVifn0siP5pI7FTYQu4/wQhig0q2kXY0d7QBTGWoMiw9QudyioP6JqqsV18e8UrHif0BDt5skYNbIc6k5jfXxJSk1ut05J4ca/iGazlVy8hUeM9PbvrjBM=
+Message-ID: <8783be6605052513343fce843b@mail.gmail.com>
+Date: Wed, 25 May 2005 16:34:55 -0400
+From: Ross Biro <ross.biro@gmail.com>
+Reply-To: Ross Biro <ross.biro@gmail.com>
+To: Jim Gifford <maillist@jg555.com>
+Subject: Re: Random IDE Lock ups with via IDE
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <4294BAE8.5050803@jg555.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4293B859.3070609@jg555.com> <4294BAE8.5050803@jg555.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+That's not a bad platter issue.  It could be the electronics on the
+drive have a problem, but more  likely something happened like the
+drive spun down.  If that is the case, the reset at the end should
+have woken it up.  Does the drive work correctly after the reset?
 
---=-7wzjPmMhINxi3v1e0EsM
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+    Ross
 
-On Wed, 2005-05-25 at 13:16 -0700, David S.Miller wrote:
-> From: Kenneth Johansson <ken@kenjo.org>
-> Date: Wed, 25 May 2005 22:13:27 +0200
->=20
-> > Is there some fundamental difference in how nfs over upd and tcp is
-> > handled regarding the packet contents like tcp using the tcp checksum
-> > and udp not using the udp checksum or something like that?
-> >=20
-> > Are there any counters for checksum errors in udp and tcp that can be
-> > read ?? I faild to spot anything in /proc.
->=20
-> If you are on a gigabit or faster network, IPv4 fragment sequence
-> numbers can wrap and if you are very unlucky the checksums will
-> match as well corrupting your data.  This is a fatal limitation of
-> the small 16-bit IPv4 framgent ID.
->=20
-> Use TCP for NFS unless you want NFS data corruption.
->=20
-
-Unlikely to be the case this time. I get a sequence of 28 bytes that is
-wrong in the data and often the wrong data is a copy from data 64 or 128
-byte earlier in the file. If this was not on a PC with cache coherency I
-would guess that someone forgot to do a cache invalidate/flush. But I do
-wonder why I only see this problem with nfs over udp.=20
-
-
-
-
-
---=-7wzjPmMhINxi3v1e0EsM
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBClOE4mDGOmJIy9x8RAjBtAJwPJyP0b9Qvd9R/iFJplU0yZMZd+ACfeEAk
-POokAzyzB1Xdwa4WjeMoVZE=
-=nQLg
------END PGP SIGNATURE-----
-
---=-7wzjPmMhINxi3v1e0EsM--
-
+On 5/25/05, Jim Gifford <maillist@jg555.com> wrote:
+> Tested the hard drive it passes. Any other suggestions
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

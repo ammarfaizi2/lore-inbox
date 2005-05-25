@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261506AbVEYRbz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbVEYRcl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbVEYRbz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 13:31:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbVEYRby
+	id S261507AbVEYRcl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 13:32:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVEYRcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 13:31:54 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:48117 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261506AbVEYRbf
+	Wed, 25 May 2005 13:32:41 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:61172 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S261507AbVEYRc2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 13:31:35 -0400
-Message-ID: <4294B652.1090509@mvista.com>
-Date: Wed, 25 May 2005 10:30:58 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-CC: Andrew Morton <akpm@osdl.org>, ppc64-dev <linuxppc64-dev@ozlabs.org>,
-       LKML <linux-kernel@vger.kernel.org>, Linus <torvalds@osdl.org>
-Subject: Re: [PATCH] ppc64 iSeries: fix boot time setting
-References: <20050525162926.7691bb34.sfr@canb.auug.org.au>
-In-Reply-To: <20050525162926.7691bb34.sfr@canb.auug.org.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Wed, 25 May 2005 13:32:28 -0400
+Subject: Re: RT patch acceptance
+From: Sven-Thorsten Dietrich <sdietrich@mvista.com>
+To: karim@opersys.com
+Cc: Ingo Molnar <mingo@elte.hu>, "Bill Huey (hui)" <bhuey@lnxw.com>,
+       Daniel Walker <dwalker@mvista.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+In-Reply-To: <42947D30.6020509@opersys.com>
+References: <20050524054722.GA6160@infradead.org>
+	 <20050524064522.GA9385@elte.hu> <4292DFC3.3060108@yahoo.com.au>
+	 <20050524081517.GA22205@elte.hu> <4292E559.3080302@yahoo.com.au>
+	 <20050524090240.GA13129@elte.hu> <4292F074.7010104@yahoo.com.au>
+	 <1116957953.31174.37.camel@dhcp153.mvista.com>
+	 <20050524224157.GA17781@nietzsche.lynx.com> <4293E4ED.7030804@opersys.com>
+	 <20050525081644.GA23336@elte.hu>  <42947D30.6020509@opersys.com>
+Content-Type: text/plain
+Date: Wed, 25 May 2005 10:32:25 -0700
+Message-Id: <1117042345.5840.6.camel@sdietrich-xp.vilm.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am I the only one who has problems with the signature mark ("-- ") prior to the 
-patch.  For example, this is a reply with quoting the original message.  My 
-mailer (mozilla) dropped everything after the "-- " in the original.  If someone 
-knows how to change mozilla to fix this, I welcome the help.
+On Wed, 2005-05-25 at 09:27 -0400, Karim Yaghmour wrote:
+> Ingo Molnar wrote:
+> > (i guess mostly because i'm pretty presentation-shy. It's probably too 
+> > late for OLS, but if someone else feels a desire to do more in this 
+> > area, i certainly wont complain.)
+> 
+> Like I told Sven, if this important enough (as it seems it is), I don't
+> see why the people in charge wouldn't at least try to find a spot.
+> 
 
-George
+I have submitted a proposal, but its obviously very very late.
 
-Stephen Rothwell wrote:
-> Hi all,
-> 
-> For quite a while, there has existed a hypervisor bug on legacy iSeries
-> which means that we do not get the boot time set in the kernel.  This
-> patch works around that bug.  This was most noticable when the root
-> partition needed to be checked at every boot as the kernel thought it was
-> some time in 1905 until user mode reset the time correctly.
-> 
-> Signed-off-by: Stephen Rothwell <sfr@canb.auug.org.au>
-> ---
-> 
->  arch/ppc64/kernel/mf.c         |   85 +++++++++++++++++++++++++++++++----------
->  arch/ppc64/kernel/rtc.c        |   39 ------------------
->  include/asm-ppc64/iSeries/mf.h |    1
->  3 files changed, 67 insertions(+), 58 deletions(-)
-> 
-> Please apply and send to Linus.
+I suggest that folks should contact any powers that be at OLS,
+and express their interest in an RT presentation.
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+Then I'll get up there and you all can throw rotten fruit and veggies ;)
+
+Sven
+

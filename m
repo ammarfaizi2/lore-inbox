@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVEYQZV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262170AbVEYQql@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261462AbVEYQZV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 12:25:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261472AbVEYQZV
+	id S262170AbVEYQql (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 12:46:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbVEYQqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 12:25:21 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:3213 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261462AbVEYQZP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 12:25:15 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.12-rc5: compilation fix for IPMI
-Date: Wed, 25 May 2005 18:25:09 +0200
-User-Agent: KMail/1.8
-Cc: Andrew Morton <akpm@osdl.org>
+	Wed, 25 May 2005 12:46:35 -0400
+Received: from whirlwind.atmosp.physics.utoronto.ca ([128.100.80.80]:36160
+	"EHLO whirlwind.atmosp.physics.utoronto.ca") by vger.kernel.org
+	with ESMTP id S261479AbVEYQp7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 12:45:59 -0400
+Date: Wed, 25 May 2005 12:45:23 -0400
+From: Alexey Koptsevich <kopts@atmosp.physics.utoronto.ca>
+To: linux-kernel@vger.kernel.org
+Subject: delay at starting udev
+Message-ID: <Pine.SGI.4.60.0505171406020.13898958@whirlwind.atmosp.physics.utoronto.ca>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505251825.10274.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 
---- linux-2.6.12-rc5/drivers/char/ipmi/ipmi_devintf.c	2005-05-25 18:18:22.000000000 +0200
-+++ patched/drivers/char/ipmi/ipmi_devintf.c	2005-05-25 18:03:27.000000000 +0200
-@@ -520,7 +520,7 @@ MODULE_PARM_DESC(ipmi_major, "Sets the m
- 		 " interface.  Other values will set the major device number"
- 		 " to that value.");
- 
--static struct class *ipmi_class;
-+static struct class_simple *ipmi_class;
- 
- static void ipmi_new_smi(int if_num)
- {
-@@ -534,7 +534,7 @@ static void ipmi_new_smi(int if_num)
- 
- static void ipmi_smi_gone(int if_num)
- {
--	class_simple_device_remove(ipmi_class, MKDEV(ipmi_major, if_num));
-+	class_simple_device_remove(MKDEV(ipmi_major, if_num));
- 	devfs_remove("ipmidev/%d", if_num);
- }
- 
+Hi,
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+I experience a major delay (about 5 min on dual CPU 3GHz machine, RedHat 
+AS v4) at system boot-up at the point of "Starting udev:". The references 
+to it I was able to find say that it was fixed in udev releases years ago. 
+Is anything known about this problem?
+
+> uname -a
+Linux <...> 2.6.11.7 #2 SMP Tue Apr 19 16:46:25 EDT 2005 i686 i686 i386 GNU/Linux
+
+>rpm -q udev
+udev-039-10.8.EL4
+
+Any help is greatly appreciated!
+
+Thanks,
+Alex

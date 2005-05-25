@@ -1,76 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVEYBjn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262231AbVEYBkv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbVEYBjn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 21:39:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbVEYBjn
+	id S262231AbVEYBkv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 21:40:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262234AbVEYBku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 21:39:43 -0400
-Received: from tls.sendmail.com ([209.246.26.40]:18090 "EHLO foon.sendmail.com")
-	by vger.kernel.org with ESMTP id S261241AbVEYBjk (ORCPT
+	Tue, 24 May 2005 21:40:50 -0400
+Received: from zorg.st.net.au ([203.16.233.9]:62640 "EHLO borg.st.net.au")
+	by vger.kernel.org with ESMTP id S262233AbVEYBke (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 21:39:40 -0400
-X-DomainKeys: Sendmail DomainKeys Filter v0.2.7 foon.sendmail.com j4P1dcS9011641
-DomainKey-Signature: a=rsa-sha1; s=tls; d=sendmail.com; c=nofws; q=dns;
-	b=Hvp8FKh9axVvg8eqxhR4KMnPcuwbWnCh2QxwtyO9872pWuhqnSGQcRC6Pm3akM+Kf
-	DVWWXkKCK+BlOKYBejKtEsjMwLD3sf8PSo7DiVgj/5RxHrWV2JM3o1ku4Q34Nhxca1H
-	T8WADxfJvZ09NfkDFDQPcuwV6LTCx9yfPyuy4yw=
-Message-ID: <4293D4AF.4050903@sendmail.com>
-Date: Tue, 24 May 2005 18:28:15 -0700
-From: Ashish Gawarikar <ashish@sendmail.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, es, ja, en
+	Tue, 24 May 2005 21:40:34 -0400
+Message-ID: <4293D798.4020606@torque.net>
+Date: Wed, 25 May 2005 11:40:40 +1000
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Memory leak in 2.6.11.10/2.6.12-rc4?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: monz@danbbs.dk
+CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
+Subject: Re: [ANNOUNCE] sdparm 0.92
+References: <428DC633.5050403@torque.net> <4293BD80.1050503@danbbs.dk>
+In-Reply-To: <4293BD80.1050503@danbbs.dk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am using 2.6.11.10 (and have also tried the same with 2.6.12-rc4). I 
-have a Dell Poweredge 850, with 2 GB RAM. I am trying a simple test like:
+Mogens Valentin wrote:
+> Douglas Gilbert wrote:
+> 
+>> sdparm is a command line utility designed to get and set
+>> SCSI disk parameters (cf hdparm for ATA disks). More generally
+>> it gets and sets mode page information on SCSI devices or devices
+>> that use a SCSI command set (e.g. CD/DVD drives (any transport)
+>> and SCSI tape drives). It also can list VPD pages including
+>> the device identification page.
+>>
+>> For more information and downloads (tarball, rpm and deb
+>> packages) see:
+>> http://www.torque.net/sg/sdparm.html
+> 
+> 
+> Nice! Just got it and tried on an external usb disk.
+> One feature I could use, probably others as well:
+> Could you add the ability to spin down/up a scsi disk?
+> I'd really like this for exteral (usb) disks.
 
-#!/bin/sh
-cd /var/tmp
-while true;
-do
-    find /usr -name "*" | xargs strings > /var/tmp/spin.txt
-done
+Mogens,
+With sg_start (in the sg3_utils package) I have tried
+to spin up and down an ATA disk inside a USB enclosure
+without success. The same command on a USB connected
+CD/DVD combo drive did work.
 
+Could you try sg_start on your USB external enclosure
+which I assume contains an ATA disk rather than a
+SCSI (SPI) disk and report if it works?
 
-And after sometime (less than 20 mins)I do see that the free command returns:
+BTW I just checked libata (for SATA disks) and it does
+not seem to support the START STOP UNIT command.
+Jeff, could that one be added?
 
+> Doesn't seem it can; if I missed it, I'm sorry..
 
+It is hard to know where to stop with sdparm ;-)
+At the moment I am adding transport (protocol) specific
+mode page support. So currently sdparm specializes
+in mode pages (for all SCSI command sets) and INQUIRY
+information (including the device identification VPD
+page).
 
-#free
-             total       used       free     shared    buffers     cached
-Mem:       2075060    1872904     202156          0      27696     453404
--/+ buffers/cache:    1391804     683256
-Swap:      2097136          0    2097136
-#
+Doug Gilbert
 
-And after 15 mins:
-
-#free
-             total       used       free     shared    buffers     cached
-Mem:       2075060    2002064      72996          0      11840     393372
--/+ buffers/cache:    1596852     478208
-Swap:      2097136          0    2097136
-#
-
-(The only patch applied to the kernel is aacraid 2391).
-
-After having stopped the program the free returns this:
-
-# free
-             total       used       free     shared    buffers     cached
-Mem:       2075060    1951632     123428          0      15988     330064
--/+ buffers/cache:    1605580     469480
-Swap:      2097136          0    2097136
-
-
-Can someone please help me on this?
-
-Thanks in advance,
-
-Ashish

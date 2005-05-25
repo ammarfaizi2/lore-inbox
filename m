@@ -1,70 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262337AbVEYNGn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262338AbVEYNJ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262337AbVEYNGn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 09:06:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262338AbVEYNGn
+	id S262338AbVEYNJ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 09:09:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbVEYNJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 09:06:43 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:38623 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262337AbVEYNGe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 09:06:34 -0400
-Date: Wed, 25 May 2005 15:05:41 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andreas Steinmetz <ast@domdv.de>
-Cc: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.12-rc4, -mm: bad ide-cs problems
-Message-ID: <20050525130541.GA1960@elf.ucw.cz>
-References: <20050525112745.GA1936@elf.ucw.cz> <20050525112824.GA2892@elf.ucw.cz> <42946451.9070301@domdv.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42946451.9070301@domdv.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Wed, 25 May 2005 09:09:58 -0400
+Received: from web8509.mail.in.yahoo.com ([202.43.219.171]:50004 "HELO
+	web8509.mail.in.yahoo.com") by vger.kernel.org with SMTP
+	id S262338AbVEYNJW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 09:09:22 -0400
+Message-ID: <20050525130917.60035.qmail@web8509.mail.in.yahoo.com>
+Date: Wed, 25 May 2005 14:09:17 +0100 (BST)
+From: Guddu Guddu <guddu_blr123@yahoo.co.in>
+Subject: RE: Mounting cramfs from RAM address
+To: Mikael Starvik <mikael.starvik@axis.com>, linux-kernel@vger.kernel.org
+In-Reply-To: 6667
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Thanks Mikael for a nice pointer.
+I even tried creating a MTD RAM device with a test 
+module and I could access the memory. I feel I shall
+be able to mount now my cramfs to it.
 
-> > hde: cache flushes not supported
-> >  hde: hde1
-> > ide-cs: hde: Vcc = 3.3, Vpp = 0.0
-> >  hde: hde1
-> >  hde: hde1
-> > Unable to handle kernel NULL pointer dereference at virtual address
-> > 00000010
-> >  printing eip:
-> > c033d618
-> > *pde = 00000000
-> > Oops: 0000 [#1]
-> > PREEMPT
-> > Modules linked in:
-> > CPU:    0
-> > EIP:    0060:[<c033d618>]    Not tainted VLI
-> > EFLAGS: 00010292   (2.6.12-rc4)
-> > EIP is at ide_drive_remove+0x8/0x10
-> > eax: c07825f8   ebx: c0782704   ecx: c07826f0   edx: 00000000
-> > esi: c07826e0   edi: c065fed8   ebp: 00000001   esp: dfce5e84
-> > ds: 007b   es: 007b   ss: 0068
-> > Process pccardd (pid: 932, threadinfo=dfce4000 task=dfc84a40)
-> > Stack: c02dc4b4 c07826e0 c065fa00 c0782568 c02dc724 c07826e0 c0782a80
-> > c02db5e2
-> >        c07826e0 df373a80 c02db628 c07825f8 c033bcfb c0782568 00000002
-> > df373b80
-> >        df373b80 c0670680 c0670728 c034f63b df758200 00000000 c034f67a
-> > c0386108
-> > Call Trace:
-> >  [<c02dc4b4>] device_release_driver+0x74/0x80
-> 
-> Pavel,
-> I had a similar problem which I fixed amd posted to lkml a while ago
-> though I seems to got ignored by the ide maintainer. Please see if this
-> helps in your case:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=111409743421578&w=2
+Thanks again
+Guddu
 
-Yes, thanks, that works. Andrew, is there reason not to push that
-patch into -mm/linus?
-								Pavel
+--- Mikael Starvik <mikael.starvik@axis.com> wrote:
+> One way is to create a MTD RAM device and mount
+> that. Look in 
+> arch/cris/drivers/axisflashmap.c for example (search
+> for RAM device).
+> 
+> /Mikael
+> 
+> -----Original Message-----
+> From: linux-kernel-owner@vger.kernel.org
+> [mailto:linux-kernel-owner@vger.kernel.org] On
+> Behalf Of Guddu Guddu
+> Sent: Wednesday, May 25, 2005 8:08 AM
+> To: linux-kernel@vger.kernel.org
+> Subject: Mounting cramfs from RAM address
+> 
+> 
+> Hi,
+> 
+> I want to mount my cramfs stored at a particular
+> address in RAM (i.e 0x8100_0000). What is the best
+> way
+> to do so?
+> 
+> -- guddu
+> 
+> 
+> 
+>
+________________________________________________________________________
+> Yahoo! India Matrimony: Find your life partner
+> online
+> Go to: http://yahoo.shaadi.com/india-matrimony
+> -
+> To unsubscribe from this list: send the line
+> "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at 
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
+
+________________________________________________________________________
+Yahoo! India Matrimony: Find your life partner online
+Go to: http://yahoo.shaadi.com/india-matrimony

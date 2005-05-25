@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262325AbVEYM3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262327AbVEYMgb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262325AbVEYM3r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 08:29:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbVEYM1z
+	id S262327AbVEYMgb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 08:36:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbVEYMgb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 08:27:55 -0400
-Received: from adsl-185-131-fixip.tiscali.ch ([212.254.185.131]:18642 "EHLO
-	garfield.rptec.ch") by vger.kernel.org with ESMTP id S262320AbVEYM1k
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 08:27:40 -0400
-Message-ID: <42946F37.2060203@rptec.ch>
-Date: Wed, 25 May 2005 14:27:35 +0200
-From: Jean-Eric Cuendet <jec@rptec.ch>
-Organization: Riskpro Technologies SA
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: fedora-list@redhat.com, freshrpms-list@freshrpms.net,
-       linux-kernel@vger.kernel.org
-Cc: Con Kolivas <kernel@kolivas.org>
-Subject: [new] kernel-desktop 2.6.11-1.27_FC3.desktop_1
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 25 May 2005 08:36:31 -0400
+Received: from panda.sul.com.br ([200.219.150.4]:6923 "EHLO panda.sul.com.br")
+	by vger.kernel.org with ESMTP id S262327AbVEYMg3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 08:36:29 -0400
+Date: Wed, 25 May 2005 09:36:26 -0300
+From: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
+To: Ian Campbell <icampbell@arcom.com>
+Cc: vojtech@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: [UINPUT] Allow EV_ABS to work in uinput.c
+Message-ID: <20050525123626.GC3772@cathedrallabs.org>
+References: <1117023999.20237.8.camel@icampbell-debian>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1117023999.20237.8.camel@icampbell-debian>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-I just released a new version of kernel-desktop. New features are:
-- Based on FC3 2.6.11-1.27_FC3 kernel
-- Include 2.6.11.10 patch
-- Include Con Kolivas CK8 patchset (with Staircase11)
-- The rest is the same as in 1.14_FC3.desktop_5
+> uinput_alloc_device() is supposed to return the number of bytes read,
+> the value is returned to uinput_write() and from there to userspace. If
+> EV_ABS is set then it returns the value from uinput_validate_absbits()
+> instead, which is zero when everything is ok instead of the count.
+> 
+> Signed-off-by: Ian Campbell <icampbell@arcom.com>
+Acked-by: Aristeu Rozanski <aris@cathedrallabs.org>
 
-Kernel-desktop is based on the standard FC3 kernel, with the folowing
-additions:
-- NTFS read-only
-- iNotify (Useful for Beagle, the search engine)
-- Realtime LSM module (Useful for jack audio server)
-- Con Kolivas patchset for interactivity
-
-Available at http://apt.bea.ki.se/kernel-desktop
-
-Happy upgrading!
--jec
+> --- 2.6.orig/drivers/input/misc/uinput.c	2005-05-25 10:45:56.000000000 +0100
+> +++ 2.6/drivers/input/misc/uinput.c	2005-05-25 10:47:02.000000000 +0100
+> @@ -216,9 +216,11 @@
+>  	/* check if absmin/absmax/absfuzz/absflat are filled as
+>  	 * told in Documentation/input/input-programming.txt */
+>  	if (test_bit(EV_ABS, dev->evbit)) {
+> -		retval = uinput_validate_absbits(dev);
+> -		if (retval < 0)
+> +		int err = uinput_validate_absbits(dev);
+> +		if (err < 0) {
+> +			retval = err;
+>  			kfree(dev->name);
+> +		}
+>  	}
+>  
+>  exit:
 
 -- 
-Jean-Eric Cuendet
-Riskpro Technologies SA
-Av du 14 avril 1b, 1020 Renens Switzerland
-Principal: +41 21 637 0110  Fax: +41 21 637 01 11
-Direct: +41 21 637 0123
-E-mail: jean-eric.cuendet at rptec.ch
-http://www.rptec.ch
---------------------------------------------------------
-
-
-
-
-
-
+Aristeu
 

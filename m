@@ -1,75 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbVEYWUE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbVEYWXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbVEYWUE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 18:20:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbVEYWTb
+	id S261577AbVEYWXw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 18:23:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbVEYWXv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 18:19:31 -0400
-Received: from fire.osdl.org ([65.172.181.4]:59526 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261574AbVEYWTJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 18:19:09 -0400
-Date: Wed, 25 May 2005 15:19:35 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Marko Rebrina <mrebrina@gmail.com>
-Cc: linux-kernel@vger.kernel.org, isdn4linux@listserv.isdn4linux.de,
-       Karsten Keil <kkeil@suse.de>
-Subject: Re: Problem with w6692 & kernel >=2.6.10
-Message-Id: <20050525151935.757621b5.akpm@osdl.org>
-In-Reply-To: <dd02451d050303132662482b66@mail.gmail.com>
-References: <dd02451d050303132662482b66@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 25 May 2005 18:23:51 -0400
+Received: from 81-223-198-27.arsenal.xdsl-line.inode.at ([81.223.198.27]:9990
+	"EHLO dvb.ods.org") by vger.kernel.org with ESMTP id S261574AbVEYWXo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 18:23:44 -0400
+Message-ID: <006201c56178$8d4cfd50$0b01a8c0@mega>
+From: "SvR Marty" <svrmarty@gmx.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: 2.6.12-rc5
+Date: Thu, 26 May 2005 00:24:42 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Marko Rebrina <mrebrina@gmail.com> wrote:
->
-> I have problem with w6692 (mISDN-2005-02-25) & kernel >=2.6.10 (with
-> 2.6.9 is OK!) 
+is out now
+http://www.kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.12-rc5.bz2
 
-It'd be nice to get regressions such as this fixed for 2.6.12.  Could you
-please retest 2.6.12-rc5?
-
-> # lspci
-> 0000:01:07.0 Network controller: Winbond Electronics Corp W6692 (rev 01)
-> 
-> # modprobe w6692pci  protocol=2
-> FATAL: Error inserting w6692pci
-> (/lib/modules/2.6.11/kernel/drivers/isdn/hardware/mISDN/w6692pci.ko):
-> No such device
-> 
-> log:
-> 
-> CAPI Subsystem Rev 1.1.2.8
-> capi20: Rev 1.1.2.7: started up with major 68 (middleware+capifs)
-> Modular ISDN Stack core $Revision: 1.23 $
-> mISDNd: kernel daemon started
-> ISDN L1 driver version 1.11
-> ISDN L2 driver version 1.19
-> mISDN: DSS1 Rev. 1.26
-> Capi 2.0 driver file version 1.14
-> ISAC module $Revision: 1.16 $
-> 
-> Winbond W6692 PCI driver Rev. 1.12
-> ACPI: PCI interrupt 0000:01:07.0[A] -> GSI 19 (level, high) -> IRQ 19
-> mISDN_w6692: found adapter Winbond W6692 at 0000:01:07.0
-> W6692: Winbond W6692 version (0): W6692 V00
-> kcapi: Controller 1: mISDN1 attached
-> mISDNd: test event done
-> w6692: IRQ 19 count 4
-> kcapi: card 1 "mISDN1" ready.
-> w6692 1 cards installed
-> try_ok(13) try_wait(0) try_mult(0) try_inirq(0)
-> irq_ok(4) irq_fail(0)
-> release_l1 id 1
-> release_udss1 refcnt 1 l3(f39faa40) inst(f39faab8)
-> kcapi: card 1 down.
-> kcapi: Controller 1: mISDN1 unregistered
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/

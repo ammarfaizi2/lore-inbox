@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261412AbVEYNPC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbVEYNPt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261412AbVEYNPC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 09:15:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262157AbVEYNPB
+	id S262157AbVEYNPt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 09:15:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbVEYNPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 09:15:01 -0400
-Received: from opersys.com ([64.40.108.71]:55568 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261412AbVEYNO7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 09:14:59 -0400
-Message-ID: <42947CBF.9090407@opersys.com>
-Date: Wed, 25 May 2005 09:25:19 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Wed, 25 May 2005 09:15:49 -0400
+Received: from mail.timesys.com ([65.117.135.102]:9995 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S262157AbVEYNPi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 09:15:38 -0400
+Message-ID: <42947A1D.2090005@timesys.com>
+Date: Wed, 25 May 2005 09:14:05 -0400
+From: john cooper <john.cooper@timesys.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Bill Huey (hui)" <bhuey@lnxw.com>
-CC: Daniel Walker <dwalker@mvista.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org, sdietrich@mvista.com
+To: Esben Nielsen <simlo@phys.au.dk>
+CC: Sven Dietrich <sdietrich@mvista.com>, Andrew Morton <akpm@osdl.org>,
+       dwalker@mvista.com, bhuey@lnxw.com, nickpiggin@yahoo.com.au,
+       mingo@elte.hu, hch@infradead.org, linux-kernel@vger.kernel.org,
+       john cooper <john.cooper@timesys.com>
 Subject: Re: RT patch acceptance
-References: <20050524054722.GA6160@infradead.org> <20050524064522.GA9385@elte.hu> <4292DFC3.3060108@yahoo.com.au> <20050524081517.GA22205@elte.hu> <4292E559.3080302@yahoo.com.au> <20050524090240.GA13129@elte.hu> <4292F074.7010104@yahoo.com.au> <1116957953.31174.37.camel@dhcp153.mvista.com> <20050524224157.GA17781@nietzsche.lynx.com> <4293E4ED.7030804@opersys.com> <20050525061518.GA26058@nietzsche.lynx.com>
-In-Reply-To: <20050525061518.GA26058@nietzsche.lynx.com>
-Content-Type: text/plain; charset=us-ascii
+References: <Pine.OSF.4.05.10505251323490.28057-100000@da410.phys.au.dk>
+In-Reply-To: <Pine.OSF.4.05.10505251323490.28057-100000@da410.phys.au.dk>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 25 May 2005 13:09:11.0781 (UTC) FILETIME=[F17AE150:01C5612A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Esben Nielsen wrote:
+> On Tue, 24 May 2005, john cooper wrote:
+>>I'd like to hear some technical arguments of why IRQ threads
+>>are held with such suspicion...
+> 
+> Performance! Even on RT systems you do NOT make all interrupts run in
+> threads. Simple devices like UARTS run everything in interrupt context.
+> Introducing a context switch for every character received on such a
+> channel can be _very_ expensive.
 
-Bill Huey (hui) wrote:
-> I haven't even asked my employeer if I should go or not ? should I ?
+The IRQ thread mechanism introduces a facility which offers
+a benefit at an associated cost.  For cases where the interrupt
+payload processing is small in comparison to the associated
+context switch, overhead in this case may be optimized
+by running the payload processing in exception context.
 
-Given your involvement with Linux, probably yes, but it's really up to
-you. You should be aware, though, that just yesterday I got an automated
-e-mail saying that they were 95% booked (remember that attendance is
-capped at 500). So if you should decide to go, now is the time ...
+But "performance" here is a vague term.  It may in some cases
+be preferable to incur an increased overhead of interrupt payload
+processing in task context to improve overall CPU availability
+or reduce interrupt lockout in code associated with the
+interrupt.  It is a system-wide issue depending on the system
+goals.
 
-> Seriously, I was going to stay out here and work on more RT related
-> stuff that I've been working on for a number of months. Who should go
-> to OLS ?
+I agree for simple devices which generate high frequency interrupts
+and have trivial interrupt payload processing, the addition of
+deferring the latter to task context may be unneeded overhead.
+But even here it is a system-wide design issue and I don't see
+a simple, universal right-way/wrong-way.  In any case the choice
+of either mechanisms is available.
 
-Gee ... I can't really say I have definitive answer to that. From
-personal experience, I can tell you that there are people from all
-levels of involvement that go in there, from core hackers to just
-simple users. The real key of OLS is the networking you get to do
-with other people (i.e. meeting people in the hallways and
-discussing issues which are hard to resolve on a mailing list.)
-Not to mention the beer drinking ... ;)
+As a data point, commercial OSes exist which strive to optimize
+for non-RT throughput which by default defer all interrupt payload
+processing into task context.  Not that this is necessarily
+conclusive here but it should offer reassurance this isn't as
+radical a concept as it may seem.
 
-Karim
+-john
+
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+john.cooper@timesys.com

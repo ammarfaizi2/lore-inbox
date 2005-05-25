@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262366AbVEYRwz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbVEYR4F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262366AbVEYRwz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 13:52:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVEYRwz
+	id S261511AbVEYR4F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 13:56:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVEYRzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 13:52:55 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:35820 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261517AbVEYRvl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 13:51:41 -0400
-Subject: Re: [PATCH] Fix reference counting for failed SCSI devices
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Hannes Reinecke <hare@suse.de>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <429496C2.3020706@suse.de>
-References: <4292F631.9090300@suse.de> <1116975478.7710.28.camel@mulgrave>
-	 <4294201D.4070304@suse.de> <1117024043.5071.6.camel@mulgrave>
-	 <429473A1.6010402@suse.de> <1117033088.4956.5.camel@mulgrave>
-	 <429496C2.3020706@suse.de>
-Content-Type: text/plain
-Date: Wed, 25 May 2005 13:51:29 -0400
-Message-Id: <1117043489.5210.4.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Wed, 25 May 2005 13:55:52 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:24315 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261889AbVEYRzX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 13:55:23 -0400
+Message-ID: <4294BBE8.3030004@mvista.com>
+Date: Wed, 25 May 2005 10:54:48 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Chris Friesen <cfriesen@nortel.com>
+CC: bhavesh@avaya.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11 timeval_to_jiffies() wrong for ms resolution timers
+References: <1116975555.2050.10.camel@cof110earth.dr.avaya.com> <4294B42D.2020008@mvista.com> <4294B7ED.2030307@nortel.com>
+In-Reply-To: <4294B7ED.2030307@nortel.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-25 at 17:16 +0200, Hannes Reinecke wrote:
-> I guess it's time to convert aic79xx to the spi_transport class.
-> Unfortunately my attempt segfaults when removing a device in
-> attribute_container_device_trigger(); someone is overwriting the ->match
-> function. Oh well, further debugging needed.
+Chris Friesen wrote:
+> George Anzinger wrote:
+> 
+>> Bhavesh P. Davda wrote:
+>>
+>>> setitimer for 20ms was firing at 21ms
+> 
+> 
+>> If we do NOT account for this PIT issue, the result is a time drift 
+>> that is outside of what ntp can handle...
+> 
+> 
+> Still, it is non-intuitive that a multi-GHz machine can't wake you up 
+> more accurately than 1ms.
+> 
+> What about telling it to wake up a jiffy earlier, then checking whether 
+> the scheduling lag was enough to cause it to have waited the full 
+> specified time.  If not, put it to sleep for another jiffy.
 
-Well ... best of luck.  Given the problems incurred doing this for
-aic7xxx (mainly in initial inquiry and domain validation, one of which
-is outstanding still) it's not going to be easy.
-
-Large segments of the aic79xx driver are identical to the aic7xxx driver
-except that all the functions being ahd_ instead of ahc_, so you should
-just be able to mirror quite a lot of the aic7xxx updates.  However, you
-need to include a large number of rather nasty u320 parameters in the
-SPI transport Class (and make sure they're coupled correctly) to get
-domain validation to work ... the transport class has also only been
-tested on speeds up to u160, so going to u320 will be a first for it
-too...
-
-James
-
-
+The user is, of course, free to do what ever they would like.  For a more 
+complete solution you might be interested in HRT (High Res Timers).  See my 
+signature below.
+> 
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/

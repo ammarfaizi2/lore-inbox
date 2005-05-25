@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262122AbVEYL1n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbVEYL2L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262122AbVEYL1n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 07:27:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbVEYL1n
+	id S262180AbVEYL2L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 07:28:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262186AbVEYL2L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 07:27:43 -0400
-Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:27920 "EHLO
-	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
-	id S262122AbVEYL1i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 07:27:38 -0400
-To: akpm@osdl.org, viro@parcelfarce.linux.theplanet.co.uk
-CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Subject: [PATCH] namespace.c: fix mnt_namespace zeroing for expired mounts
-Message-Id: <E1Dau2O-0005U1-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Wed, 25 May 2005 13:27:00 +0200
+	Wed, 25 May 2005 07:28:11 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8115 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262180AbVEYL2E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 07:28:04 -0400
+Date: Wed, 25 May 2005 13:27:45 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: 2.6.12-rc4, -mm: bad ide-cs problems
+Message-ID: <20050525112745.GA1936@elf.ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch clears mnt_namespace in an expired mount. 
+Hi!
 
-If mnt_namespace is not cleared, it's possible to attach a new mount
-to the already detached mount, because check_mnt() can return true.
+I see some problems in pcmcia subsystem in 2.6.12-rc4:
 
-The effect is a resource leak, since the resulting tree will never be
-freed.
+On compaq nx5000, inserting CF ide card is recognized as anonymous
+memory. On compaq evo, it is recognized okay and
+mounts/works. Unfortunately when I unplug the card, I get an oops:
 
-An earlier patch doing the same for regular umount has already been
-applied (namespacec-fix-mnt_namespace-clearing.patch).
+Message from syslogd@Elf at Wed May 25 13:25:25 2005 ...
+Elf kernel: Unable to handle kernel NULL pointer dereference at
+virtual address 00000010
 
-Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
+Message from syslogd@Elf at Wed May 25 13:25:25 2005 ...
+Elf kernel:  printing eip:
 
-Index: linux/fs/namespace.c
-===================================================================
---- linux.orig/fs/namespace.c	2005-05-22 11:52:56.000000000 +0200
-+++ linux/fs/namespace.c	2005-05-22 11:52:59.000000000 +0200
-@@ -843,6 +843,7 @@ static void expire_mount(struct vfsmount
- 
- 		/* delete from the namespace */
- 		list_del_init(&mnt->mnt_list);
-+		mnt->mnt_namespace = NULL;
- 		detach_mnt(mnt, &old_nd);
- 		spin_unlock(&vfsmount_lock);
- 		path_release(&old_nd);
+Message from syslogd@Elf at Wed May 25 13:25:25 2005 ...
+Elf kernel: *pde = 00000000
 
+Message from syslogd@Elf at Wed May 25 13:25:25 2005 ...
+Elf kernel: Oops: 0000 [#1]
+
+. -mm kernel actually works better on nx5000; it behaves similary to
+-rc4 on evo; unfortunately it produces similar oops on card unplug.
+
+								Pavel

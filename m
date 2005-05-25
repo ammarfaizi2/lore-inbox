@@ -1,106 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVEYWkw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVEYWsK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261582AbVEYWkw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 18:40:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261583AbVEYWkw
+	id S261587AbVEYWsK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 18:48:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVEYWsK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 18:40:52 -0400
-Received: from fire.osdl.org ([65.172.181.4]:16782 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261582AbVEYWkm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 18:40:42 -0400
-Date: Wed, 25 May 2005 15:41:23 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christian Henz <christian.henz@gmail.com>
-Cc: linux-kernel@vger.kernel.org, Dave Airlie <airlied@linux.ie>
-Subject: Re: 2.6.11-mm2 + Radeon crash
-Message-Id: <20050525154123.2468b396.akpm@osdl.org>
-In-Reply-To: <493984f050309121212541d8@mail.gmail.com>
-References: <493984f050309121212541d8@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 25 May 2005 18:48:10 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:11420 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S261587AbVEYWsB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 18:48:01 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Thu, 26 May 2005 00:46:55 +0200
+To: schilling@fokus.fraunhofer.de, linux-kernel@vger.kernel.org,
+       7eggert@gmx.de
+Subject: Re: OT] Joerg Schilling flames Linux on his Blog
+Message-ID: <4295005F.nail2KW319F89@burner>
+References: <4847F-8q-23@gated-at.bofh.it>
+ <E1Db3zm-0004vF-9j@be1.7eggert.dyndns.org>
+In-Reply-To: <E1Db3zm-0004vF-9j@be1.7eggert.dyndns.org>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christian Henz <christian.henz@gmail.com> wrote:
+"Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>" <7eggert@gmx.de> wrote:
+
+> I just burned a CD on my IDE-burner using mmc_cdr with cdrtools-2.01
+> (the one without the hack) on a vanilla 2.6.11.10. I can even scan
+> both my SCSI and IDE devices using -dev=ATAPI, but not without -dev.
+
+The unability to give this kind of convenience to cdrecord users is a result
+of the refusal of the Linux kernel crew to include the kernel internal 
+device instance numbers in the ioctl structures I need to read. Note that the
+fields are there but the information is intentionally obscured for come of the 
+calls just to make the life of cdrecord useers harder :-(
+
+
+> (I'm running as user, and cdrecord has no need for suid bits.)
+
+I am frequently reading false claims like this. Usually from people who 
+do not have the needed SCSI background knowledge to understand that 
+SCSI is a protocol where commands frequently fail by intention in order to
+propagate a state or a implementation level to the application.
+
+If you don't call cdrecord as root, you will not be able to lock in memory
+and to raise priority in order to prevent buffer underuns. In addition (with 
+Linux-2.6.8.1 or newer) you will not be able to send some of the important
+SCSI commands mainly related to newer CD or DVD drives. As a result, cdrecord
+cannot write DVDs or ultra speed CD-RWs or cannot do other things....
+
+
+> > If Linux plans to implement incompatible changes, I would expect that
+> > "important users" are informed in advance so that it is possible to discuss
+> > the problems an to have a planned smooth migration.
 >
-> Hi, 
-> 
-> I wanted to try 2.6.11-mm2 for the low latency/realtime lsm stuff and
-> I've run into a severe
-> problem.
+> While, in the meantime, users can destroy the hardware.
 
-Christian, can you please retest 2.6.12-rc5?
+Not true: if only R/W fd would be allowed, no non root program could do that.
 
-> When I try to start X, my machine reboots. The screen goes dark as
-> usual when setting the video mode, but then I get a beep and I'm
-> greeted with the BIOS boot messages. This happened 4/5 times i've
-> tried, and once the video mode was actually set (at least I saw the
-> usual X b/w pattern with some random framebuffer garbage), the machine
-> didn't reboot but after that nothing happened. My keyboard was still
-> responsive (ie NumLock LED would still go on/off), but i could neither
-> kill X with CTRL-ALT-BACKSPACE nor could i switch back to console, so
-> I ended up pressing reset.
-> 
-> After the crashes I booted with a rescue CD to examine the logs, but I
-> could not find any obvious errors.
-> 
-> Everything works nicely on 2.6.10 and earlier kernels. I'm in the
-> process of building 2.6.11.2 to see if the crash occurs there.
-> 
-> Here is some info on my system:
-> 
-> I've got an Athlon 1000C on a VIA KT133 chipset and a Radeon 7200 (the
-> original Radeon with 32MB SDR RAM). I'm running Debian/sid.
-> 
-> 
-> homer:/home/chrissi# X -version
-> X: warning; /dev/dri has unusual mode (not 755) or is not a directory.
-> XFree86 Version 4.3.0.1 (Debian 4.3.0.dfsg.1-12.0.1 20050223080930
-> joshk@triplehelix.org)
-> Release Date: 15 August 2003
-> X Protocol Version 11, Revision 0, Release 6.6
-> Build Operating System: Linux 2.6.9 i686 [ELF]
-> Build Date: 23 February 2005
-> 
-> 
-> lspci -vv says bout the Radeon:
-> 
-> 
-> 0000:01:00.0 VGA compatible controller: ATI Technologies Inc Radeon
-> R100 QD [Radeon 7200] (prog-if 00 [VGA])
->         Subsystem: ATI Technologies Inc Radeon 7000/Radeon
->         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
-> ParErr- Stepping+ SERR- FastB2B-
->         Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium
-> >TAbort- <TAbort- <MAbort- >SERR- <PERR-
->         Latency: 32 (2000ns min), Cache Line Size: 0x08 (32 bytes)
->         Interrupt: pin A routed to IRQ 5
->         Region 0: Memory at d0000000 (32-bit, prefetchable) [size=64M]
->         Region 1: I/O ports at c000 [size=256]
->         Region 2: Memory at d7000000 (32-bit, non-prefetchable) [size=512K]
->         Capabilities: [58] AGP version 2.0
->                 Status: RQ=48 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64-
-> HTrans- 64bit- FW- AGP3- Rate=x1,x2,x4
->                 Command: RQ=1 ArqSz=0 Cal=0 SBA+ AGP- GART64- 64bit-
-> FW- Rate=<none>
->         Capabilities: [50] Power Management version 2
->                 Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA
-> PME(D0-,D1-,D2-,D3hot-,D3cold-)
->                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-> 
-> 
-> 
-> Please let me know what more data is needed to figure this one out.
-> 
-> Thanks,
-> Christian Henz
-> 
-> PS: If you reply, please CC me as I'm not subscribed.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>
+> <OT>
+>
+> BTW while talking about destroying hardware: Turning off burnproof so the
+> drives that have this feature _for a reason_ will destroy my CD-Rs like
+> a outdated CD-recorder would is doubleplusungood, even if it creates
+> consistent behaviour across drives. It's like waring no seat belt in
+> your car just because curricles didn't have them. ¢¢
+>
+> </OT>
+
+See above, this false claim is a result of the fact that you miss the background
+knowledge on CD/DVD writing. Turning burnproof on degrades the quality of the 
+media and writing without burnproof but with the apropriate privilleges just
+works fine.
+
+
+> There are other uses for write access to devices. Disabeling SCSI commands
+> for r/o fds would only be a quickfix. (IMHO it could have been introduced
+> as a config option and gone away in 2.6.13.)
+
+The good/bad SCSI commands table that is currently used is a really bad and
+ugly (incorrect) hack and much worse than my proposal.
+
+
+> > P.S.: About 10 days ago, I made an attempt to include a workaround for the
+> > interface changes in Linux, check cdrtools-2.01.01a03
+>
+> The fix is wrong: You're asuming root is capable of everything. This
+> doesn't need to be true (missing CAP_SYS_RAWIO) and you'll run into a
+> loop in that case.
+
+If you are really true, then there is a design problem in Linux.
+
+BTW: If Linux starts introducing fine grained rights manamement like on Solaris, why 
+does it miss the apropriate management tools at user level?
+On Solaris, I could run cdrecord rootless if I use pfksh as my shell and if
+the roles database would include cdrecord with its needed privilleges and me
+as a member of the cdwriters role.
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  
+       schilling@fokus.fraunhofer.de	(work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

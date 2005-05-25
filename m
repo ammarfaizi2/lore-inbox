@@ -1,79 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbVEYSmf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262397AbVEYSir@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261521AbVEYSmf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 14:42:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261484AbVEYSjm
+	id S262397AbVEYSir (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 14:38:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262384AbVEYSaw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 14:39:42 -0400
-Received: from mail.murom.net ([213.177.124.17]:15489 "EHLO ns1.murom.ru")
-	by vger.kernel.org with ESMTP id S262392AbVEYSeH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 14:34:07 -0400
-Date: Wed, 25 May 2005 22:33:27 +0400
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: Chris Friesen <cfriesen@nortel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: proper API for sched_setaffinity ?
-Message-Id: <20050525223327.511ee381.vsu@altlinux.ru>
-In-Reply-To: <4294BAD8.4030300@nortel.com>
-References: <4294BAD8.4030300@nortel.com>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i586-alt-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="pgp-sha1";
- boundary="Signature=_Wed__25_May_2005_22_33_27_+0400_38y6ryolXgyRyxsz"
+	Wed, 25 May 2005 14:30:52 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:21199 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262383AbVEYS1q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 14:27:46 -0400
+Message-ID: <4294C39B.1040401@us.ibm.com>
+Date: Wed, 25 May 2005 11:27:39 -0700
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Lameter <christoph@lameter.com>
+CC: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: NUMA aware slab allocator V3
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com>  <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com>  <714210000.1116266915@flay> <200505161410.43382.jbarnes@virtuousgeek.org>  <740100000.1116278461@flay>  <Pine.LNX.4.62.0505161713130.21512@graphe.net> <1116289613.26955.14.camel@localhost> <428A800D.8050902@us.ibm.com> <Pine.LNX.4.62.0505171648370.17681@graphe.net> <428B7B16.10204@us.ibm.com> <Pine.LNX.4.62.0505181046320.20978@schroedinger.engr.sgi.com> <428BB05B.6090704@us.ibm.com> <Pine.LNX.4.62.0505181439080.10598@graphe.net> <Pine.LNX.4.62.0505182105310.17811@graphe.net> <428E3497.3080406@us.ibm.com> <Pine.LNX.4.62.0505201210460.390@graphe.net> <428E56EE.4050400@us.ibm.com> <Pine.LNX.4.62.0505241436460.3878@graphe.net> <4293B292.6010301@us.ibm.com> <Pine.LNX.4.62.0505242221340.7191@graphe.net>
+In-Reply-To: <Pine.LNX.4.62.0505242221340.7191@graphe.net>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Wed__25_May_2005_22_33_27_+0400_38y6ryolXgyRyxsz
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-
-On Wed, 25 May 2005 11:50:16 -0600 Chris Friesen wrote:
-
-> On my system (Mandrake 10.0) the man page for sched_setaffinity() lists 
-> the prototype as:
-> 
-> int  sched_setaffinity(pid_t  pid,  unsigned  int  len,  unsigned  long
->         *mask);
+Christoph Lameter wrote:
+> On Tue, 24 May 2005, Matthew Dobson wrote:
 > 
 > 
-> But /usr/include/sched.h gives it as
+>>No...  It does compile with that trivial patch, though! :)
+>>
+>>-mm2 isn't booting on my 32-way x86 box, nor does it boot on my PPC64 box.
+>> I figured -mm3 would be out shortly and I'd give the boxes another kick in
+>>the pants then...
 > 
-> extern int sched_setaffinity (__pid_t __pid, __const cpu_set_t *__mask)
 > 
-> Which is correct?
+> Umm.. How does it fail? Any relationship to the slab allocator?
 
-Here "man sched_setaffinity" says:
+It dies really early om my x86 box.  I'm not 100% sure that it is b/c of
+your patches, since it dies so early I get nothing on the console.  Grub
+tells me it's loading the kernel image then....  nothing.
 
-HISTORY
-       The affinity syscalls were  introduced  in  Linux  kernel  2.5.8.   The
-       library  calls  were  introduced  in  glibc 2.3, and are still in glibc
-       2.3.2. Later glibc 2.3.2 development versions changed this interface to
-       one without the len field, and still later versions reverted again. The
-       glibc prototype is now
-
-       /* Set the CPU affinity for a task */
-       extern int sched_setaffinity (pid_t pid, size_t cpusetsize,
-                                     const cpu_set_t *cpuset);
-
-       /* Get the CPU affinity for a task */
-       extern int sched_getaffinity (pid_t pid, size_t cpusetsize,
-                                     cpu_set_t *cpuset);
-
-So looks like you have a version of glibc with a broken interface (and
-2.3.5 here has correct prototypes).
-
---Signature=_Wed__25_May_2005_22_33_27_+0400_38y6ryolXgyRyxsz
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFClMT6W82GfkQfsqIRAvLJAJ9CApDnmFO1L5zRNbTwYy1l2iI2aACggXkO
-GjypMH/Dud+31ouqZs/dNmE=
-=yoGL
------END PGP SIGNATURE-----
-
---Signature=_Wed__25_May_2005_22_33_27_+0400_38y6ryolXgyRyxsz--
+-Matt

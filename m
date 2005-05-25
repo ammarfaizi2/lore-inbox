@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262202AbVEYLfN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262204AbVEYLgc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262202AbVEYLfN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 07:35:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262227AbVEYLfM
+	id S262204AbVEYLgc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 07:36:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262191AbVEYLgb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 07:35:12 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:26297 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262202AbVEYLe6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 07:34:58 -0400
-Date: Wed, 25 May 2005 13:34:24 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: linux-kernel@vger.kernel.org, dwalker@mvista.com,
-       Joe King <atom_bomb@rocketmail.com>, ganzinger@mvista.com,
-       Lee Revell <rlrevell@joe-job.com>, Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
-Message-ID: <20050525113424.GA1867@elte.hu>
-References: <20050523082637.GA15696@elte.hu> <42935890.2010109@cybsft.com>
+	Wed, 25 May 2005 07:36:31 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:41647 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S262204AbVEYLgS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 07:36:18 -0400
+Date: Wed, 25 May 2005 13:35:26 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: john cooper <john.cooper@timesys.com>
+Cc: Sven Dietrich <sdietrich@mvista.com>, Andrew Morton <akpm@osdl.org>,
+       dwalker@mvista.com, bhuey@lnxw.com, nickpiggin@yahoo.com.au,
+       mingo@elte.hu, hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+In-Reply-To: <4293F580.3010601@timesys.com>
+Message-Id: <Pine.OSF.4.05.10505251323490.28057-100000@da410.phys.au.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42935890.2010109@cybsft.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 24 May 2005, john cooper wrote:
 
-* K.R. Foley <kr@cybsft.com> wrote:
+> [...] 
+> I'd like to hear some technical arguments of why IRQ threads
+> are held with such suspicion.  Also it isn't the case prior
+> mechanisms are being obsoleted.   Exception context interrupt
+> processing and raw_spinlocks to synchronize with them are
+> still available and will be for those edge cases which
+> are not addressable via spinlock-mutexes.
+>
 
-> I did finally get to capture the log of -RT-2.6.12-rc4-V0.7.47-08 
-> dying when booting. I have attached the log and the config. This is on 
-> dual 2.6G Xeon with ht and smp enabled, 512M and IDE. What else can I 
-> do (in between alligators)? Output from lspci:
+Performance! Even on RT systems you do NOT make all interrupts run in
+threads. Simple devices like UARTS run everything in interrupt context.
+Introducing a context switch for every character received on such a
+channel can be _very_ expensive.
 
-hm, i have tried your .config on similar hardware and it doesnt crash.
+I think it would be safe to convert almost every driver back to run in
+exception context and use raw spinlocks for locking accordingly. Very few
+driver actually does a lot of work on the interrupt level. Only those
+devices high bandwidth and no DMA is a problem (old IDE and ethernet
+devices spring to mind).
 
-does it crash if you boot only with a single CPU (numcpus=1 boot 
-parameter)? If yes then could you send me that log, some of the more 
-interesting portions of the current log were garbled due to SMP logging 
-effects.
+Therefore a framework where it can be configured per device would be the
+ideal solution.
 
-	Ingo
+I do not know the structure of the code very well and I do not have any
+time to look into it now. But I could imagine kbuild can be set up to
+change the relavant between being a mutex and a raw spinlocks depending on
+which code runs in exception context or in a thread.
+
+> -john
+> 
+> 
+
+Esben
+
+

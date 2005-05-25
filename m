@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262210AbVEYAp3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262213AbVEYAtI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262210AbVEYAp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 20:45:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262211AbVEYAp3
+	id S262213AbVEYAtI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 20:49:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbVEYAtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 20:45:29 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:57593 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262210AbVEYApW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 20:45:22 -0400
+	Tue, 24 May 2005 20:49:08 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:44187 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262217AbVEYAs5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 20:48:57 -0400
+Message-ID: <4293C51A.1010100@opersys.com>
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2)
+	Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Sven Dietrich <sdietrich@mvista.com>, "'Ingo Molnar'" <mingo@elte.hu>,
+       "'Esben Nielsen'" <simlo@phys.au.dk>,
+       "'Christoph Hellwig'" <hch@infradead.org>,
+       "'Daniel Walker'" <dwalker@mvista.com>, akpm@osdl.org,
+       "'Philippe Gerum'" <rpm@xenomai.org>
+References: <001701c560a6$cafbe2b0$c800a8c0@mvista.com>
+	 <4293AB4D.4030506@opersys.com>  <1116978085.2912.48.camel@mindpipe>
+	 <1116979434.2912.63.camel@mindpipe>
+In-Reply-To: <1116979434.2912.63.camel@mindpipe>
+Content-Type: text/plain; charset=us-ascii
 Subject: Re: RT patch acceptance
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: Bill Huey <bhuey@lnxw.com>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, sdietrich@mvista.com
-In-Reply-To: <20050525001019.GA18048@nietzsche.lynx.com>
-References: <20050524054722.GA6160@infradead.org>
-	 <20050524064522.GA9385@elte.hu> <4292DFC3.3060108@yahoo.com.au>
-	 <20050524081517.GA22205@elte.hu> <4292E559.3080302@yahoo.com.au>
-	 <20050524090240.GA13129@elte.hu> <4292F074.7010104@yahoo.com.au>
-	 <1116957953.31174.37.camel@dhcp153.mvista.com>
-	 <20050524224157.GA17781@nietzsche.lynx.com>
-	 <1116978244.19926.41.camel@dhcp153.mvista.com>
-	 <20050525001019.GA18048@nietzsche.lynx.com>
-Content-Type: text/plain
-Organization: MontaVista
-Date: Tue, 24 May 2005 17:45:13 -0700
-Message-Id: <1116981913.19926.58.camel@dhcp153.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Date: Tue, 24 May 2005 20:48:55 -0400
+X-Mailer: Evolution 2.3.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-24 at 17:10 -0700, Bill Huey wrote:
-> On Tue, May 24, 2005 at 04:44:04PM -0700, Daniel Walker wrote:
-> > That's a good reason why it should be included. The maintainers know
-> > that as developers there is no way for us to flush out all the bugs in
-> > our code by ourselves. If the RT patch was added to -mm it would have
-> > greatly increased coverage which , as you noted, is needed . Drivers
-> > will break like mad , but no one but the community has all the hardware
-> > for the drivers.
+
+Lee Revell wrote:
+> Apologies to anyone who got blank/bizarre messages from me, I just found
+> out they are due to this bug:
 > 
-> It's too premature at this time. There was a lot of work that went
-> into the RT patch that I would have like for folks to have thought
-> it through more carefully like RCU, the RT mutex itself, etc...
-> All of it is very raw and most likely still is subject to rapid
-> change.
-> 
+> https://bugzilla.ubuntu.com/show_bug.cgi?id=10942
 
-I think some of it is volatile still, but there are plenty of pieces
-that could go in now. Threaded interrupts is up for discussion, this is
-the reason why I started the thread. People appear to have specific
-objections to that feature, which are still not clear.
+For a moment there I thought you were trying to make a point and
+decided to put your own hand under the saw ... phew ;)
 
-Whole patch, no, small chunks yes. 
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546
 
-Daniel
 

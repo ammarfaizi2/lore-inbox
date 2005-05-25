@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262192AbVEYLzp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262227AbVEYL4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262192AbVEYLzp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 07:55:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbVEYLzo
+	id S262227AbVEYL4S (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 07:56:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbVEYL4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 07:55:44 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:29199 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262192AbVEYLzg convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 07:55:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=aYi5WQvJMThHB+vSCGwb+DmQnv55/RpBF93jiL9aqaYyat338H8cyKKTiFzDxeBy0IiD85H0LvBDtu8ptr4af53/gtZxpO3ePqEMnz9VhG6ItI0i1BWdjq3WhoDnfbhI+VDZd9sFPzQl6c9c+YeGy2bCSdxWrdyAbrJEQhNwf8Q=
-Message-ID: <a4e6962a0505250455605faec9@mail.gmail.com>
-Date: Wed, 25 May 2005 06:55:34 -0500
-From: Eric Van Hensbergen <ericvh@gmail.com>
-Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-Subject: Re: [RFC][patch 4/7] v9fs: VFS superblock operations (2.0-rc6)
-Cc: Pekka Enberg <penberg@gmail.com>, linux-kernel@vger.kernel.org,
-       v9fs-developer@lists.sourceforge.net,
-       viro@parcelfarce.linux.theplanet.co.uk, linux-fsdevel@vger.kernel.org
-In-Reply-To: <1116996843.9580.8.camel@localhost>
+	Wed, 25 May 2005 07:56:18 -0400
+Received: from ra.tuxdriver.com ([24.172.12.4]:14346 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S262227AbVEYL4L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 07:56:11 -0400
+Date: Wed, 25 May 2005 07:56:06 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: van <van.wanless@eqware.net>, linux-kernel@vger.kernel.org
+Subject: Re: File I/O from within a driver
+Message-ID: <20050525115605.GA17005@tuxdriver.com>
+Mail-Followup-To: Brian Gerst <bgerst@didntduck.org>,
+	van <van.wanless@eqware.net>, linux-kernel@vger.kernel.org
+References: <2005524221531.650853@Oz> <42941017.3090707@didntduck.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200505232225.j4NMPte1029529@ms-smtp-02-eri0.texas.rr.com>
-	 <84144f0205052400113c6f40fc@mail.gmail.com>
-	 <a4e6962a0505241208214a200f@mail.gmail.com>
-	 <1116996843.9580.8.camel@localhost>
+In-Reply-To: <42941017.3090707@didntduck.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/24/05, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
-> 
-> Most subsystems also implement this (a custom allocator for tracking
-> memory leaks) so, yes, I think it's generally useful. However, adding
-> yet another custom allocator is not the way to go. Perhaps some of the
-> fs developers could cue in here to talk about how they track memory
-> leaks? Pretty please?
-> 
-> In the meantime, please drop the custom allocator from your code.
-> 
+On Wed, May 25, 2005 at 01:41:43AM -0400, Brian Gerst wrote:
+> van wrote:
 
-Well, I'm not using slabs as a custom allocator just to track leaks. 
-I'm using them for two specific structures which end up getting
-allocated and freed quite often (which is what I thought slab
-allocators were for).  The two structures I'm slab allocating are the
-directory structure (which has a fixed size), and the packet structure
-(which has a fixed size per session, and may grow or shrink based on
-protocol negotiation/command-line options).  I use the find_slab
-routine to see if there is a slab (that I created) that already
-matches the protocol negotiated size so I don't create a
-slab-per-session unnecessarily.
+> >the media file.  The structure of media files is complex and I'd rather 
+> >the calling application didn't need to have any knowledge of that 
+> >structure.  But how can the driver do the necessary read() operations?
 
-Is this not the right way to use slabs?  Should I just be using
-kmalloc/kcalloc? (Is that what you mean by drop the custom allocator?)
+> The best way is to mmap() the file into memory, then pass the address to 
+> the driver.
 
-Sorry if I'm being dense, just want to make sure I understand what you
-are saying.
+That probably is a good way.  An alternative might be for the driver
+to pass some paramaterized knowledge of the file structure back to
+the userland app.  That would prevent the userland app from having
+to know as much a priori, but it may be difficult to figure-out how
+to describe the media files' structure in a paramaterized way.
 
-         -eric
+YMMV... :-)
+
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

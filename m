@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262394AbVEYSdl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262384AbVEYSis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262394AbVEYSdl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 14:33:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262386AbVEYSbk
+	id S262384AbVEYSis (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 14:38:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVEYSdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 14:31:40 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:9912 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262367AbVEYS0y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 14:26:54 -0400
-Date: Wed, 25 May 2005 19:26:51 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Chris Friesen <cfriesen@nortel.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: proper API for sched_setaffinity ?
-Message-ID: <20050525182651.GA25833@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Chris Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
-References: <4294BAD8.4030300@nortel.com>
+	Wed, 25 May 2005 14:33:54 -0400
+Received: from fire.osdl.org ([65.172.181.4]:16558 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262392AbVEYScf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 14:32:35 -0400
+Date: Wed, 25 May 2005 11:32:31 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: 2.6.12-rc5-tcp3
+Message-ID: <20050525113231.4b5fef39@dxpl.pdx.osdl.net>
+In-Reply-To: <20050524163939.0fb86509@dxpl.pdx.osdl.net>
+References: <20050524163939.0fb86509@dxpl.pdx.osdl.net>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4294BAD8.4030300@nortel.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 25, 2005 at 11:50:16AM -0600, Chris Friesen wrote:
-> On my system (Mandrake 10.0) the man page for sched_setaffinity() lists 
-> the prototype as:
-> 
-> int  sched_setaffinity(pid_t  pid,  unsigned  int  len,  unsigned  long
->        *mask);
-> 
-> 
-> But /usr/include/sched.h gives it as
-> 
-> extern int sched_setaffinity (__pid_t __pid, __const cpu_set_t *__mask)
-> 
-> Which is correct?
+http://developer.osdl.org/shemminger/patches/2.6.12-rc5-tcp3
 
-The first is the syscall, the second is an API glibc folks invented and put
-into libc while beeing on crack.
-
+Keep up with the new 2.6.12-rc5
+More minor tweaks:
+	- tcp_ack26 is already in rc5
+	+ change to min_cwnd to be same (ie ssthresh/2) for all reno like protocols
+	  eventually plan to fix the cwnd undershoot bug 
+		http://thread.gmane.org/gmane.linux.network/2094 
+		http://oss.sgi.com/projects/netdev/archive/2005-04/msg00338.html

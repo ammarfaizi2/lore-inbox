@@ -1,95 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262292AbVEYHrH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262297AbVEYH63@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262292AbVEYHrH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 03:47:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262294AbVEYHrH
+	id S262297AbVEYH63 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 03:58:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVEYH63
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 03:47:07 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:8385 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262292AbVEYHrA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 03:47:00 -0400
-Date: Wed, 25 May 2005 09:46:33 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Andrew Morton <akpm@osdl.org>, Sven Dietrich <sdietrich@mvista.com>,
-       dwalker@mvista.com, bhuey@lnxw.com, hch@infradead.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-Message-ID: <20050525074633.GA18423@elte.hu>
-References: <1116978244.19926.41.camel@dhcp153.mvista.com> <20050525001019.GA18048@nietzsche.lynx.com> <1116981913.19926.58.camel@dhcp153.mvista.com> <20050525005942.GA24893@nietzsche.lynx.com> <1116982977.19926.63.camel@dhcp153.mvista.com> <20050524184351.47d1a147.akpm@osdl.org> <4293DCB1.8030904@mvista.com> <20050524192029.2ef75b89.akpm@osdl.org> <20050525063306.GC5164@elte.hu> <429426C9.8040901@yahoo.com.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <429426C9.8040901@yahoo.com.au>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 25 May 2005 03:58:29 -0400
+Received: from general.keba.co.at ([193.154.24.243]:58483 "EHLO
+	helga.keba.co.at") by vger.kernel.org with ESMTP id S262297AbVEYH6U convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 03:58:20 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: RT patch acceptance
+Date: Wed, 25 May 2005 09:58:17 +0200
+Message-ID: <AAD6DA242BC63C488511C611BD51F36732321E@MAILIT.keba.co.at>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: RT patch acceptance
+Thread-Index: AcVgdo04bY5xJH90QvaO2kQF8z1q7QAgFsnA
+From: "kus Kusche Klaus" <kus@keba.com>
+To: "Nick Piggin" <nickpiggin@yahoo.com.au>, "K.R. Foley" <kr@cybsft.com>
+Cc: "Ingo Molnar" <mingo@elte.hu>, "Christoph Hellwig" <hch@infradead.org>,
+       "Daniel Walker" <dwalker@mvista.com>, <linux-kernel@vger.kernel.org>,
+       <akpm@osdl.org>, <sdietrich@mvista.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-
-> >i agree in theory, but interestingly, people who use the -RT branch do 
-> >report a smoother desktop experience. While it might also be a 
-> >psychological effect, under -RT an interactive X process has the same 
-> >kind of latency properties as if all of the mouse pointer input and 
-> >rendering was done in the kernel (like some other desktop OSs do).
-> >
-> >so in terms of mouse pointer 'smoothness', it might very well be 
-> >possible for humans to detect a couple of msec delays visually - even 
-> >though they are unable to notice those delays directly. (Isnt there some 
-> >existing research on this?)
+> K.R. Foley wrote:
 > 
-> I'm guessing not, just because the monitor probably hasn't even 
-> refreshed at that point ;) But...
-
-this reminds me, people very much notice the difference between an LCD 
-that has 20 msec refresh rates vs. ones that have 10 msec refresh rates.
-
-i'd say the direct perception limit should be somewhere around 10 msec, 
-but there can be indirect effects that add up. (e.g. while we might not 
-be able to detect so small delays directly, the human eye can see 
-_distance_ anomalies that are caused by small delays. E.g. the feeling 
-of how 'smoothly' the mouse moves might be more accurate than direct 
-delay perception. But i'm really out on a limb here as this is so hard 
-to measure directly.)
-
-> [...]
-> >
-> >[ of course this is all just talk, but people seem to have a desire to
-> >  talk about it :-) ]
-> >
+> > There are definitely those who would prefer to have the 
+> functionality,
+> > at least as an option, in the mainline kernel. The group 
+> that I contract
+> > for get heartburn about having to patch every kernel 
+> running on every
+> > development workstation and every production system. We 
+> need hard RT,
+> > but currently when we have to have hard RT we go with a different
+> > product.
 > 
-> You make good points. What's more, I don't think anyone needs to 
-> advocate the RT work on the basis that it improves interactiveness.
->
-> That path is just going to lead to unwinnable arguments and will 
-> distract from the real measurable improvements that it does bring.
-> 
-> I think anyone who doesn't like that won't be convinced because 
-> someone is telling them it improves interactiveness ;)
+> Well, yes. There are lots of things Linux isn't suited for.
+> There are likewise a lot of patches that SGI would love to
+> get into the kernel so it runs better on their 500+ CPU
+> systems. My point was just that a new functionality/feature
+> doesn't by itself justify being included in the kernel.org
+> kernel.
 
-a good number of testers use it because it improves interactiveness - so 
-you'll see these arguments come up.
+I would like to throw in my (and my employer's) point of view,
+which is the point of view of a potential user of RT linux,
+not the view of a kernel developer.
 
-One indirect latency effect is that during heavier VM load, e.g. kswapd 
-(or the swapout code) is preemptable by X.
+We are currently evaluating the suitability of Linux for
+industrial control systems.
 
-Another indirect effect is that in the stock kernel, interrupt work is 
-not preemptable. So a short succession of heavier interrupts, followed 
-by softirq processing, can very much cause more than 10 msec delays.  
-Under PREEMPT_RT (or just PREEMPT + softirq and hardirq threading) these 
-workloads are much more controlled. (at the price of significant IRQ 
-processing overhead, which should not be ignored either.)
+We strongly opt for having RT in the standard kernel,
+not as a separate patch. 
+It will surely make a big difference for our final decision.
 
-but ... i agree that this argument in isolation cannot "win". It's the 
-sum of arguments that matters.
+>From the engineer's point of view:
 
-	Ingo
+* Adding one patch to the kernel is usually quite trivial.
+
+  However, adding several big patches to the kernel is a
+  major PITA: They are usually based on different versions
+  of the base kernel, they collide and usually need some manual 
+  merging, they have not been tested together, they cause the
+  number of updates to explode exponentially (a critical fix of
+  any of the patches involved forces a rebuild of the whole thing), 
+  and so on.
+
+  Currently, we have to integrate the RT patch, some debugging
+  patches (like kgdb), additional device drivers and protocols
+  (e.g. CANbus), and probably more in future.
+
+  Hence, having as many features as possible in the standard kernel
+  instead of in separate patches would be a major relief, and would 
+  simplify using linux a lot.
+
+>From the management's point of view:
+
+* Mgmt has to pay for the staff doing this patching and integration,
+  which causes additional costs (and delays the product).
+  Currently, our products are based on a commercial realtime OS, 
+  which works out of the box - Linux has to compete with that.
+
+* Something being "a patch" makes a big difference in attitude:
+
+  Mgmt strongly resists to base the success of our company on patches.
+  "Patch" sounds hacky, quick & dirty, temporary, ...
+  "Standard" sounds a lot more reliable, solid, proven, well-done.
+
+  For its decision, the mgmt wants a clear indication that RT linux
+  is something which is expected to exist and to be maintained
+  for years, not just some quick hack to demonstrate the principle.
+  Being in the standard kernel would clearly indicate a commitment
+  that RT linux is there to stay.
+
+Greetings
+
+-- 
+Klaus Kusche                 (Software Development - Control Systems)
+KEBA AG             Gewerbepark Urfahr, A-4041 Linz, Austria (Europe)
+Tel: +43 / 732 / 7090-3120                 Fax: +43 / 732 / 7090-6301
+E-Mail: kus@keba.com                                WWW: www.keba.com

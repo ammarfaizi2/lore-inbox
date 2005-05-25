@@ -1,52 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262150AbVEYLO6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262122AbVEYL1n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262150AbVEYLO6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 07:14:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVEYLO6
+	id S262122AbVEYL1n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 07:27:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262180AbVEYL1n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 07:14:58 -0400
-Received: from mail.gmx.net ([213.165.64.20]:62916 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S262150AbVEYLO4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 07:14:56 -0400
-X-Authenticated: #26515711
-Message-ID: <429492A0.2040407@gmx.de>
-Date: Wed, 25 May 2005 16:58:40 +0200
-From: Oliver Korpilla <Oliver.Korpilla@gmx.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050402)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [x86-64][Patch]Build bug in 2.6.12-rc5
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Wed, 25 May 2005 07:27:43 -0400
+Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:27920 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S262122AbVEYL1i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 07:27:38 -0400
+To: akpm@osdl.org, viro@parcelfarce.linux.theplanet.co.uk
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: [PATCH] namespace.c: fix mnt_namespace zeroing for expired mounts
+Message-Id: <E1Dau2O-0005U1-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Wed, 25 May 2005 13:27:00 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem:
+This patch clears mnt_namespace in an expired mount. 
 
-On x86_64 building of 2.6.12-rc5 stops with a missing definition in
-arch/x86_64/kernel/signal.c
+If mnt_namespace is not cleared, it's possible to attach a new mount
+to the already detached mount, because check_mnt() can return true.
 
-Solution:
+The effect is a resource leak, since the resulting tree will never be
+freed.
 
-Include necessary define (see patch below).
+An earlier patch doing the same for regular umount has already been
+applied (namespacec-fix-mnt_namespace-clearing.patch).
 
-I'm not on the list, CC: me if necessary.
+Signed-off-by: Miklos Szeredi <miklos@szeredi.hu>
 
-With kind regards,
-Oliver Korpilla
-
---- linux-2.6.12-rc5_2/arch/x86_64/kernel/signal.c      2005-05-25
-05:31:20.000000000 +0200
-+++ linux-2.6.12-rc5/arch/x86_64/kernel/signal.c        2005-05-25
-16:35:24.000000000 +0200
-@@ -28,6 +28,7 @@
- #include <asm/uaccess.h>
- #include <asm/i387.h>
- #include <asm/proto.h>
-+#include <asm/ia32_unistd.h>
-
- /* #define DEBUG_SIG 1 */
+Index: linux/fs/namespace.c
+===================================================================
+--- linux.orig/fs/namespace.c	2005-05-22 11:52:56.000000000 +0200
++++ linux/fs/namespace.c	2005-05-22 11:52:59.000000000 +0200
+@@ -843,6 +843,7 @@ static void expire_mount(struct vfsmount
+ 
+ 		/* delete from the namespace */
+ 		list_del_init(&mnt->mnt_list);
++		mnt->mnt_namespace = NULL;
+ 		detach_mnt(mnt, &old_nd);
+ 		spin_unlock(&vfsmount_lock);
+ 		path_release(&old_nd);
 

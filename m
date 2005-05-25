@@ -1,48 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262274AbVEYFWM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262291AbVEYFXZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262274AbVEYFWM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 01:22:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbVEYFWM
+	id S262291AbVEYFXZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 01:23:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262302AbVEYFXV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 01:22:12 -0400
-Received: from graphe.net ([209.204.138.32]:47775 "EHLO graphe.net")
-	by vger.kernel.org with ESMTP id S262274AbVEYFWG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 01:22:06 -0400
-Date: Tue, 24 May 2005 22:21:58 -0700 (PDT)
-From: Christoph Lameter <christoph@lameter.com>
-X-X-Sender: christoph@graphe.net
-To: Matthew Dobson <colpatch@us.ibm.com>
-cc: "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: NUMA aware slab allocator V3
-In-Reply-To: <4293B292.6010301@us.ibm.com>
-Message-ID: <Pine.LNX.4.62.0505242221340.7191@graphe.net>
-References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com> 
- <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com> 
- <714210000.1116266915@flay> <200505161410.43382.jbarnes@virtuousgeek.org> 
- <740100000.1116278461@flay>  <Pine.LNX.4.62.0505161713130.21512@graphe.net>
- <1116289613.26955.14.camel@localhost> <428A800D.8050902@us.ibm.com>
- <Pine.LNX.4.62.0505171648370.17681@graphe.net> <428B7B16.10204@us.ibm.com>
- <Pine.LNX.4.62.0505181046320.20978@schroedinger.engr.sgi.com>
- <428BB05B.6090704@us.ibm.com> <Pine.LNX.4.62.0505181439080.10598@graphe.net>
- <Pine.LNX.4.62.0505182105310.17811@graphe.net> <428E3497.3080406@us.ibm.com>
- <Pine.LNX.4.62.0505201210460.390@graphe.net> <428E56EE.4050400@us.ibm.com>
- <Pine.LNX.4.62.0505241436460.3878@graphe.net> <4293B292.6010301@us.ibm.com>
+	Wed, 25 May 2005 01:23:21 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:5628 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262291AbVEYFXJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 01:23:09 -0400
+Message-Id: <200505250523.j4P5N5Xo012122@hp.home>
+Reply-to: leisner@rochester.rr.com
+To: Greg KH <greg@kroah.com>
+cc: Marty Leisner <leisner@rochester.rr.com>, linux-kernel@vger.kernel.org,
+       leisner@rochester.rr.com
+Subject: Re: CONFIG_HOTPLUG, 2.4.x and ppc 
+In-reply-to: Your message of "Tue, 24 May 2005 21:26:21 PDT."
+             <20050525042621.GB17299@kroah.com> 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: -5.9
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <12099.1116998554.1@hp>
+Date: Wed, 25 May 2005 01:23:04 -0400
+From: "Marty Leisner" <leisner@rochester.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 24 May 2005, Matthew Dobson wrote:
+Its a custom chip with bridge functionality...(its not hotplug,
+but the thought was "if hotplug can add a bridge at a later time,
+so can an arbitrary module".  There's a number of minor problems
+in how BRIDGE_OTHER is handled (i.e. the first two bars should
+be filled in like any other bridge, but everything else ignored).
 
-> No...  It does compile with that trivial patch, though! :)
-> 
-> -mm2 isn't booting on my 32-way x86 box, nor does it boot on my PPC64 box.
->  I figured -mm3 would be out shortly and I'd give the boxes another kick in
-> the pants then...
+The goal is to add a PCI bus behind the bridge (the bios
+and the kernel doesn't know about it).   
 
-Umm.. How does it fail? Any relationship to the slab allocator?
+So I'm executing the sequence to add a new bus -- which 
+needs CONFIG_HOTPLUG to export the symbols -- which causes the
+problem with PPC in the arch dependent part (it works fine
+on intel platforms).
 
+Looking at the hotplug drivers, it looks like its tied to
+intel architectures in places...but adding a PCI bus should be
+a PCI thing...
+
+Marty Leisner
+
+
+Greg KH <greg@kroah.com> writes  on Tue, 24 May 2005 21:26:21 PDT
+     > On Tue, May 24, 2005 at 10:41:18PM -0400, Marty Leisner wrote:
+     > > 
+     > > I'm dealing with a custom BRIDGE_OTHER chip, which has PCI devices
+     > > on the other side...the configuration cycles don't follow a standard, and
+     > > I'm trying to establish the bus behind the bridge when I install a module...
+     > > essentially I'm doing things similar to hotplug drivers...
+     > > 
+     > > I have no experience with hotplug drivers, but it appears to be incompatible
+     > > with the ppc architure...
+     > 
+     > What pci hotplug controller works on the ppc platform on the 2.4 kernel?
+     > 
+     > thanks,
+     > 
+     > greg k-h

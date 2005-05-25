@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVEYIRk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261409AbVEYIfp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261267AbVEYIRk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 04:17:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVEYIRk
+	id S261409AbVEYIfp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 04:35:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbVEYIfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 04:17:40 -0400
-Received: from [81.3.11.18] ([81.3.11.18]:32159 "EHLO mail.ku-gbr.de")
-	by vger.kernel.org with ESMTP id S261267AbVEYIRe (ORCPT
+	Wed, 25 May 2005 04:35:45 -0400
+Received: from main.gmane.org ([80.91.229.2]:8678 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261409AbVEYIfh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 04:17:34 -0400
-Date: Wed, 25 May 2005 10:17:01 +0200
-From: Konstantin Kletschke <lists@ku-gbr.de>
+	Wed, 25 May 2005 04:35:37 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: forcedeth NIC losses link... some sort of
-Message-ID: <20050525081700.GA27991@synertronixx3>
-Mail-Followup-To: linux-kernel@vger.kernel.org
+From: Giuseppe Bilotta <bilotta78@hotpop.com>
+Subject: Re: RT patch acceptance
+Date: Wed, 25 May 2005 10:29:43 +0200
+Message-ID: <1sqzfpcvfd64k.19ompsenhoq7d.dlg@40tude.net>
+References: <1116957953.31174.37.camel@dhcp153.mvista.com> <20050524224157.GA17781@nietzsche.lynx.com> <1116978244.19926.41.camel@dhcp153.mvista.com> <20050525001019.GA18048@nietzsche.lynx.com> <1116981913.19926.58.camel@dhcp153.mvista.com> <20050525005942.GA24893@nietzsche.lynx.com> <1116982977.19926.63.camel@dhcp153.mvista.com> <20050524184351.47d1a147.akpm@osdl.org> <4293DCB1.8030904@mvista.com> <20050524192029.2ef75b89.akpm@osdl.org> <20050525063306.GC5164@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: oblomov.dipmat.unict.it
+User-Agent: 40tude_Dialog/2.0.15.1
+Posted-And-Mailed: yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi people!
+On Wed, 25 May 2005 08:33:06 +0200, Ingo Molnar wrote:
 
-I am using the forcedeth with a recent nforce3 chipset.
-The chipset is in a Shuttle XPC SN85G4V2 barebone with an AMD64 on it.
+> i agree in theory, but interestingly, people who use the -RT branch do 
+> report a smoother desktop experience. While it might also be a 
+> psychological effect, under -RT an interactive X process has the same 
+> kind of latency properties as if all of the mouse pointer input and 
+> rendering was done in the kernel (like some other desktop OSs do).
 
-Every once in a while (couple of times a day, yesterday nearly unusable)
-the ethernet connection does not send any packets anymore.
+The only way to actually know if it really makes a difference or not
+would be to run a double-blind test, with people not knowing if
+they're running a RT kernel or not, and then reporting their
+experience re. desktop smoothness. But I doubt such a test could
+actually be taken into consideration, unless distributions start
+shipping with different kernels without the user knowing, and then ask
+about how it feels ...
 
-I have this problem with 2.6.11 or 2.6.12-rc3 or 2.6.12-rc4 and I turned
-on the dprintk in drivers/net/forcedeth.c (without IRQ debugging :p).
+This all being said, esp. concerning the next point you rise
 
-Watching the output I have the feeling it still receives ethernet
-packages when breaking (open ssh connects still get text lines) but
-nothing is sendet anymore. When broken I see roughly once in a second a
-phy advertise message. Sometimes replugging the cable helps, sometimes
-rmmod forcedeth && modprobe forcedeth, most often I have to powercycle
-the PC.
+> so in terms of mouse pointer 'smoothness', it might very well be 
+> possible for humans to detect a couple of msec delays visually - even 
+> though they are unable to notice those delays directly. (Isnt there some 
+> existing research on this?)
 
-I am showing up here with this problem to get some advice on how to
-start debugging this beast, may be the module author(s) are here also
-and can me advice how to effective helping debugging this driver or
-somebody else. I suspect here are a couple of people knowing the driver
-better than me. I am willing to change that :)
-
-Regards, Konsti
+IIRC, there have been (I'm not sure if there still are) some issues
+with IRQs being lost on the input devices, missing keys, missing
+events or misbehaving of mice and similar ... would these problems
+(and the underlying issues in the codepaths) be more easy or harder to
+happen and to trace if they happened?
 
 -- 
-GPG KeyID EF62FCEF
-Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
+Giuseppe "Oblomov" Bilotta
+
+"They that can give up essential liberty to obtain
+a little temporary safety deserve neither liberty
+nor safety." Benjamin Franklin
+

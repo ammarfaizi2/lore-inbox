@@ -1,119 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261529AbVEYTQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261538AbVEYT0R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261529AbVEYTQz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 15:16:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbVEYTQz
+	id S261538AbVEYT0R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 15:26:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVEYT0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 15:16:55 -0400
-Received: from tierw.net.avaya.com ([198.152.13.100]:45477 "EHLO
-	tierw.net.avaya.com") by vger.kernel.org with ESMTP id S261529AbVEYTQu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 15:16:50 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
+	Wed, 25 May 2005 15:26:17 -0400
+Received: from mail8.fw-bc.sony.com ([160.33.98.75]:39304 "EHLO
+	mail8.fw-bc.sony.com") by vger.kernel.org with ESMTP
+	id S261538AbVEYT0M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 15:26:12 -0400
+Message-ID: <4294D0F0.7000407@am.sony.com>
+Date: Wed, 25 May 2005 12:24:32 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: 2.6.11 timeval_to_jiffies() wrong for ms resolution timers
-Date: Wed, 25 May 2005 13:16:45 -0600
-Message-ID: <21FFE0795C0F654FAD783094A9AE1DFC07AFE7CD@cof110avexu4.global.avaya.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: 2.6.11 timeval_to_jiffies() wrong for ms resolution timers
-Thread-Index: AcVhVLHZkkrv5mMQT4yBzrlxdYAshgABvHZQAACWLzA=
-From: "Davda, Bhavesh P \(Bhavesh\)" <bhavesh@avaya.com>
-To: "Chris Friesen" <cfriesen@nortel.com>, <george@mvista.com>
-Cc: <linux-kernel@vger.kernel.org>
+To: Sven Dietrich <sdietrich@mvista.com>
+CC: karim@opersys.com, "'Bill Huey (hui)'" <bhuey@lnxw.com>,
+       "'Daniel Walker'" <dwalker@mvista.com>,
+       "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       "'Ingo Molnar'" <mingo@elte.hu>,
+       "'Christoph Hellwig'" <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: RT patch acceptance
+References: <005201c560d2$9b9d1990$c800a8c0@mvista.com>
+In-Reply-To: <005201c560d2$9b9d1990$c800a8c0@mvista.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Awefully sorry about the line-breaks (or absence thereof!)
+Sven Dietrich wrote:
+>>Bill Huey (hui) wrote:
+>>
+>>>I think there's a lot of general ignorance regarding this 
+>>
+>>patch, the 
+>>
+>>>usefulness of it and this thread is partially addressing them.
+>>
+>>Forgive the dumb question:
+>>Why isn't anyone doing a presentation about Ingo's patch at 
+>>the OLS this year?
+>>
+>>If you want to get this thing in front of peoples' eyes, this 
+>>would probably be the best venue. It would certainly be a 
+>>good place to get people talking about it. Explaining what's 
+>>in the patch, how it came to be, what are the 
+>>interdependencies, modifications to existing code, added core 
+>>files, pros/cons, performance, actual demo, etc.
+>>
+>>Currently, looking at the listed presentations, apart from 
+>>finding myself thinking "hm..., I swear that guy did the same 
+>>presentation last year ... and maybe the year before", I 
+>>can't see any entry alluding to rt-preempt ... maybe I missed it?
+>>
+> 
+> 
+> I think its too late to add a presentation there now, 
+> but if folks are interested, I would be willing to talk about
+> it all day long.
 
-Stupid Outlook that corporate IT forces us to use!
+I'm intensely interested in this.  Tell me where you'll be
+talking (even if it's on the sidewalk outside) and I'll be
+there!
 
-And I meant 20 ms, not 20 us, of course...
-
-- Bhavesh
-
-Bhavesh P. Davda | Distinguished Member of Technical Staff | Avaya |
-1300 West 120th Avenue | B3-B03 | Westminster, CO 80234, U.S.A. |
-Voice/Fax: (303) 538-4438 | bhavesh@avaya.com
-
- 
-
-> -----Original Message-----
-> From: Davda, Bhavesh P (Bhavesh) 
-> Sent: Wednesday, May 25, 2005 1:07 PM
-> To: 'Chris Friesen'; 'george@mvista.com'
-> Cc: 'linux-kernel@vger.kernel.org'
-> Subject: RE: 2.6.11 timeval_to_jiffies() wrong for ms 
-> resolution timers
-> 
-> > -----Original Message-----
-> > From: Chris Friesen [mailto:cfriesen@nortel.com] 
-> > Sent: Wednesday, May 25, 2005 12:08 PM
-> > To: george@mvista.com
-> > Cc: Davda, Bhavesh P (Bhavesh); linux-kernel@vger.kernel.org
-> > Subject: Re: 2.6.11 timeval_to_jiffies() wrong for ms 
-> > resolution timers
-> > 
-> > George Anzinger wrote:
-> > > Chris Friesen wrote:
-> > 
-> > >> What about telling it to wake up a jiffy earlier, then checking 
-> > >> whether the scheduling lag was enough to cause it to have 
-> > waited the 
-> > >> full specified time.  If not, put it to sleep for another jiffy.
-> > 
-> > > The user is, of course, free to do what ever they would like.  
-> > 
-> > I actually meant doing this in the kernel.
-> 
-> Ditto.
-> 
-> > 
-> >  > For a
-> > > more complete solution you might be interested in HRT (High Res 
-> > > Timers).  See my signature below.
-> > 
-> > Yep.  One more patch to apply and worry about versions and 
-> > maintenance. 
-> >   Not enough of a demand for us to be able to use it, at 
-> > least at this 
-> > point.
-> > 
-> > Chris
-> 
-> Ditto ditto :)
-> 
-> BTW, this reminds me an aweful lot of TH2GT2G, and Deep 
-> Thought taking 7.5 million years to come up with the answer "42!"
-> 
-> Me: Hey Deep Thought! What's 20 us converted into jiffies?
-> 
-> Deep Thought: Let's see: after accounting for all kinds of 
-> underflow and overflow possibilities, and extending the 
-> operands to 64-bit to retain the best precision, and 
-> crunching through a few complex macros, the answer you're 
-> looking for is... Is... Is... "21!" The real problem is: You 
-> didn't ask me the right question. You should have asked me 
-> "What's 19 us converted into jiffies?"
-> 
-> On a more serious note: what is a real-time (read 
-> SCHED_FIFO/SCHED_RR) task to use to get millisecond accuracy 
-> wakeup timing services from the kernel? i.e. what are the 
-> alternatives to setitimer() that wake up the task exactly at 
-> the interval that is requested of it? You mention high-res 
-> timers as a possibility, but in the form of a patch. What's 
-> available in mainline unpatched?
-> 
-> Thanks
-> 
-> - Bhavesh
-> 
-> 
-> 
-> Bhavesh P. Davda | Distinguished Member of Technical Staff | Avaya |
-> 1300 West 120th Avenue | B3-B03 | Westminster, CO 80234, U.S.A. |
-> Voice/Fax: (303) 538-4438 | bhavesh@avaya.com 
-> 
+=============================
+Tim Bird
+Architecture Group Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+=============================

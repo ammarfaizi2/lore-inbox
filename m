@@ -1,98 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262191AbVEYLnc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262192AbVEYLzp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262191AbVEYLnc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 07:43:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262227AbVEYLmO
+	id S262192AbVEYLzp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 07:55:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbVEYLzo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 07:42:14 -0400
-Received: from hermes.domdv.de ([193.102.202.1]:38413 "EHLO hermes.domdv.de")
-	by vger.kernel.org with ESMTP id S262191AbVEYLlQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 07:41:16 -0400
-Message-ID: <42946451.9070301@domdv.de>
-Date: Wed, 25 May 2005 13:41:05 +0200
-From: Andreas Steinmetz <ast@domdv.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.12-rc4, -mm: bad ide-cs problems
-References: <20050525112745.GA1936@elf.ucw.cz> <20050525112824.GA2892@elf.ucw.cz>
-In-Reply-To: <20050525112824.GA2892@elf.ucw.cz>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Wed, 25 May 2005 07:55:44 -0400
+Received: from wproxy.gmail.com ([64.233.184.207]:29199 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262192AbVEYLzg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 07:55:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=aYi5WQvJMThHB+vSCGwb+DmQnv55/RpBF93jiL9aqaYyat338H8cyKKTiFzDxeBy0IiD85H0LvBDtu8ptr4af53/gtZxpO3ePqEMnz9VhG6ItI0i1BWdjq3WhoDnfbhI+VDZd9sFPzQl6c9c+YeGy2bCSdxWrdyAbrJEQhNwf8Q=
+Message-ID: <a4e6962a0505250455605faec9@mail.gmail.com>
+Date: Wed, 25 May 2005 06:55:34 -0500
+From: Eric Van Hensbergen <ericvh@gmail.com>
+Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+Subject: Re: [RFC][patch 4/7] v9fs: VFS superblock operations (2.0-rc6)
+Cc: Pekka Enberg <penberg@gmail.com>, linux-kernel@vger.kernel.org,
+       v9fs-developer@lists.sourceforge.net,
+       viro@parcelfarce.linux.theplanet.co.uk, linux-fsdevel@vger.kernel.org
+In-Reply-To: <1116996843.9580.8.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <200505232225.j4NMPte1029529@ms-smtp-02-eri0.texas.rr.com>
+	 <84144f0205052400113c6f40fc@mail.gmail.com>
+	 <a4e6962a0505241208214a200f@mail.gmail.com>
+	 <1116996843.9580.8.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> On St 25-05-05 13:27:45, Pavel Machek wrote:
+On 5/24/05, Pekka Enberg <penberg@cs.helsinki.fi> wrote:
 > 
->>Hi!
->>
->>I see some problems in pcmcia subsystem in 2.6.12-rc4:
->>
->>On compaq nx5000, inserting CF ide card is recognized as anonymous
->>memory. On compaq evo, it is recognized okay and
->>mounts/works. Unfortunately when I unplug the card, I get an oops:
->>
->>Message from syslogd@Elf at Wed May 25 13:25:25 2005 ...
->>Elf kernel: Unable to handle kernel NULL pointer dereference at
->>virtual address 00000010
->>
->>Message from syslogd@Elf at Wed May 25 13:25:25 2005 ...
->>Elf kernel:  printing eip:
->>
->>Message from syslogd@Elf at Wed May 25 13:25:25 2005 ...
->>Elf kernel: *pde = 00000000
->>
->>Message from syslogd@Elf at Wed May 25 13:25:25 2005 ...
->>Elf kernel: Oops: 0000 [#1]
->>
->>. -mm kernel actually works better on nx5000; it behaves similary to
->>-rc4 on evo; unfortunately it produces similar oops on card unplug.
+> Most subsystems also implement this (a custom allocator for tracking
+> memory leaks) so, yes, I think it's generally useful. However, adding
+> yet another custom allocator is not the way to go. Perhaps some of the
+> fs developers could cue in here to talk about how they track memory
+> leaks? Pretty please?
 > 
+> In the meantime, please drop the custom allocator from your code.
 > 
-> This is full oops from -rc4 on compaq evo:
-> 
-> hde: cache flushes not supported
->  hde: hde1
-> ide-cs: hde: Vcc = 3.3, Vpp = 0.0
->  hde: hde1
->  hde: hde1
-> Unable to handle kernel NULL pointer dereference at virtual address
-> 00000010
->  printing eip:
-> c033d618
-> *pde = 00000000
-> Oops: 0000 [#1]
-> PREEMPT
-> Modules linked in:
-> CPU:    0
-> EIP:    0060:[<c033d618>]    Not tainted VLI
-> EFLAGS: 00010292   (2.6.12-rc4)
-> EIP is at ide_drive_remove+0x8/0x10
-> eax: c07825f8   ebx: c0782704   ecx: c07826f0   edx: 00000000
-> esi: c07826e0   edi: c065fed8   ebp: 00000001   esp: dfce5e84
-> ds: 007b   es: 007b   ss: 0068
-> Process pccardd (pid: 932, threadinfo=dfce4000 task=dfc84a40)
-> Stack: c02dc4b4 c07826e0 c065fa00 c0782568 c02dc724 c07826e0 c0782a80
-> c02db5e2
->        c07826e0 df373a80 c02db628 c07825f8 c033bcfb c0782568 00000002
-> df373b80
->        df373b80 c0670680 c0670728 c034f63b df758200 00000000 c034f67a
-> c0386108
-> Call Trace:
->  [<c02dc4b4>] device_release_driver+0x74/0x80
 
-Pavel,
-I had a similar problem which I fixed amd posted to lkml a while ago
-though I seems to got ignored by the ide maintainer. Please see if this
-helps in your case:
+Well, I'm not using slabs as a custom allocator just to track leaks. 
+I'm using them for two specific structures which end up getting
+allocated and freed quite often (which is what I thought slab
+allocators were for).  The two structures I'm slab allocating are the
+directory structure (which has a fixed size), and the packet structure
+(which has a fixed size per session, and may grow or shrink based on
+protocol negotiation/command-line options).  I use the find_slab
+routine to see if there is a slab (that I created) that already
+matches the protocol negotiated size so I don't create a
+slab-per-session unnecessarily.
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111409743421578&w=2
--- 
-Andreas Steinmetz                       SPAMmers use robotrap@domdv.de
+Is this not the right way to use slabs?  Should I just be using
+kmalloc/kcalloc? (Is that what you mean by drop the custom allocator?)
+
+Sorry if I'm being dense, just want to make sure I understand what you
+are saying.
+
+         -eric

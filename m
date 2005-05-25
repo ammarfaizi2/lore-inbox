@@ -1,69 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263925AbVEYGEv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262276AbVEYGKe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S263925AbVEYGEv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 02:04:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263927AbVEYGEu
+	id S262276AbVEYGKe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 02:10:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262271AbVEYGKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 02:04:50 -0400
-Received: from smtp.lnxw.com ([207.21.185.24]:50192 "EHLO smtp.lnxw.com")
-	by vger.kernel.org with ESMTP id S263925AbVEYGEl (ORCPT
+	Wed, 25 May 2005 02:10:34 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:61361 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S263926AbVEYGGY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 02:04:41 -0400
-Date: Tue, 24 May 2005 23:09:19 -0700
+	Wed, 25 May 2005 02:06:24 -0400
+Date: Wed, 25 May 2005 08:05:51 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: Sven Dietrich <sdietrich@mvista.com>,
-       "'Lee Revell'" <rlrevell@joe-job.com>,
-       "'Andrew Morton'" <akpm@osdl.org>, dwalker@mvista.com, bhuey@lnxw.com,
-       mingo@elte.hu, hch@infradead.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance (scheduler)
-Message-ID: <20050525060919.GA25959@nietzsche.lynx.com>
-References: <005801c560da$ec624f50$c800a8c0@mvista.com> <429407B6.1000105@yahoo.com.au>
+Cc: Lee Revell <rlrevell@joe-job.com>, Andrew Morton <akpm@osdl.org>,
+       Sven Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
+       bhuey@lnxw.com, hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+Message-ID: <20050525060551.GA5164@elte.hu>
+References: <1116978244.19926.41.camel@dhcp153.mvista.com> <20050525001019.GA18048@nietzsche.lynx.com> <1116981913.19926.58.camel@dhcp153.mvista.com> <20050525005942.GA24893@nietzsche.lynx.com> <1116982977.19926.63.camel@dhcp153.mvista.com> <20050524184351.47d1a147.akpm@osdl.org> <4293DCB1.8030904@mvista.com> <20050524192029.2ef75b89.akpm@osdl.org> <1116987976.2912.110.camel@mindpipe> <4293EFE8.1080106@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <429407B6.1000105@yahoo.com.au>
-User-Agent: Mutt/1.5.9i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+In-Reply-To: <4293EFE8.1080106@yahoo.com.au>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 25, 2005 at 03:05:58PM +1000, Nick Piggin wrote:
-> What is more likely is that you are seeing some starvation from simply
-> too much CPU usage by interrupts (note this has nothing to do with latency).
-> *This* is the reason ksoftirqd exists.
+
+* Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+
+> Lee Revell wrote:
 > 
-> ie. you are seeing a throughput issue rather than a latency issue.
+> > The IDE IRQ handler can in fact run for several ms, which people 
+> > sure can detect.
+> 
+> Are you serious? Even at 10ms, the monitor refresh rate would have to 
+> be over 100Hz for anyone to "notice" anything, right?... [...]
 
-That's presumptuous. It's more likely that it's flakey hardware
-or a missed interrupt that would cause something like that. I've
-seen that happen.
+you are assuming direct observation. Sure, a human (normally) doesnt 
+notice smaller than say 10-20 msec of lag. But, a human very much 
+notices indirect effects of latencies, such as the nasty 'click' a 
+soundcard produces if it overruns.
 
-> ksoftirq doesn't alleviate any kind of latencies anywhere AFAIKS.
+> What sort of numbers are you talking when you say several?
 
-Ksoftirq is used to support the concurrency model in the RT patch
-so that irq-threads and {spin,read,write}_irq_{un,}lock can be
-correct yet preemptible.
+a couple of msecs easily even on fast boxes. Well over 10 msecs on 
+slower boxes.
 
-> softirqs won't normally run in another thread though, right?
- 
-> Yeah I don't think it is anything close to the same concept of
-> softirqs though. But yeah, "just" running top half in threads
-> sounds like one of the issues that will come up for discussion ;)
-
-This is not an issue for the regular kernel since they can run
-along side with the IRQ at interrupt time. It's only compile time
-relevant to the RT. 
-
-And please don't take a chunk of the patch out of context and FUD it.
-There's enough uncertainty regarding this track as is without additional
-misunderstanding or misrepresentations.
-
-The stuff that is directly relevant to you and your work is the
-scheduler changes needed to support RT and the possibility that
-it would conflict with the sched domain stuff for NUMA boxes.
-The needs are sufficiently different that in the long run something
-like "sched-plugin" might be needed to simplify kernel development
-and permit branched development.
-
-bill
-
+	Ingo

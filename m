@@ -1,105 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVEYSAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVEYSTr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261495AbVEYSAv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 14:00:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261488AbVEYSAu
+	id S261518AbVEYSTr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 14:19:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261491AbVEYSTr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 14:00:50 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:58350 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S261495AbVEYSAV
+	Wed, 25 May 2005 14:19:47 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:54424 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S262320AbVEYSFH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 14:00:21 -0400
-Subject: Re: RT patch acceptance
-From: Sven-Thorsten Dietrich <sdietrich@mvista.com>
-To: Andi Kleen <ak@muc.de>
-Cc: Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, bhuey@lnxw.com,
-       nickpiggin@yahoo.com.au, hch@infradead.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <m1br6zxm1b.fsf@muc.de>
-References: <1116957953.31174.37.camel@dhcp153.mvista.com>
-	 <20050524224157.GA17781@nietzsche.lynx.com>
-	 <1116978244.19926.41.camel@dhcp153.mvista.com>
-	 <20050525001019.GA18048@nietzsche.lynx.com>
-	 <1116981913.19926.58.camel@dhcp153.mvista.com>
-	 <20050525005942.GA24893@nietzsche.lynx.com>
-	 <1116982977.19926.63.camel@dhcp153.mvista.com>
-	 <20050524184351.47d1a147.akpm@osdl.org> <4293DCB1.8030904@mvista.com>
-	 <20050524192029.2ef75b89.akpm@osdl.org> <20050525063306.GC5164@elte.hu>
-	 <m1br6zxm1b.fsf@muc.de>
-Content-Type: text/plain
-Date: Wed, 25 May 2005 11:00:19 -0700
-Message-Id: <1117044019.5840.32.camel@sdietrich-xp.vilm.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Wed, 25 May 2005 14:05:07 -0400
+Message-ID: <4294BE45.3000502@austin.ibm.com>
+Date: Wed, 25 May 2005 13:04:53 -0500
+From: Joel Schopp <jschopp@austin.ibm.com>
+Reply-To: jschopp@austin.ibm.com
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.3) Gecko/20040910
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mel Gorman <mel@csn.ul.ie>
+CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Avoiding external fragmentation with a placement policy Version
+ 11
+References: <20050522200507.6ED7AECFC@skynet.csn.ul.ie>
+In-Reply-To: <20050522200507.6ED7AECFC@skynet.csn.ul.ie>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-25 at 19:17 +0200, Andi Kleen wrote:
-> Ingo Molnar <mingo@elte.hu> writes:
+> Changelog since V10
 > 
-> > * Andrew Morton <akpm@osdl.org> wrote:
-> >
-> >> Sven Dietrich <sdietrich@mvista.com> wrote:
-> >> >
-> >> > I think people would find their system responsiveness / tunability
-> >> >  goes up tremendously, if you drop just a few unimportant IRQs into
-> >> >  threads.
-> >> 
-> >> People cannot detect the difference between 1000usec and 50usec 
-> >> latencies, so they aren't going to notice any changes in 
-> >> responsiveness at all.
-> >
-> > i agree in theory, but interestingly, people who use the -RT branch do 
-> > report a smoother desktop experience. While it might also be a 
-> 
-> I bet if you did a double blind test (users not knowing if they
-> run with RT patch or not or think they are running with patch when they
-> are not) they would report the same. 
-> 
+> o Important - All allocation types now use per-cpu caches like the standard
+>   allocator. Older versions may have trouble with large numbers of processors
 
-I would take that bet double or nothing.
+Do you have a new set of benchmarks we could see?  The ones you had for 
+v10 were pretty useful.
 
-> Basically when people go through all that effort of applying
-> a patch 
-You mean typing "patch -p1 < ..."
+> o Removed all the additional buddy allocator statistic code
 
-> then they really want to see an improvement. If it is there
-> or not.
-> 
+Is there a separate patch for the statistic code or is it no longer 
+being maintained?
 
-Hopefully they will also set the config options correctly :)
+> +/*
+> + * Shared per-cpu lists would cause fragmentation over time
+> + * The pcpu_list is to keep kernel and userrclm allocations
+> + * apart while still allowing all allocation types to have
+> + * per-cpu lists
+> + */
 
-> You surely have seen that with other patches when users
-> suddenly reported something worked better/smoother with a new
-> release etc and there was absolutely no explanation for it in the changed
-> code.
-> 
+Why are kernel nonreclaimable and kernel reclaimable joined here?  I'm 
+not saying you are wrong, I'm just ignorant and need some education.
 
-I suppose the audio guys have something on that. 
-Even if you don't have an ear for music, you can hear a 
-skip on a CD, a scratch on a record, or a glitch on
-a digital audio file from preemption latency.
+> +struct pcpu_list {
+> +	int count;
+> +	struct list_head list;
+> +} ____cacheline_aligned_in_smp;
+> +
+>  struct per_cpu_pages {
+> -	int count;		/* number of pages in the list */
+> +	struct pcpu_list pcpu_list[2]; /* 0: kernel 1: user */
+>  	int low;		/* low watermark, refill needed */
+>  	int high;		/* high watermark, emptying needed */
+>  	int batch;		/* chunk size for buddy add/remove */
+> -	struct list_head list;	/* the list of pages */
+>  };
+>  
 
-These are all events in the same time frame, and
-that is in the milliseconds....
+Instead of defining 0 and 1 in a comment why not use a #define?
 
-> I have no reason to believe this is any different with all
-> this RT testing. 
-> 
+ > +			pcp->pcpu_list[0].count = 0;
+ > +			pcp->pcpu_list[1].count = 0;
 
-And that's why we have been testing and benchmarking, to
-produce number sets that supersede faith, belief, and 
-conjecture. But ultimately, you can trust your senses,
-and I think the audio / video test would allow your eyes 
-to see, and your ears to hear the difference.
-
-> -Andi (who also would prefer to not have interrupt threads, locks like
-> a maze and related horribilities in the mainline kernel) 
-
-I am definitely for breaking out an IRQ threads patch,
-separate from the RT-mutex patches, even if just to
-allow examination of that code without the clutter.
-
-
+The #define would make code like this look more readable.
 

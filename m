@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbVEYUCw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVEYUHu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261534AbVEYUCw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 16:02:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVEYUCw
+	id S261546AbVEYUHu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 16:07:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261547AbVEYUHt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 16:02:52 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:44022 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261534AbVEYUCu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 16:02:50 -0400
-Message-ID: <4294D9C6.3060501@mvista.com>
-Date: Wed, 25 May 2005 13:02:14 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Davda, Bhavesh P \(Bhavesh\)" <bhavesh@avaya.com>
-CC: Chris Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11 timeval_to_jiffies() wrong for ms resolution timers
-References: <21FFE0795C0F654FAD783094A9AE1DFC07AFE7C1@cof110avexu4.global.avaya.com>
-In-Reply-To: <21FFE0795C0F654FAD783094A9AE1DFC07AFE7C1@cof110avexu4.global.avaya.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 25 May 2005 16:07:49 -0400
+Received: from mail.kroah.org ([69.55.234.183]:44958 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261546AbVEYUHo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 16:07:44 -0400
+Date: Wed, 25 May 2005 13:14:01 -0700
+From: Greg KH <greg@kroah.com>
+To: Alexey Koptsevich <kopts@atmosp.physics.utoronto.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: delay at starting udev
+Message-ID: <20050525201401.GA24887@kroah.com>
+References: <Pine.SGI.4.60.0505171406020.13898958@whirlwind.atmosp.physics.utoronto.ca>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.SGI.4.60.0505171406020.13898958@whirlwind.atmosp.physics.utoronto.ca>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-~
-> On a more serious note: what is a real-time (read SCHED_FIFO/SCHED_RR) task to use to get millisecond accuracy wakeup timing services from the kernel? i.e. what are the alternatives to setitimer() that wake up the task exactly at the interval that is requested of it? You mention high-res timers as a possibility, but in the form of a patch. What's available in mainline unpatched?
+On Wed, May 25, 2005 at 12:45:23PM -0400, Alexey Koptsevich wrote:
 > 
-We ARE trying to get this into the main line, but save the patch, there is no 
-way to get millisecond accuracy in the kernel OR in user land.  Never has been! 
-  That is why the patch exists.  There was an effort by some university folks 
-prior to the HRT stuff, but AFAIK it is not supported or uptodate.
+> Hi,
+> 
+> I experience a major delay (about 5 min on dual CPU 3GHz machine, RedHat 
+> AS v4) at system boot-up at the point of "Starting udev:". The references 
+> to it I was able to find say that it was fixed in udev releases years ago. 
+> Is anything known about this problem?
+> 
+> >uname -a
+> Linux <...> 2.6.11.7 #2 SMP Tue Apr 19 16:46:25 EDT 2005 i686 i686 i386 
+> GNU/Linux
+> 
+> >rpm -q udev
+> udev-039-10.8.EL4
 
-Also, you should be aware that even with precise timers, there is still latency 
-in the kernel AND it is in the millisecond range.  Again, folks are working on 
-that in the form of a patch (see the the real time patch by Ingo and friends).
+That version is _very_ old, so odds are it has been fixed since then :)
 
-As for jiffies vs time, my understanding from senior time folks is that 1/HZ as 
-a resolution is just an approximation.  We do the best we can but the x86 is 
-really the PITs (pun intended) when it comes to time keeping resources.  If you 
-really want millisecond accuracy, you may need to consider another platform....
+I suggest you ask Red Hat about this if you are having problems with
+RHEL 4, as they are the ones that support it.
 
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+Good luck,
+
+greg k-h

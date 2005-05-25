@@ -1,110 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261933AbVEYN7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262350AbVEYODn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261933AbVEYN7P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 09:59:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262350AbVEYN7M
+	id S262350AbVEYODn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 10:03:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262352AbVEYODm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 09:59:12 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:49578 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S261933AbVEYN6z (ORCPT
+	Wed, 25 May 2005 10:03:42 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:48042 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262350AbVEYODj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 09:58:55 -0400
-Message-ID: <429484F2.8080401@hp.com>
-Date: Wed, 25 May 2005 10:00:18 -0400
-From: "Alan D. Brunelle" <Alan.Brunelle@hp.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050228)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Lynch, Rusty" <rusty.lynch@intel.com>
-Cc: Keith Owens <kaos@sgi.com>,
-       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>, akpm@osdl.org,
-       "Luck, Tony" <tony.luck@intel.com>,
-       "Seth, Rohit" <rohit.seth@intel.com>, prasanna@in.ibm.com,
-       ananth@in.ibm.com, systemtap@sources.redhat.com,
-       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [patch 1/4] Kprobes support for IA64
-References: <032EB457B9DBC540BFB1B7B519C78B0E07340747@orsmsx404.amr.corp.intel.com>
-In-Reply-To: <032EB457B9DBC540BFB1B7B519C78B0E07340747@orsmsx404.amr.corp.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 25 May 2005 10:03:39 -0400
+Date: Wed, 25 May 2005 16:03:16 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel@vger.kernel.org, dwalker@mvista.com,
+       Joe King <atom_bomb@rocketmail.com>, ganzinger@mvista.com,
+       Lee Revell <rlrevell@joe-job.com>, Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
+Message-ID: <20050525140316.GA29996@elte.hu>
+References: <20050523082637.GA15696@elte.hu> <42935890.2010109@cybsft.com> <20050525113424.GA1867@elte.hu> <20050525113514.GA9145@elte.hu> <42947D84.2000409@cybsft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42947D84.2000409@cybsft.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Isn't the real issue here that if kprobes attempts to put in a 'break 
-0x80200' into a B-slot that it instead becomes a 'break.b 0' -- as the 
-break.b does not accept an immediate value? Which probably means that 
-either kprobes (a) should not rely on the immediate value of the break 
-at all (always put in an immediate value of 0), or (b) kprobes should 
-not allow a probe on a B-slot of an instruction bundle.
 
-Kprobes does have the two cases covered in traps.c (case 0 - when a 
-B-slot break is used, and case 0x80200 for a non-B-slot break). But this 
-doesn't seem very clean. (If it was decided that one should not overload 
-the break 0 case, and instead use a uniquely defined break number, then 
-it fails on a B-slot probe. If it is OK to overload the break 0 case, 
-why have another break number at all?)
+* K.R. Foley <kr@cybsft.com> wrote:
 
-I started doing a port of kprobes, ran into this, and decided to try a 
-different mechanism that replaced the whole instruction bundle - so that 
-I could format the instruction bundle to allow a break instruction with 
-an immediate value (and thus uniquely identify KPROBE breaks). 
-[Basically put the break in the 1st slot (all the time), and then go 
-execute the original instruction *bundle* elsewhere when the break is hit.]
+> No it doesn't crash if I boot only a single CPU. I'll go one better 
+> than that. It doesn't crash if I boot both CPUs but without 
+> hyper-threading (turned off in the bios but still enabled in the 
+> config). :-(
 
-PS. I don't see the 0x80300 defined __IA64_BREAK_JPROBE being used 
-anywhere...
+hm, must be some race. I tried it on a HT system too - will try on 
+another HT system.
 
-Alan D. Brunelle
-Hewlett-Packard
+can you work it around (or turn it into another type of crash) by 
+disabling STOP_MACHINE? (you can do that by turning off MODULE_UNLOAD)
 
-
-Lynch, Rusty wrote:
-
->>From: Keith Owens [mailto:kaos@sgi.com]
->>Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com> wrote:
->>    
->>
->>>This patch adds the kdebug die notification mechanism needed by
->>>      
->>>
->Kprobes.
->  
->
->>>	      case 0: /* unknown error (used by GCC for
->>>      
->>>
->__builtin_abort()) */
->  
->
->>>+		if (notify_die(DIE_BREAK, "kprobe", regs, break_num,
->>>      
->>>
->>TRAP_BRKPT, SIGTRAP)
->>    
->>
->>>+			       	== NOTIFY_STOP) {
->>>+			return;
->>>+		}
->>>		die_if_kernel("bugcheck!", regs, break_num);
->>>		sig = SIGILL; code = ILL_ILLOPC;
->>>		break;
->>>      
->>>
->>Nit pick.  Any break instruction in a B slot will set break_num 0, so
->>you cannot tell if the break was inserted by kprobe or by another
->>debugger.  Setting the string to "kprobe" is misleading here, change it
->>to "break 0".
->>    
->>
->
->Good catch.  We'll update the informational string.
->
->    --rusty
->-
->To unsubscribe from this list: send the line "unsubscribe linux-ia64" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->
->  
->
-
+	Ingo

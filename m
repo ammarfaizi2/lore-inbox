@@ -1,59 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262232AbVEYCFI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVEYCVi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262232AbVEYCFI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 22:05:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262237AbVEYCFI
+	id S261317AbVEYCVi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 22:21:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262241AbVEYCVi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 22:05:08 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:19438 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262232AbVEYCFB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 22:05:01 -0400
-From: "Sven Dietrich" <sdietrich@mvista.com>
-To: "'Esben Nielsen'" <simlo@phys.au.dk>,
-       "'Christoph Hellwig'" <hch@infradead.org>
-Cc: "'Daniel Walker'" <dwalker@mvista.com>, <linux-kernel@vger.kernel.org>,
-       <mingo@elte.hu>, <akpm@osdl.org>
-Subject: RE: RT patch acceptance
-Date: Tue, 24 May 2005 19:04:56 -0700
-Message-ID: <005101c560ce$269c15a0$c800a8c0@mvista.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+	Tue, 24 May 2005 22:21:38 -0400
+Received: from fire.osdl.org ([65.172.181.4]:21457 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261317AbVEYCVg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 22:21:36 -0400
+Date: Tue, 24 May 2005 19:20:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Sven Dietrich <sdietrich@mvista.com>
+Cc: dwalker@mvista.com, bhuey@lnxw.com, nickpiggin@yahoo.com.au, mingo@elte.hu,
+       hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+Message-Id: <20050524192029.2ef75b89.akpm@osdl.org>
+In-Reply-To: <4293DCB1.8030904@mvista.com>
+References: <4292DFC3.3060108@yahoo.com.au>
+	<20050524081517.GA22205@elte.hu>
+	<4292E559.3080302@yahoo.com.au>
+	<20050524090240.GA13129@elte.hu>
+	<4292F074.7010104@yahoo.com.au>
+	<1116957953.31174.37.camel@dhcp153.mvista.com>
+	<20050524224157.GA17781@nietzsche.lynx.com>
+	<1116978244.19926.41.camel@dhcp153.mvista.com>
+	<20050525001019.GA18048@nietzsche.lynx.com>
+	<1116981913.19926.58.camel@dhcp153.mvista.com>
+	<20050525005942.GA24893@nietzsche.lynx.com>
+	<1116982977.19926.63.camel@dhcp153.mvista.com>
+	<20050524184351.47d1a147.akpm@osdl.org>
+	<4293DCB1.8030904@mvista.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <Pine.OSF.4.05.10505241123240.5002-100000@da410.phys.au.dk>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sven Dietrich <sdietrich@mvista.com> wrote:
+>
+> I think people would find their system responsiveness / tunability
+>  goes up tremendously, if you drop just a few unimportant IRQs into
+>  threads.
 
-Esben Nielsen wrote:
-> On Tue, 24 May 2005, Christoph Hellwig wrote:
-> 
-> > On Mon, May 23, 2005 at 04:14:26PM -0700, Daniel Walker wrote:
-> > 
-> > Personally I think interrupt threads, spinlocks as sleeping mutexes 
-> > and PI is something we should keep out of the kernel tree.
-> 
-> A general threaded interrupt is not a good thing. Ingo made 
-> this to see how far he can press it. But having serial 
-> drivers running in interrupt is way overkill. Even network 
-> drivers can (provided they use DMA) run in interrupt without 
-> hurting the overall latencies. It all depends on the driver 
-> and how it interfaces with the rest of the kernel, especially 
-> what locks are shared and how long the lock are taken. If 
-> they are small enough, interrupt context and thus raw 
-> spinlocks are good enough. In general, I think each driver 
-> ought to be configurable: Either it runs in interrupt context 
-> or it runs in a thread. The locks have to be changed 
-> accordingly from raw spinlocks to mutexes.
-> 
-
-You can run interrupts in threads without any mutex.
-
-There is a /proc interface to switch between threads / mutex.
+People cannot detect the difference between 1000usec and 50usec latencies,
+so they aren't going to notice any changes in responsiveness at all.
 

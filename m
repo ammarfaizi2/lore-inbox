@@ -1,61 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262268AbVEYOll@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVEYOrX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262268AbVEYOll (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 10:41:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbVEYOll
+	id S261365AbVEYOrX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 10:47:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbVEYOrX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 10:41:41 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:30605 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262268AbVEYOlh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 10:41:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PEQEFTqWWyEYAgTSzJ0Sy98ehsesy2tKU+rVnvZlT19HVDOnYxmAgiz2HG4oChfqZK3MJwJF/I719Ft2FF1gNpBOkOZpAg04AmZRL8LbKRTmgU6Xp9KjlmWeHSyLIZW/BS54mM/IvEDdh1m56RInMTQl9nI8Xj4BJpXG60etO5g=
-Message-ID: <a4e6962a0505250741431b7633@mail.gmail.com>
-Date: Wed, 25 May 2005 09:41:35 -0500
-From: Eric Van Hensbergen <ericvh@gmail.com>
-Reply-To: Eric Van Hensbergen <ericvh@gmail.com>
-To: Pekka J Enberg <penberg@cs.helsinki.fi>
-Subject: Re: v9fs: VFS superblock operations (2.0-rc6)
-Cc: Pekka Enberg <penberg@gmail.com>, linux-kernel@vger.kernel.org,
-       v9fs-developer@lists.sourceforge.net,
-       viro@parcelfarce.linux.theplanet.co.uk, linux-fsdevel@vger.kernel.org
-In-Reply-To: <courier.42946C49.00007170@courier.cs.helsinki.fi>
+	Wed, 25 May 2005 10:47:23 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:43699 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261365AbVEYOrT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 10:47:19 -0400
+Subject: Re: Add "FORTIFY_SOURCE" to the linux kernel
+From: Arjan van de Ven <arjan@infradead.org>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
+Cc: arjan@pentafluge.infradead.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+In-Reply-To: <4294891E.4070702@vc.cvut.cz>
+References: <20050525084332.GA16865@pentafluge.infradead.org>
+	 <4294891E.4070702@vc.cvut.cz>
+Content-Type: text/plain
+Date: Wed, 25 May 2005 16:47:16 +0200
+Message-Id: <1117032436.6010.76.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <200505232225.j4NMPte1029529@ms-smtp-02-eri0.texas.rr.com>
-	 <84144f0205052400113c6f40fc@mail.gmail.com>
-	 <a4e6962a0505241208214a200f@mail.gmail.com>
-	 <1116996843.9580.8.camel@localhost>
-	 <a4e6962a0505250455605faec9@mail.gmail.com>
-	 <courier.42946C49.00007170@courier.cs.helsinki.fi>
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/25/05, Pekka J Enberg <penberg@cs.helsinki.fi> wrote:
-> >
-> > Is this not the right way to use slabs?  Should I just be using
-> > kmalloc/kcalloc? (Is that what you mean by drop the custom allocator?)
-> 
-> You can create your own slab for known fixed-size objects (your
-> directory structure). Look at other filesystems for an example. They
-> usually create a cache for their inode_info structs.
-> 
-> The problem with your approach on packet structure slab is that we
-> potentially get slabs with little or no activity. You would have to
-> write custom code to tear down unused slabs but now you've got something
-> that clearly does not belong in filesystem code. So yes, I think you'd
-> be better of using kmalloc()/kcalloc() for your packet structures.
-> 
+On Wed, 2005-05-25 at 16:18 +0200, Petr Vandrovec wrote:
+> Hello,
+>    how is this going to comply with rule that no existing symbols will be turned
+> into GPLONLY symbols, as stated by Linus couple of time, and mentioned for example
+> at http://www.tux.org/lkml/#s1-19 ?  To me it looks that no non-GPL module can work
+> on such kernel anymore, as memcpy/strcpy/... functions now, although themselves non-GPL
+> accessible (but inline...), depend on GPLONLY symbols.  Can you explain this to
+> me?
 
-Okay, I figured that since packet buffer sizes were "mostly" fixed by
-session configuration then slabs would be the way to go.  But I see
-your point - I'll go ahead and convert all the packet buffers to
-kmalloc during the upcoming three-day weekend and try to push out a
-new release candidate early next week.
+then don't set the config option in your kernel, and you don't get
+these. Also memcpy_chk() is not an existing function, it is a new one.
+This is by no means mandatory.
 
-           -eric
+Or, alternatively, in your module UNDEF the config option before
+including these headers.
+
+
+>    And if you think that it is right thing to do, would not it be simpler for
+> everybody changing module loader so it just refuses to load non-GPL modules ?
+> Final functionality would be same in both cases...
+
+that is not correct.
+

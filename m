@@ -1,120 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbVEYWhW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVEYWkw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261391AbVEYWhW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 18:37:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbVEYWhV
+	id S261582AbVEYWkw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 18:40:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261583AbVEYWkw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 18:37:21 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:55204 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S261391AbVEYWhG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 18:37:06 -0400
-Message-ID: <4294EFFD.3000607@ens-lyon.fr>
-Date: Wed, 25 May 2005 23:37:01 +0200
-From: Alexandre Buisse <alexandre.buisse@ens-lyon.fr>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050417)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc5-mm1
-References: <20050525134933.5c22234a.akpm@osdl.org>
-In-Reply-To: <20050525134933.5c22234a.akpm@osdl.org>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/mixed;
- boundary="------------050100020107030309010102"
+	Wed, 25 May 2005 18:40:52 -0400
+Received: from fire.osdl.org ([65.172.181.4]:16782 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261582AbVEYWkm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 18:40:42 -0400
+Date: Wed, 25 May 2005 15:41:23 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christian Henz <christian.henz@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Dave Airlie <airlied@linux.ie>
+Subject: Re: 2.6.11-mm2 + Radeon crash
+Message-Id: <20050525154123.2468b396.akpm@osdl.org>
+In-Reply-To: <493984f050309121212541d8@mail.gmail.com>
+References: <493984f050309121212541d8@mail.gmail.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050100020107030309010102
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Christian Henz <christian.henz@gmail.com> wrote:
+>
+> Hi, 
+> 
+> I wanted to try 2.6.11-mm2 for the low latency/realtime lsm stuff and
+> I've run into a severe
+> problem.
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc5/2.6.12-rc5-mm1/
+Christian, can you please retest 2.6.12-rc5?
 
-Hi Andrew,
-
-missing extern in drivers/dlm/lvb_table.h.
-The definition was moved into drivers/dlm/lock.c.
-The attached patch fixes this.
-
-
-Signed-off-by: Alexandre Buisse <Alexandre.Buisse@ens-lyon.fr>
-
-Regards,
-Alexandre
-
---------------050100020107030309010102
-Content-Type: text/x-patch;
- name="fix-dlm-extern-lvb_table.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fix-dlm-extern-lvb_table.patch"
-
---- linux-2.6.12-rc5-mm1/drivers/dlm/lock.c.old	2005-05-25 23:30:10.000000000 +0200
-+++ linux-2.6.12-rc5-mm1/drivers/dlm/lock.c	2005-05-25 23:30:21.000000000 +0200
-@@ -104,6 +104,29 @@ const int __dlm_compat_matrix[8][8] = {
-         {0, 0, 0, 0, 0, 0, 0, 0}        /* PD */
- };
- 
-+/*
-+ * This defines the direction of transfer of LVB data.
-+ * Granted mode is the row; requested mode is the column.
-+ * Usage: matrix[grmode+1][rqmode+1]
-+ * 1 = LVB is returned to the caller
-+ * 0 = LVB is written to the resource
-+ * -1 = nothing happens to the LVB
-+ */
-+
-+
-+const int dlm_lvb_operations[8][8] = {
-+        /* UN   NL  CR  CW  PR  PW  EX  PD*/
-+        {  -1,  1,  1,  1,  1,  1,  1, -1 }, /* UN */
-+        {  -1,  1,  1,  1,  1,  1,  1,  0 }, /* NL */
-+        {  -1, -1,  1,  1,  1,  1,  1,  0 }, /* CR */
-+        {  -1, -1, -1,  1,  1,  1,  1,  0 }, /* CW */
-+        {  -1, -1, -1, -1,  1,  1,  1,  0 }, /* PR */
-+        {  -1,  0,  0,  0,  0,  0,  1,  0 }, /* PW */
-+        {  -1,  0,  0,  0,  0,  0,  0,  0 }, /* EX */
-+        {  -1,  0,  0,  0,  0,  0,  0,  0 }  /* PD */
-+};
-+
-+
- #define modes_compat(gr, rq) \
- 	__dlm_compat_matrix[(gr)->lkb_grmode + 1][(rq)->lkb_rqmode + 1]
- 
---- linux-2.6.12-rc5-mm1/drivers/dlm/lvb_table.h.old	2005-05-25 23:30:34.000000000 +0200
-+++ linux-2.6.12-rc5-mm1/drivers/dlm/lvb_table.h	2005-05-25 23:32:35.000000000 +0200
-@@ -13,26 +13,7 @@
- #ifndef __LVB_TABLE_DOT_H__
- #define __LVB_TABLE_DOT_H__
- 
--/*
-- * This defines the direction of transfer of LVB data.
-- * Granted mode is the row; requested mode is the column.
-- * Usage: matrix[grmode+1][rqmode+1]
-- * 1 = LVB is returned to the caller
-- * 0 = LVB is written to the resource
-- * -1 = nothing happens to the LVB
-- */
--
--extern const int dlm_lvb_operations[8][8] = {
--        /* UN   NL  CR  CW  PR  PW  EX  PD*/
--        {  -1,  1,  1,  1,  1,  1,  1, -1 }, /* UN */
--        {  -1,  1,  1,  1,  1,  1,  1,  0 }, /* NL */
--        {  -1, -1,  1,  1,  1,  1,  1,  0 }, /* CR */
--        {  -1, -1, -1,  1,  1,  1,  1,  0 }, /* CW */
--        {  -1, -1, -1, -1,  1,  1,  1,  0 }, /* PR */
--        {  -1,  0,  0,  0,  0,  0,  1,  0 }, /* PW */
--        {  -1,  0,  0,  0,  0,  0,  0,  0 }, /* EX */
--        {  -1,  0,  0,  0,  0,  0,  0,  0 }  /* PD */
--};
-+extern const int dlm_lvb_operations[8][8];
- 
- #endif
- 
-
---------------050100020107030309010102--
+> When I try to start X, my machine reboots. The screen goes dark as
+> usual when setting the video mode, but then I get a beep and I'm
+> greeted with the BIOS boot messages. This happened 4/5 times i've
+> tried, and once the video mode was actually set (at least I saw the
+> usual X b/w pattern with some random framebuffer garbage), the machine
+> didn't reboot but after that nothing happened. My keyboard was still
+> responsive (ie NumLock LED would still go on/off), but i could neither
+> kill X with CTRL-ALT-BACKSPACE nor could i switch back to console, so
+> I ended up pressing reset.
+> 
+> After the crashes I booted with a rescue CD to examine the logs, but I
+> could not find any obvious errors.
+> 
+> Everything works nicely on 2.6.10 and earlier kernels. I'm in the
+> process of building 2.6.11.2 to see if the crash occurs there.
+> 
+> Here is some info on my system:
+> 
+> I've got an Athlon 1000C on a VIA KT133 chipset and a Radeon 7200 (the
+> original Radeon with 32MB SDR RAM). I'm running Debian/sid.
+> 
+> 
+> homer:/home/chrissi# X -version
+> X: warning; /dev/dri has unusual mode (not 755) or is not a directory.
+> XFree86 Version 4.3.0.1 (Debian 4.3.0.dfsg.1-12.0.1 20050223080930
+> joshk@triplehelix.org)
+> Release Date: 15 August 2003
+> X Protocol Version 11, Revision 0, Release 6.6
+> Build Operating System: Linux 2.6.9 i686 [ELF]
+> Build Date: 23 February 2005
+> 
+> 
+> lspci -vv says bout the Radeon:
+> 
+> 
+> 0000:01:00.0 VGA compatible controller: ATI Technologies Inc Radeon
+> R100 QD [Radeon 7200] (prog-if 00 [VGA])
+>         Subsystem: ATI Technologies Inc Radeon 7000/Radeon
+>         Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop-
+> ParErr- Stepping+ SERR- FastB2B-
+>         Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium
+> >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+>         Latency: 32 (2000ns min), Cache Line Size: 0x08 (32 bytes)
+>         Interrupt: pin A routed to IRQ 5
+>         Region 0: Memory at d0000000 (32-bit, prefetchable) [size=64M]
+>         Region 1: I/O ports at c000 [size=256]
+>         Region 2: Memory at d7000000 (32-bit, non-prefetchable) [size=512K]
+>         Capabilities: [58] AGP version 2.0
+>                 Status: RQ=48 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64-
+> HTrans- 64bit- FW- AGP3- Rate=x1,x2,x4
+>                 Command: RQ=1 ArqSz=0 Cal=0 SBA+ AGP- GART64- 64bit-
+> FW- Rate=<none>
+>         Capabilities: [50] Power Management version 2
+>                 Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA
+> PME(D0-,D1-,D2-,D3hot-,D3cold-)
+>                 Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+> 
+> 
+> 
+> Please let me know what more data is needed to figure this one out.
+> 
+> Thanks,
+> Christian Henz
+> 
+> PS: If you reply, please CC me as I'm not subscribed.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

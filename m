@@ -1,38 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbVEYUqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbVEYUsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261555AbVEYUqz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 16:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVEYUqy
+	id S261562AbVEYUsN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 16:48:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVEYUsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 16:46:54 -0400
-Received: from fire.osdl.org ([65.172.181.4]:18650 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261555AbVEYUqv (ORCPT
+	Wed, 25 May 2005 16:48:13 -0400
+Received: from mail.toyon.com ([65.160.147.241]:3349 "EHLO mail.toyon.com")
+	by vger.kernel.org with ESMTP id S261559AbVEYUrt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 16:46:51 -0400
-Date: Wed, 25 May 2005 13:48:50 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: Andrew Morton <akpm@osdl.org>, Netdev <netdev@oss.sgi.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [git patches try2] 2.6.x net driver updates
-In-Reply-To: <4294BD9C.2050105@pobox.com>
-Message-ID: <Pine.LNX.4.58.0505251200040.2307@ppc970.osdl.org>
-References: <4294BD9C.2050105@pobox.com>
+	Wed, 25 May 2005 16:47:49 -0400
+Message-ID: <037801c5616a$b1be6600$1600a8c0@toyon.corp>
+From: "Peter J. Stieber" <developer@toyon.com>
+To: "YhLu" <YhLu@tyan.com>
+Cc: <linux-kernel@vger.kernel.org>
+References: <3174569B9743D511922F00A0C943142309F815A6@TYANWEB>
+Subject: Re: Tyan Opteron boards and problems with parallel ports
+Date: Wed, 25 May 2005 13:45:32 -0700
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2527
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+YhLu> Don't always blame BIOS, if you like you could
+YhLu> use LinuxBIOS instead...
+
+Just curious, but why isn't this project (LinuxBIOS) mentioned on the 
+Tyan web site, or is it and I just missed it?
+
+You do work for Tyan, right?
+
+Pete
 
 
-On Wed, 25 May 2005, Jeff Garzik wrote:
->
-> Does this work better?
 
-Looks good.
-
-If this was automated, are your changes to git-pull-script generic enough 
-to be useful for others, or did you do a totally specialized one for just 
-the "lots of heads in the same directory" case?
-
-		Linus

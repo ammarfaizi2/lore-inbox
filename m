@@ -1,41 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbVEYVki@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVEYVld@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbVEYVki (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 17:40:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVEYVke
+	id S261180AbVEYVld (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 17:41:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVEYVld
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 17:40:34 -0400
-Received: from smtp.lnxw.com ([207.21.185.24]:5135 "EHLO smtp.lnxw.com")
-	by vger.kernel.org with ESMTP id S261183AbVEYVk3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 17:40:29 -0400
-Date: Wed, 25 May 2005 14:45:24 -0700
-To: Tom Vier <tmv@comcast.net>, '@nietzsche.lynx.com
-Cc: Esben Nielsen <simlo@phys.au.dk>, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-Message-ID: <20050525214524.GB30987@nietzsche.lynx.com>
-References: <20050525205841.GB28913@zero> <Pine.OSF.4.05.10505252303300.23201-100000@da410.phys.au.dk> <20050525212538.GC28913@zero>
+	Wed, 25 May 2005 17:41:33 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:62101
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S261180AbVEYVl2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 17:41:28 -0400
+Subject: Re: 2.6.11 timeval_to_jiffies() wrong for ms resolution timers
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: george@mvista.com
+Cc: "Davda, Bhavesh P (Bhavesh)" <bhavesh@avaya.com>,
+       Chris Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <4294D9C6.3060501@mvista.com>
+References: <21FFE0795C0F654FAD783094A9AE1DFC07AFE7C1@cof110avexu4.global.avaya.com>
+	 <4294D9C6.3060501@mvista.com>
+Content-Type: text/plain
+Organization: linutronix
+Date: Wed, 25 May 2005 23:41:40 +0200
+Message-Id: <1117057300.6736.324.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050525212538.GC28913@zero>
-User-Agent: Mutt/1.5.9i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 25, 2005 at 05:25:38PM -0400, Tom Vier wrote:
-> On Wed, May 25, 2005 at 11:05:05PM +0200, Esben Nielsen wrote:
-> > Long interrupt handlers can be interrupt by _tasks_, not only other
-> > interrupts! An audio application running in userspace can be scheduled
-> > over an ethernet interrupt handler copying data from the
-> > controller into RAM (without DMA).
-> 
-> Doesn't that greatly increase the risk of the hardware overrunning it's
-> buffer?
+On Wed, 2005-05-25 at 13:02 -0700, George Anzinger wrote:
+> We ARE trying to get this into the main line, but save the patch, there is no 
+> way to get millisecond accuracy in the kernel OR in user land.  Never has been! 
+>   That is why the patch exists.  There was an effort by some university folks 
+> prior to the HRT stuff, but AFAIK it is not supported or uptodate.
 
-If you have a broken device and associated driver yes. But it's not like
-irq-threads are going to change that either way.
+It's up to date and supported, if you are talking about the KURT
+project. Just the website is hopelessly out of date.
 
-bill
+> As for jiffies vs time, my understanding from senior time folks is that 1/HZ as 
+> a resolution is just an approximation.  We do the best we can but the x86 is 
+> really the PITs (pun intended) when it comes to time keeping resources.  If you 
+> really want millisecond accuracy, you may need to consider another platform....
+
+Why so ? Accepted PIT, is a PITA due to the ISA access penalty, but it
+still allows you to run timers below millisecond accuracy.
+
+tglx
+
+
+
 

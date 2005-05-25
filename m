@@ -1,68 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbVEYV6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbVEYWGt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261291AbVEYV6P (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 17:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbVEYV6P
+	id S261572AbVEYWGt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 18:06:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVEYWGt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 17:58:15 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:35218 "EHLO
-	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261291AbVEYV6J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 17:58:09 -0400
-Message-ID: <4294F4EB.7010903@ens-lyon.org>
-Date: Wed, 25 May 2005 23:58:03 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc5-mm1
-References: <20050525134933.5c22234a.akpm@osdl.org>
-In-Reply-To: <20050525134933.5c22234a.akpm@osdl.org>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: multipart/mixed;
- boundary="------------010307030701070300090805"
+	Wed, 25 May 2005 18:06:49 -0400
+Received: from fire.osdl.org ([65.172.181.4]:60290 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261573AbVEYWGf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 18:06:35 -0400
+Date: Wed, 25 May 2005 15:07:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: bennie.venter@shoden.co.za
+Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor_core@ameritech.net>,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: mouse still losing sync and thus jumping around
+Message-Id: <20050525150713.3b3c2a09.akpm@osdl.org>
+In-Reply-To: <42271D67.4020300@shoden.co.za>
+References: <42271D67.4020300@shoden.co.za>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010307030701070300090805
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+Bennie Kahler-Venter <bennie.venter@shoden.co.za> wrote:
+>
+> Using SuSE 9.1 Professional with kernel 2.6.11  running on a AOpen 1845
+> Laptop.
+> 
+> Currently running without APM & ACPI
+> 
+> If I turn either or both on I get an erratic mouse and entries such as
+> these:
+> Mar  3 15:06:55 bventer01 kernel: psmouse.c: Mouse at
+> isa0060/serio2/input0 lost synchronization, throwing 2 bytes away.
+> Mar  3 15:07:23 bventer01 kernel: psmouse.c: Mouse at
+> isa0060/serio2/input0 lost synchronization, throwing 2 bytes away.
+> 
+> Kernels 2.6.x all reproduce the above symptoms.  I'm currently running
+> on 2.6.11
+> 
+> Must say that the occurance of these erratic problems are a lot less in
+> 2.6.11 but they still persist.  I did do a test to see if it was ACPI
+> related.
+> 
+> With ACPI and APM turned on and when I restart "powersaved" mouse goes
+> crazy without me touching it.  I'm not too sure how to progress to
+> locate/fix this problem.
+> 
 
-Andrew Morton a écrit :
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc5/2.6.12-rc5-mm1/
-
-Hi Andrew,
-
-drivers/pcmcia/ds.c defines pcmcia_store_allow_func_id_match
-without the new "struct device_attribute *attr" argument.
-The attached patch fixes this.
-
-Signed-off-by: Brice Goglin <Brice.Goglin@ens-lyon.org>
-
-Regards,
-Brice
-
---------------010307030701070300090805
-Content-Type: text/x-patch;
- name="fix-pcmcia-ds-device-attribute.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fix-pcmcia-ds-device-attribute.patch"
-
---- linux-mm/drivers/pcmcia/ds.c.old	2005-05-25 23:54:03.000000000 +0200
-+++ linux-mm/drivers/pcmcia/ds.c	2005-05-25 23:54:25.000000000 +0200
-@@ -848,7 +848,8 @@ pcmcia_device_stringattr(prod_id3, prod_
- pcmcia_device_stringattr(prod_id4, prod_id[3]);
- 
- 
--static ssize_t pcmcia_store_allow_func_id_match (struct device * dev, const char * buf, size_t count)
-+static ssize_t pcmcia_store_allow_func_id_match (struct device * dev, struct device_attribute *attr,
-+						 const char * buf, size_t count)
- {
- 	struct pcmcia_device *p_dev = to_pcmcia_dev(dev);
-         if (!count)
-
---------------010307030701070300090805--
+Could you please retest 2.6.12-rc5?

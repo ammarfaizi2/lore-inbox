@@ -1,186 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVEYRUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVEYRWt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbVEYRUk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 13:20:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVEYRUk
+	id S261501AbVEYRWt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 13:22:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVEYRWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 13:20:40 -0400
-Received: from adsl-66-218-37-216.dslextreme.com ([66.218.37.216]:34442 "EHLO
-	tyanhuey") by vger.kernel.org with ESMTP id S261498AbVEYRTf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 13:19:35 -0400
-From: Russell Miller <rmiller@duskglow.com>
-To: marcelo.tosatti@cyclades.com
-Subject: panic-on-oops patch
-Date: Wed, 25 May 2005 10:16:23 -0700
-User-Agent: KMail/1.8
-Organization: Duskglow Consulting
-Cc: linux-kernel@vger.kernel.org
+	Wed, 25 May 2005 13:22:49 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:17658 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261501AbVEYRW0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 13:22:26 -0400
+Message-ID: <4294B42D.2020008@mvista.com>
+Date: Wed, 25 May 2005 10:21:49 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_nLLlCvh8TVofYx5"
-Message-Id: <200505251016.23411.rmiller@duskglow.com>
+To: bhavesh@avaya.com
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11 timeval_to_jiffies() wrong for ms resolution timers
+References: <1116975555.2050.10.camel@cof110earth.dr.avaya.com>
+In-Reply-To: <1116975555.2050.10.camel@cof110earth.dr.avaya.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_nLLlCvh8TVofYx5
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Bhavesh P. Davda wrote:
+> setitimer for 20ms was firing at 21ms, so I wrote a simple debug module
+> for 2.6.11.10 kernel on i386 to do something like this:
+> 
+> struct timeval tv;
+> unsigned long jif;
+> 
+> tv.tv_usec = 20000;
+> tv.tv_sec = 0;
+> 
+> jif = timeval_to_jiffies(&tv);
+> printk("%lu usec = %lu jiffies\n", tv.tv_usec, jif);
+> 
+> This yields:
+> 
+> 20000 usec = 21 jiffies
+> 
+> Egad!
+> 
+> I looked at the timeval_to_jiffies() inline function in
+> include/linux/jiffies.h, and after pulling my hair for a few minutes
+> (okay almost an hour), I decided to ask much smarter people than myself
+> on why it is behaving this way, and what it would take to fix it so that
+> "20000 usec = 20 jiffies".
+> 
+> I got as far as this in figuring it out for i386:
+> 
+> HZ=1000
+> SEC_CONVERSION=4194941632
+> USEC_CONVERSION=2199357558
+> USEC_ROUND=2199023255551
+> USEC_JIFFIE_SC=41
+> SEC_JIFFIE_SC=22
+> 
+> Thanks in advance for saving me from going bald!
 
-As you asked, here is the panic-on-oops patch as pulled from the 2.5 tree 
-(when it was first applied).  There are two lines in it that I'm not sure of, 
-but I'll leave it to you to decide whether they should be there.  I didn't 
-apply them, myself.
+Well, I am already bald  :)
 
---Russell
+What you are missing is that the PIT can not generate a 1ms tick.  The best it 
+can do is 999849 nanoseconds.  Given this we need to convert 20000 usec to not 
+less than 2000usec worth of jiffies (time MUST always be rounded up).  20 
+jiffies is 19.996980 usec so we need to use 21 (which is 20.996829 usec).
 
---Boundary-00=_nLLlCvh8TVofYx5
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="3430.0.panic-on-oops.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="3430.0.panic-on-oops.patch"
+Note that TICK_NSEC and tick_nsec will both be 999849 nanoseconds.
+
+If we do NOT account for this PIT issue, the result is a time drift that is 
+outside of what ntp can handle...
 
 
-From: Russell Miller <rmiller@duskglow.com>
-
-A BUG or an oops will often leave a machine in a useless state.  There is no
-way to remotely recover the machine from that state.
-
-The patch adds a /proc/sys/kernel/panic_on_oops sysctl which, when set, will
-cause the x86 kernel to call panic() at the end of the oops handler.  If the
-user has also set /proc/sys/kernel/panic then a reboot will occur.
-
-The implementation will try to sleep for a while before panicing so the oops
-info has a chance of hitting the logs.
-
-The implementation is designed so that other architectures can easily do this
-in their oops handlers.
-
-
-
- Documentation/sysctl/kernel.txt |   12 ++++++++++++
- arch/i386/kernel/traps.c        |    9 +++++++++
- include/linux/kernel.h          |    1 +
- include/linux/sysctl.h          |    1 +
- kernel/panic.c                  |    7 +++----
- kernel/sysctl.c                 |    2 ++
- 6 files changed, 28 insertions(+), 4 deletions(-)
-
-diff -puN arch/i386/kernel/traps.c~panic-on-oops arch/i386/kernel/traps.c
---- 25/arch/i386/kernel/traps.c~panic-on-oops	2003-04-02 21:50:15.000000000 -0800
-+++ 25-akpm/arch/i386/kernel/traps.c	2003-04-02 21:57:44.000000000 -0800
-@@ -302,6 +302,15 @@ void die(const char * str, struct pt_reg
- 	show_registers(regs);
- 	bust_spinlocks(0);
- 	spin_unlock_irq(&die_lock);
-+	if (in_interrupt())
-+		panic("Fatal exception in interrupt");
-+
-+	if (panic_on_oops) {
-+		printk(KERN_EMERG "Fatal exception: panic in 5 seconds\n");
-+		set_current_state(TASK_UNINTERRUPTIBLE);
-+		schedule_timeout(5 * HZ);
-+		panic("Fatal exception");
-+	}
- 	do_exit(SIGSEGV);
- }
- 
-diff -puN include/linux/kernel.h~panic-on-oops include/linux/kernel.h
---- 25/include/linux/kernel.h~panic-on-oops	2003-04-02 21:50:15.000000000 -0800
-+++ 25-akpm/include/linux/kernel.h	2003-04-02 21:50:15.000000000 -0800
-@@ -104,6 +104,7 @@ static inline void console_verbose(void)
- 
- extern void bust_spinlocks(int yes);
- extern int oops_in_progress;		/* If set, an oops, panic(), BUG() or die() is in progress */
-+extern int panic_on_oops;
- 
- extern int tainted;
- extern const char *print_tainted(void);
-diff -puN include/linux/sysctl.h~panic-on-oops include/linux/sysctl.h
---- 25/include/linux/sysctl.h~panic-on-oops	2003-04-02 21:50:15.000000000 -0800
-+++ 25-akpm/include/linux/sysctl.h	2003-04-02 21:50:15.000000000 -0800
-@@ -130,6 +130,7 @@ enum
- 	KERN_CADPID=54,		/* int: PID of the process to notify on CAD */
- 	KERN_PIDMAX=55,		/* int: PID # limit */
-   	KERN_CORE_PATTERN=56,	/* string: pattern for core-file names */
-+	KERN_PANIC_ON_OOPS=57,  /* int: whether we will panic on an oops */
- };
- 
- 
-diff -puN kernel/panic.c~panic-on-oops kernel/panic.c
---- 25/kernel/panic.c~panic-on-oops	2003-04-02 21:50:15.000000000 -0800
-+++ 25-akpm/kernel/panic.c	2003-04-02 21:50:15.000000000 -0800
-@@ -20,6 +20,8 @@
- asmlinkage void sys_sync(void);	/* it's really int */
- 
- int panic_timeout;
-+int panic_on_oops;
-+int tainted;
- 
- struct notifier_block *panic_notifier_list;
- 
-@@ -28,7 +30,6 @@ static int __init panic_setup(char *str)
- 	panic_timeout = simple_strtoul(str, NULL, 0);
- 	return 1;
- }
--
- __setup("panic=", panic_setup);
- 
- /**
-@@ -51,7 +52,7 @@ NORET_TYPE void panic(const char * fmt, 
- 
- 	bust_spinlocks(1);
- 	va_start(args, fmt);
--	vsprintf(buf, fmt, args);
-+	vsnprintf(buf, sizeof(buf), fmt, args);
- 	va_end(args);
- 	printk(KERN_EMERG "Kernel panic: %s\n",buf);
- 	if (in_interrupt())
-@@ -123,5 +124,3 @@ const char *print_tainted()
- 		snprintf(buf, sizeof(buf), "Not tainted");
- 	return(buf);
- }
--
--int tainted = 0;
-diff -puN kernel/sysctl.c~panic-on-oops kernel/sysctl.c
---- 25/kernel/sysctl.c~panic-on-oops	2003-04-02 21:50:15.000000000 -0800
-+++ 25-akpm/kernel/sysctl.c	2003-04-02 21:50:15.000000000 -0800
-@@ -275,6 +275,8 @@ static ctl_table kern_table[] = {
- #endif
- 	{KERN_PIDMAX, "pid_max", &pid_max, sizeof (int),
- 	 0600, NULL, &proc_dointvec},
-+	{KERN_PANIC_ON_OOPS,"panic_on_oops",
-+	 &panic_on_oops,sizeof(int),0644,NULL,&proc_dointvec},
- 	{0}
- };
- 
-diff -puN Documentation/sysctl/kernel.txt~panic-on-oops Documentation/sysctl/kernel.txt
---- 25/Documentation/sysctl/kernel.txt~panic-on-oops	2003-04-02 21:50:15.000000000 -0800
-+++ 25-akpm/Documentation/sysctl/kernel.txt	2003-04-02 21:50:15.000000000 -0800
-@@ -204,6 +204,18 @@ software watchdog, the recommended setti
- 
- ==============================================================
- 
-+panic_on_oops:
-+
-+Controls the kernel's behaviour when an oops or BUG is encountered.
-+
-+0: try to continue operation
-+
-+1: delay a few seconds (to give klogd time to record the oops output) and
-+   then panic.  If the `panic' sysctl is also non-zero then the machine will
-+   be rebooted.
-+
-+==============================================================
-+
- pid_max:
- 
- PID allocation wrap value.  When the kenrel's next PID value
-
-_
-
---Boundary-00=_nLLlCvh8TVofYx5--
+-- 
+George Anzinger   george@mvista.com
+High-res-timers:  http://sourceforge.net/projects/high-res-timers/

@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262176AbVEXXtG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbVEYAFq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262176AbVEXXtG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 19:49:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262161AbVEXXtE
+	id S262161AbVEYAFq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 20:05:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262174AbVEYAFq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 19:49:04 -0400
-Received: from pfepa.post.tele.dk ([195.41.46.235]:20004 "EHLO
-	pfepa.post.tele.dk") by vger.kernel.org with ESMTP id S262174AbVEXXsm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 19:48:42 -0400
-Message-ID: <4293BD80.1050503@danbbs.dk>
-Date: Wed, 25 May 2005 01:49:20 +0200
-From: Mogens Valentin <monz@danbbs.dk>
-Reply-To: monz@danbbs.dk
-Organization: Mr Dev
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: dougg@torque.net
-CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [ANNOUNCE] sdparm 0.92
-References: <428DC633.5050403@torque.net>
-In-Reply-To: <428DC633.5050403@torque.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 24 May 2005 20:05:46 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:52485 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S262169AbVEYAFk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 20:05:40 -0400
+Date: Tue, 24 May 2005 17:10:19 -0700
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Bill Huey <bhuey@lnxw.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Ingo Molnar <mingo@elte.hu>, Christoph Hellwig <hch@infradead.org>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, sdietrich@mvista.com
+Subject: Re: RT patch acceptance
+Message-ID: <20050525001019.GA18048@nietzsche.lynx.com>
+References: <20050524054722.GA6160@infradead.org> <20050524064522.GA9385@elte.hu> <4292DFC3.3060108@yahoo.com.au> <20050524081517.GA22205@elte.hu> <4292E559.3080302@yahoo.com.au> <20050524090240.GA13129@elte.hu> <4292F074.7010104@yahoo.com.au> <1116957953.31174.37.camel@dhcp153.mvista.com> <20050524224157.GA17781@nietzsche.lynx.com> <1116978244.19926.41.camel@dhcp153.mvista.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1116978244.19926.41.camel@dhcp153.mvista.com>
+User-Agent: Mutt/1.5.9i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Douglas Gilbert wrote:
-> sdparm is a command line utility designed to get and set
-> SCSI disk parameters (cf hdparm for ATA disks). More generally
-> it gets and sets mode page information on SCSI devices or devices
-> that use a SCSI command set (e.g. CD/DVD drives (any transport)
-> and SCSI tape drives). It also can list VPD pages including
-> the device identification page.
-> 
-> For more information and downloads (tarball, rpm and deb
-> packages) see:
-> http://www.torque.net/sg/sdparm.html
+On Tue, May 24, 2005 at 04:44:04PM -0700, Daniel Walker wrote:
+> That's a good reason why it should be included. The maintainers know
+> that as developers there is no way for us to flush out all the bugs in
+> our code by ourselves. If the RT patch was added to -mm it would have
+> greatly increased coverage which , as you noted, is needed . Drivers
+> will break like mad , but no one but the community has all the hardware
+> for the drivers.
 
-Nice! Just got it and tried on an external usb disk.
-One feature I could use, probably others as well:
-Could you add the ability to spin down/up a scsi disk?
-I'd really like this for exteral (usb) disks.
+It's too premature at this time. There was a lot of work that went
+into the RT patch that I would have like for folks to have thought
+it through more carefully like RCU, the RT mutex itself, etc...
+All of it is very raw and most likely still is subject to rapid
+change.
 
-Doesn't seem it can; if I missed it, I'm sorry..
+It conflicts with the sched domain and RCU changes at this time
+so integration with -mm is highly problematic. -mm is too massive
+as is for anything like the RT patch to go in. I've already tried
+merging these trees in usig Monotone as my backing SCM and came
+to this conclusion.
 
--- 
-Kind regards,
-Mogens Valentin
+I consider the RT patch to be for front line folks only at this
+time. Give it another 6 months or so since people are having enough
+problems with 2.6.11.x
 
+bill

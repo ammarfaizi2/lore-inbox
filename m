@@ -1,81 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVEYRWt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVEYRaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261501AbVEYRWt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 13:22:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVEYRWt
+	id S261505AbVEYRaj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 13:30:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbVEYRaj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 13:22:49 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:17658 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261501AbVEYRW0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 13:22:26 -0400
-Message-ID: <4294B42D.2020008@mvista.com>
-Date: Wed, 25 May 2005 10:21:49 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
+	Wed, 25 May 2005 13:30:39 -0400
+Received: from imap.gmx.net ([213.165.64.20]:34435 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261505AbVEYRaa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 13:30:30 -0400
+X-Authenticated: #2813124
+From: Daniel Ritz <daniel.ritz@gmx.ch>
+To: Chris Wright <chrisw@osdl.org>
+Subject: Re: [patch 02/16] 3c59x: only put the device into D3 when we're actually using WOL
+Date: Wed, 25 May 2005 19:30:15 +0200
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk
+References: <20050523231529.GL27549@shell0.pdx.osdl.net> <20050523231813.GN27549@shell0.pdx.osdl.net>
+In-Reply-To: <20050523231813.GN27549@shell0.pdx.osdl.net>
 MIME-Version: 1.0
-To: bhavesh@avaya.com
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.11 timeval_to_jiffies() wrong for ms resolution timers
-References: <1116975555.2050.10.camel@cof110earth.dr.avaya.com>
-In-Reply-To: <1116975555.2050.10.camel@cof110earth.dr.avaya.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505251930.16089.daniel.ritz@gmx.ch>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bhavesh P. Davda wrote:
-> setitimer for 20ms was firing at 21ms, so I wrote a simple debug module
-> for 2.6.11.10 kernel on i386 to do something like this:
-> 
-> struct timeval tv;
-> unsigned long jif;
-> 
-> tv.tv_usec = 20000;
-> tv.tv_sec = 0;
-> 
-> jif = timeval_to_jiffies(&tv);
-> printk("%lu usec = %lu jiffies\n", tv.tv_usec, jif);
-> 
-> This yields:
-> 
-> 20000 usec = 21 jiffies
-> 
-> Egad!
-> 
-> I looked at the timeval_to_jiffies() inline function in
-> include/linux/jiffies.h, and after pulling my hair for a few minutes
-> (okay almost an hour), I decided to ask much smarter people than myself
-> on why it is behaving this way, and what it would take to fix it so that
-> "20000 usec = 20 jiffies".
-> 
-> I got as far as this in figuring it out for i386:
-> 
-> HZ=1000
-> SEC_CONVERSION=4194941632
-> USEC_CONVERSION=2199357558
-> USEC_ROUND=2199023255551
-> USEC_JIFFIE_SC=41
-> SEC_JIFFIE_SC=22
-> 
-> Thanks in advance for saving me from going bald!
-
-Well, I am already bald  :)
-
-What you are missing is that the PIT can not generate a 1ms tick.  The best it 
-can do is 999849 nanoseconds.  Given this we need to convert 20000 usec to not 
-less than 2000usec worth of jiffies (time MUST always be rounded up).  20 
-jiffies is 19.996980 usec so we need to use 21 (which is 20.996829 usec).
-
-Note that TICK_NSEC and tick_nsec will both be 999849 nanoseconds.
-
-If we do NOT account for this PIT issue, the result is a time drift that is 
-outside of what ntp can handle...
+adding what i missed in the first place :)
+Signed-off-by: Daniel Ritz <daniel.ritz@gmx.ch>
 
 
--- 
-George Anzinger   george@mvista.com
-High-res-timers:  http://sourceforge.net/projects/high-res-timers/
+On Tuesday 24 May 2005 01.18, Chris Wright wrote:
+> During a warm boot the device is in D3 and has troubles coming out of it.
+>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+>
+> ---
+>  drivers/net/3c59x.c |    9 ++++++---
+>  1 files changed, 6 insertions(+), 3 deletions(-)
+>
+> --- linux-2.6.11.10.orig/drivers/net/3c59x.c	2005-05-20 09:34:18.788560304
+> -0700 +++ linux-2.6.11.10/drivers/net/3c59x.c	2005-05-20 09:34:22.644974040
+> -0700 @@ -1581,7 +1581,8 @@
+>
+>  	if (VORTEX_PCI(vp)) {
+>  		pci_set_power_state(VORTEX_PCI(vp), PCI_D0);	/* Go active */
+> -		pci_restore_state(VORTEX_PCI(vp));
+> +		if (vp->pm_state_valid)
+> +			pci_restore_state(VORTEX_PCI(vp));
+>  		pci_enable_device(VORTEX_PCI(vp));
+>  	}
+>
+> @@ -2741,6 +2742,7 @@
+>  		outl(0, ioaddr + DownListPtr);
+>
+>  	if (final_down && VORTEX_PCI(vp)) {
+> +		vp->pm_state_valid = 1;
+>  		pci_save_state(VORTEX_PCI(vp));
+>  		acpi_set_WOL(dev);
+>  	}
+> @@ -3243,9 +3245,10 @@
+>  		outw(RxEnable, ioaddr + EL3_CMD);
+>
+>  		pci_enable_wake(VORTEX_PCI(vp), 0, 1);
+> +
+> +		/* Change the power state to D3; RxEnable doesn't take effect. */
+> +		pci_set_power_state(VORTEX_PCI(vp), PCI_D3hot);
+>  	}
+> -	/* Change the power state to D3; RxEnable doesn't take effect. */
+> -	pci_set_power_state(VORTEX_PCI(vp), PCI_D3hot);
+>  }

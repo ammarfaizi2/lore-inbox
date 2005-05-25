@@ -1,64 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVEYOrX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262340AbVEYOvG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbVEYOrX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 10:47:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262308AbVEYOrX
+	id S262340AbVEYOvG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 10:51:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbVEYOvG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 10:47:23 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:43699 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261365AbVEYOrT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 10:47:19 -0400
-Subject: Re: Add "FORTIFY_SOURCE" to the linux kernel
-From: Arjan van de Ven <arjan@infradead.org>
-To: Petr Vandrovec <vandrove@vc.cvut.cz>
-Cc: arjan@pentafluge.infradead.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-In-Reply-To: <4294891E.4070702@vc.cvut.cz>
-References: <20050525084332.GA16865@pentafluge.infradead.org>
-	 <4294891E.4070702@vc.cvut.cz>
-Content-Type: text/plain
-Date: Wed, 25 May 2005 16:47:16 +0200
-Message-Id: <1117032436.6010.76.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Wed, 25 May 2005 10:51:06 -0400
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:31423 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262351AbVEYOuw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 10:50:52 -0400
+Message-ID: <429490BD.6070606@yahoo.com.au>
+Date: Thu, 26 May 2005 00:50:37 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Bill Huey (hui)" <bhuey@lnxw.com>
+CC: Sven Dietrich <sdietrich@mvista.com>,
+       "'Lee Revell'" <rlrevell@joe-job.com>,
+       "'Andrew Morton'" <akpm@osdl.org>, dwalker@mvista.com, mingo@elte.hu,
+       hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance (scheduler)
+References: <005801c560da$ec624f50$c800a8c0@mvista.com> <429407B6.1000105@yahoo.com.au> <20050525060919.GA25959@nietzsche.lynx.com> <4294228D.1040809@yahoo.com.au> <20050525092737.GA28976@nietzsche.lynx.com>
+In-Reply-To: <20050525092737.GA28976@nietzsche.lynx.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-25 at 16:18 +0200, Petr Vandrovec wrote:
-> Hello,
->    how is this going to comply with rule that no existing symbols will be turned
-> into GPLONLY symbols, as stated by Linus couple of time, and mentioned for example
-> at http://www.tux.org/lkml/#s1-19 ?  To me it looks that no non-GPL module can work
-> on such kernel anymore, as memcpy/strcpy/... functions now, although themselves non-GPL
-> accessible (but inline...), depend on GPLONLY symbols.  Can you explain this to
-> me?
+Bill Huey (hui) wrote:
 
-then don't set the config option in your kernel, and you don't get
-these. Also memcpy_chk() is not an existing function, it is a new one.
-This is by no means mandatory.
+[snip helpful explanations]
+^
+thanks for that.
 
-Or, alternatively, in your module UNDEF the config option before
-including these headers.
+> Sorry, yeah, I'm a bit jumpy from dealing with chronic irrationality
+> from the FreeBSD group, which has created low expectations from various
+> open source groups at times. Interaction with other jumpy kernel
+> conservatives in this community doesn't the help the matter.
+> 
 
+Well no that's OK, and no hard feelings. I think there was a bit
+of misunderstanding on my behalf as well :)
 
->    And if you think that it is right thing to do, would not it be simpler for
-> everybody changing module loader so it just refuses to load non-GPL modules ?
-> Final functionality would be same in both cases...
+And I perhaps didn't make it so clear that I was taking a neutral
+stance, and not actually commenting on the patch specifically.
 
-that is not correct.
+> Basically, the more you read http://linuxdevices.com the more you'll
+> understand why folks are edgy about this. :)
+> 
 
+Well I think obviously any improvement in Linux's capability is a
+good thing. And at the end of the day it sounds like most or maybe
+all this stuff should be able to get included. But it is always
+going to be a slow process, and you'll probably have to put up with
+some flames along the way :P
+
+Well I'll be quiet now, unfortunately I didn't add much to the
+discussion myself!
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

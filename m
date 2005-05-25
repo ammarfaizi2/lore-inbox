@@ -1,62 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262404AbVEYSir@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVEYSrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262404AbVEYSir (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 14:38:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262397AbVEYSeb
+	id S261522AbVEYSrR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 14:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVEYSrP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 14:34:31 -0400
-Received: from ns1.heckrath.net ([213.239.205.18]:11938 "EHLO
-	mail.heckrath.net") by vger.kernel.org with ESMTP id S262390AbVEYScB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 14:32:01 -0400
-Date: Wed, 25 May 2005 21:34:19 +0200
-From: Sebastian Kaergel <mailing@wodkahexe.de>
-To: acpi-devel@lists.sourceforge.net
+	Wed, 25 May 2005 14:47:15 -0400
+Received: from mail.tyan.com ([66.122.195.4]:30981 "EHLO tyanweb.tyan")
+	by vger.kernel.org with ESMTP id S262368AbVEYSpU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 14:45:20 -0400
+Message-ID: <3174569B9743D511922F00A0C943142309F815CD@TYANWEB>
+From: YhLu <YhLu@tyan.com>
+To: Andi Kleen <ak@muc.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Error while reading /proc/acpi/battery/BAT1/state
-Message-Id: <20050525213419.1c5af770.mailing@wodkahexe.de>
-X-Mailer: Sylpheed version 1.9.11 (GTK+ 2.4.13; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Subject: 2.6.12-rc5 is broken in nvidia Ck804 Opteron MB/with dual core du
+	al way 
+Date: Wed, 25 May 2005 11:45:47 -0700
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Andi,
 
-installed 2.6.12-rc5 and noticed some strange behavior..
+following patch solve the problem.
 
-# while [ 1 ]; do cat /proc/acpi/battery/BAT1/state; done
-present:                 yes
-capacity state:          ok
-charging state:          discharging
-present rate:            0 mA
-remaining capacity:      1840 mAh
-present voltage:         14743 mV
-<and so on...>
+YH
 
-After a few second i get the following:
+ --- smpboot.o.c 2005-05-25 12:36:20.793913936 -0700
++++ smpboot.c   2005-05-25 12:36:31.569275832 -0700
+@@ -764,7 +764,7 @@
+                int i;
+                if (smp_num_siblings > 1) {
+                        for_each_online_cpu (i) {
+-                               if (cpu_core_id[cpu] == cpu_core_id[i]) {
++                               if (cpu_to_node[cpu] == cpu_to_node[i]) {
+                                        siblings++;
+                                        cpu_set(i, cpu_sibling_map[cpu]);
+                                }
 
-dswload-0294: *** Error: Looking up [PBST] in namespace,
-AE_ALREADY_EXISTS
-
-psparse-0601 [1606] ps_parse_loop         : During name lookup/catalog,
-AE_ALREADY_EXISTS
-
-psparse-1138: *** Error: Method execution failed
-[\_SB_.PCI0.LPC0.BAT1._BST] (Node defc21e8), AE_ALREADY_EXISTS
-
-acpi_battery-0208 [1599] acpi_battery_get_statu: Error evaluating _BST
-
-osl-0958 [2167] os_wait_semaphore     : Failed to acquire semaphore
-[de261d80|1|0], AE_TIME
-
-osl-0958 [2203] os_wait_semaphore     : Failed to acquire semaphore
-[de261d80|1|0], AE_TIME
-
-and so on...
-
-Machine is an Acer Travelmate 291lci laptop.
-If you need other details, please let me know.
-
-Thanks!
+> -----Original Message-----
+> From: YhLu 
+> Sent: Wednesday, May 25, 2005 11:10 AM
+> To: 'Andi Kleen'
+> Cc: linux-kernel@vger.kernel.org
+> Subject: RE: RT patch acceptance
+> 
+> Andi,
+> 
+> the 2.6.12-rc5 is broken in nvidia Ck804 Opteron MB.
+> 
+> the Core id seems to be right now.
+> 
+> the core 0 of node 1 can not be started and hang there.
+> 
+> YH
+> 
+> CPU 0(2) -> Node 0 -> Core 0
+> enabled ExtINT on CPU#0
+> ENABLING IO-APIC IRQs
+> Using IO-APIC 4
+> ...changing IO-APIC physical APIC ID to 4 ... ok.
+> Using IO-APIC 5
+> ...changing IO-APIC physical APIC ID to 5 ... ok.
+> Using IO-APIC 6
+> ...changing IO-APIC physical APIC ID to 6 ... ok.
+> Using IO-APIC 7
+> ...changing IO-APIC physical APIC ID to 7 ... ok.
+> Synchronizing Arb IDs.
+> testing the IO APIC.......................
+> 
+> 
+> 
+> 
+> .................................... done.
+> Using local APIC timer interrupts.
+> Detected 12.564 MHz APIC timer.
+> Booting processor 1/1 rip 6000 rsp ffff81007ff07f58 
+> Initializing CPU#1 masked ExtINT on CPU#1
+> CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
+> CPU: L2 Cache: 1024K (64 bytes/line)
+> CPU 1(2) -> Node 0 -> Core 1
+>  stepping 00
+> CPU 1: Syncing TSC to CPU 0.
+> Booting processor 2/2 rip 6000 rsp ffff81013ff11f58 
+> Initializing CPU#2 masked ExtINT on CPU#2

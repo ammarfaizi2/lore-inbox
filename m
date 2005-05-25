@@ -1,50 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262277AbVEYGSy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262271AbVEYGUT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262277AbVEYGSy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 02:18:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262278AbVEYGSy
+	id S262271AbVEYGUT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 02:20:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbVEYGUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 02:18:54 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:49577 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261333AbVEYGSm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 02:18:42 -0400
-Subject: Re: BUG() in radix-tree.c, 2.6.11, reiserfs ?
-From: Arjan van de Ven <arjan@infradead.org>
-To: Stephane Jourdois <kwisatz@rubis.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, reiserfs-list@namesys.com
-In-Reply-To: <20050524224802.GA11957@diamant.rubis.org>
-References: <20050524224802.GA11957@diamant.rubis.org>
-Content-Type: text/plain
-Date: Wed, 25 May 2005 08:18:06 +0200
-Message-Id: <1117001887.6010.34.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Wed, 25 May 2005 02:20:19 -0400
+Received: from miranda.se.axis.com ([193.13.178.8]:29117 "EHLO
+	miranda.se.axis.com") by vger.kernel.org with ESMTP id S262271AbVEYGTt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 02:19:49 -0400
+From: "Mikael Starvik" <mikael.starvik@axis.com>
+To: "'Guddu Guddu'" <guddu_blr123@yahoo.co.in>, <linux-kernel@vger.kernel.org>
+Subject: RE: Mounting cramfs from RAM address
+Date: Wed, 25 May 2005 08:19:47 +0200
+Message-ID: <BFECAF9E178F144FAEF2BF4CE739C668014C79D6@exmail1.se.axis.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1441
+In-Reply-To: <BFECAF9E178F144FAEF2BF4CE739C66802E5E89C@exmail1.se.axis.com>
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-05-25 at 00:48 +0200, Stephane Jourdois wrote:
-> Hello all,
-> 
-> I was burning a DVD-R at 16x speed on IDE, the .iso was on /dev/sda1,
-> which is a reiserfs part on a SATA disk.  I was at the same time
-> building another .iso on /dev/sda1, with files from an lvm spawned on
-> /dev/sd{b,c,d}.
+One way is to create a MTD RAM device and mount that. Look in 
+arch/cris/drivers/axisflashmap.c for example (search for RAM device).
 
-I suggest you try it again but without the "evil" nvidia driver.
+/Mikael
 
+-----Original Message-----
+From: linux-kernel-owner@vger.kernel.org
+[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Guddu Guddu
+Sent: Wednesday, May 25, 2005 8:08 AM
+To: linux-kernel@vger.kernel.org
+Subject: Mounting cramfs from RAM address
+
+
+Hi,
+
+I want to mount my cramfs stored at a particular
+address in RAM (i.e 0x8100_0000). What is the best way
+to do so?
+
+-- guddu
+
+
+
+________________________________________________________________________
+Yahoo! India Matrimony: Find your life partner online
+Go to: http://yahoo.shaadi.com/india-matrimony
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

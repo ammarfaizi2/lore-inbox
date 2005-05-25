@@ -1,87 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbVEYROz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVEYRRo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261482AbVEYROz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 13:14:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbVEYROz
+	id S261496AbVEYRRo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 13:17:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbVEYRRo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 13:14:55 -0400
-Received: from mail.tyan.com ([66.122.195.4]:46096 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S261482AbVEYROn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 13:14:43 -0400
-Message-ID: <3174569B9743D511922F00A0C943142309F815A6@TYANWEB>
-From: YhLu <YhLu@tyan.com>
-To: Andi Kleen <ak@muc.de>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Tech Support <TechSupport@tyan.com>,
-       support@tyan.de, Andrew Morton <akpm@osdl.org>, gl@fenedex.nl,
-       land@hetlageland.nl, hans@sww.nl, sww@sww.nl
-Subject: RE: Tyan Opteron boards and problems with parallel ports
-Date: Wed, 25 May 2005 10:15:11 -0700
+	Wed, 25 May 2005 13:17:44 -0400
+Received: from one.firstfloor.org ([213.235.205.2]:30091 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261496AbVEYRRh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 13:17:37 -0400
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Sven Dietrich <sdietrich@mvista.com>, dwalker@mvista.com, bhuey@lnxw.com,
+       nickpiggin@yahoo.com.au, hch@infradead.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+References: <1116957953.31174.37.camel@dhcp153.mvista.com>
+	<20050524224157.GA17781@nietzsche.lynx.com>
+	<1116978244.19926.41.camel@dhcp153.mvista.com>
+	<20050525001019.GA18048@nietzsche.lynx.com>
+	<1116981913.19926.58.camel@dhcp153.mvista.com>
+	<20050525005942.GA24893@nietzsche.lynx.com>
+	<1116982977.19926.63.camel@dhcp153.mvista.com>
+	<20050524184351.47d1a147.akpm@osdl.org> <4293DCB1.8030904@mvista.com>
+	<20050524192029.2ef75b89.akpm@osdl.org>
+	<20050525063306.GC5164@elte.hu>
+From: Andi Kleen <ak@muc.de>
+Date: Wed, 25 May 2005 19:17:36 +0200
+In-Reply-To: <20050525063306.GC5164@elte.hu> (Ingo Molnar's message of "Wed,
+ 25 May 2005 08:33:06 +0200")
+Message-ID: <m1br6zxm1b.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Don't always blame BIOS, if you like you could use LinuxBIOS instead....
+Ingo Molnar <mingo@elte.hu> writes:
 
-YH 
+> * Andrew Morton <akpm@osdl.org> wrote:
+>
+>> Sven Dietrich <sdietrich@mvista.com> wrote:
+>> >
+>> > I think people would find their system responsiveness / tunability
+>> >  goes up tremendously, if you drop just a few unimportant IRQs into
+>> >  threads.
+>> 
+>> People cannot detect the difference between 1000usec and 50usec 
+>> latencies, so they aren't going to notice any changes in 
+>> responsiveness at all.
+>
+> i agree in theory, but interestingly, people who use the -RT branch do 
+> report a smoother desktop experience. While it might also be a 
 
-> -----Original Message-----
-> From: Andi Kleen [mailto:ak@muc.de] 
-> Sent: Wednesday, May 25, 2005 9:50 AM
-> To: Linus Torvalds
-> Cc: linux-kernel@vger.kernel.org; Tech Support; 
-> support@tyan.de; Andrew Morton; gl@fenedex.nl; 
-> land@hetlageland.nl; hans@sww.nl; sww@sww.nl
-> Subject: Re: Tyan Opteron boards and problems with parallel ports
-> 
-> Linus Torvalds <torvalds@osdl.org> writes:
-> 
-> > On Fri, 20 May 2005, Robert M. Stockmann wrote:
-> >> 
-> >> All problems of Tyan Opteron based machines silently locking up 
-> >> during installation and/or during normal operation of 
-> running Linux, 
-> >> both 32bit and 64bit, without any display of kernel panic of any 
-> >> other logging method, seem to be solved when switching off the 
-> >> Parallel Port inside its BIOS.
-> 
-> The common Tyan problem case is when the machine has more 
-> than 3GB of RAM and "memory remapping" is enabled to recover 
-> the memory below the PCI memory hole. SOmething in that setup 
-> leads to problems and random memory corruption. I suspect a 
-> BIOS bug here.
-> 
-> Workaround is to not enable that option in the BIOS setup.
-> 
-> Then another older Tyan board (it might have been the K8W) 
-> was *extremly* picky in what DIMMs it accepted and in what 
-> slots because someone apparently didnt follow the AMD 
-> specification for the memory controller trace lines fully. 
-> That also caused common problems. 
-> 
-> 
-> > Can you do an install with the thing turned off, and then
-> >  - compile the kernel with CONFIG_PCI_DEBUG
-> >  - boot with the parallel port enabled, and send as much of 
-> the bootup 
-> >    output (and /proc/iomem and /proc/ioport) as possible
-> >  - boot with the parallel port disabled, and send the same 
-> output for that 
-> >    working case.
-> >
-> > I have no clue why the parallel port should matter, but it could 
-> > change some resource allocation issues.
-> 
-> It is the first time I heard about such a issue so it cannot 
-> be too wide spread anyways. 
-> 
-> -Andi
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in the body of a message to 
-> majordomo@vger.kernel.org More majordomo info at  
-> http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+I bet if you did a double blind test (users not knowing if they
+run with RT patch or not or think they are running with patch when they
+are not) they would report the same. 
+
+Basically when people go through all that effort of applying
+a patch then they really want to see an improvement. If it is there
+or not.
+
+You surely have seen that with other patches when users
+suddenly reported something worked better/smoother with a new
+release etc and there was absolutely no explanation for it in the changed
+code.
+
+I have no reason to believe this is any different with all
+this RT testing. 
+
+-Andi (who also would prefer to not have interrupt threads, locks like
+a maze and related horribilities in the mainline kernel) 
+

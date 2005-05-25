@@ -1,55 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262258AbVEYD0v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262264AbVEYDgf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262258AbVEYD0v (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 23:26:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbVEYD0v
+	id S262264AbVEYDgf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 23:36:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262262AbVEYDgd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 23:26:51 -0400
-Received: from vms048pub.verizon.net ([206.46.252.48]:18103 "EHLO
-	vms048pub.verizon.net") by vger.kernel.org with ESMTP
-	id S262258AbVEYD02 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 23:26:28 -0400
-Date: Tue, 24 May 2005 23:26:16 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: RT patch acceptance
-In-reply-to: <20050524192029.2ef75b89.akpm@osdl.org>
-To: linux-kernel@vger.kernel.org
-Message-id: <200505242326.16929.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <4292DFC3.3060108@yahoo.com.au> <4293DCB1.8030904@mvista.com>
- <20050524192029.2ef75b89.akpm@osdl.org>
-User-Agent: KMail/1.7
+	Tue, 24 May 2005 23:36:33 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:10735 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262255AbVEYDg3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 23:36:29 -0400
+From: "Sven Dietrich" <sdietrich@mvista.com>
+To: "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       "'Lee Revell'" <rlrevell@joe-job.com>
+Cc: "'Andrew Morton'" <akpm@osdl.org>, <dwalker@mvista.com>, <bhuey@lnxw.com>,
+       <mingo@elte.hu>, <hch@infradead.org>, <linux-kernel@vger.kernel.org>
+Subject: RE: RT patch acceptance
+Date: Tue, 24 May 2005 20:36:21 -0700
+Message-ID: <005801c560da$ec624f50$c800a8c0@mvista.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <4293EFE8.1080106@yahoo.com.au>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 24 May 2005 22:20, Andrew Morton wrote:
->Sven Dietrich <sdietrich@mvista.com> wrote:
->> I think people would find their system responsiveness / tunability
->>  goes up tremendously, if you drop just a few unimportant IRQs
->> into threads.
+
+> Lee Revell wrote:
+> 
+> >On Tue, 2005-05-24 at 19:20 -0700, Andrew Morton wrote:
+> >
+> >>Sven Dietrich <sdietrich@mvista.com> wrote:
+> >>
+> >>>I think people would find their system responsiveness / 
+> tunability  
+> >>>goes up tremendously, if you drop just a few unimportant 
+> IRQs into  
+> >>>threads.
+> >>>
+> >>People cannot detect the difference between 1000usec and 50usec 
+> >>latencies, so they aren't going to notice any changes in 
+> >>responsiveness at all.
+> >>
+> >
+> >The IDE IRQ handler can in fact run for several ms, which 
+> people sure 
+> >can detect.
+> >
+> >
+> 
+> Are you serious? Even at 10ms, the monitor refresh rate would 
+> have to be over 100Hz for anyone to "notice" anything, 
+> right?... What sort of numbers are you talking when you say several?
 >
->People cannot detect the difference between 1000usec and 50usec
-> latencies, so they aren't going to notice any changes in
-> responsiveness at all.
 
-Excuse me? 1 second (1000 usecs, 200 times your 50 usec example) is 
-VERY noticeable when you are listening to music, or worse yet, trying 
-to edit it.  For much of that, submillisecond accuracy makes or 
-breaks the application.
+Even without numbers, the IDE IRQ, when run in a thread, 
+competes with tasks at process level, so that other
+tasks can make some progress. Especially if those tasks are
+high priority.
 
-Lets get out of the server only camp here folks, linux is used for a 
-hell of a lot more than a home for apache.
+With multiple disks on a chain, you can see transients that
+lock up the CPU in IRQ mode for human-perceptible time,
+especially on slower CPUs... 
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.34% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+This is part of the reason why SoftIRQd exists: to act as
+a governor for bottom halves that run over and over again.
+SoftIRQd handles those bursty bottom halves in task space.
+
+So with that, you already have bottom halves in threads.
+
+Then we are just talking about the concept of running the
+top-half in a thread as well.
+
+Maybe Lee will have some numbers handy...
+
+

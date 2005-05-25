@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262360AbVEYPMN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262362AbVEYPOX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262360AbVEYPMN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 11:12:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262362AbVEYPMN
+	id S262362AbVEYPOX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 11:14:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbVEYPOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 11:12:13 -0400
-Received: from mxout.hispeed.ch ([62.2.95.247]:64449 "EHLO smtp.hispeed.ch")
-	by vger.kernel.org with ESMTP id S262360AbVEYPMH (ORCPT
+	Wed, 25 May 2005 11:14:23 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:40906 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262362AbVEYPOL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 11:12:07 -0400
-Message-Id: <429495E5.3020909@khandalf.com>
-Date: Wed, 25 May 2005 17:12:37 +0200
-From: "Brian O'Mahoney" <omb@khandalf.com>
-Reply-To: omb@bluewin.ch
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-CC: linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance (scheduler) --- QUESTION
-References: <005801c560da$ec624f50$c800a8c0@mvista.com>
-    <429407B6.1000105@yahoo.com.au>
-    <20050525060919.GA25959@nietzsche.lynx.com>
-    <4294228D.1040809@yahoo.com.au>
-    <20050525092737.GA28976@nietzsche.lynx.com>
-    <429490BD.6070606@yahoo.com.au>
-In-Reply-To: <429490BD.6070606@yahoo.com.au>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 25 May 2005 11:14:11 -0400
+Date: Wed, 25 May 2005 17:13:53 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Prakash Punnoor <lists@punnoor.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: swsusp and kernel 2.6.12-rc4 does not work
+Message-ID: <20050525151353.GC4375@elf.ucw.cz>
+References: <429353F8.5070404@punnoor.de> <20050525130123.GA1881@elf.ucw.cz> <42949431.7000006@punnoor.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Md5-Body: 0b76feb2ab8753d1ef66392fa46cc95f
-X-Transmit-Date: Wednesday, 25 May 2005 17:12:47 +0200
-X-Message-Uid: 0000b49cec9d005b0000000200000000429495ef00069abd00000001000a3dd2
-Replyto: omb@bluewin.ch
-X-Sender-Postmaster: Postmaster@80-218-57-125.dclient.hispeed.ch.
-Read-Receipt-To: omb@bluewin.ch
-X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-03.tornado.cablecom.ch 32701; Body=1
-	Fuz1=1 Fuz2=1
-To: unlisted-recipients:; (no To-header on input)
+In-Reply-To: <42949431.7000006@punnoor.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I havnt had time to look at thes patches so could someone
-who has answer the following questions
+Hi!
 
-- what is the increase in kernel overhead with the full
-  patch enabled
+> >>I haven't treid with an earlier kernel. I am using an Sony Vaio PCG-F8ß07K
+> >>notebook and tried to suspend.
+> >>
+> >>What goes wrong is, that the hd gets shut down before anything is written to it.
+> >>
+> >>I see (leaving some details out):
+> >>
+> >>Stopping task:========================|
+> >>Freeing memory..done (40502 pages freed)
+> >>swsusp: Need to copy 6953 pages
+> >>swsusp: critical section/: done (6981 pages copied)
+> >>ACPI: PCI Interrupt yadda yadda.. -> IRQ 9
+> >>
+> >>and there it sits. Is it really just the problem, that the hd gets shut down
+> >>too early? Is there an easy way to fix this?
+> > 
+> > 
+> > Disk shutdown is normal, you have other problem. Try again with
+> > minimal drivers.
+> 
+> But shouldn't this happen, *after* memory image is written into swap?
+> Otherwiese disk shuts down, spins up, writes image, shuts down, which is not
+> too healthy for the hd.
 
-- can the patch be configured IN/OUT and if so BUILD/RUN time
+No, it is not too healthy for the hd, and I'll fix it for 2.6.13, but
+you'll have to live with it for 2.6.12. See FAQ why.
 
-- I saw the mention of BUG catching, can someone elaborate
+> I'll try with minimal drivers anyway.
 
-TIA
+..will not fix disk going down up down, but could fix your other
+problem...
 
--- 
-mit freundlichen Grüßen, Brian.
-
+								Pavel

@@ -1,70 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVEYMqe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262333AbVEYMvg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbVEYMqe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 08:46:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262329AbVEYMqe
+	id S262333AbVEYMvg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 08:51:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262335AbVEYMvf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 08:46:34 -0400
-Received: from mx2.suse.de ([195.135.220.15]:63419 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261443AbVEYMq0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 08:46:26 -0400
-Message-ID: <429473A1.6010402@suse.de>
-Date: Wed, 25 May 2005 14:46:25 +0200
-From: Hannes Reinecke <hare@suse.de>
-Organization: SuSE Linux AG
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.5) Gecko/20050317
-X-Accept-Language: en-us, en
+	Wed, 25 May 2005 08:51:35 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:60618 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S262333AbVEYMvd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 08:51:33 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Wed, 25 May 2005 14:50:44 +0200
+To: linux-kernel@vger.kernel.org
+Subject: Re: OT] Joerg Schilling flames Linux on his Blog
+Message-ID: <429474A4.nail1XA1DB0IM@burner>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix reference counting for failed SCSI devices
-References: <4292F631.9090300@suse.de> <1116975478.7710.28.camel@mulgrave>	 <4294201D.4070304@suse.de> <1117024043.5071.6.camel@mulgrave>
-In-Reply-To: <1117024043.5071.6.camel@mulgrave>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bottomley wrote:
-> On Wed, 2005-05-25 at 08:50 +0200, Hannes Reinecke wrote:
->>>>+	class_device_put(&sdev->sdev_classdev);
->>>This is unnecessary since the class device is simply occupying a private
->>>area in the scsi_device.  As long as its never made visible to the
->>>system, its refcount is irrelevant
->>>
->>It's not. Whenever you try to rmmod the adapter it becomes highly
->>relevant. If it doesn't crash you've at least generated a memleak as the
->>class device is never freed.
->>(And these are quite a few for Wide-SCSI Double-channel adapters ...)
-> 
-> ?  Look at the code; you're not doing a put on a pointer to the
-> sdev_classdev, you're doing a put on a reference to it.
-> 
-> It's defined in scsi_device.h:
-> 
-> struct scsi_device {
-> 	...
-> 	struct class_device sdev_classdev;
-> 	...
-> };
-> 
-> so it's contained within the scsi_device.  Freeing the scsi_device frees
-> the classdev (and the gendev).
-> 
-But does not call the ->release function.
+Patrick McFarland wrote: 
 
-Put it the other way round: does 'rmmod aic7xxx' work for you?
-It certainly did _not_ work for aic79xx, hence the fix.
+>As everyone knows, Joerg Schilling has a blog, and he often pushes his
+>pro-Solaris agenda, and flames the LKML about how Linux breaks cdrecord
+>(instead of just admitting cdrecord is broken) or how much more awesome
+>Solaris is compared to Linux.
 
-Cheers,
+>Well, he just fired yet another salvo at the Linux community:
+>http://schily.blogspot.com/2005/04/value-marketing-and-freedom.html
 
-Hannes
+As it seems you don't understand, let me explain: this is definitely not an 
+anti Linux Blog but rather a reply to the anti Solaris article of a pro 
+Linux Bigot who calls himself a writer....
+
+
+>I commented on his blog entry, but I am afraid of being censored as my views 
+>do not align with his, so I am including the text of my comment here: 
+
+Strange thoughts. Why should someone who fights for freedom even think about
+removing a comment that is not a personal infringement? As you seem to think
+about this posibility, let me ask: should we be rather afraid of you?
+
+...
+
+>Linux developers code, OpenSolaris developers sit around and flame Linux=20
+>developers instead of coding. Which operating system would _you_ choose?
+
+A nice self contradicting statement.....
+
+Jörg
+
 -- 
-Dr. Hannes Reinecke			hare@suse.de
-SuSE Linux AG				S390 & zSeries
-MaxfeldstraÃŸe 5				+49 911 74053 688
-90409 NÃ¼rnberg				http://www.suse.de
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  
+       schilling@fokus.fraunhofer.de	(work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

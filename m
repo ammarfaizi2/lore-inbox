@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262788AbVEYFkK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S263195AbVEYFtY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262788AbVEYFkK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 01:40:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262792AbVEYFkK
+	id S263195AbVEYFtY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 01:49:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S263199AbVEYFtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 01:40:10 -0400
-Received: from quark.didntduck.org ([69.55.226.66]:30624 "EHLO
-	quark.didntduck.org") by vger.kernel.org with ESMTP id S262788AbVEYFkF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 01:40:05 -0400
-Message-ID: <42941017.3090707@didntduck.org>
-Date: Wed, 25 May 2005 01:41:43 -0400
-From: Brian Gerst <bgerst@didntduck.org>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: van <van.wanless@eqware.net>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: File I/O from within a driver
-References: <2005524221531.650853@Oz>
-In-Reply-To: <2005524221531.650853@Oz>
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 25 May 2005 01:49:24 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:41384 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S263195AbVEYFtT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 01:49:19 -0400
+Date: Wed, 25 May 2005 06:49:14 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       "Bagalkote, Sreenivas" <sreenib@lsil.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org, Matt_Domsch@Dell.com,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>
+Subject: Re: [PATCH 2.6.12-rc4-mm1 3/4] megaraid_sas: updating the driver
+Message-ID: <20050525054914.GA8574@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Salyzyn, Mark" <mark_salyzyn@adaptec.com>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	Arjan van de Ven <arjan@infradead.org>,
+	"Bagalkote, Sreenivas" <sreenib@lsil.com>,
+	linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Matt_Domsch@Dell.com, Andrew Morton <akpm@osdl.org>
+References: <60807403EABEB443939A5A7AA8A7458B01399B22@otce2k01.adaptec.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <60807403EABEB443939A5A7AA8A7458B01399B22@otce2k01.adaptec.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-van wrote:
-> Hi...
->  
-> I am currently writing a driver for a hardware codec accelerator.  The calling application will open a media file, write to the codec driver, and read frames back from the codec driver.  My issue comes with the read of the media file.  The structure of media files is complex and I'd rather the calling application didn't need to have any knowledge of that structure.  But how can the driver do the necessary read() operations?
->  
-> I could, for example, have the application pass an open file descriptor in to my driver via an ioctl() call; if I understand matters correctly, my driver could then call sys_read().  I've never done anything like that before, never expected to need to, and it doesn't feel right.
->  
-> Can anyone suggest the *proper* way to accomplish this?
->  
-> I am not a member the list list; I hit the weeklies pretty frequently, but I'd appreciate it any responders would CC me directly at van.wanless@eqware.net.   Thanks.
->
+On Tue, May 24, 2005 at 04:45:05PM -0400, Salyzyn, Mark wrote:
+> Could I get an historical (2.4 & Distribution) perspective on this. At
+> which point, or what code/include/manifest/version delineating it, would
+> you say the driver is no longer, if ever, required to place a lock
+> (host_lock or io_request_lock) around the scsi_done call?
+> 
+> I expect (or hope) the answer to be: always needs io_request_lock in
+> 2.4, never needed the host_lock in 2.5+.
 
-The best way is to mmap() the file into memory, then pass the address to 
-the driver.
+You don't need any lock in 2.4 either.
 
---
-				Brian Gerst

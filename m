@@ -1,67 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262313AbVEYMYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262321AbVEYM1w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262313AbVEYMYz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 08:24:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262319AbVEYMYz
+	id S262321AbVEYM1w (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 08:27:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262322AbVEYM1m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 08:24:55 -0400
-Received: from fire.osdl.org ([65.172.181.4]:52125 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262313AbVEYMYx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 08:24:53 -0400
-Date: Wed, 25 May 2005 05:24:00 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [patch] remove set_tsk_need_resched() from init_idle()
-Message-Id: <20050525052400.46bccf26.akpm@osdl.org>
-In-Reply-To: <20050524154230.GA17814@elte.hu>
-References: <20050524121541.GA17049@elte.hu>
-	<20050524140623.GA3500@elte.hu>
-	<4293420C.8080400@yahoo.com.au>
-	<20050524150537.GA11829@elte.hu>
-	<42934748.8020501@yahoo.com.au>
-	<20050524152759.GA15411@elte.hu>
-	<20050524154230.GA17814@elte.hu>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Wed, 25 May 2005 08:27:42 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:55271 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S262321AbVEYM11 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 08:27:27 -0400
+Subject: Re: [PATCH] Fix reference counting for failed SCSI devices
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Hannes Reinecke <hare@suse.de>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <4294201D.4070304@suse.de>
+References: <4292F631.9090300@suse.de> <1116975478.7710.28.camel@mulgrave>
+	 <4294201D.4070304@suse.de>
+Content-Type: text/plain
+Date: Wed, 25 May 2005 07:27:23 -0500
+Message-Id: <1117024043.5071.6.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar <mingo@elte.hu> wrote:
->
-> ..
->
-> this patch (ontop of the current -mm scheduler patchset) tweaks 
-> cpu_idle() semantics a bit: it changes the idle loops (that do 
-> preemption) to call the first schedule() unconditionally.
-> 
-> the advantage is that as a result we dont have to set the idle thread's 
-> NEED_RESCHED flag in init_idle(), which in turn makes cond_resched() 
-> even more of an invariant: it can be called even from init code without 
-> it having any effect. A cond resched in the init codepath hangs 
-> otherwise.
-> 
-> this patch, while having no negative side-effects, enables wider use of 
-> cond_resched()s. (which might happen in the stock kernel too, but it's 
-> particulary important for voluntary-preempt) (note that for now this 
-> patch only covers architectures that use kernel/Kconfig.preempt, but all 
-> other architectures will work just fine too.)
-> 
-> --- linux/arch/x86_64/kernel/process.c.orig
-> +++ linux/arch/x86_64/kernel/process.c
-> @@ -162,6 +162,8 @@ EXPORT_SYMBOL_GPL(cpu_idle_wait);
->   */
->  void cpu_idle (void)
->  {
-> +	set_tsk_need_resched(current);
-> +
->  	/* endless idle loop with no priority at all */
->  	while (1) {
->  		while (!need_resched()) {
+On Wed, 2005-05-25 at 08:50 +0200, Hannes Reinecke wrote:
+> >>+	class_device_put(&sdev->sdev_classdev);
+> > 
+> > This is unnecessary since the class device is simply occupying a private
+> > area in the scsi_device.  As long as its never made visible to the
+> > system, its refcount is irrelevant
+> > 
+> It's not. Whenever you try to rmmod the adapter it becomes highly
+> relevant. If it doesn't crash you've at least generated a memleak as the
+> class device is never freed.
+> (And these are quite a few for Wide-SCSI Double-channel adapters ...)
 
-ia64 needed this treatment also to fix a hang during boot.  u o me 3 hrs.
+?  Look at the code; you're not doing a put on a pointer to the
+sdev_classdev, you're doing a put on a reference to it.
 
-Are all the other architectures busted as well?
+It's defined in scsi_device.h:
+
+struct scsi_device {
+	...
+	struct class_device sdev_classdev;
+	...
+};
+
+so it's contained within the scsi_device.  Freeing the scsi_device frees
+the classdev (and the gendev).
+
+James
+
+

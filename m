@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262335AbVEYNCk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262334AbVEYNGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262335AbVEYNCk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 09:02:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262334AbVEYNCk
+	id S262334AbVEYNGS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 09:06:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbVEYNGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 09:02:40 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42185 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262335AbVEYNC2 (ORCPT
+	Wed, 25 May 2005 09:06:18 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:26325 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262334AbVEYNGM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 09:02:28 -0400
-Date: Wed, 25 May 2005 15:01:23 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Prakash Punnoor <lists@punnoor.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: swsusp and kernel 2.6.12-rc4 does not work
-Message-ID: <20050525130123.GA1881@elf.ucw.cz>
-References: <429353F8.5070404@punnoor.de>
+	Wed, 25 May 2005 09:06:12 -0400
+Date: Wed, 25 May 2005 18:36:07 +0530
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: Alexander Nyberg <alexn@telia.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       fastboot@lists.osdl.org
+Subject: Re: [Fastboot] [1/2] kdump: Use real pt_regs from exception
+Message-ID: <20050525130607.GB3658@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <1116103798.6153.30.camel@localhost.localdomain> <20050518123500.GA3657@in.ibm.com> <1116427862.22324.5.camel@localhost.localdomain> <20050525020749.1ad56a80.akpm@osdl.org> <1117023296.877.11.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <429353F8.5070404@punnoor.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1117023296.877.11.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Út 24-05-05 18:19:04, Prakash Punnoor wrote:
-> Hi,
+On Wed, May 25, 2005 at 02:14:56PM +0200, Alexander Nyberg wrote:
+> ons 2005-05-25 klockan 02:07 -0700 skrev Andrew Morton:
+> > Alexander Nyberg <alexn@telia.com> wrote:
+> > >
+> > > -extern void machine_crash_shutdown(void);
+> > >  +extern void machine_crash_shutdown(struct pt_regs *);
+> > 
+> > That'll break x86_64, ppc, ppc64 and s/390.
 > 
-> I haven't treid with an earlier kernel. I am using an Sony Vaio PCG-F8ß07K
-> notebook and tried to suspend.
+> I'm such an idiot.
 > 
-> What goes wrong is, that the hd gets shut down before anything is written to it.
+> Make sure all arches take pt_regs * as argument to
+> machine_crash_shutdown(). (now cross-compiled on above arches except
+> s/390).
 > 
-> I see (leaving some details out):
-> 
-> Stopping task:========================|
-> Freeing memory..done (40502 pages freed)
-> swsusp: Need to copy 6953 pages
-> swsusp: critical section/: done (6981 pages copied)
-> ACPI: PCI Interrupt yadda yadda.. -> IRQ 9
-> 
-> and there it sits. Is it really just the problem, that the hd gets shut down
-> too early? Is there an easy way to fix this?
 
-Disk shutdown is normal, you have other problem. Try again with
-minimal drivers.
-								Pavel
+Alexander, I face following warning if I build my kernel without HIGHMEM
+support. Fianally linker fails in the end.
+
+CC      kernel/kexec.o
+kernel/kexec.c: In function `kexec_should_crash':
+kernel/kexec.c:37: warning: implicit declaration of function `in_interrupt'
+
+If I include HIGHMEM support, it compiles fine.
+
+You might have to include include/linux/hardirq.h in kexec.c to 
+resolve the problem.
+
+Thanks
+Vivek 

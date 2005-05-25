@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262205AbVEYQuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVEYRG1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262205AbVEYQuU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 12:50:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261479AbVEYQuU
+	id S261480AbVEYRG1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 13:06:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVEYRG1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 12:50:20 -0400
-Received: from one.firstfloor.org ([213.235.205.2]:24971 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S262205AbVEYQuF
+	Wed, 25 May 2005 13:06:27 -0400
+Received: from dns.toxicfilms.tv ([150.254.220.184]:58302 "EHLO
+	dns.toxicfilms.tv") by vger.kernel.org with ESMTP id S261480AbVEYRGR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 12:50:05 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: linux-kernel@vger.kernel.org, techsupport@tyan.com, support@tyan.de,
-       Andrew Morton <akpm@osdl.org>, gl@fenedex.nl, land@hetlageland.nl,
-       hans@sww.nl, sww@sww.nl
-Subject: Re: Tyan Opteron boards and problems with parallel ports
-References: <Pine.LNX.4.44.0505200121410.10661-100000@hubble.stokkie.net>
-	<Pine.LNX.4.58.0505191727030.2322@ppc970.osdl.org>
-From: Andi Kleen <ak@muc.de>
-Date: Wed, 25 May 2005 18:50:03 +0200
-In-Reply-To: <Pine.LNX.4.58.0505191727030.2322@ppc970.osdl.org> (Linus
- Torvalds's message of "Thu, 19 May 2005 17:34:49 -0700 (PDT)")
-Message-ID: <m1r7fvxnb8.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Wed, 25 May 2005 13:06:17 -0400
+Date: Wed, 25 May 2005 19:06:18 +0200
+From: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Mailer: The Bat! (v3.0) UNREG / CD5BF9353B3B7091
+Reply-To: Maciej Soltysiak <solt2@dns.toxicfilms.tv>
+X-Priority: 3 (Normal)
+Message-ID: <849865860.20050525190618@dns.toxicfilms.tv>
+To: linux-kernel@vger.kernel.org
+CC: Stephen Hemminger <shemminger@osdl.org> (Open Source Development
+	Lab)
+Subject: Re: 2.6.12-rc4-tcp3
+In-Reply-To: <20050524163939.0fb86509@dxpl.pdx.osdl.net>
+References: <20050524163939.0fb86509@dxpl.pdx.osdl.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+Hi
 
-> On Fri, 20 May 2005, Robert M. Stockmann wrote:
->> 
->> All problems of Tyan Opteron based machines silently locking up during 
->> installation and/or during normal operation of running Linux, both 
->> 32bit and 64bit, without any display of kernel panic of any other 
->> logging method, seem to be solved when switching off the Parallel Port 
->> inside its BIOS.
+It is a pity it does not apply to -rc5:
+Gives this reject:
 
-The common Tyan problem case is when the machine has more than 3GB
-of RAM and "memory remapping" is enabled to recover the memory
-below the PCI memory hole. SOmething in that setup leads
-to problems and random memory corruption. I suspect a BIOS bug
-here.
+***************
+*** 4355,4370 ****
+                                        goto no_ack;
+                        }
 
-Workaround is to not enable that option in the BIOS setup.
+-                       if (eaten) {
+-                               if (tcp_in_quickack_mode(tp)) {
+-                                       tcp_send_ack(sk);
+-                               } else {
+-                                       tcp_send_delayed_ack(sk);
+-                               }
+-                       } else {
+-                               __tcp_ack_snd_check(sk, 0);
+-                       }
+-
+  no_ack:
+                        if (eaten)
+                                __kfree_skb(skb);
+--- 3719,3725 ----
+                                        goto no_ack;
+                        }
 
-Then another older Tyan board (it might have been the K8W)
-was *extremly* picky in what DIMMs it accepted and in what 
-slots because someone apparently didnt follow the AMD specification for 
-the memory controller trace lines fully. That also caused common problems. 
++                       __tcp_ack_snd_check(sk, 0);
+  no_ack:
+                        if (eaten)
+                                __kfree_skb(skb);
+
+Regards,
+Maciej
 
 
-> Can you do an install with the thing turned off, and then 
->  - compile the kernel with CONFIG_PCI_DEBUG
->  - boot with the parallel port enabled, and send as much of the bootup 
->    output (and /proc/iomem and /proc/ioport) as possible
->  - boot with the parallel port disabled, and send the same output for that 
->    working case.
->
-> I have no clue why the parallel port should matter, but it could change 
-> some resource allocation issues.
-
-It is the first time I heard about such a issue so it cannot be too
-wide spread anyways. 
-
--Andi

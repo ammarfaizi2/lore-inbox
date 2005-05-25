@@ -1,63 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262315AbVEYNXb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262343AbVEYNZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262315AbVEYNXb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 09:23:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262341AbVEYNXb
+	id S262343AbVEYNZp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 09:25:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262347AbVEYNZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 09:23:31 -0400
-Received: from vms042pub.verizon.net ([206.46.252.42]:28609 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S262315AbVEYNVH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 09:21:07 -0400
-Date: Wed, 25 May 2005 09:20:57 -0400
+	Wed, 25 May 2005 09:25:45 -0400
+Received: from vms040pub.verizon.net ([206.46.252.40]:37301 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S262343AbVEYNX7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 09:23:59 -0400
+Date: Wed, 25 May 2005 09:23:58 -0400
 From: Gene Heskett <gene.heskett@verizon.net>
 Subject: Re: RT patch acceptance
-In-reply-to: <42940A87.7010504@yahoo.com.au>
+In-reply-to: <20050525063306.GC5164@elte.hu>
 To: linux-kernel@vger.kernel.org
-Message-id: <200505250920.57389.gene.heskett@verizon.net>
+Message-id: <200505250923.58383.gene.heskett@verizon.net>
 Organization: None, usuallly detectable by casual observers
 MIME-version: 1.0
 Content-type: text/plain; charset=us-ascii
 Content-transfer-encoding: 7bit
 Content-disposition: inline
-References: <4292DFC3.3060108@yahoo.com.au>
- <200505242326.16929.gene.heskett@verizon.net> <42940A87.7010504@yahoo.com.au>
+References: <1116957953.31174.37.camel@dhcp153.mvista.com>
+ <20050524192029.2ef75b89.akpm@osdl.org> <20050525063306.GC5164@elte.hu>
 User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 25 May 2005 01:17, Nick Piggin wrote:
->Gene Heskett wrote:
->>On Tuesday 24 May 2005 22:20, Andrew Morton wrote:
->>>Sven Dietrich <sdietrich@mvista.com> wrote:
->>>>I think people would find their system responsiveness /
->>>> tunability goes up tremendously, if you drop just a few
->>>> unimportant IRQs into threads.
->>>
->>>People cannot detect the difference between 1000usec and 50usec
->>>latencies, so they aren't going to notice any changes in
->>>responsiveness at all.
->>
->>Excuse me?
+On Wednesday 25 May 2005 02:33, Ingo Molnar wrote:
+
+>[ of course this is all just talk, but people seem to have a desire
+> to talk about it :-) ]
 >
->You are excused ;)
->
->> 1 second (1000 usecs, 200 times your 50 usec example) is
->
->1000usecs is 1msec.
+> Ingo
 
-Duh, my mistake. And it probably wouldn't do to plead alzheimers 
-either, darn.
-
-[...]
-
->This is a topic that for some reason will tend to degenerate into a
-> random shouting match where nobody actually says anything or
-> listens to anything, and nothing gets done. Not to say you are
-> trying to start a flamewar, Gene, but everyone just needs to tread
-> a bit carefully :)
-
-Duely chastised.
+Did you get my (private) message re the 47-07 patch and einstein@home?
 
 -- 
 Cheers, Gene

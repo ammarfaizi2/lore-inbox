@@ -1,36 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262372AbVEYPTX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262374AbVEYPUl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262372AbVEYPTX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 11:19:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262373AbVEYPTX
+	id S262374AbVEYPUl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 11:20:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262375AbVEYPUk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 11:19:23 -0400
-Received: from colin.muc.de ([193.149.48.1]:13316 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S262372AbVEYPTT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 11:19:19 -0400
-Date: 25 May 2005 17:19:18 +0200
-Date: Wed, 25 May 2005 17:19:18 +0200
-From: Andi Kleen <ak@muc.de>
-To: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-Cc: akpm@osdl.org, davem@davemloft.net, linux-kernel@vger.kernel.org,
-       systemtap@sources.redhat.com
-Subject: Re: [PATCH 2/5] Kprobes: Temporary disarming of reentrant probe for i386
-Message-ID: <20050525151918.GB86087@muc.de>
-References: <20050524101532.GA27215@in.ibm.com> <20050524101712.GA27186@in.ibm.com>
+	Wed, 25 May 2005 11:20:40 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:24568 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262374AbVEYPUf convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 11:20:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=FCoYX2AAkifOVWmjVgX4fskt0oXyT7C0GHU+2jvBm5Tp+dnFXYt8n1YPuIAIAcEIbnu6L3HJkLe3+bST2aPt1+y8iBPRkErOaNNt6pl53qE2vpAuY63bLSpGBV6glmN36I4nuYQdQ3AzKsIDEXGl2cXoM/L0xLiT8+8wXumxDU0=
+Message-ID: <4d8e3fd3050525082051cb144b@mail.gmail.com>
+Date: Wed, 25 May 2005 17:20:35 +0200
+From: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+Reply-To: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>
+To: linux <linux-kernel@vger.kernel.org>
+Subject: No announcement for 2.6.12-rc5 ?
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050524101712.GA27186@in.ibm.com>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 24, 2005 at 03:47:12PM +0530, Prasanna S Panchamukhi wrote:
-> 
-> This patch includes i386 architecture specific changes to support temporary
-> disarming on reentrancy of probes.
+I can't find it in the lkml archive, what's up ?
 
-The patches are all fine from my side.
-
--Andi
+-- 
+http://paoloc.blogspot.com

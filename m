@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262254AbVEYDG2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbVEYDYw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262254AbVEYDG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 23:06:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbVEYDG2
+	id S262256AbVEYDYw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 23:24:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbVEYDYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 23:06:28 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:32676 "EHLO
-	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id S262255AbVEYDG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 23:06:26 -0400
-Message-ID: <4293EB62.7070706@nortel.com>
-Date: Tue, 24 May 2005 21:05:06 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Tue, 24 May 2005 23:24:52 -0400
+Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:58970 "HELO
+	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262257AbVEYDYa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 23:24:30 -0400
+Message-ID: <4293EFE8.1080106@yahoo.com.au>
+Date: Wed, 25 May 2005 13:24:24 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Sven Dietrich <sdietrich@mvista.com>
-CC: karim@opersys.com, "'Bill Huey (hui)'" <bhuey@lnxw.com>,
-       "'Daniel Walker'" <dwalker@mvista.com>,
-       "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
-       "'Ingo Molnar'" <mingo@elte.hu>,
-       "'Christoph Hellwig'" <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
+To: Lee Revell <rlrevell@joe-job.com>
+CC: Andrew Morton <akpm@osdl.org>, Sven Dietrich <sdietrich@mvista.com>,
+       dwalker@mvista.com, bhuey@lnxw.com, mingo@elte.hu, hch@infradead.org,
+       linux-kernel@vger.kernel.org
 Subject: Re: RT patch acceptance
-References: <005201c560d2$9b9d1990$c800a8c0@mvista.com>
-In-Reply-To: <005201c560d2$9b9d1990$c800a8c0@mvista.com>
+References: <4292DFC3.3060108@yahoo.com.au> <20050524081517.GA22205@elte.hu>	 <4292E559.3080302@yahoo.com.au> <20050524090240.GA13129@elte.hu>	 <4292F074.7010104@yahoo.com.au>	 <1116957953.31174.37.camel@dhcp153.mvista.com>	 <20050524224157.GA17781@nietzsche.lynx.com>	 <1116978244.19926.41.camel@dhcp153.mvista.com>	 <20050525001019.GA18048@nietzsche.lynx.com>	 <1116981913.19926.58.camel@dhcp153.mvista.com>	 <20050525005942.GA24893@nietzsche.lynx.com>	 <1116982977.19926.63.camel@dhcp153.mvista.com>	 <20050524184351.47d1a147.akpm@osdl.org> <4293DCB1.8030904@mvista.com>	 <20050524192029.2ef75b89.akpm@osdl.org> <1116987976.2912.110.camel@mindpipe>
+In-Reply-To: <1116987976.2912.110.camel@mindpipe>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sven Dietrich wrote:
+Lee Revell wrote:
 
->>Forgive the dumb question:
->>Why isn't anyone doing a presentation about Ingo's patch at 
->>the OLS this year?
+>On Tue, 2005-05-24 at 19:20 -0700, Andrew Morton wrote:
+>
+>>Sven Dietrich <sdietrich@mvista.com> wrote:
+>>
+>>>I think people would find their system responsiveness / tunability
+>>> goes up tremendously, if you drop just a few unimportant IRQs into
+>>> threads.
+>>>
+>>People cannot detect the difference between 1000usec and 50usec latencies,
+>>so they aren't going to notice any changes in responsiveness at all.
+>>
+>
+>The IDE IRQ handler can in fact run for several ms, which people sure
+>can detect.
+>
+>
 
-> I think its too late to add a presentation there now, 
-> but if folks are interested, I would be willing to talk about
-> it all day long.
+Are you serious? Even at 10ms, the monitor refresh rate would have to be
+over 100Hz for anyone to "notice" anything, right?... What sort of numbers
+are you talking when you say several?
 
-At the very minimum it should be possible to add a BOF session...
-
-Chris
+Send instant messages to your online friends http://au.messenger.yahoo.com 

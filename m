@@ -1,53 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVEYXHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVEYXMd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbVEYXHb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 19:07:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVEYXHb
+	id S261590AbVEYXMd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 19:12:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261607AbVEYXMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 19:07:31 -0400
-Received: from postfix3-1.free.fr ([213.228.0.44]:43966 "EHLO
-	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S261602AbVEYXHZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 19:07:25 -0400
-Message-ID: <4294F718.8040107@ens-lyon.fr>
-Date: Thu, 26 May 2005 00:07:20 +0200
-From: Alexandre Buisse <alexandre.buisse@ens-lyon.fr>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050417)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org, pcaulfie@redhat.com, teigland@redhat.com
-Subject: Re: dlm-lockspaces-callbacks-directory-fix.patch added to -mm tree
-References: <200505252249.j4PMnN4q021004@shell0.pdx.osdl.net>
-In-Reply-To: <200505252249.j4PMnN4q021004@shell0.pdx.osdl.net>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 25 May 2005 19:12:33 -0400
+Received: from smtpout.mac.com ([17.250.248.72]:19691 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261590AbVEYXM0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 19:12:26 -0400
+In-Reply-To: <42947A75.nail1XA2FQPXX@burner>
+References: <42947A75.nail1XA2FQPXX@burner>
+Mime-Version: 1.0 (Apple Message framework v728)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <B12D948C-4CE9-4139-B0D6-68F8526D0F43@mac.com>
+Cc: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: OT] Joerg Schilling flames Linux on his Blog
+Date: Wed, 25 May 2005 19:12:18 -0400
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+X-Mailer: Apple Mail (2.728)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-akpm@osdl.org wrote:
-> The patch titled
-> 
->      dlm build fix
-> 
-> has been added to the -mm tree.  Its filename is
-> 
->      dlm-lockspaces-callbacks-directory-fix.patch
-> 
-> Patches currently in -mm which might be from alexandre.buisse@ens-lyon.fr are
-> 
-> dlm-lockspaces-callbacks-directory-fix.patch
+On May 25, 2005, at 09:15:33, Joerg Schilling wrote:
+> If Linux believes that there should be enhanced security similar to  
+> Solaris and
+> if Linux is a true open Source business, then I would expect that  
+> there is
+> cooperation. If I change things in e.g. mkisofs or cdrecord that  
+> could result
+> in problems for my "users", I send a notification mail to the  
+> XCDRoast & k3b
+> authors early enough.
 
-Hi Andrew,
-I just noticed that the line 'extern const int
-dlm_lvb_operations[8][8];' had been removed in the inline patch you just
-mailed.
+There was a security hole in the CD burner support.  The Linux Kernel  
+developers
+fixed it quickly.  They were not planning to wait 6 months for you to  
+get an
+updated version of cdrecord out the door in any case.  If you want more
+information on the Linux Kernel security policy, please see a recent  
+copy of the
+linux kernel for the file Documentation/SecurityBugs.  To quote the  
+relevant
+part:  "It is reasonable to delay disclosure ... or for vendor  
+coordination.
+However we expect these delays to be short, measurable in days, not  
+weeks or
+months."  Part of this policy includes "we'd like to know when a  
+security bug is
+found so that it can be fixed and disclosed as quickly as possible."   
+This seems
+to imply that the security team is not likely to wait 6 months to fix  
+a critical
+hardware-damaging vulnerability.
 
-Sorry for not making it clear in my first mail, but that definition is
-needed with CONFIG_DLM_DEVICE=y. Without it, the build fails at line 362
-in drivers/dlm/device.c.
+> If the cause for the change really was the "security problem"  
+> caused by the
+> fact that Linux did allow to send SCSI commands on R/O file  
+> descriptors it
+> would have been sufficient to require R/W permissions on the fd.  
+> After this
+> putative small change, the supposed problem would have been fixed  
+> and cdrtools
+> as well as other users of the interface did work as before.
 
-Regards,
-Alexandre
+I will not debate this issue with you.  Please see the copious  
+quantities of
+emails when this issue was brought up a while ago.
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$  
+r  !y?(-)
+------END GEEK CODE BLOCK------
+
+
+

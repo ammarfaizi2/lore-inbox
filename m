@@ -1,53 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262331AbVEYHFf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262295AbVEYHIw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262331AbVEYHFf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 03:05:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVEYHBI
+	id S262295AbVEYHIw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 03:08:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262316AbVEYHGs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 03:01:08 -0400
-Received: from fmr16.intel.com ([192.55.52.70]:49348 "EHLO
-	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
-	id S262302AbVEYG60 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 02:58:26 -0400
-Subject: Re: [0/5] Improvements to the ieee80211 layer
-From: Zhu Yi <yi.zhu@intel.com>
-To: Jiri Benc <jbenc@suse.cz>
-Cc: NetDev <netdev@oss.sgi.com>, LKML <linux-kernel@vger.kernel.org>,
-       jgarzik@pobox.com, pavel@suse.cz
-In-Reply-To: <20050524150711.01632672@griffin.suse.cz>
-References: <20050524150711.01632672@griffin.suse.cz>
-Content-Type: text/plain
-Organization: Intel Corp.
-Date: Wed, 25 May 2005 14:55:16 +0800
-Message-Id: <1117004116.3737.30.camel@debian.sh.intel.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Wed, 25 May 2005 03:06:48 -0400
+Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:13744 "HELO
+	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262295AbVEYHAo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 03:00:44 -0400
+Message-ID: <4294228D.1040809@yahoo.com.au>
+Date: Wed, 25 May 2005 17:00:29 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "Bill Huey (hui)" <bhuey@lnxw.com>
+CC: Sven Dietrich <sdietrich@mvista.com>,
+       "'Lee Revell'" <rlrevell@joe-job.com>,
+       "'Andrew Morton'" <akpm@osdl.org>, dwalker@mvista.com, mingo@elte.hu,
+       hch@infradead.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance (scheduler)
+References: <005801c560da$ec624f50$c800a8c0@mvista.com> <429407B6.1000105@yahoo.com.au> <20050525060919.GA25959@nietzsche.lynx.com>
+In-Reply-To: <20050525060919.GA25959@nietzsche.lynx.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-24 at 15:07 +0200, Jiri Benc wrote:
-> The ieee80211 layer, now present in -mm, lacks many important features
-> (actually it's just a part of the ipw2100/ipw2200 driver; these cards do
-> a lot of the processing in the hardware/firmware and thus the layer
-> currently can not be used for simpler devices).
+Bill Huey (hui) wrote:
+> On Wed, May 25, 2005 at 03:05:58PM +1000, Nick Piggin wrote:
 > 
-> This is the first series of patches that try to convert it to a generic
-> IEEE 802.11 layer, usable for most of today's wireless cards.
+>>What is more likely is that you are seeing some starvation from simply
+>>too much CPU usage by interrupts (note this has nothing to do with latency).
+>>*This* is the reason ksoftirqd exists.
+>>
+>>ie. you are seeing a throughput issue rather than a latency issue.
 > 
-> The long term plan is:
-> - to implement a complete 802.11 stack in the kernel, making it easy to
->   write drivers for simple (cheap) devices
-> - to implement all of Ad-Hoc, AP and monitor modes in the layer, so it
->   will be easy to support them in the drivers
-> - to integrate Wireless Extensions to unify the kernel-userspace
->   interface of all the drivers
+> 
+> That's presumptuous. It's more likely that it's flakey hardware
+> or a missed interrupt that would cause something like that. I've
+> seen that happen.
+> 
 
-Do you just clean up current ieee80211 code to still do 802.11 <-> 802.3
-conversion inside the driver or you plan to handle real 802.11 frames in
-the stack like this?
-http://oss.sgi.com/archives/netdev/2005-03/msg01405.html
+Err, no. Please read what was written.
 
-Thanks,
--yi
+"With multiple disks on a chain, you can see transients that
+lock up the CPU in IRQ mode for human-perceptible time,
+especially on slower CPUs... "
 
+I was pointing out that this will be a throughput rather than
+latency issue. Unless you're saying that an interrupt handler
+will run for 30ms or more?
+
+> 
+>>ksoftirq doesn't alleviate any kind of latencies anywhere AFAIKS.
+> 
+> 
+> Ksoftirq is used to support the concurrency model in the RT patch
+> so that irq-threads and {spin,read,write}_irq_{un,}lock can be
+> correct yet preemptible.
+> 
+
+That has nothing to do with what I said. I said ksoftirq doesn't
+alleviate latencies.
+
+> 
+>>softirqs won't normally run in another thread though, right?
+> 
+>  
+> 
+>>Yeah I don't think it is anything close to the same concept of
+>>softirqs though. But yeah, "just" running top half in threads
+>>sounds like one of the issues that will come up for discussion ;)
+> 
+> 
+> This is not an issue for the regular kernel since they can run
+> along side with the IRQ at interrupt time. It's only compile time
+> relevant to the RT. 
+> 
+
+It is relevant because code complexity is relevant. Have you
+been reading what has been said? Don't take my word for it, read
+what Andrew is saying.
+
+> And please don't take a chunk of the patch out of context and FUD it.
+> There's enough uncertainty regarding this track as is without additional
+> misunderstanding or misrepresentations.
+> 
+
+I haven't looked at *any* part of *any* patch, nor commented on
+any patch. I described the type of discussion and acceptance
+that needs to happen before a large patch (like this) gets merged.
+
+I also backed up Andrew's assertion that better interrupt latencies
+wouldn't really help interactivity (the scheduler is a *far* bigger
+factor here)
+
+> The stuff that is directly relevant to you and your work is the
+> scheduler changes needed to support RT and the possibility that
+> it would conflict with the sched domain stuff for NUMA boxes.
+> The needs are sufficiently different that in the long run something
+> like "sched-plugin" might be needed to simplify kernel development
+> and permit branched development.
+> 
+
+I don't know what you're talking about, sorry.
+
+Why are people so touchy about this subject? I didn't even anywhere
+criticize anyone's patches or any approach or idea!! :\
+
+The best way to get anything to happen is to get a common
+understanding going through constructive discussion. Please stick to
+that. Thanks.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

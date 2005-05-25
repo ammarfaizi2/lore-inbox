@@ -1,48 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262248AbVEYCjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262242AbVEYClq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262248AbVEYCjk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 22:39:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262245AbVEYCjW
+	id S262242AbVEYClq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 22:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262249AbVEYClp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 22:39:22 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:27812 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262242AbVEYCiW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 22:38:22 -0400
-Subject: Re: RT patch acceptance
-From: Lee Revell <rlrevell@joe-job.com>
-To: karim@opersys.com
-Cc: "Bill Huey (hui)" <bhuey@lnxw.com>, Daniel Walker <dwalker@mvista.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, sdietrich@mvista.com
-In-Reply-To: <4293E4ED.7030804@opersys.com>
-References: <1116890066.13086.61.camel@dhcp153.mvista.com>
-	 <20050524054722.GA6160@infradead.org> <20050524064522.GA9385@elte.hu>
-	 <4292DFC3.3060108@yahoo.com.au> <20050524081517.GA22205@elte.hu>
-	 <4292E559.3080302@yahoo.com.au> <20050524090240.GA13129@elte.hu>
-	 <4292F074.7010104@yahoo.com.au>
-	 <1116957953.31174.37.camel@dhcp153.mvista.com>
-	 <20050524224157.GA17781@nietzsche.lynx.com>  <4293E4ED.7030804@opersys.com>
-Content-Type: text/plain
-Date: Tue, 24 May 2005 22:38:20 -0400
-Message-Id: <1116988700.2912.113.camel@mindpipe>
+	Tue, 24 May 2005 22:41:45 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:10495 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262242AbVEYCla (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 22:41:30 -0400
+Message-Id: <200505250241.j4P2fJtP024511@dell.home>
+X-Mailer: exmh version 2.4 06/23/2000 with nmh-1.0.4
+To: linux-kernel@vger.kernel.org
+Subject: CONFIG_HOTPLUG, 2.4.x and ppc
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 24 May 2005 22:41:18 -0400
+From: "Marty Leisner" <leisner@rochester.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-24 at 22:37 -0400, Karim Yaghmour wrote:
-> Bill Huey (hui) wrote:
-> > I think there's a lot of general ignorance regarding this patch, the
-> > usefulness of it and this thread is partially addressing them.
-> 
-> Forgive the dumb question:
-> Why isn't anyone doing a presentation about Ingo's patch at the OLS
-> this year?
 
-Ssh!  We're trying to sneak up on Microsoft...
+I'm dealing with a custom BRIDGE_OTHER chip, which has PCI devices
+on the other side...the configuration cycles don't follow a standard, and
+I'm trying to establish the bus behind the bridge when I install a module...
+essentially I'm doing things similar to hotplug drivers...
 
-Lee
+I have no experience with hotplug drivers, but it appears to be incompatible
+with the ppc architure...
+
+Calling pci_do_scan_bus, it calls pcibios_fixup_bus.
+
+In the 2.4 ppc kernels, pcibios_fixup_bus is defined to be:
+void __init pcibios_fixup_bus(struct pci_bus *bus)
+
+On intel, its defined to be:
+void __devinit  pcibios_fixup_bus(struct pci_bus *bus)
+
+
+Since pci_do_scan_bus needs CONFIG_HOTPLUG, this path is exercised,
+and pcibios_fixup_bus isn't present on ppc after bootup...
+
+This patch is necessary if we CONFIG_HOTPLUG on ppc...there seems
+to be no reason why not -- others changes like this might be necessary...
+
+
+:1 mleisner@santa 04:28:16; rcsdiff -r1.1 -u arch/ppc/kernel/pci.c
+===================================================================
+RCS file: arch/ppc/kernel/pci.c,v
+retrieving revision 1.1
+diff -u -r1.1 arch/ppc/kernel/pci.c
+--- arch/ppc/kernel/pci.c       2005/05/18 19:08:09     1.1
++++ arch/ppc/kernel/pci.c       2005/05/24 19:23:33
+@@ -1384,7 +1384,7 @@
+        return start;
+ }
+ 
+-void __init pcibios_fixup_bus(struct pci_bus *bus)
++void  __devinit pcibios_fixup_bus(struct pci_bus *bus)
+ {
+        struct pci_controller *hose = (struct pci_controller *) bus->sysdata;
+        unsigned long io_offset;
+
+
+The patch is wrt to 2.4.20, but 2.4.30 appears to have the same problem...
+
+
+
+
+Marty Leisner
+leisner@rochester.rr.com
+
 

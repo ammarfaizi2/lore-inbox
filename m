@@ -1,69 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262253AbVEYCnw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262245AbVEYCqg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262253AbVEYCnw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 22:43:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbVEYCnw
+	id S262245AbVEYCqg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 22:46:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262246AbVEYCqg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 22:43:52 -0400
-Received: from pfepb.post.tele.dk ([195.41.46.236]:37735 "EHLO
-	pfepb.post.tele.dk") by vger.kernel.org with ESMTP id S262247AbVEYCmK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 22:42:10 -0400
-Message-ID: <4293E62A.5080408@danbbs.dk>
-Date: Wed, 25 May 2005 04:42:50 +0200
-From: Mogens Valentin <monz@danbbs.dk>
-Reply-To: monz@danbbs.dk
-Organization: Mr Dev
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Tue, 24 May 2005 22:46:36 -0400
+Received: from opersys.com ([64.40.108.71]:29966 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S262254AbVEYCqT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 22:46:19 -0400
+Message-ID: <4293E96D.9060101@opersys.com>
+Date: Tue, 24 May 2005 22:56:45 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-To: dougg@torque.net
-CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com
-Subject: Re: [ANNOUNCE] sdparm 0.92
-References: <428DC633.5050403@torque.net> <4293BD80.1050503@danbbs.dk> <4293D798.4020606@torque.net>
-In-Reply-To: <4293D798.4020606@torque.net>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Sven Dietrich <sdietrich@mvista.com>
+CC: "'Bill Huey (hui)'" <bhuey@lnxw.com>,
+       "'Daniel Walker'" <dwalker@mvista.com>,
+       "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
+       "'Ingo Molnar'" <mingo@elte.hu>,
+       "'Christoph Hellwig'" <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: RT patch acceptance
+References: <005201c560d2$9b9d1990$c800a8c0@mvista.com>
+In-Reply-To: <005201c560d2$9b9d1990$c800a8c0@mvista.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Douglas Gilbert wrote:
-> Mogens Valentin wrote:
-> 
->> Douglas Gilbert wrote:
->>
->>> sdparm is a command line utility designed to get and set
->>> SCSI disk parameters (cf hdparm for ATA disks). ..snip..
->>
->> Nice! Just got it and tried on an external usb disk.
->> One feature I could use, probably others as well:
->> Could you add the ability to spin down/up a scsi disk?
->> I'd really like this for exteral (usb) disks.
-> 
-> Mogens,
-> With sg_start (in the sg3_utils package) I have tried
-> to spin up and down an ATA disk inside a USB enclosure
-> without success. The same command on a USB connected
-> CD/DVD combo drive did work.
-> 
-> Could you try sg_start on your USB external enclosure
-> which I assume contains an ATA disk rather than a
-> SCSI (SPI) disk and report if it works?
 
-Sure. Got it, compiled, but got the error:
-   .../usr/include/scsi/sg.h /usr/include/scsi/scsi.h
-   /usr/include/stdint.h   sg_lib.h sg_cmds.h llseek.h
-   gcc: cannot specify -o with -c or -S and multiple compilations
-   make: *** [sgp_dd.o] Error 1
+Sven Dietrich wrote:
+> I think its too late to add a presentation there now, 
+> but if folks are interested, I would be willing to talk about
+> it all day long.
 
-I could only find  -o  and  -c  in the makefiles around line 95.
+I can't speak for anyone, but given how important a change this
+is, I would be surprised that the organization committee wouldn't
+try to make an effort to accomodate this. After all, it isn't
+as if this was organized by outsiders, these folks are part of
+the community, surely they are sensitive the community's needs.
 
-Slack 9.1 / 2.6.10 from sources.
+Again, I can't speak for anyone, but it would be worth querying
+the appropriate authorities ... of course the sooner the better.
 
-It's 4am, I'm off to bed, sorry :p
+I don't know the deadlines, but surely between yourself, Bill,
+Lee, Daniel and Ingo you would be able to even put a paper together
+rather fast.
 
+... anyway ... it's someone else's baby to carry not mine ... I
+just thought I'd mention this idea I got ...
+
+Karim
 -- 
-Kind regards,
-Mogens Valentin
-
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

@@ -1,34 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVEYJIz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbVEYJQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbVEYJIz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 05:08:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbVEYJIz
+	id S261825AbVEYJQv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 05:16:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbVEYJQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 05:08:55 -0400
-Received: from fire.osdl.org ([65.172.181.4]:40664 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261537AbVEYJIy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 05:08:54 -0400
-Date: Wed, 25 May 2005 02:07:49 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alexander Nyberg <alexn@telia.com>
-Cc: vgoyal@in.ibm.com, linux-kernel@vger.kernel.org, fastboot@lists.osdl.org
-Subject: Re: [Fastboot] [1/2] kdump: Use real pt_regs from exception
-Message-Id: <20050525020749.1ad56a80.akpm@osdl.org>
-In-Reply-To: <1116427862.22324.5.camel@localhost.localdomain>
-References: <1116103798.6153.30.camel@localhost.localdomain>
-	<20050518123500.GA3657@in.ibm.com>
-	<1116427862.22324.5.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 25 May 2005 05:16:51 -0400
+Received: from siaag2ad.compuserve.com ([149.174.40.134]:6282 "EHLO
+	siaag2ad.compuserve.com") by vger.kernel.org with ESMTP
+	id S261825AbVEYJQs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 05:16:48 -0400
+Date: Wed, 25 May 2005 05:12:27 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch 07/16] ide-disk: Fix LBA8 DMA
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Chris Wright <chrisw@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-stable <stable@kernel.org>, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>,
+       Daniel Drake <dsd@gentoo.org>
+Message-ID: <200505250514_MC3-1-9FB4-C35C@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Nyberg <alexn@telia.com> wrote:
->
-> -extern void machine_crash_shutdown(void);
->  +extern void machine_crash_shutdown(struct pt_regs *);
+On Wed, 25 May 2005 at 03:57:14 -0400, Chuck Ebbert wrote:
 
-That'll break x86_64, ppc, ppc64 and s/390.
+> On Mon, 23 May 2005 at 16:24:14 -0700, Chris Wright wrote:
+> 
+> > --- linux-2.6.11.10.orig/drivers/ide/ide-disk.c       2005-05-16 10:50:31.000000000 -0700
+> > +++ linux-2.6.11.10/drivers/ide/ide-disk.c    2005-05-20 09:36:31.933319224 -0700
+> > @@ -133,6 +133,8 @@
+> >       if (hwif->no_lba48_dma && lba48 && dma) {
+> >               if (block + rq->nr_sectors > 1ULL << 28)
+> 
+>                                            ^
+> 
+>   Maybe I'm an idiot, but shouldn't that be ">="?  Either that or it should be
+> comparing to (1ULL < 28 - 1)?
+
+
+  Oops, I forgot this was in my outbox and sent it before review.  This code
+is fine... (block + rq->nr_sectors) is one past the actual end of the read.
+
+
+> >                       dma = 0;
+> > +               else
+> > +                       lba48 = 0;
+> 
+>    ^^^^^^^^^^^^^^^^^^^^^^^
+> 
+>   Spaces instead of tabs?
+
+  But the patch really does seem to be tabdamaged...
+
+
+
+
+--
+Chuck

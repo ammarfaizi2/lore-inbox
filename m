@@ -1,70 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262247AbVEYCvy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262254AbVEYDG2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262247AbVEYCvy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 22:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262254AbVEYCvy
+	id S262254AbVEYDG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 23:06:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262252AbVEYDG2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 22:51:54 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:21752 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262249AbVEYCvb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 22:51:31 -0400
-From: "Sven Dietrich" <sdietrich@mvista.com>
-To: <karim@opersys.com>, "'Lee Revell'" <rlrevell@joe-job.com>
-Cc: "'Bill Huey \(hui\)'" <bhuey@lnxw.com>,
+	Tue, 24 May 2005 23:06:28 -0400
+Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:32676 "EHLO
+	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
+	id S262255AbVEYDG0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 23:06:26 -0400
+Message-ID: <4293EB62.7070706@nortel.com>
+Date: Tue, 24 May 2005 21:05:06 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Sven Dietrich <sdietrich@mvista.com>
+CC: karim@opersys.com, "'Bill Huey (hui)'" <bhuey@lnxw.com>,
        "'Daniel Walker'" <dwalker@mvista.com>,
        "'Nick Piggin'" <nickpiggin@yahoo.com.au>,
        "'Ingo Molnar'" <mingo@elte.hu>,
-       "'Christoph Hellwig'" <hch@infradead.org>,
-       <linux-kernel@vger.kernel.org>, <akpm@osdl.org>
-Subject: RE: RT patch acceptance
-Date: Tue, 24 May 2005 19:51:22 -0700
-Message-ID: <005501c560d4$a372cc30$c800a8c0@mvista.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
+       "'Christoph Hellwig'" <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: RT patch acceptance
+References: <005201c560d2$9b9d1990$c800a8c0@mvista.com>
+In-Reply-To: <005201c560d2$9b9d1990$c800a8c0@mvista.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-In-Reply-To: <4293E9C2.2000603@opersys.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Sven Dietrich wrote:
 
-I just submitted a proposal.
+>>Forgive the dumb question:
+>>Why isn't anyone doing a presentation about Ingo's patch at 
+>>the OLS this year?
 
-If Ingo was planning on giving one, I'd defer.
+> I think its too late to add a presentation there now, 
+> but if folks are interested, I would be willing to talk about
+> it all day long.
 
-> -----Original Message-----
-> From: Karim Yaghmour [mailto:karim@opersys.com] 
-> Sent: Tuesday, May 24, 2005 7:58 PM
-> To: Lee Revell
-> Cc: Bill Huey (hui); Daniel Walker; Nick Piggin; Ingo Molnar; 
-> Christoph Hellwig; linux-kernel@vger.kernel.org; 
-> akpm@osdl.org; sdietrich@mvista.com
-> Subject: Re: RT patch acceptance
-> 
-> 
-> 
-> Lee Revell wrote:
-> >>Forgive the dumb question:
-> >>Why isn't anyone doing a presentation about Ingo's patch at the OLS 
-> >>this year?
-> > 
-> > Ssh!  We're trying to sneak up on Microsoft...
-> 
-> :)
-> 
-> Seriously though, does this actually mean that there is a 
-> presentation at OLS?
-> 
-> Karim
-> -- 
-> Author, Speaker, Developer, Consultant
-> Pushing Embedded and Real-Time Linux Systems Beyond the 
-> Limits http://www.opersys.com || karim@opersys.com || 1-866-677-4546
-> 
+At the very minimum it should be possible to add a BOF session...
 
+Chris

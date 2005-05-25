@@ -1,55 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261607AbVEYXUM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261608AbVEYXW7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261607AbVEYXUM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 19:20:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVEYXUM
+	id S261608AbVEYXW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 19:22:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261610AbVEYXW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 19:20:12 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:45032 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261607AbVEYXUG (ORCPT
+	Wed, 25 May 2005 19:22:59 -0400
+Received: from fire.osdl.org ([65.172.181.4]:20636 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261608AbVEYXWq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 19:20:06 -0400
-Date: Wed, 25 May 2005 16:19:55 -0700
-To: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-Subject: [PATCH] drop note_interrupt() for per-CPU for proper scaling
-Message-ID: <4295081B.MailKJ51120GH@jackhammer.engr.sgi.com>
-User-Agent: nail 10.6 11/15/03
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 25 May 2005 19:22:46 -0400
+Date: Wed, 25 May 2005 16:23:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alexandre Buisse <alexandre.buisse@ens-lyon.fr>
+Cc: linux-kernel@vger.kernel.org, pcaulfie@redhat.com, teigland@redhat.com
+Subject: Re: dlm-lockspaces-callbacks-directory-fix.patch added to -mm tree
+Message-Id: <20050525162318.511cdc9b.akpm@osdl.org>
+In-Reply-To: <4294F718.8040107@ens-lyon.fr>
+References: <200505252249.j4PMnN4q021004@shell0.pdx.osdl.net>
+	<4294F718.8040107@ens-lyon.fr>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-From: hawkes@sgi.com (John Hawkes)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The "unhandled interrupts" catcher, note_interrupt(), increments a global
-desc->irq_count and grossly damages scaling of very large systems, e.g.,
->192p ia64 Altix, because of this highly contented cacheline, especially
-for timer interrupts.  384p is severely crippled, and 512p is unuseable.
+Alexandre Buisse <alexandre.buisse@ens-lyon.fr> wrote:
+>
+> I just noticed that the line 'extern const int
+> dlm_lvb_operations[8][8];' had been removed in the inline patch you just
+> mailed.
 
-All calls to note_interrupt() can be disabled by booting with "noirqdebug",
-but this disables the useful interrupt checking for all interrupts.
+?  I see not such removal.
 
-I propose eliminating note_interrupt() for all per-CPU interrupts.
-This was the behavior of linux-2.6.10 and earlier, but in 2.6.11 a
-code restructuring added a call to note_interrupt() for per-CPU interrupts.
-Besides, note_interrupt() is a bit racy for concurrent CPU calls anyway,
-as the desc->irq_count++ increment isn't atomic (which, if done, would make
-scaling even worse).
+diff -puN drivers/dlm/lock.c~dlm-lockspaces-callbacks-directory-fix drivers/dlm/lock.c
+--- 25/drivers/dlm/lock.c~dlm-lockspaces-callbacks-directory-fix	Wed May 25 15:49:54 2005
++++ 25-akpm/drivers/dlm/lock.c	Wed May 25 15:49:54 2005
+@@ -104,6 +104,29 @@ const int __dlm_compat_matrix[8][8] = {
+         {0, 0, 0, 0, 0, 0, 0, 0}        /* PD */
+ };
+ 
++/*
++ * This defines the direction of transfer of LVB data.
++ * Granted mode is the row; requested mode is the column.
++ * Usage: matrix[grmode+1][rqmode+1]
++ * 1 = LVB is returned to the caller
++ * 0 = LVB is written to the resource
++ * -1 = nothing happens to the LVB
++ */
++
++
++const int dlm_lvb_operations[8][8] = {
++        /* UN   NL  CR  CW  PR  PW  EX  PD*/
++        {  -1,  1,  1,  1,  1,  1,  1, -1 }, /* UN */
++        {  -1,  1,  1,  1,  1,  1,  1,  0 }, /* NL */
++        {  -1, -1,  1,  1,  1,  1,  1,  0 }, /* CR */
++        {  -1, -1, -1,  1,  1,  1,  1,  0 }, /* CW */
++        {  -1, -1, -1, -1,  1,  1,  1,  0 }, /* PR */
++        {  -1,  0,  0,  0,  0,  0,  1,  0 }, /* PW */
++        {  -1,  0,  0,  0,  0,  0,  0,  0 }, /* EX */
++        {  -1,  0,  0,  0,  0,  0,  0,  0 }  /* PD */
++};
++
++
+ #define modes_compat(gr, rq) \
+ 	__dlm_compat_matrix[(gr)->lkb_grmode + 1][(rq)->lkb_rqmode + 1]
+ 
+diff -puN drivers/dlm/lvb_table.h~dlm-lockspaces-callbacks-directory-fix drivers/dlm/lvb_table.h
+--- 25/drivers/dlm/lvb_table.h~dlm-lockspaces-callbacks-directory-fix	Wed May 25 15:49:54 2005
++++ 25-akpm/drivers/dlm/lvb_table.h	Wed May 25 15:49:54 2005
+@@ -13,26 +13,4 @@
+ #ifndef __LVB_TABLE_DOT_H__
+ #define __LVB_TABLE_DOT_H__
+ 
+-/*
+- * This defines the direction of transfer of LVB data.
+- * Granted mode is the row; requested mode is the column.
+- * Usage: matrix[grmode+1][rqmode+1]
+- * 1 = LVB is returned to the caller
+- * 0 = LVB is written to the resource
+- * -1 = nothing happens to the LVB
+- */
+-
+-const int dlm_lvb_operations[8][8] = {
+-        /* UN   NL  CR  CW  PR  PW  EX  PD*/
+-        {  -1,  1,  1,  1,  1,  1,  1, -1 }, /* UN */
+-        {  -1,  1,  1,  1,  1,  1,  1,  0 }, /* NL */
+-        {  -1, -1,  1,  1,  1,  1,  1,  0 }, /* CR */
+-        {  -1, -1, -1,  1,  1,  1,  1,  0 }, /* CW */
+-        {  -1, -1, -1, -1,  1,  1,  1,  0 }, /* PR */
+-        {  -1,  0,  0,  0,  0,  0,  1,  0 }, /* PW */
+-        {  -1,  0,  0,  0,  0,  0,  0,  0 }, /* EX */
+-        {  -1,  0,  0,  0,  0,  0,  0,  0 }  /* PD */
+-};
+-
+ #endif
+-
+_
 
-Signed-off-by: John Hawkes <hawkes@sgi.com>
----
-
-Index: linux/kernel/irq/handle.c
-===================================================================
---- linux.orig/kernel/irq/handle.c	2005-03-01 23:38:37.000000000 -0800
-+++ linux/kernel/irq/handle.c	2005-05-18 11:02:18.000000000 -0700
-@@ -118,8 +118,6 @@
- 		 */
- 		desc->handler->ack(irq);
- 		action_ret = handle_IRQ_event(irq, regs, desc->action);
--		if (!noirqdebug)
--			note_interrupt(irq, desc, action_ret);
- 		desc->handler->end(irq);
- 		return 1;
- 	}

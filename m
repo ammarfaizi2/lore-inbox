@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262306AbVEYGNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262277AbVEYGSy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262306AbVEYGNF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 02:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261333AbVEYGKx
+	id S262277AbVEYGSy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 02:18:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262278AbVEYGSy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 02:10:53 -0400
-Received: from smtp.lnxw.com ([207.21.185.24]:5905 "EHLO smtp.lnxw.com")
-	by vger.kernel.org with ESMTP id S262278AbVEYGKi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 02:10:38 -0400
-Date: Tue, 24 May 2005 23:15:18 -0700
-To: Karim Yaghmour <karim@opersys.com>
-Cc: "Bill Huey (hui)" <bhuey@lnxw.com>, Daniel Walker <dwalker@mvista.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, sdietrich@mvista.com
-Subject: Re: RT patch acceptance
-Message-ID: <20050525061518.GA26058@nietzsche.lynx.com>
-References: <20050524054722.GA6160@infradead.org> <20050524064522.GA9385@elte.hu> <4292DFC3.3060108@yahoo.com.au> <20050524081517.GA22205@elte.hu> <4292E559.3080302@yahoo.com.au> <20050524090240.GA13129@elte.hu> <4292F074.7010104@yahoo.com.au> <1116957953.31174.37.camel@dhcp153.mvista.com> <20050524224157.GA17781@nietzsche.lynx.com> <4293E4ED.7030804@opersys.com>
+	Wed, 25 May 2005 02:18:54 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:49577 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261333AbVEYGSm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 02:18:42 -0400
+Subject: Re: BUG() in radix-tree.c, 2.6.11, reiserfs ?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Stephane Jourdois <kwisatz@rubis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, reiserfs-list@namesys.com
+In-Reply-To: <20050524224802.GA11957@diamant.rubis.org>
+References: <20050524224802.GA11957@diamant.rubis.org>
+Content-Type: text/plain
+Date: Wed, 25 May 2005 08:18:06 +0200
+Message-Id: <1117001887.6010.34.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4293E4ED.7030804@opersys.com>
-User-Agent: Mutt/1.5.9i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 24, 2005 at 10:37:33PM -0400, Karim Yaghmour wrote:
-> Bill Huey (hui) wrote:
-> > I think there's a lot of general ignorance regarding this patch, the
-> > usefulness of it and this thread is partially addressing them.
+On Wed, 2005-05-25 at 00:48 +0200, Stephane Jourdois wrote:
+> Hello all,
 > 
-> Forgive the dumb question:
-> Why isn't anyone doing a presentation about Ingo's patch at the OLS
-> this year?
-> 
-> If you want to get this thing in front of peoples' eyes, this would
-> probably be the best venue. It would certainly be a good place to
-> get people talking about it. Explaining what's in the patch, how
-> it came to be, what are the interdependencies, modifications to
-> existing code, added core files, pros/cons, performance, actual
-> demo, etc.
+> I was burning a DVD-R at 16x speed on IDE, the .iso was on /dev/sda1,
+> which is a reiserfs part on a SATA disk.  I was at the same time
+> building another .iso on /dev/sda1, with files from an lvm spawned on
+> /dev/sd{b,c,d}.
 
-I haven't even asked my employeer if I should go or not ? should I ?
+I suggest you try it again but without the "evil" nvidia driver.
 
-Seriously, I was going to stay out here and work on more RT related
-stuff that I've been working on for a number of months. Who should go
-to OLS ?
-
-bill
 

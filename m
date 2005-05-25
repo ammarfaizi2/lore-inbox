@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262214AbVEYAph@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262210AbVEYAp3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262214AbVEYAph (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 20:45:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262213AbVEYAph
+	id S262210AbVEYAp3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 20:45:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262211AbVEYAp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 20:45:37 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:26267 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262212AbVEYApa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 20:45:30 -0400
+	Tue, 24 May 2005 20:45:29 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:57593 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262210AbVEYApW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 20:45:22 -0400
 Subject: Re: RT patch acceptance
-From: Lee Revell <rlrevell@joe-job.com>
-To: "K.R. Foley" <kr@cybsft.com>
-Cc: "Bill Huey (hui)" <bhuey@lnxw.com>, Daniel Walker <dwalker@mvista.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
        Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
        akpm@osdl.org, sdietrich@mvista.com
-In-Reply-To: <4293C794.6000105@cybsft.com>
+In-Reply-To: <20050525001019.GA18048@nietzsche.lynx.com>
 References: <20050524054722.GA6160@infradead.org>
 	 <20050524064522.GA9385@elte.hu> <4292DFC3.3060108@yahoo.com.au>
 	 <20050524081517.GA22205@elte.hu> <4292E559.3080302@yahoo.com.au>
@@ -24,29 +24,39 @@ References: <20050524054722.GA6160@infradead.org>
 	 <1116957953.31174.37.camel@dhcp153.mvista.com>
 	 <20050524224157.GA17781@nietzsche.lynx.com>
 	 <1116978244.19926.41.camel@dhcp153.mvista.com>
-	 <20050525001019.GA18048@nietzsche.lynx.com>  <4293C794.6000105@cybsft.com>
+	 <20050525001019.GA18048@nietzsche.lynx.com>
 Content-Type: text/plain
-Date: Tue, 24 May 2005 20:45:29 -0400
-Message-Id: <1116981929.2912.90.camel@mindpipe>
+Organization: MontaVista
+Date: Tue, 24 May 2005 17:45:13 -0700
+Message-Id: <1116981913.19926.58.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-24 at 19:32 -0500, K.R. Foley wrote:
-> The only question I would ask of you is this: What will be different in
-> 6 months? The patch may be a bit different, it may be a lot different.
-> However, it probably won't be that much more rung out than it is today
-> until more people start beating on it. This probably won't happen until
-> it is merged. :-)
+On Tue, 2005-05-24 at 17:10 -0700, Bill Huey wrote:
+> On Tue, May 24, 2005 at 04:44:04PM -0700, Daniel Walker wrote:
+> > That's a good reason why it should be included. The maintainers know
+> > that as developers there is no way for us to flush out all the bugs in
+> > our code by ourselves. If the RT patch was added to -mm it would have
+> > greatly increased coverage which , as you noted, is needed . Drivers
+> > will break like mad , but no one but the community has all the hardware
+> > for the drivers.
+> 
+> It's too premature at this time. There was a lot of work that went
+> into the RT patch that I would have like for folks to have thought
+> it through more carefully like RCU, the RT mutex itself, etc...
+> All of it is very raw and most likely still is subject to rapid
+> change.
 > 
 
-All of the Linux audio oriented distributions are already shipping -RT
-kernels, and most of the serious Linux audio users who use general
-purpose distros are running it.  That's a few thousand people running it
-24/7 for months, and it's been at least a month since any of these users
-found a real bug in -RT.
+I think some of it is volatile still, but there are plenty of pieces
+that could go in now. Threaded interrupts is up for discussion, this is
+the reason why I started the thread. People appear to have specific
+objections to that feature, which are still not clear.
 
-Lee
+Whole patch, no, small chunks yes. 
+
+Daniel
 

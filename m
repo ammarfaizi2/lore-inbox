@@ -1,46 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262219AbVEYA7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbVEYBBX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262219AbVEYA7y (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 20:59:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262216AbVEYA7y
+	id S262220AbVEYBBX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 21:01:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262221AbVEYBBX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 20:59:54 -0400
-Received: from fed1rmmtao08.cox.net ([68.230.241.31]:61607 "EHLO
-	fed1rmmtao08.cox.net") by vger.kernel.org with ESMTP
-	id S262219AbVEYA7s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 20:59:48 -0400
-To: jgarzik@pobox.com, torvalds@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: [OT] pull request notation
-From: Junio C Hamano <junkio@cox.net>
-Date: Tue, 24 May 2005 17:59:46 -0700
-Message-ID: <7vll64rugt.fsf@assigned-by-dhcp.cox.net>
-MIME-Version: 1.0
+	Tue, 24 May 2005 21:01:23 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:33287 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S262220AbVEYBBS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 21:01:18 -0400
+Date: Tue, 24 May 2005 18:05:55 -0700
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Daniel Walker <dwalker@mvista.com>, Andrew Morton <akpm@osdl.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       sdietrich@mvista.com
+Subject: Re: RT patch acceptance
+Message-ID: <20050525010555.GA24956@nietzsche.lynx.com>
+References: <20050524081517.GA22205@elte.hu> <4292E559.3080302@yahoo.com.au> <20050524090240.GA13129@elte.hu> <4292F074.7010104@yahoo.com.au> <1116957953.31174.37.camel@dhcp153.mvista.com> <20050524224157.GA17781@nietzsche.lynx.com> <1116978244.19926.41.camel@dhcp153.mvista.com> <20050525001019.GA18048@nietzsche.lynx.com> <1116981913.19926.58.camel@dhcp153.mvista.com> <20050525005942.GA24893@nietzsche.lynx.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050525005942.GA24893@nietzsche.lynx.com>
+User-Agent: Mutt/1.5.9i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "JG" == Jeff Garzik <jgarzik@pobox.com> writes:
+On Tue, May 24, 2005 at 05:59:42PM -0700, Bill Huey wrote:
+> You should have CCed Andrew originally.
 
-JG> Please pull the 'new-ids' branch from
-JG>
-JG> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
-JG>
-JG> This add...
+Sorry, you did. :)
 
-I am not a kernel developer, but I think the way this particular
-pull request is worded can be made much more friendly to Cogito
-users (that probably is the rest of the world except you, me and
-Linus ;-).  They use URL fragment notation to express the branch
-head, like this:
+I thought I saw something else instead. My bad.
 
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git#new-ids
-
-At least for me, eyes always skip to the "rsync://..." part
-immediately after seeing "Please pull.." part.
-
-For Linus I am willing to volunteer updating git-pull-script to
-take the same URL fragment notation, but as Jeff correctly
-pointed out it already takes the "branch" name as its second
-parameter so it probably would not be necessary.
+bill
 

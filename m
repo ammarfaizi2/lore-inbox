@@ -1,53 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262256AbVEYDYw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262258AbVEYD0v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262256AbVEYDYw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 24 May 2005 23:24:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbVEYDYw
+	id S262258AbVEYD0v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 24 May 2005 23:26:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262259AbVEYD0v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 24 May 2005 23:24:52 -0400
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:58970 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262257AbVEYDYa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 24 May 2005 23:24:30 -0400
-Message-ID: <4293EFE8.1080106@yahoo.com.au>
-Date: Wed, 25 May 2005 13:24:24 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Andrew Morton <akpm@osdl.org>, Sven Dietrich <sdietrich@mvista.com>,
-       dwalker@mvista.com, bhuey@lnxw.com, mingo@elte.hu, hch@infradead.org,
-       linux-kernel@vger.kernel.org
+	Tue, 24 May 2005 23:26:51 -0400
+Received: from vms048pub.verizon.net ([206.46.252.48]:18103 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S262258AbVEYD02 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 24 May 2005 23:26:28 -0400
+Date: Tue, 24 May 2005 23:26:16 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
 Subject: Re: RT patch acceptance
-References: <4292DFC3.3060108@yahoo.com.au> <20050524081517.GA22205@elte.hu>	 <4292E559.3080302@yahoo.com.au> <20050524090240.GA13129@elte.hu>	 <4292F074.7010104@yahoo.com.au>	 <1116957953.31174.37.camel@dhcp153.mvista.com>	 <20050524224157.GA17781@nietzsche.lynx.com>	 <1116978244.19926.41.camel@dhcp153.mvista.com>	 <20050525001019.GA18048@nietzsche.lynx.com>	 <1116981913.19926.58.camel@dhcp153.mvista.com>	 <20050525005942.GA24893@nietzsche.lynx.com>	 <1116982977.19926.63.camel@dhcp153.mvista.com>	 <20050524184351.47d1a147.akpm@osdl.org> <4293DCB1.8030904@mvista.com>	 <20050524192029.2ef75b89.akpm@osdl.org> <1116987976.2912.110.camel@mindpipe>
-In-Reply-To: <1116987976.2912.110.camel@mindpipe>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+In-reply-to: <20050524192029.2ef75b89.akpm@osdl.org>
+To: linux-kernel@vger.kernel.org
+Message-id: <200505242326.16929.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <4292DFC3.3060108@yahoo.com.au> <4293DCB1.8030904@mvista.com>
+ <20050524192029.2ef75b89.akpm@osdl.org>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
+On Tuesday 24 May 2005 22:20, Andrew Morton wrote:
+>Sven Dietrich <sdietrich@mvista.com> wrote:
+>> I think people would find their system responsiveness / tunability
+>>  goes up tremendously, if you drop just a few unimportant IRQs
+>> into threads.
+>
+>People cannot detect the difference between 1000usec and 50usec
+> latencies, so they aren't going to notice any changes in
+> responsiveness at all.
 
->On Tue, 2005-05-24 at 19:20 -0700, Andrew Morton wrote:
->
->>Sven Dietrich <sdietrich@mvista.com> wrote:
->>
->>>I think people would find their system responsiveness / tunability
->>> goes up tremendously, if you drop just a few unimportant IRQs into
->>> threads.
->>>
->>People cannot detect the difference between 1000usec and 50usec latencies,
->>so they aren't going to notice any changes in responsiveness at all.
->>
->
->The IDE IRQ handler can in fact run for several ms, which people sure
->can detect.
->
->
+Excuse me? 1 second (1000 usecs, 200 times your 50 usec example) is 
+VERY noticeable when you are listening to music, or worse yet, trying 
+to edit it.  For much of that, submillisecond accuracy makes or 
+breaks the application.
 
-Are you serious? Even at 10ms, the monitor refresh rate would have to be
-over 100Hz for anyone to "notice" anything, right?... What sort of numbers
-are you talking when you say several?
+Lets get out of the server only camp here folks, linux is used for a 
+hell of a lot more than a home for apache.
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.34% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

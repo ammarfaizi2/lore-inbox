@@ -1,41 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVEZLqg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVEZLrE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261319AbVEZLqg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 07:46:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVEZLqg
+	id S261322AbVEZLrE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 07:47:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVEZLrE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 07:46:36 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51382 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261319AbVEZLqf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 07:46:35 -0400
-Date: Thu, 26 May 2005 13:46:16 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Olaf Hering <olh@suse.de>
-Cc: Pavel Machek <pavel@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] show swsuspend only on .config where it can compile
-Message-ID: <20050526114614.GG1925@elf.ucw.cz>
-References: <20050526111614.GA25685@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050526111614.GA25685@suse.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Thu, 26 May 2005 07:47:04 -0400
+Received: from rev.193.226.233.9.euroweb.hu ([193.226.233.9]:24068 "EHLO
+	dorka.pomaz.szeredi.hu") by vger.kernel.org with ESMTP
+	id S261322AbVEZLrA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 07:47:00 -0400
+To: hch@infradead.org, akpm@osdl.org, torvalds@osdl.org
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Subject: FUSE inclusion?
+Message-Id: <E1DbGol-0006tE-00@dorka.pomaz.szeredi.hu>
+From: Miklos Szeredi <miklos@szeredi.hu>
+Date: Thu, 26 May 2005 13:46:27 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Čt 26-05-05 13:16:14, Olaf Hering wrote:
-> show swsuspend only on .config where it can compile.
-> I got this on PPC32 && SMP
-> 
-> kernel/power/smp.c:24: error: storage size of `ctxt' isn't known
-> 
-> Signed-off-by: Olaf Hering <olh@suse.de>
+As 2.6.12 draws near (hopefully), I'd like again to solicit people's
+opinion about inclusion of FUSE into mainline in the next cycle.
 
-Thanks, applied. Also swsusp is pretty stable now, so I'll mark it as
-stable.
-								Pavel
+I'm asking now, and not when 2.6.12 is already released, because last
+time there was a big rush of reviews and complaints, and by the time
+things quieted down it was a bit too late.  Thanks to everybody
+involved BTW :)
 
+So, if anybody still got a problem with the current version (as in -mm
+or released as 2.3-rc1 on SF.net), please speak up now.
+
+Christoph?
+
+Thanks,
+Miklos

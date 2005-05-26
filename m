@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261666AbVEZRv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbVEZRwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261666AbVEZRv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 13:51:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbVEZRv6
+	id S261662AbVEZRwW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 13:52:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbVEZRwW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 13:51:58 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:7115 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261649AbVEZRvw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 13:51:52 -0400
-Date: Thu, 26 May 2005 10:51:45 -0700
-Message-Id: <200505261751.j4QHpjei009076@linux.jf.intel.com>
-From: Rusty Lynch <rusty.lynch@intel.com>
-Subject: [patch] Kprobes ia64 qp fix
-To: akpm@osdl.org
-Cc: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org,
-       Rusty Lynch <rusty.lynch@intel.com>
+	Thu, 26 May 2005 13:52:22 -0400
+Received: from smtpout19.mailhost.ntl.com ([212.250.162.19]:57870 "EHLO
+	mta13-winn.mailhost.ntl.com") by vger.kernel.org with ESMTP
+	id S261662AbVEZRwQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 13:52:16 -0400
+Message-ID: <42960CCA.5020703@smallworld.cx>
+Date: Thu, 26 May 2005 18:52:10 +0100
+From: Ian Leonard <ian@smallworld.cx>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: 2.4.30 - USB serial problem
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch is for the 2.6.12-rc5-mm1 + my previous
-"Kprobes ia64 cleanup" patch that fixes a bug where a kprobe still 
-fires when the instruction is predicated off.  So given the p6=0, 
-and we have an instruction like:
+Greetings,
 
-(p6) move loc1=0
+We recently upgraded from 2.4.24 to 2.4.28 and the problem described 
+below appeared. I have tested it on 2.4.30 and the fault still exists.
 
-we should not be triggering the kprobe.  This is handled by carrying over
-the qp section of the original instruction into the break instruction.
+It is something to do with usb serial. We are actually using the 
+ftdi_sio module but a quick diff suggests it hasn't changed much. I am 
+not 100% sure what is going on but we are sending out various short 
+commands (11 bytes) to an external device. Most work just fine but one 
+using one sequence seems to cause the driver to loop and continually 
+send out the same command. The application keeps sending other commands 
+but eventually the write () blocks and that's that.
 
-    --rusty
+Examining the packet that caused the problem showed it was very similar 
+to the others but it contained 0x0a. This obviously stuck out as being a 
+candidate for some sort of translation problem.
 
-signed-off-by: Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>
-signed-off-by: Rusty Lynch <Rusty.lynch@intel.com>
+I also built a 2.4.28 kernel with the ftdi_sio and usbserial code from 
+the 2.4.24 release. It also failed. This was a surprise and I am 
+wondering of I did it correctly.
 
- arch/ia64/kernel/kprobes.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
 
-Index: linux-2.6.12-rc5/arch/ia64/kernel/kprobes.c
-===================================================================
---- linux-2.6.12-rc5.orig/arch/ia64/kernel/kprobes.c
-+++ linux-2.6.12-rc5/arch/ia64/kernel/kprobes.c
-@@ -115,19 +115,19 @@ int arch_prepare_kprobe(struct kprobe *p
- 	case 0:
-  		major_opcode = (bundle->quad0.slot0 >> SLOT0_OPCODE_SHIFT);
-  		kprobe_inst = bundle->quad0.slot0;
--		bundle->quad0.slot0 = BREAK_INST;
-+		bundle->quad0.slot0 = BREAK_INST | (0x3f & kprobe_inst);
- 		break;
- 	case 1:
-  		major_opcode = (bundle->quad1.slot1_p1 >> SLOT1_p1_OPCODE_SHIFT);
-  		kprobe_inst = (bundle->quad0.slot1_p0 |
-  				(bundle->quad1.slot1_p1 << (64-46)));
--		bundle->quad0.slot1_p0 = BREAK_INST;
-+		bundle->quad0.slot1_p0 = BREAK_INST | (0x3f & kprobe_inst);
- 		bundle->quad1.slot1_p1 = (BREAK_INST >> (64-46));
- 		break;
- 	case 2:
-  		major_opcode = (bundle->quad1.slot2 >> SLOT2_OPCODE_SHIFT);
-  		kprobe_inst = bundle->quad1.slot2;
--		bundle->quad1.slot2 = BREAK_INST;
-+		bundle->quad1.slot2 = BREAK_INST | (0x3f & kprobe_inst);
- 		break;
- 	}
- 
+I don't have the failing equipment with me here but will return to site 
+next week. I would appreciate any words of wisdom on the problem.
+
+
+-- 
+Ian Leonard
+
+Please ignore spelling and punctuation - I did.

@@ -1,109 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVEZQcf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVEZQiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261598AbVEZQcf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 12:32:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbVEZQav
+	id S261600AbVEZQiL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 12:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261605AbVEZQiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 12:30:51 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:25483 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261598AbVEZQaU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 12:30:20 -0400
-Date: Thu, 26 May 2005 11:29:27 -0500 (CDT)
-From: Kylene Hall <kjhall@us.ibm.com>
-X-X-Sender: kjhall@localhost.localdomain
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] tpm: fix tpm exports
-In-Reply-To: <20050525014442.3cdf10cb.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.62.0505261126090.30037@localhost.localdomain>
-References: <20050525014442.3cdf10cb.akpm@osdl.org>
+	Thu, 26 May 2005 12:38:11 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:38815 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S261604AbVEZQhy convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 12:37:54 -0400
+X-IronPort-AV: i="3.93,140,1115010000"; 
+   d="scan'208"; a="247679751:sNHT23415810"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new Dell BIOS update driver
+Date: Thu, 26 May 2005 11:37:44 -0500
+Message-ID: <367215741E167A4CA813C8F12CE0143B3ED399@ausx2kmpc115.aus.amer.dell.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new Dell BIOS update driver
+Thread-Index: AcVfri1aFpNaZsXsRFK548jZrcsNkACYfA7Q
+From: <Abhay_Salunke@Dell.com>
+To: <greg@kroah.com>
+Cc: <linux-kernel@vger.kernel.org>, <ranty@debian.org>
+X-OriginalArrivalTime: 26 May 2005 16:37:45.0010 (UTC) FILETIME=[3E5BD920:01C56211]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 25 May 2005, Andrew Morton wrote:
+> -----Original Message-----
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Monday, May 23, 2005 10:48 AM
+> To: Salunke, Abhay
+> Cc: linux-kernel@vger.kernel.org; akpm@osdl.org; Domsch, Matt
+> Subject: Re: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new
+Dell
+> BIOS update driver
 > 
-> With `make allmodconfig':
+> On Mon, May 23, 2005 at 09:52:05AM -0500, Abhay_Salunke@Dell.com
+wrote:
+> > Greg,
+> > >
+> > > Also, what's wrong with using the existing firmware interface in
+the
+> > > kernel?
+> > request_firmware requires the $FIRMWARE env to be populated with the
+> > firmware image name or the firmware image name needs to be hardcoded
+> > within  the call to request_firmware. Since the user is free to
+change
+> > the BIOS update image at will, it may not be possible if we use
+> > $FIRMWARE also I am not sure if this env variable might be
+conflicting
+> > to some other driver.
 > 
-> *** Warning: "tpm_show_pubek" [drivers/char/tpm/tpm.ko] undefined!
-> *** Warning: "tpm_show_caps" [drivers/char/tpm/tpm.ko] undefined!
-> *** Warning: "tpm_show_pcrs" [drivers/char/tpm/tpm.ko] undefined!
-> 
-> I don't know what you're trying to do here.  Please review all exports in
-> -rc5-mm1, fix.
-> 
-> 
-> 
+> As others have already stated, this doesn't really matter.  Make it
+> "dell_bios_update", if any device names their firmware that, well,
+> that's their problem...
 
-The following patch fixes warnings received when compiling 2.6.12-rc5-mm1.  
-Description: Fixes tpm device attribute functions with the wrong names and 
-types.
+OK, I have been trying to use request_firmware but it always fails with
+return code -2. This is the code snippet below, any thoughts?
 
-Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
----
---- linux-2.6.12-rc5/drivers/char/tpm/tpm.c	2005-05-26 09:43:33.000000000 -0500
-+++ linux-2.6.12-rc5-tpmdd/drivers/char/tpm/tpm.c	2005-05-26 09:34:46.000000000 -0500
-@@ -130,7 +131,8 @@ static const u8 pcrread[] = {
- 	0, 0, 0, 0		/* PCR index */
- };
- 
--ssize_t show_pcrs(struct device *dev, struct device_attribute *attr, char *buf)
-+ssize_t tpm_show_pcrs(struct device *dev, struct device_attribute *attr,
-+		      char *buf)
- {
- 	u8 data[READ_PCR_RESULT_SIZE];
- 	ssize_t len;
-@@ -182,7 +186,8 @@ static const u8 readpubek[] = {
- 	0, 0, 0, 124,		/* TPM_ORD_ReadPubek */
- };
- 
--ssize_t show_pubek(struct device *dev, struct device_attribute *attr, char *buf)
-+ssize_t tpm_show_pubek(struct device *dev, struct device_attribute *attr,
-+		       char *buf)
- {
- 	u8 *data;
- 	ssize_t len;
-@@ -263,7 +267,8 @@ static const u8 cap_manufacturer[] = {
- 	0, 0, 1, 3
- };
- 
--ssize_t show_caps(struct device *dev, struct device_attribute *attr, char *buf)
-+ssize_t tpm_show_caps(struct device *dev, struct device_attribute *attr,
-+		      char *buf)
- {
- 	u8 data[sizeof(cap_manufacturer)];
- 	ssize_t len;
-@@ -299,7 +303,8 @@ ssize_t show_caps(struct device *dev, st
- 
- EXPORT_SYMBOL_GPL(tpm_show_caps);
- 
--ssize_t tpm_store_cancel(struct device * dev, const char *buf,
-+ssize_t tpm_store_cancel(struct device * dev,
-+			 struct device_attribute * attr, const char *buf,
- 			 size_t count)
- {
- 	struct tpm_chip *chip = dev_get_drvdata(dev);
---- linux-2.6.12-rc5/drivers/char/tpm/tpm.h	2005-05-26 09:43:33.000000000 -0500
-+++ linux-2.6.12-rc5-tpmdd/drivers/char/tpm/tpm.h	2005-05-26 09:34:04.000000000 -0500
-@@ -35,10 +35,14 @@ enum tpm_addr {
- 	TPM_DATA = 0x4F
- };
- 
--extern ssize_t tpm_show_pubek(struct device *, char *);
--extern ssize_t tpm_show_pcrs(struct device *, char *);
--extern ssize_t tpm_show_caps(struct device *, char *);
--extern ssize_t tpm_store_cancel(struct device *, const char *, size_t);
-+extern ssize_t tpm_show_pubek(struct device *, struct device_attribute *,
-+			      char *);
-+extern ssize_t tpm_show_pcrs(struct device *, struct device_attribute *,
-+			     char *);
-+extern ssize_t tpm_show_caps(struct device *, struct device_attribute *,
-+			     char *);
-+extern ssize_t tpm_store_cancel(struct device *, struct device_attribute *,
-+				const char *, size_t);
- 
- 
- struct tpm_chip;
+static struct device rbu_device_type;
 
+static struct device rbu_device;
+
+static int __init dcdrbu_init(void)
+{
+        int rc = 0;
+        const struct firmware *fw;
+
+        device_initialize(&rbu_device_type);
+        device_initialize(&rbu_device);
+
+        strncpy(rbu_device.bus_id,"dell_rbu.bin", BUS_ID_SIZE);
+        strncpy(rbu_device_type.bus_id,"dell_rbu1.bin", BUS_ID_SIZE);
+
+        rc = request_firmware(&fw, "dell_rbu_type", &rbu_device_type);
+
+        if (rc) {
+                printk(KERN_ERR "dcdrbu_init: Firmware 1 missing "
+                        "%d\n", rc);
+                return -EIO;
+        }
+
+        release_firmware(fw);
+
+        rc = request_firmware(&fw, "dell_rbu_data", &rbu_device);
+        if (rc) {
+                printk(KERN_ERR "dcdrbu_init: Firmware 2 missing "
+                        "%d\n", rc);
+                return -EIO;
+        }
+
+        release_firmware(fw);
+
+        return rc;
+}
+
+static __exit void dcdrbu_exit( void)
+{
+}
+
+module_exit(dcdrbu_exit);
+module_init(dcdrbu_init);

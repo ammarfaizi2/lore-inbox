@@ -1,116 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVEZGhm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVEZGhw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbVEZGhm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 02:37:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVEZGhm
+	id S261221AbVEZGhw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 02:37:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVEZGhv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 02:37:42 -0400
-Received: from dvhart.com ([64.146.134.43]:48547 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261220AbVEZGh0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 02:37:26 -0400
-Date: Wed, 25 May 2005 23:37:26 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.12-rc5-mm1
-Message-ID: <175590000.1117089446@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 26 May 2005 02:37:51 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:59311 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261221AbVEZGhd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 02:37:33 -0400
+Subject: Swsusp trival fix
+From: Shaohua Li <shaohua.li@intel.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>, Pavel Machek <pavel@ucw.cz>
+Content-Type: text/plain
+Date: Thu, 26 May 2005 14:44:02 +0800
+Message-Id: <1117089842.8005.5.camel@linux-hp.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Build failure on numaq:
-http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/numaq
+Pavel,
+The below patch fixes a small error in -mm tree. It makes the error
+handling process correct, which is introduced by my previous
+suspend/resume smp patch.
 
-In file included from include/linux/sched.h:12,
-                 from arch/i386/kernel/asm-offsets.c:7:
-include/linux/jiffies.h:42:3: #error You lose.
-include/linux/jiffies.h:213:31: division by zero in #if
-include/linux/jiffies.h:213:31: division by zero in #if
-include/linux/jiffies.h:213:31: division by zero in #if
-include/linux/jiffies.h:213:31: division by zero in #if
-include/linux/jiffies.h:213:31: division by zero in #if
-include/linux/jiffies.h:213:31: division by zero in #if
-include/linux/jiffies.h:213:31: division by zero in #if
-include/linux/jiffies.h:213:31: division by zero in #if
-include/linux/jiffies.h:213:31: division by zero in #if
-include/linux/jiffies.h:213:31: division by zero in #if
-include/linux/jiffies.h:213:31: division by zero in #if
-include/linux/jiffies.h:213:31: division by zero in #if
-include/linux/jiffies.h:213:31: division by zero in #if
-include/linux/jiffies.h:213:31: division by zero in #if
-include/linux/jiffies.h:213:31: division by zero in #if
-include/linux/jiffies.h:213:31: division by zero in #if
-include/linux/jiffies.h:257:30: division by zero in #if
-In file included from include/linux/sched.h:12,
-                 from arch/i386/kernel/asm-offsets.c:7:
-include/linux/jiffies.h: In function `jiffies_to_msecs':
-include/linux/jiffies.h:262: error: `CONFIG_HZ' undeclared (first use in this function)
-include/linux/jiffies.h:262: error: (Each undeclared identifier is reported only once
-include/linux/jiffies.h:262: error: for each function it appears in.)
-include/linux/jiffies.h:268:36: division by zero in #if
-include/linux/jiffies.h: In function `jiffies_to_usecs':
-include/linux/jiffies.h:273: error: `CONFIG_HZ' undeclared (first use in this function)
-include/linux/jiffies.h:281:30: division by zero in #if
-include/linux/jiffies.h: In function `msecs_to_jiffies':
-include/linux/jiffies.h:286: error: `CONFIG_HZ' undeclared (first use in this function)
-include/linux/jiffies.h:294:36: division by zero in #if
-include/linux/jiffies.h: In function `usecs_to_jiffies':
-include/linux/jiffies.h:299: error: `CONFIG_HZ' undeclared (first use in this function)
-include/linux/jiffies.h: In function `timespec_to_jiffies':
-include/linux/jiffies.h:318: error: `CONFIG_HZ' undeclared (first use in this function)
-include/linux/jiffies.h:324: error: `SHIFT_HZ' undeclared (first use in this function)
-include/linux/jiffies.h: In function `jiffies_to_timespec':
-include/linux/jiffies.h:337: error: `CONFIG_HZ' undeclared (first use in this function)
-include/linux/jiffies.h: In function `timeval_to_jiffies':
-include/linux/jiffies.h:359: error: `CONFIG_HZ' undeclared (first use in this function)
-include/linux/jiffies.h:363: error: `SHIFT_HZ' undeclared (first use in this function)
-include/linux/jiffies.h: In function `jiffies_to_timeval':
-include/linux/jiffies.h:375: error: `CONFIG_HZ' undeclared (first use in this function)
-include/linux/jiffies.h:385:6: division by zero in #if
-include/linux/jiffies.h:385:6: division by zero in #if
-include/linux/jiffies.h:385:6: division by zero in #if
-include/linux/jiffies.h:385:6: division by zero in #if
-include/linux/jiffies.h:385:6: division by zero in #if
-include/linux/jiffies.h:385:6: division by zero in #if
-include/linux/jiffies.h:385:6: division by zero in #if
-include/linux/jiffies.h:385:6: division by zero in #if
-include/linux/jiffies.h:385:6: division by zero in #if
-include/linux/jiffies.h:385:6: division by zero in #if
-include/linux/jiffies.h:385:6: division by zero in #if
-include/linux/jiffies.h:385:6: division by zero in #if
-include/linux/jiffies.h:385:6: division by zero in #if
-include/linux/jiffies.h:385:6: division by zero in #if
-include/linux/jiffies.h:385:6: division by zero in #if
-include/linux/jiffies.h:385:6: division by zero in #if
-include/linux/jiffies.h: In function `jiffies_to_clock_t':
-include/linux/jiffies.h:386: error: `CONFIG_HZ' undeclared (first use in this function)
-include/linux/jiffies.h: In function `clock_t_to_jiffies':
-include/linux/jiffies.h:397: error: `CONFIG_HZ' undeclared (first use in this function)
-include/linux/jiffies.h:416:6: division by zero in #if
-include/linux/jiffies.h:416:6: division by zero in #if
-include/linux/jiffies.h:416:6: division by zero in #if
-include/linux/jiffies.h:416:6: division by zero in #if
-include/linux/jiffies.h:416:6: division by zero in #if
-include/linux/jiffies.h:416:6: division by zero in #if
-include/linux/jiffies.h:416:6: division by zero in #if
-include/linux/jiffies.h:416:6: division by zero in #if
-include/linux/jiffies.h:416:6: division by zero in #if
-include/linux/jiffies.h:416:6: division by zero in #if
-include/linux/jiffies.h:416:6: division by zero in #if
-include/linux/jiffies.h:416:6: division by zero in #if
-include/linux/jiffies.h:416:6: division by zero in #if
-include/linux/jiffies.h:416:6: division by zero in #if
-include/linux/jiffies.h:416:6: division by zero in #if
-include/linux/jiffies.h:416:6: division by zero in #if
-include/linux/jiffies.h: In function `jiffies_64_to_clock_t':
-include/linux/jiffies.h:417: error: `CONFIG_HZ' undeclared (first use in this function)
-make[1]: *** [arch/i386/kernel/asm-offsets.s] Error 1
-make: *** [arch/i386/kernel/asm-offsets.s] Error 2
-05/25/05-20:57:45 Build the kernel. Failed rc = 2
-05/25/05-20:57:45 build: kernel build Failed rc = 1
+Thanks,
+Shaohua
+
+---
+
+ linux-2.6.11-rc5-mm1-root/kernel/power/disk.c |    3 +--
+ 1 files changed, 1 insertion(+), 2 deletions(-)
+
+diff -puN kernel/power/disk.c~swsusp kernel/power/disk.c
+--- linux-2.6.11-rc5-mm1/kernel/power/disk.c~swsusp	2005-05-26 14:16:24.789077512 +0800
++++ linux-2.6.11-rc5-mm1-root/kernel/power/disk.c	2005-05-26 14:18:23.369050616 +0800
+@@ -135,7 +135,7 @@ static int prepare_processes(void)
+ 
+ 	if (freeze_processes()) {
+ 		error = -EBUSY;
+-		goto enable_cpu;
++		goto thaw;
+ 	}
+ 
+ 	if (pm_disk_mode == PM_DISK_PLATFORM) {
+@@ -150,7 +150,6 @@ static int prepare_processes(void)
+ 	return 0;
+ thaw:
+ 	thaw_processes();
+-enable_cpu:
+ 	enable_nonboot_cpus();
+ 	pm_restore_console();
+ 	return error;
+_
+
+

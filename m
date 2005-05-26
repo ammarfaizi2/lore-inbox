@@ -1,71 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVEZIZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVEZI0O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261274AbVEZIZw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 04:25:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVEZIZw
+	id S261275AbVEZI0O (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 04:26:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVEZI0O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 04:25:52 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:8657 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261274AbVEZIZm (ORCPT
+	Thu, 26 May 2005 04:26:14 -0400
+Received: from omx3-ext.sgi.com ([192.48.171.20]:62162 "EHLO omx3.sgi.com")
+	by vger.kernel.org with ESMTP id S261275AbVEZIZn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 04:25:42 -0400
-Date: Thu, 26 May 2005 01:25:16 -0700 (PDT)
+	Thu, 26 May 2005 04:25:43 -0400
+Date: Thu, 26 May 2005 01:25:08 -0700 (PDT)
 From: Paul Jackson <pj@sgi.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: Dinakar Guniguntala <dino@in.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
        Simon Derr <Simon.Derr@bull.net>, Paul Jackson <pj@sgi.com>,
        linux-kernel@vger.kernel.org
-Message-Id: <20050526082516.927.6806.sendpatchset@tomahawk.engr.sgi.com>
-Subject: [PATCH 2.6.12-rc4] cpuset rmdir scheduling while atomic fix
+Message-Id: <20050526082508.927.67614.sendpatchset@tomahawk.engr.sgi.com>
+Subject: [PATCH 2.6.12-rc4] cpuset exit NULL dereference fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Andrew,
 
-This fixes a complaint that I am seeing while running
-a particular stress test.  Please push it along at your
-convenience.
+This one fixes a problem that actual cpuset users are seeing
+crash their system.  I hope it will be pushed along fairly soon.
 
-The cpuset kernel code can generate a "scheduling while atomic"
-complaint from the cpuset_rmdir code.  This complaint means
-that we had to sleep while trying to get the cpuset_sem global
-semaphore during the handling of a 'rmdir()' call to remove
-a cpuset.
+There is a race in the kernel cpuset code, between the code
+to handle notify_on_release, and the code to remove a cpuset.
+The notify_on_release code can end up trying to access a
+cpuset that has been removed.  In the most common case, this
+causes a NULL pointer dereference from the routine cpuset_path.
+However all manner of bad things are possible, in theory at least.
 
-The existing code tries to take the global cpuset_sem semaphore
-while holding a dentry spinlock.  The fix is easy enough -
-the code that requires cpuset_sem can be moved below the point
-where the dentry spinlock is released.
+The existing code decrements the cpuset use count, and if the
+count goes to zero, processes the notify_on_release request,
+if appropriate.  However, once the count goes to zero, unless we
+are holding the global cpuset_sem semaphore, there is nothing to
+stop another task from immediately removing the cpuset entirely,
+and recycling its memory.
 
-This bug is usually only seen when running stress tests or
-loads causing rapid cpuset creation and deletion and queries.
+The obvious fix would be to always hold the cpuset_sem
+semaphore while decrementing the use count and dealing with
+notify_on_release.  However we don't want to force a global
+semaphore into the mainline task exit path, as that might create
+a scaling problem.
 
-The following fix has been tested using a current -linus git
-kernel.  Without the fix, I have a stress test that generates a
-scheduling while atomic complaint every few seconds.  With the
-fix, I've seen no more complaints in several hours of the same
-stress test.
+The actual fix is almost as easy - since this is only an issue
+for cpusets using notify_on_release, which the top level big
+cpusets don't normally need to use, only take the cpuset_sem
+for cpusets using notify_on_release.
+
+This code has been run for hours without a hiccup, while running
+a cpuset create/destroy stress test that could crash the existing
+kernel in seconds.  This patch applies to the current -linus
+git kernel.
 
 Signed-off-by: Paul Jackson <pj@sgi.com>
 
 Index: 2.6-cpuset_path_fix/kernel/cpuset.c
 ===================================================================
---- 2.6-cpuset_path_fix.orig/kernel/cpuset.c	2005-05-20 22:11:48.000000000 -0700
-+++ 2.6-cpuset_path_fix/kernel/cpuset.c	2005-05-20 22:12:15.000000000 -0700
-@@ -1320,11 +1320,11 @@ static int cpuset_rmdir(struct inode *un
- 	parent = cs->parent;
- 	set_bit(CS_REMOVED, &cs->flags);
- 	list_del(&cs->sibling);	/* delete my sibling from parent->children */
--	if (list_empty(&parent->children))
--		check_for_release(parent);
- 	d = dget(cs->dentry);
- 	cs->dentry = NULL;
- 	spin_unlock(&d->d_lock);
-+	if (list_empty(&parent->children))
-+		check_for_release(parent);
- 	cpuset_d_remove_dir(d);
- 	dput(d);
- 	up(&cpuset_sem);
+--- 2.6-cpuset_path_fix.orig/kernel/cpuset.c	2005-05-25 19:20:27.000000000 -0700
++++ 2.6-cpuset_path_fix/kernel/cpuset.c	2005-05-26 00:50:32.000000000 -0700
+@@ -166,9 +166,8 @@ static struct super_block *cpuset_sb = N
+  * The hooks from fork and exit, cpuset_fork() and cpuset_exit(), don't
+  * (usually) grab cpuset_sem.  These are the two most performance
+  * critical pieces of code here.  The exception occurs on exit(),
+- * if the last task using a cpuset exits, and the cpuset was marked
+- * notify_on_release.  In that case, the cpuset_sem is taken, the
+- * path to the released cpuset calculated, and a usermode call made
++ * when a task in a notify_on_release cpuset exits.  Then cpuset_sem
++ * is taken, and if the cpuset count is zero, a usermode call made
+  * to /sbin/cpuset_release_agent with the name of the cpuset (path
+  * relative to the root of cpuset file system) as the argument.
+  *
+@@ -1404,6 +1403,18 @@ void cpuset_fork(struct task_struct *tsk
+  *
+  * Description: Detach cpuset from @tsk and release it.
+  *
++ * Note that cpusets marked notify_on_release force every task
++ * in them to take the global cpuset_sem semaphore when exiting.
++ * This could impact scaling on very large systems.  Be reluctant
++ * to use notify_on_release cpusets where very high task exit
++ * scaling is required on large systems.
++ *
++ * Don't even think about derefencing 'cs' after the cpuset use
++ * count goes to zero, except inside a critical section guarded
++ * by the cpuset_sem semaphore.  If you don't hold cpuset_sem,
++ * then a zero cpuset use count is a license to any other task to
++ * nuke the cpuset immediately.
++ *
+  **/
+ 
+ void cpuset_exit(struct task_struct *tsk)
+@@ -1415,10 +1426,13 @@ void cpuset_exit(struct task_struct *tsk
+ 	tsk->cpuset = NULL;
+ 	task_unlock(tsk);
+ 
+-	if (atomic_dec_and_test(&cs->count)) {
++	if (notify_on_release(cs)) {
+ 		down(&cpuset_sem);
+-		check_for_release(cs);
++		if (atomic_dec_and_test(&cs->count))
++			check_for_release(cs);
+ 		up(&cpuset_sem);
++	} else {
++		atomic_dec(&cs->count);
+ 	}
+ }
+ 
 
 -- 
 -- 

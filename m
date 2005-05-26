@@ -1,62 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVEZLlC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVEZLnM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261315AbVEZLlC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 07:41:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbVEZLlC
+	id S261316AbVEZLnM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 07:43:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbVEZLnM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 07:41:02 -0400
-Received: from vms044pub.verizon.net ([206.46.252.44]:57512 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261315AbVEZLky (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 07:40:54 -0400
-Date: Thu, 26 May 2005 07:40:52 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: logfile for an svcd creation session
-To: linux-kernel@vger.kernel.org
-Message-id: <200505260740.52831.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-User-Agent: KMail/1.7
+	Thu, 26 May 2005 07:43:12 -0400
+Received: from mail.tmr.com ([64.65.253.246]:11780 "EHLO gatekeeper.tmr.com")
+	by vger.kernel.org with ESMTP id S261316AbVEZLnI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 07:43:08 -0400
+Date: Thu, 26 May 2005 07:42:16 -0400 (EDT)
+From: Bill Davidsen <davidsen@tmr.com>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+cc: mrmacman_g4@mac.com, linux-kernel@vger.kernel.org
+Subject: Re: OT] Joerg Schilling flames Linux on his Blog
+In-Reply-To: <4295A1A5.nail2SW21JHSO@burner>
+Message-ID: <Pine.LNX.3.96.1050526065847.25436A-100000@gatekeeper.tmr.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greetings;
+On Thu, 26 May 2005, Joerg Schilling wrote:
 
-Running 2.6.12-rc4, I made several video cd's of a wedding yesterday, 
-and did not note this till looking at logwatch this morning:
 
- --------------------- Kernel Begin ------------------------ 
+> Looks like you did not read the mail from me you were replying to.
 
-WARNING:  Kernel Errors Present
-   Buffer I/O error on device hdc, l...:  62 Time(s)
-   end_request: I/O error, dev hdc, sector...:  198 Time(s)
-   hdc: command error: error=0x54 { Ab...:  198 Time(s)
-   hdc: command error: status=0x51 { D...:  198 Time(s)
+Let's start a technical discussion with a personal attack...
+> 
+> The best way to fix a problem is to fix the problem and not to do something 
+> else and to change the interface.
 
- ---------------------- Kernel End ------------------------- 
+When possible, correct.
+> 
+> The problem was that you could send SCSI commands on R/O fds and fixing the
+> problem would have been to forbid sending SCSI commands on R/O fds.
 
-The SVCD's play just fine in a commercial dvd player.
+IT DOESN'T WORK THAT WAY. You *can't* disallow sending commands, that's
+how you do a read on a SCSI device, by sending commands like "seek" and
+"read." What is needed is to limit the commands allowed to be sent, and
+pass only known appropriate commands depending on access.
 
-The burner, /dev/hdc is, from dmesg:
-hdc: LITE-ON DVDRW LDW-451S, ATAPI CD/DVD-ROM drive
-hdc: ATAPI 40X DVD-ROM CD-R/RW drive, 2048kB Cache, UDMA(33)
-Uniform CD-ROM driver Revision: 3.20
+It is true that the first implementation didn't have all the legitimate
+commands in the table of allowed commands. But once the idea of doing bad
+things to a CD by sending evil commands was well-known, it was important
+to have protection in place quickly.
 
-This drive has not had the firmware upgrade.  DMA is working.
-Burnproof was off for the last 3 copies, buffer was never under 98% 
-according to k3b.
+It is true that some developers have been very unhelpful, and replied with
+canned "you don't have permission" messages to reports that legitimate
+commands aren't in the allowed table.
 
-Ideas anyone?
+It is true that the implementation is overly complex, instead of using
+only read and write, other things are checked, resulting in some
+unexpected behaviour, like blocking programs being setuid.
+
+What is NOT TRUE is that any of this was done just to piss you off. That
+was just a fringe benefit to fixing the security issue quickly. AFAIK all
+of the commands for burning single session CD/DVD are working as intended.
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.34% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+bill davidsen <davidsen@tmr.com>
+  CTO, TMR Associates, Inc
+Doing interesting things with little computers since 1979.
+

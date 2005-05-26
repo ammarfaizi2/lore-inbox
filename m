@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVEZPWZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVEZPX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261477AbVEZPWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 11:22:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVEZPWZ
+	id S261567AbVEZPX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 11:23:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVEZPX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 11:22:25 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:53701 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261477AbVEZPWX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 11:22:23 -0400
-Message-ID: <4295E9F1.6080304@tmr.com>
-Date: Thu, 26 May 2005 11:23:29 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
+	Thu, 26 May 2005 11:23:56 -0400
+Received: from mail3.utc.com ([192.249.46.192]:42709 "EHLO mail3.utc.com")
+	by vger.kernel.org with ESMTP id S261569AbVEZPXq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 11:23:46 -0400
+Message-ID: <4295E9F7.1020005@cybsft.com>
+Date: Thu, 26 May 2005 10:23:35 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Peter J. Stieber" <developer@toyon.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Tyan Opteron boards and problems with parallel ports
-References: <3174569B9743D511922F00A0C943142309F815A6@TYANWEB> <037801c5616a$b1be6600$1600a8c0@toyon.corp>
-In-Reply-To: <037801c5616a$b1be6600$1600a8c0@toyon.corp>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, dwalker@mvista.com,
+       Joe King <atom_bomb@rocketmail.com>, ganzinger@mvista.com,
+       Lee Revell <rlrevell@joe-job.com>, Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
+References: <20050523082637.GA15696@elte.hu> <42935890.2010109@cybsft.com> <20050525113424.GA1867@elte.hu> <20050525113514.GA9145@elte.hu> <42947D84.2000409@cybsft.com> <20050525140316.GA29996@elte.hu> <20050526074547.GA6057@elte.hu>
+In-Reply-To: <20050526074547.GA6057@elte.hu>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Peter J. Stieber wrote:
-> YhLu> Don't always blame BIOS, if you like you could
-> YhLu> use LinuxBIOS instead...
+Ingo Molnar wrote:
+> * Ingo Molnar <mingo@elte.hu> wrote:
 > 
-> Just curious, but why isn't this project (LinuxBIOS) mentioned on the 
-> Tyan web site, or is it and I just missed it?
 > 
-> You do work for Tyan, right?
+>>>No it doesn't crash if I boot only a single CPU. I'll go one better 
+>>>than that. It doesn't crash if I boot both CPUs but without 
+>>>hyper-threading (turned off in the bios but still enabled in the 
+>>>config). :-(
+>>
+>>hm, must be some race. I tried it on a HT system too - will try on 
+>>another HT system.
+> 
+> 
+> cannot reproduce it on my other HT system either. Do you see the same 
+> crash with the latest, -rc5 based release too? Maybe we'll get a better 
+> crashlog under that kernel.
+> 
+> 	Ingo
+> 
 
-What has that to do with anything? I doubt that suggestions about boot 
-options are on the website or come from the Tyan website, either.
+This one seems to be fine, or at least it has gotten harder produce the 
+problem. ;-) It is running fine on both of my dual systems currently and 
+should know soon on one of the uni's.
 
-Note: I'm not endorsing LinuxBIOS for Opteron, I haven't personally 
-tried it. But the value of the suggestion depends on how it works, not 
-who makes it. There appear to be a lot of reports of problems with 
-Opteron lately, if the BIOS isn't buggy then the documentation may have 
-lost in translation.
 -- 
-    -bill davidsen (davidsen@tmr.com)
-"The secret to procrastination is to put things off until the
-  last possible moment - but no longer"  -me
+    kr

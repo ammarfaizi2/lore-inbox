@@ -1,61 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbVEZNqb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVEZNt7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261441AbVEZNqb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 09:46:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbVEZNqb
+	id S261445AbVEZNt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 09:49:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVEZNt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 09:46:31 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:61604 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261441AbVEZNq0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 09:46:26 -0400
-Date: Thu, 26 May 2005 19:24:29 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
-To: Simon Derr <Simon.Derr@bull.net>
-Cc: Paul Jackson <pj@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.12-rc4] cpuset exit NULL dereference fix
-Message-ID: <20050526135429.GA3954@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <20050526082508.927.67614.sendpatchset@tomahawk.engr.sgi.com> <Pine.LNX.4.61.0505261050480.11050@openx3.frec.bull.fr>
+	Thu, 26 May 2005 09:49:59 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:26293 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261445AbVEZNt5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 09:49:57 -0400
+Subject: Re: No full image on kernel.org home page.
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Brice Goglin <Brice.Goglin@ens-lyon.org>
+Cc: linux-kernel@vger.kernel.org, webmaster@kernel.org
+In-Reply-To: <4295D27B.1030309@ens-lyon.org>
+References: <1117114714.4313.21.camel@localhost.localdomain>
+	 <4295D27B.1030309@ens-lyon.org>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 26 May 2005 09:49:45 -0400
+Message-Id: <1117115385.4313.22.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0505261050480.11050@openx3.frec.bull.fr>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 26, 2005 at 11:00:10AM +0200, Simon Derr wrote:
-> > The obvious fix would be to always hold the cpuset_sem
-> > semaphore while decrementing the use count and dealing with
-> > notify_on_release.  However we don't want to force a global
-> > semaphore into the mainline task exit path, as that might create
-> > a scaling problem.
-> > 
-> > The actual fix is almost as easy - since this is only an issue
-> > for cpusets using notify_on_release, which the top level big
-> > cpusets don't normally need to use, only take the cpuset_sem
-> > for cpusets using notify_on_release.
-> 
-> I'm a bit concerned about this. Since there might well be 
-> 'notify_on_release' cpusets all over the system, and that there is only 
-> one cpuset_sem semaphore, I feel like this 'scaling problem' still exists 
-> even with:
-> 
-> if (notify_on_release(cs)) {
-> 	down(&cpuset_sem);
-> 	...
-> 
-> Maybe adding more per-cpuset data such as a per-cpuset removal_sem might 
-> be worth it ?
+On Thu, 2005-05-26 at 15:43 +0200, Brice Goglin wrote:
+> Try the "F" link on the right.
 
-This would have to be in addition to the existing cpuset_sem wont it ??
-Not sure if we need to add any more complexity unless the scaling problem
-is really huge.
+Doh!  (Egg in my face).  I didn't even notice those.
 
-However if we do end up making any changes then IMO locking can be made 
-more granular, instead of one sem for cpus, memory and all operations 
-on cpusets
+Thanks,
 
-	-Dinakar
+-- Steve
+
+

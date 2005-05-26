@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVEZHO3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVEZHSc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbVEZHO3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 03:14:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVEZHOZ
+	id S261232AbVEZHSc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 03:18:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261235AbVEZHSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 03:14:25 -0400
-Received: from smtp08.web.de ([217.72.192.226]:20164 "EHLO smtp08.web.de")
-	by vger.kernel.org with ESMTP id S261227AbVEZHOW (ORCPT
+	Thu, 26 May 2005 03:18:32 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:23786 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S261232AbVEZHS3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 03:14:22 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
- Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
-References: <429474A4.nail1XA1DB0IM@burner>
-	<200505260011.25126.pmcfarland@downeast.net>
-From: Markus Plail <linux-kernel@gitteundmarkus.de>
-Date: Thu, 26 May 2005 09:14:20 +0200
-In-Reply-To: <200505260011.25126.pmcfarland@downeast.net> (Patrick
- McFarland's message of "Thu, 26 May 2005 00:11:17 -0400")
-Message-ID: <87vf568nn7.fsf@plailis.daheim.bs>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 26 May 2005 03:18:29 -0400
+Date: Thu, 26 May 2005 17:18:06 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: ppc64-dev <linuxppc64-dev@ozlabs.org>, LKML <linux-kernel@vger.kernel.org>,
+       axboe@suse.de
+Subject: [PATCH] ppc64 iSeries: make virtual DVD-RAMs writable again
+Message-Id: <20050526171806.2a996350.sfr@canb.auug.org.au>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patrick McFarland <pmcfarland@downeast.net> writes:
-> Joerg, when replying, please don't break threading.
->> Strange thoughts. Why should someone who fights for freedom even
->> think about removing a comment that is not a personal infringement?
->> As you seem to think about this posibility, let me ask: should we be
->> rather afraid of you?
->
-> Someone who fights for freedom wouldn't remove the comment. You are
-> not that someone.
+Hi Andrew,
 
-But you DO realise that your comment was *NOT* deleted, do you? It isn't
-now and it wasn't when I first read the blog entry, which wasn't long
-after you posted your message here.
+It appears that another test has been added in the Uniform CDROM layer
+that must be passed before a DVD-RAM is considered wrieable.  This patch
+implements an emulation of the needed packet command for the viocd driver.
 
-regards
-Markus
+Signed-off-by:  Stephen Rothwell <sfr@canb.auug.org.au>
 
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/
+
+diff -ruNp linus/drivers/cdrom/viocd.c linus-viocd.dvd/drivers/cdrom/viocd.c
+--- linus/drivers/cdrom/viocd.c	2005-05-20 09:03:44.000000000 +1000
++++ linus-viocd.dvd/drivers/cdrom/viocd.c	2005-05-13 16:00:10.000000000 +1000
+@@ -488,6 +488,20 @@ static int viocd_packet(struct cdrom_dev
+ 					 & (CDC_DVD_RAM | CDC_RAM)) != 0;
+ 		}
+ 		break;
++	case GPCMD_GET_CONFIGURATION:
++		if (cgc->cmd[3] == CDF_RWRT) {
++			struct rwrt_feature_desc *rfd = (struct rwrt_feature_desc *)(cgc->buffer + sizeof(struct feature_header));
++
++			if ((buflen >=
++			     (sizeof(struct feature_header) + sizeof(*rfd))) &&
++			    (cdi->ops->capability & ~cdi->mask
++			     & (CDC_DVD_RAM | CDC_RAM))) {
++				rfd->feature_code = cpu_to_be16(CDF_RWRT);
++				rfd->curr = 1;
++				ret = 0;
++			}
++		}
++		break;
+ 	default:
+ 		if (cgc->sense) {
+ 			/* indicate Unknown code */

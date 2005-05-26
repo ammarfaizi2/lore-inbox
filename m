@@ -1,35 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261789AbVEZVJM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261808AbVEZVLv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261789AbVEZVJM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 17:09:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261796AbVEZVJI
+	id S261808AbVEZVLv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 17:11:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbVEZVL3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 17:09:08 -0400
-Received: from fire.osdl.org ([65.172.181.4]:15313 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261789AbVEZVIk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 17:08:40 -0400
-Date: Thu, 26 May 2005 14:07:58 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, jamagallon@able.es, tomlins@cam.org,
-       linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
-Subject: Re: 2.6.12-rc5-mm1
-Message-ID: <20050526210758.GK23013@shell0.pdx.osdl.net>
-References: <20050525134933.5c22234a.akpm@osdl.org> <1117093392l.17165l.0l@werewolf.able.es> <20050526005841.08a8aae0.akpm@osdl.org> <200505261554.54807.rjw@sisk.pl> <20050526134532.1580defc.akpm@osdl.org>
+	Thu, 26 May 2005 17:11:29 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:62717 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S261802AbVEZVJ4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 17:09:56 -0400
+Subject: Re: RT patch acceptance
+From: Sven-Thorsten Dietrich <sdietrich@mvista.com>
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Andi Kleen <ak@muc.de>, Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com,
+       nickpiggin@yahoo.com.au, hch@infradead.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050526205227.GA3776@nietzsche.lynx.com>
+References: <1116981913.19926.58.camel@dhcp153.mvista.com>
+	 <20050525005942.GA24893@nietzsche.lynx.com>
+	 <1116982977.19926.63.camel@dhcp153.mvista.com>
+	 <20050524184351.47d1a147.akpm@osdl.org> <4293DCB1.8030904@mvista.com>
+	 <20050524192029.2ef75b89.akpm@osdl.org> <20050525063306.GC5164@elte.hu>
+	 <m1br6zxm1b.fsf@muc.de> <1117044019.5840.32.camel@sdietrich-xp.vilm.net>
+	 <20050526193230.GY86087@muc.de>  <20050526205227.GA3776@nietzsche.lynx.com>
+Content-Type: text/plain
+Date: Thu, 26 May 2005 14:09:54 -0700
+Message-Id: <1117141794.1583.72.camel@sdietrich-xp.vilm.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050526134532.1580defc.akpm@osdl.org>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrew Morton (akpm@osdl.org) wrote:
-> I assume the problem is due to one of the ASLA patches in rc5-mm1, but it's
-> possible that it lies elsewhere.  It would be great if someone could fire
-> up quilt and do a binary search...
+On Thu, 2005-05-26 at 13:52 -0700, Bill Huey wrote:
 
-I had started that, but then read a few accounts of backing out
-avoiding-mmap-fragmentation-fix-2.patch fixing the problem.  Both that
-patch and alsa are using vm_private_data.  Madness ensues.
+
+> > But I always though we should have a new lock type that is between
+> > spinlocks and semaphores and is less heavyweight than a semaphore
+> > (which tends to be quite slow due to its many context switches). Something
+> > like a spinaphore, although it probably doesnt need full semaphore
+> > semantics (rarely any code in the kernel uses that anyways). It could
+> > spin for a short time and then sleep. Then convert some selected
+> > locks over. e.g. the mm_sem and the i_sem would be primary users of this.
+> > And maybe some of the heavier spinlocks.
+> 
+> Adaptiving spinning is a difficult thing to do since you have to snoop
+> for the active "current" on other processors to determine if you have to
+> sleep or not. FreeBSD 5.x uses this stuff and the locking code is very
+> complicated. In the future, it maybe desirable to incorporate parts of
+> this functionality into another RT mutex implementation. The current one
+> is overloaded enough with functionality as is .
+> 
+
+> > If you drop irq threads then you cannot convert all locks
+> > anymore or have to add ugly in_interrupt()checks. So any conversion like
+> > that requires converting locks.
+> 
+> That's reversed. Interrupt threads are an isolated change itself and can
+> be submitted upstream if so desired with no associated lock changes.
+> But that paragraph above is rather vague, so I can only guess at what you're
+> talking about. There are ways of doing context stealing with irq-threads to
+> minimize overhead and the FreeBSD folks have partially implemented this from
+> my memory.
+> 
+> bill
+> 
+

@@ -1,67 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbVEZTcx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261715AbVEZTfC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbVEZTcx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 15:32:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVEZTcx
+	id S261715AbVEZTfC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 15:35:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbVEZTfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 15:32:53 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:44249 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261710AbVEZTch (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 15:32:37 -0400
-Subject: Re: 2.6.11 timeval_to_jiffies() wrong for ms resolution timers
-From: Lee Revell <rlrevell@joe-job.com>
-To: george@mvista.com
-Cc: linux-os@analogic.com, Olivier Croquette <ocroquette@free.fr>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <42962272.9060506@mvista.com>
-References: <21FFE0795C0F654FAD783094A9AE1DFC07AFE7C1@cof110avexu4.global.avaya.com>
-	 <4294D9C6.3060501@mvista.com> <4296019B.8070006@free.fr>
-	 <Pine.LNX.4.61.0505261350480.7195@chaos.analogic.com>
-	 <1117131568.5477.12.camel@mindpipe>  <42962272.9060506@mvista.com>
-Content-Type: text/plain
-Date: Thu, 26 May 2005 15:32:36 -0400
-Message-Id: <1117135956.5477.26.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
+	Thu, 26 May 2005 15:35:00 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:35472 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S261714AbVEZTdC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 15:33:02 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17046.9315.652129.602688@napali.hpl.hp.com>
+Date: Thu, 26 May 2005 12:32:51 -0700
+To: Andrew Morton <akpm@osdl.org>
+Cc: rusty@rustcorp.com.au, Shaohua Li <shaohua.li@intel.com>, pavel@ucw.cz,
+       linux-kernel@vger.kernel.org, davidm@napali.hpl.hp.com
+Subject: Re: Hotplug CPU printk issue
+In-Reply-To: <20050525225204.68bf0684.akpm@osdl.org>
+References: <1113467253.2568.10.camel@sli10-desk.sh.intel.com>
+	<1117076334.4086.11.camel@linux-hp.sh.intel.com>
+	<20050525204828.70acc1b5.akpm@osdl.org>
+	<1117086211.7657.10.camel@linux-hp.sh.intel.com>
+	<20050525225204.68bf0684.akpm@osdl.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-05-26 at 12:24 -0700, George Anzinger wrote:
-> Lee Revell wrote:
-> > On Thu, 2005-05-26 at 14:10 -0400, Richard B. Johnson wrote:
-> > 
-> >>The time for a sleeping (waiting) task to get the CPU is much
-> >>greater than the jitter. Once in the ISR, some wake-up call
-> >>is "scheduled" and the interrupt returns. A CPU hog may have
-> >>been using the CPU when the interrupt occurred. It will continue
-> >>to use the CPU until its time-slot (quantum) has expired. This
-> >>could be a whole millisecond if HZ is 1000, 10 milliseconds if
-> >>100. It's only then that your sleeping task gets awakened
-> >>by the interrupting event.
-> >>
-> >>So, accurate waking up is not guaranteed on any multi-user,
-> >>multitasking system because you don't know what a user has
-> >>been doing with the CPU. On a dedicated machine, one can
-> >>have tasks that are most always sleeping or waiting for
-> >>I/O so, the latency can come way down. However, signaling
-> >>a task, based upon some time will never be very accurate
-> >>anywhere.
-> > 
-> > 
-> > Not quite, if your sleeping task has higher priority than the CPU hog it
-> > will preempt the CPU hog immediately on return from the interrupt.
-> > Unless you've disabled preemption of course, which would be stupid in
-> > this case.
-> 
-> And even then the task would need to be in the kernel and would be preempted 
-> when it exits the kernel.
-> 
+>>>>> On Wed, 25 May 2005 22:52:04 -0700, Andrew Morton <akpm@osdl.org> said:
 
-Right, and normally the sleeping task would be woken up even if it had
-the same static priority as the CPU hog as the scheduler should favor
-event driven proceses.
+  Andrew> Shaohua Li <shaohua.li@intel.com> wrote:
 
-Lee
+  >> > Please confirm that we in fact do not want to allow downed CPUs to
+  >> > print things, then send a patch.
+  >> Yep. In the cpu hotplug case, per-cpu data possibly isn't initialized
+  >> even the system state is 'running'. As the comments say in the original
+  >> code, some console drivers assume per-cpu resources have been allocated.
+  >> radeon fb is one such driver, which uses kmalloc. After a CPU is down,
+  >> the per-cpu data of slab is freed, so the system crashed when printing
+  >> some info.
 
+  Andrew> hm, that certainly sounds sane, but I do recall there were
+  Andrew> reasonable-sounding reasons why the ia64 guys wanted
+  Andrew> printk-on-a-down-CPU to work.  Hopefully David can remember
+  Andrew> what the problem was so we can find a more thorough fix.
+
+I don't recall having submitted such a patch.  According to the bk
+log, it was Rusty who added the !system_running check (which was later
+changed to system_state != SYSTEM_RUNNING).
+
+The changelog only says:
+
+ "- Allow printk on down cpus once system is running"
+
+Rusty?
+
+	--david

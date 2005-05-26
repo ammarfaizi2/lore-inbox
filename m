@@ -1,353 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbVEZNOQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbVEZNRE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261415AbVEZNOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 09:14:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbVEZNOQ
+	id S261394AbVEZNRE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 09:17:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVEZNRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 09:14:16 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:12428 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261415AbVEZNNe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 09:13:34 -0400
-Date: Thu, 26 May 2005 18:52:51 +0530
-From: Suparna Bhattacharya <suparna@in.ibm.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Carsten Otte <cotte@freenet.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>, schwidefsky@de.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>
-Subject: Re: [RFC/PATCH 2/4] fs/mm: execute in place (3rd version)
-Message-ID: <20050526132251.GA5067@in.ibm.com>
-Reply-To: suparna@in.ibm.com
-References: <1116866094.12153.12.camel@cotte.boeblingen.de.ibm.com> <1116869420.12153.32.camel@cotte.boeblingen.de.ibm.com> <20050524093029.GA4390@in.ibm.com> <42930B64.2060105@freenet.de> <20050524133211.GA4896@in.ibm.com> <42933B7A.3060206@freenet.de> <1117043475.26913.1540.camel@dyn318077bld.beaverton.ibm.com>
+	Thu, 26 May 2005 09:17:04 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:27049 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261394AbVEZNQr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 09:16:47 -0400
+Subject: Re: [patch] smp_processor_id() cleanup, 2.6.12-rc5
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Arjan van de Ven <arjanv@infradead.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20050526104449.GA14289@elte.hu>
+References: <20050526104449.GA14289@elte.hu>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 26 May 2005 09:16:14 -0400
+Message-Id: <1117113374.4313.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1117043475.26913.1540.camel@dyn318077bld.beaverton.ibm.com>
-User-Agent: Mutt/1.4i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 25, 2005 at 10:51:17AM -0700, Badari Pulavarty wrote:
-> On Tue, 2005-05-24 at 07:34, Carsten Otte wrote:
+On Thu, 2005-05-26 at 12:44 +0200, Ingo Molnar wrote:
+> this patch implements a number of smp_processor_id() cleanup ideas that 
+> Arjan van de Ven and i came up with.
 > 
-> > Maintenance effort is a good point. Changes would need to be applied
-> > to both versions, which don't differ too much today.
-> > Embedded folks will likely figure they also need the reverse path to
-> > return references (like put_xip_page()), and indication of required access
-> > (read/write) to make this work with flash chips.
-> > Therefore I guess those two versions to differ more in the future,
-> > making it hard to think about a soloution unifying the code paths
-> > in a sane way so that it will work out for flash in the end.
-> > As for me, I did not find a better one than in version one/two. If you
-> > figure a good one, I will be happy to work on its implementation.
-> > 
+> the previous __smp_processor_id/_smp_processor_id/smp_processor_id API 
+> spaghetti was hard to follow both on the implementational and on the 
+> usage side.
 > 
-> Hi,
+> some of the complexity arose from picking wrong names, some of the 
+> complexity comes from the fact that not all architectures defined 
+> __smp_processor_id.
 > 
-> This is my crude version of the cleanup patch to reduce the 
-> duplication of code.
+> in the new code, there are two externally visible symbols:
 > 
-> Basically, I added __generic_file_aio_read_internal() and 
-> __generic_file_aio_write_nolock_internal() to take a read/write
-> handlers instead of defaulting to do_generic_file_read() or
-> generic_file_buffered_write().
+>  - smp_processor_id(): debug variant.
 > 
-> This way I was able to reduce 129 lines of your code. 
-> This patch is on top of your current set and I haven't even
-> tried compiling it. Needs cleanup.
+>  - raw_smp_processor_id(): nondebug variant. Replaces all existing
+>    uses of _smp_processor_id() and __smp_processor_id(). Defined
+>    by every SMP architecture in include/asm-*/smp.h.
 > 
-> BTW, function & variable names are too long and/or ugly & doesn't 
-> make sense - need fixing.
+> there is one new internal symbol, dependent on DEBUG_PREEMPT:
 > 
-> Christoph/Suparna/Andrew, Comments ?
+>  - debug_smp_processor_id(): internal debug variant, mapped to
+>                              smp_processor_id().
+> 
+> also, i moved debug_smp_processor_id() from lib/kernel_lock.c into a new 
+> lib/smp_processor_id.c file. All related comments got updated and/or 
+> clarified.
 
-To get a complete picture, how did you want to handle direct io ?
+Let me be the first to say "Thank you Ingo! (and Arjan)".  God, the fun
+I had with _?_?smp_processor_id. The first time I got the bug message I
+was "WTF", and then to figure out if I should use the _ or __ version.
+I hope your patch gets in so that this will be much cleared up, and put
+my effort in learning the difference between them all in vain.
 
-Regards
-Suparna
+I guess I should download the latest kernel and try it out.
 
-> 
-> Thanks,
-> Badari
-> 
-> 
-> 
-> 
-> 
-> 
-> 
+Thanks again,
 
-> # diffstat /tmp/xip-filemap.patch
->  filemap.c     |   27 +++++++++---
->  filemap.h     |    6 ++
->  filemap_xip.c |  129 +++-------------------------------------------------------
->  3 files changed, 35 insertions(+), 127 deletions(-)
-> 
-> Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
-> diff -X dontdiff -Narup linux-2.6.12-rc4/mm/filemap.c linux-2.6.12-rc4.xip/mm/filemap.c
-> --- linux-2.6.12-rc4/mm/filemap.c	2005-05-25 03:05:55.367260168 -0700
-> +++ linux-2.6.12-rc4.xip/mm/filemap.c	2005-05-25 03:07:15.805031768 -0700
-> @@ -988,8 +988,8 @@ success:
->   * that can use the page cache directly.
->   */
->  ssize_t
-> -__generic_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
-> -		unsigned long nr_segs, loff_t *ppos)
-> +__generic_file_aio_read_internal(struct kiocb *iocb, const struct iovec *iov,
-> +		unsigned long nr_segs, loff_t *ppos, file_read_t file_read)
->  {
->  	struct file *filp = iocb->ki_filp;
->  	ssize_t retval;
-> @@ -1051,7 +1051,7 @@ __generic_file_aio_read(struct kiocb *io
->  			if (desc.count == 0)
->  				continue;
->  			desc.error = 0;
-> -			do_generic_file_read(filp,ppos,&desc,file_read_actor);
-> +			file_read(filp,ppos,&desc,file_read_actor);
->  			retval += desc.written;
->  			if (!retval) {
->  				retval = desc.error;
-> @@ -1063,6 +1063,13 @@ out:
->  	return retval;
->  }
->  
-> +ssize_t
-> +__generic_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
-> +		unsigned long nr_segs, loff_t *ppos)
-> +{
-> +	return __generic_file_aio_read_internal(iocb, iov, nr_segs, 
-> +				ppos, do_generic_file_read);
-> +}
->  EXPORT_SYMBOL(__generic_file_aio_read);
->  
->  ssize_t
-> @@ -2024,8 +2031,9 @@ generic_file_buffered_write(struct kiocb
->  EXPORT_SYMBOL(generic_file_buffered_write);
->  
->  ssize_t
-> -__generic_file_aio_write_nolock(struct kiocb *iocb, const struct iovec *iov,
-> -				unsigned long nr_segs, loff_t *ppos)
-> +__generic_file_aio_write_nolock_internal(struct kiocb *iocb, 
-> +	const struct iovec *iov, unsigned long nr_segs, loff_t *ppos,
-> +	file_write_t file_write)
->  {
->  	struct file *file = iocb->ki_filp;
->  	struct address_space * mapping = file->f_mapping;
-> @@ -2093,12 +2101,19 @@ __generic_file_aio_write_nolock(struct k
->  		count -= written;
->  	}
->  
-> -	written = generic_file_buffered_write(iocb, iov, nr_segs,
-> +	written = file_write(iocb, iov, nr_segs,
->  			pos, ppos, count, written);
->  out:
->  	current->backing_dev_info = NULL;
->  	return written ? written : err;
->  }
-> +ssize_t
-> +__generic_file_aio_write_nolock(struct kiocb *iocb, const struct iovec *iov,
-> +				unsigned long nr_segs, loff_t *ppos)
-> +{
-> +	return __generic_file_aio_write_nolock_internal(iocb, *iov,
-> +			nr_segs, *ppos, generic_file_buffered_write);
-> +}
->  EXPORT_SYMBOL(generic_file_aio_write_nolock);
->  
->  ssize_t
-> diff -X dontdiff -Narup linux-2.6.12-rc4/mm/filemap.h linux-2.6.12-rc4.xip/mm/filemap.h
-> --- linux-2.6.12-rc4/mm/filemap.h	2005-05-25 03:06:03.857969384 -0700
-> +++ linux-2.6.12-rc4.xip/mm/filemap.h	2005-05-25 03:08:09.388885784 -0700
-> @@ -15,6 +15,12 @@
->  #include <linux/config.h>
->  #include <asm/uaccess.h>
->  
-> +typedef int (file_read_t)(struct file * filp, loff_t *ppos,
-> +		read_descriptor_t * desc, read_actor_t actor):
-> +typedef int (file_write_t)(struct kiocb *iocb, const struct iovec *iov,
-> +		unsigned long nr_segs, loff_t pos, loff_t *ppos,
-> +		size_t count, ssize_t written);
-> +
->  extern size_t
->  __filemap_copy_from_user_iovec(char *vaddr, 
->  			       const struct iovec *iov,
-> diff -X dontdiff -Narup linux-2.6.12-rc4/mm/filemap_xip.c linux-2.6.12-rc4.xip/mm/filemap_xip.c
-> --- linux-2.6.12-rc4/mm/filemap_xip.c	2005-05-25 03:05:55.369259864 -0700
-> +++ linux-2.6.12-rc4.xip/mm/filemap_xip.c	2005-05-25 02:58:27.200391888 -0700
-> @@ -114,62 +114,6 @@ out:
->  		file_accessed(filp);
->  }
->  
-> -/*
-> - * This is the "read()" routine for all filesystems
-> - * that uses the get_xip_page address space operation.
-> - */
-> -static ssize_t
-> -__xip_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
-> -		unsigned long nr_segs, loff_t *ppos)
-> -{
-> -	struct file *filp = iocb->ki_filp;
-> -	ssize_t retval;
-> -	unsigned long seg;
-> -	size_t count;
-> -
-> -	count = 0;
-> -	for (seg = 0; seg < nr_segs; seg++) {
-> -		const struct iovec *iv = &iov[seg];
-> -
-> -		/*
-> -		 * If any segment has a negative length, or the cumulative
-> -		 * length ever wraps negative then return -EINVAL.
-> -		 */
-> -		count += iv->iov_len;
-> -		if (unlikely((ssize_t)(count|iv->iov_len) < 0))
-> -			return -EINVAL;
-> -		if (access_ok(VERIFY_WRITE, iv->iov_base, iv->iov_len))
-> -			continue;
-> -		if (seg == 0)
-> -			return -EFAULT;
-> -		nr_segs = seg;
-> -		count -= iv->iov_len;	/* This segment is no good */
-> -		break;
-> -	}
-> -
-> -	retval = 0;
-> -	if (count) {
-> -		for (seg = 0; seg < nr_segs; seg++) {
-> -			read_descriptor_t desc;
-> -
-> -			desc.written = 0;
-> -			desc.arg.buf = iov[seg].iov_base;
-> -			desc.count = iov[seg].iov_len;
-> -			if (desc.count == 0)
-> -				continue;
-> -			desc.error = 0;
-> -			do_xip_mapping_read(filp->f_mapping, &filp->f_ra, filp,
-> -					    ppos, &desc, file_read_actor);
-> -			retval += desc.written;
-> -			if (!retval) {
-> -				retval = desc.error;
-> -				break;
-> -			}
-> -		}
-> -	}
-> -	return retval;
-> -}
-> -
->  ssize_t
->  xip_file_aio_read(struct kiocb *iocb, char __user *buf, size_t count,
->  		  loff_t pos)
-> @@ -177,7 +121,8 @@ xip_file_aio_read(struct kiocb *iocb, ch
->  	struct iovec local_iov = { .iov_base = buf, .iov_len = count };
->  
->  	BUG_ON(iocb->ki_pos != pos);
-> -	return __xip_file_aio_read(iocb, &local_iov, 1, &iocb->ki_pos);
-> +	return __generic_file_aio_read_internal(iocb, &local_iov, 1, 
-> +			&iocb->ki_pos, do_xip_mapping_read);
->  }
->  EXPORT_SYMBOL_GPL(xip_file_aio_read);
->  
-> @@ -188,7 +133,8 @@ xip_file_readv(struct file *filp, const 
->  	struct kiocb kiocb;
->  
->  	init_sync_kiocb(&kiocb, filp);
-> -	return __xip_file_aio_read(&kiocb, iov, nr_segs, ppos);
-> +	return __generic_file_aio_read_internal(&kiocb, iov, nr_segs, 
-> +			ppos, do_xip_mapping_read);
->  }
->  EXPORT_SYMBOL_GPL(xip_file_readv);
->  
-> @@ -423,74 +369,14 @@ do_xip_file_write(struct kiocb *iocb, co
->  }
->  
->  static ssize_t
-> -xip_file_aio_write_nolock(struct kiocb *iocb, const struct iovec *iov,
-> -				unsigned long nr_segs, loff_t *ppos)
-> -{
-> -	struct file *file = iocb->ki_filp;
-> -	struct address_space * mapping = file->f_mapping;
-> -	size_t ocount;		/* original count */
-> -	size_t count;		/* after file limit checks */
-> -	struct inode 	*inode = mapping->host;
-> -	unsigned long	seg;
-> -	loff_t		pos;
-> -	ssize_t		written;
-> -	ssize_t		err;
-> -
-> -	ocount = 0;
-> -	for (seg = 0; seg < nr_segs; seg++) {
-> -		const struct iovec *iv = &iov[seg];
-> -
-> -		/*
-> -		 * If any segment has a negative length, or the cumulative
-> -		 * length ever wraps negative then return -EINVAL.
-> -		 */
-> -		ocount += iv->iov_len;
-> -		if (unlikely((ssize_t)(ocount|iv->iov_len) < 0))
-> -			return -EINVAL;
-> -		if (access_ok(VERIFY_READ, iv->iov_base, iv->iov_len))
-> -			continue;
-> -		if (seg == 0)
-> -			return -EFAULT;
-> -		nr_segs = seg;
-> -		ocount -= iv->iov_len;	/* This segment is no good */
-> -		break;
-> -	}
-> -
-> -	count = ocount;
-> -	pos = *ppos;
-> -
-> -	vfs_check_frozen(inode->i_sb, SB_FREEZE_WRITE);
-> -
-> -	written = 0;
-> -
-> -	err = generic_write_checks(file, &pos, &count, S_ISBLK(inode->i_mode));
-> -	if (err)
-> -		goto out;
-> -
-> -	if (count == 0)
-> -		goto out;
-> -
-> -	err = remove_suid(file->f_dentry);
-> -	if (err)
-> -		goto out;
-> -
-> -	inode_update_time(inode, 1);
-> -
-> -	/* use execute in place to copy directly to disk */
-> -	written = do_xip_file_write (iocb, iov,
-> -				  nr_segs, pos, ppos, count);
-> - out:
-> -	return written ? written : err;
-> -}
-> -
-> -static ssize_t
->  __xip_file_write_nolock(struct file *file, const struct iovec *iov,
->  			unsigned long nr_segs, loff_t *ppos)
->  {
->  	struct kiocb kiocb;
->  
->  	init_sync_kiocb(&kiocb, file);
-> -	return xip_file_aio_write_nolock(&kiocb, iov, nr_segs, ppos);
-> +	return __generic_file_aio_write_nolock_internal(&kiocb, iov, 
-> +			nr_segs, ppos, do_xip_file_write);
->  }
->  
->  ssize_t
-> @@ -507,7 +393,8 @@ xip_file_aio_write(struct kiocb *iocb, c
->  	BUG_ON(iocb->ki_pos != pos);
->  
->  	down(&inode->i_sem);
-> -	ret = xip_file_aio_write_nolock(iocb, &local_iov, 1, &iocb->ki_pos);
-> +	ret = __generic_file_aio_write_nolock_internal(iocb, &local_iov, 
-> +			1, &iocb->ki_pos, do_xip_file_write);
->  	up(&inode->i_sem);
->  	return ret;
->  }
+-- Steve
 
-
--- 
-Suparna Bhattacharya (suparna@in.ibm.com)
-Linux Technology Center
-IBM Software Lab, India
 

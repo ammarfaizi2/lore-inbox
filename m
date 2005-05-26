@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVEZSRV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVEZSSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261675AbVEZSRV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 14:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261678AbVEZSRV
+	id S261684AbVEZSSl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 14:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVEZSSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 14:17:21 -0400
-Received: from ZIVLNX17.UNI-MUENSTER.DE ([128.176.188.79]:62362 "EHLO
-	ZIVLNX17.uni-muenster.de") by vger.kernel.org with ESMTP
-	id S261675AbVEZSRR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 14:17:17 -0400
-From: Borislav Petkov <petkov@uni-muenster.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: 2.6.12-rc5-mm1 alsa oops
-Date: Thu, 26 May 2005 20:12:45 +0200
-User-Agent: KMail/1.7.2
-Cc: pharon@gmail.com, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-References: <1117092768.26173.4.camel@localhost> <200505261944.50942.petkov@uni-muenster.de> <1117130470.5477.5.camel@mindpipe>
-In-Reply-To: <1117130470.5477.5.camel@mindpipe>
+	Thu, 26 May 2005 14:18:41 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:52415 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S261681AbVEZSSY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 14:18:24 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505262012.45833.petkov@uni-muenster.de>
+Message-ID: <17046.4833.536323.191838@napali.hpl.hp.com>
+Date: Thu, 26 May 2005 11:18:09 -0700
+To: Rusty Lynch <rusty.lynch@intel.com>
+Cc: akpm@osdl.org, Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
+       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+Subject: Re: [patch] Kprobes ia64 qp fix
+In-Reply-To: <200505261751.j4QHpjei009076@linux.jf.intel.com>
+References: <200505261751.j4QHpjei009076@linux.jf.intel.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 26 May 2005 20:01, Lee Revell wrote:
-> On Thu, 2005-05-26 at 19:44 +0200, Borislav Petkov wrote:
-> > <snip>
-> >
-> > Andrew,
-> >
-> > similar oopses as the one I'm replying to all over the place. At it
-> > happens m in snd_pcm_mmap_data_close(). Here's a stack trace:
->
-> No one using ALSA CVS or any of the 1.0.9 release candidates ever
-> reported this, but lots of -mm users are... does that help at all?  I
-> suspect some upstream bug that ALSA just happens to trigger.
-yeah,
+>>>>> On Thu, 26 May 2005 10:51:45 -0700, Rusty Lynch <rusty.lynch@intel.com> said:
 
-this has to do with alsa indirectly. snd_pcm_mmap_data_close() accesses some 
-vm_area_struct->vm_private_data and apparently there have been some 
-optimizations to mmap code to avoid fragmentation of vma's so i think there's 
-the problem. However, we'll need the smarter ones here :))
+  Rusty> The following patch is for the 2.6.12-rc5-mm1 + my previous
+  Rusty> "Kprobes ia64 cleanup" patch that fixes a bug where a kprobe still 
+  Rusty> fires when the instruction is predicated off.  So given the p6=0, 
+  Rusty> and we have an instruction like:
 
-Regards,
-Boris.
+  Rusty> (p6) move loc1=0
+
+  Rusty> we should not be triggering the kprobe.  This is handled by
+  Rusty> carrying over the qp section of the original instruction into
+  Rusty> the break instruction.
+
+What about:
+
+	(p6) cmp.eq.unc p9,p10=rX,rY
+
+would the code handle that right?  Similary, you may want to check for
+the correct handling of instructions that cannot be predicated (such
+as "cover").
+
+	--david

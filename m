@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbVEZMqQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVEZMtT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261376AbVEZMqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 08:46:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbVEZMqQ
+	id S261379AbVEZMtT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 08:49:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbVEZMtT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 08:46:16 -0400
-Received: from relay3.usu.ru ([194.226.235.17]:10228 "EHLO relay3.usu.ru")
-	by vger.kernel.org with ESMTP id S261376AbVEZMqM (ORCPT
+	Thu, 26 May 2005 08:49:19 -0400
+Received: from upco.es ([130.206.70.227]:59859 "EHLO mail1.upco.es")
+	by vger.kernel.org with ESMTP id S261379AbVEZMtO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 08:46:12 -0400
-From: "Alexander E. Patrakov" <patrakov@ums.usu.ru>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: [OT] Joerg Schilling flames Linux on his Blog
-Date: Thu, 26 May 2005 18:47:54 +0600
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <42947A75.nail1XA2FQPXX@burner> <B12D948C-4CE9-4139-B0D6-68F8526D0F43@mac.com> <4295A1A5.nail2SW21JHSO@burner>
-In-Reply-To: <4295A1A5.nail2SW21JHSO@burner>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 26 May 2005 08:49:14 -0400
+Date: Thu, 26 May 2005 14:49:11 +0200
+From: Romano Giannetti <romanol@upco.es>
+To: Olaf Hering <olh@suse.de>
+Cc: Pavel Machek <pavel@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] show swsuspend only on .config where it can compile
+Message-ID: <20050526124911.GA19822@pern.dea.icai.upco.es>
+Reply-To: romano@dea.icai.upco.es
+Mail-Followup-To: romano@dea.icai.upco.es, Olaf Hering <olh@suse.de>,
+	Pavel Machek <pavel@suse.de>, Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20050526111614.GA25685@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-Message-Id: <200505261847.54977.patrakov@ums.usu.ru>
-X-AntiVirus: checked by AntiVir MailGate (version: 2.0.1.16; AVE: 6.30.0.15; VDF: 6.30.0.202; host: usu2.usu.ru)
+In-Reply-To: <20050526111614.GA25685@suse.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 26 May 2005 16:15, Joerg Schilling wrote:
+On Thu, May 26, 2005 at 01:16:14PM +0200, Olaf Hering wrote:
+> show swsuspend only on .config where it can compile.
+> I got this on PPC32 && SMP
+> 
+> kernel/power/smp.c:24: error: storage size of `ctxt' isn't known
+> 
+> Signed-off-by: Olaf Hering <olh@suse.de>
+> 
+> Index: linux-2.6.12-rc5-olh/kernel/power/Kconfig
+> ===================================================================
+> --- linux-2.6.12-rc5-olh.orig/kernel/power/Kconfig
+> +++ linux-2.6.12-rc5-olh/kernel/power/Kconfig
+> @@ -28,7 +28,7 @@ config PM_DEBUG
+>  
+>  config SOFTWARE_SUSPEND
+>  	bool "Software Suspend (EXPERIMENTAL)"
+> -	depends on EXPERIMENTAL && PM && SWAP
+> +	depends on EXPERIMENTAL && PM && SWAP && (X86 && SMP) || ((FVR || PPC32 || X86) && !SMP)
 
-> The problem was that you could send SCSI commands on R/O fds and fixing the
-> problem would have been to forbid sending SCSI commands on R/O fds.
+Shouldn't be ...&& ( (X86 && SMP) || (FVR || PPC32 || X86) && !SMP )  ?
 
-Unfortunately, this is not going to work. It would work only if the only app 
-that has to send SCSI commands were cdrecord. Then really, a non-setuid 
-program just would not be able to get a R/W fd, and setuid ones are assumed 
-to be trusted.
+and maybe 
 
-The problem is that many CD audio players also send SCSI commands in order to 
-extract digital audio data. Are you proposing to make them setuid root? use a 
-well-defined setuid helper? other solution?
+EXPERIMENTAL && PM && SWAP && ( X86  || ((FVR || PPC32) && !SMP) ) 
+
+is clearer? 
+
+
 
 -- 
-Alexander E. Patrakov
+Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
+Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569

@@ -1,88 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbVEZPcH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261569AbVEZPjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261558AbVEZPcH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 11:32:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbVEZPcH
+	id S261569AbVEZPjk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 11:39:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261570AbVEZPjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 11:32:07 -0400
-Received: from math.ut.ee ([193.40.36.2]:1740 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S261558AbVEZPcA (ORCPT
+	Thu, 26 May 2005 11:39:40 -0400
+Received: from scl-ims.phoenix.com ([216.148.212.222]:24295 "EHLO
+	scl-exch2k.phoenix.com") by vger.kernel.org with ESMTP
+	id S261569AbVEZPjh convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 11:32:00 -0400
-Date: Thu, 26 May 2005 18:31:39 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-cc: Jens Axboe <axboe@suse.de>
-Subject: ide-cd problem in 2.6.12-rc5 + todays snapshot
-Message-ID: <Pine.SOC.4.61.0505261816190.28439@math.ut.ee>
+	Thu, 26 May 2005 11:39:37 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: IDE DMA with SATA, 2.6 kernels
+Date: Thu, 26 May 2005 08:40:08 -0700
+Message-ID: <0EF82802ABAA22479BC1CE8E2F60E8C31B4EB9@scl-exch2k3.phoenix.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: IDE DMA with SATA, 2.6 kernels
+Thread-Index: AcVhqGOZRF8X8TnoTq2VqZ/zZ8CmEgAYAxOw
+From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
+To: "Tyler Eaves" <tyler@cg2.org>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 26 May 2005 15:39:37.0039 (UTC) FILETIME=[1F5DB5F0:01C56209]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Background: I have a Sony CDU5211 CD drive with Intel D815EEA2 mainboard 
-(ICH2 IDE in 815 chipset). Since 2.4.21 timeframe IDE DMA for this CD 
-drive is broken (see my post 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0410.3/0480.html). This 
-happens on at least 2 identical machines. This is the first problem 
-(that I have learned to live with).
+>Disk Setup:
+>
+>/dev/sda is a 200GB Maxtor SATA drive containing /boot,/, and swap
+>/dev/hda is a DVD-ROM/CD-RW driver (IDE)
+>/dev/hdc is a 160GB Maxtor IDE drive containing ThatOtherOS(TM)
+>
+>The SATA drive works superbly, in UDMA133 mode. No complaints there.
+>However, it appears that the generic IDE driver grabs the IDE drives
+>before the Via driver can get them. This prevents me from using DMA on
+>those drivers, so, for instance, ripping CDs is really painful. I can
+>rip at about 2x on a good day, versus 40x+ ripping in Exact Audio Copy
+>under XP.
+>
+>You can find the relevant portion of my dmesg (and hdparm) at
+>http://cg2.org/dmesg.txt
+>
+>Any assistance would be very much appreciated.
 
-Now, since ide-cd dma is broken, the first access to cd always gets DMA 
-timeout and turns off DMA, then it works. I have hddtemp installed and 
-it probes for drives on boot. In 2.6.12 (and I think I tested pristine 
-2.6.12-rc5 too) the cd works as before - dma timeout+disable on first 
-access (by hddtemp).
+ Do you have .config handy? Make shure you've got
+CONFIG_BLK_DEV_IDEDMA_PCI
+enabled there. In most cases you should be able to control DMA with
+generic
+driver.
+ Another thing to double check is that DMA is on in your BIOS.
 
-Now, in 2.6.12-rc5 + todays git snapshot, it does not work any more. I 
-suspect the DMA alignment change.
-
-In 2.6.12-rc2 the dmesg from hddtemp was
-
-hdc: DMA disabled
-hdc: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
-hdc: drive_cmd: error=0x04 { AbortedCommand }
-ide: failed opcode was: 0xb0
-
-In todays snapshot, the dmesg is
-
-hdc: DMA interrupt recovery
-hdc: lost interrupt
-hdc: status timeout: status=0xd0 { Busy }
-ide: failed opcode was: unknown
-hdc: DMA disabled
-hdc: drive not ready for command
-hdc: ATAPI reset complete
-cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC REQ_QUIET
-sector 0, nr/cnr 0/0
-bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
-cdb: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
-hdc: lost interrupt
-cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC REQ_FAILED REQ_QUIET
-sector 0, nr/cnr 0/0
-bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
-cdb: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
-hdc: lost interrupt
-cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC REQ_FAILED REQ_QUIET
-sector 0, nr/cnr 0/0
-bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
-cdb: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
-hdc: lost interrupt
-cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC REQ_FAILED REQ_QUIET
-sector 0, nr/cnr 0/0
-bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
-cdb: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
-
-and so on ad infimum.
-
-The messages are very similar to my earlier reported problems that were 
-fixed:
-http://www.ussg.iu.edu/hypermail/linux/kernel/0312.3/1003.html
-http://www.ussg.iu.edu/hypermail/linux/kernel/0402.1/0459.html
-
-
--- 
-Meelis Roos (mroos@linux.ee)
+Aleks. 
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe 
+>linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>

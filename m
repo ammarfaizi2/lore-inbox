@@ -1,43 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVEZQhe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVEZQz4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbVEZQhe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 12:37:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVEZQhd
+	id S261604AbVEZQz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 12:55:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbVEZQz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 12:37:33 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:36549 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261601AbVEZQhb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 12:37:31 -0400
-Subject: Re: getting eth1: Memory squeeze, dropping packet message
-From: Lee Revell <rlrevell@joe-job.com>
-To: cranium2003 <cranium2003@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050526143926.69208.qmail@web33010.mail.mud.yahoo.com>
-References: <20050526143926.69208.qmail@web33010.mail.mud.yahoo.com>
-Content-Type: text/plain
-Date: Thu, 26 May 2005 12:37:23 -0400
-Message-Id: <1117125443.6261.35.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
+	Thu, 26 May 2005 12:55:56 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:10145 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S261604AbVEZQzu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 12:55:50 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: CSB5 IDE does not fully support native mode??
+Date: Thu, 26 May 2005 10:55:38 -0600
+User-Agent: KMail/1.8
+Cc: evt@texelsoft.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+References: <200505242026.DJT32107@ms3.netsolmail.com> <1117117463.5743.149.camel@localhost.localdomain>
+In-Reply-To: <1117117463.5743.149.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505261055.38137.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-05-26 at 07:39 -0700, cranium2003 wrote:
-> Hello,
->        While transmitting packets through linux Router
-> host from one network to another Redhat linux 9 kernel
-> 2.4.20-8 caught kernel oops following there are 2
-> statements which are
-> __alloc_pages: 0 order allocation failed (gfp =
-> 0x20/1)
-> eth1: Memory squeeze, dropping packet
-> What this means? where is the wrong thing in kenrel?
-> How to solve this problem?
+On Thursday 26 May 2005 8:24 am, Alan Cox wrote:
+> In order to keep the legacy world from falling to bits IDE and VGA have
+> some ugly hacks in the PCI spec.
+> 
+> In legacy mode an IDE device appears at the "old" standard IDE addresses
+> and uses an external IRQ pin wired to the ISA IRQ lines (14 or 15). In 
+> native mode it behaves like a PCI device, honouring the PCI bars and
+> using the PCI INT lines.
 
-That just means you ran low on memory so the router dropped a packet.
-Get more RAM, or handle fewer packets ;-)
-
-Lee
-
+This has been niggling in my mind for a while -- in legacy mode,
+the device should use IRQ 14/15.  But I think we still call
+pci_enable_device(), which sets up IRQ routing according to
+the usual PCI rules.  Should we be using pci_enable_device()
+at all in legacy mode?

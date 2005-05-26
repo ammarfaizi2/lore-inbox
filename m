@@ -1,56 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbVEZKx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVEZLJ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbVEZKx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 06:53:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVEZKx2
+	id S261306AbVEZLJ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 07:09:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVEZLJ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 06:53:28 -0400
-Received: from relay03.pair.com ([209.68.5.17]:11021 "HELO relay03.pair.com")
-	by vger.kernel.org with SMTP id S261304AbVEZKxZ (ORCPT
+	Thu, 26 May 2005 07:09:58 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:35785 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261306AbVEZLJ5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 06:53:25 -0400
-X-pair-Authenticated: 24.241.238.70
-Message-ID: <4295AAA3.4020706@cybsft.com>
-Date: Thu, 26 May 2005 05:53:23 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Thu, 26 May 2005 07:09:57 -0400
+Date: Thu, 26 May 2005 13:09:39 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andrew Morton <akpm@osdl.org>
+cc: "Martin J. Bligh" <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
+       christoph@lameter.com
+Subject: Re: 2.6.12-rc5-mm1
+In-Reply-To: <20050526002459.320abe65.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.61.0505261306340.996@scrub.home>
+References: <175590000.1117089446@[10.10.2.4]> <20050525234717.261beb48.akpm@osdl.org>
+ <191140000.1117091133@[10.10.2.4]> <195320000.1117091674@[10.10.2.4]>
+ <20050526002459.320abe65.akpm@osdl.org>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, dwalker@mvista.com,
-       Joe King <atom_bomb@rocketmail.com>, ganzinger@mvista.com,
-       Lee Revell <rlrevell@joe-job.com>, Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
-References: <20050523082637.GA15696@elte.hu> <42935890.2010109@cybsft.com> <20050525113424.GA1867@elte.hu> <20050525113514.GA9145@elte.hu> <42947D84.2000409@cybsft.com> <20050525140316.GA29996@elte.hu> <20050526074547.GA6057@elte.hu>
-In-Reply-To: <20050526074547.GA6057@elte.hu>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> 
->>>No it doesn't crash if I boot only a single CPU. I'll go one better 
->>>than that. It doesn't crash if I boot both CPUs but without 
->>>hyper-threading (turned off in the bios but still enabled in the 
->>>config). :-(
->>
->>hm, must be some race. I tried it on a HT system too - will try on 
->>another HT system.
-> 
-> 
-> cannot reproduce it on my other HT system either. Do you see the same 
-> crash with the latest, -rc5 based release too? Maybe we'll get a better 
-> crashlog under that kernel.
-> 
-> 	Ingo
-> 
+Hi,
 
-Will give it a spin when I get to the office in a couple of hours.
+On Thu, 26 May 2005, Andrew Morton wrote:
 
--- 
-   kr
+> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
+> >
+> > source kernel/Kconfig.hz is under:
+> >  menu "APM (Advanced Power Management) BIOS Support"
+> >  depends on PM && !X86_VISWS
+> > 
+> >  So it's screwed if you don't have PM defined, it seems.
+> 
+> Ah, OK.  Something like this:
+
+Only i386 has this problem, the others put it into the "Processor type and 
+features" menu, where it doesn't get the extra dependencies, so the 
+easiest solution might to move it for i386 there as well.
+
+bye, Roman

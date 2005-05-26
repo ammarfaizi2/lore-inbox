@@ -1,103 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVEZM1e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261348AbVEZM3w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261346AbVEZM1e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 08:27:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261348AbVEZM1d
+	id S261348AbVEZM3w (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 08:29:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVEZM3w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 08:27:33 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:25482 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S261346AbVEZM1Z (ORCPT
+	Thu, 26 May 2005 08:29:52 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:37428 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261348AbVEZM3v (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 08:27:25 -0400
-Date: Thu, 26 May 2005 14:27:24 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Domen Puncer <domen@coderock.org>
-Cc: Rene Herman <rene.herman@keyaccess.nl>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: 2.6.12-rc2: Compose key doesn't work
-Message-ID: <20050526122724.GA3396@ucw.cz>
-References: <4258F74D.2010905@keyaccess.nl> <20050414100454.GC3958@nd47.coderock.org> <20050526122315.GA3880@nd47.coderock.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="FL5UXtIhxfXey3p5"
+	Thu, 26 May 2005 08:29:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=majUueL6vqTDU1sMoMCTOrwsm2YAioMIYhsAnx95eOqg4KhZAM5fGUFfwnjmr7iFlBWVPtOmqJpBFYxMgXbcSXjkmHOnosBPqrmWRCNEGg0/jKGlX53bDMBymXyCXn3KApuRqxW2qSuzM+QuvlMc8gdHt4GqP8uLZsFg3IznIes=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: 2.6.12-rc5 build failure
+Date: Thu, 26 May 2005 16:34:17 +0400
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <200505260750.57571.gene.heskett@verizon.net>
+In-Reply-To: <200505260750.57571.gene.heskett@verizon.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050526122315.GA3880@nd47.coderock.org>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200505261634.17849.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 26 May 2005 15:50, Gene Heskett wrote:
+> Just now, trying to build 2.6.12-rc5, I'm getting this:
+>   CC      drivers/char/ipmi/ipmi_devintf.o
+> drivers/char/ipmi/ipmi_devintf.c: In function `ipmi_new_smi':
+> drivers/char/ipmi/ipmi_devintf.c:532: warning: passing arg 1 of `class_simple_device_add' from incompatible pointer type
+> drivers/char/ipmi/ipmi_devintf.c: In function `ipmi_smi_gone':
+> drivers/char/ipmi/ipmi_devintf.c:537: warning: passing arg 1 of `class_simple_device_remove' makes integer from pointer without a cast
+> drivers/char/ipmi/ipmi_devintf.c:537: error: too many arguments to function `class_simple_device_remove'
 
---FL5UXtIhxfXey3p5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Fixed in 2.6.12-rc5-dca79a046b93a81496bb30ca01177fb17f37ab72.
 
-On Thu, May 26, 2005 at 02:23:15PM +0200, Domen Puncer wrote:
-
-> Still true for 2.6.12-rc5. Should probably be fixed before final.
-
-Caused by a bug in the atkbd-scroll feature. The attached patch
-fixes it.
-
-> On 14/04/05 12:04 +0200, Domen Puncer wrote:
-> > On 10/04/05 11:52 +0200, Rene Herman wrote:
-> > > Hi Vojtech.
-> > > 
-> > > I have mapped my right windows key to "Compose" in X:
-> > ...
-> > > 
-> > > This worked fine upto  2.6.11.7, but doesn't under 2.6.12-rc2. The key 
-> > > doesn't seem to be doing anything anymore: "Compose-'-e" just gets me 
-> > > "'e" and so on.
-> > 
-> > I can confirm this, right windows key works as scroll up, so it might
-> > be related to recent scroll patches.
-> > 
-> > A quick workaround is to:
-> > echo -n "0" > /sys/bus/serio/devices/serio1/scroll
-> > 
-> > serio1 being the keyboard here.
-> > 
-> > Btw. is that "-n" really necessary? Had too look at the code to figure
-> > out why it's not working :-)
-> > 
-> > > 
-> > > X is X.org 6.8.1, keyboard is regular PS/2 keyboard, directly connected.
-> > 
-> > Same here.
-> 
-
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
-
---FL5UXtIhxfXey3p5
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=atkbd-fix-scroll
-
-ChangeSet@1.2229.1.9, 2005-04-04 15:37:45+02:00, vojtech@suse.cz
-  input: Fix fast scrolling scancodes in atkbd.c
-    
-  Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
-
-
- atkbd.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
-
-
-diff -Nru a/drivers/input/keyboard/atkbd.c b/drivers/input/keyboard/atkbd.c
---- a/drivers/input/keyboard/atkbd.c	2005-05-03 15:23:34 +02:00
-+++ b/drivers/input/keyboard/atkbd.c	2005-05-03 15:23:34 +02:00
-@@ -171,9 +171,9 @@
- 	unsigned char set2;
- } atkbd_scroll_keys[] = {
- 	{ ATKBD_SCR_1,     0xc5 },
--	{ ATKBD_SCR_2,     0xa9 },
--	{ ATKBD_SCR_4,     0xb6 },
--	{ ATKBD_SCR_8,     0xa7 },
-+	{ ATKBD_SCR_2,     0x9d },
-+	{ ATKBD_SCR_4,     0xa4 },
-+	{ ATKBD_SCR_8,     0x9b },
- 	{ ATKBD_SCR_CLICK, 0xe0 },
- 	{ ATKBD_SCR_LEFT,  0xcb },
- 	{ ATKBD_SCR_RIGHT, 0xd2 },
-
---FL5UXtIhxfXey3p5--
+http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=dca79a046b93a81496bb30ca01177fb17f37ab72;hp=5daf05fbf73fc199e7a93a818e504856d07c5586

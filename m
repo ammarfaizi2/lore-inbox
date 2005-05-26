@@ -1,49 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbVEZANJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbVEZAYm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261621AbVEZANJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 20:13:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVEZANJ
+	id S261622AbVEZAYm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 20:24:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbVEZAYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 20:13:09 -0400
-Received: from fmr21.intel.com ([143.183.121.13]:50374 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261621AbVEZANG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 20:13:06 -0400
-Date: Wed, 25 May 2005 17:11:55 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Matthew Dobson <colpatch@us.ibm.com>
-Cc: Shaohua Li <shaohua.li@intel.com>, Ashok Raj <ashok.raj@intel.com>,
-       ak@muc.de, akpm <akpm@osdl.org>, zwane <zwane@arm.linux.org.uk>,
-       rusty@rustycorp.com.au, vatsa@in.ibm.com,
-       lkml <linux-kernel@vger.kernel.org>, discuss@x86-64.org
-Subject: Re: [patch 0/4] CPU Hotplug support for X86_64
-Message-ID: <20050525171154.A10018@unix-os.sc.intel.com>
-References: <20050524081113.409604000@csdlinux-2.jf.intel.com> <1116927099.3827.2.camel@linux-hp.sh.intel.com> <4294F948.20004@us.ibm.com>
+	Wed, 25 May 2005 20:24:42 -0400
+Received: from fire.osdl.org ([65.172.181.4]:61358 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261622AbVEZAYZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 20:24:25 -0400
+Date: Wed, 25 May 2005 17:25:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Brice.Goglin@ens-lyon.org
+Cc: Brice.Goglin@ens-lyon.fr, alexandre.buisse@ens-lyon.fr,
+       linux-kernel@vger.kernel.org, pcaulfie@redhat.com, teigland@redhat.com
+Subject: Re: dlm-lockspaces-callbacks-directory-fix.patch added to -mm tree
+Message-Id: <20050525172500.0d8458f1.akpm@osdl.org>
+In-Reply-To: <42951138.1090404@ens-lyon.fr>
+References: <200505252249.j4PMnN4q021004@shell0.pdx.osdl.net>
+	<4294F718.8040107@ens-lyon.fr>
+	<20050525162318.511cdc9b.akpm@osdl.org>
+	<42951138.1090404@ens-lyon.fr>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <4294F948.20004@us.ibm.com>; from colpatch@us.ibm.com on Wed, May 25, 2005 at 03:16:40PM -0700
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 25, 2005 at 03:16:40PM -0700, Matthew Dobson wrote:
-> Shaohua Li wrote:
-> > On Tue, 2005-05-24 at 01:11 -0700, Ashok Raj wrote:
-> > 
-> > With below patch, cpu hotplug works with SCHED_SMT enabled in my test.
-> > set_cpu_sibling_map is invoked before cpu is set to online.
-> > 
-> > Thanks,
-> > Shaohua
+Brice Goglin <Brice.Goglin@ens-lyon.fr> wrote:
+>
+> Looks like Alexandre's patch was damaged by mistake.
+> An 'extern' appeared in the removed part of lvb_table.h
+> I guess the patch didn't actually apply to your tree.
+> This would explain why the lvb_table.h part of the version
+> you commited to -mm is different.
 > 
-> I'm not sure, but you probably want "for_each_cpu(i)" instead of "for (i =
-> 0; i < NR_CPUS; i++)" below.
+> The attached patch should be good.
 > 
+> Note that dlm_lvb_operations is kept exported in lvb_table.h
+> so that drivers/dlm/device.c uses it. That was the point of
+> Alexandre's initial bug report: dlm_lvm_operations was defined
+> twice when both DLM and DLM_DEVICE are set.
 
-I have a new set of patches just getting ready with final comments from Andi
-This version already uses for_each_cpu varient.
+OK, thanks.  Here's what I currently have:
 
-Cheers,
-ashok
+--- 25/drivers/dlm/lock.c~dlm-lockspaces-callbacks-directory-fix	Wed May 25 16:23:04 2005
++++ 25-akpm/drivers/dlm/lock.c	Wed May 25 17:24:08 2005
+@@ -104,6 +104,26 @@ const int __dlm_compat_matrix[8][8] = {
+         {0, 0, 0, 0, 0, 0, 0, 0}        /* PD */
+ };
+ 
++/*
++ * This defines the direction of transfer of LVB data.
++ * Granted mode is the row; requested mode is the column.
++ * Usage: matrix[grmode+1][rqmode+1]
++ * 1 = LVB is returned to the caller
++ * 0 = LVB is written to the resource
++ * -1 = nothing happens to the LVB
++ */
++const int dlm_lvb_operations[8][8] = {
++        /* UN   NL  CR  CW  PR  PW  EX  PD*/
++        {  -1,  1,  1,  1,  1,  1,  1, -1 }, /* UN */
++        {  -1,  1,  1,  1,  1,  1,  1,  0 }, /* NL */
++        {  -1, -1,  1,  1,  1,  1,  1,  0 }, /* CR */
++        {  -1, -1, -1,  1,  1,  1,  1,  0 }, /* CW */
++        {  -1, -1, -1, -1,  1,  1,  1,  0 }, /* PR */
++        {  -1,  0,  0,  0,  0,  0,  1,  0 }, /* PW */
++        {  -1,  0,  0,  0,  0,  0,  0,  0 }, /* EX */
++        {  -1,  0,  0,  0,  0,  0,  0,  0 }  /* PD */
++};
++
+ #define modes_compat(gr, rq) \
+ 	__dlm_compat_matrix[(gr)->lkb_grmode + 1][(rq)->lkb_rqmode + 1]
+ 
+diff -puN drivers/dlm/lvb_table.h~dlm-lockspaces-callbacks-directory-fix drivers/dlm/lvb_table.h
+--- 25/drivers/dlm/lvb_table.h~dlm-lockspaces-callbacks-directory-fix	Wed May 25 16:23:04 2005
++++ 25-akpm/drivers/dlm/lvb_table.h	Wed May 25 17:24:17 2005
+@@ -13,26 +13,6 @@
+ #ifndef __LVB_TABLE_DOT_H__
+ #define __LVB_TABLE_DOT_H__
+ 
+-/*
+- * This defines the direction of transfer of LVB data.
+- * Granted mode is the row; requested mode is the column.
+- * Usage: matrix[grmode+1][rqmode+1]
+- * 1 = LVB is returned to the caller
+- * 0 = LVB is written to the resource
+- * -1 = nothing happens to the LVB
+- */
+-
+-const int dlm_lvb_operations[8][8] = {
+-        /* UN   NL  CR  CW  PR  PW  EX  PD*/
+-        {  -1,  1,  1,  1,  1,  1,  1, -1 }, /* UN */
+-        {  -1,  1,  1,  1,  1,  1,  1,  0 }, /* NL */
+-        {  -1, -1,  1,  1,  1,  1,  1,  0 }, /* CR */
+-        {  -1, -1, -1,  1,  1,  1,  1,  0 }, /* CW */
+-        {  -1, -1, -1, -1,  1,  1,  1,  0 }, /* PR */
+-        {  -1,  0,  0,  0,  0,  0,  1,  0 }, /* PW */
+-        {  -1,  0,  0,  0,  0,  0,  0,  0 }, /* EX */
+-        {  -1,  0,  0,  0,  0,  0,  0,  0 }  /* PD */
+-};
++extern const int dlm_lvb_operations[8][8];
+ 
+ #endif
+-
+_
 

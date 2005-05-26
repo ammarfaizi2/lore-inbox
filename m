@@ -1,111 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVEZGVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVEZGhm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbVEZGVw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 02:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbVEZGVw
+	id S261220AbVEZGhm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 02:37:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVEZGhm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 02:21:52 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:14743 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S261197AbVEZGVr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 02:21:47 -0400
-References: <1117044875.9510.2.camel@localhost>
-            <Pine.LNX.4.60.0505252208120.25834@hermes-1.csi.cam.ac.uk>
-In-Reply-To: <Pine.LNX.4.60.0505252208120.25834@hermes-1.csi.cam.ac.uk>
-From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
-To: Anton Altaparmakov <aia21@cam.ac.uk>
-Cc: linux-ntfs-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: ntfs: remove redundant assignments
-Date: Thu, 26 May 2005 09:21:46 +0300
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
+	Thu, 26 May 2005 02:37:42 -0400
+Received: from dvhart.com ([64.146.134.43]:48547 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S261220AbVEZGh0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 02:37:26 -0400
+Date: Wed, 25 May 2005 23:37:26 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12-rc5-mm1
+Message-ID: <175590000.1117089446@[10.10.2.4]>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Message-ID: <courier.42956AFA.00002502@courier.cs.helsinki.fi>
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Anton, 
+Build failure on numaq:
+http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/numaq
 
-At some point in time, I wrote:
-> Index: 2.6-mm/fs/ntfs/super.c
-> > ===================================================================
-> > --- 2.6-mm.orig/fs/ntfs/super.c	2005-05-25 20:51:57.000000000 +0300
-> > +++ 2.6-mm/fs/ntfs/super.c	2005-05-25 20:54:02.000000000 +0300
-> > @@ -2283,7 +2283,7 @@
-> >  	sb->s_flags |= MS_RDONLY | MS_NOATIME | MS_NODIRATIME;
-> >  #endif /* ! NTFS_RW */
-> >  	/* Allocate a new ntfs_volume and place it in sb->s_fs_info. */
-> > -	sb->s_fs_info = kmalloc(sizeof(ntfs_volume), GFP_NOFS);
-> > +	sb->s_fs_info = kcalloc(1, sizeof(ntfs_volume), GFP_NOFS);
-> >  	vol = NTFS_SB(sb);
-> >  	if (!vol) {
-> >  		if (!silent)
-> > @@ -2292,28 +2292,9 @@
-> >  		return -ENOMEM;
-> >  	}
-> >  	/* Initialize ntfs_volume structure. */
-> > -	memset(vol, 0, sizeof(ntfs_volume));
-> >  	vol->sb = sb; 
-> 
-> The above is fine, thanks. 
-> 
-> > -	vol->upcase = NULL;
-> > -	vol->attrdef = NULL;
-> > -	vol->mft_ino = NULL;
-> > -	vol->mftbmp_ino = NULL;
-> >  	init_rwsem(&vol->mftbmp_lock);
-> > -#ifdef NTFS_RW
-> > -	vol->mftmirr_ino = NULL;
-> > -	vol->logfile_ino = NULL;
-> > -#endif /* NTFS_RW */
-> > -	vol->lcnbmp_ino = NULL;
-> >  	init_rwsem(&vol->lcnbmp_lock);
-> > -	vol->vol_ino = NULL;
-> > -	vol->root_ino = NULL;
-> > -	vol->secure_ino = NULL;
-> > -	vol->extend_ino = NULL;
-> > -#ifdef NTFS_RW
-> > -	vol->quota_ino = NULL;
-> > -	vol->quota_q_ino = NULL;
-> > -#endif /* NTFS_RW */
-> > -	vol->nls_map = NULL;
-
-On Wed, 2005-05-25 at 22:10 +0100, Anton Altaparmakov wrote:
-> This is not.  memset(0) is not the same as = NULL IMO.  I don't care if 
-> the compiler thinks it is the same.  NULL does not have to be 0 so I 
-> prefer to initialize pointers explicitly to NULL.  Even more so since this 
-> code is not performance critical at all so I prefer clarity here.
-
-I kind of figured out you were doing it on purpose. The fact is, NULL is 
-zero on _all_ Linux architectures. If it weren't, we'd have a lot of broken 
-code. Let me play the devils advocate here: why do you memset() (now 
-kcalloc()) in the first place? 
-
-At some point in time, I wrote:
-> > Index: 2.6-mm/fs/ntfs/index.c
-> > ===================================================================
-> > --- 2.6-mm.orig/fs/ntfs/index.c	2005-05-25 20:51:57.000000000 +0300
-> > +++ 2.6-mm/fs/ntfs/index.c	2005-05-25 21:07:38.000000000 +0300
-> > @@ -40,16 +40,8 @@
-> >  
-> >  	ictx = kmem_cache_alloc(ntfs_index_ctx_cache, SLAB_NOFS);
-> >  	if (ictx) {
-> > +		memset(ictx, 0, sizeof(*ictx));
-> >  		ictx->idx_ni = idx_ni;
-> > -		ictx->entry = NULL;
-> > -		ictx->data = NULL;
-> > -		ictx->data_len = 0;
-> > -		ictx->is_in_root = 0;
-> > -		ictx->ir = NULL;
-> > -		ictx->actx = NULL;
-> > -		ictx->base_ni = NULL;
-> > -		ictx->ia = NULL;
-> > -		ictx->page = NULL;
-
-On Wed, 2005-05-25 at 22:10 +0100, Anton Altaparmakov wrote:
-> Again, as above, I prefer to have the explicit = NULL instead of a memset.
-
-There's a simple reason why I don't like explicit assignments: it's way too 
-easy to forget to initialize something. 
-
-			Pekka 
+In file included from include/linux/sched.h:12,
+                 from arch/i386/kernel/asm-offsets.c:7:
+include/linux/jiffies.h:42:3: #error You lose.
+include/linux/jiffies.h:213:31: division by zero in #if
+include/linux/jiffies.h:213:31: division by zero in #if
+include/linux/jiffies.h:213:31: division by zero in #if
+include/linux/jiffies.h:213:31: division by zero in #if
+include/linux/jiffies.h:213:31: division by zero in #if
+include/linux/jiffies.h:213:31: division by zero in #if
+include/linux/jiffies.h:213:31: division by zero in #if
+include/linux/jiffies.h:213:31: division by zero in #if
+include/linux/jiffies.h:213:31: division by zero in #if
+include/linux/jiffies.h:213:31: division by zero in #if
+include/linux/jiffies.h:213:31: division by zero in #if
+include/linux/jiffies.h:213:31: division by zero in #if
+include/linux/jiffies.h:213:31: division by zero in #if
+include/linux/jiffies.h:213:31: division by zero in #if
+include/linux/jiffies.h:213:31: division by zero in #if
+include/linux/jiffies.h:213:31: division by zero in #if
+include/linux/jiffies.h:257:30: division by zero in #if
+In file included from include/linux/sched.h:12,
+                 from arch/i386/kernel/asm-offsets.c:7:
+include/linux/jiffies.h: In function `jiffies_to_msecs':
+include/linux/jiffies.h:262: error: `CONFIG_HZ' undeclared (first use in this function)
+include/linux/jiffies.h:262: error: (Each undeclared identifier is reported only once
+include/linux/jiffies.h:262: error: for each function it appears in.)
+include/linux/jiffies.h:268:36: division by zero in #if
+include/linux/jiffies.h: In function `jiffies_to_usecs':
+include/linux/jiffies.h:273: error: `CONFIG_HZ' undeclared (first use in this function)
+include/linux/jiffies.h:281:30: division by zero in #if
+include/linux/jiffies.h: In function `msecs_to_jiffies':
+include/linux/jiffies.h:286: error: `CONFIG_HZ' undeclared (first use in this function)
+include/linux/jiffies.h:294:36: division by zero in #if
+include/linux/jiffies.h: In function `usecs_to_jiffies':
+include/linux/jiffies.h:299: error: `CONFIG_HZ' undeclared (first use in this function)
+include/linux/jiffies.h: In function `timespec_to_jiffies':
+include/linux/jiffies.h:318: error: `CONFIG_HZ' undeclared (first use in this function)
+include/linux/jiffies.h:324: error: `SHIFT_HZ' undeclared (first use in this function)
+include/linux/jiffies.h: In function `jiffies_to_timespec':
+include/linux/jiffies.h:337: error: `CONFIG_HZ' undeclared (first use in this function)
+include/linux/jiffies.h: In function `timeval_to_jiffies':
+include/linux/jiffies.h:359: error: `CONFIG_HZ' undeclared (first use in this function)
+include/linux/jiffies.h:363: error: `SHIFT_HZ' undeclared (first use in this function)
+include/linux/jiffies.h: In function `jiffies_to_timeval':
+include/linux/jiffies.h:375: error: `CONFIG_HZ' undeclared (first use in this function)
+include/linux/jiffies.h:385:6: division by zero in #if
+include/linux/jiffies.h:385:6: division by zero in #if
+include/linux/jiffies.h:385:6: division by zero in #if
+include/linux/jiffies.h:385:6: division by zero in #if
+include/linux/jiffies.h:385:6: division by zero in #if
+include/linux/jiffies.h:385:6: division by zero in #if
+include/linux/jiffies.h:385:6: division by zero in #if
+include/linux/jiffies.h:385:6: division by zero in #if
+include/linux/jiffies.h:385:6: division by zero in #if
+include/linux/jiffies.h:385:6: division by zero in #if
+include/linux/jiffies.h:385:6: division by zero in #if
+include/linux/jiffies.h:385:6: division by zero in #if
+include/linux/jiffies.h:385:6: division by zero in #if
+include/linux/jiffies.h:385:6: division by zero in #if
+include/linux/jiffies.h:385:6: division by zero in #if
+include/linux/jiffies.h:385:6: division by zero in #if
+include/linux/jiffies.h: In function `jiffies_to_clock_t':
+include/linux/jiffies.h:386: error: `CONFIG_HZ' undeclared (first use in this function)
+include/linux/jiffies.h: In function `clock_t_to_jiffies':
+include/linux/jiffies.h:397: error: `CONFIG_HZ' undeclared (first use in this function)
+include/linux/jiffies.h:416:6: division by zero in #if
+include/linux/jiffies.h:416:6: division by zero in #if
+include/linux/jiffies.h:416:6: division by zero in #if
+include/linux/jiffies.h:416:6: division by zero in #if
+include/linux/jiffies.h:416:6: division by zero in #if
+include/linux/jiffies.h:416:6: division by zero in #if
+include/linux/jiffies.h:416:6: division by zero in #if
+include/linux/jiffies.h:416:6: division by zero in #if
+include/linux/jiffies.h:416:6: division by zero in #if
+include/linux/jiffies.h:416:6: division by zero in #if
+include/linux/jiffies.h:416:6: division by zero in #if
+include/linux/jiffies.h:416:6: division by zero in #if
+include/linux/jiffies.h:416:6: division by zero in #if
+include/linux/jiffies.h:416:6: division by zero in #if
+include/linux/jiffies.h:416:6: division by zero in #if
+include/linux/jiffies.h:416:6: division by zero in #if
+include/linux/jiffies.h: In function `jiffies_64_to_clock_t':
+include/linux/jiffies.h:417: error: `CONFIG_HZ' undeclared (first use in this function)
+make[1]: *** [arch/i386/kernel/asm-offsets.s] Error 1
+make: *** [arch/i386/kernel/asm-offsets.s] Error 2
+05/25/05-20:57:45 Build the kernel. Failed rc = 2
+05/25/05-20:57:45 build: kernel build Failed rc = 1

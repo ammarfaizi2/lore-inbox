@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVEZE32@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVEZEau@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbVEZE32 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 00:29:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVEZE32
+	id S261195AbVEZEau (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 00:30:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbVEZEau
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 00:29:28 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:61143 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261195AbVEZE3U (ORCPT
+	Thu, 26 May 2005 00:30:50 -0400
+Received: from gate.crashing.org ([63.228.1.57]:44520 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261195AbVEZEam (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 00:29:20 -0400
-Message-ID: <42955099.1020808@pobox.com>
-Date: Thu, 26 May 2005 00:29:13 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tyler Eaves <tyler@cg2.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: IDE DMA with SATA, 2.6 kernels
-References: <1117080313.4446.12.camel@localhost.localdomain>
-In-Reply-To: <1117080313.4446.12.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 26 May 2005 00:30:42 -0400
+Subject: Re: [RFC] Changing pci_iounmap to take 'bar' argument
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: ralf@linux-mips.org, Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
+In-Reply-To: <1117081633.9076.35.camel@gaston>
+References: <1117080454.9076.25.camel@gaston>
+	 <Pine.LNX.4.58.0505252121290.2307@ppc970.osdl.org>
+	 <1117081633.9076.35.camel@gaston>
+Content-Type: text/plain
+Date: Thu, 26 May 2005 14:30:14 +1000
+Message-Id: <1117081814.9076.38.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tyler Eaves wrote:
-> However, it appears that the generic IDE driver grabs the IDE drives
-> before the Via driver can get them. This prevents me from using DMA on
-> those drivers, so, for instance, ripping CDs is really painful. I can
-> rip at about 2x on a good day, versus 40x+ ripping in Exact Audio Copy
-> under XP.
+On Thu, 2005-05-26 at 14:27 +1000, Benjamin Herrenschmidt wrote:
+> On Wed, 2005-05-25 at 21:25 -0700, Linus Torvalds wrote:
+> > 
+> > On Thu, 26 May 2005, Benjamin Herrenschmidt wrote:
+> > > 
+> > > If it's ok with you, I'll send a patch doing it later today.
+> > 
+> > It's ok by me, certainly. There aren't that many users, and it sounds
+> > sane. I'll just prefer the patch going through Greg..
+> 
+> Ok, just wanted some feedback from you. Some people prefer that I whack
+> some "token" in the vitual address at map time, or that I compare the
+> vaddr at unmap time with all PCI busses IO ranges or that sort of ugly
+> thing, it sounds to me simpler to just pass along the bar number, but I
+> wanted your and Greg's ack first.
 
-Disable CONFIG_IDE_GENERIC and CONFIG_BLK_DEV_GENERIC in .config ?
+Oh, and MIPS seems to be broken here ... it's like ppc, it's ioremap'ing
+MMIO and just using an existing mapped stuff for IO, but unconditionally
+iounmap's on pci_iounmap()... unless there is some arch black magic in
+there, that seems broken. Ralph, should I fix it while I'm at it ?
 
-	Jeff
+Ben.
 
 

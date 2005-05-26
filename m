@@ -1,46 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVEZLQT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbVEZLSP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261308AbVEZLQT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 07:16:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVEZLQT
+	id S261311AbVEZLSP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 07:18:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVEZLSP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 07:16:19 -0400
-Received: from ns1.suse.de ([195.135.220.2]:47073 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261308AbVEZLQQ (ORCPT
+	Thu, 26 May 2005 07:18:15 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:463 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261311AbVEZLSD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 07:16:16 -0400
-Date: Thu, 26 May 2005 13:16:14 +0200
-From: Olaf Hering <olh@suse.de>
-To: Pavel Machek <pavel@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] show swsuspend only on .config where it can compile
-Message-ID: <20050526111614.GA25685@suse.de>
+	Thu, 26 May 2005 07:18:03 -0400
+Date: Thu, 26 May 2005 13:17:42 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Arjan van de Ven <arjanv@infradead.org>, linux-kernel@vger.kernel.org
+Subject: [patch] enable PREEMPT_BKL on !PREEMPT+SMP too
+Message-ID: <20050526111742.GA18272@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-DOS: I got your 640K Real Mode Right Here Buddy!
-X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
-User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-show swsuspend only on .config where it can compile.
-I got this on PPC32 && SMP
 
-kernel/power/smp.c:24: error: storage size of `ctxt' isn't known
+the only sane way to clean up the current 3 lock_kernel() variants seems 
+to be to remove the spinlock-based BKL implementations altogether, and 
+to keep the semaphore-based one only. If we dont want to do that for
+whatever reason then i'm afraid we have to live with the current
+complexity. (but i'm open for other cleanup suggestions as well.)
 
-Signed-off-by: Olaf Hering <olh@suse.de>
+to explore this possibility we'll (at a minimum) have to know whether
+the semaphore-based BKL works fine on plain SMP too. The patch below
+enables this.
 
-Index: linux-2.6.12-rc5-olh/kernel/power/Kconfig
-===================================================================
---- linux-2.6.12-rc5-olh.orig/kernel/power/Kconfig
-+++ linux-2.6.12-rc5-olh/kernel/power/Kconfig
-@@ -28,7 +28,7 @@ config PM_DEBUG
+the patch may make sense in isolation as well, as it might bring
+performance benefits: code that would formerly spin on the BKL spinlock
+will now schedule away and give up the CPU. It might introduce
+performance regressions as well, if any performance-critical code uses
+the BKL heavily and gets overscheduled due to the semaphore. I very much
+hope there is no such performance-critical codepath left though.
+
+patch depends on:
+
+  consolidate-preempt-options-into-kernel-kconfigpreempt.patch
+
+tested on x86-SMP. All other PREEMPT_BKL-using arches (x64, ppc64) 
+should work fine too.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+
+--- linux/kernel/Kconfig.preempt.orig
++++ linux/kernel/Kconfig.preempt
+@@ -13,7 +13,7 @@ config PREEMPT
  
- config SOFTWARE_SUSPEND
- 	bool "Software Suspend (EXPERIMENTAL)"
--	depends on EXPERIMENTAL && PM && SWAP
-+	depends on EXPERIMENTAL && PM && SWAP && (X86 && SMP) || ((FVR || PPC32 || X86) && !SMP)
- 	---help---
- 	  Enable the possibility of suspending the machine.
- 	  It doesn't need APM.
+ config PREEMPT_BKL
+ 	bool "Preempt The Big Kernel Lock"
+-	depends on PREEMPT
++	depends on SMP || PREEMPT
+ 	default y
+ 	help
+ 	  This option reduces the latency of the kernel by making the

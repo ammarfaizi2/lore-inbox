@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbVEZJpK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVEZJxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261300AbVEZJpK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 05:45:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbVEZJnl
+	id S261289AbVEZJxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 05:53:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261297AbVEZJxJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 05:43:41 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42388 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261289AbVEZJlw (ORCPT
+	Thu, 26 May 2005 05:53:09 -0400
+Received: from smtp1.sloane.cz ([62.240.161.228]:5619 "EHLO smtp1.sloane.cz")
+	by vger.kernel.org with ESMTP id S261289AbVEZJxD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 05:41:52 -0400
-Date: Thu, 26 May 2005 11:41:35 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Subject: Re: swsusp: ahd_dv_0 can't be stopped
-Message-ID: <20050526094135.GD1925@elf.ucw.cz>
-References: <1117090835.8059.3.camel@linux-hp.sh.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 26 May 2005 05:53:03 -0400
+From: Michal Semler <cijoml@volny.cz>
+Reply-To: cijoml@volny.cz
+To: akpm@osdl.org
+Subject: Re: [linux-pm] potential pitfall? changing configuration while PC in hibernate (fwd)
+Date: Thu, 26 May 2005 11:52:33 +0200
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1117090835.8059.3.camel@linux-hp.sh.intel.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Message-Id: <200505261152.34616.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Michal Semler <cijoml@volny.cz> wrote:
+>
+> It is real stupid, that Linux kernel freezes when simply during hibernate I
+> change Bluetooth dongle to USB mouse in my USB port.
+>
+> And it is not uncommon problem - I have BT dongle that starts in HID proxy
+> mode and then I switch it to HCI mode. So I hibernate with BT dongle and
+> after hibernate Linux only reads image from Swap and then freezes! :
+( Problem
+> is, that It delete image from swap imeditially after reading it, so when I
+> tried is simply with USB mouse (hibernate without it and plug it when
+> notebook was switched off) it doesn't read it from swap ever and I lost all
+> my memory :(
+>
+> I can do nothing with this behavior of my dongle and there is no known way 
+how
+> to switch it back to HID-proxy mode before hibernate (Marcel correct me if I
+> am wrong) - CSR based dongle D-Link with Apple firmware.
+>
+> Windows knows it and doesn't have problem with it for 5 years! :)
+>
+> Laptop is all Intel based, kernel 2.6.11.5-vanilla, gcc 3.4.3, Debian 
+testing
 
-> I suppose the driver wants to set PF_NOFREEZE? Anyway, setting PF_FREEZE
-> isn't correct to me.
+Can you please retest 2.6.12-rc5, see if this bug is still there?
 
-Applied, will push upstream soon.
-									Pavel
+Thanks.
+----------------------------
+Hi Andrew,
 
->  linux-2.6.11-rc5-mm1-root/drivers/scsi/aic7xxx/aic79xx_osm.c |    2 +-
->  1 files changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff -puN drivers/scsi/aic7xxx/aic79xx_osm.c~ahd_dv drivers/scsi/aic7xxx/aic79xx_osm.c
-> --- linux-2.6.11-rc5-mm1/drivers/scsi/aic7xxx/aic79xx_osm.c~ahd_dv	2005-05-26 14:42:41.191427928 +0800
-> +++ linux-2.6.11-rc5-mm1-root/drivers/scsi/aic7xxx/aic79xx_osm.c	2005-05-26 14:43:10.396988008 +0800
-> @@ -2488,7 +2488,7 @@ ahd_linux_dv_thread(void *data)
->  	sprintf(current->comm, "ahd_dv_%d", ahd->unit);
->  #else
->  	daemonize("ahd_dv_%d", ahd->unit);
-> -	current->flags |= PF_FREEZE;
-> +	current->flags |= PF_NOFREEZE;
->  #endif
->  	unlock_kernel();
->  
-> _
-> 
+partial success:
 
+when changing mouse resume from hibernation works
+
+when hibernate with BT dongle in HCI mode and then starts with it (allways 
+starts in HIDproxy mode acting as USB mouse and keyboard) kernel still 
+freezes after reading 100% of memory from swap.
+After reset kernel doesn't attempts to read memory from swap again and so 
+memory is lost :(
+
+Other problem is that after hibernate GL application never works anymore
+testet x.org with i915 module and xfree-4.3.0 with i830 module:
+
+cijoml@notas:~$ > glxgears
+intelWaitIrq: drmI830IrqWait: -16
+
+Michal
 -- 

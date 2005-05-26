@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVEZRUX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbVEZRRC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261651AbVEZRUX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 13:20:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbVEZRRM
+	id S261652AbVEZRRC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 13:17:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261616AbVEZRQu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 13:17:12 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:31919 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261651AbVEZROe (ORCPT
+	Thu, 26 May 2005 13:16:50 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:54234 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261652AbVEZRPh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 13:14:34 -0400
-Message-ID: <429605D7.941893D@tv-sign.ru>
-Date: Thu, 26 May 2005 21:22:31 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Thu, 26 May 2005 13:15:37 -0400
+Message-ID: <42960436.4070106@pobox.com>
+Date: Thu, 26 May 2005 13:15:34 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: george@mvista.com
-Cc: Andrew Morton <akpm@osdl.org>,
-       "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH rc4-mm2 2/2] posix-timers: use try_to_del_timer_sync()
-References: <4295F649.7040405@mvista.com>
-Content-Type: text/plain; charset=koi8-r
+To: Jens Axboe <axboe@suse.de>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Playing with SATA NCQ
+References: <20050526140058.GR1419@suse.de> <4295F87B.9070106@pobox.com> <20050526170658.GT1419@suse.de> <20050526171132.GV1419@suse.de>
+In-Reply-To: <20050526171132.GV1419@suse.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George Anzinger wrote:
-> 
-> With respect to this patch:
-> 
-> http://www.uwsg.indiana.edu/hypermail/linux/kernel/0505.2/1537.html
-> 
-> I have looked at various ways of doing this and have concluded that this is the
-> right patch.
+Jens Axboe wrote:
+> Re-reading AHCI spec, it does indicate that you want to set SActive
+> after building the command. I'll move it back, but keep the conditional
+> of setting SActive on queued commands.
 
-Great!
+SActive is intentionally used for non-NCQ devices.  The SATA registers 
+are -host- registers not -device- registers, remember.
 
-> Oleg, could you resend?
+At the very least, I would like to see a lot of testing before you make 
+the current unconditional code conditional.
 
-It's in 2.6.12-rc5-mm1 tree already.
+	Jeff
 
-Oleg.
+

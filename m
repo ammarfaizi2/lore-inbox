@@ -1,67 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVEZHOl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVEZHO3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbVEZHOl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 03:14:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVEZHOl
+	id S261236AbVEZHO3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 03:14:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVEZHOZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 03:14:41 -0400
-Received: from dvhart.com ([64.146.134.43]:52387 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261227AbVEZHOf (ORCPT
+	Thu, 26 May 2005 03:14:25 -0400
+Received: from smtp08.web.de ([217.72.192.226]:20164 "EHLO smtp08.web.de")
+	by vger.kernel.org with ESMTP id S261227AbVEZHOW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 03:14:35 -0400
-Date: Thu, 26 May 2005 00:14:34 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>,
-       christoph@lameter.com
-Subject: Re: 2.6.12-rc5-mm1
-Message-ID: <195320000.1117091674@[10.10.2.4]>
-In-Reply-To: <191140000.1117091133@[10.10.2.4]>
-References: <175590000.1117089446@[10.10.2.4]> <20050525234717.261beb48.akpm@osdl.org> <191140000.1117091133@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Thu, 26 May 2005 03:14:22 -0400
+To: linux-kernel@vger.kernel.org
+Subject: Re: OT] Joerg Schilling flames Linux on his Blog
+X-Face: 8omYku?tAexGd1v,5cQg?N#5RsX"8\+(X=<ysy((i6Hr2uYha{J%Mf!J:,",CqCZSr,>8o[ Ve)k4kR)7DN3VM-`_LiF(jfij'tPzNFf|MK|vL%Z9_#[ssfD[=mFaBy]?VV0&vLi09Jx*:)CVQJ*e3
+ Oyv%0J(}_6</D.eu`XL"&w8`%ArL0I8AD'UKOxF0JODr/<g]
+References: <429474A4.nail1XA1DB0IM@burner>
+	<200505260011.25126.pmcfarland@downeast.net>
+From: Markus Plail <linux-kernel@gitteundmarkus.de>
+Date: Thu, 26 May 2005 09:14:20 +0200
+In-Reply-To: <200505260011.25126.pmcfarland@downeast.net> (Patrick
+ McFarland's message of "Thu, 26 May 2005 00:11:17 -0400")
+Message-ID: <87vf568nn7.fsf@plailis.daheim.bs>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Patrick McFarland <pmcfarland@downeast.net> writes:
+> Joerg, when replying, please don't break threading.
+>> Strange thoughts. Why should someone who fights for freedom even
+>> think about removing a comment that is not a personal infringement?
+>> As you seem to think about this posibility, let me ask: should we be
+>> rather afraid of you?
+>
+> Someone who fights for freedom wouldn't remove the comment. You are
+> not that someone.
 
+But you DO realise that your comment was *NOT* deleted, do you? It isn't
+now and it wasn't when I first read the blog entry, which wasn't long
+after you posted your message here.
 
---"Martin J. Bligh" <mbligh@mbligh.org> wrote (on Thursday, May 26, 2005 00:05:33 -0700):
-
-> 
-> 
-> --Andrew Morton <akpm@osdl.org> wrote (on Wednesday, May 25, 2005 23:47:17 -0700):
-> 
->> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
->>> 
->>> Build failure on numaq:
->>>  http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/numaq
->>> 
->>>  In file included from include/linux/sched.h:12,
->>>                   from arch/i386/kernel/asm-offsets.c:7:
->>>  include/linux/jiffies.h:42:3: #error You lose.
->> 
->> You lost!  CONFIG_HZ didn't get set.
->> 
->> Something obviously went wrong in the magic in kernel/Kconfig.hz.  Wanna do
->> `grep HZ .config' and see if you can work out why it broke?
-> 
-> Tis conspicious by it's absence.
-> 
-> mbligh@kernel:~/linux-2.6.12-rc5-mm1$ grep HZ .config
-> mbligh@kernel:~/linux-2.6.12-rc5-mm1$ 
-> 
-> I'll poke at it in the morning, with the benfits of less wine, and more 
-> sleep
-> 
-> M.
-
-source kernel/Kconfig.hz is under:
-menu "APM (Advanced Power Management) BIOS Support"
-depends on PM && !X86_VISWS
-
-So it's screwed if you don't have PM defined, it seems.
+regards
+Markus
 

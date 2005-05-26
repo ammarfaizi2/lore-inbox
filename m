@@ -1,103 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbVEZU2F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261743AbVEZUbO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261672AbVEZU2F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 16:28:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261722AbVEZU2F
+	id S261743AbVEZUbO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 16:31:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbVEZUbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 16:28:05 -0400
-Received: from colin.muc.de ([193.149.48.1]:16147 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S261672AbVEZU1z (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 16:27:55 -0400
-Date: 26 May 2005 22:27:47 +0200
-Date: Thu, 26 May 2005 22:27:47 +0200
-From: Andi Kleen <ak@muc.de>
-To: Sven-Thorsten Dietrich <sdietrich@mvista.com>
-Cc: Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, bhuey@lnxw.com,
-       nickpiggin@yahoo.com.au, hch@infradead.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-Message-ID: <20050526202747.GB86087@muc.de>
-References: <20050525005942.GA24893@nietzsche.lynx.com> <1116982977.19926.63.camel@dhcp153.mvista.com> <20050524184351.47d1a147.akpm@osdl.org> <4293DCB1.8030904@mvista.com> <20050524192029.2ef75b89.akpm@osdl.org> <20050525063306.GC5164@elte.hu> <m1br6zxm1b.fsf@muc.de> <1117044019.5840.32.camel@sdietrich-xp.vilm.net> <20050526193230.GY86087@muc.de> <1117138270.1583.44.camel@sdietrich-xp.vilm.net>
+	Thu, 26 May 2005 16:31:13 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:10453 "EHLO
+	nelson.home.kernel.dk") by vger.kernel.org with ESMTP
+	id S261722AbVEZU31 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 16:29:27 -0400
+Date: Thu, 26 May 2005 22:30:18 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Playing with SATA NCQ
+Message-ID: <20050526203017.GA16768@suse.de>
+References: <20050526140058.GR1419@suse.de> <4295F87B.9070106@pobox.com> <20050526170658.GT1419@suse.de> <42962833.4000000@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1117138270.1583.44.camel@sdietrich-xp.vilm.net>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <42962833.4000000@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Here, I am talking about separating out the patch, and applying it
-> first, not dropping it from the RT implementation. 
-
-I really dislike the idea of interrupt threads. It seems totally
-wrong to me to make such a fundamental operation as an interrupt
-much slower.  If really any interrupts take too long they should
-move to workqueues instead and be preempted there. But keep
-the basic fundamental operations fast please (at least that used to be one
-of the Linux mottos that served it very well for many years, although more
-and more people seem to forget it now) 
-
-> > What I dislike with RT mutexes is that they convert all locks.
-> > It doesnt make much sense to me to have a complex lock that
-> > only protects a few lines of code (and a lot of the spinlock
-> > code is like this). That is just a waste of cycles.
-> > 
+On Thu, May 26 2005, Jeff Garzik wrote:
+> Jens Axboe wrote:
+> >On Thu, May 26 2005, Jeff Garzik wrote:
+> >>>+int ata_read_log_page(struct ata_port *ap, unsigned int device, char 
+> >>>page,
+> >>>+		      char *buffer, unsigned int sectors)
+> >>>+{
+> >>>+	struct ata_device *dev = &ap->device[device];
+> >>>+	DECLARE_COMPLETION(wait);
+> >>>+	struct ata_queued_cmd *qc;
+> >>>+	unsigned long flags;
+> >>>+	u8 status;
+> >>>+	int rc;
+> >>>+
+> >>>+	assert(dev->class == ATA_DEV_ATA);
+> >>>+
+> >>>+	ata_dev_select(ap, device, 1, 1);
+> >>
+> >>is this needed?  These types of calls need to be removed, in general, as 
+> >>they don't make sense on FIS-based hardware at all.
+> >
+> >
+> >You tell me, this read_log_page() was mainly copy-pasted from the pio
+> >driven function above it. I'll try and kill the select when doing error
+> >testing.
+> >
+> >
+> >>>+	printk("RLP issue\n");
+> >>>+	spin_lock_irqsave(&ap->host_set->lock, flags);
+> >>>+	rc = ata_qc_issue(qc);
+> >>>+	spin_unlock_irqrestore(&ap->host_set->lock, flags);
+> >>>+	printk("RLP issue done\n");
+> >>>+
+> >>>+	if (rc)
+> >>>+		return -EIO;
+> >>>+
+> >>>+	wait_for_completion(&wait);
+> >>>+
+> >>>+	printk("RLP wait done\n");
+> >>>+
+> >>>+	status = ata_chk_status(ap);
+> >>>+	if (status & (ATA_ERR | ATA_ABORTED))
+> >>>+		return -EIO;
+> >>
+> >>we need to get rid of this too for AHCI-like devices
+> >
+> >
+> >Can you expand on that?
 > 
-> It is NOT just a few lines of code. Millisecond latencies on high-
-> powered CPU systems means more code than is probably required to send a
-> rocket 'round the moon and back.
-
-Most spinlocks only protect small code parts. Those that protect
-larger codes can probably use optionally some different lock.
-
-But dont attack it with "one size fits all" locking please.
-
-> In addition, there are lock-ordering and lock-nesting issues (not to be
-> confused with the Scottish sea creature :) that make this approach non-
-> trivial whatsoever.
-
-Hmm? Sorry that didnt make any sense. If the code was correct
-before changing to a different spin like type should not
-make any difference.
-
-The only problem you have is interrupt code, which cannot sleep,
-but I dont think you will eventually get around of fixing these
-properly (= checking the code if it is slow and yes move it 
-over and if not leave it alone) 
-
-
-> > spin for a short time and then sleep. Then convert some selected
-> > locks over. e.g. the mm_sem and the i_sem would be primary users of this.
-> > And maybe some of the heavier spinlocks.
+> (this covers both quoted questions above)
 > 
-> This is a bottom up approach, that simply doesn't work. I spent months
-> considering this same scenario, so did a lot of other folks. This type
-> of hybrid solution would blow the complexity and patch size through the
-> roof, and render it unmaintainable. It is precisely why we introduced
+> The PIO function assumes that PCI IDE-like ATA register blocks (command 
+> registers, control registers) are available.  The read-log-page function 
+> can make no such assumptions.
+> 
+> dev-select and check-status should both be done by the machinery that 
+> occurs once you start things in motion by calling ata_qc_issue().
+> 
+> Doing things this way is necessary for FIS-based hardware like AHCI or 
+> SiI 3124.
 
-Of course you would not do it as a big patch. Instead you do it one
-by one, every time you identify a problem you submit a patch, it gets
-accepted etc.
+I'll get it cleaned up and tested.
 
-This way you never have a big pile of patches, just a small patchset in a current
-queue. 
+> >>For all hardware that uses SActive (all NCQ), the max is 31 not 32.
+> >
+> >
+> >That's not true, the max is 32 counting 0 as a valid tag. So 31 is
+> >indeed th max tag value, but 32 is the depth.
+> 
+> I was talking about depth.  In libata, it's a policy decision to never 
+> use more than 31 tags at any given time.
+> 
+> You can change it from 31 to 32 in SuSE for value-add, if you wish :)
+> 
+> Note also that error handling occasionally needs a command slot, so the 
+> limit may even be 30 (or 31 at most).
 
-Of course big patches dont work, but there is no reason you have to keep
-big patches for this.
+Reserving one for error handling makes a lot of sense, that's a good
+point. I still don't buy your argument for not using the full 32 slots
+in total, though. But in the end I don't suppose it matters a lot, 31 or
+30 for queue depth is very much at the end of the spectrum of
+diminishing return in difference.
 
-That is how most other Linux maintainers work too. Why should that code
-be any different?
+> >The two depths were added because we need to differentiate between the
+> >two for issuing new commands. ncq_depth > 0 is fine for issuing a new
+> >FPDMA request, where as non-FPDMA commands need both !ncq_depth and
+> >!depth.
+> 
+> You can definitely handle both FPDMA and non-FPDMA with a single 
+> variable.  Think harder on this one.  You have flags to work with, you 
+> know...
 
-It sounds to me like you did not understand how Linux kernel code 
-submission is
+Of course it is possible, but I would rather trade 4-bytes of space to
+get clearer code than switching a flag on/off all the time and counting
+a single depth. But hey that's trivial detail, compared to what else is
+missing. When this becomes the most important point, we can take it up
+again :-)
 
-> You will find a very good explanation of the dependencies in my original
-> post on October 9. Also, please see my comment above, under "allow
-> examination of that code without the clutter."
+-- 
+Jens Axboe
 
-If you tried it with a big patchkit I am not surprised that the approach
-didnt work. But did you ever consider the problem might be with the
-way you submitted patches, not with the basic code?
-
--Andi

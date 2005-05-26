@@ -1,81 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbVEZTWZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbVEZTZW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261703AbVEZTWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 15:22:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbVEZTWZ
+	id S261707AbVEZTZW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 15:25:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVEZTZV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 15:22:25 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:14294 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261703AbVEZTVz
+	Thu, 26 May 2005 15:25:21 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:3829 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261707AbVEZTZL
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 15:21:55 -0400
-Date: Thu, 26 May 2005 12:22:12 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: John Hawkes <hawkes@sgi.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       lse-tech@lists.sourceforge.net
-Subject: Re: [Lse-tech] [PATCH] drop note_interrupt() for per-CPU for proper scaling
-Message-ID: <20050526192212.GB1298@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <4295081B.MailKJ51120GH@jackhammer.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4295081B.MailKJ51120GH@jackhammer.engr.sgi.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 26 May 2005 15:25:11 -0400
+Message-ID: <42962272.9060506@mvista.com>
+Date: Thu, 26 May 2005 12:24:34 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lee Revell <rlrevell@joe-job.com>
+CC: linux-os@analogic.com, Olivier Croquette <ocroquette@free.fr>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.11 timeval_to_jiffies() wrong for ms resolution timers
+References: <21FFE0795C0F654FAD783094A9AE1DFC07AFE7C1@cof110avexu4.global.avaya.com>	 <4294D9C6.3060501@mvista.com> <4296019B.8070006@free.fr>	 <Pine.LNX.4.61.0505261350480.7195@chaos.analogic.com> <1117131568.5477.12.camel@mindpipe>
+In-Reply-To: <1117131568.5477.12.camel@mindpipe>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 25, 2005 at 04:19:55PM -0700, John Hawkes wrote:
-> The "unhandled interrupts" catcher, note_interrupt(), increments a global
-> desc->irq_count and grossly damages scaling of very large systems, e.g.,
-> >192p ia64 Altix, because of this highly contented cacheline, especially
-> for timer interrupts.  384p is severely crippled, and 512p is unuseable.
+Lee Revell wrote:
+> On Thu, 2005-05-26 at 14:10 -0400, Richard B. Johnson wrote:
 > 
-> All calls to note_interrupt() can be disabled by booting with "noirqdebug",
-> but this disables the useful interrupt checking for all interrupts.
+>>The time for a sleeping (waiting) task to get the CPU is much
+>>greater than the jitter. Once in the ISR, some wake-up call
+>>is "scheduled" and the interrupt returns. A CPU hog may have
+>>been using the CPU when the interrupt occurred. It will continue
+>>to use the CPU until its time-slot (quantum) has expired. This
+>>could be a whole millisecond if HZ is 1000, 10 milliseconds if
+>>100. It's only then that your sleeping task gets awakened
+>>by the interrupting event.
+>>
+>>So, accurate waking up is not guaranteed on any multi-user,
+>>multitasking system because you don't know what a user has
+>>been doing with the CPU. On a dedicated machine, one can
+>>have tasks that are most always sleeping or waiting for
+>>I/O so, the latency can come way down. However, signaling
+>>a task, based upon some time will never be very accurate
+>>anywhere.
 > 
-> I propose eliminating note_interrupt() for all per-CPU interrupts.
-> This was the behavior of linux-2.6.10 and earlier, but in 2.6.11 a
-> code restructuring added a call to note_interrupt() for per-CPU interrupts.
-> Besides, note_interrupt() is a bit racy for concurrent CPU calls anyway,
-> as the desc->irq_count++ increment isn't atomic (which, if done, would make
-> scaling even worse).
+> 
+> Not quite, if your sleeping task has higher priority than the CPU hog it
+> will preempt the CPU hog immediately on return from the interrupt.
+> Unless you've disabled preemption of course, which would be stupid in
+> this case.
 
-Would it be reasonable for note_interrupt() to operate on per-CPU or
-per-group-of-CPUs counters?  Each CPU (or group) could either separately
-count and check, or, if accuracy is important (can't see why it would
-be), the per-CPU (or group) counters could be added to a global counter
-every 100 (or 1,000 or whatever) counts, and this global counter then
-checked against the limit.
+And even then the task would need to be in the kernel and would be preempted 
+when it exits the kernel.
 
-							Thanx, Paul
 
-> Signed-off-by: John Hawkes <hawkes@sgi.com>
-> ---
-> 
-> Index: linux/kernel/irq/handle.c
-> ===================================================================
-> --- linux.orig/kernel/irq/handle.c	2005-03-01 23:38:37.000000000 -0800
-> +++ linux/kernel/irq/handle.c	2005-05-18 11:02:18.000000000 -0700
-> @@ -118,8 +118,6 @@
->  		 */
->  		desc->handler->ack(irq);
->  		action_ret = handle_IRQ_event(irq, regs, desc->action);
-> -		if (!noirqdebug)
-> -			note_interrupt(irq, desc, action_ret);
->  		desc->handler->end(irq);
->  		return 1;
->  	}
-> 
-> 
-> -------------------------------------------------------
-> SF.Net email is sponsored by: GoToMeeting - the easiest way to collaborate
-> online with coworkers and clients while avoiding the high cost of travel and
-> communications. There is no equipment to buy and you can meet as often as
-> you want. Try it free.http://ads.osdn.com/?ad_id=7402&alloc_id=16135&op=click
-> _______________________________________________
-> Lse-tech mailing list
-> Lse-tech@lists.sourceforge.net
-> https://lists.sourceforge.net/lists/listinfo/lse-tech
-> 
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

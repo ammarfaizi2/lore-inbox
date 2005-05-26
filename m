@@ -1,83 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVEZHXu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVEZH0R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261238AbVEZHXu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 03:23:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVEZHXu
+	id S261246AbVEZH0R (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 03:26:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVEZH0R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 03:23:50 -0400
-Received: from dvhart.com ([64.146.134.43]:53667 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261238AbVEZHXr (ORCPT
+	Thu, 26 May 2005 03:26:17 -0400
+Received: from fire.osdl.org ([65.172.181.4]:31404 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261246AbVEZHZy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 03:23:47 -0400
-Date: Thu, 26 May 2005 00:23:46 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Roman Zippel <zippel@linux-m68k.org>,
-       christoph@lameter.com
+	Thu, 26 May 2005 03:25:54 -0400
+Date: Thu, 26 May 2005 00:24:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: linux-kernel@vger.kernel.org, zippel@linux-m68k.org, christoph@lameter.com
 Subject: Re: 2.6.12-rc5-mm1
-Message-ID: <196240000.1117092225@[10.10.2.4]>
+Message-Id: <20050526002459.320abe65.akpm@osdl.org>
 In-Reply-To: <195320000.1117091674@[10.10.2.4]>
-References: <175590000.1117089446@[10.10.2.4]> <20050525234717.261beb48.akpm@osdl.org> <191140000.1117091133@[10.10.2.4]> <195320000.1117091674@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+References: <175590000.1117089446@[10.10.2.4]>
+	<20050525234717.261beb48.akpm@osdl.org>
+	<191140000.1117091133@[10.10.2.4]>
+	<195320000.1117091674@[10.10.2.4]>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---"Martin J. Bligh" <mbligh@mbligh.org> wrote (on Thursday, May 26, 2005 00:14:34 -0700):
-
-> 
-> 
-> --"Martin J. Bligh" <mbligh@mbligh.org> wrote (on Thursday, May 26, 2005 00:05:33 -0700):
-> 
->> 
->> 
->> --Andrew Morton <akpm@osdl.org> wrote (on Wednesday, May 25, 2005 23:47:17 -0700):
->> 
->>> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
->>>> 
->>>> Build failure on numaq:
->>>>  http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/numaq
->>>> 
->>>>  In file included from include/linux/sched.h:12,
->>>>                   from arch/i386/kernel/asm-offsets.c:7:
->>>>  include/linux/jiffies.h:42:3: #error You lose.
->>> 
->>> You lost!  CONFIG_HZ didn't get set.
->>> 
->>> Something obviously went wrong in the magic in kernel/Kconfig.hz.  Wanna do
->>> `grep HZ .config' and see if you can work out why it broke?
->> 
->> Tis conspicious by it's absence.
->> 
->> mbligh@kernel:~/linux-2.6.12-rc5-mm1$ grep HZ .config
->> mbligh@kernel:~/linux-2.6.12-rc5-mm1$ 
->> 
->> I'll poke at it in the morning, with the benfits of less wine, and more 
->> sleep
->> 
->> M.
-> 
+"Martin J. Bligh" <mbligh@mbligh.org> wrote:
+>
 > source kernel/Kconfig.hz is under:
-> menu "APM (Advanced Power Management) BIOS Support"
-> depends on PM && !X86_VISWS
+>  menu "APM (Advanced Power Management) BIOS Support"
+>  depends on PM && !X86_VISWS
 > 
-> So it's screwed if you don't have PM defined, it seems.
+>  So it's screwed if you don't have PM defined, it seems.
 
-Ironically once I work around that it fails with:
+Ah, OK.  Something like this:
 
-arch/i386/kernel/built-in.o(.init.text+0xfe4): In function `sys_set_thread_area':
-arch/i386/kernel/process.c:869: undefined reference to `acpi_read_root_resources'
-drivers/built-in.o(.text+0x1fa3d): In function `acpi_pci_root_add':
-drivers/acpi/pci_root.c:275: undefined reference to `pci_acpi_scan_root'
-make: *** [.tmp_vmlinux1] Error 1
+--- 25/arch/i386/Kconfig~i386-selectable-frequency-of-the-timer-interrupt-fix	2005-05-26 00:22:55.000000000 -0700
++++ 25-akpm/arch/i386/Kconfig	2005-05-26 00:22:55.000000000 -0700
+@@ -1116,8 +1116,6 @@ config APM_REAL_MODE_POWER_OFF
+ 	  a work-around for a number of buggy BIOSes. Switch this option on if
+ 	  your computer crashes instead of powering off properly.
+ 
+-source kernel/Kconfig.hz
+-
+ endmenu
+ 
+ source "arch/i386/kernel/cpu/cpufreq/Kconfig"
+@@ -1275,6 +1273,8 @@ source "crypto/Kconfig"
+ 
+ source "lib/Kconfig"
+ 
++source kernel/Kconfig.hz
++
+ #
+ # Use the generic interrupt handling code in kernel/irq/:
+ #
+diff -puN arch/x86_64/Kconfig~i386-selectable-frequency-of-the-timer-interrupt-fix arch/x86_64/Kconfig
+--- 25/arch/x86_64/Kconfig~i386-selectable-frequency-of-the-timer-interrupt-fix	2005-05-26 00:22:55.000000000 -0700
++++ 25-akpm/arch/x86_64/Kconfig	2005-05-26 00:22:55.000000000 -0700
+@@ -401,8 +401,6 @@ config SECCOMP
+ 
+ 	  If unsure, say Y. Only embedded should say N here.
+ 
+-source kernel/Kconfig.hz
+-
+ endmenu
+ 
+ #
+@@ -517,3 +515,5 @@ source "security/Kconfig"
+ source "crypto/Kconfig"
+ 
+ source "lib/Kconfig"
++
++source kernel/Kconfig.hz
+_
 
-instead. Oh well. bedtime.
 
-M.
+
+and this:
+
+
+--- 25/arch/ia64/Kconfig~ia64-selectable-timer-interrupt-frequency-fix	2005-05-26 00:23:18.000000000 -0700
++++ 25-akpm/arch/ia64/Kconfig	2005-05-26 00:23:39.000000000 -0700
+@@ -157,8 +157,6 @@ config IA64_PAGE_SIZE_64KB
+ 
+ endchoice
+ 
+-source kernel/Kconfig.hz
+-
+ config IA64_BRL_EMU
+ 	bool
+ 	depends on ITANIUM
+@@ -445,3 +443,5 @@ source "arch/ia64/Kconfig.debug"
+ source "security/Kconfig"
+ 
+ source "crypto/Kconfig"
++
++source kernel/Kconfig.hz
+_
 

@@ -1,138 +1,164 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVEZHkQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVEZHnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbVEZHkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 03:40:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVEZHkQ
+	id S261249AbVEZHnd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 03:43:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVEZHnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 03:40:16 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:47492 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261245AbVEZHj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 03:39:27 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: libata slab corruption saga
-Date: Thu, 26 May 2005 10:32:23 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org
+	Thu, 26 May 2005 03:43:33 -0400
+Received: from smtp05.auna.com ([62.81.186.15]:15809 "EHLO smtp05.retemail.es")
+	by vger.kernel.org with ESMTP id S261249AbVEZHnW convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 03:43:22 -0400
+Date: Thu, 26 May 2005 07:43:12 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: 2.6.12-rc5-mm1
+To: Andrew Morton <akpm@osdl.org>
+Cc: Ed Tomlinson <tomlins@cam.org>, linux-kernel@vger.kernel.org,
+       alsa-devel@lists.sourceforge.net
+References: <20050525134933.5c22234a.akpm@osdl.org>
+	<200505252243.21092.tomlins@cam.org>
+	<20050525204107.722504bd.akpm@osdl.org>
+In-Reply-To: <20050525204107.722504bd.akpm@osdl.org> (from akpm@osdl.org on
+	Thu May 26 05:41:07 2005)
+X-Mailer: Balsa 2.3.2
+Message-Id: <1117093392l.17165l.0l@werewolf.able.es>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200505261032.23758.vda@ilport.com.ua>
+Content-Transfer-Encoding: 8BIT
+X-Auth-Info: Auth:LOGIN IP:[83.138.219.120] Login:jamagallon@able.es Fecha:Thu, 26 May 2005 09:43:12 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
 
-Unfortunately it still happens even without IRQ sharing.
+On 05.26, Andrew Morton wrote:
+> 
+> (Added alsa-devel to cc)
+> 
+> Ed Tomlinson <tomlins@cam.org> wrote:
+> > 
+> > Got the following when I tried to use sound.  Anyone else see problems in alsa land?
+> > 
 
-2005-05-25_14:54:01.79454 kern.err: ata1: command 0x35 timeout, stat 0x50 host_stat 0x1
-2005-05-25_14:54:04.10684 kern.err: Slab corruption: start=c19d02fc, len=344
-2005-05-25_14:54:04.10985 kern.err: Redzone: 0x5a2cf071/0x5a2cf071.
-2005-05-25_14:54:04.10987 kern.err: Last user: [<c03b29f9>](scsi_put_command+0x49/0x80)
-2005-05-25_14:54:04.10989 kern.err: 010: 6b 6b 6b 6b 6b 6b 6b 6b 08 0a 9d c1 6b 6b 6b 6b
+Me too. As beep-media-player ends playing a mp3 track, oops !
+Decoded below, for if it gives additional info:
 
-It's 'use after free', someone seems to store 4-byte word into offset 0x18.
-This word seems to be a kernel pointer (0xc19d0a08).
+ksymoops 2.4.9 on i686 2.6.11-jam20.  Options used
+     -V (default)
+     -k /proc/ksyms (default)
+     -l /proc/modules (default)
+     -o /lib/modules/2.6.11-jam20/ (default)
+     -m /boot/System.map-2.6.11-jam20 (default)
 
-I may be mistaken, but I think it is a scsi_cmnd.eh_entry.next.
-It seems that scsi_cmnd was freed (see below) and scsi_cmnd offset 0x18
-is eh_entry:
+Warning: You did not tell me where to find symbol information.  I will
+assume that the log matches the kernel and modules that are running
+right now and I'll use the default options above for symbol resolution.
+If the current kernel and/or modules do not match the log, you can get
+more accurate output by telling me the kernel version and where to find
+map, modules, ksyms etc.  ksymoops -h explains the options.
 
-struct list_head {
-         struct list_head *next, *prev;
-};
+Error (regular_file): read_ksyms stat /proc/ksyms failed
+No modules in ksyms, skipping objects
+No ksyms, skipping lsmod
+May 26 09:35:15 werewolf kernel:  <1>Unable to handle kernel paging request at virtual address a5a5c060
+May 26 09:35:15 werewolf kernel: f0a08f70
+May 26 09:35:15 werewolf kernel: *pde = 0295d067
+May 26 09:35:15 werewolf kernel: Oops: 0000 [#2]
+May 26 09:35:15 werewolf kernel: CPU:    0
+May 26 09:35:15 werewolf kernel: EIP:    0060:[pg0+1079750512/1337656320]    Tainted: P      VLI
+May 26 09:35:15 werewolf kernel: EIP:    0060:[<f0a08f70>]    Tainted: P      VLI
+Using defaults from ksymoops -t elf32-i386 -a i386
+May 26 09:35:15 werewolf kernel: EFLAGS: 00210282   (2.6.11-jam20) 
+May 26 09:35:15 werewolf kernel: eax: a5a5c000   ebx: eebba67c   ecx: b2101f08   edx: f0a08f6d
+May 26 09:35:15 werewolf kernel: esi: eebba6a4   edi: b26b7c78   ebp: c6da6680   esp: b2d50f6c
+May 26 09:35:15 werewolf kernel: ds: 007b   es: 007b   ss: 0068
+May 26 09:35:15 werewolf kernel: Stack: b0147ce3 00000000 eec3d580 b26b7c78 a5a5c000 b0149469 a5a4c000 eec3d580 
+May 26 09:35:15 werewolf kernel:        b01497ce a5a4c000 a5a5c000 be93d120 eec3d580 eec3d5b0 00000002 b2d50000 
+May 26 09:35:15 werewolf kernel:        b014983a a5a4c000 000000b8 b0102b0b a5a4c000 00010000 a6d131b4 000000b8 
+May 26 09:35:15 werewolf kernel: Call Trace:
+May 26 09:35:15 werewolf kernel:  [<b0147ce3>] remove_vm_struct+0x46/0x68
+May 26 09:35:15 werewolf kernel:  [<b0149469>] unmap_vma_list+0xe/0x17
+May 26 09:35:15 werewolf kernel:  [<b01497ce>] do_munmap+0xcb/0xff
+May 26 09:35:15 werewolf kernel:  [<b014983a>] sys_munmap+0x38/0x50
+May 26 09:35:15 werewolf kernel:  [<b0102b0b>] sysenter_past_esp+0x54/0x75
+May 26 09:35:15 werewolf kernel: Code: e1 05 03 0d b0 c4 43 b0 eb c9 c7 42 44 9c 4d a1 f0 89 42 50 81 4a 14 00 00 08 00 8b 40 60 f0 ff 80 a4 00 00 00 31 c0 c3 8b 40 50 <8b> 40 60 f0 ff 88 a4 00 00 00 c3 8b 40 50 8b 40 60 f0 ff 80 a4 
 
-struct scsi_cmnd {
-        int     sc_magic;
-        struct scsi_device *device;
-        unsigned short state;
-        unsigned short owner;
-        struct scsi_request *sc_request;
-        struct list_head list;  /* scsi_cmnd participates in queue lists */
-        struct list_head eh_entry; /* entry for the host eh_cmd_q */
 
-2005-05-25_14:54:04.10991 kern.err: Prev obj: start=c19d0198, len=344
-2005-05-25_14:54:04.10993 kern.err: Redzone: 0x5a2cf071/0x5a2cf071.
-2005-05-25_14:54:04.10995 kern.err: Last user: [<c03b29f9>](scsi_put_command+0x49/0x80)
-2005-05-25_14:54:04.10996 kern.err: 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-2005-05-25_14:54:04.10998 kern.err: 010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-2005-05-25_14:54:04.11002 kern.err: Next obj: start=c19d0460, len=344
-2005-05-25_14:54:04.11004 kern.err: Redzone: 0x5a2cf071/0x5a2cf071.
-2005-05-25_14:54:04.11006 kern.err: Last user: [<c03b29f9>](scsi_put_command+0x49/0x80)
-2005-05-25_14:54:04.11007 kern.err: 000: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
-2005-05-25_14:54:04.11009 kern.err: 010: 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b 6b
+>>EIP; f0a08f70 <pg0+405baf70/4fbb0400>   <=====
 
-Looks like "Last user scsi_put_command+0x49" corresponds to list_empty(),
-although asm output is a bit strange. Judge for yourself:
+>>eax; a5a5c000 <phys_startup_32+a595c000/b0000000>
+>>ebx; eebba67c <pg0+3e76c67c/4fbb0400>
+>>ecx; b2101f08 <pg0+1cb3f08/4fbb0400>
+>>edx; f0a08f6d <pg0+405baf6d/4fbb0400>
+>>esi; eebba6a4 <pg0+3e76c6a4/4fbb0400>
+>>edi; b26b7c78 <pg0+2269c78/4fbb0400>
+>>ebp; c6da6680 <pg0+16958680/4fbb0400>
+>>esp; b2d50f6c <pg0+2902f6c/4fbb0400>
 
-void scsi_put_command(struct scsi_cmnd *cmd)
-{
-        struct scsi_device *sdev = cmd->device;
-        struct Scsi_Host *shost = sdev->host;
-        unsigned long flags;
+Trace; b0147ce3 <remove_vm_struct+46/68>
+Trace; b0149469 <unmap_vma_list+e/17>
+Trace; b01497ce <do_munmap+cb/ff>
+Trace; b014983a <sys_munmap+38/50>
+Trace; b0102b0b <sysenter_past_esp+54/75>
 
-        /* serious error if the command hasn't come from a device list */
-        spin_lock_irqsave(&cmd->device->list_lock, flags);
-        BUG_ON(list_empty(&cmd->list));
-        list_del_init(&cmd->list);
-        spin_unlock(&cmd->device->list_lock);
-        /* changing locks here, don't need to restore the irq state */
-        spin_lock(&shost->free_list_lock);
-asm("#0");
-        if (unlikely(list_empty(&shost->free_list))) {   <==============
-asm("#1");
-                list_add(&cmd->list, &shost->free_list);
-                cmd = NULL;
-        }
-        spin_unlock_irqrestore(&shost->free_list_lock, flags);
+This architecture has variable length instructions, decoding before eip
+is unreliable, take these instructions with a pinch of salt.
 
-        if (likely(cmd != NULL))
-                kmem_cache_free(shost->cmd_pool->slab, cmd);
+Code;  f0a08f45 <pg0+405baf45/4fbb0400>
+00000000 <_EIP>:
+Code;  f0a08f45 <pg0+405baf45/4fbb0400>
+   0:   e1 05                     loope  7 <_EIP+0x7>
+Code;  f0a08f47 <pg0+405baf47/4fbb0400>
+   2:   03 0d b0 c4 43 b0         add    0xb043c4b0,%ecx
+Code;  f0a08f4d <pg0+405baf4d/4fbb0400>
+   8:   eb c9                     jmp    ffffffd3 <_EIP+0xffffffd3>
+Code;  f0a08f4f <pg0+405baf4f/4fbb0400>
+   a:   c7 42 44 9c 4d a1 f0      movl   $0xf0a14d9c,0x44(%edx)
+Code;  f0a08f56 <pg0+405baf56/4fbb0400>
+  11:   89 42 50                  mov    %eax,0x50(%edx)
+Code;  f0a08f59 <pg0+405baf59/4fbb0400>
+  14:   81 4a 14 00 00 08 00      orl    $0x80000,0x14(%edx)
+Code;  f0a08f60 <pg0+405baf60/4fbb0400>
+  1b:   8b 40 60                  mov    0x60(%eax),%eax
+Code;  f0a08f63 <pg0+405baf63/4fbb0400>
+  1e:   f0 ff 80 a4 00 00 00      lock incl 0xa4(%eax)
+Code;  f0a08f6a <pg0+405baf6a/4fbb0400>
+  25:   31 c0                     xor    %eax,%eax
+Code;  f0a08f6c <pg0+405baf6c/4fbb0400>
+  27:   c3                        ret    
+Code;  f0a08f6d <pg0+405baf6d/4fbb0400>
+  28:   8b 40 50                  mov    0x50(%eax),%eax
 
-        put_device(&sdev->sdev_gendev);
-}
+This decode from eip onwards should be reliable
 
-Corresponding asm:
+Code;  f0a08f70 <pg0+405baf70/4fbb0400>
+00000000 <_EIP>:
+Code;  f0a08f70 <pg0+405baf70/4fbb0400>   <=====
+   0:   8b 40 60                  mov    0x60(%eax),%eax   <=====
+Code;  f0a08f73 <pg0+405baf73/4fbb0400>
+   3:   f0 ff 88 a4 00 00 00      lock decl 0xa4(%eax)
+Code;  f0a08f7a <pg0+405baf7a/4fbb0400>
+   a:   c3                        ret    
+Code;  f0a08f7b <pg0+405baf7b/4fbb0400>
+   b:   8b 40 50                  mov    0x50(%eax),%eax
+Code;  f0a08f7e <pg0+405baf7e/4fbb0400>
+   e:   8b 40 60                  mov    0x60(%eax),%eax
+Code;  f0a08f81 <pg0+405baf81/4fbb0400>
+  11:   f0                        lock
+Code;  f0a08f82 <pg0+405baf82/4fbb0400>
+  12:   ff                        .byte 0xff
+Code;  f0a08f83 <pg0+405baf83/4fbb0400>
+  13:   80                        .byte 0x80
+Code;  f0a08f84 <pg0+405baf84/4fbb0400>
+  14:   a4                        movsb  %ds:(%esi),%es:(%edi)
 
-#APP
-        #0
-#NO_APP
-        leal    20(%esi), %edx
-        movl    20(%esi), %eax
-        cmpl    %edx, %eax
-        je      .L132
-.L127:
-#APP
-        pushl %edi ; popfl
-#NO_APP
-        testl   %ebx, %ebx
-        je      .L130
-        pushl   %ebx
-        movl    16(%esi), %eax
-        movl    (%eax), %ecx
-        pushl   %ecx
-        call    kmem_cache_free
-        popl    %eax    <========================== scsi_put_command+0x49
-        popl    %edx
-.L130:
-        movl    -16(%ebp), %eax
-        addl    $400, %eax
-        movl    %eax, 8(%ebp)
-        leal    -12(%ebp), %esp
-        popl    %ebx
-        popl    %esi
-        popl    %edi
-        popl    %ebp
-        jmp     put_device
-.L132:
-#APP
-        #1
-#NO_APP
 
-Hope this helps.
+1 warning and 1 error issued.  Results may not be reliable.
+
 --
-vda
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandriva Linux release 2006.0 (Cooker) for i586
+Linux 2.6.11-jam20 (gcc 4.0.0 (4.0.0-3mdk for Mandriva Linux release 2006.0))
+
 

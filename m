@@ -1,51 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVEZH7p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVEZIOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261264AbVEZH7p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 03:59:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbVEZH7p
+	id S261258AbVEZIOj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 04:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbVEZIOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 03:59:45 -0400
-Received: from fire.osdl.org ([65.172.181.4]:38068 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261264AbVEZH7i (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 03:59:38 -0400
-Date: Thu, 26 May 2005 00:58:41 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "J.A. Magallon" <jamagallon@able.es>
-Cc: tomlins@cam.org, linux-kernel@vger.kernel.org,
-       alsa-devel@lists.sourceforge.net
-Subject: Re: 2.6.12-rc5-mm1
-Message-Id: <20050526005841.08a8aae0.akpm@osdl.org>
-In-Reply-To: <1117093392l.17165l.0l@werewolf.able.es>
-References: <20050525134933.5c22234a.akpm@osdl.org>
-	<200505252243.21092.tomlins@cam.org>
-	<20050525204107.722504bd.akpm@osdl.org>
-	<1117093392l.17165l.0l@werewolf.able.es>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Thu, 26 May 2005 04:14:38 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:15014 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S261258AbVEZIOf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 04:14:35 -0400
+Date: Thu, 26 May 2005 11:14:22 +0300 (EEST)
+From: Pekka J Enberg <penberg@cs.Helsinki.FI>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+cc: Anton Altaparmakov <aia21@cam.ac.uk>, linux-ntfs-dev@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] ntfs: use struct initializers
+In-Reply-To: <20050526070437.GY29811@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.58.0505261113390.6273@sbz-30.cs.Helsinki.FI>
+References: <1117044875.9510.2.camel@localhost>
+ <Pine.LNX.4.60.0505252208120.25834@hermes-1.csi.cam.ac.uk>
+ <courier.42956AFA.00002502@courier.cs.helsinki.fi>
+ <20050526070437.GY29811@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"J.A. Magallon" <jamagallon@able.es> wrote:
->
-> 
-> On 05.26, Andrew Morton wrote:
-> > 
-> > (Added alsa-devel to cc)
-> > 
-> > Ed Tomlinson <tomlins@cam.org> wrote:
-> > > 
-> > > Got the following when I tried to use sound.  Anyone else see problems in alsa land?
-> > > 
-> 
-> Me too. As beep-media-player ends playing a mp3 track, oops !
+Hi Anton,
 
-hm, OK, you're also on x86_64.  What sound card and driver?
+This patch converts explicit NULL assignments to use struct initializers as
+suggested by Al Viro.
 
-> Decoded below, for if it gives additional info:
+Signed-off-by: Pekka Enberg <penberg@cs.helsinki.fi>
+---
 
-Actually, no, ksymoops removes info.  Please just send the kernel's oops
-output directly.  (Make sure that CONFIG_KALLSYMS=y).
+ super.c |   40 ++++++++++++----------------------------
+ 1 files changed, 12 insertions(+), 28 deletions(-)
 
+Index: 2.6-mm/fs/ntfs/super.c
+===================================================================
+--- 2.6-mm.orig/fs/ntfs/super.c	2005-05-26 10:18:41.000000000 +0300
++++ 2.6-mm/fs/ntfs/super.c	2005-05-26 11:07:44.000000000 +0300
+@@ -2292,36 +2292,20 @@
+ 		return -ENOMEM;
+ 	}
+ 	/* Initialize ntfs_volume structure. */
+-	memset(vol, 0, sizeof(ntfs_volume));
+-	vol->sb = sb;
+-	vol->upcase = NULL;
+-	vol->attrdef = NULL;
+-	vol->mft_ino = NULL;
+-	vol->mftbmp_ino = NULL;
++	*vol = (ntfs_volume) {
++		.sb = sb,
++		/*
++		 * Default is group and other don't have any access to files or
++		 * directories while owner has full access. Further, files by
++		 * default are not executable but directories are of course
++		 * browseable.
++		 */
++		.fmask = 0177,
++		.dmask = 0077,
++
++	};
+ 	init_rwsem(&vol->mftbmp_lock);
+-#ifdef NTFS_RW
+-	vol->mftmirr_ino = NULL;
+-	vol->logfile_ino = NULL;
+-#endif /* NTFS_RW */
+-	vol->lcnbmp_ino = NULL;
+ 	init_rwsem(&vol->lcnbmp_lock);
+-	vol->vol_ino = NULL;
+-	vol->root_ino = NULL;
+-	vol->secure_ino = NULL;
+-	vol->extend_ino = NULL;
+-#ifdef NTFS_RW
+-	vol->quota_ino = NULL;
+-	vol->quota_q_ino = NULL;
+-#endif /* NTFS_RW */
+-	vol->nls_map = NULL;
+-
+-	/*
+-	 * Default is group and other don't have any access to files or
+-	 * directories while owner has full access. Further, files by default
+-	 * are not executable but directories are of course browseable.
+-	 */
+-	vol->fmask = 0177;
+-	vol->dmask = 0077;
+ 
+ 	unlock_kernel();
+ 

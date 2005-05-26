@@ -1,54 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbVEZVQU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261775AbVEZVTZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261791AbVEZVQU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 17:16:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbVEZVOm
+	id S261775AbVEZVTZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 17:19:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVEZVTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 17:14:42 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:42226 "EHLO
-	hermes.mvista.com") by vger.kernel.org with ESMTP id S261791AbVEZVOI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 17:14:08 -0400
-Subject: Re: RT patch acceptance
-From: Sven-Thorsten Dietrich <sdietrich@mvista.com>
-To: Bill Huey <bhuey@lnxw.com>
-Cc: Andi Kleen <ak@muc.de>, Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com,
-       nickpiggin@yahoo.com.au, hch@infradead.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050526205227.GA3776@nietzsche.lynx.com>
-References: <1116981913.19926.58.camel@dhcp153.mvista.com>
-	 <20050525005942.GA24893@nietzsche.lynx.com>
-	 <1116982977.19926.63.camel@dhcp153.mvista.com>
-	 <20050524184351.47d1a147.akpm@osdl.org> <4293DCB1.8030904@mvista.com>
-	 <20050524192029.2ef75b89.akpm@osdl.org> <20050525063306.GC5164@elte.hu>
-	 <m1br6zxm1b.fsf@muc.de> <1117044019.5840.32.camel@sdietrich-xp.vilm.net>
-	 <20050526193230.GY86087@muc.de>  <20050526205227.GA3776@nietzsche.lynx.com>
-Content-Type: text/plain
-Date: Thu, 26 May 2005 14:14:02 -0700
-Message-Id: <1117142042.1583.77.camel@sdietrich-xp.vilm.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Thu, 26 May 2005 17:19:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:35814 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261796AbVEZVRL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 17:17:11 -0400
+Date: Thu, 26 May 2005 14:17:05 -0700
+Message-Id: <200505262117.j4QLH5BD010823@magilla.sf.frob.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+From: Roland McGrath <roland@redhat.com>
+To: "Michael Kerrisk" <mtk-lkml@gmx.net>
+X-Fcc: ~/Mail/linus
+Cc: linux-kernel@vger.kernel.org, michael.kerrisk@gmx.net
+Subject: Re: waitid() fails with EINVAL for SA_RESTART signals
+In-Reply-To: Michael Kerrisk's message of  Wednesday, 18 May 2005 10:20:47 +0200 <24601.1116404447@www71.gmx.net>
+X-Windows: the first fully modular software disaster.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-05-26 at 13:52 -0700, Bill Huey wrote:
+Your test works fine on FC4 kernels (which are pretty current),
+but it does hit the problem on my vanilla build.  strace output suggests
+something is clobbering two registers:
 
-Sorry for the empty reply. 
-
-I was putting a hotdog under the saw to see if it would stop.
-
-> > If you drop irq threads then you cannot convert all locks
-> > anymore or have to add ugly in_interrupt()checks. So any conversion like
-> > that requires converting locks.
-> 
-> That's reversed. Interrupt threads are an isolated change itself and can
-> be submitted upstream if so desired with no associated lock changes.
-
+waitid(P_PID, 1740, Sending signal to parent
+0xbfc8b198, WEXITED|WSTOPPED|WCONTINUED, NULL) = ? ERESTARTSYS (To be restarted)
+--- SIGUSR1 (User defined signal 1) @ 0 (0) ---
+--- SIGCHLD (Child exited) @ 0 (0) ---
+write(1, "Caught signal", 13Caught signal)           = 13
+write(1, "\n", 1
+)                       = 1
+sigreturn()                             = ? (mask now [])
+waitid(0x6cc /* P_??? */, 14, 0xbfc8b198, 0, NULL) = -1 EINVAL (Invalid argument)
 
 
-Precisely what was stated in the first place.
+I will look into it further.
 
-> bill
-> 
 
+Thanks,
+Roland

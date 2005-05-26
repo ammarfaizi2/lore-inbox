@@ -1,94 +1,353 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVEZNEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbVEZNOQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261413AbVEZNEU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 09:04:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbVEZNEU
+	id S261415AbVEZNOQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 09:14:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbVEZNOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 09:04:20 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:6707
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S261413AbVEZNEM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 09:04:12 -0400
-Date: Thu, 26 May 2005 15:04:02 +0200
-From: Andrea Arcangeli <andrea@cpushare.com>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc5-mm1
-Message-ID: <20050526130402.GN5691@g5.random>
-References: <20050525134933.5c22234a.akpm@osdl.org> <17045.36727.602005.757948@alkaid.it.uu.se>
+	Thu, 26 May 2005 09:14:16 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:12428 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261415AbVEZNNe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 09:13:34 -0400
+Date: Thu, 26 May 2005 18:52:51 +0530
+From: Suparna Bhattacharya <suparna@in.ibm.com>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Carsten Otte <cotte@freenet.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>, schwidefsky@de.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>
+Subject: Re: [RFC/PATCH 2/4] fs/mm: execute in place (3rd version)
+Message-ID: <20050526132251.GA5067@in.ibm.com>
+Reply-To: suparna@in.ibm.com
+References: <1116866094.12153.12.camel@cotte.boeblingen.de.ibm.com> <1116869420.12153.32.camel@cotte.boeblingen.de.ibm.com> <20050524093029.GA4390@in.ibm.com> <42930B64.2060105@freenet.de> <20050524133211.GA4896@in.ibm.com> <42933B7A.3060206@freenet.de> <1117043475.26913.1540.camel@dyn318077bld.beaverton.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17045.36727.602005.757948@alkaid.it.uu.se>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1117043475.26913.1540.camel@dyn318077bld.beaverton.ibm.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 26, 2005 at 10:57:27AM +0200, Mikael Pettersson wrote:
-> 2.6.12-rc5-mm1 includes Andrea's seccomp-disable-tsc patch,
-> which I believe is broken on SMP. In process.c we find:
+On Wed, May 25, 2005 at 10:51:17AM -0700, Badari Pulavarty wrote:
+> On Tue, 2005-05-24 at 07:34, Carsten Otte wrote:
 > 
->  /*
-> + * This function selects if the context switch from prev to next
-> + * has to tweak the TSC disable bit in the cr4.
-> + */
-> +static void disable_tsc(struct thread_info *prev,
-> +			struct thread_info *next)
+> > Maintenance effort is a good point. Changes would need to be applied
+> > to both versions, which don't differ too much today.
+> > Embedded folks will likely figure they also need the reverse path to
+> > return references (like put_xip_page()), and indication of required access
+> > (read/write) to make this work with flash chips.
+> > Therefore I guess those two versions to differ more in the future,
+> > making it hard to think about a soloution unifying the code paths
+> > in a sane way so that it will work out for flash in the end.
+> > As for me, I did not find a better one than in version one/two. If you
+> > figure a good one, I will be happy to work on its implementation.
+> > 
+> 
+> Hi,
+> 
+> This is my crude version of the cleanup patch to reduce the 
+> duplication of code.
+> 
+> Basically, I added __generic_file_aio_read_internal() and 
+> __generic_file_aio_write_nolock_internal() to take a read/write
+> handlers instead of defaulting to do_generic_file_read() or
+> generic_file_buffered_write().
+> 
+> This way I was able to reduce 129 lines of your code. 
+> This patch is on top of your current set and I haven't even
+> tried compiling it. Needs cleanup.
+> 
+> BTW, function & variable names are too long and/or ugly & doesn't 
+> make sense - need fixing.
+> 
+> Christoph/Suparna/Andrew, Comments ?
+
+To get a complete picture, how did you want to handle direct io ?
+
+Regards
+Suparna
+
+> 
+> Thanks,
+> Badari
+> 
+> 
+> 
+> 
+> 
+> 
+> 
+
+> # diffstat /tmp/xip-filemap.patch
+>  filemap.c     |   27 +++++++++---
+>  filemap.h     |    6 ++
+>  filemap_xip.c |  129 +++-------------------------------------------------------
+>  3 files changed, 35 insertions(+), 127 deletions(-)
+> 
+> Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
+> diff -X dontdiff -Narup linux-2.6.12-rc4/mm/filemap.c linux-2.6.12-rc4.xip/mm/filemap.c
+> --- linux-2.6.12-rc4/mm/filemap.c	2005-05-25 03:05:55.367260168 -0700
+> +++ linux-2.6.12-rc4.xip/mm/filemap.c	2005-05-25 03:07:15.805031768 -0700
+> @@ -988,8 +988,8 @@ success:
+>   * that can use the page cache directly.
+>   */
+>  ssize_t
+> -__generic_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
+> -		unsigned long nr_segs, loff_t *ppos)
+> +__generic_file_aio_read_internal(struct kiocb *iocb, const struct iovec *iov,
+> +		unsigned long nr_segs, loff_t *ppos, file_read_t file_read)
+>  {
+>  	struct file *filp = iocb->ki_filp;
+>  	ssize_t retval;
+> @@ -1051,7 +1051,7 @@ __generic_file_aio_read(struct kiocb *io
+>  			if (desc.count == 0)
+>  				continue;
+>  			desc.error = 0;
+> -			do_generic_file_read(filp,ppos,&desc,file_read_actor);
+> +			file_read(filp,ppos,&desc,file_read_actor);
+>  			retval += desc.written;
+>  			if (!retval) {
+>  				retval = desc.error;
+> @@ -1063,6 +1063,13 @@ out:
+>  	return retval;
+>  }
+>  
+> +ssize_t
+> +__generic_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
+> +		unsigned long nr_segs, loff_t *ppos)
 > +{
-> +	if (unlikely(has_secure_computing(prev) ||
-> +		     has_secure_computing(next))) {
-> +		/* slow path here */
-> +		if (has_secure_computing(prev) &&
-> +		    !has_secure_computing(next)) {
-> +			clear_in_cr4(X86_CR4_TSD);
-> +		} else if (!has_secure_computing(prev) &&
-> +			   has_secure_computing(next))
-> +			set_in_cr4(X86_CR4_TSD);
-> +	}
+> +	return __generic_file_aio_read_internal(iocb, iov, nr_segs, 
+> +				ppos, do_generic_file_read);
 > +}
-> 
-> which it calls from __switch_to().
-> 
-> The problem is that {set,clear}_in_cr4() both update a single
-> global mmu_cr4_features variable, which is asynchronously written
-> to all CPUs by {,__}flush_tlb_all(). Hence, the CR4.TSD setting
-> is at best probabilistic.
+>  EXPORT_SYMBOL(__generic_file_aio_read);
+>  
+>  ssize_t
+> @@ -2024,8 +2031,9 @@ generic_file_buffered_write(struct kiocb
+>  EXPORT_SYMBOL(generic_file_buffered_write);
+>  
+>  ssize_t
+> -__generic_file_aio_write_nolock(struct kiocb *iocb, const struct iovec *iov,
+> -				unsigned long nr_segs, loff_t *ppos)
+> +__generic_file_aio_write_nolock_internal(struct kiocb *iocb, 
+> +	const struct iovec *iov, unsigned long nr_segs, loff_t *ppos,
+> +	file_write_t file_write)
+>  {
+>  	struct file *file = iocb->ki_filp;
+>  	struct address_space * mapping = file->f_mapping;
+> @@ -2093,12 +2101,19 @@ __generic_file_aio_write_nolock(struct k
+>  		count -= written;
+>  	}
+>  
+> -	written = generic_file_buffered_write(iocb, iov, nr_segs,
+> +	written = file_write(iocb, iov, nr_segs,
+>  			pos, ppos, count, written);
+>  out:
+>  	current->backing_dev_info = NULL;
+>  	return written ? written : err;
+>  }
+> +ssize_t
+> +__generic_file_aio_write_nolock(struct kiocb *iocb, const struct iovec *iov,
+> +				unsigned long nr_segs, loff_t *ppos)
+> +{
+> +	return __generic_file_aio_write_nolock_internal(iocb, *iov,
+> +			nr_segs, *ppos, generic_file_buffered_write);
+> +}
+>  EXPORT_SYMBOL(generic_file_aio_write_nolock);
+>  
+>  ssize_t
+> diff -X dontdiff -Narup linux-2.6.12-rc4/mm/filemap.h linux-2.6.12-rc4.xip/mm/filemap.h
+> --- linux-2.6.12-rc4/mm/filemap.h	2005-05-25 03:06:03.857969384 -0700
+> +++ linux-2.6.12-rc4.xip/mm/filemap.h	2005-05-25 03:08:09.388885784 -0700
+> @@ -15,6 +15,12 @@
+>  #include <linux/config.h>
+>  #include <asm/uaccess.h>
+>  
+> +typedef int (file_read_t)(struct file * filp, loff_t *ppos,
+> +		read_descriptor_t * desc, read_actor_t actor):
+> +typedef int (file_write_t)(struct kiocb *iocb, const struct iovec *iov,
+> +		unsigned long nr_segs, loff_t pos, loff_t *ppos,
+> +		size_t count, ssize_t written);
+> +
+>  extern size_t
+>  __filemap_copy_from_user_iovec(char *vaddr, 
+>  			       const struct iovec *iov,
+> diff -X dontdiff -Narup linux-2.6.12-rc4/mm/filemap_xip.c linux-2.6.12-rc4.xip/mm/filemap_xip.c
+> --- linux-2.6.12-rc4/mm/filemap_xip.c	2005-05-25 03:05:55.369259864 -0700
+> +++ linux-2.6.12-rc4.xip/mm/filemap_xip.c	2005-05-25 02:58:27.200391888 -0700
+> @@ -114,62 +114,6 @@ out:
+>  		file_accessed(filp);
+>  }
+>  
+> -/*
+> - * This is the "read()" routine for all filesystems
+> - * that uses the get_xip_page address space operation.
+> - */
+> -static ssize_t
+> -__xip_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
+> -		unsigned long nr_segs, loff_t *ppos)
+> -{
+> -	struct file *filp = iocb->ki_filp;
+> -	ssize_t retval;
+> -	unsigned long seg;
+> -	size_t count;
+> -
+> -	count = 0;
+> -	for (seg = 0; seg < nr_segs; seg++) {
+> -		const struct iovec *iv = &iov[seg];
+> -
+> -		/*
+> -		 * If any segment has a negative length, or the cumulative
+> -		 * length ever wraps negative then return -EINVAL.
+> -		 */
+> -		count += iv->iov_len;
+> -		if (unlikely((ssize_t)(count|iv->iov_len) < 0))
+> -			return -EINVAL;
+> -		if (access_ok(VERIFY_WRITE, iv->iov_base, iv->iov_len))
+> -			continue;
+> -		if (seg == 0)
+> -			return -EFAULT;
+> -		nr_segs = seg;
+> -		count -= iv->iov_len;	/* This segment is no good */
+> -		break;
+> -	}
+> -
+> -	retval = 0;
+> -	if (count) {
+> -		for (seg = 0; seg < nr_segs; seg++) {
+> -			read_descriptor_t desc;
+> -
+> -			desc.written = 0;
+> -			desc.arg.buf = iov[seg].iov_base;
+> -			desc.count = iov[seg].iov_len;
+> -			if (desc.count == 0)
+> -				continue;
+> -			desc.error = 0;
+> -			do_xip_mapping_read(filp->f_mapping, &filp->f_ra, filp,
+> -					    ppos, &desc, file_read_actor);
+> -			retval += desc.written;
+> -			if (!retval) {
+> -				retval = desc.error;
+> -				break;
+> -			}
+> -		}
+> -	}
+> -	return retval;
+> -}
+> -
+>  ssize_t
+>  xip_file_aio_read(struct kiocb *iocb, char __user *buf, size_t count,
+>  		  loff_t pos)
+> @@ -177,7 +121,8 @@ xip_file_aio_read(struct kiocb *iocb, ch
+>  	struct iovec local_iov = { .iov_base = buf, .iov_len = count };
+>  
+>  	BUG_ON(iocb->ki_pos != pos);
+> -	return __xip_file_aio_read(iocb, &local_iov, 1, &iocb->ki_pos);
+> +	return __generic_file_aio_read_internal(iocb, &local_iov, 1, 
+> +			&iocb->ki_pos, do_xip_mapping_read);
+>  }
+>  EXPORT_SYMBOL_GPL(xip_file_aio_read);
+>  
+> @@ -188,7 +133,8 @@ xip_file_readv(struct file *filp, const 
+>  	struct kiocb kiocb;
+>  
+>  	init_sync_kiocb(&kiocb, filp);
+> -	return __xip_file_aio_read(&kiocb, iov, nr_segs, ppos);
+> +	return __generic_file_aio_read_internal(&kiocb, iov, nr_segs, 
+> +			ppos, do_xip_mapping_read);
+>  }
+>  EXPORT_SYMBOL_GPL(xip_file_readv);
+>  
+> @@ -423,74 +369,14 @@ do_xip_file_write(struct kiocb *iocb, co
+>  }
+>  
+>  static ssize_t
+> -xip_file_aio_write_nolock(struct kiocb *iocb, const struct iovec *iov,
+> -				unsigned long nr_segs, loff_t *ppos)
+> -{
+> -	struct file *file = iocb->ki_filp;
+> -	struct address_space * mapping = file->f_mapping;
+> -	size_t ocount;		/* original count */
+> -	size_t count;		/* after file limit checks */
+> -	struct inode 	*inode = mapping->host;
+> -	unsigned long	seg;
+> -	loff_t		pos;
+> -	ssize_t		written;
+> -	ssize_t		err;
+> -
+> -	ocount = 0;
+> -	for (seg = 0; seg < nr_segs; seg++) {
+> -		const struct iovec *iv = &iov[seg];
+> -
+> -		/*
+> -		 * If any segment has a negative length, or the cumulative
+> -		 * length ever wraps negative then return -EINVAL.
+> -		 */
+> -		ocount += iv->iov_len;
+> -		if (unlikely((ssize_t)(ocount|iv->iov_len) < 0))
+> -			return -EINVAL;
+> -		if (access_ok(VERIFY_READ, iv->iov_base, iv->iov_len))
+> -			continue;
+> -		if (seg == 0)
+> -			return -EFAULT;
+> -		nr_segs = seg;
+> -		ocount -= iv->iov_len;	/* This segment is no good */
+> -		break;
+> -	}
+> -
+> -	count = ocount;
+> -	pos = *ppos;
+> -
+> -	vfs_check_frozen(inode->i_sb, SB_FREEZE_WRITE);
+> -
+> -	written = 0;
+> -
+> -	err = generic_write_checks(file, &pos, &count, S_ISBLK(inode->i_mode));
+> -	if (err)
+> -		goto out;
+> -
+> -	if (count == 0)
+> -		goto out;
+> -
+> -	err = remove_suid(file->f_dentry);
+> -	if (err)
+> -		goto out;
+> -
+> -	inode_update_time(inode, 1);
+> -
+> -	/* use execute in place to copy directly to disk */
+> -	written = do_xip_file_write (iocb, iov,
+> -				  nr_segs, pos, ppos, count);
+> - out:
+> -	return written ? written : err;
+> -}
+> -
+> -static ssize_t
+>  __xip_file_write_nolock(struct file *file, const struct iovec *iov,
+>  			unsigned long nr_segs, loff_t *ppos)
+>  {
+>  	struct kiocb kiocb;
+>  
+>  	init_sync_kiocb(&kiocb, file);
+> -	return xip_file_aio_write_nolock(&kiocb, iov, nr_segs, ppos);
+> +	return __generic_file_aio_write_nolock_internal(&kiocb, iov, 
+> +			nr_segs, ppos, do_xip_file_write);
+>  }
+>  
+>  ssize_t
+> @@ -507,7 +393,8 @@ xip_file_aio_write(struct kiocb *iocb, c
+>  	BUG_ON(iocb->ki_pos != pos);
+>  
+>  	down(&inode->i_sem);
+> -	ret = xip_file_aio_write_nolock(iocb, &local_iov, 1, &iocb->ki_pos);
+> +	ret = __generic_file_aio_write_nolock_internal(iocb, &local_iov, 
+> +			1, &iocb->ki_pos, do_xip_file_write);
+>  	up(&inode->i_sem);
+>  	return ret;
+>  }
 
-You're right. This won't destabilize the kernel (and it couldn't trigger
-in my testing) but it may lead to the tsc to be erroneously disabled on
-a non-seccomp task, after a change_page_attr (i.e. insmod) or similar
-events using flush_tlb_all (like rmmod). I didn't notice this race
-condition sorry (I now recall why we overwrite the cr4 flag in the
-global tlb flush: just to flush the global pagetables, since vmalloc
-uses global pagetables too).
 
-> I spotted this because perfctr used to flip CR4.PCE in __switch_to()
-> ages ago, but I had to abandon that when kernel 2.3.40 changed to
-> the current scheme with a global mmu_cr4_features.
-> (Another reason was that CR4 writes were and still are very slow.)
+-- 
+Suparna Bhattacharya (suparna@in.ibm.com)
+Linux Technology Center
+IBM Software Lab, India
 
-Speed is not an issue, cr4 would never be tweaked unless you use
-seccomp, the cr4 flip is in an extreme slow path.
-
-I think there are two ways to solve this race:
-
-1) why don't we read the cr4 from the cpu? would movl %%cr4, %%eax
-generate a general protection fault? Can the cr4 be read in ring 0?
-Why to read it from memory if we've that information in the cpu already?
-2) If there's a good reason to read if from memory, then what about
-making the mmu_cr4_features per-cpu? That way would solve the problem
-too.
-
-Both solutions relay on the fact that the pagetable flush cannot happen
-from irqs, so as long as set/clear_in_cr4 is never called from irq (like
-in switch_to with this patch), no locking would be required. If the
-pagetable flush can be called from irqs (or alternatively if the
-set/clear_in_cr4 can be called from irqs) then we'd need to use
-test_and_set/clear_bit instead of normal C code despite the structure
-being per-cpu, or despite reading the data from the cpu instead of
-reading it from memory. In theory we could add a BUG_ON(in_interrupt())
-to both, since both set/clear_in_cr4 and the flush_tlb_all aren't fast
-paths (probably it worth it just in case).
-
-Comments welcome, thanks!

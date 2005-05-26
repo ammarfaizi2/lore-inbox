@@ -1,39 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261574AbVEZPvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVEZPvV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261574AbVEZPvF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 11:51:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261576AbVEZPvF
+	id S261576AbVEZPvV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 11:51:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbVEZPvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 11:51:05 -0400
-Received: from mail-public.northwestel.net ([198.235.201.66]:59376 "EHLO
-	yk-pvtmailprd-01.internal.messaging") by vger.kernel.org with ESMTP
-	id S261574AbVEZPu7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 11:50:59 -0400
-Date: Thu, 26 May 2005 08:31:23 -0700
-From: Richard Whittaker <rwhittaker@northwestel.ca>
-Subject: DHCP options in kernel...
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Message-id: <4295EBCB.5030307@northwestel.ca>
-MIME-version: 1.0
-Content-type: text/plain; charset=ISO-8859-1; format=flowed
-Content-transfer-encoding: 7BIT
-X-Accept-Language: en-us, en
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+	Thu, 26 May 2005 11:51:21 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:31421 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261576AbVEZPvO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 11:51:14 -0400
+Subject: Re: [Alsa-devel] Re: Oops in set_spdif_output in i810_audio
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       "SuD (Alex)" <sud@latinsud.com>
+In-Reply-To: <20050525214133.1aaa69f7.akpm@osdl.org>
+References: <424F20F6.8010804@latinsud.com>
+	 <20050525214133.1aaa69f7.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 26 May 2005 11:51:13 -0400
+Message-Id: <1117122673.6261.12.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hiya..
+On Wed, 2005-05-25 at 21:41 -0700, Andrew Morton wrote:
+> "SuD (Alex)" <sud@latinsud.com> wrote:
+> >
+> > Hi, i got a new ahtec laptop and i get null pointer oops everytime i 
+> > load i810_audio on 2.4 and 2.6 (including 2.6.11.6) kernels.
+> 
+> Is this still occurring in 2.6.12-rc5?
+> 
 
-I'm trying to setup a diskless boot system using a Debian Sarge base, 
-and everything's going well, but I've run into one snag... I want the 
-DHCP server to dynamically generate hostnames based on MAC addresses, 
-and supply those to the clients, and that part's working just fine. 
-However, the client (a diskless kernel) isn't taking the hostname and 
-applying it to itself... Is there an option that I can pass to the 
-kernel that functions like dhcpcd -H, or does something need to be 
-kludged at the debian end?...
+i810_audio is an OSS driver.  Removing alsa-devel from cc: and restoring
+LKML.
 
-Thanks,
-Richard.
+> > 
+> > Btw, Alsa snd-intel8x0 driver works, but as many distros still default 
+> > to Oss i think this bug should be hunt.
+> > 
 
+Really?  Which?
+
+Lee
 

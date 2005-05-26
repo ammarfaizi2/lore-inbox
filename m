@@ -1,51 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVEZTit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbVEZTkl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261728AbVEZTit (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 15:38:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbVEZTgK
+	id S261730AbVEZTkl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 15:40:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVEZTj1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 15:36:10 -0400
-Received: from wproxy.gmail.com ([64.233.184.198]:39817 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261718AbVEZTfs convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 15:35:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=A+4DPBNdGltmxOAatoeaD1EIo+T4pLHEhs8Gg9ywXCwcmyL3ZcMhgiYsisbadqA2fFB0u+C0grWEHLXXBTVTLJYZ4NluBPvnSfx8b+Crv9ZJ+zevzZvyLIrjne5v6ZR63jrlXnv/WdVMtpiO77bWXz6pA0F0pbpqx3I7MGgLijA=
-Message-ID: <a44ae5cd0505261235fc05313@mail.gmail.com>
-Date: Thu, 26 May 2005 15:35:47 -0400
-From: Miles Lane <miles.lane@gmail.com>
-Reply-To: Miles Lane <miles.lane@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.12-rc5 build failure
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Thu, 26 May 2005 15:39:27 -0400
+Received: from ns1.g-housing.de ([62.75.136.201]:42205 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S261724AbVEZTiL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 15:38:11 -0400
+Message-ID: <4296259B.50908@g-house.de>
+Date: Thu, 26 May 2005 21:38:03 +0200
+From: Christian Kujau <evil@g-house.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050522)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>
+Subject: __NR_ia32_restart_syscall undeclared 
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexey Dobriyan wrote:
->
-> Fixed in 2.6.12-rc5-dca79a046b93a81496bb30ca01177fb17f37ab72.
-> 
-> http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdif \
-> f;h=dca79a046b93a81496bb30ca01177fb17f37ab72;hp=5daf05fbf73fc199e7a93a818e504856d07c55  \
-> 86
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Why does the GitWeb interface lack a link to have a patch saved as a
-text file?  Cutting and pasting isn't working for me with this patch. 
-Also, saving the webpage as text from Firefox 1.0.4 also fails to give
-me a working patch.
+compiling 2.6.12-rc4 and 2.6.12-rc5-mm1 too on x86_64 breaks with:
 
-I get this patch error:
+  CC      arch/x86_64/kernel/process.o
+  CC      arch/x86_64/kernel/semaphore.o
+  CC      arch/x86_64/kernel/signal.o
+arch/x86_64/kernel/signal.c: In function `do_signal':
+arch/x86_64/kernel/signal.c:460: error: `__NR_ia32_restart_syscall'
+undeclared (first use in this function)
+arch/x86_64/kernel/signal.c:460: error: (Each undeclared identifier is
+reported only once
+arch/x86_64/kernel/signal.c:460: error: for each function it appears in.)
+make[1]: *** [arch/x86_64/kernel/signal.o] Error 1
+make: *** [arch/x86_64/kernel] Error 2
 
-patching file drivers/char/ipmi/ipmi_devintf.c
-patch: **** malformed patch at line 4: " interface. Other values will
-set the major device number"
 
-What's up with this?
+including asm/ia32_unistd.h helps, but i don't know if it is the
+Right Thing to do.
 
-Thanks,
-            MIles
+thank you,
+Christian.
+
+
+- --- linux-2.6-git/arch/x86_64/kernel/signal.c.orig      2005-05-22
+15:37:50.262209040 +0200
++++ linux-2.6-git/arch/x86_64/kernel/signal.c   2005-05-22
+15:38:46.886600824 +0200
+@@ -28,6 +28,7 @@
+ #include <asm/uaccess.h>
+ #include <asm/i387.h>
+ #include <asm/proto.h>
++#include <asm/ia32_unistd.h>
+
+ /* #define DEBUG_SIG 1 */
+
+
+- --
+BOFH excuse #214:
+
+Fluorescent lights are generating negative ions. If turning them off
+doesn't work, take them out and put tin foil on the ends.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCliWa+A7rjkF8z0wRApzdAJ9q8+nb6U5uMwYQMSqYULnmEg8QPwCfT7C3
+4Zv2kIryVCyyU3OZIj/lszY=
+=Q8xL
+-----END PGP SIGNATURE-----

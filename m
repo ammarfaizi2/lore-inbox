@@ -1,42 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVEZQDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbVEZQMC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261586AbVEZQDK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 12:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVEZQDK
+	id S261593AbVEZQMC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 12:12:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbVEZQMC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 12:03:10 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:18865 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261586AbVEZQDH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 12:03:07 -0400
-Subject: Re: ide-cd problem in 2.6.12-rc5 + todays snapshot
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Meelis Roos <mroos@linux.ee>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jens Axboe <axboe@suse.de>
-In-Reply-To: <Pine.SOC.4.61.0505261816190.28439@math.ut.ee>
-References: <Pine.SOC.4.61.0505261816190.28439@math.ut.ee>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1117123245.5743.155.camel@localhost.localdomain>
+	Thu, 26 May 2005 12:12:02 -0400
+Received: from animx.eu.org ([216.98.75.249]:21927 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S261593AbVEZQL7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 12:11:59 -0400
+Date: Thu, 26 May 2005 12:09:07 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12-rc2: Compose key doesn't work
+Message-ID: <20050526160907.GA9672@animx.eu.org>
+Mail-Followup-To: Vojtech Pavlik <vojtech@suse.cz>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <4258F74D.2010905@keyaccess.nl> <20050414100454.GC3958@nd47.coderock.org> <20050526122315.GA3880@nd47.coderock.org> <20050526154509.GB9443@animx.eu.org> <20050526155344.GB3694@ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Thu, 26 May 2005 17:00:54 +0100
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050526155344.GB3694@ucw.cz>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Iau, 2005-05-26 at 16:31, Meelis Roos wrote:
-> Background: I have a Sony CDU5211 CD drive with Intel D815EEA2 mainboard 
-> (ICH2 IDE in 815 chipset). Since 2.4.21 timeframe IDE DMA for this CD 
-> drive is broken (see my post 
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0410.3/0480.html). This 
-> happens on at least 2 identical machines. This is the first problem 
-> (that I have learned to live with).
-> 
-> Now, since ide-cd dma is broken, the first access to cd always gets DMA 
-> timeout and turns off DMA, then it works. I have hddtemp installed and 
-> it probes for drives on boot. In 2.6.12 (and I think I tested pristine 
-> 2.6.12-rc5 too) the cd works as before - dma timeout+disable on first 
-> access (by hddtemp).
+Vojtech Pavlik wrote:
+> On Thu, May 26, 2005 at 11:45:09AM -0400, Wakko Warner wrote:
+> > I also have a problem with 2.6.12-rcX and ps/2 keyboard.  I would say it's
+> > the same key we're talking about.  It does not work at the console nor in X
+> > (showkey at the console does not see it).  It works with a USB keyboard.  My
+> > "compose" is mapped to the menu key beside the right windows key.
+> > 
+> > I do wish they'd fix it, because I use this key (kinda like another ALT key)
+> > more than my compose key (again, the menu key, not the right win logo key)
+>  
+> This patch should fix it.
 
-Ok that one is very different to the end of media bugs. 
+Thanks, I'll try it out and let you know.
+
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

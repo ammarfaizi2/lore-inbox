@@ -1,85 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbVEZWmW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261841AbVEZWqV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbVEZWmW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 18:42:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbVEZWkd
+	id S261841AbVEZWqV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 18:46:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261716AbVEZWoG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 18:40:33 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:28177 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261845AbVEZWgH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 18:36:07 -0400
-Message-Id: <200505262230.j4QMUZDf014704@ccure.user-mode-linux.org>
+	Thu, 26 May 2005 18:44:06 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:41453 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S261841AbVEZWkq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 18:40:46 -0400
+Message-Id: <200505262230.j4QMUSbu014688@ccure.user-mode-linux.org>
 X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
 To: akpm@osdl.org, torvalds@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 7/7] UML - Remove unused code
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
+       "Paolo 'Blaisorblade' Giarrusso" <blaisorblade@yahoo.it>
+Subject: [PATCH 4/7] UML - Remove 2_5compat.h
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 26 May 2005 18:30:34 -0400
+Date: Thu, 26 May 2005 18:30:28 -0400
 From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This removes two now unused files and a couple of unused functions.  The files
-were removed by quilt add $file; rm $file; quilt refresh.  If that doesn't
-do it, I don't know what to do :-)
+Remove old useless header that was used in Ye Olde Times during 2.4->2.5
+porting to abstract differences. It's definitions are no more used anyway, so
+let's finally kill it.
 
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Index: linux-2.6.11/arch/um/kernel/initrd_kern.c
+Index: linux-2.6.11/arch/um/drivers/ssl.c
 ===================================================================
---- linux-2.6.11.orig/arch/um/kernel/initrd_kern.c	2005-05-26 17:15:14.000000000 -0400
-+++ linux-2.6.11/arch/um/kernel/initrd_kern.c	2003-09-15 09:40:47.000000000 -0400
-@@ -1,59 +0,0 @@
--/*
-- * Copyright (C) 2000, 2001, 2002 Jeff Dike (jdike@karaya.com)
+--- linux-2.6.11.orig/arch/um/drivers/ssl.c	2005-05-26 17:16:45.000000000 -0400
++++ linux-2.6.11/arch/um/drivers/ssl.c	2005-05-26 17:17:01.000000000 -0400
+@@ -22,7 +22,6 @@
+ #include "init.h"
+ #include "irq_user.h"
+ #include "mconsole_kern.h"
+-#include "2_5compat.h"
+ 
+ static int ssl_version = 1;
+ 
+Index: linux-2.6.11/arch/um/drivers/stdio_console.c
+===================================================================
+--- linux-2.6.11.orig/arch/um/drivers/stdio_console.c	2005-05-26 17:16:45.000000000 -0400
++++ linux-2.6.11/arch/um/drivers/stdio_console.c	2005-05-26 17:17:01.000000000 -0400
+@@ -28,7 +28,6 @@
+ #include "irq_user.h"
+ #include "mconsole_kern.h"
+ #include "init.h"
+-#include "2_5compat.h"
+ 
+ #define MAX_TTYS (16)
+ 
+Index: linux-2.6.11/arch/um/drivers/ubd_kern.c
+===================================================================
+--- linux-2.6.11.orig/arch/um/drivers/ubd_kern.c	2005-05-26 17:16:48.000000000 -0400
++++ linux-2.6.11/arch/um/drivers/ubd_kern.c	2005-05-26 17:17:01.000000000 -0400
+@@ -49,7 +49,6 @@
+ #include "irq_user.h"
+ #include "irq_kern.h"
+ #include "ubd_user.h"
+-#include "2_5compat.h"
+ #include "os.h"
+ #include "mem.h"
+ #include "mem_kern.h"
+Index: linux-2.6.11/arch/um/include/2_5compat.h
+===================================================================
+--- linux-2.6.11.orig/arch/um/include/2_5compat.h	2005-05-26 17:16:45.000000000 -0400
++++ linux-2.6.11/arch/um/include/2_5compat.h	2003-09-15 09:40:47.000000000 -0400
+@@ -1,24 +0,0 @@
+-/* 
+- * Copyright (C) 2001 Jeff Dike (jdike@karaya.com)
 - * Licensed under the GPL
 - */
 -
--#include "linux/init.h"
--#include "linux/bootmem.h"
--#include "linux/initrd.h"
--#include "asm/types.h"
--#include "user_util.h"
--#include "kern_util.h"
--#include "initrd.h"
--#include "init.h"
--#include "os.h"
+-#ifndef __2_5_COMPAT_H__
+-#define __2_5_COMPAT_H__
 -
--/* Changed by uml_initrd_setup, which is a setup */
--static char *initrd __initdata = NULL;
+-#define INIT_HARDSECT(arr, maj, sizes)
 -
--static int __init read_initrd(void)
--{
--	void *area;
--	long long size;
--	int err;
+-#define SET_PRI(task) do ; while(0)
 -
--	if(initrd == NULL) return 0;
--	err = os_file_size(initrd, &size);
--	if(err) return 0;
--	area = alloc_bootmem(size);
--	if(area == NULL) return 0;
--	if(load_initrd(initrd, area, size) == -1) return 0;
--	initrd_start = (unsigned long) area;
--	initrd_end = initrd_start + size;
--	return 0;
--}
--
--__uml_postsetup(read_initrd);
--
--static int __init uml_initrd_setup(char *line, int *add)
--{
--	initrd = line;
--	return 0;
--}
--
--__uml_setup("initrd=", uml_initrd_setup, 
--"initrd=<initrd image>\n"
--"    This is used to boot UML from an initrd image.  The argument is the\n"
--"    name of the file containing the image.\n\n"
--);
+-#endif
 -
 -/*
 - * Overrides for Emacs so that we follow Linus's tabbing style.
@@ -91,118 +94,60 @@ Index: linux-2.6.11/arch/um/kernel/initrd_kern.c
 - * c-file-style: "linux"
 - * End:
 - */
-Index: linux-2.6.11/arch/um/kernel/initrd_user.c
+Index: linux-2.6.11/arch/um/kernel/exec_kern.c
 ===================================================================
---- linux-2.6.11.orig/arch/um/kernel/initrd_user.c	2005-05-26 17:15:14.000000000 -0400
-+++ linux-2.6.11/arch/um/kernel/initrd_user.c	2003-09-15 09:40:47.000000000 -0400
-@@ -1,46 +0,0 @@
--/*
-- * Copyright (C) 2000, 2001 Jeff Dike (jdike@karaya.com)
-- * Licensed under the GPL
-- */
--
--#include <unistd.h>
--#include <sys/types.h>
--#include <sys/stat.h>
--#include <errno.h>
--
--#include "user_util.h"
--#include "kern_util.h"
--#include "user.h"
--#include "initrd.h"
--#include "os.h"
--
--int load_initrd(char *filename, void *buf, int size)
--{
--	int fd, n;
--
--	fd = os_open_file(filename, of_read(OPENFLAGS()), 0);
--	if(fd < 0){
--		printk("Opening '%s' failed - err = %d\n", filename, -fd);
--		return(-1);
--	}
--	n = os_read_file(fd, buf, size);
--	if(n != size){
--		printk("Read of %d bytes from '%s' failed, err = %d\n", size,
--		       filename, -n);
--		return(-1);
--	}
--
--	os_close_file(fd);
--	return(0);
--}
--
--/*
-- * Overrides for Emacs so that we follow Linus's tabbing style.
-- * Emacs will notice this stuff at the end of the file and automatically
-- * adjust the settings for this buffer only.  This must remain at the end
-- * of the file.
-- * ---------------------------------------------------------------------------
-- * Local variables:
-- * c-file-style: "linux"
-- * End:
-- */
+--- linux-2.6.11.orig/arch/um/kernel/exec_kern.c	2005-05-26 17:16:45.000000000 -0400
++++ linux-2.6.11/arch/um/kernel/exec_kern.c	2005-05-26 17:17:01.000000000 -0400
+@@ -16,7 +16,6 @@
+ #include "kern.h"
+ #include "irq_user.h"
+ #include "tlb.h"
+-#include "2_5compat.h"
+ #include "os.h"
+ #include "time_user.h"
+ #include "choose-mode.h"
 Index: linux-2.6.11/arch/um/kernel/process_kern.c
 ===================================================================
---- linux-2.6.11.orig/arch/um/kernel/process_kern.c	2005-05-26 17:25:35.000000000 -0400
-+++ linux-2.6.11/arch/um/kernel/process_kern.c	2005-05-26 17:30:15.000000000 -0400
-@@ -55,18 +55,6 @@
-  */
- struct cpu_task cpu_tasks[NR_CPUS] = { [0 ... NR_CPUS - 1] = { -1, NULL } };
+--- linux-2.6.11.orig/arch/um/kernel/process_kern.c	2005-05-26 17:16:46.000000000 -0400
++++ linux-2.6.11/arch/um/kernel/process_kern.c	2005-05-26 17:17:01.000000000 -0400
+@@ -44,7 +44,6 @@
+ #include "tlb.h"
+ #include "frame_kern.h"
+ #include "sigcontext.h"
+-#include "2_5compat.h"
+ #include "os.h"
+ #include "mode.h"
+ #include "mode_kern.h"
+@@ -192,7 +191,6 @@ void default_idle(void)
  
--struct task_struct *get_task(int pid, int require)
--{
--        struct task_struct *ret;
--
--        read_lock(&tasklist_lock);
--	ret = find_task_by_pid(pid);
--        read_unlock(&tasklist_lock);
--
--        if(require && (ret == NULL)) panic("get_task couldn't find a task\n");
--        return(ret);
--}
--
- int external_pid(void *t)
- {
- 	struct task_struct *task = t ? t : current;
-@@ -213,11 +201,6 @@ int page_size(void)
- 	return(PAGE_SIZE);
- }
+ 	while(1){
+ 		/* endless idle loop with no priority at all */
+-		SET_PRI(current);
  
--unsigned long page_mask(void)
--{
--	return(PAGE_MASK);
--}
--
- void *um_virt_to_phys(struct task_struct *task, unsigned long addr, 
- 		      pte_t *pte_out)
- {
-@@ -345,11 +328,6 @@ char *uml_strdup(char *string)
- 	return kstrdup(string, GFP_KERNEL);
- }
+ 		/*
+ 		 * although we are an idle CPU, we do not want to
+Index: linux-2.6.11/arch/um/kernel/trap_kern.c
+===================================================================
+--- linux-2.6.11.orig/arch/um/kernel/trap_kern.c	2005-05-26 17:16:47.000000000 -0400
++++ linux-2.6.11/arch/um/kernel/trap_kern.c	2005-05-26 17:17:01.000000000 -0400
+@@ -23,7 +23,6 @@
+ #include "kern.h"
+ #include "chan_kern.h"
+ #include "mconsole_kern.h"
+-#include "2_5compat.h"
+ #include "mem.h"
+ #include "mem_kern.h"
  
--void *get_init_task(void)
--{
--	return(&init_thread_union.thread_info.task);
--}
--
- int copy_to_user_proc(void __user *to, void *from, int size)
- {
- 	return(copy_to_user(to, from, size));
-@@ -476,15 +454,3 @@ unsigned long arch_align_stack(unsigned 
- 	return sp & ~0xf;
- }
- #endif
--
--
--/*
-- * Overrides for Emacs so that we follow Linus's tabbing style.
-- * Emacs will notice this stuff at the end of the file and automatically
-- * adjust the settings for this buffer only.  This must remain at the end
-- * of the file.
-- * ---------------------------------------------------------------------------
-- * Local variables:
-- * c-file-style: "linux"
-- * End:
-- */
+Index: linux-2.6.11/fs/hostfs/hostfs_kern.c
+===================================================================
+--- linux-2.6.11.orig/fs/hostfs/hostfs_kern.c	2005-05-26 17:16:48.000000000 -0400
++++ linux-2.6.11/fs/hostfs/hostfs_kern.c	2005-05-26 17:17:01.000000000 -0400
+@@ -23,7 +23,6 @@
+ #include "kern_util.h"
+ #include "kern.h"
+ #include "user_util.h"
+-#include "2_5compat.h"
+ #include "init.h"
+ 
+ struct hostfs_inode_info {
 

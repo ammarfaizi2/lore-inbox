@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVEZSSl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVEZST7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbVEZSSl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 14:18:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVEZSSl
+	id S261678AbVEZST7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 14:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261682AbVEZST7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 14:18:41 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:52415 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S261681AbVEZSSY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 14:18:24 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 26 May 2005 14:19:59 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:7121 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261678AbVEZSTb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 14:19:31 -0400
+Subject: Re: 2.6.11 timeval_to_jiffies() wrong for ms resolution timers
+From: Lee Revell <rlrevell@joe-job.com>
+To: linux-os@analogic.com
+Cc: Olivier Croquette <ocroquette@free.fr>,
+       LKML <linux-kernel@vger.kernel.org>, george@mvista.com
+In-Reply-To: <Pine.LNX.4.61.0505261350480.7195@chaos.analogic.com>
+References: <21FFE0795C0F654FAD783094A9AE1DFC07AFE7C1@cof110avexu4.global.avaya.com>
+	 <4294D9C6.3060501@mvista.com> <4296019B.8070006@free.fr>
+	 <Pine.LNX.4.61.0505261350480.7195@chaos.analogic.com>
+Content-Type: text/plain
+Date: Thu, 26 May 2005 14:19:27 -0400
+Message-Id: <1117131568.5477.12.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.1 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17046.4833.536323.191838@napali.hpl.hp.com>
-Date: Thu, 26 May 2005 11:18:09 -0700
-To: Rusty Lynch <rusty.lynch@intel.com>
-Cc: akpm@osdl.org, Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-       linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-Subject: Re: [patch] Kprobes ia64 qp fix
-In-Reply-To: <200505261751.j4QHpjei009076@linux.jf.intel.com>
-References: <200505261751.j4QHpjei009076@linux.jf.intel.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Thu, 26 May 2005 10:51:45 -0700, Rusty Lynch <rusty.lynch@intel.com> said:
+On Thu, 2005-05-26 at 14:10 -0400, Richard B. Johnson wrote:
+> The time for a sleeping (waiting) task to get the CPU is much
+> greater than the jitter. Once in the ISR, some wake-up call
+> is "scheduled" and the interrupt returns. A CPU hog may have
+> been using the CPU when the interrupt occurred. It will continue
+> to use the CPU until its time-slot (quantum) has expired. This
+> could be a whole millisecond if HZ is 1000, 10 milliseconds if
+> 100. It's only then that your sleeping task gets awakened
+> by the interrupting event.
+> 
+> So, accurate waking up is not guaranteed on any multi-user,
+> multitasking system because you don't know what a user has
+> been doing with the CPU. On a dedicated machine, one can
+> have tasks that are most always sleeping or waiting for
+> I/O so, the latency can come way down. However, signaling
+> a task, based upon some time will never be very accurate
+> anywhere.
 
-  Rusty> The following patch is for the 2.6.12-rc5-mm1 + my previous
-  Rusty> "Kprobes ia64 cleanup" patch that fixes a bug where a kprobe still 
-  Rusty> fires when the instruction is predicated off.  So given the p6=0, 
-  Rusty> and we have an instruction like:
+Not quite, if your sleeping task has higher priority than the CPU hog it
+will preempt the CPU hog immediately on return from the interrupt.
+Unless you've disabled preemption of course, which would be stupid in
+this case.
 
-  Rusty> (p6) move loc1=0
+Lee
 
-  Rusty> we should not be triggering the kprobe.  This is handled by
-  Rusty> carrying over the qp section of the original instruction into
-  Rusty> the break instruction.
-
-What about:
-
-	(p6) cmp.eq.unc p9,p10=rX,rY
-
-would the code handle that right?  Similary, you may want to check for
-the correct handling of instructions that cannot be predicated (such
-as "cover").
-
-	--david

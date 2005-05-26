@@ -1,53 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVEZRUX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbVEZRZO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261631AbVEZRUX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 13:20:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbVEZRRf
+	id S261665AbVEZRZO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 13:25:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVEZRZN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 13:17:35 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:44495 "EHLO
-	nelson.home.kernel.dk") by vger.kernel.org with ESMTP
-	id S261649AbVEZRNa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 13:13:30 -0400
-Date: Thu, 26 May 2005 19:14:26 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Meelis Roos <mroos@linux.ee>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: ide-cd problem in 2.6.12-rc5 + todays snapshot
-Message-ID: <20050526171425.GX1419@suse.de>
-References: <Pine.SOC.4.61.0505261816190.28439@math.ut.ee>
+	Thu, 26 May 2005 13:25:13 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:40113 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261655AbVEZRYX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 13:24:23 -0400
+Subject: Re: CSB5 IDE does not fully support native mode??
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Bjorn Helgaas <bjorn.helgaas@hp.com>
+Cc: evt@texelsoft.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-ide@vger.kernel.org
+In-Reply-To: <200505261055.38137.bjorn.helgaas@hp.com>
+References: <200505242026.DJT32107@ms3.netsolmail.com>
+	 <1117117463.5743.149.camel@localhost.localdomain>
+	 <200505261055.38137.bjorn.helgaas@hp.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1117128122.5743.158.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.SOC.4.61.0505261816190.28439@math.ut.ee>
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Thu, 26 May 2005 18:22:03 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 26 2005, Meelis Roos wrote:
-> Background: I have a Sony CDU5211 CD drive with Intel D815EEA2 mainboard 
-> (ICH2 IDE in 815 chipset). Since 2.4.21 timeframe IDE DMA for this CD 
-> drive is broken (see my post 
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0410.3/0480.html). This 
-> happens on at least 2 identical machines. This is the first problem 
-> (that I have learned to live with).
-> 
-> Now, since ide-cd dma is broken, the first access to cd always gets DMA 
-> timeout and turns off DMA, then it works. I have hddtemp installed and 
-> it probes for drives on boot. In 2.6.12 (and I think I tested pristine 
-> 2.6.12-rc5 too) the cd works as before - dma timeout+disable on first 
-> access (by hddtemp).
-> 
-> Now, in 2.6.12-rc5 + todays git snapshot, it does not work any more. I 
-> suspect the DMA alignment change.
+On Iau, 2005-05-26 at 17:55, Bjorn Helgaas wrote:
+> This has been niggling in my mind for a while -- in legacy mode,
+> the device should use IRQ 14/15.  But I think we still call
+> pci_enable_device(), which sets up IRQ routing according to
+> the usual PCI rules.  Should we be using pci_enable_device()
+> at all in legacy mode?
 
-It must be, thanks for reporting this so quickly. Linus, can you exclude
-that patch again? Rather miserably slow burning for some, than broken
-hardware for others.
-
-Seems we do need finer granularity setting of alignment/length
-restrictions.
-
--- 
-Jens Axboe
+For all the other enables yes. The IRQ is an interesting case and I'd
+have to look into the newer code to even guess - Bartlomiej has probably
+has a much better idea as maintainer.
 

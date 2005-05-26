@@ -1,68 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVEZI2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVEZIc3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbVEZI2t (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 04:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVEZI2s
+	id S261285AbVEZIc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 04:32:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbVEZI33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 04:28:48 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:39604 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261278AbVEZI1i (ORCPT
+	Thu, 26 May 2005 04:29:29 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:61364 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261279AbVEZI2K (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 04:27:38 -0400
-Date: Thu, 26 May 2005 10:27:25 +0200 (MEST)
-Message-Id: <200505260827.j4Q8RPDB011645@alkaid.it.uu.se>
+	Thu, 26 May 2005 04:28:10 -0400
+Date: Thu, 26 May 2005 10:27:58 +0200 (MEST)
+Message-Id: <200505260827.j4Q8Rw0G011653@alkaid.it.uu.se>
 From: Mikael Pettersson <mikpe@csd.uu.se>
 To: akpm@osdl.org
-Subject: [PATCH 2.6.12-rc5-mm1 2/4] perfctr: seqlocks for mmap:ed state: x86
+Subject: [PATCH 2.6.12-rc5-mm1 3/4] perfctr: seqlocks for mmap:ed state: ppc64
 Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-perfctr seqlocks 2/4: x86 changes
+perfctr seqlocks 3/4: ppc64 changes
 - use write_perfseq_begin/end in perfctr_cpu_suspend/resume/sample
   to indicate that the state has changed
-- in mmap:ed state, redefine filler field as the sequence number
+- in mmap:ed state, redefine samplecnt field as the sequence number
 
 Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
 
- drivers/perfctr/x86.c      |    7 ++++++-
- include/asm-i386/perfctr.h |    5 ++++-
- 2 files changed, 10 insertions(+), 2 deletions(-)
+ drivers/perfctr/ppc64.c     |   10 ++++++++--
+ include/asm-ppc64/perfctr.h |   10 ++++------
+ 2 files changed, 12 insertions(+), 8 deletions(-)
 
-diff -rupN linux-2.6.12-rc5-mm1/drivers/perfctr/x86.c linux-2.6.12-rc5-mm1.perfctr-seqlock-x86/drivers/perfctr/x86.c
---- linux-2.6.12-rc5-mm1/drivers/perfctr/x86.c	2005-05-26 00:24:22.000000000 +0200
-+++ linux-2.6.12-rc5-mm1.perfctr-seqlock-x86/drivers/perfctr/x86.c	2005-05-26 02:57:55.000000000 +0200
-@@ -1162,6 +1162,7 @@ void perfctr_cpu_suspend(struct perfctr_
- 	unsigned int i, cstatus, nractrs;
+diff -rupN linux-2.6.12-rc5-mm1/drivers/perfctr/ppc64.c linux-2.6.12-rc5-mm1.perfctr-seqlock-ppc64/drivers/perfctr/ppc64.c
+--- linux-2.6.12-rc5-mm1/drivers/perfctr/ppc64.c	2005-05-26 00:24:22.000000000 +0200
++++ linux-2.6.12-rc5-mm1.perfctr-seqlock-ppc64/drivers/perfctr/ppc64.c	2005-05-26 03:01:37.000000000 +0200
+@@ -537,6 +537,8 @@ void perfctr_cpu_suspend(struct perfctr_
+ 	unsigned int i, cstatus;
  	struct perfctr_low_ctrs now;
  
 +	write_perfseq_begin(&state->user.sequence);
- 	if (perfctr_cstatus_has_ictrs(state->user.cstatus))
- 	    perfctr_cpu_isuspend(state);
- 	perfctr_cpu_read_counters(state, &now);
-@@ -1172,10 +1173,12 @@ void perfctr_cpu_suspend(struct perfctr_
- 	for(i = 0; i < nractrs; ++i)
- 		state->user.pmc[i].sum += now.pmc[i] - state->user.pmc[i].start;
- 	/* perfctr_cpu_disable_rdpmc(); */	/* not for x86 */
++
+ 	/* quiesce the counters */
+ 	mtspr(SPRN_MMCR0, MMCR0_FC);
+ 	get_cpu_cache()->ppc64_mmcr0 = MMCR0_FC;
+@@ -551,6 +553,8 @@ void perfctr_cpu_suspend(struct perfctr_
+ 
+ 	for (i = 0; i < perfctr_cstatus_nractrs(cstatus); ++i)
+ 		state->user.pmc[i].sum += (u32)(now.pmc[i]-state->user.pmc[i].start);
++
 +	write_perfseq_end(&state->user.sequence);
  }
  
  void perfctr_cpu_resume(struct perfctr_cpu_state *state)
- {
+@@ -558,6 +562,7 @@ void perfctr_cpu_resume(struct perfctr_c
+ 	struct perfctr_low_ctrs now;
+ 	unsigned int i, cstatus;
+ 
 +	write_perfseq_begin(&state->user.sequence);
  	if (perfctr_cstatus_has_ictrs(state->user.cstatus))
  	    perfctr_cpu_iresume(state);
- 	/* perfctr_cpu_enable_rdpmc(); */	/* not for x86 or global-mode */
-@@ -1192,7 +1195,7 @@ void perfctr_cpu_resume(struct perfctr_c
- 		for(i = 0; i < nrctrs; ++i)
- 			state->user.pmc[i].start = now.pmc[i];
- 	}
--	/* XXX: if (SMP && start.tsc == now.tsc) ++now.tsc; */
+ 	perfctr_cpu_write_control(state);
+@@ -570,7 +575,7 @@ void perfctr_cpu_resume(struct perfctr_c
+ 	for (i = 0; i < perfctr_cstatus_nractrs(cstatus); ++i)
+ 		state->user.pmc[i].start = now.pmc[i];
+ 
+-	++state->user.samplecnt;
 +	write_perfseq_end(&state->user.sequence);
  }
  
  void perfctr_cpu_sample(struct perfctr_cpu_state *state)
-@@ -1200,6 +1203,7 @@ void perfctr_cpu_sample(struct perfctr_c
+@@ -578,6 +583,7 @@ void perfctr_cpu_sample(struct perfctr_c
  	unsigned int i, cstatus, nractrs;
  	struct perfctr_low_ctrs now;
  
@@ -70,22 +75,28 @@ diff -rupN linux-2.6.12-rc5-mm1/drivers/perfctr/x86.c linux-2.6.12-rc5-mm1.perfc
  	perfctr_cpu_read_counters(state, &now);
  	cstatus = state->user.cstatus;
  	if (perfctr_cstatus_has_tsc(cstatus)) {
-@@ -1211,6 +1215,7 @@ void perfctr_cpu_sample(struct perfctr_c
- 		state->user.pmc[i].sum += now.pmc[i] - state->user.pmc[i].start;
+@@ -589,7 +595,7 @@ void perfctr_cpu_sample(struct perfctr_c
+ 		state->user.pmc[i].sum += (u32)(now.pmc[i]-state->user.pmc[i].start);
  		state->user.pmc[i].start = now.pmc[i];
  	}
+-	++state->user.samplecnt;
 +	write_perfseq_end(&state->user.sequence);
  }
  
- static void (*clear_counters)(void);
-diff -rupN linux-2.6.12-rc5-mm1/include/asm-i386/perfctr.h linux-2.6.12-rc5-mm1.perfctr-seqlock-x86/include/asm-i386/perfctr.h
---- linux-2.6.12-rc5-mm1/include/asm-i386/perfctr.h	2005-05-26 00:24:23.000000000 +0200
-+++ linux-2.6.12-rc5-mm1.perfctr-seqlock-x86/include/asm-i386/perfctr.h	2005-05-26 02:57:55.000000000 +0200
-@@ -21,7 +21,10 @@ struct perfctr_cpu_control_header {
+ static void perfctr_cpu_clear_counters(void)
+diff -rupN linux-2.6.12-rc5-mm1/include/asm-ppc64/perfctr.h linux-2.6.12-rc5-mm1.perfctr-seqlock-ppc64/include/asm-ppc64/perfctr.h
+--- linux-2.6.12-rc5-mm1/include/asm-ppc64/perfctr.h	2005-05-26 00:24:23.000000000 +0200
++++ linux-2.6.12-rc5-mm1.perfctr-seqlock-ppc64/include/asm-ppc64/perfctr.h	2005-05-26 03:01:37.000000000 +0200
+@@ -22,12 +22,10 @@ struct perfctr_cpu_control_header {
  
  struct perfctr_cpu_state_user {
  	__u32 cstatus;
--	__u32 _filler;
+-	/* 'samplecnt' is incremented every time the 'start'
+-	   fields have been updated by a sampling operation.
+-	   Unfortunately the PPC timebase (tsc_start) has too
+-	   low frequency for it to be a reliable context-switch
+-	   indicator for user-space. */
+-	__u32 samplecnt;
 +	/* This is a sequence counter to ensure atomic reads by
 +	 * userspace.  The mechanism is identical to that used for
 +	 * seqcount_t in include/linux/seqlock.h. */

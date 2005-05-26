@@ -1,73 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbVEZTco@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbVEZTcx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261711AbVEZTco (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 15:32:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVEZTcn
+	id S261710AbVEZTcx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 15:32:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261713AbVEZTcx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 15:32:43 -0400
-Received: from colin.muc.de ([193.149.48.1]:35600 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S261711AbVEZTcc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 15:32:32 -0400
-Date: 26 May 2005 21:32:30 +0200
-Date: Thu, 26 May 2005 21:32:30 +0200
-From: Andi Kleen <ak@muc.de>
-To: Sven-Thorsten Dietrich <sdietrich@mvista.com>
-Cc: Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, bhuey@lnxw.com,
-       nickpiggin@yahoo.com.au, hch@infradead.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-Message-ID: <20050526193230.GY86087@muc.de>
-References: <20050525001019.GA18048@nietzsche.lynx.com> <1116981913.19926.58.camel@dhcp153.mvista.com> <20050525005942.GA24893@nietzsche.lynx.com> <1116982977.19926.63.camel@dhcp153.mvista.com> <20050524184351.47d1a147.akpm@osdl.org> <4293DCB1.8030904@mvista.com> <20050524192029.2ef75b89.akpm@osdl.org> <20050525063306.GC5164@elte.hu> <m1br6zxm1b.fsf@muc.de> <1117044019.5840.32.camel@sdietrich-xp.vilm.net>
+	Thu, 26 May 2005 15:32:53 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:44249 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261710AbVEZTch (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 15:32:37 -0400
+Subject: Re: 2.6.11 timeval_to_jiffies() wrong for ms resolution timers
+From: Lee Revell <rlrevell@joe-job.com>
+To: george@mvista.com
+Cc: linux-os@analogic.com, Olivier Croquette <ocroquette@free.fr>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <42962272.9060506@mvista.com>
+References: <21FFE0795C0F654FAD783094A9AE1DFC07AFE7C1@cof110avexu4.global.avaya.com>
+	 <4294D9C6.3060501@mvista.com> <4296019B.8070006@free.fr>
+	 <Pine.LNX.4.61.0505261350480.7195@chaos.analogic.com>
+	 <1117131568.5477.12.camel@mindpipe>  <42962272.9060506@mvista.com>
+Content-Type: text/plain
+Date: Thu, 26 May 2005 15:32:36 -0400
+Message-Id: <1117135956.5477.26.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1117044019.5840.32.camel@sdietrich-xp.vilm.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 25, 2005 at 11:00:19AM -0700, Sven-Thorsten Dietrich wrote:
-> 
-> > I have no reason to believe this is any different with all
-> > this RT testing. 
+On Thu, 2005-05-26 at 12:24 -0700, George Anzinger wrote:
+> Lee Revell wrote:
+> > On Thu, 2005-05-26 at 14:10 -0400, Richard B. Johnson wrote:
 > > 
+> >>The time for a sleeping (waiting) task to get the CPU is much
+> >>greater than the jitter. Once in the ISR, some wake-up call
+> >>is "scheduled" and the interrupt returns. A CPU hog may have
+> >>been using the CPU when the interrupt occurred. It will continue
+> >>to use the CPU until its time-slot (quantum) has expired. This
+> >>could be a whole millisecond if HZ is 1000, 10 milliseconds if
+> >>100. It's only then that your sleeping task gets awakened
+> >>by the interrupting event.
+> >>
+> >>So, accurate waking up is not guaranteed on any multi-user,
+> >>multitasking system because you don't know what a user has
+> >>been doing with the CPU. On a dedicated machine, one can
+> >>have tasks that are most always sleeping or waiting for
+> >>I/O so, the latency can come way down. However, signaling
+> >>a task, based upon some time will never be very accurate
+> >>anywhere.
+> > 
+> > 
+> > Not quite, if your sleeping task has higher priority than the CPU hog it
+> > will preempt the CPU hog immediately on return from the interrupt.
+> > Unless you've disabled preemption of course, which would be stupid in
+> > this case.
 > 
-> And that's why we have been testing and benchmarking, to
-> produce number sets that supersede faith, belief, and 
-> conjecture. But ultimately, you can trust your senses,
-> and I think the audio / video test would allow your eyes 
-> to see, and your ears to hear the difference.
-
-I understand that you have some real improvements that are measurable.
-What I objected to was the claim that it actually made any difference
-to interactive users.
-
+> And even then the task would need to be in the kernel and would be preempted 
+> when it exits the kernel.
 > 
-> > -Andi (who also would prefer to not have interrupt threads, locks like
-> > a maze and related horribilities in the mainline kernel) 
-> 
-> I am definitely for breaking out an IRQ threads patch,
-> separate from the RT-mutex patches, even if just to
-> allow examination of that code without the clutter.
 
-What I dislike with RT mutexes is that they convert all locks.
-It doesnt make much sense to me to have a complex lock that
-only protects a few lines of code (and a lot of the spinlock
-code is like this). That is just a waste of cycles.
+Right, and normally the sleeping task would be woken up even if it had
+the same static priority as the CPU hog as the scheduler should favor
+event driven proceses.
 
-But I always though we should have a new lock type that is between
-spinlocks and semaphores and is less heavyweight than a semaphore
-(which tends to be quite slow due to its many context switches). Something
-like a spinaphore, although it probably doesnt need full semaphore
-semantics (rarely any code in the kernel uses that anyways). It could
-spin for a short time and then sleep. Then convert some selected
-locks over. e.g. the mm_sem and the i_sem would be primary users of this.
-And maybe some of the heavier spinlocks.
-
-If you drop irq threads then you cannot convert all locks
-anymore or have to add ugly in_interrupt()checks. So any conversion like
-that requires converting locks.
-
--Andi
+Lee
 

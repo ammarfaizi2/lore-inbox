@@ -1,763 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261669AbVEZR6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261668AbVEZR7G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261669AbVEZR6f (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 13:58:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbVEZR6f
+	id S261668AbVEZR7G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 13:59:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbVEZR7G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 13:58:35 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:18405 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261669AbVEZRzF (ORCPT
+	Thu, 26 May 2005 13:59:06 -0400
+Received: from smtprelay02.ispgateway.de ([80.67.18.14]:51432 "EHLO
+	smtprelay02.ispgateway.de") by vger.kernel.org with ESMTP
+	id S261668AbVEZR5e convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 13:55:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:content-transfer-encoding:in-reply-to:user-agent:from;
-        b=aWtSzmnIEvsixOZLdumVh1FAA6SEe7+f6qPDJwj2p2bLJVB8DepPHqACHzliSntWIgijmArdY7tdZR3F00PfORV/Rp++c1WY99Z45luOssCAv5pSP2wzyquXgIADm5GWXNTQvzH7o+zLY/ndQz/LOcsAY6fjBfkYkVYGbt/oqKw=
-Date: Thu, 26 May 2005 19:35:18 +0200
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: dino@in.ibm.com, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
-Message-ID: <20050526173518.GA9132@gmail.com>
-References: <20050517192636.GB9121@gmail.com> <1116359432.4989.48.camel@mulgrave> <20050517195650.GC9121@gmail.com> <1116363971.4989.51.camel@mulgrave> <20050521232220.GD28654@gmail.com> <1116770040.5002.13.camel@mulgrave> <20050524153930.GA10911@gmail.com> <1117113563.4967.17.camel@mulgrave> <20050526143516.GA9593@gmail.com> <1117118766.4967.22.camel@mulgrave>
+	Thu, 26 May 2005 13:57:34 -0400
+Date: Thu, 26 May 2005 19:57:33 +0200
+From: Florian Engelhardt <flo@dotbox.org>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.12-rc5-mm1 OOPS
+Message-ID: <20050526195733.41e54ab6@discovery.hal.lan>
+X-Mailer: Sylpheed-Claws 1.9.9 (GTK+ 2.6.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1117118766.4967.22.camel@mulgrave>
-User-Agent: Mutt/1.5.6i
-From: =?iso-8859-1?Q?Gr=E9goire?= Favre <gregoire.favre@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 26, 2005 at 10:46:06AM -0400, James Bottomley wrote:
-> On Thu, 2005-05-26 at 16:35 +0200, Grégoire Favre wrote:
-> > Under 2.6.12-rc2 I haven't this file, what the equivalent ?
-> 
-> It should be there under 2.6.12-rc5
+Hello,
+
+i got these error, leading to an unstable system, which freezed after i
+typed "shutdown -r now":
+
+Unable to handle kernel paging request at virtual address b7997000
+ printing eip:
+c03655c2
+*pde = 32293067
+*pte = 3ce52025
+Oops: 0003 [#1]
+PREEMPT 
+Modules linked in: nvidia
+CPU:    0
+EIP:    0060:[<c03655c2>]    Tainted: P      VLI
+EFLAGS: 00010206   (2.6.12-rc5-mm1)
+EIP is at videobuf_vm_close+0x22/0xe0
+eax: 464c457e   ebx: f5546000   ecx: f2f0b4b8   edx: f2f0b330
+esi: 00000000   edi: b7997000   ebp: f740b280   esp: f5547f24
+ds: 007b   es: 007b   ss: 0068
+Process tvtime (pid: 15952, threadinfo=f5546000 task=f74bc0b0)
+Stack: b78bf000 b7997000 f2f0b388 f5547f5c f5546000 f5546000 f25d19e0
+f2f0b330 c015191c f2f0b330 f2f0b358 f752f548 00000000 f740b280 b78bf000
+c01533af f2f0b330 f2f0b330 b7997000 f2f0b330 c01537cf f740b280 f2f0b330
+f2f0b490 Call Trace:
+ [<c015191c>] remove_vm_struct+0x8c/0xa0
+ [<c01533af>] unmap_vma_list+0x1f/0x30
+ [<c01537cf>] do_munmap+0x11f/0x180
+ [<c0153874>] sys_munmap+0x44/0x70
+ [<c01032eb>] sysenter_past_esp+0x54/0x75
+Code: c4 14 5b c3 90 8d 74 26 00 57 56 53 83 ec 14 83 3d f4 f4 62 c0 01
+8b 54 24 24 8b 7a 50 8b 77 0c 0f 8f 93 00 00 00 8b 07 48 85 c0 <89> 07
+0f 85 7f 00 00 00 a1 f4 f4 62 c0 85 c0 7e 14 89 74 24 08 <1>Unable to
+handle kernel paging request at virtual address 6fedd468 printing eip:
+c03f099a *pde = 00000000
+Oops: 0002 [#2]
+PREEMPT
+Modules linked in: nvidia
+CPU:    0
+EIP:    0060:[<c03f099a>]    Tainted: P      VLI
+EFLAGS: 00010286   (2.6.12-rc5-mm1)
+EIP is at snd_pcm_mmap_data_close+0xa/0x20
+eax: 6fedd3c4   ebx: f0dae000   ecx: f26dfcf8   edx: c03f0990
+esi: e2bc44e0   edi: f26df960   ebp: f7b13040   esp: f0daff44
+ds: 007b   es: 007b   ss: 0068
+Process beep-media-play (pid: 6473, threadinfo=f0dae000 task=e21d8a10)
+Stack: c015191c f26df960 f26df988 f769d9d0 00000000 f7b13040 b589b000
+c01533af f26df960 f26df960 b58ab000 f26df960 c01537cf f7b13040 f26df960
+f26df228 b589b000 b58ab000 f26df228 f7b13040 f7b13070 08324848 f0dae000
+c0153874 Call Trace:
+ [<c015191c>] remove_vm_struct+0x8c/0xa0
+ [<c01533af>] unmap_vma_list+0x1f/0x30
+ [<c01537cf>] do_munmap+0x11f/0x180
+ [<c0153874>] sys_munmap+0x44/0x70
+ [<c01032eb>] sysenter_past_esp
++0x54/0x75
+Code: c7 40 44 fc bf 58 c0 89 50 50 8b 42 60 ff 80 a4 00 00 00 31 c0 c3
+8d 74 26 00 8d bc 27 00 00 00 00 8b 44 24 04 8b 40 50 8b 40 60 <ff> 88
+a4 00 00 00 c3 eb 0d 90 90 90 90 90 90 90 90 90 90 90 90
+
+Well, i dont know. where this tvtime error came from, but the error in
+beep-media-player happend right while the programm tried to switch to
+the next song.
+After i saw that beep-media-player was frozen, i didn´t wonder too
+much, couse it´s an unstable version that freezes all day long, but i
+was geting some king of nervous when that "killall beep-media-player
+-9" also freezed. "ps aux" freezed at the line, where i guess it should
+print the beep-media-player line. After that, the only thing left to do
+was to hit the reset button :(
+
+Kind regards
+
+Florian Engelhardt
 
-:-) Well, fine, but I can't boot post 2.6.12-rc2 kernels... Just tried
-2.6.12-rc5 and it ends here :
-
-Bootdata ok (command line is root=/dev/sdc2 parport=auto video=vesafb:mtrr,ywrap,1024x800-16@75 vga=0xF07 console=ttyS0)
-
-Linux version 2.6.12-rc5 (root@gregoire) (gcc version 3.4.3 20041125 (Gentoo Linux 3.4.3-r1, ssp-3.4.3-0, pie-8.7.7)) #1 Thu May 26 16:53:13 CEST 2005
-
-BIOS-provided physical RAM map:
-
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
-
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
-
- BIOS-e820: 00000000000f0000 - 0000000000100000 (reserved)
-
- BIOS-e820: 0000000000100000 - 000000003fff0000 (usable)
-
- BIOS-e820: 000000003fff0000 - 000000003fff8000 (ACPI data)
-
- BIOS-e820: 000000003fff8000 - 0000000040000000 (ACPI NVS)
-
- BIOS-e820: 00000000fec00000 - 00000000fec01000 (reserved)
-
- BIOS-e820: 00000000fee00000 - 00000000fee01000 (reserved)
-
- BIOS-e820: 00000000fff80000 - 0000000100000000 (reserved)
-
-ACPI: PM-Timer IO Port: 0x808
-
-ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
-
-Processor #0 15:12 APIC version 16
-
-ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
-
-IOAPIC[0]: apic_id 2, version 3, address 0xfec00000, GSI 0-23
-
-ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
-
-ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 low level)
-
-Setting APIC routing to flat
-
-Using ACPI (MADT) for SMP configuration information
-
-Allocating PCI resources starting at 40000000 (gap: 40000000:bec00000)
-
-Built 1 zonelists
-
-Kernel command line: root=/dev/sdc2 parport=auto video=vesafb:mtrr,ywrap,1024x800-16@75 vga=0xF07 console=ttyS0
-
-Initializing CPU#0
-
-PID hash table entries: 4096 (order: 12, 131072 bytes)
-
-time.c: Using 3.579545 MHz PM timer.
-
-time.c: Detected 2000.148 MHz processor.
-
-time.c: Using PIT/TSC based timekeeping.
-
-Console: colour VGA+ 80x60
-
-Dentry cache hash table entries: 262144 (order: 9, 2097152 bytes)
-
-Inode-cache hash table entries: 131072 (order: 8, 1048576 bytes)
-
-Memory: 1025304k/1048512k available (3138k kernel code, 22512k reserved, 1306k data, 160k init)
-
-Mount-cache hash table entries: 256
-
-CPU: L1 I Cache: 64K (64 bytes/line), D cache 64K (64 bytes/line)
-
-CPU: L2 Cache: 512K (64 bytes/line)
-
-CPU: AMD Athlon(tm) 64 Processor 3000+ stepping 00
-
-Using local APIC timer interrupts.
-
-Detected 12.500 MHz APIC timer.
-
-testing NMI watchdog ... OK.
-
-NET: Registered protocol family 16
-
-PCI: Using configuration type 1
-
-mtrr: v2.0 (20020519)
-
-ACPI: Subsystem revision 20050309
-
-ACPI: Interpreter enabled
-
-ACPI: Using IOAPIC for interrupt routing
-
-ACPI: PCI Root Bridge [PCI0] (0000:00)
-
-PCI: Probing PCI hardware (bus 00)
-
-PCI: Via IRQ fixup
-
-ACPI: Power Resource [URP1] (off)
-
-ACPI: Power Resource [URP2] (off)
-
-ACPI: Power Resource [FDDP] (off)
-
-ACPI: Power Resource [LPTP] (off)
-
-ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 10 *11 12 14 15)
-
-ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 7 *10 11 12 14 15)
-
-ACPI: PCI Interrupt Link [LNKC] (IRQs 3 4 *5 6 7 10 11 12 14 15)
-
-ACPI: PCI Interrupt Link [LNKD] (IRQs *3 4 5 6 7 10 11 12 14 15)
-
-ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 5 6 7 10 11 12 14 15) *0, disabled.
-
-ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 6 7 10 11 12 14 15) *0, disabled.
-
-ACPI: PCI Interrupt Link [LNKG] (IRQs 3 4 5 6 7 10 11 12 14 15) *0, disabled.
-
-ACPI: PCI Interrupt Link [LNKH] (IRQs 3 4 5 6 7 10 11 12 14 15) *0, disabled.
-
-SCSI subsystem initialized
-
-usbcore: registered new driver usbfs
-
-usbcore: registered new driver hub
-
-PCI: Using ACPI for IRQ routing
-
-PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a report
-
-IA32 emulation $Id: sys_ia32.c,v 1.32 2002/03/24 13:02:28 ak Exp $
-
-NTFS driver 2.1.22 [Flags: R/O].
-
-EFS: 1.0a - http://aeschi.ch.eu.org/efs/
-
-SGI XFS with large block/inode numbers, no debug enabled
-
-Initializing Cryptographic API
-
-ACPI: Power Button (FF) [PWRF]
-
-ACPI: Sleep Button (CM) [SLPB]
-
-Real Time Clock Driver v1.12
-
-Non-volatile memory driver v1.2
-
-serio: i8042 AUX port at 0x60,0x64 irq 12
-
-serio: i8042 KBD port at 0x60,0x64 irq 1
-
-Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing disabled
-
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-
-parport0: PC-style at 0x378 [PCSPP(,...)]
-
-io scheduler noop registered
-
-io scheduler anticipatory registered
-
-io scheduler deadline registered
-
-io scheduler cfq registered
-
-Floppy drive(s): fd0 is 1.44M
-
-FDC 0 is a post-1991 82077
-
-r8169 Gigabit Ethernet driver 2.2LK loaded
-
-ACPI: PCI Interrupt 0000:00:0b.0[A] -> GSI 16 (level, low) -> IRQ 16
-
-r8169: NAPI enabled
-
-eth0: RTL8169 at 0xffffc20000002b00, 00:0c:76:bd:22:23, IRQ 16
-
-Linux video capture interface: v1.00
-
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-
-VP_IDE: IDE controller at PCI slot 0000:00:0f.1
-
-ACPI: PCI Interrupt 0000:00:0f.1[A] -> GSI 20 (level, low) -> IRQ 20
-
-VP_IDE: chipset revision 6
-
-VP_IDE: not 100% native mode: will probe irqs later
-
-VP_IDE: VIA vt8237 (rev 00) IDE UDMA133 controller on pci0000:00:0f.1
-
-    ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:pio
-
-    ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:DMA, hdd:pio
-
-hda: IC35L120AVVA07-0, ATA DISK drive
-
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-
-hdc: SONY DVD RW DRU-500A, ATAPI CD/DVD-ROM drive
-
-hdd: IOMEGA ZIP 250 ATAPI Floppy, ATAPI FLOPPY drive
-
-hdd: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
-
-hdd: set_drive_speed_status: error=0x04 { AbortedCommand }
-
-ide1 at 0x170-0x177,0x376 on irq 15
-
-hda: max request size: 128KiB
-
-hda: 241254720 sectors (123522 MB) w/1863KiB Cache, CHS=65535/16/63, UDMA(100)
-
-hda: cache flushes supported
-
- hda: hda1 hda2 hda3 hda4
-
-hdc: ATAPI 31X DVD-ROM DVD-R CD-R/RW drive, 8192kB Cache, UDMA(33)
-
-Uniform CD-ROM driver Revision: 3.20
-
-ide-floppy driver 0.99.newide
-
-hdd: No disk in drive
-
-hdd: 244736kB, 239/64/32 CHS, 4096 kBps, 512 sector size, 2941 rpm
-
-ACPI: PCI Interrupt 0000:00:05.0[A] -> GSI 16 (level, low) -> IRQ 16
-
-ACPI: PCI Interrupt 0000:00:0a.0[A] -> GSI 17 (level, low) -> IRQ 17
-
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-
-        <Adaptec 29160B Ultra160 SCSI adapter>
-
-        aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
-
-
-
-  Vendor: IBM       Model: DDRS-39130D       Rev: DC1B
-
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-
-scsi0:A:0:0: Tagged Queuing enabled.  Depth 253
-
- target0:0:0: Beginning Domain Validation
-
-WIDTH IS 1
-
-(scsi0:A:0): 6.600MB/s transfers (16bit)
-
- target0:0:0: Domain Validation skipping write tests
-
-(scsi0:A:0): 80.000MB/s transfers (40.000MHz, offset 15, 16bit)
-
- target0:0:0: Ending Domain Validation
-
-  Vendor: SEAGATE   Model: ST336706LW        Rev: 0108
-
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-
-scsi0:A:15:0: Tagged Queuing enabled.  Depth 253
-
- target0:0:15: Beginning Domain Validation
-
-WIDTH IS 1
-
-(scsi0:A:15): 6.600MB/s transfers (16bit)
-
-(scsi0:A:15): 80.000MB/s transfers (40.000MHz, offset 63, 16bit)
-
- target0:0:15: Ending Domain Validation
-
-scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-
-        <Adaptec 2940 Ultra SCSI adapter>
-
-        aic7880: Ultra Single Channel A, SCSI Id=7, 16/253 SCBs
-
-
-
-  Vendor: TOSHIBA   Model: DVD-ROM SD-M1201  Rev: 1R08
-
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-
- target1:0:1: Beginning Domain Validation
-
- target1:0:1: Domain Validation skipping write tests
-
-(scsi1:A:1): 20.000MB/s transfers (20.000MHz, offset 15)
-
-scsi1:0:1:0: Attempting to queue an ABORT message
-
-CDB: 0x12 0x0 0x0 0x0 0x60 0x0
-
-scsi1: At time of recovery, card was not paused
-
->>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
-
-scsi1: Dumping Card State in Data-in phase, at SEQADDR 0x7c
-
-Card was paused
-
-ACCUM = 0x0, SINDEX = 0xb8, DINDEX = 0xa8, ARG_2 = 0x0
-
-HCNT = 0x60 SCBPTR = 0x0
-
-SCSISIGI[0x44] ERROR[0x0] SCSIBUSL[0x0] LASTPHASE[0x40] 
-
-SCSISEQ[0x12] SBLKCTL[0x0] SCSIRATE[0xf] SEQCTL[0x10] 
-
-SEQ_FLAGS[0x20] SSTAT0[0x0] SSTAT1[0x2] SSTAT2[0x0] 
-
-SSTAT3[0x0] SIMODE0[0x0] SIMODE1[0xac] SXFRCTL0[0xa0] 
-
-DFCNTRL[0x38] DFSTATUS[0x40] 
-
-STACK: 0x0 0x162 0x192 0x6e
-
-SCB count = 4
-
-Kernel NEXTQSCB = 3
-
-Card NEXTQSCB = 3
-
-QINFIFO entries: 
-
-Waiting Queue entries: 
-
-Disconnected Queue entries: 
-
-QOUTFIFO entries: 
-
-Sequencer Free SCB List: 1 2 
-
-HCNT = 0x60 SCBPTR = 0x0
-
-SCSISIGI[0x44] ERROR[0x0] SCSIBUSL[0x0] LASTPHASE[0x40] 
-
-SCSISEQ[0x12] SBLKCTL[0x0] SCSIRATE[0xf] SEQCTL[0x10] 
-
-SEQ_FLAGS[0x20] SSTAT0[0x0] SSTAT1[0x2] SSTAT2[0x0] 
-
-SSTAT3[0x0] SIMODE0[0x0] SIMODE1[0xac] SXFRCTL0[0xa0] 
-
-DFCNTRL[0x38] DFSTATUS[0x40] 
-
-STACK: 0x0 0x162 0x192 0x6e
-
-SCB count = 4
-
-Kernel NEXTQSCB = 3
-
-Card NEXTQSCB = 3
-
-QINFIFO entries: 
-
-Waiting Queue entries: 
-
-Disconnected Queue entries: 
-
-QOUTFIFO entries: 
-
-Sequencer Free SCB List: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 
-
-Sequencer SCB Info: 
-
-  0 SCB_CONTROL[0x48] SCB_SCSIID[0x17] SCB_LUN[0x0] SCB_TAG[0x2] 
-
-  1 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
-  2 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
-  3 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
-  4 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
-  5 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
-  6 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
-  7 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
-  8 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
-  9 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
- 10 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
- 11 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
- 12 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
- 13 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
- 14 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
- 15 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
-Pending list: 
-
-  2 SCB_CONTROL[0x48] SCB_SCSIID[0x17] SCB_LUN[0x0] 
-
-Kernel Free SCB list: 1 0 
-
-Untagged Q(1): 2 
-
-
-
-<<<<<<<<<<<<<<<<< Dump Card State Ends >>>>>>>>>>>>>>>>>>
-
-scsi1:0:1:0: Device is active, asserting ATN
-
-Recovery code sleeping
-
-Recovery code awake
-
-Timer Expired
-
-aic7xxx_abort returns 0x2003
-
-scsi1:0:1:0: Attempting to queue a TARGET RESET message
-
-CDB: 0x12 0x0 0x0 0x0 0x60 0x0
-
-aic7xxx_dev_reset returns 0x2003
-
-Recovery SCB completes
-
-scsi1:0:1:0: Attempting to queue an ABORT message
-
-CDB: 0x0 0x0 0x0 0x0 0x0 0x0
-
-scsi1: At time of recovery, card was not paused
-
->>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
-
-scsi1: Dumping Card State in Data-in phase, at SEQADDR 0x7b
-
-Card was paused
-
-ACCUM = 0x0, SINDEX = 0xb8, DINDEX = 0xa8, ARG_2 = 0x0
-
-HCNT = 0x20 SCBPTR = 0x0
-
-SCSISIGI[0x44] ERROR[0x0] SCSIBUSL[0x0] LASTPHASE[0x40] 
-
-SCSISEQ[0x12] SBLKCTL[0x0] SCSIRATE[0xf] SEQCTL[0x10] 
-
-SEQ_FLAGS[0x20] SSTAT0[0x0] SSTAT1[0x2] SSTAT2[0x0] 
-
-SSTAT3[0x0] SIMODE0[0x0] SIMODE1[0xac] SXFRCTL0[0x80] 
-
-DFCNTRL[0x38] DFSTATUS[0x20] 
-
-STACK: 0x0 0x162 0x192 0x6e
-
-SCB count = 4
-
-Kernel NEXTQSCB = 2
-
-Card NEXTQSCB = 2
-
-QINFIFO entries: 
-
-Waiting Queue entries: 
-
-Disconnected Queue entries: 
-
-QOUTFIFO entries: 
-
-Sequencer Free SCB List: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 
-
-Sequencer SCB Info: 
-
-  0 SCB_CONTROL[0x8] SCB_SCSIID[0x17] SCB_LUN[0x0] SCB_TAG[0x3] 
-
-  1 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
-  2 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
-  3 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
-  4 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
-  5 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
-  6 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
-  7 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
-  8 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
-  9 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
- 10 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
- 11 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
- 12 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
- 13 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
- 14 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
- 15 SCB_CONTROL[0x0] SCB_SCSIID[0xff] SCB_LUN[0xff] SCB_TAG[0xff] 
-
-Pending list: 
-
-  3 SCB_CONTROL[0x8] SCB_SCSIID[0€ff] SCB_SCSIIDr anticipatory registered
-
-io scheduler deadline registered
-
-io scheduler cfq registered
-
-Floppy drive(s): fd0 is 1.44M
-
-FDC 0 is a post-1991 82077
-
-r8169 Gigabit Ethernet driver 2.2LK loaded
-
-ACPI: PCI Interrupt 0000:00:0b.0[A] -> GSI 16 (level, low) -> IRQ 16
-
-r8169: NAPI enabled
-
-eth0: RTL8169 at 0xffffc20000002b00, 00:0c:76:bd:22:23, IRQ 16
-
-Linux video capture interface: v1.00
-
-Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
-
-ide: Assuming 33MHz system bus speed for PIO modes; override with idebus=xx
-
-VP_IDE: IDE controller at PCI slot 0000:00:0f.1
-
-ACPI: PCI Interrupt 0000:00:0f.1[A] -> GSI 20 (level, low) -> IRQ 20
-
-VP_IDE: chipset revision 6
-
-VP_IDE: not 100% native mode: will probe irqs later
-
-VP_IDE: VIA vt8237 (rev 00) IDE UDMA133 controller on pci0000:00:0f.1
-
-    ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:pio
-
-    ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:DMA, hdd:pio
-
-hda: IC35L120AVVA07-0, ATA DISK drive
-
-ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
-
-hdc: SONY DVD RW DRU-500A, ATAPI CD/DVD-ROM drive
-
-hdd: IOMEGA ZIP 250 ATAPI Floppy, ATAPI FLOPPY drive
-
-hdd: set_drive_speed_status: status=0x51 { DriveReady SeekComplete Error }
-
-hdd: set_drive_speed_status: error=0x04 { AbortedCommand }
-
-ide1 at 0x170-0x177,0x376 on irq 15
-
-hda: max request size: 128KiB
-
-hda: 241254720 sectors (123522 MB) w/1863KiB Cache, CHS=65535/16/63, UDMA(100)
-
-hda: cache flushes supported
-
- hda: hda1 hda2 hda3 hda4
-
-hdc: ATAPI 16X DVD-ROM DVD-R CD-R/RW drive, 8192kB Cache, UDMA(33)
-
-Uniform CD-ROM driver Revision: 3.20
-
-ide-floppy driver 0.99.newide
-
-hdd: No disk in drive
-
-hdd: 244736kB, 239/64/32 CHS, 4096 kBps, 512 sector size, 2941 rpm
-
-ACPI: PCI Interrupt 0000:00:05.0[A] -> GSI 16 (level, low) -> IRQ 16
-
-ACPI: PCI Interrupt 0000:00:0a.0[A] -> GSI 17 (level, low) -> IRQ 17
-
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-
-        <Adaptec 29160B Ultra160 SCSI adapter>
-
-        aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
-
-
-
-  Vendor: IBM       Model: DDRS-39130D       Rev: DC1B
-
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-
-scsi0:A:0:0: Tagged Queuing enabled.  Depth 253
-
- target0:0:0: Beginning Domain Validation
-
-BEGINNING ASYNC, inq len = 164
-
-ASYNC INQUIRY SUCCEEDED
-
-TRYING WIDE ASYNC INQUIRY
-
-(scsi0:A:0): 6.600MB/s transfers (16bit)
-
-ECHO BUFFER HAS LEN 0
-
-DV SETTING TO period 10, offset 255
-
- target0:0:0: Domain Validation skipping write tests
-
-(scsi0:A:0): 80.000MB/s transfers (40.000MHz, offset 15, 16bit)
-
- target0:0:0: FAST-40 SCSI 40.0 MB/s ST (25 ns, offset 15)
-
- target0:0:0: Ending Domain Validation
-
-  Vendor: SEAGATE   Model: ST336706LW        Rev: 0108
-
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-
-scsi0:A:15:0: Tagged Queuing enabled.  Depth 253
-
- target0:0:15: Beginning Domain Validation
-
-BEGINNING ASYNC, inq len = 144
-
-ASYNC INQUIRY SUCCEEDED
-
-TRYING WIDE ASYNC INQUIRY
-
-(scsi0:A:15): 6.600MB/s transfers (16bit)
-
-ECHO BUFFER HAS LEN 252
-
-DV SETTING TO period 10, offset 255
-
-(scsi0:A:15): 80.000MB/s transfers (40.000MHz, offset 63, 16bit)
-
- target0:0:15: FAST-40 SCSI 40.0 MB/s ST (25 ns, offset 63)
-
- target0:0:15: Ending Domain Validation
-
-scsi1 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-
-        <Adaptec 2940 Ultra SCSI adapter>
-
-        aic7880: Ultra Single Channel A, SCSI Id=7, 16/253 SCBs
-
-
-
-  Vendor: TOSHIBA   Model: DVD-ROM SD-M1201  Rev: 1R08
-
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-
- target1:0:1: Beginning Domain Validation
-
-BEGINNING ASYNC, inq len = 96
-
-ASYNC INQUIRY SUCCEEDED
-
-ECHO BUFFER HAS LEN 0
-
-DV SETTING TO period 9, offset 255
-
- target1:0:1: Domain Validation skipping write tests
-
-(scsi1:A:1): 20.000MB/s transfers (20.000MHz, offset 15)
-
-scsi1:0:1:0: Attempting to queue an ABORT message
-
-CDB: 0x12 0x0 0x0 0x0 0x60 0x0
-
-scsi1: At time of recovery, card was not paused
-
->>>>>>>>>>>>>>>>>> Dump Card State Begins <<<<<<<<<<<<<<<<<
-
-scsi1: Dumping Card State in Data-in phase, at SEQADDR 0x7c
-
-Card was paused
-
-ACCUM = 0x0, SINDEX = 0xb8, DINDEX = 0xa8, ARG_2 = 0x0
-
-€ x17] SCB_LUN[0x0] 
-
-Kernel Free SCB list: 1 0 
-
-Untagged Q(1): 3 
-
-
-
-<<<<<<<<<<<<<<<<< Dump Card State Ends >>>>>>>>>>>>>>>>>>
-
-scsi1:0:1:0: Device is active, asserting ATN
-
-Recovery code sleeping
-
-Recovery code awake
-
-Timer Expired
-
-aic7xxx_abort returns 0x2003
-
-scsi: Device offlined - not ready after error recovery: host 1 channel 0 id 1 lun 0
-
- target1:0:1: FAST-20 SCSI 20.0 MB/s ST (50 ns, offset 15)
-
- target1:0:1: Domain Validation detected failure, dropping back
-
-That's with vanilla 2.6.12-rc5 if I have to patch, just tell me :-)
-
-Have a great day,
 -- 
-	Grégoire Favre
+"I may have invented it, but Bill made it famous"
+David Bradley, who invented the (in)famous ctrl-alt-del key combination

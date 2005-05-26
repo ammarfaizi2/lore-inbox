@@ -1,127 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261750AbVEZVAB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261754AbVEZVEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261750AbVEZVAB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 17:00:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbVEZUmw
+	id S261754AbVEZVEo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 17:04:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVEZVEd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 16:42:52 -0400
-Received: from penta.pentaserver.com ([216.74.97.66]:34982 "EHLO
-	penta.pentaserver.com") by vger.kernel.org with ESMTP
-	id S261733AbVEZUkc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 16:40:32 -0400
-Message-ID: <4296330A.9040501@kromtek.com>
-Date: Fri, 27 May 2005 00:35:22 +0400
-From: Manu Abraham <manu@kromtek.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Johannes Stezenbach <js@linuxtv.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH 3/5] Fix LNB power switching
-Content-Type: multipart/mixed;
- boundary="------------070907030500050403030008"
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - penta.pentaserver.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - kromtek.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Thu, 26 May 2005 17:04:33 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:16379 "EHLO
+	hermes.mvista.com") by vger.kernel.org with ESMTP id S261775AbVEZVA7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 17:00:59 -0400
+Subject: Re: RT patch acceptance
+From: Sven-Thorsten Dietrich <sdietrich@mvista.com>
+To: john cooper <john.cooper@timesys.com>
+Cc: Andi Kleen <ak@muc.de>, Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com,
+       bhuey@lnxw.com, nickpiggin@yahoo.com.au, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <429633B1.5060601@timesys.com>
+References: <20050525001019.GA18048@nietzsche.lynx.com>
+	 <1116981913.19926.58.camel@dhcp153.mvista.com>
+	 <20050525005942.GA24893@nietzsche.lynx.com>
+	 <1116982977.19926.63.camel@dhcp153.mvista.com>
+	 <20050524184351.47d1a147.akpm@osdl.org> <4293DCB1.8030904@mvista.com>
+	 <20050524192029.2ef75b89.akpm@osdl.org> <20050525063306.GC5164@elte.hu>
+	 <m1br6zxm1b.fsf@muc.de> <1117044019.5840.32.camel@sdietrich-xp.vilm.net>
+	 <20050526193230.GY86087@muc.de>  <429633B1.5060601@timesys.com>
+Content-Type: text/plain
+Date: Thu, 26 May 2005 14:00:54 -0700
+Message-Id: <1117141254.1583.69.camel@sdietrich-xp.vilm.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------070907030500050403030008
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, 2005-05-26 at 16:38 -0400, john cooper wrote:
+> Andi Kleen wrote:
+> > What I dislike with RT mutexes is that they convert all locks.
+> > It doesnt make much sense to me to have a complex lock that
+> > only protects a few lines of code (and a lot of the spinlock
+> > code is like this). That is just a waste of cycles.
+> 
+> I had brought this up in the dim past in the context
+> of adaptive mutexes which could via heuristics decide
+> whether to spin/sleep.
 
-o Fix bug in LNB Power switching
+> > But I always though we should have a new lock type that is between
+> > spinlocks and semaphores and is less heavyweight than a semaphore
+> > (which tends to be quite slow due to its many context switches). Something
+> > like a spinaphore, although it probably doesnt need full semaphore
+> > semantics (rarely any code in the kernel uses that anyways). It could
+> > spin for a short time and then sleep.
+> 
+> Spin if the lock is contended and the owner is active
+> on a cpu under the assumption the lock owner's average
+> hold time is less than that of a context switch.  There
+> are restrictions as once a path holds an adaptive
+> mutex as a spin lock it cannot acquire another adaptive
+> mutex as a blocking lock.
+> 
 
-Signed-off-by: Manu Abraham <manu@kromtek.com>
+It might be simpler to get things working with a basic implementation
+first, (status quo), and then look into adding something like this. 
 
-dst.c |   38 ++++++++++++++------------------------
-      1 files changed, 14 insertions(+), 24 deletions(-)
+I don't see how this approach decreases the complexity of the task at
+hand, especially not in regards to concurrency.
 
+> > If you drop irq threads then you cannot convert all locks
+> > anymore or have to add ugly in_interrupt()checks. So any conversion like
+> > that requires converting locks.
+> 
+> Yes, I was trying to make that point in an earlier thread.
+> 
 
+My original comment was:
 
+> The IRQ threads are actually a separate implementation.
+> 
+> IRQ threads do not depend on mutexes, nor do they depend
+> on any of the more opaque general spinlock changes, so this
+> stuff SHOULD be separated out, to eliminate the confusion..
+...
+> As a logical prerequisite to the Mutex stuff, the IRQ threads,
+> if broken out, could allow folks to test the water in the shallow end
+> of the pool.
 
+The dependency was STATED: "as a logical prerequisite...". 
+The context was: "breaking the IRQ threads into a separate patch"
 
---------------070907030500050403030008
-Content-Type: text/x-patch;
- name="fix-power-switching.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="fix-power-switching.diff"
-
---- linux-2.6.12-rc5.orig/drivers/media/dvb/bt8xx/dst.c	2005-05-26 10:41:27.000000000 +0400
-+++ linux-2.6.12-rc5/drivers/media/dvb/bt8xx/dst.c	2005-05-26 21:39:55.000000000 +0400
-@@ -906,10 +906,7 @@ static int dst_tone_power_cmd(struct dst
- 	if (state->dst_type == DST_TYPE_IS_TERR)
- 		return 0;
- 
--	if (state->voltage == SEC_VOLTAGE_OFF)
--		paket[4] = 0;
--	else
--		paket[4] = 1;
-+	paket[4] = state->tx_tuna[4];
- 
- 	if (state->tone == SEC_TONE_ON)
- 		paket[2] = 0x02;
-@@ -1062,7 +1059,6 @@ static int dst_set_diseqc(struct dvb_fro
- 
- static int dst_set_voltage(struct dvb_frontend* fe, fe_sec_voltage_t voltage)
- {
--	u8 *val;
- 	int need_cmd;
- 	struct dst_state* state = fe->demodulator_priv;
- 
-@@ -1072,29 +1068,23 @@ static int dst_set_voltage(struct dvb_fr
- 		return 0;
- 
- 	need_cmd = 0;
--	val = &state->tx_tuna[0];
--	val[8] &= ~0x40;
- 	switch (voltage) {
--	case SEC_VOLTAGE_13:
--		if ((state->diseq_flags & HAS_POWER) == 0)
--			need_cmd = 1;
--		state->diseq_flags |= HAS_POWER;
--		break;
-+		case SEC_VOLTAGE_13:
-+		case SEC_VOLTAGE_18:
-+			if ((state->diseq_flags & HAS_POWER) == 0)
-+				need_cmd = 1;
-+			state->diseq_flags |= HAS_POWER;
-+			state->tx_tuna[4] = 0x01;
-+			break;
- 
--	case SEC_VOLTAGE_18:
--		if ((state->diseq_flags & HAS_POWER) == 0)
-+		case SEC_VOLTAGE_OFF:
- 			need_cmd = 1;
--		state->diseq_flags |= HAS_POWER;
--		val[8] |= 0x40;
--		break;
--
--	case SEC_VOLTAGE_OFF:
--		need_cmd = 1;
--		state->diseq_flags &= ~(HAS_POWER | HAS_LOCK | ATTEMPT_TUNE);
--		break;
-+			state->diseq_flags &= ~(HAS_POWER | HAS_LOCK | ATTEMPT_TUNE);
-+			state->tx_tuna[4] = 0x00;
-+			break;
- 
--	default:
--		return -EINVAL;
-+		default:
-+			return -EINVAL;
- 	}
- 	if (need_cmd)
- 		dst_tone_power_cmd(state);
+You misread it, and then commented on that. 
 
 
 
+Sven
 
 
---------------070907030500050403030008--

@@ -1,50 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbVEZWud@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVEZWt7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261716AbVEZWud (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 18:50:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261846AbVEZWuU
+	id S261699AbVEZWt7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 18:49:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261709AbVEZWi4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 18:50:20 -0400
-Received: from mail.kroah.org ([69.55.234.183]:19690 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261716AbVEZWrF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 18:47:05 -0400
-Date: Thu, 26 May 2005 15:53:30 -0700
-From: Greg KH <greg@kroah.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [RFC] Changing pci_iounmap to take 'bar' argument
-Message-ID: <20050526225330.GA20370@kroah.com>
-References: <1117080454.9076.25.camel@gaston>
+	Thu, 26 May 2005 18:38:56 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:27409 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261842AbVEZWgF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 18:36:05 -0400
+Message-Id: <200505262230.j4QMUXjF014699@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org, torvalds@osdl.org
+cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
+Subject: [PATCH 6/7] UML - Fix segfault on exit with CONFIG_GCOV
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1117080454.9076.25.camel@gaston>
-User-Agent: Mutt/1.5.8i
+Date: Thu, 26 May 2005 18:30:33 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 26, 2005 at 02:07:34PM +1000, Benjamin Herrenschmidt wrote:
-> Hi !
-> 
-> On ppc and ppc64 platforms, pci_iounmap() currently does nothing, which
-> is bogus (leak of ioremap space for mmio). It needs to iounmap for MMIOs
-> and do nothign for IO space.
-> 
-> The problem is that wether it's IO or MMIO cannot be easily deduced from
-> the virtual address. We _could_ change the whole thing on ppc32 to play
-> tricks with the top address bits, and we could compare the virtual
-> address with the known regions containing PHBs IO space, but that sounds
-> to me like working around a bad API in the first place.
-> 
-> What about, instead, just adding the "int bar" argument to pci_iounmap()
-> like we pass to pci_iomap() so it can access the resource flags ?
-> 
-> If it's ok with you, I'll send a patch doing it later today.
+We need to disable signals on exit in all cases, not just when rebooting.
 
-Fine with me.
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-thanks,
+Index: linux-2.6.11/arch/um/kernel/main.c
+===================================================================
+--- linux-2.6.11.orig/arch/um/kernel/main.c	2005-05-26 17:16:46.000000000 -0400
++++ linux-2.6.11/arch/um/kernel/main.c	2005-05-26 17:29:27.000000000 -0400
+@@ -87,7 +87,7 @@ int main(int argc, char **argv, char **e
+ {
+ 	char **new_argv;
+ 	sigset_t mask;
+-	int ret, i;
++	int ret, i, err;
+ 
+ 	/* Enable all signals except SIGIO - in some environments, we can
+ 	 * enter with some signals blocked
+@@ -160,27 +160,29 @@ int main(int argc, char **argv, char **e
+ 	 */
+ 	change_sig(SIGPROF, 0);
+ 
++        /* This signal stuff used to be in the reboot case.  However, 
++         * sometimes a SIGVTALRM can come in when we're halting (reproducably
++         * when writing out gcov information, presumably because that takes
++         * some time) and cause a segfault.
++         */
++
++        /* stop timers and set SIG*ALRM to be ignored */
++        disable_timer();
++        
++        /* disable SIGIO for the fds and set SIGIO to be ignored */
++        err = deactivate_all_fds();
++        if(err)
++                printf("deactivate_all_fds failed, errno = %d\n", -err);
++
++        /* Let any pending signals fire now.  This ensures
++         * that they won't be delivered after the exec, when
++         * they are definitely not expected.
++         */
++        unblock_signals();
++
+ 	/* Reboot */
+ 	if(ret){
+-		int err;
+-
+ 		printf("\n");
+-
+-		/* stop timers and set SIG*ALRM to be ignored */
+-		disable_timer();
+-
+-		/* disable SIGIO for the fds and set SIGIO to be ignored */
+-		err = deactivate_all_fds();
+-		if(err)
+-			printf("deactivate_all_fds failed, errno = %d\n",
+-			       -err);
+-
+-		/* Let any pending signals fire now.  This ensures
+-		 * that they won't be delivered after the exec, when
+-		 * they are definitely not expected.
+-		 */
+-		unblock_signals();
+-
+ 		execvp(new_argv[0], new_argv);
+ 		perror("Failed to exec kernel");
+ 		ret = 1;
 
-greg k-h

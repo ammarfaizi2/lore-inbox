@@ -1,78 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbVEZTkl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261732AbVEZTnu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261730AbVEZTkl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 15:40:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVEZTj1
+	id S261732AbVEZTnu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 15:43:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbVEZTlb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 15:39:27 -0400
-Received: from ns1.g-housing.de ([62.75.136.201]:42205 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S261724AbVEZTiL (ORCPT
+	Thu, 26 May 2005 15:41:31 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:30134 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S261720AbVEZTlF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 15:38:11 -0400
-Message-ID: <4296259B.50908@g-house.de>
-Date: Thu, 26 May 2005 21:38:03 +0200
-From: Christian Kujau <evil@g-house.de>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050522)
-X-Accept-Language: en-us, en
+	Thu, 26 May 2005 15:41:05 -0400
+From: David Mosberger <davidm@napali.hpl.hp.com>
 MIME-Version: 1.0
-To: linux-kernel <linux-kernel@vger.kernel.org>
-CC: Andrew Morton <akpm@osdl.org>
-Subject: __NR_ia32_restart_syscall undeclared 
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17046.9797.422792.800821@napali.hpl.hp.com>
+Date: Thu, 26 May 2005 12:40:53 -0700
+To: Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com>
+Cc: Keith Owens <kaos@sgi.com>, "Alan D. Brunelle" <Alan.Brunelle@hp.com>,
+       "Lynch, Rusty" <rusty.lynch@intel.com>, akpm@osdl.org,
+       "Luck, Tony" <tony.luck@intel.com>,
+       "Seth, Rohit" <rohit.seth@intel.com>, prasanna@in.ibm.com,
+       ananth@in.ibm.com, systemtap@sources.redhat.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/4] Kprobes support for IA64
+In-Reply-To: <20050525180652.B10277@unix-os.sc.intel.com>
+References: <429484F2.8080401@hp.com>
+	<12169.1117068542@ocs3.ocs.com.au>
+	<20050525180652.B10277@unix-os.sc.intel.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+Reply-To: davidm@hpl.hp.com
+X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+>>>>> On Wed, 25 May 2005 18:06:52 -0700, Keshavamurthy Anil S <anil.s.keshavamurthy@intel.com> said:
 
-compiling 2.6.12-rc4 and 2.6.12-rc5-mm1 too on x86_64 breaks with:
+  Keshavamurthy> I agree with Keith, when a person taking a instructin
+  Keshavamurthy> dump, a different value will help uniquely identify
+  Keshavamurthy> that this is a kprobe break instruction which is a
+  Keshavamurthy> replaced instrucion of the original instruction. So
+  Keshavamurthy> we will leave with what we have now, i.e handle the
+  Keshavamurthy> same with two cases.
 
-  CC      arch/x86_64/kernel/process.o
-  CC      arch/x86_64/kernel/semaphore.o
-  CC      arch/x86_64/kernel/signal.o
-arch/x86_64/kernel/signal.c: In function `do_signal':
-arch/x86_64/kernel/signal.c:460: error: `__NR_ia32_restart_syscall'
-undeclared (first use in this function)
-arch/x86_64/kernel/signal.c:460: error: (Each undeclared identifier is
-reported only once
-arch/x86_64/kernel/signal.c:460: error: for each function it appears in.)
-make[1]: *** [arch/x86_64/kernel/signal.o] Error 1
-make: *** [arch/x86_64/kernel] Error 2
+We could read the imm21 value from the break.b instruction.
 
-
-including asm/ia32_unistd.h helps, but i don't know if it is the
-Right Thing to do.
-
-thank you,
-Christian.
-
-
-- --- linux-2.6-git/arch/x86_64/kernel/signal.c.orig      2005-05-22
-15:37:50.262209040 +0200
-+++ linux-2.6-git/arch/x86_64/kernel/signal.c   2005-05-22
-15:38:46.886600824 +0200
-@@ -28,6 +28,7 @@
- #include <asm/uaccess.h>
- #include <asm/i387.h>
- #include <asm/proto.h>
-+#include <asm/ia32_unistd.h>
-
- /* #define DEBUG_SIG 1 */
-
-
-- --
-BOFH excuse #214:
-
-Fluorescent lights are generating negative ions. If turning them off
-doesn't work, take them out and put tin foil on the ends.
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCliWa+A7rjkF8z0wRApzdAJ9q8+nb6U5uMwYQMSqYULnmEg8QPwCfT7C3
-4Zv2kIryVCyyU3OZIj/lszY=
-=Q8xL
------END PGP SIGNATURE-----
+	--david

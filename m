@@ -1,45 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbVEZBmc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVEZCkX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261659AbVEZBmc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 21:42:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVEZBmb
+	id S261151AbVEZCkX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 22:40:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbVEZCkX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 21:42:31 -0400
-Received: from w240.dkm.cz ([62.24.88.240]:2825 "EHLO mail.spitalnik.net")
-	by vger.kernel.org with ESMTP id S261659AbVEZBm2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 21:42:28 -0400
-From: Jan Spitalnik <jan@spitalnik.net>
-To: "roland" <for_spam@gmx.de>
-Subject: Re: query, which io scheduler is active?
-Date: Thu, 26 May 2005 03:42:25 +0200
-User-Agent: KMail/1.8.50
-Cc: linux-kernel@vger.kernel.org
-References: <015201c56193$ae5f86f0$2000000a@schlepptopp>
-In-Reply-To: <015201c56193$ae5f86f0$2000000a@schlepptopp>
+	Wed, 25 May 2005 22:40:23 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:28375 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261151AbVEZCkM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 25 May 2005 22:40:12 -0400
+Message-ID: <42953700.4090604@pobox.com>
+Date: Wed, 25 May 2005 22:40:00 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200505260342.25633.jan@spitalnik.net>
+To: Junio C Hamano <junkio@cox.net>
+CC: torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [OT] pull request notation
+References: <7vll64rugt.fsf@assigned-by-dhcp.cox.net>
+In-Reply-To: <7vll64rugt.fsf@assigned-by-dhcp.cox.net>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Junio C Hamano wrote:
+>>>>>>"JG" == Jeff Garzik <jgarzik@pobox.com> writes:
+> 
+> 
+> JG> Please pull the 'new-ids' branch from
+> JG>
+> JG> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+> JG>
+> JG> This add...
+> 
+> I am not a kernel developer, but I think the way this particular
+> pull request is worded can be made much more friendly to Cogito
+> users (that probably is the rest of the world except you, me and
+> Linus ;-).  They use URL fragment notation to express the branch
+> head, like this:
+> 
+> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git#new-ids
+> 
+> At least for me, eyes always skip to the "rsync://..." part
+> immediately after seeing "Please pull.." part.
+> 
+> For Linus I am willing to volunteer updating git-pull-script to
+> take the same URL fragment notation, but as Jeff correctly
+> pointed out it already takes the "branch" name as its second
+> parameter so it probably would not be necessary.
 
-Dne èt 26. kvìtna 2005 03:38 roland napsal(a):
-> ok - there are 4 types of io schedulers - but - how can one see/query,
-> which i/o scheduler is the currently "active" one?
->
+It's up to Linus really, he's the consumer of these messages.
 
-/sys/block/<device>/queue/scheduler
+Given that git-pull-script requires two arguments, URL and optional 
+branch, it sounds like
+'rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git 
+new-ids' would be the best syntax, if it weren't for darned word wrap.
 
-Bye,
-	spity
+	Jeff
 
--- 
-Jan Spitalnik
-jan@spitalnik.net
 
-If everyone used log base e, we'd all be happy!
+

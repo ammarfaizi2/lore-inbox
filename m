@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVEZLJ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVEZLQT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261306AbVEZLJ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 07:09:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVEZLJ6
+	id S261308AbVEZLQT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 07:16:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVEZLQT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 07:09:58 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:35785 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261306AbVEZLJ5 (ORCPT
+	Thu, 26 May 2005 07:16:19 -0400
+Received: from ns1.suse.de ([195.135.220.2]:47073 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261308AbVEZLQQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 07:09:57 -0400
-Date: Thu, 26 May 2005 13:09:39 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Andrew Morton <akpm@osdl.org>
-cc: "Martin J. Bligh" <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
-       christoph@lameter.com
-Subject: Re: 2.6.12-rc5-mm1
-In-Reply-To: <20050526002459.320abe65.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.61.0505261306340.996@scrub.home>
-References: <175590000.1117089446@[10.10.2.4]> <20050525234717.261beb48.akpm@osdl.org>
- <191140000.1117091133@[10.10.2.4]> <195320000.1117091674@[10.10.2.4]>
- <20050526002459.320abe65.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 26 May 2005 07:16:16 -0400
+Date: Thu, 26 May 2005 13:16:14 +0200
+From: Olaf Hering <olh@suse.de>
+To: Pavel Machek <pavel@suse.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] show swsuspend only on .config where it can compile
+Message-ID: <20050526111614.GA25685@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+X-DOS: I got your 640K Real Mode Right Here Buddy!
+X-Homeland-Security: You are not supposed to read this line! You are a terrorist!
+User-Agent: Mutt und vi sind doch schneller als Notes (und GroupWise)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+show swsuspend only on .config where it can compile.
+I got this on PPC32 && SMP
 
-On Thu, 26 May 2005, Andrew Morton wrote:
+kernel/power/smp.c:24: error: storage size of `ctxt' isn't known
 
-> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
-> >
-> > source kernel/Kconfig.hz is under:
-> >  menu "APM (Advanced Power Management) BIOS Support"
-> >  depends on PM && !X86_VISWS
-> > 
-> >  So it's screwed if you don't have PM defined, it seems.
-> 
-> Ah, OK.  Something like this:
+Signed-off-by: Olaf Hering <olh@suse.de>
 
-Only i386 has this problem, the others put it into the "Processor type and 
-features" menu, where it doesn't get the extra dependencies, so the 
-easiest solution might to move it for i386 there as well.
-
-bye, Roman
+Index: linux-2.6.12-rc5-olh/kernel/power/Kconfig
+===================================================================
+--- linux-2.6.12-rc5-olh.orig/kernel/power/Kconfig
++++ linux-2.6.12-rc5-olh/kernel/power/Kconfig
+@@ -28,7 +28,7 @@ config PM_DEBUG
+ 
+ config SOFTWARE_SUSPEND
+ 	bool "Software Suspend (EXPERIMENTAL)"
+-	depends on EXPERIMENTAL && PM && SWAP
++	depends on EXPERIMENTAL && PM && SWAP && (X86 && SMP) || ((FVR || PPC32 || X86) && !SMP)
+ 	---help---
+ 	  Enable the possibility of suspending the machine.
+ 	  It doesn't need APM.

@@ -1,44 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVEZQz4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVEZQ4g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261604AbVEZQz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 12:55:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbVEZQz4
+	id S261605AbVEZQ4g (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 12:56:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261611AbVEZQ4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 12:55:56 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:10145 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S261604AbVEZQzu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 12:55:50 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: CSB5 IDE does not fully support native mode??
-Date: Thu, 26 May 2005 10:55:38 -0600
-User-Agent: KMail/1.8
-Cc: evt@texelsoft.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-ide@vger.kernel.org
-References: <200505242026.DJT32107@ms3.netsolmail.com> <1117117463.5743.149.camel@localhost.localdomain>
-In-Reply-To: <1117117463.5743.149.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 26 May 2005 12:56:35 -0400
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:51729 "EHLO
+	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
+	id S261605AbVEZQ41 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 12:56:27 -0400
+X-IronPort-AV: i="3.93,140,1115010000"; 
+   d="scan'208"; a="265643353:sNHT23706464"
+Date: Thu, 26 May 2005 11:56:26 -0500
+From: Matt Domsch <Matt_Domsch@Dell.com>
+To: Abhay_Salunke@Dell.com
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org, ranty@debian.org
+Subject: Re: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new Dell BIOS update driver
+Message-ID: <20050526165626.GA20913@lists.us.dell.com>
+References: <367215741E167A4CA813C8F12CE0143B3ED399@ausx2kmpc115.aus.amer.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200505261055.38137.bjorn.helgaas@hp.com>
+In-Reply-To: <367215741E167A4CA813C8F12CE0143B3ED399@ausx2kmpc115.aus.amer.dell.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 26 May 2005 8:24 am, Alan Cox wrote:
-> In order to keep the legacy world from falling to bits IDE and VGA have
-> some ugly hacks in the PCI spec.
+On Thu, May 26, 2005 at 11:37:44AM -0500, Abhay_Salunke@Dell.com wrote:
+> > -----Original Message-----
+> > From: Greg KH [mailto:greg@kroah.com]
+> > Sent: Monday, May 23, 2005 10:48 AM
+> > To: Salunke, Abhay
+> > Cc: linux-kernel@vger.kernel.org; akpm@osdl.org; Domsch, Matt
+> > Subject: Re: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new
+> Dell
+> > BIOS update driver
+> > 
+> > On Mon, May 23, 2005 at 09:52:05AM -0500, Abhay_Salunke@Dell.com
+> wrote:
+> > > Greg,
+> > > >
+> > > > Also, what's wrong with using the existing firmware interface in
+> the
+> > > > kernel?
+> > > request_firmware requires the $FIRMWARE env to be populated with the
+> > > firmware image name or the firmware image name needs to be hardcoded
+> > > within  the call to request_firmware. Since the user is free to
+> change
+> > > the BIOS update image at will, it may not be possible if we use
+> > > $FIRMWARE also I am not sure if this env variable might be
+> conflicting
+> > > to some other driver.
+> > 
+> > As others have already stated, this doesn't really matter.  Make it
+> > "dell_bios_update", if any device names their firmware that, well,
+> > that's their problem...
 > 
-> In legacy mode an IDE device appears at the "old" standard IDE addresses
-> and uses an external IRQ pin wired to the ISA IRQ lines (14 or 15). In 
-> native mode it behaves like a PCI device, honouring the PCI bars and
-> using the PCI INT lines.
+> OK, I have been trying to use request_firmware but it always fails with
+> return code -2. This is the code snippet below, any thoughts?
 
-This has been niggling in my mind for a while -- in legacy mode,
-the device should use IRQ 14/15.  But I think we still call
-pci_enable_device(), which sets up IRQ routing according to
-the usual PCI rules.  Should we be using pci_enable_device()
-at all in legacy mode?
+-2 is -ENOENT, "No such file or directory".
+It's looking for a file called /lib/firmware/dell_rbu_type, and not
+finding it.  That probably isn't the name of the file you want it to
+look for.
+
+Thanks,
+Matt
+
+-- 
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

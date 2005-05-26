@@ -1,200 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVEZF1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVEZFaw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261211AbVEZF1F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 01:27:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbVEZF04
+	id S261214AbVEZFaw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 01:30:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVEZFaw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 01:26:56 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:3544 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261204AbVEZF0T (ORCPT
+	Thu, 26 May 2005 01:30:52 -0400
+Received: from rproxy.gmail.com ([64.233.170.198]:1261 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261214AbVEZF3h (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 01:26:19 -0400
-Message-ID: <42955DF7.4000805@pobox.com>
-Date: Thu, 26 May 2005 01:26:15 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-Reply-To: Linux Kernel <linux-kernel@vger.kernel.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>, Netdev <netdev@oss.sgi.com>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-CC: Andrew Morton <akpm@osdl.org>, Git Mailing List <git@vger.kernel.org>
-Subject: [doc][git] playing with git, and netdev/libata-dev trees
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Thu, 26 May 2005 01:29:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=n2ssQMJM9eFT1665yTr8BRbS1/2wiT8QgrOcj/60feONxzmJhCZ+l10pZT7/Nn7ttwQGp+euwEQAk5V0r4nrQfyH1VwE+qPAWmIoOUI4g3m8MAsaHYtMKfxD/T1VOWB7vFATGtdrWicLAnWgal5hrOzZ4CydiLwsLSIxUYWWRfM=
+Message-ID: <2538186705052522294fd2324f@mail.gmail.com>
+Date: Thu, 26 May 2005 01:29:37 -0400
+From: Yani Ioannou <yani.ioannou@gmail.com>
+Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc5-mm1
+Cc: Brice Goglin <Brice.Goglin@ens-lyon.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <4294F4EB.7010903@ens-lyon.org>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_24_13624929.1117085377333"
+References: <20050525134933.5c22234a.akpm@osdl.org>
+	 <4294F4EB.7010903@ens-lyon.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Hopefully, this email can quick-start some people on git.
-
-One of the things Linus's new 'git' tool allows me to do is make public 
-the 50+ repositories that were previously only available on my local 
-workstation.  This should make it a lot easier for developers to see 
-precisely what I have merged, and makes generating follow-up patches a 
-whole lot easier.
-
-When I merge a patch for drivers/net/forcedeth.c, I merge it into a 
-brand new 'forcedeth' repository, a peer to the 40+ other such 
-repository.  Under BitKeeper, I made these repositories available merged 
-together into one big "netdev-2.6" repository because it was too time 
-consuming to make the individual 50+ trees publicly available.  With 
-git, developers have direct access to the individual trees.
-
-I thought I would write up a quick guide describing how to mess around 
-with the netdev and libata-dev trees, and with git in general.
-
-
-1) installing git
-
-git requires bootstrapping, since you must have git installed in order 
-to check out git.git (git repo), and linux-2.6.git (kernel repo).  I 
-have put together a bootstrap tarball of today's git repository.
-
-Download tarball from:
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-20050526.tar.bz2
-
-tarball build-deps:  zlib, libcurl
-
-install tarball:  unpack && make && sudo make prefix=/usr/local install
-
-jgarzik helper scripts, not in official git distribution:
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-switch-tree
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-new-branch
-http://www.kernel.org/pub/linux/kernel/people/jgarzik/git-changes-script
-
-After reading the rest of this document, come back and update your copy 
-of git to the latest:
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/git.git
-
-
-2) download a linux kernel tree for the very first time
-
-mkdir -p linux-2.6/.git
-cd linux-2.6
-rsync -a --delete --verbose --stats --progress \ 
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/ 
-\          <- word-wrapped backslash; sigh
-    .git/
-
-
-3) download latest changes to on-disk local tree
-
-cd linux-2.6
-git-pull-script \
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git
-
-
-4) check out files from the git repository into the working directory
-
-cd linux-2.6
-git-read-tree -m HEAD && git-checkout-cache -q -f -u -a
-
-
-5) check in your own modifications (e.g. apply a patch)
-
-# go to repo
-cd linux-2.6
-
-# make some modifications
-patch -sp1 < /tmp/my.patch
-diffstat -p1 < /tmp/my.patch
-
-# NOTE: add '--add' and/or '--remove' if files were added or removed
-git-update-cache <list of all files changed>
-
-# commit changes
-GIT_AUTHOR_NAME="John Doe"		\
-    GIT_AUTHOR_EMAIL="jdoe@foo.com"	\
-    GIT_COMMITTER_NAME="Jeff Garzik"	\
-    GIT_COMMITTER_EMAIL="jgarzik@pobox.com"	\
-    git-commit-tree `git-write-tree`	\
-    -p $(cat .git/HEAD )			\
-    < changelog.txt			\
-    > .git/HEAD
-
-
-6) List all changes in working dir, in diff format.
-
-git-diff-cache -p HEAD
-
-
-7) List all changesets (i.e. show each cset's description text) in local 
-tree that are not present in remote tree.
-
-cd my-kernel-tree-2.6
-git-changes-script -L ../linux-2.6 | less
-
-
-8) List all changesets:
-
-git-whatchanged
-
-
-9) apply all patches in a Berkeley mbox-format file
-
-First, download and add to your PATH Linus's git tools:
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/git-tools.git
-
-cd my-kernel-tree-2.6
-dotest /path/to/mbox  # yes, Linus has no taste in naming useful scripts
-
-
-10) don't forget to download tags from time to time.
-
-git-pull-script only downloads sha1-indexed object data, and the 
-requested remote head.  This misses updates to the .git/refs/tags/ and 
-.git/refs/heads directories.  It is advisable to update your kernel .git 
-directories periodically with a full rsync command, to make sure you got 
-everything:
-
-cd linux-2.6
-rsync -a --delete --verbose --stats --progress \ 
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6.git/ 
-\          <- word-wrapped backslash; sigh
-    .git/
-
-
-11) [jg-specific] list all branches found in netdev-2.6 or libata-dev trees.
-
-Download
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git
-	or
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
-
-
-cd netdev-2.6
-ls .git/refs/heads/
-
-{ these are the current netdev-2.6 branches }
-> 8139cp       forcedeth    master     qeth           smc91x         we18
-> 8139too-iomap  for-linus    natsemi      r8169      smc91x-eeprom  wifi
-> airo           hdlc         ns83820      register-netdev  starfire
-> atmel          ieee80211    orinoco      remove-drivers   tlan
-> chelsio        iff-running  orinoco-hch  sis900           veth
-> dm9000         janitor      ppp          skge             viro
-
-
-
-12) [jg-specific] make desired branch current in working directory
-
-git-switch-tree $branch
-
-
-13) [jg-specific] create a new branch, and make it current
-
-git-new-branch $branch
-
-
-14) [jg-specific] examine which branch is current
-
-ls -l .git/HEAD
-
-
-15) undo all local modifications (same as checkout):
-
-git-read-tree -m HEAD && git-checkout-cache -q -f -u -a
-
-
-
+------=_Part_24_13624929.1117085377333
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
+
+Hi Andrew,
+
+This patch updates all the device attribute callbacks that weren't
+updated with the new parameter, I guess because they weren't in Greg's
+tree (including drivers/pcmcia/ds.c). Without the patch these
+callbacks are probably broken (and generate a warning along the lines
+of "assignment from incompatible pointer type").
+
+Please see http://lkml.org/lkml/2005/5/19/40 for the scripts I used to
+update the attributes automatically.
+
+Signed-off-by: Yani Ioannou <yani.ioannou@gmail.com>
+
+Thanks,
+Yani
+=20
+  char/tpm/tpm.c         |    2 +-
+  char/tpm/tpm.h         |    8 ++++----
+  message/i2o/bus-osm.c  |    2 +-
+  message/i2o/exec-osm.c |    4 ++--
+  pcmcia/ds.c            |    2 +-
+ 5 files changed, 9 insertions(+), 9 deletions(-)
+
+------=_Part_24_13624929.1117085377333
+Content-Type: text/x-patch; 
+	name=patch-linux-2.6.12-rc5-mm1-devattrupdate.diff; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="patch-linux-2.6.12-rc5-mm1-devattrupdate.diff"
+
+diff -uprN -X dontdiff linux-2.6.12-rc5-mm1/drivers/char/tpm/tpm.c linux-2.6.12-rc5-mm1-update/drivers/char/tpm/tpm.c
+--- linux-2.6.12-rc5-mm1/drivers/char/tpm/tpm.c	2005-05-26 01:13:02.000000000 -0400
++++ linux-2.6.12-rc5-mm1-update/drivers/char/tpm/tpm.c	2005-05-26 01:17:58.000000000 -0400
+@@ -299,7 +299,7 @@ ssize_t show_caps(struct device *dev, st
+ 
+ EXPORT_SYMBOL_GPL(tpm_show_caps);
+ 
+-ssize_t tpm_store_cancel(struct device * dev, const char *buf,
++ssize_t tpm_store_cancel(struct device * dev, struct device_attribute *attr, const char *buf,
+ 			 size_t count)
+ {
+ 	struct tpm_chip *chip = dev_get_drvdata(dev);
+diff -uprN -X dontdiff linux-2.6.12-rc5-mm1/drivers/char/tpm/tpm.h linux-2.6.12-rc5-mm1-update/drivers/char/tpm/tpm.h
+--- linux-2.6.12-rc5-mm1/drivers/char/tpm/tpm.h	2005-05-26 01:13:02.000000000 -0400
++++ linux-2.6.12-rc5-mm1-update/drivers/char/tpm/tpm.h	2005-05-26 01:17:58.000000000 -0400
+@@ -35,10 +35,10 @@ enum tpm_addr {
+ 	TPM_DATA = 0x4F
+ };
+ 
+-extern ssize_t tpm_show_pubek(struct device *, char *);
+-extern ssize_t tpm_show_pcrs(struct device *, char *);
+-extern ssize_t tpm_show_caps(struct device *, char *);
+-extern ssize_t tpm_store_cancel(struct device *, const char *, size_t);
++extern ssize_t tpm_show_pubek(struct device *, struct device_attribute *attr, char *);
++extern ssize_t tpm_show_pcrs(struct device *, struct device_attribute *attr, char *);
++extern ssize_t tpm_show_caps(struct device *, struct device_attribute *attr, char *);
++extern ssize_t tpm_store_cancel(struct device *, struct device_attribute *attr, const char *, size_t);
+ 
+ 
+ struct tpm_chip;
+diff -uprN -X dontdiff linux-2.6.12-rc5-mm1/drivers/message/i2o/bus-osm.c linux-2.6.12-rc5-mm1-update/drivers/message/i2o/bus-osm.c
+--- linux-2.6.12-rc5-mm1/drivers/message/i2o/bus-osm.c	2005-05-26 01:13:13.000000000 -0400
++++ linux-2.6.12-rc5-mm1-update/drivers/message/i2o/bus-osm.c	2005-05-26 01:18:14.000000000 -0400
+@@ -59,7 +59,7 @@ static int i2o_bus_scan(struct i2o_devic
+  *
+  *	Returns count.
+  */
+-static ssize_t i2o_bus_store_scan(struct device *d, const char *buf,
++static ssize_t i2o_bus_store_scan(struct device *d, struct device_attribute *attr, const char *buf,
+ 				  size_t count)
+ {
+ 	struct i2o_device *i2o_dev = to_i2o_device(d);
+diff -uprN -X dontdiff linux-2.6.12-rc5-mm1/drivers/message/i2o/exec-osm.c linux-2.6.12-rc5-mm1-update/drivers/message/i2o/exec-osm.c
+--- linux-2.6.12-rc5-mm1/drivers/message/i2o/exec-osm.c	2005-05-26 01:13:13.000000000 -0400
++++ linux-2.6.12-rc5-mm1-update/drivers/message/i2o/exec-osm.c	2005-05-26 01:18:14.000000000 -0400
+@@ -261,7 +261,7 @@ static int i2o_msg_post_wait_complete(st
+  *
+  *	Returns number of bytes printed into buffer.
+  */
+-static ssize_t i2o_exec_show_vendor_id(struct device *d, char *buf)
++static ssize_t i2o_exec_show_vendor_id(struct device *d, struct device_attribute *attr, char *buf)
+ {
+ 	struct i2o_device *dev = to_i2o_device(d);
+ 	u16 id;
+@@ -281,7 +281,7 @@ static ssize_t i2o_exec_show_vendor_id(s
+  *
+  *	Returns number of bytes printed into buffer.
+  */
+-static ssize_t i2o_exec_show_product_id(struct device *d, char *buf)
++static ssize_t i2o_exec_show_product_id(struct device *d, struct device_attribute *attr, char *buf)
+ {
+ 	struct i2o_device *dev = to_i2o_device(d);
+ 	u16 id;
+diff -uprN -X dontdiff linux-2.6.12-rc5-mm1/drivers/pcmcia/ds.c linux-2.6.12-rc5-mm1-update/drivers/pcmcia/ds.c
+--- linux-2.6.12-rc5-mm1/drivers/pcmcia/ds.c	2005-05-26 01:13:13.000000000 -0400
++++ linux-2.6.12-rc5-mm1-update/drivers/pcmcia/ds.c	2005-05-26 01:18:15.000000000 -0400
+@@ -848,7 +848,7 @@ pcmcia_device_stringattr(prod_id3, prod_
+ pcmcia_device_stringattr(prod_id4, prod_id[3]);
+ 
+ 
+-static ssize_t pcmcia_store_allow_func_id_match (struct device * dev, const char * buf, size_t count)
++static ssize_t pcmcia_store_allow_func_id_match (struct device * dev, struct device_attribute *attr, const char * buf, size_t count)
+ {
+ 	struct pcmcia_device *p_dev = to_pcmcia_dev(dev);
+         if (!count)
+
+------=_Part_24_13624929.1117085377333--

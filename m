@@ -1,116 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVEZI0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVEZI15@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261275AbVEZI0O (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 04:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVEZI0O
+	id S261276AbVEZI15 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 04:27:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261279AbVEZI14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 04:26:14 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:62162 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261275AbVEZIZn (ORCPT
+	Thu, 26 May 2005 04:27:56 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:62899 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261276AbVEZI0w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 04:25:43 -0400
-Date: Thu, 26 May 2005 01:25:08 -0700 (PDT)
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Dinakar Guniguntala <dino@in.ibm.com>, Linus Torvalds <torvalds@osdl.org>,
-       Simon Derr <Simon.Derr@bull.net>, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org
-Message-Id: <20050526082508.927.67614.sendpatchset@tomahawk.engr.sgi.com>
-Subject: [PATCH 2.6.12-rc4] cpuset exit NULL dereference fix
+	Thu, 26 May 2005 04:26:52 -0400
+Date: Thu, 26 May 2005 10:26:43 +0200 (MEST)
+Message-Id: <200505260826.j4Q8QhkR011637@alkaid.it.uu.se>
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: akpm@osdl.org
+Subject: [PATCH 2.6.12-rc5-mm1 1/4] perfctr: seqlocks for mmap:ed state: common
+Cc: linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Andrew,
 
-This one fixes a problem that actual cpuset users are seeing
-crash their system.  I hope it will be pushed along fairly soon.
+This set of patches changes perfctr's low-level drivers to indicate
+changes to the mmap:ed counter state via a unified seqlock mechanism.
+This cleans up user-space, enables user-space fast sampling in some
+previously impossible cases (x86 w/o TSC), and eliminates a highly
+unlikely but not impossible failure case on x86 SMP.
 
-There is a race in the kernel cpuset code, between the code
-to handle notify_on_release, and the code to remove a cpuset.
-The notify_on_release code can end up trying to access a
-cpuset that has been removed.  In the most common case, this
-causes a NULL pointer dereference from the routine cpuset_path.
-However all manner of bad things are possible, in theory at least.
+This is a rewrite of a patch originally from David Gibson.
 
-The existing code decrements the cpuset use count, and if the
-count goes to zero, processes the notify_on_release request,
-if appropriate.  However, once the count goes to zero, unless we
-are holding the global cpuset_sem semaphore, there is nothing to
-stop another task from immediately removing the cpuset entirely,
-and recycling its memory.
+perfctr seqlocks 1/4: common changes
+- define write_perfseq_begin/end in <linux/perfctr.h>
+- bump version and sync it with current user-space package
 
-The obvious fix would be to always hold the cpuset_sem
-semaphore while decrementing the use count and dealing with
-notify_on_release.  However we don't want to force a global
-semaphore into the mainline task exit path, as that might create
-a scaling problem.
+Signed-off-by: Mikael Pettersson <mikpe@csd.uu.se>
 
-The actual fix is almost as easy - since this is only an issue
-for cpusets using notify_on_release, which the top level big
-cpusets don't normally need to use, only take the cpuset_sem
-for cpusets using notify_on_release.
+ drivers/perfctr/version.h |    2 +-
+ include/linux/perfctr.h   |   17 +++++++++++++++++
+ 2 files changed, 18 insertions(+), 1 deletion(-)
 
-This code has been run for hours without a hiccup, while running
-a cpuset create/destroy stress test that could crash the existing
-kernel in seconds.  This patch applies to the current -linus
-git kernel.
-
-Signed-off-by: Paul Jackson <pj@sgi.com>
-
-Index: 2.6-cpuset_path_fix/kernel/cpuset.c
-===================================================================
---- 2.6-cpuset_path_fix.orig/kernel/cpuset.c	2005-05-25 19:20:27.000000000 -0700
-+++ 2.6-cpuset_path_fix/kernel/cpuset.c	2005-05-26 00:50:32.000000000 -0700
-@@ -166,9 +166,8 @@ static struct super_block *cpuset_sb = N
-  * The hooks from fork and exit, cpuset_fork() and cpuset_exit(), don't
-  * (usually) grab cpuset_sem.  These are the two most performance
-  * critical pieces of code here.  The exception occurs on exit(),
-- * if the last task using a cpuset exits, and the cpuset was marked
-- * notify_on_release.  In that case, the cpuset_sem is taken, the
-- * path to the released cpuset calculated, and a usermode call made
-+ * when a task in a notify_on_release cpuset exits.  Then cpuset_sem
-+ * is taken, and if the cpuset count is zero, a usermode call made
-  * to /sbin/cpuset_release_agent with the name of the cpuset (path
-  * relative to the root of cpuset file system) as the argument.
-  *
-@@ -1404,6 +1403,18 @@ void cpuset_fork(struct task_struct *tsk
-  *
-  * Description: Detach cpuset from @tsk and release it.
-  *
-+ * Note that cpusets marked notify_on_release force every task
-+ * in them to take the global cpuset_sem semaphore when exiting.
-+ * This could impact scaling on very large systems.  Be reluctant
-+ * to use notify_on_release cpusets where very high task exit
-+ * scaling is required on large systems.
-+ *
-+ * Don't even think about derefencing 'cs' after the cpuset use
-+ * count goes to zero, except inside a critical section guarded
-+ * by the cpuset_sem semaphore.  If you don't hold cpuset_sem,
-+ * then a zero cpuset use count is a license to any other task to
-+ * nuke the cpuset immediately.
-+ *
-  **/
+diff -rupN linux-2.6.12-rc5-mm1/drivers/perfctr/version.h linux-2.6.12-rc5-mm1.perfctr-seqlock-common/drivers/perfctr/version.h
+--- linux-2.6.12-rc5-mm1/drivers/perfctr/version.h	2005-05-26 00:24:22.000000000 +0200
++++ linux-2.6.12-rc5-mm1.perfctr-seqlock-common/drivers/perfctr/version.h	2005-05-26 02:54:26.000000000 +0200
+@@ -1 +1 @@
+-#define VERSION "2.7.15"
++#define VERSION "2.7.17"
+diff -rupN linux-2.6.12-rc5-mm1/include/linux/perfctr.h linux-2.6.12-rc5-mm1.perfctr-seqlock-common/include/linux/perfctr.h
+--- linux-2.6.12-rc5-mm1/include/linux/perfctr.h	2005-05-26 00:24:32.000000000 +0200
++++ linux-2.6.12-rc5-mm1.perfctr-seqlock-common/include/linux/perfctr.h	2005-05-26 02:54:26.000000000 +0200
+@@ -154,6 +154,23 @@ static inline void perfctr_set_cpus_allo
  
- void cpuset_exit(struct task_struct *tsk)
-@@ -1415,10 +1426,13 @@ void cpuset_exit(struct task_struct *tsk
- 	tsk->cpuset = NULL;
- 	task_unlock(tsk);
+ #endif	/* CONFIG_PERFCTR_VIRTUAL */
  
--	if (atomic_dec_and_test(&cs->count)) {
-+	if (notify_on_release(cs)) {
- 		down(&cpuset_sem);
--		check_for_release(cs);
-+		if (atomic_dec_and_test(&cs->count))
-+			check_for_release(cs);
- 		up(&cpuset_sem);
-+	} else {
-+		atomic_dec(&cs->count);
- 	}
- }
++/* These routines are identical to write_seqcount_begin() and
++ * write_seqcount_end(), except they take an explicit __u32 rather
++ * than a seqcount_t.  That's because this sequence lock is user from
++ * userspace, so we have to pin down the counter's type explicitly to
++ * have a clear ABI.  They also omit the SMP write barriers since we
++ * only support mmap() based sampling for self-monitoring tasks.
++ */
++static inline void write_perfseq_begin(__u32 *seq)
++{
++	++*seq;
++}
++
++static inline void write_perfseq_end(__u32 *seq)
++{
++	++*seq; 
++}
++
+ #endif	/* __KERNEL__ */
  
-
--- 
--- 
-                          I won't rest till it's the best ...
-                          Programmer, Linux Scalability
-                          Paul Jackson <pj@sgi.com> 1.650.933.1373
+ #endif	/* _LINUX_PERFCTR_H */

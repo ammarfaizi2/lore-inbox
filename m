@@ -1,96 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbVEZS7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261697AbVEZTPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261692AbVEZS7q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 14:59:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVEZS7e
+	id S261697AbVEZTPn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 15:15:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261698AbVEZTPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 14:59:34 -0400
-Received: from the-penguin.otak.com ([65.37.126.18]:47568 "EHLO
-	the-penguin.otak.com") by vger.kernel.org with ESMTP
-	id S261692AbVEZS7Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 14:59:24 -0400
-Date: Thu, 26 May 2005 11:59:21 -0700
-From: Lawrence Walton <lawrence@the-penguin.otak.com>
-To: Wolfgang Wander <wwc@rentec.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc5-mm1 alsa oops
-Message-ID: <20050526185921.GA3519@the-penguin.otak.com>
-References: <1117092768.26173.4.camel@localhost> <200505261944.50942.petkov@uni-muenster.de> <1117130470.5477.5.camel@mindpipe> <200505262012.45833.petkov@uni-muenster.de> <1117132339.5477.20.camel@mindpipe> <42961700.5090005@rentec.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="cWoXeonUoKmBZSoM"
-Content-Disposition: inline
-In-Reply-To: <42961700.5090005@rentec.com>
-X-Operating-System: Linux 2.6.12-rc5-mm1 on an i686
-User-Agent: Mutt/1.5.9i
+	Thu, 26 May 2005 15:15:43 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:61635 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S261697AbVEZTPi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 15:15:38 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17046.8270.55088.771900@alkaid.it.uu.se>
+Date: Thu, 26 May 2005 21:15:26 +0200
+From: Mikael Pettersson <mikpe@csd.uu.se>
+To: Andrea Arcangeli <andrea@cpushare.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc5-mm1
+In-Reply-To: <20050526130402.GN5691@g5.random>
+References: <20050525134933.5c22234a.akpm@osdl.org>
+	<17045.36727.602005.757948@alkaid.it.uu.se>
+	<20050526130402.GN5691@g5.random>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrea Arcangeli writes:
+ > Speed is not an issue, cr4 would never be tweaked unless you use
+ > seccomp, the cr4 flip is in an extreme slow path.
+ > 
+ > I think there are two ways to solve this race:
+ > 
+ > 1) why don't we read the cr4 from the cpu? would movl %%cr4, %%eax
+ > generate a general protection fault? Can the cr4 be read in ring 0?
+ > Why to read it from memory if we've that information in the cpu already?
 
---cWoXeonUoKmBZSoM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Yes the kernel can read cr4. I believe the best solution is to modify
+__flush_tlb_global() to read cr4's current value and mix it in when
+toggling CR4.PGE and uploading mmu_cr4_features.
+(But please make it conditional on CONFIG_SECCOMP.)
 
-Wolfgang Wander [wwc@rentec.com] wrote:
-> Lee Revell wrote:
-> >On Thu, 2005-05-26 at 20:12 +0200, Borislav Petkov wrote:
-> >
-> >>On Thursday 26 May 2005 20:01, Lee Revell wrote:
-> >>
-> >>>On Thu, 2005-05-26 at 19:44 +0200, Borislav Petkov wrote:
-> >>>
-> >>>><snip>
-> >>>>
-> >>>>Andrew,
-> >>>>
-> >>>>similar oopses as the one I'm replying to all over the place. At it
-> >>>>happens m in snd_pcm_mmap_data_close(). Here's a stack trace:
-> >>>
-> >>>No one using ALSA CVS or any of the 1.0.9 release candidates ever
-> >>>reported this, but lots of -mm users are... does that help at all?  I
-> >>>suspect some upstream bug that ALSA just happens to trigger.
-> >>
-> >>yeah,
-> >>
-> >>this has to do with alsa indirectly. snd_pcm_mmap_data_close() accesses=
-=20
-> >>some vm_area_struct->vm_private_data and apparently there have been som=
-e=20
-> >>optimizations to mmap code to avoid fragmentation of vma's so i think=
-=20
-> >>there's the problem. However, we'll need the smarter ones here :))
-> >
-> >
-> >Any idea which patches to back out?
->=20
->=20
-> avoiding-mmap-fragmentation-fix-2.patch
->=20
-> seems to do the trick. Ken will likely have a fix-3 shortly ;-)
->=20
-Reverting this patch makes it work for me. <tm>
---=20
-*--* Mail: lawrence@otak.com
-*--* Voice: 425.739.4247
-*--* Fax: 425.827.9577
-*--* HTTP://the-penguin.otak.com/~lawrence
---------------------------------------
-- - - - - - O t a k  i n c . - - - - -=20
+The code called from __switch_to() would have to set or clear cr4
+locally only. That's easy using write_cr4() and read_cr4().
 
-
-
---cWoXeonUoKmBZSoM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFClhyJsgPkFxgrWYkRAoOPAJ9AYNSu7gr3Y37AgC6k/FePV8+xWgCgoDEz
-bZVR3ECiCrf9nDBmipCj0mc=
-=bS/G
------END PGP SIGNATURE-----
-
---cWoXeonUoKmBZSoM--
+/Mikael

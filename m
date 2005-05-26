@@ -1,58 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVEZPX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbVEZPcH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261567AbVEZPX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 11:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVEZPX4
+	id S261558AbVEZPcH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 11:32:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261569AbVEZPcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 11:23:56 -0400
-Received: from mail3.utc.com ([192.249.46.192]:42709 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S261569AbVEZPXq (ORCPT
+	Thu, 26 May 2005 11:32:07 -0400
+Received: from math.ut.ee ([193.40.36.2]:1740 "EHLO math.ut.ee")
+	by vger.kernel.org with ESMTP id S261558AbVEZPcA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 11:23:46 -0400
-Message-ID: <4295E9F7.1020005@cybsft.com>
-Date: Thu, 26 May 2005 10:23:35 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Thu, 26 May 2005 11:32:00 -0400
+Date: Thu, 26 May 2005 18:31:39 +0300 (EEST)
+From: Meelis Roos <mroos@linux.ee>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+cc: Jens Axboe <axboe@suse.de>
+Subject: ide-cd problem in 2.6.12-rc5 + todays snapshot
+Message-ID: <Pine.SOC.4.61.0505261816190.28439@math.ut.ee>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, dwalker@mvista.com,
-       Joe King <atom_bomb@rocketmail.com>, ganzinger@mvista.com,
-       Lee Revell <rlrevell@joe-job.com>, Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
-References: <20050523082637.GA15696@elte.hu> <42935890.2010109@cybsft.com> <20050525113424.GA1867@elte.hu> <20050525113514.GA9145@elte.hu> <42947D84.2000409@cybsft.com> <20050525140316.GA29996@elte.hu> <20050526074547.GA6057@elte.hu>
-In-Reply-To: <20050526074547.GA6057@elte.hu>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Ingo Molnar <mingo@elte.hu> wrote:
-> 
-> 
->>>No it doesn't crash if I boot only a single CPU. I'll go one better 
->>>than that. It doesn't crash if I boot both CPUs but without 
->>>hyper-threading (turned off in the bios but still enabled in the 
->>>config). :-(
->>
->>hm, must be some race. I tried it on a HT system too - will try on 
->>another HT system.
-> 
-> 
-> cannot reproduce it on my other HT system either. Do you see the same 
-> crash with the latest, -rc5 based release too? Maybe we'll get a better 
-> crashlog under that kernel.
-> 
-> 	Ingo
-> 
+Background: I have a Sony CDU5211 CD drive with Intel D815EEA2 mainboard 
+(ICH2 IDE in 815 chipset). Since 2.4.21 timeframe IDE DMA for this CD 
+drive is broken (see my post 
+http://www.ussg.iu.edu/hypermail/linux/kernel/0410.3/0480.html). This 
+happens on at least 2 identical machines. This is the first problem 
+(that I have learned to live with).
 
-This one seems to be fine, or at least it has gotten harder produce the 
-problem. ;-) It is running fine on both of my dual systems currently and 
-should know soon on one of the uni's.
+Now, since ide-cd dma is broken, the first access to cd always gets DMA 
+timeout and turns off DMA, then it works. I have hddtemp installed and 
+it probes for drives on boot. In 2.6.12 (and I think I tested pristine 
+2.6.12-rc5 too) the cd works as before - dma timeout+disable on first 
+access (by hddtemp).
+
+Now, in 2.6.12-rc5 + todays git snapshot, it does not work any more. I 
+suspect the DMA alignment change.
+
+In 2.6.12-rc2 the dmesg from hddtemp was
+
+hdc: DMA disabled
+hdc: drive_cmd: status=0x51 { DriveReady SeekComplete Error }
+hdc: drive_cmd: error=0x04 { AbortedCommand }
+ide: failed opcode was: 0xb0
+
+In todays snapshot, the dmesg is
+
+hdc: DMA interrupt recovery
+hdc: lost interrupt
+hdc: status timeout: status=0xd0 { Busy }
+ide: failed opcode was: unknown
+hdc: DMA disabled
+hdc: drive not ready for command
+hdc: ATAPI reset complete
+cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC REQ_QUIET
+sector 0, nr/cnr 0/0
+bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+cdb: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+hdc: lost interrupt
+cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC REQ_FAILED REQ_QUIET
+sector 0, nr/cnr 0/0
+bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+cdb: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+hdc: lost interrupt
+cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC REQ_FAILED REQ_QUIET
+sector 0, nr/cnr 0/0
+bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+cdb: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+hdc: lost interrupt
+cdrom_pc_intr, write: dev hdc: flags = REQ_STARTED REQ_PC REQ_FAILED REQ_QUIET
+sector 0, nr/cnr 0/0
+bio 00000000, biotail 00000000, buffer 00000000, data 00000000, len 0
+cdb: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+hdc: cdrom_pc_intr: The drive appears confused (ireason = 0x02)
+
+and so on ad infimum.
+
+The messages are very similar to my earlier reported problems that were 
+fixed:
+http://www.ussg.iu.edu/hypermail/linux/kernel/0312.3/1003.html
+http://www.ussg.iu.edu/hypermail/linux/kernel/0402.1/0459.html
+
 
 -- 
-    kr
+Meelis Roos (mroos@linux.ee)

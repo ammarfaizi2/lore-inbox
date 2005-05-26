@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVEZMJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVEZMX2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261339AbVEZMJe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 08:09:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbVEZMJe
+	id S261341AbVEZMX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 08:23:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbVEZMX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 08:09:34 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:52906 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261339AbVEZMJc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 08:09:32 -0400
-Date: Thu, 26 May 2005 07:08:59 -0500
-From: Robin Holt <holt@sgi.com>
-To: Simon Derr <Simon.Derr@bull.net>
-Cc: Paul Jackson <pj@sgi.com>, Andrew Morton <akpm@osdl.org>,
-       Dinakar Guniguntala <dino@in.ibm.com>,
-       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.12-rc4] cpuset exit NULL dereference fix
-Message-ID: <20050526120859.GD29852@lnx-holt.americas.sgi.com>
-References: <20050526082508.927.67614.sendpatchset@tomahawk.engr.sgi.com> <Pine.LNX.4.61.0505261050480.11050@openx3.frec.bull.fr>
+	Thu, 26 May 2005 08:23:28 -0400
+Received: from coderock.org ([193.77.147.115]:44686 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261341AbVEZMXX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 08:23:23 -0400
+Date: Thu, 26 May 2005 14:23:15 +0200
+From: Domen Puncer <domen@coderock.org>
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: 2.6.12-rc2: Compose key doesn't work
+Message-ID: <20050526122315.GA3880@nd47.coderock.org>
+References: <4258F74D.2010905@keyaccess.nl> <20050414100454.GC3958@nd47.coderock.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0505261050480.11050@openx3.frec.bull.fr>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050414100454.GC3958@nd47.coderock.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 26, 2005 at 11:00:10AM +0200, Simon Derr wrote:
-> 
-> I'm a bit concerned about this. Since there might well be 
-> 'notify_on_release' cpusets all over the system, and that there is only 
-> one cpuset_sem semaphore, I feel like this 'scaling problem' still exists 
-> even with:
-> 
-> if (notify_on_release(cs)) {
-> 	down(&cpuset_sem);
-> 	...
-> 
-> Maybe adding more per-cpuset data such as a per-cpuset removal_sem might 
-> be worth it ?
+Still true for 2.6.12-rc5. Should probably be fixed before final.
 
-Why not change the atomic into a lock and a refcount.  Grab the lock before
-each increment/decrement of the refcount and only continue with the removal
-code when the refcount reaches 0.  For a normal cpuset, the refcount could
-be biased to 1.  Then child cpusets are created, they could increment their
-parent cpuset's refcount.  When the notify_on_release flag used to be set,
-we decrement the refcount by one.  Whenever the refcount reaches 0, we
-automatically remove the cpuset.  Seems really clear, but would require
-touching a larger chunk of the code.
-
-Robin
+On 14/04/05 12:04 +0200, Domen Puncer wrote:
+> On 10/04/05 11:52 +0200, Rene Herman wrote:
+> > Hi Vojtech.
+> > 
+> > I have mapped my right windows key to "Compose" in X:
+> ...
+> > 
+> > This worked fine upto  2.6.11.7, but doesn't under 2.6.12-rc2. The key 
+> > doesn't seem to be doing anything anymore: "Compose-'-e" just gets me 
+> > "'e" and so on.
+> 
+> I can confirm this, right windows key works as scroll up, so it might
+> be related to recent scroll patches.
+> 
+> A quick workaround is to:
+> echo -n "0" > /sys/bus/serio/devices/serio1/scroll
+> 
+> serio1 being the keyboard here.
+> 
+> Btw. is that "-n" really necessary? Had too look at the code to figure
+> out why it's not working :-)
+> 
+> > 
+> > X is X.org 6.8.1, keyboard is regular PS/2 keyboard, directly connected.
+> 
+> Same here.

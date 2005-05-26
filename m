@@ -1,65 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVEZNTu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVEZNUz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbVEZNTu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 09:19:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVEZNTu
+	id S261324AbVEZNUz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 09:20:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVEZNUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 09:19:50 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:64913 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261428AbVEZNTm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 09:19:42 -0400
-Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: =?ISO-8859-1?Q?Gr=E9goire?= Favre <gregoire.favre@gmail.com>
-Cc: dino@in.ibm.com, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20050524153930.GA10911@gmail.com>
-References: <20050517002908.005a9ba7.akpm@osdl.org>
-	 <1116340465.4989.2.camel@mulgrave> <20050517170824.GA3931@in.ibm.com>
-	 <1116354894.4989.42.camel@mulgrave> <20050517192636.GB9121@gmail.com>
-	 <1116359432.4989.48.camel@mulgrave> <20050517195650.GC9121@gmail.com>
-	 <1116363971.4989.51.camel@mulgrave> <20050521232220.GD28654@gmail.com>
-	 <1116770040.5002.13.camel@mulgrave>  <20050524153930.GA10911@gmail.com>
+	Thu, 26 May 2005 09:20:55 -0400
+Received: from mout1.freenet.de ([194.97.50.132]:35519 "EHLO mout1.freenet.de")
+	by vger.kernel.org with ESMTP id S261324AbVEZNUt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 09:20:49 -0400
+Message-ID: <4295CCDF.9070302@freenet.de>
+Date: Thu, 26 May 2005 15:19:27 +0200
+From: Carsten Otte <cotte@freenet.de>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: suparna@in.ibm.com
+CC: Badari Pulavarty <pbadari@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>, schwidefsky@de.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>
+Subject: Re: [RFC/PATCH 2/4] fs/mm: execute in place (3rd version)
+References: <1116866094.12153.12.camel@cotte.boeblingen.de.ibm.com> <1116869420.12153.32.camel@cotte.boeblingen.de.ibm.com> <20050524093029.GA4390@in.ibm.com> <42930B64.2060105@freenet.de> <20050524133211.GA4896@in.ibm.com> <42933B7A.3060206@freenet.de> <1117043475.26913.1540.camel@dyn318077bld.beaverton.ibm.com> <20050526132251.GA5067@in.ibm.com>
+In-Reply-To: <20050526132251.GA5067@in.ibm.com>
+X-Enigmail-Version: 0.91.0.0
+OpenPGP: id=F8391255
 Content-Type: text/plain; charset=ISO-8859-1
-Date: Thu, 26 May 2005 09:19:23 -0400
-Message-Id: <1117113563.4967.17.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-24 at 17:39 +0200, Grégoire Favre wrote:
+Suparna Bhattacharya wrote:
 
->  target1:0:1: FAST-20 SCSI 20.0 MB/s ST (50 ns, offset 15)
-> 
->  target1:0:1: Domain Validation detected failure, dropping back
-> 
-> I hope it could be useful, now that my "toolchain" to fetch log is on,
-> don't hesitate to ask me to try things...
-
-Actually, did you capture anything more after this?
-
-There's an indication from a previous file you sent:
-
-Target 1 Negotiation Settings
-        User: 10.000MB/s transfers (10.000MHz, offset 127)
-        Goal: 10.000MB/s transfers (10.000MHz, offset 15)
-        Curr: 10.000MB/s transfers (10.000MHz, offset 15)
-
-That for some reason the bus is tied to 10MHz (i.e. fast but not ultra).
-The DV began at Ultra, but it should next drop down to FAST.
-
-Also, when it finally boots up what does
-
-/sys/class/spi_transport/target1:0:1/min_period
-
-contain?
-
-Thanks,
-
-James
-
-
+> To get a complete picture, how did you want to handle direct io ?
+>
+>Regards
+>Suparna
+>  
+>
+Just through the regular xip path, O_DIRECT doesn't have any effect
+on those files since we do a direct memcpy to disk in the end anyway.
+That has the user-visible effect that unalligned reads/writes work with
+O_DIRECT.

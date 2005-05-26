@@ -1,64 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbVEZNnd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbVEZNqb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261437AbVEZNnd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 09:43:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbVEZNnd
+	id S261441AbVEZNqb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 09:46:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbVEZNqb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 09:43:33 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:16611 "EHLO
-	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261437AbVEZNn2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 09:43:28 -0400
-Message-ID: <4295D27B.1030309@ens-lyon.org>
-Date: Thu, 26 May 2005 15:43:23 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: linux-kernel@vger.kernel.org, webmaster@kernel.org
-Subject: Re: No full image on kernel.org home page.
-References: <1117114714.4313.21.camel@localhost.localdomain>
-In-Reply-To: <1117114714.4313.21.camel@localhost.localdomain>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Thu, 26 May 2005 09:46:31 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:61604 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261441AbVEZNq0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 09:46:26 -0400
+Date: Thu, 26 May 2005 19:24:29 +0530
+From: Dinakar Guniguntala <dino@in.ibm.com>
+To: Simon Derr <Simon.Derr@bull.net>
+Cc: Paul Jackson <pj@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.12-rc4] cpuset exit NULL dereference fix
+Message-ID: <20050526135429.GA3954@in.ibm.com>
+Reply-To: dino@in.ibm.com
+References: <20050526082508.927.67614.sendpatchset@tomahawk.engr.sgi.com> <Pine.LNX.4.61.0505261050480.11050@openx3.frec.bull.fr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0505261050480.11050@openx3.frec.bull.fr>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Try the "F" link on the right.
+On Thu, May 26, 2005 at 11:00:10AM +0200, Simon Derr wrote:
+> > The obvious fix would be to always hold the cpuset_sem
+> > semaphore while decrementing the use count and dealing with
+> > notify_on_release.  However we don't want to force a global
+> > semaphore into the mainline task exit path, as that might create
+> > a scaling problem.
+> > 
+> > The actual fix is almost as easy - since this is only an issue
+> > for cpusets using notify_on_release, which the top level big
+> > cpusets don't normally need to use, only take the cpuset_sem
+> > for cpusets using notify_on_release.
+> 
+> I'm a bit concerned about this. Since there might well be 
+> 'notify_on_release' cpusets all over the system, and that there is only 
+> one cpuset_sem semaphore, I feel like this 'scaling problem' still exists 
+> even with:
+> 
+> if (notify_on_release(cs)) {
+> 	down(&cpuset_sem);
+> 	...
+> 
+> Maybe adding more per-cpuset data such as a per-cpuset removal_sem might 
+> be worth it ?
 
-Brice
+This would have to be in addition to the existing cpuset_sem wont it ??
+Not sure if we need to add any more complexity unless the scaling problem
+is really huge.
 
+However if we do end up making any changes then IMO locking can be made 
+more granular, instead of one sem for cpus, memory and all operations 
+on cpusets
 
-
-Steven Rostedt a écrit :
-> Hi all,
-> 
-> Just wondering why there's only patches to download from the kernel.org
-> home page?  It would be nice if you could also download the image that
-> you needed to patch against.  I know I can easily get the images by
-> cruising down the links of either the HTML or FTP.
-> 
-> If the full image is not there to have people use the patches more
-> often, then it would make more sense to have a link on the main page to
-> the image to patch against. If I have to make the effort to follow the
-> links down to get a image, I'll just take the full image of the one I
-> want instead of the patch.  This means that the next time I get a image,
-> I need to download the whole thing again.
-> 
-> So having something like this:
-> 
-> The latest stable version of the Linux kernel is:  2.6.11.10  (patched against 2.6.11)
-> 
-> Having the 2.6.11.10 be a link to the patch and 2.6.11 the full bz2
-> image tar ball.  When I get a image I would get the 2.6.11, then the
-> patch. The next time I would only need to get the patch.  Otherwise,
-> being lazy and a procrastinator, I would follow the links and download
-> the 2.6.11.10 tarball.  (lazy since I don't need to do any patching, a
-> procrastinator since I could have downloaded the 2.6.11 to patch against
-> next time but just say "I'll do that later!").
-> 
-> Cheers,
-> 
-> -- Steve
+	-Dinakar

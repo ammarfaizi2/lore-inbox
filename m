@@ -1,61 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVEZI5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVEZJBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261286AbVEZI5m (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 04:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbVEZI5m
+	id S261290AbVEZJBN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 05:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261294AbVEZJBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 04:57:42 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:40646 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261286AbVEZI5j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 04:57:39 -0400
+	Thu, 26 May 2005 05:01:13 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:54507 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261290AbVEZJBG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 05:01:06 -0400
+Date: Thu, 26 May 2005 11:00:10 +0200 (CEST)
+From: Simon Derr <Simon.Derr@bull.net>
+X-X-Sender: derrs@openx3.frec.bull.fr
+To: Paul Jackson <pj@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, Dinakar Guniguntala <dino@in.ibm.com>,
+       Linus Torvalds <torvalds@osdl.org>, Simon Derr <Simon.Derr@bull.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.12-rc4] cpuset exit NULL dereference fix
+In-Reply-To: <20050526082508.927.67614.sendpatchset@tomahawk.engr.sgi.com>
+Message-ID: <Pine.LNX.4.61.0505261050480.11050@openx3.frec.bull.fr>
+References: <20050526082508.927.67614.sendpatchset@tomahawk.engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17045.36727.602005.757948@alkaid.it.uu.se>
-Date: Thu, 26 May 2005 10:57:27 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Andrew Morton <akpm@osdl.org>, Andrea Arcangeli <andrea@cpushare.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc5-mm1
-In-Reply-To: <20050525134933.5c22234a.akpm@osdl.org>
-References: <20050525134933.5c22234a.akpm@osdl.org>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 26/05/2005 11:11:06,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 26/05/2005 11:11:54,
+	Serialize complete at 26/05/2005 11:11:54
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2.6.12-rc5-mm1 includes Andrea's seccomp-disable-tsc patch,
-which I believe is broken on SMP. In process.c we find:
+On Thu, 26 May 2005, Paul Jackson wrote:
 
- /*
-+ * This function selects if the context switch from prev to next
-+ * has to tweak the TSC disable bit in the cr4.
-+ */
-+static void disable_tsc(struct thread_info *prev,
-+			struct thread_info *next)
-+{
-+	if (unlikely(has_secure_computing(prev) ||
-+		     has_secure_computing(next))) {
-+		/* slow path here */
-+		if (has_secure_computing(prev) &&
-+		    !has_secure_computing(next)) {
-+			clear_in_cr4(X86_CR4_TSD);
-+		} else if (!has_secure_computing(prev) &&
-+			   has_secure_computing(next))
-+			set_in_cr4(X86_CR4_TSD);
-+	}
-+}
+> The existing code decrements the cpuset use count, and if the
+> count goes to zero, processes the notify_on_release request,
+> if appropriate.  However, once the count goes to zero, unless we
+> are holding the global cpuset_sem semaphore, there is nothing to
+> stop another task from immediately removing the cpuset entirely,
+> and recycling its memory.
+Good catch.
 
-which it calls from __switch_to().
+> 
+> The obvious fix would be to always hold the cpuset_sem
+> semaphore while decrementing the use count and dealing with
+> notify_on_release.  However we don't want to force a global
+> semaphore into the mainline task exit path, as that might create
+> a scaling problem.
+> 
+> The actual fix is almost as easy - since this is only an issue
+> for cpusets using notify_on_release, which the top level big
+> cpusets don't normally need to use, only take the cpuset_sem
+> for cpusets using notify_on_release.
 
-The problem is that {set,clear}_in_cr4() both update a single
-global mmu_cr4_features variable, which is asynchronously written
-to all CPUs by {,__}flush_tlb_all(). Hence, the CR4.TSD setting
-is at best probabilistic.
+I'm a bit concerned about this. Since there might well be 
+'notify_on_release' cpusets all over the system, and that there is only 
+one cpuset_sem semaphore, I feel like this 'scaling problem' still exists 
+even with:
 
-I spotted this because perfctr used to flip CR4.PCE in __switch_to()
-ages ago, but I had to abandon that when kernel 2.3.40 changed to
-the current scheme with a global mmu_cr4_features.
-(Another reason was that CR4 writes were and still are very slow.)
+if (notify_on_release(cs)) {
+	down(&cpuset_sem);
+	...
 
-/Mikael
+Maybe adding more per-cpuset data such as a per-cpuset removal_sem might 
+be worth it ?
+
+	Simon.
+
+
+
+

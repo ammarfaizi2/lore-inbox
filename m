@@ -1,23 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVEZGlR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbVEZGst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261223AbVEZGlR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 02:41:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVEZGlQ
+	id S261228AbVEZGst (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 02:48:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVEZGsl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 02:41:16 -0400
-Received: from dvhart.com ([64.146.134.43]:49059 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261223AbVEZGkH (ORCPT
+	Thu, 26 May 2005 02:48:41 -0400
+Received: from dvhart.com ([64.146.134.43]:50339 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S261228AbVEZGsS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 02:40:07 -0400
-Date: Wed, 25 May 2005 23:40:08 -0700
+	Thu, 26 May 2005 02:48:18 -0400
+Date: Wed, 25 May 2005 23:48:24 -0700
 From: "Martin J. Bligh" <mbligh@mbligh.org>
 Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.12-rc5-mm1
-Message-ID: <176910000.1117089608@[10.10.2.4]>
-In-Reply-To: <175590000.1117089446@[10.10.2.4]>
-References: <175590000.1117089446@[10.10.2.4]>
+To: Christoph Lameter <christoph@lameter.com>,
+       Matthew Dobson <colpatch@us.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: NUMA aware slab allocator V3
+Message-ID: <179780000.1117090103@[10.10.2.4]>
+In-Reply-To: <Pine.LNX.4.62.0505251402090.15286@graphe.net>
+References: <Pine.LNX.4.58.0505110816020.22655@schroedinger.engr.sgi.com> <Pine.LNX.4.62.0505161046430.1653@schroedinger.engr.sgi.com> <714210000.1116266915@flay> <200505161410.43382.jbarnes@virtuousgeek.org> <740100000.1116278461@flay>  <Pine.LNX.4.62.0505161713130.21512@graphe.net><1116289613.26955.14.camel@localhost> <428A800D.8050902@us.ibm.com><Pine.LNX.4.62.0505171648370.17681@graphe.net> <428B7B16.10204@us.ibm.com><Pine.LNX.4.62.0505181046320.20978@schroedinger.engr.sgi.com><428BB05B.6090704@us.ibm.com> <Pine.LNX.4.62.0505181439080.10598@graphe.net><Pine.LNX.4.62.0505182105310.17811@graphe.net> <428E3497.3080406@us.ibm.com><Pine.LNX.4.62.0505201210460.390@graphe.net> <428E56EE.4050400@us.ibm.com><Pine.LNX.4.62.0505241436460.3878@graphe.net>
+ <4293B292.6010301@us.ibm.com><Pine.LNX.4.62.0505242221340.7191@graphe.net> <4294C39B.1040401@us.ibm.com> <Pine.LNX.4.62.0505251402090.15286@graphe.net>
 X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -28,102 +31,21 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
---"Martin J. Bligh" <mbligh@mbligh.org> wrote (on Wednesday, May 25, 2005 23:37:26 -0700):
+--Christoph Lameter <christoph@lameter.com> wrote (on Wednesday, May 25, 2005 14:03:06 -0700):
 
-> Build failure on numaq:
-> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/config/abat/numaq
+> On Wed, 25 May 2005, Matthew Dobson wrote:
+> 
+>> > Umm.. How does it fail? Any relationship to the slab allocator?
+>> 
+>> It dies really early om my x86 box.  I'm not 100% sure that it is b/c of
+>> your patches, since it dies so early I get nothing on the console.  Grub
+>> tells me it's loading the kernel image then....  nothing.
+> 
+> Hmmm. Do you have an emulator? For IA32 and IA64 we have something that 
+> simulates a boot up sequence and can tell us what is going on.
 
-I take that back ... it's actually every ia32 machine I have that 
-fails to build ...
+Turning on early printk is probably easier. Not that it seems to work nearly
+as early as some of hte other implementations we had, but still.
 
 M.
-
-> In file included from include/linux/sched.h:12,
->                  from arch/i386/kernel/asm-offsets.c:7:
-> include/linux/jiffies.h:42:3: #error You lose.
-> include/linux/jiffies.h:213:31: division by zero in #if
-> include/linux/jiffies.h:213:31: division by zero in #if
-> include/linux/jiffies.h:213:31: division by zero in #if
-> include/linux/jiffies.h:213:31: division by zero in #if
-> include/linux/jiffies.h:213:31: division by zero in #if
-> include/linux/jiffies.h:213:31: division by zero in #if
-> include/linux/jiffies.h:213:31: division by zero in #if
-> include/linux/jiffies.h:213:31: division by zero in #if
-> include/linux/jiffies.h:213:31: division by zero in #if
-> include/linux/jiffies.h:213:31: division by zero in #if
-> include/linux/jiffies.h:213:31: division by zero in #if
-> include/linux/jiffies.h:213:31: division by zero in #if
-> include/linux/jiffies.h:213:31: division by zero in #if
-> include/linux/jiffies.h:213:31: division by zero in #if
-> include/linux/jiffies.h:213:31: division by zero in #if
-> include/linux/jiffies.h:213:31: division by zero in #if
-> include/linux/jiffies.h:257:30: division by zero in #if
-> In file included from include/linux/sched.h:12,
->                  from arch/i386/kernel/asm-offsets.c:7:
-> include/linux/jiffies.h: In function `jiffies_to_msecs':
-> include/linux/jiffies.h:262: error: `CONFIG_HZ' undeclared (first use in this function)
-> include/linux/jiffies.h:262: error: (Each undeclared identifier is reported only once
-> include/linux/jiffies.h:262: error: for each function it appears in.)
-> include/linux/jiffies.h:268:36: division by zero in #if
-> include/linux/jiffies.h: In function `jiffies_to_usecs':
-> include/linux/jiffies.h:273: error: `CONFIG_HZ' undeclared (first use in this function)
-> include/linux/jiffies.h:281:30: division by zero in #if
-> include/linux/jiffies.h: In function `msecs_to_jiffies':
-> include/linux/jiffies.h:286: error: `CONFIG_HZ' undeclared (first use in this function)
-> include/linux/jiffies.h:294:36: division by zero in #if
-> include/linux/jiffies.h: In function `usecs_to_jiffies':
-> include/linux/jiffies.h:299: error: `CONFIG_HZ' undeclared (first use in this function)
-> include/linux/jiffies.h: In function `timespec_to_jiffies':
-> include/linux/jiffies.h:318: error: `CONFIG_HZ' undeclared (first use in this function)
-> include/linux/jiffies.h:324: error: `SHIFT_HZ' undeclared (first use in this function)
-> include/linux/jiffies.h: In function `jiffies_to_timespec':
-> include/linux/jiffies.h:337: error: `CONFIG_HZ' undeclared (first use in this function)
-> include/linux/jiffies.h: In function `timeval_to_jiffies':
-> include/linux/jiffies.h:359: error: `CONFIG_HZ' undeclared (first use in this function)
-> include/linux/jiffies.h:363: error: `SHIFT_HZ' undeclared (first use in this function)
-> include/linux/jiffies.h: In function `jiffies_to_timeval':
-> include/linux/jiffies.h:375: error: `CONFIG_HZ' undeclared (first use in this function)
-> include/linux/jiffies.h:385:6: division by zero in #if
-> include/linux/jiffies.h:385:6: division by zero in #if
-> include/linux/jiffies.h:385:6: division by zero in #if
-> include/linux/jiffies.h:385:6: division by zero in #if
-> include/linux/jiffies.h:385:6: division by zero in #if
-> include/linux/jiffies.h:385:6: division by zero in #if
-> include/linux/jiffies.h:385:6: division by zero in #if
-> include/linux/jiffies.h:385:6: division by zero in #if
-> include/linux/jiffies.h:385:6: division by zero in #if
-> include/linux/jiffies.h:385:6: division by zero in #if
-> include/linux/jiffies.h:385:6: division by zero in #if
-> include/linux/jiffies.h:385:6: division by zero in #if
-> include/linux/jiffies.h:385:6: division by zero in #if
-> include/linux/jiffies.h:385:6: division by zero in #if
-> include/linux/jiffies.h:385:6: division by zero in #if
-> include/linux/jiffies.h:385:6: division by zero in #if
-> include/linux/jiffies.h: In function `jiffies_to_clock_t':
-> include/linux/jiffies.h:386: error: `CONFIG_HZ' undeclared (first use in this function)
-> include/linux/jiffies.h: In function `clock_t_to_jiffies':
-> include/linux/jiffies.h:397: error: `CONFIG_HZ' undeclared (first use in this function)
-> include/linux/jiffies.h:416:6: division by zero in #if
-> include/linux/jiffies.h:416:6: division by zero in #if
-> include/linux/jiffies.h:416:6: division by zero in #if
-> include/linux/jiffies.h:416:6: division by zero in #if
-> include/linux/jiffies.h:416:6: division by zero in #if
-> include/linux/jiffies.h:416:6: division by zero in #if
-> include/linux/jiffies.h:416:6: division by zero in #if
-> include/linux/jiffies.h:416:6: division by zero in #if
-> include/linux/jiffies.h:416:6: division by zero in #if
-> include/linux/jiffies.h:416:6: division by zero in #if
-> include/linux/jiffies.h:416:6: division by zero in #if
-> include/linux/jiffies.h:416:6: division by zero in #if
-> include/linux/jiffies.h:416:6: division by zero in #if
-> include/linux/jiffies.h:416:6: division by zero in #if
-> include/linux/jiffies.h:416:6: division by zero in #if
-> include/linux/jiffies.h:416:6: division by zero in #if
-> include/linux/jiffies.h: In function `jiffies_64_to_clock_t':
-> include/linux/jiffies.h:417: error: `CONFIG_HZ' undeclared (first use in this function)
-> make[1]: *** [arch/i386/kernel/asm-offsets.s] Error 1
-> make: *** [arch/i386/kernel/asm-offsets.s] Error 2
-> 05/25/05-20:57:45 Build the kernel. Failed rc = 2
-> 05/25/05-20:57:45 build: kernel build Failed rc = 1
-
 

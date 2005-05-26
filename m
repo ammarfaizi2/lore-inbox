@@ -1,86 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbVEZXrv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbVEZXwZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261854AbVEZXrv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 19:47:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbVEZXru
+	id S261855AbVEZXwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 19:52:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVEZXwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 19:47:50 -0400
-Received: from butter.kernelcode.com ([216.254.126.222]:775 "HELO
-	butter.kernelcode.com") by vger.kernel.org with SMTP
-	id S261854AbVEZXra (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 19:47:30 -0400
-Subject: Re: Tyan Opteron boards and problems with parallel ports (badpmd)
-From: Christopher Warner <cwarner@kernelcode.com>
-To: chris@servertogo.com, "Peter J. Stieber" <developer@toyon.com>
-Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <022e01c56233$241e5930$1600a8c0@toyon.corp>
-References: <3174569B9743D511922F00A0C943142309F815A6@TYANWEB>
-	 <037801c5616a$b1be6600$1600a8c0@toyon.corp> <4295E9F1.6080304@tmr.com>
-	 <022e01c56233$241e5930$1600a8c0@toyon.corp>
-Content-Type: text/plain
-Date: Thu, 26 May 2005 19:47:24 -0400
-Message-Id: <1117151244.8874.31.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 26 May 2005 19:52:25 -0400
+Received: from smtp05.auna.com ([62.81.186.15]:34028 "EHLO smtp05.retemail.es")
+	by vger.kernel.org with ESMTP id S261855AbVEZXwE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 19:52:04 -0400
+Date: Thu, 26 May 2005 23:51:58 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: 2.6.12-rc3-mm3: ALSA broken ?
+To: linux-kernel@vger.kernel.org
+Cc: Takashi Iwai <tiwai@suse.de>
+References: <20050504221057.1e02a402.akpm@osdl.org>
+	<1115510869l.7472l.0l@werewolf.able.es>
+	<1115594680l.7540l.0l@werewolf.able.es> <s5hd5rx2656.wl@alsa2.suse.de>
+	<1115936836l.8448l.1l@werewolf.able.es> <s5hvf5nsb2r.wl@alsa2.suse.de>
+	<1116331359l.7364l.0l@werewolf.able.es> <s5hll6eoxhf.wl@alsa2.suse.de>
+	<1116369585l.8840l.0l@werewolf.able.es> <s5hoeb8sleq.wl@alsa2.suse.de>
+In-Reply-To: <s5hoeb8sleq.wl@alsa2.suse.de> (from tiwai@suse.de on Wed May
+	18 15:39:41 2005)
+X-Mailer: Balsa 2.3.2
+Message-Id: <1117151518l.7637l.0l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+X-Auth-Info: Auth:LOGIN IP:[83.138.219.120] Login:jamagallon@able.es Fecha:Fri, 27 May 2005 01:51:59 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Can you give any information on the badpmd problem? There is a thread
-about the badpmd problem and a couple of patches you might want to use
-to get some debug information. I also suspect that it might have
-something to do with the actual motherboard but people have reported
-badpmds on other mobos.
 
-I've put it down for now but the more info the better :-)  I've
-experienced problems with badpmds under load io, mem etc. Sometimes it
-appears with little load.
+On 05.18, Takashi Iwai wrote:
+> At Tue, 17 May 2005 22:39:45 +0000,
+> J.A. Magallon wrote:
+> > 
+> > 
+> > On 05.17, Takashi Iwai wrote:
+> > ...
+> > > > 
+> > > > Example: go into 4ch mode. Check this control. Then switch to 6ch mode.
+> > > > The Center jack has no sound (it should, shouldn't ?). Check it and voilà.
+> > > > It looks that the logic in the channel selection needs to set this flag also...
+> > > 
+> > > Yep, you're right.  Try the patch below.
+> > > 
+> > > 
+> > 
+> > Thanks, this patch worked. When in 6ch mode, the boolen flag we talk about
+> > still controls if the line jack is input or output. In 4ch mode, it is always
+> > input. If i chech it, switching to 6ch does not toggle it. They are
+> > independent controls.
+> > 
+> > Anyways. I can't get rid of the flag. It is initialized to on by default.
+> > Isn't strange to have two ways of controlling this ?
+> > 
 
-On Thu, 2005-05-26 at 13:40 -0700, Peter J. Stieber wrote:
-> YhLu>>> Don't always blame BIOS, if you like you could
-> YhLu>>> use LinuxBIOS instead...
-> 
-> PJS>> Just curious, but why isn't this project (LinuxBIOS)
-> PJS>> mentioned on the Tyan web site, or is it and I
-> PJS>> just missed it?
-> PJS>>
-> PJS>> You do work for Tyan, right?
-> 
-> BD = Bill Davidsen
-> BD> What has that to do with anything? I doubt that suggestions
-> BD> about boot options are on the website or come from the
-> BD> Tyan website, either.
-> BD>
-> BD> Note: I'm not endorsing LinuxBIOS for Opteron, I haven't
-> BD> personally tried it. But the value of the suggestion depends
-> BD> on how it works, not who makes it. There appear to be a
-> BD> lot of reports of problems with Opteron lately, if the BIOS
-> BD> isn't buggy then the documentation may have lost in
-> BD> translation.
-> 
-> I have been having the "memory.c bad pmds" with a Tyan S2885 
-> motherboard.
-> 
-> https://www.redhat.com/archives/fedora-list/2005-May/msg01690.html
-> http://www.lib.uaa.alaska.edu/linux-kernel/archive/2005-Week-19/1397.html
-> 
-> When Yhlu brought up the topic of LinuxBIOS, I thought he might be 
-> suggesting that this would prove there are no problems with the BIOS 
-> (i.e. the same problems would occur with LinuxBIOS as with the 
-> motherboards built-in BIOS). Looking at the LinuxBIOS web site, I got 
-> the impression (I may be wrong) that this was a Tyan supported effort. 
-> If that was the case I was wondering why Tyan didn't mention LinuxBIOS 
-> on their web site. It would make me more comfortable if this were a Tyan 
-> supported effort. That's why I asked the question.
-> 
-> I'm just trying anything I can to get rid of the bad pmd messages.
-> 
-> Pete 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+Yehaaa, I got it...
+There was a bug in your last patch.
+This:
+
++	snd_ac97_update_bits(ac97, AC97_AD_SERIAL_CFG, 9 << 11,
++			     is_shared_micin(ac97) ? 0 : 9 << 11);
+
+should be
+
++	snd_ac97_update_bits(ac97, AC97_AD_SERIAL_CFG, 1 << 9,
++			     is_shared_micin(ac97) ? 0 : 1 << 9);
+
+Whit this, I can control the output just with the 2/4/6 ch mode, and get rid
+of the 'Center as mic' flag...
+
+btw, why the hell don't you use something as stupid as 
+
+#define bit(n) (1<<(n))
+
+???
+
+A side note. In the process of solving all this, I tried to generate a patch
+for 1.0.9rc4a against -mm. I noticed some things:
+- Your code reverts some in-kernel changes related to
+    if (ptr)
+        kfree(ptr)
+  The if is killed in mainline, as kfree accepts null pointers.
+
+- When linking I got:
+if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F System.map
+2.6.11-jam20; fi
+WARNING: /lib/modules/2.6.11-jam20/kernel/sound/soundcore.ko needs unknown
+symbol class_simple_device_add
+WARNING: /lib/modules/2.6.11-jam20/kernel/sound/soundcore.ko needs unknown
+symbol class_simple_destroy
+WARNING: /lib/modules/2.6.11-jam20/kernel/sound/soundcore.ko needs unknown
+symbol class_simple_device_remove
+WARNING: /lib/modules/2.6.11-jam20/kernel/sound/soundcore.ko needs unknown
+symbol class_simple_create
+WARNING: /lib/modules/2.6.11-jam20/kernel/sound/core/snd.ko needs unknown
+symbol class_simple_device_add
+WARNING: /lib/modules/2.6.11-jam20/kernel/sound/core/snd.ko needs unknown
+symbol class_simple_device_remove
+
+I think all this have been unexported/killed...
+
+Hope this helps.
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandriva Linux release 2006.0 (Cooker) for i586
+Linux 2.6.11-jam20 (gcc 4.0.0 (4.0.0-3mdk for Mandriva Linux release 2006.0))
+
 

@@ -1,72 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261734AbVEZUqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261755AbVEZUwW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261734AbVEZUqI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 16:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVEZUnT
+	id S261755AbVEZUwW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 16:52:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261751AbVEZUtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 16:43:19 -0400
-Received: from mail.toyon.com ([65.160.147.241]:32744 "EHLO mail.toyon.com")
-	by vger.kernel.org with ESMTP id S261734AbVEZUke (ORCPT
+	Thu, 26 May 2005 16:49:25 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:13538 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261756AbVEZUqv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 16:40:34 -0400
-Message-ID: <022e01c56233$241e5930$1600a8c0@toyon.corp>
-From: "Peter J. Stieber" <developer@toyon.com>
-To: "Bill Davidsen" <davidsen@tmr.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <3174569B9743D511922F00A0C943142309F815A6@TYANWEB> <037801c5616a$b1be6600$1600a8c0@toyon.corp> <4295E9F1.6080304@tmr.com>
-Subject: Re: Tyan Opteron boards and problems with parallel ports
-Date: Thu, 26 May 2005 13:40:20 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=response
+	Thu, 26 May 2005 16:46:51 -0400
+Date: Thu, 26 May 2005 13:46:35 -0700
+From: Paul Jackson <pj@sgi.com>
+To: Robin Holt <holt@sgi.com>
+Cc: Simon.Derr@bull.net, akpm@osdl.org, dino@in.ibm.com, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.12-rc4] cpuset exit NULL dereference fix
+Message-Id: <20050526134635.4fd1b978.pj@sgi.com>
+In-Reply-To: <20050526120859.GD29852@lnx-holt.americas.sgi.com>
+References: <20050526082508.927.67614.sendpatchset@tomahawk.engr.sgi.com>
+	<Pine.LNX.4.61.0505261050480.11050@openx3.frec.bull.fr>
+	<20050526120859.GD29852@lnx-holt.americas.sgi.com>
+Organization: SGI
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2527
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-YhLu>>> Don't always blame BIOS, if you like you could
-YhLu>>> use LinuxBIOS instead...
+Robin wrote:
+> Whenever the refcount reaches 0, we
+> automatically remove the cpuset. 
 
-PJS>> Just curious, but why isn't this project (LinuxBIOS)
-PJS>> mentioned on the Tyan web site, or is it and I
-PJS>> just missed it?
-PJS>>
-PJS>> You do work for Tyan, right?
+If by this you mean replacing the usermodehelper callout to
+/sbin/cpuset_release_agent, with a direct removal of the cpuset
+in the kernel, then:
+ * this changes a kernel API - not to be done lightly, and
+ * adding an in-kernel way to nuke a cpuset, in addition to
+   having the rmdir(2) system call do it, seems like it would
+   present even thornier locking issues.
 
-BD = Bill Davidsen
-BD> What has that to do with anything? I doubt that suggestions
-BD> about boot options are on the website or come from the
-BD> Tyan website, either.
-BD>
-BD> Note: I'm not endorsing LinuxBIOS for Opteron, I haven't
-BD> personally tried it. But the value of the suggestion depends
-BD> on how it works, not who makes it. There appear to be a
-BD> lot of reports of problems with Opteron lately, if the BIOS
-BD> isn't buggy then the documentation may have lost in
-BD> translation.
+The usermodehelper callout is working just fine for us.
 
-I have been having the "memory.c bad pmds" with a Tyan S2885 
-motherboard.
+As to the rest of your post, proposing a per-cpuset spinlock,
+see my previous reply to Simon.  
 
-https://www.redhat.com/archives/fedora-list/2005-May/msg01690.html
-http://www.lib.uaa.alaska.edu/linux-kernel/archive/2005-Week-19/1397.html
-
-When Yhlu brought up the topic of LinuxBIOS, I thought he might be 
-suggesting that this would prove there are no problems with the BIOS 
-(i.e. the same problems would occur with LinuxBIOS as with the 
-motherboards built-in BIOS). Looking at the LinuxBIOS web site, I got 
-the impression (I may be wrong) that this was a Tyan supported effort. 
-If that was the case I was wondering why Tyan didn't mention LinuxBIOS 
-on their web site. It would make me more comfortable if this were a Tyan 
-supported effort. That's why I asked the question.
-
-I'm just trying anything I can to get rid of the bad pmd messages.
-
-Pete 
-
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401

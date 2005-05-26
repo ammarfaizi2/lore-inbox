@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVEZOqW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261533AbVEZOsh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbVEZOqW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 10:46:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVEZOqW
+	id S261533AbVEZOsh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 10:48:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVEZOsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 10:46:22 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:34963 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261527AbVEZOqT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 10:46:19 -0400
-Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: =?ISO-8859-1?Q?Gr=E9goire?= Favre <gregoire.favre@gmail.com>
-Cc: dino@in.ibm.com, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20050526143516.GA9593@gmail.com>
-References: <20050517170824.GA3931@in.ibm.com>
-	 <1116354894.4989.42.camel@mulgrave> <20050517192636.GB9121@gmail.com>
-	 <1116359432.4989.48.camel@mulgrave> <20050517195650.GC9121@gmail.com>
-	 <1116363971.4989.51.camel@mulgrave> <20050521232220.GD28654@gmail.com>
-	 <1116770040.5002.13.camel@mulgrave> <20050524153930.GA10911@gmail.com>
-	 <1117113563.4967.17.camel@mulgrave>  <20050526143516.GA9593@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Thu, 26 May 2005 10:46:06 -0400
-Message-Id: <1117118766.4967.22.camel@mulgrave>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 8bit
+	Thu, 26 May 2005 10:48:36 -0400
+Received: from mailwasher.lanl.gov ([192.65.95.54]:1670 "EHLO
+	mailwasher.lanl.gov") by vger.kernel.org with ESMTP id S261533AbVEZOsc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 10:48:32 -0400
+Message-ID: <4295E1B5.6060001@mesatop.com>
+Date: Thu, 26 May 2005 08:48:21 -0600
+From: Steven Cole <elenstev@mesatop.com>
+User-Agent: Thunderbird 0x29A (Multics)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: "Martin J. Bligh" <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
+       zippel@linux-m68k.org, christoph@lameter.com
+Subject: Re: 2.6.12-rc5-mm1
+References: <175590000.1117089446@[10.10.2.4]>	<20050525234717.261beb48.akpm@osdl.org>	<191140000.1117091133@[10.10.2.4]>	<195320000.1117091674@[10.10.2.4]> <20050526002459.320abe65.akpm@osdl.org>
+In-Reply-To: <20050526002459.320abe65.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-PMX-Version: 4.7.0.111621
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-05-26 at 16:35 +0200, Grégoire Favre wrote:
-> Under 2.6.12-rc2 I haven't this file, what the equivalent ?
+Andrew Morton wrote:
+> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
+> 
+>>source kernel/Kconfig.hz is under:
+>> menu "APM (Advanced Power Management) BIOS Support"
+>> depends on PM && !X86_VISWS
+>>
+>> So it's screwed if you don't have PM defined, it seems.
+> 
+> 
+> Ah, OK.  Something like this:
+> 
 
-It should be there under 2.6.12-rc5
+FWIW, I had the same error as Martin, and your patch fixed it
+for me on my PIII.
 
-James
-
-
+Steven

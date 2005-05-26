@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVEZOMq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVEZOZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbVEZOMq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 10:12:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbVEZOMq
+	id S261215AbVEZOZF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 10:25:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbVEZOZF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 10:12:46 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:39086 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261222AbVEZOMo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 10:12:44 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.12-rc2*: CD recorder problem
-Date: Thu, 26 May 2005 16:12:45 +0200
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org, B.Zolnierkiewicz@elka.pw.edu.pl
-References: <200504131837.42930.rjw@sisk.pl> <20050525223057.051c5572.akpm@osdl.org>
-In-Reply-To: <20050525223057.051c5572.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 26 May 2005 10:25:05 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:53383 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261215AbVEZOZB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 10:25:01 -0400
+Date: Thu, 26 May 2005 20:03:15 +0530
+From: Dinakar Guniguntala <dino@in.ibm.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Simon Derr <Simon.Derr@bull.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.12-rc4] cpuset rmdir scheduling while atomic fix
+Message-ID: <20050526143315.GB7068@in.ibm.com>
+Reply-To: dino@in.ibm.com
+References: <20050526082516.927.6806.sendpatchset@tomahawk.engr.sgi.com> <20050526124110.GB6496@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200505261612.46327.rjw@sisk.pl>
+In-Reply-To: <20050526124110.GB6496@in.ibm.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 26 of May 2005 07:30, Andrew Morton wrote:
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> >
-> > Hi,
-> > 
-> > On the kernels above and including 2.6.12-rc2 k3b is unable to operate my
-> > IDE CD recorder.  First time (after a fresh reboot) I start it, it detects the
-> > recorder properly, but then it refuses to work (it says the media is unknown).
-> > After k3b is restarted, it can't even detect the drive.
-> > 
-> > The problem does not occur on 2.6.11.  I don't know whether it happens for the
-> > kernels between 2.6.11 and 2.6.12-rc2, but I can check if that's necessary.
-> > 
+Earlier I wrote:
+> Paul,  This was the same problem that I had reported earlier
+> and fixed as well
 > 
-> Is this still happening in 2.6.12-rc5?
+> See, Message Id: fa.c883kus.qjgijs@ifi.uio.no on google groups
+> 
+> As far as I can see this has already been fixed and is in
+> 2.6.12-rc5-mm1
 
-No, it  is not. :-)
+Well not exactly the same problem as what you are seeing, but
+the fix was the same. It should be fixed in rc5-mm1. I can send 
+a patch against 2.6.12-rc5 if you want.
 
-Rafael
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+	-Dinakar

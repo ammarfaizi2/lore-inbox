@@ -1,62 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261715AbVEZTfC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261721AbVEZTf5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261715AbVEZTfC (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 15:35:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261718AbVEZTfA
+	id S261721AbVEZTf5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 15:35:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVEZTf5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 15:35:00 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:35472 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S261714AbVEZTdC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 15:33:02 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17046.9315.652129.602688@napali.hpl.hp.com>
-Date: Thu, 26 May 2005 12:32:51 -0700
-To: Andrew Morton <akpm@osdl.org>
-Cc: rusty@rustcorp.com.au, Shaohua Li <shaohua.li@intel.com>, pavel@ucw.cz,
-       linux-kernel@vger.kernel.org, davidm@napali.hpl.hp.com
-Subject: Re: Hotplug CPU printk issue
-In-Reply-To: <20050525225204.68bf0684.akpm@osdl.org>
-References: <1113467253.2568.10.camel@sli10-desk.sh.intel.com>
-	<1117076334.4086.11.camel@linux-hp.sh.intel.com>
-	<20050525204828.70acc1b5.akpm@osdl.org>
-	<1117086211.7657.10.camel@linux-hp.sh.intel.com>
-	<20050525225204.68bf0684.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+	Thu, 26 May 2005 15:35:57 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:21331 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261714AbVEZTfg convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 15:35:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fge6TIsKBeHn9fPl+BeR+mK3Jdn7W7vDH+Wx2G28Tm0qdEATD7ksKffn7J9Km1FsCfcOBM6jiwDEOTO5RqL8f/zindsZ+VBpwJj/X7ZC6CO+6+Nm+URNoIfw58VIZjUXC+AL/xRaGqvPqt8YHp4NDLqAUbWkmlKMYJPZxdZ5Z2Y=
+Message-ID: <8783be6605052612354c09ab8b@mail.gmail.com>
+Date: Thu, 26 May 2005 15:35:33 -0400
+From: Ross Biro <ross.biro@gmail.com>
+Reply-To: Ross Biro <ross.biro@gmail.com>
+To: Jim Gifford <maillist@jg555.com>
+Subject: Re: Random IDE Lock ups with via IDE
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <42961567.1010906@jg555.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4293B859.3070609@jg555.com> <4294BAE8.5050803@jg555.com>
+	 <8783be6605052513343fce843b@mail.gmail.com>
+	 <4294E409.9020907@jg555.com>
+	 <8783be6605052516577daeebdf@mail.gmail.com>
+	 <42961567.1010906@jg555.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Wed, 25 May 2005 22:52:04 -0700, Andrew Morton <akpm@osdl.org> said:
+If you are using the legacy IDE layer you want to tweak WAIT_CMD.  For
+testing, you can make it really large and see if that impacts your
+problem.  A drive vendor once told me that it could take more than a
+minute for an IDE drive to complete a command.  I no longer purchase
+drives from that vendor.
 
-  Andrew> Shaohua Li <shaohua.li@intel.com> wrote:
+I'm not sure what libata uses, but my guess is it defaults it from the
+SCSI layer.
 
-  >> > Please confirm that we in fact do not want to allow downed CPUs to
-  >> > print things, then send a patch.
-  >> Yep. In the cpu hotplug case, per-cpu data possibly isn't initialized
-  >> even the system state is 'running'. As the comments say in the original
-  >> code, some console drivers assume per-cpu resources have been allocated.
-  >> radeon fb is one such driver, which uses kmalloc. After a CPU is down,
-  >> the per-cpu data of slab is freed, so the system crashed when printing
-  >> some info.
+If tweaking these time outs make your problem go away, odds are what
+happened was that your drive remapped a few more bad sectors and now
+takes a little too long to complete commands.  The linux ide error
+recovery code does a WIN_IDLE_IMMEDIATE when there is a problem.  This
+is allowed by the ATA-2 spec, but confuses most modern drives.  So
+once you start getting errors, often the drive gets so confused, you
+never stop.
 
-  Andrew> hm, that certainly sounds sane, but I do recall there were
-  Andrew> reasonable-sounding reasons why the ia64 guys wanted
-  Andrew> printk-on-a-down-CPU to work.  Hopefully David can remember
-  Andrew> what the problem was so we can find a more thorough fix.
+    Ross
 
-I don't recall having submitted such a patch.  According to the bk
-log, it was Rusty who added the !system_running check (which was later
-changed to system_state != SYSTEM_RUNNING).
-
-The changelog only says:
-
- "- Allow printk on down cpus once system is running"
-
-Rusty?
-
-	--david
+On 5/26/05, Jim Gifford <maillist@jg555.com> wrote:
+> What do you recommend trying?
+>

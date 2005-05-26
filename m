@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261627AbVEZAqc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbVEZAt2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261627AbVEZAqc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 25 May 2005 20:46:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261628AbVEZAqc
+	id S261628AbVEZAt2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 25 May 2005 20:49:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVEZAt1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 25 May 2005 20:46:32 -0400
-Received: from pop.gmx.de ([213.165.64.20]:3781 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261627AbVEZAqb (ORCPT
+	Wed, 25 May 2005 20:49:27 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:22724 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S261628AbVEZAtV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 25 May 2005 20:46:31 -0400
-X-Authenticated: #14640924
-Message-ID: <012e01c5618d$39d328b0$2000000a@schlepptopp>
-From: "roland" <for_spam@gmx.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: cowloop - copy-on-write loop driver
-Date: Thu, 26 May 2005 02:52:42 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1409
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
-X-Y-GMX-Trusted: 0
+	Wed, 25 May 2005 20:49:21 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@sgi.com>
+To: "Alan D. Brunelle" <Alan.Brunelle@hp.com>
+Cc: "Lynch, Rusty" <rusty.lynch@intel.com>,
+       "Keshavamurthy, Anil S" <anil.s.keshavamurthy@intel.com>, akpm@osdl.org,
+       "Luck,     Tony" <tony.luck@intel.com>,
+       "Seth, Rohit" <rohit.seth@intel.com>, prasanna@in.ibm.com,
+       ananth@in.ibm.com, systemtap@sources.redhat.com,
+       linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/4] Kprobes support for IA64
+In-reply-to: Your message of "Wed, 25 May 2005 10:00:18 -0400."
+             <429484F2.8080401@hp.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 26 May 2005 10:49:02 +1000
+Message-ID: <12169.1117068542@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !
-just want to inform that here is a cool new loopback driver variant at: http://www.atconsultancy.nl/cowloop/
+On Wed, 25 May 2005 10:00:18 -0400,
+"Alan D. Brunelle" <Alan.Brunelle@hp.com> wrote:
+>Isn't the real issue here that if kprobes attempts to put in a 'break
+>0x80200' into a B-slot that it instead becomes a 'break.b 0' -- as the
+>break.b does not accept an immediate value?
 
-"The cowloop driver is a copy-on-write loop driver (block device) to be used on top of any other block driver. The cowloop driver
-shields the lower driver from any write accesses. Instead, it diverts all write-accesses to an arbitrary regular file."
+break.b is a B9 type instruction, which does take an imm21 value.  It
+is the hardware that does not store imm21 in CR.IIM when break.b is
+issued.
 
-regards
-Roland
-ps:
-I`m not directly involved in development - i just came across that site some time ago and thought it was worth being mentioned here.
-(didn`t find a reference in the ML archive)
+>Kprobes does have the two cases covered in traps.c (case 0 - when a
+>B-slot break is used, and case 0x80200 for a non-B-slot break). But this
+>doesn't seem very clean. (If it was decided that one should not overload
+>the break 0 case, and instead use a uniquely defined break number, then
+>it fails on a B-slot probe. If it is OK to overload the break 0 case,
+>why have another break number at all?)
+
+Mainly for documentation when looking at the assembler code.  break 0
+is used for BUG(), coding a different value in the break instruction
+for the debugger helps the person debugging the debugger :(.  I have no
+problem with coding two cases in ia64_bad_break() in order to work
+around the hardware "feature".
+
+Also consider the case where your debugger allows users to code a
+deliberate entry to the debugger, like KDB_ENTER().  That case always
+requires a separate break imm21 value, because the break point is not
+known to the debugger until the code is executed.
 

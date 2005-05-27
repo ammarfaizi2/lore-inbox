@@ -1,69 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261407AbVE0G1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261686AbVE0GhP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261407AbVE0G1O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 02:27:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbVE0G1N
+	id S261686AbVE0GhP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 02:37:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261741AbVE0GhP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 02:27:13 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:50115 "EHLO
-	nelson.home.kernel.dk") by vger.kernel.org with ESMTP
-	id S261407AbVE0G1F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 02:27:05 -0400
-Date: Fri, 27 May 2005 08:28:03 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Mark Lord <liml@rtr.ca>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Playing with SATA NCQ
-Message-ID: <20050527062802.GH1435@suse.de>
-References: <20050526140058.GR1419@suse.de> <42964498.9080909@rtr.ca>
+	Fri, 27 May 2005 02:37:15 -0400
+Received: from fmr23.intel.com ([143.183.121.15]:60825 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261686AbVE0GhH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 02:37:07 -0400
+Date: Thu, 26 May 2005 23:36:59 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       linux-kernel@vger.kernel.org, venkatesh.pallipadi@intel.com,
+       shaohua.li@intel.com, ashok.raj@intel.com
+Subject: Re: [Patch] x86: fix smp_num_siblings on buggy BIOSes
+Message-ID: <20050526233658.A28476@unix-os.sc.intel.com>
+References: <20050525173456.A11038@unix-os.sc.intel.com> <20050526221737.7fc42984.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42964498.9080909@rtr.ca>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050526221737.7fc42984.akpm@osdl.org>; from akpm@osdl.org on Thu, May 26, 2005 at 10:17:37PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, May 26 2005, Mark Lord wrote:
-> I also saw a good boost from NCQ on the qstor driver (full version,
-> not the libata subset) last year.  Very good for busy servers
-> and RAID arrays.
-
-It does seem to work amazingly well, from a performance point of view.
-
-> Jens Axboe wrote:
-> +	do {
-> +		/*
-> +		 * we rely on the FIFO order of the exclusive waitqueues
-> +		 */
-> +		prepare_to_wait_exclusive(&ap->cmd_wait_queue, &wait,
-> +					  TASK_UNINTERRUPTIBLE);
-> +
-> +		if (!ata_qc_issue_ok(ap, qc, 1)) {
-> +			spin_unlock_irq(&ap->host_set->lock);
-> +			schedule();
-> +			spin_lock_irq(&ap->host_set->lock);
-> +		}
-> +
-> +		finish_wait(&ap->cmd_wait_queue, &wait);
-> +
-> +	} while (!ata_qc_issue_ok(ap, qc, 1));
+On Thu, May 26, 2005 at 10:17:37PM -0700, Andrew Morton wrote:
+> "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
+> >
+> > Appended patch will fix 'smp_num_siblings' value on the systems with
+> > buggy bios, which sets number of siblings to '2' even when HT is disabled.
+> > (more details are at http://bugzilla.kernel.org/show_bug.cgi?id=4359)
+> > 
+> > I am planning to do more cleanup in this area (like moving smp_num_siblings 
+> > to per cpuinfo) shortly.
+> > 
+> > But meanwhile, please pickup this patch for 2.6.12.
+> > 
+> > Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
+> > Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+> > 
+> > --- linux-2.6.12-rc5/arch/i386/kernel/smpboot.c~	2005-05-25 16:47:56.462416368 -0700
+> > +++ linux-2.6.12-rc5/arch/i386/kernel/smpboot.c	2005-05-25 16:48:14.556665624 -0700
+> > @@ -1074,8 +1074,10 @@
+> >  			cpu_set(cpu, cpu_sibling_map[cpu]);
+> >  		}
+> >  
+> > -		if (siblings != smp_num_siblings)
+> > +		if (siblings != smp_num_siblings) {
+> >  			printk(KERN_WARNING "WARNING: %d siblings found for CPU%d, should be %d\n", siblings, cpu, smp_num_siblings);
+> > +			smp_num_siblings = siblings;
+> > +		}
+> >  
+> >  		if (c->x86_num_cores > 1) {
+> >  			for (i = 0; i < NR_CPUS; i++) {
 > 
-> In this bit (above), is it possible for this code to ever
-> be invoked from a SCHED_RR or SCHED_FIFO context?
+> OK, but be aware that -mm's sibling-map-initializing-rework.patch
+> cheerfully deletes all the surrounding code.  So -mm will not have this
+> fix.
 > 
-> If so, it will lock out all lower-priority processes
-> for the duration of the polling interval.
+> There's a completely loony amount of x86 stuff in -mm.
 
-Yeah, I'm not a huge fan of the need for the above code... If every qc
-was tied to a SCSI command, we could just ask for a later requeue of the
-request as is currently done with NCQ commands. Alternatively, we could
-add an internal libata qc queue for postponing these commands. That
-would take a little effort, as the sync errors reported by
-ata_qc_issue() would then be need to signalled async through the
-completion callback instead.
+Thanks for this info. I will send a fix for -mm also.
 
-Jeff, what do you think?
+BTW, when do you plan to integrate x86 cpu hotplug patches to mainline?
+Depending on that I will plan my "smp_num_siblings" global cleanup.
 
--- 
-Jens Axboe
-
+thanks,
+suresh

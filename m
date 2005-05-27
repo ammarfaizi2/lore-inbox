@@ -1,59 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262559AbVE0TxF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262561AbVE0TzM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262559AbVE0TxF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 15:53:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262561AbVE0TxF
+	id S262561AbVE0TzM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 15:55:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbVE0TzM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 15:53:05 -0400
-Received: from mail.toyon.com ([65.160.147.241]:42690 "EHLO mail.toyon.com")
-	by vger.kernel.org with ESMTP id S262559AbVE0TxB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 15:53:01 -0400
-Message-ID: <037601c562f5$a66343c0$1600a8c0@toyon.corp>
-From: "Peter J. Stieber" <developer@toyon.com>
-To: "Dave Jones" <davej@redhat.com>
-Cc: "Christopher Warner" <chris@servertogo.com>,
-       "Joel Jaeggli" <joelja@darkwing.uoregon.edu>,
-       <linux-kernel@vger.kernel.org>, "Bill Davidsen" <davidsen@tmr.com>
-References: <3174569B9743D511922F00A0C943142309F815A6@TYANWEB> <037801c5616a$b1be6600$1600a8c0@toyon.corp> <4295E9F1.6080304@tmr.com> <022e01c56233$241e5930$1600a8c0@toyon.corp> <1117156446.8874.41.camel@localhost.localdomain> <Pine.LNX.4.62.0505262112540.32548@twin.uoregon.edu> <1117190965.13932.36.camel@sabrina> <02b301c562e1$41351a50$1600a8c0@toyon.corp> <20050527190918.GB7923@redhat.com>
-Subject: Re: Tyan Opteron boards and problems with parallel ports (badpmd)
-Date: Fri, 27 May 2005 12:52:44 -0700
+	Fri, 27 May 2005 15:55:12 -0400
+Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:59833 "EHLO
+	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
+	id S262561AbVE0TzB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 15:55:01 -0400
+Message-ID: <42977B0D.3040809@ammasso.com>
+Date: Fri, 27 May 2005 14:54:53 -0500
+From: Timur Tabi <timur.tabi@ammasso.com>
+Organization: Ammasso
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en, en-gb
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+To: Christoph Hellwig <hch@infradead.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Will __pa(vmalloc()) ever work?
+References: <4297746C.10900@ammasso.com> <20050527192925.GA8250@infradead.org>
+In-Reply-To: <20050527192925.GA8250@infradead.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2527
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-CW = Christopher Warner
-CW>>> The tyan boards I have in here right now appear to
-CW>>> work properly except for the pmd issue, i've noticed
-CW>>> nothing wrong with them besides that.
+Christoph Hellwig wrote:
 
-PS = Peter J. Stieber
-PS>> Same here.
+> It will return the correct physical address for the start of the buffer.
+> But given that vmalloc is a non-contingous allocator that's pretty useless.
 
-CW>>> What we need is to try and single out the variables that
-CW>>> are causing the badpmd's. Also the more people who
-CW>>> report badpmd's with Andi Kleen's intial patch the better.
-CW>>> Especially on different archs; would also be good. So
-CW>>> far from lkml i'm only seeing Tyan S28* boards as of
-CW>>> recent.
+So as long as the vmalloc'd memory fits inside one page, __pa() will always give the 
+correct address?  If so, then can't I just call __pa() for every page in the buffer and 
+get a list of physical addresses?  If I can do that, then how the memory be virtually 
+contiguous but not physicall contiguous?
 
-PS>> Does the Dave Jones provided Fedora Core 3 kernel I'm running 
-PS>> (2.6.11-1.29_FC3smp) have Andi's patch?
-PS>> 
-PS>> I guess that question was fo Dave ;-)
+> As are physical addresses for anything but low-level architecture code.
 
-DJ = Dave Jones 
-DJ> not the latest iteration no.
+I don't understand what that means.
 
-I'd be willing to try it if you could provide it Dave.
-Pete
+-- 
+Timur Tabi
+Staff Software Engineer
+timur.tabi@ammasso.com
 
+One thing a Southern boy will never say is,
+"I don't think duct tape will fix it."
+      -- Ed Smylie, NASA engineer for Apollo 13

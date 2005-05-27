@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262534AbVE0SzP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262536AbVE0S6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262534AbVE0SzP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 14:55:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbVE0SzP
+	id S262536AbVE0S6o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 14:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262539AbVE0S6o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 14:55:15 -0400
-Received: from 12-210-11-163.client.insightBB.com ([12.210.11.163]:42506 "HELO
-	thor") by vger.kernel.org with SMTP id S262534AbVE0SyZ (ORCPT
+	Fri, 27 May 2005 14:58:44 -0400
+Received: from fire.osdl.org ([65.172.181.4]:59334 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262536AbVE0S6m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 14:54:25 -0400
-Date: Fri, 27 May 2005 14:54:18 -0400
-From: "J. Scott Kasten" <jscottkasten@yahoo.com>
-X-X-Sender: jsk@thor.tetracon-eng.net
-To: Davy Durham <pubaddr2@davyandbeth.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: disowning a process
-In-Reply-To: <42975945.7040208@davyandbeth.com>
-Message-ID: <Pine.SGI.4.60.0505271447220.16016@thor.tetracon-eng.net>
-References: <42975945.7040208@davyandbeth.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Fri, 27 May 2005 14:58:42 -0400
+Date: Fri, 27 May 2005 11:58:37 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Chris Wright <chrisw@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, stable@kernel.org
+Subject: Re: Linux 2.6.11.11
+Message-ID: <20050527185837.GJ27549@shell0.pdx.osdl.net>
+References: <20050527160437.GL23013@shell0.pdx.osdl.net> <1117213882.13829.73.camel@mindpipe> <20050527180711.GH27549@shell0.pdx.osdl.net> <Pine.LNX.4.58.0505271117290.17402@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0505271117290.17402@ppc970.osdl.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Linus Torvalds (torvalds@osdl.org) wrote:
+> Side note: the patch-applicator scripts will, if the first line of the
+> email body is of the form "^From: xxxx", and there's exactly one '@' sign
+> on that line, then it will assume that it's supposed to be the author
+> info, and use that instead of the "From: " line in the header of the
+> email.
+> 
+> So when passing on stuff from others, that's always the preferred way to 
+> do it. A lot of people already follow this convention, and it might even 
+> be documented somewhere.
 
-On Fri, 27 May 2005, Davy Durham wrote:
-
-> Hi,  I'm not sure if there's a posix way of doing this, but wanted to check 
-> if there is a way in linux.
->
-> I want to have a daemon that fork/execs a new process, but don't want (for 
-> various reasons) the responsibility for cleaning up those process with the 
-> wait() function family.   I'm assuming that if the init process became the 
-> parent of one of these forked processes, then it would clean them up for me 
-> (is this assumption true?).    Besides the daemon process exiting, is there a 
-> way to disown the process on purpose so that init inherits it?
->
-> Thanks,
->  Davy
->
-
-Sounds like a job for the Richard Stevens "Advanced Programming in the 
-UNIX Environment" book.  Check out chapter 13, "daemon processes".  It 
-explains the subtleties of process groups, signals, inheritance, etc.. 
-better than most.
-
--Scott-
+Good to know, thanks.
+-chris

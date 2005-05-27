@@ -1,41 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262592AbVE0U51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262594AbVE0U7p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262592AbVE0U51 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 16:57:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262588AbVE0U51
+	id S262594AbVE0U7p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 16:59:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262588AbVE0U7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 16:57:27 -0400
-Received: from fed1rmmtao05.cox.net ([68.230.241.34]:1430 "EHLO
-	fed1rmmtao05.cox.net") by vger.kernel.org with ESMTP
-	id S262587AbVE0U5V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 16:57:21 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, perex@suse.cz, linux-kernel@vger.kernel.org,
-       git@vger.kernel.org
-Subject: Re: ALSA official git repository
-References: <Pine.LNX.4.58.0505271741490.1757@pnote.perex-int.cz>
-	<Pine.LNX.4.58.0505270903230.17402@ppc970.osdl.org>
-	<Pine.LNX.4.58.0505271941250.1757@pnote.perex-int.cz>
-	<Pine.LNX.4.58.0505271113410.17402@ppc970.osdl.org>
-	<20050527135124.0d98c33e.akpm@osdl.org>
-From: Junio C Hamano <junkio@cox.net>
-Date: Fri, 27 May 2005 13:57:18 -0700
-In-Reply-To: <20050527135124.0d98c33e.akpm@osdl.org> (Andrew Morton's
- message of "Fri, 27 May 2005 13:51:24 -0700")
-Message-ID: <7vekbswfo1.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 27 May 2005 16:59:44 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:60603 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S262594AbVE0U7l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 16:59:41 -0400
+Subject: Re: disowning a process
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Davy Durham <pubaddr2@davyandbeth.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <42976D3A.5020200@davyandbeth.com>
+References: <42975945.7040208@davyandbeth.com>
+	 <1117217088.4957.24.camel@localhost.localdomain>
+	 <42976D3A.5020200@davyandbeth.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1117227438.5730.235.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Fri, 27 May 2005 21:57:22 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "AM" == Andrew Morton <akpm@osdl.org> writes:
+On Gwe, 2005-05-27 at 19:55, Davy Durham wrote:
+> Cool.. I looked at the daemon function and I might be able to use it..
 
-AM> I guess the bug here is the use of From: to identify the primary author,
-AM> because transporting the patch via email adds ambiguity.
-
-AM> Maybe we should introduce "^Author:"?
-
-While we are at it, we probably would want "^Author-Date:" as
-well.
+Using daemon() is generally wise - it is basically a double fork and
+then one exits so that the orphan child becomes owned by init. However
+it also knows about platform specific considerations like setpgrp v
+setsid, whether an ioctl must be done to disown the controlling tty etc
+which can be fairly OS generation specific.
 

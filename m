@@ -1,38 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVE0MYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262444AbVE0M3o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbVE0MYv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 08:24:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbVE0MYV
+	id S262444AbVE0M3o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 08:29:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbVE0M3o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 08:24:21 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:10501 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S262444AbVE0MYS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 08:24:18 -0400
-Date: Fri, 27 May 2005 13:24:23 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: cutaway@bellsouth.net, linux-kernel@vger.kernel.org
-Subject: Re: 387 emulator hack - mutant AAD trick - any objections?
-In-Reply-To: <200505271235.41353.vda@ilport.com.ua>
-Message-ID: <Pine.LNX.4.61L.0505271318580.14679@blysk.ds.pg.gda.pl>
-References: <007001c56290$25dd4d00$2800000a@pc365dualp2>
- <200505271235.41353.vda@ilport.com.ua>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 27 May 2005 08:29:44 -0400
+Received: from host21.ipowerweb.com ([66.235.218.121]:4997 "EHLO
+	host21.ipowerweb.com") by vger.kernel.org with ESMTP
+	id S262444AbVE0M3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 08:29:38 -0400
+To: juliet_matthew@ny.com
+Subject: CONSOLATION PRIZE WINNER
+From: juliet_matthew@ny.com
+User-Agent: Instant Web Mail 0.61
+Content-Type: text/plain;
+	charset="ISO-8859-1"
+Message-Id: <E1Dbdrw-0007nr-9V@host21.ipowerweb.com>
+Date: Fri, 27 May 2005 05:23:16 -0700
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - host21.ipowerweb.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [99 99] / [47 12]
+X-AntiAbuse: Sender Address Domain - host21.ipowerweb.com
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 May 2005, Denis Vlasenko wrote:
+                                 POWERBALL INTER LOTTO. BV
+                              POWERBALL LOTTO-WHEEL E-GAME 2005,
+Date: 27 - 05 - 2005
+Ref Nr: PBL/CN/6654/CP
+Dear Consolation Prize Winner,
+                             RE: CONSOLATION PRIZE NOTICE
+----------------------------------------------------------------------------------------------------------------------------
+The POWERBALL INTER LOTTO BV, Netherlands; international lotto e-games
+organizers and sponsors, officially notify you of the final draw result
+of the Powerball Lotto - Wheel E-game draw held on 5th May 2005. All
+draws where conducted at our international corporate office complex in
+The Netherlands.
+We wish to congratulate you on the selection of your email coupon
+number which was selected among the 45 lucky consolation prize winners.
+Your email ID identified with Coupon No.PBL2348974321 and was selected
+by Electronic Random Selection System (ERSS) with entries from the
+50,000 different email addresses enrolled for the Lotto-Wheel E-game.
+Your email ID included among the 50,000 different email addresses where
+submitted by our partner international email provider companies.
+You have won a consolation cash prize of US $500,000.00 (Five Hundred
+Thousand US Dollars Only). The POWERBALL INTER LOTTO BV, have approved
+the payout of your consolation cash prize which will be remunerated
+directly to you by the official 
+Payment Agency Board upon your preferred option.
+Our DUE PROCESS UNIT (DPU) will render to you complete assistance and
+provide additional information and processes for the claims of your
+consultation prize. For more information on claim of your prize, please
+contact the DPU Information Officer
+ 
+NAME:     Mr. Frank Ziggy
+E-mail:   frankdikkens@atmail.com
+TEL:      0031-621-987-260
+FAX:      0031-847-300-537
+Congratulations once again from all our staffs on your consolation
+prize winning, we hope you will partake in our forth coming Powerball
+Lotto-Wheel Email-games.
+Regards,
+ 
+ Juliet Matthew,
+(Lottery Coordinator)
+----------------------------------------------------------------------------------------------------------------------------
+NB: In accordance with the POWERBALL LOTTO -wheel E-games policy and
+regulations, this notification is dispatched directly to only the 45
+lucky consolation prize Winners. This notification also contains
+information that is proprietary, privileged or confidential or
+otherwise legally exempt from disclosure. If you are not the right
+recipient whose email address attached to the lucky numbers along with
+the winning information’s you are not authorized to read, print,
+retain, copy or disseminate this notice or any part of it.
 
-> No need to use AAD16, it is 
-> a) doesnt work on some obscure ancient NEC x86 clones IIRC
 
- Who cares about 16-bit silicon?
-
-> b) is microcoded (slow)
-
- But certainly not worse than the alternatives for these processors which 
-actually lack the x87 subset.
-
-  Maciej

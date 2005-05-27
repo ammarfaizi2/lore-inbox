@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261762AbVE0Rkf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262323AbVE0Ro3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261762AbVE0Rkf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 13:40:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261900AbVE0Rkf
+	id S262323AbVE0Ro3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 13:44:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262519AbVE0Ro2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 13:40:35 -0400
-Received: from fmr23.intel.com ([143.183.121.15]:47035 "EHLO
-	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261762AbVE0Rka (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 13:40:30 -0400
-Message-Id: <200505271738.j4RHcqg04138@unix-os.sc.intel.com>
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Rafael J. Wysocki'" <rjw@sisk.pl>, "Andrew Morton" <akpm@osdl.org>
-Cc: <jamagallon@able.es>, <tomlins@cam.org>, <linux-kernel@vger.kernel.org>,
-       <alsa-devel@lists.sourceforge.net>
-Subject: RE: 2.6.12-rc5-mm1
-Date: Fri, 27 May 2005 10:38:52 -0700
+	Fri, 27 May 2005 13:44:28 -0400
+Received: from gate.perex.cz ([82.113.61.162]:51433 "EHLO gate.perex.cz")
+	by vger.kernel.org with ESMTP id S261969AbVE0Rnp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 13:43:45 -0400
+Date: Fri, 27 May 2005 19:43:44 +0200 (CEST)
+From: Jaroslav Kysela <perex@suse.cz>
+X-X-Sender: perex@pnote.perex-int.cz
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: ALSA official git repository
+In-Reply-To: <Pine.LNX.4.58.0505270903230.17402@ppc970.osdl.org>
+Message-ID: <Pine.LNX.4.58.0505271941250.1757@pnote.perex-int.cz>
+References: <Pine.LNX.4.58.0505271741490.1757@pnote.perex-int.cz>
+ <Pine.LNX.4.58.0505270903230.17402@ppc970.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook, Build 11.0.6353
-Thread-Index: AcVisvsBMkEmiZY5T7mI3zRWYY1hlgAL7Iyg
-In-Reply-To: <200505271229.01699.rjw@sisk.pl>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rafael J. Wysocki wrote on Friday, May 27, 2005 3:29 AM
-> > I assume the problem is due to one of the ASLA patches in rc5-mm1, but it's
-> > possible that it lies elsewhere.
+On Fri, 27 May 2005, Linus Torvalds wrote:
+
+> On Fri, 27 May 2005, Jaroslav Kysela wrote:
+> > 
+> > 	I created new git tree for the ALSA project at:
+> > 
+> > rsync://rsync.kernel.org/pub/scm/linux/kernel/git/perex/alsa.git
 > 
-> Well, yes.  Apparently, it goes away if you revert the following patch:
+> Your scripts(?) to generate these things are a bit strange, since they
+> leave an extra empty line in the commit message, which confuses at least
+> gitweb (ie just look at
 > 
-> avoiding-mmap-fragmentation-fix-2.patch
+>    http://www.kernel.org/git/?p=linux/kernel/git/perex/alsa.git;a=summary
+> 
+> and note how the summary thing looks empty).
 
+Okay, sorry for this small bug. I'll recreate the ALSA git tree with
+proper comments again. Also, the author is not correct (should be taken
+from the first Signed-off-by:).
 
-avoiding-mmap-fragmentation-fix-2.patch has a major clash using
-vm_private_data where alsa is also using.  I just posted a patch,
-please try that out.  Thanks.
+						Jaroslav
 
-http://marc.theaimsgroup.com/?l=linux-mm&m=111721191501940&w=2
-
-- Ken
-
+-----
+Jaroslav Kysela <perex@suse.cz>
+Linux Kernel Sound Maintainer
+ALSA Project, SUSE Labs

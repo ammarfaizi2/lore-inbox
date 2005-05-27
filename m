@@ -1,45 +1,79 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261321AbVEQHdy (ORCPT <rfc822;ralf@linux-mips.org>);
-	Tue, 17 May 2005 03:33:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261322AbVEQHdy
+	id S262382AbVE0Iw4 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 27 May 2005 04:52:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262383AbVE0Iwz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 17 May 2005 03:33:54 -0400
-Received: from [222.234.2.64] ([222.234.2.64]:21905 "EHLO yttnetwork.co.kr")
-	by vger.kernel.org with ESMTP id S261321AbVEQHdt (ORCPT
+	Fri, 27 May 2005 04:52:55 -0400
+Received: from delorean.alinto.net ([195.167.226.134]:2710 "HELO alinto.net")
+	by vger.kernel.org with SMTP id S262382AbVE0Iww (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 17 May 2005 03:33:49 -0400
-Date: Tue, 17 May 2005 16:41:33 +0900
-Message-Id: <200505170741.j4H7fXt02060@yttnetwork.co.kr>
-To: linux-kernel@vger.kernel.org
-Subject: Yukos oil and Bank Menatep SPB in Russia
-From: "Mrs. Larisa Nitskaya" <tafacho@walla.com>
-Reply-To: tafacho@walla.com
+	Fri, 27 May 2005 04:52:52 -0400
+Message-ID: <1117183966.4296dfdec9577@webmail.afrik.com>
+Date: Fri, 27 May 2005 10:52:46 +0200
+To: ebube_david@afrik.com
+From: Ebube David <ebube_david@afrik.com>
+Subject: can you?
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
+X-aduser: 195.167.226.166
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261321AbVEQHdy@vger.kernel.org>
-
-Dear Friend,
-
-My name is Mrs. Larisa Nitskaya, personal secretary of Mr. Boris Mikhail Khodorkovsky, the arrested Chairman/CEO of Yukos oil and Bank Menatep SPB in Russia.
-
-I have the documents of a large amount of funds which he handed over to me before he was arrested and detained and now been tried in Russia for financing political parties (the Union of the Right Forces, led by Boris Nemtsov and Yabloko, a liberal/social democratic party led by Gregor Yavlinsky) opposed to the government of Mr. Vladmir Putin, the president thereby leading to the freezing of his finances and assests. After searching through the books of your country's chambers of commerce and industries here in Russia I am contacting you to assist me to re-profile the funds and equally invest same on his behalf and you will be paid a commission of 12% for your management services.
-
-As soon as I receive your acceptance, I will send you the necessary details and my identification.
-
-Yours sincerely,
-Mrs. Larisa Nitskaya
-
-NB:YOU CAN READ MORE OF HIS ORDEAL FROM:
-http://newsfromrussia.com/main/2005/03/29/58914.html
-http://www.interfax.ru/e/B/politics/28.html?id_issue=11261041
-http://www.supportmbk.com
-http://news.bbc.co.uk/1/hi/business/4041115.stm
-http://www.nationmaster.com/encyclopedia/Mikhail-Khodorkovsky
-
-NB:Kindly send all correspondence/ response to my confidential email address : tafacho@walla.com 
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262382AbVE0Iw4@vger.kernel.org>
 
 
 
+
+I am a registered financial security agent of the FSA
+(Financial Services Authority) in the Abidjan; the FSA is
+attached to the Department of Treasury. I have been in charge 
+of a particular dormant/suspense account with a balance of 
+US$6.5 million (Six Million, Five Hundred Thousand United 
+States Dollars), which no one from my proficient examination, 
+using the extensive data protection database, has laid claims 
+to. This account has been dormant since 1999 and the department 
+has been changing custodians of the funds for the last 3 (three)
+years, without a claimant.
+
+At this stage, I need a very reliable and responsible
+dealing minded person who would assist me in the claims of
+the funds, so that it would not be reverted to the British
+and European Authorities. I will initiate a systematic
+transfer of the said funds into an account opened in your
+name or company's, whichever you find to be most
+appropriate.
+
+I will need your response, in order to grant you access to
+the detailed facts and figures to this account. I have been
+able to contact you; based on information retrieved from
+the credit reference database attached to my institution. I
+will be most willing to go into partnership with you to see
+this task completed within a limited time frame. I assure
+you there would be no risk to your name or personality.
+
+But, you would be required to open an account here and the
+institution will guide accordingly. I hope you understand
+why I can't disclose exclusive data at this stage. Do
+kindly send your return email to this particular email
+address:davidebube@afrik.com or david_ebube@yahoo.com; 
+upon this, I will be able to send you more details regarding 
+this deal.
+ If I do not hear from you in the next few days I would take 
+for granted
+ you are not interested.
+
+It will be a good thing if you could provide a phone number
+to reach you. I look forward to an excellent business
+relationship with you.
+
+My regards,
+
+David Ebube. 
+
+
+
+
+
+------------------------------------------
+Pour comparer les prix de tous les produits sur Internet 
+http://www.afrikeco.com/achetez.php

@@ -1,50 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262410AbVE0J0l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262392AbVE0J0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262410AbVE0J0l (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 05:26:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262392AbVE0JYO
+	id S262392AbVE0J0n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 05:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262408AbVE0JYY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 05:24:14 -0400
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:26264 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262401AbVE0JL7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 05:11:59 -0400
-Message-ID: <4296E45B.1080509@yahoo.com.au>
-Date: Fri, 27 May 2005 19:11:55 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
+	Fri, 27 May 2005 05:24:24 -0400
+Received: from ecfrec.frec.bull.fr ([129.183.4.8]:39057 "EHLO
+	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S262406AbVE0JJX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 05:09:23 -0400
+Date: Fri, 27 May 2005 11:09:02 +0200 (CEST)
+From: Simon Derr <Simon.Derr@bull.net>
+X-X-Sender: derrs@openx3.frec.bull.fr
+To: Paul Jackson <pj@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, Dinakar Guniguntala <dino@in.ibm.com>,
+       Linus Torvalds <torvalds@osdl.org>, Simon Derr <Simon.Derr@bull.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.12-rc4: resent] cpuset exit NULL dereference fix
+In-Reply-To: <20050527090243.30833.93829.sendpatchset@tomahawk.engr.sgi.com>
+Message-ID: <Pine.LNX.4.61.0505271106330.11050@openx3.frec.bull.fr>
+References: <20050527090243.30833.93829.sendpatchset@tomahawk.engr.sgi.com>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Nick Piggin <piggin@cyberone.com.au>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] improve SMP reschedule and idle routines
-References: <4296CA7A.4050806@cyberone.com.au> <20050527085726.GA20512@elte.hu>
-In-Reply-To: <20050527085726.GA20512@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 27/05/2005 11:20:01,
+	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
+ 27/05/2005 11:20:04,
+	Serialize complete at 27/05/2005 11:20:04
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Nick Piggin <piggin@cyberone.com.au> wrote:
-> 
-> 
->>OK, done a bit of work on all other architectures, and diffed to the
->>latest -mm. Any chance you can put it in -mm, Andrew?
->>
->>Also, while I was there, I thought I'd add the set_need_resched() 
->>thing to all the other architectures. I couldn't be bothered doing 2 
->>patches, sorry.
-> 
-> 
-> the need_resched changes are not needed meanwhile - we can do the first 
-> schedule() in rest_init() just fine. (See my earlier patch below.) So 
-> please keep the need_resched thing out of your patch.
-> 
+On Fri, 27 May 2005, Paul Jackson wrote:
 
-OK that's better. Sorry I didn't see your patch earlier.
+> Andrew,
+> 
+> Resubmitting the same patch I submitted yesterday.  Simon Derr
+> and I agree that we need this patch now to fix a kernel crash.
+> 
+> The potential scaling issues are theoretical at this time.
+> When they become more real, we will be in a better position to
+> consider more ambitious changes to cpuset locking and reference
+> counting.
+> 
+> Meanwhile -- this patch is small, simple, and needed.
+> 
+> ===
+> 
+> There is a race in the kernel cpuset code, between the code
+> to handle notify_on_release, and the code to remove a cpuset.
+> The notify_on_release code can end up trying to access a
+> cpuset that has been removed.  In the most common case, this
+> causes a NULL pointer dereference from the routine cpuset_path.
+> However all manner of bad things are possible, in theory at least.
 
-I'll redo this patch. Coming up...
+> Signed-off-by: Paul Jackson <pj@sgi.com>
+> 
+> Index: 2.6-cpuset_path_fix/kernel/cpuset.c
+> ===================================================================
+> --- 2.6-cpuset_path_fix.orig/kernel/cpuset.c	2005-05-25 19:20:27.000000000 -0700
+> +++ 2.6-cpuset_path_fix/kernel/cpuset.c	2005-05-26 00:50:32.000000000 -0700
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+OK for me.
+
+Acked-by: Simon Derr <simon.derr@bull.net>
+

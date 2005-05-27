@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262486AbVE0QLV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262488AbVE0QM2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262486AbVE0QLV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 12:11:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262487AbVE0QLV
+	id S262488AbVE0QM2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 12:12:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbVE0QM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 12:11:21 -0400
-Received: from fire.osdl.org ([65.172.181.4]:50834 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262486AbVE0QLF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 12:11:05 -0400
-Date: Fri, 27 May 2005 09:13:02 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jaroslav Kysela <perex@suse.cz>
-cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: ALSA official git repository
-In-Reply-To: <Pine.LNX.4.58.0505271741490.1757@pnote.perex-int.cz>
-Message-ID: <Pine.LNX.4.58.0505270903230.17402@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0505271741490.1757@pnote.perex-int.cz>
+	Fri, 27 May 2005 12:12:28 -0400
+Received: from moutvdom.kundenserver.de ([212.227.126.249]:9446 "EHLO
+	moutvdomng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S262488AbVE0QMP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 12:12:15 -0400
+Message-ID: <429746E1.2050503@robotech.de>
+Date: Fri, 27 May 2005 18:12:17 +0200
+From: Tobias Reinhard <tracer@robotech.de>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: linux-kernel@vger.kernel.org
+Subject: Problem with concurrent SATA-Writes
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi All!
 
+I have a problem with two SATA-Discs. I have an onboard SIL3114 with 
+four SATA-Ports an onboard NVIDIA with two SATA-Ports - both controllers 
+are disable via BIOS (and are not detected by Linux)(only for this test 
+of course - normally I have other HDD on this ports). The only 
+controller that is found is the add-on controller in a PCI-Slot 
+(SIL3112). And that is the one I have trouble with.
 
-On Fri, 27 May 2005, Jaroslav Kysela wrote:
-> 
-> 	I created new git tree for the ALSA project at:
-> 
-> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/perex/alsa.git
+If I read or write  (via dd) from the first one -> no problems. Same 
+when read or write from the second or when I read (only read!) from both 
+at the same time. Data-Transfer-Rate is around 45MB/s for one HDD.
 
-Your scripts(?) to generate these things are a bit strange, since they
-leave an extra empty line in the commit message, which confuses at least
-gitweb (ie just look at
+The problem occures when I try to write on both discs at the same time. 
+For example I write /dev/zero to the first one and then start to write 
+/dev/zero to the second one. The System-Load goes up to 4 with nearly 
+100% io-wait and nearly no really write-access to the drives.
 
-   http://www.kernel.org/git/?p=linux/kernel/git/perex/alsa.git;a=summary
+Any hints?
 
-and note how the summary thing looks empty).
+- no errormessages in syslog
+- happens with Kernel 2.6.11.7 and with 2.6.12-rc5
+- HDDs are Samsung Spinpoint 200GB
+- (I use the SCSI-SATA-Drivers)
+- anything else you need?
 
-Now, arguably gitweb should ignore whitespace at the beginning, but 
-equally arguably your commits shouldn't have them either...
+Thanks
 
-		Linus
-
+Tobias

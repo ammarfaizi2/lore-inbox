@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbVE0Hpz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261948AbVE0Huo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261920AbVE0Hpz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 03:45:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbVE0HbH
+	id S261948AbVE0Huo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 03:50:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbVE0Huk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 03:31:07 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:59093 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261920AbVE0HZk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 03:25:40 -0400
-MIME-Version: 1.0
+	Fri, 27 May 2005 03:50:40 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:1987 "EHLO
+	nelson.home.kernel.dk") by vger.kernel.org with ESMTP
+	id S261948AbVE0HqK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 03:46:10 -0400
+Date: Fri, 27 May 2005 09:47:13 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] SATA NCQ support
+Message-ID: <20050527074712.GQ1435@suse.de>
+References: <20050527070353.GL1435@suse.de> <4296CAA8.9060307@pobox.com> <20050527073016.GO1435@suse.de> <4296CE3B.3040504@pobox.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17046.52070.257018.186057@alkaid.it.uu.se>
-Date: Fri, 27 May 2005 09:25:26 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: <cutaway@bellsouth.net>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: 387 emulator hack - mutant AAD trick - any objections?
-In-Reply-To: <000701c5628b$583f8060$2800000a@pc365dualp2>
-References: <000701c5628b$583f8060$2800000a@pc365dualp2>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+Content-Disposition: inline
+In-Reply-To: <4296CE3B.3040504@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cutaway@bellsouth.net writes:
- > Will there be any objections to using a quasi-documented mutation of the
- > x86's AAD instruction in the 387 emulator? Every CPU around has to do this
- > mutation correctly or a LOT of existing code will break...
- > 
- > The performance of storing to user space of BCD numbers in the 387 emulator
- > code could be improved significantly by using the mutant AAD instruction
- > trick (i.e. alter its implicit base from 10 to 16).  See reg_ld_str.c, in
- > function FPU_store_bcd()
+On Fri, May 27 2005, Jeff Garzik wrote:
+> Jens Axboe wrote:
+> >That is the typical case, ata_qc_new() succeeds but we cannot issue the
+> >command yet. So where do you want this logic placed? You cannot drop the
+> >host_lock in-between, as that could potentially change the situation.
+> 
+> ata_scsi_translate() in libata-scsi.c, in between the call to 
+> ata_scsi_qc_new() and ata_qc_issue().
+> 
+> something like:
+> 
+> 	if (ata_scsi_qc_new() fails ||
+> 	    (depth > 0 && ata_check_non_ncq_cmd()))
+> 		complete SCSI command with 'queue full'
 
-What do you mean by "quasi-documented" and "mutant"?
-Intel certainly documents the "D5 ib" form as being a
-valid way to change the base from the default 10.
+That is an improvement for SCSI originated commands, I can drop
+ATA_QCFLAG_DEFER then. Will make that change. But what about
+ata_qc_issue() from other places? That is the ugly code, which will hit
+the waiting currently.
 
-The only issue AFAIK is that assemblers may only
-recognise the plain base-10 AAD syntax. No biggie.
+> NOTE!
+> 
+> I just noticed a bug -- When ata_scsi_qc_new() fails, the code should 
+> complete the command with queue-full, but does not.
+> 
+>         qc = ata_scsi_qc_new(ap, dev, cmd, done);
+>         if (!qc)
+>                 return;
 
-/Mikael
+Indeed, looks like an old bug.
+
+-- 
+Jens Axboe
+

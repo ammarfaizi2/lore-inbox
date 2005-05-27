@@ -1,38 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262594AbVE0U7p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262588AbVE0VFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262594AbVE0U7p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 16:59:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262588AbVE0U7o
+	id S262588AbVE0VFd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 17:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262595AbVE0VFc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 16:59:44 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:60603 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S262594AbVE0U7l (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 16:59:41 -0400
-Subject: Re: disowning a process
+	Fri, 27 May 2005 17:05:32 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:62139 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262588AbVE0VF3 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 17:05:29 -0400
+Subject: Re: Linux for Mobile phones and PDAs [long]
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Davy Durham <pubaddr2@davyandbeth.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>,
+To: Xavier Bestel <xavier.bestel@free.fr>
+Cc: Emmanuel Fleury <fleury@cs.aau.dk>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <42976D3A.5020200@davyandbeth.com>
-References: <42975945.7040208@davyandbeth.com>
-	 <1117217088.4957.24.camel@localhost.localdomain>
-	 <42976D3A.5020200@davyandbeth.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1117227438.5730.235.camel@localhost.localdomain>
+In-Reply-To: <1117200577.5084.295.camel@gonzales>
+References: <42971C0E.9030504@cs.aau.dk>
+	 <1117200577.5084.295.camel@gonzales>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+Message-Id: <1117227810.5743.237.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Fri, 27 May 2005 21:57:22 +0100
+Date: Fri, 27 May 2005 22:03:32 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-05-27 at 19:55, Davy Durham wrote:
-> Cool.. I looked at the daemon function and I might be able to use it..
+On Gwe, 2005-05-27 at 14:29, Xavier Bestel wrote:
+> Le vendredi 27 mai 2005 à 15:09 +0200, Emmanuel Fleury a écrit :
+> > The day after,
+> > Nokia announce that they will release patents for Open Source
+> > development (as IBM did)
+> 
+> It's an optimistic way of seeing things ...
 
-Using daemon() is generally wise - it is basically a double fork and
-then one exits so that the orphan child becomes owned by init. However
-it also knows about platform specific considerations like setpgrp v
-setsid, whether an ioctl must be done to disown the controlling tty etc
-which can be fairly OS generation specific.
+Nokia's press spin says and grants less than their release of a GPL
+product did. Its nearness to the EU vote on software patentability is I
+fear what this is all about, an attempt to confuse and baffle the
+finnish MEP's
 

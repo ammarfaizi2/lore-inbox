@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262454AbVE0MtJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262452AbVE0MtB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262454AbVE0MtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 08:49:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262455AbVE0MtJ
+	id S262452AbVE0MtB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 08:49:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262457AbVE0MtB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 08:49:09 -0400
-Received: from vms042pub.verizon.net ([206.46.252.42]:9656 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S262454AbVE0Ms7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 08:48:59 -0400
-Date: Fri, 27 May 2005 08:48:58 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc5-V0.7.47-10
-In-reply-to: <20050527072810.GA7899@elte.hu>
-To: linux-kernel@vger.kernel.org
-Message-id: <200505270848.58563.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <20050527072810.GA7899@elte.hu>
-User-Agent: KMail/1.7
+	Fri, 27 May 2005 08:49:01 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:44966 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262452AbVE0Ms6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 08:48:58 -0400
+Date: Fri, 27 May 2005 14:48:37 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@muc.de>
+Cc: Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
+       bhuey@lnxw.com, nickpiggin@yahoo.com.au, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+Message-ID: <20050527124837.GA7253@elte.hu>
+References: <1116982977.19926.63.camel@dhcp153.mvista.com> <20050524184351.47d1a147.akpm@osdl.org> <4293DCB1.8030904@mvista.com> <20050524192029.2ef75b89.akpm@osdl.org> <20050525063306.GC5164@elte.hu> <m1br6zxm1b.fsf@muc.de> <1117044019.5840.32.camel@sdietrich-xp.vilm.net> <20050526193230.GY86087@muc.de> <20050526200424.GA27162@elte.hu> <20050527123529.GD86087@muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050527123529.GD86087@muc.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 27 May 2005 03:28, Ingo Molnar wrote:
->i have released the -V0.7.47-10 Real-Time Preemption patch, which
-> can be downloaded from the usual place:
->
->    http://redhat.com/~mingo/realtime-preempt/
->
->Changes:
->
-> - posix-timer fixes (George Anzinger )
->
-> - RPC timers fix (John Cooper)
->
-> - x64 build fix (Will Dyson)
->
->to build a -V0.7.47-10 tree, the following patches have to be
-> applied:
->
->   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.11.tar.bz2
->  
-> http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.12-rc5.bz
->2
-> http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.12-r
->c5-V0.7.47-10
->
-> Ingo
 
-Since plain 2.6.12-rc5 will not build here, IPMI problems, does this 
-include the IPMI patches that will let it build here?
+* Andi Kleen <ak@muc.de> wrote:
 
-Or is this fix now included in the 2 snapshots with the .git suffix I 
-see there in the 2.6/snapshots directory and I should apply them 
-prior to the RT patch?
+> [...] Even normal kernels must have reasonably good latency, as long 
+> as it doesnt cost unnecessary performance.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+they do get reasonably good latency (within the hard constraints of the 
+possibilities of a given preemption model), due to the cross-effects 
+between the various preemption models, that i explained in detail in 
+earlier mails. Something that directly improves latencies on 
+CONFIG_PREEMPT improves the 'subsystem-use latencies' on PREEMPT_RT.  
+Also there's the positive interaction between scalability and latencies 
+as well.
+
+but it's certainly not for free. Just like there's no zero-cost
+virtualization, or there's no zero-cost nanokernel approach either,
+there's no zero-cost single-kernel-image deterministic system either.
+
+and the argument about binary kernels - that's a choice up to vendors
+and users. Right now PREEMPT_NONE is dominant, so do you argue that
+CONFIG_PREEMPT should be removed? It's certainly not zero-cost even on
+the source code, witness all the preempt_disable()/preempt_enable() or
+get_cpu()/put_cpu() uses.
+
+	Ingo

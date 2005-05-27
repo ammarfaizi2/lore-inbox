@@ -1,27 +1,25 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S261328AbVEVSbF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S262088AbVE0IgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261328AbVEVSbF (ORCPT <rfc822;akpm@zip.com.au>);
-	Sun, 22 May 2005 14:31:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVEVSbF
+	id S262088AbVE0IgX (ORCPT <rfc822;akpm@zip.com.au>);
+	Fri, 27 May 2005 04:36:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbVE0IgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 22 May 2005 14:31:05 -0400
-Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:12918 "HELO
-	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261328AbVEVSbD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 22 May 2005 14:31:03 -0400
-Message-ID: <4290ADB3.2040501@yahoo.com.br>
-Date: Sun, 22 May 2005 13:05:07 -0300
-From: Pedro Henrique <phphpedrohenrique@yahoo.com.br>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: (no subject)
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 May 2005 04:36:22 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:42408 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S262088AbVE0IgS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 04:36:18 -0400
+Date: Fri, 27 May 2005 10:37:56 +0200
+From: Frank Pavlic <pavlic@de.ibm.com>
+To: linux-net@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: testmail 4th ...
+Message-ID: <20050527083756.GC7005@Goullee.boeblingen.de.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-
+ yet another check, hope it is the last one ...

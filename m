@@ -1,241 +1,196 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbVE0BKo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbVE0BKo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261364AbVE0BKo (ORCPT <rfc822;willy@w.ods.org>);
+	id S261873AbVE0BKo (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 26 May 2005 21:10:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVE0BJj
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261393AbVE0BHg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 21:09:39 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:52497 "HELO ssc.unict.it")
-	by vger.kernel.org with SMTP id S261454AbVE0BFX (ORCPT
+	Thu, 26 May 2005 21:07:36 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:46609 "HELO ssc.unict.it")
+	by vger.kernel.org with SMTP id S261414AbVE0BFU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 21:05:23 -0400
-Subject: [patch 1/4] uml: do_fork calling cleanup
-To: jdike@addtoit.com
-Cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net,
-       blaisorblade@yahoo.it
+	Thu, 26 May 2005 21:05:20 -0400
+Subject: [patch 1/1] [RFC] uml: add and use generic hw_controller_type->release
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it,
+       cw@f00f.org, mingo@redhat.com
 From: blaisorblade@yahoo.it
-Date: Fri, 27 May 2005 02:40:15 +0200
-Message-Id: <20050527004015.F3AE11AEE94@zion.home.lan>
+Date: Fri, 27 May 2005 02:39:26 +0200
+Message-Id: <20050527003926.1FD861AEE92@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Fix the do_fork calling convention: normal arch pass the regs and the new sp
-value to do_fork instead of NULL.
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>, Chris Wedgwood <cw@f00f.org>
+CC: Ingo Molnar <mingo@redhat.com>
 
-Currently the arch-independent code ignores these values, while the UML code
-(actually it's copy_thread) gets the right values by itself.
+Currently UML must explicitly call the UML-specific free_irq_by_irq_and_dev()
+for each free_irq call it's done.
 
-With this patch, things are fixed up.
+This is needed because ->shutdown and/or ->disable are only called when the
+last "action" for that irq is removed.
 
-Low-priority.
+Instead, for UML shared IRQs (UML IRQs are very often, if not always, shared),
+for each dev_id some setup is done, which must be cleared on the release of
+that fd. For instance, for each open console a new instance (i.e. new dev_id)
+of the same IRQ is requested().
+
+Exactly, a fd is stored in an array (pollfds), which is after read by a host
+thread and passed to poll(). Each event registered by poll() triggers an
+interrupt. So, for each free_irq() we must remove the corresponding host fd
+from the table, which we do via this -release() method.
+
+In this patch we add an appropriate hook for this, and remove all uses of it
+by pointing the hook to the said procedure; this is safe to do since the said
+procedure.
+
+Also some cosmetic improvements are included.
+
+This is heavily based on some work by Chris Wedgwood, which however didn't get
+the patch merged for something I'd call a "misunderstanding" (the need for
+this patch wasn't cleanly explained, thus adding the generic hook was felt as
+undesirable).
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- linux-2.6.git-paolo/arch/um/kernel/process_kern.c      |   17 ++-----------
- linux-2.6.git-paolo/arch/um/kernel/skas/process_kern.c |   13 ----------
- linux-2.6.git-paolo/arch/um/kernel/syscall_kern.c      |   19 +++-----------
- linux-2.6.git-paolo/arch/um/kernel/tt/process_kern.c   |   15 +----------
- linux-2.6.git-paolo/arch/um/sys-i386/syscalls.c        |   22 ++---------------
- linux-2.6.git-paolo/arch/um/sys-x86_64/syscalls.c      |   22 ++---------------
- 6 files changed, 17 insertions(+), 91 deletions(-)
+ linux-2.6.git-paolo/arch/um/drivers/line.c       |    2 --
+ linux-2.6.git-paolo/arch/um/drivers/net_kern.c   |    1 -
+ linux-2.6.git-paolo/arch/um/drivers/port_kern.c  |    1 -
+ linux-2.6.git-paolo/arch/um/drivers/xterm_kern.c |    1 -
+ linux-2.6.git-paolo/arch/um/kernel/irq.c         |   11 +++++++----
+ linux-2.6.git-paolo/arch/um/kernel/irq_user.c    |    2 --
+ linux-2.6.git-paolo/include/linux/irq.h          |    1 +
+ linux-2.6.git-paolo/kernel/irq/manage.c          |    4 ++++
+ 8 files changed, 12 insertions(+), 11 deletions(-)
 
-diff -puN arch/um/sys-i386/syscalls.c~uml-do_fork-param-cleanup arch/um/sys-i386/syscalls.c
---- linux-2.6.git/arch/um/sys-i386/syscalls.c~uml-do_fork-param-cleanup	2005-05-27 02:39:32.000000000 +0200
-+++ linux-2.6.git-paolo/arch/um/sys-i386/syscalls.c	2005-05-27 02:39:32.000000000 +0200
-@@ -69,15 +69,10 @@ long sys_clone(unsigned long clone_flags
- {
- 	long ret;
+diff -puN kernel/irq/manage.c~uml-gen-irq-release kernel/irq/manage.c
+--- linux-2.6.git/kernel/irq/manage.c~uml-gen-irq-release	2005-05-25 01:15:46.000000000 +0200
++++ linux-2.6.git-paolo/kernel/irq/manage.c	2005-05-25 01:15:46.000000000 +0200
+@@ -255,6 +255,10 @@ void free_irq(unsigned int irq, void *de
  
--	/* XXX: normal arch do here this pass, and also pass the regs to
--	 * do_fork, instead of NULL. Currently the arch-independent code
--	 * ignores these values, while the UML code (actually it's
--	 * copy_thread) does the right thing. But this should change,
--	 probably. */
--	/*if (!newsp)
--		newsp = UPT_SP(current->thread.regs);*/
-+	if (!newsp)
-+		newsp = UPT_SP(&current->thread.regs.regs);
- 	current->thread.forking = 1;
--	ret = do_fork(clone_flags, newsp, NULL, 0, parent_tid, child_tid);
-+	ret = do_fork(clone_flags, newsp, &current->thread.regs, 0, parent_tid, child_tid);
- 	current->thread.forking = 0;
- 	return(ret);
- }
-@@ -197,14 +192,3 @@ long sys_sigaction(int sig, const struct
+ 			/* Found it - now remove it from the list of entries */
+ 			*pp = action->next;
++
++			if (desc->handler->release)
++				desc->handler->release(irq, dev_id);
++
+ 			if (!desc->action) {
+ 				desc->status |= IRQ_DISABLED;
+ 				if (desc->handler->shutdown)
+diff -puN include/linux/irq.h~uml-gen-irq-release include/linux/irq.h
+--- linux-2.6.git/include/linux/irq.h~uml-gen-irq-release	2005-05-25 01:15:46.000000000 +0200
++++ linux-2.6.git-paolo/include/linux/irq.h	2005-05-25 01:15:46.000000000 +0200
+@@ -47,6 +47,7 @@ struct hw_interrupt_type {
+ 	void (*ack)(unsigned int irq);
+ 	void (*end)(unsigned int irq);
+ 	void (*set_affinity)(unsigned int irq, cpumask_t dest);
++	void (*release)(unsigned int irq, void *dev_id);
+ };
  
- 	return ret;
- }
--
--/*
-- * Overrides for Emacs so that we follow Linus's tabbing style.
-- * Emacs will notice this stuff at the end of the file and automatically
-- * adjust the settings for this buffer only.  This must remain at the end
-- * of the file.
-- * ---------------------------------------------------------------------------
-- * Local variables:
-- * c-file-style: "linux"
-- * End:
-- */
-diff -puN arch/um/kernel/tt/process_kern.c~uml-do_fork-param-cleanup arch/um/kernel/tt/process_kern.c
---- linux-2.6.git/arch/um/kernel/tt/process_kern.c~uml-do_fork-param-cleanup	2005-05-27 02:39:32.000000000 +0200
-+++ linux-2.6.git-paolo/arch/um/kernel/tt/process_kern.c	2005-05-27 02:39:32.000000000 +0200
-@@ -266,8 +266,8 @@ int copy_thread_tt(int nr, unsigned long
+ typedef struct hw_interrupt_type  hw_irq_controller;
+diff -puN arch/um/kernel/irq_user.c~uml-gen-irq-release arch/um/kernel/irq_user.c
+--- linux-2.6.git/arch/um/kernel/irq_user.c~uml-gen-irq-release	2005-05-25 01:15:46.000000000 +0200
++++ linux-2.6.git-paolo/arch/um/kernel/irq_user.c	2005-05-25 01:15:46.000000000 +0200
+@@ -85,8 +85,6 @@ void sigio_handler(int sig, union uml_pt
+ 				next = irq_fd->next;
+ 				if(irq_fd->freed){
+ 					free_irq(irq_fd->irq, irq_fd->id);
+-					free_irq_by_irq_and_dev(irq_fd->irq,
+-								irq_fd->id);
+ 				}
+ 			}
+ 		}
+diff -puN arch/um/drivers/net_kern.c~uml-gen-irq-release arch/um/drivers/net_kern.c
+--- linux-2.6.git/arch/um/drivers/net_kern.c~uml-gen-irq-release	2005-05-25 01:15:46.000000000 +0200
++++ linux-2.6.git-paolo/arch/um/drivers/net_kern.c	2005-05-25 01:15:46.000000000 +0200
+@@ -146,7 +146,6 @@ static int uml_net_close(struct net_devi
+ 	netif_stop_queue(dev);
+ 	spin_lock(&lp->lock);
+ 
+-	free_irq_by_irq_and_dev(dev->irq, dev);
+ 	free_irq(dev->irq, dev);
+ 	if(lp->close != NULL)
+ 		(*lp->close)(lp->fd, &lp->user);
+diff -puN arch/um/drivers/xterm_kern.c~uml-gen-irq-release arch/um/drivers/xterm_kern.c
+--- linux-2.6.git/arch/um/drivers/xterm_kern.c~uml-gen-irq-release	2005-05-25 01:15:46.000000000 +0200
++++ linux-2.6.git-paolo/arch/um/drivers/xterm_kern.c	2005-05-25 01:15:46.000000000 +0200
+@@ -69,7 +69,6 @@ int xterm_fd(int socket, int *pid_out)
+ 	 * isn't set) this will hang... */
+ 	wait_for_completion(&data->ready);
+ 
+-	free_irq_by_irq_and_dev(XTERM_IRQ, data);
+ 	free_irq(XTERM_IRQ, data);
+ 
+ 	ret = data->new_fd;
+diff -puN arch/um/drivers/port_kern.c~uml-gen-irq-release arch/um/drivers/port_kern.c
+--- linux-2.6.git/arch/um/drivers/port_kern.c~uml-gen-irq-release	2005-05-25 01:15:46.000000000 +0200
++++ linux-2.6.git-paolo/arch/um/drivers/port_kern.c	2005-05-25 01:15:46.000000000 +0200
+@@ -257,7 +257,6 @@ int port_wait(void *data)
+ 		 * connection.  Then we loop here throwing out failed 
+ 		 * connections until a good one is found.
+ 		 */
+-		free_irq_by_irq_and_dev(TELNETD_IRQ, conn);
+ 		free_irq(TELNETD_IRQ, conn);
+ 
+ 		if(conn->fd >= 0) break;
+diff -puN arch/um/drivers/line.c~uml-gen-irq-release arch/um/drivers/line.c
+--- linux-2.6.git/arch/um/drivers/line.c~uml-gen-irq-release	2005-05-25 01:15:46.000000000 +0200
++++ linux-2.6.git-paolo/arch/um/drivers/line.c	2005-05-25 01:15:46.000000000 +0200
+@@ -406,14 +406,12 @@ void line_disable(struct tty_struct *tty
+ 	if(line->driver->read_irq == current_irq)
+ 		free_irq_later(line->driver->read_irq, tty);
+ 	else {
+-		free_irq_by_irq_and_dev(line->driver->read_irq, tty);
+ 		free_irq(line->driver->read_irq, tty);
  	}
  
- 	if(current->thread.forking){
--		sc_to_sc(UPT_SC(&p->thread.regs.regs), 
--			 UPT_SC(&current->thread.regs.regs));
-+		sc_to_sc(UPT_SC(&p->thread.regs.regs),
-+			 UPT_SC(&regs->regs));
- 		SC_SET_SYSCALL_RETURN(UPT_SC(&p->thread.regs.regs), 0);
- 		if(sp != 0) SC_SP(UPT_SC(&p->thread.regs.regs)) = sp;
+ 	if(line->driver->write_irq == current_irq)
+ 		free_irq_later(line->driver->write_irq, tty);
+ 	else {
+-		free_irq_by_irq_and_dev(line->driver->write_irq, tty);
+ 		free_irq(line->driver->write_irq, tty);
  	}
-@@ -459,14 +459,3 @@ int is_valid_pid(int pid)
- 	read_unlock(&tasklist_lock);
- 	return(0);
- }
--
--/*
-- * Overrides for Emacs so that we follow Linus's tabbing style.
-- * Emacs will notice this stuff at the end of the file and automatically
-- * adjust the settings for this buffer only.  This must remain at the end
-- * of the file.
-- * ---------------------------------------------------------------------------
-- * Local variables:
-- * c-file-style: "linux"
-- * End:
-- */
-diff -puN arch/um/kernel/skas/process_kern.c~uml-do_fork-param-cleanup arch/um/kernel/skas/process_kern.c
---- linux-2.6.git/arch/um/kernel/skas/process_kern.c~uml-do_fork-param-cleanup	2005-05-27 02:39:32.000000000 +0200
-+++ linux-2.6.git-paolo/arch/um/kernel/skas/process_kern.c	2005-05-27 02:39:32.000000000 +0200
-@@ -107,7 +107,7 @@ int copy_thread_skas(int nr, unsigned lo
  
- 	if(current->thread.forking){
- 	  	memcpy(&p->thread.regs.regs.skas, 
--		       &current->thread.regs.regs.skas, 
-+		       &regs->regs.skas,
- 		       sizeof(p->thread.regs.regs.skas));
- 		REGS_SET_SYSCALL_RETURN(p->thread.regs.regs.skas.regs, 0);
- 		if(sp != 0) REGS_SP(p->thread.regs.regs.skas.regs) = sp;
-@@ -196,14 +196,3 @@ int thread_pid_skas(struct task_struct *
- #warning Need to look up userspace_pid by cpu
- 	return(userspace_pid[0]);
+diff -puN arch/um/include/irq_user.h~uml-gen-irq-release arch/um/include/irq_user.h
+diff -puN arch/um/kernel/irq.c~uml-gen-irq-release arch/um/kernel/irq.c
+--- linux-2.6.git/arch/um/kernel/irq.c~uml-gen-irq-release	2005-05-25 01:15:46.000000000 +0200
++++ linux-2.6.git-paolo/arch/um/kernel/irq.c	2005-05-25 01:15:46.000000000 +0200
+@@ -124,14 +124,16 @@ void irq_unlock(unsigned long flags)
+ 	spin_unlock_irqrestore(&irq_spinlock, flags);
  }
--
--/*
-- * Overrides for Emacs so that we follow Linus's tabbing style.
-- * Emacs will notice this stuff at the end of the file and automatically
-- * adjust the settings for this buffer only.  This must remain at the end
-- * of the file.
-- * ---------------------------------------------------------------------------
-- * Local variables:
-- * c-file-style: "linux"
-- * End:
-- */
-diff -puN arch/um/kernel/syscall_kern.c~uml-do_fork-param-cleanup arch/um/kernel/syscall_kern.c
---- linux-2.6.git/arch/um/kernel/syscall_kern.c~uml-do_fork-param-cleanup	2005-05-27 02:39:32.000000000 +0200
-+++ linux-2.6.git-paolo/arch/um/kernel/syscall_kern.c	2005-05-27 02:39:32.000000000 +0200
-@@ -31,7 +31,8 @@ long sys_fork(void)
- 	long ret;
  
- 	current->thread.forking = 1;
--        ret = do_fork(SIGCHLD, 0, NULL, 0, NULL, NULL);
-+	ret = do_fork(SIGCHLD, UPT_SP(&current->thread.regs.regs),
-+			&current->thread.regs, 0, NULL, NULL);
- 	current->thread.forking = 0;
- 	return(ret);
- }
-@@ -41,8 +42,9 @@ long sys_vfork(void)
- 	long ret;
- 
- 	current->thread.forking = 1;
--	ret = do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD, 0, NULL, 0, NULL,
--		      NULL);
-+	ret = do_fork(CLONE_VFORK | CLONE_VM | SIGCHLD,
-+			UPT_SP(&current->thread.regs.regs), &current->thread.regs, 0,
-+			NULL, NULL);
- 	current->thread.forking = 0;
- 	return(ret);
- }
-@@ -162,14 +164,3 @@ int next_syscall_index(int limit)
- 	spin_unlock(&syscall_lock);
- 	return(ret);
- }
--
--/*
-- * Overrides for Emacs so that we follow Linus's tabbing style.
-- * Emacs will notice this stuff at the end of the file and automatically
-- * adjust the settings for this buffer only.  This must remain at the end
-- * of the file.
-- * ---------------------------------------------------------------------------
-- * Local variables:
-- * c-file-style: "linux"
-- * End:
-- */
-diff -puN arch/um/kernel/process_kern.c~uml-do_fork-param-cleanup arch/um/kernel/process_kern.c
---- linux-2.6.git/arch/um/kernel/process_kern.c~uml-do_fork-param-cleanup	2005-05-27 02:39:32.000000000 +0200
-+++ linux-2.6.git-paolo/arch/um/kernel/process_kern.c	2005-05-27 02:39:32.000000000 +0200
-@@ -108,8 +108,9 @@ int kernel_thread(int (*fn)(void *), voi
- 
- 	current->thread.request.u.thread.proc = fn;
- 	current->thread.request.u.thread.arg = arg;
--	pid = do_fork(CLONE_VM | CLONE_UNTRACED | flags, 0, NULL, 0, NULL,
--		      NULL);
-+	pid = do_fork(CLONE_VM | CLONE_UNTRACED | flags,
-+			0, &current->thread.regs, 0,
-+			NULL, NULL);
- 	if(pid < 0)
- 		panic("do_fork failed in kernel_thread, errno = %d", pid);
- 	return(pid);
-@@ -480,15 +481,3 @@ unsigned long arch_align_stack(unsigned 
- 	return sp & ~0xf;
- }
- #endif
--
--
--/*
-- * Overrides for Emacs so that we follow Linus's tabbing style.
-- * Emacs will notice this stuff at the end of the file and automatically
-- * adjust the settings for this buffer only.  This must remain at the end
-- * of the file.
-- * ---------------------------------------------------------------------------
-- * Local variables:
-- * c-file-style: "linux"
-- * End:
-- */
-diff -puN arch/um/sys-x86_64/syscalls.c~uml-do_fork-param-cleanup arch/um/sys-x86_64/syscalls.c
---- linux-2.6.git/arch/um/sys-x86_64/syscalls.c~uml-do_fork-param-cleanup	2005-05-27 02:39:32.000000000 +0200
-+++ linux-2.6.git-paolo/arch/um/sys-x86_64/syscalls.c	2005-05-27 02:39:32.000000000 +0200
-@@ -174,26 +174,10 @@ long sys_clone(unsigned long clone_flags
+-/*  presently hw_interrupt_type must define (startup || enable) &&
+- *  disable && end */
++/* hw_interrupt_type must define (startup || enable) &&
++ * (shutdown || disable) && end */
+ static void dummy(unsigned int irq)
  {
- 	long ret;
- 
--	/* XXX: normal arch do here this pass, and also pass the regs to
--	 * do_fork, instead of NULL. Currently the arch-independent code
--	 * ignores these values, while the UML code (actually it's
--	 * copy_thread) does the right thing. But this should change,
--	 probably. */
--	/*if (!newsp)
--		newsp = UPT_SP(current->thread.regs);*/
-+	if (!newsp)
-+		newsp = UPT_SP(&current->thread.regs.regs);
- 	current->thread.forking = 1;
--	ret = do_fork(clone_flags, newsp, NULL, 0, parent_tid, child_tid);
-+	ret = do_fork(clone_flags, newsp, &current->thread.regs, 0, parent_tid, child_tid);
- 	current->thread.forking = 0;
- 	return(ret);
  }
--
--/*
-- * Overrides for Emacs so that we follow Linus's tabbing style.
-- * Emacs will notice this stuff at the end of the file and automatically
-- * adjust the settings for this buffer only.  This must remain at the end
-- * of the file.
-- * ---------------------------------------------------------------------------
-- * Local variables:
-- * c-file-style: "linux"
-- * End:
-- */
+ 
+-static struct hw_interrupt_type SIGIO_irq_type = {
++/* This is used for everything else than the timer. */
++static struct hw_interrupt_type normal_irq_type = {
+ 	.typename = "SIGIO",
++	.release = free_irq_by_irq_and_dev,
+ 	.disable = dummy,
+ 	.enable = dummy,
+ 	.ack = dummy,
+@@ -140,6 +142,7 @@ static struct hw_interrupt_type SIGIO_ir
+ 
+ static struct hw_interrupt_type SIGVTALRM_irq_type = {
+ 	.typename = "SIGVTALRM",
++	.release = free_irq_by_irq_and_dev,
+ 	.shutdown = dummy, /* never called */
+ 	.disable = dummy,
+ 	.enable = dummy,
+@@ -160,7 +163,7 @@ void __init init_IRQ(void)
+ 		irq_desc[i].status = IRQ_DISABLED;
+ 		irq_desc[i].action = NULL;
+ 		irq_desc[i].depth = 1;
+-		irq_desc[i].handler = &SIGIO_irq_type;
++		irq_desc[i].handler = &normal_irq_type;
+ 		enable_irq(i);
+ 	}
+ }
 _

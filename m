@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261771AbVE0Opm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261774AbVE0Oqv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261771AbVE0Opm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 10:45:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261774AbVE0Opm
+	id S261774AbVE0Oqv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 10:46:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261781AbVE0Oqv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 10:45:42 -0400
-Received: from smarthost2.sentex.ca ([205.211.164.50]:36106 "EHLO
-	smarthost2.sentex.ca") by vger.kernel.org with ESMTP
-	id S261771AbVE0Opi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 10:45:38 -0400
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "'Ian Leonard'" <ian@smallworld.cx>, <linux-kernel@vger.kernel.org>
-Subject: RE: 2.4.30 - USB serial problem
-Date: Fri, 27 May 2005 10:45:34 -0400
-Organization: Connect Tech Inc.
-Message-ID: <029101c562ca$bd095b30$294b82ce@stuartm>
+	Fri, 27 May 2005 10:46:51 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:44997 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S261774AbVE0Oqm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 10:46:42 -0400
+Message-ID: <429732CE.5010708@gmx.de>
+Date: Fri, 27 May 2005 16:46:38 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Jens Axboe <axboe@suse.de>
+CC: linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [PATCH] SATA NCQ support
+References: <20050527070353.GL1435@suse.de> <20050527131842.GC19161@merlin.emma.line.org> <20050527135258.GW1435@suse.de>
+In-Reply-To: <20050527135258.GW1435@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-In-Reply-To: <42960CCA.5020703@smallworld.cx>
-Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: linux-kernel-owner@vger.kernel.org 
-> We recently upgraded from 2.4.24 to 2.4.28 and the problem described 
-> below appeared. I have tested it on 2.4.30 and the fault still exists.
-[snip]
-> Examining the packet that caused the problem showed it was 
-> very similar 
-> to the others but it contained 0x0a. This obviously stuck out 
-> as being a 
-> candidate for some sort of translation problem.
+Jens Axboe wrote:
 
-That's a software flow control character, have you turned off software
-flow control?
+> NCQ requires hardware support from both the controller and hard drive,
+> you can view Jeff's libata status page for which controllers support
+> NCQ.
 
-..Stu
+So that means controllers that do not support either NCQ or HBQ just
+suck and should not be cared about, and if I were to go into SATA, I
+should just get a new controller and forget about my onboard VIA crap.
+(I read newer VIA are supposed to support AHCI which is good.)
 
+-- 
+Matthias Andree

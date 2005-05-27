@@ -1,105 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262599AbVE0VSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262602AbVE0VTl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262599AbVE0VSM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 17:18:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbVE0VSM
+	id S262602AbVE0VTl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 17:19:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbVE0VTk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 17:18:12 -0400
-Received: from smtp06.auna.com ([62.81.186.16]:36294 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S262599AbVE0VSD convert rfc822-to-8bit
+	Fri, 27 May 2005 17:19:40 -0400
+Received: from wproxy.gmail.com ([64.233.184.199]:57469 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262600AbVE0VTT convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 17:18:03 -0400
-Date: Fri, 27 May 2005 21:18:00 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: 2.6.12-rc3-mm3: ALSA broken ?
-To: linux-kernel@vger.kernel.org
-Cc: Takashi Iwai <tiwai@suse.de>
-References: <20050504221057.1e02a402.akpm@osdl.org>
-	<1115510869l.7472l.0l@werewolf.able.es>
-	<1115594680l.7540l.0l@werewolf.able.es> <s5hd5rx2656.wl@alsa2.suse.de>
-	<1115936836l.8448l.1l@werewolf.able.es> <s5hvf5nsb2r.wl@alsa2.suse.de>
-	<1116331359l.7364l.0l@werewolf.able.es> <s5hll6eoxhf.wl@alsa2.suse.de>
-	<1116369585l.8840l.0l@werewolf.able.es> <s5hoeb8sleq.wl@alsa2.suse.de>
-	<1117151518l.7637l.0l@werewolf.able.es> <s5his15xaz2.wl@alsa2.suse.de>
-In-Reply-To: <s5his15xaz2.wl@alsa2.suse.de> (from tiwai@suse.de on Fri May
-	27 11:41:05 2005)
-X-Mailer: Balsa 2.3.2
-Message-Id: <1117228680l.24619l.0l@werewolf.able.es>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 27 May 2005 17:19:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MYUzfs75T0wmUhuE7vc2CkglFSAMn/X8JeLseqdtURX/3/IuhwNQgFEAgV5Rw+qVwwZUxWCQRxl1XQ8RFSzgRsf4peKN84KNI4GIXz+xrq1+RYS13OyqfxI2EYNtPBw3Du61flz1Tkk5jmNCB2+nT0wyDy0Pm7g2gXHeGD1HPAc=
+Message-ID: <d4dc44d505052714193e2c1d1@mail.gmail.com>
+Date: Fri, 27 May 2005 23:19:13 +0200
+From: Schneelocke <schneelocke@gmail.com>
+Reply-To: Schneelocke <schneelocke@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: ALSA official git repository
+Cc: Linus Torvalds <torvalds@osdl.org>, perex@suse.cz,
+       linux-kernel@vger.kernel.org, git@vger.kernel.org
+In-Reply-To: <20050527135124.0d98c33e.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-X-Auth-Info: Auth:LOGIN IP:[83.138.219.120] Login:jamagallon@able.es Fecha:Fri, 27 May 2005 23:18:01 +0200
+References: <Pine.LNX.4.58.0505271741490.1757@pnote.perex-int.cz>
+	 <Pine.LNX.4.58.0505270903230.17402@ppc970.osdl.org>
+	 <Pine.LNX.4.58.0505271941250.1757@pnote.perex-int.cz>
+	 <Pine.LNX.4.58.0505271113410.17402@ppc970.osdl.org>
+	 <20050527135124.0d98c33e.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 05.27, Takashi Iwai wrote:
-> At Thu, 26 May 2005 23:51:58 +0000,
-> J.A. Magallon wrote:
+On 27/05/05, Andrew Morton <akpm@osdl.org> wrote:
+> Yes, I'll occasionally do patches which were written by "A" as:
 > 
-> > A side note. In the process of solving all this, I tried to generate a patch
-> > for 1.0.9rc4a against -mm. I noticed some things:
-> > - Your code reverts some in-kernel changes related to
-> >     if (ptr)
-> >         kfree(ptr)
-> >   The if is killed in mainline, as kfree accepts null pointers.
+> From: A
+> ...
+> Signed-off-by: B
 > 
-> Could you point which places?
+> And that comes through email as:
 > 
+> ...
+> From: <akpm@osdl.org>
+> ...
+> From: A
+> ...
+> Signed-off-by: B
+> 
+> which means that the algorithm for identifying the author is "the final
+> From:".
+> 
+> I guess the bug here is the use of From: to identify the primary author,
+> because transporting the patch via email adds ambiguity.
+> 
+> Maybe we should introduce "^Author:"?
 
-Oops, I think this is not ALSA specific code.
-I took the directory alsa-kernel, in the alsa tarball, and diffed against
-2.6.12-rc5-mm1:
-
---- /usr/src/linux-2.6.12-rc5-mm1/sound/core/seq/oss/seq_oss_synth.c    2005-05-27 00:25:37.000000000 +0200
-+++ alsa-kernel/core/seq/oss/seq_oss_synth.c    2005-01-20 18:42:37.000000000 +0100
-@@ -325,10 +325,14 @@
-            }
-            snd_use_lock_free(&rec->use_lock);
-        }
--       kfree(info->sysex);
--       info->sysex = NULL;
--       kfree(info->ch);
--       info->ch = NULL;
-+       if (info->sysex) {
-+           kfree(info->sysex);
-+           info->sysex = NULL;
-+       }
-+       if (info->ch) {
-+           kfree(info->ch);
-+           info->ch = NULL;
-+       }
-    }
-    dp->synth_opened = 0;
-    dp->max_synthdev = 0;
-@@ -414,10 +418,14 @@
-                      dp->file_mode) < 0) {
-            midi_synth_dev.opened--;
-            info->opened = 0;
--           kfree(info->sysex);
--           info->sysex = NULL;
--           kfree(info->ch);
--           info->ch = NULL;
-+           if (info->sysex) {
-+               kfree(info->sysex);
-+               info->sysex = NULL;
-+           }
-+           if (info->ch) {
-+               kfree(info->ch);
-+               info->ch = NULL;
-+           }
-        }
-        return;
-    }
-
-This looks like OSS code. Why does the tarball include OSS code ?
-Which is the correct way to generate a patch against a kernel tree ?
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandriva Linux release 2006.0 (Cooker) for i586
-Linux 2.6.11-jam20 (gcc 4.0.0 (4.0.0-3mdk for Mandriva Linux release 2006.0))
-
-
+How about "^Written-by:"? That seems to fit in much more nicely with
+"Signed-off-by:".
+ 
+-- 
+schnee

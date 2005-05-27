@@ -1,81 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262444AbVE0M3o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262450AbVE0Mnr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262444AbVE0M3o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 08:29:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262447AbVE0M3o
+	id S262450AbVE0Mnr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 08:43:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbVE0Mnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 08:29:44 -0400
-Received: from host21.ipowerweb.com ([66.235.218.121]:4997 "EHLO
-	host21.ipowerweb.com") by vger.kernel.org with ESMTP
-	id S262444AbVE0M3i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 08:29:38 -0400
-To: juliet_matthew@ny.com
-Subject: CONSOLATION PRIZE WINNER
-From: juliet_matthew@ny.com
-User-Agent: Instant Web Mail 0.61
-Content-Type: text/plain;
-	charset="ISO-8859-1"
-Message-Id: <E1Dbdrw-0007nr-9V@host21.ipowerweb.com>
-Date: Fri, 27 May 2005 05:23:16 -0700
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - host21.ipowerweb.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [99 99] / [47 12]
-X-AntiAbuse: Sender Address Domain - host21.ipowerweb.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Fri, 27 May 2005 08:43:46 -0400
+Received: from mail1.upco.es ([130.206.70.227]:33447 "EHLO mail1.upco.es")
+	by vger.kernel.org with ESMTP id S262450AbVE0Mnn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 08:43:43 -0400
+Date: Fri, 27 May 2005 14:43:39 +0200
+From: Romano Giannetti <romanol@upco.es>
+To: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc5 build failure
+Message-ID: <20050527124339.GA22605@pern.dea.icai.upco.es>
+Reply-To: romano@dea.icai.upco.es
+Mail-Followup-To: romano@dea.icai.upco.es,
+	linux-kernel@vger.kernel.org
+References: <200505260750.57571.gene.heskett@verizon.net> <200505261634.17849.adobriyan@gmail.com> <200505260839.51153.gene.heskett@verizon.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+In-Reply-To: <200505260839.51153.gene.heskett@verizon.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-                                 POWERBALL INTER LOTTO. BV
-                              POWERBALL LOTTO-WHEEL E-GAME 2005,
-Date: 27 - 05 - 2005
-Ref Nr: PBL/CN/6654/CP
-Dear Consolation Prize Winner,
-                             RE: CONSOLATION PRIZE NOTICE
-----------------------------------------------------------------------------------------------------------------------------
-The POWERBALL INTER LOTTO BV, Netherlands; international lotto e-games
-organizers and sponsors, officially notify you of the final draw result
-of the Powerball Lotto - Wheel E-game draw held on 5th May 2005. All
-draws where conducted at our international corporate office complex in
-The Netherlands.
-We wish to congratulate you on the selection of your email coupon
-number which was selected among the 45 lucky consolation prize winners.
-Your email ID identified with Coupon No.PBL2348974321 and was selected
-by Electronic Random Selection System (ERSS) with entries from the
-50,000 different email addresses enrolled for the Lotto-Wheel E-game.
-Your email ID included among the 50,000 different email addresses where
-submitted by our partner international email provider companies.
-You have won a consolation cash prize of US $500,000.00 (Five Hundred
-Thousand US Dollars Only). The POWERBALL INTER LOTTO BV, have approved
-the payout of your consolation cash prize which will be remunerated
-directly to you by the official 
-Payment Agency Board upon your preferred option.
-Our DUE PROCESS UNIT (DPU) will render to you complete assistance and
-provide additional information and processes for the claims of your
-consultation prize. For more information on claim of your prize, please
-contact the DPU Information Officer
- 
-NAME:     Mr. Frank Ziggy
-E-mail:   frankdikkens@atmail.com
-TEL:      0031-621-987-260
-FAX:      0031-847-300-537
-Congratulations once again from all our staffs on your consolation
-prize winning, we hope you will partake in our forth coming Powerball
-Lotto-Wheel Email-games.
-Regards,
- 
- Juliet Matthew,
-(Lottery Coordinator)
-----------------------------------------------------------------------------------------------------------------------------
-NB: In accordance with the POWERBALL LOTTO -wheel E-games policy and
-regulations, this notification is dispatched directly to only the 45
-lucky consolation prize Winners. This notification also contains
-information that is proprietary, privileged or confidential or
-otherwise legally exempt from disclosure. If you are not the right
-recipient whose email address attached to the lucky numbers along with
-the winning information’s you are not authorized to read, print,
-retain, copy or disseminate this notice or any part of it.
+On Thu, May 26, 2005 at 08:39:51AM -0400, Gene Heskett wrote:
+> 
+> Aarrrhhggg... Thats about 150 chars longer than I can copy-paste here.
+> 
+> I'll wait for rc6 I think.
+> 
+> >http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2
+> >.6.git;a=commitdiff;h=dca79a046b93a81496bb30ca01177fb17f37ab72;hp=5d
+> >af05fbf73fc199e7a93a818e504856d07c5586 -
+
+It would be nice to add a "shortlink this patch" feature to gitweb...have a
+link like  http://kernel.org/git/gitweb.cgi?slink=someASCIIhashof40char...
+
+Romano
 
 
+-- 
+Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
+Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569

@@ -1,75 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262433AbVE0Ksz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262435AbVE0Kux@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262433AbVE0Ksz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 06:48:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbVE0Ksz
+	id S262435AbVE0Kux (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 06:50:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262436AbVE0Kuw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 06:48:55 -0400
-Received: from mailfe10.tele2.se ([212.247.155.33]:20370 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S262433AbVE0Ksw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 06:48:52 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: [PATCH] ACPI build fix for 2.6.12-rc5
-From: Alexander Nyberg <alexn@telia.com>
-To: Len Brown <lenb@toshiba.hsd1.ma.comcast.net>
-Cc: ak@suse.de, torvalds@osdl.org, acpi-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050527085326.GA29767@toshiba.hsd1.ma.comcast.net>
-References: <20050527082150.GA24428@toshiba.hsd1.ma.comcast.net>
-	 <20050527085326.GA29767@toshiba.hsd1.ma.comcast.net>
-Content-Type: text/plain
-Date: Fri, 27 May 2005 12:48:50 +0200
-Message-Id: <1117190930.949.20.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Fri, 27 May 2005 06:50:52 -0400
+Received: from imf25aec.mail.bellsouth.net ([205.152.59.73]:32392 "EHLO
+	imf25aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S262435AbVE0KuT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 06:50:19 -0400
+Message-ID: <002e01c562b1$463ec760$2800000a@pc365dualp2>
+From: <cutaway@bellsouth.net>
+To: "Denis Vlasenko" <vda@ilport.com.ua>, <linux-kernel@vger.kernel.org>
+Cc: <mikpe@csd.uu.se>
+References: <007001c56290$25dd4d00$2800000a@pc365dualp2> <200505271235.41353.vda@ilport.com.ua>
+Subject: Re: 387 emulator hack - mutant AAD trick - any objections?
+Date: Fri, 27 May 2005 07:43:07 -0400
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1478
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-fre 2005-05-27 klockan 04:53 -0400 skrev Len Brown:
-> Linus,
-> Please apply this CONFIG_ACPI=n build fix to 2.6.12-rc5
-> 
-> thanks,
-> Len
-> 
-> Fix 2.6.12 CONFIG_ACPI=n build regression.
-> CONFIG_ACPI_BOOT shall be set only if CONFIG_ACPI.
+You're right about AAD16 Denis :)
+
+Sometimes my mind forgets we're not dealing with something having only 4K of
+ROM/RAM to play with.  An embedded Linux won't fit on THAT ;->  A few bytes
+more here is definately worth it.  No matter anyway, I've managed to rip
+several hundred bytes out of the emulator in the .S assembler files and made
+it faster in the process.  I've just now started looking at the .c files and
+this opportunity kind of jumped out at me and seemed significant since this
+BCD stuff is common in C runtimes printf/sprintf for generating displayable
+floating point numbers.
+
+AAM/SHL/OR/MOV looks like a big win though compared to multiple trips
+through the extended precision divide routines for a BCD pair.
+
+Mikael: The reason I say "quasi/mutant" is because Intel didn't officially
+confess to this particular AAD behavior until many years later.  All the
+earlier 8086-486 programmer refs describe only the base 10 form (i.e. their
+instruction pseudocode in those manuals is in fact wrong).  As Denis
+mentions, it was NEC (on the V20/V30) who got one of these wrong by trusting
+the printed manual rather than the silicon - never a good thing to do with
+Intel ;->   It took Intel until the Pentium to confess to SETALC's existence
+which had been around since 8088/86.<g>
+
+ Tony
+
+----- Original Message ----- 
+From: "Denis Vlasenko" <vda@ilport.com.ua>
+To: <cutaway@bellsouth.net>; <linux-kernel@vger.kernel.org>
+Sent: Friday, May 27, 2005 05:35
+Subject: Re: 387 emulator hack - mutant AAD trick - any objections?
+
+
+> On Friday 27 May 2005 10:44, cutaway@bellsouth.net wrote:
+> > Brain fade...example should be:
+> >
+> > 1) Start with AX = 0x0023
+> > 2) Execute AAM instruction
+> > 3) Now AX = 0x0305 (unpacked BCD)
+> > 4) Execute base 16 AAD instruction
+> > 5) Now AX = 0x0035 (packed BCD)
 >
-
-You can still set CONFIG_ACPI_BOOT && !CONFIG_ACPI by choosing
-CONFIG_PCI => CONFIG_PCI_MMCONFIG (doesn't build very well either).
-
-Make CONFIG_ACPI_BOOT fully depend on CONFIG_ACPI
-
-Signed-off-by: Alexander Nyberg <alexn@telia.com>
-
-Index: linux-2.6/arch/i386/Kconfig
-===================================================================
---- linux-2.6.orig/arch/i386/Kconfig	2005-05-17 23:14:51.000000000 +0200
-+++ linux-2.6/arch/i386/Kconfig	2005-05-27 12:33:42.000000000 +0200
-@@ -1163,7 +1163,7 @@
- 
- config PCI_MMCONFIG
- 	bool
--	depends on PCI && (PCI_GOMMCONFIG || (PCI_GOANY && ACPI))
-+	depends on PCI && ACPI && (PCI_GOMMCONFIG || PCI_GOANY)
- 	select ACPI_BOOT
- 	default y
- 
-Index: linux-2.6/arch/x86_64/Kconfig
-===================================================================
---- linux-2.6.orig/arch/x86_64/Kconfig	2005-05-17 23:14:53.000000000 +0200
-+++ linux-2.6/arch/x86_64/Kconfig	2005-05-27 12:32:59.000000000 +0200
-@@ -421,7 +421,7 @@
- 
- config PCI_MMCONFIG
- 	bool "Support mmconfig PCI config space access"
--	depends on PCI
-+	depends on PCI && ACPI
- 	select ACPI_BOOT
- 
- config UNORDERED_IO
-
+> Intel syntax:
+>
+> shl ah,4
+> or al,ah
+> mov ah,0  (if needed)
+>
+> No need to use AAD16, it is
+> a) doesnt work on some obscure ancient NEC x86 clones IIRC
+> b) is microcoded (slow)
+> --
+> vda
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261751AbVE0OVl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261764AbVE0O1G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261751AbVE0OVl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 10:21:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbVE0OVl
+	id S261764AbVE0O1G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 10:27:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261769AbVE0O1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 10:21:41 -0400
-Received: from rproxy.gmail.com ([64.233.170.194]:65036 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261751AbVE0OVj convert rfc822-to-8bit
+	Fri, 27 May 2005 10:27:06 -0400
+Received: from wproxy.gmail.com ([64.233.184.201]:1136 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261764AbVE0O1B convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 10:21:39 -0400
+	Fri, 27 May 2005 10:27:01 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jhBRjYQFW/9DHlp67ducZA01n83gU6MgOXx0p9cjNUn7r7/jF7jT448/rUQobzMh0Dtq0UxsEYIG8FVtR74Cf0vO30R3pd9UF8eNwzMQJEeAR+BINBypm4gnVgMje1HTaT1A2Ad3huaAa0e0GUlQuhZTlLKqQNga8ey0auhoX0U=
-Message-ID: <d120d500050527072146c2e5ee@mail.gmail.com>
-Date: Fri, 27 May 2005 09:21:39 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Cc: mrmacman_g4@mac.com, linux-kernel@vger.kernel.org, 7eggert@gmx.de
-In-Reply-To: <4296EADA.nail3L111R0J3@burner>
+        b=YcE2Dd/tXlBtWNKhcVpfc8sZevyz2GeEzk5J3gH4SGjxitB7oqpVJ+rZmPPfIKYNBQWYljNCHgoGMSjdRZic9PYLm3SgTzF9n06H+wmOoW+gAepdbJDJv9ZlHKFz+i44WeoK7GJzSPGMPMFiTc9BgyiVkp30UB6UAM/4FAZOd6U=
+Message-ID: <58cb370e05052707274400146a@mail.gmail.com>
+Date: Fri, 27 May 2005 16:27:01 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: Resend: PATCH: Stop 2.6.12rc rmmod from being able to destroy CD hardware
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, axboe@suse.de,
+       torvalds@osdl.org
+In-Reply-To: <1117196287.5743.186.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <4847F-8q-23@gated-at.bofh.it>
-	 <E1Db3zm-0004vF-9j@be1.7eggert.dyndns.org>
-	 <4295005F.nail2KW319F89@burner>
-	 <8E909B69-1F19-4520-B162-B811E288B647@mac.com>
-	 <4296EADA.nail3L111R0J3@burner>
+References: <1117196287.5743.186.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/27/05, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
-> Kyle Moffett <mrmacman_g4@mac.com> wrote:
-> > I set up
-> > my udev so that my green CD burner is /dev/green_burner, and my blue
-> > CD burner
-> > is /dev/blue_burner.  Please tell me again why exactly I can't just
-> > give the
-> > option -dev=/dev/green_burner and have it use my green CD burner?
-> 
-> Try to start with reading the cdrecord manual page. Your question
-> is answered in there.....but if you issue a command that is only
-> halfway correct you will never be able to get the full set of features from
-> cdrtools. Using UNIX device names for SCSI devices is highly nonportable
-> and for this reason not supported by a portable program like cdrecord.
-> 
-> Cdrecord includes the needed features to do what you like, but do not
-> asume that you will be able to force me to make nonportable and Linux
-> specific interfaces a gauge for the design of a portable program.
-> If you read the cdrecord man page, you know that you could
-> happily call cdrecord dev=green_burner.....
-> 
+I believe that this was fixed differently almost moth ago by Jens:
+http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=7da21a02b3587157bd43910ea6d4c76661228ebb;hp=76530da1a9e8ce05963b1f49a098eddc6ec6c534
 
-No, that static mapping is not good. I have an external enclosure that
-does firewire and USB. I want to be able to use "sony-dvd" to access
-it no matter whether it is onnected to USB bus or Firewire and whether
-there are other devices (disks) on USB or firewire. It is possible to
-do with udev creating a link to /dev/sony-dvd.
+It would be nice to have features mask in ide-cd.c done right
+but this sounds like 2.6.13 material.
 
--- 
-Dmitry
+On 5/27/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On an rmmod the cdrom layer when used with ide-cd issues a cache flush
+> atapi command to devices including those that do not support it.
+> According to Jens earlier discussion this isn't merely a minor glitch
+> but can destroy some CD hardware due to firmware bugs in the drive (as
+> per the Mandrake incident)
+> 
+> The IDE CD layer uses a mask of unsupported features, this means that
+> because ide-cd doesn't know about MRW writables it doesn't set the
+> relevant bit for non writables and harm can occur.
+> 
+> The simple fix is attached, making the driver start from ~0 and mask
+> bits the other direction would longer term be safer.
+> 
+> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.12rc3/drivers/ide/ide-cd.c linux-2.6.12rc3-minoride/drivers/ide/ide-cd.c
+> --- linux.vanilla-2.6.12rc3/drivers/ide/ide-cd.c        2005-04-27 16:01:29.000000000 +0100
+> +++ linux-2.6.12rc3-minoride/drivers/ide/ide-cd.c       2005-05-01 14:09:35.000000000 +0100
+> @@ -2860,6 +2922,9 @@
+>                 devinfo->mask |= CDC_CLOSE_TRAY;
+>         if (!CDROM_CONFIG_FLAGS(drive)->mo_drive)
+>                 devinfo->mask |= CDC_MO_DRIVE;
+> +
+> +       /* We must have this masked unless a drive definitely handles it */
+> +       devinfo->mask |= CDC_MRW_W;
+> 
+>         devinfo->disk = info->disk;
+>         return register_cdrom(devinfo);

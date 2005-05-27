@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262323AbVE0Ro3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262530AbVE0Rpo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262323AbVE0Ro3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 13:44:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262519AbVE0Ro2
+	id S262530AbVE0Rpo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 13:45:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbVE0Rpi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 13:44:28 -0400
-Received: from gate.perex.cz ([82.113.61.162]:51433 "EHLO gate.perex.cz")
-	by vger.kernel.org with ESMTP id S261969AbVE0Rnp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 13:43:45 -0400
-Date: Fri, 27 May 2005 19:43:44 +0200 (CEST)
-From: Jaroslav Kysela <perex@suse.cz>
-X-X-Sender: perex@pnote.perex-int.cz
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Git Mailing List <git@vger.kernel.org>
-Subject: Re: ALSA official git repository
-In-Reply-To: <Pine.LNX.4.58.0505270903230.17402@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0505271941250.1757@pnote.perex-int.cz>
-References: <Pine.LNX.4.58.0505271741490.1757@pnote.perex-int.cz>
- <Pine.LNX.4.58.0505270903230.17402@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 27 May 2005 13:45:38 -0400
+Received: from straum.hexapodia.org ([64.81.70.185]:42330 "EHLO
+	straum.hexapodia.org") by vger.kernel.org with ESMTP
+	id S262534AbVE0Ro7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 13:44:59 -0400
+Date: Fri, 27 May 2005 10:44:58 -0700
+From: Andy Isaacson <adi@hexapodia.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Pavel Machek <pavel@ucw.cz>, Dave Jones <davej@codemonkey.org.uk>,
+       linux-kernel@vger.kernel.org
+Subject: Re: swsusp 'disk' fails in bk-current - intel_agp at fault?
+Message-ID: <20050527174458.GA28455@hexapodia.org>
+References: <20050323184919.GA23486@hexapodia.org> <20050525171825.51a06908.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050525171825.51a06908.akpm@osdl.org>
+User-Agent: Mutt/1.4.2i
+X-PGP-Fingerprint: 48 01 21 E2 D4 E4 68 D1  B8 DF 39 B2 AF A3 16 B9
+X-PGP-Key-URL: http://web.hexapodia.org/~adi/pgp.txt
+X-Domestic-Surveillance: money launder bomb tax evasion
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 27 May 2005, Linus Torvalds wrote:
-
-> On Fri, 27 May 2005, Jaroslav Kysela wrote:
+On Wed, May 25, 2005 at 05:18:25PM -0700, Andrew Morton wrote:
+> Andy Isaacson <adi@hexapodia.org> wrote:
+> > I was previously running 2.6.11-rc3 and swsusp was working quite nicely:
+> > echo shutdown > /sys/power/disk
+> > echo disk > /sys/power/state
 > > 
-> > 	I created new git tree for the ALSA project at:
-> > 
-> > rsync://rsync.kernel.org/pub/scm/linux/kernel/git/perex/alsa.git
+> > Now I've upgraded to 2.6.12-rc1, 423b66b6oJOGN68OhmSrBFxxLOtIEA, and it
+> > no longer works reliably.  Almost every time I do the above it blocks in
+> > device_resume() (I haven't had time to track it deeper than that).
 > 
-> Your scripts(?) to generate these things are a bit strange, since they
-> leave an extra empty line in the commit message, which confuses at least
-> gitweb (ie just look at
-> 
->    http://www.kernel.org/git/?p=linux/kernel/git/perex/alsa.git;a=summary
-> 
-> and note how the summary thing looks empty).
+> Andy, can you please retest 2.6.12-rc5 and if these problems remain,
+> generate new reports at bugme.osdl.org?
 
-Okay, sorry for this small bug. I'll recreate the ALSA git tree with
-proper comments again. Also, the author is not correct (should be taken
-from the first Signed-off-by:).
+After two quick tests, it appears to be fixed in 2.6.12-rc5.  Thanks for
+the follow-up.
 
-						Jaroslav
-
------
-Jaroslav Kysela <perex@suse.cz>
-Linux Kernel Sound Maintainer
-ALSA Project, SUSE Labs
+-andy

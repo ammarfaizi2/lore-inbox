@@ -1,60 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262590AbVE0Uwa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262589AbVE0UvF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262590AbVE0Uwa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 16:52:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbVE0Uwa
+	id S262589AbVE0UvF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 16:51:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbVE0Uu4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 16:52:30 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:37323 "EHLO
-	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S262590AbVE0UvM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 16:51:12 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Timur Tabi <timur.tabi@ammasso.com>
-Subject: Re: Will __pa(vmalloc()) ever work?
-Date: Fri, 27 May 2005 22:31:33 +0200
-User-Agent: KMail/1.7.2
-Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-References: <4297746C.10900@ammasso.com> <20050527192925.GA8250@infradead.org> <42977B0D.3040809@ammasso.com>
-In-Reply-To: <42977B0D.3040809@ammasso.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200505272231.34162.arnd@arndb.de>
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 27 May 2005 16:50:56 -0400
+Received: from fire.osdl.org ([65.172.181.4]:8832 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262589AbVE0Uuj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 16:50:39 -0400
+Date: Fri, 27 May 2005 13:51:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: perex@suse.cz, linux-kernel@vger.kernel.org, git@vger.kernel.org
+Subject: Re: ALSA official git repository
+Message-Id: <20050527135124.0d98c33e.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0505271113410.17402@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0505271741490.1757@pnote.perex-int.cz>
+	<Pine.LNX.4.58.0505270903230.17402@ppc970.osdl.org>
+	<Pine.LNX.4.58.0505271941250.1757@pnote.perex-int.cz>
+	<Pine.LNX.4.58.0505271113410.17402@ppc970.osdl.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Freedag 27 Mai 2005 21:54, Timur Tabi wrote:
-> Christoph Hellwig wrote:
+Linus Torvalds <torvalds@osdl.org> wrote:
+>
 > 
-> > It will return the correct physical address for the start of the buffer.
-
-No, not even that. If you do __pa(vmalloc()), the result will point outside of
-the physical address space on most architectures.
-
-> > But given that vmalloc is a non-contingous allocator that's pretty useless.
 > 
-> So as long as the vmalloc'd memory fits inside one page, __pa() will always give the 
-> correct address?  If so, then can't I just call __pa() for every page in the buffer and 
-> get a list of physical addresses?  If I can do that, then how the memory be virtually 
-> contiguous but not physicall contiguous?
-
-If the vmalloc'd memory fits into one page, you should not have used
-vmalloc in the first place ;-). The only reason to ever use vmalloc
-is if you can't get enough memory from alloc_pages reliably.
-
-> > As are physical addresses for anything but low-level architecture code.
+> On Fri, 27 May 2005, Jaroslav Kysela wrote:
+> > 
+> > Okay, sorry for this small bug. I'll recreate the ALSA git tree with
+> > proper comments again. Also, the author is not correct (should be taken
+> > from the first Signed-off-by:).
 > 
-> I don't understand what that means.
+> Hmm.. That's not always true in general, since Sign-off does allow to sign
+> off on other peoples patches (see the "(b)" clause in DCO), but maybe in
+> the ALSA tree it is.
 
-It means that a device driver should never need to use __pa directly, because
-physical addresses don't have a well-defined meaning outside of the memory
-management. A driver should only need to deal with user virtual, kernel virtual
-and bus virtual but never real addresses.
+Yes, I'll occasionally do patches which were written by "A" as:
 
-Also, no device driver should be using vmalloc either: vmalloc fragments
-your address space, pins physical pages and eats small children.
+From: A
+...
+Signed-off-by: B
 
-	Arnd <><
+And that comes through email as:
+
+
+...
+From: <akpm@osdl.org>
+...
+From: A
+...
+Signed-off-by: B
+
+
+which means that the algorithm for identifying the author is "the final
+From:".
+
+I guess the bug here is the use of From: to identify the primary author,
+because transporting the patch via email adds ambiguity.
+
+Maybe we should introduce "^Author:"?
+

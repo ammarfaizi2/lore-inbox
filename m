@@ -1,38 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262533AbVE0Rdv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262527AbVE0Rfv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262533AbVE0Rdv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 13:33:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262539AbVE0Rdv
+	id S262527AbVE0Rfv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 13:35:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262540AbVE0Rfv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 13:33:51 -0400
-Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:45295 "EHLO
-	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S262533AbVE0Rdl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 13:33:41 -0400
-Message-ID: <42975945.7040208@davyandbeth.com>
-Date: Fri, 27 May 2005 12:30:45 -0500
-From: Davy Durham <pubaddr2@davyandbeth.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050322
-X-Accept-Language: en-us, en
+	Fri, 27 May 2005 13:35:51 -0400
+Received: from warden2-p.diginsite.com ([209.195.52.120]:18910 "HELO
+	warden2.diginsite.com") by vger.kernel.org with SMTP
+	id S262527AbVE0RfP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 13:35:15 -0400
+Date: Fri, 27 May 2005 10:34:55 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Lee Revell <rlrevell@joe-job.com>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: weird X problem - priority inversion?
+In-Reply-To: <1117202510.13829.17.camel@mindpipe>
+Message-ID: <Pine.LNX.4.62.0505271034010.14917@qynat.qvtvafvgr.pbz>
+References: <1113428938.16635.13.camel@mindpipe><20050523075508.GC9287@elte.hu><Pine.LNX.4.62.0505230110240.7165@qynat.qvtvafvgr.pbz>
+ <1117202510.13829.17.camel@mindpipe>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: disowning a process
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,  I'm not sure if there's a posix way of doing this, but wanted to 
-check if there is a way in linux.
+On Fri, 27 May 2005, Lee Revell wrote:
 
-I want to have a daemon that fork/execs a new process, but don't want 
-(for various reasons) the responsibility for cleaning up those process 
-with the wait() function family.   I'm assuming that if the init process 
-became the parent of one of these forked processes, then it would clean 
-them up for me (is this assumption true?).    Besides the daemon process 
-exiting, is there a way to disown the process on purpose so that init 
-inherits it?
+> On Mon, 2005-05-23 at 01:11 -0700, David Lang wrote:
+>> remember that the low pri screensaver is just generating the image to be
+>> displayed, it's the high pri X server that's actually doing the work to
+>> display it.
+>
+> Then there needs to be some mechanism to handle it, either in X or the
+> kernel.  Other OSes do not require you to turn off the screensaver to
+> avoid a DoS - they do the obvious thing and run the screensaver at the
+> lowest priority.
+>
+> The problem may be software 3D rendering (I did not have the VIA driver
+> enabled as I did not realize it was in the kernel yet).   Maybe the X
+> server should do the work in a low priority thread.  But it sure
+> shouldn't DoS the system.  Other OSes do not have this problem.
 
-Thanks,
-   Davy
+Actually they don't (or at least didn't the last time I took windows 
+training), if you have a CPU intensive screen saver on a windows server it 
+will seriously load down the box when it kicks in.
 
+David Lang
+
+-- 
+There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
+  -- C.A.R. Hoare

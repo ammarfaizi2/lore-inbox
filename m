@@ -1,92 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVE0BS4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVE0BPK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbVE0BS4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 21:18:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVE0BQM
+	id S261361AbVE0BPK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 21:15:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261271AbVE0BPF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 21:16:12 -0400
-Received: from butter.kernelcode.com ([216.254.126.222]:10764 "HELO
-	butter.kernelcode.com") by vger.kernel.org with SMTP
-	id S261424AbVE0BOM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 21:14:12 -0400
-Subject: Re: Tyan Opteron boards and problems with parallel ports (badpmd)
-From: Christopher Warner <cwarner@kernelcode.com>
-To: "Peter J. Stieber" <developer@toyon.com>, chris@servertogo.com
-Cc: linux-kernel@vger.kernel.org, Bill Davidsen <davidsen@tmr.com>
-In-Reply-To: <022e01c56233$241e5930$1600a8c0@toyon.corp>
-References: <3174569B9743D511922F00A0C943142309F815A6@TYANWEB>
-	 <037801c5616a$b1be6600$1600a8c0@toyon.corp> <4295E9F1.6080304@tmr.com>
-	 <022e01c56233$241e5930$1600a8c0@toyon.corp>
-Content-Type: text/plain
-Date: Thu, 26 May 2005 21:14:06 -0400
-Message-Id: <1117156446.8874.41.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 26 May 2005 21:15:05 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:60177 "HELO ssc.unict.it")
+	by vger.kernel.org with SMTP id S261612AbVE0BFg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 21:05:36 -0400
+Subject: [patch 8/8] uml: remove jail mode + other leftovers
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
+From: blaisorblade@yahoo.it
+Date: Fri, 27 May 2005 02:38:54 +0200
+Message-Id: <20050527003854.C1C351AEE90@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just read the other existing thread linked. Is everyone running the same
-model opteron on these Tyan boards (246)? To update even further.
-Besides the parallel port problem I've sent back about 5 of these tyan
-motherboards. A couple of then simply didn't have the gigabit network
-adapters available via bios. In some cases linux loaded the drivers for
-the adapters regardless of their setting in BIOS. In other cases they
-simply were not available.
 
-Also, are the processes you run swapping out/in memory repeatedly? Or
-using a large amount of threading? Thread pools? I'm trying to get rid
-of this problem myself. I've seen it extensively in 2.6.11.5 and not as
-much in 2.6.11.8 but I haven't tested lately past .8
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 
--Christopher Warner
+This var is currently useless, as it's apparent from reading the code. Until
+2.6.11 it was used in some code related to jail mode, in the same proc.:
 
+        if(jail){
+		while(!reading) sched_yield();
+	}
 
-On Thu, 2005-05-26 at 13:40 -0700, Peter J. Stieber wrote:
-> YhLu>>> Don't always blame BIOS, if you like you could
-> YhLu>>> use LinuxBIOS instead...
-> 
-> PJS>> Just curious, but why isn't this project (LinuxBIOS)
-> PJS>> mentioned on the Tyan web site, or is it and I
-> PJS>> just missed it?
-> PJS>>
-> PJS>> You do work for Tyan, right?
-> 
-> BD = Bill Davidsen
-> BD> What has that to do with anything? I doubt that suggestions
-> BD> about boot options are on the website or come from the
-> BD> Tyan website, either.
-> BD>
-> BD> Note: I'm not endorsing LinuxBIOS for Opteron, I haven't
-> BD> personally tried it. But the value of the suggestion depends
-> BD> on how it works, not who makes it. There appear to be a
-> BD> lot of reports of problems with Opteron lately, if the BIOS
-> BD> isn't buggy then the documentation may have lost in
-> BD> translation.
-> 
-> I have been having the "memory.c bad pmds" with a Tyan S2885 
-> motherboard.
-> 
-> https://www.redhat.com/archives/fedora-list/2005-May/msg01690.html
-> http://www.lib.uaa.alaska.edu/linux-kernel/archive/2005-Week-19/1397.html
-> 
-> When Yhlu brought up the topic of LinuxBIOS, I thought he might be 
-> suggesting that this would prove there are no problems with the BIOS 
-> (i.e. the same problems would occur with LinuxBIOS as with the 
-> motherboards built-in BIOS). Looking at the LinuxBIOS web site, I got 
-> the impression (I may be wrong) that this was a Tyan supported effort. 
-> If that was the case I was wondering why Tyan didn't mention LinuxBIOS 
-> on their web site. It would make me more comfortable if this were a Tyan 
-> supported effort. That's why I asked the question.
-> 
-> I'm just trying anything I can to get rid of the bad pmd messages.
-> 
-> Pete 
-> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+jail mode has been dropped, together with that use, so let's finish dropping
+this.
 
+Also, remove some other useless definitions I met.
+
+Acked-by: Jeff Dike <jdike@addtoit.com>
+
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
+
+ linux-2.6.git-paolo/arch/um/kernel/tt/process_kern.c |    8 +-------
+ linux-2.6.git-paolo/arch/um/kernel/um_arch.c         |    6 ------
+ linux-2.6.git-paolo/include/asm-um/pgtable.h         |    8 --------
+ 3 files changed, 1 insertion(+), 21 deletions(-)
+
+diff -puN arch/um/kernel/tt/process_kern.c~uml-remove-jail-rem arch/um/kernel/tt/process_kern.c
+--- linux-2.6.git/arch/um/kernel/tt/process_kern.c~uml-remove-jail-rem	2005-05-10 00:06:20.000000000 +0200
++++ linux-2.6.git-paolo/arch/um/kernel/tt/process_kern.c	2005-05-10 00:06:42.000000000 +0200
+@@ -32,10 +32,6 @@ void *switch_to_tt(void *prev, void *nex
+ 	unsigned long flags;
+ 	int err, vtalrm, alrm, prof, cpu;
+ 	char c;
+-	/* jailing and SMP are incompatible, so this doesn't need to be 
+-	 * made per-cpu 
+-	 */
+-	static int reading;
+ 
+ 	from = prev;
+ 	to = next;
+@@ -59,13 +55,11 @@ void *switch_to_tt(void *prev, void *nex
+ 	c = 0;
+ 	set_current(to);
+ 
+-	reading = 0;
+ 	err = os_write_file(to->thread.mode.tt.switch_pipe[1], &c, sizeof(c));
+ 	if(err != sizeof(c))
+ 		panic("write of switch_pipe failed, err = %d", -err);
+ 
+-	reading = 1;
+-        if(from->thread.mode.tt.switch_pipe[0] == -1)
++	if(from->thread.mode.tt.switch_pipe[0] == -1)
+ 		os_kill_process(os_getpid(), 0);
+ 
+ 	err = os_read_file(from->thread.mode.tt.switch_pipe[0], &c, sizeof(c));
+diff -puN arch/um/kernel/um_arch.c~uml-remove-jail-rem arch/um/kernel/um_arch.c
+--- linux-2.6.git/arch/um/kernel/um_arch.c~uml-remove-jail-rem	2005-05-10 00:06:20.000000000 +0200
++++ linux-2.6.git-paolo/arch/um/kernel/um_arch.c	2005-05-10 00:06:20.000000000 +0200
+@@ -111,12 +111,6 @@ struct seq_operations cpuinfo_op = {
+ 	.show	= show_cpuinfo,
+ };
+ 
+-pte_t * __bad_pagetable(void)
+-{
+-	panic("Someone should implement __bad_pagetable");
+-	return(NULL);
+-}
+-
+ /* Set in linux_main */
+ unsigned long host_task_size;
+ unsigned long task_size;
+diff -puN include/asm-um/pgtable.h~uml-remove-jail-rem include/asm-um/pgtable.h
+--- linux-2.6.git/include/asm-um/pgtable.h~uml-remove-jail-rem	2005-05-10 00:06:20.000000000 +0200
++++ linux-2.6.git-paolo/include/asm-um/pgtable.h	2005-05-10 00:06:20.000000000 +0200
+@@ -114,17 +114,9 @@ extern unsigned long end_iomem;
+ extern unsigned long pg0[1024];
+ 
+ /*
+- * BAD_PAGETABLE is used when we need a bogus page-table, while
+- * BAD_PAGE is used for a bogus page.
+- *
+  * ZERO_PAGE is a global shared page that is always zero: used
+  * for zero-mapped memory areas etc..
+  */
+-extern pte_t __bad_page(void);
+-extern pte_t * __bad_pagetable(void);
+-
+-#define BAD_PAGETABLE __bad_pagetable()
+-#define BAD_PAGE __bad_page()
+ 
+ #define ZERO_PAGE(vaddr) virt_to_page(empty_zero_page)
+ 
+_

@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVE0Hmp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261940AbVE0HhN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261941AbVE0Hmp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 03:42:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261944AbVE0HmE
+	id S261940AbVE0HhN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 03:37:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbVE0HbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 03:42:04 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:47069 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261941AbVE0Hhk (ORCPT
+	Fri, 27 May 2005 03:31:21 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:10472 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261940AbVE0H22 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 03:37:40 -0400
-Message-ID: <4296CE3B.3040504@pobox.com>
-Date: Fri, 27 May 2005 03:37:31 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SATA NCQ support
-References: <20050527070353.GL1435@suse.de> <4296CAA8.9060307@pobox.com> <20050527073016.GO1435@suse.de>
-In-Reply-To: <20050527073016.GO1435@suse.de>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Fri, 27 May 2005 03:28:28 -0400
+Date: Fri, 27 May 2005 09:28:10 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: George Anzinger <george@mvista.com>, Will Dyson <will.dyson@gmail.com>,
+       john cooper <john.cooper@timesys.com>
+Subject: [patch] Real-Time Preemption, -RT-2.6.12-rc5-V0.7.47-10
+Message-ID: <20050527072810.GA7899@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe wrote:
-> That is the typical case, ata_qc_new() succeeds but we cannot issue the
-> command yet. So where do you want this logic placed? You cannot drop the
-> host_lock in-between, as that could potentially change the situation.
 
-ata_scsi_translate() in libata-scsi.c, in between the call to 
-ata_scsi_qc_new() and ata_qc_issue().
+i have released the -V0.7.47-10 Real-Time Preemption patch, which can be 
+downloaded from the usual place:
 
-something like:
+    http://redhat.com/~mingo/realtime-preempt/
 
-	if (ata_scsi_qc_new() fails ||
-	    (depth > 0 && ata_check_non_ncq_cmd()))
-		complete SCSI command with 'queue full'
+Changes:
 
-NOTE!
+ - posix-timer fixes (George Anzinger )
 
-I just noticed a bug -- When ata_scsi_qc_new() fails, the code should 
-complete the command with queue-full, but does not.
+ - RPC timers fix (John Cooper)
 
-         qc = ata_scsi_qc_new(ap, dev, cmd, done);
-         if (!qc)
-                 return;
+ - x64 build fix (Will Dyson)
 
+to build a -V0.7.47-10 tree, the following patches have to be applied:
+
+   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.11.tar.bz2
+   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.12-rc5.bz2
+   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.12-rc5-V0.7.47-10
+
+	Ingo

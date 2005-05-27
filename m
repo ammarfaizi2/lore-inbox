@@ -1,56 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262617AbVE0WCz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262620AbVE0WFR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262617AbVE0WCz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 18:02:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262618AbVE0WCy
+	id S262620AbVE0WFR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 18:05:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbVE0WFQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 18:02:54 -0400
-Received: from titan.genwebhost.com ([209.9.226.66]:6828 "EHLO
-	titan.genwebhost.com") by vger.kernel.org with ESMTP
-	id S262617AbVE0WCn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 18:02:43 -0400
-Date: Fri, 27 May 2005 15:02:39 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: Process of developing the linux kernel
-Message-Id: <20050527150239.44daa8c7.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - titan.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Fri, 27 May 2005 18:05:16 -0400
+Received: from fire.osdl.org ([65.172.181.4]:37015 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262620AbVE0WEn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 18:04:43 -0400
+Date: Fri, 27 May 2005 15:06:42 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+cc: perex@suse.cz, linux-kernel@vger.kernel.org, git@vger.kernel.org
+Subject: Re: ALSA official git repository
+In-Reply-To: <20050527135124.0d98c33e.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.58.0505271502240.17402@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0505271741490.1757@pnote.perex-int.cz>
+ <Pine.LNX.4.58.0505270903230.17402@ppc970.osdl.org>
+ <Pine.LNX.4.58.0505271941250.1757@pnote.perex-int.cz>
+ <Pine.LNX.4.58.0505271113410.17402@ppc970.osdl.org> <20050527135124.0d98c33e.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Hi,
 
-I was asked to post this to lkml.  I have also posted it to the
-kernel-mentors and kernelnewbies mailing lists.
+On Fri, 27 May 2005, Andrew Morton wrote:
+>
+> Yes, I'll occasionally do patches which were written by "A" as:
+> 
+> From: A
+> ...
+> Signed-off-by: B
+> 
+> And that comes through email as:
+> 
+> 
+> ...
+> From: <akpm@osdl.org>
+> ...
+> From: A
+> ...
+> Signed-off-by: B
+> 
+> 
+> which means that the algorithm for identifying the author is "the final
+> From:".
 
+No, the algorithm is:
+ - the email author, _or_ if there is one, the top "From:" in the body.
 
-Comments/feedback/corrections/input/discussions welcome.
+And the rule is that you never remove (or add to) an existing From:, since 
+the author doesn't change from being passed around.
 
+Put another way: authorship is very different from sign-off. The sign-off 
+gets stacked, the authorship is constant, and thus the rules are 
+different.
 
-I did a tutorial last week (2005-may-19) on the non-technical (or social
-or behavioral) aspects of the Linux kernel development community at an
-IEEE conference.  Maybe it would be of some help to you and others.
-BTW, it's quite long.  67 pages.  It took me 3 hours to present it
-(with discussions).
+Also, authorship is more important than sign-off-ship, so authorship goes 
+at the top, while sign-offs go at the bottom.
 
+> I guess the bug here is the use of From: to identify the primary author,
+> because transporting the patch via email adds ambiguity.
 
-  See http://www.madrone.org/mentor/linux-mentoring.pdf
+No it doesn't, the email "from" just ends up being the "default" if no 
+explicit authorship is noted.
 
+> Maybe we should introduce "^Author:"?
 
-Thanks,
----
-~Randy
+It would still have the same rules, so it wouldn't change anything but the 
+tag, so I don't think there is any real advantage to it.
 
+		Linus

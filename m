@@ -1,136 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262396AbVE0L4r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262440AbVE0MLZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262396AbVE0L4r (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 07:56:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbVE0L4r
+	id S262440AbVE0MLZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 08:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262441AbVE0MLY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 07:56:47 -0400
-Received: from hulk.hostingexpert.com ([69.57.134.39]:49783 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S262396AbVE0L4m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 07:56:42 -0400
-Message-ID: <42970AF2.2010607@m1k.net>
-Date: Fri, 27 May 2005 07:56:34 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-Reply-To: mkrufky@m1k.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: Andrew Morton <akpm@osdl.org>, Vojtech Pavlik <vojtech@suse.cz>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc5-mm1 breaks serio: i8042 AUX port
-References: <429684E7.2060609@m1k.net> <200505262217.00886.dtor_core@ameritech.net> <42969CB1.3010005@m1k.net> <200505262350.03307.dtor_core@ameritech.net>
-In-Reply-To: <200505262350.03307.dtor_core@ameritech.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Fri, 27 May 2005 08:11:24 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:53153 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262440AbVE0MLW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 08:11:22 -0400
+Date: Fri, 27 May 2005 14:10:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
+       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+Message-ID: <20050527121056.GA2238@elte.hu>
+References: <4293DCB1.8030904@mvista.com> <20050524192029.2ef75b89.akpm@osdl.org> <20050525063306.GC5164@elte.hu> <m1br6zxm1b.fsf@muc.de> <1117044019.5840.32.camel@sdietrich-xp.vilm.net> <20050526193230.GY86087@muc.de> <1117138270.1583.44.camel@sdietrich-xp.vilm.net> <20050526202747.GB86087@muc.de> <4296ADE9.50805@yahoo.com.au> <20050527120812.GA375@nietzsche.lynx.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050527120812.GA375@nietzsche.lynx.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov wrote:
 
->On Thursday 26 May 2005 23:06, Michael Krufky wrote:
->  
->
->>Dmitry Torokhov wrote:
->>
->>    
->>
->>>On Thursday 26 May 2005 21:47, Andrew Morton wrote:
->>> 
->>>
->>>      
->>>
->>>>Michael Krufky <mkrufky@m1k.net> wrote:
->>>>   
->>>>
->>>>        
->>>>
->>>>>In 2.6.12-rc5-mm1, I can't use my psaux mouse, but it worked perfectly 
->>>>>fine in both 2.6.12-rc5 and in 2.6.12-rc4-mm2.
->>>>>     
->>>>>
->>>>>          
->>>>>
->>>>Not much point in telling me - I don't work on input code ;)
->>>>
->>>>Cc's added...
->>>>
->>>>   
->>>>
->>>>        
->>>>
->>>>>In 2.6.12-rc5-mm1 , dmesg says:
->>>>>
->>>>>PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
->>>>>Failed to disable AUX port, but continuing anyway... Is this a SiS?
->>>>>If AUX port is really absent please use the 'i8042.noaux' option.
->>>>>serio: i8042 KBD port at 0x60,0x64 irq 1
->>>>>     
->>>>>
->>>>>          
->>>>>
->>>>Did you try the 'i8042.noaux' option?
->>>>
->>>>   
->>>>
->>>>        
->>>>
->>>>>This is what dmesg says in both 2.6.12-rc4-mm2 and 2.6.12-rc5 :
->>>>>
->>>>>PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
->>>>>serio: i8042 AUX port at 0x60,0x64 irq 12
->>>>>serio: i8042 KBD port at 0x60,0x64 irq 1
->>>>>
->>>>>I am using a Shuttle FT61 motherboard.  Is there any more information 
->>>>>necessary to debug this?
->>>>>     
->>>>>
->>>>>          
->>>>>
->>>>I'd agree that this is a regression and that we should identify the code
->>>>change which caused this and fix it up.
->>>>
->>>>Guys?
->>>>
->>>>   
->>>>
->>>>        
->>>>
->>>I plead innocence - bk-input.patch has not changed for at least a month...
->>>
->>>Michael, could you please try applying:
->>>
->>>http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc5/2.6.12-rc5-mm1/broken-out/bk-input.patch
->>>
->>>directly to 2.6.12-rc5 and see if it still breaks?
->>>
->>> 
->>>
->>>      
->>>
->>I applied bk-input.patch directly to 2.6.12-rc5, and it did NOT break it 
->>this time.  Looks like either a different patch is the culprit, or the 
->>combination of this patch and another.
->>
->>    
->>
->
->Please try adding bk-acpi to the mix.
->
->  
->
-Combination of both bk-input and bk-acpi applied to 2.6.12-rc5 still 
-doesn't break it.  What next?
+* Bill Huey <bhuey@lnxw.com> wrote:
 
--- 
-Michael Krufky
+> There's really no good reason why this kernel can't get the same 
+> latency as a nanokernel. The scheduler paths are riddled with SMP 
+> rebalancing stuff and the like which contributes to overall system 
+> latency. Remove those things and replace it with things like direct 
+> CPU pining and you'll start seeing those numbers collapse. [...]
 
+could you be a bit more specific? None of that stuff should show up on 
+UP kernels. Even on SMP, rebalancing is either asynchronous, or O(1).
+
+	Ingo

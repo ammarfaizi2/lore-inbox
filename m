@@ -1,51 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVE0HSM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbVE0HWl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261929AbVE0HSM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 03:18:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbVE0HSD
+	id S261724AbVE0HWl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 03:22:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261939AbVE0HW2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 03:18:03 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:32715 "EHLO
+	Fri, 27 May 2005 03:22:28 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:31930 "EHLO
 	nelson.home.kernel.dk") by vger.kernel.org with ESMTP
-	id S261929AbVE0HO5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 03:14:57 -0400
-Date: Fri, 27 May 2005 09:15:52 +0200
+	id S261724AbVE0HTu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 03:19:50 -0400
+Date: Fri, 27 May 2005 09:20:47 +0200
 From: Jens Axboe <axboe@suse.de>
 To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Mark Lord <liml@rtr.ca>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
 Subject: Re: Playing with SATA NCQ
-Message-ID: <20050527071551.GM1435@suse.de>
-References: <20050526140058.GR1419@suse.de> <42964498.9080909@rtr.ca> <20050527062802.GH1435@suse.de> <4296C505.2030806@pobox.com>
+Message-ID: <20050527072046.GN1435@suse.de>
+References: <20050526140058.GR1419@suse.de> <4295F87B.9070106@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4296C505.2030806@pobox.com>
+In-Reply-To: <4295F87B.9070106@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 27 2005, Jeff Garzik wrote:
-> Jens Axboe wrote:
-> >Yeah, I'm not a huge fan of the need for the above code... If every qc
-> >was tied to a SCSI command, we could just ask for a later requeue of the
-> >request as is currently done with NCQ commands. Alternatively, we could
-> >add an internal libata qc queue for postponing these commands. That
-> >would take a little effort, as the sync errors reported by
-> >ata_qc_issue() would then be need to signalled async through the
-> >completion callback instead.
-> >
-> >Jeff, what do you think?
+On Thu, May 26 2005, Jeff Garzik wrote:
+> >+	return 0;
+> >+}
+> >+
+> >+/**
+> >  *	ata_bus_probe - Reset and probe ATA bus
+> >  *	@ap: Bus to probe
+> >  *
+> >@@ -2753,6 +2830,16 @@
+> > 	struct ata_port *ap = qc->ap;
+> > 	unsigned int tag, do_clear = 0;
+> > 
+> >+	if (likely(qc->flags & ATA_QCFLAG_ACCOUNT)) {
+> >+		if (qc->flags & ATA_QCFLAG_NCQ) {
+> >+			assert(ap->ncq_depth);
+> >+			ap->ncq_depth--;
+> >+		} else {
+> >+			assert(ap->depth);
+> >+			ap->depth--;
+> >+		}
+> >+	}
 > 
-> Just use the SCSI layer for requeueing.  That's what I intended.
+> why is this accounting conditional?
 
-Yep, that is what I'm doing for SCSI originated commands.
+I double checked this. If you agree to move the setting of QCFLAG_ACTIVE
+_after_ successful ap->ops->qc_issue(qc) and clear it _after_
+__ata_qc_complete(qc) then I can just use that bit and kill
+ATA_QCFLAG_ACCOUNT.
 
-> Every qc that matters can be requeued.  Just don't worry about
-> non-queued, non-fast-path commands.  They are typically used in
-> functions that will immediately notice a failure, and handle it
-> accordingly.
-
-So the current wait-around stuff is ok with you?
+What do you think?
 
 -- 
 Jens Axboe

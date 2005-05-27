@@ -1,43 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262607AbVE0VdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262609AbVE0Vkd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262607AbVE0VdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 17:33:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262609AbVE0VdZ
+	id S262609AbVE0Vkd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 17:40:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbVE0Vkd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 17:33:25 -0400
-Received: from natnoddy.rzone.de ([81.169.145.166]:905 "EHLO natnoddy.rzone.de")
-	by vger.kernel.org with ESMTP id S262607AbVE0VdX (ORCPT
+	Fri, 27 May 2005 17:40:33 -0400
+Received: from wproxy.gmail.com ([64.233.184.202]:32408 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262609AbVE0Vk2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 17:33:23 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.12-rc5-mm1
-Date: Fri, 27 May 2005 23:13:19 +0200
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, Chris Zankel <chris@zankel.net>
-References: <20050525134933.5c22234a.akpm@osdl.org>
-In-Reply-To: <20050525134933.5c22234a.akpm@osdl.org>
+	Fri, 27 May 2005 17:40:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=YgHq9T2g6tdr9/c6Bkqe34UhFgo3NkWlHjfVpQISh3OtrpPzFycvbNER7pzi5xUrnRYIc/gs5pnZz5fkAJPHonTj2gCJqSAXd2kypXE8NAiruvIEVcoR2HtFIhFMxE+eDtCuq0zqTETP+b5m3kXzArwh90soT/gYxyAehHfhZDk=
+Message-ID: <429793C8.8090007@gmail.com>
+Date: Fri, 27 May 2005 23:40:24 +0200
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050523)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Jens Axboe <axboe@suse.de>
+CC: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Playing with SATA NCQ
+References: <20050526140058.GR1419@suse.de>
+In-Reply-To: <20050526140058.GR1419@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200505272313.20734.arnd@arndb.de>
+From: Michael Thonke <iogl64nx@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Middeweken 25 Mai 2005 22:49, Andrew Morton wrote:
-> 
-> - New Xtensa architecture: Tensilica Xtensa CPU series.
+Hello Jens,
 
-I noticed this has another copy of all the backwards compatibility
-syscalls in its arch/*/kernel/syscall.c file. This doesn't make
-sense for a new architecture added to the tree.
+I tried to play with your patch on ICH6R and ICH7R chipset also on
+Sil3124R Controller
+with 2xSamsung HD160JJ SATAII drives. But the performance gain stay out..
+anything special to set to get it working? I used a vanilla-kernel
+2.6.12-rc5-git2 for it.
 
-Chris, are there any existing binaries that rely on your implementations
-of old_mmap, sys_fork, sys_vfork, sys_olduname or sys_ipc and need to
-work with future kernels? Otherwise, you should probably drop these.
-For sys_ipc, you would need to add the subcalls directly to the table,
-like parisc does.
+Thanks for assistance/help
 
-	Arnd <><
+Greets
+    Michael

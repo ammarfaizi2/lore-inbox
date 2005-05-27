@@ -1,62 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVE0N4A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbVE0OAI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261679AbVE0N4A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 09:56:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVE0Nz7
+	id S261772AbVE0OAI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 10:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbVE0N7e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 09:55:59 -0400
-Received: from mail.timesys.com ([65.117.135.102]:63238 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S261679AbVE0NzC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 09:55:02 -0400
-Message-ID: <4297265B.3090606@timesys.com>
-Date: Fri, 27 May 2005 09:53:31 -0400
-From: john cooper <john.cooper@timesys.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       john cooper <john.cooper@timesys.com>
-Subject: Re: RT and Cascade interrupts
-References: <Pine.LNX.4.44.0505120740270.31369-100000@dhcp153.mvista.com> <20050513074439.GB25458@elte.hu> <4284A7B6.4090408@timesys.com> <42935715.2000505@timesys.com> <20050527072534.GA8172@elte.hu>
-In-Reply-To: <20050527072534.GA8172@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 27 May 2005 13:48:30.0515 (UTC) FILETIME=[C438A030:01C562C2]
+	Fri, 27 May 2005 09:59:34 -0400
+Received: from rproxy.gmail.com ([64.233.170.194]:11960 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261449AbVE0N5H convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 09:57:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=PXLoUCgGZ84ORfWAZ19rn2TDG0v7vtcH6ePRwoMB9VQx5V8B8mFxzeTrwkcpCcp/iZSkRVxf5UqCgwO+0x/p5bmgMV2Y7GDoZq+qte0sZ91fi7QLa58//7hWbkv4Mw1Hp3qYLGSfD2xxgGCScUCl4MoVpk/Wg2Z0WRV+Jsq1Bzo=
+Message-ID: <d120d50005052706571ad3d6a8@mail.gmail.com>
+Date: Fri, 27 May 2005 08:57:06 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Bennie Kahler-Venter <bennie.venter@shoden.co.za>
+Subject: Re: mouse still losing sync and thus jumping around
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Vojtech Pavlik <vojtech@suse.cz>
+In-Reply-To: <42971978.3090500@shoden.co.za>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <42271D67.4020300@shoden.co.za>
+	 <20050525150713.3b3c2a09.akpm@osdl.org>
+	 <42971978.3090500@shoden.co.za>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * john cooper <john.cooper@timesys.com> wrote:
->>The RPC code is attempting to replicate state of
->>timer ownership for a given rpc_task via RPC_TASK_HAS_TIMER
->>in rpc_task.tk_runstate.  Besides not working
->>correctly in the case of preemptable context it is
->>a replication of state of a timer pending in the
->>cascade structure (ie: timer->base).  The fix
->>changes the RPC code to use timer->base when
->>deciding whether an outstanding timer registration
->>exists during rpc_task tear down.
->>
->>Note: this failure occurred in the 40-04 version of
->>the patch though it applies to more current versions.
->>It was seen when executing stress tests on a number
->>of PPC targets running on an NFS mounted root though
->>was not observed on a x86 target under similar
->>conditions.
+On 5/27/05, Bennie Kahler-Venter <bennie.venter@shoden.co.za> wrote:
+> Andrew Morton wrote:
 > 
+> >
+> > Could you please retest 2.6.12-rc5?
 > 
-> should this fix go upstream too?
+> Did test the kernel with both ACPI and APM enabled:
+> 
+> As you can see from dmesg.out there is till a sync loss.
+> 
 
-Yes.  The RPC code is attempting to replicate existing
-and easily accessible state information in a timer
-structure.  The simplistic means by which it does so
-fails if ksoftirqd/rpc_run_timer() runs in preemptive
-context.
+Could yo uplease try the following patch:
 
--john
+http://www.geocities.com/dt_or/input/2_6_11/psmouse-resync-2.6.11-v11.patch.gz
 
+You will still see the messages but I expect mouse not jump like crazy
+when it happens.
 
 -- 
-john.cooper@timesys.com
+Dmitry

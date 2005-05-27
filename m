@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261850AbVEZX7M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261860AbVE0ACk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261850AbVEZX7M (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 19:59:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261857AbVEZX7M
+	id S261860AbVE0ACk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 20:02:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbVE0ACk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 19:59:12 -0400
-Received: from mail.timesys.com ([65.117.135.102]:26470 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S261850AbVEZX7I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 19:59:08 -0400
-Message-ID: <4296626E.1000903@timesys.com>
-Date: Thu, 26 May 2005 19:57:34 -0400
-From: john cooper <john.cooper@timesys.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Thu, 26 May 2005 20:02:40 -0400
+Received: from de01egw01.freescale.net ([192.88.165.102]:45264 "EHLO
+	de01egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S261860AbVE0ACd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 20:02:33 -0400
+Date: Thu, 26 May 2005 19:02:11 -0500 (CDT)
+From: Kumar Gala <galak@freescale.com>
+X-X-Sender: galak@nylon.am.freescale.net
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org,
+       linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
+       Kim.Phillips@freescale.com
+Subject: [PATCH] ppc32: Simplified load string emulation error checking
+Message-ID: <Pine.LNX.4.61.0505261858180.17674@nylon.am.freescale.net>
 MIME-Version: 1.0
-To: Sven-Thorsten Dietrich <sdietrich@mvista.com>
-CC: Andi Kleen <ak@muc.de>, Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com,
-       bhuey@lnxw.com, nickpiggin@yahoo.com.au, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org,
-       john cooper <john.cooper@timesys.com>
-Subject: Re: RT patch acceptance
-References: <20050525005942.GA24893@nietzsche.lynx.com>	 <1116982977.19926.63.camel@dhcp153.mvista.com>	 <20050524184351.47d1a147.akpm@osdl.org> <4293DCB1.8030904@mvista.com>	 <20050524192029.2ef75b89.akpm@osdl.org> <20050525063306.GC5164@elte.hu>	 <m1br6zxm1b.fsf@muc.de> <1117044019.5840.32.camel@sdietrich-xp.vilm.net>	 <20050526193230.GY86087@muc.de>	 <1117138270.1583.44.camel@sdietrich-xp.vilm.net>	 <20050526202747.GB86087@muc.de> <1117140397.1583.60.camel@sdietrich-xp.vilm.net>
-In-Reply-To: <1117140397.1583.60.camel@sdietrich-xp.vilm.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 26 May 2005 23:52:37.0859 (UTC) FILETIME=[FEE8A330:01C5624D]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sven-Thorsten Dietrich wrote:
-> On Thu, 2005-05-26 at 22:27 +0200, Andi Kleen wrote:
-> 
->>>Here, I am talking about separating out the patch, and applying it
->>>first, not dropping it from the RT implementation. 
->>
->>I really dislike the idea of interrupt threads. It seems totally
->>wrong to me to make such a fundamental operation as an interrupt
->>much slower.  If really any interrupts take too long they should
->>move to workqueues instead and be preempted there. But keep
->>the basic fundamental operations fast please (at least that used to be one
->>of the Linux mottos that served it very well for many years, although more
->>and more people seem to forget it now) 
-> 
-> IRQ threads are configurable.  If you don't want them, you CAN turn them
-> off (if you have already turned them on). 
-> 
-> You don't HAVE to turn them on. 
+The error checking for emulation of load string instructions was overly
+generous and would cause certain valid forms of the instructions to be
+treated as illegal.  We drop the range checking since the architecture
+allows this to be boundedly undefined.  Tests on CPUs that support these
+instructions appear not do cause illegal instruction traps on range
+errors and just allow the execution to occur.
 
-Unless you have configured PREEMPT_RT which requires
-PREEMPT_SOFTIRQS and PREEMPT_HARDIRQS such that
-spinlock-mutexes are able to synchronize interrupt
-processing.  In other PREEMPT_* configuration modes
-inclusion of IRQ threads is optional.
+Thanks to Kim Phillips for debugging this and figuring out what real HW 
+was doing.
 
-I think this may have been the source of confusion in
-prior discussions.
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
--john
+---
+commit 219d058f65dbd666964b1e951b8d491e4b19dc0c
+tree 109a4648d2cc627d17c129bc1ca102a736c817aa
+parent 4b1b1ed3400c905819fc4668838dbec4099f2d8d
+author Kumar K. Gala <kumar.gala@freescale.com> Thu, 26 May 2005 18:55:56 -0500
+committer Kumar K. Gala <kumar.gala@freescale.com> Thu, 26 May 2005 18:55:56 -0500
 
+ ppc/kernel/traps.c |    7 +------
+ 1 files changed, 1 insertion(+), 6 deletions(-)
 
--- 
-john.cooper@timesys.com
+Index: arch/ppc/kernel/traps.c
+===================================================================
+--- 94fc6c9507563e89a75b0838824003b2301b4321/arch/ppc/kernel/traps.c  (mode:100644)
++++ 109a4648d2cc627d17c129bc1ca102a736c817aa/arch/ppc/kernel/traps.c  (mode:100644)
+@@ -408,12 +408,7 @@
+ 
+ 	/* Early out if we are an invalid form of lswx */
+ 	if ((instword & INST_STRING_MASK) == INST_LSWX)
+-		if ((rA >= rT) || (NB_RB >= rT) || (rT == rA) || (rT == NB_RB))
+-			return -EINVAL;
+-
+-	/* Early out if we are an invalid form of lswi */
+-	if ((instword & INST_STRING_MASK) == INST_LSWI)
+-		if ((rA >= rT) || (rT == rA))
++		if ((rT == rA) || (rT == NB_RB))
+ 			return -EINVAL;
+ 
+ 	EA = (rA == 0) ? 0 : regs->gpr[rA];

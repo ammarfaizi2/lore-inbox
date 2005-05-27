@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVE0AYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261861AbVE0A12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261616AbVE0AYf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 20:24:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbVE0AYf
+	id S261861AbVE0A12 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 20:27:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVE0A12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 20:24:35 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:183 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261616AbVE0AYd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 20:24:33 -0400
-Date: Thu, 26 May 2005 17:24:14 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: Simon.Derr@bull.net, akpm@osdl.org, dino@in.ibm.com, torvalds@osdl.org,
+	Thu, 26 May 2005 20:27:28 -0400
+Received: from smtp002.mail.ukl.yahoo.com ([217.12.11.33]:36029 "HELO
+	smtp002.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261861AbVE0A1Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 20:27:25 -0400
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] [PATCH 7/7] UML - Remove unused code
+Date: Fri, 27 May 2005 02:29:14 +0200
+User-Agent: KMail/1.7.2
+Cc: Jeff Dike <jdike@addtoit.com>, akpm@osdl.org, torvalds@osdl.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.12-rc4] cpuset exit NULL dereference fix
-Message-Id: <20050526172414.473f9013.pj@sgi.com>
-In-Reply-To: <20050526130713.2be9bed8.pj@sgi.com>
-References: <20050526082508.927.67614.sendpatchset@tomahawk.engr.sgi.com>
-	<Pine.LNX.4.61.0505261050480.11050@openx3.frec.bull.fr>
-	<20050526130713.2be9bed8.pj@sgi.com>
-Organization: SGI
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <200505262230.j4QMUZDf014704@ccure.user-mode-linux.org>
+In-Reply-To: <200505262230.j4QMUZDf014704@ccure.user-mode-linux.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505270229.16223.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On rereading my post above, I realize that it is confusingly presented.
+On Friday 27 May 2005 00:30, Jeff Dike wrote:
+> This removes two now unused files and a couple of unused functions.  The
+> files were removed by quilt add $file; rm $file; quilt refresh.  If that
+> doesn't do it, I don't know what to do :-)
+Be careful with this patch, since from the header timestamp I guess it won't 
+remove the file... do it by hand yourself when committing it.
 
-Let me try again ...
+> Signed-off-by: Jeff Dike <jdike@addtoit.com>
 
-Issue (1) is that we might need parts of the cpuset to process
-notify_on_release after we have released the cpuset by decrementing its
-reference count to zero.  Unless we hold the global cpuset_sem
-semaphore, if we try to access that released cpuset to get what we need,
-we can crash the kernel.  This is the issue that prompted this patch.
+> Index: linux-2.6.11/arch/um/kernel/initrd_kern.c
+> ===================================================================
+> --- linux-2.6.11.orig/arch/um/kernel/initrd_kern.c	2005-05-26
+> 17:15:14.000000000 -0400 +++
+> linux-2.6.11/arch/um/kernel/initrd_kern.c	2003-09-15 09:40:47.000000000
+This should be 1970 to remove the file IIRC.
 
-Issue (2) is that we have two ways of tracking users of a cpuset, with
-both a reference count of tasks linked to the cpuset, and also a linked
-list of child cpusets.  Unless we hold the global cpuset_sem semaphore,
-there is no atomicly safe way to answer the question "is this cpuset
-free now?"
-
-The solution to Issue (1) is to make local variable copies of the
-information we need from the cpuset, before we let go of it (before we
-decrement its reference count).
-
-The solution to Issue (2) is to have child cpusets also manipulate the
-cpuset reference count, so that the cpuset reference count provides an
-atomic way to detect all uses of a cpuset.
+> Index: linux-2.6.11/arch/um/kernel/initrd_user.c
+> ===================================================================
+> --- linux-2.6.11.orig/arch/um/kernel/initrd_user.c	2005-05-26
+> 17:15:14.000000000 -0400 +++
+> linux-2.6.11/arch/um/kernel/initrd_user.c	2003-09-15 09:40:47.000000000
+> -0400 @@ -1,46 +0,0 @@
+Same for this.
 
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@engr.sgi.com> 1.650.933.1373, 1.925.600.0401
+Paolo Giarrusso, aka Blaisorblade
+Skype user "PaoloGiarrusso"
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade
+
+		
+___________________________________ 
+Yahoo! Messenger: chiamate gratuite in tutto il mondo 
+http://it.beta.messenger.yahoo.com

@@ -1,36 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261924AbVE0HIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbVE0HIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261924AbVE0HIj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 03:08:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261917AbVE0HGL
+	id S261917AbVE0HIl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 03:08:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbVE0HGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 03:06:11 -0400
-Received: from math.ut.ee ([193.40.36.2]:64970 "EHLO math.ut.ee")
-	by vger.kernel.org with ESMTP id S261918AbVE0HBj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 03:01:39 -0400
-Date: Fri, 27 May 2005 10:01:26 +0300 (EEST)
-From: Meelis Roos <mroos@linux.ee>
-To: Jens Axboe <axboe@suse.de>
-cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: ide-cd problem in 2.6.12-rc5 + todays snapshot
-In-Reply-To: <20050527062155.GG1435@suse.de>
-Message-ID: <Pine.SOC.4.61.0505271001050.29054@math.ut.ee>
-References: <Pine.SOC.4.61.0505261816190.28439@math.ut.ee> <20050526171425.GX1419@suse.de>
- <20050527062155.GG1435@suse.de>
+	Fri, 27 May 2005 03:06:06 -0400
+Received: from mail.avantwave.com ([210.17.210.210]:16519 "EHLO
+	mail.avantwave.com") by vger.kernel.org with ESMTP id S261917AbVE0HBX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 03:01:23 -0400
+Message-ID: <4296C5C0.4030409@avantwave.com>
+Date: Fri, 27 May 2005 15:01:20 +0800
+From: Tomko <tomko@avantwave.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: question about /dev/console and /dev/tty
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Seems we do need finer granularity setting of alignment/length
->> restrictions.
->
-> BTW Meelis, any chance you can change that 3 into a 15 for testing
-> purposes?
+Hi everyone,
 
-15 seems to work fine.
+Which device is /dev/console pointing to ? or is it a virtual device ? 
+Actually why this node is made?
 
--- 
-Meelis Roos (mroos@linux.ee)
+Why kernel default not providing a control terminal on /dev/console but 
+on other device ?
+
+It is not surprising that we can use CTRL-C to terminate some process on 
+i386 linux on the Desktop machine,  is that mean the shell on our 
+desktop is not using /dev/console ? so where are the shell running on?
+
+Hope anyone can do me a favour.
+
+Regards,
+TOM
+
+
+

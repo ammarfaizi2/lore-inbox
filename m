@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262496AbVE0QjU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262498AbVE0QnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262496AbVE0QjU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 12:39:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262495AbVE0QjU
+	id S262498AbVE0QnV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 12:43:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbVE0QnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 12:39:20 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:2536 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S262503AbVE0QjF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 12:39:05 -0400
-Message-ID: <42974F08.1C89CF2A@tv-sign.ru>
-Date: Fri, 27 May 2005 20:47:04 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Fri, 27 May 2005 12:43:21 -0400
+Received: from fmr23.intel.com ([143.183.121.15]:7339 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262498AbVE0QnK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 12:43:10 -0400
+Message-Id: <200505271642.j4RGgbg03476@unix-os.sc.intel.com>
+From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+To: "'Andrew Morton'" <akpm@osdl.org>, "Wolfgang Wander" <wwc@rentec.com>
+Cc: <rlrevell@joe-job.com>, <petkov@uni-muenster.de>, <pharon@gmail.com>,
+       <linux-kernel@vger.kernel.org>, <alsa-devel@lists.sourceforge.net>
+Subject: RE: 2.6.12-rc5-mm1 alsa oops
+Date: Fri, 27 May 2005 09:42:38 -0700
 MIME-Version: 1.0
-To: john cooper <john.cooper@timesys.com>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: RT and Cascade interrupts
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.6353
+Thread-Index: AcViO8649koqJsbTR5KcTlOUB0/7TwAaY/6g
+In-Reply-To: <20050526142444.01363443.akpm@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1409
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john cooper wrote:
->
->  rpc_delete_timer(struct rpc_task *task)
->  {
-> -	if (test_and_clear_bit(RPC_TASK_HAS_TIMER, &task->tk_runstate)) {
-> +	if (task->tk_timer.base) {
->  		del_singleshot_timer_sync(&task->tk_timer);
->  		dprintk("RPC: %4d deleting timer\n", task->tk_pid);
->  	}
+Andrew Morton wrote on Thursday, May 26, 2005 2:25 PM
+> > >>
+> > >>this has to do with alsa indirectly. snd_pcm_mmap_data_close() accesses some 
+> > >>vm_area_struct->vm_private_data and apparently there have been some 
+> > >>optimizations to mmap code to avoid fragmentation of vma's so i think there's 
+> > >>the problem. However, we'll need the smarter ones here :))
+> > > 
+> > > 
+> > > Any idea which patches to back out?
+> > 
+> > 
+> > avoiding-mmap-fragmentation-fix-2.patch
+> > 
+> > seems to do the trick. Ken will likely have a fix-3 shortly ;-)
+> > 
+> 
+> Yup.  This appears to be not-an-alsa-bug.  Thanks.
 
-I know nothing about rpc, but this looks completely wrong to me.
 
-Please don't use the ->base directly, use timer_pending(). This
-field is never NULL in -mm tree.
+I'm the guilty one here.  avoiding-mmap-fragmentation-fix-2.patch has
+a major clash using vm_private_data where alsa is also using.  I just
+posted a patch, please try that out.  Thanks.
 
-Next, timer_pending() == 0 does not mean that del_timer_sync() is
-not needed, it may be running on the other CPU.
+http://marc.theaimsgroup.com/?l=linux-mm&m=111721191501940&w=2
 
-Looking at the code for the first time, I can guess that RPC_TASK_HAS_TIMER
-was invented to indicate when it is safe not to wait for timer
-completition. This bit is cleared after ->tk_timeout_fn call in
-the timer's handler. After that rpc_run_timer will not touch *task.
+- Ken
 
-Oleg.

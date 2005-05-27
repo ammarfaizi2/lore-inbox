@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262543AbVE0TA5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262551AbVE0TCQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262543AbVE0TA5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 15:00:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbVE0TAt
+	id S262551AbVE0TCQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 15:02:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbVE0TBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 15:00:49 -0400
-Received: from ra.tuxdriver.com ([24.172.12.4]:47366 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S262543AbVE0TAR (ORCPT
+	Fri, 27 May 2005 15:01:06 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:21479 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S262539AbVE0S7s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 15:00:17 -0400
-Date: Fri, 27 May 2005 15:00:00 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, jgarzik@pobox.com, mchan@broadcom.com
-Subject: Re: [patch 2.6.12-rc5] tg3: add bcm5752 entry to pci.ids
-Message-ID: <20050527190000.GC11592@tuxdriver.com>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"David S. Miller" <davem@davemloft.net>,
-	linux-kernel@vger.kernel.org, netdev@oss.sgi.com, jgarzik@pobox.com,
-	mchan@broadcom.com
-References: <04132005193844.8410@laptop> <04132005193844.8474@laptop> <20050421165956.55bdcb14.davem@davemloft.net> <20050527184750.GB11592@tuxdriver.com> <20050527185334.GA7417@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050527185334.GA7417@infradead.org>
-User-Agent: Mutt/1.4.1i
+	Fri, 27 May 2005 14:59:48 -0400
+Message-ID: <42976E1E.8080909@vc.cvut.cz>
+Date: Fri, 27 May 2005 20:59:42 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Gabor MICSKO <gmicsko@szintezis.hu>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.12-rc2 - 2.6.12-rc5] oops with vmware
+References: <1117206120.1954.7.camel@alderaan.trey.hu>	 <42973C1B.2060101@vc.cvut.cz> <1117218690.1954.9.camel@alderaan.trey.hu>
+In-Reply-To: <1117218690.1954.9.camel@alderaan.trey.hu>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 27, 2005 at 07:53:35PM +0100, Christoph Hellwig wrote:
-> On Fri, May 27, 2005 at 02:47:52PM -0400, John W. Linville wrote:
-
-> > +	1600  NetXtreme BCM5752 Gigabit Ethernet PCI Express
+Gabor MICSKO wrote:
+> Hi Petr!
 > 
-> I don't think you should mention "PCI Express" here.  That can trivially
-> befound it looking at the configuration header.
+> Where can i find this stuff? 
 
-I'm just following what is at pciids.sourceforge.net.  Plus, it is
-already like that for nine other IDs:
+On the Google.  http://platan.vc.cvut.cz/ftp/pub/vmware.
+							Petr
 
-        1659  NetXtreme BCM5721 Gigabit Ethernet PCI Express
-        1677  NetXtreme BCM5751 Gigabit Ethernet PCI Express
-        167d  NetXtreme BCM5751M Gigabit Ethernet PCI Express
-        167e  NetXtreme BCM5751F Fast Ethernet PCI Express
-        169d  NetLink BCM5789 Gigabit Ethernet PCI Express
-        16dd  NetLink BCM5781 Gigabit Ethernet PCI Express
-        16f7  NetXtreme BCM5753 Gigabit Ethernet PCI Express
-        16fd  NetXtreme BCM5753M Gigabit Ethernet PCI Express
-        16fe  NetXtreme BCM5753F Fast Ethernet PCI Express
+> Thanks.
+> 
+> 2005-05-27, p keltezéssel 17.26-kor Petr Vandrovec ezt írta:
+> 
+>>You need vmware-any-any-update90, on
+> 
+> e
 
-The Broadcom guys can speak-up, but I figure they know if "PCI Express"
-is appropriate for their device... :-)
 
-John
--- 
-John W. Linville
-linville@tuxdriver.com

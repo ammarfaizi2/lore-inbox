@@ -1,68 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261869AbVE0Dhs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVE0EBO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261869AbVE0Dhs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 23:37:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbVE0Dhs
+	id S261661AbVE0EBO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 00:01:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbVE0EBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 23:37:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:8094 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261869AbVE0Dhn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 23:37:43 -0400
-Date: Thu, 26 May 2005 23:37:37 -0400
-From: Dave Jones <davej@redhat.com>
-To: P Lavin <lavin.p@redpinesignals.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Error in building modules into kernel.
-Message-ID: <20050527033737.GB29450@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	P Lavin <lavin.p@redpinesignals.com>, linux-kernel@vger.kernel.org
-References: <4296952A.4080309@redpinesignals.com>
+	Fri, 27 May 2005 00:01:13 -0400
+Received: from rproxy.gmail.com ([64.233.170.203]:54251 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261661AbVE0EBI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 00:01:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bAXW8aIdzn7NrZSAz2uDIr3yMU1HjnITzVeIlLpMtvEeVb6OlC+HCa7EU/TVYGjI+acNiVjPrNhhl/Eor/ry0zQMCQD+2sXVFV3xRd8k5bP+bAscrp8JBxqWq8CbjZToOaIQIqtmrqx7xyPYwGcYoIv5umskcdXD8LIcQSqxIfw=
+Message-ID: <311601c9050526210119abb8d8@mail.gmail.com>
+Date: Thu, 26 May 2005 22:01:07 -0600
+From: "Eric D. Mudama" <edmudama@gmail.com>
+Reply-To: "Eric D. Mudama" <edmudama@gmail.com>
+To: Shawn Starr <shawn.starr@rogers.com>
+Subject: Re: [PATCH][2.6.12-rc4][SATA] sil driver - Blacklist Maxtor disk
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org, jgarzik@pobox.com
+In-Reply-To: <20050524162710.55401.qmail@web88008.mail.re2.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <4296952A.4080309@redpinesignals.com>
-User-Agent: Mutt/1.4.1i
+References: <20050524162710.55401.qmail@web88008.mail.re2.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 27, 2005 at 09:04:02AM +0530, P Lavin wrote:
- > Hi,
- > Can anyone tell me why i'm getting this error when i'm trying to build 
- > my driver into kernel ??
- > I'm using fedora-2 with linux-2.6.6
- > 
- >  CC      drivers/net/wireless/rsi_pine1/wpa/rc4.o
- >  CC      drivers/net/wireless/rsi_pine1/wpa/aes_wrap.o
- >  CC      drivers/net/wireless/rsi_pine1/wpa/md5.o
- >  CC      drivers/net/wireless/rsi_pine1/wpa/sha1.o
- >  CC      drivers/net/wireless/rsi_pine1/wpa/common.o
- >  CC      drivers/net/wireless/rsi_pine1/wpa/wpa_ap.o
- >  CC      drivers/net/wireless/rsi_pine1/wpa/ieee802_1x.o
- >  LD      drivers/net/wireless/rsi_pine1/rsiap.o
- >  LD      drivers/net/wireless/rsi_pine1/built-in.o
- >  LD      drivers/net/wireless/built-in.o
- >  LD      drivers/net/built-in.o
- >  LD      drivers/built-in.o
- >  GEN     .version
- >  CHK     include/linux/compile.h
- >  UPD     include/linux/compile.h
- >  CC      init/version.o
- >  LD      init/built-in.o
- >  LD      .tmp_vmlinux1
- > drivers/built-in.o(.exit.text+0xdab): In function `cleanup_module':
- > : multiple definition of `cleanup_module'
- > kernel/built-in.o(.text+0x18f0c): first defined here
- > ld: Warning: size of symbol `cleanup_module' changed from 1 in 
- > kernel/built-in.o to 40 in drivers/built-in.o
- > drivers/built-in.o(.init.text+0xf9fb): In function `init_module':
- > : multiple definition of `init_module'
- > kernel/built-in.o(.text+0x18580): first defined here
- > ld: Warning: size of symbol `init_module' changed from 3 in 
- > kernel/built-in.o to 166 in drivers/built-in.o
- > make: *** [.tmp_vmlinux1] Error 1
+I don't believe that drive is vulnerable to the traditionally
+described SI issue, as it's based on  Marvell bridge IP.  If that
+drive was vulnerable, so would be the drives of more than one other
+large vendor.  I would bet something else is actually the root cause,
+and by using smaller transfers or something you're just hiding the
+race condition, not fixing a root cause.
 
-Probably something simple in the declarations of the init/cleanup routines.
-Where's the source for this driver ?
+(obviously i'd love to see a bus trace of the hang in action, but not
+everyone can swap their cars for bus analyzers...)
 
-		Dave
+--eric
+
+On 5/24/05, Shawn Starr <shawn.starr@rogers.com> wrote:
+> Yes, I know we shouldn't do this, but at the current
+> time, this seems to fix DMA READ/WRITE timeout
+> problems. This also may fix the sata_nv driver as
+> well, but this seems indicate that there is a lowlevel
+> problem with the SATA subsystem.
+> 
+> Signed-off-by: Shawn Starr <shawn.starr@rogers.com>
+> 
+> --- sata_sil.c.old      2005-05-24 12:19:20.312197269
+> -0400
+> +++ sata_sil.c  2005-05-11 14:05:26.000000000 -0400
+> @@ -93,6 +93,7 @@ struct sil_drivelist {
+>         { "ST380011ASL",        SIL_QUIRK_MOD15WRITE
+> },
+>         { "ST3120022ASL",       SIL_QUIRK_MOD15WRITE
+> },
+>         { "ST3160021ASL",       SIL_QUIRK_MOD15WRITE
+> },
+> +       { "Maxtor 6Y080M0",     SIL_QUIRK_MOD15WRITE
+> },
+>         { "Maxtor 4D060H3",     SIL_QUIRK_UDMA5MAX },
+>         { }
+>  };
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-ide" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>

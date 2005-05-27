@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261952AbVE0SHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262043AbVE0SOv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261952AbVE0SHb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 14:07:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbVE0SHb
+	id S262043AbVE0SOv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 14:14:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262381AbVE0SOv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 14:07:31 -0400
-Received: from fire.osdl.org ([65.172.181.4]:21694 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261952AbVE0SHU (ORCPT
+	Fri, 27 May 2005 14:14:51 -0400
+Received: from fire.osdl.org ([65.172.181.4]:40895 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262043AbVE0SOo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 14:07:20 -0400
-Date: Fri, 27 May 2005 11:07:11 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, akpm@osdl.org, stable@kernel.org
-Subject: Re: Linux 2.6.11.11
-Message-ID: <20050527180711.GH27549@shell0.pdx.osdl.net>
-References: <20050527160437.GL23013@shell0.pdx.osdl.net> <1117213882.13829.73.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1117213882.13829.73.camel@mindpipe>
-User-Agent: Mutt/1.5.6i
+	Fri, 27 May 2005 14:14:44 -0400
+Date: Fri, 27 May 2005 11:16:44 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jaroslav Kysela <perex@suse.cz>
+cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: ALSA official git repository
+In-Reply-To: <Pine.LNX.4.58.0505271941250.1757@pnote.perex-int.cz>
+Message-ID: <Pine.LNX.4.58.0505271113410.17402@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0505271741490.1757@pnote.perex-int.cz>
+ <Pine.LNX.4.58.0505270903230.17402@ppc970.osdl.org>
+ <Pine.LNX.4.58.0505271941250.1757@pnote.perex-int.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Lee Revell (rlrevell@joe-job.com) wrote:
-> On Fri, 2005-05-27 at 09:04 -0700, Chris Wright wrote:
-> > Gregor Jasny:
-> >   o usbusx2y: prevent oops & dead keyboard on usb unplugging while the device is being used
-> >   o usbaudio: prevent oops & dead keyboard on usb unplugging while the device is being used
-> 
-> Um, Karsten Wiese is the author of this patch.  Someone must have signed
-> off on it incorrectly, presumably the person who submitted it for
-> -stable.
 
-Yes, you are right, the git commit scripts culled that author info from
-the person who submitted it to -stable.
+
+On Fri, 27 May 2005, Jaroslav Kysela wrote:
+> 
+> Okay, sorry for this small bug. I'll recreate the ALSA git tree with
+> proper comments again. Also, the author is not correct (should be taken
+> from the first Signed-off-by:).
+
+Hmm.. That's not always true in general, since Sign-off does allow to sign
+off on other peoples patches (see the "(b)" clause in DCO), but maybe in
+the ALSA tree it is.
+
+Are you coming from a CVS tree or what? It's clearly not my patch 
+applicator thing, since that one removes spaces, I'm pretty sure.
+
+		Linus

@@ -1,65 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262602AbVE0VTl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262605AbVE0VXH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262602AbVE0VTl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 17:19:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262601AbVE0VTk
+	id S262605AbVE0VXH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 17:23:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262603AbVE0VU6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 17:19:40 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:57469 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262600AbVE0VTT convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 17:19:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MYUzfs75T0wmUhuE7vc2CkglFSAMn/X8JeLseqdtURX/3/IuhwNQgFEAgV5Rw+qVwwZUxWCQRxl1XQ8RFSzgRsf4peKN84KNI4GIXz+xrq1+RYS13OyqfxI2EYNtPBw3Du61flz1Tkk5jmNCB2+nT0wyDy0Pm7g2gXHeGD1HPAc=
-Message-ID: <d4dc44d505052714193e2c1d1@mail.gmail.com>
-Date: Fri, 27 May 2005 23:19:13 +0200
-From: Schneelocke <schneelocke@gmail.com>
-Reply-To: Schneelocke <schneelocke@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: ALSA official git repository
-Cc: Linus Torvalds <torvalds@osdl.org>, perex@suse.cz,
-       linux-kernel@vger.kernel.org, git@vger.kernel.org
-In-Reply-To: <20050527135124.0d98c33e.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.58.0505271741490.1757@pnote.perex-int.cz>
-	 <Pine.LNX.4.58.0505270903230.17402@ppc970.osdl.org>
-	 <Pine.LNX.4.58.0505271941250.1757@pnote.perex-int.cz>
-	 <Pine.LNX.4.58.0505271113410.17402@ppc970.osdl.org>
-	 <20050527135124.0d98c33e.akpm@osdl.org>
+	Fri, 27 May 2005 17:20:58 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:18401 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262601AbVE0VTz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 17:19:55 -0400
+Message-ID: <42978EF1.5000703@pobox.com>
+Date: Fri, 27 May 2005 17:19:45 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+CC: James Bottomley <James.Bottomley@steeleye.com>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] fix ide-scsi EH locking
+Content-Type: multipart/mixed;
+ boundary="------------090503010009000008000405"
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27/05/05, Andrew Morton <akpm@osdl.org> wrote:
-> Yes, I'll occasionally do patches which were written by "A" as:
-> 
-> From: A
-> ...
-> Signed-off-by: B
-> 
-> And that comes through email as:
-> 
-> ...
-> From: <akpm@osdl.org>
-> ...
-> From: A
-> ...
-> Signed-off-by: B
-> 
-> which means that the algorithm for identifying the author is "the final
-> From:".
-> 
-> I guess the bug here is the use of From: to identify the primary author,
-> because transporting the patch via email adds ambiguity.
-> 
-> Maybe we should introduce "^Author:"?
+This is a multi-part message in MIME format.
+--------------090503010009000008000405
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-How about "^Written-by:"? That seems to fit in much more nicely with
-"Signed-off-by:".
+
+SCSI's error handling hooks are called inside
+
+	spin_lock_irqsave(host_lock, flags)
+	...
+	spin_unlock_irqrestore(host_lock, flags)
+
+ide-scsi's SCSI EH functions, which operate inside the above lock, wrap 
+several operations inside
+
+	spin_lock_irq(ide_lock)
+	...
+	spin_unlock_irq(ide_lock)
+
+Use of the unconditional spin_lock_irq(), as opposed to 
+spin_lock_irqsave(), corrupts the irq context.
+
+Attached patch (against latest git) updates ide-scsi to simply use the 
+spin_lock() variant, since we know we are already inside of 
+spin_lock_irqsave().
+
+Patch untested, but at least the code isn't obviously wrong now...
+
+
+
+--------------090503010009000008000405
+Content-Type: text/plain;
+ name="patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="patch"
+
+diff --git a/drivers/scsi/ide-scsi.c b/drivers/scsi/ide-scsi.c
+--- a/drivers/scsi/ide-scsi.c
++++ b/drivers/scsi/ide-scsi.c
+@@ -46,6 +46,7 @@
+ #include <linux/slab.h>
+ #include <linux/ide.h>
+ #include <linux/scatterlist.h>
++#include <linux/delay.h>
  
--- 
-schnee
+ #include <asm/io.h>
+ #include <asm/bitops.h>
+@@ -959,7 +960,8 @@ static int idescsi_eh_abort (struct scsi
+ 	if (test_bit(IDESCSI_LOG_CMD, &scsi->log))
+ 		printk (KERN_WARNING "ide-scsi: drive did%s become ready\n", busy?" not":"");
+ 
+-	spin_lock_irq(&ide_lock);
++	/* remember, we are inside spin_lock_irq() already */
++	spin_lock(&ide_lock);
+ 
+ 	/* If there is no pc running we're done (our interrupt took care of it) */
+ 	if (!scsi->pc) {
+@@ -985,7 +987,7 @@ static int idescsi_eh_abort (struct scsi
+ 	}
+ 
+ ide_unlock:
+-	spin_unlock_irq(&ide_lock);
++	spin_unlock(&ide_lock);
+ no_drive:
+ 	if (test_bit(IDESCSI_LOG_CMD, &scsi->log))
+ 		printk (KERN_WARNING "ide-scsi: abort returns %s\n", ret == SUCCESS?"success":"failed");
+@@ -1012,7 +1014,8 @@ static int idescsi_eh_reset (struct scsi
+ 		return FAILED;
+ 	}
+ 
+-	spin_lock_irq(&ide_lock);
++	/* remember, we are inside spin_lock_irq() already */
++	spin_lock(&ide_lock);
+ 
+ 	if (!scsi->pc || (req = scsi->pc->rq) != HWGROUP(drive)->rq || !HWGROUP(drive)->handler) {
+ 		printk (KERN_WARNING "ide-scsi: No active request in idescsi_eh_reset\n");
+@@ -1038,16 +1041,15 @@ static int idescsi_eh_reset (struct scsi
+ 	HWGROUP(drive)->rq = NULL;
+ 	HWGROUP(drive)->handler = NULL;
+ 	HWGROUP(drive)->busy = 1;		/* will set this to zero when ide reset finished */
+-	spin_unlock_irq(&ide_lock);
++	spin_unlock(&ide_lock);
+ 
+ 	ide_do_reset(drive);
+ 
+ 	/* ide_do_reset starts a polling handler which restarts itself every 50ms until the reset finishes */
+ 
+ 	do {
+-		set_current_state(TASK_UNINTERRUPTIBLE);
+ 		spin_unlock_irq(cmd->device->host->host_lock);
+-		schedule_timeout(HZ/20);
++		msleep(50);
+ 		spin_lock_irq(cmd->device->host->host_lock);
+ 	} while ( HWGROUP(drive)->handler );
+ 
+
+--------------090503010009000008000405--

@@ -1,88 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262583AbVE0Ut0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262590AbVE0Uwa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262583AbVE0Ut0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 16:49:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262587AbVE0Ut0
+	id S262590AbVE0Uwa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 16:52:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbVE0Uwa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 16:49:26 -0400
-Received: from fest.stud.feec.vutbr.cz ([147.229.72.16]:34789 "EHLO
-	fest.stud.feec.vutbr.cz") by vger.kernel.org with ESMTP
-	id S262583AbVE0Up4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 16:45:56 -0400
-Message-ID: <42978730.4040205@stud.feec.vutbr.cz>
-Date: Fri, 27 May 2005 22:46:40 +0200
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Fri, 27 May 2005 16:52:30 -0400
+Received: from natnoddy.rzone.de ([81.169.145.166]:37323 "EHLO
+	natnoddy.rzone.de") by vger.kernel.org with ESMTP id S262590AbVE0UvM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 16:51:12 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Timur Tabi <timur.tabi@ammasso.com>
+Subject: Re: Will __pa(vmalloc()) ever work?
+Date: Fri, 27 May 2005 22:31:33 +0200
+User-Agent: KMail/1.7.2
+Cc: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+References: <4297746C.10900@ammasso.com> <20050527192925.GA8250@infradead.org> <42977B0D.3040809@ammasso.com>
+In-Reply-To: <42977B0D.3040809@ammasso.com>
 MIME-Version: 1.0
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       dwalker@mvista.com, Joe King <atom_bomb@rocketmail.com>,
-       ganzinger@mvista.com, Lee Revell <rlrevell@joe-job.com>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
-References: <20050523082637.GA15696@elte.hu> <4294E24E.8000003@stud.feec.vutbr.cz>
-In-Reply-To: <4294E24E.8000003@stud.feec.vutbr.cz>
-Content-Type: multipart/mixed;
- boundary="------------040605090609010207070109"
+Content-Disposition: inline
+Message-Id: <200505272231.34162.arnd@arndb.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040605090609010207070109
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-I wrote:
-> I'm attaching a patch which changes a semaphore in cpufreq into a 
-> completion. With this patch, my system runs OK even with cpufreqd.
+On Freedag 27 Mai 2005 21:54, Timur Tabi wrote:
+> Christoph Hellwig wrote:
 > 
+> > It will return the correct physical address for the start of the buffer.
 
-Although the patch worked for me, it was probably bogus.
-The real reason why cpufreq caused problems was that it does:
-   init_MUTEX_LOCKED(&policy->lock);
-and later:
-   up(&policy->lock);
-where policy->lock is declared as:
-   struct semaphore        lock;
+No, not even that. If you do __pa(vmalloc()), the result will point outside of
+the physical address space on most architectures.
 
-In PREEMPT_RT, the init_MUTEX_LOCKED is defined in include/linux/rt_lock.h :
-   /*
-    * No locked initialization for RT semaphores:
-    */
-   #define init_MUTEX_LOCKED(sem) compat_init_MUTEX_LOCKED(sem)
-(BTW, I don't understand why we have init_MUTEX but no init_MUTEX_LOCKED 
-for RT semaphores).
+> > But given that vmalloc is a non-contingous allocator that's pretty useless.
+> 
+> So as long as the vmalloc'd memory fits inside one page, __pa() will always give the 
+> correct address?  If so, then can't I just call __pa() for every page in the buffer and 
+> get a list of physical addresses?  If I can do that, then how the memory be virtually 
+> contiguous but not physicall contiguous?
 
-Therefore we have an inconsistency - the up() gets translated into 
-rt_up() because the lock is of type struct semaphore. However, 
-compat_init_MUTEX_LOCKED assumes that it has a struct compat_semaphore.
-The compiler actually warns about incompatible pointers but I missed 
-that warning at first.
-So the fix is to change the lock type into compat_semaphore. I'm 
-attaching the patch. It works for me with 2.6.12-rc5-RT-V0.7.47-12.
+If the vmalloc'd memory fits into one page, you should not have used
+vmalloc in the first place ;-). The only reason to ever use vmalloc
+is if you can't get enough memory from alloc_pages reliably.
 
-Regards
-Michal
+> > As are physical addresses for anything but low-level architecture code.
+> 
+> I don't understand what that means.
 
---------------040605090609010207070109
-Content-Type: text/plain;
- name="cpufreq-rt.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cpufreq-rt.diff"
+It means that a device driver should never need to use __pa directly, because
+physical addresses don't have a well-defined meaning outside of the memory
+management. A driver should only need to deal with user virtual, kernel virtual
+and bus virtual but never real addresses.
 
-diff -Nurp -X linux-RT4/Documentation/dontdiff linux-RT4/include/linux/cpufreq.h linux-RT3/include/linux/cpufreq.h
---- linux-RT4/include/linux/cpufreq.h	2005-05-27 22:00:11.000000000 +0200
-+++ linux-RT3/include/linux/cpufreq.h	2005-05-27 21:54:52.000000000 +0200
-@@ -81,7 +81,7 @@ struct cpufreq_policy {
-         unsigned int		policy; /* see above */
- 	struct cpufreq_governor	*governor; /* see below */
- 
-- 	struct semaphore	lock;   /* CPU ->setpolicy or ->target may
-+ 	struct compat_semaphore	lock;   /* CPU ->setpolicy or ->target may
- 					   only be called once a time */
- 
- 	struct work_struct	update; /* if update_policy() needs to be
+Also, no device driver should be using vmalloc either: vmalloc fragments
+your address space, pins physical pages and eats small children.
 
---------------040605090609010207070109--
+	Arnd <><

@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbVE0CQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbVE0CRA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261414AbVE0CQe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 22:16:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVE0CQe
+	id S261439AbVE0CRA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 22:17:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbVE0CQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 22:16:34 -0400
-Received: from hulk.hostingexpert.com ([69.57.134.39]:62614 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S261414AbVE0CQc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 22:16:32 -0400
-Message-ID: <42968306.9060609@m1k.net>
-Date: Thu, 26 May 2005 22:16:38 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-Reply-To: mkrufky@m1k.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+	Thu, 26 May 2005 22:16:59 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:26588 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261439AbVE0CQz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 22:16:55 -0400
+Message-ID: <42968312.90901@pobox.com>
+Date: Thu, 26 May 2005 22:16:50 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.12-rc5-mm1 breaks serio: i8042 AUX port
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Francois Romieu <romieu@fr.zoreil.com>
+CC: Grant Grundler <grundler@parisc-linux.org>, akpm@osdl.org,
+       T-Bone@parisc-linux.org, varenet@parisc-linux.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev <netdev@oss.sgi.com>
+Subject: Re: patch tulip-natsemi-dp83840a-phy-fix.patch added to -mm tree
+References: <200505101955.j4AJtX9x032464@shell0.pdx.osdl.net> <42881C58.40001@pobox.com> <20050516050843.GA20107@colo.lackof.org> <4288CE51.1050703@pobox.com> <20050521223959.GA4337@electric-eye.fr.zoreil.com>
+In-Reply-To: <20050521223959.GA4337@electric-eye.fr.zoreil.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In 2.6.12-rc5-mm1, I can't use my psaux mouse, but it worked perfectly 
-fine in both 2.6.12-rc5 and in 2.6.12-rc4-mm2.
+Francois Romieu wrote:
+> Jeff Garzik <jgarzik@pobox.com> :
+> [tulip_media_select]
+> 
+>>1) called from timer context, from the media poll timer
+>>
+>>2) called from spin_lock_irqsave() context, in the ->tx_timeout hook.
+>>
+>>The first case can be fixed by moved all the timer code to a workqueue. 
+>> Then when the existing timer fires, kick the workqueue.
+>>
+>>The second case can be fixed by kicking the workqueue upon tx_timeout 
+>>(which is the reason why I did not suggest queue_delayed_work() use).
+> 
+> 
+> First try below. It only moves tulip_select_media() to process context.
+> The original patch (with s/udelay/msleep/ or such) is not included.
+> 
+> Patch applies/compiles against 2.6.12-rc4.
 
-In 2.6.12-rc5-mm1 , dmesg says:
+Looks pretty good to me, at first look.
 
-PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
-Failed to disable AUX port, but continuing anyway... Is this a SiS?
-If AUX port is really absent please use the 'i8042.noaux' option.
-serio: i8042 KBD port at 0x60,0x64 irq 1
+I'll give it some thought, and probably apply it, in a few days.
 
-This is what dmesg says in both 2.6.12-rc4-mm2 and 2.6.12-rc5 :
+	Jeff
 
-PNP: PS/2 Controller [PNP0303:PS2K,PNP0f13:PS2M] at 0x60,0x64 irq 1,12
-serio: i8042 AUX port at 0x60,0x64 irq 12
-serio: i8042 KBD port at 0x60,0x64 irq 1
 
-I am using a Shuttle FT61 motherboard.  Is there any more information 
-necessary to debug this?
+

@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262504AbVE0Sqv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262507AbVE0Srj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262504AbVE0Sqv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 14:46:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262507AbVE0Sqv
+	id S262507AbVE0Srj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 14:47:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262519AbVE0Src
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 14:46:51 -0400
-Received: from zcars04e.nortelnetworks.com ([47.129.242.56]:58250 "EHLO
-	zcars04e.ca.nortel.com") by vger.kernel.org with ESMTP
-	id S262504AbVE0Sqt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 14:46:49 -0400
-Message-ID: <42976B10.5030101@nortel.com>
-Date: Fri, 27 May 2005 12:46:40 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Fri, 27 May 2005 14:47:32 -0400
+Received: from fed1rmmtao02.cox.net ([68.230.241.37]:56199 "EHLO
+	fed1rmmtao02.cox.net") by vger.kernel.org with ESMTP
+	id S262507AbVE0SrY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 14:47:24 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Sean <seanlkml@sympatico.ca>, Jaroslav Kysela <perex@suse.cz>,
+       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Git Mailing List <git@vger.kernel.org>
+Subject: Re: ALSA official git repository
+References: <Pine.LNX.4.58.0505271741490.1757@pnote.perex-int.cz>
+	<Pine.LNX.4.58.0505270903230.17402@ppc970.osdl.org>
+	<3516.10.10.10.24.1117213207.squirrel@linux1>
+	<Pine.LNX.4.58.0505271026020.17402@ppc970.osdl.org>
+From: Junio C Hamano <junkio@cox.net>
+Date: Fri, 27 May 2005 11:47:21 -0700
+In-Reply-To: <Pine.LNX.4.58.0505271026020.17402@ppc970.osdl.org> (Linus
+ Torvalds's message of "Fri, 27 May 2005 10:28:44 -0700 (PDT)")
+Message-ID: <7vvf54y092.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: cranium2003 <cranium2003@yahoo.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel memory usage any restrictions?
-References: <20050527181851.69524.qmail@web33008.mail.mud.yahoo.com>
-In-Reply-To: <20050527181851.69524.qmail@web33008.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-cranium2003 wrote:
-> hello,
->               Is there any restricition on using
-> kernel's memory? also if i require to use some kernel
-> memory say 625kB by allocating that in GFP_ATOMIC mode
+>>>>> "LT" == Linus Torvalds <torvalds@osdl.org> writes:
 
-Your call will almost certainly fail.  I think kmalloc will only give 
-you up to 128KB, and even that might be tricky to do with GFP_ATOMIC.
+LT> On Fri, 27 May 2005, Sean wrote:
+>> >
+>> > Now, arguably gitweb should ignore whitespace at the beginning, but
+>> > equally arguably your commits shouldn't have them either...
+>> 
+>> Perhaps git should enforce this?  Patch attached.
+>> 
+>> Remove leading empty lines from commit messages.
+>> 
+>> Signed-off-by: Sean Estabrooks <seanlkml@sympatico.ca>
 
-For larger chunks of memory, you can use vmalloc() or reserve it 
-statically at compile time.
+LT> I'm not sure.
+LT> Opinions?
 
-Chris
+Porcelains and gitweb should play with each other nicely, but
+the core should _not_ care by default.
+
+An extra option ("--text", perhaps) to git-commit-tree is
+acceptable to me, and it may be even a good thing to have.  It
+would make life a bit easiear for Porcelain writers if nothing
+else.  If that is to happen, I would say we could do more than
+just leading blank line removal.  We can also remove trailing
+blanks before each LF, tabify indented log message contents, and
+remove empty lines before EOF.
+

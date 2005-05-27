@@ -1,54 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262610AbVE0WGr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262622AbVE0WKS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262610AbVE0WGr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 18:06:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbVE0WGq
+	id S262622AbVE0WKS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 18:10:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbVE0WJZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 18:06:46 -0400
-Received: from fire.osdl.org ([65.172.181.4]:55447 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262610AbVE0WGi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 18:06:38 -0400
-Date: Fri, 27 May 2005 15:07:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jesper Juhl <juhl-lkml@dif.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: build failure; CONFIG_HZ* unset if power management is not
- selected (2.6.12-rc5-mm1)
-Message-Id: <20050527150725.5065f3b8.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.62.0505280000020.2370@dragon.hyggekrogen.localhost>
-References: <Pine.LNX.4.62.0505280000020.2370@dragon.hyggekrogen.localhost>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 27 May 2005 18:09:25 -0400
+Received: from de01egw01.freescale.net ([192.88.165.102]:8114 "EHLO
+	de01egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S262615AbVE0WJJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 18:09:09 -0400
+Date: Fri, 27 May 2005 17:08:36 -0500 (CDT)
+From: Kumar Gala <galak@freescale.com>
+X-X-Sender: galak@nylon.am.freescale.net
+To: Andrew Morton <akpm@osdl.org>
+cc: linuxppc-embedded <linuxppc-embedded@ozlabs.org>,
+       linux-kernel@vger.kernel.org, rvinson@mvista.com
+Subject: [PATCH] ppc32: MPC834x BCSR_SIZE too small for use in a BAT.
+Message-ID: <Pine.LNX.4.61.0505271707530.25368@nylon.am.freescale.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl <juhl-lkml@dif.dk> wrote:
->
-> The randomly generated 
-> config didn't set CONFIG_PM
+The call to io_block_mapping was creating an invalid BAT entry because
+the value of BCSR_SIZE (32K) is too small to be used in a BAT (128K min).
+This change removes the io_block_mapping call since these registers can
+easily be mapped using ioremap at the point of use.
 
---- 25/arch/i386/Kconfig~i386-selectable-frequency-of-the-timer-interrupt-fix	2005-05-26 04:18:51.000000000 -0700
-+++ 25-akpm/arch/i386/Kconfig	2005-05-26 04:18:51.000000000 -0700
-@@ -960,6 +960,8 @@ config SECCOMP
- 
- 	  If unsure, say Y. Only embedded should say N here.
- 
-+source kernel/Kconfig.hz
-+
- endmenu
- 
- 
-@@ -1116,8 +1118,6 @@ config APM_REAL_MODE_POWER_OFF
- 	  a work-around for a number of buggy BIOSes. Switch this option on if
- 	  your computer crashes instead of powering off properly.
- 
--source kernel/Kconfig.hz
--
- endmenu
- 
- source "arch/i386/kernel/cpu/cpufreq/Kconfig"
-_
+Signed-off-by: Randy Vinson <rvinson@mvista.com>
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
+---
+commit 2c6dd281d28694239de9e453541ed3b937d11e25
+tree 0d93680a000f9dafe78831ee00573c1bb544bcf6
+parent 4ec5240ec367a592834385893200dd4fb369354c
+author Kumar K. Gala <kumar.gala@freescale.com> Thu, 26 May 2005 19:14:39 -0500
+committer Kumar K. Gala <kumar.gala@freescale.com> Thu, 26 May 2005 19:14:39 -0500
+
+ ppc/platforms/83xx/mpc834x_sys.c |    1 -
+ ppc/platforms/83xx/mpc834x_sys.h |    1 -
+ 2 files changed, 2 deletions(-)
+
+Index: arch/ppc/platforms/83xx/mpc834x_sys.c
+===================================================================
+--- 3ac9a34948049bff79a2b2ce49c0a3c84e35a748/arch/ppc/platforms/83xx/mpc834x_sys.c  (mode:100644)
++++ 0d93680a000f9dafe78831ee00573c1bb544bcf6/arch/ppc/platforms/83xx/mpc834x_sys.c  (mode:100644)
+@@ -127,7 +127,6 @@
+ {
+ 	/* we steal the lowest ioremap addr for virt space */
+ 	io_block_mapping(VIRT_IMMRBAR, immrbar, 1024*1024, _PAGE_IO);
+-	io_block_mapping(BCSR_VIRT_ADDR, BCSR_PHYS_ADDR, BCSR_SIZE, _PAGE_IO);
+ }
+ 
+ int
+Index: arch/ppc/platforms/83xx/mpc834x_sys.h
+===================================================================
+--- 3ac9a34948049bff79a2b2ce49c0a3c84e35a748/arch/ppc/platforms/83xx/mpc834x_sys.h  (mode:100644)
++++ 0d93680a000f9dafe78831ee00573c1bb544bcf6/arch/ppc/platforms/83xx/mpc834x_sys.h  (mode:100644)
+@@ -26,7 +26,6 @@
+ #define VIRT_IMMRBAR		((uint)0xfe000000)
+ 
+ #define BCSR_PHYS_ADDR		((uint)0xf8000000)
+-#define BCSR_VIRT_ADDR		((uint)0xfe100000)
+ #define BCSR_SIZE		((uint)(32 * 1024))
+ 
+ #ifdef CONFIG_PCI

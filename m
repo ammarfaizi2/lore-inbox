@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262657AbVE0XLi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262654AbVE0XYx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262657AbVE0XLi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 19:11:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262655AbVE0XLh
+	id S262654AbVE0XYx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 19:24:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262655AbVE0XYx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 19:11:37 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:8126 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S262646AbVE0XLe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 19:11:34 -0400
-Subject: Re: [PATCH] fix ide-scsi EH locking
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <42978EF1.5000703@pobox.com>
-References: <42978EF1.5000703@pobox.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1117235334.29624.251.camel@localhost.localdomain>
+	Fri, 27 May 2005 19:24:53 -0400
+Received: from fire.osdl.org ([65.172.181.4]:16041 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262654AbVE0XYw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 19:24:52 -0400
+Date: Fri, 27 May 2005 16:25:28 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christoph Lameter <christoph@lameter.com>
+Cc: ganesh.venkatesan@gmail.com, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com, shai@scalex86.org
+Subject: Re: [PATCH] e1000: NUMA aware allocation of descriptors V2
+Message-Id: <20050527162528.2ba5113e.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0505271450200.25909@graphe.net>
+References: <Pine.LNX.4.62.0505171854490.20408@graphe.net>
+	<20050517190343.2e57fdd7.akpm@osdl.org>
+	<Pine.LNX.4.62.0505171941340.21153@graphe.net>
+	<20050517.195703.104034854.davem@davemloft.net>
+	<Pine.LNX.4.62.0505172125210.22920@graphe.net>
+	<20050517215845.2f87be2f.akpm@osdl.org>
+	<5fc59ff305051808558f1ce59@mail.gmail.com>
+	<20050518134250.3ee2703f.akpm@osdl.org>
+	<Pine.LNX.4.62.0505271450200.25909@graphe.net>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 28 May 2005 00:09:02 +0100
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-05-27 at 22:19, Jeff Garzik wrote:
-> Patch untested, but at least the code isn't obviously wrong now...
+Christoph Lameter <christoph@lameter.com> wrote:
+>
+> NUMA awareness for the e1000 driver. Allocate tx and rx descriptors
+> on the node of the device.
+> 
+> It is safe to replace vmalloc by kmalloc node since only the descriptors
+> are allocated in a NUMA aware way. These will not be so large that the
+> use of vmalloc becomes necesssary.
 
-The abort code check of cmd->serial_number is the only thing I can see
-that needs care and that looks safe by the time we hit eh_abort because
-the mid level has quiesced the request queue.
+Really?  That's probably OK with the default number of tx descriptors, but
+that number can be made arbitrarily large with a module parameter.
 
-eh_reset is whacking on requests but they are the IDE layer requests so
-I suspect you want to simply drop the scsi locks for the eh functions
-much earlier and use spin_lock_irqsave/restore on the ide lock ?
-
+Could you please work this with the e1000 developers?

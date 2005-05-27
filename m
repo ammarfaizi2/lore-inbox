@@ -1,59 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262627AbVE0WOF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262629AbVE0WOm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262627AbVE0WOF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 18:14:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbVE0WLs
+	id S262629AbVE0WOm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 18:14:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262503AbVE0WLa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 18:11:48 -0400
-Received: from az33egw02.freescale.net ([192.88.158.103]:35321 "EHLO
-	az33egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S262615AbVE0WKl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 18:10:41 -0400
-Date: Fri, 27 May 2005 17:10:19 -0500 (CDT)
-From: Kumar Gala <galak@freescale.com>
-X-X-Sender: galak@nylon.am.freescale.net
-To: Andrew Morton <akpm@osdl.org>
-cc: linux-kernel@vger.kernel.org, shall@mvista.com,
-       linuxppc-embedded <linuxppc-embedded@ozlabs.org>
-Subject: [PATCH] ppc32: i8259 PIC should not be initialized if PCI is not
- configured
-Message-ID: <Pine.LNX.4.61.0505271709220.25368@nylon.am.freescale.net>
+	Fri, 27 May 2005 18:11:30 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:49954 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262611AbVE0WKc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 18:10:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=RFCzLR2S9A1e2gmLUDzrBj70+Je0Q4yzmnP9LfSE5ygnJgK/WeJAFebtjkSYpiMZwJX2CWB1yfe9bwa3apl3ns/nrIUxQUgCTJLIYqDOTQVBDvhjXJwgx9AAaVMrODaBU6DXg1sAvu92/yax+zl5tjsoPF6cpvcmMROd1B79/Ns=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: akpm@osdl.org
+Subject: Re: update-comment-about-gzip-scratch-size.patch added to -mm tree
+Date: Sat, 28 May 2005 02:15:00 +0400
+User-Agent: KMail/1.7.2
+Cc: olh@suse.de, linux-kernel@vger.kernel.org
+References: <200505272149.j4RLnKZW011173@shell0.pdx.osdl.net>
+In-Reply-To: <200505272149.j4RLnKZW011173@shell0.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505280215.01241.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trying to initialize the i8259 PIC will not work if CONFIG_PCI is
-not enabled.  The kernel hangs if the initialization is tried.
+On Saturday 28 May 2005 01:50, akpm@osdl.org wrote:
+> From: Olaf Hering <olh@suse.de>
+> 
+> fix a comment about the array size.
 
-Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
+> --- 25/arch/ppc/boot/openfirmware/chrpmain.c~update-comment-about-gzip-scratch-size
+> +++ 25-akpm/arch/ppc/boot/openfirmware/chrpmain.c
 
----
-commit 947c0e2c89c4e5cda2093bcfca7c13e097641e3b
-tree 12a3e07d44c69f110708c359da5132439c2527c5
-parent 219d058f65dbd666964b1e951b8d491e4b19dc0c
-author Kumar K. Gala <kumar.gala@freescale.com> Fri, 27 May 2005 16:57:41 -0500
-committer Kumar K. Gala <kumar.gala@freescale.com> Fri, 27 May 2005 16:57:41 -0500
+>  #define SCRATCH_SIZE	(128 << 10)
+>  
+> -static char scratch[SCRATCH_SIZE];	/* 1MB of scratch space for gunzip */
+> +static char scratch[SCRATCH_SIZE];	/* 128k of scratch space for gunzip */
 
- ppc/platforms/85xx/mpc85xx_cds_common.c |    2 ++
- 1 files changed, 2 insertions(+)
+How about this?
 
-Index: arch/ppc/platforms/85xx/mpc85xx_cds_common.c
-===================================================================
---- 109a4648d2cc627d17c129bc1ca102a736c817aa/arch/ppc/platforms/85xx/mpc85xx_cds_common.c  (mode:100644)
-+++ 12a3e07d44c69f110708c359da5132439c2527c5/arch/ppc/platforms/85xx/mpc85xx_cds_common.c  (mode:100644)
-@@ -200,12 +200,14 @@
- 	 */
- 	openpic_init(MPC85xx_OPENPIC_IRQ_OFFSET);
+
+
+Remove incorrect size from comment. scratch size is defined two lines above.
+
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+
+--- linux-vanilla/arch/ppc/boot/openfirmware/chrpmain.c	2005-05-27 23:06:23.000000000 +0400
++++ linux-scratch/arch/ppc/boot/openfirmware/chrpmain.c	2005-05-28 02:08:54.000000000 +0400
+@@ -39,7 +39,7 @@ char *avail_high;
  
-+#ifdef CONFIG_PCI
- 	openpic_hookup_cascade(PIRQ0A, "82c59 cascade", i8259_irq);
+ #define SCRATCH_SIZE	(128 << 10)
  
- 	for (i = 0; i < NUM_8259_INTERRUPTS; i++)
- 		irq_desc[i].handler = &i8259_pic;
+-static char scratch[SCRATCH_SIZE];	/* 1MB of scratch space for gunzip */
++static char scratch[SCRATCH_SIZE];	/* scratch space for gunzip */
  
- 	i8259_init(0);
-+#endif
+ typedef void (*kernel_start_t)(int, int, void *, unsigned int, unsigned int);
  
- #ifdef CONFIG_CPM2
- 	/* Setup CPM2 PIC */

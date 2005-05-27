@@ -1,64 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262418AbVE0K1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262428AbVE0K3N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262418AbVE0K1M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 06:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbVE0K1M
+	id S262428AbVE0K3N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 06:29:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbVE0K3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 06:27:12 -0400
-Received: from mailfe10.swip.net ([212.247.155.33]:30117 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S262418AbVE0K1H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 06:27:07 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: [PATCH] VIA IRQ quirk for 2.6.12-rc5
-From: Alexander Nyberg <alexn@telia.com>
-To: Len Brown <lenb@toshiba.hsd1.ma.comcast.net>
-Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org, bjorn.helgaas@hp.com
-In-Reply-To: <20050527082150.GA24428@toshiba.hsd1.ma.comcast.net>
-References: <20050527082150.GA24428@toshiba.hsd1.ma.comcast.net>
-Content-Type: text/plain
-Date: Fri, 27 May 2005 12:27:05 +0200
-Message-Id: <1117189625.949.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Fri, 27 May 2005 06:29:13 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:6610 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S262422AbVE0K27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 06:28:59 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc5-mm1
+Date: Fri, 27 May 2005 12:29:01 +0200
+User-Agent: KMail/1.8
+Cc: jamagallon@able.es, tomlins@cam.org, linux-kernel@vger.kernel.org,
+       alsa-devel@lists.sourceforge.net
+References: <20050525134933.5c22234a.akpm@osdl.org> <200505261554.54807.rjw@sisk.pl> <20050526134532.1580defc.akpm@osdl.org>
+In-Reply-To: <20050526134532.1580defc.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200505271229.01699.rjw@sisk.pl>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Linus,
-> Please apply this patch to 2.6.12-rc5.
-> It fixes a 2.6.11 regression in the VIA IRQ quirk
-> on machines with mixed vendor chip-sets.
+On Thursday, 26 of May 2005 22:45, Andrew Morton wrote:
+> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> >
+> > n Thursday, 26 of May 2005 09:58, Andrew Morton wrote:
+> >  > "J.A. Magallon" <jamagallon@able.es> wrote:
+> >  > >
+> >  > > 
+> >  > > On 05.26, Andrew Morton wrote:
+> >  > > > 
+> >  > > > (Added alsa-devel to cc)
+> >  > > > 
+> >  > > > Ed Tomlinson <tomlins@cam.org> wrote:
+> >  > > > > 
+> >  > > > > Got the following when I tried to use sound.  Anyone else see problems in alsa land?
+> >  > > > > 
+> >  > > 
+> >  > > Me too. As beep-media-player ends playing a mp3 track, oops !
+> >  > 
+> >  > hm, OK, you're also on x86_64.  What sound card and driver?
+> > 
+> >  I've got the following on a dual-Opteron box with Tyan Thunder K8W (snd_intel8x0):
 > 
-> thanks,
-> Len
-> 
-> 
-> Delete quirk_via_bridge(), restore quirk_via_irqpic() --
-> but now improved to be invoked upon device ENABLE, and
-> now only for VIA devices -- not all devices behind VIA bridges.
+> OK, thanks.  I guess we can set this problem aside for now, as this bug
+> isn't present in 2.6.12-rc5 (correct?).
 
-Please drop the __devinit on quirk_via_irqpic() or apply the patch I'm
-putting at the bottom. Also there seems to be a completely unrelated
-acpi chunk at the bottom of your patch...
+Yup.
 
-quirk_via_irqpic can't be __devinit for swsuspend
+> I assume the problem is due to one of the ASLA patches in rc5-mm1, but it's
+> possible that it lies elsewhere.
 
-Signed-off-by: Alexander Nyberg <alexn@telia.com>
+Well, yes.  Apparently, it goes away if you revert the following patch:
 
-Index: linux-2.6/drivers/pci/quirks.c
-===================================================================
---- linux-2.6.orig/drivers/pci/quirks.c	2005-05-27 12:15:17.000000000 +0200
-+++ linux-2.6/drivers/pci/quirks.c	2005-05-27 12:17:10.000000000 +0200
-@@ -492,7 +492,7 @@
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C586_3,	quirk_via_acpi );
- DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_VIA,	PCI_DEVICE_ID_VIA_82C686_4,	quirk_via_acpi );
- 
--static void __devinit quirk_via_irqpic(struct pci_dev *dev)
-+static void quirk_via_irqpic(struct pci_dev *dev)
- {
- 	u8 irq, new_irq;
- 
+avoiding-mmap-fragmentation-fix-2.patch
+
+Greets,
+Rafael
 
 
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

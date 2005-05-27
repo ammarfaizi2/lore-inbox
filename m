@@ -1,59 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262531AbVE0Sds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261913AbVE0Smh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262531AbVE0Sds (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 14:33:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262529AbVE0Sdr
+	id S261913AbVE0Smh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 14:42:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbVE0Smh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 14:33:47 -0400
-Received: from herkules.vianova.fi ([194.100.28.129]:4247 "HELO
-	mail.vianova.fi") by vger.kernel.org with SMTP id S262532AbVE0Sdf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 14:33:35 -0400
-Date: Fri, 27 May 2005 21:33:28 +0300
-From: Ville Herva <vherva@vianova.fi>
-To: dtor_core@ameritech.net
+	Fri, 27 May 2005 14:42:37 -0400
+Received: from platan.mail.t-online.hu ([195.228.240.91]:51706 "EHLO
+	platan.mail.t-online.hu") by vger.kernel.org with ESMTP
+	id S261913AbVE0Smf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 14:42:35 -0400
+Subject: Re: [2.6.12-rc2 - 2.6.12-rc5] oops with vmware
+From: Gabor MICSKO <gmicsko@szintezis.hu>
+To: Petr Vandrovec <vandrove@vc.cvut.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc4 broke right <win>-key
-Message-ID: <20050527183328.GH5470@viasys.com>
-Reply-To: vherva@vianova.fi
-References: <20050527163549.GV16169@viasys.com> <d120d50005052709467c523abc@mail.gmail.com>
+In-Reply-To: <1117218690.1954.9.camel@alderaan.trey.hu>
+References: <1117206120.1954.7.camel@alderaan.trey.hu>
+	 <42973C1B.2060101@vc.cvut.cz>  <1117218690.1954.9.camel@alderaan.trey.hu>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-zemsajXgb8puNBRwvMXe"
+Date: Fri, 27 May 2005 20:42:32 +0200
+Message-Id: <1117219352.2119.1.camel@alderaan.trey.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d50005052709467c523abc@mail.gmail.com>
-User-Agent: Mutt/1.4.1i
-X-Operating-System: Linux herkules.vianova.fi 2.4.27
+X-Mailer: Evolution 2.0.4 
+X-VBMilter: scanned
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 27, 2005 at 11:46:42AM -0500, you [Dmitry Torokhov] wrote:
-> On 5/27/05, Ville Herva <vherva@vianova.fi> wrote:
-> > After upgrading from 2.6.11-rc1-ck2 to 2.6.12-rc4, the right <win>-key on my
-> > HP "multimedia" keyboard (something like http://www.pc-netto.dk/templates/product.asp?productguid=C4742B%23ABY&groupguid=11437)
-> > seized to work. The left one still works. The earlier kernels I've run
-> > never showed this problem (although the multimedia keys seem to map to
-> > different codes in each and every kernel version, which is slightly
-> > annoying.) The older kernels I've tried include 2.6.8.1-mm2, 2.6.8.1,
-> > 2.6.6-mm4, 2.6.3, and a heap of 2.4 kernels.
-> > 
-> 
-> Hi,
-> 
-> This patch from Vojtech shoudl get you going:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=111712306027138&q=raw
 
-Ahh, thanks. 
+--=-zemsajXgb8puNBRwvMXe
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: quoted-printable
 
-I tried to find previous discussion on this issue before posting but
-apparently was too negligent.
+Hmm, here:
 
-Also Domen Puncer's suggested workaround
-    echo -n "0" > /sys/bus/serio/devices/serio1/scroll
-in the same thread seems to work.
+http://ftp.cvut.cz/vmware/
+
+Working! :-)
+
+Thanks again...
 
 
--- v -- 
+2005-05-27, p keltez=E9ssel 20.31-kor Gabor MICSKO ezt =EDrta:
+> Hi Petr!
+>=20
+> Where can i find this stuff?=20
+>=20
+> Thanks.
+>=20
+> 2005-05-27, p keltez=E9ssel 17.26-kor Petr Vandrovec ezt =EDrta:
+> > You need vmware-any-any-update90, one
 
-v@iki.fi
+--=-zemsajXgb8puNBRwvMXe
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Ez az =?ISO-8859-1?Q?=FCzenetr=E9sz?=
+	=?ISO-8859-1?Q?_digit=E1lis?= =?ISO-8859-1?Q?_al=E1=EDr=E1ssal?= van
+	=?ISO-8859-1?Q?ell=E1tva?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBCl2oYo75Oas+VX1ARAmmdAKCWyF6AoTJoGfmqSc9+k2U8fp4fkQCeJGVM
+fbhmNYQfptCAsNm5Rd6bTdA=
+=AZEV
+-----END PGP SIGNATURE-----
+
+--=-zemsajXgb8puNBRwvMXe--
 

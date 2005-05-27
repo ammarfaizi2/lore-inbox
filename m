@@ -1,93 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262545AbVE0TLV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262560AbVE0TPA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262545AbVE0TLV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 15:11:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbVE0TLU
+	id S262560AbVE0TPA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 15:15:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbVE0TMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 15:11:20 -0400
-Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:231 "EHLO
-	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S262545AbVE0TIK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 15:08:10 -0400
-Message-ID: <42976F62.6000701@davyandbeth.com>
-Date: Fri, 27 May 2005 14:05:06 -0500
-From: Davy Durham <pubaddr2@davyandbeth.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050322
-X-Accept-Language: en-us, en
+	Fri, 27 May 2005 15:12:47 -0400
+Received: from mms2.broadcom.com ([216.31.210.18]:33299 "EHLO
+	MMS2.broadcom.com") by vger.kernel.org with ESMTP id S262555AbVE0TJx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 15:09:53 -0400
+X-Server-Uuid: 1F20ACF3-9CAF-44F7-AB47-F294E2D5B4EA
+Subject: Re: [patch 2.6.12-rc5] tg3: add bcm5752 entry to pci.ids
+From: "Michael Chan" <mchan@broadcom.com>
+To: "John W. Linville" <linville@tuxdriver.com>
+cc: "Christoph Hellwig" <hch@infradead.org>,
+       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com, jgarzik@pobox.com, lusinsky@broadcom.com
+In-Reply-To: <20050527190000.GC11592@tuxdriver.com>
+References: <04132005193844.8410@laptop> <04132005193844.8474@laptop>
+ <20050421165956.55bdcb14.davem@davemloft.net>
+ <20050527184750.GB11592@tuxdriver.com>
+ <20050527185334.GA7417@infradead.org>
+ <20050527190000.GC11592@tuxdriver.com>
+Date: Fri, 27 May 2005 11:12:04 -0700
+Message-ID: <1117217524.4310.1.camel@rh4>
 MIME-Version: 1.0
-To: Steven Rostedt <rostedt@goodmis.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: disowning a process
-References: <42975945.7040208@davyandbeth.com> <1117217088.4957.24.camel@localhost.localdomain> <42976D3A.5020200@davyandbeth.com>
-In-Reply-To: <42976D3A.5020200@davyandbeth.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+X-Mailer: Evolution 2.0.2 (2.0.2-3)
+X-WSS-ID: 6E89AFFC1VO2673885-01-01
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Davy Durham wrote:
-
-> Cool.. I looked at the daemon function and I might be able to use it..
+On Fri, 2005-05-27 at 15:00 -0400, John W. Linville wrote:
+> On Fri, May 27, 2005 at 07:53:35PM +0100, Christoph Hellwig wrote:
+> > On Fri, May 27, 2005 at 02:47:52PM -0400, John W. Linville wrote:
+> 
+> > > +	1600  NetXtreme BCM5752 Gigabit Ethernet PCI Express
+> > 
+> > I don't think you should mention "PCI Express" here.  That can trivially
+> > befound it looking at the configuration header.
+> 
+> I'm just following what is at pciids.sourceforge.net.  Plus, it is
+> already like that for nine other IDs:
+> 
+>         1659  NetXtreme BCM5721 Gigabit Ethernet PCI Express
+>         1677  NetXtreme BCM5751 Gigabit Ethernet PCI Express
+>         167d  NetXtreme BCM5751M Gigabit Ethernet PCI Express
+>         167e  NetXtreme BCM5751F Fast Ethernet PCI Express
+>         169d  NetLink BCM5789 Gigabit Ethernet PCI Express
+>         16dd  NetLink BCM5781 Gigabit Ethernet PCI Express
+>         16f7  NetXtreme BCM5753 Gigabit Ethernet PCI Express
+>         16fd  NetXtreme BCM5753M Gigabit Ethernet PCI Express
+>         16fe  NetXtreme BCM5753F Fast Ethernet PCI Express
+> 
+> The Broadcom guys can speak-up, but I figure they know if "PCI Express"
+> is appropriate for their device... :-)
 >
-> However, I compiled your code... seems to work.. but where is the 
-> wait() done on the middle parrent so that it isn't left defunct?
->
-I added "waitpid(pid,NULL,0);" after the outer-most if.. which is where 
-the grand parent cleans up the pid of the intermediate parent. 
-
-However, now trying the daemon() function..  which seems to work the 
-same way.. it definately leaves a pid around.. so I guess you really 
-need to do a wait() in the parent after forking.. however you don't know 
-exactly which pid to wait for so you might be reaping some other child 
-you've previously spawned.. 
-
-So, for now I'm going to stick with the explicit double fork code.
-
-Thanks!
-
-> Steven Rostedt wrote:
->
->> Try man daemon.
->>
->> The way I use to do it was simply do a double fork. That is
->> (simplified)...
->>
->> if ((pid = fork()) < 0) {
->>     perror("fork");
->> } else if (!pid) {
->>     /* child */
->>     if ((pid = fork()) < 0) {
->>         perror("child fork");
->>         exit(-1);
->>     } if (pid) {
->>         /* child parent */
->>         /* Here we detach from the child */
->>         exit(0);
->>     }
->>     /* Now this code is a child running almost as a daemon
->>         with init as the parent. */
->>     setsid();
->>     /* Now the child is completely detached from the original
->>        parent */
->>     /* ... daemon code here ... */
->>     exit(0);
->> }
->>
->> /* parent code here */
->>
->> -- Steve
->>
->>  
->>
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
-
+Yes, "PCI Express" is appropriate. Thanks John.
 

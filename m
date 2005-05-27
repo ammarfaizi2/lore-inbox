@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVE0BKk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVE0BKm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261454AbVE0BKk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 21:10:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261429AbVE0BIZ
+	id S261456AbVE0BKm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 21:10:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261867AbVE0BGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 21:08:25 -0400
-Received: from [151.97.230.9] ([151.97.230.9]:51217 "HELO ssc.unict.it")
-	by vger.kernel.org with SMTP id S261433AbVE0BFW (ORCPT
+	Thu, 26 May 2005 21:06:20 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:45585 "HELO ssc.unict.it")
+	by vger.kernel.org with SMTP id S261393AbVE0BFU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 21:05:22 -0400
-Subject: [patch 3/8] uml: fix PREEMPT_ACTIVE
+	Thu, 26 May 2005 21:05:20 -0400
+Subject: [patch 6/8] uml: split CONFIG_FRAME_POINTER from DEBUG_INFO
 To: akpm@osdl.org
 Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it,
-       paulus@samba.org, mingo@elte.hu
+       user-mode-linux-devel@lists.sourceforge.net, blaisorblade@yahoo.it
 From: blaisorblade@yahoo.it
-Date: Fri, 27 May 2005 02:38:40 +0200
-Message-Id: <20050527003840.7A4A41AEE86@zion.home.lan>
+Date: Fri, 27 May 2005 02:38:49 +0200
+Message-Id: <20050527003849.401B41AEE8C@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
-Cc: Paul Mackerras <paulus@samba.org>, Ingo Molnar <mingo@elte.hu>
-
-This is a continuation for UML of:
-
-http://linux.bkbits.net:8080/linux-2.5/cset@41791ab52lfMuF2i3V-eTIGRBbDYKQ
+Until now, FRAME_POINTER was set = DEBUG_INFO for UML. Change it to be the
+default way, so that it can be enabled alone (for instance to get better
+backtraces on crashes).
+The call-trace dumper which uses the frame pointer is not yet in, I'm going to
+introduce it in a separate patch.
 
 Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
 ---
 
- linux-2.6.git-paolo/include/asm-um/thread_info.h |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
 
-diff -puN include/asm-um/thread_info.h~uml-fix-interrupts include/asm-um/thread_info.h
---- linux-2.6.git/include/asm-um/thread_info.h~uml-fix-interrupts	2005-05-27 02:30:48.000000000 +0200
-+++ linux-2.6.git-paolo/include/asm-um/thread_info.h	2005-05-27 02:36:42.000000000 +0200
-@@ -62,7 +62,7 @@ static inline struct thread_info *curren
+diff -puN arch/um/Kconfig.debug~uml-split-frame-pointer-option arch/um/Kconfig.debug
+--- linux-2.6.git/arch/um/Kconfig.debug~uml-split-frame-pointer-option	2005-05-07 18:00:23.000000000 +0200
++++ linux-2.6.git-paolo/arch/um/Kconfig.debug	2005-05-07 18:00:23.000000000 +0200
+@@ -2,10 +2,6 @@ menu "Kernel hacking"
  
- #endif
+ source "lib/Kconfig.debug"
  
--#define PREEMPT_ACTIVE		0x4000000
-+#define PREEMPT_ACTIVE		0x10000000
+-config FRAME_POINTER
+-	bool
+-	default y if DEBUG_INFO
+-
+ config PT_PROXY
+ 	bool "Enable ptrace proxy"
+ 	depends on XTERM_CHAN && DEBUG_INFO && MODE_TT
+diff -puN lib/Kconfig.debug~uml-split-frame-pointer-option lib/Kconfig.debug
+--- linux-2.6.git/lib/Kconfig.debug~uml-split-frame-pointer-option	2005-05-07 18:00:23.000000000 +0200
++++ linux-2.6.git-paolo/lib/Kconfig.debug	2005-05-07 18:00:23.000000000 +0200
+@@ -151,7 +151,8 @@ config DEBUG_FS
  
- #define TIF_SYSCALL_TRACE	0	/* syscall trace active */
- #define TIF_SIGPENDING		1	/* signal pending */
+ config FRAME_POINTER
+ 	bool "Compile the kernel with frame pointers"
+-	depends on DEBUG_KERNEL && ((X86 && !X86_64) || CRIS || M68K || M68KNOMMU || FRV)
++	depends on DEBUG_KERNEL && ((X86 && !X86_64) || CRIS || M68K || M68KNOMMU || FRV || UML)
++	default y if DEBUG_INFO && UML
+ 	help
+ 	  If you say Y here the resulting kernel image will be slightly larger
+ 	  and slower, but it will give very useful debugging information.
 _

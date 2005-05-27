@@ -1,136 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262460AbVE0NLd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262459AbVE0NOE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262460AbVE0NLd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 09:11:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262459AbVE0NLd
+	id S262459AbVE0NOE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 09:14:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262462AbVE0NOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 09:11:33 -0400
-Received: from smtp.cs.aau.dk ([130.225.194.6]:47566 "EHLO smtp.cs.aau.dk")
-	by vger.kernel.org with ESMTP id S262473AbVE0NKR (ORCPT
+	Fri, 27 May 2005 09:14:04 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:20138 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262459AbVE0NNh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 09:10:17 -0400
-Message-ID: <42971C0E.9030504@cs.aau.dk>
-Date: Fri, 27 May 2005 15:09:34 +0200
-From: Emmanuel Fleury <fleury@cs.aau.dk>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Linux for Mobile phones and PDAs [long]
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 8bit
+	Fri, 27 May 2005 09:13:37 -0400
+Date: Fri, 27 May 2005 15:13:17 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@muc.de>
+Cc: Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
+       bhuey@lnxw.com, nickpiggin@yahoo.com.au, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+Message-ID: <20050527131317.GA11071@elte.hu>
+References: <4293DCB1.8030904@mvista.com> <20050524192029.2ef75b89.akpm@osdl.org> <20050525063306.GC5164@elte.hu> <m1br6zxm1b.fsf@muc.de> <1117044019.5840.32.camel@sdietrich-xp.vilm.net> <20050526193230.GY86087@muc.de> <20050526200424.GA27162@elte.hu> <20050527123529.GD86087@muc.de> <20050527124837.GA7253@elte.hu> <20050527125630.GE86087@muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050527125630.GE86087@muc.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-These last weeks have been particularly busy in the wonderful world
-of consumer electronics. Linux seems to be more and more considered as a
-solution for these companies !
+* Andi Kleen <ak@muc.de> wrote:
 
-Since approximately two years, the CELF (Consumer Electronics Linux
-Forum)  (http://www.celinuxforum.org/) try to harden the link between
-the Linux community and companies such as Sony, IBM, Nokia, PalmSource,
-and others (http://www.celinuxforum.org/MemberOrganization.htm). This
-non profit organization
-(http://www.linuxdevices.com/news/NS2163552454.html) is trying (among
-other things and as far as I understand it) to identify the weakness of
-Linux in matter of consumer electronics and to push for strengthening
-Linux in this very precise topics. Some of the results of the CELF that
-have been presented in its first conference can be found here:
-http://www.linuxdevices.com/articles/AT9266731500.html.
+> On Fri, May 27, 2005 at 02:48:37PM +0200, Ingo Molnar wrote:
+> > * Andi Kleen <ak@muc.de> wrote:
+> > 
+> > > [...] Even normal kernels must have reasonably good latency, as long 
+> > > as it doesnt cost unnecessary performance.
+> > 
+> > they do get reasonably good latency (within the hard constraints of the 
+> > possibilities of a given preemption model), due to the cross-effects 
+> > between the various preemption models, that i explained in detail in 
+> > earlier mails. Something that directly improves latencies on 
+> > CONFIG_PREEMPT improves the 'subsystem-use latencies' on PREEMPT_RT.  
+> 
+> I was more thinking of improvements for !PREEMPT.
 
-Aside from that, and very recently several companies have been starting
-to make some interesting announcement. For example, on May the 24th,
-PalmSource opened the bal by saying: "Linux is our
-platform for the future"
-(http://www.linuxdevices.com/news/NS4835848451.html). It seems that the
-PalmOS kernel has been quite disappointing in matter of resources
-management and Symbian was not an alternative to it. Moreover, Palm
-seems to target the 3G market and need a much quicker development model
-with more involved developers. So, Linux was probably one logical choice
-as they joined the CELF recently
-(http://www.linuxdevices.com/news/NS8402137834.html).
+how would you do that, if even a first step (PREEMPT_VOLUNTARY) was 
+opposed by some as possibly hurting throughput? I'm really curious, what 
+would you do to improve PREEMPT_NONE's latencies?
 
-Again, this week, during the LinuxWorld event in New-York, Nokia
-unveiled its first tablet-PC (Nokia 770, http://www.nokia.com/770)
-which is running under a 2.6.x kernel
-(http://hardware.slashdot.org/hardware/05/05/25/139202.shtml?tid=100,
-http://www.linuxdevices.com/news/NS5409534614.html) ! The day after,
-Nokia announce that they will release patents for Open Source
-development (as IBM did)
-(http://yro.slashdot.org/yro/05/05/25/1827259.shtml?tid=155&tid=106).
-But, that's not all of it, it seems that the making of the 770 has
-involved quite a lot of the people of the Open Source community whom
-were ask to keep a 'low profile' until the product will be released
-(http://mail.gnome.org/archives/gnome-multimedia/2005-May/msg00021.html).
-So, indeed, Nokia has been funding several Open Source projects for the
-last few months without advertising it too much. From my (poor)
-knowledge here are some of the companies Nokia did fund for getting its
-770 ready:
+> > Also there's the positive interaction between scalability and latencies 
+> > as well.
+>
+> That sound more like bugs that should just be fixed in the main kernel 
+> by more scheduling. Can you give details and examples?
 
-- Imendio (Gossip, Blam, Planner, DevHelp)
-http://www.imendio.com/
-http://www.imendio.com/press/show/7
+what i meant is a pretty common-sense thing: the more independent the
+locks are, the more shortlived locking is, the less latencies there are.
+The reverse is true too: most of the latency-breakers move code out from
+under locks - which obviously improves scalability too. So if you are 
+working on scalability you'll indirectly improve latencies - and if you 
+are working on reducing latencies, you often improve scalability.
 
-- Fluendo (GStreamer, Flumotion, Pitivi, ...)
-http://www.fluendo.com/
+> > but it's certainly not for free. Just like there's no zero-cost
+> > virtualization, or there's no zero-cost nanokernel approach either,
+> > there's no zero-cost single-kernel-image deterministic system either.
+> > 
+> > and the argument about binary kernels - that's a choice up to vendors
+> 
+> It is not only binary distribution kernels. I always use my own self
+> compiled kernels, but I certainly would not want a special kernel just
+> to do something normal that requires good latency (like sound use).
 
-- Kernel Concepts (Contribution to Maemo)
-http://www.kernelconcepts.de/
-http://oss.kernelconcepts.de/
+for good sound you'll at least need PREEMPT_VOLUNTARY. You'll need 
+CONFIG_PREEMPT for certain workloads or pro-audio use.
 
-- OpenedHand (Matchbox window management software)
-http://www.o-hand.com/
-http://www.linuxpr.com/releases/7833.html
+> > and users. Right now PREEMPT_NONE is dominant, so do you argue that
+> > CONFIG_PREEMPT should be removed? It's certainly not zero-cost even on
+> > the source code, witness all the preempt_disable()/preempt_enable() or
+> > get_cpu()/put_cpu() uses.
+> 
+> Actually yes I would. AFAIK CONFIG_PREEMPT never improved latency 
+> considerably (from the numbers Ive seen), but it had extreme cost in 
+> the code base (like all this get/put cpu mess and the impact on RCU 
+> was also not pretty)
+>
+> So it never seemed very useful to me. May be it would have been better 
+> if it had been made UP only, that would at least have avoided a lot of 
+> issues.
+> 
+> But at least CONFIG_PREEMPT is still reasonably cheap, so it is not as 
+> intrusive as some of the stuff proposed.
 
-On the top of that, the development platform for the device is totally
-free. To my knowledge (I'm sure I'm missing something), it's the first
-time that a company in consumer electronics of the size of Nokia release
-a complete Open Source development platform:
-http://www.maemo.org/
-http://www.maemo.org/platform/docs/tutorials/Maemo_tutorial.html
-http://www.scratchbox.org/
-http://www.linuxdevices.com/news/NS3716070830.html
-http://www.linuxdevices.com/news/NS8608661173.html
+the impact of PREEMPT on the codebase has a positive effect as well: it 
+forces us to document SMP data structure dependencies better. Under 
+PREEMPT_NONE it would have been way too easy to get into the kind of 
+undocumented interdependent data structure business that we so well know 
+from the big kernel lock days. get_cpu()/put_cpu() precisely marks the 
+critical section where we use a given per-CPU data structure.
 
-Speaking about the hardware, it's an ARM9 (TI-OMAP) and it's relatively
-cheap to get on of these (around 400$/320¤ including the LCD (optional)).
-
-OMAP Starter Kits:
-http://focus.ti.com/docs/general/splashdsp.jhtml?&path=templatedata/cm/splashdsp/data/omap5912_osk
-http://oskfordummies.hp.infoseek.co.jp/
-http://tree.celinuxforum.org/CelfPubWiki/FlashRecoveryUtility
-http://www.ti-estore.com/Merchant2/merchant.mvc?Screen=CTGY&Category_Code=dStartKit
-
-Still not convinced ? Too expensive... Well, Nokia is offering 500 of
-these 770 for 99¤ per unit to Open Source developers. Take you chance:
-http://maemo.org/news/25052005.html
-
-Well, all this for what ???
-
-My guess is that Nokia is trying to test the Open Source for its phones.
-The 770 is just a first try out. They have some benefit to do so, and we
-all have some benefit also... It's a win/win game if we can cooperate
-under appropriate agreements (maybe there is a footnote in very small
-characters somewhere, but I missed it totally). My big hope is that if
-the Open Source community give a good feed back to them, other companies
-which have already one foot in the door, will suddenly want to get in
-and focus much more on Linux for their PDA or mobile phone.
-
-So, if these links and this e-mail can make several of you at least
-trying out to develop for PDA or mobile phones (getting hardware,
-writing documentations, bug fixing, patches, new code, ...), this would
-be great ! :)
-
-
-Regards
--- 
-Emmanuel Fleury
-
-Assistant Professor          | Office: B1-201
-Computer Science Department, | Phone:  +45 96 35 72 23
-Aalborg University,          | Mobile: +45 26 22 98 03
-Fredriks Bajersvej 7E,       | E-mail: fleury@cs.aau.dk
-9220 Aalborg East, Denmark   | URL: www.cs.aau.dk/~fleury
+	Ingo

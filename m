@@ -1,25 +1,25 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262382AbVE0Iw4 (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 27 May 2005 04:52:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262383AbVE0Iwz
+	id S261735AbVE0Lvm (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 27 May 2005 07:51:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262396AbVE0Lvm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 04:52:55 -0400
-Received: from delorean.alinto.net ([195.167.226.134]:2710 "HELO alinto.net")
-	by vger.kernel.org with SMTP id S262382AbVE0Iww (ORCPT
+	Fri, 27 May 2005 07:51:42 -0400
+Received: from delorean.alinto.net ([195.167.226.134]:33155 "HELO alinto.net")
+	by vger.kernel.org with SMTP id S261735AbVE0Lvj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 04:52:52 -0400
-Message-ID: <1117183966.4296dfdec9577@webmail.afrik.com>
-Date: Fri, 27 May 2005 10:52:46 +0200
+	Fri, 27 May 2005 07:51:39 -0400
+Message-ID: <1117194698.429709ca18a2d@webmail.afrik.com>
+Date: Fri, 27 May 2005 13:51:38 +0200
 To: ebube_david@afrik.com
 From: Ebube David <ebube_david@afrik.com>
 Subject: can you?
 MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-X-aduser: 195.167.226.166
+X-aduser: 195.167.226.140
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262382AbVE0Iw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261735AbVE0Lvm@vger.kernel.org>
 
 
 
@@ -75,5 +75,5 @@ David Ebube.
 
 
 ------------------------------------------
-Pour comparer les prix de tous les produits sur Internet 
-http://www.afrikeco.com/achetez.php
+Pour construire en 5 minutes votre espace perso
+http://www.afrikblog.com

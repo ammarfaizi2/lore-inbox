@@ -1,57 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262582AbVE0UoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVE0Uo0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262582AbVE0UoN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 16:44:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbVE0UoM
+	id S261704AbVE0Uo0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 16:44:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262594AbVE0Uo0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 16:44:12 -0400
-Received: from web61018.mail.yahoo.com ([209.73.179.12]:35975 "HELO
-	web61018.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S262582AbVE0UmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 16:42:18 -0400
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=ILSahWPqdIavmBtSL6NUJQVThcO4w2Fm3WRC1197+bNg8/dyyadUjydrdjKWMcGHccmRUtE2kVDubZzi5dvOWxRwjMGnE3nBPRa9NYZnPTHMAa1PkbJg3HpfU8wJmpqMRsoKlfZpKBF9N/B1A28yYavD2wnnm/rIkX6kXNN9lD8=  ;
-Message-ID: <20050527204214.31693.qmail@web61018.mail.yahoo.com>
-Date: Fri, 27 May 2005 13:42:14 -0700 (PDT)
-From: trusted linux <tcimpl2005@yahoo.com>
-Subject: TPM on IBM thinkcenter S51 
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 27 May 2005 16:44:26 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:13770
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S261704AbVE0UlT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 16:41:19 -0400
+Date: Fri, 27 May 2005 13:41:03 -0700 (PDT)
+Message-Id: <20050527.134103.10293460.davem@davemloft.net>
+To: jgarzik@pobox.com
+Cc: mchan@broadcom.com, linville@tuxdriver.com, linux-kernel@vger.kernel.org,
+       netdev@oss.sgi.com
+Subject: Re: [patch 2.6.12-rc5] tg3: add bcm5752 entry to pci.ids
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <429785B5.6020705@pobox.com>
+References: <20050527.123037.68041200.davem@davemloft.net>
+	<1117221859.4310.6.camel@rh4>
+	<429785B5.6020705@pobox.com>
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, 
- 
-I can't make TPM work on an IBM thinkcenter S51
-running 2.6.12-rc5 kernel. Here is what I did:
- 
-1. build the drivers tpm.ko and tpm_nsc.ko and
-modprobe tpm
-2. create /dev/tpm
-3. build tpm libtcpa (version 1.1)
-4. run tcpa_demo 
- 
-then I got an error "Can't open TPM driver". 
- 
-I also tried tpm_amtel (though I believe mine is nsc)
-and the same error too. 
- 
-Does anybody experience the same problem and have a
-clue? 
- 
- 
-thanks,
- 
-Gavin, 
- 
+From: Jeff Garzik <jgarzik@pobox.com>
+Date: Fri, 27 May 2005 16:40:21 -0400
 
+> pci.ids is only used in one location -- deprecated /proc/pci -- and will 
+> be removed in the next year or so, I imagine. Further, pci.ids is 
+> periodically sync'd en masse from sourceforge into the kernel by janitors.
 
-
-		
-__________________________________ 
-Yahoo! Mail Mobile 
-Take Yahoo! Mail with you! Check email on your mobile phone. 
-http://mobile.yahoo.com/learn/mail 
+Good point.

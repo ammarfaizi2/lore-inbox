@@ -1,69 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVE0CYv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVE0Cai@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261442AbVE0CYv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 22:24:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVE0CYv
+	id S261431AbVE0Cai (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 22:30:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVE0Cai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 22:24:51 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:12520 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S261442AbVE0CYg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 22:24:36 -0400
-Message-ID: <4296847C.6010602@guerrier.com>
-Date: Fri, 27 May 2005 04:22:52 +0200
-From: Olivier Guerrier <olivier.lkml@guerrier.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: huiac@internode.on.net
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Fake ext3 corruption on raid5 in 2.6.11.9 smp
-References: <42959820.7090309@guerrier.com> <20050527012909.GA32085@oasissystems.com.au>
-In-Reply-To: <20050527012909.GA32085@oasissystems.com.au>
-X-Enigmail-Version: 0.86.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 26 May 2005 22:30:38 -0400
+Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:61671 "EHLO
+	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261431AbVE0Cab (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 26 May 2005 22:30:31 -0400
+Subject: Re: RT patch acceptance
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Sven-Thorsten Dietrich <sdietrich@mvista.com>
+Cc: ajh@linuxsymposium.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       Daniel Walker <dwalker@mvista.com>, "Bill Huey (hui)" <bhuey@lnxw.com>,
+       Ingo Molnar <mingo@elte.hu>, karim@opersys.com
+In-Reply-To: <1117042345.5840.6.camel@sdietrich-xp.vilm.net>
+References: <20050524054722.GA6160@infradead.org>
+	 <20050524064522.GA9385@elte.hu> <4292DFC3.3060108@yahoo.com.au>
+	 <20050524081517.GA22205@elte.hu> <4292E559.3080302@yahoo.com.au>
+	 <20050524090240.GA13129@elte.hu> <4292F074.7010104@yahoo.com.au>
+	 <1116957953.31174.37.camel@dhcp153.mvista.com>
+	 <20050524224157.GA17781@nietzsche.lynx.com> <4293E4ED.7030804@opersys.com>
+	 <20050525081644.GA23336@elte.hu>  <42947D30.6020509@opersys.com>
+	 <1117042345.5840.6.camel@sdietrich-xp.vilm.net>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Thu, 26 May 2005 22:29:14 -0400
+Message-Id: <1117160954.4459.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First, I just realized the typo in my previous message's subject:
-Should read 2.6.*11.*9 smp, instead of 2.6_.9. Sorry :|
-
-jpearson wrote:
-> Hi,
+On Wed, 2005-05-25 at 10:32 -0700, Sven-Thorsten Dietrich wrote:
+> On Wed, 2005-05-25 at 09:27 -0400, Karim Yaghmour wrote:
+> > Ingo Molnar wrote:
+> > > (i guess mostly because i'm pretty presentation-shy. It's probably too 
+> > > late for OLS, but if someone else feels a desire to do more in this 
+> > > area, i certainly wont complain.)
+> > 
+> > Like I told Sven, if this important enough (as it seems it is), I don't
+> > see why the people in charge wouldn't at least try to find a spot.
+> > 
 > 
-> I saw this exact same error (EXT3-fs error (device dm-x): ext3_readdir:
-> bad entry in directory #nnnnnnn: rec_len % 4 != 0 - offset=0, inode=xxxxxxxx,
-> rec_len=...
+> I have submitted a proposal, but its obviously very very late.
 > 
-> from time to time in my non-SMP RAID system with 512Mb RAM, with ext3 on LVM on top of RAID5.
+> I suggest that folks should contact any powers that be at OLS,
+> and express their interest in an RT presentation.
 > 
-> Never caused actual corruption - run FSCK, no errors, remount rw
-> successfully until next time; error rarely in the same place, but always
-> in a directory and rec_len % 4 != 0.  Looks like an 'in-kernel' thing,
-> because (e.g.) running find on the volume after remounting rw produced
-> no issues, so presumably the on-disk directory wasn't *really* the
-> issue.
+> Then I'll get up there and you all can throw rotten fruit and veggies ;)
 
-I confirm this here too: random place, always a dir, always 'rec_len % 4 
-!= 0', no fs issue or data loss (so far...)
+Sven,
 
-> Filesystems between about 8 and 50 Gb, and not what I'd characterise as a
-> heavy load.
+Any news of your speech?  I only live 4 and a half hours drive from
+Ottawa, and I just got the OK to go (from the wife :-).  I guess the OLS
+can get another $500 from me be just letting you speak, even if it's
+just a BOFS.  I got a few extra tomatoes rotting in the fridge from last
+year that I can bring ;-)
 
-By heavy load, I mean a system load between 10 and 15 for 3 hours 
-(before error) Processes running were several instances of mkisofs 
-(reading from and writing to the faulty partition)
+-- Steve
 
-> This was with about 2.6.4 - 2.6.7.  I'm running 2.6.11 now and haven't
-> seen it in some time; so it was either fixed by 2.6.11, or mounting ro
-> by default has just reduced my exposure.
 
-As my kernel is a 2.6.11.9, It is not fixed so far.
-
-I will reformat when possible, this time I will use lvm over raid5, so I 
-can use xfs for my usefull data, and keep a medium ext3 partition to 
-make tests if needed (just need to know what to test)
-
-Thanks

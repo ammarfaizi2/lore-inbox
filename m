@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262511AbVE0STI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262515AbVE0STX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262511AbVE0STI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 14:19:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262516AbVE0STH
+	id S262515AbVE0STX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 14:19:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262516AbVE0STW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 14:19:07 -0400
-Received: from web33008.mail.mud.yahoo.com ([68.142.206.72]:26982 "HELO
-	web33008.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S262511AbVE0SS4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 14:18:56 -0400
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=NCKjC2YUg0E1e5kuuy5lE2yKugXfq3bGEVKkwSSi8RB6pZoaowZqlaahMKKOXHQPbew9tda+1KK/12VVk3i7ggW3NclfizuKHlSqSShuEAgTptrN2N3S+Rq7vJR1NcOKlMrnXPITVyw8Lwzv5OsvThVjYMP8yJV7+qsSIMcCqjg=  ;
-Message-ID: <20050527181851.69524.qmail@web33008.mail.mud.yahoo.com>
-Date: Fri, 27 May 2005 11:18:51 -0700 (PDT)
-From: cranium2003 <cranium2003@yahoo.com>
-Subject: kernel memory usage any restrictions?
-To: linux-kernel@vger.kernel.org
+	Fri, 27 May 2005 14:19:22 -0400
+Received: from fire.osdl.org ([65.172.181.4]:40384 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262515AbVE0SS5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 14:18:57 -0400
+Date: Fri, 27 May 2005 11:20:53 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Chris Wright <chrisw@osdl.org>
+cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, stable@kernel.org
+Subject: Re: Linux 2.6.11.11
+In-Reply-To: <20050527180711.GH27549@shell0.pdx.osdl.net>
+Message-ID: <Pine.LNX.4.58.0505271117290.17402@ppc970.osdl.org>
+References: <20050527160437.GL23013@shell0.pdx.osdl.net> <1117213882.13829.73.camel@mindpipe>
+ <20050527180711.GH27549@shell0.pdx.osdl.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
-              Is there any restricition on using
-kernel's memory? also if i require to use some kernel
-memory say 625kB by allocating that in GFP_ATOMIC mode
-flag, what will be the side effects on kernel memory
-if i use that 625kB memory available from kernel
-memory for my kernel source code additions to kernel?
-I require answer with respect to 2.4 and 2.6 kernel.
-regards,
-cranium. 
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+
+On Fri, 27 May 2005, Chris Wright wrote:
+> 
+> Yes, you are right, the git commit scripts culled that author info from
+> the person who submitted it to -stable.
+
+Side note: the patch-applicator scripts will, if the first line of the
+email body is of the form "^From: xxxx", and there's exactly one '@' sign
+on that line, then it will assume that it's supposed to be the author
+info, and use that instead of the "From: " line in the header of the
+email.
+
+So when passing on stuff from others, that's always the preferred way to 
+do it. A lot of people already follow this convention, and it might even 
+be documented somewhere.
+
+			Linus

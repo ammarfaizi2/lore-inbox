@@ -1,61 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262560AbVE0TPA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262552AbVE0T0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262560AbVE0TPA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 15:15:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262552AbVE0TMr
+	id S262552AbVE0T0n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 15:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262553AbVE0T0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 15:12:47 -0400
-Received: from mms2.broadcom.com ([216.31.210.18]:33299 "EHLO
-	MMS2.broadcom.com") by vger.kernel.org with ESMTP id S262555AbVE0TJx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 15:09:53 -0400
-X-Server-Uuid: 1F20ACF3-9CAF-44F7-AB47-F294E2D5B4EA
-Subject: Re: [patch 2.6.12-rc5] tg3: add bcm5752 entry to pci.ids
-From: "Michael Chan" <mchan@broadcom.com>
-To: "John W. Linville" <linville@tuxdriver.com>
-cc: "Christoph Hellwig" <hch@infradead.org>,
-       "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       netdev@oss.sgi.com, jgarzik@pobox.com, lusinsky@broadcom.com
-In-Reply-To: <20050527190000.GC11592@tuxdriver.com>
-References: <04132005193844.8410@laptop> <04132005193844.8474@laptop>
- <20050421165956.55bdcb14.davem@davemloft.net>
- <20050527184750.GB11592@tuxdriver.com>
- <20050527185334.GA7417@infradead.org>
- <20050527190000.GC11592@tuxdriver.com>
-Date: Fri, 27 May 2005 11:12:04 -0700
-Message-ID: <1117217524.4310.1.camel@rh4>
+	Fri, 27 May 2005 15:26:43 -0400
+Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:59321 "EHLO
+	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
+	id S262552AbVE0T0l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 15:26:41 -0400
+Message-ID: <4297746C.10900@ammasso.com>
+Date: Fri, 27 May 2005 14:26:36 -0500
+From: Timur Tabi <timur.tabi@ammasso.com>
+Reply-To: linux-kernel@vger.kernel.org
+Organization: Ammasso
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en, en-gb
 MIME-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3)
-X-WSS-ID: 6E89AFFC1VO2673885-01-01
-Content-Type: text/plain
+To: linux-kernel@vger.kernel.org
+Subject: Will __pa(vmalloc()) ever work?
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-05-27 at 15:00 -0400, John W. Linville wrote:
-> On Fri, May 27, 2005 at 07:53:35PM +0100, Christoph Hellwig wrote:
-> > On Fri, May 27, 2005 at 02:47:52PM -0400, John W. Linville wrote:
-> 
-> > > +	1600  NetXtreme BCM5752 Gigabit Ethernet PCI Express
-> > 
-> > I don't think you should mention "PCI Express" here.  That can trivially
-> > befound it looking at the configuration header.
-> 
-> I'm just following what is at pciids.sourceforge.net.  Plus, it is
-> already like that for nine other IDs:
-> 
->         1659  NetXtreme BCM5721 Gigabit Ethernet PCI Express
->         1677  NetXtreme BCM5751 Gigabit Ethernet PCI Express
->         167d  NetXtreme BCM5751M Gigabit Ethernet PCI Express
->         167e  NetXtreme BCM5751F Fast Ethernet PCI Express
->         169d  NetLink BCM5789 Gigabit Ethernet PCI Express
->         16dd  NetLink BCM5781 Gigabit Ethernet PCI Express
->         16f7  NetXtreme BCM5753 Gigabit Ethernet PCI Express
->         16fd  NetXtreme BCM5753M Gigabit Ethernet PCI Express
->         16fe  NetXtreme BCM5753F Fast Ethernet PCI Express
-> 
-> The Broadcom guys can speak-up, but I figure they know if "PCI Express"
-> is appropriate for their device... :-)
->
-Yes, "PCI Express" is appropriate. Thanks John.
+I have a driver that calls __pa() on an address obtained via vmalloc().  This is not 
+supposed to work, and yet oddly it appears to.  Is there a possibility, even a remote one, 
+that __pa() will return the correct physical address for a buffer returned by the 
+vmalloc() function?
 
+Also, does the pgd/pmd/pte page-table walking work on addresses returned by kmalloc(), or 
+do I have to use __pa() to get the physical address?
+
+-- 
+Timur Tabi
+Staff Software Engineer
+timur.tabi@ammasso.com
+
+One thing a Southern boy will never say is,
+"I don't think duct tape will fix it."
+      -- Ed Smylie, NASA engineer for Apollo 13

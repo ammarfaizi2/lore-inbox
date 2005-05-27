@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262551AbVE0TCQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262539AbVE0THu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262551AbVE0TCQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 15:02:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbVE0TBG
+	id S262539AbVE0THu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 15:07:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262545AbVE0THu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 15:01:06 -0400
-Received: from mailgw.cvut.cz ([147.32.3.235]:21479 "EHLO mailgw.cvut.cz")
-	by vger.kernel.org with ESMTP id S262539AbVE0S7s (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 14:59:48 -0400
-Message-ID: <42976E1E.8080909@vc.cvut.cz>
-Date: Fri, 27 May 2005 20:59:42 +0200
-From: Petr Vandrovec <vandrove@vc.cvut.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Gabor MICSKO <gmicsko@szintezis.hu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.12-rc2 - 2.6.12-rc5] oops with vmware
-References: <1117206120.1954.7.camel@alderaan.trey.hu>	 <42973C1B.2060101@vc.cvut.cz> <1117218690.1954.9.camel@alderaan.trey.hu>
-In-Reply-To: <1117218690.1954.9.camel@alderaan.trey.hu>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 8bit
+	Fri, 27 May 2005 15:07:50 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:27112 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S262539AbVE0THh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 15:07:37 -0400
+Subject: Re: disowning a process
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Davy Durham <pubaddr2@davyandbeth.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <42976D3A.5020200@davyandbeth.com>
+References: <42975945.7040208@davyandbeth.com>
+	 <1117217088.4957.24.camel@localhost.localdomain>
+	 <42976D3A.5020200@davyandbeth.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Fri, 27 May 2005 15:07:33 -0400
+Message-Id: <1117220853.6477.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gabor MICSKO wrote:
-> Hi Petr!
+On Fri, 2005-05-27 at 13:55 -0500, Davy Durham wrote:
+> Cool.. I looked at the daemon function and I might be able to use it..
 > 
-> Where can i find this stuff? 
+> However, I compiled your code... seems to work.. but where is the wait() 
+> done on the middle parrent so that it isn't left defunct?
 
-On the Google.  http://platan.vc.cvut.cz/ftp/pub/vmware.
-							Petr
+Sorry, forgot about that...
+[...]
 
-> Thanks.
-> 
-> 2005-05-27, p keltezéssel 17.26-kor Petr Vandrovec ezt írta:
-> 
->>You need vmware-any-any-update90, on
-> 
-> e
+> >
+> >/* parent code here */
+
+waitpid(pid,&status,0);
+	
+/* and then you can look at WEXITSTATUS(status) to
+   see if the second fork succeeded. */
+if (WEXITSTATUS(status)) {
+	/* failed */
+} else {
+	/* succeeded */
+}
+
+/* Here the second child and parent are now divorced */
+
+
+-- Steve
 
 

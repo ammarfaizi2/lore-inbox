@@ -1,68 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262451AbVE0NAv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262467AbVE0NAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262451AbVE0NAv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 09:00:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbVE0M5y
+	id S262467AbVE0NAu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 09:00:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262451AbVE0M61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 08:57:54 -0400
-Received: from imf17aec.mail.bellsouth.net ([205.152.59.65]:64448 "EHLO
-	imf17aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S262462AbVE0MzA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 08:55:00 -0400
-Message-ID: <008801c562c2$b1094780$2800000a@pc365dualp2>
-From: <cutaway@bellsouth.net>
-To: <linux-kernel@vger.kernel.org>
-References: <007001c56290$25dd4d00$2800000a@pc365dualp2> <200505271235.41353.vda@ilport.com.ua> <Pine.LNX.4.61L.0505271318580.14679@blysk.ds.pg.gda.pl>
-Subject: Re: 387 emulator hack - mutant AAD trick - any objections?
-Date: Fri, 27 May 2005 09:47:50 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1478
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+	Fri, 27 May 2005 08:58:27 -0400
+Received: from vms048pub.verizon.net ([206.46.252.48]:20419 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S262468AbVE0M47 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 08:56:59 -0400
+Date: Fri, 27 May 2005 08:56:44 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: 2.6.12-rc5 build failure
+In-reply-to: <20050527124339.GA22605@pern.dea.icai.upco.es>
+To: romano@dea.icai.upco.es, linux-kernel@vger.kernel.org
+Message-id: <200505270856.44307.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <200505260750.57571.gene.heskett@verizon.net>
+ <200505260839.51153.gene.heskett@verizon.net>
+ <20050527124339.GA22605@pern.dea.icai.upco.es>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
+On Friday 27 May 2005 08:43, Romano Giannetti wrote:
+>On Thu, May 26, 2005 at 08:39:51AM -0400, Gene Heskett wrote:
+>> Aarrrhhggg... Thats about 150 chars longer than I can copy-paste
+>> here.
+>>
+>> I'll wait for rc6 I think.
+>>
+>> >http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linu
+>> >x-2
+>> > .6.git;a=commitdiff;h=dca79a046b93a81496bb30ca01177fb17f37ab72;h
+>> >p=5d af05fbf73fc199e7a93a818e504856d07c5586 -
 >
->  But certainly not worse than the alternatives for these processors which
-> actually lack the x87 subset.
+>It would be nice to add a "shortlink this patch" feature to
+> gitweb...have a link like 
+> http://kernel.org/git/gitweb.cgi?slink=someASCIIhashof40char...
 >
+>Romano
 
-What I'm looking for is reasonable compromise on the space issue.  I'm
-willing to spend a few bytes to help out the weak CPU's this will run on.
-The embedded market (and whatever low end desktop machines are still out
-there) is fairly size sensitive.  Cutting a few pages out might be the
-difference between thrashing and not thrashing ;->  I've also got some GCC
-hacks in mind so it can treat the SX differently than 386DX.  Right now it
-doesn't distinguish and makes some very poor (for the SX) choices even when
-told to space optimize.  Being hyper memory constrained, even something like
-the ubiquitous MOV EAX,1 (5 bytes) is slower on the SX than XOR EAX,EAX (2
-bytes)  / INC EAX (1 byte) - in fact the MOV is about 30% slower than the
-XOR/INC :O  The situation reverses on the DX and 486.  386SX really needs
-*completely* different code gen rules than DX or 486.
+OT probably...  So how does one go about getting 'gitweb'?
 
-I just benchmarked the AAD performance versus alternatives on a 386SLC(a
-modestly cached 386SX variation IBM produced) and the the AAD is visible
-loser.  Using the AAM is a win over the existing code though.
+I now see a couple of .git files in the snapshots dir that I grabbed 
+this morning:
 
-I pondered on the the extended precision divide routine that's being called
-in this loop and with a little underhanded treachery managed to eliminate a
-push/pop of ESI from it by recycling EBP to address its parms once the frame
-was no longer needed. This is an awsome trick when the code is simple enough
-that you can get away with doing it and don't need to reference a bunch of
-parameters.  In this case it only needed two, so you can peel the first off
-using the normal EBP, then peel the second directly into EBP itself (which
-destroys its usability to address the frame of course, but you've already
-got what you wanted and don't care at that point<g>).  Then use EPB as you
-might use ESI from then on and eliminate the save/restore of ESI.  Its
-sneaky, but it works.
+[amanda@coyote src]$ ls -l |grep .git
+-rw-r--r--    1 root    root           66398 May 26 09:01 patch-2.6.12-rc5-git1.gz
+-rw-r--r--    1 root    root          196014 May 27  2005 patch-2.6.12-rc5-git2.gz
 
-For a modest number of EBP references (less than 6 or so) the occasional
-instruction plumping necessary with implied 0 displacements is well offset
-by the elimination of sloshing a couple of dwords on and off the stack to
-save a register.  push/pop dwords really hurt the SX .
+Do these include that fix?
 
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

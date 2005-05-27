@@ -1,76 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262620AbVE0WFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262610AbVE0WGr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262620AbVE0WFR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 18:05:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262625AbVE0WFQ
+	id S262610AbVE0WGr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 18:06:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262611AbVE0WGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 18:05:16 -0400
-Received: from fire.osdl.org ([65.172.181.4]:37015 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262620AbVE0WEn (ORCPT
+	Fri, 27 May 2005 18:06:46 -0400
+Received: from fire.osdl.org ([65.172.181.4]:55447 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262610AbVE0WGi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 18:04:43 -0400
-Date: Fri, 27 May 2005 15:06:42 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: perex@suse.cz, linux-kernel@vger.kernel.org, git@vger.kernel.org
-Subject: Re: ALSA official git repository
-In-Reply-To: <20050527135124.0d98c33e.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0505271502240.17402@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0505271741490.1757@pnote.perex-int.cz>
- <Pine.LNX.4.58.0505270903230.17402@ppc970.osdl.org>
- <Pine.LNX.4.58.0505271941250.1757@pnote.perex-int.cz>
- <Pine.LNX.4.58.0505271113410.17402@ppc970.osdl.org> <20050527135124.0d98c33e.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 27 May 2005 18:06:38 -0400
+Date: Fri, 27 May 2005 15:07:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jesper Juhl <juhl-lkml@dif.dk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: build failure; CONFIG_HZ* unset if power management is not
+ selected (2.6.12-rc5-mm1)
+Message-Id: <20050527150725.5065f3b8.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.62.0505280000020.2370@dragon.hyggekrogen.localhost>
+References: <Pine.LNX.4.62.0505280000020.2370@dragon.hyggekrogen.localhost>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 27 May 2005, Andrew Morton wrote:
+Jesper Juhl <juhl-lkml@dif.dk> wrote:
 >
-> Yes, I'll occasionally do patches which were written by "A" as:
-> 
-> From: A
-> ...
-> Signed-off-by: B
-> 
-> And that comes through email as:
-> 
-> 
-> ...
-> From: <akpm@osdl.org>
-> ...
-> From: A
-> ...
-> Signed-off-by: B
-> 
-> 
-> which means that the algorithm for identifying the author is "the final
-> From:".
+> The randomly generated 
+> config didn't set CONFIG_PM
 
-No, the algorithm is:
- - the email author, _or_ if there is one, the top "From:" in the body.
+--- 25/arch/i386/Kconfig~i386-selectable-frequency-of-the-timer-interrupt-fix	2005-05-26 04:18:51.000000000 -0700
++++ 25-akpm/arch/i386/Kconfig	2005-05-26 04:18:51.000000000 -0700
+@@ -960,6 +960,8 @@ config SECCOMP
+ 
+ 	  If unsure, say Y. Only embedded should say N here.
+ 
++source kernel/Kconfig.hz
++
+ endmenu
+ 
+ 
+@@ -1116,8 +1118,6 @@ config APM_REAL_MODE_POWER_OFF
+ 	  a work-around for a number of buggy BIOSes. Switch this option on if
+ 	  your computer crashes instead of powering off properly.
+ 
+-source kernel/Kconfig.hz
+-
+ endmenu
+ 
+ source "arch/i386/kernel/cpu/cpufreq/Kconfig"
+_
 
-And the rule is that you never remove (or add to) an existing From:, since 
-the author doesn't change from being passed around.
-
-Put another way: authorship is very different from sign-off. The sign-off 
-gets stacked, the authorship is constant, and thus the rules are 
-different.
-
-Also, authorship is more important than sign-off-ship, so authorship goes 
-at the top, while sign-offs go at the bottom.
-
-> I guess the bug here is the use of From: to identify the primary author,
-> because transporting the patch via email adds ambiguity.
-
-No it doesn't, the email "from" just ends up being the "default" if no 
-explicit authorship is noted.
-
-> Maybe we should introduce "^Author:"?
-
-It would still have the same rules, so it wouldn't change anything but the 
-tag, so I don't think there is any real advantage to it.
-
-		Linus

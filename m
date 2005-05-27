@@ -1,52 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbVEZWGL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261832AbVEZWNR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbVEZWGL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 26 May 2005 18:06:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261828AbVEZWGL
+	id S261832AbVEZWNR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 26 May 2005 18:13:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261833AbVEZWNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 26 May 2005 18:06:11 -0400
-Received: from mail.kroah.org ([69.55.234.183]:8919 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261826AbVEZWGC (ORCPT
+	Thu, 26 May 2005 18:13:17 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:46740 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S261831AbVEZWNI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 26 May 2005 18:06:02 -0400
-Date: Thu, 26 May 2005 15:06:21 -0700
-From: Greg KH <greg@kroah.com>
-To: Marty Leisner <leisner@rochester.rr.com>
+	Thu, 26 May 2005 18:13:08 -0400
+Date: Fri, 27 May 2005 19:09:32 +0400
+From: "Sbtt.Jacobs@comcast.net" <Cycl.Dillard@comcast.net>
+Message-ID: <1D6AA7EB.8Cycl.Dillard@comcast.net>
+To: linux-kernel-announce@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: CONFIG_HOTPLUG, 2.4.x and ppc
-Message-ID: <20050526220621.GD19628@kroah.com>
-References: <20050525042621.GB17299@kroah.com> <200505250523.j4P5N5Xo012122@hp.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200505250523.j4P5N5Xo012122@hp.home>
-User-Agent: Mutt/1.5.8i
+Subject: Pre-approved Application for linux-kernel-announce@vger.kernel.org Fri, 27 May 2005 07:17:32 -0800
+X-Mailer: KYX CP/M FNORD 5602
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, May 25, 2005 at 01:23:04AM -0400, Marty Leisner wrote:
-> Its a custom chip with bridge functionality...(its not hotplug,
-> but the thought was "if hotplug can add a bridge at a later time,
-> so can an arbitrary module".  There's a number of minor problems
-> in how BRIDGE_OTHER is handled (i.e. the first two bars should
-> be filled in like any other bridge, but everything else ignored).
-> 
-> The goal is to add a PCI bus behind the bridge (the bios
-> and the kernel doesn't know about it).   
-> 
-> So I'm executing the sequence to add a new bus -- which 
-> needs CONFIG_HOTPLUG to export the symbols -- which causes the
-> problem with PPC in the arch dependent part (it works fine
-> on intel platforms).
-> 
-> Looking at the hotplug drivers, it looks like its tied to
-> intel architectures in places...but adding a PCI bus should be
-> a PCI thing...
+Hello,
 
-Yes it should be a pci thing, but for 2.4, a lot of the codepaths have
-not been checked to see that they are all proper for a non-intel based
-system.  Your finding is one such proof :)
+We sent you an email a while ago, because you now qualify
+for a much lower rate based on the biggest rate drop in years.
 
-thanks,
+You can now get $327,000 for as little as $617 a month!
+Bad credit? Doesn't matter, ^low rates are fixed no matter what!
 
-greg k-h
+Follow this link to process your application and a 24 hour approval:
+
+http://www.mirefi.net
+
+Best Regards,
+Corine Barnard
+
+
+http://www.mirefi.net/book.php

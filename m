@@ -1,43 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVE0Jkq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262419AbVE0Jko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261783AbVE0Jkq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 05:40:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262420AbVE0Jh5
+	id S262419AbVE0Jko (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 05:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbVE0JiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 05:37:57 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:38861 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261783AbVE0Jes (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 05:34:48 -0400
-Date: Fri, 27 May 2005 15:12:58 +0530
-From: Dinakar Guniguntala <dino@in.ibm.com>
-To: Paul Jackson <pj@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Simon Derr <Simon.Derr@bull.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.12-rc4: resent] cpuset exit NULL dereference fix
-Message-ID: <20050527094258.GA5517@in.ibm.com>
-Reply-To: dino@in.ibm.com
-References: <20050527090243.30833.93829.sendpatchset@tomahawk.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 27 May 2005 05:38:18 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:35564 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262419AbVE0JgL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 05:36:11 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: <cutaway@bellsouth.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: 387 emulator hack - mutant AAD trick - any objections?
+Date: Fri, 27 May 2005 12:35:41 +0300
+User-Agent: KMail/1.5.4
+References: <007001c56290$25dd4d00$2800000a@pc365dualp2>
+In-Reply-To: <007001c56290$25dd4d00$2800000a@pc365dualp2>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050527090243.30833.93829.sendpatchset@tomahawk.engr.sgi.com>
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200505271235.41353.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 27, 2005 at 02:02:43AM -0700, Paul Jackson wrote:
-> Andrew,
+On Friday 27 May 2005 10:44, cutaway@bellsouth.net wrote:
+> Brain fade...example should be:
 > 
-> Resubmitting the same patch I submitted yesterday.  Simon Derr
-> and I agree that we need this patch now to fix a kernel crash.
-> 
-> The potential scaling issues are theoretical at this time.
-> When they become more real, we will be in a better position to
-> consider more ambitious changes to cpuset locking and reference
-> counting.
-> 
-> Meanwhile -- this patch is small, simple, and needed.
-> 
+> 1) Start with AX = 0x0023
+> 2) Execute AAM instruction
+> 3) Now AX = 0x0305 (unpacked BCD)
+> 4) Execute base 16 AAD instruction
+> 5) Now AX = 0x0035 (packed BCD)
 
-Acked-by: Dinakar Guniguntala <dino@in.ibm.com>
+Intel syntax:
+
+shl ah,4
+or al,ah
+mov ah,0  (if needed)
+
+No need to use AAD16, it is 
+a) doesnt work on some obscure ancient NEC x86 clones IIRC
+b) is microcoded (slow)
+--
+vda
+

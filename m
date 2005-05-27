@@ -1,63 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261837AbVE0PdB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262471AbVE0Ppo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261837AbVE0PdB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 11:33:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261820AbVE0PdB
+	id S262471AbVE0Ppo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 11:45:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262473AbVE0Ppo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 11:33:01 -0400
-Received: from mout.perfora.net ([217.160.230.41]:31192 "EHLO mout.perfora.net")
-	by vger.kernel.org with ESMTP id S261837AbVE0PcM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 11:32:12 -0400
-Subject: Re: Tyan Opteron boards and problems with parallel ports (badpmd)
-From: Christopher Warner <chris@servertogo.com>
-To: Joel Jaeggli <joelja@darkwing.uoregon.edu>
-Cc: Christopher Warner <cwarner@kernelcode.com>,
-       "Peter J. Stieber" <developer@toyon.com>, linux-kernel@vger.kernel.org,
-       Bill Davidsen <davidsen@tmr.com>
-In-Reply-To: <Pine.LNX.4.62.0505262112540.32548@twin.uoregon.edu>
-References: <3174569B9743D511922F00A0C943142309F815A6@TYANWEB>
-	 <037801c5616a$b1be6600$1600a8c0@toyon.corp> <4295E9F1.6080304@tmr.com>
-	 <022e01c56233$241e5930$1600a8c0@toyon.corp>
-	 <1117156446.8874.41.camel@localhost.localdomain>
-	 <Pine.LNX.4.62.0505262112540.32548@twin.uoregon.edu>
-Content-Type: text/plain
-Date: Fri, 27 May 2005 06:49:24 -0400
-Message-Id: <1117190965.13932.36.camel@sabrina>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: perfora.net abuse@perfora.net login:d2cbd72fb1ab4860f78cabc62f71ec31
+	Fri, 27 May 2005 11:45:44 -0400
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:24760 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S262471AbVE0Ppi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 11:45:38 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Date: Fri, 27 May 2005 16:45:16 +0100 (BST)
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Pekka J Enberg <penberg@cs.Helsinki.FI>
+cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       linux-ntfs-dev@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ntfs: use struct initializers
+In-Reply-To: <Pine.LNX.4.58.0505261113390.6273@sbz-30.cs.Helsinki.FI>
+Message-ID: <Pine.LNX.4.60.0505271643350.20905@hermes-1.csi.cam.ac.uk>
+References: <1117044875.9510.2.camel@localhost>
+ <Pine.LNX.4.60.0505252208120.25834@hermes-1.csi.cam.ac.uk>
+ <courier.42956AFA.00002502@courier.cs.helsinki.fi>
+ <20050526070437.GY29811@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.58.0505261113390.6273@sbz-30.cs.Helsinki.FI>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-05-26 at 21:41 -0700, Joel Jaeggli wrote:
-> On Thu, 26 May 2005, Christopher Warner wrote:
-> 
-> > Just read the other existing thread linked. Is everyone running the same
-> > model opteron on these Tyan boards (246)? To update even further.
-> > Besides the parallel port problem I've sent back about 5 of these tyan
-> > motherboards. A couple of then simply didn't have the gigabit network
-> > adapters available via bios. In some cases linux loaded the drivers for
-> > the adapters regardless of their setting in BIOS. In other cases they
-> > simply were not available.
-> 
-> I have 4 tyan s2882's. 2 with 244's and 2GB of ram and 2 with 246 and 4GB 
-> of ram. I don't appear to have bad parallel ports or bad ethernet 
-> interfaces. They're running fedora core 3's 2.6.11 x86_64 kernel
-> (2.6.11-1.14_FC3smp)... I cna't tell you what bios version off the top of 
-> my head but i can reboot one tomorrow if that helps.
+Hi Pekka,
 
-Not to interested in the BIOS versions anymore. As the tyan boards in
-question have been rma'd I'm not exactly sure whats going on with them
-now. The tyan boards I have in here right now appear to work properly
-except for the pmd issue, i've noticed nothing wrong with them besides
-that. 
+On Thu, 26 May 2005, Pekka J Enberg wrote:
+> This patch converts explicit NULL assignments to use struct initializers as
+> suggested by Al Viro.
 
-What we need is to try and single out the variables that are causing the
-badpmd's. Also the more people who report badpmd's with Andi Kleen's
-intial patch the better. Especially on different archs; would also be
-good. So far from lkml i'm only seeing Tyan S28* boards as of recent.
+Thanks.  I applied this (slightly modified since you went outside the 80 
+char width) as well as equivalent changes to attrib.c and index.c.
 
--Christopher Warner
+Best regards,
+
+	Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

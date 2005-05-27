@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262422AbVE0K3k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262425AbVE0KdP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262422AbVE0K3k (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 06:29:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262424AbVE0K3k
+	id S262425AbVE0KdP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 06:33:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262431AbVE0KdP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 06:29:40 -0400
-Received: from uucp.cistron.nl ([62.216.30.38]:21412 "EHLO ncc1701.cistron.net")
-	by vger.kernel.org with ESMTP id S262422AbVE0K3d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 06:29:33 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: question about /dev/console and /dev/tty
-Date: Fri, 27 May 2005 10:29:32 +0000 (UTC)
-Organization: Cistron
-Message-ID: <d76sqc$suq$1@news.cistron.nl>
-References: <4296C5C0.4030409@avantwave.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1117189772 29658 194.109.0.112 (27 May 2005 10:29:32 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: mikevs@cistron.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	Fri, 27 May 2005 06:33:15 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:9901 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S262425AbVE0Kc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 06:32:56 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Fri, 27 May 2005 12:31:28 +0200
+To: schilling@fokus.fraunhofer.de, patrakov@ums.usu.ru
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] Joerg Schilling flames Linux on his Blog
+Message-ID: <4296F700.nail3N024IIC6@burner>
+References: <42947A75.nail1XA2FQPXX@burner>
+ <B12D948C-4CE9-4139-B0D6-68F8526D0F43@mac.com>
+ <4295A1A5.nail2SW21JHSO@burner>
+ <200505261847.54977.patrakov@ums.usu.ru>
+In-Reply-To: <200505261847.54977.patrakov@ums.usu.ru>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <4296C5C0.4030409@avantwave.com>,
-Tomko  <tomko@avantwave.com> wrote:
->Hi everyone,
+"Alexander E. Patrakov" <patrakov@ums.usu.ru> wrote:
+
+> On Thursday 26 May 2005 16:15, Joerg Schilling wrote:
 >
->Which device is /dev/console pointing to ? or is it a virtual device ? 
->Actually why this node is made?
+> > The problem was that you could send SCSI commands on R/O fds and fixing the
+> > problem would have been to forbid sending SCSI commands on R/O fds.
+>
+> Unfortunately, this is not going to work. It would work only if the only app 
+> that has to send SCSI commands were cdrecord. Then really, a non-setuid 
+> program just would not be able to get a R/W fd, and setuid ones are assumed 
+> to be trusted.
 
-See linux/Documentation/serial-console.txt
+If these programs did rely on the named security bug, then these programs
+were broken anyway and need to be fixed. Note that the _old_ (non ioctl based)
+/dev/sg interface needed write access in order to send SCSI commands.
 
->Why kernel default not providing a control terminal on /dev/console but 
->on other device ?
 
-Because some daemons open /dev/console to send last resort error
-messages to, and you do not want them to unexpectedly gain a
-controlling tty.
+> The problem is that many CD audio players also send SCSI commands in order to 
+> extract digital audio data. Are you proposing to make them setuid root? use a 
+> well-defined setuid helper? other solution?
 
->It is not surprising that we can use CTRL-C to terminate some process on 
->i386 linux on the Desktop machine,  is that mean the shell on our 
->desktop is not using /dev/console ? so where are the shell running on?
+If these programs did ever work before, someone did break them meanwhile.
 
-/dev/tty1, /dev/tty2 etc
 
-Mike.
+Jörg
 
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  
+       schilling@fokus.fraunhofer.de	(work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

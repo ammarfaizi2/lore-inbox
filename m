@@ -1,43 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261966AbVE1CDm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262095AbVE1CKv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261966AbVE1CDm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 22:03:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262095AbVE1CDm
+	id S262095AbVE1CKv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 22:10:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262131AbVE1CKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 22:03:42 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:63470 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261966AbVE1CC7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 22:02:59 -0400
-Subject: Re: spinaphore conceptual draft (was discussion of RT patch)
-From: Steven Rostedt <rostedt@goodmis.org>
-To: David Nicol <davidnicol@gmail.com>
-Cc: linux-kernel@vger.kernel.org, john cooper <john.cooper@timesys.com>
-In-Reply-To: <934f64a205052715315c21d722@mail.gmail.com>
-References: <934f64a205052715315c21d722@mail.gmail.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Fri, 27 May 2005 22:02:45 -0400
-Message-Id: <1117245765.6477.34.camel@localhost.localdomain>
+	Fri, 27 May 2005 22:10:51 -0400
+Received: from fire.osdl.org ([65.172.181.4]:11972 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262095AbVE1CKj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 22:10:39 -0400
+Date: Fri, 27 May 2005 19:09:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: C.M.Caldwell@Alumni.UNH.EDU
+Cc: linux-kernel@vger.kernel.org, c.m.caldwell@Alumni.UNH.EDU,
+       video4linux-list@redhat.com
+Subject: Re: Conflict between ntpd system calls and bttv device driver
+Message-Id: <20050527190939.6ab0fbb9.akpm@osdl.org>
+In-Reply-To: <200505271510.j4RFAHYX010409@mike.caldwell.org>
+References: <200505271510.j4RFAHYX010409@mike.caldwell.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-One thing you are forgetting is that we are not just talking about the
-latencies of contention.  We are talking about the latency of a high
-priority process when it wakes up to the time it runs.  Most of the time
-a spin lock stops preemption, either with (CONFIG_PREEMPT)
-preempt_disable or simple turning off interrupts.  With Ingo's mutexes,
-the places with spin_locks are now preemptable.  So there is probably
-lots of times that it would be better to just spin on contention, but
-that's not what Ingo's spin_locks are saving us.  It's to keep most of
-the kernel preemptable.
 
-The priority inheritance of spin_locks is simply there to protect from
-priority inversion.
+(added video4linux-list@redhat.com)
 
--- Steve
+C.M.Caldwell@Alumni.UNH.EDU wrote:
+>
+> Greetings,
+> 
+> One line:	Frame grabber times out if ntpd runs with kernel calls
+> 
+> Full:		We run the bttv frame grabber on a Dell-2600 running
+> 		2.6.9-1.667smp (ala Fedora Core 3).  If we run ntpd
+> 		normally, after a variable amount of time (seconds to
+> 		multiple hours), ioctl(dev,VIDIOC_DQBUF,ptr) returns
+> 		EINVAL.  After putting debug writes in the kernel,
+> 		we determined that it is because the request timed out
+> 		due to the fact that the interupt was blocked by a
+> 		higher priority interupt:  the kernel logic for the ntpd
+> 		system calls.
 
+Please be more specific.  Where, exactly, did this timeout occur? 
+File, line and function name.
 
+Did you consider simply increasing the timeout?
+
+What is ntpd doing to cause interrupts to be delayed for so long?  Does ntpd
+rewrite the CMOS clock?
+
+> 		This doesn't happen on all systems (e.g. a Dell-2650 doesn't
+> 		seem to have this problem), but it will happen with earlier
+> 		versions of the kernel.  Also, the problem occurs even if
+> 		you have stopped ntpd and re-loaded the bttv driver.
+> 
+> 		It may be that this can occur under more circumstances than
+> 		outline above but that it is much rarer.  We believe that
+> 		the Dell-2600s multiple PCI busses and its interupt structure
+> 		may make it much more sensitive to having interupts blocked
+> 		for long periods of time.
+> 		
+> Keywords:	bttv adjtime VIDIOC_DQBUF timeout
+> Version:	2.6.9-1.667smp
+> 
+> Workaround:	Add "disable kernel" to ntp.conf file and reboot
+> Oops output:
+> Shell script:
+> Environment:
+> Software:
+> Processor:	i686 Genuine Intel 2.8GHZ (Dell-2600)
+> Modules:
+> Loaded drivers:
+> Hardware:
+> lspci:
+> SCSI:
+> 
+> Comments:	Considering how easy the work-around for us is, this is
+> 		pretty low priority (though it was mighty high until we
+> 		figured out that ntpd was the thing hogging the interupts).
+> 		I wanted to send this in just to make people aware that
+> 		there maybe some timing conflicts.
+> 		sure 

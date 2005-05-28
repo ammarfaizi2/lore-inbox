@@ -1,72 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262697AbVE1LIQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262700AbVE1LNc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262697AbVE1LIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 May 2005 07:08:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262698AbVE1LIQ
+	id S262700AbVE1LNc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 May 2005 07:13:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262701AbVE1LNc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 May 2005 07:08:16 -0400
-Received: from smtp2.poczta.interia.pl ([213.25.80.232]:27036 "EHLO
-	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
-	id S262697AbVE1LIK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 May 2005 07:08:10 -0400
-Message-ID: <4298510E.8030502@poczta.fm>
-Date: Sat, 28 May 2005 13:07:58 +0200
-From: Lukasz Stelmach <stlman@poczta.fm>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: pl, en-us, en
+	Sat, 28 May 2005 07:13:32 -0400
+Received: from orb.pobox.com ([207.8.226.5]:22224 "EHLO orb.pobox.com")
+	by vger.kernel.org with ESMTP id S262700AbVE1LNR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 May 2005 07:13:17 -0400
+Message-ID: <42985251.6030006@cpan.org>
+Date: Sat, 28 May 2005 03:13:21 -0800
+From: "Sean M. Burke" <sburke@cpan.org>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: Re: Driver for MCS7780 USB-IrDA bridge chip
-References: <42943CB5.50400@poczta.fm> <20050525235846.GA28644@kroah.com>
-In-Reply-To: <20050525235846.GA28644@kroah.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigBA8A72E44CCAE38C51F78DA4"
-X-EMID: a14a4138
+Cc: trivial@rustcorp.com.au
+Subject: PATCH: "Ok" -> "OK" in messages
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigBA8A72E44CCAE38C51F78DA4
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+The English interjection "OK" is misspelled as "Ok" in a dozen
+messages in the Linux kernel.  The following patch corrects
+those typos from "Ok" to "OK".  It affects no comments or
+symbol-names -- and it stops me wanting to gnaw my fingers off every
+time I see "Ok, booting the kernel."!
 
-Greg KH napisa=C5=82(a):
-> On Wed, May 25, 2005 at 10:52:05AM +0200, Lukasz Stelmach wrote:
->=20
->>You can download it from either:
->>http://www.ee.pw.edu.pl/~stelmacl/mcs7780-0.1alpha.1.tar.bz2
-[...]
-> Nice, care to make up a patch as per the Documentation/SubmittingPatche=
-s
-> file and send it to the linux-usb-devel mailing list so people can
-> review it?
+("Okay" is an acceptable variant spelling of "OK".  I chose "OK" over
+"Okay" for sake of concision.)
 
-I surely will make a patch but let me at least implement the speed
-changing. For without it the driver is just like a lawnmower instead of
- beeing for example a scooter ;-)
-
---=20
-By=C5=82o mi bardzo mi=C5=82o.                    Trzecia pospolita kl=C4=
-=99ska, [...]
->=C5=81ukasz<                      Ju=C5=BC nie katolicka lecz z=C5=82odz=
-iejska.  (c)PP
+(I also fix three incidental nearby typoes in
+drivers/media/video/bttv-driver.c -- see at the end.)
 
 
---------------enigBA8A72E44CCAE38C51F78DA4
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
+Signed-off-by: Sean M. Burke <sburke@cpan.org>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
-iD8DBQFCmFETNdzY8sm9K9wRAstNAJ90F6PQlsP5HiRcDbogky44bgucjACcDkPK
-EpY/zxyt1OTDTAK9SCGH8v4=
-=BZRa
------END PGP SIGNATURE-----
+diff -uprN --exclude='*~*' linux-2.6.9.orig/arch/alpha/boot/bootp.c linux-2.6.9/arch/alpha/boot/bootp.c
+--- linux-2.6.9.orig/arch/alpha/boot/bootp.c	2004-10-18 13:55:06.000000000 -0800
++++ linux-2.6.9/arch/alpha/boot/bootp.c	2005-05-28 01:29:44.000000000 -0800
+@@ -100,7 +100,7 @@ pal_init(void)
+  		(INIT_HWRPB->processor_offset + (unsigned long) INIT_HWRPB);
+  	rev = percpu->pal_revision = percpu->palcode_avail[2];
 
---------------enigBA8A72E44CCAE38C51F78DA4--
+-	srm_printk("Ok (rev %lx)\n", rev);
++	srm_printk("OK (rev %lx)\n", rev);
+
+  	tbia(); /* do it directly in case we are SMP */
+  }
+diff -uprN --exclude='*~*' linux-2.6.9.orig/arch/alpha/boot/main.c linux-2.6.9/arch/alpha/boot/main.c
+--- linux-2.6.9.orig/arch/alpha/boot/main.c	2004-10-18 13:55:35.000000000 -0800
++++ linux-2.6.9/arch/alpha/boot/main.c	2005-05-28 01:29:33.000000000 -0800
+@@ -97,7 +97,7 @@ pal_init(void)
+  		(INIT_HWRPB->processor_offset + (unsigned long) INIT_HWRPB);
+  	rev = percpu->pal_revision = percpu->palcode_avail[2];
+
+-	srm_printk("Ok (rev %lx)\n", rev);
++	srm_printk("OK (rev %lx)\n", rev);
+
+  	tbia(); /* do it directly in case we are SMP */
+  }
+@@ -183,7 +183,7 @@ void start_kernel(void)
+  	envval[nbytes] = '\0';
+  	strcpy((char*)ZERO_PGE, envval);
+
+-	srm_printk(" Ok\nNow booting the kernel\n");
++	srm_printk(" OK\nNow booting the kernel\n");
+  	runkernel();
+  	for (i = 0 ; i < 0x100000000 ; i++)
+  		/* nothing */;
+diff -uprN --exclude='*~*' linux-2.6.9.orig/arch/i386/boot/compressed/misc.c linux-2.6.9/arch/i386/boot/compressed/misc.c
+--- linux-2.6.9.orig/arch/i386/boot/compressed/misc.c	2004-10-18 13:54:32.000000000 -0800
++++ linux-2.6.9/arch/i386/boot/compressed/misc.c	2005-05-28 01:27:54.000000000 -0800
+@@ -376,7 +376,7 @@ asmlinkage int decompress_kernel(struct
+  	makecrc();
+  	putstr("Uncompressing Linux... ");
+  	gunzip();
+-	putstr("Ok, booting the kernel.\n");
++	putstr("OK, booting the kernel.\n");
+  	if (high_loaded) close_output_buffer_if_we_run_high(mv);
+  	return high_loaded;
+  }
+diff -uprN --exclude='*~*' linux-2.6.9.orig/arch/i386/mm/init.c linux-2.6.9/arch/i386/mm/init.c
+--- linux-2.6.9.orig/arch/i386/mm/init.c	2004-10-18 13:54:54.000000000 -0800
++++ linux-2.6.9/arch/i386/mm/init.c	2005-05-28 02:14:18.000000000 -0800
+@@ -541,7 +541,7 @@ void __init test_wp_bit(void)
+  		panic("This kernel doesn't support CPU's with broken WP. Recompile it for a 386!");
+  #endif
+  	} else {
+-		printk("Ok.\n");
++		printk("OK.\n");
+  	}
+  }
+
+diff -uprN --exclude='*~*' linux-2.6.9.orig/arch/m32r/boot/compressed/misc.c linux-2.6.9/arch/m32r/boot/compressed/misc.c
+--- linux-2.6.9.orig/arch/m32r/boot/compressed/misc.c	2004-10-18 13:53:22.000000000 -0800
++++ linux-2.6.9/arch/m32r/boot/compressed/misc.c	2005-05-28 01:29:03.000000000 -0800
+@@ -218,6 +218,6 @@ long decompress_kernel(void)
+  	makecrc();
+  	puts("Uncompressing Linux... ");
+  	gunzip();
+-	puts("Ok, booting the kernel.\n");
++	puts("OK, booting the kernel.\n");
+  	return bytes_out;
+  }
+diff -uprN --exclude='*~*' linux-2.6.9.orig/arch/sh/boot/compressed/misc.c linux-2.6.9/arch/sh/boot/compressed/misc.c
+--- linux-2.6.9.orig/arch/sh/boot/compressed/misc.c	2004-10-18 13:53:43.000000000 -0800
++++ linux-2.6.9/arch/sh/boot/compressed/misc.c	2005-05-28 01:28:27.000000000 -0800
+@@ -236,5 +236,5 @@ void decompress_kernel(void)
+  	makecrc();
+  	puts("Uncompressing Linux... ");
+  	gunzip();
+-	puts("Ok, booting the kernel.\n");
++	puts("OK, booting the kernel.\n");
+  }
+diff -uprN --exclude='*~*' linux-2.6.9.orig/arch/sh64/boot/compressed/misc.c linux-2.6.9/arch/sh64/boot/compressed/misc.c
+--- linux-2.6.9.orig/arch/sh64/boot/compressed/misc.c	2004-10-18 13:53:45.000000000 -0800
++++ linux-2.6.9/arch/sh64/boot/compressed/misc.c	2005-05-28 01:28:42.000000000 -0800
+@@ -245,7 +245,7 @@ void decompress_kernel(void)
+  	}
+  #endif
+
+-	puts("Ok, booting the kernel.\n");
++	puts("OK, booting the kernel.\n");
+
+  	cache_control(CACHE_DISABLE);
+  }
+diff -uprN --exclude='*~*' linux-2.6.9.orig/drivers/base/power/shutdown.c linux-2.6.9/drivers/base/power/shutdown.c
+--- linux-2.6.9.orig/drivers/base/power/shutdown.c	2004-10-18 13:54:37.000000000 -0800
++++ linux-2.6.9/drivers/base/power/shutdown.c	2005-05-28 01:34:58.000000000 -0800
+@@ -55,7 +55,7 @@ void device_shutdown(void)
+  	list_for_each_entry_reverse(dev, &devices_subsys.kset.list, kobj.entry) {
+  		pr_debug("shutting down %s: ", dev->bus_id);
+  		if (dev->driver && dev->driver->shutdown) {
+-			pr_debug("Ok\n");
++			pr_debug("OK\n");
+  			dev->driver->shutdown(dev);
+  		} else
+  			pr_debug("Ignored.\n");
+diff -uprN --exclude='*~*' linux-2.6.9.orig/drivers/media/video/bttv-driver.c linux-2.6.9/drivers/media/video/bttv-driver.c
+--- linux-2.6.9.orig/drivers/media/video/bttv-driver.c	2004-10-18 13:54:54.000000000 -0800
++++ linux-2.6.9/drivers/media/video/bttv-driver.c	2005-05-28 01:32:39.000000000 -0800
+@@ -3228,14 +3228,14 @@ static void bttv_irq_debug_low_latency(s
+  	       (unsigned long)rc);
+
+  	if (0 == (btread(BT848_DSTATUS) & BT848_DSTATUS_HLOC)) {
+-		printk("bttv%d: Oh, there (temporarely?) is no input signal. "
+-		       "Ok, then this is harmless, don't worry ;)\n",
++		printk("bttv%d: Oh, there (temporarily?) is no input signal. "
++		       "OK, then this is harmless, don't worry ;)\n",
+  		       btv->c.nr);
+  		return;
+  	}
+  	printk("bttv%d: Uhm. Looks like we have unusual high IRQ latencies.\n",
+  	       btv->c.nr);
+-	printk("bttv%d: Lets try to catch the culpit red-handed ...\n",
++	printk("bttv%d: Let's try to catch the culprit red-handed ...\n",
+  	       btv->c.nr);
+  	dump_stack();
+  }
+

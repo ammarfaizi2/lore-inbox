@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262505AbVE1IwV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262522AbVE1JGC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262505AbVE1IwV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 May 2005 04:52:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262510AbVE1IwV
+	id S262522AbVE1JGC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 May 2005 05:06:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262512AbVE1JGC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 May 2005 04:52:21 -0400
-Received: from mta2.cl.cam.ac.uk ([128.232.0.14]:14267 "EHLO mta2.cl.cam.ac.uk")
-	by vger.kernel.org with ESMTP id S262505AbVE1IwS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 May 2005 04:52:18 -0400
-In-Reply-To: <20050527112039.GA10084@linuxace.com>
-References: <E1DbccR-00063Q-00@mta1.cl.cam.ac.uk> <20050527112039.GA10084@linuxace.com>
-Mime-Version: 1.0 (Apple Message framework v622)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <875052371a3a7c5217e413d7250320f9@cl.cam.ac.uk>
-Content-Transfer-Encoding: 7bit
-Cc: coreteam@netfilter.org, xen-devel@lists.xensource.com,
-       linux-kernel@vger.kernel.org, cedric@schieli.dyndns.org
-From: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
-Subject: Re: [PATCH] Avoid unncessary checksum validation in TCP/UDP netfilter
-Date: Sat, 28 May 2005 09:48:50 +0100
-To: Phil Oester <kernel@linuxace.com>
-X-Mailer: Apple Mail (2.622)
+	Sat, 28 May 2005 05:06:02 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:33415 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262510AbVE1JFz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 May 2005 05:05:55 -0400
+Date: Sat, 28 May 2005 10:05:41 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Badari Pulavarty <pbadari@us.ibm.com>
+Cc: Carsten Otte <cotte@freenet.de>, suparna@in.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>, schwidefsky@de.ibm.com,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC/PATCH 2/4] fs/mm: execute in place (3rd version)
+Message-ID: <20050528090541.GA19153@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Badari Pulavarty <pbadari@us.ibm.com>,
+	Carsten Otte <cotte@freenet.de>, suparna@in.ibm.com,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+	schwidefsky@de.ibm.com, Andrew Morton <akpm@osdl.org>
+References: <1116866094.12153.12.camel@cotte.boeblingen.de.ibm.com> <1116869420.12153.32.camel@cotte.boeblingen.de.ibm.com> <20050524093029.GA4390@in.ibm.com> <42930B64.2060105@freenet.de> <20050524133211.GA4896@in.ibm.com> <42933B7A.3060206@freenet.de> <1117043475.26913.1540.camel@dyn318077bld.beaverton.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1117043475.26913.1540.camel@dyn318077bld.beaverton.ibm.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 27 May 2005, at 12:20, Phil Oester wrote:
-
-> On Fri, May 27, 2005 at 12:03:08PM +0100, Keir Fraser wrote:
->> The TCP/UDP connection-tracking code in netfilter validates the
->> checksum of incoming packets, to prevent nastier errors further down
->> the road. This check is unnecessary if the skb is marked as
->> CHECKSUM_UNNECESSARY.
+On Wed, May 25, 2005 at 10:51:17AM -0700, Badari Pulavarty wrote:
+> This is my crude version of the cleanup patch to reduce the 
+> duplication of code.
+> 
+> Basically, I added __generic_file_aio_read_internal() and 
+> __generic_file_aio_write_nolock_internal() to take a read/write
+> handlers instead of defaulting to do_generic_file_read() or
+> generic_file_buffered_write().
+> 
+> This way I was able to reduce 129 lines of your code. 
+> This patch is on top of your current set and I haven't even
+> tried compiling it. Needs cleanup.
 >
-> It seems at least part of this has already been merged in 2.6.12-rc
+> 
+> BTW, function & variable names are too long and/or ugly & doesn't 
+> make sense - need fixing.
+> 
+> Christoph/Suparna/Andrew, Comments ?
 
-It would be great if the UDP code also would observe 
-CHECKSUM_UNNECESSARY. I'll wait for 2.6.12 to appear and then submit a 
-new patch if UDP has been missed.
-
-  Thanks,
-  Keir
+I don't like this patch a lot.  It adds another indirection to the code,
+and still leaves the O_DIRECT branches in the XIP path that don't make
+any sense.  If you're looking for a way to consolidate duplicated code
+some abtraction for the iovec verification makes most sense, as there's
+very little other code duplicated.
 

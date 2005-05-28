@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVE1Wjk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVE1XJr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbVE1Wjk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 May 2005 18:39:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVE1Wjk
+	id S261191AbVE1XJr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 May 2005 19:09:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVE1XJr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 May 2005 18:39:40 -0400
-Received: from h80ad26b2.async.vt.edu ([128.173.38.178]:6666 "EHLO
-	h80ad26b2.async.vt.edu") by vger.kernel.org with ESMTP
-	id S261187AbVE1Wj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 May 2005 18:39:27 -0400
-Message-Id: <200505282238.j4SMcYdN014990@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: 2.6.12-rc5-mm1 - missing #define SECTIONS_SHIFT in sparsemem
-From: Valdis.Kletnieks@vt.edu
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1117319910_6734P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sat, 28 May 2005 18:38:31 -0400
+	Sat, 28 May 2005 19:09:47 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:21986 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S261191AbVE1XJo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 May 2005 19:09:44 -0400
+X-ORBL: [69.107.40.98]
+From: David Brownell <david-b@pacbell.net>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: [patch 2.6.12-rc5] pcmcia/cs.c and SS_CAP_STATIC_MAP
+Date: Sat, 28 May 2005 16:09:26 -0700
+User-Agent: KMail/1.7.1
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_moPmCdBvkmWE4Xm"
+Message-Id: <200505281609.26470.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1117319910_6734P
-Content-Type: text/plain; charset=us-ascii
+--Boundary-00=_moPmCdBvkmWE4Xm
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-sparsemem-memory-model.patch references SECTIONS_SHIFT without defining it.
+I traced a puzzling bug down to the combination of SS_CAP_STATIC_MAP,
+finicky hardware, and a bug fixed by the following patch.  The fix
+is a one-liner that won't affect any socket driver that's yet merged;
+basically, it stops discarding I/O attributes for static mappings.
 
-Caught this while compiling with -Wundef, causes lots of warnings
-when it gets used in include/linux/mm.h.  The appended patch Works For Me,
-although I wonder if the *real* problem isn't a missing '#ifdef CONFIG_SPARSEMEM'
-around the code that uses it in mm.h.  
- 
-Signed-Off-By: valdis.kletnieks@vt.edu
-
---- linux-2.6.12-rc5-mm1/include/linux/mmzone.h.ifdef	2005-05-27 15:12:26.000000000 -0400
-+++ linux-2.6.12-rc5-mm1/include/linux/mmzone.h	2005-05-27 16:26:40.000000000 -0400
-@@ -568,6 +568,7 @@ static inline int pfn_valid(unsigned lon
- void sparse_init(void);
- #else
- #define sparse_init()	do {} while (0)
-+#define SECTIONS_SHIFT	0
- #endif /* CONFIG_SPARSEMEM */
- 
- #ifdef CONFIG_NODES_SPAN_OTHER_NODES
+- Dave
 
 
---==_Exmh_1117319910_6734P
-Content-Type: application/pgp-signature
+--Boundary-00=_moPmCdBvkmWE4Xm
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="pcmcia.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="pcmcia.patch"
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+The PCMCIA card services layer is never setting the i/o map attributes
+when SS_CAP_STATIC_MAP is specified.  Net result, sockets' set_io_map()
+calls always see requests with most flags clear, meaning 8 bit access.
 
-iD8DBQFCmPLmcC3lWbTT17ARAmGzAKDOVDbGBVcG0oQqY1rV2gIZrsnCYACg2PWl
-+ad4DrEzTHY68wGrxaRRBok=
-=+dzq
------END PGP SIGNATURE-----
+For hardware that always autosizes, that won't matter; and all current
+STATIC_MAP drivers ignore those attributes.  A new driver (for at91rm9200)
+suffers badly from this, since this forces everything into 8 bit mode and
+that breaks both (a) cards requiring 16 bit access, and (b) ide-cs; but
+of course 8-bit cards work OK (as does accessing card attributes).
 
---==_Exmh_1117319910_6734P--
+So this patch arranges to pass the attributes down, matching the behavior
+for non-static mappings (using the first/only I/O window).
+
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+
+--- at91x.orig/drivers/pcmcia/cs.c	2005-05-28 14:20:39.000000000 -0700
++++ at91x/drivers/pcmcia/cs.c	2005-05-28 15:21:06.000000000 -0700
+@@ -767,6 +767,7 @@
+     }
+     if ((s->features & SS_CAP_STATIC_MAP) && s->io_offset) {
+ 	*base = s->io_offset | (*base & 0x0fff);
++	s->io[0].Attributes = attr;
+ 	return 0;
+     }
+     /* Check for an already-allocated window that must conflict with
+
+--Boundary-00=_moPmCdBvkmWE4Xm--

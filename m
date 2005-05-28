@@ -1,44 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVE1Rxq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVE1SVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVE1Rxq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 May 2005 13:53:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVE1Rxq
+	id S261175AbVE1SVu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 May 2005 14:21:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVE1SVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 May 2005 13:53:46 -0400
-Received: from titan.genwebhost.com ([209.9.226.66]:42932 "EHLO
-	titan.genwebhost.com") by vger.kernel.org with ESMTP
-	id S261174AbVE1Rxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 May 2005 13:53:37 -0400
-Date: Sat, 28 May 2005 10:53:33 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
+	Sat, 28 May 2005 14:21:49 -0400
+Received: from vms046pub.verizon.net ([206.46.252.46]:46721 "EHLO
+	vms046pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261175AbVE1SVr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 May 2005 14:21:47 -0400
+Date: Sat, 28 May 2005 14:21:46 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
 Subject: Re: Question re .git# patches
-Message-Id: <20050528105333.12a7e28b.rdunlap@xenotime.net>
-In-Reply-To: <200505281050.24956.gene.heskett@verizon.net>
+In-reply-to: <20050528105333.12a7e28b.rdunlap@xenotime.net>
+To: linux-kernel@vger.kernel.org
+Message-id: <200505281421.46572.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
 References: <200505281050.24956.gene.heskett@verizon.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - titan.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+ <20050528105333.12a7e28b.rdunlap@xenotime.net>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 28 May 2005 10:50:24 -0400 Gene Heskett wrote:
+On Saturday 28 May 2005 13:53, randy_dunlap wrote:
+>On Sat, 28 May 2005 10:50:24 -0400 Gene Heskett wrote:
+>| Are these self-contained, so that .git2 also contains the .git1
+>| contents?
+>
+>Yes, and today's -git3 contains both of those.
+>
+I see.  I also tried to put Ingo's latest RT patch on top of that, it 
+went in except for the Makefile, wrong src version, but then the 
+Makefile itself was broken with some mumbling about make 
+modules_install failing because ln claimed the last argument was 
+bogus. I couldn't see anything wrong with the version names I used, 
+they were indentical in both the Makefile and in my 'makeit' script.
 
-| Are these self-contained, so that .git2 also contains the .git1 
-| contents?
+Running git2, seems to be happy so far (about 20 minutes)
 
-Yes, and today's -git3 contains both of those.
+Anything in particular that I should be watching for?
 
----
-~Randy
+>---
+>~Randy
+
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

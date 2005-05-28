@@ -1,33 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262680AbVE1K0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262687AbVE1Kaa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262680AbVE1K0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 May 2005 06:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262684AbVE1K0N
+	id S262687AbVE1Kaa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 May 2005 06:30:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262686AbVE1KaE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 May 2005 06:26:13 -0400
-Received: from dsl85-96-20205.ttnet.net.tr ([85.96.78.237]:2064 "HELO
-	dsl85-96-20205.ttnet.net.tr") by vger.kernel.org with SMTP
-	id S262680AbVE1K0B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 May 2005 06:26:01 -0400
-Mime-Version: 1.0 (Apple Message framework v728)
-Content-Transfer-Encoding: 7bit
-Message-Id: <3344829303.1996498638@dsl85-96-20205.ttnet.net.tr>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-To: linux-kernel@vger.kernel.org
-From: Peggy <diatribe@shammakh.com>
-Subject: Get latest version, cds and download under $99
-Date: Fri, 28 May 2004 13:26:20 +0300
-X-Mailer: Apple Mail (2.728)
+	Sat, 28 May 2005 06:30:04 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:34564 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S262691AbVE1K31 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 May 2005 06:29:27 -0400
+Date: Sat, 28 May 2005 03:34:17 -0700
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Christoph Hellwig <hch@infradead.org>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+Message-ID: <20050528103417.GA3390@nietzsche.lynx.com>
+References: <1117044019.5840.32.camel@sdietrich-xp.vilm.net> <20050526193230.GY86087@muc.de> <1117138270.1583.44.camel@sdietrich-xp.vilm.net> <20050526202747.GB86087@muc.de> <4296ADE9.50805@yahoo.com.au> <20050527120812.GA375@nietzsche.lynx.com> <429715DE.6030008@yahoo.com.au> <20050527233645.GA2283@nietzsche.lynx.com> <20050528065500.GA17005@infradead.org> <20050528102259.GA3072@nietzsche.lynx.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050528102259.GA3072@nietzsche.lynx.com>
+User-Agent: Mutt/1.5.9i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bring on the best software...at the most reasonable prices! 
-http://tzfsdk.k96z5jkvhc29zlk.shopofyourdream.com
+On Sat, May 28, 2005 at 03:22:59AM -0700, Bill Huey wrote:
+> On Sat, May 28, 2005 at 07:55:00AM +0100, Christoph Hellwig wrote:
+> > You're on crack as usual, but today you go much too far.  XFS doesn't
+> > ahave anything to do with you're so Hard RT pipedreams.  The so-called
+> > 'RT' subvolulme only provides a more determinitistic block allocator.
+> > GRIO doesn't require any RT guarantees, it's entirely about I/O scheduling
+> > and has been ported to various operating systems with sane locking semantics.
+> 
+> I actually when I talked to the SGI folks about 5 years ago at Usenix
+> I got a different story where they really were thinking about hacking
+> a tasklet to handle some of this IO stuff going. So I'm going to bet
+> that you're wrong about this based on that conversation.
 
+I'd like to add that 16x way SGI boxes can play and record something like
+300+ individual streams that are frame accurate. An SGI buddy of mine
+mention that CNN actually uses such a box to handle all of their video
+data in real time.
 
+Can Linux do this ? No
 
-
-One more drink and I'll be under the host.    
-They can do all because they think they can.    
-
+bill
 

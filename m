@@ -1,63 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVE1XSN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVE1XVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261198AbVE1XSN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 May 2005 19:18:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVE1XSM
+	id S261203AbVE1XVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 May 2005 19:21:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVE1XUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 May 2005 19:18:12 -0400
-Received: from coderock.org ([193.77.147.115]:43910 "EHLO trashy.coderock.org")
-	by vger.kernel.org with ESMTP id S261198AbVE1XRo (ORCPT
+	Sat, 28 May 2005 19:20:23 -0400
+Received: from coderock.org ([193.77.147.115]:50310 "EHLO trashy.coderock.org")
+	by vger.kernel.org with ESMTP id S261204AbVE1XSP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 May 2005 19:17:44 -0400
-Message-Id: <20050528231728.472430000@nd47.coderock.org>
-Date: Sun, 29 May 2005 01:17:29 +0200
+	Sat, 28 May 2005 19:18:15 -0400
+Message-Id: <20050528231738.769299000@nd47.coderock.org>
+Date: Sun, 29 May 2005 01:17:40 +0200
 From: domen@coderock.org
-To: jgarzik@pobox.com
+To: akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, Tobias Klauser <tklauser@nuerscht.ch>,
        domen@coderock.org
-Subject: [patch 1/1] sound/oss/via82cxxx_audio: Use the DMA_32BIT_MASK constant
-Content-Disposition: inline; filename=dma_mask-sound_oss_via82cxxx_audio
+Subject: [patch 6/7] Remove duplicate file in Documentation/networking (00-INDEX)
+Content-Disposition: inline; filename=delete-Documentation_networking_wanpipe.txt_00-INDEX
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Tobias Klauser <tklauser@nuerscht.ch>
 
 
-Use the DMA_32BIT_MASK constant from dma-mapping.h
-when calling pci_set_dma_mask() or pci_set_consistent_dma_mask()
-See http://marc.theaimsgroup.com/?t=108001993000001&r=1&w=2 for details
+wanpipe.txt and wan-router.txt in Documentation/networking
+contain the exact same information (diff between the two shows no
+difference). This patch removes the reference to this document in
+Documentation/networking/00-INDEX as pointed out by Randy Dunlap.
 
 Signed-off-by: Tobias Klauser <tklauser@nuerscht.ch>
 Signed-off-by: Domen Puncer <domen@coderock.org>
 
 ---
- via82cxxx_audio.c |    5 +++--
- 1 files changed, 3 insertions(+), 2 deletions(-)
+ 00-INDEX |    4 +---
+ 1 files changed, 1 insertion(+), 3 deletions(-)
 
-Index: quilt/sound/oss/via82cxxx_audio.c
+Index: quilt/Documentation/networking/00-INDEX
 ===================================================================
---- quilt.orig/sound/oss/via82cxxx_audio.c
-+++ quilt/sound/oss/via82cxxx_audio.c
-@@ -35,6 +35,7 @@
- #include <linux/smp_lock.h>
- #include <linux/ioport.h>
- #include <linux/delay.h>
-+#include <linux/dma-mapping.h>
- #include <asm/io.h>
- #include <asm/uaccess.h>
- #include <asm/semaphore.h>
-@@ -3391,10 +3392,10 @@ static int __devinit via_init_one (struc
- 	if (rc)
- 		goto err_out_disable;
- 
--	rc = pci_set_dma_mask(pdev, 0xffffffffULL);
-+	rc = pci_set_dma_mask(pdev, DMA_32BIT_MASK);
- 	if (rc)
- 		goto err_out_res;
--	rc = pci_set_consistent_dma_mask(pdev, 0xffffffffULL);
-+	rc = pci_set_consistent_dma_mask(pdev, DMA_32BIT_MASK);
- 	if (rc)
- 		goto err_out_res;
- 
+--- quilt.orig/Documentation/networking/00-INDEX
++++ quilt/Documentation/networking/00-INDEX
+@@ -114,9 +114,7 @@ tuntap.txt
+ vortex.txt
+ 	- info on using 3Com Vortex (3c590, 3c592, 3c595, 3c597) Ethernet cards.
+ wan-router.txt
+-	- Wan router documentation
+-wanpipe.txt
+-	- WANPIPE(tm) Multiprotocol WAN Driver for Linux WAN Router
++	- WAN router documentation
+ wavelan.txt
+ 	- AT&T GIS (nee NCR) WaveLAN card: An Ethernet-like radio transceiver
+ x25.txt
 
 --

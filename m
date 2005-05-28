@@ -1,47 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261343AbVE1DYi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261792AbVE1Dd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261343AbVE1DYi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 23:24:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbVE1DYi
+	id S261792AbVE1Dd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 23:33:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbVE1Dd1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 23:24:38 -0400
-Received: from sccrmhc12.comcast.net ([204.127.202.56]:39554 "EHLO
-	sccrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261343AbVE1DYf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 23:24:35 -0400
-Message-ID: <4297E475.3040906@comcast.net>
-Date: Fri, 27 May 2005 23:24:37 -0400
-From: John Livingston <jujutama@comcast.net>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Parag Warudkar <kernel-stuff@comcast.net>
-CC: Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: How to find if BIOS has already enabled the device
-References: <0EF82802ABAA22479BC1CE8E2F60E8C31B5206@scl-exch2k3.phoenix.com> <200505272150.15109.kernel-stuff@comcast.net>
-In-Reply-To: <200505272150.15109.kernel-stuff@comcast.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 27 May 2005 23:33:27 -0400
+Received: from pimout4-ext.prodigy.net ([207.115.63.98]:30382 "EHLO
+	pimout4-ext.prodigy.net") by vger.kernel.org with ESMTP
+	id S261748AbVE1DdY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 23:33:24 -0400
+Date: Fri, 27 May 2005 20:33:12 -0700
+From: Chris Wedgwood <cw@f00f.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, perex@suse.cz,
+       linux-kernel@vger.kernel.org, git@vger.kernel.org
+Subject: Re: ALSA official git repository
+Message-ID: <d931cd0e93f6fdc371160db78d0cfeec.ANY@taniwha.stupidest.org>
+References: <Pine.LNX.4.58.0505271741490.1757@pnote.perex-int.cz> <Pine.LNX.4.58.0505270903230.17402@ppc970.osdl.org> <Pine.LNX.4.58.0505271941250.1757@pnote.perex-int.cz> <Pine.LNX.4.58.0505271113410.17402@ppc970.osdl.org> <20050527135124.0d98c33e.akpm@osdl.org> <Pine.LNX.4.58.0505271502240.17402@ppc970.osdl.org> <20050527154625.5490f405.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050527154625.5490f405.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, May 27, 2005 at 03:46:25PM -0700, Andrew Morton wrote:
 
->
->The offending code is in hcd-pci.c - which 
->seems to be executed unconditionally. usb_hcd_pci_probe() calls 
->pci_enable_device() which hangs if there was already a device present, 
->attached to the controller. 
->  
->
-Have you attempted more generic fix-hardware-hang solutions?  I've known 
-more than a few times where a good old "noapic nolapic" snapped a box 
-out of some strange and seemingly unrelated problems...
+> That all assumes that the tools are smart enough to separate the email
+> headers from the body :(
 
-Also, is your BIOS fully up to date/modern?  A quick Google search found 
-a few things like this:
-http://www.techspot.com/vb/all/windows/t-18940-USB-Hub-And-Boot-Problems.html
-The problem might be more generic than a bad interaction between drive 
-and kernel.
+the first blank line separates these, sed can do that --- so is it
+really a problem?
 
-~John Livingston

@@ -1,94 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVE1S71@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVE1TR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261177AbVE1S71 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 May 2005 14:59:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261181AbVE1S70
+	id S261190AbVE1TR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 May 2005 15:17:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVE1TR5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 May 2005 14:59:26 -0400
-Received: from mail.gmx.net ([213.165.64.20]:19421 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261177AbVE1S7T convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 May 2005 14:59:19 -0400
-X-Authenticated: #19095397
-From: Bernd Schubert <bernd-schubert@gmx.de>
-To: linux-kernel@vger.kernel.org
-Subject: usb/acpi related: irq 11: nobody cared!
-Date: Sat, 28 May 2005 21:02:16 +0200
-User-Agent: KMail/1.8
+	Sat, 28 May 2005 15:17:57 -0400
+Received: from smtpauth01.mail.atl.earthlink.net ([209.86.89.61]:64195 "EHLO
+	smtpauth01.mail.atl.earthlink.net") by vger.kernel.org with ESMTP
+	id S261190AbVE1TRz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 May 2005 15:17:55 -0400
+Message-ID: <4298C3DC.5040100@exmsft.com>
+Date: Sat, 28 May 2005 21:17:48 +0200
+From: Keith Moore <keithmo@exmsft.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200505282102.16858.bernd-schubert@gmx.de>
-X-Y-GMX-Trusted: 0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Trivial module unload problem in 2.6.12-rc5[-mm1]
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-ELNK-Trace: bd47eb33e10cdf15d780f4a490ca69563f9fea00a6dd62bc0b5ca89ba715506c1f2e7d68f9a17464350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
+X-Originating-IP: 83.16.113.74
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+I've found a trivial module unload problem in the 2.6.12-rc5 and (-mm1)
+kernels.
 
-with 2.6.X we need to give pci=noacpi for some mainboards (gigabyte 7DXE) to 
-get usb working. With 2.4.2X this was no issue with those boards. Any ideas?
+net/ipv4/multipath_drr.c can cause an oops soon after unloading. Its
+module init routine calls multipath_alg_register() with the incorrect
+IP_MP_ALG_RR value, but its module exit routine calls
+multipath_alg_deregister() with the *correct* IP_MP_ALG_DRR value.
 
-Here's an oops without pci=noacpi (2.6.11-ck9 + Win4Lin + bluesmoke patches, 
-the problem is really also existing with a vanilla kernel)
+Easy fix:
 
+--- linux-2.6.12-rc5-mm1/net/ipv4/multipath_drr.c.old	2005-05-28
+15:03:24.000000000 +0200
++++ linux-2.6.12-rc5-mm1/net/ipv4/multipath_drr.c	2005-05-28
+15:03:31.000000000 +0200
+@@ -244,7 +244,7 @@ static int __init drr_init(void)
+ 	if (err)
+ 		return err;
 
-irq 11: nobody cared!
- [<c0138bb2>] __report_bad_irq+0x22/0x80
- [<c0138c80>] note_interrupt+0x50/0x80
- [<c013878b>] __do_IRQ+0x11b/0x120
- [<c03a3780>] ip_rcv_finish+0x0/0x2a0
- [<c01056da>] do_IRQ+0x1a/0x30
- [<c0103f8a>] common_interrupt+0x1a/0x20
- [<c03a3780>] ip_rcv_finish+0x0/0x2a0
- [<c03993ea>] nf_hook_slow+0x2a/0x100
- [<c03a34a5>] ip_rcv+0x435/0x500
- [<c03a3780>] ip_rcv_finish+0x0/0x2a0
- [<c038fccb>] netif_receive_skb+0x14b/0x210
- [<c038fe12>] process_backlog+0x82/0x130
- [<c038ff37>] net_rx_action+0x77/0x110
- [<c0123dd6>] __do_softirq+0x126/0x160
- [<c0123e65>] do_softirq+0x55/0x70
- [<c0123fa8>] irq_exit+0x68/0x80
- [<c01056df>] do_IRQ+0x1f/0x30
- [<c0103f8a>] common_interrupt+0x1a/0x20
- [<c0101030>] default_idle+0x0/0x30
- [<c0101054>] default_idle+0x24/0x30
- [<c01010ed>] cpu_idle+0x4d/0x60
- [<c0556881>] start_kernel+0x181/0x1c0
-handlers:
-[<c035ff70>] (usb_hcd_irq+0x0/0x60)
-[<c035ff70>] (usb_hcd_irq+0x0/0x60)
-Disabling IRQ #11
+-	err = multipath_alg_register(&drr_ops, IP_MP_ALG_RR);
++	err = multipath_alg_register(&drr_ops, IP_MP_ALG_DRR);
+ 	if (err)
+ 		goto fail;
 
-           CPU0
-  0:     486512    IO-APIC-edge  timer
-  1:         13    IO-APIC-edge  i8042
-  7:          2    IO-APIC-edge  parport0
-  8:          4    IO-APIC-edge  rtc
-  9:          1   IO-APIC-level  acpi
- 10:          0   IO-APIC-level  VIA686A
- 11:     100000   IO-APIC-level  uhci_hcd, uhci_hcd
- 12:        102    IO-APIC-edge  i8042
- 14:        610    IO-APIC-edge  ide0
- 15:         26    IO-APIC-edge  ide1
- 16:      33105   IO-APIC-level  r128@PCI:1:5:0
- 19:     193715   IO-APIC-level  eth0
-NMI:          0
-LOC:     486129
-ERR:          0
-MIS:          0
-
-Please tell me, if I can do more about it or if you need more information.
 
 Thanks,
-	Bernd
+KM
 
-
--- 
-Bernd Schubert
-PCI / Theoretische Chemie
-Universität Heidelberg
-INF 229
-69120 Heidelberg

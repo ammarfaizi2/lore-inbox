@@ -1,160 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261898AbVE1BEy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbVE1BHH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261898AbVE1BEy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 21:04:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261906AbVE1BEy
+	id S261906AbVE1BHH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 21:07:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261908AbVE1BHH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 21:04:54 -0400
-Received: from smtpout.mac.com ([17.250.248.84]:61910 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S261898AbVE1BEq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 21:04:46 -0400
-In-Reply-To: <934f64a205052715315c21d722@mail.gmail.com>
-References: <934f64a205052715315c21d722@mail.gmail.com>
-Mime-Version: 1.0 (Apple Message framework v728)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <A53A981B-98F9-42EC-8939-60A528FEC34E@mac.com>
-Cc: john cooper <john.cooper@timesys.com>, linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: spinaphore conceptual draft (was discussion of RT patch)
-Date: Fri, 27 May 2005 21:04:37 -0400
+	Fri, 27 May 2005 21:07:07 -0400
+Received: from mail.timesys.com ([65.117.135.102]:44927 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S261906AbVE1BGi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 21:06:38 -0400
+Message-ID: <4297C3BE.9010408@timesys.com>
+Date: Fri, 27 May 2005 21:05:02 -0400
+From: john cooper <john.cooper@timesys.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: David Nicol <davidnicol@gmail.com>
-X-Mailer: Apple Mail (2.728)
+CC: linux-kernel@vger.kernel.org, john cooper <john.cooper@timesys.com>
+Subject: Re: spinaphore conceptual draft (was discussion of RT patch)
+References: <934f64a205052715315c21d722@mail.gmail.com>
+In-Reply-To: <934f64a205052715315c21d722@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 28 May 2005 01:00:00.0921 (UTC) FILETIME=[932CB090:01C56320]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On May 27, 2005, at 18:31:38, David Nicol wrote:
-> On 5/26/05, john cooper <john.cooper@timesys.com> wrote:
->
->> given design.  Clearly we aren't buying anything to trade off
->> a spinlock protecting the update of a single pointer with a
->> blocking lock and associated context switching.
->
-> On contention, and only on contention, we are faced with the  
-> question of what
-> to do.  Do we wait, or do we go away and come back later?  What  
-> information is
-> available to us to base the decision on?  We can't gather any more  
-> information,
-> because that would take longer than spin-waiting.  If the  
-> "spinaphore" told us,
+David Nicol wrote:
+> So if the normal, uncontended case,
+> in a SMP system, is, check something visible to all CPUs, set that
+> thing, do the protected thing, unset the visible thing, continue on, and
+> the setting/unsetting is the same speed, there would be no difference
+> in performance, except when there is actual contention?
+
+Yes.
+
+> On contention, and only on contention, we are faced with the question of what
+> to do.  Do we wait, or do we go away and come back later?  What information is
+> available to us to base the decision on?  We can't gather any more information, 
+> because that would take longer than spin-waiting.  If the "spinaphore" told us,
 > on acquisition failure, how many other threads were asking for it, we
 > could implement
 > a tunable lock, that surrenders context when there are more than N
 > threads waiting for
-> the resource, and that otherwise waits its turn, or its chance,  as  
-> a compromise
+> the resource, and that otherwise waits its turn, or its chance,  as a compromise
 > and synthesis.
 
-Here is an example naive implementation which could perhaps be  
-optimized further
-for architectures based on memory and synchronization requirements.
+The trick is making the correct spin/block decision
+every time as quickly as possible with as little
+information as possible.  As that ideal is probably
+not attainable partial solutions such as the adaptive
+mutex have been used where the spin/block decision is
+made upon simple heuristics such as whether the lock
+owner is currently running on another cpu.
 
-A quick summary:
-Each time the lock is taken and released, a "hold_time" is updated  
-which indicates
-the average time that the lock is held.  During contention, each CPU  
-checks the
-current average hold time and the number of CPUs waiting against a  
-predefined
-"context switch + useful work" time, and goes to sleep if it thinks  
-it has enough
-time to spare.
+Pushing lock acquisition policy back to the lock user is
+probably going to cause more confusion/misuse/bugs that
+improving overall performance.  In any case it is unlikely
+to become popular in general usage and consequently won't
+have the opportunity to attempt its goal.
 
-Problems:
-You can't nest these.  You also can't take a normal semaphore inside  
-one.  The
-only useable locking order for these is:
-..., semaphore, semaphore, spinaphore, spinlock, spinlock, ...
+> So, some code would attempt try_and_obtain_or_abandon a few times,
+> then would register itself with the spinaphore, and yield its CPU.  When the
+> message comes from the spinaphore that it is now this code's turn, the CPU
+> would either requeue the entry point if it is really busy --
+> interrupting an interrupt
+> or something like that -- or switch context back to whatever had registered with
+> the spinaphore.
 
-Possible Solution:
-If you had a reliable way of determining when it is safe to sleep,  
-you could call
-a "cond_resched_if_nonatomic()" function instead of cond_resched()  
-and allow
-nesting of spinaphores within each other and within spinlocks.  I  
-_do_ implement a
-spinaphore_lock_atomic which is guaranteed not to sleep and could be  
-used within
-other locks instead.
+I think you may have answered your own question above.
+Optimizing for the contended case is likely past the
+point of diminishing returns.  The effort may be better
+spent on avoiding contention in the first place
+through partitioning, reader/writer semantics, etc..
+After all a lock by definition is designed to effect
+synchronization by introducing delay.
 
-struct spinaphore {
-     atomic_t queued;
-     atomic_t hold_time;
-     spinlock_t spinlock;
-     unsigned long acquire_time;
-};
+> Looking at the linux/spinlock.h file from 2.6.11, there are a lot of
+> flavors of lock to
+> choose between already.  What's one or two or ten more?
 
-void spinaphore_lock (struct spinaphore *sph) {
-     unsigned long start_time = fast_monotonic_count();
-     int queue_me = 1;
-     until (likely(spin_trylock(&sph->spinlock))) {
+I'd hazard that was more a case of sprawling evolution
+rather than a conscious design decision.
 
-         /* Get the queue count (And ensure we're queued in the  
-process) */
-         unsigned int queued = queue_me ?
-                 atomic_inc_return(&sph->queued) :
-                 queued = atomic_get(&sph->queued);
-         queue_me = 0;
-
-         /* Figure out if we should switch away */
-         if (unlikely(CONFIG_SPINAPHORE_CONTEXT_SWITCH <
-                 ( queued*atomic_get(&sph->hold_time) -
-                   fast_monotonic_count() - start_time
-                 ))) {
-             /* Remove ourselves from the wait pool (remember to re- 
-add later) */
-             atomic_dec(&sph->queued);
-             queue_me = 1;
-
-             /* Go to sleep */
-             cond_resched();
-         }
-     }
-
-     /* Dequeue ourselves and update the acquire time */
-     atomic_dec(&sph->queued);
-     sph->acquire_time = fast_monotonic_count();
-}
-
-void spinaphore_lock_atomic (struct spinaphore *sph) {
-     /* Let the other processes know what we're doing */
-     atomic_inc(&sph->queued);
-
-     /* Just get the lock the old fashioned way */
-     spin_lock(&sph->spinlock);
-
-     /* Dequeue ourselves and update the acquire time */
-     atomic_dec(&sph->queued);
-     sph->acquire_time = fast_monotonic_count();
-}
-
-int spinaphore_trylock (struct spinaphore *sph) {
-     /* Try to get the lock, and if so, update the acquire time */
-     if (spin_trylock(&sph->spinlock)) {
-         sph->acquire_time = fast_monotonic_count();
-}
-
-void spinaphore_unlock (struct spinaphore *sph) {
-     /* Update the running average hold time */
-     atomic_set(&sph->hold_time, (4*atomic_get(&sph->hold_time) +
-             (fast_monotonic_count() - sph->acquire_time))/5);
-
-     /* Actually unlock the spinlock */
-     spin_unlock(&sph->spinlock);
-}
-
-Cheers,
-Kyle Moffett
-
------BEGIN GEEK CODE BLOCK-----
-Version: 3.12
-GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
-L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
-PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$  
-r  !y?(-)
-------END GEEK CODE BLOCK------
+-john
 
 
+-- 
+john.cooper@timesys.com
 

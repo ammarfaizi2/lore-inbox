@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbVE1Tys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVE1T41@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261178AbVE1Tys (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 May 2005 15:54:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261179AbVE1Tys
+	id S261179AbVE1T41 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 May 2005 15:56:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261180AbVE1T40
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 May 2005 15:54:48 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:8455 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261178AbVE1Tyr (ORCPT
+	Sat, 28 May 2005 15:56:26 -0400
+Received: from colin.muc.de ([193.149.48.1]:50692 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S261179AbVE1Tzz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 May 2005 15:54:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=BQcd4alJ22jWLXSi9NXsimCb1dTFyyVY6R5NnfllUqko7GDQh1UYMTfq0FYFjbIiWHbX8lo3y3KOPD1v3KB5c0hwAKOxsLlDMzz8naJ6mEFV+e0oi6fsNeqwpWuheQBzL5ry5qhsFUONj2RKgAr39DUzYsRseBRxG9Lg9vgU84k=
-Message-ID: <4298CC82.9010901@gmail.com>
-Date: Sat, 28 May 2005 15:54:42 -0400
-From: Keenan Pepper <keenanpepper@gmail.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: ACPI fan problems on HP pavilion desktop
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 28 May 2005 15:55:55 -0400
+Date: 28 May 2005 21:55:46 +0200
+Date: Sat, 28 May 2005 21:55:46 +0200
+From: Andi Kleen <ak@muc.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
+       bhuey@lnxw.com, nickpiggin@yahoo.com.au, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+Message-ID: <20050528195546.GG86087@muc.de>
+References: <m1br6zxm1b.fsf@muc.de> <1117044019.5840.32.camel@sdietrich-xp.vilm.net> <20050526193230.GY86087@muc.de> <20050526200424.GA27162@elte.hu> <20050527123529.GD86087@muc.de> <20050527124837.GA7253@elte.hu> <20050527125630.GE86087@muc.de> <20050527131317.GA11071@elte.hu> <20050527133122.GF86087@muc.de> <20050527135310.GC16158@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050527135310.GC16158@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm trying to set up cpu clock modulation and ACPI fan support on my HP pavilion
-a302x, so it runs quieter when it's not doing anything (the fan is pretty loud).
-The cpufreq driver works great, but the ACPI fan driver not so good: it can turn
-the fan off but not back on again.
+On Fri, May 27, 2005 at 03:53:10PM +0200, Ingo Molnar wrote:
+> 
+> * Andi Kleen <ak@muc.de> wrote:
+> 
+> > AFAIK the kernel has quite regressed recently, but that was not true 
+> > (for reasonable sound) at least for some earlier 2.6 kernels and some 
+> > of the low latency patchkit 2.4 kernels.
+> 
+> (putting my scheduler maintainer hat on) was this under a stock !PREEMPT 
+> kernel?  
 
-I changed these lines in drivers/acpi/power.c:
+Yes. I did not run the numbers personally, but I was told 2.6.11+
+was already considerable worse for latency tests with jack than 2.6.8+
+(this was with vendor kernels in SUSE releases); and apparently
+2.6.8 was already worse than earlier 2.6.4/5 kernels or the later 
+and better 2.4s. CONFIG_PREEMPT in all cases did not change the
+picture much. Sorry for being light on details; as I did 
+not run the tests personally.
 
--       if (resource->state != ACPI_POWER_RESOURCE_STATE_OFF)
--               return_VALUE(-ENOEXEC);
-+       if (resource->state != ACPI_POWER_RESOURCE_STATE_OFF) {
-+               ACPI_DEBUG_PRINT((ACPI_DB_WARN,
-+                       "Device [%s] says it's still on", resource->name));
-+               resource->state = ACPI_POWER_RESOURCE_STATE_OFF;
-+       }
+BTW another reason I am pretty suspicious against the old style preempt
+stuff and intrusive latency in general too is that it was broken forever 
+in x86-64 - I only fixed it after 2.6.11 which you may have noticed. Before
+that it it would only preempt when the interrupts were off,not
+on (pretty embarassing bug). And nobody complained; The problem was only found
+during code review for a completely different project (thanks JanB!)
+And x86-64 is quite widely used these days.
 
-and now I can turn the fan off and on again, so it works for me, but I want to
-figure out what's actually wrong so other people trying to run linux on this
-machine can have it Just Work(tm) for them. Is it just buggy hardware that
-doesn't comply with the ACPI spec? If so, is there some place where all the
-workarounds for hardware quirks are collected?
+So in practice all these latencies cannot be that big a problem.
 
-Keenan Pepper
 
+-Andi

@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262682AbVE1Pjv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVE1QHS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262682AbVE1Pjv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 May 2005 11:39:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262736AbVE1Pjv
+	id S261152AbVE1QHS (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 May 2005 12:07:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261153AbVE1QHS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 May 2005 11:39:51 -0400
-Received: from CPE0080c6fd1493-CM014400117119.cpe.net.cable.rogers.com ([24.101.208.133]:25352
-	"HELO CPE0080c6fd1493-CM014400117119.cpe.net.cable.rogers.com")
-	by vger.kernel.org with SMTP id S262682AbVE1Pj2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 May 2005 11:39:28 -0400
-Date: Sun, 29 May 2005 10:37:53 +0200
-From: "Rnh.Baca@comcast.net" <Xvd.Bell@comcast.net>
-To: linux-kernel-announce@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Account # 81356376GOY Sun, 29 May 2005 00:43:53 -0800
-X-Mailer: Ximian Evolution 1.0.1
-Message-ID: <BKELLDAGKABIOCHDFD.5Xvd.Bell@comcast.net>
+	Sat, 28 May 2005 12:07:18 -0400
+Received: from heisenberg.zen.co.uk ([212.23.3.141]:45282 "EHLO
+	heisenberg.zen.co.uk") by vger.kernel.org with ESMTP
+	id S261152AbVE1QHN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 May 2005 12:07:13 -0400
+Message-Id: <200505281607.j4SG7Cal009463@StraightRunning.com>
+From: "Colin Harrison" <colin.harrison@virgin.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: patch-2.6.12-rc5-git3 'make install' undefined reference 
+Date: Sat, 28 May 2005 17:07:11 +0100
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Copyright: Copyright (c) 2005 Colin Harrison
+X-Domain: StraightRunning.com
+X-Admin: colin@straightrunning.com
+X-Originating-Heisenberg-IP: [62.3.107.196]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi
 
-We sent you an email a while ago, because you now qualify
-for a much lower rate based on the biggest rate drop in years.
+I'm getting an undefined reference in 'make install' with
+patch-2.6.12-rc5-git3
 
-You can now get $327,000 for as little as $617 a month!
-Bad credit? Doesn't matter, ^low rates are fixed no matter what!
-
-Follow this link to process your application and a 24 hour approval:
-
-http://www.parefi.net
-
-Best Regards,
-Eula Rubio
+arch/i386/kernel/built-in.o(.init.text+0x1710): In function `setup_arch':
+: undefined reference to `acpi_boot_table_init'
+arch/i386/kernel/built-in.o(.init.text+0x1715): In function `setup_arch':
+: undefined reference to `acpi_boot_init'
+make: *** [.tmp_vmlinux1] Error 1
 
 
-http://www.parefi.net/book.php
+# CONFIG_ACPI is not set in my .config
+
+Kernel compiles cleanly with patch-2.6.12-rc5-git2.
+More information can be supplied as required.
+
+Thanks
+
+Colin Harrison
+

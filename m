@@ -1,48 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262669AbVE1CTk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262131AbVE1CYM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262669AbVE1CTk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 22:19:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262671AbVE1CTj
+	id S262131AbVE1CYM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 22:24:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262158AbVE1CYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 22:19:39 -0400
-Received: from fire.osdl.org ([65.172.181.4]:28358 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262669AbVE1CTd (ORCPT
+	Fri, 27 May 2005 22:24:12 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:14562 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262131AbVE1CYI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 22:19:33 -0400
-Date: Fri, 27 May 2005 19:21:31 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: perex@suse.cz, linux-kernel@vger.kernel.org, git@vger.kernel.org
-Subject: Re: ALSA official git repository
-In-Reply-To: <20050527154625.5490f405.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.58.0505271854300.17402@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0505271741490.1757@pnote.perex-int.cz>
- <Pine.LNX.4.58.0505270903230.17402@ppc970.osdl.org>
- <Pine.LNX.4.58.0505271941250.1757@pnote.perex-int.cz>
- <Pine.LNX.4.58.0505271113410.17402@ppc970.osdl.org> <20050527135124.0d98c33e.akpm@osdl.org>
- <Pine.LNX.4.58.0505271502240.17402@ppc970.osdl.org> <20050527154625.5490f405.akpm@osdl.org>
+	Fri, 27 May 2005 22:24:08 -0400
+Message-ID: <4297D643.5020407@pobox.com>
+Date: Fri, 27 May 2005 22:24:03 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mark Broadbent <markb@wetlettuce.com>
+CC: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] Tulip interrupt uses non IRQ safe spinlock
+References: <E1DRFqC-00028H-Qi@tigger>
+In-Reply-To: <E1DRFqC-00028H-Qi@tigger>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Fri, 27 May 2005, Andrew Morton wrote:
+Mark Broadbent wrote:
+> The interrupt handling code in the tulip network driver appears to use a non 
+> IRQ safe spinlock in an interrupt context.  The following patch should correct 
+> this.
 > 
-> That all assumes that the tools are smart enough to separate the email
-> headers from the body :(
+> Signed-off-by: Mark Broadbent <markb@wetlettuce.com>
+> 
+> Index: linux-2.6.11/drivers/net/tulip/interrupt.c
+> ===================================================================
+> --- linux-2.6.11.orig/drivers/net/tulip/interrupt.c	2005-03-07 18:11:23.000000000 +0000
+> +++ linux-2.6.11/drivers/net/tulip/interrupt.c	2005-04-28 16:16:23.000000000 +0100
+> @@ -567,8 +567,9 @@
+>  
+>  		if (csr5 & (TxNoBuf | TxDied | TxIntr | TimerInt)) {
+>  			unsigned int dirty_tx;
+> +			unsigned long flags;
+>  
+> -			spin_lock(&tp->lock);
+> +			spin_lock_irqsave(&tp->lock, flags);
+>  
+>  			for (dirty_tx = tp->dirty_tx; tp->cur_tx - dirty_tx > 0;
+>  				 dirty_tx++) {
+> @@ -640,7 +641,7 @@
+>  						   dev->name, csr5, ioread32(ioaddr + CSR6), tp->csr6);
+>  				tulip_restart_rxtx(tp);
+>  			}
+> -			spin_unlock(&tp->lock);
+> +			spin_unlock_irqrestore(&tp->lock, flags);
 
-Well, _that_ is trivial: the first empty line is the marker between header 
-and body. 
+It's already inside the interrupt handler, so this patch is not needed.
 
-This is a stupid awk program to do this:
-
-	/^From: / { name=$0 }
-	state==1 { print name; exit }
-	/^$/ { state=1 }
-
-Or something. 
+	Jeff
 
 
-		Linus
+

@@ -1,38 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262508AbVE0RLZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262520AbVE0RN0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262508AbVE0RLZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 13:11:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262509AbVE0RLZ
+	id S262520AbVE0RN0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 13:13:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262524AbVE0RN0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 13:11:25 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:61928 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262508AbVE0RLX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 13:11:23 -0400
-Subject: Re: Linux 2.6.11.11
-From: Lee Revell <rlrevell@joe-job.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
-       stable@kernel.org
-In-Reply-To: <20050527160437.GL23013@shell0.pdx.osdl.net>
-References: <20050527160437.GL23013@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Date: Fri, 27 May 2005 13:11:22 -0400
-Message-Id: <1117213882.13829.73.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 27 May 2005 13:13:26 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:31688 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S262520AbVE0RNT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 13:13:19 -0400
+Date: Sat, 28 May 2005 13:12:11 +0400
+From: "Sytf.Dickson@sbcglobal.net" <Fgvg.Gagne@yahoo.com>
+To: linux-kernel-announce@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Application approval for linux-kernel-announce@vger.kernel.org Sat, 28 May 2005 01:15:11 -0800
+X-Mailer: Ximian Evolution 1.0.0
+Message-Id: <2003041431.1865.beldon@speakeasy.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-05-27 at 09:04 -0700, Chris Wright wrote:
-> Gregor Jasny:
->   o usbusx2y: prevent oops & dead keyboard on usb unplugging while the device is being used
->   o usbaudio: prevent oops & dead keyboard on usb unplugging while the device is being used
+Hello,
 
-Um, Karsten Wiese is the author of this patch.  Someone must have signed
-off on it incorrectly, presumably the person who submitted it for
--stable.
+We sent you an email a while ago, because you now qualify
+for a much lower rate based on the biggest rate drop in years.
 
-Lee
+You can now get $327,000 for as little as $617 a month!
+Bad credit? Doesn't matter, ^low rates are fixed no matter what!
 
+Follow this link to process your application and a 24 hour approval:
+
+http://www.yesrefi.net/?id=7t
+
+Best Regards,
+Haley Yu
+
+
+http://www.yesrefi.net/book.php

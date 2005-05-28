@@ -1,78 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261908AbVE1Bes@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261909AbVE1Bir@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261908AbVE1Bes (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 21:34:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261909AbVE1Bes
+	id S261909AbVE1Bir (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 21:38:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261922AbVE1Bir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 21:34:48 -0400
-Received: from scl-ims.phoenix.com ([216.148.212.222]:40862 "EHLO
-	scl-exch2k.phoenix.com") by vger.kernel.org with ESMTP
-	id S261908AbVE1Bef convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 21:34:35 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: How to find if BIOS has already enabled the device
-Date: Fri, 27 May 2005 18:34:50 -0700
-Message-ID: <0EF82802ABAA22479BC1CE8E2F60E8C31B5206@scl-exch2k3.phoenix.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: How to find if BIOS has already enabled the device
-Thread-Index: AcVjHXRDo+2KyjjBSjGOpIC8EOiAdgAB6+8A
-From: "Aleksey Gorelov" <Aleksey_Gorelov@Phoenix.com>
-To: "Parag Warudkar" <kernel-stuff@comcast.net>,
-       <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 28 May 2005 01:34:34.0973 (UTC) FILETIME=[6767E8D0:01C56325]
+	Fri, 27 May 2005 21:38:47 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:36805 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261909AbVE1Bin (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 21:38:43 -0400
+Subject: Re: disowning a process
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Davy Durham <pubaddr2@davyandbeth.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <4297AE6F.9040707@davyandbeth.com>
+References: <42975945.7040208@davyandbeth.com>
+	 <1117217088.4957.24.camel@localhost.localdomain>
+	 <42976D3A.5020200@davyandbeth.com>
+	 <1117227438.5730.235.camel@localhost.localdomain>
+	 <4297AE6F.9040707@davyandbeth.com>
+Content-Type: multipart/mixed; boundary="=-IuJxs+ZEqXXzhYKk3G/p"
+Organization: Kihon Technologies
+Date: Fri, 27 May 2005 21:38:36 -0400
+Message-Id: <1117244316.6477.22.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->I am trying to trace the root cause of an annoying problem 
->with a USB Storage 
->device - 
->
->My laptop's BIOS supports booting from USB devices. I have attached an 
->external USB HDD to a USB 2.0 port. If I boot Linux with the 
->HDD attached and 
->powered on, load of OHCI-HCD module hangs the machine for 
->around 2 minutes - 
->after that it recovers and all is fine. I have tried different distros 
->without luck, but while installing debian, I figured out that the hang 
->happens after ohci-hcd calls pci_enable_device() for the USB 
->controller.
->
->This does not happen when the boot is complete. I.e. if I 
->attach the HDD after 
->boot is complete (BIOS did not get a chance to enable it 
->beforehand) load of 
->ohci-hcd (during and after boot) does not hang the machine.
->
->I think since the machine supports booting from USB HDD, the 
->BIOS must be 
->enabling the USB controller and attached device early during 
->boot, and when 
->ohci-hcd tries to re-enable it, it doesn't like it and leads 
->to a hang. 
 
-See if 'usb-handoff' as a kernel parameter makes it any better.
+--=-IuJxs+ZEqXXzhYKk3G/p
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Aleks.
+On Fri, 2005-05-27 at 18:34 -0500, Davy Durham wrote:
+> Well, when I tried using it in a program with some sleeps to test.. I 
+> noticed that the intermediate process that daemon creates is not cleaned 
+> up with a wait() call (so I see a defunct process in the ps listing).
 
->
->My question - Is it possible to detect if the USB controller 
->is already 
->enabled and skip enabling it second time?
->
->Thanks
->
->Parag
->-
->To unsubscribe from this list: send the line "unsubscribe 
->linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
+You didn't use it right. See below.
+
+> 
+> If I manually do the double fork() then I can call waitpid() myself for 
+> the pid that I know it spawned.   But if I just call wait() after 
+> calling daemon, then I don't know if I just cleaned up the pid it 
+> spawned (do I?), or some other previously spawned one (for perhaps 
+> totally different reasons)..
+
+You still need to fork the first child, and the daemon does the second
+fork and exits the parent, and does all the necessary things for the
+system to make a proper daemon.
+
+> 
+> For my specifics it may not be a problem, but I guess I'm just whining 
+> about the fact that daemon() doesn't clean it up itself (or can it?)
+
+Attached is a simple C program that uses daemon the way you want to.
+
+-- Steve
+
+--=-IuJxs+ZEqXXzhYKk3G/p
+Content-Disposition: attachment; filename=daemon.c
+Content-Type: text/x-csrc; name=daemon.c; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <unistd.h>
+
+
+int main (int argc, char **argv)
+{
+	pid_t pid;
+
+	if ((pid = fork()) < 0) {
+		perror("fork");
+	} else if (!pid) {
+		if (daemon(1,1) < 0) {
+			perror("daemon");
+			exit(-1);
+		}
+		printf("daemon is %d\n",getpid());
+		sleep(100);
+		exit(0);
+	}
+
+	printf("middle child is %d (and died)\n",pid);
+	waitpid(pid,NULL,0);
+
+	printf("parent is %d\n",getpid());
+
+	sleep(100);
+	return 0;
+}
+
+--=-IuJxs+ZEqXXzhYKk3G/p--
+

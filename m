@@ -1,59 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVE1WRv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVE1Wjk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbVE1WRv (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 May 2005 18:17:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVE1WRv
+	id S261187AbVE1Wjk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 May 2005 18:39:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVE1Wjk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 May 2005 18:17:51 -0400
-Received: from pat.uio.no ([129.240.130.16]:61586 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261186AbVE1WRs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 May 2005 18:17:48 -0400
-Subject: Re: RT and Cascade interrupts
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: john cooper <john.cooper@timesys.com>
-Cc: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Olaf Kirch <okir@suse.de>
-In-Reply-To: <4298AED8.8000408@timesys.com>
-References: <42974F08.1C89CF2A@tv-sign.ru> <4297AF39.4070304@timesys.com>
-	 <42983135.C521F1C8@tv-sign.ru>  <4298AED8.8000408@timesys.com>
-Content-Type: text/plain
-Date: Sat, 28 May 2005 15:17:34 -0700
-Message-Id: <1117318654.10746.67.camel@lade.trondhjem.org>
+	Sat, 28 May 2005 18:39:40 -0400
+Received: from h80ad26b2.async.vt.edu ([128.173.38.178]:6666 "EHLO
+	h80ad26b2.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261187AbVE1Wj1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 May 2005 18:39:27 -0400
+Message-Id: <200505282238.j4SMcYdN014990@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Andy Whitcroft <apw@shadowen.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.12-rc5-mm1 - missing #define SECTIONS_SHIFT in sparsemem
+From: Valdis.Kletnieks@vt.edu
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: multipart/signed; boundary="==_Exmh_1117319910_6734P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.012, required 12,
-	autolearn=disabled, AWL 1.99, UIO_MAIL_IS_INTERNAL -5.00)
+Date: Sat, 28 May 2005 18:38:31 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lau den 28.05.2005 Klokka 13:48 (-0400) skreiv john cooper:
-> The other possibility to fix the original problem within
-> the scope of the RPC code was to replace the bit state of
-> RPC_TASK_HAS_TIMER with a count so we don't obscure the
-> fact the timer was requeued during the preemption window.
-> This happens as rpc_run_timer() does an unconditional
-> clear_bit(RPC_TASK_HAS_TIMER,..) before returning.
+--==_Exmh_1117319910_6734P
+Content-Type: text/plain; charset=us-ascii
 
-Just to clarify a bit more here. RPC_TASK_HAS_TIMER is definitely _not_
-redundantly replicating timer state, as I saw you asserting previously.
+sparsemem-memory-model.patch references SECTIONS_SHIFT without defining it.
 
-There are two distinct cases where timer->base may be NULL. In the first
-case, the timer is inactive and was never queued so it is entirely
-pointless to be calling del_timer() & friends. In the second case, the
-timer was active, but has expired and was picked up by __run_timers().
-del_singleshot_timer_sync() fails to distinguish these two cases, and
-will therefore end up redundantly calling del_timer_sync() every time a
-task loops through __rpc_execute() without setting a timer. Your patch
-to remove RPC_TASK_HAS_TIMER will re-introduce that redundant behaviour
-but will re-introduce precisely the race that del_timer_sync() is
-designed to fix.
+Caught this while compiling with -Wundef, causes lots of warnings
+when it gets used in include/linux/mm.h.  The appended patch Works For Me,
+although I wonder if the *real* problem isn't a missing '#ifdef CONFIG_SPARSEMEM'
+around the code that uses it in mm.h.  
+ 
+Signed-Off-By: valdis.kletnieks@vt.edu
 
-So, I repeat: I want to see a case description that clearly demonstrates
-a race scenario in the existing code before I'm willing to consider any
-patches at all.
+--- linux-2.6.12-rc5-mm1/include/linux/mmzone.h.ifdef	2005-05-27 15:12:26.000000000 -0400
++++ linux-2.6.12-rc5-mm1/include/linux/mmzone.h	2005-05-27 16:26:40.000000000 -0400
+@@ -568,6 +568,7 @@ static inline int pfn_valid(unsigned lon
+ void sparse_init(void);
+ #else
+ #define sparse_init()	do {} while (0)
++#define SECTIONS_SHIFT	0
+ #endif /* CONFIG_SPARSEMEM */
+ 
+ #ifdef CONFIG_NODES_SPAN_OTHER_NODES
 
-Cheers,
-  Trond
 
+--==_Exmh_1117319910_6734P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCmPLmcC3lWbTT17ARAmGzAKDOVDbGBVcG0oQqY1rV2gIZrsnCYACg2PWl
++ad4DrEzTHY68wGrxaRRBok=
+=+dzq
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1117319910_6734P--

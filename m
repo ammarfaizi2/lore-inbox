@@ -1,165 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262700AbVE1LNc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262686AbVE1LRu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262700AbVE1LNc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 May 2005 07:13:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262701AbVE1LNc
+	id S262686AbVE1LRu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 May 2005 07:17:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262701AbVE1LRu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 May 2005 07:13:32 -0400
-Received: from orb.pobox.com ([207.8.226.5]:22224 "EHLO orb.pobox.com")
-	by vger.kernel.org with ESMTP id S262700AbVE1LNR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 May 2005 07:13:17 -0400
-Message-ID: <42985251.6030006@cpan.org>
-Date: Sat, 28 May 2005 03:13:21 -0800
-From: "Sean M. Burke" <sburke@cpan.org>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: en-us, en
+	Sat, 28 May 2005 07:17:50 -0400
+Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:63841 "HELO
+	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262686AbVE1LRs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 May 2005 07:17:48 -0400
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: David Howells <dhowells@redhat.com>
+Subject: Re: [patch 4/8] irq code: Add coherence test for PREEMPT_ACTIVE
+Date: Sat, 28 May 2005 13:19:51 +0200
+User-Agent: KMail/1.7.2
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net,
+       linuxsh-shmedia-dev@lists.sourceforge.net, linux-sh@m17n.org
+References: <200505270306.09425.blaisorblade@yahoo.it> <20050527003843.433BA1AEE88@zion.home.lan> <14927.1117200829@redhat.com>
+In-Reply-To: <14927.1117200829@redhat.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: trivial@rustcorp.com.au
-Subject: PATCH: "Ok" -> "OK" in messages
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505281319.52153.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The English interjection "OK" is misspelled as "Ok" in a dozen
-messages in the Linux kernel.  The following patch corrects
-those typos from "Ok" to "OK".  It affects no comments or
-symbol-names -- and it stops me wanting to gnaw my fingers off every
-time I see "Ok, booting the kernel."!
+On Friday 27 May 2005 15:33, David Howells wrote:
+> Blaisorblade <blaisorblade@yahoo.it> wrote:
+> > Ok, a grep shows that possible culprits (i.e. giving success to
+> > grep GENERIC_HARDIRQS arch/*/Kconfig, and using 0x4000000 as
+> > PREEMPT_ACTIVE, as given by grep PREEMPT_ACTIVE
+> > include/asm-*/thread_info.h) are (at a first glance): frv, sh, sh64.
+>
+> For FRV that's simply because it got copied from the parent arch along with
+> other stuff. Feel free to move it... Do you want me to make you up a patch
+> to do so?
+Sorry but fix that yourself, otherwise you get a chance I'll forget since I'm 
+quite busy.
 
-("Okay" is an acceptable variant spelling of "OK".  I chose "OK" over
-"Okay" for sake of concision.)
+Thanks a lot for attention.
+-- 
+Paolo Giarrusso, aka Blaisorblade
+Skype user "PaoloGiarrusso"
+Linux registered user n. 292729
+http://www.user-mode-linux.org/~blaisorblade
 
-(I also fix three incidental nearby typoes in
-drivers/media/video/bttv-driver.c -- see at the end.)
-
-
-Signed-off-by: Sean M. Burke <sburke@cpan.org>
-
-
-diff -uprN --exclude='*~*' linux-2.6.9.orig/arch/alpha/boot/bootp.c linux-2.6.9/arch/alpha/boot/bootp.c
---- linux-2.6.9.orig/arch/alpha/boot/bootp.c	2004-10-18 13:55:06.000000000 -0800
-+++ linux-2.6.9/arch/alpha/boot/bootp.c	2005-05-28 01:29:44.000000000 -0800
-@@ -100,7 +100,7 @@ pal_init(void)
-  		(INIT_HWRPB->processor_offset + (unsigned long) INIT_HWRPB);
-  	rev = percpu->pal_revision = percpu->palcode_avail[2];
-
--	srm_printk("Ok (rev %lx)\n", rev);
-+	srm_printk("OK (rev %lx)\n", rev);
-
-  	tbia(); /* do it directly in case we are SMP */
-  }
-diff -uprN --exclude='*~*' linux-2.6.9.orig/arch/alpha/boot/main.c linux-2.6.9/arch/alpha/boot/main.c
---- linux-2.6.9.orig/arch/alpha/boot/main.c	2004-10-18 13:55:35.000000000 -0800
-+++ linux-2.6.9/arch/alpha/boot/main.c	2005-05-28 01:29:33.000000000 -0800
-@@ -97,7 +97,7 @@ pal_init(void)
-  		(INIT_HWRPB->processor_offset + (unsigned long) INIT_HWRPB);
-  	rev = percpu->pal_revision = percpu->palcode_avail[2];
-
--	srm_printk("Ok (rev %lx)\n", rev);
-+	srm_printk("OK (rev %lx)\n", rev);
-
-  	tbia(); /* do it directly in case we are SMP */
-  }
-@@ -183,7 +183,7 @@ void start_kernel(void)
-  	envval[nbytes] = '\0';
-  	strcpy((char*)ZERO_PGE, envval);
-
--	srm_printk(" Ok\nNow booting the kernel\n");
-+	srm_printk(" OK\nNow booting the kernel\n");
-  	runkernel();
-  	for (i = 0 ; i < 0x100000000 ; i++)
-  		/* nothing */;
-diff -uprN --exclude='*~*' linux-2.6.9.orig/arch/i386/boot/compressed/misc.c linux-2.6.9/arch/i386/boot/compressed/misc.c
---- linux-2.6.9.orig/arch/i386/boot/compressed/misc.c	2004-10-18 13:54:32.000000000 -0800
-+++ linux-2.6.9/arch/i386/boot/compressed/misc.c	2005-05-28 01:27:54.000000000 -0800
-@@ -376,7 +376,7 @@ asmlinkage int decompress_kernel(struct
-  	makecrc();
-  	putstr("Uncompressing Linux... ");
-  	gunzip();
--	putstr("Ok, booting the kernel.\n");
-+	putstr("OK, booting the kernel.\n");
-  	if (high_loaded) close_output_buffer_if_we_run_high(mv);
-  	return high_loaded;
-  }
-diff -uprN --exclude='*~*' linux-2.6.9.orig/arch/i386/mm/init.c linux-2.6.9/arch/i386/mm/init.c
---- linux-2.6.9.orig/arch/i386/mm/init.c	2004-10-18 13:54:54.000000000 -0800
-+++ linux-2.6.9/arch/i386/mm/init.c	2005-05-28 02:14:18.000000000 -0800
-@@ -541,7 +541,7 @@ void __init test_wp_bit(void)
-  		panic("This kernel doesn't support CPU's with broken WP. Recompile it for a 386!");
-  #endif
-  	} else {
--		printk("Ok.\n");
-+		printk("OK.\n");
-  	}
-  }
-
-diff -uprN --exclude='*~*' linux-2.6.9.orig/arch/m32r/boot/compressed/misc.c linux-2.6.9/arch/m32r/boot/compressed/misc.c
---- linux-2.6.9.orig/arch/m32r/boot/compressed/misc.c	2004-10-18 13:53:22.000000000 -0800
-+++ linux-2.6.9/arch/m32r/boot/compressed/misc.c	2005-05-28 01:29:03.000000000 -0800
-@@ -218,6 +218,6 @@ long decompress_kernel(void)
-  	makecrc();
-  	puts("Uncompressing Linux... ");
-  	gunzip();
--	puts("Ok, booting the kernel.\n");
-+	puts("OK, booting the kernel.\n");
-  	return bytes_out;
-  }
-diff -uprN --exclude='*~*' linux-2.6.9.orig/arch/sh/boot/compressed/misc.c linux-2.6.9/arch/sh/boot/compressed/misc.c
---- linux-2.6.9.orig/arch/sh/boot/compressed/misc.c	2004-10-18 13:53:43.000000000 -0800
-+++ linux-2.6.9/arch/sh/boot/compressed/misc.c	2005-05-28 01:28:27.000000000 -0800
-@@ -236,5 +236,5 @@ void decompress_kernel(void)
-  	makecrc();
-  	puts("Uncompressing Linux... ");
-  	gunzip();
--	puts("Ok, booting the kernel.\n");
-+	puts("OK, booting the kernel.\n");
-  }
-diff -uprN --exclude='*~*' linux-2.6.9.orig/arch/sh64/boot/compressed/misc.c linux-2.6.9/arch/sh64/boot/compressed/misc.c
---- linux-2.6.9.orig/arch/sh64/boot/compressed/misc.c	2004-10-18 13:53:45.000000000 -0800
-+++ linux-2.6.9/arch/sh64/boot/compressed/misc.c	2005-05-28 01:28:42.000000000 -0800
-@@ -245,7 +245,7 @@ void decompress_kernel(void)
-  	}
-  #endif
-
--	puts("Ok, booting the kernel.\n");
-+	puts("OK, booting the kernel.\n");
-
-  	cache_control(CACHE_DISABLE);
-  }
-diff -uprN --exclude='*~*' linux-2.6.9.orig/drivers/base/power/shutdown.c linux-2.6.9/drivers/base/power/shutdown.c
---- linux-2.6.9.orig/drivers/base/power/shutdown.c	2004-10-18 13:54:37.000000000 -0800
-+++ linux-2.6.9/drivers/base/power/shutdown.c	2005-05-28 01:34:58.000000000 -0800
-@@ -55,7 +55,7 @@ void device_shutdown(void)
-  	list_for_each_entry_reverse(dev, &devices_subsys.kset.list, kobj.entry) {
-  		pr_debug("shutting down %s: ", dev->bus_id);
-  		if (dev->driver && dev->driver->shutdown) {
--			pr_debug("Ok\n");
-+			pr_debug("OK\n");
-  			dev->driver->shutdown(dev);
-  		} else
-  			pr_debug("Ignored.\n");
-diff -uprN --exclude='*~*' linux-2.6.9.orig/drivers/media/video/bttv-driver.c linux-2.6.9/drivers/media/video/bttv-driver.c
---- linux-2.6.9.orig/drivers/media/video/bttv-driver.c	2004-10-18 13:54:54.000000000 -0800
-+++ linux-2.6.9/drivers/media/video/bttv-driver.c	2005-05-28 01:32:39.000000000 -0800
-@@ -3228,14 +3228,14 @@ static void bttv_irq_debug_low_latency(s
-  	       (unsigned long)rc);
-
-  	if (0 == (btread(BT848_DSTATUS) & BT848_DSTATUS_HLOC)) {
--		printk("bttv%d: Oh, there (temporarely?) is no input signal. "
--		       "Ok, then this is harmless, don't worry ;)\n",
-+		printk("bttv%d: Oh, there (temporarily?) is no input signal. "
-+		       "OK, then this is harmless, don't worry ;)\n",
-  		       btv->c.nr);
-  		return;
-  	}
-  	printk("bttv%d: Uhm. Looks like we have unusual high IRQ latencies.\n",
-  	       btv->c.nr);
--	printk("bttv%d: Lets try to catch the culpit red-handed ...\n",
-+	printk("bttv%d: Let's try to catch the culprit red-handed ...\n",
-  	       btv->c.nr);
-  	dump_stack();
-  }
-
+		
+___________________________________ 
+Yahoo! Messenger: chiamate gratuite in tutto il mondo 
+http://it.beta.messenger.yahoo.com

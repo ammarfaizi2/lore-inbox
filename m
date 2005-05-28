@@ -1,78 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262601AbVE1ALq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262608AbVE1APj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262601AbVE1ALq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 20:11:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262608AbVE1ALq
+	id S262608AbVE1APj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 20:15:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262626AbVE1APj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 20:11:46 -0400
-Received: from smtp05.auna.com ([62.81.186.15]:17338 "EHLO smtp05.retemail.es")
-	by vger.kernel.org with ESMTP id S262601AbVE1ALn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 20:11:43 -0400
-Date: Sat, 28 May 2005 00:11:42 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: 2.6.12-rc3-mm3: ALSA broken ?
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-References: <20050504221057.1e02a402.akpm@osdl.org>
-	<1115510869l.7472l.0l@werewolf.able.es>
-	<1115594680l.7540l.0l@werewolf.able.es> <s5hd5rx2656.wl@alsa2.suse.de>
-	<1115936836l.8448l.1l@werewolf.able.es> <s5hvf5nsb2r.wl@alsa2.suse.de>
-	<1116331359l.7364l.0l@werewolf.able.es> <s5hll6eoxhf.wl@alsa2.suse.de>
-	<1116369585l.8840l.0l@werewolf.able.es> <s5hoeb8sleq.wl@alsa2.suse.de>
-	<1117151518l.7637l.0l@werewolf.able.es>
-	<1117205521.13829.59.camel@mindpipe>
-In-Reply-To: <1117205521.13829.59.camel@mindpipe> (from rlrevell@joe-job.com
-	on Fri May 27 16:52:01 2005)
-X-Mailer: Balsa 2.3.2
-Message-Id: <1117239102l.9264l.0l@werewolf.able.es>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-X-Auth-Info: Auth:LOGIN IP:[83.138.219.120] Login:jamagallon@able.es Fecha:Sat, 28 May 2005 02:11:42 +0200
+	Fri, 27 May 2005 20:15:39 -0400
+Received: from fire.osdl.org ([65.172.181.4]:434 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262608AbVE1APa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 20:15:30 -0400
+Date: Fri, 27 May 2005 17:16:13 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alexander Fieroch <Fieroch@web.de>
+Cc: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+Subject: Re: [2.6.12rc4] PROBLEM: "drive appears confused" and "irq 18:
+ nobody cared!"
+Message-Id: <20050527171613.5f949683.akpm@osdl.org>
+In-Reply-To: <d6gf8j$jnb$1@sea.gmane.org>
+References: <d6gf8j$jnb$1@sea.gmane.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 05.27, Lee Revell wrote:
-> On Thu, 2005-05-26 at 23:51 +0000, J.A. Magallon wrote:
-> > - When linking I got:
-> > if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F System.map
-> > 2.6.11-jam20; fi
-> > WARNING: /lib/modules/2.6.11-jam20/kernel/sound/soundcore.ko needs unknown
-> > symbol class_simple_device_add
-> > WARNING: /lib/modules/2.6.11-jam20/kernel/sound/soundcore.ko needs unknown
-> > symbol class_simple_destroy
-> > WARNING: /lib/modules/2.6.11-jam20/kernel/sound/soundcore.ko needs unknown
-> > symbol class_simple_device_remove
-> > WARNING: /lib/modules/2.6.11-jam20/kernel/sound/soundcore.ko needs unknown
-> > symbol class_simple_create
-> > WARNING: /lib/modules/2.6.11-jam20/kernel/sound/core/snd.ko needs unknown
-> > symbol class_simple_device_add
-> > WARNING: /lib/modules/2.6.11-jam20/kernel/sound/core/snd.ko needs unknown
-> > symbol class_simple_device_remove
-> > 
-> > I think all this have been unexported/killed...
+Alexander Fieroch <Fieroch@web.de> wrote:
+>
+> Problem 1:
+> while booting the message "hdb: cdrom_pc_intr: The drive appears
+> confused (ireason = 0x01)" repeats several times and the system hangs
+> for some seconds. After booting sometimes I get the same message and
+> linux hangs.
 > 
-> Really?  I thought only unused EXPORT_SYMBOLS were being killed.
+> Problem 2:
+> syslog message "irq 18: nobody cared!" followed by a call trace repeats
+> while booting and while running linux.
 > 
-> Lee
+> On the bottom of this mail you'll find an extract of /var/log/syslog
+> showing this error.
 > 
+> 
+> My system is a P4 630 with em64t, ASUS P5GD2 Premium board (ICH6
+> chipset) and nvidia 6600GT PCIe graphic card.
+> I'm running a self compiled kernel 2.6.12rc4 but I've had these bugs in
+>  self compiled kernel 2.6.11.8 and default debian kernel
+> 2.6.11-9-em64t-p4-smp too.
+> The default debian kernel 2.6.8-11-em64t-p4-smp seems to be the only one
+> where problem 1 does not occur but problem 2 does.
 
-werewolf:/usr/src/linux-2.6.12-rc5-mm1# grep -r class_simple_create *
-werewolf:/usr/src/linux-2.6.12-rc5-mm1# 
+Does the thing work correctly under any versions of Linux?  If so, which?
 
-nothin, nada, rien.
-They are present in mainline, but dissapeared in -mm.
+It appears that you entered cdrom_pc_intr() with IDE_IREASON_REG = 0x01.
 
-As I see in -mm patch, it is as simple as s/class_simple/class/.
-When will this reach mainline, who knows...
+ * ATAPI Interrupt Reason Register.
+ *
+ * cod          : Information transferred is command (1) or data (0)
+ * io           : The device requests us to read (1) or write (0)
 
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandriva Linux release 2006.0 (Cooker) for i586
-Linux 2.6.11-jam20 (gcc 4.0.0 (4.0.0-3mdk for Mandriva Linux release 2006.0))
+io = 0
+cod = 1
 
+I'm not sure what this means.  It generated an interrupt, expecting the
+kernel to send a write command?  That sounds odd.
+
+If the answer to my first queston is "no" then perhaps the hardware is
+busted.  Try swapping out cables, check power supplies, try a different
+drive, etc.
+
+If none of that helps then perhaps there's something we can do in
+cdrom_pc_intr() to work around this?
+
+(Should cdrom_pc_intr() be using atapi_ireason_t?)
 

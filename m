@@ -1,31 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262381AbVE1CoL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262430AbVE1Cw0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262381AbVE1CoL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 27 May 2005 22:44:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262430AbVE1CoK
+	id S262430AbVE1Cw0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 27 May 2005 22:52:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262555AbVE1CwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 22:44:10 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:19170 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262381AbVE1CoJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 22:44:09 -0400
-Message-ID: <4297DAEA.70700@pobox.com>
-Date: Fri, 27 May 2005 22:43:54 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+	Fri, 27 May 2005 22:52:25 -0400
+Received: from sccrmhc13.comcast.net ([204.127.202.64]:30097 "EHLO
+	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
+	id S262430AbVE1CwX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 27 May 2005 22:52:23 -0400
+Message-ID: <4297DCEA.4060704@comcast.net>
+Date: Fri, 27 May 2005 22:52:26 -0400
+From: John Livingston <jujutama@comcast.net>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jiri Benc <jbenc@suse.cz>
-CC: NetDev <netdev@oss.sgi.com>, LKML <linux-kernel@vger.kernel.org>,
-       pavel@suse.cz
-Subject: Re: [1/5] ieee80211: cleanup
-References: <20050524150711.01632672@griffin.suse.cz> <20050524151018.3304fbeb@griffin.suse.cz>
-In-Reply-To: <20050524151018.3304fbeb@griffin.suse.cz>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: mbneto <mbneto@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: oom killer
+References: <5cf776b805052615375b6fe447@mail.gmail.com>
+In-Reply-To: <5cf776b805052615375b6fe447@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-applied
 
+>Ps. Is this the right forum ?
+>  
+>
+I would recommend the openmosix-devel mailing list 
+(http://lists.sourceforge.net/lists/listinfo/openmosix-devel).
+
+~John Livingston

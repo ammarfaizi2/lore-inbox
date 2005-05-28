@@ -1,34 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262721AbVE1Ni3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262718AbVE1Nhb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262721AbVE1Ni3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 May 2005 09:38:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262723AbVE1Ni2
+	id S262718AbVE1Nhb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 May 2005 09:37:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262721AbVE1Nhb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 May 2005 09:38:28 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:28336 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S262721AbVE1Ni1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 May 2005 09:38:27 -0400
-Message-ID: <42987450.9000601@drzeus.cx>
-Date: Sat, 28 May 2005 15:38:24 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: ISA DMA controller hangs
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+	Sat, 28 May 2005 09:37:31 -0400
+Received: from mailfe01.swip.net ([212.247.154.1]:23437 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S262718AbVE1NhX convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 May 2005 09:37:23 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: 2.6.12-rc5-git3 fails compile -- acpi_boot_table_init
+From: Alexander Nyberg <alexn@telia.com>
+To: Pete Clements <clem@clem.clem-digital.net>
+Cc: torvalds@osdl.org, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200505281206.j4SC6iLa015878@clem.clem-digital.net>
+References: <200505281206.j4SC6iLa015878@clem.clem-digital.net>
 Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Date: Sat, 28 May 2005 15:37:19 +0200
+Message-Id: <1117287439.952.17.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been having some problems with ISA DMA transfers failing. They work
-fine until the machine does a suspend-to-ram. After that all DMA
-transfers stall. Does perhaps the DMA controller need a kick in the ***
-after a suspend? I'm no expert on the ISA DMA controller so I could use
-some help here.
+lör 2005-05-28 klockan 08:06 -0400 skrev Pete Clements:
+> Fyi:
+> 
+> 
+>   LD      .tmp_vmlinux1
+> arch/i386/kernel/built-in.o: In function `setup_arch':
+> arch/i386/kernel/built-in.o(.init.text+0x14ec): undefined reference to `acpi_boot_table_init'
+> arch/i386/kernel/built-in.o(.init.text+0x14f1): undefined reference to `acpi_boot_init'
+> make: *** [.tmp_vmlinux1] Error 1
+> 
 
-Rgds
-Pierre
+This is a neverending story
+
+linux/acpi.h contains empty declarations for acpi_boot_init() &
+acpi_boot_table_init() but they are nested inside #ifdef CONFIG_ACPI.
+
+So we'll have to #ifdef in arch/i386/kernel/setup.c: setup_arch()
+
+Signed-off-by: Alexander Nyberg <alexn@telia.com>
+
+Index: meep/arch/i386/kernel/setup.c
+===================================================================
+--- meep.orig/arch/i386/kernel/setup.c	2005-05-28 14:39:06.000000000 +0200
++++ meep/arch/i386/kernel/setup.c	2005-05-28 14:59:34.000000000 +0200
+@@ -1502,11 +1502,13 @@
+ 	if (efi_enabled)
+ 		efi_map_memmap();
+ 
++#ifdef CONFIG_ACPI_BOOT
+ 	/*
+ 	 * Parse the ACPI tables for possible boot-time SMP configuration.
+ 	 */
+ 	acpi_boot_table_init();
+ 	acpi_boot_init();
++#endif
+ 
+ #ifdef CONFIG_X86_LOCAL_APIC
+ 	if (smp_found_config)
+
+

@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262724AbVE1Myq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261378AbVE1NdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262724AbVE1Myq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 May 2005 08:54:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262723AbVE1Myp
+	id S261378AbVE1NdF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 May 2005 09:33:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262718AbVE1NdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 May 2005 08:54:45 -0400
-Received: from ojjektum.uhulinux.hu ([62.112.194.64]:39906 "EHLO
-	ojjektum.uhulinux.hu") by vger.kernel.org with ESMTP
-	id S262724AbVE1Mye (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 May 2005 08:54:34 -0400
-Date: Sat, 28 May 2005 14:54:30 +0200
-From: =?iso-8859-1?Q?Pozs=E1r_Bal=E1zs?= <pozsy@uhulinux.hu>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: "Sean M. Burke" <sburke@cpan.org>, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au
-Subject: Re: PATCH: "Ok" -> "OK" in messages
-Message-ID: <20050528125430.GB3870@ojjektum.uhulinux.hu>
-References: <42985251.6030006@cpan.org> <1117279792.32118.11.camel@localhost.localdomain>
+	Sat, 28 May 2005 09:33:05 -0400
+Received: from [217.19.149.7] ([217.19.149.7]:50954 "HELO mail.netline.it")
+	by vger.kernel.org with SMTP id S261378AbVE1NdB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 May 2005 09:33:01 -0400
+Date: Sat, 28 May 2005 15:33:01 +0200
+From: Domenico Andreoli <cavok@libero.it>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Netdev <netdev@oss.sgi.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: netdev-2.6, wireless queues updated
+Message-ID: <20050528133301.GA30966@raptus.dandreoli.com>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Netdev <netdev@oss.sgi.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <4297E93D.2060003@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1117279792.32118.11.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.7i
+In-Reply-To: <4297E93D.2060003@pobox.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 28, 2005 at 12:29:52PM +0100, David Woodhouse wrote:
-> On Sat, 2005-05-28 at 03:13 -0800, Sean M. Burke wrote:
-> > The English interjection "OK" is misspelled as "Ok" in a dozen
-> > messages in the Linux kernel.  The following patch corrects
-> > those typos from "Ok" to "OK".  It affects no comments or
-> > symbol-names -- and it stops me wanting to gnaw my fingers off every
-> > time I see "Ok, booting the kernel."!
+On Fri, May 27, 2005 at 11:45:01PM -0400, Jeff Garzik wrote:
 > 
-> If you're going to do that, you might as well fix 'Uncompressing Linux'
-> to 'Decompressing Linux' too, and stop _me_ from being annoyed as well.
+> And finally a patch containing _only_ the changes on the we18-ieee80211 
+> branch,
+> http://www.kernel.org/pub/linux/kernel/people/jgarzik/patchkits/2.6/2.6.12-rc5-git2-ieee80211-1.patch.bz2
 
-While we are at it, what about changing this string to something 
-language-neutral, like this:
+jeff, i am using a separate ipw2200 1.0.4 module with the proper hotplug firmware.
 
-diff -Naurdp a/arch/i386/boot/compressed/misc.c b/arch/i386/boot/compressed/misc.c
---- a/arch/i386/boot/compressed/misc.c	2004-04-04 05:37:23.000000000 +0200
-+++ b/arch/i386/boot/compressed/misc.c	2004-05-09 23:18:06.000000000 +0200
-@@ -10,6 +10,7 @@
-  */
- 
- #include <linux/linkage.h>
-+#include <linux/version.h>
- #include <linux/vmalloc.h>
- #include <linux/tty.h>
- #include <video/edid.h>
-@@ -373,9 +374,9 @@ asmlinkage int decompress_kernel(struct 
- 	else setup_output_buffer_if_we_run_high(mv);
- 
- 	makecrc();
--	putstr("Uncompressing Linux... ");
-+	putstr("Linux " UTS_RELEASE);
- 	gunzip();
--	putstr("Ok, booting the kernel.\n");
-+	putstr("\n");
- 	if (high_loaded) close_output_buffer_if_we_run_high(mv);
- 	return high_loaded;
- }
+after i read this message i wanted to try your patch but during the
+build i realized that you may have merged a different version (indeed
+it looks like 1.0.0).
 
+i don't really know what would be happened after reboot, using driver
+1.0.0 and firmware for 1.0.4. i'd put a big notice in the help of ipw2*
+modules about matching driver and firmware versions. mixing them is
+probably a bad gift to your hardware.
 
+yes, people should read those readmes.
 
+cheers
+domenico
 
-
--- 
-pozsy
+-----[ Domenico Andreoli, aka cavok
+ --[ http://people.debian.org/~cavok/gpgkey.asc
+   ---[ 3A0F 2F80 F79C 678A 8936  4FEE 0677 9033 A20E BC50

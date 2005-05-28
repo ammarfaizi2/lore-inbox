@@ -1,78 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbVE1Rv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVE1Rxq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261172AbVE1Rv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 May 2005 13:51:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVE1RvZ
+	id S261174AbVE1Rxq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 May 2005 13:53:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVE1Rxq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 May 2005 13:51:25 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:41995 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261172AbVE1RvE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 May 2005 13:51:04 -0400
-Date: Sat, 28 May 2005 19:46:41 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: "John W. M. Stevens" <john@betelgeuse.us>
+	Sat, 28 May 2005 13:53:46 -0400
+Received: from titan.genwebhost.com ([209.9.226.66]:42932 "EHLO
+	titan.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261174AbVE1Rxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 May 2005 13:53:37 -0400
+Date: Sat, 28 May 2005 10:53:33 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Gene Heskett <gene.heskett@verizon.net>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Kernel Crash - Machine Exception Interpretation?
-Message-ID: <20050528174641.GI18600@alpha.home.local>
-References: <20050528143746.GA3612@morningstar.betelgeuse.us>
+Subject: Re: Question re .git# patches
+Message-Id: <20050528105333.12a7e28b.rdunlap@xenotime.net>
+In-Reply-To: <200505281050.24956.gene.heskett@verizon.net>
+References: <200505281050.24956.gene.heskett@verizon.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050528143746.GA3612@morningstar.betelgeuse.us>
-User-Agent: Mutt/1.4i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - titan.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, 28 May 2005 10:50:24 -0400 Gene Heskett wrote:
 
-On Sat, May 28, 2005 at 08:37:46AM -0600, John W. M. Stevens wrote:
-> Summary: Kernel crashes aprox. every 36 hours.
-> 
-> Description: Machine locks up, or crashes way to often.  The latest crash
-> 	produced log output that hinted at the problem, but I don't know
-> 	how to interpret what I'm seeing.
+| Are these self-contained, so that .git2 also contains the .git1 
+| contents?
 
-Often symptoms of flaky hardware, insufficiently cooled CPU or defective RAM.
+Yes, and today's -git3 contains both of those.
 
-> 	The crashes can be quite severe.  The previous one wiped out my /usr
-> 	partition.
-
-Disk corruption may be caused by one of the troubles above. However, you
-should not have lost everything, usually, playing long with fsck allows
-you to retrieve most of your data.
-
- 
-> 	May 27 21:42:06 morningstar kernel: CPU 1: Machine Check Exception: 0000000000000004
-> 	May 27 21:42:07 morningstar kernel: Bank 0: e200000000000175
-> 	May 27 21:42:07 morningstar kernel: Bank 2: b60020000000011a at 000000000bf16280May 27 21:42:07 morningstar kernel: Kernel panic: CPU context corrupt
-
-This is the most important part. You must pass to to "parsemce" which will
-tell you what's wrong. You can find it on codemonkey.org.uk (google will
-direct you to the right site).
-
- 
-> 	processor       : 0
-> 	vendor_id       : AuthenticAMD
-> 	cpu family      : 6
-> 	model           : 6
-> 	model name      : AMD Athlon(tm) MP 2000+
-(...)
-
-> 	processor       : 1
-> 	vendor_id       : AuthenticAMD
-> 	cpu family      : 6
-> 	model           : 6
-> 	model name      : AMD Athlon(tm) Processor
-
-You have a dual-athlon MB, I too have one (ASUS A7M266D), and encountered
-stability problems during last summer because the temperature was getting
-high in the case when I slowed down my fans to keep them quiet. The RAM
-can get very hot too. Perhaps one of your fans does not spin fast enough
-because of dust ? You may have a problem with the power supply too, since
-those CPUs suck a lot of power. Anyway, your report clearly is a problem
-with hardware, I would advice to make a lot of backups.
-
-Regards,
-Willy
-
+---
+~Randy

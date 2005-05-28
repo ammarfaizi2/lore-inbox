@@ -1,158 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261939AbVE1Fez@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261955AbVE1Fkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261939AbVE1Fez (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 May 2005 01:34:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261955AbVE1Fez
+	id S261955AbVE1Fkn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 May 2005 01:40:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261971AbVE1Fkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 May 2005 01:34:55 -0400
-Received: from mail10.syd.optusnet.com.au ([211.29.132.191]:26060 "EHLO
-	mail10.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261939AbVE1Fec (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 May 2005 01:34:32 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH] SCHED: smp nice bias busy queues on idle rebalance
-Date: Sat, 28 May 2005 15:34:47 +1000
-User-Agent: KMail/1.8
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       ck@vds.kolivas.org, Ingo Molnar <mingo@elte.hu>,
-       Peter Williams <pwil3058@bigpond.net.au>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2021741.cz7dUxsXy2";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200505281534.50651.kernel@kolivas.org>
+	Sat, 28 May 2005 01:40:43 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:61195 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S261955AbVE1FkS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 May 2005 01:40:18 -0400
+Date: Fri, 27 May 2005 22:45:03 -0700
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+Message-ID: <20050528054503.GA2958@nietzsche.lynx.com>
+References: <m1br6zxm1b.fsf@muc.de> <1117044019.5840.32.camel@sdietrich-xp.vilm.net> <20050526193230.GY86087@muc.de> <1117138270.1583.44.camel@sdietrich-xp.vilm.net> <20050526202747.GB86087@muc.de> <4296ADE9.50805@yahoo.com.au> <20050527120812.GA375@nietzsche.lynx.com> <429715DE.6030008@yahoo.com.au> <20050527233645.GA2283@nietzsche.lynx.com> <4297EB57.5090902@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4297EB57.5090902@yahoo.com.au>
+User-Agent: Mutt/1.5.9i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2021741.cz7dUxsXy2
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_4LAmCjPQ4eR8wai"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Sat, May 28, 2005 at 01:53:59PM +1000, Nick Piggin wrote:
+> Bill Huey (hui) wrote:
+> 
+> Run RT programs in your RT kernel, and GP programs in your Linux
+> kernel. The only time one will have to cross into the other domain
+> is when they want to communicate with one another.
 
---Boundary-01=_4LAmCjPQ4eR8wai
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+OpenGL must be RT aware for the off screen buffer to be flipped. This
+model isn't practical. With locking changes in X using something like
+xcb in xlib, you might be able to achieve these goals. SGI IRIX is
+enable to do things like this.
 
-SMP nice support tweaks.
+Please try to understand the app issues here, because you seem to have
+a naive understanding of this.  [evil jab :)]
 
-Con
----
+> That may be a complex problem, but it really doesn't get any simpler
+> when doing it with a single kernel: all those subsystems still have
+> to be contended with.
+> 
+> But it's getting a little hand-wavy, I think someone would have to
+> really be at death's door before trusting Linux (even with PREEMPT_RT)
+> and XFS to give hard RT IO guarantees any time in the next 5 or 10
+> years.
 
+True, but XFS was designed to deal with this in the first place. It's
+not that remote a thing and if you have a nice SMP friendly system so
+it's possible to restore that IRIX functionality in Linux.
 
---Boundary-01=_4LAmCjPQ4eR8wai
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="sched-smp_nice_bias_busy_queues_on_idle_rebalance.diff"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline;
-	filename="sched-smp_nice_bias_busy_queues_on_idle_rebalance.diff"
+> What I would do, I would write a block driver in the nanokernel, and
+> write host drivers for both the Linux and the RT kernel. The nanokernel
+> would give priority to RT kernel requests. Now its up to the RT kernel
+> to provide guarantees. Job done. (Well OK, that's very handwavy too,
+> but I think it is a solution that might actually be attainable, unlike
+> Linux XFS :)).
 
-To intensify the 'nice' support across physical cpus on SMP we can bias the
-loads on idle rebalancing. To prevent idle rebalance from trying to pull ta=
-sks
-from queues that appear heavily loaded we only bias the load if there is mo=
-re
-than one task running.=20
+There's a lot of unknowns here, but XFS is under utilized in Linux.
+I can't really imagine how a RT host kernel could really respect
+something as complicated as XFS with all of it's tree balancing stuff
+and low level IO submissions with concurrent reads/writes. The nanokernel
+adapation doesn't fly once you think about how complex that chain is.
+The RT patch is priming that path to happen already and I would like to
+see this used more.
+ 
+> Well yeah, the RT kernel is going to have to implement all features
+> that it needs to provide. I just happen to be of the (naive) opinion
+> that adding functionality to a hard-RT kernel would be far easier
+> than adding hard-RT to the Linux kernel.
 
-Add some minor micro-optimisations and have only one return from __source_l=
-oad
-and __target_load functions.
+The problem with that assertion is that it's pretty close to being
+hard RT as is. It's not that "mysterious" and the results are very
+solid. Try not to think about this in a piecewise manner, but how
+an overall picture of things get used and what needs to happen to
+get there as well as all of the work done so far.
 
-=46ix the fact that target_load was not biased by priority when type=3D=3D0.
+> And not just from the technical "can it be done" sense, but you'll
+> probably end up fighting the non-RT kernel devs every step of the
+> way. So even if you had the perfect patchset there, it would probably
+> take years to merge it all, if ever.
 
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
+They don't understand the patch nor the problem space, so I ignore
+them since they'll never push any edge that interesting. And Ingo's
+comment about the RT patch riding on SMP locking as is should not
+be something that's forgotten.
 
-Index: linux-2.6.12-rc5-mm1/kernel/sched.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-=2D-- linux-2.6.12-rc5-mm1.orig/kernel/sched.c	2005-05-28 15:08:08.00000000=
-0 +1000
-+++ linux-2.6.12-rc5-mm1/kernel/sched.c	2005-05-28 15:20:12.000000000 +1000
-@@ -970,22 +970,26 @@ void kick_process(task_t *p)
- static inline unsigned long __source_load(int cpu, int type, enum idle_typ=
-e idle)
- {
- 	runqueue_t *rq =3D cpu_rq(cpu);
-=2D	unsigned long cpu_load =3D rq->cpu_load[type-1],
-+	unsigned long source_load, cpu_load =3D rq->cpu_load[type-1],
- 		load_now =3D rq->nr_running * SCHED_LOAD_SCALE;
-=20
-=2D	if (idle =3D=3D NOT_IDLE) {
-+	if (type =3D=3D 0)
-+		source_load =3D load_now;
-+	else
-+		source_load =3D min(cpu_load, load_now);
-+
-+	if (idle =3D=3D NOT_IDLE || rq->nr_running > 1)
- 		/*
-=2D		 * If we are balancing busy runqueues the load is biased by
-=2D		 * priority to create 'nice' support across cpus.
-+		 * If we are busy rebalancing the load is biased by
-+		 * priority to create 'nice' support across cpus. When
-+		 * idle rebalancing we should only bias the source_load if
-+		 * there is more than one task running on that queue to
-+		 * prevent idle rebalance from trying to pull tasks from a
-+		 * queue with only one running task.
- 		 */
-=2D		cpu_load *=3D rq->prio_bias;
-=2D		load_now *=3D rq->prio_bias;
-=2D	}
-+		source_load *=3D rq->prio_bias;
-=20
-=2D	if (type =3D=3D 0)
-=2D		return load_now;
-=2D
-=2D	return min(cpu_load, load_now);
-+	return source_load;
- }
-=20
- static inline unsigned long source_load(int cpu, int type)
-@@ -999,17 +1003,18 @@ static inline unsigned long source_load(
- static inline unsigned long __target_load(int cpu, int type, enum idle_typ=
-e idle)
- {
- 	runqueue_t *rq =3D cpu_rq(cpu);
-=2D	unsigned long cpu_load =3D rq->cpu_load[type-1],
-+	unsigned long target_load, cpu_load =3D rq->cpu_load[type-1],
- 		load_now =3D rq->nr_running * SCHED_LOAD_SCALE;
-=20
- 	if (type =3D=3D 0)
-=2D		return load_now;
-+		target_load =3D load_now;
-+	else
-+		target_load =3D max(cpu_load, load_now);
-=20
-=2D	if (idle =3D=3D NOT_IDLE) {
-=2D		cpu_load *=3D rq->prio_bias;
-=2D		load_now *=3D rq->prio_bias;
-=2D	}
-=2D	return max(cpu_load, load_now);
-+	if (idle =3D=3D NOT_IDLE || rq->nr_running > 1)
-+		target_load *=3D rq->prio_bias;
-+
-+	return target_load;
- }
-=20
- static inline unsigned long target_load(int cpu, int type)
+> [snip, making the Linux kernel hard-rt]
+> 
+> Yeah it is probably possible given enough time and effort, I grant
+> you that.
 
---Boundary-01=_4LAmCjPQ4eR8wai--
+It's pretty close dude. You have to be in some kind of denial or
+something like that because multipule folks have stated this already.
+What's left are problems with FS code, ext3, and the like that still
+have remaining atomic critical sections.
 
---nextPart2021741.cz7dUxsXy2
-Content-Type: application/pgp-signature
+> If your RT kernel has a TCP/IP stack, then I guess the call chain is
+> socket(2) ;)
+> 
+> >Say you want to do this within an X11 application talking to
+> >ALSA devices ? Obviously the dual kernel model is going to break down
+> >very shortly after the set of requirements are known and submitted.
+> 
+> Well, you would do the RT work in the RT kernel, then communicate
+> the results to the Linux kernel.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.4 (GNU/Linux)
+Write a mini-app and see how this methodology is going to work in
+this system. Both Ingo and me have already pointed out that folks
+already doing general purpose apps need a simple model to work with
+since they need to cross many kernel systems as well as app layers.
 
-iD8DBQBCmAL6ZUg7+tp6mRURAqCiAJ91BPvj2e5k1m1d3IAO8hdGUU9fcACfYiOS
-QOmFM1+DRfeYIpgqebpreiY=
-=VNRF
------END PGP SIGNATURE-----
+Stop thinking in terms of a kernel programmer stuck in 1995, but
+something a bit more "large picture" in nature.
 
---nextPart2021741.cz7dUxsXy2--
+> It isn't clear to me yet. I'm sure you can make your interrupt
+> latencies look good, as with your scheduling latencies. But when
+
+My project was getting a solid spike at 4 usec for irq-thread
+startups and Ingo's stuff is better. It's already there.
+
+> you talk about doing _real_ work, that will require an order of
+> magnitude more changes than the PREEMPT_RT patch to make Linux
+> hard-RT. And everyone will need to know about it, from device
+> driver writers and CPU arch code up.
+
+Uh, not really. Have you looked at the patch or are you inserting
+hysteria in the discussion again ? :) Sounds like hysteria.
+
+Ingo is probably going to follow up on this so I'll let him deal
+with you. I suggest you read about the latency traces being worked
+on a few months ago.
+
+> >Super hard RT latencies are obivously going to not call into the
+> >kernel for non-deterministic operations. These are more typical of
+> 
+> But just what is a non-deterministic operation in Linux? It is
+> hard to know.
+
+Pretty much any call other an things related to futex handling. That
+doesn't invalidate my point since I wasn't making a broad claim in
+first place.
+
+> Suppose the PREEMPT_RT patch gets merged tomorrow. OK, now what
+> if *you* needed a realtime TCP/IP socket. Where will you begin?
+
+Start with the DragonFly BSD sources and talk to Jeffery Hsu about
+his alt-q implementation. Their stack was parallelize recently and
+can express this kind stuff with possible a special scheduler in
+their preexisting token locking scheme. I'm not talking hard RT
+here for RT enabled IO. Obvious this is going to be problematic
+to a certain degree in a kernel and will have to be move more into
+the realm of soft RT with high performance.
+ 
+> Sorry, not much better... But don't waste too much time on me, and
+> thanks, I appreciate the time you've given me so far.
+
+Read the patch and follow the development. That's all I can say.
+ 
+> I wouldn't consider a non response (or a late response) to mean that
+> a point has been conceeded, or that I've won any kind of argument :-)
+
+Well, you're wrong. :)
+
+Well, uh, ummm, start writing RT media apps and you will know what
+I'm talking about. Dual kernel stuff isn't going to fly with those
+folks especially with an RT patch as good as this already in the
+general kernel. More experience with this kind of programming makes
+it clear where the failures are with a dual kernel approach.
+
+bill
+

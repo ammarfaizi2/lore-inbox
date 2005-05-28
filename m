@@ -1,37 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbVE1VCz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVE1VEm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbVE1VCz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 May 2005 17:02:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVE1VCz
+	id S261159AbVE1VEm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 May 2005 17:04:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbVE1VEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 May 2005 17:02:55 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:60050 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261157AbVE1VCy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 May 2005 17:02:54 -0400
-Subject: Re: PATCH: "Ok" -> "OK" in messages
-From: Lee Revell <rlrevell@joe-job.com>
-To: cutaway@bellsouth.net
-Cc: "Sean M. Burke" <sburke@cpan.org>, linux-kernel@vger.kernel.org,
-       trivial@rustcorp.com.au
-In-Reply-To: <007001c56387$235672d0$2800000a@pc365dualp2>
-References: <42985251.6030006@cpan.org>
-	 <007001c56387$235672d0$2800000a@pc365dualp2>
-Content-Type: text/plain
-Date: Sat, 28 May 2005 17:02:53 -0400
-Message-Id: <1117314173.5423.22.camel@mindpipe>
+	Sat, 28 May 2005 17:04:42 -0400
+Received: from smtp-106-saturday.nerim.net ([62.4.16.106]:10500 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261159AbVE1VE3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 May 2005 17:04:29 -0400
+Date: Sat, 28 May 2005 23:05:09 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Karel Kulhavy <clock@twibright.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: i2c-parport disappeared from 2.6.11.9
+Message-Id: <20050528230509.5370d50f.khali@linux-fr.org>
+In-Reply-To: <20050528204836.GA20763@kestrel>
+References: <20050528204836.GA20763@kestrel>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-05-28 at 09:14 -0400, cutaway@bellsouth.net wrote:
-> printk("The PukeMaster is %sabled.\n", SomeFlag ? "dis" : "en");
-> 
-> If a NLS translator isn't a C programmer, they'll screw it up frequently.
+Hi Karel,
 
-Then you need a better translator.
+> Drivers -> I2C -> Busses -> Parallel port adapter disappeared in
+> 2.6.11.9. However the source drivers/i2c/busses/i2c-parport.c
+> and i2c-parport.h are still there.
 
-Lee
+No, it did not disappear. I'm using it. Check again. i2c-parport depends
+on CONFIG_PARPORT, maybe that's what you are missing.
 
+-- 
+Jean Delvare

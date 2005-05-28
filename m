@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVE1Q0D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVE1Qct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbVE1Q0D (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 May 2005 12:26:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVE1Q0D
+	id S261165AbVE1Qct (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 May 2005 12:32:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbVE1Qct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 May 2005 12:26:03 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:6550 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261164AbVE1QZ5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 May 2005 12:25:57 -0400
-Message-ID: <42989D7A.8E947760@tv-sign.ru>
-Date: Sat, 28 May 2005 20:34:02 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: john cooper <john.cooper@timesys.com>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Olaf Kirch <okir@suse.de>, Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: Re: RT and Cascade interrupts
-References: <42974F08.1C89CF2A@tv-sign.ru> <4297AF39.4070304@timesys.com> <42983135.C521F1C8@tv-sign.ru> <429879FD.30002@timesys.com>
-Content-Type: text/plain; charset=koi8-r
-Content-Transfer-Encoding: 7bit
+	Sat, 28 May 2005 12:32:49 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:59402 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261165AbVE1Qcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 May 2005 12:32:48 -0400
+Date: Sat, 28 May 2005 17:32:41 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] remove set_tsk_need_resched() from init_idle()
+Message-ID: <20050528173241.C4711@flint.arm.linux.org.uk>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	Andrew Morton <akpm@osdl.org>, nickpiggin@yahoo.com.au,
+	linux-kernel@vger.kernel.org
+References: <20050524121541.GA17049@elte.hu> <20050524140623.GA3500@elte.hu> <4293420C.8080400@yahoo.com.au> <20050524150537.GA11829@elte.hu> <42934748.8020501@yahoo.com.au> <20050524152759.GA15411@elte.hu> <20050524154230.GA17814@elte.hu> <20050525052400.46bccf26.akpm@osdl.org> <20050525135130.GA27088@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050525135130.GA27088@elte.hu>; from mingo@elte.hu on Wed, May 25, 2005 at 03:51:30PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john cooper wrote:
->
-> Oleg Nesterov wrote:
->
-> > If you need to ensure that timer's handler is not running on any
-> > cpu then timer_pending() can't help. If you don't need this, you
-> > should use plain del_timer().
->
-> That's not the goal of the timer_pending() usage here.
-> Rather we're at a point in rpc_release_task where we
-> want to tear down an rpc_task.  The call to timer_pending()
-> determines if the embedded timer is still linked in the
-> timer cascade structure.
+On Wed, May 25, 2005 at 03:51:30PM +0200, Ingo Molnar wrote:
+> * Andrew Morton <akpm@osdl.org> wrote:
+> > Are all the other architectures busted as well?
+> 
+> oh damn, they are indeed, because they need to hit schedule() at least 
+> once.
+> 
+> The patch below should address this problem for all architectures, by 
+> doing an explicit schedule() in the init code before calling into 
+> cpu_idle().
 
-Yes, I see what you are trying to fix. However, your fix
-opens even worse bug.
+Yuck - wouldn't it be better just to fix all the architectures instead
+of applying band aid?
 
-> If anyone with more ownership of the RPC code would like
-> to comment, any insight would be most welcome.
-
-Yes. Trond, could you please look at this thread:
-http://marc.theaimsgroup.com/?t=111590936700001 and put an
-end to our discussion?
-
-Oleg.
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVE1QQd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVE1QRY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261155AbVE1QQd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 May 2005 12:16:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVE1QQc
+	id S261163AbVE1QRY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 May 2005 12:17:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261161AbVE1QRX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 May 2005 12:16:32 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:1809 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261155AbVE1QQa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 May 2005 12:16:30 -0400
-Date: Sat, 28 May 2005 17:16:26 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
-Subject: Re: Will __pa(vmalloc()) ever work?
-Message-ID: <20050528171626.B4711@flint.arm.linux.org.uk>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	linux-kernel@vger.kernel.org
-References: <4297746C.10900@ammasso.com> <20050527192925.GA8250@infradead.org>
+	Sat, 28 May 2005 12:17:23 -0400
+Received: from clock-tower.bc.nu ([81.2.110.250]:57793 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261160AbVE1QRM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 May 2005 12:17:12 -0400
+Subject: Re: How to find if BIOS has already enabled the device
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: John Livingston <jujutama@comcast.net>,
+       Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200505281018.18092.kernel-stuff@comcast.net>
+References: <0EF82802ABAA22479BC1CE8E2F60E8C31B5206@scl-exch2k3.phoenix.com>
+	 <200505280957.46853.kernel-stuff@comcast.net>
+	 <1117289090.2390.14.camel@localhost.localdomain>
+	 <200505281018.18092.kernel-stuff@comcast.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1117296905.2356.23.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050527192925.GA8250@infradead.org>; from hch@infradead.org on Fri, May 27, 2005 at 08:29:25PM +0100
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 28 May 2005 17:15:07 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, May 27, 2005 at 08:29:25PM +0100, Christoph Hellwig wrote:
-> On Fri, May 27, 2005 at 02:26:36PM -0500, Timur Tabi wrote:
-> > I have a driver that calls __pa() on an address obtained via vmalloc().  
-> > This is not supposed to work, and yet oddly it appears to.  Is there a 
-> > possibility, even a remote one, that __pa() will return the correct 
-> > physical address for a buffer returned by the vmalloc() function?
-> 
-> It will return the correct physical address for the start of the buffer.
+On Sad, 2005-05-28 at 15:18, Parag Warudkar wrote:
+> dmesg is perfectly normal, not even timestamp differences before and after 
+> call to pci_enable_device - since the machine is completely hung for that 
+> period - not even the clock is ticking?
 
-__pa() is only defined to works on the direct-mapped kernel region.
-The fact that it works on some architectures should be viewed as a
-bug.
+A spurious jammed IRQ is one candidate - but you haven't provided dmesg
+data
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core

@@ -1,60 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVE2XFJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVE2XHW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261374AbVE2XFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 19:05:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVE2XFJ
+	id S261379AbVE2XHW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 19:07:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVE2XHV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 19:05:09 -0400
-Received: from animx.eu.org ([216.98.75.249]:59308 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S261374AbVE2XE4 (ORCPT
+	Sun, 29 May 2005 19:07:21 -0400
+Received: from smtpout.mac.com ([17.250.248.47]:10706 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261376AbVE2XGv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 19:04:56 -0400
-Date: Sun, 29 May 2005 19:01:38 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RAID-5 design bug (or misfeature)
-Message-ID: <20050529230137.GA18854@animx.eu.org>
-Mail-Followup-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.58.0505300043540.5305@artax.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0505300043540.5305@artax.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.5.6+20040907i
+	Sun, 29 May 2005 19:06:51 -0400
+In-Reply-To: <Pine.LNX.4.58.0505291543070.10545@ppc970.osdl.org>
+References: <1117291619.9665.6.camel@localhost> <Pine.LNX.4.58.0505291059540.10545@ppc970.osdl.org> <84144f0205052911202863ecd5@mail.gmail.com> <Pine.LNX.4.58.0505291143350.10545@ppc970.osdl.org> <1117399764.9619.12.camel@localhost> <Pine.LNX.4.58.0505291543070.10545@ppc970.osdl.org>
+Mime-Version: 1.0 (Apple Message framework v728)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <80A1629F-0E91-4CCD-B64D-3AF8C21ECBF6@mac.com>
+Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Pekka Enberg <penberg@gmail.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PROBLEM] Machine Freezes while Running Crossover Office
+Date: Sun, 29 May 2005 19:06:29 -0400
+To: Linus Torvalds <torvalds@osdl.org>
+X-Mailer: Apple Mail (2.728)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikulas Patocka wrote:
-> RAID-5 has rather serious design bug --- when two disks become temporarily
-> inaccessible (as it happened to me because of high temperature in server
-> room), linux writes information about these errors to the remaining disks
-> and when failed disks are on line again, RAID-5 won't ever be accessible.
+On May 29, 2005, at 18:59:03, Linus Torvalds wrote:
+> On Sun, 29 May 2005, Pekka Enberg wrote:
+>> The mouse cursor does not move and the screen does not refresh. The
+>> machine locks up completely for few seconds (actually more like  
+>> 5-10 s)
+>> and then the system comes back up (after which it can be used  
+>> normally).
+>> I cannot even switch virtual consoles. Please note that I can
+>> immediately reproduce the problem again as many times as I want by  
+>> doing
+>> the test scenario.
+>
+> However, I don't understand how wine can block the X server from doing
+> even cursor updates. It might be a scheduler bug, of course. The  
+> one thing
+> a bigger pipe buffer does is end up changing scheduling behaviour.
+>
+> (On the other hand, I would not be surprised if Wine does something  
+> that
+> makes X pause, like use DGA or whatever and tells X not to update the
+> screen, including cursors).
 
-I ran into this myself, however, I had 10 disks (5 per channel) and one
-chennel went down.  Ok, my array was dead at that point and I had to reboot. 
-What luck, the arry wasn't usable anymore.  My /usr was on that array, but
-my / was not.  I did not want to go through the initrd/initramfs thing at
-the time to setup my / with raid5, plus the fact you truely cannot boot from
-it (thus partitioning and setting aside a slice wasn't viable to me)
+If the application captured the mouse/keyboard and did not pass them  
+on to
+X for some period of time, then X would appear to not respond to VT- 
+switch
+requests, because those keys go through the same handler loop  
+(depending on
+the way your X is configured, of course).
 
-> RAID-HOWTO lists some actions that can be done in this case, but none of
-> them can be done if root filesystem is on RAID --- the machine just won't
-> boot.
+I've had incidents where a user forkbomb was able to hang X (and  
+therefore
+the console) while our SCHED_RR rate-limited SSH daemon was running fine
+and able to successfully kill the process.
 
-I had to reconstruct the array by hand with mdadm.  evms wouldn't touch it. 
-Fortunately, I had a copy of each disk's information and the raid5's
-information in files so it was quite easy to rebuild.  I did have backups
-but that wasn't really what I wanted to do.  (It did take over 2 hours
-before I could return to normal.  evms can't handle a raid5 that was in
-reconstruction.  I think newer versions have this fixed.)
 
-> I think Linux should stop accessing all disks in RAID-5 array if two disks
-> fail and not write "this array is dead" in superblocks on remaining disks,
-> efficiently destroying the whole array.
 
-That'd be nice =)
+Cheers,
+Kyle Moffett
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$  
+r  !y?(-)
+------END GEEK CODE BLOCK------
+
+
+

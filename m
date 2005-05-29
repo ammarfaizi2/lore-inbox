@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbVE2IOZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVE2I1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261278AbVE2IOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 04:14:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261279AbVE2IOZ
+	id S261283AbVE2I1H (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 04:27:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVE2I1H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 04:14:25 -0400
-Received: from wproxy.gmail.com ([64.233.184.206]:46064 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261278AbVE2IOU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 04:14:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=rVqC5uuVwFu8qVcnaBzIriX/4YeDdyUqYxSLy/SmdFG1MTYGbs3cuVSdBvEpPnOrbvThz/iFsN1o9qbHbhFim9OjKhJ00X7NIpkfbIdFofiKRTXtCU1OqPioQgHW2wdY96Jr3X3EUouZfz1BQeeFyTDqlhve0qd3dmaG9qFqF4c=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: Dave Jones <davej@redhat.com>
-Subject: Re: 2.6.12-rc5-git3 ia64 acpi build breakage.
-Date: Sun, 29 May 2005 12:18:55 +0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <20050529000121.GA15681@redhat.com>
-In-Reply-To: <20050529000121.GA15681@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 29 May 2005 04:27:07 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:51864 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261283AbVE2I1D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 May 2005 04:27:03 -0400
+Date: Sun, 29 May 2005 09:26:51 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Dave Jones <davej@redhat.com>, Geert Uytterhoeven <geert@linux-m68k.org>,
+       Andrew Morton <akpm@osdl.org>, David Airlie <airlied@linux.ie>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       dri-devel@lists.sourceforge.net
+Subject: Re: [PATCH] DRM depends on ???
+Message-ID: <20050529082651.GA19720@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Kyle Moffett <mrmacman_g4@mac.com>, Dave Jones <davej@redhat.com>,
+	Geert Uytterhoeven <geert@linux-m68k.org>,
+	Andrew Morton <akpm@osdl.org>, David Airlie <airlied@linux.ie>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>,
+	dri-devel@lists.sourceforge.net
+References: <Pine.LNX.4.62.0505282333210.5800@anakin> <20050528215005.GA5990@redhat.com> <1FA58BE7-0EE6-432B-9383-F489F9854DBE@mac.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200505291218.55810.adobriyan@gmail.com>
+In-Reply-To: <1FA58BE7-0EE6-432B-9383-F489F9854DBE@mac.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 29 May 2005 04:01, Dave Jones wrote:
-> In file included from drivers/firmware/pcdp.c:18:
-> drivers/firmware/pcdp.h:48: error: field 'addr' has incomplete type
-> drivers/firmware/pcdp.c: In function 'setup_serial_console':
-> drivers/firmware/pcdp.c:27: error: 'ACPI_ADR_SPACE_SYSTEM_MEMORY' undeclared (first use in this function)
+On Sun, May 29, 2005 at 12:25:10AM -0400, Kyle Moffett wrote:
+> If DRM is built-in, then AGP _must_ be built-in or not included at  
+> all, modular
+> won't work.  If DRM is modular or not built, then AGP may be built- 
+> in, modular,
+> or not built at all.
+> 
+> The "depends on AGP || AGP=n" means that if DRM=y, then AGP=y or  
+> AGP=n, and if
+> DRM=m or DRM=n, then AGP=y or AGP=m or AGP=n.
+> 
+> Yes it's unclear and yes it should probably be documented in a  
+> comment somewhere.
 
-This _should_ fix it.
+could be written easier as depends on AGP if AGP
 
---- linux-vanilla/include/linux/acpi.h	2005-05-28 02:59:59.000000000 +0400
-+++ linux-8250/include/linux/acpi.h	2005-05-28 03:39:25.000000000 +0400
-@@ -25,6 +25,8 @@
- #ifndef _LINUX_ACPI_H
- #define _LINUX_ACPI_H
- 
-+#include <linux/config.h>
-+
- #ifdef	CONFIG_ACPI
- 
- #ifndef _LINUX

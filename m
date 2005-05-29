@@ -1,82 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVE2Tsw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbVE2Tu7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbVE2Tsw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 15:48:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbVE2Tsv
+	id S261421AbVE2Tu7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 15:50:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbVE2Tu6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 15:48:51 -0400
-Received: from mail.macqel.be ([194.78.208.39]:40711 "EHLO mail.macqel.be")
-	by vger.kernel.org with ESMTP id S261418AbVE2Tso (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 15:48:44 -0400
-Message-Id: <200505291948.j4TJmgZ25169@mail.macqel.be>
-Subject: PATCH : ppp + big-endian = kernel crash
-To: linux-kernel@vger.kernel.org
-Date: Sun, 29 May 2005 21:48:42 +0200 (CEST)
-From: "Philippe De Muyter" <phdm@macqel.be>
-X-Mailer: ELM [version 2.4ME+ PL60 (25)]
+	Sun, 29 May 2005 15:50:58 -0400
+Received: from 65-102-103-67.albq.qwest.net ([65.102.103.67]:28339 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S261421AbVE2Tuf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 May 2005 15:50:35 -0400
+Date: Sun, 29 May 2005 13:52:45 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Valdis.Kletnieks@vt.edu
+cc: Lee Revell <rlrevell@joe-job.com>, Bill Huey <bhuey@lnxw.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance 
+In-Reply-To: <200505291750.j4THoUWW010374@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.61.0505291223120.12903@montezuma.fsmlabs.com>
+References: <m1br6zxm1b.fsf@muc.de> <1117044019.5840.32.camel@sdietrich-xp.vilm.net>
+ <20050526193230.GY86087@muc.de> <1117138270.1583.44.camel@sdietrich-xp.vilm.net>
+ <20050526202747.GB86087@muc.de> <4296ADE9.50805@yahoo.com.au>
+ <20050527120812.GA375@nietzsche.lynx.com> <429715DE.6030008@yahoo.com.au>
+ <20050527233645.GA2283@nietzsche.lynx.com> <4297EB57.5090902@yahoo.com.au>
+ <20050528054503.GA2958@nietzsche.lynx.com> <Pine.LNX.4.61.0505281953570.12903@montezuma.fsmlabs.com>
+ <1117334933.11397.21.camel@mindpipe> <Pine.LNX.4.61.0505282054540.12903@montezuma.fsmlabs.com>
+ <200505290408.j4T487n6024489@turing-police.cc.vt.edu>           
+ <Pine.LNX.4.61.0505290856220.12903@montezuma.fsmlabs.com>
+ <200505291750.j4THoUWW010374@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+Hello Valdis,
 
-My m68k linux crashed often in ksoftirqd/0 with an `address error' (word
-access to an even address) in function ip_rcv, at line 405 (line numbers
-valid in current sources as of 2005-05-29) of net/ipv4/ip_input.c,
-failing to execute :
+On Sun, 29 May 2005 Valdis.Kletnieks@vt.edu wrote:
 
-	    405                 __u32 len = ntohs(iph->tot_len);
+> As amply shown by the Ardour and linux-audio crowds, the *MAJOR* thing keeping
+> realtime apps from spreading further is the lack of usable RT support in CTOS
+> operating systems.  Yes, you *can* do realtime audio - if you're willing to not
+> use a common operating system and run some specialized RTOS instead.  This is
+> frequently a show-stopper for small-time use - if there's an additional $5K
+> cost to getting and installing an RTOS (quite likely you need a new computer,
+> or redo the one you have to dual-boot), it may not be a problem for a large
+> recording studio - but it *is* a problem for a small studio or a home user.
+> So you end up with "The 150 places that buy 48-channel mixers are using RT,
+> but the 40,000 people who buy 4/8 channel mixers aren't" - by your standards,
+> nobody's interested in 48-channel mixing boards either.
 
-because iph was odd, tot_len is a 16-bit field and ntohs is a nop on
-big-endian machines.
+I seem to have gotten you rather excited, you've actually gone as far as 
+creating a strawman argument for my allegedly "strawman" statement. What 
+i originally stated was that media applications are not common place as far 
+as _hard_ realtime systems are concerned, this was in reply to Bill's 
+emphasis on media applications. Now i'm not trying to undermine the 
+audiophiles' goals or aspirations and i do indeed see the benefits for 
+them but in the event of Linux becoming an RTOS, the main fields 
+of interest wouldn't be from media application providers (even if there 
+certainly will be an increase in their interest).
 
-I searched the origin of that odd pointer, and found it in
-process_input_packet at line 819 of drivers/net/ppp_async.c :
+> So tell me - who was using SMP with large numbers of processors *before*the
+> Linux kernel?  Hmm.. You could buy an SGI Onyx.  A Sun E10K.  The IBM gear.
+> And for some odd reason, there wasn't many sites that just weren't doing
+> SMP - it wasn't that long ago that a 48-CPU Sun was enough to get you on the
+> Top500 supercomputer list.  Now everybody and their pet llama has a 128-node
+> system, it seems....
 
-	    819                 skb_push(skb, 1)[0] = 0; 
+Terribly sorry old bean, but Linux isn't the center of the universe. I'm 
+afraid Linux wasn't the push factor which led to the proliferation of 
+multiprocessor systems.
 
-This subtracts 1 from the packet address, yielding an odd pointer if
-we had an even one and conversely.  My proposed fix is below.
+> Large-scale SMP, realtime, whatever.  It doesn't matter - you're pointing at it and
+> saying "But nobody *uses* it" when nobody can afford the technology, when there's
+> plenty of people lining up and saying "We *would* be using it if it were accessible".
 
-Feel free to apply that to the main source trees.
+No, i never said that, please look at the original statement and the 
+context to which it was based on.
 
-Philippe
+Cheers,
+	Zwane
 
-Philippe De Muyter  phdm at macqel dot be  Tel +32 27029044
-Macq Electronique SA  rue de l'Aeronef 2  B-1140 Bruxelles  Fax +32 27029077
-
---- ppp_async.c.orig	2005-05-29 20:28:44.000000000 +0200
-+++ ppp_async.c	2005-05-29 21:16:16.000000000 +0200
-@@ -817,6 +817,16 @@
- 	if (proto & 1) {
- 		/* protocol is compressed */
- 		skb_push(skb, 1)[0] = 0;
-+		/* If the address of the packet is odd now, fix it. */
-+		if ((unsigned long)skb->data & 1) {
-+			unsigned char *p;
-+			int n;
-+
-+			p = skb_put(skb, 1);
-+			for (n = skb->len; --n >= 0; p -= 1)
-+				p[0] = p[-1];
-+			skb_pull(skb, 1);
-+		}
- 	} else {
- 		if (skb->len < 2)
- 			goto err;
-@@ -890,6 +900,12 @@
- 				if (skb == 0)
- 					goto nomem;
- 				/* Try to get the payload 4-byte aligned */
-+				/* This should match the
-+				** PPP_ALLSTATIONS/PPP_UI/compressed tests
-+				** in process_input_packet,
-+				** but we do not have enough chars here and
-+				** now to test buf[1] and buf[2].
-+				*/
- 				if (buf[0] != PPP_ALLSTATIONS)
- 					skb_reserve(skb, 2 + (buf[0] & 1));
- 				ap->rpkt = skb;

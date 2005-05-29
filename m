@@ -1,45 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261450AbVE2WTH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVE2WiB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261450AbVE2WTH (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 18:19:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVE2WTH
+	id S261458AbVE2WiB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 18:38:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261460AbVE2WiB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 18:19:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:53423 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261450AbVE2WTE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 18:19:04 -0400
-Date: Sun, 29 May 2005 18:13:27 -0400
-From: Dave Jones <davej@redhat.com>
-To: Giuseppe Bilotta <bilotta78@hotpop.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Support for Acecad graphic tablets
-Message-ID: <20050529221327.GB15019@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Giuseppe Bilotta <bilotta78@hotpop.com>,
-	linux-kernel@vger.kernel.org
-References: <zmlpztbl7uyx.wzqrudy6rjzi$.dlg@40tude.net>
+	Sun, 29 May 2005 18:38:01 -0400
+Received: from exo1066.net2.nerim.net ([213.41.175.60]:59431 "EHLO
+	mail-out1.exosec.net") by vger.kernel.org with ESMTP
+	id S261458AbVE2Who (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 May 2005 18:37:44 -0400
+Date: Mon, 30 May 2005 00:37:39 +0200
+From: Willy Tarreau <wtarreau@exosec.fr>
+To: linux-kernel@vger.kernel.org
+Subject: Linux-2.4.30-hf3
+Message-ID: <20050529223739.GA27341@exosec.fr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <zmlpztbl7uyx.wzqrudy6rjzi$.dlg@40tude.net>
-User-Agent: Mutt/1.4.1i
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 29, 2005 at 03:42:20PM +0200, Giuseppe Bilotta wrote:
- > Hello all,
- > 
- > I have a an Acecad/Medi@com graphic tablet. There are drivers for it 
- > available on the Internet (see for examples 
- > http://acecad.sourceforge.net/ and the pages linked from there, 
- > although the wanadoo.fr page at the top is temporarily unavailable), 
- > but it seems they have not been merged into mainline. Is there a 
- > particular reason for it?
+Hi all,
 
-My first guess is that the folks who wrote it haven't submitted it
-for whatever reason.  Stuff that doesn't get submitted tends not
-to get merged :)
+here's the third hotfix for 2.4.30. It includes several fixes already
+present in 2.4.31-rc1 (mostly security-related), and a few ones reported
+very lately :
 
-		Dave
+  - a NULL dereference in serial.c found by Julien Tinnes which could lead
+    to an oops.
+
+  - an off-by-one in mtrr.c found by Brad Spengler and reported by J.Tinnes
+    which could lead to a panic.
+
+  - a few unchecked strcpy() in ipvs fixed in PaX which I'm not absolutely
+    sure are exploitable, but are definitely dirty and risky.
+
+As usual, full and incremental patches for both 2.4.29 and 2.4.30, are
+available here :
+
+   http://linux.exosec.net/kernel/2.4-hf/
+
+I've done a full make allmodconfig on both kernels to confirm they still
+compile fine, but I've not booted them yet. For users of 2.4.29-hf9 and
+2.4.30-hf2, an upgrade is quite recommended. Others might prefer to wait
+for official 2.4.31 which we should see very soon now.
+
+Detailed changelog appended.
+
+Regards,
+Willy Tarreau
+EXOSEC
+
+Changelog From 2.4.30-hf2 to 2.4.30-hf3 (semi-automated)
+---------------------------------------
+'+' = added ; '-' = removed
+
++ 2.4.30-ipvs-unchecked-strcpy-1.diff                            (the PaX team)
+
+  Replaced several unchecked strcpy() with strncpy().
+
++ 2.4.30-loop-off-by-one-1                                      (Julien Tinnes)
+
+  There is an obvious off by one bug in loop.c in kernel 2.4.
+
++ 2.4.30-rtnetlink-off-by-one-1                                 (Julien Tinnes)
+
+  [RTNETLINK]: Fix off-by-one error in rtnetlink.c
+
++ 2.4.30-random-poolsize-sysctl-fix-1                           (Vasily Averin)
+
+  [PATCH] random poolsize sysctl fix
+  SWSoft Linux kernel Team has discovered that your patch which should fix a
+  random poolsize sysctl handler integer overflow, is wrong. You have changed
+  a variable definition in function proc_do_poolsize(), but you had to fix an
+  another function, poolsize_strategy()
+
++ 2.4.30-serial-null-dereference-1.diff                         (Julien Tinnes)
+
+  Potential null pointer dereference in serial driver.
+
++ 2.4.30-mtrr-off-by-one-1.diff                   (Brad Spengler/Julien Tinnes)
+
+  In mtrr_write(), if len==0, -1 is passed to copy_from_user(), which will
+  trigger BUG_ON((long)n < 0). Brad found it, Julien explained it to me.
+
++ 2.4.30-jfs_read_super-oops-1                                    (Mike Kasick)
+
+  [PATCH] JFS oops fix
+  Specifically, the kernel attempts to mount root with JFS first, and upon
+  aborting jfs_read_super(), the value of sbi->nls_tab is -1, a non-NULL
+  value that causes unload_nls() to be called on garbage data leading to a
+  NULL pointer dereference.
+  
++ 2.4.30-usb-io_edgeport-oops-1                               (Marcelo Tosatti)
+
+  USB: fix oops in io_edgeport.c driver (2.6 backport)
+
++ 2.4.30-stretch-ack-kills-performance-1                         (David Miller)
+
+  [TCP]: Fix stretch ACK performance killer when doing ucopy.
+  
+  When we are doing ucopy, we try to defer the ACK generation to
+  cleanup_rbuf().  This works most of the time very well, but if the
+  ucopy prequeue is large, this ACKing behavior kills performance.
+
++ 2.4.30-xfs-build-without-debug-1                          (Christoph Hellwig)
+
+  [PATCH] XFS: fix compilation error
+  > 2.4.30 will not compile if XFS is turned on, but XFS debugging is not.
+  Looks like a trivial one-liner got lost when merging from the SGI CVS tree.
+-- end --
 

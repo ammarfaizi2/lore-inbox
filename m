@@ -1,40 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVE2ARG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbVE2Bcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbVE2ARG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 May 2005 20:17:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVE2ARG
+	id S261200AbVE2Bcz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 May 2005 21:32:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVE2Bcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 May 2005 20:17:06 -0400
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:948 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S261222AbVE2ARE convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 May 2005 20:17:04 -0400
-From: Parag Warudkar <kernel-stuff@comcast.net>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: How to find if BIOS has already enabled the device
-Date: Sat, 28 May 2005 20:17:07 -0400
-User-Agent: KMail/1.8
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       John Livingston <jujutama@comcast.net>,
-       Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <0EF82802ABAA22479BC1CE8E2F60E8C31B5206@scl-exch2k3.phoenix.com> <200505281301.09911.kernel-stuff@comcast.net> <1117325172.5423.102.camel@mindpipe>
-In-Reply-To: <1117325172.5423.102.camel@mindpipe>
+	Sat, 28 May 2005 21:32:55 -0400
+Received: from dream.eng.uci.edu ([128.195.164.137]:26889 "EHLO
+	dream.dream.eng.uci.edu") by vger.kernel.org with ESMTP
+	id S261200AbVE2Bcx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 May 2005 21:32:53 -0400
+From: "Liangchen Zheng" <zlc@dream.eng.uci.edu>
+To: <linux-kernel@vger.kernel.org>
+Subject: The values of gettimeofday() jumps.
+Date: Sat, 28 May 2005 18:37:10 -0700
+Message-ID: <000201c563ee$eed993d0$85a4c380@dream.eng.uci.edu>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200505282017.08204.kernel-stuff@comcast.net>
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.2627
+In-Reply-To: <20050528231737.805020000@nd47.coderock.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Importance: Normal
+X-OriginalArrivalTime: 29 May 2005 01:37:12.0609 (UTC) FILETIME=[EFC70110:01C563EE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 28 May 2005 20:06, Lee Revell wrote:
-> devfs is not maintained and is listed as deprecated.  You'd be better
-> off using udev.
+Hello,
+	We have several SMP machines (Tyan Tiger MPX motherboard, 2
+AthlonMP 1900+ CPU, linux-2.4.21-20.EL).  When running some time
+sensitive programs, I observed that the values of gettimeofday () jumped
+sometimes on a couple of machines (other machines are fine), from
+several hundreds milliseconds to a couple of seconds. 
+	I searched online and tried to figure out why this happened. It
+seems there are a lot of people who complained about the clock drift
+issue of gettimeofday () on SMP machines. But I still could not get the
+answers about what is the exact cause of this issue and how to fix it.
+	Could somebody tell me some clues?  Can this be solved by
+upgrading the kernel to 2.6? Thanks a lot.
 
-Yep, that's on my list of things to do - I tried once to switch to udev but 
-it's not the  "just works" type - atleast on Gentoo! 
+By the way, I have read Linux SMP HOWTO and the following documents. 
+http://seclists.org/lists/linux-kernel/2002/Jun/1524.html
+http://seclists.org/lists/linux-kernel/2002/Jun/1550.html
+http://alphalinux.org/archives/linux-alpha/April2000/0015.html
+I could not get enough clues from them yet, maybe because my limited
+knowledge about the kernel.
 
--- 
+Regards,
+[Liangchen Zheng] 
+ 
+

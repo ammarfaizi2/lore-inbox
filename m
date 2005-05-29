@@ -1,66 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbVE2W5o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVE2XA4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261463AbVE2W5o (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 18:57:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVE2W5o
+	id S261346AbVE2XA4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 19:00:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVE2XA4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 18:57:44 -0400
-Received: from fire.osdl.org ([65.172.181.4]:50618 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261463AbVE2W5l (ORCPT
+	Sun, 29 May 2005 19:00:56 -0400
+Received: from smtpout.mac.com ([17.250.248.86]:63197 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261346AbVE2XAn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 18:57:41 -0400
-Date: Sun, 29 May 2005 15:59:03 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-cc: Pekka Enberg <penberg@gmail.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PROBLEM] Machine Freezes while Running Crossover Office
-In-Reply-To: <1117399764.9619.12.camel@localhost>
-Message-ID: <Pine.LNX.4.58.0505291543070.10545@ppc970.osdl.org>
-References: <1117291619.9665.6.camel@localhost>  <Pine.LNX.4.58.0505291059540.10545@ppc970.osdl.org>
-  <84144f0205052911202863ecd5@mail.gmail.com>  <Pine.LNX.4.58.0505291143350.10545@ppc970.osdl.org>
- <1117399764.9619.12.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 29 May 2005 19:00:43 -0400
+In-Reply-To: <Pine.LNX.4.62.0505292157130.12948@numbat.sonytel.be>
+References: <Pine.LNX.4.62.0505282333210.5800@anakin> <20050528215005.GA5990@redhat.com> <1FA58BE7-0EE6-432B-9383-F489F9854DBE@mac.com> <Pine.LNX.4.58.0505290809180.9971@skynet> <Pine.LNX.4.62.0505292157130.12948@numbat.sonytel.be>
+Mime-Version: 1.0 (Apple Message framework v728)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <64148E06-2DFA-41A5-9D86-5F34DCAAF9F4@mac.com>
+Cc: Dave Airlie <airlied@linux.ie>, Dave Jones <davej@redhat.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       dri-devel@lists.sourceforge.net
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH] DRM depends on ???
+Date: Sun, 29 May 2005 19:00:28 -0400
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+X-Mailer: Apple Mail (2.728)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On May 29, 2005, at 15:58:10, Geert Uytterhoeven wrote:
+>> What Kyle said is the correct answer... we either keep this lovely
+>> construct (I'll add a comment for 2.6.13) or we go back to the old
+>> intermodule or module_get stuff... DRM built-in with modular AGP  
+>> is always
+>> wrong... or at least I'll get a hundred e-mails less every month if I
+>> say it is ..
+>
+> And what if we don't have AGP at all? Or no PCI?
+
+Then DRM detects that at configure time and excludes the code that  
+requires
+AGP.  Basically, the following are valid configurations:
+
+DRM=y AGP=y  # DRM will use AGP
+DRM=y AGP=n  # DRM will not use AGP
+
+DRM=m AGP=y  # DRM will use AGP
+DRM=m AGP=m  # DRM will use AGP (DRM module depends on AGP module)
+DRM=m AGP=n  # DRM will not use AGP
+
+DRM=n AGP=*  # DRM isn't compiled and therefore doesn't care about AGP
+
+The only invalid configuration is DRM=y AGP=m, which seems silly,  
+although
+theoretically in that case DRM should exclude AGP support.
 
 
-On Sun, 29 May 2005, Pekka Enberg wrote:
-> 
-> The mouse cursor does not move and the screen does not refresh. The
-> machine locks up completely for few seconds (actually more like 5-10 s)
-> and then the system comes back up (after which it can be used normally).
-> I cannot even switch virtual consoles. Please note that I can
-> immediately reproduce the problem again as many times as I want by doing
-> the test scenario.
 
-The thing is, your sysrq-P output clearly shows that it's all in wine, and 
-I'd be very surprised if this is not a codeweavers/wine bug. The pipe poll 
-code is literally a couple of lines long, and it's hard to introduce a bug 
-there. Especially a transient bug that goes away.
+Cheers,
+Kyle Moffett
 
-However, I don't understand how wine can block the X server from doing 
-even cursor updates. It might be a scheduler bug, of course. The one thing 
-a bigger pipe buffer does is end up changing scheduling behaviour. 
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$  
+r  !y?(-)
+------END GEEK CODE BLOCK------
 
-(On the other hand, I would not be surprised if Wine does something that 
-makes X pause, like use DGA or whatever and tells X not to update the 
-screen, including cursors).
 
-> Is it possible that your changes for pipes to fill up to 64 KB confuses
-> pipe_poll and friends?
 
-pipe_poll shouldn't get confused, but apps certainly could. If an app 
-"knows" that a pipe read can only return 4kB of data, it would obviously 
-get confused when that's no longer true.
-
-> The funny thing is that when I am stracing (and
-> thus not hitting the problem), I do not see _any_ calls to sys_poll but
-> when I _do_ hit the bug, pipe_poll clearly shows up in oprofile.
-
-Are you sure your oprofile PC map is correct? 
-
-		Linus

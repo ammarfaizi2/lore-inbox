@@ -1,57 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVE2TWC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbVE2TeS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261417AbVE2TWC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 15:22:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbVE2TWC
+	id S261415AbVE2TeS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 15:34:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbVE2TeR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 15:22:02 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:10899 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261410AbVE2TVy (ORCPT
+	Sun, 29 May 2005 15:34:17 -0400
+Received: from rproxy.gmail.com ([64.233.170.200]:490 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261415AbVE2TeP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 15:21:54 -0400
-Date: Sun, 29 May 2005 21:21:08 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Mark Lord <liml@rtr.ca>, Michael Thonke <iogl64nx@gmail.com>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Playing with SATA NCQ
-Message-ID: <20050529192108.GC30586@suse.de>
-References: <20050526140058.GR1419@suse.de> <429793C8.8090007@gmail.com> <42979C4F.8020007@pobox.com> <42979FA3.1010106@gmail.com> <20050528121258.GA17869@suse.de> <4299BD23.6010004@gmail.com> <4299CD31.8020805@rtr.ca> <20050529190421.GB29770@suse.de> <20050529190518.GA7928@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050529190518.GA7928@havoc.gtf.org>
+	Sun, 29 May 2005 15:34:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=bWKQPE6UgpeR/NpMRqdVxjYM7qaQoyhZ6zCgp3OF/27knmy78IcBtJ00se2xUjAEdY+L4XFsMEN8naA/QpxhQAq5WhT/9pJNxV55mq+iPOvK09n82sKhMecL8PdJszmm2Ydr2Y0cN0M5LBjyWyjuoQktx3/JocRFl8wnaEESeuI=
+Message-ID: <429A1930.6040409@gmail.com>
+Date: Sun, 29 May 2005 15:34:08 -0400
+From: Keenan Pepper <keenanpepper@gmail.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: lm-sensors@lm-sensors.org
+CC: linux-kernel@vger.kernel.org
+Subject: SMSC LPC47M192 - "Device is disabled, will not use"
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, May 29 2005, Jeff Garzik wrote:
-> On Sun, May 29, 2005 at 09:04:21PM +0200, Jens Axboe wrote:
-> > On Sun, May 29 2005, Mark Lord wrote:
-> > > My basic hdparm timing test shouldn't show much of a difference
-> > > with NCQ tests, becase hdparm just does a single request at a time,
-> > > and waits for the results before issuing another.  Now, kernel read-ahead
-> > > may result in some command overlap and a slight throughput increase, but..
-> > > 
-> > > Something like dbench and/or bonnie++ are more appropriate here.
-> > 
-> > I don't like bonnie++ very much and dbench is very write intensive. I
-> > would suggest trying tiotest, find it on sf.net. It gets easily readable
-> > results and they are usually fairly consistent across runs if you limit
-> > the RAM to something sensible (eg 256MB and using a data set size of
-> > 768MB).
-> 
-> As an FYI...  download Stephen Tweedie's verify-data tool at
-> http://people.redhat.com/sct/src/verify-data/
+I have a chip on my motherboard which says "SMsC LPC47M192-NC", but the kernel 
+module for it (kernel 2.6.12-rc5-mm1) doesn't work:
 
-Interesting, will try it tomorrow.
+keenan@localhost:~$ sudo modprobe smsc47m1
+FATAL: Error inserting smsc47m1 
+(/lib/modules/2.6.12-rc5-mm1/kernel/drivers/i2c/chips/smsc47m1.ko): No such device
 
-> Robin Miller's 'dt' is also nice to have.
+In the dmesg output it says:
 
-Yep, have tried that in the past. I'm just recommending tiotest as an
-easy and good way for people to test performance quickly. Just boot with
-256MB and use eg tiobench.pl --threads 8 should be a good way to test
-NCQ.
+smsc47m1: Found SMSC LPC47M15x/LPC47M192
+smsc47m1: Device is disabled, will not use
 
--- 
-Jens Axboe
-
+What does this mean? How do I get this chip to tell me fan speed and CPU 
+temperature (if that's even what it does?)?

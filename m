@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVE2TSC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVE2TWC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261413AbVE2TSC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 15:18:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbVE2TSC
+	id S261417AbVE2TWC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 15:22:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbVE2TWC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 15:18:02 -0400
-Received: from mailfe04.swip.net ([212.247.154.97]:18825 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261413AbVE2TRu (ORCPT
+	Sun, 29 May 2005 15:22:02 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:10899 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S261410AbVE2TVy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 15:17:50 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: 2.6.12-rc5-git3 fails compile -- acpi_boot_table_init
-From: Alexander Nyberg <alexn@telia.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Pete Clements <clem@clem.clem-digital.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.58.0505291157120.10545@ppc970.osdl.org>
-References: <200505281206.j4SC6iLa015878@clem.clem-digital.net>
-	 <1117287439.952.17.camel@localhost.localdomain>
-	 <Pine.LNX.4.58.0505291157120.10545@ppc970.osdl.org>
-Content-Type: text/plain
-Date: Sun, 29 May 2005 21:17:40 +0200
-Message-Id: <1117394260.957.12.camel@localhost.localdomain>
+	Sun, 29 May 2005 15:21:54 -0400
+Date: Sun, 29 May 2005 21:21:08 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Mark Lord <liml@rtr.ca>, Michael Thonke <iogl64nx@gmail.com>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Playing with SATA NCQ
+Message-ID: <20050529192108.GC30586@suse.de>
+References: <20050526140058.GR1419@suse.de> <429793C8.8090007@gmail.com> <42979C4F.8020007@pobox.com> <42979FA3.1010106@gmail.com> <20050528121258.GA17869@suse.de> <4299BD23.6010004@gmail.com> <4299CD31.8020805@rtr.ca> <20050529190421.GB29770@suse.de> <20050529190518.GA7928@havoc.gtf.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050529190518.GA7928@havoc.gtf.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > This is a neverending story
+On Sun, May 29 2005, Jeff Garzik wrote:
+> On Sun, May 29, 2005 at 09:04:21PM +0200, Jens Axboe wrote:
+> > On Sun, May 29 2005, Mark Lord wrote:
+> > > My basic hdparm timing test shouldn't show much of a difference
+> > > with NCQ tests, becase hdparm just does a single request at a time,
+> > > and waits for the results before issuing another.  Now, kernel read-ahead
+> > > may result in some command overlap and a slight throughput increase, but..
+> > > 
+> > > Something like dbench and/or bonnie++ are more appropriate here.
 > > 
-> > linux/acpi.h contains empty declarations for acpi_boot_init() &
-> > acpi_boot_table_init() but they are nested inside #ifdef CONFIG_ACPI.
-> > 
-> > So we'll have to #ifdef in arch/i386/kernel/setup.c: setup_arch()
+> > I don't like bonnie++ very much and dbench is very write intensive. I
+> > would suggest trying tiotest, find it on sf.net. It gets easily readable
+> > results and they are usually fairly consistent across runs if you limit
+> > the RAM to something sensible (eg 256MB and using a data set size of
+> > 768MB).
 > 
-> Wouldn't it be much nicer to just fix <linux/acpi.h> instead? Or, if you
-> really prefer this, then you should remove the now useless code from
-> acpi.h. In either case, this patch looks wrong.
-> 
+> As an FYI...  download Stephen Tweedie's verify-data tool at
+> http://people.redhat.com/sct/src/verify-data/
 
-There's no question that the patch isn't the correct solution to the
-problem, it's a band-aid for a -rc5 kernel. The current acpi include
-system doesn't work very well.
+Interesting, will try it tomorrow.
 
-Fixing it up for real with the risk of making some arch/config not
-compile for a long awaited 2.6.12 and having someone chase me with a
-spade isn't something i'm longing to try out. But if you insist...
+> Robin Miller's 'dt' is also nice to have.
+
+Yep, have tried that in the past. I'm just recommending tiotest as an
+easy and good way for people to test performance quickly. Just boot with
+256MB and use eg tiobench.pl --threads 8 should be a good way to test
+NCQ.
+
+-- 
+Jens Axboe
 

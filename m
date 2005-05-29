@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261409AbVE2TPg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVE2TSC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261409AbVE2TPg (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 15:15:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbVE2TPe
+	id S261413AbVE2TSC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 15:18:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261410AbVE2TSC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 15:15:34 -0400
-Received: from relay1.tiscali.de ([62.26.116.129]:40084 "EHLO
-	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261409AbVE2TPR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 15:15:17 -0400
-Message-ID: <429A14C3.20604@tiscali.de>
-Date: Sun, 29 May 2005 21:15:15 +0200
-From: Matthias-Christian Ott <matthias.christian@tiscali.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Michael Thonke <iogl64nx@gmail.com>
-CC: linux mailing-list <linux-kernel@vger.kernel.org>
-Subject: Re: CPUFREQ/speedstep on Intel 955X chipset based system
-References: <429A07EF.6090905@gmail.com>
-In-Reply-To: <429A07EF.6090905@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Sun, 29 May 2005 15:18:02 -0400
+Received: from mailfe04.swip.net ([212.247.154.97]:18825 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261413AbVE2TRu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 May 2005 15:17:50 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: 2.6.12-rc5-git3 fails compile -- acpi_boot_table_init
+From: Alexander Nyberg <alexn@telia.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Pete Clements <clem@clem.clem-digital.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0505291157120.10545@ppc970.osdl.org>
+References: <200505281206.j4SC6iLa015878@clem.clem-digital.net>
+	 <1117287439.952.17.camel@localhost.localdomain>
+	 <Pine.LNX.4.58.0505291157120.10545@ppc970.osdl.org>
+Content-Type: text/plain
+Date: Sun, 29 May 2005 21:17:40 +0200
+Message-Id: <1117394260.957.12.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Thonke wrote:
-> Hello,
+> > This is a neverending story
+> > 
+> > linux/acpi.h contains empty declarations for acpi_boot_init() &
+> > acpi_boot_table_init() but they are nested inside #ifdef CONFIG_ACPI.
+> > 
+> > So we'll have to #ifdef in arch/i386/kernel/setup.c: setup_arch()
 > 
-> I recently bought an Asus P5WAD2 motherboard which uses the Intel 955x
-> chipset.
-> I noticed that CPUFREQ/speedsteps with the same kernel and same config from
-> my system with Intel 925XE and Intel Pentium 640 does not work on the
-> system with
-> Intel 955X chipset (the processor is the same). In Windows it works
-> perfectly on 925XE
-> and 955X chipset. 
+> Wouldn't it be much nicer to just fix <linux/acpi.h> instead? Or, if you
+> really prefer this, then you should remove the now useless code from
+> acpi.h. In either case, this patch looks wrong.
 > 
-> The kernels I used
-> 
-> 2.6.12-rc5 vanilla with git4 patch
-> 2.6.12-rc5-mm1.
-> 
-> I attached the output of dmesg and `cat /proc/cpuinfo`
->
-Please turn on cpufreq debugging (see Documentation/ for details) and post the output.
- 
-> Thanks in advance
-> 
-> Best regards
->     Michael
-> [ ... ]
 
-Matthias-Christian Ott
+There's no question that the patch isn't the correct solution to the
+problem, it's a band-aid for a -rc5 kernel. The current acpi include
+system doesn't work very well.
+
+Fixing it up for real with the risk of making some arch/config not
+compile for a long awaited 2.6.12 and having someone chase me with a
+spade isn't something i'm longing to try out. But if you insist...
+

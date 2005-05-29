@@ -1,101 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbVE2MkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVE2NBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261261AbVE2MkW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 08:40:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVE2MkW
+	id S261297AbVE2NBg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 09:01:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVE2NBf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 08:40:22 -0400
-Received: from sccrmhc13.comcast.net ([204.127.202.64]:31942 "EHLO
-	sccrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261261AbVE2MkJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 08:40:09 -0400
-Date: Sun, 29 May 2005 08:45:17 -0400
-From: Len Brown <len.brown@intel.com>
-To: Keenan Pepper <keenanpepper@gmail.com>
-Cc: linux-kernel@vger.kernel.org, acpi-devel@lists.sourceforge.net
-Subject: Re: ACPI fan problems on HP pavilion desktop
-Message-ID: <20050529124517.GA25934@toshiba.hsd1.ma.comcast.net>
-References: <4298CC82.9010901@gmail.com>
-Mime-Version: 1.0
+	Sun, 29 May 2005 09:01:35 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:22425 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261272AbVE2NB0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 May 2005 09:01:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
+        b=HMFnspa60e6KzjImS4OmG6JGKVzeUUDjKr18gEGW72BdjXnxVMIQrsPlwsY0EcmC13FpYSwoYq66sXHgxuYYO2l6cZsHegQq4OaxAluE06vOSl4LELsEv7TlcjrIqxDKlNsHe416261mToELxcAU+xXVDopqrD5bt8vZt9rLb2g=
+Message-ID: <4299BD23.6010004@gmail.com>
+Date: Sun, 29 May 2005 15:01:23 +0200
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050523)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Jens Axboe <axboe@suse.de>
+CC: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Playing with SATA NCQ
+References: <20050526140058.GR1419@suse.de> <429793C8.8090007@gmail.com> <42979C4F.8020007@pobox.com> <42979FA3.1010106@gmail.com> <20050528121258.GA17869@suse.de>
+In-Reply-To: <20050528121258.GA17869@suse.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4298CC82.9010901@gmail.com>
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
+From: Michael Thonke <iogl64nx@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, May 28, 2005 at 03:54:42PM -0400, Keenan Pepper wrote:
-> I'm trying to set up cpu clock modulation and ACPI fan support on my HP 
-> pavilion  a302x, so it runs quieter when it's not doing anything
-> (the fan is pretty loud).
-> The cpufreq driver works great, but the ACPI fan driver not so good:
-> it can turn the fan off but not back on again.
-> 
-> I changed these lines in drivers/acpi/power.c:
-> 
-> -       if (resource->state != ACPI_POWER_RESOURCE_STATE_OFF)
-> -               return_VALUE(-ENOEXEC);
-> +       if (resource->state != ACPI_POWER_RESOURCE_STATE_OFF) {
-> +               ACPI_DEBUG_PRINT((ACPI_DB_WARN,
-> +                       "Device [%s] says it's still on", resource->name));
-> +               resource->state = ACPI_POWER_RESOURCE_STATE_OFF;
-> +       }
-> 
-> and now I can turn the fan off and on again, so it works for me,
-> but I want to figure out what's actually wrong so other people trying to
-> run linux on this machine can have it Just Work(tm) for them.
-> Is it just buggy hardware that
-> doesn't comply with the ACPI spec? If so, is there some place where all the
-> workarounds for hardware quirks are collected?
+Jens Axboe wrote,
 
-This does look like a platform BIOS bug, but
-that doesn't mean Linux shouldn't be able to
-handle it.
+>
+>There's really nothing to be tuned. If NCQ is enabled for your drive, it
+>will be printed in dmesg after the lba48 flag, such as:
+>
+>ata1: dev 0 ATA, max UDMA/133, 488281250 sectors lba48 ncq
+>
+>If you don't see NCQ there, your drive/controller doesn't support it.
+>Likewise you will have a queueing depth of > 1 if NCQ is enabled, check
+>/sys/block/sdX/device/queue_depth to see what the configured queueing
+>depth is for that device.
+>
+>  
+>
+Hi Jens,
 
-Apparently the initial _OFF disabled the fan,
-but the platform did not update _STA 
-to say so.
-The subsequent acpi_power_on() sees this state
-is still on and bails out with
-"Resource [%s] already on"...
+thanks for the short info now my next question how many queue depths
+are healty and wanted?
 
-But it would be good to examine the ASL before
-leaping to conclusions.  Please open a bug here
-http://bugzilla.kernel.org/enter_bug.cgi?product=ACPI
-Component: Power-fan
+For my Intel Corporation 82801GR/GH (ICH7 Family) Serial ATA Storage
+Controllers cc=AHCI (rev 01)
+and Samsung Hd160JJ SATAII drive the default queue is 30
 
-and attach the output from acpidmp, available in /usr/sbin
-or in pmtools here:
-http://ftp.kernel.org/pub/linux/kernel/people/lenb/acpi/utils/
+    ioGL64NX_MACH~# cat /sys/block/sda/device/{model,queue_depth}
+    SAMSUNG HD160JJ
+    30
 
-Also, it will be interesting to see the console output
-when you enable debugging for this component
-and tickle the fan:
+    hdparm -Tt /dev/sda
 
-# echo 0x00800000 > /proc/acpi/debug_layer
-# echo 0xFFFFFFFF > /proc/acpi/debug_level
+    /dev/sda:
+    Timing cached reads: 4724 MB in 2.00 seconds = 2360.00 MB/sec
+    Timing buffered disk reads: 164 MB in 3.02 seconds = 54.28 MB/sec
 
-in case there an anything unexpected in the debug output.
+On random access the drives is a bit noisy but the subjective feeling is
+great
+everything goes a bit faster.
 
-We found an analogous issue with PCI Interrupt Link Devices
-a while ago where Linux checked what it did actually took effect.
-However, some platforms never updated _STA -- presumably
-because a popular proprietary OS never checked it.
-We ended up changing Linux to ignore that the spec
-said the platform should do and instead be bug compatible
-with "common industry practice".  Wasn't worth
-bothering with a platform specific quirk.
+And whats about the option /sys/block/sdx/device/queue_type = simple
+what can be done here?
 
-Likely we should always let requests to _ON and _OFF
-proceed, not matter what current state -- even if
-we think it would be redundant.
-The question then becomes if we should then update
-resource->state and device->power.sate based
-on what _STA returns, or based on what we just ran.
-(like you did above in the _OFF case)
+Thanks in advance
+Best regards
+Michael
 
-thanks,
--Len
 
-ps. please include acpi-devel@lists.sourceforge.net on 
-this type of topic.
+

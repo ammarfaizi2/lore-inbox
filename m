@@ -1,58 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVE2EFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVE2ELS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbVE2EFU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 00:05:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVE2EFU
+	id S261229AbVE2ELS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 00:11:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVE2ELS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 00:05:20 -0400
-Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:5018 "HELO
-	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261227AbVE2EFN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 00:05:13 -0400
-Message-ID: <42993F71.2080501@yahoo.com.au>
-Date: Sun, 29 May 2005 14:05:05 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Russell King <rmk@arm.linux.org.uk>
-Subject: Re: [patch] remove set_tsk_need_resched() from init_idle()
-References: <20050524121541.GA17049@elte.hu> <20050524140623.GA3500@elte.hu> <4293420C.8080400@yahoo.com.au> <20050524150537.GA11829@elte.hu> <42934748.8020501@yahoo.com.au> <20050524152759.GA15411@elte.hu> <20050524154230.GA17814@elte.hu> <20050525052400.46bccf26.akpm@osdl.org> <20050525135130.GA27088@elte.hu> <20050528173241.C4711@flint.arm.linux.org.uk> <20050528185123.GA13961@elte.hu>
-In-Reply-To: <20050528185123.GA13961@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sun, 29 May 2005 00:11:18 -0400
+Received: from h80ad24ed.async.vt.edu ([128.173.36.237]:52486 "EHLO
+	h80ad24ed.async.vt.edu") by vger.kernel.org with ESMTP
+	id S261229AbVE2ELN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 May 2005 00:11:13 -0400
+Message-Id: <200505290408.j4T487n6024489@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Lee Revell <rlrevell@joe-job.com>, Bill Huey <bhuey@lnxw.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance 
+In-Reply-To: Your message of "Sat, 28 May 2005 20:58:23 MDT."
+             <Pine.LNX.4.61.0505282054540.12903@montezuma.fsmlabs.com> 
+From: Valdis.Kletnieks@vt.edu
+References: <m1br6zxm1b.fsf@muc.de> <1117044019.5840.32.camel@sdietrich-xp.vilm.net> <20050526193230.GY86087@muc.de> <1117138270.1583.44.camel@sdietrich-xp.vilm.net> <20050526202747.GB86087@muc.de> <4296ADE9.50805@yahoo.com.au> <20050527120812.GA375@nietzsche.lynx.com> <429715DE.6030008@yahoo.com.au> <20050527233645.GA2283@nietzsche.lynx.com> <4297EB57.5090902@yahoo.com.au> <20050528054503.GA2958@nietzsche.lynx.com> <Pine.LNX.4.61.0505281953570.12903@montezuma.fsmlabs.com> <1117334933.11397.21.camel@mindpipe>
+            <Pine.LNX.4.61.0505282054540.12903@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1117339686_6734P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Sun, 29 May 2005 00:08:06 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[re-added Russell to the CC list]
+--==_Exmh_1117339686_6734P
+Content-Type: text/plain; charset=us-ascii
 
-Ingo Molnar wrote:
-> * Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+On Sat, 28 May 2005 20:58:23 MDT, Zwane Mwaikambo said:
+> On Sat, 28 May 2005, Lee Revell wrote:
 > 
+> > On Sat, 2005-05-28 at 19:55 -0600, Zwane Mwaikambo wrote:
+> > > Media apps are actually not that commonplace as far as hard realtime 
+> > > applications are concerned.
+> > 
+> > Audio capture and playback always have a hard realtime constraint.  That
+> > is, unless you don't mind your VoIP call sounding as crappy as a cell
+> > phone...
 > 
->>>The patch below should address this problem for all architectures, by 
->>>doing an explicit schedule() in the init code before calling into 
->>>cpu_idle().
->>
->>Yuck - wouldn't it be better just to fix all the architectures instead 
->>of applying band aid?
-> 
-> 
-> it's not really a bug in any architecture - it's a scheduler setup 
-> detail that i changed, and which i initially thought would be best 
-> handled in cpu_idle(), but which is easier to do in rest_init().
-> 
+> It still doesn't mean that media apps are commonplace and who says cell 
+> phones don't use RTOS' for their lower level software stacks?
 
-Hmm, what has changed is that secondary CPUs haven't got
-need_resched set in their idle routines. Whether or not it
-is possible to a task on their runqueue at that stage, I
-didn't bother looking - I assume you did.
+I'd be wildly surprised if media apps *were* commonplace on an operating
+system that didn't supply the needed scheduling infrastructure.
 
-However, Ingo - instead of calling schedule() at the end of
-rest_init(), why not just set need_resched instead?
+That's as straw-man as commenting that applications that used more than 16
+processors weren't commonplace on Linux before the scalability work that made
+it feasible to build systems with more than 2 CPUs....
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+--==_Exmh_1117339686_6734P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCmUAmcC3lWbTT17ARAvZXAKDlKpo8x2Atsb2t4qUoHLpKUZS8rgCglz9S
+AmDAVRhdU9auXqAGzdyKBFI=
+=9Wa0
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1117339686_6734P--

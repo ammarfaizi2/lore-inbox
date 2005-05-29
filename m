@@ -1,36 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVE2OKN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVE2O0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbVE2OKN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 10:10:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVE2OKN
+	id S261324AbVE2O0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 10:26:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbVE2O0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 10:10:13 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:46861 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S261324AbVE2OJz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 10:09:55 -0400
-Message-ID: <4299CD31.8020805@rtr.ca>
-Date: Sun, 29 May 2005 10:09:53 -0400
-From: Mark Lord <liml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Michael Thonke <iogl64nx@gmail.com>
-Cc: Jens Axboe <axboe@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Playing with SATA NCQ
-References: <20050526140058.GR1419@suse.de> <429793C8.8090007@gmail.com> <42979C4F.8020007@pobox.com> <42979FA3.1010106@gmail.com> <20050528121258.GA17869@suse.de> <4299BD23.6010004@gmail.com>
-In-Reply-To: <4299BD23.6010004@gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 29 May 2005 10:26:25 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:20233 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261324AbVE2O0U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 May 2005 10:26:20 -0400
+Date: Sun, 29 May 2005 16:26:19 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>,
+       Guillaume Thouvenin <guillaume.thouvenin@bull.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.12-rc5-mm1: fork connector doesn't compile with gcc 2.95
+Message-ID: <20050529142619.GA5764@stusta.de>
+References: <20050525134933.5c22234a.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050525134933.5c22234a.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My basic hdparm timing test shouldn't show much of a difference
-with NCQ tests, becase hdparm just does a single request at a time,
-and waits for the results before issuing another.  Now, kernel read-ahead
-may result in some command overlap and a slight throughput increase, but..
+The following compile breakage with gcc 2.95 is caused by 
+fork-connector-send-status-to-userspace.patch:
 
-Something like dbench and/or bonnie++ are more appropriate here.
+<--  snip  -->
 
-Cheers
+...
+  CC      drivers/connector/cn_fork.o
+In file included from drivers/connector/cn_fork.c:36:
+include/linux/cn_fork.h:58: warning: unnamed struct/union that defines 
+no instances
+include/linux/cn_fork.h:60: warning: unnamed struct/union that defines 
+no instances
+drivers/connector/cn_fork.c: In function `fork_connector':
+drivers/connector/cn_fork.c:75: structure has no member named `ppid'
+drivers/connector/cn_fork.c:76: structure has no member named `ptid'
+drivers/connector/cn_fork.c:77: structure has no member named `cpid'
+drivers/connector/cn_fork.c:78: structure has no member named `ctid'
+drivers/connector/cn_fork.c: In function `cn_fork_send_status':
+drivers/connector/cn_fork.c:110: structure has no member named `status'
+make[2]: *** [drivers/connector/cn_fork.o] Error 1
+
+<--  snip  -->
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

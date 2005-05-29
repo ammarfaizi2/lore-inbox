@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbVE2CMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVE2Cs6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261217AbVE2CMK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 28 May 2005 22:12:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVE2CMK
+	id S261215AbVE2Cs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 28 May 2005 22:48:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVE2Cs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 28 May 2005 22:12:10 -0400
-Received: from imf20aec.mail.bellsouth.net ([205.152.59.68]:31979 "EHLO
-	imf20aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S261217AbVE2CMG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 28 May 2005 22:12:06 -0400
-Message-ID: <009201c563fb$357ddfb0$2800000a@pc365dualp2>
-From: <cutaway@bellsouth.net>
-To: "Lee Revell" <rlrevell@joe-job.com>
-Cc: "Sean M. Burke" <sburke@cpan.org>, <linux-kernel@vger.kernel.org>,
-       <trivial@rustcorp.com.au>
-References: <42985251.6030006@cpan.org> <007001c56387$235672d0$2800000a@pc365dualp2> <1117314173.5423.22.camel@mindpipe>
-Subject: Re: PATCH: "Ok" -> "OK" in messages
-Date: Sat, 28 May 2005 23:04:56 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+	Sat, 28 May 2005 22:48:58 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:65450 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261215AbVE2Cs5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 28 May 2005 22:48:57 -0400
+Subject: Re: RT patch acceptance
+From: Lee Revell <rlrevell@joe-job.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Bill Huey <bhuey@lnxw.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Andi Kleen <ak@muc.de>, Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.61.0505281953570.12903@montezuma.fsmlabs.com>
+References: <m1br6zxm1b.fsf@muc.de>
+	 <1117044019.5840.32.camel@sdietrich-xp.vilm.net>
+	 <20050526193230.GY86087@muc.de>
+	 <1117138270.1583.44.camel@sdietrich-xp.vilm.net>
+	 <20050526202747.GB86087@muc.de> <4296ADE9.50805@yahoo.com.au>
+	 <20050527120812.GA375@nietzsche.lynx.com> <429715DE.6030008@yahoo.com.au>
+	 <20050527233645.GA2283@nietzsche.lynx.com> <4297EB57.5090902@yahoo.com.au>
+	 <20050528054503.GA2958@nietzsche.lynx.com>
+	 <Pine.LNX.4.61.0505281953570.12903@montezuma.fsmlabs.com>
+Content-Type: text/plain
+Date: Sat, 28 May 2005 22:48:53 -0400
+Message-Id: <1117334933.11397.21.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.1 
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1478
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Worked many large scale multiple languages translation projects?  I have.
-You take what you can get and make it as easy on them as possible to
-minimize your own grief.
+On Sat, 2005-05-28 at 19:55 -0600, Zwane Mwaikambo wrote:
+> Media apps are actually not that commonplace as far as hard realtime 
+> applications are concerned.
 
------ Original Message ----- 
-From: "Lee Revell" <rlrevell@joe-job.com>
-To: <cutaway@bellsouth.net>
-Cc: "Sean M. Burke" <sburke@cpan.org>; <linux-kernel@vger.kernel.org>;
-<trivial@rustcorp.com.au>
-Sent: Saturday, May 28, 2005 17:02
-Subject: Re: PATCH: "Ok" -> "OK" in messages
+Audio capture and playback always have a hard realtime constraint.  That
+is, unless you don't mind your VoIP call sounding as crappy as a cell
+phone...
 
-
-> On Sat, 2005-05-28 at 09:14 -0400, cutaway@bellsouth.net wrote:
-> > printk("The PukeMaster is %sabled.\n", SomeFlag ? "dis" : "en");
-> >
-> > If a NLS translator isn't a C programmer, they'll screw it up
-frequently.
->
-> Then you need a better translator.
->
-> Lee
->
->
+Lee
 

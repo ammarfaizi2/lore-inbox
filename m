@@ -1,63 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbVE2O6e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVE2PBO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbVE2O6e (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 10:58:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261334AbVE2O6e
+	id S261334AbVE2PBO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 11:01:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVE2PBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 10:58:34 -0400
-Received: from 65-102-103-67.albq.qwest.net ([65.102.103.67]:64429 "EHLO
-	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
-	id S261333AbVE2O6c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 10:58:32 -0400
-Date: Sun, 29 May 2005 09:00:49 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Valdis.Kletnieks@vt.edu
-cc: Lee Revell <rlrevell@joe-job.com>, Bill Huey <bhuey@lnxw.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@muc.de>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance 
-In-Reply-To: <200505290408.j4T487n6024489@turing-police.cc.vt.edu>
-Message-ID: <Pine.LNX.4.61.0505290856220.12903@montezuma.fsmlabs.com>
-References: <m1br6zxm1b.fsf@muc.de> <1117044019.5840.32.camel@sdietrich-xp.vilm.net>
- <20050526193230.GY86087@muc.de> <1117138270.1583.44.camel@sdietrich-xp.vilm.net>
- <20050526202747.GB86087@muc.de> <4296ADE9.50805@yahoo.com.au>
- <20050527120812.GA375@nietzsche.lynx.com> <429715DE.6030008@yahoo.com.au>
- <20050527233645.GA2283@nietzsche.lynx.com> <4297EB57.5090902@yahoo.com.au>
- <20050528054503.GA2958@nietzsche.lynx.com> <Pine.LNX.4.61.0505281953570.12903@montezuma.fsmlabs.com>
- <1117334933.11397.21.camel@mindpipe>           
- <Pine.LNX.4.61.0505282054540.12903@montezuma.fsmlabs.com>
- <200505290408.j4T487n6024489@turing-police.cc.vt.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 29 May 2005 11:01:13 -0400
+Received: from customer-200-33-143-226.uninet.net.mx ([200.33.143.226]:6672
+	"EHLO canela.sanfelipe.com.mx") by vger.kernel.org with ESMTP
+	id S261334AbVE2PAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 May 2005 11:00:51 -0400
+Subject: [OFF TOPIC]? Maxtor disk problem
+From: "Bob R. Taylor" <brtaylor@sanfelipe.com.mx>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Message-Id: <1117302005.3865.44.camel@ann.qtpi.local>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
+Date: Sat, 28 May 2005 22:17:33 -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 May 2005 Valdis.Kletnieks@vt.edu wrote:
+Before I get any egg on my face by returning this disk, I am asking the
+IDE gurus opinion. I'm also sorry for bothering lkml.
 
-> On Sat, 28 May 2005 20:58:23 MDT, Zwane Mwaikambo said:
-> > On Sat, 28 May 2005, Lee Revell wrote:
-> > 
-> > > On Sat, 2005-05-28 at 19:55 -0600, Zwane Mwaikambo wrote:
-> > > > Media apps are actually not that commonplace as far as hard realtime 
-> > > > applications are concerned.
-> > > 
-> > > Audio capture and playback always have a hard realtime constraint.  That
-> > > is, unless you don't mind your VoIP call sounding as crappy as a cell
-> > > phone...
-> > 
-> > It still doesn't mean that media apps are commonplace and who says cell 
-> > phones don't use RTOS' for their lower level software stacks?
-> 
-> I'd be wildly surprised if media apps *were* commonplace on an operating
-> system that didn't supply the needed scheduling infrastructure.
-> 
-> That's as straw-man as commenting that applications that used more than 16
-> processors weren't commonplace on Linux before the scalability work that made
-> it feasible to build systems with more than 2 CPUs....
+I'm running FedoraCore 2 on a Alpha LX164 box with 512M RAM. The on
+board IDE chip won't handle current IDE so I purchased a HighPoint
+Rocket133 and a Maxtor 120G drive. On boot, the kernel panics after
+probing the drive reporting "INVALID HEADS" etc. I then gave the kernel
+hde=noprobe option via SRM to boot the system after adding "alias
+block-major-33 ide-probe" to /etc/modprobe.conf. While fsdisk /dev/hde
+reports "unable to read /dev/hde", hdparm -I reports the following:
 
-I'm not talking about Linux (which should be obvious as Linux isn't an 
-RTOS), so it has nothing to do with Linux capabilities. I'm referring to 
-general hard realtime applications and their use of realtime operating 
-systems.
+/dev/hde:
+ 
+ATA device, with non-removable media
+        Model Number:       Maxtor CALYPSO
+        Firmware Revision:  YAR43KJZ
+Standards:
+        Likely used: 1
+Configuration:
+        fixed drive
+        Logical         max     current
+        cylinders       0       0
+        heads           0       0
+        sectors/track   0       0
+        --
+        device size with M = 1024*1024:           0 MBytes
+        device size with M = 1000*1000:           0 MBytes
+Capabilities:
+        IORDY not likely
+        Cannot perform double-word IO
+        R/W multiple sector transfer: not supported
+        DMA: not supported
+        PIO: pio0
+
+I'm not familiar with IDE at all. I have always used SCSI. However, my
+SCSI disk is full and I'm short of money.
+
+My current opinion is the disk is bad. Could an expert please confirm
+this or please tell me how to fix it? Sorry, printed on the disk is: LBA
+240121728 which, I presume, is the total sectors.
+
+Thanks in advance.
+
+More data:
+
+cat /proc/devices (edited)
+
+Block devices:
+  1 ramdisk
+  2 fd
+  8 sd
+  9 md
+ 11 sr
+ 33 ide2
+ 65 sd
+ 
+ls -l /proc/ide
+
+-r--r--r--  1 root root 0 May 28 10:32 cmd64x
+-r--r--r--  1 root root 0 May 28 10:32 drivers
+lrwxrwxrwx  1 root root 8 May 28 10:32 hde -> ide2/hde
+-r--r--r--  1 root root 0 May 28 10:32 hpt366
+dr-xr-xr-x  3 root root 0 May 28 10:32 ide2
+
+-- 
+Bob R. Taylor <brtaylor@sanfelipe.com.mx>

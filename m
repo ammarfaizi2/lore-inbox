@@ -1,36 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVE2Xn5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261470AbVE2X6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261416AbVE2Xn5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 19:43:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbVE2Xn5
+	id S261470AbVE2X6M (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 19:58:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261471AbVE2X6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 19:43:57 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:57518 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S261416AbVE2Xn4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 19:43:56 -0400
-Subject: IMPI doesn't build as modules with 2.6.12-rc5.
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: Greg KH <greg@kroah.com>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1117410309.12243.66.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Mon, 30 May 2005 09:45:09 +1000
-Content-Transfer-Encoding: 7bit
+	Sun, 29 May 2005 19:58:12 -0400
+Received: from quechua.inka.de ([193.197.184.2]:41960 "EHLO mail.inka.de")
+	by vger.kernel.org with ESMTP id S261470AbVE2X6J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 May 2005 19:58:09 -0400
+From: Bernd Eckenfels <ecki@lina.inka.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: RAID-5 design bug (or misfeature)
+Organization: Private Site running Debian GNU/Linux
+In-Reply-To: <Pine.LNX.4.58.0505300043540.5305@artax.karlin.mff.cuni.cz>
+X-Newsgroups: ka.lists.linux.kernel
+User-Agent: tin/1.7.8-20050315 ("Scalpay") (UNIX) (Linux/2.6.8.1 (i686))
+Message-Id: <E1DcXfR-0000zf-00@calista.eckenfels.6bone.ka-ip.net>
+Date: Mon, 30 May 2005 01:58:05 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all.
+In article <Pine.LNX.4.58.0505300043540.5305@artax.karlin.mff.cuni.cz> you wrote:
+> I think Linux should stop accessing all disks in RAID-5 array if two disks
+> fail and not write "this array is dead" in superblocks on remaining disks,
+> efficiently destroying the whole array.
 
-I get a build failure making modules in 2.6.12-rc5. It occurs in
-drivers/char/ipmi/impi_devintf.c, and is related to recent changes to
-class_simple_*.
+I agree with you, however it is a pretty damned stupid idea to use raid-5
+for a root disk (I was about to say it is not a good idea to use raid-5 on
+linux at all :)
 
-Regards,
-
-Nigel
-
+Gruss
+Bernd

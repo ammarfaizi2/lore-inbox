@@ -1,89 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVE2PBO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVE2PBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbVE2PBO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 11:01:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVE2PBN
+	id S261336AbVE2PBY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 11:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVE2PBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 11:01:13 -0400
-Received: from customer-200-33-143-226.uninet.net.mx ([200.33.143.226]:6672
-	"EHLO canela.sanfelipe.com.mx") by vger.kernel.org with ESMTP
-	id S261334AbVE2PAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 11:00:51 -0400
-Subject: [OFF TOPIC]? Maxtor disk problem
-From: "Bob R. Taylor" <brtaylor@sanfelipe.com.mx>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1117302005.3865.44.camel@ann.qtpi.local>
+	Sun, 29 May 2005 11:01:24 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:46089 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261338AbVE2PAy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 May 2005 11:00:54 -0400
+Date: Sun, 29 May 2005 17:00:52 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Matthias-Christian Ott <matthias.christian@tiscali.de>
+Cc: Andrew Morton <akpm@osdl.org>, David Teigland <teigland@redhat.com>,
+       linux-kernel@vger.kernel.org, Patrick Caulfield <pcaulfie@redhat.com>
+Subject: Re: 2.6.12-rc5-mm1: drivers/dlm/: compile error with gcc 2.95
+Message-ID: <20050529150051.GD10441@stusta.de>
+References: <20050525134933.5c22234a.akpm@osdl.org> <20050529143818.GB10441@stusta.de> <4299D52B.5080907@tiscali.de>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sat, 28 May 2005 22:17:33 -0700
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4299D52B.5080907@tiscali.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Before I get any egg on my face by returning this disk, I am asking the
-IDE gurus opinion. I'm also sorry for bothering lkml.
+On Sun, May 29, 2005 at 04:43:55PM +0200, Matthias-Christian Ott wrote:
+> Adrian Bunk wrote:
+> ><--  snip  -->
+> >
+> >...
+> >  CC      drivers/dlm/lock.o
+> >[ .. ]
+> >make[2]: *** [drivers/dlm/lock.o] Error 1
+> >
+> ><--  snip  -->
+> >
+> >cu
+> >Adrian
+> >
+> The gcc 2.95 is deprecated, so I think this is not a real problem.
 
-I'm running FedoraCore 2 on a Alpha LX164 box with 512M RAM. The on
-board IDE chip won't handle current IDE so I purchased a HighPoint
-Rocket133 and a Maxtor 120G drive. On boot, the kernel panics after
-probing the drive reporting "INVALID HEADS" etc. I then gave the kernel
-hde=noprobe option via SRM to boot the system after adding "alias
-block-major-33 ide-probe" to /etc/modprobe.conf. While fsdisk /dev/hde
-reports "unable to read /dev/hde", hdparm -I reports the following:
+Who said gcc 2.95 was deprecated? The documentation in the kernel even 
+lists gcc 2.95 as the recommended compiler.
 
-/dev/hde:
- 
-ATA device, with non-removable media
-        Model Number:       Maxtor CALYPSO
-        Firmware Revision:  YAR43KJZ
-Standards:
-        Likely used: 1
-Configuration:
-        fixed drive
-        Logical         max     current
-        cylinders       0       0
-        heads           0       0
-        sectors/track   0       0
-        --
-        device size with M = 1024*1024:           0 MBytes
-        device size with M = 1000*1000:           0 MBytes
-Capabilities:
-        IORDY not likely
-        Cannot perform double-word IO
-        R/W multiple sector transfer: not supported
-        DMA: not supported
-        PIO: pio0
+gcc 2.95 is definitely still supported, and (at least on i386) code that 
+doesn't compile with gcc 2.95 is not suitable for Linus' tree.
 
-I'm not familiar with IDE at all. I have always used SCSI. However, my
-SCSI disk is full and I'm short of money.
+> Matthias-Christian Ott
 
-My current opinion is the disk is bad. Could an expert please confirm
-this or please tell me how to fix it? Sorry, printed on the disk is: LBA
-240121728 which, I presume, is the total sectors.
-
-Thanks in advance.
-
-More data:
-
-cat /proc/devices (edited)
-
-Block devices:
-  1 ramdisk
-  2 fd
-  8 sd
-  9 md
- 11 sr
- 33 ide2
- 65 sd
- 
-ls -l /proc/ide
-
--r--r--r--  1 root root 0 May 28 10:32 cmd64x
--r--r--r--  1 root root 0 May 28 10:32 drivers
-lrwxrwxrwx  1 root root 8 May 28 10:32 hde -> ide2/hde
--r--r--r--  1 root root 0 May 28 10:32 hpt366
-dr-xr-xr-x  3 root root 0 May 28 10:32 ide2
+cu
+Adrian
 
 -- 
-Bob R. Taylor <brtaylor@sanfelipe.com.mx>
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

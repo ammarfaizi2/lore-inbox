@@ -1,43 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVE2SBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVE2SL2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbVE2SBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 14:01:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261373AbVE2SBZ
+	id S261397AbVE2SL2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 14:11:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVE2SL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 14:01:25 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:43751 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261369AbVE2SBV (ORCPT
+	Sun, 29 May 2005 14:11:26 -0400
+Received: from fire.osdl.org ([65.172.181.4]:40331 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261401AbVE2SLF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 14:01:21 -0400
-Message-ID: <429A036D.8090104@pobox.com>
-Date: Sun, 29 May 2005 14:01:17 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
+	Sun, 29 May 2005 14:11:05 -0400
+Date: Sun, 29 May 2005 11:12:18 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PROBLEM] Machine Freezes while Running Crossover Office
+In-Reply-To: <1117291619.9665.6.camel@localhost>
+Message-ID: <Pine.LNX.4.58.0505291059540.10545@ppc970.osdl.org>
+References: <1117291619.9665.6.camel@localhost>
 MIME-Version: 1.0
-To: Erik Slagter <erik@slagter.name>
-CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: Playing with SATA NCQ
-References: <20050526140058.GR1419@suse.de>	 <1117382598.4851.3.camel@localhost.localdomain>	 <4299EF16.2050208@pobox.com>	 <1117385429.4851.8.camel@localhost.localdomain>	 <4299F4E2.4020305@pobox.com>	 <1117387432.4851.13.camel@localhost.localdomain>	 <20050529172949.GA3578@havoc.gtf.org> <1117388703.4851.21.camel@localhost.localdomain>
-In-Reply-To: <1117388703.4851.21.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Slagter wrote:
-> I guess the only way to have, for example the ICH6, not using legacy
-> IRQ/ports, is to switch it to AHCI, which only the BIOS can do (if
-> implemented).
-
-"native mode" is where PATA and/or SATA PCI device is programmed into 
-full PCI mode -- PCI BARs, PCI irq, etc.  Some BIOSen allow you to 
-enable mode, which disables all use of legacy IRQ/ports.
-
-Also, ICH6 silicon does not support AHCI, only ICH6-R and ICH6-M.
-
-	Jeff
 
 
+On Sat, 28 May 2005, Pekka Enberg wrote:
+> 
+> I did a binary search and found out that 2.6.10-bk10 introduced this
+> bug. The kernel includes Linus' changes for pipes to use circular buffers.
+> A oprofile run shows that kernel is spending lots of time in poll_pipe. I
+> also have Alt-Sysrq-P traces that indicate to the same direction. I have
+> included vmstat, Alt-SysRq-P, and oprofile traces in this mail (see below
+> for section X.).
+
+Can you try to see if you can get an "strace" snippet of X (or the window
+manager) when this happens, since it seems to reproducible by you..
+
+Also, I actually find it very surprising that you see X doing anything
+_at_all_ with a pipe, since all the X connections should be just normal
+sockets. There are no pipes involved anywhere afaik.
+
+Your description sounds exactly like X is busy processing some slow
+operation (or possibly the window manager, but I think virtual console
+switches happen without the WM being involved). The most common such slow 
+operation is a new font being generated, but I don't see why that would 
+have anything to do with pipes either...
+
+		Linus

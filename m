@@ -1,82 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbVE2LXC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVE2Lir@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbVE2LXC (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 07:23:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVE2LXC
+	id S261185AbVE2Lir (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 07:38:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVE2Lir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 07:23:02 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:57516 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261183AbVE2LW6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 07:22:58 -0400
-Message-ID: <4299A7F6.3A31BB7D@tv-sign.ru>
-Date: Sun, 29 May 2005 15:31:02 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
+	Sun, 29 May 2005 07:38:47 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.81]:37036 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261185AbVE2Lio
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 May 2005 07:38:44 -0400
+Message-ID: <4299A98D.1080805@andrew.cmu.edu>
+Date: Sun, 29 May 2005 07:37:49 -0400
+From: James Bruce <bruce@andrew.cmu.edu>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: john cooper <john.cooper@timesys.com>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Olaf Kirch <okir@suse.de>
-Subject: Re: RT and Cascade interrupts
-References: <42974F08.1C89CF2A@tv-sign.ru> <4297AF39.4070304@timesys.com>
-		 <42983135.C521F1C8@tv-sign.ru>  <4298AED8.8000408@timesys.com> <1117312557.10746.6.camel@lade.trondhjem.org>
-Content-Type: text/plain; charset=koi8-r
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+References: <m1br6zxm1b.fsf@muc.de> <1117044019.5840.32.camel@sdietrich-xp.vilm.net> <20050526193230.GY86087@muc.de> <1117138270.1583.44.camel@sdietrich-xp.vilm.net> <20050526202747.GB86087@muc.de> <4296ADE9.50805@yahoo.com.au> <20050527120812.GA375@nietzsche.lynx.com> <429715DE.6030008@yahoo.com.au> <20050527233645.GA2283@nietzsche.lynx.com> <4297EB57.5090902@yahoo.com.au> <20050528054503.GA2958@nietzsche.lynx.com> <42981467.6020409@yahoo.com.au>
+In-Reply-To: <42981467.6020409@yahoo.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-__rpc_execute() calls ->tk_exit and goes to 'restarted' label.
-What if ->tk_exit calls rpc_sleep_on() ? If it is possible, we
-have a race.
+Nick Piggin wrote:
+> But nobody has been able to say why a single kernel is better than a
+> nanokernel.
 
-CPU_0 (main loop in rpc_execute restarted)		CPU_1
+I think it's a bit more like you haven't realized the answer when people 
+gave it, so let me try to be more clear.  It's purely a matter of effort 
+- in general it's far easier to write one process than two communicating 
+processes.  As far as APIs, with a single-kernel approach, an RT 
+programmer just has to restrict the program to calling APIs known to be 
+RT-safe (compare with MT-safe programming).  In a split-kernel approach, 
+the programmer has to write RT-kernel support for the APIs he wants to 
+use (or beg for them to be written).  Most programmers would much rather 
+limit API usage than implement new kernel support themselves.
 
-rpc_delete_timer:
-	if (RPC_IS_QUEUED())	// YES
-		return;
-							rpc_run_timer:
-								rpc_wake_up_task:
-									clear_bit(RPC_TASK_QUEUED)
-								preemption, or long interrupt
+A very common RT app pattern is to do a bunch of non-RT stuff, then 
+enter an RT loop.  For an example from my work, a robot control program 
+starts by reading a bunch of configuration files before it starts doing 
+anything requiring deadlines, then enters the RT control loop.  Having 
+to read all the configuration in a separate program and then marshall 
+the data over to an RT-only process via file descriptors is quite a bit 
+more effort.  I guess some free RT-nanokernels might/could support 
+non-RT to RT process migration, or better messaging, but there's 
+additional programming effort (and overhead) that wasn't there before. 
+In general an app may enter and exit RT sections several times, which 
+really makes a split-kernel approach less than ideal.
 
-if (!RPC_IS_QUEUED())		// YES
-	task->tk_action()
-		__rpc_add_timer:
-			set_bit(RPC_TASK_HAS_TIMER)
-			mod_timer();
-								clear_bit(RPC_TASK_HAS_TIMER)
+An easy way to visualize the difference in programming effort for the 
+two approaches is to take your favorite threaded program and turn it 
+into one with separate processes that only communicate via pipes.  You 
+can *always* do this, its just very much more painful to develop and 
+maintain.  Your stance of "nobody can prove why a split-kernel won't 
+work" is equivalent to saying "we don't ever really need threads, since 
+processes suffice".  That's true, but only in the same way that I don't 
+need a compilier or a pre-existing operating system to write an application.
 
-Now we have pending timer without RPC_TASK_HAS_TIMER bit set.
-
-Is this patch makes any sense?
-
-Oleg.
-
---- 2.6.12-rc5/net/sunrpc/sched.c~	Sun May 29 15:09:25 2005
-+++ 2.6.12-rc5/net/sunrpc/sched.c	Sun May 29 15:11:24 2005
-@@ -135,8 +135,6 @@ __rpc_add_timer(struct rpc_task *task, r
- static void
- rpc_delete_timer(struct rpc_task *task)
- {
--	if (RPC_IS_QUEUED(task))
--		return;
- 	if (test_and_clear_bit(RPC_TASK_HAS_TIMER, &task->tk_runstate)) {
- 		del_singleshot_timer_sync(&task->tk_timer);
- 		dprintk("RPC: %4d deleting timer\n", task->tk_pid);
-@@ -566,7 +564,6 @@ static int __rpc_execute(struct rpc_task
- 
- 	BUG_ON(RPC_IS_QUEUED(task));
- 
-- restarted:
- 	while (1) {
- 		/*
- 		 * Garbage collection of pending timers...
-@@ -607,6 +604,7 @@ static int __rpc_execute(struct rpc_task
- 			unlock_kernel();
- 		}
- 
-+ restarted:
- 		/*
- 		 * Lockless check for whether task is sleeping or not.
- 		 */
+  - Jim Bruce

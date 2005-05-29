@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVE2VQT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVE2VQt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbVE2VQT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 17:16:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261444AbVE2VQS
+	id S261444AbVE2VQt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 17:16:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbVE2VQt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 17:16:18 -0400
-Received: from mail.gmx.net ([213.165.64.20]:35225 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261443AbVE2VQR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 17:16:17 -0400
-X-Authenticated: #428038
-Date: Sun, 29 May 2005 23:16:10 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Greg Stark <gsstark@mit.edu>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Matthias Andree <matthias.andree@gmx.de>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux does not care for data integrity (was: Disk write cache)
-Message-ID: <20050529211610.GA2105@merlin.emma.line.org>
-Mail-Followup-To: Greg Stark <gsstark@mit.edu>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050515152956.GA25143@havoc.gtf.org> <20050516.012740.93615022.okuyamak@dd.iij4u.or.jp> <42877C1B.2030008@pobox.com> <20050516110203.GA13387@merlin.emma.line.org> <1116241957.6274.36.camel@laptopd505.fenrus.org> <20050516112956.GC13387@merlin.emma.line.org> <1116252157.6274.41.camel@laptopd505.fenrus.org> <20050516144831.GA949@merlin.emma.line.org> <1116256005.21388.55.camel@localhost.localdomain> <87zmudycd1.fsf@stark.xeocode.com>
-Mime-Version: 1.0
+	Sun, 29 May 2005 17:16:49 -0400
+Received: from stark.xeocode.com ([216.58.44.227]:20689 "EHLO
+	stark.xeocode.com") by vger.kernel.org with ESMTP id S261444AbVE2VQq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 May 2005 17:16:46 -0400
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Chris Wright <chrisw@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
+       linux-mm@kvack.org
+Subject: Re: [PATCH] prevent NULL mmap in topdown model
+References: <Pine.LNX.4.61.0505181556190.3645@chimarrao.boston.redhat.com>
+	<Pine.LNX.4.58.0505181535210.18337@ppc970.osdl.org>
+	<Pine.LNX.4.61.0505182224250.29123@chimarrao.boston.redhat.com>
+	<Pine.LNX.4.58.0505181946300.2322@ppc970.osdl.org>
+	<20050519064657.GH23013@shell0.pdx.osdl.net>
+	<1116490511.6027.25.camel@laptopd505.fenrus.org>
+In-Reply-To: <1116490511.6027.25.camel@laptopd505.fenrus.org>
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 29 May 2005 17:16:33 -0400
+Message-ID: <87u0klybpq.fsf@stark.xeocode.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87zmudycd1.fsf@stark.xeocode.com>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.9i
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 May 2005, Greg Stark wrote:
+Arjan van de Ven <arjan@infradead.org> writes:
 
-> Oracle, Sybase, Postgres, other databases have hard requirements. They
-> guarantee that when they acknowledge a transaction commit the data has been
-> written to non-volatile media and will be recoverable even in the face of a
-> routine power loss.
+> On Wed, 2005-05-18 at 23:46 -0700, Chris Wright wrote:
+>
+> sure. Making it *impossible* to mmap that page is bad. People should be
+> able to do that if they really want to, just doing it if they don't ask
+> for it is bad.
 > 
-> They meet this requirement just fine on SCSI drives (where write caching
-> generally ships disabled) and on any OS where fsync issues a cache flush. If
+> There are plenty of reasons people may want that page mmaped, one of
+> them being that the compiler can then do more speculative loads around
+> null pointer checks. Not saying it's a brilliant idea always, but making
+> such things impossible makes no sense.
 
-I don't know what facts "generally ships disabled" is based on, all of
-the more recent SCSI drives (non SCA type though) I acquired came with
-write cache enabled and some also with queue algorithm modifier set to 1.
-
-> Worse, if the disk flushes the data to disk out of order it's quite
-> likely the entire database will be corrupted on any simple power
-> outage. I'm not clear whether that's the case for any common drives.
-
-It's a matter of enforcing write order. In how far such ordering
-constraints are propagated by file systems, VFS layer, down to the
-hardware, is the grand question.
+More realistically, iirc either Wine or dosemu, i forget which, actually has
+to map page 0 to work properly.
 
 -- 
-Matthias Andree
+greg
+

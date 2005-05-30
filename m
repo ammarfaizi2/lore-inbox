@@ -1,66 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVE3N5Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVE3ODr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261594AbVE3N5Q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 09:57:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbVE3N5Q
+	id S261605AbVE3ODr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 10:03:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbVE3ODr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 09:57:16 -0400
-Received: from main.gmane.org ([80.91.229.2]:34527 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261594AbVE3N4D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 09:56:03 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Mon, 30 May 2005 10:03:47 -0400
+Received: from pacific.moreton.com.au ([203.143.235.130]:25607 "EHLO
+	bne.snapgear.com") by vger.kernel.org with ESMTP id S261605AbVE3ODp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 10:03:45 -0400
+Message-ID: <429B1DBF.1060205@snapgear.com>
+Date: Tue, 31 May 2005 00:05:51 +1000
+From: Greg Ungerer <gerg@snapgear.com>
+Organization: SnapGear
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: Possible GPL Violation
-Date: Mon, 30 May 2005 15:50:06 +0200
-Message-ID: <yw1xis10lt69.fsf@ford.inprovide.com>
-References: <1117459153.12693.10.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:ACgzIW4RtOLEdz6ab0MB2S1VVxM=
+Subject: Re: PATCH : ppp + big-endian = kernel crash
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Carlos Silva <r3pek@r3pek.homelinux.org> writes:
+Andi Kleen <ak () muc ! de> writes:
+> Andrew Morton <akpm@osdl.org> writes:
+>>> 
+>>> So many variants of tunneling and protocol encapsulation can result in
+>>> unaligned packet headers, and as a result platforms really must
+>>> provide proper unaligned memory access handling in kernel mode in
+>>> order to use the networking fully.
+>>
+>> As Philippe mentioned, old 68k's simply cannot do this.
+> 
+> An 68000 cannot, but 68010+ can. Are there really that many 68000 users
+> left? 
 
-> Hi,
-> the company that i work for is going to buy a pair of Panda
-> Gatedefenders 8200 that are linux based. To start, they never told us or
-> mention on their site (as far as i searched) the use of linux in their
-> product. Another thing is that they don't give us root access nor any
-> other type of local access to the box besides the http page the
-> appliance have to be managed.
+Probably not of the 68000 as such, but the "new" generation of
+68000 parts, Motorola/Freescales ColdFire family. There is quite
+a few of them, used in all sorts of embedded applications.
+And they are still churning out new varients of it. The majority
+of them are MMUless - but not all.
 
-There's no requirement to give you full access to the machine.  If you
-don't like that, don't buy it.
-
-> The thing is that i asked for the kernel source they use in the
-> system and they said they can't give it since they have some
-> proprietary code in it, as far as i understood.
-
-If they use some modules of their own writing, the general agreement
-seems to be that they don't need to release the source code to those.
-They should still give you the kernel source they used, along with any
-patches they may have applied.
-
-> I really don't know the proper way to report a GPL violation so i
-> thought this was a good place.  If there is any question please feel
-> free to ask, i'll do my best to answer it.
-
-I'm having some problems myself with an STB manufacturer (Amino).  The
-STB is running a Busybox/Montavista Linux of some kind, and I need to
-make some changes.  To do this, they tell me I need the SDK, which is
-only available under NDA, and then only after purchasing a support
-contract for an ungodly number of dollars.  Somehow, I get the feeling
-they are on thin ice here.
-
--- 
-Måns Rullgård
-mru@inprovide.com
+Regards
+Greg
 

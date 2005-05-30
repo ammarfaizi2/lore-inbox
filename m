@@ -1,52 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbVE3Xfj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVE3Xsp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261784AbVE3Xfj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 19:35:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbVE3Xfj
+	id S261835AbVE3Xsp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 19:48:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbVE3Xso
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 19:35:39 -0400
-Received: from mxout.hispeed.ch ([62.2.95.247]:63146 "EHLO smtp.hispeed.ch")
-	by vger.kernel.org with ESMTP id S261784AbVE3Xfe (ORCPT
+	Mon, 30 May 2005 19:48:44 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:43402 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261827AbVE3Xsh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 19:35:34 -0400
-Message-Id: <429BA35E.5030906@khandalf.com>
-Date: Tue, 31 May 2005 01:35:58 +0200
-From: "Brian O'Mahoney" <omb@khandalf.com>
-Reply-To: omb@bluewin.ch
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Mon, 30 May 2005 19:48:37 -0400
+Date: Tue, 31 May 2005 01:48:28 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+cc: Geert Uytterhoeven <geert@linux-m68k.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Linux/m68k <linux-m68k@vger.kernel.org>
+Subject: more thread_info patches
+In-Reply-To: <20050421173908.GZ13052@parcelfarce.linux.theplanet.co.uk>
+Message-ID: <Pine.LNX.4.61.0505310113370.10977@scrub.home>
+References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
+ <42676B76.4010903@ppp0.net> <Pine.LNX.4.62.0504211105550.13231@numbat.sonytel.be>
+ <20050421161106.GY13052@parcelfarce.linux.theplanet.co.uk>
+ <20050421173908.GZ13052@parcelfarce.linux.theplanet.co.uk>
 MIME-Version: 1.0
-CC: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-References: <4847F-8q-23@gated-at.bofh.it>
-    <d120d500050527072146c2e5ee@mail.gmail.com>
-    <429AD7ED.nail4ZG1B42TI@burner>
-    <200505301727.43926.dtor_core@ameritech.net>
-In-Reply-To: <200505301727.43926.dtor_core@ameritech.net>
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-X-Md5-Body: 8e27dc621784d3622ac56d9e216c8fe3
-X-Transmit-Date: Tuesday, 31 May 2005 1:36:15 +0200
-X-Message-Uid: 0000b49cec9d3f840000000200000000429ba36f0009c43400000001000b8e12
-Replyto: omb@bluewin.ch
-X-Sender-Postmaster: Postmaster@80-218-57-125.dclient.hispeed.ch.
-Read-Receipt-To: omb@bluewin.ch
-X-DCC-spamcheck-02.tornado.cablecom.ch-Metrics: smtp-06.tornado.cablecom.ch 32701; Body=2
-	Fuz1=2 Fuz2=2
-To: unlisted-recipients:; (no To-header on input)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This thead has become ultimately boring, Joerg's views are
-irreconcilably anti linux and pro Solaris,
+Hi,
 
-there are, fortunately, alternatives to cdrrecord that work,
-especially for DVD,
+On Thu, 21 Apr 2005, Al Viro wrote:
 
-let us just thank Joerg for his work and move on quietly!
+> 	thread_info, part 1:
 
--- 
-mit freundlichen Grüßen, Brian.
+Here are some possible followup patches. Since it's already some time ago 
+here are the original posts for everyone else:
+http://marc.theaimsgroup.com/?l=linux-kernel&m=111410539627881&w=2
+
+This introduces an additional stack variable in task_struct. It's 
+basically redundant with the thread_info pointer, but in the long term I'd 
+like to get of the latter (with the following patches).
+
+bye, Roman
+
+---
+
+ include/linux/init_task.h |    1 +
+ include/linux/sched.h     |    1 +
+ kernel/fork.c             |    1 +
+ 3 files changed, 3 insertions(+)
+
+Index: linux-2.6-mm/include/linux/sched.h
+===================================================================
+--- linux-2.6-mm.orig/include/linux/sched.h	2005-05-31 01:19:01.636591190 +0200
++++ linux-2.6-mm/include/linux/sched.h	2005-05-31 01:19:05.913856451 +0200
+@@ -617,6 +617,7 @@ struct mempolicy;
+ struct task_struct {
+ 	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
+ 	struct thread_info *thread_info;
++	void *stack;
+ 	atomic_t usage;
+ 	unsigned long flags;	/* per process flags, defined below */
+ 	unsigned long ptrace;
+Index: linux-2.6-mm/include/linux/init_task.h
+===================================================================
+--- linux-2.6-mm.orig/include/linux/init_task.h	2005-05-31 01:19:01.636591190 +0200
++++ linux-2.6-mm/include/linux/init_task.h	2005-05-31 01:19:05.913856451 +0200
+@@ -71,6 +71,7 @@ extern struct group_info init_groups;
+ {									\
+ 	.state		= 0,						\
+ 	.thread_info	= &init_thread_info,				\
++	.stack		= &init_stack,					\
+ 	.usage		= ATOMIC_INIT(2),				\
+ 	.flags		= 0,						\
+ 	.lock_depth	= -1,						\
+Index: linux-2.6-mm/kernel/fork.c
+===================================================================
+--- linux-2.6-mm.orig/kernel/fork.c	2005-05-31 01:19:01.636591190 +0200
++++ linux-2.6-mm/kernel/fork.c	2005-05-31 01:19:29.954726757 +0200
+@@ -173,6 +173,7 @@ static struct task_struct *dup_task_stru
+ 	*tsk = *orig;
+ 	setup_thread_info(tsk, ti);
+ 	tsk->thread_info = ti;
++	tsk->stack = ti;
+ 	ti->task = tsk;
+ 
+ 	/* One for us, one for whoever does the "release_task()" (usually parent) */

@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261506AbVE3MPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261507AbVE3MZZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbVE3MPn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 08:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbVE3MPn
+	id S261507AbVE3MZZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 08:25:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVE3MZY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 08:15:43 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:60390 "EHLO
-	nelson.home.kernel.dk") by vger.kernel.org with ESMTP
-	id S261506AbVE3MPd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 08:15:33 -0400
-Date: Mon, 30 May 2005 14:16:35 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Greg Stark <gsstark@mit.edu>
-Cc: "Eric D. Mudama" <edmudama@gmail.com>,
-       Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com
-Subject: Re: [PATCH] SATA NCQ support
-Message-ID: <20050530121635.GQ7054@suse.de>
-References: <20050527070353.GL1435@suse.de> <20050527131842.GC19161@merlin.emma.line.org> <20050527135258.GW1435@suse.de> <429732CE.5010708@gmx.de> <20050527145821.GX1435@suse.de> <87oeatxtw4.fsf@stark.xeocode.com> <311601c905052921046692cd3e@mail.gmail.com> <87d5r9xmgr.fsf@stark.xeocode.com> <20050530063322.GE7054@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050530063322.GE7054@suse.de>
+	Mon, 30 May 2005 08:25:24 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:26851
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S261507AbVE3MZT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 08:25:19 -0400
+Reply-To: <abonilla@linuxwireless.org>
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: "'Tomko'" <tomko@avantwave.com>, <linux-kernel@vger.kernel.org>
+Subject: RE: question : 802.11b WLAN stack in linux
+Date: Mon, 30 May 2005 06:25:12 -0600
+Message-ID: <001001c56512$a13d4110$600cc60a@amer.sykes.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <429ADFB9.2010907@avantwave.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 30 2005, Jens Axboe wrote:
-> > People actually tend to report that IDE drives are *faster*. Until
-> > they're told they have to disable write-caching on their IDE drives to
-> > get a fair comparison, then the performance is absolutely abysmal. The
-> > interesting thing is that SCSI drives don't seem to take much of a
-> > performance hit from having write-caching disabled while IDE drives
-> > do.
-> 
-> NCQ will surely lessen the impact of disabling write caching, how much
-> still remains to be seen. You could test, if you have the hardware :)
-> Real life testing is more interesting than benchmarks.
 
-With a few simple tests, I'm unable to show any write performance
-improvement with write back caching off and NCQ (NCQ with queueing depth
-of 1 and 16 tested). I get a steady 0.55-0.57MiB/sec with 8 threads
-random writes, a little over 5MiB/sec with sequential writes.
+>
+> Hi all
+>
+> Do linux support WLAN stack ? i find in menuconfig but seems
+> no there.
+> Do anyone know if there any stack and driver adapter of
+> wireless in linux ?
 
-Reads are _much_ nicer. Sequential read with 8 threads are 23% faster
-with a queueing depth of 16 than 1, random reads are 85% (!!) faster at
-depth 16 than 1.
+Of course there are. If you are only talking about a stack, I believe that
+people are working on the ieee80211 stack specifically and if you are
+talking about supported adapters, just go to Network Devices and Wireless
+and you should see several drivers there to load into the kernel.
 
-Testing was done with the noop io scheduler this time, to only show NCQ
-benefits outside of what the io scheduler can do for reordering.
+I really don't understand your question, So I'm assuming that you want to
+know if Linux has support for wireless cards.
 
-This is with a Maxtor 7B300S0 drive. I would have posted results for a
-Seagate ST3120827AS as well, but that drive happily ignores any attempt
-to turn off write back caching. To top things off, it even accepts FUA
-writes but ignores that as well (they still go to cache).
+Google can help you further.
 
--- 
-Jens Axboe
+.Alejandro
+
+>
+> Regards,
+> TOM
 

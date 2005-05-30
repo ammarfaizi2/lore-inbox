@@ -1,53 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbVE3TAY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVE3TGd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261700AbVE3TAY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 15:00:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261699AbVE3TAY
+	id S261676AbVE3TGd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 15:06:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbVE3TGd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 15:00:24 -0400
-Received: from femail.waymark.net ([206.176.148.84]:51651 "EHLO
-	femail.waymark.net") by vger.kernel.org with ESMTP id S261701AbVE3S74 convert rfc822-to-8bit
+	Mon, 30 May 2005 15:06:33 -0400
+Received: from twinlark.arctic.org ([207.7.145.18]:25807 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP id S261676AbVE3TGc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 14:59:56 -0400
-Date: 30 May 2005 18:41:24 GMT
-From: Kenneth Parrish <Kenneth.Parrish@family-bbs.org>
-Subject: [PATCH] arch/i386/defconfig
-To: linux-kernel@vger.kernel.org
-Message-ID: <d032b4.be6d2c@family-bbs.org>
-Organization: FamilyNet HQ
-X-Mailer: BBBS/NT v4.01 Flag-5
+	Mon, 30 May 2005 15:06:32 -0400
+Date: Mon, 30 May 2005 12:06:31 -0700 (PDT)
+From: dean gaudet <dean-list-linux-kernel@arctic.org>
+To: Benjamin LaHaise <bcrl@kvack.org>
+cc: ak@muc.de, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] x86-64: Use SSE for copy_page and clear_page
+In-Reply-To: <20050530181626.GA10212@kvack.org>
+Message-ID: <Pine.LNX.4.62.0505301202380.25345@twinlark.arctic.org>
+References: <20050530181626.GA10212@kvack.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-AC97_CODEC is selected by the drivers that need it, yes? and
-since comparatively few people have the SND_INTEL8x0
-hardware do not default.
-patch is to 2.6.11-rc5
+On Mon, 30 May 2005, Benjamin LaHaise wrote:
 
-Signed-off by: Kenneth Parrish <Kenneth.Parrish@family-bbs.org>
+> Below is a patch that uses 128 bit SSE instructions for copy_page and 
+> clear_page.  This is an improvement on P4 systems as can be seen by 
+> running the test program at http://www.kvack.org/~bcrl/xmm64.c to get 
+> results like:
 
---- defconfig.orig      2005-05-30 12:06:33.000000000 -0500
-+++ defconfig   2005-05-30 13:29:00.000000000 -0500
-@@ -913,7 +913,7 @@
- #
- # PCI devices
- #
--CONFIG_SND_AC97_CODEC=y
-+# CONFIG_SND_AC97_CODEC is not set
- # CONFIG_SND_ALI5451 is not set
- # CONFIG_SND_ATIIXP is not set
- # CONFIG_SND_AU8810 is not set
-@@ -943,7 +943,7 @@
- # CONFIG_SND_FM801 is not set
- # CONFIG_SND_ICE1712 is not set
- # CONFIG_SND_ICE1724 is not set
--CONFIG_SND_INTEL8X0=y
-+# CONFIG_SND_INTEL8X0 is not set
- # CONFIG_SND_INTEL8X0M is not set
- # CONFIG_SND_SONICVIBES is not set
- # CONFIG_SND_VIA82XX is not set
+it looks like the patch uses SSE2 instructions (pxor, movdqa, movntdq)... 
+if you use xorps, movaps, movntps then it works on SSE processors as well.
 
-... Grauman's Chinese Theater opened in 1927 May.
+-dean

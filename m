@@ -1,51 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbVE3Thv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261722AbVE3Tkb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261717AbVE3Thv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 15:37:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261716AbVE3Thm
+	id S261722AbVE3Tkb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 15:40:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261716AbVE3Tkb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 15:37:42 -0400
-Received: from opersys.com ([64.40.108.71]:15118 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261726AbVE3TgI (ORCPT
+	Mon, 30 May 2005 15:40:31 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:26187 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261722AbVE3TiS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 15:36:08 -0400
-Message-ID: <429B6D89.3090705@opersys.com>
-Date: Mon, 30 May 2005 15:46:17 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Mon, 30 May 2005 15:38:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=NJh0mFkAEDZ9fLoVhZhYW21NNj+Jotw2mBXbaHncw/Rw3oYwwhla3c4XrOreZxmdK7WKMvd1k8Pq2UqOXKIF977X3bvv5FnLPkkPkPmokZFFkz0TrP9IlLq5TrsZWu6AMZQP7CKRMsT2zKOxjdc6dto8RdLg8LkC+vfur0eS6f8=
+Message-ID: <429B6B9E.1080709@gmail.com>
+Date: Tue, 31 May 2005 04:38:06 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Esben Nielsen <simlo@phys.au.dk>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>, kus Kusche Klaus <kus@keba.com>,
-       James Bruce <bruce@andrew.cmu.edu>, "Bill Huey (hui)" <bhuey@lnxw.com>,
-       Andi Kleen <ak@muc.de>, Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-References: <Pine.OSF.4.05.10505302125520.31148-100000@da410.phys.au.dk>
-In-Reply-To: <Pine.OSF.4.05.10505302125520.31148-100000@da410.phys.au.dk>
-Content-Type: text/plain; charset=us-ascii
+To: Jens Axboe <axboe@suse.de>
+CC: James.Bottomley@steeleye.com, bzolnier@gmail.com, jgarzik@pobox.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH Linux 2.6.12-rc5-mm1 00/06] blk: barrier flushing reimplementation
+References: <20050529042034.5FF4CF1C@htj.dyndns.org> <20050529191437.GA30586@suse.de> <20050530113133.GP7054@suse.de>
+In-Reply-To: <20050530113133.GP7054@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jens Axboe wrote:
+> On Sun, May 29 2005, Jens Axboe wrote:
+> 
+>>On Sun, May 29 2005, Tejun Heo wrote:
+>>
+>>> Hello, guys.
+>>>
+>>> This patchset is reimplementation of QUEUE_ORDERED_FLUSH feature.  It
+>>>doens't update API docs yet.  If it's determined that this patchset
+>>>can go in, I'll regenerate this patchset with doc updates (sans the
+>>>last debug message patch of course).
+>>
+>>Awesome work, that's really the last step in getting the barrier code
+>>fully unified and working with tags. I'll review your patchset tomorrow.
+> 
+> 
+> Patches look nice, this is a good step forward. If you feel like doing a
+> little more work in this area, I would very much like to add
+> QUEUE_ORDERED_FUA as a third method for implementing barriers. Basically
+> it would use the FUA commands to put data safely on disk, instead of
+> using the post flushes.
+> 
+> For NCQ, we have a FUA bit in the FPDMA commands. For non-ncq, we have
+> the various WRITE_DMA_EXT_FUA (and similar). It would be identical to
+> ORDERED_FLUSH in that we let the queue drain, issue a pre-flush, and
+> then a write with FUA set. It would eliminate the need to issue an extra
+> flush at the end, cutting down the required commands for writing a
+> barrier from 3 to 2.
+> 
 
-Esben Nielsen wrote:
-> But if you do have to maintain your own driver it is a lot easier to start
-> from an existing and fix that one than it is to start all over. I bet the
-> modifcations aren't too big for many drivers anyways. When I get more time
-> I'll try to look into some drivers. Many of them is propably just about
-> removing printk's and the like.
+  Hi, Jens.
 
-Right, and that's exactly what you've got with RT-net (at least the last
-time I used it 4 years ago.) You took the standard Ethernet driver from
-Linux and modified a few calls, and bingo, you had an rt-net driver based
-on the standard Linux driver ... all of which in RTAI ...
+  I'm on it.
 
-Karim
+  Thanks.
+
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+tejun

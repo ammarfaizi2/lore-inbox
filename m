@@ -1,192 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVE3Lmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261445AbVE3Lqf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261478AbVE3Lmk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 07:42:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVE3Lmk
+	id S261445AbVE3Lqf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 07:46:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVE3Lqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 07:42:40 -0400
-Received: from mta2.gsf.de ([146.107.4.111]:42698 "EHLO mta2.gsf.de")
-	by vger.kernel.org with ESMTP id S261478AbVE3Lm0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 07:42:26 -0400
-Message-ID: <429AFC43.9000601@gsf.de>
-Date: Mon, 30 May 2005 13:42:59 +0200
-From: Yogesh Bhanu <yogesh@gsf.de>
-Reply-To: yogesh@gsf.de
-Organization: IBI/MIPS
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en, de
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: adaptec aic7xxx bug 
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 30 May 2005 07:46:35 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:17794 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261445AbVE3Lqc convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 07:46:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pq0hCHfiq/FRsjOdz5G5JHhiLmUvLhu3b1nOiLQri6owRMIs3DlSb4Mqyfi+5/7vTdqb4qH4k5PKPFqMc1DWiZ8MyOI7cj18gEGo1d6hgiYHywyoiaomIZ2Wy93Yu2vKwrdRUvPmtgDjZlGEg2IpkiaNOBoQhAvTLJgm5AdR/90=
+Message-ID: <84144f0205053004468dc9a1b@mail.gmail.com>
+Date: Mon, 30 May 2005 14:46:31 +0300
+From: Pekka Enberg <penberg@gmail.com>
+Reply-To: Pekka Enberg <penberg@gmail.com>
+To: Andi Kleen <ak@suse.de>
+Subject: Re: review of ocfs2
+Cc: wim.coekaerts@oracle.com, mark.fasheh@oracle.com, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, suparna@in.ibm.com,
+       viro@parcelfarce.linux.theplanet.co.uk,
+       Pekka Enberg <penberg@cs.helsinki.fi>
+In-Reply-To: <20050530112101.GF15326@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050530112101.GF15326@wotan.suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi ,
-      I have a nfs server running sarge (Dual Xeon 2.4GHz , 6 GB RAM) .
-I am running 2.6.11.6 and 2.6.11.8 kernels. Under load the adpatec card which I 
-use to connect my external RAID flakes . I have got the vendor to replace 
-everything on the system from mainboard, external raid chassis to cables.
+Hi,
 
+On 5/30/05, Andi Kleen <ak@suse.de> wrote:
+> +static int ocfs2_do_request_vote(ocfs_super *osb,
+> +                                u64 blkno,
+> +                                unsigned int generation,
+> +                                enum ocfs2_vote_request type,
+> +                                int orphaned_slot,
+> +                                struct ocfs2_net_response_cb *callback)
+> ...
+> +       request = kmalloc(sizeof(*request), GFP_KERNEL);
+> +       if (!request) {
+> +               status = -ENOMEM;
+> +               mlog_errno(status);
+> +               goto bail;
+> +       }
+> +       memset(request, 0, sizeof(*request));
+> 
+> kcalloc
 
-cat /proc/scsi/aic7xxx/1
-Adaptec AIC7xxx driver version: 6.2.36
-Adaptec 3960D Ultra160 SCSI adapter
-aic7899: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
-Allocated SCBs: 4, SG List Length: 128
+Actually, the latest preferred form for
 
-Serial EEPROM:
-0xcb3a 0xcb3a 0xc33a 0xc13a 0xc13a 0xc13a 0xc13a 0xc13a
-0xc13a 0xc13a 0xc13a 0xc13a 0xc13a 0xc13a 0xc13a 0xc13a
-0x08f4 0x605d 0x2807 0x0010 0x0300 0xffff 0xffff 0xffff
-0xffff 0xffff 0xffff 0xffff 0xffff 0xffff 0x0250 0xc04f
+       kcalloc(1, sizeof(*p), GFP_KERNEL)
 
-Target 0 Negotiation Settings
-         User: 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-Target 1 Negotiation Settings
-         User: 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-         Goal: 160.000MB/s transfers (80.000MHz DT, offset 62, 16bit)
-         Curr: 160.000MB/s transfers (80.000MHz DT, offset 62, 16bit)
-         Channel A Target 1 Lun 0 Settings
-                 Commands Queued 168175
-                 Commands Active 0
-                 Command Openings 2
-                 Max Tagged Openings 2
-                 Device Queue Frozen Count 0
-         Channel A Target 1 Lun 1 Settings
-                 Commands Queued 1172996
-                 Commands Active 0
-                 Command Openings 2
-                 Max Tagged Openings 2
-                 Device Queue Frozen Count 0
-         Channel A Target 1 Lun 2 Settings
-                 Commands Queued 373111
-                 Commands Active 0
-                 Command Openings 2
-                 Max Tagged Openings 2
-                 Device Queue Frozen Count 0
-Target 2 Negotiation Settings
-         User: 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-Target 3 Negotiation Settings
-         User: 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-Target 4 Negotiation Settings
-         User: 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-Target 5 Negotiation Settings
-         User: 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-Target 6 Negotiation Settings
-         User: 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-Target 7 Negotiation Settings
-         User: 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-Target 8 Negotiation Settings
-         User: 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-Target 9 Negotiation Settings
-         User: 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-Target 10 Negotiation Settings
-         User: 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-Target 11 Negotiation Settings
-         User: 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-Target 12 Negotiation Settings
-         User: 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-Target 13 Negotiation Settings
-         User: 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-Target 14 Negotiation Settings
-         User: 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
-Target 15 Negotiation Settings
-         User: 160.000MB/s transfers (80.000MHz DT, offset 127, 16bit)
+is the following (as suggested by Al Viro):
 
+	request = kmalloc(sizeof(*request), GFP_KERNEL);
+	if (!request) {
+		status = -ENOMEM;
+		mlog_errno(status);
+		goto bail;
+	}
+	*request = (ocfs2_vote_msg) { .md1.v_generic1 = htonl(priv) };
+	hdr = &request->v_hdr;
 
-I get error messages like this .
+	response_id = ocfs2_new_response_id(osb);
 
+	*hdr = (ocfs2_msg_hdr) {
+		.h_response_id = htonl(response_id);
+		.h_request = htonl(type);
+		.h_blkno = cpu_to_be64(blkno);
+		.h_generation = htonl(generation);
+		.h_node_num = htonl((unsigned int) osb->node_num)
+	};
 
-  May 30 06:29:38 mips-nas kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) 
-SCB_TAG[0xff]
-May 30 06:29:38 mips-nas kernel:  13 SCB_CONTROL[0x0] 
-SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
-May 30 06:29:38 mips-nas kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff]
-May 30 06:29:38 mips-nas kernel:  14 SCB_CONTROL[0x0] 
-SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
-May 30 06:29:38 mips-nas kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff]
-May 30 06:29:38 mips-nas kernel:  15 SCB_CONTROL[0x0] 
-SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
-May 30 06:29:38 mips-nas kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff]
-May 30 06:29:38 mips-nas kernel:  16 SCB_CONTROL[0x0] 
-SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
-May 30 06:29:38 mips-nas kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff]
-May 30 06:29:38 mips-nas kernel:  17 SCB_CONTROL[0x0] 
-SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
-May 30 06:29:38 mips-nas kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff]
-May 30 06:29:38 mips-nas kernel:  18 SCB_CONTROL[0x0] 
-SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
-May 30 06:29:38 mips-nas kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff]
-May 30 06:29:38 mips-nas kernel:  19 SCB_CONTROL[0x0] 
-SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
-May 30 06:29:38 mips-nas kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff]
-May 30 06:29:38 mips-nas kernel:  20 SCB_CONTROL[0x0] 
-SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
-May 30 06:29:38 mips-nas kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff]
-May 30 06:29:38 mips-nas kernel:  21 SCB_CONTROL[0x0] 
-SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
-May 30 06:29:38 mips-nas kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff]
-May 30 06:29:38 mips-nas kernel:  22 SCB_CONTROL[0x0] 
-SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
-May 30 06:29:38 mips-nas kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff]
-May 30 06:29:38 mips-nas kernel:  23 SCB_CONTROL[0x0] 
-SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
-May 30 06:29:38 mips-nas kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff]
-May 30 06:29:38 mips-nas kernel:  24 SCB_CONTROL[0x0] 
-SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
-May 30 06:29:38 mips-nas kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff]
-May 30 06:29:38 mips-nas kernel:  25 SCB_CONTROL[0x0] 
-SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
-May 30 06:29:38 mips-nas kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff]
-May 30 06:29:38 mips-nas kernel:  26 SCB_CONTROL[0x0] 
-SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
-May 30 06:29:38 mips-nas kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff]
-May 30 06:29:38 mips-nas kernel:  27 SCB_CONTROL[0x0] 
-SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
-May 30 06:29:38 mips-nas kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff]
-May 30 06:29:38 mips-nas kernel:  28 SCB_CONTROL[0x0] 
-SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
-May 30 06:29:38 mips-nas kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff]
-May 30 06:29:38 mips-nas kernel:  29 SCB_CONTROL[0x0] 
-SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
-May 30 06:29:38 mips-nas kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff]
-May 30 06:29:38 mips-nas kernel:  30 SCB_CONTROL[0x0] 
-SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
-May 30 06:29:38 mips-nas kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff]
-May 30 06:29:38 mips-nas kernel:  31 SCB_CONTROL[0x0] 
-SCB_SCSIID[0xff]:(TWIN_CHNLB|OID|TWIN_TID)
-May 30 06:29:38 mips-nas kernel: SCB_LUN[0xff]:(SCB_XFERLEN_ODD|LID) SCB_TAG[0xff]
-May 30 06:29:38 mips-nas kernel: Pending list:
-May 30 06:29:38 mips-nas kernel:   5 SCB_CONTROL[0x60]:(TAG_ENB|DISCENB) 
-SCB_SCSIID[0x17] SCB_LUN[0x2]
-May 30 06:29:38 mips-nas kernel: Kernel Free SCB list: 1 6 2 0 7 4
-May 30 06:29:38 mips-nas kernel: DevQ(0:1:0): 0 waiting
-May 30 06:29:38 mips-nas kernel: DevQ(0:1:1): 0 waiting
-May 30 06:29:38 mips-nas kernel: DevQ(0:1:2): 0 waiting
-May 30 06:29:38 mips-nas kernel:
-May 30 06:29:38 mips-nas kernel: <<<<<<<<<<<<<<<<< Dump Card State Ends 
- >>>>>>>>>>>>>>>>>>
-May 30 06:29:38 mips-nas kernel: (scsi1:A:1:2): Device is disconnected, 
-re-queuing SCB
-May 30 06:29:38 mips-nas kernel: Recovery code sleeping
-May 30 06:29:38 mips-nas kernel: (scsi1:A:1:2): Abort Tag Message Sent
-May 30 06:29:38 mips-nas kernel: (scsi1:A:1:2): SCB 5 - Abort Tag Completed.
-May 30 06:29:38 mips-nas kernel: Recovery SCB completes
-May 30 06:29:38 mips-nas kernel: Recovery code awake
-May 30 06:29:38 mips-nas kernel: aic7xxx_abort returns 0x2002
-
-
-
--- 
-Yogesh Bhanu
-  MIPS/IBI,
-  #56, GSF- National Research Center for Environment and Health,
-  Ingolstaedter Landstr. 1 ,
-  D-85764, Neuherberg, Germany
-
-  Tel:  +49 89 3187 4217
-  Fax:  +49 89 3187 3585
-  http://mips.gsf.de
+                   Pekka

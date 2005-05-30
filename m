@@ -1,37 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVE3CsA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVE3Cxs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261499AbVE3CsA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 22:48:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVE3CsA
+	id S261502AbVE3Cxs (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 22:53:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVE3Cxs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 22:48:00 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:49846 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261499AbVE3Cr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 22:47:59 -0400
-Date: Mon, 30 May 2005 04:47:58 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Bernd Eckenfels <ecki@lina.inka.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RAID-5 design bug (or misfeature)
-In-Reply-To: <E1DcXfR-0000zf-00@calista.eckenfels.6bone.ka-ip.net>
-Message-ID: <Pine.LNX.4.58.0505300440550.15088@artax.karlin.mff.cuni.cz>
-References: <E1DcXfR-0000zf-00@calista.eckenfels.6bone.ka-ip.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 29 May 2005 22:53:48 -0400
+Received: from fire.osdl.org ([65.172.181.4]:63360 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261502AbVE3Cxq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 May 2005 22:53:46 -0400
+Date: Sun, 29 May 2005 19:52:45 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: phdm@macqel.be, linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
+Subject: Re: PATCH : ppp + big-endian = kernel crash
+Message-Id: <20050529195245.33f36253.akpm@osdl.org>
+In-Reply-To: <20050529.145509.82051753.davem@davemloft.net>
+References: <20050529.135257.98862077.davem@davemloft.net>
+	<200505292138.j4TLcrJ28536@mail.macqel.be>
+	<20050529.145509.82051753.davem@davemloft.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> In article <Pine.LNX.4.58.0505300043540.5305@artax.karlin.mff.cuni.cz> you wrote:
-> > I think Linux should stop accessing all disks in RAID-5 array if two disks
-> > fail and not write "this array is dead" in superblocks on remaining disks,
-> > efficiently destroying the whole array.
+"David S. Miller" <davem@davemloft.net> wrote:
 >
-> I agree with you, however it is a pretty damned stupid idea to use raid-5
-> for a root disk (I was about to say it is not a good idea to use raid-5 on
-> linux at all :)
+> From: "Philippe De Muyter" <phdm@macqel.be>
+> Date: Sun, 29 May 2005 23:38:53 +0200 (CEST)
+> 
+> > Do you mean that ip_rcv may not assume that packets are properly aligned ?
+> > 
+> > And some non-mmu m68k (Coldfires) do not provide enough information in
+> > exception frames to restart instructions on an address error in the general
+> > case.
+> 
+> So many variants of tunneling and protocol encapsulation can result in
+> unaligned packet headers, and as a result platforms really must
+> provide proper unaligned memory access handling in kernel mode in
+> order to use the networking fully.
 
-But root disk might fail too... This way, the system can't be taken down
-by any single disk crash.
+As Philippe mentioned, old 68k's simply cannot do this.
 
-Mikulas
+> All these patches to PPP and friends are merely papering over the
+> larger problem.
+
+It's not a thing we want to do in the general case, sure.  But it's
+reasonable to identify those bits of net code which the nommu people care
+about and look to see if there's some sane workaround to get them going.
+
+Otherwise, things like PPP will simply unavailable to some architectures...

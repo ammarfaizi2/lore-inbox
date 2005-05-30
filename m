@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbVE3LDR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVE3LGZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261403AbVE3LDR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 07:03:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbVE3LDR
+	id S261424AbVE3LGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 07:06:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261433AbVE3LGZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 07:03:17 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:51605 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261403AbVE3K65
+	Mon, 30 May 2005 07:06:25 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:58262 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261424AbVE3LAS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 06:58:57 -0400
-Date: Mon, 30 May 2005 16:27:04 +0530
+	Mon, 30 May 2005 07:00:18 -0400
+Date: Mon, 30 May 2005 16:28:25 +0530
 From: Dipankar Sarma <dipankar@in.ibm.com>
 To: linux-kernel@vger.kernel.org
 Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
        Andrew Morton <akpm@osdl.org>
-Subject: Re: [rfc: patch 3/6] Break up files struct
-Message-ID: <20050530105704.GD5534@in.ibm.com>
+Subject: Re: [rfc: patch 4/6] files struct with rcu
+Message-ID: <20050530105825.GE5534@in.ibm.com>
 Reply-To: dipankar@in.ibm.com
 References: <20050530105042.GA5534@in.ibm.com>
 Mime-Version: 1.0
@@ -28,1014 +28,908 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-In order for the RCU to work, the file table array, sets and their
-sizes must be updated atomically. Instead of ensuring this
-through too many memory barriers, we put the arrays and their
-sizes in a separate structure. This patch takes the first
-step of putting the file table elements in a separate
-structure fdtable that is embedded withing files_struct.
-It also changes all the users to refer to the file table
-using files_fdtable() macro. Subsequent applciation of
-RCU becomes easier after this.
 
+Patch to eliminate struct files_struct.file_lock spinlock on the reader
+side and use rcu refcounting rcuref_xxx api for the f_count refcounter.
+The updates to the fdtable are done by allocating a new fdtable
+structure and setting files->fdt to point to the new structure.
+The fdtable structure is protected by RCU thereby allowing
+lock-free lookup. For fd arrays/sets that are vmalloced,
+we use keventd to free them since RCU callbacks can't
+sleep. A global list of fdtable to be freed is not scalable, 
+so we use a per-cpu list. If keventd is already handling
+the current cpu's work, we use a timer to defer queueing
+of that work.
+
+Since the last publication, this patch has been re-written
+to avoid using explicit memory barriers and use
+rcu_assign_pointer(), rcu_dereference() premitives instead.
+This required that the fd information is kept in
+a separate structure (fdtable) and updated atomically.
+
+This patch needs the rcuref api additions as pre-req.
+
+Signed-off-by: Maneesh Soni <maneesh@in.ibm.com>
+Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
+Signed-off-by: Ravikiran Thirumalai <kiran@in.ibm.com>
 Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
 
 
- arch/alpha/kernel/osf_sys.c     |    4 +
- arch/sparc64/solaris/ioctl.c    |    8 ++-
- drivers/char/tty_io.c           |    4 +
- fs/compat.c                     |    9 ++--
- fs/exec.c                       |    8 ++-
- fs/fcntl.c                      |   46 +++++++++++++---------
- fs/file.c                       |   42 ++++++++++++--------
- fs/locks.c                      |    8 ++-
- fs/open.c                       |   41 +++++++++++---------
- fs/proc/array.c                 |    5 +-
- fs/proc/base.c                  |    4 +
- fs/select.c                     |   12 ++++-
- include/linux/file.h            |   23 +++++++----
- include/linux/init_task.h       |   13 ++++--
- kernel/exit.c                   |   21 ++++++----
- kernel/fork.c                   |   82 ++++++++++++++++++++++++----------------
- net/ipv4/netfilter/ipt_owner.c  |   12 ++++-
- net/ipv6/netfilter/ip6t_owner.c |    8 ++-
- security/selinux/hooks.c        |    6 +-
- 19 files changed, 225 insertions(+), 131 deletions(-)
+ fs/aio.c                  |    3 
+ fs/fcntl.c                |   13 +
+ fs/file.c                 |  393 ++++++++++++++++++++++++++++++----------------
+ fs/file_table.c           |   40 +++-
+ fs/open.c                 |    5 
+ include/linux/file.h      |   11 +
+ include/linux/fs.h        |    4 
+ include/linux/init_task.h |    5 
+ kernel/exit.c             |   15 -
+ kernel/fork.c             |   23 +-
+ 10 files changed, 346 insertions(+), 166 deletions(-)
 
-diff -puN arch/alpha/kernel/osf_sys.c~break-up-files-struct arch/alpha/kernel/osf_sys.c
---- linux-2.6.12-rc5-fd/arch/alpha/kernel/osf_sys.c~break-up-files-struct	2005-05-29 18:54:07.000000000 +0530
-+++ linux-2.6.12-rc5-fd-dipankar/arch/alpha/kernel/osf_sys.c	2005-05-29 18:54:07.000000000 +0530
-@@ -974,6 +974,7 @@ osf_select(int n, fd_set __user *inp, fd
- 	size_t size;
- 	long timeout;
- 	int ret = -EINVAL;
-+	struct fdtable *fdt;
+diff -puN fs/aio.c~files-struct-rcu fs/aio.c
+--- linux-2.6.12-rc5-fd/fs/aio.c~files-struct-rcu	2005-05-29 18:54:07.000000000 +0530
++++ linux-2.6.12-rc5-fd-dipankar/fs/aio.c	2005-05-29 18:54:07.000000000 +0530
+@@ -29,6 +29,7 @@
+ #include <linux/highmem.h>
+ #include <linux/workqueue.h>
+ #include <linux/security.h>
++#include <linux/rcuref.h>
  
- 	timeout = MAX_SCHEDULE_TIMEOUT;
- 	if (tvp) {
-@@ -995,7 +996,8 @@ osf_select(int n, fd_set __user *inp, fd
- 		}
- 	}
+ #include <asm/kmap_types.h>
+ #include <asm/uaccess.h>
+@@ -498,7 +499,7 @@ static int __aio_put_req(struct kioctx *
+ 	/* Must be done under the lock to serialise against cancellation.
+ 	 * Call this aio_fput as it duplicates fput via the fput_work.
+ 	 */
+-	if (unlikely(atomic_dec_and_test(&req->ki_filp->f_count))) {
++	if (unlikely(rcuref_dec_and_test(&req->ki_filp->f_count))) {
+ 		get_ioctx(ctx);
+ 		spin_lock(&fput_lock);
+ 		list_add(&req->ki_list, &fput_head);
+diff -puN fs/fcntl.c~files-struct-rcu fs/fcntl.c
+--- linux-2.6.12-rc5-fd/fs/fcntl.c~files-struct-rcu	2005-05-29 18:54:07.000000000 +0530
++++ linux-2.6.12-rc5-fd-dipankar/fs/fcntl.c	2005-05-30 21:26:21.000000000 +0530
+@@ -16,6 +16,7 @@
+ #include <linux/security.h>
+ #include <linux/ptrace.h>
+ #include <linux/signal.h>
++#include <linux/rcupdate.h>
  
--	if (n < 0 || n > current->files->max_fdset)
-+	fdt = files_fdtable(current->files);
-+	if (n < 0 || n > fdt->max_fdset)
- 		goto out_nofds;
- 
- 	/*
-diff -puN arch/sparc64/solaris/ioctl.c~break-up-files-struct arch/sparc64/solaris/ioctl.c
---- linux-2.6.12-rc5-fd/arch/sparc64/solaris/ioctl.c~break-up-files-struct	2005-05-29 18:54:07.000000000 +0530
-+++ linux-2.6.12-rc5-fd-dipankar/arch/sparc64/solaris/ioctl.c	2005-05-29 18:54:07.000000000 +0530
-@@ -293,11 +293,13 @@ static struct module_info {
- static inline int solaris_sockmod(unsigned int fd, unsigned int cmd, u32 arg)
- {
- 	struct inode *ino;
-+	struct fdtable *fdt;
- 	/* I wonder which of these tests are superfluous... --patrik */
- 	spin_lock(&current->files->file_lock);
--	if (! current->files->fd[fd] ||
--	    ! current->files->fd[fd]->f_dentry ||
--	    ! (ino = current->files->fd[fd]->f_dentry->d_inode) ||
-+	fdt = files_fdtable(current->files);
-+	if (! fdt->fd[fd] ||
-+	    ! fdt->fd[fd]->f_dentry ||
-+	    ! (ino = fdt->fd[fd]->f_dentry->d_inode) ||
- 	    ! S_ISSOCK(ino->i_mode)) {
- 		spin_unlock(&current->files->file_lock);
- 		return TBADF;
-diff -puN drivers/char/tty_io.c~break-up-files-struct drivers/char/tty_io.c
---- linux-2.6.12-rc5-fd/drivers/char/tty_io.c~break-up-files-struct	2005-05-29 18:54:07.000000000 +0530
-+++ linux-2.6.12-rc5-fd-dipankar/drivers/char/tty_io.c	2005-05-29 18:54:07.000000000 +0530
-@@ -2415,6 +2415,7 @@ static void __do_SAK(void *arg)
- 	int		i;
- 	struct file	*filp;
- 	struct tty_ldisc *disc;
-+	struct fdtable *fdt;
- 	
- 	if (!tty)
- 		return;
-@@ -2441,7 +2442,8 @@ static void __do_SAK(void *arg)
- 		task_lock(p);
- 		if (p->files) {
- 			spin_lock(&p->files->file_lock);
--			for (i=0; i < p->files->max_fds; i++) {
-+			fdt = files_fdtable(p->files);
-+			for (i=0; i < fdt->max_fds; i++) {
- 				filp = fcheck_files(p->files, i);
- 				if (!filp)
- 					continue;
-diff -puN fs/compat.c~break-up-files-struct fs/compat.c
---- linux-2.6.12-rc5-fd/fs/compat.c~break-up-files-struct	2005-05-29 18:54:07.000000000 +0530
-+++ linux-2.6.12-rc5-fd-dipankar/fs/compat.c	2005-05-29 18:54:07.000000000 +0530
-@@ -1694,7 +1694,8 @@ compat_sys_select(int n, compat_ulong_t 
- 	fd_set_bits fds;
- 	char *bits;
- 	long timeout;
--	int size, max_fdset, ret = -EINVAL;
-+	int size, ret = -EINVAL;
-+	struct fdtable *fdt;
- 
- 	timeout = MAX_SCHEDULE_TIMEOUT;
- 	if (tvp) {
-@@ -1720,9 +1721,9 @@ compat_sys_select(int n, compat_ulong_t 
- 		goto out_nofds;
- 
- 	/* max_fdset can increase, so grab it once to avoid race */
--	max_fdset = current->files->max_fdset;
--	if (n > max_fdset)
--		n = max_fdset;
-+	fdt = files_fdtable(current->files);
-+	if (n > fdt->max_fdset)
-+		n = fdt->max_fdset;
- 
- 	/*
- 	 * We need 6 bitmaps (in/out/ex for both incoming and outgoing),
-diff -puN fs/exec.c~break-up-files-struct fs/exec.c
---- linux-2.6.12-rc5-fd/fs/exec.c~break-up-files-struct	2005-05-29 18:54:07.000000000 +0530
-+++ linux-2.6.12-rc5-fd-dipankar/fs/exec.c	2005-05-29 18:54:07.000000000 +0530
-@@ -787,6 +787,7 @@ no_thread_group:
- static inline void flush_old_files(struct files_struct * files)
- {
- 	long j = -1;
-+	struct fdtable *fdt;
- 
- 	spin_lock(&files->file_lock);
- 	for (;;) {
-@@ -794,12 +795,13 @@ static inline void flush_old_files(struc
- 
- 		j++;
- 		i = j * __NFDBITS;
--		if (i >= files->max_fds || i >= files->max_fdset)
-+		fdt = files_fdtable(files);
-+		if (i >= fdt->max_fds || i >= fdt->max_fdset)
- 			break;
--		set = files->close_on_exec->fds_bits[j];
-+		set = fdt->close_on_exec->fds_bits[j];
- 		if (!set)
- 			continue;
--		files->close_on_exec->fds_bits[j] = 0;
-+		fdt->close_on_exec->fds_bits[j] = 0;
- 		spin_unlock(&files->file_lock);
- 		for ( ; set ; i++,set >>= 1) {
- 			if (set & 1) {
-diff -puN fs/fcntl.c~break-up-files-struct fs/fcntl.c
---- linux-2.6.12-rc5-fd/fs/fcntl.c~break-up-files-struct	2005-05-29 18:54:07.000000000 +0530
-+++ linux-2.6.12-rc5-fd-dipankar/fs/fcntl.c	2005-05-29 18:54:07.000000000 +0530
-@@ -24,20 +24,24 @@
- void fastcall set_close_on_exec(unsigned int fd, int flag)
- {
- 	struct files_struct *files = current->files;
-+	struct fdtable *fdt;
- 	spin_lock(&files->file_lock);
-+	fdt = files_fdtable(files);
- 	if (flag)
--		FD_SET(fd, files->close_on_exec);
-+		FD_SET(fd, fdt->close_on_exec);
- 	else
--		FD_CLR(fd, files->close_on_exec);
-+		FD_CLR(fd, fdt->close_on_exec);
- 	spin_unlock(&files->file_lock);
- }
- 
- static inline int get_close_on_exec(unsigned int fd)
- {
- 	struct files_struct *files = current->files;
-+	struct fdtable *fdt;
- 	int res;
- 	spin_lock(&files->file_lock);
--	res = FD_ISSET(fd, files->close_on_exec);
-+	fdt = files_fdtable(files);
-+	res = FD_ISSET(fd, fdt->close_on_exec);
- 	spin_unlock(&files->file_lock);
- 	return res;
- }
-@@ -54,24 +58,26 @@ static int locate_fd(struct files_struct
- 	unsigned int newfd;
- 	unsigned int start;
- 	int error;
-+	struct fdtable *fdt;
- 
- 	error = -EINVAL;
+ #include <asm/poll.h>
+ #include <asm/siginfo.h>
+@@ -64,8 +65,8 @@ static int locate_fd(struct files_struct
  	if (orig_start >= current->signal->rlim[RLIMIT_NOFILE].rlim_cur)
  		goto out;
  
-+	fdt = files_fdtable(files);
+-	fdt = files_fdtable(files);
  repeat:
++	fdt = files_fdtable(files);
  	/*
  	 * Someone might have closed fd's in the range
--	 * orig_start..files->next_fd
-+	 * orig_start..fdt->next_fd
- 	 */
- 	start = orig_start;
--	if (start < files->next_fd)
--		start = files->next_fd;
-+	if (start < fdt->next_fd)
-+		start = fdt->next_fd;
- 
- 	newfd = start;
--	if (start < files->max_fdset) {
--		newfd = find_next_zero_bit(files->open_fds->fds_bits,
--			files->max_fdset, start);
-+	if (start < fdt->max_fdset) {
-+		newfd = find_next_zero_bit(fdt->open_fds->fds_bits,
-+			fdt->max_fdset, start);
- 	}
- 	
- 	error = -EMFILE;
-@@ -89,8 +95,8 @@ repeat:
+ 	 * orig_start..fdt->next_fd
+@@ -95,9 +96,15 @@ repeat:
  	if (error)
  		goto repeat;
  
--	if (start <= files->next_fd)
--		files->next_fd = newfd + 1;
-+	if (start <= fdt->next_fd)
-+		fdt->next_fd = newfd + 1;
- 	
++	/*
++	 * We reacquired files_lock, so we are safe as long as
++	 * we reacquire the fdtable pointer and use it while holding
++	 * the lock, no one can free it during that time.
++	 */
++	fdt = files_fdtable(files);
+ 	if (start <= fdt->next_fd)
+ 		fdt->next_fd = newfd + 1;
+-	
++
  	error = newfd;
  	
-@@ -101,13 +107,15 @@ out:
- static int dupfd(struct file *file, unsigned int start)
- {
- 	struct files_struct * files = current->files;
-+	struct fdtable *fdt;
- 	int fd;
- 
- 	spin_lock(&files->file_lock);
-+	fdt = files_fdtable(files);
- 	fd = locate_fd(files, file, start);
- 	if (fd >= 0) {
--		FD_SET(fd, files->open_fds);
--		FD_CLR(fd, files->close_on_exec);
-+		FD_SET(fd, fdt->open_fds);
-+		FD_CLR(fd, fdt->close_on_exec);
- 		spin_unlock(&files->file_lock);
- 		fd_install(fd, file);
- 	} else {
-@@ -123,6 +131,7 @@ asmlinkage long sys_dup2(unsigned int ol
- 	int err = -EBADF;
- 	struct file * file, *tofree;
- 	struct files_struct * files = current->files;
-+	struct fdtable *fdt;
- 
- 	spin_lock(&files->file_lock);
- 	if (!(file = fcheck(oldfd)))
-@@ -148,13 +157,14 @@ asmlinkage long sys_dup2(unsigned int ol
- 
- 	/* Yes. It's a race. In user space. Nothing sane to do */
- 	err = -EBUSY;
--	tofree = files->fd[newfd];
--	if (!tofree && FD_ISSET(newfd, files->open_fds))
-+	fdt = files_fdtable(files);
-+	tofree = fdt->fd[newfd];
-+	if (!tofree && FD_ISSET(newfd, fdt->open_fds))
+ out:
+@@ -162,7 +169,7 @@ asmlinkage long sys_dup2(unsigned int ol
+ 	if (!tofree && FD_ISSET(newfd, fdt->open_fds))
  		goto out_fput;
  
--	files->fd[newfd] = file;
--	FD_SET(newfd, files->open_fds);
--	FD_CLR(newfd, files->close_on_exec);
-+	fdt->fd[newfd] = file;
-+	FD_SET(newfd, fdt->open_fds);
-+	FD_CLR(newfd, fdt->close_on_exec);
+-	fdt->fd[newfd] = file;
++	rcu_assign_pointer(fdt->fd[newfd], file);
+ 	FD_SET(newfd, fdt->open_fds);
+ 	FD_CLR(newfd, fdt->close_on_exec);
  	spin_unlock(&files->file_lock);
+diff -puN fs/file.c~files-struct-rcu fs/file.c
+--- linux-2.6.12-rc5-fd/fs/file.c~files-struct-rcu	2005-05-29 18:54:07.000000000 +0530
++++ linux-2.6.12-rc5-fd-dipankar/fs/file.c	2005-05-30 21:26:38.000000000 +0530
+@@ -13,7 +13,26 @@
+ #include <linux/vmalloc.h>
+ #include <linux/file.h>
+ #include <linux/bitops.h>
++#include <linux/interrupt.h>
++#include <linux/spinlock.h>
++#include <linux/rcupdate.h>
++#include <linux/workqueue.h>
++
++struct fdtable_defer {
++	spinlock_t lock;
++	struct work_struct wq;
++	struct timer_list timer;
++	struct fdtable *next;
++};
  
- 	if (tofree)
-diff -puN fs/file.c~break-up-files-struct fs/file.c
---- linux-2.6.12-rc5-fd/fs/file.c~break-up-files-struct	2005-05-29 18:54:07.000000000 +0530
-+++ linux-2.6.12-rc5-fd-dipankar/fs/file.c	2005-05-29 18:54:07.000000000 +0530
-@@ -59,13 +59,15 @@ static int expand_fd_array(struct files_
++/*
++ * We use this list to defer free fdtables that have vmalloced
++ * sets/arrays. By keeping a per-cpu list, we avoid having to embed
++ * the work_struct in fdtable itself which avoids a 64 byte (i386) increase in
++ * this per-task structure.
++ */
++static DEFINE_PER_CPU(struct fdtable_defer, fdtable_defer_list);
++	
+ 
+ /*
+  * Allocate an fd array, using kmalloc or vmalloc.
+@@ -48,85 +67,143 @@ void free_fd_array(struct file **array, 
+ 		vfree(array);
+ }
+ 
+-/*
+- * Expand the fd array in the files_struct.  Called with the files
+- * spinlock held for write.
+- */
++static void __free_fdtable(struct fdtable *fdt)
++{
++	int fdset_size, fdarray_size;
+ 
+-static int expand_fd_array(struct files_struct *files, int nr)
+-	__releases(files->file_lock)
+-	__acquires(files->file_lock)
++	fdset_size = fdt->max_fdset / 8;
++	fdarray_size = fdt->max_fds * sizeof(struct file *);
++	free_fdset(fdt->open_fds, fdset_size);
++	free_fdset(fdt->close_on_exec, fdset_size);
++	free_fd_array(fdt->fd, fdarray_size);
++	kfree(fdt);
++}
++
++static void fdtable_timer(unsigned long data)
  {
- 	struct file **new_fds;
- 	int error, nfds;
+-	struct file **new_fds;
+-	int error, nfds;
+-	struct fdtable *fdt;
++	struct fdtable_defer *fddef = (struct fdtable_defer *)data;
+ 
+-	
+-	error = -EMFILE;
+-	fdt = files_fdtable(files);
+-	if (fdt->max_fds >= NR_OPEN || nr >= NR_OPEN)
++	spin_lock(&fddef->lock);
++	/*
++	 * If someone already emptied the queue return.
++	 */
++	if (!fddef->next)
+ 		goto out;
++	if (!schedule_work(&fddef->wq))
++		mod_timer(&fddef->timer, 5);
++out:
++	spin_unlock(&fddef->lock);
++}
+ 
+-	nfds = fdt->max_fds;
+-	spin_unlock(&files->file_lock);
++static void free_fdtable_work(struct fdtable_defer *f)
++{
 +	struct fdtable *fdt;
  
- 	
- 	error = -EMFILE;
--	if (files->max_fds >= NR_OPEN || nr >= NR_OPEN)
-+	fdt = files_fdtable(files);
-+	if (fdt->max_fds >= NR_OPEN || nr >= NR_OPEN)
- 		goto out;
+-	/* 
+-	 * Expand to the max in easy steps, and keep expanding it until
+-	 * we have enough for the requested fd array size. 
+-	 */
++	spin_lock_bh(&f->lock);
++	fdt = f->next;
++	f->next = NULL;
++	spin_unlock_bh(&f->lock);
++	while(fdt) {
++		struct fdtable *next = fdt->next;
++		__free_fdtable(fdt);
++		fdt = next;
++	}
++}
  
--	nfds = files->max_fds;
-+	nfds = fdt->max_fds;
- 	spin_unlock(&files->file_lock);
+-	do {
+-#if NR_OPEN_DEFAULT < 256
+-		if (nfds < 256)
+-			nfds = 256;
+-		else 
+-#endif
+-		if (nfds < (PAGE_SIZE / sizeof(struct file *)))
+-			nfds = PAGE_SIZE / sizeof(struct file *);
+-		else {
+-			nfds = nfds * 2;
+-			if (nfds > NR_OPEN)
+-				nfds = NR_OPEN;
+-		}
+-	} while (nfds <= nr);
++static void free_fdtable_rcu(struct rcu_head *rcu)
++{
++	struct fdtable *fdt = container_of(rcu, struct fdtable, rcu);
++	int fdset_size, fdarray_size;
++	struct fdtable_defer *fddef;
++
++	BUG_ON(!fdt);
++	fdset_size = fdt->max_fdset / 8;
++	fdarray_size = fdt->max_fds * sizeof(struct file *);
++
++	if (fdt->free_files) {
++		/*
++		 * The this fdtable was embedded in the files structure
++		 * and the files structure itself was getting destroyed.
++		 * It is now safe to free the files structure.
++		 */
++		kmem_cache_free(files_cachep, fdt->free_files);
++		return;
++	}
++	if (fdt->max_fdset <= __FD_SETSIZE && fdt->max_fds <= NR_OPEN_DEFAULT) {
++		/*
++		 * The fdtable was embedded
++		 */
++		return;
++	}
++	if (fdset_size <= PAGE_SIZE && fdarray_size <= PAGE_SIZE) {
++		kfree(fdt->open_fds);
++		kfree(fdt->close_on_exec);
++		kfree(fdt->fd);
++		kfree(fdt);
++	} else {
++		fddef = &get_cpu_var(fdtable_defer_list);
++		spin_lock(&fddef->lock);
++		fdt->next = fddef->next;
++		fddef->next = fdt;
++		/*
++		 * vmallocs are handled from the workqueue context.
++		 * If the per-cpu workqueue is running, then we
++		 * defer work scheduling through a timer.
++		 */
++		if (!schedule_work(&fddef->wq))
++			mod_timer(&fddef->timer, 5);
++		spin_unlock(&fddef->lock);
++		put_cpu_var(fdtable_defer_list);
++	}
++}
  
- 	/* 
-@@ -95,13 +97,14 @@ static int expand_fd_array(struct files_
- 		goto out;
+-	error = -ENOMEM;
+-	new_fds = alloc_fd_array(nfds);
+-	spin_lock(&files->file_lock);
+-	if (!new_fds)
+-		goto out;
++void free_fdtable(struct fdtable *fdt)
++{
++	if (fdt->free_files || fdt->max_fdset > __FD_SETSIZE || 
++					fdt->max_fds > NR_OPEN_DEFAULT)
++		call_rcu(&fdt->rcu, free_fdtable_rcu);
++}
  
- 	/* Copy the existing array and install the new pointer */
-+	fdt = files_fdtable(files);
+-	/* Copy the existing array and install the new pointer */
+-	fdt = files_fdtable(files);
++/*
++ * Expand the fdset in the files_struct.  Called with the files spinlock
++ * held for write.
++ */
++static void copy_fdtable(struct fdtable *nfdt, struct fdtable *fdt)
++{
++	int i;
++	int count;
  
--	if (nfds > files->max_fds) {
-+	if (nfds > fdt->max_fds) {
- 		struct file **old_fds;
- 		int i;
- 		
--		old_fds = xchg(&files->fd, new_fds);
--		i = xchg(&files->max_fds, nfds);
-+		old_fds = xchg(&fdt->fd, new_fds);
-+		i = xchg(&fdt->max_fds, nfds);
+-	if (nfds > fdt->max_fds) {
+-		struct file **old_fds;
+-		int i;
+-		
+-		old_fds = xchg(&fdt->fd, new_fds);
+-		i = xchg(&fdt->max_fds, nfds);
+-
+-		/* Don't copy/clear the array if we are creating a new
+-		   fd array for fork() */
+-		if (i) {
+-			memcpy(new_fds, old_fds, i * sizeof(struct file *));
+-			/* clear the remainder of the array */
+-			memset(&new_fds[i], 0,
+-			       (nfds-i) * sizeof(struct file *)); 
+-
+-			spin_unlock(&files->file_lock);
+-			free_fd_array(old_fds, i);
+-			spin_lock(&files->file_lock);
+-		}
+-	} else {
+-		/* Somebody expanded the array while we slept ... */
+-		spin_unlock(&files->file_lock);
+-		free_fd_array(new_fds, nfds);
+-		spin_lock(&files->file_lock);
++	BUG_ON(nfdt->max_fdset < fdt->max_fdset);
++	BUG_ON(nfdt->max_fds < fdt->max_fds);
++	/* Copy the existing tables and install the new pointers */
++
++	i = fdt->max_fdset / (sizeof(unsigned long) * 8);
++	count = (nfdt->max_fdset - fdt->max_fdset) / 8;
++
++	/* 
++	 * Don't copy the entire array if the current fdset is
++	 * not yet initialised.  
++	 */
++	if (i) {
++		memcpy (nfdt->open_fds, fdt->open_fds, 
++						fdt->max_fdset/8);
++		memcpy (nfdt->close_on_exec, fdt->close_on_exec, 
++						fdt->max_fdset/8);
++		memset (&nfdt->open_fds->fds_bits[i], 0, count);
++		memset (&nfdt->close_on_exec->fds_bits[i], 0, count);
+ 	}
+-	error = 0;
+-out:
+-	return error;
++
++	/* Don't copy/clear the array if we are creating a new
++	   fd array for fork() */
++	if (fdt->max_fds) {
++		memcpy(nfdt->fd, fdt->fd, 
++			fdt->max_fds * sizeof(struct file *));
++		/* clear the remainder of the array */
++		memset(&nfdt->fd[fdt->max_fds], 0,
++		       (nfdt->max_fds - fdt->max_fds) * 
++					sizeof(struct file *)); 
++	}
++	nfdt->next_fd = fdt->next_fd;
+ }
  
- 		/* Don't copy/clear the array if we are creating a new
- 		   fd array for fork() */
-@@ -164,12 +167,14 @@ static int expand_fdset(struct files_str
+ /*
+@@ -157,28 +234,21 @@ void free_fdset(fd_set *array, int num)
+ 		vfree(array);
+ }
+ 
+-/*
+- * Expand the fdset in the files_struct.  Called with the files spinlock
+- * held for write.
+- */
+-static int expand_fdset(struct files_struct *files, int nr)
+-	__releases(file->file_lock)
+-	__acquires(file->file_lock)
++static struct fdtable *alloc_fdtable(int nr)
  {
- 	fd_set *new_openset = NULL, *new_execset = NULL;
- 	int error, nfds = 0;
-+	struct fdtable *fdt;
- 
- 	error = -EMFILE;
--	if (files->max_fdset >= NR_OPEN || nr >= NR_OPEN)
-+	fdt = files_fdtable(files);
-+	if (fdt->max_fdset >= NR_OPEN || nr >= NR_OPEN)
- 		goto out;
- 
--	nfds = files->max_fdset;
-+	nfds = fdt->max_fdset;
- 	spin_unlock(&files->file_lock);
- 
- 	/* Expand to the max in easy steps */
-@@ -193,24 +198,25 @@ static int expand_fdset(struct files_str
- 	error = 0;
- 	
- 	/* Copy the existing tables and install the new pointers */
--	if (nfds > files->max_fdset) {
--		int i = files->max_fdset / (sizeof(unsigned long) * 8);
--		int count = (nfds - files->max_fdset) / 8;
-+	fdt = files_fdtable(files);
-+	if (nfds > fdt->max_fdset) {
-+		int i = fdt->max_fdset / (sizeof(unsigned long) * 8);
-+		int count = (nfds - fdt->max_fdset) / 8;
- 		
- 		/* 
- 		 * Don't copy the entire array if the current fdset is
- 		 * not yet initialised.  
- 		 */
- 		if (i) {
--			memcpy (new_openset, files->open_fds, files->max_fdset/8);
--			memcpy (new_execset, files->close_on_exec, files->max_fdset/8);
-+			memcpy (new_openset, fdt->open_fds, fdt->max_fdset/8);
-+			memcpy (new_execset, fdt->close_on_exec, fdt->max_fdset/8);
- 			memset (&new_openset->fds_bits[i], 0, count);
- 			memset (&new_execset->fds_bits[i], 0, count);
+-	fd_set *new_openset = NULL, *new_execset = NULL;
+-	int error, nfds = 0;
+-	struct fdtable *fdt;
+-
+-	error = -EMFILE;
+-	fdt = files_fdtable(files);
+-	if (fdt->max_fdset >= NR_OPEN || nr >= NR_OPEN)
+-		goto out;
+-
+-	nfds = fdt->max_fdset;
+-	spin_unlock(&files->file_lock);
+-
+-	/* Expand to the max in easy steps */
+-	do {
++	struct fdtable *fdt = NULL;
++	int nfds = 0;
++  	fd_set *new_openset = NULL, *new_execset = NULL;
++	struct file **new_fds;
++  
++	fdt = kmalloc(sizeof(*fdt), GFP_KERNEL);
++	if (!fdt)
++  		goto out;
++	memset(fdt, 0, sizeof(*fdt));
++  
++	nfds = __FD_SETSIZE;
++  	/* Expand to the max in easy steps */
++  	do {
+ 		if (nfds < (PAGE_SIZE * 8))
+ 			nfds = PAGE_SIZE * 8;
+ 		else {
+@@ -188,50 +258,88 @@ static int expand_fdset(struct files_str
  		}
- 		
--		nfds = xchg(&files->max_fdset, nfds);
--		new_openset = xchg(&files->open_fds, new_openset);
--		new_execset = xchg(&files->close_on_exec, new_execset);
-+		nfds = xchg(&fdt->max_fdset, nfds);
-+		new_openset = xchg(&fdt->open_fds, new_openset);
-+		new_execset = xchg(&fdt->close_on_exec, new_execset);
+ 	} while (nfds <= nr);
+ 
+-	error = -ENOMEM;
+-	new_openset = alloc_fdset(nfds);
+-	new_execset = alloc_fdset(nfds);
+-	spin_lock(&files->file_lock);
+-	if (!new_openset || !new_execset)
++  	new_openset = alloc_fdset(nfds);
++  	new_execset = alloc_fdset(nfds);
++  	if (!new_openset || !new_execset)
++  		goto out;
++	fdt->open_fds = new_openset;
++	fdt->close_on_exec = new_execset;
++	fdt->max_fdset = nfds;
++
++	nfds = NR_OPEN_DEFAULT;
++	/* 
++	 * Expand to the max in easy steps, and keep expanding it until
++	 * we have enough for the requested fd array size. 
++	 */
++	do {
++#if NR_OPEN_DEFAULT < 256
++		if (nfds < 256)
++			nfds = 256;
++		else 
++#endif
++		if (nfds < (PAGE_SIZE / sizeof(struct file *)))
++			nfds = PAGE_SIZE / sizeof(struct file *);
++		else {
++			nfds = nfds * 2;
++			if (nfds > NR_OPEN)
++				nfds = NR_OPEN;
++  		}
++	} while (nfds <= nr);
++	new_fds = alloc_fd_array(nfds);
++	if (!new_fds)
+ 		goto out;
++	fdt->fd = new_fds;
++	fdt->max_fds = nfds;
++	fdt->free_files = NULL;
++	return fdt;
++out:
++  	if (new_openset)
++  		free_fdset(new_openset, nfds);
++  	if (new_execset)
++  		free_fdset(new_execset, nfds);
++	kfree(fdt);
++	return NULL;
++}
+ 
+-	error = 0;
+-	
+-	/* Copy the existing tables and install the new pointers */
++/*
++ * Expands the file descriptor table - it will allocate a new fdtable and
++ * both fd array and fdset. It is expected to be called with the
++ * files_lock held.
++ */
++static int expand_fdtable(struct files_struct *files, int nr)
++	__releases(files->file_lock)
++	__acquires(files->file_lock)
++{
++	int error = 0;
++	struct fdtable *fdt;
++	struct fdtable *nfdt = NULL;
++
++	spin_unlock(&files->file_lock);
++	nfdt = alloc_fdtable(nr);
++	if (!nfdt) {
++		error = -ENOMEM;
++		spin_lock(&files->file_lock);
++		goto out;
++	}
++
++	spin_lock(&files->file_lock);
+ 	fdt = files_fdtable(files);
+-	if (nfds > fdt->max_fdset) {
+-		int i = fdt->max_fdset / (sizeof(unsigned long) * 8);
+-		int count = (nfds - fdt->max_fdset) / 8;
+-		
+-		/* 
+-		 * Don't copy the entire array if the current fdset is
+-		 * not yet initialised.  
+-		 */
+-		if (i) {
+-			memcpy (new_openset, fdt->open_fds, fdt->max_fdset/8);
+-			memcpy (new_execset, fdt->close_on_exec, fdt->max_fdset/8);
+-			memset (&new_openset->fds_bits[i], 0, count);
+-			memset (&new_execset->fds_bits[i], 0, count);
+-		}
+-		
+-		nfds = xchg(&fdt->max_fdset, nfds);
+-		new_openset = xchg(&fdt->open_fds, new_openset);
+-		new_execset = xchg(&fdt->close_on_exec, new_execset);
++	/*
++	 * Check again since another task may have expanded the
++	 * fd table while we dropped the lock
++	 */
++	if (nr >= fdt->max_fds || nr >= fdt->max_fdset) {
++		copy_fdtable(nfdt, fdt);
++	} else {
++		/* Somebody expanded while we dropped file_lock */
  		spin_unlock(&files->file_lock);
- 		free_fdset (new_openset, nfds);
- 		free_fdset (new_execset, nfds);
-@@ -237,13 +243,15 @@ out:
- int expand_files(struct files_struct *files, int nr)
- {
- 	int err, expand = 0;
-+	struct fdtable *fdt;
- 
--	if (nr >= files->max_fdset) {
-+	fdt = files_fdtable(files);
-+	if (nr >= fdt->max_fdset) {
- 		expand = 1;
- 		if ((err = expand_fdset(files, nr)))
- 			goto out;
- 	}
--	if (nr >= files->max_fds) {
-+	if (nr >= fdt->max_fds) {
- 		expand = 1;
- 		if ((err = expand_fd_array(files, nr)))
- 			goto out;
-diff -puN fs/locks.c~break-up-files-struct fs/locks.c
---- linux-2.6.12-rc5-fd/fs/locks.c~break-up-files-struct	2005-05-29 18:54:07.000000000 +0530
-+++ linux-2.6.12-rc5-fd-dipankar/fs/locks.c	2005-05-29 18:54:07.000000000 +0530
-@@ -2175,21 +2175,23 @@ void steal_locks(fl_owner_t from)
- {
- 	struct files_struct *files = current->files;
- 	int i, j;
-+	struct fdtable *fdt;
- 
- 	if (from == files)
- 		return;
- 
- 	lock_kernel();
- 	j = 0;
-+	fdt = files_fdtable(files);
- 	for (;;) {
- 		unsigned long set;
- 		i = j * __NFDBITS;
--		if (i >= files->max_fdset || i >= files->max_fds)
-+		if (i >= fdt->max_fdset || i >= fdt->max_fds)
- 			break;
--		set = files->open_fds->fds_bits[j++];
-+		set = fdt->open_fds->fds_bits[j++];
- 		while (set) {
- 			if (set & 1) {
--				struct file *file = files->fd[i];
-+				struct file *file = fdt->fd[i];
- 				if (file)
- 					__steal_locks(file, from);
- 			}
-diff -puN fs/open.c~break-up-files-struct fs/open.c
---- linux-2.6.12-rc5-fd/fs/open.c~break-up-files-struct	2005-05-29 18:54:07.000000000 +0530
-+++ linux-2.6.12-rc5-fd-dipankar/fs/open.c	2005-05-29 18:54:07.000000000 +0530
-@@ -839,14 +839,16 @@ int get_unused_fd(void)
- {
- 	struct files_struct * files = current->files;
- 	int fd, error;
-+	struct fdtable *fdt;
- 
-   	error = -EMFILE;
- 	spin_lock(&files->file_lock);
- 
- repeat:
-- 	fd = find_next_zero_bit(files->open_fds->fds_bits, 
--				files->max_fdset, 
--				files->next_fd);
-+	fdt = files_fdtable(files);
-+ 	fd = find_next_zero_bit(fdt->open_fds->fds_bits, 
-+				fdt->max_fdset, 
-+				fdt->next_fd);
- 
- 	/*
- 	 * N.B. For clone tasks sharing a files structure, this test
-@@ -869,14 +871,14 @@ repeat:
- 		goto repeat;
- 	}
- 
--	FD_SET(fd, files->open_fds);
--	FD_CLR(fd, files->close_on_exec);
--	files->next_fd = fd + 1;
-+	FD_SET(fd, fdt->open_fds);
-+	FD_CLR(fd, fdt->close_on_exec);
-+	fdt->next_fd = fd + 1;
- #if 1
- 	/* Sanity check */
--	if (files->fd[fd] != NULL) {
-+	if (fdt->fd[fd] != NULL) {
- 		printk(KERN_WARNING "get_unused_fd: slot %d not NULL!\n", fd);
--		files->fd[fd] = NULL;
-+		fdt->fd[fd] = NULL;
- 	}
- #endif
- 	error = fd;
-@@ -890,9 +892,10 @@ EXPORT_SYMBOL(get_unused_fd);
- 
- static inline void __put_unused_fd(struct files_struct *files, unsigned int fd)
- {
--	__FD_CLR(fd, files->open_fds);
--	if (fd < files->next_fd)
--		files->next_fd = fd;
-+	struct fdtable *fdt = files_fdtable(files);
-+	__FD_CLR(fd, fdt->open_fds);
-+	if (fd < fdt->next_fd)
-+		fdt->next_fd = fd;
+-		free_fdset (new_openset, nfds);
+-		free_fdset (new_execset, nfds);
++		__free_fdtable(nfdt);
+ 		spin_lock(&files->file_lock);
+-		return 0;
+-	} 
+-	/* Somebody expanded the array while we slept ... */
+-
++		goto out;
++	}
++	rcu_assign_pointer(files->fdt, nfdt);
++	free_fdtable(fdt);
+ out:
+-	spin_unlock(&files->file_lock);
+-	if (new_openset)
+-		free_fdset(new_openset, nfds);
+-	if (new_execset)
+-		free_fdset(new_execset, nfds);
+-	spin_lock(&files->file_lock);
+ 	return error;
  }
  
- void fastcall put_unused_fd(unsigned int fd)
-@@ -921,10 +924,12 @@ EXPORT_SYMBOL(put_unused_fd);
- void fastcall fd_install(unsigned int fd, struct file * file)
+@@ -246,17 +354,36 @@ int expand_files(struct files_struct *fi
+ 	struct fdtable *fdt;
+ 
+ 	fdt = files_fdtable(files);
+-	if (nr >= fdt->max_fdset) {
+-		expand = 1;
+-		if ((err = expand_fdset(files, nr)))
++	if (nr >= fdt->max_fdset || nr >= fdt->max_fds) {
++		if (fdt->max_fdset >= NR_OPEN || 
++			fdt->max_fds >= NR_OPEN || nr >= NR_OPEN) {
++			err = -EMFILE;
+ 			goto out;
+-	}
+-	if (nr >= fdt->max_fds) {
++		}
+ 		expand = 1;
+-		if ((err = expand_fd_array(files, nr)))
++		if ((err = expand_fdtable(files, nr)))
+ 			goto out;
+ 	}
+ 	err = expand;
+ out:
+ 	return err;
+ }
++
++static void __devinit fdtable_defer_list_init(int cpu)
++{
++	struct fdtable_defer *fddef = &per_cpu(fdtable_defer_list, cpu);
++	spin_lock_init(&fddef->lock);
++	INIT_WORK(&fddef->wq, (void (*)(void *))free_fdtable_work, fddef);
++	init_timer(&fddef->timer);
++	fddef->timer.data = (unsigned long)fddef;
++	fddef->timer.function = fdtable_timer;
++	fddef->next = NULL;
++}
++
++void __init files_defer_init(void)
++{
++	int i;
++	/* Really early - can't use for_each_cpu */
++	for (i = 0; i < NR_CPUS; i++)
++		fdtable_defer_list_init(i);
++}
+diff -puN fs/file_table.c~files-struct-rcu fs/file_table.c
+--- linux-2.6.12-rc5-fd/fs/file_table.c~files-struct-rcu	2005-05-29 18:54:07.000000000 +0530
++++ linux-2.6.12-rc5-fd-dipankar/fs/file_table.c	2005-05-29 18:54:07.000000000 +0530
+@@ -14,6 +14,7 @@
+ #include <linux/fs.h>
+ #include <linux/security.h>
+ #include <linux/eventpoll.h>
++#include <linux/rcupdate.h>
+ #include <linux/mount.h>
+ #include <linux/cdev.h>
+ 
+@@ -52,11 +53,17 @@ void filp_dtor(void * objp, struct kmem_
+ 	spin_unlock_irqrestore(&filp_count_lock, flags);
+ }
+ 
+-static inline void file_free(struct file *f)
++static inline void file_free_rcu(struct rcu_head *head)
  {
++	struct file *f =  container_of(head, struct file, f_rcuhead);
+ 	kmem_cache_free(filp_cachep, f);
+ }
+ 
++static inline void file_free(struct file *f)
++{
++	call_rcu(&f->f_rcuhead, file_free_rcu);
++}
++
+ /* Find an unused file structure and return a pointer to it.
+  * Returns NULL, if there are no more free file structures or
+  * we run out of memory.
+@@ -107,7 +114,7 @@ EXPORT_SYMBOL(get_empty_filp);
+ 
+ void fastcall fput(struct file *file)
+ {
+-	if (atomic_dec_and_test(&file->f_count))
++	if (rcuref_dec_and_test(&file->f_count))
+ 		__fput(file);
+ }
+ 
+@@ -151,11 +158,17 @@ struct file fastcall *fget(unsigned int 
+ 	struct file *file;
  	struct files_struct *files = current->files;
-+	struct fdtable *fdt;
- 	spin_lock(&files->file_lock);
--	if (unlikely(files->fd[fd] != NULL))
-+	fdt = files_fdtable(files);
-+	if (unlikely(fdt->fd[fd] != NULL))
+ 
+-	spin_lock(&files->file_lock);
++	rcu_read_lock();
+ 	file = fcheck_files(files, fd);
+-	if (file)
+-		get_file(file);
+-	spin_unlock(&files->file_lock);
++	if (file) {
++		if (!rcuref_inc_lf(&file->f_count)) {
++			/* File object ref couldn't be taken */
++			rcu_read_unlock();
++			return NULL;
++		}
++	}	
++	rcu_read_unlock();
++
+ 	return file;
+ }
+ 
+@@ -177,21 +190,25 @@ struct file fastcall *fget_light(unsigne
+ 	if (likely((atomic_read(&files->count) == 1))) {
+ 		file = fcheck_files(files, fd);
+ 	} else {
+-		spin_lock(&files->file_lock);
++		rcu_read_lock();
+ 		file = fcheck_files(files, fd);
+ 		if (file) {
+-			get_file(file);
+-			*fput_needed = 1;
++			if (rcuref_inc_lf(&file->f_count))
++				*fput_needed = 1;
++			else
++				/* Didn't get the reference, someone's freed */
++				file = NULL;
+ 		}
+-		spin_unlock(&files->file_lock);
++		rcu_read_unlock();
+ 	}
++
+ 	return file;
+ }
+ 
+ 
+ void put_filp(struct file *file)
+ {
+-	if (atomic_dec_and_test(&file->f_count)) {
++	if (rcuref_dec_and_test(&file->f_count)) {
+ 		security_file_free(file);
+ 		file_kill(file);
+ 		file_free(file);
+@@ -252,4 +269,5 @@ void __init files_init(unsigned long mem
+ 	files_stat.max_files = n; 
+ 	if (files_stat.max_files < NR_FILE)
+ 		files_stat.max_files = NR_FILE;
++	files_defer_init();
+ } 
+diff -puN fs/open.c~files-struct-rcu fs/open.c
+--- linux-2.6.12-rc5-fd/fs/open.c~files-struct-rcu	2005-05-29 18:54:07.000000000 +0530
++++ linux-2.6.12-rc5-fd-dipankar/fs/open.c	2005-05-29 18:54:07.000000000 +0530
+@@ -23,6 +23,7 @@
+ #include <linux/fs.h>
+ #include <linux/pagemap.h>
+ #include <linux/syscalls.h>
++#include <linux/rcupdate.h>
+ 
+ #include <asm/unistd.h>
+ 
+@@ -929,7 +930,7 @@ void fastcall fd_install(unsigned int fd
+ 	fdt = files_fdtable(files);
+ 	if (unlikely(fdt->fd[fd] != NULL))
  		BUG();
--	files->fd[fd] = file;
-+	fdt->fd[fd] = file;
+-	fdt->fd[fd] = file;
++	rcu_assign_pointer(fdt->fd[fd], file);
  	spin_unlock(&files->file_lock);
  }
  
-@@ -1015,15 +1020,17 @@ asmlinkage long sys_close(unsigned int f
- {
- 	struct file * filp;
- 	struct files_struct *files = current->files;
-+	struct fdtable *fdt;
- 
- 	spin_lock(&files->file_lock);
--	if (fd >= files->max_fds)
-+	fdt = files_fdtable(files);
-+	if (fd >= fdt->max_fds)
- 		goto out_unlock;
--	filp = files->fd[fd];
-+	filp = fdt->fd[fd];
+@@ -1029,7 +1030,7 @@ asmlinkage long sys_close(unsigned int f
+ 	filp = fdt->fd[fd];
  	if (!filp)
  		goto out_unlock;
--	files->fd[fd] = NULL;
--	FD_CLR(fd, files->close_on_exec);
-+	fdt->fd[fd] = NULL;
-+	FD_CLR(fd, fdt->close_on_exec);
+-	fdt->fd[fd] = NULL;
++	rcu_assign_pointer(fdt->fd[fd], NULL);
+ 	FD_CLR(fd, fdt->close_on_exec);
  	__put_unused_fd(files, fd);
  	spin_unlock(&files->file_lock);
- 	return filp_close(filp, files);
-diff -puN fs/proc/array.c~break-up-files-struct fs/proc/array.c
---- linux-2.6.12-rc5-fd/fs/proc/array.c~break-up-files-struct	2005-05-29 18:54:07.000000000 +0530
-+++ linux-2.6.12-rc5-fd-dipankar/fs/proc/array.c	2005-05-29 18:54:07.000000000 +0530
-@@ -159,6 +159,7 @@ static inline char * task_state(struct t
- {
- 	struct group_info *group_info;
- 	int g;
-+	struct fdtable *fdt = NULL;
- 
- 	read_lock(&tasklist_lock);
- 	buffer += sprintf(buffer,
-@@ -179,10 +180,12 @@ static inline char * task_state(struct t
- 		p->gid, p->egid, p->sgid, p->fsgid);
- 	read_unlock(&tasklist_lock);
- 	task_lock(p);
-+	if (p->files)
-+		fdt = files_fdtable(p->files);
- 	buffer += sprintf(buffer,
- 		"FDSize:\t%d\n"
- 		"Groups:\t",
--		p->files ? p->files->max_fds : 0);
-+		fdt ? fdt->max_fds : 0);
- 
- 	group_info = p->group_info;
- 	get_group_info(group_info);
-diff -puN fs/proc/base.c~break-up-files-struct fs/proc/base.c
---- linux-2.6.12-rc5-fd/fs/proc/base.c~break-up-files-struct	2005-05-29 18:54:07.000000000 +0530
-+++ linux-2.6.12-rc5-fd-dipankar/fs/proc/base.c	2005-05-29 18:54:07.000000000 +0530
-@@ -978,6 +978,7 @@ static int proc_readfd(struct file * fil
- 	int retval;
- 	char buf[NUMBUF];
- 	struct files_struct * files;
-+	struct fdtable *fdt;
- 
- 	retval = -ENOENT;
- 	if (!pid_alive(p))
-@@ -1001,8 +1002,9 @@ static int proc_readfd(struct file * fil
- 			if (!files)
- 				goto out;
- 			spin_lock(&files->file_lock);
-+			fdt = files_fdtable(files);
- 			for (fd = filp->f_pos-2;
--			     fd < files->max_fds;
-+			     fd < fdt->max_fds;
- 			     fd++, filp->f_pos++) {
- 				unsigned int i,j;
- 
-diff -puN fs/select.c~break-up-files-struct fs/select.c
---- linux-2.6.12-rc5-fd/fs/select.c~break-up-files-struct	2005-05-29 18:54:07.000000000 +0530
-+++ linux-2.6.12-rc5-fd-dipankar/fs/select.c	2005-05-29 18:54:07.000000000 +0530
-@@ -132,11 +132,13 @@ static int max_select_fd(unsigned long n
- 	unsigned long *open_fds;
- 	unsigned long set;
- 	int max;
-+	struct fdtable *fdt;
- 
- 	/* handle last in-complete long-word first */
- 	set = ~(~0UL << (n & (__NFDBITS-1)));
- 	n /= __NFDBITS;
--	open_fds = current->files->open_fds->fds_bits+n;
-+	fdt = files_fdtable(current->files);
-+	open_fds = fdt->open_fds->fds_bits+n;
- 	max = 0;
- 	if (set) {
- 		set &= BITS(fds, n);
-@@ -299,6 +301,7 @@ sys_select(int n, fd_set __user *inp, fd
- 	char *bits;
- 	long timeout;
- 	int ret, size, max_fdset;
-+	struct fdtable *fdt;
- 
- 	timeout = MAX_SCHEDULE_TIMEOUT;
- 	if (tvp) {
-@@ -326,7 +329,8 @@ sys_select(int n, fd_set __user *inp, fd
- 		goto out_nofds;
- 
- 	/* max_fdset can increase, so grab it once to avoid race */
--	max_fdset = current->files->max_fdset;
-+	fdt = files_fdtable(current->files);
-+	max_fdset = fdt->max_fdset;
- 	if (n > max_fdset)
- 		n = max_fdset;
- 
-@@ -464,9 +468,11 @@ asmlinkage long sys_poll(struct pollfd _
-  	unsigned int i;
- 	struct poll_list *head;
-  	struct poll_list *walk;
-+	struct fdtable *fdt;
- 
- 	/* Do a sanity check on nfds ... */
--	if (nfds > current->files->max_fdset && nfds > OPEN_MAX)
-+	fdt = files_fdtable(current->files);
-+	if (nfds > fdt->max_fdset && nfds > OPEN_MAX)
- 		return -EINVAL;
- 
- 	if (timeout) {
-diff -puN include/linux/file.h~break-up-files-struct include/linux/file.h
---- linux-2.6.12-rc5-fd/include/linux/file.h~break-up-files-struct	2005-05-29 18:54:07.000000000 +0530
+diff -puN include/linux/file.h~files-struct-rcu include/linux/file.h
+--- linux-2.6.12-rc5-fd/include/linux/file.h~files-struct-rcu	2005-05-29 18:54:07.000000000 +0530
 +++ linux-2.6.12-rc5-fd-dipankar/include/linux/file.h	2005-05-29 18:54:07.000000000 +0530
-@@ -16,23 +16,29 @@
-  */
- #define NR_OPEN_DEFAULT BITS_PER_LONG
+@@ -9,6 +9,7 @@
+ #include <linux/posix_types.h>
+ #include <linux/compiler.h>
+ #include <linux/spinlock.h>
++#include <linux/rcupdate.h>
  
-+struct fdtable {
-+	int max_fds;
-+	int max_fdset;
-+	int next_fd;
-+	struct file ** fd;      /* current fd array */
-+	fd_set *close_on_exec;
-+	fd_set *open_fds;
-+};
-+
  /*
-  * Open file table structure
-  */
+  * The default fd array needs to be at least BITS_PER_LONG,
+@@ -23,6 +24,9 @@ struct fdtable {
+ 	struct file ** fd;      /* current fd array */
+ 	fd_set *close_on_exec;
+ 	fd_set *open_fds;
++	struct rcu_head rcu;
++	struct files_struct *free_files;
++	struct fdtable *next;
+ };
+ 
+ /*
+@@ -31,13 +35,14 @@ struct fdtable {
  struct files_struct {
          atomic_t count;
          spinlock_t file_lock;     /* Protects all the below members.  Nests inside tsk->alloc_lock */
--        int max_fds;
--        int max_fdset;
--        int next_fd;
--        struct file ** fd;      /* current fd array */
--        fd_set *close_on_exec;
--        fd_set *open_fds;
-+	struct fdtable fdtab;
++	struct fdtable *fdt;
+ 	struct fdtable fdtab;
          fd_set close_on_exec_init;
          fd_set open_fds_init;
          struct file * fd_array[NR_OPEN_DEFAULT];
  };
  
-+#define files_fdtable(files) (&(files)->fdtab)
-+
+-#define files_fdtable(files) (&(files)->fdtab)
++#define files_fdtable(files) (rcu_dereference((files)->fdt))
+ 
  extern void FASTCALL(__fput(struct file *));
  extern void FASTCALL(fput(struct file *));
+@@ -65,6 +70,8 @@ extern fd_set *alloc_fdset(int);
+ extern void free_fdset(fd_set *, int);
  
-@@ -63,9 +69,10 @@ extern int expand_files(struct files_str
+ extern int expand_files(struct files_struct *, int nr);
++extern void free_fdtable(struct fdtable *fdt);
++extern void __init files_defer_init(void);
+ 
  static inline struct file * fcheck_files(struct files_struct *files, unsigned int fd)
  {
- 	struct file * file = NULL;
-+	struct fdtable *fdt = files_fdtable(files);
+@@ -72,7 +79,7 @@ static inline struct file * fcheck_files
+ 	struct fdtable *fdt = files_fdtable(files);
  
--	if (fd < files->max_fds)
--		file = files->fd[fd];
-+	if (fd < fdt->max_fds)
-+		file = fdt->fd[fd];
+ 	if (fd < fdt->max_fds)
+-		file = fdt->fd[fd];
++		file = rcu_dereference(fdt->fd[fd]);
  	return file;
  }
  
-diff -puN include/linux/init_task.h~break-up-files-struct include/linux/init_task.h
---- linux-2.6.12-rc5-fd/include/linux/init_task.h~break-up-files-struct	2005-05-29 18:54:07.000000000 +0530
+diff -puN include/linux/fs.h~files-struct-rcu include/linux/fs.h
+--- linux-2.6.12-rc5-fd/include/linux/fs.h~files-struct-rcu	2005-05-29 18:54:07.000000000 +0530
++++ linux-2.6.12-rc5-fd-dipankar/include/linux/fs.h	2005-05-29 18:54:07.000000000 +0530
+@@ -9,6 +9,7 @@
+ #include <linux/config.h>
+ #include <linux/limits.h>
+ #include <linux/ioctl.h>
++#include <linux/rcuref.h>
+ 
+ /*
+  * It's silly to have NR_OPEN bigger than NR_FILE, but you can change
+@@ -600,12 +601,13 @@ struct file {
+ 	spinlock_t		f_ep_lock;
+ #endif /* #ifdef CONFIG_EPOLL */
+ 	struct address_space	*f_mapping;
++	struct rcu_head 	f_rcuhead;
+ };
+ extern spinlock_t files_lock;
+ #define file_list_lock() spin_lock(&files_lock);
+ #define file_list_unlock() spin_unlock(&files_lock);
+ 
+-#define get_file(x)	atomic_inc(&(x)->f_count)
++#define get_file(x)	rcuref_inc(&(x)->f_count)
+ #define file_count(x)	atomic_read(&(x)->f_count)
+ 
+ #define	MAX_NON_LFS	((1UL<<31) - 1)
+diff -puN include/linux/init_task.h~files-struct-rcu include/linux/init_task.h
+--- linux-2.6.12-rc5-fd/include/linux/init_task.h~files-struct-rcu	2005-05-29 18:54:07.000000000 +0530
 +++ linux-2.6.12-rc5-fd-dipankar/include/linux/init_task.h	2005-05-29 18:54:07.000000000 +0530
-@@ -3,16 +3,21 @@
+@@ -2,6 +2,7 @@
+ #define _LINUX__INIT_TASK_H
  
  #include <linux/file.h>
++#include <linux/rcupdate.h>
  
--#define INIT_FILES \
--{ 							\
--	.count		= ATOMIC_INIT(1), 		\
--	.file_lock	= SPIN_LOCK_UNLOCKED, 		\
-+#define INIT_FDTABLE \
-+{							\
- 	.max_fds	= NR_OPEN_DEFAULT, 		\
- 	.max_fdset	= __FD_SETSIZE, 		\
- 	.next_fd	= 0, 				\
+ #define INIT_FDTABLE \
+ {							\
+@@ -11,12 +12,16 @@
  	.fd		= &init_files.fd_array[0], 	\
  	.close_on_exec	= &init_files.close_on_exec_init, \
  	.open_fds	= &init_files.open_fds_init, 	\
-+}
-+
-+#define INIT_FILES \
-+{ 							\
-+	.count		= ATOMIC_INIT(1), 		\
-+	.file_lock	= SPIN_LOCK_UNLOCKED, 		\
-+	.fdtab		= INIT_FDTABLE,			\
++	.rcu		= RCU_HEAD_INIT, 		\
++	.free_files	= NULL,		 		\
++	.next		= NULL,		 		\
+ }
+ 
+ #define INIT_FILES \
+ { 							\
+ 	.count		= ATOMIC_INIT(1), 		\
+ 	.file_lock	= SPIN_LOCK_UNLOCKED, 		\
++	.fdt		= &init_files.fdtab, 		\
+ 	.fdtab		= INIT_FDTABLE,			\
  	.close_on_exec_init = { { 0, } }, 		\
  	.open_fds_init	= { { 0, } }, 			\
- 	.fd_array	= { NULL, } 			\
-diff -puN kernel/exit.c~break-up-files-struct kernel/exit.c
---- linux-2.6.12-rc5-fd/kernel/exit.c~break-up-files-struct	2005-05-29 18:54:07.000000000 +0530
+diff -puN kernel/exit.c~files-struct-rcu kernel/exit.c
+--- linux-2.6.12-rc5-fd/kernel/exit.c~files-struct-rcu	2005-05-29 18:54:07.000000000 +0530
 +++ linux-2.6.12-rc5-fd-dipankar/kernel/exit.c	2005-05-29 18:54:07.000000000 +0530
-@@ -363,17 +363,19 @@ EXPORT_SYMBOL(daemonize);
- static inline void close_files(struct files_struct * files)
- {
- 	int i, j;
-+	struct fdtable *fdt;
- 
- 	j = 0;
-+	fdt = files_fdtable(files);
- 	for (;;) {
- 		unsigned long set;
- 		i = j * __NFDBITS;
--		if (i >= files->max_fdset || i >= files->max_fds)
-+		if (i >= fdt->max_fdset || i >= fdt->max_fds)
- 			break;
--		set = files->open_fds->fds_bits[j++];
-+		set = fdt->open_fds->fds_bits[j++];
- 		while (set) {
- 			if (set & 1) {
--				struct file * file = xchg(&files->fd[i], NULL);
-+				struct file * file = xchg(&fdt->fd[i], NULL);
- 				if (file)
- 					filp_close(file, files);
- 			}
-@@ -398,16 +400,19 @@ struct files_struct *get_files_struct(st
- 
- void fastcall put_files_struct(struct files_struct *files)
- {
-+	struct fdtable *fdt;
-+
- 	if (atomic_dec_and_test(&files->count)) {
+@@ -406,15 +406,16 @@ void fastcall put_files_struct(struct fi
  		close_files(files);
  		/*
  		 * Free the fd and fdset arrays if we expanded them.
++		 * If the fdtable was embedded, pass files for freeing
++		 * at the end of the RCU grace period. Otherwise,
++		 * you can free files immediately.
  		 */
--		if (files->fd != &files->fd_array[0])
--			free_fd_array(files->fd, files->max_fds);
--		if (files->max_fdset > __FD_SETSIZE) {
--			free_fdset(files->open_fds, files->max_fdset);
--			free_fdset(files->close_on_exec, files->max_fdset);
-+		fdt = files_fdtable(files);
-+		if (fdt->fd != &files->fd_array[0])
-+			free_fd_array(fdt->fd, fdt->max_fds);
-+		if (fdt->max_fdset > __FD_SETSIZE) {
-+			free_fdset(fdt->open_fds, fdt->max_fdset);
-+			free_fdset(fdt->close_on_exec, fdt->max_fdset);
- 		}
- 		kmem_cache_free(files_cachep, files);
+ 		fdt = files_fdtable(files);
+-		if (fdt->fd != &files->fd_array[0])
+-			free_fd_array(fdt->fd, fdt->max_fds);
+-		if (fdt->max_fdset > __FD_SETSIZE) {
+-			free_fdset(fdt->open_fds, fdt->max_fdset);
+-			free_fdset(fdt->close_on_exec, fdt->max_fdset);
+-		}
+-		kmem_cache_free(files_cachep, files);
++		if (fdt == &files->fdtab)
++			fdt->free_files = files;
++		else 
++			kmem_cache_free(files_cachep, files);
++		free_fdtable(fdt);
  	}
-diff -puN kernel/fork.c~break-up-files-struct kernel/fork.c
---- linux-2.6.12-rc5-fd/kernel/fork.c~break-up-files-struct	2005-05-29 18:54:07.000000000 +0530
-+++ linux-2.6.12-rc5-fd-dipankar/kernel/fork.c	2005-05-29 18:54:07.000000000 +0530
-@@ -562,21 +562,47 @@ static inline int copy_fs(unsigned long 
- static int count_open_files(struct files_struct *files, int size)
- {
- 	int i;
-+	struct fdtable *fdt;
- 
- 	/* Find the last open fd */
-+	fdt = files_fdtable(files);
- 	for (i = size/(8*sizeof(long)); i > 0; ) {
--		if (files->open_fds->fds_bits[--i])
-+		if (fdt->open_fds->fds_bits[--i])
- 			break;
- 	}
- 	i = (i+1) * 8 * sizeof(long);
- 	return i;
  }
  
-+static struct files_struct *alloc_files(void)
-+{
-+	struct files_struct *newf;
-+	struct fdtable *fdt;
-+
-+	newf = kmem_cache_alloc(files_cachep, SLAB_KERNEL);
-+	if (!newf) 
-+		goto out;
-+
-+	atomic_set(&newf->count, 1);
-+
-+	spin_lock_init(&newf->file_lock);
-+	fdt = files_fdtable(newf);
-+	fdt->next_fd = 0;
-+	fdt->max_fds = NR_OPEN_DEFAULT;
-+	fdt->max_fdset = __FD_SETSIZE;
-+	fdt->close_on_exec = &newf->close_on_exec_init;
-+	fdt->open_fds = &newf->open_fds_init;
-+	fdt->fd = &newf->fd_array[0];
-+out:
-+	return newf;
-+}
-+
- static int copy_files(unsigned long clone_flags, struct task_struct * tsk)
+diff -puN kernel/fork.c~files-struct-rcu kernel/fork.c
+--- linux-2.6.12-rc5-fd/kernel/fork.c~files-struct-rcu	2005-05-29 18:54:07.000000000 +0530
++++ linux-2.6.12-rc5-fd-dipankar/kernel/fork.c	2005-05-29 18:54:07.000000000 +0530
+@@ -35,6 +35,7 @@
+ #include <linux/syscalls.h>
+ #include <linux/jiffies.h>
+ #include <linux/futex.h>
++#include <linux/rcupdate.h>
+ #include <linux/ptrace.h>
+ #include <linux/mount.h>
+ #include <linux/audit.h>
+@@ -559,13 +560,12 @@ static inline int copy_fs(unsigned long 
+ 	return 0;
+ }
+ 
+-static int count_open_files(struct files_struct *files, int size)
++static int count_open_files(struct fdtable *fdt)
  {
- 	struct files_struct *oldf, *newf;
- 	struct file **old_fds, **new_fds;
- 	int open_files, size, i, error = 0, expand;
-+	struct fdtable *old_fdt, *new_fdt;
++	int size = fdt->max_fdset;
+ 	int i;
+-	struct fdtable *fdt;
  
- 	/*
- 	 * A background process may not have any files ...
-@@ -597,35 +623,27 @@ static int copy_files(unsigned long clon
- 	 */
- 	tsk->files = NULL;
- 	error = -ENOMEM;
--	newf = kmem_cache_alloc(files_cachep, SLAB_KERNEL);
--	if (!newf) 
-+	newf = alloc_files();
-+	if (!newf)
- 		goto out;
+ 	/* Find the last open fd */
+-	fdt = files_fdtable(files);
+ 	for (i = size/(8*sizeof(long)); i > 0; ) {
+ 		if (fdt->open_fds->fds_bits[--i])
+ 			break;
+@@ -586,13 +586,17 @@ static struct files_struct *alloc_files(
+ 	atomic_set(&newf->count, 1);
  
--	atomic_set(&newf->count, 1);
--
--	spin_lock_init(&newf->file_lock);
--	newf->next_fd	    = 0;
--	newf->max_fds	    = NR_OPEN_DEFAULT;
--	newf->max_fdset	    = __FD_SETSIZE;
--	newf->close_on_exec = &newf->close_on_exec_init;
--	newf->open_fds	    = &newf->open_fds_init;
--	newf->fd	    = &newf->fd_array[0];
--
- 	spin_lock(&oldf->file_lock);
--
--	open_files = count_open_files(oldf, oldf->max_fdset);
-+	old_fdt = files_fdtable(oldf);
-+	new_fdt = files_fdtable(newf);
-+	size = old_fdt->max_fdset;
-+	open_files = count_open_files(oldf, old_fdt->max_fdset);
+ 	spin_lock_init(&newf->file_lock);
+-	fdt = files_fdtable(newf);
++	fdt = &newf->fdtab;
+ 	fdt->next_fd = 0;
+ 	fdt->max_fds = NR_OPEN_DEFAULT;
+ 	fdt->max_fdset = __FD_SETSIZE;
+ 	fdt->close_on_exec = &newf->close_on_exec_init;
+ 	fdt->open_fds = &newf->open_fds_init;
+ 	fdt->fd = &newf->fd_array[0];
++	INIT_RCU_HEAD(&fdt->rcu);
++	fdt->free_files = NULL;
++	fdt->next = NULL;
++	rcu_assign_pointer(newf->fdt, fdt);
+ out:
+ 	return newf;
+ }
+@@ -631,7 +635,7 @@ static int copy_files(unsigned long clon
+ 	old_fdt = files_fdtable(oldf);
+ 	new_fdt = files_fdtable(newf);
+ 	size = old_fdt->max_fdset;
+-	open_files = count_open_files(oldf, old_fdt->max_fdset);
++	open_files = count_open_files(old_fdt);
  	expand = 0;
  
  	/*
- 	 * Check whether we need to allocate a larger fd array or fd set.
- 	 * Note: we're not a clone task, so the open count won't  change.
- 	 */
--	if (open_files > newf->max_fdset) {
--		newf->max_fdset = 0;
-+	if (open_files > new_fdt->max_fdset) {
-+		new_fdt->max_fdset = 0;
- 		expand = 1;
- 	}
--	if (open_files > newf->max_fds) {
--		newf->max_fds = 0;
-+	if (open_files > new_fdt->max_fds) {
-+		new_fdt->max_fds = 0;
- 		expand = 1;
- 	}
- 
-@@ -640,11 +658,11 @@ static int copy_files(unsigned long clon
+@@ -655,7 +659,14 @@ static int copy_files(unsigned long clon
+ 		spin_unlock(&newf->file_lock);
+ 		if (error < 0)
+ 			goto out_release;
++		new_fdt = files_fdtable(newf);
++		/*
++		 * Reacquire the oldf lock and a pointer to its fd table
++		 * who knows it may have a new bigger fd table. We need
++		 * the latest pointer.
++		 */
  		spin_lock(&oldf->file_lock);
++		old_fdt = files_fdtable(oldf);
  	}
  
--	old_fds = oldf->fd;
--	new_fds = newf->fd;
-+	old_fds = old_fdt->fd;
-+	new_fds = new_fdt->fd;
- 
--	memcpy(newf->open_fds->fds_bits, oldf->open_fds->fds_bits, open_files/8);
--	memcpy(newf->close_on_exec->fds_bits, oldf->close_on_exec->fds_bits, open_files/8);
-+	memcpy(new_fdt->open_fds->fds_bits, old_fdt->open_fds->fds_bits, open_files/8);
-+	memcpy(new_fdt->close_on_exec->fds_bits, old_fdt->close_on_exec->fds_bits, open_files/8);
- 
- 	for (i = open_files; i != 0; i--) {
- 		struct file *f = *old_fds++;
-@@ -657,24 +675,24 @@ static int copy_files(unsigned long clon
- 			 * is partway through open().  So make sure that this
- 			 * fd is available to the new process.
+ 	old_fds = old_fdt->fd;
+@@ -677,7 +688,7 @@ static int copy_files(unsigned long clon
  			 */
--			FD_CLR(open_files - i, newf->open_fds);
-+			FD_CLR(open_files - i, new_fdt->open_fds);
+ 			FD_CLR(open_files - i, new_fdt->open_fds);
  		}
- 		*new_fds++ = f;
+-		*new_fds++ = f;
++		rcu_assign_pointer(*new_fds++, f);
  	}
  	spin_unlock(&oldf->file_lock);
  
- 	/* compute the remainder to be cleared */
--	size = (newf->max_fds - open_files) * sizeof(struct file *);
-+	size = (new_fdt->max_fds - open_files) * sizeof(struct file *);
- 
- 	/* This is long word aligned thus could use a optimized version */ 
- 	memset(new_fds, 0, size); 
- 
--	if (newf->max_fdset > open_files) {
--		int left = (newf->max_fdset-open_files)/8;
-+	if (new_fdt->max_fdset > open_files) {
-+		int left = (new_fdt->max_fdset-open_files)/8;
- 		int start = open_files / (8 * sizeof(unsigned long));
- 
--		memset(&newf->open_fds->fds_bits[start], 0, left);
--		memset(&newf->close_on_exec->fds_bits[start], 0, left);
-+		memset(&new_fdt->open_fds->fds_bits[start], 0, left);
-+		memset(&new_fdt->close_on_exec->fds_bits[start], 0, left);
- 	}
- 
- 	tsk->files = newf;
-@@ -683,9 +701,9 @@ out:
- 	return error;
- 
- out_release:
--	free_fdset (newf->close_on_exec, newf->max_fdset);
--	free_fdset (newf->open_fds, newf->max_fdset);
--	free_fd_array(newf->fd, newf->max_fds);
-+	free_fdset (new_fdt->close_on_exec, new_fdt->max_fdset);
-+	free_fdset (new_fdt->open_fds, new_fdt->max_fdset);
-+	free_fd_array(new_fdt->fd, new_fdt->max_fds);
- 	kmem_cache_free(files_cachep, newf);
- 	goto out;
- }
-diff -puN net/ipv4/netfilter/ipt_owner.c~break-up-files-struct net/ipv4/netfilter/ipt_owner.c
---- linux-2.6.12-rc5-fd/net/ipv4/netfilter/ipt_owner.c~break-up-files-struct	2005-05-29 18:54:07.000000000 +0530
-+++ linux-2.6.12-rc5-fd-dipankar/net/ipv4/netfilter/ipt_owner.c	2005-05-29 18:54:07.000000000 +0530
-@@ -25,6 +25,7 @@ match_comm(const struct sk_buff *skb, co
- {
- 	struct task_struct *g, *p;
- 	struct files_struct *files;
-+	struct fdtable *fdt;
- 	int i;
- 
- 	read_lock(&tasklist_lock);
-@@ -36,7 +37,8 @@ match_comm(const struct sk_buff *skb, co
- 		files = p->files;
- 		if(files) {
- 			spin_lock(&files->file_lock);
--			for (i=0; i < files->max_fds; i++) {
-+			fdt = files_fdtable(files);
-+			for (i=0; i < fdt->max_fds; i++) {
- 				if (fcheck_files(files, i) ==
- 				    skb->sk->sk_socket->file) {
- 					spin_unlock(&files->file_lock);
-@@ -58,6 +60,7 @@ match_pid(const struct sk_buff *skb, pid
- {
- 	struct task_struct *p;
- 	struct files_struct *files;
-+	struct fdtable *fdt;
- 	int i;
- 
- 	read_lock(&tasklist_lock);
-@@ -68,7 +71,8 @@ match_pid(const struct sk_buff *skb, pid
- 	files = p->files;
- 	if(files) {
- 		spin_lock(&files->file_lock);
--		for (i=0; i < files->max_fds; i++) {
-+		fdt = files_fdtable(files);
-+		for (i=0; i < fdt->max_fds; i++) {
- 			if (fcheck_files(files, i) ==
- 			    skb->sk->sk_socket->file) {
- 				spin_unlock(&files->file_lock);
-@@ -90,6 +94,7 @@ match_sid(const struct sk_buff *skb, pid
- {
- 	struct task_struct *g, *p;
- 	struct file *file = skb->sk->sk_socket->file;
-+	struct fdtable *fdt;
- 	int i, found=0;
- 
- 	read_lock(&tasklist_lock);
-@@ -102,7 +107,8 @@ match_sid(const struct sk_buff *skb, pid
- 		files = p->files;
- 		if (files) {
- 			spin_lock(&files->file_lock);
--			for (i=0; i < files->max_fds; i++) {
-+			fdt = files_fdtable(files);
-+			for (i=0; i < fdt->max_fds; i++) {
- 				if (fcheck_files(files, i) == file) {
- 					found = 1;
- 					break;
-diff -puN net/ipv6/netfilter/ip6t_owner.c~break-up-files-struct net/ipv6/netfilter/ip6t_owner.c
---- linux-2.6.12-rc5-fd/net/ipv6/netfilter/ip6t_owner.c~break-up-files-struct	2005-05-29 18:54:07.000000000 +0530
-+++ linux-2.6.12-rc5-fd-dipankar/net/ipv6/netfilter/ip6t_owner.c	2005-05-29 18:54:07.000000000 +0530
-@@ -25,6 +25,7 @@ match_pid(const struct sk_buff *skb, pid
- {
- 	struct task_struct *p;
- 	struct files_struct *files;
-+	struct fdtable *fdt;
- 	int i;
- 
- 	read_lock(&tasklist_lock);
-@@ -35,7 +36,8 @@ match_pid(const struct sk_buff *skb, pid
- 	files = p->files;
- 	if(files) {
- 		spin_lock(&files->file_lock);
--		for (i=0; i < files->max_fds; i++) {
-+		fdt = files_fdtable(files);
-+		for (i=0; i < fdt->max_fds; i++) {
- 			if (fcheck_files(files, i) == skb->sk->sk_socket->file) {
- 				spin_unlock(&files->file_lock);
- 				task_unlock(p);
-@@ -61,6 +63,7 @@ match_sid(const struct sk_buff *skb, pid
- 	read_lock(&tasklist_lock);
- 	do_each_thread(g, p) {
- 		struct files_struct *files;
-+		struct fdtable *fdt;
- 		if (p->signal->session != sid)
- 			continue;
- 
-@@ -68,7 +71,8 @@ match_sid(const struct sk_buff *skb, pid
- 		files = p->files;
- 		if (files) {
- 			spin_lock(&files->file_lock);
--			for (i=0; i < files->max_fds; i++) {
-+			fdt = files_fdtable(files);
-+			for (i=0; i < fdt->max_fds; i++) {
- 				if (fcheck_files(files, i) == file) {
- 					found = 1;
- 					break;
-diff -puN security/selinux/hooks.c~break-up-files-struct security/selinux/hooks.c
---- linux-2.6.12-rc5-fd/security/selinux/hooks.c~break-up-files-struct	2005-05-29 18:54:07.000000000 +0530
-+++ linux-2.6.12-rc5-fd-dipankar/security/selinux/hooks.c	2005-05-29 18:54:07.000000000 +0530
-@@ -1672,6 +1672,7 @@ static inline void flush_unauthorized_fi
- 	struct avc_audit_data ad;
- 	struct file *file, *devnull = NULL;
- 	struct tty_struct *tty = current->signal->tty;
-+	struct fdtable *fdt;
- 	long j = -1;
- 
- 	if (tty) {
-@@ -1705,9 +1706,10 @@ static inline void flush_unauthorized_fi
- 
- 		j++;
- 		i = j * __NFDBITS;
--		if (i >= files->max_fds || i >= files->max_fdset)
-+		fdt = files_fdtable(files);
-+		if (i >= fdt->max_fds || i >= fdt->max_fdset)
- 			break;
--		set = files->open_fds->fds_bits[j];
-+		set = fdt->open_fds->fds_bits[j];
- 		if (!set)
- 			continue;
- 		spin_unlock(&files->file_lock);
 
 _

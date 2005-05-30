@@ -1,80 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVE3NXQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261539AbVE3NZm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261528AbVE3NXQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 09:23:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVE3NXQ
+	id S261539AbVE3NZm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 09:25:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261557AbVE3NZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 09:23:16 -0400
-Received: from relay.snowman.net ([66.92.160.56]:2060 "EHLO relay.snowman.net")
-	by vger.kernel.org with ESMTP id S261528AbVE3NXA (ORCPT
+	Mon, 30 May 2005 09:25:42 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:53512 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S261539AbVE3NZZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 09:23:00 -0400
-Date: Mon, 30 May 2005 09:23:28 -0400
-From: Stephen Frost <sfrost@snowman.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-       Bernd Eckenfels <ecki@lina.inka.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RAID-5 design bug (or misfeature)
-Message-ID: <20050530132328.GA30011@ns.snowman.net>
-Mail-Followup-To: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>,
-	Bernd Eckenfels <ecki@lina.inka.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <E1DcXfR-0000zf-00@calista.eckenfels.6bone.ka-ip.net> <Pine.LNX.4.58.0505300440550.15088@artax.karlin.mff.cuni.cz> <1117454144.2685.174.camel@localhost.localdomain>
+	Mon, 30 May 2005 09:25:25 -0400
+Date: Mon, 30 May 2005 06:30:07 -0700
+To: Andi Kleen <ak@muc.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Takashi Iwai <tiwai@suse.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
+       bhuey@lnxw.com, nickpiggin@yahoo.com.au, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: what is the -RT tree
+Message-ID: <20050530133007.GA8641@nietzsche.lynx.com>
+References: <20050527124837.GA7253@elte.hu> <20050527125630.GE86087@muc.de> <20050527131317.GA11071@elte.hu> <20050527133122.GF86087@muc.de> <s5hwtpkwz4z.wl@alsa2.suse.de> <20050530095349.GK86087@muc.de> <20050530103347.GA13425@elte.hu> <20050530105618.GL86087@muc.de> <20050530121031.GA26255@elte.hu> <20050530124038.GM86087@muc.de>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="uyMgqQZe5lFtt8vD"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1117454144.2685.174.camel@localhost.localdomain>
-X-Editor: Vim http://www.vim.org/
-X-Info: http://www.snowman.net
-X-Operating-System: Linux/2.4.24ns.3.0 (i686)
-X-Uptime: 09:21:48 up 485 days,  8:10, 31 users,  load average: 4.16, 4.29, 4.27
-User-Agent: Mutt/1.5.6+20040907i
+In-Reply-To: <20050530124038.GM86087@muc.de>
+User-Agent: Mutt/1.5.9i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 30, 2005 at 02:40:38PM +0200, Andi Kleen wrote:
+...
+> Ok where are the big issues left? 
 
---uyMgqQZe5lFtt8vD
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Pretty much the entire kernel and anything that has a loop in it.
+That's why the use of preemption points can't work in that it
+can't be spread throughout the kernel in the way you've mentioned.
+ 
+> Yes, I understand that. But because of that it is not really
+> fair to compare the standard kernel to RT tree with all bells and whistles
+> enabled. I think it would be much better if RT was considered
+> as individual pieces, not all or nothing.
 
-* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
-> On Llu, 2005-05-30 at 03:47, Mikulas Patocka wrote:
-> > > In article <Pine.LNX.4.58.0505300043540.5305@artax.karlin.mff.cuni.cz=
-> you wrote:
-> > > > I think Linux should stop accessing all disks in RAID-5 array if tw=
-o disks
-> > > > fail and not write "this array is dead" in superblocks on remaining=
- disks,
-> > > > efficiently destroying the whole array.
->=20
-> It discovered the disks had failed because they had outstanding I/O that
-> failed to complete and errorred. At that point your stripes *are*
-> inconsistent. If it didn't mark them as failed then you wouldn't know it
-> was corrupted after a power restore. You can then clean it fsck it,
-> restore it, use mdadm as appropriate to restore the volume and check it.
+The lock work is an all or nothing chunk. It's the main portion
+of this patch that gives the major performance boost. All other
+work is marginal at best to support latency or instrumentation
+to back it. No insult, but Ingo's has said this multipule times.
 
-Could that I/O be backed out when it's discovered that there's too many
-dead disks for the array to be kept online anymore?
+bill
 
-	Just a thought,
-
-		Stephen
-
---uyMgqQZe5lFtt8vD
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCmxPPrzgMPqB3kigRAi2hAJwOhjcNEtiSF/R3oESduHoMdQWREACfe+wp
-VnsDYkKHJf6gJPeOfxrRJek=
-=nQsV
------END PGP SIGNATURE-----
-
---uyMgqQZe5lFtt8vD--

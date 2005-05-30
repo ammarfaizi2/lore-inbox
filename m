@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbVE3AGT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVE3ANO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261471AbVE3AGT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 20:06:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261476AbVE3AGT
+	id S261355AbVE3ANO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 20:13:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbVE3ANO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 20:06:19 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:31762 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S261471AbVE3AGP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 20:06:15 -0400
-Message-ID: <429A58F4.3040308@rtr.ca>
-Date: Sun, 29 May 2005 20:06:12 -0400
-From: Mark Lord <liml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Erik Slagter <erik@slagter.name>
-Cc: Michael Thonke <iogl64nx@gmail.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: Re: Playing with SATA NCQ
-References: <20050526140058.GR1419@suse.de>	 <1117382598.4851.3.camel@localhost.localdomain>	 <4299F47B.5020603@gmail.com> <1117387591.4851.17.camel@localhost.localdomain>
-In-Reply-To: <1117387591.4851.17.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 29 May 2005 20:13:14 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:5392 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261355AbVE3ANK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 May 2005 20:13:10 -0400
+Date: Mon, 30 May 2005 02:13:08 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Bernhard Rosenkraenzer <bero@arklinux.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: ALSA Oops in 2.6.12-rc5-mm1
+Message-ID: <20050530001308.GH10441@stusta.de>
+References: <200505281425.08171.bero@arklinux.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200505281425.08171.bero@arklinux.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Erik Slagter wrote:
->
-> ICH6M (mobile/no raid) on a Dell Inspiron 9300 laptop. AFAIK there are
-> no plans to implement support for AHCI transition in the BIOS. &^$##($%
-> DELL.
+On Sat, May 28, 2005 at 02:25:08PM +0200, Bernhard Rosenkraenzer wrote:
 
-No hope of it on this machine (I'm using a tricked-out i9300 here too),
-because (1) the HD is PATA, not SATA, and (2) the drive itself probably
-doesn't support NCQ (my 100GB drive does NOT -- use "hdparm -I" to see
-what is supported on any given drive.  libata-dev includes hdparm support).
+> Unable to handle kernel NULL pointer dereference at virtual address 000000a4
+>  printing eip:
+> e0ead873
+> *pde = 00000000
+> Oops: 0002 [#1]
+>...
+> Call Trace:
+>  [<c0148c21>] remove_vm_struct+0x63/0x65
+>  [<c0149ed6>] do_munmap+0x1cf/0x22c
+>  [<c014a759>] sys_munmap+0x49/0x69
+>  [<c0102d7f>] sysenter_past_esp+0x54/0x75
+>...
 
-Cheers
+Known issue (already reported a dozen times on linux-kernel).
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

@@ -1,58 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbVE3SAo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261662AbVE3SCY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261659AbVE3SAo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 14:00:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVE3SAo
+	id S261662AbVE3SCY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 14:02:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261663AbVE3SCX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 14:00:44 -0400
-Received: from p-mail2.rd.francetelecom.com ([195.101.245.16]:54030 "EHLO
-	p-mail2.rd.francetelecom.com") by vger.kernel.org with ESMTP
-	id S261659AbVE3SAh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 14:00:37 -0400
-Message-ID: <429B54C4.7080601@cr0.org>
-Date: Mon, 30 May 2005 20:00:36 +0200
-From: Julien TINNES <julien-lkml@cr0.org>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Subject: Re: Linux-2.4.30-hf3
-References: <20050529223739.GA27341@exosec.fr> <20050530050746.GK18600@alpha.home.local> <20050530112449.GA5046@logos.cnet>
-In-Reply-To: <20050530112449.GA5046@logos.cnet>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 30 May 2005 18:00:34.0149 (UTC) FILETIME=[79D94950:01C56541]
+	Mon, 30 May 2005 14:02:23 -0400
+Received: from mta9.srv.hcvlny.cv.net ([167.206.4.204]:64824 "EHLO
+	mta9.srv.hcvlny.cv.net") by vger.kernel.org with ESMTP
+	id S261662AbVE3SCC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 14:02:02 -0400
+Date: Mon, 30 May 2005 14:01:56 -0400
+From: Jeff Sipek <jeffpc@optonline.net>
+Subject: Re: Adaptec AIC-79xx HostRaid
+In-reply-to: <20050530172105.GA15253@havoc.gtf.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Clemente Aguiar <caguiar@madeiratecnopolo.pt>,
+       linux-kernel@vger.kernel.org
+Message-id: <20050530180156.GA32606@optonline.net>
+MIME-version: 1.0
+Content-type: multipart/signed; boundary=vkogqOf2sHV7VnPd;
+ protocol="application/pgp-signature"; micalg=pgp-sha1
+Content-disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
+References: <6A0C419392D7BA45BD141D0BA4F253C776F1@loureiro.madeiratecnopolo.pt>
+ <20050530172105.GA15253@havoc.gtf.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Huh? I fail to see how that one is exploitable, given that no in-tree callers 
-> should pass "tty" as NULL to any of the affected functions (that is impossible, 
-> AFAICS).
-> 
-> No? Julien?
+--vkogqOf2sHV7VnPd
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-That's correct, this one does'nt seem to be exploitable.
+On Mon, May 30, 2005 at 01:21:05PM -0400, Jeff Garzik wrote:
+> On Mon, May 30, 2005 at 06:13:03PM +0100, Clemente Aguiar wrote:
+> >=20
+> > Hello,
+> >=20
+> > We have acquired some IBM xServers which have an integrated raid contro=
+ller
+> > based on the Adaptec AIC-79xx U320 SCSI controller (called HostRaid).
+> >=20
+> > Is there already support for HostRaid? Are there drivers for it?
+> > >From which kernel version and where do I find it in the config?
+>=20
+> HostRaid is just software RAID; you can ignore it and let Linux use the
+> underlying SCSI devices via the standard aic79xx driver.
 
-What I said is that the bug "class" (null pointer dereference) must not
-be seen as potential oopses and denial or services.
-As the first page is mappable, that can allow a user to gain control
-over some kernel datas.
+As far as I know, it is software raid done much closer to the hw than
+the linux sw raid (md).
 
+There is a module (binary only) from Adaptec that lets Linux use HostRaid,
+but from what I saw, it just worked with RHEL 3.x and some other ancient
+RH releases. When I was installing RHEL 4 on an IBM xServer, I decided to
+just do standard linux sw array.
 
-> Well, it requires root priveledges:
+Jeff.
 
-> +    if (!len) return -EINVAL;> 
->      if ( !suser () ) return -EPERM;   <---------------
-> 
-> So, its "safe".
+--vkogqOf2sHV7VnPd
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
-Well it's certainly not the worse bug ever, but root should'nt be able
-to gain control over the kernel that way.
-There are security models where root should'nt have that power: for
-example with SELinux, LIDS, RSBAC, GRsecurity you can have such a model
-where beeing root is not enough to gain control over the kernel.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
 
-Ok, the access control system should maybe prevent most processes to
-access mtrrs as well anyway ;)
+iD8DBQFCm1UUwFP0+seVj/4RAkadAJ0fpaXUx9/pByLsHYMHGvC6GvyJJwCfcFMg
+LZMFOzoSE8qpYLg6twWishI=
+=D7gf
+-----END PGP SIGNATURE-----
+
+--vkogqOf2sHV7VnPd--

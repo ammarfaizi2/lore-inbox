@@ -1,42 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVE3JmE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbVE3Jor@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261582AbVE3JmE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 05:42:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbVE3JlH
+	id S261580AbVE3Jor (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 05:44:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261583AbVE3JmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 05:41:07 -0400
-Received: from znsun1.ifh.de ([141.34.1.16]:44257 "EHLO znsun1.ifh.de")
-	by vger.kernel.org with ESMTP id S261580AbVE3Jiw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 05:38:52 -0400
-Date: Mon, 30 May 2005 11:30:37 +0200 (CEST)
-From: Patrick Boettcher <pb@linuxtv.org>
-X-X-Sender: pboettch@pub6.ifh.de
-To: Johannes Stezenbach <js@linuxtv.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc5-mm1: drivers/media/dvb/dvb-usb/a800.c compile error
-In-Reply-To: <20050530091434.GA5669@linuxtv.org>
-Message-ID: <Pine.LNX.4.61.0505301124070.11869@pub6.ifh.de>
-References: <20050525134933.5c22234a.akpm@osdl.org>     <20050529144548.GC10441@stusta.de>
-     <Pine.LNX.4.61.0505301024120.11869@pub6.ifh.de> <20050530091434.GA5669@linuxtv.org>
+	Mon, 30 May 2005 05:42:12 -0400
+Received: from mail.avantwave.com ([210.17.210.210]:36236 "EHLO
+	mail.avantwave.com") by vger.kernel.org with ESMTP id S261580AbVE3JlU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 05:41:20 -0400
+Message-ID: <429ADFB9.2010907@avantwave.com>
+Date: Mon, 30 May 2005 17:41:13 +0800
+From: Tomko <tomko@avantwave.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-Spam-Report: ALL_TRUSTED,BAYES_00
+To: linux-kernel@vger.kernel.org
+Subject: question : 802.11b WLAN stack in linux
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi all
 
-On Mon, 30 May 2005, Johannes Stezenbach wrote:
->> -	struct dvb_usb_device_description devices[];
->> +	struct dvb_usb_device_description devices[0];
->
-> That can't work in this context. Did you even try to compile?
+Do linux support WLAN stack ? i find in menuconfig but seems no there. 
+Do anyone know if there any stack and driver adapter of wireless in linux ?
 
-Only with gcc-2.95 and it worked...
 
-I guess I should have tried it with gcc-3.x before sending, sorry.
-
-regards,
-Patrick.
+Regards,
+TOM

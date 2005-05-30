@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261845AbVEaAFV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261842AbVEaAF0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261845AbVEaAFV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 20:05:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbVEaADf
+	id S261842AbVEaAF0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 20:05:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVEaADl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 20:03:35 -0400
-Received: from atpro.com ([12.161.0.3]:25351 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S261647AbVE3XyT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 19:54:19 -0400
-From: "Jim Crilly" <jim@why.dont.jablowme.net>
-Date: Mon, 30 May 2005 19:48:20 -0400
-To: "Ian E. Morgan" <imorgan@webcon.ca>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, pavel@suse.cz
-Subject: Re: Q: swsusp with S5 instead of S4?
-Message-ID: <20050530234820.GR28288@voodoo>
-Mail-Followup-To: "Ian E. Morgan" <imorgan@webcon.ca>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	pavel@suse.cz
-References: <Pine.LNX.4.62.0505021701090.14807@light.int.webcon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0505021701090.14807@light.int.webcon.net>
-User-Agent: Mutt/1.5.9i
+	Mon, 30 May 2005 20:03:41 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:64369 "EHLO
+	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S261729AbVE3X4C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 19:56:02 -0400
+Date: Mon, 30 May 2005 17:54:51 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: Adaptec AIC-79xx HostRaid
+In-reply-to: <49ZZT-qS-29@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <429BA7CB.1040400@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <49Zx1-8ne-21@gated-at.bofh.it> <49ZZT-qS-29@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05/02/05 05:13:15PM -0400, Ian E. Morgan wrote:
-> I'm using swsusp on my new HP dv1000 notebook. In general most everything
-> works just fine, in terms of general computing anyways, after resume.
+Arjan van de Ven wrote:
+> I would be very suspicious about the claim that the xor stuff is done in
+> hardware and not in the binary part. I'm actually surprised that a linux
+> friendly company like IBM actually gets involved with binary drivers
+> like this though.... a bit disappointing.
 > 
-> However, some of the ancilary functions, such as LCD brightness, RF kill
-> switch, and volume mute button do not work after resuming.
+> but yeah this sounds like a really bad purchase.
 
-I had a similar issue in that the power button wouldn't issue any acpi
-events after resuming. This was annoying because I could hit the power key
-to suspend only once. The solution was to simply remove the acpi button
-module before suspend and reload it after resume, if you can figure out
-which modules drive the functions that aren't working for you the same
-might be possible.
+Indeed, this controller in the 346s is a regression from the 345 
+servers, which had an onboard LSI Logic Fusion MPT controller which 
+could do hardware RAID 1, at least, and has a GPL driver.
 
-Note that I was using swsusp2 and not the in-kernel swsusp, but I doubt
-that would make a difference.
+Oh well.. if you really want to use hardware RAID, you can put in the 
+ServeRAID-7k card, which is much better, and has a GPL driver.
 
-> 
-> Regards,
-> Ian Morgan
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-Jim.

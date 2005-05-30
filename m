@@ -1,108 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbVE3Qbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261646AbVE3QkK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261640AbVE3Qbj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 12:31:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbVE3Qbj
+	id S261646AbVE3QkK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 12:40:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261647AbVE3QkK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 12:31:39 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:16133 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S261640AbVE3Qba (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 12:31:30 -0400
-Message-Id: <200505301631.j4UGV8tK011951@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc5-mm1 - missing #define SECTIONS_SHIFT in sparsemem 
-In-Reply-To: Your message of "Mon, 30 May 2005 00:27:19 BST."
-             <429A4FD7.5040600@shadowen.org> 
-From: Valdis.Kletnieks@vt.edu
-References: <200505282238.j4SMcYdN014990@turing-police.cc.vt.edu>
-            <429A4FD7.5040600@shadowen.org>
+	Mon, 30 May 2005 12:40:10 -0400
+Received: from colin.muc.de ([193.149.48.1]:7440 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S261646AbVE3QkF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 12:40:05 -0400
+Date: 30 May 2005 18:40:03 +0200
+Date: Mon, 30 May 2005 18:40:03 +0200
+From: Andi Kleen <ak@muc.de>
+To: Chris Friesen <cfriesen@nortel.com>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, john cooper <john.cooper@timesys.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: spinaphore conceptual draft
+Message-ID: <20050530164003.GB8141@muc.de>
+References: <934f64a205052715315c21d722@mail.gmail.com> <A53A981B-98F9-42EC-8939-60A528FEC34E@mac.com> <m1r7fpvupa.fsf@muc.de> <429B289D.7070308@nortel.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1117470668_10514P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 30 May 2005 12:31:08 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <429B289D.7070308@nortel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1117470668_10514P
-Content-Type: text/plain; charset="us-ascii"
-Content-Id: <11942.1117470665.1@turing-police.cc.vt.edu>
-
-On Mon, 30 May 2005 00:27:19 BST, Andy Whitcroft said:
-> Valdis.Kletnieks@vt.edu wrote:
-> > sparsemem-memory-model.patch references SECTIONS_SHIFT without defining it.
-> > 
-> > Caught this while compiling with -Wundef, causes lots of warnings
-> > when it gets used in include/linux/mm.h.  The appended patch Works For Me,
-> > although I wonder if the *real* problem isn't a missing '#ifdef CONFIG_SPARSEMEM'
-> > around the code that uses it in mm.h.  
-> >  
-> > Signed-Off-By: valdis.kletnieks@vt.edu
-> > 
-> > --- linux-2.6.12-rc5-mm1/include/linux/mmzone.h.ifdef	2005-05-27 15:1
-2:26.000000000 -0400
-> > +++ linux-2.6.12-rc5-mm1/include/linux/mmzone.h	2005-05-27 16:26:40.000
-000000 -0400
-> > @@ -568,6 +568,7 @@ static inline int pfn_valid(unsigned lon
-> >  void sparse_init(void);
-> >  #else
-> >  #define sparse_init()	do {} while (0)
-> > +#define SECTIONS_SHIFT	0
-> >  #endif /* CONFIG_SPARSEMEM */
-> >  
-> >  #ifdef CONFIG_NODES_SPAN_OTHER_NODES
+On Mon, May 30, 2005 at 08:52:13AM -0600, Chris Friesen wrote:
+> Andi Kleen wrote:
 > 
-> Odd.  I guess there must be a reference from an unused function to this
-> define when SPARSEMEM is off.  Can you send me your .config please and
-> I'll have a look.
+> >On many architectures (including popular ones like AMD x86-64) 
+> >there is no reliable fast monotonic (1) count unfortunately 
+> 
+> What about rdtsc?
 
-The warning comes out of *every* kernel module that #includes kernel/mm.h
-and reaches line 424:
+It fails the reliable and monotonic test on AMD; on Intel EM64T machines
+it fails the fast test (although the alternatives are even slower) and
+also the first ones one a few bigger ones.
 
- #if SECTIONS_SHIFT+NODES_SHIFT+ZONES_SHIFT <= FLAGS_RESERVED
- #define NODES_WIDTH             NODES_SHIFT
- #else
- #define NODES_WIDTH             0
- #endif
-
-That's not wrapped in a #ifdef CONFIG_DISCONTIGMEM or SPARSEMEN or HIGHMEM or
-any of the other obvious candidates.  You only see the warning if you add
--Wundef to your CFLAGS.
-
-I'll send the .config privately in a separate message. Pretty standard stock
-defaults for a laptop with only 256M of memory. The quick quick
-synopsis for the rest of you:
-
-[/usr/src/linux-2.6.12-rc5-mm1]2 grep MEM .config
-CONFIG_SHMEM=y
-# CONFIG_TINY_SHMEM is not set
-CONFIG_NOHIGHMEM=y
-# CONFIG_HIGHMEM4G is not set
-# CONFIG_HIGHMEM64G is not set
-CONFIG_SELECT_MEMORY_MODEL=y
-CONFIG_FLATMEM_MANUAL=y
-# CONFIG_DISCONTIGMEM_MANUAL is not set
-# CONFIG_SPARSEMEM_MANUAL is not set
-CONFIG_FLATMEM=y
-CONFIG_FLAT_NODE_MEM_MAP=y
-# CONFIG_BLK_DEV_UMEM is not set
-CONFIG_SND_DEBUG_MEMORY=y
-
-
-
---==_Exmh_1117470668_10514P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFCmz/McC3lWbTT17ARAsRsAKCxZPtz2K34mgcZQrKlKVUmJARyRACgzaBu
-nQerNeu7nYrwvfi5hQIkKTM=
-=3IQa
------END PGP SIGNATURE-----
-
---==_Exmh_1117470668_10514P--
+-Andi

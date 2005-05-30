@@ -1,58 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbVE3Gc1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261529AbVE3Gqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261523AbVE3Gc1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 02:32:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVE3Gc1
+	id S261529AbVE3Gqp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 02:46:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbVE3Gqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 02:32:27 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:18409 "EHLO
-	nelson.home.kernel.dk") by vger.kernel.org with ESMTP
-	id S261523AbVE3GcV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 02:32:21 -0400
-Date: Mon, 30 May 2005 08:33:23 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Greg Stark <gsstark@mit.edu>
-Cc: "Eric D. Mudama" <edmudama@gmail.com>,
-       Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com
-Subject: Re: [PATCH] SATA NCQ support
-Message-ID: <20050530063322.GE7054@suse.de>
-References: <20050527070353.GL1435@suse.de> <20050527131842.GC19161@merlin.emma.line.org> <20050527135258.GW1435@suse.de> <429732CE.5010708@gmx.de> <20050527145821.GX1435@suse.de> <87oeatxtw4.fsf@stark.xeocode.com> <311601c905052921046692cd3e@mail.gmail.com> <87d5r9xmgr.fsf@stark.xeocode.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87d5r9xmgr.fsf@stark.xeocode.com>
+	Mon, 30 May 2005 02:46:45 -0400
+Received: from mournblade.cat.pdx.edu ([131.252.208.27]:21972 "EHLO
+	mournblade.cat.pdx.edu") by vger.kernel.org with ESMTP
+	id S261529AbVE3Gqn convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 02:46:43 -0400
+Date: Sun, 29 May 2005 23:46:26 -0700 (PDT)
+From: Judy Fischbach <jfisch@cs.pdx.edu>
+To: Lukasz Stelmach <stlman@poczta.fm>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Driver for MCS7780 USB-IrDA bridge chip
+In-Reply-To: <4298510E.8030502@poczta.fm>
+Message-ID: <Pine.GSO.4.58.0505292332530.7049@wezen.cs.pdx.edu>
+References: <42943CB5.50400@poczta.fm> <20050525235846.GA28644@kroah.com>
+ <4298510E.8030502@poczta.fm>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 30 2005, Greg Stark wrote:
-> > ATA has a limitation of 32 tags, so queued write cache off won't beat
-> > unqueued write cache on in any modern drive.
-> 
-> People earlier were quoting 30-40% gains with NCQ enabled. I assumed
-> those were with the same drive in otherwise the same configuration,
-> presumably with write-caching enabled.
+On Sat, 28 May 2005, Lukasz Stelmach wrote:
 
-If you are talking about the numbers I quoted, those were for random
-read performance.
+> Greg KH napisał(a):
+> > On Wed, May 25, 2005 at 10:52:05AM +0200, Lukasz Stelmach wrote:
+> >
+> >>You can download it from either:
+> >>http://www.ee.pw.edu.pl/~stelmacl/mcs7780-0.1alpha.1.tar.bz2
+> [...]
+> > Nice, care to make up a patch as per the Documentation/SubmittingPatches
+> > file and send it to the linux-usb-devel mailing list so people can
+> > review it?
+>
+> I surely will make a patch but let me at least implement the speed
+> changing. For without it the driver is just like a lawnmower instead of
+>  beeing for example a scooter ;-)
+>
+Hello Lukasz and Greg,
 
-> Without any form of command queueing write-caching imposes a severe
-> performance loss, the question is how much of that loss is erased when
-> NCQ is present.
+I'm a graduate student at Portland State University in Prof Bart Massey's
+OS Internals Class.  Many of us have been working on the driver for
+this chip also and we just recently got SIR working at 9600. We are in
+the currently in the process of testing. We would like to join forces,
+share what we've done and help with efforts to add support for speed
+changes, FIR and more testing.
 
-I'll try some random write tests with write caching disabled.
-
-> People actually tend to report that IDE drives are *faster*. Until
-> they're told they have to disable write-caching on their IDE drives to
-> get a fair comparison, then the performance is absolutely abysmal. The
-> interesting thing is that SCSI drives don't seem to take much of a
-> performance hit from having write-caching disabled while IDE drives
-> do.
-
-NCQ will surely lessen the impact of disabling write caching, how much
-still remains to be seen. You could test, if you have the hardware :)
-Real life testing is more interesting than benchmarks.
-
--- 
-Jens Axboe
-
+Judy.

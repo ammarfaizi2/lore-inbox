@@ -1,44 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVE3IVX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbVE3IVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbVE3IVX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 04:21:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVE3IVX
+	id S261558AbVE3IVn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 04:21:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261560AbVE3IVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 04:21:23 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:39889 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261556AbVE3IVU (ORCPT
+	Mon, 30 May 2005 04:21:43 -0400
+Received: from pop.gmx.de ([213.165.64.20]:5064 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261558AbVE3IVe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 04:21:20 -0400
-Date: Mon, 30 May 2005 10:17:08 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Charlie Baylis <cb-lkml@fish.zetnet.co.uk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Swsusp: "sleeping function called from invalid context"
-Message-ID: <20050530081708.GB13119@elf.ucw.cz>
-References: <20050528091846.GA2628@cray.fish.zetnet.co.uk>
+	Mon, 30 May 2005 04:21:34 -0400
+X-Authenticated: #428038
+Date: Mon, 30 May 2005 10:21:31 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+To: Greg Stark <gsstark@mit.edu>
+Cc: Matthias Andree <matthias.andree@gmx.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux does not care for data integrity (was: Disk write cache)
+Message-ID: <20050530082130.GC11366@merlin.emma.line.org>
+Mail-Followup-To: Greg Stark <gsstark@mit.edu>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Arjan van de Ven <arjan@infradead.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <42877C1B.2030008@pobox.com> <20050516110203.GA13387@merlin.emma.line.org> <1116241957.6274.36.camel@laptopd505.fenrus.org> <20050516112956.GC13387@merlin.emma.line.org> <1116252157.6274.41.camel@laptopd505.fenrus.org> <20050516144831.GA949@merlin.emma.line.org> <1116256005.21388.55.camel@localhost.localdomain> <87zmudycd1.fsf@stark.xeocode.com> <20050529211610.GA2105@merlin.emma.line.org> <87is11xn9d.fsf@stark.xeocode.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050528091846.GA2628@cray.fish.zetnet.co.uk>
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <87is11xn9d.fsf@stark.xeocode.com>
+X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
 User-Agent: Mutt/1.5.9i
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 30 May 2005, Greg Stark wrote:
 
-> Despite the dire warnings in Documentation/power/swsusp.txt, I decided to try
-> out swsusp on my 1.2GHz Duron desktop machine. I used 2.6.12-rc5, and the
-> following command line given in the documentation:
+> Matthias Andree <matthias.andree@gmx.de> writes:
 > 
-> echo shutdown > /sys/power/disk; echo disk > /sys/power/state
+> > On Sun, 29 May 2005, Greg Stark wrote:
+> > 
+> > > They meet this requirement just fine on SCSI drives (where write caching
+> > > generally ships disabled) and on any OS where fsync issues a cache flush. If
+> > 
+> > I don't know what facts "generally ships disabled" is based on, all of
+> > the more recent SCSI drives (non SCA type though) I acquired came with
+> > write cache enabled and some also with queue algorithm modifier set to 1.
 > 
-> On resume, the kernel log (attached) had a number of scheduling while atomic
-> warnings, and the bash process used to initiate the suspend segfaulted.
-> 
-> I did this test from a clean boot, from the console without loading
-> X11.
+> People routinely post "Why does this cheap IDE drive outperform my shiny new
+> high end SCSI drive?" questions to the postgres mailing list. To which people
+> point out the IDE numbers they've presented are physically impossible for a
+> 7200 RPM drive and the SCSI numbers agree appropriately with an average
+> rotational latency calculated from whatever speed their SCSI drives are.
 
-Try it without CONFIG_PREEMPT, for now... I'll eventually have to fix
-this one.
-									Pavel
+This may be a different reason than the vendor default or the saved
+setting being WCE = 0, Queue Algorithm Modifier = 0...
+
+I would really appreciate if the kernel printed a warning for every
+partition mounted that cannot both enforce write order and guarantee
+synchronous completion for f(data)sync, based on the drive's write
+cache, file system type, current write barrier support and all that.
+
+> > It's a matter of enforcing write order. In how far such ordering
+> > constraints are propagated by file systems, VFS layer, down to the
+> > hardware, is the grand question.
+> 
+> Well guaranteeing write order will at least mean the database isn't complete
+> garbage after a power event.
+> 
+> It still means lost transactions, something that isn't going to be acceptable
+> for any real-life business where those transactions are actual dollars.
+
+Right, synchronous completion is the other issue. I want the kernel to
+tell me if it's capable of doing that on a particular partition (given
+hardware settings WRT cache, drivers, file system, and all that). Either
+in the docs or if it's too confusing via dmesg.
+
+-- 
+Matthias Andree

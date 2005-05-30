@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVE3Dlo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbVE3DpF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261509AbVE3Dlo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 23:41:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261510AbVE3Dlo
+	id S261510AbVE3DpF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 23:45:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVE3DpF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 23:41:44 -0400
-Received: from stark.xeocode.com ([216.58.44.227]:36224 "EHLO
-	stark.xeocode.com") by vger.kernel.org with ESMTP id S261509AbVE3Dln
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 23:41:43 -0400
-To: Jens Axboe <axboe@suse.de>
-Cc: Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com
-Subject: Re: [PATCH] SATA NCQ support
-References: <20050527070353.GL1435@suse.de>
-	<20050527131842.GC19161@merlin.emma.line.org>
-	<20050527135258.GW1435@suse.de> <429732CE.5010708@gmx.de>
-	<20050527145821.GX1435@suse.de>
-In-Reply-To: <20050527145821.GX1435@suse.de>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 29 May 2005 23:41:31 -0400
-Message-ID: <87oeatxtw4.fsf@stark.xeocode.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sun, 29 May 2005 23:45:05 -0400
+Received: from web32604.mail.mud.yahoo.com ([68.142.207.231]:55699 "HELO
+	web32604.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S261510AbVE3DpB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 May 2005 23:45:01 -0400
+Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  b=fKkBekWVATAzdDMp/5Nm5a4av1Oz8HT+RC/RbFU6x1UD5qMuOQtX22YBEELcCq3Y4j4f2du6nuzJwc1IWDRM31b+0Sv2mV+J2KX3ZgR0vPfC8JO3BHl/X6q6KBjg3zDfurWQjtdMxoQPzqbxGGiMuSHt1Ht2crCFb/jU6vR95e8=  ;
+Message-ID: <20050530034500.82628.qmail@web32604.mail.mud.yahoo.com>
+Date: Sun, 29 May 2005 20:45:00 -0700 (PDT)
+From: frank nero <m4rcos2003@yahoo.com>
+Subject: oops in kernel 2.6.11.10 (list of modules loaded was incomplete)
+To: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> writes:
+Sorry, the modules loaded list was incomplete, the
+corrected list is:
 
-> SATA is still pretty fast without NCQ, 
-...
-> People have lived happily without NCQ support in SATA for years, I'm
-> sure you could too :-)
+Modules Loaded:
+ 
+nls_cp437 vfat fat ipt_TCPMSS ipt_limit ip_nat_irc
+ip_nat_ftp iptable_mangle ipt_LOG ipt_MASQUERADE
+iptable_nat ipt_TOS ipt_REJECT ip_conntrack_irc
+ip_conntrack_ftp ipt_state ip_conntrack iptable_filter
+ip_tables ohci_hcd ehci_hcd pcspkr rtc snd_via82xx
+snd_ac97_codec snd_pcm_oss snd_mixer_oss snd_pcm
+snd_timer snd_page_alloc gameport snd_mpu401_uart
+snd_rawmidi snd_seq_device snd soundcore via686a
+i2c_sensor i2c_core uhci_hcd usbcore tsdev evdev
+parport_pc lp parport ne 8390 8139too mii
 
-It kind of depends on your application. For applications that require write
-caching disabled like Postgres et al I suspect NCQ will make a *much* bigger
-difference.
-
-I would be interested to see those benchmarks people were posting earlier
-claiming 30-40% difference retested with write caching disabled. I suspect
-disabling write caching will demolish the non-NCQ performance but have a much
-smaller effect on NCQ-enabled performance.
-
-Currently Postgres strongly recommends SCSI drives and the belief is that it's
-the tagged command queuing that allows SCSI drives to perform well without
-resorting to data integrity destroying write caching.
-
--- 
-greg
-
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

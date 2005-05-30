@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261682AbVE3SYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVE3SYx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261682AbVE3SYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 14:24:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbVE3SYJ
+	id S261684AbVE3SYx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 14:24:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261687AbVE3SYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 14:24:09 -0400
-Received: from fire.osdl.org ([65.172.181.4]:41429 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261686AbVE3SXu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 14:23:50 -0400
-Date: Mon, 30 May 2005 11:25:13 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-cc: Pekka Enberg <penberg@cs.helsinki.fi>, Pekka Enberg <penberg@gmail.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PROBLEM] Machine Freezes while Running Crossover Office
-In-Reply-To: <Pine.LNX.4.58.0505301120290.1876@ppc970.osdl.org>
-Message-ID: <Pine.LNX.4.58.0505301123050.1876@ppc970.osdl.org>
-References: <1117291619.9665.6.camel@localhost> <Pine.LNX.4.58.0505291059540.10545@ppc970.osdl.org>
- <84144f0205052911202863ecd5@mail.gmail.com> <Pine.LNX.4.58.0505291143350.10545@ppc970.osdl.org>
- <1117399764.9619.12.camel@localhost> <Pine.LNX.4.58.0505291543070.10545@ppc970.osdl.org>
- <1117466611.9323.6.camel@localhost> <Pine.LNX.4.58.0505301024080.10545@ppc970.osdl.org>
- <FC5325FE-7730-4A66-BDA8-B6C035E6276F@mac.com> <Pine.LNX.4.58.0505301120290.1876@ppc970.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 30 May 2005 14:24:52 -0400
+Received: from oldconomy.demon.nl ([212.238.217.56]:63420 "EHLO
+	artemis.slagter.name") by vger.kernel.org with ESMTP
+	id S261678AbVE3SXF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 14:23:05 -0400
+Subject: Re: Playing with SATA NCQ
+From: Erik Slagter <erik@slagter.name>
+To: Mark Lord <liml@rtr.ca>
+Cc: Michael Thonke <iogl64nx@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+In-Reply-To: <429B56CA.5080803@rtr.ca>
+References: <20050526140058.GR1419@suse.de>
+	 <1117382598.4851.3.camel@localhost.localdomain>
+	 <4299F47B.5020603@gmail.com>
+	 <1117387591.4851.17.camel@localhost.localdomain> <429A58F4.3040308@rtr.ca>
+	 <1117438192.4851.29.camel@localhost.localdomain>  <429B56CA.5080803@rtr.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 30 May 2005 20:22:44 +0200
+Message-Id: <1117477364.3108.2.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 30 May 2005, Linus Torvalds wrote:
+On Mon, 2005-05-30 at 14:09 -0400, Mark Lord wrote:
+> >>>ICH6M (mobile/no raid) on a Dell Inspiron 9300 laptop. AFAIK there are
+> >>>no plans to implement support for AHCI transition in the BIOS. &^$##($%
+> >>>DELL.
+> > I really have a (native) SATA drive, I checked the ID from dmesg.
 > 
-> So it's either a kernel scheduling problem, or Crossover running with RT 
-> priority and screwing up.
+> Seems rather unlikely that they would plumb the same notebook both ways.
+> The 100GB drive in the i9300 here is a "FUJITSU MHV2100AH" (PATA).
 
-Btw, crossover being screwed up and runnign with RT priority would also 
-explain why stracing it makes the problem go away - the tracing will cause 
-the RT process to halt at system calls and yield to the tracer, which 
-isn't RT.
+This one is a MHT2080A and it looks indeed it's not SATA, so no NCQ.
+Still I'd like to run in ACHI mode ;-)
 
-Of course, the same goes for a scheduler bug, so it's not like this proves 
-anything one way or the other, but considering that others aren't 
-reporting this problem with other programs..
-
-		Linus
+I must have been fooled by the FC3 setup disk that handed it libata,  I
+didn't know libata also handles pata, then.

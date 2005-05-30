@@ -1,62 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbVE3OJP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVE3OMI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261394AbVE3OJP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 10:09:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbVE3OJP
+	id S261601AbVE3OMI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 10:12:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261603AbVE3OMI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 10:09:15 -0400
-Received: from styx.suse.cz ([82.119.242.94]:32919 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261394AbVE3OJL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 10:09:11 -0400
-Date: Mon, 30 May 2005 16:09:02 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: dtor_core@ameritech.net
-Cc: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Serial Mouse in Kernel 2.6
-Message-ID: <20050530140902.GA1012@ucw.cz>
-References: <20050429145248.3551b9ea.Christoph.Pleger@uni-dortmund.de> <d120d5000504290903758bc9f2@mail.gmail.com>
+	Mon, 30 May 2005 10:12:08 -0400
+Received: from [62.229.71.85] ([62.229.71.85]:19730 "HELO
+	rialfa_ntsmtp.emfa.pt") by vger.kernel.org with SMTP
+	id S261601AbVE3OMB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 10:12:01 -0400
+Subject: Re: Possible GPL Violation
+From: Carlos Silva <r3pek@r3pek.homelinux.org>
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <yw1xis10lt69.fsf@ford.inprovide.com>
+References: <1117459153.12693.10.camel@localhost>
+	 <yw1xis10lt69.fsf@ford.inprovide.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Mon, 30 May 2005 15:11:42 +0100
+Message-Id: <1117462302.12693.15.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <d120d5000504290903758bc9f2@mail.gmail.com>
-User-Agent: Mutt/1.5.6i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 8bit
+X-FAP-MailScanner-Information: Please contact the ISP for more information
+X-FAP-MailScanner: Found to be clean
+X-FAP-MailScanner-MCPCheck: MCP-Clean, MCP-Checker (score=0, required 1)
+X-FAP-MailScanner-SpamCheck: not spam, SpamAssassin (score=0, required 4,
+	autolearn=not spam)
+X-FAP-MailScanner-From: r3pek@r3pek.homelinux.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Apr 29, 2005 at 11:03:24AM -0500, Dmitry Torokhov wrote:
-> Hi,
+On Mon, 2005-05-30 at 15:50 +0200, Måns Rullgård wrote:
+> Carlos Silva <r3pek@r3pek.homelinux.org> writes:
 > 
-> On 4/29/05, Christoph Pleger <Christoph.Pleger@uni-dortmund.de> wrote:
-> > Hello,
-> > 
-> > When configuring Kernel 2.6.11.7, I found under Input Devices two
-> > options which seem to have to do with serial mouse support:
-> > 
-> > 1. Serial line discipline (module serport)
-> > 2. Serial Mouse support (module sermouse)
-> > 
-> > Ic compiled both these features as a module. But after rebooting with
-> > the new kernel, the serial mouse is working well with gpm and with X11,
-> > although none of the above modules are loaded.
-> > 
-> > So, what for are the modules mentioned above needed?
-> > 
+> > Hi,
+> > the company that i work for is going to buy a pair of Panda
+> > Gatedefenders 8200 that are linux based. To start, they never told us or
+> > mention on their site (as far as i searched) the use of linux in their
+> > product. Another thing is that they don't give us root access nor any
+> > other type of local access to the box besides the http page the
+> > appliance have to be managed.
 > 
-> If you load the modules and use input_attach program to set up your
-> mouse then you can access it via /dev/input/mice together with the
-> rest of you mice, PS/2, USB, etc. This way you have only one input
-> device for you mouse and do not have to change millions of programs
-> (actually 2) if you happen to install a new mouse.
-> 
-> You seem to still using the mouse by accessing /dev/ttySx port and
-> using serial mouse driver.
- 
-You also get a much better update rate for the mouse than with X/GPM, 4x
-for MouseSystems, and 2x for Microsoft mice. This makes the serial mouse
-finally usable.
+> There's no requirement to give you full access to the machine.  If you
+> don't like that, don't buy it.
+I know this :)
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+> 
+> > The thing is that i asked for the kernel source they use in the
+> > system and they said they can't give it since they have some
+> > proprietary code in it, as far as i understood.
+> 
+> If they use some modules of their own writing, the general agreement
+> seems to be that they don't need to release the source code to those.
+> They should still give you the kernel source they used, along with any
+> patches they may have applied.
+I know this too. The thing is that they don't give me anything. They
+only sell me the appliance, nothing more. :(
+
+> 
+> > I really don't know the proper way to report a GPL violation so i
+> > thought this was a good place.  If there is any question please feel
+> > free to ask, i'll do my best to answer it.
+> 
+> I'm having some problems myself with an STB manufacturer (Amino).  The
+> STB is running a Busybox/Montavista Linux of some kind, and I need to
+> make some changes.  To do this, they tell me I need the SDK, which is
+> only available under NDA, and then only after purchasing a support
+> contract for an ungodly number of dollars.  Somehow, I get the feeling
+> they are on thin ice here.
+> 
+Panda uses debian in this appliance ;)
+

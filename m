@@ -1,56 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVE3Iym@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVE3JJp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbVE3Iym (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 04:54:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbVE3Iyl
+	id S261567AbVE3JJp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 05:09:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVE3JJp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 04:54:41 -0400
-Received: from rproxy.gmail.com ([64.233.170.197]:31548 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261566AbVE3Iy2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 04:54:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=diHEddy1VT+G9JC/owdRpBSvlRRzowoEXUYyFGY5H5tfzTGkXEPaOglglvdek+lojfH7VuBteSE7P0t+F+bcR5UOoJ+jLRewI2wZgHV4AS/l9IxEBSG+DguX+Mue6jRJqmtu/v4GxG1ojfHT6Y3C9IkhFlRpsGDJBsaVwL9Lvuw=
-Message-ID: <21d7e99705053001544fe883d5@mail.gmail.com>
-Date: Mon, 30 May 2005 18:54:28 +1000
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: Re: [PATCH] DRM depends on ???
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Dave Airlie <airlied@linux.ie>,
-       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       dri-devel@lists.sourceforge.net
-In-Reply-To: <Pine.LNX.4.62.0505301002400.22798@numbat.sonytel.be>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <Pine.LNX.4.62.0505282333210.5800@anakin>
-	 <20050528215005.GA5990@redhat.com>
-	 <1FA58BE7-0EE6-432B-9383-F489F9854DBE@mac.com>
-	 <Pine.LNX.4.58.0505290809180.9971@skynet>
-	 <Pine.LNX.4.62.0505292157130.12948@numbat.sonytel.be>
-	 <64148E06-2DFA-41A5-9D86-5F34DCAAF9F4@mac.com>
-	 <Pine.LNX.4.62.0505301002400.22798@numbat.sonytel.be>
+	Mon, 30 May 2005 05:09:45 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:35541 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S261567AbVE3JJj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 05:09:39 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Mon, 30 May 2005 11:07:57 +0200
+To: schilling@fokus.fraunhofer.de, dtor_core@ameritech.net
+Cc: mrmacman_g4@mac.com, linux-kernel@vger.kernel.org, 7eggert@gmx.de
+Subject: Re: OT] Joerg Schilling flames Linux on his Blog
+Message-ID: <429AD7ED.nail4ZG1B42TI@burner>
+References: <4847F-8q-23@gated-at.bofh.it>
+ <E1Db3zm-0004vF-9j@be1.7eggert.dyndns.org>
+ <4295005F.nail2KW319F89@burner>
+ <8E909B69-1F19-4520-B162-B811E288B647@mac.com>
+ <4296EADA.nail3L111R0J3@burner>
+ <d120d500050527072146c2e5ee@mail.gmail.com>
+In-Reply-To: <d120d500050527072146c2e5ee@mail.gmail.com>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> OK. So we still need the dependency on PCI.
-> 
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-at the moment yes but I'm think we will have to remove this as soon as
-we get the Sparc ffb stuff up and running again, the ffb driver
-doesn't do any PCI stuff, we have some code around but we haven't had
-any testing done on it and I'm sure its rotting away, if a maintainer
-turns up for sparc ffb, then the PCI requirement is gone..
+> > Cdrecord includes the needed features to do what you like, but do not
+> > asume that you will be able to force me to make nonportable and Linux
+> > specific interfaces a gauge for the design of a portable program.
+> > If you read the cdrecord man page, you know that you could
+> > happily call cdrecord dev=green_burner.....
+> > 
+>
+> No, that static mapping is not good. I have an external enclosure that
+> does firewire and USB. I want to be able to use "sony-dvd" to access
+> it no matter whether it is onnected to USB bus or Firewire and whether
+> there are other devices (disks) on USB or firewire. It is possible to
+> do with udev creating a link to /dev/sony-dvd.
 
-If Christoph is correct I'll clean it up to use the construct he
-suggests, no-one came up with that solution when this was asked
-originally a few kernels back..
+I am not sure what you like to do.....
 
-I can add the PCI dependency for now...
+But what you claim is simply impossible.
 
-Dave.
+As you started to introduce the allegory with the colors, let me make 
+an assumption based on your claim:
+
+-	Buy two identical drives and varnish one in red and the other 
+	in green.
+
+-	Connect both drives to your computer to let the OS "learn" the
+	drives.
+
+-	Do any setup you like
+
+-	Now disconnect the drives and after that, connect the green one
+	the way the red one has been connected before. 
+
+-	Connect the red one too.
+
+-	Insert a medium into the green drive
+
+-	Let your software try whether it is able to connect you
+	to the green one.
+
+If this always works as expected, then you are a magician!
+
+So let me sum up: Never rely on things that cannot be made 100%
+unique in case you like to run security relevent software like cdrecord.
+
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  
+       schilling@fokus.fraunhofer.de	(work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

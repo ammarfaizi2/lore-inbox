@@ -1,58 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVE3Ojt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVE3OkF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbVE3Ojt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 10:39:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261613AbVE3Oj3
+	id S261612AbVE3OkF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 10:40:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbVE3OkF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 10:39:29 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:58330 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261611AbVE3OjX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 10:39:23 -0400
-Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: =?ISO-8859-1?Q?Gr=E9goire?= Favre <gregoire.favre@gmail.com>
-Cc: dino@in.ibm.com, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20050526173518.GA9132@gmail.com>
-References: <20050517192636.GB9121@gmail.com>
-	 <1116359432.4989.48.camel@mulgrave> <20050517195650.GC9121@gmail.com>
-	 <1116363971.4989.51.camel@mulgrave> <20050521232220.GD28654@gmail.com>
-	 <1116770040.5002.13.camel@mulgrave> <20050524153930.GA10911@gmail.com>
-	 <1117113563.4967.17.camel@mulgrave> <20050526143516.GA9593@gmail.com>
-	 <1117118766.4967.22.camel@mulgrave>  <20050526173518.GA9132@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Mon, 30 May 2005 09:38:58 -0500
-Message-Id: <1117463938.4913.3.camel@mulgrave>
+	Mon, 30 May 2005 10:40:05 -0400
+Received: from styx.suse.cz ([82.119.242.94]:30104 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261612AbVE3Ojv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 10:39:51 -0400
+Date: Mon, 30 May 2005 16:39:50 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12-rc2: Compose key doesn't work
+Message-ID: <20050530143950.GA1651@ucw.cz>
+References: <4258F74D.2010905@keyaccess.nl> <20050414100454.GC3958@nd47.coderock.org> <20050526122315.GA3880@nd47.coderock.org> <20050526154509.GB9443@animx.eu.org> <20050526155344.GB3694@ucw.cz> <20050530142515.GA20372@animx.eu.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050530142515.GA20372@animx.eu.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-05-26 at 19:35 +0200, Grégoire Favre wrote:
-> That's with vanilla 2.6.12-rc5 if I have to patch, just tell me :-)
+On Mon, May 30, 2005 at 10:25:15AM -0400, Wakko Warner wrote:
+> Vojtech Pavlik wrote:
+> > On Thu, May 26, 2005 at 11:45:09AM -0400, Wakko Warner wrote:
+> > > I do wish they'd fix it, because I use this key (kinda like another ALT key)
+> > > more than my compose key (again, the menu key, not the right win logo key)
+> >  
+> > This patch should fix it.
+> 
+> At work, I have a USB keyboard with 8 extra keys.  Could something like this
+> be the cause of about 5 of those keys not working?  (They worked under 2.4
+> perfectly)
 
-OK, I have two things for you to try.
+No. This bug affects PS/2 (AT) keyboards only.
 
-The first is the attached, which, I think, enforces the limits this
-device is expecting.  It's really just a sanity check to see if the
-problem is what I think it is (device negotiates a transfer setting it
-can't actually support).
+You can try 'evtest' to see if the keys are at least picked up by the
+input subsystem. If not, then adding DEBUG to hid-input.h will tell
+more. If yes, then they get lost between kernel and X.
 
-James
-
-diff --git a/drivers/scsi/aic7xxx/aic7xxx_osm.c b/drivers/scsi/aic7xxx/aic7xxx_osm.c
---- a/drivers/scsi/aic7xxx/aic7xxx_osm.c
-+++ b/drivers/scsi/aic7xxx/aic7xxx_osm.c
-@@ -735,6 +735,7 @@ ahc_linux_slave_configure(struct scsi_de
- 
- 	/* Initial Domain Validation */
- 	if (!spi_initial_dv(device->sdev_target))
-+		spi_min_period(device->sdev_target) = 100;
- 		spi_dv_device(device);
- 
- 	return 0;
-
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

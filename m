@@ -1,92 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbVE3W2a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261790AbVE3Wad@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261787AbVE3W2a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 18:28:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbVE3W23
+	id S261790AbVE3Wad (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 18:30:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261793AbVE3Wad
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 18:28:29 -0400
-Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:44933 "HELO
-	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261787AbVE3W1v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 18:27:51 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Date: Mon, 30 May 2005 17:27:42 -0500
-User-Agent: KMail/1.8
-Cc: mrmacman_g4@mac.com, linux-kernel@vger.kernel.org, 7eggert@gmx.de
-References: <4847F-8q-23@gated-at.bofh.it> <d120d500050527072146c2e5ee@mail.gmail.com> <429AD7ED.nail4ZG1B42TI@burner>
-In-Reply-To: <429AD7ED.nail4ZG1B42TI@burner>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 30 May 2005 18:30:33 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:42506 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S261790AbVE3W3y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 18:29:54 -0400
+Date: Mon, 30 May 2005 15:34:34 -0700
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Esben Nielsen <simlo@phys.au.dk>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       kus Kusche Klaus <kus@keba.com>, James Bruce <bruce@andrew.cmu.edu>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+Message-ID: <20050530223434.GC9972@nietzsche.lynx.com>
+References: <Pine.OSF.4.05.10505301934001.31148-100000@da410.phys.au.dk> <429B61F7.70608@opersys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200505301727.43926.dtor_core@ameritech.net>
+In-Reply-To: <429B61F7.70608@opersys.com>
+User-Agent: Mutt/1.5.9i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 30 May 2005 04:07, Joerg Schilling wrote:
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> 
-> > > Cdrecord includes the needed features to do what you like, but do not
-> > > asume that you will be able to force me to make nonportable and Linux
-> > > specific interfaces a gauge for the design of a portable program.
-> > > If you read the cdrecord man page, you know that you could
-> > > happily call cdrecord dev=green_burner.....
-> > > 
-> >
-> > No, that static mapping is not good. I have an external enclosure that
-> > does firewire and USB. I want to be able to use "sony-dvd" to access
-> > it no matter whether it is onnected to USB bus or Firewire and whether
-> > there are other devices (disks) on USB or firewire. It is possible to
-> > do with udev creating a link to /dev/sony-dvd.
-> 
-> I am not sure what you like to do.....
-> 
-> But what you claim is simply impossible.
-> 
-> As you started to introduce the allegory with the colors, let me make 
-> an assumption based on your claim:
-> 
-> -	Buy two identical drives and varnish one in red and the other 
-> 	in green.
-> 
-> -	Connect both drives to your computer to let the OS "learn" the
-> 	drives.
-> 
-> -	Do any setup you like
-> 
-> -	Now disconnect the drives and after that, connect the green one
-> 	the way the red one has been connected before. 
-> 
-> -	Connect the red one too.
-> 
-> -	Insert a medium into the green drive
-> 
-> -	Let your software try whether it is able to connect you
-> 	to the green one.
-> 
-> If this always works as expected, then you are a magician!
->
+On Mon, May 30, 2005 at 02:56:55PM -0400, Karim Yaghmour wrote:
+> Which gets up back where we began: drivers that are non-deterministic
+> will continue being deterministic regardless of what solution is adopted,
+> if any, and will be in need of a re-write/major-modification, which
+> itself will have little or no added value for non-rters ...
 
-It will not work if drives are absolutely identical, however if there is
-something even slightly different about them (serial number, model,
-firmware version - anything) you can set up udev to produce "stable" name.
+>From my memory DRM drivers have direct path to the vertical retrace
+through the current ioctl() interface. It's not an issue for that driver
+and probably many others that use simple syscalls like that.
 
-FWIW, my example was about a single drive that can "change" it's X,Y,Z
-depending on how and when it was connected.
+The RT patch isn't hard to maintain and only one jerk-off objected to
+it without providing any useful information why the single kernel
+approach is faulty other than it jars his easily offended sensibilities
 
-> So let me sum up: Never rely on things that cannot be made 100%
-> unique in case you like to run security relevent software like cdrecord.
+bill
 
-Are you talking about <bus>,<target>,<lun> numbering by any chance ;) ?
-Because for the most types of devices out there they don't make any sense
-and just provided for compatibility with legacy software.
-
-Also, from a bit different perspective - do you also want users to mount
-the CD they burnt using not device (/dev/xxx) but <bus>,<target>,<lun>?
-If not why writing application should use different addressing? 
-
--- 
-Dmitry

@@ -1,79 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261562AbVE3I00@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261564AbVE3IiF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261562AbVE3I00 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 04:26:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbVE3I00
+	id S261564AbVE3IiF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 04:38:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbVE3IiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 04:26:26 -0400
-Received: from general.keba.co.at ([193.154.24.243]:7584 "EHLO
-	helga.keba.co.at") by vger.kernel.org with ESMTP id S261562AbVE3I0T convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 04:26:19 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 30 May 2005 04:38:05 -0400
+Received: from znsun1.ifh.de ([141.34.1.16]:29637 "EHLO znsun1.ifh.de")
+	by vger.kernel.org with ESMTP id S261564AbVE3Ihy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 04:37:54 -0400
+Date: Mon, 30 May 2005 10:29:26 +0200 (CEST)
+From: Patrick Boettcher <pb@linuxtv.org>
+X-X-Sender: pboettch@pub6.ifh.de
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, Johannes Stezenbach <js@linuxtv.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc5-mm1: drivers/media/dvb/dvb-usb/a800.c compile error
+In-Reply-To: <20050529144548.GC10441@stusta.de>
+Message-ID: <Pine.LNX.4.61.0505301024120.11869@pub6.ifh.de>
+References: <20050525134933.5c22234a.akpm@osdl.org> <20050529144548.GC10441@stusta.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: RT patch acceptance
-Date: Mon, 30 May 2005 10:25:47 +0200
-Message-ID: <AAD6DA242BC63C488511C611BD51F367323223@MAILIT.keba.co.at>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: RT patch acceptance
-Thread-Index: AcVkQ0ZaxJPwd6m4TGmygPb6wIkJnwAqttLA
-From: "kus Kusche Klaus" <kus@keba.com>
-To: "James Bruce" <bruce@andrew.cmu.edu>,
-       "Nick Piggin" <nickpiggin@yahoo.com.au>
-Cc: "Bill Huey \(hui\)" <bhuey@lnxw.com>, "Andi Kleen" <ak@muc.de>,
-       "Sven-Thorsten Dietrich" <sdietrich@mvista.com>,
-       "Ingo Molnar" <mingo@elte.hu>, <dwalker@mvista.com>,
-       <hch@infradead.org>, <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+Content-Type: MULTIPART/MIXED; BOUNDARY="579696143-1284282855-1117441766=:11869"
+X-Spam-Report: ALL_TRUSTED,BAYES_00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Nick Piggin wrote:
-> > But nobody has been able to say why a single kernel is better than a
-> > nanokernel.
-> 
-> I think it's a bit more like you haven't realized the answer 
-> when people 
-> gave it, so let me try to be more clear.  It's purely a 
-> matter of effort 
-> - in general it's far easier to write one process than two 
-> communicating 
-> processes.  As far as APIs, with a single-kernel approach, an RT 
-> programmer just has to restrict the program to calling APIs 
-> known to be 
-> RT-safe (compare with MT-safe programming).  In a 
-> split-kernel approach, 
-> the programmer has to write RT-kernel support for the APIs he 
-> wants to 
-> use (or beg for them to be written).  Most programmers would 
-> much rather 
-> limit API usage than implement new kernel support themselves.
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-I strongly support this. It makes a big difference, not only from 
-the technical point of view (as described above: developers have 
-to master "two worlds"), but more importantly from the way
-management sees things: As soon as some nanokernel or RT plus non-RT 
-OS approach is mentioned, mgmt fears that there are two different 
-sources of support (with the usual finger-pointing problems: "Not
-our problem, report it to ..."), twice the patches and version 
-hassles, additional legal issues and runtime license costs/troubles, 
-two different development environments which must be supported 
-by the central IT department, ...
+--579696143-1284282855-1117441766=:11869
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 
-When I was told to analyze whether linux is suitable for our
-needs, any nanokernel or two-OS approaches were excluded from the
-beginning: Mgmt thought that due to their nature and complexity,
-such approaches are not able to offer any improvements w.r.t. what 
-we have now. Clearly, "one system and one source" is wanted!
+Hi,
 
-(we currently use a monolitic, "one-world" OS, but a commercial one)
+On Sun, 29 May 2005, Adrian Bunk wrote:
+> It seems this patch is responsible for the following compile error with
+> gcc 2.95:
+> <--  snip  -->
+>
+> ...
+>  CC      drivers/media/dvb/dvb-usb/a800.o
+> In file included from drivers/media/dvb/dvb-usb/dibusb.h:15,
+>                 from drivers/media/dvb/dvb-usb/a800.c:16:
+> drivers/media/dvb/dvb-usb/dvb-usb.h:196: field `devices' has incomplete type
+> ...
+> make[4]: *** [drivers/media/dvb/dvb-usb/a800.o] Error 1
+>
+> <--  snip -->
 
--- 
-Klaus Kusche                 (Software Development - Control Systems)
-KEBA AG             Gewerbepark Urfahr, A-4041 Linz, Austria (Europe)
-Tel: +43 / 732 / 7090-3120                 Fax: +43 / 732 / 7090-6301
-E-Mail: kus@keba.com                                WWW: www.keba.com
+The attached patch solves the problem by adding a '0' to the array 
+declaration. I don't know if this is ethically correct, but I saw it in 
+some v4l-code, so I assume it is.
+
+Signed-off-by: Patrick Boettcher <pb@linuxtv.org>
+
+
+Thanks for reporting,
+Patrick.
+
+--
+   Mail: patrick.boettcher@desy.de
+   WWW:  http://www.wi-bw.tfh-wildau.de/~pboettch/
+--579696143-1284282855-1117441766=:11869
+Content-Type: TEXT/PLAIN; charset=US-ASCII; name="dvb-usb-incomplete-type-gcc-2.95-2.6.12-rc5-mm1.patch"
+Content-Transfer-Encoding: BASE64
+Content-Description: 
+Content-Disposition: attachment; filename="dvb-usb-incomplete-type-gcc-2.95-2.6.12-rc5-mm1.patch"
+
+SW5kZXg6IGxpbnV4L2RyaXZlcnMvbWVkaWEvZHZiL2R2Yi11c2IvZHZiLXVz
+Yi5oDQo9PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09PT09
+PT09PT09PT09PT09PT09PT09PT09PT09PT09DQpSQ1MgZmlsZTogL2N2cy9s
+aW51eHR2L2R2Yi1rZXJuZWwvbGludXgvZHJpdmVycy9tZWRpYS9kdmIvZHZi
+LXVzYi9kdmItdXNiLmgsdg0KcmV0cmlldmluZyByZXZpc2lvbiAxLjE2DQpk
+aWZmIC11IC1yMS4xNiBkdmItdXNiLmgNCi0tLSBsaW51eC9kcml2ZXJzL21l
+ZGlhL2R2Yi9kdmItdXNiL2R2Yi11c2IuaAkyIE1heSAyMDA1IDEyOjQ4OjAx
+IC0wMDAwCTEuMTYNCisrKyBsaW51eC9kcml2ZXJzL21lZGlhL2R2Yi9kdmIt
+dXNiL2R2Yi11c2IuaAkzMCBNYXkgMjAwNSAwODoyNDo1NSAtMDAwMA0KQEAg
+LTE5Myw3ICsxOTMsNyBAQA0KIAl9IHVyYjsNCiANCiAJaW50IG51bV9kZXZp
+Y2VfZGVzY3M7DQotCXN0cnVjdCBkdmJfdXNiX2RldmljZV9kZXNjcmlwdGlv
+biBkZXZpY2VzW107DQorCXN0cnVjdCBkdmJfdXNiX2RldmljZV9kZXNjcmlw
+dGlvbiBkZXZpY2VzWzBdOw0KIH07DQogDQogDQo=
+
+--579696143-1284282855-1117441766=:11869--

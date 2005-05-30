@@ -1,89 +1,181 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVE3SmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261675AbVE3SqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261655AbVE3SmN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 14:42:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbVE3SmF
+	id S261675AbVE3SqS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 14:46:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261630AbVE3SqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 14:42:05 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:59825 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S261696AbVE3Sk6 (ORCPT
+	Mon, 30 May 2005 14:46:18 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:38891 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261676AbVE3SpR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 14:40:58 -0400
-Date: Mon, 30 May 2005 20:40:59 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Andi Kleen <ak@muc.de>, Chris Friesen <cfriesen@nortel.com>,
-       john cooper <john.cooper@timesys.com>, linux-kernel@vger.kernel.org
-Subject: Re: spinaphore conceptual draft
-Message-ID: <20050530184059.GA2222@ucw.cz>
-References: <934f64a205052715315c21d722@mail.gmail.com> <A53A981B-98F9-42EC-8939-60A528FEC34E@mac.com> <m1r7fpvupa.fsf@muc.de> <429B289D.7070308@nortel.com> <20050530164003.GB8141@muc.de> <429B4957.7070405@nortel.com> <m1k6lgwqro.fsf@muc.de> <02485B05-6AE5-4727-8778-D73B2D202772@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <02485B05-6AE5-4727-8778-D73B2D202772@mac.com>
-User-Agent: Mutt/1.5.6i
+	Mon, 30 May 2005 14:45:17 -0400
+Message-ID: <429B5F2D.9010804@pobox.com>
+Date: Mon, 30 May 2005 14:45:01 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Benjamin LaHaise <bcrl@kvack.org>
+CC: ak@muc.de, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] x86-64: Use SSE for copy_page and clear_page
+References: <20050530181626.GA10212@kvack.org>
+In-Reply-To: <20050530181626.GA10212@kvack.org>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 30, 2005 at 02:04:36PM -0400, Kyle Moffett wrote:
-
-> On May 30, 2005, at 13:46:35, Andi Kleen wrote:
-> >>tsc goes backwards on AMD?  Under what circumstances (I'm curious,
-> >>since I'm running one...)
-> >
-> >It is not synchronized between CPUs and slowly drifts and can even run
-> >at completely different frequencies there when you use powernow! on a
-> >MP system.
+Benjamin LaHaise wrote:
+> Hello Andi,
 > 
-> Unsynchronized is fine, we're only taking differences of short times.
-
-If you ask on two CPUs in a quick succession, you can get a negative
-time difference.
-
-> Slow drift is likewise OK too.  As to the different frequencies, how
-> different are we talking about? 
-
-1GHz vs 2GHz, for example.
-
-There is cpufreq, which changes the CPU clocks in large steps under the
-kernel's control, and there is spread spectrum, which wiggles them just
-a tiny bit (1-4%) back and forth (independently on different CPUs) to
-minimize EMI.
-
-> Also, on such a system, is there any way to determine a relative
-> frequency, even if unreliable or  occasionally off?
-
-You can measure it. With cpufreq you have a good guess when you switch
-that the new frequency will have a certain ratio to the old one.
-
-> >It can be used reliably when you only do deltas on same CPU
-> >and correct for the changing frequency. However then you run
-> >into other problems, like it being quite slow on Intel.
+> Below is a patch that uses 128 bit SSE instructions for copy_page and 
+> clear_page.  This is an improvement on P4 systems as can be seen by 
+> running the test program at http://www.kvack.org/~bcrl/xmm64.c to get 
+> results like:
 > 
-> The deltas here are generally short, always on the same CPU, and can be
-> corrected for changing frequency, assuming that said frequency is
-> available somehow.
-
-The fact the deltas are on the same CPU helps. The shortness of the
-interval doesn't, since on AMD CPUs RDTSC is executed speculatively and
-out-of-order, and the order of two close RDTSC instructions isn't
-guaranteed, as far as I remember.
-
-> Ideally it would be some sort of CPU cycle-counter, just so I can say
-> "In between lock and unlock, the CPU did 1000 cycles", for some value
-> of "cycle".
-
-This may be doable if precision isn't required.
-
-> >I suspect any attempt to use time stamps in locks is a bad
-> >idea because of this.
+> SSE test program $Id: fast.c,v 1.6 2000/09/23 09:05:45 arjan Exp $ buffer = 0x2aaaaaad6000
+> clear_page() tests 
+> clear_page function 'warm up run'        took 25444 cycles per page
+> clear_page function 'kernel clear'       took 6595 cycles per page
+> clear_page function '2.4 non MMX'        took 7827 cycles per page
+> clear_page function '2.4 MMX fallback'   took 7741 cycles per page
+> clear_page function '2.4 MMX version'    took 6454 cycles per page
+> clear_page function 'faster_clear_page'  took 4344 cycles per page
+> clear_page function 'even_faster_clear'  took 4151 cycles per page
+> clear_page function 'xmm_clear '         took 3204 cycles per page
+> clear_page function 'xmma_clear '        took 6080 cycles per page
+> clear_page function 'xmm2_clear '        took 3370 cycles per page
+> clear_page function 'xmma2_clear '       took 6115 cycles per page
+> clear_page function 'kernel clear'       took 6583 cycles per page
 > 
-> Something like this could be built only for CPUs that do support that
-> kind of cycle counter.
+> copy_page() tests 
+> copy_page function 'warm up run'         took 9770 cycles per page
+> copy_page function '2.4 non MMX'         took 9758 cycles per page
+> copy_page function '2.4 MMX fallback'    took 9572 cycles per page
+> copy_page function '2.4 MMX version'     took 9405 cycles per page
+> copy_page function 'faster_copy'         took 7407 cycles per page
+> copy_page function 'even_faster'         took 7158 cycles per page
+> copy_page function 'xmm_copy_page_no'    took 6110 cycles per page
+> copy_page function 'xmm_copy_page'       took 5914 cycles per page
+> copy_page function 'xmma_copy_page'      took 5913 cycles per page
+> copy_page function 'v26_copy_page'       took 9168 cycles per page
+> 
+> The SSE clear page fuction is almost twice as fast as the kernel's 
+> current clear_page, while the copy_page implementation is roughly a 
+> third faster.  This is likely due to the fact that SSE instructions 
+> can keep the 256 bit wide L2 cache bus at a higher utilisation than 
+> 64 bit movs are able to.  Comments?
 
-RDTSC on older Intel CPUs takes something like 6 cycles. On P4's it
-takes much more, since it's decoded to a microcode MSR access.
+Sounds pretty darn cool to me.  I can give it a test on athlon64 and 
+em64t here.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+I have some codingstyle whining to do though...
+
+
+> :r public_html/patches/v2.6.12-rc4-xmm-2.diff
+> diff -purN v2.6.12-rc4/arch/x86_64/lib/c_clear_page.c xmm-rc4/arch/x86_64/lib/c_clear_page.c
+> --- v2.6.12-rc4/arch/x86_64/lib/c_clear_page.c	1969-12-31 19:00:00.000000000 -0500
+> +++ xmm-rc4/arch/x86_64/lib/c_clear_page.c	2005-05-26 11:16:09.000000000 -0400
+> @@ -0,0 +1,45 @@
+> +#include <linux/config.h>
+> +#include <linux/preempt.h>
+> +#include <asm/page.h>
+> +#include <linux/kernel.h>
+> +#include <asm/string.h>
+
+preferred ordering:
+
+linux/config
+linux/kernel
+linux/preempt
+asm/*
+
+
+> +typedef struct { unsigned long a,b; } __attribute__((aligned(16))) xmm_store_t;
+
+space between "a,b"
+
+
+> +void c_clear_page_xmm(void *page)
+> +{
+> +	/* Note! gcc doesn't seem to align stack variables properly, so we 
+> +	 * need to make use of unaligned loads and stores.
+> +	 */
+> +	xmm_store_t xmm_save[1];
+> +	unsigned long cr0;
+> +	int i;
+> +
+> +	preempt_disable();
+> +	__asm__ __volatile__ (
+> +		" mov %%cr0,%0\n"
+> +		" clts\n"
+> +		" movdqu %%xmm0,(%1)\n"
+> +		" pxor %%xmm0, %%xmm0\n"
+> +		: "=&r" (cr0): "r" (xmm_save) : "memory"
+> +	);
+> +
+> +	for(i=0;i<PAGE_SIZE/64;i++)
+
+exercise that spacebar :)
+
+
+> +	{
+> +		__asm__ __volatile__ (
+> +		" movntdq %%xmm0, (%0)\n"
+> +		" movntdq %%xmm0, 16(%0)\n"
+> +		" movntdq %%xmm0, 32(%0)\n"
+> +		" movntdq %%xmm0, 48(%0)\n"
+> +		: : "r" (page) : "memory");
+> +		page+=64;
+> +	}
+> +
+> +	__asm__ __volatile__ (
+> +		" sfence \n "
+> +		" movdqu (%0),%%xmm0\n"
+> +		" mov %1,%%cr0\n"
+> +		:: "r" (xmm_save), "r" (cr0)
+> +	);
+> +	preempt_enable();
+> +}
+> diff -purN v2.6.12-rc4/arch/x86_64/lib/c_copy_page.c xmm-rc4/arch/x86_64/lib/c_copy_page.c
+> --- v2.6.12-rc4/arch/x86_64/lib/c_copy_page.c	1969-12-31 19:00:00.000000000 -0500
+> +++ xmm-rc4/arch/x86_64/lib/c_copy_page.c	2005-05-30 14:07:28.000000000 -0400
+> @@ -0,0 +1,52 @@
+> +#include <linux/config.h>
+> +#include <linux/preempt.h>
+> +#include <asm/page.h>
+> +#include <linux/kernel.h>
+> +#include <asm/string.h>
+> +
+> +typedef struct { unsigned long a,b; } __attribute__((aligned(16))) xmm_store_t;
+
+ditto
+
+> +void c_copy_page_xmm(void *to, void *from)
+> +{
+> +	/* Note! gcc doesn't seem to align stack variables properly, so we 
+> +	 * need to make use of unaligned loads and stores.
+> +	 */
+> +	xmm_store_t xmm_save[2];
+> +	unsigned long cr0;
+> +	int i;
+> +
+> +	preempt_disable();
+> +	__asm__ __volatile__ (
+> +                " prefetchnta    (%1)\n"
+> +                " prefetchnta  64(%1)\n"
+> +                " prefetchnta 128(%1)\n"
+> +                " prefetchnta 192(%1)\n"
+> +                " prefetchnta 256(%1)\n"
+> +		" mov %%cr0,%0\n"
+> +		" clts\n"
+> +		" movdqu %%xmm0,  (%1)\n"
+> +		" movdqu %%xmm1,16(%1)\n"
+> +		: "=&r" (cr0): "r" (xmm_save) : "memory"
+> +	);
+> +
+> +	for(i=0;i<PAGE_SIZE/32;i++) {
+
+ditto
+

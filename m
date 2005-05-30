@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVE3DMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261508AbVE3DYW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261505AbVE3DMF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 23:12:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbVE3DMF
+	id S261508AbVE3DYW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 23:24:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVE3DYW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 23:12:05 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:31187
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S261505AbVE3DMB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 23:12:01 -0400
-Date: Sun, 29 May 2005 20:11:04 -0700 (PDT)
-Message-Id: <20050529.201104.59476605.davem@davemloft.net>
-To: akpm@osdl.org
-Cc: phdm@macqel.be, linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
-Subject: Re: PATCH : ppp + big-endian = kernel crash
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050529195245.33f36253.akpm@osdl.org>
-References: <200505292138.j4TLcrJ28536@mail.macqel.be>
-	<20050529.145509.82051753.davem@davemloft.net>
-	<20050529195245.33f36253.akpm@osdl.org>
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Sun, 29 May 2005 23:24:22 -0400
+Received: from coat.coat.com ([164.153.10.15]:5023 "EHLO coat.coat.com")
+	by vger.kernel.org with ESMTP id S261508AbVE3DYS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 May 2005 23:24:18 -0400
+Date: Sun, 29 May 2005 23:22:27 -0400 (EDT)
+From: "Michael Sterrett -Mr. Bones.-" <msterret@coat.com>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+cc: Lee Revell <rlrevell@joe-job.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       John Livingston <jujutama@comcast.net>,
+       Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>, gregkh@gentoo.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: How to find if BIOS has already enabled the device
+In-Reply-To: <200505282017.08204.kernel-stuff@comcast.net>
+Message-ID: <Pine.LNX.4.61.0505292317220.5375@rutrow.coat.com>
+References: <0EF82802ABAA22479BC1CE8E2F60E8C31B5206@scl-exch2k3.phoenix.com>
+ <200505281301.09911.kernel-stuff@comcast.net> <1117325172.5423.102.camel@mindpipe>
+ <200505282017.08204.kernel-stuff@comcast.net>
+MIME-Version: 1.0
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463791516-2093748871-1117423347=:5375"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andrew Morton <akpm@osdl.org>
-Date: Sun, 29 May 2005 19:52:45 -0700
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> > All these patches to PPP and friends are merely papering over the
-> > larger problem.
-> 
-> It's not a thing we want to do in the general case, sure.  But it's
-> reasonable to identify those bits of net code which the nommu people care
-> about and look to see if there's some sane workaround to get them going.
-> 
-> Otherwise, things like PPP will simply unavailable to some architectures...
+---1463791516-2093748871-1117423347=:5375
+Content-Type: TEXT/PLAIN; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 
-Some time ago there was a proposal that would allow appropriate
-handling of these sorts of things.
+On Sat, 28 May 2005, Parag Warudkar wrote:
 
-Accessors to packet headers would go through a macro, and this
-along with some other defines would allow an architecture to
-decide between two schemes:
+> On Saturday 28 May 2005 20:06, Lee Revell wrote:
+>> devfs is not maintained and is listed as deprecated.  You'd be better
+>> off using udev.
+>
+> Yep, that's on my list of things to do - I tried once to switch to udev but
+> it's not the  "just works" type - atleast on Gentoo!
 
-1) Use normal loads and stores, let trap handler take care of
-   unaligned cases.
-2) Use something akin to get_unaligned(), no trap handler stuff.
+Wow, I definitely disagree, considering that the udev maintainer has
+commit privileges for Gentoo.
 
-Sure, to make things faster we can do something like this PPP
-patch, but it needs lots of work, first of all you need to
-replace this:
+Try http://www.gentoo.org/doc/en/udev-guide.xml for help.
 
-	for ( ... )
-		p[i-1] = p[i];
-
-stuff with a proper memmove() call.
+Michael Sterrett
+   -Mr. Bones.-
+mr_bones_@gentoo.org
+---1463791516-2093748871-1117423347=:5375--

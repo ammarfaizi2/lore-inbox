@@ -1,69 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261634AbVE3QJq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261637AbVE3QbT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261634AbVE3QJq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 12:09:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbVE3QJq
+	id S261637AbVE3QbT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 12:31:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261643AbVE3QbT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 12:09:46 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:2731 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261634AbVE3QJh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 12:09:37 -0400
-Date: Mon, 30 May 2005 18:09:36 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Bernd Eckenfels <ecki@lina.inka.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RAID-5 design bug (or misfeature)
-In-Reply-To: <1117454144.2685.174.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.58.0505301759550.6859@artax.karlin.mff.cuni.cz>
-References: <E1DcXfR-0000zf-00@calista.eckenfels.6bone.ka-ip.net> 
- <Pine.LNX.4.58.0505300440550.15088@artax.karlin.mff.cuni.cz>
- <1117454144.2685.174.camel@localhost.localdomain>
+	Mon, 30 May 2005 12:31:19 -0400
+Received: from 65-102-103-67.albq.qwest.net ([65.102.103.67]:18123 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S261637AbVE3QbQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 12:31:16 -0400
+Date: Mon, 30 May 2005 10:33:14 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: kus Kusche Klaus <kus@keba.com>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>, James Bruce <bruce@andrew.cmu.edu>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: RE: RT patch acceptance
+In-Reply-To: <AAD6DA242BC63C488511C611BD51F367323224@MAILIT.keba.co.at>
+Message-ID: <Pine.LNX.4.61.0505301020020.12903@montezuma.fsmlabs.com>
+References: <AAD6DA242BC63C488511C611BD51F367323224@MAILIT.keba.co.at>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 May 2005, Alan Cox wrote:
+On Mon, 30 May 2005, kus Kusche Klaus wrote:
 
-> On Llu, 2005-05-30 at 03:47, Mikulas Patocka wrote:
-> > > In article <Pine.LNX.4.58.0505300043540.5305@artax.karlin.mff.cuni.cz> you wrote:
-> > > > I think Linux should stop accessing all disks in RAID-5 array if two disks
-> > > > fail and not write "this array is dead" in superblocks on remaining disks,
-> > > > efficiently destroying the whole array.
+> I didn't state that a hard-RT linux is simpler, technically 
+> (however, personally, I believe that once RT linux is there, *our*
+> job of writing RT applications, device drivers, ... will be simpler
+> compared to a nanokernel approach).
+
+I can't quite see how, in my experience they involve the same 
+effort, but i guess that's personal opinion.
+
+> I just stated that for the management, with its limited interest and
+> understanding of deep technical details (and, in our case, with bad 
+> experiences with RT plus non-RT OS solutions), a one-system solution
+> *sounds* much simpler, easier to understand, and easier to manage.
 >
-> It discovered the disks had failed because they had outstanding I/O that
-> failed to complete and errorred.
+> Decisions in companies aren't based on purely technical facts,
+> sometimes not even on rational arguments...
 
-I think that's another problem --- when RAID-5 is operating in degraded
-mode, the machine must not crash or volume will be damaged (sectors
-that were not written may be damaged this way). Did anybody develop some
-method to care about this (i.e. something like journaling on raid)? What
-do hardware RAID controllers do in this situation?
+But decisions for the Linux kernel must always be rational and technical. 
+Regarding ease of maintenance, debugging/maintaining an application on a  
+nanokernel (ie isolated) is a lot easier than something as large and 
+complex as the Linux kernel. This also applies for QA and general 
+verification.
 
-> At that point your stripes *are*
-> inconsistent. If it didn't mark them as failed then you wouldn't know it
-> was corrupted after a power restore. You can then clean it fsck it,
-> restore it,
-> use mdadm as appropriate to restore the volume and check it.
+> And concerning support:
+> 
+> * If we go the "pure linux" way, we may (or may not) get help from
+> the community for our problems (it did work quite well up to now), 
+> or we could buy commercial linux support.
 
-I can't because mdadm is on that volume ... I solved it by booting from
-floppy and editing raid superblocks with disk hexeditor but not every user
-wants to do it; there should be at least kernel boot parameter for it.
+Considering how controlling your management is, i'm surprised you'd stake 
+your business on something as non deterministic as the Linux kernel 
+mailing list.
 
-> > But root disk might fail too... This way, the system can't be taken down
-> > by any single disk crash.
->
-> It only takes on disk in an array to short 12v and 5v due to a component
-> failure to total the entire disk array, and with both IDE and SCSI a
-> drive fail can hang the entire bus anyway.
+> * If we go the "nanokernel plus guest linux" way, we will not get 
+> support from the nanokernel company for general linux kernel issues, 
 
-I meant mechanical failure which is more common. Of course --- everything
-can happen in case of electrical failure in disk/controller/bus/mainboard
-...
+I find that hard to believe literally any company which sells you 
+operating system software will be more than willing to provide you support 
+for the supplied components, obviously at a price but they are after all 
+in the business of making money.
 
-Mikulas
+> the community help will also be close to zero, because we no
+> longer have a pure linux system, and the community is not able to
+> reproduce and analyze our problems any longer (in the same way lkml
+> is rather unable to help on vendor linux kernels or on tainted
+> kernels), and the same holds for most companies offering commercial
+> linux support.
 
-> Alan
->
+A volunteer supported public forum as a means of handling technical issues 
+for a company doesn't sound like a good idea.
+
+> Hence, w.r.t. support, the nanokernel approach looks much worse. 
+
+I can't quite see how you drew that conclusion. The fact is, pay someone 
+and they'll resolve your problems.
+
+Regards,
+	Zwane

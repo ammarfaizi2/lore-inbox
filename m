@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261633AbVE3QCE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbVE3QHq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261633AbVE3QCE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 12:02:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261632AbVE3QCD
+	id S261481AbVE3QHq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 12:07:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVE3QHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 12:02:03 -0400
-Received: from wproxy.gmail.com ([64.233.184.199]:52253 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261633AbVE3QB5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 12:01:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:content-transfer-encoding:in-reply-to:user-agent:from;
-        b=BpeVZS6jGTtU8hUTkNDOxo4qHbbv8rb7zWn0S8ddiT0VizKHxOcuMSg9oLyZULkL3e+NLchHtFLzgtG0MM1U45pTX9gyXH2dbHPImMuf7XLUVWyJxCNUACWU0tVUBuUY1SYsYUerVFPGfw/WRrfD7FQtC9EESFLJMhxmw6BdDnw=
-Date: Mon, 30 May 2005 18:01:48 +0200
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: dino@in.ibm.com, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
-Message-ID: <20050530160147.GD14351@gmail.com>
-References: <20050521232220.GD28654@gmail.com> <1116770040.5002.13.camel@mulgrave> <20050524153930.GA10911@gmail.com> <1117113563.4967.17.camel@mulgrave> <20050526143516.GA9593@gmail.com> <1117118766.4967.22.camel@mulgrave> <20050526173518.GA9132@gmail.com> <1117463938.4913.3.camel@mulgrave> <20050530150950.GA14351@gmail.com> <1117467248.4913.9.camel@mulgrave>
+	Mon, 30 May 2005 12:07:46 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:10189 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261481AbVE3QHh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 12:07:37 -0400
+Date: Mon, 30 May 2005 08:24:49 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: linux-kernel@vger.kernel.org, julien@cr0.org
+Subject: Re: Linux-2.4.30-hf3
+Message-ID: <20050530112449.GA5046@logos.cnet>
+References: <20050529223739.GA27341@exosec.fr> <20050530050746.GK18600@alpha.home.local>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1117467248.4913.9.camel@mulgrave>
-User-Agent: Mutt/1.5.6i
-From: =?iso-8859-1?Q?Gr=E9goire?= Favre <gregoire.favre@gmail.com>
+In-Reply-To: <20050530050746.GK18600@alpha.home.local>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 30, 2005 at 10:34:08AM -0500, James Bottomley wrote:
-
-> Yes, that was just a global change to get the thing to boot.
-
-And it works :-)
-
-> Now try this:
+On Mon, May 30, 2005 at 07:07:46AM +0200, Willy Tarreau wrote:
+> Hi again,
 > 
-> echo 100 > /sys/class/spi_transport/target1:0:1/min_period
-> echo 1 > /sys/class/spi_transport/target1:0:1/revalidate
+> Julien corrected me on the points below :
 > 
-> and look at dmesg to see if it brought the speed up (save your files
-> first, this may hang the box).
+> >   - a NULL dereference in serial.c found by Julien Tinnes which could lead
+> >     to an oops.
+> 
+> Could possibly be exploited by mapping the first page of a program and
+> watching the kernel eat the data instead of oopsing.
 
-It don't hang my box... and I got this :
+Huh? I fail to see how that one is exploitable, given that no in-tree callers 
+should pass "tty" as NULL to any of the affected functions (that is impossible, 
+AFAICS).
 
- target1:0:1: Beginning Domain Validation
- target1:0:1: Domain Validation skipping write tests
-(scsi1:A:1): 10.000MB/s transfers (10.000MHz, offset 15)
- target1:0:1: Ending Domain Validation
+No? Julien?
 
-Thank,
--- 
-	Grégoire Favre
+> >   - an off-by-one in mtrr.c found by Brad Spengler and reported by J.Tinnes
+> >     which could lead to a panic.
+> 
+> This is inexact. I've checked several other archs :
+>  - sparc, sparc64, x86_64, alpha, mips all assume that (n) is unsigned and
+>    will overflow, possibly executing user-controlled code.
+>  - ppc and ppc64 explicitly check that (n) is < TASK_SIZE and should be safe.
+
+You refer to copy_from_user() right?  I suppose so, because there's no mtrr 
+outside i386.
+
+>  - x86 will BUG_ON((long)n < 0) (=> oops/panic).
+>  - others not checked. 
+
+Well, it requires root priveledges:
+
++    if (!len) return -EINVAL;
+     if ( !suser () ) return -EPERM;   <---------------
+
+So, its "safe".
+
+> >   - a few unchecked strcpy() in ipvs fixed in PaX which I'm not absolutely
+> >     sure are exploitable, but are definitely dirty and risky.
+> 
+> They are exploitable by anyone with enough privilege to manipulate IPVS.
+> Think of a user front-end for example.
+
+Ok. Great Willy!

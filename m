@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbVE3HQQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVE3HaK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261536AbVE3HQQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 03:16:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbVE3HQQ
+	id S261537AbVE3HaK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 03:30:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbVE3HaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 03:16:16 -0400
-Received: from denise.shiny.it ([194.20.232.1]:9900 "EHLO denise.shiny.it")
-	by vger.kernel.org with ESMTP id S261536AbVE3HQO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 03:16:14 -0400
-Message-ID: <XFMail.20050530091610.pochini@shiny.it>
-X-Mailer: XFMail 1.4.7 on Linux
-X-Priority: 3 (Normal)
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 8bit
-MIME-Version: 1.0
-In-Reply-To: <20050529.135257.98862077.davem@davemloft.net>
-Date: Mon, 30 May 2005 09:16:10 +0200 (CEST)
-From: Giuliano Pochini <pochini@shiny.it>
-To: "David S. Miller" <davem@davemloft.net>
-Subject: Re: PATCH : ppp + big-endian = kernel crash
-Cc: linux-kernel@vger.kernel.org, phdm@macqel.be
+	Mon, 30 May 2005 03:30:09 -0400
+Received: from oldconomy.demon.nl ([212.238.217.56]:7865 "EHLO
+	artemis.slagter.name") by vger.kernel.org with ESMTP
+	id S261537AbVE3HaF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 03:30:05 -0400
+Subject: Re: Playing with SATA NCQ
+From: Erik Slagter <erik@slagter.name>
+To: Mark Lord <liml@rtr.ca>
+Cc: Michael Thonke <iogl64nx@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+In-Reply-To: <429A58F4.3040308@rtr.ca>
+References: <20050526140058.GR1419@suse.de>
+	 <1117382598.4851.3.camel@localhost.localdomain>
+	 <4299F47B.5020603@gmail.com>
+	 <1117387591.4851.17.camel@localhost.localdomain>  <429A58F4.3040308@rtr.ca>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 30 May 2005 09:29:52 +0200
+Message-Id: <1117438192.4851.29.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2005-05-29 at 20:06 -0400, Mark Lord wrote:
+> > ICH6M (mobile/no raid) on a Dell Inspiron 9300 laptop. AFAIK there are
+> > no plans to implement support for AHCI transition in the BIOS. &^$##($%
+> > DELL.
+> 
+> No hope of it on this machine (I'm using a tricked-out i9300 here too),
+> because (1) the HD is PATA, not SATA, and (2) the drive itself probably
+> doesn't support NCQ (my 100GB drive does NOT -- use "hdparm -I" to see
+> what is supported on any given drive.  libata-dev includes hdparm support).
 
-On 29-May-2005 David S. Miller wrote:
->
-> And now it will crash when a packet is only 2-byte aligned
-> when the input packet processing does the first access
-> to the IP address in the packet header.
-
-Accessing 4-byte integers in 2-byte aligned addresses is fine
-on all "desktop" CISC m68k IIRC (the first m68k was a 16-bit
-processor so it didn't require 32-bit alignment). I don't
-know about embedded chips, coldfire and others.
-
-
---
-Giuliano.
+I really have a (native) SATA drive, I checked the ID from dmesg.

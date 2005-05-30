@@ -1,86 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVE3MgL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261490AbVE3Mkv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261518AbVE3MgL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 08:36:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVE3MgL
+	id S261490AbVE3Mkv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 08:40:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261520AbVE3Mkv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 08:36:11 -0400
-Received: from brick.kernel.dk ([62.242.22.158]:25058 "EHLO
-	nelson.home.kernel.dk") by vger.kernel.org with ESMTP
-	id S261518AbVE3MgE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 08:36:04 -0400
-Date: Mon, 30 May 2005 14:37:06 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Greg Stark <gsstark@mit.edu>
-Cc: "Eric D. Mudama" <edmudama@gmail.com>,
-       Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org,
-       jgarzik@pobox.com
-Subject: Re: [PATCH] SATA NCQ support
-Message-ID: <20050530123706.GR7054@suse.de>
-References: <20050527070353.GL1435@suse.de> <20050527131842.GC19161@merlin.emma.line.org> <20050527135258.GW1435@suse.de> <429732CE.5010708@gmx.de> <20050527145821.GX1435@suse.de> <87oeatxtw4.fsf@stark.xeocode.com> <311601c905052921046692cd3e@mail.gmail.com> <87d5r9xmgr.fsf@stark.xeocode.com> <20050530063322.GE7054@suse.de> <20050530121635.GQ7054@suse.de>
+	Mon, 30 May 2005 08:40:51 -0400
+Received: from colin.muc.de ([193.149.48.1]:18180 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S261490AbVE3Mkk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 08:40:40 -0400
+Date: 30 May 2005 14:40:38 +0200
+Date: Mon, 30 May 2005 14:40:38 +0200
+From: Andi Kleen <ak@muc.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Takashi Iwai <tiwai@suse.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
+       bhuey@lnxw.com, nickpiggin@yahoo.com.au, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: what is the -RT tree
+Message-ID: <20050530124038.GM86087@muc.de>
+References: <20050527123529.GD86087@muc.de> <20050527124837.GA7253@elte.hu> <20050527125630.GE86087@muc.de> <20050527131317.GA11071@elte.hu> <20050527133122.GF86087@muc.de> <s5hwtpkwz4z.wl@alsa2.suse.de> <20050530095349.GK86087@muc.de> <20050530103347.GA13425@elte.hu> <20050530105618.GL86087@muc.de> <20050530121031.GA26255@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050530121635.GQ7054@suse.de>
+In-Reply-To: <20050530121031.GA26255@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 30 2005, Jens Axboe wrote:
-> On Mon, May 30 2005, Jens Axboe wrote:
-> > > People actually tend to report that IDE drives are *faster*. Until
-> > > they're told they have to disable write-caching on their IDE drives to
-> > > get a fair comparison, then the performance is absolutely abysmal. The
-> > > interesting thing is that SCSI drives don't seem to take much of a
-> > > performance hit from having write-caching disabled while IDE drives
-> > > do.
+On Mon, May 30, 2005 at 02:10:31PM +0200, Ingo Molnar wrote:
+> 
+> * Andi Kleen <ak@muc.de> wrote:
+> 
+> > > > > Yes, as Ingo stated many times, addition cond_resched() to
+> > > > > might_sleep() does achieve the "usable" latencies  -- and 
+> > > > > obviously that's hacky.
+> > > >
+> > > > But it's the only way to get practial(1) low latency benefit to 
+> > > > everybody [...]
+> > > > (1) = not necessarily provable, but good enough at least for jack
+> > > > et.al.
+> > >
+> > > FYI, to get good latencies for jack you currently need the -RT tree and 
+> > > CONFIG_PREEMPT. (see Lee Revell's and Rui Nuno Capela's extensive tests)
 > > 
-> > NCQ will surely lessen the impact of disabling write caching, how much
-> > still remains to be seen. You could test, if you have the hardware :)
-> > Real life testing is more interesting than benchmarks.
+> > Yeah, but you did a lot of (often unrelated to rt preempt) latency 
+> > fixes in RT that are not yet merged into mainline. When they are all 
+> > merged things might be very different. And then there can be probably 
+> > more fixes.
 > 
-> With a few simple tests, I'm unable to show any write performance
-> improvement with write back caching off and NCQ (NCQ with queueing depth
-> of 1 and 16 tested). I get a steady 0.55-0.57MiB/sec with 8 threads
-> random writes, a little over 5MiB/sec with sequential writes.
+> your argument above == cond_resched() in might_sleep() [ == VP ] is the
+>                        only way to get practical (e.g. jack) latencies.
+
+My argument was basically that we have no other choice than
+to fix it anyways, since the standard kernel has to be usable
+in this regard.
+
+(it is similar to that we e.g. don't do separate "server VM" and "desktop VM"s
+although it would be sometimes tempting. after all one wants a kernel
+that works well on a variety of workloads and doesn't need to extensive
+hand tuning)
+
 > 
-> Reads are _much_ nicer. Sequential read with 8 threads are 23% faster
-> with a queueing depth of 16 than 1, random reads are 85% (!!) faster at
-> depth 16 than 1.
-> 
-> Testing was done with the noop io scheduler this time, to only show NCQ
-> benefits outside of what the io scheduler can do for reordering.
-> 
-> This is with a Maxtor 7B300S0 drive. I would have posted results for a
-> Seagate ST3120827AS as well, but that drive happily ignores any attempt
-> to turn off write back caching. To top things off, it even accepts FUA
-> writes but ignores that as well (they still go to cache).
+> my argument == i do agree that -VP is a step forward from PREEMPT_NONE
+>                (i'd not have written and released it otherwise), but is
+>                by no means enough for jack. You need at least the -RT 
+>                tree + CONFIG_PREEMPT to achieve good jack latencies.
 
-Actually, I partly take that back. The Seagate _does_ honor drive write
-back caching disable and it does show a nice improvement with NCQ for
-that case. Results are as follows:
+Ok where are the big issues left? 
 
-8 thread io case, 4kb block size, noop io scheduler, ST3120827AS.
+Stuff where old-style preempt helps (= not scheduling during long code without
+single big lock) can be usually fixed without too much effort with
+cond_resched()s.  Don't you agree on that? 
 
-Write cache off:
+Your argument of it being more ongoing work to fix latencies again
+is a good one, but again I see no alternative to it since the 
+standard well-performing kernel cannot be "abandoned" in this regard.
 
-                Depth 1         Depth 30        Diff
-Seq read:       18.94           21.51           +  14%
-Ran read:        0.86            1.24           +  44%
-Seq write:       6.58           19.30           + 193%
-Ran write:       1.00            1.27           +  27%
+> perhaps there's some misunderstanding wrt. what the -RT tree is. The -RT 
+> tree is a collection of latency related patches and features: it 
+> introduces the VP and PREEMPT_RT features, and it also improves all 
+> preemption models (including CONFIG_PREEMPT). Furthermore, it includes 
+> (in-kernel) features to measure and debug latencies. It's called -RT 
+> because PREEMPT_RT is undoubtedly the 'crown jewel' feature, but that 
+> does not mean it's the only goal of the patchset.
 
-Write cache on:
+Yes, I understand that. But because of that it is not really
+fair to compare the standard kernel to RT tree with all bells and whistles
+enabled. I think it would be much better if RT was considered
+as individual pieces, not all or nothing.
 
-                Depth 1         Depth 30        Diff
-Seq read:       18.78           21.58           +  15%
-Ran read:        0.84            1.20           +  43%
-Seq write:      24.49           23.26           -   5%
-Ran write:       1.55            1.63           +   5%
-
-Huge benefit on writes with NCQ when write back caching is off, with it
-on I think the deviation is within standard jitter of this benchmark.
-
-
--- 
-Jens Axboe
-
+-Andi

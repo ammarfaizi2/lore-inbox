@@ -1,76 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261710AbVE3T3R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbVE3T2u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261710AbVE3T3R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 15:29:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbVE3T3R
+	id S261703AbVE3T2u (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 15:28:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbVE3T2t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 15:29:17 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:61708 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261710AbVE3T2m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 15:28:42 -0400
-Date: Mon, 30 May 2005 21:28:36 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.4 patch] document that gcc 4 is not supported
-Message-ID: <20050530192835.GK10441@stusta.de>
+	Mon, 30 May 2005 15:28:49 -0400
+Received: from colin.muc.de ([193.149.48.1]:12305 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S261703AbVE3T23 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 15:28:29 -0400
+Date: 30 May 2005 21:28:26 +0200
+Date: Mon, 30 May 2005 21:28:26 +0200
+From: Andi Kleen <ak@muc.de>
+To: Kyle Moffett <mrmacman_g4@mac.com>
+Cc: Chris Friesen <cfriesen@nortel.com>, john cooper <john.cooper@timesys.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: spinaphore conceptual draft
+Message-ID: <20050530192826.GB25794@muc.de>
+References: <934f64a205052715315c21d722@mail.gmail.com> <A53A981B-98F9-42EC-8939-60A528FEC34E@mac.com> <m1r7fpvupa.fsf@muc.de> <429B289D.7070308@nortel.com> <20050530164003.GB8141@muc.de> <429B4957.7070405@nortel.com> <m1k6lgwqro.fsf@muc.de> <02485B05-6AE5-4727-8778-D73B2D202772@mac.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <02485B05-6AE5-4727-8778-D73B2D202772@mac.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-gcc 4 is not supported for compiling kernel 2.4, and I don't see any 
-compelling reason why kernel 2.4 should ever be adapted to gcc 4.
+On Mon, May 30, 2005 at 02:04:36PM -0400, Kyle Moffett wrote:
+> >I suspect any attempt to use time stamps in locks is a bad
+> >idea because of this.
+> 
+> Something like this could be built only for CPUs that do support that
+> kind of cycle counter.
 
-This patch documents this fact.
+That gets you into a problem with binary distribution kernels.
+While binary patching works to some extent, it also becomes
+messy pretty quickly.
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> >My impression is that the aggressive bus access avoidance the
+> >original poster was trying to implement is not that useful
+> >on modern systems anyways which have fast busses. Also
+> >it is not even clear it even saves anything; after all the
+> >CPU will always snoop cache accesses for all cache lines
+> >and polling for the EXCLUSIVE transition of the local cache line
+> >is probably either free or very cheap.
+> 
+> The idea behind these locks is for bigger systems (8-way or more) for
+> heavily contended locks (say 32 threads doing write() on the same fd).
 
----
+Didn't Dipankar & co just fix that with their latest RCU patchkit? 
+(assuming you mean the FD locks)
 
- Documentation/Changes |    2 ++
- README                |    1 +
- init/main.c           |    7 +++++++
- 3 files changed, 10 insertions(+)
+> In such a system, cacheline snooping isn't practical at the hardware
+> level, and a lock such as this should be able to send several CPUs to
 
---- linux-2.4.31-rc1-full/init/main.c.old	2005-05-30 21:20:00.000000000 +0200
-+++ linux-2.4.31-rc1-full/init/main.c	2005-05-30 21:21:19.000000000 +0200
-@@ -84,6 +84,13 @@
- #error Sorry, your GCC is too old. It builds incorrect kernels.
- #endif
- 
-+/*
-+ * gcc >= 4 is not supported by kernel 2.4
-+ */
-+#if __GNUC__ > 3
-+#error Sorry, your GCC is too recent for kernel 2.4
-+#endif
-+
- extern char _stext, _etext;
- extern char *linux_banner;
- 
---- linux-2.4.31-rc1-full/README.old	2005-05-30 21:21:29.000000000 +0200
-+++ linux-2.4.31-rc1-full/README	2005-05-30 21:21:59.000000000 +0200
-@@ -152,6 +152,7 @@
- 
-  - Make sure you have gcc 2.95.3 available.  gcc 2.91.66 (egcs-1.1.2) may
-    also work but is not as safe, and *gcc 2.7.2.3 is no longer supported*.
-+   gcc 4 is *not* supported.
-    Also remember to upgrade your binutils package (for as/ld/nm and company)
-    if necessary. For more information, refer to ./Documentation/Changes.
- 
---- linux-2.4.31-rc1-full/Documentation/Changes.old	2005-05-30 21:22:10.000000000 +0200
-+++ linux-2.4.31-rc1-full/Documentation/Changes	2005-05-30 21:22:41.000000000 +0200
-@@ -91,6 +91,8 @@
- You should ensure you use gcc-2.96-74 or later. gcc-2.96-54 will not build
- the kernel correctly.
- 
-+gcc 4 is not supported.
-+
- In addition, please pay attention to compiler optimization.  Anything
- greater than -O2 may not be wise.  Similarly, if you choose to use gcc-2.95.x
- or derivatives, be sure not to use -fstrict-aliasing (which, depending on
+Why not? Cache snooping has to always work with low overhead, otherwise the
+machine is not very useful coherent. I assume that any bigger system
+has a cache directory anyways, which should minimze the traffic; 
+and for smaller setups listening to broadcasts works fine.
 
+
+-Andi

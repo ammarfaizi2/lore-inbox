@@ -1,64 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261687AbVE3SZ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbVE3S3G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261687AbVE3SZ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 14:25:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVE3SZW
+	id S261692AbVE3S3G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 14:29:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbVE3SYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 14:25:22 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:16852 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261676AbVE3SWj (ORCPT
+	Mon, 30 May 2005 14:24:34 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:60840 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S261683AbVE3SXW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 14:22:39 -0400
-Date: Mon, 30 May 2005 20:22:07 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Pekka Enberg <penberg@cs.helsinki.fi>,
-       Pekka Enberg <penberg@gmail.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PROBLEM] Machine Freezes while Running Crossover Office
-Message-ID: <20050530182207.GA8111@elte.hu>
-References: <1117291619.9665.6.camel@localhost> <Pine.LNX.4.58.0505291059540.10545@ppc970.osdl.org> <84144f0205052911202863ecd5@mail.gmail.com> <Pine.LNX.4.58.0505291143350.10545@ppc970.osdl.org> <1117399764.9619.12.camel@localhost> <Pine.LNX.4.58.0505291543070.10545@ppc970.osdl.org> <1117466611.9323.6.camel@localhost> <Pine.LNX.4.58.0505301024080.10545@ppc970.osdl.org> <FC5325FE-7730-4A66-BDA8-B6C035E6276F@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <FC5325FE-7730-4A66-BDA8-B6C035E6276F@mac.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 30 May 2005 14:23:22 -0400
+Date: Mon, 30 May 2005 02:49:41 +0000
+From: radej@pscomp.com
+Subject: Re:
+To: Linux-kernel <linux-kernel@vger.kernel.org>
+References: <360D47F92A8ACCH7@vger.kernel.org>
+In-Reply-To: <360D47F92A8ACCH7@vger.kernel.org>
+Message-ID: <40J8IL2C4II012J4@pscomp.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Kyle Moffett <mrmacman_g4@mac.com> wrote:
+Hey man, here's that site I was telling you about. They are offering huge discounts now on Penis Enhancement Patches
 
-> On May 30, 2005, at 13:31:07, Linus Torvalds wrote:
-> >On Mon, 30 May 2005, Pekka Enberg wrote:
-> >>It is not just X. Running the following shell script when hitting the
-> >>bug:
-> >
-> >Ok, this implies that the scheduler is really screwed up, we're not
-> >scheduling anything else during that time.
-> 
-> If X is hung and not accepting data on any of its sockets, then this 
-> could hang the Xterm in the background, and therefore hang the 
-> printout from the "date" process.  What happens if you do this?
-> 
-> Switch to VT 1:
-> # while true; do date; sleep 1; done
-> 
-> Switch to X and trigger hang
-> 
-> Switch back to VT 1 and look at output
+http://www.poqz.com/md/
 
-yes, this would be an important test. Even better, do:
+A top team of British scientists and medical doctors have worked to develop the state-of-the-art Penis Enlargement Patch delivery system which automatically increases penis size up to 3-4 full inches. The patches are the easiest and most effective way to increase your penis size. You won't have to take pills, get under the knife to perform expensive and very painful surgery, use any pumps or other devices. No one will ever find out that you are using our product. Just apply one patch on your body and wear it for 3 days and you will start noticing dramatic results.
 
-	while true; do date; sleep 1; done > log.txt
+Millions of men are taking advantage of this revolutionary new product - Don't be left behind!
 
-to exclude any sort of console output as a source of delay.
+As an added incentive, they are offering huge discount specials right now, check out the site to see for yourself !
 
-	Ingo
+http://www.poqz.com/md/
+
+
+
+
+
+
+
+
+
+u n s u b s c r i b e  
+http://www.yzewa.com/un.php 
+ 
+
+

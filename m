@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261755AbVE3Vb3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261766AbVE3VgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261755AbVE3Vb3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 17:31:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261765AbVE3Vb2
+	id S261766AbVE3VgR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 17:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261767AbVE3VgQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 17:31:28 -0400
-Received: from post-22.mail.nl.demon.net ([194.159.73.192]:9220 "EHLO
-	post-22.mail.nl.demon.net") by vger.kernel.org with ESMTP
-	id S261755AbVE3Val (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 17:30:41 -0400
-Date: Mon, 30 May 2005 23:30:42 +0200
-From: Rutger Nijlunsing <rutger@nospam.com>
-To: jayush luniya <jayu_11@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: HOTPLUG CPU Support for SMT
-Message-ID: <20050530213042.GA6415@nospam.com>
-Reply-To: linux-kernel@tux.tmfweb.nl
-References: <20050530152534.21912.qmail@web32806.mail.mud.yahoo.com>
+	Mon, 30 May 2005 17:36:16 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2728 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261766AbVE3Vfu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 17:35:50 -0400
+Date: Mon, 30 May 2005 23:35:32 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Ian E. Morgan" <imorgan@webcon.ca>
+Cc: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: Q: swsusp with S5 instead of S4?
+Message-ID: <20050530213532.GA3371@elf.ucw.cz>
+References: <20050502214932.GA4650@elf.ucw.cz> <Pine.LNX.4.62.0505301540410.20347@light.int.webcon.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050530152534.21912.qmail@web32806.mail.mud.yahoo.com>
-Organization: M38c
+In-Reply-To: <Pine.LNX.4.62.0505301540410.20347@light.int.webcon.net>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 30, 2005 at 08:25:34AM -0700, jayush luniya wrote:
-> Hi,
-> 
-> I have been looking at the CONFIG_HOTPLUG_CPU option
-> in the Linux Kernel. The option works for IA64, PPP64,
-> S390 architectures. I am doing my research on SMT
-> architecture and want to write a kernel module that
-> can dynamically enable/disable SMT, so that I can
-> switch between uniprocessor mode and SMT mode. So is
-> it possible to use the CONFIG_HOTPLUG_CPU option to
-> dynamically enable/disable a logical processor by
-> performing a logical removal of the CPU since the
-> hardware does not support CPU hotplugging? Also I
-> would like to know how efficient such an
-> implementation would be? 
-> 
-> I would really appreciate if anyone could provide me
-> suggestions and any specific patches related to this
-> work.
+Hi!
 
-An easy way would be to use sched_setaffinity() and bind all processes
-to one processor.
+> >>Asside from trying to figure out exactly what hardware parameteres are not
+> >>being saved/restored, I'm happy to let the BIOS initialise those things.
+> >>But, I need a way to perform a normal power-off/S5 after swsusp instead 
+> >>of a
+> >>soft-off/S4 so that I don't have to go though the double-grub-boot process
+> >>every time. Can this be done?
+> >
+> >echo shutdown > /sys/power/disk should do that. If it does
+> >not... well, see what is different in those two codepaths...
+> 
+> I found out that 'shutdown' is the default and that I was already using
+> that. Strange.
+> 
+> I did finally now get around to doing a more through battery of tests with
+> many combinations of hibernating with 'platform' and 'shutdown' modes, and
+> various GRUB 'halt' and 'reboot' commands. What I came up with is that
+> basically nothing works.
+> 
+> In essentially all cases (except for rare inexplicable instances when it
+> _does_ work, though I cannot replicate it with any consistency) the special
+> keys _are_ functional immediately after power-on, through GRUB, through
+> kernel initialization, through reading the suspended image. But then
+> immediately after control is passed to the resumed system, the keys stop
+> working.
+> 
+> Does this give you any other clues as to what might be going on?
 
--- 
-Rutger Nijlunsing
+No idea :-(. Something bad in ACPI land.
+
+If there are some effects that survive reboot or powerdown, complain
+to your system vendor about crappy hardware. We should fix Linux, too,
+but that will be hard to do remotely.
+
+Just go through swsusp and normal code paths, and see whats
+different...
+
+								Pavel

@@ -1,68 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVE3J25@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVE3JfA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261570AbVE3J25 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 05:28:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVE3J25
+	id S261576AbVE3JfA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 05:35:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVE3JfA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 05:28:57 -0400
-Received: from nez-perce.inria.fr ([192.93.2.78]:27838 "EHLO
-	nez-perce.inria.fr") by vger.kernel.org with ESMTP id S261570AbVE3J2y convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 05:28:54 -0400
-Mime-Version: 1.0 (Apple Message framework v622)
-Content-Transfer-Encoding: 8BIT
-Message-Id: <80c44317563cdb8d2757c40c768a3f19@inria.fr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-To: linux-kernel@vger.kernel.org
-From: cedric lauradoux <cedric.lauradoux@inria.fr>
-Subject: Defeating cache timing attack
-Date: Mon, 30 May 2005 11:29:31 +0200
-X-Mailer: Apple Mail (2.622)
-X-Miltered: at nez-perce with ID 429ADCD5.000 by Joe's j-chkmail (http://j-chkmail.ensmp.fr)!
+	Mon, 30 May 2005 05:35:00 -0400
+Received: from bbned23-32-100.dsl.hccnet.nl ([80.100.32.23]:49675 "EHLO
+	mail.vanvergehaald.nl") by vger.kernel.org with ESMTP
+	id S261576AbVE3Je2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 05:34:28 -0400
+Date: Mon, 30 May 2005 11:34:20 +0200
+From: Toon van der Pas <toon@hout.vanvergehaald.nl>
+To: "Lincoln Dale (ltd)" <ltd@cisco.com>
+Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, dtor_core@ameritech.net,
+       mrmacman_g4@mac.com, linux-kernel@vger.kernel.org, 7eggert@gmx.de
+Subject: Re: OT] Joerg Schilling flames Linux on his Blog
+Message-ID: <20050530093420.GB15347@hout.vanvergehaald.nl>
+References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A lot of things have been said recently on attacks against 
-cryptographic primitives that make use of cache memory.
-Those attacks are not new and if you want a more complete story of 
-those attacks you mail me I will send you the
-complete list of paper related to this subject. Now 2 kind of attacks 
-seems to emerge:
-- Passive attacks: just observe the timing of the code and try to find 
-correlation between time variation and key
+On Mon, May 30, 2005 at 05:19:43PM +0800, Lincoln Dale (ltd) wrote:
+> > But what you claim is simply impossible.
+> 
+> wrong. again.
+> 
+> look up the man page for udev(8), pay particular attention to the part
+> that can tie devname into device serial number.
+> take note of the example shown under 'serial'.
 
--Active Attacks: try to create correlation between timing and the key. 
-Those attacks may involve
-hyperthreading, or malicious code which produce interruptions and cache 
-flushes.
+These were my thoughts too.
+But I just checked the entries in my sysfs tree for my CDRW drive,
+and there is no serial number available...
 
-Now the big problem is how to deal with those attacks:
-- for active attacks the countermeasure is quite simple : take a dummy 
-key and evaluate cache misses of several encryptions.
-If the misses ratio are too big: the implementation is under attack 
-(the only difficulty is too evaluate the work load of processor).
-If we only want to defeat Hyperthreading attacks, we just have to code 
-the algorithm using hyperthreading. The first thread
-compute the algorithm and the second perform prefetch for the first 
-thread.
-
-- passive attacks are more complicated to defeat. The first solution is 
-to use constant time memory access algorithm (removing lookup table).
-We can also warmup the cache to reduce memory latency using prefetch 
-instruction. This solution is not available when cache is small in 
-comparison of the table.
-
-Those countermeasures are in test. I hope that it will ready for WeWorc 
-conference.
-
-The conclusion is that those attacks are not really dangerous. Several 
-software countermeasures are possible and it does not require to 
-completely change cache architecture.
-
-What do you think about my countermeasures ? I will be pleased with any 
-comments or idea on attacks and countermeasures.
-
-
-Cédric Lauradoux
-Inria Rocquencourt
-Project team CODES
+Regards,
+Toon.
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

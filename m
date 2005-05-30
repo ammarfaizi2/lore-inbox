@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbVE3T2u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261712AbVE3Tc5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261703AbVE3T2u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 15:28:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbVE3T2t
+	id S261712AbVE3Tc5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 15:32:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261714AbVE3Tc4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 15:28:49 -0400
-Received: from colin.muc.de ([193.149.48.1]:12305 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S261703AbVE3T23 (ORCPT
+	Mon, 30 May 2005 15:32:56 -0400
+Received: from colin.muc.de ([193.149.48.1]:50959 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S261712AbVE3Tc3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 15:28:29 -0400
-Date: 30 May 2005 21:28:26 +0200
-Date: Mon, 30 May 2005 21:28:26 +0200
+	Mon, 30 May 2005 15:32:29 -0400
+Date: 30 May 2005 21:32:25 +0200
+Date: Mon, 30 May 2005 21:32:25 +0200
 From: Andi Kleen <ak@muc.de>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: Chris Friesen <cfriesen@nortel.com>, john cooper <john.cooper@timesys.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: spinaphore conceptual draft
-Message-ID: <20050530192826.GB25794@muc.de>
-References: <934f64a205052715315c21d722@mail.gmail.com> <A53A981B-98F9-42EC-8939-60A528FEC34E@mac.com> <m1r7fpvupa.fsf@muc.de> <429B289D.7070308@nortel.com> <20050530164003.GB8141@muc.de> <429B4957.7070405@nortel.com> <m1k6lgwqro.fsf@muc.de> <02485B05-6AE5-4727-8778-D73B2D202772@mac.com>
+To: dean gaudet <dean-list-linux-kernel@arctic.org>
+Cc: Benjamin LaHaise <bcrl@kvack.org>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] x86-64: Use SSE for copy_page and clear_page
+Message-ID: <20050530193225.GC25794@muc.de>
+References: <20050530181626.GA10212@kvack.org> <Pine.LNX.4.62.0505301202380.25345@twinlark.arctic.org> <Pine.LNX.4.62.0505301209010.25345@twinlark.arctic.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <02485B05-6AE5-4727-8778-D73B2D202772@mac.com>
+In-Reply-To: <Pine.LNX.4.62.0505301209010.25345@twinlark.arctic.org>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 30, 2005 at 02:04:36PM -0400, Kyle Moffett wrote:
-> >I suspect any attempt to use time stamps in locks is a bad
-> >idea because of this.
+On Mon, May 30, 2005 at 12:11:23PM -0700, dean gaudet wrote:
+> On Mon, 30 May 2005, dean gaudet wrote:
 > 
-> Something like this could be built only for CPUs that do support that
-> kind of cycle counter.
-
-That gets you into a problem with binary distribution kernels.
-While binary patching works to some extent, it also becomes
-messy pretty quickly.
-
-> >My impression is that the aggressive bus access avoidance the
-> >original poster was trying to implement is not that useful
-> >on modern systems anyways which have fast busses. Also
-> >it is not even clear it even saves anything; after all the
-> >CPU will always snoop cache accesses for all cache lines
-> >and polling for the EXCLUSIVE transition of the local cache line
-> >is probably either free or very cheap.
+> > On Mon, 30 May 2005, Benjamin LaHaise wrote:
+> > 
+> > > Below is a patch that uses 128 bit SSE instructions for copy_page and 
+> > > clear_page.  This is an improvement on P4 systems as can be seen by 
+> > > running the test program at http://www.kvack.org/~bcrl/xmm64.c to get 
+> > > results like:
+> > 
+> > it looks like the patch uses SSE2 instructions (pxor, movdqa, movntdq)... 
+> > if you use xorps, movaps, movntps then it works on SSE processors as well.
 > 
-> The idea behind these locks is for bigger systems (8-way or more) for
-> heavily contended locks (say 32 threads doing write() on the same fd).
+> oh and btw... on x86-64 you might want to look at using movnti with 64-bit 
+> registers... the memory datapath on these processors is actually 64-bits 
+> wide, and the 128-bit stores are broken into two 64-bit pieces internally 
+> anyhow.  the advantage of using movnti over movntdq/movntps is that you 
+> don't have to save/restore the xmm register set.
 
-Didn't Dipankar & co just fix that with their latest RCU patchkit? 
-(assuming you mean the FD locks)
+Any use of write combining for copy_page/clear_page is a bad idea.
+The problem is that write combining always forces the destination
+out of cache.  While it gives you better microbenchmarks your real workloads
+suffer because they eat lot more additional cache misses when
+accessing the fresh pages.
 
-> In such a system, cacheline snooping isn't practical at the hardware
-> level, and a lock such as this should be able to send several CPUs to
+Don't go down that path please.
 
-Why not? Cache snooping has to always work with low overhead, otherwise the
-machine is not very useful coherent. I assume that any bigger system
-has a cache directory anyways, which should minimze the traffic; 
-and for smaller setups listening to broadcasts works fine.
-
+At least on Opteron I did quite some tests and the existing setup
+with just rep ; movsq for C stepping or later or the unrolled loop 
+for earlier CPUs worked best overall. On P4 I haven't do any benchmarks;
+however it might be a good idea to check if rep ; movsq would be 
+a win there too (if yes it could be enabled there)
 
 -Andi

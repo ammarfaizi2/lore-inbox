@@ -1,38 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbVE3CX4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVE3CfO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261498AbVE3CX4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 22:23:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbVE3CX4
+	id S261500AbVE3CfO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 22:35:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbVE3CfO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 22:23:56 -0400
-Received: from terminus.zytor.com ([209.128.68.124]:64414 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S261498AbVE3CXz
+	Sun, 29 May 2005 22:35:14 -0400
+Received: from rproxy.gmail.com ([64.233.170.203]:17762 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261500AbVE3CfI convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 22:23:55 -0400
-Message-ID: <429A792F.9070806@zytor.com>
-Date: Sun, 29 May 2005 19:23:43 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: randy_dunlap <rdunlap@xenotime.net>
-CC: sean@capitalgenomix.com, linux-kernel@vger.kernel.org,
-       webmaster@kernel.org
-Subject: Re: Kernel Version Explanation
-References: <20050529140945.GA4815@cgx-mail.capitalgenomix.com> <20050529112523.17f6e8fa.rdunlap@xenotime.net>
-In-Reply-To: <20050529112523.17f6e8fa.rdunlap@xenotime.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 29 May 2005 22:35:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gkmZv3cGQBLCxQweUcGfoCDYO5fWRCWcMhLmF2dWRnG+mHiJ/MzezysV4m96Tq6se2/mvAcloY8HKrR3ByAN8utFnW66G1E1cQ0Kjbq9FXHbwJ48BHByFMOfpIIeSrk5M9U/izXjQw+rzwAMvVHFyqG8FbPn2bL/77S14j98woE=
+Message-ID: <311601c9050529193515222ba2@mail.gmail.com>
+Date: Sun, 29 May 2005 20:35:08 -0600
+From: "Eric D. Mudama" <edmudama@gmail.com>
+Reply-To: "Eric D. Mudama" <edmudama@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] SATA NCQ support
+Cc: Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org
+In-Reply-To: <4299EF74.9060506@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050527070353.GL1435@suse.de>
+	 <20050527131842.GC19161@merlin.emma.line.org>
+	 <20050527135258.GW1435@suse.de> <429732CE.5010708@gmx.de>
+	 <20050527145821.GX1435@suse.de>
+	 <20050529131611.GB13418@merlin.emma.line.org>
+	 <4299EF74.9060506@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-randy_dunlap wrote:
+On 5/29/05, Jeff Garzik <jgarzik@pobox.com> wrote:
+> Matthias Andree wrote:
+> > Do I take this as SATA is faster than legacy ATA? In what respect?
+> > UDMA/33 and SATA I shouldn't be much different if I use the same drive,
+> > or is there something?
 > 
-> It looks to me like the word "stable" is overused on the main page
-> at www.kernel.org .  I would also prefer to see all of the 2.6.*
-> kernel versions together, above the 2.4.*, 2.2.*, and 2.0.* lines.
+> It is "likely" to be faster.  Faster bus, newer technology.
 > 
+>         Jeff
 
-That's because there isn't an odd-number series right now.
+The biggest improvement comes because the drives that ship with the
+newer bus technology are newer internally too, they aren't just
+repackaged older technology.
 
-	-hpa
+Today's current generation products (SATA and PATA100/133) can sustain
+over 60MB/s datarates, and the next will probably be even higher.
+
+The drive that could only do UDMA/33 is probably of a disk technology
+around 15MB/s or worse.
+
+Today's newest drives are quite fast.
+
+--eric

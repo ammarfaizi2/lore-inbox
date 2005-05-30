@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVE3SrH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbVE3Ssm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261630AbVE3SrH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 14:47:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261676AbVE3SrH
+	id S261691AbVE3Ssm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 14:48:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261694AbVE3Ssc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 14:47:07 -0400
-Received: from opersys.com ([64.40.108.71]:30221 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261630AbVE3SrA (ORCPT
+	Mon, 30 May 2005 14:48:32 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:41707 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261691AbVE3SsO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 14:47:00 -0400
-Message-ID: <429B61F7.70608@opersys.com>
-Date: Mon, 30 May 2005 14:56:55 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Mon, 30 May 2005 14:48:14 -0400
+Message-ID: <429B5FE3.8070908@pobox.com>
+Date: Mon, 30 May 2005 14:48:03 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Esben Nielsen <simlo@phys.au.dk>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>, kus Kusche Klaus <kus@keba.com>,
-       James Bruce <bruce@andrew.cmu.edu>, "Bill Huey (hui)" <bhuey@lnxw.com>,
-       Andi Kleen <ak@muc.de>, Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-References: <Pine.OSF.4.05.10505301934001.31148-100000@da410.phys.au.dk>
-In-Reply-To: <Pine.OSF.4.05.10505301934001.31148-100000@da410.phys.au.dk>
-Content-Type: text/plain; charset=us-ascii
+To: Mark Lord <liml@rtr.ca>, Erik Slagter <erik@slagter.name>,
+       Michael Thonke <iogl64nx@gmail.com>
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: Playing with SATA NCQ
+References: <20050526140058.GR1419@suse.de>	 <1117382598.4851.3.camel@localhost.localdomain>	 <4299F47B.5020603@gmail.com>	 <1117387591.4851.17.camel@localhost.localdomain> <429A58F4.3040308@rtr.ca>	 <1117438192.4851.29.camel@localhost.localdomain>  <429B56CA.5080803@rtr.ca> <1117477364.3108.2.camel@localhost.localdomain> <429B5A94.6010301@rtr.ca>
+In-Reply-To: <429B5A94.6010301@rtr.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mark Lord wrote:
+> Erik Slagter wrote:>
+> 
+>> Still I'd like to run in ACHI mode ;-)
+> 
+> 
+> Me too!  But from reading the ICH6 Intel docs,
+> it seems that AHCI mode is only for true SATA drives.
 
-Esben Nielsen wrote:
-> Ofcourse, there is a lot of buts to that. You have to check that the
-> driver doesn't take a call path which is nontermnistic in special cases
-> and the path between your application and the driver is deterministic.
-> A static code checker would be nice...
+Correct.  AHCI mode absolutely requires SATA, because it only supports 
+the native SATA "FIS" packets.
 
-Which gets up back where we began: drivers that are non-deterministic
-will continue being deterministic regardless of what solution is adopted,
-if any, and will be in need of a re-write/major-modification, which
-itself will have little or no added value for non-rters ...
+As much as I would like, one cannot use AHCI to talk to any PATA device[1].
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+	Jeff
+
+
+
+[1] unless it's PATA bridged over SATA, the exception case that turns 
+any PATA device into a SATA device.

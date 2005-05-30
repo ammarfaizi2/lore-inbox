@@ -1,37 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261816AbVE3XOn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbVE3XPW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261816AbVE3XOn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 19:14:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVE3XLs
+	id S261811AbVE3XPW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 19:15:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVE3XOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 19:11:48 -0400
-Received: from dev.allthingslocal.com ([69.44.58.51]:9607 "EHLO
-	dev.allthingslocal.com") by vger.kernel.org with ESMTP
-	id S261811AbVE3XKb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 19:10:31 -0400
-Message-ID: <429B9C49.9000900@manawiz.com>
-Date: Mon, 30 May 2005 16:05:45 -0700
-From: Chuck Williams <chuck@manawiz.com>
-Organization: Manawiz
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
+	Mon, 30 May 2005 19:14:54 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:55524 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S261811AbVE3XMS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 19:12:18 -0400
+X-ORBL: [69.107.40.98]
+From: David Brownell <david-b@pacbell.net>
+To: Oliver Neukum <oliver@neukum.org>
+Subject: Re: [linux-usb-devel] Re: [BUG] oops while completing async USB via usbdevio
+Date: Mon, 30 May 2005 16:12:07 -0700
+User-Agent: KMail/1.7.1
+Cc: linux-usb-devel@lists.sourceforge.net, Harald Welte <laforge@gnumonks.org>,
+       linux-kernel@vger.kernel.org
+References: <20050530194443.GA22760@sunbeam.de.gnumonks.org> <200505301555.39985.david-b@pacbell.net> <200505310109.06445.oliver@neukum.org>
+In-Reply-To: <200505310109.06445.oliver@neukum.org>
 MIME-Version: 1.0
-To: axboe@suse.de
-CC: linux-kernel@vger.kernel.org, alexn@telia.com
-Subject: [Bug 4688] CD devices have their capacity set incorrectly, preventing
- reading of large dvd's
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+Message-Id: <200505301612.07850.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-http://bugzilla.kernel.org/show_bug.cgi?id=4688
+On Monday 30 May 2005 4:09 pm, Oliver Neukum wrote:
+> Am Dienstag, 31. Mai 2005 00:55 schrieb David Brownell:
+> > The logic closing an open usbfs file -- which is done before any task
+> > exits with such an open file -- is supposed to block till all its URBs
+> > complete.  So the pointer to the task "should" be valid for as long as
+> > any URB it's submitted is active.
+> 
+> What happens if you pass such an fd through a socket?
 
-
-Per alexn's request, I'm mailing you a pointer to this bug.  I'm running 2.6.12-rc2 and he asked me to verify the problem still exists in rc5.  Unfortunately, I am not able to upgrade to rc5 and recompile the kernel at the moment.  I did read through the rc5 changes and a) saw no information about this bug in the changelog, and b) it appears the potentially relevant patches to ide-cd.c and block_dev.c are already in rc2.  Specifically, the hard set of capacity to ox1fffff if the stat fails is still in rc5.
-
-I hope this is helpful,
-
-Chuck
-
+Why I suppose then you might find glitches in the design underlying
+the usbfs code.  I put "should" in scare-quotes for a reason.
 

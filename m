@@ -1,45 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbVE3DpF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261513AbVE3EBN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261510AbVE3DpF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 23:45:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVE3DpF
+	id S261513AbVE3EBN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 00:01:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVE3EBN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 23:45:05 -0400
-Received: from web32604.mail.mud.yahoo.com ([68.142.207.231]:55699 "HELO
-	web32604.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S261510AbVE3DpB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 23:45:01 -0400
-Comment: DomainKeys? See http://antispam.yahoo.com/domainkeys
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  b=fKkBekWVATAzdDMp/5Nm5a4av1Oz8HT+RC/RbFU6x1UD5qMuOQtX22YBEELcCq3Y4j4f2du6nuzJwc1IWDRM31b+0Sv2mV+J2KX3ZgR0vPfC8JO3BHl/X6q6KBjg3zDfurWQjtdMxoQPzqbxGGiMuSHt1Ht2crCFb/jU6vR95e8=  ;
-Message-ID: <20050530034500.82628.qmail@web32604.mail.mud.yahoo.com>
-Date: Sun, 29 May 2005 20:45:00 -0700 (PDT)
-From: frank nero <m4rcos2003@yahoo.com>
-Subject: oops in kernel 2.6.11.10 (list of modules loaded was incomplete)
-To: linux-kernel@vger.kernel.org
+	Mon, 30 May 2005 00:01:13 -0400
+Received: from mail.avantwave.com ([210.17.210.210]:10370 "EHLO
+	mail.avantwave.com") by vger.kernel.org with ESMTP id S261513AbVE3EBF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 00:01:05 -0400
+Message-ID: <429A8FFD.40606@avantwave.com>
+Date: Mon, 30 May 2005 12:01:01 +0800
+From: Tomko <tomko@avantwave.com>
+User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel@vger.kernel.org
+Subject: Re: question about /dev/console and /dev/tty
+References: <4296C5C0.4030409@avantwave.com> <d76sqc$suq$1@news.cistron.nl>
+In-Reply-To: <d76sqc$suq$1@news.cistron.nl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, the modules loaded list was incomplete, the
-corrected list is:
+Hi,
+Thank you very much for the reply, but i would like to ask some more.
 
-Modules Loaded:
- 
-nls_cp437 vfat fat ipt_TCPMSS ipt_limit ip_nat_irc
-ip_nat_ftp iptable_mangle ipt_LOG ipt_MASQUERADE
-iptable_nat ipt_TOS ipt_REJECT ip_conntrack_irc
-ip_conntrack_ftp ipt_state ip_conntrack iptable_filter
-ip_tables ohci_hcd ehci_hcd pcspkr rtc snd_via82xx
-snd_ac97_codec snd_pcm_oss snd_mixer_oss snd_pcm
-snd_timer snd_page_alloc gameport snd_mpu401_uart
-snd_rawmidi snd_seq_device snd soundcore via686a
-i2c_sensor i2c_core uhci_hcd usbcore tsdev evdev
-parport_pc lp parport ne 8390 8139too mii
+1. it seems we can choose which device we want for console output by 
+typing this on kernel command line:
+console = device , options
+if i type  "console = ttyS1 " is that means kernel will internally link 
+/dev/console to /dev/ttyS1 , and when i do any operation to /dev/console 
+, it is the same as i do to /dev/ttyS1 ?
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+2 . what means foreground virtual console as tty0 is representing ?
+
+Regards,
+TOM
+
+
+
+Miquel van Smoorenburg wrote:
+
+>In article <4296C5C0.4030409@avantwave.com>,
+>Tomko  <tomko@avantwave.com> wrote:
+>  
+>
+>>Hi everyone,
+>>
+>>Which device is /dev/console pointing to ? or is it a virtual device ? 
+>>Actually why this node is made?
+>>    
+>>
+>
+>See linux/Documentation/serial-console.txt
+>
+>  
+>
+>>Why kernel default not providing a control terminal on /dev/console but 
+>>on other device ?
+>>    
+>>
+>
+>Because some daemons open /dev/console to send last resort error
+>messages to, and you do not want them to unexpectedly gain a
+>controlling tty.
+>
+>  
+>
+>>It is not surprising that we can use CTRL-C to terminate some process on 
+>>i386 linux on the Desktop machine,  is that mean the shell on our 
+>>desktop is not using /dev/console ? so where are the shell running on?
+>>    
+>>
+>
+>/dev/tty1, /dev/tty2 etc
+>
+>Mike.
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>  
+>
+

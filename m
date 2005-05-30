@@ -1,56 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbVE3XZa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbVE3X2F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261825AbVE3XZa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 19:25:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbVE3XXX
+	id S261830AbVE3X2F (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 19:28:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261821AbVE3X0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 19:23:23 -0400
-Received: from main.gmane.org ([80.91.229.2]:14524 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261829AbVE3XW0 (ORCPT
+	Mon, 30 May 2005 19:26:18 -0400
+Received: from smtpq1.home.nl ([213.51.128.196]:5346 "EHLO smtpq1.home.nl")
+	by vger.kernel.org with ESMTP id S261822AbVE3XYS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 19:22:26 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Date: Tue, 31 May 2005 01:20:05 +0200
-Message-ID: <yw1xacmcjo7u.fsf@ford.inprovide.com>
-References: <4847F-8q-23@gated-at.bofh.it> <d120d500050527072146c2e5ee@mail.gmail.com>
- <429AD7ED.nail4ZG1B42TI@burner>
- <200505301727.43926.dtor_core@ameritech.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:BoBzaojbSlL1Yb+uxadcchOGS34=
+	Mon, 30 May 2005 19:24:18 -0400
+Message-ID: <429BA001.2030405@keyaccess.nl>
+Date: Tue, 31 May 2005 01:21:37 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a6) Gecko/20050111
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: External USB2 HDD affects speed hda
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dmitry Torokhov <dtor_core@ameritech.net> writes:
+Hi Bartlomiej.
 
->> So let me sum up: Never rely on things that cannot be made 100%
->> unique in case you like to run security relevent software like cdrecord.
->
-> Are you talking about <bus>,<target>,<lun> numbering by any chance ;) ?
-> Because for the most types of devices out there they don't make any sense
-> and just provided for compatibility with legacy software.
+My Maxtor 6Y120P0 on AMD756 (UDMA66) normally gives me 50 MB/s according 
+to hdparm -t:
 
-Like cdrecord.
+===
+# hdparm -t /dev/hda
 
-> Also, from a bit different perspective - do you also want users to mount
-> the CD they burnt using not device (/dev/xxx) but <bus>,<target>,<lun>?
-> If not why writing application should use different addressing? 
+/dev/hda:
+  Timing buffered disk reads:  152 MB in  3.01 seconds =  50.57 MB/sec
+===
 
-Let's start referring to files by device and inode number instead.
-It's so much easier than using pathnames.  Maybe we can even force
-them into a bus,target,lun scheme.  Then the device files and the
-corresponding scsi addresses will automatically collapse, and all
-problems will be solved.
+However, the second I switch on my external USB2 drive (Western Digital 
+Essential 160G, connected via a PCI card USB2 controller, on a private IRQ):
 
--- 
-Måns Rullgård
-mru@inprovide.com
+===
+usb 1-3: new high speed USB device using ehci_hcd and address 3
+scsi0 : SCSI emulation for USB Mass Storage devices
+usb-storage: device found at 3
+usb-storage: waiting for device to settle before scanning
+   Vendor: WD        Model: 1600BB External   Rev: 0412
+   Type:   Direct-Access                      ANSI SCSI revision: 00
+SCSI device sda: 312581808 512-byte hdwr sectors (160042 MB)
+sda: assuming drive cache: write through
+SCSI device sda: 312581808 512-byte hdwr sectors (160042 MB)
+sda: assuming drive cache: write through
+  sda: sda1 sda2
+Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+usb-storage: device scan complete
+===
 
+the hdparm -t result drops down to 42MB/s:
+
+===
+# hdparm -t /dev/hda
+
+/dev/hda:
+  Timing buffered disk reads:  130 MB in  3.04 seconds =  42.77 MB/sec
+===
+
+Switching the USB2 HDD off again does not work to bring back the 50 MB/s:
+
+===
+# eject sda
+# hdparm -t /dev/hda
+
+/dev/hda:
+  Timing buffered disk reads:  128 MB in  3.01 seconds =  42.57 MB/sec
+
+[ push button ]
+
+usb 1-3: USB disconnect, address 3
+
+# hdparm -t /dev/hda
+
+/dev/hda:
+  Timing buffered disk reads:  130 MB in  3.04 seconds =  42.73 MB/sec
+===
+
+After a reboot, it's 50 MB/s again. Any idea what this is?
+
+The USB HDD is not firing interrupts or anything. It just sits idle. 
+Fully repeatable on 2.6.11.11 and 2.6.12-rc5.
+
+Rene.

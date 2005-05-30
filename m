@@ -1,78 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbVE3P0O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbVE3Per@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261534AbVE3P0O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 11:26:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbVE3P0O
+	id S261563AbVE3Per (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 11:34:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbVE3PeZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 11:26:14 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:62348 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S261534AbVE3P0A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 11:26:00 -0400
-Subject: Re: [PROBLEM] Machine Freezes while Running Crossover Office
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Pekka Enberg <penberg@gmail.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <Pine.LNX.4.58.0505291543070.10545@ppc970.osdl.org>
-References: <1117291619.9665.6.camel@localhost>
-	 <Pine.LNX.4.58.0505291059540.10545@ppc970.osdl.org>
-	 <84144f0205052911202863ecd5@mail.gmail.com>
-	 <Pine.LNX.4.58.0505291143350.10545@ppc970.osdl.org>
-	 <1117399764.9619.12.camel@localhost>
-	 <Pine.LNX.4.58.0505291543070.10545@ppc970.osdl.org>
-Date: Mon, 30 May 2005 18:23:30 +0300
-Message-Id: <1117466611.9323.6.camel@localhost>
+	Mon, 30 May 2005 11:34:25 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:38875 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261557AbVE3PeU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 11:34:20 -0400
+Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: =?ISO-8859-1?Q?Gr=E9goire?= Favre <gregoire.favre@gmail.com>
+Cc: dino@in.ibm.com, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>
+In-Reply-To: <20050530150950.GA14351@gmail.com>
+References: <20050517195650.GC9121@gmail.com>
+	 <1116363971.4989.51.camel@mulgrave> <20050521232220.GD28654@gmail.com>
+	 <1116770040.5002.13.camel@mulgrave> <20050524153930.GA10911@gmail.com>
+	 <1117113563.4967.17.camel@mulgrave> <20050526143516.GA9593@gmail.com>
+	 <1117118766.4967.22.camel@mulgrave> <20050526173518.GA9132@gmail.com>
+	 <1117463938.4913.3.camel@mulgrave>  <20050530150950.GA14351@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Mon, 30 May 2005 10:34:08 -0500
+Message-Id: <1117467248.4913.9.camel@mulgrave>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.2.1.1 
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sun, 2005-05-29 at 15:59 -0700, Linus Torvalds wrote:
-> However, I don't understand how wine can block the X server from doing 
-> even cursor updates. It might be a scheduler bug, of course. The one thing 
-> a bigger pipe buffer does is end up changing scheduling behaviour. 
+On Mon, 2005-05-30 at 17:09 +0200, Grégoire Favre wrote:
+> uname -r gives me : 2.6.12-rc5 which mean it's a working fix for me !!!
 > 
-> (On the other hand, I would not be surprised if Wine does something that 
-> makes X pause, like use DGA or whatever and tells X not to update the 
-> screen, including cursors).
+> Note that on the other controller the speed are quiete low ?
+> Do you think it's more or less safe to use this kernel so ?
 
-It is not just X. Running the following shell script when hitting the
-bug:
+Yes, that was just a global change to get the thing to boot.
 
-#!/bin/sh
+Now try this:
 
-while : ; do
-  date
-  sleep 1
-done
+echo 100 > /sys/class/spi_transport/target1:0:1/min_period
+echo 1 > /sys/class/spi_transport/target1:0:1/revalidate
 
-shows the following output:
+and look at dmesg to see if it brought the speed up (save your files
+first, this may hang the box).
 
-penberg ~/pipe-test 49 ./show-date
-Mon May 30 18:16:52 EEST 2005
-Mon May 30 18:16:53 EEST 2005
-Mon May 30 18:16:54 EEST 2005
-Mon May 30 18:16:55 EEST 2005
-Mon May 30 18:17:15 EEST 2005
-Mon May 30 18:17:16 EEST 2005
+James
 
-It looks like no other processes other than wineserver and
-wine-preloader get any CPU time (also evident from Sysrq-P traces).
-
-On Sun, 2005-05-29 at 15:59 -0700, Linus Torvalds wrote:
-> Are you sure your oprofile PC map is correct?
-
-Yes, the pipe_poll calls come from wineserver actually, not
-wine-preloader (of which I showed strace output before).
-
-Any suggestions on how to debug this further? I am not sure I understood
-your point about watching poll timeouts.
-
-			Pekka
 

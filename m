@@ -1,50 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261511AbVE3M3B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVE3MgL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261511AbVE3M3B (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 08:29:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261518AbVE3M3B
+	id S261518AbVE3MgL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 08:36:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVE3MgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 08:29:01 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:59314 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S261511AbVE3M26 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 08:28:58 -0400
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 30 May 2005 14:26:43 +0200
-To: toon@hout.vanvergehaald.nl, ltd@cisco.com
-Cc: schilling@fokus.fraunhofer.de, mrmacman_g4@mac.com,
-       linux-kernel@vger.kernel.org, dtor_core@ameritech.net, 7eggert@gmx.de
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Message-ID: <429B0683.nail5764GYTVC@burner>
-References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com>
- <20050530093420.GB15347@hout.vanvergehaald.nl>
-In-Reply-To: <20050530093420.GB15347@hout.vanvergehaald.nl>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 30 May 2005 08:36:11 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:25058 "EHLO
+	nelson.home.kernel.dk") by vger.kernel.org with ESMTP
+	id S261518AbVE3MgE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 08:36:04 -0400
+Date: Mon, 30 May 2005 14:37:06 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Greg Stark <gsstark@mit.edu>
+Cc: "Eric D. Mudama" <edmudama@gmail.com>,
+       Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
+Subject: Re: [PATCH] SATA NCQ support
+Message-ID: <20050530123706.GR7054@suse.de>
+References: <20050527070353.GL1435@suse.de> <20050527131842.GC19161@merlin.emma.line.org> <20050527135258.GW1435@suse.de> <429732CE.5010708@gmx.de> <20050527145821.GX1435@suse.de> <87oeatxtw4.fsf@stark.xeocode.com> <311601c905052921046692cd3e@mail.gmail.com> <87d5r9xmgr.fsf@stark.xeocode.com> <20050530063322.GE7054@suse.de> <20050530121635.GQ7054@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050530121635.GQ7054@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Toon van der Pas <toon@hout.vanvergehaald.nl> wrote:
+On Mon, May 30 2005, Jens Axboe wrote:
+> On Mon, May 30 2005, Jens Axboe wrote:
+> > > People actually tend to report that IDE drives are *faster*. Until
+> > > they're told they have to disable write-caching on their IDE drives to
+> > > get a fair comparison, then the performance is absolutely abysmal. The
+> > > interesting thing is that SCSI drives don't seem to take much of a
+> > > performance hit from having write-caching disabled while IDE drives
+> > > do.
+> > 
+> > NCQ will surely lessen the impact of disabling write caching, how much
+> > still remains to be seen. You could test, if you have the hardware :)
+> > Real life testing is more interesting than benchmarks.
+> 
+> With a few simple tests, I'm unable to show any write performance
+> improvement with write back caching off and NCQ (NCQ with queueing depth
+> of 1 and 16 tested). I get a steady 0.55-0.57MiB/sec with 8 threads
+> random writes, a little over 5MiB/sec with sequential writes.
+> 
+> Reads are _much_ nicer. Sequential read with 8 threads are 23% faster
+> with a queueing depth of 16 than 1, random reads are 85% (!!) faster at
+> depth 16 than 1.
+> 
+> Testing was done with the noop io scheduler this time, to only show NCQ
+> benefits outside of what the io scheduler can do for reordering.
+> 
+> This is with a Maxtor 7B300S0 drive. I would have posted results for a
+> Seagate ST3120827AS as well, but that drive happily ignores any attempt
+> to turn off write back caching. To top things off, it even accepts FUA
+> writes but ignores that as well (they still go to cache).
 
-> > look up the man page for udev(8), pay particular attention to the part
-> > that can tie devname into device serial number.
-> > take note of the example shown under 'serial'.
->
-> These were my thoughts too.
-> But I just checked the entries in my sysfs tree for my CDRW drive,
-> and there is no serial number available...
+Actually, I partly take that back. The Seagate _does_ honor drive write
+back caching disable and it does show a nice improvement with NCQ for
+that case. Results are as follows:
 
-BTW: an implementation that uses something like Solaris does with
-/etc/path_to_inst and puts USB serial numbers into the path_to_inst 
-kernel instance database could come very close to the desired result 
-and would give stable SCSI addresses too.
+8 thread io case, 4kb block size, noop io scheduler, ST3120827AS.
 
-Jörg
+Write cache off:
+
+                Depth 1         Depth 30        Diff
+Seq read:       18.94           21.51           +  14%
+Ran read:        0.86            1.24           +  44%
+Seq write:       6.58           19.30           + 193%
+Ran write:       1.00            1.27           +  27%
+
+Write cache on:
+
+                Depth 1         Depth 30        Diff
+Seq read:       18.78           21.58           +  15%
+Ran read:        0.84            1.20           +  43%
+Seq write:      24.49           23.26           -   5%
+Ran write:       1.55            1.63           +   5%
+
+Huge benefit on writes with NCQ when write back caching is off, with it
+on I think the deviation is within standard jitter of this benchmark.
+
 
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  
-       schilling@fokus.fraunhofer.de	(work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+Jens Axboe
+

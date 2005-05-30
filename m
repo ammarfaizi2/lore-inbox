@@ -1,148 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbVE3LJS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261434AbVE3LMG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261433AbVE3LJS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 07:09:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVE3LIq
+	id S261434AbVE3LMG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 07:12:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVE3LJd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 07:08:46 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:22487 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261429AbVE3LCM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 07:02:12 -0400
-Date: Mon, 30 May 2005 16:30:20 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [rfc: patch 6/6] files locking doc 
-Message-ID: <20050530110020.GG5534@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20050530105042.GA5534@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050530105042.GA5534@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 30 May 2005 07:09:33 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:36871 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S261434AbVE3LHZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 07:07:25 -0400
+Message-ID: <429AF53B.3080805@aitel.hist.no>
+Date: Mon, 30 May 2005 13:12:59 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Kyle Moffett <mrmacman_g4@mac.com>
+CC: Geert Uytterhoeven <geert@linux-m68k.org>, Dave Airlie <airlied@linux.ie>,
+       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       dri-devel@lists.sourceforge.net
+Subject: Re: [PATCH] DRM depends on ???
+References: <Pine.LNX.4.62.0505282333210.5800@anakin> <20050528215005.GA5990@redhat.com> <1FA58BE7-0EE6-432B-9383-F489F9854DBE@mac.com> <Pine.LNX.4.58.0505290809180.9971@skynet> <Pine.LNX.4.62.0505292157130.12948@numbat.sonytel.be> <64148E06-2DFA-41A5-9D86-5F34DCAAF9F4@mac.com>
+In-Reply-To: <64148E06-2DFA-41A5-9D86-5F34DCAAF9F4@mac.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Kyle Moffett wrote:
 
+> On May 29, 2005, at 15:58:10, Geert Uytterhoeven wrote:
+>
+>>> What Kyle said is the correct answer... we either keep this lovely
+>>> construct (I'll add a comment for 2.6.13) or we go back to the old
+>>> intermodule or module_get stuff... DRM built-in with modular AGP  is 
+>>> always
+>>> wrong... or at least I'll get a hundred e-mails less every month if I
+>>> say it is ..
+>>
+>>
+>> And what if we don't have AGP at all? Or no PCI?
+>
+>
+> Then DRM detects that at configure time and excludes the code that  
+> requires
+> AGP.  Basically, the following are valid configurations:
+>
+> DRM=y AGP=y  # DRM will use AGP
+> DRM=y AGP=n  # DRM will not use AGP
+>
+> DRM=m AGP=y  # DRM will use AGP
+> DRM=m AGP=m  # DRM will use AGP (DRM module depends on AGP module)
+> DRM=m AGP=n  # DRM will not use AGP
+>
+> DRM=n AGP=*  # DRM isn't compiled and therefore doesn't care about AGP
+>
+> The only invalid configuration is DRM=y AGP=m, which seems silly,  
+> although
+> theoretically in that case DRM should exclude AGP support.
 
-Add documentation describing the new locking scheme for file
-descriptor table.
+Why is that case invalid?  I may have DRM=y so I get DRM on my
+PCI graphichs card.  Then I might load an agp module in order
+to use agp on *some other* agp card. 
 
-Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
+I have no problem with DRM=y,AGP=m being invalid for the common
+single-card setup, but there are multi-card setups too.  Not that
+I need this special case personally - I have two cards but don't use 
+modules.
 
+Helge Hafting
 
- Documentation/filesystems/files.txt |  103 ++++++++++++++++++++++++++++++++++++
- 1 files changed, 103 insertions(+)
-
-diff -puN /dev/null Documentation/filesystems/files.txt
---- /dev/null	2005-05-31 01:41:29.830381768 +0530
-+++ linux-2.6.12-rc5-fd-dipankar/Documentation/filesystems/files.txt	2005-05-30 21:22:33.000000000 +0530
-@@ -0,0 +1,103 @@
-+File management in the Linux kernel
-+-----------------------------------
-+
-+This document describes how locking for files (struct file)
-+and file descriptor table (struct files) works.
-+
-+Up until 2.6.12, the file descriptor table has been protected
-+with a lock (files->file_lock) and reference count (files->count).
-+->file_lock protected accesses to all the file related fields
-+of the table. ->count was used for sharing the file descriptor
-+table between tasks cloned with CLONE_FILES flag. Typically
-+this would be the case for posix threads. As with the common
-+refcounting model in the kernel, the last task doing 	
-+a put_files_struct() frees the file descriptor (fd) table.
-+The files (struct file) themselves are protected using
-+reference count (->f_count).
-+
-+In the new lock-free model of file descriptor management,
-+the reference counting is similar, but the locking is
-+based on RCU. The file descriptor table contains multiple
-+elements - the fd sets (open_fds and close_on_exec, the
-+array of file pointers, the sizes of the sets and the array
-+etc.). In order for the updates to appear atomic to
-+a lock-free reader, all the elements of the file descriptor
-+table are in a separate structure - struct fdtable.
-+files_struct contains a pointer to struct fdtable through
-+which the actual fd table is accessed. Initially the
-+fdtable is embedded in files_struct itself. On a subsequent
-+expansion of fdtable, a new fdtable structure is allocated
-+and files->fdtab points to the new structure. The fdtable
-+structure is freed with RCU and lock-free readers either
-+see the old fdtable or the new fdtable making the update
-+appear atomic. Here are the locking rules for
-+the fdtable structure -
-+
-+1. All references to the fdtable must be done through
-+   the files_fdtable() macro :
-+
-+	struct fdtable *fdt;
-+
-+	rcu_read_lock();
-+
-+	fdt = files_fdtable(files);
-+	....
-+	if (n <= fdt->max_fds)
-+		....
-+	...
-+	rcu_read_unlock();
-+
-+   files_fdtable() uses rcu_dereference() macro which takes care of
-+   the memory barrier requirements for lock-free dereference.
-+   The fdtable pointer must be read within the read-side
-+   critical section.
-+
-+2. Reading of the fdtable as described above must be protected
-+   by rcu_read_lock()/rcu_read_unlock().
-+
-+3. For any update to the the fd table, files->file_lock must
-+   be held.
-+
-+4. To look up the file structure given an fd, a reader
-+   must use either fcheck() or fcheck_files() APIs. These
-+   take care of barrier requirements due to lock-free lookup.
-+   An example :
-+
-+	struct file *file;
-+
-+	rcu_read_lock();
-+	file = fcheck(fd);
-+	if (file) {
-+		...
-+	}
-+	....
-+	rcu_read_unlock();
-+
-+5. Handling of the file structures is special. Since the look-up
-+   of the fd (fget()/fget_light()) are lock-free, it is possible
-+   that look-up may race with the last put() operation on the
-+   file structure. This is avoided using the rcuref APIs
-+   on ->f_count :
-+
-+	rcu_read_lock();
-+	file = fcheck_files(files, fd);
-+	if (file) {
-+		if (rcuref_inc_lf(&file->f_count))
-+			*fput_needed = 1;
-+		else
-+		/* Didn't get the reference, someone's freed */
-+			file = NULL;
-+	}
-+	rcu_read_unlock();
-+	....
-+	return file;
-+
-+   rcuref_inc_lf() detects if refcounts is already zero or
-+   goes to zero during increment. If it does, we fail
-+   fget()/fget_light().
-+
-+6. Since both fdtable and file structures can be looked up
-+   lock-free, they must be installed using rcu_assign_pointer()
-+   API. If they are looked up lock-free, rcu_dereference()
-+   must be used. However it is advisable to use files_fdtable()
-+   and fcheck()/fcheck_files() which take care of these issues.
-
-_

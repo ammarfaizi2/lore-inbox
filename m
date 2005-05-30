@@ -1,62 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261815AbVE3Wy4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261807AbVE3XBX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261815AbVE3Wy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 18:54:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbVE3Wyx
+	id S261807AbVE3XBX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 19:01:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbVE3XBW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 18:54:53 -0400
-Received: from opersys.com ([64.40.108.71]:40207 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261811AbVE3WyK (ORCPT
+	Mon, 30 May 2005 19:01:22 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:58123 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S261807AbVE3XBA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 18:54:10 -0400
-Message-ID: <429B9BDB.1020705@opersys.com>
-Date: Mon, 30 May 2005 19:03:55 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: "Bill Huey (hui)" <bhuey@lnxw.com>
-CC: Esben Nielsen <simlo@phys.au.dk>, James Bruce <bruce@andrew.cmu.edu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@muc.de>,
+	Mon, 30 May 2005 19:01:00 -0400
+Date: Mon, 30 May 2005 16:05:57 -0700
+To: Karim Yaghmour <karim@opersys.com>
+Cc: "Bill Huey (hui)" <bhuey@lnxw.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       James Bruce <bruce@andrew.cmu.edu>, Andi Kleen <ak@muc.de>,
        Sven-Thorsten Dietrich <sdietrich@mvista.com>,
        Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Philippe Gerum <rpm@xenomai.org>
+       akpm@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: RT patch acceptance
-References: <Pine.OSF.4.05.10505302040560.31148-100000@da410.phys.au.dk> <429B6D14.2070206@opersys.com> <20050530224504.GD9972@nietzsche.lynx.com>
-In-Reply-To: <20050530224504.GD9972@nietzsche.lynx.com>
+Message-ID: <20050530230557.GF9972@nietzsche.lynx.com>
+References: <20050527233645.GA2283@nietzsche.lynx.com> <4297EB57.5090902@yahoo.com.au> <20050528054503.GA2958@nietzsche.lynx.com> <42981467.6020409@yahoo.com.au> <4299A98D.1080805@andrew.cmu.edu> <429ADEDD.4020805@yahoo.com.au> <429B1898.8040805@andrew.cmu.edu> <429B2160.7010005@yahoo.com.au> <20050530222747.GB9972@nietzsche.lynx.com> <429B99B4.9090005@opersys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <429B99B4.9090005@opersys.com>
+User-Agent: Mutt/1.5.9i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, May 30, 2005 at 06:54:44PM -0400, Karim Yaghmour wrote:
+> Bill Huey (hui) wrote:
+> > Think about what you need to do for app that does sound (hard RT),
+> > 3d drawing (mostly soft RT for this example), reading disk IO that's
+> > buffered.
+> > 
+> > By the time you get the sound playback and IO buffering going, you're
+> > going to get a pretty complicated commuication layer already going
+> > from those points. Now think, what if you intend to do a FFT over that
+> > data and display it ?
+> > 
+> > It's starting to get unmanagably complicated at that point.
+> 
+> But that's a general argument for having hard-rt in the standard
+> kernel. Which one of these steps cannot, from your point of view,
+> be implemented in a nanokernel archiecture? ... keeping in mind
 
-Bill Huey (hui) wrote:
-> I've always like your project and the track that it has taken with the
-> above along with the scheduler work. I am surprised that more folks don't
-> use it, but I think that has to do with the sucky web site and inability
-> for me and others to navigate through it for proper information.
+No, I'm not that saying that it's impossible. It's just that's going
+to be hell to write and maintain since you have deal with jitter across
+various domains that influence each other. It's not unlike the "avoid
+priority inversion by never letting threads of different priority lock
+against each other" argument. It needs to be seperated. But this is an
+issue for a single image system as well.
 
-<sarcasm-not-worth-responding-to>
-Sucky web site without proper info ... hmm ... any chances you can point
-me to the website for PREEMPT_RT, surely the professional design of it
-and the included documentation will make me want to adopt it right away
-... what's that you say, there's no website ...
-</sarcasm-not-worth-responding-to>
+When I think about it in terms of dual kernel primitives, I really have
+difficulty thinking about how to use the message queue stuff to integrate
+all of the systems involved in particular with shared buffers. Proper
+locking in those cases is scary to me for both methods, but at least
+the single kernel image stuff uses familiar chunks of memory that I can
+manipulate. I'm open to be proven wrong about this point if you have a
+good example sources to show me. I really am.
 
-:) seriously, though, I can't believe we've discouraged you because
-we're very poor at website design. Surely after all that's been said
-about the nanokernel approach you'd want to at least dedicate some
-short amount of time for downloading the code and at least running
-a diffstat on it or something ... or even better, giving it a test
-ride. Philippe has even gone as far as providing patches providing
-both PREEMPT_RT and Adeos under the same roof ... it doesn't get
-much better than that ...
+> that, as Andi mentioned, the need for increased responsivness for
+> the mainstream kernel is relevant with or without PREEMT_RT and
+> that increasing responsiveness is a never-ending work-in-progress.
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+bill
+

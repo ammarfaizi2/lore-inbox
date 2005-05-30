@@ -1,71 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261809AbVE3XF0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVE3XG0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261809AbVE3XF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 19:05:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbVE3XF0
+	id S261810AbVE3XG0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 19:06:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbVE3XG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 19:05:26 -0400
-Received: from opersys.com ([64.40.108.71]:47375 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261809AbVE3XFO (ORCPT
+	Mon, 30 May 2005 19:06:26 -0400
+Received: from smtpq2.home.nl ([213.51.128.197]:30359 "EHLO smtpq2.home.nl")
+	by vger.kernel.org with ESMTP id S261810AbVE3XGU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 19:05:14 -0400
-Message-ID: <429B9E85.2000709@opersys.com>
-Date: Mon, 30 May 2005 19:15:17 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Mon, 30 May 2005 19:06:20 -0400
+Message-ID: <429B9BD0.7000004@keyaccess.nl>
+Date: Tue, 31 May 2005 01:03:44 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a6) Gecko/20050111
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Bill Huey (hui)" <bhuey@lnxw.com>
-CC: Esben Nielsen <simlo@phys.au.dk>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       kus Kusche Klaus <kus@keba.com>, James Bruce <bruce@andrew.cmu.edu>,
-       Andi Kleen <ak@muc.de>, Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-References: <Pine.OSF.4.05.10505301934001.31148-100000@da410.phys.au.dk> <429B61F7.70608@opersys.com> <20050530223434.GC9972@nietzsche.lynx.com> <429B9880.1070604@opersys.com> <20050530224949.GE9972@nietzsche.lynx.com>
-In-Reply-To: <20050530224949.GE9972@nietzsche.lynx.com>
-Content-Type: text/plain; charset=us-ascii
+To: Vojtech Pavlik <vojtech@suse.cz>
+CC: Domen Puncer <domen@coderock.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: 2.6.12-rc2: Compose key doesn't work
+References: <4258F74D.2010905@keyaccess.nl> <20050414100454.GC3958@nd47.coderock.org> <20050526122315.GA3880@nd47.coderock.org> <20050526154509.GB9443@animx.eu.org> <20050526155344.GB3694@ucw.cz>
+In-Reply-To: <20050526155344.GB3694@ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Vojtech Pavlik wrote:
 
-Bill Huey (hui) wrote:
-> Paths entering back into userspace are simple like the use of read() to
-> respond to events.
+> On Thu, May 26, 2005 at 11:45:09AM -0400, Wakko Warner wrote:
 
-Sure, but like Andi said, general increased responsiveness is not exclusive
-to PREEMPT_RT, and any effort to reduce latency is welcome.
+>>I also have a problem with 2.6.12-rcX and ps/2 keyboard.  I would say it's
+>>the same key we're talking about.  It does not work at the console nor in X
+>>(showkey at the console does not see it).  It works with a USB keyboard.  My
+>>"compose" is mapped to the menu key beside the right windows key.
+>>
+>>I do wish they'd fix it, because I use this key (kinda like another ALT key)
+>>more than my compose key (again, the menu key, not the right win logo key)
+> 
+>  
+> This patch should fix it.
+> 
+> 
+> 
+> ------------------------------------------------------------------------
+> 
+> ChangeSet@1.2229.1.9, 2005-04-04 15:37:45+02:00, vojtech@suse.cz
+>   input: Fix fast scrolling scancodes in atkbd.c
 
-> Sorry, the RT patch really doesn't effect general kernel development
-> dramatically. It's just exploiting SMP work already in place to get data
-> safety and the like. It does however kill all bogus points in the kernel
-> that spin-waits for something to happen, which is a positive thing for the
-> kernel in general since it indicated sloppy code. If anything it makes the
-> kernel code cleaner.
+ACK, thanks.
 
-But wasn't the same said about the existing preemption code? Yet, most
-distros ship with it disabled and some developers still feel that there
-are no added benefits. What's the use if everyone is shipping kernels
-with the feature disabled? From a practical point of view, isn't it then
-obvious that such features catter for a minority? Wouldn't it therefore
-make sense to isolate such changes from the rest of the kernel in as
-much as possible? From what I read in response elsewhere, it does indeed
-seem that there are many who feel that the changes being suggested are
-far too instrusive without any benefit for most Linux users. But again,
-I'm just another noise-maker on this list. Reading the words of those
-who actually maintain this stuff is the best indication for me as to
-what the real-time-linux community can and cannot expect to get into
-the kernel.
-
-> This is last day of vacation, but it doesn't feel like it unfortunately :}
-
-I'm sorry you feel this way ... you do have the choice of not responding.
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Rene.

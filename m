@@ -1,32 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbVE3Jor@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVE3Js7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbVE3Jor (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 05:44:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261583AbVE3JmM
+	id S261586AbVE3Js7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 05:48:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbVE3Js7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 05:42:12 -0400
-Received: from mail.avantwave.com ([210.17.210.210]:36236 "EHLO
-	mail.avantwave.com") by vger.kernel.org with ESMTP id S261580AbVE3JlU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 05:41:20 -0400
-Message-ID: <429ADFB9.2010907@avantwave.com>
-Date: Mon, 30 May 2005 17:41:13 +0800
-From: Tomko <tomko@avantwave.com>
-User-Agent: Mozilla Thunderbird 0.9 (X11/20041127)
-X-Accept-Language: en-us, en
+	Mon, 30 May 2005 05:48:59 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:18426 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S261586AbVE3Jsr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 05:48:47 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Mon, 30 May 2005 11:46:04 +0200
+To: schilling@fokus.fraunhofer.de, ltd@cisco.com, dtor_core@ameritech.net
+Cc: mrmacman_g4@mac.com, linux-kernel@vger.kernel.org, 7eggert@gmx.de
+Subject: Re: OT] Joerg Schilling flames Linux on his Blog
+Message-ID: <429AE0DC.nail5071K8I2G@burner>
+References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com>
+In-Reply-To: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: question : 802.11b WLAN stack in linux
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all
+"Lincoln Dale \(ltd\)" <ltd@cisco.com> wrote:
 
-Do linux support WLAN stack ? i find in menuconfig but seems no there. 
-Do anyone know if there any stack and driver adapter of wireless in linux ?
+> > But what you claim is simply impossible.
+>
+> wrong. again.
+>
+> look up the man page for udev(8), pay particular attention to the part
+> that can tie devname into device serial number.
+> take note of the example shown under 'serial'.
 
+Let me give up here :-(
 
-Regards,
-TOM
+If you don't understand that the availability of the device serial number is 
+not a basic SCSI feature, it makes no sense to continue this discussion.
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  
+       schilling@fokus.fraunhofer.de	(work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

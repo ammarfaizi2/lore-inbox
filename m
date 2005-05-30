@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVE3IEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVE3IJL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261553AbVE3IEN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 04:04:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVE3IEM
+	id S261546AbVE3IJL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 04:09:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVE3IJL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 04:04:12 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:53931 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261553AbVE3IDy (ORCPT
+	Mon, 30 May 2005 04:09:11 -0400
+Received: from fire.osdl.org ([65.172.181.4]:1468 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261546AbVE3IJH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 04:03:54 -0400
-Date: Mon, 30 May 2005 10:03:09 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Kyle Moffett <mrmacman_g4@mac.com>
-cc: Dave Airlie <airlied@linux.ie>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       dri-devel@lists.sourceforge.net
-Subject: Re: [PATCH] DRM depends on ???
-In-Reply-To: <64148E06-2DFA-41A5-9D86-5F34DCAAF9F4@mac.com>
-Message-ID: <Pine.LNX.4.62.0505301002400.22798@numbat.sonytel.be>
-References: <Pine.LNX.4.62.0505282333210.5800@anakin> <20050528215005.GA5990@redhat.com>
- <1FA58BE7-0EE6-432B-9383-F489F9854DBE@mac.com> <Pine.LNX.4.58.0505290809180.9971@skynet>
- <Pine.LNX.4.62.0505292157130.12948@numbat.sonytel.be>
- <64148E06-2DFA-41A5-9D86-5F34DCAAF9F4@mac.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 30 May 2005 04:09:07 -0400
+Date: Mon, 30 May 2005 01:04:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Duncan Sands <baldrick@free.fr>
+Cc: bunk@stusta.de, linux-kernel@vger.kernel.org, gregkh@suse.de
+Subject: Re: 2.6.12-rc5-mm1: drivers/usb/atm/speedtch.c: gcc 2.95 compile
+ error
+Message-Id: <20050530010456.242b810e.akpm@osdl.org>
+In-Reply-To: <1117439106.9515.31.camel@localhost.localdomain>
+References: <20050525134933.5c22234a.akpm@osdl.org>
+	<20050529151231.GE10441@stusta.de>
+	<1117439106.9515.31.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 May 2005, Kyle Moffett wrote:
-> On May 29, 2005, at 15:58:10, Geert Uytterhoeven wrote:
-> > > What Kyle said is the correct answer... we either keep this lovely
-> > > construct (I'll add a comment for 2.6.13) or we go back to the old
-> > > intermodule or module_get stuff... DRM built-in with modular AGP is always
-> > > wrong... or at least I'll get a hundred e-mails less every month if I
-> > > say it is ..
-> > 
-> > And what if we don't have AGP at all? Or no PCI?
+Duncan Sands <baldrick@free.fr> wrote:
+>
+> Hi Adrian, it looks like gcc 2.95 doesn't like this kind of macro
 > 
-> Then DRM detects that at configure time and excludes the code that requires
-> AGP.  Basically, the following are valid configurations:
+>  #define atm_info(instance, format, arg...)	\
+>  	atm_printk(KERN_INFO, instance , format , ## arg)
+> 
+>  being called with only two arguments.  I don't know what
+>  the best fix is, but this does the trick:
 
-OK. So we still need the dependency on PCI.
+Nope.  There's a bug in gcc-2.95.x macro expansion, and here it bites us in
+atm_printk():
 
-Gr{oetje,eeting}s,
+printk(level "ATM dev %d: " format , (instance)->atm_dev->number, ## arg)
 
-						Geert
+the workaround is to add a space before that final comma:
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+diff -puN drivers/usb/atm/usbatm.h~a drivers/usb/atm/usbatm.h
+--- 25/drivers/usb/atm/usbatm.h~a	2005-05-30 01:02:51.000000000 -0700
++++ 25-akpm/drivers/usb/atm/usbatm.h	2005-05-30 01:03:08.000000000 -0700
+@@ -62,7 +62,8 @@
+ 
+ /* FIXME: move to dev_* once ATM is driver model aware */
+ #define atm_printk(level, instance, format, arg...)	\
+-	printk(level "ATM dev %d: " format , (instance)->atm_dev->number, ## arg)
++	printk(level "ATM dev %d: " format ,		\
++	(instance)->atm_dev->number , ## arg)
+ 
+ #define atm_err(instance, format, arg...)	\
+ 	atm_printk(KERN_ERR, instance , format , ## arg)
+_
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

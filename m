@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVE3Js7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261583AbVE3JuC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261586AbVE3Js7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 05:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbVE3Js7
+	id S261583AbVE3JuC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 05:50:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261587AbVE3JuC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 05:48:59 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:18426 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S261586AbVE3Jsr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 05:48:47 -0400
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Mon, 30 May 2005 11:46:04 +0200
-To: schilling@fokus.fraunhofer.de, ltd@cisco.com, dtor_core@ameritech.net
-Cc: mrmacman_g4@mac.com, linux-kernel@vger.kernel.org, 7eggert@gmx.de
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Message-ID: <429AE0DC.nail5071K8I2G@burner>
-References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com>
-In-Reply-To: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com>
-User-Agent: nail 11.2 8/15/04
+	Mon, 30 May 2005 05:50:02 -0400
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:53634 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261583AbVE3Jtv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 05:49:51 -0400
+Message-ID: <429AE1B3.4050205@yahoo.com.au>
+Date: Mon, 30 May 2005 19:49:39 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: kus Kusche Klaus <kus@keba.com>
+CC: James Bruce <bruce@andrew.cmu.edu>, "Bill Huey (hui)" <bhuey@lnxw.com>,
+       Andi Kleen <ak@muc.de>, Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+References: <AAD6DA242BC63C488511C611BD51F367323223@MAILIT.keba.co.at>
+In-Reply-To: <AAD6DA242BC63C488511C611BD51F367323223@MAILIT.keba.co.at>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Lincoln Dale \(ltd\)" <ltd@cisco.com> wrote:
+kus Kusche Klaus wrote:
 
-> > But what you claim is simply impossible.
->
-> wrong. again.
->
-> look up the man page for udev(8), pay particular attention to the part
-> that can tie devname into device serial number.
-> take note of the example shown under 'serial'.
+> When I was told to analyze whether linux is suitable for our
+> needs, any nanokernel or two-OS approaches were excluded from the
+> beginning: Mgmt thought that due to their nature and complexity,
+> such approaches are not able to offer any improvements w.r.t. what 
+> we have now. Clearly, "one system and one source" is wanted!
+> 
 
-Let me give up here :-(
-
-If you don't understand that the availability of the device serial number is 
-not a basic SCSI feature, it makes no sense to continue this discussion.
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  
-       schilling@fokus.fraunhofer.de	(work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+You don't explain how making the Linux kernel hard-RT
+will be so much simpler and more supportable!
+Send instant messages to your online friends http://au.messenger.yahoo.com 

@@ -1,41 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVE3HaK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbVE3HpW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261537AbVE3HaK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 03:30:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbVE3HaJ
+	id S261542AbVE3HpW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 03:45:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVE3HpW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 03:30:09 -0400
-Received: from oldconomy.demon.nl ([212.238.217.56]:7865 "EHLO
-	artemis.slagter.name") by vger.kernel.org with ESMTP
-	id S261537AbVE3HaF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 03:30:05 -0400
-Subject: Re: Playing with SATA NCQ
-From: Erik Slagter <erik@slagter.name>
-To: Mark Lord <liml@rtr.ca>
-Cc: Michael Thonke <iogl64nx@gmail.com>, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-In-Reply-To: <429A58F4.3040308@rtr.ca>
-References: <20050526140058.GR1419@suse.de>
-	 <1117382598.4851.3.camel@localhost.localdomain>
-	 <4299F47B.5020603@gmail.com>
-	 <1117387591.4851.17.camel@localhost.localdomain>  <429A58F4.3040308@rtr.ca>
+	Mon, 30 May 2005 03:45:22 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:22763 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S261542AbVE3HpI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 03:45:08 -0400
+Subject: Re: 2.6.12-rc5-mm1: drivers/usb/atm/speedtch.c: gcc 2.95 compile
+	error
+From: Duncan Sands <baldrick@free.fr>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Greg Kroah-Hartman <gregkh@suse.de>
+In-Reply-To: <20050529151231.GE10441@stusta.de>
+References: <20050525134933.5c22234a.akpm@osdl.org>
+	 <20050529151231.GE10441@stusta.de>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 30 May 2005 09:29:52 +0200
-Message-Id: <1117438192.4851.29.camel@localhost.localdomain>
+Date: Mon, 30 May 2005 09:45:06 +0200
+Message-Id: <1117439106.9515.31.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-05-29 at 20:06 -0400, Mark Lord wrote:
-> > ICH6M (mobile/no raid) on a Dell Inspiron 9300 laptop. AFAIK there are
-> > no plans to implement support for AHCI transition in the BIOS. &^$##($%
-> > DELL.
+On Sun, 2005-05-29 at 17:12 +0200, Adrian Bunk wrote:
+> The following compile error with gcc 2.95 seems to be caused by 
+> broken-out/gregkh-usb-usb-usbatm-{1,2}.patch:
 > 
-> No hope of it on this machine (I'm using a tricked-out i9300 here too),
-> because (1) the HD is PATA, not SATA, and (2) the drive itself probably
-> doesn't support NCQ (my 100GB drive does NOT -- use "hdparm -I" to see
-> what is supported on any given drive.  libata-dev includes hdparm support).
+> <--  snip  -->
+> 
+> ...
+>   CC      drivers/usb/atm/speedtch.o
+> drivers/usb/atm/speedtch.c: In function `speedtch_check_status':
+> drivers/usb/atm/speedtch.c:447: parse error before `;'
+> drivers/usb/atm/speedtch.c:456: parse error before `;'
+> drivers/usb/atm/speedtch.c:463: parse error before `;'
+> drivers/usb/atm/speedtch.c: In function `speedtch_status_poll':
+> drivers/usb/atm/speedtch.c:507: parse error before `;'
+> drivers/usb/atm/speedtch.c: In function `speedtch_handle_int':
+> drivers/usb/atm/speedtch.c:550: parse error before `;'
+> drivers/usb/atm/speedtch.c:552: parse error before `;'
+> make[3]: *** [drivers/usb/atm/speedtch.o] Error 1
+> 
+> <--  snip  -->
 
-I really have a (native) SATA drive, I checked the ID from dmesg.
+Hi Adrian, it looks like gcc 2.95 doesn't like this kind of macro
+
+#define atm_info(instance, format, arg...)	\
+	atm_printk(KERN_INFO, instance , format , ## arg)
+
+being called with only two arguments.  I don't know what
+the best fix is, but this does the trick:
+
+Signed-off-by: Duncan Sands <baldrick@free.fr>
+
+--- Linux/drivers/usb/atm/speedtch.c.orig	3 May 2005 07:30:42 -0000	1.58
++++ Linux/drivers/usb/atm/speedtch.c	30 May 2005 07:37:45 -0000
+@@ -444,7 +444,7 @@ static void speedtch_check_status(struct
+ 	case 0:
+ 		if (atm_dev->signal != ATM_PHY_SIG_LOST) {
+ 			atm_dev->signal = ATM_PHY_SIG_LOST;
+-			atm_info(usbatm, "ADSL line is down\n");
++			atm_info(usbatm, "%s\n", "ADSL line is down");
+ 			/* It'll never resync again unless we ask it to... */
+ 			ret = speedtch_start_synchro(instance);
+ 		}
+@@ -453,14 +453,14 @@ static void speedtch_check_status(struct
+ 	case 0x08:
+ 		if (atm_dev->signal != ATM_PHY_SIG_UNKNOWN) {
+ 			atm_dev->signal = ATM_PHY_SIG_UNKNOWN;
+-			atm_info(usbatm, "ADSL line is blocked?\n");
++			atm_info(usbatm, "%s\n", "ADSL line is blocked?");
+ 		}
+ 		break;
+ 
+ 	case 0x10:
+ 		if (atm_dev->signal != ATM_PHY_SIG_LOST) {
+ 			atm_dev->signal = ATM_PHY_SIG_LOST;
+-			atm_info(usbatm, "ADSL line is synchronising\n");
++			atm_info(usbatm, "%s\n", "ADSL line is synchronising");
+ 		}
+ 		break;
+ 
+@@ -504,7 +504,7 @@ static void speedtch_status_poll(unsigne
+ 	if (instance->poll_delay < MAX_POLL_DELAY)
+ 		mod_timer(&instance->status_checker.timer, jiffies + msecs_to_jiffies(instance->poll_delay));
+ 	else
+-		atm_warn(instance->usbatm, "Too many failures - disabling line status polling\n");
++		atm_warn(instance->usbatm, "%s\n", "Too many failures - disabling line status polling");
+ }
+ 
+ static void speedtch_resubmit_int(unsigned long data)
+@@ -547,9 +547,9 @@ static void speedtch_handle_int(struct u
+ 
+ 	if ((count == 6) && !memcmp(up_int, instance->int_data, 6)) {
+ 		del_timer(&instance->status_checker.timer);
+-		atm_info(usbatm, "DSL line goes up\n");
++		atm_info(usbatm, "%s\n", "DSL line goes up");
+ 	} else if ((count == 6) && !memcmp(down_int, instance->int_data, 6)) {
+-		atm_info(usbatm, "DSL line goes down\n");
++		atm_info(usbatm, "%s\n", "DSL line goes down");
+ 	} else {
+ 		int i;
+ 
+
+

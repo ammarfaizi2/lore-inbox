@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbVE3Nff@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261573AbVE3Ngo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261549AbVE3Nff (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 09:35:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVE3Nfe
+	id S261573AbVE3Ngo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 09:36:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbVE3Ngn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 09:35:34 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:47118 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261549AbVE3Nef
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 09:34:35 -0400
-Date: Mon, 30 May 2005 15:38:26 +0200
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: linux-kernel@vger.kernel.org
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Message-ID: <20050530133826.GC32046@irc.pl>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com> <20050530093420.GB15347@hout.vanvergehaald.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050530093420.GB15347@hout.vanvergehaald.nl>
-User-Agent: Mutt/1.5.4i
+	Mon, 30 May 2005 09:36:43 -0400
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:50105 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261573AbVE3Nfx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 09:35:53 -0400
+Message-ID: <429B0003.5060803@yahoo.com.au>
+Date: Mon, 30 May 2005 21:58:59 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Esben Nielsen <simlo@phys.au.dk>
+CC: kus Kusche Klaus <kus@keba.com>, James Bruce <bruce@andrew.cmu.edu>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+References: <Pine.OSF.4.05.10505301306510.12471-100000@da410.phys.au.dk>
+In-Reply-To: <Pine.OSF.4.05.10505301306510.12471-100000@da410.phys.au.dk>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 30, 2005 at 11:34:20AM +0200, Toon van der Pas wrote:
-> On Mon, May 30, 2005 at 05:19:43PM +0800, Lincoln Dale (ltd) wrote:
-> > > But what you claim is simply impossible.
-> > 
-> > wrong. again.
-> > 
-> > look up the man page for udev(8), pay particular attention to the part
-> > that can tie devname into device serial number.
-> > take note of the example shown under 'serial'.
-> 
-> These were my thoughts too.
-> But I just checked the entries in my sysfs tree for my CDRW drive,
-> and there is no serial number available...
+Esben Nielsen wrote:
 
- Wild thouht - you can attach a camera pointing to device and use udev
-callout script, which will grab a picture by v4l and check color.
- It *is* possible in Linux.
+> I do like the idea of guest kernels - especially the ability to enforce a
+> strict seperation of RT and non-RT. But you can't use _any_ part of the
+> Linux kernel in your RT application - not even drivers. I know a lot of
 
--- 
-Tomasz Torcz               RIP is irrevelant. Spoofing is futile.
-zdzichu@irc.-nie.spam-.pl     Your routes will be aggreggated. -- Alex Yuriev
+If you can't use the drivers, then presumably they're no good
+to be used as they are for realtime in Linux either, though :(
 
+In which case, you may still be better off porting the driver
+over and rewriting it to be hard-realtime than rewriting Linux
+itself ;)
+
+But I could be wrong. I don't pretend to have the answers (just
+questions!).
+
+Thanks,
+Nick
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

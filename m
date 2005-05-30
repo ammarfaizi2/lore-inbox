@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261438AbVE3LQP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261457AbVE3LTu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261438AbVE3LQP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 07:16:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVE3LQO
+	id S261457AbVE3LTu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 07:19:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVE3LT3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 07:16:14 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:41147
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S261438AbVE3LPN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 07:15:13 -0400
-Subject: Re: RT patch acceptance
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Andi Kleen <ak@muc.de>, Takashi Iwai <tiwai@suse.de>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
-       bhuey@lnxw.com, nickpiggin@yahoo.com.au, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050530103347.GA13425@elte.hu>
-References: <1117044019.5840.32.camel@sdietrich-xp.vilm.net>
-	 <20050526193230.GY86087@muc.de> <20050526200424.GA27162@elte.hu>
-	 <20050527123529.GD86087@muc.de> <20050527124837.GA7253@elte.hu>
-	 <20050527125630.GE86087@muc.de> <20050527131317.GA11071@elte.hu>
-	 <20050527133122.GF86087@muc.de> <s5hwtpkwz4z.wl@alsa2.suse.de>
-	 <20050530095349.GK86087@muc.de>  <20050530103347.GA13425@elte.hu>
-Content-Type: text/plain
-Organization: linutronix
-Date: Mon, 30 May 2005 13:15:41 +0200
-Message-Id: <1117451741.14566.5.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Mon, 30 May 2005 07:19:29 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:45471 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S261445AbVE3LTS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 07:19:18 -0400
+Date: Mon, 30 May 2005 12:19:09 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       dri-devel@lists.sourceforge.net
+Subject: Re: [PATCH] DRM depends on ???
+In-Reply-To: <429AF53B.3080805@aitel.hist.no>
+Message-ID: <Pine.LNX.4.58.0505301216500.31258@skynet>
+References: <Pine.LNX.4.62.0505282333210.5800@anakin> <20050528215005.GA5990@redhat.com>
+ <1FA58BE7-0EE6-432B-9383-F489F9854DBE@mac.com> <Pine.LNX.4.58.0505290809180.9971@skynet>
+ <Pine.LNX.4.62.0505292157130.12948@numbat.sonytel.be>
+ <64148E06-2DFA-41A5-9D86-5F34DCAAF9F4@mac.com> <429AF53B.3080805@aitel.hist.no>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-05-30 at 12:33 +0200, Ingo Molnar wrote:
+>
+> Why is that case invalid?  I may have DRM=y so I get DRM on my
+> PCI graphichs card.  Then I might load an agp module in order
+> to use agp on *some other* agp card. I have no problem with DRM=y,AGP=m being
+> invalid for the common
+> single-card setup, but there are multi-card setups too.  Not that
+> I need this special case personally - I have two cards but don't use modules.
 
-> FYI, to get good latencies for jack you currently need the -RT tree and 
-> CONFIG_PREEMPT. (see Lee Revell's and Rui Nuno Capela's extensive tests)
-> 
-> In other words, cond_resched() in might_sleep() (PREEMPT_VOLUNTARY, 
-> which i announced Jul 9 last year) is _not_ good enough for 
-> advanced-audio (jack) users. PREEMPT_VOLUNTARY is mostly good enough for 
-> simple audio playback / gaming.
+Yes but the support costs for me of allowing that second case aren't
+worth it, if people have a special case they don't lose anything by having
+AGP supported DRM in the kernel or AGP in the kernel all the time..
+whereas I don't have to answer a load of questions from people whose AGP
+cards stop working because they build DRM into the kernel and AGP as a
+module...
 
-It's neither good enough for a lot of embedded applications, but _RT is.
+Dave.
 
-tglx
-
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+Linux kernel - DRI, VAX / pam_smb / ILUG
 

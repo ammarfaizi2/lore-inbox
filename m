@@ -1,50 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261692AbVE3S3G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVE3ScH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261692AbVE3S3G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 14:29:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261691AbVE3SYe
+	id S261495AbVE3ScH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 14:32:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVE3Sa3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 14:24:34 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:60840 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S261683AbVE3SXW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 14:23:22 -0400
-Date: Mon, 30 May 2005 02:49:41 +0000
-From: radej@pscomp.com
-Subject: Re:
-To: Linux-kernel <linux-kernel@vger.kernel.org>
-References: <360D47F92A8ACCH7@vger.kernel.org>
-In-Reply-To: <360D47F92A8ACCH7@vger.kernel.org>
-Message-ID: <40J8IL2C4II012J4@pscomp.com>
+	Mon, 30 May 2005 14:30:29 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:43019 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S261676AbVE3SZ2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 14:25:28 -0400
+Message-ID: <429B5A94.6010301@rtr.ca>
+Date: Mon, 30 May 2005 14:25:24 -0400
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
+X-Accept-Language: en, en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Erik Slagter <erik@slagter.name>
+Cc: Michael Thonke <iogl64nx@gmail.com>, linux-kernel@vger.kernel.org,
+       linux-ide@vger.kernel.org
+Subject: Re: Playing with SATA NCQ
+References: <20050526140058.GR1419@suse.de>	 <1117382598.4851.3.camel@localhost.localdomain>	 <4299F47B.5020603@gmail.com>	 <1117387591.4851.17.camel@localhost.localdomain> <429A58F4.3040308@rtr.ca>	 <1117438192.4851.29.camel@localhost.localdomain>  <429B56CA.5080803@rtr.ca> <1117477364.3108.2.camel@localhost.localdomain>
+In-Reply-To: <1117477364.3108.2.camel@localhost.localdomain>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Erik Slagter wrote:>
+> Still I'd like to run in ACHI mode ;-)
 
-Hey man, here's that site I was telling you about. They are offering huge discounts now on Penis Enhancement Patches
+Me too!  But from reading the ICH6 Intel docs,
+it seems that AHCI mode is only for true SATA drives.
 
-http://www.poqz.com/md/
+Or perhaps I've mis-read that part.
 
-A top team of British scientists and medical doctors have worked to develop the state-of-the-art Penis Enlargement Patch delivery system which automatically increases penis size up to 3-4 full inches. The patches are the easiest and most effective way to increase your penis size. You won't have to take pills, get under the knife to perform expensive and very painful surgery, use any pumps or other devices. No one will ever find out that you are using our product. Just apply one patch on your body and wear it for 3 days and you will start noticing dramatic results.
-
-Millions of men are taking advantage of this revolutionary new product - Don't be left behind!
-
-As an added incentive, they are offering huge discount specials right now, check out the site to see for yourself !
-
-http://www.poqz.com/md/
-
-
-
-
-
-
-
-
-
-u n s u b s c r i b e  
-http://www.yzewa.com/un.php 
- 
-
-
+Cheers

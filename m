@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261694AbVE3SuQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261698AbVE3Swh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261694AbVE3SuQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 14:50:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbVE3Ssq
+	id S261698AbVE3Swh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 14:52:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbVE3Sw1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 14:48:46 -0400
-Received: from opersys.com ([64.40.108.71]:35853 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261676AbVE3Ss1 (ORCPT
+	Mon, 30 May 2005 14:52:27 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:46315 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261255AbVE3SwL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 14:48:27 -0400
-Message-ID: <429B6257.5030309@opersys.com>
-Date: Mon, 30 May 2005 14:58:31 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Mon, 30 May 2005 14:52:11 -0400
+Message-ID: <429B60CF.5060204@pobox.com>
+Date: Mon, 30 May 2005 14:51:59 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Esben Nielsen <simlo@phys.au.dk>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>, kus Kusche Klaus <kus@keba.com>,
-       James Bruce <bruce@andrew.cmu.edu>, "Bill Huey (hui)" <bhuey@lnxw.com>,
-       Andi Kleen <ak@muc.de>, Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-References: <Pine.OSF.4.05.10505301934001.31148-100000@da410.phys.au.dk> <429B61F7.70608@opersys.com>
-In-Reply-To: <429B61F7.70608@opersys.com>
-Content-Type: text/plain; charset=us-ascii
+To: Michael Thonke <iogl64nx@gmail.com>
+CC: Mark Lord <liml@rtr.ca>, Erik Slagter <erik@slagter.name>,
+       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: Playing with SATA NCQ
+References: <20050526140058.GR1419@suse.de>	 <1117382598.4851.3.camel@localhost.localdomain>	 <4299F47B.5020603@gmail.com>	 <1117387591.4851.17.camel@localhost.localdomain> <429A58F4.3040308@rtr.ca>	 <1117438192.4851.29.camel@localhost.localdomain>  <429B56CA.5080803@rtr.ca> <1117477364.3108.2.camel@localhost.localdomain> <429B5A94.6010301@rtr.ca> <429B5CD3.7080106@gmail.com>
+In-Reply-To: <429B5CD3.7080106@gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Michael Thonke wrote:
+> The new ones are real SATA drives. But some PATA devices and controllers
+> support TCQ.
 
-err ... typo.
+TCQ is a poorly designed feature, and so, will only be supported on a 
+very few, special host controllers.
 
-Karim Yaghmour wrote:
-> Which gets up back where we began: drivers that are non-deterministic
-> will continue being deterministic regardless of what solution is adopted,
-                     ^^non-
+For most people, even if they down a drive with legacy TCQ, queueing 
+will -never- be supported.  For more details read 
+http://linux.yyz.us/sata/software-status.html#tcq
 
-Should read:
-will continue being non-deterministic regardless of what solution is adopted,
+	Jeff
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+

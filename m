@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261803AbVE3WuV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVE3Wuw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261803AbVE3WuV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 18:50:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbVE3Wtd
+	id S261813AbVE3Wuw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 18:50:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261810AbVE3Wus
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 18:49:33 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:30188 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261806AbVE3WsQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 18:48:16 -0400
-Message-ID: <429B982B.2030907@pobox.com>
-Date: Mon, 30 May 2005 18:48:11 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "J.A. Magallon" <jamagallon@able.es>
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [RFT][PATCH] aic79xx: remove busyq
-References: <20050529074620.GA26151@havoc.gtf.org>	<1117488507l.7621l.0l@werewolf.able.es> <429B9311.9000608@pobox.com> <1117492926l.11695l.0l@werewolf.able.es>
-In-Reply-To: <1117492926l.11695l.0l@werewolf.able.es>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 30 May 2005 18:50:48 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:485
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S261798AbVE3Wro (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 18:47:44 -0400
+Date: Mon, 30 May 2005 15:47:33 -0700 (PDT)
+Message-Id: <20050530.154733.85411488.davem@davemloft.net>
+To: akpm@osdl.org
+Cc: Steven.Hand@cl.cam.ac.uk, linux-net@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: Bug in 2.6.11.11 - udp_poll(), fragments + CONFIG_HIGHMEM
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050530141714.44879df5.akpm@osdl.org>
+References: <E1DclTK-0002qE-00@mta1.cl.cam.ac.uk>
+	<20050530141714.44879df5.akpm@osdl.org>
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.A. Magallon wrote:
-> On 05.31, Jeff Garzik wrote:
-> 
->>J.A. Magallon wrote:
->>
->>>On 05.29, Jeff Garzik wrote:
->>>
->>>
->>>>Can anyone with aic79xx hardware give me a simple "it works"
->>>>or "this breaks things" answer, for the patch below?
->>>>
->>>>This changes the aic79xx driver to use the standard Linux SCSI queueing
->>>>code, rather than its own.  After applying this patch, NO behavior
->>>>changes should be seen.
->>>>
->>>>The patch is against 2.6.12-rc5, but probably applies OK to recent 2.6.x
->>>>kernels.
->>>>
->>>
->>>
->>>Applied with even no offsets to -rc5-mm1. Booted and working fine:
->>
->>Thanks a bunch!
->>
-> 
-> 
-> Ooops, I forgot...
-> 
->   CC      drivers/scsi/aic7xxx/aic7xxx_osm_pci.o
-> drivers/scsi/aic7xxx/aic7xxx_osm.c: In function 'ahc_linux_register_host':
-> drivers/scsi/aic7xxx/aic7xxx_osm.c:1205: warning: ignoring return value of
-> 'scsi_add_host', declared with attribute warn_unused_result
+From: Andrew Morton <akpm@osdl.org>
+Date: Mon, 30 May 2005 14:17:14 -0700
 
-Yeah, that was there prior to my patch.  We'll get it fixed up eventually.
+> That local_bh_disable() in kmap_skb_frag() looks weird and might be
+> unnecessary.  Does anyone know what it's there for?  Replace it with
+> local_irq_save()?
 
-	Jeff
+The SKB kmap types are to be used only from BH context.
+So the local_bh_disable() is really necessary.
 
+This limitation causes problems elsewhere too, for example if the tg3
+driver has to do the 4GB DMA boundary workaround on transmit, then it
+tries to do a skb_copy() in IRQ disabled context, which thusly also
+tries to do some SKB kmapping and triggers the same assertion seen
+here.
 
+Both UDP and tg3 need to be fixed to not do these operations from such
+illegal contexts.
 
+It really stinks that this error on triggers with highmem enabled.
+We would have seen both bugs much earlier on otherwise.

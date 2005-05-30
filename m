@@ -1,79 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVE3KQ4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVE3KTv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261587AbVE3KQ4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 06:16:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVE3KQ4
+	id S261590AbVE3KTv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 06:19:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbVE3KTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 06:16:56 -0400
-Received: from general.keba.co.at ([193.154.24.243]:26024 "EHLO
-	helga.keba.co.at") by vger.kernel.org with ESMTP id S261587AbVE3KQx convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 06:16:53 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Mon, 30 May 2005 06:19:51 -0400
+Received: from smtp2.poczta.interia.pl ([213.25.80.232]:9756 "EHLO
+	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
+	id S261590AbVE3KTd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 06:19:33 -0400
+Message-ID: <429AE8A5.5010206@poczta.fm>
+Date: Mon, 30 May 2005 12:19:17 +0200
+From: Lukasz Stelmach <stlman@poczta.fm>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: pl, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: RT patch acceptance
-Date: Mon, 30 May 2005 12:16:34 +0200
-Message-ID: <AAD6DA242BC63C488511C611BD51F367323224@MAILIT.keba.co.at>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: RT patch acceptance
-Thread-Index: AcVk/Oj2jCPi82U+QiKOEKrWF6Dc/QAAD6qw
-From: "kus Kusche Klaus" <kus@keba.com>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>, "kus Kusche Klaus" <kus@keba.com>
-Cc: "James Bruce" <bruce@andrew.cmu.edu>, "Bill Huey \(hui\)" <bhuey@lnxw.com>,
-       "Andi Kleen" <ak@muc.de>,
-       "Sven-Thorsten Dietrich" <sdietrich@mvista.com>,
-       "Ingo Molnar" <mingo@elte.hu>, <dwalker@mvista.com>,
-       <hch@infradead.org>, <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+To: Judy Fischbach <jfisch@cs.pdx.edu>
+Subject: Re: Driver for MCS7780 USB-IrDA bridge chip
+References: <42943CB5.50400@poczta.fm> <20050525235846.GA28644@kroah.com> <4298510E.8030502@poczta.fm> <Pine.GSO.4.58.0505292332530.7049@wezen.cs.pdx.edu>
+In-Reply-To: <Pine.GSO.4.58.0505292332530.7049@wezen.cs.pdx.edu>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigF594125E5AD979A694CF97AF"
+X-EMID: 441dc138
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> kus Kusche Klaus wrote:
-> > When I was told to analyze whether linux is suitable for our
-> > needs, any nanokernel or two-OS approaches were excluded from the
-> > beginning: Mgmt thought that due to their nature and complexity,
-> > such approaches are not able to offer any improvements w.r.t. what 
-> > we have now. Clearly, "one system and one source" is wanted!
-> 
-> You don't explain how making the Linux kernel hard-RT
-> will be so much simpler and more supportable!
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigF594125E5AD979A694CF97AF
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: quoted-printable
 
-I didn't state that a hard-RT linux is simpler, technically 
-(however, personally, I believe that once RT linux is there, *our*
-job of writing RT applications, device drivers, ... will be simpler
-compared to a nanokernel approach).
+Judy Fischbach napisa=B3(a):
 
-I just stated that for the management, with its limited interest and
-understanding of deep technical details (and, in our case, with bad 
-experiences with RT plus non-RT OS solutions), a one-system solution
-*sounds* much simpler, easier to understand, and easier to manage.
+> this chip also and we just recently got SIR working at 9600. We are in
 
-Decisions in companies aren't based on purely technical facts,
-sometimes not even on rational arguments...
+I ve just set up ppp communication over ircomm with my Palm device :)
+9600 of course but works flawlesly :-D
 
-And concerning support:
+> the currently in the process of testing. We would like to join forces,
+> share what we've done and help with efforts to add support for speed
+> changes, FIR and more testing.
 
-* If we go the "pure linux" way, we may (or may not) get help from
-the community for our problems (it did work quite well up to now), 
-or we could buy commercial linux support.
+It's great to hear I am not on my own with those problems. If you have
+read my source you know that speed changing routine is there and works,
+or rather is seemed to work according to the data sheet. What I can't do
+now is find a proper way to invoke it and not make the kernel panic. If
+I solve this problem only error handling and performace tuning will have
+to be done (if no other problems will be born by the way).
 
-* If we go the "nanokernel plus guest linux" way, we will not get 
-support from the nanokernel company for general linux kernel issues, 
-the community help will also be close to zero, because we no
-longer have a pure linux system, and the community is not able to
-reproduce and analyze our problems any longer (in the same way lkml
-is rather unable to help on vendor linux kernels or on tainted
-kernels), and the same holds for most companies offering commercial
-linux support.
+Please tell how can I help.
 
-Hence, w.r.t. support, the nanokernel approach looks much worse. 
+PS. I am simply curious how long did it take you to develope your code
+and how many of you have worked on it?
+--=20
+By=B3o mi bardzo mi=B3o.                     Trzecia pospolita kl=EAska, =
+[...]
+>=A3ukasz<                      Ju=BF nie katolicka lecz z=B3odziejska.  =
+(c)PP
 
--- 
-Klaus Kusche                 (Software Development - Control Systems)
-KEBA AG             Gewerbepark Urfahr, A-4041 Linz, Austria (Europe)
-Tel: +43 / 732 / 7090-3120                 Fax: +43 / 732 / 7090-6301
-E-Mail: kus@keba.com                                WWW: www.keba.com
+
+--------------enigF594125E5AD979A694CF97AF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCmuiuNdzY8sm9K9wRAsURAJ9aH0gEZyhMp9n4qr8OPwitUXXgwACeO0TR
+Odz3woP4C9euJKMYDltku/U=
+=VO6o
+-----END PGP SIGNATURE-----
+
+--------------enigF594125E5AD979A694CF97AF--

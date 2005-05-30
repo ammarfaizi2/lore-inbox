@@ -1,51 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261789AbVE3W0h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261718AbVE3W1s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261789AbVE3W0h (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 18:26:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbVE3W0h
+	id S261718AbVE3W1s (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 18:27:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261787AbVE3W1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 18:26:37 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:19692 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261786AbVE3W0e (ORCPT
+	Mon, 30 May 2005 18:27:47 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:25482 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261718AbVE3W1Y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 18:26:34 -0400
-Message-ID: <429B9311.9000608@pobox.com>
-Date: Mon, 30 May 2005 18:26:25 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
+	Mon, 30 May 2005 18:27:24 -0400
+Date: Tue, 31 May 2005 00:27:21 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] flush icache in correct context
+Message-ID: <Pine.LNX.4.61.0505302313580.3728@scrub.home>
 MIME-Version: 1.0
-To: "J.A. Magallon" <jamagallon@able.es>
-CC: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: [RFT][PATCH] aic79xx: remove busyq
-References: <20050529074620.GA26151@havoc.gtf.org> <1117488507l.7621l.0l@werewolf.able.es>
-In-Reply-To: <1117488507l.7621l.0l@werewolf.able.es>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-J.A. Magallon wrote:
-> On 05.29, Jeff Garzik wrote:
-> 
->>Can anyone with aic79xx hardware give me a simple "it works"
->>or "this breaks things" answer, for the patch below?
->>
->>This changes the aic79xx driver to use the standard Linux SCSI queueing
->>code, rather than its own.  After applying this patch, NO behavior
->>changes should be seen.
->>
->>The patch is against 2.6.12-rc5, but probably applies OK to recent 2.6.x
->>kernels.
->>
-> 
-> 
-> Applied with even no offsets to -rc5-mm1. Booted and working fine:
+Hi,
 
-Thanks a bunch!
+flush_icache_range() is used in two different situation - in binfmt_elf.c 
+& co for user space mappings and module.c for kernel modules. On m68k 
+flush_icache_range() doesn't know which data to flush, as it has separate 
+address spaces and the pointer argument can be valid in either address 
+space.
+First I considered splitting flush_icache_range(), but this patch is 
+simpler. Setting the correct context gives flush_icache_range() enough 
+information to flush the correct data.
 
-	Jeff
+bye, Roman
 
+---
 
+ kernel/module.c |    6 ++++++
+ 1 files changed, 6 insertions(+)
 
+Index: linux-2.6-mm/kernel/module.c
+===================================================================
+--- linux-2.6-mm.orig/kernel/module.c	2005-05-30 22:17:40.890503434 +0200
++++ linux-2.6-mm/kernel/module.c	2005-05-30 22:18:59.804961363 +0200
+@@ -1758,6 +1758,7 @@ sys_init_module(void __user *umod,
+ 		const char __user *uargs)
+ {
+ 	struct module *mod;
++	mm_segment_t old_fs = get_fs();
+ 	int ret = 0;
+ 
+ 	/* Must have permission */
+@@ -1775,6 +1776,9 @@ sys_init_module(void __user *umod,
+ 		return PTR_ERR(mod);
+ 	}
+ 
++	/* flush the icache in correct context */
++	set_fs(KERNEL_DS);
++
+ 	/* Flush the instruction cache, since we've played with text */
+ 	if (mod->module_init)
+ 		flush_icache_range((unsigned long)mod->module_init,
+@@ -1783,6 +1787,8 @@ sys_init_module(void __user *umod,
+ 	flush_icache_range((unsigned long)mod->module_core,
+ 			   (unsigned long)mod->module_core + mod->core_size);
+ 
++	set_fs(old_fs);
++
+ 	/* Now sew it into the lists.  They won't access us, since
+            strong_try_module_get() will fail. */
+ 	stop_machine_run(__link_module, mod, NR_CPUS);

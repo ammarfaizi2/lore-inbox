@@ -1,57 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVE3Qzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVE3RGk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261650AbVE3Qzj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 12:55:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbVE3Qzj
+	id S261448AbVE3RGk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 13:06:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbVE3RGk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 12:55:39 -0400
-Received: from mail.gmx.de ([213.165.64.20]:23512 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261650AbVE3Qzd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 12:55:33 -0400
-Date: Mon, 30 May 2005 18:55:22 +0200 (MEST)
-From: "Michael Kerrisk" <michael.kerrisk@gmx.net>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: davem@davemloft.net, roland@redhat.com, akpm@osdl.org, mtk-lkml@gmx.net,
-       linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-References: <Pine.LNX.4.58.0505261617360.2307@ppc970.osdl.org>
-Subject: Re: waitid() fails with EINVAL for SA_RESTART signals
-X-Priority: 3 (Normal)
-X-Authenticated: #2864774
-Message-ID: <8295.1117472122@www60.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Mon, 30 May 2005 13:06:40 -0400
+Received: from wproxy.gmail.com ([64.233.184.198]:57511 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261448AbVE3RGi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 13:06:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=MAmw+gpVZwm+wfmCKlg7TmwRswWgW3Jr2m9p/lOnRk5c/XVZw50NXWyB5dfc8HRQquRnDbfNKFPNGdZXFcjviR6NDGSBQ3pfPrn8Di3FUzfR5nGdHsajBbyCptcChkxzZdnjVboeDqesula0rhdKc87uUS+m5FHk1C3l5llb+R4=
+Message-ID: <d4dc44d505053010066cdaff3@mail.gmail.com>
+Date: Mon, 30 May 2005 19:06:38 +0200
+From: Schneelocke <schneelocke@gmail.com>
+Reply-To: Schneelocke <schneelocke@gmail.com>
+To: "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: Kernel Version Explanation
+Cc: randy_dunlap <rdunlap@xenotime.net>, sean@capitalgenomix.com,
+       linux-kernel@vger.kernel.org, webmaster@kernel.org
+In-Reply-To: <429A792F.9070806@zytor.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050529140945.GA4815@cgx-mail.capitalgenomix.com>
+	 <20050529112523.17f6e8fa.rdunlap@xenotime.net>
+	 <429A792F.9070806@zytor.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, 26 May 2005, David S. Miller wrote:
-> > 
-> > > Other machines are subject to the same risk and should have a
-> > > prevent_tail_call definition too.  The asm-i386/linkage.h version
-> > > probably
-> > > works fine for every machine.  It might as well be generic, I'd say.
-> > 
-> > Sparc, for one, doesn't need it.  We pass the pt_regs in via a pointer
-> > to the trap level stack frame which won't be released by a tail-call
-> > in C code.
+On 30/05/05, H. Peter Anvin <hpa@zytor.com> wrote:
+> > It looks to me like the word "stable" is overused on the main page
+> > at www.kernel.org .  I would also prefer to see all of the 2.6.*
+> > kernel versions together, above the 2.4.*, 2.2.*, and 2.0.* lines.
 > 
-> x86 has largely tried to move in that direction too, ie a lot of the 
-> asm-calls have been turned into FASTCALL() with %eax pointing to the 
-> stack.
-> 
-> Roland, I applied the patch, but if there was some particular case that 
-> triggered this, maybe it's worth trying to re-write that one.
+> That's because there isn't an odd-number series right now.
 
-Did I miss something.  Did this patch come through the 
-list?  (I didn't see it.)
+Will there ever be one again (at least in the foreseeable future)?
+We've had "Linus = stable, -mm = unstable" for a long time now, and it
+seems pretty much official now that there won't be a 2.7 anytime soon.
+The actual development of new features is happening in the relevant
+maintainers' trees, anyway, so there simply seems to be no need for a
+single highly development-oriented tree (like 2.5 was) anymore - quite
+the contrary.
 
-Cheers,
-
-Michael
+>         -hpa
 
 -- 
-5 GB Mailbox, 50 FreeSMS http://www.gmx.net/de/go/promail
-+++ GMX - die erste Adresse für Mail, Message, More +++
+schnee

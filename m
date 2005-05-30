@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbVE3U67@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261751AbVE3U66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261761AbVE3U67 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 16:58:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261750AbVE3U5k
+	id S261751AbVE3U66 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 16:58:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261752AbVE3U6D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 16:57:40 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:23822 "HELO
+	Mon, 30 May 2005 16:58:03 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:25870 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261749AbVE3U4q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 16:56:46 -0400
-Date: Mon, 30 May 2005 22:56:43 +0200
+	id S261751AbVE3U4u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 16:56:50 -0400
+Date: Mon, 30 May 2005 22:56:47 +0200
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: irda-users@lists.sourceforge.net, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: [2.6 patch] net/irda/: passible cleanups
-Message-ID: <20050530205643.GU10441@stusta.de>
+Cc: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] net/socket.c: unexport move_addr_to_kernel
+Message-ID: <20050530205647.GW10441@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,17 +22,7 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- make the following needlessly global function static:
-  - irnet/irnet_ppp.c: irnet_init
-- remove the following unneeded EXPORT_SYMBOL's:
-  - irlmp.c: sysctl_discovery_timeout
-  - irlmp.c: irlmp_reasons
-  - irlmp.c: irlmp_dup
-  - irqueue.c: hashbin_find_next
-
-Please review which of these changes do make sense and which conflict 
-with pending patches.
+I didn't find any modular usage in the kernel.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
@@ -42,69 +31,16 @@ Signed-off-by: Adrian Bunk <bunk@stusta.de>
 This patch was already sent on:
 - 7 May 2005
 
- net/irda/irlmp.c           |    3 ---
- net/irda/irnet/irnet.h     |    3 ---
- net/irda/irnet/irnet_ppp.c |    2 +-
- net/irda/irqueue.c         |    1 -
- 4 files changed, 1 insertion(+), 8 deletions(-)
-
---- linux-2.6.12-rc3-mm3-full/net/irda/irnet/irnet.h.old	2005-05-05 22:38:59.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/net/irda/irnet/irnet.h	2005-05-05 22:39:12.000000000 +0200
-@@ -517,9 +517,6 @@
- 	irda_irnet_init(void);		/* Initialise IrDA part of IrNET */
- extern void
- 	irda_irnet_cleanup(void);	/* Teardown IrDA part of IrNET */
--/* ---------------------------- MODULE ---------------------------- */
--extern int
--	irnet_init(void);		/* Initialise IrNET module */
- 
- /**************************** VARIABLES ****************************/
- 
---- linux-2.6.12-rc3-mm3-full/net/irda/irnet/irnet_ppp.c.old	2005-05-05 22:39:21.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/net/irda/irnet/irnet_ppp.c	2005-05-05 22:39:29.000000000 +0200
-@@ -1107,7 +1107,7 @@
- /*
-  * Module main entry point
-  */
--int __init
-+static int __init
- irnet_init(void)
- {
-   int err;
---- linux-2.6.12-rc3-mm3-full/net/irda/irlmp.c.old	2005-05-05 22:46:47.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/net/irda/irlmp.c	2005-05-05 22:50:52.000000000 +0200
-@@ -53,7 +53,6 @@
- /* These can be altered by the sysctl interface */
- int  sysctl_discovery         = 0;
- int  sysctl_discovery_timeout = 3; /* 3 seconds by default */
--EXPORT_SYMBOL(sysctl_discovery_timeout);
- int  sysctl_discovery_slots   = 6; /* 6 slots by default */
- int  sysctl_lap_keepalive_time = LM_IDLE_TIMEOUT * 1000 / HZ;
- char sysctl_devname[65];
-@@ -67,7 +66,6 @@
- 	"LM_INIT_DISCONNECT",
- 	"ERROR, NOT USED",
- };
--EXPORT_SYMBOL(irlmp_reasons);
- 
- /*
-  * Function irlmp_init (void)
-@@ -675,7 +673,6 @@
- 
- 	return new;
+--- linux-2.6.12-rc3-mm2-full/net/socket.c.old	2005-05-03 11:03:23.000000000 +0200
++++ linux-2.6.12-rc3-mm2-full/net/socket.c	2005-05-03 11:03:53.000000000 +0200
+@@ -2070,8 +2070,7 @@
  }
--EXPORT_SYMBOL(irlmp_dup);
+ #endif /* CONFIG_PROC_FS */
  
- /*
-  * Function irlmp_disconnect_request (handle, userdata)
---- linux-2.6.12-rc3-mm3-full/net/irda/irqueue.c.old	2005-05-05 22:48:55.000000000 +0200
-+++ linux-2.6.12-rc3-mm3-full/net/irda/irqueue.c	2005-05-05 22:49:03.000000000 +0200
-@@ -822,7 +822,6 @@
- 
- 	return entry;
- }
--EXPORT_SYMBOL(hashbin_find_next);
- 
- /*
-  * Function hashbin_get_first (hashbin)
+-/* ABI emulation layers need these two */
+-EXPORT_SYMBOL(move_addr_to_kernel);
++/* ABI emulation layers need this one */
+ EXPORT_SYMBOL(move_addr_to_user);
+ EXPORT_SYMBOL(sock_create);
+ EXPORT_SYMBOL(sock_create_kern);
 

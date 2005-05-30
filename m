@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261508AbVE3DYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVE3Dlo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261508AbVE3DYW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 23:24:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVE3DYW
+	id S261509AbVE3Dlo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 23:41:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261510AbVE3Dlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 23:24:22 -0400
-Received: from coat.coat.com ([164.153.10.15]:5023 "EHLO coat.coat.com")
-	by vger.kernel.org with ESMTP id S261508AbVE3DYS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 23:24:18 -0400
-Date: Sun, 29 May 2005 23:22:27 -0400 (EDT)
-From: "Michael Sterrett -Mr. Bones.-" <msterret@coat.com>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-cc: Lee Revell <rlrevell@joe-job.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       John Livingston <jujutama@comcast.net>,
-       Aleksey Gorelov <Aleksey_Gorelov@Phoenix.com>, gregkh@gentoo.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: How to find if BIOS has already enabled the device
-In-Reply-To: <200505282017.08204.kernel-stuff@comcast.net>
-Message-ID: <Pine.LNX.4.61.0505292317220.5375@rutrow.coat.com>
-References: <0EF82802ABAA22479BC1CE8E2F60E8C31B5206@scl-exch2k3.phoenix.com>
- <200505281301.09911.kernel-stuff@comcast.net> <1117325172.5423.102.camel@mindpipe>
- <200505282017.08204.kernel-stuff@comcast.net>
+	Sun, 29 May 2005 23:41:44 -0400
+Received: from stark.xeocode.com ([216.58.44.227]:36224 "EHLO
+	stark.xeocode.com") by vger.kernel.org with ESMTP id S261509AbVE3Dln
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 May 2005 23:41:43 -0400
+To: Jens Axboe <axboe@suse.de>
+Cc: Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
+Subject: Re: [PATCH] SATA NCQ support
+References: <20050527070353.GL1435@suse.de>
+	<20050527131842.GC19161@merlin.emma.line.org>
+	<20050527135258.GW1435@suse.de> <429732CE.5010708@gmx.de>
+	<20050527145821.GX1435@suse.de>
+In-Reply-To: <20050527145821.GX1435@suse.de>
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 29 May 2005 23:41:31 -0400
+Message-ID: <87oeatxtw4.fsf@stark.xeocode.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463791516-2093748871-1117423347=:5375"
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Jens Axboe <axboe@suse.de> writes:
 
----1463791516-2093748871-1117423347=:5375
-Content-Type: TEXT/PLAIN; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8BIT
+> SATA is still pretty fast without NCQ, 
+...
+> People have lived happily without NCQ support in SATA for years, I'm
+> sure you could too :-)
 
-On Sat, 28 May 2005, Parag Warudkar wrote:
+It kind of depends on your application. For applications that require write
+caching disabled like Postgres et al I suspect NCQ will make a *much* bigger
+difference.
 
-> On Saturday 28 May 2005 20:06, Lee Revell wrote:
->> devfs is not maintained and is listed as deprecated.  You'd be better
->> off using udev.
->
-> Yep, that's on my list of things to do - I tried once to switch to udev but
-> it's not the  "just works" type - atleast on Gentoo!
+I would be interested to see those benchmarks people were posting earlier
+claiming 30-40% difference retested with write caching disabled. I suspect
+disabling write caching will demolish the non-NCQ performance but have a much
+smaller effect on NCQ-enabled performance.
 
-Wow, I definitely disagree, considering that the udev maintainer has
-commit privileges for Gentoo.
+Currently Postgres strongly recommends SCSI drives and the belief is that it's
+the tagged command queuing that allows SCSI drives to perform well without
+resorting to data integrity destroying write caching.
 
-Try http://www.gentoo.org/doc/en/udev-guide.xml for help.
+-- 
+greg
 
-Michael Sterrett
-   -Mr. Bones.-
-mr_bones_@gentoo.org
----1463791516-2093748871-1117423347=:5375--

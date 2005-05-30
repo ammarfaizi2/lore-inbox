@@ -1,54 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261743AbVE3UwZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbVE3U4x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261743AbVE3UwZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 16:52:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbVE3UwZ
+	id S261746AbVE3U4x (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 16:56:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261754AbVE3U4x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 16:52:25 -0400
-Received: from out4.prserv.net ([32.97.166.34]:64214 "EHLO prserv.net")
-	by vger.kernel.org with ESMTP id S261743AbVE3UwV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 16:52:21 -0400
-Message-ID: <429B7D00.1080004@attglobal.net>
-Date: Mon, 30 May 2005 22:52:16 +0200
-From: Eric Jones <ejones5@attglobal.net>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8b) Gecko/20050217
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: "Clemente Aguiar" <caguiar@madeiratecnopolo.pt>
-Subject: Re: Adaptec AIC-79xx HostRaid
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 30 May 2005 16:56:53 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:19214 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261746AbVE3U4h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 16:56:37 -0400
+Date: Mon, 30 May 2005 22:56:34 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: jkmaline@cc.hut.fi
+Cc: hostap@shmoo.com, jgarzik@pobox.com, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org
+Subject: [-mm patch] net/ieee80211/: remove pci.h #include's
+Message-ID: <20050530205634.GQ10441@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- >>>We have acquired some IBM xServers which have an integrated raid controller
- >>>based on the Adaptec AIC-79xx U320 SCSI controller (called HostRaid).
- >>>
- > As far as I know, it is software raid done much closer to the hw than
- > the linux sw raid (md).
+I was wondering why editing pci.h triggered the rebuild of three files 
+under net/, and as far as I can see, there's no reason for these three 
+files to #include pci.h .
 
-Actually, there are two possible configurations, depending on HW configuration...
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-For example the IBM x346 server has an onboard Adaptec 7902 SCSI controller chip for the
-U320 backplane devices (max-6 devices). This chip uses the standard aix79xx driver for
-normal SCSI functions.  But, for extra $$$, you can also buy the IBM feature "ServeRAID-7k"
-which is a small DIMM-sized plugin module that adds XOR parity generation and a small cache.
- 
-http://www-132.ibm.com/webapp/wcs/stores/servlet/ProductDisplay?productId=8735579&storeId=1&langId=-1&catalogId=-840 
+---
 
+This patch was already sent on:
+- 1 May 2005
 
-Adaptec calls this a "zero-slot" RAID solution, and it requires a special binary driver
-to recognize and handle the array functions.
+ net/ieee80211/ieee80211_module.c |    1 -
+ net/ieee80211/ieee80211_rx.c     |    1 -
+ net/ieee80211/ieee80211_tx.c     |    1 -
+ 3 files changed, 3 deletions(-)
 
-
-Most people seem to order this bit with the initial kit, but then rip it out when they realize
-it needs a binary driver to support the RAID functions.  The Linux SW-RAID seems to provide
-better IO performance, and you can still see the individual sdx devices on the SCSI bus.
-This makes it easier to monitor device performance and health (ie. smartd, etc), vs the Adaptec
-"Hide everything behind the controller" approach with the ServeRAID-7k configuration.
-
-
-Eric
-
+--- linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_module.c.old	2005-04-30 23:23:14.000000000 +0200
++++ linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_module.c	2005-04-30 23:23:18.000000000 +0200
+@@ -40,7 +40,6 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/netdevice.h>
+-#include <linux/pci.h>
+ #include <linux/proc_fs.h>
+ #include <linux/skbuff.h>
+ #include <linux/slab.h>
+--- linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_tx.c.old	2005-04-30 23:23:25.000000000 +0200
++++ linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_tx.c	2005-04-30 23:23:32.000000000 +0200
+@@ -33,7 +33,6 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/netdevice.h>
+-#include <linux/pci.h>
+ #include <linux/proc_fs.h>
+ #include <linux/skbuff.h>
+ #include <linux/slab.h>
+--- linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_rx.c.old	2005-04-30 23:23:42.000000000 +0200
++++ linux-2.6.12-rc3-mm1-full/net/ieee80211/ieee80211_rx.c	2005-04-30 23:23:46.000000000 +0200
+@@ -23,7 +23,6 @@
+ #include <linux/kernel.h>
+ #include <linux/module.h>
+ #include <linux/netdevice.h>
+-#include <linux/pci.h>
+ #include <linux/proc_fs.h>
+ #include <linux/skbuff.h>
+ #include <linux/slab.h>
 

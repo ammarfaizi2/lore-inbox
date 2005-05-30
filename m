@@ -1,59 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVE3CfO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVE3CsA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbVE3CfO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 29 May 2005 22:35:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbVE3CfO
+	id S261499AbVE3CsA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 29 May 2005 22:48:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVE3CsA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 29 May 2005 22:35:14 -0400
-Received: from rproxy.gmail.com ([64.233.170.203]:17762 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261500AbVE3CfI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 29 May 2005 22:35:08 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gkmZv3cGQBLCxQweUcGfoCDYO5fWRCWcMhLmF2dWRnG+mHiJ/MzezysV4m96Tq6se2/mvAcloY8HKrR3ByAN8utFnW66G1E1cQ0Kjbq9FXHbwJ48BHByFMOfpIIeSrk5M9U/izXjQw+rzwAMvVHFyqG8FbPn2bL/77S14j98woE=
-Message-ID: <311601c9050529193515222ba2@mail.gmail.com>
-Date: Sun, 29 May 2005 20:35:08 -0600
-From: "Eric D. Mudama" <edmudama@gmail.com>
-Reply-To: "Eric D. Mudama" <edmudama@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH] SATA NCQ support
-Cc: Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org
-In-Reply-To: <4299EF74.9060506@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050527070353.GL1435@suse.de>
-	 <20050527131842.GC19161@merlin.emma.line.org>
-	 <20050527135258.GW1435@suse.de> <429732CE.5010708@gmx.de>
-	 <20050527145821.GX1435@suse.de>
-	 <20050529131611.GB13418@merlin.emma.line.org>
-	 <4299EF74.9060506@pobox.com>
+	Sun, 29 May 2005 22:48:00 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:49846 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261499AbVE3Cr7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 29 May 2005 22:47:59 -0400
+Date: Mon, 30 May 2005 04:47:58 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Bernd Eckenfels <ecki@lina.inka.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RAID-5 design bug (or misfeature)
+In-Reply-To: <E1DcXfR-0000zf-00@calista.eckenfels.6bone.ka-ip.net>
+Message-ID: <Pine.LNX.4.58.0505300440550.15088@artax.karlin.mff.cuni.cz>
+References: <E1DcXfR-0000zf-00@calista.eckenfels.6bone.ka-ip.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/29/05, Jeff Garzik <jgarzik@pobox.com> wrote:
-> Matthias Andree wrote:
-> > Do I take this as SATA is faster than legacy ATA? In what respect?
-> > UDMA/33 and SATA I shouldn't be much different if I use the same drive,
-> > or is there something?
-> 
-> It is "likely" to be faster.  Faster bus, newer technology.
-> 
->         Jeff
+> In article <Pine.LNX.4.58.0505300043540.5305@artax.karlin.mff.cuni.cz> you wrote:
+> > I think Linux should stop accessing all disks in RAID-5 array if two disks
+> > fail and not write "this array is dead" in superblocks on remaining disks,
+> > efficiently destroying the whole array.
+>
+> I agree with you, however it is a pretty damned stupid idea to use raid-5
+> for a root disk (I was about to say it is not a good idea to use raid-5 on
+> linux at all :)
 
-The biggest improvement comes because the drives that ship with the
-newer bus technology are newer internally too, they aren't just
-repackaged older technology.
+But root disk might fail too... This way, the system can't be taken down
+by any single disk crash.
 
-Today's current generation products (SATA and PATA100/133) can sustain
-over 60MB/s datarates, and the next will probably be even higher.
-
-The drive that could only do UDMA/33 is probably of a disk technology
-around 15MB/s or worse.
-
-Today's newest drives are quite fast.
-
---eric
+Mikulas

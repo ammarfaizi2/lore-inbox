@@ -1,58 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVE3IJa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbVE3IQI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261554AbVE3IJa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 04:09:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVE3IJa
+	id S261555AbVE3IQI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 04:16:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVE3IQH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 04:09:30 -0400
-Received: from main.gmane.org ([80.91.229.2]:6796 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261554AbVE3IJ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 04:09:26 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Giuseppe Bilotta <bilotta78@hotpop.com>
-Subject: Re: Support for Acecad graphic tablets
-Date: Mon, 30 May 2005 10:06:17 +0200
-Message-ID: <bavrl4q2prsg.1xt68g4y1kdkw$.dlg@40tude.net>
-References: <zmlpztbl7uyx.wzqrudy6rjzi$.dlg@40tude.net> <20050529221327.GB15019@redhat.com>
+	Mon, 30 May 2005 04:16:07 -0400
+Received: from postfix4-1.free.fr ([213.228.0.62]:26244 "EHLO
+	postfix4-1.free.fr") by vger.kernel.org with ESMTP id S261555AbVE3IQD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 04:16:03 -0400
+Subject: Re: 2.6.12-rc5-mm1: drivers/usb/atm/speedtch.c: gcc 2.95 compile
+	error
+From: Duncan Sands <baldrick@free.fr>
+To: Andrew Morton <akpm@osdl.org>
+Cc: bunk@stusta.de, linux-kernel@vger.kernel.org, gregkh@suse.de
+In-Reply-To: <20050530010456.242b810e.akpm@osdl.org>
+References: <20050525134933.5c22234a.akpm@osdl.org>
+	 <20050529151231.GE10441@stusta.de>
+	 <1117439106.9515.31.camel@localhost.localdomain>
+	 <20050530010456.242b810e.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 30 May 2005 10:16:01 +0200
+Message-Id: <1117440961.9515.40.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: adsl-ull-155-208.42-151.net24.it
-User-Agent: 40tude_Dialog/2.0.15.1
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 29 May 2005 18:13:27 -0400, Dave Jones wrote:
-
-> On Sun, May 29, 2005 at 03:42:20PM +0200, Giuseppe Bilotta wrote:
->  > Hello all,
->  > 
->  > I have a an Acecad/Medi@com graphic tablet. There are drivers for it 
->  > available on the Internet (see for examples 
->  > http://acecad.sourceforge.net/ and the pages linked from there, 
->  > although the wanadoo.fr page at the top is temporarily unavailable), 
->  > but it seems they have not been merged into mainline. Is there a 
->  > particular reason for it?
+> > Hi Adrian, it looks like gcc 2.95 doesn't like this kind of macro
+> > 
+> >  #define atm_info(instance, format, arg...)	\
+> >  	atm_printk(KERN_INFO, instance , format , ## arg)
+> > 
+> >  being called with only two arguments.  I don't know what
+> >  the best fix is, but this does the trick:
 > 
-> My first guess is that the folks who wrote it haven't submitted it
-> for whatever reason.  Stuff that doesn't get submitted tends not
-> to get merged :)
+> Nope.  There's a bug in gcc-2.95.x macro expansion, and here it bites us in
+> atm_printk():
+> 
+> printk(level "ATM dev %d: " format , (instance)->atm_dev->number, ## arg)
+> 
+> the workaround is to add a space before that final comma:
 
-Yes, I got an email reply "Merge is planned" :) Good to know.
+Yes, this fixes the problem.
 
-BTW, is there something like a "generic HID tablet" driver available 
-(or even possible)? Something like a "generic keyboard" and "generic 
-mouse" ...
+Thanks a lot!
 
--- 
-Giuseppe "Oblomov" Bilotta
-
-"Da grande lotterò per la pace"
-"A me me la compra il mio babbo"
-(Altan)
-("When I grow up, I will fight for peace"
- "I'll have my daddy buy it for me")
+Duncan.
 

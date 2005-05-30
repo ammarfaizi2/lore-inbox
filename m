@@ -1,148 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbVE3JiO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVE3Jir@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261577AbVE3JiO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 05:38:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbVE3JiO
+	id S261578AbVE3Jir (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 05:38:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261580AbVE3Jir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 05:38:14 -0400
-Received: from smtp203.mail.sc5.yahoo.com ([216.136.129.93]:34482 "HELO
-	smtp203.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261577AbVE3Jhq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 05:37:46 -0400
-Message-ID: <429ADEDD.4020805@yahoo.com.au>
-Date: Mon, 30 May 2005 19:37:33 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
+	Mon, 30 May 2005 05:38:47 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:16877 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S261578AbVE3Jh6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 05:37:58 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Mon, 30 May 2005 11:36:18 +0200
+To: schilling@fokus.fraunhofer.de, 7eggert@gmx.de
+Cc: linux-kernel@vger.kernel.org, 7eggert@gmx.de
+Subject: Re: OT] Joerg Schilling flames Linux on his Blog
+Message-ID: <429ADE92.nail4ZG3GSIPT@burner>
+References: <4847F-8q-23@gated-at.bofh.it>
+ <E1Db3zm-0004vF-9j@be1.7eggert.dyndns.org>
+ <4295005F.nail2KW319F89@burner>
+ <Pine.LNX.4.58.0505260205390.19389@be1.lrz>
+ <4296F088.nail3L121R2F5@burner>
+ <Pine.LNX.4.58.0505271633200.3055@be1.lrz>
+In-Reply-To: <Pine.LNX.4.58.0505271633200.3055@be1.lrz>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-To: James Bruce <bruce@andrew.cmu.edu>
-CC: "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-References: <m1br6zxm1b.fsf@muc.de> <1117044019.5840.32.camel@sdietrich-xp.vilm.net> <20050526193230.GY86087@muc.de> <1117138270.1583.44.camel@sdietrich-xp.vilm.net> <20050526202747.GB86087@muc.de> <4296ADE9.50805@yahoo.com.au> <20050527120812.GA375@nietzsche.lynx.com> <429715DE.6030008@yahoo.com.au> <20050527233645.GA2283@nietzsche.lynx.com> <4297EB57.5090902@yahoo.com.au> <20050528054503.GA2958@nietzsche.lynx.com> <42981467.6020409@yahoo.com.au> <4299A98D.1080805@andrew.cmu.edu>
-In-Reply-To: <4299A98D.1080805@andrew.cmu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bruce wrote:
-> Nick Piggin wrote:
-> 
->> But nobody has been able to say why a single kernel is better than a
->> nanokernel.
-> 
-> 
-> I think it's a bit more like you haven't realized the answer when people 
-> gave it, so let me try to be more clear.  It's purely a matter of effort 
+Bodo Eggert <7eggert@gmx.de> wrote:
 
-Sorry no, nobody answered me. What I did realize was that there
-was a lot of noise nothing really got resolved.
+> > If you have fragmentation problems, do you use the wrong filesystem type?
+>
+> No, just small writes to random locations in large sparse files on filled 
+> disks.
 
-> - in general it's far easier to write one process than two communicating 
-> processes.
+Did you ever try to compare this behavior with UFS?
+The last time I did notice fragmentation problems on UFS is more than 15 years
+a go when I had full news feed with B-news running on a Sun-3/50 and did a 
+higly selective expire.
 
-I reject the vague "complexity" argument. If your application
-is not fairly clear on what operations need to happen in a
-deterministic time and what aren't, or if you aren't easily able
-to get 2 communicating processes working, then I contend that you
-shouldn't be writing a realtime application.
+I am still sure that your problems are a problem of the filesystem 
+implementation you use.
 
-What's more, you don't even need to have 2 communicating processes,
-you could quite possibly do everything in the realtime kernel if
-you are talking some simple control system and driver.
+> > With network speed, you should set up a sufficiently designed infrastructure.
+> > If you like to write a CD in 32x, you need 5.6 MB/s which easily goes over
+> > a 100 MB/s network connection.
+>
+> Mostly it does, but sometimes there are other users on my server.
 
-Note that I specifically reject the *vague* complexity argument,
-because if you have a *real* one (ie. we need functionality
-equivalent to this sequence of system calls executed in a
-deterministic time - the nanokernel approach sucks because [...])
-then I'm quite willing to accept it.
+This is why cdrecord puts itself into the highest priority real time class
+on every OS that supports this. If you voluntarily decline on this feature,
+please don't blame cdrecord.
 
-The fact is, nobody seems to know quite what kind of deterministic
-functionality they want (and please, let's not continue the jokes
-about X11 and XFS, etc.). Which really surprises me.
 
-I will give *you* a complexity argument. Making the Linux kernel
-hard realtime is slightly more complex than writing an app that
-consists of 2 communicating processes.
+> > There are many other commands needed by cdrecord.
+> > The initiator of the good/bad SCSI op code table hack claimed to have checked
+> > cdrecord for a list of used commands. If you check the current table, you may
+> > easily find that this cannot be true.
+>
+> So we'll need a function to add more commands to the allowed list of each 
+> device.
 
-> As far as APIs, with a single-kernel approach, an RT 
-> programmer just has to restrict the program to calling APIs known to be 
-> RT-safe (compare with MT-safe programming).  In a split-kernel approach, 
-> the programmer has to write RT-kernel support for the APIs he wants to 
-> use (or beg for them to be written).
+No, the command list was an ungly hack from the beginning and it just is not
+suitable for what it is used.
 
-Yeah great. Can we stop with these misleading implications now?
-*A* programmer will have to write RT support in *either* scheme.
-*THE* programmer (you imply, a consumer of the userspace API)
-does not.
+	If you like decent and reliable security, you need privillege separation.
 
-There is absolutely no difference for the userspace programmer
-in terms of realtime services.
+-	Disallow sending SCSI commands via ioctl() on /dev/hd*
 
->  Most programmers would much rather 
-> limit API usage than implement new kernel support themselves.
-> 
+-	Tell people that they have to use /dev/sg* in order to send SCSI 
+	commands to devices.
 
-...
+-	Introduce a privillege check for /dev/hd* that is suitable for the
+	users of a block device interface.
 
-> A very common RT app pattern is to do a bunch of non-RT stuff, then 
-> enter an RT loop.  For an example from my work, a robot control program 
-> starts by reading a bunch of configuration files before it starts doing 
-> anything requiring deadlines, then enters the RT control loop.  Having 
-> to read all the configuration in a separate program and then marshall 
-> the data over to an RT-only process via file descriptors is quite a bit 
-> more effort.  I guess some free RT-nanokernels might/could support 
-> non-RT to RT process migration, or better messaging, but there's 
+-	Introduce a privillege check for /dev/sg* that is suitable for the
+	users of a SCSI pass though interface.
 
-You're controling a robot, and you consider passing configuration
-data over a file descriptor to be overly complex? I guess the robot
-doesn't do much, then?
+The current problems in Linux are just a result of mixing unrelated interfaces
+together.
 
-> additional programming effort (and overhead) that wasn't there before. 
-> In general an app may enter and exit RT sections several times, which 
-> really makes a split-kernel approach less than ideal.
-> 
 
-You know that if your app executes some code that doesn't require
-deterministic completion then it doesn't have to exit from the
-RT kernel, right?
+> > > You'll want to grant raw disk access for some databases, which will run as
+> > > a unprivileged user. These databases should not be able to kill HDDs.
+> > 
+> > A database may kill a hdd in many other ways.
+>
+> IMO, those should be plugged, too, and I'm sure they will.
 
-Nor does the RT kernel have to provide *only* deterministic services.
-Hey, it could implement a block device backed filesystem - that solves
-your robot's problem.
+See above: the clean solution is privilleges separation.
 
-> An easy way to visualize the difference in programming effort for the 
-> two approaches is to take your favorite threaded program and turn it 
-> into one with separate processes that only communicate via pipes.  You 
 
-Yeah, or turn it into seperate processes that communicate via
-shared memory. Oh, wait...
+> > It is higly improbable that
+> > a trustworthy database includes the knowwledge to set up a firmware to the
+> > drive that us accepted by the drive but does not work.
+>
+> A database may very well have exploits or provide system access to the 
+> database admin. Neither should result in raw SCSI access.
 
-> can *always* do this, its just very much more painful to develop and 
-> maintain.  Your stance of "nobody can prove why a split-kernel won't 
-> work" is equivalent to saying "we don't ever really need threads, since 
-> processes suffice".  That's true, but only in the same way that I don't 
-> need a compilier or a pre-existing operating system to write an 
-> application.
-> 
+See above: If you have clean privilleges separation (and Linux did have it 
+before the unsuited SG_IO ioctl was introduced on /dev/hd*) you don't even come
+close to similar problems.
 
-No it is not equivalent at all, and even if it were, that is not
-what my stance is. Let's dispense with the metaphors and abstract
-comparisons, and cut to what my stance actually is:
+Just give the database an interfase that allows the database to do what a 
+database needs to do (reading and writing to a media) but not more.
 
-"Nobody has even yet *suggested* any *slightly* credible reasons
-of why a single kernel might be better than a split-kernel for
-hard-RT"
 
-Of all the "reasons" I have been given, most either I (as a naive
-idiot, if you will) have been able to shoot holes in, or others
-have simply said they're wrong.
+> > The same applies for
+> > your kernel. You need to trust your database the same way as you need to trust 
+> > your kernel.
+>
+> NACK. Databases can't be trusted.
 
-I hate to say but I find this almost dishonest considering
-assertions like "obviously superior" are being thrown around,
-along with such fine explanations as "start writing realtime apps
-and you'll find out".
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Wunderfull, so you are also a fan of privillege separation. Let us together
+vote for removing ioctl(sg_IO) from /dev/hd* and similar devices.
+
+
+> > > No, it's a feature, see man 3 cap_get_proc.
+> > 
+> > If Linux is designed in a way that needs applications like cdrecord to be 
+> > changed in order to include support for a Linux proprietary new security
+> > mechanism, then the new mechanism should be rethought.
+>
+> You don't need to implement that, but you shouldn't asume root to be more 
+> special than other users.
+
+In contrary to many other programs, cdrecord is cleanly written and does not
+make such assumptions! It will have no problems as long as the environment
+is not contradictive.
+
+
+> BTW: IIRC, it was ported from solaris. There will probably the same issue.
+>
+> > So for the Linux equivalent: don't force users tu use interfaces that are not
+> > yet ready for the public.
+>
+> You're not forced to use it, but you might be served non-dirty plates.
+
+It seems that you did not understand this, so let me explain it in a different
+way: If you start to implement a new security mechanism, either do it in a way 
+that does not affect software that assumes historical UNIX interfaces at all,
+or keep it private for developers untill it is suitable for the mass.
+
+> > So it makes sense for the Linux to have a look at the Solaris implementation.
+> > The database is much simpler to manage than what is present for Linux.
+>
+> This is a userspace issue. The kernel doesn't enforce anything.
+
+An OS is the kernel _and_ the user space support software.
+Even a "kernel only" subsystem like Linux cannot ignore these facts when
+trying to introduce interfaces that need special useland programs in order
+to mahe use out of it.
+
+> > BTW: it would also make sense to implement the new holey file interface 
+> > I designed together with the Solaris kernel crew for star.
+>
+> Google gives no good pointers.
+
+If it did, soneone would have ignored his NDA. The current interface is not
+yet 100% stable, it will be officially published when it is closer to something
+that could be used by anyone. If someone from LKML is really interested in 
+implementing the interface soon, I would be willing to give away basic
+details that allow to implement 99% if the code. The error handling is 
+still in dispute.
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  
+       schilling@fokus.fraunhofer.de	(work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

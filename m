@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbVE3U4o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbVE3U66@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbVE3U4o (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 16:56:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbVE3U4o
+	id S261752AbVE3U66 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 16:58:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbVE3U55
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 16:56:44 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:18702 "HELO
+	Mon, 30 May 2005 16:57:57 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:25102 "HELO
 	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261744AbVE3U4f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 16:56:35 -0400
-Date: Mon, 30 May 2005 22:56:31 +0200
+	id S261752AbVE3U4s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 16:56:48 -0400
+Date: Mon, 30 May 2005 22:56:45 +0200
 From: Adrian Bunk <bunk@stusta.de>
 To: Andrew Morton <akpm@osdl.org>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl, linux-kernel@vger.kernel.org,
-       linux-ide@vger.kernel.org
-Subject: [2.6 patch] drivers/ide/: possible cleanups
-Message-ID: <20050530205631.GP10441@stusta.de>
+Cc: sri@us.ibm.com, lksctp-developers@lists.sourceforge.net,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org
+Subject: [2.6 patch] net/sctp/: make two functions static
+Message-ID: <20050530205645.GV10441@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,77 +23,73 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains the following possible cleanups:
-- pci/cy82c693.c: make a needlessly global function static
-- remove the following unneeded EXPORT_SYMBOL's:
-  - ide-taskfile.c: do_rw_taskfile
-  - ide-iops.c: default_hwif_iops
-  - ide-iops.c: default_hwif_transport
-  - ide-iops.c: wait_for_ready
+This patch makes two needlessly global functions static.
 
 Signed-off-by: Adrian Bunk <bunk@stusta.de>
+Acked-by: Sridhar Samudrala <sri@us.ibm.com>
 
 ---
 
 This patch was already sent on:
-- 30 Apr 200
-- 17 Apr 2005
+- 7 May 2005
 
- drivers/ide/ide-iops.c     |    6 ------
- drivers/ide/ide-taskfile.c |    2 --
- drivers/ide/pci/cy82c693.c |    2 +-
- 3 files changed, 1 insertion(+), 9 deletions(-)
+ include/net/sctp/sm.h   |    3 ---
+ net/sctp/sm_statefuns.c |   13 +++++++++++--
+ 2 files changed, 11 insertions(+), 5 deletions(-)
 
---- linux-2.6.11-rc3-mm1-full/drivers/ide/ide-taskfile.c.old	2005-02-05 02:57:03.000000000 +0100
-+++ linux-2.6.11-rc3-mm1-full/drivers/ide/ide-taskfile.c	2005-02-05 02:57:12.000000000 +0100
-@@ -161,8 +161,6 @@
- 	return ide_stopped;
- }
+--- linux-2.6.12-rc3-mm3-full/include/net/sctp/sm.h.old	2005-05-05 22:59:54.000000000 +0200
++++ linux-2.6.12-rc3-mm3-full/include/net/sctp/sm.h	2005-05-06 00:17:40.000000000 +0200
+@@ -130,7 +130,6 @@
+ sctp_state_fn_t sctp_sf_ootb;
+ sctp_state_fn_t sctp_sf_pdiscard;
+ sctp_state_fn_t sctp_sf_violation;
+-sctp_state_fn_t sctp_sf_violation_chunklen;
+ sctp_state_fn_t sctp_sf_discard_chunk;
+ sctp_state_fn_t sctp_sf_do_5_2_1_siminit;
+ sctp_state_fn_t sctp_sf_do_5_2_2_dupinit;
+@@ -258,8 +257,6 @@
+ void sctp_chunk_assign_tsn(struct sctp_chunk *);
+ void sctp_chunk_assign_ssn(struct sctp_chunk *);
  
--EXPORT_SYMBOL(do_rw_taskfile);
+-void sctp_stop_t1_and_abort(sctp_cmd_seq_t *commands, __u16 error);
 -
- /*
-  * set_multmode_intr() is invoked on completion of a WIN_SETMULT cmd.
+ /* Prototypes for statetable processing. */
+ 
+ int sctp_do_sm(sctp_event_t event_type, sctp_subtype_t subtype,
+--- linux-2.6.12-rc3-mm3-full/net/sctp/sm_statefuns.c.old	2005-05-05 23:00:12.000000000 +0200
++++ linux-2.6.12-rc3-mm3-full/net/sctp/sm_statefuns.c	2005-05-06 00:19:11.000000000 +0200
+@@ -92,6 +92,14 @@
+ 					     sctp_cmd_seq_t *commands);
+ static struct sctp_sackhdr *sctp_sm_pull_sack(struct sctp_chunk *chunk);
+ 
++static void sctp_stop_t1_and_abort(sctp_cmd_seq_t *commands, __u16 error);
++
++static sctp_disposition_t sctp_sf_violation_chunklen(
++				     const struct sctp_endpoint *ep,
++				     const struct sctp_association *asoc,
++				     const sctp_subtype_t type,
++				     void *arg,
++				     sctp_cmd_seq_t *commands);
+ 
+ /* Small helper function that checks if the chunk length
+  * is of the appropriate length.  The 'required_length' argument
+@@ -2318,7 +2326,7 @@
+  *
+  * This is common code called by several sctp_sf_*_abort() functions above.
   */
-
---- linux-2.6.12-rc2-mm3-full/drivers/ide/pci/cy82c693.c.old	2005-04-17 21:11:22.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/ide/pci/cy82c693.c	2005-04-17 21:11:30.000000000 +0200
-@@ -469,7 +469,7 @@
- 
- static __initdata ide_hwif_t *primary;
- 
--void __init init_iops_cy82c693(ide_hwif_t *hwif)
-+static void __init init_iops_cy82c693(ide_hwif_t *hwif)
+-void sctp_stop_t1_and_abort(sctp_cmd_seq_t *commands, __u16 error)
++static void sctp_stop_t1_and_abort(sctp_cmd_seq_t *commands, __u16 error)
  {
- 	if (PCI_FUNC(hwif->pci_dev->devfn) == 1)
- 		primary = hwif;
---- linux-2.6.12-rc2-mm3-full/drivers/ide/ide-iops.c.old	2005-04-17 21:12:44.000000000 +0200
-+++ linux-2.6.12-rc2-mm3-full/drivers/ide/ide-iops.c	2005-04-17 21:12:54.000000000 +0200
-@@ -104,8 +104,6 @@
- 	hwif->INSL	= ide_insl;
- }
- 
--EXPORT_SYMBOL(default_hwif_iops);
--
- /*
-  *	MMIO operations, typically used for SATA controllers
+ 	sctp_add_cmd_sf(commands, SCTP_CMD_NEW_STATE,
+ 			SCTP_STATE(SCTP_STATE_CLOSED));
+@@ -3672,7 +3680,8 @@
+  *
+  * Generate an  ABORT chunk and terminate the association.
   */
-@@ -329,8 +327,6 @@
- 	hwif->atapi_output_bytes	= atapi_output_bytes;
- }
- 
--EXPORT_SYMBOL(default_hwif_transport);
--
- /*
-  * Beginning of Taskfile OPCODE Library and feature sets.
-  */
-@@ -525,8 +525,6 @@
- 	return 0;
- }
- 
--EXPORT_SYMBOL(wait_for_ready);
--
- /*
-  * This routine busy-waits for the drive status to be not "busy".
-  * It then checks the status for all of the "good" bits and none
+-sctp_disposition_t sctp_sf_violation_chunklen(const struct sctp_endpoint *ep,
++static sctp_disposition_t sctp_sf_violation_chunklen(
++				     const struct sctp_endpoint *ep,
+ 				     const struct sctp_association *asoc,
+ 				     const sctp_subtype_t type,
+ 				     void *arg,
 

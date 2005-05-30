@@ -1,56 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261823AbVE3XKV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbVE3XLd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261823AbVE3XKV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 19:10:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261819AbVE3XII
+	id S261824AbVE3XLd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 19:11:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261818AbVE3XKf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 19:08:08 -0400
-Received: from smtp.lnxw.com ([207.21.185.24]:7180 "EHLO smtp.lnxw.com")
-	by vger.kernel.org with ESMTP id S261816AbVE3XHe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 19:07:34 -0400
-Date: Mon, 30 May 2005 16:12:26 -0700
-To: Karim Yaghmour <karim@opersys.com>
-Cc: "Bill Huey (hui)" <bhuey@lnxw.com>, Esben Nielsen <simlo@phys.au.dk>,
-       James Bruce <bruce@andrew.cmu.edu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@muc.de>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Philippe Gerum <rpm@xenomai.org>
-Subject: Re: RT patch acceptance
-Message-ID: <20050530231226.GA10365@nietzsche.lynx.com>
-References: <Pine.OSF.4.05.10505302040560.31148-100000@da410.phys.au.dk> <429B6D14.2070206@opersys.com> <20050530224504.GD9972@nietzsche.lynx.com> <429B9BDB.1020705@opersys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 30 May 2005 19:10:35 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:64929 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S261816AbVE3XJI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 19:09:08 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: David Brownell <david-b@pacbell.net>
+Subject: Re: [linux-usb-devel] Re: [BUG] oops while completing async USB via usbdevio
+Date: Tue, 31 May 2005 01:09:06 +0200
+User-Agent: KMail/1.8
+Cc: linux-usb-devel@lists.sourceforge.net, Harald Welte <laforge@gnumonks.org>,
+       linux-kernel@vger.kernel.org
+References: <20050530194443.GA22760@sunbeam.de.gnumonks.org> <20050530212641.GE25536@sunbeam.de.gnumonks.org> <200505301555.39985.david-b@pacbell.net>
+In-Reply-To: <200505301555.39985.david-b@pacbell.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <429B9BDB.1020705@opersys.com>
-User-Agent: Mutt/1.5.9i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+Message-Id: <200505310109.06445.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 30, 2005 at 07:03:55PM -0400, Karim Yaghmour wrote:
-> :) seriously, though, I can't believe we've discouraged you because
-> we're very poor at website design. Surely after all that's been said
+Am Dienstag, 31. Mai 2005 00:55 schrieb David Brownell:
+> The logic closing an open usbfs file -- which is done before any task
+> exits with such an open file -- is supposed to block till all its URBs
+> complete.  So the pointer to the task "should" be valid for as long as
+> any URB it's submitted is active.
 
-Yes you have.
+What happens if you pass such an fd through a socket?
 
-> about the nanokernel approach you'd want to at least dedicate some
-> short amount of time for downloading the code and at least running
-> a diffstat on it or something ... or even better, giving it a test
-> ride. Philippe has even gone as far as providing patches providing
-> both PREEMPT_RT and Adeos under the same roof ... it doesn't get
-> much better than that ...
-
-When your random 10 second email post recently gives a more direct
-pointer to the information I need or find interesting, then you know
-your web site has serious problems. None of those papers are on a
-top level link that can be easily accessed. The papers you folks do
-are the best documentation outlining your work yet they are the most
-difficult to find. That's a serious mistake.
-
-Your sporatic posting on lkml are more informative than the web site.
-
-bill
+	Regards
+		Oliver
 

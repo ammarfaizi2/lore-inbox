@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261799AbVE3Wj7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbVE3WnX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261799AbVE3Wj7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 18:39:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbVE3Wj5
+	id S261802AbVE3WnX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 18:43:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbVE3WnX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 18:39:57 -0400
-Received: from opersys.com ([64.40.108.71]:28431 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261799AbVE3Wjb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 18:39:31 -0400
-Message-ID: <429B9880.1070604@opersys.com>
-Date: Mon, 30 May 2005 18:49:36 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Mon, 30 May 2005 18:43:23 -0400
+Received: from smtp04.auna.com ([62.81.186.14]:56976 "EHLO smtp04.retemail.es")
+	by vger.kernel.org with ESMTP id S261801AbVE3WmI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 18:42:08 -0400
+Date: Mon, 30 May 2005 22:42:06 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: [RFT][PATCH] aic79xx: remove busyq
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+References: <20050529074620.GA26151@havoc.gtf.org>
+	<1117488507l.7621l.0l@werewolf.able.es> <429B9311.9000608@pobox.com>
+In-Reply-To: <429B9311.9000608@pobox.com> (from jgarzik@pobox.com on Tue May
+	31 00:26:25 2005)
+X-Mailer: Balsa 2.3.2
+Message-Id: <1117492926l.11695l.0l@werewolf.able.es>
 MIME-Version: 1.0
-To: "Bill Huey (hui)" <bhuey@lnxw.com>
-CC: Esben Nielsen <simlo@phys.au.dk>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       kus Kusche Klaus <kus@keba.com>, James Bruce <bruce@andrew.cmu.edu>,
-       Andi Kleen <ak@muc.de>, Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-References: <Pine.OSF.4.05.10505301934001.31148-100000@da410.phys.au.dk> <429B61F7.70608@opersys.com> <20050530223434.GC9972@nietzsche.lynx.com>
-In-Reply-To: <20050530223434.GC9972@nietzsche.lynx.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+X-Auth-Info: Auth:LOGIN IP:[83.138.212.79] Login:jamagallon@able.es Fecha:Tue, 31 May 2005 00:42:07 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Bill Huey (hui) wrote:
->>From my memory DRM drivers have direct path to the vertical retrace
-> through the current ioctl() interface. It's not an issue for that driver
-> and probably many others that use simple syscalls like that.
+On 05.31, Jeff Garzik wrote:
+> J.A. Magallon wrote:
+> > On 05.29, Jeff Garzik wrote:
+> > 
+> >>Can anyone with aic79xx hardware give me a simple "it works"
+> >>or "this breaks things" answer, for the patch below?
+> >>
+> >>This changes the aic79xx driver to use the standard Linux SCSI queueing
+> >>code, rather than its own.  After applying this patch, NO behavior
+> >>changes should be seen.
+> >>
+> >>The patch is against 2.6.12-rc5, but probably applies OK to recent 2.6.x
+> >>kernels.
+> >>
+> > 
+> > 
+> > Applied with even no offsets to -rc5-mm1. Booted and working fine:
+> 
+> Thanks a bunch!
+> 
 
-This is rather short. Can you elaborate a little on what you're trying
-to say here? thanks.
+Ooops, I forgot...
 
-> The RT patch isn't hard to maintain and only one jerk-off objected to
-> it without providing any useful information why the single kernel
-> approach is faulty other than it jars his easily offended sensibilities
+  CC      drivers/scsi/aic7xxx/aic7xxx_osm_pci.o
+drivers/scsi/aic7xxx/aic7xxx_osm.c: In function 'ahc_linux_register_host':
+drivers/scsi/aic7xxx/aic7xxx_osm.c:1205: warning: ignoring return value of
+'scsi_add_host', declared with attribute warn_unused_result
 
-I didn't say the RT patch was hard to maintain. I said that it increased
-the cost of maintenance for the rest of the kernel (which is the feeling
-that seems to be echoed by other peoples' answers in this thread.)
 
-BTW, please take a breath here. I'm not interested in taking part in a
-flame-fest.
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandriva Linux release 2006.0 (Cooker) for i586
+Linux 2.6.11-jam20 (gcc 4.0.0 (4.0.0-3mdk for Mandriva Linux release 2006.0))
+
+

@@ -1,55 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261810AbVE3XG0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261814AbVE3XHr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261810AbVE3XG0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 19:06:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbVE3XG0
+	id S261814AbVE3XHr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 19:07:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbVE3XHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 19:06:26 -0400
-Received: from smtpq2.home.nl ([213.51.128.197]:30359 "EHLO smtpq2.home.nl")
-	by vger.kernel.org with ESMTP id S261810AbVE3XGU (ORCPT
+	Mon, 30 May 2005 19:07:46 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:30876 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S261814AbVE3XHJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 19:06:20 -0400
-Message-ID: <429B9BD0.7000004@keyaccess.nl>
-Date: Tue, 31 May 2005 01:03:44 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a6) Gecko/20050111
-X-Accept-Language: en-us, en
+	Mon, 30 May 2005 19:07:09 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Harald Welte <laforge@gnumonks.org>
+Subject: Re: [BUG] oops while completing async USB via usbdevio
+Date: Tue, 31 May 2005 01:07:03 +0200
+User-Agent: KMail/1.8
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20050530194443.GA22760@sunbeam.de.gnumonks.org> <20050530212641.GE25536@sunbeam.de.gnumonks.org>
+In-Reply-To: <20050530212641.GE25536@sunbeam.de.gnumonks.org>
 MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-CC: Domen Puncer <domen@coderock.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, akpm@osdl.org
-Subject: Re: 2.6.12-rc2: Compose key doesn't work
-References: <4258F74D.2010905@keyaccess.nl> <20050414100454.GC3958@nd47.coderock.org> <20050526122315.GA3880@nd47.coderock.org> <20050526154509.GB9443@animx.eu.org> <20050526155344.GB3694@ucw.cz>
-In-Reply-To: <20050526155344.GB3694@ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+Content-Disposition: inline
+Message-Id: <200505310107.03747.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik wrote:
 
-> On Thu, May 26, 2005 at 11:45:09AM -0400, Wakko Warner wrote:
+> and it prints "p->sighand == NULL" every time I exit a program while
+> using the usbdevio based driver.
+> 
+> consequently, the following patch 'fixed' the problem.  Please do not
+> consider this as a real fix, since there's certainly still a race
+> condition left.   Please use it as a hint to correctly fix the problem.
 
->>I also have a problem with 2.6.12-rcX and ps/2 keyboard.  I would say it's
->>the same key we're talking about.  It does not work at the console nor in X
->>(showkey at the console does not see it).  It works with a USB keyboard.  My
->>"compose" is mapped to the menu key beside the right windows key.
->>
->>I do wish they'd fix it, because I use this key (kinda like another ALT key)
->>more than my compose key (again, the menu key, not the right win logo key)
-> 
->  
-> This patch should fix it.
-> 
-> 
-> 
-> ------------------------------------------------------------------------
-> 
-> ChangeSet@1.2229.1.9, 2005-04-04 15:37:45+02:00, vojtech@suse.cz
->   input: Fix fast scrolling scancodes in atkbd.c
+It would be cleaner to terminate all URBs a task has submitted when the
+task terminates.
 
-ACK, thanks.
+	Regards
+		Oliver
 
-Rene.

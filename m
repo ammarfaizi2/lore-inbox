@@ -1,88 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVE3ML5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261506AbVE3MPn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261501AbVE3ML5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 08:11:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261506AbVE3ML5
+	id S261506AbVE3MPn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 08:15:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbVE3MPn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 08:11:57 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:56015 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261501AbVE3MLj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 08:11:39 -0400
-Date: Mon, 30 May 2005 14:10:31 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@muc.de>
-Cc: Takashi Iwai <tiwai@suse.de>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
-       bhuey@lnxw.com, nickpiggin@yahoo.com.au, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: what is the -RT tree
-Message-ID: <20050530121031.GA26255@elte.hu>
-References: <20050526200424.GA27162@elte.hu> <20050527123529.GD86087@muc.de> <20050527124837.GA7253@elte.hu> <20050527125630.GE86087@muc.de> <20050527131317.GA11071@elte.hu> <20050527133122.GF86087@muc.de> <s5hwtpkwz4z.wl@alsa2.suse.de> <20050530095349.GK86087@muc.de> <20050530103347.GA13425@elte.hu> <20050530105618.GL86087@muc.de>
+	Mon, 30 May 2005 08:15:43 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:60390 "EHLO
+	nelson.home.kernel.dk") by vger.kernel.org with ESMTP
+	id S261506AbVE3MPd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 08:15:33 -0400
+Date: Mon, 30 May 2005 14:16:35 +0200
+From: Jens Axboe <axboe@suse.de>
+To: Greg Stark <gsstark@mit.edu>
+Cc: "Eric D. Mudama" <edmudama@gmail.com>,
+       Matthias Andree <matthias.andree@gmx.de>, linux-kernel@vger.kernel.org,
+       jgarzik@pobox.com
+Subject: Re: [PATCH] SATA NCQ support
+Message-ID: <20050530121635.GQ7054@suse.de>
+References: <20050527070353.GL1435@suse.de> <20050527131842.GC19161@merlin.emma.line.org> <20050527135258.GW1435@suse.de> <429732CE.5010708@gmx.de> <20050527145821.GX1435@suse.de> <87oeatxtw4.fsf@stark.xeocode.com> <311601c905052921046692cd3e@mail.gmail.com> <87d5r9xmgr.fsf@stark.xeocode.com> <20050530063322.GE7054@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050530105618.GL86087@muc.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050530063322.GE7054@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Andi Kleen <ak@muc.de> wrote:
-
-> > > > Yes, as Ingo stated many times, addition cond_resched() to
-> > > > might_sleep() does achieve the "usable" latencies  -- and 
-> > > > obviously that's hacky.
-> > >
-> > > But it's the only way to get practial(1) low latency benefit to 
-> > > everybody [...]
-> > > (1) = not necessarily provable, but good enough at least for jack
-> > > et.al.
-> >
-> > FYI, to get good latencies for jack you currently need the -RT tree and 
-> > CONFIG_PREEMPT. (see Lee Revell's and Rui Nuno Capela's extensive tests)
+On Mon, May 30 2005, Jens Axboe wrote:
+> > People actually tend to report that IDE drives are *faster*. Until
+> > they're told they have to disable write-caching on their IDE drives to
+> > get a fair comparison, then the performance is absolutely abysmal. The
+> > interesting thing is that SCSI drives don't seem to take much of a
+> > performance hit from having write-caching disabled while IDE drives
+> > do.
 > 
-> Yeah, but you did a lot of (often unrelated to rt preempt) latency 
-> fixes in RT that are not yet merged into mainline. When they are all 
-> merged things might be very different. And then there can be probably 
-> more fixes.
+> NCQ will surely lessen the impact of disabling write caching, how much
+> still remains to be seen. You could test, if you have the hardware :)
+> Real life testing is more interesting than benchmarks.
 
-your argument above == cond_resched() in might_sleep() [ == VP ] is the
-                       only way to get practical (e.g. jack) latencies.
+With a few simple tests, I'm unable to show any write performance
+improvement with write back caching off and NCQ (NCQ with queueing depth
+of 1 and 16 tested). I get a steady 0.55-0.57MiB/sec with 8 threads
+random writes, a little over 5MiB/sec with sequential writes.
 
-my argument == i do agree that -VP is a step forward from PREEMPT_NONE
-               (i'd not have written and released it otherwise), but is
-               by no means enough for jack. You need at least the -RT 
-               tree + CONFIG_PREEMPT to achieve good jack latencies.
+Reads are _much_ nicer. Sequential read with 8 threads are 23% faster
+with a queueing depth of 16 than 1, random reads are 85% (!!) faster at
+depth 16 than 1.
 
-in that sense your further argument that the -RT tree has more latency
-related fixes has no relevance to this point: VP by itself is _not
-enough_, having more latency fixes in the -RT tree (which mostly improve
-CONFIG_PREEMPT and PREEMPT_RT) does not make VP any better of a solution
-for jack's purposes.
+Testing was done with the noop io scheduler this time, to only show NCQ
+benefits outside of what the io scheduler can do for reordering.
 
-[ and yes, those other latency fixes are not necessarily directly
-  related to the PREEMPT_RT feature, because the -RT tree is a
-  collection of latency related fixes and features, of which PREEMPT_RT
-  is the biggest, but not the only one. ]
+This is with a Maxtor 7B300S0 drive. I would have posted results for a
+Seagate ST3120827AS as well, but that drive happily ignores any attempt
+to turn off write back caching. To top things off, it even accepts FUA
+writes but ignores that as well (they still go to cache).
 
-so my main point still remains: it's wishful thinking to expect the 
-'standard' ( < CONFIG_PREEMPT) Linux kernel's latencies to improve well 
-enough for jack.
+-- 
+Jens Axboe
 
-perhaps there's some misunderstanding wrt. what the -RT tree is. The -RT 
-tree is a collection of latency related patches and features: it 
-introduces the VP and PREEMPT_RT features, and it also improves all 
-preemption models (including CONFIG_PREEMPT). Furthermore, it includes 
-(in-kernel) features to measure and debug latencies. It's called -RT 
-because PREEMPT_RT is undoubtedly the 'crown jewel' feature, but that 
-does not mean it's the only goal of the patchset.
-
-	Ingo

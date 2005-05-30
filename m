@@ -1,89 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVE3Xsp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261837AbVE3Xua@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261835AbVE3Xsp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 19:48:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbVE3Xso
+	id S261837AbVE3Xua (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 19:50:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVE3Xu2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 19:48:44 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:43402 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261827AbVE3Xsh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 19:48:37 -0400
-Date: Tue, 31 May 2005 01:48:28 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Linux/m68k <linux-m68k@vger.kernel.org>
-Subject: more thread_info patches
-In-Reply-To: <20050421173908.GZ13052@parcelfarce.linux.theplanet.co.uk>
-Message-ID: <Pine.LNX.4.61.0505310113370.10977@scrub.home>
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
- <42676B76.4010903@ppp0.net> <Pine.LNX.4.62.0504211105550.13231@numbat.sonytel.be>
- <20050421161106.GY13052@parcelfarce.linux.theplanet.co.uk>
- <20050421173908.GZ13052@parcelfarce.linux.theplanet.co.uk>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 30 May 2005 19:50:28 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:42768 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261829AbVE3XuK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 19:50:10 -0400
+Date: Tue, 31 May 2005 01:50:07 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: "E.Gryaznova" <grev@namesys.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc5-mm1: configuring vmware workstation modules
+Message-ID: <20050530235007.GC3627@stusta.de>
+References: <429B9D00.1070404@namesys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <429B9D00.1070404@namesys.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, May 31, 2005 at 03:08:48AM +0400, E.Gryaznova wrote:
 
-On Thu, 21 Apr 2005, Al Viro wrote:
+> Hello.
 
-> 	thread_info, part 1:
+Hi 
 
-Here are some possible followup patches. Since it's already some time ago 
-here are the original posts for everyone else:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=111410539627881&w=2
+> I encounter this problem while configuring my evaluation copy of 
+> Workstation 5. I have the trial version VMware-workstation-5.0.0-13124, 
+> it was installed successfully and worked fine in linux-2.6.11. The 
+> problem occurs when I change kernel  to linux-2.6.12-rc5-mm1 and try to 
+> configure this kernel to load the VMWare modules:
+>...
 
-This introduces an additional stack variable in task_struct. It's 
-basically redundant with the thread_info pointer, but in the long term I'd 
-like to get of the latter (with the following patches).
-
-bye, Roman
-
----
-
- include/linux/init_task.h |    1 +
- include/linux/sched.h     |    1 +
- kernel/fork.c             |    1 +
- 3 files changed, 3 insertions(+)
-
-Index: linux-2.6-mm/include/linux/sched.h
-===================================================================
---- linux-2.6-mm.orig/include/linux/sched.h	2005-05-31 01:19:01.636591190 +0200
-+++ linux-2.6-mm/include/linux/sched.h	2005-05-31 01:19:05.913856451 +0200
-@@ -617,6 +617,7 @@ struct mempolicy;
- struct task_struct {
- 	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
- 	struct thread_info *thread_info;
-+	void *stack;
- 	atomic_t usage;
- 	unsigned long flags;	/* per process flags, defined below */
- 	unsigned long ptrace;
-Index: linux-2.6-mm/include/linux/init_task.h
-===================================================================
---- linux-2.6-mm.orig/include/linux/init_task.h	2005-05-31 01:19:01.636591190 +0200
-+++ linux-2.6-mm/include/linux/init_task.h	2005-05-31 01:19:05.913856451 +0200
-@@ -71,6 +71,7 @@ extern struct group_info init_groups;
- {									\
- 	.state		= 0,						\
- 	.thread_info	= &init_thread_info,				\
-+	.stack		= &init_stack,					\
- 	.usage		= ATOMIC_INIT(2),				\
- 	.flags		= 0,						\
- 	.lock_depth	= -1,						\
-Index: linux-2.6-mm/kernel/fork.c
-===================================================================
---- linux-2.6-mm.orig/kernel/fork.c	2005-05-31 01:19:01.636591190 +0200
-+++ linux-2.6-mm/kernel/fork.c	2005-05-31 01:19:29.954726757 +0200
-@@ -173,6 +173,7 @@ static struct task_struct *dup_task_stru
- 	*tsk = *orig;
- 	setup_thread_info(tsk, ti);
- 	tsk->thread_info = ti;
-+	tsk->stack = ti;
- 	ti->task = tsk;
+VMware problems are completely offtopic for this list.
+Please contact VMware instead.
  
- 	/* One for us, one for whoever does the "release_task()" (usually parent) */
+> Thanks,
+> Lena
+>...
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

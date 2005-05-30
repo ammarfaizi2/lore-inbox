@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVE3ODr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261394AbVE3OJP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbVE3ODr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 10:03:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbVE3ODr
+	id S261394AbVE3OJP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 10:09:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261601AbVE3OJP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 10:03:47 -0400
-Received: from pacific.moreton.com.au ([203.143.235.130]:25607 "EHLO
-	bne.snapgear.com") by vger.kernel.org with ESMTP id S261605AbVE3ODp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 10:03:45 -0400
-Message-ID: <429B1DBF.1060205@snapgear.com>
-Date: Tue, 31 May 2005 00:05:51 +1000
-From: Greg Ungerer <gerg@snapgear.com>
-Organization: SnapGear
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: PATCH : ppp + big-endian = kernel crash
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 30 May 2005 10:09:15 -0400
+Received: from styx.suse.cz ([82.119.242.94]:32919 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261394AbVE3OJL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 10:09:11 -0400
+Date: Mon, 30 May 2005 16:09:02 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: dtor_core@ameritech.net
+Cc: Christoph Pleger <Christoph.Pleger@uni-dortmund.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Serial Mouse in Kernel 2.6
+Message-ID: <20050530140902.GA1012@ucw.cz>
+References: <20050429145248.3551b9ea.Christoph.Pleger@uni-dortmund.de> <d120d5000504290903758bc9f2@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d5000504290903758bc9f2@mail.gmail.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak () muc ! de> writes:
-> Andrew Morton <akpm@osdl.org> writes:
->>> 
->>> So many variants of tunneling and protocol encapsulation can result in
->>> unaligned packet headers, and as a result platforms really must
->>> provide proper unaligned memory access handling in kernel mode in
->>> order to use the networking fully.
->>
->> As Philippe mentioned, old 68k's simply cannot do this.
+On Fri, Apr 29, 2005 at 11:03:24AM -0500, Dmitry Torokhov wrote:
+> Hi,
 > 
-> An 68000 cannot, but 68010+ can. Are there really that many 68000 users
-> left? 
+> On 4/29/05, Christoph Pleger <Christoph.Pleger@uni-dortmund.de> wrote:
+> > Hello,
+> > 
+> > When configuring Kernel 2.6.11.7, I found under Input Devices two
+> > options which seem to have to do with serial mouse support:
+> > 
+> > 1. Serial line discipline (module serport)
+> > 2. Serial Mouse support (module sermouse)
+> > 
+> > Ic compiled both these features as a module. But after rebooting with
+> > the new kernel, the serial mouse is working well with gpm and with X11,
+> > although none of the above modules are loaded.
+> > 
+> > So, what for are the modules mentioned above needed?
+> > 
+> 
+> If you load the modules and use input_attach program to set up your
+> mouse then you can access it via /dev/input/mice together with the
+> rest of you mice, PS/2, USB, etc. This way you have only one input
+> device for you mouse and do not have to change millions of programs
+> (actually 2) if you happen to install a new mouse.
+> 
+> You seem to still using the mouse by accessing /dev/ttySx port and
+> using serial mouse driver.
+ 
+You also get a much better update rate for the mouse than with X/GPM, 4x
+for MouseSystems, and 2x for Microsoft mice. This makes the serial mouse
+finally usable.
 
-Probably not of the 68000 as such, but the "new" generation of
-68000 parts, Motorola/Freescales ColdFire family. There is quite
-a few of them, used in all sorts of embedded applications.
-And they are still churning out new varients of it. The majority
-of them are MMUless - but not all.
-
-Regards
-Greg
-
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

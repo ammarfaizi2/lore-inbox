@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVE3XZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbVE3XZa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261452AbVE3XZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 19:25:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbVE3XXr
+	id S261825AbVE3XZa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 19:25:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbVE3XXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 19:23:47 -0400
-Received: from opersys.com ([64.40.108.71]:59407 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261452AbVE3XVp (ORCPT
+	Mon, 30 May 2005 19:23:23 -0400
+Received: from main.gmane.org ([80.91.229.2]:14524 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261829AbVE3XW0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 19:21:45 -0400
-Message-ID: <429BA26A.2080309@opersys.com>
-Date: Mon, 30 May 2005 19:31:54 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: "Bill Huey (hui)" <bhuey@lnxw.com>
-CC: Esben Nielsen <simlo@phys.au.dk>, James Bruce <bruce@andrew.cmu.edu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@muc.de>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Philippe Gerum <rpm@xenomai.org>
-Subject: Re: RT patch acceptance
-References: <Pine.OSF.4.05.10505302040560.31148-100000@da410.phys.au.dk> <429B6D14.2070206@opersys.com> <20050530224504.GD9972@nietzsche.lynx.com> <429B9BDB.1020705@opersys.com> <20050530231226.GA10365@nietzsche.lynx.com>
-In-Reply-To: <20050530231226.GA10365@nietzsche.lynx.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 30 May 2005 19:22:26 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Subject: Re: OT] Joerg Schilling flames Linux on his Blog
+Date: Tue, 31 May 2005 01:20:05 +0200
+Message-ID: <yw1xacmcjo7u.fsf@ford.inprovide.com>
+References: <4847F-8q-23@gated-at.bofh.it> <d120d500050527072146c2e5ee@mail.gmail.com>
+ <429AD7ED.nail4ZG1B42TI@burner>
+ <200505301727.43926.dtor_core@ameritech.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+Cancel-Lock: sha1:BoBzaojbSlL1Yb+uxadcchOGS34=
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dmitry Torokhov <dtor_core@ameritech.net> writes:
 
-Bill Huey (hui) wrote:
-> Yes you have.
+>> So let me sum up: Never rely on things that cannot be made 100%
+>> unique in case you like to run security relevent software like cdrecord.
+>
+> Are you talking about <bus>,<target>,<lun> numbering by any chance ;) ?
+> Because for the most types of devices out there they don't make any sense
+> and just provided for compatibility with legacy software.
 
-Then in this regard we have failed miserably. Any suggestion you may
-have to make things better will be listened to.
+Like cdrecord.
 
-> When your random 10 second email post recently gives a more direct
-> pointer to the information I need or find interesting, then you know
-> your web site has serious problems. None of those papers are on a
-> top level link that can be easily accessed. The papers you folks do
-> are the best documentation outlining your work yet they are the most
-> difficult to find. That's a serious mistake.
+> Also, from a bit different perspective - do you also want users to mount
+> the CD they burnt using not device (/dev/xxx) but <bus>,<target>,<lun>?
+> If not why writing application should use different addressing? 
 
-Point taken.
+Let's start referring to files by device and inode number instead.
+It's so much easier than using pathnames.  Maybe we can even force
+them into a bus,target,lun scheme.  Then the device files and the
+corresponding scsi addresses will automatically collapse, and all
+problems will be solved.
 
-Hopefully the information I'm providing in these postings will motivate
-people to take a second look and, possibly, help us get things more
-straight-forward for others to explore.
-
-Karim
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Måns Rullgård
+mru@inprovide.com
+

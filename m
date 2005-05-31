@@ -1,89 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVEaG0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVEaGfx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261207AbVEaG0q (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 02:26:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbVEaG0p
+	id S261271AbVEaGfx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 02:35:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbVEaGfx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 02:26:45 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:62925 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP id S261207AbVEaG0g
+	Tue, 31 May 2005 02:35:53 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:39096 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S261271AbVEaGfq
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 02:26:36 -0400
-Date: Tue, 31 May 2005 08:26:27 +0200
-From: Guillaume Thouvenin <guillaume.thouvenin@bull.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Adrian Bunk <bunk@stusta.de>
-Subject: [PATCH 2.6.12-rc5-mm1] fork connector: fix a compile breakage with
- gcc 2.95
-Message-ID: <20050531082627.6f50e7f3@frecb000711.frec.bull.fr>
-Organization: BULL SA.
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Tue, 31 May 2005 02:35:46 -0400
+References: <1117291619.9665.6.camel@localhost>
+            <Pine.LNX.4.58.0505291059540.10545@ppc970.osdl.org>
+            <84144f0205052911202863ecd5@mail.gmail.com>
+            <Pine.LNX.4.58.0505291143350.10545@ppc970.osdl.org>
+            <1117399764.9619.12.camel@localhost>
+            <Pine.LNX.4.58.0505291543070.10545@ppc970.osdl.org>
+            <1117466611.9323.6.camel@localhost>
+            <Pine.LNX.4.58.0505301024080.10545@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0505301024080.10545@ppc970.osdl.org>
+From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Pekka Enberg <penberg@gmail.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: Machine Freezes while Running Crossover Office
+Date: Tue, 31 May 2005 09:35:45 +0300
 Mime-Version: 1.0
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 31/05/2005 08:37:25,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 31/05/2005 08:37:30,
-	Serialize complete at 31/05/2005 08:37:30
+Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+Message-ID: <courier.429C05C1.00005CC5@courier.cs.helsinki.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, 2005-05-30 at 10:31 -0700, Linus Torvalds wrote:
+> Also, pipes are a bit special from a scheduling standpoint because they 
+> use the magic "synchronous wakeup" thing, and it might be worthwhile 
+> trying to just change the two calls to "wake_up_interruptible_sync()" in 
+> fs/pipe.c to the non-sync version (ie just remove the "_sync" part).
 
-  This patch fixes a compile breakage with gcc 2.95 due to an unnamed
-struct/union that doesn't define any instances. Thank you to Adrian Bunk
-for reporting the problem and testing the new patch.
+Btw, I was looking at this yesterday but noticed there are no 
+__wake_up_sync() calls in the oprofile report. So I don't think we're 
+hitting the sync wakeup paths at all. 
 
-Signed-off-by: guillaume.thouvenin@bull.net
+I also read Crossover sources a bit and I think the setup is something like 
+this: 
 
----
+wineserver: 
 
- drivers/connector/cn_fork.c |   10 +++++-----
- include/linux/cn_fork.h     |    4 ++--
- 2 files changed, 7 insertions(+), 7 deletions(-)
-Index: linux-2.6.12-rc5-mm1/drivers/connector/cn_fork.c
-===================================================================
---- linux-2.6.12-rc5-mm1.orig/drivers/connector/cn_fork.c	2005-05-30 09:05:43.000000000 +0200
-+++ linux-2.6.12-rc5-mm1/drivers/connector/cn_fork.c	2005-05-30 13:02:36.000000000 +0200
-@@ -72,10 +72,10 @@ void fork_connector(pid_t ppid, pid_t pt
- 		forkmsg = (struct cn_fork_msg *)msg->data;
- 		forkmsg->type = FORK_CN_MSG_P;
- 		forkmsg->cpu = smp_processor_id();
--		forkmsg->ppid = ppid;
--		forkmsg->ptid = ptid;
--		forkmsg->cpid = cpid;
--		forkmsg->ctid = ctid;
-+		forkmsg->u.s.ppid = ppid;
-+		forkmsg->u.s.ptid = ptid;
-+		forkmsg->u.s.cpid = cpid;
-+		forkmsg->u.s.ctid = ctid;
- 
- 		put_cpu_var(fork_counts);
- 
-@@ -107,7 +107,7 @@ static inline void cn_fork_send_status(v
- 	msg->len = CN_FORK_INFO_SIZE;
- 	forkmsg = (struct cn_fork_msg *)msg->data;
- 	forkmsg->type = FORK_CN_MSG_S;
--	forkmsg->status = cn_fork_enable;
-+	forkmsg->u.status = cn_fork_enable;
- 
- 	cn_netlink_send(msg, CN_IDX_FORK, GFP_KERNEL);
- }
-Index: linux-2.6.12-rc5-mm1/include/linux/cn_fork.h
-===================================================================
---- linux-2.6.12-rc5-mm1.orig/include/linux/cn_fork.h	2005-05-30 09:05:51.000000000 +0200
-+++ linux-2.6.12-rc5-mm1/include/linux/cn_fork.h	2005-05-30 13:07:26.000000000 +0200
-@@ -55,9 +55,9 @@ struct cn_fork_msg {
- 			pid_t ptid;	/* parent thread ID  */
- 			pid_t cpid;	/* child process ID  */
- 			pid_t ctid;	/* child thread ID   */
--		};
-+		} s;
- 		int status;
--	};
-+	} u;
- };
- 
- /* Code above is only inside the kernel */
+ - Polls a 'reply' pipe to see if there's something to read.
+ - If the pipe has something for us, read it.
+ - Do something and the write results to another pipe. 
+
+wine-preloader: 
+
+ - Write to the 'reply' pipe.
+ - Read from the another pipe. 
+
+Looks if the processes keep on waking up each other and thus eat up all CPU 
+time. (Even more so if Crossover uses RT priority, have to check that.) 
+
+P.S. I can also verify that it is indeed the 64 KB change that breaks 
+Crossover. I changed PIPE_BUFFERS to 1 and could not reproduce the hang. 
+Increasing it to 8 makes the problem come up again. 
+
+                  Pekka 
 

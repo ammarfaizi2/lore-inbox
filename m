@@ -1,48 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261729AbVEaAKA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261647AbVEaAF1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261729AbVEaAKA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 20:10:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbVEaAFm
+	id S261647AbVEaAF1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 20:05:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbVEaADt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 20:05:42 -0400
-Received: from opersys.com ([64.40.108.71]:13840 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261839AbVEaADu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 20:03:50 -0400
-Message-ID: <429BA925.6040404@opersys.com>
-Date: Mon, 30 May 2005 20:00:37 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: "Bill Huey (hui)" <bhuey@lnxw.com>
-CC: Esben Nielsen <simlo@phys.au.dk>, James Bruce <bruce@andrew.cmu.edu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@muc.de>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Philippe Gerum <rpm@xenomai.org>
-Subject: Re: RT patch acceptance
-References: <Pine.OSF.4.05.10505302040560.31148-100000@da410.phys.au.dk> <429B6D14.2070206@opersys.com> <20050530224504.GD9972@nietzsche.lynx.com> <429B9BDB.1020705@opersys.com> <20050530231226.GA10365@nietzsche.lynx.com>
-In-Reply-To: <20050530231226.GA10365@nietzsche.lynx.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 30 May 2005 20:03:49 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:52519 "EHLO
+	pd3mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S261839AbVEaACM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 20:02:12 -0400
+Date: Mon, 30 May 2005 18:00:55 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: [PATCH] SATA NCQ support
+In-reply-to: <48Pzt-6Kb-5@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <429BA937.2090802@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <48Hix-88s-7@gated-at.bofh.it> <48N4N-4B5-25@gated-at.bofh.it>
+ <48Pzt-6Kb-5@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeff Garzik wrote:
+> Matthias Andree wrote:
+> 
+>> OK, so this is for AHCI. What are the options for people whose
+>> mainboards aren't blessed with AHCI, but use for instance VIA or older
+>> Promise chips? Buy new hardware? Or wait until someone comes up with an
+>> implementation?
+> 
+> 
+> As Jens mentioned, NCQ support requires both device and hardware have 
+> explicit NCQ support.  That eliminates most of Linux's supported SATA 
+> controllers, none of which support NCQ.
+> 
+> Don't have a heart attack, though, SATA is pretty fast even without NCQ.
+> 
 
-Bill Huey (hui) wrote:
-> Your sporatic posting on lkml are more informative than the web site.
+NVIDIA nForce4 supports NCQ under Windows.. any word on whether docs may 
+become available to allow this to be supported under Linux? You'd think 
+NVIDIA would want to get that support in..
 
-Here's one link I thought I'd mention:
-The RTAI Testsuite LiveCD:  http://issaris.org/rtai/
-For those who want to give RTAI a try without having to go through
-the hastle of hunting down patches and applying them.
-
-Karim
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
+

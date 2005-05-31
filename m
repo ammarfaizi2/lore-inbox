@@ -1,53 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVEaTO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261330AbVEaTRs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbVEaTO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 15:14:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVEaTOZ
+	id S261330AbVEaTRs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 15:17:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVEaTRs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 15:14:25 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:6273 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261263AbVEaTNc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 15:13:32 -0400
-Date: Tue, 31 May 2005 12:23:49 -0700
-From: Greg KH <gregkh@suse.de>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH] pci-sysfs: backport fix for 2.6.11.12
-Message-ID: <20050531192349.GA21050@suse.de>
-References: <20050531163619.GA6711@mellanox.co.il>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050531163619.GA6711@mellanox.co.il>
-User-Agent: Mutt/1.5.8i
+	Tue, 31 May 2005 15:17:48 -0400
+Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:63929 "EHLO
+	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
+	id S261330AbVEaTRc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 15:17:32 -0400
+Message-ID: <429CB7CF.2000200@ammasso.com>
+Date: Tue, 31 May 2005 14:15:27 -0500
+From: Timur Tabi <timur.tabi@ammasso.com>
+Reply-To: linux-kernel@vger.kernel.org
+Organization: Ammasso
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en, en-gb
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: get_user_pages() and process termination
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 31, 2005 at 07:36:19PM +0300, Michael S. Tsirkin wrote:
-> Greg, before 2.6.12, pci_write_config in pci-sysfs.c was broken, causing
-> incorrect data being written to the configuration register,
-> which in the case of my userspace driver results in system failure.
-> 
-> This has been fixed in 2.6.12-rc5:
-> 
-> http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.6%2Ftesting%2Fpatch-2.6.12-rc5.bz2;z=2656
-> 
-> Would you please consider merging the fix for 2.6.11.12 as well?
+If I call get_user_pages() on some pages owned by a process, and then the process exits, 
+are the pages still pinned, or is there some kind of automatic cleanup?
 
-Would you care to split out only the proper part for that fix?  There
-are a few different patches in that link above.
+-- 
+Timur Tabi
+Staff Software Engineer
+timur.tabi@ammasso.com
 
-> Alternatively (since there were multiple other changes in pci-sysfs.c), here's
-> a small patch to fix just this issue.
-
-I don't think this fixes the problem properly.  Can you verify it?
-Also, this is only a 64bit issue, right?  What platform are you seeing
-this on?
-
-And, any patch that you want to propose for the -stable releases, needs
-to be sent to the stable@kernel.org email alias.
-
-thanks,
-
-greg k-h
+One thing a Southern boy will never say is,
+"I don't think duct tape will fix it."
+      -- Ed Smylie, NASA engineer for Apollo 13

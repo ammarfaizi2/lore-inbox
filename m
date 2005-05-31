@@ -1,145 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVEaMJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261879AbVEaMKP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261328AbVEaMJz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 08:09:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261879AbVEaMJ2
+	id S261879AbVEaMKP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 08:10:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbVEaMKP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 08:09:28 -0400
-Received: from vms044pub.verizon.net ([206.46.252.44]:43695 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261328AbVEaMJO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 08:09:14 -0400
-Date: Tue, 31 May 2005 08:09:11 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc5-V0.7.47-15
-In-reply-to: <1117527531.19367.31.camel@ibiza.btsn.frna.bull.fr>
-To: linux-kernel@vger.kernel.org
-Message-id: <200505310809.11887.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 8BIT
-Content-disposition: inline
-References: <20050527072810.GA7899@elte.hu> <429C1206.5000707@mrv.com>
- <1117527531.19367.31.camel@ibiza.btsn.frna.bull.fr>
-User-Agent: KMail/1.7
+	Tue, 31 May 2005 08:10:15 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:40593 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261879AbVEaMJ7
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 08:09:59 -0400
+Date: Tue, 31 May 2005 14:09:09 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: James Bruce <bruce@andrew.cmu.edu>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, "Bill Huey (hui)" <bhuey@lnxw.com>,
+       Andi Kleen <ak@muc.de>, Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+In-Reply-To: <429C4112.2010808@andrew.cmu.edu>
+Message-Id: <Pine.OSF.4.05.10505311347290.1707-100000@da410.phys.au.dk>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 31 May 2005 04:18, Serge Noiraud wrote:
->Le mar 31/05/2005 à 09:28, Eran Mann a écrit :
->> Ingo Molnar wrote:
->> > i have released the -V0.7.47-10 Real-Time Preemption patch,
->> > which can be downloaded from the usual place:
->> >
->> >     http://redhat.com/~mingo/realtime-preempt/
->>
->> I tried to compile -V0.7.47-15 and it fails to compile.
->> net/sunrpc/sched.c: In function `rpc_run_timer':
->> net/sunrpc/sched.c:107: error: `RPC_TASK_HAS_TIMER' undeclared
->> (first use in this function)
->> ...
->>
->> It seems the following hunk of the patch is bogus as it removes a
->> required define:
->>
->> --- linux/include/linux/sunrpc/sched.h.orig
->> +++ linux/include/linux/sunrpc/sched.h
->> @@ -138,7 +138,6 @@ typedef void
->> (*rpc_action)(struct rpc_
->>   #define RPC_TASK_RUNNING       0
->>   #define RPC_TASK_QUEUED                1
->>   #define RPC_TASK_WAKEUP                2
->> -#define RPC_TASK_HAS_TIMER     3
->>
->>   #define RPC_IS_RUNNING(t)      (test_bit(RPC_TASK_RUNNING,
->> &(t)->tk_runstate))
->>   #define rpc_set_running(t)     (set_bit(RPC_TASK_RUNNING,
->> &(t)->tk_runstate))
->
->We also have the following :
->
->Kernel: arch/i386/boot/bzImage is ready
->  Building modules, stage 2.
->  MODPOST
->*** Warning: "there_is_no_init_MUTEX_LOCKED_for_RT_semaphores"
-> [drivers/scsi/qla2xxx/qla2xxx.ko] undefined! *** Warning:
-> "there_is_no_init_MUTEX_LOCKED_for_RT_semaphores"
-> [drivers/pci/hotplug/shpchp.ko] undefined! *** Warning:
-> "there_is_no_init_MUTEX_LOCKED_for_RT_semaphores"
-> [drivers/pci/hotplug/pciehp.ko] undefined! *** Warning:
-> "there_is_no_init_MUTEX_LOCKED_for_RT_semaphores"
-> [drivers/pci/hotplug/pci_hotplug.ko] undefined! *** Warning:
-> "there_is_no_init_MUTEX_LOCKED_for_RT_semaphores"
-> [drivers/pci/hotplug/ibmphp.ko] undefined! *** Warning:
-> "there_is_no_init_MUTEX_LOCKED_for_RT_semaphores"
-> [drivers/pci/hotplug/cpqphp.ko] undefined! *** Warning:
-> "there_is_no_init_MUTEX_LOCKED_for_RT_semaphores"
-> [drivers/net/plip.ko] undefined! *** Warning:
-> "there_is_no_init_MUTEX_LOCKED_for_RT_semaphores"
-> [drivers/char/watchdog/cpu5wdt.ko] undefined! *** Warning:
-> "there_is_no_init_MUTEX_LOCKED_for_RT_semaphores"
-> [drivers/block/sx8.ko] undefined! ...
->if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F
-> System.map -b /var/tmp/kernel-2.6.12rc5RTV0.7.4715DAV06-root -r
-> 2.6.12-rc5-RT-V0.7.47-15-DAV06; fi WARNING:
-> /var/tmp/kernel-2.6.12rc5RTV0.7.4715DAV06-root/lib/modules/2.6.12-r
->c5-RT-V0.7.47-15-DAV06/kernel/drivers/scsi/qla2xxx/qla2xxx.ko needs
-> unknown symbol there_is_no_init_MUTEX_LOCKED_for_RT_semaphores
-> WARNING:
-> /var/tmp/kernel-2.6.12rc5RTV0.7.4715DAV06-root/lib/modules/2.6.12-r
->c5-RT-V0.7.47-15-DAV06/kernel/drivers/pci/hotplug/shpchp.ko needs
-> unknown symbol there_is_no_init_MUTEX_LOCKED_for_RT_semaphores
-> WARNING:
-> /var/tmp/kernel-2.6.12rc5RTV0.7.4715DAV06-root/lib/modules/2.6.12-r
->c5-RT-V0.7.47-15-DAV06/kernel/drivers/pci/hotplug/pciehp.ko needs
-> unknown symbol there_is_no_init_MUTEX_LOCKED_for_RT_semaphores
-> WARNING:
-> /var/tmp/kernel-2.6.12rc5RTV0.7.4715DAV06-root/lib/modules/2.6.12-r
->c5-RT-V0.7.47-15-DAV06/kernel/drivers/pci/hotplug/pci_hotplug.ko
-> needs unknown symbol
-> there_is_no_init_MUTEX_LOCKED_for_RT_semaphores WARNING:
-> /var/tmp/kernel-2.6.12rc5RTV0.7.4715DAV06-root/lib/modules/2.6.12-r
->c5-RT-V0.7.47-15-DAV06/kernel/drivers/pci/hotplug/ibmphp.ko needs
-> unknown symbol there_is_no_init_MUTEX_LOCKED_for_RT_semaphores
-> WARNING:
-> /var/tmp/kernel-2.6.12rc5RTV0.7.4715DAV06-root/lib/modules/2.6.12-r
->c5-RT-V0.7.47-15-DAV06/kernel/drivers/pci/hotplug/cpqphp.ko needs
-> unknown symbol there_is_no_init_MUTEX_LOCKED_for_RT_semaphores
-> WARNING:
-> /var/tmp/kernel-2.6.12rc5RTV0.7.4715DAV06-root/lib/modules/2.6.12-r
->c5-RT-V0.7.47-15-DAV06/kernel/drivers/net/plip.ko needs unknown
-> symbol there_is_no_init_MUTEX_LOCKED_for_RT_semaphores WARNING:
-> /var/tmp/kernel-2.6.12rc5RTV0.7.4715DAV06-root/lib/modules/2.6.12-r
->c5-RT-V0.7.47-15-DAV06/kernel/drivers/char/watchdog/cpu5wdt.ko needs
-> unknown symbol there_is_no_init_MUTEX_LOCKED_for_RT_semaphores
-> WARNING:
-> /var/tmp/kernel-2.6.12rc5RTV0.7.4715DAV06-root/lib/modules/2.6.12-r
->c5-RT-V0.7.47-15-DAV06/kernel/drivers/block/sx8.ko needs unknown
-> symbol there_is_no_init_MUTEX_LOCKED_for_RT_semaphores make[3]: ***
-> [_modinst_post] Error 1
->error: Bad exit status from /var/tmp/rpm-tmp.89329 (%install)
+On Tue, 31 May 2005, James Bruce wrote:
 
-I had no such error, applying the 
-realtime-preempt-2.6.12-rc5-V0.7.47-15 patch to rc5-git5 (other than 
-the Makefile, easily fixed, and lib/Kconfig.debug, as git5 had 
-already played with the location of the frame pointers option.  I 
-left it at the git5 level, seemed to work.  Its built, but not 
-rebooted to, working on wedding photo's for the neighbors ATM.
+> Nick Piggin wrote:
+> > I have never been in any doubt as to the specific claims I have
+> > made. I continually have been talking about hard realtime from
+> > start to finish, and it appears that everyone now agrees with me
+> > that for hard-RT, a nanokernel solution is better or at least
+> > not obviously worse at this stage.
+> 
+> It is only better in that if you need provable hard-RT *right now*, then 
+> you have to use a nanokernel.  
 
-I used the "linux-2.6.12-rc5-git5-RT-V0.7.47-15" throughout _my_ 
-scripts and the Makefile as the version number.  I note your error 
-messages seem to indicate a miss-match there.
+What do you mean by "provable"? Security critical? Forget about
+nanokernels then. The WHOLE system has to be validated. If you want to a
+system good enough to put (a lot of) money on it: Test, test, test.
 
-So many thanks to the original poster, whose message prompted me to 
-take another swing at it.
+I can't see it would be easier prove that a nano-kernel with various
+needed mutex and queuing mechanism works correct than it is to prove that
+the Linux scheduler with mutex and queueing mechanisms works correctly.
+Both systems does the same thing and is most likely based on the same
+principles!
+If a module in Linux disables interrupts for a non-deterministic amount
+of time, it destroys the RT in both scenarious. With the nanokernel, 
+the Linux kernel is patched not to disable interrupts, but if someone
+didn't use the official local_irq_disable() macro the patch didn't work
+anyway...
+The only way you can be absolutely sure Linux doesn't hurt RT is to run
+it in a full blown virtuel machine where it doesn't have access to disable
+interrupts and otherwise interfere with the nano-kernel.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+> The RT patch doesn't provide guaranteed 
+> hard-RT yet[1], but it may in the future.  Any RT application programmer 
+> would rather write for a single image system than a split kernel.  So if 
+> it does eventually provide hard-RT, just about every new RT application 
+> will target it (due to it being easier to program for).  In addition it 
+> radically improves soft-RT performance *now*, which a nanokernel doesn't 
+> help with at all.  "Best" would be getting preempt-RT to become 
+> guaranteed hard-RT, or if that proves impossible, to have a nanokernel 
+> in addition to preempt-RT's good statistical soft-RT guarantees.
+
+I think it is nearly there. A few things needs to be revisited and a lot
+of code paths you would have liked to use isn't RT (ioctl forinstance
+still hits BKL :-( ).
+
+> 
+> I think where we violently disagree is that in your earlier posts you 
+> seemed to imply that a nanokernel hard-RT solution obviates the need for 
+> something like preempt-RT.  That is not the case at all, and at the 
+> moment they are quite orthogonal.  In the future they may not be 
+> orthogonal, because *if* preempt-RT patch becomes guaranteed hard-RT, it 
+> would pretty much relegate nanokernels to only those applications 
+> requiring formal verification.
+
+And I state that for those applications the nanokernel isn't good enough,
+either. Otherwise I completely agree with you. 
+The nanokernel does have one thing PREEMPT_RT doesn't: Very short
+latencies. To cap the interrupt latencies in Linux even further some
+tricks will have to be made - and these would hurt performance. These
+tricks are more or less what a nanokernel does: Running the whole of
+Linux, including the scheduler, and all regions protected with raw
+spinlocks with interrupts fully enabled.
+
+Esben
+
+> 
+>   - Jim Bruce
+> 
+

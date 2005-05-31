@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVEaTA3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVEaTEA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261226AbVEaTA3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 15:00:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVEaTA3
+	id S261203AbVEaTEA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 15:04:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbVEaTD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 15:00:29 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:8375 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261226AbVEaTAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 15:00:09 -0400
-Date: Tue, 31 May 2005 15:00:08 -0400
-To: Tobias Reinhard <tracer@robotech.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with concurrent SATA-Writes
-Message-ID: <20050531190008.GJ23621@csclub.uwaterloo.ca>
-References: <429C9BFA.5090901@robotech.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <429C9BFA.5090901@robotech.de>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+	Tue, 31 May 2005 15:03:59 -0400
+Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:63673 "EHLO
+	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
+	id S261203AbVEaTCO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 15:02:14 -0400
+Message-ID: <429CB429.8090008@ammasso.com>
+Date: Tue, 31 May 2005 13:59:53 -0500
+From: Timur Tabi <timur.tabi@ammasso.com>
+Organization: Ammasso
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en, en-gb
+MIME-Version: 1.0
+To: Gerd Knorr <kraxel@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Will __pa(vmalloc()) ever work?
+References: <4297746C.10900@ammasso.com> <873bs5yrxj.fsf@bytesex.org> <429C87FF.5070003@ammasso.com> <20050531161345.GB24106@bytesex>
+In-Reply-To: <20050531161345.GB24106@bytesex>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 31, 2005 at 07:16:42PM +0200, Tobias Reinhard wrote:
-> I have a problem with two SATA-Discs. I have an onboard SIL3114 with
-> four SATA-Ports an onboard NVIDIA with two SATA-Ports - both controllers
-> are disable via BIOS (and are not detected by Linux)(only for this test
-> of course - normally I have other HDD on this ports). The only
-> controller that is found is the add-on controller in a PCI-Slot
-> (SIL3112). And that is the one I have trouble with.
-> 
-> If I read or write  (via dd) from the first one -> no problems. Same
-> when read or write from the second or when I read (only read!) from both
-> at the same time. Data-Transfer-Rate is around 45MB/s for one HDD.
-> 
-> The problem occures when I try to write on both discs at the same time.
-> For example I write /dev/zero to the first one and then start to write
-> /dev/zero to the second one. The System-Load goes up to 4 with nearly
-> 100% io-wait and nearly no write-access to the drives.
-> 
-> Any hints?
-> 
-> - no errormessages in syslog
-> - happens with Kernel 2.6.11.7 and with 2.6.12-rc5
-> - HDDs are Samsung Spinpoint 200GB
-> - (I use the SCSI-SATA-Drivers)
+Gerd Knorr wrote:
 
-Might it be a problem with having two things using /dev/zero at the same
-time?
+> Can you fix that?  If so, try that.  Would be the best.
 
-What blocksize do you use with dd?
+No, I cannot.  The memory is passed to my driver from some other driver that I do not
+control.
 
-What happens if you do dd from /dev/zero to two different files on one
-of the hds (with some filesystem on the drive obviously)?
+> I think you can't.  What is "anywhere else"?  Does that include
+> userspace addresses?
 
-How about:
-dd if=/dev/zero bs=128k| tee >(dd of=/dev/disk1 bs=128k) | dd of=/dev/disk2 bs=128k
+No, but it might include the stack.
 
-That seems pretty fast here (writing to two files in /tmp rather than
-two disks since I don't have two disks I can just destroy.).
+> Not sure how portable that is, but comparing the vaddr against
+> the vmalloc address space could work.  There are macros for
+> that, VMALLOC_START & VMALLOC_END IIRC.
 
-Len Sorensen
+Thanks, I'll try that.
+
+I still haven't gotten an answer to my question about whether pgd/pud/pmd/pte_offset will 
+obtain the physical address for a kmalloc'd buffer.
+
+-- 
+Timur Tabi
+Staff Software Engineer
+timur.tabi@ammasso.com
+
+One thing a Southern boy will never say is,
+"I don't think duct tape will fix it."
+      -- Ed Smylie, NASA engineer for Apollo 13
+

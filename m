@@ -1,49 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261915AbVEaPxl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbVEaP4D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261915AbVEaPxl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 11:53:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbVEaPxl
+	id S261918AbVEaP4D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 11:56:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261919AbVEaP4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 11:53:41 -0400
-Received: from rrcs-24-227-247-8.sw.biz.rr.com ([24.227.247.8]:62137 "EHLO
-	emachine.austin.ammasso.com") by vger.kernel.org with ESMTP
-	id S261915AbVEaPxk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 11:53:40 -0400
-Message-ID: <429C87FF.5070003@ammasso.com>
-Date: Tue, 31 May 2005 10:51:27 -0500
-From: Timur Tabi <timur.tabi@ammasso.com>
-Organization: Ammasso
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.5) Gecko/20041217 Mnenhy/0.7.2.0
-X-Accept-Language: en-us, en, en-gb
+	Tue, 31 May 2005 11:56:03 -0400
+Received: from cog1.w2cog.org ([206.251.188.12]:8832 "EHLO w2cog.org")
+	by vger.kernel.org with ESMTP id S261918AbVEaPz4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 11:55:56 -0400
+Date: Tue, 31 May 2005 10:55:53 -0500 (CDT)
+From: Roy Keene <rkeene@psislidell.com>
+To: linux-kernel@vger.kernel.org
+Subject: Problem with 2.6 kernel and lots of I/O
+Message-ID: <Pine.LNX.4.62.0505311042470.7546@hammer.psislidell.com>
 MIME-Version: 1.0
-To: Gerd Knorr <kraxel@suse.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Will __pa(vmalloc()) ever work?
-References: <4297746C.10900@ammasso.com> <873bs5yrxj.fsf@bytesex.org>
-In-Reply-To: <873bs5yrxj.fsf@bytesex.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr wrote:
+Hello,
 
-> You should use vmalloc_to_page() (this does the page-table walking
-> with correct locking), then the usual dma mapping interface
-> (pci_map_page() or pci_map_sg()) to get bus address(es) you can pass
-> to your device for DMA.
+ 	I have a (well, at least one) show-stopping problems with the 2.6 
+kernel while doing heavy I/O.  I have a (software) RAID1 of network block 
+devices (nbd0 and nbd1) set up on two identical machines in an 
+active-passive HA cluster configuration.  When the "primary" node goes 
+down and comes back up it recovers the RAID as follows:
 
-My problem is that I don't know where the memory came from.  It could have been allocated 
-via kmalloc, or vmalloc, or anywhere else.  Can I call vmalloc_to_page() on memory 
-allocated via kmalloc()?  If the answer is no, then how can I tell whether the memory was 
-allocated via vmalloc() or some other method?  I need a reliable virtual-to-physical (or 
-virtual-to-bus, which is the same thing on x86 architectures) method for any memory address.
+ 	Start RAID in degraded mode with remote device (nbd1)
+ 	Hot-add local device (nbd0)
 
--- 
-Timur Tabi
-Staff Software Engineer
-timur.tabi@ammasso.com
+This all works.  Hot-adding the local device causes a resync and that is 
+where the problems begin.  Once the resync begins the system becomes 
+unusable.  Anything that wants to write something to the syslog socket 
+("/dev/log") syncronously hangs until the resync completes.  The system 
+load goes up to 18 or so.  Writing stuff to the local disk ("/etc" for 
+example, which is not part of the RAID) sometimes hangs.  When the resync 
+is complete everything is happy again.  Resyncing takes about 25 minutes 
+(20GB over a dedicated network interface to the client at 1000Mbps) and 
+makes the recovery time unacceptable.  Also, during this recovery the OOM 
+killer will occasionally be invoked and kill something randomly even 
+though there is typically plenty of unused swap lying around before 
+(though perhaps "java" just decides to eat all of that VERY quickly and I 
+don't notice this, since that is what the OOM killer choses to kill.)
 
-One thing a Southern boy will never say is,
-"I don't think duct tape will fix it."
-      -- Ed Smylie, NASA engineer for Apollo 13
+Does anyone have any ideas ?
+
+
+Information about the systems:
+
+Info: Linux cog1 2.6.9-5.0.5.ELsmp #1 SMP Fri Apr 8 14:29:47 EDT 2005 i686 i686 i386 GNU/Linux
+Dist: RedHat Enterprise Linux 4
+Spec:
+     2 x 3.2GHz Xeon (each system, with hyperthreading so 4 logical processors)
+     4GB of physical RAM
+     2GB of configured swap (partition, contigious)
+     2 x 1000Mbps (Intel 82546GB) network cards (HA cluster link is
+               provided by a cross over cable between the two nodes)

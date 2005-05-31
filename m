@@ -1,45 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbVEaQSf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261937AbVEaQVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261934AbVEaQSf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 12:18:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbVEaQSe
+	id S261937AbVEaQVG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 12:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbVEaQUb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 12:18:34 -0400
-Received: from mxout1.netvision.net.il ([194.90.9.20]:64205 "EHLO
-	mxout1.netvision.net.il") by vger.kernel.org with ESMTP
-	id S261934AbVEaQJk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 12:09:40 -0400
-Date: Tue, 31 May 2005 19:42:58 +0300
-From: Sasha Khapyorsky <sashak@smlink.com>
-Subject: Re: problem with ALSA ane intel modem driver
-In-reply-to: <200505311222.03463.cijoml@volny.cz>
-To: Michal Semler <cijoml@volny.cz>
-Cc: linux-kernel@vger.kernel.org
-Mail-followup-to: Michal Semler <cijoml@volny.cz>, linux-kernel@vger.kernel.org
-Message-id: <20050531164258.GB12283@sashak.softier.local>
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7BIT
-Content-disposition: inline
-References: <200505280716.46688.cijoml@volny.cz> <20050531101015.GF9755@tecr>
- <200505311222.03463.cijoml@volny.cz>
-User-Agent: Mutt/1.5.8i
+	Tue, 31 May 2005 12:20:31 -0400
+Received: from rproxy.gmail.com ([64.233.170.203]:32452 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261940AbVEaQSC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 12:18:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=K/H3byDZSj0izxtKtvhI/vDuwJe/zPpbPsooWsK4UfcAos8R++E1GytmD5sk2vlp4wK2i3/rlgmNxN40sx+JeBXfxRN7DAIFrPAQRxHT4RN1PJVkSYqVW6QWYTUNQCygBmnE5Y+16bD4BxxvhdAdnrmenD2DjYmX/plebTcFEWw=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: akpm@osdl.org
+Subject: Re: pcdp-build-fix.patch added to -mm tree
+Date: Tue, 31 May 2005 20:22:44 +0400
+User-Agent: KMail/1.7.2
+Cc: peterc@gelato.unsw.edu.au, tony.luck@intel.com,
+       linux-kernel@vger.kernel.org
+References: <200505310925.j4V9PNoS009318@shell0.pdx.osdl.net>
+In-Reply-To: <200505310925.j4V9PNoS009318@shell0.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505312022.44479.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 12:22 Tue 31 May     , Michal Semler wrote:
-> > > codec_semaphore: semaphore is not ready [0x1][0x700300]
-> > > codec_write 0: semaphore is not ready for register 0x2c
-> >
-> > And this is something new. What is output of
-> > 'cat /proc/asound/card1/codec97#0/mc97#1-1' ?
-> 
-> notas:/home/cijoml# cat /proc/asound/card1/codec97#0/mc97#1-1
-> 1-1/0: Silicon Laboratory Si3036,8 rev 7
+On Tuesday 31 May 2005 13:24, akpm@osdl.org wrote:
+> --- 25/drivers/firmware/pcdp.c~pcdp-build-fix
+> +++ 25-akpm/drivers/firmware/pcdp.c
+> @@ -11,6 +11,7 @@
+>   * published by the Free Software Foundation.
+>   */
+>  
+> +#include <linux/config.h>
+>  #include <linux/acpi.h>
 
-Fine, this codec is supported. 
+Does this patch make sense?
+===========================
+Recent restoration of quirk_via_irqpic() #ifdef'fed whole include/linux/acpi.h
+with CONFIG_ACPI. So, if acpi.h is unlucky enough to be included before
+config.h, bad things happen:
 
-Semaphore warning (both 0x54 and 0x2c) should be fixed in ALSA CVS.
+		[tested, patch fixes the warning]
 
-Sasha.
+	drivers/serial/8250_acpi.c: In function `acpi_serial_ext_irq':
+	drivers/serial/8250_acpi.c:51: warning: implicit declaration of
+	function `acpi_register_gsi'
 
+or even
+
+		[untested]
+
+	In file included from drivers/firmware/pcdp.c:18:
+	drivers/firmware/pcdp.h:48: error: field 'addr' has incomplete type
+
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+
+--- linux-vanilla/include/linux/acpi.h	2005-05-28 02:59:59.000000000 +0400
++++ linux-8250/include/linux/acpi.h	2005-05-28 03:39:25.000000000 +0400
+@@ -25,6 +25,8 @@
+ #ifndef _LINUX_ACPI_H
+ #define _LINUX_ACPI_H
+ 
++#include <linux/config.h>
++
+ #ifdef	CONFIG_ACPI
+ 
+ #ifndef _LINUX

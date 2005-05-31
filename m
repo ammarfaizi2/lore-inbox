@@ -1,67 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVEaLGG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261836AbVEaLHJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbVEaLGG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 07:06:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVEaLGG
+	id S261836AbVEaLHJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 07:07:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261849AbVEaLHI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 07:06:06 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:25028 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S261806AbVEaLF6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 07:05:58 -0400
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Tue, 31 May 2005 13:03:31 +0200
-To: schilling@fokus.fraunhofer.de, mrmacman_g4@mac.com
-Cc: toon@hout.vanvergehaald.nl, ltd@cisco.com, linux-kernel@vger.kernel.org,
-       dtor_core@ameritech.net, 7eggert@gmx.de
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Message-ID: <429C4483.nail5X0215WJQ@burner>
-References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com>
- <20050530093420.GB15347@hout.vanvergehaald.nl>
- <429B0683.nail5764GYTVC@burner>
- <46BE0C64-1246-4259-914B-379071712F01@mac.com>
-In-Reply-To: <46BE0C64-1246-4259-914B-379071712F01@mac.com>
-User-Agent: nail 11.2 8/15/04
+	Tue, 31 May 2005 07:07:08 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:16486 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261836AbVEaLGv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 07:06:51 -0400
+Message-ID: <429C453E.7080109@yahoo.com.au>
+Date: Tue, 31 May 2005 21:06:38 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+To: James Bruce <bruce@andrew.cmu.edu>
+CC: "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+References: <20050527233645.GA2283@nietzsche.lynx.com> <4297EB57.5090902@yahoo.com.au> <20050528054503.GA2958@nietzsche.lynx.com> <42981467.6020409@yahoo.com.au> <4299A98D.1080805@andrew.cmu.edu> <429ADEDD.4020805@yahoo.com.au> <429B1898.8040805@andrew.cmu.edu> <429B2160.7010005@yahoo.com.au> <20050530222747.GB9972@nietzsche.lynx.com> <429BBC2D.70406@yahoo.com.au> <20050531020957.GA10814@nietzsche.lynx.com> <429C2A64.1040204@andrew.cmu.edu> <429C2F72.7060300@yahoo.com.au> <429C4112.2010808@andrew.cmu.edu>
+In-Reply-To: <429C4112.2010808@andrew.cmu.edu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kyle Moffett <mrmacman_g4@mac.com> wrote:
+James Bruce wrote:
+> Nick Piggin wrote:
+> 
+>> I have never been in any doubt as to the specific claims I have
+>> made. I continually have been talking about hard realtime from
+>> start to finish, and it appears that everyone now agrees with me
+>> that for hard-RT, a nanokernel solution is better or at least
+>> not obviously worse at this stage.
+> 
+> 
+> It is only better in that if you need provable hard-RT *right now*, then 
+> you have to use a nanokernel.  The RT patch doesn't provide guaranteed 
+> hard-RT yet[1], but it may in the future.  Any RT application programmer 
 
-> > BTW: an implementation that uses something like Solaris does with
-> > /etc/path_to_inst and puts USB serial numbers into the path_to_inst
-> > kernel instance database could come very close to the desired result
-> > and would give stable SCSI addresses too.
->
-> But why fix what isn't broken?  I can tell all my other programs, from
-> dd to mount, that I want to use the udev-created /dev/green_burner, so
-> why do you indicate such usage is _deprecated_ in cdrecord?  For such
-> device nodes, a _filesystem_ is the preferred name=>number index, so
-> why add an extra strange file "just because Solaris does".
+This was my main line of questioning - what future direction will
+do the RT guys want from the PREEMPT_RT work. I was concerned that
+hard-realtime does not sound feasable for Linux.
 
-If you use /dev/ entries to directly address SCSI targets, then you 
-are relying on on assumptions that cannot be granted everywhere.
+[snip]
 
-Cdrecord is portable and this needs to implement a way that is portable 
-and does not rely on nonportable assumptions like yours.
+> 
+> I think where we violently disagree is that in your earlier posts you 
+> seemed to imply that a nanokernel hard-RT solution obviates the need for 
+> something like preempt-RT.  That is not the case at all, and at the 
 
+Actually I think that is also where we violently agree ;)
+If you look at some of my earlier posts, you'll see I had to
+add 'disclaimers' until I was blue in the face. But I don't
+blame you for not wanting to crawl through all that / or not
+seeing it.
 
-> And why again do you need stable SCSI addresses for my _USB_ drive?
+Basically: I know they are orthogonal, and I don't disagree
+that generally better scheduling and interrupt latency would be
+nice for Linux to have.
 
-Well if the udev program was polite to users, it would also support
-to edit /etc/default/cdrecord...... 
+Now I'll really stop posting. Sorry everyone.
 
-... if it _really_ does wat you like with /dev/ links, then it has all 
-the information that is needed to also maintain /etc/default/cdrecord
-
-
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  
-       schilling@fokus.fraunhofer.de	(work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+Send instant messages to your online friends http://au.messenger.yahoo.com 

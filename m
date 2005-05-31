@@ -1,80 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVEaXub@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVFAAAw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261206AbVEaXub (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 19:50:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVEaXub
+	id S261212AbVFAAAw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 20:00:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbVFAAAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 19:50:31 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:60816 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261206AbVEaXuV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 19:50:21 -0400
-Date: Wed, 1 Jun 2005 01:50:15 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Blaisorblade <blaisorblade@yahoo.it>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       kbuild-devel <kbuild-devel@lists.sourceforge.net>
-Subject: Re: [patch 1/1] kconfig: trivial cleanup
-In-Reply-To: <200505312235.35234.blaisorblade@yahoo.it>
-Message-ID: <Pine.LNX.4.61.0506010149070.3728@scrub.home>
-References: <20050529174525.A36D7A2FA3@zion.home.lan>
- <Pine.LNX.4.61.0505311123310.3728@scrub.home> <200505312235.35234.blaisorblade@yahoo.it>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 31 May 2005 20:00:52 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:56277 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261212AbVFAAAr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 20:00:47 -0400
+Subject: Re: RT patch acceptance
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Esben Nielsen <simlo@phys.au.dk>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, hch@infradead.org,
+       dwalker@mvista.com, Ingo Molnar <mingo@elte.hu>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, Andi Kleen <ak@muc.de>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       James Bruce <bruce@andrew.cmu.edu>
+In-Reply-To: <20050531213329.GA14754@nietzsche.lynx.com>
+References: <Pine.OSF.4.05.10505311347290.1707-100000@da410.phys.au.dk>
+	 <1117556283.2569.26.camel@localhost.localdomain>
+	 <20050531171143.GS5413@g5.random>
+	 <1117561379.2569.57.camel@localhost.localdomain>
+	 <20050531175152.GT5413@g5.random>
+	 <1117564192.2569.83.camel@localhost.localdomain>
+	 <20050531205424.GV5413@g5.random>
+	 <20050531213329.GA14754@nietzsche.lynx.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Tue, 31 May 2005 19:59:22 -0400
+Message-Id: <1117583962.4749.11.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 2005-05-31 at 14:33 -0700, Bill Huey wrote:
+> On Tue, May 31, 2005 at 10:54:24PM +0200, Andrea Arcangeli wrote:
+> > On Tue, May 31, 2005 at 02:29:52PM -0400, Steven Rostedt wrote:
+> > > Probably, what I was talking about is diamond hard, and Ingo's RT patch
+> > > is metal hard.  PREEMPT is just wood hard and !PREEMPT is plastic hard*.
+> > > Leaving MS Windows as feather hard ;-)
+> > 
+> > Yes, this is a nice way to expose it ;)
+> 
+> Notating it in terms of Tofu firmness would have been more comforting. :)
 
-On Tue, 31 May 2005, Blaisorblade wrote:
+Actually, since my wife is Italian, I should have used the hardness of
+spaghetti as it cooks.  That way I could call MS Windows an over cooked
+noodle! ;-) 
 
-> I can regenerate it only with bison 2.0, since that's what I have installed. 
-> So if you don't want it to be regenerated, you cannot accept my patch. I 
-> proposed sending two patches to avoid mixing the bison changes with this 
-> patch changes, that's all.
+Jeeze, this thread is stuck in the "D" state.  It just won't die!
 
-What I meant is a patch like this:
+-- Steve 
 
-Index: linux-2.6-mm/scripts/kconfig/zconf.tab.c_shipped
-===================================================================
---- linux-2.6-mm.orig/scripts/kconfig/zconf.tab.c_shipped	2005-03-16 13:47:36.000000000 +0100
-+++ linux-2.6-mm/scripts/kconfig/zconf.tab.c_shipped	2005-06-01 01:48:19.000000000 +0200
-@@ -1531,7 +1531,7 @@ yyreduce:
- 
-     {
- 	menu_add_entry(NULL);
--	menu_add_prop(P_MENU, yyvsp[-1].string, NULL, NULL);
-+	menu_add_prompt(P_MENU, yyvsp[-1].string, NULL);
- 	printd(DEBUG_PARSE, "%s:%d:menu\n", zconf_curname(), zconf_lineno());
- ;}
-     break;
-@@ -1586,7 +1586,7 @@ yyreduce:
- 
-     {
- 	menu_add_entry(NULL);
--	menu_add_prop(P_COMMENT, yyvsp[-1].string, NULL, NULL);
-+	menu_add_prompt(P_COMMENT, yyvsp[-1].string, NULL);
- 	printd(DEBUG_PARSE, "%s:%d:comment\n", zconf_curname(), zconf_lineno());
- ;}
-     break;
-@@ -1640,7 +1640,7 @@ yyreduce:
-   case 86:
- 
-     {
--	menu_add_prop(P_PROMPT, yyvsp[-1].string, NULL, yyvsp[0].expr);
-+	menu_add_prompt(P_PROMPT, yyvsp[-1].string, yyvsp[0].expr);
- ;}
-     break;
- 
-@@ -1925,7 +1925,7 @@ void conf_parse(const char *name)
- 	sym_init();
- 	menu_init();
- 	modules_sym = sym_lookup("MODULES", 0);
--	rootmenu.prompt = menu_add_prop(P_MENU, "Linux Kernel Configuration", NULL, NULL);
-+	rootmenu.prompt = menu_add_prompt(P_MENU, "Linux Kernel Configuration", NULL);
- 
- 	//zconfdebug = 1;
- 	zconfparse();
-
-bye, Roman

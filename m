@@ -1,139 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVEaXeI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261200AbVEaXmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbVEaXeI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 19:34:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVEaXeI
+	id S261200AbVEaXmw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 19:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVEaXmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 19:34:08 -0400
-Received: from server132-han.de-nserver.de ([85.158.180.16]:46511 "EHLO
-	server132-han.de-nserver.de") by vger.kernel.org with ESMTP
-	id S261196AbVEaXdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 19:33:11 -0400
-X-User-Auth: Auth by mail@kristov.de through 145.254.150.77
-Message-ID: <429CF432.6020702@kristov.de>
-Date: Wed, 01 Jun 2005 01:33:06 +0200
-From: Christoph Schulz <develop@kristov.de>
-User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: perex@suse.cz
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] cs4236.c, kernel 2.6.11
-X-Enigmail-Version: 0.91.0.0
-Content-Type: multipart/mixed;
- boundary="------------020108040709040407090003"
+	Tue, 31 May 2005 19:42:52 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:35239 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261200AbVEaXmo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 19:42:44 -0400
+Subject: Re: RT patch acceptance
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Esben Nielsen <simlo@phys.au.dk>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, hch@infradead.org,
+       dwalker@mvista.com, Ingo Molnar <mingo@elte.hu>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, Andi Kleen <ak@muc.de>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       James Bruce <bruce@andrew.cmu.edu>
+In-Reply-To: <1117576067.23573.16.camel@mindpipe>
+References: <Pine.OSF.4.05.10505311347290.1707-100000@da410.phys.au.dk>
+	 <1117556283.2569.26.camel@localhost.localdomain>
+	 <20050531171143.GS5413@g5.random>
+	 <1117561379.2569.57.camel@localhost.localdomain>
+	 <20050531175152.GT5413@g5.random>
+	 <1117564192.2569.83.camel@localhost.localdomain>
+	 <20050531205424.GV5413@g5.random>
+	 <1117574551.5511.19.camel@localhost.localdomain>
+	 <1117576067.23573.16.camel@mindpipe>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Tue, 31 May 2005 19:41:27 -0400
+Message-Id: <1117582887.4749.6.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020108040709040407090003
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: 7bit
+On Tue, 2005-05-31 at 17:47 -0400, Lee Revell wrote:
+> On Tue, 2005-05-31 at 17:22 -0400, Steven Rostedt wrote:
+> > I wouldn't call RTAI, RTLinux or a nano-kernel (embedded with Linux)
+> > "Diamond" hard.  Maybe "Ruby" hard, but not diamond.  Remember, I use to
+> > test code that was running airplane engines, and none of those mentioned
+> > would qualify to run that.
+> 
+> I think trying to make these types of distinctions is a waste of time.
+> What matters is the MTBF of the software relative to the hardware on a
+> given system.  It would be stupid to use a commercial RTOS for a cell
+> phone because they fall apart in a year anyway and users don't seem to
+> care.  Ditto anything running on PC hardware.  For an airplane the MTBF
+> obviously must be more in line with that hardware which hopefully is way
+> more reliable.
 
-Hello,
+Agreed.  I only brought up the stupid names just to show that there's
+not a black and white aspect to what RT is.  It's mainly a black art
+since there's no way to know how many bugs a program has, and how do you
+truly calculate the MTBF, other than running it on the hardware itself?
 
-please consider attached patch for the cs4236.c driver module, located
-in sound/isa/cs423x/ in the Linux 2.6.11 kernel.
+> Only the engineer who designs the system knows for sure, so if the RT
+> app people say PREEMPT_RT is good enough for a *very* large set of the
+> applications that they currently need a commercial RTOS for, they should
+> be given the benefit of the doubt.  To say otherwise is to assert that
+> you know their hardware (be it desktop PC, digital audio workstation, or
+> airplane) better than they do.
 
-Background: The card/chipset supports an external MIDI interrupt. By
-default, this interrupt isn't used (because the isapnp mechanism chooses
-a configuration without an assigned interrupt). If the user wishes to
-explicitly select an interrupt via the mpu_irq parameter for such a
-configured device, it doesn't work: The driver always shows:
+True, but do they really know how good PREEMPT_RT is, compared to those
+that develop it and the kernel?  But I'm fighting to get PREEMPT_RT into
+the kernel, since I really think it would be used by quite a lot in the
+industry.  Just not the normal Desktop user.
 
-isapnp MPU: port=0x330, irq=-1
-
-(note the "irq=-1")
-
-Problem: The driver only allows to set the irq if pnp_irq_valid returns
-true for this particular pnp device. This, however, is only true if an
-interrupt has already been assigned (pnp_valid_irq returns true if the
-flag IORESOURCE_IRQ is set and IORESOURCE_UNSET is not set). If no
-interrupt has been assigned so far, IORESOURCE_UNSET is set and
-pnp_irq_valid returns false, thereby inhibiting the selection of a valid
-irq.
-
-Solution: Don't check for a valid (= already assigned) irq at the point
-of calling pnp_resource_change.
-
-Tested successfully on Linux 2.6.11.
-
-Before applying the patch:
-
-May 30 10:50:15 fenrir kernel: pnp: Device 01:01.00 activated.
-May 30 10:50:15 fenrir kernel: ALSA sound/isa/cs423x/cs4236.c:325:
-isapnp WSS: wss port=0x534, fm port=0x388, sb port=0x220
-May 30 10:50:15 fenrir kernel: ALSA sound/isa/cs423x/cs4236.c:327:
-isapnp WSS: irq=5, dma1=1, dma2=3
-May 30 10:50:15 fenrir kernel: pnp: Device 01:01.02 activated.
-May 30 10:50:15 fenrir kernel: ALSA sound/isa/cs423x/cs4236.c:344:
-isapnp CTRL: control port=0x120
-May 30 10:50:15 fenrir kernel: pnp: Device 01:01.03 activated.
-May 30 10:50:15 fenrir kernel: ALSA sound/isa/cs423x/cs4236.c:372:
-isapnp MPU: port=0x330, irq=-1
-May 30 10:50:15 fenrir kernel: ALSA sound/isa/cs423x/cs4231_lib.c:1053:
-cs4231: port = 0x534, id = 0xa
-May 30 10:50:15 fenrir kernel: ALSA sound/isa/cs423x/cs4231_lib.c:1059:
-CS4231: VERSION (I25) = 0x3
-May 30 10:50:15 fenrir kernel: ALSA sound/isa/cs423x/cs4231_lib.c:1128:
-CS4231: ext version; rev = 0xeb, id = 0xeb
-May 30 10:50:15 fenrir kernel: ALSA sound/isa/cs423x/cs4236_lib.c:300:
-CS4236: [0x120] C1 (version) = 0xeb, ext = 0xeb
-
-After applying the patch:
-
-May 30 12:06:46 fenrir kernel: pnp: Device 01:01.00 activated.
-May 30 12:06:46 fenrir kernel: ALSA sound/isa/cs423x/cs4236.c:325:
-isapnp WSS: wss port=0x534, fm port=0x388, sb port=0x220
-May 30 12:06:46 fenrir kernel: ALSA sound/isa/cs423x/cs4236.c:327:
-isapnp WSS: irq=5, dma1=1, dma2=3
-May 30 12:06:46 fenrir kernel: pnp: Device 01:01.02 activated.
-May 30 12:06:46 fenrir kernel: ALSA sound/isa/cs423x/cs4236.c:344:
-isapnp CTRL: control port=0x120
-May 30 12:06:46 fenrir kernel: pnp: Device 01:01.03 activated.
-May 30 12:06:46 fenrir kernel: ALSA sound/isa/cs423x/cs4236.c:371:
-isapnp MPU: port=0x330, irq=11
-May 30 12:06:46 fenrir kernel: ALSA sound/isa/cs423x/cs4231_lib.c:1053:
-cs4231: port = 0x534, id = 0xa
-May 30 12:06:46 fenrir kernel: ALSA sound/isa/cs423x/cs4231_lib.c:1059:
-CS4231: VERSION (I25) = 0x3
-May 30 12:06:46 fenrir kernel: ALSA sound/isa/cs423x/cs4231_lib.c:1128:
-CS4231: ext version; rev = 0xeb, id = 0xeb
-May 30 12:06:46 fenrir kernel: ALSA sound/isa/cs423x/cs4236_lib.c:300:
-CS4236: [0x120] C1 (version) = 0xeb, ext = 0xeb
-
-(note the "irq=11" after applying the patch)
-
-I am not a kernel developer, so I cannot guarantee that my observations
-are correct. Please feel free to contact me for further information
-and/or if I should have missed something. Please cc: to me if possible.
+-- Steve
 
 
-Regards,
-
-Christoph Schulz
-E-Mail: develop@kristov.de
-
-
---------------020108040709040407090003
-Content-Type: text/plain;
- name="cs4236-irq.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cs4236-irq.patch"
-
-diff -ur linux-2.6.11/sound/isa/cs423x/cs4236.c linux-2.6.11-patched/sound/isa/cs423x/cs4236.c
---- linux-2.6.11/sound/isa/cs423x/cs4236.c	2005-03-02 07:37:48.000000000 +0100
-+++ linux-2.6.11-patched/sound/isa/cs423x/cs4236.c	2005-05-31 14:31:07.040130710 +0200
-@@ -349,8 +349,7 @@
- 		pnp_init_resource_table(cfg);
- 		if (mpu_port[dev] != SNDRV_AUTO_PORT)
- 			pnp_resource_change(&cfg->port_resource[0], mpu_port[dev], 2);
--		if (mpu_irq[dev] != SNDRV_AUTO_IRQ && mpu_irq[dev] >= 0 &&
--		    pnp_irq_valid(pdev, 0))
-+		if (mpu_irq[dev] != SNDRV_AUTO_IRQ && mpu_irq[dev] >= 0)
- 			pnp_resource_change(&cfg->irq_resource[0], mpu_irq[dev], 1);
- 		err = pnp_manual_config_dev(pdev, cfg, 0);
- 		if (err < 0)
-
---------------020108040709040407090003--

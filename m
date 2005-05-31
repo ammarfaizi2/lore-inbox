@@ -1,81 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbVEaVL6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261506AbVEaVNM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261549AbVEaVL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 17:11:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVEaVL5
+	id S261506AbVEaVNM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 17:13:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVEaVNM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 17:11:57 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:29318 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261519AbVEaVLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 17:11:15 -0400
-Date: Tue, 31 May 2005 14:21:27 -0700
-From: Greg KH <gregkh@suse.de>
-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
-Cc: stable@kernel.org, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH] pci-sysfs: backport fix for 2.6.11.12
-Message-ID: <20050531212127.GA22455@suse.de>
-References: <20050531163619.GA6711@mellanox.co.il> <20050531192349.GA21050@suse.de> <20050531205729.GA7921@mellanox.co.il>
+	Tue, 31 May 2005 17:13:12 -0400
+Received: from free.hands.com ([83.142.228.128]:17552 "EHLO open.hands.com")
+	by vger.kernel.org with ESMTP id S261506AbVEaVMl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 17:12:41 -0400
+Date: Tue, 31 May 2005 22:21:12 +0100
+From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
+To: Ivan Gyurdiev <ivg2@cornell.edu>
+Cc: Karl MacMillan <kmacmillan@tresys.com>,
+       "'Stephen Smalley'" <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov,
+       dwalsh@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: file_type_auto_trans is not sufficient
+Message-ID: <20050531212112.GF11815@lkcl.net>
+Mail-Followup-To: Ivan Gyurdiev <ivg2@cornell.edu>,
+	Karl MacMillan <kmacmillan@tresys.com>,
+	'Stephen Smalley' <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov,
+	dwalsh@redhat.com, linux-kernel@vger.kernel.org
+References: <200505311412.j4VECK5F030983@gotham.columbia.tresys.com> <1117551440.15167.25.camel@dhcp83-8.boston.redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050531205729.GA7921@mellanox.co.il>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <1117551440.15167.25.camel@dhcp83-8.boston.redhat.com>
+User-Agent: Mutt/1.5.5.1+cvs20040105i
+X-hands-com-MailScanner: Found to be clean
+X-MailScanner-From: lkcl@lkcl.net
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 31, 2005 at 11:57:29PM +0300, Michael S. Tsirkin wrote:
-> Quoting r. Greg KH <gregkh@suse.de>:
-> > Subject: Re: [PATCH] pci-sysfs: backport fix for 2.6.11.12
-> > 
-> > On Tue, May 31, 2005 at 07:36:19PM +0300, Michael S. Tsirkin wrote:
-> > > Greg, before 2.6.12, pci_write_config in pci-sysfs.c was broken, causing
-> > > incorrect data being written to the configuration register,
-> > > which in the case of my userspace driver results in system failure.
-> > > 
-> > > This has been fixed in 2.6.12-rc5:
-> > > 
-> > > http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.6%2Ftesting%2Fpatch-2.6.12-rc5.bz2;z=2656
-> > > 
-> > > Would you please consider merging the fix for 2.6.11.12 as well?
-> > 
-> > Would you care to split out only the proper part for that fix?  There
-> > are a few different patches in that link above.
+On Tue, May 31, 2005 at 10:57:20AM -0400, Ivan Gyurdiev wrote:
 > 
-> Hmm. There's also a new attribute there, that shall wait for 2.6.12.
-
-Yes, please remember, different patches can touch the same file :)
-
-> There was a general cleanup coverting *all* direct uses of char* to
-> first cast to u8 *, not only in pci_write_config where it triggers
-> an actual bug. Do you want all that cleanup in?
-> I can do it, just let me know.
-
-Well, I don't think that just applying one part of the whole main patch
-is a good idea at all.  Either do it all or not at all.  The original
-patch can be found at:
-http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=4c0619add8c3a8b28e7fae8b15cc7b62de2f8148
-
-Along with the proper description and signed-off-by lines.
-
-> > > Alternatively (since there were multiple other changes in pci-sysfs.c), here's
-> > > a small patch to fix just this issue.
-> > 
-> > I don't think this fixes the problem properly.  Can you verify it?
+> > The other option, of course, is to change the applications to use/create many
+> > more directories, each with a separate type to allow the file_type_auto_trans
+> > rules to work. Your orbit example might mean that there is a /tmp/orbit
+> > directory where all orbit files are created.
 > 
-> I did verify it before sending :), my patch below does fix the problem.
+> The problem is not multiple source domains - that can be addressed
+> through macros. The problem is that those domains use the same directory
+> (Usually /tmp, or /home), for their own purposes, and they need the same
+> transition (same directory and target class (dir/file)). 
+> 
+> Because you can have only one transition, this creates a problem.
+ 
+ ...
 
-But it doesn't fix the main problem, right?
+ thinking "sideways" again - as i am wont to do.
 
-Honestly, this problem has been around for so long, with no real
-complaints from anyone (all the distros already patched this fix a long
-time ago), and it's too big for the -stable rules, that I do not think
-it should go in.
+ how about... a "sideways" solution to this - at the kernel level?
 
-So no, if you really need this fix, use 2.6.12, or a disto kernel, your
-fix is not correct.
+ a "silent" redirection / remount, on a per-application basis?
 
-thanks,
+ no, i'm not joking.
 
-greg k-h
+ an option to "mount" which allows a specific APPLICATION (or group of
+ applications) to have any files/directories it creates/accesses in a
+ subdirectory ACTUALLY occur ELSEWHERE.
+
+ e.g.:
+
+ mount -o redirectexe=/usr/bin/mozilla-firefox /tmp /tmp/mozilla
+ mount -o redirectexe=/usr/bin/gnomeshite,/usr/bin/gnomemoreshite /tmp /tmp/gconf
+
+ hm, that could get out-of-hand - the number of programs involved
+ that would need redirection..
+
+ *thinks* ... some other mechanism for "grouping" executables...
+
+ you could even hang it off of an selinux context (!) or selinux domain
+ (!) such that a set of executables, possibly those executed by
+ certain users, would result in filesystem redirection - but not others.
+
+ at your own discretion.
+
+ then, you _could_ specify /tmp/gconf equals "a different file context".
+
+ l.
+

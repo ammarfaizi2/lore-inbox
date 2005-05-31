@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261989AbVEaR1s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVEaR3G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261989AbVEaR1s (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 13:27:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbVEaR1s
+	id S261899AbVEaR3G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 13:29:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbVEaR3G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 13:27:48 -0400
-Received: from fire.osdl.org ([65.172.181.4]:46007 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262009AbVEaRXf (ORCPT
+	Tue, 31 May 2005 13:29:06 -0400
+Received: from hummeroutlaws.com ([12.161.0.3]:7940 "EHLO atpro.com")
+	by vger.kernel.org with ESMTP id S261899AbVEaR2f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 13:23:35 -0400
-Date: Tue, 31 May 2005 10:24:58 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Pekka Enberg <penberg@cs.helsinki.fi>
-cc: Ingo Molnar <mingo@elte.hu>, Pekka Enberg <penberg@gmail.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Machine Freezes while Running Crossover Office
-In-Reply-To: <1117558435.9228.7.camel@localhost>
-Message-ID: <Pine.LNX.4.58.0505311010410.1876@ppc970.osdl.org>
-References: <1117291619.9665.6.camel@localhost>  <Pine.LNX.4.58.0505291059540.10545@ppc970.osdl.org>
-  <84144f0205052911202863ecd5@mail.gmail.com>  <Pine.LNX.4.58.0505291143350.10545@ppc970.osdl.org>
-  <1117399764.9619.12.camel@localhost>  <Pine.LNX.4.58.0505291543070.10545@ppc970.osdl.org>
-  <1117466611.9323.6.camel@localhost>  <Pine.LNX.4.58.0505301024080.10545@ppc970.osdl.org>
-  <courier.429C05C1.00005CC5@courier.cs.helsinki.fi>  <20050531065456.GA21948@elte.hu>
- <1117558435.9228.7.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 31 May 2005 13:28:35 -0400
+From: "Jim Crilly" <jim@why.dont.jablowme.net>
+Date: Tue, 31 May 2005 13:22:04 -0400
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: mrmacman_g4@mac.com, toon@hout.vanvergehaald.nl, ltd@cisco.com,
+       linux-kernel@vger.kernel.org, dtor_core@ameritech.net, 7eggert@gmx.de
+Subject: Re: OT] Joerg Schilling flames Linux on his Blog
+Message-ID: <20050531172204.GD17338@voodoo>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	mrmacman_g4@mac.com, toon@hout.vanvergehaald.nl, ltd@cisco.com,
+	linux-kernel@vger.kernel.org, dtor_core@ameritech.net, 7eggert@gmx.de
+References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com> <20050530093420.GB15347@hout.vanvergehaald.nl> <429B0683.nail5764GYTVC@burner> <46BE0C64-1246-4259-914B-379071712F01@mac.com> <429C4483.nail5X0215WJQ@burner>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <429C4483.nail5X0215WJQ@burner>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 31 May 2005, Pekka Enberg wrote:
+On 05/31/05 01:03:31PM +0200, Joerg Schilling wrote:
 > 
-> On Tue, 2005-05-31 at 08:54 +0200, Ingo Molnar wrote:
-> > - apply the patch below and check whether doing:
-> > 
-> >    echo 0 > /proc/sys/kernel/interactive
-> > 
-> >   makes the hang go away.
+> > And why again do you need stable SCSI addresses for my _USB_ drive?
 > 
-> It's actually /proc/sys/vm/interactive but yes, 0 makes the hang go away
-> while 1 makes it come back.
+> Well if the udev program was polite to users, it would also support
+> to edit /etc/default/cdrecord...... 
+> 
+> ... if it _really_ does wat you like with /dev/ links, then it has all 
+> the information that is needed to also maintain /etc/default/cdrecord
 
-Ok, it's a scheduler bug.
+The rules and scripts that udev uses to name things can do anything since
+it runs in userland, so udev could easily edit /etc/default/cdrecord if
+someone took the time to write the script.
 
-The pipe thing is probably implicated only because it ends up changing
-some timing just enough to make the interactivity tester trigger (ie doing
-reads/writes in bigger blocks makes the frequency of the ping-pong between
-wineserver and wine different, and then it ends up hitting some harmonic
-sweet spot with the timer that makes the scheduler believe it's
-interactive).
-
-In fact, I suspect it ends up marking things "interactive" because they do
-sleep longer - both of the parties sleep longer because the other end ends
-up spending more time handling the work, since the pipe buffers are bigger
-(so they sleep longer because they are _awake_ longer).
-
-Ingo, any ideas? This is bothersome, because it could hit any number of
-people, and we'd never have realized because it's not usually repeatable
-and not usually quite that extreme. But if it can trigger 15-second dead
-periods in very specific circumstances, it can probably trigger 
-half-second dead periods much more easily. Things that people would assume 
-were due to disk IO or VM badness..
-
-		Linus
+Jim.

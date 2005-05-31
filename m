@@ -1,53 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbVEaTrK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVEaTtz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261342AbVEaTrK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 15:47:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVEaTrK
+	id S261354AbVEaTtz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 15:49:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261400AbVEaTtz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 15:47:10 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:55203 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261342AbVEaTrG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 15:47:06 -0400
-Subject: Re: RT : 2.6.12rc5 + realtime-preempt-2.6.12-rc5-V0.7.47-15
-From: Lee Revell <rlrevell@joe-job.com>
-To: Serge Noiraud <serge.noiraud@bull.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <1117551231.19367.48.camel@ibiza.btsn.frna.bull.fr>
-References: <1117551231.19367.48.camel@ibiza.btsn.frna.bull.fr>
-Content-Type: text/plain
-Date: Tue, 31 May 2005 15:47:04 -0400
-Message-Id: <1117568825.23283.5.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
+	Tue, 31 May 2005 15:49:55 -0400
+Received: from moutvdom.kundenserver.de ([212.227.126.249]:51962 "EHLO
+	moutvdomng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261354AbVEaTtx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 15:49:53 -0400
+Message-ID: <429CBFE6.7030107@robotech.de>
+Date: Tue, 31 May 2005 21:49:58 +0200
+From: Tobias Reinhard <tracer@robotech.de>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Problem with concurrent SATA-Writes
+References: <429C9BFA.5090901@robotech.de> <20050531190008.GJ23621@csclub.uwaterloo.ca>
+In-Reply-To: <20050531190008.GJ23621@csclub.uwaterloo.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-31 at 16:53 +0200, Serge Noiraud wrote:
-> I have a test program which made a loop in RT to mesure the system
-> perturbation.
-> It works finely in a tty environment.
-> When I run it in an X environment ( xterm ), I get something like if I
-> click the Enter key in the active window.
-> If I open a new xterm, this is the new active window which receive these
-> events.
-> These events stop when the program stop.
-> 
-> I tried with X in RT and no RT : I have the problem.
+Lennart Sorensen wrote:
+ > Might it be a problem with having two things using /dev/zero at the same
+ > time?
+No, dding from /dev/zero two times at the same time is working perfectly
 
-Try adding:
+ > What blocksize do you use with dd?
+Generally I use 1M. But the Problem is the same with 128k or with 4k
 
-Option "NoAccel"
+ > What happens if you do dd from /dev/zero to two different files on one
+ > of the hds (with some filesystem on the drive obviously)?
+I did it without a FS on it and its no problem to write at two different 
+locations - as long as they are on one disc.
 
-to the Driver section of your X config.
+It seems to me that the driver has problems with handling two 
+write-requests on two ports at the same time.
 
-Some buggy video drivers can stall the PCI bus for tens or hundreds of
-*milliseconds*.  The "via" driver had this problem until I identified
-the problem and the Unichrome guys fixed it.  If it goes away with
-"NoAccel", then you are having the same problem.
-
-For details search the unichrome-devel archives for "losing interrupts".
-
-Lee
-
+Tobias

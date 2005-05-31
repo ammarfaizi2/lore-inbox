@@ -1,40 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbVEaObI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbVEaObD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbVEaObI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 10:31:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVEaObI
+	id S261723AbVEaObD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 10:31:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261733AbVEaObC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 10:31:08 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:60743
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S261680AbVEaObB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 10:31:01 -0400
-Date: Tue, 31 May 2005 16:30:51 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: James Bruce <bruce@andrew.cmu.edu>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, "Bill Huey (hui)" <bhuey@lnxw.com>,
-       Andi Kleen <ak@muc.de>, Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-Message-ID: <20050531143051.GL5413@g5.random>
-References: <4299A98D.1080805@andrew.cmu.edu> <429ADEDD.4020805@yahoo.com.au> <429B1898.8040805@andrew.cmu.edu> <429B2160.7010005@yahoo.com.au> <20050530222747.GB9972@nietzsche.lynx.com> <429BBC2D.70406@yahoo.com.au> <20050531020957.GA10814@nietzsche.lynx.com> <429C2A64.1040204@andrew.cmu.edu> <429C2F72.7060300@yahoo.com.au> <429C4112.2010808@andrew.cmu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <429C4112.2010808@andrew.cmu.edu>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.9i
+	Tue, 31 May 2005 10:31:02 -0400
+Received: from 65-102-103-67.albq.qwest.net ([65.102.103.67]:18659 "EHLO
+	montezuma.fsmlabs.com") by vger.kernel.org with ESMTP
+	id S261723AbVEaOa4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 10:30:56 -0400
+Date: Tue, 31 May 2005 08:34:28 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+cc: jayush luniya <jayu_11@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: HOTPLUG CPU Support for SMT
+In-Reply-To: <20050531051730.GA5845@in.ibm.com>
+Message-ID: <Pine.LNX.4.61.0505310832380.12903@montezuma.fsmlabs.com>
+References: <20050530152534.21912.qmail@web32806.mail.mud.yahoo.com>
+ <Pine.LNX.4.61.0505301050141.12903@montezuma.fsmlabs.com>
+ <20050531051730.GA5845@in.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 31, 2005 at 06:48:50AM -0400, James Bruce wrote:
-> orthogonal, because *if* preempt-RT patch becomes guaranteed hard-RT, it 
+On Tue, 31 May 2005, Srivatsa Vaddagiri wrote:
 
-I don't see how can preempt-RT ever become hard-RT when a simple lock
-hangs it. As soon as you call kernel code, you'll eventually hang,
-kmalloc will have to allocate memory and pageout other stuff no matter
-what.
+> On Mon, May 30, 2005 at 04:50:27PM +0000, Zwane Mwaikambo wrote:
+> > Yes, older 2.6-mm kernel (2.6.10-mm) trees have the "toy" i386 hotplug 
+> > cpu implementation which does what you want.
+> 
+> AFAIK in the i386 "toy" implementation, when a CPU is offlined, it stops
+> taking interrupts and stops running tasks, but it _still_ executes a while
+> loop in the context of its idle task (with IRQs disabled). The loop
+> is exited when we have to bring online the CPU again. What this means is 
+> I don't think by offlining the CPU, we are removing any activity associated
+> with the corresponding h/w thread. 
+> 
+> Maybe the toy implementation could be modified to take care of it? Something
+> like lowering the priority of the h/w thread so that it consumes minimal 
+> CPU resources to execute its while loop.
 
-I really hope embedded developers knows better and they don't get the
-idea of using preempt-RT where hard-RT is required.
+A cpu_relax() there would help greatly and essentially "drops" the 
+priority of the processor executing it (since 'pause' is a hint that that 
+logical processor would like to yield execution resources), although there 
+would still be traffic due to accessing get_cpu_var, which should be minimal as 
+it'll be at most 1 non shared cacheline so you could account for it in the 
+statement of errors. I used to have a personal implementation for one of 
+the systems i use which does a hlt in that loop and i wake up the 
+procsesor via IPI. So perhaps some kernel hacking might be required 
+(albeit minimal) ;)
+
+	Zwane
+

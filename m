@@ -1,63 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVEaTJz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVEaTNO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbVEaTJz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 15:09:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVEaTIw
+	id S261285AbVEaTNO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 15:13:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVEaTNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 15:08:52 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:953 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261184AbVEaTF5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 15:05:57 -0400
-Date: Tue, 31 May 2005 15:05:56 -0400
-To: Gerd Knorr <kraxel@suse.de>
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, mrmacman_g4@mac.com,
-       toon@hout.vanvergehaald.nl, ltd@cisco.com, linux-kernel@vger.kernel.org,
-       dtor_core@ameritech.net, 7eggert@gmx.de
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Message-ID: <20050531190556.GK23621@csclub.uwaterloo.ca>
-References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com> <20050530093420.GB15347@hout.vanvergehaald.nl> <429B0683.nail5764GYTVC@burner> <46BE0C64-1246-4259-914B-379071712F01@mac.com> <429C4483.nail5X0215WJQ@burner> <87acmbxrfu.fsf@bytesex.org>
+	Tue, 31 May 2005 15:13:13 -0400
+Received: from ultra7.eskimo.com ([204.122.16.70]:31239 "EHLO
+	ultra7.eskimo.com") by vger.kernel.org with ESMTP id S261285AbVEaTLu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 15:11:50 -0400
+Date: Tue, 31 May 2005 12:10:39 -0700
+From: Elladan <elladan@eskimo.com>
+To: James Bruce <bruce@andrew.cmu.edu>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, "Bill Huey (hui)" <bhuey@lnxw.com>,
+       Andi Kleen <ak@muc.de>, Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+Message-ID: <20050531191039.GV1680@eskimo.com>
+References: <429715DE.6030008@yahoo.com.au> <20050527233645.GA2283@nietzsche.lynx.com> <4297EB57.5090902@yahoo.com.au> <20050528054503.GA2958@nietzsche.lynx.com> <42981467.6020409@yahoo.com.au> <4299A98D.1080805@andrew.cmu.edu> <429ADEDD.4020805@yahoo.com.au> <429B1898.8040805@andrew.cmu.edu> <429B2160.7010005@yahoo.com.au> <429BA27A.5010406@andrew.cmu.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87acmbxrfu.fsf@bytesex.org>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+In-Reply-To: <429BA27A.5010406@andrew.cmu.edu>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 31, 2005 at 06:59:01PM +0200, Gerd Knorr wrote:
-> Not really.  Yes, it runs on different operating systems.  But to send
-> the SCSI commands to the device you have OS-specific code in there,
-> simply because it's handled in different ways on Solaris / Linux /
-> whatever OS.  You could make the device addressing OS-specific as well
-> instead of expecting everyone in the world follow the Solaris model,
-> that would make life a bit easier for everyone involved.
+On Mon, May 30, 2005 at 07:32:10PM -0400, James Bruce wrote:
+> Nick Piggin wrote:
+> >Sorry James, we were talking about hard realtime. Read the thread.
 > 
-> Addressing IDE devices (try to get a real SCSI burner these days)
-> using scsi host+target+lun is sort-of silly IMHO ...
+> hard realtime = mathematically provable maximum latency
+> 
+> Yes, you'll want a nanokernel for that, you're right.  That's because 
+> one has to analyze every line of code, and protect against introduced 
+> regressions, which is almost impossible given the pace that Linux-proper 
+> is developed.  Then there's the other 95% of applications, for which a 
+> "statistical RT" approach such as used in the RT patch suffice.  So 
+> arguing for a nanokernel for (provable) hard realtime is orthogonal to 
+> the discussion of this patch, and we apparently don't actually disagree.
 
-Well I remember the first time I saw devfs running, I thought "Wow
-finally I have a way to find the disc that is scsi id 3 on controller 0
-even if I add a device at id 2 after setting up the system", something
-most unix systems have always had, but linux made hard (you had to
-somehow figure out which id mapped to which /dev/sd* entry, which from a
-users perspective wasn't trivial, and of course keeping your fstab in
-sync with the mapping was a pain).
+In the real world, this isn't really possible.  Ideally, you'd like to be able
+to offer some proof of correctness for the software, but this isn't actually
+going to get you provable maximum latency, because you can't prove the
+hardware.  
 
-I think sysfs can do it too, although I haven't looked to much at sysfs
-yet.
+Even with perfect software, the hardware is subject to cosmic rays, bad design,
+etc.  Even if you strongly control the hardware for latency, eg.  turn off
+cache and try to make sure everything is measurable, in the end the real proof
+that your device does what it says it does is measurement.  If the RTOS
+guarantees aren't violated during testing, or at best, in a time period
+comparable to the failure rate of the hardware, that's "good enough."
 
-For IDE devices the /dev entry always mapped to a specific device
-(modulo your ide drivers loading in a consistant order, but scsi host
-controller load order has the same issue).  Scsi just assigned /dev
-entries in the order devices were discovered.  In some ways it is handy
-to know your first scsi drive is sda if you are doing raid1 or something
-and a drive dies, but on the other hand it is annoying that drives move
-around if you add drives with a lower id than your existing drives.
-Having both would be preferable.
+Given that hardware is always subject to failure or flakiness, the more
+practical distinction between "hard" and "soft" realtime is whether the failure
+rate is measurable or is lost in the noise of other failure modes such as
+hardware.  "Soft" RT typically means that the failure rate is measurable but
+may be sufficient for particular tasks, and in comparison "hard" means the
+software is thought to be correct within your ability to measure.
 
-I don't know if the ide or scsi method is currently more sane, but it
-sure would be nice to have a consistent behaviour between the two.
+Certainly there's a lot of value for some applications in trying to control the
+software well enough that all the latencies can be understood and characterized
+by inspection, but on any sort of consumer commodity hardware system this is
+really not going to buy you much.  There are so many potential latencies just
+due to wacky hardware that even a "perfect" RTOS is going to be subject to all
+sorts of weird latencies and bizarre issues eg. with interrupt routing and CPU
+thermal control and the like.  
 
-Len Sorensen
+Showing that the application works as intended is really just going to be a
+matter of showing that on a particular system, the latency requirements are met
+under load.  Which is exactly a sort of statistical approach.  For almost all
+"PC" applications that need realtime, this is exactly what's desired.
+
+And clearly, the ultimate test of any RT system is exactly a "statistical" test
+- can it be measured to fail, and if so, why and how often?
+
+For limited embedded applications, a "hard" nanokernel approach can certainly
+lead to higher confidence that the device works as intended, but for anything
+outside of embedded products it's really not very practical.  Nobody's going to
+run their desktop OS under a nanokernel just to make their DVD software work
+right.
+
+-J

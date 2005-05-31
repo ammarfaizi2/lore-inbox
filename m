@@ -1,43 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVEaVH1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbVEaVL6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261492AbVEaVH1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 17:07:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261495AbVEaVH1
+	id S261549AbVEaVL6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 17:11:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVEaVL5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 17:07:27 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:2248 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261492AbVEaVHP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 17:07:15 -0400
-Date: Tue, 31 May 2005 13:18:10 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: linux-kernel@vger.kernel.org
-Subject: Linux 2.4.31-rc2
-Message-ID: <20050531161810.GA6280@logos.cnet>
+	Tue, 31 May 2005 17:11:57 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:29318 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261519AbVEaVLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 17:11:15 -0400
+Date: Tue, 31 May 2005 14:21:27 -0700
+From: Greg KH <gregkh@suse.de>
+To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+Cc: stable@kernel.org, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH] pci-sysfs: backport fix for 2.6.11.12
+Message-ID: <20050531212127.GA22455@suse.de>
+References: <20050531163619.GA6711@mellanox.co.il> <20050531192349.GA21050@suse.de> <20050531205729.GA7921@mellanox.co.il>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20050531205729.GA7921@mellanox.co.il>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, May 31, 2005 at 11:57:29PM +0300, Michael S. Tsirkin wrote:
+> Quoting r. Greg KH <gregkh@suse.de>:
+> > Subject: Re: [PATCH] pci-sysfs: backport fix for 2.6.11.12
+> > 
+> > On Tue, May 31, 2005 at 07:36:19PM +0300, Michael S. Tsirkin wrote:
+> > > Greg, before 2.6.12, pci_write_config in pci-sysfs.c was broken, causing
+> > > incorrect data being written to the configuration register,
+> > > which in the case of my userspace driver results in system failure.
+> > > 
+> > > This has been fixed in 2.6.12-rc5:
+> > > 
+> > > http://www.kernel.org/diff/diffview.cgi?file=%2Fpub%2Flinux%2Fkernel%2Fv2.6%2Ftesting%2Fpatch-2.6.12-rc5.bz2;z=2656
+> > > 
+> > > Would you please consider merging the fix for 2.6.11.12 as well?
+> > 
+> > Would you care to split out only the proper part for that fix?  There
+> > are a few different patches in that link above.
+> 
+> Hmm. There's also a new attribute there, that shall wait for 2.6.12.
 
-Here goes the second release candidate for v2.4.31.
+Yes, please remember, different patches can touch the same file :)
 
-It incorporates two small hardening fixes from Willy's -hotfix tree.
+> There was a general cleanup coverting *all* direct uses of char* to
+> first cast to u8 *, not only in pci_write_config where it triggers
+> an actual bug. Do you want all that cleanup in?
+> I can do it, just let me know.
 
-v2.4.31 will follow shortly.
+Well, I don't think that just applying one part of the whole main patch
+is a good idea at all.  Either do it all or not at all.  The original
+patch can be found at:
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=4c0619add8c3a8b28e7fae8b15cc7b62de2f8148
 
-PS: beginning from v2.4.31 the v2.4 tree will reside in a GIT repository.
+Along with the proper description and signed-off-by lines.
 
-Summary of changes from v2.4.31-rc1 to v2.4.31-rc2
-============================================
+> > > Alternatively (since there were multiple other changes in pci-sysfs.c), here's
+> > > a small patch to fix just this issue.
+> > 
+> > I don't think this fixes the problem properly.  Can you verify it?
+> 
+> I did verify it before sending :), my patch below does fix the problem.
 
-Marcelo Tosatti:
-  o Change VERSION to 2.4.31-rc2
+But it doesn't fix the main problem, right?
 
-Willy Tarreau:
-  o off-by-one in mtrr.c found by Brad Spengler and reported by Julien Tinnes
-  o IPVS: Replace several unchecked strcpy() with strncpy() (PaX team)
+Honestly, this problem has been around for so long, with no real
+complaints from anyone (all the distros already patched this fix a long
+time ago), and it's too big for the -stable rules, that I do not think
+it should go in.
 
+So no, if you really need this fix, use 2.6.12, or a disto kernel, your
+fix is not correct.
+
+thanks,
+
+greg k-h

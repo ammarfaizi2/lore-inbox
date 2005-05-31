@@ -1,247 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261183AbVEaXWv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVEaXeI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261183AbVEaXWv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 19:22:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVEaXWv
+	id S261196AbVEaXeI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 19:34:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVEaXeI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 19:22:51 -0400
-Received: from mail.kroah.org ([69.55.234.183]:11191 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261183AbVEaXWG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 19:22:06 -0400
-Date: Tue, 31 May 2005 16:32:15 -0700
-From: Greg KH <greg@kroah.com>
-To: dmitry pervushin <dpervushin@ru.mvista.com>
-Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-Subject: Re: [RFC] SPI core
-Message-ID: <20050531233215.GB23881@kroah.com>
-References: <1117555756.4715.17.camel@diimka.dev.rtsoft.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1117555756.4715.17.camel@diimka.dev.rtsoft.ru>
-User-Agent: Mutt/1.5.8i
+	Tue, 31 May 2005 19:34:08 -0400
+Received: from server132-han.de-nserver.de ([85.158.180.16]:46511 "EHLO
+	server132-han.de-nserver.de") by vger.kernel.org with ESMTP
+	id S261196AbVEaXdL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 19:33:11 -0400
+X-User-Auth: Auth by mail@kristov.de through 145.254.150.77
+Message-ID: <429CF432.6020702@kristov.de>
+Date: Wed, 01 Jun 2005 01:33:06 +0200
+From: Christoph Schulz <develop@kristov.de>
+User-Agent: Mozilla Thunderbird 1.0 (Windows/20041206)
+X-Accept-Language: de-DE, de, en-us, en
+MIME-Version: 1.0
+To: perex@suse.cz
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] cs4236.c, kernel 2.6.11
+X-Enigmail-Version: 0.91.0.0
+Content-Type: multipart/mixed;
+ boundary="------------020108040709040407090003"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 31, 2005 at 08:09:16PM +0400, dmitry pervushin wrote:
-> Hello guys,
-> 
-> In order to support the specific board, we have ported the generic SPI
-> core to the 2.6 kernel. This core provides basic API to create/manage
-> SPI devices like the I2C core does. We need to continue providing
-> support of SPI devices and would like to maintain the SPI subtree. It
-> would be nice if SPI core patch were applied to the vanilla kernel.
-> I2C people do not like to mainain this code as well as I2C, so...
+This is a multi-part message in MIME format.
+--------------020108040709040407090003
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 
-What do you mean by this?  Which i2c people?
+Hello,
 
-Is this code intergrated into the driver model?
-What does the /sys/ tree look like?
-Why are you using a char device node?
+please consider attached patch for the cs4236.c driver module, located
+in sound/isa/cs423x/ in the Linux 2.6.11 kernel.
 
-> +/**
-> + * spi_add_adapter - register a new SPI bus adapter
-> + * @adap: spi_adapter structure for the registering adapter
-> + *
-> + * Make the adapter available for use by clients using name adap->name.
-> + * The adap->adapters list is initialised by this function.
-> + *
-> + * Returns 0;
+Background: The card/chipset supports an external MIDI interrupt. By
+default, this interrupt isn't used (because the isapnp mechanism chooses
+a configuration without an assigned interrupt). If the user wishes to
+explicitly select an interrupt via the mpu_irq parameter for such a
+configured device, it doesn't work: The driver always shows:
 
-You have this a lot.  If the function can not fail, just make it a void
-type :)
+isapnp MPU: port=0x330, irq=-1
 
-> +int spi_add_adapter(struct spi_adapter *adap)
-> +{
-> +	struct list_head *l;
-> +
-> +	INIT_LIST_HEAD(&adap->clients);
-> +	down(&adapter_lock);
-> +	init_MUTEX(&adap->lock);
-> +	list_add(&adap->adapters, &adapter_list);
-> +	up(&adapter_lock);
-> +
-> +	list_for_each(l, &driver_list) {
+(note the "irq=-1")
 
-list_for_each_entry() please.
+Problem: The driver only allows to set the irq if pnp_irq_valid returns
+true for this particular pnp device. This, however, is only true if an
+interrupt has already been assigned (pnp_valid_irq returns true if the
+flag IORESOURCE_IRQ is set and IORESOURCE_UNSET is not set). If no
+interrupt has been assigned so far, IORESOURCE_UNSET is set and
+pnp_irq_valid returns false, thereby inhibiting the selection of a valid
+irq.
 
-> +		struct spi_driver *drv =
-> +		    list_entry(l, struct spi_driver, drivers);
-> +
-> +		if (drv->attach_adapter)
-> +			drv->attach_adapter(adap);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +/**
-> + * spi_del_adapter - unregister a SPI bus adapter
-> + * @adap: spi_adapter structure to unregister
-> + *
-> + * Remove an adapter from the list of available SPI Bus adapters.
-> + *
-> + * Returns 0;
-> + */
-> +int spi_del_adapter(struct spi_adapter *adap)
-> +{
-> +	struct list_head *l;
-> +
-> +	down(&adapter_lock);
-> +	list_del(&adap->adapters);
-> +	up(&adapter_lock);
-> +
-> +	list_for_each(l, &driver_list) {
-> +		struct spi_driver *drv =
-> +		    list_entry(l, struct spi_driver, drivers);
-> +
-> +		if (drv->detach_adapter)
-> +			drv->detach_adapter(adap);
-> +	}
-> +
-> +	return 0;
-> +}
-> +
-> +/**
-> + * spi_get_adapter - get a reference to an adapter
-> + * @id: driver id
-> + *
-> + * Obtain a spi_adapter structure for the specified adapter.  If the adapter
-> + * is not currently load, then load it.  The adapter will be locked in core
-> + * until all references are released via spi_put_adapter.
-> + */
-> +struct spi_adapter *spi_get_adapter(int id)
-> +{
-> +	struct list_head *item;
-> +	struct spi_adapter *adapter;
-> +
-> +	down(&adapter_lock);
-> +	list_for_each(item, &adapter_list) {
-> +		adapter = list_entry(item, struct spi_adapter, adapters);
-> +		if (id == adapter->nr && try_module_get(adapter->owner)) {
-> +			up(&adapter_lock);
-> +			return adapter;
-> +		}
-> +	}
-> +	up(&adapter_lock);
-> +	return NULL;
-> +
-> +}
+Solution: Don't check for a valid (= already assigned) irq at the point
+of calling pnp_resource_change.
 
-Hm, that comment is not correct.  Please fix it as nothing is "loaded".
+Tested successfully on Linux 2.6.11.
 
-> +/**
-> + * spi_put_adapter - release a reference to an adapter
-> + * @adap: driver to release reference
-> + *
-> + * Indicate to the SPI core that you no longer require the adapter reference.
-> + * The adapter module may be unloaded when there are no references to its
-> + * data structure.
-> + *
-> + * You must not use the reference after calling this function.
-> + */
-> +void spi_put_adapter(struct spi_adapter *adap)
-> +{
-> +	if (adap && adap->owner)
-> +		module_put(adap->owner);
-> +}
+Before applying the patch:
 
-Then why not use the traditional kref style of reference counting?  That
-ensures that if you try to use the reference, bad things will happen?
-Right now all you are doing is relying on module references, and you
-aren't cleaning up the memory.
+May 30 10:50:15 fenrir kernel: pnp: Device 01:01.00 activated.
+May 30 10:50:15 fenrir kernel: ALSA sound/isa/cs423x/cs4236.c:325:
+isapnp WSS: wss port=0x534, fm port=0x388, sb port=0x220
+May 30 10:50:15 fenrir kernel: ALSA sound/isa/cs423x/cs4236.c:327:
+isapnp WSS: irq=5, dma1=1, dma2=3
+May 30 10:50:15 fenrir kernel: pnp: Device 01:01.02 activated.
+May 30 10:50:15 fenrir kernel: ALSA sound/isa/cs423x/cs4236.c:344:
+isapnp CTRL: control port=0x120
+May 30 10:50:15 fenrir kernel: pnp: Device 01:01.03 activated.
+May 30 10:50:15 fenrir kernel: ALSA sound/isa/cs423x/cs4236.c:372:
+isapnp MPU: port=0x330, irq=-1
+May 30 10:50:15 fenrir kernel: ALSA sound/isa/cs423x/cs4231_lib.c:1053:
+cs4231: port = 0x534, id = 0xa
+May 30 10:50:15 fenrir kernel: ALSA sound/isa/cs423x/cs4231_lib.c:1059:
+CS4231: VERSION (I25) = 0x3
+May 30 10:50:15 fenrir kernel: ALSA sound/isa/cs423x/cs4231_lib.c:1128:
+CS4231: ext version; rev = 0xeb, id = 0xeb
+May 30 10:50:15 fenrir kernel: ALSA sound/isa/cs423x/cs4236_lib.c:300:
+CS4236: [0x120] C1 (version) = 0xeb, ext = 0xeb
 
-> +EXPORT_SYMBOL(spi_add_adapter);
-> +EXPORT_SYMBOL(spi_del_adapter);
-> +EXPORT_SYMBOL(spi_get_adapter);
-> +EXPORT_SYMBOL(spi_put_adapter);
-> +
-> +EXPORT_SYMBOL(spi_add_driver);
-> +EXPORT_SYMBOL(spi_del_driver);
-> +EXPORT_SYMBOL(spi_get_driver);
-> +EXPORT_SYMBOL(spi_put_driver);
-> +
-> +EXPORT_SYMBOL(spi_attach_client);
-> +EXPORT_SYMBOL(spi_detach_client);
-> +
-> +EXPORT_SYMBOL(spi_transfer);
-> +EXPORT_SYMBOL(spi_write);
-> +EXPORT_SYMBOL(spi_read);
+After applying the patch:
 
-EXPORT_SYMBOL_GPL() perhaps?
+May 30 12:06:46 fenrir kernel: pnp: Device 01:01.00 activated.
+May 30 12:06:46 fenrir kernel: ALSA sound/isa/cs423x/cs4236.c:325:
+isapnp WSS: wss port=0x534, fm port=0x388, sb port=0x220
+May 30 12:06:46 fenrir kernel: ALSA sound/isa/cs423x/cs4236.c:327:
+isapnp WSS: irq=5, dma1=1, dma2=3
+May 30 12:06:46 fenrir kernel: pnp: Device 01:01.02 activated.
+May 30 12:06:46 fenrir kernel: ALSA sound/isa/cs423x/cs4236.c:344:
+isapnp CTRL: control port=0x120
+May 30 12:06:46 fenrir kernel: pnp: Device 01:01.03 activated.
+May 30 12:06:46 fenrir kernel: ALSA sound/isa/cs423x/cs4236.c:371:
+isapnp MPU: port=0x330, irq=11
+May 30 12:06:46 fenrir kernel: ALSA sound/isa/cs423x/cs4231_lib.c:1053:
+cs4231: port = 0x534, id = 0xa
+May 30 12:06:46 fenrir kernel: ALSA sound/isa/cs423x/cs4231_lib.c:1059:
+CS4231: VERSION (I25) = 0x3
+May 30 12:06:46 fenrir kernel: ALSA sound/isa/cs423x/cs4231_lib.c:1128:
+CS4231: ext version; rev = 0xeb, id = 0xeb
+May 30 12:06:46 fenrir kernel: ALSA sound/isa/cs423x/cs4236_lib.c:300:
+CS4236: [0x120] C1 (version) = 0xeb, ext = 0xeb
 
-> +/*  Define SPIDEV_DEBUG for debugging info  */
-> +#undef SPIDEV_DEBUG
+(note the "irq=11" after applying the patch)
 
-Use a Kconfig entry instead.
-
-> +#ifdef SPIDEV_DEBUG
-> +#define DBG(args...)	printk(KERN_INFO"spi-dev.o: " args)
-> +#else
-> +#define DBG(args...)
-> +#endif
-
-Please use dev_dbg() and friends instead of your own debugging macros.
-The error log people will thank you (along with your users...)
-
-> +#include <linux/init.h>
-> +#include <asm/uaccess.h>
-> +#include <linux/spi/spi.h>
-
-Why a separate subdir for spi.h?
-
-> +static int spidev_ioctl(struct inode *inode, struct file *file,
-> +			unsigned int cmd, unsigned long arg)
-
-Ick, please do NOT add new ioctls to the kernel.  Especially one as
-complex and hard to audit as this one :(
-
-The i2c dev interface is a mess, please don't duplicate it, there is no
-need to do so.
-
-Also, please run the code through sparse, I think it will spit out a lot
-of errors here.
-
-> +static int spidev_attach_adapter(struct spi_adapter *adap)
-> +{
-> +	struct spi_dev *spi_dev;
-> +	int retval;
-> +
-> +	spi_dev = get_free_spi_dev(adap);
-> +	if (IS_ERR(spi_dev))
-> +		return PTR_ERR(spi_dev);
-> +
-> +#if defined( CONFIG_DEVFS_FS )
-> +	devfs_mk_cdev(MKDEV(SPI_MAJOR, spi_dev->minor),
-> +		      S_IFCHR | S_IRUSR | S_IWUSR, "spi/%d", spi_dev->minor);
-> +#endif
-
-No #if needed.  You do this a lot.
+I am not a kernel developer, so I cannot guarantee that my observations
+are correct. Please feel free to contact me for further information
+and/or if I should have missed something. Please cc: to me if possible.
 
 
-> +/*
-> + * A driver is capable of handling one or more physical devices present on
-> + * SPI adapters. This information is used to inform the driver of adapter
-> + * events.
-> + */
-> +struct spi_driver {
+Regards,
 
-Please use the driver model code.  That's what it is there for.
+Christoph Schulz
+E-Mail: develop@kristov.de
 
-> +/*
-> + * spi_adapter is the structure used to identify a physical SPI bus along
-> + * with the access algorithms necessary to access it.
-> + */
-> +struct spi_adapter {
 
-<snip>  Ick, don't copy the mess I did in the i2c core for i2c adapter
-structures please.  It was a hack then, and I regret it still.  Please
-fix it up properly.
+--------------020108040709040407090003
+Content-Type: text/plain;
+ name="cs4236-irq.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="cs4236-irq.patch"
 
-This code is _very_ close to just a copy of the i2c core code.  Why
-duplicate it and not work with the i2c people instead?
+diff -ur linux-2.6.11/sound/isa/cs423x/cs4236.c linux-2.6.11-patched/sound/isa/cs423x/cs4236.c
+--- linux-2.6.11/sound/isa/cs423x/cs4236.c	2005-03-02 07:37:48.000000000 +0100
++++ linux-2.6.11-patched/sound/isa/cs423x/cs4236.c	2005-05-31 14:31:07.040130710 +0200
+@@ -349,8 +349,7 @@
+ 		pnp_init_resource_table(cfg);
+ 		if (mpu_port[dev] != SNDRV_AUTO_PORT)
+ 			pnp_resource_change(&cfg->port_resource[0], mpu_port[dev], 2);
+-		if (mpu_irq[dev] != SNDRV_AUTO_IRQ && mpu_irq[dev] >= 0 &&
+-		    pnp_irq_valid(pdev, 0))
++		if (mpu_irq[dev] != SNDRV_AUTO_IRQ && mpu_irq[dev] >= 0)
+ 			pnp_resource_change(&cfg->irq_resource[0], mpu_irq[dev], 1);
+ 		err = pnp_manual_config_dev(pdev, cfg, 0);
+ 		if (err < 0)
 
-thanks,
-
-greg k-h
+--------------020108040709040407090003--

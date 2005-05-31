@@ -1,60 +1,1082 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261936AbVEaRKr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261977AbVEaRKq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261936AbVEaRKr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 13:10:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261951AbVEaRJj
+	id S261977AbVEaRKq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 13:10:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVEaRJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 13:09:39 -0400
-Received: from pop-savannah.atl.sa.earthlink.net ([207.69.195.69]:3800 "EHLO
-	pop-savannah.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
-	id S261972AbVEaQ7L (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 12:59:11 -0400
-Message-ID: <10471395.1117558743885.JavaMail.root@wamui-milano.atl.sa.earthlink.net>
-Date: Tue, 31 May 2005 12:59:03 -0400 (EDT)
-From: Steve Finney <saf76@earthlink.net>
-Reply-To: Steve Finney <saf76@earthlink.net>
-To: linux-kernel@vger.kernel.org
-Subject: Human tIming perception (was: RT patch)
+	Tue, 31 May 2005 13:09:28 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:30120 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S261962AbVEaQ42
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 12:56:28 -0400
+Subject: Re: Machine Freezes while Running Crossover Office
+From: Pekka Enberg <penberg@cs.helsinki.fi>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, Pekka Enberg <penberg@gmail.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050531065456.GA21948@elte.hu>
+References: <1117291619.9665.6.camel@localhost>
+	 <Pine.LNX.4.58.0505291059540.10545@ppc970.osdl.org>
+	 <84144f0205052911202863ecd5@mail.gmail.com>
+	 <Pine.LNX.4.58.0505291143350.10545@ppc970.osdl.org>
+	 <1117399764.9619.12.camel@localhost>
+	 <Pine.LNX.4.58.0505291543070.10545@ppc970.osdl.org>
+	 <1117466611.9323.6.camel@localhost>
+	 <Pine.LNX.4.58.0505301024080.10545@ppc970.osdl.org>
+	 <courier.429C05C1.00005CC5@courier.cs.helsinki.fi>
+	 <20050531065456.GA21948@elte.hu>
+Date: Tue, 31 May 2005 19:53:54 +0300
+Message-Id: <1117558435.9228.7.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 7bit
-X-Mailer: Earthlink Zoo Mail 1.0
+X-Mailer: Evolution 2.2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> so in terms of mouse pointer 'smoothness', it might very well be
-> possible for humans to detect a couple of msec delays visually - even
-> though they are unable to notice those delays directly. (Isnt there some
-> existing research on this?)
+Hi,
 
-With great trepidation, I put on my experimental psychologist
-hat and add to this thread from the  recent archive...
+I did a full strace of wine and its child processes and it does not call
+sys_sched_setscheduler. Furthermore, top shows that wineserver and
+wine-preloader are running on the same priority as X so I don't think
+it's using RT priorities.
 
-Bruno Repp at Haskins Labs has done some interesting work
-showing that the motor system can respond to timing perturbations
-which are below the limit of conscious perception. The 
-experiments used synchronization tapping, where the person's task is
-to tap their finger in synchrony with a sequence of evenly 
-timed  tones (say, 5/second). It takes (IIRC) about a 10 ms or 
-so difference in the sounded sequence
-for someone to be able to report that there's been a change, but
-a cnange in the timing of the person's finger movements occurs
-(_immediately_) at perturbations smaller than 10 ms. That is, there 
-appears to be some dissociation  between conscious perception and 
-perceptual/motor behavior.
+On Tue, 2005-05-31 at 08:54 +0200, Ingo Molnar wrote:
+> - run the Wine processes with nice +19 priority? (just to check 
+>   whether it's the interactivity code. After you've made sure they dont 
+>   have RT priorities.)
 
-This was audition, and vision might be signficantly different, but
-it provides some support for Ingo's hypothesis above.
+nice +19 -> no hang
 
-Sorry, I don't have my academic references handy, but the following
-is probably one of the relevant publications:
+On Tue, 2005-05-31 at 08:54 +0200, Ingo Molnar wrote:
+> - renice -20 the X server process
 
-Repp, B. H. (2002b). Automaticity and voluntary control of phase correction 
-following event onset shifts in sensorimotor synchronization. Journal of 
-Experimental Psychology: Human Perception and Performance, 28, 410-430.
+renice -20 -> no hang
 
-Back to lurking,
-Steve Finney
+On Tue, 2005-05-31 at 08:54 +0200, Ingo Molnar wrote:
+> - run a shell-script with RT priority that captures 'ps aux' every 
+>   second or so:
 
-PS Thanks for all the kernel work!
+Crossover hangs but script produces output. I've included it below.
+
+On Tue, 2005-05-31 at 08:54 +0200, Ingo Molnar wrote:
+> - apply the patch below and check whether doing:
+> 
+>    echo 0 > /proc/sys/kernel/interactive
+> 
+>   makes the hang go away.
+
+It's actually /proc/sys/vm/interactive but yes, 0 makes the hang go away
+while 1 makes it come back.
+
+On Tue, 2005-05-31 at 08:54 +0200, Ingo Molnar wrote:
+> - if the hang goes away then could you check whether removing the 2 new 
+>   sched_interactive lines in kernel/sched.c's effective_prio() function 
+>   (but keeping other portions of the patch applied) hang or not.
+
+Exactly the same results as the previous, 0 -> no hang, 1 -> hangs.
+
+Also, I tried the old date script in virtual console. It worked exactly
+the same as in xterm. I did not try your RT patch, Ingo. Do you want me
+to try it out?
+
+			Pekka
+
+The hang starts almost immediately (from the first or second date):
+
+Tue May 31 18:40:29 EEST 2005
+  PID   TID CLS RTPRIO  NI PRI PSR %CPU STAT WCHAN          COMMAND
+    1     1 TS       -   0  23   0  0.0 S    select         init
+    2     2 TS       -  19   5   0  0.0 SN   ksoftirqd      ksoftirqd/0
+    3     3 TS       -  -5  29   0  0.0 S<   worker_thread  events/0
+    4     4 TS       -  -5  25   0  0.0 S<   worker_thread  khelper
+    9     9 TS       -  -5  28   0  0.0 S<   worker_thread  kthread
+   18    18 TS       -  -5  29   0  0.0 S<   worker_thread  kacpid
+   90    90 TS       -  -5  29   0  0.0 S<   worker_thread  kblockd/0
+  139   139 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  140   140 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  142   142 TS       -  -5  27   0  0.0 S<   worker_thread  aio/0
+  141   141 TS       -   0  24   0  0.0 S    kswapd         kswapd0
+  734   734 TS       -   0  23   0  0.0 S    serio_thread   kseriod
+  929   929 TS       -   0  24   0  0.0 S    hub_thread     khubd
+ 1338  1338 TS       -   0  24   0  0.0 S    kjournald      kjournald
+ 5849  5849 TS       -  -4  25   0  0.0 S<s  select         udevd
+ 8145  8145 TS       -   0  24   0  0.0 Ss   poll           syslog-ng
+ 8196  8196 TS       -   0  23   0  0.0 Ss   poll           acpid
+ 8685  8685 TS       -   0  23   0  0.0 Ss   nanosleep      dhcpcd
+ 8828  8828 TS       -   0  21   0  0.0 Ss   select         sshd
+ 8865  8865 TS       -   0  24   0  0.0 Ss   nanosleep      cron
+ 8930  8930 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 8931  8931 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8932  8932 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8933  8933 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9014  9014 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9092  9092 TS       -   0  23   0  0.0 Ss   select         kdm
+ 9095  9095 TS       -   0  23   0  0.5 R    -              X
+28934 28934 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+29050 29050 TS       -   0  23   0  0.0 S    wait           kdm
+29057 29057 TS       -   0  24   0  0.0 S    poll           gnome-session
+29062 29062 TS       -   0  24   0  0.1 S    poll           gconfd-2
+29065 29065 TS       -   0  20   0  0.0 S    poll           gnome-keyring-d
+29067 29067 TS       -   0  23   0  0.0 Ss   poll           bonobo-activati
+29069 29069 TS       -   0  24   0  0.2 S    poll           gnome-settings-
+29078 29078 TS       -   0  24   0  0.0 S    select         xscreensaver
+29096 29096 TS       -   0  24   0  0.0 Ss   select         gnome-smproxy
+29104 29104 TS       -   0  24   0  0.6 Ss   poll           metacity
+29106 29106 TS       -   0  24   0  0.2 Ssl  poll           nautilus
+29108 29108 TS       -   0  24   0  0.2 Ssl  poll           gnome-panel
+29112 29112 TS       -   0  24   0  0.1 Rs   -              gnome-volume-co
+29114 29114 TS       -   0  24   0  0.0 Ssl  poll           evolution-alarm
+29117 29117 TS       -   0  24   0  1.0 S    poll           wnck-applet
+29120 29120 TS       -   0  23   0  0.0 Sl   poll           gnome-vfs-daemo
+29122 29122 TS       -   0  23   0  0.0 Sl   poll           evolution-data-
+29147 29147 TS       -   0  23   0  0.0 S    poll           mapping-daemon
+29152 29152 TS       -   0  24   0  0.0 S    poll           battstat-applet
+29154 29154 TS       -   0  24   0  0.1 S    poll           gnome-netstatus
+29156 29156 TS       -   0  24   0  0.2 Sl   futex_wait     mono
+29158 29158 TS       -   0  24   0  0.1 S    poll           clock-applet
+29160 29160 TS       -   0  24   0  0.0 S    poll           multiload-apple
+29162 29162 TS       -   0  24   0  0.0 Sl   poll           gweather-applet
+29163 29163 TS       -   0  24   0  0.0 Ss   poll           mono
+29169 29169 TS       -   0  24   0  1.0 Sl   poll           gnome-terminal
+29170 29170 TS       -   0  22   0  0.0 S    unix_stream_da gnome-pty-helpe
+29171 29171 TS       -   0  23   0  0.0 Ss   wait           bash
+29175 29175 TS       -   0  24   0  2.6 Sl   poll           evolution-2.2
+29211 29211 TS       -   0  24   0  0.0 Ss   wait           bash
+29246 29246 TS       -   0  23   0  0.0 Ss   wait           bash
+29250 29250 TS       -   0  22   0  0.0 S    wait           mozilla-launche
+29261 29261 TS       -   0  24   0  1.9 Sl   poll           firefox-bin
+29391 29391 TS       -   0  23   0  0.0 S    wait           su
+29399 29399 TS       -   0  23   0  0.0 S+   read_chan      bash
+29415 29415 TS       -   0  23   0  0.0 S    wait           su
+29418 29418 FF       1   -  41   0  0.0 S    wait           bash
+29594 29594 TS       -   0  23   0  0.0 S+   wait           bash
+29595 29595 TS       -   0  23   0  0.2 S+   pipe_wait      wine-preloader
+29602 29602 TS       -   0  24   0 12.4 Ss   poll           wineserver
+29604 29604 TS       -   0  24   0 16.0 R+   -              wine-preloader
+29714 29714 FF       1   -  41   0  0.0 R+   -              ps
+Tue May 31 18:40:30 EEST 2005
+  PID   TID CLS RTPRIO  NI PRI PSR %CPU STAT WCHAN          COMMAND
+    1     1 TS       -   0  23   0  0.0 S    select         init
+    2     2 TS       -  19   5   0  0.0 SN   ksoftirqd      ksoftirqd/0
+    3     3 TS       -  -5  29   0  0.0 R<   -              events/0
+    4     4 TS       -  -5  25   0  0.0 S<   worker_thread  khelper
+    9     9 TS       -  -5  28   0  0.0 S<   worker_thread  kthread
+   18    18 TS       -  -5  29   0  0.0 S<   worker_thread  kacpid
+   90    90 TS       -  -5  29   0  0.0 S<   worker_thread  kblockd/0
+  139   139 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  140   140 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  142   142 TS       -  -5  27   0  0.0 S<   worker_thread  aio/0
+  141   141 TS       -   0  24   0  0.0 S    kswapd         kswapd0
+  734   734 TS       -   0  23   0  0.0 S    serio_thread   kseriod
+  929   929 TS       -   0  24   0  0.0 S    hub_thread     khubd
+ 1338  1338 TS       -   0  24   0  0.0 S    kjournald      kjournald
+ 5849  5849 TS       -  -4  25   0  0.0 S<s  select         udevd
+ 8145  8145 TS       -   0  24   0  0.0 Ss   poll           syslog-ng
+ 8196  8196 TS       -   0  23   0  0.0 Ss   poll           acpid
+ 8685  8685 TS       -   0  23   0  0.0 Ss   nanosleep      dhcpcd
+ 8828  8828 TS       -   0  21   0  0.0 Ss   select         sshd
+ 8865  8865 TS       -   0  24   0  0.0 Ss   nanosleep      cron
+ 8930  8930 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 8931  8931 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8932  8932 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8933  8933 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9014  9014 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9092  9092 TS       -   0  23   0  0.0 Ss   select         kdm
+ 9095  9095 TS       -   0  23   0  0.5 R    -              X
+28934 28934 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+29050 29050 TS       -   0  23   0  0.0 S    wait           kdm
+29057 29057 TS       -   0  24   0  0.0 S    poll           gnome-session
+29062 29062 TS       -   0  24   0  0.1 S    poll           gconfd-2
+29065 29065 TS       -   0  20   0  0.0 S    poll           gnome-keyring-d
+29067 29067 TS       -   0  23   0  0.0 Ss   poll           bonobo-activati
+29069 29069 TS       -   0  24   0  0.2 S    poll           gnome-settings-
+29078 29078 TS       -   0  24   0  0.0 S    select         xscreensaver
+29096 29096 TS       -   0  24   0  0.0 Ss   select         gnome-smproxy
+29104 29104 TS       -   0  24   0  0.6 Ss   poll           metacity
+29106 29106 TS       -   0  24   0  0.2 Ssl  poll           nautilus
+29108 29108 TS       -   0  24   0  0.2 Ssl  poll           gnome-panel
+29112 29112 TS       -   0  24   0  0.1 Ss   poll           gnome-volume-co
+29114 29114 TS       -   0  24   0  0.0 Ssl  poll           evolution-alarm
+29117 29117 TS       -   0  24   0  1.0 S    poll           wnck-applet
+29120 29120 TS       -   0  23   0  0.0 Sl   poll           gnome-vfs-daemo
+29122 29122 TS       -   0  23   0  0.0 Sl   poll           evolution-data-
+29147 29147 TS       -   0  23   0  0.0 S    poll           mapping-daemon
+29152 29152 TS       -   0  24   0  0.0 S    poll           battstat-applet
+29154 29154 TS       -   0  24   0  0.1 S    poll           gnome-netstatus
+29156 29156 TS       -   0  24   0  0.2 Sl   futex_wait     mono
+29158 29158 TS       -   0  24   0  0.1 S    poll           clock-applet
+29160 29160 TS       -   0  24   0  0.0 S    poll           multiload-apple
+29162 29162 TS       -   0  24   0  0.0 Sl   poll           gweather-applet
+29163 29163 TS       -   0  24   0  0.0 Ss   poll           mono
+29169 29169 TS       -   0  24   0  1.0 Sl   poll           gnome-terminal
+29170 29170 TS       -   0  22   0  0.0 S    unix_stream_da gnome-pty-helpe
+29171 29171 TS       -   0  23   0  0.0 Ss   wait           bash
+29175 29175 TS       -   0  24   0  2.6 Sl   poll           evolution-2.2
+29211 29211 TS       -   0  24   0  0.0 Ss   wait           bash
+29246 29246 TS       -   0  23   0  0.0 Ss   wait           bash
+29250 29250 TS       -   0  22   0  0.0 S    wait           mozilla-launche
+29261 29261 TS       -   0  24   0  1.9 Sl   poll           firefox-bin
+29391 29391 TS       -   0  23   0  0.0 S    wait           su
+29399 29399 TS       -   0  23   0  0.0 S+   read_chan      bash
+29415 29415 TS       -   0  23   0  0.0 S    wait           su
+29418 29418 FF       1   -  41   0  0.0 S    wait           bash
+29594 29594 TS       -   0  23   0  0.0 S+   wait           bash
+29595 29595 TS       -   0  23   0  0.2 S+   pipe_wait      wine-preloader
+29602 29602 TS       -   0  24   0 12.6 Rs   -              wineserver
+29604 29604 TS       -   0  24   0 16.3 S+   pipe_wait      wine-preloader
+29717 29717 FF       1   -  41   0  0.0 R+   -              ps
+Tue May 31 18:40:31 EEST 2005
+  PID   TID CLS RTPRIO  NI PRI PSR %CPU STAT WCHAN          COMMAND
+    1     1 TS       -   0  23   0  0.0 R    -              init
+    2     2 TS       -  19   5   0  0.0 SN   ksoftirqd      ksoftirqd/0
+    3     3 TS       -  -5  29   0  0.0 S<   worker_thread  events/0
+    4     4 TS       -  -5  25   0  0.0 S<   worker_thread  khelper
+    9     9 TS       -  -5  28   0  0.0 S<   worker_thread  kthread
+   18    18 TS       -  -5  29   0  0.0 S<   worker_thread  kacpid
+   90    90 TS       -  -5  29   0  0.0 S<   worker_thread  kblockd/0
+  139   139 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  140   140 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  142   142 TS       -  -5  27   0  0.0 S<   worker_thread  aio/0
+  141   141 TS       -   0  24   0  0.0 S    kswapd         kswapd0
+  734   734 TS       -   0  23   0  0.0 S    serio_thread   kseriod
+  929   929 TS       -   0  24   0  0.0 S    hub_thread     khubd
+ 1338  1338 TS       -   0  24   0  0.0 S    kjournald      kjournald
+ 5849  5849 TS       -  -4  25   0  0.0 S<s  select         udevd
+ 8145  8145 TS       -   0  24   0  0.0 Ss   poll           syslog-ng
+ 8196  8196 TS       -   0  23   0  0.0 Ss   poll           acpid
+ 8685  8685 TS       -   0  23   0  0.0 Ss   nanosleep      dhcpcd
+ 8828  8828 TS       -   0  21   0  0.0 Ss   select         sshd
+ 8865  8865 TS       -   0  24   0  0.0 Ss   nanosleep      cron
+ 8930  8930 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 8931  8931 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8932  8932 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8933  8933 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9014  9014 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9092  9092 TS       -   0  23   0  0.0 Ss   select         kdm
+ 9095  9095 TS       -   0  23   0  0.5 R    -              X
+28934 28934 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+29050 29050 TS       -   0  23   0  0.0 S    wait           kdm
+29057 29057 TS       -   0  24   0  0.0 S    poll           gnome-session
+29062 29062 TS       -   0  24   0  0.1 S    poll           gconfd-2
+29065 29065 TS       -   0  20   0  0.0 S    poll           gnome-keyring-d
+29067 29067 TS       -   0  23   0  0.0 Ss   poll           bonobo-activati
+29069 29069 TS       -   0  24   0  0.2 S    poll           gnome-settings-
+29078 29078 TS       -   0  23   0  0.0 R    -              xscreensaver
+29096 29096 TS       -   0  24   0  0.0 Ss   select         gnome-smproxy
+29104 29104 TS       -   0  24   0  0.6 Ss   poll           metacity
+29106 29106 TS       -   0  24   0  0.2 Ssl  poll           nautilus
+29108 29108 TS       -   0  24   0  0.2 Ssl  poll           gnome-panel
+29112 29112 TS       -   0  24   0  0.1 Ss   poll           gnome-volume-co
+29114 29114 TS       -   0  24   0  0.0 Ssl  poll           evolution-alarm
+29117 29117 TS       -   0  24   0  1.0 S    poll           wnck-applet
+29120 29120 TS       -   0  23   0  0.0 Sl   poll           gnome-vfs-daemo
+29122 29122 TS       -   0  23   0  0.0 Sl   poll           evolution-data-
+29147 29147 TS       -   0  23   0  0.0 R    -              mapping-daemon
+29152 29152 TS       -   0  23   0  0.0 R    -              battstat-applet
+29154 29154 TS       -   0  24   0  0.1 S    poll           gnome-netstatus
+29156 29156 TS       -   0  24   0  0.2 Sl   futex_wait     mono
+29158 29158 TS       -   0  23   0  0.1 R    -              clock-applet
+29160 29160 TS       -   0  24   0  0.0 S    poll           multiload-apple
+29162 29162 TS       -   0  24   0  0.0 Sl   poll           gweather-applet
+29163 29163 TS       -   0  24   0  0.0 Ss   poll           mono
+29169 29169 TS       -   0  24   0  1.0 Sl   poll           gnome-terminal
+29170 29170 TS       -   0  22   0  0.0 S    unix_stream_da gnome-pty-helpe
+29171 29171 TS       -   0  23   0  0.0 Ss   wait           bash
+29175 29175 TS       -   0  24   0  2.6 Sl   poll           evolution-2.2
+29211 29211 TS       -   0  24   0  0.0 Ss   wait           bash
+29246 29246 TS       -   0  23   0  0.0 Ss   wait           bash
+29250 29250 TS       -   0  22   0  0.0 S    wait           mozilla-launche
+29261 29261 TS       -   0  24   0  1.9 Sl   poll           firefox-bin
+29391 29391 TS       -   0  23   0  0.0 S    wait           su
+29399 29399 TS       -   0  23   0  0.0 S+   read_chan      bash
+29415 29415 TS       -   0  23   0  0.0 S    wait           su
+29418 29418 FF       1   -  41   0  0.0 S    wait           bash
+29594 29594 TS       -   0  23   0  0.0 S+   wait           bash
+29595 29595 TS       -   0  23   0  0.2 S+   pipe_wait      wine-preloader
+29602 29602 TS       -   0  24   0 12.8 Ss   poll           wineserver
+29604 29604 TS       -   0  24   0 16.7 R+   -              wine-preloader
+29720 29720 FF       1   -  41   0  0.0 R+   -              ps
+Tue May 31 18:40:32 EEST 2005
+  PID   TID CLS RTPRIO  NI PRI PSR %CPU STAT WCHAN          COMMAND
+    1     1 TS       -   0  23   0  0.0 R    -              init
+    2     2 TS       -  19   5   0  0.0 SN   ksoftirqd      ksoftirqd/0
+    3     3 TS       -  -5  29   0  0.0 S<   worker_thread  events/0
+    4     4 TS       -  -5  25   0  0.0 S<   worker_thread  khelper
+    9     9 TS       -  -5  28   0  0.0 S<   worker_thread  kthread
+   18    18 TS       -  -5  29   0  0.0 S<   worker_thread  kacpid
+   90    90 TS       -  -5  29   0  0.0 S<   worker_thread  kblockd/0
+  139   139 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  140   140 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  142   142 TS       -  -5  27   0  0.0 S<   worker_thread  aio/0
+  141   141 TS       -   0  24   0  0.0 S    kswapd         kswapd0
+  734   734 TS       -   0  23   0  0.0 S    serio_thread   kseriod
+  929   929 TS       -   0  24   0  0.0 S    hub_thread     khubd
+ 1338  1338 TS       -   0  24   0  0.0 S    kjournald      kjournald
+ 5849  5849 TS       -  -4  25   0  0.0 S<s  select         udevd
+ 8145  8145 TS       -   0  24   0  0.0 Ss   poll           syslog-ng
+ 8196  8196 TS       -   0  23   0  0.0 Ss   poll           acpid
+ 8685  8685 TS       -   0  23   0  0.0 Ss   nanosleep      dhcpcd
+ 8828  8828 TS       -   0  21   0  0.0 Ss   select         sshd
+ 8865  8865 TS       -   0  24   0  0.0 Ss   nanosleep      cron
+ 8930  8930 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 8931  8931 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8932  8932 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8933  8933 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9014  9014 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9092  9092 TS       -   0  23   0  0.0 Ss   select         kdm
+ 9095  9095 TS       -   0  23   0  0.5 R    -              X
+28934 28934 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+29050 29050 TS       -   0  23   0  0.0 S    wait           kdm
+29057 29057 TS       -   0  24   0  0.0 S    poll           gnome-session
+29062 29062 TS       -   0  23   0  0.1 R    -              gconfd-2
+29065 29065 TS       -   0  20   0  0.0 S    poll           gnome-keyring-d
+29067 29067 TS       -   0  23   0  0.0 Ss   poll           bonobo-activati
+29069 29069 TS       -   0  24   0  0.2 S    poll           gnome-settings-
+29078 29078 TS       -   0  23   0  0.0 R    -              xscreensaver
+29096 29096 TS       -   0  24   0  0.0 Ss   select         gnome-smproxy
+29104 29104 TS       -   0  24   0  0.6 Ss   poll           metacity
+29106 29106 TS       -   0  23   0  0.2 Rsl  -              nautilus
+29108 29108 TS       -   0  24   0  0.2 Ssl  poll           gnome-panel
+29112 29112 TS       -   0  24   0  0.1 Ss   poll           gnome-volume-co
+29114 29114 TS       -   0  24   0  0.0 Ssl  poll           evolution-alarm
+29117 29117 TS       -   0  24   0  1.0 S    poll           wnck-applet
+29120 29120 TS       -   0  23   0  0.0 Rl   -              gnome-vfs-daemo
+29122 29122 TS       -   0  23   0  0.0 Sl   poll           evolution-data-
+29147 29147 TS       -   0  23   0  0.0 R    -              mapping-daemon
+29152 29152 TS       -   0  23   0  0.0 R    -              battstat-applet
+29154 29154 TS       -   0  24   0  0.1 S    poll           gnome-netstatus
+29156 29156 TS       -   0  24   0  0.2 Sl   futex_wait     mono
+29158 29158 TS       -   0  23   0  0.1 R    -              clock-applet
+29160 29160 TS       -   0  24   0  0.0 S    poll           multiload-apple
+29162 29162 TS       -   0  24   0  0.0 Sl   poll           gweather-applet
+29163 29163 TS       -   0  24   0  0.0 Ss   poll           mono
+29169 29169 TS       -   0  24   0  1.0 Sl   poll           gnome-terminal
+29170 29170 TS       -   0  22   0  0.0 S    unix_stream_da gnome-pty-helpe
+29171 29171 TS       -   0  23   0  0.0 Ss   wait           bash
+29175 29175 TS       -   0  24   0  2.6 Sl   poll           evolution-2.2
+29211 29211 TS       -   0  24   0  0.0 Ss   wait           bash
+29246 29246 TS       -   0  23   0  0.0 Ss   wait           bash
+29250 29250 TS       -   0  22   0  0.0 S    wait           mozilla-launche
+29261 29261 TS       -   0  24   0  1.9 Sl   poll           firefox-bin
+29391 29391 TS       -   0  23   0  0.0 S    wait           su
+29399 29399 TS       -   0  23   0  0.0 S+   read_chan      bash
+29415 29415 TS       -   0  23   0  0.0 S    wait           su
+29418 29418 FF       1   -  41   0  0.0 S    wait           bash
+29594 29594 TS       -   0  23   0  0.0 S+   wait           bash
+29595 29595 TS       -   0  23   0  0.2 S+   pipe_wait      wine-preloader
+29602 29602 TS       -   0  24   0 13.0 Ss   poll           wineserver
+29604 29604 TS       -   0  24   0 17.1 R+   -              wine-preloader
+29723 29723 FF       1   -  41   0  0.0 R+   -              ps
+Tue May 31 18:40:33 EEST 2005
+  PID   TID CLS RTPRIO  NI PRI PSR %CPU STAT WCHAN          COMMAND
+    1     1 TS       -   0  23   0  0.0 R    -              init
+    2     2 TS       -  19   5   0  0.0 SN   ksoftirqd      ksoftirqd/0
+    3     3 TS       -  -5  29   0  0.0 S<   worker_thread  events/0
+    4     4 TS       -  -5  25   0  0.0 S<   worker_thread  khelper
+    9     9 TS       -  -5  28   0  0.0 S<   worker_thread  kthread
+   18    18 TS       -  -5  29   0  0.0 S<   worker_thread  kacpid
+   90    90 TS       -  -5  29   0  0.0 S<   worker_thread  kblockd/0
+  139   139 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  140   140 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  142   142 TS       -  -5  27   0  0.0 S<   worker_thread  aio/0
+  141   141 TS       -   0  24   0  0.0 S    kswapd         kswapd0
+  734   734 TS       -   0  23   0  0.0 S    serio_thread   kseriod
+  929   929 TS       -   0  24   0  0.0 S    hub_thread     khubd
+ 1338  1338 TS       -   0  24   0  0.0 S    kjournald      kjournald
+ 5849  5849 TS       -  -4  25   0  0.0 S<s  select         udevd
+ 8145  8145 TS       -   0  24   0  0.0 Ss   poll           syslog-ng
+ 8196  8196 TS       -   0  23   0  0.0 Ss   poll           acpid
+ 8685  8685 TS       -   0  23   0  0.0 Ss   nanosleep      dhcpcd
+ 8828  8828 TS       -   0  21   0  0.0 Ss   select         sshd
+ 8865  8865 TS       -   0  24   0  0.0 Ss   nanosleep      cron
+ 8930  8930 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 8931  8931 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8932  8932 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8933  8933 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9014  9014 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9092  9092 TS       -   0  23   0  0.0 Ss   select         kdm
+ 9095  9095 TS       -   0  23   0  0.5 R    -              X
+28934 28934 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+29050 29050 TS       -   0  23   0  0.0 S    wait           kdm
+29057 29057 TS       -   0  24   0  0.0 S    poll           gnome-session
+29062 29062 TS       -   0  23   0  0.1 R    -              gconfd-2
+29065 29065 TS       -   0  20   0  0.0 S    poll           gnome-keyring-d
+29067 29067 TS       -   0  23   0  0.0 Ss   poll           bonobo-activati
+29069 29069 TS       -   0  24   0  0.2 S    poll           gnome-settings-
+29078 29078 TS       -   0  23   0  0.0 R    -              xscreensaver
+29096 29096 TS       -   0  24   0  0.0 Ss   select         gnome-smproxy
+29104 29104 TS       -   0  24   0  0.6 Ss   poll           metacity
+29106 29106 TS       -   0  23   0  0.2 Rsl  -              nautilus
+29108 29108 TS       -   0  24   0  0.2 Ssl  poll           gnome-panel
+29112 29112 TS       -   0  24   0  0.1 Ss   poll           gnome-volume-co
+29114 29114 TS       -   0  24   0  0.0 Ssl  poll           evolution-alarm
+29117 29117 TS       -   0  24   0  1.0 S    poll           wnck-applet
+29120 29120 TS       -   0  23   0  0.0 Rl   -              gnome-vfs-daemo
+29122 29122 TS       -   0  23   0  0.0 Sl   poll           evolution-data-
+29147 29147 TS       -   0  23   0  0.0 R    -              mapping-daemon
+29152 29152 TS       -   0  23   0  0.0 R    -              battstat-applet
+29154 29154 TS       -   0  24   0  0.1 S    poll           gnome-netstatus
+29156 29156 TS       -   0  24   0  0.2 Sl   futex_wait     mono
+29158 29158 TS       -   0  23   0  0.1 R    -              clock-applet
+29160 29160 TS       -   0  24   0  0.0 S    poll           multiload-apple
+29162 29162 TS       -   0  24   0  0.0 Sl   poll           gweather-applet
+29163 29163 TS       -   0  24   0  0.0 Ss   poll           mono
+29169 29169 TS       -   0  24   0  1.0 Sl   poll           gnome-terminal
+29170 29170 TS       -   0  22   0  0.0 S    unix_stream_da gnome-pty-helpe
+29171 29171 TS       -   0  23   0  0.0 Ss   wait           bash
+29175 29175 TS       -   0  24   0  2.6 Sl   poll           evolution-2.2
+29211 29211 TS       -   0  24   0  0.0 Ss   wait           bash
+29246 29246 TS       -   0  23   0  0.0 Ss   wait           bash
+29250 29250 TS       -   0  22   0  0.0 S    wait           mozilla-launche
+29261 29261 TS       -   0  24   0  1.9 Sl   poll           firefox-bin
+29391 29391 TS       -   0  23   0  0.0 S    wait           su
+29399 29399 TS       -   0  23   0  0.0 S+   read_chan      bash
+29415 29415 TS       -   0  23   0  0.0 S    wait           su
+29418 29418 FF       1   -  41   0  0.0 S    wait           bash
+29594 29594 TS       -   0  23   0  0.0 S+   wait           bash
+29595 29595 TS       -   0  23   0  0.2 S+   pipe_wait      wine-preloader
+29602 29602 TS       -   0  24   0 13.2 Rs   -              wineserver
+29604 29604 TS       -   0  24   0 17.4 S+   pipe_wait      wine-preloader
+29726 29726 FF       1   -  41   0  0.0 R+   -              ps
+Tue May 31 18:40:34 EEST 2005
+  PID   TID CLS RTPRIO  NI PRI PSR %CPU STAT WCHAN          COMMAND
+    1     1 TS       -   0  23   0  0.0 R    -              init
+    2     2 TS       -  19   5   0  0.0 SN   ksoftirqd      ksoftirqd/0
+    3     3 TS       -  -5  29   0  0.0 S<   worker_thread  events/0
+    4     4 TS       -  -5  25   0  0.0 S<   worker_thread  khelper
+    9     9 TS       -  -5  28   0  0.0 S<   worker_thread  kthread
+   18    18 TS       -  -5  29   0  0.0 S<   worker_thread  kacpid
+   90    90 TS       -  -5  29   0  0.0 S<   worker_thread  kblockd/0
+  139   139 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  140   140 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  142   142 TS       -  -5  27   0  0.0 S<   worker_thread  aio/0
+  141   141 TS       -   0  24   0  0.0 S    kswapd         kswapd0
+  734   734 TS       -   0  23   0  0.0 S    serio_thread   kseriod
+  929   929 TS       -   0  24   0  0.0 S    hub_thread     khubd
+ 1338  1338 TS       -   0  24   0  0.0 S    kjournald      kjournald
+ 5849  5849 TS       -  -4  25   0  0.0 S<s  select         udevd
+ 8145  8145 TS       -   0  24   0  0.0 Ss   poll           syslog-ng
+ 8196  8196 TS       -   0  23   0  0.0 Ss   poll           acpid
+ 8685  8685 TS       -   0  23   0  0.0 Ss   nanosleep      dhcpcd
+ 8828  8828 TS       -   0  21   0  0.0 Ss   select         sshd
+ 8865  8865 TS       -   0  24   0  0.0 Ss   nanosleep      cron
+ 8930  8930 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 8931  8931 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8932  8932 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8933  8933 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9014  9014 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9092  9092 TS       -   0  23   0  0.0 Ss   select         kdm
+ 9095  9095 TS       -   0  23   0  0.5 R    -              X
+28934 28934 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+29050 29050 TS       -   0  23   0  0.0 S    wait           kdm
+29057 29057 TS       -   0  24   0  0.0 S    poll           gnome-session
+29062 29062 TS       -   0  23   0  0.1 R    -              gconfd-2
+29065 29065 TS       -   0  20   0  0.0 S    poll           gnome-keyring-d
+29067 29067 TS       -   0  23   0  0.0 Ss   poll           bonobo-activati
+29069 29069 TS       -   0  24   0  0.2 S    poll           gnome-settings-
+29078 29078 TS       -   0  23   0  0.0 R    -              xscreensaver
+29096 29096 TS       -   0  24   0  0.0 Ss   select         gnome-smproxy
+29104 29104 TS       -   0  24   0  0.6 Ss   poll           metacity
+29106 29106 TS       -   0  23   0  0.2 Rsl  -              nautilus
+29108 29108 TS       -   0  24   0  0.2 Ssl  poll           gnome-panel
+29112 29112 TS       -   0  24   0  0.1 Rs   -              gnome-volume-co
+29114 29114 TS       -   0  24   0  0.0 Ssl  poll           evolution-alarm
+29117 29117 TS       -   0  24   0  1.0 S    poll           wnck-applet
+29120 29120 TS       -   0  23   0  0.0 Rl   -              gnome-vfs-daemo
+29122 29122 TS       -   0  23   0  0.0 Sl   poll           evolution-data-
+29147 29147 TS       -   0  23   0  0.0 R    -              mapping-daemon
+29152 29152 TS       -   0  23   0  0.0 R    -              battstat-applet
+29154 29154 TS       -   0  24   0  0.1 S    poll           gnome-netstatus
+29156 29156 TS       -   0  24   0  0.2 Rl   -              mono
+29158 29158 TS       -   0  23   0  0.1 R    -              clock-applet
+29160 29160 TS       -   0  24   0  0.0 S    poll           multiload-apple
+29162 29162 TS       -   0  24   0  0.0 Sl   poll           gweather-applet
+29163 29163 TS       -   0  24   0  0.0 Ss   poll           mono
+29169 29169 TS       -   0  24   0  1.0 Sl   poll           gnome-terminal
+29170 29170 TS       -   0  22   0  0.0 S    unix_stream_da gnome-pty-helpe
+29171 29171 TS       -   0  23   0  0.0 Ss   wait           bash
+29175 29175 TS       -   0  24   0  2.6 Sl   poll           evolution-2.2
+29211 29211 TS       -   0  24   0  0.0 Ss   wait           bash
+29246 29246 TS       -   0  23   0  0.0 Ss   wait           bash
+29250 29250 TS       -   0  22   0  0.0 S    wait           mozilla-launche
+29261 29261 TS       -   0  24   0  1.9 Sl   poll           firefox-bin
+29391 29391 TS       -   0  23   0  0.0 S    wait           su
+29399 29399 TS       -   0  23   0  0.0 S+   read_chan      bash
+29415 29415 TS       -   0  23   0  0.0 S    wait           su
+29418 29418 FF       1   -  41   0  0.0 S    wait           bash
+29594 29594 TS       -   0  23   0  0.0 S+   wait           bash
+29595 29595 TS       -   0  23   0  0.2 S+   pipe_wait      wine-preloader
+29602 29602 TS       -   0  24   0 13.4 Ss   poll           wineserver
+29604 29604 TS       -   0  24   0 17.7 R+   -              wine-preloader
+29729 29729 FF       1   -  41   0  0.0 R+   -              ps
+Tue May 31 18:40:35 EEST 2005
+  PID   TID CLS RTPRIO  NI PRI PSR %CPU STAT WCHAN          COMMAND
+    1     1 TS       -   0  23   0  0.0 R    -              init
+    2     2 TS       -  19   5   0  0.0 SN   ksoftirqd      ksoftirqd/0
+    3     3 TS       -  -5  29   0  0.0 S<   worker_thread  events/0
+    4     4 TS       -  -5  25   0  0.0 S<   worker_thread  khelper
+    9     9 TS       -  -5  28   0  0.0 S<   worker_thread  kthread
+   18    18 TS       -  -5  29   0  0.0 S<   worker_thread  kacpid
+   90    90 TS       -  -5  29   0  0.0 S<   worker_thread  kblockd/0
+  139   139 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  140   140 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  142   142 TS       -  -5  27   0  0.0 S<   worker_thread  aio/0
+  141   141 TS       -   0  24   0  0.0 S    kswapd         kswapd0
+  734   734 TS       -   0  23   0  0.0 S    serio_thread   kseriod
+  929   929 TS       -   0  24   0  0.0 S    hub_thread     khubd
+ 1338  1338 TS       -   0  24   0  0.0 S    kjournald      kjournald
+ 5849  5849 TS       -  -4  25   0  0.0 S<s  select         udevd
+ 8145  8145 TS       -   0  24   0  0.0 Ss   poll           syslog-ng
+ 8196  8196 TS       -   0  23   0  0.0 Ss   poll           acpid
+ 8685  8685 TS       -   0  23   0  0.0 Ss   nanosleep      dhcpcd
+ 8828  8828 TS       -   0  21   0  0.0 Ss   select         sshd
+ 8865  8865 TS       -   0  24   0  0.0 Ss   nanosleep      cron
+ 8930  8930 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 8931  8931 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8932  8932 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8933  8933 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9014  9014 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9092  9092 TS       -   0  23   0  0.0 Ss   select         kdm
+ 9095  9095 TS       -   0  23   0  0.5 R    -              X
+28934 28934 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+29050 29050 TS       -   0  23   0  0.0 S    wait           kdm
+29057 29057 TS       -   0  24   0  0.0 S    poll           gnome-session
+29062 29062 TS       -   0  23   0  0.1 R    -              gconfd-2
+29065 29065 TS       -   0  20   0  0.0 S    poll           gnome-keyring-d
+29067 29067 TS       -   0  23   0  0.0 Ss   poll           bonobo-activati
+29069 29069 TS       -   0  24   0  0.2 S    poll           gnome-settings-
+29078 29078 TS       -   0  23   0  0.0 R    -              xscreensaver
+29096 29096 TS       -   0  24   0  0.0 Ss   select         gnome-smproxy
+29104 29104 TS       -   0  24   0  0.6 Ss   poll           metacity
+29106 29106 TS       -   0  23   0  0.2 Rsl  -              nautilus
+29108 29108 TS       -   0  24   0  0.2 Ssl  poll           gnome-panel
+29112 29112 TS       -   0  24   0  0.1 Rs   -              gnome-volume-co
+29114 29114 TS       -   0  24   0  0.0 Ssl  poll           evolution-alarm
+29117 29117 TS       -   0  24   0  1.0 S    poll           wnck-applet
+29120 29120 TS       -   0  23   0  0.0 Rl   -              gnome-vfs-daemo
+29122 29122 TS       -   0  23   0  0.0 Sl   poll           evolution-data-
+29147 29147 TS       -   0  23   0  0.0 R    -              mapping-daemon
+29152 29152 TS       -   0  23   0  0.0 R    -              battstat-applet
+29154 29154 TS       -   0  24   0  0.1 S    poll           gnome-netstatus
+29156 29156 TS       -   0  24   0  0.2 Rl   -              mono
+29158 29158 TS       -   0  23   0  0.1 R    -              clock-applet
+29160 29160 TS       -   0  24   0  0.0 S    poll           multiload-apple
+29162 29162 TS       -   0  24   0  0.0 Sl   poll           gweather-applet
+29163 29163 TS       -   0  24   0  0.0 Ss   poll           mono
+29169 29169 TS       -   0  24   0  1.0 Sl   poll           gnome-terminal
+29170 29170 TS       -   0  22   0  0.0 S    unix_stream_da gnome-pty-helpe
+29171 29171 TS       -   0  23   0  0.0 Ss   wait           bash
+29175 29175 TS       -   0  24   0  2.6 Sl   poll           evolution-2.2
+29211 29211 TS       -   0  24   0  0.0 Ss   wait           bash
+29246 29246 TS       -   0  23   0  0.0 Ss   wait           bash
+29250 29250 TS       -   0  22   0  0.0 S    wait           mozilla-launche
+29261 29261 TS       -   0  24   0  1.9 Sl   poll           firefox-bin
+29391 29391 TS       -   0  23   0  0.0 S    wait           su
+29399 29399 TS       -   0  23   0  0.0 S+   read_chan      bash
+29415 29415 TS       -   0  23   0  0.0 S    wait           su
+29418 29418 FF       1   -  41   0  0.0 S    wait           bash
+29594 29594 TS       -   0  23   0  0.0 S+   wait           bash
+29595 29595 TS       -   0  23   0  0.2 S+   pipe_wait      wine-preloader
+29602 29602 TS       -   0  24   0 13.7 Rs   -              wineserver
+29604 29604 TS       -   0  24   0 18.1 S+   pipe_wait      wine-preloader
+29732 29732 FF       1   -  41   0  0.0 R+   -              ps
+Tue May 31 18:40:36 EEST 2005
+  PID   TID CLS RTPRIO  NI PRI PSR %CPU STAT WCHAN          COMMAND
+    1     1 TS       -   0  23   0  0.0 R    -              init
+    2     2 TS       -  19   5   0  0.0 SN   ksoftirqd      ksoftirqd/0
+    3     3 TS       -  -5  29   0  0.0 S<   worker_thread  events/0
+    4     4 TS       -  -5  25   0  0.0 S<   worker_thread  khelper
+    9     9 TS       -  -5  28   0  0.0 S<   worker_thread  kthread
+   18    18 TS       -  -5  29   0  0.0 S<   worker_thread  kacpid
+   90    90 TS       -  -5  29   0  0.0 S<   worker_thread  kblockd/0
+  139   139 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  140   140 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  142   142 TS       -  -5  27   0  0.0 S<   worker_thread  aio/0
+  141   141 TS       -   0  24   0  0.0 S    kswapd         kswapd0
+  734   734 TS       -   0  23   0  0.0 S    serio_thread   kseriod
+  929   929 TS       -   0  24   0  0.0 S    hub_thread     khubd
+ 1338  1338 TS       -   0  24   0  0.0 S    kjournald      kjournald
+ 5849  5849 TS       -  -4  25   0  0.0 S<s  select         udevd
+ 8145  8145 TS       -   0  24   0  0.0 Ss   poll           syslog-ng
+ 8196  8196 TS       -   0  23   0  0.0 Ss   poll           acpid
+ 8685  8685 TS       -   0  23   0  0.0 Ss   nanosleep      dhcpcd
+ 8828  8828 TS       -   0  21   0  0.0 Ss   select         sshd
+ 8865  8865 TS       -   0  24   0  0.0 Ss   nanosleep      cron
+ 8930  8930 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 8931  8931 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8932  8932 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8933  8933 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9014  9014 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9092  9092 TS       -   0  23   0  0.0 Ss   select         kdm
+ 9095  9095 TS       -   0  23   0  0.5 R    -              X
+28934 28934 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+29050 29050 TS       -   0  23   0  0.0 S    wait           kdm
+29057 29057 TS       -   0  24   0  0.0 S    poll           gnome-session
+29062 29062 TS       -   0  23   0  0.1 R    -              gconfd-2
+29065 29065 TS       -   0  20   0  0.0 S    poll           gnome-keyring-d
+29067 29067 TS       -   0  23   0  0.0 Ss   poll           bonobo-activati
+29069 29069 TS       -   0  24   0  0.2 S    poll           gnome-settings-
+29078 29078 TS       -   0  23   0  0.0 R    -              xscreensaver
+29096 29096 TS       -   0  24   0  0.0 Ss   select         gnome-smproxy
+29104 29104 TS       -   0  24   0  0.6 Ss   poll           metacity
+29106 29106 TS       -   0  23   0  0.2 Rsl  -              nautilus
+29108 29108 TS       -   0  24   0  0.2 Ssl  poll           gnome-panel
+29112 29112 TS       -   0  24   0  0.1 Ss   poll           gnome-volume-co
+29114 29114 TS       -   0  24   0  0.0 Ssl  poll           evolution-alarm
+29117 29117 TS       -   0  24   0  1.0 S    poll           wnck-applet
+29120 29120 TS       -   0  23   0  0.0 Rl   -              gnome-vfs-daemo
+29122 29122 TS       -   0  23   0  0.0 Sl   poll           evolution-data-
+29147 29147 TS       -   0  23   0  0.0 R    -              mapping-daemon
+29152 29152 TS       -   0  23   0  0.0 R    -              battstat-applet
+29154 29154 TS       -   0  24   0  0.1 S    poll           gnome-netstatus
+29156 29156 TS       -   0  24   0  0.2 Rl   -              mono
+29158 29158 TS       -   0  23   0  0.1 R    -              clock-applet
+29160 29160 TS       -   0  24   0  0.0 S    poll           multiload-apple
+29162 29162 TS       -   0  24   0  0.0 Sl   poll           gweather-applet
+29163 29163 TS       -   0  24   0  0.0 Ss   poll           mono
+29169 29169 TS       -   0  24   0  1.0 Sl   poll           gnome-terminal
+29170 29170 TS       -   0  22   0  0.0 S    unix_stream_da gnome-pty-helpe
+29171 29171 TS       -   0  23   0  0.0 Ss   wait           bash
+29175 29175 TS       -   0  24   0  2.6 Sl   poll           evolution-2.2
+29211 29211 TS       -   0  24   0  0.0 Ss   wait           bash
+29246 29246 TS       -   0  23   0  0.0 Ss   wait           bash
+29250 29250 TS       -   0  22   0  0.0 S    wait           mozilla-launche
+29261 29261 TS       -   0  24   0  1.9 Sl   poll           firefox-bin
+29391 29391 TS       -   0  23   0  0.0 S    wait           su
+29399 29399 TS       -   0  23   0  0.0 S+   read_chan      bash
+29415 29415 TS       -   0  23   0  0.0 S    wait           su
+29418 29418 FF       1   -  41   0  0.0 S    wait           bash
+29594 29594 TS       -   0  23   0  0.0 S+   wait           bash
+29595 29595 TS       -   0  23   0  0.2 S+   pipe_wait      wine-preloader
+29602 29602 TS       -   0  24   0 13.7 Ss   poll           wineserver
+29604 29604 TS       -   0  24   0 18.3 R+   -              wine-preloader
+29735 29735 FF       1   -  41   0  0.0 R+   -              ps
+Tue May 31 18:40:37 EEST 2005
+  PID   TID CLS RTPRIO  NI PRI PSR %CPU STAT WCHAN          COMMAND
+    1     1 TS       -   0  23   0  0.0 R    -              init
+    2     2 TS       -  19   5   0  0.0 SN   ksoftirqd      ksoftirqd/0
+    3     3 TS       -  -5  29   0  0.0 S<   worker_thread  events/0
+    4     4 TS       -  -5  25   0  0.0 S<   worker_thread  khelper
+    9     9 TS       -  -5  28   0  0.0 S<   worker_thread  kthread
+   18    18 TS       -  -5  29   0  0.0 S<   worker_thread  kacpid
+   90    90 TS       -  -5  29   0  0.0 S<   worker_thread  kblockd/0
+  139   139 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  140   140 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  142   142 TS       -  -5  27   0  0.0 S<   worker_thread  aio/0
+  141   141 TS       -   0  24   0  0.0 S    kswapd         kswapd0
+  734   734 TS       -   0  23   0  0.0 S    serio_thread   kseriod
+  929   929 TS       -   0  24   0  0.0 S    hub_thread     khubd
+ 1338  1338 TS       -   0  24   0  0.0 S    kjournald      kjournald
+ 5849  5849 TS       -  -4  25   0  0.0 S<s  select         udevd
+ 8145  8145 TS       -   0  24   0  0.0 Ss   poll           syslog-ng
+ 8196  8196 TS       -   0  23   0  0.0 Ss   poll           acpid
+ 8685  8685 TS       -   0  23   0  0.0 Ss   nanosleep      dhcpcd
+ 8828  8828 TS       -   0  21   0  0.0 Ss   select         sshd
+ 8865  8865 TS       -   0  24   0  0.0 Ss   nanosleep      cron
+ 8930  8930 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 8931  8931 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8932  8932 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8933  8933 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9014  9014 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9092  9092 TS       -   0  23   0  0.0 Ss   select         kdm
+ 9095  9095 TS       -   0  23   0  0.5 R    -              X
+28934 28934 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+29050 29050 TS       -   0  23   0  0.0 S    wait           kdm
+29057 29057 TS       -   0  24   0  0.0 S    poll           gnome-session
+29062 29062 TS       -   0  23   0  0.1 R    -              gconfd-2
+29065 29065 TS       -   0  20   0  0.0 S    poll           gnome-keyring-d
+29067 29067 TS       -   0  23   0  0.0 Ss   poll           bonobo-activati
+29069 29069 TS       -   0  24   0  0.2 S    poll           gnome-settings-
+29078 29078 TS       -   0  23   0  0.0 R    -              xscreensaver
+29096 29096 TS       -   0  24   0  0.0 Ss   select         gnome-smproxy
+29104 29104 TS       -   0  24   0  0.6 Ss   poll           metacity
+29106 29106 TS       -   0  23   0  0.2 Rsl  -              nautilus
+29108 29108 TS       -   0  24   0  0.2 Ssl  poll           gnome-panel
+29112 29112 TS       -   0  24   0  0.1 Ss   poll           gnome-volume-co
+29114 29114 TS       -   0  24   0  0.0 Ssl  poll           evolution-alarm
+29117 29117 TS       -   0  24   0  1.0 S    poll           wnck-applet
+29120 29120 TS       -   0  23   0  0.0 Rl   -              gnome-vfs-daemo
+29122 29122 TS       -   0  23   0  0.0 Sl   poll           evolution-data-
+29147 29147 TS       -   0  23   0  0.0 R    -              mapping-daemon
+29152 29152 TS       -   0  23   0  0.0 R    -              battstat-applet
+29154 29154 TS       -   0  24   0  0.1 S    poll           gnome-netstatus
+29156 29156 TS       -   0  24   0  0.2 Rl   -              mono
+29158 29158 TS       -   0  23   0  0.1 R    -              clock-applet
+29160 29160 TS       -   0  24   0  0.0 S    poll           multiload-apple
+29162 29162 TS       -   0  24   0  0.0 Sl   poll           gweather-applet
+29163 29163 TS       -   0  24   0  0.0 Ss   poll           mono
+29169 29169 TS       -   0  24   0  1.0 Sl   poll           gnome-terminal
+29170 29170 TS       -   0  22   0  0.0 S    unix_stream_da gnome-pty-helpe
+29171 29171 TS       -   0  23   0  0.0 Ss   wait           bash
+29175 29175 TS       -   0  24   0  2.6 Sl   poll           evolution-2.2
+29211 29211 TS       -   0  24   0  0.0 Ss   wait           bash
+29246 29246 TS       -   0  23   0  0.0 Ss   wait           bash
+29250 29250 TS       -   0  22   0  0.0 S    wait           mozilla-launche
+29261 29261 TS       -   0  24   0  1.9 Sl   poll           firefox-bin
+29391 29391 TS       -   0  23   0  0.0 S    wait           su
+29399 29399 TS       -   0  23   0  0.0 S+   read_chan      bash
+29415 29415 TS       -   0  23   0  0.0 S    wait           su
+29418 29418 FF       1   -  41   0  0.0 S    wait           bash
+29594 29594 TS       -   0  23   0  0.0 S+   wait           bash
+29595 29595 TS       -   0  23   0  0.2 S+   pipe_wait      wine-preloader
+29602 29602 TS       -   0  24   0 13.9 Ss   poll           wineserver
+29604 29604 TS       -   0  24   0 18.6 R+   -              wine-preloader
+29738 29738 FF       1   -  41   0  0.0 R+   -              ps
+Tue May 31 18:40:38 EEST 2005
+  PID   TID CLS RTPRIO  NI PRI PSR %CPU STAT WCHAN          COMMAND
+    1     1 TS       -   0  23   0  0.0 R    -              init
+    2     2 TS       -  19   5   0  0.0 SN   ksoftirqd      ksoftirqd/0
+    3     3 TS       -  -5  29   0  0.0 S<   worker_thread  events/0
+    4     4 TS       -  -5  25   0  0.0 S<   worker_thread  khelper
+    9     9 TS       -  -5  28   0  0.0 S<   worker_thread  kthread
+   18    18 TS       -  -5  29   0  0.0 S<   worker_thread  kacpid
+   90    90 TS       -  -5  29   0  0.0 S<   worker_thread  kblockd/0
+  139   139 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  140   140 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  142   142 TS       -  -5  27   0  0.0 S<   worker_thread  aio/0
+  141   141 TS       -   0  24   0  0.0 S    kswapd         kswapd0
+  734   734 TS       -   0  23   0  0.0 S    serio_thread   kseriod
+  929   929 TS       -   0  24   0  0.0 S    hub_thread     khubd
+ 1338  1338 TS       -   0  24   0  0.0 D    sync_buffer    kjournald
+ 5849  5849 TS       -  -4  25   0  0.0 S<s  select         udevd
+ 8145  8145 TS       -   0  24   0  0.0 Ss   poll           syslog-ng
+ 8196  8196 TS       -   0  23   0  0.0 Ss   poll           acpid
+ 8685  8685 TS       -   0  23   0  0.0 Ss   nanosleep      dhcpcd
+ 8828  8828 TS       -   0  21   0  0.0 Ss   select         sshd
+ 8865  8865 TS       -   0  24   0  0.0 Ss   nanosleep      cron
+ 8930  8930 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 8931  8931 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8932  8932 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8933  8933 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9014  9014 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9092  9092 TS       -   0  23   0  0.0 Ss   select         kdm
+ 9095  9095 TS       -   0  23   0  0.5 R    -              X
+28934 28934 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+29050 29050 TS       -   0  23   0  0.0 S    wait           kdm
+29057 29057 TS       -   0  24   0  0.0 S    poll           gnome-session
+29062 29062 TS       -   0  23   0  0.1 R    -              gconfd-2
+29065 29065 TS       -   0  20   0  0.0 S    poll           gnome-keyring-d
+29067 29067 TS       -   0  23   0  0.0 Ss   poll           bonobo-activati
+29069 29069 TS       -   0  24   0  0.2 S    poll           gnome-settings-
+29078 29078 TS       -   0  23   0  0.0 R    -              xscreensaver
+29096 29096 TS       -   0  24   0  0.0 Ss   select         gnome-smproxy
+29104 29104 TS       -   0  24   0  0.6 Ss   poll           metacity
+29106 29106 TS       -   0  23   0  0.2 Rsl  -              nautilus
+29108 29108 TS       -   0  24   0  0.2 Ssl  poll           gnome-panel
+29112 29112 TS       -   0  24   0  0.1 Ss   poll           gnome-volume-co
+29114 29114 TS       -   0  24   0  0.0 Ssl  poll           evolution-alarm
+29117 29117 TS       -   0  24   0  1.0 S    poll           wnck-applet
+29120 29120 TS       -   0  23   0  0.0 Rl   -              gnome-vfs-daemo
+29122 29122 TS       -   0  23   0  0.0 Sl   poll           evolution-data-
+29147 29147 TS       -   0  23   0  0.0 R    -              mapping-daemon
+29152 29152 TS       -   0  23   0  0.0 R    -              battstat-applet
+29154 29154 TS       -   0  24   0  0.1 S    poll           gnome-netstatus
+29156 29156 TS       -   0  24   0  0.2 Rl   -              mono
+29158 29158 TS       -   0  23   0  0.1 R    -              clock-applet
+29160 29160 TS       -   0  24   0  0.0 S    poll           multiload-apple
+29162 29162 TS       -   0  24   0  0.0 Sl   poll           gweather-applet
+29163 29163 TS       -   0  24   0  0.0 Ss   poll           mono
+29169 29169 TS       -   0  24   0  1.0 Sl   poll           gnome-terminal
+29170 29170 TS       -   0  22   0  0.0 S    unix_stream_da gnome-pty-helpe
+29171 29171 TS       -   0  23   0  0.0 Ss   wait           bash
+29175 29175 TS       -   0  24   0  2.6 Sl   poll           evolution-2.2
+29211 29211 TS       -   0  24   0  0.0 Ss   wait           bash
+29246 29246 TS       -   0  23   0  0.0 Ss   wait           bash
+29250 29250 TS       -   0  22   0  0.0 S    wait           mozilla-launche
+29261 29261 TS       -   0  24   0  1.9 Sl   poll           firefox-bin
+29391 29391 TS       -   0  23   0  0.0 S    wait           su
+29399 29399 TS       -   0  23   0  0.0 S+   read_chan      bash
+29415 29415 TS       -   0  23   0  0.0 S    wait           su
+29418 29418 FF       1   -  41   0  0.0 S    wait           bash
+29594 29594 TS       -   0  23   0  0.0 S+   wait           bash
+29595 29595 TS       -   0  23   0  0.2 S+   pipe_wait      wine-preloader
+29602 29602 TS       -   0  24   0 14.1 Rs   -              wineserver
+29604 29604 TS       -   0  24   0 19.0 S+   pipe_wait      wine-preloader
+29741 29741 FF       1   -  41   0  0.0 R+   -              ps
+Tue May 31 18:40:39 EEST 2005
+  PID   TID CLS RTPRIO  NI PRI PSR %CPU STAT WCHAN          COMMAND
+    1     1 TS       -   0  23   0  0.0 R    -              init
+    2     2 TS       -  19   5   0  0.0 SN   ksoftirqd      ksoftirqd/0
+    3     3 TS       -  -5  29   0  0.0 S<   worker_thread  events/0
+    4     4 TS       -  -5  25   0  0.0 S<   worker_thread  khelper
+    9     9 TS       -  -5  28   0  0.0 S<   worker_thread  kthread
+   18    18 TS       -  -5  29   0  0.0 S<   worker_thread  kacpid
+   90    90 TS       -  -5  29   0  0.0 S<   worker_thread  kblockd/0
+  139   139 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  140   140 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  142   142 TS       -  -5  27   0  0.0 S<   worker_thread  aio/0
+  141   141 TS       -   0  24   0  0.0 S    kswapd         kswapd0
+  734   734 TS       -   0  23   0  0.0 S    serio_thread   kseriod
+  929   929 TS       -   0  24   0  0.0 S    hub_thread     khubd
+ 1338  1338 TS       -   0  24   0  0.0 S    kjournald      kjournald
+ 5849  5849 TS       -  -4  25   0  0.0 S<s  select         udevd
+ 8145  8145 TS       -   0  24   0  0.0 Ss   poll           syslog-ng
+ 8196  8196 TS       -   0  23   0  0.0 Ss   poll           acpid
+ 8685  8685 TS       -   0  23   0  0.0 Ss   nanosleep      dhcpcd
+ 8828  8828 TS       -   0  21   0  0.0 Ss   select         sshd
+ 8865  8865 TS       -   0  24   0  0.0 Ss   nanosleep      cron
+ 8930  8930 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 8931  8931 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8932  8932 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8933  8933 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9014  9014 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9092  9092 TS       -   0  23   0  0.0 Ss   select         kdm
+ 9095  9095 TS       -   0  23   0  0.5 R    -              X
+28934 28934 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+29050 29050 TS       -   0  23   0  0.0 S    wait           kdm
+29057 29057 TS       -   0  24   0  0.0 S    poll           gnome-session
+29062 29062 TS       -   0  23   0  0.1 R    -              gconfd-2
+29065 29065 TS       -   0  20   0  0.0 S    poll           gnome-keyring-d
+29067 29067 TS       -   0  23   0  0.0 Ss   poll           bonobo-activati
+29069 29069 TS       -   0  24   0  0.2 S    poll           gnome-settings-
+29078 29078 TS       -   0  23   0  0.0 R    -              xscreensaver
+29096 29096 TS       -   0  24   0  0.0 Ss   select         gnome-smproxy
+29104 29104 TS       -   0  24   0  0.6 Ss   poll           metacity
+29106 29106 TS       -   0  23   0  0.2 Rsl  -              nautilus
+29108 29108 TS       -   0  24   0  0.2 Ssl  poll           gnome-panel
+29112 29112 TS       -   0  24   0  0.1 Ss   poll           gnome-volume-co
+29114 29114 TS       -   0  24   0  0.0 Ssl  poll           evolution-alarm
+29117 29117 TS       -   0  24   0  1.0 S    poll           wnck-applet
+29120 29120 TS       -   0  23   0  0.0 Rl   -              gnome-vfs-daemo
+29122 29122 TS       -   0  23   0  0.0 Sl   poll           evolution-data-
+29147 29147 TS       -   0  23   0  0.0 R    -              mapping-daemon
+29152 29152 TS       -   0  23   0  0.0 R    -              battstat-applet
+29154 29154 TS       -   0  24   0  0.1 S    poll           gnome-netstatus
+29156 29156 TS       -   0  24   0  0.2 Rl   -              mono
+29158 29158 TS       -   0  23   0  0.1 R    -              clock-applet
+29160 29160 TS       -   0  24   0  0.0 S    poll           multiload-apple
+29162 29162 TS       -   0  24   0  0.0 Sl   poll           gweather-applet
+29163 29163 TS       -   0  24   0  0.0 Ss   poll           mono
+29169 29169 TS       -   0  24   0  1.0 Sl   poll           gnome-terminal
+29170 29170 TS       -   0  22   0  0.0 S    unix_stream_da gnome-pty-helpe
+29171 29171 TS       -   0  23   0  0.0 Ss   wait           bash
+29175 29175 TS       -   0  24   0  2.6 Sl   poll           evolution-2.2
+29211 29211 TS       -   0  24   0  0.0 Ss   wait           bash
+29246 29246 TS       -   0  23   0  0.0 Ss   wait           bash
+29250 29250 TS       -   0  22   0  0.0 S    wait           mozilla-launche
+29261 29261 TS       -   0  24   0  1.9 Sl   poll           firefox-bin
+29391 29391 TS       -   0  23   0  0.0 S    wait           su
+29399 29399 TS       -   0  23   0  0.0 S+   read_chan      bash
+29415 29415 TS       -   0  23   0  0.0 S    wait           su
+29418 29418 FF       1   -  41   0  0.0 S    wait           bash
+29594 29594 TS       -   0  23   0  0.0 S+   wait           bash
+29595 29595 TS       -   0  23   0  0.2 S+   pipe_wait      wine-preloader
+29602 29602 TS       -   0  24   0 14.3 Ss   poll           wineserver
+29604 29604 TS       -   0  24   0 19.3 R+   -              wine-preloader
+29744 29744 FF       1   -  41   0  0.0 R+   -              ps
+Tue May 31 18:40:40 EEST 2005
+  PID   TID CLS RTPRIO  NI PRI PSR %CPU STAT WCHAN          COMMAND
+    1     1 TS       -   0  23   0  0.0 R    -              init
+    2     2 TS       -  19   5   0  0.0 SN   ksoftirqd      ksoftirqd/0
+    3     3 TS       -  -5  29   0  0.0 S<   worker_thread  events/0
+    4     4 TS       -  -5  25   0  0.0 S<   worker_thread  khelper
+    9     9 TS       -  -5  28   0  0.0 S<   worker_thread  kthread
+   18    18 TS       -  -5  29   0  0.0 S<   worker_thread  kacpid
+   90    90 TS       -  -5  29   0  0.0 S<   worker_thread  kblockd/0
+  139   139 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  140   140 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  142   142 TS       -  -5  27   0  0.0 S<   worker_thread  aio/0
+  141   141 TS       -   0  24   0  0.0 S    kswapd         kswapd0
+  734   734 TS       -   0  23   0  0.0 S    serio_thread   kseriod
+  929   929 TS       -   0  24   0  0.0 S    hub_thread     khubd
+ 1338  1338 TS       -   0  24   0  0.0 S    kjournald      kjournald
+ 5849  5849 TS       -  -4  25   0  0.0 S<s  select         udevd
+ 8145  8145 TS       -   0  24   0  0.0 Ss   poll           syslog-ng
+ 8196  8196 TS       -   0  23   0  0.0 Ss   poll           acpid
+ 8685  8685 TS       -   0  23   0  0.0 Ss   nanosleep      dhcpcd
+ 8828  8828 TS       -   0  21   0  0.0 Ss   select         sshd
+ 8865  8865 TS       -   0  24   0  0.0 Ss   nanosleep      cron
+ 8930  8930 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 8931  8931 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8932  8932 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8933  8933 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9014  9014 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9092  9092 TS       -   0  23   0  0.0 Ss   select         kdm
+ 9095  9095 TS       -   0  23   0  0.5 R    -              X
+28934 28934 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+29050 29050 TS       -   0  23   0  0.0 S    wait           kdm
+29057 29057 TS       -   0  24   0  0.0 S    poll           gnome-session
+29062 29062 TS       -   0  23   0  0.1 R    -              gconfd-2
+29065 29065 TS       -   0  20   0  0.0 S    poll           gnome-keyring-d
+29067 29067 TS       -   0  23   0  0.0 Ss   poll           bonobo-activati
+29069 29069 TS       -   0  24   0  0.2 S    poll           gnome-settings-
+29078 29078 TS       -   0  23   0  0.0 R    -              xscreensaver
+29096 29096 TS       -   0  24   0  0.0 Ss   select         gnome-smproxy
+29104 29104 TS       -   0  24   0  0.6 Ss   poll           metacity
+29106 29106 TS       -   0  23   0  0.2 Rsl  -              nautilus
+29108 29108 TS       -   0  24   0  0.2 Ssl  poll           gnome-panel
+29112 29112 TS       -   0  24   0  0.1 Rs   -              gnome-volume-co
+29114 29114 TS       -   0  24   0  0.0 Ssl  poll           evolution-alarm
+29117 29117 TS       -   0  24   0  1.0 S    poll           wnck-applet
+29120 29120 TS       -   0  23   0  0.0 Rl   -              gnome-vfs-daemo
+29122 29122 TS       -   0  23   0  0.0 Sl   poll           evolution-data-
+29147 29147 TS       -   0  23   0  0.0 R    -              mapping-daemon
+29152 29152 TS       -   0  23   0  0.0 R    -              battstat-applet
+29154 29154 TS       -   0  24   0  0.1 S    poll           gnome-netstatus
+29156 29156 TS       -   0  24   0  0.2 Rl   -              mono
+29158 29158 TS       -   0  23   0  0.1 R    -              clock-applet
+29160 29160 TS       -   0  24   0  0.0 S    poll           multiload-apple
+29162 29162 TS       -   0  24   0  0.0 Sl   poll           gweather-applet
+29163 29163 TS       -   0  24   0  0.0 Ss   poll           mono
+29169 29169 TS       -   0  24   0  1.0 Sl   poll           gnome-terminal
+29170 29170 TS       -   0  22   0  0.0 S    unix_stream_da gnome-pty-helpe
+29171 29171 TS       -   0  23   0  0.0 Ss   wait           bash
+29175 29175 TS       -   0  24   0  2.6 Sl   poll           evolution-2.2
+29211 29211 TS       -   0  24   0  0.0 Ss   wait           bash
+29246 29246 TS       -   0  23   0  0.0 Ss   wait           bash
+29250 29250 TS       -   0  22   0  0.0 S    wait           mozilla-launche
+29261 29261 TS       -   0  24   0  1.9 Sl   poll           firefox-bin
+29391 29391 TS       -   0  23   0  0.0 S    wait           su
+29399 29399 TS       -   0  23   0  0.0 S+   read_chan      bash
+29415 29415 TS       -   0  23   0  0.0 S    wait           su
+29418 29418 FF       1   -  41   0  0.0 S    wait           bash
+29594 29594 TS       -   0  23   0  0.0 S+   wait           bash
+29595 29595 TS       -   0  23   0  0.2 S+   pipe_wait      wine-preloader
+29602 29602 TS       -   0  24   0 14.4 Ss   poll           wineserver
+29604 29604 TS       -   0  24   0 19.6 R+   -              wine-preloader
+29747 29747 FF       1   -  41   0  0.0 R+   -              ps
+Tue May 31 18:40:41 EEST 2005
+  PID   TID CLS RTPRIO  NI PRI PSR %CPU STAT WCHAN          COMMAND
+    1     1 TS       -   0  23   0  0.0 R    -              init
+    2     2 TS       -  19   5   0  0.0 SN   ksoftirqd      ksoftirqd/0
+    3     3 TS       -  -5  29   0  0.0 S<   worker_thread  events/0
+    4     4 TS       -  -5  25   0  0.0 S<   worker_thread  khelper
+    9     9 TS       -  -5  28   0  0.0 S<   worker_thread  kthread
+   18    18 TS       -  -5  29   0  0.0 S<   worker_thread  kacpid
+   90    90 TS       -  -5  29   0  0.0 S<   worker_thread  kblockd/0
+  139   139 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  140   140 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  142   142 TS       -  -5  27   0  0.0 S<   worker_thread  aio/0
+  141   141 TS       -   0  24   0  0.0 S    kswapd         kswapd0
+  734   734 TS       -   0  23   0  0.0 S    serio_thread   kseriod
+  929   929 TS       -   0  24   0  0.0 S    hub_thread     khubd
+ 1338  1338 TS       -   0  24   0  0.0 S    kjournald      kjournald
+ 5849  5849 TS       -  -4  25   0  0.0 S<s  select         udevd
+ 8145  8145 TS       -   0  24   0  0.0 Ss   poll           syslog-ng
+ 8196  8196 TS       -   0  23   0  0.0 Ss   poll           acpid
+ 8685  8685 TS       -   0  23   0  0.0 Ss   nanosleep      dhcpcd
+ 8828  8828 TS       -   0  21   0  0.0 Ss   select         sshd
+ 8865  8865 TS       -   0  24   0  0.0 Ss   nanosleep      cron
+ 8930  8930 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 8931  8931 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8932  8932 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8933  8933 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9014  9014 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9092  9092 TS       -   0  23   0  0.0 Ss   select         kdm
+ 9095  9095 TS       -   0  23   0  0.5 R    -              X
+28934 28934 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+29050 29050 TS       -   0  23   0  0.0 S    wait           kdm
+29057 29057 TS       -   0  24   0  0.0 S    poll           gnome-session
+29062 29062 TS       -   0  23   0  0.1 R    -              gconfd-2
+29065 29065 TS       -   0  20   0  0.0 S    poll           gnome-keyring-d
+29067 29067 TS       -   0  23   0  0.0 Ss   poll           bonobo-activati
+29069 29069 TS       -   0  24   0  0.2 S    poll           gnome-settings-
+29078 29078 TS       -   0  23   0  0.0 R    -              xscreensaver
+29096 29096 TS       -   0  24   0  0.0 Ss   select         gnome-smproxy
+29104 29104 TS       -   0  24   0  0.6 Ss   poll           metacity
+29106 29106 TS       -   0  23   0  0.2 Rsl  -              nautilus
+29108 29108 TS       -   0  24   0  0.2 Ssl  poll           gnome-panel
+29112 29112 TS       -   0  24   0  0.1 Rs   -              gnome-volume-co
+29114 29114 TS       -   0  24   0  0.0 Ssl  poll           evolution-alarm
+29117 29117 TS       -   0  24   0  1.0 S    poll           wnck-applet
+29120 29120 TS       -   0  23   0  0.0 Rl   -              gnome-vfs-daemo
+29122 29122 TS       -   0  23   0  0.0 Sl   poll           evolution-data-
+29147 29147 TS       -   0  23   0  0.0 R    -              mapping-daemon
+29152 29152 TS       -   0  23   0  0.0 R    -              battstat-applet
+29154 29154 TS       -   0  24   0  0.1 S    poll           gnome-netstatus
+29156 29156 TS       -   0  24   0  0.2 Rl   -              mono
+29158 29158 TS       -   0  23   0  0.1 R    -              clock-applet
+29160 29160 TS       -   0  24   0  0.0 S    poll           multiload-apple
+29162 29162 TS       -   0  24   0  0.0 Sl   poll           gweather-applet
+29163 29163 TS       -   0  24   0  0.0 Ss   poll           mono
+29169 29169 TS       -   0  24   0  1.0 Sl   poll           gnome-terminal
+29170 29170 TS       -   0  22   0  0.0 S    unix_stream_da gnome-pty-helpe
+29171 29171 TS       -   0  23   0  0.0 Ss   wait           bash
+29175 29175 TS       -   0  24   0  2.6 Sl   poll           evolution-2.2
+29211 29211 TS       -   0  24   0  0.0 Ss   wait           bash
+29246 29246 TS       -   0  23   0  0.0 Ss   wait           bash
+29250 29250 TS       -   0  22   0  0.0 S    wait           mozilla-launche
+29261 29261 TS       -   0  24   0  1.9 Sl   poll           firefox-bin
+29391 29391 TS       -   0  23   0  0.0 S    wait           su
+29399 29399 TS       -   0  23   0  0.0 S+   read_chan      bash
+29415 29415 TS       -   0  23   0  0.0 S    wait           su
+29418 29418 FF       1   -  41   0  0.0 S    wait           bash
+29594 29594 TS       -   0  23   0  0.0 S+   wait           bash
+29595 29595 TS       -   0  23   0  0.2 S+   pipe_wait      wine-preloader
+29602 29602 TS       -   0  24   0 14.6 Rs   -              wineserver
+29604 29604 TS       -   0  24   0 19.9 S+   pipe_wait      wine-preloader
+29750 29750 FF       1   -  41   0  0.0 R+   -              ps
+Tue May 31 18:40:42 EEST 2005
+  PID   TID CLS RTPRIO  NI PRI PSR %CPU STAT WCHAN          COMMAND
+    1     1 TS       -   0  23   0  0.0 S    select         init
+    2     2 TS       -  19   5   0  0.0 SN   ksoftirqd      ksoftirqd/0
+    3     3 TS       -  -5  29   0  0.0 S<   worker_thread  events/0
+    4     4 TS       -  -5  25   0  0.0 S<   worker_thread  khelper
+    9     9 TS       -  -5  28   0  0.0 S<   worker_thread  kthread
+   18    18 TS       -  -5  29   0  0.0 S<   worker_thread  kacpid
+   90    90 TS       -  -5  29   0  0.0 S<   worker_thread  kblockd/0
+  139   139 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  140   140 TS       -   0  24   0  0.0 S    pdflush        pdflush
+  142   142 TS       -  -5  27   0  0.0 S<   worker_thread  aio/0
+  141   141 TS       -   0  24   0  0.0 S    kswapd         kswapd0
+  734   734 TS       -   0  23   0  0.0 S    serio_thread   kseriod
+  929   929 TS       -   0  24   0  0.0 S    hub_thread     khubd
+ 1338  1338 TS       -   0  24   0  0.0 S    kjournald      kjournald
+ 5849  5849 TS       -  -4  25   0  0.0 S<s  select         udevd
+ 8145  8145 TS       -   0  24   0  0.0 Ss   poll           syslog-ng
+ 8196  8196 TS       -   0  23   0  0.0 Ss   poll           acpid
+ 8685  8685 TS       -   0  23   0  0.0 Ss   nanosleep      dhcpcd
+ 8828  8828 TS       -   0  21   0  0.0 Ss   select         sshd
+ 8865  8865 TS       -   0  24   0  0.0 Ss   nanosleep      cron
+ 8930  8930 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 8931  8931 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8932  8932 TS       -   0  22   0  0.0 Ss+  read_chan      agetty
+ 8933  8933 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9014  9014 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+ 9092  9092 TS       -   0  23   0  0.0 Ss   select         kdm
+ 9095  9095 TS       -   0  23   0  0.5 S    select         X
+28934 28934 TS       -   0  23   0  0.0 Ss+  read_chan      agetty
+29050 29050 TS       -   0  23   0  0.0 S    wait           kdm
+29057 29057 TS       -   0  24   0  0.0 S    poll           gnome-session
+29062 29062 TS       -   0  23   0  0.1 S    poll           gconfd-2
+29065 29065 TS       -   0  20   0  0.0 S    poll           gnome-keyring-d
+29067 29067 TS       -   0  23   0  0.0 Ss   poll           bonobo-activati
+29069 29069 TS       -   0  24   0  0.2 S    poll           gnome-settings-
+29078 29078 TS       -   0  24   0  0.0 S    select         xscreensaver
+29096 29096 TS       -   0  24   0  0.0 Ss   select         gnome-smproxy
+29104 29104 TS       -   0  24   0  0.6 Ss   poll           metacity
+29106 29106 TS       -   0  24   0  0.2 Ssl  poll           nautilus
+29108 29108 TS       -   0  24   0  0.2 Ssl  poll           gnome-panel
+29112 29112 TS       -   0  24   0  0.1 Ss   poll           gnome-volume-co
+29114 29114 TS       -   0  24   0  0.0 Ssl  poll           evolution-alarm
+29117 29117 TS       -   0  24   0  1.0 S    poll           wnck-applet
+29120 29120 TS       -   0  23   0  0.0 Sl   poll           gnome-vfs-daemo
+29122 29122 TS       -   0  23   0  0.0 Sl   poll           evolution-data-
+29147 29147 TS       -   0  23   0  0.0 S    poll           mapping-daemon
+29152 29152 TS       -   0  24   0  0.0 S    poll           battstat-applet
+29154 29154 TS       -   0  24   0  0.1 S    poll           gnome-netstatus
+29156 29156 TS       -   0  24   0  0.2 Sl   futex_wait     mono
+29158 29158 TS       -   0  24   0  0.1 S    poll           clock-applet
+29160 29160 TS       -   0  24   0  0.0 S    poll           multiload-apple
+29162 29162 TS       -   0  24   0  0.0 Sl   poll           gweather-applet
+29163 29163 TS       -   0  24   0  0.0 Ss   poll           mono
+29169 29169 TS       -   0  24   0  1.0 Sl   poll           gnome-terminal
+29170 29170 TS       -   0  22   0  0.0 S    unix_stream_da gnome-pty-helpe
+29171 29171 TS       -   0  23   0  0.0 Ss   wait           bash
+29175 29175 TS       -   0  24   0  2.6 Sl   poll           evolution-2.2
+29211 29211 TS       -   0  24   0  0.0 Ss   wait           bash
+29246 29246 TS       -   0  23   0  0.0 Ss   wait           bash
+29250 29250 TS       -   0  22   0  0.0 S    wait           mozilla-launche
+29261 29261 TS       -   0  24   0  1.9 Sl   poll           firefox-bin
+29391 29391 TS       -   0  23   0  0.0 S    wait           su
+29399 29399 TS       -   0  23   0  0.0 S+   read_chan      bash
+29415 29415 TS       -   0  23   0  0.0 S    wait           su
+29418 29418 FF       1   -  41   0  0.0 S    wait           bash
+29594 29594 TS       -   0  23   0  0.0 S+   wait           bash
+29595 29595 TS       -   0  23   0  0.2 S+   pipe_wait      wine-preloader
+29602 29602 TS       -   0  24   0 14.6 Ss   poll           wineserver
+29604 29604 TS       -   0  24   0 19.9 S+   pipe_wait      wine-preloader
+29753 29753 FF       1   -  41   0  0.0 R+   -              ps
+
+

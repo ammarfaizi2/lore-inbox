@@ -1,49 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261970AbVEaQzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbVEaQzK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261970AbVEaQzL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 12:55:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbVEaQvI
+	id S261588AbVEaQzK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 12:55:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVEaQvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 12:51:08 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:22913 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261963AbVEaQt0 (ORCPT
+	Tue, 31 May 2005 12:51:33 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:19036 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S261970AbVEaQuJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 12:49:26 -0400
-Message-ID: <429C958F.7090700@pobox.com>
-Date: Tue, 31 May 2005 12:49:19 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+	Tue, 31 May 2005 12:50:09 -0400
+Message-ID: <429C95BF.3070102@tls.msk.ru>
+Date: Tue, 31 May 2005 20:50:07 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Michael Tokarev <mjt@tls.msk.ru>
-CC: Jens Axboe <axboe@suse.de>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SATA NCQ #3
-References: <20050531124659.GB1530@suse.de> <429C86AD.4050605@pobox.com> <429C90DE.3000106@tls.msk.ru>
-In-Reply-To: <429C90DE.3000106@tls.msk.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Greg K-H <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org, gregkh@suse.de
+Subject: Re: [PATCH] PCI: add modalias sysfs file for pci devices
+References: <11163663063114@kroah.com>
+In-Reply-To: <11163663063114@kroah.com>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Tokarev wrote:
-> Jeff Garzik wrote:
-> []
-> 
->> 
->> struct ahci_host_priv {
->> 	unsigned long		flags;
->>+	unsigned int		have_msi; /* is PCI MSI enabled? */
-> 
-> 
-> BTW, can `have_msi' be just another bit in the `flags' field?
+Greg KH wrote:
+> [PATCH] PCI: add modalias sysfs file for pci devices
+[With similar patch and $MODALIAS in hotplug path stuff
+ submitted for USB]
 
-Yes, that would be a good cleanup to make.
+Speaking of all this...  While the two (USB and PCI) are
+most important nowadays...  Hmm, so probably all other
+similar "busses", like PCMCIA, even bluetooth, and "not
+so obvious ones" like IDE and SCSI, and PNP&EISA -- this
+same approach may be used for all, providing device/modalias
+file for all (scsi:t0 for sd_mod etc), and $MODALIAS for
+hotpluggable ones, with appropriate .modalias in modules...
 
-Wanna submit a patch adding HOST_CAP_MSI bit?
+I mean, are we on the way to converting just everything
+into this modalias thing, so that hotplug/modloading will
+be just one-liner?
 
-	Jeff
+Providing "trivial" aliases for eg PNP or EISA busses
+seems to be a bit redundrand (a list of pnp:dXXX in
+device/modalias in addition to XXX in device/id), but
+without that this whole picture will not be consistent...
+or should it?
 
-
-
+/mjt

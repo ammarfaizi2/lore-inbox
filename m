@@ -1,89 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbVEaEdY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVEaEqn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261742AbVEaEdY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 00:33:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbVEaEdY
+	id S261194AbVEaEqn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 00:46:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVEaEqn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 00:33:24 -0400
-Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:19602
-	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
-	with ESMTP id S261742AbVEaEdQ (ORCPT
+	Tue, 31 May 2005 00:46:43 -0400
+Received: from mail.timesys.com ([65.117.135.102]:12005 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S261194AbVEaEql convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 00:33:16 -0400
-Message-ID: <429BDAF7.4030206@linuxwireless.org>
-Date: Mon, 30 May 2005 22:33:11 -0500
-From: Alejandro Bonilla <abonilla@linuxwireless.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: en
+	Tue, 31 May 2005 00:46:41 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
+Content-Class: urn:content-classes:message
+Subject: RE: RT patch acceptance
 MIME-Version: 1.0
-To: Tomko <tomko@avantwave.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: question : 802.11b WLAN stack in linux
-References: <001001c56512$a13d4110$600cc60a@amer.sykes.com> <429BC678.7060403@avantwave.com>
-In-Reply-To: <429BC678.7060403@avantwave.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Date: Tue, 31 May 2005 00:39:59 -0400
+Message-ID: <3D848382FB72E249812901444C6BDB1D01588169@exchange.timesys.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: RT patch acceptance
+thread-index: AcVla6WF55jLVdpTQ9KVW2W1GX6qzwALjZog
+From: "Saksena, Manas" <Manas.Saksena@timesys.com>
+To: <karim@opersys.com>, "Bill Huey (hui)" <bhuey@lnxw.com>
+Cc: "Esben Nielsen" <simlo@phys.au.dk>,
+       "Nick Piggin" <nickpiggin@yahoo.com.au>,
+       "kus Kusche Klaus" <kus@keba.com>, "James Bruce" <bruce@andrew.cmu.edu>,
+       "Andi Kleen" <ak@muc.de>,
+       "Sven-Thorsten Dietrich" <sdietrich@mvista.com>,
+       "Ingo Molnar" <mingo@elte.hu>, <dwalker@mvista.com>,
+       <hch@infradead.org>, <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomko wrote:
+Karim Yaghmour wrote: 
+> But wasn't the same said about the existing preemption code? Yet,
+> most distros ship with it disabled and some developers still feel
+> that there are no added benefits. What's the use if everyone is
+> shipping kernels with the feature disabled? From a practical point of
+> view, isn't it then obvious that such features catter for a minority?
 
-> Thx for your reply.
->
-> Actually i want to use wireless LAN in my embedded linux, i would like 
-> to use Philip BGW200 WLAN chip as the wireless module. Except the 
-> adapter for this module , do i need to download and plug-in WLAN stack 
-> to the kernel or i can just choose to support wlan simply in the 
-> menuconfig ?
+That's a misrepresentation. It is well-known that Linux is used in 
+a wide range of embedded devices. The embedded space is very fragmented,
+with lots of home-grown Linux platforms. And, I would speculate that
+many of them (as well as commercial distros catering to the embedded 
+market) often enable preemption (including using non-mainlined kernel 
+preemption patches for 2.4 kernels). 
 
-As always, if the adapter is supported in the kernel, just select the 
-menuconfig support and compile the source. If it's not in the kernel, 
-then google and you might find a driver for it.
-
-Simply google for "BGW200 Linux" or if you have a distro do like "BGW200 
-debian"
-
-PS: I don't think this is the place to talk about this.
-
-I hope that helps.
-
-.Alejandro
-
->
-> Hope somebody can give me a hand.
->
-> Regards,
-> TOM
->
-> Alejandro Bonilla wrote:
->
->>> Hi all
->>>
->>> Do linux support WLAN stack ? i find in menuconfig but seems
->>> no there.
->>> Do anyone know if there any stack and driver adapter of
->>> wireless in linux ?
->>>   
->>
->>
->> Of course there are. If you are only talking about a stack, I believe 
->> that
->> people are working on the ieee80211 stack specifically and if you are
->> talking about supported adapters, just go to Network Devices and 
->> Wireless
->> and you should see several drivers there to load into the kernel.
->>
->> I really don't understand your question, So I'm assuming that you 
->> want to
->> know if Linux has support for wireless cards.
->>
->> Google can help you further.
->>
->> .Alejandro
->>
->>  
->>
->>> Regards,
->>> TOM
->>>   
->>
+Regards,
+Manas

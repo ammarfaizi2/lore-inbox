@@ -1,45 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261901AbVEaPLK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261910AbVEaPKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261901AbVEaPLK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 11:11:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261905AbVEaPLB
+	id S261910AbVEaPKa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 11:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbVEaPJe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 11:11:01 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:61314 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261901AbVEaPJg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 11:09:36 -0400
-Date: Tue, 31 May 2005 17:07:27 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SATA NCQ #3
-Message-ID: <20050531150727.GG7074@suse.de>
-References: <20050531124659.GB1530@suse.de> <429C7D2C.9080703@pobox.com>
+	Tue, 31 May 2005 11:09:34 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:30091 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261890AbVEaPIo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 11:08:44 -0400
+Date: Tue, 31 May 2005 17:07:45 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: James Bruce <bruce@andrew.cmu.edu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+In-Reply-To: <20050531143051.GL5413@g5.random>
+Message-Id: <Pine.OSF.4.05.10505311652140.1707-100000@da410.phys.au.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <429C7D2C.9080703@pobox.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 31 2005, Jeff Garzik wrote:
-> Jens Axboe wrote:
-> >- (libata) import an error handling fix from Hannes.
+On Tue, 31 May 2005, Andrea Arcangeli wrote:
+
+> On Tue, May 31, 2005 at 06:48:50AM -0400, James Bruce wrote:
+> > orthogonal, because *if* preempt-RT patch becomes guaranteed hard-RT, it 
 > 
-> Keep this separate, his fix is busted.  Calling scsi_eh_abort_cmds() 
-> without an abort handler is highly ineffective, and highly silly.
+> I don't see how can preempt-RT ever become hard-RT when a simple lock
+> hangs it. 
 
-Irk, I didn't follow the recent discussion. I'll kill the fix locally
-for now.
+There is no "simple lock" as spinlock (or very very few). All locks are
+mutexes - with priority inheritance! Ofcourse, hitting a lock which can be
+held for a non-deterministic amount of time destroyes your RT - but so it
+does in any  RTOS. 
+The whole point of PREEMPT_RT is that what _other_, lower priority threads
+are doing isn't going to affect you. They are _not_ disabling preemption
+or locking you away. Ofcourse, as soon as you start to share resources
+with other threads you have to be carefull. But priority inheritance
+even makes that deterministic - provided that all code used under the lock
+is deterministic. Same as for any RTOS.
 
-> >Jeff, I'll update your ncq branch at the end of this week if you don't
-> >beat me to it.
+> As soon as you call kernel code, you'll eventually hang,
+> kmalloc will have to allocate memory and pageout other stuff no matter
+> what.
+
+Please, tell me why you think mlockall() doesn't protect my RT thread
+against that problem. In the testcode I have made and run I have no
+problems in practise, but I have not verified it by going through all the
+mm-code. You know that code a whole lot better than I.
+
 > 
-> Just an incremental patch will do it :)
+> I really hope embedded developers knows better and they don't get the
+> idea of using preempt-RT where hard-RT is required.
 
-Ok, will get you on.
+I hope people will stop making such broad statements and reallize that
+Linux can become a hard-RT OS (if not by "proof", at least by
+meassurement). There is no conflict between a timesharing system scaling
+to a lot of CPUs and a hard-RT system just because they are catogarized as
+different in the text-books.
 
--- 
-Jens Axboe
+Esben
 

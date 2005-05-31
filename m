@@ -1,62 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261547AbVEaJgK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbVEaJku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261547AbVEaJgK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 05:36:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbVEaJgJ
+	id S261544AbVEaJku (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 05:40:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVEaJku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 05:36:09 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:6797 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S261613AbVEaJfO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 05:35:14 -0400
-Date: Tue, 31 May 2005 11:35:04 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: randy_dunlap <rdunlap@xenotime.net>
-cc: viro@parcelfarce.linux.theplanet.co.uk, geert@linux-m68k.org,
-       linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
-Subject: Re: more thread_info patches
-In-Reply-To: <20050530182511.434b0e97.rdunlap@xenotime.net>
-Message-ID: <Pine.LNX.4.61.0505311127330.3728@scrub.home>
-References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
- <42676B76.4010903@ppp0.net> <Pine.LNX.4.62.0504211105550.13231@numbat.sonytel.be>
- <20050421161106.GY13052@parcelfarce.linux.theplanet.co.uk>
- <20050421173908.GZ13052@parcelfarce.linux.theplanet.co.uk>
- <Pine.LNX.4.61.0505310113370.10977@scrub.home> <20050530182511.434b0e97.rdunlap@xenotime.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 31 May 2005 05:40:50 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:61893 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261544AbVEaJkk
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 05:40:40 -0400
+Date: Tue, 31 May 2005 15:10:45 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Shaohua Li <shaohua.li@intel.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, Rusty Russell <rusty@rustcorp.com.au>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, ashok.raj@intel.com
+Subject: Re: [PATCH]CPU hotplug breaks wake_up_new_task
+Message-ID: <20050531094045.GA9884@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <1117524909.3820.11.camel@linux-hp.sh.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1117524909.3820.11.camel@linux-hp.sh.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, May 31, 2005 at 07:29:39AM +0000, Shaohua Li wrote:
+> Hi,
+> There is a race condition at wake_up_new_task at CPU hotplug case.
+> Say do_fork
+>         copy_process (which sets new forked task's current cpu, cpu_allowed)
+>                 <-------- the new forked task's current cpu is offline
+>         wake_up_new_task
+> wake_up_new_task will put the forked task into a dead cpu.
 
-On Mon, 30 May 2005, randy_dunlap wrote:
+This was noticed/fixed long back. Apparently somebody has reintroduced
+the bug. The simple fix for this race is:
 
-> | Index: linux-2.6-mm/include/linux/sched.h
-> | ===================================================================
-> | --- linux-2.6-mm.orig/include/linux/sched.h	2005-05-31 01:19:01.636591190 +0200
-> | +++ linux-2.6-mm/include/linux/sched.h	2005-05-31 01:19:05.913856451 +0200
-> | @@ -617,6 +617,7 @@ struct mempolicy;
-> |  struct task_struct {
-> |  	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
-> |  	struct thread_info *thread_info;
-> | +	void *stack;
-> 
-> Any reason this is void * instead of being more strongly typed?
-> Does the actual type vary?
 
-Yes, on m68k it actually doesn't point to the thread_info at all.
-The point of these patches are to allow archs to put the thread_info 
-structure somewhere else. Archs with a thread register can keep 
-task_struct and thread_info together and directly accessable via the 
-thread register. Only because i386 has no usable thread register, doesn't 
-mean everyone else has to suffer.
+--- kernel/fork.c.org	2005-05-31 14:57:15.000000000 +0530
++++ kernel/fork.c	2005-05-31 15:07:20.000000000 +0530
+@@ -1024,8 +1024,7 @@ static task_t *copy_process(unsigned lon
+ 	 * parent's CPU). This avoids alot of nasty races.
+ 	 */
+ 	p->cpus_allowed = current->cpus_allowed;
+-	if (unlikely(!cpu_isset(task_cpu(p), p->cpus_allowed)))
+-		set_task_cpu(p, smp_processor_id());
++	set_task_cpu(p, smp_processor_id());
+ 
+ 	/*
+ 	 * Check for pending SIGKILL! The new thread should not be allowed
 
-> And a general comments about the 4 emails:
-> they all have the same subject.  :(
+Could you test and check if it avoids whatever problem you are seeing?
 
-I know and I did this intentionally, as these patches were not intended to 
-be applied, they are based on Al's patches and even these aren't in -mm 
-yet. I maybe should have added a [RFC].
 
-bye, Roman
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

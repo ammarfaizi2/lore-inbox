@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVEaAla@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261785AbVEaAyt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261847AbVEaAla (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 20:41:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbVEaAla
+	id S261785AbVEaAyt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 20:54:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbVEaAyt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 20:41:30 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:5137 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261847AbVEaAlZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 20:41:25 -0400
-Date: Tue, 31 May 2005 02:41:20 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, kbuild-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, Jesper Juhl <juhl-lkml@dif.dk>
-Subject: Re: [2.6 patch] Kconfig: rename "---help---" to "help" in Kconfig files (first part) (fwd)
-Message-ID: <20050531004120.GH3627@stusta.de>
-References: <20050531001038.GD3627@stusta.de> <Pine.LNX.4.61.0505310217030.3728@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0505310217030.3728@scrub.home>
-User-Agent: Mutt/1.5.9i
+	Mon, 30 May 2005 20:54:49 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:59116 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261785AbVEaAym (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 20:54:42 -0400
+Message-ID: <429BB5CB.2020708@pobox.com>
+Date: Mon, 30 May 2005 20:54:35 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: libata dev guide updated
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.5 (/)
+X-Spam-Report: Spam detection software, running on the system "srv2.dvmed.net", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  Just made a run through the libata docs, updating them
+	for the latest hooks and filling in missing details like
+	locking/context documentation. I've been playing with lulu.com
+	self-publishing, and published this newly updated libata Developer's
+	Guide there as a short book (92 pages):
+	http://www.lulu.com/content/130446 [...] 
+	Content analysis details:   (0.5 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.5 TO_ADDRESS_EQ_REAL     To: repeats address as real name
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 31, 2005 at 02:17:50AM +0200, Roman Zippel wrote:
 
-> Hi,
+Just made a run through the libata docs, updating them for the latest 
+hooks and filling in missing details like locking/context documentation. 
+I've been playing with lulu.com self-publishing, and published this 
+newly updated libata Developer's Guide there as a short book (92 pages):
+	http://www.lulu.com/content/130446
 
-Hi Roman,
+I think the muddy road on the front cover is apropos :)
 
-> On Tue, 31 May 2005, Adrian Bunk wrote:
-> 
-> > The main reason for this patch (quoting Jesper) is:
-> >   Consistency. out of ~4000 help entries in 134 Kconfig files, 747 of 
-> >   those entries use "---help---" as the keyword, the rest use just "help". 
-> >   So the users of "---help---" are clearly a minority and by renaming them 
-> >   we make things consistent. - I hate inconsistency. :-)
-> 
-> And I still don't like this change...
+This guide continues to be open source -- just run "make pdfdocs" in the 
+kernel source tree.
 
-there's still the point that it's currently used inconsistently.
+A PDF of the book is available for free on lulu.com or at 
+http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata.pdf or by 
+running "make pdfdocs" (or "make psdocs", "make htmldocs", ...).
 
-If you really prefer "---help---" over "help" (I consider "help" being 
-better, but as long as it's used consistently each of them is 
-acceptable), feel free to send a patch instead that changes all
-occurences of "help" to "---help---".
+The source code for the guide is in the kernel source tree, with new 
+additions in the 'docs' branch of 
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
 
-> bye, Roman
-
-cu
-Adrian
-
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
 

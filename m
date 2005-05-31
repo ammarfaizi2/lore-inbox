@@ -1,224 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbVEaQuq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261950AbVEaQus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261981AbVEaQuq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 12:50:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbVEaQuL
+	id S261950AbVEaQus (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 12:50:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261976AbVEaQub
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 12:50:11 -0400
-Received: from berlioz.imada.sdu.dk ([130.225.128.12]:31911 "EHLO
-	berlioz.imada.sdu.dk") by vger.kernel.org with ESMTP
-	id S261945AbVEaQSm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 12:18:42 -0400
-From: Hans Henrik Happe <hhh@imada.sdu.dk>
-To: Avi Kivity <avi@argo.co.il>
-Subject: Re: Issues with INET sockets through loopback (lo)
-Date: Tue, 31 May 2005 18:18:44 +0200
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <200505231317.44716.hhh@imada.sdu.dk> <1116937382.1848.9.camel@blast.qumranet.com>
-In-Reply-To: <1116937382.1848.9.camel@blast.qumranet.com>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_k5InCbUf8hpnGu2"
-Message-Id: <200505311818.44938.hhh@imada.sdu.dk>
+	Tue, 31 May 2005 12:50:31 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:22009 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261930AbVEaQSj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 12:18:39 -0400
+Subject: Re: what is the -RT tree
+From: Sven-Thorsten Dietrich <sdietrich@mvista.com>
+To: Andi Kleen <ak@muc.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Takashi Iwai <tiwai@suse.de>,
+       dwalker@mvista.com, bhuey@lnxw.com, nickpiggin@yahoo.com.au,
+       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050530124038.GM86087@muc.de>
+References: <20050527123529.GD86087@muc.de> <20050527124837.GA7253@elte.hu>
+	 <20050527125630.GE86087@muc.de> <20050527131317.GA11071@elte.hu>
+	 <20050527133122.GF86087@muc.de> <s5hwtpkwz4z.wl@alsa2.suse.de>
+	 <20050530095349.GK86087@muc.de> <20050530103347.GA13425@elte.hu>
+	 <20050530105618.GL86087@muc.de> <20050530121031.GA26255@elte.hu>
+	 <20050530124038.GM86087@muc.de>
+Content-Type: text/plain
+Date: Tue, 31 May 2005 09:18:06 -0700
+Message-Id: <1117556286.9832.15.camel@sdietrich-xp.vilm.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_k5InCbUf8hpnGu2
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-On Tuesday 24 May 2005 14:23, Avi Kivity wrote:
-> On Mon, 2005-05-23 at 13:17 +0200, Hans Henrik Happe wrote:
-> 
-> > I hope that others can comfirm that this is an issue or otherwise explain 
-> > why it is supposed behave this way.
+On Mon, 2005-05-30 at 14:40 +0200, Andi Kleen wrote:
+> On Mon, May 30, 2005 at 02:10:31PM +0200, Ingo Molnar wrote:
 > > 
+> > * Andi Kleen <ak@muc.de> wrote:
+> > 
+> > > 
+> > > Yeah, but you did a lot of (often unrelated to rt preempt) latency 
+> > > fixes in RT that are not yet merged into mainline. When they are all 
+> > > merged things might be very different. And then there can be probably 
+> > > more fixes.
+> > 
+> > your argument above == cond_resched() in might_sleep() [ == VP ] is the
+> >                        only way to get practical (e.g. jack) latencies.
 > 
-> you might try using udp instead of tcp. this would help determine
-> whether the problem is in the tcp stack or the loopback interface.
-
-Now I have tried with SCTP and it works great (no idle CPU time).
-So my guess is still that there is a problem in TCP.
-
-I have attached the SCTP program. It's my first attempt at using SCTP, so it's 
-not beautiful. The messages get around as expected though.
-
-TripleH ;-)
-
---Boundary-00=_k5InCbUf8hpnGu2
-Content-Type: text/x-csrc;
-  charset="utf-8";
-  name="random-sctp.c"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="random-sctp.c"
-
-/* 
- * usage: random-inet <# processes> <# messages>
- */
-
-#include <asm/msr.h>
-
-#include <stdio.h>
-#include <poll.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/tcp.h>
-#include <fcntl.h>
-#include <netdb.h>
-
-#include <netinet/sctp.h>
-
-typedef struct {
-    struct sockaddr sockadr;
-    int len;    
-} adr_t;
-
-int get_adr(adr_t *adr, int port) {
-   int n;
-   struct addrinfo hints, *res;
-   char str[6];
-    
-   memset(&hints, 0, sizeof(struct addrinfo));
-    
-   hints.ai_flags    = AI_PASSIVE;
-   hints.ai_family   = PF_UNSPEC;
-   hints.ai_socktype = SOCK_STREAM;
-
-   sprintf(str, "%d", port);
-   n = getaddrinfo("localhost", str, &hints, &res);
-
-   if (n != 0) {
-       fprintf(stderr,
-               "getaddrinfo error: [%s]\n",
-               gai_strerror(n));
-       return -1;    
-   }
-   
-   memcpy(&adr->sockadr, res->ai_addr, sizeof(*res->ai_addr));
-   adr->len = sizeof(*res->ai_addr);
-      
-   freeaddrinfo(res);
-
-   return 0;
-}
-
-int init_listen(int port) {
-    int n, on=1;
-    int sock;    
-    struct sockaddr_in name;
-   
-        
-    sock = socket(PF_INET, SOCK_SEQPACKET, IPPROTO_SCTP);
-    if (sock == -1) {
-        perror("socket");
-        return -1;
-    }
-    
-    name.sin_family = PF_INET;
-    name.sin_port = htons (port);
-    name.sin_addr.s_addr = htonl (INADDR_ANY);
-    
-    if (bind (sock, (struct sockaddr *) &name, sizeof (name)) == -1) {
-        perror("bind");
-        return -1;
-    }      
-    
-    if (listen(sock, 10) == -1) {
-        perror("listen");
-        return -1;
-    }
-
-    return sock;  
-}
-
-int do_recv(int sock, void *buf, int n) {
-    struct sockaddr sa;
-    struct sctp_sndrcvinfo info;
-    int slen, flags;
-    slen = sizeof(sa);
-    
-    n = sctp_recvmsg(sock, buf, n, &sa, &slen, &info, &flags);
-//    n = sctp_recvmsg(sock, buf, n, &sa, &slen, &info, &flags);
-    if (n == -1) {
-        perror("recv");    
-    }
-    return n;
-}
-
-int do_send(int sock, adr_t *adr, void *buf, int n) {
-    
-    n = sctp_sendmsg(sock, buf, n, &adr->sockadr, adr->len, 666, MSG_ADDR_OVER, 0, 0, 444);
-    if (n == -1) {
-        perror("send");    
-    }
-    return n;
-}
+> My argument was basically that we have no other choice than
+> to fix it anyways, since the standard kernel has to be usable
+> in this regard.
+> 
+> (it is similar to that we e.g. don't do separate "server VM" and "desktop VM"s
+> although it would be sometimes tempting. after all one wants a kernel
+> that works well on a variety of workloads and doesn't need to extensive
+> hand tuning)
 
 
-int main(int argc, char *argv[]) {
-    int i, n, cnt, pid, dest;
-    int lsock;
-    char data, id, rank;
-    int port = 11100;
-    uint64_t t0, t1;
-        
-    /* # processes */
-    cnt = atoi(argv[1]);
-    
-    /* # messages */
-    n = atoi(argv[2]);
+The cond_resched approach degenerates to basically "polling",
+whether an RT task is ready to run.
 
-    {
-        adr_t dests[cnt];
-           
-        /* Create processes */
-        rank = 0;
-        for (i=1; i<cnt; i++) {
-            pid = fork();
-            if (pid == 0) {
-                rank=cnt-i;
-                break;    
-            }
-        }
+This resembles the earliest RT systems, known as cyclic executive.
 
-        /* Setup connections */
-        lsock = init_listen(port+rank);
+Folks moved away from that in the 1970s, because it was difficult
+to maintain, since each time you add a big new feature, you have
+to re-tune the system to make sure you are polling often enough.
 
-        
-        sleep(2); /* "Ensure" that all processes are listening, HACK!!! */
-                
-        
-        for (i=0; i<cnt; i++) {
-            get_adr(dests+i, port+i);
-        }
-                
-        srandom(rank);        
-        /* Write startup messages */
-        if (rank < n) {
-            do_send(lsock, &dests[(rank+1)%cnt], &data, 1);
-        }
-        
-        sleep(1);
-        
-        /* Receive and forward messages to random destinations */
-        while (1) {
-            do_recv(lsock, &data, 1);
+In the long term, who is going to go through 10,000 non-preemptible
+sections, and put the cond_resched's at exactly the same place?
 
-            dest = random()%cnt;
-                    
-            /* Do not send to self */           
-            if (dest == rank) {
-                dest = (dest+1)%cnt;    
-            }
-            
-            do_send(lsock, &dests[dest], &data, 1);
-        }
-    }    
-    return 0;
-}
+Who is going to educate the driver folks, that they need to do
+cond_resched() every so often to meet specs. 
 
---Boundary-00=_k5InCbUf8hpnGu2--
+Who is going to enforce that in 6 million lines of code ?
+
+The Linux kernel is enjoying a very broad base of application
+coverage, and the big server distros may not (yet) see the 
+need for preemption.
+
+The big distros and every Linux server system will be the minority
+of Linux deployment when Linux takes a solid foothold in mobile
+applications. (cell phones, pda's, music players, etc.)
+
+All these gadgets are battery powered.
+
+They have to balance weight(battery), size(device), power(CPU).
+
+This combination of design contraints AUTOMATICALLY imposes RT
+constraints on the software, since the CPU parts must be chosen
+for minimal power consumption, so that you can minimize everything
+else.
+
+That means high CPU loads, which implies priorities and RT constraints,
+especially in the presence of external connectivity. No one is going
+to use a device for very long which drops its connections because
+of transient overloads.
+
+The RT patch provides tunability, which allows you to CHOOSE, what
+level of preemption and locking you need, all the way to hard RT.
+
+The folks who need hard RT would RATHER use Linux, but it doesn't
+offer the performance at this time.
+
+The RT work will allow that choice, without inconveniencing
+the big distros, who can continue to run non-preemptable,
+without impact.
+
+When they do see the need for better preemption performance -
+they would have stable technology to help them along the way.
+
+Sven
+
+

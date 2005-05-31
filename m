@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVEaTyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVEaTzU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261374AbVEaTyp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 15:54:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVEaTyk
+	id S261365AbVEaTzU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 15:55:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVEaTzU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 15:54:40 -0400
-Received: from zproxy.gmail.com ([64.233.162.207]:15001 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261374AbVEaTyY (ORCPT
+	Tue, 31 May 2005 15:55:20 -0400
+Received: from zproxy.gmail.com ([64.233.162.205]:48612 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261365AbVEaTy1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 15:54:24 -0400
+	Tue, 31 May 2005 15:54:27 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=gRJIjfm7DfLkAfGr0imN6MCE9BskcCfd/xHlkLGRDTwDP4gtH85uJJGGllTNYh0/pB+fmb0vRRlp/DMdc68Y9y9bmhmNkuvmQx+mmAo1XopUnw7GmvJXmKwlXEy84wCmMolWfuYPHF6PVyKiPiogkG3s4H9975ZZQ1ZLNT8YOnY=
+        b=kfjs8lWfVkgHq/pan41AsaAWgo6jPC7z/eZullzJTV4FkXoZ6DqVcdOuMyjm4enP6/ShlwNYTOF+MLVixxjY+GpkUSt9XeAz/xEMPwKfO5F/QRlMn5TOq/N451e03mpoRsjMinD/FnIe5QfY0Nffn4Nc6Pf0yKW+tLM9wHNbW24=
 From: Alexey Dobriyan <adobriyan@gmail.com>
 To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 1/2] Introduce tty_unregister_ldisc()
-Date: Tue, 31 May 2005 23:56:00 +0400
+Subject: [PATCH 2/2] Convert users to tty_unregister_ldisc()
+Date: Tue, 31 May 2005 23:57:20 +0400
 User-Agent: KMail/1.7.2
 Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
@@ -24,92 +24,170 @@ Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200505312356.00853.adobriyan@gmail.com>
+Message-Id: <200505312357.21062.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's a bit strange to see tty_register_ldisc() call in modules' exit functions.
+tty_register_ldisc(N_FOO, NULL) => tty_unregister_ldisc(N_FOO)
 
 Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
 ---
 
- Documentation/tty.txt |    2 +-
- drivers/char/tty_io.c |   35 ++++++++++++++++++++++++-----------
- include/linux/tty.h   |    1 +
- 3 files changed, 26 insertions(+), 12 deletions(-)
+ drivers/bluetooth/hci_ldisc.c |    2 +-
+ drivers/char/n_hdlc.c         |    2 +-
+ drivers/char/n_r3964.c        |    2 +-
+ drivers/input/serio/serport.c |    2 +-
+ drivers/net/hamradio/6pack.c  |    2 +-
+ drivers/net/hamradio/mkiss.c  |    2 +-
+ drivers/net/irda/irtty-sir.c  |    2 +-
+ drivers/net/ppp_async.c       |    2 +-
+ drivers/net/ppp_synctty.c     |    2 +-
+ drivers/net/slip.c            |    2 +-
+ drivers/net/wan/x25_asy.c     |    2 +-
+ drivers/net/wireless/strip.c  |    2 +-
+ 12 files changed, 12 insertions(+), 12 deletions(-)
 
-diff -uprN linux-tty_register_ldisc_000/Documentation/tty.txt linux-tty_register_ldisc_001/Documentation/tty.txt
---- linux-tty_register_ldisc_000/Documentation/tty.txt	2005-05-31 20:12:47.000000000 +0400
-+++ linux-tty_register_ldisc_001/Documentation/tty.txt	2005-05-31 23:19:32.000000000 +0400
-@@ -22,7 +22,7 @@ copy of the structure. You must not re-r
- discipline even with the same data or your computer again will be eaten by
- demons.
+diff -uprN linux-tty_register_ldisc_001/drivers/bluetooth/hci_ldisc.c linux-tty_register_ldisc_002/drivers/bluetooth/hci_ldisc.c
+--- linux-tty_register_ldisc_001/drivers/bluetooth/hci_ldisc.c	2005-05-31 20:13:29.000000000 +0400
++++ linux-tty_register_ldisc_002/drivers/bluetooth/hci_ldisc.c	2005-05-31 23:30:50.000000000 +0400
+@@ -576,7 +576,7 @@ static void __exit hci_uart_exit(void)
+ #endif
  
--In order to remove a line discipline call tty_register_ldisc passing NULL.
-+In order to remove a line discipline call tty_unregister_ldisc().
- In ancient times this always worked. In modern times the function will
- return -EBUSY if the ldisc is currently in use. Since the ldisc referencing
- code manages the module counts this should not usually be a concern.
-diff -uprN linux-tty_register_ldisc_000/drivers/char/tty_io.c linux-tty_register_ldisc_001/drivers/char/tty_io.c
---- linux-tty_register_ldisc_000/drivers/char/tty_io.c	2005-05-31 20:13:34.000000000 +0400
-+++ linux-tty_register_ldisc_001/drivers/char/tty_io.c	2005-05-31 23:17:40.000000000 +0400
-@@ -262,17 +262,10 @@ int tty_register_ldisc(int disc, struct 
- 		return -EINVAL;
- 	
- 	spin_lock_irqsave(&tty_ldisc_lock, flags);
--	if (new_ldisc) {
--		tty_ldiscs[disc] = *new_ldisc;
--		tty_ldiscs[disc].num = disc;
--		tty_ldiscs[disc].flags |= LDISC_FLAG_DEFINED;
--		tty_ldiscs[disc].refcount = 0;
--	} else {
--		if(tty_ldiscs[disc].refcount)
--			ret = -EBUSY;
--		else
--			tty_ldiscs[disc].flags &= ~LDISC_FLAG_DEFINED;
--	}
-+	tty_ldiscs[disc] = *new_ldisc;
-+	tty_ldiscs[disc].num = disc;
-+	tty_ldiscs[disc].flags |= LDISC_FLAG_DEFINED;
-+	tty_ldiscs[disc].refcount = 0;
- 	spin_unlock_irqrestore(&tty_ldisc_lock, flags);
- 	
- 	return ret;
-@@ -280,6 +273,26 @@ int tty_register_ldisc(int disc, struct 
+ 	/* Release tty registration of line discipline */
+-	if ((err = tty_register_ldisc(N_HCI, NULL)))
++	if ((err = tty_unregister_ldisc(N_HCI)))
+ 		BT_ERR("Can't unregister HCI line discipline (%d)", err);
+ }
  
- EXPORT_SYMBOL(tty_register_ldisc);
- 
-+int tty_unregister_ldisc(int disc)
-+{
-+	unsigned long flags;
-+	int ret = 0;
-+
-+	if (disc < N_TTY || disc >= NR_LDISCS)
-+		return -EINVAL;
-+
-+	spin_lock_irqsave(&tty_ldisc_lock, flags);
-+	if (tty_ldiscs[disc].refcount)
-+		ret = -EBUSY;
-+	else
-+		tty_ldiscs[disc].flags &= ~LDISC_FLAG_DEFINED;
-+	spin_unlock_irqrestore(&tty_ldisc_lock, flags);
-+
-+	return ret;
-+}
-+
-+EXPORT_SYMBOL(tty_unregister_ldisc);
-+
- struct tty_ldisc *tty_ldisc_get(int disc)
+diff -uprN linux-tty_register_ldisc_001/drivers/char/n_hdlc.c linux-tty_register_ldisc_002/drivers/char/n_hdlc.c
+--- linux-tty_register_ldisc_001/drivers/char/n_hdlc.c	2005-05-31 20:13:33.000000000 +0400
++++ linux-tty_register_ldisc_002/drivers/char/n_hdlc.c	2005-05-31 23:29:30.000000000 +0400
+@@ -960,7 +960,7 @@ static char hdlc_unregister_fail[] __exi
+ static void __exit n_hdlc_exit(void)
  {
- 	unsigned long flags;
-diff -uprN linux-tty_register_ldisc_000/include/linux/tty.h linux-tty_register_ldisc_001/include/linux/tty.h
---- linux-tty_register_ldisc_000/include/linux/tty.h	2005-05-31 20:15:51.000000000 +0400
-+++ linux-tty_register_ldisc_001/include/linux/tty.h	2005-05-31 23:18:23.000000000 +0400
-@@ -345,6 +345,7 @@ extern int tty_check_change(struct tty_s
- extern void stop_tty(struct tty_struct * tty);
- extern void start_tty(struct tty_struct * tty);
- extern int tty_register_ldisc(int disc, struct tty_ldisc *new_ldisc);
-+extern int tty_unregister_ldisc(int disc);
- extern int tty_register_driver(struct tty_driver *driver);
- extern int tty_unregister_driver(struct tty_driver *driver);
- extern void tty_register_device(struct tty_driver *driver, unsigned index, struct device *dev);
+ 	/* Release tty registration of line discipline */
+-	int status = tty_register_ldisc(N_HDLC, NULL);
++	int status = tty_unregister_ldisc(N_HDLC);
+ 
+ 	if (status)
+ 		printk(hdlc_unregister_fail, status);
+diff -uprN linux-tty_register_ldisc_001/drivers/char/n_r3964.c linux-tty_register_ldisc_002/drivers/char/n_r3964.c
+--- linux-tty_register_ldisc_001/drivers/char/n_r3964.c	2005-05-31 20:13:33.000000000 +0400
++++ linux-tty_register_ldisc_002/drivers/char/n_r3964.c	2005-05-31 23:29:55.000000000 +0400
+@@ -200,7 +200,7 @@ static void __exit r3964_exit(void)
+    
+    TRACE_M ("cleanup_module()");
+ 
+-   status=tty_register_ldisc(N_R3964, NULL);
++   status=tty_unregister_ldisc(N_R3964);
+    
+    if(status!=0)
+    {
+diff -uprN linux-tty_register_ldisc_001/drivers/input/serio/serport.c linux-tty_register_ldisc_002/drivers/input/serio/serport.c
+--- linux-tty_register_ldisc_001/drivers/input/serio/serport.c	2005-05-31 20:13:40.000000000 +0400
++++ linux-tty_register_ldisc_002/drivers/input/serio/serport.c	2005-05-31 23:30:21.000000000 +0400
+@@ -257,7 +257,7 @@ static int __init serport_init(void)
+ 
+ static void __exit serport_exit(void)
+ {
+-	tty_register_ldisc(N_MOUSE, NULL);
++	tty_unregister_ldisc(N_MOUSE);
+ }
+ 
+ module_init(serport_init);
+diff -uprN linux-tty_register_ldisc_001/drivers/net/hamradio/6pack.c linux-tty_register_ldisc_002/drivers/net/hamradio/6pack.c
+--- linux-tty_register_ldisc_001/drivers/net/hamradio/6pack.c	2005-05-31 20:13:52.000000000 +0400
++++ linux-tty_register_ldisc_002/drivers/net/hamradio/6pack.c	2005-05-31 23:28:22.000000000 +0400
+@@ -848,7 +848,7 @@ static void __exit sixpack_exit_driver(v
+ {
+ 	int ret;
+ 
+-	if ((ret = tty_register_ldisc(N_6PACK, NULL)))
++	if ((ret = tty_unregister_ldisc(N_6PACK)))
+ 		printk(msg_unregfail, ret);
+ }
+ 
+diff -uprN linux-tty_register_ldisc_001/drivers/net/hamradio/mkiss.c linux-tty_register_ldisc_002/drivers/net/hamradio/mkiss.c
+--- linux-tty_register_ldisc_001/drivers/net/hamradio/mkiss.c	2005-05-31 20:13:52.000000000 +0400
++++ linux-tty_register_ldisc_002/drivers/net/hamradio/mkiss.c	2005-05-31 23:27:53.000000000 +0400
+@@ -934,7 +934,7 @@ static void __exit mkiss_exit_driver(voi
+ 	kfree(ax25_ctrls);
+ 	ax25_ctrls = NULL;
+ 
+-	if ((i = tty_register_ldisc(N_AX25, NULL)))
++	if ((i = tty_unregister_ldisc(N_AX25)))
+ 		printk(KERN_ERR "mkiss: can't unregister line discipline (err = %d)\n", i);
+ }
+ 
+diff -uprN linux-tty_register_ldisc_001/drivers/net/irda/irtty-sir.c linux-tty_register_ldisc_002/drivers/net/irda/irtty-sir.c
+--- linux-tty_register_ldisc_001/drivers/net/irda/irtty-sir.c	2005-05-31 20:13:53.000000000 +0400
++++ linux-tty_register_ldisc_002/drivers/net/irda/irtty-sir.c	2005-05-31 23:26:38.000000000 +0400
+@@ -626,7 +626,7 @@ static void __exit irtty_sir_cleanup(voi
+ {
+ 	int err;
+ 
+-	if ((err = tty_register_ldisc(N_IRDA, NULL))) {
++	if ((err = tty_unregister_ldisc(N_IRDA))) {
+ 		IRDA_ERROR("%s(), can't unregister line discipline (err = %d)\n",
+ 			   __FUNCTION__, err);
+ 	}
+diff -uprN linux-tty_register_ldisc_001/drivers/net/ppp_async.c linux-tty_register_ldisc_002/drivers/net/ppp_async.c
+--- linux-tty_register_ldisc_001/drivers/net/ppp_async.c	2005-05-31 20:13:54.000000000 +0400
++++ linux-tty_register_ldisc_002/drivers/net/ppp_async.c	2005-05-31 23:27:26.000000000 +0400
+@@ -1025,7 +1025,7 @@ static void async_lcp_peek(struct asyncp
+ 
+ static void __exit ppp_async_cleanup(void)
+ {
+-	if (tty_register_ldisc(N_PPP, NULL) != 0)
++	if (tty_unregister_ldisc(N_PPP) != 0)
+ 		printk(KERN_ERR "failed to unregister PPP line discipline\n");
+ }
+ 
+diff -uprN linux-tty_register_ldisc_001/drivers/net/ppp_synctty.c linux-tty_register_ldisc_002/drivers/net/ppp_synctty.c
+--- linux-tty_register_ldisc_001/drivers/net/ppp_synctty.c	2005-05-31 20:13:54.000000000 +0400
++++ linux-tty_register_ldisc_002/drivers/net/ppp_synctty.c	2005-05-31 23:27:04.000000000 +0400
+@@ -793,7 +793,7 @@ err:
+ static void __exit
+ ppp_sync_cleanup(void)
+ {
+-	if (tty_register_ldisc(N_SYNC_PPP, NULL) != 0)
++	if (tty_unregister_ldisc(N_SYNC_PPP) != 0)
+ 		printk(KERN_ERR "failed to unregister Sync PPP line discipline\n");
+ }
+ 
+diff -uprN linux-tty_register_ldisc_001/drivers/net/slip.c linux-tty_register_ldisc_002/drivers/net/slip.c
+--- linux-tty_register_ldisc_001/drivers/net/slip.c	2005-05-31 20:13:56.000000000 +0400
++++ linux-tty_register_ldisc_002/drivers/net/slip.c	2005-05-31 23:28:43.000000000 +0400
+@@ -1430,7 +1430,7 @@ static void __exit slip_exit(void)
+ 	kfree(slip_devs);
+ 	slip_devs = NULL;
+ 
+-	if ((i = tty_register_ldisc(N_SLIP, NULL)))
++	if ((i = tty_unregister_ldisc(N_SLIP)))
+ 	{
+ 		printk(KERN_ERR "SLIP: can't unregister line discipline (err = %d)\n", i);
+ 	}
+diff -uprN linux-tty_register_ldisc_001/drivers/net/wan/x25_asy.c linux-tty_register_ldisc_002/drivers/net/wan/x25_asy.c
+--- linux-tty_register_ldisc_001/drivers/net/wan/x25_asy.c	2005-05-31 20:13:57.000000000 +0400
++++ linux-tty_register_ldisc_002/drivers/net/wan/x25_asy.c	2005-05-31 23:26:07.000000000 +0400
+@@ -829,7 +829,7 @@ static void __exit exit_x25_asy(void)
+ 	}
+ 
+ 	kfree(x25_asy_devs);
+-	tty_register_ldisc(N_X25, NULL);
++	tty_unregister_ldisc(N_X25);
+ }
+ 
+ module_init(init_x25_asy);
+diff -uprN linux-tty_register_ldisc_001/drivers/net/wireless/strip.c linux-tty_register_ldisc_002/drivers/net/wireless/strip.c
+--- linux-tty_register_ldisc_001/drivers/net/wireless/strip.c	2005-05-31 20:13:58.000000000 +0400
++++ linux-tty_register_ldisc_002/drivers/net/wireless/strip.c	2005-05-31 23:29:01.000000000 +0400
+@@ -2828,7 +2828,7 @@ static void __exit strip_exit_driver(voi
+ 	/* Unregister with the /proc/net file here. */
+ 	proc_net_remove("strip");
+ 
+-	if ((i = tty_register_ldisc(N_STRIP, NULL)))
++	if ((i = tty_unregister_ldisc(N_STRIP)))
+ 		printk(KERN_ERR "STRIP: can't unregister line discipline (err = %d)\n", i);
+ 
+ 	printk(signoff);

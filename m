@@ -1,106 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261771AbVE3VuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVE3Vxf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261771AbVE3VuU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 17:50:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261742AbVE3VuU
+	id S261776AbVE3Vxf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 17:53:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261777AbVE3Vxf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 17:50:20 -0400
-Received: from goliath.apana.org.au ([202.12.88.44]:31378 "EHLO
-	goliath.apana.org.au") by vger.kernel.org with ESMTP
-	id S261771AbVE3VuB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 17:50:01 -0400
-From: Herbert Xu <herbert@gondor.apana.org.au>
-To: Steven.Hand@cl.cam.ac.uk (Steven Hand)
-Subject: Re: Bug in 2.6.11.11 - udp_poll(), fragments + CONFIG_HIGHMEM
-Cc: linux-net@vger.kernel.org, linux-kernel@vger.kernel.org,
-       davem@davemloft.net, Steven.Hand@cl.cam.ac.uk, netdev@oss.sgi.com
-Organization: Core
-In-Reply-To: <E1DclTK-0002qE-00@mta1.cl.cam.ac.uk>
-X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.net
-User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
-Message-Id: <E1Dcs8Y-0006bl-00@gondolin.me.apana.org.au>
-Date: Tue, 31 May 2005 07:49:30 +1000
-X-SA-Exim-Connect-IP: 203.14.152.115
-X-SA-Exim-Mail-From: herbert@gondor.apana.org.au
-X-SA-Exim-Scanned: No (on goliath.apana.org.au); SAEximRunCond expanded to false
+	Mon, 30 May 2005 17:53:35 -0400
+Received: from vsmtp3alice.tin.it ([212.216.176.143]:28386 "EHLO
+	vsmtp3alice.tin.it") by vger.kernel.org with ESMTP id S261776AbVE3VxR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 17:53:17 -0400
+From: Goffredo Baroncelli <kreijack@inwind.it>
+Subject: [TRIVIAL][PATCH] UDF filesystem: array '__mon_yday' declared as not static
+Date: Tue, 31 May 2005 23:52:35 +0200
+User-Agent: KMail/1.8
+Cc: bfennema@falcon.csc.calpoly.edu
+MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200505312352.35842.kreijack@inwind.it>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steven Hand <Steven.Hand@cl.cam.ac.uk> wrote:
-> 
-> Reconstructed forward trace: 
-> 
->   net/ipv4/udp.c:1334   spin_lock_irq() 
->   net/ipv4/udp.c:1336   udp_checksum_complete() 
-> net/core/skbuff.c:1069   skb_shinfo(skb)->nr_frags > 1
-> net/core/skbuff.c:1086   kunmap_skb_frag()
-> net/core/skbuff.h:1087   local_bh_enable()
-> kernel/softirq.c:0140   WARN_ON(irqs_disabled());
+[Please CC' me in the reply because I'am not in the mailing list ]
 
-Thanks for catching this.  The receive queue lock is never taken
-in IRQs (and should never be) so we can simply substitute bh for
-irq.
+Hi,
 
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+I sent already this mail to the linux_udf@hpesjro.fc.hp.com and to 
+bfennema@falcon.csc.calpoly.edu, the address reported in MAINTAINER file, but 
+no response was returned.
 
-Cheers,
+in fs/udf/udftime.c the global array '__mon_yday' are defined as not static, 
+so it conflicts with the glibc one when the kernel are compiled as user mode 
+linux. 
+
+        [ghigo@therra 2.6.10]$ make linux ARCH=um
+        [....]
+        CC      fs/udf/udftime.o
+        LD      fs/udf/udf.o
+        LD      fs/udf/built-in.o
+        [....]
+        /usr/lib/libc.a(mktime.o)(.rodata+0x0): multiple definition of 
+`__mon_yday'
+        fs/built-in.o(.rodata+0x3540):fs/buffer.c:375: first defined here
+        collect2: ld returned 1 exit status
+        KSYM    .tmp_kallsyms1.S
+        nm '.tmp_vmlinux1': No such file
+        make: *** [.tmp_kallsyms1.S] Error 139
+
+Even tough I don't understand why the error message complains about 
+fs/buffer.c, I found that the problem is in fs/udf/udftime.c.
+
+
+The patch below declare the array static. I checked the linux tree and I 
+didn't find any reference to an array '__mon_yday' from an extern module.
+
+diff -Naur new/fs/udf/udftime.c orig/fs/udf/udftime.c
+
+--- new/fs/udf/udftime.c Sun Feb 20 12:18:06 2005
++++ orig/fs/udf/udftime.c Sun Feb 20 12:18:32 2005
+@@ -46,7 +46,7 @@
+ #endif
+ 
+ /* How many days come before each month (0-12).  */
+-const unsigned short int __mon_yday[2][13] =
++static const unsigned short int __mon_yday[2][13] =
+ {
+  /* Normal years.  */
+  { 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365 },
+
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
---
-diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -738,7 +738,7 @@ int udp_ioctl(struct sock *sk, int cmd, 
- 			unsigned long amount;
- 
- 			amount = 0;
--			spin_lock_irq(&sk->sk_receive_queue.lock);
-+			spin_lock_bh(&sk->sk_receive_queue.lock);
- 			skb = skb_peek(&sk->sk_receive_queue);
- 			if (skb != NULL) {
- 				/*
-@@ -748,7 +748,7 @@ int udp_ioctl(struct sock *sk, int cmd, 
- 				 */
- 				amount = skb->len - sizeof(struct udphdr);
- 			}
--			spin_unlock_irq(&sk->sk_receive_queue.lock);
-+			spin_unlock_bh(&sk->sk_receive_queue.lock);
- 			return put_user(amount, (int __user *)arg);
- 		}
- 
-@@ -848,12 +848,12 @@ csum_copy_err:
- 	/* Clear queue. */
- 	if (flags&MSG_PEEK) {
- 		int clear = 0;
--		spin_lock_irq(&sk->sk_receive_queue.lock);
-+		spin_lock_bh(&sk->sk_receive_queue.lock);
- 		if (skb == skb_peek(&sk->sk_receive_queue)) {
- 			__skb_unlink(skb, &sk->sk_receive_queue);
- 			clear = 1;
- 		}
--		spin_unlock_irq(&sk->sk_receive_queue.lock);
-+		spin_unlock_bh(&sk->sk_receive_queue.lock);
- 		if (clear)
- 			kfree_skb(skb);
- 	}
-@@ -1334,7 +1334,7 @@ unsigned int udp_poll(struct file *file,
- 		struct sk_buff_head *rcvq = &sk->sk_receive_queue;
- 		struct sk_buff *skb;
- 
--		spin_lock_irq(&rcvq->lock);
-+		spin_lock_bh(&rcvq->lock);
- 		while ((skb = skb_peek(rcvq)) != NULL) {
- 			if (udp_checksum_complete(skb)) {
- 				UDP_INC_STATS_BH(UDP_MIB_INERRORS);
-@@ -1345,7 +1345,7 @@ unsigned int udp_poll(struct file *file,
- 				break;
- 			}
- 		}
--		spin_unlock_irq(&rcvq->lock);
-+		spin_unlock_bh(&rcvq->lock);
- 
- 		/* nothing to see, move along */
- 		if (skb == NULL)
+gpg key@ keyserver.linux.it: 
+  Goffredo Baroncelli (ghigo) <kreijack AT inwind DOT it>
+Key fingerprint = CE3C 7E01 6782 30A3 5B87  87C0 BB86 505C 6B2A CFF9
+
+
+

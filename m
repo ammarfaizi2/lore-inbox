@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbVEaB0u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261856AbVEaBlW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261855AbVEaB0u (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 21:26:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbVEaB0t
+	id S261856AbVEaBlW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 21:41:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261861AbVEaBlW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 21:26:49 -0400
-Received: from dsl017-049-110.sfo4.dsl.speakeasy.net ([69.17.49.110]:27303
-	"EHLO jm.kir.nu") by vger.kernel.org with ESMTP id S261855AbVEaBZt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 21:25:49 -0400
-Date: Mon, 30 May 2005 18:22:01 -0700
-From: Jouni Malinen <jkmaline@cc.hut.fi>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: hostap@shmoo.com, jgarzik@pobox.com, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [-mm patch] net/ieee80211/: remove pci.h #include's
-Message-ID: <20050531012200.GC7950@jm.kir.nu>
-Mail-Followup-To: Adrian Bunk <bunk@stusta.de>, hostap@shmoo.com,
-	jgarzik@pobox.com, netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-References: <20050530205634.GQ10441@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 30 May 2005 21:41:22 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:14523 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261856AbVEaBlU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 21:41:20 -0400
+From: Parag Warudkar <kernel-stuff@comcast.net>
+To: mingo@elte.hu
+Subject: RT patch breaks X86_64 build
+Date: Mon, 30 May 2005 21:41:31 -0400
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050530205634.GQ10441@stusta.de>
-User-Agent: Mutt/1.5.8i
+Message-Id: <200505302141.31731.kernel-stuff@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, May 30, 2005 at 10:56:34PM +0200, Adrian Bunk wrote:
+Ingo,
 
-> I was wondering why editing pci.h triggered the rebuild of three files 
-> under net/, and as far as I can see, there's no reason for these three 
-> files to #include pci.h .
+Realtime patch breaks the x86_64 build -
 
->  net/ieee80211/ieee80211_module.c |    1 -
->  net/ieee80211/ieee80211_rx.c     |    1 -
->  net/ieee80211/ieee80211_tx.c     |    1 -
+CC      arch/x86_64/kernel/mce.o
+In file included from arch/x86_64/kernel/mce.c:17:
+include/linux/fs.h: In function `lock_super':
+include/linux/fs.h:828: warning: implicit declaration of function `down'
+include/linux/fs.h: In function `unlock_super':
+include/linux/fs.h:833: warning: implicit declaration of function `up'
+arch/x86_64/kernel/mce.c: In function `mce_read':
+arch/x86_64/kernel/mce.c:383: warning: type defaults to `int' in declaration 
+of `DECLARE_MUTEX'
+arch/x86_64/kernel/mce.c:383: warning: parameter names (without types) in 
+function declaration
+arch/x86_64/kernel/mce.c:392: error: `mce_read_sem' undeclared (first use in 
+this function)
+arch/x86_64/kernel/mce.c:392: error: (Each undeclared identifier is reported 
+only once
+arch/x86_64/kernel/mce.c:392: error: for each function it appears in.)
+make[1]: *** [arch/x86_64/kernel/mce.o] Error 1
+make: *** [arch/x86_64/kernel] Error 2
 
-I don't know where these came from since Host AP driver does not include
-linux/pci.h into the files doing generic IEEE 802.11 processing. Anyway,
-I have nothing against removing these include lines.
-
--- 
-Jouni Malinen                                            PGP id EFC895FA
+Parag

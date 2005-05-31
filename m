@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVEaJdq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261547AbVEaJgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbVEaJdq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 05:33:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbVEaJdq
+	id S261547AbVEaJgK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 05:36:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbVEaJgJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 05:33:46 -0400
-Received: from smtp208.mail.sc5.yahoo.com ([216.136.130.116]:54428 "HELO
-	smtp208.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261405AbVEaJdo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 05:33:44 -0400
-Message-ID: <429C2F72.7060300@yahoo.com.au>
-Date: Tue, 31 May 2005 19:33:38 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
+	Tue, 31 May 2005 05:36:09 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:6797 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261613AbVEaJfO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 05:35:14 -0400
+Date: Tue, 31 May 2005 11:35:04 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: randy_dunlap <rdunlap@xenotime.net>
+cc: viro@parcelfarce.linux.theplanet.co.uk, geert@linux-m68k.org,
+       linux-kernel@vger.kernel.org, linux-m68k@vger.kernel.org
+Subject: Re: more thread_info patches
+In-Reply-To: <20050530182511.434b0e97.rdunlap@xenotime.net>
+Message-ID: <Pine.LNX.4.61.0505311127330.3728@scrub.home>
+References: <Pine.LNX.4.58.0504201728110.2344@ppc970.osdl.org>
+ <42676B76.4010903@ppp0.net> <Pine.LNX.4.62.0504211105550.13231@numbat.sonytel.be>
+ <20050421161106.GY13052@parcelfarce.linux.theplanet.co.uk>
+ <20050421173908.GZ13052@parcelfarce.linux.theplanet.co.uk>
+ <Pine.LNX.4.61.0505310113370.10977@scrub.home> <20050530182511.434b0e97.rdunlap@xenotime.net>
 MIME-Version: 1.0
-To: James Bruce <bruce@andrew.cmu.edu>
-CC: "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-References: <20050527233645.GA2283@nietzsche.lynx.com> <4297EB57.5090902@yahoo.com.au> <20050528054503.GA2958@nietzsche.lynx.com> <42981467.6020409@yahoo.com.au> <4299A98D.1080805@andrew.cmu.edu> <429ADEDD.4020805@yahoo.com.au> <429B1898.8040805@andrew.cmu.edu> <429B2160.7010005@yahoo.com.au> <20050530222747.GB9972@nietzsche.lynx.com> <429BBC2D.70406@yahoo.com.au> <20050531020957.GA10814@nietzsche.lynx.com> <429C2A64.1040204@andrew.cmu.edu>
-In-Reply-To: <429C2A64.1040204@andrew.cmu.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Bruce wrote:
+Hi,
 
-> That said, its important not to claim something about a patch which 
-> doesn't match the common definitions.  Ingo has been very careful in the 
-> claims he's made, but I think a lot of people have read his posts too 
-> quickly and misinterpreted what he's claiming for the current patch. 
-> This includes people on both sides of the fence.  He's also been silent 
-> for much of this discussion as its gotten out of hand, showing he's 
-> clearly wiser than all of us.
+On Mon, 30 May 2005, randy_dunlap wrote:
+
+> | Index: linux-2.6-mm/include/linux/sched.h
+> | ===================================================================
+> | --- linux-2.6-mm.orig/include/linux/sched.h	2005-05-31 01:19:01.636591190 +0200
+> | +++ linux-2.6-mm/include/linux/sched.h	2005-05-31 01:19:05.913856451 +0200
+> | @@ -617,6 +617,7 @@ struct mempolicy;
+> |  struct task_struct {
+> |  	volatile long state;	/* -1 unrunnable, 0 runnable, >0 stopped */
+> |  	struct thread_info *thread_info;
+> | +	void *stack;
 > 
+> Any reason this is void * instead of being more strongly typed?
+> Does the actual type vary?
 
-I have never been in any doubt as to the specific claims I have
-made. I continually have been talking about hard realtime from
-start to finish, and it appears that everyone now agrees with me
-that for hard-RT, a nanokernel solution is better or at least
-not obviously worse at this stage.
+Yes, on m68k it actually doesn't point to the thread_info at all.
+The point of these patches are to allow archs to put the thread_info 
+structure somewhere else. Archs with a thread register can keep 
+task_struct and thread_info together and directly accessable via the 
+thread register. Only because i386 has no usable thread register, doesn't 
+mean everyone else has to suffer.
 
-Ingo actually of course has been completely rational and honest
-the whole time - he actually emailed me to basically say "there
-will be pros and cons of both, and until things develop further
-I'm not completely sure".
+> And a general comments about the 4 emails:
+> they all have the same subject.  :(
 
-Which I was pretty satisfied with. Then along came the lynch mob.
+I know and I did this intentionally, as these patches were not intended to 
+be applied, they are based on Al's patches and even these aren't in -mm 
+yet. I maybe should have added a [RFC].
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+bye, Roman

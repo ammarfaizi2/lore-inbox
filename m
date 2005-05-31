@@ -1,81 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVEaTFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVEaTI2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbVEaTFs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 15:05:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbVEaTFo
+	id S261266AbVEaTI2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 15:08:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261287AbVEaTI1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 15:05:44 -0400
-Received: from cog1.w2cog.org ([206.251.188.12]:35456 "EHLO w2cog.org")
-	by vger.kernel.org with ESMTP id S261193AbVEaTBK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 15:01:10 -0400
-Date: Tue, 31 May 2005 14:00:46 -0500 (CDT)
-From: Roy Keene <rkeene@psislidell.com>
-To: bernd-schubert@gmx.de
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem with 2.6 kernel and lots of I/O
-In-Reply-To: <200505312040.30812.bernd-schubert@web.de>
-Message-ID: <Pine.LNX.4.62.0505311350330.7546@hammer.psislidell.com>
-References: <Pine.LNX.4.62.0505311042470.7546@hammer.psislidell.com>
- <200505312040.30812.bernd-schubert@web.de>
+	Tue, 31 May 2005 15:08:27 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:21400 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S261263AbVEaTGi
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 15:06:38 -0400
+X-ORBL: [69.107.40.98]
+From: David Brownell <david-b@pacbell.net>
+To: Harald Welte <laforge@gnumonks.org>
+Subject: Re: [linux-usb-devel] Re: [BUG] oops while completing async USB via usbdevio
+Date: Tue, 31 May 2005 11:53:24 -0700
+User-Agent: KMail/1.7.1
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20050530194443.GA22760@sunbeam.de.gnumonks.org> <200505301555.39985.david-b@pacbell.net> <20050531084852.GJ25536@sunbeam.de.gnumonks.org>
+In-Reply-To: <20050531084852.GJ25536@sunbeam.de.gnumonks.org>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="8323328-306218877-1117566046=:7546"
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505311153.24747.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Tuesday 31 May 2005 1:48 am, Harald Welte wrote:
+> On Mon, May 30, 2005 at 03:55:39PM -0700, David Brownell wrote:
+> 
+> > The logic closing an open usbfs file -- which is done before any task
+> > exits with such an open file -- is supposed to block till all its URBs
+> > complete.  So the pointer to the task "should" be valid for as long as
+> > any URB it's submitted is active.
+> 
+> unfortunately it doesn't seem to cover the fork() case, see below.
 
---8323328-306218877-1117566046=:7546
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+OK, so it seems this is a moderately deep broken assumption in usbfs.
 
-Bernd,
 
- =09The ENBD project requires a kernel patch for 2.6 support and I=20
-would like to remain with the vendor supplied (and "blessed" kernel) for=20
-support reasons.
+> > Not that it helps at all, but I've never really trusted the usbfs async
+> > I/O code.  "Real AIO" could be a lot more obviously correct.  And smaller.
+> 
+> mh, but nobody has written AIO-enabled usbfs2  yet ;)
 
- =09Since I cannot provide feedback on the latest version of the=20
-kernel and I don't want to have an "unblessed" kernel, I've opened a=20
-ticket with RedHat attached to my support contract for this problem.  I=20
-mainly posted my question here to see if this was a known issue with 2.6=20
-in general or NBD-specific.
+I'm still hoping that one of the folk who want make an interesting and
+useful contribution to Linux will take the hint.  It goes slowly. :)
 
- =09I had not heard of "DRBD" before now, but it looks interesting.  I=20
-am looking into it further.
 
-Thanks,
- =09Roy Keene
+Right now I think a "usbfs 1.5" would be the simplest way to deliver
+it ... an ioctl that returns a new per-endpoint file descriptor.  It'd
+need to support the AIO calls and a bit more ... and that could be the
+guts of a "usbfs2".  The "gadgetfs" code shows how small that part
+could be ... and later, some libfs based code could do all the fun
+stuff, creating a real "usbfs2" that exports normal per-endpoint files
+and so on.  Then we could deprecate the current AIO stuff...
 
-On Tue, 31 May 2005, Bernd Schubert wrote:
 
-> Hello Roy,
->
-> Roy Keene wrote:
->
->> Hello,
->>
->> =A0=A0I=A0have=A0a=A0(well,=A0at=A0least=A0one)=A0show-stopping=A0proble=
-ms=A0with=A0the=A02.6
->> kernel while doing heavy I/O.=A0=A0I=A0have=A0a=A0(software)=A0RAID1=A0o=
-f=A0network=A0block
->> devices (nbd0 and nbd1) set up on two identical machines in an
->
-> what about using drbd or enbd? AFAIK both are much better tested/suited f=
-or
-> network raid.
->
-> Cheers,
-> =A0Bernd
->
->
-> --=20
-> Bernd Schubert
-> PCI / Theoretische Chemie
-> Universit=E4t Heidelberg
-> INF 229
-> 69120 Heidelberg
-> e-mail: bernd.schubert@pci.uni-heidelberg.de
->
---8323328-306218877-1117566046=:7546--
+> meanwhile, the current usbfs aio handling is the only way how to deal
+> with delivery of interrupt pipe URB's to userspace drivers.
+
+Other than tying up the file descriptor with a blocking read, that is.
+
+
+> However, __exit_files() only calls close_files() if files->count goes
+> down to zero. What if the process fork()ed before, and the other half of
+> the fork still has a refcount?  -> boom.
+> 
+> It seems to me that the whole usbdevio async handling doesn't really
+> cope with a lot of the unix semantics, such as fork() or file descriptor
+> passing.
+
+*cough* usbfs2 aio *cough*
+
+
+> Wouldn't it help to associate the URB with the file (instaed of the
+> task), and then send the signal to any task that still has opened the
+> file?  I'm willing to hack up a patch, if this is considered a sane fix.
+
+Sounds reasonable, except that not all such tasks will want the signal.
+Though I guess the infrastructure to filter the signal out already exists,
+so the main missing piece is that urb-to-file binding.
+
+- Dave
+

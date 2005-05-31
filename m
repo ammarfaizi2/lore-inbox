@@ -1,67 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262024AbVEaRyz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbVEaSV5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262024AbVEaRyz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 13:54:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbVEaRyh
+	id S261169AbVEaSV5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 14:21:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbVEaSV5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 13:54:37 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:40971
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S262009AbVEaRwC
+	Tue, 31 May 2005 14:21:57 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:14366 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261169AbVEaSVx convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 13:52:02 -0400
-Date: Tue, 31 May 2005 19:51:52 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Esben Nielsen <simlo@phys.au.dk>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, hch@infradead.org, dwalker@mvista.com,
-       Ingo Molnar <mingo@elte.hu>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>, Andi Kleen <ak@muc.de>,
-       "Bill Huey (hui)" <bhuey@lnxw.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       James Bruce <bruce@andrew.cmu.edu>
-Subject: Re: RT patch acceptance
-Message-ID: <20050531175152.GT5413@g5.random>
-References: <Pine.OSF.4.05.10505311347290.1707-100000@da410.phys.au.dk> <1117556283.2569.26.camel@localhost.localdomain> <20050531171143.GS5413@g5.random> <1117561379.2569.57.camel@localhost.localdomain>
+	Tue, 31 May 2005 14:21:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=mndacHVbQRJ+kVCJ6pTHRakON/6tbVObKIefP8wYcsV6jl9RZBjcHLMaYaZ+YHC+8hkTO6Ebul8oUAlOTSEiwAQ7PBFGnDFPPA3/mVeXfSiLhqJppHdLt0iw+5Hm8piQkikr/gPuzsltNtT8psXVwOcaGOP7ZSxLIEq2LUl8kfM=
+Message-ID: <3faf05680505311121264fab06@mail.gmail.com>
+Date: Tue, 31 May 2005 23:51:53 +0530
+From: vamsi krishna <vamsi.krishnak@gmail.com>
+Reply-To: vamsi krishna <vamsi.krishnak@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: kernel generating SIGBUS while handling pagefault.
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <1117561379.2569.57.camel@localhost.localdomain>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 31, 2005 at 01:42:59PM -0400, Steven Rostedt wrote:
-> How does one demonstrate that something works without a test. You may
-> call it a "demo", but in reality it is just another test.  It's been
-> quite some time since I use to work on that, and I never read the
-> MilSpec myself, I was just told what to do by those that did read it.
-> But I would still call it testing.  Every requirement must have a way to
-> prove that it was fulfilled, whether it was by "demo", inspection, or
-> measurement, I would call all those tests. 
+Hello,
 
-With testing I meant to run the OS on the bare hardware in the
-final configuration and verifying that it works (possibly by measuring
-the worst case latencies you get during the testing, like what Ingo does
-to claim worst case latency for preempt-RT).
+I have a program which is trying to access its virtual memory segments
+(listed in /proc/<pid>/maps file). But while reading the following
+virtual memory segment as below.
+<-------------------------------------------------------------------------------------------------------------------->
+       0x2a95556000       0x2a9566b000   0x115000          0
+/lib64/ld-2.3.2.so
+       0x2a9566b000       0x2a9566c000     0x1000    0x15000
+/lib64/ld-2.3.2.so
+<-------------------------------------------------------------------------------------------------------------------->
+generate SIGBUS with siginfo as BUS_ADRERR (Non-existent physical
+address), I traced back into the kernel code to get the detail on why
+this BUS_ADRERR is set and found that, if the kernel could not handle
+pagefault it generates BUS_ADRERR.
 
-> One of the tests that were done was to inspect ever module (or function)
-> for every code path it took.  This grows exponential with every branch.
+ In the file /usr/src/linux-2.4.21-20.EL/mm/memory.c at line 1746.
+<------------------------------------------------------------------->
+        new_page = vma->vm_ops->nopage(vma, address & PAGE_MASK, 0);
 
-Yes, that's what I meant.
+       if (new_page == NULL)   /* no page was available -- SIGBUS */
+               return 0;
+       if (new_page == NOPAGE_OOM)
+               return -1;
+<------------------------------------------------------------------->
+So is the kernel trying to get a page (map a page) into the swap space
+from file, and failing to map the file ? due to lack of swap space??.
+Currently the kernel runs on a amd64 machine with 5GB RAM and 33GB
+swap space.
 
-> the integration level, and system level.  Could you imagine what it
-> would take to do this with Linux!  Linux is much bigger than that code
-> that ran the engine of an aircraft, and that testing took ten years!
+But if I run the same program(executable) on amd64 machine with kernel
+2.4.21-4 with 8GB RAM and 16GB swap space, there were no page faults
+and I see only 1 virtual address mapping for /lib64/ld-2.3.2.so on
+this machine.
 
-Indeed, that's why I believe hard-RT with preempt-RT is just a joke.
+I analyzed the strace on the machine failing with SIGBUS and found the
+following in the strace output
+<-------------------------------------------------------------------->
+mmap(NULL, 1061968, PROT_READ|PROT_EXEC, MAP_PRIVATE, 3, 0) =
+0x2a95687000 mprotect(0x2a9568b000, 1045584, PROT_NONE) = 0
+mmap(0x2a95787000, 16384, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_FIXED,
+3, 0) = 0x2a95787000
+close(3)                                = 0
+mprotect(0x7fbff09000, 4096,
+PROT_READ|PROT_WRITE|PROT_EXEC|PROT_GROWSDOWN) = -1 EINVAL (Invalid
+argument) mprotect(0x7fbff02000, 32768,
+PROT_READ|PROT_WRITE|PROT_EXEC) = -1 ENOMEM (Cannot allocate memory)
+mprotect(0x7fbff06000, 16384, PROT_READ|PROT_WRITE|PROT_EXEC) = -1
+ENOMEM (Cannot allocate memory) mprotect(0x7fbff08000, 8192,
+PROT_READ|PROT_WRITE|PROT_EXEC) = 0 mprotect(0x7fbff06000, 8192,
+PROT_READ|PROT_WRITE|PROT_EXEC) = -1 ENOMEM (Cannot allocate memory)
+mprotect(0x7fbff07000, 4096, PROT_READ|PROT_WRITE|PROT_EXEC) = -1
+ENOMEM (Cannot allocate memory)
+<-------------------------------------------------------------------->
+I see some system calls failing with 'Cannot allocate memory', is this
+because that I use only 5GB of RAM for a 64-bit machine?
 
-> Not to mention that Linux is a moving target, and the engine control
-> code was designed for a single purpose and a single type of hardware.
+Can some mm hackers kindly give some inputs in this?
 
-Exactly.
+Thanks in advance.
 
-> Before I put my hand under that saw, I would want to test it several
-> times with a hotdog first!
-
-;)
+Best,
+Vamsi kundeti.
+India.

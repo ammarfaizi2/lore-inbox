@@ -1,81 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261409AbVEaUEK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261439AbVEaUEz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261409AbVEaUEK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 16:04:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261408AbVEaUCD
+	id S261439AbVEaUEz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 16:04:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbVEaUE3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 16:02:03 -0400
-Received: from hirsch.in-berlin.de ([192.109.42.6]:50058 "EHLO
-	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261208AbVEaUB1
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 16:01:27 -0400
-X-Envelope-From: kraxel@bytesex.org
-Date: Tue, 31 May 2005 21:56:03 +0200
-From: Gerd Knorr <kraxel@suse.de>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: Joerg Schilling <schilling@fokus.fraunhofer.de>, mrmacman_g4@mac.com,
-       toon@hout.vanvergehaald.nl, ltd@cisco.com, linux-kernel@vger.kernel.org,
-       dtor_core@ameritech.net, 7eggert@gmx.de
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Message-ID: <20050531195603.GB28168@bytesex>
-References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com> <20050530093420.GB15347@hout.vanvergehaald.nl> <429B0683.nail5764GYTVC@burner> <46BE0C64-1246-4259-914B-379071712F01@mac.com> <429C4483.nail5X0215WJQ@burner> <87acmbxrfu.fsf@bytesex.org> <20050531190556.GK23621@csclub.uwaterloo.ca>
+	Tue, 31 May 2005 16:04:29 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:37030 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261208AbVEaUEB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 16:04:01 -0400
+Subject: Re: Human tIming perception (was: RT patch)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Steve Finney <saf76@earthlink.net>
+Cc: Florian Schmidt <mista.tapas@gmx.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <10471395.1117558743885.JavaMail.root@wamui-milano.atl.sa.earthlink.net>
+References: <10471395.1117558743885.JavaMail.root@wamui-milano.atl.sa.earthlink.net>
+Content-Type: text/plain
+Date: Tue, 31 May 2005 16:03:55 -0400
+Message-Id: <1117569835.23283.24.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050531190556.GK23621@csclub.uwaterloo.ca>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hi,
+On Tue, 2005-05-31 at 12:59 -0400, Steve Finney wrote:
+> It takes (IIRC) about a 10 ms or 
+> so difference in the sounded sequence
+> for someone to be able to report that there's been a change, but
+> a cnange in the timing of the person's finger movements occurs
+> (_immediately_) at perturbations smaller than 10 ms. That is, there 
+> appears to be some dissociation  between conscious perception and 
+> perceptual/motor behavior.
 
-> Well I remember the first time I saw devfs running, I thought "Wow
-> finally I have a way to find the disc that is scsi id 3 on controller 0
-> even if I add a device at id 2 after setting up the system", something
+Any decent guitar player who has used their computer as an effects unit
+could tell you this.  I can easily perceive the difference between 1.3
+and 2.6, and 2.6 and 5ms latencies.  And there's at least one person
+(also a guitarist, who I have added to the cc:) who swears he cam
+perceive the difference between 0.6 and 1.3ms.  Soundcard ADCs typically
+add 1.5ms latency in each direction, so the actual floor seems to be
+around 3-5ms.
 
-> I think sysfs can do it too, although I haven't looked to much at sysfs
-> yet.
+Lee
 
-Yep, it can.
-
-> I don't know if the ide or scsi method is currently more sane, but it
-> sure would be nice to have a consistent behaviour between the two.
-
-On my suse 9.3, out-of-the-box, I find this (implemented via
-udev rules):
-
-   # find /dev/cd /dev/disk -type l -print | sort
-   /dev/cd/by-id/HL-DT-ST_DVDRAM_GSA-4040B_K213BDG5213
-   /dev/cd/by-id/LG_CD-RW_CED-8080B_2000_07_27e
-   /dev/cd/by-path/pci-0000:00:04.1-ide-1:0
-   /dev/cd/by-path/pci-0000:00:04.1-ide-1:1
-   /dev/disk/by-id/IBM-DTLA-305040_YJEYJM36751
-   /dev/disk/by-id/IBM-DTLA-305040_YJEYJM36751p1
-   [ ... ]
-   /dev/disk/by-id/SIBM_DCAS-34330_B3GX3681
-   /dev/disk/by-id/SIBM_DCAS-34330_B3GX3681p1
-   /dev/disk/by-id/SIBM_DCAS-34330_B3GX3681p2
-   /dev/disk/by-label/WIN98
-   /dev/disk/by-label/unknown
-   /dev/disk/by-path/pci-0000:00:04.1-ide-0:0
-   /dev/disk/by-path/pci-0000:00:04.1-ide-0:0p1
-   [ ... ]
-   /dev/disk/by-path/pci-0000:00:0e.0-scsi-0:0:0:0
-   /dev/disk/by-path/pci-0000:00:0e.0-scsi-0:0:0:0-generic
-   /dev/disk/by-path/pci-0000:00:0e.0-scsi-0:0:0:0p1
-   /dev/disk/by-path/pci-0000:00:0e.0-scsi-0:0:0:0p2
-   /dev/disk/by-uuid/3140-1206
-   /dev/disk/by-uuid/5fbce796-2a1a-4ea3-bd5f-be35b28b2fb1
-   /dev/disk/by-uuid/b6a45df7-63bb-4890-b5d2-7bdcbe6c70a5
-   /dev/disk/by-uuid/cb367983-ac59-42cd-839d-b5cf0735fae5
-   /dev/disk/by-uuid/unknown
- 
-You'll have stable names both by connection path (great for the
-raid case) and by device name (useful for the usb burner which
-you plug into a different port each time).  Guess you'll find
-there what you are looking for ;)
-
-  Gerd
-
--- 
-export CDR_DEVICE=/dev/cd/by-id/LG_CD-RW_CED-8080B_2000_07_27e

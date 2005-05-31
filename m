@@ -1,80 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVEaRp2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVEaRuG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbVEaRp2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 13:45:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVEaRp2
+	id S261151AbVEaRuG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 13:50:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVEaRuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 13:45:28 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:40347 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261164AbVEaRo2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 13:44:28 -0400
-Subject: Re: RT patch acceptance
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Esben Nielsen <simlo@phys.au.dk>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, hch@infradead.org, dwalker@mvista.com,
-       Ingo Molnar <mingo@elte.hu>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>, Andi Kleen <ak@muc.de>,
-       "Bill Huey (hui)" <bhuey@lnxw.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       James Bruce <bruce@andrew.cmu.edu>
-In-Reply-To: <20050531171143.GS5413@g5.random>
-References: <Pine.OSF.4.05.10505311347290.1707-100000@da410.phys.au.dk>
-	 <1117556283.2569.26.camel@localhost.localdomain>
-	 <20050531171143.GS5413@g5.random>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Tue, 31 May 2005 13:42:59 -0400
-Message-Id: <1117561379.2569.57.camel@localhost.localdomain>
+	Tue, 31 May 2005 13:50:05 -0400
+Received: from titan.genwebhost.com ([209.9.226.66]:41922 "EHLO
+	titan.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261151AbVEaRqj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 13:46:39 -0400
+Date: Tue, 31 May 2005 10:46:21 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: zippel@linux-m68k.org, bunk@stusta.de, kbuild-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, juhl-lkml@dif.dk
+Subject: Re: [2.6 patch] Kconfig: rename "---help---" to "help" in Kconfig
+ files (first part) (fwd)
+Message-Id: <20050531104621.68b8d84f.rdunlap@xenotime.net>
+In-Reply-To: <9a874849050531102825bb19b1@mail.gmail.com>
+References: <20050531001038.GD3627@stusta.de>
+	<Pine.LNX.4.61.0505310217030.3728@scrub.home>
+	<20050531004120.GH3627@stusta.de>
+	<Pine.LNX.4.61.0505311314230.3728@scrub.home>
+	<9a874849050531102825bb19b1@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - titan.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-31 at 19:11 +0200, Andrea Arcangeli wrote:
-> On Tue, May 31, 2005 at 12:18:03PM -0400, Steven Rostedt wrote:
-> > Later, while working at Lockheed, we had WindRiver over and they would
-> > only give a small broken down (basically all features removed) OS that
-> > Lockheed would be responsible for testing.
-> > 
-> > When someone mentions Hard-RT, this is what I think about.  These are
-> 
-> I think testing is the wrong word. The code should be demonstrated to be
-> correct, and to do so it must be stripped down and as simple as
-> possible. Then the more testing the better to verify it's all right, but
-> people shouldn't depend _only_ on huge testing. Probably linux is too
-> big anyway for those usages, but certainly one needs a guarantee of
-> hard-RT for those usages that preempt-RT sure can't provide (while
-> nanokernel/RTAI could at least in theory provide it, assuming rest of
-> linux itself has no bugs and no memory corruption/deadlocks leading to a
-> full system crash).
+On Tue, 31 May 2005 19:28:59 +0200 Jesper Juhl wrote:
 
-How does one demonstrate that something works without a test. You may
-call it a "demo", but in reality it is just another test.  It's been
-quite some time since I use to work on that, and I never read the
-MilSpec myself, I was just told what to do by those that did read it.
-But I would still call it testing.  Every requirement must have a way to
-prove that it was fulfilled, whether it was by "demo", inspection, or
-measurement, I would call all those tests. 
+| On 5/31/05, Roman Zippel <zippel@linux-m68k.org> wrote:
+| > Hi,
+| > 
+| > On Tue, 31 May 2005, Adrian Bunk wrote:
+| > 
+| > > there's still the point that it's currently used inconsistently.
+| > 
+| > Why is it so important to fix this "inconsistency"?
+| > Why is it so difficult to accept that both are valid options?
+| > 
+| 
+| Let's just let this patch die quietly, ok? 
+| 
+| It's not important, I just made it one late evening and submitted it
+| in case it was wanted. It was not wanted so it should just die. No
+| difficulty accepting that.
 
-One of the tests that were done was to inspect ever module (or function)
-for every code path it took.  This grows exponential with every branch.
-Programs were written for each of these modules testing all paths by
-sending in the input and seeing if the expected output was returned.
-Binary branches had to be tested for all enumerations. "Greater Than",
-"Less Than", "Equals" (and variants ">=") was tested for one unit less
-than,  equal and one unit greater than.  This was only done this
-extensively at the module level, then there were other tedious tests at
-the integration level, and system level.  Could you imagine what it
-would take to do this with Linux!  Linux is much bigger than that code
-that ran the engine of an aircraft, and that testing took ten years!
-Not to mention that Linux is a moving target, and the engine control
-code was designed for a single purpose and a single type of hardware.
+I second that.
 
-Before I put my hand under that saw, I would want to test it several
-times with a hotdog first!
+Thanks.
 
--- Steve
-
+---
+~Randy

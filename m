@@ -1,62 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261739AbVEaC0j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261635AbVEaEPE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261739AbVEaC0j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 22:26:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVEaC0i
+	id S261635AbVEaEPE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 00:15:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVEaEPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 22:26:38 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:47056 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261739AbVEaC0d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 22:26:33 -0400
-Subject: Re: RT patch acceptance
-From: Lee Revell <rlrevell@joe-job.com>
-To: James Bruce <bruce@andrew.cmu.edu>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, "Bill Huey (hui)" <bhuey@lnxw.com>,
-       Andi Kleen <ak@muc.de>, Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <1117505204.22167.11.camel@mindpipe>
-References: <m1br6zxm1b.fsf@muc.de>
-	 <1117044019.5840.32.camel@sdietrich-xp.vilm.net>
-	 <20050526193230.GY86087@muc.de>
-	 <1117138270.1583.44.camel@sdietrich-xp.vilm.net>
-	 <20050526202747.GB86087@muc.de> <4296ADE9.50805@yahoo.com.au>
-	 <20050527120812.GA375@nietzsche.lynx.com> <429715DE.6030008@yahoo.com.au>
-	 <20050527233645.GA2283@nietzsche.lynx.com> <4297EB57.5090902@yahoo.com.au>
-	 <20050528054503.GA2958@nietzsche.lynx.com> <42981467.6020409@yahoo.com.au>
-	 <4299A98D.1080805@andrew.cmu.edu> <429ADEDD.4020805@yahoo.com.au>
-	 <429B1898.8040805@andrew.cmu.edu> <429B2160.7010005@yahoo.com.au>
-	 <429BA27A.5010406@andrew.cmu.edu>  <1117505204.22167.11.camel@mindpipe>
-Content-Type: text/plain
-Date: Mon, 30 May 2005 22:26:31 -0400
-Message-Id: <1117506392.22232.2.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 31 May 2005 00:15:04 -0400
+Received: from femail.waymark.net ([206.176.148.84]:57771 "EHLO
+	femail.waymark.net") by vger.kernel.org with ESMTP id S261635AbVEaEPA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 00:15:00 -0400
+Date: 31 May 2005 04:05:06 GMT
+From: Kenneth Parrish <Kenneth.Parrish@family-bbs.org>
+Subject: [ACPI] 2.6.12-rc5
+To: linux-kernel@vger.kernel.org
+Message-ID: <e032b5.beb8a3@family-bbs.org>
+Organization: FamilyNet HQ
+X-Mailer: BBBS/NT v4.01 Flag-5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-05-30 at 22:06 -0400, Lee Revell wrote:
-> No, *you're* the one misunderstanding.
-> 
-> Since *everything* is preemptible except a few known code paths whose
-> execution times determine the maximum possible latency from interrupt to
-> running the highest priority user process.
+Computer: Cyrix MII processor, VIA VP3 chipset  e-machines 1999
+Kernels various, now 2.6.12-rc5
 
-Sorry.  Should read:
+Observation: experimental ACPI sleep state, aka active standby,
+appears to work with mainline kernels in that it's possible to
+do
+# echo standby > /sys/power/state
+and have the system suspend. The computer's green led that's inset
+into the power button blinks slowly, then. And pressing the power button
+brings the system back, unless you wait too long. I'm not sure exactly
+how long, but I guess it may be roughly an hour or so until linux
+no longer returns when the power button is pressed briefly.
 
-*Everything* is preemptible except a few known code paths, whose
-execution times determine the maximum possible latency from interrupt to
-running the highest priority user process.
-
-But, you'd know that, if you'd followed the development in the slightest
-bit.
-
-And, I think Ingo knows what "determinism" and "hard realtime" mean.  I
-suggest you reread his posts.
-
-Lee
-
-
-
+--- MultiMail/Linux v0.46

@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261919AbVEaQ3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVEaQZO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261919AbVEaQ3K (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 12:29:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbVEaQ1L
+	id S261947AbVEaQZO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 12:25:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVEaQTB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 12:27:11 -0400
-Received: from mail3.utc.com ([192.249.46.192]:10884 "EHLO mail3.utc.com")
-	by vger.kernel.org with ESMTP id S261942AbVEaQTC (ORCPT
+	Tue, 31 May 2005 12:19:01 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:11952 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261942AbVEaQMW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 12:19:02 -0400
-Message-ID: <429C8E4E.4010608@cybsft.com>
-Date: Tue, 31 May 2005 11:18:22 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Tue, 31 May 2005 12:12:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:reply-to;
+        b=ioyZnlSIjunHV5L7NWXaEKJXBjajUl0E/ID2CJLhED+BbIjZVgJLdQX+afi+YVZx3PLUGAz2oBtwXMX8XDBC6ZLc/4h/aijGRa48KB5rNdaZxL9UMo6U3lPAU4NgmvGIuntDvFBBVHIyA/ok3CAG+QpbtGW/MqEE/puXRRhvLp4=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: spereira@tusc.com.au
+Subject: Re: x25-selective-sub-address-matching-with.patch added to -mm tree
+Date: Tue, 31 May 2005 20:14:28 +0400
+User-Agent: KMail/1.7.2
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <200505310933.j4V9XiiS009653@shell0.pdx.osdl.net>
+In-Reply-To: <200505310933.j4V9XiiS009653@shell0.pdx.osdl.net>
 MIME-Version: 1.0
-To: Serge Noiraud <serge.noiraud@bull.net>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: RT : Large transfert with 2.6.12rc5 +	realtime-preempt-2.6.12-rc5-V0.7.47-15
-References: <1117552050.19367.63.camel@ibiza.btsn.frna.bull.fr>
-In-Reply-To: <1117552050.19367.63.camel@ibiza.btsn.frna.bull.fr>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200505312014.30408.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Serge Noiraud wrote:
-> I had the same problem with rc4+47-07, rc5+47-10,47-13
-> I reproduce this problem with a tg3 driver and with e1000 driver.
-> So I think it's not a driver problem.
-> 
-> I try to copy an iso image from this machine to another one by scp.
-> after 35 to 45MB, the copy become stalled with no more transfert.
-> We can ping the target machine, all apparently is OK except the scp
-> which finish with timeout.
-> With ftp, the stalled state is about 100MB.
-> If I reboot with a standard kernel ( without RT ), no problem.
-> 
-> Perhaps there is a progress, in 47-15, the size is now 135-140MB
-> 
-> On this machine, we have an ide disk.
-> I have setup : hdparm 
-> -sh-2.05b# hdparm /dev/hda
-> 
-> /dev/hda:
->  multcount    = 16 (on)
->  IO_support   =  3 (32-bit w/sync)
->  unmaskirq    =  1 (on)
->  using_dma    =  1 (on)
->  keepsettings =  0 (off)
->  readonly     =  0 (off)
->  readahead    = 256 (on)
->  geometry     = 65535/16/63, sectors = 78165360, start = 0
-> 
+On Tuesday 31 May 2005 13:32, akpm@osdl.org wrote:
+> x25: selective sub-address matching with call user data
 
-Hi,
+> --- 25/net/x25/af_x25.c~x25-selective-sub-address-matching-with
+> +++ 25-akpm/net/x25/af_x25.c
 
-I am not sure what might be causing this problem for you. I just tried 
-to reproduce this on one of my systems but could not (scsi not ide). The 
-first time it copied 450MB before the remote system ran out of space. 
-After cleaning up a bit I got the whole 630MB without a hitch. Do you 
-have the RT patch on both systems or just on the originating system? In 
-my case its the latter. There is
+> @@ -1325,6 +1331,23 @@ static int x25_ioctl(struct socket *sock
 
--- 
-    kr
+> +		case SIOCX25SCUDMATCHLEN: {
+> +			struct x25_subaddr sub_addr;
+
+> +			if (copy_from_user(&sub_addr, argp,
+> +					sizeof(&sub_addr)))
+					      ^^^
+
+You want sizeof(sub_addr) here. If other people won't NAKYAIOCTL.

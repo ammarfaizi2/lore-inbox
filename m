@@ -1,67 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261801AbVEaK7J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVEaLGG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261801AbVEaK7J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 06:59:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbVEaK7J
+	id S261806AbVEaLGG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 07:06:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261836AbVEaLGG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 06:59:09 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.82]:3240 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261801AbVEaK7C
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 06:59:02 -0400
-Message-ID: <429C4112.2010808@andrew.cmu.edu>
-Date: Tue, 31 May 2005 06:48:50 -0400
-From: James Bruce <bruce@andrew.cmu.edu>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
+	Tue, 31 May 2005 07:06:06 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:25028 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S261806AbVEaLF6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 07:05:58 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Tue, 31 May 2005 13:03:31 +0200
+To: schilling@fokus.fraunhofer.de, mrmacman_g4@mac.com
+Cc: toon@hout.vanvergehaald.nl, ltd@cisco.com, linux-kernel@vger.kernel.org,
+       dtor_core@ameritech.net, 7eggert@gmx.de
+Subject: Re: OT] Joerg Schilling flames Linux on his Blog
+Message-ID: <429C4483.nail5X0215WJQ@burner>
+References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com>
+ <20050530093420.GB15347@hout.vanvergehaald.nl>
+ <429B0683.nail5764GYTVC@burner>
+ <46BE0C64-1246-4259-914B-379071712F01@mac.com>
+In-Reply-To: <46BE0C64-1246-4259-914B-379071712F01@mac.com>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-References: <20050527233645.GA2283@nietzsche.lynx.com> <4297EB57.5090902@yahoo.com.au> <20050528054503.GA2958@nietzsche.lynx.com> <42981467.6020409@yahoo.com.au> <4299A98D.1080805@andrew.cmu.edu> <429ADEDD.4020805@yahoo.com.au> <429B1898.8040805@andrew.cmu.edu> <429B2160.7010005@yahoo.com.au> <20050530222747.GB9972@nietzsche.lynx.com> <429BBC2D.70406@yahoo.com.au> <20050531020957.GA10814@nietzsche.lynx.com> <429C2A64.1040204@andrew.cmu.edu> <429C2F72.7060300@yahoo.com.au>
-In-Reply-To: <429C2F72.7060300@yahoo.com.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin wrote:
-> I have never been in any doubt as to the specific claims I have
-> made. I continually have been talking about hard realtime from
-> start to finish, and it appears that everyone now agrees with me
-> that for hard-RT, a nanokernel solution is better or at least
-> not obviously worse at this stage.
+Kyle Moffett <mrmacman_g4@mac.com> wrote:
 
-It is only better in that if you need provable hard-RT *right now*, then 
-you have to use a nanokernel.  The RT patch doesn't provide guaranteed 
-hard-RT yet[1], but it may in the future.  Any RT application programmer 
-would rather write for a single image system than a split kernel.  So if 
-it does eventually provide hard-RT, just about every new RT application 
-will target it (due to it being easier to program for).  In addition it 
-radically improves soft-RT performance *now*, which a nanokernel doesn't 
-help with at all.  "Best" would be getting preempt-RT to become 
-guaranteed hard-RT, or if that proves impossible, to have a nanokernel 
-in addition to preempt-RT's good statistical soft-RT guarantees.
+> > BTW: an implementation that uses something like Solaris does with
+> > /etc/path_to_inst and puts USB serial numbers into the path_to_inst
+> > kernel instance database could come very close to the desired result
+> > and would give stable SCSI addresses too.
+>
+> But why fix what isn't broken?  I can tell all my other programs, from
+> dd to mount, that I want to use the udev-created /dev/green_burner, so
+> why do you indicate such usage is _deprecated_ in cdrecord?  For such
+> device nodes, a _filesystem_ is the preferred name=>number index, so
+> why add an extra strange file "just because Solaris does".
 
-I think where we violently disagree is that in your earlier posts you 
-seemed to imply that a nanokernel hard-RT solution obviates the need for 
-something like preempt-RT.  That is not the case at all, and at the 
-moment they are quite orthogonal.  In the future they may not be 
-orthogonal, because *if* preempt-RT patch becomes guaranteed hard-RT, it 
-would pretty much relegate nanokernels to only those applications 
-requiring formal verification.
+If you use /dev/ entries to directly address SCSI targets, then you 
+are relying on on assumptions that cannot be granted everywhere.
 
-  - Jim Bruce
+Cdrecord is portable and this needs to implement a way that is portable 
+and does not rely on nonportable assumptions like yours.
 
-P.S. Preempt-RT is a sight to behold while updatedb is running.  The 
-difference between it and ordinary preempt is quite impressive.  Nothing 
-currently running has so much as a hiccup, even though / is using the 
-non-latency-friendly ReiserFS.  The only way I even notice updatedb is 
-running at all is through my CPU monitor and the fact that disk IO is 
-slower.
 
-[1] By this I mean on a system loaded with low priority tasks doing the 
-relatively arbitrary things one might do on a live system.
+> And why again do you need stable SCSI addresses for my _USB_ drive?
+
+Well if the udev program was polite to users, it would also support
+to edit /etc/default/cdrecord...... 
+
+... if it _really_ does wat you like with /dev/ links, then it has all 
+the information that is needed to also maintain /etc/default/cdrecord
+
+
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  
+       schilling@fokus.fraunhofer.de	(work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

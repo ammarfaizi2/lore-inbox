@@ -1,62 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261758AbVEaKoR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVEaKuC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261758AbVEaKoR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 06:44:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261760AbVEaKoR
+	id S261777AbVEaKuC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 06:50:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbVEaKuC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 06:44:17 -0400
-Received: from relay.felk.cvut.cz ([147.32.80.7]:64017 "EHLO
-	relay.felk.cvut.cz") by vger.kernel.org with ESMTP id S261758AbVEaKoL convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 06:44:11 -0400
-From: Michal Semler <cijoml@volny.cz>
-Reply-To: cijoml@volny.cz
-To: linux-kernel@vger.kernel.org
-Subject: Re: problem with ALSA ane intel modem driver
-Date: Tue, 31 May 2005 12:22:02 +0200
-User-Agent: KMail/1.7.2
-References: <200505280716.46688.cijoml@volny.cz> <20050531101015.GF9755@tecr>
-In-Reply-To: <20050531101015.GF9755@tecr>
+	Tue, 31 May 2005 06:50:02 -0400
+Received: from smtp200.mail.sc5.yahoo.com ([216.136.130.125]:9124 "HELO
+	smtp200.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261777AbVEaKt7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 06:49:59 -0400
+Message-ID: <429C4152.9050605@yahoo.com.au>
+Date: Tue, 31 May 2005 20:49:54 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-2"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-ID: <200505311222.03463.cijoml@volny.cz>
-X-MailScanner-felk: Found to be clean
-X-MailScanner-SpamCheck-felk: not spam, SpamAssassin (score=-4.9, required 5,
-	BAYES_00 -4.90)
+To: vatsa@in.ibm.com
+CC: Shaohua Li <shaohua.li@intel.com>, lkml <linux-kernel@vger.kernel.org>,
+       akpm <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Rusty Russell <rusty@rustcorp.com.au>, ashok.raj@intel.com
+Subject: Re: [PATCH]CPU hotplug breaks wake_up_new_task
+References: <1117524909.3820.11.camel@linux-hp.sh.intel.com> <20050531094045.GA9884@in.ibm.com> <429C3265.4010704@yahoo.com.au> <20050531104055.GA9908@in.ibm.com>
+In-Reply-To: <20050531104055.GA9908@in.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dne út 31. kvìtna 2005 12:10 Sasha Khapyorsky napsal(a):
-> On 07:16 Sat 28 May     , Michal Semler wrote:
-> > for testing purposes I compiled 2.6.12-rc5 and my dmesg si full of
-> >
-> > codec_semaphore: semaphore is not ready [0x1][0x701300]
-> > codec_read 1: semaphore is not ready for register 0x54
-> > codec_semaphore: semaphore is not ready [0x1][0x701300]
-> > codec_write 1: semaphore is not ready for register 0x54
->
-> This one (register 0x54) should be fixed in ALSA CVS.
->
-> > codec_semaphore: semaphore is not ready [0x1][0x700300]
-> > codec_write 0: semaphore is not ready for register 0x2c
->
-> And this is something new. What is output of
-> 'cat /proc/asound/card1/codec97#0/mc97#1-1' ?
+Srivatsa Vaddagiri wrote:
+> On Tue, May 31, 2005 at 07:46:13PM +1000, Nick Piggin wrote:
+> 
+>>And this patch will break balance-on-fork.
+> 
+> 
+> Right :-)
+> 
+> 
+>>How about conditionally setting task_cpu if the task's current
+>>CPU is offline?
+> 
+> 
+> Something like this?
+> 
 
-notas:/home/cijoml# cat /proc/asound/card1/codec97#0/mc97#1-1
-1-1/0: Silicon Laboratory Si3036,8 rev 7
-
-Extended modem ID: codec=1 LIN1
-Modem status     : PRB(res) PRE(ADC2) PRF(DAC2) PRG(HADC) PRH(HDAC)
-Line1 rate       : 12000Hz
-
-
->
-> Sasha.
+That's exactly what I had in mind ;)
+Shaohua, do you agree?
 
 -- 
-S pozdravem
+SUSE Labs, Novell Inc.
 
-Michal Semler
+Send instant messages to your online friends http://au.messenger.yahoo.com 

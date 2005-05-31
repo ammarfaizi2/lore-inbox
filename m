@@ -1,150 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVEaVeW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbVEaVia@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbVEaVeW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 17:34:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVEaVeF
+	id S261555AbVEaVia (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 17:38:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261554AbVEaVcj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 17:34:05 -0400
-Received: from waste.org ([216.27.176.166]:8126 "EHLO waste.org")
-	by vger.kernel.org with ESMTP id S261500AbVEaVbH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 17:31:07 -0400
-Date: Tue, 31 May 2005 14:31:03 -0700
-From: Matt Mackall <mpm@selenic.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: mercurial@selenic.com, git@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Mercurial 0.5b vs git
-Message-ID: <20050531213103.GR7685@waste.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Tue, 31 May 2005 17:32:39 -0400
+Received: from smtp.freestart.hu ([213.197.64.6]:11789 "EHLO
+	relay.freestart.hu") by vger.kernel.org with ESMTP id S261539AbVEaVb0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 17:31:26 -0400
+Message-ID: <002c01c56628$19ccbbe0$7344c5d5@windows>
+From: "Green Brain" <greenbrain@freemail.hu>
+To: <linux-kernel@vger.kernel.org>
+Subject: WebCamera
+Date: Tue, 31 May 2005 23:27:31 +0200
+MIME-Version: 1.0
+Content-Type: text/plain;charset="iso-8859-2"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-freestart-banner: Yes
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest version of Mercurial is available at:
-
- http://selenic.com/mercurial/
-
-Utilities to convert git repos and interoperate with git are beginning
-to appear on the mercurial mailing list, including a port of gitk.
-
-As a practical demonstration, I've imported Ingo's BKCVS patchset into
-Mercurial. The result is a 297M archive with 28237 changesets going back
-to 2.4.0. Some history is lost because of the BK->CVS flattening. You
-can browse it here:
-
- http://userweb.kernel.org/~mpm/linux-hg/index.cgi
-
-Be sure to check out the annotate feature. Unfortunately there are no
-branches in this repo because of the BK->CVS flattening, but you can
-look at the main Mercurial repo to see examples of pulls.
-
-The full tarball of the Mercurial kernel repo (144MB) can be grabbed here:
-
- http://www.kernel.org/pub/linux/kernel/people/mpm/linux-hg.tar.gz
-
-If you want to browse this repo on your own machine (very fast and
-convenient for laptops!), simply install Mercurial, download the
-tarball, run 'hg serve' in the repo directory and point your web
-browser at http://localhost:8000.
-
-The web interface also serves as a highly efficient merge server:
-
-$ time hg -v merge http://remotehost:8000/
-searching for changes
-adding changesets
-adding manifests
-adding files
-118549846 bytes of data transfered
-modified 23306 files, added 28238 changesets and 188476 new revisions
-
-real    4m51.371s
-user    1m25.852s
-sys     0m8.303s
-
-That's pulling the whole kernel history over fast DSL with only 113M
-of traffic. Compare that to the 2.6.11 tar.bz2 at 35M. Smaller merges
-are of course proportionally faster. (Pulls from userweb.kernel.org
-are disabled because the machine has limited bandwidth.)
-
-Verifying the archive:
-
-$ time hg verify
-checking changesets
-checking manifests
-crosschecking files in changesets and manifests
-checking files
-23305 files, 28238 changesets, 188464 total revisions
-
-real    2m48.986s
-user    1m30.055s
-sys     0m7.158s
-
-Checking the integrity of the equivalent git archive looks like it
-will take an hour or more of seek intensive I/O (though the person
-who was timing it for me gave up).
-
-This highlights one of git's most serious problems: storing the
-repository by hash. This tends to pessimize layout over time. Initial
-check-ins will be nicely ordered by write order, but as changes are
-made, the set of files in the tip will get spread further and further
-apart on the disk and in more and more random order. Copying the
-archive via rsync, cp -a, or the like will tend to exacerbate things
-by reordering _everything_ in hash (aka worst possible) order. This is
-pretty fundamental to the git design and will cause its scalability to
-fall apart as the number of revisions mount.
-
-Mercurial was originally using a similar scheme, and when I ran into
-this problem, I spent a day playing with variations on sorting by
-inode, prefetching, etc to get the performance back. None of it came
-close to the performance of simply having everything layed out well on
-disk in the first place.
-
-My eventual solution was a simple 5-line change to switch back to a
-tree-structured repo layout like CVS. This lets the filesystem block
-allocator assist by putting files in the same directory near each
-other on disk. Also, copying repos tends to optimize things rather
-than making things worse. Mercurial also inherently stores all file
-revisions together so operations like tree diffs or file annotate can
-be done with a minimum of seeking.
+I cannot use my USB 2.0 (BisonCam, ALI M5603C chip) webcamera under (SuSE)
+Linux. If
+somebody know this camera please help me! (I use a Clevo notebook.)
+Thanks in advance!
 
 
-Here's a quick comparison:
-
-                    Mercurial      git                     BK (*)
-storage             revlog delta   compressed revisions    SCCS weave
-storage naming      by filename    by revision hash        by filename
-merge               file DAGs      changeset DAG           file DAGs?
-consistency         SHA1           SHA1                    CRC
-signable?           yes            yes                     no       
-
-retrieve file tip   O(1)           O(1)                    O(revs)
-add rev             O(1)           O(1)                    O(revs)
-find prev file rev  O(1)           O(changesets)           O(revs)
-annotate file       O(revs)        O(changesets)           O(revs)
-find file changeset O(1)           O(changesets)           ?
-
-file tracking       stat-based     stat-based              bk edit
-checkout            O(files)       O(files)                O(revs)?
-commit              O(changes)     O(changes)              ?
-                    6 patches/s    6 patches/s             slow
-diff working dir    O(changes)     O(changes)              ?
-                    < 1s           < 1s                    ?
-tree diff revs      O(changes)     O(changes)              ?
-                    < 1s           < 1s                    ?
-hardlink clone      O(files)       O(revisions)            O(files)
-
-find remote csets   O(log new)     rsync: O(revisions)     ?
-                                   git-http: O(changesets)
-pull remote csets   O(patch)       O(modified files)       O(patch)
-
-repo growth         O(patch)       O(revisions)            O(patch)
- kernel history     297M           3.5G?                   250M?
-lines of code       3700           6500+cogito+gitweb+..   ??
-
-* I've never used BK so this is just guesses
-
--- 
-Mathematics is the supreme nostalgia of our time.
-
+____________________________________________________________________
+Miert fizetsz az internetert? Korlatlan, ingyenes internet hozzaferes a FreeStarttol.
+Probald ki most! http://www.freestart.hu

@@ -1,82 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261506AbVEaVNM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVEaVVz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbVEaVNM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 17:13:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVEaVNM
+	id S261519AbVEaVVz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 17:21:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbVEaVVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 17:13:12 -0400
-Received: from free.hands.com ([83.142.228.128]:17552 "EHLO open.hands.com")
-	by vger.kernel.org with ESMTP id S261506AbVEaVMl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 17:12:41 -0400
-Date: Tue, 31 May 2005 22:21:12 +0100
-From: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-To: Ivan Gyurdiev <ivg2@cornell.edu>
-Cc: Karl MacMillan <kmacmillan@tresys.com>,
-       "'Stephen Smalley'" <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov,
-       dwalsh@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: file_type_auto_trans is not sufficient
-Message-ID: <20050531212112.GF11815@lkcl.net>
-Mail-Followup-To: Ivan Gyurdiev <ivg2@cornell.edu>,
-	Karl MacMillan <kmacmillan@tresys.com>,
-	'Stephen Smalley' <sds@tycho.nsa.gov>, SELinux@tycho.nsa.gov,
-	dwalsh@redhat.com, linux-kernel@vger.kernel.org
-References: <200505311412.j4VECK5F030983@gotham.columbia.tresys.com> <1117551440.15167.25.camel@dhcp83-8.boston.redhat.com>
+	Tue, 31 May 2005 17:21:55 -0400
+Received: from faui3es.informatik.uni-erlangen.de ([131.188.33.16]:21435 "EHLO
+	faui3es.informatik.uni-erlangen.de") by vger.kernel.org with ESMTP
+	id S261519AbVEaVVv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 17:21:51 -0400
+Date: Tue, 31 May 2005 23:21:41 +0200
+From: Martin Waitz <tali@admingilde.org>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: DocBook build failures, and graphical figures
+Message-ID: <20050531212141.GC14161@admingilde.org>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	Andrew Morton <akpm@osdl.org>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <429CAD7B.5070301@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="KqIDP7BYbqnwKRO+"
 Content-Disposition: inline
-In-Reply-To: <1117551440.15167.25.camel@dhcp83-8.boston.redhat.com>
-User-Agent: Mutt/1.5.5.1+cvs20040105i
-X-hands-com-MailScanner: Found to be clean
-X-MailScanner-From: lkcl@lkcl.net
+In-Reply-To: <429CAD7B.5070301@pobox.com>
+X-Habeas-SWE-1: winter into spring
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 31, 2005 at 10:57:20AM -0400, Ivan Gyurdiev wrote:
-> 
-> > The other option, of course, is to change the applications to use/create many
-> > more directories, each with a separate type to allow the file_type_auto_trans
-> > rules to work. Your orbit example might mean that there is a /tmp/orbit
-> > directory where all orbit files are created.
-> 
-> The problem is not multiple source domains - that can be addressed
-> through macros. The problem is that those domains use the same directory
-> (Usually /tmp, or /home), for their own purposes, and they need the same
-> transition (same directory and target class (dir/file)). 
-> 
-> Because you can have only one transition, this creates a problem.
- 
- ...
 
- thinking "sideways" again - as i am wont to do.
+--KqIDP7BYbqnwKRO+
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- how about... a "sideways" solution to this - at the kernel level?
+hoi :)
 
- a "silent" redirection / remount, on a per-application basis?
+On Tue, May 31, 2005 at 02:31:23PM -0400, Jeff Garzik wrote:
+> In each failing case, I can use "db2ps" or "db2pdf" to successfully=20
+> convert the XML file, whereas xmlto fails.
 
- no, i'm not joking.
+yes, passivetex (which is used by xmlto to process XML-FO) is not as
+stable as I thought.
+It breaks at strange times but I did not yet had the energy to really
+look into it.
+So we probably have to support db2pdf/ps again.
 
- an option to "mount" which allows a specific APPLICATION (or group of
- applications) to have any files/directories it creates/accesses in a
- subdirectory ACTUALLY occur ELSEWHERE.
+> * Can you make it easy to change the paper size to something custom,=20
+> like 6x9in ?
 
- e.g.:
+you should be able to put the following lines into stylesheet.xsl:
+<param name=3D"paper.width">6in</param>
+<param name=3D"paper.height">11in</param>
 
- mount -o redirectexe=/usr/bin/mozilla-firefox /tmp /tmp/mozilla
- mount -o redirectexe=/usr/bin/gnomeshite,/usr/bin/gnomemoreshite /tmp /tmp/gconf
+would it be easy enough if I provided some commented out entries?
+(well the above only works for xmlto, I don't know how to set
+the paper size for db2*)
 
- hm, that could get out-of-hand - the number of programs involved
- that would need redirection..
+> * Is there an example somewhere describing how to insert graphics=20
+> (figures and charts) ?
 
- *thinks* ... some other mechanism for "grouping" executables...
+you can insert graphics with
+<mediaobject><imageobject>
+<imagedata fileref=3D"blah.png" format=3D"PNG"/>
+</imageobject></mediaobject>
+(See http://www.faqs.org/docs/docbook/html/mediaobject.html)
 
- you could even hang it off of an selinux context (!) or selinux domain
- (!) such that a set of executables, possibly those executed by
- certain users, would result in filesystem redirection - but not others.
+The above generates an <img src=3D"blah.png"> in HTML mode.
+Is that what you want?
 
- at your own discretion.
+--=20
+Martin Waitz
 
- then, you _could_ specify /tmp/gconf equals "a different file context".
+--KqIDP7BYbqnwKRO+
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
- l.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.1 (GNU/Linux)
 
+iD8DBQFCnNVlj/Eaxd/oD7IRAr/+AJ0bF3qPO2OhuJ0s95sPSgqYrW7WOwCfaEMC
+ei0vPpyh4hZV8VwSd2kfD1Y=
+=CDhC
+-----END PGP SIGNATURE-----
+
+--KqIDP7BYbqnwKRO+--

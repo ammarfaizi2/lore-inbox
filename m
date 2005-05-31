@@ -1,69 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVEaV5k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVEaWsH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbVEaV5k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 17:57:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVEaV5j
+	id S261204AbVEaWsH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 18:48:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVEaWsH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 17:57:39 -0400
-Received: from dream.eng.uci.edu ([128.195.164.137]:1854 "EHLO
-	dream.dream.eng.uci.edu") by vger.kernel.org with ESMTP
-	id S261602AbVEaV50 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 17:57:26 -0400
-From: "Liangchen Zheng" <zlc@dream.eng.uci.edu>
-To: "'Lee Revell'" <rlrevell@joe-job.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: The values of gettimeofday() jumps.
-Date: Tue, 31 May 2005 14:59:44 -0700
-Message-ID: <004d01c5662c$0da4de70$85a4c380@dream.eng.uci.edu>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+	Tue, 31 May 2005 18:48:07 -0400
+Received: from zproxy.gmail.com ([64.233.162.195]:51767 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261204AbVEaWsE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 18:48:04 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=nPd3WWqeq6chG3hyw7Zd/RlnslGuqy3mcHhqegPAESAJMDnTJAd3r7oJCnp4cO5SBQR+zcatJG3GeQAH4n/r6vZOYYDMBUirSTH/O4hRwnJULZV0F4bsJGkJW8zShp1NxfFZrEnrXMIqriHeOO8w0QBOUB4+55YTzMcpCfBkdRo=
+Date: Tue, 31 May 2005 23:37:12 +0200
+From: Marcin Bis <marcin.bis@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: problem with ALSA ane intel modem driver
+Message-ID: <20050531233712.7b782c6c@laptop>
+In-Reply-To: <s5h64x0x2pc.wl@alsa2.suse.de>
+References: <200505280716.46688.cijoml@volny.cz>
+	<20050528154736.3ab2550a@laptop>
+	<s5h64x0x2pc.wl@alsa2.suse.de>
+X-Mailer: Sylpheed-Claws 1.9.6cvs1 (GTK+ 2.6.4; i386-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.2627
-In-Reply-To: <1117332028.11397.1.camel@mindpipe>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
-Importance: Normal
-X-OriginalArrivalTime: 31 May 2005 22:01:47.0968 (UTC) FILETIME=[57548C00:01C5662C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It seems the problem is not caused by ntpd. 
-The issue is still there after I stopped the ntpd daemon. I tested it
-for a long time and found the clock drifted around every 1 second. The
-distances of the clock drift are interleaved with both positive and
-negative values. For example, if it goes 300ms forward, it will go
-backward around 300ms at the next time. Because the occurrences of the
-clock drift are so regular, I doubt it was caused only by one source.  I
-am still wondering how I can discover it. 
-	There were also 2 other suggestions I got from here the last
-week. I will try them to see if it can solve my problem. 
-	Thanks. 
+On Mon, 30 May 2005 15:28:47 +0200
+Takashi Iwai <tiwai@suse.de> wrote:
 
-Regards,
-Liangchen 
+> > Same problem on 2.6.11.11
+> > 
+> > Current Debian testing, 
+> > (Intel Corp. 82801CA/CAM AC'97 Modem Controller)
+> 
+> Do you mean a regression?  Or just a non-working device?
+Non working device.
 
------Original Message-----
-From: Lee Revell [mailto:rlrevell@joe-job.com] 
-Sent: Saturday, May 28, 2005 7:00 PM
-To: Liangchen Zheng
-Subject: RE: The values of gettimeofday() jumps.
+Semaphore warning is fixed in ALSA CVS (but i still get NO DIALTONE/NO
+CARRIER error for this modem).
 
-On Sat, 2005-05-28 at 19:00 -0700, Liangchen Zheng wrote:
-> Yes. There is an ntp server in the LAN. Is the problem caused by this?
-I
-> saw some document said the clock drift issue can be solved by using
-> ntpd.  
-> So if the problem is caused by ntp, how can I solve it?
-> Thanks a lot.
-
-Well, if you are running ntpd on all of the machines (and not just
-periodically running ntpdate), it should slew the clock gradually, so
-you should not see any big jumps.
-
-If all machines are running ntpd locally, and all are configured to use
-the same NTP server, all clocks should be in sync all the time.
-
-Lee
-
+-- 
+ Marcin Bis

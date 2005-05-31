@@ -1,97 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVEaOx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261504AbVEaPEq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261331AbVEaOx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 10:53:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVEaOx7
+	id S261504AbVEaPEq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 11:04:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVEaPEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 10:53:59 -0400
-Received: from pop.gmx.net ([213.165.64.20]:56282 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261331AbVEaOxv (ORCPT
+	Tue, 31 May 2005 11:04:46 -0400
+Received: from odin2.bull.net ([192.90.70.84]:22994 "EHLO odin2.bull.net")
+	by vger.kernel.org with ESMTP id S261504AbVEaPEj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 10:53:51 -0400
-Date: Tue, 31 May 2005 16:53:50 +0200 (MEST)
-From: "Michael Kerrisk" <michael.kerrisk@gmx.net>
-To: Stephen Rothwell <sfr@canb.auug.org.au>
-Cc: mtk-lkml@gmx.net, heiko.carstens@de.ibm.com, linux-kernel@vger.kernel.org,
-       andros@citi.umich.edu, matthew@wil.cx, schwidefsky@de.ibm.com
-MIME-Version: 1.0
-References: <20050503231408.7c045648.sfr@canb.auug.org.au>
-Subject: Re: fcntl: F_SETLEASE/F_RDLCK question
-X-Priority: 3 (Normal)
-X-Authenticated: #2864774
-Message-ID: <32555.1117551230@www14.gmx.net>
-X-Mailer: WWW-Mail 1.6 (Global Message Exchange)
-X-Flags: 0001
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 31 May 2005 11:04:39 -0400
+Subject: RT : 2.6.12rc5 + realtime-preempt-2.6.12-rc5-V0.7.47-15
+From: "Serge Noiraud" <serge.noiraud@bull.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Ingo Molnar <mingo@elte.hu>
+Content-Type: multipart/mixed; boundary="=-0ETsQf8wH4gpgiJMl7Jd"
+Organization: BTS
+Message-Id: <1117551231.19367.48.camel@ibiza.btsn.frna.bull.fr>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.6-5.1.100mdk 
+Date: Tue, 31 May 2005 16:53:52 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Stephen,
 
-Sorry for the long delay in replying; other things intervened.
+--=-0ETsQf8wH4gpgiJMl7Jd
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-> On Tue, 3 May 2005 12:00:18 +0200 (MEST) "Michael Kerrisk"
-> <mtk-lkml@gmx.net> wrote:
-> >
-> > Indeed the problem referred to is fixed, but it looks like another 
-> > one may have been introduced.
-> > 
-> > It now appears (I tested on 2.6.11.6) that if a process opens 
-> > a file O_RDWR and then tries to place a read lease via that
-> > file descriptor, then the F_SETLEASE fails with EAGAIN, 
-> > even though no other process has the file open for writing.  
-> > (On the other hand, if the process opens the file 
-> > O_WRONLY, then it can place either a read or a write lease.  
-> > This is how I think things always worked, but it seems 
-> > inconsistent with the aforementioned behaviour.)  
-> > 
-> > Some further testing showed the following (both open() 
-> > and fcntl(F_SETLEASE) from same process):
-> > 
-> >  open()  |  lease requested
-> >   flag   | F_RDLCK  | F_WRLCK
-> > ---------+----------+----------
-> > O_RDONLY | okay     |  okay
-> > O_WRONLY | EAGAIN   |  okay
-> > O_RDWR   | EAGAIN   |  okay
-> > 
-> > This seems strange (I imagine the caller should be excluded 
-> > from the list of processes being checked to see if the file 
-> > is opened for writing), and differs from earlier kernel
-> > versions.  What is the intended behaviour here?
-> 
-> Thanks for the testing.  My expectation is that it shouldn't matter how
-> the current process opened the file for either type of lease.  However,
-> you are right (IMHO) that the current process should *not* be counted as 
-> a writer in the case of trying to obtain a F_RDLCK lease.
-> 
-> How does this (completely untested, not even compiled) patch look?
-> 
-> diff -ruNP linus/fs/locks.c linus-leases.1/fs/locks.c
-> --- linus/fs/locks.c	2005-04-26 15:38:00.000000000 +1000
-> +++ linus-leases.1/fs/locks.c	2005-05-03 23:00:14.000000000 +1000
-> @@ -1288,7 +1288,8 @@
->  		goto out;
->  
->  	error = -EAGAIN;
-> -	if ((arg == F_RDLCK) && (atomic_read(&inode->i_writecount) > 0))
-> +	if ((arg == F_RDLCK) && (atomic_read(&inode->i_writecount)
-> +				 > ((filp->f_mode & FMODE_WRITE) ? 1 : 0)))
->  		goto out;
->  	if ((arg == F_WRLCK)
->  	    && ((atomic_read(&dentry->d_count) > 1)
+I have a test program which made a loop in RT to mesure the system
+perturbation.
+It works finely in a tty environment.
+When I run it in an X environment ( xterm ), I get something like if I
+click the Enter key in the active window.
+If I open a new xterm, this is the new active window which receive these
+events.
+These events stop when the program stop.
 
-I applied this against 2.6.12-rc4, and it fixes the problem 
-(and I've also teasted various other facets of file leases 
-and this change causes no obvious breakage elsewhere).
+I tried with X in RT and no RT : I have the problem.
 
-Are you going to push this fix into 2.6.12?
+I send you the program in copy to reproduce.
+I have this problem in all version of RT.
 
-Cheers,
+--=-0ETsQf8wH4gpgiJMl7Jd
+Content-Disposition: attachment; filename=test_tsc.c
+Content-Type: text/x-c; name=test_tsc.c; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-Michael
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "fonctions.h"
 
--- 
-Geschenkt: 3 Monate GMX ProMail gratis + 3 Ausgaben stern gratis
-++ Jetzt anmelden & testen ++ http://www.gmx.net/de/go/promail ++
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/mman.h> /* for mmap and MCL_CURRENT */
+#include <stdlib.h> /* for atoi */
+#include <asm/msr.h> /* for rdtsc */
+
+#define __USE_GNU=20
+#include <sched.h> /* for sched_xxxx */
+
+//#define NB_TEST 60000000000ULL
+#define NB_TEST 60000000ULL
+
+float get_cpu_clock_speed()
+{
+  FILE *fp;
+  char buffer[1024];
+  size_t bytes_read;
+  char *match;
+  float clock_speed;
+
+  fp =3D fopen ("/proc/cpuinfo", "r");
+  bytes_read =3D fread (buffer, 1, sizeof (buffer), fp);
+  fclose (fp);
+  if (bytes_read =3D=3D 0 || bytes_read =3D=3D sizeof (buffer))
+    return 0;
+  buffer[bytes_read] =3D '\0';
+  match =3D strstr (buffer, "cpu MHz");
+  if (match =3D=3D NULL)
+    return 0;
+  sscanf (match, "cpu MHz : %f", &clock_speed);
+  return clock_speed;
+}
+
+int main(int argc,char **argv)
+{
+ unsigned long long max,dt;
+ float frequency;
+ int cptr;
+ long long i;
+ struct sched_param sched_param;
+ double duree;
+ union {
+   unsigned long long total;
+   struct {
+     unsigned long MSL;
+     unsigned long LSL;
+   };
+ } tempsdeb,tempsfin,t1,t2,tmax1,tmax2;
+ cpu_set_t new_mask;
+ pid_t p =3D 0;
+ int ret;
+
+  if (argc!=3D2)
+  {
+     fprintf(stderr,"Usage:%s <NUM_CPU>\n",argv[0]);
+     return -1;
+  }
+  CPU_ZERO(&new_mask);
+  CPU_SET(atoi(argv[1]),&new_mask);
+  ret =3D sched_setaffinity(p,sizeof(cpu_set_t) , &new_mask);
+  rdtsc(tempsdeb.MSL,tempsdeb.LSL);
+  printf(" Start time %Lx \n",tempsdeb.total);
+  sched_param.sched_priority =3D99;
+  cptr =3D sched_setscheduler(getpid(), SCHED_FIFO,&sched_param );
+  cptr =3D mlockall(MCL_CURRENT);
+  printf("mlockall cptr %d\n",cptr);
+=20
+ max=3D0;
+ rdtsc(t1.MSL,t1.LSL);
+ for (i =3D 0; i < NB_TEST; i++)
+   {
+	 rdtsc(t2.MSL,t2.LSL);
+	 dt =3D t2.total - t1.total;
+	 if ( dt > max)=20
+	 { max =3D dt;
+	  tmax1.total =3D t1.total;
+	  tmax2.total =3D t2.total;
+	  }
+	 t1.total =3D t2.total;
+   }
+ rdtsc(tempsfin.MSL,tempsfin.LSL);
+ printf(" End time  %Lx \n",tempsfin.total);
+ printf(" Max time 1  %Lx \n",tmax1.total);
+ printf(" Max time 2  %Lx \n",tmax2.total);
+ frequency =3D get_cpu_clock_speed();
+  if (frequency =3D=3D 0)
+	  return -1;
+ duree =3D((double) (tempsfin.total - tempsdeb.total))/(frequency*1000000);
+ printf("Test duration is %f s max detected %.0f =B5s\n",duree,((double)max=
+)/(frequency));
+
+ return 0;
+}
+
+--=-0ETsQf8wH4gpgiJMl7Jd--
+

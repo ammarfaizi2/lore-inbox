@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbVEaN4t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261876AbVEaN5y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261873AbVEaN4t (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 09:56:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261876AbVEaN4s
+	id S261876AbVEaN5y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 09:57:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261891AbVEaN5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 09:56:48 -0400
-Received: from trixi.wincor-nixdorf.com ([217.115.67.77]:43223 "EHLO
-	trixi.wincor-nixdorf.com") by vger.kernel.org with ESMTP
-	id S261873AbVEaN4k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 09:56:40 -0400
-From: "Salomon, Frank" <frank.salomon@wincor-nixdorf.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
-       brazilnut@us.ibm.com
-Message-ID: <429C6C8F.5000506@wincor-nixdorf.com>
-Date: Tue, 31 May 2005 15:54:23 +0200
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Subject: Re: pci-irq VIA82C586 problem on IBM 4694-205 kernel version 2.4.29
-References: <428379AC.9080206@wincor-nixdorf.com> <20050512162803.GA15201@us.ibm.com>   <42847C64.5080405@wincor-nixdorf.com> <20050513164654.GB30792@us.ibm.com> <4289FF48.9070205@wincor-nixdorf.com>   <20050518113315.GC7793@logos.cnet> <428C43F4.5020709@wincor-nixdorf.com> <20050525115910.GA15873@logos.cnet>
-In-Reply-To: <20050525115910.GA15873@logos.cnet>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 31 May 2005 09:57:54 -0400
+Received: from kanga.kvack.org ([66.96.29.28]:55210 "EHLO kanga.kvack.org")
+	by vger.kernel.org with ESMTP id S261876AbVEaN5u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 09:57:50 -0400
+Date: Tue, 31 May 2005 09:59:59 -0400
+From: Benjamin LaHaise <bcrl@kvack.org>
+To: Andi Kleen <ak@muc.de>
+Cc: Denis Vlasenko <vda@ilport.com.ua>,
+       dean gaudet <dean-list-linux-kernel@arctic.org>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] x86-64: Use SSE for copy_page and clear_page
+Message-ID: <20050531135959.GA16081@kvack.org>
+References: <20050530181626.GA10212@kvack.org> <20050530193225.GC25794@muc.de> <200505311137.00011.vda@ilport.com.ua> <200505311215.06495.vda@ilport.com.ua> <20050531092358.GA9372@muc.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050531092358.GA9372@muc.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Marcelo,
+On Tue, May 31, 2005 at 11:23:58AM +0200, Andi Kleen wrote:
+> fork is only a corner case. The main case is a process allocating
+> memory using brk/mmap and then using it.
 
-The patch you have referenced is working correctly on my IBM 4694-205.
-Many thanks,
-Frank
+At least for kernel compiles, using non-temporal stores is a slight 
+win (a 2-5s improvement on 4m30s).  Granted, there seems to be a 
+lot of variation in kernel compile times.
 
+A bit more experimentation shows that non-temporal stores plus a 
+prefetch of the resulting data is still better than the existing 
+routines and only slightly slower than the pure non-temporal version.  
+That said, it seems to result in kernel compiles that are on the high 
+side of the variations I normally see (4m40s, 4m38s) compared to the 
+~4m30s for an unpatched kernel and ~4m25s-4m30s for the non-temporal 
+store version.
 
-Marcelo Tosatti wrote:
-> 
-> 
-> Hi Frank,
-> 
-> A fix for the problem has just been merged in v2.4.31-rc1 - I would 
-> appreciate if you can test that.
-> 
+		-ben
+-- 
+"Time is what keeps everything from happening all at once." -- John Wheeler

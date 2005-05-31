@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261910AbVEaPKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261890AbVEaPSW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261910AbVEaPKa (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 11:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbVEaPJe
+	id S261890AbVEaPSW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 11:18:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbVEaPSW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 11:09:34 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:30091 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261890AbVEaPIo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 11:08:44 -0400
-Date: Tue, 31 May 2005 17:07:45 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: James Bruce <bruce@andrew.cmu.edu>, Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-In-Reply-To: <20050531143051.GL5413@g5.random>
-Message-Id: <Pine.OSF.4.05.10505311652140.1707-100000@da410.phys.au.dk>
+	Tue, 31 May 2005 11:18:22 -0400
+Received: from odin2.bull.net ([192.90.70.84]:50648 "EHLO odin2.bull.net")
+	by vger.kernel.org with ESMTP id S261890AbVEaPSS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 11:18:18 -0400
+Subject: RT : Large transfert with 2.6.12rc5 +
+	realtime-preempt-2.6.12-rc5-V0.7.47-15
+From: "Serge Noiraud" <serge.noiraud@bull.net>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Organization: BTS
+Message-Id: <1117552050.19367.63.camel@ibiza.btsn.frna.bull.fr>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.6-5.1.100mdk 
+Date: Tue, 31 May 2005 17:07:31 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 May 2005, Andrea Arcangeli wrote:
+I had the same problem with rc4+47-07, rc5+47-10,47-13
+I reproduce this problem with a tg3 driver and with e1000 driver.
+So I think it's not a driver problem.
 
-> On Tue, May 31, 2005 at 06:48:50AM -0400, James Bruce wrote:
-> > orthogonal, because *if* preempt-RT patch becomes guaranteed hard-RT, it 
-> 
-> I don't see how can preempt-RT ever become hard-RT when a simple lock
-> hangs it. 
+I try to copy an iso image from this machine to another one by scp.
+after 35 to 45MB, the copy become stalled with no more transfert.
+We can ping the target machine, all apparently is OK except the scp
+which finish with timeout.
+With ftp, the stalled state is about 100MB.
+If I reboot with a standard kernel ( without RT ), no problem.
 
-There is no "simple lock" as spinlock (or very very few). All locks are
-mutexes - with priority inheritance! Ofcourse, hitting a lock which can be
-held for a non-deterministic amount of time destroyes your RT - but so it
-does in any  RTOS. 
-The whole point of PREEMPT_RT is that what _other_, lower priority threads
-are doing isn't going to affect you. They are _not_ disabling preemption
-or locking you away. Ofcourse, as soon as you start to share resources
-with other threads you have to be carefull. But priority inheritance
-even makes that deterministic - provided that all code used under the lock
-is deterministic. Same as for any RTOS.
+Perhaps there is a progress, in 47-15, the size is now 135-140MB
 
-> As soon as you call kernel code, you'll eventually hang,
-> kmalloc will have to allocate memory and pageout other stuff no matter
-> what.
+On this machine, we have an ide disk.
+I have setup : hdparm 
+-sh-2.05b# hdparm /dev/hda
 
-Please, tell me why you think mlockall() doesn't protect my RT thread
-against that problem. In the testcode I have made and run I have no
-problems in practise, but I have not verified it by going through all the
-mm-code. You know that code a whole lot better than I.
+/dev/hda:
+ multcount    = 16 (on)
+ IO_support   =  3 (32-bit w/sync)
+ unmaskirq    =  1 (on)
+ using_dma    =  1 (on)
+ keepsettings =  0 (off)
+ readonly     =  0 (off)
+ readahead    = 256 (on)
+ geometry     = 65535/16/63, sectors = 78165360, start = 0
 
-> 
-> I really hope embedded developers knows better and they don't get the
-> idea of using preempt-RT where hard-RT is required.
 
-I hope people will stop making such broad statements and reallize that
-Linux can become a hard-RT OS (if not by "proof", at least by
-meassurement). There is no conflict between a timesharing system scaling
-to a lot of CPUs and a hard-RT system just because they are catogarized as
-different in the text-books.
-
-Esben
 

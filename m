@@ -1,52 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261613AbVEaKMw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbVEaKS1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261613AbVEaKMw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 06:12:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbVEaKMw
+	id S261629AbVEaKS1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 06:18:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbVEaKS0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 06:12:52 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:22944 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S261613AbVEaKMo (ORCPT
+	Tue, 31 May 2005 06:18:26 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:11282 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S261629AbVEaKSU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 06:12:44 -0400
-Date: Tue, 31 May 2005 11:28:34 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Emmanuel Fleury <fleury@cs.aau.dk>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux for Mobile phones and PDAs [long]
-Message-ID: <20050531092834.GA9614@elf.ucw.cz>
-References: <42971C0E.9030504@cs.aau.dk>
+	Tue, 31 May 2005 06:18:20 -0400
+Date: Tue, 31 May 2005 03:23:14 -0700
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: James Bruce <bruce@andrew.cmu.edu>, "Bill Huey (hui)" <bhuey@lnxw.com>,
+       Andi Kleen <ak@muc.de>, Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+Message-ID: <20050531102314.GA11116@nietzsche.lynx.com>
+References: <42981467.6020409@yahoo.com.au> <4299A98D.1080805@andrew.cmu.edu> <429ADEDD.4020805@yahoo.com.au> <429B1898.8040805@andrew.cmu.edu> <429B2160.7010005@yahoo.com.au> <20050530222747.GB9972@nietzsche.lynx.com> <429BBC2D.70406@yahoo.com.au> <20050531020957.GA10814@nietzsche.lynx.com> <429C2A64.1040204@andrew.cmu.edu> <429C2F72.7060300@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42971C0E.9030504@cs.aau.dk>
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <429C2F72.7060300@yahoo.com.au>
 User-Agent: Mutt/1.5.9i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, May 31, 2005 at 07:33:38PM +1000, Nick Piggin wrote:
+> James Bruce wrote:
+> >claims he's made, but I think a lot of people have read his posts too 
+> >quickly and misinterpreted what he's claiming for the current patch. 
+> >This includes people on both sides of the fence.  He's also been silent 
+> >for much of this discussion as its gotten out of hand, showing he's 
+> >clearly wiser than all of us.
+> 
+> I have never been in any doubt as to the specific claims I have
+> made. I continually have been talking about hard realtime from
+> start to finish, and it appears that everyone now agrees with me
+> that for hard-RT, a nanokernel solution is better or at least
+> not obviously worse at this stage.
 
-> Again, this week, during the LinuxWorld event in New-York, Nokia
-> unveiled its first tablet-PC (Nokia 770, http://www.nokia.com/770)
-> which is running under a 2.6.x kernel
-> (http://hardware.slashdot.org/hardware/05/05/25/139202.shtml?tid=100,
-> http://www.linuxdevices.com/news/NS5409534614.html) ! The day after,
-> Nokia announce that they will release patents for Open Source
-> development (as IBM did)
-> (http://yro.slashdot.org/yro/05/05/25/1827259.shtml?tid=155&tid=106).
-> But, that's not all of it, it seems that the making of the 770 has
-> involved quite a lot of the people of the Open Source community whom
-> were ask to keep a 'low profile' until the product will be released
-> (http://mail.gnome.org/archives/gnome-multimedia/2005-May/msg00021.html).
-> So, indeed, Nokia has been funding several Open Source projects for the
-> last few months without advertising it too much. From my (poor)
-> knowledge here are some of the companies Nokia did fund for getting its
-> 770 ready:
+No, not true. That's large a myth created by dual kernel folks. The
+scheduling and interrupt paths are highly optimized in Linux it's
+unlikely that any other OS can really make it significantly better
+in this area since the paths are branch hinted and cache sensitive.
+This core logic is pretty much similar across most RTOSes.
 
-This is good news. OTOH sharp zauruses have been here for quite long
-time, and failed to make this kind of publicity.
+> Ingo actually of course has been completely rational and honest
+> the whole time - he actually emailed me to basically say "there
+> will be pros and cons of both, and until things develop further
+> I'm not completely sure".
 
-								Pavel,
-	[still trying to make 2.6 mount / on his zaurus sl-5500]
-	
+There will be pro and cons of both, but in the end single kernel
+aspects will win because app programmability issues. The dual kernel
+boundary only exists because nobody took on the task of full kernel
+preemptibility because of the broad amount of knowledge needed to
+get the lock ordering correct as well as other concurrent conversions.
+
+It's done now and dual kernel will have less of a strangle hold on
+RT development in Linux. This will be inevitable as the technology
+propagates.
+
+> Which I was pretty satisfied with. Then along came the lynch mob.
+
+The lynch mob is right. They have first hand experience with this
+kind of work and understand the associated problem with this kind
+of software development. This isn't some piecewise kernel hack that's
+an easy tack on to the kernel, but a fundamentally different way
+of looking at things. Understanding the concepts is mandatory here.
+
+That's something that you're still not willing to learn which makes
+discussions with you on the subject useless and pisses off the rest
+of us.
+
+bill
+

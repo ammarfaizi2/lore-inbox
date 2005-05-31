@@ -1,50 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVEaH77@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261356AbVEaIAw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261340AbVEaH77 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 03:59:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVEaH77
+	id S261356AbVEaIAw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 04:00:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbVEaIAw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 03:59:59 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:36620 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S261340AbVEaH75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 03:59:57 -0400
-Message-ID: <429C1ACD.8070600@aitel.hist.no>
-Date: Tue, 31 May 2005 10:05:33 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: RAID-5 design bug (or misfeature)
-References: <E1DcXfR-0000zf-00@calista.eckenfels.6bone.ka-ip.net>  <Pine.LNX.4.58.0505300440550.15088@artax.karlin.mff.cuni.cz> <1117454144.2685.174.camel@localhost.localdomain> <Pine.LNX.4.58.0505301759550.6859@artax.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.58.0505301759550.6859@artax.karlin.mff.cuni.cz>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 31 May 2005 04:00:52 -0400
+Received: from fmr21.intel.com ([143.183.121.13]:43193 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261356AbVEaIAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 04:00:39 -0400
+Date: Tue, 31 May 2005 01:00:31 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: Shaohua Li <shaohua.li@intel.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       nickpiggin@yahoo.com.au
+Subject: Re: [PATCH]CPU hotplug breaks wake_up_new_task
+Message-ID: <20050531010030.A5239@unix-os.sc.intel.com>
+References: <1117524909.3820.11.camel@linux-hp.sh.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1117524909.3820.11.camel@linux-hp.sh.intel.com>; from shaohua.li@intel.com on Tue, May 31, 2005 at 12:35:09AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikulas Patocka wrote:
+On Tue, May 31, 2005 at 12:35:09AM -0700, Shaohua Li wrote:
+> 
+>    Hi,
+>    There is a race condition at wake_up_new_task at CPU hotplug case.
+>    Say do_fork
+>             copy_process  (which  sets  new  forked  task's  current cpu,
+>    cpu_allowed)
+>                    <-------- the new forked task's current cpu is offline
+>            wake_up_new_task
+>    wake_up_new_task will put the forked task into a dead cpu.
+> 
+>    Thanks,
+>    Shaohua
+> 
+>    Signed-off-by: Shaohua Li<shaohua.li@intel.com>
+>    ---
+> 
+>     linux-2.6.11-rc5-mm1-root/kernel/sched.c            |              25
+.... Deleted....
+>     /*
+>       *  wake_up_new_task  -  wake  up a newly created task for the first
+>    time.
+>      *
+>    @@ -1426,9 +1430,20 @@ void fastcall wake_up_new_task(task_t *
+>            runqueue_t *rq, *this_rq;
+> 
+>            rq = task_rq_lock(p, &flags);
+>    -       BUG_ON(p->state != TASK_RUNNING);
+>            this_cpu = smp_processor_id();
+>            cpu = task_cpu(p);
+>    +#ifdef CONFIG_HOTPLUG_CPU
+>    +       while (!cpu_online(cpu)) {
+>    +               cpu = task_select_online_cpu(cpu, p);
+>    +               set_task_cpu(p, cpu);
+>    +               task_rq_unlock(rq, &flags);
+>    +               /* CPU hotplug might occur here */
+>    +               rq = task_rq_lock(p, &flags);
+>    +               this_cpu = smp_processor_id();
+>    +               cpu = task_cpu(p);
+>    +       }
+>    +#endif
 
->
->I think that's another problem --- when RAID-5 is operating in degraded
->mode, the machine must not crash or volume will be damaged (sectors
->that were not written may be damaged this way). Did anybody develop some
->method to care about this (i.e. something like journaling on raid)? What
->do hardware RAID controllers do in this situation?
->  
->
-Hot spares can keep the degraded time to a minimum.  If you want to
-keep the risk to a minimum, unmount the raid fs until it is
-resynchronized.  If you need more safety, there is options like raid-6
-or mirrors of the entire raid-5 set.
+The while() loop doesnt look pretty here.. could you try to 
+disable preempt, and see the problem goes away? or use 
+get_cpu()/put_cpu() combo when you get this_cpu?
 
-Some hw controllers have a battery-backed cache.  Even a power loss
-won't ruin the raid - the io will simply sit in that cache until the
-disks become available again.  The io operation that was in effect when
-power was lost can then be retried. Not that this saves you from everything,
-the fs could be inconsistent anyway due to the os being killed in the
-middle of its updates. A journalled fs can help with that though.
+Just wondering if the code would be a little more simpler in this
+case.
 
-Helge Hafting
+Nick should have something to say ...
+
+Cheers,
+ashok

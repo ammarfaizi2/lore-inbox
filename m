@@ -1,47 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVEaGPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbVEaGXM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261189AbVEaGPX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 02:15:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVEaGPX
+	id S261213AbVEaGXM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 02:23:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261268AbVEaGXM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 02:15:23 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:55477 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S261189AbVEaGPT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 02:15:19 -0400
-References: <1117291619.9665.6.camel@localhost>
-            <Pine.LNX.4.58.0505291059540.10545@ppc970.osdl.org>
-            <84144f0205052911202863ecd5@mail.gmail.com>
-            <Pine.LNX.4.58.0505291143350.10545@ppc970.osdl.org>
-            <1117399764.9619.12.camel@localhost>
-            <Pine.LNX.4.58.0505291543070.10545@ppc970.osdl.org>
-            <1117466611.9323.6.camel@localhost>
-            <Pine.LNX.4.58.0505301024080.10545@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0505301024080.10545@ppc970.osdl.org>
-From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Pekka Enberg <penberg@gmail.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: Machine Freezes while Running Crossover Office
-Date: Tue, 31 May 2005 09:15:18 +0300
+	Tue, 31 May 2005 02:23:12 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:131 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261213AbVEaGXJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 02:23:09 -0400
+Subject: Re: [patch 04/16] ext3: fix race between ext3 make block
+	reservation and reservation window discard
+From: Mingming Cao <cmm@us.ibm.com>
+Reply-To: cmm@us.ibm.com
+To: Rodrigo =?ISO-8859-1?Q?Steinm=FCller?= Wanderley 
+	<rwanderley@natalnet.br>
+Cc: Chris Wright <chrisw@osdl.org>, linux-kernel@vger.kernel.org,
+       stable@kernel.org, Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       "Iuri [SBTVD]" <iuri@digizap.com.br>
+In-Reply-To: <20050530102820.048644b2@localhost>
+References: <20050523231529.GL27549@shell0.pdx.osdl.net>
+	 <20050523232016.GP27549@shell0.pdx.osdl.net>
+	 <20050530102820.048644b2@localhost>
+Content-Type: text/plain; charset=utf-8
+Organization: IBM LTC
+Date: Mon, 30 May 2005 23:23:04 -0700
+Message-Id: <1117520584.4652.17.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-ID: <courier.429C00F6.000011C6@courier.cs.helsinki.fi>
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-05-30 at 10:31 -0700, Linus Torvalds wrote:
-> Pekka, can you confirm that the SysRQ output in your original email was 
-> from a "hung" time? Because that clearly shows that stuff is happening in 
-> user space, which means that it's definitely not a kernel loop.
+On Mon, 2005-05-30 at 10:28 -0300, Rodrigo Steinmüller Wanderley wrote:
+> Hi,
+>   Does this patch fix the "Assertion failure in log_do_checkpoint" for witch Jan Kara submitted a workaround to the list earlier?
+> 
+> http://lkml.org/lkml/2005/5/6/30
+> 
+> Thanks in advance,
+>   Rodrigo Wanderley
+> 
 
-Yes. What I did was I booted to 2.6.12-rc5 and did all the traces (vmstat, 
-oprofile, and Sysrq-P) in a row and saved them for the email. I do have 
-other Sysrq-P traces where pipe_poll shows up quite a lot. 
+This patch really is to prevent re-remove an already removed reservation
+window node from the filesystem red-black reservation tree. It has
+nothing to do with the log_do_checkpoint failure.
 
-Thanks for all the suggestions. I'll try them out hopefully later today and 
-report back. 
+Mingming
 
-                Pekka

@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbVEaHfn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261290AbVEaHpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbVEaHfn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 03:35:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVEaHfm
+	id S261290AbVEaHpM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 03:45:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbVEaHpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 03:35:42 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.82]:28063 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261323AbVEaHfd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 03:35:33 -0400
-Message-ID: <429C139E.6020705@andrew.cmu.edu>
-Date: Tue, 31 May 2005 03:34:54 -0400
-From: James Bruce <bruce@andrew.cmu.edu>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lee Revell <rlrevell@joe-job.com>
-CC: Nick Piggin <nickpiggin@yahoo.com.au>, "Bill Huey (hui)" <bhuey@lnxw.com>,
-       Andi Kleen <ak@muc.de>, Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-References: <m1br6zxm1b.fsf@muc.de>	 <1117044019.5840.32.camel@sdietrich-xp.vilm.net>	 <20050526193230.GY86087@muc.de>	 <1117138270.1583.44.camel@sdietrich-xp.vilm.net>	 <20050526202747.GB86087@muc.de> <4296ADE9.50805@yahoo.com.au>	 <20050527120812.GA375@nietzsche.lynx.com> <429715DE.6030008@yahoo.com.au>	 <20050527233645.GA2283@nietzsche.lynx.com> <4297EB57.5090902@yahoo.com.au>	 <20050528054503.GA2958@nietzsche.lynx.com> <42981467.6020409@yahoo.com.au>	 <4299A98D.1080805@andrew.cmu.edu> <429ADEDD.4020805@yahoo.com.au>	 <429B1898.8040805@andrew.cmu.edu> <429B2160.7010005@yahoo.com.au>	 <429BA27A.5010406@andrew.cmu.edu> <1117505204.22167.11.camel@mindpipe>
-In-Reply-To: <1117505204.22167.11.camel@mindpipe>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 31 May 2005 03:45:12 -0400
+Received: from oldconomy.demon.nl ([212.238.217.56]:28864 "EHLO
+	artemis.slagter.name") by vger.kernel.org with ESMTP
+	id S261287AbVEaHpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 03:45:05 -0400
+Subject: Re: Playing with SATA NCQ
+From: Erik Slagter <erik@slagter.name>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+       Michael Thonke <iogl64nx@gmail.com>, Mark Lord <liml@rtr.ca>
+In-Reply-To: <429B7550.20309@pobox.com>
+References: <20050526140058.GR1419@suse.de>
+	 <1117382598.4851.3.camel@localhost.localdomain>
+	 <4299F47B.5020603@gmail.com>
+	 <1117387591.4851.17.camel@localhost.localdomain> <429A58F4.3040308@rtr.ca>
+	 <1117438192.4851.29.camel@localhost.localdomain> <429B56CA.5080803@rtr.ca>
+	 <1117477364.3108.2.camel@localhost.localdomain>
+	 <429B6060.1010806@pobox.com>
+	 <1117483420.3108.8.camel@localhost.localdomain>  <429B7550.20309@pobox.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Tue, 31 May 2005 09:44:57 +0200
+Message-Id: <1117525497.3108.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lee Revell wrote:
- > Since *everything* is preemptible except a few known code paths whose
- > execution times determine the maximum possible latency from interrupt
- > to running the highest priority user process.
+On Mon, 2005-05-30 at 16:19 -0400, Jeff Garzik wrote:
+> >>>I must have been fooled by the FC3 setup disk that handed it libata,  I
+> >>>didn't know libata also handles pata, then.
+> >>libata software supports PATA, but no distribution ships with libata 
+> >>PATA support enabled (nor should they!).
+> > In that case FC3 is not a distribution?!
+> >>There are a few unusual cases with combined mode where libata will 
+> >>support PATA, but those are rare.
+> > ich6/piix :-)
+> 
+> Under PATA your devices should be showing up at /dev/hdX.
+> If this is not the case, please report a bug.
 
-Have all the code paths been audited?  If there's a reference to an 
-analysis that's been done, please pass it on as I'd like to read it. 
-Remember that it must take into account completely cold L1 and L2 caches 
-for almost all of the computation, or its not truly a worst-case 
-analysis.  If this has been done, I stand corrected.  If not, then 
-there's no proven maximum latency, just statistical arguments that it 
-works well.  Keep in mind that such an argument can be good enough for 
-most of the RT stuff people are doing, but I'm not putting my hand under 
-the saw just yet :)
+Okay, just to be sure before I file an official bug report:
 
- > That's the determinism, no more, no less.  But some people
- > inexplicably think this thread is about providing deterministic hard
- > RT performance for some subset of system calls, or disk IO or
- > something, none of which have anything to do with PREEMPT_RT.
+kernel 2.6.12-rc5-git4
+libata enabled (with atapi enabled, but that doesn't influence the
+"harddisk" behaviour)
+all ide stuff disabled
+ICH6-M
+Fujitsu MHT2080A harddisk (apparently PATA)
+Disk shows up as /dev/sda
 
-Well, that's the direction people want to take it in, since an RT thread 
-unable to receive any type of input or produce some type of output isn't 
-particularly useful for anything.  First steps first, of course.
-
-I really think the RT patches are great in what they achieve, but true 
-hard realtime does require proof, and I'm not aware of that having been 
-done (yet).  However that's not a prerequisite for usefulness; A 
-measurement of 5 or 7 nines of reliability getting sub 100us latency 
-will certainly make most application writers happy.
-
-  - Jim Bruce
+I don't mind, though.

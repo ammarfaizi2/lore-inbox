@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVEaGIV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVEaGPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbVEaGIV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 02:08:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVEaGIV
+	id S261189AbVEaGPX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 02:15:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVEaGPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 02:08:21 -0400
-Received: from tron.kn.vutbr.cz ([147.229.191.152]:65284 "EHLO
-	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S261197AbVEaGIT
+	Tue, 31 May 2005 02:15:23 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:55477 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S261189AbVEaGPT
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 02:08:19 -0400
-Message-ID: <429BFF51.4000401@stud.feec.vutbr.cz>
-Date: Tue, 31 May 2005 08:08:17 +0200
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050506)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Parag Warudkar <kernel-stuff@comcast.net>
-CC: mingo@elte.hu, linux-kernel@vger.kernel.org
-Subject: Re: RT patch breaks X86_64 build
-References: <200505302141.31731.kernel-stuff@comcast.net> <200505302201.48123.kernel-stuff@comcast.net>
-In-Reply-To: <200505302201.48123.kernel-stuff@comcast.net>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+	Tue, 31 May 2005 02:15:19 -0400
+References: <1117291619.9665.6.camel@localhost>
+            <Pine.LNX.4.58.0505291059540.10545@ppc970.osdl.org>
+            <84144f0205052911202863ecd5@mail.gmail.com>
+            <Pine.LNX.4.58.0505291143350.10545@ppc970.osdl.org>
+            <1117399764.9619.12.camel@localhost>
+            <Pine.LNX.4.58.0505291543070.10545@ppc970.osdl.org>
+            <1117466611.9323.6.camel@localhost>
+            <Pine.LNX.4.58.0505301024080.10545@ppc970.osdl.org>
+In-Reply-To: <Pine.LNX.4.58.0505301024080.10545@ppc970.osdl.org>
+From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Pekka Enberg <penberg@gmail.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: Machine Freezes while Running Crossover Office
+Date: Tue, 31 May 2005 09:15:18 +0300
+Mime-Version: 1.0
+Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Flag: NO
-X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
-  tested this incoming email. See other headers to know if the email
-  has beed identified as possible spam.  The original message
-  has been attached to this so you can view it (if it isn't spam) or block
-  similar future email.  If you have any questions, see
-  the administrator of that system for details.
-  ____
-  Content analysis details:   (-4.2 points, 6.0 required)
-  ____
-   pts rule name              description
-  ---- ---------------------- --------------------------------------------
-   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
-  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-                              [score: 0.0000]
-  ____
+Message-ID: <courier.429C00F6.000011C6@courier.cs.helsinki.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Parag Warudkar wrote:
-> On Monday 30 May 2005 21:41, Parag Warudkar wrote:
-> 
->>Realtime patch breaks the x86_64 build -
-> 
-> 
-> Forgot to add - It's the latest patch against 2.6.12-rc5. My .config attached.
+On Mon, 2005-05-30 at 10:31 -0700, Linus Torvalds wrote:
+> Pekka, can you confirm that the SysRQ output in your original email was 
+> from a "hung" time? Because that clearly shows that stuff is happening in 
+> user space, which means that it's definitely not a kernel loop.
 
-That doesn't look like a correct .config from a -RT kernel. Did you 
-forget to run 'make oldconfig' ?
+Yes. What I did was I booted to 2.6.12-rc5 and did all the traces (vmstat, 
+oprofile, and Sysrq-P) in a row and saved them for the email. I do have 
+other Sysrq-P traces where pipe_poll shows up quite a lot. 
 
-Michal
+Thanks for all the suggestions. I'll try them out hopefully later today and 
+report back. 
+
+                Pekka

@@ -1,58 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbVEaROn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261982AbVEaRTU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261914AbVEaROn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 13:14:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261930AbVEaRMw
+	id S261982AbVEaRTU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 13:19:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261980AbVEaRMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 13:12:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63670 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261914AbVEaRLG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 13:11:06 -0400
-Date: Tue, 31 May 2005 09:22:15 -0300
-From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: akpm@osdl.org, julien.tinnes@francetelecom.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: potential-null-pointer-dereference-in-amiga-serial-driver.patch added to -mm tree
-Message-ID: <20050531122215.GA5108@logos.cnet>
-References: <200505310909.j4V98xBR008727@shell0.pdx.osdl.net> <200505311949.15449.adobriyan@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200505311949.15449.adobriyan@gmail.com>
-User-Agent: Mutt/1.5.5.1i
+	Tue, 31 May 2005 13:12:20 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.83]:38555 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261994AbVEaQ77
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 12:59:59 -0400
+Message-ID: <429C97EB.906@andrew.cmu.edu>
+Date: Tue, 31 May 2005 12:59:23 -0400
+From: James Bruce <bruce@andrew.cmu.edu>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andi Kleen <ak@muc.de>
+CC: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+References: <4299A98D.1080805@andrew.cmu.edu> <429ADEDD.4020805@yahoo.com.au> <429B1898.8040805@andrew.cmu.edu> <429B2160.7010005@yahoo.com.au> <20050530222747.GB9972@nietzsche.lynx.com> <429BBC2D.70406@yahoo.com.au> <20050531020957.GA10814@nietzsche.lynx.com> <429C2A64.1040204@andrew.cmu.edu> <429C2F72.7060300@yahoo.com.au> <429C4112.2010808@andrew.cmu.edu> <20050531111445.GA35122@muc.de>
+In-Reply-To: <20050531111445.GA35122@muc.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen wrote:
+> Are you sure it is not only disk IO? In theory updatedb shouldn't 
+> need much CPU, but it eats a lot of memory and causes stalls 
+> in the disk (or at least that was my interpration on the stalls I saw)
+> If there is really a scheduling latency problem with updatedb
+> then that definitely needs to be fixed in the stock kernel.
 
-Hi Alexey,
+I don't know, Debian's updatedb always seemed to suck up most of the CPU 
+for me.  I am using ReiserFS with tail-packing on, which certainly 
+balances on the side of more CPU vs IO.  Also I wouldn't be surprised if 
+other distros had some better approach than Debian's, which appears to 
+be a series of "find | sort" commands.  As one would expect, find causes 
+most of the system load and sort causes user load spikes.
 
-On Tue, May 31, 2005 at 07:49:15PM +0400, Alexey Dobriyan wrote:
-> On Tuesday 31 May 2005 13:08, akpm@osdl.org wrote:
-> > A pointer is dereferenced before it is null-checked.
-> 
-> > --- 25/drivers/char/amiserial.c~potential-null-pointer-dereference-in-amiga-serial-driver
-> > +++ 25-akpm/drivers/char/amiserial.c
-> 
-> >  static void rs_put_char(struct tty_struct *tty, unsigned char ch)
-> >  {
-> > -	struct async_struct *info = (struct async_struct *)tty->driver_data;
-> > +	struct async_struct *info;
-> >  	unsigned long flags;
-> >  
-> > +	if (!tty)
-> > +		return;
-> 
-> Can ->put_char be ever called with tty being NULL? From my reading of
-> drivers/char/n_tty.c it can't.
+That said, preempt-RT is certainly not free right now.  Sending network 
+messages at 60Hz appears to load this 2GHz system by about 8%, while 
+that workload barely shows up in stock.   I figure there's still some 
+optimization work to be done, but obviously it's unlikely to ever be as 
+  efficient as non-preempt-RT.  The more interesting question is whether 
+it's any slower with the RT patch applied, but preemption turned off. 
+ From the implementation approach, I don't think it will show any 
+difference from stock, but it's certainly something we've got to test a 
+fair amount to be sure.
 
-Nope it can't, but the change makes the code more readable IMO, while handling
-a NULL "tty" argument properly (which the old version pretends to, but doesnt).
-
-> Every single time ->put_char is used a-la
-> 
-> 	tty->driver->put_char(tty, '\r');
-> 
-> So, tty will be dereferenced before function call. Same for static inline
-> put_char() there.  
+  - Jim Bruce

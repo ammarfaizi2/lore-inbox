@@ -1,41 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261846AbVEaAk5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261847AbVEaAla@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261846AbVEaAk5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 30 May 2005 20:40:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbVEaAk5
+	id S261847AbVEaAla (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 30 May 2005 20:41:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261848AbVEaAla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 30 May 2005 20:40:57 -0400
-Received: from mail05.syd.optusnet.com.au ([211.29.132.186]:35537 "EHLO
-	mail05.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261846AbVEaAkx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 30 May 2005 20:40:53 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Christian Schmid <webmaster@rapidforum.com>
-Subject: Re: vm-issues in 2.6.12-rc5
-Date: Tue, 31 May 2005 10:43:00 +1000
-User-Agent: KMail/1.8
-Cc: linux-kernel@vger.kernel.org
-References: <429B2ACA.5040901@rapidforum.com>
-In-Reply-To: <429B2ACA.5040901@rapidforum.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 30 May 2005 20:41:30 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:5137 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261847AbVEaAlZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 30 May 2005 20:41:25 -0400
+Date: Tue, 31 May 2005 02:41:20 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Andrew Morton <akpm@osdl.org>, kbuild-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: [2.6 patch] Kconfig: rename "---help---" to "help" in Kconfig files (first part) (fwd)
+Message-ID: <20050531004120.GH3627@stusta.de>
+References: <20050531001038.GD3627@stusta.de> <Pine.LNX.4.61.0505310217030.3728@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200505311043.00105.kernel@kolivas.org>
+In-Reply-To: <Pine.LNX.4.61.0505310217030.3728@scrub.home>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 May 2005 01:01 am, Christian Schmid wrote:
-> Even in 2.6.12rc5 the vm-problem is still there. On a gigabit-webserver,
-> when it reaches around 4000 downloaders, it slows-down immediately. Its no
-> fs-issue or disk-issue because the lock-ups also happen when I try to open
-> a file on /proc. Normally it needs no time to open it but when it reaches
-> 4000 sockets, it needs from 5-30 seconds to just open a "file". Its a dual
-> Xeon with 8 GB Ram. Any idea?
+On Tue, May 31, 2005 at 02:17:50AM +0200, Roman Zippel wrote:
 
-Have you tried getting a profile output to see what it is doing during these 
-slowdowns?
+> Hi,
 
-Cheers,
-Con
+Hi Roman,
+
+> On Tue, 31 May 2005, Adrian Bunk wrote:
+> 
+> > The main reason for this patch (quoting Jesper) is:
+> >   Consistency. out of ~4000 help entries in 134 Kconfig files, 747 of 
+> >   those entries use "---help---" as the keyword, the rest use just "help". 
+> >   So the users of "---help---" are clearly a minority and by renaming them 
+> >   we make things consistent. - I hate inconsistency. :-)
+> 
+> And I still don't like this change...
+
+there's still the point that it's currently used inconsistently.
+
+If you really prefer "---help---" over "help" (I consider "help" being 
+better, but as long as it's used consistently each of them is 
+acceptable), feel free to send a patch instead that changes all
+occurences of "help" to "---help---".
+
+> bye, Roman
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

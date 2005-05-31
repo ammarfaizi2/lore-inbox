@@ -1,96 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVEaWNQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVEaWP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261153AbVEaWNQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 18:13:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbVEaWNQ
+	id S261155AbVEaWP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 18:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261166AbVEaWP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 18:13:16 -0400
-Received: from ganesha.gnumonks.org ([213.95.27.120]:30629 "EHLO
-	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
-	id S261153AbVEaWNM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 18:13:12 -0400
-Date: Wed, 1 Jun 2005 00:12:58 +0200
-From: Harald Welte <laforge@gnumonks.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [linux-usb-devel] Re: [BUG] oops while completing async USB via usbdevio
-Message-ID: <20050531221258.GI29780@sunbeam.de.gnumonks.org>
-References: <20050530194443.GA22760@sunbeam.de.gnumonks.org> <200505301555.39985.david-b@pacbell.net> <20050531084852.GJ25536@sunbeam.de.gnumonks.org> <200505311153.24747.david-b@pacbell.net>
+	Tue, 31 May 2005 18:15:27 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:24332
+	"EHLO g5.random") by vger.kernel.org with ESMTP id S261155AbVEaWPT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 18:15:19 -0400
+Date: Wed, 1 Jun 2005 00:15:05 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Esben Nielsen <simlo@phys.au.dk>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, hch@infradead.org, dwalker@mvista.com,
+       Ingo Molnar <mingo@elte.hu>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, Andi Kleen <ak@muc.de>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       James Bruce <bruce@andrew.cmu.edu>
+Subject: Re: RT patch acceptance
+Message-ID: <20050531221505.GZ5413@g5.random>
+References: <Pine.OSF.4.05.10505311347290.1707-100000@da410.phys.au.dk> <1117556283.2569.26.camel@localhost.localdomain> <20050531171143.GS5413@g5.random> <1117561379.2569.57.camel@localhost.localdomain> <20050531175152.GT5413@g5.random> <1117564192.2569.83.camel@localhost.localdomain> <20050531205424.GV5413@g5.random> <1117574551.5511.19.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="SdvjNjn6lL3tIsv0"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200505311153.24747.david-b@pacbell.net>
-User-Agent: mutt-ng 1.5.8-r168i (Debian)
-X-Spam-Score: 0.1 (/)
-X-Spam-Report: Spam detection software, running on the system "ganesha", has
-	identified this incoming email as possible spam.  The original message
-	has been attached to this so you can view it (if it isn't spam) or label
-	similar future email.  If you have any questions, see
-	the administrator of that system for details.
-	Content preview:  On Tue, May 31, 2005 at 11:53:24AM -0700, David
-	Brownell wrote: > I'm still hoping that one of the folk who want make
-	an interesting and > useful contribution to Linux will take the hint.
-	It goes slowly. :) [...] 
-	Content analysis details:   (0.1 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	0.1 FORGED_RCVD_HELO       Received: contains a forged HELO
+In-Reply-To: <1117574551.5511.19.camel@localhost.localdomain>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 31, 2005 at 05:22:31PM -0400, Steven Rostedt wrote:
+> it.  If the -RT patch is merged, then all that would be needed is a
+> CONFIG option set.
 
---SdvjNjn6lL3tIsv0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+If RT is merged and RTAI not, that might be simpler to install, but I
+wouldn't judje on what's simpler to use based on mainline inclusion or
+not. I don't work in the emebdded-RT space, but if I had to build an
+hard-RT embedded app for myself and I didn't need to run syscalls in
+real time (i.e. no audio ioctls), I'd sure start with RTAI.
 
-On Tue, May 31, 2005 at 11:53:24AM -0700, David Brownell wrote:
-> I'm still hoping that one of the folk who want make an interesting and
-> useful contribution to Linux will take the hint.  It goes slowly. :)
+> I wouldn't call RTAI, RTLinux or a nano-kernel (embedded with Linux)
+> "Diamond" hard.  Maybe "Ruby" hard, but not diamond.  Remember, I use to
+> test code that was running airplane engines, and none of those mentioned
+> would qualify to run that.  I wouldn't want to be in an airplane that
+> had one of those as the main OS unless someone really stripped them down
+> or did the real work to verify them.
 
-I've pondered about three times whether to start or not.  I'd rather
-not, since I'm already having problems keeping up with all my other
-projects :(
+Sure agreed. But the main reliability problem that makes it only "ruby"
+isn't the nanokernel itself, but the hardware too complex and linux
+itself way too complex and not-provable, since it could hang and lock
+the bus with a wrong dma operation on a graphics card or whatever else.
+Perhaps those apps should run on OS stripped down w/o MMU and w/o irqs
+and on much slower and more reliable cpus and ram. I'm not really an
+expert of this area.
 
-> > meanwhile, the current usbfs aio handling is the only way how to deal
-> > with delivery of interrupt pipe URB's to userspace drivers.
->=20
-> Other than tying up the file descriptor with a blocking read, that is.
+>From a linux point of view, currently you can't get an harder stone than
+RTAI/RTLinux/nanokernel (that's probably why I was biased and I called
+it "diamond" hard, even if it was only "ruby" in absolute terms ;).
 
-you're probably using that same file descriptor for reading/writing
-=66rom/to bulk endpoints at the same time.  I don't see how a 'blocking
-read' would help.
+> How much guarantee can the RTAI projects give on latencies?  And how
 
-> > Wouldn't it help to associate the URB with the file (instaed of the
-> > task), and then send the signal to any task that still has opened the
-> > file?  I'm willing to hack up a patch, if this is considered a sane fix.
->=20
-> Sounds reasonable, except that not all such tasks will want the signal.
-> Though I guess the infrastructure to filter the signal out already exists,
-> so the main missing piece is that urb-to-file binding.
+That depends on the hardware I guess.
 
-Ok, I'll get something coded shortly.
+> So, time may tell. Ingo's patch may one day get to Ruby level, but right
+> now I believe 90% of all RT applications are satisfied with the "Metal"
+> level.
 
---=20
-- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D
-"Privacy in residential applications is a desirable marketing option."
-                                                  (ETSI EN 300 175-7 Ch. A6)
-
---SdvjNjn6lL3tIsv0
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFCnOFqXaXGVTD0i/8RAlMzAKCXBZAQBuTK1fRYXCy2TK9uWsbB0wCeJXb8
-PM9PNBk7G1vwfcRKdvTWD1E=
-=aoqI
------END PGP SIGNATURE-----
-
---SdvjNjn6lL3tIsv0--
+Possible. My only worry is that embedded people goes to metal level
+thinking it's better than the ruby level, when they would be better and
+simpler at the ruby level.

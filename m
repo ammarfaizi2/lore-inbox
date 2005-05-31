@@ -1,47 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVEaWsH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVFAAxc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbVEaWsH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 18:48:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVEaWsH
+	id S261232AbVFAAxc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 20:53:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbVFAAxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 18:48:07 -0400
-Received: from zproxy.gmail.com ([64.233.162.195]:51767 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261204AbVEaWsE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 18:48:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=nPd3WWqeq6chG3hyw7Zd/RlnslGuqy3mcHhqegPAESAJMDnTJAd3r7oJCnp4cO5SBQR+zcatJG3GeQAH4n/r6vZOYYDMBUirSTH/O4hRwnJULZV0F4bsJGkJW8zShp1NxfFZrEnrXMIqriHeOO8w0QBOUB4+55YTzMcpCfBkdRo=
-Date: Tue, 31 May 2005 23:37:12 +0200
-From: Marcin Bis <marcin.bis@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: problem with ALSA ane intel modem driver
-Message-ID: <20050531233712.7b782c6c@laptop>
-In-Reply-To: <s5h64x0x2pc.wl@alsa2.suse.de>
-References: <200505280716.46688.cijoml@volny.cz>
-	<20050528154736.3ab2550a@laptop>
-	<s5h64x0x2pc.wl@alsa2.suse.de>
-X-Mailer: Sylpheed-Claws 1.9.6cvs1 (GTK+ 2.6.4; i386-pc-linux-gnu)
+	Tue, 31 May 2005 20:53:32 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.85]:50586 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S261232AbVFAAxU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 20:53:20 -0400
+Date: Tue, 31 May 2005 17:45:46 -0400
+From: Christopher Li <lkml@chrisli.org>
+To: "E.Gryaznova" <grev@namesys.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc5-mm1: configuring vmware workstation modules
+Message-ID: <20050531214546.GD2999@64m.dyndns.org>
+References: <429B9D00.1070404@namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <429B9D00.1070404@namesys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 30 May 2005 15:28:47 +0200
-Takashi Iwai <tiwai@suse.de> wrote:
+Please try the module from Petr's page,
 
-> > Same problem on 2.6.11.11
-> > 
-> > Current Debian testing, 
-> > (Intel Corp. 82801CA/CAM AC'97 Modem Controller)
-> 
-> Do you mean a regression?  Or just a non-working device?
-Non working device.
+http://platan.vc.cvut.cz/ftp/pub/vmware
 
-Semaphore warning is fixed in ALSA CVS (but i still get NO DIALTONE/NO
-CARRIER error for this modem).
+This is cause by a recent kernel API change in sk_alloc.
 
--- 
- Marcin Bis
+Chris
+
+> /tmp/vmware-config5/vmnet-only/bridge.c: In function `VNetBridgeUp':
+> /tmp/vmware-config5/vmnet-only/bridge.c:716: warning: passing arg 3 of 
+> `sk_alloc' makes pointer from integer without a cast
+

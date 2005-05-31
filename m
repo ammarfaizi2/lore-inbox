@@ -1,78 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVEaV2l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVEaV3x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261532AbVEaV2l (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 17:28:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVEaV2l
+	id S261553AbVEaV3x (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 17:29:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVEaV3b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 17:28:41 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:32204 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261500AbVEaV0P (ORCPT
+	Tue, 31 May 2005 17:29:31 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:41482 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S261500AbVEaV3W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 17:26:15 -0400
-Date: Tue, 31 May 2005 23:25:56 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [RFC] Add some hooks to generic suspend code
-Message-ID: <20050531212556.GA14968@elf.ucw.cz>
-References: <1117524577.5826.35.camel@gaston> <20050531101344.GB9614@elf.ucw.cz> <1117550660.5826.42.camel@gaston>
+	Tue, 31 May 2005 17:29:22 -0400
+Date: Tue, 31 May 2005 14:33:29 -0700
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Steven Rostedt <rostedt@goodmis.org>, Esben Nielsen <simlo@phys.au.dk>,
+       linux-kernel@vger.kernel.org, akpm@osdl.org, hch@infradead.org,
+       dwalker@mvista.com, Ingo Molnar <mingo@elte.hu>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, Andi Kleen <ak@muc.de>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       James Bruce <bruce@andrew.cmu.edu>
+Subject: Re: RT patch acceptance
+Message-ID: <20050531213329.GA14754@nietzsche.lynx.com>
+References: <Pine.OSF.4.05.10505311347290.1707-100000@da410.phys.au.dk> <1117556283.2569.26.camel@localhost.localdomain> <20050531171143.GS5413@g5.random> <1117561379.2569.57.camel@localhost.localdomain> <20050531175152.GT5413@g5.random> <1117564192.2569.83.camel@localhost.localdomain> <20050531205424.GV5413@g5.random>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1117550660.5826.42.camel@gaston>
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <20050531205424.GV5413@g5.random>
 User-Agent: Mutt/1.5.9i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > > While consolidating the powermac suspend to ram and suspend to disk
-> > > implementations to properly use the new framework in kernel/power, among
-> > > others, I ended up with the need of adding various callbacks to
-> > > kernel/power/main.c. Here is a patch adding & documenting those.
-> > > 
-> > > The reasons I need them are:
-> > > 
-> > > 	/* Call before process freezing. If returns 0, then no freeze
-> > > 	 * should be done, if 1, freeze, negative -> error
-> > > 	 */
-> > > 	int (*pre_freeze)(suspend_state_t state);
-> > > 
-> > > I'm using that one for calling my "old style" notifiers (they are beeing phased
-> > > out but I still have a couple of drivers using them). The reason I do that here
-> > > is because that's how my APM emulation hooks, and that code interacts with userland
-> > > (to properly signal things like X of the suspend process), so I need to do that
-> > > before we freeze processes.
-> > 
-> > This should not be needed in future, right? Could it be marked
-> > deprecated or something?
+On Tue, May 31, 2005 at 10:54:24PM +0200, Andrea Arcangeli wrote:
+> On Tue, May 31, 2005 at 02:29:52PM -0400, Steven Rostedt wrote:
+> > Probably, what I was talking about is diamond hard, and Ingo's RT patch
+> > is metal hard.  PREEMPT is just wood hard and !PREEMPT is plastic hard*.
+> > Leaving MS Windows as feather hard ;-)
 > 
-> Not really ... I need to notify userland before we freeze processes.
+> Yes, this is a nice way to expose it ;)
 
-Why do you need it? Do you initiate suspend without userland asking
-you to?
+Notating it in terms of Tofu firmness would have been more comforting. :)
 
-Anyway, it should not be arch-dependend. We need one good mechanism of
-notifying userland, not one per architecture.
+bill
 
-> > > 	/* called after unfreezing userland */
-> > > 	void (*post_freeze)(suspend_state_t state);
-> > > 
-> > > That one is the mirror of pre-freeze, gets called after userland has been re-enabled,
-> > > it also calls my old-style notifiers, which includes APM emulation, which is important
-> > > for sending the APM wakeup events to things like X.
-> > 
-> > Could this be marked deprecated, too?
-> > 
-> > Alternatively, proper way of notifying X (etc) should be created, and
-> > done from generic code....
-> 
-> Sure, ideally. However, existing X knows how to deal with APM events,
-> and thus APM emulation is an important thing to get something that
-> works. Pne thing I should do is consolidate PPC APM emu with ARM one as
-> I think Russell improve my stuff significantly.
-
-Perhaps we need apm emulation on i386, too?
-									Pavel

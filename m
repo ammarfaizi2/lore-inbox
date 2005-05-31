@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261612AbVEaVnh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261589AbVEaVpl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261612AbVEaVnh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 17:43:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVEaVnX
+	id S261589AbVEaVpl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 17:45:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVEaVnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 17:43:23 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:47054 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261612AbVEaVm4 (ORCPT
+	Tue, 31 May 2005 17:43:45 -0400
+Received: from mail.emacinc.com ([208.248.202.76]:12165 "EHLO mail.emacinc.com")
+	by vger.kernel.org with ESMTP id S261546AbVEaVm2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 17:42:56 -0400
-Date: Tue, 31 May 2005 23:42:38 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Kenneth Parrish <Kenneth.Parrish@family-bbs.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [ACPI] 2.6.12-rc5
-Message-ID: <20050531214238.GD9614@elf.ucw.cz>
-References: <e032b5.beb8a3@family-bbs.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 31 May 2005 17:42:28 -0400
+From: NZG <ngustavson@emacinc.com>
+Organization: EMAC.Inc
+To: linux-kernel@vger.kernel.org
+Date: Tue, 31 May 2005 16:41:00 -0500
+User-Agent: KMail/1.7.1
+References: <1117555756.4715.17.camel@diimka.dev.rtsoft.ru> <200506010044.34559.adobriyan@gmail.com>
+In-Reply-To: <200506010044.34559.adobriyan@gmail.com>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <e032b5.beb8a3@family-bbs.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Message-Id: <200505311641.00509.ngustavson@emacinc.com>
+X-SA-Exim-Connect-IP: 208.248.202.77
+X-SA-Exim-Mail-From: ngustavson@emacinc.com
+Subject: Re: [RFC] SPI core
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+SPI is serial-peripheral interface. A very common 3 wire bus in embedded 
+systems, especially m68k arch's. That fact that it's not there already is 
+actually a little weird IMHO.
 
-> Computer: Cyrix MII processor, VIA VP3 chipset  e-machines 1999
-> Kernels various, now 2.6.12-rc5
-> 
-> Observation: experimental ACPI sleep state, aka active standby,
-> appears to work with mainline kernels in that it's possible to
-> do
-> # echo standby > /sys/power/state
-> and have the system suspend. The computer's green led that's inset
-> into the power button blinks slowly, then. And pressing the power button
-> brings the system back, unless you wait too long. I'm not sure exactly
-> how long, but I guess it may be roughly an hour or so until linux
-> no longer returns when the power button is pressed briefly.
+NZG.
 
-Did it work properly in any previous kernel?
-								Pavel
+On Tuesday 31 May 2005 15:44, Alexey Dobriyan wrote:
+> On Tuesday 31 May 2005 20:09, dmitry pervushin wrote:
+> > In order to support the specific board, we have ported the generic SPI
+> > core to the 2.6 kernel. This core provides basic API to create/manage SPI
+> > devices like the I2C core does. We need to continue providing support of
+> > SPI devices and would like to maintain the SPI subtree.
+> >
+> > +#ifdef CONFIG_DEVFS_FS
+> > +#include <linux/devfs_fs_kernel.h>
+> > +#endif
+>
+> devfs will be removed from mainline in a month.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

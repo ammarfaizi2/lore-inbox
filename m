@@ -1,123 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVEaI2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbVEaIaS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261192AbVEaI2R (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 04:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVEaI2R
+	id S261364AbVEaIaS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 04:30:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVEaIaS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 04:28:17 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:55509 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261192AbVEaI2G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 04:28:06 -0400
-Subject: Re: [PATCH]CPU hotplug breaks wake_up_new_task
-From: Shaohua Li <shaohua.li@intel.com>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       nickpiggin@yahoo.com.au
-In-Reply-To: <20050531010030.A5239@unix-os.sc.intel.com>
-References: <1117524909.3820.11.camel@linux-hp.sh.intel.com>
-	 <20050531010030.A5239@unix-os.sc.intel.com>
-Content-Type: text/plain
-Date: Tue, 31 May 2005 16:35:09 +0800
-Message-Id: <1117528509.3957.3.camel@linux-hp.sh.intel.com>
+	Tue, 31 May 2005 04:30:18 -0400
+Received: from odin2.bull.net ([192.90.70.84]:21720 "EHLO odin2.bull.net")
+	by vger.kernel.org with ESMTP id S261364AbVEaI3g convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 04:29:36 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc5-V0.7.47-15
+From: "Serge Noiraud" <serge.noiraud@bull.net>
+To: Eran Mann <emann@mrv.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <429C1206.5000707@mrv.com>
+References: <20050527072810.GA7899@elte.hu>  <429C1206.5000707@mrv.com>
+Content-Type: text/plain; charset=iso-8859-15
+Organization: BTS
+Message-Id: <1117527531.19367.31.camel@ibiza.btsn.frna.bull.fr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Ximian Evolution 1.4.6-5.1.100mdk 
+Date: Tue, 31 May 2005 10:18:52 +0200
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-31 at 01:00 -0700, Ashok Raj wrote:
-> On Tue, May 31, 2005 at 12:35:09AM -0700, Shaohua Li wrote:
+Le mar 31/05/2005 à 09:28, Eran Mann a écrit :
+> Ingo Molnar wrote:
+> > i have released the -V0.7.47-10 Real-Time Preemption patch, which can be 
+> > downloaded from the usual place:
 > > 
-> >    Hi,
-> >    There is a race condition at wake_up_new_task at CPU hotplug case.
-> >    Say do_fork
-> >             copy_process  (which  sets  new  forked  task's  current cpu,
-> >    cpu_allowed)
-> >                    <-------- the new forked task's current cpu is offline
-> >            wake_up_new_task
-> >    wake_up_new_task will put the forked task into a dead cpu.
+> >     http://redhat.com/~mingo/realtime-preempt/
 > > 
 > 
-> The while() loop doesnt look pretty here.. could you try to 
-> disable preempt, and see the problem goes away? or use 
-> get_cpu()/put_cpu() combo when you get this_cpu?
+> I tried to compile -V0.7.47-15 and it fails to compile.
+> net/sunrpc/sched.c: In function `rpc_run_timer':
+> net/sunrpc/sched.c:107: error: `RPC_TASK_HAS_TIMER' undeclared (first 
+> use in this function)
+> ...
 > 
-> Just wondering if the code would be a little more simpler in this
-> case.
-I must be over considering. Ok, how does this updated one look?
+> It seems the following hunk of the patch is bogus as it removes a 
+> required define:
+> 
+> --- linux/include/linux/sunrpc/sched.h.orig
+> +++ linux/include/linux/sunrpc/sched.h
+> @@ -138,7 +138,6 @@ typedef void 
+> (*rpc_action)(struct rpc_
+>   #define RPC_TASK_RUNNING       0
+>   #define RPC_TASK_QUEUED                1
+>   #define RPC_TASK_WAKEUP                2
+> -#define RPC_TASK_HAS_TIMER     3
+> 
+>   #define RPC_IS_RUNNING(t)      (test_bit(RPC_TASK_RUNNING, 
+> &(t)->tk_runstate))
+>   #define rpc_set_running(t)     (set_bit(RPC_TASK_RUNNING, 
+> &(t)->tk_runstate))
 
+We also have the following :
 
-Signed-off-by: Shaohua Li<shaohua.li@intel.com>
----
+Kernel: arch/i386/boot/bzImage is ready
+  Building modules, stage 2.
+  MODPOST
+*** Warning: "there_is_no_init_MUTEX_LOCKED_for_RT_semaphores" [drivers/scsi/qla2xxx/qla2xxx.ko] undefined!
+*** Warning: "there_is_no_init_MUTEX_LOCKED_for_RT_semaphores" [drivers/pci/hotplug/shpchp.ko] undefined!
+*** Warning: "there_is_no_init_MUTEX_LOCKED_for_RT_semaphores" [drivers/pci/hotplug/pciehp.ko] undefined!
+*** Warning: "there_is_no_init_MUTEX_LOCKED_for_RT_semaphores" [drivers/pci/hotplug/pci_hotplug.ko] undefined!
+*** Warning: "there_is_no_init_MUTEX_LOCKED_for_RT_semaphores" [drivers/pci/hotplug/ibmphp.ko] undefined!
+*** Warning: "there_is_no_init_MUTEX_LOCKED_for_RT_semaphores" [drivers/pci/hotplug/cpqphp.ko] undefined!
+*** Warning: "there_is_no_init_MUTEX_LOCKED_for_RT_semaphores" [drivers/net/plip.ko] undefined!
+*** Warning: "there_is_no_init_MUTEX_LOCKED_for_RT_semaphores" [drivers/char/watchdog/cpu5wdt.ko] undefined!
+*** Warning: "there_is_no_init_MUTEX_LOCKED_for_RT_semaphores" [drivers/block/sx8.ko] undefined!
+...
+if [ -r System.map -a -x /sbin/depmod ]; then /sbin/depmod -ae -F System.map -b /var/tmp/kernel-2.6.12rc5RTV0.7.4715DAV06-root -r 2.6.12-rc5-RT-V0.7.47-15-DAV06; fi
+WARNING: /var/tmp/kernel-2.6.12rc5RTV0.7.4715DAV06-root/lib/modules/2.6.12-rc5-RT-V0.7.47-15-DAV06/kernel/drivers/scsi/qla2xxx/qla2xxx.ko needs unknown symbol there_is_no_init_MUTEX_LOCKED_for_RT_semaphores
+WARNING: /var/tmp/kernel-2.6.12rc5RTV0.7.4715DAV06-root/lib/modules/2.6.12-rc5-RT-V0.7.47-15-DAV06/kernel/drivers/pci/hotplug/shpchp.ko needs unknown symbol there_is_no_init_MUTEX_LOCKED_for_RT_semaphores
+WARNING: /var/tmp/kernel-2.6.12rc5RTV0.7.4715DAV06-root/lib/modules/2.6.12-rc5-RT-V0.7.47-15-DAV06/kernel/drivers/pci/hotplug/pciehp.ko needs unknown symbol there_is_no_init_MUTEX_LOCKED_for_RT_semaphores
+WARNING: /var/tmp/kernel-2.6.12rc5RTV0.7.4715DAV06-root/lib/modules/2.6.12-rc5-RT-V0.7.47-15-DAV06/kernel/drivers/pci/hotplug/pci_hotplug.ko needs unknown symbol there_is_no_init_MUTEX_LOCKED_for_RT_semaphores
+WARNING: /var/tmp/kernel-2.6.12rc5RTV0.7.4715DAV06-root/lib/modules/2.6.12-rc5-RT-V0.7.47-15-DAV06/kernel/drivers/pci/hotplug/ibmphp.ko needs unknown symbol there_is_no_init_MUTEX_LOCKED_for_RT_semaphores
+WARNING: /var/tmp/kernel-2.6.12rc5RTV0.7.4715DAV06-root/lib/modules/2.6.12-rc5-RT-V0.7.47-15-DAV06/kernel/drivers/pci/hotplug/cpqphp.ko needs unknown symbol there_is_no_init_MUTEX_LOCKED_for_RT_semaphores
+WARNING: /var/tmp/kernel-2.6.12rc5RTV0.7.4715DAV06-root/lib/modules/2.6.12-rc5-RT-V0.7.47-15-DAV06/kernel/drivers/net/plip.ko needs unknown symbol there_is_no_init_MUTEX_LOCKED_for_RT_semaphores
+WARNING: /var/tmp/kernel-2.6.12rc5RTV0.7.4715DAV06-root/lib/modules/2.6.12-rc5-RT-V0.7.47-15-DAV06/kernel/drivers/char/watchdog/cpu5wdt.ko needs unknown symbol there_is_no_init_MUTEX_LOCKED_for_RT_semaphores
+WARNING: /var/tmp/kernel-2.6.12rc5RTV0.7.4715DAV06-root/lib/modules/2.6.12-rc5-RT-V0.7.47-15-DAV06/kernel/drivers/block/sx8.ko needs unknown symbol there_is_no_init_MUTEX_LOCKED_for_RT_semaphores
+make[3]: *** [_modinst_post] Error 1
+error: Bad exit status from /var/tmp/rpm-tmp.89329 (%install)
 
- linux-2.6.11-rc5-mm1-root/kernel/sched.c |   23 +++++++++++++++++++++--
- 1 files changed, 21 insertions(+), 2 deletions(-)
-
-diff -puN kernel/sched.c~wake_up_new_task_to_online_cpu kernel/sched.c
---- linux-2.6.11-rc5-mm1/kernel/sched.c~wake_up_new_task_to_online_cpu	2005-05-31 13:39:43.888682784 +0800
-+++ linux-2.6.11-rc5-mm1-root/kernel/sched.c	2005-05-31 16:14:37.390855704 +0800
-@@ -1412,6 +1412,10 @@ void fastcall sched_fork(task_t *p, int 
- 	put_cpu();
- }
- 
-+#ifdef CONFIG_HOTPLUG_CPU
-+static int task_select_online_cpu(int dead_cpu, struct task_struct *tsk);
-+#endif
-+
- /*
-  * wake_up_new_task - wake up a newly created task for the first time.
-  *
-@@ -1425,10 +1429,18 @@ void fastcall wake_up_new_task(task_t * 
- 	int this_cpu, cpu;
- 	runqueue_t *rq, *this_rq;
- 
-+	this_cpu = get_cpu();
- 	rq = task_rq_lock(p, &flags);
- 	BUG_ON(p->state != TASK_RUNNING);
--	this_cpu = smp_processor_id();
- 	cpu = task_cpu(p);
-+#ifdef CONFIG_HOTPLUG_CPU
-+	if (!cpu_online(cpu)) {
-+		cpu = task_select_online_cpu(cpu, p);
-+		set_task_cpu(p, cpu);
-+		task_rq_unlock(rq, &flags);
-+		rq = task_rq_lock(p, &flags);
-+	}
-+#endif
- 
- 	/*
- 	 * We decrease the sleep average of forking parents
-@@ -1491,6 +1503,7 @@ void fastcall wake_up_new_task(task_t * 
- 	current->sleep_avg = JIFFIES_TO_NS(CURRENT_BONUS(current) *
- 		PARENT_PENALTY / 100 * MAX_SLEEP_AVG / MAX_BONUS);
- 	task_rq_unlock(this_rq, &flags);
-+	put_cpu();
- }
- 
- /*
-@@ -4457,7 +4470,7 @@ wait_to_die:
- 
- #ifdef CONFIG_HOTPLUG_CPU
- /* Figure out where task on dead CPU should go, use force if neccessary. */
--static void move_task_off_dead_cpu(int dead_cpu, struct task_struct *tsk)
-+static int task_select_online_cpu(int dead_cpu, struct task_struct *tsk)
- {
- 	int dest_cpu;
- 	cpumask_t mask;
-@@ -4486,6 +4499,12 @@ static void move_task_off_dead_cpu(int d
- 			       "longer affine to cpu%d\n",
- 			       tsk->pid, tsk->comm, dead_cpu);
- 	}
-+	return dest_cpu;
-+}
-+
-+static void move_task_off_dead_cpu(int dead_cpu, struct task_struct *tsk)
-+{
-+	int dest_cpu = task_select_online_cpu(dead_cpu, tsk);
- 	__migrate_task(tsk, dead_cpu, dest_cpu);
- }
- 
-_
 
 

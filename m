@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261577AbVEaRtm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262024AbVEaRyz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261577AbVEaRtm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 13:49:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262051AbVEaRt2
+	id S262024AbVEaRyz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 13:54:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbVEaRyh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 13:49:28 -0400
-Received: from hqemgate01.nvidia.com ([216.228.112.170]:56362 "EHLO
-	HQEMGATE01.nvidia.com") by vger.kernel.org with ESMTP
-	id S262037AbVEaRtP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 13:49:15 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: PROBLEM: Kernel Crash - Machine Exception Interpretation?
-Date: Tue, 31 May 2005 10:49:09 -0700
-Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B004FAE239@hqemmail02.nvidia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: PROBLEM: Kernel Crash - Machine Exception Interpretation?
-thread-index: AcVjk4B7Y5TXbI9tToyo1/Lgk9yXJQCdKF0w
-From: "Allen Martin" <AMartin@nvidia.com>
-To: "John W. M. Stevens" <john@betelgeuse.us>, <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 31 May 2005 17:49:09.0639 (UTC) FILETIME=[0C431970:01C56609]
+	Tue, 31 May 2005 13:54:37 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:40971
+	"EHLO g5.random") by vger.kernel.org with ESMTP id S262009AbVEaRwC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 13:52:02 -0400
+Date: Tue, 31 May 2005 19:51:52 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Esben Nielsen <simlo@phys.au.dk>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, hch@infradead.org, dwalker@mvista.com,
+       Ingo Molnar <mingo@elte.hu>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, Andi Kleen <ak@muc.de>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       James Bruce <bruce@andrew.cmu.edu>
+Subject: Re: RT patch acceptance
+Message-ID: <20050531175152.GT5413@g5.random>
+References: <Pine.OSF.4.05.10505311347290.1707-100000@da410.phys.au.dk> <1117556283.2569.26.camel@localhost.localdomain> <20050531171143.GS5413@g5.random> <1117561379.2569.57.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1117561379.2569.57.camel@localhost.localdomain>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 	May 27 21:42:06 morningstar kernel: CPU 1: Machine 
-> Check Exception: 0000000000000004
-> 	May 27 21:42:07 morningstar kernel: Bank 0: e200000000000175
+On Tue, May 31, 2005 at 01:42:59PM -0400, Steven Rostedt wrote:
+> How does one demonstrate that something works without a test. You may
+> call it a "demo", but in reality it is just another test.  It's been
+> quite some time since I use to work on that, and I never read the
+> MilSpec myself, I was just told what to do by those that did read it.
+> But I would still call it testing.  Every requirement must have a way to
+> prove that it was fulfilled, whether it was by "demo", inspection, or
+> measurement, I would call all those tests. 
 
-That's a timeout on a L1 data cache evict, probably related to the
-following:
+With testing I meant to run the OS on the bare hardware in the
+final configuration and verifying that it works (possibly by measuring
+the worst case latencies you get during the testing, like what Ingo does
+to claim worst case latency for preempt-RT).
 
-> 	May 27 21:42:07 morningstar kernel: Bank 2: 
-> b60020000000011a at 000000000bf16280May 27 21:42:07 
+> One of the tests that were done was to inspect ever module (or function)
+> for every code path it took.  This grows exponential with every branch.
 
-That's an uncorrectable (multibit) ECC error on a L2 cache read.
+Yes, that's what I meant.
 
-I would look for BIOS updates or replace the RAM.  You should probably
-see failures if you run memtest86 also.
+> the integration level, and system level.  Could you imagine what it
+> would take to do this with Linux!  Linux is much bigger than that code
+> that ran the engine of an aircraft, and that testing took ten years!
 
+Indeed, that's why I believe hard-RT with preempt-RT is just a joke.
+
+> Not to mention that Linux is a moving target, and the engine control
+> code was designed for a single purpose and a single type of hardware.
+
+Exactly.
+
+> Before I put my hand under that saw, I would want to test it several
+> times with a hotdog first!
+
+;)

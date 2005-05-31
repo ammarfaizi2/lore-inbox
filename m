@@ -1,53 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVEaUgd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVEaUkR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261452AbVEaUgd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 16:36:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVEaUef
+	id S261442AbVEaUkR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 16:40:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVEaUkR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 16:34:35 -0400
-Received: from smtp005.mail.ukl.yahoo.com ([217.12.11.36]:22938 "HELO
-	smtp005.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261442AbVEaUdF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 16:33:05 -0400
-From: Blaisorblade <blaisorblade@yahoo.it>
-To: Roman Zippel <zippel@linux-m68k.org>
-Subject: Re: [patch 1/1] kconfig: trivial cleanup
-Date: Tue, 31 May 2005 22:35:34 +0200
-User-Agent: KMail/1.8
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       kbuild-devel@lists.sourceforge.net
-References: <20050529174525.A36D7A2FA3@zion.home.lan> <Pine.LNX.4.61.0505311123310.3728@scrub.home>
-In-Reply-To: <Pine.LNX.4.61.0505311123310.3728@scrub.home>
+	Tue, 31 May 2005 16:40:17 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:28485 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261442AbVEaUkJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 16:40:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=Q3rXOtTLXO3QahQwyYL4b4zli1OX1vUZoEuyej4Shax8f+4NL5tHXjfXtIO20dqnynu22y8zRP+9zG9aUBEldFm2cxzJPrnJ29SuhkBzWBvASpKT7ns1ZogEaogVTRILxWA6m3oi8pdbdEOB7w+bw2dxSEsaD6kkDfrQUdX4BVA=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: dpervushin@ru.mvista.com
+Subject: Re: [RFC] SPI core
+Date: Wed, 1 Jun 2005 00:44:34 +0400
+User-Agent: KMail/1.7.2
+Cc: linux-kernel@vger.kernel.org
+References: <1117555756.4715.17.camel@diimka.dev.rtsoft.ru>
+In-Reply-To: <1117555756.4715.17.camel@diimka.dev.rtsoft.ru>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200505312235.35234.blaisorblade@yahoo.it>
+Message-Id: <200506010044.34559.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 31 May 2005 11:27, Roman Zippel wrote:
-> Hi,
->
-> On Sun, 29 May 2005 blaisorblade@yahoo.it wrote:
-> > If you want, I'll do one patch update the included version to 2.0 Bison
-> > (which uses an updated skeleton) and then, separately, a patch updating
-> > zconf.tab.c_shipped to reflect the updated zconf.y.
+On Tuesday 31 May 2005 20:09, dmitry pervushin wrote:
+> In order to support the specific board, we have ported the generic SPI core
+> to the 2.6 kernel. This core provides basic API to create/manage SPI devices
+> like the I2C core does. We need to continue providing support of SPI devices
+> and would like to maintain the SPI subtree.
 
-> I'd prefer to patch the changes into zconf.tab.c_shipped directly. At some
-> point it should be regenerated, but I'd like to avoid it and only do it if
-> the parser itself needs a change.
-I can regenerate it only with bison 2.0, since that's what I have installed. 
-So if you don't want it to be regenerated, you cannot accept my patch. I 
-proposed sending two patches to avoid mixing the bison changes with this 
-patch changes, that's all.
--- 
-Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
-Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
-http://www.user-mode-linux.org/~blaisorblade
+> +#ifdef CONFIG_DEVFS_FS
+> +#include <linux/devfs_fs_kernel.h>
+> +#endif
 
-		
-___________________________________ 
-Yahoo! Messenger: chiamate gratuite in tutto il mondo 
-http://it.beta.messenger.yahoo.com
+devfs will be removed from mainline in a month.

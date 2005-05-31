@@ -1,45 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVEaR3G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261953AbVEaRcg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261899AbVEaR3G (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 13:29:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261531AbVEaR3G
+	id S261953AbVEaRcg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 13:32:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261962AbVEaRbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 13:29:06 -0400
-Received: from hummeroutlaws.com ([12.161.0.3]:7940 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S261899AbVEaR2f (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 13:28:35 -0400
-From: "Jim Crilly" <jim@why.dont.jablowme.net>
-Date: Tue, 31 May 2005 13:22:04 -0400
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: mrmacman_g4@mac.com, toon@hout.vanvergehaald.nl, ltd@cisco.com,
-       linux-kernel@vger.kernel.org, dtor_core@ameritech.net, 7eggert@gmx.de
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Message-ID: <20050531172204.GD17338@voodoo>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	mrmacman_g4@mac.com, toon@hout.vanvergehaald.nl, ltd@cisco.com,
-	linux-kernel@vger.kernel.org, dtor_core@ameritech.net, 7eggert@gmx.de
-References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com> <20050530093420.GB15347@hout.vanvergehaald.nl> <429B0683.nail5764GYTVC@burner> <46BE0C64-1246-4259-914B-379071712F01@mac.com> <429C4483.nail5X0215WJQ@burner>
+	Tue, 31 May 2005 13:31:25 -0400
+Received: from titan.genwebhost.com ([209.9.226.66]:59869 "EHLO
+	titan.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261953AbVEaR3I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 13:29:08 -0400
+Date: Tue, 31 May 2005 10:28:59 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: "Fao, Sean" <sean.fao@capitalgenomix.com>
+Cc: schneelocke@gmail.com, linux-kernel@vger.kernel.org, webmaster@kernel.org
+Subject: Re: Kernel Version Explanation
+Message-Id: <20050531102859.06693f8c.rdunlap@xenotime.net>
+In-Reply-To: <429C94B7.1090005@capitalgenomix.com>
+References: <20050529140945.GA4815@cgx-mail.capitalgenomix.com>
+	<20050529112523.17f6e8fa.rdunlap@xenotime.net>
+	<429A792F.9070806@zytor.com>
+	<d4dc44d505053010066cdaff3@mail.gmail.com>
+	<429C94B7.1090005@capitalgenomix.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <429C4483.nail5X0215WJQ@burner>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - titan.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 05/31/05 01:03:31PM +0200, Joerg Schilling wrote:
-> 
-> > And why again do you need stable SCSI addresses for my _USB_ drive?
-> 
-> Well if the udev program was polite to users, it would also support
-> to edit /etc/default/cdrecord...... 
-> 
-> ... if it _really_ does wat you like with /dev/ links, then it has all 
-> the information that is needed to also maintain /etc/default/cdrecord
+On Tue, 31 May 2005 12:45:43 -0400 Fao, Sean wrote:
 
-The rules and scripts that udev uses to name things can do anything since
-it runs in userland, so udev could easily edit /etc/default/cdrecord if
-someone took the time to write the script.
+| Schneelocke wrote:
+| 
+| >On 30/05/05, H. Peter Anvin <hpa@zytor.com> wrote:
+| >  
+| >
+| >>>It looks to me like the word "stable" is overused on the main page
+| >>>at www.kernel.org .
+| >>>      
+| >>>
+| >>That's because there isn't an odd-number series right now.
+| >>    
+| >>
+| >
+| >Will there ever be one again (at least in the foreseeable future)?
+| >We've had "Linus = stable, -mm = unstable" for a long time now, and it
+| >seems pretty much official now that there won't be a 2.7 anytime soon.
+| >The actual development of new features is happening in the relevant
+| >maintainers' trees, anyway, so there simply seems to be no need for a
+| >single highly development-oriented tree (like 2.5 was) anymore - quite
+| >the contrary.
+| >  
+| >
+| 
+| My understanding was that Linus eventually decided upon something in the 
+| middle.  I understood that there still wouldn't be a 2.7.x branch 
+| (unless major changes occurred, which would severely risk breaking the 
+| stable tree).  However, it was also my understanding that Linus would 
+| return to the even/odd version system; but, would do so in the rev.  In 
+| other words, 2.6.even would be stable, while 2.6.odd would be 
+| development.  I did, however, become slightly confused when I connected 
+| to http://www.kernel.org and noticed that the latest stable kernel was 
+| 2.6.11.11 because it's both odd and contains four version numbers rather 
+| than the  three, which we've usually seen.
+| 
+| Hope that clears up what my confusion is.
 
-Jim.
+The even/odd-ness of 'x' in the 2.6.x version number discussion
+was ultimately rejected as far as it having any stable/development/test
+meaning.
+
+Mostly Linus's 2.6.x tree is for stable work and Andrew's -mm
+patchset is for development work.  However, as I often say,
+everything is relative.  There are no absolutes in this.
+
+
+---
+~Randy

@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVEaEqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261736AbVEaFRV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261194AbVEaEqn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 00:46:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVEaEqn
+	id S261736AbVEaFRV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 01:17:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbVEaFRV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 00:46:43 -0400
-Received: from mail.timesys.com ([65.117.135.102]:12005 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S261194AbVEaEql convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 00:46:41 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Content-Class: urn:content-classes:message
-Subject: RE: RT patch acceptance
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Date: Tue, 31 May 2005 00:39:59 -0400
-Message-ID: <3D848382FB72E249812901444C6BDB1D01588169@exchange.timesys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: RT patch acceptance
-thread-index: AcVla6WF55jLVdpTQ9KVW2W1GX6qzwALjZog
-From: "Saksena, Manas" <Manas.Saksena@timesys.com>
-To: <karim@opersys.com>, "Bill Huey (hui)" <bhuey@lnxw.com>
-Cc: "Esben Nielsen" <simlo@phys.au.dk>,
-       "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       "kus Kusche Klaus" <kus@keba.com>, "James Bruce" <bruce@andrew.cmu.edu>,
-       "Andi Kleen" <ak@muc.de>,
-       "Sven-Thorsten Dietrich" <sdietrich@mvista.com>,
-       "Ingo Molnar" <mingo@elte.hu>, <dwalker@mvista.com>,
-       <hch@infradead.org>, <akpm@osdl.org>, <linux-kernel@vger.kernel.org>
+	Tue, 31 May 2005 01:17:21 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:18144 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261736AbVEaFRR
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 01:17:17 -0400
+Date: Tue, 31 May 2005 10:47:30 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: jayush luniya <jayu_11@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: HOTPLUG CPU Support for SMT
+Message-ID: <20050531051730.GA5845@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20050530152534.21912.qmail@web32806.mail.mud.yahoo.com> <Pine.LNX.4.61.0505301050141.12903@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0505301050141.12903@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Karim Yaghmour wrote: 
-> But wasn't the same said about the existing preemption code? Yet,
-> most distros ship with it disabled and some developers still feel
-> that there are no added benefits. What's the use if everyone is
-> shipping kernels with the feature disabled? From a practical point of
-> view, isn't it then obvious that such features catter for a minority?
+On Mon, May 30, 2005 at 04:50:27PM +0000, Zwane Mwaikambo wrote:
+> Yes, older 2.6-mm kernel (2.6.10-mm) trees have the "toy" i386 hotplug 
+> cpu implementation which does what you want.
 
-That's a misrepresentation. It is well-known that Linux is used in 
-a wide range of embedded devices. The embedded space is very fragmented,
-with lots of home-grown Linux platforms. And, I would speculate that
-many of them (as well as commercial distros catering to the embedded 
-market) often enable preemption (including using non-mainlined kernel 
-preemption patches for 2.4 kernels). 
+AFAIK in the i386 "toy" implementation, when a CPU is offlined, it stops
+taking interrupts and stops running tasks, but it _still_ executes a while
+loop in the context of its idle task (with IRQs disabled). The loop
+is exited when we have to bring online the CPU again. What this means is 
+I don't think by offlining the CPU, we are removing any activity associated
+with the corresponding h/w thread. 
 
-Regards,
-Manas
+Maybe the toy implementation could be modified to take care of it? Something
+like lowering the priority of the h/w thread so that it consumes minimal 
+CPU resources to execute its while loop.
+
+-- 
+
+
+Thanks and Regards,
+Srivatsa Vaddagiri,
+Linux Technology Center,
+IBM Software Labs,
+Bangalore, INDIA - 560017

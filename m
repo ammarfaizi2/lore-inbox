@@ -1,56 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbVEaTgi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261342AbVEaTrK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261263AbVEaTgi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 15:36:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVEaTgi
+	id S261342AbVEaTrK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 15:47:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261354AbVEaTrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 15:36:38 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:6415 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261263AbVEaTge (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 15:36:34 -0400
-Date: Tue, 31 May 2005 21:36:32 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Alexey Dobriyan <adobriyan@gmail.com>, Len Brown <len.brown@intel.com>
-Cc: akpm@osdl.org, peterc@gelato.unsw.edu.au, tony.luck@intel.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: pcdp-build-fix.patch added to -mm tree
-Message-ID: <20050531193632.GY3627@stusta.de>
-References: <200505310925.j4V9PNoS009318@shell0.pdx.osdl.net> <200505312022.44479.adobriyan@gmail.com>
+	Tue, 31 May 2005 15:47:10 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:55203 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261342AbVEaTrG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 15:47:06 -0400
+Subject: Re: RT : 2.6.12rc5 + realtime-preempt-2.6.12-rc5-V0.7.47-15
+From: Lee Revell <rlrevell@joe-job.com>
+To: Serge Noiraud <serge.noiraud@bull.net>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <1117551231.19367.48.camel@ibiza.btsn.frna.bull.fr>
+References: <1117551231.19367.48.camel@ibiza.btsn.frna.bull.fr>
+Content-Type: text/plain
+Date: Tue, 31 May 2005 15:47:04 -0400
+Message-Id: <1117568825.23283.5.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200505312022.44479.adobriyan@gmail.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 31, 2005 at 08:22:44PM +0400, Alexey Dobriyan wrote:
+On Tue, 2005-05-31 at 16:53 +0200, Serge Noiraud wrote:
+> I have a test program which made a loop in RT to mesure the system
+> perturbation.
+> It works finely in a tty environment.
+> When I run it in an X environment ( xterm ), I get something like if I
+> click the Enter key in the active window.
+> If I open a new xterm, this is the new active window which receive these
+> events.
+> These events stop when the program stop.
 > 
-> Does this patch make sense?
->...
-> --- linux-vanilla/include/linux/acpi.h	2005-05-28 02:59:59.000000000 +0400
-> +++ linux-8250/include/linux/acpi.h	2005-05-28 03:39:25.000000000 +0400
-> @@ -25,6 +25,8 @@
->  #ifndef _LINUX_ACPI_H
->  #define _LINUX_ACPI_H
->  
-> +#include <linux/config.h>
-> +
->...
+> I tried with X in RT and no RT : I have the problem.
 
-Len said one month ago that he applied a patch from me that included 
-both this change and a similar one in acpi_bus.h .
+Try adding:
 
-Are there any problems with getting recent ACPI code into -mm?
+Option "NoAccel"
 
-cu
-Adrian
+to the Driver section of your X config.
 
--- 
+Some buggy video drivers can stall the PCI bus for tens or hundreds of
+*milliseconds*.  The "via" driver had this problem until I identified
+the problem and the Unichrome guys fixed it.  If it goes away with
+"NoAccel", then you are having the same problem.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+For details search the unichrome-devel archives for "losing interrupts".
+
+Lee
 

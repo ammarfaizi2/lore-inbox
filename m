@@ -1,84 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261942AbVEaQ3K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261919AbVEaQ3K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261942AbVEaQ3K (ORCPT <rfc822;willy@w.ods.org>);
+	id S261919AbVEaQ3K (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 31 May 2005 12:29:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261972AbVEaQ0w
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261952AbVEaQ1L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 12:26:52 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:49640 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261941AbVEaQTX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 12:19:23 -0400
-Subject: Re: RT patch acceptance
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, hch@infradead.org,
-       dwalker@mvista.com, Ingo Molnar <mingo@elte.hu>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>, Andi Kleen <ak@muc.de>,
-       "Bill Huey (hui)" <bhuey@lnxw.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       James Bruce <bruce@andrew.cmu.edu>
-In-Reply-To: <Pine.OSF.4.05.10505311347290.1707-100000@da410.phys.au.dk>
-References: <Pine.OSF.4.05.10505311347290.1707-100000@da410.phys.au.dk>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Tue, 31 May 2005 12:18:03 -0400
-Message-Id: <1117556283.2569.26.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Tue, 31 May 2005 12:27:11 -0400
+Received: from mail3.utc.com ([192.249.46.192]:10884 "EHLO mail3.utc.com")
+	by vger.kernel.org with ESMTP id S261942AbVEaQTC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 12:19:02 -0400
+Message-ID: <429C8E4E.4010608@cybsft.com>
+Date: Tue, 31 May 2005 11:18:22 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Serge Noiraud <serge.noiraud@bull.net>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: RT : Large transfert with 2.6.12rc5 +	realtime-preempt-2.6.12-rc5-V0.7.47-15
+References: <1117552050.19367.63.camel@ibiza.btsn.frna.bull.fr>
+In-Reply-To: <1117552050.19367.63.camel@ibiza.btsn.frna.bull.fr>
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-31 at 14:09 +0200, Esben Nielsen wrote:
-> On Tue, 31 May 2005, James Bruce wrote:
-
-> > It is only better in that if you need provable hard-RT *right now*, then 
-> > you have to use a nanokernel.  
+Serge Noiraud wrote:
+> I had the same problem with rc4+47-07, rc5+47-10,47-13
+> I reproduce this problem with a tg3 driver and with e1000 driver.
+> So I think it's not a driver problem.
 > 
-> What do you mean by "provable"? Security critical? Forget about
-> nanokernels then. The WHOLE system has to be validated. If you want to a
-> system good enough to put (a lot of) money on it: Test, test, test.
+> I try to copy an iso image from this machine to another one by scp.
+> after 35 to 45MB, the copy become stalled with no more transfert.
+> We can ping the target machine, all apparently is OK except the scp
+> which finish with timeout.
+> With ftp, the stalled state is about 100MB.
+> If I reboot with a standard kernel ( without RT ), no problem.
+> 
+> Perhaps there is a progress, in 47-15, the size is now 135-140MB
+> 
+> On this machine, we have an ide disk.
+> I have setup : hdparm 
+> -sh-2.05b# hdparm /dev/hda
+> 
+> /dev/hda:
+>  multcount    = 16 (on)
+>  IO_support   =  3 (32-bit w/sync)
+>  unmaskirq    =  1 (on)
+>  using_dma    =  1 (on)
+>  keepsettings =  0 (off)
+>  readonly     =  0 (off)
+>  readahead    = 256 (on)
+>  geometry     = 65535/16/63, sectors = 78165360, start = 0
+> 
 
-Interesting. I use to work for Martin Mariette in the early 90s testing
-modules for aircraft engine controls.  The code was about ten years old,
-and that is because it was going under ten years of testing.  The
-operating system was custom made since at the time there were no
-commercially available (that I knew) RTOS that could go under the
-scrutiny of the Military Specs.
+Hi,
 
-Later, while working at Lockheed, we had WindRiver over and they would
-only give a small broken down (basically all features removed) OS that
-Lockheed would be responsible for testing.
+I am not sure what might be causing this problem for you. I just tried 
+to reproduce this on one of my systems but could not (scsi not ide). The 
+first time it copied 450MB before the remote system ran out of space. 
+After cleaning up a bit I got the whole 630MB without a hitch. Do you 
+have the RT patch on both systems or just on the originating system? In 
+my case its the latter. There is
 
-When someone mentions Hard-RT, this is what I think about.  These are
-the RTOS that control the airplanes that people fly in. If something
-were to go wrong, people will die.  
-
-I no longer deal with that type of RT, now I still work with
-applications that run on aircraft, but would not have the plane crash if
-something was to go wrong.  The system still had to be of a softer-RT to
-give the required response, usually navigational.  This is someplace
-that a Linux with -RT or a nano kernel can go.  The -RT patch may be
-nicer since some applications are first written generically, and then
-later need to become -RT for some reason or another.  With the nano
-approach this may take more effort.  But at the moment, I'm working to
-get -RT with some extra features for other things, but this is what I've
-heard from others.
-
-> I can't see it would be easier prove that a nano-kernel with various
-> needed mutex and queuing mechanism works correct than it is to prove that
-> the Linux scheduler with mutex and queueing mechanisms works correctly.
-> Both systems does the same thing and is most likely based on the same
-> principles!
-
-Since the nano-kernel would be much smaller than the kernel, you don't
-need to worry about a bad design as much that can cause a problem.  I
-don't know how easy it would be to separate all the paths that an RT
-task uses, and make sure that there's not a lock that an RT task takes
-that isn't taken someplace else that a non RT task can take for a long
-time (even with PI).  It's just that the kernel is so big to find
-everything.  This isn't impossible, but very difficult to check out.
-
--- Steve
-
+-- 
+    kr

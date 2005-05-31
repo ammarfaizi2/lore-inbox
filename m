@@ -1,78 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbVEaKS1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261631AbVEaKU4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261629AbVEaKS1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 06:18:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbVEaKS0
+	id S261631AbVEaKU4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 06:20:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVEaKUz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 06:18:26 -0400
-Received: from smtp.lnxw.com ([207.21.185.24]:11282 "EHLO smtp.lnxw.com")
-	by vger.kernel.org with ESMTP id S261629AbVEaKSU (ORCPT
+	Tue, 31 May 2005 06:20:55 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44194 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261631AbVEaKUm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 06:18:20 -0400
-Date: Tue, 31 May 2005 03:23:14 -0700
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: James Bruce <bruce@andrew.cmu.edu>, "Bill Huey (hui)" <bhuey@lnxw.com>,
-       Andi Kleen <ak@muc.de>, Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-Message-ID: <20050531102314.GA11116@nietzsche.lynx.com>
-References: <42981467.6020409@yahoo.com.au> <4299A98D.1080805@andrew.cmu.edu> <429ADEDD.4020805@yahoo.com.au> <429B1898.8040805@andrew.cmu.edu> <429B2160.7010005@yahoo.com.au> <20050530222747.GB9972@nietzsche.lynx.com> <429BBC2D.70406@yahoo.com.au> <20050531020957.GA10814@nietzsche.lynx.com> <429C2A64.1040204@andrew.cmu.edu> <429C2F72.7060300@yahoo.com.au>
+	Tue, 31 May 2005 06:20:42 -0400
+Date: Tue, 31 May 2005 12:13:44 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [RFC] Add some hooks to generic suspend code
+Message-ID: <20050531101344.GB9614@elf.ucw.cz>
+References: <1117524577.5826.35.camel@gaston>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <429C2F72.7060300@yahoo.com.au>
+In-Reply-To: <1117524577.5826.35.camel@gaston>
+X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
-From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 31, 2005 at 07:33:38PM +1000, Nick Piggin wrote:
-> James Bruce wrote:
-> >claims he's made, but I think a lot of people have read his posts too 
-> >quickly and misinterpreted what he's claiming for the current patch. 
-> >This includes people on both sides of the fence.  He's also been silent 
-> >for much of this discussion as its gotten out of hand, showing he's 
-> >clearly wiser than all of us.
+Hi!
+
+> While consolidating the powermac suspend to ram and suspend to disk
+> implementations to properly use the new framework in kernel/power, among
+> others, I ended up with the need of adding various callbacks to
+> kernel/power/main.c. Here is a patch adding & documenting those.
 > 
-> I have never been in any doubt as to the specific claims I have
-> made. I continually have been talking about hard realtime from
-> start to finish, and it appears that everyone now agrees with me
-> that for hard-RT, a nanokernel solution is better or at least
-> not obviously worse at this stage.
+> The reasons I need them are:
+> 
+> 	/* Call before process freezing. If returns 0, then no freeze
+> 	 * should be done, if 1, freeze, negative -> error
+> 	 */
+> 	int (*pre_freeze)(suspend_state_t state);
+> 
+> I'm using that one for calling my "old style" notifiers (they are beeing phased
+> out but I still have a couple of drivers using them). The reason I do that here
+> is because that's how my APM emulation hooks, and that code interacts with userland
+> (to properly signal things like X of the suspend process), so I need to do that
+> before we freeze processes.
 
-No, not true. That's large a myth created by dual kernel folks. The
-scheduling and interrupt paths are highly optimized in Linux it's
-unlikely that any other OS can really make it significantly better
-in this area since the paths are branch hinted and cache sensitive.
-This core logic is pretty much similar across most RTOSes.
+This should not be needed in future, right? Could it be marked
+deprecated or something?
 
-> Ingo actually of course has been completely rational and honest
-> the whole time - he actually emailed me to basically say "there
-> will be pros and cons of both, and until things develop further
-> I'm not completely sure".
+> 	/* called after sysdevs and "irq off" devices have been
+> 	 * worken up, irqs have just been restored to whatever state
+> 	 * prepare_irqs() left them in.
+> 	 */
+> 	void (*finish_irqs)(suspend_state_t state);
+> 
+> This is the pending of the above callback. It gets called after sysdev's
+> have been woken up but before normal devices have. It's called after the core has
+> restored local interrupts to what they were upon exit of prepare_irqs(), so if
+> you do nothing special in prepare_irqs(), you'll get entered with irqs re-enabled
+> here, while if you exit prepare_irqs() with irqs off, you'll get here with irqs
+> off as well (and thus become responsible for re-enabling them).
+> 
+> I want this callback to have finer control of re-enabling interrutps. The interrupt
+> controller has been partially reconfigured earlier in arch code, but the CPU priority
+> is only lowered here, so that it starts hitting the CPU again only now. There is
+> also some code to properly wake up the CPU decrementer so it ticks right away, and
+> to force taking a pseudo-interrupt (to sort-of "kick" the interrupt controller into
+> life, seems to work around an issue that I think is related to a HW bug in the
+> interrupt controller we use). 
 
-There will be pro and cons of both, but in the end single kernel
-aspects will win because app programmability issues. The dual kernel
-boundary only exists because nobody took on the task of full kernel
-preemptibility because of the broad amount of knowledge needed to
-get the lock ordering correct as well as other concurrent conversions.
+Could you simply reconfigure interrupt controller fully in earlier arch code?
 
-It's done now and dual kernel will have less of a strangle hold on
-RT development in Linux. This will be inevitable as the technology
-propagates.
+> 	/* called after unfreezing userland */
+> 	void (*post_freeze)(suspend_state_t state);
+> 
+> That one is the mirror of pre-freeze, gets called after userland has been re-enabled,
+> it also calls my old-style notifiers, which includes APM emulation, which is important
+> for sending the APM wakeup events to things like X.
 
-> Which I was pretty satisfied with. Then along came the lynch mob.
+Could this be marked deprecated, too?
 
-The lynch mob is right. They have first hand experience with this
-kind of work and understand the associated problem with this kind
-of software development. This isn't some piecewise kernel hack that's
-an easy tack on to the kernel, but a fundamentally different way
-of looking at things. Understanding the concepts is mandatory here.
+Alternatively, proper way of notifying X (etc) should be created, and
+done from generic code....
 
-That's something that you're still not willing to learn which makes
-discussions with you on the subject useless and pisses off the rest
-of us.
-
-bill
-
+									Pavel

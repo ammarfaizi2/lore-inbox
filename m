@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVEaXmE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVEaXuj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbVEaXmE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 19:42:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbVEaXmE
+	id S261210AbVEaXuj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 19:50:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVEaXuj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 19:42:04 -0400
-Received: from gate.crashing.org ([63.228.1.57]:44216 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261199AbVEaXmA (ORCPT
+	Tue, 31 May 2005 19:50:39 -0400
+Received: from gate.crashing.org ([63.228.1.57]:48568 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261210AbVEaXuV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 19:42:00 -0400
-Subject: Re: [PATCH] ppc64: actually call prom_send_capabilities
+	Tue, 31 May 2005 19:50:21 -0400
+Subject: Re: [PATCH] Don't explode on swsusp failure to find swap
 From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Paul Mackerras <paulus@samba.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200505311612.j4VGCWC8005159@hera.kernel.org>
-References: <200505311612.j4VGCWC8005159@hera.kernel.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1117550706.5826.43.camel@gaston>
+References: <1117523585.5826.18.camel@gaston>
+	 <20050531103623.GB1848@elf.ucw.cz>  <1117550706.5826.43.camel@gaston>
 Content-Type: text/plain
-Date: Wed, 01 Jun 2005 09:41:46 +1000
-Message-Id: <1117582907.5826.69.camel@gaston>
+Date: Wed, 01 Jun 2005 09:50:03 +1000
+Message-Id: <1117583403.5826.72.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
+On Wed, 2005-06-01 at 00:45 +1000, Benjamin Herrenschmidt wrote:
+> On Tue, 2005-05-31 at 12:36 +0200, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > If we specify a swap device for swsusp using resume= kernel argument and
+> > > that device doesn't exist in the swap list, we end up calling
+> > > swsusp_free() before we have allocated pagedir_save. That causes us to
+> > > explode when trying to free it.
+> > > 
+> > > Pavel, does that look right ?
+> > 
+> > It looks like a workaround. We should not call swsusp_free in case
+> > device does not exists. Quick look did not reveal where the bug comes
+> > from, can you try to trace it?
+> > 								Pavel
 > 
-> Index: arch/ppc64/kernel/prom_init.c
-> ===================================================================
-> --- 3ac19ebb77c3cd8a1df31b7170c6eaf9e1afb1a4/arch/ppc64/kernel/prom_init.c  (mode:100644 sha1:6f79b7b9b445e8669411e34b48c1ea8ce5135965)
-> +++ 11f504429d5e6708259f376b76e96cafd3bf9215/arch/ppc64/kernel/prom_init.c  (mode:100644 sha1:bc53967a86436d6b3f4a4f324273e01fdab934b3)
-> @@ -1881,6 +1881,12 @@ unsigned long __init prom_init(unsigned 
->  		     &getprop_rval, sizeof(getprop_rval));
->  
->  	/*
-> +	 * On pSeries, inform the firmware about our capabilities
-> +	 */
-> +	if (RELOC(of_platform) & PLATFORM_PSERIES)
-> +		prom_send_capabilities();
-> +
-> +	/*
->  	 * On pSeries, copy the CPU hold code
->  	 */
->         	if (RELOC(of_platform) & PLATFORM_PSERIES)
-> -
+> Well, the bug comes from arch code calling swsusp_save() which fails,
+> then we call swsusp_free()
 
-/* Platforms supported by PPC64 */
-#define PLATFORM_PSERIES      0x0100
-#define PLATFORM_PSERIES_LPAR 0x0101
-#define PLATFORM_ISERIES_LPAR 0x0201
-#define PLATFORM_LPAR         0x0001
-#define PLATFORM_POWERMAC     0x0400
-#define PLATFORM_MAPLE        0x0500
+More specifically, arch suspend calls swsusp_save().
 
-Hrm... this will trigger on Maple too... Should I change Maple
-definition ? That would break kexec of maple from existing to newer
-kernels though.
+It fails and returns the error to the arch asm code, which itself
+returns it to it's caller swsusp_suspend(), which does that:
 
+ 	if ((error = swsusp_arch_suspend()))
+		swsusp_free();
+
+Ben.
 
 

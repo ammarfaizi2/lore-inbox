@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbVEaLOs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261864AbVEaLTt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261854AbVEaLOs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 07:14:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261859AbVEaLOs
+	id S261864AbVEaLTt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 07:19:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbVEaLTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 07:14:48 -0400
-Received: from colin.muc.de ([193.149.48.1]:13317 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S261854AbVEaLOr (ORCPT
+	Tue, 31 May 2005 07:19:49 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:28557 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261864AbVEaLT2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 07:14:47 -0400
-Date: 31 May 2005 13:14:45 +0200
-Date: Tue, 31 May 2005 13:14:45 +0200
-From: Andi Kleen <ak@muc.de>
-To: James Bruce <bruce@andrew.cmu.edu>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-Message-ID: <20050531111445.GA35122@muc.de>
-References: <4299A98D.1080805@andrew.cmu.edu> <429ADEDD.4020805@yahoo.com.au> <429B1898.8040805@andrew.cmu.edu> <429B2160.7010005@yahoo.com.au> <20050530222747.GB9972@nietzsche.lynx.com> <429BBC2D.70406@yahoo.com.au> <20050531020957.GA10814@nietzsche.lynx.com> <429C2A64.1040204@andrew.cmu.edu> <429C2F72.7060300@yahoo.com.au> <429C4112.2010808@andrew.cmu.edu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <429C4112.2010808@andrew.cmu.edu>
-User-Agent: Mutt/1.4.1i
+	Tue, 31 May 2005 07:19:28 -0400
+Date: Tue, 31 May 2005 13:16:12 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Adrian Bunk <bunk@stusta.de>
+cc: kbuild-devel <kbuild-devel@lists.sourceforge.net>,
+       linux-kernel@vger.kernel.org, Jesper Juhl <juhl-lkml@dif.dk>
+Subject: Re: [2.6 patch] Kconfig: rename "---help---" to "help" in Kconfig
+ files (first part) (fwd)
+In-Reply-To: <20050531004120.GH3627@stusta.de>
+Message-ID: <Pine.LNX.4.61.0505311314230.3728@scrub.home>
+References: <20050531001038.GD3627@stusta.de> <Pine.LNX.4.61.0505310217030.3728@scrub.home>
+ <20050531004120.GH3627@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 31, 2005 at 06:48:50AM -0400, James Bruce wrote:
-> P.S. Preempt-RT is a sight to behold while updatedb is running.  The 
-> difference between it and ordinary preempt is quite impressive.  Nothing 
-> currently running has so much as a hiccup, even though / is using the 
-> non-latency-friendly ReiserFS.  The only way I even notice updatedb is 
-> running at all is through my CPU monitor and the fact that disk IO is 
-> slower.
+Hi,
 
-Are you sure it is not only disk IO? In theory updatedb shouldn't 
-need much CPU, but it eats a lot of memory and causes stalls 
-in the disk (or at least that was my interpration on the stalls I saw)
-If there is really a scheduling latency problem with updatedb
-then that definitely needs to be fixed in the stock kernel.
+On Tue, 31 May 2005, Adrian Bunk wrote:
 
--Andi
+> there's still the point that it's currently used inconsistently.
+
+Why is it so important to fix this "inconsistency"?
+Why is it so difficult to accept that both are valid options?
+
+bye, Roman

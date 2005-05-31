@@ -1,38 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261987AbVEaRDZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261996AbVEaRDk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261987AbVEaRDZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 13:03:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbVEaRA6
+	id S261996AbVEaRDk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 13:03:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261988AbVEaQ7d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 13:00:58 -0400
-Received: from fire.osdl.org ([65.172.181.4]:29610 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261987AbVEaQ5K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 12:57:10 -0400
-Date: Tue, 31 May 2005 09:56:40 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Greg Stark <gsstark@mit.edu>
-Cc: Arjan van de Ven <arjan@infradead.org>, Chris Wright <chrisw@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Rik van Riel <riel@redhat.com>,
-       linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH] prevent NULL mmap in topdown model
-Message-ID: <20050531165640.GL27549@shell0.pdx.osdl.net>
-References: <Pine.LNX.4.61.0505181556190.3645@chimarrao.boston.redhat.com> <Pine.LNX.4.58.0505181535210.18337@ppc970.osdl.org> <Pine.LNX.4.61.0505182224250.29123@chimarrao.boston.redhat.com> <Pine.LNX.4.58.0505181946300.2322@ppc970.osdl.org> <20050519064657.GH23013@shell0.pdx.osdl.net> <1116490511.6027.25.camel@laptopd505.fenrus.org> <87u0klybpq.fsf@stark.xeocode.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87u0klybpq.fsf@stark.xeocode.com>
-User-Agent: Mutt/1.5.6i
+	Tue, 31 May 2005 12:59:33 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:11204 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S261986AbVEaQ51
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 12:57:27 -0400
+In-Reply-To: <428DB76B.5060009@fujitsu-siemens.com>
+Subject: Re: Again: UML on s390 (31Bit)
+To: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
+Cc: linux-kernel@vger.kernel.org, Ulrich Weigand <uweigand@de.ibm.com>
+X-Mailer: Lotus Notes Build V651_12042003 December 04, 2003
+Message-ID: <OFB257B050.D41F8BE1-ON41257012.005BE91F-41257012.005D25B2@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Tue, 31 May 2005 17:57:24 +0100
+X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
+ 31/05/2005 18:57:25
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Greg Stark (gsstark@mit.edu) wrote:
-> More realistically, iirc either Wine or dosemu, i forget which, actually has
-> to map page 0 to work properly.
+> > I've prepared and attached a small program that easily can reproduce
+> > the problem. I hope this will help to find a viable solution.
+>
+> Here is a slightly modified version of my testtool. The new version
+> covers the fact, that in certain situations UML must avoid syscall
+> restarting, even if PSWADDR is not modified.
 
-Yup, this is well-known, and the patch does not effect MAP_FIXED.
+Ok, Uli convinced me that the original patch to clear regs->traps if
+the system call has been canceled on the first call to syscall_trace
+is the correct thing to do. If the tracer chooses to invalidate the
+system call of the traced process then the complete handling of the
+function executed for the system call is done in the tracer. That
+includes system call restarting in the case that another system call
+is involved to implement the function. The point is that the traced
+process did not execute a system call, ergo no system call restarting
+may take place.
+So after a long discussion I'll just use a slightly modified version
+of the original patch:
 
-http://kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=49a43876b935c811cfd29d8fe998a6912a1cc5c4
+Index: ptrace.c
+===================================================================
+RCS file: /home/cvs/linux-2.5/arch/s390/kernel/ptrace.c,v
+retrieving revision 1.35
+diff -u -r1.35 ptrace.c
+--- ptrace.c      6 May 2005 18:59:13 -0000     1.35
++++ ptrace.c      31 May 2005 16:50:50 -0000
+@@ -39,6 +39,7 @@
+ #include <asm/pgalloc.h>
+ #include <asm/system.h>
+ #include <asm/uaccess.h>
++#include <asm/unistd.h>
 
-thanks,
--chris
+ #ifdef CONFIG_S390_SUPPORT
+ #include "compat_ptrace.h"
+@@ -762,6 +763,13 @@
+            return;
+      ptrace_notify(SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD)
+                         ? 0x80 : 0));
++
++     /*
++      * If the debuffer has set an invalid system call number,
++      * we prepare to skip the system call restart handling.
++      */
++     if (!entryexit && regs->gprs[2] >= NR_syscalls)
++           regs->trap = -1;
+
+      /*
+       * this isn't the same as continuing with a signal, but it will do
+
+===================================================================
+
+regs->trap should be reset for any invalid system call, not just for
+negative system call numbers.
+
+blue skies,
+   Martin
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+

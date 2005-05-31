@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVEaHtI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVEaH77@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261289AbVEaHtI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 03:49:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261331AbVEaHtH
+	id S261340AbVEaH77 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 03:59:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVEaH77
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 03:49:07 -0400
-Received: from oldconomy.demon.nl ([212.238.217.56]:31424 "EHLO
-	artemis.slagter.name") by vger.kernel.org with ESMTP
-	id S261289AbVEaHtE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 03:49:04 -0400
-Subject: Re: Playing with SATA NCQ
-From: Erik Slagter <erik@slagter.name>
-To: Mark Lord <liml@rtr.ca>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Michael Thonke <iogl64nx@gmail.com>,
-       linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-In-Reply-To: <429B9E68.6080205@rtr.ca>
-References: <20050526140058.GR1419@suse.de>
-	 <1117382598.4851.3.camel@localhost.localdomain>
-	 <4299F47B.5020603@gmail.com>
-	 <1117387591.4851.17.camel@localhost.localdomain> <429A58F4.3040308@rtr.ca>
-	 <1117438192.4851.29.camel@localhost.localdomain> <429B56CA.5080803@rtr.ca>
-	 <1117477364.3108.2.camel@localhost.localdomain>
-	 <429B6060.1010806@pobox.com>  <429B9E68.6080205@rtr.ca>
-Content-Type: text/plain
+	Tue, 31 May 2005 03:59:59 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:36620 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S261340AbVEaH75 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 03:59:57 -0400
+Message-ID: <429C1ACD.8070600@aitel.hist.no>
+Date: Tue, 31 May 2005 10:05:33 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: RAID-5 design bug (or misfeature)
+References: <E1DcXfR-0000zf-00@calista.eckenfels.6bone.ka-ip.net>  <Pine.LNX.4.58.0505300440550.15088@artax.karlin.mff.cuni.cz> <1117454144.2685.174.camel@localhost.localdomain> <Pine.LNX.4.58.0505301759550.6859@artax.karlin.mff.cuni.cz>
+In-Reply-To: <Pine.LNX.4.58.0505301759550.6859@artax.karlin.mff.cuni.cz>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Tue, 31 May 2005 09:48:09 +0200
-Message-Id: <1117525689.3108.19.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-05-30 at 19:14 -0400, Mark Lord wrote:
-> > libata software supports PATA, but no distribution ships with libata 
-> > PATA support enabled (nor should they!).
-> 
-> (K)Ubuntu does, and it works very well, thanks.
+Mikulas Patocka wrote:
 
-So that's two... Does it also show your (pata) harddisk as /dev/sda?
+>
+>I think that's another problem --- when RAID-5 is operating in degraded
+>mode, the machine must not crash or volume will be damaged (sectors
+>that were not written may be damaged this way). Did anybody develop some
+>method to care about this (i.e. something like journaling on raid)? What
+>do hardware RAID controllers do in this situation?
+>  
+>
+Hot spares can keep the degraded time to a minimum.  If you want to
+keep the risk to a minimum, unmount the raid fs until it is
+resynchronized.  If you need more safety, there is options like raid-6
+or mirrors of the entire raid-5 set.
+
+Some hw controllers have a battery-backed cache.  Even a power loss
+won't ruin the raid - the io will simply sit in that cache until the
+disks become available again.  The io operation that was in effect when
+power was lost can then be retried. Not that this saves you from everything,
+the fs could be inconsistent anyway due to the os being killed in the
+middle of its updates. A journalled fs can help with that though.
+
+Helge Hafting

@@ -1,45 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVEaOpL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261715AbVEaOrL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbVEaOpL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 10:45:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbVEaOpL
+	id S261715AbVEaOrL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 10:47:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261899AbVEaOrK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 10:45:11 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:56258 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S261426AbVEaOpF (ORCPT
+	Tue, 31 May 2005 10:47:10 -0400
+Received: from gate.crashing.org ([63.228.1.57]:16818 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261623AbVEaOpY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 10:45:05 -0400
-Date: Tue, 31 May 2005 16:45:04 +0200
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Hirokazu Takata <takata@linux-m32r.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-pcmcia@lists.infradead.org,
-       sakugawa@linux-m32r.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.12-rc5] m32r: Update m32r_cfc.[ch] to support Mappi-III platform
-Message-ID: <20050531144504.GA5783@isilmar.linta.de>
-Mail-Followup-To: Hirokazu Takata <takata@linux-m32r.org>,
-	Andrew Morton <akpm@osdl.org>, linux-pcmcia@lists.infradead.org,
-	sakugawa@linux-m32r.org, linux-kernel@vger.kernel.org
-References: <20050531.221702.1044949015.takata.hirokazu@renesas.com>
+	Tue, 31 May 2005 10:45:24 -0400
+Subject: Re: [PATCH] Don't explode on swsusp failure to find swap
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050531103623.GB1848@elf.ucw.cz>
+References: <1117523585.5826.18.camel@gaston>
+	 <20050531103623.GB1848@elf.ucw.cz>
+Content-Type: text/plain
+Date: Wed, 01 Jun 2005 00:45:06 +1000
+Message-Id: <1117550706.5826.43.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050531.221702.1044949015.takata.hirokazu@renesas.com>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 2005-05-31 at 12:36 +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > If we specify a swap device for swsusp using resume= kernel argument and
+> > that device doesn't exist in the swap list, we end up calling
+> > swsusp_free() before we have allocated pagedir_save. That causes us to
+> > explode when trying to free it.
+> > 
+> > Pavel, does that look right ?
+> 
+> It looks like a workaround. We should not call swsusp_free in case
+> device does not exists. Quick look did not reveal where the bug comes
+> from, can you try to trace it?
+> 								Pavel
 
-> @@ -825,7 +814,7 @@ static int __init init_m32r_pcc(void)
->  	for (i = 0 ; i < pcc_sockets ; i++) {
->  		socket[i].socket.dev.dev = &pcc_device.dev;
->  		socket[i].socket.ops = &pcc_operations;
-> -		socket[i].socket.resource_ops = &pccard_static_ops;
-> +		socket[i].socket.resource_ops = &pccard_nonstatic_ops;
->  		socket[i].socket.owner = THIS_MODULE;
->  		socket[i].number = i;
->  		ret = pcmcia_register_socket(&socket[i].socket);
+Well, the bug comes from arch code calling swsusp_save() which fails,
+then we call swsusp_free()
 
-Uh, are you sure?
+Ben.
 
-	Dominik
+

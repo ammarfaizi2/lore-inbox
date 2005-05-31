@@ -1,67 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261228AbVEaT2X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261259AbVEaTaT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261228AbVEaT2X (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 15:28:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbVEaT2X
+	id S261259AbVEaTaT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 15:30:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVEaTaO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 15:28:23 -0400
-Received: from rproxy.gmail.com ([64.233.170.200]:49709 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261228AbVEaT2S convert rfc822-to-8bit
+	Tue, 31 May 2005 15:30:14 -0400
+Received: from zproxy.gmail.com ([64.233.162.198]:48209 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261259AbVEaT3g convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 15:28:18 -0400
+	Tue, 31 May 2005 15:29:36 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TJpXIHZ/dAMYcs1G4lTm3vgpgHBKQOTxJfXi9tDcsQxu+YIVhZhjJCUM/uVv1A146wMBr9IFxK+2XqAEPMla3Kdj3Z2xBn2HTjshpbY57G8IEywaGe6f3OqMFvjfBWN791hsLLmNhptDJwAp2ZFArThyErLEFh1gbL3XlT4pnu4=
-Message-ID: <d120d500050531122879868bae@mail.gmail.com>
-Date: Tue, 31 May 2005 14:28:16 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>, mrmacman_g4@mac.com,
-       toon@hout.vanvergehaald.nl, ltd@cisco.com, linux-kernel@vger.kernel.org,
-       dtor_core@ameritech.net, 7eggert@gmx.de
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-In-Reply-To: <20050531172204.GD17338@voodoo>
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ftVFOq9c3jsjiOQGHZEWsAknNy8XOwHNnItaN1Nev+33miLo2wzc4sC95UULyKPXqs6Tn6TrBlhWmwNJgVC50woh/+nQRkT0YxFRjQsI605MslOaIF/XfwU5xD0SwzMxc10LRTyXgKN73pA+731VNfrmmnhlTV1j3MJ03z/V/Uw=
+Message-ID: <934f64a205053112295ee49ffd@mail.gmail.com>
+Date: Tue, 31 May 2005 14:29:34 -0500
+From: David Nicol <davidnicol@gmail.com>
+Reply-To: David Nicol <davidnicol@gmail.com>
+To: Lars Marowsky-Bree <lmb@suse.de>
+Subject: Common Cluster Infrastructure discussion
+Cc: Robert Wipfel <rawipfel@novell.com>, phillips@redhat.com,
+       linux-ha@lists.linux-ha.org, linux-cluster@redhat.com,
+       linux-fsdevel@vger.kernel.org, dcl_discussion@lists.osdl.org,
+       cgl_discussion@lists.osdl.org, linux-kernel@vger.kernel.org,
+       ssic-linux-devel@lists.sourceforge.net, clusters_sig@lists.osdl.org
+In-Reply-To: <20050531102624.GT17565@marowsky-bree.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com>
-	 <20050530093420.GB15347@hout.vanvergehaald.nl>
-	 <429B0683.nail5764GYTVC@burner>
-	 <46BE0C64-1246-4259-914B-379071712F01@mac.com>
-	 <429C4483.nail5X0215WJQ@burner> <20050531172204.GD17338@voodoo>
+References: <s28eff68.098@sinclair.provo.novell.com>
+	 <20050531102624.GT17565@marowsky-bree.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/31/05, Jim Crilly <jim@why.dont.jablowme.net> wrote:
-> On 05/31/05 01:03:31PM +0200, Joerg Schilling wrote:
-> >
-> > > And why again do you need stable SCSI addresses for my _USB_ drive?
-> >
-> > Well if the udev program was polite to users, it would also support
-> > to edit /etc/default/cdrecord......
-> >
-> > ... if it _really_ does wat you like with /dev/ links, then it has all
-> > the information that is needed to also maintain /etc/default/cdrecord
+On 5/31/05, Lars Marowsky-Bree <lmb@suse.de> wrote:
+> On 2005-05-21T09:29:01, Robert Wipfel <rawipfel@novell.com> wrote:
 > 
-> The rules and scripts that udev uses to name things can do anything since
-> it runs in userland, so udev could easily edit /etc/default/cdrecord if
-> someone took the time to write the script.
-> 
+> > outside looking in, is web services and grid.  Returning to the
+> > reality of many vendor's enterprise* business, the sweet spot for h/a
+> > clusters still seems to be somewhere around ~8 dual-CPU nodes with
+> > many customers deploying multiple similar clusters. Nodes are never in
+> > multiple clusters at once, rather, individual nodes are members of a
+> > cluster and that cluster might be a member of a cluster of clusters.
 
-Yes it could but why should it? The purpose of udev is to maintain
-dynamic /dev. Do you want to have thoustands quirks in udev to cope
-with bazillion configuration files for utilities whose authors refuse
-to adopt standard naming convention [for the operating system in
-question].
+To restate the proposal, in response to this distinction, that "Nodes
+are never in
+ multiple clusters at once, rather, individual nodes are members of a
+ cluster and that cluster might be a member of a cluster of clusters", in the
+language of the CCI proposal, one or more nodes in a subcluster would join
+the larger cluster, but not all of them, and these liaison nodes would
+handle the
+communications between this subcluster and other subclusters.  using
+CCI, different
+subclusters in this grid could run different clustering frameworks, or might be
+lone boxes in the supercluster that aren't actually representing clusters.
 
-I do not understand why Joerg is so fixed on presenting SCSI interface
-to userspace. Why when I mount just burned CD I can use /dev/scd0 but
-for writing it I should say dev=5,4,0?? I do not really care that
-internally X,Y,Z might or might not used, they should not be exposed
-to userspace, especially since days when they could be used for static
-device identification are long gone.
+To implement a cluster being a member of a cluster of clusters with the same
+interface that is used to manage a node being a member of a cluster, that is the
+idea.  
 
--- 
-Dmitry
+I take away from LMB's remark a requirement that the CCI must support in-cluster
+selection/election for a presented service, so that the liaison nodes,
+which could be
+all nodes, or could be a subset of all nodes, in the subcluster, 
+could present themselves
+as a coherent authority to the other members of the supercluster, over
+the channels
+defined by the supercluster, representing a single node identifier in
+the supercluster.
+
+We want in-cluster communications to be through the CCI rather than through an
+implementation detail (such as tcp/ip) because we do not want to
+confuse communications
+by associating node identification with any artifact, such as IP
+address, which could
+be broken by an architecture change, or even by a failover.
+
+> A single node must be big enough to support sane load balancing; ie, big
+> enough to run at least one (or more) "whole" resource entities / jobs.
+
+OTOH, the grain size of a "whole job" can be tuned to fit the reality
+of your hardware.
+
+Hopefully the CCI will provide useful metrics about node capability
+and current load
+to allow apples-to-apples comparisons for making better load balancing decisions
+in heterogenous clusters.
+
+
+
+> "Ignorance more frequently begets confidence than does knowledge"
+
+very good - I know it does for me!
+
+David L Nicol
+Proudly ignorant of many and much

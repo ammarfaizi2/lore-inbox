@@ -1,79 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVEaIh7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVEaItC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbVEaIh7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 04:37:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVEaIh7
+	id S261372AbVEaItC (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 04:49:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbVEaItB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 04:37:59 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:1769 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261262AbVEaIht (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 04:37:49 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Andi Kleen <ak@muc.de>, dean gaudet <dean-list-linux-kernel@arctic.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [RFC] x86-64: Use SSE for copy_page and clear_page
-Date: Tue, 31 May 2005 11:37:00 +0300
-User-Agent: KMail/1.5.4
-Cc: Benjamin LaHaise <bcrl@kvack.org>, linux-kernel@vger.kernel.org
-References: <20050530181626.GA10212@kvack.org> <Pine.LNX.4.62.0505301209010.25345@twinlark.arctic.org> <20050530193225.GC25794@muc.de>
-In-Reply-To: <20050530193225.GC25794@muc.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 31 May 2005 04:49:01 -0400
+Received: from ganesha.gnumonks.org ([213.95.27.120]:55693 "EHLO
+	ganesha.gnumonks.org") by vger.kernel.org with ESMTP
+	id S261372AbVEaIsy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 04:48:54 -0400
+Date: Tue, 31 May 2005 10:48:52 +0200
+From: Harald Welte <laforge@gnumonks.org>
+To: David Brownell <david-b@pacbell.net>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [linux-usb-devel] Re: [BUG] oops while completing async USB via usbdevio
+Message-ID: <20050531084852.GJ25536@sunbeam.de.gnumonks.org>
+References: <20050530194443.GA22760@sunbeam.de.gnumonks.org> <20050530212641.GE25536@sunbeam.de.gnumonks.org> <200505301555.39985.david-b@pacbell.net>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="2fjX3cMESU3XgGmZ"
 Content-Disposition: inline
-Message-Id: <200505311137.00011.vda@ilport.com.ua>
+In-Reply-To: <200505301555.39985.david-b@pacbell.net>
+User-Agent: mutt-ng 1.5.8-r168i (Debian)
+X-Spam-Score: 0.1 (/)
+X-Spam-Report: Spam detection software, running on the system "ganesha", has
+	identified this incoming email as possible spam.  The original message
+	has been attached to this so you can view it (if it isn't spam) or label
+	similar future email.  If you have any questions, see
+	the administrator of that system for details.
+	Content preview:  On Mon, May 30, 2005 at 03:55:39PM -0700, David
+	Brownell wrote: > The logic closing an open usbfs file -- which is done
+	before any task > exits with such an open file -- is supposed to block
+	till all its URBs > complete. So the pointer to the task "should" be
+	valid for as long as > any URB it's submitted is active. [...] 
+	Content analysis details:   (0.1 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	0.1 FORGED_RCVD_HELO       Received: contains a forged HELO
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 30 May 2005 22:32, Andi Kleen wrote:
-> On Mon, May 30, 2005 at 12:11:23PM -0700, dean gaudet wrote:
-> > On Mon, 30 May 2005, dean gaudet wrote:
-> > 
-> > > On Mon, 30 May 2005, Benjamin LaHaise wrote:
-> > > 
-> > > > Below is a patch that uses 128 bit SSE instructions for copy_page and 
-> > > > clear_page.  This is an improvement on P4 systems as can be seen by 
-> > > > running the test program at http://www.kvack.org/~bcrl/xmm64.c to get 
-> > > > results like:
-> > > 
-> > > it looks like the patch uses SSE2 instructions (pxor, movdqa, movntdq)... 
-> > > if you use xorps, movaps, movntps then it works on SSE processors as well.
-> > 
-> > oh and btw... on x86-64 you might want to look at using movnti with 64-bit 
-> > registers... the memory datapath on these processors is actually 64-bits 
-> > wide, and the 128-bit stores are broken into two 64-bit pieces internally 
-> > anyhow.  the advantage of using movnti over movntdq/movntps is that you 
-> > don't have to save/restore the xmm register set.
 
-And if (more like 'when', actually) next AMD CPU will have 2x128bit bus
-instead of 2x64bit? Revert back to XMM?
- 
-> Any use of write combining for copy_page/clear_page is a bad idea.
-> The problem is that write combining always forces the destination
-> out of cache.  While it gives you better microbenchmarks your real workloads
-> suffer because they eat lot more additional cache misses when
-> accessing the fresh pages.
-> 
-> Don't go down that path please.
+--2fjX3cMESU3XgGmZ
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-I doubt it unless real-world data will back your claim up.
+On Mon, May 30, 2005 at 03:55:39PM -0700, David Brownell wrote:
 
-I did microbenchmarking. You said it looks good in microbench but
-hurts real-world.
+> The logic closing an open usbfs file -- which is done before any task
+> exits with such an open file -- is supposed to block till all its URBs
+> complete.  So the pointer to the task "should" be valid for as long as
+> any URB it's submitted is active.
 
-Sometime after that I made a patch which allows for switching
-clear/copy routines on the fly, and played a bit with real-world tests.
+unfortunately it doesn't seem to cover the fork() case, see below.
 
-See http://www.thisishull.net/showthread.php?t=36562
+> > > I'm not familiar with the scheduler code to decide what fix
+> > > is the way to go.  Is it sufficient to do {get,put}_task_struct() from
+> > > the usb code?
+>=20
+> It's worth making that change in any case, to avoid such questions in
+> the future.  And if it does any good, more power to the patch!
 
-In short, I ran forking test programs which excercise clearing and copying
-routines in kernel. I wasn't able to find a usage pattern where page copying
-using SSE non-temporal stores is a loss. Page clear was demonstrably worse,
-no argument about that.
+Ok.
 
-If you know such usage pattern, I'd like to test it.
---
-vda
+> Not that it helps at all, but I've never really trusted the usbfs async
+> I/O code.  "Real AIO" could be a lot more obviously correct.  And smaller.
 
+mh, but nobody has written AIO-enabled usbfs2  yet ;)
+
+meanwhile, the current usbfs aio handling is the only way how to deal
+with delivery of interrupt pipe URB's to userspace drivers.
+
+> > mh. it appears like it's sighand which disappears, not the task itself.
+> > ...
+>=20
+> Odd.  Isn't that nulled only in __exit_sighand(), which gets called only
+> when the task itself is finally being freed?
+
+yes, I couldn't find any other location but __exit_sighand() that nulls
+task->sighand.  And looking at exit.c, do_exit() definitely calls
+__exit_files(tsk) before it calls __exit_sighand() via exit_notify().
+
+
+However, __exit_files() only calls close_files() if files->count goes
+down to zero. What if the process fork()ed before, and the other half of
+the fork still has a refcount?  -> boom.
+
+It seems to me that the whole usbdevio async handling doesn't really
+cope with a lot of the unix semantics, such as fork() or file descriptor
+passing.
+
+Wouldn't it help to associate the URB with the file (instaed of the
+task), and then send the signal to any task that still has opened the
+file?  I'm willing to hack up a patch, if this is considered a sane fix.
+
+Cheers,
+	Harald
+--=20
+- Harald Welte <laforge@gnumonks.org>          	        http://gnumonks.org/
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D
+"Privacy in residential applications is a desirable marketing option."
+                                                  (ETSI EN 300 175-7 Ch. A6)
+
+--2fjX3cMESU3XgGmZ
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFCnCT0XaXGVTD0i/8RAmFyAJ0ViP1KJaP5jUPEAbzdFw2B7FjI6QCfdY+F
+F7plCVm4SjKLBYXsbNO1yjU=
+=SIwE
+-----END PGP SIGNATURE-----
+
+--2fjX3cMESU3XgGmZ--

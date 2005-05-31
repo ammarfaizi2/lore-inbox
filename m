@@ -1,50 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbVEaVWl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVEaVYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261531AbVEaVWl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 17:22:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbVEaVWl
+	id S261550AbVEaVYq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 17:24:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVEaVY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 17:22:41 -0400
-Received: from courier.cs.helsinki.fi ([128.214.9.1]:42699 "EHLO
-	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S261531AbVEaVWg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 17:22:36 -0400
-Subject: Re: Machine Freezes while Running Crossover Office
-From: Pekka Enberg <penberg@cs.helsinki.fi>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Linus Torvalds <torvalds@osdl.org>, Pekka Enberg <penberg@gmail.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050531184101.GA3175@elte.hu>
-References: <84144f0205052911202863ecd5@mail.gmail.com>
-	 <Pine.LNX.4.58.0505291143350.10545@ppc970.osdl.org>
-	 <1117399764.9619.12.camel@localhost>
-	 <Pine.LNX.4.58.0505291543070.10545@ppc970.osdl.org>
-	 <1117466611.9323.6.camel@localhost>
-	 <Pine.LNX.4.58.0505301024080.10545@ppc970.osdl.org>
-	 <courier.429C05C1.00005CC5@courier.cs.helsinki.fi>
-	 <20050531065456.GA21948@elte.hu> <1117558435.9228.7.camel@localhost>
-	 <Pine.LNX.4.58.0505311010410.1876@ppc970.osdl.org>
-	 <20050531184101.GA3175@elte.hu>
-Date: Wed, 01 Jun 2005 00:20:06 +0300
-Message-Id: <1117574407.9231.3.camel@localhost>
+	Tue, 31 May 2005 17:24:27 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:57041 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261500AbVEaVYP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 17:24:15 -0400
+Subject: Re: RT patch acceptance
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Esben Nielsen <simlo@phys.au.dk>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, hch@infradead.org, dwalker@mvista.com,
+       Ingo Molnar <mingo@elte.hu>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, Andi Kleen <ak@muc.de>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       James Bruce <bruce@andrew.cmu.edu>
+In-Reply-To: <20050531205424.GV5413@g5.random>
+References: <Pine.OSF.4.05.10505311347290.1707-100000@da410.phys.au.dk>
+	 <1117556283.2569.26.camel@localhost.localdomain>
+	 <20050531171143.GS5413@g5.random>
+	 <1117561379.2569.57.camel@localhost.localdomain>
+	 <20050531175152.GT5413@g5.random>
+	 <1117564192.2569.83.camel@localhost.localdomain>
+	 <20050531205424.GV5413@g5.random>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Tue, 31 May 2005 17:22:31 -0400
+Message-Id: <1117574551.5511.19.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
-X-Mailer: Evolution 2.2.1.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-31 at 20:41 +0200, Ingo Molnar wrote:
-> Now, assuming you can confirm that doing:
+On Tue, 2005-05-31 at 22:54 +0200, Andrea Arcangeli wrote:
+
+> One thing we should be careful: if syscalls aren't needed in the app and
+> all the MMIO space can be mmapped by the device driver and the app can
+> run fully in userland and be invoked from irqs, then going with the
+> "diamond hard" is not more complicated than going with the weak
+> solutions. The "diamond hard" will work in userland too, and it won't be
+> substantially different from a soft-RT "metal hard" approach like
+> preempt-RT. So it'd be very bad if people would choose preempt-RT if
+> they could equally easily go with RTAI or other "diamond hard" solutions
+> that are order of magnitude simpler and safer.
 > 
->   echo 5 > /proc/sys/kernel/INTERACTIVE_DELTA
 
-The hang goes away with a magic number of 6 (although it does not seem
-as smooth as with turning off interactivity completely). With 5, I still
-get the hang but it is noticeable shorter than before. Number 4 gives me
-the same old hang.
+The question is, it is really simpler?  Programming for the -RT patch
+would work with just Linux as well. You just miss your deadlines, but
+the application will still run, or at least easy to test.  I haven't
+used the RTAI approach so I'm not familiar with the difficulties of
+using it. But one would still need to make the effort in incorporating
+it.  If the -RT patch is merged, then all that would be needed is a
+CONFIG option set.
 
-Ingo, are there other patches you wanted me to try out?
+> As you said what I've always meant with hard-RT is the "diamond hard"
+> thing. After all in linux everything that called hard-RT (RTAI, RTLinux,
+> nanokernel) was "diamond hard" so far, preempt-RT is the first time in
+> linux where I see the word "hard-RT" combined with something not
+> "diamond hard".
 
-			Pekka
+
+I wouldn't call RTAI, RTLinux or a nano-kernel (embedded with Linux)
+"Diamond" hard.  Maybe "Ruby" hard, but not diamond.  Remember, I use to
+test code that was running airplane engines, and none of those mentioned
+would qualify to run that.  I wouldn't want to be in an airplane that
+had one of those as the main OS unless someone really stripped them down
+or did the real work to verify them.
+
+How much guarantee can the RTAI projects give on latencies?  And how
+well does an application running on Linux (non-RT) communicate to an
+application running as RT?  You don't need to answer, I guess I could
+read up on it when I get the time.
+
+So, time may tell. Ingo's patch may one day get to Ruby level, but right
+now I believe 90% of all RT applications are satisfied with the "Metal"
+level.
+
+-- Steve
+
 

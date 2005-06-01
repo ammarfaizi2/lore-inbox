@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbVFAMyP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbVFAM6B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261376AbVFAMyP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 08:54:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVFAMyP
+	id S261171AbVFAM6B (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 08:58:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVFAM6B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 08:54:15 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:55255 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261376AbVFAMyL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 08:54:11 -0400
-Date: Wed, 1 Jun 2005 18:20:57 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: linux-kernel@vger.kernel.org,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [rfc: patch 0/6] scalable fd management
-Message-ID: <20050601125056.GA4853@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20050530105042.GA5534@in.ibm.com> <20050601112520.GD20782@holomorphy.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050601112520.GD20782@holomorphy.com>
-User-Agent: Mutt/1.4.1i
+	Wed, 1 Jun 2005 08:58:01 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:54005 "EHLO
+	godzilla.mvista.com") by vger.kernel.org with ESMTP id S261171AbVFAM57
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 08:57:59 -0400
+Date: Wed, 1 Jun 2005 05:57:55 -0700 (PDT)
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org, sdietrich@mvista.com, rostedt@goodmis.org,
+       inaky.perez-gonzalez@intel.com
+Subject: Re: [PATCH] Abstracted Priority Inheritance for RT
+In-Reply-To: <20050601075414.GA25081@elte.hu>
+Message-ID: <Pine.LNX.4.10.10506010542420.23911-100000@godzilla.mvista.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 01, 2005 at 04:25:20AM -0700, William Lee Irwin III wrote:
-> On Mon, May 30, 2005 at 04:20:42PM +0530, Dipankar Sarma wrote:
-> > I would appreciate if someone tests this on an arch without
-> > cmpxchg (sparc32??). I intend to run some more tests
-> > with preemption enabled and also on ppc64 myself.
-> 
-> sparc32 SMP is not going to be a good choice for this. By and large
-> ll/sc -style architectures don't have explicit cmpxchg instructions so
-> ppc64 at least nominally fits the bill. SMP Alpha testing may also be
-> enlightening (as usual).
 
-Actually, I was talking about cmpxchg() primitive in the kernel,
-not necessarily the instruction. ppc64 has a cmpxchg() primitive
-based on LL/SC. For the archs that do not have cmpxchg(),
-rcuref_inc_lf() uses a hashed lock to serialize the reference
-count updates. It would be nice to see that code get a spin
-on real hardware. AFAICS, sparc32 fits the bill.
 
-Thanks
-Dipankar
+On Wed, 1 Jun 2005, Ingo Molnar wrote:
+
+> i'd rather not slow things down by callbacks and other abstraction 
+> before seeing how things want to integrate in fact. Do we really need 
+> the callbacks?
+
+I think it would be hard to do without a way to signal when a waiter
+changes priorties. Since other structures could handle it differently.
+
+Another problem is that there needs to be a clear way to know which
+structure owns the rt_mutex_waiter . Something in there needs to be 
+unique. It can't be assumed anymore that everything is an rt_mutex. 
+
+The lock owner could be put into the rt_mutex_waiter structure. Which
+would make the structure bigger, but it's usually stack space. This would
+also create some duplicate data since every waiter would need to hold the
+owners task_struct pointer. 
+
+
+Daniel
+

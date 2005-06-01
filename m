@@ -1,80 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVFAKMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVFAKNM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVFAKMc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 06:12:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVFAKMb
+	id S261184AbVFAKNM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 06:13:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVFAKNF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 06:12:31 -0400
-Received: from lug-owl.de ([195.71.106.12]:44456 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S261174AbVFAKMX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 06:12:23 -0400
-Date: Wed, 1 Jun 2005 12:12:22 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: linux-kernel@vger.kernel.org
-Cc: Nico Schottelius <nico-kernel@schottelius.org>
-Subject: Re: Parallel Port: Settings PINs on?
-Message-ID: <20050601101222.GO2417@lug-owl.de>
-Mail-Followup-To: linux-kernel@vger.kernel.org,
-	Nico Schottelius <nico-kernel@schottelius.org>
-References: <20050601100150.GB27717@schottelius.org>
+	Wed, 1 Jun 2005 06:13:05 -0400
+Received: from nproxy.gmail.com ([64.233.182.199]:33512 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261184AbVFAKM5 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 06:12:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=l422eINCWxauhMpUHzxHd8L92XEsmGvsYGP76CYSDL7wlVEzkOde5IQxr6J1IzkdnWXbXy8nQXHnsIoOAPbUNBRhT8fvLroJIWJvSc9piFEG/Ml2ZQZ9dcNEtpT+GeZLDpFTZkwmnRJEecI3NR//kBwvoHroMEf+9znBxvMA26Q=
+Message-ID: <2cd57c9005060103122b2bae36@mail.gmail.com>
+Date: Wed, 1 Jun 2005 18:12:55 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: coywolf@lovecn.org
+To: cotte@freenet.de
+Subject: Re: [RFC/PATCH 0/5] add execute in place support
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       schwidefsky@de.ibm.com, akpm@osdl.org
+In-Reply-To: <428216DF.8070205@de.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="5UgT1ku+qTHnlONB"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050601100150.GB27717@schottelius.org>
-X-Operating-System: Linux mail 2.6.11.10lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+References: <428216DF.8070205@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 5/11/05, Carsten Otte <cotte@de.ibm.com> wrote:
+> Folks,
+> 
+> this is the intro to a small series of patches that introduce execute
+> in place into the I/O stack. File I/O to memory-backed block
+> devices is performed directly, bypassing the page cache and io
+> schedulers. On s390, we use this for block devices based on shared
+> memory between multiple virtual machines. This is also useful on
+> embedded systems where the block device is located on a flash chip.
+> This work is a result of a prior discussion with Andrew Morton
+> about my first implementation which basically was a filesystem
+> derived from ext2.
+> 
+> As I'd like to aim for integration into -mm and vanilla later on,
+> I'd like to encourage everyone to give it a read and provide
+> feedback. All patches apply against git-head as of today.
 
---5UgT1ku+qTHnlONB
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-On Wed, 2005-06-01 12:01:50 +0200, Nico Schottelius <nico-kernel@schotteliu=
-s.org> wrote:
-> Is it possible to select (in userspace) which pins
-> should be enabled or do I have to write a kernel driver
-> for that?
-
-There's already a driver available for exactly this purpose: ppdev.
-
-At http://lug-owl.de/~jbglaw/software/steckdose/steckdose.c is a program
-I wrote for controlling a shift register (serial in, parallel out) with
-relays attached (to switch on/off computers or to reset them). This
-should help you for a start. (Basically, open/claim the port and set the
-bits of the DATA port via an ioctl())
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
-k!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---5UgT1ku+qTHnlONB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCnYoGHb1edYOZ4bsRAqJ7AJ9SkcWMcV1M06LOvCW6qBCfNsC8qwCfZqW9
-Kd3DSeEExl2csAYTexvNK6M=
-=BsQQ
------END PGP SIGNATURE-----
-
---5UgT1ku+qTHnlONB--
+I feel the name "execute in place" misleading. This is not the real
+XIP, IMHO. Invent another term or be tolerant?
+-- 
+Coywolf Qi Hunt
+http://ahbl.org/~coywolf/

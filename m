@@ -1,71 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261490AbVFAXnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVFAXoE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261490AbVFAXnG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 19:43:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbVFAXnF
+	id S261502AbVFAXoE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 19:44:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbVFAXnS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 19:43:05 -0400
-Received: from fire.osdl.org ([65.172.181.4]:23472 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261490AbVFAXmH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 19:42:07 -0400
-Date: Wed, 1 Jun 2005 16:42:03 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: "Richard B. Johnson" <linux-os@analogic.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to replace an executing file on an embedded system?
-Message-ID: <20050601164203.2729520b@dxpl.pdx.osdl.net>
-In-Reply-To: <Pine.LNX.4.61.0506011828300.5925@chaos.analogic.com>
-References: <Pine.LNX.4.61.0506011828300.5925@chaos.analogic.com>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 1 Jun 2005 19:43:18 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:33192 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S261453AbVFAXkd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 19:40:33 -0400
+X-ORBL: [69.107.40.98]
+From: David Brownell <david-b@pacbell.net>
+To: Rene Herman <rene.herman@keyaccess.nl>
+Subject: Re: External USB2 HDD affects speed hda
+Date: Wed, 1 Jun 2005 16:40:14 -0700
+User-Agent: KMail/1.7.1
+Cc: Petr Vandrovec <vandrove@vc.cvut.cz>, Mark Lord <lkml@rtr.ca>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+References: <429BA001.2030405@keyaccess.nl> <200506011337.29656.david-b@pacbell.net> <429E359D.8090701@keyaccess.nl>
+In-Reply-To: <429E359D.8090701@keyaccess.nl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506011640.15147.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Jun 2005 18:31:07 -0400 (EDT)
-"Richard B. Johnson" <linux-os@analogic.com> wrote:
+On Wednesday 01 June 2005 3:24 pm, Rene Herman wrote:
 
-> 
-> The newer linux kernels have this problem:
-> 
-> Suppose I do this:
-> 
-> cp /sbin/init foo	# Make a copy of 'init'
-> mv foo /sbin/init	# Rename it back (emulate install)
-> chmod +x /sbin/init	# Make sure we can boot.
-> 
-> When I try to umount() the file-system, it now fails with
-> EBUSY (16).
-> 
-> I have tried fsync(), sync(), fsync() on /sbin, etc. I can't
-> get rid of the busy inodes.
-> 
-> This reared its ugly head with field software upgrades. We
-> used to be able to upload new software for every executable
-> on an embedded system using the network or a serial link.
-> 
-> This would replace every file. We would then kill all the
-> tasks except 'init', unmount the file-system and then reboot.
-> The upgrade was finished. Every lived happily ever after.
-> But, with newer kernels, we can't.
-> 
-> What am I missing?  How am I supposed to replace files that
-> are being executed? Do I have to `mv` them to /tmp and
-> delete them on the next boot? (not easy, we don't have
-> a shell, I would have to write code to search /tmp). Also
-> 'init' isn't SYS-V 'init'. It's just the startup program
-> for a system that keeps growing so I need to be able to
-> upgrade it.
+> I see. Well, sort of at least. "Even if the HDD were using periodic 
+> transfers, which it isn't, it would be DMAing 32-bits 8x per msec while 
+> idle, which certainly isn't going to cost 8MB/s bus bandwidth". Right?
 
-The image of the file being executed has to exist because
-the text portion could be needed at any time for a page in.
+Well, "certainly" is hard to say without the kind of PCI-bus level
+logic analyser thing.  Flakey PCI implementations could chew up lots
+of bandwidth.  It _should_ not take 8 MB/s bandwidth.  But if it's
+chewing up bandwidth, and you're already near the limit in terms
+of throughput on that hardware (doesn't need to be at the theoretical
+ceiling!) then regular small demands could conceivably chew up more
+bandwidth than you'd like.
 
-You can move it in the same filesystem (since the open file handle 
-stays the same), or even delete it (since it doesn't disappear till
-last reference goes away). but you can't unmount the file system because
-the inode is still busy.
-
-
+- Dave

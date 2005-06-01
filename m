@@ -1,81 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVFALLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVFALNa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbVFALLR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 07:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVFALLQ
+	id S261254AbVFALNa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 07:13:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVFALLk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 07:11:16 -0400
-Received: from mail.sbb.co.yu ([82.117.194.7]:59388 "EHLO mail.sbb.co.yu")
-	by vger.kernel.org with ESMTP id S261252AbVFALKw (ORCPT
+	Wed, 1 Jun 2005 07:11:40 -0400
+Received: from relay03.pair.com ([209.68.5.17]:20754 "HELO relay03.pair.com")
+	by vger.kernel.org with SMTP id S261259AbVFALK4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 07:10:52 -0400
-Date: Wed, 1 Jun 2005 13:10:47 +0200 (CEST)
-From: Goran Gajic <ggajic@sbb.co.yu>
-To: linux-kernel@vger.kernel.org
-Subject: XFS and 2.6.12-rc5
-Message-ID: <Pine.BSF.4.62.0506011308530.86037@mail.sbb.co.yu>
+	Wed, 1 Jun 2005 07:10:56 -0400
+X-pair-Authenticated: 24.241.238.70
+Message-ID: <429D97BE.4060905@cybsft.com>
+Date: Wed, 01 Jun 2005 06:10:54 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-SBB-MailScanner-Information: Please contact the ISP for more information
-X-SBB-MailScanner: Found to be clean
-X-MailScanner-From: ggajic@sbb.co.yu
+To: Serge Noiraud <serge.noiraud@bull.net>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: RT : Large transfert with 2.6.12rc5	+	realtime-preempt-2.6.12-rc5-V0.7.47-15
+References: <1117552050.19367.63.camel@ibiza.btsn.frna.bull.fr>	 <429C8E4E.4010608@cybsft.com> <1117609093.5580.6.camel@ibiza.btsn.frna.bull.fr>
+In-Reply-To: <1117609093.5580.6.camel@ibiza.btsn.frna.bull.fr>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Serge Noiraud wrote:
+> Le mar 31/05/2005 à 18:18, K.R. Foley a écrit :
+> 
+>>Serge Noiraud wrote:
+>>
+>>>I had the same problem with rc4+47-07, rc5+47-10,47-13
+>>>I reproduce this problem with a tg3 driver and with e1000 driver.
+>>>So I think it's not a driver problem.
+>>>
+>>>I try to copy an iso image from this machine to another one by scp.
+>>>after 35 to 45MB, the copy become stalled with no more transfert.
+>>>We can ping the target machine, all apparently is OK except the scp
+>>>which finish with timeout.
+>>>With ftp, the stalled state is about 100MB.
+>>>If I reboot with a standard kernel ( without RT ), no problem.
+>>>
+>>>Perhaps there is a progress, in 47-15, the size is now 135-140MB
+>>>
+>>>On this machine, we have an ide disk.
+>>>I have setup : hdparm 
+>>>-sh-2.05b# hdparm /dev/hda
+>>>
+>>>/dev/hda:
+>>> multcount    = 16 (on)
+>>> IO_support   =  3 (32-bit w/sync)
+>>> unmaskirq    =  1 (on)
+>>> using_dma    =  1 (on)
+>>> keepsettings =  0 (off)
+>>> readonly     =  0 (off)
+>>> readahead    = 256 (on)
+>>> geometry     = 65535/16/63, sectors = 78165360, start = 0
+>>>
+>>
+>>Hi,
+>>
+>>I am not sure what might be causing this problem for you. I just tried 
+>>to reproduce this on one of my systems but could not (scsi not ide). The 
+>>first time it copied 450MB before the remote system ran out of space. 
+>>After cleaning up a bit I got the whole 630MB without a hitch. Do you 
+>>have the RT patch on both systems or just on the originating system? In 
+>>my case its the latter. There is
+> 
+> 
+> The scp or ftp start on a RT machine.
+> The destination is an RT or Non RT machine, the problem is the same.
+> It's not a space problem, I have 4GB available on the destination path.
+> I can reproduce the phenomena at each try.
+> If I <CTRL C> the scp when it is stalled then relaunch the scp command, the transfert restart without problem.
+> I'm trying to trace this problem but I don't know how to do this.
+> Has someone one method ?
+> 
+> 
 
-xfs partition is exported via nfs to FreeBSD-5.4 machine. This is what I 
-find every morning in my syslog:
+Do any of your logs provide any clues? Does this happen with just
+2.6.12-rc5 and no rt-preempt patch? Does ifconfig provide any clues? How
+about netstat -a? What is the state of the connection?
 
-  ------------[ cut here ]------------
-  kernel BUG at fs/xfs/support/debug.c:106!
-  invalid operand: 0000 [#1]
-  SMP
-  Modules linked in:
-  CPU:    1
-  EIP:    0060:[<c02c651d>]    Not tainted VLI
-  EFLAGS: 00010246   (2.6.12-rc5)
-  EIP is at cmn_err+0xad/0xd0
-  eax: c0507cc4   ebx: c04b3c98   ecx: c04f8910 edx: 00000293
-  esi: 00000206   edi: c0601300   ebp: 00000000 esp: dfcafbd4
-  ds: 007b   es: 007b   ss: 0068
-Process kswapd0 (pid: 168, threadinfo=dfcae000 task=dfec8020)
-Stack: c04bf14d c04a1931 c0601300 00000293 dd6e5e50 00000206 00000000 dfcafd2c
-        c0269758 00000000 c04b3c98 df5d4ba0 1abd9322 00000000 00000000 ffffffff
-        003fffff 00000000 00000000 00000001 dfcafd0c dfcafd2c 00000000 00e2af60
-Call Trace:
-  [<c0269758>] xfs_bmap_search_extents+0x108/0x140
-  [<c026accd>] xfs_bmapi+0x28d/0x1660
-  [<c013cf5a>] find_trylock_page+0x4a/0x60
-  [<c02ba25f>] xfs_probe_delalloc_page+0x1f/0xa0
-  [<c014153e>] free_pages_bulk+0x1ee/0x230
-  [<c0146134>] cache_flusharray+0x84/0xd0
-  [<c0291bfb>] xfs_iextract+0xbb/0x1d0
-  [<c02b3441>] xfs_inactive_free_eofblocks+0x101/0x300
-  [<c02c5c91>] vn_wakeup+0x21/0xb0
-  [<c02c6256>] vn_purge+0x156/0x170
-  [<c014898e>] shrink_list+0x2de/0x450
-  [<c02b3eb0>] xfs_inactive+0x120/0x5a0
-  [<c0146134>] cache_flusharray+0x84/0xd0
-  [<c02c637c>] vn_rele+0xac/0xf0
-  [<c02c4715>] linvfs_clear_inode+0x15/0x30
-  [<c01773c6>] clear_inode+0xd6/0xe0
-  [<c01773ec>] dispose_list+0x1c/0xa0
-  [<c01424bc>] __read_page_state+0x9c/0xd0
-  [<c017781c>] prune_icache+0x18c/0x200
-  [<c01778af>] shrink_icache_memory+0x1f/0x50
-  [<c0148412>] shrink_slab+0x132/0x190
-  [<c014989f>] balance_pgdat+0x27f/0x3e0
-  [<c0149ac0>] kswapd+0xc0/0x100
-  [<c0131c20>] autoremove_wake_function+0x0/0x60
-  [<c0102e32>] ret_from_fork+0x6/0x14
-  [<c0131c20>] autoremove_wake_function+0x0/0x60
-  [<c0149a00>] kswapd+0x0/0x100
-  [<c0101045>] kernel_thread_helper+0x5/0x10
-Code: b8 00 13 60 c0 89 44 24 08 8b 04 ad e0 7c
-50 c0 89 44 24 04 e8 75 5c e5 ff 8b 54 24 0c b8 c4 7c 50 c0 e8 c7 60 1b 00
-85 ed 75 08 <0f> 0b 6a 00 49 19 4a c0 8b 5c 24 10 8b 74 24 14 8b 7c 24 18 
-8b
-
-
-Regards,
-gg.
+-- 
+   kr

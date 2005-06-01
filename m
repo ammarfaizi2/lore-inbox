@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbVFACcN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVFAChH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbVFACcN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 22:32:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbVFACcN
+	id S261240AbVFAChH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 22:37:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVFAChH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 22:32:13 -0400
-Received: from warden2-p.diginsite.com ([209.195.52.120]:39067 "HELO
-	warden2.diginsite.com") by vger.kernel.org with SMTP
-	id S261235AbVFACcH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 22:32:07 -0400
-From: David Lang <david.lang@digitalinsight.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>, Ingo Molnar <mingo@elte.hu>,
-       Linus Torvalds <torvalds@osdl.org>, Pekka Enberg <penberg@gmail.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Date: Tue, 31 May 2005 19:31:07 -0700 (PDT)
-X-X-Sender: dlang@dlang.diginsite.com
-Subject: Re: Machine Freezes while Running Crossover Office
-In-Reply-To: <200506011007.26650.kernel@kolivas.org>
-Message-ID: <Pine.LNX.4.62.0505311926130.19864@qynat.qvtvafvgr.pbz>
-References: <84144f0205052911202863ecd5@mail.gmail.com> <20050531184101.GA3175@elte.hu>
- <1117574407.9231.3.camel@localhost> <200506011007.26650.kernel@kolivas.org>
+	Tue, 31 May 2005 22:37:07 -0400
+Received: from fsmlabs.com ([168.103.115.128]:11459 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261240AbVFAChB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 22:37:01 -0400
+Date: Tue, 31 May 2005 20:38:30 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Steven Rostedt <rostedt@goodmis.org>
+cc: Lee Revell <rlrevell@joe-job.com>, Andrea Arcangeli <andrea@suse.de>,
+       Esben Nielsen <simlo@phys.au.dk>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, hch@infradead.org, dwalker@mvista.com,
+       Ingo Molnar <mingo@elte.hu>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, Andi Kleen <ak@muc.de>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       James Bruce <bruce@andrew.cmu.edu>
+Subject: Re: RT patch acceptance
+In-Reply-To: <1117582887.4749.6.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0505312036410.23809@montezuma.fsmlabs.com>
+References: <Pine.OSF.4.05.10505311347290.1707-100000@da410.phys.au.dk> 
+ <1117556283.2569.26.camel@localhost.localdomain>  <20050531171143.GS5413@g5.random>
+  <1117561379.2569.57.camel@localhost.localdomain>  <20050531175152.GT5413@g5.random>
+  <1117564192.2569.83.camel@localhost.localdomain>  <20050531205424.GV5413@g5.random>
+  <1117574551.5511.19.camel@localhost.localdomain>  <1117576067.23573.16.camel@mindpipe>
+ <1117582887.4749.6.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Jun 2005, Con Kolivas wrote:
+On Tue, 31 May 2005, Steven Rostedt wrote:
 
-> On Wed, 1 Jun 2005 07:20 am, Pekka Enberg wrote:
->> On Tue, 2005-05-31 at 20:41 +0200, Ingo Molnar wrote:
->>> Now, assuming you can confirm that doing:
->>>
->>>   echo 5 > /proc/sys/kernel/INTERACTIVE_DELTA
->>
->> The hang goes away with a magic number of 6 (although it does not seem
->> as smooth as with turning off interactivity completely). With 5, I still
->> get the hang but it is noticeable shorter than before. Number 4 gives me
->> the same old hang.
->>
->> Ingo, are there other patches you wanted me to try out?
->
-> Generally when I was playing with it I found that if something was critically
-> dependant on the _value_ of a tunable rather than the algorithm design, it
-> would simply take a different piece of hardware or test case to induce the
-> problem, and the algorithm would have to be changed instead of tweaking the
-> parameters. This will require a some thought as to the design and an
-> algorithm change for the long term rather than tweaking a value :-|
->
-> None of this behaviour existed when the interactivity code went in during 2.5
-> and I could never have anticipated this pipe design change coming and
-> affecting it in this way.
+> On Tue, 2005-05-31 at 17:47 -0400, Lee Revell wrote:
+> > On Tue, 2005-05-31 at 17:22 -0400, Steven Rostedt wrote:
+> > > I wouldn't call RTAI, RTLinux or a nano-kernel (embedded with Linux)
+> > > "Diamond" hard.  Maybe "Ruby" hard, but not diamond.  Remember, I use to
+> > > test code that was running airplane engines, and none of those mentioned
+> > > would qualify to run that.
+> > 
+> > I think trying to make these types of distinctions is a waste of time.
+> > What matters is the MTBF of the software relative to the hardware on a
+> > given system.  It would be stupid to use a commercial RTOS for a cell
+> > phone because they fall apart in a year anyway and users don't seem to
+> > care.  Ditto anything running on PC hardware.  For an airplane the MTBF
+> > obviously must be more in line with that hardware which hopefully is way
+> > more reliable.
+> 
+> Agreed.  I only brought up the stupid names just to show that there's
+> not a black and white aspect to what RT is.  It's mainly a black art
+> since there's no way to know how many bugs a program has, and how do you
+> truly calculate the MTBF, other than running it on the hardware itself?
 
-IIRC back when the interactivity code was introduces someone raised the 
-question about a set of malicious cooperating processes takeing advantage 
-of this feature to hog system resources. This seems to match what is 
-happening accidently with these pipe processes
-
-at the time an answer was given that satisfied everyone (but I don't 
-remember what it was and don't have the time to do the digging for it), I 
-seem to remember something about an option to detect the dependancies 
-between processes and boost/penalize them as a group in addition to the 
-individual bonuses (with this deemed unessasary overhead at the time as 
-there were no example cases to show that this was more then a theoretical 
-case)
-
-possibly someone with a better memory (or more time to research) can find 
-more.
-
-David Lang
-
-
--- 
-There are two ways of constructing a software design. One way is to make it so simple that there are obviously no deficiencies. And the other way is to make it so complicated that there are no obvious deficiencies.
-  -- C.A.R. Hoare
+This discussion has digressed even further beyond hard/soft realtime 
+to reliability and fault tolerance (airplane engine), which is not 
+the same thing.

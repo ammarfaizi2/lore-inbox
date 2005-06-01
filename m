@@ -1,61 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVFAO7i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVFAPDH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261404AbVFAO7i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 10:59:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261405AbVFAO7i
+	id S261405AbVFAPDH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 11:03:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbVFAPBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 10:59:38 -0400
-Received: from [195.23.16.24] ([195.23.16.24]:42899 "EHLO
-	bipbip.comserver-pie.com") by vger.kernel.org with ESMTP
-	id S261404AbVFAO73 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 10:59:29 -0400
-Message-ID: <429DCD25.3010800@grupopie.com>
-Date: Wed, 01 Jun 2005 15:58:45 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
+	Wed, 1 Jun 2005 11:01:47 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:11455 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261407AbVFAPAA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 11:00:00 -0400
+Date: Wed, 1 Jun 2005 16:59:06 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
 To: Andrea Arcangeli <andrea@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Esben Nielsen <simlo@phys.au.dk>, James Bruce <bruce@andrew.cmu.edu>,
+Cc: Ingo Molnar <mingo@elte.hu>, Paulo Marques <pmarques@grupopie.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       James Bruce <bruce@andrew.cmu.edu>,
        Nick Piggin <nickpiggin@yahoo.com.au>,
        "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
        Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
        hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: RT patch acceptance
-References: <20050531143051.GL5413@g5.random> <Pine.OSF.4.05.10505311652140.1707-100000@da410.phys.au.dk> <20050531161157.GQ5413@g5.random> <20050531183627.GA1880@us.ibm.com> <20050531204544.GU5413@g5.random> <429DA7AE.5000304@grupopie.com> <20050601135154.GF5413@g5.random> <20050601141919.GA9282@elte.hu> <20050601143202.GI5413@g5.random> <20050601144612.GJ5413@g5.random>
 In-Reply-To: <20050601144612.GJ5413@g5.random>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-Id: <Pine.OSF.4.05.10506011656280.1707-100000@da410.phys.au.dk>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrea Arcangeli wrote:
+On Wed, 1 Jun 2005, Andrea Arcangeli wrote:
+
 > On Wed, Jun 01, 2005 at 04:32:02PM +0200, Andrea Arcangeli wrote:
-> 
->>years of doing that in linux. I'm not a lawyer but you may want to
->>check before investing too much on this for the next 15 years. The
+> > years of doing that in linux. I'm not a lawyer but you may want to
+> > check before investing too much on this for the next 15 years. The
 > 
 > Here's a link that may be of interest:
 > 
 > http://www.fsmlabs.com/openpatentlicense.html
 > http://patft.uspto.gov/netacgi/nph-Parser?Sect1=PTO2&Sect2=HITOFF&p=1&u=/netahtml/search-bool.html&r=12&f=G&l=50&co1=AND&d=ptxt&s1=5,995,745&OS=5,995,745&RS=5,995,745
-
-Did you read this?
-
-All the claims in the "Claims" section of the patent text start with:
-
-> providing a real time operating system for running real time tasks and components and non-real time tasks; 
+>
+preempt RT doesn't use the described method. Thus no infringement.
+ 
+> This means all preempt-RT users are forced to release all their userland
+> code that runs with RT prio as GPL (not just the preempt-RT kernel
+> patch). This is not the case with RTAI. This will expire in a matter of
+> about 15 years so it's not too bad, and I was approximative when I've
+> said preempt-RT infringe on the patent. You Ingo are perfectly safe,
+> it's only the preempt-RT users that will infringe unless all their RT
+> code is GPL'd.
 > 
-> providing a general purpose operating system as one of the non-real time tasks; 
+> This is JFYI.
+> 
 
-This seems like the RTAI kind of nano-kernel approach and has nothing to 
-do with the way the RT-PREEMPT patch works, AFAICS.
+Maybe you should get yourself a job as FUD'er? You surely have the
+qualifications jumping to conclusions like that.
+Ok, now you are FUD'ing on behalf on RTAI, but that doesn't make any less
+disgracefull.
 
--- 
-Paulo Marques - www.grupopie.com
+Esben
 
-An expert is a person who has made all the mistakes that can be
-made in a very narrow field.
-Niels Bohr (1885 - 1962)

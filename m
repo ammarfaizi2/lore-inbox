@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVFAN0e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVFANCx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261277AbVFAN0e (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 09:26:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbVFAN0e
+	id S261266AbVFANCx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 09:02:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbVFANCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 09:26:34 -0400
-Received: from main.gmane.org ([80.91.229.2]:18647 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261277AbVFAN0X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 09:26:23 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: David =?utf-8?b?QmFsYcW+aWM=?= <david.balazic@hermes.si>
-Subject: Re: Swap maximum size documented ?
-Date: Wed, 1 Jun 2005 13:02:13 +0000 (UTC)
-Message-ID: <loom.20050601T150142-941@post.gmane.org>
-References: <200506011225.j51CPDV23243@lastovo.hermes.si>  <20050601124025.GZ422@unthought.net> <1117630718.6271.31.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 213.253.102.145 (Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.8) Gecko/20050511 Firefox/1.0.4)
+	Wed, 1 Jun 2005 09:02:53 -0400
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:60885 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261266AbVFANCi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 09:02:38 -0400
+From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
+Subject: Re: [OT] mailing list management
+To: Lukasz Stelmach <stlman@poczta.fm>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Wed, 01 Jun 2005 15:02:23 +0200
+References: <4ayEi-52j-23@gated-at.bofh.it> <4ayNT-58e-27@gated-at.bofh.it> <4az7m-5lG-31@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1DdSra-0001cO-UL@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven <arjan <at> infradead.org> writes:
+Lukasz Stelmach <stlman@poczta.fm> wrote:
+> Måns Rullgård napisa?(a):
 
-> 
-> 
-> > > The mkwap(8) man page claims, that currently the limit is 
-> > > 32 swap areas of maximum 2 gigabyte size (for x86 arch). 
-> > > 
-> > > Is that correct ? 
-> > 
-> > Not on 2.6 kernels, no.
-> 
-> it's not even true for 2.4 kernels btw; it was a 2.2 and before issue
+>> Use "reply all", "wide reply", or whatever mozilla thunderbird, which
+>> you appear to be using, calls it.
 
-OK, so can anyone tell the actual, current limits ?
+> As I stated somewhere befor this is an option but it also adds the
+> author of the original message to the list of recipients thus making one
+> receive the same letter twice.
 
-Regards,
-David
+That's intended. Many readers and posters aren't subscribed.
+E.g. I read it using news:linux.kernel, since my mail program can't handle
+threads well enough. (Besides that, NNTP causes much less traffic for the
+same amount of messages:). OTOH, I'd like to get replies to my postings per
+mail, since my newsreader is bad for replying to lkml.
 
+Workaround:
+--- ~/.procmailrc ---
+:0 Wh: msgid.lock
+| formail -D 128 .msgid.cache
+---
+(adjust the 128 as needed)
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

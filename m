@@ -1,99 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVFAKu7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVFAKyT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbVFAKu7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 06:50:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVFAKu6
+	id S261193AbVFAKyT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 06:54:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261216AbVFAKyT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 06:50:58 -0400
-Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:11672 "EHLO
-	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S261187AbVFAKuh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 06:50:37 -0400
-X-SBRSScore: None
-X-IronPort-AV: i="3.93,156,1114984800"; 
-   d="scan'208"; a="10226357:sNHT29572036"
-Message-ID: <429D92F6.90906@fujitsu-siemens.com>
-Date: Wed, 01 Jun 2005 12:50:30 +0200
-From: Bodo Stroesser <bstroesser@fujitsu-siemens.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.3) Gecko/20040913
-X-Accept-Language: en-us, en
+	Wed, 1 Jun 2005 06:54:19 -0400
+Received: from smtp2.poczta.interia.pl ([213.25.80.232]:32654 "EHLO
+	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
+	id S261193AbVFAKx4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 06:53:56 -0400
+Message-ID: <429D93B8.4060503@poczta.fm>
+Date: Wed, 01 Jun 2005 12:53:44 +0200
+From: Lukasz Stelmach <stlman@poczta.fm>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: pl, en-us, en
 MIME-Version: 1.0
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-CC: linux-kernel@vger.kernel.org, Ulrich Weigand <uweigand@de.ibm.com>
-Subject: Re: Again: UML on s390 (31Bit)
-References: <OFB257B050.D41F8BE1-ON41257012.005BE91F-41257012.005D25B2@de.ibm.com>
-In-Reply-To: <OFB257B050.D41F8BE1-ON41257012.005BE91F-41257012.005D25B2@de.ibm.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+To: linux-kernel@vger.kernel.org
+Subject: Re: [OT] mailing list management
+References: <429D8A3A.8000304@poczta.fm> <yw1xk6lefjy4.fsf@ford.inprovide.com>
+In-Reply-To: <yw1xk6lefjy4.fsf@ford.inprovide.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig902B5515D5D874C4745E4BB6"
+X-EMID: d84f5138
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thank You!
-That's what we need.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig902B5515D5D874C4745E4BB6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-	Bodo
+M=C3=A5ns Rullg=C3=A5rd napisa=C5=82(a):
+
+>>I suggest
+>>(re)placing any Reply-To headers in incoming letters with Reply-To:
+>>linux-kernel@... before delivering them to subscribers.
+> > http://www.unicom.com/pw/reply-to-harmful.html
+
+That is quite a biased view due to a disaster the author mentions at the
+end. Yes, I must admit that there are some points he *might* be right.
+Nonetheles I wouldn't concider the drawbacks harmful in case of LKML.
+
+> Use "reply all", "wide reply", or whatever mozilla thunderbird, which
+> you appear to be using, calls it.
+
+As I stated somewhere befor this is an option but it also adds the
+author of the original message to the list of recipients thus making one
+receive the same letter twice.
+
+Does anyone know of any TB extension that implements reply-to-group butto=
+n?
+
+Best regards.
+--=20
+By=C5=82o mi bardzo mi=C5=82o.                    Trzecia pospolita kl=C4=
+=99ska, [...]
+>=C5=81ukasz<                      Ju=C5=BC nie katolicka lecz z=C5=82odz=
+iejska.  (c)PP
 
 
-Martin Schwidefsky wrote:
->>>I've prepared and attached a small program that easily can reproduce
->>>the problem. I hope this will help to find a viable solution.
->>
->>Here is a slightly modified version of my testtool. The new version
->>covers the fact, that in certain situations UML must avoid syscall
->>restarting, even if PSWADDR is not modified.
-> 
-> 
-> Ok, Uli convinced me that the original patch to clear regs->traps if
-> the system call has been canceled on the first call to syscall_trace
-> is the correct thing to do. If the tracer chooses to invalidate the
-> system call of the traced process then the complete handling of the
-> function executed for the system call is done in the tracer. That
-> includes system call restarting in the case that another system call
-> is involved to implement the function. The point is that the traced
-> process did not execute a system call, ergo no system call restarting
-> may take place.
-> So after a long discussion I'll just use a slightly modified version
-> of the original patch:
-> 
-> Index: ptrace.c
-> ===================================================================
-> RCS file: /home/cvs/linux-2.5/arch/s390/kernel/ptrace.c,v
-> retrieving revision 1.35
-> diff -u -r1.35 ptrace.c
-> --- ptrace.c      6 May 2005 18:59:13 -0000     1.35
-> +++ ptrace.c      31 May 2005 16:50:50 -0000
-> @@ -39,6 +39,7 @@
->  #include <asm/pgalloc.h>
->  #include <asm/system.h>
->  #include <asm/uaccess.h>
-> +#include <asm/unistd.h>
-> 
->  #ifdef CONFIG_S390_SUPPORT
->  #include "compat_ptrace.h"
-> @@ -762,6 +763,13 @@
->             return;
->       ptrace_notify(SIGTRAP | ((current->ptrace & PT_TRACESYSGOOD)
->                          ? 0x80 : 0));
-> +
-> +     /*
-> +      * If the debuffer has set an invalid system call number,
-> +      * we prepare to skip the system call restart handling.
-> +      */
-> +     if (!entryexit && regs->gprs[2] >= NR_syscalls)
-> +           regs->trap = -1;
-> 
->       /*
->        * this isn't the same as continuing with a signal, but it will do
-> 
-> ===================================================================
-> 
-> regs->trap should be reset for any invalid system call, not just for
-> negative system call numbers.
-> 
-> blue skies,
->    Martin
-> 
-> Martin Schwidefsky
-> Linux for zSeries Development & Services
-> IBM Deutschland Entwicklung GmbH
-> 
+--------------enig902B5515D5D874C4745E4BB6
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCnZO9NdzY8sm9K9wRAg7WAJ43je9QKh5REGgPSZzKl3zfqrxFmACfXIiR
+wX+EraaqoHh2ZSJZwUHfzDY=
+=5ZJ6
+-----END PGP SIGNATURE-----
+
+--------------enig902B5515D5D874C4745E4BB6--

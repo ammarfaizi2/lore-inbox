@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261297AbVFAThd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbVFATko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261297AbVFAThd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 15:37:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbVFATha
+	id S261291AbVFATko (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 15:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbVFATkj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 15:37:30 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:15850 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261297AbVFATgG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 15:36:06 -0400
-Date: Wed, 1 Jun 2005 21:34:58 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
+	Wed, 1 Jun 2005 15:40:39 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:63204 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261362AbVFATj4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 15:39:56 -0400
+Date: Wed, 1 Jun 2005 21:39:06 +0200
+From: Ingo Molnar <mingo@elte.hu>
 To: Andrea Arcangeli <andrea@suse.de>
 Cc: Thomas Gleixner <tglx@linutronix.de>, Karim Yaghmour <karim@opersys.com>,
-       Ingo Molnar <mingo@elte.hu>, Paulo Marques <pmarques@grupopie.com>,
+       Esben Nielsen <simlo@phys.au.dk>, Paulo Marques <pmarques@grupopie.com>,
        "Paul E. McKenney" <paulmck@us.ibm.com>,
        James Bruce <bruce@andrew.cmu.edu>,
        Nick Piggin <nickpiggin@yahoo.com.au>,
@@ -21,63 +21,44 @@ Cc: Thomas Gleixner <tglx@linutronix.de>, Karim Yaghmour <karim@opersys.com>,
        Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
        hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: RT patch acceptance
-In-Reply-To: <20050601192224.GV5413@g5.random>
-Message-Id: <Pine.OSF.4.05.10506012129460.1707-100000@da410.phys.au.dk>
+Message-ID: <20050601193906.GA26939@elte.hu>
+References: <20050601143202.GI5413@g5.random> <Pine.OSF.4.05.10506011640360.1707-100000@da410.phys.au.dk> <20050601150527.GL5413@g5.random> <429DD533.6080407@opersys.com> <20050601153803.GO5413@g5.random> <1117648391.20785.7.camel@tglx.tec.linutronix.de> <20050601192224.GV5413@g5.random>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050601192224.GV5413@g5.random>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Jun 2005, Andrea Arcangeli wrote:
 
-> On Wed, Jun 01, 2005 at 07:53:11PM +0200, Thomas Gleixner wrote:
-> > Thank god thats not the case. We did a patent research on this last year
-> > and the result was that you can replace the cli/sti by a software flag
-> > in the OS itself without violating the patent.
-> 
-> Did you publish something about it (so that people won't have to do it
-> over and over again)?
-> 
-> > The combination of replacing it in the host OS and running said host OS
-> > as an idle task of the underlying RTOS would violate the patent.
-> > 
+* Andrea Arcangeli <andrea@suse.de> wrote:
+
 > > So if PREEMPT-RT would use a soft cli/sti emulation, no problem should
 > > arise.
 > 
 > So I wonder why it doesn't do that and it leaves local_irq_disable
-> uncovered making it a "metal hard" instead of "ruby hard" like rtai.
-> 
-> Why should preempt-RT leave any driver out there capable of breaking the
-> RT guarantee when it can simply redefine local_irq_disable too like
-> rtlinux? That sounds just wrong.
-> 
-> I'm talking about this:
-> 
-> #define local_irq_disable()    do { __asm__ __volatile__("cli": :
-> :"memory"); trace_irqs_off(); } while (0)
-> 
-> Why is the "cli" still there and capable of breaking the hard-RT every
-> time a driver (out of the kernel, whatever kernel module) calls it?
-> 
-> The software (and not hardware) local_irq_disable is the fundamental
-> piece of the "ruby hard" RT-guarantee. Be it done like in rtlinux, or
-> with a nanokernel hypervisor like in RTAI.
-> 
-> I don't get why preempt-RT doesn't fix this _last_ bit too to become a
-> "ruby hard" solution fully equivalent to RTAI and rtlinux.
-> 
+> uncovered [...]
+>
 > Perhaps that's planned and not yet implemented?
-> 
-It is simply not needed: Any driver suitable for SMP is using spin-locks,
-which becomes mutexes when CONFIG_PREEMPT_RT is set. Therefore: SMP safe
-becomes RT safe.
-Ofcourse, you can manually have to grep the code for offending
-local_irq_disable() or cli()'s just to make sure.
 
-Doesn't RTAI at least in principle have the same problem? Someone might
-have coded a local irq-disable directly in assambler without the official
-macros? The Adeos patch wouldn't catch it then, right? (The risc of that
-is very small, I know...)
+yes. As i said in an earlier mail:
 
-Esben
+> > (there are still some ways to introduce latencies into PREEMPT_RT, 
+> > but they are not common and we are working on ways to cover them
+> > all.)
+ 
+local_irq_disable() is one way, preempt_disable() is another way. Adding 
+asm("cli") to your driver is a third way. In practice these items are 
+not a big issue, so i'm not yet covering them. It's a small detail.  
+Check the amount of local-irq-disable instances in the driver space vs.  
+spinlock use.
 
+	Ingo

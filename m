@@ -1,65 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVFABGO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVFABRI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbVFABGO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 21:06:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVFABGN
+	id S261161AbVFABRI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 21:17:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbVFABRI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 21:06:13 -0400
-Received: from opersys.com ([64.40.108.71]:3849 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261220AbVFABFG (ORCPT
+	Tue, 31 May 2005 21:17:08 -0400
+Received: from smtpout.mac.com ([17.250.248.70]:51143 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S261161AbVFABRB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 21:05:06 -0400
-Message-ID: <429D0C13.3000006@opersys.com>
-Date: Tue, 31 May 2005 21:14:59 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
-MIME-Version: 1.0
-To: Andrea Arcangeli <andrea@suse.de>
-CC: "Paul E. McKenney" <paulmck@us.ibm.com>, Esben Nielsen <simlo@phys.au.dk>,
-       James Bruce <bruce@andrew.cmu.edu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
-       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Philippe Gerum <rpm@xenomai.org>
-Subject: Re: RT patch acceptance
-References: <20050531143051.GL5413@g5.random> <Pine.OSF.4.05.10505311652140.1707-100000@da410.phys.au.dk> <20050531161157.GQ5413@g5.random> <20050531183627.GA1880@us.ibm.com> <20050531204544.GU5413@g5.random>
-In-Reply-To: <20050531204544.GU5413@g5.random>
-Content-Type: text/plain; charset=us-ascii
+	Tue, 31 May 2005 21:17:01 -0400
+In-Reply-To: <Pine.LNX.4.62.0505311350330.7546@hammer.psislidell.com>
+References: <Pine.LNX.4.62.0505311042470.7546@hammer.psislidell.com> <200505312040.30812.bernd-schubert@web.de> <Pine.LNX.4.62.0505311350330.7546@hammer.psislidell.com>
+Mime-Version: 1.0 (Apple Message framework v728)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <004E9667-F623-4DF7-A7FE-E1EE2B0EF69D@mac.com>
+Cc: bernd-schubert@gmx.de, linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: Problem with 2.6 kernel and lots of I/O
+Date: Tue, 31 May 2005 21:16:50 -0400
+To: Roy Keene <rkeene@psislidell.com>
+X-Mailer: Apple Mail (2.728)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On May 31, 2005, at 15:00:46, Roy Keene wrote:
+> I had not heard of "DRBD" before now, but it looks interesting.
+> I am looking into it further.
 
-[ removed a lot of interesting stuff ... ]
+For DRBD, I recommend first installing DRBD, then setting up and
+installing Heartbeat.  On Debian the process is something like
+the following:
 
-Andrea Arcangeli wrote:
-> The point where preempt-RT enters the hard-RT equation, is only if you need
-> syscall execution in realtime (like audio, but audio doesn't need
-> hard-RT, so preempt-RT can only do good from an audio standpoint, it
-> makes perfect sense that jack is used as argument for preempt-RT). If
-> you need syscalls with hard-RT, the whole thing gets an order of
-> magnitude more complicated and software becomes involved anyways, so
-> then one can just hope that preempt-RT will get everything right and
-> that somebody will demonstrate it.
+# apt-get install kernel-package kernel-source-${VERSION} drbd0.7- 
+module-source drbd0.7-utils heartbeat
+# cd /usr/src
+# tar -xjf kernel-source-${VERSION}.tar.bz2
+# cd kernel-source-${VERSION}
+# cp /boot/config-${VERSION}-whatever ./.config
+# make-kpkg --revision ${REVISION} --append-to-version -$ 
+{MOREVERSION} --added-modules drbd --config oldconfig --us --uc  
+configure modules_image
+# dpkg -i /usr/src/drbd0.7-module-${VERSION}-${MOREVERSION}_$ 
+{DRBD_VERSION}+${REVISION}_${ARCH}.deb
 
-Please have a look at RTAI-fusion. It provides deterministic
-replacements for rt-able syscalls _transparently_ to STANDARD
-Linux applications. For example, an unmodified Linux application
-can get a deterministic nanosleep() via RTAI-fusion. The way
-this works, is that rtai-fusion catches the syscalls prior to
-them reaching Linux. So even the syscall thing isn't really a
-limitation for RTAI anymore.
+Then read the heartbeat docs to make yourself a /etc/ha.d/haresources
+file.  Mine looks like this:
+   # Address monarch.csl.tjhsst.edu, Kerberos master, LDAP master
+   king    IPaddr::198.38.19.1 Kerberos::TJHSST.EDU::CSL.TJHSST.EDU
 
-Philippe would be in a better position to elaborate, but that's
-the essentials of it.
+   # webkdc.tjhsst.edu
+   king    IPaddr::198.38.19.2
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+   # weblogin.tjhsst.edu
+   king    IPaddr::198.38.19.3
+
+   # cups.csl.tjhsst.edu
+   king    IPaddr::198.38.19.8
+
+   # mirror.tjhsst.edu
+   king    IPaddr::198.38.19.9
+
+   # AFS volumes
+   king    drbddisk::afs0  AFSMount::/vicepa
+   emperor drbddisk::afs1  AFSMount::/vicepb
+
+NOTE: AFSMount is a custom heartbeat script, and I use a slightly
+modified drbddisk script as well.
+
+
+Cheers,
+Kyle Moffett
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.12
+GCM/CS/IT/U d- s++: a18 C++++>$ UB/L/X/*++++(+)>$ P+++(++++)>$
+L++++(+++) E W++(+) N+++(++) o? K? w--- O? M++ V? PS+() PE+(-) Y+
+PGP+++ t+(+++) 5 X R? tv-(--) b++++(++) DI+ D+ G e->++++$ h!*()>++$  
+r  !y?(-)
+------END GEEK CODE BLOCK------
+
+
+

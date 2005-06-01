@@ -1,70 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbVFAPLu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVFAPJZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261421AbVFAPLu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 11:11:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVFAPJo
+	id S261410AbVFAPJZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 11:09:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261416AbVFAPHm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 11:09:44 -0400
-Received: from main.gmane.org ([80.91.229.2]:18351 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261417AbVFAPIT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 11:08:19 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Subject: Re: 2.6.12-rc5-mm2
-Date: Wed, 01 Jun 2005 17:04:54 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2005.06.01.15.04.49.64662@smurf.noris.de>
-References: <20050601022824.33c8206e.akpm@osdl.org> <20050601140233.GD1940@openzaurus.ucw.cz>
+	Wed, 1 Jun 2005 11:07:42 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:4163
+	"EHLO g5.random") by vger.kernel.org with ESMTP id S261407AbVFAPFh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 11:05:37 -0400
+Date: Wed, 1 Jun 2005 17:05:27 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Ingo Molnar <mingo@elte.hu>, Paulo Marques <pmarques@grupopie.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       James Bruce <bruce@andrew.cmu.edu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
+       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+Message-ID: <20050601150527.GL5413@g5.random>
+References: <20050601143202.GI5413@g5.random> <Pine.OSF.4.05.10506011640360.1707-100000@da410.phys.au.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.OSF.4.05.10506011640360.1707-100000@da410.phys.au.dk>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Pavel Machek wrote:
+On Wed, Jun 01, 2005 at 04:45:57PM +0200, Esben Nielsen wrote:
+> the implementation of the former spinlock, now a mutex, is using a
+> raw_spin_lock, which disables interrupts.
 
-> Hi!
-> 
->> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc5/2.6.12-rc5-mm2/
->> 
->> 
->> - Dropped bk-acpi.patch.  Too old, too much breakage.
->> 
->> - A few more subsystem trees have moved to using git
-> 
-> Have you considered publishing -mm using git?
-> 
-> I guess your workflow prevents you from really using git, but even just
-> publishing releases using git would be great.
-> 
-> (Just now I'm tracking Linus with my tree.  git makes that quite easy.
-> Tracking -mm is ugly manual work with diff, patch and ketchup...)
+It's not _raw_spin_lock that disables irq. It's spin_lock_irq that does
+that and it has been redefinined into an operation that doesn't disable
+irq.
 
-I have written a script (actually a leftover from the mm-to-BK import
-days) that pulls -mm into git as individual commits.
+The patent text goes like this "providing a software emulator to disable
+and enable interrupts from the general purpose operating system; 
 
-Andrew: Could you prefix the patches you pull from git with this
-line:
+marking interrupts as "soft disabled" and not "soft enabled" in response
+to requests from the general purpose operating system to disable
+interrupts; ".
 
-GIT SHA1-of-their-top-commit URL-of-their-archive
-
-so that I can annotate the commits with an appropriate second parent?
-
-If you never do any changes oon top of -mm, but only merge with it (or
-them), then this works out quite well.
-
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
-Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
- - -
-Andrea: Unhappy the land that has no heroes.
-Galileo: No, unhappy the land that _____needs heroes.
-		-- Bertolt Brecht, "Life of Galileo"
-
-
+I'm not a lawyer and I hope to be wrong, but I sure wouldn't bet the
+farm on it. You should ask a lawyer to make sure that non-GPL code is
+not infringing IMHO. This assuming that this could be a problem. It was
+a problem for RTAI users, people is used to the fact userland doesn't
+need to be GPL. Note that LGPL and BSD code will infringe too (i.e. no
+glibc etc..).

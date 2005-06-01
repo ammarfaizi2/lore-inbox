@@ -1,63 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVFAHtH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261321AbVFAHuh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbVFAHtH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 03:49:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVFAHtH
+	id S261321AbVFAHuh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 03:50:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbVFAHuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 03:49:07 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:9179 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261322AbVFAHtA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 03:49:00 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: michael@optusnet.com.au, Andi Kleen <ak@muc.de>
-Subject: Re: [RFC] x86-64: Use SSE for copy_page and clear_page
-Date: Wed, 1 Jun 2005 10:48:31 +0300
-User-Agent: KMail/1.5.4
-Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Benjamin LaHaise <bcrl@kvack.org>,
-       linux-kernel@vger.kernel.org
-References: <20050530181626.GA10212@kvack.org> <20050531092358.GA9372@muc.de> <m2zmuaee2z.fsf@mo.optusnet.com.au>
-In-Reply-To: <m2zmuaee2z.fsf@mo.optusnet.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Jun 2005 03:50:37 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:59110 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261321AbVFAHuL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 03:50:11 -0400
+Date: Wed, 1 Jun 2005 09:50:08 +0200
+From: Jan Kara <jack@suse.cz>
+To: akpm@osdl.org
+Cc: sct@redhat.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix list scanning in __cleanup_transaction
+Message-ID: <20050601075008.GE5933@atrey.karlin.mff.cuni.cz>
+Mime-Version: 1.0
+Content-Type: multipart/mixed; boundary="ZJcv+A0YCCLh2VIg"
 Content-Disposition: inline
-Message-Id: <200506011048.31537.vda@ilport.com.ua>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 June 2005 10:22, michael@optusnet.com.au wrote:
-> Andi Kleen <ak@muc.de> writes:
-> 
-> > > Thus with "normal" page clear and "nt" page copy routines
-> > > both clear and copy benchmarks run faster than with
-> > > stock kernel, both with small and large working set.
-> > > 
-> > > Am I wrong?
-> > 
-> > fork is only a corner case. The main case is a process allocating
-> > memory using brk/mmap and then using it.
-> 
-> Key point: "using it". This normally involves writes to memory. Most
-> applications don't commonly read memory that they haven't previously
-> written to. (valgrind et al call that behaviour a "bug" :).
-> 
-> Given that, I'd say you really don't want the page zero routines
-> touching the cache.
 
-Heh, good point.
+--ZJcv+A0YCCLh2VIg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-However, it is valid only if program writes in every byte in a cacheline.
-Then sufficiently smart CPU may avoid reading from main RAM.
-(I am not sure that today's CPUs are smart enough. K6s were not)
+  Hello,
 
-If you have even one uninitialized byte (struct padding, etc) 
-between bytes you write, CPU will have to do reads from main memory
-in order to have cachelines with fully valid data.
+  attached patch fixes a bug in list scanning that can cause we skip the
+last buffer on the checkpoint list (and hence fail to do any progress
+under some rather unfavorable conditions). The problem is we first do
+jh=next_jh and then test } while (jh!=last_jh); . Hence we skip the last
+buffer on the list (if it was not the only buffer on the list). As we
+already do jh=next_jh; in the beginning of the loop we are safe to just
+remove the assignment in the end. It can happen that 'jh' will be freed
+at the point we test jh != last_jh but that does not matter as we never
+*dereference* the pointer. Please apply.
 
-Kernel compile did finish faster with nt stores, tho...
---
-vda
+								Honza 
 
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs
+
+--ZJcv+A0YCCLh2VIg
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="jbd-2.6.12-rc5-2-checkskip.diff"
+
+We already move to the next member of the list in the beginning of the loop.
+When we move in the end of the loop we can unintentionally forget to scan
+the last buffer of the list.
+
+Signed-off-by: Jan Kara <jack@suse.cz>
+
+diff -rupX /home/jack/.kerndiffexclude linux-2.6.12-rc5-1-checkretry/fs/jbd/checkpoint.c linux-2.6.12-rc5-2-checkskip/fs/jbd/checkpoint.c
+--- linux-2.6.12-rc5-1-checkretry/fs/jbd/checkpoint.c	2005-05-27 11:15:31.000000000 +0200
++++ linux-2.6.12-rc5-2-checkskip/fs/jbd/checkpoint.c	2005-05-27 11:18:08.000000000 +0200
+@@ -188,7 +188,6 @@ static int __cleanup_transaction(journal
+ 		} else {
+ 			jbd_unlock_bh_state(bh);
+ 		}
+-		jh = next_jh;
+ 	} while (jh != last_jh);
+ 
+ 	return ret;
+
+--ZJcv+A0YCCLh2VIg--

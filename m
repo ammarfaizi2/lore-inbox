@@ -1,36 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVFAUq1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVFAUq3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261227AbVFAUq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 16:46:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbVFAUpx
+	id S261220AbVFAUq3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 16:46:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVFAUp3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 16:45:53 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:48275 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261219AbVFAUnv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 16:43:51 -0400
-Date: Wed, 1 Jun 2005 16:43:50 -0400
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
-Subject: Re: Swap maximum size documented ?
-Message-ID: <20050601204350.GM23621@csclub.uwaterloo.ca>
-References: <200506011225.j51CPDV23243@lastovo.hermes.si> <20050601124025.GZ422@unthought.net> <1117630718.6271.31.camel@laptopd505.fenrus.org> <loom.20050601T150142-941@post.gmane.org> <20050601134022.GM20782@holomorphy.com> <429E0843.5060505@tmr.com>
+	Wed, 1 Jun 2005 16:45:29 -0400
+Received: from fire.osdl.org ([65.172.181.4]:14810 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261212AbVFAUh7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 16:37:59 -0400
+Date: Wed, 1 Jun 2005 13:37:57 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Matt Porter <mporter@kernel.crashing.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH][1/3] RapidIO support: core
+Message-ID: <20050601133757.624059c4@dxpl.pdx.osdl.net>
+In-Reply-To: <20050601110836.A16559@cox.net>
+References: <20050601110836.A16559@cox.net>
+Organization: Open Source Development Lab
+X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <429E0843.5060505@tmr.com>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 01, 2005 at 03:10:59PM -0400, Bill Davidsen wrote:
-> Does this apply to mmap as well? I have an application which currently 
-> uses 9TB of data, and one thought to boost performance was to mmap the 
-> data. Unfortunately, I know 16TB isn't going to be enough for more than 
-> a few more years :-(
+Quick review comments:
 
-Just buy an Opteron/Athlon64 system and you should be able to mmap it
-just fine.  At least if you run an x86_64/amd64 kernel.
 
-Len Sorensen
+1. Why hack up vmlinux.lds.h? wouldn't declaring rio_route_ops
+to be a constant do what you want?
+
+
+2. Unnecessary initializers
+
++struct bus_type rio_bus_type = {
++	.name = "rapidio",
++	.match = rio_match_bus,
++	.suspend = NULL,
++	.resume = NULL,
+
+	NULL is unnecessary here.
+
+
+3. Use existing macro's
+
++#define DEBUG
++
++#ifdef DEBUG
++#define DBG(x...) printk(x)
++#else
++#define DBG(x...)
++#endif
++
+
+	Use pr_debug() and isn't this debugged yet?
+
+4. Lists should be static if possible
+
++
++LIST_HEAD(rio_mports);
+	static LIST_HEAD(rio_mports)
+
+5. rio_nets defined but not used (if it is used later then
+   make it visible to only that code.)
+
+6. rio_net_lock does it need to be global.
+   also maybe a name change to rio_global_list_lock
+
+

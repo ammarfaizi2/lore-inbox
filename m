@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVFASNr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261506AbVFASWL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbVFASNr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 14:13:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261504AbVFASMw
+	id S261506AbVFASWL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 14:22:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbVFASLn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 14:12:52 -0400
-Received: from hummeroutlaws.com ([12.161.0.3]:36104 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S261500AbVFASBi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 14:01:38 -0400
-From: "Jim Crilly" <jim@why.dont.jablowme.net>
-Date: Wed, 1 Jun 2005 13:59:21 -0400
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com, ltd@cisco.com,
-       linux-kernel@vger.kernel.org, kraxel@suse.de, dtor_core@ameritech.net,
-       7eggert@gmx.de
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Message-ID: <20050601175920.GD14299@voodoo>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com, ltd@cisco.com,
-	linux-kernel@vger.kernel.org, kraxel@suse.de,
-	dtor_core@ameritech.net, 7eggert@gmx.de
-References: <20050530093420.GB15347@hout.vanvergehaald.nl> <429B0683.nail5764GYTVC@burner> <46BE0C64-1246-4259-914B-379071712F01@mac.com> <429C4483.nail5X0215WJQ@burner> <87acmbxrfu.fsf@bytesex.org> <429DD036.nail7BF7MRZT6@burner> <20050601154245.GA14299@voodoo> <429DE874.nail7BFM1RBO2@burner> <20050601172900.GC14299@voodoo> <429DF581.nail7BFUL8PFN@burner>
+	Wed, 1 Jun 2005 14:11:43 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:9949 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S261506AbVFASCK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 14:02:10 -0400
+Date: Wed, 1 Jun 2005 20:02:10 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [patch 1/11] s390: cio max channels checks.
+Message-ID: <20050601180210.GA6418@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <429DF581.nail7BFUL8PFN@burner>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06/01/05 07:50:57PM +0200, Joerg Schilling wrote:
-> "Jim Crilly" <jim@why.dont.jablowme.net> wrote:
-> 
-> > I don't use cdda2wav so I can't comment, but every other ripping tool that
-> > I've used on Linux has had no problem using the /dev/whatever interface, so
-> > once again it appears that your tool is the blacksheep for no good reason.
-> 
-> You should use it as it is even used by people on Win32 because it is the
-> best DAE program for even badly readable sources.
+[patch 1/11] s390: cio max channels checks.
 
-I'm not an audiophile, I can't tell the difference between a mp3 encoded at
-128k and one encoded at 160k so I really doubt I could tell the difference
-between what cdda2wav and what most other DAE programs would produce. So
-given that the quality of the rips will be effectively equal to my ears,
-I'll use whatever's most convenient.
+From: Cornelia Huck <cohuck@de.ibm.com>
 
-> 
-> Jörg
-> 
+Fix max channel check in cio_ignore display function.
 
-Jim.
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+
+diffstat:
+ drivers/s390/cio/blacklist.c |    6 +++---
+ 1 files changed, 3 insertions(+), 3 deletions(-)
+
+diff -urpN linux-2.6/drivers/s390/cio/blacklist.c linux-2.6-patched/drivers/s390/cio/blacklist.c
+--- linux-2.6/drivers/s390/cio/blacklist.c	2005-03-02 08:37:53.000000000 +0100
++++ linux-2.6-patched/drivers/s390/cio/blacklist.c	2005-06-01 19:43:14.000000000 +0200
+@@ -1,7 +1,7 @@
+ /*
+  *  drivers/s390/cio/blacklist.c
+  *   S/390 common I/O routines -- blacklisting of specific devices
+- *   $Revision: 1.33 $
++ *   $Revision: 1.34 $
+  *
+  *    Copyright (C) 1999-2002 IBM Deutschland Entwicklung GmbH,
+  *			      IBM Corporation
+@@ -289,7 +289,7 @@ static int cio_ignore_read (char *page, 
+ 	len = 0;
+ 	for (devno = off; /* abuse the page variable
+ 			   * as counter, see fs/proc/generic.c */
+-	     devno <= __MAX_SUBCHANNELS && len + entry_size < count; devno++) {
++	     devno < __MAX_SUBCHANNELS && len + entry_size < count; devno++) {
+ 		if (!test_bit(devno, bl_dev))
+ 			continue;
+ 		len += sprintf(page + len, "0.0.%04lx", devno);
+@@ -302,7 +302,7 @@ static int cio_ignore_read (char *page, 
+ 		len += sprintf(page + len, "\n");
+ 	}
+ 
+-	if (devno <= __MAX_SUBCHANNELS)
++	if (devno < __MAX_SUBCHANNELS)
+ 		*eof = 1;
+ 	*start = (char *) (devno - off); /* number of checked entries */
+ 	return len;

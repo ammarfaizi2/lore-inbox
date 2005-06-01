@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbVFAVIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261242AbVFAVNC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbVFAVIW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 17:08:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVFAVFk
+	id S261242AbVFAVNC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 17:13:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVFAVKQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 17:05:40 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:34968 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261259AbVFAVFO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 17:05:14 -0400
-Date: Wed, 1 Jun 2005 17:05:10 -0400
-To: William Lee Irwin III <wli@holomorphy.com>
-Cc: Bill Davidsen <davidsen@tmr.com>, linux-kernel@vger.kernel.org
-Subject: Re: Swap maximum size documented ?
-Message-ID: <20050601210510.GL23488@csclub.uwaterloo.ca>
-References: <200506011225.j51CPDV23243@lastovo.hermes.si> <20050601124025.GZ422@unthought.net> <1117630718.6271.31.camel@laptopd505.fenrus.org> <loom.20050601T150142-941@post.gmane.org> <20050601134022.GM20782@holomorphy.com> <429E0843.5060505@tmr.com> <20050601204350.GM23621@csclub.uwaterloo.ca> <20050601205451.GR20782@holomorphy.com>
+	Wed, 1 Jun 2005 17:10:16 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:5403
+	"EHLO g5.random") by vger.kernel.org with ESMTP id S261307AbVFAVJ1
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 17:09:27 -0400
+Date: Wed, 1 Jun 2005 23:09:15 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Karim Yaghmour <karim@opersys.com>, Esben Nielsen <simlo@phys.au.dk>,
+       Ingo Molnar <mingo@elte.hu>, Paulo Marques <pmarques@grupopie.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       James Bruce <bruce@andrew.cmu.edu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
+       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+Message-ID: <20050601210915.GC5413@g5.random>
+References: <20050601143202.GI5413@g5.random> <Pine.OSF.4.05.10506011640360.1707-100000@da410.phys.au.dk> <20050601150527.GL5413@g5.random> <429DD533.6080407@opersys.com> <20050601153803.GO5413@g5.random> <1117648391.20785.7.camel@tglx.tec.linutronix.de> <20050601192224.GV5413@g5.random> <1117659367.20785.20.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050601205451.GR20782@holomorphy.com>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+In-Reply-To: <1117659367.20785.20.camel@tglx.tec.linutronix.de>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 01, 2005 at 01:54:51PM -0700, William Lee Irwin III wrote:
-> Linux does not entail subscription to hardware upgrade treadmills. No
-> one should be forced by "peer pressure" or Linux deficiencies to buy
-> new hardware. And this is the single greatest thing about Linux ever.
+On Wed, Jun 01, 2005 at 10:56:07PM +0200, Thomas Gleixner wrote:
+> I have no permission from the customer who actually payed the survey to
+> publish the results yet. But I continue asking for it.
 
-Sure, I still use a 486 with linux for some jobs, but I am realistic
-about what I can expect from that level of hardware.
+Ok, thanks for asking ;)
 
-> O_LARGEFILE and current mmap() code will save him the cost of newer
-> hardware for the near term, and should he be particularly strapped for
-> cash later on when more than 16TB is needed, he knows to look at making
-> pgoff_t and/or swp_entry_t 64-bit on his own. There is no need for new
-> hardware, merely a choice between money and programming effort should
-> he break the 16TB barrier.
+> I have a slightly outdated patch with that around on top of RT, but it
+> introduces yet another level of ugliness. 
+> You must carefully identify the places where you really need the
+> hard_local_irq_dis/enable(). It's not hard though. 
+> 
+> I used it in the early days of PREEMPT_RT to identify the IRQ off
+> sections and some other deadlocking scenarios. I kept this always as an
+> option for adding on top of Ingos implementation to close the gap to
+> "ruby".
 
-True, although I would think anyone doing actual work on that kind of
-data size would be using fairly new hardware anyhow.
-
-If you have to write all sorts of complex algorithms to work around a
-limitation in your current hardware, perhaps it is cheaper to buy newer
-hardware without that limitation.  Ofcourse if you are working on things
-in your spare time for free, then hardware upgrades are always the most
-expensive solution.
-
-Len Sorensen
+I see.

@@ -1,75 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbVFALKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVFALLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261263AbVFALKu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 07:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbVFALKu
+	id S261252AbVFALLR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 07:11:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVFALLQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 07:10:50 -0400
-Received: from smtp2.poczta.interia.pl ([213.25.80.232]:11053 "EHLO
-	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
-	id S261263AbVFALKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 07:10:22 -0400
-Message-ID: <429D9796.10206@poczta.fm>
-Date: Wed, 01 Jun 2005 13:10:14 +0200
-From: Lukasz Stelmach <stlman@poczta.fm>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: pl, en-us, en
+	Wed, 1 Jun 2005 07:11:16 -0400
+Received: from mail.sbb.co.yu ([82.117.194.7]:59388 "EHLO mail.sbb.co.yu")
+	by vger.kernel.org with ESMTP id S261252AbVFALKw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 07:10:52 -0400
+Date: Wed, 1 Jun 2005 13:10:47 +0200 (CEST)
+From: Goran Gajic <ggajic@sbb.co.yu>
+To: linux-kernel@vger.kernel.org
+Subject: XFS and 2.6.12-rc5
+Message-ID: <Pine.BSF.4.62.0506011308530.86037@mail.sbb.co.yu>
 MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] mailing list management
-References: <429D8A3A.8000304@poczta.fm> <20050601102211.GR2417@lug-owl.de> <429D8E96.4010908@poczta.fm> <429D92A4.1060103@grupopie.com>
-In-Reply-To: <429D92A4.1060103@grupopie.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig0F5961E431D5A8A634F35C4B"
-X-EMID: bb5c138
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-SBB-MailScanner-Information: Please contact the ISP for more information
+X-SBB-MailScanner: Found to be clean
+X-MailScanner-From: ggajic@sbb.co.yu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig0F5961E431D5A8A634F35C4B
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
 
-Paulo Marques napisa=C5=82(a):
+xfs partition is exported via nfs to FreeBSD-5.4 machine. This is what I 
+find every morning in my syslog:
 
-> Another side effect is that this method speeds up conversations, where
-> the people already involved in a thread receive emails directly without=
+  ------------[ cut here ]------------
+  kernel BUG at fs/xfs/support/debug.c:106!
+  invalid operand: 0000 [#1]
+  SMP
+  Modules linked in:
+  CPU:    1
+  EIP:    0060:[<c02c651d>]    Not tainted VLI
+  EFLAGS: 00010246   (2.6.12-rc5)
+  EIP is at cmn_err+0xad/0xd0
+  eax: c0507cc4   ebx: c04b3c98   ecx: c04f8910 edx: 00000293
+  esi: 00000206   edi: c0601300   ebp: 00000000 esp: dfcafbd4
+  ds: 007b   es: 007b   ss: 0068
+Process kswapd0 (pid: 168, threadinfo=dfcae000 task=dfec8020)
+Stack: c04bf14d c04a1931 c0601300 00000293 dd6e5e50 00000206 00000000 dfcafd2c
+        c0269758 00000000 c04b3c98 df5d4ba0 1abd9322 00000000 00000000 ffffffff
+        003fffff 00000000 00000000 00000001 dfcafd0c dfcafd2c 00000000 00e2af60
+Call Trace:
+  [<c0269758>] xfs_bmap_search_extents+0x108/0x140
+  [<c026accd>] xfs_bmapi+0x28d/0x1660
+  [<c013cf5a>] find_trylock_page+0x4a/0x60
+  [<c02ba25f>] xfs_probe_delalloc_page+0x1f/0xa0
+  [<c014153e>] free_pages_bulk+0x1ee/0x230
+  [<c0146134>] cache_flusharray+0x84/0xd0
+  [<c0291bfb>] xfs_iextract+0xbb/0x1d0
+  [<c02b3441>] xfs_inactive_free_eofblocks+0x101/0x300
+  [<c02c5c91>] vn_wakeup+0x21/0xb0
+  [<c02c6256>] vn_purge+0x156/0x170
+  [<c014898e>] shrink_list+0x2de/0x450
+  [<c02b3eb0>] xfs_inactive+0x120/0x5a0
+  [<c0146134>] cache_flusharray+0x84/0xd0
+  [<c02c637c>] vn_rele+0xac/0xf0
+  [<c02c4715>] linvfs_clear_inode+0x15/0x30
+  [<c01773c6>] clear_inode+0xd6/0xe0
+  [<c01773ec>] dispose_list+0x1c/0xa0
+  [<c01424bc>] __read_page_state+0x9c/0xd0
+  [<c017781c>] prune_icache+0x18c/0x200
+  [<c01778af>] shrink_icache_memory+0x1f/0x50
+  [<c0148412>] shrink_slab+0x132/0x190
+  [<c014989f>] balance_pgdat+0x27f/0x3e0
+  [<c0149ac0>] kswapd+0xc0/0x100
+  [<c0131c20>] autoremove_wake_function+0x0/0x60
+  [<c0102e32>] ret_from_fork+0x6/0x14
+  [<c0131c20>] autoremove_wake_function+0x0/0x60
+  [<c0149a00>] kswapd+0x0/0x100
+  [<c0101045>] kernel_thread_helper+0x5/0x10
+Code: b8 00 13 60 c0 89 44 24 08 8b 04 ad e0 7c
+50 c0 89 44 24 04 e8 75 5c e5 ff 8b 54 24 0c b8 c4 7c 50 c0 e8 c7 60 1b 00
+85 ed 75 08 <0f> 0b 6a 00 49 19 4a c0 8b 5c 24 10 8b 74 24 14 8b 7c 24 18 
+8b
 
-> having to wait for the list server to dispatch its queue.
 
-To be honest, please tell how big is the speed-up? 0:30 againts 2:17?
-Come on :) (that is a rethorical question ;)
-
-> http://www.tux.org/lkml/#s3-20
-> for more information. (and the whole document while you're at it :)
-
-Shame on me I haven't done it yet.
-
-Thank you everyone for your attention.
-
-EOT
---=20
-By=C5=82o mi bardzo mi=C5=82o.                    Trzecia pospolita kl=C4=
-=99ska, [...]
->=C5=81ukasz<                      Ju=C5=BC nie katolicka lecz z=C5=82odz=
-iejska.  (c)PP
-
-
---------------enig0F5961E431D5A8A634F35C4B
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCnZeWNdzY8sm9K9wRAhtOAKCHkJ3M6IQb8sj9JE9fQ7A+nmNSLQCeMqqH
-LKQwb9dBiJKII9gs9Qucwa4=
-=+1af
------END PGP SIGNATURE-----
-
---------------enig0F5961E431D5A8A634F35C4B--
+Regards,
+gg.

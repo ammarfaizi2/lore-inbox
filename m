@@ -1,43 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261419AbVFAPiw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbVFAPpR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261419AbVFAPiw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 11:38:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbVFAPiw
+	id S261390AbVFAPpR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 11:45:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVFAPnW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 11:38:52 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:57159
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S261430AbVFAPiN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 11:38:13 -0400
-Date: Wed, 1 Jun 2005 17:38:03 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Esben Nielsen <simlo@phys.au.dk>, Ingo Molnar <mingo@elte.hu>,
-       Paulo Marques <pmarques@grupopie.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       James Bruce <bruce@andrew.cmu.edu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
-       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-Message-ID: <20050601153803.GO5413@g5.random>
-References: <20050601143202.GI5413@g5.random> <Pine.OSF.4.05.10506011640360.1707-100000@da410.phys.au.dk> <20050601150527.GL5413@g5.random> <429DD533.6080407@opersys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <429DD533.6080407@opersys.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.9i
+	Wed, 1 Jun 2005 11:43:22 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:31974 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S261433AbVFAPm4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 11:42:56 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Wed, 01 Jun 2005 17:41:39 +0200
+To: lsorense@csclub.uwaterloo.ca, kraxel@suse.de
+Cc: toon@hout.vanvergehaald.nl, schilling@fokus.fraunhofer.de,
+       mrmacman_g4@mac.com, ltd@cisco.com, linux-kernel@vger.kernel.org,
+       dtor_core@ameritech.net, 7eggert@gmx.de
+Subject: Re: OT] Joerg Schilling flames Linux on his Blog
+Message-ID: <429DD733.nail7BF915O9X@burner>
+References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com>
+ <20050530093420.GB15347@hout.vanvergehaald.nl>
+ <429B0683.nail5764GYTVC@burner>
+ <46BE0C64-1246-4259-914B-379071712F01@mac.com>
+ <429C4483.nail5X0215WJQ@burner> <87acmbxrfu.fsf@bytesex.org>
+ <20050531190556.GK23621@csclub.uwaterloo.ca>
+In-Reply-To: <20050531190556.GK23621@csclub.uwaterloo.ca>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 01, 2005 at 11:33:07AM -0400, Karim Yaghmour wrote:
-> in a wider context of all the other statements within that claim, the main
-> part being what I quoted earlier.
+lsorense@csclub.uwaterloo.ca (Lennart Sorensen) wrote:
 
-Ok great, I trust your patent knowledge given your background ;).
+> > Addressing IDE devices (try to get a real SCSI burner these days)
+> > using scsi host+target+lun is sort-of silly IMHO ...
+>
+> Well I remember the first time I saw devfs running, I thought "Wow
+> finally I have a way to find the disc that is scsi id 3 on controller 0
+> even if I add a device at id 2 after setting up the system", something
+> most unix systems have always had, but linux made hard (you had to
+> somehow figure out which id mapped to which /dev/sd* entry, which from a
+> users perspective wasn't trivial, and of course keeping your fstab in
+> sync with the mapping was a pain).
 
-It's very reassuring that I was wrong and preempt-rt is not covered by
-the patent. Until now I really understood that redefining an hard irq
-disable to a soft irq disable was forbidden at large.
+What you explain is exactly the reason, why libscg maps the /dev/ names
+to something stable.
+
+Then some people claimed that there was a new way in Linux but I could
+not find a machine running this stuff.....
+
+When I checked again, this still had not become "standard" on Linux
+but I got the impression that somebody was developing a new system.
+So I gave up.
+
+If someone will develop a useful system that eventually appears as
+a standard on all Linux systems it may make sende to add support into
+libscg.
+
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  
+       schilling@fokus.fraunhofer.de	(work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

@@ -1,54 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVFAV4i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVFAVea@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261174AbVFAV4i (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 17:56:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261346AbVFAV42
+	id S261316AbVFAVea (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 17:34:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261178AbVFAUof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 17:56:28 -0400
-Received: from smtp.lnxw.com ([207.21.185.24]:1295 "EHLO smtp.lnxw.com")
-	by vger.kernel.org with ESMTP id S261330AbVFAVyX (ORCPT
+	Wed, 1 Jun 2005 16:44:35 -0400
+Received: from pat.uio.no ([129.240.130.16]:7366 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261191AbVFAUVO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 17:54:23 -0400
-Date: Wed, 1 Jun 2005 14:59:13 -0700
-To: Bill Huey <bhuey@lnxw.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Karim Yaghmour <karim@opersys.com>, Ingo Molnar <mingo@elte.hu>,
-       Paulo Marques <pmarques@grupopie.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       James Bruce <bruce@andrew.cmu.edu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@muc.de>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
-       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-Message-ID: <20050601215913.GB28196@nietzsche.lynx.com>
-References: <20050601192224.GV5413@g5.random> <Pine.OSF.4.05.10506012129460.1707-100000@da410.phys.au.dk> <20050601195905.GX5413@g5.random> <20050601201754.GA27795@nietzsche.lynx.com> <20050601203212.GZ5413@g5.random> <20050601204612.GA27934@nietzsche.lynx.com> <20050601210716.GB5413@g5.random> <20050601214257.GA28196@nietzsche.lynx.com>
+	Wed, 1 Jun 2005 16:21:14 -0400
+Subject: Re: RT and Cascade interrupts
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: john cooper <john.cooper@timesys.com>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, Olaf Kirch <okir@suse.de>
+In-Reply-To: <429E0A86.7000507@timesys.com>
+References: <42974F08.1C89CF2A@tv-sign.ru> <4297AF39.4070304@timesys.com>
+	 <42983135.C521F1C8@tv-sign.ru> <4298AED8.8000408@timesys.com>
+	 <1117312557.10746.6.camel@lade.trondhjem.org>
+	 <4299332F.6090900@timesys.com>
+	 <1117352410.10788.29.camel@lade.trondhjem.org>
+	 <429B8678.1000706@timesys.com> <429DC4A8.BFF69FB3@tv-sign.ru>
+	 <429DF8DE.7060008@timesys.com>
+	 <1117650718.10733.65.camel@lade.trondhjem.org>
+	 <429E0A86.7000507@timesys.com>
+Content-Type: text/plain
+Date: Wed, 01 Jun 2005 16:21:07 -0400
+Message-Id: <1117657267.10733.106.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050601214257.GA28196@nietzsche.lynx.com>
-User-Agent: Mutt/1.5.9i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.636, required 12,
+	autolearn=disabled, AWL 1.36, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 01, 2005 at 02:42:57PM -0700, Bill Huey wrote:
-> On Wed, Jun 01, 2005 at 11:07:16PM +0200, Andrea Arcangeli wrote:
-> > Ingo just said that making local_irq_disable a "soft-cli" is planned.
+on den 01.06.2005 Klokka 15:20 (-0400) skreiv john cooper:
+> You might have missed in my earlier mail as
+> this is a not an MP kernel ie: !CONFIG_SMP
+> The synchronous timer delete primitives don't
+> exist in this configuration:
 
-I forgot. You basically turn it into one single big system wide mutex and
-and deal pathological cases as it turns up. Doing this is optional and
-if you can get away with letting the cli/sti function stay in place, then
-it's less work for us to handle.
+This probably explains your trouble. It makes no sense to allow
+__run_timer to be preemptible without having the synchronous timer
+delete primitives. Synchronisation is impossible without them.
 
-> preempt RT will be deterministic as this patch gets pounded more and
-> remaining latency paths are reworked. It hasn't been hard so far and the
-> results have been near perfect since the core kernel is, for the most
-> part, fully preemptive.
+Which version of the RT patches are you using? The one I'm looking at
+(2.6.12-rc5-rt-V0.7.47-15) certainly defines both del_timer_sync() and
+del_singleshot_timer_sync() to be the same as the SMP versions if you
+are running an RT kernel with preemptible softirqs.
 
-There are many ways to handle various issues at runtime. We have the
-instrumentation in place to detect it and conversion is easy since it's
-been at the lower layers.
-
-bill
+Cheers,
+  Trond
 

@@ -1,59 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVFAO3m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbVFAOcU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbVFAO3m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 10:29:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVFAO3m
+	id S261391AbVFAOcU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 10:32:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVFAOcU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 10:29:42 -0400
-Received: from mail.ccur.com ([208.248.32.212]:3393 "EHLO flmx.iccur.com")
-	by vger.kernel.org with ESMTP id S261389AbVFAO3g (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 10:29:36 -0400
-Subject: Re: SD_SHARE_CPUPOWER breaks scheduler fairness
-From: Steve Rotolo <steve.rotolo@ccur.com>
-Reply-To: steve.rotolo@ccur.com
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org, bugsy@ccur.com
-In-Reply-To: <200506011249.47655.kernel@kolivas.org>
-References: <1117561608.1439.168.camel@whiz>
-	 <200506011249.47655.kernel@kolivas.org>
-Content-Type: text/plain
-Organization: Concurrent Computer Corporation
-Message-Id: <1117636171.22879.29.camel@bonefish>
+	Wed, 1 Jun 2005 10:32:20 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:27428
+	"EHLO g5.random") by vger.kernel.org with ESMTP id S261391AbVFAOcN
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 10:32:13 -0400
+Date: Wed, 1 Jun 2005 16:32:02 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Paulo Marques <pmarques@grupopie.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Esben Nielsen <simlo@phys.au.dk>, James Bruce <bruce@andrew.cmu.edu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
+       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+Message-ID: <20050601143202.GI5413@g5.random>
+References: <20050531143051.GL5413@g5.random> <Pine.OSF.4.05.10505311652140.1707-100000@da410.phys.au.dk> <20050531161157.GQ5413@g5.random> <20050531183627.GA1880@us.ibm.com> <20050531204544.GU5413@g5.random> <429DA7AE.5000304@grupopie.com> <20050601135154.GF5413@g5.random> <20050601141919.GA9282@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Wed, 01 Jun 2005 10:29:31 -0400
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 01 Jun 2005 14:29:31.0649 (UTC) FILETIME=[533C9F10:01C566B6]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050601141919.GA9282@elte.hu>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-31 at 22:49, Con Kolivas wrote:
-> Sort of yes and yes. The idea that the sibling gets put to sleep if a real 
-> time task is running is a workaround for the fact that you do share cpu power 
-> (as you've correctly understood) and a real time task will slow down if a 
-> SCHED_NORMAL task is running on its sibling which it should not.  The 
-> limitation is that, yes, for all intents you only have N hyperthreaded cpus 
-> for spinning N rt tasks before nothing else runs, but you can actually run 
-> N*2 rt tasks in this setting which you would not be able to if hyperthreading 
-> was disabled.
+On Wed, Jun 01, 2005 at 04:19:19PM +0200, Ingo Molnar wrote:
 > 
-> For some time I've been thinking about changing the balance between the 
-> siblings slightly to allow SCHED_NORMAL tasks to run a small proportion of 
-> time when rt tasks are running on the sibling. The tricky part is that 
-> SCHED_FIFO tasks have no timeslice so we can't proportion cpu out according 
-> to the difference in size of the timeslices, which is currently how we 
-> proportion out cpu across siblings with SCHED_NORMAL, and this maintains cpu 
-> distribution very similarly to how 'nice' does on the same cpu.
+> * Andrea Arcangeli <andrea@suse.de> wrote:
+> 
+> > I've a bug in my queue that definitely would break preempt-RT:
+> >
+> >       BUG xxx : spends excessive time with interrupts disabled on large memory>
+>        systems
+> >
+> > workaround:
+> >
+> >       #define MAX_ITERATION 100000
+> >       if ((nr_pages > MAX_ITERATION) && !(nr_pages % MAX_ITERATION)) {
+> >               spin_unlock_irq(&zone->lru_lock);
+> >               spin_lock_irq(&zone->lru_lock);
+> >       }
+> 
+> you are wrong. This codepath is not running with interrupts disabled on 
+> PREEMPT_RT. irqs-off spinlocks dont turn off interrupts on PREEMPT_RT.  
 
-Thanks for responding, Con.  But I want to make sure that an important
-point doesn't escape your attention.  It appears that tasks get trapped
-on the stalled sibling, even when they could run on some other cpu.  The
-load-balancer does not understand that the sibling is temporarily out of
-service so it actually balances tasks to it.  And since it's idle, it
-may attract tasks to it more than other cpus (thanks to SD_WAKE_IDLE). 
-I think this is a serious bug.
+Then I'm afraid preempt-RT infringe on the patent that they take after
+years of doing that in linux. I'm not a lawyer but you may want to
+check before investing too much on this for the next 15 years. The
+nanokernel thing has happened exactly because they couldn't wrap the cli
+calls to do something different than a cli AFIK. Nanokernel was a nice
+workaround to avoid having to us the patented irq disable redefine.
 
--- 
-Steve
+I assumed you weren't infringing on the patent and in turn disabling irq
+locally would actually do that, sorry.
 
+> (there are still some ways to introduce latencies into PREEMPT_RT, but 
+> they are not common and we are working on ways to cover them all.)
+
+How can you schedule a task while a spinlock is held? Ok irqs will keep
+going, but how can you reschedule risking to deadlock? As long as there
+are regular spinlocks in any driver out there (i.e. all of them) then
+you can still introduce latencies. It doesn't seem too uncommon to me to
+take a spinlock. Preempt-rt reliability cannot be remotely compared to
+RTAI.

@@ -1,206 +1,697 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVFATPX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbVFATT7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261237AbVFATPX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 15:15:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVFASvf
+	id S261230AbVFATT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 15:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbVFAStL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 14:51:35 -0400
-Received: from smtpq3.home.nl ([213.51.128.198]:15570 "EHLO smtpq3.home.nl")
-	by vger.kernel.org with ESMTP id S261525AbVFAS2C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 14:28:02 -0400
-Message-ID: <429DFD90.10802@keyaccess.nl>
-Date: Wed, 01 Jun 2005 20:25:20 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a6) Gecko/20050111
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, Mark Lord <lkml@rtr.ca>,
-       David Brownell <dbrownell@users.sourceforge.net>
-Subject: Re: External USB2 HDD affects speed hda
-References: <429BA001.2030405@keyaccess.nl> <20050601081810.GA23114@elf.ucw.cz>
-In-Reply-To: <20050601081810.GA23114@elf.ucw.cz>
-Content-Type: multipart/mixed;
- boundary="------------090201080708000406070701"
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+	Wed, 1 Jun 2005 14:49:11 -0400
+Received: from fed1rmmtao09.cox.net ([68.230.241.30]:31704 "EHLO
+	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S261542AbVFASZg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 14:25:36 -0400
+Date: Wed, 1 Jun 2005 11:25:34 -0700
+From: Matt Porter <mporter@kernel.crashing.org>
+To: torvalds@osdl.org, akpm@osdl.org, jgarzik@pobox.com
+Cc: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org,
+       netdev@oss.sgi.com
+Subject: [PATCH][3/3] RapidIO support: net driver over messaging
+Message-ID: <20050601112534.C16559@cox.net>
+References: <20050601110836.A16559@cox.net> <20050601111516.B16559@cox.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050601111516.B16559@cox.net>; from mporter@kernel.crashing.org on Wed, Jun 01, 2005 at 11:15:17AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090201080708000406070701
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Adds an "Ethernet" driver which sends Ethernet packets over the
+standard RapidIO messaging. This depends on the core RIO
+patch for mailbox/doorbell access.
 
-Pavel Machek wrote:
+Signed-off-by: Matt Porter <mporter@kernel.crashing.org>
 
-EHCI maintainter (as given by MAINTAINERS) added to CC.
-
-> On Út 31-05-05 01:21:37, Rene Herman wrote:
-
-[ internal IDE HDD slowdown after switching on external USB2 HDD ]
-
-> USB controller generating extra DMA load? Try rmmoding usb to see if
-> it goes away.
-
-I was sceptical about this since the drive is idle (or even switched off 
-again) but I recompiled EHCI modular and rmmodding ehci_hcd does in fact 
-bring back my 50 MB/s:
-
-				: hdparm -t /dev/hda = 50 MB/s
-1. modprobe ehci_hcd		: hdparm -t /dev/hda = 50 MB/s
-2. switch on USB2 drive		: hdparm -t /dev/hda = 42 MB/s
-3. switch off USB drive		: hdparm -t /dev/hda = 42 MB/s
-4. modprobe -r ehci_hcd		: hdparm -t /dev/hda = 50 MB/s
-
-There would not seem to be any extra DMA load with a drive that's idle 
-or switched off again though? Is the (VIA) USB2 controller playing bus 
-monopolizing tricks or something sinister like that? (the speed doesn't 
-drop immediately after loading ehci_hcd though, only after switching on 
-the USB2 HDD)
-
-More detail --- it's a VIA VT6212L EHCI controller, on unshared IRQ3. 
-IDE0 is AMD756 on unshared IRQ14/15. The USB2 HDD does 30 MB/s (after a 
-hdparm -a 1024; with the default 256 it's 25MB/s) which I did think was 
-a very good speed.
-
-lspci -vv attached, in case it's useful.
-
-Many thanks in advance to anyone for any additional insight...
-
-Rene.
-
-
---------------090201080708000406070701
-Content-Type: text/plain;
- name="LSPCI"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="LSPCI"
-
-00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-751 [Irongate] System Controller (rev 25)
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
-	Latency: 120
-	Region 0: Memory at e8000000 (32-bit, prefetchable) [size=64M]
-	Region 1: Memory at efbff000 (32-bit, prefetchable) [size=4K]
-	Region 2: I/O ports at d800 [disabled] [size=4]
-	Capabilities: [a0] AGP version 1.0
-		Status: RQ=16 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW- AGP3- Rate=x1,x2
-		Command: RQ=1 ArqSz=0 Cal=0 SBA+ AGP+ GART64- 64bit- FW- Rate=x2
-
-00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-751 [Irongate] AGP Bridge (rev 01) (prog-if 00 [Normal decode])
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 120
-	Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
-	I/O behind bridge: 0000a000-0000bfff
-	Memory behind bridge: efc00000-efcfffff
-	Prefetchable memory behind bridge: dfa00000-e7afffff
-	BridgeCtl: Parity- SERR+ NoISA- VGA+ MAbort- >Reset- FastB2B-
-
-00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-756 [Viper] ISA (rev 01)
-	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 0
-
-00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-756 [Viper] IDE (rev 07) (prog-if 8a [Master SecP PriP])
-	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 32
-	Region 4: I/O ports at f000 [size=16]
-
-00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-756 [Viper] ACPI (rev 03)
-	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
-	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-
-00:08.0 Multimedia audio controller: Cirrus Logic CS 4614/22/24 [CrystalClear SoundFusion Audio Accelerator] (rev 01)
-	Subsystem: TERRATEC Electronic GmbH: Unknown device 112e
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 (1000ns min, 6000ns max)
-	Interrupt: pin A routed to IRQ 10
-	Region 0: Memory at efffd000 (32-bit, non-prefetchable) [size=4K]
-	Region 1: Memory at efe00000 (32-bit, non-prefetchable) [size=1M]
-	Capabilities: [40] Power Management version 2
-		Flags: PMEClk+ DSI+ D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:09.0 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 61) (prog-if 00 [UHCI])
-	Subsystem: VIA Technologies, Inc. VT6202 [USB 2.0 controller]
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64, cache line size 08
-	Interrupt: pin A routed to IRQ 12
-	Region 4: I/O ports at da00 [size=32]
-	Capabilities: [80] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:09.1 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 61) (prog-if 00 [UHCI])
-	Subsystem: VIA Technologies, Inc. VT6202 [USB 2.0 controller]
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64, cache line size 08
-	Interrupt: pin B routed to IRQ 10
-	Region 4: I/O ports at dc00 [size=32]
-	Capabilities: [80] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:09.2 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 63) (prog-if 20 [EHCI])
-	Subsystem: VIA Technologies, Inc. USB 2.0
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64, cache line size 10
-	Interrupt: pin C routed to IRQ 3
-	Region 0: Memory at effffe00 (32-bit, non-prefetchable) [size=256]
-	Capabilities: [80] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:09.3 FireWire (IEEE 1394): NEC Corporation: Unknown device 00e7 (rev 01) (prog-if 10 [OHCI])
-	Subsystem: NEC Corporation: Unknown device 00ce
-	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64, cache line size 08
-	Interrupt: pin A routed to IRQ 12
-	Region 0: Memory at efffe000 (32-bit, non-prefetchable) [size=4K]
-	Capabilities: [60] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-00:0a.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 74)
-	Subsystem: 3Com Corporation 3C905C-TX Fast Etherlink for PC Management NIC
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
-	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 (2500ns min, 2500ns max), cache line size 08
-	Interrupt: pin A routed to IRQ 10
-	Region 0: I/O ports at de00 [size=128]
-	Region 1: Memory at efffff80 (32-bit, non-prefetchable) [size=128]
-	Expansion ROM at effc0000 [disabled] [size=128K]
-	Capabilities: [dc] Power Management version 2
-		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
-		Status: D0 PME-Enable- DSel=0 DScale=2 PME-
-
-01:05.0 VGA compatible controller: ATI Technologies Inc Rage 128 RF/SG AGP (prog-if 00 [VGA])
-	Subsystem: ATI Technologies Inc: Unknown device 0048
-	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
-	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-	Latency: 64 (2000ns min), cache line size 08
-	Interrupt: pin A routed to IRQ 12
-	Region 0: Memory at e0000000 (32-bit, prefetchable) [size=64M]
-	Region 1: I/O ports at b800 [size=256]
-	Region 2: Memory at efcfc000 (32-bit, non-prefetchable) [size=16K]
-	Expansion ROM at efcc0000 [disabled] [size=128K]
-	Capabilities: [50] AGP version 2.0
-		Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW- AGP3- Rate=x1,x2
-		Command: RQ=16 ArqSz=0 Cal=0 SBA+ AGP+ GART64- 64bit- FW- Rate=x2
-	Capabilities: [5c] Power Management version 1
-		Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
-		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-
-
---------------090201080708000406070701--
+Index: drivers/net/Kconfig
+===================================================================
+--- f0bf7810dbe8c4073832d6c3785364084e9523a7/drivers/net/Kconfig  (mode:100644)
++++ 4ed27b6e30a69f314a2ca131e80ac45e2111f245/drivers/net/Kconfig  (mode:100644)
+@@ -2185,6 +2185,20 @@
+ 	tristate "iSeries Virtual Ethernet driver support"
+ 	depends on NETDEVICES && PPC_ISERIES
+ 
++config RIONET
++	tristate "RapidIO Ethernet over messaging driver support"
++	depends on NETDEVICES && RAPIDIO
++
++config RIONET_TX_SIZE
++	int "Number of outbound queue entries"
++	depends on RIONET
++	default "128"
++
++config RIONET_RX_SIZE
++	int "Number of inbound queue entries"
++	depends on RIONET
++	default "128"
++
+ config FDDI
+ 	bool "FDDI driver support"
+ 	depends on NETDEVICES && (PCI || EISA)
+Index: drivers/net/Makefile
+===================================================================
+--- f0bf7810dbe8c4073832d6c3785364084e9523a7/drivers/net/Makefile  (mode:100644)
++++ 4ed27b6e30a69f314a2ca131e80ac45e2111f245/drivers/net/Makefile  (mode:100644)
+@@ -58,6 +58,7 @@
+ obj-$(CONFIG_VIA_RHINE) += via-rhine.o
+ obj-$(CONFIG_VIA_VELOCITY) += via-velocity.o
+ obj-$(CONFIG_ADAPTEC_STARFIRE) += starfire.o
++obj-$(CONFIG_RIONET) += rionet.o
+ 
+ #
+ # end link order section
+Index: drivers/net/rionet.c
+===================================================================
+--- /dev/null  (tree:f0bf7810dbe8c4073832d6c3785364084e9523a7)
++++ 4ed27b6e30a69f314a2ca131e80ac45e2111f245/drivers/net/rionet.c  (mode:100644)
+@@ -0,0 +1,622 @@
++/*
++ * rionet - Ethernet driver over RapidIO messaging services
++ *
++ * Copyright 2005 MontaVista Software, Inc.
++ * Matt Porter <mporter@kernel.crashing.org>
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#include <linux/module.h>
++#include <linux/kernel.h>
++#include <linux/dma-mapping.h>
++#include <linux/delay.h>
++#include <linux/rio.h>
++#include <linux/rio_drv.h>
++#include <linux/rio_ids.h>
++
++#include <linux/netdevice.h>
++#include <linux/etherdevice.h>
++#include <linux/skbuff.h>
++#include <linux/crc32.h>
++#include <linux/ethtool.h>
++
++#define DRV_NAME        "rionet"
++#define DRV_VERSION     "0.1"
++#define DRV_AUTHOR      "Matt Porter <mporter@kernel.crashing.org>"
++#define DRV_DESC        "Ethernet over RapidIO"
++
++MODULE_AUTHOR(DRV_AUTHOR);
++MODULE_DESCRIPTION(DRV_DESC);
++MODULE_LICENSE("GPL");
++
++#define RIONET_DEFAULT_MSGLEVEL	0
++#define RIONET_DOORBELL_JOIN	0x1000
++#define RIONET_DOORBELL_LEAVE	0x1001
++
++#define RIONET_MAILBOX		0
++
++#define RIONET_TX_RING_SIZE	CONFIG_RIONET_TX_SIZE
++#define RIONET_RX_RING_SIZE	CONFIG_RIONET_RX_SIZE
++
++LIST_HEAD(rionet_peers);
++
++struct rionet_private {
++	struct rio_mport *mport;
++	struct sk_buff *rx_skb[RIONET_RX_RING_SIZE];
++	struct sk_buff *tx_skb[RIONET_TX_RING_SIZE];
++	struct net_device_stats stats;
++	int rx_slot;
++	int tx_slot;
++	int tx_cnt;
++	int ack_slot;
++	spinlock_t lock;
++	u32 msg_enable;
++};
++
++struct rionet_peer {
++	struct list_head node;
++	struct rio_dev *rdev;
++	struct resource *res;
++};
++
++static int rionet_check = 0;
++static int rionet_capable = 1;
++static struct net_device *sndev = NULL;
++
++/*
++ * This is a fast lookup table for for translating TX
++ * Ethernet packets into a destination RIO device. It
++ * could be made into a hash table to save memory depending
++ * on system trade-offs.
++ */
++static struct rio_dev *rionet_active[RIO_MAX_ROUTE_ENTRIES];
++
++#define is_rionet_capable(pef, src_ops, dst_ops)		\
++			((pef & RIO_PEF_INB_MBOX) &&		\
++			 (pef & RIO_PEF_INB_DOORBELL) &&	\
++			 (src_ops & RIO_SRC_OPS_DOORBELL) &&	\
++			 (dst_ops & RIO_DST_OPS_DOORBELL))
++#define dev_rionet_capable(dev) \
++	is_rionet_capable(dev->pef, dev->src_ops, dev->dst_ops)
++
++#define RIONET_MAC_MATCH(x)	(*(u32 *)x == 0x00010001)
++#define RIONET_GET_DESTID(x)	(*(u16 *)(x + 4))
++
++static struct net_device_stats *rionet_stats(struct net_device *ndev)
++{
++	struct rionet_private *rnet = ndev->priv;
++	return &rnet->stats;
++}
++
++static int rionet_rx_clean(struct net_device *ndev)
++{
++	int i;
++	int error = 0;
++	struct rionet_private *rnet = ndev->priv;
++	void *data;
++
++	i = rnet->rx_slot;
++
++	do {
++		if (!rnet->rx_skb[i]) {
++			rnet->stats.rx_dropped++;
++			continue;
++		}
++
++		if (!(data = rio_get_inb_message(rnet->mport, RIONET_MAILBOX)))
++			break;
++
++		rnet->rx_skb[i]->data = data;
++		skb_put(rnet->rx_skb[i], RIO_MAX_MSG_SIZE);
++		rnet->rx_skb[i]->dev = sndev;
++		rnet->rx_skb[i]->protocol =
++		    eth_type_trans(rnet->rx_skb[i], sndev);
++		error = netif_rx(rnet->rx_skb[i]);
++
++		if (error == NET_RX_DROP) {
++			rnet->stats.rx_dropped++;
++		} else if (error == NET_RX_BAD) {
++			if (netif_msg_rx_err(rnet))
++				printk(KERN_WARNING "%s: bad rx packet\n",
++				       DRV_NAME);
++			rnet->stats.rx_errors++;
++		} else {
++			rnet->stats.rx_packets++;
++			rnet->stats.rx_bytes += RIO_MAX_MSG_SIZE;
++		}
++
++	} while ((i = (i + 1) % RIONET_RX_RING_SIZE) != rnet->rx_slot);
++
++	return i;
++}
++
++static void rionet_rx_fill(struct net_device *ndev, int end)
++{
++	int i;
++	struct rionet_private *rnet = ndev->priv;
++
++	i = rnet->rx_slot;
++	do {
++		rnet->rx_skb[i] = dev_alloc_skb(RIO_MAX_MSG_SIZE);
++
++		if (!rnet->rx_skb[i])
++			break;
++
++		rio_add_inb_buffer(rnet->mport, RIONET_MAILBOX,
++				   rnet->rx_skb[i]->data);
++	} while ((i = (i + 1) % RIONET_RX_RING_SIZE) != end);
++
++	rnet->rx_slot = i;
++}
++
++static int rionet_queue_tx_msg(struct sk_buff *skb, struct net_device *ndev,
++			       struct rio_dev *rdev)
++{
++	struct rionet_private *rnet = ndev->priv;
++
++	rio_add_outb_message(rnet->mport, rdev, 0, skb->data, skb->len);
++	rnet->tx_skb[rnet->tx_slot] = skb;
++
++	rnet->stats.tx_packets++;
++	rnet->stats.tx_bytes += skb->len;
++
++	if (++rnet->tx_cnt == RIONET_TX_RING_SIZE)
++		netif_stop_queue(ndev);
++
++	if (++rnet->tx_slot == RIONET_TX_RING_SIZE)
++		rnet->tx_slot = 0;
++
++	if (netif_msg_tx_queued(rnet))
++		printk(KERN_INFO "%s: queued skb %8.8x len %8.8x\n", DRV_NAME,
++		       (u32) skb, skb->len);
++
++	return 0;
++}
++
++static int rionet_start_xmit(struct sk_buff *skb, struct net_device *ndev)
++{
++	int i;
++	struct rionet_private *rnet = ndev->priv;
++	struct ethhdr *eth = (struct ethhdr *)skb->data;
++	u16 destid;
++
++	spin_lock_irq(&rnet->lock);
++
++	if ((rnet->tx_cnt + 1) > RIONET_TX_RING_SIZE) {
++		netif_stop_queue(ndev);
++		spin_unlock_irq(&rnet->lock);
++		return -EBUSY;
++	}
++
++	if (eth->h_dest[0] & 0x01) {
++		/*
++		 * XXX Need to delay queuing if ring max is reached,
++		 * flush additional packets in tx_event() before
++		 * awakening the queue. We can easily exceed ring
++		 * size with a large number of nodes or even a
++		 * small number where the ring is relatively full
++		 * on entrance to hard_start_xmit.
++		 */
++		for (i = 0; i < RIO_MAX_ROUTE_ENTRIES; i++)
++			if (rionet_active[i])
++				rionet_queue_tx_msg(skb, ndev,
++						    rionet_active[i]);
++	} else if (RIONET_MAC_MATCH(eth->h_dest)) {
++		destid = RIONET_GET_DESTID(eth->h_dest);
++		if (rionet_active[destid])
++			rionet_queue_tx_msg(skb, ndev, rionet_active[destid]);
++	}
++
++	spin_unlock_irq(&rnet->lock);
++
++	return 0;
++}
++
++static int rionet_set_mac_address(struct net_device *ndev, void *p)
++{
++	struct sockaddr *addr = p;
++
++	if (!is_valid_ether_addr(addr->sa_data))
++		return -EADDRNOTAVAIL;
++
++	memcpy(ndev->dev_addr, addr->sa_data, ndev->addr_len);
++
++	return 0;
++}
++
++static int rionet_change_mtu(struct net_device *ndev, int new_mtu)
++{
++	struct rionet_private *rnet = ndev->priv;
++
++	if (netif_msg_drv(rnet))
++		printk(KERN_WARNING
++		       "%s: rionet_change_mtu(): not implemented\n", DRV_NAME);
++
++	return 0;
++}
++
++static void rionet_set_multicast_list(struct net_device *ndev)
++{
++	struct rionet_private *rnet = ndev->priv;
++
++	if (netif_msg_drv(rnet))
++		printk(KERN_WARNING
++		       "%s: rionet_set_multicast_list(): not implemented\n",
++		       DRV_NAME);
++}
++
++static void rionet_dbell_event(struct rio_mport *mport, u16 sid, u16 tid,
++			       u16 info)
++{
++	struct net_device *ndev = sndev;
++	struct rionet_private *rnet = ndev->priv;
++	struct rionet_peer *peer;
++
++	if (netif_msg_intr(rnet))
++		printk(KERN_INFO "%s: doorbell sid %4.4x tid %4.4x info %4.4x",
++		       DRV_NAME, sid, tid, info);
++	if (info == RIONET_DOORBELL_JOIN) {
++		if (!rionet_active[sid]) {
++			list_for_each_entry(peer, &rionet_peers, node) {
++				if (peer->rdev->destid == sid)
++					rionet_active[sid] = peer->rdev;
++			}
++			rio_mport_send_doorbell(mport, sid,
++						RIONET_DOORBELL_JOIN);
++		}
++	} else if (info == RIONET_DOORBELL_LEAVE) {
++		rionet_active[sid] = NULL;
++	} else {
++		if (netif_msg_intr(rnet))
++			printk(KERN_WARNING "%s: unhandled doorbell\n",
++			       DRV_NAME);
++	}
++}
++
++static void rionet_inb_msg_event(struct rio_mport *mport, int mbox, int slot)
++{
++	int n;
++	struct net_device *ndev = sndev;
++	struct rionet_private *rnet = (struct rionet_private *)ndev->priv;
++
++	if (netif_msg_intr(rnet))
++		printk(KERN_INFO "%s: inbound message event, mbox %d slot %d\n",
++		       DRV_NAME, mbox, slot);
++
++	spin_lock(&rnet->lock);
++	if ((n = rionet_rx_clean(ndev)) != rnet->rx_slot)
++		rionet_rx_fill(ndev, n);
++	spin_unlock(&rnet->lock);
++}
++
++static void rionet_outb_msg_event(struct rio_mport *mport, int mbox, int slot)
++{
++	struct net_device *ndev = sndev;
++	struct rionet_private *rnet = ndev->priv;
++
++	spin_lock(&rnet->lock);
++
++	if (netif_msg_intr(rnet))
++		printk(KERN_INFO
++		       "%s: outbound message event, mbox %d slot %d\n",
++		       DRV_NAME, mbox, slot);
++
++	while (rnet->tx_cnt && (rnet->ack_slot != slot)) {
++		/* dma unmap single */
++		dev_kfree_skb_irq(rnet->tx_skb[rnet->ack_slot]);
++		rnet->tx_skb[rnet->ack_slot] = NULL;
++		if (++rnet->ack_slot == RIONET_TX_RING_SIZE)
++			rnet->ack_slot = 0;
++		rnet->tx_cnt--;
++	}
++
++	if (rnet->tx_cnt < RIONET_TX_RING_SIZE)
++		netif_wake_queue(ndev);
++
++	spin_unlock(&rnet->lock);
++}
++
++static int rionet_open(struct net_device *ndev)
++{
++	int i, rc = 0;
++	struct rionet_peer *peer, *tmp;
++	u32 pwdcsr;
++	struct rionet_private *rnet = ndev->priv;
++
++	if (netif_msg_ifup(rnet))
++		printk(KERN_INFO "%s: open\n", DRV_NAME);
++
++	if ((rc = rio_request_inb_dbell(rnet->mport,
++					RIONET_DOORBELL_JOIN,
++					RIONET_DOORBELL_LEAVE,
++					rionet_dbell_event)) < 0)
++		goto out;
++
++	if ((rc = rio_request_inb_mbox(rnet->mport,
++				       RIONET_MAILBOX,
++				       RIONET_RX_RING_SIZE,
++				       rionet_inb_msg_event)) < 0)
++		goto out;
++
++	if ((rc = rio_request_outb_mbox(rnet->mport,
++					RIONET_MAILBOX,
++					RIONET_TX_RING_SIZE,
++					rionet_outb_msg_event)) < 0)
++		goto out;
++
++	/* Initialize inbound message ring */
++	for (i = 0; i < RIONET_RX_RING_SIZE; i++)
++		rnet->rx_skb[i] = NULL;
++	rnet->rx_slot = 0;
++	rionet_rx_fill(ndev, 0);
++
++	rnet->tx_slot = 0;
++	rnet->tx_cnt = 0;
++	rnet->ack_slot = 0;
++
++	spin_lock_init(&rnet->lock);
++
++	rnet->msg_enable = RIONET_DEFAULT_MSGLEVEL;
++
++	netif_carrier_on(ndev);
++	netif_start_queue(ndev);
++
++	list_for_each_entry_safe(peer, tmp, &rionet_peers, node) {
++		if (!(peer->res = rio_request_outb_dbell(peer->rdev,
++							 RIONET_DOORBELL_JOIN,
++							 RIONET_DOORBELL_LEAVE)))
++		{
++			printk(KERN_ERR "%s: error requesting doorbells\n",
++			       DRV_NAME);
++			continue;
++		}
++
++		/*
++		 * If device has initialized inbound doorbells,
++		 * send a join message
++		 */
++		rio_read_config_32(peer->rdev, RIO_WRITE_PORT_CSR, &pwdcsr);
++		if (pwdcsr & RIO_DOORBELL_AVAIL)
++			rio_send_doorbell(peer->rdev, RIONET_DOORBELL_JOIN);
++	}
++
++      out:
++	return rc;
++}
++
++static int rionet_close(struct net_device *ndev)
++{
++	struct rionet_private *rnet = (struct rionet_private *)ndev->priv;
++	struct rionet_peer *peer, *tmp;
++	int i;
++
++	if (netif_msg_ifup(rnet))
++		printk(KERN_INFO "%s: close\n", DRV_NAME);
++
++	netif_stop_queue(ndev);
++	netif_carrier_off(ndev);
++
++	for (i = 0; i < RIONET_RX_RING_SIZE; i++)
++		if (rnet->rx_skb[i])
++			kfree_skb(rnet->rx_skb[i]);
++
++	list_for_each_entry_safe(peer, tmp, &rionet_peers, node) {
++		if (rionet_active[peer->rdev->destid]) {
++			rio_send_doorbell(peer->rdev, RIONET_DOORBELL_LEAVE);
++			rionet_active[peer->rdev->destid] = NULL;
++		}
++		rio_release_outb_dbell(peer->rdev, peer->res);
++	}
++
++	rio_release_inb_dbell(rnet->mport, RIONET_DOORBELL_JOIN,
++			      RIONET_DOORBELL_LEAVE);
++	rio_release_inb_mbox(rnet->mport, RIONET_MAILBOX);
++	rio_release_outb_mbox(rnet->mport, RIONET_MAILBOX);
++
++	return 0;
++}
++
++static void rionet_remove(struct rio_dev *rdev)
++{
++	struct net_device *ndev = NULL;
++	struct rionet_peer *peer, *tmp;
++
++	unregister_netdev(ndev);
++	kfree(ndev);
++
++	list_for_each_entry_safe(peer, tmp, &rionet_peers, node) {
++		list_del(&peer->node);
++		kfree(peer);
++	}
++}
++
++static int rionet_ioctl(struct net_device *ndev, struct ifreq *rq, int cmd)
++{
++	return -EOPNOTSUPP;
++}
++
++static void rionet_get_drvinfo(struct net_device *ndev,
++			       struct ethtool_drvinfo *info)
++{
++	struct rionet_private *rnet = ndev->priv;
++
++	strcpy(info->driver, DRV_NAME);
++	strcpy(info->version, DRV_VERSION);
++	strcpy(info->fw_version, "n/a");
++	sprintf(info->bus_info, "RIO master port %d", rnet->mport->id);
++}
++
++static u32 rionet_get_msglevel(struct net_device *ndev)
++{
++	struct rionet_private *rnet = ndev->priv;
++
++	return rnet->msg_enable;
++}
++
++static void rionet_set_msglevel(struct net_device *ndev, u32 value)
++{
++	struct rionet_private *rnet = ndev->priv;
++
++	rnet->msg_enable = value;
++}
++
++static u32 rionet_get_link(struct net_device *ndev)
++{
++	return netif_carrier_ok(ndev);
++}
++
++static struct ethtool_ops rionet_ethtool_ops = {
++	.get_drvinfo = rionet_get_drvinfo,
++	.get_msglevel = rionet_get_msglevel,
++	.set_msglevel = rionet_set_msglevel,
++	.get_link = rionet_get_link,
++};
++
++static int rionet_setup_netdev(struct rio_mport *mport)
++{
++	int rc = 0;
++	struct net_device *ndev = NULL;
++	struct rionet_private *rnet;
++	u16 device_id;
++
++	/* Allocate our net_device structure */
++	ndev = alloc_etherdev(sizeof(struct rionet_private));
++	if (ndev == NULL) {
++		printk(KERN_INFO "%s: could not allocate ethernet device.\n",
++		       DRV_NAME);
++		rc = -ENOMEM;
++		goto out;
++	}
++
++	/*
++	 * XXX hack, store point a static at ndev so we can get it...
++	 * Perhaps need an array of these that the handler can
++	 * index via the mbox number.
++	 */
++	sndev = ndev;
++
++	/* Set up private area */
++	rnet = (struct rionet_private *)ndev->priv;
++	rnet->mport = mport;
++
++	/* Set the default MAC address */
++	device_id = rio_local_get_device_id(mport);
++	ndev->dev_addr[0] = 0x00;
++	ndev->dev_addr[1] = 0x01;
++	ndev->dev_addr[2] = 0x00;
++	ndev->dev_addr[3] = 0x01;
++	ndev->dev_addr[4] = device_id >> 8;
++	ndev->dev_addr[5] = device_id & 0xff;
++
++	/* Fill in the driver function table */
++	ndev->open = &rionet_open;
++	ndev->hard_start_xmit = &rionet_start_xmit;
++	ndev->stop = &rionet_close;
++	ndev->get_stats = &rionet_stats;
++	ndev->change_mtu = &rionet_change_mtu;
++	ndev->set_mac_address = &rionet_set_mac_address;
++	ndev->set_multicast_list = &rionet_set_multicast_list;
++	ndev->do_ioctl = &rionet_ioctl;
++	SET_ETHTOOL_OPS(ndev, &rionet_ethtool_ops);
++
++	ndev->mtu = RIO_MAX_MSG_SIZE - 14;
++
++	SET_MODULE_OWNER(ndev);
++
++	rc = register_netdev(ndev);
++	if (rc != 0)
++		goto out;
++
++	printk("%s: %s %s Version %s, MAC %02x:%02x:%02x:%02x:%02x:%02x\n",
++	       ndev->name,
++	       DRV_NAME,
++	       DRV_DESC,
++	       DRV_VERSION,
++	       ndev->dev_addr[0], ndev->dev_addr[1], ndev->dev_addr[2],
++	       ndev->dev_addr[3], ndev->dev_addr[4], ndev->dev_addr[5]);
++
++      out:
++	return rc;
++}
++
++/*
++ * XXX Make multi-net safe
++ */
++static int rionet_probe(struct rio_dev *rdev, const struct rio_device_id *id)
++{
++	int rc = -ENODEV;
++	u32 lpef, lsrc_ops, ldst_ops;
++	struct rionet_peer *peer;
++
++	/* If local device is not rionet capable, give up quickly */
++	if (!rionet_capable)
++		goto out;
++
++	/*
++	 * First time through, make sure local device is rionet
++	 * capable, setup netdev,  and set flags so this is skipped
++	 * on later probes
++	 */
++	if (!rionet_check) {
++		rio_local_read_config_32(rdev->net->hport, RIO_PEF_CAR, &lpef);
++		rio_local_read_config_32(rdev->net->hport, RIO_SRC_OPS_CAR,
++					 &lsrc_ops);
++		rio_local_read_config_32(rdev->net->hport, RIO_DST_OPS_CAR,
++					 &ldst_ops);
++		if (!is_rionet_capable(lpef, lsrc_ops, ldst_ops)) {
++			printk(KERN_ERR
++			       "%s: local device is not network capable\n",
++			       DRV_NAME);
++			rionet_check = 1;
++			rionet_capable = 0;
++			goto out;
++		}
++
++		rc = rionet_setup_netdev(rdev->net->hport);
++		rionet_check = 1;
++	}
++
++	/*
++	 * If the remote device has mailbox/doorbell capabilities,
++	 * add it to the peer list.
++	 */
++	if (dev_rionet_capable(rdev)) {
++		if (!(peer = kmalloc(sizeof(struct rionet_peer), GFP_KERNEL))) {
++			rc = -ENOMEM;
++			goto out;
++		}
++		peer->rdev = rdev;
++		list_add_tail(&peer->node, &rionet_peers);
++	}
++
++      out:
++	return rc;
++}
++
++static struct rio_device_id rionet_id_table[] = {
++	{RIO_DEVICE(RIO_ANY_ID, RIO_ANY_ID)}
++};
++
++static struct rio_driver rionet_driver = {
++	.name = "rionet",
++	.id_table = rionet_id_table,
++	.probe = rionet_probe,
++	.remove = rionet_remove,
++};
++
++static int __init rionet_init(void)
++{
++	return rio_register_driver(&rionet_driver);
++}
++
++static void __exit rionet_exit(void)
++{
++	rio_unregister_driver(&rionet_driver);
++}
++
++module_init(rionet_init);
++module_exit(rionet_exit);

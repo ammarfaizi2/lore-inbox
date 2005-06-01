@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVFANCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261285AbVFANGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261266AbVFANCx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 09:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbVFANCx
+	id S261285AbVFANGX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 09:06:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbVFANEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 09:02:53 -0400
-Received: from mail-in-01.arcor-online.net ([151.189.21.41]:60885 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261266AbVFANCi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 09:02:38 -0400
-From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
-Subject: Re: [OT] mailing list management
-To: Lukasz Stelmach <stlman@poczta.fm>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Wed, 01 Jun 2005 15:02:23 +0200
-References: <4ayEi-52j-23@gated-at.bofh.it> <4ayNT-58e-27@gated-at.bofh.it> <4az7m-5lG-31@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Wed, 1 Jun 2005 09:04:37 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:3838 "EHLO
+	godzilla.mvista.com") by vger.kernel.org with ESMTP id S261278AbVFANEG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 09:04:06 -0400
+Date: Wed, 1 Jun 2005 06:04:01 -0700 (PDT)
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org,
+       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
+In-Reply-To: <20050601092102.GB13041@elte.hu>
+Message-ID: <Pine.LNX.4.10.10506010559050.23911-100000@godzilla.mvista.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1DdSra-0001cO-UL@be1.7eggert.dyndns.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lukasz Stelmach <stlman@poczta.fm> wrote:
-> Måns Rullgård napisa?(a):
 
->> Use "reply all", "wide reply", or whatever mozilla thunderbird, which
->> you appear to be using, calls it.
 
-> As I stated somewhere befor this is an option but it also adds the
-> author of the original message to the list of recipients thus making one
-> receive the same letter twice.
+On Wed, 1 Jun 2005, Ingo Molnar wrote:
 
-That's intended. Many readers and posters aren't subscribed.
-E.g. I read it using news:linux.kernel, since my mail program can't handle
-threads well enough. (Besides that, NNTP causes much less traffic for the
-same amount of messages:). OTOH, I'd like to get replies to my postings per
-mail, since my newsreader is bad for replying to lkml.
+> 
+> * Oleg Nesterov <oleg@tv-sign.ru> wrote:
+> 
+> > Another problem in plist_add:
+> > 
+> > > existing_sp_head:
+> > > 	itr_pl2 = container_of(itr_pl->dp_node.prev, struct plist, dp_node);
+> > > 	list_add(&pl->sp_node, &itr_pl2->sp_node);
+> > 
+> > This breaks fifo ordering.
+> 
+> Daniel, is the issue (and other issues) Oleg noticed still present? I'm 
+> still a bit uneasy about the complexity of the plist changes.
 
-Workaround:
---- ~/.procmailrc ---
-:0 Wh: msgid.lock
-| formail -D 128 .msgid.cache
----
-(adjust the 128 as needed)
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+I think this one isn't right. We could make a test quite to check
+correctness. Find the errors before they find us. Oleg may even have
+something like that already half done. 
+
+Are you concerned with plist as a whole, or just my recent changes?
+
+There is still a problem with plist_for_each() missing the first list
+member, which I need to fix. 
+
+Daniel
+

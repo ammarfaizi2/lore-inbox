@@ -1,92 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261475AbVFAR3g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVFARef@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261475AbVFAR3g (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 13:29:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbVFAR3g
+	id S261497AbVFARef (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 13:34:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVFARe2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 13:29:36 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:29655 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261475AbVFAR32
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 13:29:28 -0400
-Date: Wed, 1 Jun 2005 19:28:41 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>, linux-kernel@vger.kernel.org,
-       dwalker@mvista.com, Joe King <atom_bomb@rocketmail.com>,
-       ganzinger@mvista.com, Lee Revell <rlrevell@joe-job.com>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
-In-Reply-To: <20050528055322.GA14867@elte.hu>
-Message-Id: <Pine.OSF.4.05.10506011926350.1707-100000@da410.phys.au.dk>
+	Wed, 1 Jun 2005 13:34:28 -0400
+Received: from hummeroutlaws.com ([12.161.0.3]:56326 "EHLO atpro.com")
+	by vger.kernel.org with ESMTP id S261491AbVFARd4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 13:33:56 -0400
+From: "Jim Crilly" <jim@why.dont.jablowme.net>
+Date: Wed, 1 Jun 2005 13:29:00 -0400
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com, ltd@cisco.com,
+       linux-kernel@vger.kernel.org, kraxel@suse.de, dtor_core@ameritech.net,
+       7eggert@gmx.de
+Subject: Re: OT] Joerg Schilling flames Linux on his Blog
+Message-ID: <20050601172900.GC14299@voodoo>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com, ltd@cisco.com,
+	linux-kernel@vger.kernel.org, kraxel@suse.de,
+	dtor_core@ameritech.net, 7eggert@gmx.de
+References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com> <20050530093420.GB15347@hout.vanvergehaald.nl> <429B0683.nail5764GYTVC@burner> <46BE0C64-1246-4259-914B-379071712F01@mac.com> <429C4483.nail5X0215WJQ@burner> <87acmbxrfu.fsf@bytesex.org> <429DD036.nail7BF7MRZT6@burner> <20050601154245.GA14299@voodoo> <429DE874.nail7BFM1RBO2@burner>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <429DE874.nail7BFM1RBO2@burner>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Replace
- init_MUTEX_LOCKED(&policy->lock);
-with
- init_MUTEX(&policy->lock);
- down(&policy->lock);
+On 06/01/05 06:55:16PM +0200, Joerg Schilling wrote:
+> "Jim Crilly" <jim@why.dont.jablowme.net> wrote:
+> 
+> >
+> > Just because it's old, that doesn't mean it's good. The kernel using the
+> 
+> Just because it is old, it does not mean that it is bad....
 
-Compiles here... Would also work upstream.
+Agreed and AFAIK most unix users prefer to use filenames to access their
+devices. Why bother populating /dev at all if half if your apps require
+random ID numbers to use them?
 
-init_MUTEX_LOCKED() isn't very nice :-(
+> > numbers internally makes sense, but requiring them for userspace seems
+> > stupid. All you should do is open the appropriate device node and let the
+> > kernel figure out which SCSI ID to send the commands to. Every other tool
+> > I've ever seen uses device nodes, why should cdrecord be different? All it
+> > does is make cdrecord more difficult to use.
+> 
+> Note that Linux did not have a usable /dev/whatever based interface 10 years ago.
+> Also note that cdda2wav distinguishes between "OS native Audio ioctl calls" and
+> generic SCSI from checking the dev= parameter. For this reason using 
+> /dev/whateter is just wrong. Take it this way or you are a victim of you own 
+> decision to ignore the documentation of a program.
 
-Esben
-
-
-
-On Sat, 28 May 2005, Ingo Molnar wrote:
+I don't use cdda2wav so I can't comment, but every other ripping tool that
+I've used on Linux has had no problem using the /dev/whatever interface, so
+once again it appears that your tool is the blacksheep for no good reason.
 
 > 
-> * Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
-> 
-> > I wrote:
-> > >I'm attaching a patch which changes a semaphore in cpufreq into a 
-> > >completion. With this patch, my system runs OK even with cpufreqd.
-> > >
-> > 
-> > Although the patch worked for me, it was probably bogus.
-> 
-> no, it was quite fine i think.
-> 
-> > The real reason why cpufreq caused problems was that it does:
-> >   init_MUTEX_LOCKED(&policy->lock);
-> > and later:
-> >   up(&policy->lock);
-> > where policy->lock is declared as:
-> >   struct semaphore        lock;
-> > 
-> > In PREEMPT_RT, the init_MUTEX_LOCKED is defined in include/linux/rt_lock.h :
-> >   /*
-> >    * No locked initialization for RT semaphores:
-> >    */
-> >   #define init_MUTEX_LOCKED(sem) compat_init_MUTEX_LOCKED(sem)
-> > (BTW, I don't understand why we have init_MUTEX but no init_MUTEX_LOCKED 
-> > for RT semaphores).
-> 
-> RT semaphores have stricter semantics than Linux semaphores. One 
-> property is that there always needs to be an owner of a semaphore. If a 
-> semaphore gets initialized as init_MUTEX_LOCKED, it is a fair indication
-> that the semaphore is really used as a completion object - with no
-> stable owner.  (e.g. at insmod time when the init_MUTEX_LOCKED is done,
-> the insmod thread will go away after some time, leaving the semaphore
-> 'orphaned')
-> 
-> > So the fix is to change the lock type into compat_semaphore. I'm 
-> > attaching the patch. It works for me with 2.6.12-rc5-RT-V0.7.47-12.
-> 
-> it would be nice to get the conversion to completions upstream. It is a 
-> perfectly fine solution. The compat_semaphore thing is another, easier 
-> solution.
-> 
-> 	Ingo
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> Jörg
+>
 
+Jim.

@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVFAHYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVFAHc1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbVFAHYP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 03:24:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbVFAHYP
+	id S261319AbVFAHc1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 03:32:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbVFAHc0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 03:24:15 -0400
-Received: from mo.optusnet.com.au ([203.10.68.101]:19121 "EHLO
-	mo.optusnet.com.au") by vger.kernel.org with ESMTP id S261313AbVFAHYL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 03:24:11 -0400
-To: Andi Kleen <ak@muc.de>
-Cc: Denis Vlasenko <vda@ilport.com.ua>,
-       dean gaudet <dean-list-linux-kernel@arctic.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Benjamin LaHaise <bcrl@kvack.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] x86-64: Use SSE for copy_page and clear_page
-References: <20050530181626.GA10212@kvack.org> <20050530193225.GC25794@muc.de>
-	<200505311137.00011.vda@ilport.com.ua>
-	<200505311215.06495.vda@ilport.com.ua> <20050531092358.GA9372@muc.de>
-From: michael@optusnet.com.au
-Date: 01 Jun 2005 17:22:28 +1000
-In-Reply-To: <20050531092358.GA9372@muc.de>
-Message-ID: <m2zmuaee2z.fsf@mo.optusnet.com.au>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Wed, 1 Jun 2005 03:32:26 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:56965 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261309AbVFAHcV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 03:32:21 -0400
+Message-ID: <429D647F.5020701@pobox.com>
+Date: Wed, 01 Jun 2005 03:32:15 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Greg K-H <greg@kroah.com>
+CC: linux-kernel@vger.kernel.org,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       acurrid@nvidia.com
+Subject: Re: [PATCH] PCI: amd74xx patch for new NVIDIA device IDs
+References: <111760252426@kroah.com>
+In-Reply-To: <111760252426@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@muc.de> writes:
-
-> > Thus with "normal" page clear and "nt" page copy routines
-> > both clear and copy benchmarks run faster than with
-> > stock kernel, both with small and large working set.
-> > 
-> > Am I wrong?
+Greg KH wrote:
+> [PATCH] PCI: amd74xx patch for new NVIDIA device IDs
 > 
-> fork is only a corner case. The main case is a process allocating
-> memory using brk/mmap and then using it.
+> Here's the 2.6 amd74xx patch for NVIDIA MCP51.
+> 
+> Signed-off-by: Andy Currid <acurrid@nvidia.com>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> 
+> ---
+> commit af00f9811e0ccbd3db84ddc4cffb0da942653393
+> tree 5a9c3b7f7d61d96d3624ad130b173a761cb7dac2
+> parent 2ac2610b26c9da72820443328ff2c56c7b8c87b8
+> author Andy Currid <acurrid@nvidia.com> Mon, 23 May 2005 08:55:45 -0700
+> committer Greg KH <gregkh@suse.de> Tue, 31 May 2005 14:26:38 -0700
+> 
+>  drivers/ide/pci/amd74xx.c |    3 +++
+>  include/linux/pci_ids.h   |    6 ++++++
 
-Key point: "using it". This normally involves writes to memory. Most
-applications don't commonly read memory that they haven't previously
-written to. (valgrind et al call that behaviour a "bug" :).
 
-Given that, I'd say you really don't want the page zero routines
-touching the cache.
+This is hardly a PCI patch.
 
-Michael.
+Has Bart, the IDE maintainer, acked this?
+
+	Jeff
+
+

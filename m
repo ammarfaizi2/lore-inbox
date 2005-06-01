@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261349AbVFAJU2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVFAJYy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261349AbVFAJU2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 05:20:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVFAJU2
+	id S261350AbVFAJYy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 05:24:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVFAJYy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 05:20:28 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:49614 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261349AbVFAJUV (ORCPT
+	Wed, 1 Jun 2005 05:24:54 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:30416 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261350AbVFAJYq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 05:20:21 -0400
-Date: Wed, 1 Jun 2005 11:19:08 +0200
+	Wed, 1 Jun 2005 05:24:46 -0400
+Date: Wed, 1 Jun 2005 11:21:02 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Cc: linux-kernel@vger.kernel.org, dwalker@mvista.com,
-       Joe King <atom_bomb@rocketmail.com>, ganzinger@mvista.com,
-       Lee Revell <rlrevell@joe-job.com>, Steven Rostedt <rostedt@goodmis.org>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: linux-kernel@vger.kernel.org,
+       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>
 Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
-Message-ID: <20050601091908.GA13041@elte.hu>
-References: <20050523082637.GA15696@elte.hu> <4294E24E.8000003@stud.feec.vutbr.cz>
+Message-ID: <20050601092102.GB13041@elte.hu>
+References: <Pine.LNX.4.44.0505230800580.863-100000@dhcp153.mvista.com> <42920958.B67C742F@tv-sign.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4294E24E.8000003@stud.feec.vutbr.cz>
+In-Reply-To: <42920958.B67C742F@tv-sign.ru>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
 X-ELTE-SpamCheck: no
 X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
+	BAYES_00 -4.90
 X-ELTE-SpamLevel: 
 X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
+* Oleg Nesterov <oleg@tv-sign.ru> wrote:
 
-> Hi Ingo,
+> Another problem in plist_add:
 > 
-> I'm now running -RT-2.6.12-rc4-V0.7.47-08 on amd64. I use cpufreq, but 
-> with the RT kernel it triggers "Kernel BUG at "kernel/latency.c":1295" 
-> (the check for preempt_count underflow).
+> > existing_sp_head:
+> > 	itr_pl2 = container_of(itr_pl->dp_node.prev, struct plist, dp_node);
+> > 	list_add(&pl->sp_node, &itr_pl2->sp_node);
 > 
-> I'm attaching a patch which changes a semaphore in cpufreq into a 
-> completion. With this patch, my system runs OK even with cpufreqd.
+> This breaks fifo ordering.
 
-btw., could you please submit this upstream too, so that it doesnt get 
-lost? Semaphore->completion conversions are desirable upstream for cases 
-where the semaphore was in reality not used for mutual exclusion but for 
-completion purposes. (in which case real completions are both more 
-readable and slightly faster)
+Daniel, is the issue (and other issues) Oleg noticed still present? I'm 
+still a bit uneasy about the complexity of the plist changes.
 
 	Ingo

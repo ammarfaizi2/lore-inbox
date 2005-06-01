@@ -1,65 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVFAQs2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVFAQ4n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261461AbVFAQs2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 12:48:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVFAQs2
+	id S261468AbVFAQ4n (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 12:56:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbVFAQ4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 12:48:28 -0400
-Received: from holomorphy.com ([66.93.40.71]:47304 "EHLO holomorphy.com")
-	by vger.kernel.org with ESMTP id S261461AbVFAQsX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 12:48:23 -0400
-Date: Wed, 1 Jun 2005 09:48:17 -0700
-From: William Lee Irwin III <wli@holomorphy.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, davem@davemloft.net
-Subject: Re: 2.6.12-rc5-mm2
-Message-ID: <20050601164817.GO20782@holomorphy.com>
-References: <20050601022824.33c8206e.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050601022824.33c8206e.akpm@osdl.org>
-Organization: The Domain of Holomorphy
-User-Agent: Mutt/1.5.9i
+	Wed, 1 Jun 2005 12:56:43 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:51614 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S261468AbVFAQ4g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 12:56:36 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Wed, 01 Jun 2005 18:55:16 +0200
+To: schilling@fokus.fraunhofer.de, jim@why.dont.jablowme.net
+Cc: toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com, ltd@cisco.com,
+       linux-kernel@vger.kernel.org, kraxel@suse.de, dtor_core@ameritech.net,
+       7eggert@gmx.de
+Subject: Re: OT] Joerg Schilling flames Linux on his Blog
+Message-ID: <429DE874.nail7BFM1RBO2@burner>
+References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com>
+ <20050530093420.GB15347@hout.vanvergehaald.nl>
+ <429B0683.nail5764GYTVC@burner>
+ <46BE0C64-1246-4259-914B-379071712F01@mac.com>
+ <429C4483.nail5X0215WJQ@burner> <87acmbxrfu.fsf@bytesex.org>
+ <429DD036.nail7BF7MRZT6@burner> <20050601154245.GA14299@voodoo>
+In-Reply-To: <20050601154245.GA14299@voodoo>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 01, 2005 at 02:28:24AM -0700, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc5/2.6.12-rc5-mm2/
-> - Dropped bk-acpi.patch.  Too old, too much breakage.
-> - A few more subsystem trees have moved to using git
-> - There are a large number of patches here which fix patches which people
->   have already sent.  A very large number.  Are we getting a bit careless?
+"Jim Crilly" <jim@why.dont.jablowme.net> wrote:
 
-This small patch silences some iomem-related warnings in sunzilog.c
-by declaring mapped_addr as void __iomem * and inserting a cast in
-one case.
+> > I did define this model 19 years ago when I did write the first 
+> > Generic SCSI driver at all. Adaptec indepentently did develop ASPI
+> > 2 years later and did chose the same address model. Nearly all
+> > OS use this kind (or a very similar model) internaly inside the kernel
+> > or the basic SCSI address routines.
+>
+> Just because it's old, that doesn't mean it's good. The kernel using the
+
+Just because it is old, it does not mean that it is bad....
+
+It is the only interface that did not need to be modified since then.
+The current driver interface is still 100% binary compatible to the
+one I made in August 1986.
+
+> numbers internally makes sense, but requiring them for userspace seems
+> stupid. All you should do is open the appropriate device node and let the
+> kernel figure out which SCSI ID to send the commands to. Every other tool
+> I've ever seen uses device nodes, why should cdrecord be different? All it
+> does is make cdrecord more difficult to use.
+
+Note that Linux did not have a usable /dev/whatever based interface 10 years ago.
+Also note that cdda2wav distinguishes between "OS native Audio ioctl calls" and
+generic SCSI from checking the dev= parameter. For this reason using 
+/dev/whateter is just wrong. Take it this way or you are a victim of you own 
+decision to ignore the documentation of a program.
 
 
-Index: mm2-2.6.12-rc5/drivers/serial/sunzilog.c
-===================================================================
---- mm2-2.6.12-rc5.orig/drivers/serial/sunzilog.c	2005-06-01 08:11:54.863223871 -0700
-+++ mm2-2.6.12-rc5/drivers/serial/sunzilog.c	2005-06-01 09:40:25.196930439 -0700
-@@ -1071,7 +1071,7 @@
-  */
- static struct zilog_layout __iomem * __init get_zs_sun4u(int chip, int zsnode)
- {
--	unsigned long mapped_addr;
-+	void __iomem *mapped_addr;
- 	unsigned int sun4u_ino;
- 	struct sbus_bus *sbus = NULL;
- 	struct sbus_dev *sdev = NULL;
-@@ -1111,9 +1111,9 @@
- 		apply_fhc_ranges(central_bus->child,
- 				 &zsregs[0], 1);
- 		apply_central_ranges(central_bus, &zsregs[0], 1);
--		mapped_addr =
--			(((u64)zsregs[0].which_io)<<32UL) |
--			((u64)zsregs[0].phys_addr);
-+		mapped_addr = (void __iomem *)
-+			((((u64)zsregs[0].which_io)<<32UL) |
-+			((u64)zsregs[0].phys_addr));
- 	}
- 
- 	if (zilog_irq == -1) {
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  
+       schilling@fokus.fraunhofer.de	(work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

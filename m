@@ -1,54 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261191AbVFAVhn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVFAVi7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261191AbVFAVhn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 17:37:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVFAVeu
+	id S261184AbVFAVi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 17:38:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbVFAViL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 17:34:50 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:21876
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S261184AbVFAUom
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 16:44:42 -0400
-Date: Wed, 1 Jun 2005 22:44:30 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Karim Yaghmour <karim@opersys.com>,
-       Esben Nielsen <simlo@phys.au.dk>, Paulo Marques <pmarques@grupopie.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       James Bruce <bruce@andrew.cmu.edu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
-       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-Message-ID: <20050601204430.GA5413@g5.random>
-References: <20050601143202.GI5413@g5.random> <Pine.OSF.4.05.10506011640360.1707-100000@da410.phys.au.dk> <20050601150527.GL5413@g5.random> <429DD533.6080407@opersys.com> <20050601153803.GO5413@g5.random> <1117648391.20785.7.camel@tglx.tec.linutronix.de> <20050601192224.GV5413@g5.random> <20050601193906.GA26939@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050601193906.GA26939@elte.hu>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.9i
+	Wed, 1 Jun 2005 17:38:11 -0400
+Received: from mail23.syd.optusnet.com.au ([211.29.133.164]:45212 "EHLO
+	mail23.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261184AbVFAVg7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 17:36:59 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: steve.rotolo@ccur.com
+Subject: Re: SD_SHARE_CPUPOWER breaks scheduler fairness
+Date: Thu, 2 Jun 2005 07:37:16 +1000
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org, bugsy@ccur.com
+References: <1117561608.1439.168.camel@whiz> <200506020047.16752.kernel@kolivas.org> <1117651285.22879.73.camel@bonefish>
+In-Reply-To: <1117651285.22879.73.camel@bonefish>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1493069.24kyQzLVK7";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200506020737.20098.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 01, 2005 at 09:39:06PM +0200, Ingo Molnar wrote:
-> yes. As i said in an earlier mail:
-> 
-> > > (there are still some ways to introduce latencies into PREEMPT_RT, 
-> > > but they are not common and we are working on ways to cover them
-> > > all.)
->  
-> local_irq_disable() is one way, preempt_disable() is another way. Adding 
+--nextPart1493069.24kyQzLVK7
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-btw, I didn't mention preempt_disable because that really is called a
-pair of times in the whole drivers.
+On Thu, 2 Jun 2005 04:41, Steve Rotolo wrote:
+> I guess the bottom-line is: given N logical cpus, 1/N of all
+> SCHED_NORMAL tasks may get stuck on a sibling cpu with no chance to
+> run.  All it takes is one spinning SCHED_FIFO task.  Sounds like a bug.
 
-> asm("cli") to your driver is a third way. In practice these items are 
-> not a big issue, so i'm not yet covering them. It's a small detail.  
-> Check the amount of local-irq-disable instances in the driver space vs.  
-> spinlock use.
+You're right, and excuse me for missing it. We have to let SCHED_NORMAL tas=
+ks=20
+run for some period with rt tasks. There shouldn't be any combination of=20
+mutually exclusive tasks for siblings.
 
-It's not as frequent like spin_lock_irq, but it's still a relevant
-driver API (unlike preempt_disable). So I think it worth fixing to
-really provide the same guarantees as RTAI and rtlinux.
+I'll work on something.
+
+Cheers,
+Con
+
+--nextPart1493069.24kyQzLVK7
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCniqQZUg7+tp6mRURAiwHAJ0TF/MZct4Qg+Zu3mMqNH+2bN4v8ACffJXQ
+vnrVYogdTp2zpul3Ut6ZP64=
+=2bah
+-----END PGP SIGNATURE-----
+
+--nextPart1493069.24kyQzLVK7--

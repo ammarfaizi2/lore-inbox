@@ -1,35 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVFALtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVFALwb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbVFALtA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 07:49:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVFALtA
+	id S261339AbVFALwb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 07:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261342AbVFALwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 07:49:00 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:29971 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S261337AbVFALs6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 07:48:58 -0400
-Message-ID: <429DA0A9.6010808@rtr.ca>
-Date: Wed, 01 Jun 2005 07:48:57 -0400
-From: Mark Lord <lkml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
-X-Accept-Language: en, en-us
+	Wed, 1 Jun 2005 07:52:31 -0400
+Received: from smtp1.brturbo.com.br ([200.199.201.163]:3270 "EHLO
+	smtp1.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S261339AbVFALwK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 07:52:10 -0400
+Message-ID: <429DA166.8040708@brturbo.com.br>
+Date: Wed, 01 Jun 2005 08:52:06 -0300
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
+X-Accept-Language: pt-br, pt, es, en-us, en
 MIME-Version: 1.0
-To: Rene Herman <rene.herman@keyaccess.nl>
-Cc: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: External USB2 HDD affects speed hda
-References: <429BA001.2030405@keyaccess.nl>
-In-Reply-To: <429BA001.2030405@keyaccess.nl>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Andrew Morton <akpm@osdl.org>
+CC: mkrufky@m1k.net, video4linux-list@redhat.com, linux-kernel@vger.kernel.org,
+       Manuel Capinha <mcapinha@gmail.com>
+Subject: Re: [PATCH] Video for Linux Docummentation
+References: <429D2A7C.1080002@gmail.com>	<429D4459.2060206@m1k.net> <20050531221830.14e7463e.akpm@osdl.org>
+In-Reply-To: <20050531221830.14e7463e.akpm@osdl.org>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Look at "cat /proc/interrupts" and see if the USB is sharing
-an IRQ line with ide0.  If so, then the best explanation I can
-see is that the USB driver must have a *really slow* interrupt
-handler up to the point where it determines that the interrupt
-is not for it.
+Andrew Morton wrote:
 
--ml
+>Michael Krufky <mkrufky@m1k.net> wrote:
+>  
+>
+>> My fix-for-cx88-cardsc-for-dvico-fusionhdtv-3-gold-q.patch in -mm 
+>> conflicts with the Video for Linux Documentation patch.
+>>    
+>>
+>
+>I got it all merged up OK.
+>
+>  
+>
+>> I think you 
+>> should just drop my patch, since it's in v4l cvs as card=28 (instead of 
+>> card=27, in -mm).  I guess it will get into the kernel when the rest of 
+>> v4l synchronizes.
+>>    
+>>
+>
+>Nah.  Please review next -mm and send any needed fixes.
+>
+>  
+>
+Manuel Capinha was responsible for card=27 patch (Pixelview Pro Ultra).
+He is currently testing the patch against newer -mm version and will
+submit soon, correcting card numbering.
+
+Mauro.

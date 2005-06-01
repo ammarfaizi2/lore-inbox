@@ -1,69 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261468AbVFAQ4n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbVFARAu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261468AbVFAQ4n (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 12:56:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbVFAQ4n
+	id S261469AbVFARAu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 13:00:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261470AbVFARAt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 12:56:43 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:51614 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S261468AbVFAQ4g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 12:56:36 -0400
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Wed, 01 Jun 2005 18:55:16 +0200
-To: schilling@fokus.fraunhofer.de, jim@why.dont.jablowme.net
-Cc: toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com, ltd@cisco.com,
-       linux-kernel@vger.kernel.org, kraxel@suse.de, dtor_core@ameritech.net,
-       7eggert@gmx.de
+	Wed, 1 Jun 2005 13:00:49 -0400
+Received: from hirsch.in-berlin.de ([192.109.42.6]:61331 "EHLO
+	hirsch.in-berlin.de") by vger.kernel.org with ESMTP id S261469AbVFARAl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 13:00:41 -0400
+X-Envelope-From: kraxel@bytesex.org
+Date: Wed, 1 Jun 2005 18:55:26 +0200
+From: Gerd Knorr <kraxel@suse.de>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: lsorense@csclub.uwaterloo.ca, toon@hout.vanvergehaald.nl,
+       mrmacman_g4@mac.com, ltd@cisco.com, linux-kernel@vger.kernel.org,
+       dtor_core@ameritech.net, 7eggert@gmx.de
 Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Message-ID: <429DE874.nail7BFM1RBO2@burner>
-References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com>
- <20050530093420.GB15347@hout.vanvergehaald.nl>
- <429B0683.nail5764GYTVC@burner>
- <46BE0C64-1246-4259-914B-379071712F01@mac.com>
- <429C4483.nail5X0215WJQ@burner> <87acmbxrfu.fsf@bytesex.org>
- <429DD036.nail7BF7MRZT6@burner> <20050601154245.GA14299@voodoo>
-In-Reply-To: <20050601154245.GA14299@voodoo>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Message-ID: <20050601165526.GA7815@bytesex>
+References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com> <20050530093420.GB15347@hout.vanvergehaald.nl> <429B0683.nail5764GYTVC@burner> <46BE0C64-1246-4259-914B-379071712F01@mac.com> <429C4483.nail5X0215WJQ@burner> <87acmbxrfu.fsf@bytesex.org> <20050531190556.GK23621@csclub.uwaterloo.ca> <20050531195603.GB28168@bytesex> <429DDAA4.nail7BFB1SXEV@burner>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <429DDAA4.nail7BFB1SXEV@burner>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jim Crilly" <jim@why.dont.jablowme.net> wrote:
+On Wed, Jun 01, 2005 at 05:56:20PM +0200, Joerg Schilling wrote:
+> Gerd Knorr <kraxel@suse.de> wrote:
+> 
+> >    # find /dev/cd /dev/disk -type l -print | sort
+> >    /dev/cd/by-id/HL-DT-ST_DVDRAM_GSA-4040B_K213BDG5213
+> >    /dev/cd/by-id/LG_CD-RW_CED-8080B_2000_07_27e
+> >    /dev/cd/by-path/pci-0000:00:04.1-ide-1:0
+> >    /dev/cd/by-path/pci-0000:00:04.1-ide-1:1
+> >    /dev/disk/by-id/IBM-DTLA-305040_YJEYJM36751
+> >    /dev/disk/by-id/IBM-DTLA-305040_YJEYJM36751p1
+> 
+> Nice, but will be the Linux /dev/ fashion next year?
 
-> > I did define this model 19 years ago when I did write the first 
-> > Generic SCSI driver at all. Adaptec indepentently did develop ASPI
-> > 2 years later and did chose the same address model. Nearly all
-> > OS use this kind (or a very similar model) internaly inside the kernel
-> > or the basic SCSI address routines.
->
-> Just because it's old, that doesn't mean it's good. The kernel using the
+You simply shoudn't care.  Just open the /dev/whatever device
+node passed by the user and be happy ;)
 
-Just because it is old, it does not mean that it is bad....
+> >From my experiences it makes no sense to implement support
+> for things like this before waiting long enough to know 
+> whether this is something that will become ordinary.
 
-It is the only interface that did not need to be modified since then.
-The current driver interface is still 100% binary compatible to the
-one I made in August 1986.
+I don't see what kind of special support you want implement in
+cdrecord.  The user says "this device", cdrecord takes it and
+opens it, tries a ioctl or two to figure what kind of device
+handle that is (scsi generic or 2.6-style /dev/hdx), then uses
+it to send scsi commands to the device.
 
-> numbers internally makes sense, but requiring them for userspace seems
-> stupid. All you should do is open the appropriate device node and let the
-> kernel figure out which SCSI ID to send the commands to. Every other tool
-> I've ever seen uses device nodes, why should cdrecord be different? All it
-> does is make cdrecord more difficult to use.
+You don't have to solve the problem of providing stable device
+names within cdrecord.  That is the job of the operating system.
+A udev-based linux distro can do that as you can see above.
+cdrecord should just accept these device nodes, nothing more.
 
-Note that Linux did not have a usable /dev/whatever based interface 10 years ago.
-Also note that cdda2wav distinguishes between "OS native Audio ioctl calls" and
-generic SCSI from checking the dev= parameter. For this reason using 
-/dev/whateter is just wrong. Take it this way or you are a victim of you own 
-decision to ignore the documentation of a program.
-
-
-Jörg
+  Gerd
 
 -- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  
-       schilling@fokus.fraunhofer.de	(work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+-mm seems unusually stable at present.
+	-- akpm about 2.6.12-rc3-mm3

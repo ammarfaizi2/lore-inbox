@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbVFAWEe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVFAV7p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261329AbVFAWEe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 18:04:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVFAWEP
+	id S261307AbVFAV7p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 17:59:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbVFAV5N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 18:04:15 -0400
-Received: from gate.crashing.org ([63.228.1.57]:11973 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261319AbVFAWDB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 18:03:01 -0400
-Subject: Re: Freezer Patches.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Nigel Cunningham <ncunningham@cyclades.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050601130205.GA1940@openzaurus.ucw.cz>
-References: <1117629212.10328.26.camel@localhost>
-	 <20050601130205.GA1940@openzaurus.ucw.cz>
-Content-Type: text/plain
-Date: Thu, 02 Jun 2005 08:02:36 +1000
-Message-Id: <1117663357.19020.70.camel@gaston>
+	Wed, 1 Jun 2005 17:57:13 -0400
+Received: from rproxy.gmail.com ([64.233.170.203]:11886 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261324AbVFAVx4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 17:53:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=BkCvP1L6w5hMuQPPSkJw76cxL7BPA7QqA9gVToHiIhzBXiQM3HIaTq0yAHvTA4fONAsYXEoFBpNY0RptGkJds1yZNBxZ9ohCGYchTEh2UkWLLwIprK1vnyFNmFxb7TpMFNfYylvxlAusDkvJcHgKEJRrH/wwYD8Hii29Jb0io0w=
+Message-ID: <21d7e997050601145355174821@mail.gmail.com>
+Date: Thu, 2 Jun 2005 07:53:55 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Stefano Rivoir <s.rivoir@gts.it>
+Subject: Re: 2.6.12-rc5-mm2
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <200506011422.37147.s.rivoir@gts.it>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050601022824.33c8206e.akpm@osdl.org>
+	 <200506011422.37147.s.rivoir@gts.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-01 at 15:02 +0200, Pavel Machek wrote:
-> Hi!
+> This made my asus-acpi work again.
 > 
-> > Here are the freezer patches. They were prepared against rc3, but I
-> > think they still apply fine against rc5. (Ben, these are the same ones I
-> > sent you the other day).
+> DRM/DRI seems to have stopped working since -rc5-mm1.
+> -mm1 reported a badness in syslog (see my previous report int rc5-mm1
+> announcement thread), while now something is silently failing: glxinfo
+> reports
 
-> 300: stopping softirqd seems dangerous to me... are you sure?
+Can you look in dmesg for where it loads the drm and radeon drivers?
+and agp? attach a dmesg from Linus tree and from -mm if you could..
 
-That sounds bogus indeed.
-
-
-
+Dave.

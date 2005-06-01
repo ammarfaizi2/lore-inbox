@@ -1,58 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVFAFv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVFAGOw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261279AbVFAFv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 01:51:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbVFAFv4
+	id S261286AbVFAGOw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 02:14:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261290AbVFAGOw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 01:51:56 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:8661 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S261249AbVFAFvv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 01:51:51 -0400
-Date: Wed, 1 Jun 2005 07:52:52 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH] AHCI PCI MSI support, update 1
-Message-ID: <20050601055251.GC1441@suse.de>
-References: <429C8978.4060601@pobox.com> <20050601054422.GA1441@suse.de> <429D4BB3.6080903@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <429D4BB3.6080903@pobox.com>
+	Wed, 1 Jun 2005 02:14:52 -0400
+Received: from femail.waymark.net ([206.176.148.84]:53200 "EHLO
+	femail.waymark.net") by vger.kernel.org with ESMTP id S261286AbVFAGOr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 02:14:47 -0400
+Date: 1 Jun 2005 06:08:30 GMT
+From: Kenneth Parrish <Kenneth.Parrish@family-bbs.org>
+Subject: Re: [ACPI] 2.6.12-rc5
+To: linux-kernel@vger.kernel.org
+Message-ID: <7032c6.c1090f@family-bbs.org>
+Organization: FamilyNet HQ
+X-Mailer: BBBS/NT v4.01 Flag-5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 01 2005, Jeff Garzik wrote:
-> Jens Axboe wrote:
-> >System boots and works fine (typing this message here), MSI is enabled.
-> >I double checked with an added printk :-)
-> 
-> Any chance you could post a full /proc/interrupts output for this box?
+-=> Pavel Machek wrote to Kenneth Parrish <=-
 
-Sure:
+Re: ACPI sleep states and 2.6.12-rc5, VIA VP3, Cyrix MII:
+    not wakeable after delay
 
-           CPU0       CPU1
-  0:     349415     330112    IO-APIC-edge  timer
-  4:         10          0    IO-APIC-edge  serial
-  8:          0          0    IO-APIC-edge  rtc
-  9:          0          0   IO-APIC-level  acpi
- 14:          2          0    IO-APIC-edge  ide0
-169:          0          0   IO-APIC-level  uhci_hcd:usb4
-177:       2565          0   IO-APIC-level  eth0
-185:       6932       7195   IO-APIC-level  uhci_hcd:usb3
-201:       8991       5154         PCI-MSI  libata
-209:          3          0   IO-APIC-level  ehci_hcd:usb1, uhci_hcd:usb2
-217:          0          0   IO-APIC-level  uhci_hcd:usb5
-225:        345         51   IO-APIC-level  HDA Intel
-NMI:        150         83
-LOC:     671016     671636
-ERR:          1
-MIS:          0
+ PM> Did it work properly in any previous kernel?
+The testing sleep periods were mostly short, but, a couple of
+times it wouldn't wake - i think only after longer stand-bys. i don't
+recall the kernel versions. 2.6.12-rc4-mm1 and -mm2 don't wake at all.
+and there's the C1 state at /proc/acpi/processor/CPU0/power but no C2 .
 
+14!cat /proc/acpi/processor/CPU0/power  # 2.6.12-rc5
 
--- 
-Jens Axboe
+active state:            C2
+max_cstate:              C8
+bus master activity:     00000000
+states:
+    C1:                  type[C1] promotion[C2] demotion[--] latency[000]
+usage[00021770]
+   *C2:                  type[C2] promotion[--] demotion[C1] latency[100]
+usage[01209363]
 
+--- MultiMail/Linux v0.46

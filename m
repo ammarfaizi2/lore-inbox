@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbVFASNq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVFASqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261510AbVFASNq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 14:13:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVFASM7
+	id S261207AbVFASqT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 14:46:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbVFASoT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 14:12:59 -0400
-Received: from fed1rmmtao01.cox.net ([68.230.241.38]:11146 "EHLO
-	fed1rmmtao01.cox.net") by vger.kernel.org with ESMTP
-	id S261510AbVFASIn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 14:08:43 -0400
-Date: Wed, 1 Jun 2005 11:08:36 -0700
-From: Matt Porter <mporter@kernel.crashing.org>
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
-Subject: [PATCH][1/3] RapidIO support: core
-Message-ID: <20050601110836.A16559@cox.net>
+	Wed, 1 Jun 2005 14:44:19 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:57054 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261536AbVFASLj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 14:11:39 -0400
+Date: Wed, 1 Jun 2005 19:11:37 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [patch 5/11] s390: #ifdefs in compat_ioctls.
+Message-ID: <20050601181137.GA24268@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Martin Schwidefsky <schwidefsky@de.ibm.com>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <20050601180312.GE6418@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050601180312.GE6418@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adds a RapidIO subsystem to the kernel. RIO is a switched
-fabric interconnect used in higher-end embedded applications.
-The curious can look at the specs over at http://www.rapidio.org
+On Wed, Jun 01, 2005 at 08:03:12PM +0200, Martin Schwidefsky wrote:
+> [patch 5/11] s390: #ifdefs in compat_ioctls.
+> 
+> From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> 
+> Remove superflous #if .. #endif pairs from compat_ioctl.c.
 
-The core code implements enumeration/discovery, management of
-devices/resources, and interfaces for RIO drivers.
+Actually is there any chance you could just provide ->compat_ioctl handlers
+in the drivers?  All these ioctls are specific to drivers, and it sounds like
+a rather bad idea to pollute the global has table with them.  This is also
+a good chance to switch the drivers to drop BKL usage in the ioctl path and
+use the same handler for ->unlocked_ioctl and ->compat_ioctl.
 
-There's a lot more to do to take advantages of all the hardware
-features. However, this should provide a good base for folks
-with RIO hardware to start contributing.
-
-Signed-off-by: Matt Porter <mporter@kernel.crashing.org>
-
-Patch is 108KB and can be found here:
-ftp://source.mvista.com/pub/rio/l26_rio_core.patch
-
--Matt

@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbVFAVNu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVFAVRB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261261AbVFAVNu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 17:13:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbVFAVNi
+	id S261240AbVFAVRB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 17:17:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbVFAVOb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 17:13:38 -0400
-Received: from leviathan.ele.uri.edu ([131.128.51.64]:11501 "EHLO
-	leviathan.ele.uri.edu") by vger.kernel.org with ESMTP
-	id S261292AbVFAVKM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 17:10:12 -0400
-Subject: Re: [ANNOUNCE 0/7] Open-iSCSI/Linux-iSCSI-5 High-Performance
-	Initiator
-From: Ming Zhang <mingz@ele.uri.edu>
-Reply-To: mingz@ele.uri.edu
-To: Patrick McFarland <pmcfarland@downeast.net>
-Cc: Alex Aizman <itn780@yahoo.com>, linux-scsi <linux-scsi@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Christoph Hellwig <hch@lst.de>
-In-Reply-To: <200506011654.11362.pmcfarland@downeast.net>
-References: <429E15CD.2090202@yahoo.com>
-	 <200506011654.11362.pmcfarland@downeast.net>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-lXiisnr6uw/BQIrcuNFG"
-Organization: no-dole-available
-Date: Wed, 01 Jun 2005 17:10:00 -0400
-Message-Id: <1117660200.5507.152.camel@localhost.localdomain>
+	Wed, 1 Jun 2005 17:14:31 -0400
+Received: from mail.kroah.org ([69.55.234.183]:50832 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261240AbVFAVOE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 17:14:04 -0400
+Date: Wed, 1 Jun 2005 14:24:18 -0700
+From: Greg KH <greg@kroah.com>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Patrick Mochel <mochel@digitalimplant.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Don't "lose" devices on suspend on failure
+Message-ID: <20050601212418.GA3936@kroah.com>
+References: <1117523329.5826.14.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-2) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1117523329.5826.14.camel@gaston>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, May 31, 2005 at 05:08:49PM +1000, Benjamin Herrenschmidt wrote:
+> Hi !
+> 
+> I think we need this patch or we might "lose" devices to the dpm_irq_off
+> list if a failure occurs during the suspend process.
+> 
+> Patrick, Greg, your opinion ?
 
---=-lXiisnr6uw/BQIrcuNFG
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Looks fine to me, I've added it to my tree.
 
-u need target support as well.
+thanks,
 
-ming
-
-On Wed, 2005-06-01 at 16:54 -0400, Patrick McFarland wrote:
-> On Wednesday 01 June 2005 04:08 pm, Alex Aizman wrote:
-> > This is open-iscsi/linux-iscsi-5 Initiator. This submission is ready fo=
-r
-> > inclusion into mainline kernel.
->=20
-> Awesome! So is this complete enough so I can, say, play DVDs from one box=
-=20
-> using an ATAPI DVD drive in another box?
->=20
-
---=-lXiisnr6uw/BQIrcuNFG
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQBCniQoSYbkL5BnVYoRAgA0AJ9ACU9YiV6c2kpsKQAWdJyH2dGApwCgielO
-q/qXGCfzjCruEX3Te+Z1i0o=
-=agmj
------END PGP SIGNATURE-----
-
---=-lXiisnr6uw/BQIrcuNFG--
-
+greg k-h

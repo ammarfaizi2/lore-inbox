@@ -1,44 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261453AbVFAXu7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbVFAXu7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261453AbVFAXu7 (ORCPT <rfc822;willy@w.ods.org>);
+	id S261512AbVFAXu7 (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 1 Jun 2005 19:50:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbVFAXq4
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261453AbVFAXsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 19:46:56 -0400
-Received: from fsmlabs.com ([168.103.115.128]:17546 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261509AbVFAXqZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 19:46:25 -0400
-Date: Wed, 1 Jun 2005 17:49:52 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Gregor Jasny <gjasny@web.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Cyrix 6x86L does not get identified by Linux 2.6
-In-Reply-To: <200506010036.27957.gjasny@web.de>
-Message-ID: <Pine.LNX.4.61.0506011749220.8323@montezuma.fsmlabs.com>
-References: <200506010036.27957.gjasny@web.de>
+	Wed, 1 Jun 2005 19:48:13 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:38785 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S261499AbVFAXoE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 19:44:04 -0400
+X-ORBL: [69.107.40.98]
+From: David Brownell <david-b@pacbell.net>
+To: Rene Herman <rene.herman@keyaccess.nl>
+Subject: Re: External USB2 HDD affects speed hda
+Date: Wed, 1 Jun 2005 16:43:41 -0700
+User-Agent: KMail/1.7.1
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, Mark Lord <lkml@rtr.ca>,
+       David Brownell <dbrownell@users.sourceforge.net>
+References: <429BA001.2030405@keyaccess.nl> <429E3338.9000401@keyaccess.nl> <429E37BA.7090502@keyaccess.nl>
+In-Reply-To: <429E37BA.7090502@keyaccess.nl>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506011643.42073.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Jun 2005, Gregor Jasny wrote:
+On Wednesday 01 June 2005 3:33 pm, Rene Herman wrote:
+> Rene Herman wrote:
+> 
+> > David Brownell wrote:
+> 
+> >> The experiment: verify that only the RUN bit is set on your machine
+> >> too. If "Periodic" and/or "Async" bits are set, then the controller
+> >> is _supposed_ to be issuing DMA transfers over PCI, so less bandwidth
+> >> will be available. Otherwise, not.
+> 
+> [ snip ]
+> 
+> > and one after switching on the USB2 HDD, when the hdparm result for hda 
+> > has dropped to 42 MB/s:
+> > 
+> > ===
+> > bus pci, device 0000:00:09.2 (driver 10 Dec 2004)
+> > EHCI 1.00, hcd state 1
+> > structural params 0x00002204
+> > capability params 0x00006872
+> > status a008 Async Recl FLR
+> 
+> Only see that "Async" now while rereading. Did you mean that one? If so, 
+> I'm right now catting the registers file and that "Async" is toggling on 
+> and off continuously. 4 cats in a row:
+> 
+> status 0008 FLR
+> status 8008 Async FLR
+> status a008 Async Recl FLR
+> status 0008 FLR
 
-> on my Cyrix 6x86L (notice the L) I've got the problem that it doesn't get 
-> identified as a Cyrix processor. Instead it is treated as a common 486.
-> 
-> I think the problem is that the cpuid feature is not enabled after booting. So 
-> init_cyrix which enables the cpuid feature is never called.
-> 
-> As a bad hack I've set the this_cpu pointer to cyrix in 
-> common.c:identify_cpu():
-> 
-> this_cpu = cpu_devs[X86_VENDOR_CYRIX];
-> 
-> Who is responsible for x86 CPU detection?
+Tbat's strange ... shouldn't do that unless someone's issuing
+requests to the bus.  Which shouldn't happen if no devices are
+hooked up to that bus.  If the "command" register isn't turning
+on async requests, that's particularly strange.
 
-Can you identify which kernel version broke this for you?
-
-Thanks,
-	Zwane
+- Dave
 

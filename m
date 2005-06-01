@@ -1,50 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVFATEb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVFATEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbVFATEb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 15:04:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVFATES
+	id S261262AbVFATEP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 15:04:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261259AbVFATDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 15:04:18 -0400
-Received: from mx2.suse.de ([195.135.220.15]:14483 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261244AbVFAS7Y (ORCPT
+	Wed, 1 Jun 2005 15:03:55 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:53132 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261262AbVFATAH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 14:59:24 -0400
-Date: Wed, 1 Jun 2005 20:59:19 +0200
-From: Andi Kleen <ak@suse.de>
-To: Rusty Lynch <rusty.lynch@intel.com>
-Cc: akpm@osdl.org, Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc5-mm2 on x86_64 missing pci_bus_to_node symbol
-Message-ID: <20050601185919.GH23831@wotan.suse.de>
-References: <200506011857.j51IvjmE027415@linux.jf.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506011857.j51IvjmE027415@linux.jf.intel.com>
+	Wed, 1 Jun 2005 15:00:07 -0400
+Date: Wed, 1 Jun 2005 11:59:50 -0700 (PDT)
+From: Christoph Lameter <clameter@engr.sgi.com>
+To: Dave Hansen <haveblue@us.ibm.com>
+cc: Andrew Morton <akpm@osdl.org>, linux-mm <linux-mm@kvack.org>,
+       ia64 list <linux-ia64@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Periodically drain non local pagesets
+In-Reply-To: <1117651618.13600.16.camel@localhost>
+Message-ID: <Pine.LNX.4.62.0506011155270.9664@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.62.0506011047060.9277@schroedinger.engr.sgi.com>
+ <1117651618.13600.16.camel@localhost>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 01, 2005 at 11:57:45AM -0700, Rusty Lynch wrote:
-> Attempting to install a fresh 2.6.12-rc5-mm2 kernel on my x86_64 box, 
-> I am unable to load my e1000 driver because pci_bus_to_node is undefined.
-> 
-> I'm not sure if this is the correct way of fixing this, but here is a quick 
-> patch to export pci_bus_to_node on x86_64.
+On Wed, 1 Jun 2005, Dave Hansen wrote:
 
-Looks good, thanks.
--Andi
+> Also, are you sure that you need the local_irq_en/disable()?  
 
-> 
->     --rusty
-> 
->  arch/x86_64/kernel/x8664_ksyms.c |    1 +
->  1 files changed, 1 insertion(+)
-> 
-> Index: linux-2.6.12-rc5-mm2/arch/x86_64/kernel/x8664_ksyms.c
-> ===================================================================
-> --- linux-2.6.12-rc5-mm2.orig/arch/x86_64/kernel/x8664_ksyms.c
-> +++ linux-2.6.12-rc5-mm2/arch/x86_64/kernel/x8664_ksyms.c
-> @@ -207,3 +207,4 @@ EXPORT_SYMBOL(flush_tlb_page);
->  #endif
->  
->  EXPORT_SYMBOL(cpu_khz);
-> +EXPORT_SYMBOL(pci_bus_to_node);
+drain_pages() does the same. We would run into trouble if an 
+interrupt would use the page allocator.
+
+Fix for the zone comparison:
+
+Index: linux-2.6.12-rc5/mm/page_alloc.c
+===================================================================
+--- linux-2.6.12-rc5.orig/mm/page_alloc.c	2005-06-01 10:41:25.000000000 -0700
++++ linux-2.6.12-rc5/mm/page_alloc.c	2005-06-01 11:57:55.000000000 -0700
+@@ -528,7 +528,7 @@ void drain_remote_pages(void)
+ 		struct per_cpu_pageset *pset;
+ 
+ 		/* Do not drain local pagesets */
+-		if (zone == zone_table[numa_node_id()])
++		if (zone->zone_pgdat->node_id == numa_node_id())
+ 			continue;
+ 
+ 		pset = zone->pageset[smp_processor_id()];

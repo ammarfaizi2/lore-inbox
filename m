@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261178AbVFAJpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVFAJuY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261178AbVFAJpX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 05:45:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261371AbVFAJmL
+	id S261164AbVFAJuY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 05:50:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbVFAJuY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 05:42:11 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:61070 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261368AbVFAJkM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 05:40:12 -0400
-Date: Wed, 1 Jun 2005 11:39:13 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Cc: linux-kernel@vger.kernel.org, dwalker@mvista.com,
-       Joe King <atom_bomb@rocketmail.com>, ganzinger@mvista.com,
-       Lee Revell <rlrevell@joe-job.com>, Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
-Message-ID: <20050601093913.GA17070@elte.hu>
-References: <20050523082637.GA15696@elte.hu> <4294E24E.8000003@stud.feec.vutbr.cz> <20050601091908.GA13041@elte.hu> <429D80AD.1000601@stud.feec.vutbr.cz>
+	Wed, 1 Jun 2005 05:50:24 -0400
+Received: from wproxy.gmail.com ([64.233.184.193]:3234 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261164AbVFAJuP convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 05:50:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=HbmYcHKMjbm349naYWe644+PjnKD0w4LsFgMuE/D93chdhqRNOTjrcU4//WEbstwN9ODKmJpvtfHpAicgsP8T8VR19E07Qkz4gIGvMW8k/GlMypkaQlqkecL5osFUi0xD/oO5SpVE9xSDK+n7sN1wmOGepllDaw1O+lPwMUAEzk=
+Message-ID: <58cb370e05060102504fa06c4c@mail.gmail.com>
+Date: Wed, 1 Jun 2005 11:50:14 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [PATCH] PCI: amd74xx patch for new NVIDIA device IDs
+Cc: Greg K-H <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       acurrid@nvidia.com
+In-Reply-To: <429D647F.5020701@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <429D80AD.1000601@stud.feec.vutbr.cz>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+References: <111760252426@kroah.com> <429D647F.5020701@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 6/1/05, Jeff Garzik <jgarzik@pobox.com> wrote:
+> Greg KH wrote:
+> > [PATCH] PCI: amd74xx patch for new NVIDIA device IDs
+> >
+> > Here's the 2.6 amd74xx patch for NVIDIA MCP51.
+> >
+> > Signed-off-by: Andy Currid <acurrid@nvidia.com>
+> > Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> >
+> > ---
+> > commit af00f9811e0ccbd3db84ddc4cffb0da942653393
+> > tree 5a9c3b7f7d61d96d3624ad130b173a761cb7dac2
+> > parent 2ac2610b26c9da72820443328ff2c56c7b8c87b8
+> > author Andy Currid <acurrid@nvidia.com> Mon, 23 May 2005 08:55:45 -0700
+> > committer Greg KH <gregkh@suse.de> Tue, 31 May 2005 14:26:38 -0700
+> >
+> >  drivers/ide/pci/amd74xx.c |    3 +++
+> >  include/linux/pci_ids.h   |    6 ++++++
+> 
+> 
+> This is hardly a PCI patch.
+> 
+> Has Bart, the IDE maintainer, acked this?
+> 
+>         Jeff
+> 
 
-* Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
+Thanks Jeff.
 
-> Yes, I'm going to contact upstream about this. However, after closer 
-> look on cpufreq code I came to a conclusion that the lock there 
-> doesn't really play the role of a completion. There's always: down(), 
-> then do something with the data structure, then up() in the same 
-> function. I'm going to fix it differently after consulting with 
-> upstream author (I now think that it should not be necessary to take 
-> the lock in cpufreq_add_dev at all).
-
-yeah. It would lead to incorrect code to use a completion if the purpose 
-is a real lock. The main non-PREEMPT_RT-compatible use of semaphores is 
-the unlocking of a semaphore the task did not lock itself. It is correct 
-Linux code, so that alone is not a good reason to change upstream (and 
-upstream doesnt and shouldnt bother about PREEMPT_RT at this point) - 
-but if the underlying code is not entirely clean and the cross-owner-use 
-of locks is not justified it might be possible to solve this via a 
-cleanup.
-
-	Ingo
+Ack.

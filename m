@@ -1,82 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbVFAUMF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVFAUoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261173AbVFAUMF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 16:12:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVFAUMD
+	id S261164AbVFAUoG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 16:44:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVFAUoC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 16:12:03 -0400
-Received: from smtp109.mail.sc5.yahoo.com ([66.163.170.7]:64931 "HELO
-	smtp109.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261201AbVFAUKU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 16:10:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:Content-Type:Content-Transfer-Encoding;
-  b=2Xze9nrv9avqlYD3YRyIZ8kmww9L+9UhOVbRzq/YBOB65X52hSpy195iMf/cz6sGMYrEB2kktEFfNd3IxNhtVYEWE1roHKmDfmY1q17LQ9TN+YGYcFcwHYxZr0SV/WkovFaDH30MU83SkYs1wxwS9WcqyG5CUaIey+4x+jX/O1g=  ;
-Message-ID: <429E162E.1000908@yahoo.com>
-Date: Wed, 01 Jun 2005 13:10:22 -0700
-From: Alex Aizman <itn780@yahoo.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-scsi@vger.kernel.org
-CC: linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Christoph Hellwig <hch@lst.de>
-Subject: [ANNOUNCE 7/7] Open-iSCSI/Linux-iSCSI-5 High-Performance Initiator:
- iscsi-Kconfig.patch
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Jun 2005 16:44:02 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:17163 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S261167AbVFAUNb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 16:13:31 -0400
+Date: Wed, 1 Jun 2005 13:17:54 -0700
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Esben Nielsen <simlo@phys.au.dk>, Thomas Gleixner <tglx@linutronix.de>,
+       Karim Yaghmour <karim@opersys.com>, Ingo Molnar <mingo@elte.hu>,
+       Paulo Marques <pmarques@grupopie.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       James Bruce <bruce@andrew.cmu.edu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
+       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+Message-ID: <20050601201754.GA27795@nietzsche.lynx.com>
+References: <20050601192224.GV5413@g5.random> <Pine.OSF.4.05.10506012129460.1707-100000@da410.phys.au.dk> <20050601195905.GX5413@g5.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050601195905.GX5413@g5.random>
+User-Agent: Mutt/1.5.9i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-	iscsi-Kconfig.patch - drivers/scsi/Kconfig changes.
+On Wed, Jun 01, 2005 at 09:59:05PM +0200, Andrea Arcangeli wrote:
+> There's a significant number of local_irq_disable across the kernel, I
+> don't see why should we risk a driver update possibly looping a bit too
+> logn, to break the RT guarantee. It's not too hard to reach the hundred
+> usec range when doing hardware operations in inefficient drivers when
+> touchign the mmio/io regions. That would not be a bug in any config but
+> preempt-RT. Possibly not nice, but not a bug (keep in mind the usb irq
+> in my firewall for whatever reasons keeps irq disabled for >1msec).
 
-	Signed-off-by: Alex Aizman <itn780@yahoo.com>
-	Signed-off-by: Dmitry Yusupov <dmitry_yus@yahoo.com>
-	Signed-off-by: Mike Christie <michaelc@cs.wisc.edu>
+Please survey this and see how the patch deals with it. Please also
+stop asking FUD enabling questions until you look at the patch.
 
-Index: drivers/scsi/Kconfig
-===================================================================
---- 7570fde464d579ce455c865f07a613e967e9396c/drivers/scsi/Kconfig  (mode:100644 sha1:750b11cefd934349480d6237f6df564edf6d297b)
-+++ uncommitted/drivers/scsi/Kconfig  (mode:100644)
-@@ -205,12 +205,35 @@
- 
- config SCSI_ISCSI_ATTRS
- 	tristate "iSCSI Transport Attributes"
--	depends on SCSI
-+	depends on SCSI && NET
- 	help
- 	  If you wish to export transport-specific information about
- 	  each attached iSCSI device to sysfs, say Y.
- 	  Otherwise, say N.
- 
-+config ISCSI_TCP
-+	tristate "iSCSI Initiator over TCP/IP"
-+	depends on SCSI && INET && SCSI_ISCSI_ATTRS
-+	select CRYPTO
-+	select CRYPTO_MD5
-+	select CRYPTO_CRC32C
-+	help
-+	 The iSCSI Driver provides a host with the ability to access storage
-+	 through an IP network. The driver uses the iSCSI protocol to transport
-+	 SCSI requests and responses over a TCP/IP network between the host
-+	 (the "initiator") and "targets".  Architecturally, the iSCSI driver
-+	 combines with the host's TCP/IP stack, network drivers, and Network
-+	 Interface Card (NIC) to provide the same functions as a SCSI or a
-+	 Fibre Channel (FC) adapter driver with a Host Bus Adapter (HBA).
-+
-+	 To compile this driver as a module, choose M here: the
-+	 module will be called iscsi_tcp.
-+
-+	 The userspace component needed to initialize the driver, documentation,
-+	 and sample configuration files can be found here:
-+
-+	 http://linux-iscsi.sf.net
-+
- endmenu
- 
- menu "SCSI low-level drivers"
+> Using cli by hand never happens anywhere, while if you grep for
+> local_irq_disable that happens in many drivers.
 
+Memory allocators and the like need do to this and this has been dealt
+with in the patch. The use of those function isn't SMP safe in drivers,
+so any use of those functions and spin-waiting so far has already been
+reviewed and dealt with in the patch.
 
+> Using cli in asm is like doing memset() all over the ram... then kernel
+> will crash and irq will stop too ;) While local_irq_disable os far was a
+> supported API for drivers and generic kernel code (most commmonly used
+> before touching per-cpu data structures, so very common in certain part
+> of the kernels, including the scheduler).
+
+Some of that stuff has been moved into work queues that are used to
+defer processing out-of-line, so that it doesn't effect that path.
+
+Just about all you've been saying has been handled by the patch and I
+ask you to stop asking stupid question until you've looked at it..
+
+bill
 

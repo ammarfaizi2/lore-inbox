@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVFAX0t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbVFAX3o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261452AbVFAX0t (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 19:26:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVFAX0t
+	id S261514AbVFAX3o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 19:29:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVFAX1B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 19:26:49 -0400
-Received: from smtp.lnxw.com ([207.21.185.24]:9490 "EHLO smtp.lnxw.com")
-	by vger.kernel.org with ESMTP id S261452AbVFAXPV (ORCPT
+	Wed, 1 Jun 2005 19:27:01 -0400
+Received: from users.ccur.com ([208.248.32.211]:36293 "EHLO gamx.iccur.com")
+	by vger.kernel.org with ESMTP id S261453AbVFAXQR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 19:15:21 -0400
-Date: Wed, 1 Jun 2005 16:19:36 -0700
-To: Bill Huey <bhuey@lnxw.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Esben Nielsen <simlo@phys.au.dk>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Karim Yaghmour <karim@opersys.com>, Ingo Molnar <mingo@elte.hu>,
-       Paulo Marques <pmarques@grupopie.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       James Bruce <bruce@andrew.cmu.edu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@muc.de>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
-       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-Message-ID: <20050601231936.GA11536@nietzsche.lynx.com>
-References: <Pine.OSF.4.05.10506012129460.1707-100000@da410.phys.au.dk> <20050601195905.GX5413@g5.random> <20050601201754.GA27795@nietzsche.lynx.com> <20050601203212.GZ5413@g5.random> <20050601204612.GA27934@nietzsche.lynx.com> <20050601210716.GB5413@g5.random> <20050601214257.GA28196@nietzsche.lynx.com> <20050601215913.GB28196@nietzsche.lynx.com> <20050601223250.GH5413@g5.random> <20050601230244.GA11262@nietzsche.lynx.com>
+	Wed, 1 Jun 2005 19:16:17 -0400
+Date: Wed, 1 Jun 2005 19:16:15 -0400
+From: Joe Korty <joe.korty@ccur.com>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: steve.rotolo@ccur.com, linux-kernel@vger.kernel.org, bugsy@ccur.com
+Subject: Re: SD_SHARE_CPUPOWER breaks scheduler fairness
+Message-ID: <20050601231615.GA11301@tsunami.ccur.com>
+Reply-To: joe.korty@ccur.com
+References: <1117561608.1439.168.camel@whiz> <200506020047.16752.kernel@kolivas.org> <1117651285.22879.73.camel@bonefish> <200506020737.20098.kernel@kolivas.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050601230244.GA11262@nietzsche.lynx.com>
-User-Agent: Mutt/1.5.9i
-From: Bill Huey (hui) <bhuey@lnxw.com>
+In-Reply-To: <200506020737.20098.kernel@kolivas.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 01, 2005 at 04:02:44PM -0700, Bill Huey wrote:
-> > people will just assume it to be hard-RT and they could build hardware
-> > with random drivers thinking that they will get the gurantee. I
-> > understand it's ok with you since you're able to evaluate the RT-safety
-> > of every driver you use, but I sure prefer "ruby hard" solutions that
-> > don't require looking into drivers to see if they're RT-safe.
+
+> On Thu, 2 Jun 2005 04:41, Steve Rotolo wrote:
+> > I guess the bottom-line is: given N logical cpus, 1/N of all
+> > SCHED_NORMAL tasks may get stuck on a sibling cpu with no chance to
+> > run.  All it takes is one spinning SCHED_FIFO task.  Sounds like a bug.
 > 
-> Again, this has been covered previously by this thread. It's ultimately
-> about writing RT apps that have a more sophisticated use that RTAI or
-> RT Linux.
+> You're right, and excuse me for missing it. We have to let SCHED_NORMAL tasks 
+> run for some period with rt tasks. There shouldn't be any combination of 
+> mutually exclusive tasks for siblings.
+> 
+> I'll work on something.
 
-Also, I'm telling you as a person that works for a well known RTOS company
-that this patch is very very close to achieving the hard determinism goals
-outlined. It has good latency and good overall kernel performancei and it's
-much closer to your notion of "ruby" hard RT that you might realize. What's
-needed to be done is largely driver mop up and nothing more that I can tell.
+Wild thought: how about doing this for the sibling ...
 
-There hasn't been any major driver changes submitted recently with this
-patch so the code base is pretty stable at the moment.
+	rp->nr_running += SOME_BIG_NUMBER
 
-bill
+when a SCHED_FIFO task starts running on some cpu, and
+undo the above when the cpu is released.   This fools
+the load balancer into _gradually_ moving tasks off the
+sibling, when the cpu is hogged by some SCHED_FIFO task,
+but should have little effect if a SCHED_FIFO task takes
+little cpu time.
+
+Regards,
+Joe
+--
+"Money can buy bandwidth, but latency is forever" -- John Mashey
+
 

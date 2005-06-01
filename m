@@ -1,55 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVFAVr4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVFAVv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbVFAVr4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 17:47:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbVFAVrY
+	id S261335AbVFAVv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 17:51:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261328AbVFAVvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 17:47:24 -0400
-Received: from twinlark.arctic.org ([207.7.145.18]:43749 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S261312AbVFAVqh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 17:46:37 -0400
-Date: Wed, 1 Jun 2005 14:46:36 -0700 (PDT)
-From: dean gaudet <dean-list-linux-kernel@arctic.org>
-To: Denis Vlasenko <vda@ilport.com.ua>
-cc: michael@optusnet.com.au, Andi Kleen <ak@muc.de>,
-       Jeff Garzik <jgarzik@pobox.com>, Benjamin LaHaise <bcrl@kvack.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] x86-64: Use SSE for copy_page and clear_page
-In-Reply-To: <200506011048.31537.vda@ilport.com.ua>
-Message-ID: <Pine.LNX.4.62.0506011442520.1402@twinlark.arctic.org>
-References: <20050530181626.GA10212@kvack.org> <20050531092358.GA9372@muc.de>
- <m2zmuaee2z.fsf@mo.optusnet.com.au> <200506011048.31537.vda@ilport.com.ua>
+	Wed, 1 Jun 2005 17:51:18 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:141 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S261317AbVFAVuV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 17:50:21 -0400
+Message-ID: <91888D455306F94EBD4D168954A9457C028C627C@nacos172.co.lsil.com>
+From: "Moore, Eric Dean" <Eric.Moore@lsil.com>
+To: Luben Tuikov <luben_tuikov@adaptec.com>,
+       Christoph Hellwig <hch@infradead.org>
+Cc: Douglas Gilbert <dougg@torque.net>,
+       SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       andrew.patterson@hp.com, mike.miller@hp.com,
+       Madhuresh_Nagshain@adaptec.com
+Subject: RE: [RFC] SAS domain layout for Linux sysfs
+Date: Wed, 1 Jun 2005 15:49:34 -0600 
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+So where are we?  What needs to be done so we can move forward
+with getting SAS LLD support accepted by James Bottomely.
 
-
-On Wed, 1 Jun 2005, Denis Vlasenko wrote:
-
-> However, it is valid only if program writes in every byte in a cacheline.
-> Then sufficiently smart CPU may avoid reading from main RAM.
-> (I am not sure that today's CPUs are smart enough. K6s were not)
-
-nobody does this yet on regular stores...
-
-so-called "non-temporal" stores actually go through the write-combiners 
-(which is why Andi is referring to them as write-combining stores)... the 
-write-combiners have byte-enables so they can detect if a full line is 
-dirty or not.
-
-in the event a write-combiner is flushed before it's full, the behaviour 
-i've measured on all k8/p-m/p4 is to do a read-modify-write *at the memory 
-interface*.  this occurs at typically a much slower cycle rate than it 
-would in the cache itself... in theory DDR supports a byte-enabled write 
-to memory, and there should be no need to do a read-modify-write sequence. 
-however all of these processors (and/or their northbridges as appropriate) 
-save pins on their package -- they don't have any pins for the DDR byte 
-enables (they're hardwired to enabled on the mobo).
-
-(you can see this behaviour with any of the movnt or with maskmov ... just 
-leave holes in the lines and watch the store cost go through the roof.)
-
--dean
+Regards,
+Eric Moore

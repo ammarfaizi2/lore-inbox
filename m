@@ -1,55 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVFAPy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbVFAP7H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbVFAPy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 11:54:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbVFAPyE
+	id S261436AbVFAP7H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 11:59:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261447AbVFAP6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 11:54:04 -0400
-Received: from atpro.com ([12.161.0.3]:37389 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S261437AbVFAPwk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 11:52:40 -0400
-From: "Jim Crilly" <jim@why.dont.jablowme.net>
-Date: Wed, 1 Jun 2005 11:48:25 -0400
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com, ltd@cisco.com,
-       linux-kernel@vger.kernel.org, dtor_core@ameritech.net, 7eggert@gmx.de
+	Wed, 1 Jun 2005 11:58:51 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:32239 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S261445AbVFAPzG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 11:55:06 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Wed, 01 Jun 2005 17:53:43 +0200
+To: toon@hout.vanvergehaald.nl, schilling@fokus.fraunhofer.de,
+       mrmacman_g4@mac.com, ltd@cisco.com, linux-kernel@vger.kernel.org,
+       dtor_core@ameritech.net, 7eggert@gmx.de
 Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Message-ID: <20050601154825.GB14299@voodoo>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com, ltd@cisco.com,
-	linux-kernel@vger.kernel.org, dtor_core@ameritech.net, 7eggert@gmx.de
-References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com> <20050530093420.GB15347@hout.vanvergehaald.nl> <429B0683.nail5764GYTVC@burner> <46BE0C64-1246-4259-914B-379071712F01@mac.com> <429C4483.nail5X0215WJQ@burner> <20050531172204.GD17338@voodoo> <429DD432.nail7BF810RPU@burner>
-Mime-Version: 1.0
+Message-ID: <429DDA07.nail7BFA4XEC5@burner>
+References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com>
+ <20050530093420.GB15347@hout.vanvergehaald.nl>
+ <429B0683.nail5764GYTVC@burner>
+ <46BE0C64-1246-4259-914B-379071712F01@mac.com>
+ <429C4483.nail5X0215WJQ@burner> <20050531172204.GD17338@voodoo>
+ <d120d500050531122879868bae@mail.gmail.com>
+In-Reply-To: <d120d500050531122879868bae@mail.gmail.com>
+User-Agent: nail 11.2 8/15/04
+MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <429DD432.nail7BF810RPU@burner>
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06/01/05 05:28:50PM +0200, Joerg Schilling wrote:
-> > The rules and scripts that udev uses to name things can do anything since
-> > it runs in userland, so udev could easily edit /etc/default/cdrecord if
-> > someone took the time to write the script.
-> 
-> If it has the knowledge and if it is able to run parameterized sed from 
-> internal rules, it should be possible to configure udev to 
-> modify /etc/default/cdrecord, but as I don't have such a system, it would
-> be nice if this was done by someone else.
+Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
-I doubt anyone would want to do that, as soon as a script for cdrecord
-gets submitted people will start submitting scripts for other tools and I
-really doubt the udev maintainer has the resources or desire to maintain
-dozens of scripts for tools that he doesn't use. If such scripts were to be
-written they would most likely have to be maintained either by the upstream 
-author or by a package maintainer for a particular distribution that wants 
-to hack around the lack of Linux integration in a particular tool.
+> Yes it could but why should it? The purpose of udev is to maintain
+> dynamic /dev. Do you want to have thoustands quirks in udev to cope
+> with bazillion configuration files for utilities whose authors refuse
+> to adopt standard naming convention [for the operating system in
+> question].
 
-> 
-> Jörg
-> 
+You show exactly the habbit that makes me unwiling to believe it makes
+sense to put effort into anything in Linux that is not at least 5 years old.
 
-Jim.
+10 Years ago, Linux was completely unsuable with Linux /dev/sg* naming 
+and mapping conventions. After I did develop an abstraction layer that
+made Linux usable people could use stable dev= parameters across
+reboots of Linux.
 
+Then somebody started to implement a way to make linux more sane with /dev/
+but this method has been replaced before it did become ordinary.
+
+Think again what you like to tell me here.... You like to tell me
+cdrecord is one of thousands of bad programs but it is the first
+program that introduced stability at command line level if talking about
+generic SCSI usage. 
+
+If somebody later develops something like udev (did not see it yet)
+I would asume that this person would look at earlyer stable software and
+provide some way of integration.
+
+Jörg
+
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  
+       schilling@fokus.fraunhofer.de	(work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

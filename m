@@ -1,64 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVFAUzt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbVFAUq1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbVFAUzt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 16:55:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbVFAUzB
+	id S261217AbVFAUq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 16:46:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbVFAUpt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 16:55:01 -0400
-Received: from downeast.net ([12.149.251.230]:56557 "EHLO downeast.net")
-	by vger.kernel.org with ESMTP id S261241AbVFAUyW (ORCPT
+	Wed, 1 Jun 2005 16:45:49 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:9385 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261217AbVFAUmx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 16:54:22 -0400
-From: Patrick McFarland <pmcfarland@downeast.net>
-To: Alex Aizman <itn780@yahoo.com>
-Subject: Re: [ANNOUNCE 0/7] Open-iSCSI/Linux-iSCSI-5 High-Performance Initiator
-Date: Wed, 1 Jun 2005 16:54:00 -0400
-User-Agent: KMail/1.8
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       Christoph Hellwig <hch@lst.de>
-References: <429E15CD.2090202@yahoo.com>
-In-Reply-To: <429E15CD.2090202@yahoo.com>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart101613187.EEsdeE93Mk";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200506011654.11362.pmcfarland@downeast.net>
+	Wed, 1 Jun 2005 16:42:53 -0400
+Date: Wed, 1 Jun 2005 22:42:07 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-pm@lists.osdl.org, Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] Re: [PATCH] Don't explode on swsusp failure to find swap
+Message-ID: <20050601204207.GA11163@elf.ucw.cz>
+References: <1117523585.5826.18.camel@gaston> <1117583403.5826.72.camel@gaston> <20050601092742.GC6693@elf.ucw.cz> <200506012120.40607.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200506012120.40607.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart101613187.EEsdeE93Mk
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi!
 
-On Wednesday 01 June 2005 04:08 pm, Alex Aizman wrote:
-> This is open-iscsi/linux-iscsi-5 Initiator. This submission is ready for
-> inclusion into mainline kernel.
+> > diff --git a/kernel/power/swsusp.c b/kernel/power/swsusp.c
+> > --- a/kernel/power/swsusp.c
+> > +++ b/kernel/power/swsusp.c
+> > @@ -975,13 +975,6 @@ extern asmlinkage int swsusp_arch_resume
+> >  
+> >  asmlinkage int swsusp_save(void)
+> >  {
+> > -	int error = 0;
+> > -
+> > -	if ((error = swsusp_swap_check())) {
+> > -		printk(KERN_ERR "swsusp: FATAL: cannot find swap device, try "
+> > -				"swapon -a!\n");
+> > -		return error;
+> > -	}
+> >  	return suspend_prepare_image();
+> >  }
+> 
+> I think we can move the contents of suspend_prepare_image() directly to
+> swsusp_save().  It's not used anywhere else.
 
-Awesome! So is this complete enough so I can, say, play DVDs from one box=20
-using an ATAPI DVD drive in another box?
+I thought about that, too, but bugfixes first, cleanups next.
 
-=2D-=20
-Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
-e'd=20
-all be running around in darkened rooms, munching magic pills and listening=
- to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
-
---nextPart101613187.EEsdeE93Mk
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBCniBz8Gvouk7G1cURAq1yAKCTxpu+QglE8jSdEHXTWukgijuE+wCgnP9F
-ss5NJ5Dx3Sp9wRe8WJEZwGg=
-=88gI
------END PGP SIGNATURE-----
-
---nextPart101613187.EEsdeE93Mk--
+									Pavel

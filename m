@@ -1,18 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVFAPe0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbVFAP0Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261424AbVFAPe0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 11:34:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbVFAPdQ
+	id S261425AbVFAP0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 11:26:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbVFAPYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 11:33:16 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:5678
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S261434AbVFAPco
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 11:32:44 -0400
-Date: Wed, 1 Jun 2005 17:32:32 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Ingo Molnar <mingo@elte.hu>, Paulo Marques <pmarques@grupopie.com>,
+	Wed, 1 Jun 2005 11:24:52 -0400
+Received: from opersys.com ([64.40.108.71]:46098 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261433AbVFAPXU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 11:23:20 -0400
+Message-ID: <429DD533.6080407@opersys.com>
+Date: Wed, 01 Jun 2005 11:33:07 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Andrea Arcangeli <andrea@suse.de>
+CC: Esben Nielsen <simlo@phys.au.dk>, Ingo Molnar <mingo@elte.hu>,
+       Paulo Marques <pmarques@grupopie.com>,
        "Paul E. McKenney" <paulmck@us.ibm.com>,
        James Bruce <bruce@andrew.cmu.edu>,
        Nick Piggin <nickpiggin@yahoo.com.au>,
@@ -20,51 +27,42 @@ Cc: Ingo Molnar <mingo@elte.hu>, Paulo Marques <pmarques@grupopie.com>,
        Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
        hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: RT patch acceptance
-Message-ID: <20050601153232.GN5413@g5.random>
-References: <20050601150527.GL5413@g5.random> <Pine.OSF.4.05.10506011709500.1707-100000@da410.phys.au.dk>
-Mime-Version: 1.0
+References: <20050601143202.GI5413@g5.random> <Pine.OSF.4.05.10506011640360.1707-100000@da410.phys.au.dk> <20050601150527.GL5413@g5.random>
+In-Reply-To: <20050601150527.GL5413@g5.random>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.OSF.4.05.10506011709500.1707-100000@da410.phys.au.dk>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.9i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 01, 2005 at 05:15:23PM +0200, Esben Nielsen wrote:
-> redifiing cli()/sti() in Linux, which is what the patent covers.
 
-I'm glad at least I understood something right about the patent
-contents.
+Andrea,
 
-These days cli/sti are more commonly called
-local_irq_disable/local_irq_enable.
+I've been involved with understanding/fighting this patent for a very
+long time. I must have read it at least a dozen times. To the best of
+my understanding as a non-lawyer, I don't see how PREEMPT_RT could
+fall as being covered by it.
 
-So clearly renaming cli/sti to local_irq_disable/enable isn't going to
-invalidate the patent.
+Andrea Arcangeli wrote:
+> The patent text goes like this "providing a software emulator to disable
+> and enable interrupts from the general purpose operating system; 
+> 
+> marking interrupts as "soft disabled" and not "soft enabled" in response
+> to requests from the general purpose operating system to disable
+> interrupts; ".
 
-I don't know if spin_lock_irq can be considered a way to disable hard
-irqs or not, and if doing the _irq part in a "soft" mode that leaves
-hard-irq enabled can be considered "software emulation".
+What you are refering to is claim #7. The text does resemble this, but it's
+in a wider context of all the other statements within that claim, the main
+part being what I quoted earlier.
 
-It'm not a laywer so I can't know that.
+Now in regards to emulating interrupts in a general purpose OS, then this
+has been done many times over prior to the patent. Here's one readily
+available example in the Unix world:
+http://www.usenix.org/publications/library/proceedings/micro93/stodolsky.html
 
-> Neither am I. But I know if I start to interpret patens that way I would
-> have to stop writing software right now as every line of code would be
-> covered by some patent if you start to look at it your way.
+Please drop this one Andrea.
 
-This is true. Well, the only thing I really known was the patent covered
-the redefinition of cli not to do an hard "cli" asm instruction, but to
-do it in software (i.e. emulated). nanokernel worked around that since
-it did it for ages before the patent was filed (so at the very least
-that would make the patent invalid, sure nanokernel non-GPL usage isn't
-infringing).
-
-This one of preempt-rt looked to redefine a hard-disable-irq to a
-soft-disable-irq in the context of the OS, and in turn my mind
-immediatly went back to the patent.
-
-BTW, I remind people to sign the petition (I already signed it some time
-ago):
-
-	http://petition.eurolinux.org/
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

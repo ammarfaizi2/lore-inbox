@@ -1,46 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261502AbVFAXoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbVFAXqn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261502AbVFAXoE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 19:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbVFAXnS
+	id S261516AbVFAXqn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 19:46:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbVFAXo0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 19:43:18 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:33192 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S261453AbVFAXkd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 19:40:33 -0400
-X-ORBL: [69.107.40.98]
-From: David Brownell <david-b@pacbell.net>
-To: Rene Herman <rene.herman@keyaccess.nl>
-Subject: Re: External USB2 HDD affects speed hda
-Date: Wed, 1 Jun 2005 16:40:14 -0700
-User-Agent: KMail/1.7.1
-Cc: Petr Vandrovec <vandrove@vc.cvut.cz>, Mark Lord <lkml@rtr.ca>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-References: <429BA001.2030405@keyaccess.nl> <200506011337.29656.david-b@pacbell.net> <429E359D.8090701@keyaccess.nl>
-In-Reply-To: <429E359D.8090701@keyaccess.nl>
+	Wed, 1 Jun 2005 19:44:26 -0400
+Received: from fsmlabs.com ([168.103.115.128]:11402 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261453AbVFAXoB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 19:44:01 -0400
+Date: Wed, 1 Jun 2005 17:44:07 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Nicolas Pitre <nico@cam.org>
+cc: Andrea Arcangeli <andrea@suse.de>, Bill Huey <bhuey@lnxw.com>,
+       Esben Nielsen <simlo@phys.au.dk>, Thomas Gleixner <tglx@linutronix.de>,
+       Karim Yaghmour <karim@opersys.com>, Ingo Molnar <mingo@elte.hu>,
+       Paulo Marques <pmarques@grupopie.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       James Bruce <bruce@andrew.cmu.edu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
+       hch@infradead.org, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: RT patch acceptance
+In-Reply-To: <Pine.LNX.4.63.0506011823460.17354@localhost.localdomain>
+Message-ID: <Pine.LNX.4.61.0506011741410.8323@montezuma.fsmlabs.com>
+References: <20050601192224.GV5413@g5.random>
+ <Pine.OSF.4.05.10506012129460.1707-100000@da410.phys.au.dk>
+ <20050601195905.GX5413@g5.random> <20050601201754.GA27795@nietzsche.lynx.com>
+ <20050601203212.GZ5413@g5.random> <20050601204612.GA27934@nietzsche.lynx.com>
+ <20050601210716.GB5413@g5.random> <Pine.LNX.4.63.0506011724310.17354@localhost.localdomain>
+ <20050601213921.GF5413@g5.random> <Pine.LNX.4.63.0506011823460.17354@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506011640.15147.david-b@pacbell.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 June 2005 3:24 pm, Rene Herman wrote:
+On Wed, 1 Jun 2005, Nicolas Pitre wrote:
 
-> I see. Well, sort of at least. "Even if the HDD were using periodic 
-> transfers, which it isn't, it would be DMAing 32-bits 8x per msec while 
-> idle, which certainly isn't going to cost 8MB/s bus bandwidth". Right?
+> On Wed, 1 Jun 2005, Andrea Arcangeli wrote:
+> 
+> > On Wed, Jun 01, 2005 at 05:29:48PM -0400, Nicolas Pitre wrote:
+> > > Actualy it's RTAI/rtlinux which is broken wrt the above IRQ disable.
+> > > See for yourself when they're used and watch RTAI/rtlinux crash.  
+> > 
+> > Well it's not so clear so please elaborate since I'm curious. Especially
+> > it'd be interesting to know if this is that an arm specific kernel
+> > crash, or would it happen on x86 too?
+> 
+> It would happen on any architecture supporting XIP from flash.
+> 
+> The XIP code therefore polls the IRQ controller (with IRQs masked out) 
+> and whenever an IRQ is pending the flash operation is suspended and IRQs 
+> unmasked.  In this case the hard IRQ latency is function of the flash 
+> suspend delay which is documented in the datasheet.
+> 
+> > There sure can be arch dependencies where an hard_local_irq_disable can
+> > be necessary in some places, but that's quite a separate topic, and on
+> > x86 I don't see why it should crash.
+> 
+> It would crash if the kernel is XIP.  If not XIP then the 
+> local_irq_save() is never encountered in that case.
 
-Well, "certainly" is hard to say without the kind of PCI-bus level
-logic analyser thing.  Flakey PCI implementations could chew up lots
-of bandwidth.  It _should_ not take 8 MB/s bandwidth.  But if it's
-chewing up bandwidth, and you're already near the limit in terms
-of throughput on that hardware (doesn't need to be at the theoretical
-ceiling!) then regular small demands could conceivably chew up more
-bandwidth than you'd like.
+Hmm that's an interesting case, there are a few others, like MMU,TLB 
+update paths and IRQ controller register accesses. But overall these are 
+few and easy to identify.
 
-- Dave
+Thanks Nicolas,
+	Zwane

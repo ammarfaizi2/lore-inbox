@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261177AbVFAWMx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVFAWZ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261177AbVFAWMx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 18:12:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbVFAWKg
+	id S261340AbVFAWZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 18:25:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVFAWZ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 18:10:36 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:65198 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261286AbVFAWFO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 18:05:14 -0400
-Subject: Re: 2.6.12-rc5-mm2 JFS problems ?
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>,
+	Wed, 1 Jun 2005 18:25:28 -0400
+Received: from gate.crashing.org ([63.228.1.57]:29125 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261345AbVFAWYC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 18:24:02 -0400
+Subject: Re: Freezer Patches.
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: ncunningham@cyclades.com
+Cc: Pavel Machek <pavel@ucw.cz>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1117661821.26913.1591.camel@dyn318077bld.beaverton.ibm.com>
-References: <OF808D1EE8.D03EF4CB-ON05257013.006A4FEB-05257013.006AA085@us.ibm.com>
-	 <1117661821.26913.1591.camel@dyn318077bld.beaverton.ibm.com>
+In-Reply-To: <1117664017.13830.36.camel@localhost>
+References: <1117629212.10328.26.camel@localhost>
+	 <20050601130205.GA1940@openzaurus.ucw.cz>
+	 <1117663357.19020.70.camel@gaston>  <1117664017.13830.36.camel@localhost>
 Content-Type: text/plain
-Date: Wed, 01 Jun 2005 17:05:07 -0500
-Message-Id: <1117663508.8097.6.camel@localhost>
+Date: Thu, 02 Jun 2005 08:23:42 +1000
+Message-Id: <1117664622.19020.77.camel@gaston>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-01 at 14:37 -0700, Badari Pulavarty wrote:
-> On Wed, 2005-06-01 at 12:24, David Kleikamp wrote:
-> > pbadari@us.ltcfwd.linux.ibm.com wrote on 06/01/2005 12:30:25 PM:
-> > 
-> > > Hi Shaggy,
-> > > 
-> > > I keep running to JFS problems on 2.6.12-rc5-mm2 (never seen before).
-> > > I get following stacks while booting the machine. 
-> > > 
-> > > Known issue ?
-> > 
-> > No.  ppc64?  I'm using jfs on rc5-mm2 on i386 without any problems.
+On Thu, 2005-06-02 at 08:13 +1000, Nigel Cunningham wrote:
+> Hi.
 > 
-> x86-64
-
-I don't have that at my disposal.  I am now running rc5-mm2 on ppc64
-without any problems.
-
-> - Badari
+> On Thu, 2005-06-02 at 08:02, Benjamin Herrenschmidt wrote:
+> > On Wed, 2005-06-01 at 15:02 +0200, Pavel Machek wrote:
+> > > Hi!
+> > > 
+> > > > Here are the freezer patches. They were prepared against rc3, but I
+> > > > think they still apply fine against rc5. (Ben, these are the same ones I
+> > > > sent you the other day).
+> > 
+> > > 300: stopping softirqd seems dangerous to me... are you sure?
+> > 
+> > That sounds bogus indeed.
 > 
--- 
-David Kleikamp
-IBM Linux Technology Center
+> Ok. Bogus but harmless. I'll try removing it.
+
+Not really harmless, you happen to be lucky :)
+
+Ben.
+ 
 

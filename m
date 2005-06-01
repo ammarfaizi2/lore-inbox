@@ -1,89 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVFANRr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261295AbVFANNc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbVFANRr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 09:17:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbVFANMK
+	id S261295AbVFANNc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 09:13:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbVFANMe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 09:12:10 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:12681 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261298AbVFANKe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 09:10:34 -0400
-Date: Wed, 1 Jun 2005 15:09:49 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Serge Noiraud <serge.noiraud@bull.net>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: RT : 2.6.12rc5 + realtime-preempt-2.6.12-rc5-V0.7.47-15
-Message-ID: <20050601130949.GB32232@elte.hu>
-References: <1117551231.19367.48.camel@ibiza.btsn.frna.bull.fr> <1117568825.23283.5.camel@mindpipe> <1117613246.5580.70.camel@ibiza.btsn.frna.bull.fr> <20050601082351.GA30690@elte.hu> <1117627375.5580.283.camel@ibiza.btsn.frna.bull.fr>
+	Wed, 1 Jun 2005 09:12:34 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:22189 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261295AbVFANKH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 09:10:07 -0400
+Date: Wed, 1 Jun 2005 09:10:07 -0400
+To: Jarkko Lavinen <jarkko.lavinen@nokia.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Writing large files onto sync mounted MMC corrupts the FS
+Message-ID: <20050601131006.GL23621@csclub.uwaterloo.ca>
+References: <20050601091320.GA1472@angel.research.nokia.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1117627375.5580.283.camel@ibiza.btsn.frna.bull.fr>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <20050601091320.GA1472@angel.research.nokia.com>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Jun 01, 2005 at 12:13:21PM +0300, Jarkko Lavinen wrote:
+> I am seeing both VFAT and Ext3 becoming corrupted when using
+> synchronous mount on MMC card (kernel is 2.6.12-rc2-omap1, HW is a
+> test board with Omap 1710).  The problem is reproduced by mounting a
+> MMC card synchronously and copying large file onto it.
+> 
+> Typically I insert vfat/ext3 formatted MMC card and do:
+>   mount /dev/mmcblk0p1 /media/mmc1 -t vfat -o sync
+>   cp /lib/libc-2.3.2.so  /media/mmc1
+> or
+>   mount /dev/mmcblk0p1 /media/mmc1 -t ext2 -o noatime,sync
+>   cp /lib/libc-2.3.2.so  /media/mmc1
+> 
+> The results are further below. I have tried to reproduce VFAT problen
+> in desktop PC with loopback device but to no avail. I have used
+> different MMC cards but the problem persists. Disabling DMA reduces
+> the number of error messages or pushes the first occurence a bit
+> further, but does not remove the problem.
+> 
+> Very similar problem appears when writing a large file onto ext2
+> formatted MMC card. The problem disappears if I mount asynchronoysly.
+> Also similarly the problem on VFAT disappears when mounting
+> asynchronously.
+> 
+> The VFAT problem seems to have appeared around January -- February
+> this year but it is hard to tell the exact point and changeset. For
+> ext2 I haven't done similar search.
+> 
+> Because there are two so similar problems appearing with two separate
+> file-systems, I doubt this is VFAT or Ext3 only problem, but more
+> likely problem in the mmc driver. It would be good to try this out on
+> other on some other hardware using the same mmc core code. Has anybody
+> else seen these?
 
-* Serge Noiraud <serge.noiraud@bull.net> wrote:
+Go read the thread on lkml a few weeks ago about how sync + vfat (and
+others) does nasty destructive things to flash media that doesn't have
+excelent wear leveling (vfat updates the fat sector for every block of
+data written when you use sync option, which means you do a lot of
+writes to one sector of the device, which is not good for devices with a
+limited number of writes).  Typically when flash starts to reach it's
+limit in number of writes, it starts having trouble holding the value
+written (some bits start to drift back to one state) which can explain
+your crc errors and such).
 
-> > and start a new search for a maximum latency via:
-> > 
-> >  echo 0 > /proc/sys/kernel/preempt_max_latency
-> > 
-> > and then do the X test - what is the largest latency reported in 
-> > 'dmesg'? Also, please send me a (bzip2 -9 compressed, if too large) 
-> > /proc/latency_trace trace output of the largest incident.
-> The max latency reported are normal.
+In other words: Don't use sync with flash media.  It's a horribly bad
+idea, and if you look into how flash works (at least the cheaper ones)
+you will realize why.  Anything with a limited number of writes allowed
+to each sector should avoid rewriting the same sector again and again,
+and that is what sync does when you use filesystems designed for disks
+rather than flash.  JFFS was designed for flash use and rotates the
+sectors it uses to store filesystem meta data and has spare space in the
+filesystem to do wearleveling at the filesystem level.  vfat and ext2/3
+do not, and it shows.  At least write caching/delayed write back
+elliminates the worst of the rewriting of the meta data sectors.
 
-yeah. (btw., enable CONFIG_KALLSYMS to get a much more readable trace 
-output)
-
-> I have the problem with another program which mesure latencies about 
-> semaphore only in X environment too.
->         
-> I tried to ssh this machine from another X environment and the problem 
-> does not exist. It's only on the console.
-
-does your measurement program do any tty IO during the measurement? That 
-could delay the measurement code artificially. Generally, latency 
-measurement must be done very carefully (userspace and kernelspace 
-alike).
-
-E.g. rtc_wakeup uses a FIFO between two threads to isolate the 
-measurement thread as much as possible. rtc_wakeup can be found at:
-
-   http://www.affenbande.org/~tapas/wiki/index.php?rtc_wakeup
-
-and should be run like:
-
-  chrt -f 95 -p `pidof 'IRQ 8'`
-  ./rtc_wakeup -f 1024 -t 100000
-
-if you only trust your own measurement code then you can use a hybrid 
-tracing method as well: switch the kernel's trace into 'user triggered':
-
-  echo 1 > /proc/sys/kernel/trace_user_triggered
-
-then you can turn tracing on in your code via a syscall hack:
-
-	gettimeofday(0,1);
-
-(yes - gettimeofday. Has nothing to do with tracing.) You can turn 
-tracing off via:
-
-	gettimeofday(0,0);
-
-and the kernel will do a maximum search for you, and you should have the 
-highest-latency trace available in /proc/latency_trace.
-
-	Ingo
-
+Len Sorensen

@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVFALba@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261176AbVFALZc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261305AbVFALba (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 07:31:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261318AbVFALba
+	id S261176AbVFALZc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 07:25:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVFALZc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 07:31:30 -0400
-Received: from mummy.ncsc.mil ([144.51.88.129]:5083 "EHLO jazzhorn.ncsc.mil")
-	by vger.kernel.org with ESMTP id S261305AbVFALb0 (ORCPT
+	Wed, 1 Jun 2005 07:25:32 -0400
+Received: from holomorphy.com ([66.93.40.71]:54163 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261176AbVFALZ3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 07:31:26 -0400
-Subject: Re: file_type_auto_trans is not sufficient
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Luke Kenneth Casson Leighton <lkcl@lkcl.net>
-Cc: Ivan Gyurdiev <ivg2@cornell.edu>, Karl MacMillan <kmacmillan@tresys.com>,
-       SELinux@tycho.nsa.gov, dwalsh@redhat.com, linux-kernel@vger.kernel.org
-In-Reply-To: <20050531212112.GF11815@lkcl.net>
-References: <200505311412.j4VECK5F030983@gotham.columbia.tresys.com>
-	 <1117551440.15167.25.camel@dhcp83-8.boston.redhat.com>
-	 <20050531212112.GF11815@lkcl.net>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Wed, 01 Jun 2005 07:21:53 -0400
-Message-Id: <1117624913.32745.11.camel@moss-spartans.epoch.ncsc.mil>
+	Wed, 1 Jun 2005 07:25:29 -0400
+Date: Wed, 1 Jun 2005 04:25:20 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: linux-kernel@vger.kernel.org,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [rfc: patch 0/6] scalable fd management
+Message-ID: <20050601112520.GD20782@holomorphy.com>
+References: <20050530105042.GA5534@in.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-16) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050530105042.GA5534@in.ibm.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-31 at 22:21 +0100, Luke Kenneth Casson Leighton wrote:
->  thinking "sideways" again - as i am wont to do.
-> 
->  how about... a "sideways" solution to this - at the kernel level?
-> 
->  a "silent" redirection / remount, on a per-application basis?
-> 
->  no, i'm not joking.
-> 
->  an option to "mount" which allows a specific APPLICATION (or group of
->  applications) to have any files/directories it creates/accesses in a
->  subdirectory ACTUALLY occur ELSEWHERE.
+On Mon, May 30, 2005 at 04:20:42PM +0530, Dipankar Sarma wrote:
+> I would appreciate if someone tests this on an arch without
+> cmpxchg (sparc32??). I intend to run some more tests
+> with preemption enabled and also on ppc64 myself.
 
-That's polyinstantiated directories.  See Chad Seller's postings.
-However, it uses the kernel's existing support for per-process
-namespaces and bind mounts rather than anything new in the kernel.
+sparc32 SMP is not going to be a good choice for this. By and large
+ll/sc -style architectures don't have explicit cmpxchg instructions so
+ppc64 at least nominally fits the bill. SMP Alpha testing may also be
+enlightening (as usual).
 
--- 
-Stephen Smalley
-National Security Agency
 
+-- wli

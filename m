@@ -1,126 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261473AbVFARyP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261481AbVFAR43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbVFARyP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 13:54:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVFARyO
+	id S261481AbVFAR43 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 13:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbVFARyq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 13:54:14 -0400
-Received: from omx3-ext.sgi.com ([192.48.171.20]:666 "EHLO omx3.sgi.com")
-	by vger.kernel.org with ESMTP id S261473AbVFARs1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 13:48:27 -0400
-Date: Wed, 1 Jun 2005 10:48:17 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: akpm@osdl.org
-cc: linux-mm@kvack.org, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] Periodically drain non local pagesets
-Message-ID: <Pine.LNX.4.62.0506011047060.9277@schroedinger.engr.sgi.com>
+	Wed, 1 Jun 2005 13:54:46 -0400
+Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:3266 "EHLO
+	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
+	id S261487AbVFARxQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 13:53:16 -0400
+From: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Date: Wed, 01 Jun 2005 19:50:57 +0200
+To: schilling@fokus.fraunhofer.de, jim@why.dont.jablowme.net
+Cc: toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com, ltd@cisco.com,
+       linux-kernel@vger.kernel.org, kraxel@suse.de, dtor_core@ameritech.net,
+       7eggert@gmx.de
+Subject: Re: OT] Joerg Schilling flames Linux on his Blog
+Message-ID: <429DF581.nail7BFUL8PFN@burner>
+References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com>
+ <20050530093420.GB15347@hout.vanvergehaald.nl>
+ <429B0683.nail5764GYTVC@burner>
+ <46BE0C64-1246-4259-914B-379071712F01@mac.com>
+ <429C4483.nail5X0215WJQ@burner> <87acmbxrfu.fsf@bytesex.org>
+ <429DD036.nail7BF7MRZT6@burner> <20050601154245.GA14299@voodoo>
+ <429DE874.nail7BFM1RBO2@burner> <20050601172900.GC14299@voodoo>
+In-Reply-To: <20050601172900.GC14299@voodoo>
+User-Agent: nail 11.2 8/15/04
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The pageset array can potentially acquire a huge amount of memory on large
-NUMA systems. F.e. on a system with 512 processors and 256 nodes there will
-be 256*512 pagesets. If each pageset only holds 5 pages then we are talking about
-655360 pages.With a 16K page size on IA64 this results in potentially 10 Gigabytes
-of memory being trapped in pagesets. The typical cases are much less for smaller
-systems but there is still the potential of memory being trapped in off node
-pagesets. Off node memory may be rarely used if local memory is available and so
-we may potentially have memory in seldom used pagesets without this patch.
+"Jim Crilly" <jim@why.dont.jablowme.net> wrote:
 
-The slab allocator flushes its per cpu caches every 2 seconds. The following patch
-flushes the off node pageset caches in the same way by tying into the slab flush.
+> I don't use cdda2wav so I can't comment, but every other ripping tool that
+> I've used on Linux has had no problem using the /dev/whatever interface, so
+> once again it appears that your tool is the blacksheep for no good reason.
 
-The patch also changes /proc/zoneinfo to include the number of
-pages currently in each pageset.
+You should use it as it is even used by people on Win32 because it is the
+best DAE program for even badly readable sources.
 
-Patch against 2.6.12-rc5-mm1
+Jörg
 
-Signed-off-by: Christoph Lameter <clameter@sgi.com>
-
-Index: linux-2.6.12-rc5/include/linux/gfp.h
-===================================================================
---- linux-2.6.12-rc5.orig/include/linux/gfp.h	2005-05-27 16:39:48.000000000 -0700
-+++ linux-2.6.12-rc5/include/linux/gfp.h	2005-06-01 10:40:04.000000000 -0700
-@@ -135,5 +135,10 @@ extern void FASTCALL(free_cold_page(stru
- #define free_page(addr) free_pages((addr),0)
- 
- void page_alloc_init(void);
-+#ifdef CONFIG_NUMA
-+void drain_remote_pages(void);
-+#else
-+static inline void drain_remote_pages(void) { };
-+#endif
- 
- #endif /* __LINUX_GFP_H */
-Index: linux-2.6.12-rc5/mm/page_alloc.c
-===================================================================
---- linux-2.6.12-rc5.orig/mm/page_alloc.c	2005-05-27 16:40:20.000000000 -0700
-+++ linux-2.6.12-rc5/mm/page_alloc.c	2005-06-01 10:41:25.000000000 -0700
-@@ -515,6 +515,36 @@ static int rmqueue_bulk(struct zone *zon
- 	return allocated;
- }
- 
-+#ifdef CONFIG_NUMA
-+/* Called from the slab reaper to drain remote pagesets */
-+void drain_remote_pages(void)
-+{
-+	struct zone *zone;
-+	int i;
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
-+	for_each_zone(zone) {
-+		struct per_cpu_pageset *pset;
-+
-+		/* Do not drain local pagesets */
-+		if (zone == zone_table[numa_node_id()])
-+			continue;
-+
-+		pset = zone->pageset[smp_processor_id()];
-+		for (i = 0; i < ARRAY_SIZE(pset->pcp); i++) {
-+			struct per_cpu_pages *pcp;
-+
-+			pcp = &pset->pcp[i];
-+			if (pcp->count)
-+				pcp->count -= free_pages_bulk(zone, pcp->count,
-+						&pcp->list, 0);
-+		}
-+	}
-+	local_irq_restore(flags);
-+}
-+#endif
-+
- #if defined(CONFIG_PM) || defined(CONFIG_HOTPLUG_CPU)
- static void __drain_pages(unsigned int cpu)
- {
-@@ -1385,12 +1415,13 @@ void show_free_areas(void)
- 			pageset = zone_pcp(zone, cpu);
- 
- 			for (temperature = 0; temperature < 2; temperature++)
--				printk("cpu %d %s: low %d, high %d, batch %d\n",
-+				printk("cpu %d %s: low %d, high %d, batch %d used:%d\n",
- 					cpu,
- 					temperature ? "cold" : "hot",
- 					pageset->pcp[temperature].low,
- 					pageset->pcp[temperature].high,
--					pageset->pcp[temperature].batch);
-+					pageset->pcp[temperature].batch,
-+					pageset->pcp[temperature].count);
- 		}
- 	}
- 
-Index: linux-2.6.12-rc5/mm/slab.c
-===================================================================
---- linux-2.6.12-rc5.orig/mm/slab.c	2005-05-27 16:41:36.000000000 -0700
-+++ linux-2.6.12-rc5/mm/slab.c	2005-06-01 10:22:18.000000000 -0700
-@@ -3471,6 +3471,7 @@ next:
- 	}
- 	check_irq_on();
- 	up(&cache_chain_sem);
-+	drain_remote_pages();
- 	/* Setup the next iteration */
- 	schedule_delayed_work(&__get_cpu_var(reap_work), REAPTIMEOUT_CPUC + smp_processor_id());
- }
+-- 
+ EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
+       js@cs.tu-berlin.de		(uni)  
+       schilling@fokus.fraunhofer.de	(work) Blog: http://schily.blogspot.com/
+ URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

@@ -1,81 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVFAMon@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbVFAMyP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbVFAMon (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 08:44:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVFAMon
+	id S261376AbVFAMyP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 08:54:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVFAMyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 08:44:43 -0400
-Received: from smtp2.poczta.interia.pl ([213.25.80.232]:40490 "EHLO
-	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
-	id S261375AbVFAMoi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 08:44:38 -0400
-Message-ID: <429DADAC.7070207@poczta.fm>
-Date: Wed, 01 Jun 2005 14:44:28 +0200
-From: Lukasz Stelmach <stlman@poczta.fm>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: pl, en-us, en
-MIME-Version: 1.0
-To: Paul Jakma <paul@clubi.ie>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] mailing list management
-References: <429D8A3A.8000304@poczta.fm> <20050601102211.GR2417@lug-owl.de> <429D8E96.4010908@poczta.fm> <Pine.LNX.4.63.0506011239300.7726@sheen.jakma.org>
-In-Reply-To: <Pine.LNX.4.63.0506011239300.7726@sheen.jakma.org>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig3E788C3FDFB5763138F964C9"
-X-EMID: c753d138
+	Wed, 1 Jun 2005 08:54:15 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:55255 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261376AbVFAMyL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 08:54:11 -0400
+Date: Wed, 1 Jun 2005 18:20:57 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: William Lee Irwin III <wli@holomorphy.com>
+Cc: linux-kernel@vger.kernel.org,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [rfc: patch 0/6] scalable fd management
+Message-ID: <20050601125056.GA4853@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20050530105042.GA5534@in.ibm.com> <20050601112520.GD20782@holomorphy.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050601112520.GD20782@holomorphy.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig3E788C3FDFB5763138F964C9
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+On Wed, Jun 01, 2005 at 04:25:20AM -0700, William Lee Irwin III wrote:
+> On Mon, May 30, 2005 at 04:20:42PM +0530, Dipankar Sarma wrote:
+> > I would appreciate if someone tests this on an arch without
+> > cmpxchg (sparc32??). I intend to run some more tests
+> > with preemption enabled and also on ppc64 myself.
+> 
+> sparc32 SMP is not going to be a good choice for this. By and large
+> ll/sc -style architectures don't have explicit cmpxchg instructions so
+> ppc64 at least nominally fits the bill. SMP Alpha testing may also be
+> enlightening (as usual).
 
-Paul Jakma napisa=C5=82(a):
+Actually, I was talking about cmpxchg() primitive in the kernel,
+not necessarily the instruction. ppc64 has a cmpxchg() primitive
+based on LL/SC. For the archs that do not have cmpxchg(),
+rcuref_inc_lf() uses a hashed lock to serialize the reference
+count updates. It would be nice to see that code get a spin
+on real hardware. AFAICS, sparc32 fits the bill.
 
-> The person you are replying to can/may:
->=20
-> - /want/ the direct copy (this is the case for quite a few people on
->   this list)
-
-I prefere, and I do it, explicit asking for a CC.
-
-> - filter incoming mail to supress duplicates
-
-It is a lot easier to find personal mails than to suppress dupes.
-In the former case you can look at References or IRT fields and in the
-later you have to *keep* a list of Message-IDs and search it everytime
-you receive a letter.
-
-And direct replying generates more traffic.
-
-I started this thread because I never liked to receive personal
-duplicates of mails sent to lists. That is why I decided to ask you for
-your opinion.
-
-EOT
---=20
-By=C5=82o mi bardzo mi=C5=82o.                    Trzecia pospolita kl=C4=
-=99ska, [...]
->=C5=81ukasz<                      Ju=C5=BC nie katolicka lecz z=C5=82odz=
-iejska.  (c)PP
-
-
---------------enig3E788C3FDFB5763138F964C9
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCna2wNdzY8sm9K9wRAk90AJ9jfkuCeUi43G8kGtk35nJvihq4tQCfew+C
-nKvJfKkm/3gOwveHAa9ifCM=
-=chrI
------END PGP SIGNATURE-----
-
---------------enig3E788C3FDFB5763138F964C9--
+Thanks
+Dipankar

@@ -1,66 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261454AbVFAQW5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVFAQVm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261454AbVFAQW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 12:22:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261457AbVFAQWu
+	id S261451AbVFAQVm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 12:21:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVFAQVm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 12:22:50 -0400
-Received: from main.gmane.org ([80.91.229.2]:21731 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261454AbVFAQWk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 12:22:40 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-Mail-Followup-To: linux-kernel@vger.kernel.org
-To: linux-kernel@vger.kernel.org
-From: ilmari@ilmari.org (=?utf-8?q?Dagfinn_Ilmari_Manns=C3=A5ker?=)
+	Wed, 1 Jun 2005 12:21:42 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:63139 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S261451AbVFAQV3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 12:21:29 -0400
+Message-ID: <429DE087.606@gmx.de>
+Date: Wed, 01 Jun 2005 18:21:27 +0200
+From: Matthias Andree <matthias.andree@gmx.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050322)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+CC: toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com, ltd@cisco.com,
+       linux-kernel@vger.kernel.org, dtor_core@ameritech.net, 7eggert@gmx.de
 Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Date: Wed, 01 Jun 2005 18:20:32 +0200
-Organization: Program-, Informasjons- og Nettverksteknologisk Gruppe, UiO
-Message-ID: <d8jis0y3v73.fsf@ritchie.ping.uio.no>
-References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com> <20050530093420.GB15347@hout.vanvergehaald.nl>
- <429B0683.nail5764GYTVC@burner>
- <46BE0C64-1246-4259-914B-379071712F01@mac.com>
- <429C4483.nail5X0215WJQ@burner> <87acmbxrfu.fsf@bytesex.org>
- <20050531190556.GK23621@csclub.uwaterloo.ca>
- <20050531195603.GB28168@bytesex> <429DDAA4.nail7BFB1SXEV@burner>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: ritchie.ping.uio.no
-Mail-Copies-To: nobody
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) Emacs/21.4 (gnu/linux)
-Cancel-Lock: sha1:wJYBWOFG1LOpe55wVhLtdloAV7g=
+References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com> <20050530093420.GB15347@hout.vanvergehaald.nl> <429B0683.nail5764GYTVC@burner> <46BE0C64-1246-4259-914B-379071712F01@mac.com> <429C4483.nail5X0215WJQ@burner> <20050531172204.GD17338@voodoo> <d120d500050531122879868bae@mail.gmail.com> <429DDA07.nail7BFA4XEC5@burner>
+In-Reply-To: <429DDA07.nail7BFA4XEC5@burner>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling <schilling@fokus.fraunhofer.de> writes:
+Joerg Schilling wrote:
 
-> Gerd Knorr <kraxel@suse.de> wrote:
->
->> > I don't know if the ide or scsi method is currently more sane, but it
->> > sure would be nice to have a consistent behaviour between the two.
->>
->> On my suse 9.3, out-of-the-box, I find this (implemented via
->> udev rules):
->>
->>    # find /dev/cd /dev/disk -type l -print | sort
->>    /dev/cd/by-id/HL-DT-ST_DVDRAM_GSA-4040B_K213BDG5213
->>    /dev/cd/by-id/LG_CD-RW_CED-8080B_2000_07_27e
->>    /dev/cd/by-path/pci-0000:00:04.1-ide-1:0
->>    /dev/cd/by-path/pci-0000:00:04.1-ide-1:1
->>    /dev/disk/by-id/IBM-DTLA-305040_YJEYJM36751
->>    /dev/disk/by-id/IBM-DTLA-305040_YJEYJM36751p1
->
-> Nice, but will be the Linux /dev/ fashion next year?
->
-> From my experiences it makes no sense to implement support
-> for things like this before waiting long enough to know 
-> whether this is something that will become ordinary.
+> Think again what you like to tell me here.... You like to tell me
+> cdrecord is one of thousands of bad programs but it is the first
+> program that introduced stability at command line level if talking about
+> generic SCSI usage. 
+> 
+> If somebody later develops something like udev (did not see it yet)
+> I would asume that this person would look at earlyer stable software and
+> provide some way of integration.
 
-You don't need to implement any special support for this. Just stop
-whining about open by device node and let the user specify whichever
-path to the same device she prefers.
+Heck. The whole issue is that cdrecord is unjustly complaining when it
+is given a device node that is perfect. For my 2.6.11 system, /dev/hdd
+(ATAPI hardware, ide-cd device) is as stable as it will get, yet
+cdrecord complains and attempts to coerce some numbering scheme that
+Linux isn't offering through /dev/*. Same story with FreeBSD, I need to
+figure out some intransparent ATAPI transport identifier rather than
+just using /dev/acd0.
+
+So your first step to pull the rug from underneath most of this
+discussion is just to disable this unnecessary warning for the ATA:
+interface, whether it is
+
+	Warning: Open by 'devname' is unintentional and not supported.
+
+or
+
+	Warning: Using badly designed ATAPI via /dev/hd* interface.
+
+This is your personal vendetta against Linux device naming or numbering,
+ hence policy, and not a technical reason to complain. Particularly, if
+cdrecord can use the device node, it MUST not print a warning, if you
+think it's intentional or not.
+
+Please remove these two warnings and you'll see a considerable part of
+the discussion end.
+
+ATAPI: is a different story, if the device doesn't support DMA (ide-scsi
+bugs), that's a serious reason to avoid it, and the warning is justified.
 
 -- 
-ilmari
-
+Matthias Andree

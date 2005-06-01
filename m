@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVFANET@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVFAN0e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261273AbVFANET (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 09:04:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVFANES
+	id S261277AbVFAN0e (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 09:26:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbVFAN0e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 09:04:18 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:38556 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261273AbVFANDT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 09:03:19 -0400
-Date: Wed, 1 Jun 2005 15:02:06 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Nigel Cunningham <ncunningham@cyclades.com>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: Freezer Patches.
-Message-ID: <20050601130205.GA1940@openzaurus.ucw.cz>
-References: <1117629212.10328.26.camel@localhost>
+	Wed, 1 Jun 2005 09:26:34 -0400
+Received: from main.gmane.org ([80.91.229.2]:18647 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261277AbVFAN0X (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 09:26:23 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: David =?utf-8?b?QmFsYcW+aWM=?= <david.balazic@hermes.si>
+Subject: Re: Swap maximum size documented ?
+Date: Wed, 1 Jun 2005 13:02:13 +0000 (UTC)
+Message-ID: <loom.20050601T150142-941@post.gmane.org>
+References: <200506011225.j51CPDV23243@lastovo.hermes.si>  <20050601124025.GZ422@unthought.net> <1117630718.6271.31.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1117629212.10328.26.camel@localhost>
-User-Agent: Mutt/1.3.27i
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 213.253.102.145 (Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.8) Gecko/20050511 Firefox/1.0.4)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Arjan van de Ven <arjan <at> infradead.org> writes:
 
-> Here are the freezer patches. They were prepared against rc3, but I
-> think they still apply fine against rc5. (Ben, these are the same ones I
-> sent you the other day).
+> 
+> 
+> > > The mkwap(8) man page claims, that currently the limit is 
+> > > 32 swap areas of maximum 2 gigabyte size (for x86 arch). 
+> > > 
+> > > Is that correct ? 
+> > 
+> > Not on 2.6 kernels, no.
+> 
+> it's not even true for 2.4 kernels btw; it was a 2.2 and before issue
 
-304 seems ugly and completely useless for mainline
-300: stopping softirqd seems dangerous to me... are you sure?
-301: patching exit should not be neccessary. Why do you need it?
-				Pavel
+OK, so can anyone tell the actual, current limits ?
 
-
-
-
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Regards,
+David
 

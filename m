@@ -1,60 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVFAFHq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVFAFRh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbVFAFHq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 01:07:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVFAFGN
+	id S261271AbVFAFRh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 01:17:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbVFAFRg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 01:06:13 -0400
-Received: from mail.kroah.org ([69.55.234.183]:34014 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261264AbVFAFBe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 01:01:34 -0400
-Date: Tue, 31 May 2005 22:11:24 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [GIT PATCH] USB bugfixes for 2.6.12-rc5
-Message-ID: <20050601051124.GB26927@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+	Wed, 1 Jun 2005 01:17:36 -0400
+Received: from hulk.hostingexpert.com ([69.57.134.39]:16550 "EHLO
+	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
+	id S261276AbVFAFPQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 01:15:16 -0400
+Message-ID: <429D4459.2060206@m1k.net>
+Date: Wed, 01 Jun 2005 01:15:05 -0400
+From: Michael Krufky <mkrufky@m1k.net>
+Reply-To: mkrufky@m1k.net
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Mauro Carvalho Chehab <maurochehab@gmail.com>,
+       Linux and Kernel Video <video4linux-list@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Video for Linux Docummentation
+References: <429D2A7C.1080002@gmail.com>
+In-Reply-To: <429D2A7C.1080002@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - m1k.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are 4 patches for the 2.6.12-rc4 tree that fix some USB bugs.  All
-of these patches have been in the past few -mm releases.
+Mauro Carvalho Chehab wrote:
 
-Please pull from:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
+>This patch synchronizes documentation from V4L CVS with current kernel
+>release.
+>
+>  
+>
+Andrew-
 
-Full patches will be sent to the linux-usb-devel mailing list, if anyone
-wants to see them.
+My fix-for-cx88-cardsc-for-dvico-fusionhdtv-3-gold-q.patch in -mm 
+conflicts with the Video for Linux Documentation patch.  I think you 
+should just drop my patch, since it's in v4l cvs as card=28 (instead of 
+card=27, in -mm).  I guess it will get into the kernel when the rest of 
+v4l synchronizes.
 
-thanks,
+Thanks
 
-greg k-h
-
- drivers/usb/host/Kconfig        |   11 
- drivers/usb/host/Makefile       |    1 
- drivers/usb/host/sl811-hcd.c    |  146 +++++++------
- drivers/usb/host/sl811_cs.c     |  442 ++++++++++++++++++++++++++++++++++++++++
- drivers/usb/serial/ftdi_sio.c   |    3 
- drivers/usb/serial/ftdi_sio.h   |    2 
- drivers/usb/serial/usb-serial.c |   20 -
- 7 files changed, 550 insertions(+), 75 deletions(-)
-
----------------
-
-Botond Botyanszki:
-  o USB: add sl811_cs support
-
-David Brownell:
-  o USB: sl811-hcd fixes
-
-Greg Kroah-Hartman:
-  o USB: fix usb-serial generic initialization
-
-Ian Abbott:
-  o USB: ftdi_sio: new PID for ELV UM100
+-- 
+Michael Krufky
 

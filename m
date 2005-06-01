@@ -1,96 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbVFAOSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVFAO3m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261388AbVFAOSr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 10:18:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVFAORa
+	id S261389AbVFAO3m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 10:29:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVFAO3m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 10:17:30 -0400
-Received: from mail.tv-sign.ru ([213.234.233.51]:22203 "EHLO several.ru")
-	by vger.kernel.org with ESMTP id S261394AbVFAOOW (ORCPT
+	Wed, 1 Jun 2005 10:29:42 -0400
+Received: from mail.ccur.com ([208.248.32.212]:3393 "EHLO flmx.iccur.com")
+	by vger.kernel.org with ESMTP id S261389AbVFAO3g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 10:14:22 -0400
-Message-ID: <429DC4A8.BFF69FB3@tv-sign.ru>
-Date: Wed, 01 Jun 2005 18:22:32 +0400
-From: Oleg Nesterov <oleg@tv-sign.ru>
-X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
-X-Accept-Language: en
-MIME-Version: 1.0
-To: john cooper <john.cooper@timesys.com>
-Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Olaf Kirch <okir@suse.de>
-Subject: Re: RT and Cascade interrupts
-References: <42974F08.1C89CF2A@tv-sign.ru> <4297AF39.4070304@timesys.com>
-	 <42983135.C521F1C8@tv-sign.ru> <4298AED8.8000408@timesys.com>
-	 <1117312557.10746.6.camel@lade.trondhjem.org> <4299332F.6090900@timesys.com>
-	 <1117352410.10788.29.camel@lade.trondhjem.org> <429B8678.1000706@timesys.com>
-Content-Type: text/plain; charset=koi8-r
+	Wed, 1 Jun 2005 10:29:36 -0400
+Subject: Re: SD_SHARE_CPUPOWER breaks scheduler fairness
+From: Steve Rotolo <steve.rotolo@ccur.com>
+Reply-To: steve.rotolo@ccur.com
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org, bugsy@ccur.com
+In-Reply-To: <200506011249.47655.kernel@kolivas.org>
+References: <1117561608.1439.168.camel@whiz>
+	 <200506011249.47655.kernel@kolivas.org>
+Content-Type: text/plain
+Organization: Concurrent Computer Corporation
+Message-Id: <1117636171.22879.29.camel@bonefish>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Wed, 01 Jun 2005 10:29:31 -0400
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Jun 2005 14:29:31.0649 (UTC) FILETIME=[533C9F10:01C566B6]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-del_timer_sync() is known to be racy. Now I think it has
-(theoretically) problems with singleshot timers too.
+On Tue, 2005-05-31 at 22:49, Con Kolivas wrote:
+> Sort of yes and yes. The idea that the sibling gets put to sleep if a real 
+> time task is running is a workaround for the fact that you do share cpu power 
+> (as you've correctly understood) and a real time task will slow down if a 
+> SCHED_NORMAL task is running on its sibling which it should not.  The 
+> limitation is that, yes, for all intents you only have N hyperthreaded cpus 
+> for spinning N rt tasks before nothing else runs, but you can actually run 
+> N*2 rt tasks in this setting which you would not be able to if hyperthreading 
+> was disabled.
+> 
+> For some time I've been thinking about changing the balance between the 
+> siblings slightly to allow SCHED_NORMAL tasks to run a small proportion of 
+> time when rt tasks are running on the sibling. The tricky part is that 
+> SCHED_FIFO tasks have no timeslice so we can't proportion cpu out according 
+> to the difference in size of the timeslices, which is currently how we 
+> proportion out cpu across siblings with SCHED_NORMAL, and this maintains cpu 
+> distribution very similarly to how 'nice' does on the same cpu.
 
-Suppose whe have rpc timer which is running on CPU_0, it is
-preempted *after* it has cleared RPC_TASK_HAS_TIMER bit.
+Thanks for responding, Con.  But I want to make sure that an important
+point doesn't escape your attention.  It appears that tasks get trapped
+on the stalled sibling, even when they could run on some other cpu.  The
+load-balancer does not understand that the sibling is temporarily out of
+service so it actually balances tasks to it.  And since it's idle, it
+may attract tasks to it more than other cpus (thanks to SD_WAKE_IDLE). 
+I think this is a serious bug.
 
-Then __rpc_execute's main loop on CPU_1 calls rpc_delete_timer(),
-it returns without doing del_timer_sync().
+-- 
+Steve
 
-Now it calls ->tk_action()->rpc_sleep_on()->__rpc_add_timer(),
-timer pending on CPU_1.
-
-preemption comes, reschedule at another (not CPU_1) processor,
-(this step is not strictly necessary).
-
-Next loop iteration, __rpc_execute calls rpc_delete_timer() again,
-now it calls del_timer_sync().
-
-del_timer_sync:
-
-	// __run_timers starts on CPU_1, picks rpc timer, sets
-	// timer->base = 0
-
-	ret += del_timer(timer); // return 0, timer is not pending.
-
-	for_each_online_cpu() {
-		if (timer running on that cpu) {
-			// finds the timer still running on CPU_0,
-			// waits for __run_timers on CPU_0 change
-			//	->running_timer,
-			// the timer on CPU_0 completes.
-			break;
-		}
-	}
-
-	if (timer_pending())	// NO
-		goto del_again;
-
-	// The timer still running on CPU_1
-	return;
-
-This all is very unlikely of course, but it would be nice to verify
-that kernel/timer.c is not the source of the problem.
-
-John, if it is easy to reproduce the problem, could you please retest
-with this patch?
-
-Oleg.
-
---- 2.6.12-rc5/net/sunrpc/sched.c~	Wed Jun  1 17:49:57 2005
-+++ 2.6.12-rc5/net/sunrpc/sched.c	Wed Jun  1 18:00:31 2005
-@@ -137,8 +137,12 @@ rpc_delete_timer(struct rpc_task *task)
- {
- 	if (RPC_IS_QUEUED(task))
- 		return;
--	if (test_and_clear_bit(RPC_TASK_HAS_TIMER, &task->tk_runstate)) {
--		del_singleshot_timer_sync(&task->tk_timer);
-+	if (test_bit(RPC_TASK_HAS_TIMER, &task->tk_runstate)) {
-+		if (del_singleshot_timer_sync(&task->tk_timer)) {
-+			BUG_ON(!test_bit(RPC_TASK_HAS_TIMER, &task->tk_runstate));
-+			clear_bit(RPC_TASK_HAS_TIMER, &task->tk_runstate);
-+		} else
-+			BUG_ON(test_bit(RPC_TASK_HAS_TIMER, &task->tk_runstate));
- 		dprintk("RPC: %4d deleting timer\n", task->tk_pid);
- 	}
- }

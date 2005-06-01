@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVFAVRB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVFAVSE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbVFAVRB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 17:17:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbVFAVOb
+	id S261249AbVFAVSE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 17:18:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbVFAVJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 17:14:31 -0400
-Received: from mail.kroah.org ([69.55.234.183]:50832 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261240AbVFAVOE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 17:14:04 -0400
-Date: Wed, 1 Jun 2005 14:24:18 -0700
-From: Greg KH <greg@kroah.com>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Patrick Mochel <mochel@digitalimplant.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Don't "lose" devices on suspend on failure
-Message-ID: <20050601212418.GA3936@kroah.com>
-References: <1117523329.5826.14.camel@gaston>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1117523329.5826.14.camel@gaston>
-User-Agent: Mutt/1.5.8i
+	Wed, 1 Jun 2005 17:09:56 -0400
+Received: from smtp109.mail.sc5.yahoo.com ([66.163.170.7]:24404 "HELO
+	smtp109.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261305AbVFAVI4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 17:08:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=PwHMoY65xmoxuHME1CjWXUxmLiVKreKcI7+LD1lIUwBkOCYj5Sl8J2pGL+ZN/FSfrb3RQ57BNOK0ILnWA/zUYNpeTyvqAg9ii2xrHMxcz0zU2TWVWcdZAPx6Ay4tq/nt/atoof5qiIJxOAOIGGEqKd2jQu3Wpf82sVbL3nQMGIo=  ;
+Message-ID: <429E23E3.8000606@yahoo.com>
+Date: Wed, 01 Jun 2005 14:08:51 -0700
+From: Alex Aizman <itn780@yahoo.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Patrick McFarland <pmcfarland@downeast.net>
+CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       Christoph Hellwig <hch@lst.de>
+Subject: Re: [ANNOUNCE 0/7] Open-iSCSI/Linux-iSCSI-5 High-Performance Initiator
+References: <429E15CD.2090202@yahoo.com> <200506011654.11362.pmcfarland@downeast.net>
+In-Reply-To: <200506011654.11362.pmcfarland@downeast.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 31, 2005 at 05:08:49PM +1000, Benjamin Herrenschmidt wrote:
-> Hi !
+Patrick McFarland wrote:
+> On Wednesday 01 June 2005 04:08 pm, Alex Aizman wrote:
 > 
-> I think we need this patch or we might "lose" devices to the dpm_irq_off
-> list if a failure occurs during the suspend process.
+>> This is open-iscsi/linux-iscsi-5 Initiator. This submission is ready for 
+>> inclusion into mainline kernel.
 > 
-> Patrick, Greg, your opinion ?
+> 
+> Awesome! So is this complete enough so I can, say, play DVDs from one box 
+> using an ATAPI DVD drive in another box?
+> 
 
-Looks fine to me, I've added it to my tree.
-
-thanks,
-
-greg k-h
+Yep, that's what iSCSI is for, in part. You'll need iSCSI target to connect to
+the SCSI backend, e.g. http://iscsitarget.sourceforge.net/

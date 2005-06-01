@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVFAWMy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVFAWNp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbVFAWMy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 18:12:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVFAWJP
+	id S261286AbVFAWNp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 18:13:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261332AbVFAWNL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 18:09:15 -0400
-Received: from pop.gmx.de ([213.165.64.20]:21211 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261324AbVFAWGo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 18:06:44 -0400
-X-Authenticated: #428038
-Date: Thu, 2 Jun 2005 00:06:41 +0200
-From: Matthias Andree <matthias.andree@gmx.de>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Cc: jim@why.dont.jablowme.net, toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com,
-       ltd@cisco.com, linux-kernel@vger.kernel.org, kraxel@suse.de,
-       dtor_core@ameritech.net, 7eggert@gmx.de
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Message-ID: <20050601220641.GD31585@merlin.emma.line.org>
-Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	jim@why.dont.jablowme.net, toon@hout.vanvergehaald.nl,
-	mrmacman_g4@mac.com, ltd@cisco.com, linux-kernel@vger.kernel.org,
-	kraxel@suse.de, dtor_core@ameritech.net, 7eggert@gmx.de
-References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com> <20050530093420.GB15347@hout.vanvergehaald.nl> <429B0683.nail5764GYTVC@burner> <46BE0C64-1246-4259-914B-379071712F01@mac.com> <429C4483.nail5X0215WJQ@burner> <87acmbxrfu.fsf@bytesex.org> <429DD036.nail7BF7MRZT6@burner> <20050601154245.GA14299@voodoo> <429DE874.nail7BFM1RBO2@burner>
+	Wed, 1 Jun 2005 18:13:11 -0400
+Received: from [203.171.93.254] ([203.171.93.254]:8321 "EHLO
+	cunningham.myip.net.au") by vger.kernel.org with ESMTP
+	id S261286AbVFAWMT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 18:12:19 -0400
+Subject: Re: Freezer Patches.
+From: Nigel Cunningham <ncunningham@cyclades.com>
+Reply-To: ncunningham@cyclades.com
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <1117663357.19020.70.camel@gaston>
+References: <1117629212.10328.26.camel@localhost>
+	 <20050601130205.GA1940@openzaurus.ucw.cz>
+	 <1117663357.19020.70.camel@gaston>
+Content-Type: text/plain
+Organization: Cycades
+Message-Id: <1117664017.13830.36.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <429DE874.nail7BFM1RBO2@burner>
-X-PGP-Key: http://home.pages.de/~mandree/keys/GPGKEY.asc
-User-Agent: Mutt/1.5.9i
-X-Y-GMX-Trusted: 0
+X-Mailer: Ximian Evolution 1.4.6-1mdk 
+Date: Thu, 02 Jun 2005 08:13:37 +1000
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Schilling schrieb am 2005-06-01:
+Hi.
 
-> Note that Linux did not have a usable /dev/whatever based interface 10 years ago.
-> Also note that cdda2wav distinguishes between "OS native Audio ioctl calls" and
-> generic SCSI from checking the dev= parameter. For this reason using 
-> /dev/whateter is just wrong.
+On Thu, 2005-06-02 at 08:02, Benjamin Herrenschmidt wrote:
+> On Wed, 2005-06-01 at 15:02 +0200, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > Here are the freezer patches. They were prepared against rc3, but I
+> > > think they still apply fine against rc5. (Ben, these are the same ones I
+> > > sent you the other day).
+> 
+> > 300: stopping softirqd seems dangerous to me... are you sure?
+> 
+> That sounds bogus indeed.
 
-Now this is an implementation detail of your application, and the OS
-abstraction inside your application might well use a smarter way of
-figuring out if it's a SCSI interface or not.
+Ok. Bogus but harmless. I'll try removing it.
 
--- 
-Matthias Andree
+Regards,
+
+Nigel
+

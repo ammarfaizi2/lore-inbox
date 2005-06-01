@@ -1,68 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261390AbVFAPpR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261433AbVFAPta@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261390AbVFAPpR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 11:45:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVFAPnW
+	id S261433AbVFAPta (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 11:49:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261443AbVFAPrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 11:43:22 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:31974 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S261433AbVFAPm4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 11:42:56 -0400
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Wed, 01 Jun 2005 17:41:39 +0200
-To: lsorense@csclub.uwaterloo.ca, kraxel@suse.de
-Cc: toon@hout.vanvergehaald.nl, schilling@fokus.fraunhofer.de,
-       mrmacman_g4@mac.com, ltd@cisco.com, linux-kernel@vger.kernel.org,
-       dtor_core@ameritech.net, 7eggert@gmx.de
+	Wed, 1 Jun 2005 11:47:24 -0400
+Received: from atpro.com ([12.161.0.3]:65038 "EHLO atpro.com")
+	by vger.kernel.org with ESMTP id S261433AbVFAPpd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 11:45:33 -0400
+From: "Jim Crilly" <jim@why.dont.jablowme.net>
+Date: Wed, 1 Jun 2005 11:42:46 -0400
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
+Cc: kraxel@suse.de, toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com,
+       ltd@cisco.com, linux-kernel@vger.kernel.org, dtor_core@ameritech.net,
+       7eggert@gmx.de
 Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Message-ID: <429DD733.nail7BF915O9X@burner>
-References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com>
- <20050530093420.GB15347@hout.vanvergehaald.nl>
- <429B0683.nail5764GYTVC@burner>
- <46BE0C64-1246-4259-914B-379071712F01@mac.com>
- <429C4483.nail5X0215WJQ@burner> <87acmbxrfu.fsf@bytesex.org>
- <20050531190556.GK23621@csclub.uwaterloo.ca>
-In-Reply-To: <20050531190556.GK23621@csclub.uwaterloo.ca>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
+Message-ID: <20050601154245.GA14299@voodoo>
+Mail-Followup-To: Joerg Schilling <schilling@fokus.fraunhofer.de>,
+	kraxel@suse.de, toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com,
+	ltd@cisco.com, linux-kernel@vger.kernel.org, dtor_core@ameritech.net,
+	7eggert@gmx.de
+References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com> <20050530093420.GB15347@hout.vanvergehaald.nl> <429B0683.nail5764GYTVC@burner> <46BE0C64-1246-4259-914B-379071712F01@mac.com> <429C4483.nail5X0215WJQ@burner> <87acmbxrfu.fsf@bytesex.org> <429DD036.nail7BF7MRZT6@burner>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <429DD036.nail7BF7MRZT6@burner>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lsorense@csclub.uwaterloo.ca (Lennart Sorensen) wrote:
+On 06/01/05 05:11:50PM +0200, Joerg Schilling wrote:
+> > Not really.  Yes, it runs on different operating systems.  But to send
+> > the SCSI commands to the device you have OS-specific code in there,
+> > simply because it's handled in different ways on Solaris / Linux /
+> > whatever OS.  You could make the device addressing OS-specific as well
+> > instead of expecting everyone in the world follow the Solaris model,
+> > that would make life a bit easier for everyone involved.
+> 
+> This is not the Solaris model....
+> 
+> I did define this model 19 years ago when I did write the first 
+> Generic SCSI driver at all. Adaptec indepentently did develop ASPI
+> 2 years later and did chose the same address model. Nearly all
+> OS use this kind (or a very similar model) internaly inside the kernel
+> or the basic SCSI address routines.
 
-> > Addressing IDE devices (try to get a real SCSI burner these days)
-> > using scsi host+target+lun is sort-of silly IMHO ...
->
-> Well I remember the first time I saw devfs running, I thought "Wow
-> finally I have a way to find the disc that is scsi id 3 on controller 0
-> even if I add a device at id 2 after setting up the system", something
-> most unix systems have always had, but linux made hard (you had to
-> somehow figure out which id mapped to which /dev/sd* entry, which from a
-> users perspective wasn't trivial, and of course keeping your fstab in
-> sync with the mapping was a pain).
+Just because it's old, that doesn't mean it's good. The kernel using the
+numbers internally makes sense, but requiring them for userspace seems
+stupid. All you should do is open the appropriate device node and let the
+kernel figure out which SCSI ID to send the commands to. Every other tool
+I've ever seen uses device nodes, why should cdrecord be different? All it
+does is make cdrecord more difficult to use.
 
-What you explain is exactly the reason, why libscg maps the /dev/ names
-to something stable.
+> 
+> Jörg
+> 
 
-Then some people claimed that there was a new way in Linux but I could
-not find a machine running this stuff.....
-
-When I checked again, this still had not become "standard" on Linux
-but I got the impression that somebody was developing a new system.
-So I gave up.
-
-If someone will develop a useful system that eventually appears as
-a standard on all Linux systems it may make sende to add support into
-libscg.
-
-
-Jörg
-
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  
-       schilling@fokus.fraunhofer.de	(work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+Jim.

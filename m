@@ -1,55 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVFAAI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVFAARZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261198AbVFAAI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 20:08:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbVFAAIZ
+	id S261215AbVFAARZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 20:17:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbVFAARZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 20:08:25 -0400
-Received: from dvhart.com ([64.146.134.43]:39334 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261198AbVFAAIX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 20:08:23 -0400
-Date: Tue, 31 May 2005 17:08:19 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [PATCH] add page_state info to show_mem
-Message-ID: <375690000.1117584499@flay>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Tue, 31 May 2005 20:17:25 -0400
+Received: from smtp2.poczta.interia.pl ([213.25.80.232]:40549 "EHLO
+	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
+	id S261215AbVFAARP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 20:17:15 -0400
+Message-ID: <429CFE7F.20304@poczta.fm>
+Date: Wed, 01 Jun 2005 02:17:03 +0200
+From: Lukasz Stelmach <stlman@poczta.fm>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: pl, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+To: linux-kernel@vger.kernel.org
+Cc: jfisch@cs.pdx.edu, chris@mind.lu
+Subject: Re: Driver for MCS7780 USB-IrDA bridge chip
+References: <42943CB5.50400@poczta.fm>
+In-Reply-To: <42943CB5.50400@poczta.fm>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig2AAC33D874C3026FF0520A54"
+X-EMID: e5c6a138
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This helps a lot when debugging out of memory stuff - useful especially
-to see if all the memory is sucked into slab, etc.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig2AAC33D874C3026FF0520A54
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: quoted-printable
 
-diff -purN -X /home/mbligh/.diff.exclude 2.6.11/arch/i386/mm/pgtable.c 2.6.11-show_mem_slab/arch/i386/mm/pgtable.c
---- 2.6.11/arch/i386/mm/pgtable.c	2005-03-02 02:59:09.000000000 -0800
-+++ 2.6.11-show_mem_slab/arch/i386/mm/pgtable.c	2005-05-31 15:58:36.000000000 -0700
-@@ -30,6 +30,7 @@ void show_mem(void)
- 	struct page *page;
- 	pg_data_t *pgdat;
- 	unsigned long i;
-+	struct page_state ps;
- 
- 	printk("Mem-info:\n");
- 	show_free_areas();
-@@ -53,6 +54,13 @@ void show_mem(void)
- 	printk("%d reserved pages\n",reserved);
- 	printk("%d pages shared\n",shared);
- 	printk("%d pages swap cached\n",cached);
-+
-+	get_page_state(&ps);
-+	printk("%d pages dirty\n", ps.nr_dirty);
-+	printk("%d pages writeback\n", ps.nr_writeback);
-+	printk("%d pages mapped\n", ps.nr_mapped);
-+	printk("%d pages slab\n", ps.nr_slab);
-+	printk("%d pages pagetables\n", ps.nr_page_table_pages);
- }
- 
- /*
+Greetings Everyone.
 
+The new, shiny 0.2alpha.3 release is ready to test it, smash it and blow
+it off ;-)
+
+The major improvement is support for other SIR speeds: 2400 through
+115200 bps. Well I think they will work but frankly speaking I haven't
+tested them because my Handspring always negotiates the highest rate.
+
+I am sure there is quite a lot of bugs left so *please* test it as much
+as you can. I am realy convinced that performance may be a really big
+problem so I will appreciate any comments on the design.
+
+Source tarball is available at:
+
+http://www.ee.pw.edu.pl/~stelmacl/mcs7780-0.2alpha.3.tar.bz2
+http://www.ee.pw.edu.pl/~stelmacl/mcs7780-0.2alpha.3.tar.bz2.asc (sig)
+
+or
+
+http://stlman.fm.interia.pl/mcs7780-0.2alpha.3.tar.bz2
+http://stlman.fm.interia.pl/mcs7780-0.2alpha.3.tar.bz2.asc (sig)
+
+To answer your question: I will make a patch but let me first be sure it
+is usable and at least beta-stable. You can help ;-)
+
+Always yours.
+--=20
+By=B3o mi bardzo mi=B3o.                    Trzecia pospolita kl=EAska, [=
+=2E..]
+>=A3ukasz<                      Ju=BF nie katolicka lecz z=B3odziejska.  =
+(c)PP
+
+
+--------------enig2AAC33D874C3026FF0520A54
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCnP6DNdzY8sm9K9wRAoRyAJwJsyHstmFnLQ6nC7R1TUVKLuU5bQCePsGR
+mfUMkSAYedr+eaNbykHX1oU=
+=TLcS
+-----END PGP SIGNATURE-----
+
+--------------enig2AAC33D874C3026FF0520A54--

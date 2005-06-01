@@ -1,46 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVFAHsW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVFAHtH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261320AbVFAHsW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 03:48:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVFAHsW
+	id S261322AbVFAHtH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 03:49:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVFAHtH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 03:48:22 -0400
-Received: from one.firstfloor.org ([213.235.205.2]:10133 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261320AbVFAHsT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 03:48:19 -0400
-To: michael@optusnet.com.au
-Cc: Denis Vlasenko <vda@ilport.com.ua>,
-       dean gaudet <dean-list-linux-kernel@arctic.org>,
+	Wed, 1 Jun 2005 03:49:07 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:9179 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261322AbVFAHtA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 03:49:00 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: michael@optusnet.com.au, Andi Kleen <ak@muc.de>
+Subject: Re: [RFC] x86-64: Use SSE for copy_page and clear_page
+Date: Wed, 1 Jun 2005 10:48:31 +0300
+User-Agent: KMail/1.5.4
+Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
        Jeff Garzik <jgarzik@pobox.com>, Benjamin LaHaise <bcrl@kvack.org>,
        linux-kernel@vger.kernel.org
-Subject: Re: [RFC] x86-64: Use SSE for copy_page and clear_page
-References: <20050530181626.GA10212@kvack.org> <20050530193225.GC25794@muc.de>
-	<200505311137.00011.vda@ilport.com.ua>
-	<200505311215.06495.vda@ilport.com.ua> <20050531092358.GA9372@muc.de>
-	<m2zmuaee2z.fsf@mo.optusnet.com.au>
-From: Andi Kleen <ak@muc.de>
-Date: Wed, 01 Jun 2005 09:48:17 +0200
-In-Reply-To: <m2zmuaee2z.fsf@mo.optusnet.com.au> (michael@optusnet.com.au's
- message of "01 Jun 2005 17:22:28 +1000")
-Message-ID: <m1br6qwm9q.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+References: <20050530181626.GA10212@kvack.org> <20050531092358.GA9372@muc.de> <m2zmuaee2z.fsf@mo.optusnet.com.au>
+In-Reply-To: <m2zmuaee2z.fsf@mo.optusnet.com.au>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506011048.31537.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-michael@optusnet.com.au writes:
->
+On Wednesday 01 June 2005 10:22, michael@optusnet.com.au wrote:
+> Andi Kleen <ak@muc.de> writes:
+> 
+> > > Thus with "normal" page clear and "nt" page copy routines
+> > > both clear and copy benchmarks run faster than with
+> > > stock kernel, both with small and large working set.
+> > > 
+> > > Am I wrong?
+> > 
+> > fork is only a corner case. The main case is a process allocating
+> > memory using brk/mmap and then using it.
+> 
 > Key point: "using it". This normally involves writes to memory. Most
 > applications don't commonly read memory that they haven't previously
 > written to. (valgrind et al call that behaviour a "bug" :).
->
+> 
 > Given that, I'd say you really don't want the page zero routines
 > touching the cache.
 
-Writing on a modern CPU requires reading first too to get the rest
-of the cache line (provided you don't use write combing or uncached
-accesses)
+Heh, good point.
 
--Andi
+However, it is valid only if program writes in every byte in a cacheline.
+Then sufficiently smart CPU may avoid reading from main RAM.
+(I am not sure that today's CPUs are smart enough. K6s were not)
+
+If you have even one uninitialized byte (struct padding, etc) 
+between bytes you write, CPU will have to do reads from main memory
+in order to have cachelines with fully valid data.
+
+Kernel compile did finish faster with nt stores, tho...
+--
+vda
+

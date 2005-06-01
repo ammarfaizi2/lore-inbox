@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261423AbVFAPcv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVFAPe0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261423AbVFAPcv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 11:32:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVFAPcu
+	id S261424AbVFAPe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 11:34:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbVFAPdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 11:32:50 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:1503 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S261423AbVFAPa0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 11:30:26 -0400
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Wed, 01 Jun 2005 17:28:50 +0200
-To: schilling@fokus.fraunhofer.de, jim@why.dont.jablowme.net
-Cc: toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com, ltd@cisco.com,
-       linux-kernel@vger.kernel.org, dtor_core@ameritech.net, 7eggert@gmx.de
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Message-ID: <429DD432.nail7BF810RPU@burner>
-References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com>
- <20050530093420.GB15347@hout.vanvergehaald.nl>
- <429B0683.nail5764GYTVC@burner>
- <46BE0C64-1246-4259-914B-379071712F01@mac.com>
- <429C4483.nail5X0215WJQ@burner> <20050531172204.GD17338@voodoo>
-In-Reply-To: <20050531172204.GD17338@voodoo>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 1 Jun 2005 11:33:16 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:5678
+	"EHLO g5.random") by vger.kernel.org with ESMTP id S261434AbVFAPco
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 11:32:44 -0400
+Date: Wed, 1 Jun 2005 17:32:32 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Ingo Molnar <mingo@elte.hu>, Paulo Marques <pmarques@grupopie.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       James Bruce <bruce@andrew.cmu.edu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
+       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+Message-ID: <20050601153232.GN5413@g5.random>
+References: <20050601150527.GL5413@g5.random> <Pine.OSF.4.05.10506011709500.1707-100000@da410.phys.au.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.OSF.4.05.10506011709500.1707-100000@da410.phys.au.dk>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Jim Crilly" <jim@why.dont.jablowme.net> wrote:
+On Wed, Jun 01, 2005 at 05:15:23PM +0200, Esben Nielsen wrote:
+> redifiing cli()/sti() in Linux, which is what the patent covers.
 
-> On 05/31/05 01:03:31PM +0200, Joerg Schilling wrote:
-> > 
-> > > And why again do you need stable SCSI addresses for my _USB_ drive?
-> > 
-> > Well if the udev program was polite to users, it would also support
-> > to edit /etc/default/cdrecord...... 
-> > 
-> > ... if it _really_ does wat you like with /dev/ links, then it has all 
-> > the information that is needed to also maintain /etc/default/cdrecord
->
-> The rules and scripts that udev uses to name things can do anything since
-> it runs in userland, so udev could easily edit /etc/default/cdrecord if
-> someone took the time to write the script.
+I'm glad at least I understood something right about the patent
+contents.
 
-If it has the knowledge and if it is able to run parameterized sed from 
-internal rules, it should be possible to configure udev to 
-modify /etc/default/cdrecord, but as I don't have such a system, it would
-be nice if this was done by someone else.
+These days cli/sti are more commonly called
+local_irq_disable/local_irq_enable.
 
-Jörg
+So clearly renaming cli/sti to local_irq_disable/enable isn't going to
+invalidate the patent.
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  
-       schilling@fokus.fraunhofer.de	(work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily
+I don't know if spin_lock_irq can be considered a way to disable hard
+irqs or not, and if doing the _irq part in a "soft" mode that leaves
+hard-irq enabled can be considered "software emulation".
+
+It'm not a laywer so I can't know that.
+
+> Neither am I. But I know if I start to interpret patens that way I would
+> have to stop writing software right now as every line of code would be
+> covered by some patent if you start to look at it your way.
+
+This is true. Well, the only thing I really known was the patent covered
+the redefinition of cli not to do an hard "cli" asm instruction, but to
+do it in software (i.e. emulated). nanokernel worked around that since
+it did it for ages before the patent was filed (so at the very least
+that would make the patent invalid, sure nanokernel non-GPL usage isn't
+infringing).
+
+This one of preempt-rt looked to redefine a hard-disable-irq to a
+soft-disable-irq in the context of the OS, and in turn my mind
+immediatly went back to the patent.
+
+BTW, I remind people to sign the petition (I already signed it some time
+ago):
+
+	http://petition.eurolinux.org/

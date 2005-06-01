@@ -1,86 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbVFATtV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVFATtV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbVFATtV (ORCPT <rfc822;willy@w.ods.org>);
+	id S261199AbVFATtV (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 1 Jun 2005 15:49:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVFATrc
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbVFATry
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 15:47:32 -0400
-Received: from pat.uio.no ([129.240.130.16]:2202 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261162AbVFATqt (ORCPT
+	Wed, 1 Jun 2005 15:47:54 -0400
+Received: from mail.tmr.com ([64.65.253.246]:51333 "EHLO gaimboi.tmr.com")
+	by vger.kernel.org with ESMTP id S261185AbVFATrI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 15:46:49 -0400
-Subject: Re: RT and Cascade interrupts
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: john cooper <john.cooper@timesys.com>
-Cc: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Olaf Kirch <okir@suse.de>
-In-Reply-To: <429E0A86.7000507@timesys.com>
-References: <42974F08.1C89CF2A@tv-sign.ru> <4297AF39.4070304@timesys.com>
-	 <42983135.C521F1C8@tv-sign.ru> <4298AED8.8000408@timesys.com>
-	 <1117312557.10746.6.camel@lade.trondhjem.org>
-	 <4299332F.6090900@timesys.com>
-	 <1117352410.10788.29.camel@lade.trondhjem.org>
-	 <429B8678.1000706@timesys.com> <429DC4A8.BFF69FB3@tv-sign.ru>
-	 <429DF8DE.7060008@timesys.com>
-	 <1117650718.10733.65.camel@lade.trondhjem.org>
-	 <429E0A86.7000507@timesys.com>
-Content-Type: text/plain
-Date: Wed, 01 Jun 2005 15:46:41 -0400
-Message-Id: <1117655201.10733.98.camel@lade.trondhjem.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Wed, 1 Jun 2005 15:47:08 -0400
+Message-ID: <429E10B9.601@tmr.com>
+Date: Wed, 01 Jun 2005 15:47:05 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+Organization: TMR Associates Inc, Schenectady NY
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: William Lee Irwin III <wli@holomorphy.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Swap maximum size documented ?
+References: <200506011225.j51CPDV23243@lastovo.hermes.si> <20050601124025.GZ422@unthought.net> <1117630718.6271.31.camel@laptopd505.fenrus.org> <loom.20050601T150142-941@post.gmane.org> <20050601134022.GM20782@holomorphy.com> <429E0843.5060505@tmr.com> <20050601192934.GP20782@holomorphy.com>
+In-Reply-To: <20050601192934.GP20782@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.635, required 12,
-	autolearn=disabled, AWL 1.36, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on den 01.06.2005 Klokka 15:20 (-0400) skreiv john cooper:
+William Lee Irwin III wrote:
 
-> You might have missed in my earlier mail as
-> this is a not an MP kernel ie: !CONFIG_SMP
-> The synchronous timer delete primitives don't
-> exist in this configuration:
-> 
-> include/linux/timer.h:
-> 
-> #ifdef CONFIG_SMP
->    extern int del_timer_sync(struct timer_list *timer);
->    extern int del_singleshot_timer_sync(struct timer_list *timer);
-> #else
-> # define del_timer_sync(t) del_timer(t)
-> # define del_singleshot_timer_sync(t) del_timer(t)
-> #endif
+>William Lee Irwin III wrote:
+>  
+>
+>>>Without CONFIG_HIGHMEM64G=y you have:
+>>>32 swapfiles, max swapfile size of 64GB.
+>>>With CONFIG_HIGHMEM64G=y you have:
+>>>32 swapfiles, max swapfile size of 512GB.
+>>>      
+>>>
+>
+>On Wed, Jun 01, 2005 at 03:10:59PM -0400, Bill Davidsen wrote:
+>  
+>
+>>Does this apply to mmap as well? I have an application which currently 
+>>uses 9TB of data, and one thought to boost performance was to mmap the 
+>>data. Unfortunately, I know 16TB isn't going to be enough for more than 
+>>a few more years :-(
+>>    
+>>
+>
+>This only applies to swapping on ia32/i386.
+>
+>mmap() is limited only by file offsets, which are fully 32-bit on
+>32-bit systems. remap_file_pages() is limited by PTE_FILE_MAX_BITS,
+>which is fully 32-bit with CONFIG_HIGHMEM64G=y on i386 but only 29 bit
+>without it on i386. In general checking for PTE_FILE_MAX_BITS on the
+>relevant architecture should answer your question for remap_file_pages(),
+>and BITS_PER_LONG for mmap(). The swap limits for other architectures
+>will also differ and you generally have to look at the swp_entry/pte
+>encoding/decoding macros to decipher what the precise limits are
+>(though a quick hacky C program can help discover them for you).
+>Generally you get the filesizes by PAGE_SIZE << X_FILE_OFFSET_BITS.
+>
+>It is in principle possible to sweep the kernel to allow larger file
+>offsets on 32-bit systems (pgoff_t is something of a preparation for
+>that), but I wouldn't advise trying it without rather strong kernel-fu
+>and much willingness to debug it by one's self, and that with a common
+>failure mode of fs data corruption. Widening swp_entry_t is slightly
+>harder as the ptes have limited capacity so you have to somehow allocate
+>extra data in a deadlock-free manner, but one also has less disruptive
+>failure modes. I suspect you're not itching to implement these things.
+>
+>One thing to keep in mind is that these are only permissible filesizes.
+>Virtualspace must be managed properly for windowing where it's limited
+>and to prevent pagetable proliferation where it's not.
+>
 
+Thank you for taking the time to give me such a complete reply (I saved 
+it to prevent asking similar in the future). Hopefully I will be able to 
+leave the problem to someone else by then.
 
-For the RT patched stuff that should read
-
-#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT_SOFTIRQS)
-  extern int del_timer_sync(struct timer_list *timer);
-  extern int del_singleshot_timer_sync(struct timer_list *timer);
-#else
-# define del_timer_sync(t) del_timer(t)
-# define del_singleshot_timer_sync(t) del_timer(t)
-#endif
-
-
-> BTW, I don't know if you happened on the mail I sent
-> yesterday.  It details rpc_run_timer() waking up an
-> application task blocked in call_transmit().  The
-> app task preempts ksoftirqd and eventually does a
-> __rpc_sleep_on()/__mod_timer() which requeues the
-> timer in the cascade.  When ksoftirqd/rpc_run_timer()
-> resumes RPC_TASK_HAS_TIMER is unconditionally cleared
-> however the timer is queued in the cascade.  This
-> appears to be at least one cause of the timer cascade
-> corruption I've seen.
-
-I saw it. Once again, I don't see how that can happen. __rpc_execute()
-should be calling rpc_delete_timer() before it calls task->tk_action.
-
-There should be no instances of RPC entering call_transmit() or any
-other tk_action callback with a pending timer.
-
-Cheers,
-  Trond
+-- 
+bill davidsen <davidsen@tmr.com>
+  CTO TMR Associates, Inc
+  Doing interesting things with small computers since 1979
 

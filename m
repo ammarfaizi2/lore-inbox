@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVFAJeU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVFAJhM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbVFAJeU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 05:34:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVFAJeN
+	id S261358AbVFAJhM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 05:37:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVFAJen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 05:34:13 -0400
-Received: from fest.stud.feec.vutbr.cz ([147.229.72.16]:54749 "EHLO
-	fest.stud.feec.vutbr.cz") by vger.kernel.org with ESMTP
-	id S261339AbVFAJdQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 05:33:16 -0400
-Message-ID: <429D80AD.1000601@stud.feec.vutbr.cz>
-Date: Wed, 01 Jun 2005 11:32:29 +0200
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, dwalker@mvista.com,
-       Joe King <atom_bomb@rocketmail.com>, ganzinger@mvista.com,
-       Lee Revell <rlrevell@joe-job.com>, Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
-References: <20050523082637.GA15696@elte.hu> <4294E24E.8000003@stud.feec.vutbr.cz> <20050601091908.GA13041@elte.hu>
-In-Reply-To: <20050601091908.GA13041@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Jun 2005 05:34:43 -0400
+Received: from nproxy.gmail.com ([64.233.182.196]:6525 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261363AbVFAJdd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 05:33:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=UzM9IrE1KEChy68nDA+uTqgW87SEXrgkqoO3wRaNV9iM+WRkndkahZ6qyuJpTV1sWXstFN3B5CEfqTM/CbzMN6pn1QtfOJ+Hw1pqBqAvyT+76lWX2F+zjYAyLqN8t1/PViG6Stto95CSTm+i1LbvSXqygZi062InksGleBIz4Z0=
+Message-ID: <2cd57c90050601023358417bbd@mail.gmail.com>
+Date: Wed, 1 Jun 2005 17:33:29 +0800
+From: Coywolf Qi Hunt <coywolf@gmail.com>
+Reply-To: coywolf@lovecn.org
+To: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [RFC/PATCH 0/5] add execute in place support
+Cc: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       Carsten Otte <cotte@freenet.de>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org, schwidefsky@de.ibm.com, akpm@osdl.org
+In-Reply-To: <1115890981.16187.553.camel@hades.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+References: <428216DF.8070205@de.ibm.com>
+	 <1115828389.16187.544.camel@hades.cambridge.redhat.com>
+	 <42823450.8030007@freenet.de>
+	 <20050512085741.GA16361@wohnheim.fh-wedel.de>
+	 <1115890981.16187.553.camel@hades.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
->>I'm attaching a patch which changes a semaphore in cpufreq into a 
->>completion. With this patch, my system runs OK even with cpufreqd.
+On 5/12/05, David Woodhouse <dwmw2@infradead.org> wrote:
+> On Thu, 2005-05-12 at 10:57 +0200, Jörn Engel wrote:
+> > In principle, both the block device abstraction and the mtd
+> > abstraction fit your bill.  But jffs2 doesn't, so no in-kernel fs
+> > could make use of a xip-aware mtd abstraction.
+> >
+> > Patching jffs2 for xip looks like a major effort, at best, and utterly
+> > insane at worst.  I'd prefer not to go down that path.
 > 
-> 
-> btw., could you please submit this upstream too, so that it doesnt get 
-> lost? Semaphore->completion conversions are desirable upstream for cases 
-> where the semaphore was in reality not used for mutual exclusion but for 
-> completion purposes. (in which case real completions are both more 
-> readable and slightly faster)
+> You and me both. The time has definitely come to recognise that JFFS2
+> needs replacing ;)
 
-Yes, I'm going to contact upstream about this.
-However, after closer look on cpufreq code I came to a conclusion that 
-the lock there doesn't really play the role of a completion. There's 
-always: down(), then do something with the data structure, then up() in 
-the same function.
-I'm going to fix it differently after consulting with upstream author (I 
-now think that it should not be necessary to take the lock in 
-cpufreq_add_dev at all).
+I'd say yaffs seems to be a good one. 
 
-Michal
+-- 
+Coywolf Qi Hunt
+http://ahbl.org/~coywolf/

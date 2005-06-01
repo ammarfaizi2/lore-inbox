@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261372AbVFANTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbVFANWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261372AbVFANTo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 09:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbVFANSN
+	id S261300AbVFANWU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 09:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbVFANWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 09:18:13 -0400
-Received: from alog0195.analogic.com ([208.224.220.210]:46036 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261277AbVFANRT
+	Wed, 1 Jun 2005 09:22:19 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:41460 "EHLO
+	godzilla.mvista.com") by vger.kernel.org with ESMTP id S261300AbVFANVy
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 09:17:19 -0400
-Date: Wed, 1 Jun 2005 09:16:16 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Bill Gates and the penguim
-Message-ID: <Pine.LNX.4.61.0506010914200.6848@chaos.analogic.com>
+	Wed, 1 Jun 2005 09:21:54 -0400
+Date: Wed, 1 Jun 2005 06:21:50 -0700 (PDT)
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org,
+       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
+In-Reply-To: <20050601131130.GC32232@elte.hu>
+Message-ID: <Pine.LNX.4.10.10506010615270.23911-100000@godzilla.mvista.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-William Gates died and went directly to Hell. The devil met him to
-welcome him home. "Hello Bill!" said the devil, "We've been expecting
-you and have prepared a special place. Sorry you tripped on the penguin
-and broke your neck but I'm sure you will find your stay here very
-enjoyable."
+On Wed, 1 Jun 2005, Ingo Molnar wrote:
 
-The devil then gave Mr. Gates a large laboratory with lots of gigahertz
-computers, file-servers, fiber-optic links, and even a disk farm that
-required a 200 amp service to run.
+> 
+> * Daniel Walker <dwalker@mvista.com> wrote:
+> 
+> > > > > existing_sp_head:
+> > > > > 	itr_pl2 = container_of(itr_pl->dp_node.prev, struct plist, dp_node);
+> > > > > 	list_add(&pl->sp_node, &itr_pl2->sp_node);
+> > > > 
+> > > > This breaks fifo ordering.
+> > > 
+> > > Daniel, is the issue (and other issues) Oleg noticed still present? I'm 
+> > > still a bit uneasy about the complexity of the plist changes.
+> > 
+> > I think this one isn't right. We could make a test quite to check
+> > correctness. Find the errors before they find us. Oleg may even have
+> > something like that already half done. 
+> > 
+> > Are you concerned with plist as a whole, or just my recent changes?
+> > 
+> > There is still a problem with plist_for_each() missing the first list 
+> > member, which I need to fix.
+> 
+> plist seems pretty stable now, but i'm still worried about behavioral 
+> correctness. The previous method, while it didnt scale as well, was at 
+> least more obvious to review.
 
-There were thousands of different kinds of compilers, assemblers, and
-other tools. There was even a super-server running Red-Hat Linux,
-containing all the GNU tools.
+True, list_add() vs. 200+ lines of code .. I've added our plist to fusyn
+with no ill effects. As Oleg suggested I used some userspace code to check
+what it was doing, while I was working on it. I've fairly confident in it,
+however I do still have some concerns for the same reasons you do.
 
-The devil said; "Well Bill, have a good time. I'll be checking with you
-from time-to-time just to see how you are doing!"
+I could do some cleanup on it, some comments are wrong now. That and a
+test suite, maybe that will change the confidence level.
 
-In about a week the devil stopped by Bill's lab to see how he was
-doing. He said; "Everything is fine. I never had such good equipment
-when I was on earth. I'm even planning to join the Linux-kernel list."
+Daniel
 
-Another week went by and the devil visited Bill again. "How are you
-doing?" the devil asked.
-
-"Fine.", said Bill, "I have a question, though...."
-
-"Yes?" said the devil.
-
-Bill replied; "I can ping the vger server, I can even `traceroute` to
-my old Microsoft site. Everything seems to work, but I can't make any
-connections! Every time I attempt to connect, I get an error --
-connection refused --." "What's wrong here?"
-
-"That", said the devil "is the HELL of it!"
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.

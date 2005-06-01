@@ -1,71 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261328AbVFAIeo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVFAIm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261328AbVFAIeo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 04:34:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVFAIen
+	id S261332AbVFAIm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 04:42:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbVFAIm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 04:34:43 -0400
-Received: from gate.crashing.org ([63.228.1.57]:59836 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261328AbVFAIel (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 04:34:41 -0400
-Subject: Re: [linux-pm] [RFC] Add some hooks to generic suspend code
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050601081336.GA6693@elf.ucw.cz>
-References: <1117524577.5826.35.camel@gaston>
-	 <20050531101344.GB9614@elf.ucw.cz> <1117550660.5826.42.camel@gaston>
-	 <20050531212556.GA14968@elf.ucw.cz> <1117582309.5826.60.camel@gaston>
-	 <20050601081336.GA6693@elf.ucw.cz>
-Content-Type: text/plain
-Date: Wed, 01 Jun 2005 18:34:17 +1000
-Message-Id: <1117614857.19020.32.camel@gaston>
+	Wed, 1 Jun 2005 04:42:27 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:31449 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S261332AbVFAImZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 04:42:25 -0400
+References: <1117291619.9665.6.camel@localhost>
+            <Pine.LNX.4.58.0505291059540.10545@ppc970.osdl.org>
+            <84144f0205052911202863ecd5@mail.gmail.com>
+            <Pine.LNX.4.58.0505291143350.10545@ppc970.osdl.org>
+            <1117399764.9619.12.camel@localhost>
+            <Pine.LNX.4.58.0505291543070.10545@ppc970.osdl.org>
+            <1117466611.9323.6.camel@localhost>
+            <Pine.LNX.4.58.0505301024080.10545@ppc970.osdl.org>
+            <courier.429C05C1.00005CC5@courier.cs.helsinki.fi>
+            <20050601073544.GA21384@elte.hu>
+In-Reply-To: <20050601073544.GA21384@elte.hu>
+From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, Pekka Enberg <penberg@gmail.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: TASK_NONINTERACTIVE (was: Machine Freezes while Running Crossover Office)
+Date: Wed, 01 Jun 2005 11:42:24 +0300
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-ID: <courier.429D74F0.0000392E@courier.cs.helsinki.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-01 at 10:13 +0200, Pavel Machek wrote:
-> Hi!
-> 
-> > > Why do you need it? Do you initiate suspend without userland asking
-> > > you to?
-> > 
-> > Because there is an existing API, via /dev/apm_bios, and that's all X
-> > understands ! And because I've always done that ;)
-> 
-> Try stopping doing that ;-).
+Hi Ingo, 
 
-Certainly not short-term. Again, it would be nice to have something
-better, but heh, you need to go step by step. I have this big rework
-where I re-implement most of the pmac suspend code on top of the generic
-code (cleans up a lot of stuff) but I don't want to touch the userland
-ABI for now, that would be too much of a chance. And /dev/apm_bios X
-notofication stuff seems to actually fix problems for some users.
+On Wed, 2005-06-01 at 09:35 +0200, Ingo Molnar wrote:
+> Pekka, could you check whether the patch below solves your Wine problem 
+> (without hurting interactivity otherwise)?
 
-> [On i386, we do not emulate apm, and it still works. Reason is that we
-> switch to other console before suspend, so X has to give up
-> framebuffer control, anyway.]
+It indeed fixes the Wine problem. Some quick testing did not reveal any 
+interactivity issues. I will give it some more beating now. 
 
-Well, I sort-of work :) I have reported cases of X locking the machine
-up under some circumstances. Note that historically, I was not switching
-consoles in the pmac PM code, though I'm doing it nowadays.
-
-There are other uses of those "events" in /dev/apm_bios. Some people run
-scripts on resume triggered by these for example, etc...
-
-I'd rather not break an existing and relied upon userland interface now,
-at least not until we have a well accepted replacement that has been
-around for some time.
-
-I do agree however that it may be nice to make the APM emulation code
-more generic & shared between architectures. That's something I intend
-to look into next. But I would like my current stuff to get in after
-2.6.12 is released.
-
-Ben.
-
+                 Pekka 
 

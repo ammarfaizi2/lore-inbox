@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVFANIv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVFANET@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbVFANIv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 09:08:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbVFANGr
+	id S261273AbVFANET (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 09:04:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261284AbVFANES
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 09:06:47 -0400
-Received: from main.gmane.org ([80.91.229.2]:58826 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261278AbVFANFN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 09:05:13 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Subject: Re: [OT] mailing list management
-Date: Wed, 01 Jun 2005 15:01:05 +0200
-Message-ID: <yw1xbr6q2pv2.fsf@ford.inprovide.com>
-References: <429D8A3A.8000304@poczta.fm> <20050601102211.GR2417@lug-owl.de>
- <429D8E96.4010908@poczta.fm>
- <Pine.LNX.4.63.0506011239300.7726@sheen.jakma.org>
- <429DADAC.7070207@poczta.fm>
+	Wed, 1 Jun 2005 09:04:18 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:38556 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261273AbVFANDT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 09:03:19 -0400
+Date: Wed, 1 Jun 2005 15:02:06 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: Freezer Patches.
+Message-ID: <20050601130205.GA1940@openzaurus.ucw.cz>
+References: <1117629212.10328.26.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 76.80-203-227.nextgentel.com
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Cancel-Lock: sha1:ssAVg2/qzfUf7mSV24KaZG7+pHw=
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1117629212.10328.26.camel@localhost>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lukasz Stelmach <stlman@poczta.fm> writes:
+Hi!
 
-> Paul Jakma wrote:
->
->> The person you are replying to can/may:
->> 
->> - /want/ the direct copy (this is the case for quite a few people on
->>   this list)
->
-> I prefere, and I do it, explicit asking for a CC.
->
->> - filter incoming mail to supress duplicates
->
-> It is a lot easier to find personal mails than to suppress dupes.
-> In the former case you can look at References or IRT fields and in the
-> later you have to *keep* a list of Message-IDs and search it everytime
-> you receive a letter.
+> Here are the freezer patches. They were prepared against rc3, but I
+> think they still apply fine against rc5. (Ben, these are the same ones I
+> sent you the other day).
 
-My mail server (cyrus imapd) automatically suppresses duplicates with
-the default settings.  I suppose other mail servers also have this
-functionality.
+304 seems ugly and completely useless for mainline
+300: stopping softirqd seems dangerous to me... are you sure?
+301: patching exit should not be neccessary. Why do you need it?
+				Pavel
 
-> And direct replying generates more traffic.
 
-Not necessarily.  Many mailing lists are configured not to send mail
-to those already in the To or Cc headers.
+
 
 -- 
-Måns Rullgård
-mru@inprovide.com
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

@@ -1,63 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261407AbVFAPOC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261416AbVFAPTl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261407AbVFAPOC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 11:14:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbVFAPOC
+	id S261416AbVFAPTl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 11:19:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbVFAPS2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 11:14:02 -0400
-Received: from mailhub.fokus.fraunhofer.de ([193.174.154.14]:41427 "EHLO
-	mailhub.fokus.fraunhofer.de") by vger.kernel.org with ESMTP
-	id S261407AbVFAPNI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 11:13:08 -0400
-From: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Date: Wed, 01 Jun 2005 17:11:50 +0200
-To: schilling@fokus.fraunhofer.de, kraxel@suse.de
-Cc: toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com, ltd@cisco.com,
-       linux-kernel@vger.kernel.org, dtor_core@ameritech.net, 7eggert@gmx.de
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Message-ID: <429DD036.nail7BF7MRZT6@burner>
-References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com>
- <20050530093420.GB15347@hout.vanvergehaald.nl>
- <429B0683.nail5764GYTVC@burner>
- <46BE0C64-1246-4259-914B-379071712F01@mac.com>
- <429C4483.nail5X0215WJQ@burner> <87acmbxrfu.fsf@bytesex.org>
-In-Reply-To: <87acmbxrfu.fsf@bytesex.org>
-User-Agent: nail 11.2 8/15/04
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Wed, 1 Jun 2005 11:18:28 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:60352 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261416AbVFAPQc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 11:16:32 -0400
+Date: Wed, 1 Jun 2005 17:15:23 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Ingo Molnar <mingo@elte.hu>, Paulo Marques <pmarques@grupopie.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       James Bruce <bruce@andrew.cmu.edu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
+       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+In-Reply-To: <20050601150527.GL5413@g5.random>
+Message-Id: <Pine.OSF.4.05.10506011709500.1707-100000@da410.phys.au.dk>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gerd Knorr <kraxel@suse.de> wrote:
+On Wed, 1 Jun 2005, Andrea Arcangeli wrote:
 
-> Joerg Schilling <schilling@fokus.fraunhofer.de> writes:
+> On Wed, Jun 01, 2005 at 04:45:57PM +0200, Esben Nielsen wrote:
+> > the implementation of the former spinlock, now a mutex, is using a
+> > raw_spin_lock, which disables interrupts.
+> 
+> It's not _raw_spin_lock that disables irq. It's spin_lock_irq that does
+> that and it has been redefinined into an operation that doesn't disable
+> irq.
+> 
+> The patent text goes like this "providing a software emulator to disable
+> and enable interrupts from the general purpose operating system; 
+> 
+> marking interrupts as "soft disabled" and not "soft enabled" in response
+> to requests from the general purpose operating system to disable
+> interrupts; ".
 >
-> > If you use /dev/ entries to directly address SCSI targets, then you 
-> > are relying on on assumptions that cannot be granted everywhere.
-> >
-> > Cdrecord is portable and this needs to implement a way that is portable 
-> > and does not rely on nonportable assumptions like yours.
->
-> Not really.  Yes, it runs on different operating systems.  But to send
-> the SCSI commands to the device you have OS-specific code in there,
-> simply because it's handled in different ways on Solaris / Linux /
-> whatever OS.  You could make the device addressing OS-specific as well
-> instead of expecting everyone in the world follow the Solaris model,
-> that would make life a bit easier for everyone involved.
 
-This is not the Solaris model....
+PREEMPT_RT doesn't do that. If you from Linux request to disable irqs or
+preemption you just do it. Nothing in PREEMPT_RT prevents you. There is no
+"software emulation" involved at all. Redefining spin_lock() to mean
+lock_mutex() is clearly not the same as putting in a sub-kernel and
+redifiing cli()/sti() in Linux, which is what the patent covers.
+ 
+> I'm not a lawyer and I hope to be wrong, but I sure wouldn't bet the
+> farm on it. You should ask a lawyer to make sure that non-GPL code is
+> not infringing IMHO. This assuming that this could be a problem. It was
+> a problem for RTAI users, people is used to the fact userland doesn't
+> need to be GPL. Note that LGPL and BSD code will infringe too (i.e. no
+> glibc etc..).
 
-I did define this model 19 years ago when I did write the first 
-Generic SCSI driver at all. Adaptec indepentently did develop ASPI
-2 years later and did chose the same address model. Nearly all
-OS use this kind (or a very similar model) internaly inside the kernel
-or the basic SCSI address routines.
+Neither am I. But I know if I start to interpret patens that way I would
+have to stop writing software right now as every line of code would be
+covered by some patent if you start to look at it your way.
 
-Jörg
+Esben
 
--- 
- EMail:joerg@schily.isdn.cs.tu-berlin.de (home) Jörg Schilling D-13353 Berlin
-       js@cs.tu-berlin.de		(uni)  
-       schilling@fokus.fraunhofer.de	(work) Blog: http://schily.blogspot.com/
- URL:  http://cdrecord.berlios.de/old/private/ ftp://ftp.berlios.de/pub/schily

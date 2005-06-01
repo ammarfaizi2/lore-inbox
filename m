@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVFAJhM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbVFAJbV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbVFAJhM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 05:37:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVFAJe3
+	id S261352AbVFAJbV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 05:31:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVFAJbV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 05:34:29 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:15492 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261357AbVFAJdZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 05:33:25 -0400
-Date: Wed, 1 Jun 2005 11:29:06 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-pm <linux-pm@lists.osdl.org>, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] Re: [PATCH] Don't explode on swsusp failure to find swap
-Message-ID: <20050601092906.GD6693@elf.ucw.cz>
-References: <1117583403.5826.72.camel@gaston> <1117608759.10003.7.camel@linux-hp.sh.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1117608759.10003.7.camel@linux-hp.sh.intel.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Wed, 1 Jun 2005 05:31:21 -0400
+Received: from relay1.tiscali.de ([62.26.116.129]:10486 "EHLO
+	webmail.tiscali.de") by vger.kernel.org with ESMTP id S261352AbVFAJah
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 05:30:37 -0400
+Message-ID: <429D8046.3010403@tiscali.de>
+Date: Wed, 01 Jun 2005 11:30:46 +0200
+From: Matthias-Christian Ott <matthias.christian@tiscali.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050108)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Gregor Jasny <gjasny@web.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Cyrix 6x86L does not get identified by Linux 2.6
+References: <200506010036.27957.gjasny@web.de>
+In-Reply-To: <200506010036.27957.gjasny@web.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > More specifically, arch suspend calls swsusp_save().
-> > 
-> > It fails and returns the error to the arch asm code, which itself 
-> > returns it to it's caller swsusp_suspend(), which does that:
-> > 
-> >         if ((error = swsusp_arch_suspend())) 
-> >                 swsusp_free();
-> I encounter a similar issue, when swsusp_swap_check failed.
-> It seems the swsusp_free isn't required in the failure case,
-> suspend_prepare_image has correctly handled the failure case to me.
-> Other arch? I wonder why swsusp_free is called after device_power_down
-> failed as well. No pages are allocated before device_power_down.
-
-Agreed, its wrong. Also there's no reason for the swap check to be
-called (even indirectly) from arch code...
-								Pavel
+Gregor Jasny wrote:
+> Hi,
+> 
+> on my Cyrix 6x86L (notice the L) I've got the problem that it doesn't get 
+> identified as a Cyrix processor. Instead it is treated as a common 486.
+> 
+> I think the problem is that the cpuid feature is not enabled after booting. So 
+> init_cyrix which enables the cpuid feature is never called.
+> 
+> As a bad hack I've set the this_cpu pointer to cyrix in 
+> common.c:identify_cpu():
+> 
+> this_cpu = cpu_devs[X86_VENDOR_CYRIX];
+> 
+> Who is responsible for x86 CPU detection?
+Hans Peter Arvin? Andrew Balsa?
+> [ ... ]
+Matthias-Christian Ott

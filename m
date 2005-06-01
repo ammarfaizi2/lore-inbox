@@ -1,55 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVFBAKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261518AbVFBABD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbVFBAKF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 20:10:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVFBAJ2
+	id S261518AbVFBABD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 20:01:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261536AbVFBAAN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 20:09:28 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:50374 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261542AbVFBAHP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 20:07:15 -0400
-Date: Wed, 1 Jun 2005 17:07:11 -0700
-From: Mike Kravetz <kravetz@us.ibm.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: jschopp@austin.ibm.com, Mel Gorman <mel@csn.ul.ie>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Avoiding external fragmentation with a placement policy Version 12
-Message-ID: <20050602000711.GA7910@w-mikek2.ibm.com>
-References: <20050531112048.D2511E57A@skynet.csn.ul.ie> <429E20B6.2000907@austin.ibm.com> <429E4023.2010308@yahoo.com.au> <20050601234730.GF3998@w-mikek2.ibm.com> <429E4B22.5080404@yahoo.com.au>
+	Wed, 1 Jun 2005 20:00:13 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:26867 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261518AbVFAX6t
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 19:58:49 -0400
+Subject: Re: [PATCH] Abstracted Priority Inheritance for RT
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       sdietrich@mvista.com, rostedt@goodmis.org,
+       inaky.perez-gonzalez@intel.com
+In-Reply-To: <Pine.OSF.4.05.10506011603560.1707-100000@da410.phys.au.dk>
+References: <Pine.OSF.4.05.10506011603560.1707-100000@da410.phys.au.dk>
+Content-Type: text/plain
+Organization: MontaVista
+Date: Wed, 01 Jun 2005 16:58:37 -0700
+Message-Id: <1117670317.7646.11.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <429E4B22.5080404@yahoo.com.au>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 02, 2005 at 09:56:18AM +1000, Nick Piggin wrote:
-> Mike Kravetz wrote:
-> >Allocating lots of MAX_ORDER blocks can be very useful for things
-> >like hot-pluggable memory.  I know that this may not be of interest
-> >to most.  However, I've been combining Mel's defragmenting patch
-> >with the memory hotplug patch set.  As a result, I've been able to
-> >go from 5GB down to 544MB of memory on my ppc64 system via offline
-> >operations.  Note that ppc64 only employs a single (DMA) zone.  So,
-> >page 'grouping' based on use is coming mainly from Mel's patch.
-> >
-> 
-> Back in the day, Linus would tell you to take a hike if you
-> wanted to complicate the buddy allocator to better support
-> memory hotplug ;)
-> 
-> I don't know what's happened to him now though, he seems to
-> have gone a little soft on you enterprise types.
-> 
-> Seriously - thanks for the data point, I had an idea that you
-> guys wanted this for mem hotplug.
+On Wed, 2005-06-01 at 16:07 +0200, Esben Nielsen wrote:
 
-Mel wrote the patch independent of the mem hotplug effort.  As
-part of the hotplug effort, we knew fragmentation needed to be
-addressed.  So, when Mel released his patch we jumped all over
-it.
+> 
+> Do you plan to use that callback for priority inheritance?
+> If so: It would lead to an recursive algorithm. That is not very nice in
+> the kernel with a limited call-stack. It is not so much a problem if the
+> mechanism is used in the kernel only, but if it is used for user-space
+> locking, which can have unlimited neesting, it is potential problem.
 
--- 
-Mike
+There is an API for for priority inheritance, the call by is strictly
+for the PI mechanism to signal when it changes a waiters priority , as
+the result of PI.
+
+It's somewhat explained in linux/pi.h . Currently the rt_mutex uses this
+callback to move the waiter depending on it's new priority.
+
+I'm not sure I see how this could become recursive, could you explain
+more?
+
+Daniel 
+

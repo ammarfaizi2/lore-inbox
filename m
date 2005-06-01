@@ -1,66 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVFAQHK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVFAQLr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261449AbVFAQHK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 12:07:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVFAQGK
+	id S261456AbVFAQLr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 12:11:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261452AbVFAQLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 12:06:10 -0400
-Received: from rproxy.gmail.com ([64.233.170.207]:49333 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261452AbVFAQFR convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 12:05:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Jem+eL7BjKikbbl+WP9IrUsXijg8pv1mz6fBvSYOrZhUR8b4B2CZ+9j/MJYNeDor3ejkSVjfLZzUE5dZOikMXSrYNpzIFS0sCN+u2qSyyM7aTrijTw26BAGo56dC5wtYn87ae+XrVvmbKsoZ4rZJ7GtVTw5RTZhdWJ88lVIP7Zs=
-Message-ID: <d120d50005060109051f9ade82@mail.gmail.com>
-Date: Wed, 1 Jun 2005 11:05:15 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Cc: toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com, ltd@cisco.com,
-       linux-kernel@vger.kernel.org, 7eggert@gmx.de
-In-Reply-To: <429DDA07.nail7BFA4XEC5@burner>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 1 Jun 2005 12:11:04 -0400
+Received: from smtp004.mail.ukl.yahoo.com ([217.12.11.35]:3446 "HELO
+	smtp004.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261453AbVFAQJX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 12:09:23 -0400
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: Roman Zippel <zippel@linux-m68k.org>
+Subject: Re: [patch 1/1] kconfig: trivial cleanup
+Date: Wed, 1 Jun 2005 18:11:36 +0200
+User-Agent: KMail/1.8.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       kbuild-devel <kbuild-devel@lists.sourceforge.net>
+References: <20050529174525.A36D7A2FA3@zion.home.lan> <200505312235.35234.blaisorblade@yahoo.it> <Pine.LNX.4.61.0506010149070.3728@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0506010149070.3728@scrub.home>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com>
-	 <20050530093420.GB15347@hout.vanvergehaald.nl>
-	 <429B0683.nail5764GYTVC@burner>
-	 <46BE0C64-1246-4259-914B-379071712F01@mac.com>
-	 <429C4483.nail5X0215WJQ@burner> <20050531172204.GD17338@voodoo>
-	 <d120d500050531122879868bae@mail.gmail.com>
-	 <429DDA07.nail7BFA4XEC5@burner>
+Message-Id: <200506011811.37456.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/1/05, Joerg Schilling <schilling@fokus.fraunhofer.de> wrote:
-> Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> 
-> > Yes it could but why should it? The purpose of udev is to maintain
-> > dynamic /dev. Do you want to have thoustands quirks in udev to cope
-> > with bazillion configuration files for utilities whose authors refuse
-> > to adopt standard naming convention [for the operating system in
-> > question].
-> 
-> You show exactly the habbit that makes me unwiling to believe it makes
-> sense to put effort into anything in Linux that is not at least 5 years old.
-> 
-> 10 Years ago, Linux was completely unsuable with Linux /dev/sg* naming
-^^^^^^^^^^^^^^^^^^
-> and mapping conventions. After I did develop an abstraction layer that
-> made Linux usable people could use stable dev= parameters across
-> reboots of Linux.
-
-Joerg, that is the problem. It was 10 years ago. USB was not existant,
-Firewire wasn't there, FC, etc. You could rely on your naming then.
-But it was last millenium, now dev= parameters are anything but
-stable. It just does not cut anymore, while using device node to
-specify device you want to work with is natural. And I am willing to
-bet if you give this oprion to users of other Unix-like OSes they
-would not complain either.
+On Wednesday 01 June 2005 01:50, Roman Zippel wrote:
+> Hi,
+>
+> On Tue, 31 May 2005, Blaisorblade wrote:
+> > I can regenerate it only with bison 2.0, since that's what I have
+> > installed. So if you don't want it to be regenerated, you cannot accept
+> > my patch. I proposed sending two patches to avoid mixing the bison
+> > changes with this patch changes, that's all.
+>
+> What I meant is a patch like this:
+Ok, yes... akpm, can you merge it?
+> Index: linux-2.6-mm/scripts/kconfig/zconf.tab.c_shipped
+> ===================================================================
+> --- linux-2.6-mm.orig/scripts/kconfig/zconf.tab.c_shipped	2005-03-16
+> 13:47:36.000000000 +0100 +++
+> linux-2.6-mm/scripts/kconfig/zconf.tab.c_shipped	2005-06-01
+> 01:48:19.000000000 +0200 @@ -1531,7 +1531,7 @@ yyreduce:
+>
+>      {
+>  	menu_add_entry(NULL);
+> -	menu_add_prop(P_MENU, yyvsp[-1].string, NULL, NULL);
+> +	menu_add_prompt(P_MENU, yyvsp[-1].string, NULL);
+>  	printd(DEBUG_PARSE, "%s:%d:menu\n", zconf_curname(), zconf_lineno());
+>  ;}
+>      break;
+> @@ -1586,7 +1586,7 @@ yyreduce:
+>
+>      {
+>  	menu_add_entry(NULL);
+> -	menu_add_prop(P_COMMENT, yyvsp[-1].string, NULL, NULL);
+> +	menu_add_prompt(P_COMMENT, yyvsp[-1].string, NULL);
+>  	printd(DEBUG_PARSE, "%s:%d:comment\n", zconf_curname(), zconf_lineno());
+>  ;}
+>      break;
+> @@ -1640,7 +1640,7 @@ yyreduce:
+>    case 86:
+>
+>      {
+> -	menu_add_prop(P_PROMPT, yyvsp[-1].string, NULL, yyvsp[0].expr);
+> +	menu_add_prompt(P_PROMPT, yyvsp[-1].string, yyvsp[0].expr);
+>  ;}
+>      break;
+>
+> @@ -1925,7 +1925,7 @@ void conf_parse(const char *name)
+>  	sym_init();
+>  	menu_init();
+>  	modules_sym = sym_lookup("MODULES", 0);
+> -	rootmenu.prompt = menu_add_prop(P_MENU, "Linux Kernel Configuration",
+> NULL, NULL); +	rootmenu.prompt = menu_add_prompt(P_MENU, "Linux Kernel
+> Configuration", NULL);
+>
+>  	//zconfdebug = 1;
+>  	zconfparse();
+>
+> bye, Roman
 
 -- 
-Dmitry
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
+
+	
+
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

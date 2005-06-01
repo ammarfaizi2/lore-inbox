@@ -1,89 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVFAGRV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbVFAGXX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261289AbVFAGRV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 02:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVFAGRV
+	id S261291AbVFAGXX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 02:23:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbVFAGXX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 02:17:21 -0400
-Received: from fire.osdl.org ([65.172.181.4]:56227 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261289AbVFAGQ5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 02:16:57 -0400
-Date: Tue, 31 May 2005 23:15:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: mingo@elte.hu, piggin@cyberone.com.au, linux-kernel@vger.kernel.org
-Subject: Re: [patch] improve SMP reschedule and idle routines
-Message-Id: <20050531231553.786a2994.akpm@osdl.org>
-In-Reply-To: <4296EA77.2030605@yahoo.com.au>
-References: <4296CA7A.4050806@cyberone.com.au>
-	<20050527085726.GA20512@elte.hu>
-	<4296EA77.2030605@yahoo.com.au>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 1 Jun 2005 02:23:23 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:2756 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261291AbVFAGXQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 02:23:16 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Benjamin LaHaise <bcrl@kvack.org>, Andi Kleen <ak@muc.de>
+Subject: Re: [RFC] x86-64: Use SSE for copy_page and clear_page
+Date: Wed, 1 Jun 2005 09:22:48 +0300
+User-Agent: KMail/1.5.4
+Cc: dean gaudet <dean-list-linux-kernel@arctic.org>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+References: <20050530181626.GA10212@kvack.org> <20050531092358.GA9372@muc.de> <20050531135959.GA16081@kvack.org>
+In-Reply-To: <20050531135959.GA16081@kvack.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506010922.48521.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
->
->  Make some changes to the NEED_RESCHED and POLLING_NRFLAG to reduce
->  confusion, and make their semantics rigid. Also have preempt explicitly
->  disabled in idle routines. Improves efficiency of resched_task and some
->  cpu_idle routines.
+On Tuesday 31 May 2005 16:59, Benjamin LaHaise wrote:
+> On Tue, May 31, 2005 at 11:23:58AM +0200, Andi Kleen wrote:
+> > fork is only a corner case. The main case is a process allocating
+> > memory using brk/mmap and then using it.
 
-This patch, with or without sched-resched-optimisation-fix.patch causes my
-x86_64 box to soil its pants.  
+I did the tests. I confirm Andi's conclusion that
+if you are going to use cleared/copied page immediately,
+nt stores are a loss.
 
-I'll try to get -mm2 out the door - maybe there was some interaction with
-something else.
+However...
+ 
+> At least for kernel compiles, using non-temporal stores is a slight 
+> win (a 2-5s improvement on 4m30s).  Granted, there seems to be a 
+> lot of variation in kernel compile times.
+> 
+> A bit more experimentation shows that non-temporal stores plus a 
+> prefetch of the resulting data is still better than the existing 
+> routines and only slightly slower than the pure non-temporal version.  
+> That said, it seems to result in kernel compiles that are on the high 
+> side of the variations I normally see (4m40s, 4m38s) compared to the 
+> ~4m30s for an unpatched kernel and ~4m25s-4m30s for the non-temporal 
+> store version.
 
+My kernel compiles took ~5000000 page clears and ~300000 page copies.
 
+slow (rep stosd/rep movsd), three runs:
+real    12m47.530s
+user    11m24.523s
+sys     1m17.868s
 
-CPU: Trace cache: 12K uops, L1 D cache: 16K                                     
-CPU: L2 cache: 1024K                       
-CPU: Physical Processor ID: 3
-CPU1: Thermal monitoring enabled (TM1)
-                  Intel(R) Xeon(TM) CPU 3.40GHz stepping 04
-CPU 1: Syncing TSC to CPU 0.                               
-Bo6tCng 2r sencor 2iz diTS6000 hspPf ff81a07ffiff 8
-cyclesrsi mng Cr 923                               
-       tinofdelck p ing ad 2 ssaetediupr
-/7PUipL6 cachs: 1ff4K100CPU: Ph8-11[1)ease U:teraee ca -e-------o
-                                icIn tracizing CPU 0
-.4PU:zTsaep iach04uoiigg enabled ciM1) rou   e.. 680 . 1  oIntIP(R)lpjo1360) 29) 
-tC U:U hyLr Dn ache: 16K40)CPUCPU 2c cyn: n024KC
-sCarte Thermal monitoring enabled (TM1)
-                  Intel(R) Xeon(TM) CPU 3.40GHz stepping 04
-APIC error on CPU3: 00(40)                                 
-CPU 3: Syncing TSC to CPU 0.
-Kernel BUG at "kernel/sched.c":2805
-invalid operand: 0000 [1] PREEMPT SMP 
-CPU 2                                 
-Modules linked in:
-Pid: 0, comm: swapper Not tainted 2.6.12-rc5-mm2
-RIP: 0010:[<ffffffff8012a97a>] <ffffffff8012a97a>{sub_preempt_count+22}
-RSP: 0018:ffff81007ff7fef0  EFLAGS: 00010297                           
-RAX: ffff81007ff7ffd8 RBX: ffffffff805d8180 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: 0000000000000246 RDI: 0000000000000001
-RBP: ffff81007ff7fef0 R08: 00000000fffffff9 R09: 0000000000000002
-R10: 00000000ffffffff R11: 0000000000000000 R12: 00000000000011d1
-R13: ffff81007ff7ff18 R14: ffff81007ff7ff20 R15: 0000000000000001
-FS:  0000000000000000(0000) GS:ffffffff805a3400(0000) knlGS:0000000000000000
-CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b                           
-CR2: 0000000000000000 CR3: 0000000000101000 CR4: 00000000000006e0
-Process swapper (pid: 0, threadinfo ffff81007ff7e000, task ffff81007ff740d0)
-Stack: 0000000000000040 ffffffff8010beed ffffffffffffff67 ffffffff805b77c9  
-       0000000000000246 0000000000000270 00000000000003af 0000000000000000 
-       0000000000000000 0000000000000000                                   
-Call Trace:<ffffffff8010beed>{cpu_idle+94} <ffffffff805b77c9>{start_secondary+531}
-                                                                                  
-       
-Code: 0f 0b c4 7e 3d 80 ff ff ff ff f5 0a 81 ff fe 00 00 00 3e 77 
-RIP <ffffffff8012a97a>{sub_preempt_count+22} RSP <ffff81007ff7fef0>
- <0>>ePnel payic -onoted nSC gi htCempte( tst iil  46 cyclesa ka   
-                                                                errPU 1: synlhs)
-                                                                                izeo tSo kuththrea0 ( ssartif  -1
-                                                                                                                 63)
-Brought up 4 CPUs                                                                                                  
+real    12m45.362s
+user    11m24.708s
+sys     1m18.286s
+
+real    12m45.152s
+user    11m25.030s
+sys     1m17.985s
+
+mmx_APn/APN (mmx page clear, mmx page copy with nt stores):
+real    12m41.737s
+user    11m26.104s
+sys     1m12.126s
+
+real    12m40.753s
+user    11m26.512s
+sys     1m11.185s
+
+mmx_APN  (mmx page clear with nt stores, mmx page copy with nt stores):
+real    12m37.913s
+user    11m30.376s
+sys     1m4.622s
+
+My kernel compiles on Athlon 2000 MHz were faster too.
+--
+vda
+

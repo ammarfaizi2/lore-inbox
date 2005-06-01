@@ -1,60 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261312AbVFAV7q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbVFAWEe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261312AbVFAV7q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 17:59:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVFAV46
+	id S261329AbVFAWEe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 18:04:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVFAWEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 17:56:58 -0400
-Received: from mail26.syd.optusnet.com.au ([211.29.133.167]:45268 "EHLO
-	mail26.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261328AbVFAVyR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 17:54:17 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: steve.rotolo@ccur.com
-Subject: Re: SD_SHARE_CPUPOWER breaks scheduler fairness
-Date: Thu, 2 Jun 2005 07:54:44 +1000
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org, bugsy@ccur.com
-References: <1117561608.1439.168.camel@whiz> <1117651285.22879.73.camel@bonefish> <200506020737.20098.kernel@kolivas.org>
-In-Reply-To: <200506020737.20098.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1256420.F2rFUJHaWd";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Wed, 1 Jun 2005 18:04:15 -0400
+Received: from gate.crashing.org ([63.228.1.57]:11973 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261319AbVFAWDB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 18:03:01 -0400
+Subject: Re: Freezer Patches.
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Nigel Cunningham <ncunningham@cyclades.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050601130205.GA1940@openzaurus.ucw.cz>
+References: <1117629212.10328.26.camel@localhost>
+	 <20050601130205.GA1940@openzaurus.ucw.cz>
+Content-Type: text/plain
+Date: Thu, 02 Jun 2005 08:02:36 +1000
+Message-Id: <1117663357.19020.70.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200506020754.46419.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1256420.F2rFUJHaWd
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wed, 2005-06-01 at 15:02 +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > Here are the freezer patches. They were prepared against rc3, but I
+> > think they still apply fine against rc5. (Ben, these are the same ones I
+> > sent you the other day).
 
-On Thu, 2 Jun 2005 07:37, Con Kolivas wrote:
-> On Thu, 2 Jun 2005 04:41, Steve Rotolo wrote:
-> > I guess the bottom-line is: given N logical cpus, 1/N of all
-> > SCHED_NORMAL tasks may get stuck on a sibling cpu with no chance to
-> > run.  All it takes is one spinning SCHED_FIFO task.  Sounds like a bug.
->
-> You're right, and excuse me for missing it.=20
+> 300: stopping softirqd seems dangerous to me... are you sure?
 
-Oh and thanks for picking it up!
+That sounds bogus indeed.
 
-Cheers,
-Con
 
---nextPart1256420.F2rFUJHaWd
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCni6mZUg7+tp6mRURAmQxAJsH43XDdBKUyg99Iz7lZiCPJadrMwCcC6E0
-JpZ2efYqVR/2NJ6JEMAiBow=
-=fcKw
------END PGP SIGNATURE-----
-
---nextPart1256420.F2rFUJHaWd--

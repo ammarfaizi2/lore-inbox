@@ -1,70 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbVFADih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbVEaOrM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261217AbVFADih (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 23:38:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVFADih
+	id S261894AbVEaOrM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 10:47:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261469AbVEaOqv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 23:38:37 -0400
-Received: from adsl-69-149-197-17.dsl.austtx.swbell.net ([69.149.197.17]:15777
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S261217AbVFADi3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 23:38:29 -0400
-Subject: Re: [PATCH 1/2] Introduce tty_unregister_ldisc()
-From: Paul Fulghum <paulkf@microgate.com>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <1117578491.4627.14.camel@at2.pipehead.org>
-References: <200505312356.00853.adobriyan@gmail.com>
-	 <1117578491.4627.14.camel@at2.pipehead.org>
-Content-Type: text/plain
-Date: Tue, 31 May 2005 22:38:08 -0500
-Message-Id: <1117597088.5888.18.camel@at2.pipehead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Tue, 31 May 2005 10:46:51 -0400
+Received: from pool-70-17-124-88.res.east.verizon.net ([70.17.124.88]:38153
+	"HELO pool-70-17-124-88.res.east.verizon.net") by vger.kernel.org
+	with SMTP id S261688AbVEaOpg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 10:45:36 -0400
+Date: Wed, 01 Jun 2005 10:46:03 +0300
+From: "Wpnq.Mcintosh@comcast.net" <Dhyb.Clement@comcast.net>
+To: linux-kernel-announce@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Pre-approved Application #2850997PS Tue, 31 May 2005 23:50:03 -0800
+X-Mailer: Ximian Evolution 1.0.8
+Message-Id: <2.20020816120021.01316aDhyb.Clement@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-31 at 17:28 -0500, Paul Fulghum wrote:
-> An unmodified ldisc driver (externally maintained) will continue to call
-> tty_register_ldisc with NULL, but the new behavior will be to set the
-> ldisc pointer to NULL but have LDISC_FLAG_DEFINED set.
+Hello,
 
-I was partially wrong.
-After Alexey's patch, a NULL new_ldisc is accessed 
-(not assigned) causing an oops. This is still not
-good behavior.
+We sent you an email a while ago, because you now qualify
+for a much lower rate based on the biggest rate drop in years.
 
-As for the refcount bug, this patch should fix it.
-Comments?
+You can now get $327,000 for as little as $617 a month!
+Bad credit? Doesn't matter, ^low rates are fixed no matter what!
 
---
-Paul Fulghum
-paulkf@microgate.com
+Follow this link to process your application and a 24 hour approval:
 
---- linux-2.6.11/drivers/char/tty_io.c	2005-03-02 01:38:10.000000000 -0600
-+++ b/drivers/char/tty_io.c	2005-05-31 22:10:41.000000000 -0500
-@@ -262,16 +262,16 @@ int tty_register_ldisc(int disc, struct 
- 		return -EINVAL;
- 	
- 	spin_lock_irqsave(&tty_ldisc_lock, flags);
--	if (new_ldisc) {
-+	if ((tty_ldiscs[disc].flags & LDISC_FLAG_DEFINED) &&
-+	    tty_ldiscs[disc].refcount)
-+		ret = -EBUSY;
-+	else if (new_ldisc) {
- 		tty_ldiscs[disc] = *new_ldisc;
- 		tty_ldiscs[disc].num = disc;
- 		tty_ldiscs[disc].flags |= LDISC_FLAG_DEFINED;
- 		tty_ldiscs[disc].refcount = 0;
- 	} else {
--		if(tty_ldiscs[disc].refcount)
--			ret = -EBUSY;
--		else
--			tty_ldiscs[disc].flags &= ~LDISC_FLAG_DEFINED;
-+		tty_ldiscs[disc].flags &= ~LDISC_FLAG_DEFINED;
- 	}
- 	spin_unlock_irqrestore(&tty_ldisc_lock, flags);
- 	
+http://www.acrefi.net
+
+Best Regards,
+Maribel Sanford
 
 
+http://www.acrefi.net/book.php

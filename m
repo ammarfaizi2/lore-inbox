@@ -1,26 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbVFAHzF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVFAICg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbVFAHzF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 03:55:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVFAHzF
+	id S261326AbVFAICg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 04:02:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261327AbVFAICg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 03:55:05 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:490 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261323AbVFAHy7 (ORCPT
+	Wed, 1 Jun 2005 04:02:36 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:21441 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261326AbVFAICb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 03:54:59 -0400
-Date: Wed, 1 Jun 2005 09:54:14 +0200
+	Wed, 1 Jun 2005 04:02:31 -0400
+Date: Wed, 1 Jun 2005 10:01:38 +0200
 From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org, sdietrich@mvista.com, rostedt@goodmis.org,
-       inaky.perez-gonzalez@intel.com
-Subject: Re: [PATCH] Abstracted Priority Inheritance for RT
-Message-ID: <20050601075414.GA25081@elte.hu>
-References: <1117594659.3798.18.camel@dhcp153.mvista.com>
+To: Eran Mann <emann@mrv.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc5-V0.7.47-10
+Message-ID: <20050601080138.GD25081@elte.hu>
+References: <20050527072810.GA7899@elte.hu> <429C1206.5000707@mrv.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1117594659.3798.18.camel@dhcp153.mvista.com>
+In-Reply-To: <429C1206.5000707@mrv.com>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
 X-ELTE-VirusStatus: clean
@@ -33,16 +32,17 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Daniel Walker <dwalker@mvista.com> wrote:
+* Eran Mann <emann@mrv.com> wrote:
 
-> I've abstracted priority inheritance from the RT patch. I created pi.h 
-> and pi.c that can be used by other structures that need priority 
-> inheritance. I also added a config option CONFIG_PRIORITY_INHERITANCE 
-> so that PI can be turned off . This could also be made completely 
-> separate from the RT patch.
+> I tried to compile -V0.7.47-15 and it fails to compile.
+> net/sunrpc/sched.c: In function `rpc_run_timer':
+> net/sunrpc/sched.c:107: error: `RPC_TASK_HAS_TIMER' undeclared (first 
+> use in this function)
+> ...
+> 
+> It seems the following hunk of the patch is bogus as it removes a 
+> required define:
 
-i'd rather not slow things down by callbacks and other abstraction 
-before seeing how things want to integrate in fact. Do we really need 
-the callbacks?
+indeed - fixed it in -47-16.
 
 	Ingo

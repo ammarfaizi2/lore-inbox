@@ -1,74 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261255AbVFAVAA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261301AbVFAVFS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261255AbVFAVAA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 17:00:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbVFAU7X
+	id S261301AbVFAVFS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 17:05:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbVFAVFH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 16:59:23 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:64975
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S261244AbVFAUzw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 16:55:52 -0400
-Subject: Re: RT patch acceptance
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Karim Yaghmour <karim@opersys.com>, Esben Nielsen <simlo@phys.au.dk>,
-       Ingo Molnar <mingo@elte.hu>, Paulo Marques <pmarques@grupopie.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       James Bruce <bruce@andrew.cmu.edu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
-       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050601192224.GV5413@g5.random>
-References: <20050601143202.GI5413@g5.random>
-	 <Pine.OSF.4.05.10506011640360.1707-100000@da410.phys.au.dk>
-	 <20050601150527.GL5413@g5.random> <429DD533.6080407@opersys.com>
-	 <20050601153803.GO5413@g5.random>
-	 <1117648391.20785.7.camel@tglx.tec.linutronix.de>
-	 <20050601192224.GV5413@g5.random>
-Content-Type: text/plain
-Organization: linutronix
-Date: Wed, 01 Jun 2005 22:56:07 +0200
-Message-Id: <1117659367.20785.20.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Wed, 1 Jun 2005 17:05:07 -0400
+Received: from mail.timesys.com ([65.117.135.102]:26240 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S261259AbVFAVBX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 17:01:23 -0400
+Message-ID: <429E21B8.2070404@timesys.com>
+Date: Wed, 01 Jun 2005 16:59:36 -0400
+From: john cooper <john.cooper@timesys.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+CC: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, Olaf Kirch <okir@suse.de>,
+       john cooper <john.cooper@timesys.com>
+Subject: Re: RT and Cascade interrupts
+References: <42974F08.1C89CF2A@tv-sign.ru> <4297AF39.4070304@timesys.com>	 <42983135.C521F1C8@tv-sign.ru> <4298AED8.8000408@timesys.com>	 <1117312557.10746.6.camel@lade.trondhjem.org>	 <4299332F.6090900@timesys.com>	 <1117352410.10788.29.camel@lade.trondhjem.org>	 <429B8678.1000706@timesys.com> <429DC4A8.BFF69FB3@tv-sign.ru>	 <429DF8DE.7060008@timesys.com>	 <1117650718.10733.65.camel@lade.trondhjem.org>	 <429E0A86.7000507@timesys.com> <1117657267.10733.106.camel@lade.trondhjem.org>
+In-Reply-To: <1117657267.10733.106.camel@lade.trondhjem.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Jun 2005 20:54:36.0718 (UTC) FILETIME=[1EEE5CE0:01C566EC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-01 at 21:22 +0200, Andrea Arcangeli wrote:
-> On Wed, Jun 01, 2005 at 07:53:11PM +0200, Thomas Gleixner wrote:
-> > Thank god thats not the case. We did a patent research on this last year
-> > and the result was that you can replace the cli/sti by a software flag
-> > in the OS itself without violating the patent.
+Trond Myklebust wrote:
+> on den 01.06.2005 Klokka 15:20 (-0400) skreiv john cooper:
 > 
-> Did you publish something about it (so that people won't have to do it
-> over and over again)?
-
-I have no permission from the customer who actually payed the survey to
-publish the results yet. But I continue asking for it.
-
-> > The combination of replacing it in the host OS and running said host OS
-> > as an idle task of the underlying RTOS would violate the patent.
-> > 
-> > So if PREEMPT-RT would use a soft cli/sti emulation, no problem should
-> > arise.
+>>You might have missed in my earlier mail as
+>>this is a not an MP kernel ie: !CONFIG_SMP
+>>The synchronous timer delete primitives don't
+>>exist in this configuration:
 > 
-> So I wonder why it doesn't do that and it leaves local_irq_disable
-> uncovered making it a "metal hard" instead of "ruby hard" like rtai.
+> 
+> This probably explains your trouble. It makes no sense to allow
+> __run_timer to be preemptible without having the synchronous timer
+> delete primitives. Synchronisation is impossible without them.
 
-I have a slightly outdated patch with that around on top of RT, but it
-introduces yet another level of ugliness. 
-You must carefully identify the places where you really need the
-hard_local_irq_dis/enable(). It's not hard though. 
+The addition of CONFIG_PREEMPT_SOFTIRQS in this context
+came into place in more recent RT patch versions than
+with what I'm dealing.  I've just pulled it in but this
+doesn't appear to alter the nature of the failure.
+I'm still catching an inconsistency at the very head of
+rpc_delete_timer() in the case of:
 
-I used it in the early days of PREEMPT_RT to identify the IRQ off
-sections and some other deadlocking scenarios. I kept this always as an
-option for adding on top of Ingos implementation to close the gap to
-"ruby".
+     BUG_ON(!test_bit(RPC_TASK_HAS_TIMER, &task->tk_runstate) &&
+         timer_pending(&task->tk_timer));
 
-tglx
+> Which version of the RT patches are you using? The one I'm looking at
+> (2.6.12-rc5-rt-V0.7.47-15) certainly defines both del_timer_sync() and
+> del_singleshot_timer_sync() to be the same as the SMP versions if you
+> are running an RT kernel with preemptible softirqs.
+
+Yes later versions of the patch do.  The version at hand
+40-04 is based on 2.6.11.  We intend to sync-up with a
+more recent version of the RT patch pending resolution
+of this issue.
+
+I have two potential work-arounds I'm trying to validate.
+Though I have a bit more tree-shaking to do before I've
+completed this exercise.
+
+-john
 
 
+-- 
+john.cooper@timesys.com

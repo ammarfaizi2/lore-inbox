@@ -1,63 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbVFAWjz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVFAWj4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbVFAWjz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 18:39:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVFAWh0
+	id S261350AbVFAWj4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 18:39:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261349AbVFAWcj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 18:37:26 -0400
-Received: from smtpq1.home.nl ([213.51.128.196]:38800 "EHLO smtpq1.home.nl")
-	by vger.kernel.org with ESMTP id S261345AbVFAWgH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 18:36:07 -0400
-Message-ID: <429E37BA.7090502@keyaccess.nl>
-Date: Thu, 02 Jun 2005 00:33:30 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a6) Gecko/20050111
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: David Brownell <david-b@pacbell.net>
-CC: Pavel Machek <pavel@ucw.cz>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, Mark Lord <lkml@rtr.ca>,
-       David Brownell <dbrownell@users.sourceforge.net>
-Subject: Re: External USB2 HDD affects speed hda
-References: <429BA001.2030405@keyaccess.nl> <20050601081810.GA23114@elf.ucw.cz> <429DFD90.10802@keyaccess.nl> <200506011240.09540.david-b@pacbell.net> <429E3338.9000401@keyaccess.nl>
-In-Reply-To: <429E3338.9000401@keyaccess.nl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
+	Wed, 1 Jun 2005 18:32:39 -0400
+Received: from relais.videotron.ca ([24.201.245.36]:51502 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP id S261345AbVFAW34
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 18:29:56 -0400
+Date: Wed, 01 Jun 2005 18:29:37 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: RT patch acceptance
+In-reply-to: <20050601213921.GF5413@g5.random>
+X-X-Sender: nico@localhost.localdomain
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Bill Huey <bhuey@lnxw.com>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Karim Yaghmour <karim@opersys.com>, Ingo Molnar <mingo@elte.hu>,
+       Paulo Marques <pmarques@grupopie.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       James Bruce <bruce@andrew.cmu.edu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
+       hch@infradead.org, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+Message-id: <Pine.LNX.4.63.0506011823460.17354@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <20050601192224.GV5413@g5.random>
+ <Pine.OSF.4.05.10506012129460.1707-100000@da410.phys.au.dk>
+ <20050601195905.GX5413@g5.random> <20050601201754.GA27795@nietzsche.lynx.com>
+ <20050601203212.GZ5413@g5.random> <20050601204612.GA27934@nietzsche.lynx.com>
+ <20050601210716.GB5413@g5.random>
+ <Pine.LNX.4.63.0506011724310.17354@localhost.localdomain>
+ <20050601213921.GF5413@g5.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rene Herman wrote:
+On Wed, 1 Jun 2005, Andrea Arcangeli wrote:
 
-> David Brownell wrote:
-
->> The experiment: verify that only the RUN bit is set on your machine
->> too. If "Periodic" and/or "Async" bits are set, then the controller
->> is _supposed_ to be issuing DMA transfers over PCI, so less bandwidth
->> will be available. Otherwise, not.
-
-[ snip ]
-
-> and one after switching on the USB2 HDD, when the hdparm result for hda 
-> has dropped to 42 MB/s:
+> On Wed, Jun 01, 2005 at 05:29:48PM -0400, Nicolas Pitre wrote:
+> > Actualy it's RTAI/rtlinux which is broken wrt the above IRQ disable.
+> > See for yourself when they're used and watch RTAI/rtlinux crash.  
 > 
-> ===
-> bus pci, device 0000:00:09.2 (driver 10 Dec 2004)
-> EHCI 1.00, hcd state 1
-> structural params 0x00002204
-> capability params 0x00006872
-> status a008 Async Recl FLR
+> Well it's not so clear so please elaborate since I'm curious. Especially
+> it'd be interesting to know if this is that an arm specific kernel
+> crash, or would it happen on x86 too?
 
-Only see that "Async" now while rereading. Did you mean that one? If so, 
-I'm right now catting the registers file and that "Async" is toggling on 
-and off continuously. 4 cats in a row:
+It would happen on any architecture supporting XIP from flash.
 
-status 0008 FLR
-status 8008 Async FLR
-status a008 Async Recl FLR
-status 0008 FLR
+The XIP code therefore polls the IRQ controller (with IRQs masked out) 
+and whenever an IRQ is pending the flash operation is suspended and IRQs 
+unmasked.  In this case the hard IRQ latency is function of the flash 
+suspend delay which is documented in the datasheet.
 
-Rene.
+> There sure can be arch dependencies where an hard_local_irq_disable can
+> be necessary in some places, but that's quite a separate topic, and on
+> x86 I don't see why it should crash.
+
+It would crash if the kernel is XIP.  If not XIP then the 
+local_irq_save() is never encountered in that case.
+
+
+Nicolas

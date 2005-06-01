@@ -1,33 +1,36 @@
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVFAUq1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261473AbVE1DOK (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 27 May 2005 23:14:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbVE1DOK
+	id S261227AbVFAUq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 16:46:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbVFAUpx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 27 May 2005 23:14:10 -0400
-Received: from [220.166.24.237] ([220.166.24.237]:27401 "HELO 220.166.24.237")
-	by vger.kernel.org with SMTP id S261473AbVE1DOI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 27 May 2005 23:14:08 -0400
-Mime-Version: 1.0 (Apple Message framework v728)
-Content-Transfer-Encoding: 7bit
-Message-Id: <7584035710.3015953775@220.166.24.237>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-To: linux-kernel@vger.kernel.org
-From: Austin <anesthesia@openin.com.au>
-Subject: Having problems in bed? We can help!
-Date: Sat, 28 May 2005 11:13:46 +0800
-X-Mailer: Apple Mail (2.728)
+	Wed, 1 Jun 2005 16:45:53 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:48275 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261219AbVFAUnv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 16:43:51 -0400
+Date: Wed, 1 Jun 2005 16:43:50 -0400
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: Swap maximum size documented ?
+Message-ID: <20050601204350.GM23621@csclub.uwaterloo.ca>
+References: <200506011225.j51CPDV23243@lastovo.hermes.si> <20050601124025.GZ422@unthought.net> <1117630718.6271.31.camel@laptopd505.fenrus.org> <loom.20050601T150142-941@post.gmane.org> <20050601134022.GM20782@holomorphy.com> <429E0843.5060505@tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <429E0843.5060505@tmr.com>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261473AbVE1DOK@vger.kernel.org>
 
-We deliver medication worldwide!
-http://rvaizr.jy4c52jugt1952j.nice2buyhere.com
+On Wed, Jun 01, 2005 at 03:10:59PM -0400, Bill Davidsen wrote:
+> Does this apply to mmap as well? I have an application which currently 
+> uses 9TB of data, and one thought to boost performance was to mmap the 
+> data. Unfortunately, I know 16TB isn't going to be enough for more than 
+> a few more years :-(
 
+Just buy an Opteron/Athlon64 system and you should be able to mmap it
+just fine.  At least if you run an x86_64/amd64 kernel.
 
-
-Patience is the companion of wisdom.       
-Every man is like the company he is wont to keep.  
-Experience is the name everyone gives to their mistakes.    
-
-
+Len Sorensen

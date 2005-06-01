@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbVFAT7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVFAULX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbVFAT7y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 15:59:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbVFAT7y
+	id S261166AbVFAULX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 16:11:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVFAUJZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 15:59:54 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:26701
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S261176AbVFAT7W
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 15:59:22 -0400
-Date: Wed, 1 Jun 2005 21:59:05 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Thomas Gleixner <tglx@linutronix.de>, Karim Yaghmour <karim@opersys.com>,
-       Ingo Molnar <mingo@elte.hu>, Paulo Marques <pmarques@grupopie.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       James Bruce <bruce@andrew.cmu.edu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
-       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-Message-ID: <20050601195905.GX5413@g5.random>
-References: <20050601192224.GV5413@g5.random> <Pine.OSF.4.05.10506012129460.1707-100000@da410.phys.au.dk>
+	Wed, 1 Jun 2005 16:09:25 -0400
+Received: from fire.osdl.org ([65.172.181.4]:58060 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261152AbVFAUJG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 16:09:06 -0400
+Date: Wed, 1 Jun 2005 13:08:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Rusty Lynch <rusty.lynch@intel.com>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org, rusty.lynch@intel.com
+Subject: Re: 2.6.12-rc5-mm2 on x86_64 missing pci_bus_to_node symbol
+Message-Id: <20050601130808.24772303.akpm@osdl.org>
+In-Reply-To: <200506011857.j51IvjmE027415@linux.jf.intel.com>
+References: <200506011857.j51IvjmE027415@linux.jf.intel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.OSF.4.05.10506012129460.1707-100000@da410.phys.au.dk>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 01, 2005 at 09:34:58PM +0200, Esben Nielsen wrote:
-> It is simply not needed: Any driver suitable for SMP is using spin-locks,
-> which becomes mutexes when CONFIG_PREEMPT_RT is set. Therefore: SMP safe
-> becomes RT safe.
-> Ofcourse, you can manually have to grep the code for offending
-> local_irq_disable() or cli()'s just to make sure.
+Rusty Lynch <rusty.lynch@intel.com> wrote:
+>
+> Attempting to install a fresh 2.6.12-rc5-mm2 kernel on my x86_64 box, 
+>  I am unable to load my e1000 driver because pci_bus_to_node is undefined.
 
-There's a significant number of local_irq_disable across the kernel, I
-don't see why should we risk a driver update possibly looping a bit too
-logn, to break the RT guarantee. It's not too hard to reach the hundred
-usec range when doing hardware operations in inefficient drivers when
-touchign the mmio/io regions. That would not be a bug in any config but
-preempt-RT. Possibly not nice, but not a bug (keep in mind the usb irq
-in my firewall for whatever reasons keeps irq disabled for >1msec).
+Doh.  I fixed that but forgot to include the patch in the series file, sorry.
 
-> Doesn't RTAI at least in principle have the same problem? Someone might
-> have coded a local irq-disable directly in assambler without the official
-> macros? The Adeos patch wouldn't catch it then, right? (The risc of that
-> is very small, I know...)
+>  I'm not sure if this is the correct way of fixing this, but here is a quick 
+>  patch to export pci_bus_to_node on x86_64.
 
-Using cli by hand never happens anywhere, while if you grep for
-local_irq_disable that happens in many drivers.
+We tend to export things at their definition site nowadays:
 
-Using cli in asm is like doing memset() all over the ram... then kernel
-will crash and irq will stop too ;) While local_irq_disable os far was a
-supported API for drivers and generic kernel code (most commmonly used
-before touching per-cpu data structures, so very common in certain part
-of the kernels, including the scheduler).
+--- 25/arch/x86_64/kernel/mpparse.c~x86-x86_64-pcibus_to_node-fix	2005-05-31 23:19:17.000000000 -0700
++++ 25-akpm/arch/x86_64/kernel/mpparse.c	2005-05-31 23:21:29.000000000 -0700
+@@ -23,6 +23,7 @@
+ #include <linux/kernel_stat.h>
+ #include <linux/mc146818rtc.h>
+ #include <linux/acpi.h>
++#include <linux/module.h>
+ 
+ #include <asm/smp.h>
+ #include <asm/mtrr.h>
+@@ -46,6 +47,7 @@ int apic_version [MAX_APICS];
+ unsigned char mp_bus_id_to_type [MAX_MP_BUSSES] = { [0 ... MAX_MP_BUSSES-1] = -1 };
+ int mp_bus_id_to_pci_bus [MAX_MP_BUSSES] = { [0 ... MAX_MP_BUSSES-1] = -1 };
+ unsigned char pci_bus_to_node [256];
++EXPORT_SYMBOL(pci_bus_to_node);
+ 
+ static int mp_current_pci_id = 0;
+ /* I/O APIC entries */
+_
+

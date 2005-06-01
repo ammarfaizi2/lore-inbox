@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVFAV0f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVFAVWP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbVFAV0f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 17:26:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVFAV0R
+	id S261246AbVFAVWP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 17:22:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVFAVVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 17:26:17 -0400
-Received: from imf22aec.mail.bellsouth.net ([205.152.59.70]:54436 "EHLO
-	imf22aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S261152AbVFAVXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 17:23:08 -0400
-Message-ID: <002501c566f7$7ed2b2e0$2800000a@pc365dualp2>
-From: <cutaway@bellsouth.net>
-To: "Bill Davidsen" <davidsen@tmr.com>,
-       "William Lee Irwin III" <wli@holomorphy.com>
-Cc: <linux-kernel@vger.kernel.org>
-References: <200506011225.j51CPDV23243@lastovo.hermes.si> <20050601124025.GZ422@unthought.net> <1117630718.6271.31.camel@laptopd505.fenrus.org> <loom.20050601T150142-941@post.gmane.org> <20050601134022.GM20782@holomorphy.com> <429E0843.5060505@tmr.com> <20050601192934.GP20782@holomorphy.com> <429E10B9.601@tmr.com>
-Subject: Re: Swap maximum size documented ?
-Date: Wed, 1 Jun 2005 18:15:54 -0400
+	Wed, 1 Jun 2005 17:21:11 -0400
+Received: from smtp2.brturbo.com.br ([200.199.201.158]:20124 "EHLO
+	smtp2.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S261195AbVFAVTQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 17:19:16 -0400
+Message-ID: <429E2639.70906@brturbo.com.br>
+Date: Wed, 01 Jun 2005 18:18:49 -0300
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
+X-Accept-Language: pt-br, pt, es, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux and Kernel Video <video4linux-list@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] tuner-core.c improvments and Ymec Tvision TVF8533MF support
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1478
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------ Original Message ----- 
-From: "Bill Davidsen" <davidsen@tmr.com>
-To: "William Lee Irwin III" <wli@holomorphy.com>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Wednesday, June 01, 2005 15:47
-Subject: Re: Swap maximum size documented ?
+tuner-core.c, tuner.h:
 
+        - tuner-core changed to support multiple I2C devices used on
+some adapters;
+        - Kconfig now has an option (CONFIG_TUNER_MULTI_I2C) to enable
+this new behavor;
+        - By default, even enabling CONFIG_TUNER_MULTI_I2C, tuner-core
+emulates the old behavor,  using first I2C device for both FM and TV;
+        - There is a new i2c command (TUNER_SET_ADDR) to allow tuner
+clients to select I2C address for FM or TV tuner;
+        - Tuner I2C dettach now generates a warning on syslog if failed.
 
-> >
-> >>Does this apply to mmap as well? I have an application which currently
-> >>uses 9TB of data....
+tuner-simple.c:
+        - TVision TVF-8531MF and TVF-5533 MF tuner included. It uses, by
+default, I2C on 0xC2 address for TV and on 0xC0 for Radio. Both TV and
+FM Radio mode are working.
 
-With this much data, you might consider investigating its compressability.
-If it turned out to be highly compressable, algorithmic changes in how the
-data is handled might considerably lighten the load on MM and disk
-subsystems.  Its almost always cheaper to compress/decompress cached data in
-memory than hit physical media.
-
+Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>

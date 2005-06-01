@@ -1,68 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVFANwV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVFANwN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261384AbVFANwV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 09:52:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVFANwV
+	id S261382AbVFANwN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 09:52:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261381AbVFANwM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 09:52:21 -0400
-Received: from adsl-69-149-197-17.dsl.austtx.swbell.net ([69.149.197.17]:23940
-	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
-	id S261391AbVFANwF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 09:52:12 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:45157
+	"EHLO g5.random") by vger.kernel.org with ESMTP id S261389AbVFANwF
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 1 Jun 2005 09:52:05 -0400
-Subject: Re: [PATCH 1/2] Introduce tty_unregister_ldisc()
-From: Paul Fulghum <paulkf@microgate.com>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1117597088.5888.18.camel@at2.pipehead.org>
-References: <200505312356.00853.adobriyan@gmail.com>
-	 <1117578491.4627.14.camel@at2.pipehead.org>
-	 <1117597088.5888.18.camel@at2.pipehead.org>
-Content-Type: text/plain
-Message-Id: <1117633912.2921.15.camel@deimos.microgate.com>
+Date: Wed, 1 Jun 2005 15:51:54 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Paulo Marques <pmarques@grupopie.com>
+Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, Esben Nielsen <simlo@phys.au.dk>,
+       James Bruce <bruce@andrew.cmu.edu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+Message-ID: <20050601135154.GF5413@g5.random>
+References: <20050531143051.GL5413@g5.random> <Pine.OSF.4.05.10505311652140.1707-100000@da410.phys.au.dk> <20050531161157.GQ5413@g5.random> <20050531183627.GA1880@us.ibm.com> <20050531204544.GU5413@g5.random> <429DA7AE.5000304@grupopie.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-7) 
-Date: Wed, 01 Jun 2005 08:51:52 -0500
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <429DA7AE.5000304@grupopie.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch would be more appropriate than
-my last suggestion for the case of trying to register
-a ldisc driver to an occupied slot.
+On Wed, Jun 01, 2005 at 01:18:54PM +0100, Paulo Marques wrote:
+> It seems you didn't follow that thread too closely :)
 
-It does not make sense to allow an existing
-registered driver to be overwritten, even
-if the refcount is zero.
+True, not yet. But trust me I've seen many times the kernel hanging
+preventing scheduling, despite ping was still doing fine ;).
 
-This *should* not happen with unique ldisc numbers,
-but it seems like a reasonable check. Even if
-Alexey's patch is applied, this would be a
-reasonable check to integrate.
+> This wouldn't affect real-time tasks running over preempt-RT at all, 
+> since the interactive bonus would never be enough to go over real-time 
+> priority tasks.
 
--- 
-Paul Fulghum
-paulkf@microgate.com
+I've a bug in my queue that definitely would break preempt-RT:
 
---- linux-2.6.11/drivers/char/tty_io.c	2005-03-02 01:38:10.000000000 -0600
-+++ b/drivers/char/tty_io.c	2005-06-01 08:34:05.000000000 -0500
-@@ -263,10 +263,14 @@ int tty_register_ldisc(int disc, struct 
- 	
- 	spin_lock_irqsave(&tty_ldisc_lock, flags);
- 	if (new_ldisc) {
--		tty_ldiscs[disc] = *new_ldisc;
--		tty_ldiscs[disc].num = disc;
--		tty_ldiscs[disc].flags |= LDISC_FLAG_DEFINED;
--		tty_ldiscs[disc].refcount = 0;
-+		if (tty_ldiscs[disc].flags & LDISC_FLAG_DEFINED)
-+			ret = -EBUSY;
-+		else {
-+			tty_ldiscs[disc] = *new_ldisc;
-+			tty_ldiscs[disc].num = disc;
-+			tty_ldiscs[disc].flags |= LDISC_FLAG_DEFINED;
-+			tty_ldiscs[disc].refcount = 0;
-+		}
- 	} else {
- 		if(tty_ldiscs[disc].refcount)
- 			ret = -EBUSY;
+	BUG xxx : spends excessive time with interrupts disabled on large memory
+	systems
 
+workaround:
+	
+	#define MAX_ITERATION 100000
+	if ((nr_pages > MAX_ITERATION) && !(nr_pages % MAX_ITERATION)) {
+		spin_unlock_irq(&zone->lru_lock);
+		spin_lock_irq(&zone->lru_lock);
+	}
 
+Measurements wouldn't necessary catch that bug, unless they were running
+the same workload with the same amount of ram.
+
+Or perhaps Ingo will try to remove all spinlocks from the kernel instead
+of creating RT-aware spinlocks, dunno. But whatever we change, will have
+a performance impact for the fast path (but perhaps not measurable).
+
+> I do understand the point you're trying to make about the simplicity of 
+> a nano-kernel that makes it much more reliable and verifiable.
+
+Exactly, they're simply not remotely comaprable, a VM improvement may
+break preempt-RT anytime, it's just too easy to screw things up and
+invalidate all "measurements".
+
+> However it seems that the range of applications that can use the 
+> nano-kernel approach is getting pretty thin between the applications 
+> that are so simple that they can run on a dedicated hardware/processor 
+> without any OS at all, and the applications that require more complex 
+> services than those that a nanokernel can provide by itself.
+
+Sure, preempt-RT makes sense (preempt alone doesn't make any sense
+IMHO). I'm simply saying that using preempt-RT metal hard is a mistake
+when RTAI ruby hard will be much safer and much simpler to use and it
+doesn't risk to break at every kernel upgrade.
+
+For other RT apps like audio built on a weak soft-RT API from the ground
+using RTAI wouldn't be feasible (at least in the short term).

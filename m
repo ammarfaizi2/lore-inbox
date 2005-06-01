@@ -1,183 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVFATrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbVFATtV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261192AbVFATrM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 15:47:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVFATrM
+	id S261162AbVFATtV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 15:49:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVFATrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 15:47:12 -0400
-Received: from mail.codeweavers.com ([216.251.189.131]:45262 "EHLO
-	mail.codeweavers.com") by vger.kernel.org with ESMTP
-	id S261192AbVFATpn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 15:45:43 -0400
-Message-ID: <429E1062.7020006@codeweavers.com>
-Date: Wed, 01 Jun 2005 14:45:38 -0500
-From: Jeremy White <jwhite@codeweavers.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: akpm@osdl.org
-CC: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 1 Jun 2005 15:47:32 -0400
+Received: from pat.uio.no ([129.240.130.16]:2202 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S261162AbVFATqt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 15:46:49 -0400
+Subject: Re: RT and Cascade interrupts
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: john cooper <john.cooper@timesys.com>
+Cc: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, Olaf Kirch <okir@suse.de>
+In-Reply-To: <429E0A86.7000507@timesys.com>
+References: <42974F08.1C89CF2A@tv-sign.ru> <4297AF39.4070304@timesys.com>
+	 <42983135.C521F1C8@tv-sign.ru> <4298AED8.8000408@timesys.com>
+	 <1117312557.10746.6.camel@lade.trondhjem.org>
+	 <4299332F.6090900@timesys.com>
+	 <1117352410.10788.29.camel@lade.trondhjem.org>
+	 <429B8678.1000706@timesys.com> <429DC4A8.BFF69FB3@tv-sign.ru>
+	 <429DF8DE.7060008@timesys.com>
+	 <1117650718.10733.65.camel@lade.trondhjem.org>
+	 <429E0A86.7000507@timesys.com>
+Content-Type: text/plain
+Date: Wed, 01 Jun 2005 15:46:41 -0400
+Message-Id: <1117655201.10733.98.camel@lade.trondhjem.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
-X-SA-Exim-Connect-IP: 216.251.189.140
-X-SA-Exim-Mail-From: jwhite@codeweavers.com
-Subject: [PATCH linux-2.6.12-rc5] isofs: show hidden files, add granularity
- for assoc/hidden files flags
-X-SA-Exim-Version: 4.2 (built Thu, 03 Mar 2005 10:44:12 +0100)
-X-SA-Exim-Scanned: Yes (on mail.codeweavers.com)
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.635, required 12,
+	autolearn=disabled, AWL 1.36, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The current isofs treatment of hidden files is flawed in
-two ways.  First, it does not provide sufficient
-granularity; it hides both 'hidden' files and 'associated'
-files (resource fork for Mac files).  Second, the
-default behavior to completely strip hidden files,
-while an admirable implementation of the spec, is
-a poor choice given the real world use of hidden files
-as a poor mans copy protection scheme for MSDOS and Windows
-based systems.  A longer description of this is available
-here:
-   http://www.uwsg.iu.edu/hypermail/linux/kernel/0205.3/0267.html
+on den 01.06.2005 Klokka 15:20 (-0400) skreiv john cooper:
 
-This patch was originally built after a few private
-conversations with Alan Cox; I shamefully failed
-to persist in seeing it go forward, I hope to make amends now.
+> You might have missed in my earlier mail as
+> this is a not an MP kernel ie: !CONFIG_SMP
+> The synchronous timer delete primitives don't
+> exist in this configuration:
+> 
+> include/linux/timer.h:
+> 
+> #ifdef CONFIG_SMP
+>    extern int del_timer_sync(struct timer_list *timer);
+>    extern int del_singleshot_timer_sync(struct timer_list *timer);
+> #else
+> # define del_timer_sync(t) del_timer(t)
+> # define del_singleshot_timer_sync(t) del_timer(t)
+> #endif
 
-This patch introduces granularity by allowing explicit
-control for both hidden and associated files.  It also
-reverses the default so that by default, hidden files
-are treated as regular files on the iso9660 file system.
 
-This allow Wine to process Windows CDs,
-including those that are hybrid Mac/Windows CDs properly
-and completely, without our having to go muck up peoples
-fstabs as we do now.  (I have tested this with such
-a hybrid + hidden CD and have verified that this patch
-works as claimed).
+For the RT patched stuff that should read
+
+#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT_SOFTIRQS)
+  extern int del_timer_sync(struct timer_list *timer);
+  extern int del_singleshot_timer_sync(struct timer_list *timer);
+#else
+# define del_timer_sync(t) del_timer(t)
+# define del_singleshot_timer_sync(t) del_timer(t)
+#endif
+
+
+> BTW, I don't know if you happened on the mail I sent
+> yesterday.  It details rpc_run_timer() waking up an
+> application task blocked in call_transmit().  The
+> app task preempts ksoftirqd and eventually does a
+> __rpc_sleep_on()/__mod_timer() which requeues the
+> timer in the cascade.  When ksoftirqd/rpc_run_timer()
+> resumes RPC_TASK_HAS_TIMER is unconditionally cleared
+> however the timer is queued in the cascade.  This
+> appears to be at least one cause of the timer cascade
+> corruption I've seen.
+
+I saw it. Once again, I don't see how that can happen. __rpc_execute()
+should be calling rpc_delete_timer() before it calls task->tk_action.
+
+There should be no instances of RPC entering call_transmit() or any
+other tk_action callback with a pending timer.
 
 Cheers,
-
-Signed-off-by:  Jeremy White <jwhite@codeweavers.com>
-
-
-
---- linux-2.6.12-rc5/Documentation/filesystems/isofs.txt    2005-03-02 01:38:13.000000000 -0600
-+++ jpw/Documentation/filesystems/isofs.txt    2005-05-31 23:08:14.000000000 -0500
-@@ -26,7 +26,11 @@
-    mode=xxx      Sets the permissions on files to xxx
-    nojoliet      Ignore Joliet extensions if they are present.
-    norock        Ignore Rock Ridge extensions if they are present.
--  unhide        Show hidden files.
-+  hide          Completely strip hidden files from the file system.
-+  showassoc     Show files marked with the 'associated' bit
-+  unhide        Deprecated; showing hidden files is now default;
-+                If given, it is a synonym for 'showassoc' which will
-+                recreate previous unhide behavior
-    session=x     Select number of session on multisession CD
-    sbsector=xxx  Session begins from sector xxx
-
---- linux-2.6.12-rc5/fs/isofs/dir.c    2005-05-31 18:57:37.000000000 -0500
-+++ jpw/fs/isofs/dir.c    2005-05-31 19:02:37.000000000 -0500
-@@ -193,12 +193,12 @@
-
-          /* Handle everything else.  Do name translation if there
-             is no Rock Ridge NM field. */
--        if (sbi->s_unhide == 'n') {
--            /* Do not report hidden or associated files */
--            if (de->flags[-sbi->s_high_sierra] & 5) {
--                filp->f_pos += de_len;
--                continue;
--            }
-+
-+        /* Do not report hidden files if so instructed, or associated files unless instructed to do so */
-+                if (  ( sbi->s_hide =='y' && (de->flags[-sbi->s_high_sierra] & 1) ) ||
-+                      ( sbi->s_showassoc =='n' && (de->flags[-sbi->s_high_sierra] & 4) ) ) {
-+                        filp->f_pos += de_len;
-+                        continue;
-          }
-
-          map = 1;
---- linux-2.6.12-rc5/fs/isofs/inode.c    2005-05-31 18:57:37.000000000 -0500
-+++ jpw/fs/isofs/inode.c    2005-05-31 23:07:10.000000000 -0500
-@@ -153,7 +153,8 @@
-      char rock;
-      char joliet;
-      char cruft;
--    char unhide;
-+    char hide;
-+    char showassoc;
-      char nocompress;
-      unsigned char check;
-      unsigned int blocksize;
-@@ -318,13 +319,15 @@
-      Opt_block, Opt_check_r, Opt_check_s, Opt_cruft, Opt_gid, Opt_ignore,
-      Opt_iocharset, Opt_map_a, Opt_map_n, Opt_map_o, Opt_mode, Opt_nojoliet,
-      Opt_norock, Opt_sb, Opt_session, Opt_uid, Opt_unhide, Opt_utf8, Opt_err,
--    Opt_nocompress,
-+    Opt_nocompress, Opt_hide, Opt_showassoc,
-  };
-
-  static match_table_t tokens = {
-      {Opt_norock, "norock"},
-      {Opt_nojoliet, "nojoliet"},
-      {Opt_unhide, "unhide"},
-+    {Opt_hide, "hide"},
-+    {Opt_showassoc, "showassoc"},
-      {Opt_cruft, "cruft"},
-      {Opt_utf8, "utf8"},
-      {Opt_iocharset, "iocharset=%s"},
-@@ -365,7 +368,8 @@
-      popt->rock = 'y';
-      popt->joliet = 'y';
-      popt->cruft = 'n';
--    popt->unhide = 'n';
-+    popt->hide = 'n';
-+    popt->showassoc = 'n';
-      popt->check = 'u';        /* unset */
-      popt->nocompress = 0;
-      popt->blocksize = 1024;
-@@ -398,8 +402,12 @@
-          case Opt_nojoliet:
-              popt->joliet = 'n';
-              break;
--        case Opt_unhide:
--            popt->unhide = 'y';
-+        case Opt_hide:
-+            popt->hide = 'y';
-+            break;
-+                case Opt_unhide:
-+        case Opt_showassoc:
-+            popt->showassoc = 'y';
-              break;
-          case Opt_cruft:
-              popt->cruft = 'y';
-@@ -792,7 +800,8 @@
-      sbi->s_rock = (opt.rock == 'y' ? 2 : 0);
-      sbi->s_rock_offset = -1; /* initial offset, will guess until SP is found*/
-      sbi->s_cruft = opt.cruft;
--    sbi->s_unhide = opt.unhide;
-+    sbi->s_hide = opt.hide;
-+    sbi->s_showassoc = opt.showassoc;
-      sbi->s_uid = opt.uid;
-      sbi->s_gid = opt.gid;
-      sbi->s_utf8 = opt.utf8;
---- linux-2.6.12-rc5/fs/isofs/namei.c    2005-05-31 18:57:37.000000000 -0500
-+++ jpw/fs/isofs/namei.c    2005-05-31 19:02:37.000000000 -0500
-@@ -131,12 +131,12 @@
-          }
-
-          /*
--         * Skip hidden or associated files unless unhide is set
-+         * Skip hidden or associated files unless hide or showassoc, respectively, is set
-           */
-          match = 0;
-          if (dlen > 0 &&
--            (!(de->flags[-sbi->s_high_sierra] & 5)
--             || sbi->s_unhide == 'y'))
-+                    ( sbi->s_hide =='n' || (!(de->flags[-sbi->s_high_sierra] & 1)) ) &&
-+                    ( sbi->s_showassoc =='y' || (!(de->flags[-sbi->s_high_sierra] & 4)) ) )
-          {
-              match = (isofs_cmp(dentry,dpnt,dlen) == 0);
-          }
+  Trond
 

@@ -1,64 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVFABao@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVFABlL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261185AbVFABao (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 21:30:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVFABao
+	id S261211AbVFABlL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 21:41:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVFABlL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 21:30:44 -0400
-Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:9198 "EHLO
-	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261185AbVFABai (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 21:30:38 -0400
-Subject: Re: RT patch acceptance
-From: Steven Rostedt <rostedt@goodmis.org>
-To: karim@opersys.com
-Cc: Philippe Gerum <rpm@xenomai.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, hch@infradead.org, dwalker@mvista.com,
-       Ingo Molnar <mingo@elte.hu>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>, Andi Kleen <ak@muc.de>,
-       "Bill Huey (hui)" <bhuey@lnxw.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       James Bruce <bruce@andrew.cmu.edu>, Esben Nielsen <simlo@phys.au.dk>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Andrea Arcangeli <andrea@suse.de>
-In-Reply-To: <429D0C13.3000006@opersys.com>
-References: <20050531143051.GL5413@g5.random>
-	 <Pine.OSF.4.05.10505311652140.1707-100000@da410.phys.au.dk>
-	 <20050531161157.GQ5413@g5.random> <20050531183627.GA1880@us.ibm.com>
-	 <20050531204544.GU5413@g5.random>  <429D0C13.3000006@opersys.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Tue, 31 May 2005 21:30:25 -0400
-Message-Id: <1117589425.4749.22.camel@localhost.localdomain>
+	Tue, 31 May 2005 21:41:11 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:42383 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261211AbVFABk5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 21:40:57 -0400
+Date: Tue, 31 May 2005 18:40:48 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Ian Leonard <ian@smallworld.cx>
+Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org,
+       Ian Abbott <abbotti@mev.co.uk>
+Subject: Re: 2.4.30 - USB serial problem
+Message-Id: <20050531184048.5ef9fd44.zaitcev@redhat.com>
+In-Reply-To: <mailman.1117130162.21749.linux-kernel2news@redhat.com>
+References: <mailman.1117130162.21749.linux-kernel2news@redhat.com>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 1.9.9 (GTK+ 2.6.7; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-31 at 21:14 -0400, Karim Yaghmour wrote:
+On Thu, 26 May 2005 18:52:10 +0100, Ian Leonard <ian@smallworld.cx> wrote:
 
-> Please have a look at RTAI-fusion. It provides deterministic
-> replacements for rt-able syscalls _transparently_ to STANDARD
-> Linux applications. For example, an unmodified Linux application
-> can get a deterministic nanosleep() via RTAI-fusion. The way
-> this works, is that rtai-fusion catches the syscalls prior to
-> them reaching Linux. So even the syscall thing isn't really a
-> limitation for RTAI anymore.
+> We recently upgraded from 2.4.24 to 2.4.28 and the problem described 
+> below appeared. I have tested it on 2.4.30 and the fault still exists.
+>[...]
+> Examining the packet that caused the problem showed it was very similar 
+> to the others but it contained 0x0a. This obviously stuck out as being a 
+> candidate for some sort of translation problem.
 
-This looks very interesting.  I need to read more into RTAI and friends
-when I get a chance.  I just received the latest Linux Journal that has
-the article about the use of RTLinux with the control of magnetic
-bearings.  I've just started reading it so I don't know all the details
-yet but it still looks very promising. 
+The above looks almost too obvious but for this:
 
-I don't think the adding of preempt-RT patch to the kernel will hurt
-anything. In fact I think it may even help out the RTAI and friends.
-Anyway, as it has been stated, this discussion has started too early.
-(Thanks Daniel ;-)
+> I also built a 2.4.28 kernel with the ftdi_sio and usbserial code from 
+> the 2.4.24 release. It also failed. This was a surprise and I am 
+> wondering of I did it correctly.
 
--- Steve
+Did you nail down a scenario which we can debug? Frankly it's not credible
+that transplanted usbserial and ftsi_sio would fail to work. I know that
+I changed quite a bit between 2.4.24 and 2.4.28, but your experiment
+undoes that.
 
-This is the 279th message on this thread (not counting Lee's recent
-"human timing" offshoot)
-
+-- Pete

@@ -1,75 +1,206 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVFAScJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVFATPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbVFAScJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 14:32:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261541AbVFAS3D
+	id S261237AbVFATPX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 15:15:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVFASvf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 14:29:03 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:50651 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261544AbVFASVS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 14:21:18 -0400
-Date: Wed, 1 Jun 2005 20:19:49 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: NZG <ngustavson@emacinc.com>
-Cc: linux-kernel@vger.kernel.org, Andrea Arcangeli <andrea@suse.de>,
-       Ingo Molnar <mingo@elte.hu>, Paulo Marques <pmarques@grupopie.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       James Bruce <bruce@andrew.cmu.edu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
-       hch@infradead.org, akpm@osdl.org
-Subject: Re: RT patch acceptance
-In-Reply-To: <200506011047.32922.ngustavson@emacinc.com>
-Message-Id: <Pine.OSF.4.05.10506011959380.1707-100000@da410.phys.au.dk>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 1 Jun 2005 14:51:35 -0400
+Received: from smtpq3.home.nl ([213.51.128.198]:15570 "EHLO smtpq3.home.nl")
+	by vger.kernel.org with ESMTP id S261525AbVFAS2C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 14:28:02 -0400
+Message-ID: <429DFD90.10802@keyaccess.nl>
+Date: Wed, 01 Jun 2005 20:25:20 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a6) Gecko/20050111
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, Mark Lord <lkml@rtr.ca>,
+       David Brownell <dbrownell@users.sourceforge.net>
+Subject: Re: External USB2 HDD affects speed hda
+References: <429BA001.2030405@keyaccess.nl> <20050601081810.GA23114@elf.ucw.cz>
+In-Reply-To: <20050601081810.GA23114@elf.ucw.cz>
+Content-Type: multipart/mixed;
+ boundary="------------090201080708000406070701"
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Jun 2005, NZG wrote:
+This is a multi-part message in MIME format.
+--------------090201080708000406070701
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 
-> On Wednesday 01 June 2005 09:59, Esben Nielsen wrote:
-> > Maybe you should get yourself a job as FUD'er? You surely have the
-> > qualifications jumping to conclusions like that.
-> > Ok, now you are FUD'ing on behalf on RTAI, but that doesn't make any less
-> > disgracefull.
-> >
-> > Esben
-> Your open hostility to a very possibly valid criticism isn't going to do much 
-> for fostering support in the community.
->
-You can go out and say: "Look you might have a problem here, you better
-check it out". That is valid. But what Andrea did was to say
-"You have a problem. Everybody using your solution much supply the code
-under GPL. But if you stick to our solution, you do not have a problem."
+Pavel Machek wrote:
 
-It is exactly the same kind of thing as SCO or other companies have tried
-to do! FUD is FUD, no matter if it is open source projects against other
-open source projects. FUD is when you try to discredit other projects
-based on very loosely founded claims. One thing is to raise concerns,
-another is to use those loosely founded concerns to scare people away
-from a something apparently seen as a competing solution. Fortunately
-it was shut down fast. Otherwise, we might end up with so called
-"IT-journalists" spreading it again once PREEMPT_RT goes main-line.
-(I am not saying that should be a reason to shut up though :-)
+EHCI maintainter (as given by MAINTAINERS) added to CC.
 
-The discussion got a little heated on both sides. Thats that. I am sorry
-for letting me drag along. I should be warned from my days of Mudding: You
-soon get yourself heated when the only medium of communication is text.
-It is so much harder to express yourself than just having a voice in the
-other end.
+> On Út 31-05-05 01:21:37, Rene Herman wrote:
 
-> Somebody needs to do some RTAI FUD'n, they've been at this for a lot longer 
-> than this RT project and have already crossed many of these bridges, ignore 
-> them at your own peril. 
+[ internal IDE HDD slowdown after switching on external USB2 HDD ]
 
-I am not going into history and I will not ignore them. Andrea _did_
-raise a concern - all I am blaiming him for is to jump to conclusions and
-to say stuff which looks like FUD. 
+> USB controller generating extra DMA load? Try rmmoding usb to see if
+> it goes away.
 
-> NZG.
+I was sceptical about this since the drive is idle (or even switched off 
+again) but I recompiled EHCI modular and rmmodding ehci_hcd does in fact 
+bring back my 50 MB/s:
 
-Esben
+				: hdparm -t /dev/hda = 50 MB/s
+1. modprobe ehci_hcd		: hdparm -t /dev/hda = 50 MB/s
+2. switch on USB2 drive		: hdparm -t /dev/hda = 42 MB/s
+3. switch off USB drive		: hdparm -t /dev/hda = 42 MB/s
+4. modprobe -r ehci_hcd		: hdparm -t /dev/hda = 50 MB/s
 
+There would not seem to be any extra DMA load with a drive that's idle 
+or switched off again though? Is the (VIA) USB2 controller playing bus 
+monopolizing tricks or something sinister like that? (the speed doesn't 
+drop immediately after loading ehci_hcd though, only after switching on 
+the USB2 HDD)
+
+More detail --- it's a VIA VT6212L EHCI controller, on unshared IRQ3. 
+IDE0 is AMD756 on unshared IRQ14/15. The USB2 HDD does 30 MB/s (after a 
+hdparm -a 1024; with the default 256 it's 25MB/s) which I did think was 
+a very good speed.
+
+lspci -vv attached, in case it's useful.
+
+Many thanks in advance to anyone for any additional insight...
+
+Rene.
+
+
+--------------090201080708000406070701
+Content-Type: text/plain;
+ name="LSPCI"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="LSPCI"
+
+00:00.0 Host bridge: Advanced Micro Devices [AMD] AMD-751 [Irongate] System Controller (rev 25)
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort+ >SERR- <PERR-
+	Latency: 120
+	Region 0: Memory at e8000000 (32-bit, prefetchable) [size=64M]
+	Region 1: Memory at efbff000 (32-bit, prefetchable) [size=4K]
+	Region 2: I/O ports at d800 [disabled] [size=4]
+	Capabilities: [a0] AGP version 1.0
+		Status: RQ=16 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW- AGP3- Rate=x1,x2
+		Command: RQ=1 ArqSz=0 Cal=0 SBA+ AGP+ GART64- 64bit- FW- Rate=x2
+
+00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-751 [Irongate] AGP Bridge (rev 01) (prog-if 00 [Normal decode])
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap- 66Mhz+ UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 120
+	Bus: primary=00, secondary=01, subordinate=01, sec-latency=32
+	I/O behind bridge: 0000a000-0000bfff
+	Memory behind bridge: efc00000-efcfffff
+	Prefetchable memory behind bridge: dfa00000-e7afffff
+	BridgeCtl: Parity- SERR+ NoISA- VGA+ MAbort- >Reset- FastB2B-
+
+00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-756 [Viper] ISA (rev 01)
+	Control: I/O+ Mem+ BusMaster+ SpecCycle+ MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 0
+
+00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-756 [Viper] IDE (rev 07) (prog-if 8a [Master SecP PriP])
+	Control: I/O+ Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 32
+	Region 4: I/O ports at f000 [size=16]
+
+00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-756 [Viper] ACPI (rev 03)
+	Control: I/O- Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	Status: Cap- 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+
+00:08.0 Multimedia audio controller: Cirrus Logic CS 4614/22/24 [CrystalClear SoundFusion Audio Accelerator] (rev 01)
+	Subsystem: TERRATEC Electronic GmbH: Unknown device 112e
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (1000ns min, 6000ns max)
+	Interrupt: pin A routed to IRQ 10
+	Region 0: Memory at efffd000 (32-bit, non-prefetchable) [size=4K]
+	Region 1: Memory at efe00000 (32-bit, non-prefetchable) [size=1M]
+	Capabilities: [40] Power Management version 2
+		Flags: PMEClk+ DSI+ D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:09.0 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 61) (prog-if 00 [UHCI])
+	Subsystem: VIA Technologies, Inc. VT6202 [USB 2.0 controller]
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64, cache line size 08
+	Interrupt: pin A routed to IRQ 12
+	Region 4: I/O ports at da00 [size=32]
+	Capabilities: [80] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:09.1 USB Controller: VIA Technologies, Inc. VT6202 [USB 2.0 controller] (rev 61) (prog-if 00 [UHCI])
+	Subsystem: VIA Technologies, Inc. VT6202 [USB 2.0 controller]
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64, cache line size 08
+	Interrupt: pin B routed to IRQ 10
+	Region 4: I/O ports at dc00 [size=32]
+	Capabilities: [80] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:09.2 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 63) (prog-if 20 [EHCI])
+	Subsystem: VIA Technologies, Inc. USB 2.0
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64, cache line size 10
+	Interrupt: pin C routed to IRQ 3
+	Region 0: Memory at effffe00 (32-bit, non-prefetchable) [size=256]
+	Capabilities: [80] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=375mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:09.3 FireWire (IEEE 1394): NEC Corporation: Unknown device 00e7 (rev 01) (prog-if 10 [OHCI])
+	Subsystem: NEC Corporation: Unknown device 00ce
+	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64, cache line size 08
+	Interrupt: pin A routed to IRQ 12
+	Region 0: Memory at efffe000 (32-bit, non-prefetchable) [size=4K]
+	Capabilities: [60] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+00:0a.0 Ethernet controller: 3Com Corporation 3c905C-TX/TX-M [Tornado] (rev 74)
+	Subsystem: 3Com Corporation 3C905C-TX Fast Etherlink for PC Management NIC
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV+ VGASnoop- ParErr- Stepping- SERR+ FastB2B-
+	Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (2500ns min, 2500ns max), cache line size 08
+	Interrupt: pin A routed to IRQ 10
+	Region 0: I/O ports at de00 [size=128]
+	Region 1: Memory at efffff80 (32-bit, non-prefetchable) [size=128]
+	Expansion ROM at effc0000 [disabled] [size=128K]
+	Capabilities: [dc] Power Management version 2
+		Flags: PMEClk- DSI- D1+ D2+ AuxCurrent=0mA PME(D0+,D1+,D2+,D3hot+,D3cold+)
+		Status: D0 PME-Enable- DSel=0 DScale=2 PME-
+
+01:05.0 VGA compatible controller: ATI Technologies Inc Rage 128 RF/SG AGP (prog-if 00 [VGA])
+	Subsystem: ATI Technologies Inc: Unknown device 0048
+	Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
+	Status: Cap+ 66Mhz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	Latency: 64 (2000ns min), cache line size 08
+	Interrupt: pin A routed to IRQ 12
+	Region 0: Memory at e0000000 (32-bit, prefetchable) [size=64M]
+	Region 1: I/O ports at b800 [size=256]
+	Region 2: Memory at efcfc000 (32-bit, non-prefetchable) [size=16K]
+	Expansion ROM at efcc0000 [disabled] [size=128K]
+	Capabilities: [50] AGP version 2.0
+		Status: RQ=32 Iso- ArqSz=0 Cal=0 SBA+ ITACoh- GART64- HTrans- 64bit- FW- AGP3- Rate=x1,x2
+		Command: RQ=16 ArqSz=0 Cal=0 SBA+ AGP+ GART64- 64bit- FW- Rate=x2
+	Capabilities: [5c] Power Management version 1
+		Flags: PMEClk- DSI- D1+ D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot-,D3cold-)
+		Status: D0 PME-Enable- DSel=0 DScale=0 PME-
+
+
+--------------090201080708000406070701--

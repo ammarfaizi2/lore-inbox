@@ -1,47 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVFAQBy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVFAQDK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261435AbVFAQBy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 12:01:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261450AbVFAP6W
+	id S261448AbVFAQDK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 12:03:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVFAQCV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 11:58:22 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:31438 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261444AbVFAP43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 11:56:29 -0400
-Date: Wed, 1 Jun 2005 11:56:29 -0400
-To: Horst von Brand <vonbrand@inf.utfsm.cl>
-Cc: Gerd Knorr <kraxel@suse.de>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>, mrmacman_g4@mac.com,
-       toon@hout.vanvergehaald.nl, ltd@cisco.com, linux-kernel@vger.kernel.org,
-       dtor_core@ameritech.net, 7eggert@gmx.de
+	Wed, 1 Jun 2005 12:02:21 -0400
+Received: from downeast.net ([12.149.251.230]:45567 "EHLO downeast.net")
+	by vger.kernel.org with ESMTP id S261447AbVFAQAL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 12:00:11 -0400
+From: Patrick McFarland <pmcfarland@downeast.net>
+To: Joerg Schilling <schilling@fokus.fraunhofer.de>
 Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Message-ID: <20050601155629.GK23488@csclub.uwaterloo.ca>
-References: <20050531190556.GK23621@csclub.uwaterloo.ca> <200506010223.j512NgeC005179@laptop11.inf.utfsm.cl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506010223.j512NgeC005179@laptop11.inf.utfsm.cl>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+Date: Wed, 1 Jun 2005 11:57:39 -0400
+User-Agent: KMail/1.8
+Cc: kraxel@suse.de, toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com,
+       ltd@cisco.com, linux-kernel@vger.kernel.org, dtor_core@ameritech.net,
+       7eggert@gmx.de
+References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com> <87acmbxrfu.fsf@bytesex.org> <429DD036.nail7BF7MRZT6@burner>
+In-Reply-To: <429DD036.nail7BF7MRZT6@burner>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart186281378.IBGHEjpmzD";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200506011157.47253.pmcfarland@downeast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 31, 2005 at 10:23:42PM -0400, Horst von Brand wrote:
-> Lennart Sorensen <lsorense@csclub.uwaterloo.ca> wrote:
-> > Well I remember the first time I saw devfs running, I thought "Wow
-> > finally I have a way to find the disc that is scsi id 3 on controller 0
-> > even if I add a device at id 2 after setting up the system", something
-> > most unix systems have always had, but linux made hard (you had to
-> > somehow figure out which id mapped to which /dev/sd* entry, which from a
-> > users perspective wasn't trivial, and of course keeping your fstab in
-> > sync with the mapping was a pain).
-> 
-> Why? Just use LABELs, ou UUIDs.
+--nextPart186281378.IBGHEjpmzD
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Great if those worked on ALL filesystems, which to my knowledge they do
-not.  Last time I tried to use labels to mount filesystems, I gave up on
-it when I discovered swap didn't support it.  I haven't bothered with
-them since.
+On Wednesday 01 June 2005 11:11 am, Joerg Schilling wrote:
+> I did define this model 19 years ago when I did write the first
+> Generic SCSI driver at all. Adaptec indepentently did develop ASPI
+> 2 years later and did chose the same address model. Nearly all
+> OS use this kind (or a very similar model) internaly inside the kernel
+> or the basic SCSI address routines.
 
-Len Sorensen
+That doesn't mean its the right model. Infact, for being 20 years old /and/=
+=20
+the first, it stands to be the absolutely worst model. Linus and crew have=
+=20
+every right to do something new.
+
+=2D-=20
+Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
+e'd=20
+all be running around in darkened rooms, munching magic pills and listening=
+ to
+repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
+
+--nextPart186281378.IBGHEjpmzD
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.5 (GNU/Linux)
+
+iD8DBQBCndr78Gvouk7G1cURAkE8AJ0bNi/NE5bD9vuXaK35ysWGJXahBgCdHsbv
+8E8QSZqWqPhtfraFz0saV4E=
+=hvM/
+-----END PGP SIGNATURE-----
+
+--nextPart186281378.IBGHEjpmzD--

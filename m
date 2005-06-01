@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVFAKFD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbVFAKIU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261170AbVFAKFD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 06:05:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbVFAKFD
+	id S261172AbVFAKIU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 06:08:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261171AbVFAKIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 06:05:03 -0400
-Received: from god.demon.nl ([83.160.164.11]:40205 "EHLO god.dyndns.org")
-	by vger.kernel.org with ESMTP id S261170AbVFAKEt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 06:04:49 -0400
-Date: Wed, 1 Jun 2005 12:04:43 +0200
-From: Henk <Henk.Vergonet@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] new 7-segments char translation API
-Message-ID: <20050601100443.GA22825@god.dyndns.org>
-References: <20050531220738.GA21775@god.dyndns.org>
+	Wed, 1 Jun 2005 06:08:20 -0400
+Received: from ns9.hostinglmi.net ([213.194.149.146]:15598 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S261172AbVFAKIO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 06:08:14 -0400
+Date: Wed, 1 Jun 2005 12:10:22 +0200
+From: DervishD <lkml@dervishd.net>
+To: Nico Schottelius <nico-kernel@schottelius.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Parallel Port: Settings PINs on?
+Message-ID: <20050601101022.GE3690@DervishD>
+Mail-Followup-To: Nico Schottelius <nico-kernel@schottelius.org>,
+	linux-kernel@vger.kernel.org
+References: <20050601100150.GB27717@schottelius.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20050531220738.GA21775@god.dyndns.org>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050601100150.GB27717@schottelius.org>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+    Hi Nico :)
 
-Jan Benedict wrote:
+ * Nico Schottelius <nico-kernel@schottelius.org> dixit:
+> Is it possible to select (in userspace) which pins
+> should be enabled or do I have to write a kernel driver
+> for that?
 
-> I don't know if a real API is really needed for that.
+    Userspace will do. Take a look at programs like 'parapin', 'k74',
+'libieee1284', 'libparportled', or similars. Look in FreshMeat. As
+far as I know, all them runs in userspace, although you can find some
+Linux drivers for performing pin control of parallel port.
+ 
+    Raúl Núñez de Arenas Coronado
 
-No we don't. My term API was confusing, it's only a small include file
-and some standardisation.
-
-see the attached patch file
-
-> However, the principle could be reversed by using a 7-segment "font", a
-> mapping function and an initializer which specifies which bit belongs to
-> which bar of the 7-segment display...
-
-That's exactly what this is, see the attached patch file.
-
-Regards,
-
-
-Henk
-
-PS please CC me as I am not on the list.
-
-
+-- 
+Linux Registered User 88736 | http://www.dervishd.net
+http://www.pleyades.net & http://www.gotesdelluna.net
+It's my PC and I'll cry if I want to...

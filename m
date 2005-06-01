@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVFAWd1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVFAWd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261347AbVFAWd1 (ORCPT <rfc822;willy@w.ods.org>);
+	id S261334AbVFAWd1 (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 1 Jun 2005 18:33:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVFAWdK
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261345AbVFAWcr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 18:33:10 -0400
-Received: from alog0111.analogic.com ([208.224.220.126]:11750 "EHLO
-	chaos.analogic.com") by vger.kernel.org with ESMTP id S261347AbVFAWcK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 18:32:10 -0400
-Date: Wed, 1 Jun 2005 18:31:07 -0400 (EDT)
-From: "Richard B. Johnson" <linux-os@analogic.com>
-Reply-To: linux-os@analogic.com
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: How to replace an executing file on an embedded system?
-Message-ID: <Pine.LNX.4.61.0506011828300.5925@chaos.analogic.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 1 Jun 2005 18:32:47 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:52914 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261334AbVFAWbV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 18:31:21 -0400
+Date: Thu, 2 Jun 2005 00:31:01 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: Freezer Patches.
+Message-ID: <20050601223101.GD11163@elf.ucw.cz>
+References: <1117629212.10328.26.camel@localhost> <20050601130205.GA1940@openzaurus.ucw.cz> <1117663709.13830.34.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1117663709.13830.34.camel@localhost>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-The newer linux kernels have this problem:
+(Well, it is just after midnight here :-).
 
-Suppose I do this:
+> > > Here are the freezer patches. They were prepared against rc3, but I
+> > > think they still apply fine against rc5. (Ben, these are the same ones I
+> > > sent you the other day).
+> > 
+> > 304 seems ugly and completely useless for mainline
+> 
+> That's because you don't understand what it's doing.
+> 
+> The new refrigerator implementation works like this:
+> 
+> Userspace processes that begin a sys_*sync gain the process flag
+> PF_SYNCTHREAD for the duration of their syscall.
 
-cp /sbin/init foo	# Make a copy of 'init'
-mv foo /sbin/init	# Rename it back (emulate install)
-chmod +x /sbin/init	# Make sure we can boot.
+swsusp1 should not need any special casing of sync, right? We can
+simply do sys_sync(), then freeze, or something like that. We could
+even remove sys_sync() completely; it is not needed for correctness.
 
-When I try to umount() the file-system, it now fails with
-EBUSY (16).
-
-I have tried fsync(), sync(), fsync() on /sbin, etc. I can't
-get rid of the busy inodes.
-
-This reared its ugly head with field software upgrades. We
-used to be able to upload new software for every executable
-on an embedded system using the network or a serial link.
-
-This would replace every file. We would then kill all the
-tasks except 'init', unmount the file-system and then reboot.
-The upgrade was finished. Every lived happily ever after.
-But, with newer kernels, we can't.
-
-What am I missing?  How am I supposed to replace files that
-are being executed? Do I have to `mv` them to /tmp and
-delete them on the next boot? (not easy, we don't have
-a shell, I would have to write code to search /tmp). Also
-'init' isn't SYS-V 'init'. It's just the startup program
-for a system that keeps growing so I need to be able to
-upgrade it.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
-  Notice : All mail here is now cached for review by Dictator Bush.
-                  98.36% of all statistics are fiction.
+								Pavel

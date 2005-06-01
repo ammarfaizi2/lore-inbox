@@ -1,74 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVFAOSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVFAOYh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbVFAOSr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 10:18:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVFAORO
+	id S261408AbVFAOYh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 10:24:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbVFAOYg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 10:17:14 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:5619 "EHLO
-	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S261391AbVFAONd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 10:13:33 -0400
-Date: Wed, 1 Jun 2005 07:13:30 -0700 (PDT)
-From: Daniel Walker <dwalker@mvista.com>
-To: mingo@elte.hu
-cc: linux-kernel@vger.kernel.org
-Subject: RT and pi_test
-Message-ID: <Pine.LNX.4.44.0506010706000.23057-100000@dhcp153.mvista.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 1 Jun 2005 10:24:36 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:34707 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261394AbVFAOUD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 10:20:03 -0400
+Date: Wed, 1 Jun 2005 16:19:19 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Paulo Marques <pmarques@grupopie.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Esben Nielsen <simlo@phys.au.dk>, James Bruce <bruce@andrew.cmu.edu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
+       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+Message-ID: <20050601141919.GA9282@elte.hu>
+References: <20050531143051.GL5413@g5.random> <Pine.OSF.4.05.10505311652140.1707-100000@da410.phys.au.dk> <20050531161157.GQ5413@g5.random> <20050531183627.GA1880@us.ibm.com> <20050531204544.GU5413@g5.random> <429DA7AE.5000304@grupopie.com> <20050601135154.GF5413@g5.random>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050601135154.GF5413@g5.random>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-	I've run the pi_test a few times recently with some strange 
-numbers. I'm getting abnormally high task latency if I run 
-"./test --tasks=10 ./hist" . Depending on how long I run it, I've seen 
-task latency as high as 3 milliseconds, should be 0.1ms or less.
+* Andrea Arcangeli <andrea@suse.de> wrote:
 
-The first time I saw these latencies I has the PI abstraction applied, and 
-the most recent time I had the attached patch applied only. This patch is 
-small so I'm not sure if it could have that type of effect on task 
-latency.
+> I've a bug in my queue that definitely would break preempt-RT:
+>
+>       BUG xxx : spends excessive time with interrupts disabled on large memory>
+       systems
+>
+> workaround:
+>
+>       #define MAX_ITERATION 100000
+>       if ((nr_pages > MAX_ITERATION) && !(nr_pages % MAX_ITERATION)) {
+>               spin_unlock_irq(&zone->lru_lock);
+>               spin_lock_irq(&zone->lru_lock);
+>       }
 
-btw, 'm not incrementing the RTC priority.
+you are wrong. This codepath is not running with interrupts disabled on 
+PREEMPT_RT. irqs-off spinlocks dont turn off interrupts on PREEMPT_RT.  
+And yes, it is still fully correct because all IRQs are threaded - so 
+all the scheduling has been 'flattened' and can be controlled. That's 
+one reason why IRQ and softirq threading is central to the design of 
+PREEMPT_RT.
 
-Daniel
+that's also how PREEMPT_RT can reach sub-20-usec _worst-case_ 
+rescheduling latencies using generic workloads (i.e. system swapping to 
+death doing heavy IDE IO and DMA and networking and _still_ not having 
+larger than 10 usecs worst-case latencies!). This is also why your 
+earlier 'driver latencies' arguments are wrong as well. Think about it 
+Andrea, this is a key property of PREEMPT_RT.
 
+(there are still some ways to introduce latencies into PREEMPT_RT, but 
+they are not common and we are working on ways to cover them all.)
 
-Index: linux-2.6.11/include/linux/plist.h
-===================================================================
---- linux-2.6.11.orig/include/linux/plist.h	2005-05-27 22:04:12.000000000 +0000
-+++ linux-2.6.11/include/linux/plist.h	2005-06-01 13:12:37.000000000 +0000
-@@ -83,7 +83,7 @@ struct plist {
-  * @member:     the name of the list_struct within the struct.
-  */
- #define plist_entry(ptr, type, member) \
--        container_of(plist_first(ptr), type, member)
-+        container_of(ptr, type, member)
- /**
-  * plist_for_each  -       iterate over the plist
-  * @pos1:        the type * to use as a loop counter.
-Index: linux-2.6.11/kernel/rt.c
-===================================================================
---- linux-2.6.11.orig/kernel/rt.c	2005-06-01 13:06:21.000000000 +0000
-+++ linux-2.6.11/kernel/rt.c	2005-06-01 13:50:08.000000000 +0000
-@@ -773,7 +773,7 @@ static inline struct task_struct * pick_
- 	 *
- 	 * (same-prio RT tasks go FIFO)
- 	 */
--	waiter = plist_entry(&lock->wait_list, struct rt_mutex_waiter, list);
-+	waiter = plist_entry(plist_first(&lock->wait_list), struct rt_mutex_waiter, list);
- 
- 	trace_special_pid(waiter->task->pid, waiter->task->prio, 0);
- 
-@@ -1351,7 +1351,7 @@ static void __up_mutex(struct rt_mutex *
- 	 */
- 	prio = mutex_getprio(old_owner);
- 	if (!plist_empty(&old_owner->pi_waiters)) {
--		w = plist_entry(&old_owner->pi_waiters, struct rt_mutex_waiter, pi_list);
-+		w = plist_entry(plist_first(&old_owner->pi_waiters), struct rt_mutex_waiter, pi_list);
- 		if (w->task->prio < prio)
- 			prio = w->task->prio;
- 	}
+[ I'd really prefer if some of the armchair RT experts would actually
+  check out PREEMPT_RT, would contribute code, testing or ideas, and 
+  generally would attempt to be productive, would attempt to be nice to 
+  each other - instead of blasting a project they first saw a few days
+  ago when a flamewar got large enough on lkml.  I've not said (or even
+  thought) a single bad thing about any other project, i'm just running
+  my own. So get a life, date a girl and have some fun and stuff =:-) ]
 
+	Ingo

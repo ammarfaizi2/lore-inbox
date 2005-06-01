@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVFASgk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVFASgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261189AbVFASgk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 14:36:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261520AbVFASGP
+	id S261210AbVFASgi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 14:36:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261501AbVFASG1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 14:06:15 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:53684 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP id S261522AbVFASDm
+	Wed, 1 Jun 2005 14:06:27 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:56029 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S261525AbVFASEG
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 14:03:42 -0400
-Date: Wed, 1 Jun 2005 20:03:42 +0200
+	Wed, 1 Jun 2005 14:04:06 -0400
+Date: Wed, 1 Jun 2005 20:04:03 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [patch 7/11] s390: kernel stack overflow panic.
-Message-ID: <20050601180342.GG6418@localhost.localdomain>
+Subject: [patch 8/11] s390: cmm sender parameter visibility.
+Message-ID: <20050601180402.GH6418@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,30 +21,27 @@ User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[patch 7/11] s390: kernel stack overflow panic.
+[patch 8/11] s390: cmm sender parameter visibility.
 
 From: Heiko Carstens <heiko.carstens@de.ibm.com>
 
-die() doesn't return, therefore print registers and then panic instead.
+Make cmm module parameter "sender" visible in sysfs.
 
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
 diffstat:
- arch/s390/kernel/traps.c |    5 ++++-
- 1 files changed, 4 insertions(+), 1 deletion(-)
+ arch/s390/mm/cmm.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
-diff -urpN linux-2.6/arch/s390/kernel/traps.c linux-2.6-patched/arch/s390/kernel/traps.c
---- linux-2.6/arch/s390/kernel/traps.c	2005-03-02 08:37:55.000000000 +0100
-+++ linux-2.6-patched/arch/s390/kernel/traps.c	2005-06-01 19:43:19.000000000 +0200
-@@ -668,7 +668,10 @@ asmlinkage void space_switch_exception(s
+diff -urpN linux-2.6/arch/s390/mm/cmm.c linux-2.6-patched/arch/s390/mm/cmm.c
+--- linux-2.6/arch/s390/mm/cmm.c	2005-06-01 19:42:54.000000000 +0200
++++ linux-2.6-patched/arch/s390/mm/cmm.c	2005-06-01 19:43:19.000000000 +0200
+@@ -21,7 +21,7 @@
+ #include <asm/uaccess.h>
  
- asmlinkage void kernel_stack_overflow(struct pt_regs * regs)
- {
--	die("Kernel stack overflow", regs, 0);
-+	bust_spinlocks(1);
-+	printk("Kernel stack overflow.\n");
-+	show_regs(regs);
-+	bust_spinlocks(0);
- 	panic("Corrupt kernel stack, can't continue.");
- }
+ static char *sender = "VMRMSVM";
+-module_param(sender, charp, 0);
++module_param(sender, charp, 0400);
+ MODULE_PARM_DESC(sender,
+ 		 "Guest name that may send SMSG messages (default VMRMSVM)");
  

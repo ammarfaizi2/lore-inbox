@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVFAS7L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVFATTY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbVFAS7L (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 14:59:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbVFASzj
+	id S261182AbVFATTY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 15:19:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbVFATQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 14:55:39 -0400
-Received: from mail.tmr.com ([64.65.253.246]:45445 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S261250AbVFASyY (ORCPT
+	Wed, 1 Jun 2005 15:16:44 -0400
+Received: from mailgw.cvut.cz ([147.32.3.235]:49833 "EHLO mailgw.cvut.cz")
+	by vger.kernel.org with ESMTP id S261225AbVFATPj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 14:54:24 -0400
-Message-ID: <429E0843.5060505@tmr.com>
-Date: Wed, 01 Jun 2005 15:10:59 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
+	Wed, 1 Jun 2005 15:15:39 -0400
+Message-ID: <429E0965.1090809@vc.cvut.cz>
+Date: Wed, 01 Jun 2005 21:15:49 +0200
+From: Petr Vandrovec <vandrove@vc.cvut.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: William Lee Irwin III <wli@holomorphy.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Swap maximum size documented ?
-References: <200506011225.j51CPDV23243@lastovo.hermes.si> <20050601124025.GZ422@unthought.net> <1117630718.6271.31.camel@laptopd505.fenrus.org> <loom.20050601T150142-941@post.gmane.org> <20050601134022.GM20782@holomorphy.com>
-In-Reply-To: <20050601134022.GM20782@holomorphy.com>
+To: Rene Herman <rene.herman@keyaccess.nl>
+CC: Mark Lord <lkml@rtr.ca>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: External USB2 HDD affects speed hda
+References: <429BA001.2030405@keyaccess.nl> <429DA0A9.6010808@rtr.ca> <429DFEBF.8090908@keyaccess.nl>
+In-Reply-To: <429DFEBF.8090908@keyaccess.nl>
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-William Lee Irwin III wrote:
-> On Wed, Jun 01, 2005 at 01:02:13PM +0000, David Bala??ic wrote:
+Rene Herman wrote:
+> Mark Lord wrote:
 > 
->>OK, so can anyone tell the actual, current limits ?
+>> Look at "cat /proc/interrupts" and see if the USB is sharing
+>> an IRQ line with ide0.  If so, then the best explanation I can
+>> see is that the USB driver must have a *really slow* interrupt
+>> handler up to the point where it determines that the interrupt
+>> is not for it.
 > 
 > 
-> Without CONFIG_HIGHMEM64G=y you have:
-> 32 swapfiles, max swapfile size of 64GB.
-> 
-> With CONFIG_HIGHMEM64G=y you have:
-> 32 swapfiles, max swapfile size of 512GB.
+> No, that's not it. Both ide0 (14) and EHCI (3) are on private, unshared 
+> IRQs. rmmodding ehci_hcd as per Pavel's sugestion gets me back my speed. 
+> Exactly _why_ I've no idea though. I've just added you to the CC on that 
+> reply...
 
-Does this apply to mmap as well? I have an application which currently 
-uses 9TB of data, and one thought to boost performance was to mmap the 
-data. Unfortunately, I know 16TB isn't going to be enough for more than 
-a few more years :-(
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Because EHCI hardware continuously watches some memory area to
+find whether there are some transfers from host to your USB
+devices ready...  You just need better memory bandwidth so all
+your devices transfers fit on your bus.  Or maybe EHCI driver
+could program hardware to not query transfer descriptors
+that often. But it would increase latency for people
+who use USB only and do not care about other parts of system.
+
+						Petr Vandrovec
+

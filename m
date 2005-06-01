@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVFARit@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVFARm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261485AbVFARit (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 13:38:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVFARie
+	id S261480AbVFARm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 13:42:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVFARjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 13:38:34 -0400
-Received: from downeast.net ([12.149.251.230]:33486 "EHLO downeast.net")
-	by vger.kernel.org with ESMTP id S261473AbVFARhK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 13:37:10 -0400
-From: Patrick McFarland <pmcfarland@downeast.net>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Date: Wed, 1 Jun 2005 13:35:57 -0400
-User-Agent: KMail/1.8
-Cc: dtor_core@ameritech.net, toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com,
-       ltd@cisco.com, linux-kernel@vger.kernel.org, 7eggert@gmx.de
-References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com> <d120d50005060109051f9ade82@mail.gmail.com> <429DEA5B.nail7BFNJVI78@burner>
-In-Reply-To: <429DEA5B.nail7BFNJVI78@burner>
+	Wed, 1 Jun 2005 13:39:31 -0400
+Received: from az33egw02.freescale.net ([192.88.158.103]:7389 "EHLO
+	az33egw02.freescale.net") by vger.kernel.org with ESMTP
+	id S261486AbVFARgV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 13:36:21 -0400
+Date: Wed, 1 Jun 2005 12:36:11 -0500 (CDT)
+From: Kumar Gala <galak@freescale.com>
+X-X-Sender: galak@nylon.am.freescale.net
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org,
+       linuxppc-embedded <linuxppc-embedded@ozlabs.org>
+Subject: [PATCH] ppc32: Removed dependency on CONFIG_CPM2 for building
+ mpc85xx_device.c
+Message-ID: <Pine.LNX.4.61.0506011235330.1682@nylon.am.freescale.net>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart3374208.8P3PGlFhAN";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200506011336.06426.pmcfarland@downeast.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart3374208.8P3PGlFhAN
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Previously we needed CONFIG_CPM2 enabled to get the proper IRQ
+ifdef's for CPM interrupts.  Recent changes have caused that to
+be no longer necessary.
 
-On Wednesday 01 June 2005 01:03 pm, Joerg Schilling wrote:
-> If Linux likes to implement things differntly, they are free
-> to do so but the Linux authors need to learn that I don't like to spend my
-> time on somethign that might be useless next week.
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
-Holy what the fuck, Batman?! I could very well argue=20
-that /dev/sd/crackrock/ahoy/ or whatever Solaris traditionally uses is=20
-equally as bad. At least with Linux's current method, a) people (other than=
-=20
-you) are happy, b) people are finding it useful, c) it works well with udev.
+---
+commit 22774efc1bef9f9a0fd9b34d44bf10da787e3d91
+tree 115c991f9030418e78a7aa0f23d678d0141e0746
+parent 6e7c21f278abb17a9bbdc6fd1f1b1b96e6677fdb
+author Kumar K. Gala <kumar.gala@freescale.com> Wed, 01 Jun 2005 12:34:30 -0500
+committer Kumar K. Gala <kumar.gala@freescale.com> Wed, 01 Jun 2005 12:34:30 -0500
 
-LKML: 1, Joerg: 0.
+ arch/ppc/syslib/mpc85xx_devices.c |    2 --
+ 1 files changed, 0 insertions(+), 2 deletions(-)
 
-=2D-=20
-Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
-e'd=20
-all be running around in darkened rooms, munching magic pills and listening=
- to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
-
---nextPart3374208.8P3PGlFhAN
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBCnfIG8Gvouk7G1cURAlWrAJ9NlNK6caaY4nHYhQqk8dIeacAeXACfbm9Z
-z/jpUrxMmSKUbVOb2+Korsc=
-=QtE4
------END PGP SIGNATURE-----
-
---nextPart3374208.8P3PGlFhAN--
+diff --git a/arch/ppc/syslib/mpc85xx_devices.c b/arch/ppc/syslib/mpc85xx_devices.c
+--- a/arch/ppc/syslib/mpc85xx_devices.c
++++ b/arch/ppc/syslib/mpc85xx_devices.c
+@@ -321,7 +321,6 @@ struct platform_device ppc_sys_platform_
+ 			},
+ 		},
+ 	},
+-#ifdef CONFIG_CPM2
+ 	[MPC85xx_CPM_FCC1] = {
+ 		.name = "fsl-cpm-fcc",
+ 		.id	= 1,
+@@ -575,7 +574,6 @@ struct platform_device ppc_sys_platform_
+ 			},
+ 		},
+ 	},
+-#endif /* CONFIG_CPM2 */
+ 	[MPC85xx_eTSEC1] = {
+ 		.name = "fsl-gianfar",
+ 		.id	= 1,

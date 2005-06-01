@@ -1,76 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVFAKWR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVFAK02@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261152AbVFAKWR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 06:22:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbVFAKWR
+	id S261155AbVFAK02 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 06:26:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261157AbVFAK02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 06:22:17 -0400
-Received: from lug-owl.de ([195.71.106.12]:31388 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S261152AbVFAKWM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 06:22:12 -0400
-Date: Wed, 1 Jun 2005 12:22:11 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Lukasz Stelmach <stlman@poczta.fm>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] mailing list management
-Message-ID: <20050601102211.GR2417@lug-owl.de>
-Mail-Followup-To: Lukasz Stelmach <stlman@poczta.fm>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <429D8A3A.8000304@poczta.fm>
+	Wed, 1 Jun 2005 06:26:28 -0400
+Received: from courier.cs.helsinki.fi ([128.214.9.1]:3561 "EHLO
+	mail.cs.helsinki.fi") by vger.kernel.org with ESMTP id S261155AbVFAK00
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 06:26:26 -0400
+References: <1117291619.9665.6.camel@localhost>
+            <Pine.LNX.4.58.0505291059540.10545@ppc970.osdl.org>
+            <84144f0205052911202863ecd5@mail.gmail.com>
+            <Pine.LNX.4.58.0505291143350.10545@ppc970.osdl.org>
+            <1117399764.9619.12.camel@localhost>
+            <Pine.LNX.4.58.0505291543070.10545@ppc970.osdl.org>
+            <1117466611.9323.6.camel@localhost>
+            <Pine.LNX.4.58.0505301024080.10545@ppc970.osdl.org>
+            <courier.429C05C1.00005CC5@courier.cs.helsinki.fi>
+            <20050601073544.GA21384@elte.hu>
+In-Reply-To: <20050601073544.GA21384@elte.hu>
+From: "Pekka J Enberg" <penberg@cs.helsinki.fi>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Linus Torvalds <torvalds@osdl.org>, Pekka Enberg <penberg@gmail.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: TASK_NONINTERACTIVE (was: Machine Freezes while Running Crossover Office)
+Date: Wed, 01 Jun 2005 13:26:25 +0300
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="fis3l7cGi4BLWycj"
-Content-Disposition: inline
-In-Reply-To: <429D8A3A.8000304@poczta.fm>
-X-Operating-System: Linux mail 2.6.11.10lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; format=flowed; charset="utf-8,iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-ID: <courier.429D8D51.00005B9C@courier.cs.helsinki.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi, 
 
---fis3l7cGi4BLWycj
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Wed, 2005-06-01 at 09:35 +0200, Ingo Molnar wrote:
+> Pekka, could you check whether the patch below solves your Wine problem 
+> (without hurting interactivity otherwise)?
 
-On Wed, 2005-06-01 12:13:14 +0200, Lukasz Stelmach <stlman@poczta.fm> wrote:
-> Let me share with you my idea to make writing to this list kind of
-> easier. Several times I have happened to send replies to e-mails on this
-> list directly to their authors instead of the list. I suggest
-> (re)placing any Reply-To headers in incoming letters with Reply-To:
-> linux-kernel@... before delivering them to subscribers.
+I have been running a patched 2.6.12-rc5 for over an hour now with no 
+interactivity problems whatsoever (although on a different laptop). I am 
+using Eclipse, Tomcat, XMMS, Firefox, and Evolution. From my POV, this is 
+2.6.12 and -stable material. Thanks! 
 
-This is considered harmful. Please just configure your email client
-correctly.
-
-MfG, JBG
-
---=20
-Jan-Benedict Glaw       jbglaw@lug-owl.de    . +49-172-7608481             =
-_ O _
-"Eine Freie Meinung in  einem Freien Kopf    | Gegen Zensur | Gegen Krieg  =
-_ _ O
- fuer einen Freien Staat voll Freier B=C3=BCrger" | im Internet! |   im Ira=
-k!   O O O
-ret =3D do_actions((curr | FREE_SPEECH) & ~(NEW_COPYRIGHT_LAW | DRM | TCPA)=
-);
-
---fis3l7cGi4BLWycj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCnYxTHb1edYOZ4bsRAkkdAJ9+fRrwKfww2sGGn3iw+qmShhtQOQCeMduq
-wdx7Uy2zzbG4KSaJA+HOuGU=
-=ms51
------END PGP SIGNATURE-----
-
---fis3l7cGi4BLWycj--
+                   Pekka 

@@ -1,81 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVFAOYh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261388AbVFAOSr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261408AbVFAOYh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 10:24:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbVFAOYg
+	id S261388AbVFAOSr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 10:18:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVFAORa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 10:24:36 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:34707 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261394AbVFAOUD (ORCPT
+	Wed, 1 Jun 2005 10:17:30 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:22203 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261394AbVFAOOW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 10:20:03 -0400
-Date: Wed, 1 Jun 2005 16:19:19 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Paulo Marques <pmarques@grupopie.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Esben Nielsen <simlo@phys.au.dk>, James Bruce <bruce@andrew.cmu.edu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
-       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-Message-ID: <20050601141919.GA9282@elte.hu>
-References: <20050531143051.GL5413@g5.random> <Pine.OSF.4.05.10505311652140.1707-100000@da410.phys.au.dk> <20050531161157.GQ5413@g5.random> <20050531183627.GA1880@us.ibm.com> <20050531204544.GU5413@g5.random> <429DA7AE.5000304@grupopie.com> <20050601135154.GF5413@g5.random>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050601135154.GF5413@g5.random>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Wed, 1 Jun 2005 10:14:22 -0400
+Message-ID: <429DC4A8.BFF69FB3@tv-sign.ru>
+Date: Wed, 01 Jun 2005 18:22:32 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: john cooper <john.cooper@timesys.com>
+Cc: Trond Myklebust <trond.myklebust@fys.uio.no>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, Olaf Kirch <okir@suse.de>
+Subject: Re: RT and Cascade interrupts
+References: <42974F08.1C89CF2A@tv-sign.ru> <4297AF39.4070304@timesys.com>
+	 <42983135.C521F1C8@tv-sign.ru> <4298AED8.8000408@timesys.com>
+	 <1117312557.10746.6.camel@lade.trondhjem.org> <4299332F.6090900@timesys.com>
+	 <1117352410.10788.29.camel@lade.trondhjem.org> <429B8678.1000706@timesys.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+del_timer_sync() is known to be racy. Now I think it has
+(theoretically) problems with singleshot timers too.
 
-* Andrea Arcangeli <andrea@suse.de> wrote:
+Suppose whe have rpc timer which is running on CPU_0, it is
+preempted *after* it has cleared RPC_TASK_HAS_TIMER bit.
 
-> I've a bug in my queue that definitely would break preempt-RT:
->
->       BUG xxx : spends excessive time with interrupts disabled on large memory>
-       systems
->
-> workaround:
->
->       #define MAX_ITERATION 100000
->       if ((nr_pages > MAX_ITERATION) && !(nr_pages % MAX_ITERATION)) {
->               spin_unlock_irq(&zone->lru_lock);
->               spin_lock_irq(&zone->lru_lock);
->       }
+Then __rpc_execute's main loop on CPU_1 calls rpc_delete_timer(),
+it returns without doing del_timer_sync().
 
-you are wrong. This codepath is not running with interrupts disabled on 
-PREEMPT_RT. irqs-off spinlocks dont turn off interrupts on PREEMPT_RT.  
-And yes, it is still fully correct because all IRQs are threaded - so 
-all the scheduling has been 'flattened' and can be controlled. That's 
-one reason why IRQ and softirq threading is central to the design of 
-PREEMPT_RT.
+Now it calls ->tk_action()->rpc_sleep_on()->__rpc_add_timer(),
+timer pending on CPU_1.
 
-that's also how PREEMPT_RT can reach sub-20-usec _worst-case_ 
-rescheduling latencies using generic workloads (i.e. system swapping to 
-death doing heavy IDE IO and DMA and networking and _still_ not having 
-larger than 10 usecs worst-case latencies!). This is also why your 
-earlier 'driver latencies' arguments are wrong as well. Think about it 
-Andrea, this is a key property of PREEMPT_RT.
+preemption comes, reschedule at another (not CPU_1) processor,
+(this step is not strictly necessary).
 
-(there are still some ways to introduce latencies into PREEMPT_RT, but 
-they are not common and we are working on ways to cover them all.)
+Next loop iteration, __rpc_execute calls rpc_delete_timer() again,
+now it calls del_timer_sync().
 
-[ I'd really prefer if some of the armchair RT experts would actually
-  check out PREEMPT_RT, would contribute code, testing or ideas, and 
-  generally would attempt to be productive, would attempt to be nice to 
-  each other - instead of blasting a project they first saw a few days
-  ago when a flamewar got large enough on lkml.  I've not said (or even
-  thought) a single bad thing about any other project, i'm just running
-  my own. So get a life, date a girl and have some fun and stuff =:-) ]
+del_timer_sync:
 
-	Ingo
+	// __run_timers starts on CPU_1, picks rpc timer, sets
+	// timer->base = 0
+
+	ret += del_timer(timer); // return 0, timer is not pending.
+
+	for_each_online_cpu() {
+		if (timer running on that cpu) {
+			// finds the timer still running on CPU_0,
+			// waits for __run_timers on CPU_0 change
+			//	->running_timer,
+			// the timer on CPU_0 completes.
+			break;
+		}
+	}
+
+	if (timer_pending())	// NO
+		goto del_again;
+
+	// The timer still running on CPU_1
+	return;
+
+This all is very unlikely of course, but it would be nice to verify
+that kernel/timer.c is not the source of the problem.
+
+John, if it is easy to reproduce the problem, could you please retest
+with this patch?
+
+Oleg.
+
+--- 2.6.12-rc5/net/sunrpc/sched.c~	Wed Jun  1 17:49:57 2005
++++ 2.6.12-rc5/net/sunrpc/sched.c	Wed Jun  1 18:00:31 2005
+@@ -137,8 +137,12 @@ rpc_delete_timer(struct rpc_task *task)
+ {
+ 	if (RPC_IS_QUEUED(task))
+ 		return;
+-	if (test_and_clear_bit(RPC_TASK_HAS_TIMER, &task->tk_runstate)) {
+-		del_singleshot_timer_sync(&task->tk_timer);
++	if (test_bit(RPC_TASK_HAS_TIMER, &task->tk_runstate)) {
++		if (del_singleshot_timer_sync(&task->tk_timer)) {
++			BUG_ON(!test_bit(RPC_TASK_HAS_TIMER, &task->tk_runstate));
++			clear_bit(RPC_TASK_HAS_TIMER, &task->tk_runstate);
++		} else
++			BUG_ON(test_bit(RPC_TASK_HAS_TIMER, &task->tk_runstate));
+ 		dprintk("RPC: %4d deleting timer\n", task->tk_pid);
+ 	}
+ }

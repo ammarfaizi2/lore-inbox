@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261442AbVFAPrB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbVFAPld@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261442AbVFAPrB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 11:47:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261439AbVFAPps
+	id S261430AbVFAPld (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 11:41:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVFAPlc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 11:45:48 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:31002
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S261438AbVFAPoA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 11:44:00 -0400
-Date: Wed, 1 Jun 2005 17:43:49 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: john cooper <john.cooper@timesys.com>
-Cc: Paulo Marques <pmarques@grupopie.com>, Ingo Molnar <mingo@elte.hu>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Esben Nielsen <simlo@phys.au.dk>, James Bruce <bruce@andrew.cmu.edu>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
-       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: RT patch acceptance
-Message-ID: <20050601154349.GP5413@g5.random>
-References: <20050531183627.GA1880@us.ibm.com> <20050531204544.GU5413@g5.random> <429DA7AE.5000304@grupopie.com> <20050601135154.GF5413@g5.random> <20050601141919.GA9282@elte.hu> <20050601143202.GI5413@g5.random> <20050601144612.GJ5413@g5.random> <429DCD25.3010800@grupopie.com> <20050601151701.GM5413@g5.random> <429DD553.3080509@timesys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <429DD553.3080509@timesys.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.9i
+	Wed, 1 Jun 2005 11:41:32 -0400
+Received: from mail.tv-sign.ru ([213.234.233.51]:49601 "EHLO several.ru")
+	by vger.kernel.org with ESMTP id S261430AbVFAPjU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 11:39:20 -0400
+Message-ID: <429DD88B.7168BC77@tv-sign.ru>
+Date: Wed, 01 Jun 2005 19:47:23 +0400
+From: Oleg Nesterov <oleg@tv-sign.ru>
+X-Mailer: Mozilla 4.76 [en] (X11; U; Linux 2.2.20 i686)
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-06
+References: <Pine.LNX.4.44.0506010756490.23057-100000@dhcp153.mvista.com>
+Content-Type: text/plain; charset=koi8-r
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 01, 2005 at 11:33:39AM -0400, john cooper wrote:
-> FWIW the decoupling of interrupt mask levels from
-> spinlocks is a technique which predates the patent
-> under discussion by a decade or so.  And yes IANAL
-> as well but it seems the patent would/should not
-> have been awarded if it conflicted/overlapped with
-> preexisting usage.  I'd hazard this is a non-issue.
+Daniel Walker wrote:
+> 
+> On Wed, 1 Jun 2005, Oleg Nesterov wrote:
+> 
+> > Sorry, I don't understand you. Could you please explain this to me?
+> 
+> plist_for_each() was just created to walk through all the nodes in the
+> list, There is no guaranteed ordering via that method. From your test it
+> appeared to be working since you printed all the nodes you inserted.
 
-Ok, I'm glad we're allowed to redefine spin_lock_irq not to do a
-hard-irq disable. I'm sorry for the annoyance, but I guess the end
-result is even better now than it was before addressing this topic.
+Yes, plist_for_each() without plist_entry() works.
 
-So to me the only obvious complain that remains is that every new driver
-that calls local_irq_disable is a threat to the worst case latency, and
-hence preempt-RT still deserve the "metal hard" definition, since
-auditing all drivers calling local_irq_disable is hardly feasible.
+> There are other methods like plist_first() which will give you FIFO
+> ordered nodes (or should) . The reason is that plist_first() pulls off the
+> dp_node , which is the first node inserted at that priority. All the other
+> nodes are inserted behind the dp_node. That's why I used list_add() and
+> not list_add_tail()
+
+So plist_for_each() works in reverse order, and the comment about
+fifo ordering applies only to plist_first(). Thanks for explanation.
+
+I don't understand why you are doing it this way, though.
+
+Oleg.

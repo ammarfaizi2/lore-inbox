@@ -1,72 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVFATcr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVFATcs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261155AbVFATcr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 15:32:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbVFATc3
+	id S261236AbVFATcs (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 15:32:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVFATcD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 15:32:29 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:63456 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261155AbVFAT3Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 15:29:16 -0400
-Subject: Re: [PATCH] Sample fix for hyperthread exploit
-From: Arjan van de Ven <arjan@infradead.org>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Con Kolivas <kernel@kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, ck list <ck@vds.kolivas.org>
-In-Reply-To: <20050601172505.GM23013@shell0.pdx.osdl.net>
-References: <200506012158.39805.kernel@kolivas.org>
-	 <1117627597.6271.29.camel@laptopd505.fenrus.org>
-	 <200506012213.25445.kernel@kolivas.org>
-	 <20050601172505.GM23013@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Date: Wed, 01 Jun 2005 21:29:07 +0200
-Message-Id: <1117654147.6271.38.camel@laptopd505.fenrus.org>
+	Wed, 1 Jun 2005 15:32:03 -0400
+Received: from holomorphy.com ([66.93.40.71]:10443 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261236AbVFAT3h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 15:29:37 -0400
+Date: Wed, 1 Jun 2005 12:29:34 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Swap maximum size documented ?
+Message-ID: <20050601192934.GP20782@holomorphy.com>
+References: <200506011225.j51CPDV23243@lastovo.hermes.si> <20050601124025.GZ422@unthought.net> <1117630718.6271.31.camel@laptopd505.fenrus.org> <loom.20050601T150142-941@post.gmane.org> <20050601134022.GM20782@holomorphy.com> <429E0843.5060505@tmr.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <429E0843.5060505@tmr.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-01 at 10:25 -0700, Chris Wright wrote:
-> * Con Kolivas (kernel@kolivas.org) wrote:
-> > On Wed, 1 Jun 2005 22:06, Arjan van de Ven wrote:
-> > > > Comments?
-> > >
-> > > I don't think it's really worth it, but if you go this way I'd rather do
-> > > this via a prctl() so that apps can tell the kernel "I'd like to run
-> > > exclusive on a core". That'd be much better than blindly isolating all
-> > > applications.
-> > 
-> > I agree, and this is where we (could) implement the core isolation. I'm still 
-> > under the impression (as you appear to be) that this theoretical exploit is 
-> > not worth trying to work around.
-> 
-> Also, uid is not sufficient.  Something more comprehensive (like ability
-> to ptrace) would be appropriate.
+William Lee Irwin III wrote:
+>> Without CONFIG_HIGHMEM64G=y you have:
+>> 32 swapfiles, max swapfile size of 64GB.
+>> With CONFIG_HIGHMEM64G=y you have:
+>> 32 swapfiles, max swapfile size of 512GB.
 
-I would go a lot simpler. App says "I want exclusivity" via pctl and
-NOTHING runs on the other half. Well maybe with exceptions of processes
-that share the mm with the exclusive one (in practice "threads") since
-those could just read the memory anyway.
+On Wed, Jun 01, 2005 at 03:10:59PM -0400, Bill Davidsen wrote:
+> Does this apply to mmap as well? I have an application which currently 
+> uses 9TB of data, and one thought to boost performance was to mmap the 
+> data. Unfortunately, I know 16TB isn't going to be enough for more than 
+> a few more years :-(
 
-ptrace-ability goes wonky the moment the "secret bearing" thread revokes
-something that would make ptrace be denied consequently ... means we'd
-have to find all those cases and make all of them bump the other app of
-the cpu. smells too complex to me for such a rare event -> hard to get
-fail proof.
+This only applies to swapping on ia32/i386.
 
+mmap() is limited only by file offsets, which are fully 32-bit on
+32-bit systems. remap_file_pages() is limited by PTE_FILE_MAX_BITS,
+which is fully 32-bit with CONFIG_HIGHMEM64G=y on i386 but only 29 bit
+without it on i386. In general checking for PTE_FILE_MAX_BITS on the
+relevant architecture should answer your question for remap_file_pages(),
+and BITS_PER_LONG for mmap(). The swap limits for other architectures
+will also differ and you generally have to look at the swp_entry/pte
+encoding/decoding macros to decipher what the precise limits are
+(though a quick hacky C program can help discover them for you).
+Generally you get the filesizes by PAGE_SIZE << X_FILE_OFFSET_BITS.
+
+It is in principle possible to sweep the kernel to allow larger file
+offsets on 32-bit systems (pgoff_t is something of a preparation for
+that), but I wouldn't advise trying it without rather strong kernel-fu
+and much willingness to debug it by one's self, and that with a common
+failure mode of fs data corruption. Widening swp_entry_t is slightly
+harder as the ptes have limited capacity so you have to somehow allocate
+extra data in a deadlock-free manner, but one also has less disruptive
+failure modes. I suspect you're not itching to implement these things.
+
+One thing to keep in mind is that these are only permissible filesizes.
+Virtualspace must be managed properly for windowing where it's limited
+and to prevent pagetable proliferation where it's not.
+
+
+-- wli

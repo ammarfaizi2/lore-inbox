@@ -1,87 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbVFAOsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVFAOq1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261400AbVFAOsu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 10:48:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVFAOst
+	id S261396AbVFAOq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 10:46:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbVFAOq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 10:48:49 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:26045 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261400AbVFAOsE
+	Wed, 1 Jun 2005 10:46:27 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:4374
+	"EHLO g5.random") by vger.kernel.org with ESMTP id S261396AbVFAOqW
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 10:48:04 -0400
-Date: Wed, 1 Jun 2005 16:45:57 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Ingo Molnar <mingo@elte.hu>, Paulo Marques <pmarques@grupopie.com>,
+	Wed, 1 Jun 2005 10:46:22 -0400
+Date: Wed, 1 Jun 2005 16:46:12 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Paulo Marques <pmarques@grupopie.com>,
        "Paul E. McKenney" <paulmck@us.ibm.com>,
-       James Bruce <bruce@andrew.cmu.edu>,
+       Esben Nielsen <simlo@phys.au.dk>, James Bruce <bruce@andrew.cmu.edu>,
        Nick Piggin <nickpiggin@yahoo.com.au>,
        "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
        Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
        hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
 Subject: Re: RT patch acceptance
-In-Reply-To: <20050601143202.GI5413@g5.random>
-Message-Id: <Pine.OSF.4.05.10506011640360.1707-100000@da410.phys.au.dk>
+Message-ID: <20050601144612.GJ5413@g5.random>
+References: <20050531143051.GL5413@g5.random> <Pine.OSF.4.05.10505311652140.1707-100000@da410.phys.au.dk> <20050531161157.GQ5413@g5.random> <20050531183627.GA1880@us.ibm.com> <20050531204544.GU5413@g5.random> <429DA7AE.5000304@grupopie.com> <20050601135154.GF5413@g5.random> <20050601141919.GA9282@elte.hu> <20050601143202.GI5413@g5.random>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050601143202.GI5413@g5.random>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Jun 2005, Andrea Arcangeli wrote:
-
-> On Wed, Jun 01, 2005 at 04:19:19PM +0200, Ingo Molnar wrote:
-> > 
-> > * Andrea Arcangeli <andrea@suse.de> wrote:
-> > 
-> > > I've a bug in my queue that definitely would break preempt-RT:
-> > >
-> > >       BUG xxx : spends excessive time with interrupts disabled on large memory>
-> >        systems
-> > >
-> > > workaround:
-> > >
-> > >       #define MAX_ITERATION 100000
-> > >       if ((nr_pages > MAX_ITERATION) && !(nr_pages % MAX_ITERATION)) {
-> > >               spin_unlock_irq(&zone->lru_lock);
-> > >               spin_lock_irq(&zone->lru_lock);
-> > >       }
-> > 
-> > you are wrong. This codepath is not running with interrupts disabled on 
-> > PREEMPT_RT. irqs-off spinlocks dont turn off interrupts on PREEMPT_RT.  
-> 
-> Then I'm afraid preempt-RT infringe on the patent that they take after
+On Wed, Jun 01, 2005 at 04:32:02PM +0200, Andrea Arcangeli wrote:
 > years of doing that in linux. I'm not a lawyer but you may want to
 > check before investing too much on this for the next 15 years. The
-> nanokernel thing has happened exactly because they couldn't wrap the cli
-> calls to do something different than a cli AFIK. Nanokernel was a nice
-> workaround to avoid having to us the patented irq disable redefine.
-> 
-> I assumed you weren't infringing on the patent and in turn disabling irq
-> locally would actually do that, sorry.
-> 
-I haven't seen the patent - it isn't valid here in Europe yet anyway :-) -
-but don't worry: disable_irq is _not_ redefined, see below.
 
+Here's a link that may be of interest:
 
-> > (there are still some ways to introduce latencies into PREEMPT_RT, but 
-> > they are not common and we are working on ways to cover them all.)
-> 
-> How can you schedule a task while a spinlock is held? Ok irqs will keep
-> going, but how can you reschedule risking to deadlock? As long as there
-> are regular spinlocks in any driver out there (i.e. all of them) then
-> you can still introduce latencies.
+http://www.fsmlabs.com/openpatentlicense.html
+http://patft.uspto.gov/netacgi/nph-Parser?Sect1=PTO2&Sect2=HITOFF&p=1&u=/netahtml/search-bool.html&r=12&f=G&l=50&co1=AND&d=ptxt&s1=5,995,745&OS=5,995,745&RS=5,995,745
 
-I'll explain it again: All spinlocks are made into mutexes. Everything
-runs in threads under the normal scheduler with interrupt disabled. Only
-the implementation of the former spinlock, now a mutex, is using a
-raw_spin_lock, which disables interrupts.
+This means all preempt-RT users are forced to release all their userland
+code that runs with RT prio as GPL (not just the preempt-RT kernel
+patch). This is not the case with RTAI. This will expire in a matter of
+about 15 years so it's not too bad, and I was approximative when I've
+said preempt-RT infringe on the patent. You Ingo are perfectly safe,
+it's only the preempt-RT users that will infringe unless all their RT
+code is GPL'd.
 
->  It doesn't seem too uncommon to me to
-> take a spinlock. Preempt-rt reliability cannot be remotely compared to
-> RTAI.
-
-It can come close, but not all the way, no.
-
-Esben
-
-
+This is JFYI.

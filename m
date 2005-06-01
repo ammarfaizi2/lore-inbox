@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbVFAP0Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261434AbVFAPgz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261425AbVFAP0Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 11:26:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbVFAPYw
+	id S261434AbVFAPgz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 11:36:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbVFAPgy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 11:24:52 -0400
-Received: from opersys.com ([64.40.108.71]:46098 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261433AbVFAPXU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 11:23:20 -0400
-Message-ID: <429DD533.6080407@opersys.com>
-Date: Wed, 01 Jun 2005 11:33:07 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Wed, 1 Jun 2005 11:36:54 -0400
+Received: from mail.timesys.com ([65.117.135.102]:52965 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S261434AbVFAPff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 11:35:35 -0400
+Message-ID: <429DD553.3080509@timesys.com>
+Date: Wed, 01 Jun 2005 11:33:39 -0400
+From: john cooper <john.cooper@timesys.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Andrea Arcangeli <andrea@suse.de>
-CC: Esben Nielsen <simlo@phys.au.dk>, Ingo Molnar <mingo@elte.hu>,
-       Paulo Marques <pmarques@grupopie.com>,
+CC: Paulo Marques <pmarques@grupopie.com>, Ingo Molnar <mingo@elte.hu>,
        "Paul E. McKenney" <paulmck@us.ibm.com>,
-       James Bruce <bruce@andrew.cmu.edu>,
+       Esben Nielsen <simlo@phys.au.dk>, James Bruce <bruce@andrew.cmu.edu>,
        Nick Piggin <nickpiggin@yahoo.com.au>,
        "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
        Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
-       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       john cooper <john.cooper@timesys.com>
 Subject: Re: RT patch acceptance
-References: <20050601143202.GI5413@g5.random> <Pine.OSF.4.05.10506011640360.1707-100000@da410.phys.au.dk> <20050601150527.GL5413@g5.random>
-In-Reply-To: <20050601150527.GL5413@g5.random>
-Content-Type: text/plain; charset=us-ascii
+References: <Pine.OSF.4.05.10505311652140.1707-100000@da410.phys.au.dk> <20050531161157.GQ5413@g5.random> <20050531183627.GA1880@us.ibm.com> <20050531204544.GU5413@g5.random> <429DA7AE.5000304@grupopie.com> <20050601135154.GF5413@g5.random> <20050601141919.GA9282@elte.hu> <20050601143202.GI5413@g5.random> <20050601144612.GJ5413@g5.random> <429DCD25.3010800@grupopie.com> <20050601151701.GM5413@g5.random>
+In-Reply-To: <20050601151701.GM5413@g5.random>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 01 Jun 2005 15:28:48.0562 (UTC) FILETIME=[9B527920:01C566BE]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Andrea,
-
-I've been involved with understanding/fighting this patent for a very
-long time. I must have read it at least a dozen times. To the best of
-my understanding as a non-lawyer, I don't see how PREEMPT_RT could
-fall as being covered by it.
-
 Andrea Arcangeli wrote:
-> The patent text goes like this "providing a software emulator to disable
-> and enable interrupts from the general purpose operating system; 
-> 
-> marking interrupts as "soft disabled" and not "soft enabled" in response
-> to requests from the general purpose operating system to disable
-> interrupts; ".
+> The reason I raise this topic is that the fact spin_lock_irq wasn't
+> disabling irqs like it does in the non-RT configuration, sounded like
+> the technique described in the patent and it's one technique I always
+> considered not-usable. I possibly wrongly remembered that redefining the
+> disable-interrupt operation not to disable irqs, was the crucial point
+> of the patent. But as I've said I'm not a lawyer and so I may have
+> misunderstood completely the technique that the rtlinux patent is
+> covering (the way patents are written is not very readable to me).
 
-What you are refering to is claim #7. The text does resemble this, but it's
-in a wider context of all the other statements within that claim, the main
-part being what I quoted earlier.
+FWIW the decoupling of interrupt mask levels from
+spinlocks is a technique which predates the patent
+under discussion by a decade or so.  And yes IANAL
+as well but it seems the patent would/should not
+have been awarded if it conflicted/overlapped with
+preexisting usage.  I'd hazard this is a non-issue.
 
-Now in regards to emulating interrupts in a general purpose OS, then this
-has been done many times over prior to the patent. Here's one readily
-available example in the Unix world:
-http://www.usenix.org/publications/library/proceedings/micro93/stodolsky.html
+-john
 
-Please drop this one Andrea.
 
-Karim
 -- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+john.cooper@timesys.com

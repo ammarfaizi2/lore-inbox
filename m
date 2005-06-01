@@ -1,1886 +1,1416 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVFASqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261531AbVFAScn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261194AbVFASqT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 14:46:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbVFASoM
+	id S261531AbVFAScn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 14:32:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbVFAS2j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 14:44:12 -0400
-Received: from post-22.mail.nl.demon.net ([194.159.73.192]:55312 "EHLO
-	post-22.mail.nl.demon.net") by vger.kernel.org with ESMTP
-	id S261505AbVFASMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 14:12:31 -0400
-Date: Wed, 1 Jun 2005 20:12:31 +0200
-From: Rutger Nijlunsing <rutger@nospam.com>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.12-rc5-mm1 Oops
-Message-ID: <20050601181231.GA4836@nospam.com>
-Reply-To: linux-kernel@tux.tmfweb.nl
+	Wed, 1 Jun 2005 14:28:39 -0400
+Received: from fed1rmmtao09.cox.net ([68.230.241.30]:54479 "EHLO
+	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S261547AbVFASPV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 14:15:21 -0400
+Date: Wed, 1 Jun 2005 11:15:17 -0700
+From: Matt Porter <mporter@kernel.crashing.org>
+To: torvalds@osdl.org, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
+Subject: [PATCH][2/3] RapidIO support: ppc32
+Message-ID: <20050601111516.B16559@cox.net>
+References: <20050601110836.A16559@cox.net>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="7JfCtLOvnd9MIVvH"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: M38c
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050601110836.A16559@cox.net>; from mporter@kernel.crashing.org on Wed, Jun 01, 2005 at 11:08:36AM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-
-...
-agpgart: Putting AGP V3 device at 0000:01:00.0 into 4x mode
-[drm] Loading R200 Microcode
-mtrr: type mismatch for e0000000,8000000 old: write-back new: write-combining
-Unable to handle kernel NULL pointer dereference at virtual address 000000a4
- printing eip:
-c02fd579
-*pde = 00000000
-Oops: 0002 [#1]
-PREEMPT SMP 
-Modules linked in: bridge 8139cp skge snd_intel8x0 8139too
-CPU:    0
-EIP:    0060:[<c02fd579>]    Not tainted VLI
-EFLAGS: 00010282   (2.6.12-rc5-mm1) 
-EIP is at snd_pcm_mmap_data_close+0x9/0x12
-eax: 00000000   ebx: deb7cc7c   ecx: deb7cc7c   edx: c02fd570
-esi: deb7cca8   edi: d799e780   ebp: d6a3ff44   esp: d6a3ff44
-ds: 007b   es: 007b   ss: 0068
-Process aplay (pid: 3820, threadinfo=d6a3f000 task=d6a47540)
-Stack: d6a3ff5c c0152545 d5e6ae88 d5e6ae88 dea44d00 dea44d00 d6a3ff6c c0153c79 
-       fffffffe 00000000 d6a3ff7c c0153c9a b7f84000 b7f82000 d6a3ffa0 c0154047 
-       b7f82000 b7f84000 d5e6ae88 d7e78e88 dea44d00 dea44d30 b7f82000 d6a3ffb4 
-Call Trace:
- [<c0103e3a>] show_stack+0x7a/0x90
- [<c0103fc2>] show_registers+0x152/0x1c0
- [<c01041d9>] die+0xf9/0x190
- [<c0115f2f>] do_page_fault+0x32f/0x67a
- [<c0103a83>] error_code+0x4f/0x54
- [<c0152545>] remove_vm_struct+0x85/0x90
- [<c0153c79>] unmap_vma+0x59/0x60
- [<c0153c9a>] unmap_vma_list+0x1a/0x30
- [<c0154047>] do_munmap+0xe7/0x120
- [<c01540c9>] sys_munmap+0x49/0x70
- [<c0102f49>] syscall_call+0x7/0xb
-Code: 76 00 55 8b 40 50 89 e5 8b 40 60 f0 ff 80 a4 00 00 00 5d c3 8d b4 26 00 00 00 00 8d bc 27 00 00 00 00 55 8b 40 50 89 e5 8b 40 60 <f0> ff 88 a4 00 00 00 5d c3 51 52 e8 a7 56 09 00 5a 59 e9 6e bf 
-
-
-.config attached.
-
-The system has 2 soundcards, one on-board intel8x0 (compiled as
-module), and a PCI SB-Live (compiled in the kernel). This forces the
-order of the cards to be as I want them without further configuration
-:)
-
--- 
-Rutger Nijlunsing ---------------------------------- eludias ed dse.nl
-never attribute to a conspiracy which can be explained by incompetence
-----------------------------------------------------------------------
-
---7JfCtLOvnd9MIVvH
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=".config"
-
-#
-# Automatically generated make config: don't edit
-# Linux kernel version: 2.6.12-rc5-mm1
-# Mon May 30 23:16:47 2005
-#
-CONFIG_X86=y
-CONFIG_MMU=y
-CONFIG_UID16=y
-CONFIG_GENERIC_ISA_DMA=y
-CONFIG_GENERIC_IOMAP=y
-
-#
-# Code maturity level options
-#
-CONFIG_EXPERIMENTAL=y
-# CONFIG_CLEAN_COMPILE is not set
-CONFIG_BROKEN=y
-CONFIG_BROKEN_ON_SMP=y
-CONFIG_LOCK_KERNEL=y
-CONFIG_INIT_ENV_ARG_LIMIT=32
-
-#
-# General setup
-#
-CONFIG_LOCALVERSION=""
-CONFIG_SWAP=y
-CONFIG_SYSVIPC=y
-CONFIG_POSIX_MQUEUE=y
-# CONFIG_BSD_PROCESS_ACCT is not set
-CONFIG_SYSCTL=y
-CONFIG_AUDIT=y
-CONFIG_AUDITSYSCALL=y
-CONFIG_HOTPLUG=y
-CONFIG_KOBJECT_UEVENT=y
-CONFIG_IKCONFIG=y
-CONFIG_IKCONFIG_PROC=y
-# CONFIG_CPUSETS is not set
-CONFIG_EMBEDDED=y
-CONFIG_KALLSYMS=y
-# CONFIG_KALLSYMS_ALL is not set
-# CONFIG_KALLSYMS_EXTRA_PASS is not set
-CONFIG_PRINTK=y
-CONFIG_BUG=y
-CONFIG_BASE_FULL=y
-CONFIG_FUTEX=y
-CONFIG_EPOLL=y
-# CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
-CONFIG_SHMEM=y
-CONFIG_CC_ALIGN_FUNCTIONS=0
-CONFIG_CC_ALIGN_LABELS=0
-CONFIG_CC_ALIGN_LOOPS=0
-CONFIG_CC_ALIGN_JUMPS=0
-# CONFIG_TINY_SHMEM is not set
-CONFIG_BASE_SMALL=0
-
-#
-# Loadable module support
-#
-CONFIG_MODULES=y
-CONFIG_MODULE_UNLOAD=y
-CONFIG_MODULE_FORCE_UNLOAD=y
-CONFIG_OBSOLETE_MODPARM=y
-# CONFIG_MODVERSIONS is not set
-# CONFIG_MODULE_SRCVERSION_ALL is not set
-CONFIG_KMOD=y
-CONFIG_STOP_MACHINE=y
-
-#
-# Processor type and features
-#
-CONFIG_X86_PC=y
-# CONFIG_X86_ELAN is not set
-# CONFIG_X86_VOYAGER is not set
-# CONFIG_X86_NUMAQ is not set
-# CONFIG_X86_SUMMIT is not set
-# CONFIG_X86_BIGSMP is not set
-# CONFIG_X86_VISWS is not set
-# CONFIG_X86_GENERICARCH is not set
-# CONFIG_X86_ES7000 is not set
-# CONFIG_M386 is not set
-# CONFIG_M486 is not set
-# CONFIG_M586 is not set
-# CONFIG_M586TSC is not set
-# CONFIG_M586MMX is not set
-# CONFIG_M686 is not set
-# CONFIG_MPENTIUMII is not set
-# CONFIG_MPENTIUMIII is not set
-# CONFIG_MPENTIUMM is not set
-CONFIG_MPENTIUM4=y
-# CONFIG_MK6 is not set
-# CONFIG_MK7 is not set
-# CONFIG_MK8 is not set
-# CONFIG_MCRUSOE is not set
-# CONFIG_MEFFICEON is not set
-# CONFIG_MWINCHIPC6 is not set
-# CONFIG_MWINCHIP2 is not set
-# CONFIG_MWINCHIP3D is not set
-# CONFIG_MGEODEGX1 is not set
-# CONFIG_MCYRIXIII is not set
-# CONFIG_MVIAC3_2 is not set
-CONFIG_X86_GENERIC=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=7
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_GENERIC_CALIBRATE_DELAY=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_HPET_TIMER=y
-CONFIG_HPET_EMULATE_RTC=y
-CONFIG_SMP=y
-CONFIG_NR_CPUS=2
-CONFIG_SCHED_SMT=y
-# CONFIG_PREEMPT_NONE is not set
-# CONFIG_PREEMPT_VOLUNTARY is not set
-CONFIG_PREEMPT=y
-CONFIG_PREEMPT_BKL=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-CONFIG_X86_MCE_NONFATAL=y
-CONFIG_X86_MCE_P4THERMAL=y
-# CONFIG_TOSHIBA is not set
-# CONFIG_I8K is not set
-# CONFIG_X86_REBOOTFIXUPS is not set
-CONFIG_MICROCODE=m
-# CONFIG_X86_MSR is not set
-# CONFIG_X86_CPUID is not set
-
-#
-# Firmware Drivers
-#
-# CONFIG_EDD is not set
-CONFIG_NOHIGHMEM=y
-# CONFIG_HIGHMEM4G is not set
-# CONFIG_HIGHMEM64G is not set
-CONFIG_SELECT_MEMORY_MODEL=y
-CONFIG_FLATMEM_MANUAL=y
-# CONFIG_DISCONTIGMEM_MANUAL is not set
-# CONFIG_SPARSEMEM_MANUAL is not set
-CONFIG_FLATMEM=y
-CONFIG_FLAT_NODE_MEM_MAP=y
-CONFIG_HAVE_ARCH_EARLY_PFN_TO_NID=y
-# CONFIG_MATH_EMULATION is not set
-CONFIG_MTRR=y
-# CONFIG_EFI is not set
-CONFIG_IRQBALANCE=y
-CONFIG_HAVE_DEC_LOCK=y
-CONFIG_REGPARM=y
-# CONFIG_SECCOMP is not set
-
-#
-# Performance-monitoring counters support
-#
-CONFIG_PERFCTR=y
-# CONFIG_PERFCTR_INIT_TESTS is not set
-CONFIG_PERFCTR_VIRTUAL=y
-CONFIG_PERFCTR_INTERRUPT_SUPPORT=y
-CONFIG_PERFCTR_CPUS_FORBIDDEN_MASK=y
-CONFIG_PHYSICAL_START=0x100000
-CONFIG_KEXEC=y
-
-#
-# Power management options (ACPI, APM)
-#
-CONFIG_PM=y
-# CONFIG_PM_DEBUG is not set
-
-#
-# ACPI (Advanced Configuration and Power Interface) Support
-#
-CONFIG_ACPI=y
-CONFIG_ACPI_BOOT=y
-CONFIG_ACPI_INTERPRETER=y
-CONFIG_ACPI_AC=y
-CONFIG_ACPI_BATTERY=y
-CONFIG_ACPI_BUTTON=y
-CONFIG_ACPI_VIDEO=y
-CONFIG_ACPI_HOTKEY=y
-CONFIG_ACPI_FAN=y
-CONFIG_ACPI_PROCESSOR=y
-CONFIG_ACPI_THERMAL=y
-# CONFIG_ACPI_ASUS is not set
-# CONFIG_ACPI_IBM is not set
-# CONFIG_ACPI_TOSHIBA is not set
-# CONFIG_ACPI_CUSTOM_DSDT is not set
-CONFIG_ACPI_BLACKLIST_YEAR=0
-CONFIG_ACPI_DEBUG=y
-CONFIG_ACPI_BUS=y
-CONFIG_ACPI_EC=y
-CONFIG_ACPI_POWER=y
-CONFIG_ACPI_PCI=y
-CONFIG_ACPI_SYSTEM=y
-CONFIG_X86_PM_TIMER=y
-# CONFIG_ACPI_CONTAINER is not set
-
-#
-# APM (Advanced Power Management) BIOS Support
-#
-# CONFIG_APM is not set
-# CONFIG_HZ_100 is not set
-CONFIG_HZ_250=y
-# CONFIG_HZ_1000 is not set
-CONFIG_HZ=250
-
-#
-# CPU Frequency scaling
-#
-# CONFIG_CPU_FREQ is not set
-
-#
-# Bus options (PCI, PCMCIA, EISA, MCA, ISA)
-#
-CONFIG_PCI=y
-# CONFIG_PCI_GOBIOS is not set
-# CONFIG_PCI_GOMMCONFIG is not set
-# CONFIG_PCI_GODIRECT is not set
-CONFIG_PCI_GOANY=y
-CONFIG_PCI_BIOS=y
-CONFIG_PCI_DIRECT=y
-CONFIG_PCI_MMCONFIG=y
-# CONFIG_PCIEPORTBUS is not set
-# CONFIG_PCI_MSI is not set
-CONFIG_PCI_LEGACY_PROC=y
-CONFIG_PCI_NAMES=y
-# CONFIG_PCI_DEBUG is not set
-CONFIG_ISA_DMA_API=y
-# CONFIG_ISA is not set
-# CONFIG_MCA is not set
-# CONFIG_SCx200 is not set
-# CONFIG_HOTPLUG_CPU is not set
-
-#
-# PCCARD (PCMCIA/CardBus) support
-#
-# CONFIG_PCCARD is not set
-
-#
-# PCI Hotplug Support
-#
-# CONFIG_HOTPLUG_PCI is not set
-
-#
-# Executable file formats
-#
-CONFIG_BINFMT_ELF=y
-CONFIG_BINFMT_AOUT=m
-CONFIG_BINFMT_MISC=m
-
-#
-# Device Drivers
-#
-
-#
-# Generic Driver Options
-#
-# CONFIG_STANDALONE is not set
-# CONFIG_PREVENT_FIRMWARE_BUILD is not set
-CONFIG_FW_LOADER=m
-# CONFIG_DEBUG_DRIVER is not set
-
-#
-# Connector - unified userspace <-> kernelspace linker
-#
-CONFIG_CONNECTOR=y
-# CONFIG_FORK_CONNECTOR is not set
-
-#
-# Memory Technology Devices (MTD)
-#
-CONFIG_MTD=m
-# CONFIG_MTD_DEBUG is not set
-# CONFIG_MTD_CONCAT is not set
-# CONFIG_MTD_PARTITIONS is not set
-
-#
-# User Modules And Translation Layers
-#
-# CONFIG_MTD_CHAR is not set
-# CONFIG_MTD_BLOCK is not set
-# CONFIG_MTD_BLOCK_RO is not set
-# CONFIG_FTL is not set
-# CONFIG_NFTL is not set
-# CONFIG_INFTL is not set
-
-#
-# RAM/ROM/Flash chip drivers
-#
-# CONFIG_MTD_CFI is not set
-# CONFIG_MTD_JEDECPROBE is not set
-CONFIG_MTD_MAP_BANK_WIDTH_1=y
-CONFIG_MTD_MAP_BANK_WIDTH_2=y
-CONFIG_MTD_MAP_BANK_WIDTH_4=y
-# CONFIG_MTD_MAP_BANK_WIDTH_8 is not set
-# CONFIG_MTD_MAP_BANK_WIDTH_16 is not set
-# CONFIG_MTD_MAP_BANK_WIDTH_32 is not set
-CONFIG_MTD_CFI_I1=y
-CONFIG_MTD_CFI_I2=y
-# CONFIG_MTD_CFI_I4 is not set
-# CONFIG_MTD_CFI_I8 is not set
-# CONFIG_MTD_RAM is not set
-# CONFIG_MTD_ROM is not set
-# CONFIG_MTD_ABSENT is not set
-# CONFIG_MTD_OBSOLETE_CHIPS is not set
-
-#
-# Mapping drivers for chip access
-#
-# CONFIG_MTD_COMPLEX_MAPPINGS is not set
-# CONFIG_MTD_PLATRAM is not set
-
-#
-# Self-contained MTD device drivers
-#
-# CONFIG_MTD_PMC551 is not set
-# CONFIG_MTD_SLRAM is not set
-# CONFIG_MTD_PHRAM is not set
-# CONFIG_MTD_MTDRAM is not set
-CONFIG_MTD_BLKMTD=m
-# CONFIG_MTD_BLOCK2MTD is not set
-
-#
-# Disk-On-Chip Device Drivers
-#
-# CONFIG_MTD_DOC2000 is not set
-# CONFIG_MTD_DOC2001 is not set
-# CONFIG_MTD_DOC2001PLUS is not set
-
-#
-# NAND Flash Device Drivers
-#
-# CONFIG_MTD_NAND is not set
-
-#
-# Parallel port support
-#
-CONFIG_PARPORT=y
-CONFIG_PARPORT_PC=y
-# CONFIG_PARPORT_SERIAL is not set
-CONFIG_PARPORT_PC_FIFO=y
-# CONFIG_PARPORT_PC_SUPERIO is not set
-# CONFIG_PARPORT_GSC is not set
-CONFIG_PARPORT_1284=y
-
-#
-# Plug and Play support
-#
-CONFIG_PNP=y
-# CONFIG_PNP_DEBUG is not set
-
-#
-# Protocols
-#
-CONFIG_PNPACPI=y
-
-#
-# Block devices
-#
-CONFIG_BLK_DEV_FD=y
-# CONFIG_PARIDE is not set
-# CONFIG_BLK_CPQ_DA is not set
-# CONFIG_BLK_CPQ_CISS_DA is not set
-# CONFIG_BLK_DEV_DAC960 is not set
-# CONFIG_BLK_DEV_UMEM is not set
-# CONFIG_BLK_DEV_COW_COMMON is not set
-CONFIG_BLK_DEV_LOOP=y
-CONFIG_BLK_DEV_CRYPTOLOOP=y
-CONFIG_BLK_DEV_NBD=m
-# CONFIG_BLK_DEV_SX8 is not set
-# CONFIG_BLK_DEV_UB is not set
-CONFIG_BLK_DEV_RAM=y
-CONFIG_BLK_DEV_RAM_COUNT=16
-CONFIG_BLK_DEV_RAM_SIZE=4096
-CONFIG_BLK_DEV_INITRD=y
-CONFIG_INITRAMFS_SOURCE=""
-# CONFIG_LBD is not set
-CONFIG_CDROM_PKTCDVD=m
-CONFIG_CDROM_PKTCDVD_BUFFERS=8
-# CONFIG_CDROM_PKTCDVD_WCACHE is not set
-
-#
-# IO Schedulers
-#
-CONFIG_IOSCHED_NOOP=y
-CONFIG_IOSCHED_AS=y
-CONFIG_IOSCHED_DEADLINE=y
-CONFIG_IOSCHED_CFQ=y
-# CONFIG_ATA_OVER_ETH is not set
-
-#
-# ATA/ATAPI/MFM/RLL support
-#
-CONFIG_IDE=y
-CONFIG_BLK_DEV_IDE=y
-
-#
-# Please see Documentation/ide.txt for help/info on IDE drives
-#
-# CONFIG_BLK_DEV_IDE_SATA is not set
-# CONFIG_BLK_DEV_HD_IDE is not set
-CONFIG_BLK_DEV_IDEDISK=y
-CONFIG_IDEDISK_MULTI_MODE=y
-CONFIG_BLK_DEV_IDECD=y
-# CONFIG_BLK_DEV_IDETAPE is not set
-# CONFIG_BLK_DEV_IDEFLOPPY is not set
-CONFIG_BLK_DEV_IDESCSI=m
-# CONFIG_IDE_TASK_IOCTL is not set
-
-#
-# IDE chipset support/bugfixes
-#
-CONFIG_IDE_GENERIC=y
-# CONFIG_BLK_DEV_CMD640 is not set
-CONFIG_BLK_DEV_IDEPNP=y
-CONFIG_BLK_DEV_IDEPCI=y
-CONFIG_IDEPCI_SHARE_IRQ=y
-# CONFIG_BLK_DEV_OFFBOARD is not set
-CONFIG_BLK_DEV_GENERIC=y
-# CONFIG_BLK_DEV_OPTI621 is not set
-# CONFIG_BLK_DEV_RZ1000 is not set
-CONFIG_BLK_DEV_IDEDMA_PCI=y
-# CONFIG_BLK_DEV_IDEDMA_FORCED is not set
-CONFIG_IDEDMA_PCI_AUTO=y
-# CONFIG_IDEDMA_ONLYDISK is not set
-# CONFIG_BLK_DEV_AEC62XX is not set
-# CONFIG_BLK_DEV_ALI15X3 is not set
-# CONFIG_BLK_DEV_AMD74XX is not set
-# CONFIG_BLK_DEV_ATIIXP is not set
-# CONFIG_BLK_DEV_CMD64X is not set
-# CONFIG_BLK_DEV_TRIFLEX is not set
-# CONFIG_BLK_DEV_CY82C693 is not set
-# CONFIG_BLK_DEV_CS5520 is not set
-# CONFIG_BLK_DEV_CS5530 is not set
-# CONFIG_BLK_DEV_HPT34X is not set
-# CONFIG_BLK_DEV_HPT366 is not set
-# CONFIG_BLK_DEV_SC1200 is not set
-CONFIG_BLK_DEV_PIIX=y
-# CONFIG_BLK_DEV_NS87415 is not set
-# CONFIG_BLK_DEV_PDC202XX_OLD is not set
-# CONFIG_BLK_DEV_PDC202XX_NEW is not set
-# CONFIG_BLK_DEV_SVWKS is not set
-# CONFIG_BLK_DEV_SIIMAGE is not set
-# CONFIG_BLK_DEV_SIS5513 is not set
-# CONFIG_BLK_DEV_SLC90E66 is not set
-# CONFIG_BLK_DEV_TRM290 is not set
-# CONFIG_BLK_DEV_VIA82CXXX is not set
-# CONFIG_IDE_ARM is not set
-CONFIG_BLK_DEV_IDEDMA=y
-# CONFIG_IDEDMA_IVB is not set
-CONFIG_IDEDMA_AUTO=y
-# CONFIG_BLK_DEV_HD is not set
-
-#
-# SCSI device support
-#
-CONFIG_SCSI=y
-# CONFIG_SCSI_PROC_FS is not set
-
-#
-# SCSI support type (disk, tape, CD-ROM)
-#
-CONFIG_BLK_DEV_SD=m
-# CONFIG_CHR_DEV_ST is not set
-# CONFIG_CHR_DEV_OSST is not set
-CONFIG_BLK_DEV_SR=m
-# CONFIG_BLK_DEV_SR_VENDOR is not set
-CONFIG_CHR_DEV_SG=m
-# CONFIG_CHR_DEV_SCH is not set
-
-#
-# Some SCSI devices (e.g. CD jukebox) support multiple LUNs
-#
-CONFIG_SCSI_MULTI_LUN=y
-# CONFIG_SCSI_CONSTANTS is not set
-# CONFIG_SCSI_LOGGING is not set
-
-#
-# SCSI Transport Attributes
-#
-# CONFIG_SCSI_SPI_ATTRS is not set
-# CONFIG_SCSI_FC_ATTRS is not set
-# CONFIG_SCSI_ISCSI_ATTRS is not set
-
-#
-# SCSI low-level drivers
-#
-# CONFIG_BLK_DEV_3W_XXXX_RAID is not set
-# CONFIG_SCSI_3W_9XXX is not set
-# CONFIG_SCSI_ARCMSR is not set
-# CONFIG_SCSI_ACARD is not set
-# CONFIG_SCSI_AACRAID is not set
-# CONFIG_SCSI_AIC7XXX is not set
-# CONFIG_SCSI_AIC7XXX_OLD is not set
-# CONFIG_SCSI_AIC79XX is not set
-# CONFIG_SCSI_DPT_I2O is not set
-# CONFIG_SCSI_ADVANSYS is not set
-# CONFIG_MEGARAID_NEWGEN is not set
-# CONFIG_MEGARAID_LEGACY is not set
-# CONFIG_MEGARAID_SAS is not set
-# CONFIG_SCSI_SATA is not set
-# CONFIG_SCSI_BUSLOGIC is not set
-# CONFIG_SCSI_CPQFCTS is not set
-# CONFIG_SCSI_DMX3191D is not set
-# CONFIG_SCSI_EATA is not set
-# CONFIG_SCSI_EATA_PIO is not set
-# CONFIG_SCSI_FUTURE_DOMAIN is not set
-# CONFIG_SCSI_GDTH is not set
-# CONFIG_SCSI_IPS is not set
-# CONFIG_SCSI_INITIO is not set
-# CONFIG_SCSI_INIA100 is not set
-# CONFIG_SCSI_PPA is not set
-# CONFIG_SCSI_IMM is not set
-# CONFIG_SCSI_SYM53C8XX_2 is not set
-# CONFIG_SCSI_IPR is not set
-# CONFIG_SCSI_QLOGIC_ISP is not set
-# CONFIG_SCSI_QLOGIC_FC is not set
-# CONFIG_SCSI_QLOGIC_1280 is not set
-CONFIG_SCSI_QLA2XXX=y
-# CONFIG_SCSI_QLA21XX is not set
-# CONFIG_SCSI_QLA22XX is not set
-# CONFIG_SCSI_QLA2300 is not set
-# CONFIG_SCSI_QLA2322 is not set
-# CONFIG_SCSI_QLA6312 is not set
-# CONFIG_SCSI_LPFC is not set
-# CONFIG_SCSI_DC395x is not set
-# CONFIG_SCSI_DC390T is not set
-# CONFIG_SCSI_NSP32 is not set
-# CONFIG_SCSI_DEBUG is not set
-
-#
-# Multi-device support (RAID and LVM)
-#
-CONFIG_MD=y
-CONFIG_BLK_DEV_MD=y
-# CONFIG_MD_LINEAR is not set
-CONFIG_MD_RAID0=m
-CONFIG_MD_RAID1=y
-# CONFIG_MD_RAID10 is not set
-# CONFIG_MD_RAID5 is not set
-# CONFIG_MD_RAID6 is not set
-# CONFIG_MD_MULTIPATH is not set
-# CONFIG_MD_FAULTY is not set
-CONFIG_BLK_DEV_DM=m
-CONFIG_DM_CRYPT=m
-CONFIG_DM_SNAPSHOT=m
-CONFIG_DM_MIRROR=m
-# CONFIG_DM_ZERO is not set
-# CONFIG_DM_MULTIPATH is not set
-
-#
-# Fusion MPT device support
-#
-# CONFIG_FUSION is not set
-# CONFIG_FUSION_SPI is not set
-# CONFIG_FUSION_FC is not set
-
-#
-# IEEE 1394 (FireWire) support
-#
-# CONFIG_IEEE1394 is not set
-
-#
-# I2O device support
-#
-# CONFIG_I2O is not set
-
-#
-# Networking support
-#
-CONFIG_NET=y
-
-#
-# Networking options
-#
-CONFIG_PACKET=m
-CONFIG_PACKET_MMAP=y
-CONFIG_UNIX=y
-CONFIG_NET_KEY=y
-CONFIG_INET=y
-CONFIG_IP_MULTICAST=y
-# CONFIG_IP_ADVANCED_ROUTER is not set
-# CONFIG_IP_PNP is not set
-# CONFIG_NET_IPIP is not set
-# CONFIG_NET_IPGRE is not set
-# CONFIG_IP_MROUTE is not set
-# CONFIG_ARPD is not set
-CONFIG_SYN_COOKIES=y
-CONFIG_INET_AH=m
-CONFIG_INET_ESP=m
-CONFIG_INET_IPCOMP=m
-CONFIG_INET_TUNNEL=m
-CONFIG_IP_TCPDIAG=y
-# CONFIG_IP_TCPDIAG_IPV6 is not set
-
-#
-# IP: Virtual Server Configuration
-#
-# CONFIG_IP_VS is not set
-# CONFIG_IPV6 is not set
-CONFIG_NETFILTER=y
-# CONFIG_NETFILTER_DEBUG is not set
-CONFIG_BRIDGE_NETFILTER=y
-
-#
-# IP: Netfilter Configuration
-#
-CONFIG_IP_NF_CONNTRACK=m
-CONFIG_IP_NF_CT_ACCT=y
-# CONFIG_IP_NF_CONNTRACK_MARK is not set
-# CONFIG_IP_NF_CT_PROTO_SCTP is not set
-CONFIG_IP_NF_FTP=m
-CONFIG_IP_NF_IRC=m
-CONFIG_IP_NF_TFTP=m
-# CONFIG_IP_NF_AMANDA is not set
-CONFIG_IP_NF_QUEUE=m
-CONFIG_IP_NF_IPTABLES=m
-CONFIG_IP_NF_MATCH_LIMIT=m
-CONFIG_IP_NF_MATCH_IPRANGE=m
-CONFIG_IP_NF_MATCH_MAC=m
-CONFIG_IP_NF_MATCH_PKTTYPE=m
-CONFIG_IP_NF_MATCH_MARK=m
-CONFIG_IP_NF_MATCH_MULTIPORT=m
-CONFIG_IP_NF_MATCH_TOS=m
-CONFIG_IP_NF_MATCH_RECENT=m
-CONFIG_IP_NF_MATCH_ECN=m
-CONFIG_IP_NF_MATCH_DSCP=m
-CONFIG_IP_NF_MATCH_AH_ESP=m
-CONFIG_IP_NF_MATCH_LENGTH=m
-CONFIG_IP_NF_MATCH_TTL=m
-CONFIG_IP_NF_MATCH_TCPMSS=m
-CONFIG_IP_NF_MATCH_HELPER=m
-CONFIG_IP_NF_MATCH_STATE=m
-CONFIG_IP_NF_MATCH_CONNTRACK=m
-CONFIG_IP_NF_MATCH_OWNER=m
-# CONFIG_IP_NF_MATCH_PHYSDEV is not set
-CONFIG_IP_NF_MATCH_ADDRTYPE=m
-CONFIG_IP_NF_MATCH_REALM=m
-# CONFIG_IP_NF_MATCH_SCTP is not set
-CONFIG_IP_NF_MATCH_COMMENT=m
-CONFIG_IP_NF_MATCH_HASHLIMIT=m
-CONFIG_IP_NF_FILTER=m
-CONFIG_IP_NF_TARGET_REJECT=m
-CONFIG_IP_NF_TARGET_LOG=m
-CONFIG_IP_NF_TARGET_ULOG=m
-CONFIG_IP_NF_TARGET_TCPMSS=m
-CONFIG_IP_NF_NAT=m
-CONFIG_IP_NF_NAT_NEEDED=y
-CONFIG_IP_NF_TARGET_MASQUERADE=m
-CONFIG_IP_NF_TARGET_REDIRECT=m
-CONFIG_IP_NF_TARGET_NETMAP=m
-CONFIG_IP_NF_TARGET_SAME=m
-# CONFIG_IP_NF_NAT_SNMP_BASIC is not set
-CONFIG_IP_NF_NAT_IRC=m
-CONFIG_IP_NF_NAT_FTP=m
-CONFIG_IP_NF_NAT_TFTP=m
-CONFIG_IP_NF_MANGLE=m
-CONFIG_IP_NF_TARGET_TOS=m
-CONFIG_IP_NF_TARGET_ECN=m
-CONFIG_IP_NF_TARGET_DSCP=m
-CONFIG_IP_NF_TARGET_MARK=m
-CONFIG_IP_NF_TARGET_CLASSIFY=m
-CONFIG_IP_NF_RAW=m
-CONFIG_IP_NF_TARGET_NOTRACK=m
-CONFIG_IP_NF_ARPTABLES=m
-CONFIG_IP_NF_ARPFILTER=m
-CONFIG_IP_NF_ARP_MANGLE=m
-
-#
-# Bridge: Netfilter Configuration
-#
-# CONFIG_BRIDGE_NF_EBTABLES is not set
-CONFIG_XFRM=y
-CONFIG_XFRM_USER=m
-
-#
-# SCTP Configuration (EXPERIMENTAL)
-#
-# CONFIG_IP_SCTP is not set
-# CONFIG_ATM is not set
-CONFIG_BRIDGE=m
-CONFIG_VLAN_8021Q=m
-# CONFIG_DECNET is not set
-# CONFIG_LLC2 is not set
-# CONFIG_IPX is not set
-# CONFIG_ATALK is not set
-# CONFIG_X25 is not set
-# CONFIG_LAPB is not set
-CONFIG_NET_DIVERT=y
-# CONFIG_ECONET is not set
-# CONFIG_WAN_ROUTER is not set
-
-#
-# QoS and/or fair queueing
-#
-CONFIG_NET_SCHED=y
-CONFIG_NET_SCH_CLK_JIFFIES=y
-# CONFIG_NET_SCH_CLK_GETTIMEOFDAY is not set
-# CONFIG_NET_SCH_CLK_CPU is not set
-CONFIG_NET_SCH_CBQ=m
-CONFIG_NET_SCH_HTB=m
-CONFIG_NET_SCH_HFSC=m
-CONFIG_NET_SCH_PRIO=m
-CONFIG_NET_SCH_RED=m
-CONFIG_NET_SCH_SFQ=m
-CONFIG_NET_SCH_TEQL=m
-CONFIG_NET_SCH_TBF=m
-CONFIG_NET_SCH_GRED=m
-CONFIG_NET_SCH_DSMARK=m
-# CONFIG_NET_SCH_NETEM is not set
-CONFIG_NET_SCH_INGRESS=m
-CONFIG_NET_QOS=y
-CONFIG_NET_ESTIMATOR=y
-CONFIG_NET_CLS=y
-CONFIG_NET_CLS_BASIC=m
-CONFIG_NET_CLS_TCINDEX=m
-CONFIG_NET_CLS_ROUTE4=m
-CONFIG_NET_CLS_ROUTE=y
-CONFIG_NET_CLS_FW=m
-CONFIG_NET_CLS_U32=m
-# CONFIG_CLS_U32_PERF is not set
-# CONFIG_NET_CLS_IND is not set
-# CONFIG_CLS_U32_MARK is not set
-CONFIG_NET_CLS_RSVP=m
-CONFIG_NET_CLS_RSVP6=m
-CONFIG_NET_EMATCH=y
-CONFIG_NET_EMATCH_STACK=32
-# CONFIG_NET_EMATCH_CMP is not set
-# CONFIG_NET_EMATCH_NBYTE is not set
-# CONFIG_NET_EMATCH_U32 is not set
-# CONFIG_NET_EMATCH_META is not set
-# CONFIG_NET_CLS_ACT is not set
-CONFIG_NET_CLS_POLICE=y
-
-#
-# Network testing
-#
-# CONFIG_NET_PKTGEN is not set
-# CONFIG_KGDBOE is not set
-# CONFIG_NETPOLL is not set
-# CONFIG_NETPOLL_RX is not set
-# CONFIG_NETPOLL_TRAP is not set
-# CONFIG_NET_POLL_CONTROLLER is not set
-# CONFIG_HAMRADIO is not set
-# CONFIG_IRDA is not set
-# CONFIG_BT is not set
-# CONFIG_IEEE80211 is not set
-CONFIG_NETDEVICES=y
-# CONFIG_DUMMY is not set
-# CONFIG_BONDING is not set
-# CONFIG_EQUALIZER is not set
-CONFIG_TUN=y
-# CONFIG_NET_SB1000 is not set
-
-#
-# ARCnet devices
-#
-# CONFIG_ARCNET is not set
-
-#
-# Ethernet (10 or 100Mbit)
-#
-CONFIG_NET_ETHERNET=y
-CONFIG_MII=y
-# CONFIG_HAPPYMEAL is not set
-# CONFIG_SUNGEM is not set
-CONFIG_NET_VENDOR_3COM=y
-# CONFIG_VORTEX is not set
-# CONFIG_TYPHOON is not set
-
-#
-# Tulip family network device support
-#
-# CONFIG_NET_TULIP is not set
-# CONFIG_HP100 is not set
-CONFIG_NET_PCI=y
-# CONFIG_PCNET32 is not set
-# CONFIG_AMD8111_ETH is not set
-# CONFIG_ADAPTEC_STARFIRE is not set
-# CONFIG_B44 is not set
-# CONFIG_FORCEDETH is not set
-# CONFIG_DGRS is not set
-# CONFIG_EEPRO100 is not set
-# CONFIG_E100 is not set
-# CONFIG_FEALNX is not set
-# CONFIG_NATSEMI is not set
-# CONFIG_NE2K_PCI is not set
-CONFIG_8139CP=m
-CONFIG_8139TOO=m
-CONFIG_8139TOO_PIO=y
-# CONFIG_8139TOO_TUNE_TWISTER is not set
-CONFIG_8139TOO_8129=y
-# CONFIG_8139_OLD_RX_RESET is not set
-# CONFIG_SIS900 is not set
-# CONFIG_EPIC100 is not set
-# CONFIG_SUNDANCE is not set
-# CONFIG_TLAN is not set
-CONFIG_VIA_RHINE=y
-CONFIG_VIA_RHINE_MMIO=y
-
-#
-# Ethernet (1000 Mbit)
-#
-# CONFIG_ACENIC is not set
-# CONFIG_DL2K is not set
-# CONFIG_E1000 is not set
-# CONFIG_NS83820 is not set
-# CONFIG_HAMACHI is not set
-# CONFIG_YELLOWFIN is not set
-# CONFIG_R8169 is not set
-CONFIG_SKGE=m
-CONFIG_SK98LIN=y
-# CONFIG_VIA_VELOCITY is not set
-# CONFIG_TIGON3 is not set
-
-#
-# Ethernet (10000 Mbit)
-#
-# CONFIG_CHELSIO_T1 is not set
-# CONFIG_IXGB is not set
-# CONFIG_S2IO is not set
-
-#
-# Token Ring devices
-#
-# CONFIG_TR is not set
-
-#
-# Wireless LAN (non-hamradio)
-#
-CONFIG_NET_RADIO=y
-
-#
-# Obsolete Wireless cards support (pre-802.11)
-#
-# CONFIG_STRIP is not set
-
-#
-# Wireless 802.11b ISA/PCI cards support
-#
-CONFIG_HERMES=m
-CONFIG_PLX_HERMES=m
-CONFIG_TMD_HERMES=m
-CONFIG_PCI_HERMES=m
-CONFIG_ATMEL=m
-CONFIG_PCI_ATMEL=m
-
-#
-# Prism GT/Duette 802.11(a/b/g) PCI/Cardbus support
-#
-# CONFIG_PRISM54 is not set
-# CONFIG_HOSTAP is not set
-CONFIG_NET_WIRELESS=y
-
-#
-# Wan interfaces
-#
-# CONFIG_WAN is not set
-# CONFIG_FDDI is not set
-# CONFIG_HIPPI is not set
-# CONFIG_PLIP is not set
-CONFIG_PPP=m
-# CONFIG_PPP_MULTILINK is not set
-CONFIG_PPP_FILTER=y
-CONFIG_PPP_ASYNC=m
-# CONFIG_PPP_SYNC_TTY is not set
-CONFIG_PPP_DEFLATE=m
-CONFIG_PPP_BSDCOMP=m
-# CONFIG_PPP_MPPE is not set
-CONFIG_PPPOE=m
-# CONFIG_SLIP is not set
-# CONFIG_NET_FC is not set
-CONFIG_SHAPER=m
-# CONFIG_NETCONSOLE is not set
-
-#
-# ISDN subsystem
-#
-# CONFIG_ISDN is not set
-
-#
-# Telephony Support
-#
-# CONFIG_PHONE is not set
-
-#
-# Input device support
-#
-CONFIG_INPUT=y
-
-#
-# Userland interfaces
-#
-CONFIG_INPUT_MOUSEDEV=y
-CONFIG_INPUT_MOUSEDEV_PSAUX=y
-CONFIG_INPUT_MOUSEDEV_SCREEN_X=1024
-CONFIG_INPUT_MOUSEDEV_SCREEN_Y=768
-CONFIG_INPUT_JOYDEV=y
-# CONFIG_INPUT_TSDEV is not set
-CONFIG_INPUT_EVDEV=y
-# CONFIG_INPUT_EVBUG is not set
-
-#
-# Input Device Drivers
-#
-CONFIG_INPUT_KEYBOARD=y
-CONFIG_KEYBOARD_ATKBD=y
-# CONFIG_KEYBOARD_SUNKBD is not set
-# CONFIG_KEYBOARD_LKKBD is not set
-# CONFIG_KEYBOARD_XTKBD is not set
-# CONFIG_KEYBOARD_NEWTON is not set
-CONFIG_INPUT_MOUSE=y
-CONFIG_MOUSE_PS2=y
-CONFIG_MOUSE_SERIAL=m
-# CONFIG_MOUSE_VSXXXAA is not set
-# CONFIG_INPUT_JOYSTICK is not set
-# CONFIG_INPUT_TOUCHSCREEN is not set
-CONFIG_INPUT_MISC=y
-CONFIG_INPUT_PCSPKR=y
-CONFIG_INPUT_UINPUT=m
-
-#
-# Hardware I/O ports
-#
-CONFIG_SERIO=y
-CONFIG_SERIO_I8042=y
-CONFIG_SERIO_SERPORT=m
-# CONFIG_SERIO_CT82C710 is not set
-# CONFIG_SERIO_PARKBD is not set
-# CONFIG_SERIO_PCIPS2 is not set
-CONFIG_SERIO_LIBPS2=y
-# CONFIG_SERIO_RAW is not set
-CONFIG_GAMEPORT=y
-# CONFIG_GAMEPORT_NS558 is not set
-# CONFIG_GAMEPORT_L4 is not set
-CONFIG_GAMEPORT_EMU10K1=y
-# CONFIG_GAMEPORT_FM801 is not set
-
-#
-# Character devices
-#
-CONFIG_VT=y
-CONFIG_VT_CONSOLE=y
-CONFIG_HW_CONSOLE=y
-# CONFIG_SERIAL_NONSTANDARD is not set
-
-#
-# Serial drivers
-#
-CONFIG_SERIAL_8250=y
-# CONFIG_SERIAL_8250_CONSOLE is not set
-CONFIG_SERIAL_8250_ACPI=y
-CONFIG_SERIAL_8250_NR_UARTS=4
-# CONFIG_SERIAL_8250_EXTENDED is not set
-
-#
-# Non-8250 serial port support
-#
-CONFIG_SERIAL_CORE=y
-# CONFIG_SERIAL_JSM is not set
-CONFIG_UNIX98_PTYS=y
-CONFIG_LEGACY_PTYS=y
-CONFIG_LEGACY_PTY_COUNT=256
-CONFIG_PRINTER=m
-# CONFIG_LP_CONSOLE is not set
-# CONFIG_PPDEV is not set
-# CONFIG_TIPAR is not set
-
-#
-# IPMI
-#
-# CONFIG_IPMI_HANDLER is not set
-
-#
-# Watchdog Cards
-#
-CONFIG_WATCHDOG=y
-# CONFIG_WATCHDOG_NOWAYOUT is not set
-
-#
-# Watchdog Device Drivers
-#
-# CONFIG_SOFT_WATCHDOG is not set
-# CONFIG_ACQUIRE_WDT is not set
-# CONFIG_ADVANTECH_WDT is not set
-# CONFIG_ALIM1535_WDT is not set
-# CONFIG_ALIM7101_WDT is not set
-# CONFIG_SC520_WDT is not set
-# CONFIG_EUROTECH_WDT is not set
-# CONFIG_IB700_WDT is not set
-# CONFIG_WAFER_WDT is not set
-CONFIG_I8XX_TCO=m
-# CONFIG_I6300ESB_WDT is not set
-# CONFIG_SC1200_WDT is not set
-# CONFIG_60XX_WDT is not set
-# CONFIG_CPU5_WDT is not set
-# CONFIG_W83627HF_WDT is not set
-# CONFIG_W83877F_WDT is not set
-# CONFIG_MACHZ_WDT is not set
-
-#
-# PCI-based Watchdog Cards
-#
-# CONFIG_PCIPCWATCHDOG is not set
-# CONFIG_WDTPCI is not set
-
-#
-# USB-based Watchdog Cards
-#
-# CONFIG_USBPCWATCHDOG is not set
-CONFIG_HW_RANDOM=y
-CONFIG_NVRAM=y
-CONFIG_RTC=y
-# CONFIG_DTLK is not set
-# CONFIG_R3964 is not set
-# CONFIG_APPLICOM is not set
-# CONFIG_SONYPI is not set
-
-#
-# Ftape, the floppy tape device driver
-#
-# CONFIG_FTAPE is not set
-CONFIG_AGP=y
-# CONFIG_AGP_ALI is not set
-# CONFIG_AGP_ATI is not set
-# CONFIG_AGP_AMD is not set
-# CONFIG_AGP_AMD64 is not set
-CONFIG_AGP_INTEL=y
-# CONFIG_AGP_NVIDIA is not set
-# CONFIG_AGP_SIS is not set
-# CONFIG_AGP_SWORKS is not set
-# CONFIG_AGP_VIA is not set
-# CONFIG_AGP_EFFICEON is not set
-CONFIG_DRM=y
-# CONFIG_DRM_TDFX is not set
-# CONFIG_DRM_GAMMA is not set
-# CONFIG_DRM_R128 is not set
-CONFIG_DRM_RADEON=y
-# CONFIG_DRM_I810 is not set
-# CONFIG_DRM_I830 is not set
-# CONFIG_DRM_I915 is not set
-CONFIG_DRM_MGA=m
-# CONFIG_DRM_SIS is not set
-# CONFIG_DRM_VIA is not set
-# CONFIG_MWAVE is not set
-# CONFIG_RAW_DRIVER is not set
-CONFIG_HPET=y
-# CONFIG_HPET_RTC_IRQ is not set
-CONFIG_HPET_MMAP=y
-# CONFIG_HANGCHECK_TIMER is not set
-
-#
-# TPM devices
-#
-# CONFIG_TCG_TPM is not set
-
-#
-# I2C support
-#
-CONFIG_I2C=y
-CONFIG_I2C_CHARDEV=y
-
-#
-# I2C Algorithms
-#
-CONFIG_I2C_ALGOBIT=m
-CONFIG_I2C_ALGOPCF=m
-# CONFIG_I2C_ALGOPCA is not set
-
-#
-# I2C Hardware Bus support
-#
-# CONFIG_I2C_ALI1535 is not set
-# CONFIG_I2C_ALI1563 is not set
-# CONFIG_I2C_ALI15X3 is not set
-# CONFIG_I2C_AMD756 is not set
-# CONFIG_I2C_AMD8111 is not set
-CONFIG_I2C_I801=y
-# CONFIG_I2C_I810 is not set
-# CONFIG_I2C_PIIX4 is not set
-CONFIG_I2C_ISA=y
-# CONFIG_I2C_NFORCE2 is not set
-# CONFIG_I2C_PARPORT is not set
-# CONFIG_I2C_PARPORT_LIGHT is not set
-# CONFIG_I2C_PROSAVAGE is not set
-# CONFIG_I2C_SAVAGE4 is not set
-# CONFIG_SCx200_ACB is not set
-# CONFIG_I2C_SIS5595 is not set
-# CONFIG_I2C_SIS630 is not set
-# CONFIG_I2C_SIS96X is not set
-# CONFIG_I2C_STUB is not set
-# CONFIG_I2C_VIA is not set
-# CONFIG_I2C_VIAPRO is not set
-# CONFIG_I2C_VOODOO3 is not set
-# CONFIG_I2C_PCA_ISA is not set
-
-#
-# Hardware Sensors Chip support
-#
-CONFIG_I2C_SENSOR=y
-# CONFIG_SENSORS_ADM1021 is not set
-# CONFIG_SENSORS_ADM1025 is not set
-# CONFIG_SENSORS_ADM1026 is not set
-# CONFIG_SENSORS_ADM1031 is not set
-# CONFIG_SENSORS_ADM9240 is not set
-# CONFIG_SENSORS_ASB100 is not set
-# CONFIG_SENSORS_ATXP1 is not set
-# CONFIG_SENSORS_DS1621 is not set
-# CONFIG_SENSORS_FSCHER is not set
-# CONFIG_SENSORS_FSCPOS is not set
-# CONFIG_SENSORS_GL518SM is not set
-# CONFIG_SENSORS_GL520SM is not set
-# CONFIG_SENSORS_IT87 is not set
-# CONFIG_SENSORS_LM63 is not set
-# CONFIG_SENSORS_LM75 is not set
-# CONFIG_SENSORS_LM77 is not set
-# CONFIG_SENSORS_LM78 is not set
-# CONFIG_SENSORS_LM80 is not set
-# CONFIG_SENSORS_LM83 is not set
-# CONFIG_SENSORS_LM85 is not set
-# CONFIG_SENSORS_LM87 is not set
-# CONFIG_SENSORS_LM90 is not set
-# CONFIG_SENSORS_LM92 is not set
-# CONFIG_SENSORS_MAX1619 is not set
-# CONFIG_SENSORS_PC87360 is not set
-# CONFIG_SENSORS_SMSC47B397 is not set
-# CONFIG_SENSORS_SIS5595 is not set
-# CONFIG_SENSORS_SMSC47M1 is not set
-# CONFIG_SENSORS_VIA686A is not set
-# CONFIG_SENSORS_W83781D is not set
-# CONFIG_SENSORS_W83L785TS is not set
-CONFIG_SENSORS_W83627HF=m
-CONFIG_SENSORS_W83627EHF=m
-
-#
-# Other I2C Chip support
-#
-# CONFIG_SENSORS_DS1337 is not set
-CONFIG_SENSORS_EEPROM=y
-# CONFIG_SENSORS_PCF8574 is not set
-# CONFIG_SENSORS_PCF8591 is not set
-# CONFIG_SENSORS_RTC8564 is not set
-# CONFIG_I2C_DEBUG_CORE is not set
-# CONFIG_I2C_DEBUG_ALGO is not set
-# CONFIG_I2C_DEBUG_BUS is not set
-# CONFIG_I2C_DEBUG_CHIP is not set
-
-#
-# Dallas's 1-wire bus
-#
-CONFIG_W1=m
-# CONFIG_W1_MATROX is not set
-# CONFIG_W1_DS9490 is not set
-CONFIG_W1_THERM=m
-# CONFIG_W1_SMEM is not set
-
-#
-# Misc devices
-#
-# CONFIG_IBM_ASM is not set
-
-#
-# Multimedia devices
-#
-CONFIG_VIDEO_DEV=m
-
-#
-# Video For Linux
-#
-
-#
-# Video Adapters
-#
-CONFIG_VIDEO_BT848=m
-# CONFIG_VIDEO_BWQCAM is not set
-# CONFIG_VIDEO_CQCAM is not set
-# CONFIG_VIDEO_W9966 is not set
-# CONFIG_VIDEO_CPIA is not set
-CONFIG_VIDEO_SAA5246A=m
-CONFIG_VIDEO_SAA5249=m
-CONFIG_TUNER_3036=m
-# CONFIG_VIDEO_STRADIS is not set
-# CONFIG_VIDEO_ZORAN is not set
-# CONFIG_VIDEO_ZR36120 is not set
-# CONFIG_VIDEO_SAA7134 is not set
-# CONFIG_VIDEO_MXB is not set
-# CONFIG_VIDEO_DPC is not set
-# CONFIG_VIDEO_HEXIUM_ORION is not set
-# CONFIG_VIDEO_HEXIUM_GEMINI is not set
-# CONFIG_VIDEO_CX88 is not set
-# CONFIG_VIDEO_OVCAMCHIP is not set
-
-#
-# Radio Adapters
-#
-# CONFIG_RADIO_GEMTEK_PCI is not set
-# CONFIG_RADIO_MAXIRADIO is not set
-# CONFIG_RADIO_MAESTRO is not set
-
-#
-# Digital Video Broadcasting Devices
-#
-# CONFIG_DVB is not set
-CONFIG_VIDEO_TUNER=m
-CONFIG_VIDEO_BUF=m
-CONFIG_VIDEO_BTCX=m
-CONFIG_VIDEO_IR=m
-CONFIG_VIDEO_TVEEPROM=m
-
-#
-# Graphics support
-#
-# CONFIG_FB is not set
-CONFIG_VIDEO_SELECT=y
-
-#
-# Console display driver support
-#
-CONFIG_VGA_CONSOLE=y
-CONFIG_DUMMY_CONSOLE=y
-
-#
-# Sound
-#
-CONFIG_SOUND=y
-
-#
-# Advanced Linux Sound Architecture
-#
-CONFIG_SND=y
-CONFIG_SND_TIMER=y
-CONFIG_SND_PCM=y
-CONFIG_SND_HWDEP=y
-CONFIG_SND_RAWMIDI=y
-CONFIG_SND_SEQUENCER=m
-# CONFIG_SND_SEQ_DUMMY is not set
-CONFIG_SND_OSSEMUL=y
-CONFIG_SND_MIXER_OSS=m
-CONFIG_SND_PCM_OSS=y
-CONFIG_SND_SEQUENCER_OSS=y
-CONFIG_SND_RTCTIMER=y
-# CONFIG_SND_VERBOSE_PRINTK is not set
-# CONFIG_SND_DEBUG is not set
-
-#
-# Generic devices
-#
-CONFIG_SND_MPU401_UART=m
-# CONFIG_SND_DUMMY is not set
-CONFIG_SND_VIRMIDI=m
-# CONFIG_SND_MTPAV is not set
-# CONFIG_SND_SERIAL_U16550 is not set
-# CONFIG_SND_MPU401 is not set
-
-#
-# PCI devices
-#
-CONFIG_SND_AC97_CODEC=y
-# CONFIG_SND_ALI5451 is not set
-# CONFIG_SND_ATIIXP is not set
-# CONFIG_SND_ATIIXP_MODEM is not set
-# CONFIG_SND_AU8810 is not set
-# CONFIG_SND_AU8820 is not set
-# CONFIG_SND_AU8830 is not set
-# CONFIG_SND_AZT3328 is not set
-# CONFIG_SND_BT87X is not set
-# CONFIG_SND_CS46XX is not set
-# CONFIG_SND_CS4281 is not set
-CONFIG_SND_EMU10K1=y
-# CONFIG_SND_EMU10K1X is not set
-# CONFIG_SND_CA0106 is not set
-# CONFIG_SND_KORG1212 is not set
-# CONFIG_SND_MIXART is not set
-# CONFIG_SND_NM256 is not set
-# CONFIG_SND_RME32 is not set
-# CONFIG_SND_RME96 is not set
-# CONFIG_SND_RME9652 is not set
-# CONFIG_SND_HDSP is not set
-CONFIG_SND_TRIDENT=m
-# CONFIG_SND_YMFPCI is not set
-# CONFIG_SND_ALS4000 is not set
-# CONFIG_SND_CMIPCI is not set
-# CONFIG_SND_ENS1370 is not set
-# CONFIG_SND_ENS1371 is not set
-# CONFIG_SND_ES1938 is not set
-# CONFIG_SND_ES1968 is not set
-# CONFIG_SND_MAESTRO3 is not set
-# CONFIG_SND_FM801 is not set
-# CONFIG_SND_ICE1712 is not set
-# CONFIG_SND_ICE1724 is not set
-CONFIG_SND_INTEL8X0=m
-# CONFIG_SND_INTEL8X0M is not set
-# CONFIG_SND_SONICVIBES is not set
-# CONFIG_SND_VIA82XX is not set
-# CONFIG_SND_VIA82XX_MODEM is not set
-# CONFIG_SND_VX222 is not set
-# CONFIG_SND_HDA_INTEL is not set
-
-#
-# USB devices
-#
-# CONFIG_SND_USB_AUDIO is not set
-# CONFIG_SND_USB_USX2Y is not set
-
-#
-# Open Sound System
-#
-CONFIG_SOUND_PRIME=y
-# CONFIG_SOUND_BT878 is not set
-# CONFIG_SOUND_CMPCI is not set
-# CONFIG_SOUND_EMU10K1 is not set
-# CONFIG_SOUND_FUSION is not set
-# CONFIG_SOUND_CS4281 is not set
-# CONFIG_SOUND_ES1370 is not set
-# CONFIG_SOUND_ES1371 is not set
-# CONFIG_SOUND_ESSSOLO1 is not set
-# CONFIG_SOUND_MAESTRO is not set
-# CONFIG_SOUND_MAESTRO3 is not set
-# CONFIG_SOUND_ICH is not set
-# CONFIG_SOUND_SONICVIBES is not set
-# CONFIG_SOUND_TRIDENT is not set
-# CONFIG_SOUND_MSNDCLAS is not set
-# CONFIG_SOUND_MSNDPIN is not set
-# CONFIG_SOUND_VIA82CXXX is not set
-CONFIG_SOUND_OSS=m
-# CONFIG_SOUND_TRACEINIT is not set
-# CONFIG_SOUND_DMAP is not set
-# CONFIG_SOUND_AD1816 is not set
-# CONFIG_SOUND_AD1889 is not set
-# CONFIG_SOUND_SGALAXY is not set
-# CONFIG_SOUND_ADLIB is not set
-# CONFIG_SOUND_ACI_MIXER is not set
-# CONFIG_SOUND_CS4232 is not set
-# CONFIG_SOUND_SSCAPE is not set
-# CONFIG_SOUND_GUS is not set
-# CONFIG_SOUND_VMIDI is not set
-# CONFIG_SOUND_TRIX is not set
-# CONFIG_SOUND_MSS is not set
-# CONFIG_SOUND_MPU401 is not set
-# CONFIG_SOUND_NM256 is not set
-# CONFIG_SOUND_MAD16 is not set
-# CONFIG_SOUND_PAS is not set
-# CONFIG_SOUND_PSS is not set
-# CONFIG_SOUND_SB is not set
-# CONFIG_SOUND_AWE32_SYNTH is not set
-# CONFIG_SOUND_WAVEFRONT is not set
-# CONFIG_SOUND_MAUI is not set
-# CONFIG_SOUND_YM3812 is not set
-# CONFIG_SOUND_OPL3SA1 is not set
-# CONFIG_SOUND_OPL3SA2 is not set
-# CONFIG_SOUND_YMFPCI is not set
-# CONFIG_SOUND_UART6850 is not set
-# CONFIG_SOUND_AEDSP16 is not set
-CONFIG_SOUND_TVMIXER=m
-# CONFIG_SOUND_ALI5455 is not set
-# CONFIG_SOUND_FORTE is not set
-# CONFIG_SOUND_RME96XX is not set
-# CONFIG_SOUND_AD1980 is not set
-
-#
-# USB support
-#
-CONFIG_USB_ARCH_HAS_HCD=y
-CONFIG_USB_ARCH_HAS_OHCI=y
-CONFIG_USB=y
-# CONFIG_USB_DEBUG is not set
-
-#
-# Miscellaneous USB options
-#
-CONFIG_USB_DEVICEFS=y
-CONFIG_USB_BANDWIDTH=y
-# CONFIG_USB_DYNAMIC_MINORS is not set
-CONFIG_USB_SUSPEND=y
-# CONFIG_USB_OTG is not set
-
-#
-# USB Host Controller Drivers
-#
-CONFIG_USB_EHCI_HCD=y
-CONFIG_USB_EHCI_SPLIT_ISO=y
-CONFIG_USB_EHCI_ROOT_HUB_TT=y
-# CONFIG_USB_ISP116X_HCD is not set
-CONFIG_USB_OHCI_HCD=m
-# CONFIG_USB_OHCI_BIG_ENDIAN is not set
-CONFIG_USB_OHCI_LITTLE_ENDIAN=y
-CONFIG_USB_UHCI_HCD=y
-# CONFIG_USB_SL811_HCD is not set
-
-#
-# USB Device Class drivers
-#
-CONFIG_USB_AUDIO=m
-# CONFIG_USB_BLUETOOTH_TTY is not set
-# CONFIG_USB_MIDI is not set
-# CONFIG_USB_ACM is not set
-CONFIG_USB_PRINTER=m
-
-#
-# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information
-#
-CONFIG_USB_STORAGE=y
-# CONFIG_USB_STORAGE_DEBUG is not set
-# CONFIG_USB_STORAGE_DATAFAB is not set
-# CONFIG_USB_STORAGE_FREECOM is not set
-# CONFIG_USB_STORAGE_ISD200 is not set
-# CONFIG_USB_STORAGE_DPCM is not set
-# CONFIG_USB_STORAGE_USBAT is not set
-# CONFIG_USB_STORAGE_SDDR09 is not set
-# CONFIG_USB_STORAGE_SDDR55 is not set
-# CONFIG_USB_STORAGE_JUMPSHOT is not set
-
-#
-# USB Input Devices
-#
-CONFIG_USB_HID=y
-CONFIG_USB_HIDINPUT=y
-# CONFIG_HID_FF is not set
-CONFIG_USB_HIDDEV=y
-# CONFIG_USB_AIPTEK is not set
-# CONFIG_USB_WACOM is not set
-# CONFIG_USB_KBTAB is not set
-# CONFIG_USB_POWERMATE is not set
-# CONFIG_USB_MTOUCH is not set
-# CONFIG_USB_ITMTOUCH is not set
-# CONFIG_USB_EGALAX is not set
-CONFIG_USB_XPAD=m
-# CONFIG_USB_ATI_REMOTE is not set
-
-#
-# USB Imaging devices
-#
-# CONFIG_USB_MDC800 is not set
-# CONFIG_USB_MICROTEK is not set
-
-#
-# USB Multimedia devices
-#
-# CONFIG_USB_DABUSB is not set
-# CONFIG_USB_VICAM is not set
-# CONFIG_USB_DSBR is not set
-# CONFIG_USB_IBMCAM is not set
-# CONFIG_USB_KONICAWC is not set
-# CONFIG_USB_OV511 is not set
-# CONFIG_USB_SE401 is not set
-# CONFIG_USB_SN9C102 is not set
-# CONFIG_USB_STV680 is not set
-# CONFIG_USB_PWC is not set
-
-#
-# USB Network Adapters
-#
-# CONFIG_USB_CATC is not set
-# CONFIG_USB_KAWETH is not set
-# CONFIG_USB_PEGASUS is not set
-# CONFIG_USB_RTL8150 is not set
-# CONFIG_USB_USBNET is not set
-# CONFIG_USB_ZD1201 is not set
-# CONFIG_USB_MON is not set
-
-#
-# USB port drivers
-#
-# CONFIG_USB_USS720 is not set
-
-#
-# USB Serial Converter support
-#
-# CONFIG_USB_SERIAL is not set
-
-#
-# USB Miscellaneous drivers
-#
-# CONFIG_USB_EMI62 is not set
-# CONFIG_USB_EMI26 is not set
-# CONFIG_USB_AUERSWALD is not set
-# CONFIG_USB_RIO500 is not set
-# CONFIG_USB_LEGOTOWER is not set
-# CONFIG_USB_LCD is not set
-# CONFIG_USB_LED is not set
-CONFIG_USB_CYTHERM=m
-# CONFIG_USB_PHIDGETKIT is not set
-# CONFIG_USB_PHIDGETSERVO is not set
-# CONFIG_USB_IDMOUSE is not set
-# CONFIG_USB_SISUSBVGA is not set
-# CONFIG_USB_TEST is not set
-
-#
-# USB DSL modem support
-#
-
-#
-# USB Gadget Support
-#
-# CONFIG_USB_GADGET is not set
-
-#
-# MMC/SD Card support
-#
-# CONFIG_MMC is not set
-
-#
-# InfiniBand support
-#
-# CONFIG_INFINIBAND is not set
-
-#
-# SN Devices
-#
-
-#
-# Distributed Lock Manager
-#
-# CONFIG_DLM is not set
-
-#
-# File systems
-#
-# CONFIG_EXT2_FS is not set
-CONFIG_EXT3_FS=y
-CONFIG_EXT3_FS_XATTR=y
-CONFIG_EXT3_FS_POSIX_ACL=y
-CONFIG_EXT3_FS_SECURITY=y
-CONFIG_JBD=y
-# CONFIG_JBD_DEBUG is not set
-CONFIG_FS_MBCACHE=y
-CONFIG_REISERFS_FS=m
-# CONFIG_REISERFS_CHECK is not set
-# CONFIG_REISERFS_PROC_INFO is not set
-# CONFIG_REISERFS_FS_XATTR is not set
-# CONFIG_JFS_FS is not set
-CONFIG_FS_POSIX_ACL=y
-
-#
-# XFS support
-#
-# CONFIG_XFS_FS is not set
-# CONFIG_OCFS2_FS is not set
-# CONFIG_MINIX_FS is not set
-# CONFIG_ROMFS_FS is not set
-CONFIG_INOTIFY=y
-# CONFIG_QUOTA is not set
-CONFIG_DNOTIFY=y
-# CONFIG_AUTOFS_FS is not set
-# CONFIG_AUTOFS4_FS is not set
-
-#
-# Caches
-#
-CONFIG_FSCACHE=m
-CONFIG_CACHEFS=m
-CONFIG_FUSE_FS=m
-
-#
-# CD-ROM/DVD Filesystems
-#
-CONFIG_ISO9660_FS=m
-CONFIG_JOLIET=y
-CONFIG_ZISOFS=y
-CONFIG_ZISOFS_FS=m
-CONFIG_UDF_FS=m
-CONFIG_UDF_NLS=y
-
-#
-# DOS/FAT/NT Filesystems
-#
-CONFIG_FAT_FS=m
-CONFIG_MSDOS_FS=m
-CONFIG_VFAT_FS=m
-CONFIG_FAT_DEFAULT_CODEPAGE=437
-CONFIG_FAT_DEFAULT_IOCHARSET="iso8859-1"
-CONFIG_NTFS_FS=m
-# CONFIG_NTFS_DEBUG is not set
-CONFIG_NTFS_RW=y
-
-#
-# Pseudo filesystems
-#
-CONFIG_PROC_FS=y
-CONFIG_PROC_KCORE=y
-CONFIG_SYSFS=y
-# CONFIG_DEVFS_FS is not set
-# CONFIG_DEVPTS_FS_XATTR is not set
-CONFIG_TMPFS=y
-# CONFIG_TMPFS_XATTR is not set
-# CONFIG_HUGETLBFS is not set
-# CONFIG_HUGETLB_PAGE is not set
-CONFIG_RAMFS=y
-# CONFIG_CONFIGFS_FS is not set
-# CONFIG_RELAYFS_FS is not set
-
-#
-# Miscellaneous filesystems
-#
-# CONFIG_ADFS_FS is not set
-# CONFIG_AFFS_FS is not set
-# CONFIG_HFS_FS is not set
-# CONFIG_HFSPLUS_FS is not set
-# CONFIG_BEFS_FS is not set
-# CONFIG_BFS_FS is not set
-# CONFIG_EFS_FS is not set
-# CONFIG_JFFS_FS is not set
-CONFIG_JFFS2_FS=m
-CONFIG_JFFS2_FS_DEBUG=0
-# CONFIG_JFFS2_FS_WRITEBUFFER is not set
-CONFIG_JFFS2_COMPRESSION_OPTIONS=y
-CONFIG_JFFS2_ZLIB=y
-CONFIG_JFFS2_RTIME=y
-# CONFIG_JFFS2_RUBIN is not set
-# CONFIG_JFFS2_CMODE_NONE is not set
-CONFIG_JFFS2_CMODE_PRIORITY=y
-# CONFIG_JFFS2_CMODE_SIZE is not set
-# CONFIG_CRAMFS is not set
-# CONFIG_VXFS_FS is not set
-# CONFIG_HPFS_FS is not set
-# CONFIG_QNX4FS_FS is not set
-# CONFIG_SYSV_FS is not set
-# CONFIG_UFS_FS is not set
-
-#
-# Network File Systems
-#
-CONFIG_NFS_FS=m
-CONFIG_NFS_V3=y
-# CONFIG_NFS_V3_ACL is not set
-# CONFIG_NFS_V4 is not set
-# CONFIG_NFS_DIRECTIO is not set
-CONFIG_NFSD=m
-CONFIG_NFSD_V3=y
-# CONFIG_NFSD_V3_ACL is not set
-# CONFIG_NFSD_V4 is not set
-# CONFIG_NFSD_TCP is not set
-CONFIG_LOCKD=m
-CONFIG_LOCKD_V4=y
-CONFIG_EXPORTFS=m
-CONFIG_NFS_COMMON=y
-CONFIG_SUNRPC=m
-CONFIG_SUNRPC_GSS=m
-CONFIG_RPCSEC_GSS_KRB5=m
-CONFIG_RPCSEC_GSS_SPKM3=m
-CONFIG_SMB_FS=m
-# CONFIG_SMB_NLS_DEFAULT is not set
-CONFIG_CIFS=m
-# CONFIG_CIFS_STATS is not set
-# CONFIG_CIFS_XATTR is not set
-# CONFIG_CIFS_EXPERIMENTAL is not set
-# CONFIG_NCP_FS is not set
-# CONFIG_CODA_FS is not set
-# CONFIG_AFS_FS is not set
-
-#
-# Partition Types
-#
-# CONFIG_PARTITION_ADVANCED is not set
-CONFIG_MSDOS_PARTITION=y
-
-#
-# Native Language Support
-#
-CONFIG_NLS=m
-CONFIG_NLS_DEFAULT="iso8859-1"
-CONFIG_NLS_CODEPAGE_437=m
-# CONFIG_NLS_CODEPAGE_737 is not set
-# CONFIG_NLS_CODEPAGE_775 is not set
-CONFIG_NLS_CODEPAGE_850=m
-# CONFIG_NLS_CODEPAGE_852 is not set
-# CONFIG_NLS_CODEPAGE_855 is not set
-# CONFIG_NLS_CODEPAGE_857 is not set
-# CONFIG_NLS_CODEPAGE_860 is not set
-# CONFIG_NLS_CODEPAGE_861 is not set
-# CONFIG_NLS_CODEPAGE_862 is not set
-# CONFIG_NLS_CODEPAGE_863 is not set
-# CONFIG_NLS_CODEPAGE_864 is not set
-# CONFIG_NLS_CODEPAGE_865 is not set
-# CONFIG_NLS_CODEPAGE_866 is not set
-# CONFIG_NLS_CODEPAGE_869 is not set
-# CONFIG_NLS_CODEPAGE_936 is not set
-# CONFIG_NLS_CODEPAGE_950 is not set
-# CONFIG_NLS_CODEPAGE_932 is not set
-# CONFIG_NLS_CODEPAGE_949 is not set
-# CONFIG_NLS_CODEPAGE_874 is not set
-# CONFIG_NLS_ISO8859_8 is not set
-# CONFIG_NLS_CODEPAGE_1250 is not set
-# CONFIG_NLS_CODEPAGE_1251 is not set
-CONFIG_NLS_ASCII=m
-CONFIG_NLS_ISO8859_1=m
-# CONFIG_NLS_ISO8859_2 is not set
-# CONFIG_NLS_ISO8859_3 is not set
-# CONFIG_NLS_ISO8859_4 is not set
-# CONFIG_NLS_ISO8859_5 is not set
-# CONFIG_NLS_ISO8859_6 is not set
-# CONFIG_NLS_ISO8859_7 is not set
-# CONFIG_NLS_ISO8859_9 is not set
-# CONFIG_NLS_ISO8859_13 is not set
-# CONFIG_NLS_ISO8859_14 is not set
-# CONFIG_NLS_ISO8859_15 is not set
-# CONFIG_NLS_KOI8_R is not set
-# CONFIG_NLS_KOI8_U is not set
-CONFIG_NLS_UTF8=m
-
-#
-# Profiling support
-#
-CONFIG_PROFILING=y
-CONFIG_OPROFILE=m
-
-#
-# Kernel hacking
-#
-# CONFIG_PRINTK_TIME is not set
-CONFIG_DEBUG_KERNEL=y
-CONFIG_MAGIC_SYSRQ=y
-CONFIG_LOG_BUF_SHIFT=16
-CONFIG_DETECT_SOFTLOCKUP=y
-# CONFIG_SCHEDSTATS is not set
-# CONFIG_DEBUG_SLAB is not set
-# CONFIG_DEBUG_PREEMPT is not set
-# CONFIG_DEBUG_SPINLOCK is not set
-# CONFIG_DEBUG_SPINLOCK_SLEEP is not set
-# CONFIG_DEBUG_KOBJECT is not set
-CONFIG_DEBUG_BUGVERBOSE=y
-# CONFIG_DEBUG_INFO is not set
-# CONFIG_PAGE_OWNER is not set
-# CONFIG_DEBUG_FS is not set
-CONFIG_FRAME_POINTER=y
-# CONFIG_EARLY_PRINTK is not set
-# CONFIG_DEBUG_STACKOVERFLOW is not set
-# CONFIG_KPROBES is not set
-# CONFIG_DEBUG_STACK_USAGE is not set
-# CONFIG_DEBUG_PAGEALLOC is not set
-CONFIG_4KSTACKS=y
-CONFIG_X86_FIND_SMP_CONFIG=y
-CONFIG_X86_MPPARSE=y
-# CONFIG_KGDB is not set
-
-#
-# Security options
-#
-CONFIG_KEYS=y
-# CONFIG_KEYS_DEBUG_PROC_KEYS is not set
-CONFIG_SECURITY=y
-# CONFIG_SECURITY_NETWORK is not set
-CONFIG_SECURITY_CAPABILITIES=m
-# CONFIG_SECURITY_ROOTPLUG is not set
-# CONFIG_SECURITY_SECLVL is not set
-# CONFIG_SECURITY_SELINUX is not set
-
-#
-# Cryptographic options
-#
-CONFIG_CRYPTO=y
-CONFIG_CRYPTO_HMAC=y
-CONFIG_CRYPTO_NULL=m
-CONFIG_CRYPTO_MD4=m
-CONFIG_CRYPTO_MD5=m
-CONFIG_CRYPTO_SHA1=m
-CONFIG_CRYPTO_SHA256=m
-CONFIG_CRYPTO_SHA512=m
-CONFIG_CRYPTO_WP512=m
-CONFIG_CRYPTO_TGR192=m
-CONFIG_CRYPTO_DES=m
-CONFIG_CRYPTO_BLOWFISH=m
-CONFIG_CRYPTO_TWOFISH=m
-CONFIG_CRYPTO_SERPENT=m
-# CONFIG_CRYPTO_AES_586 is not set
-CONFIG_CRYPTO_CAST5=m
-CONFIG_CRYPTO_CAST6=m
-# CONFIG_CRYPTO_TEA is not set
-CONFIG_CRYPTO_ARC4=m
-# CONFIG_CRYPTO_KHAZAD is not set
-# CONFIG_CRYPTO_ANUBIS is not set
-CONFIG_CRYPTO_DEFLATE=m
-CONFIG_CRYPTO_MICHAEL_MIC=m
-# CONFIG_CRYPTO_CRC32C is not set
-# CONFIG_CRYPTO_TEST is not set
-
-#
-# Hardware crypto devices
-#
-# CONFIG_CRYPTO_DEV_PADLOCK is not set
-
-#
-# Library routines
-#
-CONFIG_CRC_CCITT=m
-CONFIG_CRC32=y
-# CONFIG_LIBCRC32C is not set
-CONFIG_ZLIB_INFLATE=m
-CONFIG_ZLIB_DEFLATE=m
-CONFIG_GENERIC_HARDIRQS=y
-CONFIG_GENERIC_IRQ_PROBE=y
-CONFIG_GENERIC_PENDING_IRQ=y
-CONFIG_X86_SMP=y
-CONFIG_X86_HT=y
-CONFIG_X86_BIOS_REBOOT=y
-CONFIG_X86_TRAMPOLINE=y
-
---7JfCtLOvnd9MIVvH--
+Adds PPC32 RIO support.  Init code for the MPC85xx RIO ports
+and glue for the STx GP3 board to use it.
+
+Signed-off-by: Matt Porter <mporter@kernel.crashing.org>
+
+Index: arch/ppc/Kconfig
+===================================================================
+--- 750e10a6553cacbd2b92b52fe40afdc8062f4f78/arch/ppc/Kconfig  (mode:100644)
++++ f0bf7810dbe8c4073832d6c3785364084e9523a7/arch/ppc/Kconfig  (mode:100644)
+@@ -1177,6 +1177,14 @@
+ 
+ source "drivers/pcmcia/Kconfig"
+ 
++config RAPIDIO
++	bool "RapidIO support" if MPC8540 || MPC8560
++	help
++	  If you say Y here, the kernel will include drivers and
++	  infrastructure code to support RapidIO interconnect devices.
++
++source "drivers/rio/Kconfig"
++
+ endmenu
+ 
+ menu "Advanced setup"
+Index: arch/ppc/configs/stx_gp3_defconfig
+===================================================================
+--- 750e10a6553cacbd2b92b52fe40afdc8062f4f78/arch/ppc/configs/stx_gp3_defconfig  (mode:100644)
++++ f0bf7810dbe8c4073832d6c3785364084e9523a7/arch/ppc/configs/stx_gp3_defconfig  (mode:100644)
+@@ -1,7 +1,7 @@
+ #
+ # Automatically generated make config: don't edit
+-# Linux kernel version: 2.6.11-rc2
+-# Wed Jan 26 14:32:58 2005
++# Linux kernel version: 2.6.12-rc4
++# Tue May 24 18:11:04 2005
+ #
+ CONFIG_MMU=y
+ CONFIG_GENERIC_HARDIRQS=y
+@@ -11,6 +11,7 @@
+ CONFIG_PPC=y
+ CONFIG_PPC32=y
+ CONFIG_GENERIC_NVRAM=y
++CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER=y
+ 
+ #
+ # Code maturity level options
+@@ -18,6 +19,7 @@
+ CONFIG_EXPERIMENTAL=y
+ CONFIG_CLEAN_COMPILE=y
+ CONFIG_BROKEN_ON_SMP=y
++CONFIG_INIT_ENV_ARG_LIMIT=32
+ 
+ #
+ # General setup
+@@ -29,7 +31,6 @@
+ # CONFIG_BSD_PROCESS_ACCT is not set
+ CONFIG_SYSCTL=y
+ # CONFIG_AUDIT is not set
+-CONFIG_LOG_BUF_SHIFT=14
+ CONFIG_HOTPLUG=y
+ CONFIG_KOBJECT_UEVENT=y
+ # CONFIG_IKCONFIG is not set
+@@ -37,6 +38,9 @@
+ CONFIG_KALLSYMS=y
+ # CONFIG_KALLSYMS_ALL is not set
+ # CONFIG_KALLSYMS_EXTRA_PASS is not set
++CONFIG_PRINTK=y
++CONFIG_BUG=y
++CONFIG_BASE_FULL=y
+ CONFIG_FUTEX=y
+ CONFIG_EPOLL=y
+ # CONFIG_CC_OPTIMIZE_FOR_SIZE is not set
+@@ -46,6 +50,7 @@
+ CONFIG_CC_ALIGN_LOOPS=0
+ CONFIG_CC_ALIGN_JUMPS=0
+ # CONFIG_TINY_SHMEM is not set
++CONFIG_BASE_SMALL=0
+ 
+ #
+ # Loadable module support
+@@ -69,9 +74,11 @@
+ CONFIG_E500=y
+ CONFIG_BOOKE=y
+ CONFIG_FSL_BOOKE=y
++# CONFIG_PHYS_64BIT is not set
+ # CONFIG_SPE is not set
+ CONFIG_MATH_EMULATION=y
+ # CONFIG_CPU_FREQ is not set
++# CONFIG_PM is not set
+ CONFIG_85xx=y
+ CONFIG_PPC_INDIRECT_PCI_BE=y
+ 
+@@ -96,6 +103,7 @@
+ CONFIG_BINFMT_ELF=y
+ CONFIG_BINFMT_MISC=m
+ # CONFIG_CMDLINE_BOOL is not set
++CONFIG_ISA_DMA_API=y
+ 
+ #
+ # Bus options
+@@ -104,15 +112,15 @@
+ CONFIG_PCI_DOMAINS=y
+ # CONFIG_PCI_LEGACY_PROC is not set
+ # CONFIG_PCI_NAMES is not set
++# CONFIG_PCI_DEBUG is not set
+ 
+ #
+ # PCCARD (PCMCIA/CardBus) support
+ #
+ # CONFIG_PCCARD is not set
+-
+-#
+-# PC-card bridges
+-#
++CONFIG_RAPIDIO=y
++CONFIG_RAPIDIO_8_BIT_TRANSPORT=y
++CONFIG_RAPIDIO_DISC_TIMEOUT=30
+ 
+ #
+ # Advanced setup
+@@ -152,7 +160,7 @@
+ CONFIG_PARPORT_PC=m
+ # CONFIG_PARPORT_PC_FIFO is not set
+ # CONFIG_PARPORT_PC_SUPERIO is not set
+-# CONFIG_PARPORT_OTHER is not set
++# CONFIG_PARPORT_GSC is not set
+ # CONFIG_PARPORT_1284 is not set
+ 
+ #
+@@ -264,7 +272,6 @@
+ # CONFIG_SCSI_BUSLOGIC is not set
+ # CONFIG_SCSI_DMX3191D is not set
+ # CONFIG_SCSI_EATA is not set
+-# CONFIG_SCSI_EATA_PIO is not set
+ # CONFIG_SCSI_FUTURE_DOMAIN is not set
+ # CONFIG_SCSI_GDTH is not set
+ # CONFIG_SCSI_IPS is not set
+@@ -274,7 +281,6 @@
+ # CONFIG_SCSI_IMM is not set
+ # CONFIG_SCSI_SYM53C8XX_2 is not set
+ # CONFIG_SCSI_IPR is not set
+-# CONFIG_SCSI_QLOGIC_ISP is not set
+ # CONFIG_SCSI_QLOGIC_FC is not set
+ # CONFIG_SCSI_QLOGIC_1280 is not set
+ CONFIG_SCSI_QLA2XXX=m
+@@ -283,6 +289,7 @@
+ # CONFIG_SCSI_QLA2300 is not set
+ # CONFIG_SCSI_QLA2322 is not set
+ # CONFIG_SCSI_QLA6312 is not set
++# CONFIG_SCSI_LPFC is not set
+ # CONFIG_SCSI_DC395x is not set
+ # CONFIG_SCSI_DC390T is not set
+ # CONFIG_SCSI_NSP32 is not set
+@@ -322,7 +329,6 @@
+ #
+ CONFIG_PACKET=y
+ # CONFIG_PACKET_MMAP is not set
+-# CONFIG_NETLINK_DEV is not set
+ CONFIG_UNIX=y
+ # CONFIG_NET_KEY is not set
+ CONFIG_INET=y
+@@ -431,7 +437,7 @@
+ #
+ # Network testing
+ #
+-# CONFIG_NET_PKTGEN is not set
++CONFIG_NET_PKTGEN=y
+ # CONFIG_NETPOLL is not set
+ # CONFIG_NET_POLL_CONTROLLER is not set
+ # CONFIG_HAMRADIO is not set
+@@ -499,6 +505,7 @@
+ # Wan interfaces
+ #
+ # CONFIG_WAN is not set
++CONFIG_RIONET=y
+ # CONFIG_FDDI is not set
+ # CONFIG_HIPPI is not set
+ # CONFIG_PLIP is not set
+@@ -536,20 +543,6 @@
+ # CONFIG_INPUT_EVBUG is not set
+ 
+ #
+-# Input I/O drivers
+-#
+-# CONFIG_GAMEPORT is not set
+-CONFIG_SOUND_GAMEPORT=y
+-CONFIG_SERIO=y
+-CONFIG_SERIO_I8042=y
+-CONFIG_SERIO_SERPORT=y
+-# CONFIG_SERIO_CT82C710 is not set
+-# CONFIG_SERIO_PARKBD is not set
+-# CONFIG_SERIO_PCIPS2 is not set
+-CONFIG_SERIO_LIBPS2=y
+-# CONFIG_SERIO_RAW is not set
+-
+-#
+ # Input Device Drivers
+ #
+ CONFIG_INPUT_KEYBOARD=y
+@@ -567,6 +560,19 @@
+ # CONFIG_INPUT_MISC is not set
+ 
+ #
++# Hardware I/O ports
++#
++CONFIG_SERIO=y
++CONFIG_SERIO_I8042=y
++CONFIG_SERIO_SERPORT=y
++# CONFIG_SERIO_PARKBD is not set
++# CONFIG_SERIO_PCIPS2 is not set
++CONFIG_SERIO_LIBPS2=y
++# CONFIG_SERIO_RAW is not set
++# CONFIG_GAMEPORT is not set
++CONFIG_SOUND_GAMEPORT=y
++
++#
+ # Character devices
+ #
+ # CONFIG_VT is not set
+@@ -590,6 +596,7 @@
+ # CONFIG_SERIAL_CPM_SCC4 is not set
+ # CONFIG_SERIAL_CPM_SMC1 is not set
+ # CONFIG_SERIAL_CPM_SMC2 is not set
++# CONFIG_SERIAL_JSM is not set
+ CONFIG_UNIX98_PTYS=y
+ CONFIG_LEGACY_PTYS=y
+ CONFIG_LEGACY_PTY_COUNT=256
+@@ -626,6 +633,11 @@
+ # CONFIG_RAW_DRIVER is not set
+ 
+ #
++# TPM devices
++#
++# CONFIG_TCG_TPM is not set
++
++#
+ # I2C support
+ #
+ CONFIG_I2C=m
+@@ -648,12 +660,12 @@
+ # CONFIG_I2C_AMD8111 is not set
+ # CONFIG_I2C_I801 is not set
+ # CONFIG_I2C_I810 is not set
++# CONFIG_I2C_PIIX4 is not set
+ # CONFIG_I2C_ISA is not set
+ # CONFIG_I2C_MPC is not set
+ # CONFIG_I2C_NFORCE2 is not set
+ # CONFIG_I2C_PARPORT is not set
+ # CONFIG_I2C_PARPORT_LIGHT is not set
+-# CONFIG_I2C_PIIX4 is not set
+ # CONFIG_I2C_PROSAVAGE is not set
+ # CONFIG_I2C_SAVAGE4 is not set
+ # CONFIG_SCx200_ACB is not set
+@@ -677,7 +689,9 @@
+ # CONFIG_SENSORS_ASB100 is not set
+ # CONFIG_SENSORS_DS1621 is not set
+ # CONFIG_SENSORS_FSCHER is not set
++# CONFIG_SENSORS_FSCPOS is not set
+ # CONFIG_SENSORS_GL518SM is not set
++# CONFIG_SENSORS_GL520SM is not set
+ # CONFIG_SENSORS_IT87 is not set
+ # CONFIG_SENSORS_LM63 is not set
+ # CONFIG_SENSORS_LM75 is not set
+@@ -688,9 +702,11 @@
+ # CONFIG_SENSORS_LM85 is not set
+ # CONFIG_SENSORS_LM87 is not set
+ # CONFIG_SENSORS_LM90 is not set
++# CONFIG_SENSORS_LM92 is not set
+ # CONFIG_SENSORS_MAX1619 is not set
+ # CONFIG_SENSORS_PC87360 is not set
+ # CONFIG_SENSORS_SMSC47B397 is not set
++# CONFIG_SENSORS_SIS5595 is not set
+ # CONFIG_SENSORS_SMSC47M1 is not set
+ # CONFIG_SENSORS_VIA686A is not set
+ # CONFIG_SENSORS_W83781D is not set
+@@ -700,10 +716,12 @@
+ #
+ # Other I2C Chip support
+ #
++# CONFIG_SENSORS_DS1337 is not set
+ # CONFIG_SENSORS_EEPROM is not set
+ # CONFIG_SENSORS_PCF8574 is not set
+ # CONFIG_SENSORS_PCF8591 is not set
+ # CONFIG_SENSORS_RTC8564 is not set
++# CONFIG_SENSORS_M41T00 is not set
+ # CONFIG_I2C_DEBUG_CORE is not set
+ # CONFIG_I2C_DEBUG_ALGO is not set
+ # CONFIG_I2C_DEBUG_BUS is not set
+@@ -732,7 +750,6 @@
+ # Graphics support
+ #
+ # CONFIG_FB is not set
+-# CONFIG_BACKLIGHT_LCD_SUPPORT is not set
+ 
+ #
+ # Sound
+@@ -752,13 +769,9 @@
+ #
+ # USB support
+ #
+-# CONFIG_USB is not set
+ CONFIG_USB_ARCH_HAS_HCD=y
+ CONFIG_USB_ARCH_HAS_OHCI=y
+-
+-#
+-# NOTE: USB_STORAGE enables SCSI, and 'SCSI disk support' may also be needed; see USB_STORAGE Help for more information
+-#
++# CONFIG_USB is not set
+ 
+ #
+ # USB Gadget Support
+@@ -789,6 +802,10 @@
+ CONFIG_FS_MBCACHE=y
+ # CONFIG_REISERFS_FS is not set
+ # CONFIG_JFS_FS is not set
++
++#
++# XFS support
++#
+ # CONFIG_XFS_FS is not set
+ # CONFIG_MINIX_FS is not set
+ # CONFIG_ROMFS_FS is not set
+@@ -859,7 +876,6 @@
+ CONFIG_ROOT_NFS=y
+ CONFIG_LOCKD=y
+ CONFIG_LOCKD_V4=y
+-# CONFIG_EXPORTFS is not set
+ CONFIG_SUNRPC=y
+ # CONFIG_RPCSEC_GSS_KRB5 is not set
+ # CONFIG_RPCSEC_GSS_SPKM3 is not set
+@@ -942,8 +958,10 @@
+ #
+ # Kernel hacking
+ #
++# CONFIG_PRINTK_TIME is not set
+ CONFIG_DEBUG_KERNEL=y
+ # CONFIG_MAGIC_SYSRQ is not set
++CONFIG_LOG_BUF_SHIFT=14
+ # CONFIG_SCHEDSTATS is not set
+ # CONFIG_DEBUG_SLAB is not set
+ # CONFIG_DEBUG_SPINLOCK is not set
+Index: arch/ppc/kernel/Makefile
+===================================================================
+--- 750e10a6553cacbd2b92b52fe40afdc8062f4f78/arch/ppc/kernel/Makefile  (mode:100644)
++++ f0bf7810dbe8c4073832d6c3785364084e9523a7/arch/ppc/kernel/Makefile  (mode:100644)
+@@ -22,6 +22,7 @@
+ obj-$(CONFIG_MODULES)		+= module.o ppc_ksyms.o
+ obj-$(CONFIG_NOT_COHERENT_CACHE)	+= dma-mapping.o
+ obj-$(CONFIG_PCI)		+= pci.o
++obj-$(CONFIG_RAPIDIO)		+= rio.o
+ obj-$(CONFIG_KGDB)		+= ppc-stub.o
+ obj-$(CONFIG_SMP)		+= smp.o smp-tbsync.o
+ obj-$(CONFIG_TAU)		+= temp.o
+Index: arch/ppc/kernel/rio.c
+===================================================================
+--- /dev/null  (tree:750e10a6553cacbd2b92b52fe40afdc8062f4f78)
++++ f0bf7810dbe8c4073832d6c3785364084e9523a7/arch/ppc/kernel/rio.c  (mode:100644)
+@@ -0,0 +1,52 @@
++/*
++ * RapidIO PPC32 support
++ *
++ * Copyright 2005 MontaVista Software, Inc.
++ * Matt Porter <mporter@kernel.crashing.org>
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/rio.h>
++
++#include <asm/rio.h>
++
++/**
++ * platform_rio_init - Do platform specific RIO init
++ *
++ * Any platform specific initialization of RapdIO
++ * hardware is done here as well as registration
++ * of any active master ports in the system.
++ */
++void __attribute__ ((weak))
++    platform_rio_init(void)
++{
++	printk(KERN_WARNING "RIO: No platform_rio_init() present\n");
++}
++
++/**
++ * ppc_rio_init - Do PPC32 RIO init
++ *
++ * Calls platform-specific RIO init code and then calls
++ * rio_init_mports() to initialize any master ports that
++ * have been registered with the RIO subsystem.
++ */
++static int __init ppc_rio_init(void)
++{
++	printk(KERN_INFO "RIO: RapidIO init\n");
++
++	/* Platform specific initialization */
++	platform_rio_init();
++
++	/* Enumerate all registered ports */
++	rio_init_mports();
++
++	return 0;
++}
++
++subsys_initcall(ppc_rio_init);
+Index: arch/ppc/platforms/85xx/stx_gp3.c
+===================================================================
+--- 750e10a6553cacbd2b92b52fe40afdc8062f4f78/arch/ppc/platforms/85xx/stx_gp3.c  (mode:100644)
++++ f0bf7810dbe8c4073832d6c3785364084e9523a7/arch/ppc/platforms/85xx/stx_gp3.c  (mode:100644)
+@@ -38,6 +38,7 @@
+ #include <linux/module.h>
+ #include <linux/fsl_devices.h>
+ #include <linux/interrupt.h>
++#include <linux/rio.h>
+ 
+ #include <asm/system.h>
+ #include <asm/pgtable.h>
+@@ -59,6 +60,7 @@
+ 
+ #include <syslib/cpm2_pic.h>
+ #include <syslib/ppc85xx_common.h>
++#include <syslib/ppc85xx_rio.h>
+ 
+ extern void cpm2_reset(void);
+ 
+@@ -200,7 +202,6 @@
+ static void __init
+ gp3_init_IRQ(void)
+ {
+-	int i;
+ 	bd_t *binfo = (bd_t *) __res;
+ 
+ 	/*
+@@ -297,6 +298,18 @@
+ }
+ #endif /* CONFIG_PCI */
+ 
++#ifdef CONFIG_RAPIDIO
++void
++platform_rio_init(void)
++{
++	/*
++	 * The STx firmware configures the RapidIO Local Access Window
++	 * at 0xc0000000 with a size of 512MB.
++	 */
++	mpc85xx_rio_setup(0xc0000000, 0x20000000);
++}
++#endif /* CONFIG_RAPIDIO */
++
+ void __init
+ platform_init(unsigned long r3, unsigned long r4, unsigned long r5,
+ 	      unsigned long r6, unsigned long r7)
+Index: arch/ppc/syslib/Makefile
+===================================================================
+--- 750e10a6553cacbd2b92b52fe40afdc8062f4f78/arch/ppc/syslib/Makefile  (mode:100644)
++++ f0bf7810dbe8c4073832d6c3785364084e9523a7/arch/ppc/syslib/Makefile  (mode:100644)
+@@ -101,6 +101,7 @@
+ 					mpc85xx_devices.o
+ ifeq ($(CONFIG_85xx),y)
+ obj-$(CONFIG_PCI)		+= indirect_pci.o pci_auto.o
++obj-$(CONFIG_RAPIDIO)		+= ppc85xx_rio.o
+ endif
+ obj-$(CONFIG_83xx)		+= ipic.o ppc83xx_setup.o ppc_sys.o \
+ 					mpc83xx_sys.o mpc83xx_devices.o
+Index: arch/ppc/syslib/ppc85xx_rio.c
+===================================================================
+--- /dev/null  (tree:750e10a6553cacbd2b92b52fe40afdc8062f4f78)
++++ f0bf7810dbe8c4073832d6c3785364084e9523a7/arch/ppc/syslib/ppc85xx_rio.c  (mode:100644)
+@@ -0,0 +1,867 @@
++/*
++ * MPC85xx RapidIO support
++ *
++ * Copyright 2005 MontaVista Software, Inc.
++ * Matt Porter <mporter@kernel.crashing.org>
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#include <linux/config.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/types.h>
++#include <linux/dma-mapping.h>
++#include <linux/interrupt.h>
++#include <linux/rio.h>
++#include <linux/rio_drv.h>
++
++#include <asm/io.h>
++
++#define RIO_REGS_BASE		(CCSRBAR + 0xc0000)
++#define RIO_ATMU_REGS_OFFSET	0x10c00
++#define RIO_MSG_REGS_OFFSET	0x11000
++#define RIO_MAINT_WIN_SIZE	0x400000
++#define RIO_DBELL_WIN_SIZE	0x1000
++
++#define RIO_MSG_OMR_MUI		0x00000002
++#define RIO_MSG_OSR_TE		0x00000080
++#define RIO_MSG_OSR_QOI		0x00000020
++#define RIO_MSG_OSR_QFI		0x00000010
++#define RIO_MSG_OSR_MUB		0x00000004
++#define RIO_MSG_OSR_EOMI	0x00000002
++#define RIO_MSG_OSR_QEI		0x00000001
++
++#define RIO_MSG_IMR_MI		0x00000002
++#define RIO_MSG_ISR_TE		0x00000080
++#define RIO_MSG_ISR_QFI		0x00000010
++#define RIO_MSG_ISR_DIQI	0x00000001
++
++#define RIO_MSG_DESC_SIZE	32
++#define RIO_MIN_TX_RING_SIZE	2
++#define RIO_MAX_TX_RING_SIZE	2048
++#define RIO_MIN_RX_RING_SIZE	2
++#define RIO_MAX_RX_RING_SIZE	2048
++
++#define DOORBELL_DMR_DI		0x00000002
++#define DOORBELL_DSR_TE		0x00000080
++#define DOORBELL_DSR_QFI	0x00000010
++#define DOORBELL_DSR_DIQI	0x00000001
++#define DOORBELL_TID_OFFSET	0x03
++#define DOORBELL_SID_OFFSET	0x05
++#define DOORBELL_INFO_OFFSET	0x06
++
++#define DOORBELL_MESSAGE_SIZE	0x08
++#define DBELL_SID(x)		(*(u8 *)(x + DOORBELL_SID_OFFSET))
++#define DBELL_TID(x)		(*(u8 *)(x + DOORBELL_TID_OFFSET))
++#define DBELL_INF(x)		(*(u16 *)(x + DOORBELL_INFO_OFFSET))
++
++#define is_power_of_2(x)	(((x) & ((x) - 1)) == 0)
++
++struct rio_atmu_regs {
++	u32 rowtar;
++	u32 pad1;
++	u32 rowbar;
++	u32 pad2;
++	u32 rowar;
++	u32 pad3[3];
++};
++
++struct rio_msg_regs {
++	u32 omr;
++	u32 osr;
++	u32 pad1;
++	u32 odqdpar;
++	u32 pad2;
++	u32 osar;
++	u32 odpr;
++	u32 odatr;
++	u32 odcr;
++	u32 pad3;
++	u32 odqepar;
++	u32 pad4[13];
++	u32 imr;
++	u32 isr;
++	u32 pad5;
++	u32 ifqdpar;
++	u32 pad6;
++	u32 ifqepar;
++	u32 pad7[250];
++	u32 dmr;
++	u32 dsr;
++	u32 pad8;
++	u32 dqdpar;
++	u32 pad9;
++	u32 dqepar;
++	u32 pad10[26];
++	u32 pwmr;
++	u32 pwsr;
++	u32 pad11;
++	u32 pwqbar;
++};
++
++struct rio_tx_desc {
++	u32 res1;
++	u32 saddr;
++	u32 dport;
++	u32 dattr;
++	u32 res2;
++	u32 res3;
++	u32 dwcnt;
++	u32 res4;
++};
++
++static u32 regs_win;
++static struct rio_atmu_regs *atmu_regs;
++static struct rio_atmu_regs *maint_atmu_regs;
++static struct rio_atmu_regs *dbell_atmu_regs;
++static u32 dbell_win;
++static u32 maint_win;
++static struct rio_msg_regs *msg_regs;
++
++static struct rio_dbell_ring {
++	void *virt;
++	dma_addr_t phys;
++} dbell_ring;
++
++static struct rio_msg_tx_ring {
++	void *virt;
++	dma_addr_t phys;
++	void *virt_buffer[RIO_MAX_TX_RING_SIZE];
++	dma_addr_t phys_buffer[RIO_MAX_TX_RING_SIZE];
++	int tx_slot;
++	int size;
++} msg_tx_ring;
++
++static struct rio_msg_rx_ring {
++	void *virt;
++	dma_addr_t phys;
++	void *virt_buffer[RIO_MAX_RX_RING_SIZE];
++	int rx_slot;
++	int size;
++} msg_rx_ring;
++
++/**
++ * mpc85xx_rio_doorbell_send - Send a MPC85xx doorbell message
++ * @index: ID of RapidIO interface
++ * @destid: Destination ID of target device
++ * @data: 16-bit info field of RapidIO doorbell message
++ *
++ * Sends a MPC85xx doorbell message. Returns %0 on success or
++ * %-EINVAL on failure.
++ */
++static int mpc85xx_rio_doorbell_send(int index, u16 destid, u16 data)
++{
++	pr_debug("mpc85xx_doorbell_send: index %d destid %4.4x data %4.4x\n",
++		 index, destid, data);
++	out_be32((void *)&dbell_atmu_regs->rowtar, destid << 22);
++	out_be16((void *)(dbell_win), data);
++
++	return 0;
++}
++
++/**
++ * mpc85xx_local_config_read - Generate a MPC85xx local config space read
++ * @index: ID of RapdiIO interface
++ * @offset: Offset into configuration space
++ * @len: Length (in bytes) of the maintenance transaction
++ * @data: Value to be read into
++ *
++ * Generates a MPC85xx local configuration space read. Returns %0 on
++ * success or %-EINVAL on failure.
++ */
++static int mpc85xx_local_config_read(int index, u32 offset, int len, u32 * data)
++{
++	pr_debug("mpc85xx_local_config_read: index %d offset %8.8x\n", index,
++		 offset);
++	*data = in_be32((void *)(regs_win + offset));
++
++	return 0;
++}
++
++/**
++ * mpc85xx_local_config_write - Generate a MPC85xx local config space write
++ * @index: ID of RapdiIO interface
++ * @offset: Offset into configuration space
++ * @len: Length (in bytes) of the maintenance transaction
++ * @data: Value to be written
++ *
++ * Generates a MPC85xx local configuration space write. Returns %0 on
++ * success or %-EINVAL on failure.
++ */
++static int mpc85xx_local_config_write(int index, u32 offset, int len, u32 data)
++{
++	pr_debug
++	    ("mpc85xx_local_config_write: index %d offset %8.8x data %8.8x\n",
++	     index, offset, data);
++	out_be32((void *)(regs_win + offset), data);
++
++	return 0;
++}
++
++/**
++ * mpc85xx_rio_config_read - Generate a MPC85xx read maintenance transaction
++ * @index: ID of RapdiIO interface
++ * @destid: Destination ID of transaction
++ * @hopcount: Number of hops to target device
++ * @offset: Offset into configuration space
++ * @len: Length (in bytes) of the maintenance transaction
++ * @val: Location to be read into
++ *
++ * Generates a MPC85xx read maintenance transaction. Returns %0 on
++ * success or %-EINVAL on failure.
++ */
++static int
++mpc85xx_rio_config_read(int index, u16 destid, u8 hopcount, u32 offset, int len,
++			u32 * val)
++{
++	u8 *data;
++
++	pr_debug
++	    ("mpc85xx_rio_config_read: index %d destid %d hopcount %d offset %8.8x len %d\n",
++	     index, destid, hopcount, offset, len);
++	out_be32((void *)&maint_atmu_regs->rowtar,
++		 (destid << 22) | (hopcount << 12) | ((offset & ~0x3) >> 9));
++
++	data = (u8 *) maint_win + offset;
++	switch (len) {
++	case 1:
++		*val = in_8((u8 *) data);
++		break;
++	case 2:
++		*val = in_be16((u16 *) data);
++		break;
++	default:
++		*val = in_be32((u32 *) data);
++		break;
++	}
++
++	return 0;
++}
++
++/**
++ * mpc85xx_rio_config_write - Generate a MPC85xx write maintenance transaction
++ * @index: ID of RapdiIO interface
++ * @destid: Destination ID of transaction
++ * @hopcount: Number of hops to target device
++ * @offset: Offset into configuration space
++ * @len: Length (in bytes) of the maintenance transaction
++ * @val: Value to be written
++ *
++ * Generates an MPC85xx write maintenance transaction. Returns %0 on
++ * success or %-EINVAL on failure.
++ */
++static int
++mpc85xx_rio_config_write(int index, u16 destid, u8 hopcount, u32 offset,
++			 int len, u32 val)
++{
++	u8 *data;
++	pr_debug
++	    ("mpc85xx_rio_config_write: index %d destid %d hopcount %d offset %8.8x len %d val %8.8x\n",
++	     index, destid, hopcount, offset, len, val);
++	out_be32((void *)&maint_atmu_regs->rowtar,
++		 (destid << 22) | (hopcount << 12) | ((offset & ~0x3) >> 9));
++
++	data = (u8 *) maint_win + offset;
++	switch (len) {
++	case 1:
++		out_8((u8 *) data, val);
++		break;
++	case 2:
++		out_be16((u16 *) data, val);
++		break;
++	default:
++		out_be32((u32 *) data, val);
++		break;
++	}
++
++	return 0;
++}
++
++/**
++ * rio_hw_add_outb_message - Add message to the MPC85xx outbound message queue
++ * @mport: Master port with outbound message queue
++ * @rdev: Target of outbound message
++ * @mbox: Outbound mailbox
++ * @buffer: Message to add to outbound queue
++ * @len: Length of message
++ *
++ * Adds the @buffer message to the MPC85xx outbound message queue. Returns
++ * %0 on success or %-EINVAL on failure.
++ */
++int
++rio_hw_add_outb_message(struct rio_mport *mport, struct rio_dev *rdev, int mbox,
++			void *buffer, size_t len)
++{
++	u32 omr;
++	struct rio_tx_desc *desc =
++	    (struct rio_tx_desc *)msg_tx_ring.virt + msg_tx_ring.tx_slot;
++	int ret = 0;
++
++	pr_debug(KERN_INFO
++		 "RIO: rio_hw_add_outb_message(): destid %4.4x mbox %d buffer %8.8x len %8.8x\n",
++		 rdev->destid, mbox, (int)buffer, len);
++
++	if ((len < 8) || (len > RIO_MAX_MSG_SIZE)) {
++		ret = -EINVAL;
++		goto out;
++	}
++
++	/* Copy and clear rest of buffer */
++	memcpy(msg_tx_ring.virt_buffer[msg_tx_ring.tx_slot], buffer, len);
++	if (len < (RIO_MAX_MSG_SIZE - 4))
++		memset((void *)((u32) msg_tx_ring.
++				virt_buffer[msg_tx_ring.tx_slot] + len), 0,
++		       RIO_MAX_MSG_SIZE - len);
++
++	/* Set mbox field for message */
++	desc->dport = mbox & 0x3;
++
++	/* Enable EOMI interrupt, set priority, and set destid */
++	desc->dattr = 0x28000000 | (rdev->destid << 2);
++
++	/* Set transfer size aligned to next power of 2 (in double words) */
++	desc->dwcnt = is_power_of_2(len) ? len : 1 << get_bitmask_order(len);
++
++	/* Set snooping and source buffer address */
++	desc->saddr = 0x00000004 | msg_tx_ring.phys_buffer[msg_tx_ring.tx_slot];
++
++	/* Increment enqueue pointer */
++	omr = in_be32((void *)&msg_regs->omr);
++	out_be32((void *)&msg_regs->omr, omr | RIO_MSG_OMR_MUI);
++
++	/* Go to next descriptor */
++	if (++msg_tx_ring.tx_slot == msg_tx_ring.size)
++		msg_tx_ring.tx_slot = 0;
++
++      out:
++	return ret;
++}
++
++EXPORT_SYMBOL(rio_hw_add_outb_message);
++
++/**
++ * mpc85xx_rio_tx_handler - MPC85xx outbound message interrupt handler
++ * @irq: Linux interrupt number
++ * @dev_instance: Pointer to interrupt-specific data
++ * @regs: Register context
++ *
++ * Handles outbound message interrupts. Executes a register outbound
++ * mailbox event handler and acks the interrupt occurence.
++ */
++static irqreturn_t
++mpc85xx_rio_tx_handler(int irq, void *dev_instance, struct pt_regs *regs)
++{
++	int osr;
++	struct rio_mport *port = (struct rio_mport *)dev_instance;
++
++	osr = in_be32((void *)&msg_regs->osr);
++
++	if (osr & RIO_MSG_OSR_TE) {
++		printk(KERN_INFO "RIO: outbound message transmission error\n");
++		out_be32((void *)&msg_regs->osr, RIO_MSG_OSR_TE);
++		goto out;
++	}
++
++	if (osr & RIO_MSG_OSR_QOI) {
++		printk(KERN_INFO "RIO: outbound message queue overflow\n");
++		out_be32((void *)&msg_regs->osr, RIO_MSG_OSR_QOI);
++		goto out;
++	}
++
++	if (osr & RIO_MSG_OSR_EOMI) {
++		u32 dqp = in_be32((void *)&msg_regs->odqdpar);
++		int slot = (dqp - msg_tx_ring.phys) >> 5;
++		port->outb_msg[0].mcback(port, -1, slot);
++
++		/* Ack the end-of-message interrupt */
++		out_be32((void *)&msg_regs->osr, RIO_MSG_OSR_EOMI);
++	}
++
++      out:
++	return IRQ_HANDLED;
++}
++
++/**
++ * rio_open_outb_mbox - Initialize MPC85xx outbound mailbox
++ * @mport: Master port implementing the outbound message unit
++ * @mbox: Mailbox to open
++ * @entries: Number of entries in the outbound mailbox ring
++ *
++ * Initializes buffer ring, request the outbound message interrupt,
++ * and enables the outbound message unit. Returns %0 on success or
++ * %-EINVAL on failure.
++ */
++int rio_open_outb_mbox(struct rio_mport *mport, int mbox, int entries)
++{
++	int i, rc = 0;
++
++	if ((entries < RIO_MIN_TX_RING_SIZE) ||
++	    (entries > RIO_MAX_TX_RING_SIZE) || (!is_power_of_2(entries))) {
++		rc = -EINVAL;
++		goto out;
++	}
++
++	/* Initialize shadow copy ring */
++	msg_tx_ring.size = entries;
++
++	for (i = 0; i < msg_tx_ring.size; i++) {
++		msg_tx_ring.virt_buffer[i] =
++		    (void *)__get_free_page(GFP_KERNEL);
++		msg_tx_ring.phys_buffer[i] =
++		    (dma_addr_t) __pa(msg_tx_ring.virt_buffer[i]);
++	}
++
++	/* Initialize outbound message descriptor ring */
++	msg_tx_ring.virt = dma_alloc_coherent(NULL,
++					      msg_tx_ring.size *
++					      RIO_MSG_DESC_SIZE,
++					      &msg_tx_ring.phys, GFP_KERNEL);
++	memset(msg_tx_ring.virt, 0, msg_tx_ring.size * RIO_MSG_DESC_SIZE);
++	msg_tx_ring.tx_slot = 0;
++
++	/* Point dequeue/enqueue pointers at first entry in ring */
++	out_be32((void *)&msg_regs->odqdpar, msg_tx_ring.phys);
++	out_be32((void *)&msg_regs->odqepar, msg_tx_ring.phys);
++
++	/* Configure for snooping */
++	out_be32((void *)&msg_regs->osar, 0x00000004);
++
++	/* Clear interrupt status */
++	out_be32((void *)&msg_regs->osr, 0x000000b3);
++
++	/* Hook up outbound message handler */
++	request_irq(MPC85xx_IRQ_RIO_TX, mpc85xx_rio_tx_handler, 0, "msg_tx",
++		    (void *)mport);
++
++	/*
++	 * Configure outbound message unit
++	 *      Snooping
++	 *      Interrupts (all enabled, except QEIE)
++	 *      Chaining mode
++	 *      Disable
++	 */
++	out_be32((void *)&msg_regs->omr, 0x00100220);
++
++	/* Set number of entries */
++	out_be32((void *)&msg_regs->omr,
++		 in_be32((void *)&msg_regs->omr) |
++		 ((get_bitmask_order(entries) - 2) << 12));
++
++	/* Now enable the unit */
++	out_be32((void *)&msg_regs->omr, in_be32((void *)&msg_regs->omr) | 0x1);
++
++      out:
++	return rc;
++}
++
++/**
++ * rio_close_outb_mbox - Shut down MPC85xx outbound mailbox
++ * @mport: Master port implementing the outbound message unit
++ * @mbox: Mailbox to close
++ *
++ * Disables the outbound message unit, free all buffers, and
++ * frees the outbound message interrupt.
++ */
++void rio_close_outb_mbox(struct rio_mport *mport, int mbox)
++{
++	/* Disable inbound message unit */
++	out_be32((void *)&msg_regs->omr, 0);
++
++	/* Free ring */
++	dma_free_coherent(NULL, msg_tx_ring.size * RIO_MSG_DESC_SIZE,
++			  msg_tx_ring.virt, msg_tx_ring.phys);
++
++	/* Free interrupt */
++	free_irq(MPC85xx_IRQ_RIO_TX, (void *)mport);
++}
++
++/**
++ * mpc85xx_rio_rx_handler - MPC85xx inbound message interrupt handler
++ * @irq: Linux interrupt number
++ * @dev_instance: Pointer to interrupt-specific data
++ * @regs: Register context
++ *
++ * Handles inbound message interrupts. Executes a registered inbound
++ * mailbox event handler and acks the interrupt occurence.
++ */
++static irqreturn_t
++mpc85xx_rio_rx_handler(int irq, void *dev_instance, struct pt_regs *regs)
++{
++	int isr;
++	struct rio_mport *port = (struct rio_mport *)dev_instance;
++
++	isr = in_be32((void *)&msg_regs->isr);
++
++	if (isr & RIO_MSG_ISR_TE) {
++		printk(KERN_INFO "RIO: inbound message reception error\n");
++		out_be32((void *)&msg_regs->isr, RIO_MSG_ISR_TE);
++		goto out;
++	}
++
++	/* XXX Need to check/dispatch until queue empty */
++	if (isr & RIO_MSG_ISR_DIQI) {
++		/*
++		 * We implement *only* mailbox 0, but can receive messages
++		 * for any mailbox/letter to that mailbox destination. So,
++		 * make the callback with an unknown/invalid mailbox number
++		 * argument.
++		 */
++		port->inb_msg[0].mcback(port, -1, -1);
++
++		/* Ack the queueing interrupt */
++		out_be32((void *)&msg_regs->isr, RIO_MSG_ISR_DIQI);
++	}
++
++      out:
++	return IRQ_HANDLED;
++}
++
++/**
++ * rio_open_inb_mbox - Initialize MPC85xx inbound mailbox
++ * @mport: Master port implementing the inbound message unit
++ * @mbox: Mailbox to open
++ * @entries: Number of entries in the inbound mailbox ring
++ *
++ * Initializes buffer ring, request the inbound message interrupt,
++ * and enables the inbound message unit. Returns %0 on success
++ * or %-EINVAL on failure.
++ */
++int rio_open_inb_mbox(struct rio_mport *mport, int mbox, int entries)
++{
++	int i, rc = 0;
++
++	if ((entries < RIO_MIN_RX_RING_SIZE) ||
++	    (entries > RIO_MAX_RX_RING_SIZE) || (!is_power_of_2(entries))) {
++		rc = -EINVAL;
++		goto out;
++	}
++
++	/* Initialize client buffer ring */
++	msg_rx_ring.size = entries;
++	msg_rx_ring.rx_slot = 0;
++	for (i = 0; i < msg_rx_ring.size; i++)
++		msg_rx_ring.virt_buffer[i] = NULL;
++
++	/* Initialize inbound message ring */
++	msg_rx_ring.virt = dma_alloc_coherent(NULL,
++					      msg_rx_ring.size *
++					      RIO_MAX_MSG_SIZE,
++					      &msg_rx_ring.phys, GFP_KERNEL);
++
++	/* Point dequeue/enqueue pointers at first entry in ring */
++	out_be32((void *)&msg_regs->ifqdpar, (u32) msg_rx_ring.phys);
++	out_be32((void *)&msg_regs->ifqepar, (u32) msg_rx_ring.phys);
++
++	/* Clear interrupt status */
++	out_be32((void *)&msg_regs->isr, 0x00000091);
++
++	/* Hook up inbound message handler */
++	request_irq(MPC85xx_IRQ_RIO_RX, mpc85xx_rio_rx_handler, 0, "msg_rx",
++		    (void *)mport);
++
++	/*
++	 * Configure inbound message unit:
++	 *      Snooping
++	 *      4KB max message size
++	 *      Unmask all interrupt sources
++	 *      Disable
++	 */
++	out_be32((void *)&msg_regs->imr, 0x001b0060);
++
++	/* Set number of queue entries */
++	out_be32((void *)&msg_regs->imr,
++		 in_be32((void *)&msg_regs->imr) |
++		 ((get_bitmask_order(entries) - 2) << 12));
++
++	/* Now enable the unit */
++	out_be32((void *)&msg_regs->imr, in_be32((void *)&msg_regs->imr) | 0x1);
++
++      out:
++	return rc;
++}
++
++/**
++ * rio_close_inb_mbox - Shut down MPC85xx inbound mailbox
++ * @mport: Master port implementing the inbound message unit
++ * @mbox: Mailbox to close
++ *
++ * Disables the inbound message unit, free all buffers, and
++ * frees the inbound message interrupt.
++ */
++void rio_close_inb_mbox(struct rio_mport *mport, int mbox)
++{
++	/* Disable inbound message unit */
++	out_be32((void *)&msg_regs->imr, 0);
++
++	/* Free ring */
++	dma_free_coherent(NULL, msg_rx_ring.size * RIO_MAX_MSG_SIZE,
++			  msg_rx_ring.virt, msg_rx_ring.phys);
++
++	/* Free interrupt */
++	free_irq(MPC85xx_IRQ_RIO_RX, (void *)mport);
++}
++
++/**
++ * rio_hw_add_inb_buffer - Add buffer to the MPC85xx inbound message queue
++ * @mport: Master port implementing the inbound message unit
++ * @mbox: Inbound mailbox number
++ * @buf: Buffer to add to inbound queue
++ *
++ * Adds the @buf buffer to the MPC85xx inbound message queue. Returns
++ * %0 on success or %-EINVAL on failure.
++ */
++int rio_hw_add_inb_buffer(struct rio_mport *mport, int mbox, void *buf)
++{
++	int rc = 0;
++
++	pr_debug("RIO: rio_hw_add_inb_buffer(), msg_rx_ring.rx_slot %d\n",
++		 msg_rx_ring.rx_slot);
++
++	if (msg_rx_ring.virt_buffer[msg_rx_ring.rx_slot]) {
++		printk(KERN_ERR
++		       "RIO: error adding inbound buffer %d, buffer exists\n",
++		       msg_rx_ring.rx_slot);
++		rc = -EINVAL;
++		goto out;
++	}
++
++	msg_rx_ring.virt_buffer[msg_rx_ring.rx_slot] = buf;
++	if (++msg_rx_ring.rx_slot == msg_rx_ring.size)
++		msg_rx_ring.rx_slot = 0;
++
++      out:
++	return rc;
++}
++
++EXPORT_SYMBOL(rio_hw_add_inb_buffer);
++
++/**
++ * rio_hw_get_inb_message - Fetch inbound message from the MPC85xx message unit
++ * @mport: Master port implementing the inbound message unit
++ * @mbox: Inbound mailbox number
++ *
++ * Gets the next available inbound message from the inbound message queue.
++ * A pointer to the message is returned on success or NULL on failure.
++ */
++void *rio_hw_get_inb_message(struct rio_mport *mport, int mbox)
++{
++	u32 imr;
++	u32 phys_buf, virt_buf;
++	void *buf = NULL;
++	int buf_idx;
++
++	phys_buf = in_be32((void *)&msg_regs->ifqdpar);
++
++	/* If no more messages, then bail out */
++	if (phys_buf == in_be32((void *)&msg_regs->ifqepar))
++		goto out2;
++
++	virt_buf = (u32) msg_rx_ring.virt + (phys_buf - msg_rx_ring.phys);
++	buf_idx = (phys_buf - msg_rx_ring.phys) / RIO_MAX_MSG_SIZE;
++	buf = msg_rx_ring.virt_buffer[buf_idx];
++
++	if (!buf) {
++		pr_debug(KERN_ERR
++			 "RIO: inbound message copy failed, no buffers\n");
++		goto out1;
++	}
++
++	/* Copy max message size, caller is expected to allocate that big */
++	memcpy(buf, (void *)virt_buf, RIO_MAX_MSG_SIZE);
++
++	/* Clear the available buffer */
++	msg_rx_ring.virt_buffer[buf_idx] = NULL;
++
++      out1:
++	imr = in_be32((void *)&msg_regs->imr);
++	out_be32((void *)&msg_regs->imr, imr | RIO_MSG_IMR_MI);
++
++      out2:
++	return buf;
++}
++
++EXPORT_SYMBOL(rio_hw_get_inb_message);
++
++/**
++ * mpc85xx_rio_dbell_handler - MPC85xx doorbell interrupt handler
++ * @irq: Linux interrupt number
++ * @dev_instance: Pointer to interrupt-specific data
++ * @regs: Register context
++ *
++ * Handles doorbell interrupts. Parses a list of registered
++ * doorbell event handlers and executes a matching event handler.
++ */
++static irqreturn_t
++mpc85xx_rio_dbell_handler(int irq, void *dev_instance, struct pt_regs *regs)
++{
++	int dsr;
++	struct rio_mport *port = (struct rio_mport *)dev_instance;
++
++	dsr = in_be32((void *)&msg_regs->dsr);
++
++	if (dsr & DOORBELL_DSR_TE) {
++		printk(KERN_INFO "RIO: doorbell reception error\n");
++		out_be32((void *)&msg_regs->dsr, DOORBELL_DSR_TE);
++		goto out;
++	}
++
++	if (dsr & DOORBELL_DSR_QFI) {
++		printk(KERN_INFO "RIO: doorbell queue full\n");
++		out_be32((void *)&msg_regs->dsr, DOORBELL_DSR_QFI);
++		goto out;
++	}
++
++	/* XXX Need to check/dispatch until queue empty */
++	if (dsr & DOORBELL_DSR_DIQI) {
++		u32 dmsg =
++		    (u32) dbell_ring.virt +
++		    (in_be32((void *)&msg_regs->dqdpar) & 0xfff);
++		u32 dmr;
++		struct rio_dbell *dbell;
++		int found = 0;
++
++		pr_debug(KERN_INFO
++			 "RIO: processing doorbell, sid %2.2x tid %2.2x info %4.4x\n",
++			 DBELL_SID(dmsg), DBELL_TID(dmsg), DBELL_INF(dmsg));
++
++		list_for_each_entry(dbell, &port->dbells, node) {
++			if ((dbell->res->start <= DBELL_INF(dmsg)) &&
++			    (dbell->res->end >= DBELL_INF(dmsg))) {
++				found = 1;
++				break;
++			}
++		}
++		if (found) {
++			dbell->dinb(port, DBELL_SID(dmsg), DBELL_TID(dmsg),
++				    DBELL_INF(dmsg));
++		} else {
++			pr_debug(KERN_INFO
++				 "RIO: spurious doorbell, sid %2.2x tid %2.2x info %4.4x\n",
++				 DBELL_SID(dmsg), DBELL_TID(dmsg),
++				 DBELL_INF(dmsg));
++		}
++		dmr = in_be32((void *)&msg_regs->dmr);
++		out_be32((void *)&msg_regs->dmr, dmr | DOORBELL_DMR_DI);
++		out_be32((void *)&msg_regs->dsr, DOORBELL_DSR_DIQI);
++	}
++
++      out:
++	return IRQ_HANDLED;
++}
++
++/**
++ * mpc85xx_rio_doorbell_init - MPC85xx doorbell interface init
++ * @mport: Master port implementing the inbound doorbell unit
++ *
++ * Initializes doorbell unit hardware and inbound DMA buffer
++ * ring. Called from mpc85xx_rio_setup().
++ */
++static void mpc85xx_rio_doorbell_init(struct rio_mport *mport)
++{
++	/* Map outbound doorbell window immediately after maintenance window */
++	dbell_win =
++	    (u32) ioremap(mport->iores.start + RIO_MAINT_WIN_SIZE,
++			  RIO_DBELL_WIN_SIZE);
++
++	/* Initialize inbound doorbells */
++	dbell_ring.virt = dma_alloc_coherent(NULL,
++					     512 * DOORBELL_MESSAGE_SIZE,
++					     &dbell_ring.phys, GFP_KERNEL);
++
++	/* Point dequeue/enqueue pointers at first entry in ring */
++	out_be32((void *)&msg_regs->dqdpar, (u32) dbell_ring.phys);
++	out_be32((void *)&msg_regs->dqepar, (u32) dbell_ring.phys);
++
++	/* Clear interrupt status */
++	out_be32((void *)&msg_regs->dsr, 0x00000091);
++
++	/* Hook up doorbell handler */
++	request_irq(MPC85xx_IRQ_RIO_BELL, mpc85xx_rio_dbell_handler, 0,
++		    "dbell_rx", (void *)mport);
++
++	/* Configure doorbells for snooping, 512 entries, and enable */
++	out_be32((void *)&msg_regs->dmr, 0x00108161);
++}
++
++static char *cmdline = NULL;
++
++static int mpc85xx_rio_get_hdid(int index)
++{
++	/* XXX Need to parse multiple entries in some format */
++	if (!cmdline)
++		return -1;
++
++	return simple_strtol(cmdline, NULL, 0);
++}
++
++static int mpc85xx_rio_get_cmdline(char *s)
++{
++	if (!s)
++		return 0;
++
++	cmdline = s;
++	return 1;
++}
++
++__setup("riohdid=", mpc85xx_rio_get_cmdline);
++
++/**
++ * mpc85xx_rio_setup - Setup MPC85xx RapidIO interface
++ * @law_start: Starting physical address of RapidIO LAW
++ * @law_size: Size of RapidIO LAW
++ *
++ * Initializes MPC85xx RapidIO hardware interface, configures
++ * master port with system-specific info, and registers the
++ * master port with the RapidIO subsystem.
++ */
++void mpc85xx_rio_setup(int law_start, int law_size)
++{
++	struct rio_ops *ops;
++	struct rio_mport *port;
++
++	ops = kmalloc(sizeof(struct rio_ops), GFP_KERNEL);
++	ops->lcread = mpc85xx_local_config_read;
++	ops->lcwrite = mpc85xx_local_config_write;
++	ops->cread = mpc85xx_rio_config_read;
++	ops->cwrite = mpc85xx_rio_config_write;
++	ops->dsend = mpc85xx_rio_doorbell_send;
++
++	port = kmalloc(sizeof(struct rio_mport), GFP_KERNEL);
++	port->id = 0;
++	port->index = 0;
++	INIT_LIST_HEAD(&port->dbells);
++	port->iores.start = law_start;
++	port->iores.end = law_start + law_size;
++	port->iores.flags = IORESOURCE_MEM;
++
++	rio_init_dbell_res(&port->riores[RIO_DOORBELL_RESOURCE], 0, 0xffff);
++	rio_init_mbox_res(&port->riores[RIO_INB_MBOX_RESOURCE], 0, 0);
++	rio_init_mbox_res(&port->riores[RIO_OUTB_MBOX_RESOURCE], 0, 0);
++	strcpy(port->name, "RIO0 mport");
++
++	port->ops = ops;
++	port->host_deviceid = mpc85xx_rio_get_hdid(port->id);
++
++	rio_register_mport(port);
++
++	regs_win = (u32) ioremap(RIO_REGS_BASE, 0x20000);
++	atmu_regs = (struct rio_atmu_regs *)(regs_win + RIO_ATMU_REGS_OFFSET);
++	maint_atmu_regs = atmu_regs + 1;
++	dbell_atmu_regs = atmu_regs + 2;
++	msg_regs = (struct rio_msg_regs *)(regs_win + RIO_MSG_REGS_OFFSET);
++
++	/* Configure maintenance transaction window */
++	out_be32((void *)&maint_atmu_regs->rowbar, 0x000c0000);
++	out_be32((void *)&maint_atmu_regs->rowar, 0x80077015);
++
++	maint_win = (u32) ioremap(law_start, RIO_MAINT_WIN_SIZE);
++
++	/* Configure outbound doorbell window */
++	out_be32((void *)&dbell_atmu_regs->rowbar, 0x000c0400);
++	out_be32((void *)&dbell_atmu_regs->rowar, 0x8004200b);
++	mpc85xx_rio_doorbell_init(port);
++}
+Index: arch/ppc/syslib/ppc85xx_rio.h
+===================================================================
+--- /dev/null  (tree:750e10a6553cacbd2b92b52fe40afdc8062f4f78)
++++ f0bf7810dbe8c4073832d6c3785364084e9523a7/arch/ppc/syslib/ppc85xx_rio.h  (mode:100644)
+@@ -0,0 +1,21 @@
++/*
++ * MPC85xx RapidIO definitions
++ *
++ * Copyright 2005 MontaVista Software, Inc.
++ * Matt Porter <mporter@kernel.crashing.org>
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#ifndef __PPC_SYSLIB_PPC85XX_RIO_H
++#define __PPC_SYSLIB_PPC85XX_RIO_H
++
++#include <linux/config.h>
++#include <linux/init.h>
++
++extern void mpc85xx_rio_setup(int law_start, int law_size);
++
++#endif				/* __PPC_SYSLIB_PPC85XX_RIO_H */
+Index: include/asm-ppc/rio.h
+===================================================================
+--- /dev/null  (tree:750e10a6553cacbd2b92b52fe40afdc8062f4f78)
++++ f0bf7810dbe8c4073832d6c3785364084e9523a7/include/asm-ppc/rio.h  (mode:100644)
+@@ -0,0 +1,18 @@
++/*
++ * RapidIO architecture support
++ *
++ * Copyright 2005 MontaVista Software, Inc.
++ * Matt Porter <mporter@kernel.crashing.org>
++ *
++ * This program is free software; you can redistribute  it and/or modify it
++ * under  the terms of  the GNU General  Public License as published by the
++ * Free Software Foundation;  either version 2 of the  License, or (at your
++ * option) any later version.
++ */
++
++#ifndef ASM_PPC_RIO_H
++#define ASM_PPC_RIO_H
++
++extern void platform_rio_init(void);
++
++#endif				/* ASM_PPC_RIO_H */

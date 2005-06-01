@@ -1,45 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVFAPm6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVFAEOi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261431AbVFAPm6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 11:42:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVFAPls
+	id S261238AbVFAEOi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 00:14:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVFAEOi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 11:41:48 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:21907 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S261390AbVFAPlV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 11:41:21 -0400
-Message-Id: <200506010223.j512NgeC005179@laptop11.inf.utfsm.cl>
-To: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
-cc: Gerd Knorr <kraxel@suse.de>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>, mrmacman_g4@mac.com,
-       toon@hout.vanvergehaald.nl, ltd@cisco.com, linux-kernel@vger.kernel.org,
-       dtor_core@ameritech.net, 7eggert@gmx.de
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog 
-In-Reply-To: Message from lsorense@csclub.uwaterloo.ca (Lennart Sorensen) 
-   of "Tue, 31 May 2005 15:05:56 -0400." <20050531190556.GK23621@csclub.uwaterloo.ca> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.4 (patch 17)
-Date: Tue, 31 May 2005 22:23:42 -0400
-From: Horst von Brand <vonbrand@inf.utfsm.cl>
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0b5 (inti.inf.utfsm.cl [200.1.19.1]); Wed, 01 Jun 2005 11:35:52 -0400 (CLT)
+	Wed, 1 Jun 2005 00:14:38 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:49419 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261238AbVFAEOh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 00:14:37 -0400
+Date: Wed, 1 Jun 2005 06:08:21 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: "Richard B. Johnson" <linux-os@analogic.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Steve Finney <saf76@earthlink.net>,
+       Florian Schmidt <mista.tapas@gmx.net>, linux-kernel@vger.kernel.org
+Subject: Re: Human tIming perception (was: RT patch)
+Message-ID: <20050601040821.GM18600@alpha.home.local>
+References: <10471395.1117558743885.JavaMail.root@wamui-milano.atl.sa.earthlink.net> <1117569835.23283.24.camel@mindpipe> <Pine.LNX.4.61.0505311656080.1233@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0505311656080.1233@chaos.analogic.com>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen <lsorense@csclub.uwaterloo.ca> wrote:
+Hi Richard,
 
-[...]
+On Tue, May 31, 2005 at 05:06:28PM -0400, Richard B. Johnson wrote:
+> Well MIDI runs at 31,250 bits/second or 3,906 bytes per second.
 
-> Well I remember the first time I saw devfs running, I thought "Wow
-> finally I have a way to find the disc that is scsi id 3 on controller 0
-> even if I add a device at id 2 after setting up the system", something
-> most unix systems have always had, but linux made hard (you had to
-> somehow figure out which id mapped to which /dev/sd* entry, which from a
-> users perspective wasn't trivial, and of course keeping your fstab in
-> sync with the mapping was a pain).
+just a little note : 31250 bps/(8 bits+1 start+1 stop) = 3125 bytes/s
 
-Why? Just use LABELs, ou UUIDs.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                     Fono: +56 32 654431
-Universidad Tecnica Federico Santa Maria              +56 32 654239
-Casilla 110-V, Valparaiso, Chile                Fax:  +56 32 797513
+Willy
+

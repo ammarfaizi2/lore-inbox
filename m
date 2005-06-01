@@ -1,97 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVFAJXA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVFAJdr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261341AbVFAJXA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 05:23:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261343AbVFAJW7
+	id S261351AbVFAJdr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 05:33:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVFAJdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 05:22:59 -0400
-Received: from village.ehouse.ru ([193.111.92.18]:12815 "EHLO mail.ehouse.ru")
-	by vger.kernel.org with ESMTP id S261341AbVFAJWt (ORCPT
+	Wed, 1 Jun 2005 05:33:47 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:15236 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261351AbVFAJcK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 05:22:49 -0400
-From: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
-Reply-To: "Sergey S. Kostyliov" <rathamahata@ehouse.ru>
-To: Christopher Warner <chris@servertogo.com>
-Subject: Re: Tyan Opteron boards and problems with parallel ports (badpmd)
-Date: Wed, 1 Jun 2005 13:22:42 +0400
-User-Agent: KMail/1.7.2
-Cc: Joel Jaeggli <joelja@darkwing.uoregon.edu>,
-       Christopher Warner <cwarner@kernelcode.com>,
-       "Peter J. Stieber" <developer@toyon.com>, linux-kernel@vger.kernel.org,
-       Bill Davidsen <davidsen@tmr.com>, admin@list.net.ru
-References: <3174569B9743D511922F00A0C943142309F815A6@TYANWEB> <1117190965.13932.36.camel@sabrina> <200506011316.29771.rathamahata@ehouse.ru>
-In-Reply-To: <200506011316.29771.rathamahata@ehouse.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Jun 2005 05:32:10 -0400
+Date: Wed, 1 Jun 2005 11:27:42 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Don't explode on swsusp failure to find swap
+Message-ID: <20050601092742.GC6693@elf.ucw.cz>
+References: <1117523585.5826.18.camel@gaston> <20050531103623.GB1848@elf.ucw.cz> <1117550706.5826.43.camel@gaston> <1117583403.5826.72.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506011322.42782.rathamahata@ehouse.ru>
+In-Reply-To: <1117583403.5826.72.camel@gaston>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 June 2005 13:16, Sergey S. Kostyliov wrote:
-> On Friday 27 May 2005 14:49, Christopher Warner wrote:
-> > On Thu, 2005-05-26 at 21:41 -0700, Joel Jaeggli wrote:
-> > > On Thu, 26 May 2005, Christopher Warner wrote:
-> > > 
-> > > > Just read the other existing thread linked. Is everyone running the same
-> > > > model opteron on these Tyan boards (246)? To update even further.
-> > > > Besides the parallel port problem I've sent back about 5 of these tyan
-> > > > motherboards. A couple of then simply didn't have the gigabit network
-> > > > adapters available via bios. In some cases linux loaded the drivers for
-> > > > the adapters regardless of their setting in BIOS. In other cases they
-> > > > simply were not available.
-> > > 
-> > > I have 4 tyan s2882's. 2 with 244's and 2GB of ram and 2 with 246 and 4GB 
-> > > of ram. I don't appear to have bad parallel ports or bad ethernet 
-> > > interfaces. They're running fedora core 3's 2.6.11 x86_64 kernel
-> > > (2.6.11-1.14_FC3smp)... I cna't tell you what bios version off the top of 
-> > > my head but i can reboot one tomorrow if that helps.
-> > 
-> > Not to interested in the BIOS versions anymore. As the tyan boards in
-> > question have been rma'd I'm not exactly sure whats going on with them
-> > now. The tyan boards I have in here right now appear to work properly
-> > except for the pmd issue, i've noticed nothing wrong with them besides
-> > that. 
-> > 
-> > What we need is to try and single out the variables that are causing the
-> > badpmd's. Also the more people who report badpmd's with Andi Kleen's
-> > intial patch the better. Especially on different archs; would also be
-> > good. So far from lkml i'm only seeing Tyan S28* boards as of recent.
-> We have run into different problem (for our different from S28*arch)
-> for the box which had had badpmd issues with v2.6.11 (see:
->     http://seclists.org/lists/linux-kernel/2005/May/6369.html)
-Oops, wrong link, right one is: http://lkml.org/lkml/2005/3/11/42
+Hi!
 
+> > > > If we specify a swap device for swsusp using resume= kernel argument and
+> > > > that device doesn't exist in the swap list, we end up calling
+> > > > swsusp_free() before we have allocated pagedir_save. That causes us to
+> > > > explode when trying to free it.
+> > > > 
+> > > > Pavel, does that look right ?
+> > > 
+> > > It looks like a workaround. We should not call swsusp_free in case
+> > > device does not exists. Quick look did not reveal where the bug comes
+> > > from, can you try to trace it?
+> > > 								Pavel
+> > 
+> > Well, the bug comes from arch code calling swsusp_save() which fails,
+> > then we call swsusp_free()
 > 
-> with 2.6.12-rc5 we are always getting dozens of user-space segfaults:
+> More specifically, arch suspend calls swsusp_save().
 > 
-> grep[25377]: segfault at 0000000000014aa0 rip 00002aaaaad37130 rsp 00007fffffb13cb8 error4
-> grep[29940]: segfault at 0000000000014aa0 rip 00002aaaaad37130 rsp 00007fffff913428 error4
-> sed[5849] general protection rip:40bac5 rsp:7fffffb231d0 error:0
-> sed[27437] general protection rip:40bac5 rsp:7ffffff248c0 error:0
-> sed[27473] general protection rip:40bac5 rsp:7fffff923740 error:0
-> sed[27472] general protection rip:40bac5 rsp:7fffff923740 error:0
-> sed[28434] general protection rip:406965 rsp:7fffffb23f10 error:0
-> grep[32583]: segfault at 0000000000014aa0 rip 00002aaaaad37130 rsp 00007fffffd13b58 error4
-> sed[9074] general protection rip:40bac5 rsp:7fffffb248a0 error:0
-> sed[9546] general protection rip:406965 rsp:7fffffb23cc0 error:0
-> sed[4331] general protection rip:40bac5 rsp:7fffff922fb0 error:0
-> sed[17906] general protection rip:40bac5 rsp:7fffffd24b30 error:0
-> sed[17934] general protection rip:40bac5 rsp:7fffffd243a0 error:0
-> sed[19555] general protection rip:40bac5 rsp:7fffff924ad0 error:0
-> sed[20453] general protection rip:40bac5 rsp:7ffffff23010 error:0
+> It fails and returns the error to the arch asm code, which itself
+> returns it to it's caller swsusp_suspend(), which does that:
 > 
-> during the build of mysql.
-> 
-> There also was an oops with v2.6.12-rc3 for the same box:
-> http://seclists.org/lists/linux-kernel/2005/May/6369.html
-> 
-> Box passed two iterations of memtest86 (unfortunately this
-> is a production box, so we can't wait for days).
-> 
+>  	if ((error = swsusp_arch_suspend()))
+> 		swsusp_free();
 
--- 
-Sergey S. Kostyliov <rathamahata@ehouse.ru>
-Jabber ID: rathamahata@jabber.org
+Ugh, swsusp_free should be totally unneccessary at this point; only
+error returns are from the time before anything is allocated.
+
+Does something like this help?
+
+diff --git a/kernel/power/swsusp.c b/kernel/power/swsusp.c
+--- a/kernel/power/swsusp.c
++++ b/kernel/power/swsusp.c
+@@ -975,13 +975,6 @@ extern asmlinkage int swsusp_arch_resume
+ 
+ asmlinkage int swsusp_save(void)
+ {
+-	int error = 0;
+-
+-	if ((error = swsusp_swap_check())) {
+-		printk(KERN_ERR "swsusp: FATAL: cannot find swap device, try "
+-				"swapon -a!\n");
+-		return error;
+-	}
+ 	return suspend_prepare_image();
+ }
+ 
+@@ -999,12 +992,19 @@ int swsusp_suspend(void)
+ 	 */
+ 	if ((error = device_power_down(PMSG_FREEZE))) {
+ 		local_irq_enable();
+-		swsusp_free();
+ 		return error;
+ 	}
++
++	if ((error = swsusp_swap_check())) {
++		printk(KERN_ERR "swsusp: FATAL: cannot find swap device, try "
++				"swapon -a!\n");
++		local_irq_enable();
++		return error;
++	}
++
+ 	save_processor_state();
+ 	if ((error = swsusp_arch_suspend()))
+-		swsusp_free();
++		printk("Error %d suspending\n", error);
+ 	/* Restore control flow magically appears here */
+ 	restore_processor_state();
+ 	BUG_ON (nr_copy_pages_check != nr_copy_pages);

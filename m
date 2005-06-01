@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbVFAM6B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVFAM6p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261171AbVFAM6B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 08:58:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVFAM6B
+	id S261190AbVFAM6p (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 08:58:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVFAM6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 08:58:01 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:54005 "EHLO
-	godzilla.mvista.com") by vger.kernel.org with ESMTP id S261171AbVFAM57
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 08:57:59 -0400
-Date: Wed, 1 Jun 2005 05:57:55 -0700 (PDT)
-From: Daniel Walker <dwalker@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org, sdietrich@mvista.com, rostedt@goodmis.org,
-       inaky.perez-gonzalez@intel.com
-Subject: Re: [PATCH] Abstracted Priority Inheritance for RT
-In-Reply-To: <20050601075414.GA25081@elte.hu>
-Message-ID: <Pine.LNX.4.10.10506010542420.23911-100000@godzilla.mvista.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 1 Jun 2005 08:58:45 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:19418 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261190AbVFAM6l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 08:58:41 -0400
+Subject: Re: Swap maximum size documented ?
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jakob Oestergaard <jakob@unthought.net>
+Cc: david.balazic@hermes.si, linux-kernel@vger.kernel.org
+In-Reply-To: <20050601124025.GZ422@unthought.net>
+References: <200506011225.j51CPDV23243@lastovo.hermes.si>
+	 <20050601124025.GZ422@unthought.net>
+Content-Type: text/plain
+Date: Wed, 01 Jun 2005 14:58:37 +0200
+Message-Id: <1117630718.6271.31.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+> > The mkwap(8) man page claims, that currently the limit is 
+> > 32 swap areas of maximum 2 gigabyte size (for x86 arch). 
+> > 
+> > Is that correct ? 
+> 
+> Not on 2.6 kernels, no.
 
-On Wed, 1 Jun 2005, Ingo Molnar wrote:
-
-> i'd rather not slow things down by callbacks and other abstraction 
-> before seeing how things want to integrate in fact. Do we really need 
-> the callbacks?
-
-I think it would be hard to do without a way to signal when a waiter
-changes priorties. Since other structures could handle it differently.
-
-Another problem is that there needs to be a clear way to know which
-structure owns the rt_mutex_waiter . Something in there needs to be 
-unique. It can't be assumed anymore that everything is an rt_mutex. 
-
-The lock owner could be put into the rt_mutex_waiter structure. Which
-would make the structure bigger, but it's usually stack space. This would
-also create some duplicate data since every waiter would need to hold the
-owners task_struct pointer. 
-
-
-Daniel
+it's not even true for 2.4 kernels btw; it was a 2.2 and before issue
 

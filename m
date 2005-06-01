@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVFAV3R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVFAVam@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261292AbVFAV3R (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 17:29:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbVFAV0v
+	id S261186AbVFAVam (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 17:30:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVFAVah
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 17:26:51 -0400
-Received: from mail.kroah.org ([69.55.234.183]:36756 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261292AbVFAV0D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 17:26:03 -0400
-Date: Wed, 1 Jun 2005 14:36:16 -0700
-From: Greg KH <greg@kroah.com>
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: [PATCH] PCI: add modalias sysfs file for pci devices
-Message-ID: <20050601213616.GA4192@kroah.com>
-References: <11163663063114@kroah.com> <429C95BF.3070102@tls.msk.ru>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <429C95BF.3070102@tls.msk.ru>
-User-Agent: Mutt/1.5.8i
+	Wed, 1 Jun 2005 17:30:37 -0400
+Received: from relais.videotron.ca ([24.201.245.36]:15524 "EHLO
+	relais.videotron.ca") by vger.kernel.org with ESMTP id S261186AbVFAV3v
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 17:29:51 -0400
+Date: Wed, 01 Jun 2005 17:29:48 -0400 (EDT)
+From: Nicolas Pitre <nico@cam.org>
+Subject: Re: RT patch acceptance
+In-reply-to: <20050601210716.GB5413@g5.random>
+X-X-Sender: nico@localhost.localdomain
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Bill Huey <bhuey@lnxw.com>, Esben Nielsen <simlo@phys.au.dk>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Karim Yaghmour <karim@opersys.com>, Ingo Molnar <mingo@elte.hu>,
+       Paulo Marques <pmarques@grupopie.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       James Bruce <bruce@andrew.cmu.edu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
+       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Message-id: <Pine.LNX.4.63.0506011724310.17354@localhost.localdomain>
+MIME-version: 1.0
+Content-type: TEXT/PLAIN; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+References: <20050601192224.GV5413@g5.random>
+ <Pine.OSF.4.05.10506012129460.1707-100000@da410.phys.au.dk>
+ <20050601195905.GX5413@g5.random> <20050601201754.GA27795@nietzsche.lynx.com>
+ <20050601203212.GZ5413@g5.random> <20050601204612.GA27934@nietzsche.lynx.com>
+ <20050601210716.GB5413@g5.random>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 31, 2005 at 08:50:07PM +0400, Michael Tokarev wrote:
-> Greg KH wrote:
-> > [PATCH] PCI: add modalias sysfs file for pci devices
-> [With similar patch and $MODALIAS in hotplug path stuff
->  submitted for USB]
+On Wed, 1 Jun 2005, Andrea Arcangeli wrote:
+
+> Why don't you run grep yourself, this is only drivers/
 > 
-> Speaking of all this...  While the two (USB and PCI) are
-> most important nowadays...  Hmm, so probably all other
-> similar "busses", like PCMCIA, even bluetooth, and "not
-> so obvious ones" like IDE and SCSI, and PNP&EISA -- this
-> same approach may be used for all, providing device/modalias
-> file for all (scsi:t0 for sd_mod etc), and $MODALIAS for
-> hotpluggable ones, with appropriate .modalias in modules...
-> 
-> I mean, are we on the way to converting just everything
-> into this modalias thing, so that hotplug/modloading will
-> be just one-liner?
+[...]
+> ./mtd/chips/cfi_cmdset_0001.c:	local_irq_disable();
+> ./mtd/chips/cfi_cmdset_0001.c:			local_irq_disable();
 
-Yes, care to make up patches for these other busses?
+I can speak at least for those two since I added them and they are 
+indeed OK with RT and actually needed even with RT.
 
-thanks,
+> As said even if all the above is audited, it _can_ break over time,
+> while it wouldn't break with RTAI/rtlinux even if you infinite loop and
+> hang in there.
 
-greg k-h
+Actualy it's RTAI/rtlinux which is broken wrt the above IRQ disable.
+See for yourself when they're used and watch RTAI/rtlinux crash.  
+
+
+Nicolas

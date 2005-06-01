@@ -1,61 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVFAChH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVFACnd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbVFAChH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 22:37:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVFAChH
+	id S261241AbVFACnd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 22:43:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261242AbVFACnd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 22:37:07 -0400
-Received: from fsmlabs.com ([168.103.115.128]:11459 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261240AbVFAChB (ORCPT
+	Tue, 31 May 2005 22:43:33 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:36314 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261241AbVFACn1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 22:37:01 -0400
-Date: Tue, 31 May 2005 20:38:30 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Steven Rostedt <rostedt@goodmis.org>
-cc: Lee Revell <rlrevell@joe-job.com>, Andrea Arcangeli <andrea@suse.de>,
-       Esben Nielsen <simlo@phys.au.dk>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, hch@infradead.org, dwalker@mvista.com,
-       Ingo Molnar <mingo@elte.hu>,
-       Sven-Thorsten Dietrich <sdietrich@mvista.com>, Andi Kleen <ak@muc.de>,
-       "Bill Huey (hui)" <bhuey@lnxw.com>,
+	Tue, 31 May 2005 22:43:27 -0400
+Date: Tue, 31 May 2005 19:42:07 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Esben Nielsen <simlo@phys.au.dk>,
+       James Bruce <bruce@andrew.cmu.edu>,
        Nick Piggin <nickpiggin@yahoo.com.au>,
-       James Bruce <bruce@andrew.cmu.edu>
+       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Philippe Gerum <rpm@xenomai.org>
 Subject: Re: RT patch acceptance
-In-Reply-To: <1117582887.4749.6.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.61.0505312036410.23809@montezuma.fsmlabs.com>
-References: <Pine.OSF.4.05.10505311347290.1707-100000@da410.phys.au.dk> 
- <1117556283.2569.26.camel@localhost.localdomain>  <20050531171143.GS5413@g5.random>
-  <1117561379.2569.57.camel@localhost.localdomain>  <20050531175152.GT5413@g5.random>
-  <1117564192.2569.83.camel@localhost.localdomain>  <20050531205424.GV5413@g5.random>
-  <1117574551.5511.19.camel@localhost.localdomain>  <1117576067.23573.16.camel@mindpipe>
- <1117582887.4749.6.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20050601024207.GC1337@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20050531143051.GL5413@g5.random> <Pine.OSF.4.05.10505311652140.1707-100000@da410.phys.au.dk> <20050531161157.GQ5413@g5.random> <20050531183627.GA1880@us.ibm.com> <20050531204544.GU5413@g5.random> <429D0C13.3000006@opersys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <429D0C13.3000006@opersys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 31 May 2005, Steven Rostedt wrote:
-
-> On Tue, 2005-05-31 at 17:47 -0400, Lee Revell wrote:
-> > On Tue, 2005-05-31 at 17:22 -0400, Steven Rostedt wrote:
-> > > I wouldn't call RTAI, RTLinux or a nano-kernel (embedded with Linux)
-> > > "Diamond" hard.  Maybe "Ruby" hard, but not diamond.  Remember, I use to
-> > > test code that was running airplane engines, and none of those mentioned
-> > > would qualify to run that.
-> > 
-> > I think trying to make these types of distinctions is a waste of time.
-> > What matters is the MTBF of the software relative to the hardware on a
-> > given system.  It would be stupid to use a commercial RTOS for a cell
-> > phone because they fall apart in a year anyway and users don't seem to
-> > care.  Ditto anything running on PC hardware.  For an airplane the MTBF
-> > obviously must be more in line with that hardware which hopefully is way
-> > more reliable.
+On Tue, May 31, 2005 at 09:14:59PM -0400, Karim Yaghmour wrote:
 > 
-> Agreed.  I only brought up the stupid names just to show that there's
-> not a black and white aspect to what RT is.  It's mainly a black art
-> since there's no way to know how many bugs a program has, and how do you
-> truly calculate the MTBF, other than running it on the hardware itself?
+> [ removed a lot of interesting stuff ... ]
+> 
+> Andrea Arcangeli wrote:
+> > The point where preempt-RT enters the hard-RT equation, is only if you need
+> > syscall execution in realtime (like audio, but audio doesn't need
+> > hard-RT, so preempt-RT can only do good from an audio standpoint, it
+> > makes perfect sense that jack is used as argument for preempt-RT). If
+> > you need syscalls with hard-RT, the whole thing gets an order of
+> > magnitude more complicated and software becomes involved anyways, so
+> > then one can just hope that preempt-RT will get everything right and
+> > that somebody will demonstrate it.
+> 
+> Please have a look at RTAI-fusion. It provides deterministic
+> replacements for rt-able syscalls _transparently_ to STANDARD
+> Linux applications. For example, an unmodified Linux application
+> can get a deterministic nanosleep() via RTAI-fusion. The way
+> this works, is that rtai-fusion catches the syscalls prior to
+> them reaching Linux. So even the syscall thing isn't really a
+> limitation for RTAI anymore.
 
-This discussion has digressed even further beyond hard/soft realtime 
-to reliability and fault tolerance (airplane engine), which is not 
-the same thing.
+I -completely- misinterpreted
+
+	http://www.fdn.fr/~brouchou/rtai/rtai-doc-prj/rtai-fusion.html
+
+on first reading some months ago.  It looks much more interesting
+on second reading.  It does not have the degree of isolation that
+the pure double-kernel approaches do, since as the paper states,
+Linux can "hide" tasks that are waking up from I/O events.
+However, it does appear to provide a unified user-level environment.
+
+I will add it to my list of approaches to realtime in Linux!
+
+					Thanx, Paul
+
+> Philippe would be in a better position to elaborate, but that's
+> the essentials of it.
+> 
+> Karim
+> -- 
+> Author, Speaker, Developer, Consultant
+> Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+> http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+> 

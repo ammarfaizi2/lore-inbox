@@ -1,54 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261214AbVFADf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261217AbVFADih@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261214AbVFADf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 23:35:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261217AbVFADf5
+	id S261217AbVFADih (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 23:38:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVFADih
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 23:35:57 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:33672 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261214AbVFADfv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 23:35:51 -0400
-Subject: Re: [PATCH] Abstracted Priority Inheritance for RT
-From: Steven Rostedt <rostedt@goodmis.org>
-To: dwalker@mvista.com
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, sdietrich@mvista.com,
-       inaky.perez-gonzalez@intel.com
-In-Reply-To: <1117594659.3798.18.camel@dhcp153.mvista.com>
-References: <1117594659.3798.18.camel@dhcp153.mvista.com>
+	Tue, 31 May 2005 23:38:37 -0400
+Received: from adsl-69-149-197-17.dsl.austtx.swbell.net ([69.149.197.17]:15777
+	"EHLO gw.microgate.com") by vger.kernel.org with ESMTP
+	id S261217AbVFADi3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 23:38:29 -0400
+Subject: Re: [PATCH 1/2] Introduce tty_unregister_ldisc()
+From: Paul Fulghum <paulkf@microgate.com>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <1117578491.4627.14.camel@at2.pipehead.org>
+References: <200505312356.00853.adobriyan@gmail.com>
+	 <1117578491.4627.14.camel@at2.pipehead.org>
 Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Tue, 31 May 2005 23:35:29 -0400
-Message-Id: <1117596929.4719.14.camel@localhost.localdomain>
+Date: Tue, 31 May 2005 22:38:08 -0500
+Message-Id: <1117597088.5888.18.camel@at2.pipehead.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel, 
+On Tue, 2005-05-31 at 17:28 -0500, Paul Fulghum wrote:
+> An unmodified ldisc driver (externally maintained) will continue to call
+> tty_register_ldisc with NULL, but the new behavior will be to set the
+> ldisc pointer to NULL but have LDISC_FLAG_DEFINED set.
 
-I'll start taking a closer look at it tomorrow, but on first working
-with it, you might want to change the following config on
-PRIORITY_INHERITANCE.  At least for me on a "make oldconfig" the default
-is usually "No" so I made the following change. It may even be wise to
-just force it. I haven't taking a look yet, but would PREEMPT_RT work
-without the inheritance?
+I was partially wrong.
+After Alexey's patch, a NULL new_ldisc is accessed 
+(not assigned) causing an oops. This is still not
+good behavior.
 
--- Steve
+As for the refcount bug, this patch should fix it.
+Comments?
 
---- lib/Kconfig.RT.orig	2005-05-31 23:29:41.000000000 -0400
-+++ lib/Kconfig.RT	2005-05-31 23:29:56.000000000 -0400
-@@ -88,7 +88,7 @@
- 
- config PRIORITY_INHERITANCE
- 	bool "Priority Inheritance"
--	default n if !PREEMPT_RT 
-+	default y if PREEMPT_RT 
- 	help
- 	  This option enables system wide priority inheritance. It will
- 	  enable a high priority waiting task to transfer it's priority
+--
+Paul Fulghum
+paulkf@microgate.com
 
-
+--- linux-2.6.11/drivers/char/tty_io.c	2005-03-02 01:38:10.000000000 -0600
++++ b/drivers/char/tty_io.c	2005-05-31 22:10:41.000000000 -0500
+@@ -262,16 +262,16 @@ int tty_register_ldisc(int disc, struct 
+ 		return -EINVAL;
+ 	
+ 	spin_lock_irqsave(&tty_ldisc_lock, flags);
+-	if (new_ldisc) {
++	if ((tty_ldiscs[disc].flags & LDISC_FLAG_DEFINED) &&
++	    tty_ldiscs[disc].refcount)
++		ret = -EBUSY;
++	else if (new_ldisc) {
+ 		tty_ldiscs[disc] = *new_ldisc;
+ 		tty_ldiscs[disc].num = disc;
+ 		tty_ldiscs[disc].flags |= LDISC_FLAG_DEFINED;
+ 		tty_ldiscs[disc].refcount = 0;
+ 	} else {
+-		if(tty_ldiscs[disc].refcount)
+-			ret = -EBUSY;
+-		else
+-			tty_ldiscs[disc].flags &= ~LDISC_FLAG_DEFINED;
++		tty_ldiscs[disc].flags &= ~LDISC_FLAG_DEFINED;
+ 	}
+ 	spin_unlock_irqrestore(&tty_ldisc_lock, flags);
+ 	
 
 

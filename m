@@ -1,85 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVFAARZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVFAA5k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261215AbVFAARZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 31 May 2005 20:17:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261219AbVFAARZ
+	id S261207AbVFAA5k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 31 May 2005 20:57:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbVFAA5k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 31 May 2005 20:17:25 -0400
-Received: from smtp2.poczta.interia.pl ([213.25.80.232]:40549 "EHLO
-	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
-	id S261215AbVFAARP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 31 May 2005 20:17:15 -0400
-Message-ID: <429CFE7F.20304@poczta.fm>
-Date: Wed, 01 Jun 2005 02:17:03 +0200
-From: Lukasz Stelmach <stlman@poczta.fm>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: pl, en-us, en
+	Tue, 31 May 2005 20:57:40 -0400
+Received: from mail03.syd.optusnet.com.au ([211.29.132.184]:29640 "EHLO
+	mail03.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261244AbVFAAyj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 31 May 2005 20:54:39 -0400
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: jfisch@cs.pdx.edu, chris@mind.lu
-Subject: Re: Driver for MCS7780 USB-IrDA bridge chip
-References: <42943CB5.50400@poczta.fm>
-In-Reply-To: <42943CB5.50400@poczta.fm>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig2AAC33D874C3026FF0520A54"
-X-EMID: e5c6a138
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17053.180.604190.389481@wombat.chubb.wattle.id.au>
+Date: Wed, 1 Jun 2005 10:26:28 +1000
+From: Peter Chubb <peterc@gelato.unsw.edu.au>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: James Bruce <bruce@andrew.cmu.edu>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>,
+       Ingo Molnar <mingo@elte.hu>, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+In-Reply-To: <Pine.OSF.4.05.10505311347290.1707-100000@da410.phys.au.dk>
+References: <429C4112.2010808@andrew.cmu.edu>
+	<Pine.OSF.4.05.10505311347290.1707-100000@da410.phys.au.dk>
+X-Mailer: VM 7.17 under 21.4 (patch 17) "Jumbo Shrimp" XEmacs Lucid
+Comments: Hyperbole mail buttons accepted, v04.18.
+X-Face: GgFg(Z>fx((4\32hvXq<)|jndSniCH~~$D)Ka:P@e@JR1P%Vr}EwUdfwf-4j\rUs#JR{'h#
+ !]])6%Jh~b$VA|ALhnpPiHu[-x~@<"@Iv&|%R)Fq[[,(&Z'O)Q)xCqe1\M[F8#9l8~}#u$S$Rm`S9%
+ \'T@`:&8>Sb*c5d'=eDYI&GF`+t[LfDH="MP5rwOO]w>ALi7'=QJHz&y&C&TE_3j!
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig2AAC33D874C3026FF0520A54
-Content-Type: text/plain; charset=ISO-8859-2
-Content-Transfer-Encoding: quoted-printable
+>>>>> "Esben" == Esben Nielsen <simlo@phys.au.dk> writes:
 
-Greetings Everyone.
+Esben> On Tue, 31 May 2005, James Bruce wrote:
+>> 
+>> It is only better in that if you need provable hard-RT *right now*,
+>> then you have to use a nanokernel.
 
-The new, shiny 0.2alpha.3 release is ready to test it, smash it and blow
-it off ;-)
+Esben> What do you mean by "provable"? Security critical? Forget about
+Esben> nanokernels then. The WHOLE system has to be validated. 
 
-The major improvement is support for other SIR speeds: 2400 through
-115200 bps. Well I think they will work but frankly speaking I haven't
-tested them because my Handspring always negotiates the highest rate.
+The whole point of a nanokernel is it's *small*.  The whole thing can
+be formally verified.  And its semantics will provide isolation
+between the real-time processes and anything else that's running.
 
-I am sure there is quite a lot of bugs left so *please* test it as much
-as you can. I am realy convinced that performance may be a really big
-problem so I will appreciate any comments on the design.
+We're currently working on a system called Iguana, which will have
+provable WCET for real-time scheduled tasks, and a Linux envionrment
+(called `wombat') that provides compatibility for 
 
-Source tarball is available at:
+Esben> I can't see it would be easier prove that a nano-kernel with
+Esben> various needed mutex and queuing mechanism works correct than
+Esben> it is to prove that the Linux scheduler with mutex and queueing
+Esben> mechanisms works correctly.  
 
-http://www.ee.pw.edu.pl/~stelmacl/mcs7780-0.2alpha.3.tar.bz2
-http://www.ee.pw.edu.pl/~stelmacl/mcs7780-0.2alpha.3.tar.bz2.asc (sig)
+Except that the nano-kernel is less than one percent of the size.
 
-or
+Both systems does the same thing
+Esben> and is most likely based on the same principles!  If a module
+Esben> in Linux disables interrupts for a non-deterministic amount of
+Esben> time, it destroys the RT in both scenarious. With the
+Esben> nanokernel, the Linux kernel is patched not to disable
+Esben> interrupts, but if someone didn't use the official
+Esben> local_irq_disable() macro the patch didn't work anyway...  The
+Esben> only way you can be absolutely sure Linux doesn't hurt RT is to
+Esben> run it in a full blown virtuel machine where it doesn't have
+Esben> access to disable interrupts and otherwise interfere with the
+Esben> nano-kernel.
 
-http://stlman.fm.interia.pl/mcs7780-0.2alpha.3.tar.bz2
-http://stlman.fm.interia.pl/mcs7780-0.2alpha.3.tar.bz2.asc (sig)
+This is precisely the approach we (and others) are taking.   A
+virtualised Linux to provide interactive and soft realtime (think java
+games on your mobile phone), and a nanokernel for your hard realtime
+tasks (think the radio controller on your mobile phone).  
+See http://www.disy.cse.unsw.edu.au/Software/Iguana/ for our work.
 
-To answer your question: I will make a patch but let me first be sure it
-is usable and at least beta-stable. You can help ;-)
+In addition to our work, there's the Adeos system
+(http://www.hyades-itea.org/) uses a very similar approach.
 
-Always yours.
---=20
-By=B3o mi bardzo mi=B3o.                    Trzecia pospolita kl=EAska, [=
-=2E..]
->=A3ukasz<                      Ju=BF nie katolicka lecz z=B3odziejska.  =
-(c)PP
-
-
---------------enig2AAC33D874C3026FF0520A54
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCnP6DNdzY8sm9K9wRAoRyAJwJsyHstmFnLQ6nC7R1TUVKLuU5bQCePsGR
-mfUMkSAYedr+eaNbykHX1oU=
-=TLcS
------END PGP SIGNATURE-----
-
---------------enig2AAC33D874C3026FF0520A54--
+-- 
+Dr Peter Chubb  http://www.gelato.unsw.edu.au  peterc AT gelato.unsw.edu.au
+The technical we do immediately,  the political takes *forever*

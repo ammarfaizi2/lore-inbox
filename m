@@ -1,69 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVFAHlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVFAHsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261317AbVFAHlL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 03:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVFAHlL
+	id S261320AbVFAHsW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 03:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVFAHsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 03:41:11 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:60389 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261317AbVFAHlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 03:41:00 -0400
-Date: Wed, 1 Jun 2005 09:40:59 +0200
-From: Jan Kara <jack@suse.cz>
-To: akpm@osdl.org
-Cc: sct@redhat.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] Fix log_do_checkpoint() assertion failure
-Message-ID: <20050601074059.GD5933@atrey.karlin.mff.cuni.cz>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="5G06lTa6Jq83wMTw"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
+	Wed, 1 Jun 2005 03:48:22 -0400
+Received: from one.firstfloor.org ([213.235.205.2]:10133 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261320AbVFAHsT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 03:48:19 -0400
+To: michael@optusnet.com.au
+Cc: Denis Vlasenko <vda@ilport.com.ua>,
+       dean gaudet <dean-list-linux-kernel@arctic.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Benjamin LaHaise <bcrl@kvack.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC] x86-64: Use SSE for copy_page and clear_page
+References: <20050530181626.GA10212@kvack.org> <20050530193225.GC25794@muc.de>
+	<200505311137.00011.vda@ilport.com.ua>
+	<200505311215.06495.vda@ilport.com.ua> <20050531092358.GA9372@muc.de>
+	<m2zmuaee2z.fsf@mo.optusnet.com.au>
+From: Andi Kleen <ak@muc.de>
+Date: Wed, 01 Jun 2005 09:48:17 +0200
+In-Reply-To: <m2zmuaee2z.fsf@mo.optusnet.com.au> (michael@optusnet.com.au's
+ message of "01 Jun 2005 17:22:28 +1000")
+Message-ID: <m1br6qwm9q.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+michael@optusnet.com.au writes:
+>
+> Key point: "using it". This normally involves writes to memory. Most
+> applications don't commonly read memory that they haven't previously
+> written to. (valgrind et al call that behaviour a "bug" :).
+>
+> Given that, I'd say you really don't want the page zero routines
+> touching the cache.
 
---5G06lTa6Jq83wMTw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Writing on a modern CPU requires reading first too to get the rest
+of the cache line (provided you don't use write combing or uncached
+accesses)
 
-  Hello,
-
-  attached one liner fixes possible false assertion failure in
-log_do_checkpoint(). We might fail to detect that we actually made a
-progress when cleaning up the checkpoint lists if we don't retry after
-writing something to disk. The patch was confirmed to fix observed
-assertion failures for several users. Please apply.
-
-								Honza
-
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
-
---5G06lTa6Jq83wMTw
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="jbd-2.6.12-rc5-1-checkretry.diff"
-
-When we flushed some buffers we need to retry scanning the list.
-Otherwise we can fail to detect our progress.
-
-Signed-off-by: Jan Kara <jack@suse.cz>
-
-diff -rupX /home/jack/.kerndiffexclude linux-2.6.12-rc5/fs/jbd/checkpoint.c linux-2.6.12-rc5-1-checkretry/fs/jbd/checkpoint.c
---- linux-2.6.12-rc5/fs/jbd/checkpoint.c	2005-03-03 18:58:29.000000000 +0100
-+++ linux-2.6.12-rc5-1-checkretry/fs/jbd/checkpoint.c	2005-05-27 11:15:31.000000000 +0200
-@@ -339,8 +339,10 @@ int log_do_checkpoint(journal_t *journal
- 			}
- 		} while (jh != last_jh && !retry);
- 
--		if (batch_count)
-+		if (batch_count) {
- 			__flush_batch(journal, bhs, &batch_count);
-+			retry = 1;
-+		}
- 
- 		/*
- 		 * If someone cleaned up this transaction while we slept, we're
-
---5G06lTa6Jq83wMTw--
+-Andi

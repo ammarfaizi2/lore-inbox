@@ -1,35 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261489AbVFARna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261474AbVFARZ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261489AbVFARna (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 13:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261486AbVFARmf
+	id S261474AbVFARZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 13:25:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVFARZZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 13:42:35 -0400
-Received: from sp-260-1.net4.netcentrix.net ([4.21.254.118]:26129 "EHLO
-	asmodeus.mcnaught.org") by vger.kernel.org with ESMTP
-	id S261489AbVFARlg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 13:41:36 -0400
-To: Evgeniy Shapiro <shellinux@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.8 problem
-References: <4ccc54a905060106005fbe91b6@mail.gmail.com>
-From: Douglas McNaught <doug@mcnaught.org>
-Date: Wed, 01 Jun 2005 13:25:00 -0400
-In-Reply-To: <4ccc54a905060106005fbe91b6@mail.gmail.com> (Evgeniy Shapiro's message of "Wed, 1 Jun 2005 14:00:00 +0100")
-Message-ID: <m2fyw27zwz.fsf@Douglas-McNaughts-Powerbook.local>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (darwin)
-MIME-Version: 1.0
+	Wed, 1 Jun 2005 13:25:25 -0400
+Received: from fire.osdl.org ([65.172.181.4]:30623 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261474AbVFARZV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 13:25:21 -0400
+Date: Wed, 1 Jun 2005 10:25:05 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Con Kolivas <kernel@kolivas.org>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, ck list <ck@vds.kolivas.org>
+Subject: Re: [PATCH] Sample fix for hyperthread exploit
+Message-ID: <20050601172505.GM23013@shell0.pdx.osdl.net>
+References: <200506012158.39805.kernel@kolivas.org> <1117627597.6271.29.camel@laptopd505.fenrus.org> <200506012213.25445.kernel@kolivas.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200506012213.25445.kernel@kolivas.org>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Evgeniy Shapiro <shellinux@gmail.com> writes:
+* Con Kolivas (kernel@kolivas.org) wrote:
+> On Wed, 1 Jun 2005 22:06, Arjan van de Ven wrote:
+> > > Comments?
+> >
+> > I don't think it's really worth it, but if you go this way I'd rather do
+> > this via a prctl() so that apps can tell the kernel "I'd like to run
+> > exclusive on a core". That'd be much better than blindly isolating all
+> > applications.
+> 
+> I agree, and this is where we (could) implement the core isolation. I'm still 
+> under the impression (as you appear to be) that this theoretical exploit is 
+> not worth trying to work around.
 
-> I have a problem with 2.6.8 kernel (Suse 9.2 default) running on dual
-> opteron machine, The machine goes into hard lock 3-4 times a day with
-> the following message:
+Also, uid is not sufficient.  Something more comprehensive (like ability
+to ptrace) would be appropriate.
 
-This list isn't for vendor kernel support--you should open a trouble
-ticket with SuSE.
-
--Doug
+thanks,
+-chris

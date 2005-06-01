@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261184AbVFAKNM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVFAKQI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261184AbVFAKNM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 06:13:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVFAKNF
+	id S261153AbVFAKQI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 06:16:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVFAKPT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 06:13:05 -0400
-Received: from nproxy.gmail.com ([64.233.182.199]:33512 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261184AbVFAKM5 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 06:12:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=l422eINCWxauhMpUHzxHd8L92XEsmGvsYGP76CYSDL7wlVEzkOde5IQxr6J1IzkdnWXbXy8nQXHnsIoOAPbUNBRhT8fvLroJIWJvSc9piFEG/Ml2ZQZ9dcNEtpT+GeZLDpFTZkwmnRJEecI3NR//kBwvoHroMEf+9znBxvMA26Q=
-Message-ID: <2cd57c9005060103122b2bae36@mail.gmail.com>
-Date: Wed, 1 Jun 2005 18:12:55 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: coywolf@lovecn.org
-To: cotte@freenet.de
-Subject: Re: [RFC/PATCH 0/5] add execute in place support
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       schwidefsky@de.ibm.com, akpm@osdl.org
-In-Reply-To: <428216DF.8070205@de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <428216DF.8070205@de.ibm.com>
+	Wed, 1 Jun 2005 06:15:19 -0400
+Received: from smtp2.poczta.interia.pl ([213.25.80.232]:42090 "EHLO
+	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
+	id S261186AbVFAKNZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 06:13:25 -0400
+Message-ID: <429D8A3A.8000304@poczta.fm>
+Date: Wed, 01 Jun 2005 12:13:14 +0200
+From: Lukasz Stelmach <stlman@poczta.fm>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: [OT] mailing list management
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig89441145A6AA2A3D936D5A18"
+X-EMID: 228a138
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/11/05, Carsten Otte <cotte@de.ibm.com> wrote:
-> Folks,
-> 
-> this is the intro to a small series of patches that introduce execute
-> in place into the I/O stack. File I/O to memory-backed block
-> devices is performed directly, bypassing the page cache and io
-> schedulers. On s390, we use this for block devices based on shared
-> memory between multiple virtual machines. This is also useful on
-> embedded systems where the block device is located on a flash chip.
-> This work is a result of a prior discussion with Andrew Morton
-> about my first implementation which basically was a filesystem
-> derived from ext2.
-> 
-> As I'd like to aim for integration into -mm and vanilla later on,
-> I'd like to encourage everyone to give it a read and provide
-> feedback. All patches apply against git-head as of today.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig89441145A6AA2A3D936D5A18
+Content-Type: text/plain; charset=ISO-8859-2
+Content-Transfer-Encoding: quoted-printable
 
-I feel the name "execute in place" misleading. This is not the real
-XIP, IMHO. Invent another term or be tolerant?
--- 
-Coywolf Qi Hunt
-http://ahbl.org/~coywolf/
+Greetings Everyone.
+
+Let me share with you my idea to make writing to this list kind of
+easier. Several times I have happened to send replies to e-mails on this
+list directly to their authors instead of the list. I suggest
+(re)placing any Reply-To headers in incoming letters with Reply-To:
+linux-kernel@... before delivering them to subscribers.
+
+I know this may be done with procmail but not all of us may use it.
+
+Best regards.
+--=20
+By=B3o mi bardzo mi=B3o.                    Trzecia pospolita kl=EAska, [=
+=2E..]
+>=A3ukasz<                      Ju=BF nie katolicka lecz z=B3odziejska.  =
+(c)PP
+
+
+--------------enig89441145A6AA2A3D936D5A18
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCnYo+NdzY8sm9K9wRAuY2AJ92hFrpAcWhmXs6wgMnSeijREM6yQCbBpy6
+p6EubMS7E5vW1htwyVlp3mY=
+=J22h
+-----END PGP SIGNATURE-----
+
+--------------enig89441145A6AA2A3D936D5A18--

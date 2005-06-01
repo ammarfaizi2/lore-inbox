@@ -1,70 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVFAQDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVFAQDK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbVFAQDK (ORCPT <rfc822;willy@w.ods.org>);
+	id S261444AbVFAQDK (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 1 Jun 2005 12:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261437AbVFAQCV
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbVFAQCd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 12:02:21 -0400
-Received: from downeast.net ([12.149.251.230]:45567 "EHLO downeast.net")
-	by vger.kernel.org with ESMTP id S261447AbVFAQAL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 12:00:11 -0400
-From: Patrick McFarland <pmcfarland@downeast.net>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Date: Wed, 1 Jun 2005 11:57:39 -0400
-User-Agent: KMail/1.8
-Cc: kraxel@suse.de, toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com,
-       ltd@cisco.com, linux-kernel@vger.kernel.org, dtor_core@ameritech.net,
-       7eggert@gmx.de
-References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com> <87acmbxrfu.fsf@bytesex.org> <429DD036.nail7BF7MRZT6@burner>
-In-Reply-To: <429DD036.nail7BF7MRZT6@burner>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart186281378.IBGHEjpmzD";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200506011157.47253.pmcfarland@downeast.net>
+	Wed, 1 Jun 2005 12:02:33 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:22546
+	"EHLO g5.random") by vger.kernel.org with ESMTP id S261452AbVFAP6W
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 11:58:22 -0400
+Date: Wed, 1 Jun 2005 17:58:05 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: NZG <ngustavson@emacinc.com>
+Cc: linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>,
+       Ingo Molnar <mingo@elte.hu>, Paulo Marques <pmarques@grupopie.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       James Bruce <bruce@andrew.cmu.edu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       "Bill Huey (hui)" <bhuey@lnxw.com>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
+       hch@infradead.org, akpm@osdl.org
+Subject: Re: RT patch acceptance
+Message-ID: <20050601155805.GR5413@g5.random>
+References: <Pine.OSF.4.05.10506011656280.1707-100000@da410.phys.au.dk> <200506011047.32922.ngustavson@emacinc.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200506011047.32922.ngustavson@emacinc.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart186281378.IBGHEjpmzD
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Wed, Jun 01, 2005 at 10:47:32AM -0500, NZG wrote:
+> Your open hostility to a very possibly valid criticism isn't going to do much 
+> for fostering support in the community.
+> Somebody needs to do some RTAI FUD'n, they've been at this for a lot longer 
+> than this RT project and have already crossed many of these bridges, ignore 
+> them at your own peril. 
 
-On Wednesday 01 June 2005 11:11 am, Joerg Schilling wrote:
-> I did define this model 19 years ago when I did write the first
-> Generic SCSI driver at all. Adaptec indepentently did develop ASPI
-> 2 years later and did chose the same address model. Nearly all
-> OS use this kind (or a very similar model) internaly inside the kernel
-> or the basic SCSI address routines.
-
-That doesn't mean its the right model. Infact, for being 20 years old /and/=
-=20
-the first, it stands to be the absolutely worst model. Linus and crew have=
-=20
-every right to do something new.
-
-=2D-=20
-Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
-e'd=20
-all be running around in darkened rooms, munching magic pills and listening=
- to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
-
---nextPart186281378.IBGHEjpmzD
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBCndr78Gvouk7G1cURAkE8AJ0bNi/NE5bD9vuXaK35ysWGJXahBgCdHsbv
-8E8QSZqWqPhtfraFz0saV4E=
-=hvM/
------END PGP SIGNATURE-----
-
---nextPart186281378.IBGHEjpmzD--
+Never mind, I got so many insults for BK that I learnt that no matter
+how hard and how much they insult, that doesn't make them necessairly
+correct about the bottom line.

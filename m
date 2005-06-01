@@ -1,66 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVFBARh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261520AbVFAX7j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261528AbVFBARh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 20:17:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVFBAPE
+	id S261520AbVFAX7j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 19:59:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbVFAX6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 20:15:04 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:47752 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261557AbVFBAK7 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 20:10:59 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 1 Jun 2005 19:58:17 -0400
+Received: from smtp207.mail.sc5.yahoo.com ([216.136.129.97]:41862 "HELO
+	smtp207.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261523AbVFAX4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 19:56:34 -0400
+Message-ID: <429E4B22.5080404@yahoo.com.au>
+Date: Thu, 02 Jun 2005 09:56:18 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] Abstracted Priority Inheritance for RT
-Date: Wed, 1 Jun 2005 17:10:04 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A03667149@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Abstracted Priority Inheritance for RT
-Thread-Index: AcVnBiHyIaeIIT5YRV2+mIu6TuZoaQAAPUYA
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: <dwalker@mvista.com>, "Esben Nielsen" <simlo@phys.au.dk>
-Cc: "Ingo Molnar" <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
-       <sdietrich@mvista.com>, <rostedt@goodmis.org>
-X-OriginalArrivalTime: 02 Jun 2005 00:10:06.0656 (UTC) FILETIME=[6E84DC00:01C56707]
+To: Mike Kravetz <kravetz@us.ibm.com>
+CC: jschopp@austin.ibm.com, Mel Gorman <mel@csn.ul.ie>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Avoiding external fragmentation with a placement policy Version
+ 12
+References: <20050531112048.D2511E57A@skynet.csn.ul.ie> <429E20B6.2000907@austin.ibm.com> <429E4023.2010308@yahoo.com.au> <20050601234730.GF3998@w-mikek2.ibm.com>
+In-Reply-To: <20050601234730.GF3998@w-mikek2.ibm.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mike Kravetz wrote:
+> On Thu, Jun 02, 2005 at 09:09:23AM +1000, Nick Piggin wrote:
+> 
+>>It adds a lot of complexity to the page allocator and while
+>>it might be very good, the only improvement we've been shown
+>>yet is allocating lots of MAX_ORDER allocations I think? (ie.
+>>not very useful)
+>>
+> 
+> 
+> Allocating lots of MAX_ORDER blocks can be very useful for things
+> like hot-pluggable memory.  I know that this may not be of interest
+> to most.  However, I've been combining Mel's defragmenting patch
+> with the memory hotplug patch set.  As a result, I've been able to
+> go from 5GB down to 544MB of memory on my ppc64 system via offline
+> operations.  Note that ppc64 only employs a single (DMA) zone.  So,
+> page 'grouping' based on use is coming mainly from Mel's patch.
+> 
 
->From: Daniel Walker [mailto:dwalker@mvista.com]
->On Wed, 2005-06-01 at 16:07 +0200, Esben Nielsen wrote:
->
->> Do you plan to use that callback for priority inheritance?
->> If so: It would lead to an recursive algorithm. That is not very nice
-in
->> the kernel with a limited call-stack. It is not so much a problem if
-the
->> mechanism is used in the kernel only, but if it is used for
-user-space
->> locking, which can have unlimited neesting, it is potential problem.
->
->There is an API for for priority inheritance, the call by is strictly
->for the PI mechanism to signal when it changes a waiters priority , as
->the result of PI.
->
->It's somewhat explained in linux/pi.h . Currently the rt_mutex uses
-this
->callback to move the waiter depending on it's new priority.
->
->I'm not sure I see how this could become recursive, could you explain
->more?
+Back in the day, Linus would tell you to take a hike if you
+wanted to complicate the buddy allocator to better support
+memory hotplug ;)
 
-Maybe he is referring to the case?
+I don't know what's happened to him now though, he seems to
+have gone a little soft on you enterprise types.
 
-A owns M
-B owns N and is waiting for M
-A is trying to wait for N
+Seriously - thanks for the data point, I had an idea that you
+guys wanted this for mem hotplug.
 
-These deadlocking cases can be tricky during PI.
+-- 
+SUSE Labs, Novell Inc.
 
--- Inaky
+Send instant messages to your online friends http://au.messenger.yahoo.com 

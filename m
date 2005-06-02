@@ -1,74 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261413AbVFBN3c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVFBNeA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261413AbVFBN3c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 09:29:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbVFBN3c
+	id S261417AbVFBNeA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 09:34:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbVFBNeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 09:29:32 -0400
-Received: from mail.ccur.com ([208.248.32.212]:22553 "EHLO flmx.iccur.com")
-	by vger.kernel.org with ESMTP id S261413AbVFBN31 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 09:29:27 -0400
-Subject: Re: SD_SHARE_CPUPOWER breaks scheduler fairness
-From: Steve Rotolo <steve.rotolo@ccur.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: joe.korty@ccur.com, linux-kernel@vger.kernel.org, bugsy@ccur.com
-In-Reply-To: <200506020925.26320.kernel@kolivas.org>
-References: <1117561608.1439.168.camel@whiz>
-	 <200506020737.20098.kernel@kolivas.org>
-	 <20050601231615.GA11301@tsunami.ccur.com>
-	 <200506020925.26320.kernel@kolivas.org>
-Content-Type: text/plain
-Organization: Concurrent Computer Corporation
-Message-Id: <1117719021.1436.56.camel@whiz>
+	Thu, 2 Jun 2005 09:34:00 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:10458 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261417AbVFBNd6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 09:33:58 -0400
+Date: Thu, 2 Jun 2005 09:33:57 -0400
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
+       Matthias Andree <matthias.andree@gmx.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux does not care for data integrity
+Message-ID: <20050602133357.GN23621@csclub.uwaterloo.ca>
+References: <1116241957.6274.36.camel@laptopd505.fenrus.org> <20050516112956.GC13387@merlin.emma.line.org> <1116252157.6274.41.camel@laptopd505.fenrus.org> <20050516144831.GA949@merlin.emma.line.org> <1116256005.21388.55.camel@localhost.localdomain> <87zmudycd1.fsf@stark.xeocode.com> <20050529211610.GA2105@merlin.emma.line.org> <429E062B.60909@tmr.com> <429EC91A.7020704@aitel.hist.no> <429EF4E2.2050907@tmr.com>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Thu, 02 Jun 2005 09:30:21 -0400
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Jun 2005 13:29:26.0562 (UTC) FILETIME=[18D9C020:01C56777]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <429EF4E2.2050907@tmr.com>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Wild thought: how about doing this for the sibling ...
-> >
-> > 	rp->nr_running += SOME_BIG_NUMBER
-> >
-> > when a SCHED_FIFO task starts running on some cpu, and
-> > undo the above when the cpu is released.   This fools
-> > the load balancer into _gradually_ moving tasks off the
-> > sibling, when the cpu is hogged by some SCHED_FIFO task,
-> > but should have little effect if a SCHED_FIFO task takes
-> > little cpu time.
+On Thu, Jun 02, 2005 at 08:00:34AM -0400, Bill Davidsen wrote:
+> Unfortunately even drives in a dual power tray with redundany power from 
+> separate UPS sources will occasionally have a power failure. Proved that 
+> last month, the power strip in the rack failed, dumped all the load on 
+> the other leg, the surge tripped a breaker. Had an APC UPS in my office 
+> fail in a mode which dropped power, waited for the battery to trickle 
+> charge to charge the battery a bit, then repeat. Looks to be losing half 
+> of a full wave rectifier.
 > 
-> A good thought, and one I had considered. SOME_BIG_NUMBER needs to be 
-> meaninful for this to work. Ideally what we do is add the effective load from 
-> the sibling cpu to the pegged cpu. However that's not as useful as it sounds 
-> because we need to ensure both sibling runqueues are locked every time we 
-> check the load value of one runqueue, and the last thing I want is to 
-> introduce yet more locking. Also the value will vary wildly depending on 
-> whether the task is pegged or not, and this changes in mainline many times in 
-> less than .1s which means it would throw load balancing way off as the value 
-> will effectively become meaningless.
+> The point is that power failures WILL HAPPEN, even with good backups. 
+> The goal should be to prevent excessive and avoidable data damage when 
+> it does.
 > 
+> Shameless plug: for office use I changed from APC to Belkin on all new 
+> units, they have had Linux drivers for some time now, and I like to 
+> support those who support Linux.
 
-Just a few more thoughts on this....
+Hasn't apcupsd existed for at least a decade?  Works rather well for me.
+Hard to imagine better linux/unix support than APC seems to have
+provided so far.
 
-I can't help but wonder if a similar problem exists even without HT. 
-What if the load-balancer decides to keep a sched_normal task on a cpu
-that is being dominated by a sched_fifo task.  The sched_normal task
-should really be "balanced" to a different cpu but because nr_running is
-the only balancing criteria that may not happen.  Runqueue business
-ought to be weighted by the amount of time that sched_fifo tasks on that
-runqueue have recently used.  So, load = rq->nr_running +
-rq->recent_fifo_run_time.  I think this would make load-balancing more
-correct.
+For some reason Belkin screms cheap junk to me.  Maybe that's because
+that is what you always see for sale with that brand on it.  They may
+have nice stuff that I just haven't seen because it isn't carried by
+most stores.
 
-Now back to HT sched_domains...  It seems to me that when
-SD_SHARE_CPUPOWER is on, recent_fifo_run_time should apply to the whole
-domain instead of a single runqueue, so that a cpu's load =
-rq->nr_running + sd->recent_fifo_run_time.  But I don't know if this
-suffers from the same runqueue locking problem that you pointed out.
-
--- 
-Steve
-
+Len Sorensen

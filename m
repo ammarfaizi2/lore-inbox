@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVFBNeA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVFBNoo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261417AbVFBNeA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 09:34:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261420AbVFBNeA
+	id S261420AbVFBNoo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 09:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVFBNoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 09:34:00 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:10458 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261417AbVFBNd6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 09:33:58 -0400
-Date: Thu, 2 Jun 2005 09:33:57 -0400
-To: Bill Davidsen <davidsen@tmr.com>
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>,
-       Matthias Andree <matthias.andree@gmx.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux does not care for data integrity
-Message-ID: <20050602133357.GN23621@csclub.uwaterloo.ca>
-References: <1116241957.6274.36.camel@laptopd505.fenrus.org> <20050516112956.GC13387@merlin.emma.line.org> <1116252157.6274.41.camel@laptopd505.fenrus.org> <20050516144831.GA949@merlin.emma.line.org> <1116256005.21388.55.camel@localhost.localdomain> <87zmudycd1.fsf@stark.xeocode.com> <20050529211610.GA2105@merlin.emma.line.org> <429E062B.60909@tmr.com> <429EC91A.7020704@aitel.hist.no> <429EF4E2.2050907@tmr.com>
+	Thu, 2 Jun 2005 09:44:44 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:40463 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261420AbVFBNom (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 09:44:42 -0400
+Date: Thu, 2 Jun 2005 15:44:39 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Cosmin Nicolaescu <cos@camelot.homelinux.com>,
+       linux-kernel@vger.kernel.org
+Subject: [2.6 patch] remove redundant info from SubmittingPatches
+Message-ID: <20050602134438.GF4992@stusta.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <429EF4E2.2050907@tmr.com>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 02, 2005 at 08:00:34AM -0400, Bill Davidsen wrote:
-> Unfortunately even drives in a dual power tray with redundany power from 
-> separate UPS sources will occasionally have a power failure. Proved that 
-> last month, the power strip in the rack failed, dumped all the load on 
-> the other leg, the surge tripped a breaker. Had an APC UPS in my office 
-> fail in a mode which dropped power, waited for the battery to trickle 
-> charge to charge the battery a bit, then repeat. Looks to be losing half 
-> of a full wave rectifier.
-> 
-> The point is that power failures WILL HAPPEN, even with good backups. 
-> The goal should be to prevent excessive and avoidable data damage when 
-> it does.
-> 
-> Shameless plug: for office use I changed from APC to Belkin on all new 
-> units, they have had Linux drivers for some time now, and I like to 
-> support those who support Linux.
+Since the Trivial Patch Monkey is mentioned both in steps 4. and 5., I
+removed it from step4 (Select e-mail destination), since it should go
+under 'Select your CC list'.
 
-Hasn't apcupsd existed for at least a decade?  Works rather well for me.
-Hard to imagine better linux/unix support than APC seems to have
-provided so far.
+Signed-off-by: Cosmin Nicolaescu <cos@camelot.homelinux.com>
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
 
-For some reason Belkin screms cheap junk to me.  Maybe that's because
-that is what you always see for sale with that brand on it.  They may
-have nice stuff that I just haven't seen because it isn't carried by
-most stores.
+---
 
-Len Sorensen
+This patch was sent by Cosmin Nicolaescu on:
+- 21 Apr 2005
+
+--- linux-2.6.11/Documentation/SubmittingPatches.orig   2005-04-21 14:17:07.375698154 -0400
++++ linux-2.6.11/Documentation/SubmittingPatches        2005-04-21 15:34:58.588664206 -0400
+@@ -132,21 +132,6 @@ which require discussion or do not have 
+ usually be sent first to linux-kernel.  Only after the patch is
+ discussed should the patch then be submitted to Linus.
+ 
+-For small patches you may want to CC the Trivial Patch Monkey
+-trivial@rustcorp.com.au set up by Rusty Russell; which collects "trivial"
+-patches. Trivial patches must qualify for one of the following rules:
+- Spelling fixes in documentation
+- Spelling fixes which could break grep(1).
+- Warning fixes (cluttering with useless warnings is bad)
+- Compilation fixes (only if they are actually correct)
+- Runtime fixes (only if they actually fix things)
+- Removing use of deprecated functions/macros (eg. check_region).
+- Contact detail and documentation fixes
+- Non-portable code replaced by portable code (even in arch-specific,
+- since people copy, as long as it's trivial)
+- Any fix by the author/maintainer of the file. (ie. patch monkey
+- in re-transmission mode)
+-
+ 
+ 
+ 5) Select your CC (e-mail carbon copy) list.
+

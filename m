@@ -1,65 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVFBIU4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVFBIXK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbVFBIU4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 04:20:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVFBIS5
+	id S261273AbVFBIXK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 04:23:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVFBIVQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 04:18:57 -0400
-Received: from webapps.arcom.com ([194.200.159.168]:6148 "EHLO
-	webapps.arcom.com") by vger.kernel.org with ESMTP id S261225AbVFBISP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 04:18:15 -0400
-Subject: deactivating PXA255 watchdog
-From: Ian Campbell <icampbell@arcom.com>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Russell King <linux@arm.linux.org.uk>, Nicolas Pitre <nico@cam.org>,
-       linux-kernel@vger.kernel.org
+	Thu, 2 Jun 2005 04:21:16 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:32237 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261238AbVFBIT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 04:19:27 -0400
+Subject: Re: [patch 6/9] dlm: clear recovery flags
+From: Arjan van de Ven <arjan@infradead.org>
+To: David Teigland <teigland@redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20050602080301.GF21570@redhat.com>
+References: <20050602080301.GF21570@redhat.com>
 Content-Type: text/plain
-Organization: Arcom Control Systems
-Date: Thu, 02 Jun 2005 09:18:04 +0100
-Message-Id: <1117700284.3063.51.camel@icampbell-debian>
+Date: Thu, 02 Jun 2005 10:19:20 +0200
+Message-Id: <1117700360.6458.25.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Jun 2005 08:27:15.0843 (UTC) FILETIME=[E2199530:01C5674C]
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Wim,
-
-I think you are the current "watchdog guy", although watchdog doesn't
-have a MAINTAINERS entry so I'm looking at bk/lkml history etc and might
-be mistaken...
-
-I wrote to the the linux-arm-kernel mailing list recently with a query
-because the sa1100_wdt code supports the writing 'V' to deactivate the
-watchdog thing, but unfortunately once armed the hardware cannot be
-deactivated. 
-
-I was going to produce a patch to remove the 'V' support and it was
-suggested by Russell that I should ask for your opinion. Do you have a
-preference with regards to offering a warning or error etc if a 'V' is
-written?
-
-My original message is below. I have had confirmation that the SA1100
-has the same behaviour as PXA2xx from Nico.
-
-Ian.
-
-> The code in drivers/char/watchdog/sa1100_wdt.c has support for the
-> standard write a 'V' for a safe shutdown semantics, which clears the
-> OIER[E3] bit.
+On Thu, 2005-06-02 at 16:03 +0800, David Teigland wrote:
+> plain text document attachment (clear-recovery-flags.patch)
+> At the start of recovery, all the recovery flags are cleared from the
+> previous recovery.  Two of them weren't being cleared.
 > 
-> However, it seems that even if this bit is clear the watchdog reset will
-> still occur because OWER[WME] is set (and cannot be cleared).
+> Signed-off-by: David Teigland <teigland@redhat.com>
 > 
-> Removing this support (perhaps with a warning/error or something) would
-> seem to make sense but I wanted to check that the SA1100 behaviour was
-> the same since they share the driver before I submitted anything.
+> Index: linux/drivers/dlm/member.c
+> ===================================================================
+> --- linux.orig/drivers/dlm/member.c	2005-06-02 12:28:30.000000000 +0800
+> +++ linux/drivers/dlm/member.c	2005-06-02 13:07:46.060566696 +0800
+> @@ -276,6 +276,8 @@
+>  	 */
+>  
+>  	dlm_recoverd_suspend(ls);
+> +	clear_bit(LSFL_LOCKS_VALID, &ls->ls_flags);
+> +	clear_bit(LSFL_ALL_LOCKS_VALID, &ls->ls_flags);
+>  	clear_bit(LSFL_DIR_VALID, &ls->ls_flags);
+>  	clear_bit(LSFL_ALL_DIR_VALID, &ls->ls_flags);
+>  	clear_bit(LSFL_NODES_VALID, &ls->ls_flags);
 
--- 
-Ian Campbell, Senior Design Engineer
-                                        Web: http://www.arcom.com
-Arcom, Clifton Road,                    Direct: +44 (0)1223 403 465
-Cambridge CB1 7EA, United Kingdom       Phone:  +44 (0)1223 411 200
+btw do these need to be atomic? right now these are atomic ops and thus
+very expensive... you might want to switch to nonatomic variants if
+that's not needed.
+
 

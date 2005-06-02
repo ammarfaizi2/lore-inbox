@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVFBBwF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVFBBvj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261570AbVFBBwF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 21:52:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbVFBBwF
+	id S261568AbVFBBvj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 21:51:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261566AbVFBBvh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 21:52:05 -0400
-Received: from gate.crashing.org ([63.228.1.57]:43463 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261564AbVFBBts (ORCPT
+	Wed, 1 Jun 2005 21:51:37 -0400
+Received: from fsmlabs.com ([168.103.115.128]:18062 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261567AbVFBBvF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 21:49:48 -0400
-Subject: Re: Freezer Patches.
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: ncunningham@cyclades.com
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1117676819.10888.109.camel@localhost>
-References: <1117629212.10328.26.camel@localhost>
-	 <20050601130205.GA1940@openzaurus.ucw.cz>
-	 <1117663709.13830.34.camel@localhost> <20050601223101.GD11163@elf.ucw.cz>
-	 <1117665934.19020.94.camel@gaston>  <20050601230235.GF11163@elf.ucw.cz>
-	 <1117672513.19020.103.camel@gaston>  <1117676819.10888.109.camel@localhost>
-Content-Type: text/plain
-Date: Thu, 02 Jun 2005 11:49:20 +1000
-Message-Id: <1117676961.31082.4.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Wed, 1 Jun 2005 21:51:05 -0400
+Date: Wed, 1 Jun 2005 19:54:34 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Tony Lindgren <tony@atomide.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Dynamic tick for x86 version 050602-1
+In-Reply-To: <20050602013641.GL21597@atomide.com>
+Message-ID: <Pine.LNX.4.61.0506011953090.22613@montezuma.fsmlabs.com>
+References: <20050602013641.GL21597@atomide.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-06-02 at 11:46 +1000, Nigel Cunningham wrote:
-> Hi.
+Hi Tony,
+
+On Wed, 1 Jun 2005, Tony Lindgren wrote:
+
+> Here's an updated version of the dynamic tick patch.
 > 
-> On Thu, 2005-06-02 at 10:35, Benjamin Herrenschmidt wrote:
-> > > I agree that sync() is nice to have, but I'm not going to slow down
-> > > fork/exit for it. And besides, sys_sync() just before suspend works
-> > > just fine.
-> > 
-> > Yes, that's why I put it in my pre-freeze :)
-> > 
-> > I'll see about making my pre/post freeze stuff (APM emu + sync basically
-> > now) generic to avoid the callbacks.
+> It's mostly clean-up and it's now using the standard
+> monotonic_clock() functions as suggested by John Stultz.
 > 
-> Ummm. Don't do it if kthreads are already frozen. You'll deadlock against kjournald.
+> Please let me know of any issues with the patch. I'll continue to do
+> more clean-up on it, but I think the basic functionality is done.
+> 
+> Thomas, where do you have the latest version of your ACPI idle
+> patch? I'd like to add that to the dyn-tick page as well.
+> 
+> Older patches and some related links are at:
+> 
+> http://muru.com/linux/dyntick/
 
-Which is why I do it pre-freeze.
+Are there any 'known issues' wrt various timer sources with this version?
 
-With a 2 stage freezing though, it would make sense to first freeze
-userland, then sync, then freeze kthreads. That would make the sync
-faster (as it won't be "blocked" by pending userland IOs as I experience
-regulary here) and more reliable.
-
-Ben.
-
+Thanks,
+	Zwane
 

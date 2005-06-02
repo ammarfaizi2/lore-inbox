@@ -1,135 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVFBKKU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVFBKLc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261266AbVFBKKU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 06:10:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVFBKKU
+	id S261359AbVFBKLc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 06:11:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261363AbVFBKLc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 06:10:20 -0400
-Received: from RT-soft-2.Moscow.itn.ru ([80.240.96.70]:47295 "HELO
-	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S261266AbVFBKKC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 06:10:02 -0400
-Subject: Re: [RFC] SPI core
-From: dmitry pervushin <dpervushin@gmail.com>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
-In-Reply-To: <20050531233215.GB23881@kroah.com>
-References: <1117555756.4715.17.camel@diimka.dev.rtsoft.ru>
-	 <20050531233215.GB23881@kroah.com>
-Content-Type: text/plain
-Date: Thu, 02 Jun 2005 14:09:59 +0400
-Message-Id: <1117706999.4715.54.camel@diimka.dev.rtsoft.ru>
+	Thu, 2 Jun 2005 06:11:32 -0400
+Received: from mail.renesas.com ([202.234.163.13]:45286 "EHLO
+	mail04.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S261359AbVFBKLX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 06:11:23 -0400
+Date: Thu, 02 Jun 2005 19:11:08 +0900 (JST)
+Message-Id: <20050602.191108.233680079.takata.hirokazu@renesas.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux@dominikbrodowski.net, linux-pcmcia@lists.infradead.org,
+       sakugawa@linux-m32r.org, linux-kernel@vger.kernel.org,
+       takata@linux-m32r.org
+Subject: [PATCH 2.6.12-rc5-mm2] m32r: m32r_cfc.c build fix
+From: Hirokazu Takata <takata@linux-m32r.org>
+In-Reply-To: <20050601.205744.102571251.takata.hirokazu@renesas.com>
+References: <20050531.221702.1044949015.takata.hirokazu@renesas.com>
+	<20050531144504.GA5783@isilmar.linta.de>
+	<20050601.205744.102571251.takata.hirokazu@renesas.com>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1-1mdk 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-05-31 at 16:32 -0700, Greg KH wrote:
+I made a patch to fix a build error of m32r_cfc.c in 2.6.12-rc5-mm2 kernel.
+This patch selects CONFIG_NONSTATIC for M32R PCMCIA/CF drivers.
 
-Thanks for you comments; my answers follow. This patch will be reworked
-in short time.
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
 
-> Is this code intergrated into the driver model?
-It will be.
-> What does the /sys/ tree look like?
-> Why are you using a char device node?
-Because it's not a block device :) I assume that's common practice to
-access low-level devices, isn't it ?
-> 
-> > +/**
-> > + * spi_add_adapter - register a new SPI bus adapter
-> > + * @adap: spi_adapter structure for the registering adapter
-> > + *
-> > + * Make the adapter available for use by clients using name adap->name.
-> > + * The adap->adapters list is initialised by this function.
-> > + *
-> > + * Returns 0;
-> 
-> You have this a lot.  If the function can not fail, just make it a void
-> type :)
-I'd like to keep this of type int because of possible future
-enhancements
-> > +	list_for_each(l, &driver_list) {
-> 
-> list_for_each_entry() please.
-Looks reasonable, thank you 
-> 
-> > +/**
-> > + * spi_get_adapter - get a reference to an adapter
-> > + * @id: driver id
-> > + *
-> > + * Obtain a spi_adapter structure for the specified adapter.  If the adapter
-> > + * is not currently load, then load it.  The adapter will be locked in core
-> > + * until all references are released via spi_put_adapter.
-> > + */
-> 
-> Hm, that comment is not correct.  Please fix it as nothing is "loaded".
-OK
-> > +void spi_put_adapter(struct spi_adapter *adap)
-> > +{
-> > +	if (adap && adap->owner)
-> > +		module_put(adap->owner);
-> > +}
-> 
-> Then why not use the traditional kref style of reference counting?  That
-> ensures that if you try to use the reference, bad things will happen?
-> Right now all you are doing is relying on module references, and you
-> aren't cleaning up the memory.
-I'll consider this during rework
-> > +EXPORT_SYMBOL(spi_transfer);
-> > +EXPORT_SYMBOL(spi_write);
-> > +EXPORT_SYMBOL(spi_read);
-> 
-> EXPORT_SYMBOL_GPL() perhaps?
-Yup.
-> Please use dev_dbg() and friends instead of your own debugging macros.
-> The error log people will thank you (along with your users...)
-I'd rather use pr_debug
-> > +#include <linux/spi/spi.h>
-> 
-> Why a separate subdir for spi.h?
-Due to historical reasons :) And functional drivers can pput their
-public headers to separate directory.
-> 
-> > +static int spidev_ioctl(struct inode *inode, struct file *file,
-> > +			unsigned int cmd, unsigned long arg)
-This function will be removed, because its functionality is duplicated by spidev_read/spidev_write.
+ drivers/pcmcia/Kconfig |    2 ++
+ 1 files changed, 2 insertions(+)
 
-
-> > +static int spidev_attach_adapter(struct spi_adapter *adap)
-> > +{
-> > +	struct spi_dev *spi_dev;
-> > +	int retval;
-> > +
-> > +	spi_dev = get_free_spi_dev(adap);
-> > +	if (IS_ERR(spi_dev))
-> > +		return PTR_ERR(spi_dev);
-> > +
-> > +#if defined( CONFIG_DEVFS_FS )
-> > +	devfs_mk_cdev(MKDEV(SPI_MAJOR, spi_dev->minor),
-> > +		      S_IFCHR | S_IRUSR | S_IWUSR, "spi/%d", spi_dev->minor);
-> > +#endif
-> 
-> No #if needed.  You do this a lot.
-
-As devfs is going to become obsolete, maybe just drop all the
-devfs-related code?
-
-> > +/*
-> > + * spi_adapter is the structure used to identify a physical SPI bus along
-> > + * with the access algorithms necessary to access it.
-> > + */
-> > +struct spi_adapter {
-> 
-> <snip>  Ick, don't copy the mess I did in the i2c core for i2c adapter
-> structures please.  It was a hack then, and I regret it still.  Please
-> fix it up properly.
-> 
-> This code is _very_ close to just a copy of the i2c core code.  Why
-> duplicate it and not work with the i2c people instead?
-
-Well, those two are both simple serial interfaces, so their similarity
-is just reflected in driver structures.
-
-
+diff -ruNp a/drivers/pcmcia/Kconfig b/drivers/pcmcia/Kconfig
+--- a/drivers/pcmcia/Kconfig	2005-06-01 15:33:47.000000000 +0900
++++ b/drivers/pcmcia/Kconfig	2005-06-01 22:01:50.000000000 +0900
+@@ -198,12 +198,14 @@ config PCMCIA_PROBE
+ config M32R_PCC
+ 	bool "M32R PCMCIA I/F"
+ 	depends on M32R && CHIP_M32700 && PCMCIA
++	select PCCARD_NONSTATIC
+ 	help
+ 	  Say Y here to use the M32R PCMCIA controller.
+ 
+ config M32R_CFC
+ 	bool "M32R CF I/F Controller"
+ 	depends on M32R && (PLAT_USRV || PLAT_M32700UT || PLAT_MAPPI2 || PLAT_MAPPI3 || PLAT_OPSPUT)
++	select PCCARD_NONSTATIC
+ 	help
+ 	  Say Y here to use the M32R CompactFlash controller.
+ 
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/

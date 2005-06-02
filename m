@@ -1,74 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVFBGgS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVFBGxK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261584AbVFBGgS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 02:36:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVFBGgS
+	id S261587AbVFBGxK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 02:53:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVFBGxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 02:36:18 -0400
-Received: from web51105.mail.yahoo.com ([206.190.38.147]:56455 "HELO
-	web51105.mail.yahoo.com") by vger.kernel.org with SMTP
-	id S261584AbVFBGf7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 02:35:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=cAaOworg+0OHnou214B5IBGH0XdAoJQbUlTxvsehrPGyjqNCAx0utKUvfG9/z8BqG/VvJFoxex5z+XQasFQ7bhiRkAkkFznSow5bJGcWUgM3yq0A5OvzETtIfPqWZsYrGwp7RtSGoyRHh88kqRsrC+PJRKF6osecIi0W55wLzkU=  ;
-Message-ID: <20050602063558.68968.qmail@web51105.mail.yahoo.com>
-Date: Wed, 1 Jun 2005 23:35:58 -0700 (PDT)
-From: baswaraj kasture <kbaswaraj@yahoo.com>
-Subject: Problem with __alt_instructions array on IA-32
-To: linux-kernel@vger.kernel.org
+	Thu, 2 Jun 2005 02:53:10 -0400
+Received: from [213.170.72.194] ([213.170.72.194]:12258 "EHLO
+	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261587AbVFBGxH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 02:53:07 -0400
+Message-ID: <429EACC9.30303@yandex.ru>
+Date: Thu, 02 Jun 2005 10:52:57 +0400
+From: "Artem B. Bityuckiy" <dedekind@yandex.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050417 Fedora/1.7.7-1.3.1
+X-Accept-Language: en, ru, en-us
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+Cc: Jarkko Lavinen <jarkko.lavinen@nokia.com>, linux-kernel@vger.kernel.org
+Subject: Re: Writing large files onto sync mounted MMC corrupts the FS
+References: <20050601091320.GA1472@angel.research.nokia.com> <20050601131006.GL23621@csclub.uwaterloo.ca>
+In-Reply-To: <20050601131006.GL23621@csclub.uwaterloo.ca>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Lennart Sorensen wrote:
+> In other words: Don't use sync with flash media.  It's a horribly bad
+> idea, and if you look into how flash works (at least the cheaper ones)
+> you will realize why.  Anything with a limited number of writes allowed
+> to each sector should avoid rewriting the same sector again and again,
+> and that is what sync does when you use filesystems designed for disks
+> rather than flash.  JFFS was designed for flash use and rotates the
+> sectors it uses to store filesystem meta data and has spare space in the
+> filesystem to do wearleveling at the filesystem level.  vfat and ext2/3
+> do not, and it shows.  At least write caching/delayed write back
+> elliminates the worst of the rewriting of the meta data sectors.
+>
+So, we should first ask whether this happens with *new* MMC cards or not.
 
-I am building linux kernel 2.6.9-6 with Intel
-Compiler.
-Compilation is successfull.
-While booting, kernel panic is reprted.
-I also found the place of kernel panic. It is in
-"apply_alternatives" function. Commenting this
-function boots the kernel, but then there are Xserver
-and network related problems.
-
-I found that  in __alt_instructions is array of
-structures of "alt_instr".
-
-struct alt_instr {
-        __u8 *instr;            /* original
-instruction */
-        __u8 *replacement;
-        __u8  cpuid;            /* cpuid bit set for
-replacement */
-        __u8  instrlen;         /* length of original
-instruction */
-        __u8  replacementlen;   /* length of new
-instruction, <= instrlen */
-        __u8  pad;
-};
-
-
-While debuging it is found that this array has NULL
-value for member 'instr' (except first ).
-
-i.e. __alt_instrctions[1].instr ,
-__alt_instrctions[2].instr , ... are all NULL.
-
-This causes Kernel panic.
-
-Could you please suggest why these member are NULL ?
-
-Thanks in advance.
-
--Baswaraj
-
-
-		
-__________________________________ 
-Discover Yahoo! 
-Use Yahoo! to plan a weekend, have fun online and more. Check it out! 
-http://discover.yahoo.com/
+-- 
+Best Regards,
+Artem B. Bityuckiy,
+St.-Petersburg, Russia.

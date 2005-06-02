@@ -1,85 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261278AbVFBJN6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVFBJP1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261278AbVFBJN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 05:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVFBJN6
+	id S261282AbVFBJP1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 05:15:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVFBJP1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 05:13:58 -0400
-Received: from village.ehouse.ru ([193.111.92.18]:56069 "EHLO mail.ehouse.ru")
-	by vger.kernel.org with ESMTP id S261278AbVFBJNe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 05:13:34 -0400
-From: "Alexander Y. Fomichev" <gluk@php4.ru>
-Reply-To: "Alexander Y. Fomichev" <gluk@php4.ru>
-To: admin@list.net.ru
-Subject: Re: Tyan Opteron boards and problems with parallel ports (badpmd)
-Date: Thu, 2 Jun 2005 13:13:21 +0400
-User-Agent: KMail/1.8
-Cc: Christopher Warner <chris@servertogo.com>,
-       "Sergey S. Kostyliov" <rathamahata@ehouse.ru>,
-       Joel Jaeggli <joelja@darkwing.uoregon.edu>,
-       Christopher Warner <cwarner@kernelcode.com>,
-       "Peter J. Stieber" <developer@toyon.com>, linux-kernel@vger.kernel.org,
-       Bill Davidsen <davidsen@tmr.com>
-References: <3174569B9743D511922F00A0C943142309F815A6@TYANWEB> <200506011322.42782.rathamahata@ehouse.ru> <1117633893.22578.1.camel@sabrina>
-In-Reply-To: <1117633893.22578.1.camel@sabrina>
+	Thu, 2 Jun 2005 05:15:27 -0400
+Received: from ribosome.natur.cuni.cz ([195.113.57.20]:17030 "EHLO
+	ribosome.natur.cuni.cz") by vger.kernel.org with ESMTP
+	id S261282AbVFBJPQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 05:15:16 -0400
+Message-ID: <429ECE20.1030403@ribosome.natur.cuni.cz>
+Date: Thu, 02 Jun 2005 11:15:12 +0200
+From: =?ISO-8859-2?Q?Martin_MOKREJ=A9?= <mmokrejs@ribosome.natur.cuni.cz>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
+X-Accept-Language: en, en-us, cs
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: 2.6.12-rc5-git6 mis-counted ide interfaces
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506021313.22321.gluk@php4.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 June 2005 17:51, Christopher Warner wrote:
->  > > What we need is to try and single out the variables that are causing
->  > > the
->  > >
-> > > > badpmd's. Also the more people who report badpmd's with Andi Kleen's
-> > > > intial patch the better. Especially on different archs; would also be
-> > > > good. So far from lkml i'm only seeing Tyan S28* boards as of recent.
-> > >
-> > > We have run into different problem (for our different from S28*arch)
-> > > for the box which had had badpmd issues with v2.6.11 (see:
-> > >     http://seclists.org/lists/linux-kernel/2005/May/6369.html)
-> >
-> > Oops, wrong link, right one is: http://lkml.org/lkml/2005/3/11/42
-> >
-> > > with 2.6.12-rc5 we are always getting dozens of user-space segfaults:
-> > >
-> > > grep[25377]: segfault at 0000000000014aa0 rip 00002aaaaad37130 rsp
-> > > 00007fffffb13cb8 error4 grep[29940]: segfault at 0000000000014aa0 rip
-> > > 00002aaaaad37130 rsp 00007fffff913428 error4 sed[5849] general
-> > > protection rip:40bac5 rsp:7fffffb231d0 error:0 sed[27437] general
-> > > protection rip:40bac5 rsp:7ffffff248c0 error:0 sed[27473] general
-> > > protection rip:40bac5 rsp:7fffff923740 error:0 sed[27472] general
-> > > protection rip:40bac5 rsp:7fffff923740 error:0 sed[28434] general
-> > > protection rip:406965 rsp:7fffffb23f10 error:0 grep[32583]: segfault at
-> > > 0000000000014aa0 rip 00002aaaaad37130 rsp 00007fffffd13b58 error4
-> > > sed[9074] general protection rip:40bac5 rsp:7fffffb248a0 error:0
-> > > sed[9546] general protection rip:406965 rsp:7fffffb23cc0 error:0
-> > > sed[4331] general protection rip:40bac5 rsp:7fffff922fb0 error:0
-> > > sed[17906] general protection rip:40bac5 rsp:7fffffd24b30 error:0
-> > > sed[17934] general protection rip:40bac5 rsp:7fffffd243a0 error:0
-> > > sed[19555] general protection rip:40bac5 rsp:7fffff924ad0 error:0
-> > > sed[20453] general protection rip:40bac5 rsp:7ffffff23010 error:0
-> > >
-> > > during the build of mysql.
-> > >
-> > > There also was an oops with v2.6.12-rc3 for the same box:
-> > > http://seclists.org/lists/linux-kernel/2005/May/6369.html
-> > >
-> > > Box passed two iterations of memtest86 (unfortunately this
-> > > is a production box, so we can't wait for days).
->
-> Do you have any mobo/chipset information and are those amd64's opterons?
->
+Hi,
+  I get the following when I boot my PIIX computer (Asus P4C800E-Deluxe):
 
-Yes, sure. This is  Dual Opteron 246 host, mobo -- Iwill DK8S2 
-[AMD-8111/8131].
 
--- 
-Best regards.
-        Alexander Y. Fomichev <gluk@php4.ru>
-        Public PGP key: http://sysadminday.org.ru/gluk.asc
+Uniform Multi-Platform E-IDE driver Revision: 7.00alpha2
+ide: Assuming 66MHz system bus speed for PIO modes
+ICH5: IDE controller at PCI slot 0000:00:1f.1
+PCI: Enabling device 0000:00:1f.1 (0005 -> 0007)
+ACPI: PCI Interrupt 0000:00:1f.1[A] -> GSI 18 (level, low) -> IRQ 18
+ICH5: chipset revision 2
+ICH5: not 100% native mode: will probe irqs later
+    ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:pio
+    ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:pio, hdd:pio
+Probing IDE interface ide0...
+hda: SONY DVD RW DRU-510A, ATAPI CD/DVD-ROM drive
+ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+Probing IDE interface ide1...
+----------------------^^^^ ide0 I believe
+Probing IDE interface ide1...
+Probing IDE interface ide2...
+Probing IDE interface ide3...
+Probing IDE interface ide4...
+Probing IDE interface ide5...
+hda: ATAPI 16X DVD-ROM DVD-R CD-R/RW drive, 8192kB Cache, UDMA(33)
+Uniform CD-ROM driver Revision: 3.20
+libata version 1.11 loaded.
+ata_piix version 1.03
+
+I believe these two lines from .config are related:
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_SCSI_ATA_PIIX=y
+
+
+# lspci
+0000:00:00.0 Host bridge: Intel Corporation 82875P/E7210 Memory Controller Hub (rev 02)
+0000:00:01.0 PCI bridge: Intel Corporation 82875P Processor to AGP Controller (rev 02)
+0000:00:03.0 PCI bridge: Intel Corporation 82875P/E7210 Processor to PCI to CSA Bridge (rev 02)
+0000:00:1d.0 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Controller #1 (rev 02)
+0000:00:1d.1 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Controller #2 (rev 02)
+0000:00:1d.2 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI #3 (rev 02)
+0000:00:1d.3 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB UHCI Controller #4 (rev 02)
+0000:00:1d.7 USB Controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) USB2 EHCI Controller (rev 02)
+0000:00:1e.0 PCI bridge: Intel Corporation 82801 PCI Bridge (rev c2)
+0000:00:1f.0 ISA bridge: Intel Corporation 82801EB/ER (ICH5/ICH5R) LPC Interface Bridge (rev 02)
+0000:00:1f.1 IDE interface: Intel Corporation 82801EB/ER (ICH5/ICH5R) IDE Controller (rev 02)
+0000:00:1f.2 IDE interface: Intel Corporation 82801EB (ICH5) SATA Controller (rev 02)
+0000:00:1f.3 SMBus: Intel Corporation 82801EB/ER (ICH5/ICH5R) SMBus Controller (rev 02)
+0000:00:1f.5 Multimedia audio controller: Intel Corporation 82801EB/ER (ICH5/ICH5R) AC'97 Audio Controller (rev 02)
+0000:01:00.0 VGA compatible controller: ATI Technologies Inc RV280 [Radeon 9200] (rev 01)
+0000:01:00.1 Display controller: ATI Technologies Inc RV280 [Radeon 9200] (Secondary) (rev 01)
+0000:02:01.0 Ethernet controller: Intel Corporation 82547EI Gigabit Ethernet Controller (LOM)
+0000:03:03.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host Controller (rev 46)
+#
+
+Please let me know if you need more information. and cc: me in replies. ;)
+Thanks!
+Martin

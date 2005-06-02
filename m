@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261304AbVFBVEk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVFBVEj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261304AbVFBVEk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 17:04:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbVFBVCu
+	id S261280AbVFBVEj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 17:04:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVFBVC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 17:02:50 -0400
-Received: from fed1rmmtao06.cox.net ([68.230.241.33]:17590 "EHLO
-	fed1rmmtao06.cox.net") by vger.kernel.org with ESMTP
-	id S261331AbVFBU6n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 16:58:43 -0400
-Date: Thu, 2 Jun 2005 13:58:41 -0700
-From: Matt Porter <mporter@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH][1/3] RapidIO support: core
-Message-ID: <20050602135841.A24818@cox.net>
-References: <20050601110836.A16559@cox.net> <20050602000050.GA5678@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050602000050.GA5678@kroah.com>; from greg@kroah.com on Wed, Jun 01, 2005 at 05:00:50PM -0700
+	Thu, 2 Jun 2005 17:02:58 -0400
+Received: from fsmlabs.com ([168.103.115.128]:48563 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261306AbVFBULJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 16:11:09 -0400
+Date: Thu, 2 Jun 2005 14:14:28 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Ashok Raj <ashok.raj@intel.com>
+cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, discuss@x86-64.org,
+       Rusty Russell <rusty@rustycorp.com.au>,
+       Srivattsa Vaddagiri <vatsa@in.ibm.com>
+Subject: Re: [patch 1/5] x86_64: Change init sections for CPU hotplug support
+In-Reply-To: <20050602130111.694382000@araj-em64t>
+Message-ID: <Pine.LNX.4.61.0506021413330.3157@montezuma.fsmlabs.com>
+References: <20050602125754.993470000@araj-em64t> <20050602130111.694382000@araj-em64t>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 01, 2005 at 05:00:50PM -0700, Greg KH wrote:
-> On Wed, Jun 01, 2005 at 11:08:36AM -0700, Matt Porter wrote:
-> > Adds a RapidIO subsystem to the kernel. RIO is a switched
-> > fabric interconnect used in higher-end embedded applications.
+On Thu, 2 Jun 2005, Ashok Raj wrote:
 
-<snip>
-
-> > The curious can look at the specs over at http://www.rapidio.org
-> > Patch is 108KB and can be found here:
-> > ftp://source.mvista.com/pub/rio/l26_rio_core.patch
+> This patch adds __cpuinit and __cpuinitdata sections that need to exist
+> past boot to support cpu hotplug.
 > 
-> Care to split it up into logical sections and post it?  It should be
-> small enough to do so that way.
+> Caveat: This is done *only* for EM64T CPU Hotplug support, on request from
+> Andi Kleen. Much of the generic hotplug code in kernel, and none of the 
+> other archs that support CPU hotplug today, i386, ia64, ppc64, s390 and
+> parisc dont mark sections with __cpuinit, but only mark them as __devinit, 
+> and __devinitdata.
+> 
+> If someone is motivated to change generic code, we need to make sure all
+> existing hotplug code does not break, on other arch's that dont use 
+> __cpuinit, and __cpudevinit.
 
-Ok.
+I'll do i386.
 
-My gut told me to not trust SubmittingPatches but I did it anyway. :)
-A new 5 part patch series is going out now with current comments 
-incorporated.
+Thanks,
+	Zwane
 
--Matt

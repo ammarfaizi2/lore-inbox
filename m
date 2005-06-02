@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVFBRey@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVFBRgO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261212AbVFBRey (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 13:34:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbVFBRey
+	id S261210AbVFBRgO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 13:36:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVFBRgN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 13:34:54 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:29319 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261208AbVFBReu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 13:34:50 -0400
-Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
-From: john stultz <johnstul@us.ibm.com>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Christoph Lameter <clameter@sgi.com>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
-       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <darren@dvhart.com>,
-       "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org
-In-Reply-To: <200506012037.53226.kernel-stuff@comcast.net>
-References: <1117667378.6801.80.camel@cog.beaverton.ibm.com>
-	 <1117667536.17474.0.camel@cog.beaverton.ibm.com>
-	 <1117667631.17474.3.camel@cog.beaverton.ibm.com>
-	 <200506012037.53226.kernel-stuff@comcast.net>
-Content-Type: text/plain
-Date: Thu, 02 Jun 2005 10:34:39 -0700
-Message-Id: <1117733679.17804.7.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Jun 2005 13:36:13 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:7135 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261210AbVFBRgB convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 13:36:01 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch] x86_64 specific function return probes
+Date: Thu, 2 Jun 2005 10:35:59 -0700
+Message-ID: <032EB457B9DBC540BFB1B7B519C78B0E07499229@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch] x86_64 specific function return probes
+Thread-Index: AcVnmRHaQ0Yz6AuLRIe1tWLONm4TyAAADetw
+From: "Lynch, Rusty" <rusty.lynch@intel.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       "Vara Prasad" <prasadav@us.ibm.com>, "Hien Nguyen" <hien@us.ibm.com>,
+       "Prasanna S Panchamukhi" <prasanna@in.ibm.com>,
+       "Jim Keniston" <jkenisto@us.ibm.com>
+X-OriginalArrivalTime: 02 Jun 2005 17:35:38.0211 (UTC) FILETIME=[7D708330:01C56799]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-01 at 20:37 -0400, Parag Warudkar wrote:
-> On Wednesday 01 June 2005 19:13, john stultz wrote:
-> > This patch converts the x86-64 arch to use the new timeofday
-> > infrastructure. It applies on top of my timeofday-core_B1 patch.
-> 
-> This one fails to apply - time.c HUNK #1 gets rejected. (Attached)
 
-Yea, sorry. My naming scheme isn't quite granular enough. The patch is
-against Linus' git tree as of yesterday, not -rc5 vanilla. 
+From: Andi Kleen [mailto:ak@suse.de]
+>On Thu, Jun 02, 2005 at 09:09:09AM -0700, Rusty Lynch wrote:
+>> The following patch adds the x86_64 architecture specific
+implementation
+>> for function return probes to the 2.6.12-rc5-mm2 kernel.
+>
+>This is not a sufficient description for a patch. Can you describe
+>how it actually works and what it does?
+>
 
-If you grab Linus' current tree it should apply.
+Ok, let me write up a description and I'll repost.
 
-Sorry about the confusion.
--john
-
+>> + * Called when we hit the probe point at kretprobe_trampoline
+>> + */
+>> +int trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
+>> +{
+>> +	struct task_struct *tsk;
+>> +	struct kretprobe_instance *ri;
+>> +	struct hlist_head *head;
+>> +	struct hlist_node *node;
+>> +	unsigned long *sara = (unsigned long *)regs->rsp - 1;
+>> +
+>> +	tsk = arch_get_kprobe_task(sara);
+>
+>I dont think you handle the case of the exception happening on
+>a exception or interrupt stack. This is broken.
+>
+>-Andi

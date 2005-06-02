@@ -1,61 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVFBSed@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261205AbVFBSjR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261229AbVFBSed (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 14:34:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbVFBSed
+	id S261205AbVFBSjR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 14:39:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbVFBSjR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 14:34:33 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:29611 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261229AbVFBSeY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 14:34:24 -0400
-Date: Thu, 2 Jun 2005 20:33:43 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Cc: Parag Warudkar <kernel-stuff@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: RT patch breaks X86_64 build
-Message-ID: <20050602183343.GB30309@elte.hu>
-References: <200505302141.31731.kernel-stuff@comcast.net> <200505302201.48123.kernel-stuff@comcast.net> <429BFF51.4000401@stud.feec.vutbr.cz> <200505310753.49447.kernel-stuff@comcast.net> <429C530E.70704@stud.feec.vutbr.cz> <20050601091344.GB11703@elte.hu> <429EFB66.8030909@stud.feec.vutbr.cz> <20050602123927.GB10878@elte.hu> <429F4A19.7030508@stud.feec.vutbr.cz>
+	Thu, 2 Jun 2005 14:39:17 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:39128 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261205AbVFBSjM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 14:39:12 -0400
+Date: Thu, 2 Jun 2005 11:39:04 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: john stultz <johnstul@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org
+Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
+Message-ID: <20050602183904.GC2636@us.ibm.com>
+References: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <429F4A19.7030508@stud.feec.vutbr.cz>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net>
+X-Operating-System: Linux 2.6.12-rc5 (i686)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
-
-> Ingo Molnar wrote:
-> >hm, it does work for me. I had trouble in the past with gcc & mcount on 
-> >x64. This version seems to work fine for me:
-> >
-> > gcc version 3.4.0 20040129 (Red Hat Linux 3.4.0-0.3)
+On 02.06.2005 [18:27:51 +0000], Parag Warudkar wrote:
+> > If you grab Linus' current tree it should apply.
+> > 
+> > Sorry about the confusion.
+> > -john
 > 
-> I could not find this exact version, so I downloaded 
-> gcc34-3.4.0-1.x86_64.rpm from Fedora Core 2, converted it do .deb with 
-> alien, installed it and made a symlink gcc -> gcc34. gcc --version says:
->   gcc (GCC) 3.4.0 (Red Hat Linux 3.4.0-1)
+> I ignored the reject since it was from an #include section - the build
+> went fine. I am even able to use it successfully. Couple things -
 > 
-> I did "make mrproper", copied back your .config, enabled LATENCY_TRACE 
-> and rebuilt the kernel.
-> init still segfaults.
+> Very happy to report that I no longer get those annoying - "losing
+> some ticks ..." "your time source is unreliable or some driver is
+> hogging interrupts" messages - Not sure what change in TOD subsystem
+> cured it - or was it just the removal of the printk? ;) 
+> 
+> Sadly, it somehow feels noticeably slower than vanilla 2.6.12-rc5.
+> Especially using X/KDE - It is surely usable but not snappy. I will do
+> more research to find out exactly why - but before that is such as
+> loss of snappiness possible due to the TOD changes?
 
-hm, one difference is that i'm running a 64-bit kernel but 32-bit 
-userspace (FC3-ish).
+Which timesource is being used?
 
-> It would be good to hear about other people's experiences with 
-> LATENCY_TRACE on amd64. Am I the only one for whom it breaks?
+cat /sys/devices/system/timesource/timesource0/timesource
 
-i definitely had problems with LATENCY_TRACE on x64 in the past - i am 
-in fact surprised that it works for me.
-
-	Ingo
+Thanks,
+Nish

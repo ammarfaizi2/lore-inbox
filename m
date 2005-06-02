@@ -1,70 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVFBSmr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbVFBSpD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261226AbVFBSmr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 14:42:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261230AbVFBSmq
+	id S261230AbVFBSpD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 14:45:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVFBSpD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 14:42:46 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:6784 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261226AbVFBSky (ORCPT
+	Thu, 2 Jun 2005 14:45:03 -0400
+Received: from dvhart.com ([64.146.134.43]:3495 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S261230AbVFBSmr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 14:40:54 -0400
-Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
-From: john stultz <johnstul@us.ibm.com>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Christoph Lameter <clameter@sgi.com>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
-       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <darren@dvhart.com>,
-       "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org
-In-Reply-To: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net>
-References: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net>
-Content-Type: text/plain
-Date: Thu, 02 Jun 2005 11:40:45 -0700
-Message-Id: <1117737645.17804.21.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Thu, 2 Jun 2005 14:42:47 -0400
+Date: Thu, 02 Jun 2005 11:42:39 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Andi Kleen <ak@muc.de>
+Cc: jschopp@austin.ibm.com, Mel Gorman <mel@csn.ul.ie>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Avoiding external fragmentation with a placement policy Version 12
+Message-ID: <486490000.1117737759@flay>
+In-Reply-To: <m14qcgwr3p.fsf@muc.de>
+References: <20050531112048.D2511E57A@skynet.csn.ul.ie><429E20B6.2000907@austin.ibm.com> <429E4023.2010308@yahoo.com.au><423970000.1117668514@flay> <429E483D.8010106@yahoo.com.au><434510000.1117670555@flay> <m14qcgwr3p.fsf@muc.de>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-06-02 at 18:27 +0000, Parag Warudkar wrote:
-> > If you grab Linus' current tree it should apply.
-> > 
-> > Sorry about the confusion.
-> > -john
+>> It gets very messy when CIFS requires a large buffer to write back
+>> to disk in order to free memory ...
 > 
-> I ignored the reject since it was from an #include section - the build
-> went fine. I am even able to use it successfully. Couple things -
+> How about just fixing CIFS to submit memory page by page? The network
+> stack below it supports that just fine and the VFS above it does anyways, 
+> so it doesnt make much sense that CIFS sitting below them uses
+> larger buffers.
 
-Good to hear.
+Might well be possible, but it's not just CIFS though. I don't see why
+CIFS needs phys contig memory, but I think some of the drivers do (at
+least they do at the moment). Large pages and hotplug definitely will.
 
+>> There's one example ... we can probably work around it if we try hard
+>> enough. However, the fundamental question becomes "do we support higher
+>> order allocs, or not?". If not fine ... but we ought to quit pretending
+>> we do. If so, then we need to make them more reliable.
+> 
+> My understanding was that the deal was that order 1 is supposed
+> to work but somewhat slower, and bigger orders are supposed to work
+> at boot up time.
 
-> Very happy to report that I no longer get those annoying - "losing
-> some ticks ..." "your time source is unreliable or some driver is
-> hogging interrupts" messages - Not sure what change in TOD subsystem
-> cured it - or was it just the removal of the printk? ;) 
+If that's the decision we come to, I'm OK with it ... but lots of code 
+needs fixing first. However, I don't think that's currently the stated 
+intent, we try pretty hard for up to order 3 in __alloc_pages(). I think 
+we'll have an inherent need for higher orders from what I've seen, and 
+thus we'll have to be capable to some extent of reclaiming mem for those
+allocs. We should probably put together a list of things that really 
+need it, Joel had a start at one later down this thread.
 
-Since we do not interpolate, lost ticks no longer cause time problems
-(well, unless you're using the jiffies timesource). 
-
-> Sadly, it somehow feels noticeably slower than vanilla 2.6.12-rc5.
-> Especially using X/KDE - It is surely usable but not snappy. I will do
-> more research to find out exactly why - but before that is such as
-> loss of snappiness possible due to the TOD changes?
-
-Could you send me your dmesg output with and without using my patch? It
-could be you're using a different timesource.
-
-thanks
--john
+M.
 

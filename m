@@ -1,90 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbVFBI6k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVFBI6l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261288AbVFBI6k (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 04:58:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVFBI5g
+	id S261277AbVFBI6l (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 04:58:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbVFBI5x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 04:57:36 -0400
-Received: from hermine.aitel.hist.no ([158.38.50.15]:7684 "HELO
-	hermine.aitel.hist.no") by vger.kernel.org with SMTP
-	id S261284AbVFBIsI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 04:48:08 -0400
-Message-ID: <429EC91A.7020704@aitel.hist.no>
-Date: Thu, 02 Jun 2005 10:53:46 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Matthias Andree <matthias.andree@gmx.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux does not care for data integrity
-References: <20050515152956.GA25143@havoc.gtf.org> <20050516.012740.93615022.okuyamak@dd.iij4u.or.jp> <42877C1B.2030008@pobox.com> <20050516110203.GA13387@merlin.emma.line.org> <1116241957.6274.36.camel@laptopd505.fenrus.org> <20050516112956.GC13387@merlin.emma.line.org> <1116252157.6274.41.camel@laptopd505.fenrus.org> <20050516144831.GA949@merlin.emma.line.org> <1116256005.21388.55.camel@localhost.localdomain> <87zmudycd1.fsf@stark.xeocode.com> <20050529211610.GA2105@merlin.emma.line.org> <429E062B.60909@tmr.com>
-In-Reply-To: <429E062B.60909@tmr.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Jun 2005 04:57:53 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:11706 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261295AbVFBIwI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 04:52:08 -0400
+Date: Thu, 2 Jun 2005 10:50:41 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, Thomas Gleixner <tglx@linutronix.de>,
+       Karim Yaghmour <karim@opersys.com>, Ingo Molnar <mingo@elte.hu>,
+       Paulo Marques <pmarques@grupopie.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       James Bruce <bruce@andrew.cmu.edu>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, Andi Kleen <ak@muc.de>,
+       Sven-Thorsten Dietrich <sdietrich@mvista.com>, dwalker@mvista.com,
+       hch@infradead.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: RT patch acceptance
+In-Reply-To: <20050601231936.GA11536@nietzsche.lynx.com>
+Message-Id: <Pine.OSF.4.05.10506021048020.27013-100000@da410.phys.au.dk>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen wrote:
+On Wed, 1 Jun 2005, Bill Huey wrote:
 
-> Matthias Andree wrote:
->
->> On Sun, 29 May 2005, Greg Stark wrote:
->>
->>
->>> Oracle, Sybase, Postgres, other databases have hard requirements. They
->>> guarantee that when they acknowledge a transaction commit the data 
->>> has been
->>> written to non-volatile media and will be recoverable even in the 
->>> face of a
->>> routine power loss.
->>>
->>> They meet this requirement just fine on SCSI drives (where write 
->>> caching
->>> generally ships disabled) and on any OS where fsync issues a cache 
->>> flush. If
->>
->>
->>
->> I don't know what facts "generally ships disabled" is based on, all of
->> the more recent SCSI drives (non SCA type though) I acquired came with
->> write cache enabled and some also with queue algorithm modifier set 
->> to 1.
->>
->>
->>> Worse, if the disk flushes the data to disk out of order it's quite
->>> likely the entire database will be corrupted on any simple power
->>> outage. I'm not clear whether that's the case for any common drives.
->>
->>
->>
->> It's a matter of enforcing write order. In how far such ordering
->> constraints are propagated by file systems, VFS layer, down to the
->> hardware, is the grand question.
->>
-> The problem is that in many options required to make that happen in 
-> the o/s, hardware, and application are going to kill performance. And 
-> even if you can control order of write, unless you can get write to 
-> final non-volatile media control you can get a sane database but still 
-> lose transactions.
->
-> If there was a way for the o/s to know when a physical write was done 
-> other than using flushes to force completion, then overall performance 
-> could be higher, but individual transaction might have greater 
-> latency. And the app could use fsync to force order of write as 
-> needed. In many cases groups of writes can be done in any order as 
-> long as they are all done before the next logical step takes place. 
+> On Wed, Jun 01, 2005 at 04:02:44PM -0700, Bill Huey wrote:
+> > > people will just assume it to be hard-RT and they could build hardware
+> > > with random drivers thinking that they will get the gurantee. I
+> > > understand it's ok with you since you're able to evaluate the RT-safety
+> > > of every driver you use, but I sure prefer "ruby hard" solutions that
+> > > don't require looking into drivers to see if they're RT-safe.
+> > 
+> > Again, this has been covered previously by this thread. It's ultimately
+> > about writing RT apps that have a more sophisticated use that RTAI or
+> > RT Linux.
+> 
+> Also, I'm telling you as a person that works for a well known RTOS company
+> that this patch is very very close to achieving the hard determinism goals
+> outlined. It has good latency and good overall kernel performancei and it's
+> much closer to your notion of "ruby" hard RT that you might realize. What's
+> needed to be done is largely driver mop up and nothing more that I can tell.
+> 
+> There hasn't been any major driver changes submitted recently with this
+> patch so the code base is pretty stable at the moment.
+> 
+> bill
+> 
+I can add that even with the commercial hard-RT OS we use at work, I 
+have had to rewrite 2nd source (isn't that the expression?) drivers to
+make it fit into the RT world!
 
-There is a workaround.  Get an UPS just for the disks.  It don't have to be
-big, just enough to keep the disks going long enough to commit their
-caches after the rest of the machine died from a power loss.  Such a small
-unit could possibly fit inside the cabinet, avoiding the trouble with
-people stepping on the power cord.
+Esben
 
-With this in place, any write that makes it from the controller to the
-disk is safely stored for all practical purposes.
 
-Helge Hafting
+

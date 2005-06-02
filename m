@@ -1,37 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261499AbVFBAEn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVFBAKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261499AbVFBAEn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 20:04:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVFBAEe
+	id S261522AbVFBAKF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 20:10:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261534AbVFBAJ2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 20:04:34 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63207 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261542AbVFBAEZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 20:04:25 -0400
-Date: Thu, 2 Jun 2005 01:05:08 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Bernd Eckenfels <ecki@lina.inka.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: How to replace an executing file on an embedded system?
-Message-ID: <20050602000508.GD29811@parcelfarce.linux.theplanet.co.uk>
-References: <Pine.LNX.4.61.0506011828300.5925@chaos.analogic.com> <E1Ddclx-0002MM-00@calista.eckenfels.6bone.ka-ip.net>
+	Wed, 1 Jun 2005 20:09:28 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:50374 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261542AbVFBAHP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 20:07:15 -0400
+Date: Wed, 1 Jun 2005 17:07:11 -0700
+From: Mike Kravetz <kravetz@us.ibm.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: jschopp@austin.ibm.com, Mel Gorman <mel@csn.ul.ie>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Avoiding external fragmentation with a placement policy Version 12
+Message-ID: <20050602000711.GA7910@w-mikek2.ibm.com>
+References: <20050531112048.D2511E57A@skynet.csn.ul.ie> <429E20B6.2000907@austin.ibm.com> <429E4023.2010308@yahoo.com.au> <20050601234730.GF3998@w-mikek2.ibm.com> <429E4B22.5080404@yahoo.com.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <E1Ddclx-0002MM-00@calista.eckenfels.6bone.ka-ip.net>
+In-Reply-To: <429E4B22.5080404@yahoo.com.au>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 02, 2005 at 01:37:17AM +0200, Bernd Eckenfels wrote:
-> In article <Pine.LNX.4.61.0506011828300.5925@chaos.analogic.com> you wrote:
-> > What am I missing?  How am I supposed to replace files that
-> > are being executed?
+On Thu, Jun 02, 2005 at 09:56:18AM +1000, Nick Piggin wrote:
+> Mike Kravetz wrote:
+> >Allocating lots of MAX_ORDER blocks can be very useful for things
+> >like hot-pluggable memory.  I know that this may not be of interest
+> >to most.  However, I've been combining Mel's defragmenting patch
+> >with the memory hotplug patch set.  As a result, I've been able to
+> >go from 5GB down to 544MB of memory on my ppc64 system via offline
+> >operations.  Note that ppc64 only employs a single (DMA) zone.  So,
+> >page 'grouping' based on use is coming mainly from Mel's patch.
+> >
 > 
-> The problem is that a unlinked file which is open will be removed from the
-> filesystem on close. I think this is not new. You can make init reexecute
-> itself (telinit u)
+> Back in the day, Linus would tell you to take a hike if you
+> wanted to complicate the buddy allocator to better support
+> memory hotplug ;)
+> 
+> I don't know what's happened to him now though, he seems to
+> have gone a little soft on you enterprise types.
+> 
+> Seriously - thanks for the data point, I had an idea that you
+> guys wanted this for mem hotplug.
 
-With sysvinit you can, that is.  And no, this behaviour of umount is nothing
-new, of course - wrongbot is just being its usual self.
+Mel wrote the patch independent of the mem hotplug effort.  As
+part of the hotplug effort, we knew fragmentation needed to be
+addressed.  So, when Mel released his patch we jumped all over
+it.
+
+-- 
+Mike

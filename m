@@ -1,54 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVFBQdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVFBQfq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261182AbVFBQdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 12:33:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVFBQdZ
+	id S261187AbVFBQfq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 12:35:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261191AbVFBQfq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 12:33:25 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15003 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261182AbVFBQdW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 12:33:22 -0400
-Date: Thu, 2 Jun 2005 12:33:04 -0400 (EDT)
-From: James Morris <jmorris@redhat.com>
-X-X-Sender: jmorris@thoron.boston.redhat.com
-To: Michael Halcrow <mhalcrow@us.ibm.com>
-cc: Greg KH <greg@kroah.com>, Phillip Hellewell <phillip@hellewell.homeip.net>,
-       <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 1/3] eCryptfs: eCryptfs kernel module
-In-Reply-To: <20050602122807.GA8855@halcrow.us>
-Message-ID: <Xine.LNX.4.44.0506021223320.5872-100000@thoron.boston.redhat.com>
+	Thu, 2 Jun 2005 12:35:46 -0400
+Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:37529 "EHLO
+	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
+	id S261187AbVFBQfn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 12:35:43 -0400
+Message-ID: <429F3532.80907@nortel.com>
+Date: Thu, 02 Jun 2005 10:34:58 -0600
+X-Sybari-Space: 00000000 00000000 00000000 00000000
+From: Chris Friesen <cfriesen@nortel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ingo Molnar <mingo@elte.hu>
+CC: Ingo Oeser <ioe-lkml@axxeo.de>, linux-kernel@vger.kernel.org
+Subject: Re: [rfc] [patch] consolidate/clean up spinlock.h files
+References: <20050602144004.GA31807@elte.hu> <200506021749.15206.ioe-lkml@axxeo.de> <20050602161633.GA12616@elte.hu>
+In-Reply-To: <20050602161633.GA12616@elte.hu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Jun 2005, Michael Halcrow wrote:
+Ingo Molnar wrote:
 
-> On Thu, Jun 02, 2005 at 12:33:03AM -0700, Greg KH wrote:
-> > Why not fix up the stuff that you know needs to be fixed?  It should
-> > not be merged until then at the least.
-> 
-> We'll keep plugging away; note that all this could take several months
-> (there are currently about 160 TODO items in the code base, plus
-> several more features to flesh out), and in the meantime, we would
-> like some general commentary from the community so we don't wind up
-> pouring time and effort in the wrong direction.
+> the real call site info comes from dump_stack(). Maybe i should remove 
+> the __FILE__,__LINE__ info altogether. (albeit a bit redundancy wont 
+> hurt) I dont think we want to pass in __FILE__,__LINE__ all the way from 
+> the main APIs.
 
-Posting it here for comments should generate commentary, but it will also
-help greatly if you format the patches properly, closely follow the kernel
-coding style and include the patches in your emails.  The closer it looks
-to be ready to apply to a real kernel tree, the more people will take
-notice.
+Couldn't you make it a macro and hide the complexity?  Or is it just a 
+performance issue due to register starvation?
 
-You can also ask for help with development, or if it's a really compelling
-project, people may just dive in anyway.
-
-
-- James
--- 
-James Morris
-<jmorris@redhat.com>
-
-
+Chris
 

@@ -1,49 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVFBRs4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVFBSBB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261219AbVFBRs4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 13:48:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbVFBRs4
+	id S261211AbVFBSBB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 14:01:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbVFBSBA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 13:48:56 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5829 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261219AbVFBRsy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 13:48:54 -0400
-Date: Thu, 2 Jun 2005 13:48:48 -0400
-From: Dave Jones <davej@redhat.com>
-To: "Peter J. Stieber" <developer@toyon.com>
-Cc: Christopher Warner <chris@servertogo.com>,
-       Joel Jaeggli <joelja@darkwing.uoregon.edu>,
-       linux-kernel@vger.kernel.org, Bill Davidsen <davidsen@tmr.com>
-Subject: Re: Tyan Opteron boards and problems with parallel ports (badpmd)
-Message-ID: <20050602174848.GD12419@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"Peter J. Stieber" <developer@toyon.com>,
-	Christopher Warner <chris@servertogo.com>,
-	Joel Jaeggli <joelja@darkwing.uoregon.edu>,
-	linux-kernel@vger.kernel.org, Bill Davidsen <davidsen@tmr.com>
-References: <037801c5616a$b1be6600$1600a8c0@toyon.corp> <4295E9F1.6080304@tmr.com> <022e01c56233$241e5930$1600a8c0@toyon.corp> <1117156446.8874.41.camel@localhost.localdomain> <Pine.LNX.4.62.0505262112540.32548@twin.uoregon.edu> <1117190965.13932.36.camel@sabrina> <02b301c562e1$41351a50$1600a8c0@toyon.corp> <20050527190918.GB7923@redhat.com> <037601c562f5$a66343c0$1600a8c0@toyon.corp> <028601c5678f$ee26c670$1600a8c0@toyon.corp>
+	Thu, 2 Jun 2005 14:01:00 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:36800 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261211AbVFBSA4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 14:00:56 -0400
+Subject: Re: [PATCH 1/4] new timeofday core subsystem (v. B1)
+From: john stultz <johnstul@us.ibm.com>
+To: Frank Sorenson <frank@tuxrocks.com>
+Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
+       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <darren@dvhart.com>,
+       "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org
+In-Reply-To: <429E5BF3.4000505@tuxrocks.com>
+References: <1117667378.6801.80.camel@cog.beaverton.ibm.com>
+	 <429E5BF3.4000505@tuxrocks.com>
+Content-Type: text/plain
+Date: Thu, 02 Jun 2005 11:00:49 -0700
+Message-Id: <1117735249.17804.17.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <028601c5678f$ee26c670$1600a8c0@toyon.corp>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 02, 2005 at 09:27:11AM -0700, Peter J. Stieber wrote:
+On Wed, 2005-06-01 at 19:08 -0600, Frank Sorenson wrote:
+> Patch 1 appears to be truncated, so here's an updated patch, completed
+> from version B0.
 
- > I (and others) have been running a new FC3 kernel provided by Dave 
- > (2.6.11-1.31_FC3smp) for a while know and it seems to have fixed this 
- > problem.
- > 
- > https://www.redhat.com/archives/fedora-list/2005-June/msg00243.html
- > https://www.redhat.com/archives/fedora-list/2005-June/msg00246.html
- > 
- > Dave will have to comment with respect to what changes were made to this 
- > version.
+Hmm. The archives seem to have the full B1 patch. Are you sure it didn't
+just get lost on your end? 
 
-2.6.11.11 inclusion.
-
-		Dave
+thanks
+-john
 

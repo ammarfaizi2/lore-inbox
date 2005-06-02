@@ -1,90 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVFBINe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVFBINe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbVFBINe (ORCPT <rfc822;willy@w.ods.org>);
+	id S261197AbVFBINe (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 2 Jun 2005 04:13:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261197AbVFBIAT
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVFBH7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 04:00:19 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:17607 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261198AbVFBH6y (ORCPT
+	Thu, 2 Jun 2005 03:59:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:24519 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261204AbVFBH7E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 03:58:54 -0400
-Date: Thu, 2 Jun 2005 16:03:20 +0800
+	Thu, 2 Jun 2005 03:59:04 -0400
+Date: Thu, 2 Jun 2005 16:03:27 +0800
 From: David Teigland <teigland@redhat.com>
 To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [patch 8/9] dlm: consistent ifdefs
-Message-ID: <20050602080320.GH21570@redhat.com>
+Subject: [patch 9/9] dlm: newline in printks
+Message-ID: <20050602080327.GI21570@redhat.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline; filename="debug-ifdefs.patch"
+Content-Disposition: inline; filename="add-newline-in-printk.patch"
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Consistently handle the declarations of ifdef'ed debug functions in the
-two places they occur.
+A couple printk's were missing \n at the end.
 
 Signed-off-by: David Teigland <teigland@redhat.com>
 
-Index: linux/drivers/dlm/dlm_internal.h
+Index: linux/drivers/dlm/device.c
 ===================================================================
---- linux.orig/drivers/dlm/dlm_internal.h	2005-06-02 13:04:51.696074128 +0800
-+++ linux/drivers/dlm/dlm_internal.h	2005-06-02 13:11:20.554958592 +0800
-@@ -80,14 +80,6 @@
- #define log_error(ls, fmt, args...) \
- 	printk(KERN_ERR "dlm: %s: " fmt "\n", (ls)->ls_name , ##args)
+--- linux.orig/drivers/dlm/device.c	2005-06-02 12:58:09.796172200 +0800
++++ linux/drivers/dlm/device.c	2005-06-02 13:16:01.522245072 +0800
+@@ -263,7 +263,7 @@
  
--#ifdef CONFIG_DLM_DEBUG
--int dlm_create_debug_file(struct dlm_ls *ls);
--void dlm_delete_debug_file(struct dlm_ls *ls);
--#else
--static inline int dlm_create_debug_file(struct dlm_ls *ls) { return 0; }
--static inline void dlm_delete_debug_file(struct dlm_ls *ls) { }
--#endif
--
- #ifdef DLM_LOG_DEBUG
- #define log_debug(ls, fmt, args...) log_error(ls, fmt, ##args)
- #else
-Index: linux/drivers/dlm/lockspace.c
-===================================================================
---- linux.orig/drivers/dlm/lockspace.c	2005-06-02 12:55:58.290164152 +0800
-+++ linux/drivers/dlm/lockspace.c	2005-06-02 13:12:01.091796056 +0800
-@@ -23,6 +23,14 @@
- #include "memory.h"
- #include "lock.h"
+ 	status = misc_register(&newls->ls_miscinfo);
+ 	if (status) {
+-		printk(KERN_ERR "dlm: misc register failed for %s", name);
++		printk(KERN_ERR "dlm: misc register failed for %s\n", name);
+ 		dlm_release_lockspace(newls->ls_lockspace, 0);
+ 		kfree(newls->ls_miscinfo.name);
+ 		kfree(newls);
+@@ -466,7 +466,7 @@
+ 	     req->version[1] > DLM_DEVICE_VERSION_MINOR)) {
  
-+#ifdef CONFIG_DLM_DEBUG
-+int dlm_create_debug_file(struct dlm_ls *ls);
-+void dlm_delete_debug_file(struct dlm_ls *ls);
-+#else
-+static inline int dlm_create_debug_file(struct dlm_ls *ls) { return 0; }
-+static inline void dlm_delete_debug_file(struct dlm_ls *ls) { }
-+#endif
-+
- static int			ls_count;
- static struct semaphore		ls_lock;
- static struct list_head		lslist;
-Index: linux/drivers/dlm/main.c
-===================================================================
---- linux.orig/drivers/dlm/main.c	2005-06-02 12:43:52.480503992 +0800
-+++ linux/drivers/dlm/main.c	2005-06-02 13:12:43.582336512 +0800
-@@ -23,14 +23,8 @@
- int dlm_register_debugfs(void);
- void dlm_unregister_debugfs(void);
- #else
--int dlm_register_debugfs(void)
--{
--	return 0;
--}
--
--void dlm_unregister_debugfs(void)
--{
--}
-+static inline int dlm_register_debugfs(void) { return 0; }
-+static inline void dlm_unregister_debugfs(void) { }
- #endif
+ 		printk(KERN_DEBUG "dlm: process %s (%d) version mismatch "
+-		       "user (%d.%d.%d) kernel (%d.%d.%d),",
++		       "user (%d.%d.%d) kernel (%d.%d.%d)\n",
+ 		       current->comm,
+ 		       current->pid,
+ 		       req->version[0],
+@@ -1102,8 +1102,7 @@
  
- int dlm_node_ioctl_init(void);
+ 	r = misc_register(&ctl_device);
+ 	if (r) {
+-		printk(KERN_ERR "dlm: misc_register failed for control "
+-				"device\n");
++		printk(KERN_ERR "dlm: misc_register failed for control dev\n");
+ 		return r;
+ 	}
+ 
 
 --
 

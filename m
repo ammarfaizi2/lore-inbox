@@ -1,60 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261230AbVFBSpD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVFBSvL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261230AbVFBSpD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 14:45:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVFBSpD
+	id S261236AbVFBSvL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 14:51:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261237AbVFBSvL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 14:45:03 -0400
-Received: from dvhart.com ([64.146.134.43]:3495 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261230AbVFBSmr (ORCPT
+	Thu, 2 Jun 2005 14:51:11 -0400
+Received: from colin.muc.de ([193.149.48.1]:29447 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S261236AbVFBSuz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 14:42:47 -0400
-Date: Thu, 02 Jun 2005 11:42:39 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andi Kleen <ak@muc.de>
-Cc: jschopp@austin.ibm.com, Mel Gorman <mel@csn.ul.ie>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Avoiding external fragmentation with a placement policy Version 12
-Message-ID: <486490000.1117737759@flay>
-In-Reply-To: <m14qcgwr3p.fsf@muc.de>
-References: <20050531112048.D2511E57A@skynet.csn.ul.ie><429E20B6.2000907@austin.ibm.com> <429E4023.2010308@yahoo.com.au><423970000.1117668514@flay> <429E483D.8010106@yahoo.com.au><434510000.1117670555@flay> <m14qcgwr3p.fsf@muc.de>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
-MIME-Version: 1.0
+	Thu, 2 Jun 2005 14:50:55 -0400
+Date: 2 Jun 2005 20:50:53 +0200
+Date: Thu, 2 Jun 2005 20:50:53 +0200
+From: Andi Kleen <ak@muc.de>
+To: YhLu <YhLu@tyan.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc5 is broken in nvidia Ck804 Opteron MB/with dual cor e dual way
+Message-ID: <20050602185053.GF1683@muc.de>
+References: <3174569B9743D511922F00A0C94314230A403901@TYANWEB>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <3174569B9743D511922F00A0C94314230A403901@TYANWEB>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> It gets very messy when CIFS requires a large buffer to write back
->> to disk in order to free memory ...
+On Wed, Jun 01, 2005 at 08:16:35PM -0700, YhLu wrote:
+> andi,
 > 
-> How about just fixing CIFS to submit memory page by page? The network
-> stack below it supports that just fine and the VFS above it does anyways, 
-> so it doesnt make much sense that CIFS sitting below them uses
-> larger buffers.
-
-Might well be possible, but it's not just CIFS though. I don't see why
-CIFS needs phys contig memory, but I think some of the drivers do (at
-least they do at the moment). Large pages and hotplug definitely will.
-
->> There's one example ... we can probably work around it if we try hard
->> enough. However, the fundamental question becomes "do we support higher
->> order allocs, or not?". If not fine ... but we ought to quit pretending
->> we do. If so, then we need to make them more reliable.
+> in arch/x86_64/kernel/smboot.c, function detect_siblings(),
 > 
-> My understanding was that the deal was that order 1 is supposed
-> to work but somewhat slower, and bigger orders are supposed to work
-> at boot up time.
+> because smp_num_siblings is always =1,  so several lines can be removed.
 
-If that's the decision we come to, I'm OK with it ... but lots of code 
-needs fixing first. However, I don't think that's currently the stated 
-intent, we try pretty hard for up to order 3 in __alloc_pages(). I think 
-we'll have an inherent need for higher orders from what I've seen, and 
-thus we'll have to be capable to some extent of reclaiming mem for those
-allocs. We should probably put together a list of things that really 
-need it, Joel had a start at one later down this thread.
+What do you mean? On intel systems with HyperThreading it is > 1.
+> 
+>         for_each_online_cpu (cpu) {
+>                 struct cpuinfo_x86 *c = cpu_data + cpu;
+> *R*                int siblings = 0;
+>                 int i;
+> *R*                if (smp_num_siblings > 1) {
+> *R*                        for_each_online_cpu (i) {
+> *R*                                if (cpu_core_id[cpu] == cpu_core_id[i]) {
+> *R*                                        siblings++;
+> *R*                                        cpu_set(i, cpu_sibling_map[cpu]);
+> *R*                                }
+> *R*                        }
+> *R*                } else {
+> *R*                      siblings++;
+>                         cpu_set(cpu, cpu_sibling_map[cpu]);
+> *R*                }
+> 
+> 
+>  *R*               if (siblings != smp_num_siblings) {
+>  *R*                       printk(KERN_WARNING
+>  *R*              "WARNING: %d siblings found for CPU%d, should be %d\n",
+>  *R*                              siblings, cpu, smp_num_siblings);
+>  *R*                       smp_num_siblings = siblings;
+>  *R*               }
+> 
+> Also I found the workaround for hang on second node is
+> adding one line in setup.c
+>         /* Low order bits define the core id (index of core in socket) */
+>         cpu_core_id[cpu] = phys_proc_id[cpu] & ((1 << bits)-1);
+>         /* Convert the APIC ID into the socket ID */
+>         phys_proc_id[cpu] >>= bits;
+> +        printk(KERN_INFO "  CPU %d(%d)  phys_proc_id %d  Core %d\n", 
+> +               cpu, c->x86_num_cores, phys_proc_id[cpu], cpu_core_id[cpu]);
 
-M.
+That would just change the timing.
 
+-Andi

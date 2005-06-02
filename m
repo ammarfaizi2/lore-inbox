@@ -1,72 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVFBX4B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVFBX4U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261332AbVFBX4B (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 19:56:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbVFBX4A
+	id S261435AbVFBX4U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 19:56:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVFBX4T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 19:56:00 -0400
-Received: from rwcrmhc14.comcast.net ([216.148.227.89]:47871 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S261332AbVFBXzx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 19:55:53 -0400
-X-Comment: AT&T Maillennium special handling code - c
-From: Parag Warudkar <kernel-stuff@comcast.net>
-To: john stultz <johnstul@us.ibm.com>
-Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
-Date: Thu, 2 Jun 2005 19:50:33 -0400
-User-Agent: KMail/1.8
-Cc: Nishanth Aravamudan <nacc@us.ibm.com>, Andi Kleen <ak@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Christoph Lameter <clameter@sgi.com>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org
-References: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net> <200506021905.08274.kernel-stuff@comcast.net> <1117754453.17804.51.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1117754453.17804.51.camel@cog.beaverton.ibm.com>
+	Thu, 2 Jun 2005 19:56:19 -0400
+Received: from smtpq1.home.nl ([213.51.128.196]:59794 "EHLO smtpq1.home.nl")
+	by vger.kernel.org with ESMTP id S261435AbVFBX4G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 19:56:06 -0400
+Message-ID: <429F9C90.2000602@keyaccess.nl>
+Date: Fri, 03 Jun 2005 01:56:00 +0200
+From: Rene Herman <rene.herman@keyaccess.nl>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a6) Gecko/20050111
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Grant Coady <grant_lkml@dodo.com.au>
+CC: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       David Brownell <david-b@pacbell.net>, Pavel Machek <pavel@ucw.cz>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, Mark Lord <lkml@rtr.ca>,
+       David Brownell <dbrownell@users.sourceforge.net>
+Subject: Re: External USB2 HDD affects speed hda
+References: <429BA001.2030405@keyaccess.nl> <20050601081810.GA23114@elf.ucw.cz> <429DFD90.10802@keyaccess.nl> <200506011240.09540.david-b@pacbell.net> <429E3338.9000401@keyaccess.nl> <20050602135737.GO23621@csclub.uwaterloo.ca> <429F0570.1090004@keyaccess.nl> <ki1v9196ga4hbeif05unuq5f29ohg5fcnc@4ax.com>
+In-Reply-To: <ki1v9196ga4hbeif05unuq5f29ohg5fcnc@4ax.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506021950.35014.kernel-stuff@comcast.net>
+X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
+X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 02 June 2005 19:20, john stultz wrote:
-> Could you see if the slowness you're feeling is correlated to the
-> acpi_pm timesource?
+Grant Coady wrote:
 
-Speaking of which, the below code from arch/i386/timer_pm.c looks particularly 
-more taxing to me - 3 times read from ioport in a loop - not sure how many 
-time that executes. 
+> On Thu, 02 Jun 2005 15:11:12 +0200, Rene Herman <rene.herman@keyaccess.nl> wrote:
+> 
+>>In fact, anyone who could do the same would be much welcome. Certainly 
+>>with the EHCI controller on a PCI card, and even more certainly with a 
+>>VIA VT6212 EHCI controller on a PCI card.
+> 
+> 
+> Not quite what you asked, following is with 6GB laptop HDD in USB 
+> enclosure on /dev/sdb, main drive is Seagate SATA /dev/sda. 
+> More hardware info on http://scatter.mine.nu/test/boxen/sempro/ 
+>  includes an lspci -v, mobo, CPU, HDD info
+> 
+> nVidia driver not loaded, box running headless to ssh terminal.
+> USB optical mouse only other device plugged in
+> USB drive plugged in prior to reboot both times
 
-static inline u32 read_pmtmr(void)
-{
-        u32 v1=0,v2=0,v3=0;
-        /* It has been reported that because of various broken
-         * chipsets (ICH4, PIIX4 and PIIX4E) where the ACPI PM time
-         * source is not latched, so you must read it multiple
-         * times to insure a safe value is read.
-         */
-        do {
-                v1 = inl(pmtmr_ioport);
-                v2 = inl(pmtmr_ioport);
-                v3 = inl(pmtmr_ioport);
-        } while ((v1 > v2 && v1 < v3) || (v2 > v3 && v2 < v1)
-                        || (v3 > v1 && v3 < v2));
+Okay, great, thanks...
 
-Shouldn't that loop be limited to the broken chipsets - why would correct 
-people with correctly working chipsets carry this extra burden? (Or is it 
-insignificant?)
+> 2.6.11.11: after many runs, plus hardware info:
+> 
+> root@sempro:~# cat /sys/class/usb_host/usb1/registers
+> bus pci, device 0000:00:10.4 (driver 10 Dec 2004)
+> EHCI 1.00, hcd state 1
+> structural params 0x00004208
+> capability params 0x00006872
+> status a008 Async Recl FLR
+> command 010009 (park)=0 ithresh=1 period=256 RUN
 
--- 
-Because we don't think about future generations, they will never forget us.
-		-- Henrik Tikkanen
+David, did I understand correctly that the Async status bit should not 
+be set without the Async command bit, period? Or was that just in my 
+case, with everything idle/off/disconnected?
+
+If first, then I'm happy that it's not just me ...
+
+> 00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
+
+... although maybe still just VIA.
+
+> 2.6.12-rc5-mm2a third run
+
+[ snip, no Async or Recl status bit ]
+
+> irq normal 8184 err 0 reclaim 5387 (lost 82)
+
+No idea about those. Not seeing lost interrupts here, even after 
+generating quite some traffic.
+
+Rene.

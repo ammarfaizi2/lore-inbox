@@ -1,73 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVFBLvk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVFBLv5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261379AbVFBLvk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 07:51:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbVFBLvk
+	id S261385AbVFBLv5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 07:51:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbVFBLvo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 07:51:40 -0400
-Received: from cr200715060.cable.net.co ([200.71.50.60]:13356 "HELO
-	hotmail.com") by vger.kernel.org with SMTP id S261379AbVFBLve (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 07:51:34 -0400
-Message-ID: <B2A07DD4.36607CD@hotmail.com>
-Date: Thu, 02 Jun 2005 10:25:29 +0100
-Reply-To: "Craig" <z9ukem8@hotmail.com>
-From: "Craig" <z9ukem8@hotmail.com>
-User-Agent: Mozilla/5.0 (Macintosh; U; PPC Mac OS X Mach-O; en-US; rv:1.5) Gecko/20031013 Thunderbird/0.3
-X-Accept-Language: en-us
+	Thu, 2 Jun 2005 07:51:44 -0400
+Received: from mailhub3.nextra.sk ([195.168.1.146]:21255 "EHLO
+	mailhub3.nextra.sk") by vger.kernel.org with ESMTP id S261380AbVFBLvj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 07:51:39 -0400
+Message-ID: <429EF2C5.6050603@rainbow-software.org>
+Date: Thu, 02 Jun 2005 13:51:33 +0200
+From: Ondrej Zary <linux@rainbow-software.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: <linux-kernel@vger.kernel.org>
-Subject: Almost signups
-Content-Type: text/plain;
-	charset="us-ascii"
+To: Karel Kulhavy <clock@twibright.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: DL10038D chip datasheet
+References: <20050602101346.GA15487@kestrel>
+In-Reply-To: <20050602101346.GA15487@kestrel>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-21 days ago I bought a le.ads d/base for 199$USD.
-14 days ago I started mark.eting.
-10 days ago I got my first check in the post.
-Up to today's date I've had 35 checks.
-35 join/ups in 10 days.
+Karel Kulhavy wrote:
+> Hello
+> 
+> Does annyone please have DL10038 or DL10038D datasheet? (A chip on
+> DLINK PCI network cards).
 
-I would like to tell you about it.
-
-It was easy.
-
-I am not very good at mark/eting. I was given
-help to write my sales_message and advice how
-promote my business without cost.
-
----------------------------------------------
-
-You should try this "new" and "unique" way of
-getting sign/ups.
-
-You have to do some mark.eting work but it's
-easy and it works - fast.
-
-I tried many mark/eting and le.ad companies.
-Most of them chea.ted me. This one doesn't.
-
-Wait. Don't click your "reply_to" button.
-Please only send replies to this email address:
-
-moneypillar@tiscali.co.uk
-If your mail bounces call 0044 (0) 781.8054683
-for an alternative email address.
+It's probably remarked RTL8139 or RTL8139D chip.
 
 
-Put "2005 june" in the subject line and please
-quote your URL and I will get some details sent
-to you showing how to get paid_sign/ups very
-soon.
-
-If you want to request me to stop mailing you,
-please send me an email to:
-
-moneypillar@tiscali.co.uk
-
-and it will cease from 12 hours. Put "stopccc"
-in the subject line.
-
-
+-- 
+Ondrej Zary

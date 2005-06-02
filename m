@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVFBQUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVFBQWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbVFBQUa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 12:20:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbVFBQU3
+	id S261189AbVFBQWV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 12:22:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVFBQWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 12:20:29 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:26524 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261189AbVFBQTv (ORCPT
+	Thu, 2 Jun 2005 12:22:20 -0400
+Received: from mx2.suse.de ([195.135.220.15]:14209 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261182AbVFBQWF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 12:19:51 -0400
-Date: Thu, 2 Jun 2005 18:16:33 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Ingo Oeser <ioe-lkml@axxeo.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [rfc] [patch] consolidate/clean up spinlock.h files
-Message-ID: <20050602161633.GA12616@elte.hu>
-References: <20050602144004.GA31807@elte.hu> <200506021749.15206.ioe-lkml@axxeo.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506021749.15206.ioe-lkml@axxeo.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Thu, 2 Jun 2005 12:22:05 -0400
+Message-ID: <429F321D.9000009@suse.de>
+Date: Thu, 02 Jun 2005 18:21:49 +0200
+From: Stefan Seyfried <seife@suse.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.5) Gecko/20041207 Thunderbird/1.0 Mnenhy/0.7.2.0
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: [RFC] Add some hooks to generic suspend code
+References: <1117524577.5826.35.camel@gaston>	<20050531101344.GB9614@elf.ucw.cz>	<1117550660.5826.42.camel@gaston> <20050531212556.GA14968@elf.ucw.cz>
+In-Reply-To: <20050531212556.GA14968@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pavel Machek wrote:
 
-* Ingo Oeser <ioe-lkml@axxeo.de> wrote:
+> Anyway, it should not be arch-dependend. We need one good mechanism of
+> notifying userland, not one per architecture.
 
-> Hi Ingo,
-> you wrote:
+Yes.
+
+>> Sure, ideally. However, existing X knows how to deal with APM events,
+>> and thus APM emulation is an important thing to get something that
+>> works. Pne thing I should do is consolidate PPC APM emu with ARM one as
+>> I think Russell improve my stuff significantly.
 > 
-> > --- linux/lib/spinlock_debug.c.orig
-> > +++ linux/lib/spinlock_debug.c
-> > +#define SPIN_BUG_ON(cond, lock, msg) \
-> > +		if (unlikely(cond)) spin_bug(lock, __FILE__, __LINE__, msg)
-> > +#define RWLOCK_BUG_ON(cond, lock, msg) \
-> > +		if (unlikely(cond)) rwlock_bug(lock, __FILE__, __LINE__, msg)
-> 
-> I would suggest propagating the __FILE__ and __LINE__ from the CALLERS 
-> of those functions in lib/spinlock_debug.c into these macros, to make 
-> this info more useful. At the moment you just know, that the bug 
-> happend on some spinlock/rwlock, but not who caused this.
+> Perhaps we need apm emulation on i386, too?
 
-the real call site info comes from dump_stack(). Maybe i should remove 
-the __FILE__,__LINE__ info altogether. (albeit a bit redundancy wont 
-hurt) I dont think we want to pass in __FILE__,__LINE__ all the way from 
-the main APIs.
-
-	Ingo
+No. This is too ugly for words IMO. If we have one good mechanism of
+notifying userland, X can use this mechanism. Let's kill APM, not keep
+it alive.
+-- 
+Stefan Seyfried
+QA / R&D Team Mobile Devices        |              "Any ideas, John?"
+SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out."

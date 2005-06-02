@@ -1,91 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbVFBI5E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261288AbVFBI6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261225AbVFBI5E (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 04:57:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbVFBI5E
+	id S261288AbVFBI6k (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 04:58:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVFBI5g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 04:57:04 -0400
-Received: from lugor.de ([217.160.170.124]:16844 "EHLO solar.mylinuxtime.de")
-	by vger.kernel.org with ESMTP id S261225AbVFBIbP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 04:31:15 -0400
-From: Christian Hesse <mail@earthworm.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Dynamic tick for x86 version 050602-1
-Date: Thu, 2 Jun 2005 10:30:34 +0200
-User-Agent: KMail/1.8.1
-Cc: Tony Lindgren <tony@atomide.com>
-References: <20050602013641.GL21597@atomide.com>
-In-Reply-To: <20050602013641.GL21597@atomide.com>
-X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)=?utf-8?q?k=0A=09=3Anv*xqk4C?=@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)=?utf-8?q?n=23Q=2Eo=0A=09kE=7E=26T=5D0cQX6=5D?=<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<=?utf-8?q?3O7GY9y=5Fi!qG=26Vv=5CD8/=0A=09=254?=@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
+	Thu, 2 Jun 2005 04:57:36 -0400
+Received: from hermine.aitel.hist.no ([158.38.50.15]:7684 "HELO
+	hermine.aitel.hist.no") by vger.kernel.org with SMTP
+	id S261284AbVFBIsI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 04:48:08 -0400
+Message-ID: <429EC91A.7020704@aitel.hist.no>
+Date: Thu, 02 Jun 2005 10:53:46 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1289244.f0YQy2tCgn";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Matthias Andree <matthias.andree@gmx.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux does not care for data integrity
+References: <20050515152956.GA25143@havoc.gtf.org> <20050516.012740.93615022.okuyamak@dd.iij4u.or.jp> <42877C1B.2030008@pobox.com> <20050516110203.GA13387@merlin.emma.line.org> <1116241957.6274.36.camel@laptopd505.fenrus.org> <20050516112956.GC13387@merlin.emma.line.org> <1116252157.6274.41.camel@laptopd505.fenrus.org> <20050516144831.GA949@merlin.emma.line.org> <1116256005.21388.55.camel@localhost.localdomain> <87zmudycd1.fsf@stark.xeocode.com> <20050529211610.GA2105@merlin.emma.line.org> <429E062B.60909@tmr.com>
+In-Reply-To: <429E062B.60909@tmr.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200506021030.50585.mail@earthworm.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1289244.f0YQy2tCgn
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Bill Davidsen wrote:
 
-On Thursday 02 June 2005 03:36, Tony Lindgren wrote:
-> Hi all,
+> Matthias Andree wrote:
 >
-> Here's an updated version of the dynamic tick patch.
+>> On Sun, 29 May 2005, Greg Stark wrote:
+>>
+>>
+>>> Oracle, Sybase, Postgres, other databases have hard requirements. They
+>>> guarantee that when they acknowledge a transaction commit the data 
+>>> has been
+>>> written to non-volatile media and will be recoverable even in the 
+>>> face of a
+>>> routine power loss.
+>>>
+>>> They meet this requirement just fine on SCSI drives (where write 
+>>> caching
+>>> generally ships disabled) and on any OS where fsync issues a cache 
+>>> flush. If
+>>
+>>
+>>
+>> I don't know what facts "generally ships disabled" is based on, all of
+>> the more recent SCSI drives (non SCA type though) I acquired came with
+>> write cache enabled and some also with queue algorithm modifier set 
+>> to 1.
+>>
+>>
+>>> Worse, if the disk flushes the data to disk out of order it's quite
+>>> likely the entire database will be corrupted on any simple power
+>>> outage. I'm not clear whether that's the case for any common drives.
+>>
+>>
+>>
+>> It's a matter of enforcing write order. In how far such ordering
+>> constraints are propagated by file systems, VFS layer, down to the
+>> hardware, is the grand question.
+>>
+> The problem is that in many options required to make that happen in 
+> the o/s, hardware, and application are going to kill performance. And 
+> even if you can control order of write, unless you can get write to 
+> final non-volatile media control you can get a sane database but still 
+> lose transactions.
 >
-> It's mostly clean-up and it's now using the standard
-> monotonic_clock() functions as suggested by John Stultz.
->
-> Please let me know of any issues with the patch. I'll continue to do
-> more clean-up on it, but I think the basic functionality is done.
+> If there was a way for the o/s to know when a physical write was done 
+> other than using flushes to force completion, then overall performance 
+> could be higher, but individual transaction might have greater 
+> latency. And the app could use fsync to force order of write as 
+> needed. In many cases groups of writes can be done in any order as 
+> long as they are all done before the next logical step takes place. 
 
-I would like to test it, but have some trouble. The patch applies cleanly a=
-nd=20
-everything compiles fine, but linking fails:
+There is a workaround.  Get an UPS just for the disks.  It don't have to be
+big, just enough to keep the disks going long enough to commit their
+caches after the rest of the machine died from a power loss.  Such a small
+unit could possibly fit inside the cabinet, avoiding the trouble with
+people stepping on the power cord.
 
-# ld -m elf_i386  -R arch/i386/kernel/vsyscall-syms.o -r -o=20
-arch/i386/kernel/built-in.o arch/i386/kernel/process.o=20
-arch/i386/kernel/semaphore.o arch/i386/kernel/signal.o=20
-arch/i386/kernel/entry.o arch/i386/kernel/traps.o arch/i386/kernel/irq.o=20
-arch/i386/kernel/vm86.o arch/i386/kernel/ptrace.o arch/i386/kernel/time.o=20
-arch/i386/kernel/ioport.o arch/i386/kernel/ldt.o arch/i386/kernel/setup.o=20
-arch/i386/kernel/i8259.o arch/i386/kernel/sys_i386.o=20
-arch/i386/kernel/pci-dma.o arch/i386/kernel/i386_ksyms.o=20
-arch/i386/kernel/i387.o arch/i386/kernel/dmi_scan.o=20
-arch/i386/kernel/bootflag.o arch/i386/kernel/doublefault.o=20
-arch/i386/kernel/quirks.o arch/i386/kernel/cpu/built-in.o=20
-arch/i386/kernel/timers/built-in.o arch/i386/kernel/acpi/built-in.o=20
-arch/i386/kernel/reboot.o arch/i386/kernel/module.o=20
-arch/i386/kernel/sysenter.o arch/i386/kernel/vsyscall.o=20
-arch/i386/kernel/dyn-tick.o arch/i386/kernel/early_printk.o
-arch/i386/kernel/irq.o: In function `reprogram_apic_timer':
-irq.c:(.text+0x0): multiple definition of `reprogram_apic_timer'
-arch/i386/kernel/process.o:process.c:(.text+0x0): first defined here
-arch/i386/kernel/time.o: In function `reprogram_apic_timer':
-time.c:(.text+0x0): multiple definition of `reprogram_apic_timer'
-arch/i386/kernel/process.o:process.c:(.text+0x0): first defined here
-arch/i386/kernel/dyn-tick.o: In function `reprogram_apic_timer':
-dyn-tick.c:(.text+0x0): multiple definition of `reprogram_apic_timer'
-arch/i386/kernel/process.o:process.c:(.text+0x0): first defined here
+With this in place, any write that makes it from the controller to the
+disk is safely stored for all practical purposes.
 
-=2D-=20
-Christian
-
---nextPart1289244.f0YQy2tCgn
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.15 (GNU/Linux)
-
-iD8DBQBCnsO6lZfG2c8gdSURAolyAKCGCzLSci2QpFUX1nMBvqFC7Blx1QCgwbck
-L+XJvhxHUhw/8RQQ3cGinns=
-=D2pu
------END PGP SIGNATURE-----
-
---nextPart1289244.f0YQy2tCgn--
+Helge Hafting

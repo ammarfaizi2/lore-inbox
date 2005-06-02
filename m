@@ -1,51 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVFBS2e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVFBScd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbVFBS2e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 14:28:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVFBS2d
+	id S261222AbVFBScd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 14:32:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVFBScd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 14:28:33 -0400
-Received: from one.firstfloor.org ([213.235.205.2]:3991 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261208AbVFBS2a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 14:28:30 -0400
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: jschopp@austin.ibm.com, Mel Gorman <mel@csn.ul.ie>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Avoiding external fragmentation with a placement policy Version
- 12
-References: <20050531112048.D2511E57A@skynet.csn.ul.ie>
-	<429E20B6.2000907@austin.ibm.com> <429E4023.2010308@yahoo.com.au>
-	<423970000.1117668514@flay> <429E483D.8010106@yahoo.com.au>
-	<434510000.1117670555@flay>
-From: Andi Kleen <ak@muc.de>
-Date: Thu, 02 Jun 2005 20:28:26 +0200
-In-Reply-To: <434510000.1117670555@flay> (Martin J. Bligh's message of "Wed,
- 01 Jun 2005 17:02:35 -0700")
-Message-ID: <m14qcgwr3p.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 2 Jun 2005 14:32:33 -0400
+Received: from mout.perfora.net ([217.160.230.41]:37347 "EHLO mout.perfora.net")
+	by vger.kernel.org with ESMTP id S261222AbVFBSca (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 14:32:30 -0400
+Subject: Re: Tyan Opteron boards and problems with parallel ports (badpmd)
+From: Christopher Warner <chris@servertogo.com>
+To: "Peter J. Stieber" <developer@toyon.com>
+Cc: ak@suse.de, cwarner@kernelcode.com, Dave Jones <davej@redhat.com>,
+       Joel Jaeggli <joelja@darkwing.uoregon.edu>,
+       linux-kernel@vger.kernel.org, Bill Davidsen <davidsen@tmr.com>
+In-Reply-To: <028601c5678f$ee26c670$1600a8c0@toyon.corp>
+References: <3174569B9743D511922F00A0C943142309F815A6@TYANWEB>
+	 <037801c5616a$b1be6600$1600a8c0@toyon.corp> <4295E9F1.6080304@tmr.com>
+	 <022e01c56233$241e5930$1600a8c0@toyon.corp>
+	 <1117156446.8874.41.camel@localhost.localdomain>
+	 <Pine.LNX.4.62.0505262112540.32548@twin.uoregon.edu>
+	 <1117190965.13932.36.camel@sabrina>
+	 <02b301c562e1$41351a50$1600a8c0@toyon.corp>
+	 <20050527190918.GB7923@redhat.com>
+	 <037601c562f5$a66343c0$1600a8c0@toyon.corp>
+	 <028601c5678f$ee26c670$1600a8c0@toyon.corp>
+Content-Type: text/plain
+Date: Thu, 02 Jun 2005 09:50:01 -0400
+Message-Id: <1117720201.22578.92.camel@sabrina>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: perfora.net abuse@perfora.net login:d2cbd72fb1ab4860f78cabc62f71ec31
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@mbligh.org> writes:
+On Thu, 2005-06-02 at 09:27 -0700, Peter J. Stieber wrote:
+> CW = Christopher Warner
+> CW>>>> The tyan boards I have in here right now appear to
+> CW>>>> work properly except for the pmd issue, i've noticed
+> CW>>>> nothing wrong with them besides that.
+> 
+> PS = Peter J. Stieber
+> PS>>> Same here.
+> 
+> CW>>>> What we need is to try and single out the variables that
+> CW>>>> are causing the badpmd's. Also the more people who
+> CW>>>> report badpmd's with Andi Kleen's intial patch the better.
+> CW>>>> Especially on different archs; would also be good. So
+> CW>>>> far from lkml i'm only seeing Tyan S28* boards as of
+> CW>>>> recent.
+> 
+> PS>>> Does the Dave Jones provided Fedora Core 3 kernel I'm running
+> PS>>> (2.6.11-1.29_FC3smp) have Andi's patch?
+> PS>>>
+> PS>>> I guess that question was fo Dave ;-)
+> 
+> DJ = Dave Jones
+> DJ>> not the latest iteration no.
+> 
+> PS> I'd be willing to try it if you could provide it Dave.
+> 
+> I (and others) have been running a new FC3 kernel provided by Dave 
+> (2.6.11-1.31_FC3smp) for a while know and it seems to have fixed this 
+> problem.
+> 
+> https://www.redhat.com/archives/fedora-list/2005-June/msg00243.html
+> https://www.redhat.com/archives/fedora-list/2005-June/msg00246.html
+> 
+> Dave will have to comment with respect to what changes were made to this 
+> version.
+> Pete 
 
-> It gets very messy when CIFS requires a large buffer to write back
-> to disk in order to free memory ...
+If it's just the 2.6.11.11 inclusion as Dave said then i'll upgrade and
+see what happens if anything. Hopefully, it's beating a dead horse;
+dead.
 
-How about just fixing CIFS to submit memory page by page? The network
-stack below it supports that just fine and the VFS above it does anyways, 
-so it doesnt make much sense that CIFS sitting below them uses
-larger buffers.
+Thanks everyone for the help and thanks to Andi and whoever else
+actually fixed it :-)
 
-> There's one example ... we can probably work around it if we try hard
-> enough. However, the fundamental question becomes "do we support higher
-> order allocs, or not?". If not fine ... but we ought to quit pretending
-> we do. If so, then we need to make them more reliable.
+Christopher Warner
 
-My understanding was that the deal was that order 1 is supposed
-to work but somewhat slower, and bigger orders are supposed to work
-at boot up time.
 
--Andi

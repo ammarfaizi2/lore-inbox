@@ -1,63 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVFBQw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVFBQ4I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261196AbVFBQw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 12:52:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVFBQw4
+	id S261199AbVFBQ4I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 12:56:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261200AbVFBQ4I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 12:52:56 -0400
-Received: from main.gmane.org ([80.91.229.2]:54664 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S261196AbVFBQwu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 12:52:50 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Matthias Urlichs <smurf@smurf.noris.de>
-Subject: Re: 2.6.12-rc5-git6 mis-counted ide interfaces
-Date: Thu, 02 Jun 2005 18:49:35 +0200
-Organization: {M:U} IT Consulting
-Message-ID: <pan.2005.06.02.16.49.34.279491@smurf.noris.de>
-References: <429ECE20.1030403@ribosome.natur.cuni.cz> <20050602033253.77cd66d9.akpm@osdl.org> <429ED313.3080704@ribosome.natur.cuni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
-User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
-X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
+	Thu, 2 Jun 2005 12:56:08 -0400
+Received: from quark.didntduck.org ([69.55.226.66]:59594 "EHLO
+	quark.didntduck.org") by vger.kernel.org with ESMTP id S261199AbVFBQ4D
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 12:56:03 -0400
+Message-ID: <429F3A9E.504@didntduck.org>
+Date: Thu, 02 Jun 2005 12:58:06 -0400
+From: Brian Gerst <bgerst@didntduck.org>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: davej@codemonkey.org.uk
+CC: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Fix warning in powernow-k8.c
+Content-Type: multipart/mixed;
+ boundary="------------050903040400040806010609"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Martin MOKREJÅ  wrote:
+This is a multi-part message in MIME format.
+--------------050903040400040806010609
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
 
-> Andrew Morton wrote:
->> Martin MOKREJ__ <mmokrejs@ribosome.natur.cuni.cz> wrote:
->>>     ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:pio
->>>     ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:pio, hdd:pio
->>> Probing IDE interface ide0...
->>> hda: SONY DVD RW DRU-510A, ATAPI CD/DVD-ROM drive
->>> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
->>> Probing IDE interface ide1...
->>> ----------------------^^^^ ide0 I believe
+Fix this warning:
+powernow-k8.c: In function ‘query_current_values_with_pending_wait’:
+powernow-k8.c:110: warning: ‘hi’ may be used uninitialized in this function
 
-Why?
+Signed-off-by: Brian Gerst <bgerst@didntduck.org>
 
->> Does the kernel boot and run OK, or does something actually go wrong?
-> 
-> It works fine, just the *extra* "Probing IDE interface ide1..." line made me
-> worry about.
+--------------050903040400040806010609
+Content-Type: text/plain;
+ name="powernow-k8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="powernow-k8"
 
-I fail to see the problem -- the kernel probes ide0 once, and ide1 once.
-I'd assume that that is what's supposed to happen ..?
+diff --git a/arch/i386/kernel/cpu/cpufreq/powernow-k8.c b/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
+--- a/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
++++ b/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
+@@ -110,14 +110,13 @@ static int query_current_values_with_pen
+ 	u32 lo, hi;
+ 	u32 i = 0;
+ 
+-	lo = MSR_S_LO_CHANGE_PENDING;
+-	while (lo & MSR_S_LO_CHANGE_PENDING) {
++	do {
+ 		if (i++ > 0x1000000) {
+ 			printk(KERN_ERR PFX "detected change pending stuck\n");
+ 			return 1;
+ 		}
+ 		rdmsr(MSR_FIDVID_STATUS, lo, hi);
+-	}
++	} while (lo & MSR_S_LO_CHANGE_PENDING);
+ 
+ 	data->currvid = hi & MSR_S_HI_CURRENT_VID;
+ 	data->currfid = lo & MSR_S_LO_CURRENT_FID;
 
-I't be more worried if it decided to check ide0 again.
-
--- 
-Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
-Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
- - -
-I will not pick up a glowing ancient artifact and shout "Its power is
-now mine!!!" Instead I will grab some tongs, transfer it to a hazardous
-materials container, and transport it back to my lab for study.
-		-- The Evil Overlord List
-
-
+--------------050903040400040806010609--

@@ -1,84 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261541AbVFBARj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261528AbVFBARh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261541AbVFBARj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 20:17:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261563AbVFBAOd
+	id S261528AbVFBARh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 20:17:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVFBAPE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 20:14:33 -0400
-Received: from ncc1701.cistron.net ([62.216.30.38]:25053 "EHLO
-	ncc1701.cistron.net") by vger.kernel.org with ESMTP id S261558AbVFBALB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 20:11:01 -0400
-From: "Miquel van Smoorenburg" <miquels@cistron.nl>
-Subject: Re: How to replace an executing file on an embedded system?
-Date: Thu, 2 Jun 2005 00:11:00 +0000 (UTC)
-Organization: Cistron
-Message-ID: <d7liqk$mc7$1@news.cistron.nl>
-References: <Pine.LNX.4.61.0506011828300.5925@chaos.analogic.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Trace: ncc1701.cistron.net 1117671060 22919 194.109.0.112 (2 Jun 2005 00:11:00 GMT)
-X-Complaints-To: abuse@cistron.nl
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: mikevs@cistron.nl (Miquel van Smoorenburg)
-To: linux-kernel@vger.kernel.org
+	Wed, 1 Jun 2005 20:15:04 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:47752 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261557AbVFBAK7 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 20:10:59 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] Abstracted Priority Inheritance for RT
+Date: Wed, 1 Jun 2005 17:10:04 -0700
+Message-ID: <F989B1573A3A644BAB3920FBECA4D25A03667149@orsmsx407>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] Abstracted Priority Inheritance for RT
+Thread-Index: AcVnBiHyIaeIIT5YRV2+mIu6TuZoaQAAPUYA
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: <dwalker@mvista.com>, "Esben Nielsen" <simlo@phys.au.dk>
+Cc: "Ingo Molnar" <mingo@elte.hu>, <linux-kernel@vger.kernel.org>,
+       <sdietrich@mvista.com>, <rostedt@goodmis.org>
+X-OriginalArrivalTime: 02 Jun 2005 00:10:06.0656 (UTC) FILETIME=[6E84DC00:01C56707]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In article <Pine.LNX.4.61.0506011828300.5925@chaos.analogic.com>,
-Richard B. Johnson <linux-os@analogic.com> wrote:
->The newer linux kernels have this problem:
->
->Suppose I do this:
->
->cp /sbin/init foo	# Make a copy of 'init'
->mv foo /sbin/init	# Rename it back (emulate install)
->chmod +x /sbin/init	# Make sure we can boot.
->
->When I try to umount() the file-system, it now fails with
->EBUSY (16).
->
->I have tried fsync(), sync(), fsync() on /sbin, etc. I can't
->get rid of the busy inodes.
->
->This reared its ugly head with field software upgrades. We
->used to be able to upload new software for every executable
->on an embedded system using the network or a serial link.
->
->This would replace every file. We would then kill all the
->tasks except 'init', unmount the file-system and then reboot.
->The upgrade was finished. Every lived happily ever after.
->But, with newer kernels, we can't.
 
-AFAIK, this has been the cases for basically ever. The inode
-has been unlinked (st_nlink == 0) but the data blocks are
-still there on disk, so the file will be deleted once you
-close it, not earlier - things like that are not remembered
-over an unmount/mount so the kernel doesn't let you unmount
-the filesystem, it's really "busy" at that time.
+>From: Daniel Walker [mailto:dwalker@mvista.com]
+>On Wed, 2005-06-01 at 16:07 +0200, Esben Nielsen wrote:
+>
+>> Do you plan to use that callback for priority inheritance?
+>> If so: It would lead to an recursive algorithm. That is not very nice
+in
+>> the kernel with a limited call-stack. It is not so much a problem if
+the
+>> mechanism is used in the kernel only, but if it is used for
+user-space
+>> locking, which can have unlimited neesting, it is potential problem.
+>
+>There is an API for for priority inheritance, the call by is strictly
+>for the PI mechanism to signal when it changes a waiters priority , as
+>the result of PI.
+>
+>It's somewhat explained in linux/pi.h . Currently the rt_mutex uses
+this
+>callback to move the waiter depending on it's new priority.
+>
+>I'm not sure I see how this could become recursive, could you explain
+>more?
 
-If earlier kernels did let you do that, you basically ended
-up with a slightly corrupted filesystems (a file present
-on the fs without a directory entry) and a fsck would probably
-let it show up again in /lost+found
+Maybe he is referring to the case?
 
->What am I missing?  How am I supposed to replace files that
->are being executed? Do I have to `mv` them to /tmp and
->delete them on the next boot? (not easy, we don't have
->a shell, I would have to write code to search /tmp). Also
->'init' isn't SYS-V 'init'. It's just the startup program
->for a system that keeps growing so I need to be able to
->upgrade it.
+A owns M
+B owns N and is waiting for M
+A is trying to wait for N
 
-Change init so that if you send it a signal (SIGHUP, whatever)
-it re-executes itself. That's what /sbin/init in sysvinit
-does to make it upgradable in-place without reboot, and in
-fact to make it possible to actually reboot cleanly. Sysvinit
-goes through great pains to send its internal state from
-the old to the new init, your init is probably way way
-simpler and you can manage with command line switches
-( execl("/sbin/init", "init", "--restart", NULL) or something )
+These deadlocking cases can be tricky during PI.
 
-Mike.
-
+-- Inaky

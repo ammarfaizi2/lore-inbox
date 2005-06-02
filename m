@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVFBO6H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVFBPLe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbVFBO6H (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 10:58:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261163AbVFBO6H
+	id S261151AbVFBPLe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 11:11:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVFBPLe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 10:58:07 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:40105 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S261161AbVFBO6C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 10:58:02 -0400
-Message-ID: <429F1E70.5040500@adaptec.com>
-Date: Thu, 02 Jun 2005 10:57:52 -0400
-From: Luben Tuikov <luben_tuikov@adaptec.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Thu, 2 Jun 2005 11:11:34 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:47098 "EHLO
+	godzilla.mvista.com") by vger.kernel.org with ESMTP id S261151AbVFBPLd
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 11:11:33 -0400
+Date: Thu, 2 Jun 2005 08:11:14 -0700 (PDT)
+From: Daniel Walker <dwalker@mvista.com>
+To: Esben Nielsen <simlo@phys.au.dk>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       sdietrich@mvista.com, rostedt@goodmis.org,
+       inaky.perez-gonzalez@intel.com
+Subject: Re: [PATCH] Abstracted Priority Inheritance for RT
+In-Reply-To: <Pine.OSF.4.05.10506021015200.28619-100000@da410.phys.au.dk>
+Message-ID: <Pine.LNX.4.10.10506020806280.21686-100000@godzilla.mvista.com>
 MIME-Version: 1.0
-To: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
-CC: "Moore, Eric Dean" <Eric.Moore@lsil.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Douglas Gilbert <dougg@torque.net>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Patterson, Andrew D (Linux R&D)" <andrew.patterson@hp.com>,
-       Madhuresh_Nagshain@adaptec.com
-Subject: Re: [RFC] SAS domain layout for Linux sysfs
-References: <D4CFB69C345C394284E4B78B876C1CF107DC073C@cceexc23.americas.cpqcorp.net>
-In-Reply-To: <D4CFB69C345C394284E4B78B876C1CF107DC073C@cceexc23.americas.cpqcorp.net>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Jun 2005 14:57:43.0081 (UTC) FILETIME=[6DD26990:01C56783]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06/02/05 10:32, Miller, Mike (OS Dev) wrote:
-> Eric wrote:
-> 
->>So where are we?  What needs to be done so we can move 
->>forward with getting SAS LLD support accepted by James Bottomely.
->>
->>Regards,
->>Eric Moore
-> 
-> 
-> I think we to define the kernel objects as Christoph suggested.
 
-I've something (sans Discover fn) and will try to tie it up
-with the predefined transport classes, and with the driver
-(which was using a mock up until now).
 
-I looks exactly as the classes defined in section 4 of the
-SAS draft.
+On Thu, 2 Jun 2005, Esben Nielsen wrote:
+> 
+> Let us say you have task1 waiting on task2 waiting on task3 waiting on
+> task4 etc. When you try to boost the prorities you will set the priority
+> of each task using the hook, right? In the hook you will set the priority
+> of the next task using the hook, right? ....
 
-	Luben
+No .. The callback doesn't change priorities, it just signals that a
+priority has changed. The priority changing is iterative, and there is a
+function added to sched.c (not in my patch, but in the RT patch) to
+actualy change the priorities. My patch only adds a new structure to the
+prioritiy inheritance that was already in the RT patch, I'm not remaking
+the actualy PI code. 
+
+Daniel
+

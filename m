@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVFBUNQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVFBUNQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261286AbVFBUNQ (ORCPT <rfc822;willy@w.ods.org>);
+	id S261233AbVFBUNQ (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 2 Jun 2005 16:13:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbVFBUL7
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVFBULt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 16:11:59 -0400
-Received: from fsmlabs.com ([168.103.115.128]:35763 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261233AbVFBUHf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 16:07:35 -0400
-Date: Thu, 2 Jun 2005 14:10:47 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Ashok Raj <ashok.raj@intel.com>
-cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       Rusty Russell <rusty@rustycorp.com.au>,
-       Srivattsa Vaddagiri <vatsa@in.ibm.com>
-Subject: Re: [patch 5/5] x86_64: Provide ability to choose using shortcuts
- for IPI in flat mode.
-In-Reply-To: <20050602130112.159708000@araj-em64t>
-Message-ID: <Pine.LNX.4.61.0506021408080.3157@montezuma.fsmlabs.com>
-References: <20050602125754.993470000@araj-em64t> <20050602130112.159708000@araj-em64t>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 2 Jun 2005 16:11:49 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:61447 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261316AbVFBUHF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 16:07:05 -0400
+Date: Thu, 2 Jun 2005 22:07:02 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Andrew Morton <akpm@osdl.org>, jkmaline@cc.hut.fi, jgarzik@pobox.com
+Cc: linux-kernel@vger.kernel.org, hostap@shmoo.com, netdev@oss.sgi.com
+Subject: [-mm patch] fix recursive IPW2200 dependencies
+Message-ID: <20050602200701.GG4992@stusta.de>
+References: <20050601022824.33c8206e.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050601022824.33c8206e.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Jun 2005, Ashok Raj wrote:
+On Wed, Jun 01, 2005 at 02:28:24AM -0700, Andrew Morton wrote:
+>...
+> Changes since 2.6.12-rc5-mm1:
+>...
+> +git-netdev-we18-ieee80211-wifi.patch
+> 
+>  Various things added and merged in netdev land.
+>...
 
-> This patch provides an option to switch broadcast or use mask version 
-> for sending IPI's. If CONFIG_HOTPLUG_CPU is defined, we choose not to 
-> use broadcast shortcuts by default, otherwise we choose broadcast mode
-> as default.
-> 
-> both cases, one can change this via startup cmd line option, to choose
-> no-broadcast mode.
-> 
-> 	no_ipi_broadcast=1
-> 
-> This is provided on request from Andi Kleen, since he doesnt agree with 
-> replacing IPI shortcuts as a solution for CPU hotplug. Without removing
-> broadcast IPI's, it would mean lots of new code for __cpu_up() path, 
-> which would acheive the same results.
-> 
-> I will send the primitive interface next as a separate patch from this
-> patch set.
-> 
-> Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+This results in recursive dependencies:
+- IPW2200 depends on NET_RADIO
+- IPW2200 selects IEEE80211
+- IEEE80211 selects NET_RADIO
 
-Have you already submitted the i386 version? I think it's a sane fix.
 
-Thanks,
-	Zwane
+This patch fixes the IPW2200 dependencies in a way that they are similar 
+to the IPW2100 dependencies.
+
+Signed-off-by: Adrian Bunk <bunk@stusta.de>
+
+--- linux-2.6.12-rc5-mm2-full/drivers/net/wireless/Kconfig.old	2005-06-02 22:04:02.000000000 +0200
++++ linux-2.6.12-rc5-mm2-full/drivers/net/wireless/Kconfig	2005-06-02 22:04:40.000000000 +0200
+@@ -192,9 +192,8 @@
+ 
+ config IPW2200
+ 	tristate "Intel PRO/Wireless 2200BG and 2915ABG Network Connection"
+-	depends on NET_RADIO && PCI
++	depends on IEEE80211 && PCI
+ 	select FW_LOADER
+-	select IEEE80211
+ 	---help---
+           A driver for the Intel PRO/Wireless 2200BG and 2915ABG Network
+ 	  Connection adapters. 
+

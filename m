@@ -1,52 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVFBU0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVFBUaf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbVFBU0J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 16:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261326AbVFBUYY
+	id S261326AbVFBUaf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 16:30:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261319AbVFBUa0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 16:24:24 -0400
-Received: from fsmlabs.com ([168.103.115.128]:1204 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261319AbVFBUVp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 16:21:45 -0400
-Date: Thu, 2 Jun 2005 14:25:04 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Ashok Raj <ashok.raj@intel.com>
-cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       Rusty Russell <rusty@rustycorp.com.au>,
-       Srivattsa Vaddagiri <vatsa@in.ibm.com>
-Subject: Re: [patch 0/5] x86_64 CPU hotplug patch series.
-In-Reply-To: <20050602125754.993470000@araj-em64t>
-Message-ID: <Pine.LNX.4.61.0506021421130.3157@montezuma.fsmlabs.com>
-References: <20050602125754.993470000@araj-em64t>
-MIME-Version: 1.0
+	Thu, 2 Jun 2005 16:30:26 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:53933 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261326AbVFBU2H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 16:28:07 -0400
+Date: Thu, 2 Jun 2005 22:27:28 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       sdietrich@mvista.com, rostedt@goodmis.org,
+       inaky.perez-gonzalez@intel.com
+Subject: Re: [PATCH] Abstracted Priority Inheritance for RT
+In-Reply-To: <1117733471.20350.2.camel@dhcp153.mvista.com>
+Message-Id: <Pine.OSF.4.05.10506022017400.3853-100000@da410.phys.au.dk>
+Mime-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Jun 2005, Ashok Raj wrote:
 
-> Andrew: Could you help test staging in -mm so we can get some wider testing
-> from those interested.
-> 
-> *Sore Point*: Andi doesnt agree with one patch that removes ipi-broadcast 
-> and uses only online map cpus receive IPI's. This is much simpler approach to 
-> handle instead of trying to remove the ill effects of IPI broadcast to CPUs in 
-> offline state.
-> 
-> Initial concern from Andi was IPI performance, but some primitive test with a 
-> good number of samples doesnt seem to indicate any degration at all, infact the
-> results seem identical. (Barring any operator errors :-( ).
-> 
-> It would be nice to hear other opinions as well, hopefuly we can close on
-> what what the right approach in this case. Link to an earlier discussion
-> on the topic.
+On Thu, 2 Jun 2005, Daniel Walker wrote:
 
-I don't think it's worth the extra boot time complexity to use the boot 
-workaround and i'm not convinced the extra mask against cpu_online_map 
-slows down that path enough to show up compared to waiting for remote 
-processor IPI handling to commence/complete.
+> On Thu, 2005-06-02 at 17:18 +0200, Esben Nielsen wrote:
+> 
+> > Good :-)
+> > I asked the question because I considered (and started but didn't
+> > have time) doing what you have done. I wanted to generalise the rt_mutex
+> > to have real rw_lock as well - which was dropped due to the
+> > non-deterministc behavioir even with PI. To do that I needed to have the
+> > recursion and the callback..
+> 
+> I'm not planning to do a real rw-lock, but I hope this generic PI will
+> help with that. 
 
-Thanks,
-	Zwane
+I came to the conclusion that an rw-lock would make all writers
+non-deterministic. I had a small discussion on this list with Ingo about
+it. He had also come to the same conclusion.
+
+> I'm still not completely satisfied with this callback
+> structure , but I don't see a better way to do it. Do you have an
+> suggestions for replacing it?
+>
+No, I got stock there too.
+
+But right now the following ideas spring to my mind:
+If it is to solve the problem of having a callback wrap every use
+in macroes and use the TYPE_EQUAL() to expclicit call the right function.
+Only if the explicit type is unknown in the macro use the callback. That
+should optimize stuff a little bit.. Just a wild idea.
+
+If it is explicitly for PI you can do a thing like
+ waiter->get_next_waiter();
+to resolve the chain of waiters. Then you can have the PI algotithm work
+iteratively without knowing the explicit kind of lock involved.
+
+
+> Daniel
+> 
+
+Esben
+

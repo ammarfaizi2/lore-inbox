@@ -1,72 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVFBUop@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVFBUkq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261374AbVFBUop (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 16:44:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVFBUoL
+	id S261251AbVFBUkq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 16:40:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261350AbVFBUjz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 16:44:11 -0400
-Received: from mail.tyan.com ([66.122.195.4]:24078 "EHLO tyanweb.tyan")
-	by vger.kernel.org with ESMTP id S261346AbVFBUkr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 16:40:47 -0400
-Message-ID: <3174569B9743D511922F00A0C94314230A403985@TYANWEB>
-From: YhLu <YhLu@tyan.com>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: RE: 2.6.12-rc5 is broken in nvidia Ck804 Opteron MB/with dual cor
-	 e dual way
-Date: Thu, 2 Jun 2005 13:42:00 -0700 
-MIME-Version: 1.0
-X-Mailer: Internet Mail Service (5.5.2653.19)
-Content-Type: text/plain
+	Thu, 2 Jun 2005 16:39:55 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:30728 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261251AbVFBUi0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 16:38:26 -0400
+Date: Thu, 2 Jun 2005 22:38:23 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Baruch Even <baruch@ev-en.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: 2.6.12-rc5-mm2: "bic unavailable using TCP reno" messages
+Message-ID: <20050602203823.GI4992@stusta.de>
+References: <20050601022824.33c8206e.akpm@osdl.org> <20050602121511.GE4992@stusta.de> <429F1079.5070701@ev-en.org> <20050602103805.6beb4f4e@dxpl.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050602103805.6beb4f4e@dxpl.pdx.osdl.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-        cpuid(1, &eax, &ebx, &ecx, &edx);
-        smp_num_siblings = (ebx & 0xff0000) >> 16;
-
-For amd dual core, smp_num_siblings is set to 1, and it mean has two cores.
-
-                seq_printf(m, "siblings\t: %d\n",
-                                c->x86_num_cores * smp_num_siblings);
-
-for Intel it would be 
-	c->x86_num_cores  is 2 and smp_num_siblings is 2 too....
-	so every core will be HT....
-
-
-Function 0000_0001[EBX]
-EBX[23:16] Logical Processor Count. If CPUID Fn[8000_0001, 0000_0001][EDX:
-HTT, ECX:
-CMPLegacy] = 11b, then this field indicates the number of CPU cores in the
-processor.
-Otherwise, this field is reserved.
-
-what is intel value about cpuid(1) ebx [23:16], when the CPU is dual core,
-but HT is disabled.
-1?
-
-YH
-
-> -----Original Message-----
-> From: Ashok Raj [mailto:ashok.raj@intel.com] 
-> Sent: Thursday, June 02, 2005 12:07 PM
-> To: YhLu
-> Cc: Andi Kleen; linux-kernel@vger.kernel.org
-> Subject: Re: 2.6.12-rc5 is broken in nvidia Ck804 Opteron 
-> MB/with dual cor e dual way
+On Thu, Jun 02, 2005 at 10:38:05AM -0700, Stephen Hemminger wrote:
+> On Thu, 02 Jun 2005 14:58:17 +0100
+> Baruch Even <baruch@ev-en.org> wrote:
 > 
-> On Thu, Jun 02, 2005 at 11:56:25AM -0700, YhLu wrote:
-> > 
-> >    Really?,  smp_num_siblings is global variable and 
-> initially is set 1.
-> > 
-> >    YH
-> > 
-> But detect_ht() can override it.. thats just the start value.
+> >...
 > 
-> try cscope :-)
+> Your right, the sysctl handler should be smarter, but that is not the problem here.
+> The problem is that the default value is set to be BIC to be compatible with earlier kernels.
+> Since 75% of the world isn't smart enough to figure out how to use sysctl, there is a
+> question of what the default should be, and what to do if that is missing.
 > 
-> Cheers,
-> ashok
+> One version had a messy ifdef chain to try and avoid the warning:
 > 
+> char sysctl_tcp_congestion_control[] = 
+> #if defined(CONFIG_TCP_BIC)
+> 	"bic"
+> #elif defined(CONFIG_TCP_HTCP)
+> 	"htcp"
+> #else
+> 	"reno"
+> #endif
+> 	;
+> 
+> but that was ugly.
+> 
+> Another possibility is putting it in as yet another config value at kernel build time.
+>...
+
+
+One thing that currently makes all solutions harder (and the #ifdef 
+example above not ugly but simply wrong) is that you allow modular 
+congestion control options for the always static net support.
+
+Is this really required?
+
+
+The IO schedulers have a similar problem, and they are using the #ifdef 
+approach for selecting the default.
+
+
+One approach is to actually choose the default using #ifdef's.
+
+You could also do any kind of runtime selection, but please don't print 
+the warning more than once.
+
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

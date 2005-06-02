@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVFBTyd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVFBUAZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261271AbVFBTyd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 15:54:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVFBTyc
+	id S261275AbVFBUAZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 16:00:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbVFBUAZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 15:54:32 -0400
-Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:32143 "EHLO
-	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S261271AbVFBTgx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 15:36:53 -0400
-Message-Id: <200506021936.j52Ja8RZ026401@ms-smtp-03-eri0.texas.rr.com>
+	Thu, 2 Jun 2005 16:00:25 -0400
+Received: from ms-smtp-05.texas.rr.com ([24.93.47.44]:11764 "EHLO
+	ms-smtp-05-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S261275AbVFBThH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 15:37:07 -0400
+Message-Id: <200506021936.j52Ja3Rh023343@ms-smtp-05-eri0.texas.rr.com>
 From: ericvh@gmail.com
-Date: Thu,  2 Jun 2005 14:36:04 -0500
+Date: Thu,  2 Jun 2005 14:35:59 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [RFC][PATCH 7/7] v9fs: debug and support routines (2.0-rc7)
+Subject: [RFC][PATCH 5/7] v9fs: 9P protocol implementation (2.0-rc7)
 Cc: v9fs-developer@lists.sourceforge.net,
        viro@parcelfarce.linux.theplanet.co.uk, linux-fsdevel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is part [7/7] of the v9fs-2.0-rc7 patch against Linux 2.6.
+This is part [5/7] of the v9fs-2.0-rc7 patch against Linux 2.6.
 
-This part of the patch contains debug and other misc routines.
+This part of the patch contains the 9P protocol functions.
 
 Signed-off-by: Eric Van Hensbergen <ericvh@gmail.com>
 
+ ----------
+
+ 9p.c   |  359 ++++++++++++++++++++++++++++++++
+ 9p.h   |  339 ++++++++++++++++++++++++++++++
+ conv.c |  729 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ conv.h |   35 +++
+ 4 files changed, 1462 insertions(+)
 
  ----------
 
- debug.h  |   69 ++++++++++++++++++
- error.c  |   92 ++++++++++++++++++++++++
- error.h  |  176 +++++++++++++++++++++++++++++++++++++++++++++++
- fid.c    |  232 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- fid.h    |   55 ++++++++++++++
- idpool.c |  150 ++++++++++++++++++++++++++++++++++++++++
- idpool.h |   40 ++++++++++
- 7 files changed, 814 insertions(+)
-
- ----------
-
-Index: fs/9p/debug.h
+Index: fs/9p/9p.h
 ===================================================================
 --- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
-+++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/debug.h  (mode:100644)
-@@ -0,0 +1,69 @@
++++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/9p.h  (mode:100644)
+@@ -0,0 +1,339 @@
 +/*
-+ *  linux/fs/9p/debug.h - V9FS Debug Definitions
++ * linux/fs/9p/9p.h
++ *
++ * 9P protocol definitions.
 + *
 + *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
 + *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
@@ -66,400 +64,333 @@ Index: fs/9p/debug.h
 + *
 + */
 +
-+#define DEBUG_ERROR		(1<<0)
-+#define DEBUG_CURRENT		(1<<1)
-+#define DEBUG_9P	                  (1<<2)
-+#define DEBUG_VFS	                  (1<<3)
-+#define DEBUG_CONV		(1<<4)
-+#define DEBUG_MUX		(1<<5)
-+#define DEBUG_TRANS		(1<<6)
-+#define DEBUG_SLABS	      	(1<<7)
++/* Message Types */
++enum {
++	TVERSION = 100,
++	RVERSION,
++	TAUTH = 102,
++	RAUTH,
++	TATTACH = 104,
++	RATTACH,
++	TERROR = 106,
++	RERROR,
++	TFLUSH = 108,
++	RFLUSH,
++	TWALK = 110,
++	RWALK,
++	TOPEN = 112,
++	ROPEN,
++	TCREATE = 114,
++	RCREATE,
++	TREAD = 116,
++	RREAD,
++	TWRITE = 118,
++	RWRITE,
++	TCLUNK = 120,
++	RCLUNK,
++	TREMOVE = 122,
++	RREMOVE,
++	TSTAT = 124,
++	RSTAT,
++	TWSTAT = 126,
++	RWSTAT,
++};
 +
-+#define DEBUG_DUMP_PKT		0
-+#define DEBUG_LEAKS
++/* modes */
++enum {
++	V9FS_OREAD = 0x00,
++	V9FS_OWRITE = 0x01,
++	V9FS_ORDWR = 0x02,
++	V9FS_OEXEC = 0x03,
++	V9FS_OEXCL = 0x04,
++	V9FS_OTRUNC = 0x10,
++	V9FS_OREXEC = 0x20,
++	V9FS_ORCLOSE = 0x40,
++	V9FS_OAPPEND = 0x80,
++};
 +
-+extern int v9fs_debug_level;
++/* permissions */
++enum {
++	V9FS_DMDIR = 0x80000000,
++	V9FS_DMAPPEND = 0x40000000,
++	V9FS_DMEXCL = 0x20000000,
++	V9FS_DMMOUNT = 0x10000000,
++	V9FS_DMAUTH = 0x08000000,
++	V9FS_DMTMP = 0x04000000,
++	V9FS_DMSYMLINK = 0x02000000,
++	V9FS_DMLINK = 0x01000000,
++	/* 9P2000.u extensions */
++	V9FS_DMDEVICE = 0x00800000,
++	V9FS_DMNAMEDPIPE = 0x00200000,
++	V9FS_DMSOCKET = 0x00100000,
++	V9FS_DMSETUID = 0x00080000,
++	V9FS_DMSETGID = 0x00040000,
++};
 +
-+#define dprintk(level, format, arg...) \
-+do {  \
-+	if((v9fs_debug_level & level)==level) \
-+		printk(KERN_NOTICE "-- %s (%d): " \
-+		format , __FUNCTION__, current->pid , ## arg); \
-+} while(0)
++/* qid.types */
++enum {
++	V9FS_QTDIR = 0x80,
++	V9FS_QTAPPEND = 0x40,
++	V9FS_QTEXCL = 0x20,
++	V9FS_QTMOUNT = 0x10,
++	V9FS_QTAUTH = 0x08,
++	V9FS_QTTMP = 0x04,
++	V9FS_QTSYMLINK = 0x02,
++	V9FS_QTLINK = 0x01,
++	V9FS_QTFILE = 0x00,
++};
 +
-+#define eprintk(level, format, arg...) \
-+do { \
-+	printk(level "v9fs: %s (%d): " \
-+		format , __FUNCTION__, current->pid, ## arg); \
-+} while(0)
++/* ample room for Twrite/Rread header (iounit) */
++#define V9FS_IOHDRSZ	24
 +
-+#if DEBUG_DUMP_PKT
-+static inline void dump_data(const unsigned char *data, unsigned int datalen)
-+{
-+	int i, j;
-+	int len = datalen;
++/* qids are the unique ID for a file (like an inode */
++struct v9fs_qid {
++	u8 type;
++	u32 version;
++	uint64_t path;
++};
 +
-+	printk(KERN_DEBUG "data ");
-+	for (i = 0; i < len; i += 4) {
-+		for (j = 0; (j < 4) && (i + j < len); j++)
-+			printk(KERN_DEBUG "%02x", data[i + j]);
-+		printk(KERN_DEBUG " ");
-+	}
-+	printk(KERN_DEBUG "\n");
-+}
-+#else				/* DEBUG_DUMP_PKT */
-+static inline void dump_data(const unsigned char *data, unsigned int datalen)
-+{
-+
-+}
-+#endif				/* DEBUG_DUMP_PKT */
-Index: fs/9p/error.h
-===================================================================
---- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
-+++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/error.h  (mode:100644)
-@@ -0,0 +1,176 @@
-+/*
-+ * linux/fs/9p/error.h
-+ *
-+ * Huge Nasty Error Table
-+ *
-+ * Plan 9 uses error strings, Unix uses error numbers.  This table tries to
-+ * match UNIX strings and Plan 9 strings to unix error numbers.  It is used
-+ * to preload the dynamic error table which can also track user-specific error
-+ * strings.
-+ *
-+ *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
-+ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, write to the Free Software
-+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <linux/errno.h>
-+
-+struct errormap {
++/* Plan 9 file metadata (stat) structure */
++struct v9fs_stat {
++	u16 size;
++	u16 type;
++	u32 dev;
++	struct v9fs_qid qid;
++	u32 mode;
++	u32 atime;
++	u32 mtime;
++	uint64_t length;
 +	char *name;
-+	int val;
-+
-+	struct hlist_node list;
++	char *uid;
++	char *gid;
++	char *muid;
++	char *extension;	/* 9p2000.u extensions */
++	u32 n_uid;		/* 9p2000.u extensions */
++	u32 n_gid;		/* 9p2000.u extensions */
++	u32 n_muid;	/* 9p2000.u extensions */
++	char data[0];
 +};
 +
-+#define ERRHASHSZ		32
-+static struct hlist_head hash_errmap[ERRHASHSZ];
++/* Structures for Protocol Operations */
 +
-+/* FixMe - reduce to a reasonable size */
-+static struct errormap errmap[] = {
-+	{"Operation not permitted", 1},
-+	{"wstat prohibited", 1},
-+	{"No such file or directory", 2},
-+	{"file not found", 2},
-+	{"Interrupted system call", 4},
-+	{"Input/output error", 5},
-+	{"No such device or address", 6},
-+	{"Argument list too long", 7},
-+	{"Bad file descriptor", 9},
-+	{"Resource temporarily unavailable", 11},
-+	{"Cannot allocate memory", 12},
-+	{"Permission denied", 13},
-+	{"Bad address", 14},
-+	{"Block device required", 15},
-+	{"Device or resource busy", 16},
-+	{"File exists", 17},
-+	{"Invalid cross-device link", 18},
-+	{"No such device", 19},
-+	{"Not a directory", 20},
-+	{"Is a directory", 21},
-+	{"Invalid argument", 22},
-+	{"Too many open files in system", 23},
-+	{"Too many open files", 24},
-+	{"Text file busy", 26},
-+	{"File too large", 27},
-+	{"No space left on device", 28},
-+	{"Illegal seek", 29},
-+	{"Read-only file system", 30},
-+	{"Too many links", 31},
-+	{"Broken pipe", 32},
-+	{"Numerical argument out of domain", 33},
-+	{"Numerical result out of range", 34},
-+	{"Resource deadlock avoided", 35},
-+	{"File name too long", 36},
-+	{"No locks available", 37},
-+	{"Function not implemented", 38},
-+	{"Directory not empty", 39},
-+	{"Too many levels of symbolic links", 40},
-+	{"Unknown error 41", 41},
-+	{"No message of desired type", 42},
-+	{"Identifier removed", 43},
-+	{"File locking deadlock error", 58},
-+	{"No data available", 61},
-+	{"Machine is not on the network", 64},
-+	{"Package not installed", 65},
-+	{"Object is remote", 66},
-+	{"Link has been severed", 67},
-+	{"Communication error on send", 70},
-+	{"Protocol error", 71},
-+	{"Bad message", 74},
-+	{"File descriptor in bad state", 77},
-+	{"Streams pipe error", 86},
-+	{"Too many users", 87},
-+	{"Socket operation on non-socket", 88},
-+	{"Message too long", 90},
-+	{"Protocol not available", 92},
-+	{"Protocol not supported", 93},
-+	{"Socket type not supported", 94},
-+	{"Operation not supported", 95},
-+	{"Protocol family not supported", 96},
-+	{"Network is down", 100},
-+	{"Network is unreachable", 101},
-+	{"Network dropped connection on reset", 102},
-+	{"Software caused connection abort", 103},
-+	{"Connection reset by peer", 104},
-+	{"No buffer space available", 105},
-+	{"Transport endpoint is already connected", 106},
-+	{"Transport endpoint is not connected", 107},
-+	{"Cannot send after transport endpoint shutdown", 108},
-+	{"Connection timed out", 110},
-+	{"Connection refused", 111},
-+	{"Host is down", 112},
-+	{"No route to host", 113},
-+	{"Operation already in progress", 114},
-+	{"Operation now in progress", 115},
-+	{"Is a named type file", 120},
-+	{"Remote I/O error", 121},
-+	{"Disk quota exceeded", 122},
-+	{"Operation canceled", 125},
-+	{"Unknown error 126", 126},
-+	{"Unknown error 127", 127},
-+/* errors from fossil, vacfs, and u9fs */
-+	{"fid unknown or out of range", EBADF},
-+	{"permission denied", EACCES},
-+	{"file does not exist", ENOENT},
-+	{"authentication failed", ECONNREFUSED},
-+	{"bad offset in directory read", ESPIPE},
-+	{"bad use of fid", EBADF},
-+	{"wstat can't convert between files and directories", EPERM},
-+	{"directory is not empty", ENOTEMPTY},
-+	{"file exists", EEXIST},
-+	{"file already exists", EEXIST},
-+	{"file or directory already exists", EEXIST},
-+	{"fid already in use", EBADF},
-+	{"file in use", ETXTBSY},
-+	{"i/o error", EIO},
-+	{"file already open for I/O", ETXTBSY},
-+	{"illegal mode", EINVAL},
-+	{"illegal name", ENAMETOOLONG},
-+	{"not a directory", ENOTDIR},
-+	{"not a member of proposed group", EINVAL},
-+	{"not owner", EACCES},
-+	{"only owner can change group in wstat", EACCES},
-+	{"read only file system", EROFS},
-+	{"no access to special file", EPERM},
-+	{"i/o count too large", EIO},
-+	{"unknown group", EINVAL},
-+	{"unknown user", EINVAL},
-+	{"bogus wstat buffer", EPROTO},
-+	{"exclusive use file already open", EAGAIN},
-+	{"corrupted directory entry", EIO},
-+	{"corrupted file entry", EIO},
-+	{"corrupted block label", EIO},
-+	{"corrupted meta data", EIO},
-+	{"illegal offset", EINVAL},
-+	{"illegal path element", ENOENT},
-+	{"root of file system is corrupted", EIO},
-+	{"corrupted super block", EIO},
-+	{"protocol botch", EPROTO},
-+	{"file system is full", ENOSPC},
-+	{"file is in use", EAGAIN},
-+	{"directory entry is not allocated", ENOENT},
-+	{"file is read only", EROFS},
-+	{"file has been removed", EIDRM},
-+	{"only support truncation to zero length", EPERM},
-+	{"cannot remove root", EPERM},
-+	{"file too big", EFBIG},
-+	{"venti i/o error", EIO},
-+	/* these are not errors */
-+	{"u9fs rhostsauth: no authentication required", 0},
-+	{"u9fs authnone: no authentication required", 0},
-+	{NULL, -1}
++struct Tversion {
++	u32 msize;
++	char *version;
 +};
-Index: fs/9p/error.c
-===================================================================
---- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
-+++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/error.c  (mode:100644)
-@@ -0,0 +1,92 @@
-+/*
-+ * linux/fs/9p/error.c
-+ *
-+ * Error string handling
-+ *
-+ * Plan 9 uses error strings, Unix uses error numbers.  These functions
-+ * try to help manage that and provide for dynamically adding error
-+ * mappings.
-+ *
-+ *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
-+ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, write to the Free Software
-+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
 +
-+#include <linux/config.h>
-+#include <linux/module.h>
++struct Rversion {
++	u32 msize;
++	char *version;
++};
 +
-+#include <linux/list.h>
-+#include <linux/jhash.h>
++struct Tauth {
++	u32 afid;
++	char *uname;
++	char *aname;
++};
 +
-+#include "debug.h"
-+#include "error.h"
++struct Rauth {
++	struct v9fs_qid qid;
++};
 +
-+/**
-+ * v9fs_error_init - preload 
-+ * @errstr: error string
-+ *
-+ */
++struct Rerror {
++	char *error;
++	u32 errno;		/* 9p2000.u extension */
++};
 +
-+int v9fs_error_init(void)
-+{
-+	struct errormap *c;
-+	int bucket;
++struct Tflush {
++	u32 oldtag;
++};
 +
-+	/* initialize hash table */
-+	for (bucket = 0; bucket < ERRHASHSZ; bucket++)
-+		INIT_HLIST_HEAD(&hash_errmap[bucket]);
++struct Rflush {
++};
 +
-+	/* load initial error map into hash table */
-+	for (c = errmap; c->name != NULL; c++) {
-+		bucket = jhash(c->name, strlen(c->name), 0) % ERRHASHSZ;
-+		INIT_HLIST_NODE(&c->list);
-+		hlist_add_head(&c->list, &hash_errmap[bucket]);
-+	}
-+
-+	return 1;
-+}
-+
-+/**
-+ * errstr2errno - convert error string to error number
-+ * @errstr: error string
-+ *
-+ */
-+
-+int v9fs_errstr2errno(char *errstr)
-+{
-+	int errno = 0;
-+	struct hlist_node *p = NULL;
-+	struct errormap *c = NULL;
-+	int bucket = jhash(errstr, strlen(errstr), 0) % ERRHASHSZ;
-+
-+	hlist_for_each(p, &hash_errmap[bucket]) {
-+		c = hlist_entry(p, struct errormap, list);
-+		if (!strcmp(c->name, errstr)) {
-+			errno = c->val;
-+			break;
-+		}
-+	}
-+
-+	if (errno == 0) {
-+		/* TODO: if error isn't found, add it dynamically */
-+		printk(KERN_ERR "%s: errstr :%s: not found\n", __FUNCTION__,
-+		       errstr);
-+		errno = 1;
-+	}
-+
-+	return -errno;
-+}
-Index: fs/9p/fid.h
-===================================================================
---- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
-+++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/fid.h  (mode:100644)
-@@ -0,0 +1,55 @@
-+/*
-+ * V9FS FID Management
-+ *
-+ *  Copyright (C) 2005 by Eric Van Hensbergen <ericvh@gmail.com>
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, write to the Free Software
-+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <linux/list.h>
-+
-+#define FID_OP		0
-+#define FID_WALK 		1
-+
-+struct v9fs_fid {
-+	struct list_head list;	/* list of fids associated with a dentry */
-+	struct list_head active;	/* XXX - debug */
-+
++struct Tattach {
 +	u32 fid;
-+	unsigned char fidopen;	/* set when fid is opened */
-+	unsigned char fidcreate; /* set when fid was just created */
-+	unsigned char fidclunked;/* set when fid has already been clunked */
++	u32 afid;
++	char *uname;
++	char *aname;
++};
 +
++struct Rattach {
++	struct v9fs_qid qid;
++};
++
++struct Twalk {
++	u32 fid;
++	u32 newfid;
++	u32 nwname;
++	char **wnames;
++};
++
++struct Rwalk {
++	u32 nwqid;
++	struct v9fs_qid *wqids;
++};
++
++struct Topen {
++	u32 fid;
++	u8 mode;
++};
++
++struct Ropen {
 +	struct v9fs_qid qid;
 +	u32 iounit;
-+
-+	/* readdir stuff */
-+	int rdir_fpos;
-+	loff_t rdir_pos;
-+	struct v9fs_fcall *rdir_fcall;
-+
-+	/* management stuff */
-+	pid_t pid;		/* thread associated with this fid */
-+	uid_t uid;		/* user associated with this fid */
-+
-+	/* private data */
-+	struct file *filp;	/* backpointer to File struct for open files */
-+	struct v9fs_session_info *v9ses;	/* session info for this FID */
 +};
 +
-+struct v9fs_fid *v9fs_fid_lookup(struct dentry *dentry, int type);
-+void v9fs_fid_destroy(struct v9fs_fid *fid);
-+struct v9fs_fid *v9fs_fid_create(struct dentry *);
-Index: fs/9p/fid.c
++struct Tcreate {
++	u32 fid;
++	char *name;
++	u32 perm;
++	u8 mode;
++};
++
++struct Rcreate {
++	struct v9fs_qid qid;
++	u32 iounit;
++};
++
++struct Tread {
++	u32 fid;
++	uint64_t offset;
++	u32 count;
++};
++
++struct Rread {
++	u32 count;
++	u8 *data;
++};
++
++struct Twrite {
++	u32 fid;
++	uint64_t offset;
++	u32 count;
++	u8 *data;
++};
++
++struct Rwrite {
++	u32 count;
++};
++
++struct Tclunk {
++	u32 fid;
++};
++
++struct Rclunk {
++};
++
++struct Tremove {
++	u32 fid;
++};
++
++struct Rremove {
++};
++
++struct Tstat {
++	u32 fid;
++};
++
++struct Rstat {
++	struct v9fs_stat *stat;
++};
++
++struct Twstat {
++	u32 fid;
++	struct v9fs_stat *stat;
++};
++
++struct Rwstat {
++};
++
++/*
++  * fcall is the primary packet structure
++  *
++  */
++
++struct v9fs_fcall {
++	u32 size;
++	u8 id;
++	u16 tag;
++
++	union {
++		struct Tversion tversion;
++		struct Rversion rversion;
++		struct Tauth tauth;
++		struct Rauth rauth;
++		struct Rerror rerror;
++		struct Tflush tflush;
++		struct Rflush rflush;
++		struct Tattach tattach;
++		struct Rattach rattach;
++		struct Twalk twalk;
++		struct Rwalk rwalk;
++		struct Topen topen;
++		struct Ropen ropen;
++		struct Tcreate tcreate;
++		struct Rcreate rcreate;
++		struct Tread tread;
++		struct Rread rread;
++		struct Twrite twrite;
++		struct Rwrite rwrite;
++		struct Tclunk tclunk;
++		struct Rclunk rclunk;
++		struct Tremove tremove;
++		struct Rremove rremove;
++		struct Tstat tstat;
++		struct Rstat rstat;
++		struct Twstat twstat;
++		struct Rwstat rwstat;
++	} params;
++};
++
++#define FCALL_ERROR(fcall) (fcall ? fcall->params.rerror.error : "")
++
++int v9fs_t_version(struct v9fs_session_info *v9ses, u32 msize,
++		   char *version, struct v9fs_fcall **rcall);
++
++int v9fs_t_attach(struct v9fs_session_info *v9ses, char *uname, char *aname,
++		  u32 fid, u32 afid, struct v9fs_fcall **rcall);
++
++int v9fs_t_clunk(struct v9fs_session_info *v9ses, u32 fid,
++		 struct v9fs_fcall **rcall);
++
++int v9fs_t_flush(struct v9fs_session_info *v9ses, u16 oldtag);
++
++int v9fs_t_stat(struct v9fs_session_info *v9ses, u32 fid,
++		struct v9fs_fcall **rcall);
++
++int v9fs_t_wstat(struct v9fs_session_info *v9ses, u32 fid,
++		 struct v9fs_stat *stat, struct v9fs_fcall **rcall);
++
++int v9fs_t_walk(struct v9fs_session_info *v9ses, u32 fid, u32 newfid,
++		char *name, struct v9fs_fcall **rcall);
++
++int v9fs_t_open(struct v9fs_session_info *v9ses, u32 fid, u8 mode,
++		struct v9fs_fcall **rcall);
++
++int v9fs_t_remove(struct v9fs_session_info *v9ses, u32 fid,
++		  struct v9fs_fcall **rcall);
++
++int v9fs_t_create(struct v9fs_session_info *v9ses, u32 fid, char *name,
++		  u32 perm, u8 mode, struct v9fs_fcall **rcall);
++
++int v9fs_t_read(struct v9fs_session_info *v9ses, u32 fid,
++		uint64_t offset, u32 count, struct v9fs_fcall **rcall);
++
++int v9fs_t_write(struct v9fs_session_info *v9ses, u32 fid, uint64_t offset,
++		 u32 count, void *data, struct v9fs_fcall **rcall);
+Index: fs/9p/9p.c
 ===================================================================
 --- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
-+++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/fid.c  (mode:100644)
-@@ -0,0 +1,232 @@
++++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/9p.c  (mode:100644)
+@@ -0,0 +1,359 @@
 +/*
-+ * V9FS FID Management
++ *  linux/fs/9p/9p.c
 + *
-+ *  Copyright (C) 2005 by Eric Van Hensbergen <ericvh@gmail.com>
++ *  This file contains functions 9P2000 functions
++ *
++ *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
++ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
 + *
 + *  This program is free software; you can redistribute it and/or modify
 + *  it under the terms of the GNU General Public License as published by
@@ -486,215 +417,341 @@ Index: fs/9p/fid.c
 +#include "idpool.h"
 +#include "v9fs.h"
 +#include "9p.h"
-+#include "v9fs_vfs.h"
-+#include "transport.h"
 +#include "mux.h"
-+#include "conv.h"
-+#include "fid.h"
 +
 +/**
-+ * v9fs_fid_insert - add a fid to a dentry
-+ * @fid: fid to add
-+ * @dentry: dentry that it is being added to
++ * v9fs_t_version - negotiate protocol parameters with sever
++ * @v9ses: 9P2000 session information
++ * @msize: requested max size packet
++ * @version: requested version.extension string
++ * @fcall: pointer to response fcall pointer
 + *
 + */
 +
-+static int v9fs_fid_insert(struct v9fs_fid *fid, struct dentry *dentry)
++int
++v9fs_t_version(struct v9fs_session_info *v9ses, u32 msize,
++	       char *version, struct v9fs_fcall **fcall)
 +{
-+	struct list_head *fid_list = (struct list_head *)dentry->d_fsdata;
-+	dprintk(DEBUG_9P, "fid %d (%p) dentry %s (%p)\n", fid->fid, fid,
-+		dentry->d_iname, dentry);
-+	if (dentry->d_fsdata == NULL) {
-+		dentry->d_fsdata =
-+		    kmalloc(sizeof(struct list_head), GFP_KERNEL);
-+		if (dentry->d_fsdata == NULL) {
-+			dprintk(DEBUG_ERROR, "Out of memory\n");
-+			return -ENOMEM;
-+		}
-+		fid_list = (struct list_head *)dentry->d_fsdata;
-+		INIT_LIST_HEAD(fid_list);	/* Initialize list head */
-+	}
++	struct v9fs_fcall msg;
 +
-+	fid->uid = current->uid;
-+	fid->pid = current->pid;
-+	list_add(&fid->list, fid_list);
-+	return 0;
++	dprintk(DEBUG_9P, "msize: %d version: %s\n", msize, version);
++	msg.id = TVERSION;
++	msg.params.tversion.msize = msize;
++	msg.params.tversion.version = version;
++
++	return v9fs_mux_rpc(v9ses, &msg, fcall);
 +}
 +
 +/**
-+ * v9fs_fid_create - allocate a FID structure
-+ * @dentry - dentry to link newly created fid to
++ * v9fs_t_attach - mount the server
++ * @v9ses: 9P2000 session information
++ * @uname: user name doing the attach
++ * @aname: remote name being attached to
++ * @fid: mount fid to attatch to root node
++ * @afid: authentication fid (in this case result key)
++ * @fcall: pointer to response fcall pointer
 + *
 + */
 +
-+struct v9fs_fid *v9fs_fid_create(struct dentry *dentry)
++int
++v9fs_t_attach(struct v9fs_session_info *v9ses, char *uname, char *aname,
++	      u32 fid, u32 afid, struct v9fs_fcall **fcall)
 +{
-+	struct v9fs_fid *new;
++	struct v9fs_fcall msg;
 +
-+	new = kmalloc(sizeof(struct v9fs_fid), GFP_KERNEL);
-+	if (new == NULL) {
-+		dprintk(DEBUG_ERROR, "Out of Memory\n");
-+		return ERR_PTR(-ENOMEM);
-+	}
++	dprintk(DEBUG_9P, "uname '%s' aname '%s' fid %d afid %d\n", uname,
++		aname, fid, afid);
++	msg.id = TATTACH;
++	msg.params.tattach.fid = fid;
++	msg.params.tattach.afid = afid;
++	msg.params.tattach.uname = uname;
++	msg.params.tattach.aname = aname;
 +
-+	new->fid = -1;
-+	new->fidopen = 0;
-+	new->fidcreate = 0;
-+	new->fidclunked = 0;
-+	new->iounit = 0;
-+
-+	if (v9fs_fid_insert(new, dentry) == 0)
-+		return new;
-+	else {
-+		dprintk(DEBUG_ERROR, "Problems inserting to dentry\n");
-+		kfree(new);
-+		return NULL;
-+	}
++	return v9fs_mux_rpc(v9ses, &msg, fcall);
 +}
 +
 +/**
-+ * v9fs_fid_destroy - deallocate a FID structure
-+ * @fid: fid to destroy
-+ * 
++ * v9fs_t_clunk - release a fid (finish a transaction)
++ * @v9ses: 9P2000 session information
++ * @fid: fid to release
++ * @fcall: pointer to response fcall pointer
++ *
 + */
 +
-+void v9fs_fid_destroy(struct v9fs_fid *fid)
++int
++v9fs_t_clunk(struct v9fs_session_info *v9ses, u32 fid,
++	     struct v9fs_fcall **fcall)
 +{
-+	list_del(&fid->list);
-+	kfree(fid);
++	struct v9fs_fcall msg;
++
++	dprintk(DEBUG_9P, "fid %d\n", fid);
++	msg.id = TCLUNK;
++	msg.params.tclunk.fid = fid;
++
++	return v9fs_mux_rpc(v9ses, &msg, fcall);
 +}
 +
 +/**
-+ * v9fs_fid_lookup - retrieve the right fid from a  particular dentry
-+ * @dentry: dentry to look for fid in
-+ * @type: intent of lookup (operation or traversal)
-+ *
-+ * search list of fids associated with a dentry for a fid with a matching
-+ * thread id or uid.  If that fails, look up the dentry's parents to see if you
-+ * can find a matching fid.
++ * v9fs_v9fs_t_flush - flush a pending transaction
++ * @v9ses: 9P2000 session information
++ * @tag: tid to release
 + *
 + */
 +
-+struct v9fs_fid *v9fs_fid_lookup(struct dentry *dentry, int type)
++int v9fs_t_flush(struct v9fs_session_info *v9ses, u16 tag)
 +{
-+	struct list_head *fid_list = (struct list_head *)dentry->d_fsdata;
-+	struct v9fs_fid *current_fid = NULL;
-+	struct list_head *p, *temp;
-+	struct v9fs_fid *return_fid = NULL;
-+	int found_parent = 0;
-+	int found_user = 0;
++	struct v9fs_fcall msg;
 +
-+	dprintk(DEBUG_9P, " dentry: %s (%p) type %d\n", dentry->d_iname, dentry,
-+		type);
-+
-+	if (fid_list && !list_empty(fid_list)) {
-+		list_for_each_safe(p, temp, fid_list) {
-+			current_fid = list_entry(p, struct v9fs_fid, list);
-+			if (current_fid->uid == current->uid) {
-+				if (return_fid == NULL) {
-+					if ((type == FID_OP)
-+					    || (!current_fid->fidopen)) {
-+						return_fid = current_fid;
-+						found_user = 1;
-+					}
-+				}
-+			}
-+			if (current_fid->pid == current->real_parent->pid) {
-+				if ((return_fid == NULL) || (found_parent)
-+				    || (found_user)) {
-+					if ((type == FID_OP)
-+					    || (!current_fid->fidopen)) {
-+						return_fid = current_fid;
-+						found_parent = 1;
-+						found_user = 0;
-+					}
-+				}
-+			}
-+			if (current_fid->pid == current->pid) {
-+				if ((type == FID_OP) || (!current_fid->fidopen)) {
-+					return_fid = current_fid;
-+					found_parent = 0;
-+					found_user = 0;
-+				}
-+			}
-+		}
-+	}
-+
-+    	/* we are at the root but didn't match */
-+	if((!return_fid) && (dentry->d_parent == dentry)) { 
-+		/* TODO: clone attach with new uid */
-+		return_fid = current_fid;
-+	}
-+
-+	if (!return_fid) {
-+		struct dentry *par = current->fs->pwd->d_parent;
-+		int count = 1;
-+		while (par != NULL) {
-+			if (par == dentry)
-+				break;
-+			count++;
-+			if (par == par->d_parent) {
-+				dprintk(DEBUG_ERROR,
-+					"got to root without finding dentry\n");
-+				break;
-+			}
-+			par = par->d_parent;
-+		}
-+
-+/* XXX - there may be some duplication we can get rid of */
-+		if (par == dentry) {
-+			/* we need to fid_lookup the starting point */
-+			int fidnum = -1;
-+			int oldfid = -1;
-+			int result = -1;
-+			struct v9fs_session_info *v9ses =
-+			    v9fs_inode2v9ses(current->fs->pwd->d_inode);
-+
-+			current_fid =
-+			    v9fs_fid_lookup(current->fs->pwd, FID_WALK);
-+			if (current_fid == NULL) {
-+				dprintk(DEBUG_ERROR,
-+					"process cwd doesn't have a fid\n");
-+				return return_fid;
-+			}
-+			oldfid = current_fid->fid;
-+			par = current->fs->pwd;
-+			/* TODO: take advantage of multiwalk */
-+			fidnum = v9fs_get_idpool(&v9ses->fidpool);
-+			while (par != dentry) {
-+				result =
-+				    v9fs_t_walk(v9ses, oldfid, fidnum, "..",
-+						NULL);
-+				if (result < 0) {
-+					dprintk(DEBUG_ERROR,
-+						"problem walking to parent\n");
-+
-+					break;
-+				}
-+				oldfid = fidnum;
-+				if (par == par->d_parent) {
-+					dprintk(DEBUG_ERROR,
-+						"can't find dentry\n");
-+					break;
-+				}
-+				par = par->d_parent;
-+			}
-+			if (par == dentry) {
-+				return_fid = v9fs_fid_create(dentry);
-+				return_fid->fid = fidnum;
-+			}
-+		}
-+	}
-+
-+	return return_fid;
++	dprintk(DEBUG_9P, "oldtag %d\n", tag);
++	msg.id = TFLUSH;
++	msg.params.tflush.oldtag = tag;
++	return v9fs_mux_rpc(v9ses, &msg, NULL);
 +}
-Index: fs/9p/idpool.h
++
++/**
++ * v9fs_t_stat - read a file's meta-data
++ * @v9ses: 9P2000 session information
++ * @fid: fid pointing to file or directory to get info about
++ * @fcall: pointer to response fcall
++ *
++ */
++
++int
++v9fs_t_stat(struct v9fs_session_info *v9ses, u32 fid,
++	    struct v9fs_fcall **fcall)
++{
++	struct v9fs_fcall msg;
++
++	dprintk(DEBUG_9P, "fid %d\n", fid);
++	if (fcall)
++		*fcall = NULL;
++
++	msg.id = TSTAT;
++	msg.params.tstat.fid = fid;
++	return v9fs_mux_rpc(v9ses, &msg, fcall);
++}
++
++/**
++ * v9fs_t_wstat - write a file's meta-data
++ * @v9ses: 9P2000 session information
++ * @fid: fid pointing to file or directory to write info about
++ * @stat: metadata
++ * @fcall: pointer to response fcall
++ *
++ */
++
++int
++v9fs_t_wstat(struct v9fs_session_info *v9ses, u32 fid,
++	     struct v9fs_stat *stat, struct v9fs_fcall **fcall)
++{
++	struct v9fs_fcall msg;
++
++	dprintk(DEBUG_9P, "fid %d length %d\n", fid, (int)stat->length);
++	msg.id = TWSTAT;
++	msg.params.twstat.fid = fid;
++	msg.params.twstat.stat = stat;
++
++	return v9fs_mux_rpc(v9ses, &msg, fcall);
++}
++
++/**
++ * v9fs_t_walk - walk a fid to a new file or directory
++ * @v9ses: 9P2000 session information
++ * @fid: fid to walk
++ * @newfid: new fid (for clone operations)
++ * @name: path to walk fid to
++ * @fcall: pointer to response fcall
++ *
++ */
++
++/* TODO: support multiple walk */
++
++int
++v9fs_t_walk(struct v9fs_session_info *v9ses, u32 fid, u32 newfid,
++	    char *name, struct v9fs_fcall **fcall)
++{
++	struct v9fs_fcall msg;
++
++	dprintk(DEBUG_9P, "fid %d newfid %d wname '%s'\n", fid, newfid, name);
++	msg.id = TWALK;
++	msg.params.twalk.fid = fid;
++	msg.params.twalk.newfid = newfid;
++
++	if (name) {
++		msg.params.twalk.nwname = 1;
++		msg.params.twalk.wnames = &name;
++	} else {
++		msg.params.twalk.nwname = 0;
++	}
++
++	return v9fs_mux_rpc(v9ses, &msg, fcall);
++}
++
++/**
++ * v9fs_t_open - open a file
++ *
++ * @v9ses - 9P2000 session information
++ * @fid - fid to open
++ * @mode - mode to open file (R, RW, etc)
++ * @fcall - pointer to response fcall
++ *
++ */
++
++int
++v9fs_t_open(struct v9fs_session_info *v9ses, u32 fid, u8 mode,
++	    struct v9fs_fcall **fcall)
++{
++	struct v9fs_fcall msg;
++	long errorno = -1;
++
++	dprintk(DEBUG_9P, "fid %d mode %d\n", fid, mode);
++	msg.id = TOPEN;
++	msg.params.topen.fid = fid;
++	msg.params.topen.mode = mode;
++
++	errorno = v9fs_mux_rpc(v9ses, &msg, fcall);
++
++	return errorno;
++}
++
++/**
++ * v9fs_t_remove - remove a file or directory
++ * @v9ses: 9P2000 session information
++ * @fid: fid to remove
++ * @fcall: pointer to response fcall
++ *
++ */
++
++int
++v9fs_t_remove(struct v9fs_session_info *v9ses, u32 fid,
++	      struct v9fs_fcall **fcall)
++{
++	struct v9fs_fcall msg;
++
++	dprintk(DEBUG_9P, "fid %d\n", fid);
++	msg.id = TREMOVE;
++	msg.params.tremove.fid = fid;
++	return v9fs_mux_rpc(v9ses, &msg, fcall);
++}
++
++/**
++ * v9fs_t_create - create a file or directory
++ * @v9ses: 9P2000 session information
++ * @fid: fid to create
++ * @name: name of the file or directory to create
++ * @perm: permissions to create with
++ * @mode: mode to open file (R, RW, etc)
++ * @fcall: pointer to response fcall
++ *
++ */
++
++int
++v9fs_t_create(struct v9fs_session_info *v9ses, u32 fid, char *name,
++	      u32 perm, u8 mode, struct v9fs_fcall **fcall)
++{
++	struct v9fs_fcall msg;
++
++	dprintk(DEBUG_9P, "fid %d name '%s' perm %x mode %d\n",
++		fid, name, perm, mode);
++
++	msg.id = TCREATE;
++	msg.params.tcreate.fid = fid;
++	msg.params.tcreate.name = name;
++	msg.params.tcreate.perm = perm;
++	msg.params.tcreate.mode = mode;
++
++	return v9fs_mux_rpc(v9ses, &msg, fcall);
++}
++
++/**
++ * v9fs_t_read - read data
++ * @v9ses: 9P2000 session information
++ * @fid: fid to read from
++ * @offset: offset to start read at
++ * @count: how many bytes to read
++ * @fcall: pointer to response fcall (with data)
++ *
++ */
++
++int
++v9fs_t_read(struct v9fs_session_info *v9ses, u32 fid, uint64_t offset,
++	    u32 count, struct v9fs_fcall **fcall)
++{
++	struct v9fs_fcall msg;
++	struct v9fs_fcall *rc = NULL;
++	long errorno = -1;
++
++	dprintk(DEBUG_9P, "fid %d offset 0x%lx count 0x%x\n", fid,
++		(long unsigned int)offset, count);
++	msg.id = TREAD;
++	msg.params.tread.fid = fid;
++	msg.params.tread.offset = offset;
++	msg.params.tread.count = count;
++	errorno = v9fs_mux_rpc(v9ses, &msg, &rc);
++
++	if (!errorno) {
++		errorno = rc->params.rread.count;
++		dump_data(rc->params.rread.data, rc->params.rread.count);
++	}
++
++	if (fcall)
++		*fcall = rc;
++	else
++		kfree( rc);
++
++	return errorno;
++}
++
++/**
++ * v9fs_t_write - write data
++ * @v9ses: 9P2000 session information
++ * @fid: fid to write to
++ * @offset: offset to start write at
++ * @count: how many bytes to write
++ * @fcall: pointer to response fcall
++ *
++ */
++
++int
++v9fs_t_write(struct v9fs_session_info *v9ses, u32 fid,
++	     uint64_t offset, u32 count, void *data,
++	     struct v9fs_fcall **fcall)
++{
++	struct v9fs_fcall msg;
++	struct v9fs_fcall *rc = NULL;
++	long errorno = -1;
++
++	dprintk(DEBUG_9P, "fid %d offset 0x%llx count 0x%x\n", fid,
++		(unsigned long long)offset, count);
++	dump_data(data, count);
++
++	msg.id = TWRITE;
++	msg.params.twrite.fid = fid;
++	msg.params.twrite.offset = offset;
++	msg.params.twrite.count = count;
++	msg.params.twrite.data = data;
++
++	errorno = v9fs_mux_rpc(v9ses, &msg, &rc);
++
++	if (!errorno)
++		errorno = rc->params.rwrite.count;
++
++	if (fcall)
++		*fcall = rc;
++	else
++		kfree( rc);
++
++	return errorno;
++}
+Index: fs/9p/conv.h
 ===================================================================
 --- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
-+++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/idpool.h  (mode:100644)
-@@ -0,0 +1,40 @@
++++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/conv.h  (mode:100644)
+@@ -0,0 +1,35 @@
 +/*
-+ *  linux/fs/9p/idpool.h
++ * linux/fs/9p/conv.h
++ *
++ * 9P protocol conversion definitions
 + *
 + *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
 + *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
@@ -715,31 +772,26 @@ Index: fs/9p/idpool.h
 + *
 + */
 +
-+/* 
-+ * This is for getting unique IDs. 
-+ * 0 means free, non-zero means used. 
-+ * 
-+ */
++int v9fs_deserialize_stat(struct v9fs_session_info *, void *buf,
++			  u32 buflen, struct v9fs_stat *stat,
++			  u32 statlen);
++int v9fs_serialize_fcall(struct v9fs_session_info *, struct v9fs_fcall *tcall,
++			 void *buf, u32 buflen);
++int v9fs_deserialize_fcall(struct v9fs_session_info *, u32 msglen,
++			   void *buf, u32 buflen, struct v9fs_fcall *rcall,
++			   int rcalllen);
 +
-+struct idpool {
-+	struct semaphore sem;
-+	int maxalloc;
-+	int numalloc;
-+	int lastfree;
-+	unsigned long *idlist;
-+};
-+
-+int v9fs_alloc_idpool(struct idpool *, int);
-+void v9fs_free_idpool(struct idpool *);
-+int v9fs_get_idpool(struct idpool *i);
-+void v9fs_put_idpool(int which, struct idpool *i);
-Index: fs/9p/idpool.c
++/* this one is actually in error.c right now */
++int v9fs_errstr2errno(char *errstr);
+Index: fs/9p/conv.c
 ===================================================================
 --- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
-+++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/idpool.c  (mode:100644)
-@@ -0,0 +1,150 @@
++++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/conv.c  (mode:100644)
+@@ -0,0 +1,729 @@
 +/*
-+ *  linux/fs/9p/idpool.c
++ * linux/fs/9p/conv.c
++ *
++ * 9P protocol conversion functions
 + *
 + *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
 + *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
@@ -763,128 +815,705 @@ Index: fs/9p/idpool.c
 +#include <linux/config.h>
 +#include <linux/module.h>
 +#include <linux/errno.h>
-+#include <asm/semaphore.h>
-+#include <linux/config.h>
-+#include "idpool.h"
++#include <linux/fs.h>
++
 +#include "debug.h"
++#include "idpool.h"
++#include "v9fs.h"
++#include "9p.h"
++#include "conv.h"
++
++/*
++ * Buffer to help with string parsing 
++ */
++struct cbuf {
++	unsigned char *sp;
++	unsigned char *p;
++	unsigned char *ep;
++};
++
++static inline void buf_init(struct cbuf *buf, void *data, int datalen)
++{
++	buf->sp = buf->p = data;
++	buf->ep = data + datalen;
++}
++
++static inline int buf_check_overflow(struct cbuf *buf)
++{
++	return buf->p > buf->ep;
++}
++
++#define buf_check_sizep(buf, len) \
++	if (buf->p+len > buf->ep) { \
++		if (buf->p < buf->ep) { \
++			eprintk(KERN_ERR, "buffer overflow\n"); \
++			buf->p = buf->ep + 1; \
++		} \
++		return NULL; \
++	} \
++
++
++#define buf_check_size(buf, len) \
++	if (buf->p+len > buf->ep) { \
++		if (buf->p < buf->ep) { \
++			eprintk(KERN_ERR, "buffer overflow\n"); \
++			buf->p = buf->ep + 1; \
++		} \
++		return 0; \
++	} \
++
++#define buf_check_sizev(buf, len) \
++	if (buf->p+len > buf->ep) { \
++		if (buf->p < buf->ep) { \
++			eprintk(KERN_ERR, "buffer overflow\n"); \
++			buf->p = buf->ep + 1; \
++		} \
++		return; \
++	} \
++
++static inline void *buf_alloc(struct cbuf *buf, int len)
++{
++	void *ret = NULL;
++
++	buf_check_sizep(buf, len);
++	ret = buf->p;
++	buf->p += len;
++
++	return ret;
++}
++
++static inline void buf_put_int8(struct cbuf *buf, u8 val)
++{
++	buf_check_sizev(buf, 1);
++
++	buf->p[0] = val;
++	buf->p++;
++}
++
++static inline void buf_put_int16(struct cbuf *buf, u16 val)
++{
++	buf_check_sizev(buf, 2);
++
++	buf->p[0] = val;
++	buf->p[1] = val >> 8;
++	buf->p += 2;
++}
++
++static inline void buf_put_int32(struct cbuf *buf, u32 val)
++{
++	buf_check_sizev(buf, 2);
++
++	buf->p[0] = val;
++	buf->p[1] = val >> 8;
++	buf->p[2] = val >> 16;
++	buf->p[3] = val >> 24;
++	buf->p += 4;
++}
++
++static inline void buf_put_int64(struct cbuf *buf, uint64_t val)
++{
++	buf_check_sizev(buf, 8);
++
++	buf->p[0] = val;
++	buf->p[1] = val >> 8;
++	buf->p[2] = val >> 16;
++	buf->p[3] = val >> 24;
++	buf->p[4] = val >> 32;
++	buf->p[5] = val >> 40;
++	buf->p[6] = val >> 48;
++	buf->p[7] = val >> 56;
++	buf->p += 8;
++}
++
++static inline void
++buf_put_stringn(struct cbuf *buf, const char *s, u16 slen)
++{
++	buf_check_sizev(buf, slen + 2);
++
++	buf_put_int16(buf, slen);
++	memcpy(buf->p, s, slen);
++	buf->p += slen;
++}
++
++static inline void buf_put_string(struct cbuf *buf, const char *s)
++{
++	buf_put_stringn(buf, s, strlen(s));
++}
++
++static inline void buf_put_data(struct cbuf *buf, void *data, u32 datalen)
++{
++	buf_check_sizev(buf, datalen);
++
++	memcpy(buf->p, data, datalen);
++	buf->p += datalen;
++}
++
++static inline u8 buf_get_int8(struct cbuf *buf)
++{
++	u8 ret = 0;
++
++	buf_check_size(buf, 1);
++	ret = buf->p[0];
++
++	buf->p++;
++
++	return ret;
++}
++
++static inline u16 buf_get_int16(struct cbuf *buf)
++{
++	u16 ret = 0;
++
++	buf_check_size(buf, 2);
++	ret = buf->p[0] | (buf->p[1] << 8);
++
++	buf->p += 2;
++
++	return ret;
++}
++
++static inline u32 buf_get_int32(struct cbuf *buf)
++{
++	u32 ret = 0;
++
++	buf_check_size(buf, 4);
++	ret =
++	    buf->p[0] | (buf->p[1] << 8) | (buf->p[2] << 16) | (buf->
++								p[3] << 24);
++
++	buf->p += 4;
++
++	return ret;
++}
++
++static inline uint64_t buf_get_int64(struct cbuf *buf)
++{
++	uint64_t ret = 0;
++
++	buf_check_size(buf, 8);
++	ret = (uint64_t) buf->p[0] | ((uint64_t) buf->p[1] << 8) |
++	    ((uint64_t) buf->p[2] << 16) | ((uint64_t) buf->p[3] << 24) |
++	    ((uint64_t) buf->p[4] << 32) | ((uint64_t) buf->p[5] << 40) |
++	    ((uint64_t) buf->p[6] << 48) | ((uint64_t) buf->p[7] << 56);
++
++	buf->p += 8;
++
++	return ret;
++}
++
++static inline int
++buf_get_string(struct cbuf *buf, char *data, unsigned int datalen)
++{
++
++	u16 len = buf_get_int16(buf);
++	buf_check_size(buf, len);
++	if (len + 1 > datalen)
++		return 0;
++
++	memcpy(data, buf->p, len);
++	data[len] = 0;
++	buf->p += len;
++
++	return len + 1;
++}
++
++static inline char *buf_get_stringb(struct cbuf *buf, struct cbuf *sbuf)
++{
++	char *ret = NULL;
++	int n = buf_get_string(buf, sbuf->p, sbuf->ep - sbuf->p);
++
++	if (n > 0) {
++		ret = sbuf->p;
++		sbuf->p += n;
++	}
++
++	return ret;
++}
++
++static inline int buf_get_data(struct cbuf *buf, void *data, int datalen)
++{
++	buf_check_size(buf, datalen);
++
++	memcpy(data, buf->p, datalen);
++	buf->p += datalen;
++
++	return datalen;
++}
++
++static inline void *buf_get_datab(struct cbuf *buf, struct cbuf *dbuf,
++				  int datalen)
++{
++	char *ret = NULL;
++	int n = 0;
++
++	buf_check_sizep(dbuf, datalen);
++
++	n = buf_get_data(buf, dbuf->p, datalen);
++
++	if (n > 0) {
++		ret = dbuf->p;
++		dbuf->p += n;
++	}
++
++	return ret;
++}
 +
 +/**
-+ * grow_idpool - increase the size of an id pool
-+ * @i: pointer to idpool to initialize
-+ * @size: size (in bits) of idpool
++ * v9fs_size_stat - calculate the size of a variable length stat struct
++ * @v9ses: session information
++ * @stat: metadata (stat) structure
 + *
 + */
 +
-+static int grow_idpool(struct idpool *i, int newsize)
++static int v9fs_size_stat(struct v9fs_session_info *v9ses,
++			  struct v9fs_stat *stat)
 +{
-+	unsigned long *newpool;
++	int size = 0;
 +
-+	newpool = kmalloc((newsize / 8), GFP_KERNEL);
-+	if (!newpool) {
-+		eprintk(KERN_WARNING,
-+			"Couldn't allocate memory to grow idpool\n");
++	if (stat == NULL) {
++		eprintk(KERN_ERR, "v9fs_size_stat: got a NULL stat pointer\n");
 +		return 0;
 +	}
 +
-+	memset(newpool, 0, newsize / 8);
-+	if (i->idlist) {
-+		memcpy(newpool, i->idlist, (i->maxalloc) / 8);
-+		kfree(i->idlist);
++	size =			/* 2 + *//* size[2] */
++	    2 +			/* type[2] */
++	    4 +			/* dev[4] */
++	    1 +			/* qid.type[1] */
++	    4 +			/* qid.vers[4] */
++	    8 +			/* qid.path[8] */
++	    4 +			/* mode[4] */
++	    4 +			/* atime[4] */
++	    4 +			/* mtime[4] */
++	    8 +			/* length[8] */
++	    8;			/* minimum sum of string lengths */
++
++	if (stat->name)
++		size += strlen(stat->name);
++	if (stat->uid)
++		size += strlen(stat->uid);
++	if (stat->gid)
++		size += strlen(stat->gid);
++	if (stat->muid)
++		size += strlen(stat->muid);
++
++	if (v9ses->extended) {
++		size += 4 +	/* n_uid[4] */
++		    4 +		/* n_gid[4] */
++		    4 +		/* n_muid[4] */
++		    2;		/* string length of extension[4] */
++		if (stat->extension)
++			size += strlen(stat->extension);
 +	}
 +
-+	i->idlist = newpool;
-+	i->maxalloc = newsize;
-+
-+	return newsize;
++	return size;
 +}
 +
 +/**
-+ * v9fs_alloc_idpool - allocate an id pool
-+ * @i: pointer to idpool to initialize
-+ * @size: size of idpool
++ * serialize_stat - safely format a stat structure for transmission
++ * @v9ses: session info
++ * @stat: metadata (stat) structure
++ * @bufp: buffer to serialize structure into
 + *
 + */
 +
-+int v9fs_alloc_idpool(struct idpool *i, int size)
++static int
++serialize_stat(struct v9fs_session_info *v9ses, struct v9fs_stat *stat,
++	       struct cbuf *bufp)
 +{
-+	int newsize;
++	buf_put_int16(bufp, stat->size);
++	buf_put_int16(bufp, stat->type);
++	buf_put_int32(bufp, stat->dev);
++	buf_put_int8(bufp, stat->qid.type);
++	buf_put_int32(bufp, stat->qid.version);
++	buf_put_int64(bufp, stat->qid.path);
++	buf_put_int32(bufp, stat->mode);
++	buf_put_int32(bufp, stat->atime);
++	buf_put_int32(bufp, stat->mtime);
++	buf_put_int64(bufp, stat->length);
 +
-+	init_MUTEX(&i->sem);
-+	i->maxalloc = 0;
-+	i->numalloc = 0;
-+	i->lastfree = 0;
-+	i->idlist = NULL;
-+	newsize = grow_idpool(i, size);
-+	return newsize;
++	buf_put_string(bufp, stat->name);
++	buf_put_string(bufp, stat->uid);
++	buf_put_string(bufp, stat->gid);
++	buf_put_string(bufp, stat->muid);
++
++	if (v9ses->extended) {
++		buf_put_string(bufp, stat->extension);
++		buf_put_int32(bufp, stat->n_uid);
++		buf_put_int32(bufp, stat->n_gid);
++		buf_put_int32(bufp, stat->n_muid);
++	}
++
++	if (buf_check_overflow(bufp))
++		return 0;
++
++	return stat->size;
 +}
 +
 +/**
-+ * v9fs_free_idpool - deallocate an id pool
-+ * @i: pointer to idpool to free
++ * deserialize_stat - safely decode a recieved metadata (stat) structure
++ * @v9ses: session info
++ * @bufp: buffer to deserialize 
++ * @stat: metadata (stat) structure
++ * @dbufp: buffer to deserialize variable strings into
 + *
 + */
 +
-+void v9fs_free_idpool(struct idpool *i)
++static inline int
++deserialize_stat(struct v9fs_session_info *v9ses, struct cbuf *bufp,
++		 struct v9fs_stat *stat, struct cbuf *dbufp)
 +{
-+	kfree(i->idlist);
++
++	stat->size = buf_get_int16(bufp);
++	stat->type = buf_get_int16(bufp);
++	stat->dev = buf_get_int32(bufp);
++	stat->qid.type = buf_get_int8(bufp);
++	stat->qid.version = buf_get_int32(bufp);
++	stat->qid.path = buf_get_int64(bufp);
++	stat->mode = buf_get_int32(bufp);
++	stat->atime = buf_get_int32(bufp);
++	stat->mtime = buf_get_int32(bufp);
++	stat->length = buf_get_int64(bufp);
++	stat->name = buf_get_stringb(bufp, dbufp);
++	stat->uid = buf_get_stringb(bufp, dbufp);
++	stat->gid = buf_get_stringb(bufp, dbufp);
++	stat->muid = buf_get_stringb(bufp, dbufp);
++
++	if (v9ses->extended) {
++		stat->extension = buf_get_stringb(bufp, dbufp);
++		stat->n_uid = buf_get_int32(bufp);
++		stat->n_gid = buf_get_int32(bufp);
++		stat->n_muid = buf_get_int32(bufp);
++	}
++
++	if (buf_check_overflow(bufp) || buf_check_overflow(dbufp))
++		return 0;
++
++	return stat->size + 2;
 +}
 +
 +/**
-+ * v9fs_get_idpool - get a new id from the pool
-+ * @i: pointer to idpool
++ * deserialize_statb - wrapper for decoding a received metadata structure
++ * @v9ses: session info
++ * @bufp: buffer to deserialize 
++ * @dbufp: buffer to deserialize variable strings into
 + *
 + */
 +
-+int v9fs_get_idpool(struct idpool *i)
++static inline struct v9fs_stat *deserialize_statb(struct v9fs_session_info
++						  *v9ses, struct cbuf *bufp,
++						  struct cbuf *dbufp)
 +{
-+	int nextbit;
++	struct v9fs_stat *ret = buf_alloc(dbufp, sizeof(struct v9fs_stat));
 +
-+	if (down_interruptible(&i->sem) == -EINTR) {
-+		eprintk(KERN_WARNING, "Interrupted while locking\n");
-+		return -1;
++	if (ret) {
++		int n = deserialize_stat(v9ses, bufp, ret, dbufp);
++		if (n <= 0)
++			return NULL;
 +	}
 +
-+	nextbit = find_next_zero_bit(i->idlist, i->maxalloc, i->lastfree);
-+	if (nextbit > i->maxalloc) {
-+		if (grow_idpool(i, i->maxalloc * 2) == 0) {
-+			up(&i->sem);
-+			return -1;
-+		} else {
-+			nextbit =
-+			    find_next_zero_bit(i->idlist, i->maxalloc,
-+					       i->lastfree);
-+		}
-+	}
-+
-+	set_bit(nextbit, i->idlist);
-+	if (i->lastfree == nextbit)
-+		i->lastfree = nextbit + 1;
-+
-+	up(&i->sem);
-+	return nextbit;
++	return ret;
 +}
 +
 +/**
-+ * v9fs_put_idpool - get a new id from the pool
-+ * @which: which id to put
-+ * @i: pointer to idpool
++ * v9fs_deserialize_stat - decode a received metadata structure
++ * @v9ses: session info
++ * @buf: buffer to deserialize 
++ * @buflen: length of received buffer
++ * @stat: metadata structure to decode into
++ * @statlen: length of destination metadata structure 
 + *
 + */
 +
-+void v9fs_put_idpool(int which, struct idpool *i)
++int
++v9fs_deserialize_stat(struct v9fs_session_info *v9ses, void *buf,
++		      u32 buflen, struct v9fs_stat *stat, u32 statlen)
 +{
-+	if ((which < 0) || (which > i->maxalloc)) {
-+		return;
++	struct cbuf buffer;
++	struct cbuf *bufp = &buffer;
++	struct cbuf dbuffer;
++	struct cbuf *dbufp = &dbuffer;
++
++	buf_init(bufp, buf, buflen);
++	buf_init(dbufp, (char *)stat + sizeof(struct v9fs_stat),
++		 statlen - sizeof(struct v9fs_stat));
++
++	return deserialize_stat(v9ses, bufp, stat, dbufp);
++}
++
++static inline int
++v9fs_size_fcall(struct v9fs_session_info *v9ses, struct v9fs_fcall *fcall)
++{
++	int size = 4 + 1 + 2;	/* size[4] msg[1] tag[2] */
++	int i = 0;
++
++	switch (fcall->id) {
++	default:
++		eprintk(KERN_ERR, "bad msg type %d\n", fcall->id);
++		return 0;
++	case TVERSION:		/* msize[4] version[s] */
++		size += 4 + 2 + strlen(fcall->params.tversion.version);
++		break;
++	case TAUTH:		/* afid[4] uname[s] aname[s] */
++		size += 4 + 2 + strlen(fcall->params.tauth.uname) +
++		    2 + strlen(fcall->params.tauth.aname);
++		break;
++	case TFLUSH:		/* oldtag[2] */
++		size += 2;
++		break;
++	case TATTACH:		/* fid[4] afid[4] uname[s] aname[s] */
++		size += 4 + 4 + 2 + strlen(fcall->params.tattach.uname) +
++		    2 + strlen(fcall->params.tattach.aname);
++		break;
++	case TWALK:		/* fid[4] newfid[4] nwname[2] nwname*(wname[s]) */
++		size += 4 + 4 + 2;
++		/* now compute total for the array of names */
++		for (i = 0; i < fcall->params.twalk.nwname; i++)
++			size += 2 + strlen(fcall->params.twalk.wnames[i]);
++		break;
++	case TOPEN:		/* fid[4] mode[1] */
++		size += 4 + 1;
++		break;
++	case TCREATE:		/* fid[4] name[s] perm[4] mode[1] */
++		size += 4 + 2 + strlen(fcall->params.tcreate.name) + 4 + 1;
++		break;
++	case TREAD:		/* fid[4] offset[8] count[4] */
++		size += 4 + 8 + 4;
++		break;
++	case TWRITE:		/* fid[4] offset[8] count[4] data[count] */
++		size += 4 + 8 + 4 + fcall->params.twrite.count;
++		break;
++	case TCLUNK:		/* fid[4] */
++		size += 4;
++		break;
++	case TREMOVE:		/* fid[4] */
++		size += 4;
++		break;
++	case TSTAT:		/* fid[4] */
++		size += 4;
++		break;
++	case TWSTAT:		/* fid[4] stat[n] */
++		fcall->params.twstat.stat->size =
++		    v9fs_size_stat(v9ses, fcall->params.twstat.stat);
++		size += 4 + 2 + 2 + fcall->params.twstat.stat->size;
++	}
++	return size;
++}
++
++/*
++ * v9fs_serialize_fcall - marshall fcall struct into a packet
++ * @v9ses: session information
++ * @fcall: structure to convert
++ * @data: buffer to serialize fcall into 
++ * @datalen: length of buffer to serialize fcall into
++ *
++ */
++
++int
++v9fs_serialize_fcall(struct v9fs_session_info *v9ses, struct v9fs_fcall *fcall,
++		     void *data, u32 datalen)
++{
++	int i = 0;
++	struct v9fs_stat *stat = NULL;
++	struct cbuf buffer;
++	struct cbuf *bufp = &buffer;
++
++	buf_init(bufp, data, datalen);
++
++	if (!fcall) {
++		eprintk(KERN_ERR, "no fcall\n");
++		return 0;
 +	}
 +
-+	if (down_interruptible(&i->sem) == -EINTR) {
-+		eprintk(KERN_WARNING, "Interrupted while locking\n");
-+		return;
++	fcall->size = v9fs_size_fcall(v9ses, fcall);
++
++	buf_put_int32(bufp, fcall->size);
++	buf_put_int8(bufp, fcall->id);
++	buf_put_int16(bufp, fcall->tag);
++
++	dprintk(DEBUG_CONV, "size %d id %d tag %d\n", fcall->size, fcall->id,
++		fcall->tag);
++
++	/* now encode it */
++	switch (fcall->id) {
++	default:
++		eprintk(KERN_ERR, "bad msg type: %d\n", fcall->id);
++		return 0;
++	case TVERSION:
++		buf_put_int32(bufp, fcall->params.tversion.msize);
++		buf_put_string(bufp, fcall->params.tversion.version);
++		break;
++	case TAUTH:
++		buf_put_int32(bufp, fcall->params.tauth.afid);
++		buf_put_string(bufp, fcall->params.tauth.uname);
++		buf_put_string(bufp, fcall->params.tauth.aname);
++		break;
++	case TFLUSH:
++		buf_put_int16(bufp, fcall->params.tflush.oldtag);
++		break;
++	case TATTACH:
++		buf_put_int32(bufp, fcall->params.tattach.fid);
++		buf_put_int32(bufp, fcall->params.tattach.afid);
++		buf_put_string(bufp, fcall->params.tattach.uname);
++		buf_put_string(bufp, fcall->params.tattach.aname);
++		break;
++	case TWALK:
++		buf_put_int32(bufp, fcall->params.twalk.fid);
++		buf_put_int32(bufp, fcall->params.twalk.newfid);
++		buf_put_int16(bufp, fcall->params.twalk.nwname);
++		for (i = 0; i < fcall->params.twalk.nwname; i++)
++			buf_put_string(bufp, fcall->params.twalk.wnames[i]);
++		break;
++	case TOPEN:
++		buf_put_int32(bufp, fcall->params.topen.fid);
++		buf_put_int8(bufp, fcall->params.topen.mode);
++		break;
++	case TCREATE:
++		buf_put_int32(bufp, fcall->params.tcreate.fid);
++		buf_put_string(bufp, fcall->params.tcreate.name);
++		buf_put_int32(bufp, fcall->params.tcreate.perm);
++		buf_put_int8(bufp, fcall->params.tcreate.mode);
++		break;
++	case TREAD:
++		buf_put_int32(bufp, fcall->params.tread.fid);
++		buf_put_int64(bufp, fcall->params.tread.offset);
++		buf_put_int32(bufp, fcall->params.tread.count);
++		break;
++	case TWRITE:
++		buf_put_int32(bufp, fcall->params.twrite.fid);
++		buf_put_int64(bufp, fcall->params.twrite.offset);
++		buf_put_int32(bufp, fcall->params.twrite.count);
++		buf_put_data(bufp, fcall->params.twrite.data,
++			     fcall->params.twrite.count);
++		break;
++	case TCLUNK:
++		buf_put_int32(bufp, fcall->params.tclunk.fid);
++		break;
++	case TREMOVE:
++		buf_put_int32(bufp, fcall->params.tremove.fid);
++		break;
++	case TSTAT:
++		buf_put_int32(bufp, fcall->params.tstat.fid);
++		break;
++	case TWSTAT:
++		buf_put_int32(bufp, fcall->params.twstat.fid);
++		stat = fcall->params.twstat.stat;
++
++		buf_put_int16(bufp, stat->size + 2);
++		serialize_stat(v9ses, stat, bufp);
++		break;
 +	}
 +
-+	clear_bit(which, i->idlist);
-+	if (which < i->lastfree)
-+		i->lastfree = which;
++	if (buf_check_overflow(bufp))
++		return 0;
 +
-+	up(&i->sem);
++	return fcall->size;
++}
++
++/**
++ * deserialize_fcall - unmarshal a response
++ * @v9ses: session information
++ * @msgsize: size of rcall message
++ * @buf: recieved buffer
++ * @buflen: length of received buffer
++ * @rcall: fcall structure to populate
++ * @rcalllen: length of fcall structure to populate
++ *
++ */
++
++int
++v9fs_deserialize_fcall(struct v9fs_session_info *v9ses, u32 msgsize,
++		       void *buf, u32 buflen, struct v9fs_fcall *rcall,
++		       int rcalllen)
++{
++
++	struct cbuf buffer;
++	struct cbuf *bufp = &buffer;
++	struct cbuf dbuffer;
++	struct cbuf *dbufp = &dbuffer;
++	int i = 0;
++
++	buf_init(bufp, buf, buflen);
++	buf_init(dbufp, (char *)rcall + sizeof(struct v9fs_fcall),
++		 rcalllen - sizeof(struct v9fs_fcall));
++
++	rcall->size = msgsize;
++	rcall->id = buf_get_int8(bufp);
++	rcall->tag = buf_get_int16(bufp);
++
++	dprintk(DEBUG_CONV, "size %d id %d tag %d\n", rcall->size, rcall->id,
++		rcall->tag);
++	switch (rcall->id) {
++	default:
++		eprintk(KERN_ERR, "unknown message type: %d\n", rcall->id);
++		return 0;
++	case RVERSION:
++		rcall->params.rversion.msize = buf_get_int32(bufp);
++		rcall->params.rversion.version = buf_get_stringb(bufp, dbufp);
++		break;
++	case RFLUSH:
++		break;
++	case RATTACH:
++		rcall->params.rattach.qid.type = buf_get_int8(bufp);
++		rcall->params.rattach.qid.version = buf_get_int32(bufp);
++		rcall->params.rattach.qid.path = buf_get_int64(bufp);
++		break;
++	case RWALK:
++		rcall->params.rwalk.nwqid = buf_get_int16(bufp);
++		rcall->params.rwalk.wqids = buf_alloc(bufp,
++						      rcall->params.rwalk.
++						      nwqid *
++						      sizeof(struct v9fs_qid));
++		if (rcall->params.rwalk.wqids)
++			for (i = 0; i < rcall->params.rwalk.nwqid; i++) {
++				rcall->params.rwalk.wqids[i].type =
++				    buf_get_int8(bufp);
++				rcall->params.rwalk.wqids[i].version =
++				    buf_get_int16(bufp);
++				rcall->params.rwalk.wqids[i].path =
++				    buf_get_int64(bufp);
++			}
++		break;
++	case ROPEN:
++		rcall->params.ropen.qid.type = buf_get_int8(bufp);
++		rcall->params.ropen.qid.version = buf_get_int32(bufp);
++		rcall->params.ropen.qid.path = buf_get_int64(bufp);
++		rcall->params.ropen.iounit = buf_get_int32(bufp);
++		break;
++	case RCREATE:
++		rcall->params.rcreate.qid.type = buf_get_int8(bufp);
++		rcall->params.rcreate.qid.version = buf_get_int32(bufp);
++		rcall->params.rcreate.qid.path = buf_get_int64(bufp);
++		rcall->params.rcreate.iounit = buf_get_int32(bufp);
++		break;
++	case RREAD:
++		rcall->params.rread.count = buf_get_int32(bufp);
++		rcall->params.rread.data = buf_get_datab(bufp, dbufp,
++							 rcall->params.rread.
++							 count);
++		break;
++	case RWRITE:
++		rcall->params.rwrite.count = buf_get_int32(bufp);
++		break;
++	case RCLUNK:
++		break;
++	case RREMOVE:
++		break;
++	case RSTAT:
++		buf_get_int16(bufp);
++		rcall->params.rstat.stat =
++		    deserialize_statb(v9ses, bufp, dbufp);
++		break;
++	case RWSTAT:
++		break;
++	case RERROR:
++		rcall->params.rerror.error = buf_get_stringb(bufp, dbufp);
++		if (v9ses->extended)
++			rcall->params.rerror.errno = buf_get_int16(bufp);
++		break;
++	}
++
++	if (buf_check_overflow(bufp) || buf_check_overflow(dbufp))
++		return 0;
++
++	return rcall->size;
 +}

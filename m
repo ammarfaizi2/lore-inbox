@@ -1,50 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbVFBTpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVFBTt5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261263AbVFBTpX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 15:45:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVFBTpX
+	id S261264AbVFBTt5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 15:49:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVFBTt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 15:45:23 -0400
-Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:5527 "EHLO
-	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S261263AbVFBTgt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 15:36:49 -0400
-Message-Id: <200506021936.j52Ja1e1017579@ms-smtp-02-eri0.texas.rr.com>
+	Thu, 2 Jun 2005 15:49:56 -0400
+Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:55226 "EHLO
+	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S261264AbVFBTgv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 15:36:51 -0400
+Message-Id: <200506021936.j52Ja6H9001634@ms-smtp-01-eri0.texas.rr.com>
 From: ericvh@gmail.com
-Date: Thu,  2 Jun 2005 14:35:57 -0500
+Date: Thu,  2 Jun 2005 14:36:02 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [RFC][PATCH 4/7] v9fs: VFS superblock operations and glue (2.0-rc7)
+Subject: [RFC][PATCH 6/7] v9fs: transport modules (2.0-rc7)
 Cc: v9fs-developer@lists.sourceforge.net,
        viro@parcelfarce.linux.theplanet.co.uk, linux-fsdevel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is part [4/7] of the v9fs-2.0-rc7 patch against Linux 2.6.
+This is part [6/7] of the v9fs-2.0-rc7 patch against Linux 2.6.
 
-This part of the patch contains VFS superblock and mapping code.
+This part of the patch contains transport routines.
 
 Signed-off-by: Eric Van Hensbergen <ericvh@gmail.com>
 
- ----------
-
- v9fs.c      |  412 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- v9fs.h      |   84 ++++++++++++
- v9fs_vfs.h  |   51 +++++++
- vfs_super.c |  257 +++++++++++++++++++++++++++++++++++++
- 4 files changed, 804 insertions(+)
 
  ----------
 
-Index: fs/9p/v9fs.h
+ mux.c        |  437 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ mux.h        |   37 ++++
+ trans_sock.c |  272 ++++++++++++++++++++++++++++++++++++
+ transport.h  |   42 +++++
+ 4 files changed, 788 insertions(+)
+
+ ----------
+
+Index: fs/9p/mux.h
 ===================================================================
 --- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
-+++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/v9fs.h  (mode:100644)
-@@ -0,0 +1,84 @@
++++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/mux.h  (mode:100644)
+@@ -0,0 +1,37 @@
 +/*
-+ * V9FS definitions.
++ * linux/fs/9p/mux.h
++ *
++ * Multiplexer Definitions
 + *
 + *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
-+ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
 + *
 + *  This program is free software; you can redistribute it and/or modify
 + *  it under the terms of the GNU General Public License as published by
@@ -62,80 +64,32 @@ Index: fs/9p/v9fs.h
 + *
 + */
 +
-+/*
-+  * Session structure provides information for an opened session
-+  *
-+  */
++/* structure to manage each RPC transaction */
 +
-+struct v9fs_session_info {
-+	/* options */
-+	unsigned int maxdata;
-+	unsigned char extended;	/* set to 1 if we are using UNIX extensions */
-+	unsigned char nodev;	/* set to 1 if no disable device mapping */
-+	unsigned short port;	/* port to connect to */
-+	unsigned short debug;	/* debug level */
-+	unsigned short proto;	/* protocol to use */
-+	unsigned int afid;	/* authentication fid */
++struct v9fs_rpcreq {
++	struct v9fs_fcall *tcall;
++	struct v9fs_fcall *rcall;
 +
-+	char *name;		/* user name to mount as */
-+	char *remotename;	/* name of remote hierarchy being mounted */
-+	unsigned int uid;	/* default uid/muid for legacy support */
-+	unsigned int gid;	/* default gid for legacy support */
++	/* XXX - could we put scatter/gather buffers here? */
 +
-+	/* book keeping */
-+	struct idpool fidpool;	/* The FID pool for file descriptors */
-+	struct idpool tidpool;	/* The TID pool for transactions ids */
-+
-+	/* transport information */
-+	struct v9fs_transport *transport;
-+
-+	int inprogress;		/* session in progress => true */
-+	int shutdown;		/* session shutting down. no more attaches. */
-+	unsigned long session_hung;
-+
-+	/* mux private data */
-+	struct v9fs_fcall *curfcall;
-+	wait_queue_head_t read_wait;
-+	struct completion fcread;
-+	struct completion proccmpl;
-+	struct task_struct *recvproc;
-+
-+	spinlock_t muxlock;
-+	struct list_head mux_fcalls;
++	struct list_head next;
 +};
 +
-+int v9fs_session_init(struct v9fs_session_info *, const char *, char *);
-+struct v9fs_session_info *v9fs_inode2v9ses(struct inode *);
-+void v9fs_session_close(struct v9fs_session_info *v9ses);
-+
-+int v9fs_get_option(char *opts, char *name, char *buf, int buflen);
-+long long v9fs_get_int_option(char *opts, char *name, long long dflt);
-+int v9fs_parse_tcp_devname(const char *devname, char **addr, char **remotename);
-+
-+#define V9FS_MAGIC 0x01021997
-+
-+/* other default globals */
-+#define V9FS_PORT		564
-+#define V9FS_DEFUSER	"nobody"
-+#define V9FS_DEFANAME	""
-+
-+/* inital pool sizes for fids and tags */
-+#define V9FS_START_FIDS 8192
-+#define V9FS_START_TIDS 256
-+
-+#define safe_cache_free(x, y) { if(y) kmem_cache_free(x, y); }
-Index: fs/9p/v9fs.c
++int v9fs_mux_init(struct v9fs_session_info *v9ses, const char *dev_name);
++long v9fs_mux_rpc(struct v9fs_session_info *v9ses,
++		  struct v9fs_fcall *tcall, struct v9fs_fcall **rcall);
+Index: fs/9p/mux.c
 ===================================================================
 --- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
-+++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/v9fs.c  (mode:100644)
-@@ -0,0 +1,412 @@
++++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/mux.c  (mode:100644)
+@@ -0,0 +1,437 @@
 +/*
-+ *  linux/fs/9p/v9fs.c
++ * linux/fs/9p/mux.c
 + *
-+ *  This file contains functions assisting in mapping VFS to 9P2000
++ * Protocol Multiplexer
 + *
 + *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
-+ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
++ *  Copyright (C) 2004 by Latchesar Ionkov <lucho@ionkov.net>
 + *
 + *  This program is free software; you can redistribute it and/or modify
 + *  it under the terms of the GNU General Public License as published by
@@ -157,400 +111,426 @@ Index: fs/9p/v9fs.c
 +#include <linux/module.h>
 +#include <linux/errno.h>
 +#include <linux/fs.h>
-+#include <linux/parser.h>
++#include <linux/kthread.h>
 +
 +#include "debug.h"
 +#include "idpool.h"
 +#include "v9fs.h"
 +#include "9p.h"
-+#include "v9fs_vfs.h"
 +#include "transport.h"
-+#include "mux.h"
 +#include "conv.h"
-+
-+/* TODO: sysfs or debugfs interface */
-+int v9fs_debug_level = 0;	/* feature-rific global debug level  */
-+
-+/*
-+  * Option Parsing (code inspired by NFS code)
-+  *
-+  */
-+
-+enum {
-+	PROTO_TCP,
-+	PROTO_UNIX,
-+};
-+
-+enum {
-+	/* Options that take integer arguments */
-+	Opt_port, Opt_msize, Opt_uid, Opt_gid, Opt_afid, Opt_debug,
-+	/* String options */
-+	Opt_name, Opt_remotename,
-+	/* Options that take no arguments */
-+	Opt_legacy, Opt_nodevmap, Opt_unix, Opt_tcp,
-+	/* Error token */
-+	Opt_err
-+};
-+
-+static match_table_t tokens = {
-+	{Opt_port, "port=%u"},
-+	{Opt_msize, "msize=%u"},
-+	{Opt_uid, "uid=%u"},
-+	{Opt_gid, "gid=%u"},
-+	{Opt_afid, "afid=%u"},
-+	{Opt_debug, "debug=%u"},
-+	{Opt_name, "name=%s"},
-+	{Opt_remotename, "aname=%s"},
-+	{Opt_unix, "proto=unix"},
-+	{Opt_tcp, "proto=tcp"},
-+	{Opt_tcp, "tcp"},
-+	{Opt_unix, "unix"},
-+	{Opt_legacy, "noextend"},
-+	{Opt_nodevmap, "nodevmap"},
-+	{Opt_err, NULL}
-+};
-+
-+/*
-+ *  Parse option string.
-+ */
++#include "mux.h"
 +
 +/**
-+ * v9fs_parse_options - parse mount options into session structure
-+ * @options: options string passed from mount
-+ * @v9ses: existing v9fs session information
++ * dprintcond - print condition of session info
++ * @v9ses: session info structure
++ * @req: RPC request structure 
 + *
 + */
 +
-+static void v9fs_parse_options(char *options, struct v9fs_session_info *v9ses)
++static inline int
++dprintcond(struct v9fs_session_info *v9ses, struct v9fs_rpcreq *req)
 +{
-+	char *p;
-+	substring_t args[MAX_OPT_ARGS];
-+	int option;
-+	int ret;
-+
-+	/* setup defaults */
-+	v9ses->port = V9FS_PORT;
-+	v9ses->maxdata = 9000;
-+	v9ses->proto = PROTO_TCP;
-+	v9ses->extended = 1;
-+	v9ses->afid = ~0;
-+	v9ses->debug = 0;
-+
-+	if (!options)
-+		return;
-+
-+	while ((p = strsep(&options, ",")) != NULL) {
-+		int token;
-+		if (!*p)
-+			continue;
-+		token = match_token(p, tokens, args);
-+		if (token < Opt_name) {
-+			if ((ret = match_int(&args[0], &option)) < 0) {
-+				dprintk(DEBUG_ERROR,
-+					"integer field, but no integer?\n");
-+				continue;
-+			}
-+
-+		}
-+		switch (token) {
-+		case Opt_port:
-+			v9ses->port = option;
-+			break;
-+		case Opt_msize:
-+			v9ses->maxdata = option;
-+			break;
-+		case Opt_uid:
-+			v9ses->uid = option;
-+			break;
-+		case Opt_gid:
-+			v9ses->gid = option;
-+			break;
-+		case Opt_afid:
-+			v9ses->afid = option;
-+			break;
-+		case Opt_debug:
-+			v9ses->debug = option;
-+			break;
-+		case Opt_tcp:
-+			v9ses->proto = PROTO_TCP;
-+			break;
-+		case Opt_unix:
-+			v9ses->proto = PROTO_UNIX;
-+			break;
-+		case Opt_name:
-+			match_strcpy(v9ses->name,&args[0]);
-+			break;
-+		case Opt_remotename:
-+			match_strcpy(v9ses->remotename,&args[0]);
-+			break;
-+		case Opt_legacy:
-+			v9ses->extended = 0;
-+			break;
-+		case Opt_nodevmap:
-+			v9ses->nodev = 1;
-+			break;
-+		default:
-+			continue;
-+		}
-+	}
-+
-+	dprintk(DEBUG_9P, "options=\n");
-+	dprintk(DEBUG_9P, "	debug: %x\n", v9ses->debug);
-+	dprintk(DEBUG_9P, "	port: %u\n", v9ses->port);
-+	dprintk(DEBUG_9P, "	msize: %u\n", v9ses->maxdata);
-+	dprintk(DEBUG_9P, "	uid: %u\n", v9ses->uid);
-+	dprintk(DEBUG_9P, "	gid: %u\n", v9ses->gid);
-+	dprintk(DEBUG_9P, "	afid: %d\n", v9ses->afid);
-+	dprintk(DEBUG_9P, "	proto: %u\n", v9ses->proto);
-+	dprintk(DEBUG_9P, "	extended: %u\n", v9ses->extended);
-+	dprintk(DEBUG_9P, "	nomapdev: %u\n", v9ses->nodev);
-+	dprintk(DEBUG_9P, "	name: %s\n", v9ses->name);
-+	dprintk(DEBUG_9P, "	remotename: %s\n", v9ses->remotename);
++	dprintk(DEBUG_MUX, "condition: %d, %p\n", v9ses->transport->status,
++		req->rcall);
++	return 0;
 +}
 +
 +/**
-+ * v9fs_inode2v9ses - safely extract v9fs session info from super block
-+ * @inode: inode to extract information from
++ * xread - force read of a certain number of bytes
++ * @v9ses: session info structure
++ * @ptr: pointer to buffer
++ * @sz: number of bytes to read
 + *
-+ * Paranoid function to extract v9ses information from superblock,
-+ * if anything is missing it will report an error.
-+ *
++ * Chuck Cranor CS-533 project1
 + */
 +
-+struct v9fs_session_info *v9fs_inode2v9ses(struct inode *inode)
++static int xread(struct v9fs_session_info *v9ses, void *ptr, unsigned long sz)
 +{
-+	if (inode) {
-+		if (inode->i_sb) {
-+			if (inode->i_sb->s_fs_info)
-+				return (inode->i_sb->s_fs_info);
-+			else {
-+				dprintk(DEBUG_ERROR, "no s_fs_info\n");
-+				return NULL;
-+			}
-+		} else {
-+			dprintk(DEBUG_ERROR, "no superblock\n");
-+			return NULL;
++	int rd = 0;
++	int ret = 0;
++	int readnum = 0;
++	while (rd < sz) {
++		ret = v9ses->transport->read(v9ses->transport, ptr, sz - rd);
++		readnum++;
++		if (ret <= 0) {
++			dprintk(DEBUG_ERROR,
++				"xread on ses %p, at try %d: want %ld, got %d, errno %d\n",
++				v9ses, readnum, sz, rd, ret);
++			return ret;
 +		}
++		rd += ret;
++		ptr += ret;
 +	}
-+	dprintk(DEBUG_ERROR, "no inode\n");
-+	return NULL;
++	return (rd);
 +}
 +
 +/**
-+ * v9fs_session_init - initialize session
-+ * @v9ses: session information structure
-+ * @dev_name: device being mounted
-+ * @data: options
++ * read_message - read a full 9P2000 fcall packet
++ * @v9ses: session info structure
++ * @rcall: fcall structure to read into
++ * @rcalllen: size of fcall structure
 + *
 + */
 +
-+int
-+v9fs_session_init(struct v9fs_session_info *v9ses,
-+		  const char *dev_name, char *data)
++static int
++read_message(struct v9fs_session_info *v9ses,
++	     struct v9fs_fcall *rcall, int rcalllen)
 +{
++	unsigned char buf[4];
++	void *data;
++	int size = 0;
++	int res = 0;
++
++	res = xread(v9ses, buf, sizeof(buf));
++	if (res < 0) {
++		dprintk(DEBUG_ERROR,
++			"Reading of count field failed returned: %d\n", res);
++		return res;
++	}
++
++	if (res < 4) {
++		dprintk(DEBUG_ERROR,
++			"Reading of count field failed returned: %d\n", res);
++		return -EIO;
++	}
++
++	size = buf[0] | (buf[1] << 8) | (buf[2] << 16) | (buf[3] << 24);
++	dprintk(DEBUG_MUX, "got a packet count: %d\n", size);	/* XXX */
++
++	/* adjust for the four bytes of size */
++	size -= 4;
++
++	if (size > v9ses->maxdata) {
++		dprintk(DEBUG_ERROR, "packet too big: %d\n", size);
++		return -E2BIG;
++	}
++
++	data = kmalloc(v9ses->maxdata, GFP_KERNEL);
++	if (!buf) {
++		eprintk(KERN_WARNING, "out of memory\n");
++		return -ENOMEM;
++	}
++
++	res = xread(v9ses, data, size);
++	if (res < size) {
++		dprintk(DEBUG_ERROR, "Reading of fcall failed returned: %d\n",
++			res);
++		kfree( data);
++		return res;
++	}
++
++	/* we now have an in-memory string that is the reply. 
++	 * deserialize it. There is very little to go wrong at this point
++	 * save for v9fs_alloc errors. 
++	 */
++	res = v9fs_deserialize_fcall(v9ses, size, data, v9ses->maxdata,
++				     rcall, rcalllen);
++
++	kfree( data);
++
++	if (res == 0)
++		return -ENOMEM;
++
++	return 0;
++}
++
++/**
++ * v9fs_recv - receive an RPC response for a particular tag
++ * @v9ses: session info structure
++ * @req: RPC request structure
++ *
++ */
++
++static int v9fs_recv(struct v9fs_session_info *v9ses, struct v9fs_rpcreq *req)
++{
++	int ret = 0;
++
++	dprintk(DEBUG_MUX, "waiting for response: %d\n", req->tcall->tag);
++	ret = wait_event_interruptible(v9ses->read_wait,
++				       ((v9ses->transport->status != Connected)
++					|| (req->rcall != 0)
++					|| dprintcond(v9ses, req)));
++
++	dprintk(DEBUG_MUX, "got it: rcall %p\n", req->rcall);
++	if (v9ses->transport->status == Disconnected)
++		return -ECONNRESET;
++
++	if (ret == 0) {
++		spin_lock(&v9ses->muxlock);
++		list_del(&req->next);
++		spin_unlock(&v9ses->muxlock);
++	}
++
++	return ret;
++}
++
++/**
++ * v9fs_send - send a 9P request
++ * @v9ses: session info structure
++ * @req: RPC request to send
++ *
++ */
++
++static int v9fs_send(struct v9fs_session_info *v9ses, struct v9fs_rpcreq *req)
++{
++	int ret = -1;
++	void *data = NULL;
++	struct v9fs_fcall *tcall = req->tcall;
++
++	data = kmalloc(v9ses->maxdata+V9FS_IOHDRSZ, GFP_KERNEL);
++
++	tcall->size = 0;	/* enforce size recalculation */
++	ret = v9fs_serialize_fcall(v9ses, tcall, data, v9ses->maxdata+V9FS_IOHDRSZ);
++	if (ret == 0) {
++		ret = -ENOMEM;
++		goto free_data;
++	}
++
++	spin_lock(&v9ses->muxlock);
++	list_add(&req->next, &v9ses->mux_fcalls);
++	spin_unlock(&v9ses->muxlock);
++
++	dprintk(DEBUG_MUX, "sending message: tag %d size %d\n", tcall->tag,
++		tcall->size);
++	ret = v9ses->transport->write(v9ses->transport, data, tcall->size);
++
++	if (ret != tcall->size) {
++		spin_lock(&v9ses->muxlock);
++		list_del(&req->next);
++		if (req->rcall)
++			kfree( req->rcall);
++
++		spin_unlock(&v9ses->muxlock);
++		if (ret >= 0)
++			ret = -EREMOTEIO;
++	} else
++		ret = 0;
++
++      free_data:
++	kfree( data);
++	return ret;
++}
++
++/**
++ * v9fs_mux_rpc - send a request, receive a response
++ * @v9ses: session info structure
++ * @tcall: fcall to send
++ * @rcall: buffer to place response into
++ *
++ */
++
++long
++v9fs_mux_rpc(struct v9fs_session_info *v9ses, struct v9fs_fcall *tcall,
++	     struct v9fs_fcall **rcall)
++{
++	int tid = -1;
 +	struct v9fs_fcall *fcall = NULL;
-+	struct v9fs_transport *trans_proto;
-+	int n = 0;
-+	int newfid = -1;
-+	int retval = -EINVAL;
++	struct v9fs_rpcreq req;
++	int ret = -1;
 +
-+	v9ses->name = __getname();
-+	if(!v9ses->name)
-+		return -ENOMEM;
++	if (rcall)
++		*rcall = NULL;
 +
-+	v9ses->remotename = __getname();
-+	if(!v9ses->remotename) {
-+		putname(v9ses->name);
-+		return -ENOMEM;
++	if (tcall->id != TVERSION) {
++		tid = v9fs_get_idpool(&v9ses->tidpool);
++		if (tid < 0)
++			return -ENOMEM;
 +	}
 +
-+	strcpy(v9ses->name, V9FS_DEFUSER);
-+	strcpy(v9ses->remotename, V9FS_DEFANAME);
++	tcall->tag = tid;
 +
-+	v9fs_parse_options(data, v9ses);
++	req.tcall = tcall;
++	req.rcall = NULL;
 +
-+	/* set global debug level */
-+	v9fs_debug_level = v9ses->debug;
++	ret = v9fs_send(v9ses, &req);
 +
-+	/* id pools that are session-dependent: FIDs and TIDs */
-+	v9fs_alloc_idpool(&v9ses->fidpool, V9FS_START_FIDS);
-+	v9fs_alloc_idpool(&v9ses->tidpool, V9FS_START_TIDS);
-+
-+	switch (v9ses->proto) {
-+	case PROTO_TCP:
-+		trans_proto = &v9fs_trans_tcp;
-+		break;
-+	case PROTO_UNIX:
-+		trans_proto = &v9fs_trans_unix;
-+		*v9ses->remotename = 0;
-+		break;
-+	default:
-+		printk(KERN_ERR "v9fs: Bad mount protocol %d\n", v9ses->proto);
-+		retval = -ENOPROTOOPT;
-+		goto SessCleanUp;
-+	};
-+
-+	v9ses->transport = kmalloc(sizeof(struct v9fs_transport), GFP_KERNEL);
-+	if (!v9ses->transport) {
-+		eprintk(KERN_WARNING,
-+			"Couldn't allocate string for transport struct\n");
-+		retval = -ENOMEM;
-+		goto SessCleanUp;
++	if (ret < 0) {
++		v9fs_put_idpool(tid, &v9ses->tidpool);
++		dprintk(DEBUG_MUX, "error %d\n", ret);
++		return ret;
 +	}
 +
-+	memcpy(v9ses->transport, trans_proto, sizeof(struct v9fs_transport));
++	ret = v9fs_recv(v9ses, &req);
++	fcall = req.rcall;
 +
-+	if ((retval = v9ses->transport->init(v9ses, dev_name, data)) < 0) {
-+		eprintk(KERN_ERR, "problem initializing transport\n");
-+		goto SessCleanUp;
-+	}
++	dprintk(DEBUG_MUX, "received: tag=%x, ret=%d\n", tcall->tag, ret);
++	if (ret == -ERESTARTSYS) {
++		if (v9ses->transport->status != Disconnected
++		    && tcall->id != TFLUSH) {
++			unsigned long flags;
 +
-+	v9ses->inprogress = 0;
-+	v9ses->shutdown = 0;
-+	v9ses->session_hung = 0;
-+
-+	if ((retval = v9fs_mux_init(v9ses, dev_name)) < 0) {
-+		dprintk(DEBUG_ERROR, "problem initializing mux\n");
-+		goto SessCleanUp;
-+	}
-+
-+	if (v9ses->afid == ~0) {
-+		if (v9ses->extended)
-+			retval =
-+			    v9fs_t_version(v9ses, v9ses->maxdata, "9P2000.u",
-+					   &fcall);
-+		else
-+			retval = v9fs_t_version(v9ses, v9ses->maxdata, "9P2000",
-+						&fcall);
-+
-+		if (retval < 0) {
-+			dprintk(DEBUG_ERROR, "v9fs_t_version failed\n");
-+			goto FreeFcall;
++			dprintk(DEBUG_MUX, "flushing the tag: %d\n",
++				tcall->tag);
++			clear_thread_flag(TIF_SIGPENDING);
++			v9fs_t_flush(v9ses, tcall->tag);
++			spin_lock_irqsave(&current->sighand->siglock, flags);
++			recalc_sigpending();
++			spin_unlock_irqrestore(&current->sighand->siglock,
++					       flags);
++			dprintk(DEBUG_MUX, "flushing done\n");
 +		}
 +
-+		/* Really should check for 9P1 and report error */
-+		if (!strcmp(fcall->params.rversion.version, "9P2000.u")) {
-+			dprintk(DEBUG_9P, "9P2000 UNIX extensions enabled\n");
-+			v9ses->extended = 1;
-+		} else {
-+			dprintk(DEBUG_9P, "9P2000 legacy mode enabled\n");
-+			v9ses->extended = 0;
-+		}
++		goto release_req;
++	}
 +
-+		n = fcall->params.rversion.msize;
++	if (!fcall)
++		ret = -EIO;
++	else {
++		if (fcall->id == RERROR) {
++			ret = v9fs_errstr2errno(fcall->params.rerror.error);
++			if (ret == 0) {	/* string match failed */
++				if (fcall->params.rerror.errno)
++					ret = -(fcall->params.rerror.errno);
++				else
++					ret = -ESERVERFAULT;
++			}
++		} else if (fcall->id != tcall->id + 1) {
++			dprintk(DEBUG_ERROR,
++				"fcall mismatch: expected %d, got %d\n",
++				tcall->id + 1, fcall->id);
++			ret = -EIO;
++		}
++	}
++
++      release_req:
++	v9fs_put_idpool(tid, &v9ses->tidpool);
++	if (rcall)
++		*rcall = fcall;
++	else
 +		kfree( fcall);
 +
-+		if (n < v9ses->maxdata) 
-+			v9ses->maxdata = n;
-+	}
++	return ret;
++}
 +
-+	newfid = v9fs_get_idpool(&v9ses->fidpool);
-+	if (newfid < 0) {
-+		eprintk(KERN_WARNING, "couldn't allocate FID\n");
-+		retval = -ENOMEM;
-+		goto SessCleanUp;
-+	}
-+	/* it is a little bit ugly, but we have to prevent newfid */
-+	/* being the same as afid, so if it is, get a new fid     */
-+	if (v9ses->afid != ~0 && newfid == v9ses->afid) {
-+		newfid = v9fs_get_idpool(&v9ses->fidpool);
-+		if (newfid < 0) {
-+			eprintk(KERN_WARNING, "couldn't allocate FID\n");
-+			retval = -ENOMEM;
-+			goto SessCleanUp;
++/**
++ * v9fs_recvproc - kproc to handle demultiplexing responses
++ * @data: session info structure
++ *
++ */
++
++static int v9fs_recvproc(void *data)
++{
++	struct v9fs_session_info *v9ses = (struct v9fs_session_info *)data;
++	struct v9fs_fcall *rcall = NULL;
++	struct list_head *rptr;
++	struct list_head *rrptr;
++	struct v9fs_rpcreq *req = NULL;
++	int err = 0;
++
++	allow_signal(SIGKILL);
++	set_current_state(TASK_INTERRUPTIBLE);
++	complete(&v9ses->proccmpl);
++	while (!kthread_should_stop() && err >= 0) {
++		rcall = kmalloc(v9ses->maxdata+V9FS_IOHDRSZ, GFP_KERNEL);
++		dprintk(DEBUG_MUX, "waiting for message\n");
++		err = read_message(v9ses, rcall, v9ses->maxdata+V9FS_IOHDRSZ);
++		if (err < 0) {
++			kfree( rcall);
++			break;
 +		}
++
++		spin_lock(&v9ses->muxlock);
++		list_for_each_safe(rptr, rrptr, &v9ses->mux_fcalls) {
++			struct v9fs_rpcreq *rreq =
++			    list_entry(rptr, struct v9fs_rpcreq, next);
++
++			if (rreq->tcall->tag == rcall->tag) {
++				req = rreq;
++				req->rcall = rcall;
++				break;
++			}
++		}
++
++		if (req && (req->tcall->id == TFLUSH)) {
++			list_for_each_safe(rptr, rrptr, &v9ses->mux_fcalls) {
++				struct v9fs_rpcreq *treq =
++				    list_entry(rptr, struct v9fs_rpcreq, next);
++
++				if (treq->tcall->tag ==
++				    req->tcall->params.tflush.oldtag) {
++					list_del(rptr);
++					if (treq->rcall)
++						kfree(
++								treq->rcall);
++					break;
++				}
++			}
++		}
++
++		spin_unlock(&v9ses->muxlock);
++
++		if (!req) {
++			dprintk(DEBUG_ERROR,
++				"unexpected response: id %d tag %d\n",
++				rcall->id, rcall->tag);
++
++			kfree( rcall);
++		}
++
++		wake_up_all(&v9ses->read_wait);
++		set_current_state(TASK_INTERRUPTIBLE);
 +	}
 +
-+	if ((retval =
-+	     v9fs_t_attach(v9ses, v9ses->name, v9ses->remotename, newfid,
-+			   v9ses->afid, NULL))
-+	    < 0) {
-+		dprintk(DEBUG_ERROR, "cannot attach\n");
-+		goto SessCleanUp;
-+	}
++	/* Inform all pending processes about the failure */
++	wake_up_all(&v9ses->read_wait);
 +
-+	if (v9ses->afid != ~0) {
-+		if (v9fs_t_clunk(v9ses, v9ses->afid, NULL))
-+			dprintk(DEBUG_ERROR, "clunk failed\n");
-+	}
++	if (signal_pending(current))
++		complete(&v9ses->proccmpl);
 +
-+	return newfid;
++	dprintk(DEBUG_MUX, "recvproc: end\n");
++	v9ses->recvproc = NULL;
 +
-+      FreeFcall:
-+	kfree( fcall);
-+
-+      SessCleanUp:
-+	v9fs_session_close(v9ses);
-+	return retval;
++	return err >= 0;
 +}
 +
 +/**
-+ * v9fs_session_close - shutdown a session
-+ * @v9ses: session information structure
-+ *
++ * v9fs_mux_init - initialize multiplexer (spawn kproc)
++ * @v9ses: session info structure
++ * @dev_name: mount device information (to create unique kproc)
++ * 
 + */
 +
-+void v9fs_session_close(struct v9fs_session_info *v9ses)
++int v9fs_mux_init(struct v9fs_session_info *v9ses, const char *dev_name)
 +{
-+	if (v9ses->recvproc) {
-+		send_sig(SIGKILL, v9ses->recvproc, 1);
-+		wait_for_completion(&v9ses->proccmpl);
++	char procname[60];
++
++	strncpy(procname, dev_name, sizeof(procname));
++	procname[sizeof(procname) - 1] = 0;
++
++	init_waitqueue_head(&v9ses->read_wait);
++	init_completion(&v9ses->fcread);
++	init_completion(&v9ses->proccmpl);
++	spin_lock_init(&v9ses->muxlock);
++	INIT_LIST_HEAD(&v9ses->mux_fcalls);
++	v9ses->recvproc = NULL;
++	v9ses->curfcall = NULL;
++
++	v9ses->recvproc = kthread_create(v9fs_recvproc, v9ses,
++					 "v9fs_recvproc %s", procname);
++
++	if (IS_ERR(v9ses->recvproc)) {
++		eprintk(KERN_ERR, "cannot create receiving thread\n");
++		v9fs_session_close(v9ses);
++		return -ECONNABORTED;
 +	}
 +
-+	if (v9ses->transport) {
-+		v9ses->transport->close(v9ses->transport);
-+		kfree(v9ses->transport);
-+	}
++	wake_up_process(v9ses->recvproc);
++	wait_for_completion(&v9ses->proccmpl);
 +
-+	putname(v9ses->name);
-+	putname(v9ses->remotename);
-+
-+	v9fs_free_idpool(&v9ses->fidpool);
-+	v9fs_free_idpool(&v9ses->tidpool);
++	return 0;
 +}
-+
-+extern int v9fs_error_init(void);
-+
-+/**
-+ * v9fs_init - Initialize module
-+ *
-+ */
-+
-+static int __init init_v9fs(void)
-+{
-+	v9fs_error_init();
-+
-+	printk(KERN_INFO "Installing v9fs 9P2000 file system support\n");
-+
-+	return register_filesystem(&v9fs_fs_type);
-+}
-+
-+/**
-+ * v9fs_init - shutdown module
-+ *
-+ */
-+
-+static void __exit exit_v9fs(void)
-+{
-+	unregister_filesystem(&v9fs_fs_type);
-+}
-+
-+module_init(init_v9fs)
-+module_exit(exit_v9fs)
-+
-+MODULE_AUTHOR("Eric Van Hensbergen <ericvh@gmail.com>");
-+MODULE_AUTHOR("Ron Minnich <rminnich@lanl.gov>");
-+MODULE_LICENSE("GPL");
-Index: fs/9p/v9fs_vfs.h
+Index: fs/9p/transport.h
 ===================================================================
 --- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
-+++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/v9fs_vfs.h  (mode:100644)
-@@ -0,0 +1,51 @@
++++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/transport.h  (mode:100644)
+@@ -0,0 +1,42 @@
 +/*
-+ * V9FS VFS extensions.
++ * linux/fs/9p/transport.h
++ *
++ * Transport Definition
 + *
 + *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
-+ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
 + *
 + *  This program is free software; you can redistribute it and/or modify
 + *  it under the terms of the GNU General Public License as published by
@@ -568,48 +548,38 @@ Index: fs/9p/v9fs_vfs.h
 + *
 + */
 +
-+/* plan9 semantics are that created files are implicitly opened.
-+ * But linux semantics are that you call create, then open.
-+ * the plan9 approach is superior as it provides an atomic 
-+ * open. 
-+ * we track the create fid here. When the file is opened, if fidopen is
-+ * non-zero, we use the fid and can skip some steps. 
-+ * there may be a better way to do this, but I don't know it. 
-+ * one BAD way is to clunk the fid on create, then open it again:
-+ * you lose the atomicity of file open
-+ */
++enum v9fs_transport_status {
++	Connected,
++	Disconnected,
++};
 +
-+/* special case: 
-+ * unlink calls remove, which is an implicit clunk. So we have to track
-+ * that kind of thing so that we don't try to clunk a dead fid. 
-+ */
++struct v9fs_transport {
++	enum v9fs_transport_status status;
++	struct semaphore writelock;
++	struct semaphore readlock;
++	void *priv;
 +
-+extern struct file_system_type v9fs_fs_type;
-+extern struct file_operations v9fs_file_operations;
-+extern struct file_operations v9fs_dir_operations;
-+extern struct dentry_operations v9fs_dentry_operations;
++	int (*init) (struct v9fs_session_info *, const char *, char *);
++	int (*write) (struct v9fs_transport *, void *, int);
++	int (*read) (struct v9fs_transport *, void *, int);
++	void (*close) (struct v9fs_transport *);
++};
 +
-+struct inode *v9fs_get_inode(struct super_block *sb, int mode);
-+ino_t v9fs_qid2ino(struct v9fs_qid *qid);
-+void v9fs_mistat2inode(struct v9fs_stat *, struct inode *,
-+		       struct super_block *);
-+int v9fs_dir_release(struct inode *inode, struct file *filp);
-+int v9fs_file_open(struct inode *inode, struct file *file);
-+void v9fs_inode2mistat(struct inode *inode, struct v9fs_stat *mistat);
-+void v9fs_dentry_release(struct dentry *);
-Index: fs/9p/vfs_super.c
++extern struct v9fs_transport v9fs_trans_tcp;
++extern struct v9fs_transport v9fs_trans_unix;
+Index: fs/9p/trans_sock.c
 ===================================================================
 --- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
-+++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/vfs_super.c  (mode:100644)
-@@ -0,0 +1,257 @@
++++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/trans_sock.c  (mode:100644)
+@@ -0,0 +1,272 @@
 +/*
-+ *  linux/fs/9p/vfs_super.c
++ * linux/fs/9p/trans_socket.c
 + *
-+ * This file contians superblock ops for 9P2000. It is intended that 
-+ * you mount this file system on directories.
++ * Socket Transport Layer
 + *
 + *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
-+ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
++ *  Copyright (C) 1997-2002 by Ron Minnich <rminnich@sarnoff.com>
++ *  Copyright (C) 1995, 1996 by Olaf Kirch <okir@monad.swb.de>
 + *
 + *  This program is free software; you can redistribute it and/or modify
 + *  it under the terms of the GNU General Public License as published by
@@ -629,233 +599,248 @@ Index: fs/9p/vfs_super.c
 +
 +#include <linux/config.h>
 +#include <linux/module.h>
++#include <linux/net.h>
++#include <linux/ipv6.h>
 +#include <linux/errno.h>
-+#include <linux/fs.h>
-+#include <linux/file.h>
-+#include <linux/stat.h>
-+#include <linux/string.h>
-+#include <linux/smp_lock.h>
++#include <linux/kernel.h>
++#include <linux/un.h>
++#include <asm/uaccess.h>
 +#include <linux/inet.h>
-+#include <linux/pagemap.h>
 +
 +#include "debug.h"
 +#include "idpool.h"
 +#include "v9fs.h"
-+#include "9p.h"
-+#include "v9fs_vfs.h"
-+#include "conv.h"
-+#include "fid.h"
++#include "transport.h"
 +
-+static void v9fs_clear_inode(struct inode *);
-+static struct super_operations v9fs_super_ops;
++#define V9FS_PORT 564
++
++struct v9fs_trans_sock {
++	struct socket *s;
++};
 +
 +/**
-+ * v9fs_clear_inode - release an inode
-+ * @inode: inode to release
++ * v9fs_sock_recv - receive from a socket
++ * @v9ses: session information 
++ * @v: buffer to receive data into
++ * @len: size of receive buffer
 + *
 + */
 +
-+static void v9fs_clear_inode(struct inode *inode)
++static int v9fs_sock_recv(struct v9fs_transport *trans, void *v, int len)
 +{
-+	filemap_fdatawrite(inode->i_mapping);
-+}
++	struct msghdr msg;
++	struct kvec iov;
++	int result;
++	mm_segment_t oldfs;
++	struct v9fs_trans_sock *ts = trans ? trans->priv : NULL;
 +
-+/**
-+ * v9fs_set_super - set the superblock
-+ * @s: super block
-+ * @data: file system specific data
-+ * 
-+ */
++	if (trans->status == Disconnected)
++		return -EREMOTEIO;
 +
-+static int v9fs_set_super(struct super_block *s, void *data)
-+{
-+	s->s_fs_info = data;
-+	return set_anon_super(s, data);
-+}
++	result = -EINVAL;
 +
-+/**
-+ * v9fs_block_bits - Determine bits in blocksize (from NFS Code)
-+ * @bsize: blocksize
-+ * @nrbitsp: number of bits
-+ * 
-+ * this bit from linux/fs/nfs/inode.c
-+ * Copyright (C) 1992  Rick Sladkey
-+ * XXX - shouldn't there be a global linux function for this?
-+ * 
-+ */
++	oldfs = get_fs();
++	set_fs(get_ds());
 +
-+static inline unsigned long
-+v9fs_block_bits(unsigned long bsize, unsigned char *nrbitsp)
-+{
-+	/* make sure blocksize is a power of two */
-+	if ((bsize & (bsize - 1)) || nrbitsp) {
-+		unsigned char nrbits;
++	iov.iov_base = v;
++	iov.iov_len = len;
++	msg.msg_name = NULL;
++	msg.msg_namelen = 0;
++	msg.msg_iovlen = 1;
++	msg.msg_control = NULL;
++	msg.msg_controllen = 0;
++	msg.msg_namelen = 0;
++	msg.msg_flags = MSG_NOSIGNAL;
 +
-+		for (nrbits = 31; nrbits && !(bsize & (1 << nrbits));
-+		     nrbits--) ;
-+		bsize = 1 << nrbits;
-+		if (nrbitsp)
-+			*nrbitsp = nrbits;
++	result = kernel_recvmsg(ts->s, &msg, &iov, 1, len, 0);
++
++	dprintk(DEBUG_TRANS, "socket state %d\n", ts->s->state);
++	set_fs(oldfs);
++
++	if (result <= 0) {
++		if (result != -ERESTARTSYS)
++			trans->status = Disconnected;
 +	}
 +
-+	return bsize;
++	return result;
 +}
 +
 +/**
-+ * v9fs_fill_super - populate superblock with info
-+ * @sb: superblock
-+ * @v9ses: session information
-+ * 
++ * v9fs_sock_send - send to a socket
++ * @v9ses: session information 
++ * @v: buffer to send data from
++ * @len: size of send buffer
++ *
 + */
 +
-+static void 
-+v9fs_fill_super(struct super_block *sb, struct v9fs_session_info *v9ses, int flags)
++static int v9fs_sock_send(struct v9fs_transport *trans, void *v, int len)
 +{
-+	sb->s_maxbytes = MAX_LFS_FILESIZE;
-+	sb->s_blocksize =
-+	    v9fs_block_bits(v9ses->maxdata, &sb->s_blocksize_bits);
-+	sb->s_magic = V9FS_MAGIC;
-+	sb->s_op = &v9fs_super_ops;
++	struct kvec iov;
++	struct msghdr msg;
++	int result = -1;
++	mm_segment_t oldfs;
++	struct v9fs_trans_sock *ts = trans ? trans->priv : NULL;
 +
-+	sb->s_flags = flags | MS_ACTIVE | MS_SYNCHRONOUS | MS_DIRSYNC | 
-+					MS_NODIRATIME | MS_NOATIME;
++	dprintk(DEBUG_TRANS, "Sending packet size %d (%x)\n", len, len);
++	dump_data(v, len);
++
++	down(&trans->writelock);
++
++	oldfs = get_fs();
++	set_fs(get_ds());
++	iov.iov_base = v;
++	iov.iov_len = len;
++	msg.msg_name = NULL;
++	msg.msg_namelen = 0;
++	msg.msg_iovlen = 1;
++	msg.msg_control = NULL;
++	msg.msg_controllen = 0;
++	msg.msg_namelen = 0;
++	msg.msg_flags = MSG_NOSIGNAL;
++	result = kernel_sendmsg(ts->s, &msg, &iov, 1, len);
++	set_fs(oldfs);
++
++	if (result < 0) {
++		if (result != -ERESTARTSYS)
++			trans->status = Disconnected;
++	}
++
++	up(&trans->writelock);
++	return result;
 +}
 +
 +/**
-+ * v9fs_get_sb - mount a superblock
-+ * @fs_type: file system type
-+ * @flags: mount flags
-+ * @dev_name: device name that was mounted
++ * v9fs_tcp_init - initialize TCP socket
++ * @trans: private socket structure for mount
++ * @dev_name: mount target
 + * @data: mount options
-+ * 
++ *
 + */
 +
-+static struct super_block *v9fs_get_sb(struct file_system_type
-+				       *fs_type, int flags,
-+				       const char *dev_name, void *data)
++static int
++v9fs_tcp_init(struct v9fs_session_info *v9ses, const char *addr, char *data)
 +{
-+	struct super_block *sb = NULL;
-+	struct v9fs_fcall *fcall = NULL;
-+	struct inode *inode = NULL;
-+	struct dentry *root = NULL;
-+	struct v9fs_session_info *v9ses = NULL;
-+	struct v9fs_fid *root_fid = NULL;
-+	int mode = S_IRWXUGO | S_ISVTX;
-+	uid_t uid = current->fsuid;
-+	gid_t gid = current->fsgid;
-+	int stat_result = 0;
-+	int newfid = 0;
-+	int retval = 0;
++	struct socket *csocket = NULL;
++	struct sockaddr_in sin_server;
++	int rc = 0;
++	struct v9fs_trans_sock *ts = NULL;
++	struct v9fs_transport *trans = v9ses->transport;
 +
-+	dprintk(DEBUG_VFS, " \n");
++	sema_init(&trans->writelock, 1);
++	sema_init(&trans->readlock, 1);
 +
-+	v9ses = kcalloc(1, sizeof(struct v9fs_session_info), GFP_KERNEL);
-+	if (!v9ses)
-+		return ERR_PTR(-ENOMEM);
++	ts = kmalloc(sizeof(struct v9fs_trans_sock), GFP_KERNEL);
 +
-+	if ((newfid = v9fs_session_init(v9ses, dev_name, data)) < 0) {
-+		dprintk(DEBUG_ERROR, "problem initiating session\n");
-+		retval = newfid;
-+		goto free_session;
++	if (!ts)
++		return -ENOMEM;
++
++	trans->priv = ts;
++	ts->s = NULL;
++
++	if (!addr)
++		return -EINVAL;
++
++	dprintk(DEBUG_TRANS, "Connecting to %s\n", addr);
++
++	sin_server.sin_family = AF_INET;
++	sin_server.sin_addr.s_addr = in_aton(addr);
++	sin_server.sin_port = htons(v9ses->port);
++	sock_create_kern(PF_INET, SOCK_STREAM, IPPROTO_TCP, &csocket);
++	rc = csocket->ops->connect(csocket,
++				   (struct sockaddr *)&sin_server,
++				   sizeof(struct sockaddr_in), 0);
++	if (rc < 0) {
++		eprintk(KERN_ERR,
++			"v9fs_trans_tcp: problem connecting socket to %s\n",
++			addr);
++		return rc;
 +	}
++	csocket->sk->sk_allocation = GFP_NOIO;
++	ts->s = csocket;
++	trans->status = Connected;
 +
-+	sb = sget(fs_type, NULL, v9fs_set_super, v9ses);
-+
-+	v9fs_fill_super( sb, v9ses, flags );
-+
-+	inode = v9fs_get_inode(sb, S_IFDIR | mode);
-+	if (IS_ERR(inode)) {
-+		retval = PTR_ERR(inode);
-+		goto put_back_sb;
-+	}
-+
-+	inode->i_uid = uid;
-+	inode->i_gid = gid;
-+
-+	root = d_alloc_root(inode);
-+
-+	if (!root) {
-+		retval = -ENOMEM;
-+		goto release_inode;
-+	}
-+
-+	sb->s_root = root;
-+
-+	/* Setup the Root Inode */
-+	root_fid = v9fs_fid_create(root);
-+	if (root_fid == NULL) {
-+		retval = -ENOMEM;
-+		goto release_inode;
-+	}
-+
-+	root_fid->fidopen = 0;
-+	root_fid->v9ses = v9ses;
-+
-+	stat_result = v9fs_t_stat(v9ses, newfid, &fcall);
-+	if (stat_result < 0) {
-+		dprintk(DEBUG_ERROR, "stat error\n");
-+		v9fs_t_clunk(v9ses, newfid, NULL);
-+		v9fs_put_idpool(newfid, &v9ses->fidpool);
-+	} else {
-+		root_fid->fid = newfid;
-+		root_fid->qid = fcall->params.rstat.stat->qid;
-+		root->d_inode->i_ino =
-+		    v9fs_qid2ino(&fcall->params.rstat.stat->qid);
-+		v9fs_mistat2inode(fcall->params.rstat.stat, root->d_inode, sb);
-+	}
-+	kfree( fcall);
-+
-+	if (stat_result < 0) {
-+		retval = stat_result;
-+		goto release_inode;
-+	}
-+
-+	return sb;
-+
-+      release_inode:
-+	iput(inode);
-+
-+      put_back_sb:
-+	up_write(&sb->s_umount);
-+	deactivate_super(sb);
-+
-+	v9fs_session_close(v9ses);
-+
-+      free_session:
-+	kfree(v9ses);
-+
-+	return ERR_PTR(retval);
++	return 0;
 +}
 +
 +/**
-+ * v9fs_kill_super - Kill Superblock
-+ * @s: superblock
-+ * 
++ * v9fs_unix_init - initialize UNIX domain socket
++ * @trans: private socket info
++ * @dev_name: mount target
++ * @data: mount options
++ *
 + */
 +
-+static void v9fs_kill_super(struct super_block *s)
++static int
++v9fs_unix_init(struct v9fs_session_info *v9ses, const char *dev_name,
++	       char *data)
 +{
-+	struct v9fs_session_info *v9ses = s->s_fs_info;
++	struct socket *csocket = NULL;
++	struct sockaddr_un sun_server;
++	struct v9fs_transport *trans = v9ses->transport;
++	int rc = 0;
 +
-+	dprintk(DEBUG_VFS, " %p\n", s);
++	struct v9fs_trans_sock *ts =
++	    kmalloc(sizeof(struct v9fs_trans_sock), GFP_KERNEL);
 +
-+	v9fs_dentry_release(s->s_root);	/* clunk root */
++	if (!ts)
++		return -ENOMEM;
 +
-+	kill_anon_super(s);
++	trans->priv = ts;
++	ts->s = NULL;
 +
-+	v9fs_session_close(v9ses);
-+	kfree(v9ses);
-+	dprintk(DEBUG_VFS, "exiting kill_super\n");
++	sema_init(&trans->writelock, 1);
++	sema_init(&trans->readlock, 1);
++
++	sun_server.sun_family = PF_UNIX;
++	strcpy(sun_server.sun_path, dev_name);
++	sock_create_kern(PF_UNIX, SOCK_STREAM, 0, &csocket);
++	rc = csocket->ops->connect(csocket,
++				   (struct sockaddr *)&sun_server,
++				   sizeof(struct sockaddr_un), 0);
++	if (rc < 0) {
++		eprintk(KERN_ERR,
++			"v9fs_trans_unix: problem connecting socket: %s: %d\n",
++			dev_name, rc);
++		return rc;
++	}
++	csocket->sk->sk_allocation = GFP_NOIO;
++	ts->s = csocket;
++	trans->status = Connected;
++
++	return 0;
 +}
 +
-+static struct super_operations v9fs_super_ops = {
-+	.statfs = simple_statfs,
-+	.clear_inode = v9fs_clear_inode,
++/**
++ * v9fs_sock_close - shutdown socket
++ * @trans: private socket structure
++ *
++ */
++
++static void v9fs_sock_close(struct v9fs_transport *trans)
++{
++	struct v9fs_trans_sock *ts = trans ? trans->priv : NULL;
++
++	if ((ts) && (ts->s)) {
++		dprintk(DEBUG_TRANS, "closing the socket %p\n", ts->s);
++		sock_release(ts->s);
++		ts->s = NULL;
++		trans->status = Disconnected;
++		dprintk(DEBUG_TRANS, "socket closed\n");
++	}
++
++	kfree(ts);
++}
++
++struct v9fs_transport v9fs_trans_tcp = {
++	.init = v9fs_tcp_init,
++	.write = v9fs_sock_send,
++	.read = v9fs_sock_recv,
++	.close = v9fs_sock_close,
 +};
 +
-+struct file_system_type v9fs_fs_type = {
-+	.name = "9P",
-+	.get_sb = v9fs_get_sb,
-+	.kill_sb = v9fs_kill_super,
-+	.owner = THIS_MODULE,
++struct v9fs_transport v9fs_trans_unix = {
++	.init = v9fs_unix_init,
++	.write = v9fs_sock_send,
++	.read = v9fs_sock_recv,
++	.close = v9fs_sock_close,
 +};

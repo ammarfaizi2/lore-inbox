@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261527AbVFBFLK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbVFBFph@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261527AbVFBFLK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 01:11:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVFBFLK
+	id S261559AbVFBFph (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 01:45:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVFBFpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 01:11:10 -0400
-Received: from mail.kroah.org ([69.55.234.183]:48256 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261527AbVFBFLB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 01:11:01 -0400
-Date: Wed, 1 Jun 2005 22:21:08 -0700
-From: Greg KH <greg@kroah.com>
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-Cc: Alexey Dobriyan <adobriyan@gmail.com>, akpm@osdl.org,
-       julien.tinnes@francetelecom.com, linux-kernel@vger.kernel.org
-Subject: Re: potential-null-pointer-dereference-in-amiga-serial-driver.patch added to -mm tree
-Message-ID: <20050602052108.GA8042@kroah.com>
-References: <200505310909.j4V98xBR008727@shell0.pdx.osdl.net> <200505311949.15449.adobriyan@gmail.com> <20050531122215.GA5108@logos.cnet>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050531122215.GA5108@logos.cnet>
-User-Agent: Mutt/1.5.8i
+	Thu, 2 Jun 2005 01:45:36 -0400
+Received: from mail.timesys.com ([65.117.135.102]:27069 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S261559AbVFBFp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 01:45:29 -0400
+Message-ID: <429E9C9A.1030507@timesys.com>
+Date: Thu, 02 Jun 2005 01:43:54 -0400
+From: john cooper <john.cooper@timesys.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+CC: dwalker@mvista.com, Esben Nielsen <simlo@phys.au.dk>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       sdietrich@mvista.com, rostedt@goodmis.org,
+       john cooper <john.cooper@timesys.com>
+Subject: Re: [PATCH] Abstracted Priority Inheritance for RT
+References: <F989B1573A3A644BAB3920FBECA4D25A036671E5@orsmsx407>
+In-Reply-To: <F989B1573A3A644BAB3920FBECA4D25A036671E5@orsmsx407>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 02 Jun 2005 05:38:40.0984 (UTC) FILETIME=[552C9580:01C56735]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 31, 2005 at 09:22:15AM -0300, Marcelo Tosatti wrote:
-> 
-> Hi Alexey,
-> 
-> On Tue, May 31, 2005 at 07:49:15PM +0400, Alexey Dobriyan wrote:
-> > On Tuesday 31 May 2005 13:08, akpm@osdl.org wrote:
-> > > A pointer is dereferenced before it is null-checked.
-> > 
-> > > --- 25/drivers/char/amiserial.c~potential-null-pointer-dereference-in-amiga-serial-driver
-> > > +++ 25-akpm/drivers/char/amiserial.c
-> > 
-> > >  static void rs_put_char(struct tty_struct *tty, unsigned char ch)
-> > >  {
-> > > -	struct async_struct *info = (struct async_struct *)tty->driver_data;
-> > > +	struct async_struct *info;
-> > >  	unsigned long flags;
-> > >  
-> > > +	if (!tty)
-> > > +		return;
-> > 
-> > Can ->put_char be ever called with tty being NULL? From my reading of
-> > drivers/char/n_tty.c it can't.
-> 
-> Nope it can't, but the change makes the code more readable IMO, while handling
-> a NULL "tty" argument properly (which the old version pretends to, but doesnt).
+Perez-Gonzalez, Inaky wrote:
+> It doesn't matter in which space the tasks are, a deadlock 
+> condition can happen anywhere and that can easily lead to 
+> infinite recursion/iteration (as bad). I seem to remember Ingo
+> mentioning he had taken care of full transitivity (or maybe it
+> was somebody else saying it).
 
-But unneeded checks like this are not encouraged in the kernel.  As the
-tty pointer can never be null, don't worry about it.
+That might have been me.  The last time I looked at this
+specifically, full transitive promotion was being done in
+the RT patch.  However unlike your attempt at scaling the
+lock scope, the RT patch had one lock which coordinated
+all mutex dependency traversals system wide.  This lock
+must be speculatively acquired even before we ascertain
+transitive promotion is required.
 
-thanks,
+So it doesn't scale as well as it could in the case of
+large count SMP systems.  The response was that of "get
+it to work first and then we'll get it to scale" which
+is reasonable.
 
-greg k-h
+When I looked at this sometime in the latter part of last
+year I was concerned there was an inherent hierarchy violation
+possible in the kernel for the case of fine grained (per-mutex)
+locking when doing a transitive promotion traversal.   The
+order of traversal is dependent upon the application's lock
+acquisition sequence.  Ingo pointed out there shouldn't be a
+kernel hierarchy inversion if it was first determined the
+application itself wasn't violating it's own lock acquisition
+hierarchy.  I recall this to be a valid and simplifying
+assumption at the time though I haven't had cause to
+follow up on the issue since then.
+
+-john
+
+
+
+-- 
+john.cooper@timesys.com

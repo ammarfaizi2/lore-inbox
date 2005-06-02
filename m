@@ -1,58 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVFBBXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbVFBB0U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261550AbVFBBXI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 21:23:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbVFBBXI
+	id S261549AbVFBB0U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 21:26:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVFBB0T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 21:23:08 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:40111 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261553AbVFBBW5 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 21:22:57 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Wed, 1 Jun 2005 21:26:19 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:32653 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261549AbVFBBXK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 21:23:10 -0400
+Date: Thu, 2 Jun 2005 03:23:09 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: David Brownell <david-b@pacbell.net>
+Cc: Rene Herman <rene.herman@keyaccess.nl>, Pavel Machek <pavel@ucw.cz>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, Mark Lord <lkml@rtr.ca>,
+       David Brownell <dbrownell@users.sourceforge.net>
+Subject: Re: External USB2 HDD affects speed hda
+In-Reply-To: <200506011643.42073.david-b@pacbell.net>
+Message-ID: <Pine.LNX.4.58.0506020316240.28167@artax.karlin.mff.cuni.cz>
+References: <429BA001.2030405@keyaccess.nl> <429E3338.9000401@keyaccess.nl>
+ <429E37BA.7090502@keyaccess.nl> <200506011643.42073.david-b@pacbell.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] Abstracted Priority Inheritance for RT
-Date: Wed, 1 Jun 2005 18:22:22 -0700
-Message-ID: <F989B1573A3A644BAB3920FBECA4D25A036671E5@orsmsx407>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Abstracted Priority Inheritance for RT
-Thread-Index: AcVnCaU4MPbelU/7SluTKHuJJycVXQAA9QjQ
-From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-To: <dwalker@mvista.com>
-Cc: "Esben Nielsen" <simlo@phys.au.dk>, "Ingo Molnar" <mingo@elte.hu>,
-       <linux-kernel@vger.kernel.org>, <sdietrich@mvista.com>,
-       <rostedt@goodmis.org>
-X-OriginalArrivalTime: 02 Jun 2005 01:22:24.0432 (UTC) FILETIME=[8808F300:01C56711]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->From: Daniel Walker [mailto:dwalker@mvista.com]
->On Wed, 2005-06-01 at 17:10 -0700, Perez-Gonzalez, Inaky wrote:
->
->> Maybe he is referring to the case?
->>
->> A owns M
->> B owns N and is waiting for M
->> A is trying to wait for N
->>
->> These deadlocking cases can be tricky during PI.
->
->The bulk of the code is from the current RT mutex, so I'm assuming it
->handles this case correctly. However, the rt mutex isn't in userspace ,
->so task A or B was a user space task , then the problem would need to
-be
->explored.. How does PI change if A or B are user space tasks?
 
-It doesn't matter in which space the tasks are, a deadlock 
-condition can happen anywhere and that can easily lead to 
-infinite recursion/iteration (as bad). I seem to remember Ingo
-mentioning he had taken care of full transitivity (or maybe it
-was somebody else saying it).
 
--- Inaky
+On Wed, 1 Jun 2005, David Brownell wrote:
+
+> On Wednesday 01 June 2005 3:33 pm, Rene Herman wrote:
+> > Rene Herman wrote:
+> >
+> > > David Brownell wrote:
+> >
+> > >> The experiment: verify that only the RUN bit is set on your machine
+> > >> too. If "Periodic" and/or "Async" bits are set, then the controller
+> > >> is _supposed_ to be issuing DMA transfers over PCI, so less bandwidth
+> > >> will be available. Otherwise, not.
+> >
+> > [ snip ]
+> >
+> > > and one after switching on the USB2 HDD, when the hdparm result for hda
+> > > has dropped to 42 MB/s:
+> > >
+> > > ===
+> > > bus pci, device 0000:00:09.2 (driver 10 Dec 2004)
+> > > EHCI 1.00, hcd state 1
+> > > structural params 0x00002204
+> > > capability params 0x00006872
+> > > status a008 Async Recl FLR
+> >
+> > Only see that "Async" now while rereading. Did you mean that one? If so,
+> > I'm right now catting the registers file and that "Async" is toggling on
+> > and off continuously. 4 cats in a row:
+> >
+> > status 0008 FLR
+> > status 8008 Async FLR
+> > status a008 Async Recl FLR
+> > status 0008 FLR
+>
+> Tbat's strange ... shouldn't do that unless someone's issuing
+> requests to the bus.  Which shouldn't happen if no devices are
+> hooked up to that bus.  If the "command" register isn't turning
+> on async requests, that's particularly strange.
+>
+> - Dave
+
+Hi
+
+Didn't you just forget to set H-bit in exactly one queue head? If there's
+no entry with H-bit set, controller will loop over list of empty heads
+again and again.
+
+Mikulas

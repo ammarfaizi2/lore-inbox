@@ -1,57 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbVFBN5r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261425AbVFBN6c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261415AbVFBN5r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 09:57:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVFBN5r
+	id S261425AbVFBN6c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 09:58:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbVFBN6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 09:57:47 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:58589 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261415AbVFBN5i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 09:57:38 -0400
-Date: Thu, 2 Jun 2005 09:57:37 -0400
-To: Rene Herman <rene.herman@keyaccess.nl>
-Cc: David Brownell <david-b@pacbell.net>, Pavel Machek <pavel@ucw.cz>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, Mark Lord <lkml@rtr.ca>,
-       David Brownell <dbrownell@users.sourceforge.net>
-Subject: Re: External USB2 HDD affects speed hda
-Message-ID: <20050602135737.GO23621@csclub.uwaterloo.ca>
-References: <429BA001.2030405@keyaccess.nl> <20050601081810.GA23114@elf.ucw.cz> <429DFD90.10802@keyaccess.nl> <200506011240.09540.david-b@pacbell.net> <429E3338.9000401@keyaccess.nl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <429E3338.9000401@keyaccess.nl>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+	Thu, 2 Jun 2005 09:58:32 -0400
+Received: from rrcs-24-123-59-149.central.biz.rr.com ([24.123.59.149]:45546
+	"EHLO galon.ev-en.org") by vger.kernel.org with ESMTP
+	id S261425AbVFBN6Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 09:58:25 -0400
+Message-ID: <429F1079.5070701@ev-en.org>
+Date: Thu, 02 Jun 2005 14:58:17 +0100
+From: Baruch Even <baruch@ev-en.org>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Andrew Morton <akpm@osdl.org>, shemminger@osdl.org,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: 2.6.12-rc5-mm2: "bic unavailable using TCP reno" messages
+References: <20050601022824.33c8206e.akpm@osdl.org> <20050602121511.GE4992@stusta.de>
+In-Reply-To: <20050602121511.GE4992@stusta.de>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 02, 2005 at 12:14:16AM +0200, Rene Herman wrote:
-> Sound scary. Must say I do generally have a lot of faith in this chipset 
-> (AMD751/756). The machine's been as stable as a rock for years now. A 
-> logic analyser I do not have, nor the ability to interpret it if I did.
+Adrian Bunk wrote:
+> On Wed, Jun 01, 2005 at 02:28:24AM -0700, Andrew Morton wrote:
 > 
-> I did just now try two different PCI slots. Again no change.
+>>...
+>>Changes since 2.6.12-rc5-mm1:
+>>...
+>>+tcp-tcp_infra.patch
+>>...
+>> Steve Hemminger's TCP enhancements.
+>>...
 > 
-> Erhhm. rmmoding ehci-hcd works. I suppose it tells the hardware to shut 
-> up on module_exit. is there any way to have it tell the hardware the 
-> same while keeping it loaded? Any other ideas?
+> 
+> I said "no" to CONFIG_TCP_CONG_BIC, and now my syslog is full of messages
+>    kernel: bic unavailable using TCP reno
+> 
+> I have no problem with such a message being shown once - but once should 
+> be enough.  
 
-I just tried pluging in my usb2 flash reader which ought to d the same
-thing to usb-storage as pluging in the external usb2 hd.
+The best solution for this would be to check the available protocols at
+setup time and not at connection creation time. This would also provide
+a better feedback to the user, since he will either see that what he set
+was taken, or it wasn't.
 
-Reading from a 120G SATA WD drive gets about 41MB/s without the USB2
-drive connected and about the same with.  That is on an nforce2
-motherboard with it's builtin usb controller and using 2.6.10.
+In the current mechanism you can set the protocol to 'foo' and it will
+show back as 'foo'. You'll get complaints only once a connection is
+attempted with this protocol.
 
-Trying on an Athlon64 with a 250G SATA WD drive and the same usb flash
-reader, I get 57MB/s both with and without the usb2 drive connected.
-That one uses a VIA K8T800 chipset and also 2.6.10.
+It does mean some extra work in the sysctl stage, but it's better IMO to
+do it there rather than at connection setup time.
 
-I wonder what is different with your hardware/software mix.
-
-I tried unloading everything to do with usb to try and see if I could
-make it get a higher speed with hdparm, but no change no matter what.
-
-Len Sorensen
+Baruch

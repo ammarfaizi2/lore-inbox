@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVFBPr7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbVFBPte@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261167AbVFBPr7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 11:47:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261168AbVFBPr7
+	id S261168AbVFBPte (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 11:49:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVFBPte
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 11:47:59 -0400
-Received: from mail.ccur.com ([208.248.32.212]:48177 "EHLO flmx.iccur.com")
-	by vger.kernel.org with ESMTP id S261167AbVFBPr6 (ORCPT
+	Thu, 2 Jun 2005 11:49:34 -0400
+Received: from relay.axxeo.de ([213.239.199.237]:54659 "EHLO relay.axxeo.de")
+	by vger.kernel.org with ESMTP id S261168AbVFBPtX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 11:47:58 -0400
-Subject: Re: SD_SHARE_CPUPOWER breaks scheduler fairness
-From: Steve Rotolo <steve.rotolo@ccur.com>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: joe.korty@ccur.com, linux-kernel@vger.kernel.org, bugsy@ccur.com
-In-Reply-To: <200506022334.31430.kernel@kolivas.org>
-References: <1117561608.1439.168.camel@whiz>
-	 <200506020925.26320.kernel@kolivas.org> <1117719021.1436.56.camel@whiz>
-	 <200506022334.31430.kernel@kolivas.org>
-Content-Type: text/plain
-Organization: Concurrent Computer Corporation
-Message-Id: <1117727326.1436.73.camel@whiz>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Thu, 02 Jun 2005 11:48:46 -0400
+	Thu, 2 Jun 2005 11:49:23 -0400
+From: Ingo Oeser <ioe-lkml@axxeo.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [rfc] [patch] consolidate/clean up spinlock.h files
+Date: Thu, 2 Jun 2005 17:49:15 +0200
+User-Agent: KMail/1.7.2
+References: <20050602144004.GA31807@elte.hu>
+In-Reply-To: <20050602144004.GA31807@elte.hu>
+Cc: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Jun 2005 15:47:53.0109 (UTC) FILETIME=[6FF03C50:01C5678A]
+Content-Disposition: inline
+Message-Id: <200506021749.15206.ioe-lkml@axxeo.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-06-02 at 09:34, Con Kolivas wrote:
+Hi Ingo,
+you wrote:
 
-> Funny you should mention this. Check the latest -mm code and you'll see Andrew 
-> has merged my smp nice code which takes into account "nice" values and alters 
-> balancing according to nice values and heavily biases them when real time 
-> tasks are running. So you are correct, and it is a problem common to any 
-> per-cpu runqueue designed scheduler (which interestingly there is evidence 
-> that windows went to in about 2003 because it exhibited this very problem). 
-> However my code should make this behave better now.
-> 
+> --- linux/lib/spinlock_debug.c.orig
+> +++ linux/lib/spinlock_debug.c
+> +#define SPIN_BUG_ON(cond, lock, msg) \
+> +		if (unlikely(cond)) spin_bug(lock, __FILE__, __LINE__, msg)
+> +#define RWLOCK_BUG_ON(cond, lock, msg) \
+> +		if (unlikely(cond)) rwlock_bug(lock, __FILE__, __LINE__, msg)
 
-Glad to hear this is in --mm!  And BTW, your patch works great with my
-HT test case.  Thanks -- good job.
+I would suggest propagating the __FILE__ and __LINE__ from the CALLERS 
+of those functions in lib/spinlock_debug.c into these macros, to make
+this info more useful. At the moment you just know, that the bug happend
+on some spinlock/rwlock, but not who caused this.
 
--- 
-Steve
+
+Regards
+
+Ingo Oeser
 

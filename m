@@ -1,56 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVFBHzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261171AbVFBH4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261203AbVFBHzc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 03:55:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVFBHzc
+	id S261171AbVFBH4a (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 03:56:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVFBH4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 03:55:32 -0400
-Received: from pcmath126.unice.fr ([134.59.10.126]:57986 "EHLO
-	pcmath126.unice.fr") by vger.kernel.org with ESMTP id S261203AbVFBHzY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 03:55:24 -0400
-Message-ID: <429EB537.4060305@unice.fr>
-Date: Thu, 02 Jun 2005 09:28:55 +0200
-From: XIAO Gang <xiao@unice.fr>
-Organization: =?ISO-8859-1?Q?Universit=E9_de_Nice_-_Sophia_Anti?=
- =?ISO-8859-1?Q?polis?=
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
-X-Accept-Language: en, fr, zh-CN, zh-TW
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: Suggestion on "int len" sanity
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 2 Jun 2005 03:56:30 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:2541 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261171AbVFBH4Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 03:56:25 -0400
+Subject: Re: Accessing monotonic clock from modules
+From: Arjan van de Ven <arjan@infradead.org>
+To: Robert Love <rml@novell.com>
+Cc: Mikael Starvik <mikael.starvik@axis.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1117698764.6833.26.camel@jenny.boston.ximian.com>
+References: <BFECAF9E178F144FAEF2BF4CE739C66801B7645C@exmail1.se.axis.com>
+	 <1117697423.6458.18.camel@laptopd505.fenrus.org>
+	 <1117698045.6833.16.camel@jenny.boston.ximian.com>
+	 <1117698518.6458.21.camel@laptopd505.fenrus.org>
+	 <1117698764.6833.26.camel@jenny.boston.ximian.com>
+Content-Type: text/plain
+Date: Thu, 02 Jun 2005 09:56:17 +0200
+Message-Id: <1117698978.6458.23.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
 
->> On the other hand, when a variable is named "len" or "length", it is 
->> usually used for length and never should go negative. So could I suggest 
->> that the declarations of these variables to be uniformized to "size_t", 
->> via a gradual but sysmatic cleanup?
+> I do thing that this is useful, though--at GUADEC I talked with some
+> folks who really want to get at a good clock source, the same from both
+> the kernel and user-space.
 
-> Probably true for most cases, but be careful of code which would use
-> -1 to report some errors if such thing exists.
-
-I agree that they are probably not all replaceable, and care must be taken.
-
-Examples:
-
-1. In the types of sys_[gs]ethostname, sys_[gs]etdomainname, "int len" could be replaced
-by "unsigned int" or "size_t" and sanity check simplified.
-
-2. In mm/shmem.c, shmem_symlink(), we have "len = strlen(symname) + 1;". Although it is highly
-improbable that strlen(symname) overflows, it is more correct to declare "size_t len;".
-
-3. The similar situation occurs in fs/namei.c, vfs_readlink(). Here it does not matter if len
-is declared to be unsigned, but for size_t, we have to take care about the size of size_t.
-
--- 
-
-XIAO Gang (~{P$8U~})                          xiao@unice.fr
-          home page: pcmath126.unice.fr/xiao.html 
-
+I'd love to see one (but preferably 2 or 3) users of this so that we can
+figure out what a good interface would look like...
 
 

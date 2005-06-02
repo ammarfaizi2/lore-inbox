@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261400AbVFBNBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVFBNBs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261400AbVFBNBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 09:01:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261415AbVFBNBZ
+	id S261410AbVFBNBs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 09:01:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261417AbVFBNBr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 09:01:25 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:27828 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261400AbVFBNBN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 09:01:13 -0400
-Message-Id: <20050602130112.044976000@araj-em64t>
+	Thu, 2 Jun 2005 09:01:47 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:18648 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261410AbVFBNBP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 09:01:15 -0400
+Message-Id: <20050602130111.931715000@araj-em64t>
 References: <20050602125754.993470000@araj-em64t>
-Date: Thu, 02 Jun 2005 05:57:59 -0700
+Date: Thu, 02 Jun 2005 05:57:58 -0700
 From: Ashok Raj <ashok.raj@intel.com>
 To: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org,
@@ -19,101 +19,141 @@ Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org,
        Srivattsa Vaddagiri <vatsa@in.ibm.com>,
        Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        Ashok Raj <ashok.raj@intel.com>
-Subject: [patch 4/5] x86_64: Dont use broadcast shortcut to make it cpu hotplug safe.
-Content-Disposition: inline; filename=no_broadcast_ipi.patch
+Subject: [patch 3/5] x86_64: CPU hotplug sibling map cleanup
+Content-Disposition: inline; filename=x86_64-sibling-map-fixup.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[Andi doesn't like this simpler approach, and prefers to continue to use
- broadcast mode, with a more complex __cpu_up() to overcome the ill effects
- of broadcast. Hence based on his request the next patch (following this) 
- is provided to provide a run-time switch capability]
-
-Broadcast IPI's provide un-expected behaviour for cpu hotplug. CPU's in offline
-state also end up receiving the IPI. Once the cpus become online
-they receive these stale IPI's which are bad and introduce unexpected
-behaviour. 
-
-This is easily avoided by not sending a broadcast and addressing just the 
-CPU's in online map.  Doing prelim cycle counts it appears there is no big 
-overhead and numbers seem around 0x3000-0x3900 on an average on x86 and x86_64 
-systems with CPUS running 3G, both for broadcast and mask version of the API's. 
-
-The shortcuts are useful only for flat mode (where the perf shows no 
-degradation), and in cluster mode, its unicast anyway. Its simpler 
-to just not use broadcast anymore.
+This patch is a minor cleanup to the cpu sibling/core map.
+It is required that this setup happens on a per-cpu bringup
+time.
 
 Signed-off-by: Ashok Raj <ashok.raj@intel.com>
------------------------------------------
- arch/x86_64/kernel/genapic_flat.c |   41 +++++++++++++++++++++++---------------
- 1 files changed, 25 insertions(+), 16 deletions(-)
+------------------------------
+ arch/x86_64/kernel/smpboot.c |   82 ++++++++++++++++++-------------------------
+ 1 files changed, 36 insertions(+), 46 deletions(-)
 
-Index: linux-2.6.12-rc5-mm2/arch/x86_64/kernel/genapic_flat.c
+Index: linux-2.6.12-rc5-mm2/arch/x86_64/kernel/smpboot.c
 ===================================================================
---- linux-2.6.12-rc5-mm2.orig/arch/x86_64/kernel/genapic_flat.c
-+++ linux-2.6.12-rc5-mm2/arch/x86_64/kernel/genapic_flat.c
-@@ -7,6 +7,8 @@
-  * Hacked for x86-64 by James Cleverdon from i386 architecture code by
-  * Martin Bligh, Andi Kleen, James Bottomley, John Stultz, and
-  * James Cleverdon.
-+ * Ashok Raj <ashok.raj@intel.com>
-+ * 	Removed IPI broadcast shortcut to support CPU hotplug
+--- linux-2.6.12-rc5-mm2.orig/arch/x86_64/kernel/smpboot.c
++++ linux-2.6.12-rc5-mm2/arch/x86_64/kernel/smpboot.c
+@@ -445,6 +445,34 @@ void __cpuinit smp_callin(void)
+ 	cpu_set(cpuid, cpu_callin_map);
+ }
+ 
++static inline void
++set_cpu_sibling_map(int cpu)
++{
++	int i;
++
++	if (smp_num_siblings > 1) {
++		for_each_cpu(i) {
++			if (cpu_core_id[cpu] == cpu_core_id[i]) {
++				cpu_set(i, cpu_sibling_map[cpu]);
++				cpu_set(cpu, cpu_sibling_map[i]);
++			}
++		}
++	} else {
++		cpu_set(cpu, cpu_sibling_map[cpu]);
++	}
++
++	if (current_cpu_data.x86_num_cores > 1) {
++		for_each_cpu(i) {
++			if (phys_proc_id[cpu] == phys_proc_id[i]) {
++				cpu_set(i, cpu_core_map[cpu]);
++				cpu_set(cpu, cpu_core_map[i]);
++			}
++		}
++	} else {
++		cpu_core_map[cpu] = cpu_sibling_map[cpu];
++	}
++}
++
+ /*
+  * Setup code on secondary processor (after comming out of the trampoline)
   */
- #include <linux/config.h>
- #include <linux/threads.h>
-@@ -45,22 +47,6 @@ static void flat_init_apic_ldr(void)
- 	apic_write_around(APIC_LDR, val);
- }
+@@ -475,6 +503,12 @@ void __cpuinit start_secondary(void)
+ 	enable_APIC_timer();
  
--static void flat_send_IPI_allbutself(int vector)
--{
--	/*
--	 * if there are no other CPUs in the system then
--	 * we get an APIC send error if we try to broadcast.
--	 * thus we have to avoid sending IPIs in this case.
--	 */
--	if (num_online_cpus() > 1)
--		__send_IPI_shortcut(APIC_DEST_ALLBUT, vector, APIC_DEST_LOGICAL);
--}
--
--static void flat_send_IPI_all(int vector)
--{
--	__send_IPI_shortcut(APIC_DEST_ALLINC, vector, APIC_DEST_LOGICAL);
--}
--
- static void flat_send_IPI_mask(cpumask_t cpumask, int vector)
- {
- 	unsigned long mask = cpus_addr(cpumask)[0];
-@@ -93,6 +79,29 @@ static void flat_send_IPI_mask(cpumask_t
- 	local_irq_restore(flags);
- }
- 
-+static void flat_send_IPI_allbutself(int vector)
-+{
-+	cpumask_t mask;
-+	/*
-+	 * if there are no other CPUs in the system then
-+	 * we get an APIC send error if we try to broadcast.
-+	 * thus we have to avoid sending IPIs in this case.
+ 	/*
++	 * The sibling maps must be set before turing the online map on for
++	 * this cpu
 +	 */
-+	get_cpu();
-+	mask = cpu_online_map;
-+	cpu_clear(smp_processor_id(), mask);
++	set_cpu_sibling_map(smp_processor_id());
 +
-+	if (cpus_weight(mask) >= 1)
-+		flat_send_IPI_mask(mask, vector);
-+
-+	put_cpu();
-+}
-+
-+static void flat_send_IPI_all(int vector)
-+{
-+	flat_send_IPI_mask(cpu_online_map, vector);
-+}
-+
- static int flat_apic_id_registered(void)
- {
- 	return physid_isset(GET_APIC_ID(apic_read(APIC_ID)), phys_cpu_present_map);
++	/*
+ 	 * Allow the master to continue.
+ 	 */
+ 	lock_ipi_call_lock();
+@@ -809,51 +843,6 @@ cycles_t cacheflush_time;
+ unsigned long cache_decay_ticks;
+ 
+ /*
+- * Construct cpu_sibling_map[], so that we can tell the sibling CPU
+- * on SMT systems efficiently.
+- */
+-static __cpuinit void detect_siblings(void)
+-{
+-	int cpu;
+-
+-	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+-		cpus_clear(cpu_sibling_map[cpu]);
+-		cpus_clear(cpu_core_map[cpu]);
+-	}
+-
+-	for_each_online_cpu (cpu) {
+-		struct cpuinfo_x86 *c = cpu_data + cpu;
+-		int siblings = 0;
+-		int i;
+-		if (smp_num_siblings > 1) {
+-			for_each_online_cpu (i) {
+-				if (cpu_core_id[cpu] == cpu_core_id[i]) {
+-					siblings++;
+-					cpu_set(i, cpu_sibling_map[cpu]);
+-				}
+-			}
+-		} else {
+-			siblings++;
+-			cpu_set(cpu, cpu_sibling_map[cpu]);
+-		}
+-
+-		if (siblings != smp_num_siblings) {
+-			printk(KERN_WARNING
+-	       "WARNING: %d siblings found for CPU%d, should be %d\n",
+-			       siblings, cpu, smp_num_siblings);
+-			smp_num_siblings = siblings;
+-		}
+-		if (c->x86_num_cores > 1) {
+-			for_each_online_cpu(i) {
+-				if (phys_proc_id[cpu] == phys_proc_id[i])
+-					cpu_set(i, cpu_core_map[cpu]);
+-			}
+-		} else
+-			cpu_core_map[cpu] = cpu_sibling_map[cpu];
+-	}
+-}
+-
+-/*
+  * Cleanup possible dangling ends...
+  */
+ static __cpuinit void smp_cleanup_boot(void)
+@@ -1040,6 +1029,8 @@ void __init smp_prepare_boot_cpu(void)
+ 	int me = smp_processor_id();
+ 	cpu_set(me, cpu_online_map);
+ 	cpu_set(me, cpu_callout_map);
++	cpu_set(0, cpu_sibling_map[0]);
++	cpu_set(0, cpu_core_map[0]);
+ }
+ 
+ /*
+@@ -1099,7 +1090,6 @@ void __init smp_cpus_done(unsigned int m
+ 	setup_ioapic_dest();
+ #endif
+ 
+-	detect_siblings();
+ 	time_init_gtod();
+ 
+ 	check_nmi_watchdog();
 
 --
 

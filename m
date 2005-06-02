@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVFBQaQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261182AbVFBQdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261154AbVFBQaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 12:30:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbVFBQaQ
+	id S261182AbVFBQdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 12:33:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVFBQdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 12:30:16 -0400
-Received: from relay.axxeo.de ([213.239.199.237]:56451 "EHLO relay.axxeo.de")
-	by vger.kernel.org with ESMTP id S261154AbVFBQaJ (ORCPT
+	Thu, 2 Jun 2005 12:33:25 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:15003 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261182AbVFBQdW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 12:30:09 -0400
-From: Ingo Oeser <ioe-lkml@axxeo.de>
-To: Ingo Molnar <mingo@elte.hu>
-Subject: Re: [rfc] [patch] consolidate/clean up spinlock.h files
-Date: Thu, 2 Jun 2005 18:30:03 +0200
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org
-References: <20050602144004.GA31807@elte.hu> <200506021749.15206.ioe-lkml@axxeo.de> <20050602161633.GA12616@elte.hu>
-In-Reply-To: <20050602161633.GA12616@elte.hu>
+	Thu, 2 Jun 2005 12:33:22 -0400
+Date: Thu, 2 Jun 2005 12:33:04 -0400 (EDT)
+From: James Morris <jmorris@redhat.com>
+X-X-Sender: jmorris@thoron.boston.redhat.com
+To: Michael Halcrow <mhalcrow@us.ibm.com>
+cc: Greg KH <greg@kroah.com>, Phillip Hellewell <phillip@hellewell.homeip.net>,
+       <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 1/3] eCryptfs: eCryptfs kernel module
+In-Reply-To: <20050602122807.GA8855@halcrow.us>
+Message-ID: <Xine.LNX.4.44.0506021223320.5872-100000@thoron.boston.redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506021830.03652.ioe-lkml@axxeo.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+On Thu, 2 Jun 2005, Michael Halcrow wrote:
 
-Ingo Molnar wrote:
-> * Ingo Oeser <ioe-lkml@axxeo.de> wrote:
-> > you wrote:
-> > > --- linux/lib/spinlock_debug.c.orig
-> > I would suggest propagating the __FILE__ and __LINE__ from the CALLERS
-> the real call site info comes from dump_stack(). Maybe i should remove
-> the __FILE__,__LINE__ info altogether. (albeit a bit redundancy wont
-> hurt) I dont think we want to pass in __FILE__,__LINE__ all the way from
-> the main APIs.
+> On Thu, Jun 02, 2005 at 12:33:03AM -0700, Greg KH wrote:
+> > Why not fix up the stuff that you know needs to be fixed?  It should
+> > not be merged until then at the least.
+> 
+> We'll keep plugging away; note that all this could take several months
+> (there are currently about 160 TODO items in the code base, plus
+> several more features to flesh out), and in the meantime, we would
+> like some general commentary from the community so we don't wind up
+> pouring time and effort in the wrong direction.
 
-Then please remove the __FILE__ and __LINE__ altogether.
+Posting it here for comments should generate commentary, but it will also
+help greatly if you format the patches properly, closely follow the kernel
+coding style and include the patches in your emails.  The closer it looks
+to be ready to apply to a real kernel tree, the more people will take
+notice.
 
-It looks confusing to me and enlarges code without providing
-any useful additional information.
+You can also ask for help with development, or if it's a really compelling
+project, people may just dive in anyway.
 
 
-Regards
+- James
+-- 
+James Morris
+<jmorris@redhat.com>
 
-Ingo Oeser
+
 

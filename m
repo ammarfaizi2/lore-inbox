@@ -1,53 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261566AbVFBCRs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbVFBClJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261566AbVFBCRs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 22:17:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbVFBCRs
+	id S261572AbVFBClJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 22:41:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVFBClJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 22:17:48 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:61834 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S261566AbVFBCRr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 22:17:47 -0400
-X-ORBL: [69.107.40.98]
-From: David Brownell <david-b@pacbell.net>
-To: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-Subject: Re: External USB2 HDD affects speed hda
-Date: Wed, 1 Jun 2005 19:17:14 -0700
-User-Agent: KMail/1.7.1
-Cc: Rene Herman <rene.herman@keyaccess.nl>, Pavel Machek <pavel@ucw.cz>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, Mark Lord <lkml@rtr.ca>,
-       David Brownell <dbrownell@users.sourceforge.net>
-References: <429BA001.2030405@keyaccess.nl> <200506011643.42073.david-b@pacbell.net> <Pine.LNX.4.58.0506020316240.28167@artax.karlin.mff.cuni.cz>
-In-Reply-To: <Pine.LNX.4.58.0506020316240.28167@artax.karlin.mff.cuni.cz>
+	Wed, 1 Jun 2005 22:41:09 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:25494 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261572AbVFBClB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 22:41:01 -0400
+Message-ID: <429E71CB.3010609@sgi.com>
+Date: Wed, 01 Jun 2005 22:41:15 -0400
+From: Prarit Bhargava <prarit@sgi.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: scottm@somanetworks.com
+CC: Greg K-H <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH] PCI Hotplug: more CPCI updates
+References: <11176025242587@kroah.com>
+In-Reply-To: <11176025242587@kroah.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506011917.14678.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 01 June 2005 6:23 pm, Mikulas Patocka wrote:
-> 
-> Didn't you just forget to set H-bit in exactly one queue head? If there's
-> no entry with H-bit set, controller will loop over list of empty heads
-> again and again.
+Greg KH wrote:
+> [PATCH] PCI Hotplug: more CPCI updates
 
-Two things:
+> - Switch to pci_get_slot instead of deprecated pci_find_slot.
+> - A bunch of CodingStyle fixes.
 
- - Why do you ask that?  There's only one QH that _ever_ has that bit set.
-   And it's never removed from the async ring.
+> -			}
+> +		dev = pci_get_slot(slot->bus, PCI_DEVFN(slot->number, 0));
+> +		if (dev) {
+> +			if (update_adapter_status(slot->hotplug_slot, 1))
+> +				warn("failure to update adapter file");
+> +			if (update_latch_status(slot->hotplug_slot, 1))
+> +				warn("failure to update latch file");
+> +			slot->dev = dev;
+>  		}
+>  	}
 
- - The question should be why the schedule is getting turned on in the
-   first place, given there's no work for it to do.
+I don't claim to know the code as well as Scott or Greg does, but I don't see a 
+pci_put_dev for the slot->dev to clean up the usage count?
 
-Until I have some time available to actually look at this, all I can do
-is answer questions and say "hmm, that's strange" given wierd facts.  The
-wierdness here is why that "Async" status bit is ever getting set when
-there's no work for it to do.
+> @@ -311,10 +277,10 @@ int cpci_configure_slot(struct slot* slo
+>  		 */
+>  		n = pci_scan_slot(slot->bus, slot->devfn);
+>  		dbg("%s: pci_scan_slot returned %d", __FUNCTION__, n);
+> -		if(n > 0)
+> +		if (n > 0)
+>  			pci_bus_add_devices(slot->bus);
+> -		slot->dev = pci_find_slot(slot->bus->number, slot->devfn);
+> -		if(slot->dev == NULL) {
+> +		slot->dev = pci_get_slot(slot->bus, slot->devfn);
+> +		if (slot->dev == NULL) {
+>  			err("Could not find PCI device for slot %02x", slot->number);
+>  			return 1;
+>  		}
 
-- Dave
- 
+Same here -- I don't see a pci_put_dev for the slot->dev.
+
+> @@ -341,15 +305,15 @@ int cpci_unconfigure_slot(struct slot* s
+>  	struct pci_dev *dev;
+>  
+>  	dbg("%s - enter", __FUNCTION__);
+> -	if(!slot->dev) {
+> +	if (!slot->dev) {
+>  		err("No device for slot %02x\n", slot->number);
+>  		return -ENODEV;
+>  	}
+>  
+>  	for (i = 0; i < 8; i++) {
+> -		dev = pci_find_slot(slot->bus->number,
+> +		dev = pci_get_slot(slot->bus,
+>  				    PCI_DEVFN(PCI_SLOT(slot->devfn), i));
+> -		if(dev) {
+> +		if (dev) {
+>  			pci_remove_bus_device(dev);
+>  			slot->dev = NULL;
+>  		}
+
+And again here...
+
+P.

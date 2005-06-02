@@ -1,83 +1,271 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVFBX4U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVFBX7z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261435AbVFBX4U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 19:56:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVFBX4T
+	id S261446AbVFBX7z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 19:59:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbVFBX7y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 19:56:19 -0400
-Received: from smtpq1.home.nl ([213.51.128.196]:59794 "EHLO smtpq1.home.nl")
-	by vger.kernel.org with ESMTP id S261435AbVFBX4G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 19:56:06 -0400
-Message-ID: <429F9C90.2000602@keyaccess.nl>
-Date: Fri, 03 Jun 2005 01:56:00 +0200
-From: Rene Herman <rene.herman@keyaccess.nl>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8a6) Gecko/20050111
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Grant Coady <grant_lkml@dodo.com.au>
-CC: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       David Brownell <david-b@pacbell.net>, Pavel Machek <pavel@ucw.cz>,
-       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, Mark Lord <lkml@rtr.ca>,
-       David Brownell <dbrownell@users.sourceforge.net>
-Subject: Re: External USB2 HDD affects speed hda
-References: <429BA001.2030405@keyaccess.nl> <20050601081810.GA23114@elf.ucw.cz> <429DFD90.10802@keyaccess.nl> <200506011240.09540.david-b@pacbell.net> <429E3338.9000401@keyaccess.nl> <20050602135737.GO23621@csclub.uwaterloo.ca> <429F0570.1090004@keyaccess.nl> <ki1v9196ga4hbeif05unuq5f29ohg5fcnc@4ax.com>
-In-Reply-To: <ki1v9196ga4hbeif05unuq5f29ohg5fcnc@4ax.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 2 Jun 2005 19:59:54 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:63933 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S261446AbVFBX7I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 19:59:08 -0400
+Subject: Re: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new Dell
+	BIOS update driver
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Abhay Salunke <Abhay_Salunke@dell.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       matt_domsch@dell.com, Greg KH <greg@kroah.com>
+In-Reply-To: <20050602232634.GA32462@littleblue.us.dell.com>
+References: <20050602232634.GA32462@littleblue.us.dell.com>
+Content-Type: text/plain
+Date: Fri, 03 Jun 2005 01:58:48 +0200
+Message-Id: <1117756728.3656.45.camel@pegasus>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
-X-AtHome-MailScanner-Information: Neem contact op met support@home.nl voor meer informatie
-X-AtHome-MailScanner: Found to be clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Coady wrote:
+Hi Abhay,
 
-> On Thu, 02 Jun 2005 15:11:12 +0200, Rene Herman <rene.herman@keyaccess.nl> wrote:
-> 
->>In fact, anyone who could do the same would be much welcome. Certainly 
->>with the EHCI controller on a PCI card, and even more certainly with a 
->>VIA VT6212 EHCI controller on a PCI card.
-> 
-> 
-> Not quite what you asked, following is with 6GB laptop HDD in USB 
-> enclosure on /dev/sdb, main drive is Seagate SATA /dev/sda. 
-> More hardware info on http://scatter.mine.nu/test/boxen/sempro/ 
->  includes an lspci -v, mobo, CPU, HDD info
-> 
-> nVidia driver not loaded, box running headless to ssh terminal.
-> USB optical mouse only other device plugged in
-> USB drive plugged in prior to reboot both times
+> Resubmitting after cleaning up spaces/tabs etc...
 
-Okay, great, thanks...
+and now starting with the coding style nitpicking ;)
 
-> 2.6.11.11: after many runs, plus hardware info:
-> 
-> root@sempro:~# cat /sys/class/usb_host/usb1/registers
-> bus pci, device 0000:00:10.4 (driver 10 Dec 2004)
-> EHCI 1.00, hcd state 1
-> structural params 0x00004208
-> capability params 0x00006872
-> status a008 Async Recl FLR
-> command 010009 (park)=0 ithresh=1 period=256 RUN
+> +	/* check if we have any packets */
+> +	if (0 == rbu_data.num_packets) {
 
-David, did I understand correctly that the Async status bit should not 
-be set without the Async command bit, period? Or was that just in my 
-case, with everything idle/off/disconnected?
+Make it "if (!rbu_data.num_packets) {".
 
-If first, then I'm happy that it's not just me ...
+> +	while(--packet_count) {
+> +		ptemp_list = ptemp_list->next;
+> +	}
 
-> 00:10.4 USB Controller: VIA Technologies, Inc. USB 2.0 (rev 86)
+Don't forget the space between "while" and "(" and the "{"/"}" are not
+needed.
 
-... although maybe still just VIA.
+> +	ppacket = list_entry(ptemp_list,struct packet_data, list);
 
-> 2.6.12-rc5-mm2a third run
+We always put a space after ",".
 
-[ snip, no Async or Recl status bit ]
+> +	if ((rbu_data.packet_write_count + length) > rbu_data.packetsize) {
 
-> irq normal 8184 err 0 reclaim 5387 (lost 82)
+Make it "(rbu_data.packet_write_count + length > rbu_data.packetsize)".
 
-No idea about those. Not seeing lost interrupts here, even after 
-generating quite some traffic.
+> +	/* copy the incoming data in to the new buffer */
+> +	memcpy((ppacket->data + rbu_data.packet_write_count),
+> +			data, length);
 
-Rene.
+Make it "memcpy(ppacket->data + rbu_data.packet_write_count, ".
+
+> +	if ((rbu_data.packet_write_count + length) == rbu_data.packetsize) {
+> +		/*
+> +		 this was the last data chunk in the packet
+> +		 so reinitialize the packet data counter to zero
+> +		*/
+> +		rbu_data.packet_write_count = 0;
+> +	} else
+> +		rbu_data.packet_write_count += length;
+
+Why not:
+
+	rbu_data.packet_write_count += length;
+	if (rbu_data.packet_write_count == rbu_data.packetsize)
+		rbu_data.packet_write_count = 0;
+
+> +	/* try allocating a new buffer to fit the request */
+> +	pbuf =(unsigned char *)__get_free_pages(GFP_KERNEL, *ordernum);
+
+Forgot a space after "=" and after "...char*)".
+
+> +	if (pbuf != NULL) {
+
+Make it "if (!pbuf)",
+
+> +		/* check if the image is with in limits */
+> +		img_buf_phys_addr = (unsigned long)virt_to_phys(pbuf);
+
+Put a space after "...long)".
+
+> +		if ((limit != 0) && ((img_buf_phys_addr + size) > limit)) {
+
+Make it "if (!limit && img_bug_phys_addr + size > limit)"
+
+> +			free_pages ((unsigned long)pbuf, *ordernum);
+
+Space.
+
+> +			 Try allocating a new buffer from the 
+> +			 GFP_DMA range as it is with in 16MB range.
+> +			*/
+> +			pbuf =(unsigned char *)__get_free_pages(GFP_DMA,
+
+Space.
+
+> +			if (pbuf == NULL)
+
+Use "(!pbuf)".
+
+> +	if (rbu_data.packetsize == 0 ) {
+
+Use "if (!rbu_data.packetsize)".
+
+> +	if(newpacket == NULL) {
+
+Use "if (!newpacket)".
+
+> +	if(newpacket->data == NULL) {
+
+Use "if (!newpacket->data)"
+
+> +	if (rbu_data.packet_write_count == 0) {
+> +		if ((rc = create_packet(length)) != 0 )
+> +			return rc;
+> +	}
+
+Use this:
+
+	if (!rbu_data.packet_write_count)
+		if (!(rc = create_packet(length)))
+			return rc;
+
+> +	if ((rc = fill_last_packet(data, length)) != 0)
+
+Use "if (!(rc = fill_last_packet(data, length)))".
+
+> +		free_pages((unsigned long)newpacket->data, newpacket->ordernum);
+
+Space.
+
+> +	if (rbu_data.image_update_buffer == NULL)
+
+Use "(!rbu_data.image_update_buffer)".
+
+> +	free_pages((unsigned long)rbu_data.image_update_buffer,
+
+Space.
+
+> +		if ((size != 0) && (rbu_data.image_update_buffer == NULL)) {
+
+Use "if (!size && !rbu_data.image_update_buffer)"
+
+> +	image_update_buffer = (unsigned char *)get_free_pages_limited(size,
+
+Space.
+
+> +	if (image_update_buffer != NULL) {
+
+Use "if (!image_update_buffer)".
+
+> +		memset(rbu_data.image_update_buffer,0,
+
+Space.
+
+> +	sscanf(buf, "%d",&size);	
+
+Spaces.
+
+> +	if (size != 0)
+
+Use "if (!size)".
+
+> +	if (type == MONOLITHIC )
+
+Space.
+
+> +	if ( type == MONOLITHIC )
+
+Spaces.
+
+> +		size = sprintf(buf, "%lu\n",  rbu_data.bios_image_size);
+
+Extra space not needed.
+
+> +	if (type == MONOLITHIC ) 
+
+Space.
+
+> +	if (strlen(buf) >= 256 ) {
+
+Space.
+
+> +	if (type == MONOLITHIC ) {
+
+Space.
+
+> +	if (type == MONOLITHIC ) {
+
+Space.
+
+> +		if (fw_entry->size == 0 )
+
+use "if (!fw_entry->size)".
+
+> +				if (rc == 0) {
+
+Use "if (!rc)".
+
+> +		if ( rbu_data.packetsize != fw_entry->size )
+
+Spaces.
+
+> +		if ( rc == 0 )
+
+Spaces.
+
+> +static decl_subsys(dell_rbu,&ktype_dell_rbu,NULL);
+
+Spaces.
+
+> +        memset(rbu_dev, 0, sizeof (*rbu_dev));
+
+No tab.
+
+> +	if (type == MONOLITHIC)
+
+Space.
+
+> +		if (type == MONOLITHIC ) {
+
+Space.
+
+> +	if (rbu_dev != NULL) {
+
+Use "if (!rbu_dev)".
+
+> +static int __init dcdrbu_init(void)
+
+What stand "dcd" for? Why not only "rbu_init"?
+
+> +	if (rbu_download_mono == NULL) {	
+
+Use "if (!rbu_download)".
+
+> +	rbu_download_packet=  create_rbu_download_entry (PACKETIZED);
+
+Wrong spaces.
+
+> +	if (rbu_download_packet == NULL) {	
+
+Use "if (!rbu_download_packet)".
+
+> +	strncpy(rbu_device.bus_id,"firmware", BUS_ID_SIZE);
+
+Space.
+
+> +static __exit void dcdrbu_exit( void)
+
+Why "dcd"?
+
+> +config DELL_RBU
+> +        tristate "BIOS update support for DELL systems via sysfs"
+> +        default n
+> +	select FW_LOADER
+
+Space vs tab clash.
+
+Regards
+
+Marcel
+
+

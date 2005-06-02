@@ -1,58 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVFBXU5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVFBXVj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbVFBXU5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 19:20:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261434AbVFBXU4
+	id S261448AbVFBXVj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 19:21:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVFBXVZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 19:20:56 -0400
-Received: from fmr24.intel.com ([143.183.121.16]:45513 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261160AbVFBXUq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 19:20:46 -0400
-Date: Thu, 2 Jun 2005 16:19:38 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Cc: Ashok Raj <ashok.raj@intel.com>, Andi Kleen <ak@muc.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       discuss@x86-64.org, Rusty Russell <rusty@rustycorp.com.au>,
-       Srivattsa Vaddagiri <vatsa@in.ibm.com>
-Subject: Re: [patch 1/5] x86_64: Change init sections for CPU hotplug support
-Message-ID: <20050602161938.B16913@unix-os.sc.intel.com>
-References: <20050602125754.993470000@araj-em64t> <20050602130111.694382000@araj-em64t> <Pine.LNX.4.61.0506021413330.3157@montezuma.fsmlabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <Pine.LNX.4.61.0506021413330.3157@montezuma.fsmlabs.com>; from zwane@arm.linux.org.uk on Thu, Jun 02, 2005 at 02:14:28PM -0600
+	Thu, 2 Jun 2005 19:21:25 -0400
+Received: from rrcs-24-199-11-214.west.biz.rr.com ([24.199.11.214]:17374 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S261332AbVFBXUx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 19:20:53 -0400
+Message-ID: <429F3160.5060704@cyte.com>
+Date: Thu, 02 Jun 2005 09:18:40 -0700
+From: Jeff Wiegley <jeffw@cyte.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: amd64 booting panic (really, really early)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 02, 2005 at 02:14:28PM -0600, Zwane Mwaikambo wrote:
-> On Thu, 2 Jun 2005, Ashok Raj wrote:
-> 
-> > This patch adds __cpuinit and __cpuinitdata sections that need to exist
-> > past boot to support cpu hotplug.
-> > 
-> > Caveat: This is done *only* for EM64T CPU Hotplug support, on request from
-> > Andi Kleen. Much of the generic hotplug code in kernel, and none of the 
-> > other archs that support CPU hotplug today, i386, ia64, ppc64, s390 and
-> > parisc dont mark sections with __cpuinit, but only mark them as __devinit, 
-> > and __devinitdata.
-> > 
-> > If someone is motivated to change generic code, we need to make sure all
-> > existing hotplug code does not break, on other arch's that dont use 
-> > __cpuinit, and __cpudevinit.
-> 
-> I'll do i386.
-> 
+I've been trying to get the 2.6.12 release candidates booting
+on my new amd64 machine without luck.
 
-The generic kernel pieces also need to be converted, which is probably the 
-bigger chunk of code that could have been marked __cpuinit in cases where
-hotplug is not supported.
+The motherboard/machine is a new shuttle ST20G5 and the real
+frustrating part is that it does not have a built in serial
+port. So I can't directly capture the panic. (I tried putting
+in a PCI serial card and couldn't get to work. I think it
+didn't work because the panic is so incredibly early that the
+serial driver hasn't a chance to probe.)
 
-I can do the ia64 pieces...
+But I have manually copied as much of the panic as remained
+on the 24 lines of my screen. (Sorry for any transcription
+errors):
+
+The panic happens almost instaneously. (As in, I don't visibly
+see any other output other than the panic. So, to at least
+my slow eyes it looks like it happens immediately after the
+"Booting kernel" line.)
+
+I have no idea who would be responsible for this and the
+oops-tracing.txt said to send here in such a case. I hope
+somebody can tell me what's wrong or what obvious thing I
+screwed up...
+
+I can get 2.6.8 and 2.6.9 working but 2.6.10 and later
+produce this error. I do have a version of 2.6.12-rc2
+booting and working (typing on it now) but when I use the
+same config file for 2.6.12-rc4 it goes back to the panic.
+
+I'm willing to try more config options but I need some
+input as to what I should be doing since I've run out of
+ideas.
+
+Please help if you can.
+
+RSP: 0018: ffffffff8039a658  EFLAGS: 00010046
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
+RBP: 00000000ffffffff R08: 0000000000000000 R09: 0000000000010001
+R10: 0000000000000000 R11: 0000000000000000 R12: ffffffff803dbee8
+R13: 0000000000000000 R14: 0000000000000000 R15: ffffffff803dbfb0
+FS:  0000000000000000(0000) GS:ffffffff803d3c00(0000) knlGS: 
+0000000000000000
+CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+CR2: 0000000000000000 CR3: 0000000000000000 CR4: 00000000000006a0
+Process swapper (pid: 0, threadinfo ffffffff803da000, task ffffffff802f1200)
+Stack: 0000000000000000 ffffffff802f1d20 0000000000000000 ffffffff803dbee8
+        0000000000000000 ffffffff80152f3c 0000000000000000 0000000000000000
+        ffffffff803d3d00 ffffffff802f1d20
+Call Trace: <IRQ><fffffff80152f3c>{handle_IRQ_event+44} 
+<ffffffff8015305d>{__do_IRQ+237}
+       <ffffffff801113c2>{do_IRQ+66} ,ffffffff8010ed7d>{ret_from_intr+0}
+       <EOI> <fffffff80131b67>{call_console_drivers+231}
+       <ffffffff803dc7a7>{start_kernel+247} 
+<fffffff803dc23f>{x86_64_start_kernel+319}
+
+Code: 48 f7 f6 48 01 05 14 04 29 00 e9 cb 00 00 00 48 89 ca 48 8b
+RIP <fffffff80112672>{timer_intrrupt+242} RSP <ffffffff8033a658>
+  <0> Kernel panic - not syncing: Aiee, killing interrupt handler!
+
+Thanks,
 
 -- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
+Jeff Wiegley, PhD
+Cyte.Com, LLC
+(ignore:cea2d3a38843531c7def1deff59114de)

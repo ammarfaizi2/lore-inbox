@@ -1,73 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVFBI5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261225AbVFBI5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbVFBI5T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 04:57:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbVFBI5T
+	id S261225AbVFBI5E (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 04:57:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbVFBI5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 04:57:19 -0400
-Received: from mta09-winn.ispmail.ntl.com ([81.103.221.49]:59219 "EHLO
-	mta09-winn.ispmail.ntl.com") by vger.kernel.org with ESMTP
-	id S261277AbVFBIly (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 04:41:54 -0400
-Message-ID: <429EC63F.5070804@smallworld.cx>
-Date: Thu, 02 Jun 2005 09:41:35 +0100
-From: Ian Leonard <ian@smallworld.cx>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Thu, 2 Jun 2005 04:57:04 -0400
+Received: from lugor.de ([217.160.170.124]:16844 "EHLO solar.mylinuxtime.de")
+	by vger.kernel.org with ESMTP id S261225AbVFBIbP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 04:31:15 -0400
+From: Christian Hesse <mail@earthworm.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Dynamic tick for x86 version 050602-1
+Date: Thu, 2 Jun 2005 10:30:34 +0200
+User-Agent: KMail/1.8.1
+Cc: Tony Lindgren <tony@atomide.com>
+References: <20050602013641.GL21597@atomide.com>
+In-Reply-To: <20050602013641.GL21597@atomide.com>
+X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)=?utf-8?q?k=0A=09=3Anv*xqk4C?=@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)=?utf-8?q?n=23Q=2Eo=0A=09kE=7E=26T=5D0cQX6=5D?=<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<=?utf-8?q?3O7GY9y=5Fi!qG=26Vv=5CD8/=0A=09=254?=@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
 MIME-Version: 1.0
-To: Pete Zaitcev <zaitcev@redhat.com>
-CC: linux-kernel@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>
-Subject: Re: 2.4.30 - USB serial problem
-References: <mailman.1117130162.21749.linux-kernel2news@redhat.com> <20050531184048.5ef9fd44.zaitcev@redhat.com>
-In-Reply-To: <20050531184048.5ef9fd44.zaitcev@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart1289244.f0YQy2tCgn";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200506021030.50585.mail@earthworm.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pete Zaitcev wrote:
-> On Thu, 26 May 2005 18:52:10 +0100, Ian Leonard <ian@smallworld.cx> wrote:
-> 
-> 
->>We recently upgraded from 2.4.24 to 2.4.28 and the problem described 
->>below appeared. I have tested it on 2.4.30 and the fault still exists.
->>[...]
->>Examining the packet that caused the problem showed it was very similar 
->>to the others but it contained 0x0a. This obviously stuck out as being a 
->>candidate for some sort of translation problem.
-> 
-> 
-> The above looks almost too obvious but for this:
-> 
-> 
->>I also built a 2.4.28 kernel with the ftdi_sio and usbserial code from 
->>the 2.4.24 release. It also failed. This was a surprise and I am 
->>wondering of I did it correctly.
-> 
-> 
-> Did you nail down a scenario which we can debug? Frankly it's not credible
+--nextPart1289244.f0YQy2tCgn
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Not as yet. As I indicated I can only test the problem at a remote site 
-and I don't get much time to look at it.
+On Thursday 02 June 2005 03:36, Tony Lindgren wrote:
+> Hi all,
+>
+> Here's an updated version of the dynamic tick patch.
+>
+> It's mostly clean-up and it's now using the standard
+> monotonic_clock() functions as suggested by John Stultz.
+>
+> Please let me know of any issues with the patch. I'll continue to do
+> more clean-up on it, but I think the basic functionality is done.
 
-> that transplanted usbserial and ftsi_sio would fail to work. I know that
+I would like to test it, but have some trouble. The patch applies cleanly a=
+nd=20
+everything compiles fine, but linking fails:
 
-I agree, it can't be the case. To prove that I hadn't just made a 
-mistake, I transplanted the whole usb branch and it still failed. This 
-really points to the user app - which is complex and I haven't got to 
-the bottom of it. It's a multi-threaded library and I see it's doing 
-some sort of packet requeuing based on a timer. I can't see what has 
-changed but I am guessing it's a kernel timing issue. It would explain 
-everything.
+# ld -m elf_i386  -R arch/i386/kernel/vsyscall-syms.o -r -o=20
+arch/i386/kernel/built-in.o arch/i386/kernel/process.o=20
+arch/i386/kernel/semaphore.o arch/i386/kernel/signal.o=20
+arch/i386/kernel/entry.o arch/i386/kernel/traps.o arch/i386/kernel/irq.o=20
+arch/i386/kernel/vm86.o arch/i386/kernel/ptrace.o arch/i386/kernel/time.o=20
+arch/i386/kernel/ioport.o arch/i386/kernel/ldt.o arch/i386/kernel/setup.o=20
+arch/i386/kernel/i8259.o arch/i386/kernel/sys_i386.o=20
+arch/i386/kernel/pci-dma.o arch/i386/kernel/i386_ksyms.o=20
+arch/i386/kernel/i387.o arch/i386/kernel/dmi_scan.o=20
+arch/i386/kernel/bootflag.o arch/i386/kernel/doublefault.o=20
+arch/i386/kernel/quirks.o arch/i386/kernel/cpu/built-in.o=20
+arch/i386/kernel/timers/built-in.o arch/i386/kernel/acpi/built-in.o=20
+arch/i386/kernel/reboot.o arch/i386/kernel/module.o=20
+arch/i386/kernel/sysenter.o arch/i386/kernel/vsyscall.o=20
+arch/i386/kernel/dyn-tick.o arch/i386/kernel/early_printk.o
+arch/i386/kernel/irq.o: In function `reprogram_apic_timer':
+irq.c:(.text+0x0): multiple definition of `reprogram_apic_timer'
+arch/i386/kernel/process.o:process.c:(.text+0x0): first defined here
+arch/i386/kernel/time.o: In function `reprogram_apic_timer':
+time.c:(.text+0x0): multiple definition of `reprogram_apic_timer'
+arch/i386/kernel/process.o:process.c:(.text+0x0): first defined here
+arch/i386/kernel/dyn-tick.o: In function `reprogram_apic_timer':
+dyn-tick.c:(.text+0x0): multiple definition of `reprogram_apic_timer'
+arch/i386/kernel/process.o:process.c:(.text+0x0): first defined here
 
-> I changed quite a bit between 2.4.24 and 2.4.28, but your experiment
-> undoes that.
+=2D-=20
+Christian
 
-I think the usb is red herring - sorry about that. BTW, I see you have 
-cc'd Ian (hi Ian). By coincidence we are using an MEV usb device.
+--nextPart1289244.f0YQy2tCgn
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.15 (GNU/Linux)
 
--- 
-Ian Leonard
+iD8DBQBCnsO6lZfG2c8gdSURAolyAKCGCzLSci2QpFUX1nMBvqFC7Blx1QCgwbck
+L+XJvhxHUhw/8RQQ3cGinns=
+=D2pu
+-----END PGP SIGNATURE-----
 
-Please ignore spelling and punctuation - I did.
+--nextPart1289244.f0YQy2tCgn--

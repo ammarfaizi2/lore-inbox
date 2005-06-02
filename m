@@ -1,48 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVFBWgU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVFBWlv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261351AbVFBWgU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 18:36:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261448AbVFBWd5
+	id S261466AbVFBWlv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 18:41:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261465AbVFBWlv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 18:33:57 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:221 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261446AbVFBWdO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 18:33:14 -0400
-Message-Id: <20050602224326.656154000@csdlinux-1>
-References: <20050602224147.177031000@csdlinux-1>
-Date: Thu, 02 Jun 2005 15:41:48 -0700
-From: rajesh.shah@intel.com
-To: gregkh@suse.de, ink@jurassic.park.msu.ru, ak@suse.de, len.brown@intel.com,
-       akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       acpi-devel@lists.sourceforge.net, Rajesh Shah <rajesh.shah@intel.com>
-Subject: [patch 1/2] Increase the number of PCI bus resources
-Content-Disposition: inline; filename=inc-pci-bus-resources
+	Thu, 2 Jun 2005 18:41:51 -0400
+Received: from fire.osdl.org ([65.172.181.4]:58306 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261466AbVFBWhu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 18:37:50 -0400
+Date: Thu, 2 Jun 2005 15:38:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch 1/11] s390: cio max channels checks.
+Message-Id: <20050602153834.5e4dc0eb.akpm@osdl.org>
+In-Reply-To: <20050601180210.GA6418@localhost.localdomain>
+References: <20050601180210.GA6418@localhost.localdomain>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch increases the number of resource pointers in the
-pci_bus structure. This is needed to store >4 resource ranges
-for host bridges and transparent PCI bridges. With this change,
-all PCI buses will have more resource pointers, but most PCI
-buses will only use the first 3 or 4, the remaining being NULL.
-The PCI core already deals with this correctly.
+Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
+>
+> [patch 1/11] s390: cio max channels checks.
 
-Signed-off-by: Rajesh Shah <rajesh.shah@intel.com>
-
-Index: linux-2.6.12-rc5/include/linux/pci.h
-===================================================================
---- linux-2.6.12-rc5.orig/include/linux/pci.h
-+++ linux-2.6.12-rc5/include/linux/pci.h
-@@ -586,7 +586,7 @@ struct pci_dev {
- #define PCI_NUM_RESOURCES 11
- 
- #ifndef PCI_BUS_NUM_RESOURCES
--#define PCI_BUS_NUM_RESOURCES 4
-+#define PCI_BUS_NUM_RESOURCES 8
- #endif
-   
- #define PCI_REGION_FLAG_MASK 0x0fU	/* These bits of resource flags tell us the PCI region flags */
-
---
+Which of these patches are considered to be 2.6.12 material?

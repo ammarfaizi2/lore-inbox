@@ -1,52 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261264AbVFBTt5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVFBTyd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261264AbVFBTt5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 15:49:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261304AbVFBTt4
+	id S261271AbVFBTyd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 15:54:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVFBTyc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 15:49:56 -0400
-Received: from ms-smtp-01.texas.rr.com ([24.93.47.40]:55226 "EHLO
-	ms-smtp-01-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S261264AbVFBTgv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 15:36:51 -0400
-Message-Id: <200506021936.j52Ja6H9001634@ms-smtp-01-eri0.texas.rr.com>
+	Thu, 2 Jun 2005 15:54:32 -0400
+Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:32143 "EHLO
+	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S261271AbVFBTgx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 15:36:53 -0400
+Message-Id: <200506021936.j52Ja8RZ026401@ms-smtp-03-eri0.texas.rr.com>
 From: ericvh@gmail.com
-Date: Thu,  2 Jun 2005 14:36:02 -0500
+Date: Thu,  2 Jun 2005 14:36:04 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [RFC][PATCH 6/7] v9fs: transport modules (2.0-rc7)
+Subject: [RFC][PATCH 7/7] v9fs: debug and support routines (2.0-rc7)
 Cc: v9fs-developer@lists.sourceforge.net,
        viro@parcelfarce.linux.theplanet.co.uk, linux-fsdevel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is part [6/7] of the v9fs-2.0-rc7 patch against Linux 2.6.
+This is part [7/7] of the v9fs-2.0-rc7 patch against Linux 2.6.
 
-This part of the patch contains transport routines.
+This part of the patch contains debug and other misc routines.
 
 Signed-off-by: Eric Van Hensbergen <ericvh@gmail.com>
 
 
  ----------
 
- mux.c        |  437 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- mux.h        |   37 ++++
- trans_sock.c |  272 ++++++++++++++++++++++++++++++++++++
- transport.h  |   42 +++++
- 4 files changed, 788 insertions(+)
+ debug.h  |   69 ++++++++++++++++++
+ error.c  |   92 ++++++++++++++++++++++++
+ error.h  |  176 +++++++++++++++++++++++++++++++++++++++++++++++
+ fid.c    |  232 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ fid.h    |   55 ++++++++++++++
+ idpool.c |  150 ++++++++++++++++++++++++++++++++++++++++
+ idpool.h |   40 ++++++++++
+ 7 files changed, 814 insertions(+)
 
  ----------
 
-Index: fs/9p/mux.h
+Index: fs/9p/debug.h
 ===================================================================
 --- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
-+++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/mux.h  (mode:100644)
-@@ -0,0 +1,37 @@
++++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/debug.h  (mode:100644)
+@@ -0,0 +1,69 @@
 +/*
-+ * linux/fs/9p/mux.h
-+ *
-+ * Multiplexer Definitions
++ *  linux/fs/9p/debug.h - V9FS Debug Definitions
 + *
 + *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
++ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
 + *
 + *  This program is free software; you can redistribute it and/or modify
 + *  it under the terms of the GNU General Public License as published by
@@ -64,32 +66,400 @@ Index: fs/9p/mux.h
 + *
 + */
 +
-+/* structure to manage each RPC transaction */
++#define DEBUG_ERROR		(1<<0)
++#define DEBUG_CURRENT		(1<<1)
++#define DEBUG_9P	                  (1<<2)
++#define DEBUG_VFS	                  (1<<3)
++#define DEBUG_CONV		(1<<4)
++#define DEBUG_MUX		(1<<5)
++#define DEBUG_TRANS		(1<<6)
++#define DEBUG_SLABS	      	(1<<7)
 +
-+struct v9fs_rpcreq {
-+	struct v9fs_fcall *tcall;
-+	struct v9fs_fcall *rcall;
++#define DEBUG_DUMP_PKT		0
++#define DEBUG_LEAKS
 +
-+	/* XXX - could we put scatter/gather buffers here? */
++extern int v9fs_debug_level;
 +
-+	struct list_head next;
-+};
++#define dprintk(level, format, arg...) \
++do {  \
++	if((v9fs_debug_level & level)==level) \
++		printk(KERN_NOTICE "-- %s (%d): " \
++		format , __FUNCTION__, current->pid , ## arg); \
++} while(0)
 +
-+int v9fs_mux_init(struct v9fs_session_info *v9ses, const char *dev_name);
-+long v9fs_mux_rpc(struct v9fs_session_info *v9ses,
-+		  struct v9fs_fcall *tcall, struct v9fs_fcall **rcall);
-Index: fs/9p/mux.c
++#define eprintk(level, format, arg...) \
++do { \
++	printk(level "v9fs: %s (%d): " \
++		format , __FUNCTION__, current->pid, ## arg); \
++} while(0)
++
++#if DEBUG_DUMP_PKT
++static inline void dump_data(const unsigned char *data, unsigned int datalen)
++{
++	int i, j;
++	int len = datalen;
++
++	printk(KERN_DEBUG "data ");
++	for (i = 0; i < len; i += 4) {
++		for (j = 0; (j < 4) && (i + j < len); j++)
++			printk(KERN_DEBUG "%02x", data[i + j]);
++		printk(KERN_DEBUG " ");
++	}
++	printk(KERN_DEBUG "\n");
++}
++#else				/* DEBUG_DUMP_PKT */
++static inline void dump_data(const unsigned char *data, unsigned int datalen)
++{
++
++}
++#endif				/* DEBUG_DUMP_PKT */
+Index: fs/9p/error.h
 ===================================================================
 --- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
-+++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/mux.c  (mode:100644)
-@@ -0,0 +1,437 @@
++++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/error.h  (mode:100644)
+@@ -0,0 +1,176 @@
 +/*
-+ * linux/fs/9p/mux.c
++ * linux/fs/9p/error.h
 + *
-+ * Protocol Multiplexer
++ * Huge Nasty Error Table
++ *
++ * Plan 9 uses error strings, Unix uses error numbers.  This table tries to
++ * match UNIX strings and Plan 9 strings to unix error numbers.  It is used
++ * to preload the dynamic error table which can also track user-specific error
++ * strings.
 + *
 + *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
-+ *  Copyright (C) 2004 by Latchesar Ionkov <lucho@ionkov.net>
++ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#include <linux/errno.h>
++
++struct errormap {
++	char *name;
++	int val;
++
++	struct hlist_node list;
++};
++
++#define ERRHASHSZ		32
++static struct hlist_head hash_errmap[ERRHASHSZ];
++
++/* FixMe - reduce to a reasonable size */
++static struct errormap errmap[] = {
++	{"Operation not permitted", 1},
++	{"wstat prohibited", 1},
++	{"No such file or directory", 2},
++	{"file not found", 2},
++	{"Interrupted system call", 4},
++	{"Input/output error", 5},
++	{"No such device or address", 6},
++	{"Argument list too long", 7},
++	{"Bad file descriptor", 9},
++	{"Resource temporarily unavailable", 11},
++	{"Cannot allocate memory", 12},
++	{"Permission denied", 13},
++	{"Bad address", 14},
++	{"Block device required", 15},
++	{"Device or resource busy", 16},
++	{"File exists", 17},
++	{"Invalid cross-device link", 18},
++	{"No such device", 19},
++	{"Not a directory", 20},
++	{"Is a directory", 21},
++	{"Invalid argument", 22},
++	{"Too many open files in system", 23},
++	{"Too many open files", 24},
++	{"Text file busy", 26},
++	{"File too large", 27},
++	{"No space left on device", 28},
++	{"Illegal seek", 29},
++	{"Read-only file system", 30},
++	{"Too many links", 31},
++	{"Broken pipe", 32},
++	{"Numerical argument out of domain", 33},
++	{"Numerical result out of range", 34},
++	{"Resource deadlock avoided", 35},
++	{"File name too long", 36},
++	{"No locks available", 37},
++	{"Function not implemented", 38},
++	{"Directory not empty", 39},
++	{"Too many levels of symbolic links", 40},
++	{"Unknown error 41", 41},
++	{"No message of desired type", 42},
++	{"Identifier removed", 43},
++	{"File locking deadlock error", 58},
++	{"No data available", 61},
++	{"Machine is not on the network", 64},
++	{"Package not installed", 65},
++	{"Object is remote", 66},
++	{"Link has been severed", 67},
++	{"Communication error on send", 70},
++	{"Protocol error", 71},
++	{"Bad message", 74},
++	{"File descriptor in bad state", 77},
++	{"Streams pipe error", 86},
++	{"Too many users", 87},
++	{"Socket operation on non-socket", 88},
++	{"Message too long", 90},
++	{"Protocol not available", 92},
++	{"Protocol not supported", 93},
++	{"Socket type not supported", 94},
++	{"Operation not supported", 95},
++	{"Protocol family not supported", 96},
++	{"Network is down", 100},
++	{"Network is unreachable", 101},
++	{"Network dropped connection on reset", 102},
++	{"Software caused connection abort", 103},
++	{"Connection reset by peer", 104},
++	{"No buffer space available", 105},
++	{"Transport endpoint is already connected", 106},
++	{"Transport endpoint is not connected", 107},
++	{"Cannot send after transport endpoint shutdown", 108},
++	{"Connection timed out", 110},
++	{"Connection refused", 111},
++	{"Host is down", 112},
++	{"No route to host", 113},
++	{"Operation already in progress", 114},
++	{"Operation now in progress", 115},
++	{"Is a named type file", 120},
++	{"Remote I/O error", 121},
++	{"Disk quota exceeded", 122},
++	{"Operation canceled", 125},
++	{"Unknown error 126", 126},
++	{"Unknown error 127", 127},
++/* errors from fossil, vacfs, and u9fs */
++	{"fid unknown or out of range", EBADF},
++	{"permission denied", EACCES},
++	{"file does not exist", ENOENT},
++	{"authentication failed", ECONNREFUSED},
++	{"bad offset in directory read", ESPIPE},
++	{"bad use of fid", EBADF},
++	{"wstat can't convert between files and directories", EPERM},
++	{"directory is not empty", ENOTEMPTY},
++	{"file exists", EEXIST},
++	{"file already exists", EEXIST},
++	{"file or directory already exists", EEXIST},
++	{"fid already in use", EBADF},
++	{"file in use", ETXTBSY},
++	{"i/o error", EIO},
++	{"file already open for I/O", ETXTBSY},
++	{"illegal mode", EINVAL},
++	{"illegal name", ENAMETOOLONG},
++	{"not a directory", ENOTDIR},
++	{"not a member of proposed group", EINVAL},
++	{"not owner", EACCES},
++	{"only owner can change group in wstat", EACCES},
++	{"read only file system", EROFS},
++	{"no access to special file", EPERM},
++	{"i/o count too large", EIO},
++	{"unknown group", EINVAL},
++	{"unknown user", EINVAL},
++	{"bogus wstat buffer", EPROTO},
++	{"exclusive use file already open", EAGAIN},
++	{"corrupted directory entry", EIO},
++	{"corrupted file entry", EIO},
++	{"corrupted block label", EIO},
++	{"corrupted meta data", EIO},
++	{"illegal offset", EINVAL},
++	{"illegal path element", ENOENT},
++	{"root of file system is corrupted", EIO},
++	{"corrupted super block", EIO},
++	{"protocol botch", EPROTO},
++	{"file system is full", ENOSPC},
++	{"file is in use", EAGAIN},
++	{"directory entry is not allocated", ENOENT},
++	{"file is read only", EROFS},
++	{"file has been removed", EIDRM},
++	{"only support truncation to zero length", EPERM},
++	{"cannot remove root", EPERM},
++	{"file too big", EFBIG},
++	{"venti i/o error", EIO},
++	/* these are not errors */
++	{"u9fs rhostsauth: no authentication required", 0},
++	{"u9fs authnone: no authentication required", 0},
++	{NULL, -1}
++};
+Index: fs/9p/error.c
+===================================================================
+--- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
++++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/error.c  (mode:100644)
+@@ -0,0 +1,92 @@
++/*
++ * linux/fs/9p/error.c
++ *
++ * Error string handling
++ *
++ * Plan 9 uses error strings, Unix uses error numbers.  These functions
++ * try to help manage that and provide for dynamically adding error
++ * mappings.
++ *
++ *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
++ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#include <linux/config.h>
++#include <linux/module.h>
++
++#include <linux/list.h>
++#include <linux/jhash.h>
++
++#include "debug.h"
++#include "error.h"
++
++/**
++ * v9fs_error_init - preload 
++ * @errstr: error string
++ *
++ */
++
++int v9fs_error_init(void)
++{
++	struct errormap *c;
++	int bucket;
++
++	/* initialize hash table */
++	for (bucket = 0; bucket < ERRHASHSZ; bucket++)
++		INIT_HLIST_HEAD(&hash_errmap[bucket]);
++
++	/* load initial error map into hash table */
++	for (c = errmap; c->name != NULL; c++) {
++		bucket = jhash(c->name, strlen(c->name), 0) % ERRHASHSZ;
++		INIT_HLIST_NODE(&c->list);
++		hlist_add_head(&c->list, &hash_errmap[bucket]);
++	}
++
++	return 1;
++}
++
++/**
++ * errstr2errno - convert error string to error number
++ * @errstr: error string
++ *
++ */
++
++int v9fs_errstr2errno(char *errstr)
++{
++	int errno = 0;
++	struct hlist_node *p = NULL;
++	struct errormap *c = NULL;
++	int bucket = jhash(errstr, strlen(errstr), 0) % ERRHASHSZ;
++
++	hlist_for_each(p, &hash_errmap[bucket]) {
++		c = hlist_entry(p, struct errormap, list);
++		if (!strcmp(c->name, errstr)) {
++			errno = c->val;
++			break;
++		}
++	}
++
++	if (errno == 0) {
++		/* TODO: if error isn't found, add it dynamically */
++		printk(KERN_ERR "%s: errstr :%s: not found\n", __FUNCTION__,
++		       errstr);
++		errno = 1;
++	}
++
++	return -errno;
++}
+Index: fs/9p/fid.h
+===================================================================
+--- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
++++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/fid.h  (mode:100644)
+@@ -0,0 +1,55 @@
++/*
++ * V9FS FID Management
++ *
++ *  Copyright (C) 2005 by Eric Van Hensbergen <ericvh@gmail.com>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
++ *
++ */
++
++#include <linux/list.h>
++
++#define FID_OP		0
++#define FID_WALK 		1
++
++struct v9fs_fid {
++	struct list_head list;	/* list of fids associated with a dentry */
++	struct list_head active;	/* XXX - debug */
++
++	u32 fid;
++	unsigned char fidopen;	/* set when fid is opened */
++	unsigned char fidcreate; /* set when fid was just created */
++	unsigned char fidclunked;/* set when fid has already been clunked */
++
++	struct v9fs_qid qid;
++	u32 iounit;
++
++	/* readdir stuff */
++	int rdir_fpos;
++	loff_t rdir_pos;
++	struct v9fs_fcall *rdir_fcall;
++
++	/* management stuff */
++	pid_t pid;		/* thread associated with this fid */
++	uid_t uid;		/* user associated with this fid */
++
++	/* private data */
++	struct file *filp;	/* backpointer to File struct for open files */
++	struct v9fs_session_info *v9ses;	/* session info for this FID */
++};
++
++struct v9fs_fid *v9fs_fid_lookup(struct dentry *dentry, int type);
++void v9fs_fid_destroy(struct v9fs_fid *fid);
++struct v9fs_fid *v9fs_fid_create(struct dentry *);
+Index: fs/9p/fid.c
+===================================================================
+--- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
++++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/fid.c  (mode:100644)
+@@ -0,0 +1,232 @@
++/*
++ * V9FS FID Management
++ *
++ *  Copyright (C) 2005 by Eric Van Hensbergen <ericvh@gmail.com>
 + *
 + *  This program is free software; you can redistribute it and/or modify
 + *  it under the terms of the GNU General Public License as published by
@@ -111,426 +481,223 @@ Index: fs/9p/mux.c
 +#include <linux/module.h>
 +#include <linux/errno.h>
 +#include <linux/fs.h>
-+#include <linux/kthread.h>
 +
 +#include "debug.h"
 +#include "idpool.h"
 +#include "v9fs.h"
 +#include "9p.h"
++#include "v9fs_vfs.h"
 +#include "transport.h"
-+#include "conv.h"
 +#include "mux.h"
++#include "conv.h"
++#include "fid.h"
 +
 +/**
-+ * dprintcond - print condition of session info
-+ * @v9ses: session info structure
-+ * @req: RPC request structure 
++ * v9fs_fid_insert - add a fid to a dentry
++ * @fid: fid to add
++ * @dentry: dentry that it is being added to
 + *
 + */
 +
-+static inline int
-+dprintcond(struct v9fs_session_info *v9ses, struct v9fs_rpcreq *req)
++static int v9fs_fid_insert(struct v9fs_fid *fid, struct dentry *dentry)
 +{
-+	dprintk(DEBUG_MUX, "condition: %d, %p\n", v9ses->transport->status,
-+		req->rcall);
-+	return 0;
-+}
-+
-+/**
-+ * xread - force read of a certain number of bytes
-+ * @v9ses: session info structure
-+ * @ptr: pointer to buffer
-+ * @sz: number of bytes to read
-+ *
-+ * Chuck Cranor CS-533 project1
-+ */
-+
-+static int xread(struct v9fs_session_info *v9ses, void *ptr, unsigned long sz)
-+{
-+	int rd = 0;
-+	int ret = 0;
-+	int readnum = 0;
-+	while (rd < sz) {
-+		ret = v9ses->transport->read(v9ses->transport, ptr, sz - rd);
-+		readnum++;
-+		if (ret <= 0) {
-+			dprintk(DEBUG_ERROR,
-+				"xread on ses %p, at try %d: want %ld, got %d, errno %d\n",
-+				v9ses, readnum, sz, rd, ret);
-+			return ret;
-+		}
-+		rd += ret;
-+		ptr += ret;
-+	}
-+	return (rd);
-+}
-+
-+/**
-+ * read_message - read a full 9P2000 fcall packet
-+ * @v9ses: session info structure
-+ * @rcall: fcall structure to read into
-+ * @rcalllen: size of fcall structure
-+ *
-+ */
-+
-+static int
-+read_message(struct v9fs_session_info *v9ses,
-+	     struct v9fs_fcall *rcall, int rcalllen)
-+{
-+	unsigned char buf[4];
-+	void *data;
-+	int size = 0;
-+	int res = 0;
-+
-+	res = xread(v9ses, buf, sizeof(buf));
-+	if (res < 0) {
-+		dprintk(DEBUG_ERROR,
-+			"Reading of count field failed returned: %d\n", res);
-+		return res;
-+	}
-+
-+	if (res < 4) {
-+		dprintk(DEBUG_ERROR,
-+			"Reading of count field failed returned: %d\n", res);
-+		return -EIO;
-+	}
-+
-+	size = buf[0] | (buf[1] << 8) | (buf[2] << 16) | (buf[3] << 24);
-+	dprintk(DEBUG_MUX, "got a packet count: %d\n", size);	/* XXX */
-+
-+	/* adjust for the four bytes of size */
-+	size -= 4;
-+
-+	if (size > v9ses->maxdata) {
-+		dprintk(DEBUG_ERROR, "packet too big: %d\n", size);
-+		return -E2BIG;
-+	}
-+
-+	data = kmalloc(v9ses->maxdata, GFP_KERNEL);
-+	if (!buf) {
-+		eprintk(KERN_WARNING, "out of memory\n");
-+		return -ENOMEM;
-+	}
-+
-+	res = xread(v9ses, data, size);
-+	if (res < size) {
-+		dprintk(DEBUG_ERROR, "Reading of fcall failed returned: %d\n",
-+			res);
-+		kfree( data);
-+		return res;
-+	}
-+
-+	/* we now have an in-memory string that is the reply. 
-+	 * deserialize it. There is very little to go wrong at this point
-+	 * save for v9fs_alloc errors. 
-+	 */
-+	res = v9fs_deserialize_fcall(v9ses, size, data, v9ses->maxdata,
-+				     rcall, rcalllen);
-+
-+	kfree( data);
-+
-+	if (res == 0)
-+		return -ENOMEM;
-+
-+	return 0;
-+}
-+
-+/**
-+ * v9fs_recv - receive an RPC response for a particular tag
-+ * @v9ses: session info structure
-+ * @req: RPC request structure
-+ *
-+ */
-+
-+static int v9fs_recv(struct v9fs_session_info *v9ses, struct v9fs_rpcreq *req)
-+{
-+	int ret = 0;
-+
-+	dprintk(DEBUG_MUX, "waiting for response: %d\n", req->tcall->tag);
-+	ret = wait_event_interruptible(v9ses->read_wait,
-+				       ((v9ses->transport->status != Connected)
-+					|| (req->rcall != 0)
-+					|| dprintcond(v9ses, req)));
-+
-+	dprintk(DEBUG_MUX, "got it: rcall %p\n", req->rcall);
-+	if (v9ses->transport->status == Disconnected)
-+		return -ECONNRESET;
-+
-+	if (ret == 0) {
-+		spin_lock(&v9ses->muxlock);
-+		list_del(&req->next);
-+		spin_unlock(&v9ses->muxlock);
-+	}
-+
-+	return ret;
-+}
-+
-+/**
-+ * v9fs_send - send a 9P request
-+ * @v9ses: session info structure
-+ * @req: RPC request to send
-+ *
-+ */
-+
-+static int v9fs_send(struct v9fs_session_info *v9ses, struct v9fs_rpcreq *req)
-+{
-+	int ret = -1;
-+	void *data = NULL;
-+	struct v9fs_fcall *tcall = req->tcall;
-+
-+	data = kmalloc(v9ses->maxdata+V9FS_IOHDRSZ, GFP_KERNEL);
-+
-+	tcall->size = 0;	/* enforce size recalculation */
-+	ret = v9fs_serialize_fcall(v9ses, tcall, data, v9ses->maxdata+V9FS_IOHDRSZ);
-+	if (ret == 0) {
-+		ret = -ENOMEM;
-+		goto free_data;
-+	}
-+
-+	spin_lock(&v9ses->muxlock);
-+	list_add(&req->next, &v9ses->mux_fcalls);
-+	spin_unlock(&v9ses->muxlock);
-+
-+	dprintk(DEBUG_MUX, "sending message: tag %d size %d\n", tcall->tag,
-+		tcall->size);
-+	ret = v9ses->transport->write(v9ses->transport, data, tcall->size);
-+
-+	if (ret != tcall->size) {
-+		spin_lock(&v9ses->muxlock);
-+		list_del(&req->next);
-+		if (req->rcall)
-+			kfree( req->rcall);
-+
-+		spin_unlock(&v9ses->muxlock);
-+		if (ret >= 0)
-+			ret = -EREMOTEIO;
-+	} else
-+		ret = 0;
-+
-+      free_data:
-+	kfree( data);
-+	return ret;
-+}
-+
-+/**
-+ * v9fs_mux_rpc - send a request, receive a response
-+ * @v9ses: session info structure
-+ * @tcall: fcall to send
-+ * @rcall: buffer to place response into
-+ *
-+ */
-+
-+long
-+v9fs_mux_rpc(struct v9fs_session_info *v9ses, struct v9fs_fcall *tcall,
-+	     struct v9fs_fcall **rcall)
-+{
-+	int tid = -1;
-+	struct v9fs_fcall *fcall = NULL;
-+	struct v9fs_rpcreq req;
-+	int ret = -1;
-+
-+	if (rcall)
-+		*rcall = NULL;
-+
-+	if (tcall->id != TVERSION) {
-+		tid = v9fs_get_idpool(&v9ses->tidpool);
-+		if (tid < 0)
++	struct list_head *fid_list = (struct list_head *)dentry->d_fsdata;
++	dprintk(DEBUG_9P, "fid %d (%p) dentry %s (%p)\n", fid->fid, fid,
++		dentry->d_iname, dentry);
++	if (dentry->d_fsdata == NULL) {
++		dentry->d_fsdata =
++		    kmalloc(sizeof(struct list_head), GFP_KERNEL);
++		if (dentry->d_fsdata == NULL) {
++			dprintk(DEBUG_ERROR, "Out of memory\n");
 +			return -ENOMEM;
-+	}
-+
-+	tcall->tag = tid;
-+
-+	req.tcall = tcall;
-+	req.rcall = NULL;
-+
-+	ret = v9fs_send(v9ses, &req);
-+
-+	if (ret < 0) {
-+		v9fs_put_idpool(tid, &v9ses->tidpool);
-+		dprintk(DEBUG_MUX, "error %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = v9fs_recv(v9ses, &req);
-+	fcall = req.rcall;
-+
-+	dprintk(DEBUG_MUX, "received: tag=%x, ret=%d\n", tcall->tag, ret);
-+	if (ret == -ERESTARTSYS) {
-+		if (v9ses->transport->status != Disconnected
-+		    && tcall->id != TFLUSH) {
-+			unsigned long flags;
-+
-+			dprintk(DEBUG_MUX, "flushing the tag: %d\n",
-+				tcall->tag);
-+			clear_thread_flag(TIF_SIGPENDING);
-+			v9fs_t_flush(v9ses, tcall->tag);
-+			spin_lock_irqsave(&current->sighand->siglock, flags);
-+			recalc_sigpending();
-+			spin_unlock_irqrestore(&current->sighand->siglock,
-+					       flags);
-+			dprintk(DEBUG_MUX, "flushing done\n");
 +		}
-+
-+		goto release_req;
++		fid_list = (struct list_head *)dentry->d_fsdata;
++		INIT_LIST_HEAD(fid_list);	/* Initialize list head */
 +	}
 +
-+	if (!fcall)
-+		ret = -EIO;
-+	else {
-+		if (fcall->id == RERROR) {
-+			ret = v9fs_errstr2errno(fcall->params.rerror.error);
-+			if (ret == 0) {	/* string match failed */
-+				if (fcall->params.rerror.errno)
-+					ret = -(fcall->params.rerror.errno);
-+				else
-+					ret = -ESERVERFAULT;
-+			}
-+		} else if (fcall->id != tcall->id + 1) {
-+			dprintk(DEBUG_ERROR,
-+				"fcall mismatch: expected %d, got %d\n",
-+				tcall->id + 1, fcall->id);
-+			ret = -EIO;
-+		}
-+	}
-+
-+      release_req:
-+	v9fs_put_idpool(tid, &v9ses->tidpool);
-+	if (rcall)
-+		*rcall = fcall;
-+	else
-+		kfree( fcall);
-+
-+	return ret;
++	fid->uid = current->uid;
++	fid->pid = current->pid;
++	list_add(&fid->list, fid_list);
++	return 0;
 +}
 +
 +/**
-+ * v9fs_recvproc - kproc to handle demultiplexing responses
-+ * @data: session info structure
++ * v9fs_fid_create - allocate a FID structure
++ * @dentry - dentry to link newly created fid to
 + *
 + */
 +
-+static int v9fs_recvproc(void *data)
++struct v9fs_fid *v9fs_fid_create(struct dentry *dentry)
 +{
-+	struct v9fs_session_info *v9ses = (struct v9fs_session_info *)data;
-+	struct v9fs_fcall *rcall = NULL;
-+	struct list_head *rptr;
-+	struct list_head *rrptr;
-+	struct v9fs_rpcreq *req = NULL;
-+	int err = 0;
++	struct v9fs_fid *new;
 +
-+	allow_signal(SIGKILL);
-+	set_current_state(TASK_INTERRUPTIBLE);
-+	complete(&v9ses->proccmpl);
-+	while (!kthread_should_stop() && err >= 0) {
-+		rcall = kmalloc(v9ses->maxdata+V9FS_IOHDRSZ, GFP_KERNEL);
-+		dprintk(DEBUG_MUX, "waiting for message\n");
-+		err = read_message(v9ses, rcall, v9ses->maxdata+V9FS_IOHDRSZ);
-+		if (err < 0) {
-+			kfree( rcall);
-+			break;
-+		}
-+
-+		spin_lock(&v9ses->muxlock);
-+		list_for_each_safe(rptr, rrptr, &v9ses->mux_fcalls) {
-+			struct v9fs_rpcreq *rreq =
-+			    list_entry(rptr, struct v9fs_rpcreq, next);
-+
-+			if (rreq->tcall->tag == rcall->tag) {
-+				req = rreq;
-+				req->rcall = rcall;
-+				break;
-+			}
-+		}
-+
-+		if (req && (req->tcall->id == TFLUSH)) {
-+			list_for_each_safe(rptr, rrptr, &v9ses->mux_fcalls) {
-+				struct v9fs_rpcreq *treq =
-+				    list_entry(rptr, struct v9fs_rpcreq, next);
-+
-+				if (treq->tcall->tag ==
-+				    req->tcall->params.tflush.oldtag) {
-+					list_del(rptr);
-+					if (treq->rcall)
-+						kfree(
-+								treq->rcall);
-+					break;
-+				}
-+			}
-+		}
-+
-+		spin_unlock(&v9ses->muxlock);
-+
-+		if (!req) {
-+			dprintk(DEBUG_ERROR,
-+				"unexpected response: id %d tag %d\n",
-+				rcall->id, rcall->tag);
-+
-+			kfree( rcall);
-+		}
-+
-+		wake_up_all(&v9ses->read_wait);
-+		set_current_state(TASK_INTERRUPTIBLE);
++	new = kmalloc(sizeof(struct v9fs_fid), GFP_KERNEL);
++	if (new == NULL) {
++		dprintk(DEBUG_ERROR, "Out of Memory\n");
++		return ERR_PTR(-ENOMEM);
 +	}
 +
-+	/* Inform all pending processes about the failure */
-+	wake_up_all(&v9ses->read_wait);
++	new->fid = -1;
++	new->fidopen = 0;
++	new->fidcreate = 0;
++	new->fidclunked = 0;
++	new->iounit = 0;
 +
-+	if (signal_pending(current))
-+		complete(&v9ses->proccmpl);
-+
-+	dprintk(DEBUG_MUX, "recvproc: end\n");
-+	v9ses->recvproc = NULL;
-+
-+	return err >= 0;
++	if (v9fs_fid_insert(new, dentry) == 0)
++		return new;
++	else {
++		dprintk(DEBUG_ERROR, "Problems inserting to dentry\n");
++		kfree(new);
++		return NULL;
++	}
 +}
 +
 +/**
-+ * v9fs_mux_init - initialize multiplexer (spawn kproc)
-+ * @v9ses: session info structure
-+ * @dev_name: mount device information (to create unique kproc)
++ * v9fs_fid_destroy - deallocate a FID structure
++ * @fid: fid to destroy
 + * 
 + */
 +
-+int v9fs_mux_init(struct v9fs_session_info *v9ses, const char *dev_name)
++void v9fs_fid_destroy(struct v9fs_fid *fid)
 +{
-+	char procname[60];
++	list_del(&fid->list);
++	kfree(fid);
++}
 +
-+	strncpy(procname, dev_name, sizeof(procname));
-+	procname[sizeof(procname) - 1] = 0;
++/**
++ * v9fs_fid_lookup - retrieve the right fid from a  particular dentry
++ * @dentry: dentry to look for fid in
++ * @type: intent of lookup (operation or traversal)
++ *
++ * search list of fids associated with a dentry for a fid with a matching
++ * thread id or uid.  If that fails, look up the dentry's parents to see if you
++ * can find a matching fid.
++ *
++ */
 +
-+	init_waitqueue_head(&v9ses->read_wait);
-+	init_completion(&v9ses->fcread);
-+	init_completion(&v9ses->proccmpl);
-+	spin_lock_init(&v9ses->muxlock);
-+	INIT_LIST_HEAD(&v9ses->mux_fcalls);
-+	v9ses->recvproc = NULL;
-+	v9ses->curfcall = NULL;
++struct v9fs_fid *v9fs_fid_lookup(struct dentry *dentry, int type)
++{
++	struct list_head *fid_list = (struct list_head *)dentry->d_fsdata;
++	struct v9fs_fid *current_fid = NULL;
++	struct list_head *p, *temp;
++	struct v9fs_fid *return_fid = NULL;
++	int found_parent = 0;
++	int found_user = 0;
 +
-+	v9ses->recvproc = kthread_create(v9fs_recvproc, v9ses,
-+					 "v9fs_recvproc %s", procname);
++	dprintk(DEBUG_9P, " dentry: %s (%p) type %d\n", dentry->d_iname, dentry,
++		type);
 +
-+	if (IS_ERR(v9ses->recvproc)) {
-+		eprintk(KERN_ERR, "cannot create receiving thread\n");
-+		v9fs_session_close(v9ses);
-+		return -ECONNABORTED;
++	if (fid_list && !list_empty(fid_list)) {
++		list_for_each_safe(p, temp, fid_list) {
++			current_fid = list_entry(p, struct v9fs_fid, list);
++			if (current_fid->uid == current->uid) {
++				if (return_fid == NULL) {
++					if ((type == FID_OP)
++					    || (!current_fid->fidopen)) {
++						return_fid = current_fid;
++						found_user = 1;
++					}
++				}
++			}
++			if (current_fid->pid == current->real_parent->pid) {
++				if ((return_fid == NULL) || (found_parent)
++				    || (found_user)) {
++					if ((type == FID_OP)
++					    || (!current_fid->fidopen)) {
++						return_fid = current_fid;
++						found_parent = 1;
++						found_user = 0;
++					}
++				}
++			}
++			if (current_fid->pid == current->pid) {
++				if ((type == FID_OP) || (!current_fid->fidopen)) {
++					return_fid = current_fid;
++					found_parent = 0;
++					found_user = 0;
++				}
++			}
++		}
 +	}
 +
-+	wake_up_process(v9ses->recvproc);
-+	wait_for_completion(&v9ses->proccmpl);
++    	/* we are at the root but didn't match */
++	if((!return_fid) && (dentry->d_parent == dentry)) { 
++		/* TODO: clone attach with new uid */
++		return_fid = current_fid;
++	}
 +
-+	return 0;
++	if (!return_fid) {
++		struct dentry *par = current->fs->pwd->d_parent;
++		int count = 1;
++		while (par != NULL) {
++			if (par == dentry)
++				break;
++			count++;
++			if (par == par->d_parent) {
++				dprintk(DEBUG_ERROR,
++					"got to root without finding dentry\n");
++				break;
++			}
++			par = par->d_parent;
++		}
++
++/* XXX - there may be some duplication we can get rid of */
++		if (par == dentry) {
++			/* we need to fid_lookup the starting point */
++			int fidnum = -1;
++			int oldfid = -1;
++			int result = -1;
++			struct v9fs_session_info *v9ses =
++			    v9fs_inode2v9ses(current->fs->pwd->d_inode);
++
++			current_fid =
++			    v9fs_fid_lookup(current->fs->pwd, FID_WALK);
++			if (current_fid == NULL) {
++				dprintk(DEBUG_ERROR,
++					"process cwd doesn't have a fid\n");
++				return return_fid;
++			}
++			oldfid = current_fid->fid;
++			par = current->fs->pwd;
++			/* TODO: take advantage of multiwalk */
++			fidnum = v9fs_get_idpool(&v9ses->fidpool);
++			while (par != dentry) {
++				result =
++				    v9fs_t_walk(v9ses, oldfid, fidnum, "..",
++						NULL);
++				if (result < 0) {
++					dprintk(DEBUG_ERROR,
++						"problem walking to parent\n");
++
++					break;
++				}
++				oldfid = fidnum;
++				if (par == par->d_parent) {
++					dprintk(DEBUG_ERROR,
++						"can't find dentry\n");
++					break;
++				}
++				par = par->d_parent;
++			}
++			if (par == dentry) {
++				return_fid = v9fs_fid_create(dentry);
++				return_fid->fid = fidnum;
++			}
++		}
++	}
++
++	return return_fid;
 +}
-Index: fs/9p/transport.h
+Index: fs/9p/idpool.h
 ===================================================================
 --- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
-+++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/transport.h  (mode:100644)
-@@ -0,0 +1,42 @@
++++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/idpool.h  (mode:100644)
+@@ -0,0 +1,40 @@
 +/*
-+ * linux/fs/9p/transport.h
-+ *
-+ * Transport Definition
++ *  linux/fs/9p/idpool.h
 + *
 + *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
++ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
 + *
 + *  This program is free software; you can redistribute it and/or modify
 + *  it under the terms of the GNU General Public License as published by
@@ -548,38 +715,34 @@ Index: fs/9p/transport.h
 + *
 + */
 +
-+enum v9fs_transport_status {
-+	Connected,
-+	Disconnected,
++/* 
++ * This is for getting unique IDs. 
++ * 0 means free, non-zero means used. 
++ * 
++ */
++
++struct idpool {
++	struct semaphore sem;
++	int maxalloc;
++	int numalloc;
++	int lastfree;
++	unsigned long *idlist;
 +};
 +
-+struct v9fs_transport {
-+	enum v9fs_transport_status status;
-+	struct semaphore writelock;
-+	struct semaphore readlock;
-+	void *priv;
-+
-+	int (*init) (struct v9fs_session_info *, const char *, char *);
-+	int (*write) (struct v9fs_transport *, void *, int);
-+	int (*read) (struct v9fs_transport *, void *, int);
-+	void (*close) (struct v9fs_transport *);
-+};
-+
-+extern struct v9fs_transport v9fs_trans_tcp;
-+extern struct v9fs_transport v9fs_trans_unix;
-Index: fs/9p/trans_sock.c
++int v9fs_alloc_idpool(struct idpool *, int);
++void v9fs_free_idpool(struct idpool *);
++int v9fs_get_idpool(struct idpool *i);
++void v9fs_put_idpool(int which, struct idpool *i);
+Index: fs/9p/idpool.c
 ===================================================================
 --- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
-+++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/trans_sock.c  (mode:100644)
-@@ -0,0 +1,272 @@
++++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/idpool.c  (mode:100644)
+@@ -0,0 +1,150 @@
 +/*
-+ * linux/fs/9p/trans_socket.c
-+ *
-+ * Socket Transport Layer
++ *  linux/fs/9p/idpool.c
 + *
 + *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
-+ *  Copyright (C) 1997-2002 by Ron Minnich <rminnich@sarnoff.com>
-+ *  Copyright (C) 1995, 1996 by Olaf Kirch <okir@monad.swb.de>
++ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
 + *
 + *  This program is free software; you can redistribute it and/or modify
 + *  it under the terms of the GNU General Public License as published by
@@ -599,248 +762,129 @@ Index: fs/9p/trans_sock.c
 +
 +#include <linux/config.h>
 +#include <linux/module.h>
-+#include <linux/net.h>
-+#include <linux/ipv6.h>
 +#include <linux/errno.h>
-+#include <linux/kernel.h>
-+#include <linux/un.h>
-+#include <asm/uaccess.h>
-+#include <linux/inet.h>
-+
-+#include "debug.h"
++#include <asm/semaphore.h>
++#include <linux/config.h>
 +#include "idpool.h"
-+#include "v9fs.h"
-+#include "transport.h"
-+
-+#define V9FS_PORT 564
-+
-+struct v9fs_trans_sock {
-+	struct socket *s;
-+};
++#include "debug.h"
 +
 +/**
-+ * v9fs_sock_recv - receive from a socket
-+ * @v9ses: session information 
-+ * @v: buffer to receive data into
-+ * @len: size of receive buffer
++ * grow_idpool - increase the size of an id pool
++ * @i: pointer to idpool to initialize
++ * @size: size (in bits) of idpool
 + *
 + */
 +
-+static int v9fs_sock_recv(struct v9fs_transport *trans, void *v, int len)
++static int grow_idpool(struct idpool *i, int newsize)
 +{
-+	struct msghdr msg;
-+	struct kvec iov;
-+	int result;
-+	mm_segment_t oldfs;
-+	struct v9fs_trans_sock *ts = trans ? trans->priv : NULL;
++	unsigned long *newpool;
 +
-+	if (trans->status == Disconnected)
-+		return -EREMOTEIO;
-+
-+	result = -EINVAL;
-+
-+	oldfs = get_fs();
-+	set_fs(get_ds());
-+
-+	iov.iov_base = v;
-+	iov.iov_len = len;
-+	msg.msg_name = NULL;
-+	msg.msg_namelen = 0;
-+	msg.msg_iovlen = 1;
-+	msg.msg_control = NULL;
-+	msg.msg_controllen = 0;
-+	msg.msg_namelen = 0;
-+	msg.msg_flags = MSG_NOSIGNAL;
-+
-+	result = kernel_recvmsg(ts->s, &msg, &iov, 1, len, 0);
-+
-+	dprintk(DEBUG_TRANS, "socket state %d\n", ts->s->state);
-+	set_fs(oldfs);
-+
-+	if (result <= 0) {
-+		if (result != -ERESTARTSYS)
-+			trans->status = Disconnected;
++	newpool = kmalloc((newsize / 8), GFP_KERNEL);
++	if (!newpool) {
++		eprintk(KERN_WARNING,
++			"Couldn't allocate memory to grow idpool\n");
++		return 0;
 +	}
 +
-+	return result;
++	memset(newpool, 0, newsize / 8);
++	if (i->idlist) {
++		memcpy(newpool, i->idlist, (i->maxalloc) / 8);
++		kfree(i->idlist);
++	}
++
++	i->idlist = newpool;
++	i->maxalloc = newsize;
++
++	return newsize;
 +}
 +
 +/**
-+ * v9fs_sock_send - send to a socket
-+ * @v9ses: session information 
-+ * @v: buffer to send data from
-+ * @len: size of send buffer
++ * v9fs_alloc_idpool - allocate an id pool
++ * @i: pointer to idpool to initialize
++ * @size: size of idpool
 + *
 + */
 +
-+static int v9fs_sock_send(struct v9fs_transport *trans, void *v, int len)
++int v9fs_alloc_idpool(struct idpool *i, int size)
 +{
-+	struct kvec iov;
-+	struct msghdr msg;
-+	int result = -1;
-+	mm_segment_t oldfs;
-+	struct v9fs_trans_sock *ts = trans ? trans->priv : NULL;
++	int newsize;
 +
-+	dprintk(DEBUG_TRANS, "Sending packet size %d (%x)\n", len, len);
-+	dump_data(v, len);
-+
-+	down(&trans->writelock);
-+
-+	oldfs = get_fs();
-+	set_fs(get_ds());
-+	iov.iov_base = v;
-+	iov.iov_len = len;
-+	msg.msg_name = NULL;
-+	msg.msg_namelen = 0;
-+	msg.msg_iovlen = 1;
-+	msg.msg_control = NULL;
-+	msg.msg_controllen = 0;
-+	msg.msg_namelen = 0;
-+	msg.msg_flags = MSG_NOSIGNAL;
-+	result = kernel_sendmsg(ts->s, &msg, &iov, 1, len);
-+	set_fs(oldfs);
-+
-+	if (result < 0) {
-+		if (result != -ERESTARTSYS)
-+			trans->status = Disconnected;
-+	}
-+
-+	up(&trans->writelock);
-+	return result;
++	init_MUTEX(&i->sem);
++	i->maxalloc = 0;
++	i->numalloc = 0;
++	i->lastfree = 0;
++	i->idlist = NULL;
++	newsize = grow_idpool(i, size);
++	return newsize;
 +}
 +
 +/**
-+ * v9fs_tcp_init - initialize TCP socket
-+ * @trans: private socket structure for mount
-+ * @dev_name: mount target
-+ * @data: mount options
++ * v9fs_free_idpool - deallocate an id pool
++ * @i: pointer to idpool to free
 + *
 + */
 +
-+static int
-+v9fs_tcp_init(struct v9fs_session_info *v9ses, const char *addr, char *data)
++void v9fs_free_idpool(struct idpool *i)
 +{
-+	struct socket *csocket = NULL;
-+	struct sockaddr_in sin_server;
-+	int rc = 0;
-+	struct v9fs_trans_sock *ts = NULL;
-+	struct v9fs_transport *trans = v9ses->transport;
-+
-+	sema_init(&trans->writelock, 1);
-+	sema_init(&trans->readlock, 1);
-+
-+	ts = kmalloc(sizeof(struct v9fs_trans_sock), GFP_KERNEL);
-+
-+	if (!ts)
-+		return -ENOMEM;
-+
-+	trans->priv = ts;
-+	ts->s = NULL;
-+
-+	if (!addr)
-+		return -EINVAL;
-+
-+	dprintk(DEBUG_TRANS, "Connecting to %s\n", addr);
-+
-+	sin_server.sin_family = AF_INET;
-+	sin_server.sin_addr.s_addr = in_aton(addr);
-+	sin_server.sin_port = htons(v9ses->port);
-+	sock_create_kern(PF_INET, SOCK_STREAM, IPPROTO_TCP, &csocket);
-+	rc = csocket->ops->connect(csocket,
-+				   (struct sockaddr *)&sin_server,
-+				   sizeof(struct sockaddr_in), 0);
-+	if (rc < 0) {
-+		eprintk(KERN_ERR,
-+			"v9fs_trans_tcp: problem connecting socket to %s\n",
-+			addr);
-+		return rc;
-+	}
-+	csocket->sk->sk_allocation = GFP_NOIO;
-+	ts->s = csocket;
-+	trans->status = Connected;
-+
-+	return 0;
++	kfree(i->idlist);
 +}
 +
 +/**
-+ * v9fs_unix_init - initialize UNIX domain socket
-+ * @trans: private socket info
-+ * @dev_name: mount target
-+ * @data: mount options
++ * v9fs_get_idpool - get a new id from the pool
++ * @i: pointer to idpool
 + *
 + */
 +
-+static int
-+v9fs_unix_init(struct v9fs_session_info *v9ses, const char *dev_name,
-+	       char *data)
++int v9fs_get_idpool(struct idpool *i)
 +{
-+	struct socket *csocket = NULL;
-+	struct sockaddr_un sun_server;
-+	struct v9fs_transport *trans = v9ses->transport;
-+	int rc = 0;
++	int nextbit;
 +
-+	struct v9fs_trans_sock *ts =
-+	    kmalloc(sizeof(struct v9fs_trans_sock), GFP_KERNEL);
-+
-+	if (!ts)
-+		return -ENOMEM;
-+
-+	trans->priv = ts;
-+	ts->s = NULL;
-+
-+	sema_init(&trans->writelock, 1);
-+	sema_init(&trans->readlock, 1);
-+
-+	sun_server.sun_family = PF_UNIX;
-+	strcpy(sun_server.sun_path, dev_name);
-+	sock_create_kern(PF_UNIX, SOCK_STREAM, 0, &csocket);
-+	rc = csocket->ops->connect(csocket,
-+				   (struct sockaddr *)&sun_server,
-+				   sizeof(struct sockaddr_un), 0);
-+	if (rc < 0) {
-+		eprintk(KERN_ERR,
-+			"v9fs_trans_unix: problem connecting socket: %s: %d\n",
-+			dev_name, rc);
-+		return rc;
++	if (down_interruptible(&i->sem) == -EINTR) {
++		eprintk(KERN_WARNING, "Interrupted while locking\n");
++		return -1;
 +	}
-+	csocket->sk->sk_allocation = GFP_NOIO;
-+	ts->s = csocket;
-+	trans->status = Connected;
 +
-+	return 0;
++	nextbit = find_next_zero_bit(i->idlist, i->maxalloc, i->lastfree);
++	if (nextbit > i->maxalloc) {
++		if (grow_idpool(i, i->maxalloc * 2) == 0) {
++			up(&i->sem);
++			return -1;
++		} else {
++			nextbit =
++			    find_next_zero_bit(i->idlist, i->maxalloc,
++					       i->lastfree);
++		}
++	}
++
++	set_bit(nextbit, i->idlist);
++	if (i->lastfree == nextbit)
++		i->lastfree = nextbit + 1;
++
++	up(&i->sem);
++	return nextbit;
 +}
 +
 +/**
-+ * v9fs_sock_close - shutdown socket
-+ * @trans: private socket structure
++ * v9fs_put_idpool - get a new id from the pool
++ * @which: which id to put
++ * @i: pointer to idpool
 + *
 + */
 +
-+static void v9fs_sock_close(struct v9fs_transport *trans)
++void v9fs_put_idpool(int which, struct idpool *i)
 +{
-+	struct v9fs_trans_sock *ts = trans ? trans->priv : NULL;
-+
-+	if ((ts) && (ts->s)) {
-+		dprintk(DEBUG_TRANS, "closing the socket %p\n", ts->s);
-+		sock_release(ts->s);
-+		ts->s = NULL;
-+		trans->status = Disconnected;
-+		dprintk(DEBUG_TRANS, "socket closed\n");
++	if ((which < 0) || (which > i->maxalloc)) {
++		return;
 +	}
 +
-+	kfree(ts);
++	if (down_interruptible(&i->sem) == -EINTR) {
++		eprintk(KERN_WARNING, "Interrupted while locking\n");
++		return;
++	}
++
++	clear_bit(which, i->idlist);
++	if (which < i->lastfree)
++		i->lastfree = which;
++
++	up(&i->sem);
 +}
-+
-+struct v9fs_transport v9fs_trans_tcp = {
-+	.init = v9fs_tcp_init,
-+	.write = v9fs_sock_send,
-+	.read = v9fs_sock_recv,
-+	.close = v9fs_sock_close,
-+};
-+
-+struct v9fs_transport v9fs_trans_unix = {
-+	.init = v9fs_unix_init,
-+	.write = v9fs_sock_send,
-+	.read = v9fs_sock_recv,
-+	.close = v9fs_sock_close,
-+};

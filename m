@@ -1,103 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbVFBAOY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbVFBAWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261544AbVFBAOY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 20:14:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261562AbVFBAN6
+	id S261542AbVFBAWU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 20:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261546AbVFBAWJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 20:13:58 -0400
-Received: from mail.tmr.com ([64.65.253.246]:4486 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S261544AbVFBANE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 20:13:04 -0400
-Message-ID: <429E4F05.7060201@tmr.com>
-Date: Wed, 01 Jun 2005 20:12:53 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
+	Wed, 1 Jun 2005 20:22:09 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:19556 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261542AbVFBAUP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 20:20:15 -0400
+Message-ID: <429E50B8.1060405@yahoo.com.au>
+Date: Thu, 02 Jun 2005 10:20:08 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Matthias Andree <matthias.andree@gmx.de>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux does not care for data integrity
-References: <42877C1B.2030008@pobox.com> <20050516110203.GA13387@merlin.emma.line.org> <1116241957.6274.36.camel@laptopd505.fenrus.org> <20050516112956.GC13387@merlin.emma.line.org> <1116252157.6274.41.camel@laptopd505.fenrus.org> <20050516144831.GA949@merlin.emma.line.org> <1116256005.21388.55.camel@localhost.localdomain> <87zmudycd1.fsf@stark.xeocode.com> <20050529211610.GA2105@merlin.emma.line.org> <429E062B.60909@tmr.com> <20050601220242.GC31585@merlin.emma.line.org>
-In-Reply-To: <20050601220242.GC31585@merlin.emma.line.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+CC: jschopp@austin.ibm.com, Mel Gorman <mel@csn.ul.ie>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Avoiding external fragmentation with a placement policy Version
+ 12
+References: <20050531112048.D2511E57A@skynet.csn.ul.ie> <429E20B6.2000907@austin.ibm.com> <429E4023.2010308@yahoo.com.au> <423970000.1117668514@flay> <429E483D.8010106@yahoo.com.au> <434510000.1117670555@flay>
+In-Reply-To: <434510000.1117670555@flay>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthias Andree wrote:
+Martin J. Bligh wrote:
 
->On Wed, 01 Jun 2005, Bill Davidsen wrote:
->
+> There's one example ... we can probably work around it if we try hard
+> enough. However, the fundamental question becomes "do we support higher
+> order allocs, or not?". If not fine ... but we ought to quit pretending
+> we do. If so, then we need to make them more reliable.
+> 
+
+It appears that we basically support order 3 allocations and
+less (those will stay in the page allocator until something
+happens).
+
+I see your point... Mel's patch has failure cases though.
+For example, someone turns swap off, or mlocks some memory
+(I guess we then add the page migration defrag patch and
+problem is solved?).
+
+I do see your point. The extra complexity makes me cringe though
+(no offence to Mel - I'm sure it is a complex problem).
+
+>>Yeah more or less. But with the fragmentation patch, it by
+>>no means becomes an exact science ;) I wouldn't have thought
+>>it would make it hugely easier to free an order 2 or 3 area
+>>memory block on a loaded machine.
+> 
+> 
+> Ummm. so the blunderbuss is an exact science? ;-) At least it fairly
+> consistently doesn't work, I suppose ;-) ;-)
 >  
->
->>>It's a matter of enforcing write order. In how far such ordering
->>>constraints are propagated by file systems, VFS layer, down to the
->>>hardware, is the grand question.
->>>      
->>>
->>The problem is that in many options required to make that happen in the 
->>o/s, hardware, and application are going to kill performance. And even 
->>if you can control order of write, unless you can get write to final 
->>non-volatile media control you can get a sane database but still lose 
->>transactions.
->>
->>If there was a way for the o/s to know when a physical write was done 
->>other than using flushes to force completion, then overall performance 
->>could be higher, but individual transaction might have greater latency. 
->>And the app could use fsync to force order of write as needed. In many 
->>cases groups of writes can be done in any order as long as they are all 
->>done before the next logical step takes place.
->>    
->>
->
->I have a déjà-vu, and I do believe that this discussion has taken place
->in this list before, perhaps with a slightly different alignment, and
->likely in the context of mail transfer agents and perhaps synchronous
->directory (data) updates (file creation and such). Exposing a bit of the
->queueing to the user space through new syscalls may be an interesting
->experiment, although I do not have the resources to provide code.
->Something like fsync() that doesn't flush the whole file system (which
->appears to be the most common implementation) but tracks what is needed,
->and that returns when data for a given file is on disk.
->  
->
 
-What I had in mind was not a "push" to flush anything anywhere, but 
-rather a watch. As a hypothetical, I open a file and every time a 
-write() is done a counter is incremented in the fd. That's the easy 
-part. Then every time a physical write is completed the count is 
-reduced. To allow for write combining the count could be in bytes rather 
-than syscalls and physical operations. That's the hard part, I don't 
-think the hardware is telling. In addition obviously writes may be 
-combined between i/o related to several fds. But if that could be done, 
-then fsync becomes "wait until my buffered byte count drops to zero," 
-which could be an ioctl. Just having such a checkpoint would address 
-some of the data coherency issues.
+No but I was just saying it is just another degree of
+"unsuportedness" (or supportedness, if you are a half full man).
 
-AFAIK this isn't possible with common ATA devices, and it clearly 
-doesn't address every desirable feature. In spite of that, if someone 
-better qualified to assess the problems and benefits cares to comment, 
-fine. If not, at least I think I explained what I was thinking more clearly.
+>>Why not just have kernel allocations going from the bottom
+>>up, and user allocations going from the top down. That would
+>>get you most of the way there, wouldn't it? (disclaimer: I
+>>could well be talking shit here).
+> 
+> 
+> Not sure it's quite that simple, though I haven't looked in detail
+> at these patches. My point was merely that we need to do *something*.
+> Off the top of my head ... what happens when kernel meets user in
+> the middle. where do we free and allocate from now ? ;-) Once we've
+> been up for a while, mem is nearly all used, nearly all of the time.
+> 
 
->  
->
->>This would change the meaning of fsync from "force out the data" to 
->>"wait for the data to be written" in some implementations.
->>    
->>
->
->Naming suggestion: flazysync()
->
->  
->
+No, I'm quite sure it isn't that simple, unfortunately. Hence
+disclaimer ;)
 
+> Is a good discussion to have though ;-)
+> 
 
--- 
-bill davidsen <davidsen@tmr.com>
-  CTO TMR Associates, Inc
-  Doing interesting things with small computers since 1979
-
+Yep, I was trying to help get something going!
+Send instant messages to your online friends http://au.messenger.yahoo.com 

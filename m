@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVFBRcF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVFBRey@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261207AbVFBRcF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 13:32:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVFBRcF
+	id S261212AbVFBRey (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 13:34:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261210AbVFBRey
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 13:32:05 -0400
-Received: from ns.suse.de ([195.135.220.2]:54154 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261207AbVFBRb7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 13:31:59 -0400
-Date: Thu, 2 Jun 2005 19:31:58 +0200
-From: Andi Kleen <ak@suse.de>
-To: Rusty Lynch <rusty.lynch@intel.com>
-Cc: akpm@osdl.org, Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
-       Vara Prasad <prasadav@us.ibm.com>, Hien Nguyen <hien@us.ibm.com>,
-       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
-       Jim Keniston <jkenisto@us.ibm.com>
-Subject: Re: [patch] x86_64 specific function return probes
-Message-ID: <20050602173158.GJ23831@wotan.suse.de>
-References: <200506021609.j52G99Ft023464@linux.jf.intel.com>
+	Thu, 2 Jun 2005 13:34:54 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:29319 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261208AbVFBReu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 13:34:50 -0400
+Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
+From: john stultz <johnstul@us.ibm.com>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
+       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <darren@dvhart.com>,
+       "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org
+In-Reply-To: <200506012037.53226.kernel-stuff@comcast.net>
+References: <1117667378.6801.80.camel@cog.beaverton.ibm.com>
+	 <1117667536.17474.0.camel@cog.beaverton.ibm.com>
+	 <1117667631.17474.3.camel@cog.beaverton.ibm.com>
+	 <200506012037.53226.kernel-stuff@comcast.net>
+Content-Type: text/plain
+Date: Thu, 02 Jun 2005 10:34:39 -0700
+Message-Id: <1117733679.17804.7.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506021609.j52G99Ft023464@linux.jf.intel.com>
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 02, 2005 at 09:09:09AM -0700, Rusty Lynch wrote:
-> The following patch adds the x86_64 architecture specific implementation
-> for function return probes to the 2.6.12-rc5-mm2 kernel. 
+On Wed, 2005-06-01 at 20:37 -0400, Parag Warudkar wrote:
+> On Wednesday 01 June 2005 19:13, john stultz wrote:
+> > This patch converts the x86-64 arch to use the new timeofday
+> > infrastructure. It applies on top of my timeofday-core_B1 patch.
+> 
+> This one fails to apply - time.c HUNK #1 gets rejected. (Attached)
 
-This is not a sufficient description for a patch. Can you describe
-how it actually works and what it does? 
+Yea, sorry. My naming scheme isn't quite granular enough. The patch is
+against Linus' git tree as of yesterday, not -rc5 vanilla. 
 
-> + * Called when we hit the probe point at kretprobe_trampoline
-> + */
-> +int trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
-> +{
-> +	struct task_struct *tsk;
-> +	struct kretprobe_instance *ri;
-> +	struct hlist_head *head;
-> +	struct hlist_node *node;
-> +	unsigned long *sara = (unsigned long *)regs->rsp - 1;
-> +
-> +	tsk = arch_get_kprobe_task(sara);
+If you grab Linus' current tree it should apply.
 
-I dont think you handle the case of the exception happening on 
-a exception or interrupt stack. This is broken.
+Sorry about the confusion.
+-john
 
--Andi

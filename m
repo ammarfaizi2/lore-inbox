@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVFBRb1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVFBRcF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbVFBRb1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 13:31:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVFBRb1
+	id S261207AbVFBRcF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 13:32:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVFBRcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 13:31:27 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:29689 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261202AbVFBRbZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 13:31:25 -0400
-Subject: Re: [PATCH] Abstracted Priority Inheritance for RT
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       sdietrich@mvista.com, rostedt@goodmis.org,
-       inaky.perez-gonzalez@intel.com
-In-Reply-To: <Pine.OSF.4.05.10506021713200.3853-100000@da410.phys.au.dk>
-References: <Pine.OSF.4.05.10506021713200.3853-100000@da410.phys.au.dk>
-Content-Type: text/plain
-Organization: MontaVista
-Date: Thu, 02 Jun 2005 10:31:11 -0700
-Message-Id: <1117733471.20350.2.camel@dhcp153.mvista.com>
+	Thu, 2 Jun 2005 13:32:05 -0400
+Received: from ns.suse.de ([195.135.220.2]:54154 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261207AbVFBRb7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 13:31:59 -0400
+Date: Thu, 2 Jun 2005 19:31:58 +0200
+From: Andi Kleen <ak@suse.de>
+To: Rusty Lynch <rusty.lynch@intel.com>
+Cc: akpm@osdl.org, Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org,
+       Vara Prasad <prasadav@us.ibm.com>, Hien Nguyen <hien@us.ibm.com>,
+       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
+       Jim Keniston <jkenisto@us.ibm.com>
+Subject: Re: [patch] x86_64 specific function return probes
+Message-ID: <20050602173158.GJ23831@wotan.suse.de>
+References: <200506021609.j52G99Ft023464@linux.jf.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200506021609.j52G99Ft023464@linux.jf.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-06-02 at 17:18 +0200, Esben Nielsen wrote:
+On Thu, Jun 02, 2005 at 09:09:09AM -0700, Rusty Lynch wrote:
+> The following patch adds the x86_64 architecture specific implementation
+> for function return probes to the 2.6.12-rc5-mm2 kernel. 
 
-> Good :-)
-> I asked the question because I considered (and started but didn't
-> have time) doing what you have done. I wanted to generalise the rt_mutex
-> to have real rw_lock as well - which was dropped due to the
-> non-deterministc behavioir even with PI. To do that I needed to have the
-> recursion and the callback..
+This is not a sufficient description for a patch. Can you describe
+how it actually works and what it does? 
 
-I'm not planning to do a real rw-lock, but I hope this generic PI will
-help with that. I'm still not completely satisfied with this callback
-structure , but I don't see a better way to do it. Do you have an
-suggestions for replacing it?
+> + * Called when we hit the probe point at kretprobe_trampoline
+> + */
+> +int trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
+> +{
+> +	struct task_struct *tsk;
+> +	struct kretprobe_instance *ri;
+> +	struct hlist_head *head;
+> +	struct hlist_node *node;
+> +	unsigned long *sara = (unsigned long *)regs->rsp - 1;
+> +
+> +	tsk = arch_get_kprobe_task(sara);
 
-Daniel
+I dont think you handle the case of the exception happening on 
+a exception or interrupt stack. This is broken.
 
+-Andi

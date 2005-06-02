@@ -1,81 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVFBUgG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261260AbVFBUkp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261253AbVFBUgG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 16:36:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVFBUfO
+	id S261260AbVFBUkp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 16:40:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVFBUke
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 16:35:14 -0400
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:4546 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S261319AbVFBUcf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 16:32:35 -0400
-Date: Thu, 2 Jun 2005 13:32:25 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: Christian Hesse <mail@earthworm.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Dynamic tick for x86 version 050602-2
-Message-ID: <20050602203225.GH21363@atomide.com>
-References: <20050602013641.GL21597@atomide.com> <200506021030.50585.mail@earthworm.de> <20050602174219.GC21363@atomide.com> <200506022203.27734.mail@earthworm.de>
+	Thu, 2 Jun 2005 16:40:34 -0400
+Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:36790 "EHLO
+	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S261232AbVFBUhp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 16:37:45 -0400
+Date: Thu, 2 Jun 2005 16:37:44 -0400
+To: Rene Herman <rene.herman@keyaccess.nl>
+Cc: David Brownell <david-b@pacbell.net>, Pavel Machek <pavel@ucw.cz>,
+       Bartlomiej Zolnierkiewicz <B.Zolnierkiewicz@elka.pw.edu.pl>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, Mark Lord <lkml@rtr.ca>,
+       David Brownell <dbrownell@users.sourceforge.net>
+Subject: Re: External USB2 HDD affects speed hda
+Message-ID: <20050602203744.GP23488@csclub.uwaterloo.ca>
+References: <429BA001.2030405@keyaccess.nl> <20050601081810.GA23114@elf.ucw.cz> <429DFD90.10802@keyaccess.nl> <200506011240.09540.david-b@pacbell.net> <429E3338.9000401@keyaccess.nl> <20050602135737.GO23621@csclub.uwaterloo.ca> <429F0570.1090004@keyaccess.nl>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200506022203.27734.mail@earthworm.de>
-User-Agent: mutt-ng 1.5.9i (Linux)
+In-Reply-To: <429F0570.1090004@keyaccess.nl>
+User-Agent: Mutt/1.3.28i
+From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Christian Hesse <mail@earthworm.de> [050602 13:04]:
-> On Thursday 02 June 2005 19:42, Tony Lindgren wrote:
-> > * Christian Hesse <mail@earthworm.de> [050602 01:31]:
-> > > On Thursday 02 June 2005 03:36, Tony Lindgren wrote:
-> > > > Hi all,
-> > > >
-> > > > Here's an updated version of the dynamic tick patch.
-> > > >
-> > > > It's mostly clean-up and it's now using the standard
-> > > > monotonic_clock() functions as suggested by John Stultz.
-> > > >
-> > > > Please let me know of any issues with the patch. I'll continue to do
-> > > > more clean-up on it, but I think the basic functionality is done.
-> > >
-> > > I would like to test it, but have some trouble. The patch applies cleanly
-> > > and everything compiles fine, but linking fails:
-> > >
-> > > [ linker errors ]
-> >
-> > Should be fixed now, the header was defining it as a function un UP
-> > system with no local apic. Can you try the following version?
+On Thu, Jun 02, 2005 at 03:11:12PM +0200, Rene Herman wrote:
+> Many thanks for trying but our systems really are quite different. I'm 
+> on an old fashioned north/south-bridge system, where everything does 
+> compete for bus bandwidth but on newer systems it's all some form of 
+> "hub architecture" (intel nomenclature) or whatever nVidia calls it. I'm 
+> not too familiar with it, but I do believe that on that system one 
+> needn't really expect a misbehaving EHCI controller to have (much?) 
+> effect on IDE throughput.
 > 
-> This one compiles and links without problems.
+> Would you be willing to enable CONFIG_USB_DEBUG and then look at 
+> /sys/class/usb_host/usbN/registers, for usbN your EHCI bus (the second 
+> line of that file will say EHCI for that one)? Example for me:
+
+I will try and do that when I get a chance.  I can also try it on a
+machine with an add in ehci card (Via KT133 chipset + NEC ehci card).
+
+> bus pci, device 0000:00:09.2 (driver 10 Dec 2004)
+> EHCI 1.00, hcd state 1
+> structural params 0x00002204
+> capability params 0x00006872
+> status 0008 FLR
+> command 010009 (park)=0 ithresh=1 period=256 RUN
+> intrenable 37 IAA FATAL PCD ERR INT
+> uframe 2dee
+> port 1 status 001000 POWER sig=se0
+> port 2 status 001000 POWER sig=se0
+> port 3 status 001000 POWER sig=se0
+> port 4 status 001000 POWER sig=se0
+> irq normal 0 err 0 reclaim 0 (lost 0)
+> complete 0 unlink 0
 > 
-> The reason I want to use this patch is that I hear a high pitched noise [1] 
-> when running with 1000Hz and the processor is idle. With this patch I could 
-> use 1000Hz without any noise.
-
-Heh!
-
-> But I found some problems on my system:
+> When my IDE throughput is normal, the "status" line is always as above, 
+> but after switching on the USB2 HDD (and even after switching if off 
+> again and/or unplugging it) "Async" and/or "Recl" start toggling on and 
+> off (and IDE throughput drops) until I rmmod ehci-hcd. You'd need to 
+> check the file a few times in a row...
 > 
-> - time does not run the correct speed, it was some minutes in future after I 
-> had compiled a new kernel
+> In fact, anyone who could do the same would be much welcome. Certainly 
+> with the EHCI controller on a PCI card, and even more certainly with a 
+> VIA VT6212 EHCI controller on a PCI card.
 
-Could you please post output of the following commands:
+> Your 41MB/s for the SATA disk on nForce2 does seem a bit low. The 50 
+> here is with a PATA Maxtor 120G on a UDMA66 controller. I just checked 
+> and I see that with current kernels hdparm -a hasn't as much influence 
+> as it used to have on the hdparm -t result, but try after a "hdparm -a N 
+> /dev/sda" (sda for SATA, right?) for at least N = 256, 512, 1024, 2048 
+> and 4096...
 
-$ dmesg | grep -i "time\|tick\|apic"
+Well the SATA is using an Sil3112A controller.  Not sure how fast they
+are.
 
-# for i in 1 2 3 4 5; do ntpdate -b someserver.somewhere && sleep 10; done
+The system also isn't entirely idle, so who knows what might affect the
+speed.  I only get 30M/s at the moment on the same type of WD 120G SATA
+drive on an ICH5R chipset, although I am pretty sure I have got more
+than that when it was idle before.
 
-Also, please attach your .config file too.
-
-> - pressing a key on the keyboard sometimes results in two or more characters, 
-> not only one
->
-> - mouse misses some events, e.g. clicks are not recognized (synaptics 
-> touchpad)
-> 
-> - using software suspend 2.1.8.10 I can suspend the system, but it hangs while 
-> resuming
-
-None of this should happen...
-
-Tony
+Len Sorensen

@@ -1,182 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261402AbVFBNIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261404AbVFBNOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261402AbVFBNIa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 09:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261427AbVFBNE6
+	id S261404AbVFBNOM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 09:14:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261403AbVFBNJ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 09:04:58 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:16848 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261415AbVFBNB1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 09:01:27 -0400
-Message-Id: <20050602130112.159708000@araj-em64t>
-References: <20050602125754.993470000@araj-em64t>
-Date: Thu, 02 Jun 2005 05:58:00 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       Rusty Russell <rusty@rustycorp.com.au>,
-       Srivattsa Vaddagiri <vatsa@in.ibm.com>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Ashok Raj <ashok.raj@intel.com>
-Subject: [patch 5/5] x86_64: Provide ability to choose using shortcuts for IPI in flat mode.
-Content-Disposition: inline; filename=choose_mask_or_broadcast.patch
+	Thu, 2 Jun 2005 09:09:59 -0400
+Received: from mx.laposte.net ([80.245.62.11]:42871 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id S261420AbVFBND0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 09:03:26 -0400
+Subject: Re: [RFC] SPI core
+From: Rui Sousa <rui.sousa@laposte.net>
+To: Greg KH <greg@kroah.com>
+Cc: "Mark M. Hoffman" <mhoffman@lightlink.com>,
+       dmitry pervushin <dpervushin@ru.mvista.com>,
+       linux-kernel@vger.kernel.org, lm-sensors <lm-sensors@lm-sensors.org>
+In-Reply-To: <20050602045145.GA7838@kroah.com>
+References: <1117555756.4715.17.camel@diimka.dev.rtsoft.ru>
+	 <20050531233215.GB23881@kroah.com>
+	 <20050602040655.GE4906@jupiter.solarsys.private>
+	 <20050602045145.GA7838@kroah.com>
+Content-Type: text/plain
+Date: Thu, 02 Jun 2005 15:02:35 +0200
+Message-Id: <1117717356.5794.9.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch provides an option to switch broadcast or use mask version 
-for sending IPI's. If CONFIG_HOTPLUG_CPU is defined, we choose not to 
-use broadcast shortcuts by default, otherwise we choose broadcast mode
-as default.
+Hi Greg,
 
-both cases, one can change this via startup cmd line option, to choose
-no-broadcast mode.
+On Wed, 2005-06-01 at 21:51 -0700, Greg KH wrote:
+> On Thu, Jun 02, 2005 at 12:06:55AM -0400, Mark M. Hoffman wrote:
+> > * Greg KH <greg@kroah.com> [2005-05-31 16:32:15 -0700]:
+> > > This code is _very_ close to just a copy of the i2c core code.  Why
+> > > duplicate it and not work with the i2c people instead?
+> > 
+> > It was discussed briefly on the lm-sensors mailing list [1].  I didn't 
+> > reply at the time, but I do agree that SPI and I2C/SMBus are different
+> > enough to warrant independent subsystems.
+> 
+> Independant is fine.  But direct copies, including making the same
+> mistakes (i2c dev interface, i2c driver model mess) isn't :)
 
-	no_ipi_broadcast=1
+I have also worked on a(nother) SPI layer implementation. Like Dmitry, I
+ended up following closely the i2c implementation, so, I'm curious to
+know more details on what you call "i2c driver model mess".
 
-This is provided on request from Andi Kleen, since he doesnt agree with 
-replacing IPI shortcuts as a solution for CPU hotplug. Without removing
-broadcast IPI's, it would mean lots of new code for __cpu_up() path, 
-which would acheive the same results.
+> thanks,
+> 
+> greg k-h
 
-I will send the primitive interface next as a separate patch from this
-patch set.
+Thanks,
 
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
-----------------------------------------------------
- arch/x86_64/kernel/genapic_flat.c |   84 ++++++++++++++++++++++++++++++++++++--
- 1 files changed, 80 insertions(+), 4 deletions(-)
+Rui
 
-Index: linux-2.6.12-rc5-mm2/arch/x86_64/kernel/genapic_flat.c
-===================================================================
---- linux-2.6.12-rc5-mm2.orig/arch/x86_64/kernel/genapic_flat.c
-+++ linux-2.6.12-rc5-mm2/arch/x86_64/kernel/genapic_flat.c
-@@ -20,6 +20,46 @@
- #include <asm/smp.h>
- #include <asm/ipi.h>
- 
-+/*
-+ * The following permit choosing broadcast IPI shortcut v.s sending IPI only
-+ * to online cpus via the send_IPI_mask varient.
-+ * The mask version is my preferred option, since it eliminates a lot of
-+ * other extra code that would need to be written to cleanup intrs sent
-+ * to a CPU while offline.
-+ *
-+ * Sending broadcast introduces lots of trouble in CPU hotplug situations.
-+ * These IPI's are delivered to cpu's irrespective of their offline status
-+ * and could pickup stale intr data when these CPUS are turned online.
-+ *
-+ * Not using broadcast is a cleaner approach IMO, but Andi Kleen disagrees with
-+ * the idea of not using broadcast IPI's anymore. Hence the run time check
-+ * is introduced, on his request so we can choose an alternate mechanism.
-+ *
-+ * Initial wacky performance tests that collect cycle counts show
-+ * no increase in using mask v.s broadcast version. In fact they seem
-+ * identical in terms of cycle counts.
-+ *
-+ * if we need to use broadcast, we need to do the following.
-+ *
-+ * cli;
-+ * hold call_lock;
-+ * clear any pending IPI, just ack and clear all pending intr
-+ * set cpu_online_map;
-+ * release call_lock;
-+ * sti;
-+ *
-+ * The complicated dummy irq processing shown above is not required if
-+ * we didnt sent IPI's to wrong CPU's in the first place.
-+ *
-+ * - Ashok Raj <ashok.raj@intel.com>
-+ */
-+#ifdef CONFIG_HOTPLUG_CPU
-+#define DEFAULT_SEND_IPI	(1)
-+#else
-+#define DEFAULT_SEND_IPI	(0)
-+#endif
-+
-+static int no_broadcast=DEFAULT_SEND_IPI;
- 
- static cpumask_t flat_target_cpus(void)
- {
-@@ -79,27 +119,44 @@ static void flat_send_IPI_mask(cpumask_t
- 	local_irq_restore(flags);
- }
- 
-+static inline void __local_flat_send_IPI_allbutself(cpumask_t mask, int vector)
-+{
-+	if (no_broadcast)
-+		flat_send_IPI_mask(mask, vector);
-+	else
-+		__send_IPI_shortcut(APIC_DEST_ALLBUT, vector, APIC_DEST_LOGICAL);
-+}
-+
-+static inline void __local_flat_send_IPI_all(cpumask_t mask, int vector)
-+{
-+	if (no_broadcast)
-+		flat_send_IPI_mask(mask, vector);
-+	else
-+		__send_IPI_shortcut(APIC_DEST_ALLINC, vector, APIC_DEST_LOGICAL);
-+}
-+
- static void flat_send_IPI_allbutself(int vector)
- {
- 	cpumask_t mask;
-+	int this_cpu;
- 	/*
- 	 * if there are no other CPUs in the system then
- 	 * we get an APIC send error if we try to broadcast.
- 	 * thus we have to avoid sending IPIs in this case.
- 	 */
--	get_cpu();
-+	this_cpu = get_cpu();
- 	mask = cpu_online_map;
--	cpu_clear(smp_processor_id(), mask);
-+	cpu_clear(this_cpu, mask);
- 
- 	if (cpus_weight(mask) >= 1)
--		flat_send_IPI_mask(mask, vector);
-+		__local_flat_send_IPI_allbutself(mask, vector);
- 
- 	put_cpu();
- }
- 
- static void flat_send_IPI_all(int vector)
- {
--	flat_send_IPI_mask(cpu_online_map, vector);
-+	__local_flat_send_IPI_all(cpu_online_map, vector);
- }
- 
- static int flat_apic_id_registered(void)
-@@ -120,6 +177,16 @@ static unsigned int phys_pkg_id(int inde
- 	return ((ebx >> 24) & 0xFF) >> index_msb;
- }
- 
-+static __init int no_ipi_broadcast(char *str)
-+{
-+	get_option(&str, &no_broadcast);
-+	printk ("Using %s mode\n", no_broadcast ? "No IPI Broadcast" :
-+											"IPI Broadcast");
-+	return 1;
-+}
-+
-+__setup("no_ipi_broadcast", no_ipi_broadcast);
-+
- struct genapic apic_flat =  {
- 	.name = "flat",
- 	.int_delivery_mode = dest_LowestPrio,
-@@ -134,3 +201,12 @@ struct genapic apic_flat =  {
- 	.cpu_mask_to_apicid = flat_cpu_mask_to_apicid,
- 	.phys_pkg_id = phys_pkg_id,
- };
-+
-+int print_ipi_mode(void)
-+{
-+	printk ("Using IPI %s mode\n", no_broadcast ? "No-Shortcut" :
-+											"Shortcut");
-+	return 0;
-+}
-+
-+late_initcall(print_ipi_mode);
-
---
 

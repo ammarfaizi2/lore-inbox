@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVFBQuk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVFBQw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbVFBQuk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 12:50:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVFBQuk
+	id S261196AbVFBQw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 12:52:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVFBQw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 12:50:40 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:20624 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261195AbVFBQuf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 12:50:35 -0400
-Date: Thu, 2 Jun 2005 12:50:34 -0400
-To: Ananda Krishnan <veedutwo@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Did anyone try (Logitech/Microsoft) bluetooth keyboard and mouse on Linux?
-Message-ID: <20050602165034.GP23621@csclub.uwaterloo.ca>
-References: <20050602163740.37068.qmail@web14824.mail.yahoo.com>
+	Thu, 2 Jun 2005 12:52:56 -0400
+Received: from main.gmane.org ([80.91.229.2]:54664 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S261196AbVFBQwu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 12:52:50 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Matthias Urlichs <smurf@smurf.noris.de>
+Subject: Re: 2.6.12-rc5-git6 mis-counted ide interfaces
+Date: Thu, 02 Jun 2005 18:49:35 +0200
+Organization: {M:U} IT Consulting
+Message-ID: <pan.2005.06.02.16.49.34.279491@smurf.noris.de>
+References: <429ECE20.1030403@ribosome.natur.cuni.cz> <20050602033253.77cd66d9.akpm@osdl.org> <429ED313.3080704@ribosome.natur.cuni.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050602163740.37068.qmail@web14824.mail.yahoo.com>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: run.smurf.noris.de
+User-Agent: Pan/0.14.2.91 (As She Crawled Across the Table)
+X-Face: '&-&kxR\8+Pqalw@VzN\p?]]eIYwRDxvrwEM<aSTmd'\`f#k`zKY&P_QuRa4EG?;#/TJ](:XL6B!-=9nyC9o<xEx;trRsW8nSda=-b|;BKZ=W4:TO$~j8RmGVMm-}8w.1cEY$X<B2+(x\yW1]Cn}b:1b<$;_?1%QKcvOFonK.7l[cos~O]<Abu4f8nbL15$"1W}y"5\)tQ1{HRR?t015QK&v4j`WaOue^'I)0d,{v*N1O
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 02, 2005 at 09:37:40AM -0700, Ananda Krishnan wrote:
->   Did anyone try Logitech/Microsoft wireless keyboard
-> and mouse on Linux?  If so, please let me have the
-> details of the driver you used and the details of the
-> keyboard/mouse (model number, brand etc.,).  Thanks.
+Hi, Martin MOKREJŠ wrote:
 
-Well in my opinion, if anyone makes a keyboard/mouse that does not use
-standard protocols and work without any custom drivers, they are going
-to fail badly.
+> Andrew Morton wrote:
+>> Martin MOKREJ__ <mmokrejs@ribosome.natur.cuni.cz> wrote:
+>>>     ide0: BM-DMA at 0xfc00-0xfc07, BIOS settings: hda:DMA, hdb:pio
+>>>     ide1: BM-DMA at 0xfc08-0xfc0f, BIOS settings: hdc:pio, hdd:pio
+>>> Probing IDE interface ide0...
+>>> hda: SONY DVD RW DRU-510A, ATAPI CD/DVD-ROM drive
+>>> ide0 at 0x1f0-0x1f7,0x3f6 on irq 14
+>>> Probing IDE interface ide1...
+>>> ----------------------^^^^ ide0 I believe
 
-Certainly the logitech cordless mouse/keyboard set I have (not
-bluetooth) just appears as a usb mouse and keyboard (or optionally ps/2
-mouse and keyboard if you use the other connectors) to the system and
-work with no special drivers required other than what you normally use
-for mouse and keyboard on that type of connector.
+Why?
 
-If you want to do networking or something over bluetooh, that is
-different, but that isn't what mouse/keyboard should require unless
-bluetooth was never meant to be used for such things.  Not sure why you
-want bluetooth for the mouse/keyboard.  Doesn't it use the same
-frequency range as 802.11b/g?  I don't need more interference around the
-machine in that frequency range.
+>> Does the kernel boot and run OK, or does something actually go wrong?
+> 
+> It works fine, just the *extra* "Probing IDE interface ide1..." line made me
+> worry about.
 
-Len Sorensen
+I fail to see the problem -- the kernel probes ide0 once, and ide1 once.
+I'd assume that that is what's supposed to happen ..?
+
+I't be more worried if it decided to check ide0 again.
+
+-- 
+Matthias Urlichs   |   {M:U} IT Design @ m-u-it.de   |  smurf@smurf.noris.de
+Disclaimer: The quote was selected randomly. Really. | http://smurf.noris.de
+ - -
+I will not pick up a glowing ancient artifact and shout "Its power is
+now mine!!!" Instead I will grab some tongs, transfer it to a hazardous
+materials container, and transport it back to my lab for study.
+		-- The Evil Overlord List
+
+

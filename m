@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVFBXmm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261476AbVFBXlD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbVFBXmm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 19:42:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVFBXm3
+	id S261476AbVFBXlD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 19:41:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVFBXlB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 19:42:29 -0400
-Received: from fsmlabs.com ([168.103.115.128]:46779 "EHLO fsmlabs.com")
-	by vger.kernel.org with ESMTP id S261443AbVFBXmE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 19:42:04 -0400
-Date: Thu, 2 Jun 2005 17:45:14 -0600 (MDT)
-From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
-To: Ashok Raj <ashok.raj@intel.com>
-cc: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, discuss@x86-64.org,
-       Rusty Russell <rusty@rustycorp.com.au>,
-       Srivattsa Vaddagiri <vatsa@in.ibm.com>
-Subject: Re: [patch 2/5] x86_64: CPU hotplug support.
-In-Reply-To: <20050602163307.C16913@unix-os.sc.intel.com>
-Message-ID: <Pine.LNX.4.61.0506021742390.3157@montezuma.fsmlabs.com>
-References: <20050602125754.993470000@araj-em64t> <20050602130111.816070000@araj-em64t>
- <Pine.LNX.4.61.0506021416490.3157@montezuma.fsmlabs.com>
- <20050602163307.C16913@unix-os.sc.intel.com>
+	Thu, 2 Jun 2005 19:41:01 -0400
+Received: from rwcrmhc11.comcast.net ([204.127.198.35]:12767 "EHLO
+	rwcrmhc11.comcast.net") by vger.kernel.org with ESMTP
+	id S261477AbVFBXjM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 19:39:12 -0400
+X-Comment: AT&T Maillennium special handling code - c
+From: Parag Warudkar <kernel-stuff@comcast.net>
+To: john stultz <johnstul@us.ibm.com>
+Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
+Date: Thu, 2 Jun 2005 19:33:58 -0400
+User-Agent: KMail/1.8
+Cc: Nishanth Aravamudan <nacc@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org
+References: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net> <200506021905.08274.kernel-stuff@comcast.net> <1117754453.17804.51.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1117754453.17804.51.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506021933.59470.kernel-stuff@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2 Jun 2005, Ashok Raj wrote:
+On Thursday 02 June 2005 19:20, john stultz wrote:
+> Could you see if the slowness you're feeling is correlated to the
+> acpi_pm timesource? It is quite a bit slower to access then the TSC, but
+> I'd be surprised if you can actually feel the difference.
 
-> > > +	lock_ipi_call_lock();
-> > >  	cpu_set(smp_processor_id(), cpu_online_map);
-> > >  	mb();
-> > > +	unlock_ipi_call_lock();
-> > 
-> > What's that? Is this another smp_call_function race workaround? I thought 
-> > there was an additional patch to avoid the broadcast.
-> 
-> The other patch avoids sending to offline cpu's, but we read cpu_online_map
-> and clear self bit in smp_call_function. If a cpu comes online, dont we 
-> want this cpu to take part in smp_call_function?
+Will try that.
 
-The lock being held in smp_call_function whilst we access cpu_online_map 
-should prevent another processor coming online within that operation 
-shouldn't it? So There shouldn't be any processors coming online except 
-for right after or before an smp_call_function.
+>
+> This is on an x86-64 system, correct?
 
+Yes, correct.
 
+Parag
+-- 
+It is exactly because a man cannot do a thing that he is a proper judge of it.
+		-- Oscar Wilde

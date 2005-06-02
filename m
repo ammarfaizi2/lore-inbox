@@ -1,106 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261471AbVFBXrT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261332AbVFBX4B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261471AbVFBXrT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 19:47:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261473AbVFBXrT
+	id S261332AbVFBX4B (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 19:56:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbVFBX4A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 19:47:19 -0400
-Received: from dvhart.com ([64.146.134.43]:7591 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261471AbVFBXqU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 19:46:20 -0400
-Date: Thu, 02 Jun 2005 16:46:10 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Jeff Wiegley <jeffw@cyte.com>, linux-kernel@vger.kernel.org
-Subject: Re: amd64 booting panic (really, really early)
-Message-ID: <805040000.1117755970@flay>
-In-Reply-To: <429F3160.5060704@cyte.com>
-References: <429F3160.5060704@cyte.com>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Thu, 2 Jun 2005 19:56:00 -0400
+Received: from rwcrmhc14.comcast.net ([216.148.227.89]:47871 "EHLO
+	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S261332AbVFBXzx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 19:55:53 -0400
+X-Comment: AT&T Maillennium special handling code - c
+From: Parag Warudkar <kernel-stuff@comcast.net>
+To: john stultz <johnstul@us.ibm.com>
+Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
+Date: Thu, 2 Jun 2005 19:50:33 -0400
+User-Agent: KMail/1.8
+Cc: Nishanth Aravamudan <nacc@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org
+References: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net> <200506021905.08274.kernel-stuff@comcast.net> <1117754453.17804.51.camel@cog.beaverton.ibm.com>
+In-Reply-To: <1117754453.17804.51.camel@cog.beaverton.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200506021950.35014.kernel-stuff@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sounds very like what I was hitting. If it's the same, it should
-work with 2.6.12-rc2, but is broken with -rc3 and later. 
+On Thursday 02 June 2005 19:20, john stultz wrote:
+> Could you see if the slowness you're feeling is correlated to the
+> acpi_pm timesource?
 
-M.
+Speaking of which, the below code from arch/i386/timer_pm.c looks particularly 
+more taxing to me - 3 times read from ioport in a loop - not sure how many 
+time that executes. 
 
---On Thursday, June 02, 2005 09:18:40 -0700 Jeff Wiegley <jeffw@cyte.com> wrote:
+static inline u32 read_pmtmr(void)
+{
+        u32 v1=0,v2=0,v3=0;
+        /* It has been reported that because of various broken
+         * chipsets (ICH4, PIIX4 and PIIX4E) where the ACPI PM time
+         * source is not latched, so you must read it multiple
+         * times to insure a safe value is read.
+         */
+        do {
+                v1 = inl(pmtmr_ioport);
+                v2 = inl(pmtmr_ioport);
+                v3 = inl(pmtmr_ioport);
+        } while ((v1 > v2 && v1 < v3) || (v2 > v3 && v2 < v1)
+                        || (v3 > v1 && v3 < v2));
 
-> I've been trying to get the 2.6.12 release candidates booting
-> on my new amd64 machine without luck.
-> 
-> The motherboard/machine is a new shuttle ST20G5 and the real
-> frustrating part is that it does not have a built in serial
-> port. So I can't directly capture the panic. (I tried putting
-> in a PCI serial card and couldn't get to work. I think it
-> didn't work because the panic is so incredibly early that the
-> serial driver hasn't a chance to probe.)
-> 
-> But I have manually copied as much of the panic as remained
-> on the 24 lines of my screen. (Sorry for any transcription
-> errors):
-> 
-> The panic happens almost instaneously. (As in, I don't visibly
-> see any other output other than the panic. So, to at least
-> my slow eyes it looks like it happens immediately after the
-> "Booting kernel" line.)
-> 
-> I have no idea who would be responsible for this and the
-> oops-tracing.txt said to send here in such a case. I hope
-> somebody can tell me what's wrong or what obvious thing I
-> screwed up...
-> 
-> I can get 2.6.8 and 2.6.9 working but 2.6.10 and later
-> produce this error. I do have a version of 2.6.12-rc2
-> booting and working (typing on it now) but when I use the
-> same config file for 2.6.12-rc4 it goes back to the panic.
-> 
-> I'm willing to try more config options but I need some
-> input as to what I should be doing since I've run out of
-> ideas.
-> 
-> Please help if you can.
-> 
-> RSP: 0018: ffffffff8039a658  EFLAGS: 00010046
-> RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-> RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000000
-> RBP: 00000000ffffffff R08: 0000000000000000 R09: 0000000000010001
-> R10: 0000000000000000 R11: 0000000000000000 R12: ffffffff803dbee8
-> R13: 0000000000000000 R14: 0000000000000000 R15: ffffffff803dbfb0
-> FS:  0000000000000000(0000) GS:ffffffff803d3c00(0000) knlGS: 0000000000000000
-> CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-> CR2: 0000000000000000 CR3: 0000000000000000 CR4: 00000000000006a0
-> Process swapper (pid: 0, threadinfo ffffffff803da000, task ffffffff802f1200)
-> Stack: 0000000000000000 ffffffff802f1d20 0000000000000000 ffffffff803dbee8
->         0000000000000000 ffffffff80152f3c 0000000000000000 0000000000000000
->         ffffffff803d3d00 ffffffff802f1d20
-> Call Trace: <IRQ><fffffff80152f3c>{handle_IRQ_event+44} <ffffffff8015305d>{__do_IRQ+237}
->        <ffffffff801113c2>{do_IRQ+66} ,ffffffff8010ed7d>{ret_from_intr+0}
->        <EOI> <fffffff80131b67>{call_console_drivers+231}
->        <ffffffff803dc7a7>{start_kernel+247} <fffffff803dc23f>{x86_64_start_kernel+319}
-> 
-> Code: 48 f7 f6 48 01 05 14 04 29 00 e9 cb 00 00 00 48 89 ca 48 8b
-> RIP <fffffff80112672>{timer_intrrupt+242} RSP <ffffffff8033a658>
->   <0> Kernel panic - not syncing: Aiee, killing interrupt handler!
-> 
-> Thanks,
-> 
-> -- 
-> Jeff Wiegley, PhD
-> Cyte.Com, LLC
-> (ignore:cea2d3a38843531c7def1deff59114de)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+Shouldn't that loop be limited to the broken chipsets - why would correct 
+people with correctly working chipsets carry this extra burden? (Or is it 
+insignificant?)
 
-
+-- 
+Because we don't think about future generations, they will never forget us.
+		-- Henrik Tikkanen

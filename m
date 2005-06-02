@@ -1,62 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVFBBSt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261532AbVFBBW4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261546AbVFBBSt (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 21:18:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbVFBBRY
+	id S261532AbVFBBW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 21:22:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbVFBBW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 21:17:24 -0400
-Received: from mail.tmr.com ([64.65.253.246]:23174 "EHLO gaimboi.tmr.com")
-	by vger.kernel.org with ESMTP id S261546AbVFBBPj (ORCPT
+	Wed, 1 Jun 2005 21:22:56 -0400
+Received: from fmr17.intel.com ([134.134.136.16]:17567 "EHLO
+	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261532AbVFBBW3 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 21:15:39 -0400
-Message-ID: <429E5D8B.7090402@tmr.com>
-Date: Wed, 01 Jun 2005 21:14:51 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-Organization: TMR Associates Inc, Schenectady NY
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7) Gecko/20040616
-X-Accept-Language: en-us, en
+	Wed, 1 Jun 2005 21:22:29 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Jim Crilly <jim@why.dont.jablowme.net>
-CC: toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com, ltd@cisco.com,
-       linux-kernel@vger.kernel.org, kraxel@suse.de, dtor_core@ameritech.net,
-       7eggert@gmx.de
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-References: <20050530093420.GB15347@hout.vanvergehaald.nl> <429B0683.nail5764GYTVC@burner> <46BE0C64-1246-4259-914B-379071712F01@mac.com> <429C4483.nail5X0215WJQ@burner> <87acmbxrfu.fsf@bytesex.org> <429DD036.nail7BF7MRZT6@burner> <20050601154245.GA14299@voodoo> <429DE874.nail7BFM1RBO2@burner> <20050601172900.GC14299@voodoo> <429DF581.nail7BFUL8PFN@burner> <20050601175920.GD14299@voodoo>
-In-Reply-To: <20050601175920.GD14299@voodoo>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] Abstracted Priority Inheritance for RT
+Date: Wed, 1 Jun 2005 18:21:10 -0700
+Message-ID: <F989B1573A3A644BAB3920FBECA4D25A036671E4@orsmsx407>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] Abstracted Priority Inheritance for RT
+Thread-Index: AcVnDYSISWuV2uHsT+yGYlu+jZGbAQAAxwVQ
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: <linux@horizon.com>, <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 02 Jun 2005 01:22:24.0104 (UTC) FILETIME=[87D6E680:01C56711]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jim Crilly wrote:
-> On 06/01/05 07:50:57PM +0200, Joerg Schilling wrote:
-> 
->>"Jim Crilly" <jim@why.dont.jablowme.net> wrote:
+>From: linux@horizon.com [mailto:linux@horizon.com]
+>>> I'm not sure I see how this could become recursive, could you
+explain
+>>> more?
+>?
+>> Maybe he is referring to the case?
 >>
->>
->>>I don't use cdda2wav so I can't comment, but every other ripping tool that
->>>I've used on Linux has had no problem using the /dev/whatever interface, so
->>>once again it appears that your tool is the blacksheep for no good reason.
->>
->>You should use it as it is even used by people on Win32 because it is the
->>best DAE program for even badly readable sources.
-> 
-> 
-> I'm not an audiophile, I can't tell the difference between a mp3 encoded at
-> 128k and one encoded at 160k so I really doubt I could tell the difference
-> between what cdda2wav and what most other DAE programs would produce. So
-> given that the quality of the rips will be effectively equal to my ears,
-> I'll use whatever's most convenient.
+>> A owns M
+>> B owns N and is waiting for M
+>> A is trying to wait for N
+>
+>No, that's just a straight deadlock and a bug whether you have PI oir
+not.
+>The recursive concern is the following case:
 
-The "quality" or fidelity isn't the issue here, but rather the rip being 
-deterministic and producing the same (as as often as possible, correct) 
-data. Joerg used the "paranoia" library to do the ripping validation, 
-and I'm unconvinced that there is anything better in that regard.
+Agreed, it is deadlock (as I said), but it is where your
+code can go to infinite recursion if you don't have the safeguards
+in. 
 
-The device names are totally another issue, which I'm not ready to drag 
-around the block yet again.
+Calling it a bug depends on what are the "standards" of your code.
+Some people consider it good enough and just expect that if you
+get an -EDEADLK it means you have already locked the structure and
+can go into the atomic section. 
 
--- 
-bill davidsen <davidsen@tmr.com>
-   CTO TMR Associates, Inc
-   Doing interesting things with small computers since 1979
+Not that I agree, but the point is YMMV depending on who is using it
+and for how.
+
+>Process priorities: A < B < C < ...
+>
+>Process A holds lock 1
+>Process B holds lock 2 and is trying for lock 1
+>Process C holds lock 3 and is trying for lock 2
+>Process D holds lock 4 and is trying for lock 3
+>
+>Now see what happens when high-priority process E tries to
+>take lock 4.  We need to push its priority all the way down
+>the chain to process A.
+
+Well, this is normal priority propagation to a not-trivial
+ownership-wait chain. Or PI transitivity (I think I've heard
+it called like this).
+
+>If a process is only allowed to try for one lock at a time, that could,
+>in theory, be done iteratively, but it might take some care.
+
+It can be done iteratively in all cases (at least the fusyn code
+does). 
+
+>Actually, the tricky part of priority inheritance implementation is
+>usually dropping the priority properly when locks are released.
+
+No if you stack the priorities (again, look at the fusyn code,
+or better at the OLS paper, don't have time to give the full
+rundown again). Then it becomes a very simple matter of popping 
+the first item in your priority stack. 
+
+-- Inaky

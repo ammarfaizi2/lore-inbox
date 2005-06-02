@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVFBSEQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVFBS2e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbVFBSEQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 14:04:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbVFBSEQ
+	id S261208AbVFBS2e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 14:28:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261218AbVFBS2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 14:04:16 -0400
-Received: from tron.kn.vutbr.cz ([147.229.191.152]:42757 "EHLO
-	tron.kn.vutbr.cz") by vger.kernel.org with ESMTP id S261220AbVFBSEM
+	Thu, 2 Jun 2005 14:28:33 -0400
+Received: from one.firstfloor.org ([213.235.205.2]:3991 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261208AbVFBS2a
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 14:04:12 -0400
-Message-ID: <429F4A19.7030508@stud.feec.vutbr.cz>
-Date: Thu, 02 Jun 2005 20:04:09 +0200
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050506)
-X-Accept-Language: en-us, en
+	Thu, 2 Jun 2005 14:28:30 -0400
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: jschopp@austin.ibm.com, Mel Gorman <mel@csn.ul.ie>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Avoiding external fragmentation with a placement policy Version
+ 12
+References: <20050531112048.D2511E57A@skynet.csn.ul.ie>
+	<429E20B6.2000907@austin.ibm.com> <429E4023.2010308@yahoo.com.au>
+	<423970000.1117668514@flay> <429E483D.8010106@yahoo.com.au>
+	<434510000.1117670555@flay>
+From: Andi Kleen <ak@muc.de>
+Date: Thu, 02 Jun 2005 20:28:26 +0200
+In-Reply-To: <434510000.1117670555@flay> (Martin J. Bligh's message of "Wed,
+ 01 Jun 2005 17:02:35 -0700")
+Message-ID: <m14qcgwr3p.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Parag Warudkar <kernel-stuff@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: RT patch breaks X86_64 build
-References: <200505302141.31731.kernel-stuff@comcast.net> <200505302201.48123.kernel-stuff@comcast.net> <429BFF51.4000401@stud.feec.vutbr.cz> <200505310753.49447.kernel-stuff@comcast.net> <429C530E.70704@stud.feec.vutbr.cz> <20050601091344.GB11703@elte.hu> <429EFB66.8030909@stud.feec.vutbr.cz> <20050602123927.GB10878@elte.hu>
-In-Reply-To: <20050602123927.GB10878@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Flag: NO
-X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
-  tested this incoming email. See other headers to know if the email
-  has beed identified as possible spam.  The original message
-  has been attached to this so you can view it (if it isn't spam) or block
-  similar future email.  If you have any questions, see
-  the administrator of that system for details.
-  ____
-  Content analysis details:   (-4.2 points, 6.0 required)
-  ____
-   pts rule name              description
-  ---- ---------------------- --------------------------------------------
-   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
-  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-                              [score: 0.0000]
-  ____
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> hm, it does work for me. I had trouble in the past with gcc & mcount on 
-> x64. This version seems to work fine for me:
-> 
->  gcc version 3.4.0 20040129 (Red Hat Linux 3.4.0-0.3)
+"Martin J. Bligh" <mbligh@mbligh.org> writes:
 
-I could not find this exact version, so I downloaded 
-gcc34-3.4.0-1.x86_64.rpm from Fedora Core 2, converted it do .deb with 
-alien, installed it and made a symlink gcc -> gcc34. gcc --version says:
-   gcc (GCC) 3.4.0 (Red Hat Linux 3.4.0-1)
+> It gets very messy when CIFS requires a large buffer to write back
+> to disk in order to free memory ...
 
-I did "make mrproper", copied back your .config, enabled LATENCY_TRACE 
-and rebuilt the kernel.
-init still segfaults.
+How about just fixing CIFS to submit memory page by page? The network
+stack below it supports that just fine and the VFS above it does anyways, 
+so it doesnt make much sense that CIFS sitting below them uses
+larger buffers.
 
-It would be good to hear about other people's experiences with 
-LATENCY_TRACE on amd64. Am I the only one for whom it breaks?
+> There's one example ... we can probably work around it if we try hard
+> enough. However, the fundamental question becomes "do we support higher
+> order allocs, or not?". If not fine ... but we ought to quit pretending
+> we do. If so, then we need to make them more reliable.
 
-Michal
+My understanding was that the deal was that order 1 is supposed
+to work but somewhat slower, and bigger orders are supposed to work
+at boot up time.
+
+-Andi

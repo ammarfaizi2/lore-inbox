@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVFBOVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVFBOdg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261360AbVFBOVa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 10:21:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbVFBOVa
+	id S261386AbVFBOdg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 10:33:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261428AbVFBOdg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 10:21:30 -0400
-Received: from zcars04f.nortelnetworks.com ([47.129.242.57]:3035 "EHLO
-	zcars04f.nortelnetworks.com") by vger.kernel.org with ESMTP
-	id S261360AbVFBOV2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 10:21:28 -0400
-Message-ID: <429F15DA.8030205@nortel.com>
-Date: Thu, 02 Jun 2005 08:21:14 -0600
-X-Sybari-Space: 00000000 00000000 00000000 00000000
-From: Chris Friesen <cfriesen@nortel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040115
-X-Accept-Language: en-us, en
+	Thu, 2 Jun 2005 10:33:36 -0400
+Received: from ccerelbas03.cce.hp.com ([161.114.21.106]:41411 "EHLO
+	ccerelbas03.cce.hp.com") by vger.kernel.org with ESMTP
+	id S261386AbVFBOdd convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 10:33:33 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-CC: Robert Love <rml@novell.com>, Mikael Starvik <mikael.starvik@axis.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Accessing monotonic clock from modules
-References: <BFECAF9E178F144FAEF2BF4CE739C66801B7645C@exmail1.se.axis.com>	 <1117697423.6458.18.camel@laptopd505.fenrus.org>	 <1117698045.6833.16.camel@jenny.boston.ximian.com>	 <1117698518.6458.21.camel@laptopd505.fenrus.org>	 <1117698764.6833.26.camel@jenny.boston.ximian.com>	 <1117698978.6458.23.camel@laptopd505.fenrus.org>	 <429F0DA7.40006@nortel.com> <1117720095.6458.41.camel@laptopd505.fenrus.org>
-In-Reply-To: <1117720095.6458.41.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [RFC] SAS domain layout for Linux sysfs
+Date: Thu, 2 Jun 2005 09:32:35 -0500
+Message-ID: <D4CFB69C345C394284E4B78B876C1CF107DC073C@cceexc23.americas.cpqcorp.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC] SAS domain layout for Linux sysfs
+Thread-Index: AcVm89aM1APQhJlkQoa4FW5fzbGb7gAi+Ieg
+From: "Miller, Mike (OS Dev)" <mike.miller@hp.com>
+To: "Moore, Eric Dean" <Eric.Moore@lsil.com>,
+       "Luben Tuikov" <luben_tuikov@adaptec.com>,
+       "Christoph Hellwig" <hch@infradead.org>
+Cc: "Douglas Gilbert" <dougg@torque.net>,
+       "SCSI Mailing List" <linux-scsi@vger.kernel.org>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       "Patterson, Andrew D (Linux R&D)" <andrew.patterson@hp.com>,
+       <Madhuresh_Nagshain@adaptec.com>
+X-OriginalArrivalTime: 02 Jun 2005 14:32:36.0748 (UTC) FILETIME=[EBFA3CC0:01C5677F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Arjan van de Ven wrote:
-> On Thu, 2005-06-02 at 07:46 -0600, Chris Friesen wrote:
-
->>For ourselves we implemented an clock interface for a limited subset of 
->>architectures that provides a fast timestamp in kernel and userspace.
->>
->>Basically it has one call to return a 64-bit timestamp, and another call 
->>to tell you how fast the clock is ticking.
+Eric wrote:
 > 
+> So where are we?  What needs to be done so we can move 
+> forward with getting SAS LLD support accepted by James Bottomely.
 > 
-> hmm this is tricky if cpufreq actually varies cpu speeds... you would
-> need to not cache the "how fast it ticks" for too long.
+> Regards,
+> Eric Moore
 
-Luckily we didn't need to deal with that.
+I think we to define the kernel objects as Christoph suggested.
 
-In order to use the fast versions with varying frequency you'd need some 
-kind of notification to all users when the frequency changes.
-
-Alternately, on architectures where clock_gettime doesn't require the 
-overhead of a syscall, you could just use that.
-
-Chris
+mikem 

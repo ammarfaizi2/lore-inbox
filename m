@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbVFBFph@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVFBFqz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261559AbVFBFph (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 01:45:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVFBFpg
+	id S261556AbVFBFqz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 01:46:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVFBFqz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 01:45:36 -0400
-Received: from mail.timesys.com ([65.117.135.102]:27069 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S261559AbVFBFp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 01:45:29 -0400
-Message-ID: <429E9C9A.1030507@timesys.com>
-Date: Thu, 02 Jun 2005 01:43:54 -0400
-From: john cooper <john.cooper@timesys.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-CC: dwalker@mvista.com, Esben Nielsen <simlo@phys.au.dk>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       sdietrich@mvista.com, rostedt@goodmis.org,
-       john cooper <john.cooper@timesys.com>
-Subject: Re: [PATCH] Abstracted Priority Inheritance for RT
-References: <F989B1573A3A644BAB3920FBECA4D25A036671E5@orsmsx407>
-In-Reply-To: <F989B1573A3A644BAB3920FBECA4D25A036671E5@orsmsx407>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 02 Jun 2005 05:38:40.0984 (UTC) FILETIME=[552C9580:01C56735]
+	Thu, 2 Jun 2005 01:46:55 -0400
+Received: from c-24-10-129-155.hsd1.ut.comcast.net ([24.10.129.155]:50120 "EHLO
+	sshock.homelinux.net") by vger.kernel.org with ESMTP
+	id S261579AbVFBFqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 01:46:37 -0400
+Date: Wed, 1 Jun 2005 23:47:40 -0600
+From: Phillip Hellewell <phillip@hellewell.homeip.net>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 1/3] eCryptfs: eCryptfs kernel module
+Message-ID: <20050602054740.GA4514@sshock.rn.byu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-URL: http://hellewell.homeip.net/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Perez-Gonzalez, Inaky wrote:
-> It doesn't matter in which space the tasks are, a deadlock 
-> condition can happen anywhere and that can easily lead to 
-> infinite recursion/iteration (as bad). I seem to remember Ingo
-> mentioning he had taken care of full transitivity (or maybe it
-> was somebody else saying it).
+This is the first in a series of 3 patches for the eCryptfs kernel
+module.
 
-That might have been me.  The last time I looked at this
-specifically, full transitive promotion was being done in
-the RT patch.  However unlike your attempt at scaling the
-lock scope, the RT patch had one lock which coordinated
-all mutex dependency traversals system wide.  This lock
-must be speculatively acquired even before we ascertain
-transitive promotion is required.
+eCryptfs is a cryptographic filesystem that stacks on top of other
+filesystems.  A very early version of it was presented last year at
+OLS, and the current version will be presented again at this year's
+OLS.  It is currently in an EXPERIMENTAL and BROKEN state (i.e., it
+will build and run, but there is at least one memory leak that causes
+a problem when a several dozen file open/read/write operations are
+performed).  It requires userspace components to run, which can be
+obtained via CVS from the eCryptfs project site:
 
-So it doesn't scale as well as it could in the case of
-large count SMP systems.  The response was that of "get
-it to work first and then we'll get it to scale" which
-is reasonable.
+http://sourceforge.net/projects/ecryptfs
 
-When I looked at this sometime in the latter part of last
-year I was concerned there was an inherent hierarchy violation
-possible in the kernel for the case of fine grained (per-mutex)
-locking when doing a transitive promotion traversal.   The
-order of traversal is dependent upon the application's lock
-acquisition sequence.  Ingo pointed out there shouldn't be a
-kernel hierarchy inversion if it was first determined the
-application itself wasn't violating it's own lock acquisition
-hierarchy.  I recall this to be a valid and simplifying
-assumption at the time though I haven't had cause to
-follow up on the issue since then.
+The README file from CVS explains how to get it up and running with
+both passphrase and public key (PKI) operation modes.
 
--john
+While eCryptfs is functional, there is a significant amount of work
+yet to be done; a perusal of the source will reveal that there is a
+lot of low-hanging fruit/trivial fixes (David Howells: we promise that
+using your keyring correctly is near the top of the list, right after
+we get these memory leaks resolved).  It derives from cryptfs, which
+is a cryptographic filesystem instantiated by Erez Zadok's stackable
+filesystem framework, FiST.  We are aware that there are some extant
+bugs in the version of cryptfs that we built off of; as those are made
+known, we will be applying fixes.  In the meantime, we would like the
+eCryptfs kernel module to be merged into the mainline kernel.  We are
+open to suggestions and commentary on the general design of the
+filesystem, and bugfixes are always welcome too.
 
+Signed off by: Phillip Hellewell <phillip@hellewell.homeip.net>
+Signed off by: Michael Halcrow <mhalcrow@us.ibm.com>
 
+This first patch is somewhat large (45K), so here is a link:
+
+http://ecryptfs.sourceforge.net/patches/patch-2.6.12-rc4-mm2-ecryptfs-1_of_3.diff.gz
 
 -- 
-john.cooper@timesys.com
+Phillip Hellewell <phillip AT hellewell.homeip.net>

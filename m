@@ -1,63 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbVFBM23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261392AbVFBMaZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261391AbVFBM23 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 08:28:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbVFBM23
+	id S261392AbVFBMaZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 08:30:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261394AbVFBMaZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 08:28:29 -0400
-Received: from fest.stud.feec.vutbr.cz ([147.229.72.16]:42950 "EHLO
-	fest.stud.feec.vutbr.cz") by vger.kernel.org with ESMTP
-	id S261391AbVFBM20 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 08:28:26 -0400
-Message-ID: <429EFB66.8030909@stud.feec.vutbr.cz>
-Date: Thu, 02 Jun 2005 14:28:22 +0200
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Parag Warudkar <kernel-stuff@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: RT patch breaks X86_64 build
-References: <200505302141.31731.kernel-stuff@comcast.net> <200505302201.48123.kernel-stuff@comcast.net> <429BFF51.4000401@stud.feec.vutbr.cz> <200505310753.49447.kernel-stuff@comcast.net> <429C530E.70704@stud.feec.vutbr.cz> <20050601091344.GB11703@elte.hu>
-In-Reply-To: <20050601091344.GB11703@elte.hu>
-Content-Type: multipart/mixed;
- boundary="------------020101080209030105000806"
+	Thu, 2 Jun 2005 08:30:25 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:38876 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S261392AbVFBMaU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 08:30:20 -0400
+X-ORBL: [69.150.57.195]
+Date: Thu, 2 Jun 2005 07:28:07 -0500
+From: Michael Halcrow <mhalcrow@us.ibm.com>
+To: Greg KH <greg@kroah.com>
+Cc: Phillip Hellewell <phillip@hellewell.homeip.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] eCryptfs: eCryptfs kernel module
+Message-ID: <20050602122807.GA8855@halcrow.us>
+Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
+References: <20050602054740.GA4514@sshock.rn.byu.edu> <20050602073303.GA9373@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050602073303.GA9373@kroah.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020101080209030105000806
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Thu, Jun 02, 2005 at 12:33:03AM -0700, Greg KH wrote:
+> Why not fix up the stuff that you know needs to be fixed?  It should
+> not be merged until then at the least.
 
-Ingo Molnar wrote:
-> indeed it was broken - i fixed x64 LATENCY_TRACE in the -47-16 kernel.
+We'll keep plugging away; note that all this could take several months
+(there are currently about 160 TODO items in the code base, plus
+several more features to flesh out), and in the meantime, we would
+like some general commentary from the community so we don't wind up
+pouring time and effort in the wrong direction.
 
-There's a minor bug in it. Syscalls are numbered from zero, so there's 
-__NR_syscall_max + 1 of them. Patch attached.
-Nonetheless the latency tracing still doesn't work for me on x86_64. It 
-compiles but hotplug starts to segfault in an infinite loop during 
-booting up. When I disable CONFIG_LATENCY_TRACE, it works.
-
-Michal
-
---------------020101080209030105000806
-Content-Type: text/plain;
- name="rt-latency-NR_syscalls.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="rt-latency-NR_syscalls.diff"
-
---- linux-RT.mich/kernel/latency.c.orig	2005-06-02 14:16:12.000000000 +0200
-+++ linux-RT.mich/kernel/latency.c	2005-06-02 14:15:37.000000000 +0200
-@@ -850,7 +850,7 @@ static int notrace l_show_cmdline(struct
- }
- 
- #ifdef CONFIG_X86_64
--# define NR_syscalls __NR_syscall_max
-+# define NR_syscalls (__NR_syscall_max+1)
- #endif
- 
- extern unsigned long sys_call_table[NR_syscalls];
-
---------------020101080209030105000806--
+Thanks,
+Mike

@@ -1,47 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVFBHv3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVFBHzc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261604AbVFBHv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 03:51:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261608AbVFBHv3
+	id S261203AbVFBHzc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 03:55:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVFBHzc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 03:51:29 -0400
-Received: from peabody.ximian.com ([130.57.169.10]:35731 "EHLO
-	peabody.ximian.com") by vger.kernel.org with ESMTP id S261604AbVFBHvT
+	Thu, 2 Jun 2005 03:55:32 -0400
+Received: from pcmath126.unice.fr ([134.59.10.126]:57986 "EHLO
+	pcmath126.unice.fr") by vger.kernel.org with ESMTP id S261203AbVFBHzY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 03:51:19 -0400
-Subject: Re: Accessing monotonic clock from modules
-From: Robert Love <rml@novell.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Mikael Starvik <mikael.starvik@axis.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1117698518.6458.21.camel@laptopd505.fenrus.org>
-References: <BFECAF9E178F144FAEF2BF4CE739C66801B7645C@exmail1.se.axis.com>
-	 <1117697423.6458.18.camel@laptopd505.fenrus.org>
-	 <1117698045.6833.16.camel@jenny.boston.ximian.com>
-	 <1117698518.6458.21.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Thu, 02 Jun 2005 03:52:44 -0400
-Message-Id: <1117698764.6833.26.camel@jenny.boston.ximian.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
+	Thu, 2 Jun 2005 03:55:24 -0400
+Message-ID: <429EB537.4060305@unice.fr>
+Date: Thu, 02 Jun 2005 09:28:55 +0200
+From: XIAO Gang <xiao@unice.fr>
+Organization: =?ISO-8859-1?Q?Universit=E9_de_Nice_-_Sophia_Anti?=
+ =?ISO-8859-1?Q?polis?=
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.2.1) Gecko/20030225
+X-Accept-Language: en, fr, zh-CN, zh-TW
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: Suggestion on "int len" sanity
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-06-02 at 09:48 +0200, Arjan van de Ven wrote:
+Willy Tarreau wrote:
 
-> agreed.
-> 
-> well maybe it doesn't have such a name since it isn't intended as such
-> interface....
+>> On the other hand, when a variable is named "len" or "length", it is 
+>> usually used for length and never should go negative. So could I suggest 
+>> that the declarations of these variables to be uniformized to "size_t", 
+>> via a gradual but sysmatic cleanup?
 
-That was the root of my concern; if the interface is more of a "do"
-function, maybe we need something cleaner as the officially exported
-interface?  With, of course, a better name. ;-)
+> Probably true for most cases, but be careful of code which would use
+> -1 to report some errors if such thing exists.
 
-I do thing that this is useful, though--at GUADEC I talked with some
-folks who really want to get at a good clock source, the same from both
-the kernel and user-space.
+I agree that they are probably not all replaceable, and care must be taken.
 
-	Robert Love
+Examples:
+
+1. In the types of sys_[gs]ethostname, sys_[gs]etdomainname, "int len" could be replaced
+by "unsigned int" or "size_t" and sanity check simplified.
+
+2. In mm/shmem.c, shmem_symlink(), we have "len = strlen(symname) + 1;". Although it is highly
+improbable that strlen(symname) overflows, it is more correct to declare "size_t len;".
+
+3. The similar situation occurs in fs/namei.c, vfs_readlink(). Here it does not matter if len
+is declared to be unsigned, but for size_t, we have to take care about the size of size_t.
+
+-- 
+
+XIAO Gang (~{P$8U~})                          xiao@unice.fr
+          home page: pcmath126.unice.fr/xiao.html 
+
 
 

@@ -1,116 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVFBE0b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVFBElp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbVFBE0b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 00:26:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261509AbVFBE0b
+	id S261509AbVFBElp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 00:41:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbVFBElo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 00:26:31 -0400
-Received: from pat.uio.no ([129.240.130.16]:1943 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S261367AbVFBE0W (ORCPT
+	Thu, 2 Jun 2005 00:41:44 -0400
+Received: from mail.kroah.org ([69.55.234.183]:20194 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261509AbVFBEln (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 00:26:22 -0400
-Subject: Re: RT and Cascade interrupts
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: john cooper <john.cooper@timesys.com>
-Cc: Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Olaf Kirch <okir@suse.de>
-In-Reply-To: <429E7D91.9000808@timesys.com>
-References: <42974F08.1C89CF2A@tv-sign.ru> <4297AF39.4070304@timesys.com>
-	 <42983135.C521F1C8@tv-sign.ru> <4298AED8.8000408@timesys.com>
-	 <1117312557.10746.6.camel@lade.trondhjem.org>
-	 <4299332F.6090900@timesys.com>
-	 <1117352410.10788.29.camel@lade.trondhjem.org>
-	 <429B8678.1000706@timesys.com> <429DC4A8.BFF69FB3@tv-sign.ru>
-	 <429DF8DE.7060008@timesys.com>
-	 <1117650718.10733.65.camel@lade.trondhjem.org>
-	 <429E0A86.7000507@timesys.com>
-	 <1117657267.10733.106.camel@lade.trondhjem.org>
-	 <429E21B8.2070404@timesys.com>
-	 <1117666319.10822.17.camel@lade.trondhjem.org>
-	 <429E7D91.9000808@timesys.com>
-Content-Type: text/plain
-Date: Thu, 02 Jun 2005 00:26:07 -0400
-Message-Id: <1117686367.10822.104.camel@lade.trondhjem.org>
+	Thu, 2 Jun 2005 00:41:43 -0400
+Date: Wed, 1 Jun 2005 21:51:45 -0700
+From: Greg KH <greg@kroah.com>
+To: "Mark M. Hoffman" <mhoffman@lightlink.com>
+Cc: dmitry pervushin <dpervushin@ru.mvista.com>, linux-kernel@vger.kernel.org,
+       lm-sensors <lm-sensors@lm-sensors.org>
+Subject: Re: [RFC] SPI core
+Message-ID: <20050602045145.GA7838@kroah.com>
+References: <1117555756.4715.17.camel@diimka.dev.rtsoft.ru> <20050531233215.GB23881@kroah.com> <20050602040655.GE4906@jupiter.solarsys.private>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.574, required 12,
-	autolearn=disabled, AWL 1.38, FORGED_RCVD_HELO 0.05,
-	UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050602040655.GE4906@jupiter.solarsys.private>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-on den 01.06.2005 Klokka 23:31 (-0400) skreiv john cooper:
-> I fully share your frustration of wanting to "use the
-> latest patch -- dammit".  However there are other practical
-> constraints coming into play.  This tree has accumulated a
-> substantial amount of fixes for scheduler violation assertions
-> along with associated testing and has faired well thus far.
-> The bug under discussion here is the last major operational
-> problem found in the associated testing process.  Arriving
-> at this point also required development of target specific
-> driver/board code so a resync to a later version is not a
-> trivial operation.  However it would be justifiable in the
-> case of encountering at an impasse with the current tree.
-
-My point is that you are considering timer bugs due to synchronization
-problems in code which is obviously not designed to accommodate
-synchronization. Once that fact is established, one moves on and
-considers the code which does support synchronization.
-
-> > Could you then apply the following debugging patch? It should warn you
-> > in case something happens to corrupt base->running_timer (something
-> > which would screw up del_timer_sync()). I'm not sure that can happen,
-> > but it might be worth checking.
+On Thu, Jun 02, 2005 at 12:06:55AM -0400, Mark M. Hoffman wrote:
+> * Greg KH <greg@kroah.com> [2005-05-31 16:32:15 -0700]:
+> > This code is _very_ close to just a copy of the i2c core code.  Why
+> > duplicate it and not work with the i2c people instead?
 > 
-> Yes, thanks.  Though the event trace does not suggest a
-> reentrance in __run_timer() but rather a preemption of it
-> during the call to rpc_run_timer() by a high priority
-> application task in the midst of an RPC.  The preempting
-> task requeues the timer in the cascade at the tail of
-> xprt_transmit().  rpc_run_timer() upon resuming execution
-> unconditionally clears the RPC_TASK_HAS_TIMER flag.  This
-> creates the inconsistent state.
+> It was discussed briefly on the lm-sensors mailing list [1].  I didn't 
+> reply at the time, but I do agree that SPI and I2C/SMBus are different
+> enough to warrant independent subsystems.
 
-There are NO cases where that is supposed to be allowed to occur. This
-case is precisely what del_timer_sync() is supposed to treat.
+Independant is fine.  But direct copies, including making the same
+mistakes (i2c dev interface, i2c driver model mess) isn't :)
 
-> No explicit deletion attempt of the timer (synchronous or
-> otherwise) is coming into play in the failure scenario as
-> witnessed by the event trace.  Rather it is the implicit
-> dequeue of the timer from the cascade in __run_timer() and
-> attempt to track ownership of it in rpc_run_timer() via
-> RPC_TASK_HAS_TIMER which is undermined in the case of
-> preemption.
+thanks,
 
-No!!! The responsibility for tracking timers that have been dequeued and
-that are currently running inside __run_timer() lies fairly and squarely
-with del_timer_sync().
-There is NOTHING within the RT patches that implies that the existing
-callers of del_timer_sync() should be burdened with having to do
-additional tracking of pending timers. To do so would be a major change
-of the existing API, and would require a lot of justification.
-
-IOW: nobody but you is claiming that the RPC code is trying to deal with
-this case by tracking RPC_TASK_HAS_TIMER. That is not its purpose, nor
-should it be in the RT case.
-
->  From earlier mail:
-> 
->  > There should be no instances of RPC entering call_transmit() or any
->  > other tk_action callback with a pending timer.
-> 
-> My description wasn't clear.  The timeout isn't pending
-> before call_transmit().  Rather the RPC appears to be
-> blocked elsewhere and upon wakeup via __run_timer()/xprt_timer()
-> preempts ksoftirqd and does the __rpc_sleep_on()/__mod_timer()
-> at the very tail of xprt_transmit().
-
-No!!! How is this supposed to happen? There is only one thread that is
-allowed to call rpc_sleep_on(), and that is the exact same thread that
-is calling __rpc_execute(). It may call rpc_sleep_on() only from inside
-a task->tk_action() call, and therefore only _after_ it has called
-rpc_delete_timer(). There is supposed to be strict ordering here!
-
-Trond
-
+greg k-h

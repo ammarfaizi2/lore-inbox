@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261594AbVFBH3e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVFBHal@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261594AbVFBH3e (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 03:29:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVFBH3e
+	id S261595AbVFBHal (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 03:30:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261599AbVFBHak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 03:29:34 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:39916 "EHLO
+	Thu, 2 Jun 2005 03:30:40 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:41708 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261594AbVFBH3c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 03:29:32 -0400
+	id S261595AbVFBHa3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 03:30:29 -0400
 Subject: Re: Accessing monotonic clock from modules
 From: Arjan van de Ven <arjan@infradead.org>
 To: Mikael Starvik <mikael.starvik@axis.com>
@@ -16,8 +16,8 @@ Cc: linux-kernel@vger.kernel.org
 In-Reply-To: <BFECAF9E178F144FAEF2BF4CE739C66801B7645C@exmail1.se.axis.com>
 References: <BFECAF9E178F144FAEF2BF4CE739C66801B7645C@exmail1.se.axis.com>
 Content-Type: text/plain
-Date: Thu, 02 Jun 2005 09:29:29 +0200
-Message-Id: <1117697369.6458.16.camel@laptopd505.fenrus.org>
+Date: Thu, 02 Jun 2005 09:30:23 +0200
+Message-Id: <1117697423.6458.18.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
@@ -41,6 +41,11 @@ On Thu, 2005-06-02 at 08:36 +0200, Mikael Starvik wrote:
 > We would like to get the posix monotonic clock from a loadable module.
 > Would a patch to make do_posix_clock_monotonic_gettime exported ok or
 > should we do it in some other way?
+> 
+> /Mikael
 
-how about making this a _GPL export?
+also... when are you going to get this module merged?
+(exporting things without the module going into kernel.org shouldn't be
+done imo... it makes it harder to change internals and causes overhead
+for all kernel users)
 

@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261547AbVFBA3Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVFBAgf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261547AbVFBA3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 1 Jun 2005 20:29:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbVFBA0k
+	id S261341AbVFBAgf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 1 Jun 2005 20:36:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVFBAge
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 1 Jun 2005 20:26:40 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:41717 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261547AbVFBA0L
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 1 Jun 2005 20:26:11 -0400
-Subject: RE: [PATCH] Abstracted Priority Inheritance for RT
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: Esben Nielsen <simlo@phys.au.dk>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, sdietrich@mvista.com, rostedt@goodmis.org
-In-Reply-To: <F989B1573A3A644BAB3920FBECA4D25A03667149@orsmsx407>
-References: <F989B1573A3A644BAB3920FBECA4D25A03667149@orsmsx407>
-Content-Type: text/plain
-Organization: MontaVista
-Date: Wed, 01 Jun 2005 17:25:53 -0700
-Message-Id: <1117671953.7646.14.camel@dhcp153.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Wed, 1 Jun 2005 20:36:34 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:57271 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261341AbVFBAgc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 1 Jun 2005 20:36:32 -0400
+Message-ID: <429E5483.3020404@pobox.com>
+Date: Wed, 01 Jun 2005 20:36:19 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bill Davidsen <davidsen@tmr.com>
+CC: Matthias Andree <matthias.andree@gmx.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux does not care for data integrity
+References: <20050515152956.GA25143@havoc.gtf.org> <20050516.012740.93615022.okuyamak@dd.iij4u.or.jp> <42877C1B.2030008@pobox.com> <20050516110203.GA13387@merlin.emma.line.org> <1116241957.6274.36.camel@laptopd505.fenrus.org> <20050516112956.GC13387@merlin.emma.line.org> <1116252157.6274.41.camel@laptopd505.fenrus.org> <20050516144831.GA949@merlin.emma.line.org> <1116256005.21388.55.camel@localhost.localdomain> <87zmudycd1.fsf@stark.xeocode.com> <20050529211610.GA2105@merlin.emma.line.org> <429E062B.60909@tmr.com>
+In-Reply-To: <429E062B.60909@tmr.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-01 at 17:10 -0700, Perez-Gonzalez, Inaky wrote:
+Bill Davidsen wrote:
+> This would change the meaning of fsync from "force out the data" to 
+> "wait for the data to be written" in some implementations.
 
-> Maybe he is referring to the case?
-> 
-> A owns M
-> B owns N and is waiting for M
-> A is trying to wait for N
-> 
-> These deadlocking cases can be tricky during PI.
+This is the meaning of fsync:  copies all in-core parts of a file to 
+disk, and waits until the device reports that all parts are on stable 
+storage.
 
+Anything less is a bug.
 
-The bulk of the code is from the current RT mutex, so I'm assuming it
-handles this case correctly. However, the rt mutex isn't in userspace ,
-so task A or B was a user space task , then the problem would need to be
-explored.. How does PI change if A or B are user space tasks?
+	Jeff
 
-Daniel
 

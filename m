@@ -1,37 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbVFBUKM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261350AbVFBV0K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261302AbVFBUKM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 16:10:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbVFBUKK
+	id S261350AbVFBV0K (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 17:26:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbVFBVZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 16:10:10 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:34521
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S261255AbVFBUCv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 16:02:51 -0400
-Date: Thu, 02 Jun 2005 13:02:33 -0700 (PDT)
-Message-Id: <20050602.130233.59653068.davem@davemloft.net>
-To: bunk@stusta.de
-Cc: ja@ssi.bg, wensong@LinuxVirtualServer.org, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [2.6 patch] remove net/ipv4/ipvs/ip_vs_proto_icmp.c?
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050515132906.GW16549@stusta.de>
-References: <20050513041622.GE3603@stusta.de>
-	<Pine.LNX.4.58.0505141013520.1568@u.domain.uli>
-	<20050515132906.GW16549@stusta.de>
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Jun 2005 17:25:52 -0400
+Received: from mail.tyan.com ([66.122.195.4]:36614 "EHLO tyanweb.tyan")
+	by vger.kernel.org with ESMTP id S261350AbVFBVOg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 17:14:36 -0400
+Message-ID: <3174569B9743D511922F00A0C94314230A403990@TYANWEB>
+From: YhLu <YhLu@tyan.com>
+To: YhLu <YhLu@tyan.com>, Ashok Raj <ashok.raj@intel.com>
+Cc: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+Subject: RE: 2.6.12-rc5 is broken in nvidia Ck804 Opteron MB/with dual cor
+	 e dual way
+Date: Thu, 2 Jun 2005 14:15:55 -0700 
+MIME-Version: 1.0
+X-Mailer: Internet Mail Service (5.5.2653.19)
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Adrian Bunk <bunk@stusta.de>
-Date: Sun, 15 May 2005 15:29:06 +0200
+in  detect_ht
+        if (!cpu_has(c, X86_FEATURE_HT) || cpu_has(c,
+X86_FEATURE_CMP_LEGACY))
+                return;
 
-> ip_vs_proto_icmp.c was never finished.
+cpu_has(c, X86_FEATURE_CMP_LEGACY) for AMD is 1, so smp_num_siblings is not
+changed and it is still initial value. (1)....
+
+YH
+
+> -----Original Message-----
+> From: YhLu 
+> Sent: Thursday, June 02, 2005 1:42 PM
+> To: Ashok Raj
+> Cc: Andi Kleen; linux-kernel@vger.kernel.org
+> Subject: RE: 2.6.12-rc5 is broken in nvidia Ck804 Opteron 
+> MB/with dual cor e dual way
 > 
-> Signed-off-by: Adrian Bunk <bunk@stusta.de>
-
-Applied, thanks Adrian.
+>         cpuid(1, &eax, &ebx, &ecx, &edx);
+>         smp_num_siblings = (ebx & 0xff0000) >> 16;
+> 
+> For amd dual core, smp_num_siblings is set to 1, and it mean 
+> has two cores.
+> 
+>                 seq_printf(m, "siblings\t: %d\n",
+>                                 c->x86_num_cores * smp_num_siblings);
+> 
+> for Intel it would be 
+> 	c->x86_num_cores  is 2 and smp_num_siblings is 2 too....
+> 	so every core will be HT....
+> 
+> 
+> Function 0000_0001[EBX]
+> EBX[23:16] Logical Processor Count. If CPUID Fn[8000_0001, 
+> 0000_0001][EDX:
+> HTT, ECX:
+> CMPLegacy] = 11b, then this field indicates the number of CPU 
+> cores in the processor.
+> Otherwise, this field is reserved.
+> 
+> what is intel value about cpuid(1) ebx [23:16], when the CPU 
+> is dual core, but HT is disabled.
+> 1?
+> 
+> YH
+> 
+> > -----Original Message-----
+> > From: Ashok Raj [mailto:ashok.raj@intel.com]
+> > Sent: Thursday, June 02, 2005 12:07 PM
+> > To: YhLu
+> > Cc: Andi Kleen; linux-kernel@vger.kernel.org
+> > Subject: Re: 2.6.12-rc5 is broken in nvidia Ck804 Opteron 
+> MB/with dual 
+> > cor e dual way
+> > 
+> > On Thu, Jun 02, 2005 at 11:56:25AM -0700, YhLu wrote:
+> > > 
+> > >    Really?,  smp_num_siblings is global variable and
+> > initially is set 1.
+> > > 
+> > >    YH
+> > > 
+> > But detect_ht() can override it.. thats just the start value.
+> > 
+> > try cscope :-)
+> > 
+> > Cheers,
+> > ashok
+> > 
+> -
+> To unsubscribe from this list: send the line "unsubscribe 
+> linux-kernel" in the body of a message to 
+> majordomo@vger.kernel.org More majordomo info at  
+> http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 

@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVFBGxK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbVFBHPK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261587AbVFBGxK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 02:53:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVFBGxK
+	id S261588AbVFBHPK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 03:15:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261590AbVFBHPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 02:53:10 -0400
-Received: from [213.170.72.194] ([213.170.72.194]:12258 "EHLO
-	shelob.oktetlabs.ru") by vger.kernel.org with ESMTP id S261587AbVFBGxH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 02:53:07 -0400
-Message-ID: <429EACC9.30303@yandex.ru>
-Date: Thu, 02 Jun 2005 10:52:57 +0400
-From: "Artem B. Bityuckiy" <dedekind@yandex.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050417 Fedora/1.7.7-1.3.1
-X-Accept-Language: en, ru, en-us
-MIME-Version: 1.0
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: Jarkko Lavinen <jarkko.lavinen@nokia.com>, linux-kernel@vger.kernel.org
-Subject: Re: Writing large files onto sync mounted MMC corrupts the FS
-References: <20050601091320.GA1472@angel.research.nokia.com> <20050601131006.GL23621@csclub.uwaterloo.ca>
-In-Reply-To: <20050601131006.GL23621@csclub.uwaterloo.ca>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 2 Jun 2005 03:15:10 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18304 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261588AbVFBHPF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 03:15:05 -0400
+Date: Thu, 2 Jun 2005 09:14:31 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Nigel Cunningham <ncunningham@cyclades.com>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Freezer Patches.
+Message-ID: <20050602071431.GA1841@elf.ucw.cz>
+References: <1117629212.10328.26.camel@localhost> <20050601130205.GA1940@openzaurus.ucw.cz> <1117663709.13830.34.camel@localhost> <20050601223101.GD11163@elf.ucw.cz> <1117665934.19020.94.camel@gaston> <20050601230235.GF11163@elf.ucw.cz> <1117676753.10888.105.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1117676753.10888.105.camel@localhost>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen wrote:
-> In other words: Don't use sync with flash media.  It's a horribly bad
-> idea, and if you look into how flash works (at least the cheaper ones)
-> you will realize why.  Anything with a limited number of writes allowed
-> to each sector should avoid rewriting the same sector again and again,
-> and that is what sync does when you use filesystems designed for disks
-> rather than flash.  JFFS was designed for flash use and rotates the
-> sectors it uses to store filesystem meta data and has spare space in the
-> filesystem to do wearleveling at the filesystem level.  vfat and ext2/3
-> do not, and it shows.  At least write caching/delayed write back
-> elliminates the worst of the rewriting of the meta data sectors.
->
-So, we should first ask whether this happens with *new* MMC cards or not.
+Hi!
 
--- 
-Best Regards,
-Artem B. Bityuckiy,
-St.-Petersburg, Russia.
+> > > > swsusp1 should not need any special casing of sync, right? We can
+> > > > simply do sys_sync(), then freeze, or something like that. We could
+> > > > even remove sys_sync() completely; it is not needed for correctness.
+> 
+> Wrong. I guess you're only trying it on a machine that isn't actually
+> doing anything :). I've forgotten whether it was this freezer
+> implementation or the last, but we've been testing freezing processes
+> when the load average exceeds 100. If you have a thread that is syncing
+> and another that's submitting I/O continually (think dd, for example),
+> you want this.
+
+If sys_sync() is not working, *fix sys_sync()*. [BTW I see that
+problem before and I think it is being worked on.] I'm *not* going to
+work around it in refrigerator.
+
+								Pavel
+

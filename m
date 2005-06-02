@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261275AbVFBUAZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVFBUHI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261275AbVFBUAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 16:00:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbVFBUAZ
+	id S261276AbVFBUHI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 16:07:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261320AbVFBUHI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 16:00:25 -0400
-Received: from ms-smtp-05.texas.rr.com ([24.93.47.44]:11764 "EHLO
-	ms-smtp-05-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S261275AbVFBThH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 15:37:07 -0400
-Message-Id: <200506021936.j52Ja3Rh023343@ms-smtp-05-eri0.texas.rr.com>
+	Thu, 2 Jun 2005 16:07:08 -0400
+Received: from ms-smtp-04.texas.rr.com ([24.93.47.43]:50579 "EHLO
+	ms-smtp-04.texas.rr.com") by vger.kernel.org with ESMTP
+	id S261276AbVFBThT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 15:37:19 -0400
+Message-Id: <200506021935.j52JZvgJ002840@ms-smtp-04.texas.rr.com>
 From: ericvh@gmail.com
-Date: Thu,  2 Jun 2005 14:35:59 -0500
+Date: Thu,  2 Jun 2005 14:35:54 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [RFC][PATCH 5/7] v9fs: 9P protocol implementation (2.0-rc7)
+Subject: [RFC][PATCH 3/7] v9fs: VFS inode operations (2.0-rc7)
 Cc: v9fs-developer@lists.sourceforge.net,
        viro@parcelfarce.linux.theplanet.co.uk, linux-fsdevel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is part [5/7] of the v9fs-2.0-rc7 patch against Linux 2.6.
+This is part [3/7] of the v9fs-2.0-rc7 patch against Linux 2.6.
 
-This part of the patch contains the 9P protocol functions.
+This part of the patch contains the VFS inode interfaces.
 
 Signed-off-by: Eric Van Hensbergen <ericvh@gmail.com>
 
- ----------
-
- 9p.c   |  359 ++++++++++++++++++++++++++++++++
- 9p.h   |  339 ++++++++++++++++++++++++++++++
- conv.c |  729 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- conv.h |   35 +++
- 4 files changed, 1462 insertions(+)
 
  ----------
 
-Index: fs/9p/9p.h
+ vfs_inode.c | 1415 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 1415 insertions(+)
+
+ ----------
+
+Index: fs/9p/vfs_inode.c
 ===================================================================
 --- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
-+++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/9p.h  (mode:100644)
-@@ -0,0 +1,339 @@
++++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/vfs_inode.c  (mode:100644)
+@@ -0,0 +1,1415 @@
 +/*
-+ * linux/fs/9p/9p.h
++ *  linux/fs/9p/vfs_inode.c
 + *
-+ * 9P protocol definitions.
++ * This file contians vfs inode ops for the 9P2000 protocol.
 + *
 + *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
 + *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
@@ -64,1456 +62,1394 @@ Index: fs/9p/9p.h
 + *
 + */
 +
-+/* Message Types */
-+enum {
-+	TVERSION = 100,
-+	RVERSION,
-+	TAUTH = 102,
-+	RAUTH,
-+	TATTACH = 104,
-+	RATTACH,
-+	TERROR = 106,
-+	RERROR,
-+	TFLUSH = 108,
-+	RFLUSH,
-+	TWALK = 110,
-+	RWALK,
-+	TOPEN = 112,
-+	ROPEN,
-+	TCREATE = 114,
-+	RCREATE,
-+	TREAD = 116,
-+	RREAD,
-+	TWRITE = 118,
-+	RWRITE,
-+	TCLUNK = 120,
-+	RCLUNK,
-+	TREMOVE = 122,
-+	RREMOVE,
-+	TSTAT = 124,
-+	RSTAT,
-+	TWSTAT = 126,
-+	RWSTAT,
-+};
-+
-+/* modes */
-+enum {
-+	V9FS_OREAD = 0x00,
-+	V9FS_OWRITE = 0x01,
-+	V9FS_ORDWR = 0x02,
-+	V9FS_OEXEC = 0x03,
-+	V9FS_OEXCL = 0x04,
-+	V9FS_OTRUNC = 0x10,
-+	V9FS_OREXEC = 0x20,
-+	V9FS_ORCLOSE = 0x40,
-+	V9FS_OAPPEND = 0x80,
-+};
-+
-+/* permissions */
-+enum {
-+	V9FS_DMDIR = 0x80000000,
-+	V9FS_DMAPPEND = 0x40000000,
-+	V9FS_DMEXCL = 0x20000000,
-+	V9FS_DMMOUNT = 0x10000000,
-+	V9FS_DMAUTH = 0x08000000,
-+	V9FS_DMTMP = 0x04000000,
-+	V9FS_DMSYMLINK = 0x02000000,
-+	V9FS_DMLINK = 0x01000000,
-+	/* 9P2000.u extensions */
-+	V9FS_DMDEVICE = 0x00800000,
-+	V9FS_DMNAMEDPIPE = 0x00200000,
-+	V9FS_DMSOCKET = 0x00100000,
-+	V9FS_DMSETUID = 0x00080000,
-+	V9FS_DMSETGID = 0x00040000,
-+};
-+
-+/* qid.types */
-+enum {
-+	V9FS_QTDIR = 0x80,
-+	V9FS_QTAPPEND = 0x40,
-+	V9FS_QTEXCL = 0x20,
-+	V9FS_QTMOUNT = 0x10,
-+	V9FS_QTAUTH = 0x08,
-+	V9FS_QTTMP = 0x04,
-+	V9FS_QTSYMLINK = 0x02,
-+	V9FS_QTLINK = 0x01,
-+	V9FS_QTFILE = 0x00,
-+};
-+
-+/* ample room for Twrite/Rread header (iounit) */
-+#define V9FS_IOHDRSZ	24
-+
-+/* qids are the unique ID for a file (like an inode */
-+struct v9fs_qid {
-+	u8 type;
-+	u32 version;
-+	uint64_t path;
-+};
-+
-+/* Plan 9 file metadata (stat) structure */
-+struct v9fs_stat {
-+	u16 size;
-+	u16 type;
-+	u32 dev;
-+	struct v9fs_qid qid;
-+	u32 mode;
-+	u32 atime;
-+	u32 mtime;
-+	uint64_t length;
-+	char *name;
-+	char *uid;
-+	char *gid;
-+	char *muid;
-+	char *extension;	/* 9p2000.u extensions */
-+	u32 n_uid;		/* 9p2000.u extensions */
-+	u32 n_gid;		/* 9p2000.u extensions */
-+	u32 n_muid;	/* 9p2000.u extensions */
-+	char data[0];
-+};
-+
-+/* Structures for Protocol Operations */
-+
-+struct Tversion {
-+	u32 msize;
-+	char *version;
-+};
-+
-+struct Rversion {
-+	u32 msize;
-+	char *version;
-+};
-+
-+struct Tauth {
-+	u32 afid;
-+	char *uname;
-+	char *aname;
-+};
-+
-+struct Rauth {
-+	struct v9fs_qid qid;
-+};
-+
-+struct Rerror {
-+	char *error;
-+	u32 errno;		/* 9p2000.u extension */
-+};
-+
-+struct Tflush {
-+	u32 oldtag;
-+};
-+
-+struct Rflush {
-+};
-+
-+struct Tattach {
-+	u32 fid;
-+	u32 afid;
-+	char *uname;
-+	char *aname;
-+};
-+
-+struct Rattach {
-+	struct v9fs_qid qid;
-+};
-+
-+struct Twalk {
-+	u32 fid;
-+	u32 newfid;
-+	u32 nwname;
-+	char **wnames;
-+};
-+
-+struct Rwalk {
-+	u32 nwqid;
-+	struct v9fs_qid *wqids;
-+};
-+
-+struct Topen {
-+	u32 fid;
-+	u8 mode;
-+};
-+
-+struct Ropen {
-+	struct v9fs_qid qid;
-+	u32 iounit;
-+};
-+
-+struct Tcreate {
-+	u32 fid;
-+	char *name;
-+	u32 perm;
-+	u8 mode;
-+};
-+
-+struct Rcreate {
-+	struct v9fs_qid qid;
-+	u32 iounit;
-+};
-+
-+struct Tread {
-+	u32 fid;
-+	uint64_t offset;
-+	u32 count;
-+};
-+
-+struct Rread {
-+	u32 count;
-+	u8 *data;
-+};
-+
-+struct Twrite {
-+	u32 fid;
-+	uint64_t offset;
-+	u32 count;
-+	u8 *data;
-+};
-+
-+struct Rwrite {
-+	u32 count;
-+};
-+
-+struct Tclunk {
-+	u32 fid;
-+};
-+
-+struct Rclunk {
-+};
-+
-+struct Tremove {
-+	u32 fid;
-+};
-+
-+struct Rremove {
-+};
-+
-+struct Tstat {
-+	u32 fid;
-+};
-+
-+struct Rstat {
-+	struct v9fs_stat *stat;
-+};
-+
-+struct Twstat {
-+	u32 fid;
-+	struct v9fs_stat *stat;
-+};
-+
-+struct Rwstat {
-+};
-+
-+/*
-+  * fcall is the primary packet structure
-+  *
-+  */
-+
-+struct v9fs_fcall {
-+	u32 size;
-+	u8 id;
-+	u16 tag;
-+
-+	union {
-+		struct Tversion tversion;
-+		struct Rversion rversion;
-+		struct Tauth tauth;
-+		struct Rauth rauth;
-+		struct Rerror rerror;
-+		struct Tflush tflush;
-+		struct Rflush rflush;
-+		struct Tattach tattach;
-+		struct Rattach rattach;
-+		struct Twalk twalk;
-+		struct Rwalk rwalk;
-+		struct Topen topen;
-+		struct Ropen ropen;
-+		struct Tcreate tcreate;
-+		struct Rcreate rcreate;
-+		struct Tread tread;
-+		struct Rread rread;
-+		struct Twrite twrite;
-+		struct Rwrite rwrite;
-+		struct Tclunk tclunk;
-+		struct Rclunk rclunk;
-+		struct Tremove tremove;
-+		struct Rremove rremove;
-+		struct Tstat tstat;
-+		struct Rstat rstat;
-+		struct Twstat twstat;
-+		struct Rwstat rwstat;
-+	} params;
-+};
-+
-+#define FCALL_ERROR(fcall) (fcall ? fcall->params.rerror.error : "")
-+
-+int v9fs_t_version(struct v9fs_session_info *v9ses, u32 msize,
-+		   char *version, struct v9fs_fcall **rcall);
-+
-+int v9fs_t_attach(struct v9fs_session_info *v9ses, char *uname, char *aname,
-+		  u32 fid, u32 afid, struct v9fs_fcall **rcall);
-+
-+int v9fs_t_clunk(struct v9fs_session_info *v9ses, u32 fid,
-+		 struct v9fs_fcall **rcall);
-+
-+int v9fs_t_flush(struct v9fs_session_info *v9ses, u16 oldtag);
-+
-+int v9fs_t_stat(struct v9fs_session_info *v9ses, u32 fid,
-+		struct v9fs_fcall **rcall);
-+
-+int v9fs_t_wstat(struct v9fs_session_info *v9ses, u32 fid,
-+		 struct v9fs_stat *stat, struct v9fs_fcall **rcall);
-+
-+int v9fs_t_walk(struct v9fs_session_info *v9ses, u32 fid, u32 newfid,
-+		char *name, struct v9fs_fcall **rcall);
-+
-+int v9fs_t_open(struct v9fs_session_info *v9ses, u32 fid, u8 mode,
-+		struct v9fs_fcall **rcall);
-+
-+int v9fs_t_remove(struct v9fs_session_info *v9ses, u32 fid,
-+		  struct v9fs_fcall **rcall);
-+
-+int v9fs_t_create(struct v9fs_session_info *v9ses, u32 fid, char *name,
-+		  u32 perm, u8 mode, struct v9fs_fcall **rcall);
-+
-+int v9fs_t_read(struct v9fs_session_info *v9ses, u32 fid,
-+		uint64_t offset, u32 count, struct v9fs_fcall **rcall);
-+
-+int v9fs_t_write(struct v9fs_session_info *v9ses, u32 fid, uint64_t offset,
-+		 u32 count, void *data, struct v9fs_fcall **rcall);
-Index: fs/9p/9p.c
-===================================================================
---- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
-+++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/9p.c  (mode:100644)
-@@ -0,0 +1,359 @@
-+/*
-+ *  linux/fs/9p/9p.c
-+ *
-+ *  This file contains functions 9P2000 functions
-+ *
-+ *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
-+ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, write to the Free Software
-+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <linux/config.h>
 +#include <linux/module.h>
 +#include <linux/errno.h>
 +#include <linux/fs.h>
++#include <linux/file.h>
++#include <linux/pagemap.h>
++#include <linux/stat.h>
++#include <linux/string.h>
++#include <linux/smp_lock.h>
++#include <linux/inet.h>
++#include <linux/namei.h>
 +
 +#include "debug.h"
 +#include "idpool.h"
 +#include "v9fs.h"
 +#include "9p.h"
-+#include "mux.h"
-+
-+/**
-+ * v9fs_t_version - negotiate protocol parameters with sever
-+ * @v9ses: 9P2000 session information
-+ * @msize: requested max size packet
-+ * @version: requested version.extension string
-+ * @fcall: pointer to response fcall pointer
-+ *
-+ */
-+
-+int
-+v9fs_t_version(struct v9fs_session_info *v9ses, u32 msize,
-+	       char *version, struct v9fs_fcall **fcall)
-+{
-+	struct v9fs_fcall msg;
-+
-+	dprintk(DEBUG_9P, "msize: %d version: %s\n", msize, version);
-+	msg.id = TVERSION;
-+	msg.params.tversion.msize = msize;
-+	msg.params.tversion.version = version;
-+
-+	return v9fs_mux_rpc(v9ses, &msg, fcall);
-+}
-+
-+/**
-+ * v9fs_t_attach - mount the server
-+ * @v9ses: 9P2000 session information
-+ * @uname: user name doing the attach
-+ * @aname: remote name being attached to
-+ * @fid: mount fid to attatch to root node
-+ * @afid: authentication fid (in this case result key)
-+ * @fcall: pointer to response fcall pointer
-+ *
-+ */
-+
-+int
-+v9fs_t_attach(struct v9fs_session_info *v9ses, char *uname, char *aname,
-+	      u32 fid, u32 afid, struct v9fs_fcall **fcall)
-+{
-+	struct v9fs_fcall msg;
-+
-+	dprintk(DEBUG_9P, "uname '%s' aname '%s' fid %d afid %d\n", uname,
-+		aname, fid, afid);
-+	msg.id = TATTACH;
-+	msg.params.tattach.fid = fid;
-+	msg.params.tattach.afid = afid;
-+	msg.params.tattach.uname = uname;
-+	msg.params.tattach.aname = aname;
-+
-+	return v9fs_mux_rpc(v9ses, &msg, fcall);
-+}
-+
-+/**
-+ * v9fs_t_clunk - release a fid (finish a transaction)
-+ * @v9ses: 9P2000 session information
-+ * @fid: fid to release
-+ * @fcall: pointer to response fcall pointer
-+ *
-+ */
-+
-+int
-+v9fs_t_clunk(struct v9fs_session_info *v9ses, u32 fid,
-+	     struct v9fs_fcall **fcall)
-+{
-+	struct v9fs_fcall msg;
-+
-+	dprintk(DEBUG_9P, "fid %d\n", fid);
-+	msg.id = TCLUNK;
-+	msg.params.tclunk.fid = fid;
-+
-+	return v9fs_mux_rpc(v9ses, &msg, fcall);
-+}
-+
-+/**
-+ * v9fs_v9fs_t_flush - flush a pending transaction
-+ * @v9ses: 9P2000 session information
-+ * @tag: tid to release
-+ *
-+ */
-+
-+int v9fs_t_flush(struct v9fs_session_info *v9ses, u16 tag)
-+{
-+	struct v9fs_fcall msg;
-+
-+	dprintk(DEBUG_9P, "oldtag %d\n", tag);
-+	msg.id = TFLUSH;
-+	msg.params.tflush.oldtag = tag;
-+	return v9fs_mux_rpc(v9ses, &msg, NULL);
-+}
-+
-+/**
-+ * v9fs_t_stat - read a file's meta-data
-+ * @v9ses: 9P2000 session information
-+ * @fid: fid pointing to file or directory to get info about
-+ * @fcall: pointer to response fcall
-+ *
-+ */
-+
-+int
-+v9fs_t_stat(struct v9fs_session_info *v9ses, u32 fid,
-+	    struct v9fs_fcall **fcall)
-+{
-+	struct v9fs_fcall msg;
-+
-+	dprintk(DEBUG_9P, "fid %d\n", fid);
-+	if (fcall)
-+		*fcall = NULL;
-+
-+	msg.id = TSTAT;
-+	msg.params.tstat.fid = fid;
-+	return v9fs_mux_rpc(v9ses, &msg, fcall);
-+}
-+
-+/**
-+ * v9fs_t_wstat - write a file's meta-data
-+ * @v9ses: 9P2000 session information
-+ * @fid: fid pointing to file or directory to write info about
-+ * @stat: metadata
-+ * @fcall: pointer to response fcall
-+ *
-+ */
-+
-+int
-+v9fs_t_wstat(struct v9fs_session_info *v9ses, u32 fid,
-+	     struct v9fs_stat *stat, struct v9fs_fcall **fcall)
-+{
-+	struct v9fs_fcall msg;
-+
-+	dprintk(DEBUG_9P, "fid %d length %d\n", fid, (int)stat->length);
-+	msg.id = TWSTAT;
-+	msg.params.twstat.fid = fid;
-+	msg.params.twstat.stat = stat;
-+
-+	return v9fs_mux_rpc(v9ses, &msg, fcall);
-+}
-+
-+/**
-+ * v9fs_t_walk - walk a fid to a new file or directory
-+ * @v9ses: 9P2000 session information
-+ * @fid: fid to walk
-+ * @newfid: new fid (for clone operations)
-+ * @name: path to walk fid to
-+ * @fcall: pointer to response fcall
-+ *
-+ */
-+
-+/* TODO: support multiple walk */
-+
-+int
-+v9fs_t_walk(struct v9fs_session_info *v9ses, u32 fid, u32 newfid,
-+	    char *name, struct v9fs_fcall **fcall)
-+{
-+	struct v9fs_fcall msg;
-+
-+	dprintk(DEBUG_9P, "fid %d newfid %d wname '%s'\n", fid, newfid, name);
-+	msg.id = TWALK;
-+	msg.params.twalk.fid = fid;
-+	msg.params.twalk.newfid = newfid;
-+
-+	if (name) {
-+		msg.params.twalk.nwname = 1;
-+		msg.params.twalk.wnames = &name;
-+	} else {
-+		msg.params.twalk.nwname = 0;
-+	}
-+
-+	return v9fs_mux_rpc(v9ses, &msg, fcall);
-+}
-+
-+/**
-+ * v9fs_t_open - open a file
-+ *
-+ * @v9ses - 9P2000 session information
-+ * @fid - fid to open
-+ * @mode - mode to open file (R, RW, etc)
-+ * @fcall - pointer to response fcall
-+ *
-+ */
-+
-+int
-+v9fs_t_open(struct v9fs_session_info *v9ses, u32 fid, u8 mode,
-+	    struct v9fs_fcall **fcall)
-+{
-+	struct v9fs_fcall msg;
-+	long errorno = -1;
-+
-+	dprintk(DEBUG_9P, "fid %d mode %d\n", fid, mode);
-+	msg.id = TOPEN;
-+	msg.params.topen.fid = fid;
-+	msg.params.topen.mode = mode;
-+
-+	errorno = v9fs_mux_rpc(v9ses, &msg, fcall);
-+
-+	return errorno;
-+}
-+
-+/**
-+ * v9fs_t_remove - remove a file or directory
-+ * @v9ses: 9P2000 session information
-+ * @fid: fid to remove
-+ * @fcall: pointer to response fcall
-+ *
-+ */
-+
-+int
-+v9fs_t_remove(struct v9fs_session_info *v9ses, u32 fid,
-+	      struct v9fs_fcall **fcall)
-+{
-+	struct v9fs_fcall msg;
-+
-+	dprintk(DEBUG_9P, "fid %d\n", fid);
-+	msg.id = TREMOVE;
-+	msg.params.tremove.fid = fid;
-+	return v9fs_mux_rpc(v9ses, &msg, fcall);
-+}
-+
-+/**
-+ * v9fs_t_create - create a file or directory
-+ * @v9ses: 9P2000 session information
-+ * @fid: fid to create
-+ * @name: name of the file or directory to create
-+ * @perm: permissions to create with
-+ * @mode: mode to open file (R, RW, etc)
-+ * @fcall: pointer to response fcall
-+ *
-+ */
-+
-+int
-+v9fs_t_create(struct v9fs_session_info *v9ses, u32 fid, char *name,
-+	      u32 perm, u8 mode, struct v9fs_fcall **fcall)
-+{
-+	struct v9fs_fcall msg;
-+
-+	dprintk(DEBUG_9P, "fid %d name '%s' perm %x mode %d\n",
-+		fid, name, perm, mode);
-+
-+	msg.id = TCREATE;
-+	msg.params.tcreate.fid = fid;
-+	msg.params.tcreate.name = name;
-+	msg.params.tcreate.perm = perm;
-+	msg.params.tcreate.mode = mode;
-+
-+	return v9fs_mux_rpc(v9ses, &msg, fcall);
-+}
-+
-+/**
-+ * v9fs_t_read - read data
-+ * @v9ses: 9P2000 session information
-+ * @fid: fid to read from
-+ * @offset: offset to start read at
-+ * @count: how many bytes to read
-+ * @fcall: pointer to response fcall (with data)
-+ *
-+ */
-+
-+int
-+v9fs_t_read(struct v9fs_session_info *v9ses, u32 fid, uint64_t offset,
-+	    u32 count, struct v9fs_fcall **fcall)
-+{
-+	struct v9fs_fcall msg;
-+	struct v9fs_fcall *rc = NULL;
-+	long errorno = -1;
-+
-+	dprintk(DEBUG_9P, "fid %d offset 0x%lx count 0x%x\n", fid,
-+		(long unsigned int)offset, count);
-+	msg.id = TREAD;
-+	msg.params.tread.fid = fid;
-+	msg.params.tread.offset = offset;
-+	msg.params.tread.count = count;
-+	errorno = v9fs_mux_rpc(v9ses, &msg, &rc);
-+
-+	if (!errorno) {
-+		errorno = rc->params.rread.count;
-+		dump_data(rc->params.rread.data, rc->params.rread.count);
-+	}
-+
-+	if (fcall)
-+		*fcall = rc;
-+	else
-+		kfree( rc);
-+
-+	return errorno;
-+}
-+
-+/**
-+ * v9fs_t_write - write data
-+ * @v9ses: 9P2000 session information
-+ * @fid: fid to write to
-+ * @offset: offset to start write at
-+ * @count: how many bytes to write
-+ * @fcall: pointer to response fcall
-+ *
-+ */
-+
-+int
-+v9fs_t_write(struct v9fs_session_info *v9ses, u32 fid,
-+	     uint64_t offset, u32 count, void *data,
-+	     struct v9fs_fcall **fcall)
-+{
-+	struct v9fs_fcall msg;
-+	struct v9fs_fcall *rc = NULL;
-+	long errorno = -1;
-+
-+	dprintk(DEBUG_9P, "fid %d offset 0x%llx count 0x%x\n", fid,
-+		(unsigned long long)offset, count);
-+	dump_data(data, count);
-+
-+	msg.id = TWRITE;
-+	msg.params.twrite.fid = fid;
-+	msg.params.twrite.offset = offset;
-+	msg.params.twrite.count = count;
-+	msg.params.twrite.data = data;
-+
-+	errorno = v9fs_mux_rpc(v9ses, &msg, &rc);
-+
-+	if (!errorno)
-+		errorno = rc->params.rwrite.count;
-+
-+	if (fcall)
-+		*fcall = rc;
-+	else
-+		kfree( rc);
-+
-+	return errorno;
-+}
-Index: fs/9p/conv.h
-===================================================================
---- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
-+++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/conv.h  (mode:100644)
-@@ -0,0 +1,35 @@
-+/*
-+ * linux/fs/9p/conv.h
-+ *
-+ * 9P protocol conversion definitions
-+ *
-+ *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
-+ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, write to the Free Software
-+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+int v9fs_deserialize_stat(struct v9fs_session_info *, void *buf,
-+			  u32 buflen, struct v9fs_stat *stat,
-+			  u32 statlen);
-+int v9fs_serialize_fcall(struct v9fs_session_info *, struct v9fs_fcall *tcall,
-+			 void *buf, u32 buflen);
-+int v9fs_deserialize_fcall(struct v9fs_session_info *, u32 msglen,
-+			   void *buf, u32 buflen, struct v9fs_fcall *rcall,
-+			   int rcalllen);
-+
-+/* this one is actually in error.c right now */
-+int v9fs_errstr2errno(char *errstr);
-Index: fs/9p/conv.c
-===================================================================
---- /dev/null  (tree:3c5e9440c6a37c3355b50608836a23c8fa4eec99)
-+++ 7d6ca5270f0ecf9306a944a3d39897a97dc9f67f/fs/9p/conv.c  (mode:100644)
-@@ -0,0 +1,729 @@
-+/*
-+ * linux/fs/9p/conv.c
-+ *
-+ * 9P protocol conversion functions
-+ *
-+ *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
-+ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, write to the Free Software
-+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <linux/config.h>
-+#include <linux/module.h>
-+#include <linux/errno.h>
-+#include <linux/fs.h>
-+
-+#include "debug.h"
-+#include "idpool.h"
-+#include "v9fs.h"
-+#include "9p.h"
++#include "v9fs_vfs.h"
 +#include "conv.h"
++#include "fid.h"
 +
-+/*
-+ * Buffer to help with string parsing 
-+ */
-+struct cbuf {
-+	unsigned char *sp;
-+	unsigned char *p;
-+	unsigned char *ep;
-+};
-+
-+static inline void buf_init(struct cbuf *buf, void *data, int datalen)
-+{
-+	buf->sp = buf->p = data;
-+	buf->ep = data + datalen;
-+}
-+
-+static inline int buf_check_overflow(struct cbuf *buf)
-+{
-+	return buf->p > buf->ep;
-+}
-+
-+#define buf_check_sizep(buf, len) \
-+	if (buf->p+len > buf->ep) { \
-+		if (buf->p < buf->ep) { \
-+			eprintk(KERN_ERR, "buffer overflow\n"); \
-+			buf->p = buf->ep + 1; \
-+		} \
-+		return NULL; \
-+	} \
-+
-+
-+#define buf_check_size(buf, len) \
-+	if (buf->p+len > buf->ep) { \
-+		if (buf->p < buf->ep) { \
-+			eprintk(KERN_ERR, "buffer overflow\n"); \
-+			buf->p = buf->ep + 1; \
-+		} \
-+		return 0; \
-+	} \
-+
-+#define buf_check_sizev(buf, len) \
-+	if (buf->p+len > buf->ep) { \
-+		if (buf->p < buf->ep) { \
-+			eprintk(KERN_ERR, "buffer overflow\n"); \
-+			buf->p = buf->ep + 1; \
-+		} \
-+		return; \
-+	} \
-+
-+static inline void *buf_alloc(struct cbuf *buf, int len)
-+{
-+	void *ret = NULL;
-+
-+	buf_check_sizep(buf, len);
-+	ret = buf->p;
-+	buf->p += len;
-+
-+	return ret;
-+}
-+
-+static inline void buf_put_int8(struct cbuf *buf, u8 val)
-+{
-+	buf_check_sizev(buf, 1);
-+
-+	buf->p[0] = val;
-+	buf->p++;
-+}
-+
-+static inline void buf_put_int16(struct cbuf *buf, u16 val)
-+{
-+	buf_check_sizev(buf, 2);
-+
-+	buf->p[0] = val;
-+	buf->p[1] = val >> 8;
-+	buf->p += 2;
-+}
-+
-+static inline void buf_put_int32(struct cbuf *buf, u32 val)
-+{
-+	buf_check_sizev(buf, 2);
-+
-+	buf->p[0] = val;
-+	buf->p[1] = val >> 8;
-+	buf->p[2] = val >> 16;
-+	buf->p[3] = val >> 24;
-+	buf->p += 4;
-+}
-+
-+static inline void buf_put_int64(struct cbuf *buf, uint64_t val)
-+{
-+	buf_check_sizev(buf, 8);
-+
-+	buf->p[0] = val;
-+	buf->p[1] = val >> 8;
-+	buf->p[2] = val >> 16;
-+	buf->p[3] = val >> 24;
-+	buf->p[4] = val >> 32;
-+	buf->p[5] = val >> 40;
-+	buf->p[6] = val >> 48;
-+	buf->p[7] = val >> 56;
-+	buf->p += 8;
-+}
-+
-+static inline void
-+buf_put_stringn(struct cbuf *buf, const char *s, u16 slen)
-+{
-+	buf_check_sizev(buf, slen + 2);
-+
-+	buf_put_int16(buf, slen);
-+	memcpy(buf->p, s, slen);
-+	buf->p += slen;
-+}
-+
-+static inline void buf_put_string(struct cbuf *buf, const char *s)
-+{
-+	buf_put_stringn(buf, s, strlen(s));
-+}
-+
-+static inline void buf_put_data(struct cbuf *buf, void *data, u32 datalen)
-+{
-+	buf_check_sizev(buf, datalen);
-+
-+	memcpy(buf->p, data, datalen);
-+	buf->p += datalen;
-+}
-+
-+static inline u8 buf_get_int8(struct cbuf *buf)
-+{
-+	u8 ret = 0;
-+
-+	buf_check_size(buf, 1);
-+	ret = buf->p[0];
-+
-+	buf->p++;
-+
-+	return ret;
-+}
-+
-+static inline u16 buf_get_int16(struct cbuf *buf)
-+{
-+	u16 ret = 0;
-+
-+	buf_check_size(buf, 2);
-+	ret = buf->p[0] | (buf->p[1] << 8);
-+
-+	buf->p += 2;
-+
-+	return ret;
-+}
-+
-+static inline u32 buf_get_int32(struct cbuf *buf)
-+{
-+	u32 ret = 0;
-+
-+	buf_check_size(buf, 4);
-+	ret =
-+	    buf->p[0] | (buf->p[1] << 8) | (buf->p[2] << 16) | (buf->
-+								p[3] << 24);
-+
-+	buf->p += 4;
-+
-+	return ret;
-+}
-+
-+static inline uint64_t buf_get_int64(struct cbuf *buf)
-+{
-+	uint64_t ret = 0;
-+
-+	buf_check_size(buf, 8);
-+	ret = (uint64_t) buf->p[0] | ((uint64_t) buf->p[1] << 8) |
-+	    ((uint64_t) buf->p[2] << 16) | ((uint64_t) buf->p[3] << 24) |
-+	    ((uint64_t) buf->p[4] << 32) | ((uint64_t) buf->p[5] << 40) |
-+	    ((uint64_t) buf->p[6] << 48) | ((uint64_t) buf->p[7] << 56);
-+
-+	buf->p += 8;
-+
-+	return ret;
-+}
-+
-+static inline int
-+buf_get_string(struct cbuf *buf, char *data, unsigned int datalen)
-+{
-+
-+	u16 len = buf_get_int16(buf);
-+	buf_check_size(buf, len);
-+	if (len + 1 > datalen)
-+		return 0;
-+
-+	memcpy(data, buf->p, len);
-+	data[len] = 0;
-+	buf->p += len;
-+
-+	return len + 1;
-+}
-+
-+static inline char *buf_get_stringb(struct cbuf *buf, struct cbuf *sbuf)
-+{
-+	char *ret = NULL;
-+	int n = buf_get_string(buf, sbuf->p, sbuf->ep - sbuf->p);
-+
-+	if (n > 0) {
-+		ret = sbuf->p;
-+		sbuf->p += n;
-+	}
-+
-+	return ret;
-+}
-+
-+static inline int buf_get_data(struct cbuf *buf, void *data, int datalen)
-+{
-+	buf_check_size(buf, datalen);
-+
-+	memcpy(data, buf->p, datalen);
-+	buf->p += datalen;
-+
-+	return datalen;
-+}
-+
-+static inline void *buf_get_datab(struct cbuf *buf, struct cbuf *dbuf,
-+				  int datalen)
-+{
-+	char *ret = NULL;
-+	int n = 0;
-+
-+	buf_check_sizep(dbuf, datalen);
-+
-+	n = buf_get_data(buf, dbuf->p, datalen);
-+
-+	if (n > 0) {
-+		ret = dbuf->p;
-+		dbuf->p += n;
-+	}
-+
-+	return ret;
-+}
++static struct inode_operations v9fs_dir_inode_operations;
++static struct inode_operations v9fs_file_inode_operations;
++static struct inode_operations v9fs_symlink_inode_operations;
 +
 +/**
-+ * v9fs_size_stat - calculate the size of a variable length stat struct
-+ * @v9ses: session information
-+ * @stat: metadata (stat) structure
++ * unixmode2p9mode - convert unix mode bits to plan 9
++ * @v9ses: v9fs session information
++ * @mode: mode to convert
 + *
 + */
 +
-+static int v9fs_size_stat(struct v9fs_session_info *v9ses,
-+			  struct v9fs_stat *stat)
++static inline int unixmode2p9mode(struct v9fs_session_info *v9ses, int mode)
 +{
-+	int size = 0;
++	int res;
++	res = mode & 0777;
++	if (S_ISDIR(mode))
++		res |= V9FS_DMDIR;
++	if (v9ses->extended) {
++		if (S_ISLNK(mode))
++			res |= V9FS_DMSYMLINK;
++		if (v9ses->nodev == 0) {
++			if (S_ISSOCK(mode))
++				res |= V9FS_DMSOCKET;
++			if (S_ISFIFO(mode))
++				res |= V9FS_DMNAMEDPIPE;
++			if (S_ISBLK(mode))
++				res |= V9FS_DMDEVICE;
++			if (S_ISCHR(mode))
++				res |= V9FS_DMDEVICE;
++		}
 +
-+	if (stat == NULL) {
-+		eprintk(KERN_ERR, "v9fs_size_stat: got a NULL stat pointer\n");
-+		return 0;
++		if ((mode & S_ISUID) == S_ISUID)
++			res |= V9FS_DMSETUID;
++		if ((mode & S_ISGID) == S_ISGID)
++			res |= V9FS_DMSETGID;
++		if ((mode & V9FS_DMLINK))
++			res |= V9FS_DMLINK;
 +	}
 +
-+	size =			/* 2 + *//* size[2] */
-+	    2 +			/* type[2] */
-+	    4 +			/* dev[4] */
-+	    1 +			/* qid.type[1] */
-+	    4 +			/* qid.vers[4] */
-+	    8 +			/* qid.path[8] */
-+	    4 +			/* mode[4] */
-+	    4 +			/* atime[4] */
-+	    4 +			/* mtime[4] */
-+	    8 +			/* length[8] */
-+	    8;			/* minimum sum of string lengths */
++	return res;
++}
 +
-+	if (stat->name)
-+		size += strlen(stat->name);
-+	if (stat->uid)
-+		size += strlen(stat->uid);
-+	if (stat->gid)
-+		size += strlen(stat->gid);
-+	if (stat->muid)
-+		size += strlen(stat->muid);
++/**
++ * p9mode2unixmode- convert plan9 mode bits to unix mode bits
++ * @v9ses: v9fs session information
++ * @mode: mode to convert
++ *
++ */
++
++static inline int p9mode2unixmode(struct v9fs_session_info *v9ses, int mode)
++{
++	int res;
++
++	res = mode & 0777;
++
++	if ((mode & V9FS_DMDIR) == V9FS_DMDIR)
++		res |= S_IFDIR;
++	else if ((mode & V9FS_DMSYMLINK) && (v9ses->extended))
++		res |= S_IFLNK;
++	else if ((mode & V9FS_DMSOCKET) && (v9ses->extended)
++		 && (v9ses->nodev == 0))
++		res |= S_IFSOCK;
++	else if ((mode & V9FS_DMNAMEDPIPE) && (v9ses->extended)
++		 && (v9ses->nodev == 0))
++		res |= S_IFIFO;
++	else if ((mode & V9FS_DMDEVICE) && (v9ses->extended)
++		 && (v9ses->nodev == 0))
++		res |= S_IFBLK;
++	else
++		res |= S_IFREG;
 +
 +	if (v9ses->extended) {
-+		size += 4 +	/* n_uid[4] */
-+		    4 +		/* n_gid[4] */
-+		    4 +		/* n_muid[4] */
-+		    2;		/* string length of extension[4] */
-+		if (stat->extension)
-+			size += strlen(stat->extension);
++		if ((mode & V9FS_DMSETUID) == V9FS_DMSETUID)
++			res |= S_ISUID;
++
++		if ((mode & V9FS_DMSETGID) == V9FS_DMSETGID)
++			res |= S_ISGID;
 +	}
 +
-+	return size;
++	return res;
 +}
 +
 +/**
-+ * serialize_stat - safely format a stat structure for transmission
-+ * @v9ses: session info
-+ * @stat: metadata (stat) structure
-+ * @bufp: buffer to serialize structure into
++ * v9fs_blank_mistat - helper function to setup a 9P stat structure
++ * @v9ses: 9P session info (for determining extended mode)
++ * @mistat: structure to initialize
++ *
++ */
++
++static inline void
++v9fs_blank_mistat(struct v9fs_session_info *v9ses, struct v9fs_stat *mistat)
++{
++	mistat->type = ~0;
++	mistat->qid.type = ~0;
++	mistat->qid.version = ~0;
++	*((long long *)&mistat->qid.path) = ~0;
++	mistat->mode = ~0;
++	mistat->atime = ~0;
++	mistat->mtime = ~0;
++	mistat->length = ~0;
++	mistat->name = mistat->data;
++	mistat->uid = mistat->data;
++	mistat->gid = mistat->data;
++	mistat->muid = mistat->data;
++	if (v9ses->extended) {
++		mistat->n_uid = ~0;
++		mistat->n_gid = ~0;
++		mistat->n_muid = ~0;
++		mistat->extension = mistat->data;
++	}
++	*mistat->data = 0;
++}
++
++/**
++ * v9fs_mistat2unix - convert mistat to unix stat
++ * @mistat: Plan 9 metadata (mistat) structure
++ * @stat: unix metadata (stat) structure to populate 
++ * @sb: superblock
++ *
++ */
++
++static void
++v9fs_mistat2unix(struct v9fs_stat *mistat, struct stat *buf,
++		 struct super_block *sb)
++{
++	struct v9fs_session_info *v9ses = sb ? sb->s_fs_info : NULL;
++
++	buf->st_nlink = 1;
++
++	buf->st_atime = mistat->atime;
++	buf->st_mtime = mistat->mtime;
++	buf->st_ctime = mistat->mtime;
++
++	if (v9ses && v9ses->extended) {
++		/* TODO: string to uid mapping via user-space daemon */
++		buf->st_uid = mistat->n_uid;
++		buf->st_gid = mistat->n_gid;
++
++		sscanf(mistat->uid, "%x", (unsigned int *)&buf->st_uid);
++		sscanf(mistat->gid, "%x", (unsigned int *)&buf->st_gid);
++	} else {
++		buf->st_uid = v9ses->uid;
++		buf->st_gid = v9ses->gid;
++	}
++
++	buf->st_uid = (unsigned short)-1;
++	buf->st_gid = (unsigned short)-1;
++
++	if (v9ses && v9ses->extended) {
++		if (mistat->n_uid != -1)
++			sscanf(mistat->uid, "%x", (unsigned int *)&buf->st_uid);
++
++		if (mistat->n_gid != -1)
++			sscanf(mistat->gid, "%x", (unsigned int *)&buf->st_gid);
++	}
++
++	if (buf->st_uid == (unsigned short)-1)
++		buf->st_uid = v9ses->uid;
++	if (buf->st_gid == (unsigned short)-1)
++		buf->st_gid = v9ses->gid;
++
++	buf->st_mode = p9mode2unixmode(v9ses, mistat->mode);
++	if ((S_ISBLK(buf->st_mode)) || (S_ISCHR(buf->st_mode))) {
++		char type = 0;
++		int major = -1;
++		int minor = -1;
++		sscanf(mistat->extension, "%c %u %u", &type, &major, &minor);
++		switch (type) {
++		case 'c':
++			buf->st_mode &= ~S_IFBLK;
++			buf->st_mode |= S_IFCHR;
++			break;
++		case 'b':
++			break;
++		default:
++			dprintk(DEBUG_ERROR, "Unknown special type %c (%s)\n",
++				type, mistat->extension);
++		};
++		buf->st_rdev = MKDEV(major, minor);
++	} else
++		buf->st_rdev = 0;
++
++	buf->st_size = mistat->length;
++
++	buf->st_blksize = sb->s_blocksize;
++	buf->st_blocks =
++	    (buf->st_size + buf->st_blksize - 1) >> sb->s_blocksize_bits;
++}
++
++/**
++ * v9fs_get_inode - helper function to setup an inode
++ * @sb: superblock
++ * @mode: mode to setup inode with
++ *
++ */
++
++struct inode *v9fs_get_inode(struct super_block *sb, int mode)
++{
++	struct inode *inode = NULL;
++
++	dprintk(DEBUG_VFS, "super block: %p mode: %o\n", sb, mode);
++
++	inode = new_inode(sb);
++	if (inode) {
++		inode->i_mode = mode;
++		inode->i_uid = current->fsuid;
++		inode->i_gid = current->fsgid;
++		inode->i_blksize = sb->s_blocksize;
++		inode->i_blocks = 0;
++		inode->i_rdev = 0;
++		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
++
++		switch (mode & S_IFMT) {
++		case S_IFIFO:
++		case S_IFBLK:
++		case S_IFCHR:
++		case S_IFSOCK:
++		case S_IFREG:
++			inode->i_op = &v9fs_file_inode_operations;
++			inode->i_fop = &v9fs_file_operations;
++			break;
++		case S_IFDIR:
++			inode->i_nlink++;
++			inode->i_op = &v9fs_dir_inode_operations;
++			inode->i_fop = &v9fs_dir_operations;
++			break;
++		case S_IFLNK:
++			inode->i_op = &v9fs_symlink_inode_operations;
++			break;
++		default:
++			dprintk(DEBUG_ERROR, "BAD mode 0x%x S_IFMT 0x%x\n", mode,
++			mode & S_IFMT);	
++			sb->s_op->put_inode(inode);
++			return ERR_PTR(-EINVAL);
++		}
++	} else {
++		eprintk(KERN_WARNING, "Problem allocating inode\n");
++		return ERR_PTR(-ENOMEM);
++	}
++	return inode;
++}
++
++/**
++ * v9fs_create - helper function to create files and directories
++ * @dir: directory inode file is being created in
++ * @file_dentry: dentry file is being created in 
++ * @perm: permissions file is being created with
++ * @open_mode: resulting open mode for file ???
++ * 
++ */
++
++static int
++v9fs_create(struct inode *dir,
++	    struct dentry *file_dentry,
++	    unsigned int perm, unsigned int open_mode)
++{
++	struct v9fs_session_info *v9ses = v9fs_inode2v9ses(dir);
++	struct super_block *sb = dir->i_sb;
++	struct v9fs_fid *dirfid =
++	    v9fs_fid_lookup(file_dentry->d_parent, FID_WALK);
++	struct v9fs_fid *fid = NULL;
++	struct inode *file_inode = NULL;
++	struct v9fs_fcall *fcall = NULL;
++	struct v9fs_qid qid;
++	struct stat newstat;
++	int dirfidnum = -1;
++	long newfid = -1;
++	int result = 0;
++	unsigned int iounit = 0;
++
++	perm = unixmode2p9mode(v9ses, perm);
++
++	dprintk(DEBUG_VFS, "dir: %p dentry: %p perm: %o mode: %o\n", dir,
++		file_dentry, perm, open_mode);
++
++	if (!dirfid) 
++		return -EBADF;
++
++	dirfidnum = dirfid->fid;
++	if (dirfidnum < 0) {
++		dprintk(DEBUG_ERROR, "No fid for the directory #%lu\n",
++			dir->i_ino);
++		return -EBADF;
++	}
++
++	if (file_dentry->d_inode) {
++		dprintk(DEBUG_ERROR,
++			"Odd. There is an inode for dir %lu, name :%s:\n",
++			dir->i_ino, file_dentry->d_name.name);
++		return -EEXIST;
++	}
++
++	newfid = v9fs_get_idpool(&v9ses->fidpool);
++	if (newfid < 0) {
++		eprintk(KERN_WARNING, "no free fids available\n");
++		return -ENOSPC;
++	}
++
++	result = v9fs_t_walk(v9ses, dirfidnum, newfid, NULL, &fcall);
++	if (result < 0) {
++		dprintk(DEBUG_ERROR, "clone error: %s\n", FCALL_ERROR(fcall));
++		v9fs_put_idpool(newfid, &v9ses->fidpool);
++		newfid = 0;
++		goto CleanUpFid;
++	}
++
++	kfree( fcall);
++
++	result = v9fs_t_create(v9ses, newfid, (char *)file_dentry->d_name.name,
++			       perm, open_mode, &fcall);
++	if (result < 0) {
++		dprintk(DEBUG_ERROR, "create fails: %s(%d)\n",
++			FCALL_ERROR(fcall), result);
++
++		goto CleanUpFid;
++	}
++
++	iounit = fcall->params.rcreate.iounit;
++	qid = fcall->params.rcreate.qid;
++	kfree( fcall);
++
++	fid = v9fs_fid_create(file_dentry);
++	if (!fid) {
++		result = -ENOMEM;
++		goto CleanUpFid;
++	}
++
++	fid->fid = newfid;
++	fid->fidopen = 0;
++	fid->fidcreate = 1;
++	fid->qid = qid;
++	fid->iounit = iounit;
++	fid->rdir_pos = 0;
++	fid->rdir_fcall = NULL;
++	fid->v9ses = v9ses;
++
++	if ((perm & V9FS_DMSYMLINK) || (perm & V9FS_DMLINK) ||
++	    (perm & V9FS_DMNAMEDPIPE) || (perm & V9FS_DMSOCKET) ||
++	    (perm & V9FS_DMDEVICE))
++		return 0;
++
++	result = v9fs_t_stat(v9ses, newfid, &fcall);
++	if (result < 0) {
++		dprintk(DEBUG_ERROR, "stat error: %s(%d)\n", FCALL_ERROR(fcall),
++			result);
++		goto CleanUpFid;
++	}
++
++	v9fs_mistat2unix(fcall->params.rstat.stat, &newstat, sb);
++
++	file_inode = v9fs_get_inode(sb, newstat.st_mode);
++	if ((!file_inode) || IS_ERR(file_inode)) {
++		dprintk(DEBUG_ERROR, "create inode failed\n");
++		result = -EBADF;
++		goto CleanUpFid;
++	}
++
++	v9fs_mistat2inode(fcall->params.rstat.stat, file_inode, sb);
++	kfree( fcall);
++	d_instantiate(file_dentry, file_inode);
++
++	if (perm & V9FS_DMDIR) {
++		if (v9fs_t_clunk(v9ses, newfid, &fcall))
++			dprintk(DEBUG_ERROR, "clunk for mkdir failed: %s\n",
++				FCALL_ERROR(fcall));
++
++		v9fs_put_idpool(newfid, &v9ses->fidpool);
++		kfree( fcall);
++		fid->fidopen = 0;
++		fid->fidcreate = 0;
++		d_drop(file_dentry);
++	}
++
++	return 0;
++
++      CleanUpFid:
++	kfree( fcall);
++
++	if (newfid) {
++		if (v9fs_t_clunk(v9ses, newfid, &fcall))
++			dprintk(DEBUG_ERROR, "clunk failed: %s\n",
++				FCALL_ERROR(fcall));
++
++		v9fs_put_idpool(newfid, &v9ses->fidpool);
++		kfree( fcall);
++	}
++	return result;
++}
++
++/**
++ * v9fs_remove - helper function to remove files and directories
++ * @inode: directory inode that is being deleted
++ * @dentry:  dentry that is being deleted
++ * @rmdir: where we are a file or a directory
++ *
++ */
++
++static int v9fs_remove(struct inode *dir, struct dentry *file, int rmdir)
++{
++	struct v9fs_fcall *fcall = NULL;
++	struct super_block *sb = NULL;
++	struct v9fs_session_info *v9ses = NULL;
++	struct v9fs_fid *v9fid = NULL;
++	struct inode *file_inode = NULL;
++	int fid = -1;
++	int result = 0;
++
++	dprintk(DEBUG_VFS, "inode: %p dentry: %p rmdir: %d\n", dir, file,
++		rmdir);
++
++	if (!dir || !S_ISDIR(dir->i_mode)) {
++		dprintk(DEBUG_ERROR, "dir inode is NULL or not a directory\n");
++		return -ENOENT;
++	}
++
++	if (!file) {
++		dprintk(DEBUG_ERROR, "NO dentry for file to remove\n");
++		return -EBADF;
++	}
++
++	if (!file->d_inode) {
++		dprintk(DEBUG_ERROR,
++			"dentry %p NO INODE for file to remove!\n", file);
++		return -EBADF;
++	}
++
++	file_inode = file->d_inode;
++	sb = file_inode->i_sb;
++	v9ses = v9fs_inode2v9ses(file_inode);
++	v9fid = v9fs_fid_lookup(file, FID_OP);
++
++	if (!sb || !v9ses || !v9fid) {
++		dprintk(DEBUG_ERROR,
++			"no superblock or v9session or v9fs_fid\n");
++		return -EBADF;
++	}
++
++	fid = v9fid->fid;
++	if (fid < 0) {
++		dprintk(DEBUG_ERROR, "inode #%lu, no fid!\n",
++			file_inode->i_ino);
++		return -EBADF;
++	}
++
++	if (rmdir && (!S_ISDIR(file_inode->i_mode))) {
++		dprintk(DEBUG_ERROR, "trying to remove non-directory\n");
++		return -ENOTDIR;
++	} else if ((!rmdir) && S_ISDIR(file_inode->i_mode)) {
++		dprintk(DEBUG_ERROR, "trying to remove directory\n");
++		return -EISDIR;
++	}
++
++	result = v9fs_t_remove(v9ses, fid, &fcall);
++	if (result < 0)
++		dprintk(DEBUG_ERROR, "remove of file fails: %s(%d)\n",
++			FCALL_ERROR(fcall), result);
++	else {
++		v9fs_put_idpool(fid, &v9ses->fidpool);
++		v9fs_fid_destroy(v9fid);
++	}
++
++	kfree( fcall);
++
++	return result;
++}
++
++/**
++ * v9fs_vfs_create - VFS hook to create files
++ * @inode: directory inode that is being deleted
++ * @dentry:  dentry that is being deleted
++ * @perm: create permissions
++ * @nd: path information
 + *
 + */
 +
 +static int
-+serialize_stat(struct v9fs_session_info *v9ses, struct v9fs_stat *stat,
-+	       struct cbuf *bufp)
++v9fs_vfs_create(struct inode *inode, struct dentry *dentry, int perm,
++		struct nameidata *nd)
 +{
-+	buf_put_int16(bufp, stat->size);
-+	buf_put_int16(bufp, stat->type);
-+	buf_put_int32(bufp, stat->dev);
-+	buf_put_int8(bufp, stat->qid.type);
-+	buf_put_int32(bufp, stat->qid.version);
-+	buf_put_int64(bufp, stat->qid.path);
-+	buf_put_int32(bufp, stat->mode);
-+	buf_put_int32(bufp, stat->atime);
-+	buf_put_int32(bufp, stat->mtime);
-+	buf_put_int64(bufp, stat->length);
-+
-+	buf_put_string(bufp, stat->name);
-+	buf_put_string(bufp, stat->uid);
-+	buf_put_string(bufp, stat->gid);
-+	buf_put_string(bufp, stat->muid);
-+
-+	if (v9ses->extended) {
-+		buf_put_string(bufp, stat->extension);
-+		buf_put_int32(bufp, stat->n_uid);
-+		buf_put_int32(bufp, stat->n_gid);
-+		buf_put_int32(bufp, stat->n_muid);
-+	}
-+
-+	if (buf_check_overflow(bufp))
-+		return 0;
-+
-+	return stat->size;
++	return v9fs_create(inode, dentry, perm, O_RDWR);
 +}
 +
 +/**
-+ * deserialize_stat - safely decode a recieved metadata (stat) structure
-+ * @v9ses: session info
-+ * @bufp: buffer to deserialize 
-+ * @stat: metadata (stat) structure
-+ * @dbufp: buffer to deserialize variable strings into
++ * v9fs_vfs_mkdir - VFS mkdir hook to create a directory
++ * @i:  inode that is being unlinked
++ * @dentry: dentry that is being unlinked
++ * @mode: mode for new directory
 + *
 + */
 +
-+static inline int
-+deserialize_stat(struct v9fs_session_info *v9ses, struct cbuf *bufp,
-+		 struct v9fs_stat *stat, struct cbuf *dbufp)
++static int v9fs_vfs_mkdir(struct inode *inode, struct dentry *dentry, int mode)
 +{
-+
-+	stat->size = buf_get_int16(bufp);
-+	stat->type = buf_get_int16(bufp);
-+	stat->dev = buf_get_int32(bufp);
-+	stat->qid.type = buf_get_int8(bufp);
-+	stat->qid.version = buf_get_int32(bufp);
-+	stat->qid.path = buf_get_int64(bufp);
-+	stat->mode = buf_get_int32(bufp);
-+	stat->atime = buf_get_int32(bufp);
-+	stat->mtime = buf_get_int32(bufp);
-+	stat->length = buf_get_int64(bufp);
-+	stat->name = buf_get_stringb(bufp, dbufp);
-+	stat->uid = buf_get_stringb(bufp, dbufp);
-+	stat->gid = buf_get_stringb(bufp, dbufp);
-+	stat->muid = buf_get_stringb(bufp, dbufp);
-+
-+	if (v9ses->extended) {
-+		stat->extension = buf_get_stringb(bufp, dbufp);
-+		stat->n_uid = buf_get_int32(bufp);
-+		stat->n_gid = buf_get_int32(bufp);
-+		stat->n_muid = buf_get_int32(bufp);
-+	}
-+
-+	if (buf_check_overflow(bufp) || buf_check_overflow(dbufp))
-+		return 0;
-+
-+	return stat->size + 2;
++	return v9fs_create(inode, dentry, mode | S_IFDIR, O_RDONLY);
 +}
 +
 +/**
-+ * deserialize_statb - wrapper for decoding a received metadata structure
-+ * @v9ses: session info
-+ * @bufp: buffer to deserialize 
-+ * @dbufp: buffer to deserialize variable strings into
++ * v9fs_vfs_lookup - VFS lookup hook to "walk" to a new inode
++ * @dir:  inode that is being walked from
++ * @dentry: dentry that is being walked to?
++ * @nameidata: path data
 + *
 + */
 +
-+static inline struct v9fs_stat *deserialize_statb(struct v9fs_session_info
-+						  *v9ses, struct cbuf *bufp,
-+						  struct cbuf *dbufp)
++static struct dentry *v9fs_vfs_lookup(struct inode *dir, struct dentry *dentry,
++				      struct nameidata *nameidata)
 +{
-+	struct v9fs_stat *ret = buf_alloc(dbufp, sizeof(struct v9fs_stat));
++	struct super_block *sb;
++	struct v9fs_session_info *v9ses;
++	struct v9fs_fid *dirfid;
++	struct v9fs_fid *fid;
++	struct inode *inode;
++	struct v9fs_fcall *fcall = NULL;
++	struct stat newstat;
++	int dirfidnum = -1;
++	int newfid = -1;
++	int result = 0;
 +
-+	if (ret) {
-+		int n = deserialize_stat(v9ses, bufp, ret, dbufp);
-+		if (n <= 0)
++	dprintk(DEBUG_VFS, "dir: %p dentry: (%s) %p nameidata: %p\n",
++		dir, dentry->d_iname, dentry, nameidata);
++
++	if (!dir) {
++		dprintk(DEBUG_ERROR, "no dir inode\n");
++		return ERR_PTR(-EINVAL);
++	}
++
++	sb = dir->i_sb;
++	v9ses = v9fs_inode2v9ses(dir);
++	dirfid = v9fs_fid_lookup(dentry->d_parent, FID_WALK);
++
++	if (!sb || !v9ses || !dirfid) {
++		dprintk(DEBUG_ERROR, "no superblock, v9ses, or dirfid\n");
++		return ERR_PTR(-EINVAL);
++	}
++
++	dirfidnum = dirfid->fid;
++
++	if (dirfidnum < 0) {
++		dprintk(DEBUG_ERROR, "no dirfid for inode %p, #%lu\n",
++			dir, dir->i_ino);
++		return ERR_PTR(-EBADF);
++	}
++
++	newfid = v9fs_get_idpool(&v9ses->fidpool);
++	if (newfid < 0) {
++		eprintk(KERN_WARNING, "newfid fails!\n");
++		return ERR_PTR(-ENOSPC);
++	}
++
++	result =
++	    v9fs_t_walk(v9ses, dirfidnum, newfid, (char *)dentry->d_name.name,
++			NULL);
++	if (result < 0) {
++		v9fs_put_idpool(newfid, &v9ses->fidpool);
++		if (result == -ENOENT) {
++			d_add(dentry, NULL);
++			dprintk(DEBUG_ERROR,
++				"Return negative dentry %p count %d\n",
++				dentry, atomic_read(&dentry->d_count));
 +			return NULL;
++		}
++		dprintk(DEBUG_ERROR, "walk error:%d\n", result);
++		goto FreeFcall;
 +	}
 +
-+	return ret;
++	result = v9fs_t_stat(v9ses, newfid, &fcall);
++	if (result < 0) {
++		dprintk(DEBUG_ERROR, "stat error\n");
++		goto FreeFcall;
++	}
++
++	v9fs_mistat2unix(fcall->params.rstat.stat, &newstat, sb);
++	inode = v9fs_get_inode(sb, newstat.st_mode);
++
++	if (IS_ERR(inode) && (PTR_ERR(inode) == -ENOSPC)) {
++		eprintk(KERN_WARNING, "inode alloc failes, returns %ld\n",
++			PTR_ERR(inode));
++
++		result = -ENOSPC;
++		goto FreeFcall;
++	}
++
++	inode->i_ino = v9fs_qid2ino(&fcall->params.rstat.stat->qid);
++
++	fid = v9fs_fid_create(dentry);
++	if (fid == NULL) {
++		dprintk(DEBUG_ERROR, "couldn't insert\n");
++		result = -ENOMEM;
++		goto FreeFcall;
++	}
++
++	fid->fid = newfid;
++	fid->fidopen = 0;
++	fid->v9ses = v9ses;
++	fid->qid = fcall->params.rstat.stat->qid;
++
++	dentry->d_op = &v9fs_dentry_operations;
++	v9fs_mistat2inode(fcall->params.rstat.stat, inode, inode->i_sb);
++
++	d_add(dentry, inode);
++	kfree( fcall);
++
++	return NULL;
++
++      FreeFcall:
++	kfree( fcall);
++	return ERR_PTR(result);
 +}
 +
 +/**
-+ * v9fs_deserialize_stat - decode a received metadata structure
-+ * @v9ses: session info
-+ * @buf: buffer to deserialize 
-+ * @buflen: length of received buffer
-+ * @stat: metadata structure to decode into
-+ * @statlen: length of destination metadata structure 
++ * v9fs_vfs_unlink - VFS unlink hook to delete an inode
++ * @i:  inode that is being unlinked
++ * @dentry: dentry that is being unlinked
 + *
 + */
 +
-+int
-+v9fs_deserialize_stat(struct v9fs_session_info *v9ses, void *buf,
-+		      u32 buflen, struct v9fs_stat *stat, u32 statlen)
++static int v9fs_vfs_unlink(struct inode *i, struct dentry *d)
 +{
-+	struct cbuf buffer;
-+	struct cbuf *bufp = &buffer;
-+	struct cbuf dbuffer;
-+	struct cbuf *dbufp = &dbuffer;
-+
-+	buf_init(bufp, buf, buflen);
-+	buf_init(dbufp, (char *)stat + sizeof(struct v9fs_stat),
-+		 statlen - sizeof(struct v9fs_stat));
-+
-+	return deserialize_stat(v9ses, bufp, stat, dbufp);
-+}
-+
-+static inline int
-+v9fs_size_fcall(struct v9fs_session_info *v9ses, struct v9fs_fcall *fcall)
-+{
-+	int size = 4 + 1 + 2;	/* size[4] msg[1] tag[2] */
-+	int i = 0;
-+
-+	switch (fcall->id) {
-+	default:
-+		eprintk(KERN_ERR, "bad msg type %d\n", fcall->id);
-+		return 0;
-+	case TVERSION:		/* msize[4] version[s] */
-+		size += 4 + 2 + strlen(fcall->params.tversion.version);
-+		break;
-+	case TAUTH:		/* afid[4] uname[s] aname[s] */
-+		size += 4 + 2 + strlen(fcall->params.tauth.uname) +
-+		    2 + strlen(fcall->params.tauth.aname);
-+		break;
-+	case TFLUSH:		/* oldtag[2] */
-+		size += 2;
-+		break;
-+	case TATTACH:		/* fid[4] afid[4] uname[s] aname[s] */
-+		size += 4 + 4 + 2 + strlen(fcall->params.tattach.uname) +
-+		    2 + strlen(fcall->params.tattach.aname);
-+		break;
-+	case TWALK:		/* fid[4] newfid[4] nwname[2] nwname*(wname[s]) */
-+		size += 4 + 4 + 2;
-+		/* now compute total for the array of names */
-+		for (i = 0; i < fcall->params.twalk.nwname; i++)
-+			size += 2 + strlen(fcall->params.twalk.wnames[i]);
-+		break;
-+	case TOPEN:		/* fid[4] mode[1] */
-+		size += 4 + 1;
-+		break;
-+	case TCREATE:		/* fid[4] name[s] perm[4] mode[1] */
-+		size += 4 + 2 + strlen(fcall->params.tcreate.name) + 4 + 1;
-+		break;
-+	case TREAD:		/* fid[4] offset[8] count[4] */
-+		size += 4 + 8 + 4;
-+		break;
-+	case TWRITE:		/* fid[4] offset[8] count[4] data[count] */
-+		size += 4 + 8 + 4 + fcall->params.twrite.count;
-+		break;
-+	case TCLUNK:		/* fid[4] */
-+		size += 4;
-+		break;
-+	case TREMOVE:		/* fid[4] */
-+		size += 4;
-+		break;
-+	case TSTAT:		/* fid[4] */
-+		size += 4;
-+		break;
-+	case TWSTAT:		/* fid[4] stat[n] */
-+		fcall->params.twstat.stat->size =
-+		    v9fs_size_stat(v9ses, fcall->params.twstat.stat);
-+		size += 4 + 2 + 2 + fcall->params.twstat.stat->size;
-+	}
-+	return size;
-+}
-+
-+/*
-+ * v9fs_serialize_fcall - marshall fcall struct into a packet
-+ * @v9ses: session information
-+ * @fcall: structure to convert
-+ * @data: buffer to serialize fcall into 
-+ * @datalen: length of buffer to serialize fcall into
-+ *
-+ */
-+
-+int
-+v9fs_serialize_fcall(struct v9fs_session_info *v9ses, struct v9fs_fcall *fcall,
-+		     void *data, u32 datalen)
-+{
-+	int i = 0;
-+	struct v9fs_stat *stat = NULL;
-+	struct cbuf buffer;
-+	struct cbuf *bufp = &buffer;
-+
-+	buf_init(bufp, data, datalen);
-+
-+	if (!fcall) {
-+		eprintk(KERN_ERR, "no fcall\n");
-+		return 0;
-+	}
-+
-+	fcall->size = v9fs_size_fcall(v9ses, fcall);
-+
-+	buf_put_int32(bufp, fcall->size);
-+	buf_put_int8(bufp, fcall->id);
-+	buf_put_int16(bufp, fcall->tag);
-+
-+	dprintk(DEBUG_CONV, "size %d id %d tag %d\n", fcall->size, fcall->id,
-+		fcall->tag);
-+
-+	/* now encode it */
-+	switch (fcall->id) {
-+	default:
-+		eprintk(KERN_ERR, "bad msg type: %d\n", fcall->id);
-+		return 0;
-+	case TVERSION:
-+		buf_put_int32(bufp, fcall->params.tversion.msize);
-+		buf_put_string(bufp, fcall->params.tversion.version);
-+		break;
-+	case TAUTH:
-+		buf_put_int32(bufp, fcall->params.tauth.afid);
-+		buf_put_string(bufp, fcall->params.tauth.uname);
-+		buf_put_string(bufp, fcall->params.tauth.aname);
-+		break;
-+	case TFLUSH:
-+		buf_put_int16(bufp, fcall->params.tflush.oldtag);
-+		break;
-+	case TATTACH:
-+		buf_put_int32(bufp, fcall->params.tattach.fid);
-+		buf_put_int32(bufp, fcall->params.tattach.afid);
-+		buf_put_string(bufp, fcall->params.tattach.uname);
-+		buf_put_string(bufp, fcall->params.tattach.aname);
-+		break;
-+	case TWALK:
-+		buf_put_int32(bufp, fcall->params.twalk.fid);
-+		buf_put_int32(bufp, fcall->params.twalk.newfid);
-+		buf_put_int16(bufp, fcall->params.twalk.nwname);
-+		for (i = 0; i < fcall->params.twalk.nwname; i++)
-+			buf_put_string(bufp, fcall->params.twalk.wnames[i]);
-+		break;
-+	case TOPEN:
-+		buf_put_int32(bufp, fcall->params.topen.fid);
-+		buf_put_int8(bufp, fcall->params.topen.mode);
-+		break;
-+	case TCREATE:
-+		buf_put_int32(bufp, fcall->params.tcreate.fid);
-+		buf_put_string(bufp, fcall->params.tcreate.name);
-+		buf_put_int32(bufp, fcall->params.tcreate.perm);
-+		buf_put_int8(bufp, fcall->params.tcreate.mode);
-+		break;
-+	case TREAD:
-+		buf_put_int32(bufp, fcall->params.tread.fid);
-+		buf_put_int64(bufp, fcall->params.tread.offset);
-+		buf_put_int32(bufp, fcall->params.tread.count);
-+		break;
-+	case TWRITE:
-+		buf_put_int32(bufp, fcall->params.twrite.fid);
-+		buf_put_int64(bufp, fcall->params.twrite.offset);
-+		buf_put_int32(bufp, fcall->params.twrite.count);
-+		buf_put_data(bufp, fcall->params.twrite.data,
-+			     fcall->params.twrite.count);
-+		break;
-+	case TCLUNK:
-+		buf_put_int32(bufp, fcall->params.tclunk.fid);
-+		break;
-+	case TREMOVE:
-+		buf_put_int32(bufp, fcall->params.tremove.fid);
-+		break;
-+	case TSTAT:
-+		buf_put_int32(bufp, fcall->params.tstat.fid);
-+		break;
-+	case TWSTAT:
-+		buf_put_int32(bufp, fcall->params.twstat.fid);
-+		stat = fcall->params.twstat.stat;
-+
-+		buf_put_int16(bufp, stat->size + 2);
-+		serialize_stat(v9ses, stat, bufp);
-+		break;
-+	}
-+
-+	if (buf_check_overflow(bufp))
-+		return 0;
-+
-+	return fcall->size;
++	return v9fs_remove(i, d, 0);
 +}
 +
 +/**
-+ * deserialize_fcall - unmarshal a response
-+ * @v9ses: session information
-+ * @msgsize: size of rcall message
-+ * @buf: recieved buffer
-+ * @buflen: length of received buffer
-+ * @rcall: fcall structure to populate
-+ * @rcalllen: length of fcall structure to populate
++ * v9fs_vfs_rmdir - VFS unlink hook to delete a directory
++ * @i:  inode that is being unlinked
++ * @dentry: dentry that is being unlinked
 + *
 + */
 +
-+int
-+v9fs_deserialize_fcall(struct v9fs_session_info *v9ses, u32 msgsize,
-+		       void *buf, u32 buflen, struct v9fs_fcall *rcall,
-+		       int rcalllen)
++static int v9fs_vfs_rmdir(struct inode *i, struct dentry *d)
 +{
++	return v9fs_remove(i, d, 1);
++}
 +
-+	struct cbuf buffer;
-+	struct cbuf *bufp = &buffer;
-+	struct cbuf dbuffer;
-+	struct cbuf *dbufp = &dbuffer;
-+	int i = 0;
++/**
++ * v9fs_vfs_rename - VFS hook to rename an inode
++ * @old_dir:  old dir inode
++ * @old_dentry: old dentry
++ * @new_dir: new dir inode
++ * @new_dentry: new dentry
++ * 
++ */
 +
-+	buf_init(bufp, buf, buflen);
-+	buf_init(dbufp, (char *)rcall + sizeof(struct v9fs_fcall),
-+		 rcalllen - sizeof(struct v9fs_fcall));
++static int
++v9fs_vfs_rename(struct inode *old_dir, struct dentry *old_dentry,
++		struct inode *new_dir, struct dentry *new_dentry)
++{
++	struct inode *old_inode = old_dentry->d_inode;
++	struct v9fs_session_info *v9ses = v9fs_inode2v9ses(old_inode);
++	struct v9fs_fid *oldfid = v9fs_fid_lookup(old_dentry, FID_WALK);
++	struct v9fs_fid *olddirfid =
++	    v9fs_fid_lookup(old_dentry->d_parent, FID_WALK);
++	struct v9fs_fid *newdirfid =
++	    v9fs_fid_lookup(new_dentry->d_parent, FID_WALK);
++	struct v9fs_stat *mistat = kmalloc(v9ses->maxdata, GFP_KERNEL);
++	struct v9fs_fcall *fcall = NULL;
++	int fid = -1;
++	int olddirfidnum = -1;
++	int newdirfidnum = -1;
++	int retval = 0;
 +
-+	rcall->size = msgsize;
-+	rcall->id = buf_get_int8(bufp);
-+	rcall->tag = buf_get_int16(bufp);
++	dprintk(DEBUG_VFS, "\n");
 +
-+	dprintk(DEBUG_CONV, "size %d id %d tag %d\n", rcall->size, rcall->id,
-+		rcall->tag);
-+	switch (rcall->id) {
-+	default:
-+		eprintk(KERN_ERR, "unknown message type: %d\n", rcall->id);
-+		return 0;
-+	case RVERSION:
-+		rcall->params.rversion.msize = buf_get_int32(bufp);
-+		rcall->params.rversion.version = buf_get_stringb(bufp, dbufp);
-+		break;
-+	case RFLUSH:
-+		break;
-+	case RATTACH:
-+		rcall->params.rattach.qid.type = buf_get_int8(bufp);
-+		rcall->params.rattach.qid.version = buf_get_int32(bufp);
-+		rcall->params.rattach.qid.path = buf_get_int64(bufp);
-+		break;
-+	case RWALK:
-+		rcall->params.rwalk.nwqid = buf_get_int16(bufp);
-+		rcall->params.rwalk.wqids = buf_alloc(bufp,
-+						      rcall->params.rwalk.
-+						      nwqid *
-+						      sizeof(struct v9fs_qid));
-+		if (rcall->params.rwalk.wqids)
-+			for (i = 0; i < rcall->params.rwalk.nwqid; i++) {
-+				rcall->params.rwalk.wqids[i].type =
-+				    buf_get_int8(bufp);
-+				rcall->params.rwalk.wqids[i].version =
-+				    buf_get_int16(bufp);
-+				rcall->params.rwalk.wqids[i].path =
-+				    buf_get_int64(bufp);
++	if ((!oldfid) || (!olddirfid) || (!newdirfid)) {
++		dprintk(DEBUG_ERROR, "problem with arguments\n");
++		return -EBADF;
++	}
++
++	/* 9P can only handle file rename in the same directory */
++	if (memcmp(&olddirfid->qid, &newdirfid->qid, sizeof(newdirfid->qid))) {
++		dprintk(DEBUG_ERROR, "old dir and new dir are different\n");
++		retval = -EPERM;
++		goto FreeFcallnBail;
++	}
++
++	fid = oldfid->fid;
++	olddirfidnum = olddirfid->fid;
++	newdirfidnum = newdirfid->fid;
++
++	if (fid < 0) {
++		dprintk(DEBUG_ERROR, "no fid for old file #%lu\n",
++			old_inode->i_ino);
++		retval = -EBADF;
++		goto FreeFcallnBail;
++	}
++
++	v9fs_blank_mistat(v9ses, mistat);
++
++	strcpy(mistat->data + 1, v9ses->name);
++	mistat->name = mistat->data + 1 + strlen(v9ses->name);
++
++	if (new_dentry->d_name.len >
++	    (v9ses->maxdata - strlen(v9ses->name) - sizeof(struct v9fs_stat))) {
++		dprintk(DEBUG_ERROR, "new name too long\n");
++		goto FreeFcallnBail;
++	}
++
++	strcpy(mistat->name, new_dentry->d_name.name);
++	retval = v9fs_t_wstat(v9ses, fid, mistat, &fcall);
++
++      FreeFcallnBail:
++	kfree( mistat);
++
++	if (retval < 0)
++		dprintk(DEBUG_ERROR, "v9fs_t_wstat error: %s\n",
++			FCALL_ERROR(fcall));
++
++	kfree( fcall);
++	return retval;
++}
++
++/**
++ * v9fs_vfs_getattr - retreive file metadata
++ * @mnt - mount information
++ * @dentry - file to get attributes on
++ * @stat - metadata structure to populate
++ *
++ */
++
++static int
++v9fs_vfs_getattr(struct vfsmount *mnt, struct dentry *dentry,
++		 struct kstat *stat)
++{
++	struct v9fs_fcall *fcall = NULL;
++	struct v9fs_session_info *v9ses = v9fs_inode2v9ses(dentry->d_inode);
++	struct v9fs_fid *fid = v9fs_fid_lookup(dentry, FID_OP);
++	int err = -EPERM;
++
++	dprintk(DEBUG_VFS, "dentry: %p\n", dentry);
++	if (!fid) {
++		dprintk(DEBUG_ERROR,
++			"couldn't find fid associated with dentry\n");
++		return -EBADF;
++	}
++
++	err = v9fs_t_stat(v9ses, fid->fid, &fcall);
++
++	if (err < 0)
++		dprintk(DEBUG_ERROR, "stat error\n");
++	else {
++		v9fs_mistat2inode(fcall->params.rstat.stat, dentry->d_inode,
++				  dentry->d_inode->i_sb);
++		generic_fillattr(dentry->d_inode, stat);
++	}
++
++	kfree( fcall);
++	return err;
++}
++
++/**
++ * v9fs_vfs_setattr - set file metadata
++ * @dentry: file whose metadata to set
++ * @iattr: metadata assignment structure
++ *
++ */
++
++static int v9fs_vfs_setattr(struct dentry *dentry, struct iattr *iattr)
++{
++	struct v9fs_session_info *v9ses = v9fs_inode2v9ses(dentry->d_inode);
++	struct v9fs_fid *fid = v9fs_fid_lookup(dentry, FID_OP);
++	struct v9fs_stat *mistat = kmalloc(v9ses->maxdata, GFP_KERNEL);
++	struct v9fs_fcall *fcall = NULL;
++	int res = -EPERM;
++
++	dprintk(DEBUG_VFS, "\n");
++	if (!fid) {
++		dprintk(DEBUG_ERROR,
++			"Couldn't find fid associated with dentry\n");
++		return -EBADF;
++	}
++
++	if (!mistat)
++		return -ENOMEM;
++
++	v9fs_blank_mistat(v9ses, mistat);
++	if (iattr->ia_valid & ATTR_MODE)
++		mistat->mode = unixmode2p9mode(v9ses, iattr->ia_mode);
++
++	if (iattr->ia_valid & ATTR_MTIME)
++		mistat->mtime = iattr->ia_mtime.tv_sec;
++
++	if (iattr->ia_valid & ATTR_ATIME)
++		mistat->atime = iattr->ia_atime.tv_sec;
++
++	if (iattr->ia_valid & ATTR_SIZE)
++		mistat->length = iattr->ia_size;
++
++	if (v9ses->extended) {
++		char *uid = kmalloc(strlen(mistat->uid), GFP_KERNEL);
++		char *gid = kmalloc(strlen(mistat->gid), GFP_KERNEL);
++		char *muid = kmalloc(strlen(mistat->muid), GFP_KERNEL);
++		char *name = kmalloc(strlen(mistat->name), GFP_KERNEL);
++		char *extension = kmalloc(strlen(mistat->extension), 
++					GFP_KERNEL);
++
++		if ((!uid)||(!gid)||(!muid)||(!name)||(!extension)) {
++			kfree(uid);
++			kfree(gid);
++			kfree(muid);
++			kfree(name);
++			kfree(extension);
++
++			return -ENOMEM;
++		}
++
++		strcpy(uid, mistat->uid);
++		strcpy(gid, mistat->gid);
++		strcpy(muid, mistat->muid);
++		strcpy(name, mistat->name);
++		strcpy(extension, mistat->extension);
++
++		if (iattr->ia_valid & ATTR_UID) {
++			if (strlen(uid) != 8) {
++				dprintk(DEBUG_ERROR, "uid strlen is %u not 8\n",
++					(unsigned int)strlen(uid));
++				sprintf(uid, "%08x", iattr->ia_uid);
++			} else {
++				kfree(uid);
++				uid = kmalloc(9, GFP_KERNEL);
 +			}
-+		break;
-+	case ROPEN:
-+		rcall->params.ropen.qid.type = buf_get_int8(bufp);
-+		rcall->params.ropen.qid.version = buf_get_int32(bufp);
-+		rcall->params.ropen.qid.path = buf_get_int64(bufp);
-+		rcall->params.ropen.iounit = buf_get_int32(bufp);
-+		break;
-+	case RCREATE:
-+		rcall->params.rcreate.qid.type = buf_get_int8(bufp);
-+		rcall->params.rcreate.qid.version = buf_get_int32(bufp);
-+		rcall->params.rcreate.qid.path = buf_get_int64(bufp);
-+		rcall->params.rcreate.iounit = buf_get_int32(bufp);
-+		break;
-+	case RREAD:
-+		rcall->params.rread.count = buf_get_int32(bufp);
-+		rcall->params.rread.data = buf_get_datab(bufp, dbufp,
-+							 rcall->params.rread.
-+							 count);
-+		break;
-+	case RWRITE:
-+		rcall->params.rwrite.count = buf_get_int32(bufp);
-+		break;
-+	case RCLUNK:
-+		break;
-+	case RREMOVE:
-+		break;
-+	case RSTAT:
-+		buf_get_int16(bufp);
-+		rcall->params.rstat.stat =
-+		    deserialize_statb(v9ses, bufp, dbufp);
-+		break;
-+	case RWSTAT:
-+		break;
-+	case RERROR:
-+		rcall->params.rerror.error = buf_get_stringb(bufp, dbufp);
-+		if (v9ses->extended)
-+			rcall->params.rerror.errno = buf_get_int16(bufp);
-+		break;
++
++			sprintf(uid, "%08x", iattr->ia_uid);
++			mistat->n_uid = iattr->ia_uid;
++		}
++
++		if (iattr->ia_valid & ATTR_GID) {
++			if (strlen(gid) != 8)
++				dprintk(DEBUG_ERROR, "gid strlen is %u not 8\n",
++					(unsigned int)strlen(gid));
++			else {
++				kfree(gid);
++				gid = kmalloc(9, GFP_KERNEL);
++			}
++
++			sprintf(gid, "%08x", iattr->ia_gid);
++			mistat->n_gid = iattr->ia_gid;
++		}
++
++		mistat->uid = mistat->data;
++		strcpy(mistat->uid, uid);
++		mistat->gid = mistat->data + strlen(uid) + 1;
++		strcpy(mistat->gid, gid);
++		mistat->muid = mistat->gid + strlen(gid) + 1;
++		strcpy(mistat->muid, muid);
++		mistat->name = mistat->muid + strlen(muid) + 1;
++		strcpy(mistat->name, name);
++		mistat->extension = mistat->name + strlen(name) + 1;
++		strcpy(mistat->extension, extension);
++
++		kfree(uid);
++		kfree(gid);
++		kfree(muid);
++		kfree(name);
++		kfree(extension);
 +	}
 +
-+	if (buf_check_overflow(bufp) || buf_check_overflow(dbufp))
-+		return 0;
++	res = v9fs_t_wstat(v9ses, fid->fid, mistat, &fcall);
 +
-+	return rcall->size;
++	if (res < 0)
++		dprintk(DEBUG_ERROR, "wstat error: %s\n", FCALL_ERROR(fcall));
++
++	kfree( mistat);
++	kfree( fcall);
++
++	if (res >= 0)
++		res = inode_setattr(dentry->d_inode, iattr);
++
++	return res;
 +}
++
++/**
++ * v9fs_mistat2inode - populate an inode structure with mistat info
++ * @mistat: Plan 9 metadata (mistat) structure
++ * @inode: inode to populate
++ * @sb: superblock of filesystem
++ *
++ */
++
++void
++v9fs_mistat2inode(struct v9fs_stat *mistat, struct inode *inode,
++		  struct super_block *sb)
++{
++	struct v9fs_session_info *v9ses = sb ? sb->s_fs_info : NULL;
++
++	inode->i_nlink = 1;
++
++	inode->i_atime.tv_sec = mistat->atime;
++	inode->i_mtime.tv_sec = mistat->mtime;
++	inode->i_ctime.tv_sec = mistat->mtime;
++
++	inode->i_uid = -1;
++	inode->i_gid = -1;
++
++	if (v9ses && v9ses->extended) {
++		/* TODO: string to uid mapping via user-space daemon */
++		inode->i_uid = mistat->n_uid;
++		inode->i_gid = mistat->n_gid;
++
++		if (mistat->n_uid == -1)
++			sscanf(mistat->uid, "%x", &inode->i_uid);
++
++		if (mistat->n_gid == -1)
++			sscanf(mistat->gid, "%x", &inode->i_gid);
++	}
++
++	if (inode->i_uid == -1)
++		inode->i_uid = v9ses->uid;
++	if (inode->i_gid == -1)
++		inode->i_gid = v9ses->gid;
++
++	inode->i_mode = p9mode2unixmode(v9ses, mistat->mode);
++	if ((S_ISBLK(inode->i_mode)) || (S_ISCHR(inode->i_mode))) {
++		char type = 0;
++		int major = -1;
++		int minor = -1;
++		sscanf(mistat->extension, "%c %u %u", &type, &major, &minor);
++		switch (type) {
++		case 'c':
++			inode->i_mode &= ~S_IFBLK;
++			inode->i_mode |= S_IFCHR;
++			break;
++		case 'b':
++			break;
++		default:
++			dprintk(DEBUG_ERROR, "Unknown special type %c (%s)\n",
++				type, mistat->extension);
++		};
++		inode->i_rdev = MKDEV(major, minor);
++	} else
++		inode->i_rdev = 0;
++
++	inode->i_size = mistat->length;
++
++	inode->i_blksize = sb->s_blocksize;
++	inode->i_blocks =
++	    (inode->i_size + inode->i_blksize - 1) >> sb->s_blocksize_bits;
++}
++
++/**
++ * v9fs_qid2ino - convert qid into inode number
++ * @qid: qid to hash
++ *
++ * BUG: potential for inode number collisions?
++ */
++
++ino_t v9fs_qid2ino(struct v9fs_qid *qid)
++{
++	uint64_t path = qid->path+2;
++	ino_t i = 0;
++
++	if (sizeof(ino_t) == sizeof(path))
++		memcpy(&i, &path, sizeof(ino_t));
++	else {
++		/* there is no perfect solution for this case */
++		i = (ino_t) (path ^ (path >> 32));
++	}
++
++	return i;
++}
++
++/**
++ * v9fs_vfs_symlink - helper function to create symlinks
++ * @dir: directory inode containing symlink
++ * @dentry: dentry for symlink
++ * @symname: symlink data
++ * 
++ * See 9P2000.u RFC for more information
++ *
++ */
++
++static int
++v9fs_vfs_symlink(struct inode *dir, struct dentry *dentry, const char *symname)
++{
++	int retval = -EPERM;
++	struct v9fs_fid *newfid;
++	struct v9fs_session_info *v9ses = v9fs_inode2v9ses(dir);
++	struct super_block *sb = dir ? dir->i_sb : NULL;
++	struct v9fs_fcall *fcall = NULL;
++	struct v9fs_stat *mistat = kmalloc(v9ses->maxdata, GFP_KERNEL);
++
++	dprintk(DEBUG_VFS, " %lu,%s,%s\n", dir->i_ino, dentry->d_name.name,
++		symname);
++
++	if ((!dentry) || (!sb) || (!v9ses)) {
++		dprintk(DEBUG_ERROR, "problem with arguments\n");
++		return -EBADF;
++	}
++
++	if (!v9ses->extended) {
++		dprintk(DEBUG_ERROR, "not extended\n");
++		goto FreeFcall;
++	}
++
++	/* issue a create */
++	retval = v9fs_create(dir, dentry, S_IFLNK, 0);
++	if (retval != 0)
++		goto FreeFcall;
++
++	newfid = v9fs_fid_lookup(dentry, FID_OP);
++
++	/* issue a twstat */
++	v9fs_blank_mistat(v9ses, mistat);
++	strcpy(mistat->data + 1, symname);
++	mistat->extension = mistat->data + 1;
++	retval = v9fs_t_wstat(v9ses, newfid->fid, mistat, &fcall);
++	if (retval < 0) {
++		dprintk(DEBUG_ERROR, "v9fs_t_wstat error: %s\n",
++			FCALL_ERROR(fcall));
++		goto FreeFcall;
++	}
++
++	/* need to update dcache so we show up */
++	kfree( fcall);
++	fcall = NULL;
++
++	if (v9fs_t_clunk(v9ses, newfid->fid, &fcall)) {
++		dprintk(DEBUG_ERROR, "clunk for symlink failed: %s\n",
++			FCALL_ERROR(fcall));
++		goto FreeFcall;
++	}
++
++	d_drop(dentry);		/* FID - will this also clunk? */
++
++      FreeFcall:
++	kfree( mistat);
++	kfree( fcall);
++
++	return retval;
++}
++
++/**
++ * v9fs_readlink - read a symlink's location (internal version)
++ * @dentry: dentry for symlink
++ * @buf: buffer to load symlink location into
++ * @buflen: length of buffer
++ * 
++ */
++
++static int v9fs_readlink(struct dentry *dentry, char *buffer, int buflen)
++{
++	int retval = -EPERM;
++
++	struct v9fs_fcall *fcall = NULL;
++	struct v9fs_session_info *v9ses = v9fs_inode2v9ses(dentry->d_inode);
++	struct v9fs_fid *fid = v9fs_fid_lookup(dentry, FID_OP);
++
++	if (!fid) {
++		dprintk(DEBUG_ERROR, "could not resolve fid from dentry\n");
++		retval = -EBADF;
++		goto FreeFcall;
++	}
++
++	if (!v9ses->extended) {
++		retval = -EBADF;
++		dprintk(DEBUG_ERROR, "not extended\n");
++		goto FreeFcall;
++	}
++
++	dprintk(DEBUG_VFS, " %s\n", dentry->d_name.name);
++	retval = v9fs_t_stat(v9ses, fid->fid, &fcall);
++
++	if (!(fcall->params.rstat.stat->mode & V9FS_DMSYMLINK)) {
++		retval = -EINVAL;
++		goto FreeFcall;
++	}
++
++	if (retval < 0) {
++		dprintk(DEBUG_ERROR, "stat error\n");
++		goto FreeFcall;
++	}
++
++	/* copy extension buffer into buffer */
++	if (strlen(fcall->params.rstat.stat->extension) < buflen)
++		buflen = strlen(fcall->params.rstat.stat->extension);
++
++	memcpy(buffer, fcall->params.rstat.stat->extension, buflen + 1);
++
++	retval = buflen;
++
++      FreeFcall:
++	kfree( fcall);
++
++	return retval;
++}
++
++/**
++ * v9fs_vfs_readlink - read a symlink's location
++ * @dentry: dentry for symlink
++ * @buf: buffer to load symlink location into
++ * @buflen: length of buffer
++ * 
++ */
++
++static int v9fs_vfs_readlink(struct dentry *dentry, char __user * buffer,
++			     int buflen)
++{
++	int retval;
++	int ret;
++	char *link = __getname();
++
++	if (strlen(link) < buflen)
++		buflen = strlen(link);
++
++	dprintk(DEBUG_VFS, " dentry: %s (%p)\n", dentry->d_iname, dentry);
++
++	retval = v9fs_readlink(dentry, link, buflen);
++
++	if (retval > 0) {
++		if ((ret = copy_to_user(buffer, link, retval)) != 0) {
++			dprintk(DEBUG_ERROR, "problem copying to user: %d\n", ret);
++			retval = ret;
++		}
++	}
++
++	putname(link);
++	return retval;
++}
++
++/**
++ * v9fs_vfs_follow_link - follow a symlink path
++ * @dentry: dentry for symlink
++ * @nd: nameidata
++ * 
++ */
++
++static int v9fs_vfs_follow_link(struct dentry *dentry, struct nameidata *nd)
++{
++	int len = 0;
++	char *link = __getname();
++
++	dprintk(DEBUG_VFS, "%s n", dentry->d_name.name);
++
++	if (!link)
++		link = ERR_PTR(-ENOMEM);
++	else {
++		len = v9fs_readlink(dentry, link, strlen(link));
++
++		if (len < 0) {
++			putname(link);
++			link = ERR_PTR(len);
++		} else
++			link[len] = 0;
++	}
++	nd_set_link(nd, link);
++
++	return 0;
++}
++
++/**
++ * v9fs_vfs_put_link - release a symlink path
++ * @dentry: dentry for symlink
++ * @nd: nameidata
++ * 
++ */
++
++static void v9fs_vfs_put_link(struct dentry *dentry, struct nameidata *nd)
++{
++	char *s = nd_get_link(nd);
++
++	dprintk(DEBUG_VFS, " %s %s\n", dentry->d_name.name, s);
++	if (!IS_ERR(s))
++		putname(s);
++}
++
++/**
++ * v9fs_vfs_link - create a hardlink
++ * @old_dentry: dentry for file to link to
++ * @dir: inode destination for new link
++ * @new_dentry: dentry for link
++ * 
++ */
++
++/* XXX - lots of code dup'd from symlink and creates, 
++ * figure out a better reuse strategy 
++ */
++
++static int
++v9fs_vfs_link(struct dentry *old_dentry, struct inode *dir,
++	      struct dentry *dentry)
++{
++	int retval = -EPERM;
++	struct v9fs_session_info *v9ses = v9fs_inode2v9ses(dir);
++	struct super_block *sb = dir ? dir->i_sb : NULL;
++	struct v9fs_fcall *fcall = NULL;
++	struct v9fs_stat *mistat = kmalloc(v9ses->maxdata, GFP_KERNEL);
++	struct v9fs_fid *oldfid = v9fs_fid_lookup(old_dentry, FID_OP);
++	struct v9fs_fid *newfid = NULL;
++	char *symname = __getname(); /* just going to store hardlinkfid(%x) */
++
++	dprintk(DEBUG_VFS, " %lu,%s,%s\n", dir->i_ino, dentry->d_name.name,
++		old_dentry->d_name.name);
++
++	if ((!dentry) || (!sb) || (!v9ses) || (!oldfid)) {
++		dprintk(DEBUG_ERROR, "problem with arguments\n");
++		retval = -EBADF;
++		goto FreeMem;
++	}
++
++	if (!v9ses->extended) {
++		dprintk(DEBUG_ERROR, "not extended\n");
++		goto FreeMem;
++	}
++
++	/* get fid of old_dentry */
++	sprintf(symname, "hardlink(%d)\n", oldfid->fid);
++
++	/* issue a create */
++	retval = v9fs_create(dir, dentry, V9FS_DMLINK, 0);
++	if (retval != 0)
++		goto FreeMem;
++
++	newfid = v9fs_fid_lookup(dentry, FID_OP);
++	if (!newfid) {
++		dprintk(DEBUG_ERROR, "couldn't resolve fid from dentry\n");
++		goto FreeMem;
++	}
++
++	/* issue a twstat */
++	v9fs_blank_mistat(v9ses, mistat);
++	strcpy(mistat->data + 1, symname);
++	mistat->extension = mistat->data + 1;
++	retval = v9fs_t_wstat(v9ses, newfid->fid, mistat, &fcall);
++	if (retval < 0) {
++		dprintk(DEBUG_ERROR, "v9fs_t_wstat error: %s\n",
++			FCALL_ERROR(fcall));
++		goto FreeMem;
++	}
++
++	/* need to update dcache so we show up */
++	kfree( fcall);
++	fcall = NULL;
++
++	if (v9fs_t_clunk(v9ses, newfid->fid, &fcall)) {
++		dprintk(DEBUG_ERROR, "clunk for symlink failed: %s\n",
++			FCALL_ERROR(fcall));
++		goto FreeMem;
++	}
++
++	d_drop(dentry);		/* FID - will this also clunk? */
++
++	kfree( fcall);
++	fcall = NULL;
++
++      FreeMem:
++	kfree( mistat);
++	kfree( fcall);
++	putname(symname);
++	return retval;
++}
++
++/**
++ * v9fs_vfs_mknod - create a special file
++ * @dir: inode destination for new link
++ * @dentry: dentry for file
++ * @mode: mode for creation
++ * @dev_t: device associated with special file
++ * 
++ */
++
++static int
++v9fs_vfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t rdev)
++{
++	int retval = -EPERM;
++	struct v9fs_fid *newfid;
++	struct v9fs_session_info *v9ses = v9fs_inode2v9ses(dir);
++	struct super_block *sb = dir ? dir->i_sb : NULL;
++	struct v9fs_fcall *fcall = NULL;
++	struct v9fs_stat *mistat = kmalloc(v9ses->maxdata, GFP_KERNEL);
++	char *symname = __getname();
++
++	dprintk(DEBUG_VFS, " %lu,%s mode: %x MAJOR: %u MINOR: %u\n", dir->i_ino,
++		dentry->d_name.name, mode, MAJOR(rdev), MINOR(rdev));
++
++	if (!new_valid_dev(rdev)) {
++		retval = -EINVAL;
++		goto FreeMem;
++	}
++
++	if ((!dentry) || (!sb) || (!v9ses)) {
++		dprintk(DEBUG_ERROR, "problem with arguments\n");
++		retval = -EBADF;
++		goto FreeMem;
++	}
++
++	if (!v9ses->extended) {
++		dprintk(DEBUG_ERROR, "not extended\n");
++		goto FreeMem;
++	}
++
++	/* issue a create */
++	retval = v9fs_create(dir, dentry, mode, 0);
++
++	if (retval != 0)
++		goto FreeMem;
++
++	newfid = v9fs_fid_lookup(dentry, FID_OP);
++	if (!newfid) {
++		dprintk(DEBUG_ERROR, "coudn't resove fid from dentry\n");
++		retval = -EINVAL;
++		goto FreeMem;
++	}
++
++	/* build extension */
++	if (S_ISBLK(mode))
++		sprintf(symname, "b %u %u", MAJOR(rdev), MINOR(rdev));
++	else if (S_ISCHR(mode))
++		sprintf(symname, "c %u %u", MAJOR(rdev), MINOR(rdev));
++	else if (S_ISFIFO(mode)) ;	/* DO NOTHING */
++	else {
++		retval = -EINVAL;
++		goto FreeMem;
++	}
++
++	if (!S_ISFIFO(mode)) {
++		/* issue a twstat */
++		v9fs_blank_mistat(v9ses, mistat);
++		strcpy(mistat->data + 1, symname);
++		mistat->extension = mistat->data + 1;
++		retval = v9fs_t_wstat(v9ses, newfid->fid, mistat, &fcall);
++		if (retval < 0) {
++			dprintk(DEBUG_ERROR, "v9fs_t_wstat error: %s\n",
++				FCALL_ERROR(fcall));
++			goto FreeMem;
++		}
++
++		kfree( fcall);
++	}
++
++	/* need to update dcache so we show up */
++	kfree( fcall);
++
++	if (v9fs_t_clunk(v9ses, newfid->fid, &fcall)) {
++		dprintk(DEBUG_ERROR, "clunk for symlink failed: %s\n",
++			FCALL_ERROR(fcall));
++		goto FreeMem;
++	}
++
++	d_drop(dentry);		/* FID - will this also clunk? */
++
++      FreeMem:
++	kfree( mistat);
++	kfree( fcall);
++	putname(symname);
++
++	return retval;
++}
++
++static struct inode_operations v9fs_dir_inode_operations = {
++	.create = v9fs_vfs_create,
++	.lookup = v9fs_vfs_lookup,
++	.symlink = v9fs_vfs_symlink,
++	.link = v9fs_vfs_link,
++	.unlink = v9fs_vfs_unlink,
++	.mkdir = v9fs_vfs_mkdir,
++	.rmdir = v9fs_vfs_rmdir,
++	.mknod = v9fs_vfs_mknod,
++	.rename = v9fs_vfs_rename,
++	.readlink = v9fs_vfs_readlink,
++	.getattr = v9fs_vfs_getattr,
++	.setattr = v9fs_vfs_setattr,
++};
++
++static struct inode_operations v9fs_file_inode_operations = {
++	.getattr = v9fs_vfs_getattr,
++	.setattr = v9fs_vfs_setattr,
++};
++
++static struct inode_operations v9fs_symlink_inode_operations = {
++	.readlink = v9fs_vfs_readlink,
++	.follow_link = v9fs_vfs_follow_link,
++	.put_link = v9fs_vfs_put_link,
++	.getattr = v9fs_vfs_getattr,
++	.setattr = v9fs_vfs_setattr,
++};

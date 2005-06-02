@@ -1,210 +1,228 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbVFBLbZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbVFBLkt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261376AbVFBLbZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 07:31:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVFBLbZ
+	id S261377AbVFBLkt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 07:40:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbVFBLkt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 07:31:25 -0400
-Received: from ribosome.natur.cuni.cz ([195.113.57.20]:20711 "EHLO
-	ribosome.natur.cuni.cz") by vger.kernel.org with ESMTP
-	id S261376AbVFBLbF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 07:31:05 -0400
-Message-ID: <429EEDF7.3030100@ribosome.natur.cuni.cz>
-Date: Thu, 02 Jun 2005 13:31:03 +0200
-From: =?ISO-8859-1?Q?Martin_MOKREJS=28?= 
-	<mmokrejs@ribosome.natur.cuni.cz>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050511
-X-Accept-Language: en, en-us, cs
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: linux-kernel@vger.kernel.org, mingo@elte.hu
-Subject: Re: memory management weirdness
-References: <4219E62D.7000009@ribosome.natur.cuni.cz> <m14qg5mq5v.fsf@muc.de>
-In-Reply-To: <m14qg5mq5v.fsf@muc.de>
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 2 Jun 2005 07:40:49 -0400
+Received: from rproxy.gmail.com ([64.233.170.205]:40359 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261377AbVFBLkR convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 07:40:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=TsIDL1N0DhvGQ6WlkOWJzB6sWoTVyRH5pKrd29+9hIYZiVXh8fX1HdCO9DK560qXwsFVOdMPT6ydUQUi0Is04A5N6Qg0AotMp/4eb2gJOZr5gR9IomvieJ71uF8UrKKSqZQzS3yxudmBEqt3tKA4tA6RlucP5IIldlxYriCi18E=
+Message-ID: <105fc4d4050602044078818ad@mail.gmail.com>
+Date: Thu, 2 Jun 2005 12:40:16 +0100
+From: Manuel Capinha <mcapinha@gmail.com>
+Reply-To: Manuel Capinha <mcapinha@gmail.com>
+To: Linux and Kernel Video <video4linux-list@redhat.com>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Mauro Carvalho Chehab <maurochehab@gmail.com>
+Subject: [Patch] Add support for PixelView Ultra Pro in v4l
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-  I'm continuing an old thread on this topic (see bottom of this mail fro previous discussion).
-I've received some answer from ASUS and their German support says that although
-their BIOS cannot re-map the memory the operating system can access the whole
-memory (they mention Win200 Advanced Server OS)
+The following patch adds support for the PixelView Ultra Pro video
+capture card in v4l.
+- It removes the remote control key definitions from ir-kbd-gpio.c and
+moves them to ir-common.c so that they can be shared between bt878 and
+cx88 based cards.
+- The patch also moves the FUSIONHDTV_3_GOLD_Q card from number 27 to
+28 to regain compatibility with the V4L cvs.
 
-0    - 3327 MB -> 3327 MB Mainmemory
-3327 - 4096 MB -> PCI ROM Reserved
-4096 - 4865 MB -> 769 MB Mainmemory (Rest of the 4 GB Memory)
+This patch was made against 2.6.12-rc5-mm.
 
-At the moment I have all four 1gB ddr modules in the slots and BIOS has stopped
-memory checks at 3327 MB and started to boot. I get sloow machine and:
+Thanks and feel free to contact me if you need any aditional info on this,
+Manuel
 
-Linux version 2.6.12-rc5-git6 (root@aquarius) (gcc version 3.4.3-20050110 (Gentoo Linux 3.4.3.20050110-r2, ssp-3.4.3.20050110-0, pie-8.7.7)) #2 Thu Jun 2 11:49:00 CEST 2005
-BIOS-provided physical RAM map:
- BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
- BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000e8000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 00000000cfe30000 (usable)
- BIOS-e820: 00000000cfe30000 - 00000000cfe40000 (ACPI data)
- BIOS-e820: 00000000cfe40000 - 00000000cfef0000 (ACPI NVS)
- BIOS-e820: 00000000cfef0000 - 00000000cff00000 (reserved)
- BIOS-e820: 00000000ffb80000 - 0000000100000000 (reserved)
-2430MB HIGHMEM available.
-896MB LOWMEM available.
-found SMP MP-table at 000ff780
-On node 0 totalpages: 851504
-  DMA zone: 4096 pages, LIFO batch:1
-  Normal zone: 225280 pages, LIFO batch:31
-  HighMem zone: 622128 pages, LIFO batch:31
-DMI 2.3 present.
-ACPI: RSDP (v002 ACPIAM                                ) @ 0x000f9e30
-ACPI: XSDT (v001 A M I  OEMXSDT  0x10000426 MSFT 0x00000097) @ 0xcfe30100
-ACPI: FADT (v003 A M I  OEMFACP  0x10000426 MSFT 0x00000097) @ 0xcfe30290
-ACPI: MADT (v001 A M I  OEMAPIC  0x10000426 MSFT 0x00000097) @ 0xcfe30390
-ACPI: OEMB (v001 A M I  OEMBIOS  0x10000426 MSFT 0x00000097) @ 0xcfe40040
-ACPI: DSDT (v001  P4CED P4CED106 0x00000106 INTL 0x02002026) @ 0x00000000
-ACPI: Local APIC address 0xfee00000
-ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
-Processor #0 15:2 APIC version 20
-ACPI: LAPIC (acpi_id[0x02] lapic_id[0x01] disabled)
-ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
-IOAPIC[0]: apic_id 2, version 32, address 0xfec00000, GSI 0-23
-ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
-ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
-ACPI: IRQ0 used by override.
-ACPI: IRQ2 used by override.
-ACPI: IRQ9 used by override.
-Enabling APIC mode:  Flat.  Using 1 I/O APICs
-Using ACPI (MADT) for SMP configuration information
-Allocating PCI resources starting at cff00000 (gap: cff00000:2fc80000)
-Built 1 zonelists
-Kernel command line: root=/dev/sda2 ide=reverse agp=try_unsupported console=ttyS0,57600n8 console=tty0 vga=792 idebus=66
+----------------------------------SNIP------------------------------------------------
 
-# cat /proc/mtrr
-reg00: base=0x00000000 (   0MB), size=2048MB: write-back, count=1
-reg01: base=0x80000000 (2048MB), size=1024MB: write-back, count=1
-reg02: base=0xc0000000 (3072MB), size= 128MB: write-back, count=1
-reg03: base=0xc8000000 (3200MB), size=  64MB: write-back, count=1
-reg04: base=0xcc000000 (3264MB), size=  32MB: write-back, count=1
-reg05: base=0xce000000 (3296MB), size=  16MB: write-back, count=1
-reg06: base=0xe0000000 (3584MB), size= 128MB: write-combining, count=3
-reg07: base=0xf0000000 (3840MB), size= 128MB: write-combining, count=1
-#
-
-
-My questions are:
-how can I make linux kernel to use rest of the memory? Below is their original answer.
-Maybe there's someone interrested in this problem while living in Germany and speaking
-much better that I do ... AND understanding the kernel stuff (which I do not).
-Martin
-
-
-
-From: tsd_germany at asuscom dot de
-Hallo,
-
-Das Bios kann kein Remapping bei uns. Sie haben ja schon selber gemerkt, wenn eine etwas höhere Karte eingesetzt wird, geht auch der Speicher runter, das ist normal, weil manche AGP Karten mehr Rom brauchen. 
-
-...
-
-dies ist kein Fehler, da 32bit System standardmäßig nur 4GB adressieren können.
-Da alle PCI ROMs (VGA, LAN Controller etc) unterhalb von 4GB adressiert werden müssen, reservieren diese sich Bereiche unterhalb von 4GB.
-Dies können mehrere hundert MB sein.
-
-Der eigentliche Arbeitsspeicher liegt dann oberhalb von 4GB und kann durch Betriebssysteme angesprochen werden. (Win2000 Advanced Server)
-
-0    - 3327 MB -> 3327 MB Hauptspeicher
-3327 - 4096 MB -> PCI ROM Reservierung
-	 4096 MB -> 4GB Grenze
-4096 - 4865 MB -> 769 MB Hauptspeicher (Rest der 4 GB Memory)
-
-- Bitte fügen Sie einer Antwort immer den gesamten Schriftverkehr bei !
-
-- Please always attach all previous mails !
-
-Mit freundlichen Grüssen 
-
+diff -ur linux-2.6.12-rc5-mm/drivers/media/common/ir-common.c
+linux-2.6.12-rc5-mm-PixelView/drivers/media/common/ir-common.c
+--- linux-2.6.12-rc5-mm/drivers/media/common/ir-common.c	2005-06-02
+00:38:34.191718432 +0100
++++ linux-2.6.12-rc5-mm-PixelView/drivers/media/common/ir-common.c	2005-06-02
+01:01:40.322994448 +0100
+@@ -213,6 +213,39 @@
+ };
+ EXPORT_SYMBOL(ir_codes_hauppauge_new);
  
++IR_KEYTAB_TYPE ir_codes_pixelview[IR_KEYTAB_SIZE] = {
++	[  2 ] = KEY_KP0,
++	[  1 ] = KEY_KP1,
++	[ 11 ] = KEY_KP2,
++	[ 27 ] = KEY_KP3,
++	[  5 ] = KEY_KP4,
++	[  9 ] = KEY_KP5,
++	[ 21 ] = KEY_KP6,
++	[  6 ] = KEY_KP7,
++	[ 10 ] = KEY_KP8,
++	[ 18 ] = KEY_KP9,
++
++	[  3 ] = KEY_TUNER,       // TV/FM
++	[  7 ] = KEY_SEARCH,      // scan
++	[ 28 ] = KEY_ZOOM,        // full screen
++	[ 30 ] = KEY_POWER,
++	[ 23 ] = KEY_VOLUMEDOWN,
++	[ 31 ] = KEY_VOLUMEUP,
++	[ 20 ] = KEY_CHANNELDOWN,
++	[ 22 ] = KEY_CHANNELUP,
++	[ 24 ] = KEY_MUTE,
++
++	[  0 ] = KEY_LIST,        // source
++	[ 19 ] = KEY_INFO,        // loop
++	[ 16 ] = KEY_LAST,        // +100
++	[ 13 ] = KEY_CLEAR,       // reset
++	[ 12 ] = BTN_RIGHT,       // fun++
++	[  4 ] = BTN_LEFT,        // fun--
++	[ 14 ] = KEY_GOTO,        // function
++	[ 15 ] = KEY_STOP,         // freeze
++};
++EXPORT_SYMBOL(ir_codes_pixelview);
++
+ /* --------------------------------------------------------------------------
+*/
+ 
+ static void ir_input_key_event(struct input_dev *dev, struct
+ir_input_state *ir)
+diff -ur linux-2.6.12-rc5-mm/drivers/media/video/cx88/cx88-cards.c
+linux-2.6.12-rc5-mm-PixelView/drivers/media/video/cx88/cx88-cards.c
+--- linux-2.6.12-rc5-mm/drivers/media/video/cx88/cx88-cards.c	2005-06-02
+00:38:32.761935792 +0100
++++ linux-2.6.12-rc5-mm-PixelView/drivers/media/video/cx88/cx88-cards.c	2005-06-02
+00:55:47.298662304 +0100
+@@ -628,6 +628,27 @@
+ 			.gpio1  = 0x0000e07f,
+ 		}}
+ 	},
++	[CX88_BOARD_PIXELVIEW_PLAYTV_ULTRA_PRO] = {
++		.name           = "PixelView PlayTV Ultra Pro (Stereo)",
++		.tuner_type     = 38,
++		.input          = {{
++			.type   = CX88_VMUX_TELEVISION,
++			.vmux   = 0,
++			.gpio0  = 0xbf61,  // internal decoder
++		},{
++			.type   = CX88_VMUX_COMPOSITE1,
++			.vmux   = 1,
++			.gpio0  = 0xbf63,
++		},{
++			.type   = CX88_VMUX_SVIDEO,
++			.vmux   = 2,
++			.gpio0  = 0xbf63,
++		}},
++		.radio = {
++			.type  = CX88_RADIO,
++			.gpio0 = 0xbf60,
++		},
++	},
+ };
+ const unsigned int cx88_bcount = ARRAY_SIZE(cx88_boards);
+ 
+diff -ur linux-2.6.12-rc5-mm/drivers/media/video/cx88/cx88.h
+linux-2.6.12-rc5-mm-PixelView/drivers/media/video/cx88/cx88.h
+--- linux-2.6.12-rc5-mm/drivers/media/video/cx88/cx88.h	2005-06-02
+00:38:32.764935336 +0100
++++ linux-2.6.12-rc5-mm-PixelView/drivers/media/video/cx88/cx88.h	2005-06-02
+00:56:31.586929464 +0100
+@@ -162,7 +162,8 @@
+ #define CX88_BOARD_HAUPPAUGE_ROSLYN        24
+ #define CX88_BOARD_DIGITALLOGIC_MEC	       25
+ #define CX88_BOARD_IODATA_GVBCTV7E         26
+-#define CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_Q   27
++#define CX88_BOARD_PIXELVIEW_PLAYTV_ULTRA_PRO 27
++#define CX88_BOARD_DVICO_FUSIONHDTV_3_GOLD_Q   28
+ 
+ enum cx88_itype {
+ 	CX88_VMUX_COMPOSITE1 = 1,
+diff -ur linux-2.6.12-rc5-mm/drivers/media/video/cx88/cx88-input.c
+linux-2.6.12-rc5-mm-PixelView/drivers/media/video/cx88/cx88-input.c
+--- linux-2.6.12-rc5-mm/drivers/media/video/cx88/cx88-input.c	2005-06-02
+00:38:32.777933360 +0100
++++ linux-2.6.12-rc5-mm-PixelView/drivers/media/video/cx88/cx88-input.c	2005-06-02
+00:58:05.120710168 +0100
+@@ -261,6 +261,13 @@
+ 		ir->mask_keydown = 0x02;
+ 		ir->polling      = 5; // ms
+ 		break;
++	case CX88_BOARD_PIXELVIEW_PLAYTV_ULTRA_PRO:
++		ir_codes         = ir_codes_pixelview;
++		ir->gpio_addr    = MO_GP1_IO;
++		ir->mask_keycode = 0x1f;
++		ir->mask_keyup   = 0x80;
++		ir->polling      = 1; // ms
++		break;
+ 	}
+ 	if (NULL == ir_codes) {
+ 		kfree(ir);
+diff -ur linux-2.6.12-rc5-mm/drivers/media/video/ir-kbd-gpio.c
+linux-2.6.12-rc5-mm-PixelView/drivers/media/video/ir-kbd-gpio.c
+--- linux-2.6.12-rc5-mm/drivers/media/video/ir-kbd-gpio.c	2005-06-02
+00:38:33.108883048 +0100
++++ linux-2.6.12-rc5-mm-PixelView/drivers/media/video/ir-kbd-gpio.c	2005-06-02
+01:03:08.762549592 +0100
+@@ -114,38 +114,6 @@
+ 	[ 0x3e ] = KEY_VOLUMEUP,    // 'volume +'
+ };
+ 
+-static IR_KEYTAB_TYPE ir_codes_pixelview[IR_KEYTAB_SIZE] = {
+-	[  2 ] = KEY_KP0,
+-	[  1 ] = KEY_KP1,
+-	[ 11 ] = KEY_KP2,
+-	[ 27 ] = KEY_KP3,
+-	[  5 ] = KEY_KP4,
+-	[  9 ] = KEY_KP5,
+-	[ 21 ] = KEY_KP6,
+-	[  6 ] = KEY_KP7,
+-	[ 10 ] = KEY_KP8,
+-	[ 18 ] = KEY_KP9,
+-
+-	[  3 ] = KEY_TUNER,       // TV/FM
+-	[  7 ] = KEY_SEARCH,      // scan
+-	[ 28 ] = KEY_ZOOM,        // full screen
+-	[ 30 ] = KEY_POWER,
+-	[ 23 ] = KEY_VOLUMEDOWN,
+-	[ 31 ] = KEY_VOLUMEUP,
+-	[ 20 ] = KEY_CHANNELDOWN,
+-	[ 22 ] = KEY_CHANNELUP,
+-	[ 24 ] = KEY_MUTE,
+-
+-	[  0 ] = KEY_LIST,        // source
+-	[ 19 ] = KEY_INFO,        // loop
+-	[ 16 ] = KEY_LAST,        // +100
+-	[ 13 ] = KEY_CLEAR,       // reset
+-	[ 12 ] = BTN_RIGHT,       // fun++
+-	[  4 ] = BTN_LEFT,        // fun--
+-	[ 14 ] = KEY_GOTO,        // function
+-	[ 15 ] = KEY_STOP,         // freeze
+-};
+-
+ /* Attila Kondoros <attila.kondoros@chello.hu> */
+ static IR_KEYTAB_TYPE ir_codes_apac_viewcomp[IR_KEYTAB_SIZE] = {
+ 
+diff -ur linux-2.6.12-rc5-mm/include/media/ir-common.h
+linux-2.6.12-rc5-mm-PixelView/include/media/ir-common.h
+--- linux-2.6.12-rc5-mm/include/media/ir-common.h	2005-06-02
+00:39:52.044882952 +0100
++++ linux-2.6.12-rc5-mm-PixelView/include/media/ir-common.h	2005-06-02
+01:02:22.670556640 +0100
+@@ -50,6 +50,7 @@
+ extern IR_KEYTAB_TYPE ir_codes_winfast[IR_KEYTAB_SIZE];
+ extern IR_KEYTAB_TYPE ir_codes_empty[IR_KEYTAB_SIZE];
+ extern IR_KEYTAB_TYPE ir_codes_hauppauge_new[IR_KEYTAB_SIZE];
++extern IR_KEYTAB_TYPE ir_codes_pixelview[IR_KEYTAB_SIZE];
+ 
+ void ir_input_init(struct input_dev *dev, struct ir_input_state *ir,
+ 		   int ir_type, IR_KEYTAB_TYPE *ir_codes);
 
-Technical Support Division  [M07M]
-Customer Service Center
-ASUS Computer Germany
-
-Homepage: http://www.asuscom.de/
-FTP-Server: ftp://ftp.asuscom.de/pub/ASUSCOM
-
-Tel : 02102/9599 - 0 ( Mo. - Fr. 10-17Uhr )
-Fax: 02102/959911 ( 24h ) 
-
-ASUS Computer GmbH
-Harkortstr. 25
-40880 Ratingen
 
 
 
-
-
-
-
-
-
-
-
-Andi Kleen wrote:
-> Martin MOKREJ© <mmokrejs@ribosome.natur.cuni.cz> writes:
-> 
-> 
->>Hi,
->>  I have received no answer to my former question
->>(see http://marc.theaimsgroup.com/?l=linux-kernel&m=110827143716215&w=2).
-> 
-> 
-> That's because it's a BIOS problem.
-> 
-> There are limits on how much Linux can work around BIOS breakage.
-> 
-> 
-> 
->>  Although I've not re-tested this today again, it used to help a bit to specify
->>mem=3548M to decrease memory used by linux (tested with AGP card plugged in, when
->>bios reported 3556MB RAM only).
->>
->>  I found that removing the AGP based videoc card and using an old PCI based
->>video card results in bios detecting 4072MB of RAM. But still, the machine was
->>slow. I've tried to "cat >| /proc/mtrr" to alter the memory settings, but the
->>result was only a partial speedup.
->>
->>  I'm not sure how to convince linux kernel to run fast again.
-> 
-> 
-> It's most likely a MTRR problem. Play more with them.
-> 
-> 
-> 
->>  Finally, I put back two 512MB memory modules to have only 3GB RAM physically,
->>and the result is at http://www.natur.cuni.cz/~mmokrejs/tmp/128MB/only_phys_3GB/.
-> 
-> 
-> 
-> The cheaper Intel chipsets don't support >4GB at all, and you always
-> need some space below 4GB for PCI memory mappings/AGP aperture etc.
-> 
-> 
-> 
->>  About a week ago I tried to contact ASUS, but no answer so far from their
->>techinical support through some web robot.
->>http://vip.asus.com/eservice/techmailstatus.aspx?ID=WTM200502111723398547
->>I do not recommend their "greatest" and real "flag-ship" P4C800-E-Deluxe
->>motherboard for use with memory sizes above 3GB (although they claim 4GB
->>is possible). BIOS is the latest release 1.19, although 1.20.001 was tested
->>as well.
-> 
-> 
-> In general non server boards tend to be not very well or not at all
-> tested with a lot of memory ("a lot" is defined as >2GB for higher end
-> desktop boards, or >1GB on very cheap desktop boards). That is a
-> common problem on other motherboards too; Asus is not alone with this.
-> 
-> -Andi
-> 
-> 
+----------------------------------SNIP------------------------------------------------

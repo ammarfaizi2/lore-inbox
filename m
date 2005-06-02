@@ -1,98 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVFBKF2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVFBKKU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261361AbVFBKF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 06:05:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261363AbVFBKF1
+	id S261266AbVFBKKU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 06:10:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVFBKKU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 06:05:27 -0400
-Received: from smtp2.poczta.interia.pl ([213.25.80.232]:15740 "EHLO
-	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
-	id S261361AbVFBKFP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 06:05:15 -0400
-Message-ID: <429ED9CD.9000100@poczta.fm>
-Date: Thu, 02 Jun 2005 12:05:01 +0200
-From: Lukasz Stelmach <stlman@poczta.fm>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: pl, en-us, en
-MIME-Version: 1.0
-To: paul@clubi.ie, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [OT] mailing list management
-References: <429D8A3A.8000304@poczta.fm> <20050601102211.GR2417@lug-owl.de> <429D8E96.4010908@poczta.fm> <Pine.LNX.4.63.0506011239300.7726@sheen.jakma.org> <429DADAC.7070207@poczta.fm> <Pine.LNX.4.63.0506011422570.7726@sheen.jakma.org>
-In-Reply-To: <Pine.LNX.4.63.0506011422570.7726@sheen.jakma.org>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigAB022F781AB64C395D1965DB"
-X-EMID: 84fc6138
+	Thu, 2 Jun 2005 06:10:20 -0400
+Received: from RT-soft-2.Moscow.itn.ru ([80.240.96.70]:47295 "HELO
+	mail.dev.rtsoft.ru") by vger.kernel.org with SMTP id S261266AbVFBKKC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 06:10:02 -0400
+Subject: Re: [RFC] SPI core
+From: dmitry pervushin <dpervushin@gmail.com>
+To: Greg KH <greg@kroah.com>
+Cc: linux-kernel@vger.kernel.org, sensors@stimpy.netroedge.com
+In-Reply-To: <20050531233215.GB23881@kroah.com>
+References: <1117555756.4715.17.camel@diimka.dev.rtsoft.ru>
+	 <20050531233215.GB23881@kroah.com>
+Content-Type: text/plain
+Date: Thu, 02 Jun 2005 14:09:59 +0400
+Message-Id: <1117706999.4715.54.camel@diimka.dev.rtsoft.ru>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.1-1mdk 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigAB022F781AB64C395D1965DB
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+On Tue, 2005-05-31 at 16:32 -0700, Greg KH wrote:
 
-Paul Jakma napisa=C5=82(a):
-> On Wed, 1 Jun 2005, Lukasz Stelmach wrote:
->=20
->> I prefere, and I do it, explicit asking for a CC.
->=20
->=20
-> No need - set a Reply-To to point back at the list.
->=20
-> Reply-To isn't ideal, primarily because of dumb MUAs, but it works.
-> There ought to be a better way to indicate this preference, but there
-> isn't unfortunately.
+Thanks for you comments; my answers follow. This patch will be reworked
+in short time.
 
-CC is muc better
+> Is this code intergrated into the driver model?
+It will be.
+> What does the /sys/ tree look like?
+> Why are you using a char device node?
+Because it's not a block device :) I assume that's common practice to
+access low-level devices, isn't it ?
+> 
+> > +/**
+> > + * spi_add_adapter - register a new SPI bus adapter
+> > + * @adap: spi_adapter structure for the registering adapter
+> > + *
+> > + * Make the adapter available for use by clients using name adap->name.
+> > + * The adap->adapters list is initialised by this function.
+> > + *
+> > + * Returns 0;
+> 
+> You have this a lot.  If the function can not fail, just make it a void
+> type :)
+I'd like to keep this of type int because of possible future
+enhancements
+> > +	list_for_each(l, &driver_list) {
+> 
+> list_for_each_entry() please.
+Looks reasonable, thank you 
+> 
+> > +/**
+> > + * spi_get_adapter - get a reference to an adapter
+> > + * @id: driver id
+> > + *
+> > + * Obtain a spi_adapter structure for the specified adapter.  If the adapter
+> > + * is not currently load, then load it.  The adapter will be locked in core
+> > + * until all references are released via spi_put_adapter.
+> > + */
+> 
+> Hm, that comment is not correct.  Please fix it as nothing is "loaded".
+OK
+> > +void spi_put_adapter(struct spi_adapter *adap)
+> > +{
+> > +	if (adap && adap->owner)
+> > +		module_put(adap->owner);
+> > +}
+> 
+> Then why not use the traditional kref style of reference counting?  That
+> ensures that if you try to use the reference, bad things will happen?
+> Right now all you are doing is relying on module references, and you
+> aren't cleaning up the memory.
+I'll consider this during rework
+> > +EXPORT_SYMBOL(spi_transfer);
+> > +EXPORT_SYMBOL(spi_write);
+> > +EXPORT_SYMBOL(spi_read);
+> 
+> EXPORT_SYMBOL_GPL() perhaps?
+Yup.
+> Please use dev_dbg() and friends instead of your own debugging macros.
+> The error log people will thank you (along with your users...)
+I'd rather use pr_debug
+> > +#include <linux/spi/spi.h>
+> 
+> Why a separate subdir for spi.h?
+Due to historical reasons :) And functional drivers can pput their
+public headers to separate directory.
+> 
+> > +static int spidev_ioctl(struct inode *inode, struct file *file,
+> > +			unsigned int cmd, unsigned long arg)
+This function will be removed, because its functionality is duplicated by spidev_read/spidev_write.
 
-From: someone@unsubscribed
-To: mailing-list
-CC: someone@unsubscribed
-Reply-To: mailing-list
 
-From: someone@subscribed
-To: mailing-list
-CC: someone@subscribed.that.wants.a.personal.copy.of.replies
-Reply-To: mailing-list
+> > +static int spidev_attach_adapter(struct spi_adapter *adap)
+> > +{
+> > +	struct spi_dev *spi_dev;
+> > +	int retval;
+> > +
+> > +	spi_dev = get_free_spi_dev(adap);
+> > +	if (IS_ERR(spi_dev))
+> > +		return PTR_ERR(spi_dev);
+> > +
+> > +#if defined( CONFIG_DEVFS_FS )
+> > +	devfs_mk_cdev(MKDEV(SPI_MAJOR, spi_dev->minor),
+> > +		      S_IFCHR | S_IRUSR | S_IWUSR, "spi/%d", spi_dev->minor);
+> > +#endif
+> 
+> No #if needed.  You do this a lot.
 
-From: someone@subscribed
-To: mailing-list
-Reply-To: mailing-list
+As devfs is going to become obsolete, maybe just drop all the
+devfs-related code?
+
+> > +/*
+> > + * spi_adapter is the structure used to identify a physical SPI bus along
+> > + * with the access algorithms necessary to access it.
+> > + */
+> > +struct spi_adapter {
+> 
+> <snip>  Ick, don't copy the mess I did in the i2c core for i2c adapter
+> structures please.  It was a hack then, and I regret it still.  Please
+> fix it up properly.
+> 
+> This code is _very_ close to just a copy of the i2c core code.  Why
+> duplicate it and not work with the i2c people instead?
+
+Well, those two are both simple serial interfaces, so their similarity
+is just reflected in driver structures.
 
 
-When we use Reply All to answer all of this messages we get quit a
-senisble behavior. Far more sensible than answering to the list and
-personally to everyone.
-
->> And direct replying generates more traffic.
->=20
-> ROFL. Direct replies are miniscule compared to regular list traffic
-> which itself is less than the traffic generated by spam.
-
-Does it mean that we shoudn't try conserve the bandwidth just because
-there is spam?
-
---=20
-By=C5=82o mi bardzo mi=C5=82o.                    Trzecia pospolita kl=C4=
-=99ska, [...]
->=C5=81ukasz<                      Ju=C5=BC nie katolicka lecz z=C5=82odz=
-iejska.  (c)PP
-
-
---------------enigAB022F781AB64C395D1965DB
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCntnVNdzY8sm9K9wRAt/MAJ44n4vo9hOfEdFlnHrhBcjOhqNUSACgmMXF
-l0ubolk2ozJysccFlLIZviA=
-=TTcc
------END PGP SIGNATURE-----
-
---------------enigAB022F781AB64C395D1965DB--

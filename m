@@ -1,60 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261362AbVFBJyt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261354AbVFBJxq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261362AbVFBJyt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 05:54:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVFBJyr
+	id S261354AbVFBJxq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 05:53:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261357AbVFBJwF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 05:54:47 -0400
-Received: from tim.rpsys.net ([194.106.48.114]:53983 "EHLO tim.rpsys.net")
-	by vger.kernel.org with ESMTP id S261360AbVFBJyR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 05:54:17 -0400
-Message-ID: <00d301c56759$043cf060$0f01a8c0@max>
-From: "Richard Purdie" <richard@o-hand.com>
-To: "Pavel Machek" <pavel@ucw.cz>, "Emmanuel Fleury" <fleury@cs.aau.dk>
-Cc: <linux-kernel@vger.kernel.org>
-References: <42971C0E.9030504@cs.aau.dk> <20050531092834.GA9614@elf.ucw.cz>
-Subject: Re: Linux for Mobile phones and PDAs [long]
-Date: Thu, 2 Jun 2005 10:53:42 +0100
+	Thu, 2 Jun 2005 05:52:05 -0400
+Received: from smtp2.poczta.interia.pl ([213.25.80.232]:37007 "EHLO
+	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
+	id S261354AbVFBJun (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 05:50:43 -0400
+Message-ID: <429ED667.6040202@poczta.fm>
+Date: Thu, 02 Jun 2005 11:50:31 +0200
+From: Lukasz Stelmach <stlman@poczta.fm>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: pl, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2527
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2527
+To: =?UTF-8?B?TcOlbnMgUnVsbGfDpXJk?= <mru@inprovide.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] mailing list management
+References: <429D8A3A.8000304@poczta.fm> <20050601102211.GR2417@lug-owl.de> <429D8E96.4010908@poczta.fm> <Pine.LNX.4.63.0506011239300.7726@sheen.jakma.org> <429DADAC.7070207@poczta.fm> <yw1xbr6q2pv2.fsf@ford.inprovide.com>
+In-Reply-To: <yw1xbr6q2pv2.fsf@ford.inprovide.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig36D6FE8F71BDE20C7ABF305D"
+X-EMID: df548138
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek:
->Emmanuel Fleury:
->> So, indeed, Nokia has been funding several Open Source projects for the
->> last few months without advertising it too much. From my (poor)
->> knowledge here are some of the companies Nokia did fund for getting its
->> 770 ready:
->
-> This is good news. OTOH sharp zauruses have been here for quite long
-> time, and failed to make this kind of publicity.
->
-> Pavel,
-> [still trying to make 2.6 mount / on his zaurus sl-5500]
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig36D6FE8F71BDE20C7ABF305D
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-There are differences in how Nokia and Sharp are dealing with the Open 
-Source communities. Nokia are openly saying they want to commit development 
-work back to their respective projects where they can. Sharp were never 
-interested in doing this. If Sharp had been interested in the community, 2.6 
-kernels on the zaurus models would have happened long ago. As things stand, 
-we have 2.6 on some models but its been a long slow haul with no interest on 
-Sharp's part.
+M=C3=A5ns Rullg=C3=A5rd napisa=C5=82(a):
 
-Whilst we don't yet know how far Nokia will go with this, everything I've 
-heard leads me to remain optimistic.
+>>It is a lot easier to find personal mails than to suppress dupes.
+[...]
+> My mail server (cyrus imapd) automatically suppresses duplicates with
+> the default settings.
 
-Richard
+Even in two different folders?
 
-Openedhand Ltd.
+>>And direct replying generates more traffic.
+>=20
+> Not necessarily.  Many mailing lists are configured not to send mail
+> to those already in the To or Cc headers.
+
+IMHO the CC is the best way to deal with the list for unsubscribers.
+
+--=20
+By=C5=82o mi bardzo mi=C5=82o.                    Trzecia pospolita kl=C4=
+=99ska, [...]
+>=C5=81ukasz<                      Ju=C5=BC nie katolicka lecz z=C5=82odz=
+iejska.  (c)PP
 
 
+--------------enig36D6FE8F71BDE20C7ABF305D
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCntZnNdzY8sm9K9wRAky+AKCEqGmHMKao9TpBHs48ERaPfUYk+wCfZdZ3
+hl5SNjPvlKvjDsjnYTWtU7M=
+=HSgZ
+-----END PGP SIGNATURE-----
+
+--------------enig36D6FE8F71BDE20C7ABF305D--

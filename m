@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261396AbVFBMeq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261395AbVFBMec@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261396AbVFBMeq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 08:34:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbVFBMep
+	id S261395AbVFBMec (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 08:34:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261396AbVFBMe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 08:34:45 -0400
-Received: from 76.80-203-227.nextgentel.com ([80.203.227.76]:1023 "EHLO
-	mail.inprovide.com") by vger.kernel.org with ESMTP id S261396AbVFBMej convert rfc822-to-8bit
+	Thu, 2 Jun 2005 08:34:29 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:18151 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S261395AbVFBMeY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 08:34:39 -0400
-To: Lukasz Stelmach <stlman@poczta.fm>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] mailing list management
-References: <429D8A3A.8000304@poczta.fm> <20050601102211.GR2417@lug-owl.de>
-	<429D8E96.4010908@poczta.fm>
-	<Pine.LNX.4.63.0506011239300.7726@sheen.jakma.org>
-	<429DADAC.7070207@poczta.fm> <yw1xbr6q2pv2.fsf@ford.inprovide.com>
-	<429ED667.6040202@poczta.fm>
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-In-Reply-To: <429ED667.6040202@poczta.fm> (Lukasz Stelmach's message of
- "Thu, 02 Jun 2005 11:50:31 +0200")
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
-Date: Thu, 02 Jun 2005 14:34:40 +0200
-Message-ID: <yw1xy89tx7hb.fsf@ford.inprovide.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 2 Jun 2005 08:34:24 -0400
+X-ORBL: [69.150.57.195]
+Date: Thu, 2 Jun 2005 07:32:19 -0500
+From: Michael Halcrow <mhalcrow@us.ibm.com>
+To: James Morris <jmorris@redhat.com>
+Cc: Greg KH <greg@kroah.com>, Phillip Hellewell <phillip@hellewell.homeip.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/3] eCryptfs: eCryptfs kernel module
+Message-ID: <20050602123219.GB8855@halcrow.us>
+Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
+References: <20050602073303.GA9373@kroah.com> <Xine.LNX.4.44.0506020329050.4151-100000@thoron.boston.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Xine.LNX.4.44.0506020329050.4151-100000@thoron.boston.redhat.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lukasz Stelmach <stlman@poczta.fm> writes:
+On Thu, Jun 02, 2005 at 03:33:58AM -0400, James Morris wrote:
+> Break up your patch and send it in logical chunks, so it can be
+> reviewed easily.
 
-> Måns Rullgård wrote:
->
->>>It is a lot easier to find personal mails than to suppress dupes.
-> [...]
->> My mail server (cyrus imapd) automatically suppresses duplicates with
->> the default settings.
->
-> Even in two different folders?
+In discussions with some developers from JFS and CIFS, it was
+suggested that the best thing would be to submit one patch with the
+whole contents of the fs/ecryptfs directory, since it is a new
+filesystem with no modifications to existing code.  What sort of
+logical chunks would you consider to be appropriate?  Separate patches
+for each file (inode.c, file.c, super.c, etc.), which represent sets
+of functions for each major VFS object?
 
-Yes.
-
--- 
-Måns Rullgård
-mru@inprovide.com
+Thanks,
+Mike

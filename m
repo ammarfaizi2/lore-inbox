@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261437AbVFBWTf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261432AbVFBWYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261437AbVFBWTf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 18:19:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261435AbVFBWTc
+	id S261432AbVFBWYI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 18:24:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261438AbVFBWYI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 18:19:32 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:54502 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261437AbVFBWTX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 18:19:23 -0400
-Date: Thu, 2 Jun 2005 15:19:13 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org, ak@suse.de, nanhai.zou@intel.com,
-       rohit.seth@intel.com, rajesh.shah@intel.com
-Subject: Re: [Patch] x86_64: TASK_SIZE fixes for compatibility mode processes
-Message-ID: <20050602151912.B14384@unix-os.sc.intel.com>
-References: <20050602133256.A14384@unix-os.sc.intel.com> <20050602135013.4cba3ae2.akpm@osdl.org>
+	Thu, 2 Jun 2005 18:24:08 -0400
+Received: from postfix3-1.free.fr ([213.228.0.44]:28140 "EHLO
+	postfix3-1.free.fr") by vger.kernel.org with ESMTP id S261432AbVFBWYC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 18:24:02 -0400
+Date: Fri, 3 Jun 2005 00:24:00 +0200
+From: castet.matthieu@free.fr
+To: linux-kernel@vger.kernel.org
+Subject: Re:PNP parallel&serial ports: module reload fails (2.6.11)?
+Message-ID: <20050602222400.GA8083@mut38-1-82-67-62-65.fbx.proxad.net>
+Reply-To: 429CECE3.1060904@tls.msk.ru
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050602135013.4cba3ae2.akpm@osdl.org>; from akpm@osdl.org on Thu, Jun 02, 2005 at 01:50:13PM -0700
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 02, 2005 at 01:50:13PM -0700, Andrew Morton wrote:
-> "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
-> >
-> > +#define TASK_SIZE_OF(child) 	((test_tsk_thread_flag(child, TIF_IA32)) ? IA32_PAGE_OFFSET : TASK_SIZE64)
-> 
-> The task size is an attribute of the task's mm_struct, not of the task.
+Hi,
 
-ia64, ppc64 and s390 seems be getting this info from thread_info or 
-thread_struct in the task struct.
+try pnpacpi=off in your kernel options and it should work.
+An other solution is to comment pnpacpi_disable_resources in
+drivers/pnp/pnpacpi/core.c in order to avoid that the resource are
+disable.
 
-> The place where this tends to come unstuck is when a 32-bit task holds a
-> reference on a 64-bit tasks's task_struct via a read of a /proc file.  If
-> the 64-bit task exits then it is the 32-bit task who does the final freeing
-> of the 64-bit tasks's task_struct and mm_struct.  (and all vice-versa, of
-> course).  Will your patch handle this race scenario correctly?
 
-In recent kernels, instead of TASK_SIZE, "-1" is getting passed to unmap_vmas()
-from exit_mmap. Same case with ceiling (set to "0") for free_pgtables().
-It shouldn't be a problem with this, right?
+When booting, the parport resources are enable by your kernel, and when
+you load for the first time the module there nothing to activate.
 
-thanks,
-suresh
+But when you rmmod the driver, you free the resource.
+
+And pnpacpi have some problem to activate resource with some strange acpi implementation...
+
+There was a problem in pnp layer implementation : the resource weren't
+given in the right order, Adam Belay send me a patch, but I don't know
+if it got in main-line ?
+
+May be there also a bug in pnpacpi_encode_resources (with the pnp patch
+apply I didn't still work on some hardware...)
+
+You can try to send your dsdt, but I am quit busy for the moment.
+May be some Intel guy could look at the problem...
+
+
+Matthieu

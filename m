@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVFCKTD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVFCKZG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261206AbVFCKTD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 06:19:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVFCKTD
+	id S261208AbVFCKZG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 06:25:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVFCKZG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 06:19:03 -0400
-Received: from gw.alcove.fr ([81.80.245.157]:15085 "EHLO smtp.fr.alcove.com")
-	by vger.kernel.org with ESMTP id S261206AbVFCKTA convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 06:19:00 -0400
-Subject: Re: Sonypi: make sure that input_work is not running when unloading
-From: Stelian Pop <stelian@popies.net>
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-Cc: akpm@osdl.org, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200506030202.36140.dtor_core@ameritech.net>
-References: <200506030202.36140.dtor_core@ameritech.net>
-Content-Type: text/plain; charset=UTF-8
-Date: Fri, 03 Jun 2005 12:11:40 +0200
-Message-Id: <1117793500.4171.13.camel@localhost.localdomain>
+	Fri, 3 Jun 2005 06:25:06 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:12759 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261208AbVFCKZC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 06:25:02 -0400
+Date: Fri, 3 Jun 2005 12:25:01 +0200
+From: Jan Kara <jack@suse.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: sct@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Split the checkpoint lists
+Message-ID: <20050603102501.GB1387@atrey.karlin.mff.cuni.cz>
+References: <20050601080357.GF5933@atrey.karlin.mff.cuni.cz> <20050603015717.7512ea3a.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050603015717.7512ea3a.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le vendredi 03 juin 2005 à 02:02 -0500, Dmitry Torokhov a écrit :
-
-> Sonypi: make sure that input_work is not running when unloading
->         the module; submit/retrieve key release data into/from
->         input_fifo in one shot.
+> Jan Kara <jack@ucw.cz> wrote:
+> >
+> > 
+> >    attached patch (to be applied after my previous two bugfixes) is a new
+> >  version of my patch splitting the JBD checkpoint lists into two
 > 
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> Seems to have a use-after-free bug.  Did you test it with CONFIG_SLAB_DEBUG?
+  I'm not sure now (and as I'm in the process of moving from Berlin back
+to Prague I'll be able to find out only on Monday because my laptop is
+already packed). Thanks for spotting it I'll try to debug it on Monday.
 
-Acked-by: Stelian Pop <stelian@popies.net>
+									Honza
 
-Thanks Dmitry.
-
-Stelian.
 -- 
-Stelian Pop <stelian@popies.net>
-
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

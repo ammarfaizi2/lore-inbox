@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVFCLnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVFCLn4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261215AbVFCLnE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 07:43:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbVFCLnD
+	id S261222AbVFCLn4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 07:43:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVFCLnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 07:43:03 -0400
-Received: from smtp2.poczta.interia.pl ([213.25.80.232]:42132 "EHLO
-	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
-	id S261215AbVFCLm7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 07:42:59 -0400
-Message-ID: <42A04236.1000200@poczta.fm>
-Date: Fri, 03 Jun 2005 13:42:46 +0200
-From: Lukasz Stelmach <stlman@poczta.fm>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: pl, en-us, en
-MIME-Version: 1.0
-To: =?UTF-8?B?TcOlbnMgUnVsbGfDpXJk?= <mru@inprovide.com>
+	Fri, 3 Jun 2005 07:43:55 -0400
+Received: from styx.suse.cz ([82.119.242.94]:10960 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261222AbVFCLnv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 07:43:51 -0400
+Date: Fri, 3 Jun 2005 13:43:50 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Green Brain <greenbrain@freemail.hu>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] mailing list management
-References: <429D8A3A.8000304@poczta.fm> <20050601102211.GR2417@lug-owl.de>	<429D8E96.4010908@poczta.fm>	<Pine.LNX.4.63.0506011239300.7726@sheen.jakma.org>	<429DADAC.7070207@poczta.fm> <yw1xbr6q2pv2.fsf@ford.inprovide.com>	<429ED667.6040202@poczta.fm> <yw1xy89tx7hb.fsf@ford.inprovide.com>
-In-Reply-To: <yw1xy89tx7hb.fsf@ford.inprovide.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigEC4032D7FCE211ED79E6AC90"
-X-EMID: b3bca138
+Subject: Re: WebCamera
+Message-ID: <20050603114350.GA13435@ucw.cz>
+References: <002c01c56628$19ccbbe0$7344c5d5@windows>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <002c01c56628$19ccbbe0$7344c5d5@windows>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigEC4032D7FCE211ED79E6AC90
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+On Tue, May 31, 2005 at 11:27:31PM +0200, Green Brain wrote:
 
-M=C3=A5ns Rullg=C3=A5rd napisa=C5=82(a):
+> I cannot use my USB 2.0 (BisonCam, ALI M5603C chip) webcamera under
+> (SuSE) Linux. If somebody know this camera please help me! (I use a
+> Clevo notebook.) Thanks in advance!
 
->>>My mail server (cyrus imapd) automatically suppresses duplicates with
->>>the default settings.
->>
->>Even in two different folders?
->=20
-> Yes.
+Unfortunately, there is no M5603c driver for Linux. While I'm planning
+to write one (I have eight cameras based on it), I didn't manage to get
+specs from ALi, so it'll be rather hard to write the driver.
 
-Can I disable it. Sometimes I woud like to have dupes?
+There is a project by Luca Risolia, but it doesn't seem very active so
+far. See http://www.linux-projects.org/modules/news/.
 
-
---=20
-By=C5=82o mi bardzo mi=C5=82o.                    Trzecia pospolita kl=C4=
-=99ska, [...]
->=C5=81ukasz<                      Ju=C5=BC nie katolicka lecz z=C5=82odz=
-iejska.  (c)PP
-
-
---------------enigEC4032D7FCE211ED79E6AC90
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD4DBQFCoEI2NdzY8sm9K9wRAgKwAJwJdPEevC3rjypgPVUJ0ntcQzC6wgCXcad7
-INay6BPVYzbHRo4mVyUx4A==
-=bQ0s
------END PGP SIGNATURE-----
-
---------------enigEC4032D7FCE211ED79E6AC90--
+-- 
+Vojtech Pavlik
+SuSE Labs, SuSE CR

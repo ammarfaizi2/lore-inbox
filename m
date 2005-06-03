@@ -1,48 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVFCNMv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbVFCNOY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbVFCNMv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 09:12:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVFCNMv
+	id S261250AbVFCNOY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 09:14:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261253AbVFCNOX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 09:12:51 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:1727 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261249AbVFCNMu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 09:12:50 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: "Martin J. Bligh" <mbligh@mbligh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [ANNOUNCE] automated linux kernel testing results
-Date: Fri, 3 Jun 2005 16:12:30 +0300
-User-Agent: KMail/1.5.4
-Cc: Andrew Morton <akpm@osdl.org>, Andy Whitcroft <apw@shadowen.org>,
-       Adam Litke <agl@us.ibm.com>, Enrique Gaona <egaona@us.ibm.com>
-References: <531740000.1117749798@flay>
-In-Reply-To: <531740000.1117749798@flay>
+	Fri, 3 Jun 2005 09:14:23 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:44992 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S261250AbVFCNOB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 09:14:01 -0400
+Date: Fri, 3 Jun 2005 14:13:56 +0100 (IST)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: "David S. Miller" <davem@davemloft.net>, nickpiggin@yahoo.com.au,
+       jschopp@austin.ibm.com, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Avoiding external fragmentation with a placement policy Version
+ 12
+In-Reply-To: <358040000.1117777372@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.58.0506031408560.10779@skynet>
+References: <1117770488.5084.25.camel@npiggin-nld.site><20050602.214927.59657656.davem@davemloft.net><357240000.1117776882@[10.10.2.4]>
+ <20050602.223712.41634750.davem@davemloft.net> <358040000.1117777372@[10.10.2.4]>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506031612.30638.vda@ilport.com.ua>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 03 June 2005 01:03, Martin J. Bligh wrote:
-> OK, I've finally got this to the point where I can publish it.
-> 
-> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/regression_matrix.html
+On Thu, 2 Jun 2005, Martin J. Bligh wrote:
+
+> > From: "Martin J. Bligh" <mbligh@mbligh.org>
+> > Date: Thu, 02 Jun 2005 22:34:42 -0700
+> >
+> >> One of the calls I got the other day was for loopback interface.
+> >> Default MTU is 16K, which seems to screw everything up and do higher
+> >> order allocs. Turning it down to under 4K seemed to fix things. I'm
+> >> fairly sure loopback doesn't really need phys contig memory, but it
+> >> seems to use it at the moment ;-)
+> >
+> > It helps get better bandwidth to have larger buffers.
+> > That's why AF_UNIX tries to use larger orders as well.
 >
-> Currently it builds and boots any mainline, -mjb, -mm kernel within
-> about 15 minutes of release. runs dbench, tbench, kernbench, reaim and fsx.
-> Currently I'm using a 4x AMD64 box, a 16x NUMA-Q, 4x NUMA-Q, 32x x440 (ia32)
-> PPC64 Power 5 LPAR, PPC64 Power 4 LPAR, and PPC64 Power 4 bare metal system.
-> The config files it uses are linked by the machine names in the column 
-> headers.
+> Though surely the reality will be that after your system is up for a
+> while, and is thorougly fragmented, your latency becomes frigging horrible
+> for most allocs though? You risk writing a crapload of pages out to disk
+> for every alloc ...
+>
 
-Wow. 8]
+That would be interesting to find out. I've it on my TODO list to teach
+bench-stresshighalloc to time how long allocations are taking. It'll be at
+least a week before I get around to it though.
 
-Some (but not all) green links like [GOOD 4550] lead to 404 land. Is this intended?
---
-vda
+> > With all these processors using prefetching in their
+> > memcpy() implementations, reducing the number of memcpy()
+> > calls per byte is getting more and more important.
+> > Each memcpy() call makes you hit the memory latency
+> > cost since the first prefetch can't be done early
+> > enough.
+>
+> but it's vastly different order of magnitude than touching disk.
+> Can we not do a "sniff alloc" first (ie if this is easy, give it
+> to me, else just fail and return w/o reclaim), then fall back to
+> smaller allocs?
 
+rmqueue_bulk() in the patch does something like this. It tries to allocate
+in the largest possible blocks and falls back to the lower orders as
+necessary. It could always be trying to reclaim though. I think the only
+easy way to fail and return w/o reclaim is to use GFP_ATOMIC which would
+have other consequences.
+
+> Though I suspect the reality is that on any real
+> system, a order 4 alloc will never actually succeed in any sensible
+> amount of time anyway? Perhaps us lot just reboot too often ;-)
+>
+
+That is quite possible :) . I'll see about teaching the benchmarks to time
+allocations to see how much time we spend satisfying order 4 allocations
+on the standard kernel and with the patch.
+
+-- 
+Mel Gorman
+Part-time Phd Student                          Java Applications Developer
+University of Limerick                         IBM Dublin Software Lab

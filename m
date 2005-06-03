@@ -1,57 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVFCOw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbVFCPAk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261307AbVFCOw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 10:52:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261310AbVFCOw4
+	id S261311AbVFCPAk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 11:00:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVFCPAk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 10:52:56 -0400
-Received: from dvhart.com ([64.146.134.43]:27559 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261307AbVFCOwy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 10:52:54 -0400
-Date: Fri, 03 Jun 2005 07:52:49 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: ppc64 dev list <linuxppc64-dev@ozlabs.org>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: 2.6.12-rc5-git8 regression on PPC64
-Message-ID: <374360000.1117810369@[10.10.2.4]>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
+	Fri, 3 Jun 2005 11:00:40 -0400
+Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:52460
+	"EHLO pinky.shadowen.org") by vger.kernel.org with ESMTP
+	id S261311AbVFCPAd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 11:00:33 -0400
+Date: Fri, 3 Jun 2005 16:00:26 +0100
+To: akpm@osdl.org
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       Dave Hansen <haveblue@us.ibm.com>
+Subject: Re: [PATCH] i386 sparsemem: undefined early_pfn_to_nid when !NUMA
+Message-ID: <20050603150026.GC19217@shadowen.org>
+References: <20050527162822.EBE1D09F@kernel.beaverton.ibm.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20050527162822.EBE1D09F@kernel.beaverton.ibm.com>
+User-Agent: Mutt/1.5.9i
+From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
--git7 seems to boot fine, but -git8 is broken. See here:
+Seem benign for normal use and allows testing for hotplug.  Tested
+on my test boxes.
 
-http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/4547/debug/console.log
+Andrew please apply to -mm.
 
-for full boot log, but basically it does this:
+-apw
 
-DEFAULT CATCH!, handler-entered=fff00300 
-Open Firmware exception handler entered from non-OF code
+=== 8< ===
+On i386, early_pfn_to_nid() is only defined when discontig.c
+is compiled in.  The current dependency doesn't reflect this,
+probably because the default i386 config doesn't allow for
+SPARSEMEM without NUMA.
 
-Client's Fix Pt Regs:
- 00 0000000000000003 000000000291f800 00000000040acb88 0000000000000010
- 04 0000000024004042 0000000000000000 0000000000000000 0000000000000000
- 08 0000000000000000 000000077f800000 0000000000100000 0000000000000001
- 0c 2000000000000000 0000000000000000 0000000000000000 0000000000000000
- 10 0000000000000000 0000000000000000 0000000000000000 0000000000000000
- 14 0000000000230000 0000000780000000 0000000003a10000 0000000003ef2300
- 18 000000000291fa24 bffffffffc5f0000 000000077f800000 0000000003ef2478
- 1c bffffffffc5f0000 000000000291fa30 000000000291fab0 000000000291faf4
-Special Regs:
-    %IV: 00000300     %CR: 84004044    %XER: 00000000  %DSISR: 0a000000 
-  %SRR0: 0000000003ec6644   %SRR1: 8000000000003000 
-    %LR: 0000000003ec661c    %CTR: 0000000000000000 
-   %DAR: 000000077f800000 
-PID = 0 
+But, we'll need SPARSEMEM && !NUMA for memory hotplug, and I
+do this for testing anyway.
 
- ofdbg
+Andy, please forward on if you concur.
 
-Which doesn't give me anything useful, but perhaps it does for you ;-)
+Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
 
-M.
+diffstat sparsemem-i386-undefined-early_pfn_to_nid-when-not-NUMA
+---
+ Kconfig |    1 +
+ 1 files changed, 1 insertion(+)
 
+diff -upN reference/arch/i386/Kconfig current/arch/i386/Kconfig
+--- reference/arch/i386/Kconfig
++++ current/arch/i386/Kconfig
+@@ -803,6 +803,7 @@ source "mm/Kconfig"
+ config HAVE_ARCH_EARLY_PFN_TO_NID
+ 	bool
+ 	default y
++	depends on NUMA
+ 
+ config HIGHPTE
+ 	bool "Allocate 3rd-level pagetables from highmem"

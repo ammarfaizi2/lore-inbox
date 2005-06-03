@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVFCQTP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbVFCQSt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbVFCQTP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 12:19:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVFCQTO
+	id S261377AbVFCQSt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 12:18:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVFCQSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 12:19:14 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:16848 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261367AbVFCQOf (ORCPT
+	Fri, 3 Jun 2005 12:18:49 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:17616 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261377AbVFCQQK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 12:14:35 -0400
-Date: Fri, 3 Jun 2005 18:10:14 +0200
+	Fri, 3 Jun 2005 12:16:10 -0400
+Date: Fri, 3 Jun 2005 18:11:32 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: Ananda Krishnan <veedutwo@yahoo.com>, linux-kernel@vger.kernel.org
-Subject: Re: Did anyone try (Logitech/Microsoft) bluetooth keyboard and mouse on Linux?
-Message-ID: <20050603161014.GA5083@elf.ucw.cz>
-References: <20050602163740.37068.qmail@web14824.mail.yahoo.com> <20050602165034.GP23621@csclub.uwaterloo.ca>
+To: Brian Gerst <bgerst@didntduck.org>
+Cc: davej@codemonkey.org.uk, lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Fix warning in powernow-k8.c
+Message-ID: <20050603161132.GB5083@elf.ucw.cz>
+References: <429F3A9E.504@didntduck.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050602165034.GP23621@csclub.uwaterloo.ca>
+In-Reply-To: <429F3A9E.504@didntduck.org>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,32 +27,40 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> >   Did anyone try Logitech/Microsoft wireless keyboard
-> > and mouse on Linux?  If so, please let me have the
-> > details of the driver you used and the details of the
-> > keyboard/mouse (model number, brand etc.,).  Thanks.
-> 
-> Well in my opinion, if anyone makes a keyboard/mouse that does not use
-> standard protocols and work without any custom drivers, they are going
-> to fail badly.
-> 
-> Certainly the logitech cordless mouse/keyboard set I have (not
-> bluetooth) just appears as a usb mouse and keyboard (or optionally ps/2
-> mouse and keyboard if you use the other connectors) to the system and
-> work with no special drivers required other than what you normally use
-> for mouse and keyboard on that type of connector.
-> 
-> If you want to do networking or something over bluetooh, that is
-> different, but that isn't what mouse/keyboard should require unless
-> bluetooth was never meant to be used for such things.  Not sure why you
-> want bluetooth for the mouse/keyboard.  Doesn't it use the same
-> frequency range as 802.11b/g?  I don't need more interference around the
-> machine in that frequency range.
+> Fix this warning:
+> powernow-k8.c: In function ?query_current_values_with_pending_wait?:
+> powernow-k8.c:110: warning: ?hi? may be used uninitialized in this
+> function
 
-Bluetooth mouse/keyboard is very usefull for your PDA/cellphone, and
-if you have bluetooth-equipped notebook, you can use it without
-pluging anything in. That's *big* advantage.
+Are you sure?
 
-Yes, it shares frequency range with 802.11b; but I operate both here
-and did not see any problems.
+Original code is clearly buggy; I do not think you need that ugly do
+{} while loop.
+
 								Pavel
+> 
+> Signed-off-by: Brian Gerst <bgerst@didntduck.org>
+
+> diff --git a/arch/i386/kernel/cpu/cpufreq/powernow-k8.c b/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
+> --- a/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
+> +++ b/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
+> @@ -110,14 +110,13 @@ static int query_current_values_with_pen
+>  	u32 lo, hi;
+>  	u32 i = 0;
+>  
+> -	lo = MSR_S_LO_CHANGE_PENDING;
+> -	while (lo & MSR_S_LO_CHANGE_PENDING) {
+> +	do {
+>  		if (i++ > 0x1000000) {
+>  			printk(KERN_ERR PFX "detected change pending stuck\n");
+>  			return 1;
+>  		}
+>  		rdmsr(MSR_FIDVID_STATUS, lo, hi);
+> -	}
+> +	} while (lo & MSR_S_LO_CHANGE_PENDING);
+>  
+>  	data->currvid = hi & MSR_S_HI_CURRENT_VID;
+>  	data->currfid = lo & MSR_S_LO_CURRENT_FID;
+
+
+-- 

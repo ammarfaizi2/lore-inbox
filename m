@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbVFCSdq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVFCSja@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261498AbVFCSdq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 14:33:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261497AbVFCSdq
+	id S261477AbVFCSja (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 14:39:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVFCSja
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 14:33:46 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:26792 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261499AbVFCSde (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 14:33:34 -0400
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Vivek Goyal <vgoyal@in.ibm.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       <greg@kroah.com>, Fastboot mailing list <fastboot@lists.osdl.org>,
-       Morton Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC/PATCH] Kdump: Disabling PCI interrupts in capture kernel
-References: <Pine.LNX.4.44L0.0506031111080.6451-100000@iolanthe.rowland.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 03 Jun 2005 12:26:33 -0600
-In-Reply-To: <Pine.LNX.4.44L0.0506031111080.6451-100000@iolanthe.rowland.org>
-Message-ID: <m1ekbj9u06.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Fri, 3 Jun 2005 14:39:30 -0400
+Received: from mail.metronet.co.uk ([213.162.97.75]:55947 "EHLO
+	mail.metronet.co.uk") by vger.kernel.org with ESMTP id S261477AbVFCSjZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 14:39:25 -0400
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Ananda Krishnan <veedutwo@yahoo.com>
+Subject: Re: Did anyone try (Logitech/Microsoft) bluetooth keyboard and mouse on Linux?
+Date: Fri, 3 Jun 2005 19:39:34 +0100
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org
+References: <20050602163740.37068.qmail@web14824.mail.yahoo.com>
+In-Reply-To: <20050602163740.37068.qmail@web14824.mail.yahoo.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506031939.34724.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Stern <stern@rowland.harvard.edu> writes:
+On Thursday 02 Jun 2005 17:37, Ananda Krishnan wrote:
+> Hi,
+>
+>   Did anyone try Logitech/Microsoft wireless keyboard
+> and mouse on Linux?  If so, please let me have the
+> details of the driver you used and the details of the
+> keyboard/mouse (model number, brand etc.,).  Thanks.
+>
 
-> On Fri, 3 Jun 2005, Vivek Goyal wrote:
-> 
-> > In previous conversations, Alan Stern had raised the issue of console also
-> > not working if interrupts are disabled on all the devices. I am not sure
-> > but this should be working at least for serial consoles and vga text consoles.
-> 
-> > May be sufficient to capture the dump.
-> 
-> This isn't an issue for x86.  It affects other architectures, in which the 
-> system console is managed during the early stages of booting by the 
-> platform firmware.  I suppose serial consoles would always work.
+Ananda,
 
-In the plain kexec case that should be doable.  I don't think
-I have heard of a kdump case where we can work with the platform
-firmware.
+These devices should work fine with the standard drivers.
 
+Make sure you configure your X server for the keyboard's extended protocol 
+(mine is "microsoftinet", most Logitech keyboards are compatible with this). 
+This will allow you (automatically) to use the extended access keys. KDE 
+certainly supports this automatically, I have no doubt GNOME does too (at 
+least!).
 
-Eric
+Your mouse's buttons should all be mappable with the standard "ExplorerPS/2" 
+or "usb" mouse protocols in X. Like the windows drivers, you can configure 
+special buttons or keys to perform just about any task you like.
 
+I hope this helps.
+
+-- 
+Cheers,
+Alistair.
+
+personal:   alistair()devzero!co!uk
+university: s0348365()sms!ed!ac!uk
+student:    CS/CSim Undergraduate
+contact:    1F2 55 South Clerk Street,
+            Edinburgh. EH8 9PP.

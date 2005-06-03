@@ -1,121 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVFCI4g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261192AbVFCI56@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261189AbVFCI4g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 04:56:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVFCI4g
+	id S261192AbVFCI56 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 04:57:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVFCI56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 04:56:36 -0400
-Received: from mail.sbb.co.yu ([82.117.194.7]:8409 "EHLO mail.sbb.co.yu")
-	by vger.kernel.org with ESMTP id S261189AbVFCI4b (ORCPT
+	Fri, 3 Jun 2005 04:57:58 -0400
+Received: from fire.osdl.org ([65.172.181.4]:59611 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261192AbVFCI5a (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 04:56:31 -0400
-Date: Fri, 3 Jun 2005 10:56:24 +0200 (CEST)
-From: Goran Gajic <ggajic@sbb.co.yu>
-To: Nathan Scott <nathans@sgi.com>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: XFS and 2.6.12-rc5
-In-Reply-To: <20050603044138.GB1653@frodo>
-Message-ID: <Pine.BSF.4.62.0506031052260.57771@mail.sbb.co.yu>
-References: <Pine.BSF.4.62.0506011308530.86037@mail.sbb.co.yu>
- <20050603044138.GB1653@frodo>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
-X-SBB-MailScanner-Information: Please contact the ISP for more information
-X-SBB-MailScanner: Found to be clean
-X-MailScanner-From: ggajic@sbb.co.yu
+	Fri, 3 Jun 2005 04:57:30 -0400
+Date: Fri, 3 Jun 2005 01:57:17 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jan Kara <jack@ucw.cz>
+Cc: sct@redhat.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Split the checkpoint lists
+Message-Id: <20050603015717.7512ea3a.akpm@osdl.org>
+In-Reply-To: <20050601080357.GF5933@atrey.karlin.mff.cuni.cz>
+References: <20050601080357.GF5933@atrey.karlin.mff.cuni.cz>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-
-On Fri, 3 Jun 2005, Nathan Scott wrote:
-
-> On Wed, Jun 01, 2005 at 01:10:47PM +0200, Goran Gajic wrote:
->> xfs partition is exported via nfs to FreeBSD-5.4 machine. This is what I
->> find every morning in my syslog:
->>
->>  ------------[ cut here ]------------
->>  kernel BUG at fs/xfs/support/debug.c:106!
->> ...
->>  [<c0269758>] xfs_bmap_search_extents+0x108/0x140
->>  [<c026accd>] xfs_bmapi+0x28d/0x1660
+Jan Kara <jack@ucw.cz> wrote:
 >
-> There should be some diagnostic text just above this panic message,
-> what does it say?  At a guess, I'd say you have a corrupt inode on
-> disk, and your nightly cron jobs are tripping this up each time.
-> The panic happens cos the kernel detects an inode with an extent
-> map which claiming to have an extent starting at the offset of the
-> primary superblock.  I've seen another case of this recently which
-> looked like a possible compiler bug, so could you send me both the
-> full diagnostic message and your compiler version number?
->
-> Also, the diagnostic will contain an inode number - for bonus points
-> run "xfs_db -r -c 'inode XXX' -c print /dev/foo" and send me that as
-> well.  Thanks!
->
-> cheers.
->
-> -- 
-> Nathan
->
+> 
+>    attached patch (to be applied after my previous two bugfixes) is a new
+>  version of my patch splitting the JBD checkpoint lists into two
 
-You are right about message here it is:
+Seems to have a use-after-free bug.  Did you test it with CONFIG_SLAB_DEBUG?
 
-May 31 04:16:37 cbt kernel: Access to block zero: fs: <sdb1> inode: 
-448631586 start_block : ffffffff00000000 start_off : 3fffff blkcnt : 
-100000000 extent-state: dfcb1d0c
 
-xfs_db -r -c 'inode 448631586' -c print /dev/sdb1
-core.magic = 0x494e
-core.mode = 0100644
-core.version = 1
-core.format = 2 (extents)
-core.nlinkv1 = 1
-core.uid = 0
-core.gid = 0
-core.flushiter = 2
-core.atime.sec = Sun May 29 14:35:00 2005
-core.atime.nsec = 521517264
-core.mtime.sec = Sun May 29 14:40:00 2005
-core.mtime.nsec = 676886712
-core.ctime.sec = Sun May 29 14:40:00 2005
-core.ctime.nsec = 676886712
-core.size = 2120649
-core.nblocks = 458
-core.extsize = 0
-core.nextents = 4
-core.naextents = 0
-core.forkoff = 0
-core.aformat = 2 (extents)
-core.dmevmask = 0
-core.dmstate = 0
-core.newrtbm = 0
-core.prealloc = 0
-core.realtime = 0
-core.immutable = 0
-core.append = 0
-core.sync = 0
-core.noatime = 0
-core.nodump = 0
-core.gen = 0
-next_unlinked = null
-u.bmx[0-3] = [startoff,startblock,blockcount,extentflag] 
-0:[177,2557931,341,0] 1:[18014398509481983,4498651825045504,0,1] 
-2:[15184073051865088,0,0,0] 3:[0,1422,1245184,0]
+Unable to handle kernel paging request at virtual address 6b6b6b9b
+ printing eip:                                                    
+c01a8a88      
+*pde = 00000000
+Oops: 0000 [#1]
+SMP            
+Modules linked in: video thermal processor fan button battery ac
+CPU:    0                                                       
+EIP:    0060:[<c01a8a88>]    Not tainted VLI
+EFLAGS: 00010202   (2.6.12-rc5-mm3)         
+EIP is at journal_clean_one_cp_list+0x18/0x6c
+eax: 6b6b6b6b   ebx: 6b6b6b6b   ecx: 00000001   edx: c1ada000
+esi: 00000000   edi: 6b6b6b6b   ebp: c1adbec8   esp: c1adbeb4
+ds: 007b   es: 007b   ss: 0068                               
+Process kjournald (pid: 971, threadinfo=c1ada000 task=cfd01030)
+Stack: ce5e11a4 00000078 c1a20dac c1ada000 cdd767c8 c1adbee8 c01a8b29 6b6b6b6b 
+       cddd8604 cfdddb08 cfdddb08 c1ada000 cddd8ec4 c1adbf78 c01a66de cfdddaf4 
+       cfdddaf4 cfdddb08 cfdddb08 cfdddbb4 cfdddb48 cddd8640 cfdddb30 cfdddb08 
+Call Trace:                                                                    
+ [<c0103967>] show_stack+0x7b/0x88
+ [<c0103aa6>] show_registers+0x112/0x188
+ [<c0103c8f>] die+0xe7/0x168            
+ [<c011225c>] do_page_fault+0x4e4/0x6e2
+ [<c01035a3>] error_code+0x4f/0x54     
+ [<c01a8b29>] __journal_clean_checkpoint_list+0x4d/0x70
+ [<c01a66de>] journal_commit_transaction+0x33e/0x12c1  
+ [<c01a9ccd>] kjournald+0x125/0x34c                  
+ [<c0100fcd>] kernel_thread_helper+0x5/0xc
+Code: 24 00 00 83 c4 08 31 c0 8d 65 f0 5b 5e 5f 89 ec 5d c3 90 55 89 e5 83 ec 08 57 56 53 8b 5d 08 89 df 31 f6 85 d 
 
-gcc -v
-Reading specs from /usr/lib/gcc-lib/i586-suse-linux/3.3.3/specs
-Configured with: ../configure --enable-threads=posix --prefix=/usr 
---with-local-prefix=/usr/local --infodir=/usr/share/info 
---mandir=/usr/share/man --enable-languages=c,c++,f77,objc,java,ada 
---disable-checking --libdir=/usr/lib --enable-libgcj 
---with-gxx-include-dir=/usr/include/g++ --with-slibdir=/lib 
---with-system-zlib --enable-shared --enable-__cxa_atexit i586-suse-linux
-Thread model: posix
-gcc version 3.3.3 (SuSE Linux)
+I can't immediately spot the error.  It oopses here:
 
-Turning off cron.daily stops this message so I guess you are right.
+0xc01a5b78 is in journal_clean_one_cp_list (fs/jbd/checkpoint.c:583).
+578             int ret = 0;
+579     
+580             if (!jh)
+581                     return 0;
+582     
+583             last_jh = jh->b_cpprev;
+584             do {
+585                     jh = next_jh;
+586                     next_jh = jh->b_cpnext;
+587                     /* Use trylock because of the ranking */
 
-Regards,
-gg.
+Called from here:
+
+	
+0xc01a5c10 is in __journal_clean_checkpoint_list (fs/jbd/checkpoint.c:635).
+630                             goto out;
+631                     /* It is essential that we are as careful as in the case of
+632                        t_checkpoint_list with removing the buffer from the list
+633                        as we can possibly see not yet submitted buffers on
+634                        io_list */
+635                     ret += journal_clean_one_cp_list(transaction->
+636                                     t_checkpoint_io_list);
+637                     if (need_resched())
+638                             goto out;
+639             } while (transaction != last_transaction);

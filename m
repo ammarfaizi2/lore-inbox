@@ -1,77 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261526AbVFCT5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbVFCUGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261526AbVFCT5m (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 15:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261525AbVFCT5m
+	id S261525AbVFCUGN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 16:06:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261528AbVFCUGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 15:57:42 -0400
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:8229 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S261526AbVFCT5V convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 15:57:21 -0400
-X-IronPort-AV: i="3.93,167,1115010000"; 
-   d="scan'208"; a="268908275:sNHT25460060"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new DellBIOS update driver
-Date: Fri, 3 Jun 2005 14:57:23 -0500
-Message-ID: <367215741E167A4CA813C8F12CE0143B3ED3AA@ausx2kmpc115.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new DellBIOS update driver
-Thread-Index: AcVocqnnvaxBfSP3Q6iZ/IyIxTGHaAAAKFog
-From: <Abhay_Salunke@Dell.com>
-To: <greg@kroah.com>
-Cc: <marcel@holtmann.org>, <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
-       <Matt_Domsch@Dell.com>
-X-OriginalArrivalTime: 03 Jun 2005 19:57:18.0375 (UTC) FILETIME=[72585B70:01C56876]
+	Fri, 3 Jun 2005 16:06:13 -0400
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:32954 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S261525AbVFCUFr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 16:05:47 -0400
+Date: Fri, 3 Jun 2005 15:03:39 -0500
+From: Michael Halcrow <mhalcrow@us.ibm.com>
+To: Phillip Hellewell <phillip@hellewell.homeip.net>
+Cc: linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH 2/3] eCryptfs: export key type
+Message-ID: <20050603200339.GA2445@halcrow.us>
+Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
+References: <20050602054852.GB4514@sshock.rn.byu.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050602054852.GB4514@sshock.rn.byu.edu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > At what point I should be calling request_firmware?
+On Wed, Jun 01, 2005 at 11:48:52PM -0600, Phillip Hellewell wrote:
+> This is the second in a series of three patches for the eCryptfs
+> kernel module.
 > 
-> Never, you should call request_firmware_nowait() instead.  And do it
-> from your module init function.
-> 
-> > As my driver does
-> > not have any entry points. In this driver it is called when the user
-is
-> > ready to download the firmware image (when it echoes the firmware
-image
-> > name). Also the driver needs to be resident for handling multiple
-such
-> > requests; that's why cannot do this at driver init time.
-> 
-> That's what request_firmware_nowait() is for.
-> 
-But isn't request_firmware_nowait a one time deal. It creates a kernel
-thread which will call the cont function once and end it. In that case I
-will have to unload and reload the driver every time before doing an
-update.
-Also driver's unload has to free the allocated memory; this will not
-serve the purpose of this driver.
-> > When ever the user echoes the file name, it gets passed on to
-> > request_firmware and the $FIRMWARE env gets populated with the file
-> > name. thus making the hotplug code to automatically load the image
-which
-> > is passed back as fw->data and fw->size.
-> 
-> It's easier for the user to just copy the firmware to the sysfs file
-> whenever they want to.  No messing with hotplug events or filenames.
-> 
-I must be missing some things here. Can copying the data to the sysfs
-file with normal attributes work? Don't we need to have a sysfs file
-with bin attribute? Could you please elaborate on this...I am quoting
-you from one of your earlier response "I can understand having the data
-use the sysfs binary attribute, but do not do this for the size files.
-Please just use a normal attribute for them, the binary ones are _only_
-for blobs of data that are not interpreted by the kernel"
+> The key_type_user symbol in user_defined.c needs to be exported.
+> ...
+> +EXPORT_SYMBOL( key_type_user );
 
-Thanks,
-Abhay
+This is the only modification necessary to support eCryptfs. While we
+are working on getting it ready for merging into the mainline kernel,
+we would like to distribute it as a separate kernel module, and we
+would like for users or distro's do not need to modify their kernels
+to build and run it.
 
+Would there be any objections to exporting the key_type_user symbol?
+Is there any general reason why kernel modules should not have access
+to the user key type struct?
+
+Mike

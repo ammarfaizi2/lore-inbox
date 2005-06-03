@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbVFCOOs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVFCOTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261281AbVFCOOs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 10:14:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVFCOOs
+	id S261280AbVFCOTE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 10:19:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVFCOTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 10:14:48 -0400
-Received: from pop.gmx.net ([213.165.64.20]:16340 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261281AbVFCOOp (ORCPT
+	Fri, 3 Jun 2005 10:19:04 -0400
+Received: from animx.eu.org ([216.98.75.249]:949 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S261280AbVFCOTC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 10:14:45 -0400
-X-Authenticated: #222744
-From: "Dieter Ferdinand" <dieter.ferdinand@gmx.de>
-To: linux-kernel@vger.kernel.org
-Date: Fri, 03 Jun 2005 16:14:41 +1
-MIME-Version: 1.0
-Subject: problem with isdn-audio-driver i4l hisax kernel from 2.2.x to 2.4.30
-Reply-To: Dieter.Ferdinand@gmx.de
-Message-ID: <42A081F1.15525.5D4F9ED5@localhost>
-X-mailer: Pegasus Mail for Windows (v4.12a, DE v4.12a R1a)
-Content-type: text/plain; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-Content-description: Mail message body
-X-Y-GMX-Trusted: 0
+	Fri, 3 Jun 2005 10:19:02 -0400
+Date: Fri, 3 Jun 2005 10:15:04 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: "Richard B. Johnson" <linux-os@analogic.com>
+Cc: Tomko <tomko@avantwave.com>, linux-kernel@vger.kernel.org
+Subject: Re: question why need open /dev/console in init() when starting kernel
+Message-ID: <20050603141504.GA14641@animx.eu.org>
+Mail-Followup-To: "Richard B. Johnson" <linux-os@analogic.com>,
+	Tomko <tomko@avantwave.com>, linux-kernel@vger.kernel.org
+References: <42A00065.9060201@avantwave.com> <Pine.LNX.4.61.0506030629170.11487@chaos.analogic.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0506030629170.11487@chaos.analogic.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hello,
-i have a big problem with the isdn-audio-drivers.
+Richard B. Johnson wrote:
+> For error messages (as well as it's the law)! Init needs a terminal.
+> Init is the 'father' of all future tasks and they need a default terminal
+> too.
 
-i use a software-pbx (asterisk) with the isdn-modem-driver with audio-function under 
-linux and some times, the system hangs total.
-only reset or power of solve this problem.
+Is it at all possible that if /dev/console does not exist that the kernel
+can mknod it?
 
-i have this problem also with vbox as voicemailbox.
-if i play some record-files over vbox to a phone, the system hangs and i must press 
-the reset.
-since this time, i used only the data-functions with the isdn-drivers, but with the pbx-
-soft, i need also the audio-functions and there is this bug.
+Would the code to do this be larger than 2 entries in a cpio archive (one
+for /dev directory and one for /dev/console char dev)?
 
-i think, this bug is only by playing audio-data.
-i have no more files, which produces this error.
-
-the last time, my system hangs with this bug, was on a long sip-connection (> 1 
-hour), the time before, on some tests with one sip-provider.
-
-i can try to get new audio-files with vbox, which produce this error, when this can 
-help to find the bug.
-
-i think, there is a endless loop in the drivers, if this error happens, but the system is 
-dead, total dead. keyboard don't works at this time.
-
-i think, this error is also, if i use an active card with capi over the modem-driver.
-i make some test and at one this, this system hangs also with the same bug.
-
-if i can help, to find this bug, ask me. i can install passive and active capi isdn-cards 
-on a test system with a post-diagnose-card or a terminal connect to serial to log 
-systemstatus.
-
-i hope, someone can help me, to solve this bug.
-
-thank you, for your help
-
-Schau auch einmal auf meine Homepage (http://go.to/dieter-ferdinand).
-Dort findest du Information zu Linux, Novell, Win95, WinNT, ...
-
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

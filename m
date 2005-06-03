@@ -1,126 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261235AbVFCMfz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbVFCMiQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261235AbVFCMfz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 08:35:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVFCMfz
+	id S261244AbVFCMiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 08:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVFCMiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 08:35:55 -0400
-Received: from mail1.upco.es ([130.206.70.227]:47539 "EHLO mail1.upco.es")
-	by vger.kernel.org with ESMTP id S261235AbVFCMfj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 08:35:39 -0400
-Date: Fri, 3 Jun 2005 14:35:36 +0200
-From: Romano Giannetti <romano@dea.icai.upco.es>
-To: Andrew Morton <akpm@osdl.org>
-Cc: pavel@ucw.cz, acpi-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: swsusp, preempt, input and 2.6.12-rc5-mm2 Re: swsusp not working for me on a PREEMPT 2.6.12-rc1 and 2.6.12-rc1-mm3 kernel
-Message-ID: <20050603123536.GA13377@pern.dea.icai.upco.es>
-Reply-To: romano@dea.icai.upco.es
-Mail-Followup-To: romano@dea.icai.upco.es,
-	Andrew Morton <akpm@osdl.org>, pavel@ucw.cz,
-	acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20050329110309.GA17744@pern.dea.icai.upco.es> <20050525212520.419ee442.akpm@osdl.org> <20050603094448.GA3218@pern.dea.icai.upco.es> <20050603105010.GA7300@pern.dea.icai.upco.es>
+	Fri, 3 Jun 2005 08:38:16 -0400
+Received: from td9091a46.pool.terralink.de ([217.9.26.70]:7165 "EHLO
+	tolot.miese-zwerge.org") by vger.kernel.org with ESMTP
+	id S261244AbVFCMh7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 08:37:59 -0400
+Date: Fri, 3 Jun 2005 14:37:12 +0200
+From: Jochen Striepe <jochen@tolot.escape.de>
+To: Lukasz Stelmach <stlman@poczta.fm>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [OT] mailing list management
+Message-ID: <20050603123712.GC20985@tolot.miese-zwerge.org>
+References: <4889.1117728665@ocs3.ocs.com.au> <42A0470B.7060803@poczta.fm>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
 Content-Disposition: inline
-In-Reply-To: <20050603105010.GA7300@pern.dea.icai.upco.es>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <42A0470B.7060803@poczta.fm>
+User-Agent: Mutt/1.4.2.1i
+X-Signature-Color: brightblue
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-(This last message is copied to linux-kernel too) 
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 03, 2005 at 12:50:10PM +0200, Romano Giannetti wrote:
-> On Fri, Jun 03, 2005 at 11:44:48AM +0200, Romano Giannetti wrote:
-> > On Wed, May 25, 2005 at 09:25:20PM -0700, Andrew Morton wrote:
+    Hello,
 
-> > > Romano, are you able to tell us whether 2.6.12-rc5 or 2.6.12-rc5-mm1 still
-> > > exhibit this hang?
-> > 
-> > I have tried vanilla 2.6.11-rc5 WITHOUT preempt. swsusp works OK but the
-> > acpi keys (suspend, change monitor/LCD) are delayed by 8-hit as explained 
-> > in http://bugme.osdl.org/show_bug.cgi?id=4124#c2 
-> > 
-> > I am compiling 2.6.11-rc5 with preempt now. Then I will do the same on -mm2.
-> > Which "style" of preempt should I choose? 
-> 
-> Tried with vanilla-rc5 and preempt. Good news: now it suspends and resumes,
-> with the problem that while resuming I have a lot of "scheduling while
-> atomic" and the resume script segfaults (I do not know why, I didn't find
-> oops). Reloading the modules and restarting usb manually (i.e., doing
-> manually the rest of the script) make it works ok. Sort of, because
-> battery module did not see my battery the first time, only the second time I
-> load it.) After that, it works ok (it is compiling -mm2 now). 
-> 
-> On the other end, acpi keys works well, but now doing "acpi -V & acpi -V &
-> acpi -V" causes just one of them give the correct battery value, the others
-> are very fast but answers with "0%". 
+On 03 Jun 2005, Lukasz Stelmach wrote:
+> That is why i suggested seting R-T as
+> Reply-To: Real Name <linux-kernel@...>
+[...]
+> 1. No duplicate messages running through the net. [1]
+> 2. Personal messages are easy distinguishible.
+> 3. Unsubscribers can receive answers.
 
-In rc5-mm2, the situation is almost the same. I compiled with PREEMPT, and
-the behaviour is very similar to -rc5 vanilla. What changed is, I fear, a
-couple of regressions:
+You seem not to understand. The points you list are just attempts to
+make things easier which do work and are quite easy already. You forget
+(or ignore) that Reply-To:-Munging *breaks* things that currently work.
 
- * the laptop did not power off at the end of suspend. It says "calling acpi
- poweroff" and stay there forever. Nevertheless, then it resumes "well" (as
- well as vanilla -rc5, I mean, with the same problems, see above). 
+Please stop this discussion, it leads to nothing.
 
- * now the acpi battery loaded "wrong" at boot, too. I tried several way:
- the first time battery is not detected, rmmod it, modprobe it again and it
- is detected. acpi -V & acpi -V has the same problem.
 
- * last but not least: the laptop did a hissing sound that 2.6.11 did not
- show, and tje mouse pointer was "trembling" (horizontally) on his own.
- Maybe this is an effect of choosing 250 Hz tick? 
+So long,
 
-All data (config, dmesg, etc) is available on the web. After boot, after
-boot and rmmod battery/modprobe battery, after resume and after resume and
-manual issuing of modprobe battery/rrmod battery/modprobe battery etc are
-here: 
+Jochen.
+--=20
+It's really hard to write docs for people who cannot read...
+[Michael Shalayeff on misc@openbsd.org]
 
-http://www.dea.icai.upco.es/romano/linux/br/config-2.6.12-rc5-mm2-afterboot/laptop-config.html
-http://www.dea.icai.upco.es/romano/linux/br/config-2.6.12-rc5-mm2-afterboot-modprobebattery/laptop-config.html
-http://www.dea.icai.upco.es/romano/linux/br/config-2.6.12-rc5-mm2-afterresume/laptop-config.html
-http://www.dea.icai.upco.es/romano/linux/br/config-2.6.12-rc5-mm2-afterresumeandmodprobe/laptop-config.html
+--ew6BAiZeqk4r7MaW
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-I will have a bit more of time next week, so please tell me if I can help
-you with all of this of give more info. I can manage to set up a serial
-console, if it's needed. 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-         Thanks, Romano
-         
-PD following info is for vanilla -rc5
+iQEVAwUBQqBO96rOdlPj1wR/AQLDQAf8DVfsMrrkIRzSwx7VxkfR6SY+8k7shHhq
+3awf5oC1KNRTN8bdnVQRUtYZG0wpaDsMI+wN+QHFTTymq5mNkg81fWc4xX2EJmYD
+5XfJnrQIZ/x8BfHmRNOupF6rCVIgeib6ljW9uavZgB/t8gp3FsQXfwCrIiVISzKT
+HszQRx0bzcJIF7gpEqElhUCrX0xZLnDjxMk0j7h6SFU+FrHa0v4kTwoiOUGeVGT0
+eAqo5CVtx5dYA0hbOOPstE5iULQI+pEqwIJF1HY6IPM6cZ6/HM+bSEbC0zEXxQo2
+q6GZ9PNu1MGOzhnvqVam0JecWtu5J+TWb8aGJVWhIv4blXAoZ5XLxw==
+=Xfze
+-----END PGP SIGNATURE-----
 
-> 
-> All info (after boot, after resume, after having manually restarted battery
-> etc and usb) in:
-> 
-> http://www.dea.icai.upco.es/romano/linux/br/config-2.6.12-rc5-preempt-afterboot/laptop-config.html
-> http://www.dea.icai.upco.es/romano/linux/br/config-2.6.12-rc5-preempt-afterresume/laptop-config.html
-> http://www.dea.icai.upco.es/romano/linux/br/config-2.6.12-rc5-preempt-afterresume-and-modprobe/laptop-config.html
-> 
-> > PD: I have not applied the patch suggested there, because it causes the
-> > problem that two concurrent "read" of the battery fails (I mean: in vanilla
-> > 2.6.11-rc5 doing "acpi -V & acpi -V" give two times the same value, but with
-> > the patch
-> > http://www.dea.icai.upco.es/romano/linux/vaio-conf/patch-no3851.id4516 it
-> > gives a correct ouptput and the second one, running much faster, give 0% for
-> > the battery charge. 
-> 
-> Well. the excat same thing occurs (as I said above) without the patch and
-> with preempt. 
-> 
-> Will report -mm2 behaviour later. 
-> 
-> Hope this helps,
-> 
->                   Romano
->                   
-> -- 
-> Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
-> Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569
-
--- 
-Romano Giannetti             -  Univ. Pontificia Comillas (Madrid, Spain)
-Electronic Engineer - phone +34 915 422 800 ext 2416  fax +34 915 596 569
+--ew6BAiZeqk4r7MaW--

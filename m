@@ -1,126 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261386AbVFCQmj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbVFCQn2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261386AbVFCQmj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 12:42:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVFCQmi
+	id S261387AbVFCQn2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 12:43:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVFCQn2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 12:42:38 -0400
-Received: from smtp107.mail.sc5.yahoo.com ([66.163.169.227]:42365 "HELO
-	smtp107.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261386AbVFCQmD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 12:42:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=Z3w3hGw+Il34e6NOa0jimPrzBk3G9O2z+NbLg9xXnnSft8PBNjDRduJoYp84edsGkgi4r/jPa+Z6tr0O+GJc0t9dPBioe7Py7wzdEyGlLOkDpv03l4OY2se5sTHT2EZloDR8v1O6mxYFAu7gPNrfF/itW+8fIzxzn/3GomgX0qc=  ;
-Message-ID: <42A08856.7090402@yahoo.com>
-Date: Fri, 03 Jun 2005 12:41:58 -0400
-From: "J. Scott Kasten" <jscottkasten@yahoo.com>
-User-Agent: Mozilla/5.0 (X11; U; IRIX64 IP30; en-US; rv:1.4.1) Gecko/20040105
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Wakko Warner <wakko@animx.eu.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: question why need open /dev/console in init() when starting kernel
-References: <42A00065.9060201@avantwave.com> <Pine.LNX.4.61.0506030629170.11487@chaos.analogic.com> <20050603141504.GA14641@animx.eu.org> <42A073BA.5040700@yahoo.com> <20050603152017.GC14641@animx.eu.org>
-In-Reply-To: <20050603152017.GC14641@animx.eu.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 3 Jun 2005 12:43:28 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:62950 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261387AbVFCQnQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 12:43:16 -0400
+Subject: Re: Avoiding external fragmentation with a placement policy
+	Version 12
+From: Dave Hansen <haveblue@us.ibm.com>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       "David S. Miller" <davem@davemloft.net>, jschopp@austin.ibm.com,
+       mel@csn.ul.ie, linux-mm <linux-mm@kvack.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <369850000.1117807062@[10.10.2.4]>
+References: <429E50B8.1060405@yahoo.com.au><429F2B26.9070509@austin.ibm.com>
+	 <1117770488.5084.25.camel@npiggin-nld.site>
+	 <20050602.214927.59657656.davem@davemloft.net>
+	 <357240000.1117776882@[10.10.2.4]> <429FFC21.1020108@yahoo.com.au>
+	 <369850000.1117807062@[10.10.2.4]>
+Content-Type: text/plain
+Date: Fri, 03 Jun 2005 09:43:00 -0700
+Message-Id: <1117816980.5985.17.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2005-06-03 at 06:57 -0700, Martin J. Bligh wrote:
+> 
+> >>> Actually, even with TSO enabled, you'll get large order
+> >>> allocations, but for receive packets, and these allocations
+> >>> happen in software interrupt context.
+> >> 
+> >> Sounds like we still need to cope then ... ?
+> > 
+> > Sure. Although we should try to not use higher order allocs if
+> > possible of course. Even with a fallback mode, you will still be
+> > putting more pressure on higher order areas and thus degrading
+> > the service for *other* allocators, so such schemes should
+> > obviously be justified by performance improvements.
+> 
+> My point is that outside of a benchmark situation (where we just
+> rebooted the machine to run a test) you will NEVER get an order 4
+> block free anyway, so it's pointless.
 
+I ran a little test overnight on a 16GB i386 system.
 
-Wakko Warner wrote:
+	cat /dev/zero | ./nc localhost 9999 & ; ./nc -l -p 9999
 
->J. Scott Kasten wrote:
->  
->
->>Wakko Warner wrote:
->>    
->>
->>>Is it at all possible that if /dev/console does not exist that the kernel
->>>can mknod it?
->>>      
->>>
->>Yes, you could modify the kernel source to create the directory and 
->>device nodes for you if you must.  I have written a few embedded drivers 
->>that created their access nodes that way.
->>    
->>
->
->That's interesting.  All I wanted to do was create /dev and /dev/console if
->they don't exist.  The project I was working on was a 2 stage where stage 1
->loads stage 2 (stage 1 is small enough for floppy use).  Since space is a
->concern, I was wondering if the entries in a cpio archive would be more or
->less bytes compared to the code in the kernel to do it.  At the moment I
->have a vanilla kernel that I'm using (2.6.12-rc5).
->  
->
-Have you considered making a root cramfs?  I could almost guarantee that 
-it would be smaller, not only that, but you get a gzip like compression 
-for free.  Now that I have a little better picture of what you are 
-trying to do, I would suggest using a read-only cramfs for your root 
-file system.  You can selectively mount writeable file systems over it.
+It pushed around 200MB of traffic through lo.  Is that (relatively low)
+transmission rate due to having to kick off kswapd any time it wants to
+send a packet?
 
-In fact, at the end of your "boot strapping process", you could 
-pivot_root/chroot into a live file system on disk then drop the cramfs.  
-I use this procedure on the flash of my Zaurus.  It boots a cramfs image 
-from the on-board flash which then loads the SD card driver, checks some 
-things out, and finally mounts and chroots into a 512MB flash card with 
-a nearly stock debian image on ext2.
+partial mem/buddyinfo before:
+MemTotal:     16375212 kB
+MemFree:        214248 kB
+HighTotal:    14548952 kB
+HighFree:       198272 kB
+LowTotal:      1826260 kB
+LowFree:         15976 kB
+Cached:       14415800 kB
 
-Actually, even debian uses this type of procedure to fsck the disks and 
-look for new devices before turning control over to the disk based system.
+Node 0, zone      DMA    217     35      2      1      1      1      1      0      1      1      1
+Node 0, zone   Normal   7236   3020   3885    104      7      0      0      0      0      0      1
+Node 0, zone  HighMem     18    503      0      0      1      0      0      1      0      0      0
 
->  
->
->>You can also modify the arch/xxx/startup.c file and change the inital 
->>console to /dev/null or just NULL if you need too.  However, I will warn 
->>you of some bad experiences.  I found that tar, and the bash shell 
->>sometimes misbehave with no terminal.  They would inexplicably hang 
->>unless I forced I/O paths 0, 1, 2 to /dev/null.  Tar and the shell would 
->>hang, even though they were not prompting, nor expecting input.  Yet I 
->>could set the initial console to a serial port and it would run fine, 
->>even if the command generated no output!  Very strange and hard to debug 
->>in a restricted environment like that.  Somewhere in that code, it must 
->>have been testing the default I/O paths to see if they were tty like 
->>devices or something and then freaking out with unexpected results.
->>    
->>
->
->The system will be used by console users only (mostly me), thus I can't use
->/dev/null.  The / is populated via a gzipped cpio archive passed via initrd. 
->I don't care if it's right, all that matters is that it works and is small.
->
->  
->
->>My best advice in a situation like this is to actually write your own 
->>pseudo console device driver.  It's not that hard and you might actually 
->>find a way to make it usefull for debugging.  Basicly make it a console 
->>that feeds about a 2K static ring buffer in kernel memory.  That gets 
->>you a few screen fulls of data for debugging.  If you have a PC style 
->>real-time clock, there is a 2K static ram in most of those.  Or "ping" 
->>it out through the network with magic ICMP packets.  Either way, you 
->>have created a usefull debugging tool that will be invaluable for 
->>resolving bootstrapping problems, and you just won't have to deal with 
->>the strangeness I mentioned above.
->>    
->>
->
->I don't believe I can do this.  I've never written a kernel driver before. 
->What I built was a short lived system.  As I stated, it has to be small
->(stage 1 only).  I can now easily reproduce the building of the kernel and
->stage 1 and fit it on a floppy (that was when I upgraded from rc4 to rc5). 
->I had originaly had ext2 compiled in, since 1) the old initrd ramdisk image
->was ext2 2) it was the only filesystem I was using that had unix file
->permissions (and was writable) 3) it was actually the smallest compared to
->the other ones I used.  Now that I pass cpio archive to it, I no longer need
->ext2 compiled in (it's on stage 2 which is either cdrom or usb disk)
->  
->
-I don't think you need to do all that I suggested earlier.  I cam in on 
-the middle of this discussion and it sounded like a small embedded 
-environment you were trying to enhance.  The cramfs image thing I 
-described above is probably a much better fit for your needs.
+partial mem/buddyinfo after:
+MemTotal:     16375212 kB
+MemFree:      13471604 kB
+HighTotal:    14548952 kB
+HighFree:     13450624 kB
+LowTotal:      1826260 kB
+LowFree:         20980 kB
+Cached:         972988 kB
+
+Node 0, zone      DMA      1      0      1      1      1      1      1      0      1      1      1
+Node 0, zone   Normal   1488     52     10     66      7      0      0      0      0      0      1
+Node 0, zone  HighMem   1322   3541   3165  20611  20651  14062   8054   5400   2643    664    169
+
+There was surely plenty of other stuff going on, but it looks like
+ZONE_HIGHMEM got eaten, and has plenty of large contiguous areas
+available.  This probably shows the collateral damage when kswapd goes
+randomly shooting down pages.  Are those loopback allocations
+GFP_KERNEL?
+
+-- Dave
 

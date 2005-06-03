@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVFCLqL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261229AbVFCL4O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261226AbVFCLqL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 07:46:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVFCLqK
+	id S261229AbVFCL4O (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 07:56:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVFCL4O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 07:46:10 -0400
-Received: from 76.80-203-227.nextgentel.com ([80.203.227.76]:14027 "EHLO
-	mail.inprovide.com") by vger.kernel.org with ESMTP id S261226AbVFCLqE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 07:46:04 -0400
-To: Lukasz Stelmach <stlman@poczta.fm>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [OT] mailing list management
-References: <429D8A3A.8000304@poczta.fm> <20050601102211.GR2417@lug-owl.de>
-	<429D8E96.4010908@poczta.fm>
-	<Pine.LNX.4.63.0506011239300.7726@sheen.jakma.org>
-	<429DADAC.7070207@poczta.fm> <yw1xbr6q2pv2.fsf@ford.inprovide.com>
-	<429ED667.6040202@poczta.fm> <yw1xy89tx7hb.fsf@ford.inprovide.com>
-	<42A04236.1000200@poczta.fm>
-From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
-Date: Fri, 03 Jun 2005 13:46:05 +0200
-In-Reply-To: <42A04236.1000200@poczta.fm> (Lukasz Stelmach's message of
- "Fri, 03 Jun 2005 13:42:46 +0200")
-Message-ID: <yw1xvf4vu0hu.fsf@ford.inprovide.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
- Obscurity, linux)
+	Fri, 3 Jun 2005 07:56:14 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:17313 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S261229AbVFCL4I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 07:56:08 -0400
+Date: Fri, 3 Jun 2005 13:56:06 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Subject: Re: [rfc] [patch] consolidate/clean up spinlock.h files
+In-Reply-To: <20050603051629.GB14059@elte.hu>
+Message-ID: <Pine.LNX.4.61.0506031300420.3743@scrub.home>
+References: <20050602144004.GA31807@elte.hu> <Pine.LNX.4.61.0506021817390.3743@scrub.home>
+ <20050603051629.GB14059@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lukasz Stelmach <stlman@poczta.fm> writes:
+Hi,
 
-> Måns Rullgård wrote:
->
->>>>My mail server (cyrus imapd) automatically suppresses duplicates with
->>>>the default settings.
->>>
->>>Even in two different folders?
->> 
->> Yes.
->
-> Can I disable it. Sometimes I woud like to have dupes?
+On Fri, 3 Jun 2005, Ingo Molnar wrote:
 
-Yes, it can be disabled entirely, or (IIRC) selectively using Sieve
-scripts.
+> yes, that's what i'm working towards - separating type from 
+> implementation on the arch level was the first step needed. I already 
+> had it at such a state yesterday (complete separation of type 
+> definitions, API definitions and asm implementation - it needed the 
+> initializers in the asm/spinlock_types.h file, but otherwise it was 
+> straightforward), but undid it in the last minute because sched.c and 
+> kernel_lock.c used some intermediate/raw primitives, leading to ugly 
+> dependencies. I'll re-try this angle today and repost the patch.
 
--- 
-Måns Rullgård
-mru@inprovide.com
+Some time ago I posted these patches: http://www.xs4all.nl/~zippel/task_patches/
+They basically only move the type definitions into separate header files, 
+but would basically allow a much better cleanup of e.g. the spinlock 
+header file. Right now it's an ifdef jungle with lots of duplicated code.
+In the end I'd like to see a single set of spinlock functions, which are 
+either inlined or instantiated in kernel/spinlock.c. But for the macros to 
+become inline functions, we need to cleanup the header dependencies, so 
+that we get: spinlock implementation -> preempt/irq implementation -> 
+task/thread definitions -> spinlock definitions.
+In this context I'm a little concerned whether your up/smp separation 
+really works out. A proper cleanup needs changes outside the spinlock 
+code and not just splitting the existing header into smaller headers.
+
+bye, Roman

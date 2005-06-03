@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVFCNaI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261261AbVFCNa7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261254AbVFCNaI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 09:30:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbVFCNaH
+	id S261261AbVFCNa7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 09:30:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVFCNa7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 09:30:07 -0400
-Received: from thunk.org ([69.25.196.29]:56732 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S261254AbVFCNaD (ORCPT
+	Fri, 3 Jun 2005 09:30:59 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:5387 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S261261AbVFCNay convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 09:30:03 -0400
-Date: Fri, 3 Jun 2005 09:29:24 -0400
-From: "Theodore Ts'o" <tytso@mit.edu>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: Horst von Brand <vonbrand@inf.utfsm.cl>, Gerd Knorr <kraxel@suse.de>,
-       Joerg Schilling <schilling@fokus.fraunhofer.de>, mrmacman_g4@mac.com,
-       toon@hout.vanvergehaald.nl, ltd@cisco.com, linux-kernel@vger.kernel.org,
-       dtor_core@ameritech.net, 7eggert@gmx.de
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Message-ID: <20050603132924.GA25643@thunk.org>
-Mail-Followup-To: Theodore Ts'o <tytso@mit.edu>,
-	Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-	Horst von Brand <vonbrand@inf.utfsm.cl>,
-	Gerd Knorr <kraxel@suse.de>,
-	Joerg Schilling <schilling@fokus.fraunhofer.de>,
-	mrmacman_g4@mac.com, toon@hout.vanvergehaald.nl, ltd@cisco.com,
-	linux-kernel@vger.kernel.org, dtor_core@ameritech.net,
-	7eggert@gmx.de
-References: <20050531190556.GK23621@csclub.uwaterloo.ca> <200506010223.j512NgeC005179@laptop11.inf.utfsm.cl> <20050601155629.GK23488@csclub.uwaterloo.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050601155629.GK23488@csclub.uwaterloo.ca>
-User-Agent: Mutt/1.5.9i
+	Fri, 3 Jun 2005 09:30:54 -0400
+X-IronPort-AV: i="3.93,166,1115010000"; 
+   d="scan'208"; a="250283668:sNHT23226000"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new DellBIOS update driver
+Date: Fri, 3 Jun 2005 08:30:44 -0500
+Message-ID: <367215741E167A4CA813C8F12CE0143B3ED3A5@ausx2kmpc115.aus.amer.dell.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new DellBIOS update driver
+Thread-Index: AcVn+lZ9PugKQqamQpa6T97bUtgPsAARElYg
+From: <Abhay_Salunke@Dell.com>
+To: <greg@kroah.com>
+Cc: <marcel@holtmann.org>, <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
+       <Matt_Domsch@Dell.com>
+X-OriginalArrivalTime: 03 Jun 2005 13:30:38.0013 (UTC) FILETIME=[6DDA0ED0:01C56840]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 01, 2005 at 11:56:29AM -0400, Lennart Sorensen wrote:
-> > Why? Just use LABELs, ou UUIDs.
+
+
 > 
-> Great if those worked on ALL filesystems, which to my knowledge they do
-> not.  Last time I tried to use labels to mount filesystems, I gave up on
-> it when I discovered swap didn't support it.  I haven't bothered with
-> them since.
+> No no no.  Just because you are using the firmware interface, does not
+> mean you need to add this extra round-trip to the whole system.  Just
+> dump the firmware to the /sys/firmware/whatever... file whenever you
+> want to, that's all that is needed.  No hotplug stuff, no filename
+> stuff, just a simple copy.
+Greg, all the feedback gave the impression that request_firmwae hotplug
+stuff was the way to go. Seems it's not required! Now that means it
+needs to be done the way it was before except that it needs to have a
+bin attribute for data and a normal attribute for size.
+This would be even better as it makes it easy to read back the data.
 
-While filesystems do you need?  Most filesystems actually do have
-LABELs or UUID's, including FAT, VFAT, iso9660, ext2/3, reiserfs, xfs,
-etc.  OK, xiafs doesn't have labels or uuid's, but it was removed from
-the Linux tree before 2.4 shipped!
-
-						- Ted
+Thanks
+Abhay

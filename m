@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261523AbVFCTwx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbVFCTzq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261523AbVFCTwx (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 15:52:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261524AbVFCTwx
+	id S261422AbVFCTzq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 15:55:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVFCTzq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 15:52:53 -0400
-Received: from downeast.net ([12.149.251.230]:40900 "EHLO downeast.net")
-	by vger.kernel.org with ESMTP id S261523AbVFCTwu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 15:52:50 -0400
-From: Patrick McFarland <pmcfarland@downeast.net>
-To: Joerg Schilling <schilling@fokus.fraunhofer.de>
-Subject: Re: OT] Joerg Schilling flames Linux on his Blog
-Date: Fri, 3 Jun 2005 15:51:03 -0400
-User-Agent: KMail/1.8
-Cc: jim@why.dont.jablowme.net, toon@hout.vanvergehaald.nl, mrmacman_g4@mac.com,
-       ltd@cisco.com, linux-kernel@vger.kernel.org, kraxel@suse.de,
-       dtor_core@ameritech.net, 7eggert@gmx.de
-References: <26A66BC731DAB741837AF6B2E29C10171E60DE@xmb-hkg-413.apac.cisco.com> <20050601172900.GC14299@voodoo> <429DF581.nail7BFUL8PFN@burner>
-In-Reply-To: <429DF581.nail7BFUL8PFN@burner>
+	Fri, 3 Jun 2005 15:55:46 -0400
+Received: from smtp-out5.blueyonder.co.uk ([195.188.213.8]:43991 "EHLO
+	smtp-out5.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S261422AbVFCTzj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 15:55:39 -0400
+Message-ID: <42A0B5BC.8050205@blueyonder.co.uk>
+Date: Fri, 03 Jun 2005 20:55:40 +0100
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+Reply-To: sboyce@blueyonder.co.uk
+Organization: blueyonder.co.uk
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1715007.lFddN4I5ph";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.12-rc5/2.6.12-rc5-git8 USB problems
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200506031551.13055.pmcfarland@downeast.net>
+X-OriginalArrivalTime: 03 Jun 2005 19:56:18.0106 (UTC) FILETIME=[4E6C09A0:01C56876]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1715007.lFddN4I5ph
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Everything works OK on 2.6.12-rc4. The joysticks are seen by lsusb and 
+the joystick test programs, but the controls do nothing in 2.6.12-rc5 
+and 2.6.12-rc5-git8.
+# js_demo
+Joystick test program.
+~~~~~~~~~~~~~~~~~~~~~~
+Joystick 0: "CH PRODUCTS CH FLIGHT SIM YOKE USB "
+Joystick 1: "CH PRODUCTS CH PRO PEDALS USB "
 
-On Wednesday 01 June 2005 01:50 pm, Joerg Schilling wrote:
-> You should use it as it is even used by people on Win32 because it is the
-> best DAE program for even badly readable sources.
+# jscal /dev/js0
+Joystick has 7 axes and 13 buttons.
+Correction for axis 0 is broken line, precision is 0.
+Coeficients are: 127, 127, 5534751, 5534751
+Correction for axis 1 is broken line, precision is 0.
+Coeficients are: 127, 127, 5534751, 5534751
+Correction for axis 2 is broken line, precision is 0.
+Coeficients are: 127, 127, 5534751, 5534751
+Correction for axis 3 is broken line, precision is 0.
+Coeficients are: 127, 127, 5534751, 5534751
+Correction for axis 4 is broken line, precision is 0.
+Coeficients are: 127, 127, 5534751, 5534751
+Correction for axis 5 is broken line, precision is 0.
+Coeficients are: 0, 0, 536870912, 536870912
+Correction for axis 6 is broken line, precision is 0.
+Coeficients are: 0, 0, 536870912, 536870912
 
-KISS theology tends to break down after the declaration of Gene Simmons bei=
-ng=20
-God.
-
-=2D-=20
-Patrick "Diablo-D3" McFarland || pmcfarland@downeast.net
-"Computer games don't affect kids; I mean if Pac-Man affected us as kids, w=
-e'd=20
-all be running around in darkened rooms, munching magic pills and listening=
- to
-repetitive electronic music." -- Kristian Wilson, Nintendo, Inc, 1989
-
---nextPart1715007.lFddN4I5ph
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQBCoLSw8Gvouk7G1cURAvJkAJ0Q2kpa2vkIIOvka+3ZQ/SQRumkpACeOJYM
-GPNY6Z+mTW9xP+QphFLrHjE=
-=sOcU
------END PGP SIGNATURE-----
-
---nextPart1715007.lFddN4I5ph--
+Regards
+Sid.
+-- 
+Sid Boyce ... Hamradio License G3VBV, Keen licensed Private Pilot
+Retired IBM Mainframes and Sun Servers Tech Support Specialist
+Microsoft Windows Free Zone - Linux used for all Computing Tasks

@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVFCTH7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbVFCTJe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbVFCTH7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 15:07:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbVFCTH7
+	id S261209AbVFCTJe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 15:09:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbVFCTJe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 15:07:59 -0400
-Received: from webmail.topspin.com ([12.162.17.3]:38418 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S261209AbVFCTHu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 15:07:50 -0400
-To: Nathan Lynch <ntl@pobox.com>
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>,
-       ppc64 dev list <linuxppc64-dev@ozlabs.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Subject: Re: 2.6.12-rc5-git8 regression on PPC64
-X-Message-Flag: Warning: May contain useful information
-References: <374360000.1117810369@[10.10.2.4]> <52is0vwd49.fsf@topspin.com>
-	<20050603182725.GB11355@otto>
-From: Roland Dreier <roland@topspin.com>
-Date: Fri, 03 Jun 2005 12:07:46 -0700
-In-Reply-To: <20050603182725.GB11355@otto> (Nathan Lynch's message of "Fri,
- 3 Jun 2005 13:27:25 -0500")
-Message-ID: <52vf4vuum5.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
+	Fri, 3 Jun 2005 15:09:34 -0400
+Received: from fmr21.intel.com ([143.183.121.13]:38020 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261209AbVFCTJY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 15:09:24 -0400
+Date: Fri, 3 Jun 2005 12:09:14 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Andi Kleen <ak@suse.de>
+Cc: "Siddha, Suresh B" <suresh.b.siddha@intel.com>,
+       Andrew Morton <akpm@osdl.org>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org, nanhai.zou@intel.com,
+       rohit.seth@intel.com, rajesh.shah@intel.com
+Subject: Re: [discuss] Re: [Patch] x86_64: TASK_SIZE fixes for compatibility mode processes
+Message-ID: <20050603120913.C29609@unix-os.sc.intel.com>
+References: <20050602133256.A14384@unix-os.sc.intel.com> <20050602135013.4cba3ae2.akpm@osdl.org> <20050602151912.B14384@unix-os.sc.intel.com> <20050602154823.15141bfc.akpm@osdl.org> <20050602160603.C14384@unix-os.sc.intel.com> <20050603154839.GN23831@wotan.suse.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 03 Jun 2005 19:07:46.0879 (UTC) FILETIME=[87320CF0:01C5686F]
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050603154839.GN23831@wotan.suse.de>; from ak@suse.de on Fri, Jun 03, 2005 at 05:48:39PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Nathan> Backing this one out fixes it here on a Power5 570.
+On Fri, Jun 03, 2005 at 05:48:39PM +0200, Andi Kleen wrote:
+> On Thu, Jun 02, 2005 at 04:06:04PM -0700, Siddha, Suresh B wrote:
+> > On Thu, Jun 02, 2005 at 03:48:23PM -0700, Andrew Morton wrote:
+> > > I know.  I'm claiming that this is conceptually wrong.
+> > 
+> > I def see your point. But this is too late for 2.6.12.  We want to get this 
+> > fixed in 2.6.12.  We can do the cleanup at a more convenient time.
+> 
+> My feeling is that all of this is more for post 2.6.12. I still
+> have not seen anything important that would get fixed by it.
 
-    Nathan> http://marc.theaimsgroup.com/?l=bk-commits-head&m=111772917211270&q=raw
+Andi, This patch fixes two critical issues. One is the memory leak that 
+can happen in syscall32_setup_pages because of a malicious app and 
+another is the 32bit hugetlb application failure(which was also observed 
+by a customer recently). More details are in my changeset comments.
 
-This fixes the boot on an OpenPower 710 for me as well.
+Either we need to fix these issues independently for 2.6.12 or address
+the issue globally(fixing all the corner cases).
 
-Thanks,
-  Roland
+thanks,
+suresh

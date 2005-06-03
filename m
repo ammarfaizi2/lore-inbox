@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVFCFhf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261282AbVFCFln@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261277AbVFCFhf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 01:37:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbVFCFhf
+	id S261282AbVFCFln (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 01:41:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261285AbVFCFln
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 01:37:35 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:24501
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S261277AbVFCFhb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 01:37:31 -0400
-Date: Thu, 02 Jun 2005 22:37:12 -0700 (PDT)
-Message-Id: <20050602.223712.41634750.davem@davemloft.net>
-To: mbligh@mbligh.org
-Cc: nickpiggin@yahoo.com.au, jschopp@austin.ibm.com, mel@csn.ul.ie,
-       linux-mm@kvack.org, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: Avoiding external fragmentation with a placement policy
- Version 12
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <357240000.1117776882@[10.10.2.4]>
-References: <1117770488.5084.25.camel@npiggin-nld.site>
-	<20050602.214927.59657656.davem@davemloft.net>
-	<357240000.1117776882@[10.10.2.4]>
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Fri, 3 Jun 2005 01:41:43 -0400
+Received: from mail.kroah.org ([69.55.234.183]:38533 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261282AbVFCFlm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 01:41:42 -0400
+Date: Thu, 2 Jun 2005 22:51:57 -0700
+From: Greg KH <greg@kroah.com>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Andy Whitcroft <apw@shadowen.org>, Adam Litke <agl@us.ibm.com>,
+       Enrique Gaona <egaona@us.ibm.com>
+Subject: Re: [ANNOUNCE] automated linux kernel testing results
+Message-ID: <20050603055157.GA29447@kroah.com>
+References: <531740000.1117749798@flay>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <531740000.1117749798@flay>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Date: Thu, 02 Jun 2005 22:34:42 -0700
+On Thu, Jun 02, 2005 at 03:03:18PM -0700, Martin J. Bligh wrote:
+> OK, I've finally got this to the point where I can publish it.
+> 
+> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/regression_matrix.html
+> 
+> Currently it builds and boots any mainline, -mjb, -mm kernel within
+> about 15 minutes of release. runs dbench, tbench, kernbench, reaim and fsx.
+> Currently I'm using a 4x AMD64 box, a 16x NUMA-Q, 4x NUMA-Q, 32x x440 (ia32)
+> PPC64 Power 5 LPAR, PPC64 Power 4 LPAR, and PPC64 Power 4 bare metal system.
+> The config files it uses are linked by the machine names in the column 
+> headers.
 
-> One of the calls I got the other day was for loopback interface. 
-> Default MTU is 16K, which seems to screw everything up and do higher 
-> order allocs. Turning it down to under 4K seemed to fix things. I'm 
-> fairly sure loopback doesn't really need phys contig memory, but it 
-> seems to use it at the moment ;-)
+Nice, very nice, congrats to all involved.
 
-It helps get better bandwidth to have larger buffers.
-That's why AF_UNIX tries to use larger orders as well.
+Now, any chance you can do this on the nightly -git snapshots too? :)
 
-With all these processors using prefetching in their
-memcpy() implementations, reducing the number of memcpy()
-calls per byte is getting more and more important.
-Each memcpy() call makes you hit the memory latency
-cost since the first prefetch can't be done early
-enough.
+And I don't see the -stable releases in there...
+
+thanks,
+
+greg k-h

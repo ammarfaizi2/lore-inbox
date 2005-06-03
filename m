@@ -1,37 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVFCKG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVFCKM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbVFCKG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 06:06:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVFCKG7
+	id S261207AbVFCKM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 06:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVFCKM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 06:06:59 -0400
-Received: from mail-in-05.arcor-online.net ([151.189.21.45]:46250 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261202AbVFCKG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 06:06:58 -0400
-From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
-Subject: Re: question why need open /dev/console in init() when starting kernel
-To: Tomko <tomko@avantwave.com>, linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Fri, 03 Jun 2005 12:06:53 +0200
-References: <4betH-75D-9@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1De94o-0001Dv-2f@be1.7eggert.dyndns.org>
+	Fri, 3 Jun 2005 06:12:27 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33477 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261207AbVFCKMW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 06:12:22 -0400
+Date: Fri, 3 Jun 2005 12:12:03 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Matthias Urlichs <smurf@smurf.noris.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc5-mm2
+Message-ID: <20050603101203.GA2734@elf.ucw.cz>
+References: <20050601022824.33c8206e.akpm@osdl.org> <20050601140233.GD1940@openzaurus.ucw.cz> <pan.2005.06.01.15.04.49.64662@smurf.noris.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <pan.2005.06.01.15.04.49.64662@smurf.noris.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tomko <tomko@avantwave.com> wrote:
+Hi!
 
-> Do anyone know why it need to open("/dev/console"....) at the end of the
-> init() before calling execve("/sbin/init") ? Why open this for the in ,
-> out , err channel at this moment but not open it at the time when going
-> to use , e.g. open it in the shell .
+> >> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc5/2.6.12-rc5-mm2/
+> >> 
+> >> 
+> >> - Dropped bk-acpi.patch.  Too old, too much breakage.
+> >> 
+> >> - A few more subsystem trees have moved to using git
+> > 
+> > Have you considered publishing -mm using git?
+> > 
+> > I guess your workflow prevents you from really using git, but even just
+> > publishing releases using git would be great.
+> > 
+> > (Just now I'm tracking Linus with my tree.  git makes that quite easy.
+> > Tracking -mm is ugly manual work with diff, patch and ketchup...)
+> 
+> I have written a script (actually a leftover from the mm-to-BK import
+> days) that pulls -mm into git as individual commits.
 
-How is the shell supposed to know which files to open, or if it's supposed
-to open files at all?
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Great! Would it be possible to export results of your script
+somewhere? I guess you could get kernel.org account for this...
+								Pavel

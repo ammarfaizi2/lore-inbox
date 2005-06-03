@@ -1,58 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261506AbVFCTEL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVFCTH7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbVFCTEL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 15:04:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVFCTEK
+	id S261269AbVFCTH7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 15:07:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261214AbVFCTH7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 15:04:10 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:48609 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261506AbVFCTDo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 15:03:44 -0400
-Date: Fri, 3 Jun 2005 12:02:19 -0700 (PDT)
-From: Christoph Lameter <clameter@engr.sgi.com>
-To: john stultz <johnstul@us.ibm.com>
-cc: Andi Kleen <ak@suse.de>, Parag Warudkar <kernel-stuff@comcast.net>,
-       Nishanth Aravamudan <nacc@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org
-Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
-In-Reply-To: <1117823257.17804.60.camel@cog.beaverton.ibm.com>
-Message-ID: <Pine.LNX.4.62.0506031201040.28131@schroedinger.engr.sgi.com>
-References: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net>
-  <200506021905.08274.kernel-stuff@comcast.net>  <1117754453.17804.51.camel@cog.beaverton.ibm.com>
-  <200506021950.35014.kernel-stuff@comcast.net>  <20050603163010.GR23831@wotan.suse.de>
- <1117823257.17804.60.camel@cog.beaverton.ibm.com>
+	Fri, 3 Jun 2005 15:07:59 -0400
+Received: from webmail.topspin.com ([12.162.17.3]:38418 "EHLO
+	exch-1.topspincom.com") by vger.kernel.org with ESMTP
+	id S261209AbVFCTHu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 15:07:50 -0400
+To: Nathan Lynch <ntl@pobox.com>
+Cc: "Martin J. Bligh" <mbligh@mbligh.org>,
+       ppc64 dev list <linuxppc64-dev@ozlabs.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Subject: Re: 2.6.12-rc5-git8 regression on PPC64
+X-Message-Flag: Warning: May contain useful information
+References: <374360000.1117810369@[10.10.2.4]> <52is0vwd49.fsf@topspin.com>
+	<20050603182725.GB11355@otto>
+From: Roland Dreier <roland@topspin.com>
+Date: Fri, 03 Jun 2005 12:07:46 -0700
+In-Reply-To: <20050603182725.GB11355@otto> (Nathan Lynch's message of "Fri,
+ 3 Jun 2005 13:27:25 -0500")
+Message-ID: <52vf4vuum5.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 03 Jun 2005 19:07:46.0879 (UTC) FILETIME=[87320CF0:01C5686F]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Jun 2005, john stultz wrote:
+    Nathan> Backing this one out fixes it here on a Power5 570.
 
-> How about something like this?
-> 
-> 300 TSC 
-> 200 HPET
-> 200 CYCLONE
-> 100 ACPI
-> 050 PIT
-> 010 JIFFIES
-> 
-> Then if the system has TSC issues (unsynced, cpufreq problems, etc), we
-> can demote the TSC's priority to 50 and it will fall back nicely without
-> manual intervention.
+    Nathan> http://marc.theaimsgroup.com/?l=bk-commits-head&m=111772917211270&q=raw
 
-Oh, we are going to have flags for timesources? Then please also do the 
-jitter thing.
+This fixes the boot on an OpenPower 710 for me as well.
 
+Thanks,
+  Roland

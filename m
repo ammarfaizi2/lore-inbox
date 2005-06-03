@@ -1,65 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVFCSE5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261456AbVFCSHy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbVFCSE5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 14:04:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261436AbVFCSE5
+	id S261456AbVFCSHy (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 14:07:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVFCSHy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 14:04:57 -0400
-Received: from titan.genwebhost.com ([209.9.226.66]:47576 "EHLO
-	titan.genwebhost.com") by vger.kernel.org with ESMTP
-	id S261426AbVFCSEu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 14:04:50 -0400
-Date: Fri, 3 Jun 2005 11:04:36 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: Andreas Schwab <schwab@suse.de>
-Cc: geert@linux-m68k.org, joern@wohnheim.fh-wedel.de, xiao@unice.fr,
-       linux-kernel@vger.kernel.org
-Subject: Re: Suggestion on "int len" sanity
-Message-Id: <20050603110436.3f801c65.rdunlap@xenotime.net>
-In-Reply-To: <jed5r3eca8.fsf@sykes.suse.de>
-References: <429EB537.4060305@unice.fr>
-	<20050602084840.GA32519@wohnheim.fh-wedel.de>
-	<Pine.LNX.4.62.0506031143100.16362@numbat.sonytel.be>
-	<jer7fjeiae.fsf@sykes.suse.de>
-	<Pine.LNX.4.62.0506031443000.16362@numbat.sonytel.be>
-	<jed5r3eca8.fsf@sykes.suse.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 3 Jun 2005 14:07:54 -0400
+Received: from mail.ccur.com ([208.248.32.212]:12804 "EHLO flmx.iccur.com")
+	by vger.kernel.org with ESMTP id S261456AbVFCSHm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 14:07:42 -0400
+Message-ID: <42A09C6C.8030104@ccur.com>
+Date: Fri, 03 Jun 2005 14:07:40 -0400
+From: John Blackwood <john.blackwood@ccur.com>
+Reply-To: john.blackwood@ccur.com
+Organization: Concurrent Computer Corporation
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.4) Gecko/20050318 Red Hat/1.4.4-1.3.5
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: dan@debian.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ptrace(2) single-stepping into signal handlers
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - titan.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-OriginalArrivalTime: 03 Jun 2005 18:07:41.0527 (UTC) FILETIME=[223CFE70:01C56867]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 03 Jun 2005 16:38:07 +0200 Andreas Schwab wrote:
+ > Subject: Re: [PATCH] ptrace(2) single-stepping into signal handlers
+ > From: Daniel Jacobowitz <dan@debian.org>
+ > Date: Fri, 3 Jun 2005 13:34:33 -0400
+ > To: John Blackwood <john.blackwood@ccur.com>
+ > CC: linux-kernel@vger.kernel.org, roland@redhat.com, ak@suse.de, 
+akpm@osdl.org, bugsy@ccur.com
+ >
+ > On Fri, Jun 03, 2005 at 01:21:20PM -0400, John Blackwood wrote:
 
-| Geert Uytterhoeven <geert@linux-m68k.org> writes:
-| 
-| > On Fri, 3 Jun 2005, Andreas Schwab wrote:
-| >> Geert Uytterhoeven <geert@linux-m68k.org> writes:
-| >> 
-| >> >> 	union {
-| >> >> 		unsigned len;
-| >> >                 ^^^^^^^^
-| >> > Plain unsigned is deprecated.
-| >> 
-| >> Says who?
-| >
-| > Sorry, forgot to add the
-| > `Signed-Off-by: Geert Uytterhoeven <geert@linux-m68k.org>' line :-)
-| 
-| Who deprecated it?
+ > >> The reason for this behavior is due to the fact that:
+ > >>
+ > >> - We saved off the eflags (with the TF bit set) in setup_sigcontext()
+ > >>   before we single stepped into the user's signal handler.
+ >
+ >
+ > You didn't say what kernel you were using.  I believe this was fixed
+ > some time ago.
 
-Not technically deprecated, just undesirable in the kernel sources.
+Hi Dan,
+
+I observed this behavior in a 2.6.11.10 kernel.  The code in 2.6.11.11
+looks the same in this area... this is the i386 code that I am speaking of.
+
+I guess that 'some time ago' is more recent than that?
 
 
----
-~Randy
+If so, then please excuse me... and it's great that this is fixed.
+
+
+

@@ -1,86 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVFCVRh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVFCVTY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbVFCVRh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 17:17:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261397AbVFCVRh
+	id S261397AbVFCVTY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 17:19:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVFCVTY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 17:17:37 -0400
-Received: from mail.kroah.org ([69.55.234.183]:5867 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261365AbVFCVRd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 17:17:33 -0400
-Date: Fri, 3 Jun 2005 13:33:26 -0700
-From: Greg KH <greg@kroah.com>
-To: Abhay_Salunke@Dell.com
-Cc: marcel@holtmann.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Matt_Domsch@Dell.com
-Subject: Re: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new DellBIOS update driver
-Message-ID: <20050603203326.GA8092@kroah.com>
-References: <367215741E167A4CA813C8F12CE0143B3ED3AA@ausx2kmpc115.aus.amer.dell.com>
+	Fri, 3 Jun 2005 17:19:24 -0400
+Received: from rproxy.gmail.com ([64.233.170.198]:25152 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261397AbVFCVTK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 17:19:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bNAyXXrrwdcGSeKy895XKM9DLLQXIEaqBEJMg0WFUone3KRnuLF6lepe+686Qs78XB+gQhqZ5xFmuvh2MpE41NoC0Rbgxrozy8edSDaai+0WCF+IFd/V2kXYZ8c3zCC+HqenGHh67v2pnuYHgJmPBK3br+ITwsEtql49yNalOsY=
+Message-ID: <253818670506031419603479ac@mail.gmail.com>
+Date: Fri, 3 Jun 2005 17:19:08 -0400
+From: Yani Ioannou <yani.ioannou@gmail.com>
+Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.12-rc5-mm2
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050601022824.33c8206e.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <367215741E167A4CA813C8F12CE0143B3ED3AA@ausx2kmpc115.aus.amer.dell.com>
-User-Agent: Mutt/1.5.8i
+References: <20050601022824.33c8206e.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 03, 2005 at 02:57:23PM -0500, Abhay_Salunke@Dell.com wrote:
-> > > At what point I should be calling request_firmware?
-> > 
-> > Never, you should call request_firmware_nowait() instead.  And do it
-> > from your module init function.
-> > 
-> > > As my driver does
-> > > not have any entry points. In this driver it is called when the user
-> is
-> > > ready to download the firmware image (when it echoes the firmware
-> image
-> > > name). Also the driver needs to be resident for handling multiple
-> such
-> > > requests; that's why cannot do this at driver init time.
-> > 
-> > That's what request_firmware_nowait() is for.
-> > 
-> But isn't request_firmware_nowait a one time deal.
+Hi Andrew,
 
-Yes.
+I'm encountering the following annoying bug messages in 2.6.12-rc5-mm1
+and -mm2 that I can't reproduce in 2.6.12-rc5 with the sym53c8xx_2
+SCSI driver. I don't use the SCSI card/drive for booting but the
+driver is compiled into my kernel, and reading from the drive seems
+OK. Booting -mm2 I get the following :
 
-> It creates a kernel thread which will call the cont function once and
-> end it.
+scan_host_selected+0xdd/0xf0
+ [<c03e10e0>] scsi_scan_host+0x30/0x40
+ [<c03e8d5f>] sym2_probe+0xef/0x140
+ [<c0105800>] do_simd_coprocessor_error+0x70/0xb0
+ [<c0102000>] sys_get_thread_area+0x10/0x140
+ [<c0331722>] pci_device_probe_static+0x52/0x70
+ [<c033177c>] __pci_device_probe+0x3c/0x50
+ [<c03317bf>] pci_device_probe+0x2f/0x50
+ [<c039ee1b>] driver_probe_device+0x3b/0xb0
+ [<c039ef10>] __driver_attach+0x0/0x60
+ [<c039ef60>] __driver_attach+0x50/0x60
+ [<c039e499>] bus_for_each_dev+0x69/0x80
+ [<c039ef95>] driver_attach+0x25/0x30
+ [<c039ef10>] __driver_attach+0x0/0x60
+ [<c039e968>] bus_add_driver+0x88/0xc0
+ [<c0331900>] pci_device_shutdown+0x0/0x30
+ [<c0331a9d>] pci_register_driver+0x7d/0xa0
+ [<c06c5732>] sym2_init+0x32/0x60
+ [<c06a2a7b>] do_initcalls+0x2b/0xc0
+  [<c01003b9>] init+0x99/0x1b0
+  [<c0100320>] init+0x0/0x1b0
+ [<c0101245>] kernel_thread_helper+0x5/0x10
 
-Yes.
+Followed by many repeats of:
 
-And in that cont function, you can do whatever you want, like handle the
-firmware given to you, copy it off to whereever you need to, and if you
-want, call request_firmware_nowait again for another firmware to be sent
-to you...
+BUG: atomic counter underflow at:
+ [<c03a5c41>] blk_cleanup_queue+0xc1/0xd0
+ [<c03e1739>] scsi_device_dev_release+0x139/0x190
+ [<c039d4cb>] device_release+0x5b/0x60
+ [<c03247b8>] kobject_cleanup+0x98/0xa0
+ [<c03247c0>] kobject_release+0x0/0x10
+ [<c0325225>] kref_put+0x45/0xd0
+ [<c03247ef>] kobject_put+0x1f/0x30
+ [<c03247c0>] kobject_release+0x0/0x10
+ [<c03dfb6e>] scsi_alloc_sdev+0x1ae/0x1f0
+ [<c03e051f>] scsi_probe_and_add_lun+0x6f/0x1f0
+ [<c032470a>] kobject_get+0x1a/0x30
+ [<c03e0e73>] scsi_scan_target+0xe3/0x170
+ [<c03e0f9d>] scsi_scan_channel+0x9d/0xc0
+ [<c03e109d>] scsi_scan_host_selected+0xdd/0xf0
+ [<c03e10e0>] scsi_scan_host+0x30/0x40
+ [<c03e8d5f>] sym2_probe+0xef/0x140
+ [<c0105800>] do_simd_coprocessor_error+0x70/0xb0
+ [<c0102000>] sys_get_thread_area+0x10/0x140
+ [<c0331722>] pci_device_probe_static+0x52/0x70
+ [<c033177c>] __pci_device_probe+0x3c/0x50
+ [<c03317bf>] pci_device_probe+0x2f/0x50
+ [<c039ee1b>] driver_probe_device+0x3b/0xb0
+ [<c039ef10>] __driver_attach+0x0/0x60
+ [<c039ef60>] __driver_attach+0x50/0x60
+ [<c039e499>] bus_for_each_dev+0x69/0x80
+ [<c039ef95>] driver_attach+0x25/0x30
+ [<c039ef10>] __driver_attach+0x0/0x60
+ [<c039e968>] bus_add_driver+0x88/0xc0
+ [<c0331900>] pci_device_shutdown+0x0/0x30
+ [<c0331a9d>] pci_register_driver+0x7d/0xa0
+ [<c06c5732>] sym2_init+0x32/0x60
+ [<c06a2a7b>] do_initcalls+0x2b/0xc0
+  [<c01003b9>] init+0x99/0x1b0
+  [<c0100320>] init+0x0/0x1b0
+ [<c0101245>] kernel_thread_helper+0x5/0x10
 
-> In that case I will have to unload and reload the driver every time
-> before doing an update.
-
-No, see above.
-
-> Also driver's unload has to free the allocated memory; this will not
-> serve the purpose of this driver.
-
-See above.
-
-> > > When ever the user echoes the file name, it gets passed on to
-> > > request_firmware and the $FIRMWARE env gets populated with the file
-> > > name. thus making the hotplug code to automatically load the image
-> which
-> > > is passed back as fw->data and fw->size.
-> > 
-> > It's easier for the user to just copy the firmware to the sysfs file
-> > whenever they want to.  No messing with hotplug events or filenames.
-> > 
-> I must be missing some things here. Can copying the data to the sysfs
-> file with normal attributes work?
-
-The firmware class creates a sysfs file.  That is what I am referring to
-here.
-
-thanks,
-
-greg k-h
+Thanks,
+Yani

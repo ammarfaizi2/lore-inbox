@@ -1,58 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261326AbVFCP1P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261331AbVFCP2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261326AbVFCP1P (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 11:27:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVFCP1P
+	id S261331AbVFCP2U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 11:28:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261329AbVFCP2T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 11:27:15 -0400
-Received: from mxsf16.cluster1.charter.net ([209.225.28.216]:57837 "EHLO
-	mxsf16.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S261326AbVFCP0u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 11:26:50 -0400
-X-IronPort-AV: i="3.93,166,1115006400"; 
-   d="scan'208"; a="342110487:sNHT22550790"
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 3 Jun 2005 11:28:19 -0400
+Received: from stat16.steeleye.com ([209.192.50.48]:49839 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S261330AbVFCP14 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 11:27:56 -0400
+Subject: [GITPATCH] two bug fixes for SCSI in 2.6.12-rc5
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: SCSI Mailing List <linux-scsi@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 03 Jun 2005 10:27:44 -0500
+Message-Id: <1117812465.5030.28.camel@mulgrave>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17056.30388.197641.477214@smtp.charter.net>
-Date: Fri, 3 Jun 2005 11:26:44 -0400
-From: "John Stoffel" <john@stoffel.org>
-To: Dieter.Ferdinand@gmx.de
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: kernel 2.2 against 2.4 on old dual-pentium system with intel hx-chipset
-In-Reply-To: <42A0889D.17491.5D69AF42@localhost>
-References: <42A0889D.17491.5D69AF42@localhost>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+These are fixes for a fatal locking problem in qla2xxx and slab
+corruption in the ipr driver which need to go in before 2.6.12 final.
 
-Dieter> i have a big problem with my old dual-pentium-systems with
-Dieter> intel hx-chipset (gigabyte and asus mainboards).
+The fixes are available here:
 
-Dieter> if i use kernel 2.2, it works fine. with kernel 2.4 i must
-Dieter> deactivate smp and i can only use one cpu. if i try to use
-Dieter> both cpu's, the system hangs after some ours or after some
-Dieter> times of heavy system-load.
+rsync://www.parisc-linux.org/~jejb/git/scsi-for-linus-2.6.git
 
-What version of 2.2 and 2.4 are you using here?  Be specific!  Also,
-send the output of /proc/cpuinfo from both 2.2 and 2.4 along with
-/proc/interrupts as well.  
+The short log is
 
-Dieter> i try some parameters (noacpi noapic) without success.
+Andrew Vasquez:
+  o qla2xxx: fix bad locking during eh_abort
 
-And does the system pass memtest86 for an extended amount of time?
-Say 24 hours?  
+Nathan T. Lynch:
+  o fix slab corruption during ipr probe
 
-I ran some HP Pavillion Dual processor PPro systems for quite a while
-under kernel 2.4 without major problems.  
 
-Dieter> can you help me, to get the newer kernel running on this systems ?
+And the diffstats:
 
-Sure, just post as many details as possible.  
+ qla2xxx/qla_os.c |   24 +++++++++++++-----------
+ scsi_scan.c      |    1 +
+ 2 files changed, 14 insertions(+), 11 deletions(-)
 
-Do you get any output on the console when the system freezes?  You
-should also look into setting up a serial console along with SysRq so
-you can try to get some debugging output when the next hang happens.  
+James
 
-John
+

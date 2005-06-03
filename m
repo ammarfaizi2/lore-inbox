@@ -1,50 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVFCMnp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261246AbVFCMqw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbVFCMnp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 08:43:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVFCMno
+	id S261246AbVFCMqw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 08:46:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbVFCMqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 08:43:44 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:28369 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261245AbVFCMnn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 08:43:43 -0400
-Date: Fri, 3 Jun 2005 14:43:37 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Andreas Schwab <schwab@suse.de>
-cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       XIAO Gang <xiao@unice.fr>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Suggestion on "int len" sanity
-In-Reply-To: <jer7fjeiae.fsf@sykes.suse.de>
-Message-ID: <Pine.LNX.4.62.0506031443000.16362@numbat.sonytel.be>
-References: <429EB537.4060305@unice.fr> <20050602084840.GA32519@wohnheim.fh-wedel.de>
- <Pine.LNX.4.62.0506031143100.16362@numbat.sonytel.be> <jer7fjeiae.fsf@sykes.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 3 Jun 2005 08:46:52 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:63909 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261246AbVFCMqs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 08:46:48 -0400
+Date: Fri, 3 Jun 2005 04:58:16 -0300
+From: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
+To: Greg KH <greg@kroah.com>
+Cc: Alexey Dobriyan <adobriyan@gmail.com>, akpm@osdl.org,
+       julien.tinnes@francetelecom.com, linux-kernel@vger.kernel.org
+Subject: Re: potential-null-pointer-dereference-in-amiga-serial-driver.patch added to -mm tree
+Message-ID: <20050603075816.GA9922@logos.cnet>
+References: <200505310909.j4V98xBR008727@shell0.pdx.osdl.net> <200505311949.15449.adobriyan@gmail.com> <20050531122215.GA5108@logos.cnet> <20050602052108.GA8042@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050602052108.GA8042@kroah.com>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Jun 2005, Andreas Schwab wrote:
-> Geert Uytterhoeven <geert@linux-m68k.org> writes:
+On Wed, Jun 01, 2005 at 10:21:08PM -0700, Greg KH wrote:
+> On Tue, May 31, 2005 at 09:22:15AM -0300, Marcelo Tosatti wrote:
+> > 
+> > Hi Alexey,
+> > 
+> > On Tue, May 31, 2005 at 07:49:15PM +0400, Alexey Dobriyan wrote:
+> > > On Tuesday 31 May 2005 13:08, akpm@osdl.org wrote:
+> > > > A pointer is dereferenced before it is null-checked.
+> > > 
+> > > > --- 25/drivers/char/amiserial.c~potential-null-pointer-dereference-in-amiga-serial-driver
+> > > > +++ 25-akpm/drivers/char/amiserial.c
+> > > 
+> > > >  static void rs_put_char(struct tty_struct *tty, unsigned char ch)
+> > > >  {
+> > > > -	struct async_struct *info = (struct async_struct *)tty->driver_data;
+> > > > +	struct async_struct *info;
+> > > >  	unsigned long flags;
+> > > >  
+> > > > +	if (!tty)
+> > > > +		return;
+> > > 
+> > > Can ->put_char be ever called with tty being NULL? From my reading of
+> > > drivers/char/n_tty.c it can't.
+> > 
+> > Nope it can't, but the change makes the code more readable IMO, while handling
+> > a NULL "tty" argument properly (which the old version pretends to, but doesnt).
 > 
-> >> 	union {
-> >> 		unsigned len;
-> >                 ^^^^^^^^
-> > Plain unsigned is deprecated.
-> 
-> Says who?
+> But unneeded checks like this are not encouraged in the kernel.  As the
+> tty pointer can never be null, don't worry about it.
 
-Sorry, forgot to add the
-`Signed-Off-by: Geert Uytterhoeven <geert@linux-m68k.org>' line :-)
+OK - so better just remove the check. Julien, care to follow Greg's 
+recommendation and refresh the patch? 
 
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds

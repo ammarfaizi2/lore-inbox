@@ -1,103 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261397AbVFCVTY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbVFCVUT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261397AbVFCVTY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 17:19:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261401AbVFCVTY
+	id S261401AbVFCVUT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 17:20:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261404AbVFCVUT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 17:19:24 -0400
-Received: from rproxy.gmail.com ([64.233.170.198]:25152 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261397AbVFCVTK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 17:19:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=bNAyXXrrwdcGSeKy895XKM9DLLQXIEaqBEJMg0WFUone3KRnuLF6lepe+686Qs78XB+gQhqZ5xFmuvh2MpE41NoC0Rbgxrozy8edSDaai+0WCF+IFd/V2kXYZ8c3zCC+HqenGHh67v2pnuYHgJmPBK3br+ITwsEtql49yNalOsY=
-Message-ID: <253818670506031419603479ac@mail.gmail.com>
-Date: Fri, 3 Jun 2005 17:19:08 -0400
-From: Yani Ioannou <yani.ioannou@gmail.com>
-Reply-To: Yani Ioannou <yani.ioannou@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.12-rc5-mm2
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050601022824.33c8206e.akpm@osdl.org>
+	Fri, 3 Jun 2005 17:20:19 -0400
+Received: from animx.eu.org ([216.98.75.249]:44981 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S261401AbVFCVUP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 17:20:15 -0400
+Date: Fri, 3 Jun 2005 17:16:25 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12-rc2: Compose key doesn't work
+Message-ID: <20050603211625.GA17637@animx.eu.org>
+Mail-Followup-To: Vojtech Pavlik <vojtech@suse.cz>,
+	Linux Kernel <linux-kernel@vger.kernel.org>
+References: <4258F74D.2010905@keyaccess.nl> <20050414100454.GC3958@nd47.coderock.org> <20050526122315.GA3880@nd47.coderock.org> <20050526122724.GA3396@ucw.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20050601022824.33c8206e.akpm@osdl.org>
+In-Reply-To: <20050526122724.GA3396@ucw.cz>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
+Vojtech Pavlik wrote:
+> On Thu, May 26, 2005 at 02:23:15PM +0200, Domen Puncer wrote:
+> 
+> > Still true for 2.6.12-rc5. Should probably be fixed before final.
+> 
+> Caused by a bug in the atkbd-scroll feature. The attached patch
+> fixes it.
 
-I'm encountering the following annoying bug messages in 2.6.12-rc5-mm1
-and -mm2 that I can't reproduce in 2.6.12-rc5 with the sym53c8xx_2
-SCSI driver. I don't use the SCSI card/drive for booting but the
-driver is compiled into my kernel, and reading from the drive seems
-OK. Booting -mm2 I get the following :
+Yes it does, thanks.  What's the "scroll" feature?
 
-scan_host_selected+0xdd/0xf0
- [<c03e10e0>] scsi_scan_host+0x30/0x40
- [<c03e8d5f>] sym2_probe+0xef/0x140
- [<c0105800>] do_simd_coprocessor_error+0x70/0xb0
- [<c0102000>] sys_get_thread_area+0x10/0x140
- [<c0331722>] pci_device_probe_static+0x52/0x70
- [<c033177c>] __pci_device_probe+0x3c/0x50
- [<c03317bf>] pci_device_probe+0x2f/0x50
- [<c039ee1b>] driver_probe_device+0x3b/0xb0
- [<c039ef10>] __driver_attach+0x0/0x60
- [<c039ef60>] __driver_attach+0x50/0x60
- [<c039e499>] bus_for_each_dev+0x69/0x80
- [<c039ef95>] driver_attach+0x25/0x30
- [<c039ef10>] __driver_attach+0x0/0x60
- [<c039e968>] bus_add_driver+0x88/0xc0
- [<c0331900>] pci_device_shutdown+0x0/0x30
- [<c0331a9d>] pci_register_driver+0x7d/0xa0
- [<c06c5732>] sym2_init+0x32/0x60
- [<c06a2a7b>] do_initcalls+0x2b/0xc0
-  [<c01003b9>] init+0x99/0x1b0
-  [<c0100320>] init+0x0/0x1b0
- [<c0101245>] kernel_thread_helper+0x5/0x10
-
-Followed by many repeats of:
-
-BUG: atomic counter underflow at:
- [<c03a5c41>] blk_cleanup_queue+0xc1/0xd0
- [<c03e1739>] scsi_device_dev_release+0x139/0x190
- [<c039d4cb>] device_release+0x5b/0x60
- [<c03247b8>] kobject_cleanup+0x98/0xa0
- [<c03247c0>] kobject_release+0x0/0x10
- [<c0325225>] kref_put+0x45/0xd0
- [<c03247ef>] kobject_put+0x1f/0x30
- [<c03247c0>] kobject_release+0x0/0x10
- [<c03dfb6e>] scsi_alloc_sdev+0x1ae/0x1f0
- [<c03e051f>] scsi_probe_and_add_lun+0x6f/0x1f0
- [<c032470a>] kobject_get+0x1a/0x30
- [<c03e0e73>] scsi_scan_target+0xe3/0x170
- [<c03e0f9d>] scsi_scan_channel+0x9d/0xc0
- [<c03e109d>] scsi_scan_host_selected+0xdd/0xf0
- [<c03e10e0>] scsi_scan_host+0x30/0x40
- [<c03e8d5f>] sym2_probe+0xef/0x140
- [<c0105800>] do_simd_coprocessor_error+0x70/0xb0
- [<c0102000>] sys_get_thread_area+0x10/0x140
- [<c0331722>] pci_device_probe_static+0x52/0x70
- [<c033177c>] __pci_device_probe+0x3c/0x50
- [<c03317bf>] pci_device_probe+0x2f/0x50
- [<c039ee1b>] driver_probe_device+0x3b/0xb0
- [<c039ef10>] __driver_attach+0x0/0x60
- [<c039ef60>] __driver_attach+0x50/0x60
- [<c039e499>] bus_for_each_dev+0x69/0x80
- [<c039ef95>] driver_attach+0x25/0x30
- [<c039ef10>] __driver_attach+0x0/0x60
- [<c039e968>] bus_add_driver+0x88/0xc0
- [<c0331900>] pci_device_shutdown+0x0/0x30
- [<c0331a9d>] pci_register_driver+0x7d/0xa0
- [<c06c5732>] sym2_init+0x32/0x60
- [<c06a2a7b>] do_initcalls+0x2b/0xc0
-  [<c01003b9>] init+0x99/0x1b0
-  [<c0100320>] init+0x0/0x1b0
- [<c0101245>] kernel_thread_helper+0x5/0x10
-
-Thanks,
-Yani
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

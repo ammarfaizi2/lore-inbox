@@ -1,44 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261284AbVFCTQa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261317AbVFCTQl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261284AbVFCTQa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 15:16:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVFCTQ3
+	id S261317AbVFCTQl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 15:16:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbVFCTQl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 15:16:29 -0400
-Received: from ip213-185-39-113.laajakaista.mtv3.fi ([213.185.39.113]:19106
-	"HELO dag.newtech.fi") by vger.kernel.org with SMTP id S261284AbVFCTQ2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 15:16:28 -0400
-Message-ID: <20050603191627.20230.qmail@dag.newtech.fi>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-0.27
-To: Greg KH <greg@kroah.com>
-cc: Dag Nygren <dag@newtech.fi>, linux-kernel@vger.kernel.org, dag@newtech.fi
-Subject: Re: OHCI driver have problems with USB 2.0 memory devices 
-In-Reply-To: Message from Greg KH <greg@kroah.com> 
-   of "Fri, 03 Jun 2005 11:14:54 PDT." <20050603181454.GA5722@kroah.com> 
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Fri, 03 Jun 2005 22:16:27 +0300
-From: Dag Nygren <dag@newtech.fi>
+	Fri, 3 Jun 2005 15:16:41 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:51671
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S261317AbVFCTQi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 15:16:38 -0400
+Reply-To: <abonilla@linuxwireless.org>
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: "'Bill Davidsen'" <davidsen@tmr.com>,
+       "'Linux Kernel Mailing List'" <linux-kernel@vger.kernel.org>
+Subject: RE: AOpen has released a Pentium-M ATX motherboard
+Date: Fri, 3 Jun 2005 13:16:33 -0600
+Message-ID: <003301c56870$c1e9d480$600cc60a@amer.sykes.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <42A0A991.4000303@tmr.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, Jun 03, 2005 at 08:27:01PM +0300, Dag Nygren wrote:
-> > 
-> > Hi,
-> > 
-> > just installed 2.6.11.11 on a single board computer using
-> > a SGS Thomson integrated USB controller and found that
-> > inserting a USB 2.0 stick generated a "IRQ INTR_SF lossage"
-> > message and further lockup of the driver. Ie. a cat of 
-> > /proc/bus/usb/devices will freeze the cat process.
-> 
-> Does 2.6.12-rc5 have this same problem?
 
-Haven't tried, if you think it will make a difference
-I can do a test on Monday when back at work.
+> I would like to hear about anyone putting Linux on this board,
+> particularly ACPI and suspend issues. It uses the i915 chipset. The
+> board has a lot of display outputs, so it is a natural for AV uses
+> (vendor is touting that), and hopefully less power means less noise.
+> Just an FYI.
 
-Cheers
-Dag
+What are you looking for? I have install Debian Testing and moved to 2.6.11
+and has worked fine.
 
+Haven't done much to it, but works just great.
+
+.Alejandro
+
+>
+> --
+>    -bill davidsen (davidsen@tmr.com)
+> "The secret to procrastination is to put things off until the
+>  last possible moment - but no longer"  -me
 

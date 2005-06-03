@@ -1,110 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVFCHqA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261174AbVFCHzH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261170AbVFCHqA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 03:46:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVFCHqA
+	id S261174AbVFCHzH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 03:55:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVFCHzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 03:46:00 -0400
-Received: from mail.renesas.com ([202.234.163.13]:51878 "EHLO
-	mail03.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S261170AbVFCHpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 03:45:46 -0400
-Date: Fri, 03 Jun 2005 16:45:40 +0900 (JST)
-Message-Id: <20050603.164540.1016292819.takata.hirokazu@renesas.com>
+	Fri, 3 Jun 2005 03:55:07 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:48020 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S261174AbVFCHzA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 03:55:00 -0400
+In-Reply-To: <20050602154333.33df8335.akpm@osdl.org>
+Subject: Re: [patch 6/11] s390: in_interrupt vs. in_atomic.
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, sakugawa@linux-m32r.org,
-       takata@linux-m32r.org
-Subject: [PATCH 2.6.12-rc5-mm2] m32r: Update m32r_sio.c to use cpu_relax()
-From: Hirokazu Takata <takata@linux-m32r.org>
-In-Reply-To: <20050531140151.791007b3.akpm@osdl.org>
-References: <20050531.214805.783383719.takata.hirokazu@renesas.com>
-	<20050531140151.791007b3.akpm@osdl.org>
-X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Cc: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Build V651_12042003 December 04, 2003
+Message-ID: <OF70B2F27D.009D5702-ONC1257015.002B0625-C1257015.002B7793@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Date: Fri, 3 Jun 2005 09:54:46 +0200
+X-MIMETrack: Serialize by Router on D12ML062/12/M/IBM(Release 6.53HF247 | January 6, 2005) at
+ 03/06/2005 09:54:53
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I fixed m32r_sio.c to use cpu_relax().
-
-Thanks.
-
-From: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 2.6.12-rc5] m32r: Support M3A-2170(Mappi-III) platform
-Date: Tue, 31 May 2005 14:01:51 -0700
-> Hirokazu Takata <takata@linux-m32r.org> wrote:
+> > The condition for no context in do_exception checks for hard and
+> > soft interrupts by using in_interrupt() but not for preemption.
+> > This is bad for the users of __copy_from/to_user_inatomic because
+> > the fault handler might call schedule although the preemption
+> > count is != 0. Use in_atomic() instead in_interrupt().
 > >
-> > This patchset is for supporting a new m32r platform,
-> > M3A-2170(Mappi-III) evaluation board.
-> > An M32R chip multiprocessor is equipped on the board.
-> > http://http://www.linux-m32r.org/eng/platform/platform.html
-> > 
-> > ...
-> >  static void putc(char c)
-> >  {
-> > -
-> >  	while ((*BOOT_SIO0STS & 0x3) != 0x3) ;
-> 
-> cpu_relax()?
-> 
-> >  static void putc(char c)
-> >  {
-> > -
-> >  	while ((*SIO0STS & 0x1) == 0) ;
-> 
-> cpu_relax()?
-> 
+>
+> hm.  Under what circumstances do you expect this test to trigger?
 
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
+e.g. by the following:
 
- arch/m32r/boot/compressed/m32r_sio.c |   13 +++++++++----
- 1 files changed, 9 insertions(+), 4 deletions(-)
+static inline int get_futex_value_locked(int *dest, int __user *from)
+{
+        int ret;
+
+        inc_preempt_count();
+        ret = __copy_from_user_inatomic(dest, from, sizeof(int));
+        dec_preempt_count();
+        preempt_check_resched();
+
+        return ret ? -EFAULT : 0;
+}
+
+in_interrupt only checks for HARDIRQ_MASK and SOFTIRQ_MASK but not
+for the preemption counter. This is not a theory, we had a bug report
+concerning a "bad: scheduling while atomic!" warning.
+
+blue skies,
+   Martin
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
 
 
-diff -ruNp a/arch/m32r/boot/compressed/m32r_sio.c b/arch/m32r/boot/compressed/m32r_sio.c
---- a/arch/m32r/boot/compressed/m32r_sio.c	2005-06-02 12:09:19.000000000 +0900
-+++ b/arch/m32r/boot/compressed/m32r_sio.c	2005-06-02 18:16:54.000000000 +0900
-@@ -6,6 +6,7 @@
-  */
- 
- #include <linux/config.h>
-+#include <asm/processor.h>
- 
- static void putc(char c);
- 
-@@ -38,10 +39,12 @@ static int puts(const char *s)
- 
- static void putc(char c)
- {
--	while ((*BOOT_SIO0STS & 0x3) != 0x3) ;
-+	while ((*BOOT_SIO0STS & 0x3) != 0x3)
-+		cpu_relax();
- 	if (c == '\n') {
- 		*BOOT_SIO0TXB = '\r';
--		while ((*BOOT_SIO0STS & 0x3) != 0x3) ;
-+		while ((*BOOT_SIO0STS & 0x3) != 0x3)
-+			cpu_relax();
- 	}
- 	*BOOT_SIO0TXB = c;
- }
-@@ -56,10 +59,12 @@ static void putc(char c)
- 
- static void putc(char c)
- {
--	while ((*SIO0STS & 0x1) == 0) ;
-+	while ((*SIO0STS & 0x1) == 0)
-+		cpu_relax();
- 	if (c == '\n') {
- 		*SIO0TXB = '\r';
--		while ((*SIO0STS & 0x1) == 0) ;
-+		while ((*SIO0STS & 0x1) == 0)
-+			cpu_relax();
- 	}
- 	*SIO0TXB = c;
- }
-
---
-Hirokazu Takata <takata@linux-m32r.org>
-Linux/M32R Project:  http://www.linux-m32r.org/

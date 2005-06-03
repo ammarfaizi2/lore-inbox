@@ -1,64 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261257AbVFCFpe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261300AbVFCFv2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261257AbVFCFpe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 01:45:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261300AbVFCFpd
+	id S261300AbVFCFv2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 01:51:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261305AbVFCFv2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 01:45:33 -0400
-Received: from dvhart.com ([64.146.134.43]:17575 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261257AbVFCFpL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 01:45:11 -0400
-Date: Thu, 02 Jun 2005 22:45:13 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Andy Whitcroft <apw@shadowen.org>, Adam Litke <agl@us.ibm.com>,
-       Enrique Gaona <egaona@us.ibm.com>
-Subject: Re: [ANNOUNCE] automated linux kernel testing results
-Message-ID: <358650000.1117777512@[10.10.2.4]>
-In-Reply-To: <20050603055157.GA29447@kroah.com>
-References: <531740000.1117749798@flay> <20050603055157.GA29447@kroah.com>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 3 Jun 2005 01:51:28 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:41193
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S261300AbVFCFvZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 01:51:25 -0400
+Date: Thu, 02 Jun 2005 22:51:10 -0700 (PDT)
+Message-Id: <20050602.225110.03979632.davem@davemloft.net>
+To: mbligh@mbligh.org
+Cc: nickpiggin@yahoo.com.au, jschopp@austin.ibm.com, mel@csn.ul.ie,
+       linux-mm@kvack.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Avoiding external fragmentation with a placement policy
+ Version 12
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <358040000.1117777372@[10.10.2.4]>
+References: <357240000.1117776882@[10.10.2.4]>
+	<20050602.223712.41634750.davem@davemloft.net>
+	<358040000.1117777372@[10.10.2.4]>
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Date: Thu, 02 Jun 2005 22:42:52 -0700
 
+> but it's vastly different order of magnitude than touching disk.
+> Can we not do a "sniff alloc" first (ie if this is easy, give it
+> to me, else just fail and return w/o reclaim), then fall back to
+> smaller allocs?
 
---Greg KH <greg@kroah.com> wrote (on Thursday, June 02, 2005 22:51:57 -0700):
+That's what AF_UNIX does.
 
-> On Thu, Jun 02, 2005 at 03:03:18PM -0700, Martin J. Bligh wrote:
->> OK, I've finally got this to the point where I can publish it.
->> 
->> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/regression_matrix.html
->> 
->> Currently it builds and boots any mainline, -mjb, -mm kernel within
->> about 15 minutes of release. runs dbench, tbench, kernbench, reaim and fsx.
->> Currently I'm using a 4x AMD64 box, a 16x NUMA-Q, 4x NUMA-Q, 32x x440 (ia32)
->> PPC64 Power 5 LPAR, PPC64 Power 4 LPAR, and PPC64 Power 4 bare metal system.
->> The config files it uses are linked by the machine names in the column 
->> headers.
-> 
-> Nice, very nice, congrats to all involved.
-> 
-> Now, any chance you can do this on the nightly -git snapshots too? :)
-> 
-> And I don't see the -stable releases in there...
+But with other protocols, we can't jiggle the loopback
+MTU just because higher allocs no longer are easily
+obtainable.
 
-It does do both. I just didn't pull in all the historical data, I just
-repopulated the external set with a brief snapshot (I have way more
-internally, but it has some crap unpublishable benchmarks in it).
-If you look at the latest rev, about 3 up it has 2.6.12-rc5-git7, and
-I think I've fixed it to monitor for new ones automatically now.
-I guess we'll see if it worked in the morning ;-)
-
-M.
-
-
-
-
+Really, the networking should not try to grab anything
+more than SKB_MAX_ORDER unless the device's MTU is
+larger than PAGE_SIZE << SKB_MAX_ORDER, which loopback's
+"16K - fudge" is not.

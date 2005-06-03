@@ -1,41 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVFCE42@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVFCFIV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261216AbVFCE42 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 00:56:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVFCE42
+	id S261190AbVFCFIV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 01:08:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVFCFIV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 00:56:28 -0400
-Received: from palrel13.hp.com ([156.153.255.238]:35278 "EHLO palrel13.hp.com")
-	by vger.kernel.org with ESMTP id S261190AbVFCE4Y (ORCPT
+	Fri, 3 Jun 2005 01:08:21 -0400
+Received: from fire.osdl.org ([65.172.181.4]:49070 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261190AbVFCFIT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 00:56:24 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 3 Jun 2005 01:08:19 -0400
+Date: Thu, 2 Jun 2005 22:07:29 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Lynch, Rusty" <rusty.lynch@intel.com>
+Cc: ak@suse.de, linux-kernel@vger.kernel.org, prasadav@us.ibm.com,
+       hien@us.ibm.com, prasanna@in.ibm.com, jkenisto@us.ibm.com
+Subject: Re: [patch] x86_64 specific function return probes
+Message-Id: <20050602220729.762d9385.akpm@osdl.org>
+In-Reply-To: <032EB457B9DBC540BFB1B7B519C78B0E07499229@orsmsx404.amr.corp.intel.com>
+References: <032EB457B9DBC540BFB1B7B519C78B0E07499229@orsmsx404.amr.corp.intel.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <17055.58094.61614.587435@napali.hpl.hp.com>
-Date: Thu, 2 Jun 2005 21:56:14 -0700
-To: Keith Owens <kaos@ocs.com.au>
-Cc: Rusty Lynch <rusty.lynch@intel.com>, linux-ia64@vger.kernel.org,
-       Anil S Keshavamurthy <anil.s.keshavamurthy@intel.com>,
-       linux-kernel@vger.kernel.org, systemtap@sources.redhat.com,
-       Hien Nguyen <hien@us.ibm.com>
-Subject: Re: [RFC] ia64 function return probes 
-In-Reply-To: <7459.1117765049@kao2.melbourne.sgi.com>
-References: <200506012139.j51LdMhY031546@linux.jf.intel.com>
-	<7459.1117765049@kao2.melbourne.sgi.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> On Fri, 03 Jun 2005 12:17:29 +1000, Keith Owens <kaos@ocs.com.au> said:
+"Lynch, Rusty" <rusty.lynch@intel.com> wrote:
+>
+> 
+> From: Andi Kleen [mailto:ak@suse.de]
+> >On Thu, Jun 02, 2005 at 09:09:09AM -0700, Rusty Lynch wrote:
+> >> The following patch adds the x86_64 architecture specific
+> implementation
+> >> for function return probes to the 2.6.12-rc5-mm2 kernel.
+> >
+> >This is not a sufficient description for a patch. Can you describe
+> >how it actually works and what it does?
+> >
+> 
+> Ok, let me write up a description and I'll repost.
 
-  Keith> * arch_prepare_kretprobe() bumps sp by 16 bytes, to account
-  Keith> for the saved b0 and ar.pfs.
+You did, but:
 
-What if function arguments are being passed on the stack (e.g., more
-than 8 scalar arguments)?
+> >> + * Called when we hit the probe point at kretprobe_trampoline
+> >> + */
+> >> +int trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
+> >> +{
+> >> +	struct task_struct *tsk;
+> >> +	struct kretprobe_instance *ri;
+> >> +	struct hlist_head *head;
+> >> +	struct hlist_node *node;
+> >> +	unsigned long *sara = (unsigned long *)regs->rsp - 1;
+> >> +
+> >> +	tsk = arch_get_kprobe_task(sara);
+> >
+> >I dont think you handle the case of the exception happening on
+> >a exception or interrupt stack. This is broken.
 
-	--david
+What about this problem?

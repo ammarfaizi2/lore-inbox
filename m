@@ -1,95 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261387AbVFCQn2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVFCQqZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261387AbVFCQn2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 12:43:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVFCQn2
+	id S261389AbVFCQqZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 12:46:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVFCQqZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 12:43:28 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:62950 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261387AbVFCQnQ (ORCPT
+	Fri, 3 Jun 2005 12:46:25 -0400
+Received: from ns2.suse.de ([195.135.220.15]:9172 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261389AbVFCQp4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 12:43:16 -0400
-Subject: Re: Avoiding external fragmentation with a placement policy
-	Version 12
-From: Dave Hansen <haveblue@us.ibm.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       "David S. Miller" <davem@davemloft.net>, jschopp@austin.ibm.com,
-       mel@csn.ul.ie, linux-mm <linux-mm@kvack.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <369850000.1117807062@[10.10.2.4]>
-References: <429E50B8.1060405@yahoo.com.au><429F2B26.9070509@austin.ibm.com>
-	 <1117770488.5084.25.camel@npiggin-nld.site>
-	 <20050602.214927.59657656.davem@davemloft.net>
-	 <357240000.1117776882@[10.10.2.4]> <429FFC21.1020108@yahoo.com.au>
-	 <369850000.1117807062@[10.10.2.4]>
-Content-Type: text/plain
-Date: Fri, 03 Jun 2005 09:43:00 -0700
-Message-Id: <1117816980.5985.17.camel@localhost>
+	Fri, 3 Jun 2005 12:45:56 -0400
+Date: Fri, 3 Jun 2005 18:45:51 +0200
+From: Andi Kleen <ak@suse.de>
+To: "Lynch, Rusty" <rusty.lynch@intel.com>
+Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Vara Prasad <prasadav@us.ibm.com>, Hien Nguyen <hien@us.ibm.com>,
+       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
+       Jim Keniston <jkenisto@us.ibm.com>
+Subject: Re: [patch] x86_64 specific function return probes
+Message-ID: <20050603164551.GS23831@wotan.suse.de>
+References: <032EB457B9DBC540BFB1B7B519C78B0E07499DE4@orsmsx404.amr.corp.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <032EB457B9DBC540BFB1B7B519C78B0E07499DE4@orsmsx404.amr.corp.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-06-03 at 06:57 -0700, Martin J. Bligh wrote:
+On Fri, Jun 03, 2005 at 09:40:26AM -0700, Lynch, Rusty wrote:
+> From: Andi Kleen [mailto:ak@suse.de]
+> >On Thu, Jun 02, 2005 at 01:58:50PM -0700, Rusty Lynch wrote:
+> >> The following patch adds the x86_64 architecture specific
+> implementation
+> >
+> >[....]
+> >
+> >Thanks for the long description.
+> >
+> >but...
+> >
+> >> +struct task_struct  *arch_get_kprobe_task(void *ptr)
+> >> +{
+> >> +	return ((struct thread_info *) (((unsigned long) ptr) &
+> >> +					(~(THREAD_SIZE -1))))->task;
+> >> +}
+> >
+> >and
+> >
+> >
+> >> +	tsk = arch_get_kprobe_task(sara);
+> >
+> >
+> >This is still wrong when the code is not executing on the process
+> >stack, but on a interrupt/Exception stack. Any reason you cannot
+> >just use current here?
+> >
+> >-Andi
 > 
-> >>> Actually, even with TSO enabled, you'll get large order
-> >>> allocations, but for receive packets, and these allocations
-> >>> happen in software interrupt context.
-> >> 
-> >> Sounds like we still need to cope then ... ?
-> > 
-> > Sure. Although we should try to not use higher order allocs if
-> > possible of course. Even with a fallback mode, you will still be
-> > putting more pressure on higher order areas and thus degrading
-> > the service for *other* allocators, so such schemes should
-> > obviously be justified by performance improvements.
+> Ah... you are talking about if someone registers a return probe on
+> something like an interrupt handler, right? 
+
+Yes.
+
 > 
-> My point is that outside of a benchmark situation (where we just
-> rebooted the machine to run a test) you will NEVER get an order 4
-> block free anyway, so it's pointless.
+> I was under the impression that I could not always count on the current
+> I get from interrupt context to map to the current seen by the target
+> function (that triggers the breakpoint.)  It sounds like an invalid
+> assumption lead to some extra complexity that isn't correct for all
+> cases.
 
-I ran a little test overnight on a 16GB i386 system.
 
-	cat /dev/zero | ./nc localhost 9999 & ; ./nc -l -p 9999
+It is an invalid assumption, current works in all contexts. Except
+if your GS is broken, but that should only happen when the kernel
+is already very crashed.
 
-It pushed around 200MB of traffic through lo.  Is that (relatively low)
-transmission rate due to having to kick off kswapd any time it wants to
-send a packet?
-
-partial mem/buddyinfo before:
-MemTotal:     16375212 kB
-MemFree:        214248 kB
-HighTotal:    14548952 kB
-HighFree:       198272 kB
-LowTotal:      1826260 kB
-LowFree:         15976 kB
-Cached:       14415800 kB
-
-Node 0, zone      DMA    217     35      2      1      1      1      1      0      1      1      1
-Node 0, zone   Normal   7236   3020   3885    104      7      0      0      0      0      0      1
-Node 0, zone  HighMem     18    503      0      0      1      0      0      1      0      0      0
-
-partial mem/buddyinfo after:
-MemTotal:     16375212 kB
-MemFree:      13471604 kB
-HighTotal:    14548952 kB
-HighFree:     13450624 kB
-LowTotal:      1826260 kB
-LowFree:         20980 kB
-Cached:         972988 kB
-
-Node 0, zone      DMA      1      0      1      1      1      1      1      0      1      1      1
-Node 0, zone   Normal   1488     52     10     66      7      0      0      0      0      0      1
-Node 0, zone  HighMem   1322   3541   3165  20611  20651  14062   8054   5400   2643    664    169
-
-There was surely plenty of other stuff going on, but it looks like
-ZONE_HIGHMEM got eaten, and has plenty of large contiguous areas
-available.  This probably shows the collateral damage when kswapd goes
-randomly shooting down pages.  Are those loopback allocations
-GFP_KERNEL?
-
--- Dave
-
+-Andi

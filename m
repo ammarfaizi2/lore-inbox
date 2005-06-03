@@ -1,94 +1,209 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbVFCHC3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVFCHFM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbVFCHC3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 03:02:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261158AbVFCHC3
+	id S261158AbVFCHFM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 03:05:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261167AbVFCHFL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 03:02:29 -0400
-Received: from mail.kroah.org ([69.55.234.183]:6822 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261157AbVFCHCR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 03:02:17 -0400
-Date: Fri, 3 Jun 2005 00:11:33 -0700
-From: Greg KH <greg@kroah.com>
-To: Matt Porter <mporter@kernel.crashing.org>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linuxppc-embedded@ozlabs.org
-Subject: Re: [PATCH][1/5] RapidIO support: core
-Message-ID: <20050603071133.GB30292@kroah.com>
-References: <20050602140359.B24818@cox.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 3 Jun 2005 03:05:11 -0400
+Received: from smtp834.mail.sc5.yahoo.com ([66.163.171.21]:58463 "HELO
+	smtp834.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261158AbVFCHCj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 03:02:39 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: Stelian Pop <stelian@popies.net>
+Subject: Sonypi: make sure that input_work is not running when unloading
+Date: Fri, 3 Jun 2005 02:02:35 -0500
+User-Agent: KMail/1.8
+Cc: LKML <linux-kernel@vger.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050602140359.B24818@cox.net>
-User-Agent: Mutt/1.5.8i
+Message-Id: <200506030202.36140.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 02, 2005 at 02:03:59PM -0700, Matt Porter wrote:
-> +RIO_LOP_READ(8, u8, 1)
-> +    RIO_LOP_READ(16, u16, 2)
-> +    RIO_LOP_READ(32, u32, 4)
-> +    RIO_LOP_WRITE(8, u8, 1)
-> +    RIO_LOP_WRITE(16, u16, 2)
-> +    RIO_LOP_WRITE(32, u32, 4)
-> +
-> +    EXPORT_SYMBOL(__rio_local_read_config_8);
-> +EXPORT_SYMBOL(__rio_local_read_config_16);
-> +EXPORT_SYMBOL(__rio_local_read_config_32);
-> +EXPORT_SYMBOL(__rio_local_write_config_8);
-> +EXPORT_SYMBOL(__rio_local_write_config_16);
-> +EXPORT_SYMBOL(__rio_local_write_config_32);
+Hi,
 
-Odd indenting here.
+It looks like call to flush_scheduled_work is missing in sonypi_remove,
+otherwise it its possible for input_keyrelease to run while (or even
+after) module was removed.
 
-And why the __rio* stuff for public functions?  You should drop the "__"
-part.
+Also, I think that data into input_fifo should be submitted in one shot,
+this guarantees that input_keyrelease will get entire event or not at
+all when fifo is almost full.
 
-> +RIO_OP_READ(8, u8, 1)
-> +    RIO_OP_READ(16, u16, 2)
-> +    RIO_OP_READ(32, u32, 4)
-> +    RIO_OP_WRITE(8, u8, 1)
-> +    RIO_OP_WRITE(16, u16, 2)
-> +    RIO_OP_WRITE(32, u32, 4)
-> +
-> +    EXPORT_SYMBOL(rio_mport_read_config_8);
-> +EXPORT_SYMBOL(rio_mport_read_config_16);
-> +EXPORT_SYMBOL(rio_mport_read_config_32);
-> +EXPORT_SYMBOL(rio_mport_write_config_8);
-> +EXPORT_SYMBOL(rio_mport_write_config_16);
-> +EXPORT_SYMBOL(rio_mport_write_config_32);
+Please consider the patch below.
 
-Again the odd indenting.
+Thank you.
 
-> +EXPORT_SYMBOL(rio_mport_send_doorbell);
+-- 
+Dmitry
 
-Just a question, should these be EXPORT_SYMBOL_GPL() as this is GPL
-code?  Just to be explicit that is.
+Sonypi: make sure that input_work is not running when unloading
+        the module; submit/retrieve key release data into/from
+        input_fifo in one shot.
 
-> +static ssize_t
-> +rio_read_config(struct kobject *kobj, char *buf, loff_t off, size_t count)
+Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+---
 
-<snip>
+ drivers/char/sonypi.c |  122 +++++++++++++++++++++++++-------------------------
+ 1 files changed, 63 insertions(+), 59 deletions(-)
 
-You might want to compare this to the recent changes in the 2.6.12-rc
-kernels in the pci sysfs config code.  There were some 64 and endian
-issues fixed up there that you might want to make sure are also done
-properly here.
-
-> +static struct bin_attribute rio_config_attr = {
-> +	.attr = {
-> +		 .name = "config",
-> +		 .mode = S_IRUGO | S_IWUSR,
-> +		 .owner = THIS_MODULE,
-> +		 },
-> +	.size = 0x200000,
-> +	.read = rio_read_config,
-> +	.write = rio_write_config,
-> +};
-
-Wow, that's a huge config space (just a comment, not an issue...)
-
-thanks,
-
-greg k-h
+Index: work/drivers/char/sonypi.c
+===================================================================
+--- work.orig/drivers/char/sonypi.c
++++ work/drivers/char/sonypi.c
+@@ -439,6 +439,11 @@ static struct {
+ 	{ 0, 0 },
+ };
+ 
++struct sonypi_keypress {
++	struct input_dev *dev;
++	int key;
++};
++
+ static struct sonypi_device {
+ 	struct pci_dev *dev;
+ 	struct platform_device *pdev;
+@@ -710,22 +715,61 @@ static void sonypi_setbluetoothpower(u8 
+ 
+ static void input_keyrelease(void *data)
+ {
+-	struct input_dev *input_dev;
+-	int key;
+-
+-	while (1) {
+-		if (kfifo_get(sonypi_device.input_fifo,
+-			      (unsigned char *)&input_dev,
+-			      sizeof(input_dev)) != sizeof(input_dev))
+-			return;
+-		if (kfifo_get(sonypi_device.input_fifo,
+-			      (unsigned char *)&key,
+-			      sizeof(key)) != sizeof(key))
+-			return;
++	struct sonypi_keypress kp;
+ 
++	while (kfifo_get(sonypi_device.input_fifo, (unsigned char *)&kp,
++			 sizeof(kp)) == sizeof(kp)) {
+ 		msleep(10);
+-		input_report_key(input_dev, key, 0);
+-		input_sync(input_dev);
++		input_report_key(kp.dev, kp.key, 0);
++		input_sync(kp.dev);
++	}
++}
++
++static void sonypi_report_input_event(u8 event)
++{
++	struct input_dev *jog_dev = &sonypi_device.input_jog_dev;
++	struct input_dev *key_dev = &sonypi_device.input_key_dev;
++	struct sonypi_keypress kp = { NULL };
++	int i;
++
++	switch (event) {
++	case SONYPI_EVENT_JOGDIAL_UP:
++	case SONYPI_EVENT_JOGDIAL_UP_PRESSED:
++		input_report_rel(jog_dev, REL_WHEEL, 1);
++		input_sync(jog_dev);
++		break;
++
++	case SONYPI_EVENT_JOGDIAL_DOWN:
++	case SONYPI_EVENT_JOGDIAL_DOWN_PRESSED:
++		input_report_rel(jog_dev, REL_WHEEL, -1);
++		input_sync(jog_dev);
++		break;
++
++	case SONYPI_EVENT_JOGDIAL_PRESSED:
++		kp.key = BTN_MIDDLE;
++		kp.dev = jog_dev;
++		break;
++
++	case SONYPI_EVENT_FNKEY_RELEASED:
++		/* Nothing, not all VAIOs generate this event */
++		break;
++
++	default:
++		for (i = 0; sonypi_inputkeys[i].sonypiev; i++)
++			if (event == sonypi_inputkeys[i].sonypiev) {
++				kp.dev = key_dev;
++				kp.key = sonypi_inputkeys[i].inputev;
++				break;
++			}
++		break;
++	}
++
++	if (kp.dev) {
++		input_report_key(kp.dev, kp.key, 1);
++		input_sync(kp.dev);
++		kfifo_put(sonypi_device.input_fifo,
++			  (unsigned char *)&kp, sizeof(kp));
++		schedule_work(&sonypi_device.input_work);
+ 	}
+ }
+ 
+@@ -768,51 +812,8 @@ found:
+ 		printk(KERN_INFO
+ 		       "sonypi: event port1=0x%02x,port2=0x%02x\n", v1, v2);
+ 
+-	if (useinput) {
+-		struct input_dev *input_jog_dev = &sonypi_device.input_jog_dev;
+-		struct input_dev *input_key_dev = &sonypi_device.input_key_dev;
+-		switch (event) {
+-		case SONYPI_EVENT_JOGDIAL_UP:
+-		case SONYPI_EVENT_JOGDIAL_UP_PRESSED:
+-			input_report_rel(input_jog_dev, REL_WHEEL, 1);
+-			break;
+-		case SONYPI_EVENT_JOGDIAL_DOWN:
+-		case SONYPI_EVENT_JOGDIAL_DOWN_PRESSED:
+-			input_report_rel(input_jog_dev, REL_WHEEL, -1);
+-			break;
+-		case SONYPI_EVENT_JOGDIAL_PRESSED: {
+-			int key = BTN_MIDDLE;
+-			input_report_key(input_jog_dev, key, 1);
+-			kfifo_put(sonypi_device.input_fifo,
+-				  (unsigned char *)&input_jog_dev,
+-				  sizeof(input_jog_dev));
+-			kfifo_put(sonypi_device.input_fifo,
+-				  (unsigned char *)&key, sizeof(key));
+-			break;
+-		}
+-		case SONYPI_EVENT_FNKEY_RELEASED:
+-			/* Nothing, not all VAIOs generate this event */
+-			break;
+-		}
+-		input_sync(input_jog_dev);
+-
+-		for (i = 0; sonypi_inputkeys[i].sonypiev; i++) {
+-			int key;
+-
+-			if (event != sonypi_inputkeys[i].sonypiev)
+-				continue;
+-
+-			key = sonypi_inputkeys[i].inputev;
+-			input_report_key(input_key_dev, key, 1);
+-			kfifo_put(sonypi_device.input_fifo,
+-				  (unsigned char *)&input_key_dev,
+-				  sizeof(input_key_dev));
+-			kfifo_put(sonypi_device.input_fifo,
+-				  (unsigned char *)&key, sizeof(key));
+-		}
+-		input_sync(input_key_dev);
+-		schedule_work(&sonypi_device.input_work);
+-	}
++	if (useinput)
++		sonypi_report_input_event(event);
+ 
+ 	kfifo_put(sonypi_device.fifo, (unsigned char *)&event, sizeof(event));
+ 	kill_fasync(&sonypi_device.fifo_async, SIGIO, POLL_IN);
+@@ -1337,6 +1338,9 @@ static void __devexit sonypi_remove(void
+ {
+ 	sonypi_disable();
+ 
++	synchronize_sched();  /* Allow sonypi interrupt to complete. */
++	flush_scheduled_work();
++
+ 	platform_device_unregister(sonypi_device.pdev);
+ 
+ 	if (useinput) {

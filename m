@@ -1,28 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVFCJVi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVFCJXJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261186AbVFCJVi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 05:21:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261195AbVFCJVi
+	id S261193AbVFCJXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 05:23:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVFCJXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 05:21:38 -0400
-Received: from saturn.hfp.fr ([62.23.99.135]:22523 "EHLO saturn.hfp.fr")
-	by vger.kernel.org with ESMTP id S261186AbVFCJVf convert rfc822-to-8bit
+	Fri, 3 Jun 2005 05:23:09 -0400
+Received: from tms.rz.uni-kiel.de ([134.245.11.89]:32457 "EHLO
+	tms.rz.uni-kiel.de") by vger.kernel.org with ESMTP id S261193AbVFCJXB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 05:21:35 -0400
-Message-Id: <200506031009.j53A9IAH027839@saturn.hfp.fr>
-From: "Service de messagerie" <neti@hfp.fr>
-To: linux-kernel@vger.kernel.org
-Subject: =?iso-8859-1?Q?Message_incompatible_avec_le_syst=E8me_de_messagerie?=
-Mime-version: 1.0
-Content-Type: text/plain;
-	charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Date: Fri, 03 Jun 2005 11:16:13 +0200
+	Fri, 3 Jun 2005 05:23:01 -0400
+Subject: Re: TPM on IBM thinkcenter S51
+From: Torsten Landschoff <tla@comsys.informatik.uni-kiel.de>
+To: trusted linux <tcimpl2005@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050602220028.3572.qmail@web61014.mail.yahoo.com>
+References: <20050602220028.3572.qmail@web61014.mail.yahoo.com>
+Content-Type: text/plain
+Date: Fri, 03 Jun 2005 11:23:08 +0200
+Message-Id: <1117790588.6249.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Le message émis par linux-kernel@vger.kernel.org est incompatible avec le système de messagerie, il a été supprimé.
+On Thu, 2005-06-02 at 15:00 -0700, trusted linux wrote:
+> thanks, here is my strace related to tpm:
+> 
+> open("/dev/tpm", O_RDWR)                = -1 ENODEV
+> (No such device)
+> write(2, "Can\'t open TPM Driver\n", 22Can't open TPM
+> Driver
+> ) = 22
 
-Certains éléments contenus dans ce message ayant pour objet :" Re: Thanks! " sont susceptibles d'être dangereux pour le destinataire :  darbonne@hfp.fr .
+Okay, so the driver is in fact not working. It could be that /dev/tpm
+has the wrong device number assigned. If the driver is really installed
+can be checked by
 
+	systool -c misc|grep tpm
+
+I bet it does not show anything. OTOH if the module loads successfully
+it really should be there. No idea what's going wrong then. 
+
+Which version of the driver are you using?
+
+Greetings
+
+	Torsten
 

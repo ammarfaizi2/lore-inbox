@@ -1,59 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261357AbVFCUoJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVFCUuc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261357AbVFCUoJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 16:44:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVFCUoJ
+	id S261359AbVFCUuc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 16:50:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261362AbVFCUuc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 16:44:09 -0400
-Received: from perpugilliam.csclub.uwaterloo.ca ([129.97.134.31]:8590 "EHLO
-	perpugilliam.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S261357AbVFCUoF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 16:44:05 -0400
-Date: Fri, 3 Jun 2005 16:44:05 -0400
-To: Anil kumar <anils_r@yahoo.com>
+	Fri, 3 Jun 2005 16:50:32 -0400
+Received: from god.demon.nl ([83.160.164.11]:34829 "EHLO god.dyndns.org")
+	by vger.kernel.org with ESMTP id S261359AbVFCUuU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 16:50:20 -0400
+Date: Fri, 3 Jun 2005 22:50:14 +0200
+From: Henk <Henk.Vergonet@gmail.com>
+To: Clemens Koller <clemens.koller@anagramm.de>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: install athlon rpm on amd64
-Message-ID: <20050603204405.GQ23621@csclub.uwaterloo.ca>
-References: <20050603203032.89634.qmail@web32402.mail.mud.yahoo.com>
+Subject: Re: [RFC] new 7-segments char translation API
+Message-ID: <20050603205014.GB3360@god.dyndns.org>
+References: <20050531220738.GA21775@god.dyndns.org> <429DAB07.1050900@anagramm.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050603203032.89634.qmail@web32402.mail.mud.yahoo.com>
-User-Agent: Mutt/1.3.28i
-From: lsorense@csclub.uwaterloo.ca (Lennart Sorensen)
+In-Reply-To: <429DAB07.1050900@anagramm.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 03, 2005 at 01:30:32PM -0700, Anil kumar wrote:
-> Can I install an athlon(amd32) rpm on an amd64(x86_64)
-> machine.
-> When I tried installing, I am getting an ELF file
-> incompatibility. The .obj file in the athlon rpm is
-> ELF-32bit but the system is x86_64.
-> I guess it should still work? 
+On Wed, Jun 01, 2005 at 02:33:11PM +0200, Clemens Koller wrote:
+> Hello, Henk!
+> 
+> >1 - Notation
+> >
+> >Make things potential interoperable, your character sets will be
+> >portable to other LCD devices.
+> >
+> >   +-a-+
+> >   f   b
+> >   +-g-+   => encodes to =>  MSb  76543210 LSb
+> >   e   c                           gfedcba
+> >   +-d-+                     bit7 is reserved.
+>           (x)
+> 
+> Bit7 is propably useful for the decimal point (x)?
+> Well, that's how I used it some time ago.
+>
+Hi Clemens,
 
-Probably not.  x86_64 can emulate / run 32bit environment, and run 32bit
-programs assuming you have all the required 32bit libraries.  That
-doesn't mean rpm has to know about that.  I don't know how redhat
-handles x86_64, but certainly Debian does not accept a 32bit package to
-be installed by the 64bit package manager.  You can however setup a
-chroot and run a 32bit environment in the chroot seperate from the 64bit
-to manage software installs, and then run the program from outside the
-chroot afterwards.  At least on Debian.
+I think it could. However for conveniance I implemented it as a
+seperate addressable entity.
 
-> Maybe my rpm is bad.
+For userspace I want things to be simple, just a simple echo should be
+sufficient to manipulate the LCD:
 
-Highly unlikely.
+For example:
 
-> If not, can I install an athlon(amd32) rpm on an i386
-> machine?
+   echo -n "3 A  1.0 0 0" > /sys/.../line1
 
-Using a 32bit rpm installer I imagine.
+in order to set the lcd. In order to read back the contents of the lcd:
 
-> My apologies if this is not the right mailing list for
-> this type of question. 
+  cat  /sys/.../line1
+  8.8.8.8.8.8.8.8.888  <= format string, see below
+  3 A   1.0 0 0        <= contents
 
-A redhat list would be more likely to know.  It's not a kernel problem,
-but an rpm user space problem.
 
-Len Sorensen
+When the dot is encoded in the digit you would lose a digit when a 
+dot is printed. In a two segment display with dots "1.0" can not be 
+printed.
+
+I don't want kernelcode trying to decide if it should collapse "1." in
+a single digit or not. These implicit functional rules are always a
+pain in the ass when not implmented at the right level. And don't 
+belong in the kernel.
+
+Best regards,
+Henk
+
+
+/* Format string description:
+ *
+ * From a user space perspective the world is seperated in "digits" and "icons".
+ * A digit can have a character set, an icon can either be ON or OFF.
+ *
+ * Format specifier
+ *   '8' :  Generic 7 segment digits with individual addressable segments
+ *
+ *   Reduced capabillity 7 segm digits, when segments are hard wired together.
+ *   '1' : 2 segments digit only able to produce 1.
+ *   'e' : Most significant day of the month digit,
+ *         able to produce at least 1 2 3.
+ *   'M' : Most significant minute digit,
+ *         able to produce at least 0 1 2 3 4 5.
+ *
+ *   Icons or pictograms:
+ *   '.'  : For example like AM, PM, SU, a 'dot' .. or other single segment
+ *          elements.
+ */
+

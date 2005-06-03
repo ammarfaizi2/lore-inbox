@@ -1,95 +1,207 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVFCATM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261464AbVFCAtV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbVFCATM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 20:19:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVFCATL
+	id S261464AbVFCAtV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 20:49:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261477AbVFCAtU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 20:19:11 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:35931 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S261188AbVFCATD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 20:19:03 -0400
-Message-ID: <429FA1F3.9000001@tls.msk.ru>
-Date: Fri, 03 Jun 2005 04:18:59 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
+	Thu, 2 Jun 2005 20:49:20 -0400
+Received: from mail28.syd.optusnet.com.au ([211.29.133.169]:51843 "EHLO
+	mail28.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261464AbVFCAtB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 20:49:01 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH] SCHED: run SCHED_NORMAL tasks with real time tasks on SMT siblings
+Date: Fri, 3 Jun 2005 10:43:13 +1000
+User-Agent: KMail/1.8.1
+Cc: Steve Rotolo <steve.rotolo@ccur.com>, joe.korty@ccur.com,
+       linux-kernel@vger.kernel.org, bugsy@ccur.com,
+       Ingo Molnar <mingo@elte.hu>, ck@vds.kolivas.org,
+       Peter Williams <pwil3058@bigpond.net.au>
+References: <1117561608.1439.168.camel@whiz> <200506022334.31430.kernel@kolivas.org> <1117727326.1436.73.camel@whiz>
+In-Reply-To: <1117727326.1436.73.camel@whiz>
 MIME-Version: 1.0
-To: castet.matthieu@free.fr
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PNP parallel&serial ports: module reload fails (2.6.11)?
-References: <20050602222400.GA8083@mut38-1-82-67-62-65.fbx.proxad.net>
-In-Reply-To: <20050602222400.GA8083@mut38-1-82-67-62-65.fbx.proxad.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart2850934.6p72KmRQLn";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200506031043.16502.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-castet.matthieu@free.fr wrote:
-> Reply-To: 429CECE3.1060904@tls.msk.ru
+--nextPart2850934.6p72KmRQLn
+Content-Type: multipart/mixed;
+  boundary="Boundary-01=_ie6nCKWuYivLTT/"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-This looks like a Message-ID of my original email you're replied to.
-Why you set up Reply-To header this way? :)
+--Boundary-01=_ie6nCKWuYivLTT/
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> Hi,
-> 
-> try pnpacpi=off in your kernel options and it should work.
-> An other solution is to comment pnpacpi_disable_resources in
-> drivers/pnp/pnpacpi/core.c in order to avoid that the resource are
-> disable.
+On Fri, 3 Jun 2005 01:48, Steve Rotolo wrote:
+> And BTW, your patch works great with my=20
+> HT test case.  Thanks -- good job.
 
-Both ways solves this problem for me.  Now I can insmod/rmmod
-parport_pc as many times as I want:
+Thanks. Cleaned up the patch comments a little.=20
 
-parport: PnPBIOS parport detected.
-parport0: PC-style at 0x378, irq 7 [PCSPP]
-pnp: Device 00:0b disabled.
-pnp: Device 00:0b activated.
-parport: PnPBIOS parport detected.
-parport0: PC-style at 0x378, irq 7 [PCSPP]
-pnp: Device 00:0b disabled.
-pnp: Device 00:0b activated.
-parport: PnPBIOS parport detected.
-parport0: PC-style at 0x378, irq 7 [PCSPP]
-....
+Andrew can you queue this up in -mm please? This patch does not depend on a=
+ny=20
+other patches in -mm and should have only a short test cycle before being=20
+pushed into mainline.
 
-BTW, how "stable" pnpacpi=off is?  I mean, is it supposed to
-work on more hardware than current default acpi-aware method?
+Con
+=2D---
 
-> When booting, the parport resources are enable by your kernel, and when
-> you load for the first time the module there nothing to activate.
-> 
-> But when you rmmod the driver, you free the resource.
 
-Well, I figured this much ;)
 
-> And pnpacpi have some problem to activate resource with some strange acpi implementation...
+--Boundary-01=_ie6nCKWuYivLTT/
+Content-Type: text/x-diff;
+  charset="iso-8859-1";
+  name="sched-run_normal_with_rt_on_sibling.diff"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline;
+	filename="sched-run_normal_with_rt_on_sibling.diff"
 
-I haven't seen any probs with acpi or bios or other things on
-those boxen yet -- pretty good ones.  It's HP ProLiant ML150
-machine (not G2).  There are other HP machines out here which
-also shows the same problem - eg HP ProLiant ML310 G1.
+The hyperthread aware nice handling currently puts to sleep any non real ti=
+me
+task when a real time task is running on its sibling cpu. This can lead to
+prolonged starvation by having the non real time task pegged to the cpu with
+load balancing not pulling that task away.
 
-> There was a problem in pnp layer implementation : the resource weren't
-> given in the right order, Adam Belay send me a patch, but I don't know
-> if it got in main-line ?
+Currently we force lower priority hyperthread tasks to run a percentage of
+time difference based on timeslice differences which is meaningless when
+comparing real time tasks to SCHED_NORMAL tasks. We can allow non real time=
+=20
+tasks to run with real time tasks on the sibling up to per_cpu_gain% if we =
+use
+jiffies as a counter.
 
-Which patch was that?  I can try it here, but can't seem to be able
-to find it...
+Cleanups and micro-optimisations to the relevant code section should make it
+more understandable as well.
 
-> May be there also a bug in pnpacpi_encode_resources (with the pnp patch
-> apply I didn't still work on some hardware...)
-> 
-> You can try to send your dsdt, but I am quit busy for the moment.
-> May be some Intel guy could look at the problem...
+Signed-off-by: Con Kolivas <kernel@kolivas.org>
 
-The DSDTs are at http://www.corpit.ru/mjt/hpml150.dsdt
-and http://www.corpit.ru/mjt/hpml310.dsdt (that's a
-(binary) copy from /proc/acpi/dsdt -- is there a way
-to decode it into some text form?)
 
-Thank you for your time.  At least I now know I'm not
-alone with this prob.. ;)
+Index: linux-2.6.12-rc5-mm2/kernel/sched.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+=2D-- linux-2.6.12-rc5-mm2.orig/kernel/sched.c	2005-06-03 10:10:37.00000000=
+0 +1000
++++ linux-2.6.12-rc5-mm2/kernel/sched.c	2005-06-03 10:25:19.000000000 +1000
+@@ -2656,6 +2656,13 @@ out:
+ }
+=20
+ #ifdef CONFIG_SCHED_SMT
++static inline void wakeup_busy_runqueue(runqueue_t *rq)
++{
++	/* If an SMT runqueue is sleeping due to priority reasons wake it up */
++	if (rq->curr =3D=3D rq->idle && rq->nr_running)
++		resched_task(rq->idle);
++}
++
+ static inline void wake_sleeping_dependent(int this_cpu, runqueue_t *this_=
+rq)
+ {
+ 	struct sched_domain *tmp, *sd =3D NULL;
+@@ -2689,12 +2696,7 @@ static inline void wake_sleeping_depende
+ 	for_each_cpu_mask(i, sibling_map) {
+ 		runqueue_t *smt_rq =3D cpu_rq(i);
+=20
+=2D		/*
+=2D		 * If an SMT sibling task is sleeping due to priority
+=2D		 * reasons wake it up now.
+=2D		 */
+=2D		if (smt_rq->curr =3D=3D smt_rq->idle && smt_rq->nr_running)
+=2D			resched_task(smt_rq->idle);
++		wakeup_busy_runqueue(smt_rq);
+ 	}
+=20
+ 	for_each_cpu_mask(i, sibling_map)
+@@ -2748,6 +2750,10 @@ static inline int dependent_sleeper(int=20
+ 		runqueue_t *smt_rq =3D cpu_rq(i);
+ 		task_t *smt_curr =3D smt_rq->curr;
+=20
++		/* Kernel threads do not participate in dependent sleeping */
++		if (!p->mm || !smt_curr->mm || rt_task(p))
++			goto check_smt_task;
++
+ 		/*
+ 		 * If a user task with lower static priority than the
+ 		 * running task on the SMT sibling is trying to schedule,
+@@ -2756,21 +2762,44 @@ static inline int dependent_sleeper(int=20
+ 		 * task from using an unfair proportion of the
+ 		 * physical cpu's resources. -ck
+ 		 */
+=2D		if (((smt_curr->time_slice * (100 - sd->per_cpu_gain) / 100) >
+=2D			task_timeslice(p) || rt_task(smt_curr)) &&
+=2D			p->mm && smt_curr->mm && !rt_task(p))
+=2D				ret =3D 1;
++		if (rt_task(smt_curr)) {
++			/*
++			 * With real time tasks we run non-rt tasks only
++			 * per_cpu_gain% of the time.
++			 */
++			if ((jiffies % DEF_TIMESLICE) >
++				(sd->per_cpu_gain * DEF_TIMESLICE / 100))
++					ret =3D 1;
++		} else
++			if (((smt_curr->time_slice * (100 - sd->per_cpu_gain) /
++				100) > task_timeslice(p)))
++					ret =3D 1;
++
++check_smt_task:
++		if ((!smt_curr->mm && smt_curr !=3D smt_rq->idle) ||
++			rt_task(smt_curr))
++				continue;
++		if (!p->mm) {
++			wakeup_busy_runqueue(smt_rq);
++			continue;
++		}
+=20
+ 		/*
+=2D		 * Reschedule a lower priority task on the SMT sibling,
+=2D		 * or wake it up if it has been put to sleep for priority
+=2D		 * reasons.
++		 * Reschedule a lower priority task on the SMT sibling for
++		 * it to be put to sleep, or wake it up if it has been put to
++		 * sleep for priority reasons to see if it should run now.
+ 		 */
+=2D		if ((((p->time_slice * (100 - sd->per_cpu_gain) / 100) >
+=2D			task_timeslice(smt_curr) || rt_task(p)) &&
+=2D			smt_curr->mm && p->mm && !rt_task(smt_curr)) ||
+=2D			(smt_curr =3D=3D smt_rq->idle && smt_rq->nr_running))
+=2D				resched_task(smt_curr);
++		if (rt_task(p)) {
++			if ((jiffies % DEF_TIMESLICE) >
++				(sd->per_cpu_gain * DEF_TIMESLICE / 100))
++					resched_task(smt_curr);
++		} else {
++			if ((p->time_slice * (100 - sd->per_cpu_gain) / 100) >
++				task_timeslice(smt_curr))
++					resched_task(smt_curr);
++			else
++				wakeup_busy_runqueue(smt_rq);
++		}
+ 	}
+ out_unlock:
+ 	for_each_cpu_mask(i, sibling_map)
 
-/mjt
+--Boundary-01=_ie6nCKWuYivLTT/--
+
+--nextPart2850934.6p72KmRQLn
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCn6ekZUg7+tp6mRURArClAJ42iNlA1JqSk7xqUxHrJC9yYab/9wCggF0d
+wx9Fby1TsR5+5EIYo/Jj/Sw=
+=Yiiy
+-----END PGP SIGNATURE-----
+
+--nextPart2850934.6p72KmRQLn--

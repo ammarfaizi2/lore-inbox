@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261276AbVFCOi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261291AbVFCOmc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261276AbVFCOi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 10:38:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVFCOi1
+	id S261291AbVFCOmc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 10:42:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbVFCOmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 10:38:27 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:34997 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261276AbVFCOiM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 10:38:12 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
-       XIAO Gang <xiao@unice.fr>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Suggestion on "int len" sanity
-References: <429EB537.4060305@unice.fr>
-	<20050602084840.GA32519@wohnheim.fh-wedel.de>
-	<Pine.LNX.4.62.0506031143100.16362@numbat.sonytel.be>
-	<jer7fjeiae.fsf@sykes.suse.de>
-	<Pine.LNX.4.62.0506031443000.16362@numbat.sonytel.be>
-X-Yow: This PORCUPINE knows his ZIPCODE..  And he has ``VISA''!!
-Date: Fri, 03 Jun 2005 16:38:07 +0200
-In-Reply-To: <Pine.LNX.4.62.0506031443000.16362@numbat.sonytel.be> (Geert
-	Uytterhoeven's message of "Fri, 3 Jun 2005 14:43:37 +0200 (CEST)")
-Message-ID: <jed5r3eca8.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
+	Fri, 3 Jun 2005 10:42:32 -0400
+Received: from alog0277.analogic.com ([208.224.222.53]:10705 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261291AbVFCOma
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 10:42:30 -0400
+Date: Fri, 3 Jun 2005 10:40:56 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Wakko Warner <wakko@animx.eu.org>
+cc: Tomko <tomko@avantwave.com>, linux-kernel@vger.kernel.org
+Subject: Re: question why need open /dev/console in init() when starting
+ kernel
+In-Reply-To: <20050603141504.GA14641@animx.eu.org>
+Message-ID: <Pine.LNX.4.61.0506031031070.13982@chaos.analogic.com>
+References: <42A00065.9060201@avantwave.com> <Pine.LNX.4.61.0506030629170.11487@chaos.analogic.com>
+ <20050603141504.GA14641@animx.eu.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Geert Uytterhoeven <geert@linux-m68k.org> writes:
+On Fri, 3 Jun 2005, Wakko Warner wrote:
 
-> On Fri, 3 Jun 2005, Andreas Schwab wrote:
->> Geert Uytterhoeven <geert@linux-m68k.org> writes:
->> 
->> >> 	union {
->> >> 		unsigned len;
->> >                 ^^^^^^^^
->> > Plain unsigned is deprecated.
->> 
->> Says who?
+> Richard B. Johnson wrote:
+>> For error messages (as well as it's the law)! Init needs a terminal.
+>> Init is the 'father' of all future tasks and they need a default terminal
+>> too.
 >
-> Sorry, forgot to add the
-> `Signed-Off-by: Geert Uytterhoeven <geert@linux-m68k.org>' line :-)
+> Is it at all possible that if /dev/console does not exist that the kernel
+> can mknod it?
+>
 
-Who deprecated it?
+Yes. Your initial console can be NULL, set as a kernel command-line
+parameter. You should really be using an initial RAM disk (initrd).
+That gets mounted for boot, containing whatever is necessary to
+properly start the system, then change to the file root (or not).
+This is how hundreds of different embeded systems are started.
 
-Andreas.
+Execute-in-place, which I think you are trying with 'cpio' will
+continue to give you problems because you can't test it except
+by throwing it off-the-cliff to see if it flies. RAM-disk systems
+can be tested, booting on any media (even a floppy).
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+> Would the code to do this be larger than 2 entries in a cpio archive (one
+> for /dev directory and one for /dev/console char dev)?
+>
+> -- 
+> Lab tests show that use of micro$oft causes cancer in lab animals
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

@@ -1,52 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVFCSmA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVFCSoH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261494AbVFCSmA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 14:42:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261499AbVFCSmA
+	id S261497AbVFCSoH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 14:44:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261500AbVFCSoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 14:42:00 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:28840 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261494AbVFCSlv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 14:41:51 -0400
-To: Greg KH <greg@kroah.com>
-Cc: Vivek Goyal <vgoyal@in.ibm.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       Morton Andrew Morton <akpm@osdl.org>,
-       Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [RFC/PATCH] Kdump: Disabling PCI interrupts in capture kernel
-References: <20050603112524.GB7022@in.ibm.com>
-	<20050603182147.GB5751@kroah.com>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 03 Jun 2005 12:36:00 -0600
-In-Reply-To: <20050603182147.GB5751@kroah.com>
-Message-ID: <m13brz9tkf.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 3 Jun 2005 14:44:07 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:15309
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S261497AbVFCSn4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 14:43:56 -0400
+Date: Fri, 03 Jun 2005 11:43:31 -0700 (PDT)
+Message-Id: <20050603.114331.85417605.davem@davemloft.net>
+To: haveblue@us.ibm.com
+Cc: mbligh@mbligh.org, nickpiggin@yahoo.com.au, jschopp@austin.ibm.com,
+       mel@csn.ul.ie, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: Avoiding external fragmentation with a placement policy
+ Version 12
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <1117816980.5985.17.camel@localhost>
+References: <429FFC21.1020108@yahoo.com.au>
+	<369850000.1117807062@[10.10.2.4]>
+	<1117816980.5985.17.camel@localhost>
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH <greg@kroah.com> writes:
+From: Dave Hansen <haveblue@us.ibm.com>
+Date: Fri, 03 Jun 2005 09:43:00 -0700
 
-> On Fri, Jun 03, 2005 at 04:55:24PM +0530, Vivek Goyal wrote:
-> > Hi,
-> > 
-> > In kdump, sometimes, general driver initialization issues seems to be cropping
-> 
-> > in second kernel due to devices not being shutdown during crash and these 
-> > devices are sending interrupts while second kernel is booting and drivers are
-> 
-> > not expecting any interrupts yet.
-> 
-> What are the errors you are seeing?
-> How would the drivers be able to be getting interrupts delivered to them
-> if they haven't registered the irq handler yet?
+> Are those loopback allocations GFP_KERNEL?
 
-As I recall the drivers were not getting the interrupts but the interrupts
-were happening.  To stop being spammed the kernel disables the irq line,
-at the interrupt controller.  Then when the driver registered the
-interrupt it would never receive the interrupt.
+It depends :-)  Most of the time, the packets will be
+allocated at sendmsg() time for the user, and thus GFP_KERNEL.
 
-Eric
+But the flags may be different if, for example, the packet
+is being allocated for the NFS client/server code, or some
+asynchronous packet generated at software interrupt time
+(TCP ACKs, ICMP replies, etc.).

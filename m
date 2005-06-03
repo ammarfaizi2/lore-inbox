@@ -1,42 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVFCPso@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261243AbVFCQFW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261339AbVFCPso (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 11:48:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbVFCPso
+	id S261243AbVFCQFW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 12:05:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261275AbVFCQFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 11:48:44 -0400
-Received: from ns2.suse.de ([195.135.220.15]:10438 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261339AbVFCPsk (ORCPT
+	Fri, 3 Jun 2005 12:05:21 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:28370 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261243AbVFCQFN convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 11:48:40 -0400
-Date: Fri, 3 Jun 2005 17:48:39 +0200
-From: Andi Kleen <ak@suse.de>
-To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>, discuss@x86-64.org,
-       linux-kernel@vger.kernel.org, ak@suse.de, nanhai.zou@intel.com,
-       rohit.seth@intel.com, rajesh.shah@intel.com
-Subject: Re: [discuss] Re: [Patch] x86_64: TASK_SIZE fixes for compatibility mode processes
-Message-ID: <20050603154839.GN23831@wotan.suse.de>
-References: <20050602133256.A14384@unix-os.sc.intel.com> <20050602135013.4cba3ae2.akpm@osdl.org> <20050602151912.B14384@unix-os.sc.intel.com> <20050602154823.15141bfc.akpm@osdl.org> <20050602160603.C14384@unix-os.sc.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050602160603.C14384@unix-os.sc.intel.com>
+	Fri, 3 Jun 2005 12:05:13 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch] x86_64 specific function return probes
+Date: Fri, 3 Jun 2005 09:05:08 -0700
+Message-ID: <032EB457B9DBC540BFB1B7B519C78B0E07499D24@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch] x86_64 specific function return probes
+Thread-Index: AcVn+juTkFARLSBBTmOpt/cVJ6/9HgAWwfqw
+From: "Lynch, Rusty" <rusty.lynch@intel.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: <ak@suse.de>, <linux-kernel@vger.kernel.org>, <prasadav@us.ibm.com>,
+       <hien@us.ibm.com>, <prasanna@in.ibm.com>, <jkenisto@us.ibm.com>
+X-OriginalArrivalTime: 03 Jun 2005 16:04:48.0127 (UTC) FILETIME=[F75970F0:01C56855]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 02, 2005 at 04:06:04PM -0700, Siddha, Suresh B wrote:
-> On Thu, Jun 02, 2005 at 03:48:23PM -0700, Andrew Morton wrote:
-> > "Siddha, Suresh B" <suresh.b.siddha@intel.com> wrote:
-> > > ia64, ppc64 and s390 seems be getting this info from thread_info or 
-> > > thread_struct in the task struct.
-> > 
-> > I know.  I'm claiming that this is conceptually wrong.
-> 
-> I def see your point. But this is too late for 2.6.12.  We want to get this 
-> fixed in 2.6.12.  We can do the cleanup at a more convenient time.
+From: Andrew Morton [mailto:akpm@osdl.org]
+>"Lynch, Rusty" <rusty.lynch@intel.com> wrote:
+>>
+>>
+>> From: Andi Kleen [mailto:ak@suse.de]
+>> >On Thu, Jun 02, 2005 at 09:09:09AM -0700, Rusty Lynch wrote:
+>> >> The following patch adds the x86_64 architecture specific
+>> implementation
+>> >> for function return probes to the 2.6.12-rc5-mm2 kernel.
+>> >
+>> >This is not a sufficient description for a patch. Can you describe
+>> >how it actually works and what it does?
+>> >
+>>
+>> Ok, let me write up a description and I'll repost.
+>
+>You did, but:
+>
+>> >> + * Called when we hit the probe point at kretprobe_trampoline
+>> >> + */
+>> >> +int trampoline_probe_handler(struct kprobe *p, struct pt_regs
+*regs)
+>> >> +{
+>> >> +	struct task_struct *tsk;
+>> >> +	struct kretprobe_instance *ri;
+>> >> +	struct hlist_head *head;
+>> >> +	struct hlist_node *node;
+>> >> +	unsigned long *sara = (unsigned long *)regs->rsp - 1;
+>> >> +
+>> >> +	tsk = arch_get_kprobe_task(sara);
+>> >
+>> >I dont think you handle the case of the exception happening on
+>> >a exception or interrupt stack. This is broken.
+>
+>What about this problem?
 
-My feeling is that all of this is more for post 2.6.12. I still
-have not seen anything important that would get fixed by it.
+I miss understood what Andi was pointing out, and thought the additional
+description would clear things up.  Now I get what he is pointing out
+and will reply to Andi's second email.
 
--Andi
+    --rusty

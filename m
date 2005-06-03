@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261158AbVFCWoG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVFCWqM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261158AbVFCWoG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 18:44:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261160AbVFCWoG
+	id S261160AbVFCWqM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 18:46:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbVFCWqM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 18:44:06 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:21440 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261158AbVFCWoD (ORCPT
+	Fri, 3 Jun 2005 18:46:12 -0400
+Received: from mail.kroah.org ([69.55.234.183]:3482 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261160AbVFCWqG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 18:44:03 -0400
-Message-ID: <42A0DD2F.5060602@pobox.com>
-Date: Fri, 03 Jun 2005 18:43:59 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-CC: stable@kernel.org
-Subject: Stable 2.6.x.y kernel series...
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Fri, 3 Jun 2005 18:46:06 -0400
+Date: Fri, 3 Jun 2005 15:45:51 -0700
+From: Greg KH <gregkh@suse.de>
+To: tom.l.nguyen@intel.com, linux-pci@atrey.karlin.mff.cuni.cz
+Cc: linux-kernel@vger.kernel.org, roland@topspin.com, davem@davemloft.net
+Subject: pci_enable_msi() for everyone?
+Message-ID: <20050603224551.GA10014@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In talking with a few people about the MSI kernel code, they asked why
+we can't just do the pci_enable_msi() call for every pci device in the
+system (at somewhere like pci_enable_device() time or so).  That would
+let all drivers and devices get the MSI functionality without changing
+their code, and probably make the api a whole lot simpler.
 
-(because it's Friday, the time to yammer about such things...)
+Now I know the e1000 driver would have to specifically disable MSI for
+some of their broken versions, and possibly some other drivers might
+need this, but the downside seems quite small.
 
+Or am I missing something pretty obvious here?
 
-Just wanted to say in public that I think the stable 2.6.x.y kernel 
-series is working out quite well.  Kudos to the stable@kernel.org team 
-for a job well done.
+thanks,
 
-The 2.6.x.y series is definitely filling a needed niche.
-
-	Jeff
-
-
-
+greg k-h

@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVFCKM1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVFCKTD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261207AbVFCKM1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 06:12:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVFCKM1
+	id S261206AbVFCKTD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 06:19:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVFCKTD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 06:12:27 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33477 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261207AbVFCKMW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 06:12:22 -0400
-Date: Fri, 3 Jun 2005 12:12:03 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Matthias Urlichs <smurf@smurf.noris.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc5-mm2
-Message-ID: <20050603101203.GA2734@elf.ucw.cz>
-References: <20050601022824.33c8206e.akpm@osdl.org> <20050601140233.GD1940@openzaurus.ucw.cz> <pan.2005.06.01.15.04.49.64662@smurf.noris.de>
+	Fri, 3 Jun 2005 06:19:03 -0400
+Received: from gw.alcove.fr ([81.80.245.157]:15085 "EHLO smtp.fr.alcove.com")
+	by vger.kernel.org with ESMTP id S261206AbVFCKTA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 06:19:00 -0400
+Subject: Re: Sonypi: make sure that input_work is not running when unloading
+From: Stelian Pop <stelian@popies.net>
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+Cc: akpm@osdl.org, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <200506030202.36140.dtor_core@ameritech.net>
+References: <200506030202.36140.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=UTF-8
+Date: Fri, 03 Jun 2005 12:11:40 +0200
+Message-Id: <1117793500.4171.13.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <pan.2005.06.01.15.04.49.64662@smurf.noris.de>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Le vendredi 03 juin 2005 à 02:02 -0500, Dmitry Torokhov a écrit :
 
-> >> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc5/2.6.12-rc5-mm2/
-> >> 
-> >> 
-> >> - Dropped bk-acpi.patch.  Too old, too much breakage.
-> >> 
-> >> - A few more subsystem trees have moved to using git
-> > 
-> > Have you considered publishing -mm using git?
-> > 
-> > I guess your workflow prevents you from really using git, but even just
-> > publishing releases using git would be great.
-> > 
-> > (Just now I'm tracking Linus with my tree.  git makes that quite easy.
-> > Tracking -mm is ugly manual work with diff, patch and ketchup...)
+> Sonypi: make sure that input_work is not running when unloading
+>         the module; submit/retrieve key release data into/from
+>         input_fifo in one shot.
 > 
-> I have written a script (actually a leftover from the mm-to-BK import
-> days) that pulls -mm into git as individual commits.
+> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
-Great! Would it be possible to export results of your script
-somewhere? I guess you could get kernel.org account for this...
-								Pavel
+Acked-by: Stelian Pop <stelian@popies.net>
+
+Thanks Dmitry.
+
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>
+

@@ -1,64 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbVFCPAk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVFCPCL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261311AbVFCPAk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 11:00:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVFCPAk
+	id S261313AbVFCPCL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 11:02:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbVFCPCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 11:00:40 -0400
-Received: from 41.150.104.212.access.eclipse.net.uk ([212.104.150.41]:52460
-	"EHLO pinky.shadowen.org") by vger.kernel.org with ESMTP
-	id S261311AbVFCPAd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 11:00:33 -0400
-Date: Fri, 3 Jun 2005 16:00:26 +0100
-To: akpm@osdl.org
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH] i386 sparsemem: undefined early_pfn_to_nid when !NUMA
-Message-ID: <20050603150026.GC19217@shadowen.org>
-References: <20050527162822.EBE1D09F@kernel.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050527162822.EBE1D09F@kernel.beaverton.ibm.com>
-User-Agent: Mutt/1.5.9i
-From: Andy Whitcroft <apw@shadowen.org>
+	Fri, 3 Jun 2005 11:02:10 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:58547 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S261313AbVFCPBx
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 11:01:53 -0400
+X-ORBL: [69.107.40.98]
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] [GIT PATCH] More USB bugfixes for 2.6.12-rc5
+Date: Fri, 3 Jun 2005 08:01:35 -0700
+User-Agent: KMail/1.7.1
+Cc: Greg KH <gregkh@suse.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       gsker@tcfreenet.org
+References: <20050603085830.GA31276@kroah.com>
+In-Reply-To: <20050603085830.GA31276@kroah.com>
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_PDHoCjkuvpzuuZQ"
+Message-Id: <200506030801.35685.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seem benign for normal use and allows testing for hotplug.  Tested
-on my test boxes.
+--Boundary-00=_PDHoCjkuvpzuuZQ
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-Andrew please apply to -mm.
+On Friday 03 June 2005 1:58 am, Greg KH wrote:
+> Here are some more USB patches for the 2.6.12-rc5 tree. 
 
--apw
+And attached, one more (non-GIT) patch to resolve a Zaurus problem.
+OSDL bugids #4512 and #4545 seem to be duplicates of this report.
+Please merge for 2.6.12-final... it's an obvious one-line fix.
 
-=== 8< ===
-On i386, early_pfn_to_nid() is only defined when discontig.c
-is compiled in.  The current dependency doesn't reflect this,
-probably because the default i386 config doesn't allow for
-SPARSEMEM without NUMA.
+- Dave
 
-But, we'll need SPARSEMEM && !NUMA for memory hotplug, and I
-do this for testing anyway.
 
-Andy, please forward on if you concur.
+--Boundary-00=_PDHoCjkuvpzuuZQ
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="usbnet_zaurus.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="usbnet_zaurus.patch"
 
-Signed-off-by: Dave Hansen <haveblue@us.ibm.com>
-Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+This "obvious" one-liner is needed to recognize Zaurus SL 6000;
+it just checks two GUIDs not just one. 
 
-diffstat sparsemem-i386-undefined-early_pfn_to_nid-when-not-NUMA
----
- Kconfig |    1 +
- 1 files changed, 1 insertion(+)
+From: Gerald Skerbitz <gsker@tcfreenet.org>
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 
-diff -upN reference/arch/i386/Kconfig current/arch/i386/Kconfig
---- reference/arch/i386/Kconfig
-+++ current/arch/i386/Kconfig
-@@ -803,6 +803,7 @@ source "mm/Kconfig"
- config HAVE_ARCH_EARLY_PFN_TO_NID
- 	bool
- 	default y
-+	depends on NUMA
- 
- config HIGHPTE
- 	bool "Allocate 3rd-level pagetables from highmem"
+--- linux-2.6.12-rc5/drivers/usb/net/usbnet.c.orig	2005-06-01 18:06:20.000000000 -0500
++++ linux-2.6.12-rc5/drivers/usb/net/usbnet.c	2005-06-01 18:29:30.000000000 -0500
+@@ -2765,7 +2765,7 @@ static int blan_mdlm_bind (struct usbnet
+ 			}
+ 			/* expect bcdVersion 1.0, ignore */
+ 			if (memcmp(&desc->bGUID, blan_guid, 16)
+-				    && memcmp(&desc->bGUID, blan_guid, 16) ) {
++				    && memcmp(&desc->bGUID, safe_guid, 16) ) {
+ 				/* hey, this one might _really_ be MDLM! */
+ 				dev_dbg (&intf->dev, "MDLM guid\n");
+ 				goto bad_desc;
+
+
+
+--Boundary-00=_PDHoCjkuvpzuuZQ--

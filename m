@@ -1,47 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261271AbVFCOBC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbVFCOOs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261271AbVFCOBC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 10:01:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261274AbVFCOBC
+	id S261281AbVFCOOs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 10:14:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVFCOOs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 10:01:02 -0400
-Received: from dvhart.com ([64.146.134.43]:25511 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261271AbVFCOA5 (ORCPT
+	Fri, 3 Jun 2005 10:14:48 -0400
+Received: from pop.gmx.net ([213.165.64.20]:16340 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261281AbVFCOOp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 10:00:57 -0400
-Date: Fri, 03 Jun 2005 07:00:59 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Mel Gorman <mel@csn.ul.ie>, Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: jschopp@austin.ibm.com, linux-mm@kvack.org,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: Avoiding external fragmentation with a placement policy Version 12
-Message-ID: <370550000.1117807258@[10.10.2.4]>
-In-Reply-To: <Pine.LNX.4.58.0506031349280.10779@skynet>
-References: <20050531112048.D2511E57A@skynet.csn.ul.ie>  <429E20B6.2000907@austin.ibm.com><429E4023.2010308@yahoo.com.au>  <423970000.1117668514@flay><429E483D.8010106@yahoo.com.au>  <434510000.1117670555@flay><429E50B8.1060405@yahoo.com.au>  <429F2B26.9070509@austin.ibm.com><1117770488.5084.25.camel@npiggin-nld.site> <Pine.LNX.4.58.0506031349280.10779@skynet>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
+	Fri, 3 Jun 2005 10:14:45 -0400
+X-Authenticated: #222744
+From: "Dieter Ferdinand" <dieter.ferdinand@gmx.de>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 03 Jun 2005 16:14:41 +1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Subject: problem with isdn-audio-driver i4l hisax kernel from 2.2.x to 2.4.30
+Reply-To: Dieter.Ferdinand@gmx.de
+Message-ID: <42A081F1.15525.5D4F9ED5@localhost>
+X-mailer: Pegasus Mail for Windows (v4.12a, DE v4.12a R1a)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Does it need more documentation? If so, I'll write up a detailed blurb on
-> how it works and drop it into Documentation/
-> 
->> Although I can't argue that a buddy allocator is no good without
->> being able to satisfy higher order allocations.
-> 
-> Unfortunately, it is a fundemental flaw of the buddy allocator that it
-> fragments badly. The thing is, other allocators that do not fragment are
-> also slower.
+hello,
+i have a big problem with the isdn-audio-drivers.
 
-Do we care? 99.9% of allocations are fronted by the hot/cold page cache
-now anyway ... and yes, I realise that things popping in/out of that 
-obviously aren't going into the "defrag" pool, but still, it should help.
-I suppose all we're slowing down is higher order allocs anyway, which
-is the uncommon case, but ... worth thinking about.
+i use a software-pbx (asterisk) with the isdn-modem-driver with audio-function under 
+linux and some times, the system hangs total.
+only reset or power of solve this problem.
 
-M.
+i have this problem also with vbox as voicemailbox.
+if i play some record-files over vbox to a phone, the system hangs and i must press 
+the reset.
+since this time, i used only the data-functions with the isdn-drivers, but with the pbx-
+soft, i need also the audio-functions and there is this bug.
+
+i think, this bug is only by playing audio-data.
+i have no more files, which produces this error.
+
+the last time, my system hangs with this bug, was on a long sip-connection (> 1 
+hour), the time before, on some tests with one sip-provider.
+
+i can try to get new audio-files with vbox, which produce this error, when this can 
+help to find the bug.
+
+i think, there is a endless loop in the drivers, if this error happens, but the system is 
+dead, total dead. keyboard don't works at this time.
+
+i think, this error is also, if i use an active card with capi over the modem-driver.
+i make some test and at one this, this system hangs also with the same bug.
+
+if i can help, to find this bug, ask me. i can install passive and active capi isdn-cards 
+on a test system with a post-diagnose-card or a terminal connect to serial to log 
+systemstatus.
+
+i hope, someone can help me, to solve this bug.
+
+thank you, for your help
+
+Schau auch einmal auf meine Homepage (http://go.to/dieter-ferdinand).
+Dort findest du Information zu Linux, Novell, Win95, WinNT, ...
 

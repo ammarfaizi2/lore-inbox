@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVFCQYc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVFCQZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261374AbVFCQYc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 12:24:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVFCQYc
+	id S261375AbVFCQZr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 12:25:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVFCQZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 12:24:32 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:37786 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261374AbVFCQYG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 12:24:06 -0400
+	Fri, 3 Jun 2005 12:25:47 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.130]:6827 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261375AbVFCQZX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 12:25:23 -0400
 Subject: Re: TPM on IBM thinkcenter S51
 From: Kylene Jo Hall <kjhall@us.ibm.com>
 To: Torsten Landschoff <tla@comsys.informatik.uni-kiel.de>
@@ -18,41 +18,43 @@ References: <20050602220028.3572.qmail@web61014.mail.yahoo.com>
 	 <1117790588.6249.5.camel@localhost.localdomain>
 	 <1117810969.5407.11.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Fri, 03 Jun 2005 11:23:12 -0500
-Message-Id: <1117815792.5407.19.camel@localhost.localdomain>
+Date: Fri, 03 Jun 2005 11:24:33 -0500
+Message-Id: <1117815874.5407.22.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok,
-
-I think this patch will fix the driver to find your TPM.  It is just
-adding some additional LPC buses to look for so it won't make things any
-worse if it doesn't fix the problem.  Please let me know if it works.
-If it finds the device it should print a version message in syslog.
-Also there should be a tpm0 directory in /sys/classs/misc.  Once you
-have that you can try to cat /sys/class/misc/tpm0/device/pcrs.  If that
-returns an error please try the next patch I send you and let me know
-the results.
+The second patch that may be necessary to fix the NSC TPM command path.
+Please let me know your results.
 
 Thanks,
 Kylie
 
-Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
---- linux-2.6.12-rc5/drivers/char/tpm/tpm_nsc.c.orig	2005-06-03 11:14:07.000000000 -0500
-+++ linux-2.6.12-rc5/drivers/char/tpm/tpm_nsc.c	2005-06-03 11:14:53.000000000 -0500
-@@ -340,6 +340,9 @@ static struct pci_device_id tpm_pci_tbl[
- 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_12)},
- 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801EB_0)},
- 	{PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_8111_LPC)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_0)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_1)},
-+	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH7_0)},
- 	{0,}
- };
+Signed-off-by: Kylene Hall
+---
+--- linux-2.6.12-rc4/drivers/char/tpm/tpm_nsc.orig	2005-06-03 10:50:45.000000000 -0500
++++ linux-2.6.12-rc4/drivers/char/tpm/tpm_nsc.c	2005-06-03 10:51:09.000000000 -0500
+@@ -149,7 +149,7 @@ static int tpm_nsc_recv(struct tpm_chip 
+ 			break;
+ 		*p = inb(chip->vendor->base + NSC_DATA);
+ 	}
+-
++/*
+ 	if ((data & NSC_STATUS_F0) == 0) {
+ 		dev_err(&chip->pci_dev->dev, "F0 not set\n");
+ 		return -EIO;
+@@ -159,7 +159,7 @@ static int tpm_nsc_recv(struct tpm_chip 
+ 			"expected end of command(0x%x)\n", data);
+ 		return -EIO;
+ 	}
+-
++*/
+ 	native_size = (__force __be32 *) (buf + 2);
+ 	size = be32_to_cpu(*native_size);
  
+
 
 
 On Fri, 2005-06-03 at 10:02 -0500, Kylene Jo Hall wrote:

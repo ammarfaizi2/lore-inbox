@@ -1,88 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVFCDsU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVFCErz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbVFCDsU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 23:48:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVFCDsU
+	id S261165AbVFCErz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 00:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVFCErz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 23:48:20 -0400
-Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:5471 "HELO
-	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261197AbVFCDsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 23:48:13 -0400
-Subject: Re: Avoiding external fragmentation with a placement policy
-	Version 12
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: jschopp@austin.ibm.com
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Mel Gorman <mel@csn.ul.ie>,
-       linux-mm@kvack.org, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <429F2B26.9070509@austin.ibm.com>
-References: <20050531112048.D2511E57A@skynet.csn.ul.ie>
-	 <429E20B6.2000907@austin.ibm.com> <429E4023.2010308@yahoo.com.au>
-	 <423970000.1117668514@flay> <429E483D.8010106@yahoo.com.au>
-	 <434510000.1117670555@flay> <429E50B8.1060405@yahoo.com.au>
-	 <429F2B26.9070509@austin.ibm.com>
-Content-Type: text/plain
-Date: Fri, 03 Jun 2005 13:48:08 +1000
-Message-Id: <1117770488.5084.25.camel@npiggin-nld.site>
+	Fri, 3 Jun 2005 00:47:55 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:37579 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S261165AbVFCErx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 00:47:53 -0400
+Date: Fri, 3 Jun 2005 14:41:38 +1000
+From: Nathan Scott <nathans@sgi.com>
+To: Goran Gajic <ggajic@sbb.co.yu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: XFS and 2.6.12-rc5
+Message-ID: <20050603044138.GB1653@frodo>
+References: <Pine.BSF.4.62.0506011308530.86037@mail.sbb.co.yu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.BSF.4.62.0506011308530.86037@mail.sbb.co.yu>
+User-Agent: Mutt/1.5.3i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-06-02 at 10:52 -0500, Joel Schopp wrote:
-> > I see your point... Mel's patch has failure cases though.
-> > For example, someone turns swap off, or mlocks some memory
-> > (I guess we then add the page migration defrag patch and
-> > problem is solved?).
+On Wed, Jun 01, 2005 at 01:10:47PM +0200, Goran Gajic wrote:
+> xfs partition is exported via nfs to FreeBSD-5.4 machine. This is what I 
+> find every morning in my syslog:
 > 
-> This reminds me that page migration defrag will be pretty useless 
-> without something like this done first.  There will be stuff that can't 
-> be migrated and it needs to be grouped together somehow.
-> 
-> In summary here are the reasons I see to run with Mel's patch:
-> 
-> 1. It really helps with medium-large allocations under memory pressure.
-> 2. Page migration defrag will need it.
-> 3. Memory hotplug remove will need it.
-> 
+>  ------------[ cut here ]------------
+>  kernel BUG at fs/xfs/support/debug.c:106!
+> ...
+>  [<c0269758>] xfs_bmap_search_extents+0x108/0x140
+>  [<c026accd>] xfs_bmapi+0x28d/0x1660
 
-I guess I'm now more convinced of its need ;)
+There should be some diagnostic text just above this panic message,
+what does it say?  At a guess, I'd say you have a corrupt inode on
+disk, and your nightly cron jobs are tripping this up each time.
+The panic happens cos the kernel detects an inode with an extent
+map which claiming to have an extent starting at the offset of the
+primary superblock.  I've seen another case of this recently which
+looked like a possible compiler bug, so could you send me both the
+full diagnostic message and your compiler version number?
 
-add:
-4. large pages
-5. (hopefully) helps with smaller allocations (ie. order 3)
+Also, the diagnostic will contain an inode number - for bonus points
+run "xfs_db -r -c 'inode XXX' -c print /dev/foo" and send me that as
+well.  Thanks!
 
-It would really help your cause in the short term if you can
-demonstrate improvements for say order-3 allocations (eg. use
-gige networking, TSO, jumbo frames, etc).
-
-
-> On the downside we have:
-> 
-> 1. Slightly more complexity in the allocator.
-> 
-
-For some definitions of 'slightly', perhaps :(
-
-Although I can't argue that a buddy allocator is no good without
-being able to satisfy higher order allocations.
-
-So in that case, I'm personally OK with it going into -mm. Hopefully
-there will be a bit more review and hopefully some simplification if
-possible.
-
-Last question: how does it go on systems with really tiny memories?
-(4MB, 8MB, that kind of thing).
-
-> I'd personally trade a little extra complexity for any of the 3 upsides.
-> 
+cheers.
 
 -- 
-SUSE Labs, Novell Inc.
-
-
-
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Nathan

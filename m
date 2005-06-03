@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVFCFIV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVFCFJP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbVFCFIV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 01:08:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVFCFIV
+	id S261248AbVFCFJP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 01:09:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVFCFJP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 01:08:21 -0400
-Received: from fire.osdl.org ([65.172.181.4]:49070 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261190AbVFCFIT (ORCPT
+	Fri, 3 Jun 2005 01:09:15 -0400
+Received: from mail.kroah.org ([69.55.234.183]:57830 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261248AbVFCFIz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 01:08:19 -0400
-Date: Thu, 2 Jun 2005 22:07:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Lynch, Rusty" <rusty.lynch@intel.com>
-Cc: ak@suse.de, linux-kernel@vger.kernel.org, prasadav@us.ibm.com,
-       hien@us.ibm.com, prasanna@in.ibm.com, jkenisto@us.ibm.com
-Subject: Re: [patch] x86_64 specific function return probes
-Message-Id: <20050602220729.762d9385.akpm@osdl.org>
-In-Reply-To: <032EB457B9DBC540BFB1B7B519C78B0E07499229@orsmsx404.amr.corp.intel.com>
-References: <032EB457B9DBC540BFB1B7B519C78B0E07499229@orsmsx404.amr.corp.intel.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 3 Jun 2005 01:08:55 -0400
+Date: Thu, 2 Jun 2005 22:19:07 -0700
+From: Greg KH <greg@kroah.com>
+To: Abhay_Salunke@Dell.com
+Cc: marcel@holtmann.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Matt_Domsch@Dell.com
+Subject: Re: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new DellBIOS update driver
+Message-ID: <20050603051907.GH28055@kroah.com>
+References: <367215741E167A4CA813C8F12CE0143B3ED3A4@ausx2kmpc115.aus.amer.dell.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <367215741E167A4CA813C8F12CE0143B3ED3A4@ausx2kmpc115.aus.amer.dell.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Lynch, Rusty" <rusty.lynch@intel.com> wrote:
->
-> 
-> From: Andi Kleen [mailto:ak@suse.de]
-> >On Thu, Jun 02, 2005 at 09:09:09AM -0700, Rusty Lynch wrote:
-> >> The following patch adds the x86_64 architecture specific
-> implementation
-> >> for function return probes to the 2.6.12-rc5-mm2 kernel.
-> >
-> >This is not a sufficient description for a patch. Can you describe
-> >how it actually works and what it does?
-> >
-> 
-> Ok, let me write up a description and I'll repost.
+On Thu, Jun 02, 2005 at 05:25:46PM -0500, Abhay_Salunke@Dell.com wrote:
+> +/sys/firmware/dell_rbu/monolithic/mono_name
+> +/sys/firmware/dell_rbu/monolithic/mono_size
+> +/sys/firmware/dell_rbu/packetized/packet_name
+> +/sys/firmware/dell_rbu/packetized/packet_size
+> +
+> +Steps to update the BIOS image:
+> +
+> +1> Copy the image file in to /lib/firmware 
+> +2> echo the image name in to /sys/firmware/dell_rbu/xxxx/xxxx_name
 
-You did, but:
+No no no.  Just because you are using the firmware interface, does not
+mean you need to add this extra round-trip to the whole system.  Just
+dump the firmware to the /sys/firmware/whatever... file whenever you
+want to, that's all that is needed.  No hotplug stuff, no filename
+stuff, just a simple copy.
 
-> >> + * Called when we hit the probe point at kretprobe_trampoline
-> >> + */
-> >> +int trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
-> >> +{
-> >> +	struct task_struct *tsk;
-> >> +	struct kretprobe_instance *ri;
-> >> +	struct hlist_head *head;
-> >> +	struct hlist_node *node;
-> >> +	unsigned long *sara = (unsigned long *)regs->rsp - 1;
-> >> +
-> >> +	tsk = arch_get_kprobe_task(sara);
-> >
-> >I dont think you handle the case of the exception happening on
-> >a exception or interrupt stack. This is broken.
+Also, see the -mm tree for a change in the way the sysfs attributes
+work, that will keep you from having to do the .type stuff all over the
+place.
 
-What about this problem?
+thanks,
+
+greg k-h

@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVFCLn4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVFCLqL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbVFCLn4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 07:43:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVFCLnz
+	id S261226AbVFCLqL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 07:46:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVFCLqK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 07:43:55 -0400
-Received: from styx.suse.cz ([82.119.242.94]:10960 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261222AbVFCLnv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 07:43:51 -0400
-Date: Fri, 3 Jun 2005 13:43:50 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Green Brain <greenbrain@freemail.hu>
+	Fri, 3 Jun 2005 07:46:10 -0400
+Received: from 76.80-203-227.nextgentel.com ([80.203.227.76]:14027 "EHLO
+	mail.inprovide.com") by vger.kernel.org with ESMTP id S261226AbVFCLqE convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 07:46:04 -0400
+To: Lukasz Stelmach <stlman@poczta.fm>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: WebCamera
-Message-ID: <20050603114350.GA13435@ucw.cz>
-References: <002c01c56628$19ccbbe0$7344c5d5@windows>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <002c01c56628$19ccbbe0$7344c5d5@windows>
-User-Agent: Mutt/1.5.6i
+Subject: Re: [OT] mailing list management
+References: <429D8A3A.8000304@poczta.fm> <20050601102211.GR2417@lug-owl.de>
+	<429D8E96.4010908@poczta.fm>
+	<Pine.LNX.4.63.0506011239300.7726@sheen.jakma.org>
+	<429DADAC.7070207@poczta.fm> <yw1xbr6q2pv2.fsf@ford.inprovide.com>
+	<429ED667.6040202@poczta.fm> <yw1xy89tx7hb.fsf@ford.inprovide.com>
+	<42A04236.1000200@poczta.fm>
+From: =?iso-8859-1?q?M=E5ns_Rullg=E5rd?= <mru@inprovide.com>
+Date: Fri, 03 Jun 2005 13:46:05 +0200
+In-Reply-To: <42A04236.1000200@poczta.fm> (Lukasz Stelmach's message of
+ "Fri, 03 Jun 2005 13:42:46 +0200")
+Message-ID: <yw1xvf4vu0hu.fsf@ford.inprovide.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Security Through
+ Obscurity, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, May 31, 2005 at 11:27:31PM +0200, Green Brain wrote:
+Lukasz Stelmach <stlman@poczta.fm> writes:
 
-> I cannot use my USB 2.0 (BisonCam, ALI M5603C chip) webcamera under
-> (SuSE) Linux. If somebody know this camera please help me! (I use a
-> Clevo notebook.) Thanks in advance!
+> Måns Rullgård wrote:
+>
+>>>>My mail server (cyrus imapd) automatically suppresses duplicates with
+>>>>the default settings.
+>>>
+>>>Even in two different folders?
+>> 
+>> Yes.
+>
+> Can I disable it. Sometimes I woud like to have dupes?
 
-Unfortunately, there is no M5603c driver for Linux. While I'm planning
-to write one (I have eight cameras based on it), I didn't manage to get
-specs from ALi, so it'll be rather hard to write the driver.
-
-There is a project by Luca Risolia, but it doesn't seem very active so
-far. See http://www.linux-projects.org/modules/news/.
+Yes, it can be disabled entirely, or (IIRC) selectively using Sieve
+scripts.
 
 -- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+Måns Rullgård
+mru@inprovide.com

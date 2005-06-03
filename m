@@ -1,62 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVFCWcg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261153AbVFCWiY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbVFCWcg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 18:32:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261152AbVFCWcg
+	id S261153AbVFCWiY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 18:38:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261154AbVFCWiX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 18:32:36 -0400
-Received: from rrcs-24-123-59-149.central.biz.rr.com ([24.123.59.149]:32124
-	"EHLO galon.ev-en.org") by vger.kernel.org with ESMTP
-	id S261151AbVFCWce (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 18:32:34 -0400
-Message-ID: <42A0DA78.2040804@ev-en.org>
-Date: Fri, 03 Jun 2005 23:32:24 +0100
-From: Baruch Even <baruch@ev-en.org>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: 2.6.12-rc5-mm2: "bic unavailable using TCP reno" messages
-References: <20050601022824.33c8206e.akpm@osdl.org>	<20050602121511.GE4992@stusta.de>	<429F1079.5070701@ev-en.org>	<20050602103805.6beb4f4e@dxpl.pdx.osdl.net>	<20050602203823.GI4992@stusta.de> <20050603143702.0422101d@dxpl.pdx.osdl.net>
-In-Reply-To: <20050603143702.0422101d@dxpl.pdx.osdl.net>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Jun 2005 18:38:23 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:55248 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261153AbVFCWiP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 18:38:15 -0400
+Date: Sat, 4 Jun 2005 00:37:58 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Tony Lindgren <tony@atomide.com>
+Cc: Christian Hesse <mail@earthworm.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Dynamic tick for x86 version 050602-2
+Message-ID: <20050603223758.GA2227@elf.ucw.cz>
+References: <20050602013641.GL21597@atomide.com> <200506021030.50585.mail@earthworm.de> <20050602174219.GC21363@atomide.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050602174219.GC21363@atomide.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Hemminger wrote:
-> Here is what I am working on as better way to make the sysctl selection.
-> I am not totally happy with the way the default congestion control value is determined
-> by the load order. But it does seem good that if you load "tcp_xxx" module and it
-> registers it becomes the default.
+Hi!
 
-Looks good.
+> Should be fixed now, the header was defining it as a function un UP
+> system with no local apic. Can you try the following version?
 
-> @@ -120,6 +117,52 @@ static int ipv4_sysctl_forward_strategy(
->  	return 1;
->  }
->  
-> +static int proc_tcp_congestion_control(ctl_table *ctl, int write, struct file * filp,
-> +				       void __user *buffer, size_t *lenp, loff_t *ppos)
-> +{
-> +	char val[TCP_CA_NAME_MAX];
-> +	ctl_table tbl = {
-> +		.data = val,
-> +		.maxlen = TCP_CA_NAME_MAX,
-> +	};
-> +	int ret;
+Some comments below...
+
+> @@ -102,6 +103,12 @@ fastcall unsigned int do_IRQ(struct pt_r
+>  		);
+>  	} else
+>  #endif
 > +
-> +	tcp_get_congestion_control(val);
+> +#ifdef CONFIG_NO_IDLE_HZ
+> +	if (dyn_tick->state & (DYN_TICK_ENABLED | DYN_TICK_SKIPPING) && irq != 0)
+> +		dyn_tick->interrupt(irq, NULL, regs);
+> +#endif
+> +
+>  		__do_IRQ(irq, regs);
+>  
+>  	irq_exit();
 
-Maybe we should call this tcp_get_current_congestion_control(), the
-current name implies (to me) that you give it a name and it returns the
-the ca struct. get_current might also just return the current one and
-the strcpy can be done here.
+Is not indentation little wrong here?
 
-Otherwise you probably should document the tcp_get_congestion_control()
-to say what size of string it accepts.
 
-Baruch
+> Index: linux-dev/arch/i386/kernel/process.c
+> ===================================================================
+> --- linux-dev.orig/arch/i386/kernel/process.c	2005-06-01 17:51:36.000000000 -0700
+> +++ linux-dev/arch/i386/kernel/process.c	2005-06-01 17:54:32.000000000 -0700
+> @@ -160,6 +161,10 @@ void cpu_idle (void)
+>  			if (!idle)
+>  				idle = default_idle;
+>  
+> +#ifdef CONFIG_NO_IDLE_HZ
+> +			dyn_tick_reprogram_timer();
+> +#endif
+> +
+>  			__get_cpu_var(irq_stat).idle_timestamp = jiffies;
+>  			idle();
+>  		}
+
+Your headers are good enough; this should not be neccessary.
+> +
+> +#define NS_TICK_LEN		((1 * 1000000000)/HZ)
+> +#define DYN_TICK_MIN_SKIP	2
+> +
+> +#ifdef CONFIG_NO_IDLE_HZ
+> +
+> +extern unsigned long dyn_tick_reprogram_timer(void);
+> +
+> +#else
+> +
+> +#define arch_has_safe_halt()		0
+> +#define dyn_tick_reprogram_timer()	{}
+
+do {} while (0)
+
+, else you are preparing trap for someone.
+
+> Index: linux-dev/kernel/dyn-tick.c
+> ===================================================================
+> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
+> +++ linux-dev/kernel/dyn-tick.c	2005-06-02 10:37:12.000000000 -0700
+> @@ -0,0 +1,235 @@
+> +/*
+> + * linux/arch/i386/kernel/dyn-tick.c
+> + *
+> + * Beginnings of generic dynamic tick timer support
+> + *
+> + * Copyright (C) 2004 Nokia Corporation
+> + * Written by Tony Lindgen <tony@atomide.com> and
+> + * Tuukka Tikkanen <tuukka.tikkanen@elektrobit.com>
+> + *
+
+Heh, you work for Nokia? Can I get one of those nokia 770 toys? I
+should have 100 euros somewhere here :-).
+								Pavel
+

@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261160AbVFCWqM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVFCWxf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261160AbVFCWqM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 18:46:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbVFCWqM
+	id S261164AbVFCWxf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 18:53:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261165AbVFCWxf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 18:46:12 -0400
-Received: from mail.kroah.org ([69.55.234.183]:3482 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261160AbVFCWqG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 18:46:06 -0400
-Date: Fri, 3 Jun 2005 15:45:51 -0700
-From: Greg KH <gregkh@suse.de>
-To: tom.l.nguyen@intel.com, linux-pci@atrey.karlin.mff.cuni.cz
-Cc: linux-kernel@vger.kernel.org, roland@topspin.com, davem@davemloft.net
-Subject: pci_enable_msi() for everyone?
-Message-ID: <20050603224551.GA10014@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+	Fri, 3 Jun 2005 18:53:35 -0400
+Received: from CPE000625dddb50-CM000a73996061.cpe.net.cable.rogers.com ([70.28.15.40]:13901
+	"EHLO deimos.masoud.ir") by vger.kernel.org with ESMTP
+	id S261164AbVFCWxd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 18:53:33 -0400
+Message-ID: <42A0DF51.2010809@axentra.net>
+Date: Fri, 03 Jun 2005 15:53:05 -0700
+From: Masoud Sharbiani <masouds@axentra.net>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: riel@surriel.com
+CC: linux-kernel@vger.kernel.org
+Subject: rmap patches for 2.4.30(or 31)
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In talking with a few people about the MSI kernel code, they asked why
-we can't just do the pci_enable_msi() call for every pci device in the
-system (at somewhere like pci_enable_device() time or so).  That would
-let all drivers and devices get the MSI functionality without changing
-their code, and probably make the api a whole lot simpler.
+Hello Rik,
 
-Now I know the e1000 driver would have to specifically disable MSI for
-some of their broken versions, and possibly some other drivers might
-need this, but the downside seems quite small.
+It seems that I have successfully hacked 2.4.25 rmap patch so that it 
+applies cleanly to 2.4.30 (that is, it compiles, boots and runs great 
+under normal conditions); How would I go for testing it and stress 
+testing it? It does survive the make -j of kernel (with lots of swap), 
+but, when I want to try and run ltp tests, it goes to a bad mood (i.e. 
+swapping out massively at first, then a dead silence)
 
-Or am I missing something pretty obvious here?
+Here is my ltp test run command:
+./runltplite.sh -i 1024 -m 128 -p -q -l /tmp/result-rmap -d /home/0tmp/
+It ends up forking a lot of loadgen processes that simply allocate 
+memory and use it (and CPU), so the system becomes unresponsive; It also 
+starts killing processes since it runs out of memory. I don't see any 
+hangs or panics, and the system responds to pings and Keyboard dump 
+commands, such as right-Alt+Scroll lock and similar ones, and looks it 
+is spending most of its time in page_launder() or thereabouts, swap and 
+physical memory both become full.
+How do you test the rmap patches for correctness before offering them to 
+the people out there?
+The patch is available from http://masoud.ir/patches/2.4.30-rmap15.patch
 
-thanks,
+Thanks in advance,
+Masoud Sharbiani
 
-greg k-h

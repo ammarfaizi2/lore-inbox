@@ -1,57 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261241AbVFCFQJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVFCFRE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261241AbVFCFQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 01:16:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVFCFQJ
+	id S261258AbVFCFRE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 01:17:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVFCFRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 01:16:09 -0400
-Received: from locomotive.csh.rit.edu ([129.21.60.149]:20517 "EHLO
-	locomotive.unixthugs.org") by vger.kernel.org with ESMTP
-	id S261241AbVFCFQF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 01:16:05 -0400
-Message-ID: <429FE78C.1080702@suse.com>
-Date: Fri, 03 Jun 2005 01:15:56 -0400
-From: Jeff Mahoney <jeffm@suse.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041207)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: l0rd4gu1@icontrol.com.mx
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: doing a dd to a dbfile
-References: <1117673999.28282.2.camel@localhost>  <429F5BB6.90301@suse.com> <1117768588.12719.2.camel@localhost>
-In-Reply-To: <1117768588.12719.2.camel@localhost>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Fri, 3 Jun 2005 01:17:04 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:18611 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261258AbVFCFQ5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 01:16:57 -0400
+Date: Fri, 3 Jun 2005 07:16:29 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjanv@infradead.org>,
+       Christoph Hellwig <hch@infradead.org>, Andi Kleen <ak@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Subject: Re: [rfc] [patch] consolidate/clean up spinlock.h files
+Message-ID: <20050603051629.GB14059@elte.hu>
+References: <20050602144004.GA31807@elte.hu> <Pine.LNX.4.61.0506021817390.3743@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0506021817390.3743@scrub.home>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Ing. Raúl Alvarez Aguileta wrote:
-> Hi Jeff
+* Roman Zippel <zippel@linux-m68k.org> wrote:
+
+> Hi,
 > 
-> Thanks for the help, i've published the image at:
+> On Thu, 2 Jun 2005, Ingo Molnar wrote:
 > 
-> http://egw.servebeer.com/vmlinux.bz2
+> >  - consolidates and enhances the spinlock/rwlock debugging code
+> > 
+> >  - simplifies the asm/spinlock.h files
+> > 
+> >  - encapsulates the raw spinlock types and moves generic spinlock
+> >    features (such as ->break_lock) into the generic code.
+> > 
+> >  - cleans up the spinlock code hierarchy to get rid of spaghetti.
+> 
+> That nicely splits the headers into several separate files, but the 
+> problem is that all these new header files are only of limited value 
+> outside the spinlock code.
+> What I'd really to see is a split of definitions and implementation. That 
+> means the definitions would be available via <linux/spinlock_types.h> and 
+> could be used in other core headers and would pull in a lot less header 
+> files. Header dependencies got worse especially since preempt got 
+> included.
+> The patch below does the minimum to provide spinlock_types.h. We could 
+> also include initializers.
 
-Ok, thanks.
+yes, that's what i'm working towards - separating type from 
+implementation on the arch level was the first step needed. I already 
+had it at such a state yesterday (complete separation of type 
+definitions, API definitions and asm implementation - it needed the 
+initializers in the asm/spinlock_types.h file, but otherwise it was 
+straightforward), but undid it in the last minute because sched.c and 
+kernel_lock.c used some intermediate/raw primitives, leading to ugly 
+dependencies. I'll re-try this angle today and repost the patch.
 
-As a data point, the index (i) [from %r13] used is 0. This is definitely
-a problem since the buffers are allocated for the page just previous to
-the call of reiserfs_allocate_blocks_for_region(), and the page remains
-locked.
-
-- -Jeff
-
-- --
-Jeff Mahoney
-SuSE Labs
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-
-iD8DBQFCn+eMLPWxlyuTD7IRAo1SAJoDXqGAUChxDErxnn2iYow/LunQVQCfSGSn
-HL7ga2+tl+JZztO7kgzOLRA=
-=K41t
------END PGP SIGNATURE-----
+	Ingo

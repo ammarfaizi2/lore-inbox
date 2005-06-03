@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbVFCTbS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261510AbVFCTdi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261516AbVFCTbS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 15:31:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbVFCTbI
+	id S261510AbVFCTdi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 15:33:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261341AbVFCTbY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 15:31:08 -0400
-Received: from ip213-185-39-113.laajakaista.mtv3.fi ([213.185.39.113]:8904
-	"HELO dag.newtech.fi") by vger.kernel.org with SMTP id S261510AbVFCTaJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 15:30:09 -0400
-Message-ID: <20050603193005.27182.qmail@dag.newtech.fi>
-X-Mailer: exmh version 2.6.3 04/04/2003 with nmh-0.27
-To: Greg KH <greg@kroah.com>
-cc: Dag Nygren <dag@newtech.fi>, linux-kernel@vger.kernel.org, dag@newtech.fi
-Subject: Re: OHCI driver have problems with USB 2.0 memory devices 
-In-Reply-To: Message from Greg KH <greg@kroah.com> 
-   of "Fri, 03 Jun 2005 11:14:54 PDT." <20050603181454.GA5722@kroah.com> 
+	Fri, 3 Jun 2005 15:31:24 -0400
+Received: from mail.kroah.org ([69.55.234.183]:53703 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261514AbVFCTa1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 15:30:27 -0400
+Date: Fri, 3 Jun 2005 12:30:14 -0700
+From: Greg KH <greg@kroah.com>
+To: Dag Nygren <dag@newtech.fi>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: OHCI driver have problems with USB 2.0 memory devices
+Message-ID: <20050603193014.GB7435@kroah.com>
+References: <20050603181454.GA5722@kroah.com> <20050603191627.20230.qmail@dag.newtech.fi>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Fri, 03 Jun 2005 22:30:05 +0300
-From: Dag Nygren <dag@newtech.fi>
+Content-Disposition: inline
+In-Reply-To: <20050603191627.20230.qmail@dag.newtech.fi>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Fri, Jun 03, 2005 at 08:27:01PM +0300, Dag Nygren wrote:
+On Fri, Jun 03, 2005 at 10:16:27PM +0300, Dag Nygren wrote:
+> > On Fri, Jun 03, 2005 at 08:27:01PM +0300, Dag Nygren wrote:
+> > > 
+> > > Hi,
+> > > 
+> > > just installed 2.6.11.11 on a single board computer using
+> > > a SGS Thomson integrated USB controller and found that
+> > > inserting a USB 2.0 stick generated a "IRQ INTR_SF lossage"
+> > > message and further lockup of the driver. Ie. a cat of 
+> > > /proc/bus/usb/devices will freeze the cat process.
 > > 
-> > Hi,
-> > 
-> > just installed 2.6.11.11 on a single board computer using
-> > a SGS Thomson integrated USB controller and found that
-> > inserting a USB 2.0 stick generated a "IRQ INTR_SF lossage"
-> > message and further lockup of the driver. Ie. a cat of 
-> > /proc/bus/usb/devices will freeze the cat process.
+> > Does 2.6.12-rc5 have this same problem?
 > 
-> Does 2.6.12-rc5 have this same problem?
+> Haven't tried, if you think it will make a difference
+> I can do a test on Monday when back at work.
 
-Couldn't help but try to download 2.6.12-rc5 but ran into a different
-problem.
-The patch doesn't apply cleanly to 2.6.11.11???
+Yes, please do.
 
-What version is the patch supposed to be applied to?
+thanks,
 
-Dag
-
-
+greg k-h

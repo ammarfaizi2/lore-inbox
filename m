@@ -1,41 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261280AbVFCOTE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVFCOUh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261280AbVFCOTE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 10:19:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261286AbVFCOTE
+	id S261286AbVFCOUh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 10:20:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbVFCOUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 10:19:04 -0400
-Received: from animx.eu.org ([216.98.75.249]:949 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S261280AbVFCOTC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 10:19:02 -0400
-Date: Fri, 3 Jun 2005 10:15:04 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: "Richard B. Johnson" <linux-os@analogic.com>
-Cc: Tomko <tomko@avantwave.com>, linux-kernel@vger.kernel.org
-Subject: Re: question why need open /dev/console in init() when starting kernel
-Message-ID: <20050603141504.GA14641@animx.eu.org>
-Mail-Followup-To: "Richard B. Johnson" <linux-os@analogic.com>,
-	Tomko <tomko@avantwave.com>, linux-kernel@vger.kernel.org
-References: <42A00065.9060201@avantwave.com> <Pine.LNX.4.61.0506030629170.11487@chaos.analogic.com>
+	Fri, 3 Jun 2005 10:20:37 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:24777 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261286AbVFCOUY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 10:20:24 -0400
+Date: Fri, 3 Jun 2005 16:19:43 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, XIAO Gang <xiao@unice.fr>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Suggestion on "int len" sanity
+Message-ID: <20050603141943.GA18748@wohnheim.fh-wedel.de>
+References: <429EB537.4060305@unice.fr> <20050602084840.GA32519@wohnheim.fh-wedel.de> <Pine.LNX.4.62.0506031143100.16362@numbat.sonytel.be> <20050603122058.GF29811@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0506030629170.11487@chaos.analogic.com>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050603122058.GF29811@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Richard B. Johnson wrote:
-> For error messages (as well as it's the law)! Init needs a terminal.
-> Init is the 'father' of all future tasks and they need a default terminal
-> too.
+On Fri, 3 June 2005 13:20:58 +0100, Al Viro wrote:
+> 
+> Ugh, indeed - who the hell had come up with _that_?
 
-Is it at all possible that if /dev/console does not exist that the kernel
-can mknod it?
+/me did.
 
-Would the code to do this be larger than 2 entries in a cpio archive (one
-for /dev directory and one for /dev/console char dev)?
+Should I add explicit <joke> tags next time?  Thought it would be
+obvious, esp. to you.
+
+Jörn
 
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+I don't understand it. Nobody does.
+-- Richard P. Feynman

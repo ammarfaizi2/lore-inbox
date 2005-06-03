@@ -1,84 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261195AbVFCJqE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVFCKG7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261195AbVFCJqE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 05:46:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVFCJqE
+	id S261202AbVFCKG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 06:06:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261205AbVFCKG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 05:46:04 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:27804 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261195AbVFCJpx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 05:45:53 -0400
-Date: Fri, 3 Jun 2005 11:45:51 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-cc: XIAO Gang <xiao@unice.fr>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: Suggestion on "int len" sanity
-In-Reply-To: <20050602084840.GA32519@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.62.0506031143100.16362@numbat.sonytel.be>
-References: <429EB537.4060305@unice.fr> <20050602084840.GA32519@wohnheim.fh-wedel.de>
+	Fri, 3 Jun 2005 06:06:59 -0400
+Received: from mail-in-05.arcor-online.net ([151.189.21.45]:46250 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261202AbVFCKG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 06:06:58 -0400
+From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
+Subject: Re: question why need open /dev/console in init() when starting kernel
+To: Tomko <tomko@avantwave.com>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Fri, 03 Jun 2005 12:06:53 +0200
+References: <4betH-75D-9@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-584334533-903255571-1117791951=:16362"
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1De94o-0001Dv-2f@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Tomko <tomko@avantwave.com> wrote:
 
----584334533-903255571-1117791951=:16362
-Content-Type: TEXT/PLAIN; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
+> Do anyone know why it need to open("/dev/console"....) at the end of the
+> init() before calling execve("/sbin/init") ? Why open this for the in ,
+> out , err channel at this moment but not open it at the time when going
+> to use , e.g. open it in the shell .
 
-On Thu, 2 Jun 2005, [iso-8859-1] Jörn Engel wrote:
-> On Thu, 2 June 2005 09:28:55 +0200, XIAO Gang wrote:
-> > 3. The similar situation occurs in fs/namei.c, vfs_readlink(). Here it does 
-> > not matter if len
-> > is declared to be unsigned, but for size_t, we have to take care about the 
-> > size of size_t.
-> 
-> You could possibly change the code to:
-> 
-> int vfs_readlink(struct dentry *dentry, char __user *buffer, int buflen, const char *link)
-> {
-> 	union {
-> 		unsigned len;
-                ^^^^^^^^
-Plain unsigned is deprecated.
-
-> 		int ret;
-> 	} u;
-
-Ugh...
-
-> 
-> 	u.ret = PTR_ERR(link);
-> 	if (IS_ERR(link))
-> 		goto out;
-> 
-> 	u.len = strlen(link);
-> 	if (u.len > (unsigned) buflen)
-> 		u.len = buflen;
-> 	if (copy_to_user(buffer, link, u.len))
-> 		u.ret = -EFAULT;
-> out:
-> 	return u.ret;
-> }
-
-buflen should be size_t.
-
-Since the return value may be negative, it should be signed. But int is not an
-option, since size_t is 64 bit on 64-bit machines, while int is still 32-bit.
-So the return type should be ssize_t.
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
----584334533-903255571-1117791951=:16362--
+How is the shell supposed to know which files to open, or if it's supposed
+to open files at all?
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

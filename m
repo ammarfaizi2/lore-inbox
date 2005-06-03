@@ -1,76 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVFCQqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261391AbVFCQxY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbVFCQqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 12:46:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261391AbVFCQqZ
+	id S261391AbVFCQxY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 12:53:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261392AbVFCQxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 12:46:25 -0400
-Received: from ns2.suse.de ([195.135.220.15]:9172 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261389AbVFCQp4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 12:45:56 -0400
-Date: Fri, 3 Jun 2005 18:45:51 +0200
-From: Andi Kleen <ak@suse.de>
-To: "Lynch, Rusty" <rusty.lynch@intel.com>
-Cc: Andi Kleen <ak@suse.de>, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Vara Prasad <prasadav@us.ibm.com>, Hien Nguyen <hien@us.ibm.com>,
-       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
-       Jim Keniston <jkenisto@us.ibm.com>
-Subject: Re: [patch] x86_64 specific function return probes
-Message-ID: <20050603164551.GS23831@wotan.suse.de>
-References: <032EB457B9DBC540BFB1B7B519C78B0E07499DE4@orsmsx404.amr.corp.intel.com>
+	Fri, 3 Jun 2005 12:53:24 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:48574 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S261391AbVFCQxU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 12:53:20 -0400
+Subject: RE: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new
+	DellBIOS update driver
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Abhay_Salunke@Dell.com
+Cc: greg@kroah.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Matt_Domsch@Dell.com
+In-Reply-To: <367215741E167A4CA813C8F12CE0143B3ED3A5@ausx2kmpc115.aus.amer.dell.com>
+References: <367215741E167A4CA813C8F12CE0143B3ED3A5@ausx2kmpc115.aus.amer.dell.com>
+Content-Type: text/plain
+Date: Fri, 03 Jun 2005 18:53:00 +0200
+Message-Id: <1117817580.3656.88.camel@pegasus>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <032EB457B9DBC540BFB1B7B519C78B0E07499DE4@orsmsx404.amr.corp.intel.com>
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 03, 2005 at 09:40:26AM -0700, Lynch, Rusty wrote:
-> From: Andi Kleen [mailto:ak@suse.de]
-> >On Thu, Jun 02, 2005 at 01:58:50PM -0700, Rusty Lynch wrote:
-> >> The following patch adds the x86_64 architecture specific
-> implementation
-> >
-> >[....]
-> >
-> >Thanks for the long description.
-> >
-> >but...
-> >
-> >> +struct task_struct  *arch_get_kprobe_task(void *ptr)
-> >> +{
-> >> +	return ((struct thread_info *) (((unsigned long) ptr) &
-> >> +					(~(THREAD_SIZE -1))))->task;
-> >> +}
-> >
-> >and
-> >
-> >
-> >> +	tsk = arch_get_kprobe_task(sara);
-> >
-> >
-> >This is still wrong when the code is not executing on the process
-> >stack, but on a interrupt/Exception stack. Any reason you cannot
-> >just use current here?
-> >
-> >-Andi
-> 
-> Ah... you are talking about if someone registers a return probe on
-> something like an interrupt handler, right? 
+Hi Abhay,
 
-Yes.
+> > No no no.  Just because you are using the firmware interface, does not
+> > mean you need to add this extra round-trip to the whole system.  Just
+> > dump the firmware to the /sys/firmware/whatever... file whenever you
+> > want to, that's all that is needed.  No hotplug stuff, no filename
+> > stuff, just a simple copy.
+> Greg, all the feedback gave the impression that request_firmwae hotplug
+> stuff was the way to go. Seems it's not required! Now that means it
+> needs to be done the way it was before except that it needs to have a
+> bin attribute for data and a normal attribute for size.
+> This would be even better as it makes it easy to read back the data.
 
-> 
-> I was under the impression that I could not always count on the current
-> I get from interrupt context to map to the current seen by the target
-> function (that triggers the breakpoint.)  It sounds like an invalid
-> assumption lead to some extra complexity that isn't correct for all
-> cases.
+last time this was discussed somewhere on Linux SCSI with HBA or RAID
+adapter card, all pointed to request_firmware(). If Greg disagrees then
+I am sorry that I told you to use this interface.
+
+Regards
+
+Marcel
 
 
-It is an invalid assumption, current works in all contexts. Except
-if your GS is broken, but that should only happen when the kernel
-is already very crashed.
-
--Andi

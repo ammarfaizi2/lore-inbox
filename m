@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261237AbVFCM0q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVFCM2e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261237AbVFCM0q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 08:26:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261240AbVFCM0q
+	id S261240AbVFCM2e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 08:28:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261243AbVFCM2d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 08:26:46 -0400
-Received: from 1-1-1-9a.ghn.gbg.bostream.se ([82.182.69.4]:30403 "EHLO
-	scream.fjortis.info") by vger.kernel.org with ESMTP id S261237AbVFCM0o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 08:26:44 -0400
-Date: Fri, 3 Jun 2005 14:32:10 +0200
-From: Andreas Henriksson <andreas@fjortis.info>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       matt_domsch@dell.com, Greg KH <greg@kroah.com>
-Subject: Re: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new Dell BIOS update driver
-Message-ID: <20050603123210.GA21913@scream.fjortis.info>
-References: <20050602232634.GA32462@littleblue.us.dell.com> <1117756728.3656.45.camel@pegasus>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1117756728.3656.45.camel@pegasus>
-User-Agent: mutt-ng devel (Linux)
+	Fri, 3 Jun 2005 08:28:33 -0400
+Received: from mx1.suse.de ([195.135.220.2]:10173 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261240AbVFCM20 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 08:28:26 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+       XIAO Gang <xiao@unice.fr>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: Suggestion on "int len" sanity
+References: <429EB537.4060305@unice.fr>
+	<20050602084840.GA32519@wohnheim.fh-wedel.de>
+	<Pine.LNX.4.62.0506031143100.16362@numbat.sonytel.be>
+X-Yow: Will the third world war keep ``Bosom Buddies'' off the air?
+Date: Fri, 03 Jun 2005 14:28:25 +0200
+In-Reply-To: <Pine.LNX.4.62.0506031143100.16362@numbat.sonytel.be> (Geert
+	Uytterhoeven's message of "Fri, 3 Jun 2005 11:45:51 +0200 (CEST)")
+Message-ID: <jer7fjeiae.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 03, 2005 at 01:58:48AM +0200, Marcel Holtmann wrote:
+Geert Uytterhoeven <geert@linux-m68k.org> writes:
 
-> 
-> > +	if ((rc = fill_last_packet(data, length)) != 0)
-> 
-> Use "if (!(rc = fill_last_packet(data, length)))".
-> 
+>> 	union {
+>> 		unsigned len;
+>                 ^^^^^^^^
+> Plain unsigned is deprecated.
 
-Even better like this?
+Says who?
 
-	rc = fill_last_packet(data, length);
-	if (!rc)
+Andreas.
 
-
-> 
-> > +		if ( rc == 0 )
-> 
-> Spaces.
-> 
-
-Plus use: if (!rc)
-
-
-Regards,
-Andreas Henriksson
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+Key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

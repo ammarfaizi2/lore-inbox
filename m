@@ -1,165 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVFCNCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVFCNGI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261251AbVFCNCG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 09:02:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbVFCNCG
+	id S261252AbVFCNGI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 09:06:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261250AbVFCNGH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 09:02:06 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:45029 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261251AbVFCNBt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 09:01:49 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Alan Cox <alan@redhat.com>
-Subject: [PATCH] moxa: do not ignore input
-Date: Fri, 3 Jun 2005 16:01:21 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, linux-serial@vger.kernel.org,
-       rmk+serial@arm.linux.org.uk
-References: <200506021220.47138.vda@ilport.com.ua> <200506021554.07316.vda@ilport.com.ua> <20050602225805.GB9628@devserv.devel.redhat.com>
-In-Reply-To: <20050602225805.GB9628@devserv.devel.redhat.com>
+	Fri, 3 Jun 2005 09:06:07 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:12224 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S261252AbVFCNFw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 09:05:52 -0400
+Date: Fri, 3 Jun 2005 14:05:47 +0100 (IST)
+From: Mel Gorman <mel@csn.ul.ie>
+X-X-Sender: mel@skynet
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: jschopp@austin.ibm.com, "Martin J. Bligh" <mbligh@mbligh.org>,
+       linux-mm@kvack.org, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Avoiding external fragmentation with a placement policy Version
+ 12
+In-Reply-To: <1117770488.5084.25.camel@npiggin-nld.site>
+Message-ID: <Pine.LNX.4.58.0506031349280.10779@skynet>
+References: <20050531112048.D2511E57A@skynet.csn.ul.ie>  <429E20B6.2000907@austin.ibm.com>
+ <429E4023.2010308@yahoo.com.au>  <423970000.1117668514@flay>
+ <429E483D.8010106@yahoo.com.au>  <434510000.1117670555@flay>
+ <429E50B8.1060405@yahoo.com.au>  <429F2B26.9070509@austin.ibm.com>
+ <1117770488.5084.25.camel@npiggin-nld.site>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_hSFoChOrmgDeSum"
-Message-Id: <200506031601.21180.vda@ilport.com.ua>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 3 Jun 2005, Nick Piggin wrote:
 
---Boundary-00=_hSFoChOrmgDeSum
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+> On Thu, 2005-06-02 at 10:52 -0500, Joel Schopp wrote:
+> > > I see your point... Mel's patch has failure cases though.
+> > > For example, someone turns swap off, or mlocks some memory
+> > > (I guess we then add the page migration defrag patch and
+> > > problem is solved?).
+> >
+> > This reminds me that page migration defrag will be pretty useless
+> > without something like this done first.  There will be stuff that can't
+> > be migrated and it needs to be grouped together somehow.
+> >
+> > In summary here are the reasons I see to run with Mel's patch:
+> >
+> > 1. It really helps with medium-large allocations under memory pressure.
+> > 2. Page migration defrag will need it.
+> > 3. Memory hotplug remove will need it.
+> >
+>
+> I guess I'm now more convinced of its need ;)
+>
+> add:
+> 4. large pages
+> 5. (hopefully) helps with smaller allocations (ie. order 3)
+>
 
-Stop using tty internal structure in mxser_receive_chars(),
-use tty_insert_flip_char(tty, ch flag); istead.
+6. Avoid calls to the page allocator
 
-Without this change driver ignores any rx'ed chars.
+If a subsystem needs 8 pages to do a job, it should only have to call the
+allocator once, not 8 times only to spend more time breaking the work up
+into page-sized chunks.
 
-Run tested, please apply.
+If you look at rmqueue_bulk() in the patch, you'll see that it tries to
+fill the per-cpu lists of order-0 pages with one call to the allocator
+which saved some time. The additional statistics patch shows how many of
+these bulk requests are made and what sizes were actually allocated. It
+shows that a sizable number of additional calls to the buddy allocator are
+avoided.
 
-Any suggestions on further cleanups this driver may need
-while I have access to this hardware?
---
-vda
+> It would really help your cause in the short term if you can
+> demonstrate improvements for say order-3 allocations (eg. use
+> gige networking, TSO, jumbo frames, etc).
+>
 
---Boundary-00=_hSFoChOrmgDeSum
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="mxser.c.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="mxser.c.diff"
+I will work on this early next week unless someone else does not beat me
+to it. Right now, I need to catch a flight and I'll be offline for a few
+days.
 
---- linux-2.6.12-rc2.src/drivers/char/mxser.c.orig	Fri Jun  3 15:48:04 2005
-+++ linux-2.6.12-rc2.src/drivers/char/mxser.c	Fri Jun  3 15:45:05 2005
-@@ -1995,9 +1995,6 @@ static void mxser_receive_chars(struct m
- 	unsigned char ch, gdl;
- 	int ignored = 0;
- 	int cnt = 0;
--	unsigned char *cp;
--	char *fp;
--	int count;
- 	int recv_room;
- 	int max = 256;
- 	unsigned long flags;
-@@ -2011,10 +2008,6 @@ static void mxser_receive_chars(struct m
- 		//return;
- 	}
- 
--	cp = tty->flip.char_buf;
--	fp = tty->flip.flag_buf;
--	count = 0;
--
- 	// following add by Victor Yu. 09-02-2002
- 	if (info->IsMoxaMustChipFlag != MOXA_OTHER_UART) {
- 
-@@ -2041,12 +2034,10 @@ static void mxser_receive_chars(struct m
- 		}
- 		while (gdl--) {
- 			ch = inb(info->base + UART_RX);
--			count++;
--			*cp++ = ch;
--			*fp++ = 0;
-+			tty_insert_flip_char(tty, ch, 0);
- 			cnt++;
- 			/*
--			   if((count>=HI_WATER) && (info->stop_rx==0)){
-+			   if((cnt>=HI_WATER) && (info->stop_rx==0)){
- 			   mxser_stoprx(tty);
- 			   info->stop_rx=1;
- 			   break;
-@@ -2061,7 +2052,7 @@ intr_old:
- 		if (max-- < 0)
- 			break;
- 		/*
--		   if((count>=HI_WATER) && (info->stop_rx==0)){
-+		   if((cnt>=HI_WATER) && (info->stop_rx==0)){
- 		   mxser_stoprx(tty);
- 		   info->stop_rx=1;
- 		   break;
-@@ -2078,36 +2069,33 @@ intr_old:
- 			if (++ignored > 100)
- 				break;
- 		} else {
--			count++;
-+			char flag = 0;
- 			if (*status & UART_LSR_SPECIAL) {
- 				if (*status & UART_LSR_BI) {
--					*fp++ = TTY_BREAK;
-+					flag = TTY_BREAK;
- /* added by casper 1/11/2000 */
- 					info->icount.brk++;
--
- /* */
- 					if (info->flags & ASYNC_SAK)
- 						do_SAK(tty);
- 				} else if (*status & UART_LSR_PE) {
--					*fp++ = TTY_PARITY;
-+					flag = TTY_PARITY;
- /* added by casper 1/11/2000 */
- 					info->icount.parity++;
- /* */
- 				} else if (*status & UART_LSR_FE) {
--					*fp++ = TTY_FRAME;
-+					flag = TTY_FRAME;
- /* added by casper 1/11/2000 */
- 					info->icount.frame++;
- /* */
- 				} else if (*status & UART_LSR_OE) {
--					*fp++ = TTY_OVERRUN;
-+					flag = TTY_OVERRUN;
- /* added by casper 1/11/2000 */
- 					info->icount.overrun++;
- /* */
--				} else
--					*fp++ = 0;
--			} else
--				*fp++ = 0;
--			*cp++ = ch;
-+				}
-+			}
-+			tty_insert_flip_char(tty, ch, flag);
- 			cnt++;
- 			if (cnt >= recv_room) {
- 				if (!info->ldisc_stop_rx) {
-@@ -2132,13 +2120,13 @@ intr_old:
- 		// above add by Victor Yu. 09-02-2002
- 	} while (*status & UART_LSR_DR);
- 
--      end_intr:		// add by Victor Yu. 09-02-2002
-+end_intr:		// add by Victor Yu. 09-02-2002
- 
- 	mxvar_log.rxcnt[info->port] += cnt;
- 	info->mon_data.rxcnt += cnt;
- 	info->mon_data.up_rxcnt += cnt;
- 	spin_unlock_irqrestore(&info->slock, flags);
--	
-+
- 	tty_flip_buffer_push(tty);
- }
- 
+Once I start, I'm going to be running tests on network filesystems mounted
+on the loopback device to see what sort of results I find.
 
---Boundary-00=_hSFoChOrmgDeSum--
+>
+> > On the downside we have:
+> >
+> > 1. Slightly more complexity in the allocator.
+> >
+>
+> For some definitions of 'slightly', perhaps :(
+>
 
+Does it need more documentation? If so, I'll write up a detailed blurb on
+how it works and drop it into Documentation/
+
+> Although I can't argue that a buddy allocator is no good without
+> being able to satisfy higher order allocations.
+>
+
+Unfortunately, it is a fundemental flaw of the buddy allocator that it
+fragments badly. The thing is, other allocators that do not fragment are
+also slower.
+
+> So in that case, I'm personally OK with it going into -mm. Hopefully
+> there will be a bit more review and hopefully some simplification if
+> possible.
+>
+
+Fingers crossed. I would be very interested to see anything that makes it
+simplier.
+
+> Last question: how does it go on systems with really tiny memories?
+> (4MB, 8MB, that kind of thing).
+>
+
+I tested it with mem=16M (anything lower and my machine doesn't boot the
+standard kernel with going OOM, let alone the patched one). There was no
+significant change in performance of the aim9 benchmarks. The additional
+memory overhead of the patch is insignificant.
+
+However, at low memory, the fragmentation strategy does not work unless
+MAX_ORDER is also dropped. As the block reservations are 2^MAX_ORDER in
+size, there is no point reserving anything if the system only has 4
+MAX_ORDER blocks to being with.
+
+-- 
+Mel Gorman
+Part-time Phd Student                          Java Applications Developer
+University of Limerick                         IBM Dublin Software Lab

@@ -1,114 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVFCQZr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVFCQah@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261375AbVFCQZr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 12:25:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVFCQZr
+	id S261380AbVFCQah (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 12:30:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbVFCQag
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 12:25:47 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:6827 "EHLO e32.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261375AbVFCQZX (ORCPT
+	Fri, 3 Jun 2005 12:30:36 -0400
+Received: from mx1.suse.de ([195.135.220.2]:61629 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261380AbVFCQaV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 12:25:23 -0400
-Subject: Re: TPM on IBM thinkcenter S51
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: Torsten Landschoff <tla@comsys.informatik.uni-kiel.de>
-Cc: trusted linux <tcimpl2005@yahoo.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <1117810969.5407.11.camel@localhost.localdomain>
-References: <20050602220028.3572.qmail@web61014.mail.yahoo.com>
-	 <1117790588.6249.5.camel@localhost.localdomain>
-	 <1117810969.5407.11.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 03 Jun 2005 11:24:33 -0500
-Message-Id: <1117815874.5407.22.camel@localhost.localdomain>
+	Fri, 3 Jun 2005 12:30:21 -0400
+Date: Fri, 3 Jun 2005 18:30:10 +0200
+From: Andi Kleen <ak@suse.de>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: john stultz <johnstul@us.ibm.com>, Nishanth Aravamudan <nacc@us.ibm.com>,
+       Andi Kleen <ak@suse.de>, lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org
+Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
+Message-ID: <20050603163010.GR23831@wotan.suse.de>
+References: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net> <200506021905.08274.kernel-stuff@comcast.net> <1117754453.17804.51.camel@cog.beaverton.ibm.com> <200506021950.35014.kernel-stuff@comcast.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200506021950.35014.kernel-stuff@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The second patch that may be necessary to fix the NSC TPM command path.
-Please let me know your results.
-
-Thanks,
-Kylie
-
-Signed-off-by: Kylene Hall
----
---- linux-2.6.12-rc4/drivers/char/tpm/tpm_nsc.orig	2005-06-03 10:50:45.000000000 -0500
-+++ linux-2.6.12-rc4/drivers/char/tpm/tpm_nsc.c	2005-06-03 10:51:09.000000000 -0500
-@@ -149,7 +149,7 @@ static int tpm_nsc_recv(struct tpm_chip 
- 			break;
- 		*p = inb(chip->vendor->base + NSC_DATA);
- 	}
--
-+/*
- 	if ((data & NSC_STATUS_F0) == 0) {
- 		dev_err(&chip->pci_dev->dev, "F0 not set\n");
- 		return -EIO;
-@@ -159,7 +159,7 @@ static int tpm_nsc_recv(struct tpm_chip 
- 			"expected end of command(0x%x)\n", data);
- 		return -EIO;
- 	}
--
-+*/
- 	native_size = (__force __be32 *) (buf + 2);
- 	size = be32_to_cpu(*native_size);
- 
-
-
-
-On Fri, 2005-06-03 at 10:02 -0500, Kylene Jo Hall wrote:
-> Hi Torsten,
+On Thu, Jun 02, 2005 at 07:50:33PM -0400, Parag Warudkar wrote:
+> On Thursday 02 June 2005 19:20, john stultz wrote:
+> > Could you see if the slowness you're feeling is correlated to the
+> > acpi_pm timesource?
 > 
-> I maintain the driver and am interested in figuring out what this
-> problem is.  Can you please tell me what the device major/minor are
-> on /dev/tpm.  Any output produced by the driver in /var/log/messages.
-> Also the output of /sbin/lspci.  Also I am assuming you are using the
-> version in the default 2.6.12-rc5.  There are many changes are in the -
-> mm2 patch so I will pull down the default tree and make sure the version
-> there is working.
+> Speaking of which, the below code from arch/i386/timer_pm.c looks particularly 
+> more taxing to me - 3 times read from ioport in a loop - not sure how many 
+> time that executes. 
 > 
-> Thanks,
-> Kylie
+> static inline u32 read_pmtmr(void)
+> {
+>         u32 v1=0,v2=0,v3=0;
+>         /* It has been reported that because of various broken
+>          * chipsets (ICH4, PIIX4 and PIIX4E) where the ACPI PM time
+>          * source is not latched, so you must read it multiple
+>          * times to insure a safe value is read.
+>          */
+>         do {
+>                 v1 = inl(pmtmr_ioport);
+>                 v2 = inl(pmtmr_ioport);
+>                 v3 = inl(pmtmr_ioport);
+>         } while ((v1 > v2 && v1 < v3) || (v2 > v3 && v2 < v1)
+>                         || (v3 > v1 && v3 < v2));
 > 
-> On Fri, 2005-06-03 at 11:23 +0200, Torsten Landschoff wrote:
-> > On Thu, 2005-06-02 at 15:00 -0700, trusted linux wrote:
-> > > thanks, here is my strace related to tpm:
-> > > 
-> > > open("/dev/tpm", O_RDWR)                = -1 ENODEV
-> > > (No such device)
-> > > write(2, "Can\'t open TPM Driver\n", 22Can't open TPM
-> > > Driver
-> > > ) = 22
-> > 
-> > Okay, so the driver is in fact not working. It could be that /dev/tpm
-> > has the wrong device number assigned. If the driver is really installed
-> > can be checked by
-> > 
-> > 	systool -c misc|grep tpm
-> > 
-> > I bet it does not show anything. OTOH if the module loads successfully
-> > it really should be there. No idea what's going wrong then. 
-> > 
-> > Which version of the driver are you using?
-> > 
-> > Greetings
-> > 
-> > 	Torsten
-> > 
-> > -
-> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> > the body of a message to majordomo@vger.kernel.org
-> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> > Please read the FAQ at  http://www.tux.org/lkml/
-> > 
-> > 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
-> 
+> Shouldn't that loop be limited to the broken chipsets - why would correct 
+> people with correctly working chipsets carry this extra burden? (Or is it 
+> insignificant?)
 
+It is not insignificant and makes a lot of difference. On the x86-64
+version of pmtimer I dropped it completely and so far nobody 
+complained.
+
+However I wonder why this new time system is using pmtimer by default
+at all. That is very broken because pmtimer is one of the slowest.
+I would suggest to duplicate the time source selection I have
+in the latest x86-64 (-rc5) time.c, that is optimal for all machines
+I know about (except that you might need to add cyclone and a non TSC
+fallback for i386)
+
+-Andi

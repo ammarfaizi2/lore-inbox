@@ -1,64 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVFCD34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVFCDsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261221AbVFCD34 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 23:29:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbVFCD3z
+	id S261197AbVFCDsU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 23:48:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261203AbVFCDsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 23:29:55 -0400
-Received: from fed1rmmtao11.cox.net ([68.230.241.28]:58852 "EHLO
-	fed1rmmtao11.cox.net") by vger.kernel.org with ESMTP
-	id S261221AbVFCD3x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 23:29:53 -0400
-Date: Thu, 2 Jun 2005 20:29:51 -0700
-From: Matt Porter <mporter@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: kumar.gala@freescale.com, linux-kernel@vger.kernel.org,
-       linuxppc-embedded@ozlabs.org
-Subject: Re: [PATCH] cpm_uart: Route SCC2 pins for the STx GP3 board
-Message-ID: <20050602202951.A28314@cox.net>
-References: <20050601105145.B15351@cox.net> <20050602153540.53486bde.akpm@osdl.org>
+	Thu, 2 Jun 2005 23:48:20 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:5471 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261197AbVFCDsN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 23:48:13 -0400
+Subject: Re: Avoiding external fragmentation with a placement policy
+	Version 12
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: jschopp@austin.ibm.com
+Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Mel Gorman <mel@csn.ul.ie>,
+       linux-mm@kvack.org, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <429F2B26.9070509@austin.ibm.com>
+References: <20050531112048.D2511E57A@skynet.csn.ul.ie>
+	 <429E20B6.2000907@austin.ibm.com> <429E4023.2010308@yahoo.com.au>
+	 <423970000.1117668514@flay> <429E483D.8010106@yahoo.com.au>
+	 <434510000.1117670555@flay> <429E50B8.1060405@yahoo.com.au>
+	 <429F2B26.9070509@austin.ibm.com>
+Content-Type: text/plain
+Date: Fri, 03 Jun 2005 13:48:08 +1000
+Message-Id: <1117770488.5084.25.camel@npiggin-nld.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050602153540.53486bde.akpm@osdl.org>; from akpm@osdl.org on Thu, Jun 02, 2005 at 03:35:40PM -0700
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 02, 2005 at 03:35:40PM -0700, Andrew Morton wrote:
-> Matt Porter <mporter@kernel.crashing.org> wrote:
-> >
-> > +++ uncommitted/drivers/serial/cpm_uart/cpm_uart_cpm2.c  (mode:100644)
-> > @@ -134,12 +134,21 @@
-> >  
-> >  void scc2_lineif(struct uart_cpm_port *pinfo)
-> >  {
-> > +	/*
-> > +	 * STx GP3 uses the SCC2 secondary option pin assignment
-> > +	 * which this driver doesn't account for in the static
-> > +	 * pin assignments. This kind of board specific info
-> > +	 * really has to get out of the driver so boards can
-> > +	 * be supported in a sane fashion.
-> > +	 */
-> > +#ifndef CONFIG_STX_GP3
-> >  	volatile iop_cpm2_t *io = &cpm2_immr->im_ioport;
-> >  	io->iop_pparb |= 0x008b0000;
+On Thu, 2005-06-02 at 10:52 -0500, Joel Schopp wrote:
+> > I see your point... Mel's patch has failure cases though.
+> > For example, someone turns swap off, or mlocks some memory
+> > (I guess we then add the page migration defrag patch and
+> > problem is solved?).
 > 
-> Silly question: why is this driver using a volatile pointer to
-> memory-mapped I/O rather than readl and writel?
+> This reminds me that page migration defrag will be pretty useless 
+> without something like this done first.  There will be stuff that can't 
+> be migrated and it needs to be grouped together somehow.
+> 
+> In summary here are the reasons I see to run with Mel's patch:
+> 
+> 1. It really helps with medium-large allocations under memory pressure.
+> 2. Page migration defrag will need it.
+> 3. Memory hotplug remove will need it.
+> 
 
-readl/writel just won't work.  They are byte swapped on PPC since
-they are specifically for PCI access.  In other "on-chip" drivers
-for PPC32, we typically ioremap() to a non-volatile type and then
-use out_be32()/in_be32() since everything except PCI on PPC is
-in right-endian (big endian) form. out_be*()/in_be*() contain
-an eieio instruction to guarantee proper ordering.
+I guess I'm now more convinced of its need ;)
 
-I know this driver was recently rewritten but the authors may have
-missed the past threads about why volatile use is discouraged.  We
-do something similar with register overlay structures in
-drivers/net/ibm_emac. However, we don't use a volatile type and do
-use PPC32-specific (these are PPC-specific drivers anyway)
-out_be32()/in_be32() for correctness.
+add:
+4. large pages
+5. (hopefully) helps with smaller allocations (ie. order 3)
 
--Matt
+It would really help your cause in the short term if you can
+demonstrate improvements for say order-3 allocations (eg. use
+gige networking, TSO, jumbo frames, etc).
+
+
+> On the downside we have:
+> 
+> 1. Slightly more complexity in the allocator.
+> 
+
+For some definitions of 'slightly', perhaps :(
+
+Although I can't argue that a buddy allocator is no good without
+being able to satisfy higher order allocations.
+
+So in that case, I'm personally OK with it going into -mm. Hopefully
+there will be a bit more review and hopefully some simplification if
+possible.
+
+Last question: how does it go on systems with really tiny memories?
+(4MB, 8MB, that kind of thing).
+
+> I'd personally trade a little extra complexity for any of the 3 upsides.
+> 
+
+-- 
+SUSE Labs, Novell Inc.
+
+
+
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

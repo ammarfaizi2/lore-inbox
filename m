@@ -1,87 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVFCSzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVFCS5D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbVFCSzc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 14:55:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261496AbVFCSzc
+	id S261496AbVFCS5D (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 14:57:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVFCS5C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 14:55:32 -0400
-Received: from fire.osdl.org ([65.172.181.4]:39313 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261500AbVFCSzV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 14:55:21 -0400
-Date: Fri, 3 Jun 2005 11:55:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] broken fault_in_pages_readable call in
- generic_file_buffered_write.
-Message-Id: <20050603115512.1dc23cab.akpm@osdl.org>
-In-Reply-To: <20050603175453.GA4220@localhost.localdomain>
-References: <20050603175453.GA4220@localhost.localdomain>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 3 Jun 2005 14:57:02 -0400
+Received: from fmr24.intel.com ([143.183.121.16]:28801 "EHLO
+	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261496AbVFCS4n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 14:56:43 -0400
+Date: Fri, 3 Jun 2005 11:56:04 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Andi Kleen <ak@muc.de>
+Cc: YhLu <YhLu@tyan.com>, Ashok Raj <ashok.raj@intel.com>,
+       linux-kernel@vger.kernel.org, suresh.b.siddha@intel.com
+Subject: Re: 2.6.12-rc5 is broken in nvidia Ck804 Opteron MB/with dual cor e dual way
+Message-ID: <20050603115604.B29609@unix-os.sc.intel.com>
+References: <3174569B9743D511922F00A0C94314230A403985@TYANWEB> <20050603160932.GH1683@muc.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050603160932.GH1683@muc.de>; from ak@muc.de on Fri, Jun 03, 2005 at 06:09:32PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
->
-> The stack segment grew from bffa7000-c0000000 to bdf08000-c0000000
-> by a perfectly valid writev call. That should not happen.
+On Fri, Jun 03, 2005 at 06:09:32PM +0200, Andi Kleen wrote:
+> On Thu, Jun 02, 2005 at 01:42:00PM -0700, YhLu wrote:
+> > 
+> > for Intel it would be 
+> > 	c->x86_num_cores  is 2 and smp_num_siblings is 2 too....
+> > 	so every core will be HT....
 > 
-> This is caused by an invalid size on the fault_in_pages_readable call
-> in generic_file_buffered_write. The length of the passed buffer needs
-> to be clipped to the maximum size of the current iov.
-
-Gad that code has become opaque - I need to stare at it for half an hour.
-
-
-> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+> If that was true, then a true DC+HT machine would report 4.
 > 
-> diffstat:
->  mm/filemap.c |    9 +++++++--
->  1 files changed, 7 insertions(+), 2 deletions(-)
-> 
-> diff -urpN linux-2.6/mm/filemap.c linux-2.6-patched/mm/filemap.c
-> --- linux-2.6/mm/filemap.c	2005-06-03 16:25:21.000000000 +0200
-> +++ linux-2.6-patched/mm/filemap.c	2005-06-03 16:25:38.000000000 +0200
-> @@ -1968,6 +1968,7 @@ generic_file_buffered_write(struct kiocb
->  	do {
->  		unsigned long index;
->  		unsigned long offset;
-> +		unsigned long maxlen;
->  		size_t copied;
->  
->  		offset = (pos & (PAGE_CACHE_SIZE -1)); /* Within page */
-> @@ -1982,7 +1983,10 @@ generic_file_buffered_write(struct kiocb
->  		 * same page as we're writing to, without it being marked
->  		 * up-to-date.
->  		 */
-> -		fault_in_pages_readable(buf, bytes);
-> +		maxlen = cur_iov->iov_len - iov_base;
-> +		if (maxlen > bytes)
-> +			maxlen = bytes;
-> +		fault_in_pages_readable(buf, maxlen);
+> I doubt it is, but Suresh can probably clarify.
 
-Can you explain the bug a bit more completely?  AFACIT, `bytes' here was
-always in the range 0 ..  PAGE_CACHE_SIZE, so how can it have caused large
-amounts of the stack segment to have been faulted in?
+On  a DC+HT, x86_num_cores will be 2 and kernel will set smp_num_siblings 
+to 2 (even though number of logical processors per physical package as
+seen by cpuid.1.EBX.bits[23:16] will be 4).
+Remember, smp_num_siblings in kernel will just represent HT logical siblings.
 
+If CPU is just DC capable, cpuid.1.EBX.bits[23:16] will return '2' and
+number of cores computation from cpuid.4.EAX.bits[31:26] will be 2. 
+And kernel will set x86_num_cores to 2 and smp_num_siblings will be set to 1
 
-> While looking at this I wondered
-> about another potential issue, fault_in_pages_readable faults the
-> pages of the iov into memory by using __get_user(). Nobody has made
-> sure that the page really stays in memory. While it is unlikely that
-> it gets removed before generic_file_buffered_write has done its jobs,
-> in theory on a virtual system that runs under extreme memory pressure
-> it can happen that the page is reclaimed immediatly.  So the race that
-> is mentioned in the comment is not really fixed...
-> 
+If CPU is just HT capable,cpuid.1.EBX.bits[23:16] will return '2' and
+number of cores computation from cpuid.4.EAX.bits[31:26] will be 1.
+And kernel will set x86_num_cores to 1 and smp_num_siblings will be set to 2.
 
-yup, that's a "well known" problem and we've never come up with an adequate
-solution.  It is possible, rarely, to cause that page to get unmapped in
-the window which you identify.  It is much harder to cause the page to
-actually be reclaimed.  And it is much harder still to cause a mmap/write
-deadlock once the page has been reclaimed.  We've been admiring this
-problem on and off for four or five years...
+> > Function 0000_0001[EBX]
+> > EBX[23:16] Logical Processor Count. If CPUID Fn[8000_0001, 0000_0001][EDX:
+> > HTT, ECX:
+> > CMPLegacy] = 11b, then this field indicates the number of CPU cores in the
+> > processor.
+> > Otherwise, this field is reserved.
+> > 
+> > what is intel value about cpuid(1) ebx [23:16], when the CPU is dual core,
+> > but HT is disabled.
+> > 1?
+
+If CPU is DC+HT capable, but HT is disabled in bios, cpuid.1.EBX.bits[23:16] 
+will still be 4 and during bootup, kernel will figure out that no HT
+siblings came up and will reset smp_num_siblings to 1.
+
+I am planning to do more cleanup post 2.6.12, so that smp_num_siblings will
+be moved to per cpuinfo.
+
+thanks,
+suresh

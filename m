@@ -1,42 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVFCKZG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261211AbVFCKdx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbVFCKZG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 06:25:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVFCKZG
+	id S261211AbVFCKdx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 06:33:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVFCKdx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 06:25:06 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:12759 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261208AbVFCKZC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 06:25:02 -0400
-Date: Fri, 3 Jun 2005 12:25:01 +0200
-From: Jan Kara <jack@suse.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: sct@redhat.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Split the checkpoint lists
-Message-ID: <20050603102501.GB1387@atrey.karlin.mff.cuni.cz>
-References: <20050601080357.GF5933@atrey.karlin.mff.cuni.cz> <20050603015717.7512ea3a.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050603015717.7512ea3a.akpm@osdl.org>
-User-Agent: Mutt/1.5.6+20040907i
+	Fri, 3 Jun 2005 06:33:53 -0400
+Received: from alog0169.analogic.com ([208.224.220.184]:30176 "EHLO
+	chaos.analogic.com") by vger.kernel.org with ESMTP id S261211AbVFCKdv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 06:33:51 -0400
+Date: Fri, 3 Jun 2005 06:32:43 -0400 (EDT)
+From: "Richard B. Johnson" <linux-os@analogic.com>
+Reply-To: linux-os@analogic.com
+To: Tomko <tomko@avantwave.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: question why need open /dev/console in init() when starting
+ kernel
+In-Reply-To: <42A00065.9060201@avantwave.com>
+Message-ID: <Pine.LNX.4.61.0506030629170.11487@chaos.analogic.com>
+References: <42A00065.9060201@avantwave.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Jan Kara <jack@ucw.cz> wrote:
-> >
-> > 
-> >    attached patch (to be applied after my previous two bugfixes) is a new
-> >  version of my patch splitting the JBD checkpoint lists into two
-> 
-> Seems to have a use-after-free bug.  Did you test it with CONFIG_SLAB_DEBUG?
-  I'm not sure now (and as I'm in the process of moving from Berlin back
-to Prague I'll be able to find out only on Monday because my laptop is
-already packed). Thanks for spotting it I'll try to debug it on Monday.
+On Fri, 3 Jun 2005, Tomko wrote:
 
-									Honza
+> Hi everyone,
+>
+> Do anyone know why it need to open("/dev/console"....) at the end of the
+> init() before calling execve("/sbin/init") ? Why open this for the in ,
+> out , err channel at this moment but not open it at the time when going
+> to use , e.g. open it in the shell .
+>
+> Regards,
+> TOM
 
--- 
-Jan Kara <jack@suse.cz>
-SuSE CR Labs
+For error messages (as well as it's the law)! Init needs a terminal.
+Init is the 'father' of all future tasks and they need a default terminal
+too.
+
+
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.11.9 on an i686 machine (5537.79 BogoMips).
+  Notice : All mail here is now cached for review by Dictator Bush.
+                  98.36% of all statistics are fiction.

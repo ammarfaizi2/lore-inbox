@@ -1,79 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVFCO07@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVFCOas@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbVFCO07 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 10:26:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbVFCO07
+	id S261289AbVFCOas (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 10:30:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbVFCOas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 10:26:59 -0400
-Received: from fmr24.intel.com ([143.183.121.16]:64484 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261262AbVFCO04 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 10:26:56 -0400
-Date: Fri, 3 Jun 2005 07:25:57 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Shaohua Li <shaohua.li@intel.com>
-Cc: Ashok Raj <ashok.raj@intel.com>, Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       ak <ak@muc.de>, akpm <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, x86-64 <discuss@x86-64.org>,
-       Rusty Russell <rusty@rustycorp.com.au>,
-       Srivattsa Vaddagiri <vatsa@in.ibm.com>
-Subject: Re: [patch 2/5] x86_64: CPU hotplug support.
-Message-ID: <20050603072556.A27487@unix-os.sc.intel.com>
-References: <20050602125754.993470000@araj-em64t> <20050602130111.816070000@araj-em64t> <Pine.LNX.4.61.0506021416490.3157@montezuma.fsmlabs.com> <20050602163307.C16913@unix-os.sc.intel.com> <1117764115.3826.5.camel@linux-hp.sh.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <1117764115.3826.5.camel@linux-hp.sh.intel.com>; from shaohua.li@intel.com on Fri, Jun 03, 2005 at 10:01:55AM +0800
+	Fri, 3 Jun 2005 10:30:48 -0400
+Received: from pop.gmx.net ([213.165.64.20]:12982 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S261289AbVFCOal (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 10:30:41 -0400
+X-Authenticated: #222744
+From: "Dieter Ferdinand" <dieter.ferdinand@gmx.de>
+To: linux-kernel@vger.kernel.org
+Date: Fri, 03 Jun 2005 16:30:37 +1
+MIME-Version: 1.0
+Subject: problem with reiserfs and reiserfschk with kernel 2.4.30
+Reply-To: Dieter.Ferdinand@gmx.de
+Message-ID: <42A085AD.11375.5D5E38EE@localhost>
+X-mailer: Pegasus Mail for Windows (v4.12a, DE v4.12a R1a)
+Content-type: text/plain; charset=US-ASCII
+Content-transfer-encoding: 7BIT
+Content-description: Mail message body
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 03, 2005 at 10:01:55AM +0800, Shaohua Li wrote:
-> On Thu, 2005-06-02 at 16:33 -0700, Ashok Raj wrote:
-> > On Thu, Jun 02, 2005 at 02:19:55PM -0600, Zwane Mwaikambo wrote:
-> > > On Thu, 2 Jun 2005, Ashok Raj wrote:
-> > > 
-> > > > @@ -445,8 +477,10 @@ void __cpuinit start_secondary(void)
-> > > >  	/*
-> > > >  	 * Allow the master to continue.
-> > > >  	 */
-> > > > +	lock_ipi_call_lock();
-> > > >  	cpu_set(smp_processor_id(), cpu_online_map);
-> > > >  	mb();
-> > > > +	unlock_ipi_call_lock();
-> > > 
-> > > What's that? Is this another smp_call_function race workaround? I thought 
-> > > there was an additional patch to avoid the broadcast.
-> > 
-> > The other patch avoids sending to offline cpu's, but we read cpu_online_map
-> > and clear self bit in smp_call_function. If a cpu comes online, dont we 
-> > want this cpu to take part in smp_call_function?
-> > 
-> > if we dont care about this new CPU participating, and if cpu_set() is atomic
-> > (for all NR_CPUS) we dont need to hold call_lock, otherwise we need to hold
-> > this as well.
-> If a CPU isn't online, why should it participates it? If it should
-> participate it, it also might do the similar thing before set cpu
-> online.
+hello,
+i use reisefs on my video-record-system as filesystem.
 
-Good point. I was just trying to include the just arrived cpu, in the 
-set, but i can convince myself that this would be any real value to include
-this newly arrived cpu in that case. I can drop it.
+at the first time, i have a memory-problem, which produce an error in the reiserfs-
+file-system.
+reiserfsck don't find this error, only a rebuild tree make the system usable again.
 
-> Some places which really care about it such as smp_send_stop should hold
-> cpucontrol semaphore to me.
+after correction of all hardware-errors, this system runs fine.
 
-panic() ends up calling smp_send_stop(), i dont think we could hold a sema
-in that path if we end up calling from intr context.
+this errors with reiserfs can also happens, if the system crashed or hangs with a 
+software bug or a io-error on harddisk.
 
-probably from callers of stop_machine/restart we could add lock_cpu_hotplug
-not too sure how useful that would be though.
-> 
-> Thanks,
-> Shaohua
-> 
+if the reiserfs-driver comes to this error, no more access to this hd is possible and it 
+is not possible, to shutdown the system. i must press the reset-key or shut off the 
+power.
 
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
+if you have a tool, which can generate some reports, if it checks the filesystems, to 
+help you, so solve this bug, i can use this tool next time, i have problems with the 
+reiserfs.
+
+i will check one partion in the next time, while the system hangs one time, after 
+accessing this disk. at the moment, i copy all files to an other disk.
+
+thank you and goodby
+Schau auch einmal auf meine Homepage (http://go.to/dieter-ferdinand).
+Dort findest du Information zu Linux, Novell, Win95, WinNT, ...
+

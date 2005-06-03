@@ -1,47 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVFCXGY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbVFCXLG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbVFCXGY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 19:06:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbVFCXGX
+	id S261169AbVFCXLG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 19:11:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261170AbVFCXLG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 19:06:23 -0400
-Received: from gate.crashing.org ([63.228.1.57]:59102 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261161AbVFCXGK (ORCPT
+	Fri, 3 Jun 2005 19:11:06 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:998 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261169AbVFCXLD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 19:06:10 -0400
-Subject: Re: [PATCH] prom_find_machine_type typo breaks pSeries lpar boot
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Nathan Lynch <ntl@pobox.com>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       ppc64 dev list <linuxppc64-dev@ozlabs.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, roland@topspin.com
-In-Reply-To: <20050603192525.GC11355@otto>
-References: <374360000.1117810369@[10.10.2.4]> <52is0vwd49.fsf@topspin.com>
-	 <20050603182725.GB11355@otto> <52vf4vuum5.fsf@topspin.com>
-	 <20050603192525.GC11355@otto>
-Content-Type: text/plain
-Date: Sat, 04 Jun 2005 08:58:20 +1000
-Message-Id: <1117839500.31082.188.camel@gaston>
+	Fri, 3 Jun 2005 19:11:03 -0400
+Date: Sat, 4 Jun 2005 00:47:50 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Tony Lindgren <tony@atomide.com>
+Cc: Christian Hesse <mail@earthworm.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Dynamic tick for x86 version 050602-2
+Message-ID: <20050603224750.GA1804@elf.ucw.cz>
+References: <20050602013641.GL21597@atomide.com> <200506021030.50585.mail@earthworm.de> <20050602174219.GC21363@atomide.com> <20050603223758.GA2227@elf.ucw.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050603223758.GA2227@elf.ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-06-03 at 14:25 -0500, Nathan Lynch wrote:
-> Typo in prom_find_machine_type from Ben's recent patch "ppc64: Fix
-> result code handling in prom_init" prevents pSeries LPAR systems from
-> booting.
+Hi!
+
+> > Should be fixed now, the header was defining it as a function un UP
+> > system with no local apic. Can you try the following version?
 > 
-> Tested on a pSeries 570 and OpenPower 720 (both Power5 LPAR).
+> Some comments below...
 
-Damn ! I'm certain I tested it on P5 ! I must have forgotten to "quilt
-ref" before sending the patch (as I did notice this typo and fixed it
-just before sending).
+Seems to work okay here. Even with CONFIG_DYN_TICK_USE_APIC=y.
 
-Sorry!
-
-Ben.
-
-
+								Pavel

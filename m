@@ -1,66 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbVFCQSt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261374AbVFCQYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261377AbVFCQSt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 12:18:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVFCQSt
+	id S261374AbVFCQYc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 12:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261375AbVFCQYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 12:18:49 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:17616 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261377AbVFCQQK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 12:16:10 -0400
-Date: Fri, 3 Jun 2005 18:11:32 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: davej@codemonkey.org.uk, lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Fix warning in powernow-k8.c
-Message-ID: <20050603161132.GB5083@elf.ucw.cz>
-References: <429F3A9E.504@didntduck.org>
+	Fri, 3 Jun 2005 12:24:32 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:37786 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261374AbVFCQYG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 12:24:06 -0400
+Subject: Re: TPM on IBM thinkcenter S51
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: Torsten Landschoff <tla@comsys.informatik.uni-kiel.de>
+Cc: trusted linux <tcimpl2005@yahoo.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <1117810969.5407.11.camel@localhost.localdomain>
+References: <20050602220028.3572.qmail@web61014.mail.yahoo.com>
+	 <1117790588.6249.5.camel@localhost.localdomain>
+	 <1117810969.5407.11.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Fri, 03 Jun 2005 11:23:12 -0500
+Message-Id: <1117815792.5407.19.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <429F3A9E.504@didntduck.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Ok,
 
-> Fix this warning:
-> powernow-k8.c: In function ?query_current_values_with_pending_wait?:
-> powernow-k8.c:110: warning: ?hi? may be used uninitialized in this
-> function
+I think this patch will fix the driver to find your TPM.  It is just
+adding some additional LPC buses to look for so it won't make things any
+worse if it doesn't fix the problem.  Please let me know if it works.
+If it finds the device it should print a version message in syslog.
+Also there should be a tpm0 directory in /sys/classs/misc.  Once you
+have that you can try to cat /sys/class/misc/tpm0/device/pcrs.  If that
+returns an error please try the next patch I send you and let me know
+the results.
 
-Are you sure?
+Thanks,
+Kylie
 
-Original code is clearly buggy; I do not think you need that ugly do
-{} while loop.
+Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+--- linux-2.6.12-rc5/drivers/char/tpm/tpm_nsc.c.orig	2005-06-03 11:14:07.000000000 -0500
++++ linux-2.6.12-rc5/drivers/char/tpm/tpm_nsc.c	2005-06-03 11:14:53.000000000 -0500
+@@ -340,6 +340,9 @@ static struct pci_device_id tpm_pci_tbl[
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801DB_12)},
+ 	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_82801EB_0)},
+ 	{PCI_DEVICE(PCI_VENDOR_ID_AMD, PCI_DEVICE_ID_AMD_8111_LPC)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_0)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH6_1)},
++	{PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCI_DEVICE_ID_INTEL_ICH7_0)},
+ 	{0,}
+ };
+ 
 
-								Pavel
+
+On Fri, 2005-06-03 at 10:02 -0500, Kylene Jo Hall wrote:
+> Hi Torsten,
 > 
-> Signed-off-by: Brian Gerst <bgerst@didntduck.org>
+> I maintain the driver and am interested in figuring out what this
+> problem is.  Can you please tell me what the device major/minor are
+> on /dev/tpm.  Any output produced by the driver in /var/log/messages.
+> Also the output of /sbin/lspci.  Also I am assuming you are using the
+> version in the default 2.6.12-rc5.  There are many changes are in the -
+> mm2 patch so I will pull down the default tree and make sure the version
+> there is working.
+> 
+> Thanks,
+> Kylie
+> 
+> On Fri, 2005-06-03 at 11:23 +0200, Torsten Landschoff wrote:
+> > On Thu, 2005-06-02 at 15:00 -0700, trusted linux wrote:
+> > > thanks, here is my strace related to tpm:
+> > > 
+> > > open("/dev/tpm", O_RDWR)                = -1 ENODEV
+> > > (No such device)
+> > > write(2, "Can\'t open TPM Driver\n", 22Can't open TPM
+> > > Driver
+> > > ) = 22
+> > 
+> > Okay, so the driver is in fact not working. It could be that /dev/tpm
+> > has the wrong device number assigned. If the driver is really installed
+> > can be checked by
+> > 
+> > 	systool -c misc|grep tpm
+> > 
+> > I bet it does not show anything. OTOH if the module loads successfully
+> > it really should be there. No idea what's going wrong then. 
+> > 
+> > Which version of the driver are you using?
+> > 
+> > Greetings
+> > 
+> > 	Torsten
+> > 
+> > -
+> > To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> > the body of a message to majordomo@vger.kernel.org
+> > More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> > Please read the FAQ at  http://www.tux.org/lkml/
+> > 
+> > 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 
 
-> diff --git a/arch/i386/kernel/cpu/cpufreq/powernow-k8.c b/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
-> --- a/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
-> +++ b/arch/i386/kernel/cpu/cpufreq/powernow-k8.c
-> @@ -110,14 +110,13 @@ static int query_current_values_with_pen
->  	u32 lo, hi;
->  	u32 i = 0;
->  
-> -	lo = MSR_S_LO_CHANGE_PENDING;
-> -	while (lo & MSR_S_LO_CHANGE_PENDING) {
-> +	do {
->  		if (i++ > 0x1000000) {
->  			printk(KERN_ERR PFX "detected change pending stuck\n");
->  			return 1;
->  		}
->  		rdmsr(MSR_FIDVID_STATUS, lo, hi);
-> -	}
-> +	} while (lo & MSR_S_LO_CHANGE_PENDING);
->  
->  	data->currvid = hi & MSR_S_HI_CURRENT_VID;
->  	data->currfid = lo & MSR_S_LO_CURRENT_FID;
-
-
--- 

@@ -1,95 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbVFCHe2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261170AbVFCHqA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261173AbVFCHe2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 03:34:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVFCHe2
+	id S261170AbVFCHqA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 03:46:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVFCHqA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 03:34:28 -0400
-Received: from www.tuxrocks.com ([64.62.190.123]:49426 "EHLO tuxrocks.com")
-	by vger.kernel.org with ESMTP id S261173AbVFCHeU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 03:34:20 -0400
-Message-ID: <42A006E8.9000601@tuxrocks.com>
-Date: Fri, 03 Jun 2005 01:29:44 -0600
-From: Frank Sorenson <frank@tuxrocks.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Christoph Lameter <clameter@sgi.com>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andi Kleen <ak@suse.de>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
-       Nishanth Aravamudan <nacc@us.ibm.com>, Darren Hart <darren@dvhart.com>,
-       "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org
-Subject: Re: [PATCH 1/4] new timeofday core subsystem (v. B1)
-References: <1117667378.6801.80.camel@cog.beaverton.ibm.com>
-In-Reply-To: <1117667378.6801.80.camel@cog.beaverton.ibm.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Fri, 3 Jun 2005 03:46:00 -0400
+Received: from mail.renesas.com ([202.234.163.13]:51878 "EHLO
+	mail03.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S261170AbVFCHpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 03:45:46 -0400
+Date: Fri, 03 Jun 2005 16:45:40 +0900 (JST)
+Message-Id: <20050603.164540.1016292819.takata.hirokazu@renesas.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, sakugawa@linux-m32r.org,
+       takata@linux-m32r.org
+Subject: [PATCH 2.6.12-rc5-mm2] m32r: Update m32r_sio.c to use cpu_relax()
+From: Hirokazu Takata <takata@linux-m32r.org>
+In-Reply-To: <20050531140151.791007b3.akpm@osdl.org>
+References: <20050531.214805.783383719.takata.hirokazu@renesas.com>
+	<20050531140151.791007b3.akpm@osdl.org>
+X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+I fixed m32r_sio.c to use cpu_relax().
 
-john stultz wrote:
-> Andrew, All,
-> 	I'm just re-spinning this to resolve a conflict w/ the CPUFREQ changes
-> Linus accepted last night.
-<snip>
+Thanks.
 
-John,
+From: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2.6.12-rc5] m32r: Support M3A-2170(Mappi-III) platform
+Date: Tue, 31 May 2005 14:01:51 -0700
+> Hirokazu Takata <takata@linux-m32r.org> wrote:
+> >
+> > This patchset is for supporting a new m32r platform,
+> > M3A-2170(Mappi-III) evaluation board.
+> > An M32R chip multiprocessor is equipped on the board.
+> > http://http://www.linux-m32r.org/eng/platform/platform.html
+> > 
+> > ...
+> >  static void putc(char c)
+> >  {
+> > -
+> >  	while ((*BOOT_SIO0STS & 0x3) != 0x3) ;
+> 
+> cpu_relax()?
+> 
+> >  static void putc(char c)
+> >  {
+> > -
+> >  	while ((*SIO0STS & 0x1) == 0) ;
+> 
+> cpu_relax()?
+> 
 
-I have found an issue with these TOD subsystem patches, and I
-think it's only an issue on systems that use CPUFREQ.  Whenever
-the frequency changes, at least some portions of the kernel
-get confused about their notion of time.  Here are some
-example entries from my syslog:
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
 
-Jun  3 00:33:40 moebius kernel: [  145.023201] cpufreq-core: target for CPU 0: 800000 kHz, relation 0
-Jun  3 00:33:47 moebius kernel: [  114.838909] cpufreq-core: target for CPU 0: 1000000 kHz, relation 0
-Jun  3 00:33:47 moebius kernel: [  114.838977] freq-table: request for target 1000000 kHz (relation: 0) for cpu 0
-Jun  3 00:33:47 moebius kernel: [   92.161872] codec_semaphore: semaphore is not ready [0x1][0x700300]
-Jun  3 00:33:52 moebius kernel: [   97.433279] cpufreq-core: target for CPU 0: 1200000 kHz, relation 0
-Jun  3 00:33:58 moebius kernel: [   66.352233] cpufreq-core: target for CPU 0: 1400000 kHz, relation 0
-Jun  3 00:34:08 moebius kernel: [   85.547260] cpufreq-core: target for CPU 0: 1200000 kHz, relation 0
-Jun  3 00:34:16 moebius kernel: [  211.791738] cpufreq-core: target for CPU 0: 800000 kHz, relation 0
-Jun  3 00:34:27 moebius kernel: [  112.941898] cpufreq-core: target for CPU 0: 1000000 kHz, relation 0
-Jun  3 00:34:31 moebius kernel: [  231.793121] cpufreq-core: target for CPU 0: 800000 kHz, relation 0
-Jun  3 00:34:41 moebius kernel: [  147.122593] cpufreq-core: target for CPU 0: 1200000 kHz, relation 0
-Jun  3 00:34:42 moebius kernel: [  123.906802] cpufreq-core: target for CPU 0: 1000000 kHz, relation 0
-Jun  3 00:34:46 moebius kernel: [  251.342116] cpufreq-core: target for CPU 0: 800000 kHz, relation 0
-Jun  3 00:34:51 moebius kernel: [  192.985214] cpufreq-core: target for CPU 0: 1000000 kHz, relation 0
+ arch/m32r/boot/compressed/m32r_sio.c |   13 +++++++++----
+ 1 files changed, 9 insertions(+), 4 deletions(-)
 
-The printk times are taken from sched_clock(), which now
-varies depending on the cpu frequency.  Without these patches,
-the printk times appear to consistently increase at the right rate.
-I'm not sure what other portions of the kernel are affected by
-this (watchdogs firing, or other issues?).
 
-Thanks,
+diff -ruNp a/arch/m32r/boot/compressed/m32r_sio.c b/arch/m32r/boot/compressed/m32r_sio.c
+--- a/arch/m32r/boot/compressed/m32r_sio.c	2005-06-02 12:09:19.000000000 +0900
++++ b/arch/m32r/boot/compressed/m32r_sio.c	2005-06-02 18:16:54.000000000 +0900
+@@ -6,6 +6,7 @@
+  */
+ 
+ #include <linux/config.h>
++#include <asm/processor.h>
+ 
+ static void putc(char c);
+ 
+@@ -38,10 +39,12 @@ static int puts(const char *s)
+ 
+ static void putc(char c)
+ {
+-	while ((*BOOT_SIO0STS & 0x3) != 0x3) ;
++	while ((*BOOT_SIO0STS & 0x3) != 0x3)
++		cpu_relax();
+ 	if (c == '\n') {
+ 		*BOOT_SIO0TXB = '\r';
+-		while ((*BOOT_SIO0STS & 0x3) != 0x3) ;
++		while ((*BOOT_SIO0STS & 0x3) != 0x3)
++			cpu_relax();
+ 	}
+ 	*BOOT_SIO0TXB = c;
+ }
+@@ -56,10 +59,12 @@ static void putc(char c)
+ 
+ static void putc(char c)
+ {
+-	while ((*SIO0STS & 0x1) == 0) ;
++	while ((*SIO0STS & 0x1) == 0)
++		cpu_relax();
+ 	if (c == '\n') {
+ 		*SIO0TXB = '\r';
+-		while ((*SIO0STS & 0x1) == 0) ;
++		while ((*SIO0STS & 0x1) == 0)
++			cpu_relax();
+ 	}
+ 	*SIO0TXB = c;
+ }
 
-Frank
-- -- 
-Frank Sorenson - KD7TZK
-Systems Manager, Computer Science Department
-Brigham Young University
-frank@tuxrocks.com
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCoAboaI0dwg4A47wRAmWsAJsHJ3sYtUqXKqjnualA3JTOih9RwACeIulR
-CCKYtqdZ/096knyiwZf6X44=
-=SjAZ
------END PGP SIGNATURE-----
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/

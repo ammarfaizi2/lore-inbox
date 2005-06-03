@@ -1,56 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVFCFTB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVFCFeq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261266AbVFCFTB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 01:19:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbVFCFTB
+	id S261273AbVFCFeq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 01:34:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261288AbVFCFep
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 01:19:01 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:8664 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261266AbVFCFSz (ORCPT
+	Fri, 3 Jun 2005 01:34:45 -0400
+Received: from dvhart.com ([64.146.134.43]:13735 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S261273AbVFCFej (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 01:18:55 -0400
-Date: Fri, 3 Jun 2005 07:18:21 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Cc: Parag Warudkar <kernel-stuff@comcast.net>, linux-kernel@vger.kernel.org
-Subject: Re: RT patch breaks X86_64 build
-Message-ID: <20050603051821.GC14059@elte.hu>
-References: <200505302201.48123.kernel-stuff@comcast.net> <429BFF51.4000401@stud.feec.vutbr.cz> <200505310753.49447.kernel-stuff@comcast.net> <429C530E.70704@stud.feec.vutbr.cz> <20050601091344.GB11703@elte.hu> <429EFB66.8030909@stud.feec.vutbr.cz> <20050602123927.GB10878@elte.hu> <429F4A19.7030508@stud.feec.vutbr.cz> <20050602183343.GB30309@elte.hu> <429F8C00.3070803@stud.feec.vutbr.cz>
-Mime-Version: 1.0
+	Fri, 3 Jun 2005 01:34:39 -0400
+Date: Thu, 02 Jun 2005 22:34:42 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: "David S. Miller" <davem@davemloft.net>,
+       Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: jschopp@austin.ibm.com, mel@csn.ul.ie, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, akpm@osdl.org
+Subject: Re: Avoiding external fragmentation with a placement policy Version 12
+Message-ID: <357240000.1117776882@[10.10.2.4]>
+In-Reply-To: <20050602.214927.59657656.davem@davemloft.net>
+References: <429E50B8.1060405@yahoo.com.au><429F2B26.9070509@austin.ibm.com><1117770488.5084.25.camel@npiggin-nld.site> <20050602.214927.59657656.davem@davemloft.net>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <429F8C00.3070803@stud.feec.vutbr.cz>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
-
-> Ingo Molnar wrote:
-> >hm, one difference is that i'm running a 64-bit kernel but 32-bit 
-> >userspace (FC3-ish).
+>> It would really help your cause in the short term if you can
+>> demonstrate improvements for say order-3 allocations (eg. use
+>> gige networking, TSO, jumbo frames, etc).
 > 
-> Yes, that's it! I've just successfully booted into 32-bit userspace (I 
-> have a separate partition with old 32-bit Debian) with x86_64 kernel and 
-> LATENCY_TRACE enabled. Everything seemed to work.
-> Then I mounted my normal root partition under /mnt/64 and tried
->   chroot /mnt/64
-> I got a SIGSEGV. Then I copied some simple binaries from /mnt/64/bin to 
-> /root/test/bin and some necessary libraries to /root/test/lib and did
->   chroot /root/test
-> I could run 64-bit sash, ls, cat, date, mkdir - it worked. 64-bit bash 
-> however segfaulted.
+> TSO chops up the user data into PAGE_SIZE chunks, it doesn't
+> make use of non-zero page orders.
+> 
+> AF_UNIX sockets, however, will happily use higher order
+> pages.  But even this is limited to SKB_MAX_ORDER which
+> is currently defined to 2.
+> 
+> So the only way to get order 3 or larger allocations with
+> the networking is to use jumbo frames but without TSO enabled.
 
-perhaps my mcount stubs dont save enough registers, leading to register 
-corruption on 64-bit userspace? In that case i'd expect more breakage 
-though, so maybe it's something more subtle.
+One of the calls I got the other day was for loopback interface. 
+Default MTU is 16K, which seems to screw everything up and do higher 
+order allocs. Turning it down to under 4K seemed to fix things. I'm 
+fairly sure loopback doesn't really need phys contig memory, but it 
+seems to use it at the moment ;-)
 
-	Ingo
+> Actually, even with TSO enabled, you'll get large order
+> allocations, but for receive packets, and these allocations
+> happen in software interrupt context.
+
+Sounds like we still need to cope then ... ?
+
+M.
+

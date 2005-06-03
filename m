@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbVFCVf5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVFCVhd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261381AbVFCVf5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 17:35:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbVFCVf5
+	id S261478AbVFCVhd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 17:37:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261440AbVFCVhd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 17:35:57 -0400
-Received: from fed1rmmtao07.cox.net ([68.230.241.32]:9953 "EHLO
-	fed1rmmtao07.cox.net") by vger.kernel.org with ESMTP
-	id S261381AbVFCVfu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 17:35:50 -0400
-Date: Fri, 3 Jun 2005 14:35:48 -0700
-From: Matt Porter <mporter@kernel.crashing.org>
-To: Greg KH <greg@kroah.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linuxppc-embedded@ozlabs.org
-Subject: Re: [PATCH][1/5] RapidIO support: core
-Message-ID: <20050603143548.B32392@cox.net>
-References: <20050602140359.B24818@cox.net> <20050603072027.GD30292@kroah.com>
+	Fri, 3 Jun 2005 17:37:33 -0400
+Received: from rproxy.gmail.com ([64.233.170.195]:59012 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261425AbVFCVhT convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 17:37:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=bDaBwGZAdZDK2i2k72st+Z6ZonoC1I+ZsmM7uNRpKyS4UCEDd6w3cec7hkLa3RPL9XLt/1bnLuScUqT4ms8zu+KryF0gqPymUAr6+40YTUUuUVtLcbfRljTCNvJb7hHIreFR6jMunu2Sp7Y0j9x3YDQbu6DxFBvX31M9fHxXe20=
+Message-ID: <d120d50005060314375ada10b8@mail.gmail.com>
+Date: Fri, 3 Jun 2005 16:37:13 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Vojtech Pavlik <vojtech@suse.cz>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12-rc2: Compose key doesn't work
+In-Reply-To: <20050603211625.GA17637@animx.eu.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050603072027.GD30292@kroah.com>; from greg@kroah.com on Fri, Jun 03, 2005 at 12:20:27AM -0700
+References: <4258F74D.2010905@keyaccess.nl>
+	 <20050414100454.GC3958@nd47.coderock.org>
+	 <20050526122315.GA3880@nd47.coderock.org>
+	 <20050526122724.GA3396@ucw.cz> <20050603211625.GA17637@animx.eu.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 03, 2005 at 12:20:27AM -0700, Greg KH wrote:
-> On Thu, Jun 02, 2005 at 02:03:59PM -0700, Matt Porter wrote:
-> > +static struct device rio_bus = {
-> > +	.bus_id = "rapidio",
-> > +};
+On 6/3/05, Wakko Warner <wakko@animx.eu.org> wrote:
+> Vojtech Pavlik wrote:
+> > On Thu, May 26, 2005 at 02:23:15PM +0200, Domen Puncer wrote:
+> >
+> > > Still true for 2.6.12-rc5. Should probably be fixed before final.
+> >
+> > Caused by a bug in the atkbd-scroll feature. The attached patch
+> > fixes it.
 > 
-> Why do you need this device?  You shouldn't have a static struct device
-> to start with.  Or you just don't like having your root rio device
-> showing up in /sys/devices/ ?
-
-Exactly. There's no hierarchy in this interconnect. So it seemed
-that having a static rio_bus device made the most sense. Everything
-exists as peers since it works more like a network than a hierarchical
-bus like PCI. Right now, you can't see the endpoint which actually
-implements your port into the switch fabric...there's no device
-created for it. I'm still trying to determine if that should change
-but it's not critical to usability with the current generation
-hardware.
-
-One argument I have _for_ it is that it would be easy to show
-and manipulate a network from userspace if all nodes had a device
-associated with them.  That's not a real world problem yet so
-I decided not to complicate things yet.
-
-> If so, just create a kobject and put it there, and then base your
-> devices off of it, no need for a real device.
+> Yes it does, thanks.  What's the "scroll" feature?
 > 
-> Oh wait, that's what the platform and system code does.  bah,
-> nevermind...
 
-Ok. I did pull this part right from the platform code, in fact.
+Some keyboards have scroll-wheel, unfortunately there is no way to
+detect whether is is present or not. Recently support for such wheels
+was activated in atkbd by default.
 
--Matt
+-- 
+Dmitry

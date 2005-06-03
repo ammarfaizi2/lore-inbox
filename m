@@ -1,271 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261446AbVFBX7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVFCAJX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261446AbVFBX7z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 2 Jun 2005 19:59:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261461AbVFBX7y
+	id S261461AbVFCAJX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 2 Jun 2005 20:09:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVFCAJX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 2 Jun 2005 19:59:54 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:63933 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S261446AbVFBX7I
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 2 Jun 2005 19:59:08 -0400
-Subject: Re: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new Dell
-	BIOS update driver
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Abhay Salunke <Abhay_Salunke@dell.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       matt_domsch@dell.com, Greg KH <greg@kroah.com>
-In-Reply-To: <20050602232634.GA32462@littleblue.us.dell.com>
-References: <20050602232634.GA32462@littleblue.us.dell.com>
-Content-Type: text/plain
-Date: Fri, 03 Jun 2005 01:58:48 +0200
-Message-Id: <1117756728.3656.45.camel@pegasus>
+	Thu, 2 Jun 2005 20:09:23 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:42641 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261461AbVFCAJU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 2 Jun 2005 20:09:20 -0400
+Date: Thu, 2 Jun 2005 17:08:20 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: Zwane Mwaikambo <zwane@arm.linux.org.uk>, y@unix-os.sc.intel.com
+Cc: Ashok Raj <ashok.raj@intel.com>, Andi Kleen <ak@muc.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       discuss@x86-64.org, Rusty Russell <rusty@rustycorp.com.au>,
+       Srivattsa Vaddagiri <vatsa@in.ibm.com>
+Subject: Re: [patch 2/5] x86_64: CPU hotplug support.
+Message-ID: <20050602170820.B17378@unix-os.sc.intel.com>
+References: <20050602125754.993470000@araj-em64t> <20050602130111.816070000@araj-em64t> <Pine.LNX.4.61.0506021416490.3157@montezuma.fsmlabs.com> <20050602163307.C16913@unix-os.sc.intel.com> <Pine.LNX.4.61.0506021742390.3157@montezuma.fsmlabs.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <Pine.LNX.4.61.0506021742390.3157@montezuma.fsmlabs.com>; from zwane@arm.linux.org.uk on Thu, Jun 02, 2005 at 05:45:14PM -0600
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Abhay,
-
-> Resubmitting after cleaning up spaces/tabs etc...
-
-and now starting with the coding style nitpicking ;)
-
-> +	/* check if we have any packets */
-> +	if (0 == rbu_data.num_packets) {
-
-Make it "if (!rbu_data.num_packets) {".
-
-> +	while(--packet_count) {
-> +		ptemp_list = ptemp_list->next;
-> +	}
-
-Don't forget the space between "while" and "(" and the "{"/"}" are not
-needed.
-
-> +	ppacket = list_entry(ptemp_list,struct packet_data, list);
-
-We always put a space after ",".
-
-> +	if ((rbu_data.packet_write_count + length) > rbu_data.packetsize) {
-
-Make it "(rbu_data.packet_write_count + length > rbu_data.packetsize)".
-
-> +	/* copy the incoming data in to the new buffer */
-> +	memcpy((ppacket->data + rbu_data.packet_write_count),
-> +			data, length);
-
-Make it "memcpy(ppacket->data + rbu_data.packet_write_count, ".
-
-> +	if ((rbu_data.packet_write_count + length) == rbu_data.packetsize) {
-> +		/*
-> +		 this was the last data chunk in the packet
-> +		 so reinitialize the packet data counter to zero
-> +		*/
-> +		rbu_data.packet_write_count = 0;
-> +	} else
-> +		rbu_data.packet_write_count += length;
-
-Why not:
-
-	rbu_data.packet_write_count += length;
-	if (rbu_data.packet_write_count == rbu_data.packetsize)
-		rbu_data.packet_write_count = 0;
-
-> +	/* try allocating a new buffer to fit the request */
-> +	pbuf =(unsigned char *)__get_free_pages(GFP_KERNEL, *ordernum);
-
-Forgot a space after "=" and after "...char*)".
-
-> +	if (pbuf != NULL) {
-
-Make it "if (!pbuf)",
-
-> +		/* check if the image is with in limits */
-> +		img_buf_phys_addr = (unsigned long)virt_to_phys(pbuf);
-
-Put a space after "...long)".
-
-> +		if ((limit != 0) && ((img_buf_phys_addr + size) > limit)) {
-
-Make it "if (!limit && img_bug_phys_addr + size > limit)"
-
-> +			free_pages ((unsigned long)pbuf, *ordernum);
-
-Space.
-
-> +			 Try allocating a new buffer from the 
-> +			 GFP_DMA range as it is with in 16MB range.
-> +			*/
-> +			pbuf =(unsigned char *)__get_free_pages(GFP_DMA,
-
-Space.
-
-> +			if (pbuf == NULL)
-
-Use "(!pbuf)".
-
-> +	if (rbu_data.packetsize == 0 ) {
-
-Use "if (!rbu_data.packetsize)".
-
-> +	if(newpacket == NULL) {
-
-Use "if (!newpacket)".
-
-> +	if(newpacket->data == NULL) {
-
-Use "if (!newpacket->data)"
-
-> +	if (rbu_data.packet_write_count == 0) {
-> +		if ((rc = create_packet(length)) != 0 )
-> +			return rc;
-> +	}
-
-Use this:
-
-	if (!rbu_data.packet_write_count)
-		if (!(rc = create_packet(length)))
-			return rc;
-
-> +	if ((rc = fill_last_packet(data, length)) != 0)
-
-Use "if (!(rc = fill_last_packet(data, length)))".
-
-> +		free_pages((unsigned long)newpacket->data, newpacket->ordernum);
-
-Space.
-
-> +	if (rbu_data.image_update_buffer == NULL)
-
-Use "(!rbu_data.image_update_buffer)".
-
-> +	free_pages((unsigned long)rbu_data.image_update_buffer,
-
-Space.
-
-> +		if ((size != 0) && (rbu_data.image_update_buffer == NULL)) {
-
-Use "if (!size && !rbu_data.image_update_buffer)"
-
-> +	image_update_buffer = (unsigned char *)get_free_pages_limited(size,
-
-Space.
-
-> +	if (image_update_buffer != NULL) {
-
-Use "if (!image_update_buffer)".
-
-> +		memset(rbu_data.image_update_buffer,0,
-
-Space.
-
-> +	sscanf(buf, "%d",&size);	
-
-Spaces.
-
-> +	if (size != 0)
-
-Use "if (!size)".
-
-> +	if (type == MONOLITHIC )
-
-Space.
-
-> +	if ( type == MONOLITHIC )
-
-Spaces.
-
-> +		size = sprintf(buf, "%lu\n",  rbu_data.bios_image_size);
-
-Extra space not needed.
-
-> +	if (type == MONOLITHIC ) 
-
-Space.
-
-> +	if (strlen(buf) >= 256 ) {
-
-Space.
-
-> +	if (type == MONOLITHIC ) {
-
-Space.
-
-> +	if (type == MONOLITHIC ) {
-
-Space.
-
-> +		if (fw_entry->size == 0 )
-
-use "if (!fw_entry->size)".
-
-> +				if (rc == 0) {
-
-Use "if (!rc)".
-
-> +		if ( rbu_data.packetsize != fw_entry->size )
-
-Spaces.
-
-> +		if ( rc == 0 )
-
-Spaces.
-
-> +static decl_subsys(dell_rbu,&ktype_dell_rbu,NULL);
-
-Spaces.
-
-> +        memset(rbu_dev, 0, sizeof (*rbu_dev));
-
-No tab.
-
-> +	if (type == MONOLITHIC)
-
-Space.
-
-> +		if (type == MONOLITHIC ) {
-
-Space.
-
-> +	if (rbu_dev != NULL) {
-
-Use "if (!rbu_dev)".
-
-> +static int __init dcdrbu_init(void)
-
-What stand "dcd" for? Why not only "rbu_init"?
-
-> +	if (rbu_download_mono == NULL) {	
-
-Use "if (!rbu_download)".
-
-> +	rbu_download_packet=  create_rbu_download_entry (PACKETIZED);
-
-Wrong spaces.
-
-> +	if (rbu_download_packet == NULL) {	
-
-Use "if (!rbu_download_packet)".
-
-> +	strncpy(rbu_device.bus_id,"firmware", BUS_ID_SIZE);
-
-Space.
-
-> +static __exit void dcdrbu_exit( void)
-
-Why "dcd"?
-
-> +config DELL_RBU
-> +        tristate "BIOS update support for DELL systems via sysfs"
-> +        default n
-> +	select FW_LOADER
-
-Space vs tab clash.
-
-Regards
-
-Marcel
-
-
+On Thu, Jun 02, 2005 at 05:45:14PM -0600, Zwane Mwaikambo wrote:
+> On Thu, 2 Jun 2005, Ashok Raj wrote:
+> 
+> > > > +	lock_ipi_call_lock();
+> > > >  	cpu_set(smp_processor_id(), cpu_online_map);
+> > > >  	mb();
+> > > > +	unlock_ipi_call_lock();
+> > > 
+> > > What's that? Is this another smp_call_function race workaround? I thought 
+> > > there was an additional patch to avoid the broadcast.
+> > 
+> > The other patch avoids sending to offline cpu's, but we read cpu_online_map
+> > and clear self bit in smp_call_function. If a cpu comes online, dont we 
+> > want this cpu to take part in smp_call_function?
+> 
+> The lock being held in smp_call_function whilst we access cpu_online_map 
+> should prevent another processor coming online within that operation 
+> shouldn't it? So There shouldn't be any processors coming online except 
+> for right after or before an smp_call_function.
+
+precicely why we hold the same lock when we set the bit in cpu_online_map
+during cpu_up as well.

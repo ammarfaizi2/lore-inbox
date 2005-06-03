@@ -1,39 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261519AbVFCTha@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261521AbVFCTqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261519AbVFCTha (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 15:37:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261514AbVFCTh3
+	id S261521AbVFCTqm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 15:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVFCTql
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 15:37:29 -0400
-Received: from mail.kroah.org ([69.55.234.183]:3274 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261513AbVFCThT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 15:37:19 -0400
-Date: Fri, 3 Jun 2005 12:37:09 -0700
-From: Greg KH <greg@kroah.com>
-To: Dag Nygren <dag@newtech.fi>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: OHCI driver have problems with USB 2.0 memory devices
-Message-ID: <20050603193709.GA7514@kroah.com>
-References: <20050603181454.GA5722@kroah.com> <20050603193005.27182.qmail@dag.newtech.fi>
-Mime-Version: 1.0
+	Fri, 3 Jun 2005 15:46:41 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:53715 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S261521AbVFCTqh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 15:46:37 -0400
+From: Ulrich Weigand <uweigand@de.ibm.com>
+Message-Id: <200506031946.j53Jk95q002557@53v30g15.boeblingen.de.ibm.com>
+Subject: Re: [patch] broken fault_in_pages_readable call in
+To: akpm@osdl.org
+Date: Fri, 3 Jun 2005 21:46:09 +0200 (CEST)
+Cc: schwidefsky@de.ibm.com, linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050603193005.27182.qmail@dag.newtech.fi>
-User-Agent: Mutt/1.5.8i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 03, 2005 at 10:30:05PM +0300, Dag Nygren wrote:
-> 
-> Couldn't help but try to download 2.6.12-rc5 but ran into a different
-> problem.
-> The patch doesn't apply cleanly to 2.6.11.11???
-> 
-> What version is the patch supposed to be applied to?
+Andrew Morton wrote:
 
-2.6.11.
+>Can you explain the bug a bit more completely?  AFACIT, `bytes' here was
+>always in the range 0 ..  PAGE_CACHE_SIZE, so how can it have caused large
+>amounts of the stack segment to have been faulted in?
 
-thanks,
+'buf' is not page-aligned, so 'buf' + 'bytes' can touch the next page,
+which may not be mapped.  In fact, if 'buf' points to the *last* valid
+mapped page (before the stack), and the stack ulimit is unlimited, the
+VM_GROWSDOWN logic considers this access a request to grow the stack
+down to this very page ...
 
-greg k-h
+Bye,
+Ulrich
+
+-- 
+  Dr. Ulrich Weigand
+  Linux on zSeries Development
+  Ulrich.Weigand@de.ibm.com

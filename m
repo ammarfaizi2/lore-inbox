@@ -1,85 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVFCItK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVFCI4g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbVFCItK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 04:49:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261189AbVFCItK
+	id S261189AbVFCI4g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 04:56:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261192AbVFCI4g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 04:49:10 -0400
-Received: from mail.kroah.org ([69.55.234.183]:38603 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261187AbVFCItC (ORCPT
+	Fri, 3 Jun 2005 04:56:36 -0400
+Received: from mail.sbb.co.yu ([82.117.194.7]:8409 "EHLO mail.sbb.co.yu")
+	by vger.kernel.org with ESMTP id S261189AbVFCI4b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 04:49:02 -0400
-Date: Fri, 3 Jun 2005 01:58:30 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [GIT PATCH] More USB bugfixes for 2.6.12-rc5
-Message-ID: <20050603085830.GA31276@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.8i
+	Fri, 3 Jun 2005 04:56:31 -0400
+Date: Fri, 3 Jun 2005 10:56:24 +0200 (CEST)
+From: Goran Gajic <ggajic@sbb.co.yu>
+To: Nathan Scott <nathans@sgi.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: XFS and 2.6.12-rc5
+In-Reply-To: <20050603044138.GB1653@frodo>
+Message-ID: <Pine.BSF.4.62.0506031052260.57771@mail.sbb.co.yu>
+References: <Pine.BSF.4.62.0506011308530.86037@mail.sbb.co.yu>
+ <20050603044138.GB1653@frodo>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+X-SBB-MailScanner-Information: Please contact the ISP for more information
+X-SBB-MailScanner: Found to be clean
+X-MailScanner-From: ggajic@sbb.co.yu
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some more USB patches for the 2.6.12-rc5 tree.  The ub patch is pretty
-big, but I forgot to send that one to you way back at the beginning of 2.6.12-rc
-It has had much testing in the -mm tree.  The other patches are just fixes or
-device ids, or a new driver.  And the cp2101 driver has an update to actually
-make it useful.  All of these patches have been in the past few -mm
-releases.
 
-Please pull from:
-	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
 
-Full patches will be sent to the linux-usb-devel mailing list, if anyone
-wants to see them.
 
-thanks,
+On Fri, 3 Jun 2005, Nathan Scott wrote:
 
-greg k-h
+> On Wed, Jun 01, 2005 at 01:10:47PM +0200, Goran Gajic wrote:
+>> xfs partition is exported via nfs to FreeBSD-5.4 machine. This is what I
+>> find every morning in my syslog:
+>>
+>>  ------------[ cut here ]------------
+>>  kernel BUG at fs/xfs/support/debug.c:106!
+>> ...
+>>  [<c0269758>] xfs_bmap_search_extents+0x108/0x140
+>>  [<c026accd>] xfs_bmapi+0x28d/0x1660
+>
+> There should be some diagnostic text just above this panic message,
+> what does it say?  At a guess, I'd say you have a corrupt inode on
+> disk, and your nightly cron jobs are tripping this up each time.
+> The panic happens cos the kernel detects an inode with an extent
+> map which claiming to have an extent starting at the offset of the
+> primary superblock.  I've seen another case of this recently which
+> looked like a possible compiler bug, so could you send me both the
+> full diagnostic message and your compiler version number?
+>
+> Also, the diagnostic will contain an inode number - for bonus points
+> run "xfs_db -r -c 'inode XXX' -c print /dev/foo" and send me that as
+> well.  Thanks!
+>
+> cheers.
+>
+> -- 
+> Nathan
+>
 
- drivers/block/ub.c                 |  598 ++++++++++++++++++------------
- drivers/usb/core/sysfs.c           |   22 -
- drivers/usb/input/hid-core.c       |   18 
- drivers/usb/media/pwc/ChangeLog    |  143 -------
- drivers/usb/serial/Kconfig         |   11 
- drivers/usb/serial/Makefile        |    1 
- drivers/usb/serial/cp2101.c        |  363 +++++++++++++-----
- drivers/usb/serial/option.c        |  729 +++++++++++++++++++++++++++++++++++++
- drivers/usb/storage/unusual_devs.h |    9 
- include/linux/usb.h                |    6 
- 10 files changed, 1421 insertions(+), 479 deletions(-)
+You are right about message here it is:
 
----------------
+May 31 04:16:37 cbt kernel: Access to block zero: fs: <sdb1> inode: 
+448631586 start_block : ffffffff00000000 start_off : 3fffff blkcnt : 
+100000000 extent-state: dfcb1d0c
 
-Adrian Bunk:
-  o USB: remove drivers/usb/media/pwc/ChangeLog
+xfs_db -r -c 'inode 448631586' -c print /dev/sdb1
+core.magic = 0x494e
+core.mode = 0100644
+core.version = 1
+core.format = 2 (extents)
+core.nlinkv1 = 1
+core.uid = 0
+core.gid = 0
+core.flushiter = 2
+core.atime.sec = Sun May 29 14:35:00 2005
+core.atime.nsec = 521517264
+core.mtime.sec = Sun May 29 14:40:00 2005
+core.mtime.nsec = 676886712
+core.ctime.sec = Sun May 29 14:40:00 2005
+core.ctime.nsec = 676886712
+core.size = 2120649
+core.nblocks = 458
+core.extsize = 0
+core.nextents = 4
+core.naextents = 0
+core.forkoff = 0
+core.aformat = 2 (extents)
+core.dmevmask = 0
+core.dmstate = 0
+core.newrtbm = 0
+core.prealloc = 0
+core.realtime = 0
+core.immutable = 0
+core.append = 0
+core.sync = 0
+core.noatime = 0
+core.nodump = 0
+core.gen = 0
+next_unlinked = null
+u.bmx[0-3] = [startoff,startblock,blockcount,extentflag] 
+0:[177,2557931,341,0] 1:[18014398509481983,4498651825045504,0,1] 
+2:[15184073051865088,0,0,0] 3:[0,1422,1245184,0]
 
-Craig Shelley:
-  o USB: CP2101 Add support for flow control
+gcc -v
+Reading specs from /usr/lib/gcc-lib/i586-suse-linux/3.3.3/specs
+Configured with: ../configure --enable-threads=posix --prefix=/usr 
+--with-local-prefix=/usr/local --infodir=/usr/share/info 
+--mandir=/usr/share/man --enable-languages=c,c++,f77,objc,java,ada 
+--disable-checking --libdir=/usr/lib --enable-libgcj 
+--with-gxx-include-dir=/usr/include/g++ --with-slibdir=/lib 
+--with-system-zlib --enable-shared --enable-__cxa_atexit i586-suse-linux
+Thread model: posix
+gcc version 3.3.3 (SuSE Linux)
 
-Greg Kroah-Hartman:
-  o USB: add Vernier devices to HID blacklist
+Turning off cron.daily stops this message so I guess you are right.
 
-Lonnie Mendez:
-  o USB: hid-core: add Earthmate lt-20 productid to blacklist table
-
-Matthias Urlichs:
-  o USB: add Option Card driver
-
-Paulo Marques:
-  o USB: make MODALIAS code a bit smaller devices
-
-Pete Zaitcev:
-  o USB: Support multiply-LUN devices in ub
-
-Phil Dibowitz:
-  o USB Storage: Add unusual_devs for Trumpion Voice Recorder
-
-Ping Cheng:
-  o USB: add new wacom device to usb hid-core list
-
-Roman Kagan:
-  o USB: update urb documentation
-
+Regards,
+gg.

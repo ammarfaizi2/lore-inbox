@@ -1,103 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVFDSQW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVFDSXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbVFDSQW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 14:16:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbVFDSQW
+	id S261408AbVFDSXU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 14:23:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbVFDSXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 14:16:22 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:42178 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261405AbVFDSQM (ORCPT
+	Sat, 4 Jun 2005 14:23:20 -0400
+Received: from colo.lackof.org ([198.49.126.79]:7145 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S261408AbVFDSXO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 14:16:12 -0400
-Message-ID: <42A1EFE7.2080903@pobox.com>
-Date: Sat, 04 Jun 2005 14:16:07 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dave Airlie <airlied@gmail.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Git Mailing List <git@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [doc][git] playing with git, and netdev/libata-dev trees
-References: <42955DF7.4000805@pobox.com>	 <21d7e99705060401405cfd5a11@mail.gmail.com>	 <42A181C1.3010902@pobox.com> <21d7e99705060403312234aa07@mail.gmail.com>
-In-Reply-To: <21d7e99705060403312234aa07@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Sat, 4 Jun 2005 14:23:14 -0400
+Date: Sat, 4 Jun 2005 12:26:45 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Vivek Goyal <vgoyal@in.ibm.com>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       Morton Andrew Morton <akpm@osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Bodo Eggert <7eggert@gmx.de>, Dipankar Sarma <dipankar@in.ibm.com>,
+       Grant Grundler <grundler@parisc-linux.org>, awilliam@fc.hp.com,
+       bjorn.helgaas@hp.com
+Subject: Re: [RFC/PATCH] Kdump: Disabling PCI interrupts in capture kernel
+Message-ID: <20050604182645.GD19823@colo.lackof.org>
+References: <1117882628.42a1890479c23@imap.linux.ibm.com> <Pine.LNX.4.44L0.0506041126030.5133-100000@iolanthe.rowland.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.44L0.0506041126030.5133-100000@iolanthe.rowland.org>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Airlie wrote:
->>>1. when you want to publish your tree what do you do? just rsync it
->>>onto kernel.org?
->>
->>Basically.  I copy the attached script into each repo, customize the
->>script for the upload destination.
->>
->>When I publish the tree, I just cd to the toplevel dir on my local
->>workstation, and run "./push"
->>
->>
->>
->>>2. When you are taking things from your queue for Linus do you create
->>>another tree and merge your branches into it or what?
->>
->>Not quite sure what you're asking, but I'll attempt to answer anyway :)
+On Sat, Jun 04, 2005 at 11:35:59AM -0400, Alan Stern wrote:
+> On Sat, 4 Jun 2005, Vivek Goyal wrote:
 > 
+> > Hi Alan, I know very little about consoles and their working.
+> > I had a question. Even if console is being managed by platform firmware, in
+> > initial states of booting, does it require interrupts to be enabled at 
+> > VGA contorller (at least for the simple text mode). I was quickly browsing
+> > through drivers/video/console/vgacon.c and did not look like that this
+> > console driver needed interrupts to be enabled at the controller.
 > 
-> Yes that's what I'm asking, mainly the pulling of multiple trees into
-> one tree for giving to Linus, for Andrew I'm quite happy to have him
-> pull multiple HEADs from the one tree assuming I don't have many
-> interdependencies between trees...
+> This isn't an issue for VGA, as far as I know.  It applies to
+> architectures like PPC-64 and perhaps Alpha or PA-Risc.  And I don't know
+> the details; ask Grant Grundler.
+
+I'm more familiar with the serial consoles and how PDC interacts with them.
+>From HP, both Alex Williamson and Bjorn Helgaas know more about
+VGA support. I've cc'd both.
+
+> > Anyway, looks like serial consoles will always work. So at least this can be
+> > done for kdump case (CONFIG_CRASH_DUMP) and not generic kernel. Or, as I
+> > mentioned in previous mail, while pre-loading capture kernel, pass a command
+> > line parameter containing pci dev id of console and capture kernel does not 
+> > disable interrupts on this console.  
+
+parisc serial consoles don't need interrupts enabled. The serial device
+does need it's MMIO and/or IO Port range enabled (I forgot which).
+ISTR most serial consoles don't do DMA and thus don't need BusMaster
+enabled in the PCI command register either.
+
+> I suspect you're right that implementing this only in kdump kernels will 
+> work okay.
 > 
-> Say I want something like this one tree with
+> For people interesting in reading some old threads on the subject, here 
+> are some pointers:
 > 
-> drm-2.6 - HEAD <- linus tree
->             - drm-via < a via driver
->             - drm-initmap 
->                       - drm-savage <- a savage driver that depends on
-> the drm-initmap tree
+> http://marc.theaimsgroup.com/?l=linux-usb-devel&m=111055702309788&w=2
 > 
-> How would I construct such a beast, how does it work out from where to
-> branch, can I branch a branch for something like drm-savage so I can
-> say send Linus the initmap branch and then have -mm pulling the savage
-> one...
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=98383052711171&w=2
 
-You used to use BitKeeper, right?
+wow...from 2001.
+That's when we first release a500 support with Debian 3.0.
 
-Well, git works just fine for creating and maintaining separate repos, 
-where each repo is its own branch.  Dependent branches are handled 
-simply by pulling new changes from the parent (drm-initmap) repo into 
-the child (drm-savage) repo.
-
-If you just have a few branches, such as your example above, rather than 
-the 50+ branches I have, then I would recommend _ignoring_ the advice in 
-my git howto, and instead create a new branch by cloning:
-
-	cd /repos
-	mkdir drm-via
-	cp -a linux-2.6/.git drm-via
-	rm -rf drm-via/.git/objects
-	cp -al linux-2.6/.git/objects drm-via/.git
-
-Once created by the above recipes, or similar, the directory will 
-function as a repo just like with BK.  When you wish to update it from 
-upstream, update your local linux-2.6 repo and then
-
-	cd /repos/drm-via
-	git-pull-script /repos/linux-2.6/.git
-
-or to pull new changes from initmap into savage:
-
-	cd /repos/drm-initmap
-	# { check in some changes }
-	cd /repos/drm-savage
-	git-pull-script /repos/drm-initmap/.git
-
-Does all that make sense?  It's really quite similar to BK, if you 
-ignore the "[jg-specific]" portions of the git howto I wrote.
-
-	Jeff
-
-
+thanks,
+grant

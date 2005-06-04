@@ -1,37 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261244AbVFDUoG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbVFDUwr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261244AbVFDUoG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 16:44:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbVFDUoG
+	id S261247AbVFDUwr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 16:52:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVFDUwr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 16:44:06 -0400
-Received: from god.demon.nl ([83.160.164.11]:6151 "EHLO god.dyndns.org")
-	by vger.kernel.org with ESMTP id S261244AbVFDUoE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 16:44:04 -0400
-Date: Sat, 4 Jun 2005 22:44:03 +0200
-From: Henk <Henk.Vergonet@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] new 7-segments char translation API
-Message-ID: <20050604204403.GA10417@god.dyndns.org>
-References: <20050531220738.GA21775@god.dyndns.org> <429DAB07.1050900@anagramm.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 4 Jun 2005 16:52:47 -0400
+Received: from CPE00095b3131a0-CM0011ae8cd564.cpe.net.cable.rogers.com ([70.29.53.229]:62082
+	"EHLO kenichi") by vger.kernel.org with ESMTP id S261247AbVFDUwl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Jun 2005 16:52:41 -0400
+From: Andrew James Wade 
+	<ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
+To: jan malstrom <xanon@snacksy.com>
+Subject: Re: 2.6.12-rc5-mm2 Oops
+Date: Sat, 4 Jun 2005 16:52:32 -0400
+User-Agent: KMail/1.7.2
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
+       Vladimir Saveliev <vs@namesys.com>, Andrew Morton <akpm@osdl.org>
+References: <42A1DF4B.9070201@snacksy.com>
+In-Reply-To: <42A1DF4B.9070201@snacksy.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <429DAB07.1050900@anagramm.de>
-User-Agent: Mutt/1.5.6i
+Message-Id: <200506041652.32898.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel wrote:
-> Keep 7-segment displays out of kernel. If it is usb, drive it from
-> userspace with libusb...
+On June 4, 2005 01:05 pm, jan malstrom wrote:
+> sorry. the oops happened right at boot up.
+> so, just mounting the fs.
+> 
+> please cc me. im not subscribed.
+> 
+> > Hello
+> > 
+> > On Sat, 2005-06-04 at 04:23, jan malstrom wrote:
+> >> i attach the .config
+> >>
+> > 
+> > Please describe what did you do to get this oops.
 
-I see that you did not provide any arguments.
+It looks rather like the problem I had back in March:
+"crash while processing safelinks caused by i_count==1"
+http://marc.theaimsgroup.com/?l=reiserfs&m=111210627621470&w=2
 
-I think you have not tried to look at it from a perspective
-that is presented here. This makes me feel a little sad.
+I had the same problem recur at the end of May; Vladamir's patch still
+applied. (The power's been really flaky lately).
 
-Henk
+The call trace does differ though.
 
-PS please cc or send mail directly as I am not on the list.
+Cheers,
+Andrew
+
+> > 
+> >>
+> >> ------------------------
+> >>
+> >>
+> >> SGI XFS with no debug enabled
+> >> 8139cp: 10/100 PCI Ethernet driver v1.2 (Mar 22, 2004)
+> >> cs: IO port probe 0x2000-0x2fff: clean.
+> >> ehci_hcd 0000:00:1d.7: debug port 1
+> >> C058 C1AD C1A3 C1A4 C0AC C0B3 C0B4 C0B5 C0E7 C136
+> >> Unable to handle kernel paging request at virtual address 6b6b6d63
+> >> c0227ca7
+> >> *pde = 00000000
+> >> Oops: 0000 [#1]
+> >> CPU: 0
+> >> EIP: 0060:[<c0227ca7>] Not tainted VLI
+> >> Using defaults from ksymoops -t elf32-i386 -a i386
+> >> EFLAGS: 00010286 (2.6.12-rc5-mm2)
+> >> eax: 6b6b6b6b ebx: 00000000 ecx: 00000000 edx: c1578cc0
+> >> esi: dedf9158 edi: 00000000 ebp: dec55cb8 esp: dec55cb0
+> >> ds: 007b es: 007b ss: 0068
+> >> Stack: c0229c87 6b6b6b6b dec55cf4 c02348ce dedf9158 00000000 dedf9458
+> >> 0000000a
+> >> dec55ce0 c02343e1 dedf9458 0000000a 000b78e0 00000000 00000000
+> >> df0cce1c
+> >> dec55d18 dec55d84 c0234a61 df0cce1c 00000000 dec55d3c 000b78e0
+> >> 00000000
+> >> Call Trace:
+> >> [<c0104b8f>] show_stack+0x7f/0xa0
+> >> [<c0104d37>] show_registers+0x157/0x1c0
+> >> [<c0104f94>] die+0x134/0x290
+> >> [<c011b1b9>] do_page_fault+0x399/0x6ff
+> >> [<c0104683>] error_code+0x4f/0x54
+> >> [<c02348ce>] process_safelink+0xae/0x1b0
+> >> [<c0234a61>] process_safelinks+0x91/0xb0
+> >> [<c02342d1>] _init_safelink+0x11/0x20
+> >> [<c023438f>] reiser4_fill_super+0x3f/0x70
+> >> [<c018affd>] get_sb_bdev+0x12d/0x170
+> >> [<c022c90f>] reiser4_get_sb+0x2f/0x40
+> >> [<c018b246>] do_kern_mount+0x56/0xd0
+> >> [<c01ac164>] do_new_mount+0x74/0xb0
+> >> [<c01ace30>] do_mount+0x140/0x190
+> >> [<c01ad402>] sys_mount+0x92/0xd0
+> >> [<c0103bd9>] syscall_call+0x7/0xb
+> >> Code: 00 00 00 00 55 89 e5 8b 45 08 5d 8b 80 f8 01 00 00 8b 80 18 02
+> >> 00 00 c3 8d b6 00 00 00 00 8d bf 00 00 00 00 55 89 e5 8b 45 08 5d <8b>
+> >> 80 f8 01 00 00 83 c0 2c c3 eb 0d 90 90 90 90 90 90 90 90 90
+> >>
+> >>
+> >> >>EIP; c0227ca7 <get_tree+7/20> <=====
+> >>
+> >> >>eax; 6b6b6b6b <phys_startup_32+6b5b6b6b/c0000000>
+> >> >>edx; c1578cc0 <pg0+d9acc0/3f820400>
+> >> >>esi; dedf9158 <pg0+1e61b158/3f820400>
+> >> >>ebp; dec55cb8 <pg0+1e477cb8/3f820400>
+> >> >>esp; dec55cb0 <pg0+1e477cb0/3f820400>
+> >>
+> >> Trace; c0104b8f <show_stack+7f/a0>
+> >> Trace; c0104d37 <show_registers+157/1c0>
+> >> Trace; c0104f94 <die+134/290>
+> >> Trace; c011b1b9 <do_page_fault+399/6ff>
+> >> Trace; c0104683 <error_code+4f/54>
+> >> Trace; c02348ce <process_safelink+ae/1b0>
+> >> Trace; c0234a61 <process_safelinks+91/b0>
+> >> Trace; c02342d1 <_init_safelink+11/20>
+> >> Trace; c023438f <reiser4_fill_super+3f/70>
+> >> Trace; c018affd <get_sb_bdev+12d/170>
+> >> Trace; c022c90f <reiser4_get_sb+2f/40>
+> >> Trace; c018b246 <do_kern_mount+56/d0>
+> >> Trace; c01ac164 <do_new_mount+74/b0>
+> >> Trace; c01ace30 <do_mount+140/190>
+> >> Trace; c01ad402 <sys_mount+92/d0>
+> >> Trace; c0103bd9 <syscall_call+7/b>
+> >> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+> 

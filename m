@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261281AbVFDHTp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261279AbVFDHYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261281AbVFDHTp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 03:19:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbVFDHTo
+	id S261279AbVFDHYP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 03:24:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbVFDHYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 03:19:44 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:43133 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261279AbVFDHT1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 03:19:27 -0400
-Date: Sat, 4 Jun 2005 00:19:18 -0700
-From: Greg KH <gregkh@suse.de>
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Andreas Koch <koch@esa.informatik.tu-darmstadt.de>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
-Message-ID: <20050604071918.GB13684@suse.de>
-References: <20050603232828.GA29860@erebor.esa.informatik.tu-darmstadt.de> <Pine.LNX.4.58.0506031706450.1876@ppc970.osdl.org> <20050604013311.GA30151@erebor.esa.informatik.tu-darmstadt.de> <Pine.LNX.4.58.0506031851220.1876@ppc970.osdl.org> <20050604063833.GA13238@suse.de> <20050604065106.GA8230@colo.lackof.org>
+	Sat, 4 Jun 2005 03:24:15 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:52402 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261279AbVFDHYK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Jun 2005 03:24:10 -0400
+Date: Sat, 4 Jun 2005 03:23:48 -0400
+From: Dave Jones <davej@redhat.com>
+To: Greg KH <gregkh@suse.de>
+Cc: Grant Grundler <grundler@parisc-linux.org>, tom.l.nguyen@intel.com,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       roland@topspin.com, davem@davemloft.net
+Subject: Re: pci_enable_msi() for everyone?
+Message-ID: <20050604072348.GA28293@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>, Greg KH <gregkh@suse.de>,
+	Grant Grundler <grundler@parisc-linux.org>, tom.l.nguyen@intel.com,
+	linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+	roland@topspin.com, davem@davemloft.net
+References: <20050603224551.GA10014@kroah.com> <20050604013112.GB16999@colo.lackof.org> <20050604064821.GC13238@suse.de> <20050604070537.GB8230@colo.lackof.org> <20050604071803.GA13684@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050604065106.GA8230@colo.lackof.org>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <20050604071803.GA13684@suse.de>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 04, 2005 at 12:51:06AM -0600, Grant Grundler wrote:
-> On Fri, Jun 03, 2005 at 11:38:33PM -0700, Greg KH wrote:
-> > Anyone have any pointers to a simple PCI express network card?  (no, I
-> > don't want a PCI express video card, although if someone wants to send
-> > me one I will not complain...)
-> 
-> "simple"?
+On Sat, Jun 04, 2005 at 12:18:03AM -0700, Greg KH wrote:
+ > On Sat, Jun 04, 2005 at 01:05:37AM -0600, Grant Grundler wrote:
+ > > On Fri, Jun 03, 2005 at 11:48:21PM -0700, Greg KH wrote:
+ > > > > One complication is some drivers will want to register a different
+ > > > > IRQ handler depending on if MSI is enabled or not.
+ > > > 
+ > > > That's fine, they can always check the device capabilities and do that.
+ > > 
+ > > Can you be more specific?
+ > > Maybe a short chunk of psuedo code?
+ > 
+ > Hm, here's a possible function to do it (typed into my email client, not
+ > compiled, no warranties, etc...):
+ > 
+ > /* returns 1 if device is in MSI mode, 0 otherwise */
+ > int pci_in_msi_mode(struct pci_dev *dev)
+ > {
+ > 	int pos;
+ > 	u16 control;
+ > 
+ > 	pos = pci_find_capability(dev, PCI_CAP_ID_MSI);
+ > 	if (!pos)
+ > 		return 0;
+ > 	pci_read_config_word(dev, msi_control_reg(pos), &control);
+ > 	if (control & PCI_MSI_FLAGS_ENABLE);
+ > 		return 1;
+ > 	return 0;
+ > }
 
-Well, not a 16-wide PCI-E device :)
+What if MSI support has been disabled in the bridge due to some quirk
+(like the recent AMD 8111 quirk) ?   Maybe the above function
+should check pci_msi_enable as well ?
 
-> Well, I'm aware of bcm5708 and Michael Chan (Broadcom)
-> recently posted the bnx2 driver for it. If HP has it, then others
-> are likely offering it too:
-> http://h18004.www1.hp.com/products/servers/networking/nc320t/index.html
+		Dave
 
-Ah, nice, thanks for the pointer.
-
-greg k-h

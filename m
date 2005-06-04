@@ -1,18 +1,112 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261198AbVFCEas (ORCPT <rfc822;ralf@linux-mips.org>);
-	Fri, 3 Jun 2005 00:30:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVFCEas
+	id S261333AbVFDMOQ (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 4 Jun 2005 08:14:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVFDMOQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 00:30:48 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:49040 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S261198AbVFCEaq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 00:30:46 -0400
-Date: Thu, 2 Jun 2005 21:30:42 -0700
-From: kcrblpfi@yahoo.com
-Message-Id: <200506030430.j534UaGC028945@zeus2.kernel.org>
-To: unlisted-recipients:; (no To-header on input)
+	Sat, 4 Jun 2005 08:14:16 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:9863 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S261333AbVFDMOI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Jun 2005 08:14:08 -0400
+Message-Id: <200506041214.j54CE5GR021593@zeus2.kernel.org>
+From: "PRODEK GROUP" <prodek@mynet.com>
+Reply-To: info@prodekgroup.com
+To: linux-kernel@vger.kernel.org
+Date: Sat, 4 Jun 2005 15:14:11 +0300
+Subject: PROFESYONEL  =?ISO-8859-1?Q?=20=C7=D6Z=DCMLER?= // SATINALMA - ULUSLARARASI  =?ISO-8859-1?Q?=20N?=
+	=?ISO-8859-1?Q?AKL=DDYE-TEKST=DDL?=
+X-Priority: 1
+X-Mailer: Microsoft Outlook Express 5.00.2919.7000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=windows-1254
+Content-Transfer-Encoding: QUOTED-PRINTABLE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261198AbVFCEas@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261333AbVFDMOQ@vger.kernel.org>
 
+
+KURUMSAL YAPINIZA UYGUN VE S=DDZ=DD T=DCM RAK=DDP VE M=DC=DETER=DDLER=DD=
+N=DDZE KAR=DEI=20
+EN =DDY=DD TARZDA TANITAB=DDLECEK PROJELER YARATMAK =DDST=DDYORSANIZ. !
+
+HERZAMAN B=DDR ADIM =D6NDE VE BA=DEARILARI =DDLE D=DDKKAT =C7EKEN B=DDR=
+ F=DDRMA OLMAK  =DDST=DDYORSANIZ. !=20
+
+BASILI YAYIN VE REKLAM HALKLA =DDL=DD=DEK=DDLER G=DDB=DD DEPARTMANLAR K=
+URMADAN,
+PAZARLAMA VE TANITIM =DD=C7=DDN EK=DDP =C7ALI=DEMALARI OLU=DETURMADAN,
+
+PERSONEL G=DDYS=DDLER=DD VE PROMOSYON ALIMLAR =DD=C7=DDN =DDLK ELDEN =DC=
+RET=DDC=DD =DDLE =C7ALI=DEARAK=20
+EN KAL=DDTEL=DD VE UYGUN =C7=D6Z=DCMLER BULMAK =DDST=DDYORSANIZ.!
+
+MAL=DDYETLER=DDN=DDZ=DD S=DDSTEMAT=DDK OLARAK TAK=DDP ETMEK,
+
+GEREKS=DDZ MASRAFLARINIZI TESP=DDT ED=DDP, TASARRUF YARATMAK,
+
+TAHM=DDN=DD B=DCT=C7E VE SATI=DE PLANLARI, F=DDNANSAL ANAL=DDZ =C7ALI=DE=
+MALARINIZI B=DCNYEN=DDZDE=20
+=C7=D6ZMEK =DDST=DDYORSANIZ.=20
+
+=DCRET=DDM=DDN=DD YAPTI=D0INIZ =DCR=DCN=DCN HEDEF K=DDTLEYE ULA=DEMASIN=
+I, H=DDTAP ETT=DD=D0=DDN=DDZ P=DDYASADA=20
+TANINMAYI EN D=DC=DE=DCK MAL=DDYETLERLE =C7=D6ZMEY=DD =DDST=DDYORSANIZ.=
+!
+
+ULUSLARARASI =DD=DE BA=D0LANTILARI VE SATI=DE D=DC=DE=DCN=DCYORSANIZ.!
+
+ULUSLARARASI NAKL=DDYE KONUSUNDA ALTERNAT=DDF =C7=D6Z=DCMLER BAKIYORSAN=
+IZ.!
+
+
+S=DDZ =DDST=DDYORSANIZ B=DDZ BURDAYIZ.!=20
+
+=C7=DCNK=DC B=DDZ DE S=DDZ=DDN =DDSTED=DDKLER=DDN=DDZ=DD =DDST=DDYORUZ.=
+=20
+
+D=DC=DE=DCNCELER=DDN=DDZ=DD HAYATA GE=C7=DDRMEK,
+
+PROBLEMLER=DDN=DDZ=DD EN KISA S=DCREDE =C7=D6Z=DCMLEMEK,
+
+YATIRIMLARINIZIN KAR=DEILIGINI VE KISA S=DCREDE KAZANCA D=D6N=DC=DET=DC=
+RMEK,
+
+M=DDN=DDMUM MAL=DDYETLE OPT=DDMAL KAZAN=C7 ELDE EDEB=DDLMEN=DDZ=DD SAGL=
+AMAK,
+
+T=DDCARET HAYATINDA HAKETT=DD=D0=DDN=DDZ YERDE OLMANIZI SA=D0LAMAK,
+
+K=DD=DE=DDSEL G=DCVEN=DDN OLMADI=D0I S=DDSTEMAT=DDK =DD=DELEY=DD=DE TAR=
+ZI VE KURUMSALLIGA SAH=DDP OLMANIZI =DDST=DDYORUZ.=20
+
+
+
+B=DDR TELEFON KADAR YAKINIZ .
+
+0212 233 70 51 // 0542 237 93 34
+info@prodekgroup.com
+
+          PRODEK GROUP=20
+PRODEK DANI=DEMANLIK VE E=D0=DDT=DDM
+PRODEK TEKST=DDL
+PRODEK B=DDLG=DD =DD=DELEM
+PRODEK MATBAACILIK VE REKLAM=20
+PRODEK GENEL SATINALMA=20
+PRODEK LOJ=DDST=DDK ULUSLARARASI TA=DEIMACILIK
+
+
+
+
+
+
+
+
+
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel"=
+ in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

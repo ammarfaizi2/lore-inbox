@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVFDC0F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261186AbVFDC3G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbVFDC0F (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 22:26:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVFDC0F
+	id S261186AbVFDC3G (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 22:29:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVFDC3G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 22:26:05 -0400
-Received: from umbar.esa.informatik.tu-darmstadt.de ([130.83.163.30]:52352
-	"EHLO umbar.esa.informatik.tu-darmstadt.de") by vger.kernel.org
-	with ESMTP id S261208AbVFDC0B (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 22:26:01 -0400
-Date: Sat, 4 Jun 2005 04:26:00 +0200
-From: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       gregkh@suse.de
-Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
-Message-ID: <20050604022600.GA8221@erebor.esa.informatik.tu-darmstadt.de>
-References: <20050603232828.GA29860@erebor.esa.informatik.tu-darmstadt.de> <Pine.LNX.4.58.0506031706450.1876@ppc970.osdl.org> <20050604013311.GA30151@erebor.esa.informatik.tu-darmstadt.de> <Pine.LNX.4.58.0506031851220.1876@ppc970.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0506031851220.1876@ppc970.osdl.org>
-User-Agent: Mutt/1.5.8i
+	Fri, 3 Jun 2005 22:29:06 -0400
+Received: from smtp205.mail.sc5.yahoo.com ([216.136.129.95]:52142 "HELO
+	smtp205.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261186AbVFDC3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 22:29:02 -0400
+Message-ID: <42A111DF.8070806@yahoo.com.au>
+Date: Sat, 04 Jun 2005 12:28:47 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Subrahmanyam Ongole <songole@gmail.com>
+CC: William Lee Irwin III <wli@holomorphy.com>, linux-kernel@vger.kernel.org
+Subject: Re: x86-64: Kernel with large page size
+References: <a8447f24050603175061598809@mail.gmail.com> <20050604005930.GA31508@holomorphy.com>
+In-Reply-To: <20050604005930.GA31508@holomorphy.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 03, 2005 at 06:55:40PM -0700, Linus Torvalds wrote:
+William Lee Irwin III wrote:
+> On Fri, Jun 03, 2005 at 05:50:55PM -0700, Subrahmanyam Ongole wrote:
 > 
-> 
-> On Sat, 4 Jun 2005, Andreas Koch wrote:
-> > 
-> > As you suspected, it wasn't a panacea: The kernel now panics, with a
-> > call chain of
-> > 
-> > 	...
-> > 	pcibios_init()
-> > 	pci_assign_unassigned_resources()
-> > 	pci_bus_assign_resources()
-> > 	pci_setup_bridge()
-> > 
-> > I can collect more specific info if necessary.
-> 
-> It would be nice to know exactly what it is that panics, I could well
-> imagine that it's something like the "bus->self" that ends up being NULL
-> for the root bus or something silly like that, simply because x86 has 
-> never needed to use these functions.
-> 
-> If so, it migth be as easy as just skipping buses that don't have bridge 
-> device associated with them, but this would require that you try to debug 
-> the oops a bit to figure out where it is..
+>>When we run our application on AMD Opteron processors, we are seeing a
+>>large number of   L1_AND_L2_DTLB_MISSES. We used oprofile to measure
+>>these numbers.
+[...]
 
-Actually, I tried that already.  But I didn't get any usable info from
-the oops and GDB (`list *pci_setup_bridge+0x1a2' shows an include file,
-not a line in the function) .  I'll make another attempt tomorrow when
-I am more awake :-)
+> 
+> 
+> PAGE_SIZE at the moment is intimately tied to the MMU's notions of
+> address translation, which are determined by hardware.
+> 
 
-  Andreas
+And even if we were able to increase the PAGE_SIZE that
+the kernel uses, this wouldn't really help your TLB misses.
+
+You may be able to use "huge pages" for your workload, which
+can use the 2/4MB pages. There is some good documentation for
+it in Documentation/vm/ (and probably on the web).
+
+-- 
+SUSE Labs, Novell Inc.
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

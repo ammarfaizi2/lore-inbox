@@ -1,53 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVFDAHx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVFDAHx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261189AbVFDAHx (ORCPT <rfc822;willy@w.ods.org>);
+	id S261185AbVFDAHx (ORCPT <rfc822;willy@w.ods.org>);
 	Fri, 3 Jun 2005 20:07:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVFDAHF
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVFDAGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 20:07:05 -0400
-Received: from gate.crashing.org ([63.228.1.57]:44511 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261185AbVFDAFF (ORCPT
+	Fri, 3 Jun 2005 20:06:43 -0400
+Received: from animx.eu.org ([216.98.75.249]:58037 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S261186AbVFDAFp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 20:05:05 -0400
-Subject: Re: 2.6.12?
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+	Fri, 3 Jun 2005 20:05:45 -0400
+Date: Fri, 3 Jun 2005 20:01:56 -0400
+From: Wakko Warner <wakko@animx.eu.org>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050603163843.1cf5045d.akpm@osdl.org>
-References: <42A0D88E.7070406@pobox.com>
-	 <20050603163843.1cf5045d.akpm@osdl.org>
-Content-Type: text/plain
-Date: Sat, 04 Jun 2005 10:03:52 +1000
-Message-Id: <1117843433.31082.207.camel@gaston>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12?
+Message-ID: <20050604000156.GA18065@animx.eu.org>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <42A0D88E.7070406@pobox.com> <20050603163843.1cf5045d.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050603163843.1cf5045d.akpm@osdl.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-06-03 at 16:38 -0700, Andrew Morton wrote:
+Andrew Morton wrote:
+> Subject: Double free of initramfs
 
-> Subject: ATI Radeon 9000 M9 mobitility troubles on linux 2.6
+Is there a patch to fix this?  I've noticed a solid lockup when trying to
+umount initramfs after a pivot_root.
 
-Is that one still pending ? Or is it just the slow down due to the
-workaround ?
-
-> Subject: [Bugme-new] [Bug 4453] New: Since 2.6.10 with radeon 9000 mobile
-
-What is that one ?
-
-> Subject: [Bugme-new] [Bug 4513] New: Radeon driver in 2.6.10 through
-
-Ok, looks like I'll have to look at some bugzilla ? :)
-
-> Subject: Radeonfb blanks the screen / hangs the system with 2.6.11
-
-Can you forward me that one ?
-
-> Subject: Re: PROBLEM: Radeon card displays incorrectly under the 2.6.11 version unless compiled with SMP support
-
-And that one
-
-Ben.
-
-
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

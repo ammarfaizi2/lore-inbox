@@ -1,61 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261315AbVFDPgG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVFDPnc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261315AbVFDPgG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 11:36:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbVFDPgG
+	id S261351AbVFDPnc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 11:43:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVFDPnc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 11:36:06 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:2279 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S261315AbVFDPgA
+	Sat, 4 Jun 2005 11:43:32 -0400
+Received: from wildsau.idv.uni.linz.at ([193.170.194.34]:34432 "EHLO
+	wildsau.enemy.org") by vger.kernel.org with ESMTP id S261351AbVFDPn0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 11:36:00 -0400
-Date: Sat, 4 Jun 2005 11:35:59 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Vivek Goyal <vgoyal@in.ibm.com>
-cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       Morton Andrew Morton <akpm@osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Bodo Eggert <7eggert@gmx.de>, Dipankar Sarma <dipankar@in.ibm.com>,
-       Grant Grundler <grundler@parisc-linux.org>
-Subject: Re: [RFC/PATCH] Kdump: Disabling PCI interrupts in capture kernel
-In-Reply-To: <1117882628.42a1890479c23@imap.linux.ibm.com>
-Message-ID: <Pine.LNX.4.44L0.0506041126030.5133-100000@iolanthe.rowland.org>
+	Sat, 4 Jun 2005 11:43:26 -0400
+From: Herbert Rosmanith <kernel@wildsau.enemy.org>
+Message-Id: <200506041543.j54Fh7xv018234@wildsau.enemy.org>
+Subject: [PATCH] struct thread_struct, asm-i386/processor.h: wrong datatype?
+To: linux-kernel@vger.kernel.org
+Date: Sat, 4 Jun 2005 17:43:06 +0200 (MET DST)
+CC: torvalds@osdl.org, Herbert Rosmanith <kernel@wildsau.enemy.org>
+X-Mailer: ELM [version 2.4ME+ PL100 (25)]
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 4 Jun 2005, Vivek Goyal wrote:
 
-> Hi Alan, I know very little about consoles and their working.
-> I had a question. Even if console is being managed by platform firmware, in
-> initial states of booting, does it require interrupts to be enabled at 
-> VGA contorller (at least for the simple text mode). I was quickly browsing
-> through drivers/video/console/vgacon.c and did not look like that this
-> console driver needed interrupts to be enabled at the controller.
+good day,
 
-This isn't an issue for VGA, as far as I know.  It applies to
-architectures like PPC-64 and perhaps Alpha or PA-Risc.  And I don't know
-the details; ask Grant Grundler.
+concerning this file:
 
-> Anyway, looks like serial consoles will always work. So at least this can be
-> done for kdump case (CONFIG_CRASH_DUMP) and not generic kernel. Or, as I
-> mentioned in previous mail, while pre-loading capture kernel, pass a command
-> line parameter containing pci dev id of console and capture kernel does not 
-> disable interrupts on this console.  
+/usr/src/linux/include/asm-i386/processor.h
 
-I suspect you're right that implementing this only in kdump kernels will 
-work okay.
+we find a "struct thread_struct":
 
-For people interesting in reading some old threads on the subject, here 
-are some pointers:
+struct thread_struct {
+        unsigned long   esp0;
+        unsigned long   eip;
+        unsigned long   esp;
+        unsigned long   fs;
+        ^^^^^^^^^^^^^^^^^^^
+        unsigned long   gs;
+        ^^^^^^^^^^^^^^^^^^^
 
-http://marc.theaimsgroup.com/?l=linux-usb-devel&m=111055702309788&w=2
+as segment-registers, aren't fs and gs only 16 bit? why are they not
+unsigned short (or possibly u_int16_t)?
 
-http://marc.theaimsgroup.com/?l=linux-kernel&m=98383052711171&w=2
+kind regards,
+herbert rosmanith
 
-Alan Stern
+# diff -uN processor.h.orig processor.h
+--- processor.h.orig    Wed Feb 18 14:36:32 2004
++++ processor.h Sat Jun  4 17:41:58 2005
+@@ -2,6 +2,9 @@
+  * include/asm-i386/processor.h
+  *
+  * Copyright (C) 1994 Linus Torvalds
++ *
++ * Sat Jun  4 17:41:23 MET DST 2005 herp - Herbert Rosmanith
++ *  fix wrong datatypes in struct thread_struct
+  */
+
+ #ifndef __ASM_I386_PROCESSOR_H
+@@ -361,8 +364,8 @@
+        unsigned long   esp0;
+        unsigned long   eip;
+        unsigned long   esp;
+-       unsigned long   fs;
+-       unsigned long   gs;
++       unsigned short  fs;
++       unsigned short  gs;
+ /* Hardware debugging registers */
+        unsigned long   debugreg[8];  /* %%db0-7 debug registers */
+ /* fault info */
 

@@ -1,41 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVFDQLf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVFDQQh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbVFDQLf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 12:11:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbVFDQLf
+	id S261360AbVFDQQh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 12:16:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbVFDQQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 12:11:35 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:28667 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261358AbVFDQLe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 12:11:34 -0400
-Date: Sat, 4 Jun 2005 19:33:01 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: Andrew Morton <akpm@osdl.org>, Alan Stern <stern@rowland.harvard.edu>,
-       "Eric W. Biederman" <ebiederm@xmission.com>, Greg KH <greg@kroah.com>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: Re: [Fastboot] Re: [RFC/PATCH] Kdump: Disabling PCI interrupts in capture kernel
-Message-ID: <20050604140301.GC7439@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20050603112524.GB7022@in.ibm.com> <20050603182147.GB5751@kroah.com> <m13brz9tkf.fsf@ebiederm.dsl.xmission.com> <200506041618.24736.vda@ilport.com.ua> <20050604134306.GB7439@in.ibm.com>
+	Sat, 4 Jun 2005 12:16:37 -0400
+Received: from umbar.esa.informatik.tu-darmstadt.de ([130.83.163.30]:54400
+	"EHLO umbar.esa.informatik.tu-darmstadt.de") by vger.kernel.org
+	with ESMTP id S261360AbVFDQQf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Jun 2005 12:16:35 -0400
+Date: Sat, 4 Jun 2005 18:16:33 +0200
+From: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>
+To: Greg KH <gregkh@suse.de>
+Cc: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
+Message-ID: <20050604161633.GB14384@erebor.esa.informatik.tu-darmstadt.de>
+References: <20050603232828.GA29860@erebor.esa.informatik.tu-darmstadt.de> <20050604064627.GB13238@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050604134306.GB7439@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050604064627.GB13238@suse.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 04, 2005 at 07:13:06PM +0530, Dipankar Sarma wrote:
-> That said, I am not sure what is the issue with the console
-> drivers. What good is the irq for the console driver if
-> it hasn't requested for it ? Why should disabling it affect
-> consoles ? The interrupt will get enabled as soon as the driver
-> requests for it as per Vivek's patch. Am I missing something here ?
+On Fri, Jun 03, 2005 at 11:46:27PM -0700, Greg KH wrote:
+> On Sat, Jun 04, 2005 at 01:28:28AM +0200, Andreas Koch wrote:
+> > Specifically, this occurs on my Acer Travelmate 8100 notebook (Pentium
+> > M, Intel 915M chipset) when it is connected via PCI Express to the
+> > ezDock docking station.
+> 
+> Are you connecting it at boot time, or after the box is up and running?
 
-Doh! The answer is in earlier emails - fw controlled pci consoles.
+The dock is already connected at power-up time.
 
-Thanks
-Dipankar
+> Hm, another idea, can you load the pci express and standard pci hotplug
+> drivers?  You might have to "enable" those slots in order for the pci
+> core to scan the devices and set everything up properly.  
+> 
+> To do this, after loading the modules (pciehp and shpchp), look in
+> /sys/bus/pci/slots/
+
+I have already experimented with compiled-in versions of these drivers
+(as well as the ACPI PCI hotplug driver).
+
+> 
+> If there are any "slots" listed there, go into those directories and
+> "power them on" by simply writing a "1" to the file 'power' by using
+> echo.
+> 
+> Let us know if that helps out any or not.
+
+I have /sys/bus/pci/slots/, but it is empty. Should I make another
+attempt with driver modules instead of the compiled in versions?
+
+> 
+> Oh, and this isn't "PCI ExpressCard" type hardware is it (next
+> generation pcmcia/cardbus evolution.)
+
+Actually, the dock itself has a PCI ExpressCard slot (currently
+empty) as one of its peripherals. But my current difficulties are
+with the PCI-Express connection between notebook and dock.
+
+Andreas

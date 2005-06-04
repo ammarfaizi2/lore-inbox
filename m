@@ -1,41 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261323AbVFDL2n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261324AbVFDLfj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261323AbVFDL2n (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 07:28:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261324AbVFDL2n
+	id S261324AbVFDLfj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 07:35:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261325AbVFDLfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 07:28:43 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:27309 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261323AbVFDL2m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 07:28:42 -0400
-Date: Sat, 4 Jun 2005 12:28:25 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: randy_dunlap <rdunlap@xenotime.net>
-Cc: Andreas Schwab <schwab@suse.de>, geert@linux-m68k.org,
-       joern@wohnheim.fh-wedel.de, xiao@unice.fr, linux-kernel@vger.kernel.org
-Subject: Re: Suggestion on "int len" sanity
-Message-ID: <20050604112825.GC19819@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	randy_dunlap <rdunlap@xenotime.net>,
-	Andreas Schwab <schwab@suse.de>, geert@linux-m68k.org,
-	joern@wohnheim.fh-wedel.de, xiao@unice.fr,
-	linux-kernel@vger.kernel.org
-References: <429EB537.4060305@unice.fr> <20050602084840.GA32519@wohnheim.fh-wedel.de> <Pine.LNX.4.62.0506031143100.16362@numbat.sonytel.be> <jer7fjeiae.fsf@sykes.suse.de> <Pine.LNX.4.62.0506031443000.16362@numbat.sonytel.be> <jed5r3eca8.fsf@sykes.suse.de> <20050603110436.3f801c65.rdunlap@xenotime.net>
+	Sat, 4 Jun 2005 07:35:38 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:10936 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261324AbVFDLfb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Jun 2005 07:35:31 -0400
+Date: Sat, 4 Jun 2005 13:33:16 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12?
+Message-ID: <20050604113316.GA3883@electric-eye.fr.zoreil.com>
+References: <42A0D88E.7070406@pobox.com> <20050603233756.GA27081@electric-eye.fr.zoreil.com> <42A167FE.2020008@pobox.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050603110436.3f801c65.rdunlap@xenotime.net>
+In-Reply-To: <42A167FE.2020008@pobox.com>
 User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 03, 2005 at 11:04:36AM -0700, randy_dunlap wrote:
-> | Who deprecated it?
+Jeff Garzik <jgarzik@pobox.com> :
+[...]
+> >Any chance the r8169 queue could be merged in mainline before ?
 > 
-> Not technically deprecated, just undesirable in the kernel sources.
+> I'll push the length check.
 
-Who claims that?
+Cool.
 
+> Everything else is a new feature.
+
+Hmmmm... Ok, let's have some r8169 handwaving/advocacy/explanation to
+tell what is going on.
+
+- From a usability viewpoint, the PCI ID for the USRobotics adapter
+  should be included. It has been reported around 10/04/2005.
+  Consider the usual july/LKS/conf period and it will not be available
+  in a stable serie before september (it is not a bugfix, it will not
+  be in 2.6.12.x either). USR has cut the price: it will have some
+  effect.
+
+- The new features are not really new:
+  o 03/2005 for Stephen Hemminger's stats + other changes
+    -> it does not collide with existing functions. 
+  o 03/2005 for the message level support
+    -> not new but it will be noticed, yes.
+
+- Some of the usual suspects on netdev know the code and even if your
+  favorite r8169 maintainer has a real day job like everyone, I usually
+  manage to dig the issues when something hits the fan (no engagement in
+  sight, it helps :o) ).
+
+Of course, you are free to ignore these points if you already took them
+into consideration.
+
+--
+Ueimor

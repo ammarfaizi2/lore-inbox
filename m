@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVFDIIc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261293AbVFDIQB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261286AbVFDIIc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 04:08:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVFDIIc
+	id S261293AbVFDIQB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 04:16:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbVFDIQB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 04:08:32 -0400
-Received: from imf18aec.mail.bellsouth.net ([205.152.59.66]:21664 "EHLO
-	imf18aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
-	id S261286AbVFDIIa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 04:08:30 -0400
-Message-ID: <000701c568e3$fb67dcc0$2800000a@pc365dualp2>
-From: <cutaway@bellsouth.net>
-To: <linux-kernel@vger.kernel.org>
-Subject: NPX init bugs in x86 head.S ???
-Date: Sat, 4 Jun 2005 05:01:02 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1478
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+	Sat, 4 Jun 2005 04:16:01 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29968 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261293AbVFDIPz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Jun 2005 04:15:55 -0400
+Date: Sat, 4 Jun 2005 09:15:44 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12?
+Message-ID: <20050604091544.A30959@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+References: <42A0D88E.7070406@pobox.com> <20050603163843.1cf5045d.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050603163843.1cf5045d.akpm@osdl.org>; from akpm@osdl.org on Fri, Jun 03, 2005 at 04:38:43PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Below is the code snip that checks for a hardware NPX - which it does OK.
+On Fri, Jun 03, 2005 at 04:38:43PM -0700, Andrew Morton wrote:
+> Subject: Bug in 8520.c - port.type not set for serial console
 
-But, how can enabling a 287 ever work in a paged environment?  A 287 NPX
-only has internal registers capable of handling 16:16 segmented protected
-mode addresses.  Once paging is enabled and 16:32 addresses start getting
-generated I should think everything falls apart.  At a minimum, if nothing
-else died first, any reported exception CS:IP's would certainly be bogus
-having only 16 bits of IP coming back to the 386 from the NPX.
+I think this is another case of someone reporting a problem and not
+providing any feedback to replies.  Bjorn followed up on this and
+I haven't seen a response.
 
-Am I missing something here?
+However, port.type won't be set for serial console.  This is entirely
+expected.  We haven't approached the normal port initialisation and
+as such we treat the port as being the lowest common denominator - a
+standard 8250 port.
 
- Tony
+If we do want port.type initialised, the solution for this is to get
+rid of the early initialisation of 8250-based consoles entirely, which
+is something I keep saying and not doing because I know I'm going to
+get whinged at.
 
-------------------CUT-------------------
-
-/*
- * We depend on ET to be correct. This checks for 287/387.
- */
-check_x87:
-        movb $0,X86_HARD_MATH
-        clts
-        fninit
-        fstsw %ax
-        cmpb $0,%al
-        je 1f
-        movl %cr0,%eax          /* no coprocessor: have to set bits */
-        xorl $4,%eax            /* set EM */
-        movl %eax,%cr0
-        ret
-        ALIGN
-1:      movb $1,X86_HARD_MATH
-        .byte 0xDB,0xE4         /* fsetpm for 287, ignored by 387 */
-        ret
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

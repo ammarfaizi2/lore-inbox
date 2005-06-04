@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVFDGio@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVFDGnN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbVFDGio (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 02:38:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261258AbVFDGio
+	id S261266AbVFDGnN (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 02:43:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261263AbVFDGnN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 02:38:44 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:54139 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261256AbVFDGik (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 02:38:40 -0400
-Date: Fri, 3 Jun 2005 23:38:33 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
-Message-ID: <20050604063833.GA13238@suse.de>
-References: <20050603232828.GA29860@erebor.esa.informatik.tu-darmstadt.de> <Pine.LNX.4.58.0506031706450.1876@ppc970.osdl.org> <20050604013311.GA30151@erebor.esa.informatik.tu-darmstadt.de> <Pine.LNX.4.58.0506031851220.1876@ppc970.osdl.org>
+	Sat, 4 Jun 2005 02:43:13 -0400
+Received: from fire.osdl.org ([65.172.181.4]:63680 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261266AbVFDGnF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Jun 2005 02:43:05 -0400
+Date: Fri, 3 Jun 2005 23:42:58 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: sboyce@blueyonder.co.uk
+Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.6.12-rc5/2.6.12-rc5-git8 USB problems
+Message-Id: <20050603234258.50c899b6.akpm@osdl.org>
+In-Reply-To: <42A0B5BC.8050205@blueyonder.co.uk>
+References: <42A0B5BC.8050205@blueyonder.co.uk>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0506031851220.1876@ppc970.osdl.org>
-User-Agent: Mutt/1.5.8i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 03, 2005 at 06:55:40PM -0700, Linus Torvalds wrote:
+Sid Boyce <sboyce@blueyonder.co.uk> wrote:
+>
+> Everything works OK on 2.6.12-rc4. The joysticks are seen by lsusb and 
+> the joystick test programs, but the controls do nothing in 2.6.12-rc5 
+> and 2.6.12-rc5-git8.
+> # js_demo
+> Joystick test program.
+> ~~~~~~~~~~~~~~~~~~~~~~
+> Joystick 0: "CH PRODUCTS CH FLIGHT SIM YOKE USB "
+> Joystick 1: "CH PRODUCTS CH PRO PEDALS USB "
 > 
-> Greg, do you have any PCI Express hw? Although I suspect that the 
-> pci_assign_unassigned_resources() problem probably happens on any PC, I 
-> could try it on my laptop.
+> # jscal /dev/js0
+> Joystick has 7 axes and 13 buttons.
+> Correction for axis 0 is broken line, precision is 0.
+> Coeficients are: 127, 127, 5534751, 5534751
+> Correction for axis 1 is broken line, precision is 0.
+> Coeficients are: 127, 127, 5534751, 5534751
+> Correction for axis 2 is broken line, precision is 0.
+> Coeficients are: 127, 127, 5534751, 5534751
+> Correction for axis 3 is broken line, precision is 0.
+> Coeficients are: 127, 127, 5534751, 5534751
+> Correction for axis 4 is broken line, precision is 0.
+> Coeficients are: 127, 127, 5534751, 5534751
+> Correction for axis 5 is broken line, precision is 0.
+> Coeficients are: 0, 0, 536870912, 536870912
+> Correction for axis 6 is broken line, precision is 0.
+> Coeficients are: 0, 0, 536870912, 536870912
+> 
 
-I do not :(
+The consensus from Dmitry and Vojtech is that this could be either USB or
+an input layer problem, but nothing changed in [UO]HCI or HID between the
+two mentioned versions.
 
-I have some motherboards with PCI Express slots, but I haven't been able
-to find any Express cards around town anywhere.
+So this is more likely a recent regression in the USB code.  Could someone
+please grab it while it's fresh?
 
-Anyone have any pointers to a simple PCI express network card?  (no, I
-don't want a PCI express video card, although if someone wants to send
-me one I will not complain...)
-
-thanks,
-
-greg k-h

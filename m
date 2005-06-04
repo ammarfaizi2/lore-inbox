@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVFDCPz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVFDC0F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261222AbVFDCPz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 22:15:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261223AbVFDCPz
+	id S261208AbVFDC0F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 22:26:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVFDC0F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 22:15:55 -0400
-Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:37514 "HELO
-	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261222AbVFDCPu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 22:15:50 -0400
-Message-ID: <42A10ED2.7020205@yahoo.com.au>
-Date: Sat, 04 Jun 2005 12:15:46 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Herbert Xu <herbert@gondor.apana.org.au>
-CC: mbligh@mbligh.org, davem@davemloft.net, jschopp@austin.ibm.com,
-       mel@csn.ul.ie, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
-       akpm@osdl.org
-Subject: Re: Avoiding external fragmentation with a placement policy Version
- 12
-References: <E1DeNiA-0008Ap-00@gondolin.me.apana.org.au>
-In-Reply-To: <E1DeNiA-0008Ap-00@gondolin.me.apana.org.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Jun 2005 22:26:05 -0400
+Received: from umbar.esa.informatik.tu-darmstadt.de ([130.83.163.30]:52352
+	"EHLO umbar.esa.informatik.tu-darmstadt.de") by vger.kernel.org
+	with ESMTP id S261208AbVFDC0B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 22:26:01 -0400
+Date: Sat, 4 Jun 2005 04:26:00 +0200
+From: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       gregkh@suse.de
+Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
+Message-ID: <20050604022600.GA8221@erebor.esa.informatik.tu-darmstadt.de>
+References: <20050603232828.GA29860@erebor.esa.informatik.tu-darmstadt.de> <Pine.LNX.4.58.0506031706450.1876@ppc970.osdl.org> <20050604013311.GA30151@erebor.esa.informatik.tu-darmstadt.de> <Pine.LNX.4.58.0506031851220.1876@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0506031851220.1876@ppc970.osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Herbert Xu wrote:
-> Nick Piggin <nickpiggin@yahoo.com.au> wrote:
-> 
->>network code. If the latter, that would suggest at least in theory
->>it could use noncongiguous physical pages.
+On Fri, Jun 03, 2005 at 06:55:40PM -0700, Linus Torvalds wrote:
 > 
 > 
-> With Dave's latest super-TSO patch, TCP over loopback will only be
-> doing order-0 allocations in the common case.  UDP and others may
-> still do large allocations but that logic is all localised in
-> ip_append_data.
+> On Sat, 4 Jun 2005, Andreas Koch wrote:
+> > 
+> > As you suspected, it wasn't a panacea: The kernel now panics, with a
+> > call chain of
+> > 
+> > 	...
+> > 	pcibios_init()
+> > 	pci_assign_unassigned_resources()
+> > 	pci_bus_assign_resources()
+> > 	pci_setup_bridge()
+> > 
+> > I can collect more specific info if necessary.
 > 
-> So if we wanted we could easily remove most large allocations over
-> the loopback device.
+> It would be nice to know exactly what it is that panics, I could well
+> imagine that it's something like the "bus->self" that ends up being NULL
+> for the root bus or something silly like that, simply because x86 has 
+> never needed to use these functions.
+> 
+> If so, it migth be as easy as just skipping buses that don't have bridge 
+> device associated with them, but this would require that you try to debug 
+> the oops a bit to figure out where it is..
 
-I would be very interested to look into that. I would be
-willing to do benchmarks on a range of machines too if
-that would be of any use to you.
+Actually, I tried that already.  But I didn't get any usable info from
+the oops and GDB (`list *pci_setup_bridge+0x1a2' shows an include file,
+not a line in the function) .  I'll make another attempt tomorrow when
+I am more awake :-)
 
-Thanks,
-Nick
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+  Andreas

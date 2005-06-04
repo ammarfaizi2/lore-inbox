@@ -1,81 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbVFDQcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261384AbVFDQeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261364AbVFDQcW (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 12:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVFDQcW
+	id S261384AbVFDQeK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 12:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261387AbVFDQeK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 12:32:22 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33166 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261364AbVFDQcQ (ORCPT
+	Sat, 4 Jun 2005 12:34:10 -0400
+Received: from cfa.harvard.edu ([131.142.10.1]:43141 "EHLO cfa.harvard.edu")
+	by vger.kernel.org with ESMTP id S261384AbVFDQdw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 12:32:16 -0400
-Date: Sat, 4 Jun 2005 18:31:57 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@zip.com.au>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: 2.6.12 -- long bug list
-Message-ID: <20050604163157.GA1849@elf.ucw.cz>
-References: <20050604154254.GD756@openzaurus.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050604154254.GD756@openzaurus.ucw.cz>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Sat, 4 Jun 2005 12:33:52 -0400
+Date: Sat, 4 Jun 2005 12:33:50 -0400 (EDT)
+From: Gaspar Bakos <gbakos@cfa.harvard.edu>
+Reply-To: gbakos@cfa.harvard.edu
+To: linux-kernel@vger.kernel.org
+Subject: kswapd causing giant load
+Message-ID: <Pine.SOL.4.58.0506041232030.14011@titan.cfa.harvard.edu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi,
 
-> My things-to-worry-about folder still has 244 entries.  Nobody seems to
-> care much.  Poor me.
+I encounter a giant load (up to 10.0) when I copy files, either from a
+remote server to the local machine, or even locally. Because I see
+kswapd causing the high load, I decided to forward my email to the
+kernel list; maybe anyone has a clue.
 
-:-)
+The setup is:
+OS: Redhat FC3 with 2.6.11-1.14_FC3smp (redhat distro) kernel, XFS filesystem
+HW: Dual opteron 2.0GHz on Tyan motherboard, 4Gb RAM
 
-> Subject: [Bugme-new] [Bug 4340] New: ohci_1394 module breaks S3 suspend
+The partition i am using is:
+2.1Tb hardware RAID-5 unit served by 3ware controller (8 x 300Gb)
+OR
+300Gb simple SATA disk, also served by a 3ware controller.
 
-Firewire suspend/resume is not supported, nothing new...
+I have no clue where to start combatting this problem.
+- Kernel specific?
+- Due to improper setup of the 3ware controllers?
+- XFS filesystem specific?
 
-> Subject: [Bugme-new] [Bug 4371] New: Battery doesn't work after suspend
+10715 hatuser   15   0 35432 2792 2020 R 28.3  0.1   1:45.06 sshd
+10724 hatuser   16   0 17504  11m  664 R  8.3  0.3   0:33.56 rsync
+  175 root      15   0     0    0    0 S 19.7  0.0 136:25.58 kswapd0
+  172 root      15   0     0    0    0 S  0.3  0.0   1:23.59 pdflush
+  174 root      15   0     0    0    0 S  0.3  0.0  99:18.93 kswapd1
 
-Duplicate of 4340.
+Before I start extensive experimenting, maybe someone knows right away
+what causes high loads due to "kswapd* and pdflush".
 
-[Bugzilla is piece of ****. This is listed as severity=high, which is
-not realistics AFAICT. Also to mark it as duplicate, I need to change
-it to ASSIGNED, first. Ugly].
-
-> Subject: [Bugme-new] [Bug 4390] New: power saving doesn't work on
-
-Its standby that does not work... I could fix the subject if stupid
-bugzilla let me. Oops.
-
-> Subject: Re: 2.6.12-rc1-mm1: resume regression [update] (was:
-> Subject: Re: 2.6.12-rc1-mm1: resume regression [update] (was: Re:
-> Subject: Re: 2.6.12-rc1-mm1: resume regression [update] (was: Re: 2.6.12-rc1-mm1: Kernel BUG at pci:389)
-> Subject: Re: 2.6.12-rc1-mm1: resume regression [update] (was: Re:2.6.12-rc1-mm1: Kernel BUG at pci:389)
-> Subject: Re: 2.6.12-rc1-mm3: box hangs solid on resume from disk while resuming device drivers
-> Subject: Re: [ACPI] Re: 2.6.12-rc1-mm4 and suspend2ram (and synaptics)
-> Subject: Re: swsusp not working for me on a PREEMPT 2.6.12-rc1 and 2.6.12-rc1-mm3 kernel
-
--rc1 is quite old, i think these can be safely ignored now...
-
-> Subject: Re: [linux-pm] potential pitfall? changing configuration while PC in hibernate (fwd)
-> Subject: Re: [linux-usb-devel] Re: [linux-pm] potential pitfall? changing configuration while PC in hibernate (fwd)
-
-Ignore this. Changing config is *not* okay in 2.6.12 swsusp. Its even
-documented:
-
- *
- * If you change kernel command line between suspend and resume...
- *                              ...prepare for nasty fsck or worse.
- *
- * If you change your hardware while system is suspended...
- *                              ...well, it was not good idea.
- *
-
-> Subject: Re: [PATCH 6/6]suspend/resume SMP support
-
-I do not think we want to support SMP suspend/resume in 2.6.12... It
-should work in -mmX, but is still too much in flux.
-
-								Pavel
+Cheers
+Gaspar

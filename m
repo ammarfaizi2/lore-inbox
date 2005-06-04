@@ -1,53 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVFDPR4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVFDPYv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261385AbVFDPR4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 11:17:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261382AbVFDPRz
+	id S261382AbVFDPYv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 11:24:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261384AbVFDPYv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 11:17:55 -0400
-Received: from stark.xeocode.com ([216.58.44.227]:23242 "EHLO
-	stark.xeocode.com") by vger.kernel.org with ESMTP id S261380AbVFDPRr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 11:17:47 -0400
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: [SATA] libata-dev queue updated
-References: <42A14541.6020209@pobox.com>
-In-Reply-To: <42A14541.6020209@pobox.com>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 04 Jun 2005 11:17:40 -0400
-Message-ID: <87vf4ujgmj.fsf@stark.xeocode.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sat, 4 Jun 2005 11:24:51 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:31414 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261382AbVFDPYr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Jun 2005 11:24:47 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Subject: Re: 2.6.12?
+Date: Sat, 4 Jun 2005 17:24:53 +0200
+User-Agent: KMail/1.8.1
+Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org
+References: <42A0D88E.7070406@pobox.com> <394120000.1117895039@[10.10.2.4]> <398710000.1117895711@[10.10.2.4]>
+In-Reply-To: <398710000.1117895711@[10.10.2.4]>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506041724.54558.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> writes:
+Hi,
 
-> Several updates to the libata-dev.git repository.  Some of the branches have
-> been folded into a new upstream-2.6.13 branch, which holds several changes (see
-> attached).  Other branches were updated to the most recent kernel, which
-> contained doc updates that caused some minor merge conflicts.
+On Saturday, 4 of June 2005 16:35, Martin J. Bligh wrote:
 > 
-> I haven't yet updated 'passthru' and 'chs-support' branches to the latest
-> kernel.
+> --"Martin J. Bligh" <mbligh@mbligh.org> wrote (on Saturday, June 04, 2005 07:23:59 -0700):
 > 
-> Git Repository URL:
-> rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/libata-dev.git
+> > 
+> > 
+> > --Andrew Morton <akpm@osdl.org> wrote (on Friday, June 03, 2005 16:38:43 -0700):
+> > 
+> >> Jeff Garzik <jgarzik@pobox.com> wrote:
+> >>> 
+> >>> 
+> >>> So...  are we gonna see 2.6.12 sometime soon?
+> >>> 
+> >> 
+> >> Current plan is -rc6 in a few days, 2.6.12 a week after that.
+> >> 
+> >> 
+> >> My things-to-worry-about folder still has 244 entries.  Nobody seems to
+> >> care much.  Poor me.
+> >> 
+> >> Lots of USB problems, quite a few input problems.  fbdev, ACPI, ATAPI.  All
+> >> the usual suspects.
+> > 
+> > The one that worries me is that my x86_64 box won't boot since -rc3
+> > See:
+> > 
+> > http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/regression_matrix.html
+> > 
+> > Note large amount of red in left hand column. Backing out the fusion
+> > patches to the previous rev didn't fix it.
 > 
-> List of branches:
-> adma          chs-support  master    pdc2027x           sleeping-eh
-> adma-mwi      iomap        ncq       promise-sata-pata  upstream-2.6.13
-> atapi-enable  iomap-step1  passthru  sil24
+> Filed bug 4709 to track it.
 
-Are there diffs downloadable for these? In particular I'm looking for
-passthru. I'm imagining that with passthru SMART works?
+Well, I have a dual-Opteron box with tg3 (AMD chipset) and -rc5+ run happily on it.
+Please let me know if I can help somehow.
+
+Greets,
+Rafael
+
 
 -- 
-greg
-
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

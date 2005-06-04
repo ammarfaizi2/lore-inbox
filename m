@@ -1,73 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVFDPnc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVFDPpM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261351AbVFDPnc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 11:43:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVFDPnc
+	id S261340AbVFDPpM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 11:45:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261352AbVFDPpM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 11:43:32 -0400
-Received: from wildsau.idv.uni.linz.at ([193.170.194.34]:34432 "EHLO
-	wildsau.enemy.org") by vger.kernel.org with ESMTP id S261351AbVFDPn0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 11:43:26 -0400
-From: Herbert Rosmanith <kernel@wildsau.enemy.org>
-Message-Id: <200506041543.j54Fh7xv018234@wildsau.enemy.org>
-Subject: [PATCH] struct thread_struct, asm-i386/processor.h: wrong datatype?
-To: linux-kernel@vger.kernel.org
-Date: Sat, 4 Jun 2005 17:43:06 +0200 (MET DST)
-CC: torvalds@osdl.org, Herbert Rosmanith <kernel@wildsau.enemy.org>
-X-Mailer: ELM [version 2.4ME+ PL100 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 4 Jun 2005 11:45:12 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:39644 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261340AbVFDPpE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Jun 2005 11:45:04 -0400
+Date: Sat, 4 Jun 2005 17:24:01 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Henk <Henk.Vergonet@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] new 7-segments char translation API
+Message-ID: <20050604152400.GC756@openzaurus.ucw.cz>
+References: <20050531220738.GA21775@god.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050531220738.GA21775@god.dyndns.org>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-good day,
+> I know this 7-segments stuff probably won't be used widespread much but it
+> could be important to have similar projects use the same notation, and
+> use the same concepts.
+....
+> What do you think?
 
-concerning this file:
-
-/usr/src/linux/include/asm-i386/processor.h
-
-we find a "struct thread_struct":
-
-struct thread_struct {
-        unsigned long   esp0;
-        unsigned long   eip;
-        unsigned long   esp;
-        unsigned long   fs;
-        ^^^^^^^^^^^^^^^^^^^
-        unsigned long   gs;
-        ^^^^^^^^^^^^^^^^^^^
-
-as segment-registers, aren't fs and gs only 16 bit? why are they not
-unsigned short (or possibly u_int16_t)?
-
-kind regards,
-herbert rosmanith
-
-# diff -uN processor.h.orig processor.h
---- processor.h.orig    Wed Feb 18 14:36:32 2004
-+++ processor.h Sat Jun  4 17:41:58 2005
-@@ -2,6 +2,9 @@
-  * include/asm-i386/processor.h
-  *
-  * Copyright (C) 1994 Linus Torvalds
-+ *
-+ * Sat Jun  4 17:41:23 MET DST 2005 herp - Herbert Rosmanith
-+ *  fix wrong datatypes in struct thread_struct
-  */
-
- #ifndef __ASM_I386_PROCESSOR_H
-@@ -361,8 +364,8 @@
-        unsigned long   esp0;
-        unsigned long   eip;
-        unsigned long   esp;
--       unsigned long   fs;
--       unsigned long   gs;
-+       unsigned short  fs;
-+       unsigned short  gs;
- /* Hardware debugging registers */
-        unsigned long   debugreg[8];  /* %%db0-7 debug registers */
- /* fault info */
+Keep 7-segment displays out of kernel. If it is usb, drive it from userspace with libusb...
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

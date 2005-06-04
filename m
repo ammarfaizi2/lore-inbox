@@ -1,95 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbVFDKbq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVFDKdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261311AbVFDKbq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 06:31:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVFDKbq
+	id S261313AbVFDKdY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 06:33:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVFDKdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 06:31:46 -0400
-Received: from rproxy.gmail.com ([64.233.170.204]:296 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261312AbVFDKbf convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 06:31:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gTkB3AE7rDry/tJmuwoVf5PVztbhGDuQfSl4ytojehHPZ2D1Yhkd42Gxyu9N3rNVyxEoqyKB6hQaklgrlz5tY3P7YTb1UjDevTKaVZBVskYaHfzCCtO3V6XxgDM/CgqzJpUoyXHeBTwBBg0QEid+e/rDADLA1hxP4AXeLxgRzWQ=
-Message-ID: <21d7e99705060403312234aa07@mail.gmail.com>
-Date: Sat, 4 Jun 2005 20:31:34 +1000
-From: Dave Airlie <airlied@gmail.com>
-Reply-To: Dave Airlie <airlied@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [doc][git] playing with git, and netdev/libata-dev trees
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Git Mailing List <git@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <42A181C1.3010902@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <42955DF7.4000805@pobox.com>
-	 <21d7e99705060401405cfd5a11@mail.gmail.com>
-	 <42A181C1.3010902@pobox.com>
+	Sat, 4 Jun 2005 06:33:24 -0400
+Received: from holly.csn.ul.ie ([136.201.105.4]:64190 "EHLO holly.csn.ul.ie")
+	by vger.kernel.org with ESMTP id S261313AbVFDKdL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Jun 2005 06:33:11 -0400
+Date: Sat, 4 Jun 2005 11:33:04 +0100 (IST)
+From: Dave Airlie <airlied@linux.ie>
+X-X-Sender: airlied@skynet
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [git trial] drm-via tree in git...
+Message-ID: <Pine.LNX.4.58.0506041126170.27874@skynet>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > 1. when you want to publish your tree what do you do? just rsync it
-> > onto kernel.org?
-> 
-> Basically.  I copy the attached script into each repo, customize the
-> script for the upload destination.
-> 
-> When I publish the tree, I just cd to the toplevel dir on my local
-> workstation, and run "./push"
-> 
-> 
-> > 2. When you are taking things from your queue for Linus do you create
-> > another tree and merge your branches into it or what?
-> 
-> Not quite sure what you're asking, but I'll attempt to answer anyway :)
 
-Yes that's what I'm asking, mainly the pulling of multiple trees into
-one tree for giving to Linus, for Andrew I'm quite happy to have him
-pull multiple HEADs from the one tree assuming I don't have many
-interdependencies between trees...
+Okay I've spent my Saturday trying out git and have created a git tree
+with two branches in it "drm-via" and "drm-initmap"
 
-Say I want something like this one tree with
+Now Andrew I want you to drop the drm-via tree from -mm and try and grab
+the `drm-via` branch of:
 
-drm-2.6 - HEAD <- linus tree
-            - drm-via < a via driver
-            - drm-initmap 
-                      - drm-savage <- a savage driver that depends on
-the drm-initmap tree
+rsync://rsync.kernel.org/pub/scm/linux/kernel/git/airlied/drm-2.6.git
 
-How would I construct such a beast, how does it work out from where to
-branch, can I branch a branch for something like drm-savage so I can
-say send Linus the initmap branch and then have -mm pulling the savage
-one...
+It hasn't shown up outside master.kernel.org but I expect it will soon
+(unless I need to do something..)
 
-if that makes any sense :-)
+Let me know if you get a real tree, the VIA driver is the latest version
+from DRM CVS...
 
 Dave.
-> 
-> 
-> [1] I'm still scared of conflicts in the merge process.  Simple and
-> automatic merging works just fine, like it did under BitKeeper.  But if
-> there are conflicts that cause git-pull-script/git-resolve-script to
-> bail, then I bail as well:  I export a patch, run patch(1), and then
-> handle the merge the Old Fashioned Way(tm) by looking at .rej files.
-> 
-> I really wish somebody would write a merge helper for git that places
-> the conflicts side-by-side in the code [in the working dir].  BitKeeper
-> and CVS both presented conflicts to you in this manner.
-> 
-> The "I resolved this conflict, now let's continue where we left off"
-> process is still quite raw in git.  I suppose this is something that is
-> left for others to script, above the plumbing, but hey...
-> 
-> 
-> 
-> #!/bin/sh
-> 
-> rsync -e ssh --verbose --delete --stats --progress -az .git/ master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git
-> 
-> 
->
+
+-- 
+David Airlie, Software Engineer
+http://www.skynet.ie/~airlied / airlied at skynet.ie
+Linux kernel - DRI, VAX / pam_smb / ILUG
+

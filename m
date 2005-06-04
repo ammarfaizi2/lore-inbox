@@ -1,47 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261376AbVFDPCt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbVFDPP0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261376AbVFDPCt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 11:02:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVFDPCt
+	id S261377AbVFDPP0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 11:15:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261380AbVFDPP0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 11:02:49 -0400
-Received: from webmail.topspin.com ([12.162.17.3]:42220 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S261376AbVFDPCo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 11:02:44 -0400
-To: Dave Jones <davej@redhat.com>
-Cc: Greg KH <gregkh@suse.de>, Grant Grundler <grundler@parisc-linux.org>,
-       tom.l.nguyen@intel.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, davem@davemloft.net
-Subject: Re: pci_enable_msi() for everyone?
-X-Message-Flag: Warning: May contain useful information
-References: <20050603224551.GA10014@kroah.com>
-	<20050604013112.GB16999@colo.lackof.org>
-	<20050604064821.GC13238@suse.de>
-	<20050604070537.GB8230@colo.lackof.org>
-	<20050604071803.GA13684@suse.de> <20050604072348.GA28293@redhat.com>
-From: Roland Dreier <roland@topspin.com>
-Date: Sat, 04 Jun 2005 07:58:38 -0700
-In-Reply-To: <20050604072348.GA28293@redhat.com> (Dave Jones's message of
- "Sat, 4 Jun 2005 03:23:48 -0400")
-Message-ID: <52psv2rwwx.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+	Sat, 4 Jun 2005 11:15:26 -0400
+Received: from fire.osdl.org ([65.172.181.4]:36278 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261377AbVFDPPS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Jun 2005 11:15:18 -0400
+Date: Sat, 4 Jun 2005 08:17:06 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>
+cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       gregkh@suse.de
+Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
+In-Reply-To: <20050604022600.GA8221@erebor.esa.informatik.tu-darmstadt.de>
+Message-ID: <Pine.LNX.4.58.0506040814050.1876@ppc970.osdl.org>
+References: <20050603232828.GA29860@erebor.esa.informatik.tu-darmstadt.de>
+ <Pine.LNX.4.58.0506031706450.1876@ppc970.osdl.org>
+ <20050604013311.GA30151@erebor.esa.informatik.tu-darmstadt.de>
+ <Pine.LNX.4.58.0506031851220.1876@ppc970.osdl.org>
+ <20050604022600.GA8221@erebor.esa.informatik.tu-darmstadt.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 04 Jun 2005 15:02:43.0679 (UTC) FILETIME=[75D186F0:01C56916]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Dave> What if MSI support has been disabled in the bridge due to
-    Dave> some quirk (like the recent AMD 8111 quirk) ?  Maybe the
-    Dave> above function should check pci_msi_enable as well ?
 
-You can't disable MSI at a bridge -- according to the PCI spec, as
-soon as a device has the MSI enable turned on, it must start using MSI
-for interrupts and must not ever assert an interrupt pine.  The issue
-with AMD 8131 is that it doesn't have any MSI support and just
-silently throws away MSI messages, and so the host never gets
-interrupts from devices in MSI mode.  Which means any device below
-such a host bridge better not have MSI or MSI-X enabled.
 
- - R.
+On Sat, 4 Jun 2005, Andreas Koch wrote:
+> 
+> Actually, I tried that already.  But I didn't get any usable info from
+> the oops and GDB (`list *pci_setup_bridge+0x1a2' shows an include file,
+> not a line in the function) .  I'll make another attempt tomorrow when
+> I am more awake :-)
+
+The oops is because we normally don't even assign but->resource[2] for the 
+root bridge. The following seems to fix the oops, but it makes a normal PC 
+totally unbootable, so that doesn't help you. I didn't have a serial 
+console hooked up, so I didn't get the logs. Somebody who has, and enables 
+CONFIG_PCI_DEBUG, can you send me the output?
+
+		Linus
+
+diff --git a/arch/i386/pci/common.c b/arch/i386/pci/common.c
+--- a/arch/i386/pci/common.c
++++ b/arch/i386/pci/common.c
+@@ -164,6 +164,7 @@ static int __init pcibios_init(void)
+ 	if ((pci_probe & PCI_BIOS_SORT) && !(pci_probe & PCI_NO_SORT))
+ 		pcibios_sort();
+ #endif
++	pci_assign_unassigned_resources();
+ 	return 0;
+ }
+ 
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -908,6 +908,7 @@ struct pci_bus * __devinit pci_scan_bus_
+ 	b->number = b->secondary = bus;
+ 	b->resource[0] = &ioport_resource;
+ 	b->resource[1] = &iomem_resource;
++	b->resource[2] = &iomem_resource;
+ 
+ 	b->subordinate = pci_scan_child_bus(b);
+ 

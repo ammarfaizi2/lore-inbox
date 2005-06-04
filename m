@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261420AbVFDTMR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVFDTP4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261420AbVFDTMR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 15:12:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261423AbVFDTMR
+	id S261431AbVFDTP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 15:15:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261425AbVFDTP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 15:12:17 -0400
-Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:3557 "EHLO
-	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S261420AbVFDTMN
+	Sat, 4 Jun 2005 15:15:56 -0400
+Received: from stark.xeocode.com ([216.58.44.227]:33725 "EHLO
+	stark.xeocode.com") by vger.kernel.org with ESMTP id S261423AbVFDTPs
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 15:12:13 -0400
-X-ORBL: [69.107.40.98]
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] 2.6.12-rc5 : repeatable modprobe usb-storage hang
-Date: Sat, 4 Jun 2005 12:12:04 -0700
-User-Agent: KMail/1.7.1
-Cc: Parag Warudkar <kernel-stuff@comcast.net>, linux-kernel@vger.kernel.org
-References: <200506031341.17749.kernel-stuff@comcast.net>
-In-Reply-To: <200506031341.17749.kernel-stuff@comcast.net>
+	Sat, 4 Jun 2005 15:15:48 -0400
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Adrian Bunk <bunk@stusta.de>, Greg Stark <gsstark@mit.edu>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: [SATA] libata-dev queue updated
+References: <42A14541.6020209@pobox.com> <87vf4ujgmj.fsf@stark.xeocode.com>
+	<42A1E96C.6080806@pobox.com> <20050604185028.GZ4992@stusta.de>
+	<42A1FB91.5060702@pobox.com>
+In-Reply-To: <42A1FB91.5060702@pobox.com>
+From: Greg Stark <gsstark@mit.edu>
+Organization: The Emacs Conspiracy; member since 1992
+Date: 04 Jun 2005 15:15:24 -0400
+Message-ID: <87psv2j5mb.fsf@stark.xeocode.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8bit
-Content-Disposition: inline
-Message-Id: <200506041212.04476.david-b@pacbell.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 03 June 2005 10:41 am, Parag Warudkar wrote:
-> 
-> Also interesting is this line -
-> [   40.586298] ohci_hcd 0000:00:02.0: Unlink after no-IRQ?  Controller is 
-> probably using the wrong IRQ.
 
-So did you investigate these IRQ setup problem, or just ignore
-that pointed diagnostic?
+Jeff Garzik <jgarzik@pobox.com> writes:
 
-Controllers are not expected to behave if their drivers aren't given
-the correct IRQ.  In particular, when software needs to wait until
-the hardware reports it's finished with something, and the hardware
-never reports that (== never issues the IRQ) then things may hang.
+> All my development is in public; all the data is there for anyone who wishes to
+> use it.
+
+That is cool. And it's nice that there seems to have been an upsurge in the
+quantity of communication from you and other libata developers on this list
+too.
+
+I expect if git catches on then it would be about as effective as most
+projects which publish their CVS tree and expect people to be able to do
+checkouts from there. Currently, though, approximately nobody has git tools or
+any idea how to use it.
 
 
-Also this earlier line already identified a potential root cause:
+So my question is, if I did tackle this riddle trail and figured out how to
+fetch the passthru branch against 2.6.12, what would it buy me? Would SMART
+just start working? Or would it just confuse the SMART tools until they're
+updated? Or would it just crash my machine?
 
-> [   38.927690] ACPI: PCI Interrupt 0000:00:02.0[P]: no GSI - using IRQ 11
 
-This could be a problem in either the tables BIOS provided, or in the
-way ACPI is interpreting them, or something else ... I'm not an ACPI guru.
-
-You should be experimenting with ways to get the right IRQ assigned to this
-controller; such problems are common enough that there are probably half a
-dozen boot options affecting what happens.  Or maybe look at BIOS options that
-affect that controller; you might need to update your board's BIOS firmware.
-
-- Dave
-
+-- 
+greg
 

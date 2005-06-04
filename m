@@ -1,40 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVFDBvA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVFDBxw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261219AbVFDBvA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 21:51:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbVFDBvA
+	id S261220AbVFDBxw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 21:53:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVFDBxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 21:51:00 -0400
-Received: from smtp823.mail.sc5.yahoo.com ([66.163.171.9]:23447 "HELO
-	smtp823.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261219AbVFDBu5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 21:50:57 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12?
-Date: Fri, 3 Jun 2005 20:50:53 -0500
-User-Agent: KMail/1.8
-Cc: Dave Jones <davej@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-References: <42A0D88E.7070406@pobox.com> <20050603163843.1cf5045d.akpm@osdl.org> <20050604003407.GA10816@redhat.com>
-In-Reply-To: <20050604003407.GA10816@redhat.com>
+	Fri, 3 Jun 2005 21:53:52 -0400
+Received: from fire.osdl.org ([65.172.181.4]:62095 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261220AbVFDBxu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 21:53:50 -0400
+Date: Fri, 3 Jun 2005 18:55:40 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>
+cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       gregkh@suse.de
+Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
+In-Reply-To: <20050604013311.GA30151@erebor.esa.informatik.tu-darmstadt.de>
+Message-ID: <Pine.LNX.4.58.0506031851220.1876@ppc970.osdl.org>
+References: <20050603232828.GA29860@erebor.esa.informatik.tu-darmstadt.de>
+ <Pine.LNX.4.58.0506031706450.1876@ppc970.osdl.org>
+ <20050604013311.GA30151@erebor.esa.informatik.tu-darmstadt.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506032050.54426.dtor_core@ameritech.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 03 June 2005 19:34, Dave Jones wrote:
-> On Fri, Jun 03, 2005 at 04:38:43PM -0700, Andrew Morton wrote:
->  > Subject: [Bug 4382] New: first joystick button mapped to extra number
+
+
+On Sat, 4 Jun 2005, Andreas Koch wrote:
 > 
-> needs work
->  
+> As you suspected, it wasn't a panacea: The kernel now panics, with a
+> call chain of
+> 
+> 	...
+> 	pcibios_init()
+> 	pci_assign_unassigned_resources()
+> 	pci_bus_assign_resources()
+> 	pci_setup_bridge()
+> 
+> I can collect more specific info if necessary.
 
-This one in Linus's tree already.
+It would be nice to know exactly what it is that panics, I could well
+imagine that it's something like the "bus->self" that ends up being NULL
+for the root bus or something silly like that, simply because x86 has 
+never needed to use these functions.
 
--- 
-Dmitry
+If so, it migth be as easy as just skipping buses that don't have bridge 
+device associated with them, but this would require that you try to debug 
+the oops a bit to figure out where it is..
+
+Greg, do you have any PCI Express hw? Although I suspect that the 
+pci_assign_unassigned_resources() problem probably happens on any PC, I 
+could try it on my laptop.
+
+		Linus

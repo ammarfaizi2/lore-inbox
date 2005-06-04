@@ -1,138 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbVFDUwr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVFDU7m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261247AbVFDUwr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 16:52:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVFDUwr
+	id S261251AbVFDU7m (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 16:59:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbVFDU7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 16:52:47 -0400
-Received: from CPE00095b3131a0-CM0011ae8cd564.cpe.net.cable.rogers.com ([70.29.53.229]:62082
-	"EHLO kenichi") by vger.kernel.org with ESMTP id S261247AbVFDUwl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 16:52:41 -0400
-From: Andrew James Wade 
-	<ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
-To: jan malstrom <xanon@snacksy.com>
-Subject: Re: 2.6.12-rc5-mm2 Oops
-Date: Sat, 4 Jun 2005 16:52:32 -0400
-User-Agent: KMail/1.7.2
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>,
-       Vladimir Saveliev <vs@namesys.com>, Andrew Morton <akpm@osdl.org>
-References: <42A1DF4B.9070201@snacksy.com>
-In-Reply-To: <42A1DF4B.9070201@snacksy.com>
+	Sat, 4 Jun 2005 16:59:41 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:58050 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261251AbVFDU7i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Jun 2005 16:59:38 -0400
+Message-ID: <42A21635.70702@pobox.com>
+Date: Sat, 04 Jun 2005 16:59:33 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+To: Francois Romieu <romieu@fr.zoreil.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12?
+References: <42A0D88E.7070406@pobox.com> <20050603233756.GA27081@electric-eye.fr.zoreil.com> <42A167FE.2020008@pobox.com> <20050604113316.GA3883@electric-eye.fr.zoreil.com>
+In-Reply-To: <20050604113316.GA3883@electric-eye.fr.zoreil.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506041652.32898.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On June 4, 2005 01:05 pm, jan malstrom wrote:
-> sorry. the oops happened right at boot up.
-> so, just mounting the fs.
+Francois Romieu wrote:
+> Jeff Garzik <jgarzik@pobox.com> :
+> [...]
 > 
-> please cc me. im not subscribed.
-> 
-> > Hello
-> > 
-> > On Sat, 2005-06-04 at 04:23, jan malstrom wrote:
-> >> i attach the .config
-> >>
-> > 
-> > Please describe what did you do to get this oops.
-
-It looks rather like the problem I had back in March:
-"crash while processing safelinks caused by i_count==1"
-http://marc.theaimsgroup.com/?l=reiserfs&m=111210627621470&w=2
-
-I had the same problem recur at the end of May; Vladamir's patch still
-applied. (The power's been really flaky lately).
-
-The call trace does differ though.
-
-Cheers,
-Andrew
-
-> > 
-> >>
-> >> ------------------------
-> >>
-> >>
-> >> SGI XFS with no debug enabled
-> >> 8139cp: 10/100 PCI Ethernet driver v1.2 (Mar 22, 2004)
-> >> cs: IO port probe 0x2000-0x2fff: clean.
-> >> ehci_hcd 0000:00:1d.7: debug port 1
-> >> C058 C1AD C1A3 C1A4 C0AC C0B3 C0B4 C0B5 C0E7 C136
-> >> Unable to handle kernel paging request at virtual address 6b6b6d63
-> >> c0227ca7
-> >> *pde = 00000000
-> >> Oops: 0000 [#1]
-> >> CPU: 0
-> >> EIP: 0060:[<c0227ca7>] Not tainted VLI
-> >> Using defaults from ksymoops -t elf32-i386 -a i386
-> >> EFLAGS: 00010286 (2.6.12-rc5-mm2)
-> >> eax: 6b6b6b6b ebx: 00000000 ecx: 00000000 edx: c1578cc0
-> >> esi: dedf9158 edi: 00000000 ebp: dec55cb8 esp: dec55cb0
-> >> ds: 007b es: 007b ss: 0068
-> >> Stack: c0229c87 6b6b6b6b dec55cf4 c02348ce dedf9158 00000000 dedf9458
-> >> 0000000a
-> >> dec55ce0 c02343e1 dedf9458 0000000a 000b78e0 00000000 00000000
-> >> df0cce1c
-> >> dec55d18 dec55d84 c0234a61 df0cce1c 00000000 dec55d3c 000b78e0
-> >> 00000000
-> >> Call Trace:
-> >> [<c0104b8f>] show_stack+0x7f/0xa0
-> >> [<c0104d37>] show_registers+0x157/0x1c0
-> >> [<c0104f94>] die+0x134/0x290
-> >> [<c011b1b9>] do_page_fault+0x399/0x6ff
-> >> [<c0104683>] error_code+0x4f/0x54
-> >> [<c02348ce>] process_safelink+0xae/0x1b0
-> >> [<c0234a61>] process_safelinks+0x91/0xb0
-> >> [<c02342d1>] _init_safelink+0x11/0x20
-> >> [<c023438f>] reiser4_fill_super+0x3f/0x70
-> >> [<c018affd>] get_sb_bdev+0x12d/0x170
-> >> [<c022c90f>] reiser4_get_sb+0x2f/0x40
-> >> [<c018b246>] do_kern_mount+0x56/0xd0
-> >> [<c01ac164>] do_new_mount+0x74/0xb0
-> >> [<c01ace30>] do_mount+0x140/0x190
-> >> [<c01ad402>] sys_mount+0x92/0xd0
-> >> [<c0103bd9>] syscall_call+0x7/0xb
-> >> Code: 00 00 00 00 55 89 e5 8b 45 08 5d 8b 80 f8 01 00 00 8b 80 18 02
-> >> 00 00 c3 8d b6 00 00 00 00 8d bf 00 00 00 00 55 89 e5 8b 45 08 5d <8b>
-> >> 80 f8 01 00 00 83 c0 2c c3 eb 0d 90 90 90 90 90 90 90 90 90
-> >>
-> >>
-> >> >>EIP; c0227ca7 <get_tree+7/20> <=====
-> >>
-> >> >>eax; 6b6b6b6b <phys_startup_32+6b5b6b6b/c0000000>
-> >> >>edx; c1578cc0 <pg0+d9acc0/3f820400>
-> >> >>esi; dedf9158 <pg0+1e61b158/3f820400>
-> >> >>ebp; dec55cb8 <pg0+1e477cb8/3f820400>
-> >> >>esp; dec55cb0 <pg0+1e477cb0/3f820400>
-> >>
-> >> Trace; c0104b8f <show_stack+7f/a0>
-> >> Trace; c0104d37 <show_registers+157/1c0>
-> >> Trace; c0104f94 <die+134/290>
-> >> Trace; c011b1b9 <do_page_fault+399/6ff>
-> >> Trace; c0104683 <error_code+4f/54>
-> >> Trace; c02348ce <process_safelink+ae/1b0>
-> >> Trace; c0234a61 <process_safelinks+91/b0>
-> >> Trace; c02342d1 <_init_safelink+11/20>
-> >> Trace; c023438f <reiser4_fill_super+3f/70>
-> >> Trace; c018affd <get_sb_bdev+12d/170>
-> >> Trace; c022c90f <reiser4_get_sb+2f/40>
-> >> Trace; c018b246 <do_kern_mount+56/d0>
-> >> Trace; c01ac164 <do_new_mount+74/b0>
-> >> Trace; c01ace30 <do_mount+140/190>
-> >> Trace; c01ad402 <sys_mount+92/d0>
-> >> Trace; c0103bd9 <syscall_call+7/b>
-> >> 
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+>>>Any chance the r8169 queue could be merged in mainline before ?
+>>
+>>I'll push the length check.
 > 
 > 
+> Cool.
+> 
+> 
+>>Everything else is a new feature.
+> 
+> 
+> Hmmmm... Ok, let's have some r8169 handwaving/advocacy/explanation to
+> tell what is going on.
+> 
+> - From a usability viewpoint, the PCI ID for the USRobotics adapter
+>   should be included. It has been reported around 10/04/2005.
+>   Consider the usual july/LKS/conf period and it will not be available
+>   in a stable serie before september (it is not a bugfix, it will not
+>   be in 2.6.12.x either). USR has cut the price: it will have some
+>   effect.
+> 
+> - The new features are not really new:
+>   o 03/2005 for Stephen Hemminger's stats + other changes
+>     -> it does not collide with existing functions. 
+>   o 03/2005 for the message level support
+>     -> not new but it will be noticed, yes.
+> 
+> - Some of the usual suspects on netdev know the code and even if your
+>   favorite r8169 maintainer has a real day job like everyone, I usually
+>   manage to dig the issues when something hits the fan (no engagement in
+>   sight, it helps :o) ).
+> 
+> Of course, you are free to ignore these points if you already took them
+> into consideration.
+
+For Release Candidate I really want to keep things down to 
+absolutely-required bug fixes, as 2.6.12 is apparently a week or so 
+away.  Standard pragmatism:  anything else just introduces new 
+possiblities for new bugs, and increases the time required to review 
+each Release Candidate.
+
+	Jeff
+
+

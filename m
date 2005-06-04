@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbVFDIfw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261298AbVFDIgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261294AbVFDIfw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 04:35:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbVFDIfw
+	id S261298AbVFDIgX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 04:36:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261302AbVFDIgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 04:35:52 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:11536 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S261294AbVFDIfq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 04:35:46 -0400
-Date: Sat, 4 Jun 2005 16:25:50 +0800 (WST)
-From: raven@themaw.net
-To: Andrew Morton <akpm@osdl.org>
-cc: Michael Blandford <michael@kmaclub.com>,
-       "Steinar H. Gunderson" <sgunderson@bigfoot.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       Jeff Moyer <jmoyer@redhat.com>
-Subject: [PATCH] autofs4 - subversion bump to identify these changes
-Message-ID: <Pine.LNX.4.62.0506041621550.8502@donald.themaw.net>
+	Sat, 4 Jun 2005 04:36:23 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:52929 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261298AbVFDIgU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Jun 2005 04:36:20 -0400
+Message-ID: <42A167FE.2020008@pobox.com>
+Date: Sat, 04 Jun 2005 04:36:14 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-98.6, required 8,
-	NO_REAL_NAME, PATCH_UNIFIED_DIFF, RCVD_IN_ORBS,
-	RCVD_IN_OSIRUSOFT_COM, USER_AGENT_PINE, USER_IN_WHITELIST)
+To: Francois Romieu <romieu@fr.zoreil.com>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12?
+References: <42A0D88E.7070406@pobox.com> <20050603233756.GA27081@electric-eye.fr.zoreil.com>
+In-Reply-To: <20050603233756.GA27081@electric-eye.fr.zoreil.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Francois Romieu wrote:
+> Jeff Garzik <jgarzik@pobox.com> :
+> [...]
+> 
+>>So...  are we gonna see 2.6.12 sometime soon?
+> 
+> 
+> Any chance the r8169 queue could be merged in mainline before ?
 
-Sorry Andrew I forgot the signed off clause on the last 2 patches in this
-series. Please accept them as if I had.
+I'll push the length check.  Everything else is a new feature.
 
-Signed-off-by: Ian Kent <raven@themaw.net>
+	Jeff
 
---- linux-2.6.12-rc5-mm2/include/linux/auto_fs4.h.version-bump	2005-06-04 16:14:42.000000000 +0800
-+++ linux-2.6.12-rc5-mm2/include/linux/auto_fs4.h	2005-06-04 16:14:59.000000000 +0800
-@@ -23,7 +23,7 @@
- #define AUTOFS_MIN_PROTO_VERSION	3
- #define AUTOFS_MAX_PROTO_VERSION	4
- 
--#define AUTOFS_PROTO_SUBVERSION		6
-+#define AUTOFS_PROTO_SUBVERSION		7
- 
- /* Mask for expire behaviour */
- #define AUTOFS_EXP_IMMEDIATE		1
+
+

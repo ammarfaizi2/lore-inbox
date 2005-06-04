@@ -1,45 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261188AbVFDAUA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVFDAV2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261188AbVFDAUA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 20:20:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261190AbVFDAUA
+	id S261190AbVFDAV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 20:21:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVFDAV2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 20:20:00 -0400
-Received: from gate.crashing.org ([63.228.1.57]:57311 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261188AbVFDAT5 (ORCPT
+	Fri, 3 Jun 2005 20:21:28 -0400
+Received: from fire.osdl.org ([65.172.181.4]:24809 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261190AbVFDAVJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 20:19:57 -0400
-Subject: Re: pci_enable_msi() for everyone?
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Greg KH <gregkh@suse.de>, tom.l.nguyen@intel.com,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       roland@topspin.com, davem@davemloft.net,
-       Michael Chan <mchan@broadcom.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <42A0F10D.8020308@pobox.com>
-References: <20050603224551.GA10014@kroah.com>  <42A0E4B4.3050309@pobox.com>
-	 <1117843264.31082.204.camel@gaston>  <42A0F10D.8020308@pobox.com>
-Content-Type: text/plain
-Date: Sat, 04 Jun 2005 10:16:08 +1000
-Message-Id: <1117844169.31082.210.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Fri, 3 Jun 2005 20:21:09 -0400
+Date: Fri, 3 Jun 2005 17:22:57 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>
+cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       gregkh@suse.de
+Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
+In-Reply-To: <20050603232828.GA29860@erebor.esa.informatik.tu-darmstadt.de>
+Message-ID: <Pine.LNX.4.58.0506031706450.1876@ppc970.osdl.org>
+References: <20050603232828.GA29860@erebor.esa.informatik.tu-darmstadt.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Honestly I can think of situations where one driver would want a bit per 
-> BAR, and many others would just need a single MMIO bit.  Don't forget 
-> legacy decoding too:  with -only- a bit per BAR, the driver cannot tell 
-> the PCI layer that disabling IO means disabling a legacy ISA region 
-> that's not listed in the PCI BARs.
 
-VGA is too much of a special case here. I'm currently working on a VGA
-arbitrer but it will need a separate API (along with a userland
-interface). Maybe the kernel side of this API could be folded in that
-pci_enable() thing though, I'll have to give it a though...
+On Sat, 4 Jun 2005, Andreas Koch wrote:
+> 
+> While all of the USB and FireWire devices are visible using config
+> space reads, they cannot be accessed correctly (all normal reads
+> appear to return 0xff).  After checking the dmesg logs, I find
+> 
+> 	PCI: Cannot allocate resource region 7 of bridge 0000:02:00.0
+> 	PCI: Cannot allocate resource region 8 of bridge 0000:02:00.0
 
-Ben.
+Well, that would be right, because the parent of that bridge doesn't seem 
+to have any resources set up:
 
+	0000:00:1c.2 PCI bridge: Intel Corporation 82801FB/FBM/FR/FW/FRW (ICH6 Family) PCI Express Port 3 (rev 04) (prog-if 00 [Normal decode])
+	  Control: I/O- Mem- BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+	  Status: Cap+ 66Mhz- UDF- FastB2B- ParErr- DEVSEL=fast >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+	  Latency: 0, cache line size 08
+	  Bus: primary=00, secondary=02, subordinate=04, sec-latency=0
+	  I/O behind bridge: 00000000-00000fff
+	  Memory behind bridge: 00000000-000fffff
+	  Prefetchable memory behind bridge: 0000000000000000-0000000000000000
 
+the "IO/memory behind bridge" things don't seem to be making a lot of 
+sense.
+
+Hmm. Normally on PC's we let the BIOS worry about PCI bridge resource
+setup. The hotplug code knows about the setup-bus stuff too, but the
+_normal_ PCI bus resouces are usually left alone. It looks like maybe we
+shouldn't do that any more for PCI Express.
+
+Hmm.. Just a wild guess (and this may not work at _all_, so who knows..): 
+how about adding a
+
+	pci_assign_unassigned_resources();
+
+call to the end of "pcibios_init()" in arch/i386/pci/common.c ?
+
+NOTE! In order for that to even link, you need to make sure that you have 
+CONFIG_HOTPLUG enabled, otherwise x86 won't have even linked in the bus 
+resource code from drivers/pci/setup-bus.c. And even so, I won't guarantee 
+that it does anything sane...
+
+(I'm really surprised that we've gone this long without havign x86 do the 
+bus setup, though. So I'd not be in the least surprised if we need 
+_something_ like this, I'm just not at all sure that just adding that 
+single line won't do something disastrously bad..)
+
+		Linus

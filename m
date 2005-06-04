@@ -1,63 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261166AbVFDDc0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVFDDsi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261166AbVFDDc0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 23:32:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVFDDc0
+	id S261227AbVFDDsi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 23:48:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261228AbVFDDsi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 23:32:26 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:47531 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261166AbVFDDcV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 23:32:21 -0400
-Message-ID: <05df01c568b5$7d541980$0100a8c0@krustophenia>
-From: "Lee Revell" <rlrevell@joe-job.com>
-To: "Chris Friesen" <cfriesen@nortel.com>,
-       "Arjan van de Ven" <arjan@infradead.org>
-Cc: "Robert Love" <rml@novell.com>, "Mikael Starvik" <mikael.starvik@axis.com>,
-       <linux-kernel@vger.kernel.org>
-References: <BFECAF9E178F144FAEF2BF4CE739C66801B7645C@exmail1.se.axis.com>	 <1117697423.6458.18.camel@laptopd505.fenrus.org>	 <1117698045.6833.16.camel@jenny.boston.ximian.com>	 <1117698518.6458.21.camel@laptopd505.fenrus.org>	 <1117698764.6833.26.camel@jenny.boston.ximian.com>	 <1117698978.6458.23.camel@laptopd505.fenrus.org>	 <429F0DA7.40006@nortel.com> <1117720095.6458.41.camel@laptopd505.fenrus.org> <429F15DA.8030205@nortel.com>
-Subject: Re: Accessing monotonic clock from modules
-Date: Fri, 3 Jun 2005 23:27:17 -0400
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=response
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Fri, 3 Jun 2005 23:48:38 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:5415 "EHLO
+	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S261227AbVFDDsf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 23:48:35 -0400
+Date: Fri, 03 Jun 2005 21:47:33 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: DMA timeouts & errors when using Sandisk CF for root.
+In-reply-to: <4bufp-3G0-15@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <42A12455.9050607@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <4bufp-3G0-15@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Arjan van de Ven wrote:
->> On Thu, 2005-06-02 at 07:46 -0600, Chris Friesen wrote:
->
->>>For ourselves we implemented an clock interface for a limited subset of 
->>>architectures that provides a fast timestamp in kernel and userspace.
->>>
->>>Basically it has one call to return a 64-bit timestamp, and another call 
->>>to tell you how fast the clock is ticking.
->>
->>
->> hmm this is tricky if cpufreq actually varies cpu speeds... you would
->> need to not cache the "how fast it ticks" for too long.
->
-> Luckily we didn't need to deal with that.
->
-> In order to use the fast versions with varying frequency you'd need some 
-> kind of notification to all users when the frequency changes.
->
-> Alternately, on architectures where clock_gettime doesn't require the 
-> overhead of a syscall, you could just use that.
+Ben Greear wrote:
+> I have a small VIA based system with a 512MB CF disk for
+> the 'hard drive'.  It seems to work OK, but I am getting some
+> DMA timeouts and errors upon boot.
+> 
+> kernel is 2.6.11.  I saw the same problem with FC2's 2.6.5 default kernel.
+> 
+>  From dmesg:
+> 
+> hda: max request size: 128KiB
+> hda: 1000944 sectors (512 MB) w/1KiB Cache, CHS=993/16/63, DMA
+> hda: cache flushes not supported
+>  hda:<4>hda: dma_timer_expiry: dma status == 0x21
+> hda: DMA timeout error
+> hda: dma timeout error: status=0x58 { DriveReady SeekComplete DataRequest }
 
-JACK also implements a fast high-res timer for each supported arch.  We
-can't use gettimeofday as it's about 50x slower than rdtsc (tested it just 
-now).
+What kind of CF-IDE adapter are you using? This looks like a CF card 
+which supports DMA in an adapter which doesn't hook up the DMA lines 
+properly, therefore the DMA times out when the kernel tries to use it. 
+You can use a "nodma" option on the kernel command line to disable DMA, 
+I think..
 
-I suggested using the kernel events mechanism to notify userspace when
-the CPU speed changes a few months ago, for this exact reason.
+I've seen some newer adapters that have jumper settings for "DMA" or 
+"non-DMA" on them..
 
-Lee
-
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/

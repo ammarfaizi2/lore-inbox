@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVFDBVd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVFDBWq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbVFDBVd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 21:21:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261206AbVFDBVd
+	id S261206AbVFDBWq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 21:22:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVFDBWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 21:21:33 -0400
-Received: from fire.osdl.org ([65.172.181.4]:41611 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261204AbVFDBVb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 21:21:31 -0400
-Date: Fri, 3 Jun 2005 18:21:25 -0700
+	Fri, 3 Jun 2005 21:22:45 -0400
+Received: from fire.osdl.org ([65.172.181.4]:45963 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261206AbVFDBW3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 21:22:29 -0400
+Date: Fri, 3 Jun 2005 18:19:11 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Brice Goglin <Brice.Goglin@ens-lyon.org>
-Cc: sylvain.meyer@worldonline.fr, linux-kernel@vger.kernel.org
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
 Subject: Re: 2.6.12?
-Message-Id: <20050603182125.3735f0c7.akpm@osdl.org>
-In-Reply-To: <42A0F05A.8010901@ens-lyon.org>
+Message-Id: <20050603181911.19a1fb98.akpm@osdl.org>
+In-Reply-To: <1117843433.31082.207.camel@gaston>
 References: <42A0D88E.7070406@pobox.com>
 	<20050603163843.1cf5045d.akpm@osdl.org>
-	<42A0F05A.8010901@ens-lyon.org>
+	<1117843433.31082.207.camel@gaston>
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Brice Goglin <Brice.Goglin@ens-lyon.org> wrote:
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 >
-> Andrew Morton a écrit :
-> > Lots of USB problems, quite a few input problems.  fbdev, ACPI, ATAPI.  All
-> > the usual suspects.
-> > 
-> > Subject: intelfb crash on i845
-> > Subject: Re: [Linux-fbdev-devel] intelfb crash on i845
+> On Fri, 2005-06-03 at 16:38 -0700, Andrew Morton wrote:
 > 
-> These two entries seem to be the same one, from me.
-> Sylvain Meyer was working on it. And I've recently seen some patches
-> from him on the mm-commit list. I didn't have time to test them but I
-> should be able to try next week (especially if a new -mm is released
-> soon).
+> > Subject: ATI Radeon 9000 M9 mobitility troubles on linux 2.6
+> 
+> Is that one still pending ? Or is it just the slow down due to the
+> workaround ?
+
+The last I saw was http://lkml.org/lkml/2005/4/12/461
+
+> > Subject: [Bugme-new] [Bug 4453] New: Since 2.6.10 with radeon 9000 mobile
+> 
+> What is that one ?
+> 
+> > Subject: [Bugme-new] [Bug 4513] New: Radeon driver in 2.6.10 through
+> 
+> Ok, looks like I'll have to look at some bugzilla ? :)
+
+yup.
+
+> > Subject: Radeonfb blanks the screen / hangs the system with 2.6.11
+> 
+> Can you forward me that one ?
+
+http://lkml.org/lkml/2005/3/21/284
+
+Again, the reporter seems to have gone to ground.  They do that quite a lot.
+
+> > Subject: Re: PROBLEM: Radeon card displays incorrectly under the 2.6.11 version unless compiled with SMP support
+> 
+> And that one
 > 
 
-OK, thanks - I'll try to get mm3 out this evening, if by some miracle some
-of it compiles and boots ;)
+http://seclists.org/lists/linux-kernel/2005/Mar/
 
+The reporter vanished again.

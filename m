@@ -1,73 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261240AbVFDT6L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVFDT7u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261240AbVFDT6L (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 15:58:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVFDT6K
+	id S261253AbVFDT7u (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 15:59:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbVFDT7o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 15:58:10 -0400
-Received: from [85.8.12.41] ([85.8.12.41]:34482 "EHLO smtp.drzeus.cx")
-	by vger.kernel.org with ESMTP id S261240AbVFDTyz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 15:54:55 -0400
-Message-ID: <42A2070D.9060608@drzeus.cx>
-Date: Sat, 04 Jun 2005 21:54:53 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Sat, 4 Jun 2005 15:59:44 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:60170 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261232AbVFDT6O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Jun 2005 15:58:14 -0400
+Date: Sat, 4 Jun 2005 20:58:10 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Pierre Ossman <drzeus-list@drzeus.cx>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Support for read-only MMC cards
+Message-ID: <20050604205810.A23449@flint.arm.linux.org.uk>
+Mail-Followup-To: Pierre Ossman <drzeus-list@drzeus.cx>,
+	LKML <linux-kernel@vger.kernel.org>
+References: <42A2070D.9060608@drzeus.cx>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_hermes.drzeus.cx-25623-1117914894-0001-2"
-To: LKML <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: [PATCH] Support for read-only MMC cards
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <42A2070D.9060608@drzeus.cx>; from drzeus-list@drzeus.cx on Sat, Jun 04, 2005 at 09:54:53PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+On Sat, Jun 04, 2005 at 09:54:53PM +0200, Pierre Ossman wrote:
+> If the card does not support the write commands then only allow
+> read-only access.
 
---=_hermes.drzeus.cx-25623-1117914894-0001-2
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
+> @@ -403,9 +407,12 @@ static int mmc_blk_probe(struct mmc_card
+>  	if (err)
+>  		goto out;
+>  
+> -	printk(KERN_INFO "%s: %s %s %dKiB\n",
+> +	printk(KERN_INFO "%s: %s %s %dKiB",
+>  		md->disk->disk_name, mmc_card_id(card), mmc_card_name(card),
+>  		(card->csd.capacity << card->csd.read_blkbits) / 1024);
+> +	if (!())
+> +		printk(" (ro)");
+> +	printk("\n");
 
-If the card does not support the write commands then only allow
-read-only access.
+I'd prefer this to be:
 
-Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
-
---=_hermes.drzeus.cx-25623-1117914894-0001-2
-Content-Type: text/x-patch; name="mmc-ro_ccc.patch"; charset=iso-8859-1
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="mmc-ro_ccc.patch"
-
---- linux-2.6.11/drivers/mmc/mmc_block.c.orig	2005-06-04 21:44:20.000000000 +0200
-+++ linux-2.6.11/drivers/mmc/mmc_block.c	2005-06-04 21:48:46.000000000 +0200
-@@ -95,6 +95,10 @@ static int mmc_blk_open(struct inode *in
- 		if (md->usage == 2)
- 			check_disk_change(inode->i_bdev);
- 		ret = 0;
-+
-+		if ((filp->f_mode & FMODE_WRITE) &&
-+			!(md->queue.card->csd.cmdclass & CCC_BLOCK_WRITE))
-+			ret = -EROFS;
- 	}
- 
- 	return ret;
-@@ -403,9 +407,12 @@ static int mmc_blk_probe(struct mmc_card
- 	if (err)
- 		goto out;
- 
--	printk(KERN_INFO "%s: %s %s %dKiB\n",
-+	printk(KERN_INFO "%s: %s %s %dKiB",
+	printk(KERN_INFO "%s: %s %s %dKiB%s\n",
  		md->disk->disk_name, mmc_card_id(card), mmc_card_name(card),
- 		(card->csd.capacity << card->csd.read_blkbits) / 1024);
-+	if (!(card->csd.cmdclass & CCC_BLOCK_WRITE))
-+		printk(" (ro)");
-+	printk("\n");
- 
- 	mmc_set_drvdata(card, md);
- 	add_disk(md->disk);
+ 		(card->csd.capacity << card->csd.read_blkbits) / 1024,
+		card->csd.cmdclass & CCC_BLOCK_WRITE ? "" : " (ro)");
 
---=_hermes.drzeus.cx-25623-1117914894-0001-2--
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,57 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261287AbVFDHup@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVFDIIc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261287AbVFDHup (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 03:50:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261289AbVFDHup
+	id S261286AbVFDIIc (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 04:08:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVFDIIc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 03:50:45 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:4880 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S261287AbVFDHuh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 03:50:37 -0400
-Date: Sat, 4 Jun 2005 15:40:43 +0800 (WST)
-From: raven@themaw.net
-To: Andrew Morton <akpm@osdl.org>
-cc: Michael Blandford <michael@kmaclub.com>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       Jeff Moyer <jmoyer@redhat.com>,
-       "Steinar H. Gunderson" <sgunderson@bigfoot.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] autofs4 - post expire race fix
-Message-ID: <Pine.LNX.4.62.0506041528070.8502@donald.themaw.net>
+	Sat, 4 Jun 2005 04:08:32 -0400
+Received: from imf18aec.mail.bellsouth.net ([205.152.59.66]:21664 "EHLO
+	imf18aec.mail.bellsouth.net") by vger.kernel.org with ESMTP
+	id S261286AbVFDIIa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Jun 2005 04:08:30 -0400
+Message-ID: <000701c568e3$fb67dcc0$2800000a@pc365dualp2>
+From: <cutaway@bellsouth.net>
+To: <linux-kernel@vger.kernel.org>
+Subject: NPX init bugs in x86 head.S ???
+Date: Sat, 4 Jun 2005 05:01:02 -0400
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-98.6, required 8,
-	NO_REAL_NAME, PATCH_UNIFIED_DIFF, RCVD_IN_ORBS,
-	RCVD_IN_OSIRUSOFT_COM, USER_AGENT_PINE, USER_IN_WHITELIST)
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1478
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Below is the code snip that checks for a hardware NPX - which it does OK.
 
-At the tail end of an expire it's possible for a process to enter
-autofs4_wait, with a waitq type of NFY_NONE but find that the expire
-is finished. In this cause autofs4_wait will try to create a new wait but 
-not notify the daemon leading to a hang. As the wait type is meant to 
-delay mount requests from revalidate or lookup during an expire and the 
-expire is done all we need to do is check if the dentry is a mountpoint. 
-If it's not then we're done.
+But, how can enabling a 287 ever work in a paged environment?  A 287 NPX
+only has internal registers capable of handling 16:16 segmented protected
+mode addresses.  Once paging is enabled and 16:32 addresses start getting
+generated I should think everything falls apart.  At a minimum, if nothing
+else died first, any reported exception CS:IP's would certainly be bogus
+having only 16 bits of IP coming back to the 386 from the NPX.
 
+Am I missing something here?
 
-diff -Nur linux-2.6.12-rc2-mm3.orig/fs/autofs4/waitq.c linux-2.6.12-rc2-mm3/fs/autofs4/waitq.c
---- linux-2.6.12-rc2-mm3.orig/fs/autofs4/waitq.c	2005-05-01 17:04:49.000000000 +0800
-+++ linux-2.6.12-rc2-mm3/fs/autofs4/waitq.c	2005-05-01 17:07:18.000000000 +0800
-@@ -191,6 +191,13 @@
- 	}
- 
- 	if ( !wq ) {
-+		/* Can't wait for an expire if there's no mount */
-+		if (notify == NFY_NONE && !d_mountpoint(dentry)) {
-+			kfree(name);
-+			up(&sbi->wq_sem);
-+			return -ENOENT;
-+		}
-+
- 		/* Create a new wait queue */
- 		wq = kmalloc(sizeof(struct autofs_wait_queue),GFP_KERNEL);
- 		if ( !wq ) {
+ Tony
+
+------------------CUT-------------------
+
+/*
+ * We depend on ET to be correct. This checks for 287/387.
+ */
+check_x87:
+        movb $0,X86_HARD_MATH
+        clts
+        fninit
+        fstsw %ax
+        cmpb $0,%al
+        je 1f
+        movl %cr0,%eax          /* no coprocessor: have to set bits */
+        xorl $4,%eax            /* set EM */
+        movl %eax,%cr0
+        ret
+        ALIGN
+1:      movb $1,X86_HARD_MATH
+        .byte 0xDB,0xE4         /* fsetpm for 287, ignored by 387 */
+        ret
+

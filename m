@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261293AbVFDIQB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVFDIWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261293AbVFDIQB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 04:16:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261292AbVFDIQB
+	id S261292AbVFDIWh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 04:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbVFDIWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 04:16:01 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:29968 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261293AbVFDIPz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 04:15:55 -0400
-Date: Sat, 4 Jun 2005 09:15:44 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
+	Sat, 4 Jun 2005 04:22:37 -0400
+Received: from wombat.indigo.net.au ([202.0.185.19]:8464 "EHLO
+	wombat.indigo.net.au") by vger.kernel.org with ESMTP
+	id S261292AbVFDIWc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Jun 2005 04:22:32 -0400
+Date: Sat, 4 Jun 2005 16:12:29 +0800 (WST)
+From: raven@themaw.net
 To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12?
-Message-ID: <20050604091544.A30959@flint.arm.linux.org.uk>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-References: <42A0D88E.7070406@pobox.com> <20050603163843.1cf5045d.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050603163843.1cf5045d.akpm@osdl.org>; from akpm@osdl.org on Fri, Jun 03, 2005 at 04:38:43PM -0700
+cc: "Steinar H. Gunderson" <sgunderson@bigfoot.com>,
+       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+       Jeff Moyer <jmoyer@redhat.com>, Michael Blandford <michael@kmaclub.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] autofs4 - bad lookup fix
+Message-ID: <Pine.LNX.4.62.0506041543090.8502@donald.themaw.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-MailScanner: Found to be clean
+X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-98.1, required 8,
+	NO_REAL_NAME, RCVD_IN_ORBS, RCVD_IN_OSIRUSOFT_COM, USER_AGENT_PINE,
+	USER_IN_WHITELIST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 03, 2005 at 04:38:43PM -0700, Andrew Morton wrote:
-> Subject: Bug in 8520.c - port.type not set for serial console
 
-I think this is another case of someone reporting a problem and not
-providing any feedback to replies.  Bjorn followed up on this and
-I haven't seen a response.
+For browsable autofs maps, a mount request that arrives at the same time 
+an expire is happening can fail to perform the needed mount.
 
-However, port.type won't be set for serial console.  This is entirely
-expected.  We haven't approached the normal port initialisation and
-as such we treat the port as being the lowest common denominator - a
-standard 8250 port.
+This happens becuase the directory exists and so the revalidate succeeds 
+when we need it to fail so that lookup is called on the same dentry to do 
+the mount. Instead lookup is called on the next path component which 
+should be whithin the mount, but the parent isn't mounted. 
 
-If we do want port.type initialised, the solution for this is to get
-rid of the early initialisation of 8250-based consoles entirely, which
-is something I keep saying and not doing because I know I'm going to
-get whinged at.
+The solution is to allow the revalidate to continue and perform the mount 
+as no directory creation (at mount time) is needed for browsable mount 
+entries.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+
+diff -Nurp linux-2.6.12-rc5-mm1.orig/fs/autofs4/root.c linux-2.6.12-rc5-mm1/fs/autofs4/root.c
+--- linux-2.6.12-rc5-mm1.orig/fs/autofs4/root.c	2005-05-29 14:46:30.000000000 +0800
++++ linux-2.6.12-rc5-mm1/fs/autofs4/root.c	2005-05-29 14:47:04.000000000 +0800
+@@ -306,7 +306,14 @@ static int try_to_fill_dentry(struct den
+ 		
+ 		DPRINTK("expire done status=%d", status);
+ 		
+-		return 0;
++		/*
++		 * If the directory still exists the mount request must
++		 * continue otherwise it can't be followed at the right
++		 * time during the walk.
++		 */
++		status = d_invalidate(dentry);
++		if (status != -EBUSY)
++			return 0;
+ 	}
+ 
+ 	DPRINTK("dentry=%p %.*s ino=%p",

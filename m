@@ -1,41 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVFDMi1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVFDMv3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbVFDMi1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 08:38:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVFDMi1
+	id S261338AbVFDMv3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 08:51:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVFDMv2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 08:38:27 -0400
-Received: from mail-in-07.arcor-online.net ([151.189.21.47]:5552 "EHLO
-	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
-	id S261337AbVFDMiZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 08:38:25 -0400
-From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
-Subject: Re: [RFC/PATCH] Kdump: Disabling PCI interrupts in capture kernel
-To: Vivek Goyal <vgoyal@in.ibm.com>, Alan Stern <stern@rowland.harvard.edu>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       greg@kroah.com, Fastboot mailing list <fastboot@lists.osdl.org>,
-       Morton Andrew Morton <akpm@osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Reply-To: 7eggert@gmx.de
-Date: Sat, 04 Jun 2005 14:38:20 +0200
-References: <4bExX-3uT-11@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Sat, 4 Jun 2005 08:51:28 -0400
+Received: from lugor.de ([217.160.170.124]:64651 "EHLO solar.mylinuxtime.de")
+	by vger.kernel.org with ESMTP id S261338AbVFDMvW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Jun 2005 08:51:22 -0400
+From: Christian Hesse <mail@earthworm.de>
+To: Tony Lindgren <tony@atomide.com>
+Subject: Re: [PATCH] Dynamic tick for x86 version 050602-2
+Date: Sat, 4 Jun 2005 14:51:04 +0200
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org
+References: <20050602013641.GL21597@atomide.com> <200506030808.12903.mail@earthworm.de> <20050603173940.GA18025@atomide.com>
+In-Reply-To: <20050603173940.GA18025@atomide.com>
+X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)=?utf-8?q?k=0A=09=3Anv*xqk4C?=@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)=?utf-8?q?n=23Q=2Eo=0A=09kE=7E=26T=5D0cQX6=5D?=<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<=?utf-8?q?3O7GY9y=5Fi!qG=26Vv=5CD8/=0A=09=254?=@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1DeXuv-0000fH-LZ@be1.7eggert.dyndns.org>
+Content-Type: multipart/signed;
+  boundary="nextPart1167062.Fs94OfvdaE";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200506041451.14518.mail@earthworm.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vivek Goyal <vgoyal@in.ibm.com> wrote:
+--nextPart1167062.Fs94OfvdaE
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> Hi Alan, I know very little about consoles and their working.
-> I had a question. Even if console is being managed by platform firmware, in
-> initial states of booting, does it require interrupts to be enabled at
-> VGA contorller (at least for the simple text mode).
+On Friday 03 June 2005 19:39, Tony Lindgren wrote:
+[ ... ]
+> > Software suspend still does not work, it hangs on resume. Any ideas what
+> > could be the cause? I've applied these patches on top of 2.6.12-rc5:
+> >
+> > 2.6.12-rc4-ck1
+> > software suspend 2.1.8.10
+> > reiser from 2.6.12-rc5-mm1
+> > ieee802.11 stack and ipw2100 1.1.0
+> > hostap 0.3.7
+> > shfs 0.35
+> > fbsplash 0.9.2-r2
+> > dyn-tick
+>
+> I don't think it's the dyn-tick patch that causes it. Does the
+> resume work properly without the dyn-tick patch?
 
-VGA does not use interrupts for normal operation, even in graphics mode.
-It can generate them for synchronisation.
--- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+I've simply disabled CONFIG_NO_IDLE_HZ, recompiled the kernel and resume wo=
+rks=20
+perfectly.
+
+But I found another drawback. ping -f reports lots of these errors (though =
+it=20
+still works):
+
+Warning: time of day goes back (0.122us), taking countermeasures.
+
+=2D-=20
+Christian
+
+--nextPart1167062.Fs94OfvdaE
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.9.15 (GNU/Linux)
+
+iD8DBQBCoaPClZfG2c8gdSURAqVTAKDu9HfJT8KhfqOJ935xIHOoMYdczgCgmnj3
++03IVgq3rCrZSEAxnREEI+4=
+=/eBb
+-----END PGP SIGNATURE-----
+
+--nextPart1167062.Fs94OfvdaE--

@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261336AbVFDMZg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVFDMi1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261336AbVFDMZg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 08:25:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261337AbVFDMZg
+	id S261337AbVFDMi1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 08:38:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261338AbVFDMi1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 08:25:36 -0400
-Received: from hulk.hostingexpert.com ([69.57.134.39]:24502 "EHLO
-	hulk.hostingexpert.com") by vger.kernel.org with ESMTP
-	id S261336AbVFDMZa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 08:25:30 -0400
-Message-ID: <42A19DBE.3080403@m1k.net>
-Date: Sat, 04 Jun 2005 08:25:34 -0400
-From: Michael Krufky <mkrufky@m1k.net>
-Reply-To: mkrufky@m1k.net
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Sat, 4 Jun 2005 08:38:27 -0400
+Received: from mail-in-07.arcor-online.net ([151.189.21.47]:5552 "EHLO
+	mail-in-07.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261337AbVFDMiZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Jun 2005 08:38:25 -0400
+From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
+Subject: Re: [RFC/PATCH] Kdump: Disabling PCI interrupts in capture kernel
+To: Vivek Goyal <vgoyal@in.ibm.com>, Alan Stern <stern@rowland.harvard.edu>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       greg@kroah.com, Fastboot mailing list <fastboot@lists.osdl.org>,
+       Morton Andrew Morton <akpm@osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Reply-To: 7eggert@gmx.de
+Date: Sat, 04 Jun 2005 14:38:20 +0200
+References: <4bExX-3uT-11@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12?
-References: <42A0D88E.7070406@pobox.com> <20050603163843.1cf5045d.akpm@osdl.org>
-In-Reply-To: <20050603163843.1cf5045d.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - hulk.hostingexpert.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - m1k.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1DeXuv-0000fH-LZ@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Vivek Goyal <vgoyal@in.ibm.com> wrote:
 
->My things-to-worry-about folder still has 244 entries.  Nobody seems to
->care much.  Poor me.
->
->Subject: 2.6.12-rc5-mm1 breaks serio: i8042 AUX port
->  
->
+> Hi Alan, I know very little about consoles and their working.
+> I had a question. Even if console is being managed by platform firmware, in
+> initial states of booting, does it require interrupts to be enabled at
+> VGA contorller (at least for the simple text mode).
 
->Subject: Re: 2.6.12-rc5-mm1 breaks serio: i8042 AUX port
->
-These are both from the same thread -- I reported the issue.  I was 
-having this problem in -mm1, and I'm intermittently having the problem 
-in -mm2 ... I'm starting to think there may be another factor involved 
-(I can't imagine what) ... But if I am the only person seeing this 
-issue, then I wouldn't worry about this.  I'll do more testing when -mm3 
-comes out and I'll post as to whether the problem is still present or not.
-
+VGA does not use interrupts for normal operation, even in graphics mode.
+It can generate them for synchronisation.
 -- 
-Michael Krufky
-
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261206AbVFDBWq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261207AbVFDB1o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261206AbVFDBWq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 21:22:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261207AbVFDBWp
+	id S261207AbVFDB1o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 21:27:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261211AbVFDB1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 21:22:45 -0400
-Received: from fire.osdl.org ([65.172.181.4]:45963 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261206AbVFDBW3 (ORCPT
+	Fri, 3 Jun 2005 21:27:44 -0400
+Received: from colo.lackof.org ([198.49.126.79]:56792 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S261207AbVFDB1m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 21:22:29 -0400
-Date: Fri, 3 Jun 2005 18:19:11 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12?
-Message-Id: <20050603181911.19a1fb98.akpm@osdl.org>
-In-Reply-To: <1117843433.31082.207.camel@gaston>
-References: <42A0D88E.7070406@pobox.com>
-	<20050603163843.1cf5045d.akpm@osdl.org>
-	<1117843433.31082.207.camel@gaston>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Fri, 3 Jun 2005 21:27:42 -0400
+Date: Fri, 3 Jun 2005 19:31:12 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Greg KH <gregkh@suse.de>
+Cc: tom.l.nguyen@intel.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, roland@topspin.com, davem@davemloft.net
+Subject: Re: pci_enable_msi() for everyone?
+Message-ID: <20050604013112.GB16999@colo.lackof.org>
+References: <20050603224551.GA10014@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050603224551.GA10014@kroah.com>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
->
-> On Fri, 2005-06-03 at 16:38 -0700, Andrew Morton wrote:
+On Fri, Jun 03, 2005 at 03:45:51PM -0700, Greg KH wrote:
+> In talking with a few people about the MSI kernel code, they asked why
+> we can't just do the pci_enable_msi() call for every pci device in the
+> system (at somewhere like pci_enable_device() time or so).  That would
+> let all drivers and devices get the MSI functionality without changing
+> their code, and probably make the api a whole lot simpler.
+
+One complication is some drivers will want to register a different
+IRQ handler depending on if MSI is enabled or not.
+If MSI is enabled (and usable), then some MMIO reads can be omitted.
+I've posted a patch for tg3 driver:
+	ftp://ftp.parisc-linux.org/patches/diff-2.6.10-tg3_MSI-03
+
+(Just an example! It was not accepted because of buggy HW
+ though it worked great on the HW I have access to.)
+
+drivers/infiniband/hw/mthca driver is another example.
+
+> Now I know the e1000 driver would have to specifically disable MSI for
+> some of their broken versions, and possibly some other drivers might
+> need this, but the downside seems quite small.
 > 
-> > Subject: ATI Radeon 9000 M9 mobitility troubles on linux 2.6
-> 
-> Is that one still pending ? Or is it just the slow down due to the
-> workaround ?
+> Or am I missing something pretty obvious here?
 
-The last I saw was http://lkml.org/lkml/2005/4/12/461
+How can the driver know which IRQ handlers to register?
 
-> > Subject: [Bugme-new] [Bug 4453] New: Since 2.6.10 with radeon 9000 mobile
-> 
-> What is that one ?
-> 
-> > Subject: [Bugme-new] [Bug 4513] New: Radeon driver in 2.6.10 through
-> 
-> Ok, looks like I'll have to look at some bugzilla ? :)
-
-yup.
-
-> > Subject: Radeonfb blanks the screen / hangs the system with 2.6.11
-> 
-> Can you forward me that one ?
-
-http://lkml.org/lkml/2005/3/21/284
-
-Again, the reporter seems to have gone to ground.  They do that quite a lot.
-
-> > Subject: Re: PROBLEM: Radeon card displays incorrectly under the 2.6.11 version unless compiled with SMP support
-> 
-> And that one
-> 
-
-http://seclists.org/lists/linux-kernel/2005/Mar/
-
-The reporter vanished again.
+grant

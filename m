@@ -1,78 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVFDMv3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261339AbVFDNDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261338AbVFDMv3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 08:51:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVFDMv2
+	id S261339AbVFDNDM (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 09:03:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261340AbVFDNDL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 08:51:28 -0400
-Received: from lugor.de ([217.160.170.124]:64651 "EHLO solar.mylinuxtime.de")
-	by vger.kernel.org with ESMTP id S261338AbVFDMvW (ORCPT
+	Sat, 4 Jun 2005 09:03:11 -0400
+Received: from mail.ccur.com ([208.248.32.212]:14979 "EHLO flmx.iccur.com")
+	by vger.kernel.org with ESMTP id S261339AbVFDNDG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 08:51:22 -0400
-From: Christian Hesse <mail@earthworm.de>
-To: Tony Lindgren <tony@atomide.com>
-Subject: Re: [PATCH] Dynamic tick for x86 version 050602-2
-Date: Sat, 4 Jun 2005 14:51:04 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <20050602013641.GL21597@atomide.com> <200506030808.12903.mail@earthworm.de> <20050603173940.GA18025@atomide.com>
-In-Reply-To: <20050603173940.GA18025@atomide.com>
-X-Face: 1\p'dhO'VZk,x0lx6U}!Y*9UjU4n2@4c<"a*K%3Eiu'VwM|-OYs;S-PH>4EdJMfGyycC)=?utf-8?q?k=0A=09=3Anv*xqk4C?=@1b8tdr||mALWpN[2|~h#Iv;)M"O$$#P9Kg+S8+O#%EJx0TBH7b&Q<m)=?utf-8?q?n=23Q=2Eo=0A=09kE=7E=26T=5D0cQX6=5D?=<q!HEE,F}O'Jd#lx/+){Gr@W~J`h7sTS(M+oe5<=?utf-8?q?3O7GY9y=5Fi!qG=26Vv=5CD8/=0A=09=254?=@&~$Z@UwV'NQ$Ph&3fZc(qbDO?{LN'nk>+kRh4`C3[KN`-1uT-TD_m
+	Sat, 4 Jun 2005 09:03:06 -0400
+Message-ID: <42A1A688.7050505@ccur.com>
+Date: Sat, 04 Jun 2005 09:03:04 -0400
+From: John Blackwood <john.blackwood@ccur.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4.4) Gecko/20050318 Red Hat/1.4.4-1.3.5
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1167062.Fs94OfvdaE";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: linux-kernel@vger.kernel.org
+CC: akpm@osdl.org, dan@debian.org, bugsy@ccur.com
+Subject: Re: [PATCH] ptrace(2) single-stepping into signal handlers
+References: <d7q7jf$2s8$1@trex.ccur.com>
+In-Reply-To: <d7q7jf$2s8$1@trex.ccur.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200506041451.14518.mail@earthworm.de>
+X-OriginalArrivalTime: 04 Jun 2005 13:03:05.0752 (UTC) FILETIME=[BF70C980:01C56905]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1167062.Fs94OfvdaE
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+ > Subject: Re: [PATCH] ptrace(2) single-stepping into signal handlers
+ > From: Andrew Morton <akpm@osdl.org>
+ > Date: Fri, 3 Jun 2005 16:31:29 -0700
+ > To: Daniel Jacobowitz <dan@debian.org>
+ > CC: john.blackwood@ccur.com
+ >
+ > >>> >
+ > >>> > Hi Dan,
+ > >>> >
+ > >>> > I observed this behavior in a 2.6.11.10 kernel.  The code in 
+2.6.11.11
+ > >>> > looks the same in this area... this is the i386 code that I am 
+speaking of.
+ > >>> >
+ > >>> > I guess that 'some time ago' is more recent than that?
+ > >>> >
+ > >>> >
+ > >>> > If so, then please excuse me... and it's great that this is fixed.
+ > >
+ > >>
+ > >> I'm not sure of the timeline, but could you check that in a current
+ > >> 2.6.12 GIT snapshot?
+ > >>
+ >
+ >
+ > 2.6.12-rc5 should be sufficient.
+ >
+ > 
+ftp://ftp.kernel.org/pub/linux/kernel/v2.6/testing/linux-2.6.12-rc5.tar.bz2
+ >
+ > or, even better, the above plus:
+ >
+ > 
+ftp://ftp.kernel.org/pub/linux/kernel/v2.6/snapshots/patch-2.6.12-rc5-git8.bz2
 
-On Friday 03 June 2005 19:39, Tony Lindgren wrote:
-[ ... ]
-> > Software suspend still does not work, it hangs on resume. Any ideas what
-> > could be the cause? I've applied these patches on top of 2.6.12-rc5:
-> >
-> > 2.6.12-rc4-ck1
-> > software suspend 2.1.8.10
-> > reiser from 2.6.12-rc5-mm1
-> > ieee802.11 stack and ipw2100 1.1.0
-> > hostap 0.3.7
-> > shfs 0.35
-> > fbsplash 0.9.2-r2
-> > dyn-tick
->
-> I don't think it's the dyn-tick patch that causes it. Does the
-> resume work properly without the dyn-tick patch?
+Andrew and Dan,
 
-I've simply disabled CONFIG_NO_IDLE_HZ, recompiled the kernel and resume wo=
-rks=20
-perfectly.
+Yes, I tried the above combination, and the stuck-in-single-step mode
+after continuing out of the signal handler is indeed FIXED.
 
-But I found another drawback. ping -f reports lots of these errors (though =
-it=20
-still works):
+Some additional code was added to the i386 version of handle_signal()
+(even before the git8 additions) so that the TF flag is now cleared and
+the task no longer stops when it comes out of the signal handler and
+returns back to the original execution stream.
 
-Warning: time of day goes back (0.122us), taking countermeasures.
+Thanks.
 
-=2D-=20
-Christian
-
---nextPart1167062.Fs94OfvdaE
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.9.15 (GNU/Linux)
-
-iD8DBQBCoaPClZfG2c8gdSURAqVTAKDu9HfJT8KhfqOJ935xIHOoMYdczgCgmnj3
-+03IVgq3rCrZSEAxnREEI+4=
-=/eBb
------END PGP SIGNATURE-----
-
---nextPart1167062.Fs94OfvdaE--

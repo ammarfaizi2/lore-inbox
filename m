@@ -1,67 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVFDAvY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVFDA7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbVFDAvY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 20:51:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVFDAvY
+	id S261198AbVFDA7g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 20:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVFDA7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 20:51:24 -0400
-Received: from fire.osdl.org ([65.172.181.4]:51847 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261197AbVFDAvT (ORCPT
+	Fri, 3 Jun 2005 20:59:36 -0400
+Received: from holomorphy.com ([66.93.40.71]:59045 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261198AbVFDA7e (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 20:51:19 -0400
-Date: Fri, 3 Jun 2005 17:51:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Wakko Warner <wakko@animx.eu.org>
+	Fri, 3 Jun 2005 20:59:34 -0400
+Date: Fri, 3 Jun 2005 17:59:30 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Subrahmanyam Ongole <songole@gmail.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12?
-Message-Id: <20050603175147.6cdbf81e.akpm@osdl.org>
-In-Reply-To: <20050604000156.GA18065@animx.eu.org>
-References: <42A0D88E.7070406@pobox.com>
-	<20050603163843.1cf5045d.akpm@osdl.org>
-	<20050604000156.GA18065@animx.eu.org>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+Subject: Re: x86-64: Kernel with large page size
+Message-ID: <20050604005930.GA31508@holomorphy.com>
+References: <a8447f24050603175061598809@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <a8447f24050603175061598809@mail.gmail.com>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wakko Warner <wakko@animx.eu.org> wrote:
->
-> Andrew Morton wrote:
-> > Subject: Double free of initramfs
-> 
-> Is there a patch to fix this?  I've noticed a solid lockup when trying to
-> umount initramfs after a pivot_root.
+On Fri, Jun 03, 2005 at 05:50:55PM -0700, Subrahmanyam Ongole wrote:
+> When we run our application on AMD Opteron processors, we are seeing a
+> large number of   L1_AND_L2_DTLB_MISSES. We used oprofile to measure
+> these numbers.
+> We wanted to try with a bigger page size and see if we could bring it
+> down. TLB caches 4k page translations. I don't  know if larger page
+> size would even help here.
+> I  changed PAGE_SHIFT to 14 ( 16k page size ) in include/asm/page.h
+> and recompiled kernel and modules.   It crashed ( PANIC: early
+> exception ) at the very initial stage of loading the image.
+> I looked at some of the mailing list archives for any information on
+> this. I couldn't find anything on this subject . I appreciate any help
+> on this.
+> There seem to be two 2-4MB page translations in L1 TLB cache on AMD
+> machines. Will it be used only when the page size is 2MB or can they
+> be used with smaller page sizes too.
 
-Nope, but there's a design:
+PAGE_SIZE at the moment is intimately tied to the MMU's notions of
+address translation, which are determined by hardware.
 
 
-
-
-Begin forwarded message:
-
-Date: Wed, 16 Mar 2005 18:49:32 +0000
-From: Ralf Baechle <ralf@linux-mips.org>
-To: linux-arch@vger
-Subject: Double free of initramfs
-
-
-In all linker scripts we currently have something like this:
-
-  __init_begin = .;
- ...
-   . = ALIGN(4096);
-  __initramfs_start = .;
-  .init.ramfs : { *(.init.ramfs) }
-  __initramfs_end = .;
-  ...
-  __init_end = .;
-
-It seems all 25 linker scripts in the current bk tree are suffering from
-this.  Which mean with CONFIG_BLK_DEV_INITRD enabled first free_initrd_mem
-may be called to free the initram disk and just a little later
-free_initmem will try to free the entire range again, so either the
-linker scripts would need fixing or free_initrd_mem has become obsolete.
-
-  Ralf
+-- wli

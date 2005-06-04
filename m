@@ -1,47 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261355AbVFDQCI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVFDQLf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261355AbVFDQCI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 12:02:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVFDQCI
+	id S261358AbVFDQLf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 12:11:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261360AbVFDQLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 12:02:08 -0400
-Received: from wildsau.idv.uni.linz.at ([193.170.194.34]:35712 "EHLO
-	wildsau.enemy.org") by vger.kernel.org with ESMTP id S261355AbVFDQCF
+	Sat, 4 Jun 2005 12:11:35 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.132]:28667 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S261358AbVFDQLe
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 12:02:05 -0400
-From: Herbert Rosmanith <kernel@wildsau.enemy.org>
-Message-Id: <200506041601.j54G1nrq022039@wildsau.enemy.org>
-Subject: Re: [PATCH] struct thread_struct, asm-i386/processor.h: wrong datatype?
-In-Reply-To: <200506041543.j54Fh7xv018234@wildsau.enemy.org>
-To: Herbert Rosmanith <kernel@wildsau.enemy.org>
-Date: Sat, 4 Jun 2005 18:01:49 +0200 (MET DST)
-CC: linux-kernel@vger.kernel.org, torvalds@osdl.org
-X-Mailer: ELM [version 2.4ME+ PL100 (25)]
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=US-ASCII
+	Sat, 4 Jun 2005 12:11:34 -0400
+Date: Sat, 4 Jun 2005 19:33:01 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: Andrew Morton <akpm@osdl.org>, Alan Stern <stern@rowland.harvard.edu>,
+       "Eric W. Biederman" <ebiederm@xmission.com>, Greg KH <greg@kroah.com>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: Re: [Fastboot] Re: [RFC/PATCH] Kdump: Disabling PCI interrupts in capture kernel
+Message-ID: <20050604140301.GC7439@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20050603112524.GB7022@in.ibm.com> <20050603182147.GB5751@kroah.com> <m13brz9tkf.fsf@ebiederm.dsl.xmission.com> <200506041618.24736.vda@ilport.com.ua> <20050604134306.GB7439@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050604134306.GB7439@in.ibm.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, Jun 04, 2005 at 07:13:06PM +0530, Dipankar Sarma wrote:
+> That said, I am not sure what is the issue with the console
+> drivers. What good is the irq for the console driver if
+> it hasn't requested for it ? Why should disabling it affect
+> consoles ? The interrupt will get enabled as soon as the driver
+> requests for it as per Vivek's patch. Am I missing something here ?
 
-or better: 
+Doh! The answer is in earlier emails - fw controlled pci consoles.
 
-> -       unsigned long   fs;
-> -       unsigned long   gs;
-> +       unsigned short  fs;
-> +       unsigned short  gs;
->  /* Hardware debugging registers */
->         unsigned long   debugreg[8];  /* %%db0-7 debug registers */
->  /* fault info */
-
-+ unsigned short fs, __fsh; 
-+ unsigned short gs, __gsh; 
-
-which is also done this way the structure above, the TSS. I don't know
-why it's done this way, but I guess it's probably better pad with 16 bits
-to avoid potential problems with 32bit movl which might overwrite portions
-of the next field.
-
-kind regards,
-herbert rosmanith
-
+Thanks
+Dipankar

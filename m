@@ -1,79 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261408AbVFDSXU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVFDSor@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261408AbVFDSXU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 14:23:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261412AbVFDSXU
+	id S261417AbVFDSor (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 14:44:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbVFDSoq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 14:23:20 -0400
-Received: from colo.lackof.org ([198.49.126.79]:7145 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S261408AbVFDSXO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 14:23:14 -0400
-Date: Sat, 4 Jun 2005 12:26:45 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Vivek Goyal <vgoyal@in.ibm.com>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       Morton Andrew Morton <akpm@osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Bodo Eggert <7eggert@gmx.de>, Dipankar Sarma <dipankar@in.ibm.com>,
-       Grant Grundler <grundler@parisc-linux.org>, awilliam@fc.hp.com,
-       bjorn.helgaas@hp.com
-Subject: Re: [RFC/PATCH] Kdump: Disabling PCI interrupts in capture kernel
-Message-ID: <20050604182645.GD19823@colo.lackof.org>
-References: <1117882628.42a1890479c23@imap.linux.ibm.com> <Pine.LNX.4.44L0.0506041126030.5133-100000@iolanthe.rowland.org>
+	Sat, 4 Jun 2005 14:44:46 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:52752 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261417AbVFDSoo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Jun 2005 14:44:44 -0400
+Date: Sat, 4 Jun 2005 20:44:39 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.12 -- long bug list
+Message-ID: <20050604184439.GY4992@stusta.de>
+References: <20050604154254.GD756@openzaurus.ucw.cz> <20050604163157.GA1849@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0506041126030.5133-100000@iolanthe.rowland.org>
-X-Home-Page: http://www.parisc-linux.org/
+In-Reply-To: <20050604163157.GA1849@elf.ucw.cz>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 04, 2005 at 11:35:59AM -0400, Alan Stern wrote:
-> On Sat, 4 Jun 2005, Vivek Goyal wrote:
+On Sat, Jun 04, 2005 at 06:31:57PM +0200, Pavel Machek wrote:
+
+> Hi!
+
+Hi Pavel!
+
+>...
+> > Subject: Re: 2.6.12-rc1-mm1: resume regression [update] (was:
+> > Subject: Re: 2.6.12-rc1-mm1: resume regression [update] (was: Re:
+> > Subject: Re: 2.6.12-rc1-mm1: resume regression [update] (was: Re: 2.6.12-rc1-mm1: Kernel BUG at pci:389)
+> > Subject: Re: 2.6.12-rc1-mm1: resume regression [update] (was: Re:2.6.12-rc1-mm1: Kernel BUG at pci:389)
+> > Subject: Re: 2.6.12-rc1-mm3: box hangs solid on resume from disk while resuming device drivers
+> > Subject: Re: [ACPI] Re: 2.6.12-rc1-mm4 and suspend2ram (and synaptics)
+> > Subject: Re: swsusp not working for me on a PREEMPT 2.6.12-rc1 and 2.6.12-rc1-mm3 kernel
 > 
-> > Hi Alan, I know very little about consoles and their working.
-> > I had a question. Even if console is being managed by platform firmware, in
-> > initial states of booting, does it require interrupts to be enabled at 
-> > VGA contorller (at least for the simple text mode). I was quickly browsing
-> > through drivers/video/console/vgacon.c and did not look like that this
-> > console driver needed interrupts to be enabled at the controller.
-> 
-> This isn't an issue for VGA, as far as I know.  It applies to
-> architectures like PPC-64 and perhaps Alpha or PA-Risc.  And I don't know
-> the details; ask Grant Grundler.
+> -rc1 is quite old, i think these can be safely ignored now...
+>...
 
-I'm more familiar with the serial consoles and how PDC interacts with them.
->From HP, both Alex Williamson and Bjorn Helgaas know more about
-VGA support. I've cc'd both.
+I'm assuming Andrew will or has already asked for confirmation that they 
+are actually fixed for the submitters, and unless someone can reproduce 
+one of these with -rc5 or -rc5-mm2 they will be ignored.
 
-> > Anyway, looks like serial consoles will always work. So at least this can be
-> > done for kdump case (CONFIG_CRASH_DUMP) and not generic kernel. Or, as I
-> > mentioned in previous mail, while pre-loading capture kernel, pass a command
-> > line parameter containing pci dev id of console and capture kernel does not 
-> > disable interrupts on this console.  
+> 								Pavel
 
-parisc serial consoles don't need interrupts enabled. The serial device
-does need it's MMIO and/or IO Port range enabled (I forgot which).
-ISTR most serial consoles don't do DMA and thus don't need BusMaster
-enabled in the PCI command register either.
+cu
+Adrian
 
-> I suspect you're right that implementing this only in kdump kernels will 
-> work okay.
-> 
-> For people interesting in reading some old threads on the subject, here 
-> are some pointers:
-> 
-> http://marc.theaimsgroup.com/?l=linux-usb-devel&m=111055702309788&w=2
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=98383052711171&w=2
+-- 
 
-wow...from 2001.
-That's when we first release a500 support with Debian 3.0.
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-thanks,
-grant

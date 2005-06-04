@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVFDAGf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261189AbVFDAHx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbVFDAGf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 3 Jun 2005 20:06:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261188AbVFDAGe
+	id S261189AbVFDAHx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 3 Jun 2005 20:07:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261186AbVFDAHF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 3 Jun 2005 20:06:34 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:9617 "EHLO
-	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261187AbVFDAFz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 3 Jun 2005 20:05:55 -0400
-Message-ID: <42A0F05A.8010901@ens-lyon.org>
-Date: Sat, 04 Jun 2005 02:05:46 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Sylvain Meyer <sylvain.meyer@worldonline.fr>, linux-kernel@vger.kernel.org
+	Fri, 3 Jun 2005 20:07:05 -0400
+Received: from gate.crashing.org ([63.228.1.57]:44511 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261185AbVFDAFF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 3 Jun 2005 20:05:05 -0400
 Subject: Re: 2.6.12?
-References: <42A0D88E.7070406@pobox.com> <20050603163843.1cf5045d.akpm@osdl.org>
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
 In-Reply-To: <20050603163843.1cf5045d.akpm@osdl.org>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+References: <42A0D88E.7070406@pobox.com>
+	 <20050603163843.1cf5045d.akpm@osdl.org>
+Content-Type: text/plain
+Date: Sat, 04 Jun 2005 10:03:52 +1000
+Message-Id: <1117843433.31082.207.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton a écrit :
-> Lots of USB problems, quite a few input problems.  fbdev, ACPI, ATAPI.  All
-> the usual suspects.
-> 
-> Subject: intelfb crash on i845
-> Subject: Re: [Linux-fbdev-devel] intelfb crash on i845
+On Fri, 2005-06-03 at 16:38 -0700, Andrew Morton wrote:
 
-These two entries seem to be the same one, from me.
-Sylvain Meyer was working on it. And I've recently seen some patches
-from him on the mm-commit list. I didn't have time to test them but I
-should be able to try next week (especially if a new -mm is released
-soon).
+> Subject: ATI Radeon 9000 M9 mobitility troubles on linux 2.6
 
-Brice
+Is that one still pending ? Or is it just the slow down due to the
+workaround ?
+
+> Subject: [Bugme-new] [Bug 4453] New: Since 2.6.10 with radeon 9000 mobile
+
+What is that one ?
+
+> Subject: [Bugme-new] [Bug 4513] New: Radeon driver in 2.6.10 through
+
+Ok, looks like I'll have to look at some bugzilla ? :)
+
+> Subject: Radeonfb blanks the screen / hangs the system with 2.6.11
+
+Can you forward me that one ?
+
+> Subject: Re: PROBLEM: Radeon card displays incorrectly under the 2.6.11 version unless compiled with SMP support
+
+And that one
+
+Ben.
+
+

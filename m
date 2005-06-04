@@ -1,68 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVFDQQh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261364AbVFDQcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261360AbVFDQQh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 12:16:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbVFDQQh
+	id S261364AbVFDQcW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 12:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261367AbVFDQcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 12:16:37 -0400
-Received: from umbar.esa.informatik.tu-darmstadt.de ([130.83.163.30]:54400
-	"EHLO umbar.esa.informatik.tu-darmstadt.de") by vger.kernel.org
-	with ESMTP id S261360AbVFDQQf (ORCPT
+	Sat, 4 Jun 2005 12:32:22 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33166 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261364AbVFDQcQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 12:16:35 -0400
-Date: Sat, 4 Jun 2005 18:16:33 +0200
-From: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>
-To: Greg KH <gregkh@suse.de>
-Cc: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
-Message-ID: <20050604161633.GB14384@erebor.esa.informatik.tu-darmstadt.de>
-References: <20050603232828.GA29860@erebor.esa.informatik.tu-darmstadt.de> <20050604064627.GB13238@suse.de>
+	Sat, 4 Jun 2005 12:32:16 -0400
+Date: Sat, 4 Jun 2005 18:31:57 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@zip.com.au>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: 2.6.12 -- long bug list
+Message-ID: <20050604163157.GA1849@elf.ucw.cz>
+References: <20050604154254.GD756@openzaurus.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050604064627.GB13238@suse.de>
-User-Agent: Mutt/1.5.8i
+In-Reply-To: <20050604154254.GD756@openzaurus.ucw.cz>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 03, 2005 at 11:46:27PM -0700, Greg KH wrote:
-> On Sat, Jun 04, 2005 at 01:28:28AM +0200, Andreas Koch wrote:
-> > Specifically, this occurs on my Acer Travelmate 8100 notebook (Pentium
-> > M, Intel 915M chipset) when it is connected via PCI Express to the
-> > ezDock docking station.
-> 
-> Are you connecting it at boot time, or after the box is up and running?
+Hi!
 
-The dock is already connected at power-up time.
+> My things-to-worry-about folder still has 244 entries.  Nobody seems to
+> care much.  Poor me.
 
-> Hm, another idea, can you load the pci express and standard pci hotplug
-> drivers?  You might have to "enable" those slots in order for the pci
-> core to scan the devices and set everything up properly.  
-> 
-> To do this, after loading the modules (pciehp and shpchp), look in
-> /sys/bus/pci/slots/
+:-)
 
-I have already experimented with compiled-in versions of these drivers
-(as well as the ACPI PCI hotplug driver).
+> Subject: [Bugme-new] [Bug 4340] New: ohci_1394 module breaks S3 suspend
 
-> 
-> If there are any "slots" listed there, go into those directories and
-> "power them on" by simply writing a "1" to the file 'power' by using
-> echo.
-> 
-> Let us know if that helps out any or not.
+Firewire suspend/resume is not supported, nothing new...
 
-I have /sys/bus/pci/slots/, but it is empty. Should I make another
-attempt with driver modules instead of the compiled in versions?
+> Subject: [Bugme-new] [Bug 4371] New: Battery doesn't work after suspend
 
-> 
-> Oh, and this isn't "PCI ExpressCard" type hardware is it (next
-> generation pcmcia/cardbus evolution.)
+Duplicate of 4340.
 
-Actually, the dock itself has a PCI ExpressCard slot (currently
-empty) as one of its peripherals. But my current difficulties are
-with the PCI-Express connection between notebook and dock.
+[Bugzilla is piece of ****. This is listed as severity=high, which is
+not realistics AFAICT. Also to mark it as duplicate, I need to change
+it to ASSIGNED, first. Ugly].
 
-Andreas
+> Subject: [Bugme-new] [Bug 4390] New: power saving doesn't work on
+
+Its standby that does not work... I could fix the subject if stupid
+bugzilla let me. Oops.
+
+> Subject: Re: 2.6.12-rc1-mm1: resume regression [update] (was:
+> Subject: Re: 2.6.12-rc1-mm1: resume regression [update] (was: Re:
+> Subject: Re: 2.6.12-rc1-mm1: resume regression [update] (was: Re: 2.6.12-rc1-mm1: Kernel BUG at pci:389)
+> Subject: Re: 2.6.12-rc1-mm1: resume regression [update] (was: Re:2.6.12-rc1-mm1: Kernel BUG at pci:389)
+> Subject: Re: 2.6.12-rc1-mm3: box hangs solid on resume from disk while resuming device drivers
+> Subject: Re: [ACPI] Re: 2.6.12-rc1-mm4 and suspend2ram (and synaptics)
+> Subject: Re: swsusp not working for me on a PREEMPT 2.6.12-rc1 and 2.6.12-rc1-mm3 kernel
+
+-rc1 is quite old, i think these can be safely ignored now...
+
+> Subject: Re: [linux-pm] potential pitfall? changing configuration while PC in hibernate (fwd)
+> Subject: Re: [linux-usb-devel] Re: [linux-pm] potential pitfall? changing configuration while PC in hibernate (fwd)
+
+Ignore this. Changing config is *not* okay in 2.6.12 swsusp. Its even
+documented:
+
+ *
+ * If you change kernel command line between suspend and resume...
+ *                              ...prepare for nasty fsck or worse.
+ *
+ * If you change your hardware while system is suspended...
+ *                              ...well, it was not good idea.
+ *
+
+> Subject: Re: [PATCH 6/6]suspend/resume SMP support
+
+I do not think we want to support SMP suspend/resume in 2.6.12... It
+should work in -mmX, but is still too much in flux.
+
+								Pavel

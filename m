@@ -1,119 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVFDKbR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbVFDKbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261215AbVFDKbR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 4 Jun 2005 06:31:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261311AbVFDKbR
+	id S261311AbVFDKbq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 4 Jun 2005 06:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261313AbVFDKbq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 06:31:17 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.133]:62699 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261215AbVFDKbM
+	Sat, 4 Jun 2005 06:31:46 -0400
+Received: from rproxy.gmail.com ([64.233.170.204]:296 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261312AbVFDKbf convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 06:31:12 -0400
-Message-ID: <1117881061.42a182e535f40@imap.linux.ibm.com>
-Date: Sat,  4 Jun 2005 06:31:01 -0400
-From: Maneesh Soni <maneesh@in.ibm.com>
-To: Greg KH <greg@kroah.com>
-Cc: Vivek Goyal <vgoyal@in.ibm.com>, Morton Andrew Morton <akpm@osdl.org>,
-       Alan Stern <stern@rowland.harvard.edu>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [Fastboot] Re: [RFC/PATCH] Kdump: Disabling PCI interrupts in capture kernel
-MIME-Version: 1.0
+	Sat, 4 Jun 2005 06:31:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gTkB3AE7rDry/tJmuwoVf5PVztbhGDuQfSl4ytojehHPZ2D1Yhkd42Gxyu9N3rNVyxEoqyKB6hQaklgrlz5tY3P7YTb1UjDevTKaVZBVskYaHfzCCtO3V6XxgDM/CgqzJpUoyXHeBTwBBg0QEid+e/rDADLA1hxP4AXeLxgRzWQ=
+Message-ID: <21d7e99705060403312234aa07@mail.gmail.com>
+Date: Sat, 4 Jun 2005 20:31:34 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: [doc][git] playing with git, and netdev/libata-dev trees
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Git Mailing List <git@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <42A181C1.3010902@pobox.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.7
-X-Originating-IP: 9.182.63.132
+Content-Disposition: inline
+References: <42955DF7.4000805@pobox.com>
+	 <21d7e99705060401405cfd5a11@mail.gmail.com>
+	 <42A181C1.3010902@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Greg KH <greg@kroah.com>:
-
-> On Fri, Jun 03, 2005 at 04:55:24PM +0530, Vivek Goyal wrote:
-> > Hi,
-> > 
-> > In kdump, sometimes, general driver initialization issues seems to be
-> cropping 
-> > in second kernel due to devices not being shutdown during crash and these
+> > 1. when you want to publish your tree what do you do? just rsync it
+> > onto kernel.org?
 > 
-> > devices are sending interrupts while second kernel is booting and drivers
-> are 
-> > not expecting any interrupts yet.
+> Basically.  I copy the attached script into each repo, customize the
+> script for the upload destination.
 > 
-> What are the errors you are seeing?
-> How would the drivers be able to be getting interrupts delivered to them
-> if they haven't registered the irq handler yet?
+> When I publish the tree, I just cd to the toplevel dir on my local
+> workstation, and run "./push"
+> 
+> 
+> > 2. When you are taking things from your queue for Linus do you create
+> > another tree and merge your branches into it or what?
+> 
+> Not quite sure what you're asking, but I'll attempt to answer anyway :)
 
-Probably the boot log with error messages could have been inlined instead
-of putting as attachement. This is from attachement in Vievk's post
+Yes that's what I'm asking, mainly the pulling of multiple trees into
+one tree for giving to Linus, for Andrew I'm quite happy to have him
+pull multiple HEADs from the one tree assuming I don't have many
+interdependencies between trees...
 
+Say I want something like this one tree with
 
-irq 11: nobody cared (try booting with the "irqpoll" option. 
- [<c103a3ef>] __report_bad_irq+0x2a/0x8d 
- [<c1039c28>] handle_IRQ_event+0x39/0x6d 
- [<c103a4eb>] note_interrupt+0x7f/0xe4 
- [<c1039dc5>] __do_IRQ+0x169/0x194 
- [<c1004cc6>] do_IRQ+0x1b/0x28 
- [<c1003256>] common_interrupt+0x1a/0x20 
- [<c101d61b>] __do_softirq+0x2b/0x88 
- [<c101d69e>] do_softirq+0x26/0x2a 
- [<c101d759>] irq_exit+0x33/0x35 
- [<c1004ccb>] do_IRQ+0x20/0x28 
- [<c1003256>] common_interrupt+0x1a/0x20 
- [<c1018916>] release_console_sem+0x43/0xf6 
- [<c101875f>] vprintk+0x16c/0x277 
- [<c1074dd8>] d_lookup+0x23/0x46 
- [<c10748ac>] d_alloc+0x136/0x1a6 
- [<c10185ef>] printk+0x17/0x1b 
- [<c120f33f>] hub_probe+0xa0/0x168 
- [<c1096dd1>] sysfs_new_dirent+0x1f/0x64 
- [<c120d37f>] usb_probe_interface+0x59/0x71 
- [<c116c9b2>] driver_probe_device+0x2f/0xa7 
- [<c116ca2a>] __device_attach+0x0/0x5 
- [<c116c259>] bus_for_each_drv+0x58/0x78 
- [<c116ca8f>] device_attach+0x60/0x64 
- [<c116ca2a>] __device_attach+0x0/0x5 
- [<c116c383>] bus_add_device+0x29/0xa6 
- [<c116f9c7>] device_pm_add+0x56/0x9c 
- [<c116b7c3>] device_add+0xc5/0x14a 
- [<c121557e>] usb_set_configuration+0x346/0x528 
- [<c120fa47>] usb_new_device+0xab/0x1be 
- [<c120007b>] ohci_iso_recv_set_channel_mask+0x3/0xc6 
- [<c12124e1>] register_root_hub+0xaf/0x162 
- [<c12133bf>] usb_add_hcd+0x172/0x396 
- [<c1217bce>] usb_hcd_pci_probe+0x26e/0x375 
- [<c10284e7>] __call_usermodehelper+0x0/0x61 
- [<c110cbe4>] pci_device_probe_static+0x40/0x54 
- [<c110cc27>] __pci_device_probe+0x2f/0x42 
- [<c110cc63>] pci_device_probe+0x29/0x47 
- [<c116c9b2>] driver_probe_device+0x2f/0xa7 
- [<c116ca93>] __driver_attach+0x0/0x43 
- [<c116cad4>] __driver_attach+0x41/0x43 
- [<c116c1c2>] bus_for_each_dev+0x5a/0x7a 
- [<c116cafc>] driver_attach+0x26/0x2a 
- [<c116ca93>] __driver_attach+0x0/0x43 
- [<c116c5cb>] bus_add_driver+0x6b/0xa5 
- [<c110ce97>] pci_register_driver+0x5e/0x7c 
- [<c14246f5>] init+0x1d/0x25 
- [<c140c7ed>] do_initcalls+0x54/0xb6 
- [<c100029c>] init+0x0/0x10c 
- [<c100029c>] init+0x0/0x10c 
- [<c10002c6>] init+0x2a/0x10c 
- [<c1001348>] kernel_thread_helper+0x0/0xb 
- [<c100134d>] kernel_thread_helper+0x5/0xb 
-handlers: 
-[<c11e3421>] (ahd_linux_isr+0x0/0x284) 
-Disabling IRQ #11 
+drm-2.6 - HEAD <- linus tree
+            - drm-via < a via driver
+            - drm-initmap 
+                      - drm-savage <- a savage driver that depends on
+the drm-initmap tree
 
+How would I construct such a beast, how does it work out from where to
+branch, can I branch a branch for something like drm-savage so I can
+say send Linus the initmap branch and then have -mm pulling the savage
+one...
 
-Thanks
-Maneesh
+if that makes any sense :-)
 
-
--- 
-Maneesh Soni
-IBM Linux Technology Center
-IBM India Software Labs,
-Bangalore, India
-Ph. 91-80-25044990
-email: maneesh@in.ibm.com
+Dave.
+> 
+> 
+> [1] I'm still scared of conflicts in the merge process.  Simple and
+> automatic merging works just fine, like it did under BitKeeper.  But if
+> there are conflicts that cause git-pull-script/git-resolve-script to
+> bail, then I bail as well:  I export a patch, run patch(1), and then
+> handle the merge the Old Fashioned Way(tm) by looking at .rej files.
+> 
+> I really wish somebody would write a merge helper for git that places
+> the conflicts side-by-side in the code [in the working dir].  BitKeeper
+> and CVS both presented conflicts to you in this manner.
+> 
+> The "I resolved this conflict, now let's continue where we left off"
+> process is still quite raw in git.  I suppose this is something that is
+> left for others to script, above the plumbing, but hey...
+> 
+> 
+> 
+> #!/bin/sh
+> 
+> rsync -e ssh --verbose --delete --stats --progress -az .git/ master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git
+> 
+> 
+>

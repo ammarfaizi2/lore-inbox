@@ -1,109 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbVFEKn0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261550AbVFEKxS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261549AbVFEKn0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 06:43:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVFEKn0
+	id S261550AbVFEKxS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 06:53:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVFEKxS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 06:43:26 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:35734 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261549AbVFEKnR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 06:43:17 -0400
-Date: Sun, 5 Jun 2005 12:42:46 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
-       Arjan van de Ven <arjanv@infradead.org>,
-       Roman Zippel <zippel@linux-m68k.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Ingo Oeser <ioe-lkml@axxeo.de>, Andrew Morton <akpm@osdl.org>,
-       Andi Kleen <ak@suse.de>, Thomas Gleixner <tglx@linutronix.de>,
-       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       "David S. Miller" <davem@redhat.com>
-Subject: Re: [patch] spinlock consolidation, v2
-Message-ID: <20050605104245.GA9303@elte.hu>
-References: <20050603154029.GA2995@elte.hu> <20050604113809.GD19819@infradead.org>
+	Sun, 5 Jun 2005 06:53:18 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:50562
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S261550AbVFEKxO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Jun 2005 06:53:14 -0400
+Subject: Re: patch] Real-Time Preemption, plist fixes
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Daniel Walker <dwalker@mvista.com>
+Cc: linux-kernel@vger.kernel.org,
+       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>,
+       Ingo Molnar <mingo@elte.hu>, Oleg Nesterov <oleg@tv-sign.ru>
+In-Reply-To: <1117960337.20785.251.camel@tglx.tec.linutronix.de>
+References: <Pine.LNX.4.44.0506041748060.17923-100000@dhcp153.mvista.com>
+	 <1117960337.20785.251.camel@tglx.tec.linutronix.de>
+Content-Type: text/plain
+Organization: linutronix
+Date: Sun, 05 Jun 2005 12:53:48 +0200
+Message-Id: <1117968828.20785.286.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050604113809.GD19819@infradead.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Christoph Hellwig <hch@infradead.org> wrote:
-
-> > the latest version of the spinlock consolidation patch can be found at:
-> > 
-> >   http://redhat.com/~mingo/spinlock-patches/consolidate-spinlocks.patch
-> > 
-> > the patch is now complete in the sense that it does everything i wanted 
-> > it to do. If you have any other suggestions (or i have missed to 
-> > incorporate an earlier suggestion of yours), please yell.
+On Sun, 2005-06-05 at 10:32 +0200, Thomas Gleixner wrote:
+> On Sat, 2005-06-04 at 17:53 -0700, Daniel Walker wrote:
+> > >
+> > I already released a patch to fix this.
 > 
-> Looks pretty nice, but your usage of asm-generic is totally wrong. 
-> files in asm-generic must only ever be used for default 
-> implementations of asm/ headers, and _never_ be included from common 
-> code.  But your asm-generic files are only ever used from 
-> linux/spinlock.h, so there's no point at all in splitting them out in 
-> the first time. [...]
+> Nice to know. Where ?
+> 
 
-I see your point. My intention was to make the include file structure 
-completely symmetric and thus easy to review. The following table 
-illustrates how we build up the spinlock type and primitives in the SMP 
-and UP cases:
+Ingo pointed me at the patch. 
 
-   SMP                         |  UP
-   ----------------------------|-----------------------------------
-   asm/spinlock_types.h        |  asm-generic/spinlock_types_up.h
-   linux/spinlock_types.h      |  linux/spinlock_types.h
-   asm/spinlock.h              |  asm-generic/spinlock_up.h
-   linux/spinlock_smp.h        |  linux/spinlock_up.h
-   linux/spinlock.h            |  linux/spinlock.h
+Sorry, but I really don't see the release there.
 
-as you can see in the list above, whenever something comes from the asm 
-directory, in the UP case we pick it from asm-generic. But i accept your 
-point that the use of asm-generic/ for this is improper, and i've moved 
-those files into include/linux/. (I also have renamed spinlock_smp.h and 
-spinlock_up.h to spinlock_api_smp.h and spinlock_api_up.h, to avoid the 
-filename clash.) The naming is still symmetric:
+> The first time I saw these latencies I has the PI abstraction applied, and
+> the most recent time I had the attached patch applied only. This patch is
+> small so I'm not sure if it could have that type of effect on task 
+> latency.
 
-   SMP                         |  UP
-   ----------------------------|-----------------------------------
-   asm/spinlock_types_smp.h    |  linux/spinlock_types_up.h
-   linux/spinlock_types.h      |  linux/spinlock_types.h
-   asm/spinlock_smp.h          |  linux/spinlock_up.h
-   linux/spinlock_api_smp.h    |  linux/spinlock_api_up.h
-   linux/spinlock.h            |  linux/spinlock.h
+It fixes a problem and uncovers others, but your comment is more a
+question than an explanation for the urgency of the fix. In fact the
+original implementation leads to solid deadlocks in
+plist_for_each_safe() loops.
 
-all this splitup structure was created based on a pretty simple rule:
-whenever some aspect is sufficiently dissimilar to be #ifdef
-CONFIG_SMP-ed, it gets into separate _smp and _up files. If it's generic
-and shared it gets into the main spinlock.h file. The splitups were only
-done to enable this clean structure.
 
-> Similarly there's no point in a separate linux/spinlock_smp.h and 
-> linux/spinlock_up.h - it'll only cause some driver writers to include 
-> either of them directly and break the build for either UP or SMP. If 
-> you absolutely want to split them add an #error if not included from 
-> spinlock.h
+I really can't blame Ingo for ignoring this.
 
-ok, i've added the #error protectors.
+tglx
 
-> Little nitpick no 2: please include linux/*.h always before asm/*.h 
-> (in linux/jbd.h)
 
-done.
-
-you can find the latest patch with all these fixes included, at:
-
-  http://redhat.com/~mingo/spinlock-patches/consolidate-spinlocks.patch
-
-	Ingo

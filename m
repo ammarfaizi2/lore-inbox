@@ -1,84 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261588AbVFERlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261596AbVFERnm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261588AbVFERlm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 13:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbVFERlm
+	id S261596AbVFERnm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 13:43:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVFERnm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 13:41:42 -0400
-Received: from wproxy.gmail.com ([64.233.184.198]:55885 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261588AbVFERli convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 13:41:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=b7TN+J1De70muhg306xbhH00ga4PlGpNZJSnVMNDbNv7nypR/oWlpjKYudhVh28Tm5or0RHG7Ahmm8nQNLCjjcVK7I+/JmQgY33FnHX6K4wMIeGNyaH5BklD9fja/yBmcojUmOlXJ7fJ/7LQ3oDXNqmuYo2+mYc5C3HqskpqESc=
-Message-ID: <54b5dbf5050605104148fc14c6@mail.gmail.com>
-Date: Sun, 5 Jun 2005 23:11:38 +0530
-From: AsterixTheGaul <asterixthegaul@gmail.com>
-Reply-To: AsterixTheGaul <asterixthegaul@gmail.com>
-To: lkml <linux-kernel@vger.kernel.org>
-Subject: 2.6.12-rc5-git-<june-2>: net modules disagree about missing symbols.
+	Sun, 5 Jun 2005 13:43:42 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:13835 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261599AbVFERn1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Jun 2005 13:43:27 -0400
+Date: Sun, 5 Jun 2005 19:43:22 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Nick Warne <nick@linicks.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: CPU type .config <-> i386/Makefile question[s]
+Message-ID: <20050605174322.GF4992@stusta.de>
+References: <200506051458.50307.nick@linicks.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <200506051458.50307.nick@linicks.net>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get following errors whenver I try to load some net modules like e1000/ipv6.
-Let me know if I could be of any help.
+On Sun, Jun 05, 2005 at 02:58:50PM +0100, Nick Warne wrote:
 
+> Hello all,
 
+Hi Nick,
 
-Jun  3 15:55:29 localhost kernel: e1000: disagrees about version of
-symbol per_cpu__softnet_data
-Jun  3 15:55:29 localhost kernel: e1000: Unknown symbol per_cpu__softnet_data
-Jun  3 15:55:29 localhost kernel: e1000: disagrees about version of
-symbol ethtool_op_get_tso
-Jun  3 15:55:29 localhost kernel: e1000: Unknown symbol ethtool_op_get_tso
-Jun  3 15:55:29 localhost kernel: e1000: disagrees about version of
-symbol unregister_netdev
-Jun  3 15:55:29 localhost kernel: e1000: Unknown symbol unregister_netdev
-Jun  3 15:55:29 localhost kernel: e1000: disagrees about version of
-symbol pskb_expand_head
-Jun  3 15:55:29 localhost kernel: e1000: Unknown symbol pskb_expand_head
-Jun  3 15:55:29 localhost kernel: e1000: disagrees about version of
-symbol eth_type_trans
-Jun  3 15:55:29 localhost kernel: e1000: Unknown symbol eth_type_trans
-Jun  3 15:55:29 localhost kernel: e1000: disagrees about version of
-symbol ethtool_op_set_sg
-Jun  3 15:55:29 localhost kernel: e1000: Unknown symbol ethtool_op_set_sg
-Jun  3 15:55:29 localhost kernel: e1000: disagrees about version of
-symbol skb_over_panic
-Jun  3 15:55:29 localhost kernel: e1000: Unknown symbol skb_over_panic
-Jun  3 15:55:29 localhost kernel: e1000: disagrees about version of
-symbol netif_receive_skb
-Jun  3 15:55:29 localhost kernel: e1000: Unknown symbol netif_receive_skb
-Jun  3 15:55:29 localhost kernel: e1000: disagrees about version of
-symbol register_netdev
-Jun  3 15:55:29 localhost kernel: e1000: Unknown symbol register_netdev
-Jun  3 15:55:29 localhost kernel: e1000: disagrees about version of
-symbol free_netdev
-Jun  3 15:55:29 localhost kernel: e1000: Unknown symbol free_netdev
-Jun  3 15:55:29 localhost kernel: e1000: disagrees about version of
-symbol alloc_skb
-Jun  3 15:55:29 localhost kernel: e1000: Unknown symbol alloc_skb
-Jun  3 15:55:29 localhost kernel: e1000: disagrees about version of
-symbol ethtool_op_get_link
-Jun  3 15:55:29 localhost kernel: e1000: Unknown symbol ethtool_op_get_link
-Jun  3 15:55:29 localhost kernel: e1000: disagrees about version of
-symbol __netdev_watchdog_up
-Jun  3 15:55:29 localhost kernel: e1000: Unknown symbol __netdev_watchdog_up
-Jun  3 15:55:29 localhost kernel: e1000: disagrees about version of
-symbol linkwatch_fire_event
-Jun  3 15:55:29 localhost kernel: e1000: Unknown symbol linkwatch_fire_event
-Jun  3 15:55:29 localhost kernel: e1000: disagrees about version of
-symbol ethtool_op_get_sg
-Jun  3 15:55:29 localhost kernel: e1000: Unknown symbol ethtool_op_get_sg
-Jun  3 15:55:29 localhost kernel: e1000: disagrees about version of
-symbol alloc_etherdev
-Jun  3 15:55:29 localhost kernel: e1000: Unknown symbol alloc_etherdev
-Jun  3 15:55:29 localhost kernel: e1000: disagrees about version of
-symbol __kfree_skb
-Jun  3 15:55:29 localhost kernel: e1000: Unknown symbol __kfree_skb
+> I am still a n00b here learning, so by all means tell me to get lost if what I 
+> am about to say is total bollocks...
+> 
+> I was just running through building the new 2.4.31 kernel on my Quake2 box, 
+> with looking at building this time with a few optimisations.
+>...
+> Is there a specific reason why the flags aren't -march=pentium2, pentiumpro 
+> etc?
+
+the specific reason is that kernel 2.4 is in a maintainance mode and 
+such changes are not considered being worth the risk of breaking 
+anything anywhere with any of the supported gcc versions.
+
+In kernel 2.6, this is already handled the way you expect it.
+
+> Also I notice that if I changed the top level Makefile to include my specific 
+> CPU, then the i386/Makefile adds += -march=i686 to the build lines AFTER 
+> CFLAGS~ thus the second one will take precedence (I guess) anyway, and the 
+> -march CFLAG changes are basically over-ridden?
+
+Users are not expected to manually set any CFLAGS.
+
+It might work in your case, but unless you _really_ know what you are 
+doing you always risk some breakage.
+
+> Regards,
+> 
+> Nick
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

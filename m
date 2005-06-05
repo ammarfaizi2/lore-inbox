@@ -1,41 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261605AbVFEUGt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261616AbVFEUzu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261605AbVFEUGt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 16:06:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261606AbVFEUGt
+	id S261616AbVFEUzu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 16:55:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVFEUzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 16:06:49 -0400
-Received: from isilmar.linta.de ([213.239.214.66]:63161 "EHLO linta.de")
-	by vger.kernel.org with ESMTP id S261605AbVFEUGo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 16:06:44 -0400
-Date: Sun, 5 Jun 2005 19:24:55 +0200
-From: Dominik Brodowski <linux@dominikbrodowski.net>
-To: Prakash Punnoor <prakash@punnoor.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: cpufreq/speedstep won't work on Sony Vaio PCG-F807K
-Message-ID: <20050605172455.GH12338@dominikbrodowski.de>
-Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-	Prakash Punnoor <prakash@punnoor.de>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <42935600.5090008@punnoor.de> <20050524203300.GA24187@isilmar.linta.de> <42939FAF.8040805@punnoor.de>
+	Sun, 5 Jun 2005 16:55:50 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:44191 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261616AbVFEUzp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Jun 2005 16:55:45 -0400
+Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: Andi Kleen <ak@suse.de>, john stultz <johnstul@us.ibm.com>,
+       Nishanth Aravamudan <nacc@us.ibm.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org
+In-Reply-To: <200506051015.33723.kernel-stuff@comcast.net>
+References: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net>
+	 <200506041440.09795.kernel-stuff@comcast.net>
+	 <20050605112840.GX23831@wotan.suse.de>
+	 <200506051015.33723.kernel-stuff@comcast.net>
+Content-Type: text/plain
+Date: Sun, 05 Jun 2005 16:51:21 -0400
+Message-Id: <1118004681.20910.2.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42939FAF.8040805@punnoor.de>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 2005-06-05 at 10:15 -0400, Parag Warudkar wrote:
+> > Also note that pmtimer does not even drive the timer interrupt,
+> > just gettimeofday.
+> 
+> Could it be that the music players use gettimeofday() for time keeping? Sure 
+> enough they are broken with -rc5.
 
-> speedstep-smi: signature:0x47534943, command:0x008000b2, event:0x000000b3,
-> perf_level:0x07d00100.
+Well, that would be a broken design anyway.  That's what the ALSA timer
+API is for.  But XMMS has a long history of buggy ALSA support anyway.
 
-Could you try passing the module option "smi_cmd=0x82" to speedstep-smi?
-Most often this is the correct value, and in several cases the BIOS reports
-false values (in your case: 0x80) which cause speedstep-smi not to work
-properly.
+Do you get the same result with native OSS, ALSA OSS emulation, and
+native ALSA?
 
-Thanks,
-	Dominik
+Lee
+

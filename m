@@ -1,67 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261618AbVFEWCR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbVFEWN6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261618AbVFEWCR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 18:02:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261621AbVFEWCR
+	id S261621AbVFEWN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 18:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVFEWN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 18:02:17 -0400
-Received: from gate.crashing.org ([63.228.1.57]:32385 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261618AbVFEWCM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 18:02:12 -0400
-Subject: Re: pci_enable_msi() for everyone?
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Greg KH <gregkh@suse.de>
-Cc: Grant Grundler <grundler@parisc-linux.org>, tom.l.nguyen@intel.com,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       roland@topspin.com, davem@davemloft.net
-In-Reply-To: <20050604071803.GA13684@suse.de>
-References: <20050603224551.GA10014@kroah.com>
-	 <20050604013112.GB16999@colo.lackof.org> <20050604064821.GC13238@suse.de>
-	 <20050604070537.GB8230@colo.lackof.org>  <20050604071803.GA13684@suse.de>
+	Sun, 5 Jun 2005 18:13:58 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:15066 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261621AbVFEWN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Jun 2005 18:13:56 -0400
+Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: Andi Kleen <ak@suse.de>, john stultz <johnstul@us.ibm.com>,
+       Nishanth Aravamudan <nacc@us.ibm.com>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Tim Schmielau <tim@physik3.uni-rostock.de>,
+       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
+       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
+       Christoph Lameter <clameter@sgi.com>,
+       Dominik Brodowski <linux@dominikbrodowski.de>,
+       David Mosberger <davidm@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
+       paulus@samba.org, schwidefsky@de.ibm.com,
+       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
+       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
+       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
+       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
+       benh@kernel.crashing.org
+In-Reply-To: <200506051741.46479.kernel-stuff@comcast.net>
+References: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net>
+	 <200506051015.33723.kernel-stuff@comcast.net>
+	 <1118004681.20910.2.camel@mindpipe>
+	 <200506051741.46479.kernel-stuff@comcast.net>
 Content-Type: text/plain
-Date: Mon, 06 Jun 2005 08:00:26 +1000
-Message-Id: <1118008827.31082.245.camel@gaston>
+Date: Sun, 05 Jun 2005 18:13:47 -0400
+Message-Id: <1118009627.21156.2.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+X-Mailer: Evolution 2.3.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> Hm, here's a possible function to do it (typed into my email client, not
-> compiled, no warranties, etc...):
+On Sun, 2005-06-05 at 17:41 -0400, Parag Warudkar wrote:
+> On Sunday 05 June 2005 16:51, Lee Revell wrote:
+> > Well, that would be a broken design anyway.  That's what the ALSA timer
+> > API is for.  But XMMS has a long history of buggy ALSA support anyway.
+> >
 > 
-> /* returns 1 if device is in MSI mode, 0 otherwise */
-> int pci_in_msi_mode(struct pci_dev *dev)
-> {
-> 	int pos;
-> 	u16 control;
-> 
-> 	pos = pci_find_capability(dev, PCI_CAP_ID_MSI);
-> 	if (!pos)
-> 		return 0;
-> 	pci_read_config_word(dev, msi_control_reg(pos), &control);
-> 	if (control & PCI_MSI_FLAGS_ENABLE);
-> 		return 1;
-> 	return 0;
-> }
+> I am not sure they use gettimeofday(). Pardon my ignorance but why is it 
+> broken for them to use gettimeofday()?
 
-That would assume the architecture/slot/hw_setup always support MSI.
-What if you put an SMI capable card in a machine that doesn't do MSI ?
+If they're trying to synchronize other things to the sound,
+gettimeofday() is a poor choice because it's driven by a different
+crystal than the soundcard.  The correct solution is to use a PCM slave
+timer.  See alsa-lib/examples/timer.c.
 
-> If you use the above function, then you can tell the difference and
-> register different irq handlers if you wish.
-
-No you can't because you lack the result code from pci_enable_msi()
-which can fail (because it's veto'd by the arch for example)
-
-> The main point being is that the pci_enable_msi() function would not
-> have to be explicitly called by your driver, it would have already been
-> taken care of earlier by the PCI core.  That's what I want to do and am
-> wondering if there would be any bad side affects to it.
-
-Disagreed.
-
-Ben
+Lee
 

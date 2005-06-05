@@ -1,59 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbVFEWN6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261627AbVFEWfm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261621AbVFEWN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 18:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261623AbVFEWN6
+	id S261627AbVFEWfm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 18:35:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVFEWfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 18:13:58 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:15066 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261621AbVFEWN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 18:13:56 -0400
-Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Cc: Andi Kleen <ak@suse.de>, john stultz <johnstul@us.ibm.com>,
-       Nishanth Aravamudan <nacc@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Christoph Lameter <clameter@sgi.com>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org
-In-Reply-To: <200506051741.46479.kernel-stuff@comcast.net>
-References: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net>
-	 <200506051015.33723.kernel-stuff@comcast.net>
-	 <1118004681.20910.2.camel@mindpipe>
-	 <200506051741.46479.kernel-stuff@comcast.net>
-Content-Type: text/plain
-Date: Sun, 05 Jun 2005 18:13:47 -0400
-Message-Id: <1118009627.21156.2.camel@mindpipe>
+	Sun, 5 Jun 2005 18:35:41 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:55819 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261627AbVFEWfc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Jun 2005 18:35:32 -0400
+Date: Mon, 6 Jun 2005 00:35:28 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: linux-kernel@vger.kernel.org
+Cc: mpm@selenic.com
+Subject: Easy trick to reduce kernel footprint
+Message-ID: <20050605223528.GA13726@alpha.home.local>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-06-05 at 17:41 -0400, Parag Warudkar wrote:
-> On Sunday 05 June 2005 16:51, Lee Revell wrote:
-> > Well, that would be a broken design anyway.  That's what the ALSA timer
-> > API is for.  But XMMS has a long history of buggy ALSA support anyway.
-> >
-> 
-> I am not sure they use gettimeofday(). Pardon my ignorance but why is it 
-> broken for them to use gettimeofday()?
+Hi,
 
-If they're trying to synchronize other things to the sound,
-gettimeofday() is a poor choice because it's driven by a different
-crystal than the soundcard.  The correct solution is to use a PCM slave
-timer.  See alsa-lib/examples/timer.c.
+Here's a simple trick for all those who try to squeeze their kernels to the
+absolute smallest size.
 
-Lee
+I recently discovered p7zip which comes with the LZMA compression algorithm,
+which is somewhat better than gzip and bzip2 on most datasets, and I also
+noticed that this tool provides support for gzip and bzip2 outputs. So I tried
+to produce some of those standard outputs, and observed a slight gain compared
+to the default tools. The reason is that we can change the number of passes and
+the dictionnary size.
+
+So as an experiment, I used it to compress my kernel+initramfs and I could
+gain about 2% (23 kB) which is not bad at all for embedded systems. Don't
+ask about the '.' after '-si' in the '7za' command line, it's just that the
+tool expects a file name, and I didn't managed to fix it, the source is some
+sort of obfuscated c++ code (who said "pleonasm" ?) ported from windows, but
+at least it works.  Out of curiosity, I also tried both bzip2 and the LZMA
+algorithm, although that's not fair because the decompressor code would have
+to be changed to support them.
+
+Size of the 2.6.12-rc4-mm2 vmlinux compiled without the initramfs image :
+
+  bash-3.00$ size vmlinux 
+     text    data     bss     dec     hex filename
+  1024458  123712   73580 1221750  12a476 vmlinux
+
+Size of the initramfs :
+  -rw-rw-r--  1 willy users 1014272 2005-05-27 16:31 usr/initramfs_data.cpio
+
+Now the resulting bzImage size with various compression methods
+
+     size  command
+  1197277  make
+  1197275  make cmd_gzip="gzip -9c <\$< >\$@"
+  1173550  make cmd_gzip="7za a -tgzip -mx9 -mpass=4 -so -si . <\$< >\$@"
+  1207599  make cmd_gzip="bzip2 -c9 <\$< >\$@"
+  1051705  make cmd_gzip="rm -f \$@;7za a -t7z -mx9 -md=64m -si \$@ < \$<"
+
+Surprizingly, bzip2 makes a bigger kernel. The gzip implementation in 7za
+saves 23 kB (2%) on the overall image without touching any code. The LZMA
+implementation could save 145 kB (12%), but would require a different
+extraction code (I've already seen patches to bring LZMA support on 2.4).
+
+Note: I don't know who implemented the if_changed macro in the makefile which
+allows us to pass cmd_gzip here, but it was an excellent idea.
+
+Regards,
+Willy
 

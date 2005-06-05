@@ -1,54 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261541AbVFEJul@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbVFEJwz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261541AbVFEJul (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 05:50:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVFEJul
+	id S261542AbVFEJwz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 05:52:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261544AbVFEJwy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 05:50:41 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:61842 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261541AbVFEJug (ORCPT
+	Sun, 5 Jun 2005 05:52:54 -0400
+Received: from linux.dunaweb.hu ([62.77.196.1]:42951 "EHLO linux.dunaweb.hu")
+	by vger.kernel.org with ESMTP id S261542AbVFEJwr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 05:50:36 -0400
-Date: Sun, 5 Jun 2005 11:47:42 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org,
-       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>,
-       Daniel Walker <dwalker@mvista.com>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, plist fixes
-Message-ID: <20050605094742.GA8346@elte.hu>
-References: <1117930633.20785.239.camel@tglx.tec.linutronix.de> <20050605082616.GA26824@elte.hu> <1117961624.20785.258.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1117961624.20785.258.camel@tglx.tec.linutronix.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sun, 5 Jun 2005 05:52:47 -0400
+Message-ID: <42A2CF27.8000806@freemail.hu>
+Date: Sun, 05 Jun 2005 12:08:39 +0200
+From: Zoltan Boszormenyi <zboszor@freemail.hu>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
+X-Accept-Language: hu-hu, hu, en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB mice do not work on 2.6.12-rc5-git9, -rc5-mm1, -rc5-mm2
+References: <42A2A0B2.7020003@freemail.hu>	<42A2A657.9060803@freemail.hu> <20050605001001.3e441076.akpm@osdl.org> <42A2BC4B.5060605@freemail.hu>
+In-Reply-To: <42A2BC4B.5060605@freemail.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Thomas Gleixner <tglx@linutronix.de> wrote:
-
-> > but i think the fundamental question remains even on Sunday mornings -
-> > is the plist overhead worth it? Compared to the simple sorted list we 
-> > exchange O(nr_RT_tasks_running) for O(nr_RT_levels_used) [which is in 
-> > the 1-100 range], is that a significant practical improvement? By 
-> > overhead i dont just mean cycle cost, but also architectural flexibility 
-> > and maintainability.
+Zoltan Boszormenyi írta:
+> Andrew Morton írta:
 > 
-> That was my question too.
+>> Zoltan Boszormenyi <zboszor@freemail.hu> wrote:
+>>
+>>> Zoltan Boszormenyi írta:
+>>>
+>>>> Hi,
+>>>>
+>>>> $SUBJECT says almost all, system is MSI K8TNeo FIS2R,
+>>>> Athlon64 3200+, running FC3/x86-64. I use the multiconsole
+>>>> extension from linuxconsole.sf.net, the patch does not touch
+>>>> anything relevant under drivers/input or drivers/usb.
+>>>>
+>>>> The mice are detected just fine but the mouse pointers
+>>>> do not move on either of my two screens. The same patch
+>>>> (not counting the trivial reject fixes) do work on the
+>>>> 2.6.11-1.14_FC3 errata kernel. Both PS2 keyboard on the
+>>>> keyboard and aux ports work correctly.
+>>>
+>>>
+>>> The same patch also works on 2.6.12-rc4-mm2, with working mice.
+>>> It seems the bug is mainstream.
+>>>
+>>
+>>
+>> Please test an unpatched kernel.
+> 
+> 
+> Unmodified rc5-git9, only one X server started on the PCI Radeon
+> so the agpgart isn't initialized in the attached dmesg.
+> 
+> Same bug, USB interrupt count does not change if mice are moved.
+> I told you, it's upstream.
 
-i think it would be handy to resurrect ALL_TASKS_PI. It was one of the 
-things that stabilized the sorted list approach so quickly. Nothing 
-beats the coverage of running a full graphical desktop with all the PI 
-code active :-)
+pci=routeirq - still same bug.
+acpi=off     - rc5-git9 stops booting after PCI -> ACPI IRQ remapping.
+???
 
-	Ingo
+I will try some older kernels, too.
+2.6.12-rc4-mm2 definitely works.
+
+Mainboard BIOS' version is 1.9,
+I had ACPI problems with previous versions.
+
+Best regards,
+Zoltán Böszörményi

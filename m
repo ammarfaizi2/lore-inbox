@@ -1,23 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVFETrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261361AbVFETxu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261283AbVFETrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 15:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVFETrI
+	id S261361AbVFETxu (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 15:53:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbVFETxu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 15:47:08 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:56809
+	Sun, 5 Jun 2005 15:53:50 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:57527
 	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S261283AbVFETrG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 15:47:06 -0400
-Date: Sun, 05 Jun 2005 12:46:12 -0700 (PDT)
-Message-Id: <20050605.124612.63111065.davem@davemloft.net>
-To: gregkh@suse.de
-Cc: tom.l.nguyen@intel.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, roland@topspin.com
-Subject: Re: pci_enable_msi() for everyone?
+	id S261361AbVFETxs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Jun 2005 15:53:48 -0400
+Date: Sun, 05 Jun 2005 12:52:49 -0700 (PDT)
+Message-Id: <20050605.125249.104050648.davem@davemloft.net>
+To: nickpiggin@yahoo.com.au
+Cc: herbert@gondor.apana.org.au, mbligh@mbligh.org, jschopp@austin.ibm.com,
+       mel@csn.ul.ie, linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       akpm@osdl.org
+Subject: Re: Avoiding external fragmentation with a placement policy
+ Version 12
 From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <20050603224551.GA10014@kroah.com>
-References: <20050603224551.GA10014@kroah.com>
+In-Reply-To: <42A10ED2.7020205@yahoo.com.au>
+References: <E1DeNiA-0008Ap-00@gondolin.me.apana.org.au>
+	<42A10ED2.7020205@yahoo.com.au>
 X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
 Content-Type: Text/Plain; charset=us-ascii
@@ -25,19 +28,26 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Greg KH <gregkh@suse.de>
-Date: Fri, 3 Jun 2005 15:45:51 -0700
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+Date: Sat, 04 Jun 2005 12:15:46 +1000
 
-> Now I know the e1000 driver would have to specifically disable MSI for
-> some of their broken versions, and possibly some other drivers might
-> need this, but the downside seems quite small.
+> Herbert Xu wrote:
+> > With Dave's latest super-TSO patch, TCP over loopback will only be
+> > doing order-0 allocations in the common case.  UDP and others may
+> > still do large allocations but that logic is all localised in
+> > ip_append_data.
+> > 
+> > So if we wanted we could easily remove most large allocations over
+> > the loopback device.
 > 
-> Or am I missing something pretty obvious here?
+> I would be very interested to look into that. I would be
+> willing to do benchmarks on a range of machines too if
+> that would be of any use to you.
 
-This is totally undesirable.  We don't want the device sending
-out MSI messages unless the driver for it explicitly knows
-that it is operating the device in this mode.
+Even without the super-TSO patch, we never do larger than
+PAGE_SIZE allocations for sendmsg() when the device is
+scatter-gather capable (as indicated in netdev->flags).
 
-TG3 will disable MSI for several chip variants as well.  It will
-also disable MSI if it's internal self-test of MSI functionality
-fails.
+Loopback does set this bit.
+
+This PAGE_SIZE limit comes from net/ipv4/tcp.c:select_size().

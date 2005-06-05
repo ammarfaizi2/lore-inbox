@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVFEH1d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVFEH6k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261493AbVFEH1d (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 03:27:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVFEH1d
+	id S261505AbVFEH6k (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 03:58:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261515AbVFEH6k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 03:27:33 -0400
-Received: from smtp816.mail.sc5.yahoo.com ([66.163.170.2]:23465 "HELO
-	smtp816.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261493AbVFEH12 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 03:27:28 -0400
-From: Dmitry Torokhov <dtor_core@ameritech.net>
-To: linux-kernel@vger.kernel.org
-Subject: Re: USB mice do not work on 2.6.12-rc5-git9, -rc5-mm1, -rc5-mm2
-Date: Sun, 5 Jun 2005 02:27:24 -0500
-User-Agent: KMail/1.8.1
-Cc: Andrew Morton <akpm@osdl.org>, Zoltan Boszormenyi <zboszor@freemail.hu>,
-       Sid Boyce <sboyce@blueyonder.co.uk>
-References: <42A2A0B2.7020003@freemail.hu> <42A2A657.9060803@freemail.hu> <20050605001001.3e441076.akpm@osdl.org>
-In-Reply-To: <20050605001001.3e441076.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200506050227.25378.dtor_core@ameritech.net>
+	Sun, 5 Jun 2005 03:58:40 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:24787 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261505AbVFEH6f
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Jun 2005 03:58:35 -0400
+Date: Sun, 5 Jun 2005 09:58:05 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org,
+       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>,
+       Daniel Walker <dwalker@mvista.com>, Ingo Molnar <mingo@elte.hu>,
+       Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: patch] Real-Time Preemption, plist fixes
+In-Reply-To: <1117930633.20785.239.camel@tglx.tec.linutronix.de>
+Message-Id: <Pine.OSF.4.05.10506050953040.4252-100000@da410.phys.au.dk>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 05 June 2005 02:10, Andrew Morton wrote:
-> Zoltan Boszormenyi <zboszor@freemail.hu> wrote:
-> >
-> > Zoltan Boszormenyi írta:
-> > > Hi,
-> > > 
-> > > $SUBJECT says almost all, system is MSI K8TNeo FIS2R,
-> > > Athlon64 3200+, running FC3/x86-64. I use the multiconsole
-> > > extension from linuxconsole.sf.net, the patch does not touch
-> > > anything relevant under drivers/input or drivers/usb.
-> > > 
-> > > The mice are detected just fine but the mouse pointers
-> > > do not move on either of my two screens. The same patch
-> > > (not counting the trivial reject fixes) do work on the
-> > > 2.6.11-1.14_FC3 errata kernel. Both PS2 keyboard on the
-> > > keyboard and aux ports work correctly.
-> > 
-> > The same patch also works on 2.6.12-rc4-mm2, with working mice.
-> > It seems the bug is mainstream.
-> > 
-> 
-> Please test an unpatched kernel.
+On Sun, 5 Jun 2005, Thomas Gleixner wrote:
 
-I think it is the same problem as Sid is seeing on his box.
+> [...] 
+>   *
+>   * Based on simple lists (include/linux/list.h).
+> @@ -17,35 +22,50 @@
+>   * a priority too (the highest of all the nodes), stored in the head
+>   * of the list (that is a node itself).
+>   *
+> - * Addition is O(1), removal is O(1), change of priority of a node is
+> - * O(1).
+> + * Addition is O(N), removal is O(1), change of priority of a node is
+> + * O(N).
+>   *
+> - * Addition and change of priority's order is really O(K), where K is
+> - * a constant being the maximum number of different priorities you
+> - * will store in the list. Being a constant, it means it is O(1).
+> - *
 
-> I attached dmesg and the contents of /proc/interrupts.
-> The interrupt count on USB does not increase if I move either
-> mouse.
-> 
+What is N? The number of nodes in the list or the number of different
+priorities? If it is the number of nodes in total this exercise is
+worthless: You could just as well have a sorted list.
 
-Sid, if you move mouse on your box, do you see interrupts reported
-in /proc/interrupts? Do you also have x86-64?
+But I hope and also think that the original explanation was correct.
 
--- 
-Dmitry
+Esben
+

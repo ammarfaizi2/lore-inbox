@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbVFEHLA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261493AbVFEH1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261514AbVFEHLA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 03:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261507AbVFEHKX
+	id S261493AbVFEH1d (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 03:27:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVFEH1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 03:10:23 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:49860 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261505AbVFEHKJ (ORCPT
+	Sun, 5 Jun 2005 03:27:33 -0400
+Received: from smtp816.mail.sc5.yahoo.com ([66.163.170.2]:23465 "HELO
+	smtp816.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261493AbVFEH12 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 03:10:09 -0400
-Message-ID: <42A2A54B.9070607@pobox.com>
-Date: Sun, 05 Jun 2005 03:10:03 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050328 Fedora/1.7.6-1.2.5
-X-Accept-Language: en-us, en
+	Sun, 5 Jun 2005 03:27:28 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org
+Subject: Re: USB mice do not work on 2.6.12-rc5-git9, -rc5-mm1, -rc5-mm2
+Date: Sun, 5 Jun 2005 02:27:24 -0500
+User-Agent: KMail/1.8.1
+Cc: Andrew Morton <akpm@osdl.org>, Zoltan Boszormenyi <zboszor@freemail.hu>,
+       Sid Boyce <sboyce@blueyonder.co.uk>
+References: <42A2A0B2.7020003@freemail.hu> <42A2A657.9060803@freemail.hu> <20050605001001.3e441076.akpm@osdl.org>
+In-Reply-To: <20050605001001.3e441076.akpm@osdl.org>
 MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: axboe@suse.de, James.Bottomley@steeleye.com, bzolnier@gmail.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH Linux 2.6.12-rc5-mm2 02/09] blk: make scsi use -EOPNOTSUPP
- instead of -EIO on ILLEGAL_REQUEST
-References: <20050605055337.6301E65A@htj.dyndns.org> <20050605055337.215AB52C@htj.dyndns.org>
-In-Reply-To: <20050605055337.215AB52C@htj.dyndns.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200506050227.25378.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> 02_blk_scsi_eopnotsupp.patch
+On Sunday 05 June 2005 02:10, Andrew Morton wrote:
+> Zoltan Boszormenyi <zboszor@freemail.hu> wrote:
+> >
+> > Zoltan Boszormenyi írta:
+> > > Hi,
+> > > 
+> > > $SUBJECT says almost all, system is MSI K8TNeo FIS2R,
+> > > Athlon64 3200+, running FC3/x86-64. I use the multiconsole
+> > > extension from linuxconsole.sf.net, the patch does not touch
+> > > anything relevant under drivers/input or drivers/usb.
+> > > 
+> > > The mice are detected just fine but the mouse pointers
+> > > do not move on either of my two screens. The same patch
+> > > (not counting the trivial reject fixes) do work on the
+> > > 2.6.11-1.14_FC3 errata kernel. Both PS2 keyboard on the
+> > > keyboard and aux ports work correctly.
+> > 
+> > The same patch also works on 2.6.12-rc4-mm2, with working mice.
+> > It seems the bug is mainstream.
+> > 
 > 
-> 	Use -EOPNOTSUPP instead of -EIO on ILLEGAL_REQUEST.
+> Please test an unpatched kernel.
+
+I think it is the same problem as Sid is seeing on his box.
+
+> I attached dmesg and the contents of /proc/interrupts.
+> The interrupt count on USB does not increase if I move either
+> mouse.
 > 
-> Signed-off-by: Tejun Heo <htejun@gmail.com>
-> 
->  scsi_lib.c |    3 ++-
->  1 files changed, 2 insertions(+), 1 deletion(-)
-> 
-> Index: blk-fixes/drivers/scsi/scsi_lib.c
-> ===================================================================
-> --- blk-fixes.orig/drivers/scsi/scsi_lib.c	2005-06-05 14:53:32.000000000 +0900
-> +++ blk-fixes/drivers/scsi/scsi_lib.c	2005-06-05 14:53:33.000000000 +0900
-> @@ -849,7 +849,8 @@ void scsi_io_completion(struct scsi_cmnd
->  				scsi_requeue_command(q, cmd);
->  				result = 0;
->  			} else {
-> -				cmd = scsi_end_request(cmd, 0, this_count, 1);
-> +				cmd = scsi_end_request(cmd, -EOPNOTSUPP,
-> +						       this_count, 1);
 
-This looks like a change from zero to EOPNOTSUPP, but your description 
-says its a change from EIO to EOPNOTSUPP.
+Sid, if you move mouse on your box, do you see interrupts reported
+in /proc/interrupts? Do you also have x86-64?
 
-	Jeff
-
-
-
+-- 
+Dmitry

@@ -1,60 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261606AbVFEVqn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261611AbVFEVvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261606AbVFEVqn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 17:46:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVFEVqn
+	id S261611AbVFEVvM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 17:51:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261612AbVFEVvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 17:46:43 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.198.39]:5592 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S261606AbVFEVql convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 17:46:41 -0400
-X-Comment: AT&T Maillennium special handling code - c
-From: Parag Warudkar <kernel-stuff@comcast.net>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
-Date: Sun, 5 Jun 2005 17:41:45 -0400
-User-Agent: KMail/1.8
-Cc: Andi Kleen <ak@suse.de>, john stultz <johnstul@us.ibm.com>,
-       Nishanth Aravamudan <nacc@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Christoph Lameter <clameter@sgi.com>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org
-References: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net> <200506051015.33723.kernel-stuff@comcast.net> <1118004681.20910.2.camel@mindpipe>
-In-Reply-To: <1118004681.20910.2.camel@mindpipe>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+	Sun, 5 Jun 2005 17:51:12 -0400
+Received: from zproxy.gmail.com ([64.233.162.201]:5015 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261611AbVFEVvJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Jun 2005 17:51:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WgGmWwjKOd6MIYtpYvuE9KszRUHBOaC7keSGEQssy8DGGrNZqFZO3t54DPYNOhR7aeK54VxwBgS08m0c3rsCcjVCu4KvBapaBXYLdCcYS6n25t0sZ5fxfyCbZk1QUZPVc+RUaKBtOfCJa3YYJNfmNATajjHaKxKniqLJ0a4xXLs=
+Message-ID: <9a87484905060514517fa99047@mail.gmail.com>
+Date: Sun, 5 Jun 2005 23:51:08 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: Marcel Holtmann <marcel@holtmann.org>
+Subject: Re: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new Dell BIOS update driver
+Cc: Abhay Salunke <Abhay_Salunke@dell.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, matt_domsch@dell.com,
+       Greg KH <greg@kroah.com>
+In-Reply-To: <1117756728.3656.45.camel@pegasus>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-Message-Id: <200506051741.46479.kernel-stuff@comcast.net>
+References: <20050602232634.GA32462@littleblue.us.dell.com>
+	 <1117756728.3656.45.camel@pegasus>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 05 June 2005 16:51, Lee Revell wrote:
-> Well, that would be a broken design anyway.  That's what the ALSA timer
-> API is for.  But XMMS has a long history of buggy ALSA support anyway.
->
+On 6/3/05, Marcel Holtmann <marcel@holtmann.org> wrote:
+> Hi Abhay,
+> 
+> > Resubmitting after cleaning up spaces/tabs etc...
+> 
+> and now starting with the coding style nitpicking ;)
+> 
+[snip]
+> > +     if (pbuf != NULL) {
+> 
+> Make it "if (!pbuf)",
+> 
+[snip]
 
-I am not sure they use gettimeofday(). Pardon my ignorance but why is it 
-broken for them to use gettimeofday()?
+You want to make it  "if (pbuf)"  otherwise you'd be changing the logic.
 
-> Do you get the same result with native OSS, ALSA OSS emulation, and
-> native ALSA?
-
-I am not sure about OSS and ALSA OSS emulation but I tried XMMS with ALSA 
-output plugin and Juk and amaroK with GStreamer/alsasink. All of them have 
-the same problem.
-
-Parag
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

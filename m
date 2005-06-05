@@ -1,46 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261581AbVFEPCn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVFEPDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261581AbVFEPCn (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 11:02:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbVFEPCn
+	id S261582AbVFEPDm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 11:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVFEPDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 11:02:43 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:33012 "EHLO
-	godzilla.mvista.com") by vger.kernel.org with ESMTP id S261581AbVFEPCd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 11:02:33 -0400
-Date: Sun, 5 Jun 2005 08:02:26 -0700 (PDT)
-From: Daniel Walker <dwalker@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, plist fixes
-In-Reply-To: <20050605082616.GA26824@elte.hu>
-Message-ID: <Pine.LNX.4.10.10506050752130.10127-100000@godzilla.mvista.com>
+	Sun, 5 Jun 2005 11:03:42 -0400
+Received: from dvhart.com ([64.146.134.43]:55463 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S261582AbVFEPD2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Jun 2005 11:03:28 -0400
+Date: Sun, 05 Jun 2005 08:02:21 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12?
+Message-ID: <418760000.1117983740@[10.10.2.4]>
+In-Reply-To: <20050604151120.46b51901.akpm@osdl.org>
+References: <42A0D88E.7070406@pobox.com><20050603163843.1cf5045d.akpm@osdl.org><394120000.1117895039@[10.10.2.4]> <20050604151120.46b51901.akpm@osdl.org>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sun, 5 Jun 2005, Ingo Molnar wrote:
+--Andrew Morton <akpm@osdl.org> wrote (on Saturday, June 04, 2005 15:11:20 -0700):
 
-> but i think the fundamental question remains even on Sunday mornings -
-> is the plist overhead worth it? Compared to the simple sorted list we 
-> exchange O(nr_RT_tasks_running) for O(nr_RT_levels_used) [which is in 
-> the 1-100 range], is that a significant practical improvement? By 
-> overhead i dont just mean cycle cost, but also architectural flexibility 
-> and maintainability.
+> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
+>> 
+>> The one that worries me is that my x86_64 box won't boot since -rc3
+>>  See:
+>> 
+>>  http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/regression_matrix.html
+> 
+> All the MPT_FUSION config variables got renamed, so a simple `make
+> oldconfig' results in a kernel qhich does precisely what your machine is
+> doing there.
 
-We use it for all tasks . So for instance all priority levels get sorted ,
-not just RT tasks. Most systems aren't going to have many RT tasks, just
-interrupts and they don't share many locks. However, there are tons of
-userspace tasks that do get sorted.
+Not sure what you mean. 2.6.11 has (in drivers/message/fusion/Kconfig)
 
-I think using plist on the wait_list is worth it. Since there aren't
-many RT tasks usually . It may be a waste to use it on the pi_waiters.
+config FUSION
+config FUSION_MAX_SGE
+config FUSION_CTL
+config FUSION_LAN
 
-Daniel
+2.6.12-rc3 has:
+
+config FUSION
+config FUSION_MAX_SGE
+config FUSION_CTL
+config FUSION_LAN
+
+So I don't think they changed, AFAICS. The config in question has:
+
+CONFIG_FUSION=y
+CONFIG_FUSION_MAX_SGE=40
+# CONFIG_FUSION_CTL is not set
+# CONFIG_SOUND_FUSION is not set
+
+And I'd backed out the rc3 drivers to rc2 (the whole of drivers/message/fusion)
+and it doesn't fix it.
+
+I also get several different failure modes, in different trees, one of
+which is:
+
+^M^@Testing NMI watchdog ... <3>BUG: soft lockup detected on CPU#3!
+^M
+^M^@Modules linked in:
+^M^@Pid: 1, comm: swapper Not tainted 2.6.12-rc2-mm2-autokern1
+^M^@RIP: 0010:[<ffffffff80254eda>] <ffffffff80254eda>{__delay+10}
+^M^@RSP: 0000:ffff8100e3f23f00  EFLAGS: 00000216
+^M^@RAX: 00000000001b144e RBX: ffffffff801af3d7 RCX: 000000007c1f2aa5
+^M^@RDX: 000000000000006b RSI: 0000000000000008 RDI: 00000000001b4c48
+^M^@RBP: 0000ffffffff8010 R08: 0000000000000720 R09: ffff8100e3f543e8
+^M^@R10: 00000000001d92d4 R11: ffffffff8025aa40 R12: ffff8100e3f543e8
+^M^@R13: 0000000000000000 R14: 0000000000000000 R15: 0000000000000002
+^M^@FS:  0000000000000000(0000) GS:ffffffff804dfe00(0000) knlGS:0000000000000000
+^M^@CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+^M^@CR2: 0000000000000000 CR3: 0000000000101000 CR4: 00000000000006e0
+^M
+^M^@Call Trace:<ffffffff804f3b15>{check_nmi_watchdog+181} <ffffffff8010c249>{ini
+t+505}
+^M^@       <ffffffff8010f3ff>{child_rip+8} <ffffffff8010c050>{init+0}
+^M^@       <ffffffff8010f3f7>{child_rip+0} 
+^M^@CPU#0: NMI appears to be stuck (24)!
 

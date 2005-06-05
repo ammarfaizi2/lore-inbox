@@ -1,51 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVFEL2r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261555AbVFEMGD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbVFEL2r (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 07:28:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVFEL2r
+	id S261555AbVFEMGD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 08:06:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVFEMGD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 07:28:47 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:28124 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261551AbVFEL2m (ORCPT
+	Sun, 5 Jun 2005 08:06:03 -0400
+Received: from krusty.dt.E-Technik.Uni-Dortmund.DE ([129.217.163.1]:54226 "EHLO
+	mail.dt.e-technik.uni-dortmund.de") by vger.kernel.org with ESMTP
+	id S261555AbVFEMF4 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 07:28:42 -0400
-Date: Sun, 5 Jun 2005 13:28:40 +0200
-From: Andi Kleen <ak@suse.de>
-To: Parag Warudkar <kernel-stuff@comcast.net>
-Cc: Andi Kleen <ak@suse.de>, john stultz <johnstul@us.ibm.com>,
-       Nishanth Aravamudan <nacc@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Christoph Lameter <clameter@sgi.com>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org
-Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
-Message-ID: <20050605112840.GX23831@wotan.suse.de>
-References: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net> <200506021950.35014.kernel-stuff@comcast.net> <20050603163010.GR23831@wotan.suse.de> <200506041440.09795.kernel-stuff@comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506041440.09795.kernel-stuff@comcast.net>
+	Sun, 5 Jun 2005 08:05:56 -0400
+MIME-Version: 1.0
+To: torvalds@osdl.org, marcelo.tosatti@cyclades.com.br
+Subject: lk-changelog.pl 20050605
+CC: linux-kernel@vger.kernel.org, matthias.andree@gmx.de
+From: Matthias Andree <matthias.andree@gmx.de>
+Content-ID: <Sun,_05_Jun_2005_12_05_52_+0000_0@merlin.emma.line.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Description: An object packed by metasend
+Content-Transfer-Encoding: 7BIT
+Message-Id: <20050605120553.254A477579@merlin.emma.line.org>
+Date: Sun,  5 Jun 2005 14:05:53 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> There I complain :):) - There is something wrong with this timer stuff in rc5. 
-> I earlier stated that running with rc5 + John's TOD patches makes the music 
-> players play music fast. It actually happens with plain vanilla rc5 too. (I 
-> was having 3-4 ?trees and some confusion when I earlier tested rc5 with 
-> John's patches.)
+This is a semi-automatic announcement.
 
-Do you actually use pmtimer? Please send a dmesg log.
+lk-changelog.pl aka. shortlog version 20050605 has been released.
 
-Also note that pmtimer does not even drive the timer interrupt,
-just gettimeofday.
+This script is used by Linus and Marcelo to rearrange and reformat BK
+ChangeSet logs into a more human-readable format, and the official
+repository is Parent repository is file://var/bitkeeper/BK-kernel-tools
 
--Andi
+As the script has grown large, this mail only contains a diff against
+the last released version.
+
+You can always download the full script and GPG signatures from
+http://home.pages.de/~mandree/linux/kernel/
+
+My thanks go to Vitezslav Samel who has spent a lot of time on digging
+out the real names for addresses sending in BK ChangeSets.
+
+Note that your mailer must be MIME-capable to save this mail properly,
+because it is in the "quoted-printable" encoding.
+
+= <- if you see just an equality sign, but no "3D", your mailer is fine.
+= <- if you see 3D on this line, then upgrade your mailer or pipe this mail
+= <- into metamail.
+
+-- 
+A sh script on behalf of Matthias Andree
+-------------------------------------------------------------------------
+Changes since last release:
+
+

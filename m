@@ -1,63 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261576AbVFEOOb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbVFEOSc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261576AbVFEOOb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 10:14:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVFEOO3
+	id S261563AbVFEOSc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 10:18:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVFEOSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 10:14:29 -0400
-Received: from wproxy.gmail.com ([64.233.184.198]:1294 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261563AbVFEOOX convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 10:14:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KJVBczaSWf+VeZjv8ITrslGeELH9kO/kpmss4b3EW04s5Kg4LpOPJrH4lf35HxqaD5Nlmm82jyjd3uTBxkszzOVeV3pjv4eIZJTYbXlPWaQ0Xrjw0Z2IFDJJwFEoJzH+fwhVSouakTY5KwNqz7hsY1LefwW4uJBdB5V08lW751o=
-Message-ID: <58cb370e050605071472e95465@mail.gmail.com>
-Date: Sun, 5 Jun 2005 16:14:21 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: [PATCH Linux 2.6.12-rc5-mm2 08/09] blk: update IDE to use the new blk_ordered.
-Cc: Tejun Heo <htejun@gmail.com>, axboe@suse.de, James.Bottomley@steeleye.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <42A2A00F.9050402@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050605055337.6301E65A@htj.dyndns.org>
-	 <20050605055337.ADD601D4@htj.dyndns.org> <42A2A00F.9050402@pobox.com>
+	Sun, 5 Jun 2005 10:18:32 -0400
+Received: from smtp-out6.blueyonder.co.uk ([195.188.213.9]:39531 "EHLO
+	smtp-out6.blueyonder.co.uk") by vger.kernel.org with ESMTP
+	id S261563AbVFEOSZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Jun 2005 10:18:25 -0400
+Message-ID: <42A309B4.9060808@blueyonder.co.uk>
+Date: Sun, 05 Jun 2005 15:18:28 +0100
+From: Sid Boyce <sboyce@blueyonder.co.uk>
+Reply-To: sboyce@blueyonder.co.uk
+Organization: blueyonder.co.uk
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Dmitry Torokhov <dtor_core@ameritech.net>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Zoltan Boszormenyi <zboszor@freemail.hu>
+Subject: Re: USB mice do not work on 2.6.12-rc5-git9, -rc5-mm1, -rc5-mm2
+References: <42A2A0B2.7020003@freemail.hu> <42A2A657.9060803@freemail.hu> <20050605001001.3e441076.akpm@osdl.org> <200506050227.25378.dtor_core@ameritech.net>
+In-Reply-To: <200506050227.25378.dtor_core@ameritech.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-OriginalArrivalTime: 05 Jun 2005 14:19:03.0559 (UTC) FILETIME=[8684B170:01C569D9]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/5/05, Jeff Garzik <jgarzik@pobox.com> wrote:
-> Tejun Heo wrote:
-> > @@ -176,6 +176,18 @@ static ide_startstop_t __ide_do_rw_disk(
-> >                       lba48 = 0;
-> >       }
-> >
-> > +     if (blk_fua_rq(rq) &&
-> > +         (!rq_data_dir(rq) || !drive->select.b.lba || !lba48)) {
-> > +             if (!rq_data_dir(rq))
-> > +                     printk(KERN_WARNING "%s: FUA READ unsupported\n",
-> > +                            drive->name);
-> > +             else
-> > +                     printk(KERN_WARNING "%s: FUA request received but "
-> > +                            "cannot use LBA48\n", drive->name);
-> > +             ide_end_request(drive, 0, 0);
-> > +             return ide_stopped;
-> > +     }
-> > +
+Dmitry Torokhov wrote:
+> On Sunday 05 June 2005 02:10, Andrew Morton wrote:
+> 
+>>Zoltan Boszormenyi <zboszor@freemail.hu> wrote:
+>>
+>>>Zoltan Boszormenyi írta:
+>>>
+>>>>Hi,
+>>>>
+>>>>$SUBJECT says almost all, system is MSI K8TNeo FIS2R,
+>>>>Athlon64 3200+, running FC3/x86-64. I use the multiconsole
+>>>>extension from linuxconsole.sf.net, the patch does not touch
+>>>>anything relevant under drivers/input or drivers/usb.
+>>>>
+>>>>The mice are detected just fine but the mouse pointers
+>>>>do not move on either of my two screens. The same patch
+>>>>(not counting the trivial reject fixes) do work on the
+>>>>2.6.11-1.14_FC3 errata kernel. Both PS2 keyboard on the
+>>>>keyboard and aux ports work correctly.
+>>>
+>>>The same patch also works on 2.6.12-rc4-mm2, with working mice.
+>>>It seems the bug is mainstream.
+>>>
+>>
+>>Please test an unpatched kernel.
 > 
 > 
-> Does this string of tests really need to be added to the main fast path?
+> I think it is the same problem as Sid is seeing on his box.
 > 
-> It would be better to simply guarantee that this check need never exist
-> in the IDE driver, by guaranteeing that the block layer will never send
-> a FUA-READ command to a driver that does not wish it.
 > 
->         Jeff
+>>I attached dmesg and the contents of /proc/interrupts.
+>>The interrupt count on USB does not increase if I move either
+>>mouse.
+>>
+> 
+> 
+> Sid, if you move mouse on your box, do you see interrupts reported
+> in /proc/interrupts? Do you also have x86-64?
+> 
 
-Seconded, plus please use <linux/ata.h> instead of <linux/hdreg.h>
-for adding new opcodes.
+2.6.12-rc5-git9 on both x86 and x86_64. On the x86 I have as follows:-
+177:     178576   IO-APIC-level  ohci_hcd:usb3, eth0
+185:         64   IO-APIC-level  eth1
+193:          5   IO-APIC-level  ehci_hcd:usb1, ohci1394
+201:        961   IO-APIC-level  ohci_hcd:usb2, NVidia nForce2
+The interrupts are increasing, but they come from eth0 only, usb3 and 
+eth0 share the same interrupt.
+
+On the x86_64, all joystick controls and buttons are functional
+193:     107220   IO-APIC-level  ehci_hcd:usb1, uhci_hcd:usb2, 
+uhci_hcd:usb3, uhci_hcd:usb4
+201:      20940   IO-APIC-level  eth0
+
+Possible problem with interrupt routing on the x86 box?. I shall try 
+"pci=routeirq" next boot.
+Regards
+Sid.
+-- 
+Sid Boyce ... Hamradio License G3VBV, Keen licensed Private Pilot
+Retired IBM Mainframes and Sun Servers Tech Support Specialist
+Microsoft Windows Free Zone - Linux used for all Computing Tasks

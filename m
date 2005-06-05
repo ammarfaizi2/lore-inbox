@@ -1,47 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261459AbVFEFav@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVFEFmc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261459AbVFEFav (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 01:30:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVFEFav
+	id S261461AbVFEFmc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 01:42:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVFEFmc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 01:30:51 -0400
-Received: from stark.xeocode.com ([216.58.44.227]:7078 "EHLO stark.xeocode.com")
-	by vger.kernel.org with ESMTP id S261459AbVFEFao (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 01:30:44 -0400
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Greg Stark <gsstark@mit.edu>, Adrian Bunk <bunk@stusta.de>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: [SATA] libata-dev queue updated
-References: <42A14541.6020209@pobox.com> <87vf4ujgmj.fsf@stark.xeocode.com>
-	<42A1E96C.6080806@pobox.com> <20050604185028.GZ4992@stusta.de>
-	<42A1FB91.5060702@pobox.com> <87psv2j5mb.fsf@stark.xeocode.com>
-	<20050604191958.GA13111@havoc.gtf.org>
-	<87k6l9k0aa.fsf@stark.xeocode.com> <42A263BB.9070606@pobox.com>
-In-Reply-To: <42A263BB.9070606@pobox.com>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 05 Jun 2005 01:30:31 -0400
-Message-ID: <878y1pjrpk.fsf@stark.xeocode.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Sun, 5 Jun 2005 01:42:32 -0400
+Received: from omta05sl.mx.bigpond.com ([144.140.93.195]:38052 "EHLO
+	omta05sl.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S261461AbVFEFm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Jun 2005 01:42:28 -0400
+Message-ID: <42A290C1.1050106@bigpond.net.au>
+Date: Sun, 05 Jun 2005 15:42:25 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: [ANNOUNCE][RFC] PlugSched-5.1 for 2.6.11, 2.6.12-rc5 and 2.6.12-rc5-mm2
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05sl.mx.bigpond.com from [147.10.132.202] using ID pwil3058@bigpond.net.au at Sun, 5 Jun 2005 05:42:25 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> writes:
+A patch to upgrade PlugSched-5.0 to PlugSched-5.1 (containing ingosched, 
+nicksched, staircase, spa_no_frills and zaphod CPU schedulers) against a 
+2.6.11 kernel is available for download from:
 
-> Greg Stark wrote:
-> > So, uh, where do I get git? Where is your "git repository" and Linus' "git
-> > repository" and how do I set that up?
-> 
-> http://lkml.org/lkml/2005/5/26/11
+<http://prdownloads.sourceforge.net/cpuse/plugsched-5.0-to-5.1-for-2.6.11.patch?download>
 
-Ah, very nice. Thank you.
+A patch of PlugSched-5.1 for 2.6.12-rc5 is at:
 
+<http://prdownloads.sourceforge.net/cpuse/plugsched-5.1-for-2.6.12-rc5.patch?download>
+
+and for 2.6.12-rc5-mm2 at:
+
+<http://prdownloads.sourceforge.net/cpuse/plugsched-5.1-for-2.6.12-rc5-mm2.patch?download>
+
+Version 5.1 contains bug fixes for spa_no_frills and zaphod, upgrade of 
+staircase to version 11.2 and the recent changes Con Kolivas's "nice" 
+aware load balancing patch.
+
+Very Brief Documentation:
+
+You can select a default scheduler at kernel build time.  If you wish to 
+boot with a scheduler other than the default it can be selected at boot 
+time by adding:
+
+cpusched=<scheduler>
+
+to the boot command line where <scheduler> is one of: ingosched, 
+nicksched, staircase, spa_no_frills or zaphod.  If you don't change the 
+default when you build the kernel the default scheduler will be 
+ingosched (which is the normal scheduler).
+
+The scheduler in force on a running system can be determined by the 
+contents of:
+
+/proc/scheduler
+
+Control parameters for the scheduler can be read/set via files in:
+
+/sys/cpusched/<scheduler>/
+
+Peter
 -- 
-greg
+Peter Williams                                   pwil3058@bigpond.net.au
 
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

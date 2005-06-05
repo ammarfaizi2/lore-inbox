@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261175AbVFEJJX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261537AbVFEJLD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261175AbVFEJJX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 05:09:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261537AbVFEJJX
+	id S261537AbVFEJLD (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 05:11:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261542AbVFEJLD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 05:09:23 -0400
-Received: from vms044pub.verizon.net ([206.46.252.44]:56216 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261175AbVFEJJS convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 05:09:18 -0400
-Date: Sun, 05 Jun 2005 05:09:16 -0400
+	Sun, 5 Jun 2005 05:11:03 -0400
+Received: from vms048pub.verizon.net ([206.46.252.48]:28033 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261537AbVFEJKo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Jun 2005 05:10:44 -0400
+Date: Sun, 05 Jun 2005 05:10:40 -0400
 From: Gene Heskett <gene.heskett@verizon.net>
 Subject: Re: USB mice do not work on 2.6.12-rc5-git9, -rc5-mm1, -rc5-mm2
 In-reply-to: <42A2A0B2.7020003@freemail.hu>
 To: linux-kernel@vger.kernel.org
-Message-id: <200506050509.16104.gene.heskett@verizon.net>
+Message-id: <200506050510.40721.gene.heskett@verizon.net>
 Organization: None, usuallly detectable by casual observers
 MIME-version: 1.0
 Content-type: text/plain; charset=iso-8859-1
@@ -47,16 +46,8 @@ On Sunday 05 June 2005 02:50, Zoltan Boszormenyi wrote:
 >Best regards,
 >Zoltán Böszörményi
 
-Not sure whats going on with your systems, Zoltan, but I'm running a 
-M$ bluetooth optical RF mouse into a usb port, running 
-2.6.12-rc5-git9 with no known gotchas.  Booted for about 8 hours now.
-
->From my dmesg:
-drivers/usb/input/hid-core.c: v2.01:USB HID core driver
-mice: PS/2 mouse device common for all mice
-...
-input: USB HID v1.11 Mouse [Microsoft Microsoft Wireless Optical 
-Mouse® 1.0A] on usb-0000:00:02.1-2.1--
+I forgot to add, mobo is biostar, nforce2 chipset.  That might help 
+narrow it down.
 
 -- 
 Cheers, Gene

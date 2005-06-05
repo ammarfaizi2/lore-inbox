@@ -1,140 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbVFEOd3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261574AbVFEOgk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261572AbVFEOd3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 10:33:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVFEOd3
+	id S261574AbVFEOgk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 10:36:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVFEOgk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 10:33:29 -0400
-Received: from smtp-out4.blueyonder.co.uk ([195.188.213.7]:63248 "EHLO
-	smtp-out4.blueyonder.co.uk") by vger.kernel.org with ESMTP
-	id S261572AbVFEOdQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 10:33:16 -0400
-Message-ID: <42A30D29.1000207@blueyonder.co.uk>
-Date: Sun, 05 Jun 2005 15:33:13 +0100
-From: Sid Boyce <sboyce@blueyonder.co.uk>
-Reply-To: sboyce@blueyonder.co.uk
-Organization: blueyonder.co.uk
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Dmitry Torokhov <dtor_core@ameritech.net>
-CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Zoltan Boszormenyi <zboszor@freemail.hu>
-Subject: Re: USB mice do not work on 2.6.12-rc5-git9, -rc5-mm1, -rc5-mm2
-References: <42A2A0B2.7020003@freemail.hu> <42A2A657.9060803@freemail.hu> <20050605001001.3e441076.akpm@osdl.org> <200506050227.25378.dtor_core@ameritech.net> <42A309B4.9060808@blueyonder.co.uk>
-In-Reply-To: <42A309B4.9060808@blueyonder.co.uk>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-OriginalArrivalTime: 05 Jun 2005 14:33:52.0193 (UTC) FILETIME=[982F7B10:01C569DB]
+	Sun, 5 Jun 2005 10:36:40 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:49538 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261574AbVFEOg2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Jun 2005 10:36:28 -0400
+Date: Sun, 5 Jun 2005 16:35:53 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>,
+       Daniel Walker <dwalker@mvista.com>, Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: [patch] Real-Time Preemption, plist fixes
+In-Reply-To: <20050605134916.GA20721@elte.hu>
+Message-Id: <Pine.OSF.4.05.10506051602010.4252-100000@da410.phys.au.dk>
+Mime-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sid Boyce wrote:
-> Dmitry Torokhov wrote:
+
+On Sun, 5 Jun 2005, Ingo Molnar wrote:
+
 > 
->> On Sunday 05 June 2005 02:10, Andrew Morton wrote:
->>
->>> Zoltan Boszormenyi <zboszor@freemail.hu> wrote:
->>>
->>>> Zoltan Boszormenyi írta:
->>>>
->>>>> Hi,
->>>>>
->>>>> $SUBJECT says almost all, system is MSI K8TNeo FIS2R,
->>>>> Athlon64 3200+, running FC3/x86-64. I use the multiconsole
->>>>> extension from linuxconsole.sf.net, the patch does not touch
->>>>> anything relevant under drivers/input or drivers/usb.
->>>>>
->>>>> The mice are detected just fine but the mouse pointers
->>>>> do not move on either of my two screens. The same patch
->>>>> (not counting the trivial reject fixes) do work on the
->>>>> 2.6.11-1.14_FC3 errata kernel. Both PS2 keyboard on the
->>>>> keyboard and aux ports work correctly.
->>>>
->>>>
->>>> The same patch also works on 2.6.12-rc4-mm2, with working mice.
->>>> It seems the bug is mainstream.
->>>>
->>>
->>> Please test an unpatched kernel.
->>
->>
->>
->> I think it is the same problem as Sid is seeing on his box.
->>
->>
->>> I attached dmesg and the contents of /proc/interrupts.
->>> The interrupt count on USB does not increase if I move either
->>> mouse.
->>>
->>
->>
->> Sid, if you move mouse on your box, do you see interrupts reported
->> in /proc/interrupts? Do you also have x86-64?
->>
+> * Esben Nielsen <simlo@phys.au.dk> wrote:
 > 
-> 2.6.12-rc5-git9 on both x86 and x86_64. On the x86 I have as follows:-
-> 177:     178576   IO-APIC-level  ohci_hcd:usb3, eth0
-> 185:         64   IO-APIC-level  eth1
-> 193:          5   IO-APIC-level  ehci_hcd:usb1, ohci1394
-> 201:        961   IO-APIC-level  ohci_hcd:usb2, NVidia nForce2
-> The interrupts are increasing, but they come from eth0 only, usb3 and 
-> eth0 share the same interrupt.
+> > [...] In extreme load situations we could end up with a lot of waiters 
+> > on mmap_sem forinstance.
 > 
-> On the x86_64, all joystick controls and buttons are functional
-> 193:     107220   IO-APIC-level  ehci_hcd:usb1, uhci_hcd:usb2, 
-> uhci_hcd:usb3, uhci_hcd:usb4
-> 201:      20940   IO-APIC-level  eth0
+> what do you mean by extreme load. Extreme number of RT tasks, or extreme 
+> number of tasks altogether? The sorted-list implementation i had in -RT 
+> had all non-RT tasks handled in an O(1) way - the O(N) component was for 
+> adding RT tasks (removal was O(1)).
 > 
-> Possible problem with interrupt routing on the x86 box?. I shall try 
-> "pci=routeirq" next boot.
-> Regards
-> Sid.
+> so the question is - can we have an extreme (larger than 140) number of 
+> RT tasks? If yes, why are they all RT - they can have no expectation of 
+> good latencies with a possible load factor of 140!
 
-pci=routeirq didn't fix the problem. Device 007 probably causing the 
-interrupts - USB IDE HD.
-185:       9675   IO-APIC-level  ohci_hcd:usb2, ohci1394, eth0
-193:       8141   IO-APIC-level  ohci_hcd:usb3
-201:       1032   IO-APIC-level  ehci_hcd:usb1, NVidia nForce2
+I can't really imagine a properly working application having more than 140
+RT tasks pounding on the same lock - except maybe if someone tries to run
+an RT application on one of those Altrix thingies (#CPUS>140 :-).
 
-Bus 003 Device 008: ID 04b8:0103 Seiko Epson Corp. Perfection 610
-Bus 003 Device 007: ID 067b:3507 Prolific Technology, Inc.
-Bus 003 Device 006: ID 068e:00f2 CH Products, Inc. Flight Sim Pedals
-Bus 003 Device 005: ID 05e3:0760 Genesys Logic, Inc. Card Reader
-Bus 003 Device 004: ID 03f0:0604 Hewlett-Packard DeskJet 840c
-Bus 003 Device 003: ID 068e:00ff CH Products, Inc. Flight Sim Yoke
-Bus 003 Device 002: ID 0451:2077 Texas Instruments, Inc. TUSB2077 Hub
-Bus 003 Device 001: ID 0000:0000
+But as I said I could imagine a situation where you have some really
+important RT tasks you would like to survive even if your low priority RT
+tasks does something bad - like keep spawning RT tasks which all waits on
+the same lock. 
 
-barrabas:/home/lancelot # jscal /dev/js0
-Joystick has 7 axes and 12 buttons.
-Correction for axis 0 is broken line, precision is 0.
-Coeficients are: 127, 127, 5534751, 5534751
-Correction for axis 1 is broken line, precision is 0.
-Coeficients are: 127, 127, 5534751, 5534751
-Correction for axis 2 is broken line, precision is 0.
-Coeficients are: 127, 127, 5534751, 5534751
-Correction for axis 3 is broken line, precision is 0.
-Coeficients are: 127, 127, 5534751, 5534751
-Correction for axis 4 is broken line, precision is 0.
-Coeficients are: 127, 127, 5534751, 5534751
-Correction for axis 5 is broken line, precision is 0.
-Coeficients are: 0, 0, 536870912, 536870912
-Correction for axis 6 is broken line, precision is 0.
-Coeficients are: 0, 0, 536870912, 536870912
+Actually this test would make the difference:
 
-barrabas:/home/lancelot # jscal /dev/js1
-Joystick has 3 axes and 0 buttons.
-Correction for axis 0 is broken line, precision is 0.
-Coeficients are: 127, 127, 5534751, 5534751
-Correction for axis 1 is broken line, precision is 0.
-Coeficients are: 127, 127, 5534751, 5534751
-Correction for axis 2 is broken line, precision is 0.
-Coeficients are: 127, 127, 5534751, 5534751
+thread1:
+ lock(&badlock);
+ block_on_some_event_which_might_never_arrive();
+ unlock(&badlock);
 
-Regards
-Sid.
--- 
-Sid Boyce ... Hamradio License G3VBV, Keen licensed Private Pilot
-Retired IBM Mainframes and Sun Servers Tech Support Specialist
-Microsoft Windows Free Zone - Linux used for all Computing Tasks
+func:
+ lock(&badlock);
+ unlock(&badlock);
+ done=1;
+
+thread2:
+ while(!done) {
+   create_thread(func,RTprio=50);
+   create_thread(func,RTprio=51);
+   if(done) break;
+   sleep(1);
+ }   
+
+If you have enough memory for all the tasks, this kind of code would not
+be a problem with plists - it will only take a lot of memory. On the other
+hand with sorted lists each thread will take longer time inside raw
+spinlocks. At some point it will take the whole 1 sec and basicly nothing
+else can run.
+
+Ofcourse you can prevent this with ulimits...
+
+What I would do in this discussion is to abstract the interface:
+The rt_mutex code should not care if plists, sorted lists or what ever are
+used. It should just have a prio_queue structure and prio_queue_add(),
+prio_queue_first(), a prio_queue_for_each macro etc. Then Daniel can play
+along with his plists and have it as a config-option for now. Someone who
+doesn't care about the memory consumption, could even choose to use the
+prio_array from the scheduler!
+ 
+> 
+> 	Ingo
+
+Esben
+

@@ -1,71 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVFEK1O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261549AbVFEKn0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261548AbVFEK1O (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 06:27:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261549AbVFEK1O
+	id S261549AbVFEKn0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 06:43:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261551AbVFEKn0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 06:27:14 -0400
-Received: from postfix4-2.free.fr ([213.228.0.176]:32219 "EHLO
-	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S261548AbVFEK1J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 06:27:09 -0400
-Message-ID: <42A2D37A.5050408@free.fr>
-Date: Sun, 05 Jun 2005 12:27:06 +0200
-From: matthieu castet <castet.matthieu@free.fr>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Debian/1.7.8-1
-X-Accept-Language: fr-fr, en, en-us
-MIME-Version: 1.0
-To: Michael Tokarev <mjt@tls.msk.ru>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: PNP parallel&serial ports: module reload fails (2.6.11)?
-References: <20050602222400.GA8083@mut38-1-82-67-62-65.fbx.proxad.net> <429FA1F3.9000001@tls.msk.ru>
-In-Reply-To: <429FA1F3.9000001@tls.msk.ru>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 5 Jun 2005 06:43:26 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:35734 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261549AbVFEKnR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Jun 2005 06:43:17 -0400
+Date: Sun, 5 Jun 2005 12:42:46 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org,
+       Arjan van de Ven <arjanv@infradead.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Ingo Oeser <ioe-lkml@axxeo.de>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, Thomas Gleixner <tglx@linutronix.de>,
+       Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       "David S. Miller" <davem@redhat.com>
+Subject: Re: [patch] spinlock consolidation, v2
+Message-ID: <20050605104245.GA9303@elte.hu>
+References: <20050603154029.GA2995@elte.hu> <20050604113809.GD19819@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050604113809.GD19819@infradead.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Tokarev wrote:
-> castet.matthieu@free.fr wrote:
->> And pnpacpi have some problem to activate resource with some strange 
->> acpi implementation...
+
+* Christoph Hellwig <hch@infradead.org> wrote:
+
+> > the latest version of the spinlock consolidation patch can be found at:
+> > 
+> >   http://redhat.com/~mingo/spinlock-patches/consolidate-spinlocks.patch
+> > 
+> > the patch is now complete in the sense that it does everything i wanted 
+> > it to do. If you have any other suggestions (or i have missed to 
+> > incorporate an earlier suggestion of yours), please yell.
 > 
-> 
-> I haven't seen any probs with acpi or bios or other things on
-> those boxen yet -- pretty good ones.  It's HP ProLiant ML150
-> machine (not G2).  There are other HP machines out here which
-> also shows the same problem - eg HP ProLiant ML310 G1.
-> 
-hpml310.dsl acpi dsdt is strange :
+> Looks pretty nice, but your usage of asm-generic is totally wrong. 
+> files in asm-generic must only ever be used for default 
+> implementations of asm/ headers, and _never_ be included from common 
+> code.  But your asm-generic files are only ever used from 
+> linux/spinlock.h, so there's no point at all in splitting them out in 
+> the first time. [...]
 
+I see your point. My intention was to make the include file structure 
+completely symmetric and thus easy to review. The following table 
+illustrates how we build up the spinlock type and primitives in the SMP 
+and UP cases:
 
-             Name (CRES, ResourceTemplate ()
-             {
-                 IRQNoFlags () {7}
-                 DMA (Compatibility, NotBusMaster, Transfer8) {3}
-                 IO (Decode16, 0x0378, 0x0378, 0x08, 0x08)
-                 IO (Decode16, 0x0678, 0x0678, 0x00, 0x06)
-             })
+   SMP                         |  UP
+   ----------------------------|-----------------------------------
+   asm/spinlock_types.h        |  asm-generic/spinlock_types_up.h
+   linux/spinlock_types.h      |  linux/spinlock_types.h
+   asm/spinlock.h              |  asm-generic/spinlock_up.h
+   linux/spinlock_smp.h        |  linux/spinlock_up.h
+   linux/spinlock.h            |  linux/spinlock.h
 
-[...]
-Name (_PRS, ResourceTemplate ()
-             {
-                 StartDependentFn (0x00, 0x00)
-                 {
-                     IO (Decode16, 0x0378, 0x0378, 0x00, 0x08)
-                 }
-                 StartDependentFn (0x00, 0x00)
-                 {
-                     IO (Decode16, 0x03BC, 0x03BC, 0x00, 0x03)
-                 }
-                 StartDependentFn (0x00, 0x00)
-                 {
-                     IO (Decode16, 0x0278, 0x0278, 0x00, 0x08)
-                 }
-                 EndDependentFn ()
-             })
+as you can see in the list above, whenever something comes from the asm 
+directory, in the UP case we pick it from asm-generic. But i accept your 
+point that the use of asm-generic/ for this is improper, and i've moved 
+those files into include/linux/. (I also have renamed spinlock_smp.h and 
+spinlock_up.h to spinlock_api_smp.h and spinlock_api_up.h, to avoid the 
+filename clash.) The naming is still symmetric:
 
-So in the list of possible resource (_PRS) there only info about one 
-ioport not about the others resource. I wonder if it is really valid ?
+   SMP                         |  UP
+   ----------------------------|-----------------------------------
+   asm/spinlock_types_smp.h    |  linux/spinlock_types_up.h
+   linux/spinlock_types.h      |  linux/spinlock_types.h
+   asm/spinlock_smp.h          |  linux/spinlock_up.h
+   linux/spinlock_api_smp.h    |  linux/spinlock_api_up.h
+   linux/spinlock.h            |  linux/spinlock.h
 
-Matthieu
+all this splitup structure was created based on a pretty simple rule:
+whenever some aspect is sufficiently dissimilar to be #ifdef
+CONFIG_SMP-ed, it gets into separate _smp and _up files. If it's generic
+and shared it gets into the main spinlock.h file. The splitups were only
+done to enable this clean structure.
+
+> Similarly there's no point in a separate linux/spinlock_smp.h and 
+> linux/spinlock_up.h - it'll only cause some driver writers to include 
+> either of them directly and break the build for either UP or SMP. If 
+> you absolutely want to split them add an #error if not included from 
+> spinlock.h
+
+ok, i've added the #error protectors.
+
+> Little nitpick no 2: please include linux/*.h always before asm/*.h 
+> (in linux/jbd.h)
+
+done.
+
+you can find the latest patch with all these fixes included, at:
+
+  http://redhat.com/~mingo/spinlock-patches/consolidate-spinlocks.patch
+
+	Ingo

@@ -1,93 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261574AbVFEOgk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261575AbVFEOhC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261574AbVFEOgk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 10:36:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261575AbVFEOgk
+	id S261575AbVFEOhC (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 10:37:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVFEOhC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 10:36:40 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:49538 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261574AbVFEOg2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 10:36:28 -0400
-Date: Sun, 5 Jun 2005 16:35:53 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>,
-       Daniel Walker <dwalker@mvista.com>, Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Re: [patch] Real-Time Preemption, plist fixes
-In-Reply-To: <20050605134916.GA20721@elte.hu>
-Message-Id: <Pine.OSF.4.05.10506051602010.4252-100000@da410.phys.au.dk>
-Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 5 Jun 2005 10:37:02 -0400
+Received: from dsl.static812142478.ttnet.net.tr ([81.214.24.78]:4033 "EHLO
+	yssyk.labristeknoloji.com") by vger.kernel.org with ESMTP
+	id S261575AbVFEOgs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Jun 2005 10:36:48 -0400
+Message-ID: <42A3381F.90801@labristeknoloji.com>
+Date: Sun, 05 Jun 2005 17:36:31 +0000
+From: "M.Baris Demiray" <baris@labristeknoloji.com>
+Organization: Labris Teknoloji
+User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Nick Piggin" <nickpiggin@yahoo.com.au>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 2.6.12-rc5-mm2] [sched] add allowed CPUs check into find_idlest_group()
+Content-Type: multipart/mixed;
+ boundary="------------060407060407020601020407"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------060407060407020601020407
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Sun, 5 Jun 2005, Ingo Molnar wrote:
 
-> 
-> * Esben Nielsen <simlo@phys.au.dk> wrote:
-> 
-> > [...] In extreme load situations we could end up with a lot of waiters 
-> > on mmap_sem forinstance.
-> 
-> what do you mean by extreme load. Extreme number of RT tasks, or extreme 
-> number of tasks altogether? The sorted-list implementation i had in -RT 
-> had all non-RT tasks handled in an O(1) way - the O(N) component was for 
-> adding RT tasks (removal was O(1)).
-> 
-> so the question is - can we have an extreme (larger than 140) number of 
-> RT tasks? If yes, why are they all RT - they can have no expectation of 
-> good latencies with a possible load factor of 140!
+Hello,
+following patch adds check for allowed CPUs into
+sched.c:find_idlest_group() -as told in comment line that had
+removed-. But, I have several questions about that comment.
 
-I can't really imagine a properly working application having more than 140
-RT tasks pounding on the same lock - except maybe if someone tries to run
-an RT application on one of those Altrix thingies (#CPUS>140 :-).
+Firstly, I've understood it as "Check whether process p is allowed to
+run on each CPU of to-be-found idlest group"; is that right?
 
-But as I said I could imagine a situation where you have some really
-important RT tasks you would like to survive even if your low priority RT
-tasks does something bad - like keep spawning RT tasks which all waits on
-the same lock. 
+If so, isn't it more appropriate to do check in find_idlest_cpu()?
+Because, we're only interested in CPUs that are in idlest group
+but doing a check in find_idlest_group() also checks for CPUs
+that are not in idlest group (since we're traversing all the groups
+in given domain). Checking this after finding the idlest group
+(in find_idlest_cpu() with ordinary call order as in
+sched_balance_self()) will save us from extra overhead.
 
-Actually this test would make the difference:
+Although I've questions in my mind, I'm sending a patch following
+that comment. Any explanation and comment on patch will be
+appreciated.
 
-thread1:
- lock(&badlock);
- block_on_some_event_which_might_never_arrive();
- unlock(&badlock);
+Regards.
 
-func:
- lock(&badlock);
- unlock(&badlock);
- done=1;
+Signed-off-by: M.Baris Demiray <baris@labristeknoloji.com>
 
-thread2:
- while(!done) {
-   create_thread(func,RTprio=50);
-   create_thread(func,RTprio=51);
-   if(done) break;
-   sleep(1);
- }   
+--- linux-2.6.12-rc5-mm2/kernel/sched.c.orig	2005-06-05 
+12:31:04.000000000 +0000
++++ linux-2.6.12-rc5-mm2/kernel/sched.c	2005-06-05 16:49:49.000000000 +0000
+@@ -1040,7 +1040,12 @@
+  		int i;
 
-If you have enough memory for all the tasks, this kind of code would not
-be a problem with plists - it will only take a lot of memory. On the other
-hand with sorted lists each thread will take longer time inside raw
-spinlocks. At some point it will take the whole 1 sec and basicly nothing
-else can run.
+  		local_group = cpu_isset(this_cpu, group->cpumask);
+-		/* XXX: put a cpus allowed check */
++
++		/* Check whether all CPUs in the group is allowed to run on */
++		for_each_cpu_mask(i, group->cpumask) {
++			if (!cpu_isset(i, p->cpus_allowed))
++				continue;
++		}
 
-Ofcourse you can prevent this with ulimits...
+  		/* Tally up the load of all CPUs in the group */
+  		avg_load = 0;
 
-What I would do in this discussion is to abstract the interface:
-The rt_mutex code should not care if plists, sorted lists or what ever are
-used. It should just have a prio_queue structure and prio_queue_add(),
-prio_queue_first(), a prio_queue_for_each macro etc. Then Daniel can play
-along with his plists and have it as a config-option for now. Someone who
-doesn't care about the memory consumption, could even choose to use the
-prio_array from the scheduler!
- 
-> 
-> 	Ingo
 
-Esben
+-- 
+"You have to understand, most of these people are not ready to be
+unplugged. And many of them are no inert, so hopelessly dependent
+on the system, that they will fight to protect it."
+                                                          Morpheus
 
+
+
+
+--------------060407060407020601020407
+Content-Type: text/x-vcard; charset=utf-8;
+ name="baris.vcf"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="baris.vcf"
+
+YmVnaW46dmNhcmQNCmZuOk0uQmFyaXMgRGVtaXJheQ0KbjpEZW1pcmF5O00uQmFyaXMNCm9y
+ZzpMYWJyaXMgVGVrbm9sb2ppDQphZHI6OztUZWtub2tlbnQgU2lsaWtvbiBCaW5hIE5vOjI0
+IE9EVFU7QW5rYXJhOzswNjUzMTtUdXJrZXkNCmVtYWlsO2ludGVybmV0OmJhcmlzQGxhYnJp
+c3Rla25vbG9qaS5jb20NCnRpdGxlOllhemlsaW0gR2VsaXN0aXJtZSBVem1hbmkNCnRlbDt3
+b3JrOis5MDMxMjIxMDE0OTANCnRlbDtmYXg6KzkwMzEyMjEwMTQ5Mg0KeC1tb3ppbGxhLWh0
+bWw6RkFMU0UNCnVybDpodHRwOi8vd3d3LmxhYnJpc3Rla25vbG9qaS5jb20NCnZlcnNpb246
+Mi4xDQplbmQ6dmNhcmQNCg0K
+--------------060407060407020601020407--

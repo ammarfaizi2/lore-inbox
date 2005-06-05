@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbVFEQaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261587AbVFEQpb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261593AbVFEQaU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 12:30:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261594AbVFEQaT
+	id S261587AbVFEQpb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 12:45:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261588AbVFEQpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 12:30:19 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:16626 "EHLO
-	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S261593AbVFEQaO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 12:30:14 -0400
-Date: Sun, 5 Jun 2005 09:29:58 -0700 (PDT)
-From: Daniel Walker <dwalker@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: linux-kernel@vger.kernel.org,
-       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [patch] Real-Time Preemption, plist fixes
-In-Reply-To: <20050605082616.GA26824@elte.hu>
-Message-ID: <Pine.LNX.4.44.0506050830050.23583-100000@dhcp153.mvista.com>
+	Sun, 5 Jun 2005 12:45:31 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:41130 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261587AbVFEQpZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Jun 2005 12:45:25 -0400
+Date: Sun, 5 Jun 2005 12:45:18 -0400 (EDT)
+From: Rik van Riel <riel@redhat.com>
+X-X-Sender: riel@chimarrao.boston.redhat.com
+To: Gaspar Bakos <gbakos@cfa.harvard.edu>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: kswapd causing giant load
+In-Reply-To: <Pine.SOL.4.58.0506041232030.14011@titan.cfa.harvard.edu>
+Message-ID: <Pine.LNX.4.61.0506051243500.9689@chimarrao.boston.redhat.com>
+References: <Pine.SOL.4.58.0506041232030.14011@titan.cfa.harvard.edu>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 5 Jun 2005, Ingo Molnar wrote:
+On Sat, 4 Jun 2005, Gaspar Bakos wrote:
+
+> 10715 hatuser   15   0 35432 2792 2020 R 28.3  0.1   1:45.06 sshd
+> 10724 hatuser   16   0 17504  11m  664 R  8.3  0.3   0:33.56 rsync
+>   175 root      15   0     0    0    0 S 19.7  0.0 136:25.58 kswapd0
+>   172 root      15   0     0    0    0 S  0.3  0.0   1:23.59 pdflush
+>   174 root      15   0     0    0    0 S  0.3  0.0  99:18.93 kswapd1
 > 
-> but i think the fundamental question remains even on Sunday mornings -
-> is the plist overhead worth it? Compared to the simple sorted list we 
-> exchange O(nr_RT_tasks_running) for O(nr_RT_levels_used) [which is in 
-> the 1-100 range], is that a significant practical improvement? By 
-> overhead i dont just mean cycle cost, but also architectural flexibility 
-> and maintainability.
+> Before I start extensive experimenting, maybe someone knows right away
+> what causes high loads due to "kswapd* and pdflush".
 
+Looks like your system is NUMA, meaning that the system
+memory is divided in half, and the threshold at which a
+memory dirtying process is throttled might be higher than
+the amount of memory available in the zone.
 
-	You'll have to explain the "architectural flexibility and 
-maintainability" costs . Questioning if plist works correctly isn't 
-a long term maintainability problem, in my mind. I don't see any 
-architectural costs considering the plist API, which is why I saw a clear 
-path to integrate plist in the first place. 
+Can you reproduce this problem if you boot with "numa=off"
+or if you "echo 20 > /proc/sys/vm/dirty_ratio" ?
 
-	For me it's strictly a speed question. I was reviewing V0.7.40-04 
-and it looks like apples and oranges to me. It's more a question of where 
-do you perfer the latency , in up() or in down() .. plist is slower for 
-non-RT tasks, but non-RT tasks also get the benefit of priority ordering.
-
-Daniel
-
+-- 
+"Debugging is twice as hard as writing the code in the first place.
+Therefore, if you write the code as cleverly as possible, you are,
+by definition, not smart enough to debug it." - Brian W. Kernighan

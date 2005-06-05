@@ -1,46 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261584AbVFEPFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVFEPIR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261584AbVFEPFl (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 11:05:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVFEPFk
+	id S261578AbVFEPIR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 11:08:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261585AbVFEPIR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 11:05:40 -0400
-Received: from ms.iem.uni-due.de ([132.252.150.1]:60070 "EHLO
-	pilz.exp-math.uni-essen.de") by vger.kernel.org with ESMTP
-	id S261584AbVFEPFY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 11:05:24 -0400
-Date: Sun, 5 Jun 2005 17:03:42 +0200
-From: Birger Toedtmann <btoedtmann@iem.uni-due.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: IRQ exception upon networking with many vifs/bridges (using Xen)
-Message-ID: <20050605150342.GA8976@exp-math.uni-essen.de>
-References: <1117964324.2494.15.camel@lomin>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1117964324.2494.15.camel@lomin>
-X-Echelon: Cocaine Kill Evil Contract Whitehouse Attack Bomb Money Terror American Hate
-User-Agent: Mutt/1.5.8i
+	Sun, 5 Jun 2005 11:08:17 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:57339 "EHLO
+	godzilla.mvista.com") by vger.kernel.org with ESMTP id S261587AbVFEPIL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Jun 2005 11:08:11 -0400
+Date: Sun, 5 Jun 2005 08:08:06 -0700 (PDT)
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: [patch] Real-Time Preemption, plist fixes
+In-Reply-To: <20050605094742.GA8346@elte.hu>
+Message-ID: <Pine.LNX.4.10.10506050806440.10127-100000@godzilla.mvista.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Birger Tödtmann schrieb am Sun, Jun 05, 2005 at 11:38:43AM +0200:
-> 
-> Hello,
-> 
-> (- this is sort of crossposting from Xen mailing lists, because I do
->    not know whether this is very Xen specific as the domain0 linux
->    kernel is crashing with a 'fatal exception in interrupt' - see
->    below for details.)
-
-Forget about it, as I just infered from the call trace the problem happens 
-somewhere inside net_rx_action() in ./drivers/xen/netback/netback.c, not
-./net/core/dev.c, so it's solely related to Xen modifications.
 
 
--- 
-Birger Tödtmann
-Technik der Rechnernetze, Institut für Experimentelle Mathematik und Institut 
-für Informatik und Wirtschaftsinformatik, Universität Duisburg-Essen
-email:btoedtmann@iem.uni-due.de skype:birger.toedtmann pgp:0x6FB166C9 icq:294947817
+On Sun, 5 Jun 2005, Ingo Molnar wrote:
+
+> i think it would be handy to resurrect ALL_TASKS_PI. It was one of the 
+> things that stabilized the sorted list approach so quickly. Nothing 
+> beats the coverage of running a full graphical desktop with all the PI 
+> code active :-)
+
+
+I keep wondering why I'm dragging ALL_TASKS_PI around in all my patches,
+since it doesn't work. Why not have it on all the time?
+
+Daniel 
+

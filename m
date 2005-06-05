@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261464AbVFEGKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261463AbVFEGM3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261464AbVFEGKY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 02:10:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261463AbVFEGKY
+	id S261463AbVFEGM3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 02:12:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261468AbVFEGM2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 02:10:24 -0400
-Received: from wproxy.gmail.com ([64.233.184.197]:55287 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261468AbVFEF5j (ORCPT
+	Sun, 5 Jun 2005 02:12:28 -0400
+Received: from wproxy.gmail.com ([64.233.184.200]:16371 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261469AbVFEF5p (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 01:57:39 -0400
+	Sun, 5 Jun 2005 01:57:45 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:from:to:cc:user-agent:content-type:references:in-reply-to:subject:message-id:date;
-        b=HKkA7U5yijziwIujB4tUL55ZOO+VHNEygaqAcD4gkUcFUMq8l5pBpyeMNiUdGjoywGB27JlE/eRHIGVrDEpYXBfm2K5AdS4TvEJvk2s2I4/CsIklOpC9znnKcWtdOt4uZ7gVhBhCD7agLgsgHjwzi7B7x0GBa1S7ibDreHjnAQ8=
+        b=WsQR/TY0GKwzRPRNlo3PRHpAwdj6MhEoe7DE/EK87ZHOzrl5wqBzkp3J130RWJrS4qSQEcuhJhUZpM0pYlI9pmPzMkDImFis2kSRYGhs/hybiYCz3ONepi2wgTfygG91HV+EKrfKO5EE0x1qCjTqf0km4J+qaqiF/8nl627Q8oI=
 From: Tejun Heo <htejun@gmail.com>
 To: axboe@suse.de, James.Bottomley@steeleye.com, bzolnier@gmail.com,
        jgarzik@pobox.com
@@ -21,318 +21,308 @@ User-Agent: lksp 0.3
 Content-Type: text/plain; charset=US-ASCII
 References: <20050605055337.6301E65A@htj.dyndns.org>
 In-Reply-To: <20050605055337.6301E65A@htj.dyndns.org>
-Subject: Re: [PATCH Linux 2.6.12-rc5-mm2 06/09] blk: update SCSI to use the new blk_ordered
-Message-ID: <20050605055337.3CC8625A@htj.dyndns.org>
-Date: Sun,  5 Jun 2005 14:57:35 +0900 (KST)
+Subject: Re: [PATCH Linux 2.6.12-rc5-mm2 07/09] blk: update libata to use the new blk_ordered.
+Message-ID: <20050605055337.13444DD8@htj.dyndns.org>
+Date: Sun,  5 Jun 2005 14:57:40 +0900 (KST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-06_blk_update_scsi_to_use_new_ordered.patch
+07_blk_update_libata_to_use_new_ordered.patch
 
-	All ordered request related stuff delegated to HLD.  Midlayer
-	now doens't deal with ordered setting or prepare_flush
-	callback.  sd.c updated to deal with blk_queue_ordered
-	setting.  Currently, ordered tag isn't used as SCSI midlayer
-	cannot guarantee request ordering.
+	Reflect changes in SCSI midlayer and updated to use the new
+	ordered request implementation.
 
 Signed-off-by: Tejun Heo <htejun@gmail.com>
 
- drivers/scsi/hosts.c       |    9 -----
- drivers/scsi/scsi_lib.c    |   46 --------------------------
- drivers/scsi/sd.c          |   79 +++++++++++++++++++--------------------------
- include/scsi/scsi_driver.h |    1 
- include/scsi/scsi_host.h   |    1 
- 5 files changed, 34 insertions(+), 102 deletions(-)
+ drivers/scsi/ahci.c         |    1 -
+ drivers/scsi/ata_piix.c     |    1 -
+ drivers/scsi/libata-core.c  |   14 +++++++++-----
+ drivers/scsi/libata-scsi.c  |   22 +++++++++++++++++++++-
+ drivers/scsi/sata_nv.c      |    1 -
+ drivers/scsi/sata_promise.c |    1 -
+ drivers/scsi/sata_sil.c     |    1 -
+ drivers/scsi/sata_sis.c     |    1 -
+ drivers/scsi/sata_svw.c     |    1 -
+ drivers/scsi/sata_sx4.c     |    1 -
+ drivers/scsi/sata_uli.c     |    1 -
+ drivers/scsi/sata_via.c     |    1 -
+ drivers/scsi/sata_vsc.c     |    1 -
+ include/linux/ata.h         |    4 +++-
+ include/linux/libata.h      |    1 +
+ 15 files changed, 34 insertions(+), 18 deletions(-)
 
-Index: blk-fixes/drivers/scsi/sd.c
+Index: blk-fixes/drivers/scsi/ahci.c
 ===================================================================
---- blk-fixes.orig/drivers/scsi/sd.c	2005-06-05 14:53:32.000000000 +0900
-+++ blk-fixes/drivers/scsi/sd.c	2005-06-05 14:53:35.000000000 +0900
-@@ -103,6 +103,7 @@ struct scsi_disk {
- 	u8		write_prot;
- 	unsigned	WCE : 1;	/* state of disk WCE bit */
- 	unsigned	RCD : 1;	/* state of disk RCD bit, unused */
-+	unsigned	DPOFUA : 1;	/* state of disk DPOFUA bit */
+--- blk-fixes.orig/drivers/scsi/ahci.c	2005-06-05 14:50:11.000000000 +0900
++++ blk-fixes/drivers/scsi/ahci.c	2005-06-05 14:53:35.000000000 +0900
+@@ -203,7 +203,6 @@ static Scsi_Host_Template ahci_sht = {
+ 	.dma_boundary		= AHCI_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
  };
  
- static DEFINE_IDR(sd_index_idr);
-@@ -122,8 +123,7 @@ static void sd_shutdown(struct device *d
- static void sd_rescan(struct device *);
- static int sd_init_command(struct scsi_cmnd *);
- static int sd_issue_flush(struct device *, sector_t *);
--static void sd_end_flush(request_queue_t *, struct request *);
--static int sd_prepare_flush(request_queue_t *, struct request *);
-+static void sd_prepare_flush(request_queue_t *, struct request *);
- static void sd_read_capacity(struct scsi_disk *sdkp, char *diskname,
- 		 struct scsi_request *SRpnt, unsigned char *buffer);
- 
-@@ -138,8 +138,6 @@ static struct scsi_driver sd_template = 
- 	.rescan			= sd_rescan,
- 	.init_command		= sd_init_command,
- 	.issue_flush		= sd_issue_flush,
--	.prepare_flush		= sd_prepare_flush,
--	.end_flush		= sd_end_flush,
+ static struct ata_port_operations ahci_ops = {
+Index: blk-fixes/drivers/scsi/ata_piix.c
+===================================================================
+--- blk-fixes.orig/drivers/scsi/ata_piix.c	2005-06-05 14:50:11.000000000 +0900
++++ blk-fixes/drivers/scsi/ata_piix.c	2005-06-05 14:53:35.000000000 +0900
+@@ -123,7 +123,6 @@ static Scsi_Host_Template piix_sht = {
+ 	.dma_boundary		= ATA_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
  };
  
- /*
-@@ -346,6 +344,7 @@ static int sd_init_command(struct scsi_c
- 	
- 	if (block > 0xffffffff) {
- 		SCpnt->cmnd[0] += READ_16 - READ_6;
-+		SCpnt->cmnd[1] |= blk_fua_rq(rq) ? 0x8 : 0;
- 		SCpnt->cmnd[2] = sizeof(block) > 4 ? (unsigned char) (block >> 56) & 0xff : 0;
- 		SCpnt->cmnd[3] = sizeof(block) > 4 ? (unsigned char) (block >> 48) & 0xff : 0;
- 		SCpnt->cmnd[4] = sizeof(block) > 4 ? (unsigned char) (block >> 40) & 0xff : 0;
-@@ -360,11 +359,12 @@ static int sd_init_command(struct scsi_c
- 		SCpnt->cmnd[13] = (unsigned char) this_count & 0xff;
- 		SCpnt->cmnd[14] = SCpnt->cmnd[15] = 0;
- 	} else if ((this_count > 0xff) || (block > 0x1fffff) ||
--		   SCpnt->device->use_10_for_rw) {
-+		   SCpnt->device->use_10_for_rw || blk_fua_rq(rq)) {
- 		if (this_count > 0xffff)
- 			this_count = 0xffff;
+ static struct ata_port_operations piix_pata_ops = {
+Index: blk-fixes/drivers/scsi/sata_nv.c
+===================================================================
+--- blk-fixes.orig/drivers/scsi/sata_nv.c	2005-06-05 14:50:11.000000000 +0900
++++ blk-fixes/drivers/scsi/sata_nv.c	2005-06-05 14:53:35.000000000 +0900
+@@ -206,7 +206,6 @@ static Scsi_Host_Template nv_sht = {
+ 	.dma_boundary		= ATA_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
+ };
  
- 		SCpnt->cmnd[0] += READ_10 - READ_6;
-+		SCpnt->cmnd[1] |= blk_fua_rq(rq) ? 0x8 : 0;
- 		SCpnt->cmnd[2] = (unsigned char) (block >> 24) & 0xff;
- 		SCpnt->cmnd[3] = (unsigned char) (block >> 16) & 0xff;
- 		SCpnt->cmnd[4] = (unsigned char) (block >> 8) & 0xff;
-@@ -739,43 +739,12 @@ static int sd_issue_flush(struct device 
- 	return sd_sync_cache(sdp);
+ static struct ata_port_operations nv_ops = {
+Index: blk-fixes/drivers/scsi/sata_promise.c
+===================================================================
+--- blk-fixes.orig/drivers/scsi/sata_promise.c	2005-06-05 14:50:11.000000000 +0900
++++ blk-fixes/drivers/scsi/sata_promise.c	2005-06-05 14:53:35.000000000 +0900
+@@ -104,7 +104,6 @@ static Scsi_Host_Template pdc_ata_sht = 
+ 	.dma_boundary		= ATA_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
+ };
+ 
+ static struct ata_port_operations pdc_ata_ops = {
+Index: blk-fixes/drivers/scsi/sata_sil.c
+===================================================================
+--- blk-fixes.orig/drivers/scsi/sata_sil.c	2005-06-05 14:50:11.000000000 +0900
++++ blk-fixes/drivers/scsi/sata_sil.c	2005-06-05 14:53:35.000000000 +0900
+@@ -135,7 +135,6 @@ static Scsi_Host_Template sil_sht = {
+ 	.dma_boundary		= ATA_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
+ };
+ 
+ static struct ata_port_operations sil_ops = {
+Index: blk-fixes/drivers/scsi/sata_sis.c
+===================================================================
+--- blk-fixes.orig/drivers/scsi/sata_sis.c	2005-06-05 14:50:11.000000000 +0900
++++ blk-fixes/drivers/scsi/sata_sis.c	2005-06-05 14:53:35.000000000 +0900
+@@ -90,7 +90,6 @@ static Scsi_Host_Template sis_sht = {
+ 	.dma_boundary		= ATA_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
+ };
+ 
+ static struct ata_port_operations sis_ops = {
+Index: blk-fixes/drivers/scsi/sata_svw.c
+===================================================================
+--- blk-fixes.orig/drivers/scsi/sata_svw.c	2005-06-05 14:50:11.000000000 +0900
++++ blk-fixes/drivers/scsi/sata_svw.c	2005-06-05 14:53:35.000000000 +0900
+@@ -288,7 +288,6 @@ static Scsi_Host_Template k2_sata_sht = 
+ 	.proc_info		= k2_sata_proc_info,
+ #endif
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
+ };
+ 
+ 
+Index: blk-fixes/drivers/scsi/sata_sx4.c
+===================================================================
+--- blk-fixes.orig/drivers/scsi/sata_sx4.c	2005-06-05 14:50:11.000000000 +0900
++++ blk-fixes/drivers/scsi/sata_sx4.c	2005-06-05 14:53:35.000000000 +0900
+@@ -188,7 +188,6 @@ static Scsi_Host_Template pdc_sata_sht =
+ 	.dma_boundary		= ATA_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
+ };
+ 
+ static struct ata_port_operations pdc_20621_ops = {
+Index: blk-fixes/drivers/scsi/sata_uli.c
+===================================================================
+--- blk-fixes.orig/drivers/scsi/sata_uli.c	2005-06-05 14:50:11.000000000 +0900
++++ blk-fixes/drivers/scsi/sata_uli.c	2005-06-05 14:53:35.000000000 +0900
+@@ -82,7 +82,6 @@ static Scsi_Host_Template uli_sht = {
+ 	.dma_boundary		= ATA_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
+ };
+ 
+ static struct ata_port_operations uli_ops = {
+Index: blk-fixes/drivers/scsi/sata_via.c
+===================================================================
+--- blk-fixes.orig/drivers/scsi/sata_via.c	2005-06-05 14:50:11.000000000 +0900
++++ blk-fixes/drivers/scsi/sata_via.c	2005-06-05 14:53:35.000000000 +0900
+@@ -102,7 +102,6 @@ static Scsi_Host_Template svia_sht = {
+ 	.dma_boundary		= ATA_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
+ };
+ 
+ static struct ata_port_operations svia_sata_ops = {
+Index: blk-fixes/drivers/scsi/sata_vsc.c
+===================================================================
+--- blk-fixes.orig/drivers/scsi/sata_vsc.c	2005-06-05 14:50:11.000000000 +0900
++++ blk-fixes/drivers/scsi/sata_vsc.c	2005-06-05 14:53:35.000000000 +0900
+@@ -206,7 +206,6 @@ static Scsi_Host_Template vsc_sata_sht =
+ 	.dma_boundary		= ATA_DMA_BOUNDARY,
+ 	.slave_configure	= ata_scsi_slave_config,
+ 	.bios_param		= ata_std_bios_param,
+-	.ordered_flush		= 1,
+ };
+ 
+ 
+Index: blk-fixes/drivers/scsi/libata-core.c
+===================================================================
+--- blk-fixes.orig/drivers/scsi/libata-core.c	2005-06-05 14:50:11.000000000 +0900
++++ blk-fixes/drivers/scsi/libata-core.c	2005-06-05 14:53:35.000000000 +0900
+@@ -510,19 +510,21 @@ void ata_tf_from_fis(u8 *fis, struct ata
  }
  
--static void sd_end_flush(request_queue_t *q, struct request *flush_rq)
-+static void sd_prepare_flush(request_queue_t *q, struct request *rq)
+ /**
+- *	ata_prot_to_cmd - determine which read/write opcodes to use
++ *	ata_prot_to_cmd - determine which read/write/fua-write opcodes to use
+  *	@protocol: ATA_PROT_xxx taskfile protocol
+  *	@lba48: true is lba48 is present
+  *
+- *	Given necessary input, determine which read/write commands
+- *	to use to transfer data.
++ *	Given necessary input, determine which read/write/fua-write
++ *	commands to use to transfer data.  Note that we only support
++ *	fua-writes on DMA LBA48 protocol.  In other cases, we simply
++ *	return 0 which is NOP.
+  *
+  *	LOCKING:
+  *	None.
+  */
+ static int ata_prot_to_cmd(int protocol, int lba48)
  {
--	struct request *rq = flush_rq->end_io_data;
--	struct scsi_cmnd *cmd = rq->special;
--	unsigned int bytes = rq->hard_nr_sectors << 9;
--
--	if (!flush_rq->errors) {
--		spin_unlock(q->queue_lock);
--		scsi_io_completion(cmd, bytes, 0);
--		spin_lock(q->queue_lock);
--	} else if (blk_barrier_postflush(rq)) {
--		spin_unlock(q->queue_lock);
--		scsi_io_completion(cmd, 0, bytes);
--		spin_lock(q->queue_lock);
--	} else {
--		/*
--		 * force journal abort of barriers
--		 */
--		end_that_request_first(rq, -EOPNOTSUPP, rq->hard_nr_sectors);
--		end_that_request_last(rq, -EOPNOTSUPP);
--	}
--}
--
--static int sd_prepare_flush(request_queue_t *q, struct request *rq)
--{
--	struct scsi_device *sdev = q->queuedata;
--	struct scsi_disk *sdkp = dev_get_drvdata(&sdev->sdev_gendev);
--
--	if (sdkp->WCE) {
--		memset(rq->cmd, 0, sizeof(rq->cmd));
--		rq->flags |= REQ_BLOCK_PC | REQ_SOFTBARRIER;
--		rq->timeout = SD_TIMEOUT;
--		rq->cmd[0] = SYNCHRONIZE_CACHE;
--		return 1;
--	}
--
--	return 0;
-+	memset(rq->cmd, 0, sizeof(rq->cmd));
-+	rq->flags |= REQ_BLOCK_PC | REQ_SOFTBARRIER;
-+	rq->timeout = SD_TIMEOUT;
-+	rq->cmd[0] = SYNCHRONIZE_CACHE;
- }
+-	int rcmd = 0, wcmd = 0;
++	int rcmd = 0, wcmd = 0, wfua = 0;
  
- static void sd_rescan(struct device *dev)
-@@ -1433,10 +1402,13 @@ sd_read_cache_type(struct scsi_disk *sdk
- 			sdkp->RCD = 0;
- 		}
- 
-+		sdkp->DPOFUA = (data.device_specific & 0x10) != 0;
-+
- 		ct =  sdkp->RCD + 2*sdkp->WCE;
- 
--		printk(KERN_NOTICE "SCSI device %s: drive cache: %s\n",
--		       diskname, types[ct]);
-+		printk(KERN_NOTICE "SCSI device %s: drive cache: %s%s\n",
-+		       diskname, types[ct],
-+		       sdkp->DPOFUA ? " with forced unit access" : "");
- 
- 		return;
+ 	switch (protocol) {
+ 	case ATA_PROT_PIO:
+@@ -539,6 +541,7 @@ static int ata_prot_to_cmd(int protocol,
+ 		if (lba48) {
+ 			rcmd = ATA_CMD_READ_EXT;
+ 			wcmd = ATA_CMD_WRITE_EXT;
++			wfua = ATA_CMD_WRITE_FUA_EXT;
+ 		} else {
+ 			rcmd = ATA_CMD_READ;
+ 			wcmd = ATA_CMD_WRITE;
+@@ -549,7 +552,7 @@ static int ata_prot_to_cmd(int protocol,
+ 		return -1;
  	}
-@@ -1469,6 +1441,7 @@ static int sd_revalidate_disk(struct gen
- 	struct scsi_device *sdp = sdkp->device;
- 	struct scsi_request *sreq;
- 	unsigned char *buffer;
-+	unsigned ordered;
  
- 	SCSI_LOG_HLQUEUE(3, printk("sd_revalidate_disk: disk=%s\n", disk->disk_name));
- 
-@@ -1514,7 +1487,22 @@ static int sd_revalidate_disk(struct gen
- 					sreq, buffer);
- 		sd_read_cache_type(sdkp, disk->disk_name, sreq, buffer);
- 	}
--		
-+
-+	/*
-+	 * We now have all cache related info, determine how we deal
-+	 * with ordered requests.  Note that as the current SCSI
-+	 * dispatch function can alter request order, we cannot use
-+	 * QUEUE_ORDERED_TAG_* even when ordered tag is supported.
-+	 */
-+	if (sdkp->WCE)
-+		ordered = sdkp->DPOFUA
-+			? QUEUE_ORDERED_DRAIN_FUA : QUEUE_ORDERED_DRAIN_FLUSH;
-+	else
-+		ordered = QUEUE_ORDERED_DRAIN;
-+
-+	blk_queue_ordered(sdkp->disk->queue, ordered, sd_prepare_flush,
-+			  GFP_KERNEL);
-+
- 	set_capacity(disk, sdkp->capacity);
- 	kfree(buffer);
- 
-@@ -1615,6 +1603,7 @@ static int sd_probe(struct device *dev)
- 	strcpy(gd->devfs_name, sdp->devfs_name);
- 
- 	gd->private_data = &sdkp->driver;
-+	gd->queue = sdkp->device->request_queue;
- 
- 	sd_revalidate_disk(gd);
- 
-@@ -1622,7 +1611,6 @@ static int sd_probe(struct device *dev)
- 	gd->flags = GENHD_FL_DRIVERFS;
- 	if (sdp->removable)
- 		gd->flags |= GENHD_FL_REMOVABLE;
--	gd->queue = sdkp->device->request_queue;
- 
- 	dev_set_drvdata(dev, sdkp);
- 	add_disk(gd);
-@@ -1657,6 +1645,7 @@ static int sd_remove(struct device *dev)
- {
- 	struct scsi_disk *sdkp = dev_get_drvdata(dev);
- 
-+	blk_queue_ordered(sdkp->disk->queue, QUEUE_ORDERED_NONE, NULL, 0);
- 	del_gendisk(sdkp->disk);
- 	sd_shutdown(dev);
- 	down(&sd_ref_sem);
-Index: blk-fixes/drivers/scsi/scsi_lib.c
-===================================================================
---- blk-fixes.orig/drivers/scsi/scsi_lib.c	2005-06-05 14:53:33.000000000 +0900
-+++ blk-fixes/drivers/scsi/scsi_lib.c	2005-06-05 14:53:35.000000000 +0900
-@@ -717,9 +717,6 @@ void scsi_io_completion(struct scsi_cmnd
- 	int sense_valid = 0;
- 	int sense_deferred = 0;
- 
--	if (blk_complete_barrier_rq(q, req, good_bytes >> 9))
--		return;
--
- 	/*
- 	 * Free up any indirection buffers we allocated for DMA purposes. 
- 	 * For the case of a READ, we need to copy the data out of the
-@@ -984,38 +981,6 @@ static int scsi_init_io(struct scsi_cmnd
- 	return BLKPREP_KILL;
+-	return rcmd | (wcmd << 8);
++	return rcmd | (wcmd << 8) | (wfua << 16);
  }
  
--static int scsi_prepare_flush_fn(request_queue_t *q, struct request *rq)
--{
--	struct scsi_device *sdev = q->queuedata;
--	struct scsi_driver *drv;
--
--	if (sdev->sdev_state == SDEV_RUNNING) {
--		drv = *(struct scsi_driver **) rq->rq_disk->private_data;
--
--		if (drv->prepare_flush)
--			return drv->prepare_flush(q, rq);
--	}
--
--	return 0;
--}
--
--static void scsi_end_flush_fn(request_queue_t *q, struct request *rq)
--{
--	struct scsi_device *sdev = q->queuedata;
--	struct request *flush_rq = rq->end_io_data;
--	struct scsi_driver *drv;
--
--	if (flush_rq->errors) {
--		printk("scsi: barrier error, disabling flush support\n");
--		blk_queue_ordered(q, QUEUE_ORDERED_NONE);
--	}
--
--	if (sdev->sdev_state == SDEV_RUNNING) {
--		drv = *(struct scsi_driver **) rq->rq_disk->private_data;
--		drv->end_flush(q, rq);
--	}
--}
--
- static int scsi_issue_flush_fn(request_queue_t *q, struct gendisk *disk,
- 			       sector_t *error_sector)
- {
-@@ -1443,17 +1408,6 @@ struct request_queue *scsi_alloc_queue(s
- 	blk_queue_segment_boundary(q, shost->dma_boundary);
- 	blk_queue_issue_flush_fn(q, scsi_issue_flush_fn);
+ /**
+@@ -582,6 +585,7 @@ static void ata_dev_set_protocol(struct 
  
--	/*
--	 * ordered tags are superior to flush ordering
--	 */
--	if (shost->ordered_tag)
--		blk_queue_ordered(q, QUEUE_ORDERED_TAG);
--	else if (shost->ordered_flush) {
--		blk_queue_ordered(q, QUEUE_ORDERED_FLUSH);
--		q->prepare_flush_fn = scsi_prepare_flush_fn;
--		q->end_flush_fn = scsi_end_flush_fn;
--	}
--
- 	if (!shost->use_clustering)
- 		clear_bit(QUEUE_FLAG_CLUSTER, &q->queue_flags);
- 	return q;
-Index: blk-fixes/drivers/scsi/hosts.c
-===================================================================
---- blk-fixes.orig/drivers/scsi/hosts.c	2005-06-05 14:50:11.000000000 +0900
-+++ blk-fixes/drivers/scsi/hosts.c	2005-06-05 14:53:35.000000000 +0900
-@@ -264,17 +264,8 @@ struct Scsi_Host *scsi_host_alloc(struct
- 	shost->cmd_per_lun = sht->cmd_per_lun;
- 	shost->unchecked_isa_dma = sht->unchecked_isa_dma;
- 	shost->use_clustering = sht->use_clustering;
--	shost->ordered_flush = sht->ordered_flush;
- 	shost->ordered_tag = sht->ordered_tag;
+ 	dev->read_cmd = cmd & 0xff;
+ 	dev->write_cmd = (cmd >> 8) & 0xff;
++	dev->write_fua_cmd = (cmd >> 16) & 0xff;
+ }
  
--	/*
--	 * hosts/devices that do queueing must support ordered tags
--	 */
--	if (shost->can_queue > 1 && shost->ordered_flush) {
--		printk(KERN_ERR "scsi: ordered flushes don't support queueing\n");
--		shost->ordered_flush = 0;
--	}
--
- 	if (sht->max_host_blocked)
- 		shost->max_host_blocked = sht->max_host_blocked;
- 	else
-Index: blk-fixes/include/scsi/scsi_host.h
+ static const char * xfer_mode_str[] = {
+Index: blk-fixes/drivers/scsi/libata-scsi.c
 ===================================================================
---- blk-fixes.orig/include/scsi/scsi_host.h	2005-06-05 14:50:11.000000000 +0900
-+++ blk-fixes/include/scsi/scsi_host.h	2005-06-05 14:53:35.000000000 +0900
-@@ -391,7 +391,6 @@ struct scsi_host_template {
- 	/*
- 	 * ordered write support
- 	 */
--	unsigned ordered_flush:1;
- 	unsigned ordered_tag:1;
+--- blk-fixes.orig/drivers/scsi/libata-scsi.c	2005-06-05 14:50:11.000000000 +0900
++++ blk-fixes/drivers/scsi/libata-scsi.c	2005-06-05 14:53:35.000000000 +0900
+@@ -569,6 +569,7 @@ static unsigned int ata_scsi_rw_xlat(str
+ 	struct ata_device *dev = qc->dev;
+ 	unsigned int lba   = tf->flags & ATA_TFLAG_LBA;
+ 	unsigned int lba48 = tf->flags & ATA_TFLAG_LBA48;
++	int fua = scsicmd[1] & 0x8;
+ 	u64 block = 0;
+ 	u32 n_block = 0;
  
- 	/*
-Index: blk-fixes/include/scsi/scsi_driver.h
+@@ -577,9 +578,26 @@ static unsigned int ata_scsi_rw_xlat(str
+ 
+ 	if (scsicmd[0] == READ_10 || scsicmd[0] == READ_6 ||
+ 	    scsicmd[0] == READ_16) {
++		if (fua) {
++			printk(KERN_WARNING
++			       "ata%u(%u): WARNING: FUA READ unsupported\n",
++			       qc->ap->id, qc->dev->devno);
++			return 1;
++		}
+ 		tf->command = qc->dev->read_cmd;
+ 	} else {
+-		tf->command = qc->dev->write_cmd;
++		if (fua) {
++			if (qc->dev->write_fua_cmd == 0 || !lba48) {
++				printk(KERN_WARNING
++				       "ata%u(%u): WARNING: FUA WRITE "
++				       "unsupported with the current "
++				       "protocol/addressing\n",
++				       qc->ap->id, qc->dev->devno);
++				return 1;
++			}
++			tf->command = qc->dev->write_fua_cmd;
++		} else
++			tf->command = qc->dev->write_cmd;
+ 		tf->flags |= ATA_TFLAG_WRITE;
+ 	}
+ 
+@@ -1205,10 +1223,12 @@ unsigned int ata_scsiop_mode_sense(struc
+ 	if (six_byte) {
+ 		output_len--;
+ 		rbuf[0] = output_len;
++		rbuf[2] |= ata_id_has_fua(args->id) ? 0x10 : 0;
+ 	} else {
+ 		output_len -= 2;
+ 		rbuf[0] = output_len >> 8;
+ 		rbuf[1] = output_len;
++		rbuf[3] |= ata_id_has_fua(args->id) ? 0x10 : 0;
+ 	}
+ 
+ 	return 0;
+Index: blk-fixes/include/linux/ata.h
 ===================================================================
---- blk-fixes.orig/include/scsi/scsi_driver.h	2005-06-05 14:50:11.000000000 +0900
-+++ blk-fixes/include/scsi/scsi_driver.h	2005-06-05 14:53:35.000000000 +0900
-@@ -15,7 +15,6 @@ struct scsi_driver {
- 	void (*rescan)(struct device *);
- 	int (*issue_flush)(struct device *, sector_t *);
- 	int (*prepare_flush)(struct request_queue *, struct request *);
--	void (*end_flush)(struct request_queue *, struct request *);
- };
- #define to_scsi_driver(drv) \
- 	container_of((drv), struct scsi_driver, gendrv)
+--- blk-fixes.orig/include/linux/ata.h	2005-06-05 14:50:11.000000000 +0900
++++ blk-fixes/include/linux/ata.h	2005-06-05 14:53:35.000000000 +0900
+@@ -117,6 +117,7 @@ enum {
+ 	ATA_CMD_READ_EXT	= 0x25,
+ 	ATA_CMD_WRITE		= 0xCA,
+ 	ATA_CMD_WRITE_EXT	= 0x35,
++	ATA_CMD_WRITE_FUA_EXT	= 0x3D,
+ 	ATA_CMD_PIO_READ	= 0x20,
+ 	ATA_CMD_PIO_READ_EXT	= 0x24,
+ 	ATA_CMD_PIO_WRITE	= 0x30,
+@@ -229,7 +230,8 @@ struct ata_taskfile {
+ #define ata_id_is_sata(id)	((id)[93] == 0)
+ #define ata_id_rahead_enabled(id) ((id)[85] & (1 << 6))
+ #define ata_id_wcache_enabled(id) ((id)[85] & (1 << 5))
+-#define ata_id_has_flush(id) ((id)[83] & (1 << 12))
++#define ata_id_has_fua(id)	((id)[84] & (1 << 6))
++#define ata_id_has_flush(id)	((id)[83] & (1 << 12))
+ #define ata_id_has_flush_ext(id) ((id)[83] & (1 << 13))
+ #define ata_id_has_lba48(id)	((id)[83] & (1 << 10))
+ #define ata_id_has_wcache(id)	((id)[82] & (1 << 5))
+Index: blk-fixes/include/linux/libata.h
+===================================================================
+--- blk-fixes.orig/include/linux/libata.h	2005-06-05 14:50:11.000000000 +0900
++++ blk-fixes/include/linux/libata.h	2005-06-05 14:53:35.000000000 +0900
+@@ -280,6 +280,7 @@ struct ata_device {
+ 	u8			xfer_protocol;	/* taskfile xfer protocol */
+ 	u8			read_cmd;	/* opcode to use on read */
+ 	u8			write_cmd;	/* opcode to use on write */
++	u8			write_fua_cmd;	/* opcode to use on FUA write */
+ 
+ 	/* for CHS addressing */
+ 	u16			cylinders;	/* Number of cylinders */
 

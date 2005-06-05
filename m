@@ -1,51 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261561AbVFENuG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261567AbVFEN64@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261561AbVFENuG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 09:50:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261564AbVFENuG
+	id S261567AbVFEN64 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 09:58:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261568AbVFEN64
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 09:50:06 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:39588 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261561AbVFENuB (ORCPT
+	Sun, 5 Jun 2005 09:58:56 -0400
+Received: from mail.linicks.net ([217.204.244.146]:23303 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S261567AbVFEN6w convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 09:50:01 -0400
-Date: Sun, 5 Jun 2005 15:49:16 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>,
-       Daniel Walker <dwalker@mvista.com>, Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Re: [patch] Real-Time Preemption, plist fixes
-Message-ID: <20050605134916.GA20721@elte.hu>
-References: <20050605082616.GA26824@elte.hu> <Pine.OSF.4.05.10506051044340.4252-100000@da410.phys.au.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 5 Jun 2005 09:58:52 -0400
+From: Nick Warne <nick@linicks.net>
+To: linux-kernel@vger.kernel.org
+Subject: CPU type .config <-> i386/Makefile question[s]
+Date: Sun, 5 Jun 2005 14:58:50 +0100
+User-Agent: KMail/1.8.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <Pine.OSF.4.05.10506051044340.4252-100000@da410.phys.au.dk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200506051458.50307.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello all,
 
-* Esben Nielsen <simlo@phys.au.dk> wrote:
+I am still a n00b here learning, so by all means tell me to get lost if what I 
+am about to say is total bollocks...
 
-> [...] In extreme load situations we could end up with a lot of waiters 
-> on mmap_sem forinstance.
+I was just running through building the new 2.4.31 kernel on my Quake2 box, 
+with looking at building this time with a few optimisations.
 
-what do you mean by extreme load. Extreme number of RT tasks, or extreme 
-number of tasks altogether? The sorted-list implementation i had in -RT 
-had all non-RT tasks handled in an O(1) way - the O(N) component was for 
-adding RT tasks (removal was O(1)).
+I noticed that arch/i386/Makefile uses generic -march= options.
 
-so the question is - can we have an extreme (larger than 140) number of 
-RT tasks? If yes, why are they all RT - they can have no expectation of 
-good latencies with a possible load factor of 140!
+I can have either Pentium-MMX or PentiumPro - But not Pentium2?
 
-	Ingo
+>From GCC 3.4.x docs:
+
+pentium-mmx
+Intel PentiumMMX CPU based on Pentium core with MMX instruction set support. 
+
+i686, pentiumpro
+Intel PentiumPro CPU. 
+
+pentium2
+Intel Pentium2 CPU based on PentiumPro core with MMX instruction set support. 
+
+from i386/Makefile:
+
+ifdef CONFIG_M586MMX
+CFLAGS += -march=i586
+endif
+
+ifdef CONFIG_M686
+CFLAGS += -march=i686
+endif
+
+ifdef CONFIG_MPENTIUMIII
+CFLAGS += -march=i686
+endif
+
+
+Is there a specific reason why the flags aren't -march=pentium2, pentiumpro 
+etc?
+
+Also I notice that if I changed the top level Makefile to include my specific 
+CPU, then the i386/Makefile adds += -march=i686 to the build lines AFTER 
+CFLAGS~ thus the second one will take precedence (I guess) anyway, and the 
+-march CFLAG changes are basically over-ridden?
+
+Regards,
+
+Nick
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

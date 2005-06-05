@@ -1,108 +1,89 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261333AbVFDMOQ (ORCPT <rfc822;ralf@linux-mips.org>);
-	Sat, 4 Jun 2005 08:14:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVFDMOQ
+	id S261437AbVFED4y (ORCPT <rfc822;ralf@linux-mips.org>);
+	Sat, 4 Jun 2005 23:56:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVFED4y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 4 Jun 2005 08:14:16 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:9863 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S261333AbVFDMOI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 4 Jun 2005 08:14:08 -0400
-Message-Id: <200506041214.j54CE5GR021593@zeus2.kernel.org>
-From: "PRODEK GROUP" <prodek@mynet.com>
-Reply-To: info@prodekgroup.com
-To: linux-kernel@vger.kernel.org
-Date: Sat, 4 Jun 2005 15:14:11 +0300
-Subject: PROFESYONEL  =?ISO-8859-1?Q?=20=C7=D6Z=DCMLER?= // SATINALMA - ULUSLARARASI  =?ISO-8859-1?Q?=20N?=
-	=?ISO-8859-1?Q?AKL=DDYE-TEKST=DDL?=
-X-Priority: 1
-X-Mailer: Microsoft Outlook Express 5.00.2919.7000
+	Sat, 4 Jun 2005 23:56:54 -0400
+Received: from ns2.npservices.net ([66.150.143.129]:27402 "EHLO
+	smtp.domaininap.npservices.net") by vger.kernel.org with ESMTP
+	id S261437AbVFED4w convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 4 Jun 2005 23:56:52 -0400
+From: "Jane Kluivert" <sg_infodesk@login.cz>
+Subject: Our Ref: PBL Consolation Award
+Date: Sat, 4 Jun 2005 22:48:05 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=windows-1254
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: QUOTED-PRINTABLE
+Message-ID: <WEB2imD3JkUwWpSWerO000029ed@web2.domaininap.npservices.net>
+X-OriginalArrivalTime: 05 Jun 2005 03:48:07.0953 (UTC) FILETIME=[62D1A010:01C56981]
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261333AbVFDMOQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261437AbVFED4y@vger.kernel.org>
 
+POWERBALL INTER LOTTO. BV
+POWERBALL LOTTO-WHEEL E-GAME 2005,
 
-KURUMSAL YAPINIZA UYGUN VE S=DDZ=DD T=DCM RAK=DDP VE M=DC=DETER=DDLER=DD=
-N=DDZE KAR=DEI=20
-EN =DDY=DD TARZDA TANITAB=DDLECEK PROJELER YARATMAK =DDST=DDYORSANIZ. !
+Date: 05 - 06 - 2005
+Ref Nr: PBL/CN/6654/CP
 
-HERZAMAN B=DDR ADIM =D6NDE VE BA=DEARILARI =DDLE D=DDKKAT =C7EKEN B=DDR=
- F=DDRMA OLMAK  =DDST=DDYORSANIZ. !=20
+Dear Consolation Prize Winner,
 
-BASILI YAYIN VE REKLAM HALKLA =DDL=DD=DEK=DDLER G=DDB=DD DEPARTMANLAR K=
-URMADAN,
-PAZARLAMA VE TANITIM =DD=C7=DDN EK=DDP =C7ALI=DEMALARI OLU=DETURMADAN,
+RE: CONSOLATION PRIZE NOTICE
+-----------------------------------------------------------------------=
+-----------------------------------------------------
 
-PERSONEL G=DDYS=DDLER=DD VE PROMOSYON ALIMLAR =DD=C7=DDN =DDLK ELDEN =DC=
-RET=DDC=DD =DDLE =C7ALI=DEARAK=20
-EN KAL=DDTEL=DD VE UYGUN =C7=D6Z=DCMLER BULMAK =DDST=DDYORSANIZ.!
+The POWERBALL INTER LOTTO BV, Netherlands; international lotto e-games =
+organizers and sponsors, officially notify you of the final draw result=
+ of the Powerball Lotto - Wheel E-game draw held on 20th May 2005. All =
+draws where conducted at our international corporate office complex in =
+The Netherlands.
 
-MAL=DDYETLER=DDN=DDZ=DD S=DDSTEMAT=DDK OLARAK TAK=DDP ETMEK,
+We wish to congratulate you on the selection of your email coupon numbe=
+r which was selected among the 45 lucky consolation prize winners. Your=
+ email ID identified with Coupon No.PBL2348974321 and was selected by E=
+lectronic Random Selection System (ERSS) with entries from the 50,000 d=
+ifferent email addresses enrolled for the Lotto-Wheel E-game. Your emai=
+l ID included among the 50,000 different email addresses where submitte=
+d by our partner international email provider companies.
 
-GEREKS=DDZ MASRAFLARINIZI TESP=DDT ED=DDP, TASARRUF YARATMAK,
+You have won a consolation cash prize of US $500,000.00 (Five Hundred T=
+housand US Dollars Only). The POWERBALL INTER LOTTO BV, have approved t=
+he payout of your consolation cash prize which will be remunerated dire=
+ctly to you by the official=20
+Payment Agency Board upon your preferred option.
 
-TAHM=DDN=DD B=DCT=C7E VE SATI=DE PLANLARI, F=DDNANSAL ANAL=DDZ =C7ALI=DE=
-MALARINIZI B=DCNYEN=DDZDE=20
-=C7=D6ZMEK =DDST=DDYORSANIZ.=20
-
-=DCRET=DDM=DDN=DD YAPTI=D0INIZ =DCR=DCN=DCN HEDEF K=DDTLEYE ULA=DEMASIN=
-I, H=DDTAP ETT=DD=D0=DDN=DDZ P=DDYASADA=20
-TANINMAYI EN D=DC=DE=DCK MAL=DDYETLERLE =C7=D6ZMEY=DD =DDST=DDYORSANIZ.=
-!
-
-ULUSLARARASI =DD=DE BA=D0LANTILARI VE SATI=DE D=DC=DE=DCN=DCYORSANIZ.!
-
-ULUSLARARASI NAKL=DDYE KONUSUNDA ALTERNAT=DDF =C7=D6Z=DCMLER BAKIYORSAN=
-IZ.!
-
-
-S=DDZ =DDST=DDYORSANIZ B=DDZ BURDAYIZ.!=20
-
-=C7=DCNK=DC B=DDZ DE S=DDZ=DDN =DDSTED=DDKLER=DDN=DDZ=DD =DDST=DDYORUZ.=
+Our DUE PROCESS UNIT (DPU) will render to you complete assistance and p=
+rovide additional information and processes for the claims of your cons=
+ultation prize. For more information on claim of your prize, please con=
+tact the DPU Information Officer
 =20
+NAME:     Mr. Russ Gordy
 
-D=DC=DE=DCNCELER=DDN=DDZ=DD HAYATA GE=C7=DDRMEK,
+E-mail:   russgordy@atmail.nl
+TEL:      0031-621-987-260
+FAX:      0031-847-300-537
 
-PROBLEMLER=DDN=DDZ=DD EN KISA S=DCREDE =C7=D6Z=DCMLEMEK,
+Congratulations once again from all our staffs on your consolation priz=
+e winning, we hope you will partake in our forth coming Powerball Lotto=
+-Wheel Email-games.
 
-YATIRIMLARINIZIN KAR=DEILIGINI VE KISA S=DCREDE KAZANCA D=D6N=DC=DET=DC=
-RMEK,
+Regards,
 
-M=DDN=DDMUM MAL=DDYETLE OPT=DDMAL KAZAN=C7 ELDE EDEB=DDLMEN=DDZ=DD SAGL=
-AMAK,
-
-T=DDCARET HAYATINDA HAKETT=DD=D0=DDN=DDZ YERDE OLMANIZI SA=D0LAMAK,
-
-K=DD=DE=DDSEL G=DCVEN=DDN OLMADI=D0I S=DDSTEMAT=DDK =DD=DELEY=DD=DE TAR=
-ZI VE KURUMSALLIGA SAH=DDP OLMANIZI =DDST=DDYORUZ.=20
-
-
-
-B=DDR TELEFON KADAR YAKINIZ .
-
-0212 233 70 51 // 0542 237 93 34
-info@prodekgroup.com
-
-          PRODEK GROUP=20
-PRODEK DANI=DEMANLIK VE E=D0=DDT=DDM
-PRODEK TEKST=DDL
-PRODEK B=DDLG=DD =DD=DELEM
-PRODEK MATBAACILIK VE REKLAM=20
-PRODEK GENEL SATINALMA=20
-PRODEK LOJ=DDST=DDK ULUSLARARASI TA=DEIMACILIK
-
-
-
-
-
-
-
-
-
-
+Jean Kluivert,
+(Lottery Coordinator)
+-----------------------------------------------------------------------=
+-----------------------------------------------------
+NB: In accordance with the POWERBALL LOTTO -wheel E-games policy and re=
+gulations, this notification is dispatched directly to only the 45 luck=
+y consolation prize Winners. This notification also contains informatio=
+n that is proprietary, privileged or confidential or otherwise legally =
+exempt from disclosure. If you are not the right recipient whose email =
+address attached to the lucky numbers along with the winning informatio=
+n=92s you are not authorized to read, print, retain, copy or disseminat=
+e=20
+this notice or any part of it.
 
 -
 To unsubscribe from this list: send the line "unsubscribe linux-kernel"=

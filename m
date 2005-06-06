@@ -1,67 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbVFFWID@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbVFFWLP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261744AbVFFWID (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 18:08:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVFFWID
+	id S261748AbVFFWLP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 18:11:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbVFFWLP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 18:08:03 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46605 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261744AbVFFWHj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 18:07:39 -0400
-Date: Mon, 6 Jun 2005 23:07:31 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Jesper Juhl <jesper.juhl@gmail.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@suse.cz>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.12-rc6
-Message-ID: <20050606230730.C12034@flint.arm.linux.org.uk>
-Mail-Followup-To: Jesper Juhl <jesper.juhl@gmail.com>,
-	Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@suse.cz>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org> <20050606192654.GA3155@elf.ucw.cz> <Pine.LNX.4.58.0506061310500.1876@ppc970.osdl.org> <20050606201441.GG2230@elf.ucw.cz> <Pine.LNX.4.58.0506061411410.1876@ppc970.osdl.org> <9a87484905060614576c09d08d@mail.gmail.com>
+	Mon, 6 Jun 2005 18:11:15 -0400
+Received: from cpe-24-93-172-51.neo.res.rr.com ([24.93.172.51]:35969 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S261269AbVFFWKl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 18:10:41 -0400
+Date: Mon, 6 Jun 2005 18:06:13 -0400
+From: Adam Belay <ambx1@neo.rr.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12?
+Message-ID: <20050606220612.GB3289@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <42A0D88E.7070406@pobox.com> <20050603163843.1cf5045d.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <9a87484905060614576c09d08d@mail.gmail.com>; from jesper.juhl@gmail.com on Mon, Jun 06, 2005 at 11:57:00PM +0200
+In-Reply-To: <20050603163843.1cf5045d.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 06, 2005 at 11:57:00PM +0200, Jesper Juhl wrote:
-> On 6/6/05, Linus Torvalds <torvalds@osdl.org> wrote:
+On Fri, Jun 03, 2005 at 04:38:43PM -0700, Andrew Morton wrote:
+> Jeff Garzik <jgarzik@pobox.com> wrote:
+> >
 > > 
-> > 
-> > On Mon, 6 Jun 2005, Pavel Machek wrote:
-> > >
-> > > There is "From: Dmitry..." in the changelog. Do your script move first
-> > > "From:" into author header and delete it from changelog? That would
-> > > explain it...
-> > 
-> > Yes. But note how it doesn't even take the "first" From: line, it
-> > literally takes the From: line _only_ if that line is the first line in
-> > the email body.
+> > So...  are we gonna see 2.6.12 sometime soon?
 > > 
 > 
-> A lot of times I see mails getting forwarded to you/Andrew/other
-> maintainer by someone without adding a From: or other indication of
-> who was the original author, but in almost all cases the original
-> author is the one listed as the first Signed-off-by: since authors are
-> the first to sign off on a patch, so, wouldn't it make more sense to
-> pick the author like this ;
+> Current plan is -rc6 in a few days, 2.6.12 a week after that.
+> 
+> 
+> My things-to-worry-about folder still has 244 entries.  Nobody seems to
+> care much.  Poor me.
+> 
+> Lots of USB problems, quite a few input problems.  fbdev, ACPI, ATAPI.  All
+> the usual suspects.
 
-Not necessarily.  Re-read what Signed-off-by: is all about and who
-may provide that line.  You should find that the first Signed-off-by:
-line may not be the author themselves, but someone else who is able
-to satisfy our requirements.
 
-I think people will just have to accept that there's no way to _always_
-_automatically_ get the proper author for every patch. (and that calling
-it author in git was probably the first mistake - we never had these
-issues with BK which didn't specifically indentify anything as being
-the "author" as such.)
+> Subject: Re: Fw: [Bugme-new] [Bug 4561] New: isapnp fails to find/init es18xx sound card
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+This is more of a feature request than a bug, as in we don't currently have
+a PnPBIOS driver for this hardware.  I need to look at the es18xx code to
+see how difficult it will be.
+
+> Subject: Re: PNP parallel&serial ports: module reload fails (2.6.11)?
+
+I'm looking into this issue now.
+
+> Subject: Re: [linux-pm] potential pitfall? changing configuration while PC in hibernate (fwd)
+
+I think we're gradually improving this.  Suspend-to-ram is also an issue.
+
+Thanks,
+Adam

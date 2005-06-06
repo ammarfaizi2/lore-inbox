@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261309AbVFFMYW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVFFMYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261309AbVFFMYW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 08:24:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261359AbVFFMYW
+	id S261359AbVFFMYq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 08:24:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbVFFMYq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 08:24:22 -0400
-Received: from odin2.bull.net ([192.90.70.84]:26574 "EHLO odin2.bull.net")
-	by vger.kernel.org with ESMTP id S261309AbVFFMYT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 08:24:19 -0400
-Subject: RT :  2.6.12rc5 + realtime-preempt-2.6.12-rc5-V0.7.47-15
-From: "Serge Noiraud" <serge.noiraud@bull.net>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Organization: BTS
-Message-Id: <1118059968.10102.150.camel@ibiza.btsn.frna.bull.fr>
+	Mon, 6 Jun 2005 08:24:46 -0400
+Received: from wproxy.gmail.com ([64.233.184.200]:43929 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261359AbVFFMYm convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 08:24:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=e+qjQ5GG2TK96kA21df2g2Y0il54AsQVNJL+Xg4wnvF1JnvMtlVrvPzdfTzjVNeYMZMzUZHSKcMB1As9dPVOtFlfU8spziHhcjKfMNxlPM2SmImsSVCZ2k5JNjouHCSLOjiUI5xoSrgj7m1UzQ33M2Hy+JXvPG5cUGqKgxdaOcE=
+Message-ID: <4745278c050606052477561c16@mail.gmail.com>
+Date: Mon, 6 Jun 2005 08:24:39 -0400
+From: Vishal Patil <vishpat@gmail.com>
+Reply-To: Vishal Patil <vishpat@gmail.com>
+To: Jeff Dike <jdike@addtoit.com>
+Subject: Re: Memory problems in schedule()
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050606023145.GB11352@ccure.user-mode-linux.org>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-5.1.100mdk 
-Date: Mon, 06 Jun 2005 14:12:49 +0200
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <4745278c050605180115a70b8d@mail.gmail.com>
+	 <20050606023145.GB11352@ccure.user-mode-linux.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Could someone explains me the following error with : hda: lost interrupt
-What can I do ?
-When hda error occurs, the was one RT process doing nothing with disks.
+Jeff
+Please find the answer to questions below,
 
-following the end od dmesg
+On 6/5/05, Jeff Dike <jdike@addtoit.com> wrote:
+> On Sun, Jun 05, 2005 at 09:01:19PM -0400, Vishal Patil wrote:
+> > 1) Whenever I select a process to run using my algorithm the kernel
+> > panics with "Segfault with no mm" basically the "mm" field of the
+> > task_struct that I selected is empty. I don't understand why this
+> > should happen, since I have just added code to select a process and
+> > haven't modified any memory related code in the schedule() function.
+> 
+> Start with a backtrace from the panic and debug it from there.
+> 
+> > 2) I am able to run the UMLfied kernel under gdb, however the execution
+> > never halts even though I set several breakpoints. Also these
+> > breakpoints have not been set in interrupt handling code and I have
+> > compiled the code with -g option.
+> 
+> UML and gdb versions?  tt or skas mode?
 
- (     ksoftirqd/0-3    |#0): new 15 us maximum-latency wakeup.
- (     ksoftirqd/1-6    |#1): new 16 us maximum-latency wakeup.
- (     ksoftirqd/1-6    |#1): new 20 us maximum-latency wakeup.
- (     ksoftirqd/0-3    |#0): new 22 us maximum-latency wakeup.
- (            bash-11002|#0): new 30 us maximum-latency wakeup.
- (             gpm-5508 |#0): new 31 us maximum-latency wakeup.
- hda: dma_timer_expiry: dma status == 0x24
- hda: DMA interrupt recovery
- hda: lost interrupt
- (     ksoftirqd/0-3    |#0): new 33 us maximum-latency wakeup.
- (       desched/0-4    |#0): new 37 us maximum-latency wakeup.
- (     ksoftirqd/0-3    |#0): new 48 us maximum-latency wakeup.
+
+GNU gdb Red Hat Linux (6.1post-1.20040607.41rh)
+uml-patch-2.4.27-1
+skas mode.
+
+Thank you.
+>                                 Jeff
+> 
 
 
+-- 
+A dream is just a dream. A goal is a dream with a plan and a deadline.

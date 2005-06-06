@@ -1,48 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVFFQY3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261494AbVFFQYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbVFFQY3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 12:24:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261222AbVFFQY3
+	id S261494AbVFFQYj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 12:24:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261245AbVFFQYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 12:24:29 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:37508 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S261220AbVFFQY0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 12:24:26 -0400
-Date: Mon, 6 Jun 2005 12:24:25 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Harald Welte <laforge@gnumonks.org>
-cc: David Brownell <david-b@pacbell.net>,
-       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] Re: [BUG] oops while completing async USB via
- usbdevio
-In-Reply-To: <20050606160531.GG6596@sunbeam.de.gnumonks.org>
-Message-ID: <Pine.LNX.4.44L0.0506061222380.5651-100000@iolanthe.rowland.org>
+	Mon, 6 Jun 2005 12:24:39 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:2761 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261222AbVFFQYd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 12:24:33 -0400
+Message-ID: <42A478BE.1010907@pobox.com>
+Date: Mon, 06 Jun 2005 12:24:30 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Mark Lord <liml@rtr.ca>
+CC: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] libata: shelved ioctl-get-identity patch
+References: <42A12E80.8090203@pobox.com> <42A472AC.8040307@rtr.ca>
+In-Reply-To: <42A472AC.8040307@rtr.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Jun 2005, Harald Welte wrote:
+Mark Lord wrote:
+> For now, "hdparm -I" works just fine using HDIO_DRIVE_CMD,
+> but if somebody could show me how to use ATA PASSTHRU,
+> then I'll port it over to that.
 
-> On Wed, Jun 01, 2005 at 12:12:58AM +0200, Harald Welte wrote:
-> 
-> > > > Wouldn't it help to associate the URB with the file (instaed of the
-> > > > task), and then send the signal to any task that still has opened the
-> > > > file?  I'm willing to hack up a patch, if this is considered a sane fix.
-> > > 
-> > > Sounds reasonable, except that not all such tasks will want the signal.
-> > > Though I guess the infrastructure to filter the signal out already exists,
-> > > so the main missing piece is that urb-to-file binding.
-> > 
-> > Ok, I'll get something coded shortly.
-> 
-> Unfortunately this approach is not feasible, since there is no 'reverse
-> mapping' from a file to a process.  So for every URB delivery, we would
-> have to walk that task_list and check which tasks have opened this file.
+Use the SG_IO ioctl to send ATA passthru CDBs.  Passthru CDBs are 
+defined in the T10 "SAT" specification.
 
-What about something like the standard FSETOWN fnctl?
+blktool should have example code ;-)
 
-Alan Stern
+	Jeff
+
 

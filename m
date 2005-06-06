@@ -1,59 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVFFUTf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVFFUWt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbVFFUTf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 16:19:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVFFUTF
+	id S261683AbVFFUWt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 16:22:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVFFUUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 16:19:05 -0400
-Received: from linux.dunaweb.hu ([62.77.196.1]:19129 "EHLO linux.dunaweb.hu")
-	by vger.kernel.org with ESMTP id S261658AbVFFURh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 16:17:37 -0400
-Message-ID: <42A4B328.1010400@freemail.hu>
-Date: Mon, 06 Jun 2005 22:33:44 +0200
-From: Zoltan Boszormenyi <zboszor@freemail.hu>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: hu-hu, hu, en-us, en
+	Mon, 6 Jun 2005 16:20:21 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:2705 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261658AbVFFUTQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 16:19:16 -0400
+Date: Mon, 6 Jun 2005 15:18:57 -0500 (CDT)
+From: Brent Casavant <bcasavan@sgi.com>
+Reply-To: Brent Casavant <bcasavan@sgi.com>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Andrew Morton <akpm@osdl.org>, Christoph Rohland <cr@sap.com>,
+       Robin Holt <holt@sgi.com>, "Adam J. Richter" <adam@yggdrasil.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] shmem: restore superblock info
+In-Reply-To: <Pine.LNX.4.61.0506062043470.5000@goblin.wat.veritas.com>
+Message-ID: <20050606150742.F19925@chenjesu.americas.sgi.com>
+References: <Pine.LNX.4.61.0506062043470.5000@goblin.wat.veritas.com>
+Organization: "Silicon Graphics, Inc."
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: USB mice do not work on 2.6.12-rc5-git9, -rc5-mm1, -rc5-mm2
-References: <42A2A0B2.7020003@freemail.hu>	<42A2A657.9060803@freemail.hu> <20050605001001.3e441076.akpm@osdl.org> <42A2BC4B.5060605@freemail.hu> <42A2CF27.8000806@freemail.hu> <42A3176F.9030307@freemail.hu>
-In-Reply-To: <42A3176F.9030307@freemail.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, 6 Jun 2005, Hugh Dickins wrote:
 
-Zoltan Boszormenyi írta:
-> Zoltan Boszormenyi írta:
-> 
->> I will try some older kernels, too.
-> 
-> 
-> OK, I tried 2.6.12-rc5, -rc4, -rc3, -rc2, same problem.
-> Strangest thing is, after gpm starts, I can use the USB mice
-> on the console. When X starts, the mice die. DRI bug?
-> I will try even earlier kernels, too.
+> @@ -1607,15 +1582,17 @@ static int shmem_statfs(struct super_blo
+>  	buf->f_type = TMPFS_MAGIC;
+>  	buf->f_bsize = PAGE_CACHE_SIZE;
+>  	buf->f_namelen = NAME_MAX;
+> -	if (sbinfo) {
+> -		spin_lock(&sbinfo->stat_lock);
+> +	spin_lock(&sbinfo->stat_lock);
+> +	if (sbinfo->max_blocks) {
+>  		buf->f_blocks = sbinfo->max_blocks;
+>  		buf->f_bavail = buf->f_bfree = sbinfo->free_blocks;
+> +	}
+> +	if (sbinfo->max_inodes) {
+>  		buf->f_files = sbinfo->max_inodes;
+>  		buf->f_ffree = sbinfo->free_inodes;
+> -		spin_unlock(&sbinfo->stat_lock);
+>  	}
+>  	/* else leave those fields 0 like simple_statfs */
+> +	spin_unlock(&sbinfo->stat_lock);
+>  	return 0;
+>  }
 
-I haven't disappeared, between family and workday I compiled
-and booted some earlier kernels. Final result: kernels down to
-2.6.11-bk7 do not work, 2.6.11-bk6 and -bk5 work.
-All the -bk7+ kernels I tried produced the same strange bug
-on my system: after gpm started I was able to move the
-pointer on the screen but when X started up, it's pointer froze.
+This is the only change I'm at all concerned about.
 
-Please, forget what I said about -mmX kernels, I remember
-that I updated the multiconsole patch to certain kernel versions
-and I tested them for clean compilation but I may not have
-actually booted them.
+I'm not sure how frequent statfs operations occur in practice (I suspect
+infrequently), however simply changing the existing code from "if (sbinfo)"
+to "if (sbinfo->max_blocks || sbinfo->max_inodes)" would be an appropriate
+remedy if there is a real problem.
 
-Another difference between 2.6.11-bk5/6 and -bk7+:
-Kudzu complains about a missing PS/2 keyboard and indeed,
-the kernel does not recognize the keyboard on the AUX port
-on -bk5/6, -bk7 and later recognize it again.
+That said, I'm not all that concerned about it, as my fuzzy memory
+indicates it was the lock/unlock around the statistics updates which
+caused the primary lock contention.
 
-Best regards,
-Zoltán Böszörményi
+Brent
+
+-- 
+Brent Casavant                          If you had nothing to fear,
+bcasavan@sgi.com                        how then could you be brave?
+Silicon Graphics, Inc.                    -- Queen Dama, Source Wars

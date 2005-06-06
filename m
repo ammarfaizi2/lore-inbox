@@ -1,49 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261308AbVFFLq3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVFFLzu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261308AbVFFLq3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 07:46:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261309AbVFFLq3
+	id S261341AbVFFLzu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 07:55:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261317AbVFFLzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 07:46:29 -0400
-Received: from rwcrmhc12.comcast.net ([216.148.227.85]:7066 "EHLO
-	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
-	id S261308AbVFFLqN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 07:46:13 -0400
-From: Parag Warudkar <kernel-stuff@comcast.net>
-To: Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
-Date: Mon, 6 Jun 2005 07:46:22 -0400
-User-Agent: KMail/1.8
-Cc: johnstul@us.ibm.com, linux-kernel@vger.kernel.org
-References: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net> <200506051015.33723.kernel-stuff@comcast.net> <20050606092925.GA23831@wotan.suse.de>
-In-Reply-To: <20050606092925.GA23831@wotan.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Jun 2005 07:55:50 -0400
+Received: from isilmar.linta.de ([213.239.214.66]:18338 "EHLO linta.de")
+	by vger.kernel.org with ESMTP id S261341AbVFFLzo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 07:55:44 -0400
+Date: Mon, 6 Jun 2005 13:55:42 +0200
+From: Dominik Brodowski <linux@dominikbrodowski.net>
+To: Prakash Punnoor <prakash@punnoor.de>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: cpufreq/speedstep won't work on Sony Vaio PCG-F807K
+Message-ID: <20050606115542.GA31947@isilmar.linta.de>
+Mail-Followup-To: Dominik Brodowski <linux@dominikbrodowski.net>,
+	Prakash Punnoor <prakash@punnoor.de>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <42935600.5090008@punnoor.de> <20050524203300.GA24187@isilmar.linta.de> <42939FAF.8040805@punnoor.de> <20050605172455.GH12338@dominikbrodowski.de> <42A42CA1.7080700@punnoor.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506060746.23047.kernel-stuff@comcast.net>
+In-Reply-To: <42A42CA1.7080700@punnoor.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 June 2005 05:29, Andi Kleen wrote:
-> And does it work with nopmtimer ?
->
-> -Andi
+Hi,
 
-Thanks for trimming the CC list. 
+On Mon, Jun 06, 2005 at 12:59:45PM +0200, Prakash Punnoor wrote:
+> Thanx, now the module loads and (partly) works: I now have 500MHz and 650MHz
+> *only* as selection and I can switch between them both. But why only this two
+> options?
 
-No it doesn't work with nopmtimer - music still plays fast. I have to go back 
-to 2.6.11 to get it to play at right speed. 
+Because the CPU only offers these two states.
 
-Relevant lines from rc5 with nopmtimer -
+> If I enable speedstep in bios and force it, Linux reports 133MHz or
+> alike as CPU speed,which seems to be a more realistic lower limit, as I don't
+> think going to 500MHz will save me much.
 
-Jun  6 07:11:59 tux-gentoo [    0.000000] time.c: Using 1.193182 MHz PIT 
-timer.
-Jun  6 07:11:59 tux-gentoo [    0.000000] time.c: Detected 797.952 MHz 
-processor.
-Jun  6 07:11:59 tux-gentoo [   22.152032] time.c: Using PIT/TSC based 
-timekeeping.
+However, the CPU only supports 500 MHz or 600 MHz. Possibly, the other
+effect you're seeing is from CPU frequency throttling which is (mostly)
+useless.
 
+> Is there a possibility to get the ACPI P-state driver going? Perhaps this
+> would give me a lower minimum clock. Or is the ACPI crew responsible for this
+> driver and should I ask them?
 
-Parag
+The ACPI driver most likely would export the same two states. If it doesn't
+work, it is (most likely) a BIOS issue [i.e. the BIOS only is ACPI
+1.0-compliant and not 2.0] and not an ACPI issue.
+
+	Dominik

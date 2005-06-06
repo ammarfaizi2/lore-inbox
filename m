@@ -1,115 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261687AbVFFUz0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261686AbVFFUzv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261687AbVFFUz0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 16:55:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbVFFUz0
+	id S261686AbVFFUzv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 16:55:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVFFUzv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 16:55:26 -0400
-Received: from titan.genwebhost.com ([209.9.226.66]:4279 "EHLO
-	titan.genwebhost.com") by vger.kernel.org with ESMTP
-	id S261687AbVFFUzH convert rfc822-to-8bit (ORCPT
+	Mon, 6 Jun 2005 16:55:51 -0400
+Received: from graphe.net ([209.204.138.32]:38564 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S261686AbVFFUzN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 16:55:07 -0400
-Date: Mon, 6 Jun 2005 13:54:59 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: Hanno =?ISO-8859-1?B?QvZjaw==?= <mail@hboeck.de>,
-       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Cc: sziwan@users.sourceforge.net, julien.lerouge@free.fr
-Subject: Re: Kernel oops with asus_acpi module
-Message-Id: <20050606135459.7ad699ae.rdunlap@xenotime.net>
-In-Reply-To: <200506062050.42632.mail@hboeck.de>
-References: <200506052340.41074.mail@hboeck.de>
-	<200506061929.24663.mail@hboeck.de>
-	<20050606114531.763eec37.rdunlap@xenotime.net>
-	<200506062050.42632.mail@hboeck.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - titan.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Mon, 6 Jun 2005 16:55:13 -0400
+Date: Mon, 6 Jun 2005 13:55:12 -0700 (PDT)
+From: Christoph Lameter <christoph@graphe.net>
+To: linux-kernel@vger.kernel.org
+cc: akpm@osdl.org
+Subject: [PATCH] Remove f_error field from struct file
+Message-ID: <Pine.LNX.4.62.0506061354290.16286@graphe.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(back to mailing lists + asus acpi maintainers)
+To my surpise I found that the f_error field defined for struct file is
+never set to any error value. Its just checked in a couple of places. But
+why check if it never becomes != 0?
 
+The following patch removes the f_error field and all checks of f_error.
 
-On Mon, 6 Jun 2005 20:50:42 +0200 Hanno Böck wrote:
+Signed-off-by: Christoph Lameter <christoph@lameter.com>
 
-| Am Montag, 6. Juni 2005 20:45 schrieben Sie:
-| > 2 or 3 things:
-| >
-| > a.  I can't match that Code line to any code in my
-| > compiler asus_acpi.o file.  What version of gcc are you using?
-| > Can you send me your asus_acpi.o file?
-| 
-| Attached.
-| I'm using gcc4 (but that's probably not the reason, because matthias hentges, 
-| who has a debian-system, has the same problem)
-
-Well, gcc4 does have some known issues with the Linux kernel,
-although I don't know the specifics of them.
-
-| >
-| > b.  That Code line is different from the first one that you posted.
-| > That doesn't make much sense to me....
-| 
-| Don't know why, but maybe because I recompiled the kernel with 
-| debugging-support?
-
-OK, I see that part.
-
-I'm including a patch for you to try.  Can you apply and test it
-and report back on it, please?
-
----
-
-From: Randy Dunlap <rdunlap@xenotime.net>
-linux-2612-rc5-mm2
-
-model->string.pointer was NULL, so printk of it caused an oops.
-
-Handle ASUS ACPI string descriptor with 0 length or NULL pointer
-by trying the Samsung P30 support code exception handling.
-
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
-
-diffstat:=
- drivers/acpi/asus_acpi.c |   11 ++++++++++-
- 1 files changed, 10 insertions(+), 1 deletion(-)
-
-diff -Naurp ./drivers/acpi/asus_acpi.c~asus_models ./drivers/acpi/asus_acpi.c
---- ./drivers/acpi/asus_acpi.c~asus_models	2005-03-01 23:37:53.000000000 -0800
-+++ ./drivers/acpi/asus_acpi.c	2005-06-06 13:51:40.000000000 -0700
-@@ -993,6 +993,7 @@ static int __init asus_hotk_get_info(voi
- 	/* Samsung P30 has a device with a valid _HID whose INIT does not 
- 	 * return anything. Catch this one and any similar here */
- 	if (buffer.pointer == NULL) {
-+try_p30:
- 		if (asus_info && /* Samsung P30 */
- 		    strncmp(asus_info->oem_table_id, "ODEM", 4) == 0) {
- 			hotk->model = P30;
-@@ -1009,7 +1010,15 @@ static int __init asus_hotk_get_info(voi
- 	
- 	model = (union acpi_object *) buffer.pointer;
- 	if (model->type == ACPI_TYPE_STRING) {
--		printk(KERN_NOTICE "  %s model detected, ", model->string.pointer);
-+		if (!model->string.length || !model->string.pointer) {
-+			printk(KERN_WARNING "  model string length or pointer "
-+				"is 0, trying P30 exceptions (%u, %p)\n",
-+				model->string.length, model->string.pointer);
-+			goto try_p30;
-+		}
-+		else
-+			printk(KERN_NOTICE "  %s model detected, ",
-+				model->string.pointer);
+Index: linux-2.6.12-rc5/fs/nfs/direct.c
+===================================================================
+--- linux-2.6.12-rc5.orig/fs/nfs/direct.c	2005-06-06 20:43:34.000000000 +0000
++++ linux-2.6.12-rc5/fs/nfs/direct.c	2005-06-06 20:43:51.000000000 +0000
+@@ -751,11 +751,6 @@
+ 	retval = -EFAULT;
+ 	if (!access_ok(VERIFY_READ, iov.iov_base, iov.iov_len))
+ 		goto out;
+-        if (file->f_error) {
+-                retval = file->f_error;
+-                file->f_error = 0;
+-                goto out;
+-        }
+ 	retval = -EFBIG;
+ 	if (limit != RLIM_INFINITY) {
+ 		if (pos >= limit) {
+Index: linux-2.6.12-rc5/include/linux/fs.h
+===================================================================
+--- linux-2.6.12-rc5.orig/include/linux/fs.h	2005-06-06 20:43:34.000000000 +0000
++++ linux-2.6.12-rc5/include/linux/fs.h	2005-06-06 20:43:51.000000000 +0000
+@@ -581,7 +581,6 @@
+ 	atomic_t		f_count;
+ 	unsigned int 		f_flags;
+ 	mode_t			f_mode;
+-	int			f_error;
+ 	loff_t			f_pos;
+ 	struct fown_struct	f_owner;
+ 	unsigned int		f_uid, f_gid;
+Index: linux-2.6.12-rc5/fs/open.c
+===================================================================
+--- linux-2.6.12-rc5.orig/fs/open.c	2005-06-06 20:43:34.000000000 +0000
++++ linux-2.6.12-rc5/fs/open.c	2005-06-06 20:43:51.000000000 +0000
+@@ -980,23 +980,15 @@
+  */
+ int filp_close(struct file *filp, fl_owner_t id)
+ {
+-	int retval;
+-
+-	/* Report and clear outstanding errors */
+-	retval = filp->f_error;
+-	if (retval)
+-		filp->f_error = 0;
++	int retval = 0;
+ 
+ 	if (!file_count(filp)) {
+ 		printk(KERN_ERR "VFS: Close: file count is 0\n");
+-		return retval;
++		return 0;
  	}
  
- 	hotk->model = END_MODEL;
+-	if (filp->f_op && filp->f_op->flush) {
+-		int err = filp->f_op->flush(filp);
+-		if (!retval)
+-			retval = err;
+-	}
++	if (filp->f_op && filp->f_op->flush)
++		retval = filp->f_op->flush(filp);
+ 
+ 	dnotify_flush(filp, id);
+ 	locks_remove_posix(filp, id);
+Index: linux-2.6.12-rc5/mm/filemap.c
+===================================================================
+--- linux-2.6.12-rc5.orig/mm/filemap.c	2005-06-06 20:43:34.000000000 +0000
++++ linux-2.6.12-rc5/mm/filemap.c	2005-06-06 20:43:51.000000000 +0000
+@@ -1827,12 +1827,6 @@
+         if (unlikely(*pos < 0))
+                 return -EINVAL;
+ 
+-        if (unlikely(file->f_error)) {
+-                int err = file->f_error;
+-                file->f_error = 0;
+-                return err;
+-        }
+-
+ 	if (!isblk) {
+ 		/* FIXME: this is for backwards compatibility with 2.4 */
+ 		if (file->f_flags & O_APPEND)
+

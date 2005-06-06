@@ -1,53 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVFFJr0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVFFKC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261266AbVFFJr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 05:47:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVFFJr0
+	id S261267AbVFFKC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 06:02:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261273AbVFFKC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 05:47:26 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:62098 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261266AbVFFJrW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 05:47:22 -0400
-Date: Mon, 6 Jun 2005 11:46:56 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: linux-kernel@vger.kernel.org, mpm@selenic.com
-Subject: Re: Easy trick to reduce kernel footprint
-Message-ID: <20050606094656.GA31739@wohnheim.fh-wedel.de>
-References: <20050605223528.GA13726@alpha.home.local> <20050606074745.GC24826@wohnheim.fh-wedel.de> <20050606081928.GA15312@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 6 Jun 2005 06:02:56 -0400
+Received: from wproxy.gmail.com ([64.233.184.205]:2966 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261267AbVFFKCu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 06:02:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:user-agent:cc:references:in-reply-to:mime-version:content-disposition:date:content-type:content-transfer-encoding:message-id;
+        b=qvUZ9BQU4pHFR8JlnzD8X1KCSYFawijUsXNw6yDm8TLiX9V2Kg2OrXCCSisdfYPI1KsvAggEXyOSKFKwNohZLbaovDVhJTsDeqRk6pxJ1nRNW6C8vLgyM+jNH/1GQT3B97xl5haWNJJtAe6fmaxISg9T16yFlNvYqa2b4xNQNYE=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: ericvh@gmail.com
+Subject: Re: v9fs-transport-modules.patch added to -mm tree
+User-Agent: KMail/1.7.2
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <200506060624.j566OYq4010573@shell0.pdx.osdl.net>
+In-Reply-To: <200506060624.j566OYq4010573@shell0.pdx.osdl.net>
+MIME-Version: 1.0
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050606081928.GA15312@alpha.home.local>
-User-Agent: Mutt/1.3.28i
+Date: Mon, 6 Jun 2005 14:06:43 +0400
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Message-Id: <200506061406.44290.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 June 2005 10:19:28 +0200, Willy Tarreau wrote:
-> On Mon, Jun 06, 2005 at 09:47:45AM +0200, J?rn Engel wrote:
-> > 
-> > Citeseer has never heard of that algorithm, top 10 google hits for
-> > "LZMA compression algorithm" are completely uninformative.  Does
-> > anyone actually know, what this algorithm is doing?
-> 
-> It's described here :
->    http://en.wikipedia.org/wiki/LZMA
-> 
-> implemented here :
->    http://martinus.geekisp.com/rublog.cgi/Projects/LZMA
-> 
-> and here :
->    http://www.7-zip.org/sdk.html
+Added linux-kernel, sorry.
 
-Thanks, but I already saw all three of those before I posted my reply.
-Guess the only way to tell is by reading the source...
+On Monday 06 June 2005 10:24, akpm@osdl.org wrote:
+>      v9fs: transport modules
 
-Jörn
+> --- /dev/null
+> +++ 25-akpm/fs/9p/mux.c
 
--- 
-Correctness comes second.
-Features come third.
-Performance comes last.
-Maintainability is needed for all of them.
+> +static int xread(struct v9fs_session_info *v9ses, void *ptr, unsigned long sz)
+> +{
+> +	int rd = 0;
+> +	int ret = 0;
+> +	int readnum = 0;
+> +	while (rd < sz) {
+> +		ret = v9ses->transport->read(v9ses->transport, ptr, sz - rd);
+> +		readnum++;
+> +		if (ret <= 0) {
+> +			dprintk(DEBUG_ERROR, "xread errno %d\n", ret);
+> +			return ret;
+> +		}
+> +		rd += ret;
+> +		ptr += ret;
+> +	}
+> +	return (rd);
+> +}
+
+readnum is needed for what?
+
+> +/**
+> + * read_message - read a full 9P2000 fcall packet
+> + * @v9ses: session info structure
+> + * @rcall: fcall structure to read into
+> + * @rcalllen: size of fcall structure
+
+This makes me think rcalllen == sizeof(struct v9fs_fcall) which is not true.
+
+> +static int
+> +read_message(struct v9fs_session_info *v9ses,
+> +	     struct v9fs_fcall *rcall, int rcalllen)
+> +{
+
+> +	res = v9fs_deserialize_fcall(v9ses, size, data, v9ses->maxdata,
+> +				     rcall, rcalllen);
+> +
+> +	kfree(data);
+> +
+> +	if (res == 0)
+> +		return -ENOMEM;
+
+v9fs_deserialize_fcall can return 0 if rcall->id in it is unknown. It's
+not -ENOMEM.
+
+> +static int v9fs_send(struct v9fs_session_info *v9ses, struct v9fs_rpcreq *req)
+> +{
+
+> +	ret =
+> +	    v9fs_serialize_fcall(v9ses, tcall, data,
+> +				 v9ses->maxdata + V9FS_IOHDRSZ);
+> +	if (ret == 0) {
+> +		ret = -ENOMEM;
+
+See v9fs_deserialize_fcall wrt "bad msg type".
+
+> +static int v9fs_recvproc(void *data)
+> +{
+
+> +	while (!kthread_should_stop() && err >= 0) {
+> +		rcall = kmalloc(v9ses->maxdata + V9FS_IOHDRSZ, GFP_KERNEL);
+> +		dprintk(DEBUG_MUX, "waiting for message\n");
+> +		err = read_message(v9ses, rcall, v9ses->maxdata + V9FS_IOHDRSZ);
+
+Unchecked kmalloc().
+
+> --- /dev/null
+> +++ 25-akpm/fs/9p/trans_sock.c
+
+> +/**
+> + * v9fs_tcp_init - initialize TCP socket
+> + * @trans: private socket structure for mount
+> + * @dev_name: mount target
+> + * @data: mount options
+> + *
+> + */
+> +
+> +static int
+> +v9fs_tcp_init(struct v9fs_session_info *v9ses, const char *addr, char *data)
+
+Comment and arguments don't match.
+
+> +/**
+> + * v9fs_unix_init - initialize UNIX domain socket
+> + * @trans: private socket info
+> + * @dev_name: mount target
+> + * @data: mount options
+> + *
+> + */
+> +
+> +static int
+> +v9fs_unix_init(struct v9fs_session_info *v9ses, const char *dev_name,
+> +	       char *data)
+
+Comment and arguments don't match.

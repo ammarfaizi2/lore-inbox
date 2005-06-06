@@ -1,72 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261767AbVFFXRz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261783AbVFFXxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261767AbVFFXRz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 19:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVFFXRV
+	id S261783AbVFFXxH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 19:53:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVFFXwV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 19:17:21 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:48812 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261709AbVFFWvc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 18:51:32 -0400
-Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
-From: john stultz <johnstul@us.ibm.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Parag Warudkar <kernel-stuff@comcast.net>,
-       Nishanth Aravamudan <nacc@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Christoph Lameter <clameter@sgi.com>,
-       Dominik Brodowski <linux@dominikbrodowski.de>,
-       David Mosberger <davidm@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org
-In-Reply-To: <20050605112732.GW23831@wotan.suse.de>
-References: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net>
-	 <200506021905.08274.kernel-stuff@comcast.net>
-	 <1117754453.17804.51.camel@cog.beaverton.ibm.com>
-	 <200506021950.35014.kernel-stuff@comcast.net>
-	 <20050603163010.GR23831@wotan.suse.de>
-	 <1117823257.17804.60.camel@cog.beaverton.ibm.com>
-	 <20050605112732.GW23831@wotan.suse.de>
-Content-Type: text/plain
-Date: Mon, 06 Jun 2005 15:51:18 -0700
-Message-Id: <1118098278.25706.23.camel@cog.beaverton.ibm.com>
+	Mon, 6 Jun 2005 19:52:21 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:14055 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261269AbVFFXuH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 19:50:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type;
+        b=G924pAhnXPlByhY1UpkOOmgYbbSeMexS25S6vQp8G0GTd7aYdQBXPy5L+FdAszyQRcH+08oQ+GGAOnaL3hMXhvMo4ij6EajQ+PwI444iRya1tnW5V+YJvknbW6EeW8THhg0SMBbqXn9Uvc51yctK9c5rd3yURy+MmNYRoHor3D4=
+Message-ID: <9a8748490506061650477c8b7@mail.gmail.com>
+Date: Tue, 7 Jun 2005 01:50:06 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: James Morris <jmorris@intercode.com.au>
+Subject: Resend: [PATCH] crypto: don't check for NULL before kfree(), it's redundant.
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_18706_27815704.1118101806688"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-06-05 at 13:27 +0200, Andi Kleen wrote:
-> > How about something like this?
-> > 
-> > 300 TSC 
-> > 200 HPET
-> > 200 CYCLONE
-> > 100 ACPI
-> > 050 PIT
-> > 010 JIFFIES
-> > 
-> > Then if the system has TSC issues (unsynced, cpufreq problems, etc), we
-> 
-> The priority is fine, the problem is getting the decisions for when
-> to fallback right.
-> 
-> It is quite complicated to decide this, see the x86-64 time.c code 
-> for this.
+------=_Part_18706_27815704.1118101806688
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Hmmm. I'm not sure I see the level of complication that you allude to.
-Let me re-spin my patches again with the tsc timesource auto-demotion
-and let me know if I'm missing anything.
+Here's a resend of a patch originally for 2.6.12-rc1-mm4. It still
+applies to 2.6.12-rc6
 
-thanks
--john
+The patch removes redundant checks of NULL before kfree() in crypto/ .
+
+Patch attached as well as inline since I don't know how well gmail
+handles inline patches.
 
 
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---=20
+
+ crypto/cipher.c |    3 +--
+ crypto/hmac.c   |    3 +--
+ 2 files changed, 2 insertions(+), 4 deletions(-)
+
+diff -upr linux-2.6.12-rc6-orig/crypto/cipher.c linux-2.6.12-rc6/crypto/cip=
+her.c
+--- linux-2.6.12-rc6-orig/crypto/cipher.c=092005-06-07 00:07:12.000000000 +=
+0200
++++ linux-2.6.12-rc6/crypto/cipher.c=092005-06-07 01:49:16.000000000 +0200
+@@ -336,6 +336,5 @@ out:=09
+=20
+ void crypto_exit_cipher_ops(struct crypto_tfm *tfm)
+ {
+-=09if (tfm->crt_cipher.cit_iv)
+-=09=09kfree(tfm->crt_cipher.cit_iv);
++=09kfree(tfm->crt_cipher.cit_iv);
+ }
+diff -upr linux-2.6.12-rc6-orig/crypto/hmac.c linux-2.6.12-rc6/crypto/hmac.=
+c
+--- linux-2.6.12-rc6-orig/crypto/hmac.c=092005-03-02 08:38:09.000000000 +01=
+00
++++ linux-2.6.12-rc6/crypto/hmac.c=092005-06-07 01:49:16.000000000 +0200
+@@ -49,8 +49,7 @@ int crypto_alloc_hmac_block(struct crypt
+=20
+ void crypto_free_hmac_block(struct crypto_tfm *tfm)
+ {
+-=09if (tfm->crt_digest.dit_hmac_block)
+-=09=09kfree(tfm->crt_digest.dit_hmac_block);
++=09kfree(tfm->crt_digest.dit_hmac_block);
+ }
+=20
+ void crypto_hmac_init(struct crypto_tfm *tfm, u8 *key, unsigned int *keyle=
+n)
+
+
+
+--=20
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html
+
+------=_Part_18706_27815704.1118101806688
+Content-Type: text/x-patch; name="crypto-kfree.patch"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="crypto-kfree.patch"
+
+ZGlmZiAtdXByIGxpbnV4LTIuNi4xMi1yYzYtb3JpZy9jcnlwdG8vY2lwaGVyLmMgbGludXgtMi42
+LjEyLXJjNi9jcnlwdG8vY2lwaGVyLmMKLS0tIGxpbnV4LTIuNi4xMi1yYzYtb3JpZy9jcnlwdG8v
+Y2lwaGVyLmMJMjAwNS0wNi0wNyAwMDowNzoxMi4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIu
+Ni4xMi1yYzYvY3J5cHRvL2NpcGhlci5jCTIwMDUtMDYtMDcgMDE6NDk6MTYuMDAwMDAwMDAwICsw
+MjAwCkBAIC0zMzYsNiArMzM2LDUgQEAgb3V0OgkKIAogdm9pZCBjcnlwdG9fZXhpdF9jaXBoZXJf
+b3BzKHN0cnVjdCBjcnlwdG9fdGZtICp0Zm0pCiB7Ci0JaWYgKHRmbS0+Y3J0X2NpcGhlci5jaXRf
+aXYpCi0JCWtmcmVlKHRmbS0+Y3J0X2NpcGhlci5jaXRfaXYpOworCWtmcmVlKHRmbS0+Y3J0X2Np
+cGhlci5jaXRfaXYpOwogfQpkaWZmIC11cHIgbGludXgtMi42LjEyLXJjNi1vcmlnL2NyeXB0by9o
+bWFjLmMgbGludXgtMi42LjEyLXJjNi9jcnlwdG8vaG1hYy5jCi0tLSBsaW51eC0yLjYuMTItcmM2
+LW9yaWcvY3J5cHRvL2htYWMuYwkyMDA1LTAzLTAyIDA4OjM4OjA5LjAwMDAwMDAwMCArMDEwMAor
+KysgbGludXgtMi42LjEyLXJjNi9jcnlwdG8vaG1hYy5jCTIwMDUtMDYtMDcgMDE6NDk6MTYuMDAw
+MDAwMDAwICswMjAwCkBAIC00OSw4ICs0OSw3IEBAIGludCBjcnlwdG9fYWxsb2NfaG1hY19ibG9j
+ayhzdHJ1Y3QgY3J5cHQKIAogdm9pZCBjcnlwdG9fZnJlZV9obWFjX2Jsb2NrKHN0cnVjdCBjcnlw
+dG9fdGZtICp0Zm0pCiB7Ci0JaWYgKHRmbS0+Y3J0X2RpZ2VzdC5kaXRfaG1hY19ibG9jaykKLQkJ
+a2ZyZWUodGZtLT5jcnRfZGlnZXN0LmRpdF9obWFjX2Jsb2NrKTsKKwlrZnJlZSh0Zm0tPmNydF9k
+aWdlc3QuZGl0X2htYWNfYmxvY2spOwogfQogCiB2b2lkIGNyeXB0b19obWFjX2luaXQoc3RydWN0
+IGNyeXB0b190Zm0gKnRmbSwgdTggKmtleSwgdW5zaWduZWQgaW50ICprZXlsZW4pCg==
+------=_Part_18706_27815704.1118101806688--

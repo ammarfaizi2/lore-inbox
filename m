@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVFFUSq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261503AbVFFUSq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261673AbVFFUSq (ORCPT <rfc822;willy@w.ods.org>);
+	id S261503AbVFFUSq (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 6 Jun 2005 16:18:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVFFUQl
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261672AbVFFUQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 16:16:41 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:7873 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261685AbVFFUPD (ORCPT
+	Mon, 6 Jun 2005 16:16:24 -0400
+Received: from mail.kroah.org ([69.55.234.183]:50092 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261670AbVFFUMu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 16:15:03 -0400
-Date: Mon, 6 Jun 2005 22:14:41 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.12-rc6
-Message-ID: <20050606201441.GG2230@elf.ucw.cz>
-References: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org> <20050606192654.GA3155@elf.ucw.cz> <Pine.LNX.4.58.0506061310500.1876@ppc970.osdl.org>
+	Mon, 6 Jun 2005 16:12:50 -0400
+Date: Mon, 6 Jun 2005 13:12:38 -0700
+From: Greg KH <greg@kroah.com>
+To: Abhay_Salunke@Dell.com
+Cc: marcel@holtmann.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Matt_Domsch@Dell.com
+Subject: Re: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new DellBIOS update driver
+Message-ID: <20050606201238.GA13214@kroah.com>
+References: <367215741E167A4CA813C8F12CE0143B3ED3AD@ausx2kmpc115.aus.amer.dell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0506061310500.1876@ppc970.osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <367215741E167A4CA813C8F12CE0143B3ED3AD@ausx2kmpc115.aus.amer.dell.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, Jun 06, 2005 at 03:01:04PM -0500, Abhay_Salunke@Dell.com wrote:
+> > Ok, in re-reading the firmware code, you are correct, it will still
+> > timeout in 10 seconds and call your callback.
+> > 
+> > Which, in my opinion, is wrong.  We should have some way to say "wait
+> > forever".  Care to change the firmware_class.c code to support this?
+> Will give it a try. So far the request_firmware code calls
+> kobject_hotplug with action as KOBJ_ADD. It invokes a hotplug script
+> form user mode. I guess we need to have some reverse mechanism which is
+> invoked when a user writes to the file.
 
-> > >   fix jumpy mouse cursor on console
-> > 
-> > This one was from Dmitry, and git logs know that:
-> 
-> No it doesn't. Somebody sent me a patch in the wrong format..
+Why?  Your completion function should be called when the file is closed,
+right?
 
-Okay, that was probably me, but...
+> > I was assuming that this would wait forever, and is why I pointed you
+> in
+> > this direction.  Sorry about the confusion here.
+> > 
+> I guess the earlier method of request_firmware would work out as is with
+> the only disadvantage of the user having to depend on hotplug mechanism
+> and echoing firmware name.
+> Let me know if that is acceptable till we find a solution to wait for
+> ever without using hotplug stuff.
 
-> > author Pavel Machek <pavel@suse.cz> Fri, 27 May 2005 12:53:03 -0700
-> > committer Linus Torvalds <torvalds@ppc970.osdl.org> Sat, 28 May 2005 11:14:01 -0700
-> > 
-> >     [PATCH] fix jumpy mouse cursor on console
-> > 
-> >     Do not send empty events to gpm.  (Keyboards are assumed to have scroll
-> >     wheel these days, that makes them part-mouse.  That means typing on
-> >     keyboard generates empty mouse events).
-> > 
-> >     From: Dmitry Torokhov <dtor_core@ameritech.net>
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-> >     Signed-off-by: Pavel Machek <pavel@suse.cz>
-> >     Signed-off-by: Andrew Morton <akpm@osdl.org>
-> >     Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-> > 
-> > ...perhaps shortlog script needs some updating?
-> 
-> No, it isn't going to go through the body of the email.
-> 
-> The way that author attributions get done right is if the first line of 
-> the body of the email has a "From: xyzzy <abc@xyz.com>" in it.
+Why not fix the firmware_class.c code now?  :)
 
-There is "From: Dmitry..." in the changelog. Do your script move first
-"From:" into author header and delete it from changelog? That would
-explain it...
-								Pavel
+thanks,
+
+greg k-h

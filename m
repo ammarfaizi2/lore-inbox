@@ -1,62 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261436AbVFFOK0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261462AbVFFOM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261436AbVFFOK0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 10:10:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261462AbVFFOK0
+	id S261462AbVFFOM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 10:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261467AbVFFOM0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 10:10:26 -0400
-Received: from rproxy.gmail.com ([64.233.170.196]:44400 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261436AbVFFOKU convert rfc822-to-8bit
+	Mon, 6 Jun 2005 10:12:26 -0400
+Received: from anubis.fi.muni.cz ([147.251.54.96]:26640 "EHLO
+	anubis.fi.muni.cz") by vger.kernel.org with ESMTP id S261462AbVFFOMH
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 10:10:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=IDqoUQKTeBCwTkxrK8nUvKh+HrdJqSALRtq1N/OBcrv6d8kGkD0K7WF1z+jWMf5Xp9BJ14WAxL7hCUf2yfpMwOeBgVyJWlpy/ybUsL8+9hS5rHgzG+6GNtqywXNdjUYMhKX+q2mi5GXtEmr8HWf5fXHSYDFvbnpP+SO2B7BGVdo=
-Message-ID: <75052be705060607106a6c0882@mail.gmail.com>
-Date: Mon, 6 Jun 2005 22:10:17 +0800
-From: Skywind <gnuwind@gmail.com>
-Reply-To: Skywind <gnuwind@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Is kernel 2.6.11 adjust tcp_max_syn_backlog incorrectly?
-In-Reply-To: <75052be7050606070691c302d@mail.gmail.com>
+	Mon, 6 Jun 2005 10:12:07 -0400
+Date: Mon, 6 Jun 2005 16:12:14 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Christoph Hellwig <hch@infradead.org>, linux-kernel@vger.kernel.org
+Subject: Re: Sk98Lin driver
+Message-ID: <20050606141214.GA2837@mail.muni.cz>
+References: <20050606131425.GF18862@mail.muni.cz> <20050606132841.GA10486@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-References: <75052be7050606070691c302d@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050606132841.GA10486@infradead.org>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Is kernel 2.6.11 adjust tcp_max_syn_backlog incorrectly?
+On Mon, Jun 06, 2005 at 02:28:42PM +0100, Christoph Hellwig wrote:
+> Can you give the skge driver that obsoletes sk98lin in -mm?
+> 
+> (insert rant here why it's still not in mainline)
 
-Test Backgroud:
-CPU: Intel P4
-Mem: 512Mb
-The /etc/sysctl.conf and other haven't touch anything.
+Slightly better but still not good enough.
 
-I found a strange question: when I use kernel 2.6.11, the value of
-/proc/sys/net/ipv4/tcp_max_syn_backlog is 256,
-while kernel 2.6.10 on same computer the value is 1024.
+Using my testing application it reports about 10 errors/sec (frame). 
 
-So I check the net/ipv4/[tcp.c, tcp_ipv4.c] and know when Mem >= 256Mb
-the tcp_max_syn_backlog will be set to 1024,
-but it is 256 in my test above.
+Using iperf:
+iperf -s -u -w 16m
+------------------------------------------------------------
+Server listening on UDP port 5001
+Receiving 1470 byte datagrams
+UDP buffer size: 16.0 MByte
+------------------------------------------------------------
+[  5] local 147.251.54.96 port 5001 connected with 147.251.54.34 port 32915
+[  5]  0.0-10.3 sec    614 MBytes    502 Mbits/sec  15.220 ms 376630/814324 (46%)
+[  5]  0.0-10.3 sec  1 datagrams received out-of-order
 
-Some other variables that should be adjust all together with
-tcp_max_syn_backlog are:
-ip_local_port_range
-tcp_max_tw_buckets
-tcp_max_orphans
-But they don't be adjust to correctly value(refer to net/ipv4/tcp.c) all.
+it is 46% packet loss but no errors on interface.
 
-It seems that kernel don't adjust these value automatic, is this a bug?
+(peer is dual opteron box, my box is Pentium-M 1.6GHz, 512MB RAM).
 
-I guess the mechanism of tcp.c in 2.6.11 have some changes(between
-2.6.10), and it conduce to this result,
-Is this guess correctly?
+Sending to peer using iperf:
+iperf -s -u -w 16m
+------------------------------------------------------------
+Server listening on UDP port 5001
+Receiving 1470 byte datagrams
+UDP buffer size: 16.0 MByte
+------------------------------------------------------------
+[  3] local 147.251.54.34 port 5001 connected with 147.251.54.96 port 1024
+[  3]  0.0-10.0 sec    836 MBytes    700 Mbits/sec  0.013 ms 290722/886955 (33%)
+[  3]  0.0-10.0 sec  1 datagrams received out-of-order
 
+This second case is a lot better than original driver from syskonnect which
+flooded outgoing interface at rate 500Mbps and no more packets were transmitted.
 
+Boxes are interconnected using GE switch which can handle about 920Mbps between
+two dual operon boxes.
 
-Xu Gang (Skywind)
-2005/06/06
+-- 
+Luká¹ Hejtmánek

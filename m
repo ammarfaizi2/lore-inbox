@@ -1,74 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVFFT4f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261660AbVFFT4e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261650AbVFFT4f (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 15:56:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVFFTxK
+	id S261660AbVFFT4e (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 15:56:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261645AbVFFTx7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 15:53:10 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:51926 "EHLO
+	Mon, 6 Jun 2005 15:53:59 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:23786 "EHLO
 	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261650AbVFFTvX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 15:51:23 -0400
-Date: Mon, 6 Jun 2005 20:52:22 +0100 (BST)
+	id S261651AbVFFTwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 15:52:51 -0400
+Date: Mon, 6 Jun 2005 20:53:46 +0100 (BST)
 From: Hugh Dickins <hugh@veritas.com>
 X-X-Sender: hugh@goblin.wat.veritas.com
 To: Andrew Morton <akpm@osdl.org>
-cc: Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] bad_page: clear reclaim and slab
-Message-ID: <Pine.LNX.4.61.0506062051100.5000@goblin.wat.veritas.com>
+cc: Guenter Geiger <geiger@debian.org>, linux-kernel@vger.kernel.org
+Subject: [PATCH] rme96xx: fix PageReserved range
+Message-ID: <Pine.LNX.4.61.0506062052260.5000@goblin.wat.veritas.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
-X-OriginalArrivalTime: 06 Jun 2005 19:51:21.0980 (UTC) 
-    FILETIME=[1D280BC0:01C56AD1]
+X-OriginalArrivalTime: 06 Jun 2005 19:52:45.0746 (UTC) 
+    FILETIME=[4F15B920:01C56AD1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since free_pages_check complains if PG_reclaim or PG_slab is set, bad_page
-ought to clear them to avoid repetitive reports (Nikita noticed this too).
-Let prep_new_page check page_count and PG_slab as free_pages_check does.
+rme96xx busmaster_malloc miscalculates and fails to set PageReserved on
+any page of char *buf; but busmaster_free does it right, so do the same
+(I don't have the card, just noticed this while sifting for rmap BUGs).
 
 Signed-off-by: Hugh Dickins <hugh@veritas.com>
 ---
 
- mm/page_alloc.c |   15 ++++++++++-----
- 1 files changed, 10 insertions(+), 5 deletions(-)
+ sound/oss/rme96xx.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
---- 2.6.12-rc6/mm/page_alloc.c	2005-05-25 18:09:21.000000000 +0100
-+++ linux/mm/page_alloc.c	2005-06-04 20:41:55.000000000 +0100
-@@ -105,11 +105,13 @@ static void bad_page(const char *functio
- 	printk(KERN_EMERG "Backtrace:\n");
- 	dump_stack();
- 	printk(KERN_EMERG "Trying to fix it up, but a reboot is needed\n");
--	page->flags &= ~(1 << PG_private	|
-+	page->flags &= ~(1 << PG_lru	|
-+			1 << PG_private |
- 			1 << PG_locked	|
--			1 << PG_lru	|
- 			1 << PG_active	|
- 			1 << PG_dirty	|
-+			1 << PG_reclaim |
-+			1 << PG_slab    |
- 			1 << PG_swapcache |
- 			1 << PG_writeback);
- 	set_page_count(page, 0);
-@@ -440,14 +442,17 @@ void set_page_refs(struct page *page, in
-  */
- static void prep_new_page(struct page *page, int order)
- {
--	if (page->mapping || page_mapcount(page) ||
--	    (page->flags & (
-+	if (	page_mapcount(page) ||
-+		page->mapping != NULL ||
-+		page_count(page) != 0 ||
-+		(page->flags & (
-+			1 << PG_lru	|
- 			1 << PG_private	|
- 			1 << PG_locked	|
--			1 << PG_lru	|
- 			1 << PG_active	|
- 			1 << PG_dirty	|
- 			1 << PG_reclaim	|
-+			1 << PG_slab    |
- 			1 << PG_swapcache |
- 			1 << PG_writeback )))
- 		bad_page(__FUNCTION__, page);
+--- 2.6.12-rc6/sound/oss/rme96xx.c	2005-03-02 07:38:55.000000000 +0000
++++ linux/sound/oss/rme96xx.c	2005-06-04 20:41:55.000000000 +0100
+@@ -807,7 +807,7 @@ static void* busmaster_malloc(int size) 
+                 struct page* page, *last_page;
+ 
+                 page = virt_to_page(buf);
+-                last_page = virt_to_page(buf + (1 << pg));
++                last_page = page + (1 << pg);
+                 DBG(printk("setting reserved bit\n"));
+                 while (page < last_page) {
+ 			SetPageReserved(page);

@@ -1,59 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261250AbVFFJ1V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261248AbVFFJ3o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261250AbVFFJ1V (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 05:27:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbVFFJ1U
+	id S261248AbVFFJ3o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 05:29:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261249AbVFFJ3o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 05:27:20 -0400
-Received: from god.demon.nl ([83.160.164.11]:62737 "EHLO god.dyndns.org")
-	by vger.kernel.org with ESMTP id S261255AbVFFJ0M (ORCPT
+	Mon, 6 Jun 2005 05:29:44 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:56453 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261248AbVFFJ31 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 05:26:12 -0400
-Date: Mon, 6 Jun 2005 11:26:08 +0200
-From: Henk <Henk.Vergonet@gmail.com>
-To: Edgar Toernig <froese@gmx.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC] new 7-segments char translation API
-Message-ID: <20050606092608.GA16471@god.dyndns.org>
-References: <20050531220738.GA21775@god.dyndns.org> <429DAB07.1050900@anagramm.de> <20050604204403.GA10417@god.dyndns.org> <20050605005329.70d9461a.froese@gmx.de>
+	Mon, 6 Jun 2005 05:29:27 -0400
+Date: Mon, 6 Jun 2005 11:29:26 +0200
+From: Andi Kleen <ak@suse.de>
+To: Parag Warudkar <kernel-stuff@comcast.net>
+Cc: johnstul@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
+Message-ID: <20050606092925.GA23831@wotan.suse.de>
+References: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net> <200506041440.09795.kernel-stuff@comcast.net> <20050605112840.GX23831@wotan.suse.de> <200506051015.33723.kernel-stuff@comcast.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050605005329.70d9461a.froese@gmx.de>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <200506051015.33723.kernel-stuff@comcast.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 05, 2005 at 12:53:29AM +0200, Edgar Toernig wrote:
-> By your reasoning /usr/dict/words had to be in the kernel,
-> too.
+cc list trimmed. John please dont send out mails with such 
+a horrible cc list anymore.
 
-Well by my reasoning you should, if possible, define some usefull
-standards that will allow te reuse of these dictionaries within other
-applications.
+On Sun, Jun 05, 2005 at 10:15:33AM -0400, Parag Warudkar wrote:
+> On Sunday 05 June 2005 07:28, Andi Kleen wrote:
+> > Do you actually use pmtimer? Please send a dmesg log.
+> >
+> Full dmesg attached - 2.6.12-rc5 seems to use pmtimer.
 
-And while we're on the subject of whats IN or OUT, (and I'll bet if you
-ask 10 kernel developers you'll get 10 answers but I try anyway ;)
+And does it work with nopmtimer ? 
 
-In my philosophy the OS (kernel + device drivers) is an abstraction of
-the machine, it should present the 'machine' in such a way that allows
-for other abstractions such as a word processor to operate without having
-to know the specifics of hardware devices.
+-Andi
 
-To have a guideline on the 7 segments notation and to have a few defines
-that allow ASCII chars to be represented on 7 segments displays also help
-to support the 'machine' abstraction.
-
-Wheter or not /usr/dict/words should be 'in the kernel' is not being
-discussed here, so I am not going to elaborate on that.
-
-Cheers,
-
-henk
-
-
-PS I am not on the list, so please use CC if you're interested in a response.
-PS Please excuse any spelling mistakes, I don't have a spelling checker
-installed...
-
-
+> 
+> From 2.6.12-rc5 -
+> ---------------------------------------
+> Jun  5 10:04:04 tux-gentoo [    0.000000] time.c: Using 3.579545 MHz PM timer.
+> Jun  5 10:04:04 tux-gentoo [    0.000000] time.c: Detected 797.956 MHz 
+> processor.
+> Jun  5 10:04:04 tux-gentoo [   14.020805] time.c: Using PIT/TSC based 
+> timekeeping.

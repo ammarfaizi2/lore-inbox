@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVFFQCC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbVFFQCZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbVFFQCC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 12:02:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbVFFQCB
+	id S261209AbVFFQCZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 12:02:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261257AbVFFQCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 12:02:01 -0400
-Received: from wproxy.gmail.com ([64.233.184.192]:38081 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261225AbVFFQBq convert rfc822-to-8bit
+	Mon, 6 Jun 2005 12:02:17 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:61201 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S261209AbVFFQCD
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 12:01:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=IIs56KADn2DmuEnlCsYYrFGZ05ViIABTOKqx45o4OvgR/CpAtpxorDjEgeVh2BrBHGU2F/dXWVgOdbvBtpgEiwHbj66bC0OlI0wYYzCMFyWVYsOrhRUOY96k8tlBfsHq4Xbumz4HiuEs2C5V2pUDbRIOwJWbHyv4th1pqEY2oaQ=
-Message-ID: <58cb370e05060609014039a23@mail.gmail.com>
-Date: Mon, 6 Jun 2005 18:01:14 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Broken nForce2 IDE module loading via hotplug
-Cc: Andrew Chew <AChew@nvidia.com>, Juerg Billeter <juerg@paldo.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <42947ED9.9040401@pobox.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <DBFABB80F7FD3143A911F9E6CFD477B00604C7BE@hqemmail02.nvidia.com>
-	 <42947ED9.9040401@pobox.com>
+	Mon, 6 Jun 2005 12:02:03 -0400
+Message-ID: <42A47376.80203@rtr.ca>
+Date: Mon, 06 Jun 2005 12:01:58 -0400
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Greg Stark <gsstark@mit.edu>
+Cc: Jeff Garzik <jgarzik@pobox.com>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: [SATA] libata-dev queue updated
+References: <42A14541.6020209@pobox.com> <87vf4ujgmj.fsf@stark.xeocode.com>
+In-Reply-To: <87vf4ujgmj.fsf@stark.xeocode.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/25/05, Jeff Garzik <jgarzik@pobox.com> wrote:
-> Andrew Chew wrote:
-> > Actually, it occurred to me that it would be better if the determination
-> > to use the generic entry can be run-time specified (via a kernel option
-> > flag, for example).  All the kernel config option accomplishes is a
-> > cleaner way to disable the generic entry at compile time.
-> >
-> > In any case, it'd be interesting to figure out the EXACT root of the
-> > problem.  Let me spend a few days looking into it.
-> 
-> Any progress?
+Greg Stark wrote:
+>
+> Are there diffs downloadable for these? In particular I'm looking for
+> passthru. I'm imagining that with passthru SMART works?
 
-It would be nice to get it fixed before 2.6.12...
-Even if it means reverting the patch...
+SMART works already using the HDIO_* ioctls in libata-dev
+(these may be built on top of the passthru stuff.. dunno).
 
-Bartlomiej
+Eg.  smartctl -data -a /dev/sda
+
+Cheers
+

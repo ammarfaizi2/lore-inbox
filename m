@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVFFPEH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261498AbVFFPFP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbVFFPEH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 11:04:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbVFFPEG
+	id S261498AbVFFPFP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 11:05:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261502AbVFFPFP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 11:04:06 -0400
-Received: from zproxy.gmail.com ([64.233.162.198]:43490 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261497AbVFFPDv convert rfc822-to-8bit
+	Mon, 6 Jun 2005 11:05:15 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:36602 "EHLO
+	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S261498AbVFFPFJ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 11:03:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=aOq3Fea2biV6g/pUWmsjBDPv2II2tH3f7xa7rhkRlogIn+XA5ZDPPg11Z8bFH6Y30XtdBZj+8LTkNoBLsT0lC9qsSwXF+EWRZuvEXJFpmR5ytHMnOhay8Y7YHHGPvTco1beXHDrhDbb26FXGhFzIxwsCB2+mZDV8KdYOYof3R8E=
-Message-ID: <4789af9e0506060803161a8382@mail.gmail.com>
-Date: Mon, 6 Jun 2005 09:03:50 -0600
-From: Jim Ramsay <jim.ramsay@gmail.com>
-Reply-To: Jim Ramsay <jim.ramsay@gmail.com>
-To: Bjorn Helgaas <bjorn.helgaas@hp.com>
-Subject: Re: Bug in 8520.c - port.type not set for serial console
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200505311625.46084.bjorn.helgaas@hp.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4789af9e05053015385667923@mail.gmail.com>
-	 <200505311625.46084.bjorn.helgaas@hp.com>
+	Mon, 6 Jun 2005 11:05:09 -0400
+Date: Mon, 6 Jun 2005 08:04:53 -0700 (PDT)
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Esben Nielsen <simlo@phys.au.dk>, Thomas Gleixner <tglx@linutronix.de>,
+       <linux-kernel@vger.kernel.org>,
+       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: [patch] Real-Time Preemption, plist fixes
+In-Reply-To: <20050606073229.GA9143@elte.hu>
+Message-ID: <Pine.LNX.4.44.0506060800300.27907-100000@dhcp153.mvista.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 5/31/05, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
-> On Monday 30 May 2005 4:38 pm, Jim Ramsay wrote:
-> > I am attempting to get the 8520.c driver's serial console working with
-> > a 16550A UART implementation, and have run into what I consider to be
-> > a bug:  In short, the proper 'port.type' for this serial port is not
-> > set until the module init (serial8250_init) is called, so the FCR is
-> > set incorrectly during serial8250_console_init for any port type which
-> > is different than UNKNOWN.
-> >
-> > The exact problem is that the FCR is being set to '0x0' for a port
-> > type of 'UNKNOWN', when for my specific 16550A, it should be set to
-> > '0xC1' - and this makes my screen fill with empty characters instead
-> > of the printk output I need.
+On Mon, 6 Jun 2005, Ingo Molnar wrote:
 > 
-> Shouldn't a 16550A UART work correctly with FCR==0x0, i.e., with FIFOs
-> disabled?  Is your UART broken?
+> yes, it's supposed to be used for user-space PI too. What do you mean by 
+> 'completely bounded'. Do you consider the current worst-case O(100) 
+> property of plists a 'completely bounded' solution?
+> 
+> i dont think fusyn's should be made available to non-RT tasks. If this 
+> restriction is preserved then fusyn's would become O(max_nr_RT_tasks) 
+> too.
 
-That's a good question.  I'll me looking into this in the near future.
+	I think making fusyn RT tasks only would be asking a lot. Fusyn 
+replaces Futex, and they are both used in pthreads. So non-RT tasks 
+wouldn't be able to use pthreads in userspace, or a big chunk of pthread 
+..
 
-> Serial console output is always polled, one character at a time, so
-> you shouldn't need FIFOs until later.
+Daniel
 
-True, as long as it works that way... so far I haven't seen it
-actually function properly yet with FCR set to 0.
-
--- 
-Jim Ramsay
-"Me fail English?  That's unpossible!"

@@ -1,52 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbVFFOph@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbVFFOuY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261484AbVFFOph (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 10:45:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVFFOph
+	id S261482AbVFFOuY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 10:50:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVFFOuX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 10:45:37 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10916 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261484AbVFFOpV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 10:45:21 -0400
-Date: Mon, 6 Jun 2005 16:45:01 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Bizarre oops after suspend to RAM (was: Re: [ACPI] Resume from Suspend to RAM)
-Message-ID: <20050606144501.GB2243@elf.ucw.cz>
-References: <200506051456.44810.hugelmopf@web.de> <1117978635.6648.136.camel@tyrosine> <200506051732.08854.stefandoesinger@gmx.at> <1118053578.6648.142.camel@tyrosine> <1118056003.6648.148.camel@tyrosine>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1118056003.6648.148.camel@tyrosine>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Mon, 6 Jun 2005 10:50:23 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:51195 "EHLO
+	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S261482AbVFFOuS
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 10:50:18 -0400
+Date: Mon, 6 Jun 2005 07:49:59 -0700 (PDT)
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: linux-kernel@vger.kernel.org,
+       Inaky Perez-Gonzalez <inaky.perez-gonzalez@intel.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: [patch] Real-Time Preemption, plist fixes
+In-Reply-To: <20050606074458.GA11875@elte.hu>
+Message-ID: <Pine.LNX.4.44.0506060747550.27907-100000@dhcp153.mvista.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Mon, 6 Jun 2005, Ingo Molnar wrote:
 
-> > > I've no idea how to debug a reboot, but if the system hangs it's possible to 
-> > > add "lcall $0xffff,$0" early in the wakeup assembler code. If the system 
-> > > reboots immediatly then, the kernels wakeup code was reached and the kernel 
-> > > hangs later during resume.
-> > 
-> > Ok, I've just tried that. The system still just freezes.
 > 
-> Whoops. May have been a bit too hasty there. I'm not sure why that
-> doesn't reset it, but we've now got the following (really rather odd)
-> serial output. Does anyone have any idea what might be triggering this?
-> Shell builtins work fine, but anything else seems to explode very
-> messily. Memory corruption of some description?
+> * Daniel Walker <dwalker@mvista.com> wrote:
 > 
-> ^MRestarting tasks... done
-> ^Mroot@(none):/# ^M
-> root@(none):/# ls -la ^M
-> Unable to handle kernel NULL pointer dereference at virtual address
-> > > 00000024
+> > 	For me it's strictly a speed question. I was reviewing 
+> > V0.7.40-04 and it looks like apples and oranges to me. It's more a 
+> > question of where do you perfer the latency , in up() or in down() .. 
+> > plist is slower for non-RT tasks, but non-RT tasks also get the 
+> > benefit of priority ordering.
+> 
+> what benefit do non-RT tasks get from plists, compared to the ordered 
+> list? Non-RT tasks are not PI handled in any way.
 
-NULL pointer dereference in filp_open; whats that strange about it?
-Use printks to debug this one, nothing mysterious.
-								Pavel
+The original wait list was partial ordered, wasn't it? RT tasks on the 
+front, non-RT at the back. Now the whole list is sorted (including non RT 
+tasks) . So non-RT task will get the lock in priority sorted order, as 
+opposed to just random. Like you said, there is no PI done.
+
+
+Daniel
 

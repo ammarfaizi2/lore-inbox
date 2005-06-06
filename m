@@ -1,40 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVFFVvh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261705AbVFFV5M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261704AbVFFVvh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 17:51:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbVFFVvh
+	id S261705AbVFFV5M (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 17:57:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261708AbVFFV5L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 17:51:37 -0400
-Received: from fire.osdl.org ([65.172.181.4]:41357 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261707AbVFFVvX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 17:51:23 -0400
-Date: Mon, 6 Jun 2005 14:53:22 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Pavel Machek <pavel@suse.cz>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+	Mon, 6 Jun 2005 17:57:11 -0400
+Received: from zproxy.gmail.com ([64.233.162.199]:41266 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261705AbVFFV5B convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 17:57:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=j3XgF7/CZkDE2Iz2/wQOF0me+7TURWgmtICEgf0Kj1sjcgfbcGcDlpYlEkr2S9Ve2kYV+BhoccbOudclV1VXI5UjlqVaUcDAArBgOtN/jk6s6A9JUblKj0P8R+RnJaxYPL3vPIz9YYdcmAIe6QwJaY074lnnUF2CrTbuvCgDlGs=
+Message-ID: <9a87484905060614576c09d08d@mail.gmail.com>
+Date: Mon, 6 Jun 2005 23:57:00 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: Linus Torvalds <torvalds@osdl.org>
 Subject: Re: Linux v2.6.12-rc6
-In-Reply-To: <20050606214124.GL2230@elf.ucw.cz>
-Message-ID: <Pine.LNX.4.58.0506061452320.1876@ppc970.osdl.org>
+Cc: Pavel Machek <pavel@suse.cz>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.58.0506061411410.1876@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 References: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org>
- <20050606192654.GA3155@elf.ucw.cz> <Pine.LNX.4.58.0506061310500.1876@ppc970.osdl.org>
- <20050606201441.GG2230@elf.ucw.cz> <Pine.LNX.4.58.0506061411410.1876@ppc970.osdl.org>
- <20050606211849.GK2230@elf.ucw.cz> <Pine.LNX.4.58.0506061433480.1876@ppc970.osdl.org>
- <20050606214124.GL2230@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	 <20050606192654.GA3155@elf.ucw.cz>
+	 <Pine.LNX.4.58.0506061310500.1876@ppc970.osdl.org>
+	 <20050606201441.GG2230@elf.ucw.cz>
+	 <Pine.LNX.4.58.0506061411410.1876@ppc970.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Mon, 6 Jun 2005, Pavel Machek wrote:
+On 6/6/05, Linus Torvalds <torvalds@osdl.org> wrote:
 > 
-> Okay, I see. I'm little afraid that during forwards blank line will be
-> inserted before "From: " and break this, but lets see how it works.
+> 
+> On Mon, 6 Jun 2005, Pavel Machek wrote:
+> >
+> > There is "From: Dmitry..." in the changelog. Do your script move first
+> > "From:" into author header and delete it from changelog? That would
+> > explain it...
+> 
+> Yes. But note how it doesn't even take the "first" From: line, it
+> literally takes the From: line _only_ if that line is the first line in
+> the email body.
+> 
 
-Oh, I skip blank lines (and that means any line that is "whitespace only", 
-ie tabs/spaces etc won't confuse the scripts), so at least it's not _that_ 
-subtle.
+A lot of times I see mails getting forwarded to you/Andrew/other
+maintainer by someone without adding a From: or other indication of
+who was the original author, but in almost all cases the original
+author is the one listed as the first Signed-off-by: since authors are
+the first to sign off on a patch, so, wouldn't it make more sense to
+pick the author like this ;
 
-		Linus
+1) If there's a "From:" at the start of the email, use that (note: a
+lot of times this actually breaks since From: is often set by
+maintainers to the person who forwarded the mail, not the actual
+author, but that's a matter of educating maintainers).
+
+2) if there's no "From:" in the mail body, pick first "signed-off-by:" 
+
+3) Fall back on email headers.
+
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

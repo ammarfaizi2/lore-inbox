@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbVFFELZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261173AbVFFELn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261172AbVFFELZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 00:11:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVFFELZ
+	id S261173AbVFFELn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 00:11:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261177AbVFFELn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 00:11:25 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:29895 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261172AbVFFELX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 00:11:23 -0400
-Message-ID: <42A3CCDF.7000701@pobox.com>
-Date: Mon, 06 Jun 2005 00:11:11 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Keith Owens <kaos@ocs.com.au>
-CC: linux-kernel@vger.kernel.org, sam@ravnborg.org
-Subject: Re: [patch 2.6.12-rc5] Stop arch/i386/kernel/vsyscall-note.o being
- rebuilt every time
-References: <615.1118029984@kao2.melbourne.sgi.com>
-In-Reply-To: <615.1118029984@kao2.melbourne.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Mon, 6 Jun 2005 00:11:43 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:62219 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261173AbVFFELj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 00:11:39 -0400
+Date: Mon, 6 Jun 2005 06:11:01 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: linux-kernel@vger.kernel.org, mpm@selenic.com
+Subject: Re: Easy trick to reduce kernel footprint
+Message-ID: <20050606041101.GA14799@alpha.home.local>
+References: <20050605223528.GA13726@alpha.home.local> <20050606010246.GA22252@animx.eu.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050606010246.GA22252@animx.eu.org>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Keith Owens wrote:
-> arch/i386/kernel/vsyscall-note.o is not listed as a target so its .cmd
-> file is neither considered as a target nor is it read on the next
-> build.  This causes vsyscall-note.o to be rebuilt every time that you
-> run make, which causes vmlinux to be rebuilt every time.
+On Sun, Jun 05, 2005 at 09:02:46PM -0400, Wakko Warner wrote:
+> Willy Tarreau wrote:
+> > Here's a simple trick for all those who try to squeeze their kernels to the
+> > absolute smallest size.
+> > 
+> > I recently discovered p7zip which comes with the LZMA compression algorithm,
+> > which is somewhat better than gzip and bzip2 on most datasets, and I also
+> > noticed that this tool provides support for gzip and bzip2 outputs. So I tried
+> > to produce some of those standard outputs, and observed a slight gain compared
+> > to the default tools. The reason is that we can change the number of passes and
+> > the dictionnary size.
 > 
-> Signed-off-by: Keith Owens <kaos@ocs.com.au>
+> Is it any smaller than a UPX'd kernel?  (I think you need the beta version. 
+> I know the upx-ucl in debian won't compress but upx-ucl-beta will if you
+> force).  I got a significant reduction using it.
 
-Nice, thanks.  That always annoyed me.
+It's not better at all, but unfortunately, UPX cannot compress a kernel which
+embeds a big initramfs. The problem is that the compressed initramfs is
+embedded into vmlinux, which is then compressed into bzImage, and UPX only
+replaces the bzImage compression.
 
-	Jeff
+May be it would work if we did not compress the initramfs before including
+it into the vmlinux.
 
+Willy
 

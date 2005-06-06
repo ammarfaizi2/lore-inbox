@@ -1,44 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261169AbVFFDxZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261172AbVFFELZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261169AbVFFDxZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 23:53:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261172AbVFFDxZ
+	id S261172AbVFFELZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 00:11:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261173AbVFFELZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 23:53:25 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:9159 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S261169AbVFFDxW (ORCPT
+	Mon, 6 Jun 2005 00:11:25 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:29895 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261172AbVFFELX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 23:53:22 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: linux-kernel@vger.kernel.org
-Cc: sam@ravnborg.org
-Subject: [patch 2.6.12-rc5] Stop arch/i386/kernel/vsyscall-note.o being rebuilt every time
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 06 Jun 2005 13:53:04 +1000
-Message-ID: <615.1118029984@kao2.melbourne.sgi.com>
+	Mon, 6 Jun 2005 00:11:23 -0400
+Message-ID: <42A3CCDF.7000701@pobox.com>
+Date: Mon, 06 Jun 2005 00:11:11 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Keith Owens <kaos@ocs.com.au>
+CC: linux-kernel@vger.kernel.org, sam@ravnborg.org
+Subject: Re: [patch 2.6.12-rc5] Stop arch/i386/kernel/vsyscall-note.o being
+ rebuilt every time
+References: <615.1118029984@kao2.melbourne.sgi.com>
+In-Reply-To: <615.1118029984@kao2.melbourne.sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-arch/i386/kernel/vsyscall-note.o is not listed as a target so its .cmd
-file is neither considered as a target nor is it read on the next
-build.  This causes vsyscall-note.o to be rebuilt every time that you
-run make, which causes vmlinux to be rebuilt every time.
+Keith Owens wrote:
+> arch/i386/kernel/vsyscall-note.o is not listed as a target so its .cmd
+> file is neither considered as a target nor is it read on the next
+> build.  This causes vsyscall-note.o to be rebuilt every time that you
+> run make, which causes vmlinux to be rebuilt every time.
+> 
+> Signed-off-by: Keith Owens <kaos@ocs.com.au>
 
-Signed-off-by: Keith Owens <kaos@ocs.com.au>
+Nice, thanks.  That always annoyed me.
 
-Index: linux/arch/i386/kernel/Makefile
-===================================================================
---- linux.orig/arch/i386/kernel/Makefile	2005-06-05 19:36:29.093065944 +1000
-+++ linux/arch/i386/kernel/Makefile	2005-06-06 13:44:31.727643119 +1000
-@@ -43,7 +43,7 @@ obj-$(CONFIG_SCx200)		+= scx200.o
- # Note: kbuild does not track this dependency due to usage of .incbin
- $(obj)/vsyscall.o: $(obj)/vsyscall-int80.so $(obj)/vsyscall-sysenter.so
- targets += $(foreach F,int80 sysenter,vsyscall-$F.o vsyscall-$F.so)
--targets += vsyscall.lds
-+targets += vsyscall-note.o vsyscall.lds
- 
- # The DSO images are built using a special linker script.
- quiet_cmd_syscall = SYSCALL $@
+	Jeff
+
 

@@ -1,64 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261669AbVFFUuT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261687AbVFFUz0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261669AbVFFUuT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 16:50:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbVFFUuT
+	id S261687AbVFFUz0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 16:55:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261693AbVFFUz0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 16:50:19 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:38414 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261669AbVFFUuH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 16:50:07 -0400
-Date: Mon, 6 Jun 2005 21:30:20 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Brent Casavant <bcasavan@sgi.com>
-cc: Andrew Morton <akpm@osdl.org>, Christoph Rohland <cr@sap.com>,
-       Robin Holt <holt@sgi.com>, "Adam J. Richter" <adam@yggdrasil.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] shmem: restore superblock info
-In-Reply-To: <20050606150742.F19925@chenjesu.americas.sgi.com>
-Message-ID: <Pine.LNX.4.61.0506062122500.5122@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0506062043470.5000@goblin.wat.veritas.com> 
-    <20050606150742.F19925@chenjesu.americas.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-X-OriginalArrivalTime: 06 Jun 2005 20:29:20.0590 (UTC) 
-    FILETIME=[6B5056E0:01C56AD6]
+	Mon, 6 Jun 2005 16:55:26 -0400
+Received: from titan.genwebhost.com ([209.9.226.66]:4279 "EHLO
+	titan.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261687AbVFFUzH convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 16:55:07 -0400
+Date: Mon, 6 Jun 2005 13:54:59 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Hanno =?ISO-8859-1?B?QvZjaw==?= <mail@hboeck.de>,
+       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Cc: sziwan@users.sourceforge.net, julien.lerouge@free.fr
+Subject: Re: Kernel oops with asus_acpi module
+Message-Id: <20050606135459.7ad699ae.rdunlap@xenotime.net>
+In-Reply-To: <200506062050.42632.mail@hboeck.de>
+References: <200506052340.41074.mail@hboeck.de>
+	<200506061929.24663.mail@hboeck.de>
+	<20050606114531.763eec37.rdunlap@xenotime.net>
+	<200506062050.42632.mail@hboeck.de>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - titan.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 Jun 2005, Brent Casavant wrote:
-> On Mon, 6 Jun 2005, Hugh Dickins wrote:
-> 
-> > @@ -1607,15 +1582,17 @@ static int shmem_statfs(struct super_blo
-> > -	if (sbinfo) {
-> > -		spin_lock(&sbinfo->stat_lock);
-> > +	spin_lock(&sbinfo->stat_lock);
-...
-> 
-> This is the only change I'm at all concerned about.
+(back to mailing lists + asus acpi maintainers)
 
-Thanks for noticing, I hadn't really considered that.
 
-> I'm not sure how frequent statfs operations occur in practice (I suspect
-> infrequently),
+On Mon, 6 Jun 2005 20:50:42 +0200 Hanno Böck wrote:
 
-Infrequently, yes.  I think infrequently to the point of never in
-the case that concerns you: correct if I'm wrong, someone, but I think
-there's actually no handle by which user can statfs shm's internal mount.
+| Am Montag, 6. Juni 2005 20:45 schrieben Sie:
+| > 2 or 3 things:
+| >
+| > a.  I can't match that Code line to any code in my
+| > compiler asus_acpi.o file.  What version of gcc are you using?
+| > Can you send me your asus_acpi.o file?
+| 
+| Attached.
+| I'm using gcc4 (but that's probably not the reason, because matthias hentges, 
+| who has a debian-system, has the same problem)
 
-> however simply changing the existing code from "if (sbinfo)"
-> to "if (sbinfo->max_blocks || sbinfo->max_inodes)" would be an appropriate
-> remedy if there is a real problem.
+Well, gcc4 does have some known issues with the Linux kernel,
+although I don't know the specifics of them.
 
-Hadn't thought of that, yes, can do if there's a real problem.
+| >
+| > b.  That Code line is different from the first one that you posted.
+| > That doesn't make much sense to me....
+| 
+| Don't know why, but maybe because I recompiled the kernel with 
+| debugging-support?
 
-> That said, I'm not all that concerned about it, as my fuzzy memory
-> indicates it was the lock/unlock around the statistics updates which
-> caused the primary lock contention.
+OK, I see that part.
 
-That's right, and certainly this shmem_statfs locking change didn't
-show up when you retested for me (thank you!) all those months ago.
+I'm including a patch for you to try.  Can you apply and test it
+and report back on it, please?
 
-Hugh
+---
+
+From: Randy Dunlap <rdunlap@xenotime.net>
+linux-2612-rc5-mm2
+
+model->string.pointer was NULL, so printk of it caused an oops.
+
+Handle ASUS ACPI string descriptor with 0 length or NULL pointer
+by trying the Samsung P30 support code exception handling.
+
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+
+diffstat:=
+ drivers/acpi/asus_acpi.c |   11 ++++++++++-
+ 1 files changed, 10 insertions(+), 1 deletion(-)
+
+diff -Naurp ./drivers/acpi/asus_acpi.c~asus_models ./drivers/acpi/asus_acpi.c
+--- ./drivers/acpi/asus_acpi.c~asus_models	2005-03-01 23:37:53.000000000 -0800
++++ ./drivers/acpi/asus_acpi.c	2005-06-06 13:51:40.000000000 -0700
+@@ -993,6 +993,7 @@ static int __init asus_hotk_get_info(voi
+ 	/* Samsung P30 has a device with a valid _HID whose INIT does not 
+ 	 * return anything. Catch this one and any similar here */
+ 	if (buffer.pointer == NULL) {
++try_p30:
+ 		if (asus_info && /* Samsung P30 */
+ 		    strncmp(asus_info->oem_table_id, "ODEM", 4) == 0) {
+ 			hotk->model = P30;
+@@ -1009,7 +1010,15 @@ static int __init asus_hotk_get_info(voi
+ 	
+ 	model = (union acpi_object *) buffer.pointer;
+ 	if (model->type == ACPI_TYPE_STRING) {
+-		printk(KERN_NOTICE "  %s model detected, ", model->string.pointer);
++		if (!model->string.length || !model->string.pointer) {
++			printk(KERN_WARNING "  model string length or pointer "
++				"is 0, trying P30 exceptions (%u, %p)\n",
++				model->string.length, model->string.pointer);
++			goto try_p30;
++		}
++		else
++			printk(KERN_NOTICE "  %s model detected, ",
++				model->string.pointer);
+ 	}
+ 
+ 	hotk->model = END_MODEL;

@@ -1,53 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261667AbVFFVTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261674AbVFFVW4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261667AbVFFVTL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 17:19:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbVFFVTK
+	id S261674AbVFFVW4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 17:22:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbVFFVW4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 17:19:10 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:23507 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261667AbVFFVTD (ORCPT
+	Mon, 6 Jun 2005 17:22:56 -0400
+Received: from [24.93.172.51] ([24.93.172.51]:22657 "EHLO neo.rr.com")
+	by vger.kernel.org with ESMTP id S261674AbVFFVWg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 17:19:03 -0400
-Date: Mon, 6 Jun 2005 23:18:49 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.12-rc6
-Message-ID: <20050606211849.GK2230@elf.ucw.cz>
-References: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org> <20050606192654.GA3155@elf.ucw.cz> <Pine.LNX.4.58.0506061310500.1876@ppc970.osdl.org> <20050606201441.GG2230@elf.ucw.cz> <Pine.LNX.4.58.0506061411410.1876@ppc970.osdl.org>
+	Mon, 6 Jun 2005 17:22:36 -0400
+Date: Mon, 6 Jun 2005 17:18:55 -0400
+From: Adam Belay <ambx1@neo.rr.com>
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: matthieu castet <castet.matthieu@free.fr>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: PNP parallel&serial ports: module reload fails (2.6.11)?
+Message-ID: <20050606211855.GA3289@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Michael Tokarev <mjt@tls.msk.ru>,
+	matthieu castet <castet.matthieu@free.fr>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20050602222400.GA8083@mut38-1-82-67-62-65.fbx.proxad.net> <429FA1F3.9000001@tls.msk.ru> <42A2D37A.5050408@free.fr> <42A46551.9010707@tls.msk.ru>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0506061411410.1876@ppc970.osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
+In-Reply-To: <42A46551.9010707@tls.msk.ru>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> > There is "From: Dmitry..." in the changelog. Do your script move first
-> > "From:" into author header and delete it from changelog? That would
-> > explain it...
+On Mon, Jun 06, 2005 at 07:01:37PM +0400, Michael Tokarev wrote:
+> matthieu castet wrote:
+> > Michael Tokarev wrote:
+> > 
+> >> castet.matthieu@free.fr wrote:
+> >>
+> >>> And pnpacpi have some problem to activate resource with some strange
+> >>> acpi implementation...
+> >>
+> >>
+> >> I haven't seen any probs with acpi or bios or other things on
+> >> those boxen yet -- pretty good ones.  It's HP ProLiant ML150
+> >> machine (not G2).  There are other HP machines out here which
+> >> also shows the same problem - eg HP ProLiant ML310 G1.
+> >>
+> > hpml310.dsl acpi dsdt is strange :
 > 
-> Yes. But note how it doesn't even take the "first" From: line, it 
-> literally takes the From: line _only_ if that line is the first line in 
-> the email body.
+> [ it's in http://www.corpit.ru/mjt/hpml310.dsdt - apache ships it
+>   as Content-Type: text/plain, for some reason.  I grabbed iasl
+>   and converted that stuff into .dsls, available at:
+>   http://www.corpit.ru/mjt/hpml310.dsl and
+>   http://www.corpit.ru/mjt/hpml150.dsl ]
 > 
-> See the "git-tools" archive if you want to see all the ugly details (start 
-> from http://www.kernel.org/git)
+> Well, the problem is, I don't know *at all* how ACPI stuff works.
+> So if you're saying the DSDT (whatever it is) is strange, I have
+> only two choices: to believe you or not.. ;)
+> 
+> >             Name (CRES, ResourceTemplate ()
+> >             {
+> >                 IRQNoFlags () {7}
+> >                 DMA (Compatibility, NotBusMaster, Transfer8) {3}
+> >                 IO (Decode16, 0x0378, 0x0378, 0x08, 0x08)
+> >                 IO (Decode16, 0x0678, 0x0678, 0x00, 0x06)
+> >             })
+> > 
+> > [...]
+> > Name (_PRS, ResourceTemplate ()
+> >             {
+> >                 StartDependentFn (0x00, 0x00)
+> >                 {
+> >                     IO (Decode16, 0x0378, 0x0378, 0x00, 0x08)
+> >                 }
+> >                 StartDependentFn (0x00, 0x00)
+> >                 {
+> >                     IO (Decode16, 0x03BC, 0x03BC, 0x00, 0x03)
+> >                 }
+> >                 StartDependentFn (0x00, 0x00)
+> >                 {
+> >                     IO (Decode16, 0x0278, 0x0278, 0x00, 0x08)
+> >                 }
+> >                 EndDependentFn ()
+> >             })
+> > 
+> > So in the list of possible resource (_PRS) there only info about one
+> > ioport not about the others resource. I wonder if it is really valid ?
 
-Aha, okay, it was going to you through andrew, and it was me who
-posted the changelog in form
+Hi Michael,
 
-Description
+I've been looking into the parport issue.
 
-From: XXX
-Signed-off-by: YYY
+Your ACPI _PRS method does look a little unusual (and possibly broken), but
+it might work if we assume that all of the other resources not mentioned are
+to be disabled.
 
-I thought you are taking "first From: in the body", not "From: only if
-it is first line in the body". [Could you perhaps modify your scripts
-to take "first From: in the body"? It seems logical to put From "near"
-Signed-of-by: lines...
-								Pavel
+I'd like to see how the PnP layer is interpreting this, and also what your
+_CRS method is giving us.
+
+Could I see the output of:
+
+/sys/devices/pnp0/00:XX/resources
+
+and:
+
+/sys/bus/pnp/devices/00:XX/options
+
+where XX is the function number of your parport device...  In one of your
+earlier emails it was "08".
+
+> Jun  1 02:45:46 linux kernel: pnp: Device 00:08 activated.
+
+I appreciate your help.
+
+Thanks,
+Adam

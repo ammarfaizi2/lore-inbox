@@ -1,42 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261701AbVFFVna@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261706AbVFFVrF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261701AbVFFVna (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 17:43:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261702AbVFFVn3
+	id S261706AbVFFVrF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 17:47:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbVFFVqf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 17:43:29 -0400
-Received: from fire.osdl.org ([65.172.181.4]:36747 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261701AbVFFVnT (ORCPT
+	Mon, 6 Jun 2005 17:46:35 -0400
+Received: from schokokeks.org ([193.201.54.11]:27400 "EHLO a.mx.schokokeks.org")
+	by vger.kernel.org with ESMTP id S261703AbVFFVqQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 17:43:19 -0400
-Date: Mon, 6 Jun 2005 14:43:52 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: jayalk@intworks.biz
-Cc: adaplas@pol.net, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net
-Subject: Re: [RFC/PATCH 2.6.12-rc5 1/1] Framebuffer driver for Arc LCD board
-Message-Id: <20050606144352.140cfe42.akpm@osdl.org>
-In-Reply-To: <200506061416.j56EG18b017582@intworks.biz>
-References: <200506061416.j56EG18b017582@intworks.biz>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 6 Jun 2005 17:46:16 -0400
+From: Hanno =?utf-8?q?B=C3=B6ck?= <mail@hboeck.de>
+To: randy_dunlap <rdunlap@xenotime.net>, acpi-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, julien.lerouge@free.fr
+Subject: Re: Kernel oops with asus_acpi module
+Date: Mon, 6 Jun 2005 23:47:09 +0200
+User-Agent: KMail/1.8.1
+References: <200506052340.41074.mail@hboeck.de> <20050606135459.7ad699ae.rdunlap@xenotime.net> <20050606213248.GA22238@hell.org.pl>
+In-Reply-To: <20050606213248.GA22238@hell.org.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506062347.10582.mail@hboeck.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-jayalk@intworks.biz wrote:
->
-> I did this diff against
-> rc5. Should I be doing it against -mm instead?
+Am Montag, 6. Juni 2005 23:32 schrieb Karol Kozimor:
+> May I see the DSDT? The Samsung P30 INIT method referenced in
+> asus_hotk_get_info() is not supposed to return anything, not even an empty
+> string. I believe the new ACPICA implicit return might be interfering.
+> Here's the relevant part of what I based the code on:
 
-I generally prefer diffs against whatever is in -mm, mainly so we can see
-what changed, and so that we can make sure that everyones fixups didn't get
-lost.
-
-If a patch has only been in -mm for a short period then a wholesale
-replacement is OK.  It gets a bit complex because people do insist on trying
-to add lots of trailing whitespace to the tree and I do insist on thwarting
-them, but I fix all that up.
-
-In this case I got anal and turned your new patch into an incremental one ;)
+http://www.schokokeks.org/~hanno/dsdt_p30

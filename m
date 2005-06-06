@@ -1,85 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVFFJlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVFFJm2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbVFFJlI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 05:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbVFFJlI
+	id S261262AbVFFJm2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 05:42:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVFFJm2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 05:41:08 -0400
-Received: from smtp2.poczta.interia.pl ([213.25.80.232]:64905 "EHLO
-	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
-	id S261256AbVFFJlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 05:41:00 -0400
-Message-ID: <42A41A21.5050100@poczta.fm>
-Date: Mon, 06 Jun 2005 11:40:49 +0200
-From: Lukasz Stelmach <stlman@poczta.fm>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: pl, en-us, en
-MIME-Version: 1.0
-To: Ananda Krishnan <veedutwo@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, veedutwous@yahoo.com
-Subject: Re: device-driver supporting more than one device
-References: <20050604024830.13002.qmail@web14824.mail.yahoo.com>
-In-Reply-To: <20050604024830.13002.qmail@web14824.mail.yahoo.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigE89948A55A6CF30E7EF64CE1"
-X-EMID: a2396138
+	Mon, 6 Jun 2005 05:42:28 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:16308 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261262AbVFFJmO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 05:42:14 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20050603200339.GA2445@halcrow.us> 
+References: <20050603200339.GA2445@halcrow.us>  <20050602054852.GB4514@sshock.rn.byu.edu> 
+To: Michael Halcrow <mhalcrow@us.ibm.com>
+Cc: Phillip Hellewell <phillip@hellewell.homeip.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/3] eCryptfs: export key type 
+X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 22.0.50.1
+Date: Mon, 06 Jun 2005 10:42:02 +0100
+Message-ID: <16336.1118050922@redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigE89948A55A6CF30E7EF64CE1
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Michael Halcrow <mhalcrow@us.ibm.com> wrote:
 
-Ananda Krishnan napisa=C5=82(a):
-> Hi All,
->=20
->   Can a device-driver (a generic serial driver)
-> support more than one device from different vendors
-> (hence different vendor ids and device ids)?
+> > +EXPORT_SYMBOL( key_type_user );
+> 
+> This is the only modification necessary to support eCryptfs.
 
-In general, yes. Does it apply to the particular driver you mentioned? I
-don't know.
+Unfortunately, that might have to be EXPORT_SYMBOL_GPL() nowadays since I
+reimplemented the predefined keyring types of user and keyring using RCU.
 
-> If so,
-> during the boot time how the pci_device_id structure
-> gets the info about the drvier_data?  Would like to
-> know the name of the function name(s) and file(s) that
-> are used for this process.  Thanks a lot.
+> While we are working on getting it ready for merging into the mainline
+> kernel, we would like to distribute it as a separate kernel module, and we
+> would like for users or distro's do not need to modify their kernels to
+> build and run it.
 
-The driver contains IDs of hardware it supports. At the boot time
-each driver registers itself providing this list. Then for each piece of
-hardware supported by a particular driver .probe function is called.
-You should definitly look at /usr/src/linux/drivers/usb/usb-skeleton.c.
-However, it is a usb driver, pci seem to work in a similar manner.
+"It" being?
 
-You might also like to read this: http://lwn.net/Kernel/LDD3/
+> Would there be any objections to exporting the key_type_user symbol?
+> Is there any general reason why kernel modules should not have access
+> to the user key type struct?
 
-I am quite a newbie to kernel drivers so please correct me someone if I
-am wrong.
+No and no, but see above. You could also export the user defined key type ops
+and define your own key type using them.
 
---=20
-By=C5=82o mi bardzo mi=C5=82o.                    Trzecia pospolita kl=C4=
-=99ska, [...]
->=C5=81ukasz<                      Ju=C5=BC nie katolicka lecz z=C5=82odz=
-iejska.  (c)PP
-
-
---------------enigE89948A55A6CF30E7EF64CE1
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCpBomNdzY8sm9K9wRAru/AJ9waSoHL48Ef8zSptPvKADLpMeJKACePgko
-JxZqpSkkZZn/gQfF4CHZr90=
-=Us+O
------END PGP SIGNATURE-----
-
---------------enigE89948A55A6CF30E7EF64CE1--
+David

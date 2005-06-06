@@ -1,115 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVFFT3A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261652AbVFFTcK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbVFFT3A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 15:29:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261644AbVFFTYt
+	id S261652AbVFFTcK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 15:32:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbVFFTax
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 15:24:49 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:13990 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261640AbVFFTXD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 15:23:03 -0400
-Message-Id: <20050606192113.307745000@araj-em64t>
-References: <20050606191433.104273000@araj-em64t>
-Date: Mon, 06 Jun 2005 12:14:37 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       Srivattsa Vaddagiri <vatsa@in.ibm.com>, discuss@x86-64.org,
-       Rusty Russell <rusty@rustycorp.com.au>, Ashok Raj <ashok.raj@intel.com>,
-       Andi Kleen <ak@muc.de>
-Subject: [patch 4/5] try2: x86_64: Dont use broadcast shortcut to make it cpu hotplug safe.
-Content-Disposition: inline; filename=no_broadcast_ipi.patch
+	Mon, 6 Jun 2005 15:30:53 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62144 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261647AbVFFT1J (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 15:27:09 -0400
+Date: Mon, 6 Jun 2005 21:26:54 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.12-rc6
+Message-ID: <20050606192654.GA3155@elf.ucw.cz>
+References: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Broadcast IPI's provide un-expected behaviour for cpu hotplug. CPU's in offline
-state also end up receiving the IPI. Once the cpus become online
-they receive these stale IPI's which are bad and introduce unexpected
-behaviour. 
+Hi!
 
-This is easily avoided by not sending a broadcast and addressing just the 
-CPU's in online map.  Doing prelim cycle counts it appears there is no big 
-overhead and numbers seem around 0x3000-0x3900 on an average on x86 and x86_64 
-systems with CPUS running 3G, both for broadcast and mask version of the API's. 
+> It's being uploaded right now, the git tree is already up-to-date, and by 
+> the time this hits the mailing list the mirroring of the tar-ball will 
+> hopefully be done too.
+> 
+> And since Jeff wrote me a shortlog script for git, the easist way to tell
+> what's new since -rc5 is to just do the shortlog and diffstat output. 
+> Network drivers, USB and CPU-freq stand out.
+> 
+> And the good news is that people do seem to have taken my rumblings about 
+> calming down for 2.6.12 seriously. Let's hope that pans out, and I can 
+> release that one asap.. But give this a good beating first, and holler 
+> (again, if you must) about any issues you have,
 
-The shortcuts are useful only for flat mode (where the perf shows no 
-degradation), and in cluster mode, its unicast anyway. Its simpler 
-to just not use broadcast anymore.
 
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
-Acked-by: Andi Kleen <ak@muc.de>
-Acked-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
------------------------------------------
- arch/x86_64/kernel/genapic_flat.c |   41 +++++++++++++++++++++++---------------
- 1 files changed, 25 insertions(+), 16 deletions(-)
+> Pavel Machek:
+>   fix jumpy mouse cursor on console
 
-Index: linux-2.6.12-rc5-mm2/arch/x86_64/kernel/genapic_flat.c
-===================================================================
---- linux-2.6.12-rc5-mm2.orig/arch/x86_64/kernel/genapic_flat.c
-+++ linux-2.6.12-rc5-mm2/arch/x86_64/kernel/genapic_flat.c
-@@ -7,6 +7,8 @@
-  * Hacked for x86-64 by James Cleverdon from i386 architecture code by
-  * Martin Bligh, Andi Kleen, James Bottomley, John Stultz, and
-  * James Cleverdon.
-+ * Ashok Raj <ashok.raj@intel.com>
-+ * 	Removed IPI broadcast shortcut to support CPU hotplug
-  */
- #include <linux/config.h>
- #include <linux/threads.h>
-@@ -45,22 +47,6 @@ static void flat_init_apic_ldr(void)
- 	apic_write_around(APIC_LDR, val);
- }
- 
--static void flat_send_IPI_allbutself(int vector)
--{
--	/*
--	 * if there are no other CPUs in the system then
--	 * we get an APIC send error if we try to broadcast.
--	 * thus we have to avoid sending IPIs in this case.
--	 */
--	if (num_online_cpus() > 1)
--		__send_IPI_shortcut(APIC_DEST_ALLBUT, vector, APIC_DEST_LOGICAL);
--}
--
--static void flat_send_IPI_all(int vector)
--{
--	__send_IPI_shortcut(APIC_DEST_ALLINC, vector, APIC_DEST_LOGICAL);
--}
--
- static void flat_send_IPI_mask(cpumask_t cpumask, int vector)
- {
- 	unsigned long mask = cpus_addr(cpumask)[0];
-@@ -93,6 +79,29 @@ static void flat_send_IPI_mask(cpumask_t
- 	local_irq_restore(flags);
- }
- 
-+static void flat_send_IPI_allbutself(int vector)
-+{
-+	cpumask_t mask;
-+	/*
-+	 * if there are no other CPUs in the system then
-+	 * we get an APIC send error if we try to broadcast.
-+	 * thus we have to avoid sending IPIs in this case.
-+	 */
-+	get_cpu();
-+	mask = cpu_online_map;
-+	cpu_clear(smp_processor_id(), mask);
-+
-+	if (cpus_weight(mask) >= 1)
-+		flat_send_IPI_mask(mask, vector);
-+
-+	put_cpu();
-+}
-+
-+static void flat_send_IPI_all(int vector)
-+{
-+	flat_send_IPI_mask(cpu_online_map, vector);
-+}
-+
- static int flat_apic_id_registered(void)
- {
- 	return physid_isset(GET_APIC_ID(apic_read(APIC_ID)), phys_cpu_present_map);
+This one was from Dmitry, and git logs know that:
 
---
+author Pavel Machek <pavel@suse.cz> Fri, 27 May 2005 12:53:03 -0700
+committer Linus Torvalds <torvalds@ppc970.osdl.org> Sat, 28 May 2005 11:14:01 -0700
 
+    [PATCH] fix jumpy mouse cursor on console
+
+    Do not send empty events to gpm.  (Keyboards are assumed to have scroll
+    wheel these days, that makes them part-mouse.  That means typing on
+    keyboard generates empty mouse events).
+
+    From: Dmitry Torokhov <dtor_core@ameritech.net>
+    Signed-off-by: Pavel Machek <pavel@suse.cz>
+    Signed-off-by: Andrew Morton <akpm@osdl.org>
+    Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+
+...perhaps shortlog script needs some updating?
+									Pavel

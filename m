@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261658AbVFFUYJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVFFUTf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261658AbVFFUYJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 16:24:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVFFUXe
+	id S261678AbVFFUTf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 16:19:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261661AbVFFUTF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 16:23:34 -0400
-Received: from animx.eu.org ([216.98.75.249]:40632 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S261658AbVFFUUW (ORCPT
+	Mon, 6 Jun 2005 16:19:05 -0400
+Received: from linux.dunaweb.hu ([62.77.196.1]:19129 "EHLO linux.dunaweb.hu")
+	by vger.kernel.org with ESMTP id S261658AbVFFURh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 16:20:22 -0400
-Date: Mon, 6 Jun 2005 16:16:14 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: linux-kernel@vger.kernel.org, mpm@selenic.com
-Subject: Re: Easy trick to reduce kernel footprint
-Message-ID: <20050606201613.GA23919@animx.eu.org>
-Mail-Followup-To: Willy Tarreau <willy@w.ods.org>,
-	linux-kernel@vger.kernel.org, mpm@selenic.com
-References: <20050605223528.GA13726@alpha.home.local> <20050606010246.GA22252@animx.eu.org> <20050606041101.GA14799@alpha.home.local> <20050606110743.GA23107@animx.eu.org> <20050606114342.GA15757@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050606114342.GA15757@alpha.home.local>
-User-Agent: Mutt/1.5.6+20040907i
+	Mon, 6 Jun 2005 16:17:37 -0400
+Message-ID: <42A4B328.1010400@freemail.hu>
+Date: Mon, 06 Jun 2005 22:33:44 +0200
+From: Zoltan Boszormenyi <zboszor@freemail.hu>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
+X-Accept-Language: hu-hu, hu, en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: USB mice do not work on 2.6.12-rc5-git9, -rc5-mm1, -rc5-mm2
+References: <42A2A0B2.7020003@freemail.hu>	<42A2A657.9060803@freemail.hu> <20050605001001.3e441076.akpm@osdl.org> <42A2BC4B.5060605@freemail.hu> <42A2CF27.8000806@freemail.hu> <42A3176F.9030307@freemail.hu>
+In-Reply-To: <42A3176F.9030307@freemail.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
-> On Mon, Jun 06, 2005 at 07:07:43AM -0400, Wakko Warner wrote:
->  
-> > My initramfs is passed via initrd so that I can change any aspect of it with
-> > out recompiling the kernel (or maybe i could use a better understanding of
-> > initramfs)  I compared bzImage to bupxImage and the savings I got was around
-> > 50kb difference IIRC.
+Hi,
+
+Zoltan Boszormenyi írta:
+> Zoltan Boszormenyi írta:
 > 
-> With what algo and what kernel size ?
-> With the close-source upx-1.93 linked with the NRV compression, I often
-> observe an average 15-20% gain on the bzImage size if it does not embed
-> an initramfs. I remember that the UCL library was not as good as the NRV,
-> so I've stopped using it a long time ago.
+>> I will try some older kernels, too.
+> 
+> 
+> OK, I tried 2.6.12-rc5, -rc4, -rc3, -rc2, same problem.
+> Strangest thing is, after gpm starts, I can use the USB mice
+> on the console. When X starts, the mice die. DRI bug?
+> I will try even earlier kernels, too.
 
-I'm using upx-ucl-beta v1.91+0.20030910cvs-2 debian package.
-Command line:
-upx-ucl-beta -9 -f bupxImage-2.6.12-rc6
--rw-r--r--  3 root root 618442 Jun  6 16:14 bupxImage-2.6.12-rc6
--rwxrwxrwx  1 root root 669106 Jun  6 16:14 bzImage-2.6.12-rc6*
-50664 bytes savings.
-the kernel I have there is 100% modular except that ramdisk is compiled in. 
-It was also compiled with -Os (Optimize for size config option) using gcc
-3.3.5.
+I haven't disappeared, between family and workday I compiled
+and booted some earlier kernels. Final result: kernels down to
+2.6.11-bk7 do not work, 2.6.11-bk6 and -bk5 work.
+All the -bk7+ kernels I tried produced the same strange bug
+on my system: after gpm started I was able to move the
+pointer on the screen but when X started up, it's pointer froze.
 
--- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+Please, forget what I said about -mmX kernels, I remember
+that I updated the multiconsole patch to certain kernel versions
+and I tested them for clean compilation but I may not have
+actually booted them.
+
+Another difference between 2.6.11-bk5/6 and -bk7+:
+Kudzu complains about a missing PS/2 keyboard and indeed,
+the kernel does not recognize the keyboard on the AUX port
+on -bk5/6, -bk7 and later recognize it again.
+
+Best regards,
+Zoltán Böszörményi

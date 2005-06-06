@@ -1,43 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261755AbVFFWSV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbVFFWSO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261755AbVFFWSV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 18:18:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVFFWSP
+	id S261716AbVFFWSO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 18:18:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261731AbVFFWOB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 18:18:15 -0400
-Received: from fire.osdl.org ([65.172.181.4]:34199 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261740AbVFFWOf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 18:14:35 -0400
-Date: Mon, 6 Jun 2005 15:14:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ashok Raj <ashok.raj@intel.com>
-Cc: linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk, vatsa@in.ibm.com,
-       discuss@x86-64.org, rusty@rustycorp.com.au, ashok.raj@intel.com,
-       ak@muc.de
-Subject: Re: [patch 5/5] try2: x86_64: Provide ability to choose using
- shortcuts for IPI in flat mode.
-Message-Id: <20050606151451.16a0fef3.akpm@osdl.org>
-In-Reply-To: <20050606192113.433566000@araj-em64t>
-References: <20050606191433.104273000@araj-em64t>
-	<20050606192113.433566000@araj-em64t>
-X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
+	Mon, 6 Jun 2005 18:14:01 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:38858 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261745AbVFFWML (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 18:12:11 -0400
+Date: Tue, 7 Jun 2005 00:12:01 +0200
+From: Jan Kara <jack@suse.cz>
+To: Chris Wright <chrisw@osdl.org>
+Cc: Holger Kiehl <Holger.Kiehl@dwd.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.11.11 Assertion failure in journal_commit_transaction()
+Message-ID: <20050606221201.GB9649@atrey.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.61.0506041304350.32405@diagnostix.dwd.de> <20050606134253.GB2130@atrey.karlin.mff.cuni.cz> <20050606181524.GA9153@shell0.pdx.osdl.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050606181524.GA9153@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ashok Raj <ashok.raj@intel.com> wrote:
->
-> +int print_ipi_mode(void)
-> +{
-> +	printk ("Using IPI %s mode\n", no_broadcast ? "No-Shortcut" :
-> +											"Shortcut");
-> +	return 0;
-> +}
-> +
-> +late_initcall(print_ipi_mode);
+> * Jan Kara (jack@suse.cz) wrote:
+> >   The kernel stopped because it detected a disk buffer in an unexpected
+> > state. 2.6.12-rc5 kernel should contain some more fixes than 2.6.11.11
+> > for similar problems so you can try that kernel. If you are able to see
+> > the same problem with 2.6.12-rc5 then let us know please.
+> 
+> Do you feel any of those fixes are stable enough for -stable?
+> Especially this one looks ok:
+> 
+>  Subject: [PATCH] Fix log_do_checkpoint() assertion failure
+>  Message-ID: <20050601074059.GD5933@atrey.karlin.mff.cuni.cz>
+   Yes, that patch should be safe and fixes a really observed bug so I
+guess it qualifies into -stable :)
 
-This function should have static scope and should be marked __init.
+								Honza
 
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

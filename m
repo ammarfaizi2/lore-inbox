@@ -1,60 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261768AbVFFWaU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261774AbVFFWeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261768AbVFFWaU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 18:30:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261759AbVFFW33
+	id S261774AbVFFWeo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 18:34:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVFFWcb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 18:29:29 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:64004 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261731AbVFFWXE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 18:23:04 -0400
-Message-Id: <200506062008.j56K8AaI008962@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org, torvalds@osdl.org
-cc: linux-kernel@vger.kernel.org, user-mode-linux-devel@lists.sourceforge.net
-Subject: [PATCH 4/5] UML - Fix strace -f
+	Mon, 6 Jun 2005 18:32:31 -0400
+Received: from fire.osdl.org ([65.172.181.4]:17819 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261757AbVFFWaj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 18:30:39 -0400
+Date: Mon, 6 Jun 2005 15:31:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [PATCH 5/5] UML - clean up error path
+Message-Id: <20050606153118.1f7a413f.akpm@osdl.org>
+In-Reply-To: <200506062008.j56K8BKG008967@ccure.user-mode-linux.org>
+References: <200506062008.j56K8BKG008967@ccure.user-mode-linux.org>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Date: Mon, 06 Jun 2005 16:08:10 -0400
-From: Jeff Dike <jdike@addtoit.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It turns out that we need to check for pending signals when a newly forked 
-process is run for the first time.  With strace -f, strace needs to know
-about the forked process before it gets going.  If it doesn't, then it
-ptraces some bogus values into its registers, and the process segfaults.
-So, I added calls to interrupt_end, which does that, plus checks for 
-reschedules.  There shouldn't be any of those, but x86 does the same thing,
-so I'm copying that behavior to be safe.
+Jeff Dike <jdike@addtoit.com> wrote:
+>
+> This cleans an error path which used to leak file descriptors by returning
+> without trying to tidy up.
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
-
-Index: linux-2.6.12-rc/arch/um/kernel/skas/process_kern.c
-===================================================================
---- linux-2.6.12-rc.orig/arch/um/kernel/skas/process_kern.c	2005-06-02 17:16:46.000000000 -0400
-+++ linux-2.6.12-rc/arch/um/kernel/skas/process_kern.c	2005-06-02 17:16:50.000000000 -0400
-@@ -68,8 +68,11 @@ void new_thread_handler(int sig)
- 	 * 0 if it just exits
- 	 */
- 	n = run_kernel_thread(fn, arg, &current->thread.exec_buf);
--	if(n == 1)
-+	if(n == 1){
-+		/* Handle any immediate reschedules or signals */
-+		interrupt_end();
- 		userspace(&current->thread.regs.regs);
-+	}
- 	else do_exit(0);
- }
- 
-@@ -96,6 +99,8 @@ void fork_handler(int sig)
- 	schedule_tail(current->thread.prev_sched);
- 	current->thread.prev_sched = NULL;
- 
-+	/* Handle any immediate reschedules or signals */
-+	interrupt_end();
- 	userspace(&current->thread.regs.regs);
- }
- 
-
+The code in 2.6.12-rc6 is quite different from whatever you've patched here.

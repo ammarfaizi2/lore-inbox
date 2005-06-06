@@ -1,80 +1,136 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261789AbVFGAFq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261733AbVFFX5k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261789AbVFGAFq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 20:05:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbVFGAFZ
+	id S261733AbVFFX5k (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 19:57:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261789AbVFFX4x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 20:05:25 -0400
-Received: from fire.osdl.org ([65.172.181.4]:43704 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261789AbVFGACN (ORCPT
+	Mon, 6 Jun 2005 19:56:53 -0400
+Received: from rav-az.mvista.com ([65.200.49.157]:48672 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id S261733AbVFFXwg convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 20:02:13 -0400
-Date: Mon, 6 Jun 2005 17:04:07 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Karsten Keil <kkeil@suse.de>
-cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix tulip suspend/resume
-In-Reply-To: <20050606224645.GA23989@pingi3.kke.suse.de>
-Message-ID: <Pine.LNX.4.58.0506061702430.1876@ppc970.osdl.org>
-References: <20050606224645.GA23989@pingi3.kke.suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 6 Jun 2005 19:52:36 -0400
+Cc: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
+Subject: [PATCH][RIO] -mm: Convert EXPORT_SYMBOL -> EXPORT_SYMBOL_GPL
+In-Reply-To: <1118101941657@foobar.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 6 Jun 2005 16:52:24 -0700
+Message-Id: <11181019441461@foobar.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Matt Porter <mporter@kernel.crashing.org>
+To: akpm@osdl.org
+Content-Transfer-Encoding: 7BIT
+From: Matt Porter <mporter@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Convert all core exports to EXPORT_SYMBOL_GPL.
 
-Jeff, 
- this looks ok, but I'll leave the decision to you. Things like this often 
-break.
+Signed-off-by: Matt Porter <mporter@kernel.crashing.org>
 
-Andrew, maybe at least a few days in -mm to see if there's some outcry?
+commit d45c2d2fedcafd50a860267ff1d517c3071ab585
+tree f8ae6a1fbb746cd112ece56ec429a0f71a408afc
+parent 87ff3372a005e4cf927b1b62c23e1c2339d46507
+author Matt Porter <mporter@kernel.crashing.org> Mon, 06 Jun 2005 09:29:21 -0700
+committer Matt Porter <mporter@kernel.crashing.org> Mon, 06 Jun 2005 09:29:21 -0700
 
-		Linus
+ drivers/rio/rio-access.c |   26 +++++++++++++-------------
+ drivers/rio/rio-driver.c |   10 +++++-----
+ drivers/rio/rio.c        |   22 +++++++++++-----------
+ 3 files changed, 29 insertions(+), 29 deletions(-)
 
-On Tue, 7 Jun 2005, Karsten Keil wrote:
-> 
-> following patch fix the suspend/resume for tulip based
-> cards, so suspend on disk work now for me and tulip based
-> cardbus cards.
-> 
-> 
-> Signed-off-by: Karsten Keil <kkeil@suse.de>
-> 
-> --- linux/drivers/net/tulip/tulip_core.c.orig	2005-03-23 23:54:43.000000000 +0100
-> +++ linux/drivers/net/tulip/tulip_core.c	2005-05-26 17:29:14.000000000 +0200
-> @@ -1755,12 +1755,16 @@
->  static int tulip_suspend (struct pci_dev *pdev, pm_message_t state)
->  {
->  	struct net_device *dev = pci_get_drvdata(pdev);
-> +	int err;
->  
-> +	pci_save_state(pdev);
->  	if (dev && netif_running (dev) && netif_device_present (dev)) {
->  		netif_device_detach (dev);
->  		tulip_down (dev);
->  		/* pci_power_off(pdev, -1); */
->  	}
-> +	if ((err = pci_set_power_state(pdev, PCI_D3hot)))
-> +		printk(KERN_ERR "%s: pci_set_power_state D3hot return %d\n", dev->name, err);
->  	return 0;
->  }
->  
-> @@ -1768,7 +1772,11 @@
->  static int tulip_resume(struct pci_dev *pdev)
->  {
->  	struct net_device *dev = pci_get_drvdata(pdev);
-> +	int err;
->  
-> +	if ((err = pci_set_power_state(pdev, PCI_D0)))
-> +		printk(KERN_ERR "%s: pci_set_power_state D0 return %d\n", dev->name, err);
-> +	pci_restore_state(pdev);
->  	if (dev && netif_running (dev) && !netif_device_present (dev)) {
->  #if 1
->  		pci_enable_device (pdev);
-> 
-> -- 
-> Karsten Keil
-> SuSE Labs
-> ISDN development
-> 
+diff --git a/drivers/rio/rio-access.c b/drivers/rio/rio-access.c
+--- a/drivers/rio/rio-access.c
++++ b/drivers/rio/rio-access.c
+@@ -83,12 +83,12 @@ RIO_LOP_WRITE(8, u8, 1)
+ RIO_LOP_WRITE(16, u16, 2)
+ RIO_LOP_WRITE(32, u32, 4)
+ 
+-EXPORT_SYMBOL(__rio_local_read_config_8);
+-EXPORT_SYMBOL(__rio_local_read_config_16);
+-EXPORT_SYMBOL(__rio_local_read_config_32);
+-EXPORT_SYMBOL(__rio_local_write_config_8);
+-EXPORT_SYMBOL(__rio_local_write_config_16);
+-EXPORT_SYMBOL(__rio_local_write_config_32);
++EXPORT_SYMBOL_GPL(__rio_local_read_config_8);
++EXPORT_SYMBOL_GPL(__rio_local_read_config_16);
++EXPORT_SYMBOL_GPL(__rio_local_read_config_32);
++EXPORT_SYMBOL_GPL(__rio_local_write_config_8);
++EXPORT_SYMBOL_GPL(__rio_local_write_config_16);
++EXPORT_SYMBOL_GPL(__rio_local_write_config_32);
+ 
+ /**
+  * RIO_OP_READ - Generate rio_mport_read_config_* functions
+@@ -143,12 +143,12 @@ RIO_OP_WRITE(8, u8, 1)
+ RIO_OP_WRITE(16, u16, 2)
+ RIO_OP_WRITE(32, u32, 4)
+ 
+-EXPORT_SYMBOL(rio_mport_read_config_8);
+-EXPORT_SYMBOL(rio_mport_read_config_16);
+-EXPORT_SYMBOL(rio_mport_read_config_32);
+-EXPORT_SYMBOL(rio_mport_write_config_8);
+-EXPORT_SYMBOL(rio_mport_write_config_16);
+-EXPORT_SYMBOL(rio_mport_write_config_32);
++EXPORT_SYMBOL_GPL(rio_mport_read_config_8);
++EXPORT_SYMBOL_GPL(rio_mport_read_config_16);
++EXPORT_SYMBOL_GPL(rio_mport_read_config_32);
++EXPORT_SYMBOL_GPL(rio_mport_write_config_8);
++EXPORT_SYMBOL_GPL(rio_mport_write_config_16);
++EXPORT_SYMBOL_GPL(rio_mport_write_config_32);
+ 
+ /**
+  * rio_mport_send_doorbell - Send a doorbell message
+@@ -172,4 +172,4 @@ int rio_mport_send_doorbell(struct rio_m
+ 	return res;
+ }
+ 
+-EXPORT_SYMBOL(rio_mport_send_doorbell);
++EXPORT_SYMBOL_GPL(rio_mport_send_doorbell);
+diff --git a/drivers/rio/rio-driver.c b/drivers/rio/rio-driver.c
+--- a/drivers/rio/rio-driver.c
++++ b/drivers/rio/rio-driver.c
+@@ -222,8 +222,8 @@ static int __init rio_bus_init(void)
+ 
+ postcore_initcall(rio_bus_init);
+ 
+-EXPORT_SYMBOL(rio_register_driver);
+-EXPORT_SYMBOL(rio_unregister_driver);
+-EXPORT_SYMBOL(rio_bus_type);
+-EXPORT_SYMBOL(rio_dev_get);
+-EXPORT_SYMBOL(rio_dev_put);
++EXPORT_SYMBOL_GPL(rio_register_driver);
++EXPORT_SYMBOL_GPL(rio_unregister_driver);
++EXPORT_SYMBOL_GPL(rio_bus_type);
++EXPORT_SYMBOL_GPL(rio_dev_get);
++EXPORT_SYMBOL_GPL(rio_dev_put);
+diff --git a/drivers/rio/rio.c b/drivers/rio/rio.c
+--- a/drivers/rio/rio.c
++++ b/drivers/rio/rio.c
+@@ -490,14 +490,14 @@ void rio_register_mport(struct rio_mport
+ 	list_add_tail(&port->node, &rio_mports);
+ }
+ 
+-EXPORT_SYMBOL(rio_local_get_device_id);
+-EXPORT_SYMBOL(rio_get_device);
+-EXPORT_SYMBOL(rio_get_asm);
+-EXPORT_SYMBOL(rio_request_inb_dbell);
+-EXPORT_SYMBOL(rio_release_inb_dbell);
+-EXPORT_SYMBOL(rio_request_outb_dbell);
+-EXPORT_SYMBOL(rio_release_outb_dbell);
+-EXPORT_SYMBOL(rio_request_inb_mbox);
+-EXPORT_SYMBOL(rio_release_inb_mbox);
+-EXPORT_SYMBOL(rio_request_outb_mbox);
+-EXPORT_SYMBOL(rio_release_outb_mbox);
++EXPORT_SYMBOL_GPL(rio_local_get_device_id);
++EXPORT_SYMBOL_GPL(rio_get_device);
++EXPORT_SYMBOL_GPL(rio_get_asm);
++EXPORT_SYMBOL_GPL(rio_request_inb_dbell);
++EXPORT_SYMBOL_GPL(rio_release_inb_dbell);
++EXPORT_SYMBOL_GPL(rio_request_outb_dbell);
++EXPORT_SYMBOL_GPL(rio_release_outb_dbell);
++EXPORT_SYMBOL_GPL(rio_request_inb_mbox);
++EXPORT_SYMBOL_GPL(rio_release_inb_mbox);
++EXPORT_SYMBOL_GPL(rio_request_outb_mbox);
++EXPORT_SYMBOL_GPL(rio_release_outb_mbox);
+

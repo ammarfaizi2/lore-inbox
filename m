@@ -1,67 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbVFFBLA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVFFBo1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261157AbVFFBLA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 21:11:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVFFBLA
+	id S261159AbVFFBo1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 21:44:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261164AbVFFBo1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 21:11:00 -0400
-Received: from mail4.worldserver.net ([217.13.200.24]:37328 "EHLO
-	mail4.worldserver.net") by vger.kernel.org with ESMTP
-	id S261157AbVFFBK5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 21:10:57 -0400
-Date: Mon, 6 Jun 2005 03:10:56 +0200
-From: Christian Leber <christian@leber.de>
-To: linux-kernel@vger.kernel.org
-Cc: mpm@selenic.com
-Subject: Re: Easy trick to reduce kernel footprint
-Message-ID: <20050606011056.GB18603@core.home>
-References: <20050605223528.GA13726@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050605223528.GA13726@alpha.home.local>
-X-Accept-Language: de en
-X-Location: Europe, Germany, Mannheim
-X-Operating-System: Debian GNU/Linux (sid)
-User-Agent: Mutt/1.5.9i
+	Sun, 5 Jun 2005 21:44:27 -0400
+Received: from smtp206.mail.sc5.yahoo.com ([216.136.129.96]:63363 "HELO
+	smtp206.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S261159AbVFFBoS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Jun 2005 21:44:18 -0400
+Message-ID: <42A3AA63.7060201@yahoo.com.au>
+Date: Mon, 06 Jun 2005 11:44:03 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: "M.Baris Demiray" <baris@labristeknoloji.com>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2.6.12-rc5-mm2] [sched] add allowed CPUs check into find_idlest_group()
+References: <42A3381F.90801@labristeknoloji.com>
+In-Reply-To: <42A3381F.90801@labristeknoloji.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 06, 2005 at 12:35:28AM +0200, Willy Tarreau wrote:
+M.Baris Demiray wrote:
+> 
+> Hello,
+> following patch adds check for allowed CPUs into
+> sched.c:find_idlest_group() -as told in comment line that had
+> removed-. But, I have several questions about that comment.
+> 
+> Firstly, I've understood it as "Check whether process p is allowed to
+> run on each CPU of to-be-found idlest group"; is that right?
+> 
 
-> saves 23 kB (2%) on the overall image without touching any code. The LZMA
-> implementation could save 145 kB (12%), but would require a different
-> extraction code (I've already seen patches to bring LZMA support on 2.4).
+Close.
 
-The patch for 2.4 is here:
-http://www.zelow.no/floppyfw/download/Development/Patches/kernel/040-lzma-vmlinuz.diff
-and it actually works.
+Probably it would be better to take the intersection of
+(group->cpumask, p->cpus_allowed), and skip the group if
+the intersection is empty.
 
-My not working patch is here:
-http://debian.christian-leber.de/kernel_lzma/lzma_image.patch
-you have to apply the patch from the other mail before.
-(or here: http://debian.christian-leber.de/kernel_lzma/lzma_ramdisk.patch)
+In addition to that, do a patch for find_idlest_cpu that
+skips cpus that aren't allowed. You needn't do the cpumask
+check each time round the loop, again just take the
+intersection of the group->cpumask and p->cpus_allowed, and
+loop over that.
 
-If you just want to see how it doesn't work, here is a kernel image to
-see it failing in qemu, basically it just decompresses again and again.
-http://debian.christian-leber.de/kernel_lzma/bzImage
-
-The decompression works correctly(checksum), i think the problem is the address
-where the decompressed kernel image should be, i just can't get out how
-this piece of code is supposed to work.
-
-Therefore it could be a small problem only.
-
-
-Another minor problem of lzma is that you need slightly more memory than
-with gzip. (at least when you can't have the output in a continuous
-piece of memory)
-On the plus side is also that the lzma decompression code itself is
-smaller and doesn't have such a ugly "interface".
+Wanna do a patch for that?
 
 
-Christian Leber
+> If so, isn't it more appropriate to do check in find_idlest_cpu()?
+> Because, we're only interested in CPUs that are in idlest group
+> but doing a check in find_idlest_group() also checks for CPUs
+> that are not in idlest group (since we're traversing all the groups
+> in given domain). Checking this after finding the idlest group
+> (in find_idlest_cpu() with ordinary call order as in
+> sched_balance_self()) will save us from extra overhead.
+> 
+> Although I've questions in my mind, I'm sending a patch following
+> that comment. Any explanation and comment on patch will be
+> appreciated.
+> 
+
+I don't think it does anything ;)
+
+> Regards.
+> 
+> Signed-off-by: M.Baris Demiray <baris@labristeknoloji.com>
+> 
+> --- linux-2.6.12-rc5-mm2/kernel/sched.c.orig    2005-06-05 
+> 12:31:04.000000000 +0000
+> +++ linux-2.6.12-rc5-mm2/kernel/sched.c    2005-06-05 16:49:49.000000000 
+> +0000
+> @@ -1040,7 +1040,12 @@
+>          int i;
+> 
+>          local_group = cpu_isset(this_cpu, group->cpumask);
+> -        /* XXX: put a cpus allowed check */
+> +
+> +        /* Check whether all CPUs in the group is allowed to run on */
+> +        for_each_cpu_mask(i, group->cpumask) {
+> +            if (!cpu_isset(i, p->cpus_allowed))
+> +                continue;
+> +        }
+> 
+>          /* Tally up the load of all CPUs in the group */
+>          avg_load = 0;
+> 
+> 
+
 
 -- 
-http://www.nosoftwarepatents.com
+SUSE Labs, Novell Inc.
 
+Send instant messages to your online friends http://au.messenger.yahoo.com 

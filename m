@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVFFIUg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVFFIb3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261219AbVFFIUg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 04:20:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbVFFIUX
+	id S261204AbVFFIb3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 04:31:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbVFFIb2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 04:20:23 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:28622 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261219AbVFFITy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 04:19:54 -0400
-Subject: Re: [PROBLEM] aic7xxx: DV failed to configure device
-From: Arjan van de Ven <arjan@infradead.org>
-To: Denis Zaitsev <zzz@anda.ru>
-Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <20050606141638.A28532@ward.six>
-References: <20050606141638.A28532@ward.six>
-Content-Type: text/plain
-Date: Mon, 06 Jun 2005 10:19:45 +0200
-Message-Id: <1118045986.5652.21.camel@laptopd505.fenrus.org>
+	Mon, 6 Jun 2005 04:31:28 -0400
+Received: from mail4.worldserver.net ([217.13.200.24]:49892 "EHLO
+	mail4.worldserver.net") by vger.kernel.org with ESMTP
+	id S261204AbVFFIb1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 04:31:27 -0400
+Date: Mon, 6 Jun 2005 10:31:26 +0200
+From: Christian Leber <christian@leber.de>
+To: linux-kernel@vger.kernel.org
+Subject: Re: Easy trick to reduce kernel footprint
+Message-ID: <20050606083126.GA11454@core.home>
+References: <20050605223528.GA13726@alpha.home.local> <20050606074745.GC24826@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050606074745.GC24826@wohnheim.fh-wedel.de>
+X-Accept-Language: de en
+X-Location: Europe, Germany, Mannheim
+X-Operating-System: Debian GNU/Linux (sid)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-06-06 at 14:16 +0600, Denis Zaitsev wrote:
-> I'm testing an Adaptec SCSI controller + an IBM drive.  All the things
-> used to be fine before I had made the low-level format of the drive
-> (thru the Ctrl-A Adaptec's menu).  And now after
-> 
->         modprobe aic7xxx
+On Mon, Jun 06, 2005 at 09:47:45AM +0200, J?rn Engel wrote:
+
+> Citeseer has never heard of that algorithm, top 10 google hits for
+> "LZMA compression algorithm" are completely uninformative.  Does
+> anyone actually know, what this algorithm is doing?
+
+Doesn't google have a searching howto or something?
+
+First hit:
+http://www.7-zip.org/sdk.html
 
 
-you failed to mention which exact kernel you were using...
-(that matters since the aic7xxx driver changes a lot over time, and
-especially it changed recently in this area a lot)
+Christian Leber
+
+-- 
+http://www.nosoftwarepatents.com
 

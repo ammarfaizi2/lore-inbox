@@ -1,45 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVFFBG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261157AbVFFBLA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261154AbVFFBG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 5 Jun 2005 21:06:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261155AbVFFBG7
+	id S261157AbVFFBLA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 5 Jun 2005 21:11:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVFFBLA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 5 Jun 2005 21:06:59 -0400
-Received: from animx.eu.org ([216.98.75.249]:42167 "EHLO animx.eu.org")
-	by vger.kernel.org with ESMTP id S261154AbVFFBG6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 5 Jun 2005 21:06:58 -0400
-Date: Sun, 5 Jun 2005 21:02:46 -0400
-From: Wakko Warner <wakko@animx.eu.org>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: linux-kernel@vger.kernel.org, mpm@selenic.com
+	Sun, 5 Jun 2005 21:11:00 -0400
+Received: from mail4.worldserver.net ([217.13.200.24]:37328 "EHLO
+	mail4.worldserver.net") by vger.kernel.org with ESMTP
+	id S261157AbVFFBK5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 5 Jun 2005 21:10:57 -0400
+Date: Mon, 6 Jun 2005 03:10:56 +0200
+From: Christian Leber <christian@leber.de>
+To: linux-kernel@vger.kernel.org
+Cc: mpm@selenic.com
 Subject: Re: Easy trick to reduce kernel footprint
-Message-ID: <20050606010246.GA22252@animx.eu.org>
-Mail-Followup-To: Willy Tarreau <willy@w.ods.org>,
-	linux-kernel@vger.kernel.org, mpm@selenic.com
+Message-ID: <20050606011056.GB18603@core.home>
 References: <20050605223528.GA13726@alpha.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20050605223528.GA13726@alpha.home.local>
-User-Agent: Mutt/1.5.6+20040907i
+X-Accept-Language: de en
+X-Location: Europe, Germany, Mannheim
+X-Operating-System: Debian GNU/Linux (sid)
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
-> Here's a simple trick for all those who try to squeeze their kernels to the
-> absolute smallest size.
-> 
-> I recently discovered p7zip which comes with the LZMA compression algorithm,
-> which is somewhat better than gzip and bzip2 on most datasets, and I also
-> noticed that this tool provides support for gzip and bzip2 outputs. So I tried
-> to produce some of those standard outputs, and observed a slight gain compared
-> to the default tools. The reason is that we can change the number of passes and
-> the dictionnary size.
+On Mon, Jun 06, 2005 at 12:35:28AM +0200, Willy Tarreau wrote:
 
-Is it any smaller than a UPX'd kernel?  (I think you need the beta version. 
-I know the upx-ucl in debian won't compress but upx-ucl-beta will if you
-force).  I got a significant reduction using it.
+> saves 23 kB (2%) on the overall image without touching any code. The LZMA
+> implementation could save 145 kB (12%), but would require a different
+> extraction code (I've already seen patches to bring LZMA support on 2.4).
+
+The patch for 2.4 is here:
+http://www.zelow.no/floppyfw/download/Development/Patches/kernel/040-lzma-vmlinuz.diff
+and it actually works.
+
+My not working patch is here:
+http://debian.christian-leber.de/kernel_lzma/lzma_image.patch
+you have to apply the patch from the other mail before.
+(or here: http://debian.christian-leber.de/kernel_lzma/lzma_ramdisk.patch)
+
+If you just want to see how it doesn't work, here is a kernel image to
+see it failing in qemu, basically it just decompresses again and again.
+http://debian.christian-leber.de/kernel_lzma/bzImage
+
+The decompression works correctly(checksum), i think the problem is the address
+where the decompressed kernel image should be, i just can't get out how
+this piece of code is supposed to work.
+
+Therefore it could be a small problem only.
+
+
+Another minor problem of lzma is that you need slightly more memory than
+with gzip. (at least when you can't have the output in a continuous
+piece of memory)
+On the plus side is also that the lzma decompression code itself is
+smaller and doesn't have such a ugly "interface".
+
+
+Christian Leber
 
 -- 
- Lab tests show that use of micro$oft causes cancer in lab animals
+http://www.nosoftwarepatents.com
+

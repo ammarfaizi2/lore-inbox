@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261626AbVFFTAZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261554AbVFFTWd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261626AbVFFTAZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 15:00:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVFFTAZ
+	id S261554AbVFFTWd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 15:22:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVFFTWd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 15:00:25 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:19420 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261626AbVFFTAU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 15:00:20 -0400
-Date: Mon, 6 Jun 2005 20:00:12 +0100 (BST)
-From: James Simmons <jsimmons@www.infradead.org>
-X-X-Sender: jsimmons@pentafluge.infradead.org
-To: linux-fbdev-devel@lists.sourceforge.net
-cc: adaplas@pol.net, linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: [Linux-fbdev-devel] [RFC/PATCH 2.6.12-rc5 1/1] Framebuffer driver
- for Arc LCD board
-In-Reply-To: <200506061416.j56EG18b017582@intworks.biz>
-Message-ID: <Pine.LNX.4.56.0506061958450.16950@pentafluge.infradead.org>
-References: <200506061416.j56EG18b017582@intworks.biz>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Score: 0.0 (/)
+	Mon, 6 Jun 2005 15:22:33 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:2726 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261554AbVFFTWb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 15:22:31 -0400
+Message-Id: <20050606191433.104273000@araj-em64t>
+Date: Mon, 06 Jun 2005 12:14:33 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+To: linux-kernel@vger.kernel.org
+Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Cc: Srivattsa Vaddagiri <vatsa@in.ibm.com>
+Cc: discuss@x86-64.org
+Cc: Rusty Russell <rusty@rustycorp.com.au>
+Cc: Ashok Raj <ashok.raj@intel.com>
+Subject: [patch 0/5] x86_64: try2: CPU hotplug patch series.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrew,
 
-> Hi Antonino, Andrew, FBdev folk,
-> 
-> I added akpm's fixes below, then further cleanup and irq support: 
-> - coding style fixes
-> - removing unneeded typecasts
-> - namespace fixes
-> 
-> I had used skeletonfb.c to start with and that had fb_get_options.
-> I've removed that and the redundant param retrieval from arcfb as 
-> per akpm's mention of the redundancy of fb_get_options/*_setup. 
-> I also cleaned up some other duplicate code. I've listed the 
-> driver as maintained and added myself. I did this diff against
-> rc5. Should I be doing it against -mm instead?
-> 
-> Please let me know if you have any feedback or suggestions.
+Attached are modified patch from zwane's feedback to earlier post.
+Most of the other patches are pretty much the same, with no modifications.
 
-It looks really good :-) Please apply.
+Changes since last post.
+
+- Removed call_lock before setting cpu_online_map
+- Removed local_irq_disable() in play_dead() since safe_halt() enables it
+  rightaway.
+
+Cheers,
+Ashok Raj
 

@@ -1,42 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261622AbVFFSBp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261286AbVFFSEA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261622AbVFFSBp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 14:01:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261600AbVFFSBm
+	id S261286AbVFFSEA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 14:04:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVFFSD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 14:01:42 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:64427 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S261622AbVFFSAw (ORCPT
+	Mon, 6 Jun 2005 14:03:59 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:65451 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S261286AbVFFSDz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 14:00:52 -0400
-Subject: Re: Stable 2.6.x.y kernel series...
+	Mon, 6 Jun 2005 14:03:55 -0400
+Subject: Re: serious bug in IDE-Controller Code: Highpoint 370/2 after
+	kernal 3.6.1
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       stable@kernel.org
-In-Reply-To: <42A0DD2F.5060602@pobox.com>
-References: <42A0DD2F.5060602@pobox.com>
+To: Alexander Oberhuber <lzw77rnc@gmx.at>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <6.0.3.0.2.20050605171951.041e0598@pop.chello.at>
+References: <6.0.3.0.2.20050605171951.041e0598@pop.chello.at>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Message-Id: <1118080691.18623.217.camel@localhost.localdomain>
+Message-Id: <1118080897.14728.219.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Mon, 06 Jun 2005 18:58:14 +0100
+Date: Mon, 06 Jun 2005 19:01:38 +0100
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-06-03 at 23:43, Jeff Garzik wrote:
-> Just wanted to say in public that I think the stable 2.6.x.y kernel 
-> series is working out quite well.  Kudos to the stable@kernel.org team 
-> for a job well done.
+On Sul, 2005-06-05 at 16:32, Alexander Oberhuber wrote:
+> Hi there,
 > 
-> The 2.6.x.y series is definitely filling a needed niche.
+> I discovered a bug that prevents Linux from booting if the Highpoint 370/2 
+> IDE controller is being used.
 
-Ditto, and its been conservative enough that not only does it stay
-pretty stable (one partition slip-up so far is very good indeed) its
-small enough that most of the add on patches people use aren't breaking
-against it either. Even the -ac set just keeps applying barring makefile
-just fine so its saved me a ton of work.
-
-Alan
+Linux doesn't support HPT372N style controllers. Someone needs to
+rewrite the PLL programming code in the driver to actually work but so
+far nobody has volunteere.
 

@@ -1,63 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVFFH6D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261198AbVFFINy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261199AbVFFH6D (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 03:58:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVFFH6D
+	id S261198AbVFFINy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 04:13:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVFFINy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 03:58:03 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:29655 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261199AbVFFH55 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 03:57:57 -0400
-Date: Mon, 6 Jun 2005 09:57:28 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
-Cc: Esben Nielsen <simlo@phys.au.dk>, Thomas Gleixner <tglx@linutronix.de>,
-       linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>,
-       Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Re: [patch] Real-Time Preemption, plist fixes
-Message-ID: <20050606075728.GA13088@elte.hu>
-References: <F989B1573A3A644BAB3920FBECA4D25A037001B3@orsmsx407>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <F989B1573A3A644BAB3920FBECA4D25A037001B3@orsmsx407>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Mon, 6 Jun 2005 04:13:54 -0400
+Received: from static.labristeknoloji.com ([81.214.24.78]:64965 "EHLO
+	yssyk.labristeknoloji.com") by vger.kernel.org with ESMTP
+	id S261198AbVFFINu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 04:13:50 -0400
+Message-ID: <42A42FDE.2040600@labristeknoloji.com>
+Date: Mon, 06 Jun 2005 11:13:34 +0000
+From: "M.Baris Demiray" <baris@labristeknoloji.com>
+Organization: Labris Teknoloji
+User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.12-rc5-mm2] [sched] add allowed CPUs check into find_idlest_group()
+References: <42A3381F.90801@labristeknoloji.com> <42A3AA63.7060201@yahoo.com.au>
+In-Reply-To: <42A3AA63.7060201@yahoo.com.au>
+Content-Type: multipart/mixed;
+ boundary="------------090608000303020302050900"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This is a multi-part message in MIME format.
+--------------090608000303020302050900
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-* Perez-Gonzalez, Inaky <inaky.perez-gonzalez@intel.com> wrote:
 
-> >From: Ingo Molnar [mailto:mingo@elte.hu]
-> >
-> >so the question is - can we have an extreme (larger than 140) number of
-> >RT tasks? If yes, why are they all RT - they can have no expectation of
-> >good latencies with a possible load factor of 140!
+Hello Nick,
+
+Nick Piggin wrote:
+> M.Baris Demiray wrote:
 > 
-> In practice, didn't we want most tasks to behave like RT? (for 
-> interactivity purposes) -- I recall hearing that's basically what good 
-> interactivity meant; short reponse times to events.
+> [...]
+> Close.
+> 
+> Probably it would be better to take the intersection of
+> (group->cpumask, p->cpus_allowed), and skip the group if
+> the intersection is empty.
 
-that's not what the current code does (and it's not what the non-plist 
-code did either). We dont do PI handling for non-RT tasks. They 
-basically have no RT expectations at all, and including them in the PI 
-mechanism would only slow them down, and would increase the latencies of 
-the RT tasks as well.
+But, isn't it required for us to be allowed to run on _every_
+CPU in that group. If we take intersection and continue if
+that's not empty, then there could be CPUs in group that are
+not allowed. Since any CPU then can be the idlest in that
+group we can be assigned to a CPU that is not allowed.
+Missing something?
 
-But indeed it could improve interactivity (but this has not been proven 
-yet) - and also for testing purposes it would sure be useful, so we 
-should perhaps make ALL_TASKS_PI default-on, as Daniel suggests. If that 
-is done then plists are indeed a superior solution. But if in the end we 
-decide to only include RT tasks in the PI mechanism (which could easily 
-happen) then there seems to be little practical difference between 
-sorted lists and plists.
+> In addition to that, do a patch for find_idlest_cpu that
+> skips cpus that aren't allowed. You needn't do the cpumask
+> check each time round the loop, again just take the
+> intersection of the group->cpumask and p->cpus_allowed, and
+> loop over that.
 
-	Ingo
+Will do it.
+
+> Wanna do a patch for that?
+
+Sure. But I'll wait EOT and do read something more to fill
+the gaps.
+
+ > [...]
+> 
+> I don't think it does anything ;)
+
+LOL. Hope next one'll do.
+
+Meanwhile, what is the problem with that patch? Not traversing
+the CPUs correctly or continue;ing is wrong?
+
+	for_each_cpu_mask(i, group->cpumask) {
+		if (!cpu_isset(i, p->cpus_allowed))
+			continue;
+	}
+
+Thanks for comments.
+
+> 
+
+-- 
+"You have to understand, most of these people are not ready to be
+unplugged. And many of them are no inert, so hopelessly dependent
+on the system, that they will fight to protect it."
+                                                         Morpheus
+
+--------------090608000303020302050900
+Content-Type: text/x-vcard; charset=utf-8;
+ name="baris.vcf"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment;
+ filename="baris.vcf"
+
+YmVnaW46dmNhcmQNCmZuOk0uQmFyaXMgRGVtaXJheQ0KbjpEZW1pcmF5O00uQmFyaXMNCm9y
+ZzpMYWJyaXMgVGVrbm9sb2ppDQphZHI6OztUZWtub2tlbnQgU2lsaWtvbiBCaW5hIE5vOjI0
+IE9EVFU7QW5rYXJhOzswNjUzMTtUdXJrZXkNCmVtYWlsO2ludGVybmV0OmJhcmlzQGxhYnJp
+c3Rla25vbG9qaS5jb20NCnRpdGxlOllhemlsaW0gR2VsaXN0aXJtZSBVem1hbmkNCnRlbDt3
+b3JrOis5MDMxMjIxMDE0OTANCnRlbDtmYXg6KzkwMzEyMjEwMTQ5Mg0KeC1tb3ppbGxhLWh0
+bWw6RkFMU0UNCnVybDpodHRwOi8vd3d3LmxhYnJpc3Rla25vbG9qaS5jb20NCnZlcnNpb246
+Mi4xDQplbmQ6dmNhcmQNCg0K
+--------------090608000303020302050900--

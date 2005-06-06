@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbVFFWLP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261751AbVFFWNr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261748AbVFFWLP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 18:11:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261739AbVFFWLP
+	id S261751AbVFFWNr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 18:13:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbVFFWNq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 18:11:15 -0400
-Received: from cpe-24-93-172-51.neo.res.rr.com ([24.93.172.51]:35969 "EHLO
-	neo.rr.com") by vger.kernel.org with ESMTP id S261269AbVFFWKl (ORCPT
+	Mon, 6 Jun 2005 18:13:46 -0400
+Received: from fire.osdl.org ([65.172.181.4]:48278 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261740AbVFFWNA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 18:10:41 -0400
-Date: Mon, 6 Jun 2005 18:06:13 -0400
-From: Adam Belay <ambx1@neo.rr.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12?
-Message-ID: <20050606220612.GB3289@neo.rr.com>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <42A0D88E.7070406@pobox.com> <20050603163843.1cf5045d.akpm@osdl.org>
+	Mon, 6 Jun 2005 18:13:00 -0400
+Date: Mon, 6 Jun 2005 15:13:32 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ashok Raj <ashok.raj@intel.com>
+Cc: linux-kernel@vger.kernel.org, zwane@arm.linux.org.uk, vatsa@in.ibm.com,
+       discuss@x86-64.org, rusty@rustycorp.com.au, ashok.raj@intel.com,
+       ak@muc.de
+Subject: Re: [patch 4/5] try2: x86_64: Dont use broadcast shortcut to make
+ it cpu hotplug safe.
+Message-Id: <20050606151332.3e457433.akpm@osdl.org>
+In-Reply-To: <20050606192113.307745000@araj-em64t>
+References: <20050606191433.104273000@araj-em64t>
+	<20050606192113.307745000@araj-em64t>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050603163843.1cf5045d.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 03, 2005 at 04:38:43PM -0700, Andrew Morton wrote:
-> Jeff Garzik <jgarzik@pobox.com> wrote:
-> >
-> > 
-> > So...  are we gonna see 2.6.12 sometime soon?
-> > 
-> 
-> Current plan is -rc6 in a few days, 2.6.12 a week after that.
-> 
-> 
-> My things-to-worry-about folder still has 244 entries.  Nobody seems to
-> care much.  Poor me.
-> 
-> Lots of USB problems, quite a few input problems.  fbdev, ACPI, ATAPI.  All
-> the usual suspects.
+Ashok Raj <ashok.raj@intel.com> wrote:
+>
+> +static void flat_send_IPI_allbutself(int vector)
+> +{
+> +	cpumask_t mask;
+> +	/*
+> +	 * if there are no other CPUs in the system then
+> +	 * we get an APIC send error if we try to broadcast.
+> +	 * thus we have to avoid sending IPIs in this case.
+> +	 */
+> +	get_cpu();
+> +	mask = cpu_online_map;
+> +	cpu_clear(smp_processor_id(), mask);
+> +
+> +	if (cpus_weight(mask) >= 1)
+> +		flat_send_IPI_mask(mask, vector);
+> +
+> +	put_cpu();
+> +}
 
+It would be more idiomatic to use preempt_disable() and preempt_enable() in
+place of get_cpu() and put_cpu() here.
 
-> Subject: Re: Fw: [Bugme-new] [Bug 4561] New: isapnp fails to find/init es18xx sound card
-
-This is more of a feature request than a bug, as in we don't currently have
-a PnPBIOS driver for this hardware.  I need to look at the es18xx code to
-see how difficult it will be.
-
-> Subject: Re: PNP parallel&serial ports: module reload fails (2.6.11)?
-
-I'm looking into this issue now.
-
-> Subject: Re: [linux-pm] potential pitfall? changing configuration while PC in hibernate (fwd)
-
-I think we're gradually improving this.  Suspend-to-ram is also an issue.
-
-Thanks,
-Adam

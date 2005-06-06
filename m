@@ -1,160 +1,435 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbVFFTcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbVFFTgP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261638AbVFFTcL (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 15:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVFFTad
+	id S261640AbVFFTgP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 15:36:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261634AbVFFT33
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 15:30:33 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:53165 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261643AbVFFTXH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 15:23:07 -0400
-Message-Id: <20050606192113.174311000@araj-em64t>
+	Mon, 6 Jun 2005 15:29:29 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:14758 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261642AbVFFTXF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 15:23:05 -0400
+Message-Id: <20050606192112.908578000@araj-em64t>
 References: <20050606191433.104273000@araj-em64t>
-Date: Mon, 06 Jun 2005 12:14:36 -0700
+Date: Mon, 06 Jun 2005 12:14:34 -0700
 From: Ashok Raj <ashok.raj@intel.com>
 To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
        Srivattsa Vaddagiri <vatsa@in.ibm.com>, discuss@x86-64.org,
        Rusty Russell <rusty@rustycorp.com.au>, Ashok Raj <ashok.raj@intel.com>,
        Andi Kleen <ak@muc.de>
-Subject: [patch 3/5] try2: x86_64: CPU hotplug sibling map cleanup
-Content-Disposition: inline; filename=x86_64-sibling-map-fixup.patch
+Subject: [patch 1/5] try2: x86_64: Change init sections for CPU hotplug support
+Content-Disposition: inline; filename=x86_64-cpuhp-initcall-cleanup.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch is a minor cleanup to the cpu sibling/core map.
-It is required that this setup happens on a per-cpu bringup
-time.
+This patch adds __cpuinit and __cpuinitdata sections that need to exist
+past boot to support cpu hotplug.
+
+Caveat: This is done *only* for EM64T CPU Hotplug support, on request from
+Andi Kleen. Much of the generic hotplug code in kernel, and none of the 
+other archs that support CPU hotplug today, i386, ia64, ppc64, s390 and
+parisc dont mark sections with __cpuinit, but only mark them as __devinit, 
+and __devinitdata.
+
+If someone is motivated to change generic code, we need to make sure all
+existing hotplug code does not break, on other arch's that dont use 
+__cpuinit, and __cpudevinit.
 
 Signed-off-by: Ashok Raj <ashok.raj@intel.com>
 Acked-by: Andi Kleen <ak@muc.de>
 Acked-by: Zwane Mwaikambo <zwane@arm.linux.org.uk>
---------------------------------------------
- arch/x86_64/kernel/smpboot.c |   82 ++++++++++++++++++-------------------------
- 1 files changed, 36 insertions(+), 46 deletions(-)
+-----------------------------------------
+ arch/x86_64/kernel/apic.c      |    8 ++++----
+ arch/x86_64/kernel/i387.c      |    2 +-
+ arch/x86_64/kernel/mce.c       |    8 ++++----
+ arch/x86_64/kernel/mce_intel.c |    4 ++--
+ arch/x86_64/kernel/nmi.c       |    4 ++--
+ arch/x86_64/kernel/process.c   |    2 +-
+ arch/x86_64/kernel/setup.c     |   18 +++++++++---------
+ arch/x86_64/kernel/setup64.c   |    6 +++---
+ arch/x86_64/kernel/smpboot.c   |   15 +++++----------
+ arch/x86_64/mm/numa.c          |    2 +-
+ include/linux/init.h           |   13 +++++++++++++
+ mm/page_alloc.c                |    2 +-
+ 12 files changed, 46 insertions(+), 38 deletions(-)
 
+Index: linux-2.6.12-rc5-mm2/include/linux/init.h
+===================================================================
+--- linux-2.6.12-rc5-mm2.orig/include/linux/init.h
++++ linux-2.6.12-rc5-mm2/include/linux/init.h
+@@ -222,6 +222,19 @@ void __init parse_early_param(void);
+ #define __devinitdata
+ #define __devexit
+ #define __devexitdata
++
++#ifdef CONFIG_HOTPLUG_CPU
++#define __cpuinit
++#define __cpuinitdata
++#define __cpuexit
++#define __cpuexitdata
++#else
++#define __cpuinit	__init
++#define __cpuinitdata __initdata
++#define __cpuexit __exit
++#define __cpuexitdata	__exitdata
++#endif
++
+ #else
+ #define __devinit __init
+ #define __devinitdata __initdata
 Index: linux-2.6.12-rc5-mm2/arch/x86_64/kernel/smpboot.c
 ===================================================================
 --- linux-2.6.12-rc5-mm2.orig/arch/x86_64/kernel/smpboot.c
 +++ linux-2.6.12-rc5-mm2/arch/x86_64/kernel/smpboot.c
-@@ -445,6 +445,34 @@ void __cpuinit smp_callin(void)
- 	cpu_set(cpuid, cpu_callin_map);
+@@ -58,11 +58,6 @@
+ #include <asm/proto.h>
+ #include <asm/nmi.h>
+ 
+-/* Change for real CPU hotplug. Note other files need to be fixed
+-   first too. */
+-#define __cpuinit __init
+-#define __cpuinitdata __initdata
+-
+ /* Number of siblings per CPU package */
+ int smp_num_siblings = 1;
+ /* Package ID of each logical CPU */
+@@ -823,7 +818,7 @@ static __cpuinit void smp_cleanup_boot(v
+  *
+  * RED-PEN audit/test this more. I bet there is more state messed up here.
+  */
+-static __cpuinit void disable_smp(void)
++static __init void disable_smp(void)
+ {
+ 	cpu_present_map = cpumask_of_cpu(0);
+ 	cpu_possible_map = cpumask_of_cpu(0);
+@@ -838,7 +833,7 @@ static __cpuinit void disable_smp(void)
+ /*
+  * Handle user cpus=... parameter.
+  */
+-static __cpuinit void enforce_max_cpus(unsigned max_cpus)
++static __init void enforce_max_cpus(unsigned max_cpus)
+ {
+ 	int i, k;
+ 	k = 0;
+@@ -855,7 +850,7 @@ static __cpuinit void enforce_max_cpus(u
+ /*
+  * Various sanity checks.
+  */
+-static int __cpuinit smp_sanity_check(unsigned max_cpus)
++static int __init smp_sanity_check(unsigned max_cpus)
+ {
+ 	if (!physid_isset(hard_smp_processor_id(), phys_cpu_present_map)) {
+ 		printk("weird, boot CPU (#%d) not listed by the BIOS.\n",
+@@ -913,7 +908,7 @@ static int __cpuinit smp_sanity_check(un
+  * Prepare for SMP bootup.  The MP table or ACPI has been read
+  * earlier.  Just do some sanity checking here and enable APIC mode.
+  */
+-void __cpuinit smp_prepare_cpus(unsigned int max_cpus)
++void __init smp_prepare_cpus(unsigned int max_cpus)
+ {
+ 	int i;
+ 
+@@ -1019,7 +1014,7 @@ int __cpuinit __cpu_up(unsigned int cpu)
+ /*
+  * Finish the SMP boot.
+  */
+-void __cpuinit smp_cpus_done(unsigned int max_cpus)
++void __init smp_cpus_done(unsigned int max_cpus)
+ {
+ 	zap_low_mappings();
+ 	smp_cleanup_boot();
+Index: linux-2.6.12-rc5-mm2/arch/x86_64/kernel/process.c
+===================================================================
+--- linux-2.6.12-rc5-mm2.orig/arch/x86_64/kernel/process.c
++++ linux-2.6.12-rc5-mm2/arch/x86_64/kernel/process.c
+@@ -204,7 +204,7 @@ static void mwait_idle(void)
+ 	}
  }
  
-+static inline void
-+set_cpu_sibling_map(int cpu)
-+{
-+	int i;
-+
-+	if (smp_num_siblings > 1) {
-+		for_each_cpu(i) {
-+			if (cpu_core_id[cpu] == cpu_core_id[i]) {
-+				cpu_set(i, cpu_sibling_map[cpu]);
-+				cpu_set(cpu, cpu_sibling_map[i]);
-+			}
-+		}
-+	} else {
-+		cpu_set(cpu, cpu_sibling_map[cpu]);
-+	}
-+
-+	if (current_cpu_data.x86_num_cores > 1) {
-+		for_each_cpu(i) {
-+			if (phys_proc_id[cpu] == phys_proc_id[i]) {
-+				cpu_set(i, cpu_core_map[cpu]);
-+				cpu_set(cpu, cpu_core_map[i]);
-+			}
-+		}
-+	} else {
-+		cpu_core_map[cpu] = cpu_sibling_map[cpu];
-+	}
-+}
-+
- /*
-  * Setup code on secondary processor (after comming out of the trampoline)
-  */
-@@ -475,6 +503,12 @@ void __cpuinit start_secondary(void)
- 	enable_APIC_timer();
- 
- 	/*
-+	 * The sibling maps must be set before turing the online map on for
-+	 * this cpu
-+	 */
-+	set_cpu_sibling_map(smp_processor_id());
-+
-+	/*
- 	 * Allow the master to continue.
- 	 */
- 	cpu_set(smp_processor_id(), cpu_online_map);
-@@ -807,51 +841,6 @@ cycles_t cacheflush_time;
- unsigned long cache_decay_ticks;
- 
- /*
-- * Construct cpu_sibling_map[], so that we can tell the sibling CPU
-- * on SMT systems efficiently.
-- */
--static __cpuinit void detect_siblings(void)
--{
--	int cpu;
--
--	for (cpu = 0; cpu < NR_CPUS; cpu++) {
--		cpus_clear(cpu_sibling_map[cpu]);
--		cpus_clear(cpu_core_map[cpu]);
--	}
--
--	for_each_online_cpu (cpu) {
--		struct cpuinfo_x86 *c = cpu_data + cpu;
--		int siblings = 0;
--		int i;
--		if (smp_num_siblings > 1) {
--			for_each_online_cpu (i) {
--				if (cpu_core_id[cpu] == cpu_core_id[i]) {
--					siblings++;
--					cpu_set(i, cpu_sibling_map[cpu]);
--				}
--			}
--		} else {
--			siblings++;
--			cpu_set(cpu, cpu_sibling_map[cpu]);
--		}
--
--		if (siblings != smp_num_siblings) {
--			printk(KERN_WARNING
--	       "WARNING: %d siblings found for CPU%d, should be %d\n",
--			       siblings, cpu, smp_num_siblings);
--			smp_num_siblings = siblings;
--		}
--		if (c->x86_num_cores > 1) {
--			for_each_online_cpu(i) {
--				if (phys_proc_id[cpu] == phys_proc_id[i])
--					cpu_set(i, cpu_core_map[cpu]);
--			}
--		} else
--			cpu_core_map[cpu] = cpu_sibling_map[cpu];
--	}
--}
--
--/*
-  * Cleanup possible dangling ends...
-  */
- static __cpuinit void smp_cleanup_boot(void)
-@@ -1038,6 +1027,8 @@ void __init smp_prepare_boot_cpu(void)
- 	int me = smp_processor_id();
- 	cpu_set(me, cpu_online_map);
- 	cpu_set(me, cpu_callout_map);
-+	cpu_set(0, cpu_sibling_map[0]);
-+	cpu_set(0, cpu_core_map[0]);
+-void __init select_idle_routine(const struct cpuinfo_x86 *c)
++void __cpuinit select_idle_routine(const struct cpuinfo_x86 *c)
+ {
+ 	static int printed;
+ 	if (cpu_has(c, X86_FEATURE_MWAIT)) {
+Index: linux-2.6.12-rc5-mm2/arch/x86_64/kernel/setup.c
+===================================================================
+--- linux-2.6.12-rc5-mm2.orig/arch/x86_64/kernel/setup.c
++++ linux-2.6.12-rc5-mm2/arch/x86_64/kernel/setup.c
+@@ -708,7 +708,7 @@ void __init setup_arch(char **cmdline_p)
+ #endif
  }
  
+-static int __init get_model_name(struct cpuinfo_x86 *c)
++static int __cpuinit get_model_name(struct cpuinfo_x86 *c)
+ {
+ 	unsigned int *v;
+ 
+@@ -724,7 +724,7 @@ static int __init get_model_name(struct 
+ }
+ 
+ 
+-static void __init display_cacheinfo(struct cpuinfo_x86 *c)
++static void __cpuinit display_cacheinfo(struct cpuinfo_x86 *c)
+ {
+ 	unsigned int n, dummy, eax, ebx, ecx, edx;
+ 
+@@ -835,7 +835,7 @@ static int __init init_amd(struct cpuinf
+ 	return r;
+ }
+ 
+-static void __init detect_ht(struct cpuinfo_x86 *c)
++static void __cpuinit detect_ht(struct cpuinfo_x86 *c)
+ {
+ #ifdef CONFIG_SMP
+ 	u32 	eax, ebx, ecx, edx;
+@@ -896,7 +896,7 @@ static void __init detect_ht(struct cpui
  /*
-@@ -1097,7 +1088,6 @@ void __init smp_cpus_done(unsigned int m
- 	setup_ioapic_dest();
+  * find out the number of processor cores on the die
+  */
+-static int __init intel_num_cpu_cores(struct cpuinfo_x86 *c)
++static int __cpuinit intel_num_cpu_cores(struct cpuinfo_x86 *c)
+ {
+ 	unsigned int eax;
+ 
+@@ -914,7 +914,7 @@ static int __init intel_num_cpu_cores(st
+ 		return 1;
+ }
+ 
+-static void __init init_intel(struct cpuinfo_x86 *c)
++static void __cpuinit init_intel(struct cpuinfo_x86 *c)
+ {
+ 	/* Cache sizes */
+ 	unsigned n;
+@@ -934,7 +934,7 @@ static void __init init_intel(struct cpu
+  	c->x86_num_cores = intel_num_cpu_cores(c);
+ }
+ 
+-void __init get_cpu_vendor(struct cpuinfo_x86 *c)
++void __cpuinit get_cpu_vendor(struct cpuinfo_x86 *c)
+ {
+ 	char *v = c->x86_vendor_id;
+ 
+@@ -955,7 +955,7 @@ struct cpu_model_info {
+ /* Do some early cpuid on the boot CPU to get some parameter that are
+    needed before check_bugs. Everything advanced is in identify_cpu
+    below. */
+-void __init early_identify_cpu(struct cpuinfo_x86 *c)
++void __cpuinit early_identify_cpu(struct cpuinfo_x86 *c)
+ {
+ 	u32 tfms;
+ 
+@@ -1009,7 +1009,7 @@ void __init early_identify_cpu(struct cp
+ /*
+  * This does the hard work of actually picking apart the CPU stuff...
+  */
+-void __init identify_cpu(struct cpuinfo_x86 *c)
++void __cpuinit identify_cpu(struct cpuinfo_x86 *c)
+ {
+ 	int i;
+ 	u32 xlvl;
+@@ -1086,7 +1086,7 @@ void __init identify_cpu(struct cpuinfo_
+ }
+  
+ 
+-void __init print_cpu_info(struct cpuinfo_x86 *c)
++void __cpuinit print_cpu_info(struct cpuinfo_x86 *c)
+ {
+ 	if (c->x86_model_id[0])
+ 		printk("%s", c->x86_model_id);
+Index: linux-2.6.12-rc5-mm2/arch/x86_64/kernel/apic.c
+===================================================================
+--- linux-2.6.12-rc5-mm2.orig/arch/x86_64/kernel/apic.c
++++ linux-2.6.12-rc5-mm2/arch/x86_64/kernel/apic.c
+@@ -321,7 +321,7 @@ void __init init_bsp_APIC(void)
+ 	apic_write_around(APIC_LVT1, value);
+ }
+ 
+-void __init setup_local_APIC (void)
++void __cpuinit setup_local_APIC (void)
+ {
+ 	unsigned int value, ver, maxlvt;
+ 
+@@ -570,7 +570,7 @@ static struct sys_device device_lapic = 
+ 	.cls		= &lapic_sysclass,
+ };
+ 
+-static void __init apic_pm_activate(void)
++static void __cpuinit apic_pm_activate(void)
+ {
+ 	apic_pm_state.active = 1;
+ }
+@@ -810,14 +810,14 @@ void __init setup_boot_APIC_clock (void)
+ 	local_irq_enable();
+ }
+ 
+-void __init setup_secondary_APIC_clock(void)
++void __cpuinit setup_secondary_APIC_clock(void)
+ {
+ 	local_irq_disable(); /* FIXME: Do we need this? --RR */
+ 	setup_APIC_timer(calibration_result);
+ 	local_irq_enable();
+ }
+ 
+-void __init disable_APIC_timer(void)
++void __cpuinit disable_APIC_timer(void)
+ {
+ 	if (using_apic_timer) {
+ 		unsigned long v;
+Index: linux-2.6.12-rc5-mm2/arch/x86_64/kernel/setup64.c
+===================================================================
+--- linux-2.6.12-rc5-mm2.orig/arch/x86_64/kernel/setup64.c
++++ linux-2.6.12-rc5-mm2/arch/x86_64/kernel/setup64.c
+@@ -29,7 +29,7 @@
+ 
+ char x86_boot_params[BOOT_PARAM_SIZE] __initdata = {0,};
+ 
+-cpumask_t cpu_initialized __initdata = CPU_MASK_NONE;
++cpumask_t cpu_initialized __cpuinitdata = CPU_MASK_NONE;
+ 
+ struct x8664_pda cpu_pda[NR_CPUS] __cacheline_aligned; 
+ 
+@@ -171,7 +171,7 @@ void syscall_init(void)
+ 	wrmsrl(MSR_SYSCALL_MASK, EF_TF|EF_DF|EF_IE|0x3000); 
+ }
+ 
+-void __init check_efer(void)
++void __cpuinit check_efer(void)
+ {
+ 	unsigned long efer;
+ 
+@@ -188,7 +188,7 @@ void __init check_efer(void)
+  * 'CPU state barrier', nothing should get across.
+  * A lot of state is already set up in PDA init.
+  */
+-void __init cpu_init (void)
++void __cpuinit cpu_init (void)
+ {
+ #ifdef CONFIG_SMP
+ 	int cpu = stack_smp_processor_id();
+Index: linux-2.6.12-rc5-mm2/arch/x86_64/kernel/i387.c
+===================================================================
+--- linux-2.6.12-rc5-mm2.orig/arch/x86_64/kernel/i387.c
++++ linux-2.6.12-rc5-mm2/arch/x86_64/kernel/i387.c
+@@ -42,7 +42,7 @@ void mxcsr_feature_mask_init(void)
+  * Called at bootup to set up the initial FPU state that is later cloned
+  * into all processes.
+  */
+-void __init fpu_init(void)
++void __cpuinit fpu_init(void)
+ {
+ 	unsigned long oldcr0 = read_cr0();
+ 	extern void __bad_fxsave_alignment(void);
+Index: linux-2.6.12-rc5-mm2/mm/page_alloc.c
+===================================================================
+--- linux-2.6.12-rc5-mm2.orig/mm/page_alloc.c
++++ linux-2.6.12-rc5-mm2/mm/page_alloc.c
+@@ -72,7 +72,7 @@ EXPORT_SYMBOL(zone_table);
+ 
+ #ifdef CONFIG_NUMA
+ static struct per_cpu_pageset
+-	pageset_table[MAX_NR_ZONES*MAX_NUMNODES*NR_CPUS] __initdata;
++	pageset_table[MAX_NR_ZONES*MAX_NUMNODES*NR_CPUS] __cpuinitdata;
  #endif
  
--	detect_siblings();
- 	time_init_gtod();
+ static char *zone_names[MAX_NR_ZONES] = { "DMA", "Normal", "HighMem" };
+Index: linux-2.6.12-rc5-mm2/arch/x86_64/kernel/nmi.c
+===================================================================
+--- linux-2.6.12-rc5-mm2.orig/arch/x86_64/kernel/nmi.c
++++ linux-2.6.12-rc5-mm2/arch/x86_64/kernel/nmi.c
+@@ -98,7 +98,7 @@ static unsigned int nmi_p4_cccr_val;
+ 	(P4_CCCR_OVF_PMI0|P4_CCCR_THRESHOLD(15)|P4_CCCR_COMPLEMENT|	\
+ 	 P4_CCCR_COMPARE|P4_CCCR_REQUIRED|P4_CCCR_ESCR_SELECT(4)|P4_CCCR_ENABLE)
  
- 	check_nmi_watchdog();
+-static __init inline int nmi_known_cpu(void)
++static __cpuinit inline int nmi_known_cpu(void)
+ {
+ 	switch (boot_cpu_data.x86_vendor) {
+ 	case X86_VENDOR_AMD:
+@@ -110,7 +110,7 @@ static __init inline int nmi_known_cpu(v
+ }
+ 
+ /* Run after command line and cpu_init init, but before all other checks */
+-void __init nmi_watchdog_default(void)
++void __cpuinit nmi_watchdog_default(void)
+ {
+ 	if (nmi_watchdog != NMI_DEFAULT)
+ 		return;
+Index: linux-2.6.12-rc5-mm2/arch/x86_64/mm/numa.c
+===================================================================
+--- linux-2.6.12-rc5-mm2.orig/arch/x86_64/mm/numa.c
++++ linux-2.6.12-rc5-mm2/arch/x86_64/mm/numa.c
+@@ -251,7 +251,7 @@ void __init numa_initmem_init(unsigned l
+ 	setup_node_bootmem(0, start_pfn << PAGE_SHIFT, end_pfn << PAGE_SHIFT);
+ }
+ 
+-__init void numa_add_cpu(int cpu)
++__cpuinit void numa_add_cpu(int cpu)
+ {
+ 	/* BP is initialized elsewhere */
+ 	if (cpu) 
+Index: linux-2.6.12-rc5-mm2/arch/x86_64/kernel/mce.c
+===================================================================
+--- linux-2.6.12-rc5-mm2.orig/arch/x86_64/kernel/mce.c
++++ linux-2.6.12-rc5-mm2/arch/x86_64/kernel/mce.c
+@@ -327,7 +327,7 @@ static void mce_init(void *dummy)
+ }
+ 
+ /* Add per CPU specific workarounds here */
+-static void __init mce_cpu_quirks(struct cpuinfo_x86 *c) 
++static void __cpuinit mce_cpu_quirks(struct cpuinfo_x86 *c)
+ { 
+ 	/* This should be disabled by the BIOS, but isn't always */
+ 	if (c->x86_vendor == X86_VENDOR_AMD && c->x86 == 15) {
+@@ -337,7 +337,7 @@ static void __init mce_cpu_quirks(struct
+ 	}
+ }			
+ 
+-static void __init mce_cpu_features(struct cpuinfo_x86 *c)
++static void __cpuinit mce_cpu_features(struct cpuinfo_x86 *c)
+ {
+ 	switch (c->x86_vendor) {
+ 	case X86_VENDOR_INTEL:
+@@ -352,7 +352,7 @@ static void __init mce_cpu_features(stru
+  * Called for each booted CPU to set up machine checks.
+  * Must be called with preempt off. 
+  */
+-void __init mcheck_init(struct cpuinfo_x86 *c)
++void __cpuinit mcheck_init(struct cpuinfo_x86 *c)
+ {
+ 	static cpumask_t mce_cpus __initdata = CPU_MASK_NONE;
+ 
+@@ -542,7 +542,7 @@ ACCESSOR(bank4ctl,bank[4],mce_restart())
+ ACCESSOR(tolerant,tolerant,)
+ ACCESSOR(check_interval,check_interval,mce_restart())
+ 
+-static __init int mce_init_device(void)
++static __cpuinit int mce_init_device(void)
+ {
+ 	int err;
+ 	if (!mce_available(&boot_cpu_data))
+Index: linux-2.6.12-rc5-mm2/arch/x86_64/kernel/mce_intel.c
+===================================================================
+--- linux-2.6.12-rc5-mm2.orig/arch/x86_64/kernel/mce_intel.c
++++ linux-2.6.12-rc5-mm2/arch/x86_64/kernel/mce_intel.c
+@@ -42,7 +42,7 @@ done:
+ 	irq_exit();
+ }
+ 
+-static void __init intel_init_thermal(struct cpuinfo_x86 *c)
++static void __cpuinit intel_init_thermal(struct cpuinfo_x86 *c)
+ {
+ 	u32 l, h;
+ 	int tm2 = 0;
+@@ -93,7 +93,7 @@ static void __init intel_init_thermal(st
+ 	return;
+ }
+ 
+-void __init mce_intel_feature_init(struct cpuinfo_x86 *c)
++void __cpuinit mce_intel_feature_init(struct cpuinfo_x86 *c)
+ {
+ 	intel_init_thermal(c);
+ }
 
 --
 

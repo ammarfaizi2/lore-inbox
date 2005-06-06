@@ -1,71 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVFFH4B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261199AbVFFH6D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261193AbVFFH4B (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 03:56:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVFFH4B
+	id S261199AbVFFH6D (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 03:58:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261204AbVFFH6D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 03:56:01 -0400
-Received: from mail.gmx.net ([213.165.64.20]:61136 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S261193AbVFFHzx (ORCPT
+	Mon, 6 Jun 2005 03:58:03 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:29655 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261199AbVFFH55 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 03:55:53 -0400
-X-Authenticated: #1027147
-Message-ID: <42A3E55D.7000809@gmx.at>
-Date: Mon, 06 Jun 2005 07:55:41 +0200
-From: Oliver Leitner <Shadow333@gmx.at>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-CC: Willy Tarreau <willy@w.ods.org>, linux-kernel@vger.kernel.org,
-       mpm@selenic.com
-Subject: Re: Easy trick to reduce kernel footprint
-References: <20050605223528.GA13726@alpha.home.local> <20050606074745.GC24826@wohnheim.fh-wedel.de>
-In-Reply-To: <20050606074745.GC24826@wohnheim.fh-wedel.de>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Y-GMX-Trusted: 0
+	Mon, 6 Jun 2005 03:57:57 -0400
+Date: Mon, 6 Jun 2005 09:57:28 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+Cc: Esben Nielsen <simlo@phys.au.dk>, Thomas Gleixner <tglx@linutronix.de>,
+       linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>,
+       Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: [patch] Real-Time Preemption, plist fixes
+Message-ID: <20050606075728.GA13088@elte.hu>
+References: <F989B1573A3A644BAB3920FBECA4D25A037001B3@orsmsx407>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <F989B1573A3A644BAB3920FBECA4D25A037001B3@orsmsx407>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-Jörn Engel wrote:
-| On Mon, 6 June 2005 00:35:28 +0200, Willy Tarreau wrote:
-|
-|>I recently discovered p7zip which comes with the LZMA compression
-algorithm,
-|>which is somewhat better than gzip and bzip2 on most datasets, [...]
-|
-|
-| Hmmm.
-|
-| Citeseer has never heard of that algorithm, top 10 google hits for
-| "LZMA compression algorithm" are completely uninformative.  Does
-| anyone actually know, what this algorithm is doing?
-|
-| Jörn
-|
+* Perez-Gonzalez, Inaky <inaky.perez-gonzalez@intel.com> wrote:
 
-Dear Jörn
+> >From: Ingo Molnar [mailto:mingo@elte.hu]
+> >
+> >so the question is - can we have an extreme (larger than 140) number of
+> >RT tasks? If yes, why are they all RT - they can have no expectation of
+> >good latencies with a possible load factor of 140!
+> 
+> In practice, didn't we want most tasks to behave like RT? (for 
+> interactivity purposes) -- I recall hearing that's basically what good 
+> interactivity meant; short reponse times to events.
 
-i just googled it up, and the first link ive found is:
+that's not what the current code does (and it's not what the non-plist 
+code did either). We dont do PI handling for non-RT tasks. They 
+basically have no RT expectations at all, and including them in the PI 
+mechanism would only slow them down, and would increase the latencies of 
+the RT tasks as well.
 
+But indeed it could improve interactivity (but this has not been proven 
+yet) - and also for testing purposes it would sure be useful, so we 
+should perhaps make ALL_TASKS_PI default-on, as Daniel suggests. If that 
+is done then plists are indeed a superior solution. But if in the end we 
+decide to only include RT tasks in the PI mechanism (which could easily 
+happen) then there seems to be little practical difference between 
+sorted lists and plists.
 
-http://martinus.geekisp.com/rublog.cgi/Projects/LZMA
-
-might be that one...
-
-Greetings
-Oliver Leitner
-Technical Staff
-http://www.shells.at
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (MingW32)
-
-iD8DBQFCo+VdWvEVE8MtwbgRAoKEAJ4pbKdAYMCd1yJnZzCdp8EfZqfCZACglVOR
-Q9bUv3wMpj1xCkdZS3eAiDg=
-=fD7R
------END PGP SIGNATURE-----
+	Ingo

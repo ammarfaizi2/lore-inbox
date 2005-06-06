@@ -1,53 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbVFFSjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVFFSmi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261624AbVFFSjB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 14:39:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVFFSjB
+	id S261500AbVFFSmi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 14:42:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261523AbVFFSmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 14:39:01 -0400
-Received: from web25804.mail.ukl.yahoo.com ([217.12.10.189]:38508 "HELO
-	web25804.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S261624AbVFFSi6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 14:38:58 -0400
-Message-ID: <20050606183854.43545.qmail@web25804.mail.ukl.yahoo.com>
-Date: Mon, 6 Jun 2005 20:38:54 +0200 (CEST)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: Advices for a lcd driver design. (suite)
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+	Mon, 6 Jun 2005 14:42:38 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:5072 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261500AbVFFSmf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 14:42:35 -0400
+Date: Mon, 6 Jun 2005 13:42:13 -0500
+From: Michael Halcrow <mhalcrow@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Phillip Hellewell <phillip@hellewell.homeip.net>,
+       linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH 2/3, 2.6.12-rc5-mm1] eCryptfs: export user key type
+Message-ID: <20050606184212.GD7947@halcrow.us>
+Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
+References: <20050603200339.GA2445@halcrow.us> <20050602054852.GB4514@sshock.rn.byu.edu> <16336.1118050922@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <16336.1118050922@redhat.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Mon, Jun 06, 2005 at 10:42:02AM +0100, David Howells wrote:
+> Michael Halcrow <mhalcrow@us.ibm.com> wrote:
+> > > +EXPORT_SYMBOL( key_type_user );
+> > 
+> > This is the only modification necessary to support eCryptfs.
+> 
+> Unfortunately, that might have to be EXPORT_SYMBOL_GPL() nowadays
+> since I reimplemented the predefined keyring types of user and
+> keyring using RCU.
 
-I posted an email 1 month ago because I was looking for advices to design
-a driver for a lcd device (128x64 pixels) with a t6963c controller.
+Noted; new patch included below.
 
-I have finally choosen a console implementation to interact with the lcd. It
-allows me to reuse code that deals with escape character or to start a getty on
-it. Unfortunately this implemenatation doens't support lcd's graphical mode.
-So I wrote another small driver that can be accessed through "/dev/lcd". It
-drives the lcd only in graphical mode. That means that a "echo foo > /dev/lcd"
-command won't work as expected.
+> > While we are working on getting it ready for merging into the
+> > mainline kernel, we would like to distribute it as a separate
+> > kernel module, and we would like for users or distro's do not need
+> > to modify their kernels to build and run it.
+> 
+> "It" being?
 
-So now I'm wondering how to synchronize access to the lcd. Because a user appli
-that is sending an image to "/dev/lcd" may want to prevent other access from
-other application to the lcd either from "/dev/ttyX" or "/dev/lcd" but still
-should be able to send char to "/dev/ttyX"
+eCryptfs.
 
-Any idea ?
+> > Would there be any objections to exporting the key_type_user
+> > symbol?  Is there any general reason why kernel modules should not
+> > have access to the user key type struct?
+> 
+> No and no, but see above. You could also export the user defined key
+> type ops and define your own key type using them.
 
-Thanks for your answers,
+I can imagine scenarios where new kernel modules make use some
+universal key type (i.e., without userspace apps having to be aware of
+a special keytype).  The ``user'' key type seems like a good candidate
+for that.
 
-         Francis
+Signed off by: Michael Halcrow <mhalcrow@us.ibm.com>
 
-
-	
-
-	
-		
-_____________________________________________________________________________ 
-Découvrez le nouveau Yahoo! Mail : 1 Go d'espace de stockage pour vos mails, photos et vidéos ! 
-Créez votre Yahoo! Mail sur http://fr.mail.yahoo.com
+--- linux-2.6.12-rc5-mm1/security/keys/user_defined.c	2005-05-28 17:18:52.000000000 -0500
++++ linux-2.6.12-rc5-mm1-ecryptfs/security/keys/user_defined.c	2005-06-06 13:26:58.757403080 -0500
+@@ -48,6 +48,8 @@
+ 	char		data[0];	/* actual data */
+ };
+ 
++EXPORT_SYMBOL_GPL(key_type_user);
++
+ /*****************************************************************************/
+ /*
+  * instantiate a user defined key

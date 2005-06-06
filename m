@@ -1,77 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbVFFVdJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVFFVeI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbVFFVdJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 17:33:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVFFVdJ
+	id S261679AbVFFVeI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 17:34:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVFFVeH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 17:33:09 -0400
-Received: from hell.org.pl ([62.233.239.4]:9736 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S261693AbVFFVc5 (ORCPT
+	Mon, 6 Jun 2005 17:34:07 -0400
+Received: from fire.osdl.org ([65.172.181.4]:27528 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261679AbVFFVeC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 17:32:57 -0400
-Date: Mon, 6 Jun 2005 23:32:48 +0200
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: Hanno =?iso-8859-2?Q?B=F6ck?= <mail@hboeck.de>
-Cc: randy_dunlap <rdunlap@xenotime.net>, acpi-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, julien.lerouge@free.fr
-Subject: Re: Kernel oops with asus_acpi module
-Message-ID: <20050606213248.GA22238@hell.org.pl>
-Mail-Followup-To: Hanno =?iso-8859-2?Q?B=F6ck?= <mail@hboeck.de>,
-	randy_dunlap <rdunlap@xenotime.net>,
-	acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-	julien.lerouge@free.fr
-References: <200506052340.41074.mail@hboeck.de> <200506061929.24663.mail@hboeck.de> <20050606114531.763eec37.rdunlap@xenotime.net> <200506062050.42632.mail@hboeck.de> <20050606135459.7ad699ae.rdunlap@xenotime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <20050606135459.7ad699ae.rdunlap@xenotime.net>
-User-Agent: Mutt/1.4.2i
+	Mon, 6 Jun 2005 17:34:02 -0400
+Date: Mon, 6 Jun 2005 14:36:02 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Pavel Machek <pavel@suse.cz>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.12-rc6
+In-Reply-To: <20050606211849.GK2230@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.58.0506061433480.1876@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org>
+ <20050606192654.GA3155@elf.ucw.cz> <Pine.LNX.4.58.0506061310500.1876@ppc970.osdl.org>
+ <20050606201441.GG2230@elf.ucw.cz> <Pine.LNX.4.58.0506061411410.1876@ppc970.osdl.org>
+ <20050606211849.GK2230@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote randy_dunlap:
-> OK, I see that part.
+
+
+On Mon, 6 Jun 2005, Pavel Machek wrote:
 > 
-> I'm including a patch for you to try.  Can you apply and test it
-> and report back on it, please?
+> I thought you are taking "first From: in the body", not "From: only if
+> it is first line in the body". [Could you perhaps modify your scripts
+> to take "first From: in the body"? It seems logical to put From "near"
+> Signed-of-by: lines...
 
-May I see the DSDT? The Samsung P30 INIT method referenced in
-asus_hotk_get_info() is not supposed to return anything, not even an empty
-string. I believe the new ACPICA implicit return might be interfering. 
-Here's the relevant part of what I based the code on:
+I really don't want to, for a number of reasons. Most notably because I
+don't want to mix things up with the sign-off, because authorship and
+sign-off are really separate things (sign-offs accumulate, authorship
+stays), but also because it's not entirely unambiguous to parse these
+things. With the "first line only" rule, it ends up being pretty clear 
+what's going on when the script suddenly ate one line..
 
-Method (INIT, 1, NotSerialized)
-{
-    Store (One, ATKP)
-    If (LNot (LLess (PCBV, 0x02)))
-    {
-        If (And (WBTF, 0x1F))
-        {
-            Or (WBTF, 0x20, WBTF)
-        }
-
-        And (WBTF, 0xE0, WBTF)
-    }
-
-    If (And (WBTF, 0x40))
-    {
-        If (And (WBTF, 0xBF))
-        {
-            WLED (0x81)
-        }
-        Else
-        {
-            WLED (0x80)
-        }
-    }
-    Else
-    {
-        WLED (0x80)
-    }
-}
-
-Best regards,
-
--- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+		Linus

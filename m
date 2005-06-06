@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261399AbVFFOyr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261485AbVFFO4o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261399AbVFFOyr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 10:54:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261485AbVFFOyr
+	id S261485AbVFFO4o (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 10:56:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVFFO4n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 10:54:47 -0400
-Received: from cavan.codon.org.uk ([213.162.118.85]:31931 "EHLO
-	cavan.codon.org.uk") by vger.kernel.org with ESMTP id S261399AbVFFOyp
+	Mon, 6 Jun 2005 10:56:43 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:43511 "EHLO
+	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S261485AbVFFO4b
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 10:54:45 -0400
-Date: Mon, 6 Jun 2005 15:54:29 +0100
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: Bizarre oops after suspend to RAM (was: Re: [ACPI] Resume from Suspend to RAM)
-Message-ID: <20050606145429.GA18396@srcf.ucam.org>
-References: <200506051456.44810.hugelmopf@web.de> <1117978635.6648.136.camel@tyrosine> <200506051732.08854.stefandoesinger@gmx.at> <1118053578.6648.142.camel@tyrosine> <1118056003.6648.148.camel@tyrosine> <20050606144501.GB2243@elf.ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050606144501.GB2243@elf.ucw.cz>
-User-Agent: Mutt/1.5.6+20040907i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on cavan.codon.org.uk); SAEximRunCond expanded to false
+	Mon, 6 Jun 2005 10:56:31 -0400
+Date: Mon, 6 Jun 2005 07:56:12 -0700 (PDT)
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+cc: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>,
+       Esben Nielsen <simlo@phys.au.dk>, Thomas Gleixner <tglx@linutronix.de>,
+       <linux-kernel@vger.kernel.org>, Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: [patch] Real-Time Preemption, plist fixes
+In-Reply-To: <20050606075728.GA13088@elte.hu>
+Message-ID: <Pine.LNX.4.44.0506060751470.27907-100000@dhcp153.mvista.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 06, 2005 at 04:45:01PM +0200, Pavel Machek wrote:
+On Mon, 6 Jun 2005, Ingo Molnar wrote:
+> But indeed it could improve interactivity (but this has not been proven 
+> yet) - and also for testing purposes it would sure be useful, so we 
+> should perhaps make ALL_TASKS_PI default-on, as Daniel suggests. If that 
+> is done then plists are indeed a superior solution. But if in the end we 
+> decide to only include RT tasks in the PI mechanism (which could easily 
+> happen) then there seems to be little practical difference between 
+> sorted lists and plists.
 
-> NULL pointer dereference in filp_open; whats that strange about it?
-> Use printks to debug this one, nothing mysterious.
+The biggest reason that I suggest this is because when I wrote the 
+abstracted PI I gave the user of the API the choice to do RT tasks only or 
+all tasks. In the case of fusyn or futex , they will do all tasks .. Once 
+you throw in one structure that does all tasks , they may as well all be 
+doing it. Or that's how I feel.
 
-I can't see any way that a null pointer could get to filp_open without 
-something already being very wrong - the kernel worked fine before 
-suspend. Unfortunately, that's the one occasion that we've got the 
-machine (an HP nc4000) to resume. Since then, it simply freezes before 
-hitting "Back to C" despite having had no kernel or configuration 
-changes. The behaviour is very non-deterministic, which makes me wonder 
-about something in the suspend or resume process damaging state.
+Daniel
 
--- 
-Matthew Garrett | mjg59@srcf.ucam.org
+
+

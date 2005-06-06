@@ -1,45 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261666AbVFFWWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbVFFWZS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261666AbVFFWWa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 18:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261738AbVFFWVK
+	id S261761AbVFFWZS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 18:25:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbVFFWXD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 18:21:10 -0400
-Received: from fire.osdl.org ([65.172.181.4]:27032 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261731AbVFFWSW (ORCPT
+	Mon, 6 Jun 2005 18:23:03 -0400
+Received: from fire.osdl.org ([65.172.181.4]:18329 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261731AbVFFWVU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 18:18:22 -0400
-Date: Mon, 6 Jun 2005 15:18:09 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Jan Kara <jack@suse.cz>
-Cc: Chris Wright <chrisw@osdl.org>, Holger Kiehl <Holger.Kiehl@dwd.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.11.11 Assertion failure in journal_commit_transaction()
-Message-ID: <20050606221809.GK9407@shell0.pdx.osdl.net>
-References: <Pine.LNX.4.61.0506041304350.32405@diagnostix.dwd.de> <20050606134253.GB2130@atrey.karlin.mff.cuni.cz> <20050606181524.GA9153@shell0.pdx.osdl.net> <20050606221201.GB9649@atrey.karlin.mff.cuni.cz>
+	Mon, 6 Jun 2005 18:21:20 -0400
+Date: Mon, 6 Jun 2005 15:21:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: nickpiggin@yahoo.com.au, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] get_user_pages: kill get_page_map
+Message-Id: <20050606152159.7863f317.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.61.0506062054170.5000@goblin.wat.veritas.com>
+References: <Pine.LNX.4.61.0506062054170.5000@goblin.wat.veritas.com>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050606221201.GB9649@atrey.karlin.mff.cuni.cz>
-User-Agent: Mutt/1.5.6i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jan Kara (jack@suse.cz) wrote:
-> > * Jan Kara (jack@suse.cz) wrote:
-> > >   The kernel stopped because it detected a disk buffer in an unexpected
-> > > state. 2.6.12-rc5 kernel should contain some more fixes than 2.6.11.11
-> > > for similar problems so you can try that kernel. If you are able to see
-> > > the same problem with 2.6.12-rc5 then let us know please.
-> > 
-> > Do you feel any of those fixes are stable enough for -stable?
-> > Especially this one looks ok:
-> > 
-> >  Subject: [PATCH] Fix log_do_checkpoint() assertion failure
-> >  Message-ID: <20050601074059.GD5933@atrey.karlin.mff.cuni.cz>
->    Yes, that patch should be safe and fixes a really observed bug so I
-> guess it qualifies into -stable :)
-> 
+Hugh Dickins <hugh@veritas.com> wrote:
+>
+> Oh, and could we please call that "struct page *page" like
+> everywhere else, instead of "struct page *map"?
 
-Thanks, I'll add to the -stable queue.
--chris
+metoo.

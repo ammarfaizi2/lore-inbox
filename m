@@ -1,45 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVFFHrr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261196AbVFFHt0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261194AbVFFHrr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 03:47:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVFFHrr
+	id S261196AbVFFHt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 03:49:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261199AbVFFHtY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 03:47:47 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:59785 "EHLO
-	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261194AbVFFHro (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 03:47:44 -0400
-Date: Mon, 6 Jun 2005 09:47:45 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: linux-kernel@vger.kernel.org, mpm@selenic.com
-Subject: Re: Easy trick to reduce kernel footprint
-Message-ID: <20050606074745.GC24826@wohnheim.fh-wedel.de>
-References: <20050605223528.GA13726@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20050605223528.GA13726@alpha.home.local>
-User-Agent: Mutt/1.3.28i
+	Mon, 6 Jun 2005 03:49:24 -0400
+Received: from fmr18.intel.com ([134.134.136.17]:17848 "EHLO
+	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261196AbVFFHsF convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 03:48:05 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch] Real-Time Preemption, plist fixes
+Date: Mon, 6 Jun 2005 00:44:45 -0700
+Message-ID: <F989B1573A3A644BAB3920FBECA4D25A037001B3@orsmsx407>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch] Real-Time Preemption, plist fixes
+Thread-Index: AcVp1Xoa2jf9y0AZQ6qJ+0xG4yLPWAAlb3GA
+From: "Perez-Gonzalez, Inaky" <inaky.perez-gonzalez@intel.com>
+To: "Ingo Molnar" <mingo@elte.hu>, "Esben Nielsen" <simlo@phys.au.dk>
+Cc: "Thomas Gleixner" <tglx@linutronix.de>, <linux-kernel@vger.kernel.org>,
+       "Daniel Walker" <dwalker@mvista.com>, "Oleg Nesterov" <oleg@tv-sign.ru>
+X-OriginalArrivalTime: 06 Jun 2005 07:47:33.0651 (UTC) FILETIME=[FFDAEE30:01C56A6B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 6 June 2005 00:35:28 +0200, Willy Tarreau wrote:
-> 
-> I recently discovered p7zip which comes with the LZMA compression algorithm,
-> which is somewhat better than gzip and bzip2 on most datasets, [...]
+>From: Ingo Molnar [mailto:mingo@elte.hu]
+>
+>so the question is - can we have an extreme (larger than 140) number of
+>RT tasks? If yes, why are they all RT - they can have no expectation of
+>good latencies with a possible load factor of 140!
 
-Hmmm.
+In practice, didn't we want most tasks to behave like RT?
+(for interactivity purposes) -- I recall hearing that's basically
+what good interactivity meant; short reponse times to events.
 
-Citeseer has never heard of that algorithm, top 10 google hits for
-"LZMA compression algorithm" are completely uninformative.  Does
-anyone actually know, what this algorithm is doing?
+So then, taking await batch/bacground data-munching jobs, we fold 
+back to needing a good RT-like behaviour. And then we can reach > 140.
 
-Jörn
-
--- 
-Debugging is twice as hard as writing the code in the first place.
-Therefore, if you write the code as cleverly as possible, you are,
-by definition, not smart enough to debug it.
--- Brian W. Kernighan
+-- Inaky

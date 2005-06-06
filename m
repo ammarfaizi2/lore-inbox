@@ -1,79 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261448AbVFFOn7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261484AbVFFOph@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261448AbVFFOn7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 10:43:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVFFOn7
+	id S261484AbVFFOph (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 10:45:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVFFOph
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 10:43:59 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:13952 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S261448AbVFFOn4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 10:43:56 -0400
-Date: Mon, 6 Jun 2005 18:43:35 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
-Message-ID: <20050606184335.A30338@jurassic.park.msu.ru>
-References: <20050603232828.GA29860@erebor.esa.informatik.tu-darmstadt.de> <Pine.LNX.4.58.0506031706450.1876@ppc970.osdl.org> <20050604013311.GA30151@erebor.esa.informatik.tu-darmstadt.de> <Pine.LNX.4.58.0506031851220.1876@ppc970.osdl.org> <20050604022600.GA8221@erebor.esa.informatik.tu-darmstadt.de> <Pine.LNX.4.58.0506032149130.1876@ppc970.osdl.org> <20050604155742.GA14384@erebor.esa.informatik.tu-darmstadt.de> <20050605204645.A28422@jurassic.park.msu.ru> <20050606002739.GA943@erebor.esa.informatik.tu-darmstadt.de>
+	Mon, 6 Jun 2005 10:45:37 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:10916 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261484AbVFFOpV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 10:45:21 -0400
+Date: Mon, 6 Jun 2005 16:45:01 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Matthew Garrett <mjg59@srcf.ucam.org>
+Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: Bizarre oops after suspend to RAM (was: Re: [ACPI] Resume from Suspend to RAM)
+Message-ID: <20050606144501.GB2243@elf.ucw.cz>
+References: <200506051456.44810.hugelmopf@web.de> <1117978635.6648.136.camel@tyrosine> <200506051732.08854.stefandoesinger@gmx.at> <1118053578.6648.142.camel@tyrosine> <1118056003.6648.148.camel@tyrosine>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050606002739.GA943@erebor.esa.informatik.tu-darmstadt.de>; from koch@esa.informatik.tu-darmstadt.de on Mon, Jun 06, 2005 at 02:27:39AM +0200
+In-Reply-To: <1118056003.6648.148.camel@tyrosine>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 06, 2005 at 02:27:39AM +0200, Andreas Koch wrote:
-> For your reference, at this stage we appear to have a cascade of three
-> bridges between a potential device (currently empty CardBus slot) and
-> the CPU
+Hi!
+
+> > > I've no idea how to debug a reboot, but if the system hangs it's possible to 
+> > > add "lcall $0xffff,$0" early in the wakeup assembler code. If the system 
+> > > reboots immediatly then, the kernels wakeup code was reached and the kernel 
+> > > hangs later during resume.
+> > 
+> > Ok, I've just tried that. The system still just freezes.
 > 
->                 1              2      3
-> CPU Southbridge -> PCI Express -> PCI -> CardBus
+> Whoops. May have been a bit too hasty there. I'm not sure why that
+> doesn't reset it, but we've now got the following (really rather odd)
+> serial output. Does anyone have any idea what might be triggering this?
+> Shell builtins work fine, but anything else seems to explode very
+> messily. Memory corruption of some description?
 > 
-> Note that the messages before this log, e.g., from ohci1394, also indicate
-> that the peripherals in the docking station still remain inaccessible due to
-> unmapped memory (all reads return 0xff). 
+> ^MRestarting tasks... done
+> ^Mroot@(none):/# ^M
+> root@(none):/# ls -la ^M
+> Unable to handle kernel NULL pointer dereference at virtual address
+> > > 00000024
 
-Well, the problem is that bridge 1 in this chain is completely unconfigured
-(it seems to be in after-reset state), while bridge 2 (PCIE-to-PCI one)
-does have reasonable setup. This leads to "successful" resource allocations
-on the bus 3, even though these resources are not accessible due to
-incorrect setup of the bridge 1.
-On the other hand, pci_assign_unassigned_resources() doesn't touch
-already allocated resources, probably leaving them outside of bridge windows.
+NULL pointer dereference in filp_open; whats that strange about it?
+Use printks to debug this one, nothing mysterious.
+								Pavel
 
-I think the correct behaviour of pcibios_allocate_bus_resources()
-(arch/i386/pci/i386.c) should be as follows:
-if some bridge resource cannot be allocated for whatever reason,
-don't allow any child resource assignments in that range. Just
-clear the resource flags - this prevents building an inconsistent
-resource tree.
-
-pci_assign_unassigned_resources() should correctly configure bridge 1
-and all subordinate stuff then.
-
-Ivan.
-
---- linux/arch/i386/pci/i386.c.orig	Sat Mar 19 09:34:53 2005
-+++ Linux/arch/i386/pci/i386.c	Mon Jun  6 15:09:18 2005
-@@ -106,11 +106,14 @@ static void __init pcibios_allocate_bus_
- 		if ((dev = bus->self)) {
- 			for (idx = PCI_BRIDGE_RESOURCES; idx < PCI_NUM_RESOURCES; idx++) {
- 				r = &dev->resource[idx];
--				if (!r->start)
--					continue;
- 				pr = pci_find_parent_resource(dev, r);
--				if (!pr || request_resource(pr, r) < 0)
-+				if (!r->start || !pr || request_resource(pr, r) < 0) {
- 					printk(KERN_ERR "PCI: Cannot allocate resource region %d of bridge %s\n", idx, pci_name(dev));
-+					/* Something is wrong with the region.
-+					   Invalidate the resource to prevent child
-+					   resource allocations in this range. */
-+					r->flags = 0;
-+				}
- 			}
- 		}
- 		pcibios_allocate_bus_resources(&bus->children);

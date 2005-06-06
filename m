@@ -1,57 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261714AbVFFVyl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261639AbVFFV6v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261714AbVFFVyl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 17:54:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVFFVy2
+	id S261639AbVFFV6v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 17:58:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261690AbVFFV6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 17:54:28 -0400
-Received: from prgy-npn1.prodigy.com ([207.115.54.37]:47632 "EHLO
-	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261708AbVFFVw4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 17:52:56 -0400
-Message-ID: <42A4C617.8030404@tmr.com>
-Date: Mon, 06 Jun 2005 17:54:31 -0400
-From: Bill Davidsen <davidsen@tmr.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Newsgroups: gmane.linux.kernel
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Jeff Garzik <jgarzik@pobox.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.12-rc6
-References: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org> <20050606192654.GA3155@elf.ucw.cz> <42A4AA01.90905@pobox.com> <20050606200512.GF2230@elf.ucw.cz> <Pine.LNX.4.58.0506061407520.1876@ppc970.osdl.org>
-In-Reply-To: <Pine.LNX.4.58.0506061407520.1876@ppc970.osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 6 Jun 2005 17:58:50 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:54400 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261639AbVFFV6j (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 17:58:39 -0400
+Date: Mon, 6 Jun 2005 23:58:15 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-pm@lists.osdl.org, "Yu, Luming" <luming.yu@intel.com>,
+       Andrew Morton <akpm@zip.com.au>,
+       ACPI devel <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] Re: swsusp: Not enough free pages
+Message-ID: <20050606215815.GO2230@elf.ucw.cz>
+References: <3ACA40606221794F80A5670F0AF15F84041AC1A8@pdsmsx403> <200506061902.34304.rjw@sisk.pl> <20050606171417.GB2230@elf.ucw.cz> <200506062346.09503.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200506062346.09503.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> 
-> On Mon, 6 Jun 2005, Pavel Machek wrote:
-> 
->>Linus, perhaps your scripts are doing something wrong? They should
->>have taken From in the description; or did I provide wrong changelog?
-> 
-> 
-> My scripts definitely do the expected thing. 
-> 
-> In git, the author is always in the fixed header, and you never look for
-> it anywhere else. However, in order for the author to _get_ there in the
-> first place, the person who commits the thing needs to haev the author
-> info.
-> 
-> In this case it was me, and I get the author information from the email
-> when I commit an emailed patch. I take it from the first line of the body
-> if that one is a valid "From:" line, and otherwise I fall back to taking
-> it from the headers of the email.
-> 
-> So in this case you got tagged, either because the patch came through
-> Andrew (it has his sign-off) and _he_ sent the email but incorrectly had
-> you as the "From:" person, or alternatively because you sent the email and
-> took Andrew's sign-off but didn't put the "From:" in the right spot.
+Hi!
 
-Any process which only works when multiple people do everything 
-correctly is not going to be robust. Perhaps you want to use the first 
-"signed-off-by" line or some such, rather than relying on mail headers?
+> > No, I see it on i386, too. Try patch below; if it frees some after
+> > first pass, you have that problem, too.
+> 
+> I've run it once and the result is this:
+> 
+> Freeing memory... done (75876 pages freed)
+> Freeing memory... done (1536 pages freed)
+> Freeing memory... done (0 pages freed)
+> Freeing memory... done (1792 pages freed)
+> Freeing memory... done (0 pages freed)
+> 
+> It does free some pages after the first pass, but this is only a small fraction
+> of all pages freed.  I wouldn't call it a bad result ...
+
+Well, it still did not free all memory it should have freed, and you
+were lucky. Apparently for some people it does not that well (and that
+includes me, I see 0 in first pass quite often).
+								Pavel

@@ -1,100 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVFFGjm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261152AbVFFHRY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261197AbVFFGjm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 02:39:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVFFGjm
+	id S261152AbVFFHRY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 03:17:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261187AbVFFHRY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 02:39:42 -0400
-Received: from fmr17.intel.com ([134.134.136.16]:29925 "EHLO
-	orsfmr002.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261197AbVFFGj0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 02:39:26 -0400
-From: "Yu, Luming" <luming.yu@intel.com>
-Reply-To: luming.yu@intel.com
-To: Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] Re: swsusp: Not enough free pages
-Date: Mon, 6 Jun 2005 14:39:02 +0800
-User-Agent: KMail/1.6.1
-Cc: ACPI devel <acpi-devel@lists.sourceforge.net>, linux-pm@lists.osdl.org
-References: <3ACA40606221794F80A5670F0AF15F84041AC1A8@pdsmsx403> <20050530091419.GA7922@linux.sh.intel.com> <20050530150157.GC2207@elf.ucw.cz>
-In-Reply-To: <20050530150157.GC2207@elf.ucw.cz>
-MIME-Version: 1.0
+	Mon, 6 Jun 2005 03:17:24 -0400
+Received: from mail.kroah.org ([69.55.234.183]:22735 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261152AbVFFHRS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 03:17:18 -0400
+Date: Sun, 5 Jun 2005 23:22:03 -0700
+From: Greg KH <greg@kroah.com>
+To: Jean Delvare <khali@linux-fr.org>
+Cc: LM Sensors <lm-sensors@lm-sensors.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Yani Ioannou <yani.ioannou@gmail.com>
+Subject: Re: More hardware monitoring drivers ported to the new sysfs callbacks
+Message-ID: <20050606062203.GA6344@kroah.com>
+References: <20050605200901.41592fe9.khali@linux-fr.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200506061439.03023.luming.yu@intel.com>
+In-Reply-To: <20050605200901.41592fe9.khali@linux-fr.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Jun 05, 2005 at 08:09:01PM +0200, Jean Delvare wrote:
+> Hi all,
+> 
+> I have been modifying three additional hardware monitoring drivers to
+> take benefit of Yani Ioannou's new, extended sysfs callbacks. These
+> drivers are lm63, lm83 and lm90. All of these are relatively small when
+> compared to the first two modified drivers (adm1026 and it87). My goal
+> was to demonstrate that the new callbacks can also be used in small
+> drivers, with significant benefits. The result is even smaller drivers
+> (less memory used when loaded), relying far less on macros, which makes
+> the code easier to read (and the drivers presumably faster to distribute
+> using distcc).
+> 
+> Module                Before   After
+> lm63                   10128    9424 ( -704/ -6%)
+> lm83                    8784    6864 (-1920/-21%)
+> lm90                   12420   10628 (-1792/-14%)
+> 
+> Individual patches will follow. Comments welcome. Greg, can you add
+> these to one of your trees?
 
-> > > So far, yes. I just tried 2 times.
-> >
-> > always. (I check that swap dev is on)
-> >
-> > Sometimes, my ia32 laptop free 0 pages too.
-> > I think we should always free some pages
-> > from various caches.
->
-> Try this hack... it is basically mm problem I don't know how to fix,
-> but this seems to help.
-> 								Pavel
+Applied, thanks.
 
-Thanks Pavel, this hack works.
-..
-Freeing memory...  ^Hdone (0 pages freed)
-Freeing memory...  ^H-^Hdone (4636 pages freed)
-Freeing memory...  ^Hdone (0 pages freed)
-Freeing memory...  ^H-^Hdone (914 pages freed)
-Freeing memory...  ^Hdone (0 pages freed)
-Freezing CPUs (at 0)...ok
+> Before I go on with driver conversion, there are two points I'd like to
+> discuss:
+> 
+> First, I don't much like the name of the new header file,
+> linux/i2c-sysfs.h. It isn't related with i2c at all! It's all about
+> sensors (or hardware monitoring if you prefer). I think the header file
+> should be named linux/hwmon-sysfs.h or something similar.
 
-Any mm guru know how to fix this?
+Sure, that would be fine.
 
->
-> Index: kernel/power/disk.c
-> ===================================================================
-> --- 805a02ec2bcff3671d7b1e701bd1981ad2fa196c/kernel/power/disk.c 
-> (mode:100644) +++
-> ecd8559cc08319bb16a42aac06cf7d664157643a/kernel/power/disk.c  (mode:100644)
-> @@ -88,23 +92,25 @@
->
->  static void free_some_memory(void)
->  {
-> -	unsigned int i = 0;
-> -	unsigned int tmp;
-> -	unsigned long pages = 0;
-> -	char *p = "-\\|/";
-> -
-> -	printk("Freeing memory...  ");
-> -	while ((tmp = shrink_all_memory(10000))) {
-> -		pages += tmp;
-> -		printk("\b%c", p[i]);
-> -		i++;
-> -		if (i > 3)
-> -			i = 0;
-> +	int i;
-> +	for (i=0; i<5; i++) {
-> +		int i = 0, tmp;
-> +		long pages = 0;
-> +		char *p = "-\\|/";
-> +
-> +		printk("Freeing memory...  ");
-> +		while ((tmp = shrink_all_memory(10000))) {
-> +			pages += tmp;
-> +			printk("\b%c", p[i]);
-> +			i++;
-> +			if (i > 3)
-> +				i = 0;
-> +		}
-> +		printk("\bdone (%li pages freed)\n", pages);
-> +		msleep_interruptible(200);
->  	}
-> -	printk("\bdone (%li pages freed)\n", pages);
->  }
->
-> -
->  static inline void platform_finish(void)
->  {
->  	if (pm_disk_mode == PM_DISK_PLATFORM) {
+> Second, is there a reason why the SENSOR_DEVICE_ATTR macro creates a
+> stucture named sensor_dev_attr_##_name rather than simply
+> dev_attr_##_name? As it seems unlikely that SENSOR_DEVICE_ATTR and
+> DEVICE_ATTR will both be called for the same file, going for the short
+> form shouldn't cause any problem. This would make the calling code more
+> readable IMHO.
 
+Hm, I really don't care either way about this.
+
+thanks,
+
+greg k-h

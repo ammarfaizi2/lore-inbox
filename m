@@ -1,64 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261359AbVFFMYq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVFFMkj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261359AbVFFMYq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 08:24:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261365AbVFFMYq
+	id S261365AbVFFMkj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 08:40:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbVFFMkj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 08:24:46 -0400
-Received: from wproxy.gmail.com ([64.233.184.200]:43929 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261359AbVFFMYm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 08:24:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=e+qjQ5GG2TK96kA21df2g2Y0il54AsQVNJL+Xg4wnvF1JnvMtlVrvPzdfTzjVNeYMZMzUZHSKcMB1As9dPVOtFlfU8spziHhcjKfMNxlPM2SmImsSVCZ2k5JNjouHCSLOjiUI5xoSrgj7m1UzQ33M2Hy+JXvPG5cUGqKgxdaOcE=
-Message-ID: <4745278c050606052477561c16@mail.gmail.com>
-Date: Mon, 6 Jun 2005 08:24:39 -0400
-From: Vishal Patil <vishpat@gmail.com>
-Reply-To: Vishal Patil <vishpat@gmail.com>
-To: Jeff Dike <jdike@addtoit.com>
-Subject: Re: Memory problems in schedule()
+	Mon, 6 Jun 2005 08:40:39 -0400
+Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:41140 "EHLO
+	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261365AbVFFMkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 08:40:24 -0400
+Date: Mon, 6 Jun 2005 14:40:19 +0200 (CEST)
+From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
+To: Pawel Sikora <pluto@agmk.net>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050606023145.GB11352@ccure.user-mode-linux.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <4745278c050605180115a70b8d@mail.gmail.com>
-	 <20050606023145.GB11352@ccure.user-mode-linux.org>
+Subject: Re: [2.6.11.12] oops in scheduler_tick
+In-Reply-To: <200506060805.38799.pluto@agmk.net>
+Message-ID: <Pine.LNX.4.58.0506061436520.17981@artax.karlin.mff.cuni.cz>
+References: <200506060805.38799.pluto@agmk.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff
-Please find the answer to questions below,
+Hi
 
-On 6/5/05, Jeff Dike <jdike@addtoit.com> wrote:
-> On Sun, Jun 05, 2005 at 09:01:19PM -0400, Vishal Patil wrote:
-> > 1) Whenever I select a process to run using my algorithm the kernel
-> > panics with "Segfault with no mm" basically the "mm" field of the
-> > task_struct that I selected is empty. I don't understand why this
-> > should happen, since I have just added code to select a process and
-> > haven't modified any memory related code in the schedule() function.
-> 
-> Start with a backtrace from the panic and debug it from there.
-> 
-> > 2) I am able to run the UMLfied kernel under gdb, however the execution
-> > never halts even though I set several breakpoints. Also these
-> > breakpoints have not been set in interrupt handling code and I have
-> > compiled the code with -g option.
-> 
-> UML and gdb versions?  tt or skas mode?
+Pls disassemble the function do_wait, that was interrupted
+(with objdump -d exit.o) and post it.
 
+Mikulas
 
-GNU gdb Red Hat Linux (6.1post-1.20040607.41rh)
-uml-patch-2.4.27-1
-skas mode.
+On Mon, 6 Jun 2005, Pawel Sikora wrote:
 
-Thank you.
->                                 Jeff
-> 
-
-
--- 
-A dream is just a dream. A goal is a dream with a plan and a deadline.
+> Oops: 0002 [#1]
+> Modules linked in:
+> CPU:    0
+> EIP:    0060:[<c0112e1f>]    Not tainted VLI
+> EFLAGS: 00010013   (2.6.11.11-2.1)
+> EIP is at scheduler_tick+0x3a/0x233
+> eax: 00000000   ebx: d0063500   ecx: 00000000   edx: 000f41fb
+> esi: 00000000   edi: 00000000   ebp: d0137eb0   esp: d0137e9c
+> ds: 007b   es: 007b   ss: 0068
+> Process  (pid: 24947, threadinfo=d0136000 task=d0063500)
+> Stack:
+> d0137f14 d0137f14 d0137f14 00000000 00000000 d0137ec4
+> c0106ebf 00000000 c02a7000 00000000 d0137eec c01292ed
+> 00000000 00000000 d0137f14 d0137f14 00000000 c031ea80
+> 00000000 c02a7000 d0137f04 c01293a7 d0137f14 d0063500
+> Call Trace:
+>  [<c0103fdd>] show_stack+0x78/0x83
+>  [<c01040f3>] show_registers+0xf1/0x15d
+>  [<c0104290>] die+0xac/0x120
+>  [<c01113aa>] do_page_fault+0x44a/0x5d9
+>  [<c0103c1f>] error_code+0x4f/0x60
+>  [<c0106ebf>] timer_interrupt+0x47/0xeb
+>  [<c01292ed>] handle_IRQ_event+0x26/0x56
+>  [<c01293a7>] __do_IRQ+0x8a/0xc7
+>  [<c0104fec>] do_IRQ+0x1c/0x28
+>  [<c0103b2a>] common_interrupt+0x1a/0x20
+>  [<c0117d80>] do_wait+0x75/0x364
+>  [<c01180fb>] sys_wait4+0x28/0x2d
+>  [<c0118113>] sys_waitpid+0x13/0x15
+>  [<c0102ac7>] syscall_call+0x7/0xb
+> Code:
+> 8b 18 e8 02 85 ff ff a3 34 27 36 c0 89 15 38 27 36 c0 3b 1d 40
+> 27 36 c0 0f 84 fe 01 00 00 a1 48 27 36 c0 39 43 28 74 0d 8b 43
+> 04 <0f> ba 68 08 03 e9 e7 01 00 00 8b 43 18 89 45 f0 83 f8 63 7f 43
+>    ^^^^^^^^^^^^^
+>    btsl $0x3,0x8(%eax)
+>    ^^^^^^^^^^^^
+>    set_bit(...) inlined form of set_tsk_need_resched(p)
+>
+>  <0>Kernel panic - not syncing: Fatal exception in interrupt
+>
+> --
+> The only thing necessary for the triumph of evil
+>   is for good men to do nothing.
+>                                            - Edmund Burke
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

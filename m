@@ -1,85 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261696AbVFFX5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVFFXxI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261696AbVFFX5j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 19:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261785AbVFFX5g
+	id S261720AbVFFXxI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 19:53:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261766AbVFFXQ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 19:57:36 -0400
-Received: from rav-az.mvista.com ([65.200.49.157]:48416 "EHLO
-	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
-	id S261696AbVFFXwg convert rfc822-to-8bit (ORCPT
+	Mon, 6 Jun 2005 19:16:56 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:22498 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261696AbVFFWqr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 19:52:36 -0400
-Cc: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
-Subject: [PATCH][RIO] -mm: Fix macro indenting
-In-Reply-To: mporter@kernel.crashing.org
-X-Mailer: gregkh_patchbomb
-Date: Mon, 6 Jun 2005 16:52:21 -0700
-Message-Id: <1118101941657@foobar.com>
+	Mon, 6 Jun 2005 18:46:47 -0400
+Date: Tue, 7 Jun 2005 00:46:45 +0200
+From: Karsten Keil <kkeil@suse.de>
+To: akpm@osdl.org, torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] fix tulip suspend/resume
+Message-ID: <20050606224645.GA23989@pingi3.kke.suse.de>
+Mail-Followup-To: akpm@osdl.org, torvalds@osdl.org,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Matt Porter <mporter@kernel.crashing.org>
-To: akpm@osdl.org
-Content-Transfer-Encoding: 7BIT
-From: Matt Porter <mporter@kernel.crashing.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.6.8-24.10-default i686
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix up indenting that Lindent fubared.
+Hi,
 
-Signed-off-by: Matt Porter <mporter@kernel.crashing.org
+following patch fix the suspend/resume for tulip based
+cards, so suspend on disk work now for me and tulip based
+cardbus cards.
 
-commit 87ff3372a005e4cf927b1b62c23e1c2339d46507
-tree 16e1d9454a95a4a1e8b9e50dacd218f8e14dfe14
-parent 6e9e41d480cf54c69d47df11f5cba696461ebe1a
-author Matt Porter <mporter@kernel.crashing.org> Mon, 06 Jun 2005 09:23:49 -0700
-committer Matt Porter <mporter@kernel.crashing.org> Mon, 06 Jun 2005 09:23:49 -0700
 
- drivers/rio/rio-access.c |   24 ++++++++++++------------
- 1 files changed, 12 insertions(+), 12 deletions(-)
+Signed-off-by: Karsten Keil <kkeil@suse.de>
 
-diff --git a/drivers/rio/rio-access.c b/drivers/rio/rio-access.c
---- a/drivers/rio/rio-access.c
-+++ b/drivers/rio/rio-access.c
-@@ -77,13 +77,13 @@ int __rio_local_write_config_##size \
+--- linux/drivers/net/tulip/tulip_core.c.orig	2005-03-23 23:54:43.000000000 +0100
++++ linux/drivers/net/tulip/tulip_core.c	2005-05-26 17:29:14.000000000 +0200
+@@ -1755,12 +1755,16 @@
+ static int tulip_suspend (struct pci_dev *pdev, pm_message_t state)
+ {
+ 	struct net_device *dev = pci_get_drvdata(pdev);
++	int err;
+ 
++	pci_save_state(pdev);
+ 	if (dev && netif_running (dev) && netif_device_present (dev)) {
+ 		netif_device_detach (dev);
+ 		tulip_down (dev);
+ 		/* pci_power_off(pdev, -1); */
+ 	}
++	if ((err = pci_set_power_state(pdev, PCI_D3hot)))
++		printk(KERN_ERR "%s: pci_set_power_state D3hot return %d\n", dev->name, err);
+ 	return 0;
  }
  
- RIO_LOP_READ(8, u8, 1)
--    RIO_LOP_READ(16, u16, 2)
--    RIO_LOP_READ(32, u32, 4)
--    RIO_LOP_WRITE(8, u8, 1)
--    RIO_LOP_WRITE(16, u16, 2)
--    RIO_LOP_WRITE(32, u32, 4)
-+RIO_LOP_READ(16, u16, 2)
-+RIO_LOP_READ(32, u32, 4)
-+RIO_LOP_WRITE(8, u8, 1)
-+RIO_LOP_WRITE(16, u16, 2)
-+RIO_LOP_WRITE(32, u32, 4)
+@@ -1768,7 +1772,11 @@
+ static int tulip_resume(struct pci_dev *pdev)
+ {
+ 	struct net_device *dev = pci_get_drvdata(pdev);
++	int err;
  
--    EXPORT_SYMBOL(__rio_local_read_config_8);
-+EXPORT_SYMBOL(__rio_local_read_config_8);
- EXPORT_SYMBOL(__rio_local_read_config_16);
- EXPORT_SYMBOL(__rio_local_read_config_32);
- EXPORT_SYMBOL(__rio_local_write_config_8);
-@@ -137,13 +137,13 @@ int rio_mport_write_config_##size \
- }
- 
- RIO_OP_READ(8, u8, 1)
--    RIO_OP_READ(16, u16, 2)
--    RIO_OP_READ(32, u32, 4)
--    RIO_OP_WRITE(8, u8, 1)
--    RIO_OP_WRITE(16, u16, 2)
--    RIO_OP_WRITE(32, u32, 4)
-+RIO_OP_READ(16, u16, 2)
-+RIO_OP_READ(32, u32, 4)
-+RIO_OP_WRITE(8, u8, 1)
-+RIO_OP_WRITE(16, u16, 2)
-+RIO_OP_WRITE(32, u32, 4)
- 
--    EXPORT_SYMBOL(rio_mport_read_config_8);
-+EXPORT_SYMBOL(rio_mport_read_config_8);
- EXPORT_SYMBOL(rio_mport_read_config_16);
- EXPORT_SYMBOL(rio_mport_read_config_32);
- EXPORT_SYMBOL(rio_mport_write_config_8);
++	if ((err = pci_set_power_state(pdev, PCI_D0)))
++		printk(KERN_ERR "%s: pci_set_power_state D0 return %d\n", dev->name, err);
++	pci_restore_state(pdev);
+ 	if (dev && netif_running (dev) && !netif_device_present (dev)) {
+ #if 1
+ 		pci_enable_device (pdev);
 
-
+-- 
+Karsten Keil
+SuSE Labs
+ISDN development

@@ -1,47 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVFFJar@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVFFJlI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261249AbVFFJar (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 05:30:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVFFJar
+	id S261256AbVFFJlI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 05:41:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbVFFJlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 05:30:47 -0400
-Received: from ns2.suse.de ([195.135.220.15]:13190 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261249AbVFFJak (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 05:30:40 -0400
-Date: Mon, 6 Jun 2005 11:30:38 +0200
-From: Andi Kleen <ak@suse.de>
-To: Dominik Brodowski <linux@dominikbrodowski.net>, Andi Kleen <ak@suse.de>,
-       john stultz <johnstul@us.ibm.com>,
-       Parag Warudkar <kernel-stuff@comcast.net>,
-       Nishanth Aravamudan <nacc@us.ibm.com>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Christoph Lameter <clameter@sgi.com>,
-       David Mosberger <davidm@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org
-Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
-Message-ID: <20050606093038.GB23831@wotan.suse.de>
-References: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net> <200506021905.08274.kernel-stuff@comcast.net> <1117754453.17804.51.camel@cog.beaverton.ibm.com> <200506021950.35014.kernel-stuff@comcast.net> <1117812275.3674.2.camel@leatherman> <20050605170511.GC12338@dominikbrodowski.de> <20050606092159.GZ23831@wotan.suse.de> <20050606092414.GA28526@isilmar.linta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050606092414.GA28526@isilmar.linta.de>
+	Mon, 6 Jun 2005 05:41:08 -0400
+Received: from smtp2.poczta.interia.pl ([213.25.80.232]:64905 "EHLO
+	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
+	id S261256AbVFFJlA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 05:41:00 -0400
+Message-ID: <42A41A21.5050100@poczta.fm>
+Date: Mon, 06 Jun 2005 11:40:49 +0200
+From: Lukasz Stelmach <stlman@poczta.fm>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: Ananda Krishnan <veedutwo@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, veedutwous@yahoo.com
+Subject: Re: device-driver supporting more than one device
+References: <20050604024830.13002.qmail@web14824.mail.yahoo.com>
+In-Reply-To: <20050604024830.13002.qmail@web14824.mail.yahoo.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigE89948A55A6CF30E7EF64CE1"
+X-EMID: a2396138
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> At least on my notebook, which has an ICH4-M, there is no HPET. AFAIK it
-> resides on a separate chip which may or may not exist. I'd be glad if the
-> opposite were true, though :)
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigE89948A55A6CF30E7EF64CE1
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-No it is on the southbridge. But it is often not enabled in the BIOS
-(so it is not reported in ACPI) but that can be fixed. 
+Ananda Krishnan napisa=C5=82(a):
+> Hi All,
+>=20
+>   Can a device-driver (a generic serial driver)
+> support more than one device from different vendors
+> (hence different vendor ids and device ids)?
 
--Andi
+In general, yes. Does it apply to the particular driver you mentioned? I
+don't know.
+
+> If so,
+> during the boot time how the pci_device_id structure
+> gets the info about the drvier_data?  Would like to
+> know the name of the function name(s) and file(s) that
+> are used for this process.  Thanks a lot.
+
+The driver contains IDs of hardware it supports. At the boot time
+each driver registers itself providing this list. Then for each piece of
+hardware supported by a particular driver .probe function is called.
+You should definitly look at /usr/src/linux/drivers/usb/usb-skeleton.c.
+However, it is a usb driver, pci seem to work in a similar manner.
+
+You might also like to read this: http://lwn.net/Kernel/LDD3/
+
+I am quite a newbie to kernel drivers so please correct me someone if I
+am wrong.
+
+--=20
+By=C5=82o mi bardzo mi=C5=82o.                    Trzecia pospolita kl=C4=
+=99ska, [...]
+>=C5=81ukasz<                      Ju=C5=BC nie katolicka lecz z=C5=82odz=
+iejska.  (c)PP
+
+
+--------------enigE89948A55A6CF30E7EF64CE1
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCpBomNdzY8sm9K9wRAru/AJ9waSoHL48Ef8zSptPvKADLpMeJKACePgko
+JxZqpSkkZZn/gQfF4CHZr90=
+=Us+O
+-----END PGP SIGNATURE-----
+
+--------------enigE89948A55A6CF30E7EF64CE1--

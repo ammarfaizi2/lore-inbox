@@ -1,43 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261506AbVFFP4O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261508AbVFFP4q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261506AbVFFP4O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 11:56:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261508AbVFFP4N
+	id S261508AbVFFP4q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 11:56:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVFFP4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 11:56:13 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:10588 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261506AbVFFP4L convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 11:56:11 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Yn0ViMPtCZESqSx/Zbg1dje7+IMwNcOZO22ejNC0f5vs/ipCJol6Sz+nt9xG6LhH6EWjkbzfAAu1NDT/PnWO48sSzdyTd772RY+RovkEkHRYS8+n5xu+0PO/wpGPG+oDCWV1MGbic9x/dpDTMgYALZfDHwQ7mmmODXoFVru2IRE=
-Message-ID: <58cb370e05060608551a4d2c85@mail.gmail.com>
-Date: Mon, 6 Jun 2005 17:55:44 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: THESNIERES Sylvain <tmsec@free.fr>
-Subject: Re: [2.6.11.10][Ali15x3] Crash at startup after disks detection in DMA66 mode
+	Mon, 6 Jun 2005 11:56:46 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:60119 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S261508AbVFFP4h (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 11:56:37 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Jim Ramsay <jim.ramsay@gmail.com>
+Subject: Re: Bug in 8520.c - port.type not set for serial console
+Date: Mon, 6 Jun 2005 09:55:54 -0600
+User-Agent: KMail/1.8
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <58cb370e05060608452a6a1ce0@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+References: <4789af9e05053015385667923@mail.gmail.com> <200505311625.46084.bjorn.helgaas@hp.com> <4789af9e0506060803161a8382@mail.gmail.com>
+In-Reply-To: <4789af9e0506060803161a8382@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <1117806619.42a0601b371b8@imp5-q.free.fr>
-	 <58cb370e05060608452a6a1ce0@mail.gmail.com>
+Message-Id: <200506060955.54238.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/6/05, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
-> On 6/3/05, THESNIERES Sylvain <tmsec@free.fr> wrote:
-> > Hello. I used the kernel 2.6.10-gentoo-rc9 with my notebook (Pentium 4-M, no
-> > trademark), it worked fine and I updated to 2.6.11.10 with fbsplash patch, and
-> > now DMA causes the system to crash at boot time. I can't dump any message,
+On Monday 06 June 2005 9:03 am, Jim Ramsay wrote:
+> On 5/31/05, Bjorn Helgaas <bjorn.helgaas@hp.com> wrote:
+> > On Monday 30 May 2005 4:38 pm, Jim Ramsay wrote:
+> > > I am attempting to get the 8520.c driver's serial console working with
+> > > a 16550A UART implementation, and have run into what I consider to be
+> > > a bug:  In short, the proper 'port.type' for this serial port is not
+> > > set until the module init (serial8250_init) is called, so the FCR is
+> > > set incorrectly during serial8250_console_init for any port type which
+> > > is different than UNKNOWN.
+> > >
+> > > The exact problem is that the FCR is being set to '0x0' for a port
+> > > type of 'UNKNOWN', when for my specific 16550A, it should be set to
+> > > '0xC1' - and this makes my screen fill with empty characters instead
+> > > of the printk output I need.
+> > 
+> > Shouldn't a 16550A UART work correctly with FCR==0x0, i.e., with FIFOs
+> > disabled?  Is your UART broken?
 > 
-> Could you elaborate on "DMA causes the system to crash"?
+> That's a good question.  I'll me looking into this in the near future.
 > 
-> Does 2.6.10-rc5 work for you?
+> > Serial console output is always polled, one character at a time, so
+> > you shouldn't need FIFOs until later.
+> 
+> True, as long as it works that way... so far I haven't seen it
+> actually function properly yet with FCR set to 0.
 
-Ehm, 2.6.12-rc5 :-)
+On all the UARTs I've seen, it works with FCR=0.  Hence my suspicion
+of your device.
+
+The problem is that most architectures supply SERIAL_PORT_DFNS,
+which are compiled-in mappings of /dev/ttyS device names to
+specific devices, so 8250.c knows about and uses those devices
+before they're properly identified and initialized.
+
+If you can remove your SERIAL_PORT_DFNS (and discover the devices
+at boot-time via a mechanism like ACPI or PCI enumeration), then
+8250.c won't start using the port until it's correctly initialized.
+
+That means the serial console won't start working until later, of
+course.  If you need a serial console early, I think you should use
+something like 8250_early.c.  That uses "console=uart,io,0x3f8", so
+you don't have to have compiled-in knowledge of the device names.
+It currently initializes the UART with FCR=0 also, but it would
+be reasonable to add a "no-init" option to just use the device in
+the state firmware left it in.

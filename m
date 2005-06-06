@@ -1,135 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVFFRDq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbVFFRTi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261458AbVFFRDq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 13:03:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVFFRDp
+	id S261512AbVFFRTi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 13:19:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbVFFRTh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 13:03:45 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:31620 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261458AbVFFRC2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 13:02:28 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: linux-pm@lists.osdl.org
-Subject: Re: [linux-pm] Re: swsusp: Not enough free pages
-Date: Mon, 6 Jun 2005 19:02:33 +0200
-User-Agent: KMail/1.8.1
-Cc: Pavel Machek <pavel@ucw.cz>, "Yu, Luming" <luming.yu@intel.com>,
+	Mon, 6 Jun 2005 13:19:37 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2271 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261512AbVFFRT1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 13:19:27 -0400
+Date: Mon, 6 Jun 2005 19:14:17 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-pm@lists.osdl.org, "Yu, Luming" <luming.yu@intel.com>,
        Andrew Morton <akpm@zip.com.au>,
        ACPI devel <acpi-devel@lists.sourceforge.net>,
        Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <3ACA40606221794F80A5670F0AF15F84041AC1A8@pdsmsx403> <200506061439.03023.luming.yu@intel.com> <20050606103936.GA2520@elf.ucw.cz>
-In-Reply-To: <20050606103936.GA2520@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Subject: Re: [linux-pm] Re: swsusp: Not enough free pages
+Message-ID: <20050606171417.GB2230@elf.ucw.cz>
+References: <3ACA40606221794F80A5670F0AF15F84041AC1A8@pdsmsx403> <200506061439.03023.luming.yu@intel.com> <20050606103936.GA2520@elf.ucw.cz> <200506061902.34304.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506061902.34304.rjw@sisk.pl>
+In-Reply-To: <200506061902.34304.rjw@sisk.pl>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-On Monday, 6 of June 2005 12:39, Pavel Machek wrote:
-> Hi!
-> 
-> > > > > So far, yes. I just tried 2 times.
+> > > > > > So far, yes. I just tried 2 times.
+> > > > >
+> > > > > always. (I check that swap dev is on)
+> > > > >
+> > > > > Sometimes, my ia32 laptop free 0 pages too.
+> > > > > I think we should always free some pages
+> > > > > from various caches.
 > > > >
-> > > > always. (I check that swap dev is on)
+> > > > Try this hack... it is basically mm problem I don't know how to fix,
+> > > > but this seems to help.
+> > > > 								Pavel
+> > > 
+> > > Thanks Pavel, this hack works.
+> > > ..
+> > > Freeing memory...  ^Hdone (0 pages freed)
+> > > Freeing memory...  ^H-^Hdone (4636 pages freed)
+> > > Freeing memory...  ^Hdone (0 pages freed)
+> > > Freeing memory...  ^H-^Hdone (914 pages freed)
+> > > Freeing memory...  ^Hdone (0 pages freed)
+> > > Freezing CPUs (at 0)...ok
+> > > 
+> > > Any mm guru know how to fix this?
+> > 
+> > Andrew, can you help? It seems free_some_memory does not really free
+> > all reclaimable memory in recent kernels. In fact, it likes to free
+> > nothing on first invocations....
+> 
+> Actually, on (my) x86-64 it seems to work.  It frees even more memory than
+> I'd like it to (there's 80-90% of RAM free after it's finished). ;-)
+> 
+> If I had to guess, I'd say the problem is related to PAGE_SIZE !=
+>4096.
+
+No, I see it on i386, too. Try patch below; if it frees some after
+first pass, you have that problem, too.
+
+								Pavel
+
+> > > > Index: kernel/power/disk.c
+> > > > ===================================================================
+> > > > --- 805a02ec2bcff3671d7b1e701bd1981ad2fa196c/kernel/power/disk.c 
+> > > > (mode:100644) +++
+> > > > ecd8559cc08319bb16a42aac06cf7d664157643a/kernel/power/disk.c  (mode:100644)
+> > > > @@ -88,23 +92,25 @@
 > > > >
-> > > > Sometimes, my ia32 laptop free 0 pages too.
-> > > > I think we should always free some pages
-> > > > from various caches.
-> > >
-> > > Try this hack... it is basically mm problem I don't know how to fix,
-> > > but this seems to help.
-> > > 								Pavel
+> > > >  static void free_some_memory(void)
+> > > >  {
+> > > > -	unsigned int i = 0;
+> > > > -	unsigned int tmp;
+> > > > -	unsigned long pages = 0;
+> > > > -	char *p = "-\\|/";
+> > > > -
+> > > > -	printk("Freeing memory...  ");
+> > > > -	while ((tmp = shrink_all_memory(10000))) {
+> > > > -		pages += tmp;
+> > > > -		printk("\b%c", p[i]);
+> > > > -		i++;
+> > > > -		if (i > 3)
+> > > > -			i = 0;
+> > > > +	int i;
+> > > > +	for (i=0; i<5; i++) {
+> > > > +		int i = 0, tmp;
+> > > > +		long pages = 0;
+> > > > +		char *p = "-\\|/";
+> > > > +
+> > > > +		printk("Freeing memory...  ");
+> > > > +		while ((tmp = shrink_all_memory(10000))) {
+> > > > +			pages += tmp;
+> > > > +			printk("\b%c", p[i]);
+> > > > +			i++;
+> > > > +			if (i > 3)
+> > > > +				i = 0;
+> > > > +		}
+> > > > +		printk("\bdone (%li pages freed)\n", pages);
+> > > > +		msleep_interruptible(200);
+> > > >  	}
+> > > > -	printk("\bdone (%li pages freed)\n", pages);
+> > > >  }
+> > > >
+> > > > -
+> > > >  static inline void platform_finish(void)
+> > > >  {
+> > > >  	if (pm_disk_mode == PM_DISK_PLATFORM) {
+> > > 
 > > 
-> > Thanks Pavel, this hack works.
-> > ..
-> > Freeing memory...  ^Hdone (0 pages freed)
-> > Freeing memory...  ^H-^Hdone (4636 pages freed)
-> > Freeing memory...  ^Hdone (0 pages freed)
-> > Freeing memory...  ^H-^Hdone (914 pages freed)
-> > Freeing memory...  ^Hdone (0 pages freed)
-> > Freezing CPUs (at 0)...ok
+> > > _______________________________________________
+> > > linux-pm mailing list
+> > > linux-pm@lists.osdl.org
+> > > http://lists.osdl.org/mailman/listinfo/linux-pm
 > > 
-> > Any mm guru know how to fix this?
-> 
-> Andrew, can you help? It seems free_some_memory does not really free
-> all reclaimable memory in recent kernels. In fact, it likes to free
-> nothing on first invocations....
-
-Actually, on (my) x86-64 it seems to work.  It frees even more memory than
-I'd like it to (there's 80-90% of RAM free after it's finished). ;-)
-
-If I had to guess, I'd say the problem is related to PAGE_SIZE != 4096.
-
-Greets,
-Rafael
-
-
-> Pausing and trying few times helps, but is *very* ugly.
-> 								Pavel
-> 
-> > > Index: kernel/power/disk.c
-> > > ===================================================================
-> > > --- 805a02ec2bcff3671d7b1e701bd1981ad2fa196c/kernel/power/disk.c 
-> > > (mode:100644) +++
-> > > ecd8559cc08319bb16a42aac06cf7d664157643a/kernel/power/disk.c  (mode:100644)
-> > > @@ -88,23 +92,25 @@
-> > >
-> > >  static void free_some_memory(void)
-> > >  {
-> > > -	unsigned int i = 0;
-> > > -	unsigned int tmp;
-> > > -	unsigned long pages = 0;
-> > > -	char *p = "-\\|/";
-> > > -
-> > > -	printk("Freeing memory...  ");
-> > > -	while ((tmp = shrink_all_memory(10000))) {
-> > > -		pages += tmp;
-> > > -		printk("\b%c", p[i]);
-> > > -		i++;
-> > > -		if (i > 3)
-> > > -			i = 0;
-> > > +	int i;
-> > > +	for (i=0; i<5; i++) {
-> > > +		int i = 0, tmp;
-> > > +		long pages = 0;
-> > > +		char *p = "-\\|/";
-> > > +
-> > > +		printk("Freeing memory...  ");
-> > > +		while ((tmp = shrink_all_memory(10000))) {
-> > > +			pages += tmp;
-> > > +			printk("\b%c", p[i]);
-> > > +			i++;
-> > > +			if (i > 3)
-> > > +				i = 0;
-> > > +		}
-> > > +		printk("\bdone (%li pages freed)\n", pages);
-> > > +		msleep_interruptible(200);
-> > >  	}
-> > > -	printk("\bdone (%li pages freed)\n", pages);
-> > >  }
-> > >
-> > > -
-> > >  static inline void platform_finish(void)
-> > >  {
-> > >  	if (pm_disk_mode == PM_DISK_PLATFORM) {
 > > 
-> 
-> > _______________________________________________
-> > linux-pm mailing list
-> > linux-pm@lists.osdl.org
-> > http://lists.osdl.org/mailman/listinfo/linux-pm
-> 
-> 
-> -- 
+> > -- 
+> > 
 > 
 
 -- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"

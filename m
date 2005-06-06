@@ -1,49 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVFFP66@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVFFQCC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261509AbVFFP66 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 11:58:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVFFP6w
+	id S261239AbVFFQCC (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 12:02:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261209AbVFFQCB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 11:58:52 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:60689 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S261509AbVFFP6j
+	Mon, 6 Jun 2005 12:02:01 -0400
+Received: from wproxy.gmail.com ([64.233.184.192]:38081 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261225AbVFFQBq convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 11:58:39 -0400
-Message-ID: <42A472AC.8040307@rtr.ca>
-Date: Mon, 06 Jun 2005 11:58:36 -0400
-From: Mark Lord <liml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
+	Mon, 6 Jun 2005 12:01:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=IIs56KADn2DmuEnlCsYYrFGZ05ViIABTOKqx45o4OvgR/CpAtpxorDjEgeVh2BrBHGU2F/dXWVgOdbvBtpgEiwHbj66bC0OlI0wYYzCMFyWVYsOrhRUOY96k8tlBfsHq4Xbumz4HiuEs2C5V2pUDbRIOwJWbHyv4th1pqEY2oaQ=
+Message-ID: <58cb370e05060609014039a23@mail.gmail.com>
+Date: Mon, 6 Jun 2005 18:01:14 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
 To: Jeff Garzik <jgarzik@pobox.com>
-Cc: "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] libata: shelved ioctl-get-identity patch
-References: <42A12E80.8090203@pobox.com>
-In-Reply-To: <42A12E80.8090203@pobox.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+Subject: Re: Broken nForce2 IDE module loading via hotplug
+Cc: Andrew Chew <AChew@nvidia.com>, Juerg Billeter <juerg@paldo.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <42947ED9.9040401@pobox.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <DBFABB80F7FD3143A911F9E6CFD477B00604C7BE@hqemmail02.nvidia.com>
+	 <42947ED9.9040401@pobox.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
+On 5/25/05, Jeff Garzik <jgarzik@pobox.com> wrote:
+> Andrew Chew wrote:
+> > Actually, it occurred to me that it would be better if the determination
+> > to use the generic entry can be run-time specified (via a kernel option
+> > flag, for example).  All the kernel config option accomplishes is a
+> > cleaner way to disable the generic entry at compile time.
+> >
+> > In any case, it'd be interesting to figure out the EXACT root of the
+> > problem.  Let me spend a few days looking into it.
 > 
-> I am removing the attached patch from libata-dev.git, as it does not 
-> justify the maintenance burden at the present time.  The reasons it sat 
-> in libata-dev rather than go upstream are discussed at the top of the 
-> patch.
-> 
-> If anyone feels strongly about this ioctl, take it upon yourself to 
-> research the patch fully, address the concerns, and present an updated 
-> solution.
+> Any progress?
 
-That interface is so obsolete it really doesn't matter much now.
-Most people seem to use the more modern "hdparm -I" instead
-of this ("hdparm -i") one.
+It would be nice to get it fixed before 2.6.12...
+Even if it means reverting the patch...
 
-For now, "hdparm -I" works just fine using HDIO_DRIVE_CMD,
-but if somebody could show me how to use ATA PASSTHRU,
-then I'll port it over to that.
-
-Cheers
-
+Bartlomiej

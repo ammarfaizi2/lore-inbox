@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbVFFVu0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261704AbVFFVvh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261703AbVFFVu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 17:50:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbVFFVuZ
+	id S261704AbVFFVvh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 17:51:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261696AbVFFVvh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 17:50:25 -0400
-Received: from linux.dunaweb.hu ([62.77.196.1]:12488 "EHLO linux.dunaweb.hu")
-	by vger.kernel.org with ESMTP id S261704AbVFFVsA (ORCPT
+	Mon, 6 Jun 2005 17:51:37 -0400
+Received: from fire.osdl.org ([65.172.181.4]:41357 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261707AbVFFVvX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 17:48:00 -0400
-Message-ID: <42A4C85F.2040509@freemail.hu>
-Date: Tue, 07 Jun 2005 00:04:15 +0200
-From: Zoltan Boszormenyi <zboszor@freemail.hu>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: hu-hu, hu, en-us, en
+	Mon, 6 Jun 2005 17:51:23 -0400
+Date: Mon, 6 Jun 2005 14:53:22 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Pavel Machek <pavel@suse.cz>
+cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.12-rc6
+In-Reply-To: <20050606214124.GL2230@elf.ucw.cz>
+Message-ID: <Pine.LNX.4.58.0506061452320.1876@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org>
+ <20050606192654.GA3155@elf.ucw.cz> <Pine.LNX.4.58.0506061310500.1876@ppc970.osdl.org>
+ <20050606201441.GG2230@elf.ucw.cz> <Pine.LNX.4.58.0506061411410.1876@ppc970.osdl.org>
+ <20050606211849.GK2230@elf.ucw.cz> <Pine.LNX.4.58.0506061433480.1876@ppc970.osdl.org>
+ <20050606214124.GL2230@elf.ucw.cz>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Mousedev or hiddev problem, was: Re: USB mice do not work on 2.6.12-rc5-git9,
- -rc5-mm1, -rc5-mm2
-References: <42A2A0B2.7020003@freemail.hu>	<42A2A657.9060803@freemail.hu> <20050605001001.3e441076.akpm@osdl.org> <42A2BC4B.5060605@freemail.hu> <42A2CF27.8000806@freemail.hu> <42A3176F.9030307@freemail.hu> <42A4B328.1010400@freemail.hu>
-In-Reply-To: <42A4B328.1010400@freemail.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-Zoltan Boszormenyi írta:
-> All the -bk7+ kernels I tried produced the same strange bug
-> on my system: after gpm started I was able to move the
-> pointer on the screen but when X started up, it's pointer froze.
 
-it turned out that there is nothing wrong with USB on my system.
+On Mon, 6 Jun 2005, Pavel Machek wrote:
+> 
+> Okay, I see. I'm little afraid that during forwards blank line will be
+> inserted before "From: " and break this, but lets see how it works.
 
-But someone broke the /dev/input/mouseX <-> USB mouse interaction
-in 2.6.11-bk7 and my two-headed system with two X servers were
-manually set up to use the distinct mouse devices so the two heads
-do not interfere.
+Oh, I skip blank lines (and that means any line that is "whitespace only", 
+ie tabs/spaces etc won't confuse the scripts), so at least it's not _that_ 
+subtle.
 
-No wonder gpm works, it reads /dev/input/mice. Starting only
-one X and using /dev/input/mice I found no problems. Setting it
-back to /dev/input/mouse0, the mouse pointer is dead again.
-
-Someone deserves a mousebite...
-
-Best regards,
-Zoltán Böszörményi
+		Linus

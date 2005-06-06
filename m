@@ -1,60 +1,201 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261763AbVFGARZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261782AbVFGAOU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261763AbVFGARZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 20:17:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbVFGAOs
+	id S261782AbVFGAOU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 20:14:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbVFFXyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 20:14:48 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:54474 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261763AbVFFXyE (ORCPT
+	Mon, 6 Jun 2005 19:54:33 -0400
+Received: from rav-az.mvista.com ([65.200.49.157]:49696 "EHLO
+	zipcode.az.mvista.com") by vger.kernel.org with ESMTP
+	id S261775AbVFFXwg convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 19:54:04 -0400
-Message-ID: <42A4E213.8050102@pobox.com>
-Date: Mon, 06 Jun 2005 19:53:55 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-CC: "David S. Miller" <davem@davemloft.net>, tom.l.nguyen@intel.com,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       roland@topspin.com
-Subject: Re: pci_enable_msi() for everyone?
-References: <20050603224551.GA10014@kroah.com> <20050605.124612.63111065.davem@davemloft.net> <20050606225548.GA11184@suse.de> <42A4D771.7080400@pobox.com> <20050606231325.GA11610@suse.de>
-In-Reply-To: <20050606231325.GA11610@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Mon, 6 Jun 2005 19:52:36 -0400
+Cc: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
+Subject: [PATCH][RIO] -mm: rionet updates
+In-Reply-To: <11181019442621@foobar.com>
+X-Mailer: gregkh_patchbomb
+Date: Mon, 6 Jun 2005 16:52:24 -0700
+Message-Id: <11181019443007@foobar.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Matt Porter <mporter@kernel.crashing.org>
+To: akpm@osdl.org
+Content-Transfer-Encoding: 7BIT
+From: Matt Porter <mporter@kernel.crashing.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Mon, Jun 06, 2005 at 07:08:33PM -0400, Jeff Garzik wrote:
-> 
->>Greg KH wrote:
->>
->>>Why would it matter?  The driver shouldn't care if the interrupts come
->>>in via the standard interrupt way, or through MSI, right?  And if it
->>
->>It matters.
->>
->>Not only the differences DaveM mentioned, but also simply that you may 
->>assume your interrupt is not shared with anyone else.
-> 
-> 
-> Ok, and again, how would the call, pci_in_msi_mode(struct pci_dev *dev)
-> not allow for the driver to determine this?
+Cleanups, eliminate unused paths, and add LLTX support.
 
-Let me see if I understand this correctly :)
+Signed-off-by: Matt Porter <mporter@kernel.crashing.org>
 
-A technology (MSI) allows one to more efficiently call interrupt 
-handlers, with fewer bus reads...  and you want to add a test to each 
-interrupt handler -- a test which adds several bus reads to the hot path 
-of every MSI driver?
+commit d651f0979ebfb203624159507a2b04ac896844ab
+tree c9dffe54b25b6992025f074de1fe9901adc8d6ef
+parent 7cfb63a2fce0dbb82507bb6035352df1718624f2
+author Matt Porter <mporter@kernel.crashing.org> Mon, 06 Jun 2005 13:57:52 -0700
+committer Matt Porter <mporter@kernel.crashing.org> Mon, 06 Jun 2005 13:57:52 -0700
 
-We want to -decrease- the overhead involved with an interrupt, but 
-pci_in_msi_mode() increases it.
+ drivers/net/rionet.c |   73 ++++++++++++++++----------------------------------
+ 1 files changed, 24 insertions(+), 49 deletions(-)
 
-	Jeff
+diff --git a/drivers/net/rionet.c b/drivers/net/rionet.c
+--- a/drivers/net/rionet.c
++++ b/drivers/net/rionet.c
+@@ -42,7 +42,7 @@ MODULE_LICENSE("GPL");
+ #define RIONET_TX_RING_SIZE	CONFIG_RIONET_TX_SIZE
+ #define RIONET_RX_RING_SIZE	CONFIG_RIONET_RX_SIZE
+ 
+-LIST_HEAD(rionet_peers);
++static LIST_HEAD(rionet_peers);
+ 
+ struct rionet_private {
+ 	struct rio_mport *mport;
+@@ -54,6 +54,7 @@ struct rionet_private {
+ 	int tx_cnt;
+ 	int ack_slot;
+ 	spinlock_t lock;
++	spinlock_t tx_lock;
+ 	u32 msg_enable;
+ };
+ 
+@@ -112,9 +113,9 @@ static int rionet_rx_clean(struct net_de
+ 
+ 		rnet->rx_skb[i]->data = data;
+ 		skb_put(rnet->rx_skb[i], RIO_MAX_MSG_SIZE);
+-		rnet->rx_skb[i]->dev = sndev;
++		rnet->rx_skb[i]->dev = ndev;
+ 		rnet->rx_skb[i]->protocol =
+-		    eth_type_trans(rnet->rx_skb[i], sndev);
++		    eth_type_trans(rnet->rx_skb[i], ndev);
+ 		error = netif_rx(rnet->rx_skb[i]);
+ 
+ 		if (error == NET_RX_DROP) {
+@@ -183,13 +184,20 @@ static int rionet_start_xmit(struct sk_b
+ 	struct rionet_private *rnet = ndev->priv;
+ 	struct ethhdr *eth = (struct ethhdr *)skb->data;
+ 	u16 destid;
++	unsigned long flags;
+ 
+-	spin_lock_irq(&rnet->lock);
+-
++	local_irq_save(flags);
++	if (!spin_trylock(&rnet->tx_lock)) {
++		local_irq_restore(flags);
++		return NETDEV_TX_LOCKED;
++	}
++	
+ 	if ((rnet->tx_cnt + 1) > RIONET_TX_RING_SIZE) {
+ 		netif_stop_queue(ndev);
+-		spin_unlock_irq(&rnet->lock);
+-		return -EBUSY;
++		spin_unlock_irqrestore(&rnet->tx_lock, flags);
++		printk(KERN_ERR "%s: BUG! Tx Ring full when queue awake!\n",
++		       ndev->name);
++		return NETDEV_TX_BUSY;
+ 	}
+ 
+ 	if (eth->h_dest[0] & 0x01) {
+@@ -211,7 +219,7 @@ static int rionet_start_xmit(struct sk_b
+ 			rionet_queue_tx_msg(skb, ndev, rionet_active[destid]);
+ 	}
+ 
+-	spin_unlock_irq(&rnet->lock);
++	spin_unlock_irqrestore(&rnet->tx_lock, flags);
+ 
+ 	return 0;
+ }
+@@ -228,27 +236,6 @@ static int rionet_set_mac_address(struct
+ 	return 0;
+ }
+ 
+-static int rionet_change_mtu(struct net_device *ndev, int new_mtu)
+-{
+-	struct rionet_private *rnet = ndev->priv;
+-
+-	if (netif_msg_drv(rnet))
+-		printk(KERN_WARNING
+-		       "%s: rionet_change_mtu(): not implemented\n", DRV_NAME);
+-
+-	return 0;
+-}
+-
+-static void rionet_set_multicast_list(struct net_device *ndev)
+-{
+-	struct rionet_private *rnet = ndev->priv;
+-
+-	if (netif_msg_drv(rnet))
+-		printk(KERN_WARNING
+-		       "%s: rionet_set_multicast_list(): not implemented\n",
+-		       DRV_NAME);
+-}
+-
+ static void rionet_dbell_event(struct rio_mport *mport, u16 sid, u16 tid,
+ 			       u16 info)
+ {
+@@ -358,10 +345,6 @@ static int rionet_open(struct net_device
+ 	rnet->tx_cnt = 0;
+ 	rnet->ack_slot = 0;
+ 
+-	spin_lock_init(&rnet->lock);
+-
+-	rnet->msg_enable = RIONET_DEFAULT_MSGLEVEL;
+-
+ 	netif_carrier_on(ndev);
+ 	netif_start_queue(ndev);
+ 
+@@ -434,11 +417,6 @@ static void rionet_remove(struct rio_dev
+ 	}
+ }
+ 
+-static int rionet_ioctl(struct net_device *ndev, struct ifreq *rq, int cmd)
+-{
+-	return -EOPNOTSUPP;
+-}
+-
+ static void rionet_get_drvinfo(struct net_device *ndev,
+ 			       struct ethtool_drvinfo *info)
+ {
+@@ -464,16 +442,11 @@ static void rionet_set_msglevel(struct n
+ 	rnet->msg_enable = value;
+ }
+ 
+-static u32 rionet_get_link(struct net_device *ndev)
+-{
+-	return netif_carrier_ok(ndev);
+-}
+-
+ static struct ethtool_ops rionet_ethtool_ops = {
+ 	.get_drvinfo = rionet_get_drvinfo,
+ 	.get_msglevel = rionet_get_msglevel,
+ 	.set_msglevel = rionet_set_msglevel,
+-	.get_link = rionet_get_link,
++	.get_link = ethtool_op_get_link,
+ };
+ 
+ static int rionet_setup_netdev(struct rio_mport *mport)
+@@ -517,16 +490,18 @@ static int rionet_setup_netdev(struct ri
+ 	ndev->hard_start_xmit = &rionet_start_xmit;
+ 	ndev->stop = &rionet_close;
+ 	ndev->get_stats = &rionet_stats;
+-	ndev->change_mtu = &rionet_change_mtu;
+ 	ndev->set_mac_address = &rionet_set_mac_address;
+-	ndev->set_multicast_list = &rionet_set_multicast_list;
+-	ndev->do_ioctl = &rionet_ioctl;
+-	SET_ETHTOOL_OPS(ndev, &rionet_ethtool_ops);
+-
+ 	ndev->mtu = RIO_MAX_MSG_SIZE - 14;
++	ndev->features = NETIF_F_LLTX;
++	SET_ETHTOOL_OPS(ndev, &rionet_ethtool_ops);
+ 
+ 	SET_MODULE_OWNER(ndev);
+ 
++	spin_lock_init(&rnet->lock);
++	spin_lock_init(&rnet->tx_lock);
++
++	rnet->msg_enable = RIONET_DEFAULT_MSGLEVEL;
++
+ 	rc = register_netdev(ndev);
+ 	if (rc != 0)
+ 		goto out;
 
 

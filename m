@@ -1,58 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261742AbVFFWFr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbVFFWID@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261742AbVFFWFr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 18:05:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261744AbVFFWFr
+	id S261744AbVFFWID (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 18:08:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261269AbVFFWID
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 18:05:47 -0400
-Received: from zproxy.gmail.com ([64.233.162.194]:5106 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261696AbVFFWF2 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 18:05:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=l61/0noLUoxHxK7n5a7VsJhPB9E5fh2wG1WlSxsoNKVwfQ34zxE/ZAu1Blu0Q6xZOnRP/ncV4z+SCgFy5oY9MGb5gVh0zZaLgOKQjbNksKmickkhCkQw5yghxdCXpxmpTh7jwXSNxXqdd1xDKywmvbpclmxoFNIx77u4Wf9Yj7g=
-Message-ID: <4789af9e05060614585b319b1@mail.gmail.com>
-Date: Mon, 6 Jun 2005 15:58:48 -0600
-From: Jim Ramsay <jim.ramsay@gmail.com>
-Reply-To: Jim Ramsay <jim.ramsay@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: sata_promise driver and 2.6.11 on a MIPS board
-Cc: linux-ide@vger.kernel.org, Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <42A4B6D1.9010402@pobox.com>
+	Mon, 6 Jun 2005 18:08:03 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:46605 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261744AbVFFWHj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 18:07:39 -0400
+Date: Mon, 6 Jun 2005 23:07:31 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@suse.cz>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.12-rc6
+Message-ID: <20050606230730.C12034@flint.arm.linux.org.uk>
+Mail-Followup-To: Jesper Juhl <jesper.juhl@gmail.com>,
+	Linus Torvalds <torvalds@osdl.org>, Pavel Machek <pavel@suse.cz>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org> <20050606192654.GA3155@elf.ucw.cz> <Pine.LNX.4.58.0506061310500.1876@ppc970.osdl.org> <20050606201441.GG2230@elf.ucw.cz> <Pine.LNX.4.58.0506061411410.1876@ppc970.osdl.org> <9a87484905060614576c09d08d@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <4789af9e05060613394b1809c3@mail.gmail.com>
-	 <42A4B6D1.9010402@pobox.com>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <9a87484905060614576c09d08d@mail.gmail.com>; from jesper.juhl@gmail.com on Mon, Jun 06, 2005 at 11:57:00PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/6/05, Jeff Garzik <jgarzik@pobox.com> wrote:
-> Jim Ramsay wrote:
-> > The driver then waits via a wait_for_completion apparently waiting for
-> > the PCI card to throw an interrupt so it can continue.  However, I
-> > never see this interrupt generated, and the driver code waits forever.
+On Mon, Jun 06, 2005 at 11:57:00PM +0200, Jesper Juhl wrote:
+> On 6/6/05, Linus Torvalds <torvalds@osdl.org> wrote:
+> > 
+> > 
+> > On Mon, 6 Jun 2005, Pavel Machek wrote:
+> > >
+> > > There is "From: Dmitry..." in the changelog. Do your script move first
+> > > "From:" into author header and delete it from changelog? That would
+> > > explain it...
+> > 
+> > Yes. But note how it doesn't even take the "first" From: line, it
+> > literally takes the From: line _only_ if that line is the first line in
+> > the email body.
+> > 
 > 
-> 
-> This is a known bug that definitely needs fixing:
-> 
-> (to ATA developers)
-> Any time an ATA command is issued outside of the SCSI layer, we need to
-> employ a timer to time out commands.
-> 
-> Since most commands are done within the SCSI layer, which provides a lot
-> of error handling apparatus, most commands properly time out.  The ones
-> during probe - IDENTIFY DEVICE, set xfer mode, etc. - do not have such a
-> timer.
+> A lot of times I see mails getting forwarded to you/Andrew/other
+> maintainer by someone without adding a From: or other indication of
+> who was the original author, but in almost all cases the original
+> author is the one listed as the first Signed-off-by: since authors are
+> the first to sign off on a patch, so, wouldn't it make more sense to
+> pick the author like this ;
 
-So is this an issue with the sata_promise.c driver, or the
-libata-core.c?  Which one should implement the timeout?
+Not necessarily.  Re-read what Signed-off-by: is all about and who
+may provide that line.  You should find that the first Signed-off-by:
+line may not be the author themselves, but someone else who is able
+to satisfy our requirements.
 
-What would you suggest as a workaround or a proper fix?
+I think people will just have to accept that there's no way to _always_
+_automatically_ get the proper author for every patch. (and that calling
+it author in git was probably the first mistake - we never had these
+issues with BK which didn't specifically indentify anything as being
+the "author" as such.)
 
 -- 
-Jim Ramsay
-"Me fail English?  That's unpossible!"
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

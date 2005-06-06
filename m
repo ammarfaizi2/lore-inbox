@@ -1,148 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVFFO7d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261495AbVFFPCK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261496AbVFFO7d (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 10:59:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVFFO7d
+	id S261495AbVFFPCK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 11:02:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVFFPCK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 10:59:33 -0400
-Received: from vms044pub.verizon.net ([206.46.252.44]:62199 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261496AbVFFO7O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 10:59:14 -0400
-Date: Mon, 06 Jun 2005 10:59:12 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: RT-V0.7.47-17 build fails
-In-reply-to: <20050606074112.GB10387@elte.hu>
-To: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Message-id: <200506061059.12162.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200506051757.26253.gene.heskett@verizon.net>
- <20050606074112.GB10387@elte.hu>
-User-Agent: KMail/1.7
+	Mon, 6 Jun 2005 11:02:10 -0400
+Received: from hobbit.corpit.ru ([81.13.94.6]:2397 "EHLO hobbit.corpit.ru")
+	by vger.kernel.org with ESMTP id S261495AbVFFPBr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 11:01:47 -0400
+Message-ID: <42A46551.9010707@tls.msk.ru>
+Date: Mon, 06 Jun 2005 19:01:37 +0400
+From: Michael Tokarev <mjt@tls.msk.ru>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: matthieu castet <castet.matthieu@free.fr>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PNP parallel&serial ports: module reload fails (2.6.11)?
+References: <20050602222400.GA8083@mut38-1-82-67-62-65.fbx.proxad.net> <429FA1F3.9000001@tls.msk.ru> <42A2D37A.5050408@free.fr>
+In-Reply-To: <42A2D37A.5050408@free.fr>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 06 June 2005 03:41, Ingo Molnar wrote:
->* Gene Heskett <gene.heskett@verizon.net> wrote:
->> Greetings;
+matthieu castet wrote:
+> Michael Tokarev wrote:
+> 
+>> castet.matthieu@free.fr wrote:
 >>
->> I thought maybe I'd exersize this kernel, but a patch I thought
->> was in seems not to have been, so I believe this is the 2nd time
->> I've encountered this:
+>>> And pnpacpi have some problem to activate resource with some strange
+>>> acpi implementation...
 >>
->>   CC      drivers/char/ipmi/ipmi_devintf.o
->> drivers/char/ipmi/ipmi_devintf.c: In function `ipmi_new_smi':
->> drivers/char/ipmi/ipmi_devintf.c:532: warning: passing arg 1 of
 >>
->> which of the 'git' patches fixes this?
+>> I haven't seen any probs with acpi or bios or other things on
+>> those boxen yet -- pretty good ones.  It's HP ProLiant ML150
+>> machine (not G2).  There are other HP machines out here which
+>> also shows the same problem - eg HP ProLiant ML310 G1.
+>>
+> hpml310.dsl acpi dsdt is strange :
+
+[ it's in http://www.corpit.ru/mjt/hpml310.dsdt - apache ships it
+  as Content-Type: text/plain, for some reason.  I grabbed iasl
+  and converted that stuff into .dsls, available at:
+  http://www.corpit.ru/mjt/hpml310.dsl and
+  http://www.corpit.ru/mjt/hpml150.dsl ]
+
+Well, the problem is, I don't know *at all* how ACPI stuff works.
+So if you're saying the DSDT (whatever it is) is strange, I have
+only two choices: to believe you or not.. ;)
+
+>             Name (CRES, ResourceTemplate ()
+>             {
+>                 IRQNoFlags () {7}
+>                 DMA (Compatibility, NotBusMaster, Transfer8) {3}
+>                 IO (Decode16, 0x0378, 0x0378, 0x08, 0x08)
+>                 IO (Decode16, 0x0678, 0x0678, 0x00, 0x06)
+>             })
+> 
+> [...]
+> Name (_PRS, ResourceTemplate ()
+>             {
+>                 StartDependentFn (0x00, 0x00)
+>                 {
+>                     IO (Decode16, 0x0378, 0x0378, 0x00, 0x08)
+>                 }
+>                 StartDependentFn (0x00, 0x00)
+>                 {
+>                     IO (Decode16, 0x03BC, 0x03BC, 0x00, 0x03)
+>                 }
+>                 StartDependentFn (0x00, 0x00)
+>                 {
+>                     IO (Decode16, 0x0278, 0x0278, 0x00, 0x08)
+>                 }
+>                 EndDependentFn ()
+>             })
+> 
+> So in the list of possible resource (_PRS) there only info about one
+> ioport not about the others resource. I wonder if it is really valid ?
+
+I dunno, really.  Maybe dmidecode output will help somehow?  It's at
+http://www.corpit.ru/mjt/hpml310.dmi for HP Proliant 310 G1 machine,
+and http://www.corpit.ru/mjt/hpml150.dmi for ProLiant 150 G1.
+
+All the 310 machines we have are in several remote offices, it will be
+a while before I will be able to get some info about them requiring
+console access.  Ditto for alot of HPML 150 ones too, but we have one
+of them here at office, and I can perform experiments on this box.
+
+The machine (ML 150) has one parallel and one serial port.  2nd serial
+port - there's a place on the mobo for the 2nd serial port connector,
+but it isn't ironed.
+
+In other message, you wrote:
+
+> In your bios, which mode is your parport ?
 >
->the fix is dca79a046b93a81496bb30ca01177fb17f37ab72. I've added it
-> to my tree and have uploaded the -47-18 patch.
->
-> Ingo
+> Could you try LPPR mode (or something like that ?)
 
-Thanks, it builds.  And runs mostly.  With full preemption #4 in 
-the make oldconfig in effect, elevator=cfq on the vmlinuz command line, 
-and tvtime-9.15 in particular seems
-to be haveing a problem.  No video is delivered to the blue screened 
-window.  Sound is working ok though.
+Are you referring to ECP, EPP, Bi-Di etc modes?
+(note there's serial port too, which has exactly the same prob
+with (re)loading the driver).
 
-And the log has several thousand of these:
-Jun  6 10:02:49 coyote kernel: cx88[0]: video y / packed - dma channel status dump
-Jun  6 10:02:49 coyote kernel: cx88[0]:   cmds: initial risc: 0x0e59e000
-Jun  6 10:02:49 coyote kernel: cx88[0]:   cmds: cdt base    : 0x00180440
-Jun  6 10:02:49 coyote kernel: cx88[0]:   cmds: cdt size    : 0x0000000c
-Jun  6 10:02:49 coyote kernel: cx88[0]:   cmds: iq base     : 0x00180400
-Jun  6 10:02:49 coyote kernel: cx88[0]:   cmds: iq size     : 0x00000010
-Jun  6 10:02:49 coyote kernel: cx88[0]:   cmds: risc pc     : 0x00000000
-Jun  6 10:02:49 coyote kernel: cx88[0]:   cmds: iq wr ptr   : 0x00000000
-Jun  6 10:02:49 coyote kernel: cx88[0]:   cmds: iq rd ptr   : 0x00000000
-Jun  6 10:02:49 coyote kernel: cx88[0]:   cmds: cdt current : 0x00000000
-Jun  6 10:02:49 coyote kernel: cx88[0]:   cmds: pci target  : 0x00000000
-Jun  6 10:02:49 coyote kernel: cx88[0]:   cmds: line / byte : 0x00000000
-Jun  6 10:02:49 coyote kernel: cx88[0]:   risc0: 0x00000000 [ INVALID count=0 ]
-Jun  6 10:02:49 coyote kernel: cx88[0]:   risc1: 0x00000000 [ INVALID count=0 ]
-Jun  6 10:02:49 coyote kernel: cx88[0]:   risc2: 0x00000000 [ INVALID count=0 ]
-Jun  6 10:02:49 coyote kernel: cx88[0]:   risc3: 0x00000000 [ INVALID count=0 ]
-Jun  6 10:02:49 coyote kernel: cx88[0]:   iq 0: 0x80008000 [ sync resync count=0 ]
-Jun  6 10:02:49 coyote kernel: cx88[0]:   iq 1: 0x1c000500 [ write sol eol count=1280 ]
-Jun  6 10:02:49 coyote kernel: cx88[0]:   iq 2: 0x1ce3c000 [ arg #1 ]
-Jun  6 10:02:49 coyote kernel: cx88[0]:   iq 3: 0x1c000500 [ write sol eol count=1280 ]
-Jun  6 10:02:49 coyote kernel: cx88[0]:   iq 4: 0x1ce3ca00 [ arg #1 ]
-Jun  6 10:02:49 coyote kernel: cx88[0]:   iq 5: 0x1c000500 [ write sol eol count=1280 ]
-Jun  6 10:02:49 coyote kernel: cx88[0]:   iq 6: 0x1ce3d400 [ arg #1 ]
-Jun  6 10:02:49 coyote kernel: cx88[0]:   iq 7: 0x18000200 [ write sol count=512 ]
-Jun  6 10:02:49 coyote kernel: cx88[0]:   iq 8: 0x1ce3de00 [ arg #1 ]
-Jun  6 10:02:49 coyote kernel: cx88[0]:   iq 9: 0x14000300 [ write eol count=768 ]
-Jun  6 10:02:49 coyote kernel: cx88[0]:   iq a: 0x1ce3e000 [ arg #1 ]
-Jun  6 10:02:49 coyote kernel: cx88[0]:   iq b: 0x1c000500 [ write sol eol count=1280 ]
-Jun  6 10:02:49 coyote kernel: cx88[0]:   iq c: 0x1ce3e800 [ arg #1 ]
-Jun  6 10:02:49 coyote kernel: cx88[0]:   iq d: 0x0031c040 [ INVALID 21 20 cnt0 resync 14 count=64 ]
-Jun  6 10:02:49 coyote kernel: cx88[0]:   iq e: 0x00000000 [ INVALID count=0 ]
-Jun  6 10:02:49 coyote kernel: cx88[0]:   iq f: 0x00000011 [ INVALID count=17 ]
-Jun  6 10:02:49 coyote kernel: cx88[0]: fifo: 0x00180c00 -> 0x183400
-Jun  6 10:02:49 coyote kernel: cx88[0]: ctrl: 0x00180400 -> 0x180460
-Jun  6 10:02:49 coyote kernel: cx88[0]:   ptr1_reg: 0x00182000
-Jun  6 10:02:49 coyote kernel: cx88[0]:   ptr2_reg: 0x00180488
-Jun  6 10:02:49 coyote kernel: cx88[0]:   cnt1_reg: 0x0000000b
-Jun  6 10:02:49 coyote kernel: cx88[0]:   cnt2_reg: 0x00000000
-Jun  6 10:02:49 coyote kernel: cx88[0]/0: [cfb3a880/0] timeout - dma=0x00000000
-Jun  6 10:02:49 coyote kernel: cx88[0]/0: [c9d86340/1] timeout - dma=0x00000000
-Jun  6 10:02:49 coyote kernel: cx88[0]/0: [cfb3a680/2] timeout - dma=0x00000000
-Jun  6 10:02:49 coyote kernel: cx88[0]/0: [f757d560/3] timeout - dma=0x0e59e000
-Jun  6 10:02:49 coyote kernel: cx88[0]: video y / packed - dma channel status dump
+> Have you try the patches ?
 
-repeat from last line above many times a second as long as its running, and when
-its stopped:
-Jun  6 10:03:09 coyote kernel: rtc latency histogram of {tvtime/3960, 583 samples}:
-Jun  6 10:03:09 coyote kernel: 5 2
-Jun  6 10:03:09 coyote kernel: 6 83
-Jun  6 10:03:09 coyote kernel: 7 206
-Jun  6 10:03:09 coyote kernel: 8 58
-Jun  6 10:03:09 coyote kernel: 9 44
-Jun  6 10:03:09 coyote kernel: 10 18
-Jun  6 10:03:09 coyote kernel: 11 19
-Jun  6 10:03:09 coyote kernel: 12 18
-Jun  6 10:03:09 coyote kernel: 13 20
-Jun  6 10:03:09 coyote kernel: 14 25
-Jun  6 10:03:09 coyote kernel: 15 22
-Jun  6 10:03:09 coyote kernel: 16 11
-Jun  6 10:03:09 coyote kernel: 17 6
-Jun  6 10:03:09 coyote kernel: 18 4
-Jun  6 10:03:09 coyote kernel: 19 1
-Jun  6 10:03:09 coyote kernel: 20 3
-Jun  6 10:03:09 coyote kernel: 21 2
-Jun  6 10:03:09 coyote kernel: 22 1
-Jun  6 10:03:09 coyote kernel: 25 1
-Jun  6 10:03:09 coyote kernel: 28 1
-Jun  6 10:03:09 coyote kernel: 29 1
-Jun  6 10:03:09 coyote kernel: 9999 37
+Yes, tried the patches you sent last friday - from
+http://bugme.osdl.org/attachment.cgi?id=4504&action=view
+and from your message in this thread with MSGID = 429FF17C.9080902@free.fr
+(this last patch depends on the first).  Makes no (visible) difference
+on HP ML 150 box, the same stuff is shown in dmesg, and on reload neither
+parallel nor serial ports works.
 
-I presume the default traceing options are using too much
-time in logging, hence the dma failure, but thats a not
-very scientific guess on my part.
+I'll try some more experiments later today (hopefully) when my co-workers
+(who are using this box right now so I can't freely reboot it as I wish)
+will go home... ;)
 
-I also reported this in a previous test of one of the 47-xx
-kernels I'd managed to make build with the git2 patch also
-applied.  That was with some pretty large offsets, 300+ lines
-in one case.  That message wasn't ack'd, probably lost in the noise.
+BTW, looks like 8250_pnp module is also somewhat strange.  When loading
+8250 alone, it detects (at least some) standard serial ports just fine,
+and when loading 8250_pnp, the same port is being "re-detected" again.
+But when unloading 8250_pnp, even when 8250 module is still loaded,
+that only port is disabled.  Looks somewhat.. assimetric to me, without
+counting issue with re-enabling of a pnp device.
 
-Is there some specific xconfig traceing option I can turn off
-that will restore tvtime, or is the above a genuine breakage?
+> thanks
 
-Or will tvtime require a rewrite for compatibility with this
-new code framework?
+Thank you for your time Matthieu.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+Speaking of all this as a whole.  In addition to some "niceness" --
+the whole issue is a bit ugly, but non-fatal, and it'd be nice to
+fix it just because of that ugliness -- we're a bit (at least!)
+dependant on that stuff to work, because on alot of different
+machines, configuring at least parallel ports manually is kinda
+difficult when it's possible to get it to work automatically.
+I did ask you about how "stable" pnpacpi=off is, because it'd be
+a solution for us too, -- to switch all machines to pnpacpi=off,
+and expect it all to work.  But since there are quite a few modern
+machines too here, wich might not work with pnpacpi=off, ... ;)
+And speaking of why it is a problem with *reloading* the module --
+sometimes, probably due to some other bugs/problems, parallel or
+(more often) serial ports got "stuck", and reloading module helps
+with that.  Again, addon (PCI) serial cards (finally, with a
+patch wich went into 2.6.12-tobe, NetMos Tech. PCI 9835 Multi-I/O
+Controllers are now supported without setserial hack... ;)
+
+/mjt

@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261617AbVFFScC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261624AbVFFSjB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261617AbVFFScC (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 14:32:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261624AbVFFScC
+	id S261624AbVFFSjB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 14:39:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261637AbVFFSjB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 14:32:02 -0400
-Received: from 203-217-18-196.perm.iinet.net.au ([203.217.18.196]:3509 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261617AbVFFSb7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 14:31:59 -0400
-Message-ID: <42A4969D.9070500@knobbits.org>
-Date: Tue, 07 Jun 2005 04:31:57 +1000
-From: "Michael (Micksa) Slade" <micksa@knobbits.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050524 Debian/1.7.8-1ubuntu2
-X-Accept-Language: en
-MIME-Version: 1.0
+	Mon, 6 Jun 2005 14:39:01 -0400
+Received: from web25804.mail.ukl.yahoo.com ([217.12.10.189]:38508 "HELO
+	web25804.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261624AbVFFSi6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 14:38:58 -0400
+Message-ID: <20050606183854.43545.qmail@web25804.mail.ukl.yahoo.com>
+Date: Mon, 6 Jun 2005 20:38:54 +0200 (CEST)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Advices for a lcd driver design. (suite)
 To: linux-kernel@vger.kernel.org
-Subject: Inspiron 6000 / ACPI S3 / PCI-X problems?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- I think this is my first ever post to l-k.
+Hello,
 
-I'm scared.
+I posted an email 1 month ago because I was looking for advices to design
+a driver for a lcd device (128x64 pixels) with a t6963c controller.
 
-I've been trying desperately to get suspend-to-ram working on my new 
-inspiron 6000.
+I have finally choosen a console implementation to interact with the lcd. It
+allows me to reuse code that deals with escape character or to start a getty on
+it. Unfortunately this implemenatation doens't support lcd's graphical mode.
+So I wrote another small driver that can be accessed through "/dev/lcd". It
+drives the lcd only in graphical mode. That means that a "echo foo > /dev/lcd"
+command won't work as expected.
 
-So far, the patch at
+So now I'm wondering how to synchronize access to the lcd. Because a user appli
+that is sending an image to "/dev/lcd" may want to prevent other access from
+other application to the lcd either from "/dev/ttyX" or "/dev/lcd" but still
+should be able to send char to "/dev/ttyX"
 
-http://lkml.org/lkml/2005/5/23/116
+Any idea ?
 
-Got the hard disk working after resume, and at least the b44 ethernic 
-keeps working, but the display doesn't.  No amount of vbetool voodoo 
-seems to bring it back up
+Thanks for your answers,
 
-Turns out the PCI config for the card gets trashed:
+         Francis
 
-http://knobbits.org/archived/2005-06/lspci-i6000-before
-http://knobbits.org/archived/2005-06/lspci-i6000-after
 
-It's an ATI radeon M300, on a PCI-X bridge I think.
+	
 
-Is this a kernel issue or an X issue?  I vaguely recall some pci config 
-save/restore hack floating around somewhere, should I try that?
-
-This is ubuntu breezy, using xorg and kernel image 2.6.11.93-1.1
-
-Mick.
-
+	
+		
+_____________________________________________________________________________ 
+Découvrez le nouveau Yahoo! Mail : 1 Go d'espace de stockage pour vos mails, photos et vidéos ! 
+Créez votre Yahoo! Mail sur http://fr.mail.yahoo.com

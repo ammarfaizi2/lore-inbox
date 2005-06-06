@@ -1,73 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVFFUdP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbVFFUhX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261677AbVFFUdP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 16:33:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbVFFUcn
+	id S261672AbVFFUhX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 16:37:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbVFFUhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 16:32:43 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:42386 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261662AbVFFUCr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 16:02:47 -0400
-Date: Mon, 6 Jun 2005 21:03:23 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Abhijit Karmarkar <abhijitk@veritas.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] msync: check pte dirty earlier
-Message-ID: <Pine.LNX.4.61.0506062100560.5000@goblin.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-X-OriginalArrivalTime: 06 Jun 2005 20:02:23.0520 (UTC) 
-    FILETIME=[A7770A00:01C56AD2]
+	Mon, 6 Jun 2005 16:37:22 -0400
+Received: from mail.kroah.org ([69.55.234.183]:15029 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261672AbVFFUfn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 16:35:43 -0400
+Date: Mon, 6 Jun 2005 13:35:29 -0700
+From: Greg KH <greg@kroah.com>
+To: Abhay_Salunke@Dell.com
+Cc: marcel@holtmann.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Matt_Domsch@Dell.com
+Subject: Re: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new DellBIOS update driver
+Message-ID: <20050606203528.GA9205@kroah.com>
+References: <367215741E167A4CA813C8F12CE0143B3ED3AE@ausx2kmpc115.aus.amer.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <367215741E167A4CA813C8F12CE0143B3ED3AE@ausx2kmpc115.aus.amer.dell.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Abhijit Karmarkar <abhijitk@veritas.com>
+On Mon, Jun 06, 2005 at 03:22:45PM -0500, Abhay_Salunke@Dell.com wrote:
+> > > > I was assuming that this would wait forever, and is why I pointed you in
+> > > > this direction.  Sorry about the confusion here.
+> > > >
+> > > I guess the earlier method of request_firmware would work out as is with
+> > > the only disadvantage of the user having to depend on hotplug mechanism
+> > > and echoing firmware name.
+> > > Let me know if that is acceptable till we find a solution to wait for
+> > > ever without using hotplug stuff.
+> > 
+> > Why not fix the firmware_class.c code now?  :)
+> > 
+> I can sure submit a patch later but for now please accept it in the
+> tree. 
 
-It's common practice to msync a large address range regularly, in which
-often only a few ptes have actually been dirtied since the previous pass.
+Heh, um, no.
 
-sync_pte_range then goes much faster if it tests whether pte is dirty
-before locating and accessing each struct page cacheline; and it is hardly
-slowed by ptep_clear_flush_dirty repeating that test in the opposite case,
-when every pte actually is dirty.
+> Due to scheduling issues it may not be possible for me to fix this now.
 
-But beware, s390's pte_dirty always says false, since its dirty bit is
-kept in the storage key, located via the struct page address.  So skip
-this optimization in its case: use a pte_maybe_dirty macro which just
-says true if page_test_and_clear_dirty is implemented.
+Please realize that we do not know, nor care about your scheduling
+issues :)
 
-Signed-off-by: Abhijit Karmarkar <abhijitk@veritas.com>
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
----
+For more details on "things you should never say on the Linux kernel
+mailing list", see Randy Dunlap's very good presentation on kernel
+development at:
+	http://www.madrone.org/mentor/linux-mentoring.pdf
 
- include/asm-generic/pgtable.h |    3 +++
- mm/msync.c                    |    2 ++
- 2 files changed, 5 insertions(+)
+thanks,
 
---- 2.6.12-rc6/include/asm-generic/pgtable.h	2005-05-25 18:09:09.000000000 +0100
-+++ linux/include/asm-generic/pgtable.h	2005-06-04 20:41:55.000000000 +0100
-@@ -125,6 +125,9 @@ static inline void ptep_set_wrprotect(st
- 
- #ifndef __HAVE_ARCH_PAGE_TEST_AND_CLEAR_DIRTY
- #define page_test_and_clear_dirty(page) (0)
-+#define pte_maybe_dirty(pte)		pte_dirty(pte)
-+#else
-+#define pte_maybe_dirty(pte)		(1)
- #endif
- 
- #ifndef __HAVE_ARCH_PAGE_TEST_AND_CLEAR_YOUNG
---- 2.6.12-rc6/mm/msync.c	2005-05-25 18:09:21.000000000 +0100
-+++ linux/mm/msync.c	2005-06-04 20:41:55.000000000 +0100
-@@ -34,6 +34,8 @@ static void sync_pte_range(struct vm_are
- 
- 		if (!pte_present(*pte))
- 			continue;
-+		if (!pte_maybe_dirty(*pte))
-+			continue;
- 		pfn = pte_pfn(*pte);
- 		if (!pfn_valid(pfn))
- 			continue;
+greg k-h

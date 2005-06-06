@@ -1,176 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbVFFTwW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbVFFTwX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261653AbVFFTwW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 15:52:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261642AbVFFTuw
+	id S261642AbVFFTwX (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 15:52:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVFFTt7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 15:50:52 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:16053 "EHLO
-	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261650AbVFFTtG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 15:49:06 -0400
-Date: Mon, 6 Jun 2005 20:49:38 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH 2/2] mbind: check_range use standard ptwalk
-In-Reply-To: <Pine.LNX.4.61.0506062046590.5000@goblin.wat.veritas.com>
-Message-ID: <Pine.LNX.4.61.0506062048430.5000@goblin.wat.veritas.com>
-References: <Pine.LNX.4.61.0506062046590.5000@goblin.wat.veritas.com>
+	Mon, 6 Jun 2005 15:49:59 -0400
+Received: from mailhost.somanetworks.com ([216.126.67.42]:60579 "EHLO
+	mail.somanetworks.com") by vger.kernel.org with ESMTP
+	id S261642AbVFFTsQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 15:48:16 -0400
+Date: Mon, 6 Jun 2005 15:48:04 -0400 (EDT)
+From: Scott Murray <scottm@somanetworks.com>
+X-X-Sender: scottm@rancor.yyz.somanetworks.com
+To: Greg K-H <greg@kroah.com>
+cc: Prarit Bhargava <prarit@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [PATCH] PCI Hotplug: more CPCI updates
+In-Reply-To: <Pine.LNX.4.58.0506012257120.32742@rancor.yyz.somanetworks.com>
+Message-ID: <Pine.LNX.4.58.0506061539380.19525@rancor.yyz.somanetworks.com>
+References: <11176025242587@kroah.com> <429E71CB.3010609@sgi.com>
+ <429E7304.3060702@sgi.com> <Pine.LNX.4.58.0506012257120.32742@rancor.yyz.somanetworks.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-X-OriginalArrivalTime: 06 Jun 2005 19:48:38.0074 (UTC) 
-    FILETIME=[BB75F9A0:01C56AD0]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Strict mbind's check for currently mapped pages being on node has been
-using a slow loop which re-evaluates pgd, pud, pmd, pte for each entry:
-replace that by a standard four-level page table walk like others in mm.
-Since mmap_sem is held for writing, page_table_lock can be taken at the
-inner level to limit latency.
+On Wed, 1 Jun 2005, Scott Murray wrote:
 
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
----
+> On Wed, 1 Jun 2005, Prarit Bhargava wrote:
+> 
+> > Prarit Bhargava wrote:
+> > > Greg KH wrote:
+> > > 
+> > >> [PATCH] PCI Hotplug: more CPCI updates
+> > > 
+> > > 
+> > >> - Switch to pci_get_slot instead of deprecated pci_find_slot.
+> > >> - A bunch of CodingStyle fixes.
+> > > 
+> > > 
+> > >> -            }
+> > >> +        dev = pci_get_slot(slot->bus, PCI_DEVFN(slot->number, 0));
+> > >> +        if (dev) {
+> > >> +            if (update_adapter_status(slot->hotplug_slot, 1))
+> > >> +                warn("failure to update adapter file");
+> > >> +            if (update_latch_status(slot->hotplug_slot, 1))
+> > >> +                warn("failure to update latch file");
+> > >> +            slot->dev = dev;
+> > >>          }
+> > >>      }
+> > > 
+> > > 
+> > > I don't claim to know the code as well as Scott or Greg does, but I 
+> > > don't see a pci_put_dev for the slot->dev to clean up the usage count?
+> > 
+> > s/pci_put_dev/pci_dev_put/g
+> 
+> Sorry Prarit, when you suggested I switch over to pci_get_slot in your 
+> previous comments to me, I didn't look that closely and missed the 
+> reference counting.  Greg, I think the required fix is just a couple of 
+> lines in my hotplug slot release function, I'll code it up and test it 
+> ASAP tomorrow with an eye on getting a patch off by early afternoon EDT.
 
- mm/mempolicy.c |  115 ++++++++++++++++++++++++++++++++++-----------------------
- 1 files changed, 70 insertions(+), 45 deletions(-)
+Greg, sorry for the delay, here's a patch that fixes up the pci_dev 
+refcounting in the CPCI code.  I've done some testing against it and it 
+seems fine here.
 
---- 2.6.12-rc6+/mm/mempolicy.c	2005-06-04 20:41:55.000000000 +0100
-+++ linux/mm/mempolicy.c	2005-06-04 20:42:00.000000000 +0100
-@@ -238,56 +238,81 @@ static struct mempolicy *mpol_new(int mo
+ cpci_hotplug_core.c |    2 ++
+ cpci_hotplug_pci.c  |    5 ++++-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+Signed-Off-By: scottm@somanetworks.com
+
+diff -Nur --exclude=RCS --exclude=CVS --exclude=SCCS --exclude=BitKeeper --exclude=ChangeSet --exclude=SOMA linux-2.6/drivers/pci/hotplug/cpci_hotplug_core.c linux-2.6-cpci/drivers/pci/hotplug/cpci_hotplug_core.c
+--- linux-2.6/drivers/pci/hotplug/cpci_hotplug_core.c	2005-06-02 15:10:19.000000000 -0400
++++ linux-2.6-cpci/drivers/pci/hotplug/cpci_hotplug_core.c	2005-06-02 15:18:40.000000000 -0400
+@@ -217,6 +217,8 @@
+ 	kfree(slot->hotplug_slot->info);
+ 	kfree(slot->hotplug_slot->name);
+ 	kfree(slot->hotplug_slot);
++	if (slot->dev)
++		pci_dev_put(slot->dev);
+ 	kfree(slot);
  }
  
- /* Ensure all existing pages follow the policy. */
--static int
--verify_pages(struct mm_struct *mm,
--	     unsigned long addr, unsigned long end, unsigned long *nodes)
-+static int check_pte_range(struct mm_struct *mm, pmd_t *pmd,
-+		unsigned long addr, unsigned long end, unsigned long *nodes)
- {
--	int err = 0;
-+	pte_t *orig_pte;
-+	pte_t *pte;
- 
- 	spin_lock(&mm->page_table_lock);
--	while (addr < end) {
--		struct page *p;
--		pte_t *pte;
--		pmd_t *pmd;
--		pud_t *pud;
--		pgd_t *pgd;
--		pgd = pgd_offset(mm, addr);
--		if (pgd_none(*pgd)) {
--			unsigned long next = (addr + PGDIR_SIZE) & PGDIR_MASK;
--			if (next > addr)
--				break;
--			addr = next;
--			continue;
--		}
--		pud = pud_offset(pgd, addr);
--		if (pud_none(*pud)) {
--			addr = (addr + PUD_SIZE) & PUD_MASK;
-+	orig_pte = pte = pte_offset_map(pmd, addr);
-+	do {
-+		unsigned long pfn;
-+		unsigned int nid;
+diff -Nur --exclude=RCS --exclude=CVS --exclude=SCCS --exclude=BitKeeper --exclude=ChangeSet --exclude=SOMA linux-2.6/drivers/pci/hotplug/cpci_hotplug_pci.c linux-2.6-cpci/drivers/pci/hotplug/cpci_hotplug_pci.c
+--- linux-2.6/drivers/pci/hotplug/cpci_hotplug_pci.c	2005-06-02 15:10:19.000000000 -0400
++++ linux-2.6-cpci/drivers/pci/hotplug/cpci_hotplug_pci.c	2005-06-02 15:22:12.000000000 -0400
+@@ -315,9 +315,12 @@
+ 				    PCI_DEVFN(PCI_SLOT(slot->devfn), i));
+ 		if (dev) {
+ 			pci_remove_bus_device(dev);
+-			slot->dev = NULL;
++			pci_dev_put(dev);
+ 		}
+ 	}
++	pci_dev_put(slot->dev);
++	slot->dev = NULL;
 +
-+		if (!pte_present(*pte))
- 			continue;
--		}
--		pmd = pmd_offset(pud, addr);
--		if (pmd_none(*pmd)) {
--			addr = (addr + PMD_SIZE) & PMD_MASK;
-+		pfn = pte_pfn(*pte);
-+		if (!pfn_valid(pfn))
- 			continue;
--		}
--		p = NULL;
--		pte = pte_offset_map(pmd, addr);
--		if (pte_present(*pte)) {
--			unsigned long pfn = pte_pfn(*pte);
--			if (pfn_valid(pfn))
--				p = pfn_to_page(pfn);
--		}
--		pte_unmap(pte);
--		if (p) {
--			unsigned nid = page_to_nid(p);
--			if (!test_bit(nid, nodes)) {
--				err = -EIO;
--				break;
--			}
--		}
--		addr += PAGE_SIZE;
--	}
-+		nid = pfn_to_nid(pfn);
-+		if (!test_bit(nid, nodes))
-+			break;
-+	} while (pte++, addr += PAGE_SIZE, addr != end);
-+	pte_unmap(orig_pte);
- 	spin_unlock(&mm->page_table_lock);
--	return err;
-+	return addr != end;
-+}
-+
-+static inline int check_pmd_range(struct mm_struct *mm, pud_t *pud,
-+		unsigned long addr, unsigned long end, unsigned long *nodes)
-+{
-+	pmd_t *pmd;
-+	unsigned long next;
-+
-+	pmd = pmd_offset(pud, addr);
-+	do {
-+		next = pmd_addr_end(addr, end);
-+		if (pmd_none_or_clear_bad(pmd))
-+			continue;
-+		if (check_pte_range(mm, pmd, addr, next, nodes))
-+			return -EIO;
-+	} while (pmd++, addr = next, addr != end);
-+	return 0;
-+}
-+
-+static inline int check_pud_range(struct mm_struct *mm, pgd_t *pgd,
-+		unsigned long addr, unsigned long end, unsigned long *nodes)
-+{
-+	pud_t *pud;
-+	unsigned long next;
-+
-+	pud = pud_offset(pgd, addr);
-+	do {
-+		next = pud_addr_end(addr, end);
-+		if (pud_none_or_clear_bad(pud))
-+			continue;
-+		if (check_pmd_range(mm, pud, addr, next, nodes))
-+			return -EIO;
-+	} while (pud++, addr = next, addr != end);
-+	return 0;
-+}
-+
-+static inline int check_pgd_range(struct mm_struct *mm,
-+		unsigned long addr, unsigned long end, unsigned long *nodes)
-+{
-+	pgd_t *pgd;
-+	unsigned long next;
-+
-+	pgd = pgd_offset(mm, addr);
-+	do {
-+		next = pgd_addr_end(addr, end);
-+		if (pgd_none_or_clear_bad(pgd))
-+			continue;
-+		if (check_pud_range(mm, pgd, addr, next, nodes))
-+			return -EIO;
-+	} while (pgd++, addr = next, addr != end);
-+	return 0;
+ 	dbg("%s - exit", __FUNCTION__);
+ 	return 0;
  }
- 
- /* Step 1: check the range */
-@@ -308,7 +333,7 @@ check_range(struct mm_struct *mm, unsign
- 		if (prev && prev->vm_end < vma->vm_start)
- 			return ERR_PTR(-EFAULT);
- 		if ((flags & MPOL_MF_STRICT) && !is_vm_hugetlb_page(vma)) {
--			err = verify_pages(vma->vm_mm,
-+			err = check_pgd_range(vma->vm_mm,
- 					   vma->vm_start, vma->vm_end, nodes);
- 			if (err) {
- 				first = ERR_PTR(err);
+
+
+-- 
+Scott Murray
+SOMA Networks, Inc.
+Toronto, Ontario
+e-mail: scottm@somanetworks.com

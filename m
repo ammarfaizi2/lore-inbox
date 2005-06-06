@@ -1,48 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbVFGABn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261784AbVFGABm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261787AbVFGABn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 20:01:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbVFFX5w
+	id S261784AbVFGABm (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 20:01:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261791AbVFGAA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 19:57:52 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:56209 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261778AbVFFXwe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 19:52:34 -0400
-Date: Tue, 7 Jun 2005 00:53:21 +0100
-From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-To: Blaisorblade <blaisorblade@yahoo.it>
-Cc: user-mode-linux-devel@lists.sourceforge.net, Jeff Dike <jdike@addtoit.com>,
-       akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [uml-devel] [PATCH 3/5] UML - Clean up tt mode remapping of UML binary
-Message-ID: <20050606235321.GJ29811@parcelfarce.linux.theplanet.co.uk>
-References: <200506062008.j56K89YA008957@ccure.user-mode-linux.org> <200506070105.20422.blaisorblade@yahoo.it>
+	Mon, 6 Jun 2005 20:00:28 -0400
+Received: from gate.crashing.org ([63.228.1.57]:6798 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261784AbVFFX6w (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 19:58:52 -0400
+Subject: Re: pci_enable_msi() for everyone?
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Greg KH <gregkh@suse.de>
+Cc: Grant Grundler <grundler@parisc-linux.org>, tom.l.nguyen@intel.com,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       roland@topspin.com, davem@davemloft.net
+In-Reply-To: <20050606230051.GC11184@suse.de>
+References: <20050603224551.GA10014@kroah.com>
+	 <20050604013112.GB16999@colo.lackof.org> <20050604064821.GC13238@suse.de>
+	 <20050604070537.GB8230@colo.lackof.org> <20050604071803.GA13684@suse.de>
+	 <1118008827.31082.245.camel@gaston>  <20050606230051.GC11184@suse.de>
+Content-Type: text/plain
+Date: Tue, 07 Jun 2005 09:56:42 +1000
+Message-Id: <1118102203.6850.5.camel@gaston>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506070105.20422.blaisorblade@yahoo.it>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 07, 2005 at 01:05:19AM +0200, Blaisorblade wrote:
-> On Monday 06 June 2005 22:08, Jeff Dike wrote:
-> > From Al Viro - this turns the tt mode remapping of the binary into arch
-> > code.
-> NACK at all, definitely, don't apply this one please. This patch:
+
+> > 
+> > Disagreed.
 > 
-> 1) On i386 does not fix the problem it was supposed to fix when I originately 
-> sent the first version (i.e. avoiding to create a .thread_private section to 
-> allow linking against NPTL glibc). It's done on x86_64 and forgot on i386.
+> Disagreed in what way?  What's the bad side affects?
 
-True.  i386 still assumes non-NPTL (as it is on the box I'm working on -
-such setups *do* exist).
+I'd rather have the driver decide wether to enable it or not
+explicitely ... but heh, that's just my taste ...
 
-> 2) Splitting the linker script for subarchs is definitely not needed.
+Ben.
 
-Per-subarch - perhaps not.  Per-glibc-type - definitely needed.
 
-> 3) This removes the fix (done through objcopy -G switcheroo) to a link time 
-> conflict happening on some weird glibc combinations.
-
-*What* link-time conflict?  We don't link libc into switcheroo anymore.

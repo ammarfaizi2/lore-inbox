@@ -1,136 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVFFUAi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbVFFUFN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261655AbVFFUAi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 16:00:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261651AbVFFT6N
+	id S261665AbVFFUFN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 16:05:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbVFFUDz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 15:58:13 -0400
-Received: from bay-bridge.veritas.com ([143.127.3.10]:57363 "EHLO
-	MTVMIME01.enterprise.veritas.com") by vger.kernel.org with ESMTP
-	id S261657AbVFFTzY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 15:55:24 -0400
-Date: Mon, 6 Jun 2005 20:55:31 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@goblin.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, linux-kernel@vger.kernel.org
-Subject: [PATCH] get_user_pages: kill get_page_map
-Message-ID: <Pine.LNX.4.61.0506062054170.5000@goblin.wat.veritas.com>
+	Mon, 6 Jun 2005 16:03:55 -0400
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:41342 "EHLO
+	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
+	id S261665AbVFFUBD convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 16:01:03 -0400
+X-IronPort-AV: i="3.93,174,1115010000"; 
+   d="scan'208"; a="269705859:sNHT59715500"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
-X-OriginalArrivalTime: 06 Jun 2005 19:54:30.0933 (UTC) 
-    FILETIME=[8DC7FC50:01C56AD1]
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new DellBIOS update driver
+Date: Mon, 6 Jun 2005 15:01:04 -0500
+Message-ID: <367215741E167A4CA813C8F12CE0143B3ED3AD@ausx2kmpc115.aus.amer.dell.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new DellBIOS update driver
+Thread-Index: AcVqzSCVuB1Uaa09Rx6lq3YNiDMRGgAANvPg
+From: <Abhay_Salunke@Dell.com>
+To: <greg@kroah.com>
+Cc: <marcel@holtmann.org>, <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
+       <Matt_Domsch@Dell.com>
+X-OriginalArrivalTime: 06 Jun 2005 20:00:53.0659 (UTC) FILETIME=[71E756B0:01C56AD2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Since its birth, get_user_pages has been calling a misguided get_page_map
-function.  follow_page has already returned NULL if the pfn is invalid,
-we cannot reach an invalid pfn from a validated struct page.
+> Ok, in re-reading the firmware code, you are correct, it will still
+> timeout in 10 seconds and call your callback.
+> 
+> Which, in my opinion, is wrong.  We should have some way to say "wait
+> forever".  Care to change the firmware_class.c code to support this?
+Will give it a try. So far the request_firmware code calls
+kobject_hotplug with action as KOBJ_ADD. It invokes a hotplug script
+form user mode. I guess we need to have some reverse mechanism which is
+invoked when a user writes to the file.
+> 
+> I was assuming that this would wait forever, and is why I pointed you
+in
+> this direction.  Sorry about the confusion here.
+> 
+I guess the earlier method of request_firmware would work out as is with
+the only disadvantage of the user having to depend on hotplug mechanism
+and echoing firmware name.
+Let me know if that is acceptable till we find a solution to wait for
+ever without using hotplug stuff.
 
-Remove get_page_map, and the messy rewind in get_user_pages to cope with
-its failure.  Oh, and could we please call that "struct page *page" like
-everywhere else, instead of "struct page *map"?
-
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
----
-
- mm/memory.c |   45 ++++++++++-----------------------------------
- 1 files changed, 10 insertions(+), 35 deletions(-)
-
---- 2.6.12-rc6/mm/memory.c	2005-05-25 18:09:21.000000000 +0100
-+++ linux/mm/memory.c	2005-06-04 20:41:55.000000000 +0100
-@@ -840,23 +840,8 @@ check_user_page_readable(struct mm_struc
- {
- 	return __follow_page(mm, address, /*read*/1, /*write*/0) != NULL;
- }
--
- EXPORT_SYMBOL(check_user_page_readable);
- 
--/* 
-- * Given a physical address, is there a useful struct page pointing to
-- * it?  This may become more complex in the future if we start dealing
-- * with IO-aperture pages for direct-IO.
-- */
--
--static inline struct page *get_page_map(struct page *page)
--{
--	if (!pfn_valid(page_to_pfn(page)))
--		return NULL;
--	return page;
--}
--
--
- static inline int
- untouched_anonymous_page(struct mm_struct* mm, struct vm_area_struct *vma,
- 			 unsigned long address)
-@@ -887,7 +872,6 @@ untouched_anonymous_page(struct mm_struc
- 	return 0;
- }
- 
--
- int get_user_pages(struct task_struct *tsk, struct mm_struct *mm,
- 		unsigned long start, int len, int write, int force,
- 		struct page **pages, struct vm_area_struct **vmas)
-@@ -951,21 +935,21 @@ int get_user_pages(struct task_struct *t
- 		}
- 		spin_lock(&mm->page_table_lock);
- 		do {
--			struct page *map;
-+			struct page *page;
- 			int lookup_write = write;
- 
- 			cond_resched_lock(&mm->page_table_lock);
--			while (!(map = follow_page(mm, start, lookup_write))) {
-+			while (!(page = follow_page(mm, start, lookup_write))) {
- 				/*
- 				 * Shortcut for anonymous pages. We don't want
- 				 * to force the creation of pages tables for
--				 * insanly big anonymously mapped areas that
-+				 * insanely big anonymously mapped areas that
- 				 * nobody touched so far. This is important
- 				 * for doing a core dump for these mappings.
- 				 */
- 				if (!lookup_write &&
- 				    untouched_anonymous_page(mm,vma,start)) {
--					map = ZERO_PAGE(start);
-+					page = ZERO_PAGE(start);
- 					break;
- 				}
- 				spin_unlock(&mm->page_table_lock);
-@@ -994,30 +978,21 @@ int get_user_pages(struct task_struct *t
- 				spin_lock(&mm->page_table_lock);
- 			}
- 			if (pages) {
--				pages[i] = get_page_map(map);
--				if (!pages[i]) {
--					spin_unlock(&mm->page_table_lock);
--					while (i--)
--						page_cache_release(pages[i]);
--					i = -EFAULT;
--					goto out;
--				}
--				flush_dcache_page(pages[i]);
--				if (!PageReserved(pages[i]))
--					page_cache_get(pages[i]);
-+				pages[i] = page;
-+				flush_dcache_page(page);
-+				if (!PageReserved(page))
-+					page_cache_get(page);
- 			}
- 			if (vmas)
- 				vmas[i] = vma;
- 			i++;
- 			start += PAGE_SIZE;
- 			len--;
--		} while(len && start < vma->vm_end);
-+		} while (len && start < vma->vm_end);
- 		spin_unlock(&mm->page_table_lock);
--	} while(len);
--out:
-+	} while (len);
- 	return i;
- }
--
- EXPORT_SYMBOL(get_user_pages);
- 
- static int zeromap_pte_range(struct mm_struct *mm, pmd_t *pmd,
+Thanks
+Abhay

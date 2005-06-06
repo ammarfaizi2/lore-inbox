@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVFFIQx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261221AbVFFIUG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbVFFIQx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 04:16:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261208AbVFFIQw
+	id S261221AbVFFIUG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 04:20:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbVFFIUF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 04:16:52 -0400
-Received: from gw.anda.ru ([83.146.86.58]:51460 "EHLO mail.ward.six")
-	by vger.kernel.org with ESMTP id S261187AbVFFIQl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 04:16:41 -0400
-Date: Mon, 6 Jun 2005 14:16:38 +0600
-From: Denis Zaitsev <zzz@anda.ru>
-To: linux-kernel@vger.kernel.org
-Cc: linux-scsi@vger.kernel.org
-Subject: [PROBLEM] aic7xxx: DV failed to configure device
-Message-ID: <20050606141638.A28532@ward.six>
-Mail-Followup-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+	Mon, 6 Jun 2005 04:20:05 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:1548 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261225AbVFFITl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 04:19:41 -0400
+Date: Mon, 6 Jun 2005 10:19:28 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: joern@wohnheim.fh-wedel.de
+Cc: linux-kernel@vger.kernel.org, mpm@selenic.com
+Subject: Re: Easy trick to reduce kernel footprint
+Message-ID: <20050606081928.GA15312@alpha.home.local>
+References: <20050605223528.GA13726@alpha.home.local> <20050606074745.GC24826@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20050606074745.GC24826@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm testing an Adaptec SCSI controller + an IBM drive.  All the things
-used to be fine before I had made the low-level format of the drive
-(thru the Ctrl-A Adaptec's menu).  And now after
+On Mon, Jun 06, 2005 at 09:47:45AM +0200, J?rn Engel wrote:
+> On Mon, 6 June 2005 00:35:28 +0200, Willy Tarreau wrote:
+> > 
+> > I recently discovered p7zip which comes with the LZMA compression algorithm,
+> > which is somewhat better than gzip and bzip2 on most datasets, [...]
+> 
+> Hmmm.
+> 
+> Citeseer has never heard of that algorithm, top 10 google hits for
+> "LZMA compression algorithm" are completely uninformative.  Does
+> anyone actually know, what this algorithm is doing?
 
-        modprobe aic7xxx
+It's described here :
+   http://en.wikipedia.org/wiki/LZMA
 
-I have:
+implemented here :
+   http://martinus.geekisp.com/rublog.cgi/Projects/LZMA
 
+and here :
+   http://www.7-zip.org/sdk.html
 
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-        <Adaptec 29160 Ultra160 SCSI adapter>
-        aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
+Willy
 
-scsi0:A:0:0: DV failed to configure device.  Please file a bug report against this driver.
-(scsi0:A:0): 160.000MB/s transfers (80.000MHz DT, offset 63, 16bit)
-  Vendor: IBM       Model: DDYS-T09170N      Rev: S80D
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-scsi0:A:0:0: Tagged Queuing enabled.  Depth 32
-SCSI device sda: 17916240 512-byte hdwr sectors (9173 MB)
-SCSI device sda: drive cache: write back
-SCSI device sda: 17916240 512-byte hdwr sectors (9173 MB)
-SCSI device sda: drive cache: write back
- sda: unknown partition table
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
-
-
-The message
-
-scsi0:A:0:0: DV failed to configure device.  Please file a bug report against this driver.
-
-had never appeared before the low-level format.  But it seems that
-after the format the drive still works fine.
-
-So, what does this message mean?  And can I just ignore it?
-
-Some additional info: it's the PCI64 card installed in a 32-bit PCI
-slot, Domain Validation is turned on thru the Adaptec BIOS setup.
-
-Thanks in advance.

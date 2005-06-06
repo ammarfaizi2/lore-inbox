@@ -1,101 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261289AbVFFK7b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261292AbVFFK7m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261289AbVFFK7b (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 06:59:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261293AbVFFK73
+	id S261292AbVFFK7m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 06:59:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261308AbVFFK7m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 06:59:29 -0400
-Received: from dsl.static812142478.ttnet.net.tr ([81.214.24.78]:20680 "EHLO
-	yssyk.labristeknoloji.com") by vger.kernel.org with ESMTP
-	id S261289AbVFFK7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 06:59:18 -0400
-Message-ID: <42A456B6.7070106@labristeknoloji.com>
-Date: Mon, 06 Jun 2005 13:59:18 +0000
-From: "M.Baris Demiray" <baris@labristeknoloji.com>
-Organization: Labris Teknoloji
-User-Agent: Mozilla Thunderbird 1.0RC1 (X11/20041201)
-X-Accept-Language: en-us, en
+	Mon, 6 Jun 2005 06:59:42 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:50909 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S261292AbVFFK7V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 06:59:21 -0400
+Message-ID: <42A42CA1.7080700@punnoor.de>
+Date: Mon, 06 Jun 2005 12:59:45 +0200
+From: Prakash Punnoor <prakash@punnoor.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050511)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.12-rc5-mm2] [sched] add allowed CPUs check into find_idlest_group()
-References: <42A3381F.90801@labristeknoloji.com> <42A3AA63.7060201@yahoo.com.au> <42A42FDE.2040600@labristeknoloji.com> <42A42745.9080103@yahoo.com.au>
-In-Reply-To: <42A42745.9080103@yahoo.com.au>
-Content-Type: multipart/mixed;
- boundary="------------090705030709070404000900"
+To: Dominik Brodowski <linux@dominikbrodowski.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: cpufreq/speedstep won't work on Sony Vaio PCG-F807K
+References: <42935600.5090008@punnoor.de> <20050524203300.GA24187@isilmar.linta.de> <42939FAF.8040805@punnoor.de> <20050605172455.GH12338@dominikbrodowski.de>
+In-Reply-To: <20050605172455.GH12338@dominikbrodowski.de>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig3A3300A4725DEF90A784A3F7"
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:cec1af1025af73746bdd9be3587eb485
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090705030709070404000900
-Content-Type: text/plain; charset=UTF-8; format=flowed
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig3A3300A4725DEF90A784A3F7
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 
-
-Nick Piggin wrote:
-> M.Baris Demiray wrote:
- > [...]
->>
->> But, isn't it required for us to be allowed to run on _every_
->> CPU in that group. If we take intersection and continue if
->> that's not empty, then there could be CPUs in group that are
->> not allowed. Since any CPU then can be the idlest in that
->> group we can be assigned to a CPU that is not allowed.
->> Missing something?
->>
+Dominik Brodowski schrieb:
+> Hi,
 > 
-> That should be OK. We basically aren't too interested in
-> exactly which CPU it should go to, but just that it should
-> go to that group.
 > 
-> If the group is determined to be the idlest, and there is
-> a CPU that can run the task, then that's all we need.
-
-OK. And also I missed the point that you requested a second check
-in find_idlest_cpu() which'll prevent an assignment to an unallowed
-CPU. That will solve the problem.
-
- > [...]
->>
->> Meanwhile, what is the problem with that patch? Not traversing
->> the CPUs correctly or continue;ing is wrong?
->>
->>     for_each_cpu_mask(i, group->cpumask) {
->>         if (!cpu_isset(i, p->cpus_allowed))
->>             continue;
->>     }
->>
+>>speedstep-smi: signature:0x47534943, command:0x008000b2, event:0x000000b3,
+>>perf_level:0x07d00100.
 > 
-> In Linux, the for_* macros actually *are* for loops. So that is
-> that loop that your continue continues, and seeing as it is at
-> the end of that for loop, it does nothing.
-
-Argh. I'll look at these.
-
-Thanks Nick.
-
-> Thanks,
-> Nick
 > 
+> Could you try passing the module option "smi_cmd=0x82" to speedstep-smi?
+> Most often this is the correct value, and in several cases the BIOS reports
+> false values (in your case: 0x80) which cause speedstep-smi not to work
+> properly.
 
--- 
-"You have to understand, most of these people are not ready to be
-unplugged. And many of them are no inert, so hopelessly dependent
-on the system, that they will fight to protect it."
-                                                         Morpheus
+Thanx, now the module loads and (partly) works: I now have 500MHz and 650MHz
+*only* as selection and I can switch between them both. But why only this two
+options? If I enable speedstep in bios and force it, Linux reports 133MHz or
+alike as CPU speed,which seems to be a more realistic lower limit, as I don't
+think going to 500MHz will save me much.
 
---------------090705030709070404000900
-Content-Type: text/x-vcard; charset=utf-8;
- name="baris.vcf"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename="baris.vcf"
+Anyway, shoudl a quirk for this notebook be added somewhere? Do you need
+additional infos for this, in case?
 
-YmVnaW46dmNhcmQNCmZuOk0uQmFyaXMgRGVtaXJheQ0KbjpEZW1pcmF5O00uQmFyaXMNCm9y
-ZzpMYWJyaXMgVGVrbm9sb2ppDQphZHI6OztUZWtub2tlbnQgU2lsaWtvbiBCaW5hIE5vOjI0
-IE9EVFU7QW5rYXJhOzswNjUzMTtUdXJrZXkNCmVtYWlsO2ludGVybmV0OmJhcmlzQGxhYnJp
-c3Rla25vbG9qaS5jb20NCnRpdGxlOllhemlsaW0gR2VsaXN0aXJtZSBVem1hbmkNCnRlbDt3
-b3JrOis5MDMxMjIxMDE0OTANCnRlbDtmYXg6KzkwMzEyMjEwMTQ5Mg0KeC1tb3ppbGxhLWh0
-bWw6RkFMU0UNCnVybDpodHRwOi8vd3d3LmxhYnJpc3Rla25vbG9qaS5jb20NCnZlcnNpb246
-Mi4xDQplbmQ6dmNhcmQNCg0K
---------------090705030709070404000900--
+Is there a possibility to get the ACPI P-state driver going? Perhaps this
+would give me a lower minimum clock. Or is the ACPI crew responsible for this
+driver and should I ask them?
+
+Cheers,
+
+Prakash
+
+--------------enig3A3300A4725DEF90A784A3F7
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFCpCyhxU2n/+9+t5gRAkzQAKDHmhX+pEyZ3r0Yt0FnlKYmcm0/ZQCgwUVd
+zn5rRktjKF5vsN7ZOrtumUc=
+=Sv0N
+-----END PGP SIGNATURE-----
+
+--------------enig3A3300A4725DEF90A784A3F7--

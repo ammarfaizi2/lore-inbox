@@ -1,54 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261208AbVFFJWP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261263AbVFFJYi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261208AbVFFJWP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 05:22:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261248AbVFFJWP
+	id S261263AbVFFJYi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 05:24:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbVFFJYe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 05:22:15 -0400
-Received: from mail.suse.de ([195.135.220.2]:53640 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261208AbVFFJWM (ORCPT
+	Mon, 6 Jun 2005 05:24:34 -0400
+Received: from wproxy.gmail.com ([64.233.184.197]:57803 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261249AbVFFJYR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 05:22:12 -0400
-Date: Mon, 6 Jun 2005 11:21:59 +0200
-From: Andi Kleen <ak@suse.de>
-To: Dominik Brodowski <linux@dominikbrodowski.net>,
-       john stultz <johnstul@us.ibm.com>,
-       Parag Warudkar <kernel-stuff@comcast.net>,
-       Nishanth Aravamudan <nacc@us.ibm.com>, Andi Kleen <ak@suse.de>,
-       lkml <linux-kernel@vger.kernel.org>,
-       Tim Schmielau <tim@physik3.uni-rostock.de>,
-       George Anzinger <george@mvista.com>, albert@users.sourceforge.net,
-       Ulrich Windl <ulrich.windl@rz.uni-regensburg.de>,
-       Christoph Lameter <clameter@sgi.com>,
-       David Mosberger <davidm@hpl.hp.com>, Andrew Morton <akpm@osdl.org>,
-       paulus@samba.org, schwidefsky@de.ibm.com,
-       keith maanthey <kmannth@us.ibm.com>, Chris McDermott <lcm@us.ibm.com>,
-       Max Asbock <masbock@us.ibm.com>, mahuja@us.ibm.com,
-       Darren Hart <darren@dvhart.com>, "Darrick J. Wong" <djwong@us.ibm.com>,
-       Anton Blanchard <anton@samba.org>, donf@us.ibm.com, mpm@selenic.com,
-       benh@kernel.crashing.org
-Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
-Message-ID: <20050606092159.GZ23831@wotan.suse.de>
-References: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net> <200506021905.08274.kernel-stuff@comcast.net> <1117754453.17804.51.camel@cog.beaverton.ibm.com> <200506021950.35014.kernel-stuff@comcast.net> <1117812275.3674.2.camel@leatherman> <20050605170511.GC12338@dominikbrodowski.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 6 Jun 2005 05:24:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=l1LENDt+EGGW4uWwVKWTRLqN3D2fqyIZeZ+Cpzl0GJV/VAo3/RHkI9fQwkFoKAkCQM2rLUPHWARmifp6O5sbAvpPEHUQ/fB58vZeP3iRMtczk3Cz+ng+dwTS4kqiIxIIKsogWxf9d9f+8/3wIC4w2+GleIrJd57CkEh4ZksqXvc=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: ericvh@gmail.com
+Subject: Re: v9fs-vfs-file-dentry-and-directory-operations.patch added to -mm tree
+Date: Mon, 6 Jun 2005 13:28:01 +0400
+User-Agent: KMail/1.7.2
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <200506060624.j566OQpF010552@shell0.pdx.osdl.net>
+In-Reply-To: <200506060624.j566OQpF010552@shell0.pdx.osdl.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050605170511.GC12338@dominikbrodowski.de>
+Message-Id: <200506061328.02594.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> IIRC (from the comment above) several chipsets suffer from this
-> inconsistency, namely the widely used PIIX4(E) and ICH(4 only? or also other
-> ICH-ones?). Therefore, we'd need at least some sort of boot-time check to
-> decide which method to use... and based on the method, we can adjust the
-> priority maybe?
+On Monday 06 June 2005 10:24, akpm@osdl.org wrote:
+>      v9fs: VFS file, dentry, and directory operations
 
-At least on x86-64 there are no ICH4s or PIIX4Es. Actually I think
-there was one early prototype machine from Intel with ICH4, but I am willing
-to ignore these.  So please dont do any such things on the x86-64 version.
+> --- /dev/null
+> +++ 25-akpm/fs/9p/vfs_file.c
 
-Also didnt ICH4 already have HPET? it might not be enabled on many
-boxes, but given the chip datasheet one can write enable code to 
-fix that.
+> +static ssize_t
+> +v9fs_file_read(struct file *filp, char __user * data, size_t count,
+> +	       loff_t * offset)
+> +{
 
--Andi
+> +	char *buffer = NULL;
+
+Unneeded assignment.
+
+> +	buffer = kmalloc(count, GFP_KERNEL);
+> +	if (buffer < 0)
+> +		return -ENOMEM;
+
+buffer is a pointer.

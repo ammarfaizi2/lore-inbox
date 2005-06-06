@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261262AbVFFJm2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261266AbVFFJr0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261262AbVFFJm2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 05:42:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261266AbVFFJm2
+	id S261266AbVFFJr0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 05:47:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261267AbVFFJr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 05:42:28 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:16308 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261262AbVFFJmO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 05:42:14 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20050603200339.GA2445@halcrow.us> 
-References: <20050603200339.GA2445@halcrow.us>  <20050602054852.GB4514@sshock.rn.byu.edu> 
-To: Michael Halcrow <mhalcrow@us.ibm.com>
-Cc: Phillip Hellewell <phillip@hellewell.homeip.net>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/3] eCryptfs: export key type 
-X-Mailer: MH-E 7.82; nmh 1.0.4; GNU Emacs 22.0.50.1
-Date: Mon, 06 Jun 2005 10:42:02 +0100
-Message-ID: <16336.1118050922@redhat.com>
+	Mon, 6 Jun 2005 05:47:26 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:62098 "EHLO
+	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S261266AbVFFJrW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 05:47:22 -0400
+Date: Mon, 6 Jun 2005 11:46:56 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: linux-kernel@vger.kernel.org, mpm@selenic.com
+Subject: Re: Easy trick to reduce kernel footprint
+Message-ID: <20050606094656.GA31739@wohnheim.fh-wedel.de>
+References: <20050605223528.GA13726@alpha.home.local> <20050606074745.GC24826@wohnheim.fh-wedel.de> <20050606081928.GA15312@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20050606081928.GA15312@alpha.home.local>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Halcrow <mhalcrow@us.ibm.com> wrote:
-
-> > +EXPORT_SYMBOL( key_type_user );
+On Mon, 6 June 2005 10:19:28 +0200, Willy Tarreau wrote:
+> On Mon, Jun 06, 2005 at 09:47:45AM +0200, J?rn Engel wrote:
+> > 
+> > Citeseer has never heard of that algorithm, top 10 google hits for
+> > "LZMA compression algorithm" are completely uninformative.  Does
+> > anyone actually know, what this algorithm is doing?
 > 
-> This is the only modification necessary to support eCryptfs.
+> It's described here :
+>    http://en.wikipedia.org/wiki/LZMA
+> 
+> implemented here :
+>    http://martinus.geekisp.com/rublog.cgi/Projects/LZMA
+> 
+> and here :
+>    http://www.7-zip.org/sdk.html
 
-Unfortunately, that might have to be EXPORT_SYMBOL_GPL() nowadays since I
-reimplemented the predefined keyring types of user and keyring using RCU.
+Thanks, but I already saw all three of those before I posted my reply.
+Guess the only way to tell is by reading the source...
 
-> While we are working on getting it ready for merging into the mainline
-> kernel, we would like to distribute it as a separate kernel module, and we
-> would like for users or distro's do not need to modify their kernels to
-> build and run it.
+Jörn
 
-"It" being?
-
-> Would there be any objections to exporting the key_type_user symbol?
-> Is there any general reason why kernel modules should not have access
-> to the user key type struct?
-
-No and no, but see above. You could also export the user defined key type ops
-and define your own key type using them.
-
-David
+-- 
+Correctness comes second.
+Features come third.
+Performance comes last.
+Maintainability is needed for all of them.

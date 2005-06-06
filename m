@@ -1,128 +1,212 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261512AbVFFRTi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVFFRdv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261512AbVFFRTi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 13:19:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbVFFRTh
+	id S261274AbVFFRdv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 13:33:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261516AbVFFRdv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 13:19:37 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:2271 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261512AbVFFRT1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 13:19:27 -0400
-Date: Mon, 6 Jun 2005 19:14:17 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-pm@lists.osdl.org, "Yu, Luming" <luming.yu@intel.com>,
-       Andrew Morton <akpm@zip.com.au>,
-       ACPI devel <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] Re: swsusp: Not enough free pages
-Message-ID: <20050606171417.GB2230@elf.ucw.cz>
-References: <3ACA40606221794F80A5670F0AF15F84041AC1A8@pdsmsx403> <200506061439.03023.luming.yu@intel.com> <20050606103936.GA2520@elf.ucw.cz> <200506061902.34304.rjw@sisk.pl>
+	Mon, 6 Jun 2005 13:33:51 -0400
+Received: from smtp-101-monday.noc.nerim.net ([62.4.17.101]:63499 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S261274AbVFFRdl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 13:33:41 -0400
+Date: Mon, 6 Jun 2005 19:34:45 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Greg KH <greg@kroah.com>
+Cc: LM Sensors <lm-sensors@lm-sensors.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Yani Ioannou <yani.ioannou@gmail.com>
+Subject: Re: More hardware monitoring drivers ported to the new sysfs
+ callbacks
+Message-Id: <20050606193445.28401c23.khali@linux-fr.org>
+In-Reply-To: <20050606062203.GA6344@kroah.com>
+References: <20050605200901.41592fe9.khali@linux-fr.org>
+	<20050606062203.GA6344@kroah.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506061902.34304.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Hi Greg, all,
 
-> > > > > > So far, yes. I just tried 2 times.
-> > > > >
-> > > > > always. (I check that swap dev is on)
-> > > > >
-> > > > > Sometimes, my ia32 laptop free 0 pages too.
-> > > > > I think we should always free some pages
-> > > > > from various caches.
-> > > >
-> > > > Try this hack... it is basically mm problem I don't know how to fix,
-> > > > but this seems to help.
-> > > > 								Pavel
-> > > 
-> > > Thanks Pavel, this hack works.
-> > > ..
-> > > Freeing memory...  ^Hdone (0 pages freed)
-> > > Freeing memory...  ^H-^Hdone (4636 pages freed)
-> > > Freeing memory...  ^Hdone (0 pages freed)
-> > > Freeing memory...  ^H-^Hdone (914 pages freed)
-> > > Freeing memory...  ^Hdone (0 pages freed)
-> > > Freezing CPUs (at 0)...ok
-> > > 
-> > > Any mm guru know how to fix this?
-> > 
-> > Andrew, can you help? It seems free_some_memory does not really free
-> > all reclaimable memory in recent kernels. In fact, it likes to free
-> > nothing on first invocations....
+> > First, I don't much like the name of the new header file,
+> > linux/i2c-sysfs.h. It isn't related with i2c at all! It's all about
+> > sensors (or hardware monitoring if you prefer). I think the header
+> > file should be named linux/hwmon-sysfs.h or something similar.
 > 
-> Actually, on (my) x86-64 it seems to work.  It frees even more memory than
-> I'd like it to (there's 80-90% of RAM free after it's finished). ;-)
+> Sure, that would be fine.
+
+OK, patch follows.
+
+> > Second, is there a reason why the SENSOR_DEVICE_ATTR macro creates a
+> > stucture named sensor_dev_attr_##_name rather than simply
+> > dev_attr_##_name? As it seems unlikely that SENSOR_DEVICE_ATTR and
+> > DEVICE_ATTR will both be called for the same file, going for the
+> > short form shouldn't cause any problem. This would make the calling
+> > code more readable IMHO.
 > 
-> If I had to guess, I'd say the problem is related to PAGE_SIZE !=
->4096.
+> Hm, I really don't care either way about this.
 
-No, I see it on i386, too. Try patch below; if it frees some after
-first pass, you have that problem, too.
+Let's not change it then.
 
-								Pavel
+---------------------------------------------------------
 
-> > > > Index: kernel/power/disk.c
-> > > > ===================================================================
-> > > > --- 805a02ec2bcff3671d7b1e701bd1981ad2fa196c/kernel/power/disk.c 
-> > > > (mode:100644) +++
-> > > > ecd8559cc08319bb16a42aac06cf7d664157643a/kernel/power/disk.c  (mode:100644)
-> > > > @@ -88,23 +92,25 @@
-> > > >
-> > > >  static void free_some_memory(void)
-> > > >  {
-> > > > -	unsigned int i = 0;
-> > > > -	unsigned int tmp;
-> > > > -	unsigned long pages = 0;
-> > > > -	char *p = "-\\|/";
-> > > > -
-> > > > -	printk("Freeing memory...  ");
-> > > > -	while ((tmp = shrink_all_memory(10000))) {
-> > > > -		pages += tmp;
-> > > > -		printk("\b%c", p[i]);
-> > > > -		i++;
-> > > > -		if (i > 3)
-> > > > -			i = 0;
-> > > > +	int i;
-> > > > +	for (i=0; i<5; i++) {
-> > > > +		int i = 0, tmp;
-> > > > +		long pages = 0;
-> > > > +		char *p = "-\\|/";
-> > > > +
-> > > > +		printk("Freeing memory...  ");
-> > > > +		while ((tmp = shrink_all_memory(10000))) {
-> > > > +			pages += tmp;
-> > > > +			printk("\b%c", p[i]);
-> > > > +			i++;
-> > > > +			if (i > 3)
-> > > > +				i = 0;
-> > > > +		}
-> > > > +		printk("\bdone (%li pages freed)\n", pages);
-> > > > +		msleep_interruptible(200);
-> > > >  	}
-> > > > -	printk("\bdone (%li pages freed)\n", pages);
-> > > >  }
-> > > >
-> > > > -
-> > > >  static inline void platform_finish(void)
-> > > >  {
-> > > >  	if (pm_disk_mode == PM_DISK_PLATFORM) {
-> > > 
-> > 
-> > > _______________________________________________
-> > > linux-pm mailing list
-> > > linux-pm@lists.osdl.org
-> > > http://lists.osdl.org/mailman/listinfo/linux-pm
-> > 
-> > 
-> > -- 
-> > 
-> 
+This patch renames the new linux/i2c-sysfs.h header file to
+linux/hwmon-sysfs.h. This names seems to be more appropriate since this
+file defines macros and structures not related to i2c but to hardware
+monitoring drivers. The patch also updates the five hardware monitoring
+driver which include that header file already.
+
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+
+ drivers/i2c/chips/adm1026.c |    2 +-
+ drivers/i2c/chips/it87.c    |    2 +-
+ drivers/i2c/chips/lm63.c    |    2 +-
+ drivers/i2c/chips/lm83.c    |    2 +-
+ drivers/i2c/chips/lm90.c    |    2 +-
+ include/linux/hwmon-sysfs.h |   37 +++++++++++++++++++++++++++++++++++++
+ include/linux/i2c-sysfs.h   |   37 -------------------------------------
+ 7 files changed, 42 insertions(+), 42 deletions(-)
+
+--- linux-2.6.12-rc5.orig/drivers/i2c/chips/adm1026.c	2005-06-05 10:53:57.000000000 +0200
++++ linux-2.6.12-rc5/drivers/i2c/chips/adm1026.c	2005-06-06 19:23:32.000000000 +0200
+@@ -29,8 +29,8 @@
+ #include <linux/jiffies.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-sensor.h>
+-#include <linux/i2c-sysfs.h>
+ #include <linux/i2c-vid.h>
++#include <linux/hwmon-sysfs.h>
+ 
+ /* Addresses to scan */
+ static unsigned short normal_i2c[] = { 0x2c, 0x2d, 0x2e, I2C_CLIENT_END };
+--- linux-2.6.12-rc5.orig/drivers/i2c/chips/it87.c	2005-06-05 11:51:22.000000000 +0200
++++ linux-2.6.12-rc5/drivers/i2c/chips/it87.c	2005-06-06 19:23:14.000000000 +0200
+@@ -37,8 +37,8 @@
+ #include <linux/jiffies.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-sensor.h>
+-#include <linux/i2c-sysfs.h>
+ #include <linux/i2c-vid.h>
++#include <linux/hwmon-sysfs.h>
+ #include <asm/io.h>
+ 
+ 
+--- linux-2.6.12-rc5.orig/drivers/i2c/chips/lm63.c	2005-06-06 19:09:36.000000000 +0200
++++ linux-2.6.12-rc5/drivers/i2c/chips/lm63.c	2005-06-06 19:23:01.000000000 +0200
+@@ -43,7 +43,7 @@
+ #include <linux/jiffies.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-sensor.h>
+-#include <linux/i2c-sysfs.h>
++#include <linux/hwmon-sysfs.h>
+ 
+ /*
+  * Addresses to scan
+--- linux-2.6.12-rc5.orig/drivers/i2c/chips/lm83.c	2005-06-06 19:09:36.000000000 +0200
++++ linux-2.6.12-rc5/drivers/i2c/chips/lm83.c	2005-06-06 19:22:55.000000000 +0200
+@@ -33,7 +33,7 @@
+ #include <linux/jiffies.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-sensor.h>
+-#include <linux/i2c-sysfs.h>
++#include <linux/hwmon-sysfs.h>
+ 
+ /*
+  * Addresses to scan
+--- linux-2.6.12-rc5.orig/drivers/i2c/chips/lm90.c	2005-06-05 19:35:05.000000000 +0200
++++ linux-2.6.12-rc5/drivers/i2c/chips/lm90.c	2005-06-06 19:22:48.000000000 +0200
+@@ -76,7 +76,7 @@
+ #include <linux/jiffies.h>
+ #include <linux/i2c.h>
+ #include <linux/i2c-sensor.h>
+-#include <linux/i2c-sysfs.h>
++#include <linux/hwmon-sysfs.h>
+ 
+ /*
+  * Addresses to scan
+--- /dev/null	1970-01-01 00:00:00.000000000 +0000
++++ linux-2.6.12-rc5/include/linux/hwmon-sysfs.h	2005-06-06 19:21:02.000000000 +0200
+@@ -0,0 +1,37 @@
++/*
++ *  hwmon-sysfs.h - hardware monitoring chip driver sysfs defines
++ *
++ *  Copyright (C) 2005 Yani Ioannou <yani.ioannou@gmail.com>
++ *
++ *  This program is free software; you can redistribute it and/or modify
++ *  it under the terms of the GNU General Public License as published by
++ *  the Free Software Foundation; either version 2 of the License, or
++ *  (at your option) any later version.
++ *
++ *  This program is distributed in the hope that it will be useful,
++ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *  GNU General Public License for more details.
++ *
++ *  You should have received a copy of the GNU General Public License
++ *  along with this program; if not, write to the Free Software
++ *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ */
++#ifndef _LINUX_HWMON_SYSFS_H
++#define _LINUX_HWMON_SYSFS_H
++
++struct sensor_device_attribute{
++	struct device_attribute dev_attr;
++	int index;
++};
++
++#define to_sensor_dev_attr(_dev_attr) \
++container_of(_dev_attr, struct sensor_device_attribute, dev_attr)
++
++#define SENSOR_DEVICE_ATTR(_name,_mode,_show,_store,_index)	\
++struct sensor_device_attribute sensor_dev_attr_##_name = {	\
++	.dev_attr=__ATTR(_name,_mode,_show,_store),		\
++	.index=_index,						\
++}
++
++#endif /* _LINUX_HWMON_SYSFS_H */
+--- linux-2.6.12-rc5.orig/include/linux/i2c-sysfs.h	2005-06-05 10:53:57.000000000 +0200
++++ /dev/null	1970-01-01 00:00:00.000000000 +0000
+@@ -1,37 +0,0 @@
+-/*
+- *  i2c-sysfs.h - i2c chip driver sysfs defines
+- *
+- *  Copyright (C) 2005 Yani Ioannou <yani.ioannou@gmail.com>
+- *
+- *  This program is free software; you can redistribute it and/or modify
+- *  it under the terms of the GNU General Public License as published by
+- *  the Free Software Foundation; either version 2 of the License, or
+- *  (at your option) any later version.
+- *
+- *  This program is distributed in the hope that it will be useful,
+- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+- *  GNU General Public License for more details.
+- *
+- *  You should have received a copy of the GNU General Public License
+- *  along with this program; if not, write to the Free Software
+- *  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+- */
+-#ifndef _LINUX_I2C_SYSFS_H
+-#define _LINUX_I2C_SYSFS_H
+-
+-struct sensor_device_attribute{
+-	struct device_attribute dev_attr;
+-	int index;
+-};
+-
+-#define to_sensor_dev_attr(_dev_attr) \
+-container_of(_dev_attr, struct sensor_device_attribute, dev_attr)
+-
+-#define SENSOR_DEVICE_ATTR(_name,_mode,_show,_store,_index)	\
+-struct sensor_device_attribute sensor_dev_attr_##_name = {	\
+-	.dev_attr=__ATTR(_name,_mode,_show,_store),		\
+-	.index=_index,						\
+-}
+-
+-#endif /* _LINUX_I2C_SYSFS_H */
+
 
 -- 
+Jean Delvare

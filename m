@@ -1,45 +1,31 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261204AbVFFIb3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261227AbVFFIkQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261204AbVFFIb3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 04:31:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261220AbVFFIb2
+	id S261227AbVFFIkQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 04:40:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261229AbVFFIkQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 04:31:28 -0400
-Received: from mail4.worldserver.net ([217.13.200.24]:49892 "EHLO
-	mail4.worldserver.net") by vger.kernel.org with ESMTP
-	id S261204AbVFFIb1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 04:31:27 -0400
-Date: Mon, 6 Jun 2005 10:31:26 +0200
-From: Christian Leber <christian@leber.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Easy trick to reduce kernel footprint
-Message-ID: <20050606083126.GA11454@core.home>
-References: <20050605223528.GA13726@alpha.home.local> <20050606074745.GC24826@wohnheim.fh-wedel.de>
+	Mon, 6 Jun 2005 04:40:16 -0400
+Received: from mail.vkmb.at ([80.78.233.82]:43667 "HELO mail.vkmb.at")
+	by vger.kernel.org with SMTP id S261227AbVFFIkN convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 04:40:13 -0400
+Message-Id: <s2a42909.094@mail.vkmb.at>
+X-Mailer: Novell GroupWise 5.5.5
+Date: Mon, 06 Jun 2005 10:40:11 +0200
+From: "Wolfgang Empacher" <w.empacher@vkmb.at>
+To: <linux-kernel@vger.kernel.org>
+Subject: Kernel 2.4.31 - netdriver r8169
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20050606074745.GC24826@wohnheim.fh-wedel.de>
-X-Accept-Language: de en
-X-Location: Europe, Germany, Mannheim
-X-Operating-System: Debian GNU/Linux (sid)
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 06, 2005 at 09:47:45AM +0200, J?rn Engel wrote:
+hello guys,
 
-> Citeseer has never heard of that algorithm, top 10 google hits for
-> "LZMA compression algorithm" are completely uninformative.  Does
-> anyone actually know, what this algorithm is doing?
+in kernel 2.4.31 there is version 1.2 of r8169 driver in use. this version doesn't work well (RESETS of the device many and all the times). using version 1.6 of this driver performs smooth and well.
 
-Doesn't google have a searching howto or something?
+regards *.woolfi.com
 
-First hit:
-http://www.7-zip.org/sdk.html
-
-
-Christian Leber
-
--- 
-http://www.nosoftwarepatents.com
 

@@ -1,88 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261752AbVFFXWY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbVFFXZQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261752AbVFFXWY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 19:22:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261772AbVFFXVS
+	id S261772AbVFFXZQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 19:25:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVFFXW6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 19:21:18 -0400
-Received: from zproxy.gmail.com ([64.233.162.192]:62505 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261752AbVFFXUo (ORCPT
+	Mon, 6 Jun 2005 19:22:58 -0400
+Received: from [213.228.0.44] ([213.228.0.44]:19652 "EHLO postfix3-1.free.fr")
+	by vger.kernel.org with ESMTP id S261777AbVFFXVe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 19:20:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type;
-        b=Y7W4J0Wd0N1AEz3eq6pDYxYc4QZaP9TafbLObw18v1Xihr6S1X5BD/uV6+1MZ27/DFTaMxm/03AAj/HXMpdsKbrRlI4Y/KzK/McNmyrJwfbl3vyMokC31vNvEuoCPYU5lnXhXyN4g1JLZIEgc+qUv5lQ1x60Y2sEOJ8Nr2V0pXg=
-Message-ID: <9a874849050606162048ee149f@mail.gmail.com>
-Date: Tue, 7 Jun 2005 01:20:31 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: Eric Youngdale <ericy@cais.com>
-Subject: [PATCH] remove meaningless <0 comparison in binfmt_elf
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Mime-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_18613_2961871.1118100031160"
+	Mon, 6 Jun 2005 19:21:34 -0400
+Message-ID: <1118072623.42a46f2f472fd@imp1-q.free.fr>
+Date: Mon,  6 Jun 2005 17:43:43 +0200
+From: castet.matthieu@free.fr
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PNP parallel&serial ports: module reload fails (2.6.11)?
+References: <20050602222400.GA8083@mut38-1-82-67-62-65.fbx.proxad.net> <429FA1F3.9000001@tls.msk.ru> <42A2D37A.5050408@free.fr> <42A46551.9010707@tls.msk.ru>
+In-Reply-To: <42A46551.9010707@tls.msk.ru>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+User-Agent: Internet Messaging Program (IMP) 3.2.5
+X-Originating-IP: 82.67.62.65
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_18613_2961871.1118100031160
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi,
 
-'i' is clearly defined at the start of the function to be unsigned, so
-comparing it to be less than zero is meaningless.
-This patch removes the meaningless comparison.
+Selon Michael Tokarev <mjt@tls.msk.ru>:
 
-Since I'm away from home I can't use my usual pine to send the email,
-but have to use gmail, and I don't know how gmail will treat the
-inline patch, so I'm also attaching it.
+> matthieu castet wrote:
+> > Michael Tokarev wrote:
+> >
 
+> In other message, you wrote:
+>
+> > In your bios, which mode is your parport ?
+> >
+> > Could you try LPPR mode (or something like that ?)
+>
+> Are you referring to ECP, EPP, Bi-Di etc modes?
+> (note there's serial port too, which has exactly the same prob
+> with (re)loading the driver).
+>
+Yes, but I don't know which LPPR is : there is one mode that use 1 ioport and
+the other 2 ioports.
+Try EPP ?
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----=20
+> > Have you try the patches ?
+>
+> Yes, tried the patches you sent last friday - from
+> http://bugme.osdl.org/attachment.cgi?id=4504&action=view
+> and from your message in this thread with MSGID = 429FF17C.9080902@free.fr
+> (this last patch depends on the first).  Makes no (visible) difference
+> on HP ML 150 box, the same stuff is shown in dmesg, and on reload neither
+> parallel nor serial ports works.
+>
+> I'll try some more experiments later today (hopefully) when my co-workers
+> (who are using this box right now so I can't freely reboot it as I wish)
+> will go home... ;)
+>
+try to post
+ cat /sys/bus/pnp/drivers/parport_pc/*/{options,resources}
+and
+cat /sys/bus/pnp/drivers/serial/*/{options,resources}
 
- fs/binfmt_elf.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+> BTW, looks like 8250_pnp module is also somewhat strange.  When loading
+> 8250 alone, it detects (at least some) standard serial ports just fine,
+> and when loading 8250_pnp, the same port is being "re-detected" again.
+> But when unloading 8250_pnp, even when 8250 module is still loaded,
+> that only port is disabled.  Looks somewhat.. assimetric to me, without
+> counting issue with re-enabling of a pnp device.
+yes there something strange...
 
---- linux-2.6.12-rc6-orig/fs/binfmt_elf.c=092005-06-07 00:07:40.000000000 +=
-0200
-+++ linux-2.6.12-rc6/fs/binfmt_elf.c=092005-06-07 01:12:37.000000000 +0200
-@@ -1324,7 +1324,7 @@ static int fill_psinfo(struct elf_prpsin
-=20
- =09i =3D p->state ? ffz(~p->state) + 1 : 0;
- =09psinfo->pr_state =3D i;
--=09psinfo->pr_sname =3D (i < 0 || i > 5) ? '.' : "RSDTZW"[i];
-+=09psinfo->pr_sname =3D i > 5 ? '.' : "RSDTZW"[i];
- =09psinfo->pr_zomb =3D psinfo->pr_sname =3D=3D 'Z';
- =09psinfo->pr_nice =3D task_nice(p);
- =09psinfo->pr_flag =3D p->flags;
+Matthieu
 
-
-
---=20
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
-
-------=_Part_18613_2961871.1118100031160
-Content-Type: text/x-patch; 
-	name=binfmt_elf-unsigned-checked-for-less-than-zero.patch; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="binfmt_elf-unsigned-checked-for-less-than-zero.patch"
-
---- linux-2.6.12-rc6-orig/fs/binfmt_elf.c	2005-06-07 00:07:40.000000000 +0200
-+++ linux-2.6.12-rc6/fs/binfmt_elf.c	2005-06-07 01:12:37.000000000 +0200
-@@ -1324,7 +1324,7 @@ static int fill_psinfo(struct elf_prpsin
- 
- 	i = p->state ? ffz(~p->state) + 1 : 0;
- 	psinfo->pr_state = i;
--	psinfo->pr_sname = (i < 0 || i > 5) ? '.' : "RSDTZW"[i];
-+	psinfo->pr_sname = i > 5 ? '.' : "RSDTZW"[i];
- 	psinfo->pr_zomb = psinfo->pr_sname == 'Z';
- 	psinfo->pr_nice = task_nice(p);
- 	psinfo->pr_flag = p->flags;
-
-------=_Part_18613_2961871.1118100031160--

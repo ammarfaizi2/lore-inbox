@@ -1,39 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261526AbVFFSNS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261625AbVFFSRF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261526AbVFFSNS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 14:13:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261492AbVFFSNS
+	id S261625AbVFFSRF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 14:17:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261626AbVFFSRE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 14:13:18 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:25226 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261526AbVFFSLi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 14:11:38 -0400
-Date: Mon, 6 Jun 2005 20:08:13 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Wolfgang Empacher <w.empacher@vkmb.at>
-Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: Kernel 2.4.31 - netdriver r8169
-Message-ID: <20050606180813.GA29537@electric-eye.fr.zoreil.com>
-References: <s2a42909.094@mail.vkmb.at>
+	Mon, 6 Jun 2005 14:17:04 -0400
+Received: from mail.kroah.org ([69.55.234.183]:7147 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261625AbVFFSQj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 14:16:39 -0400
+Date: Mon, 6 Jun 2005 11:16:09 -0700
+From: Greg KH <greg@kroah.com>
+To: Abhay_Salunke@Dell.com
+Cc: marcel@holtmann.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Matt_Domsch@Dell.com
+Subject: Re: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new DellBIOS update driver
+Message-ID: <20050606181608.GA10988@kroah.com>
+References: <367215741E167A4CA813C8F12CE0143B3ED3AB@ausx2kmpc115.aus.amer.dell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <s2a42909.094@mail.vkmb.at>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+In-Reply-To: <367215741E167A4CA813C8F12CE0143B3ED3AB@ausx2kmpc115.aus.amer.dell.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wolfgang Empacher <w.empacher@vkmb.at> :
-[...]
-> in kernel 2.4.31 there is version 1.2 of r8169 driver in use. this version
-> doesn't work well (RESETS of the device many and all the times). using
-> version 1.6 of this driver performs smooth and well.
+On Mon, Jun 06, 2005 at 11:27:53AM -0500, Abhay_Salunke@Dell.com wrote:
+> > The firmware class creates a sysfs file.  That is what I am referring
+> to
+> > here.
+> > 
+> By doing a copy of the image to the sysfs file are we trying to do the
+> automatic actions done by the hotplug scripts manually?
 
-Where did you get your 1.6 version from ?
+Ok, it seems everyone is way confused here.  This is what I was thinking
+of when I suggested using the firmware code:
+	- module loads and registers with firmware core doing the
+	  "request_firmware_nowait" call.
+	- a hotplug event gets generated that everyone just ignores
+	  (because it isn't really a big deal.)
+	- At some point, the user copies the firmware to the sysfs file
+	  because they want to update their bios.
+	- the module is then told that firmware is present and it does
+	  something with it.
 
-(netdev added to Cc: as per the r8169 entry in the MAINTAINERS file)
+Note, that between step 2 and 3, it could be _days_ or _months_.  No
+need to touch any hotplug scripts at all.
 
---
-Ueimor
+Does this make more sense now?  It seems pretty simple to me...
+
+thanks,
+
+greg k-h

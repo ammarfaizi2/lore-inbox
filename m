@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261665AbVFFUFN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261676AbVFFUFN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261665AbVFFUFN (ORCPT <rfc822;willy@w.ods.org>);
+	id S261676AbVFFUFN (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 6 Jun 2005 16:05:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261673AbVFFUDz
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261670AbVFFUDn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 16:03:55 -0400
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:41342 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S261665AbVFFUBD convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 16:01:03 -0400
-X-IronPort-AV: i="3.93,174,1115010000"; 
-   d="scan'208"; a="269705859:sNHT59715500"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
+	Mon, 6 Jun 2005 16:03:43 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:64820 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261658AbVFFT5d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 15:57:33 -0400
+Date: Mon, 6 Jun 2005 20:57:57 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Christoph Lameter <clameter@sgi.com>, Shai Fultheim <shai@scalex86.org>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH 1/2] do_wp_page: cannot share file page
+Message-ID: <Pine.LNX.4.61.0506062055350.5000@goblin.wat.veritas.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new DellBIOS update driver
-Date: Mon, 6 Jun 2005 15:01:04 -0500
-Message-ID: <367215741E167A4CA813C8F12CE0143B3ED3AD@ausx2kmpc115.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new DellBIOS update driver
-Thread-Index: AcVqzSCVuB1Uaa09Rx6lq3YNiDMRGgAANvPg
-From: <Abhay_Salunke@Dell.com>
-To: <greg@kroah.com>
-Cc: <marcel@holtmann.org>, <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
-       <Matt_Domsch@Dell.com>
-X-OriginalArrivalTime: 06 Jun 2005 20:00:53.0659 (UTC) FILETIME=[71E756B0:01C56AD2]
+Content-Type: text/plain; charset="us-ascii"
+X-OriginalArrivalTime: 06 Jun 2005 19:56:57.0207 (UTC) 
+    FILETIME=[E4F7A070:01C56AD1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Ok, in re-reading the firmware code, you are correct, it will still
-> timeout in 10 seconds and call your callback.
-> 
-> Which, in my opinion, is wrong.  We should have some way to say "wait
-> forever".  Care to change the firmware_class.c code to support this?
-Will give it a try. So far the request_firmware code calls
-kobject_hotplug with action as KOBJ_ADD. It invokes a hotplug script
-form user mode. I guess we need to have some reverse mechanism which is
-invoked when a user writes to the file.
-> 
-> I was assuming that this would wait forever, and is why I pointed you
-in
-> this direction.  Sorry about the confusion here.
-> 
-I guess the earlier method of request_firmware would work out as is with
-the only disadvantage of the user having to depend on hotplug mechanism
-and echoing firmware name.
-Let me know if that is acceptable till we find a solution to wait for
-ever without using hotplug stuff.
+A small optimization to do_wp_page's check for whether to avoid copy by
+reusing the page already mapped.  It can never share a cached file page,
+nor can it share a reserved page (often the empty zero page), so it's a
+waste of time to lock and unlock in those cases.  Which nowadays can
+both be neatly excluded by a preliminary PageAnon test.
 
-Thanks
-Abhay
+Christoph has reported that a preliminary page_count test proved valuable
+for scalability here, but PageAnon covers more common cases all at once.
+
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
+
+ mm/memory.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+--- 2.6.12-rc6/mm/memory.c	2005-05-25 18:09:21.000000000 +0100
++++ linux/mm/memory.c	2005-06-04 20:41:55.000000000 +0100
+@@ -1264,7 +1264,7 @@ static int do_wp_page(struct mm_struct *
+ 	}
+ 	old_page = pfn_to_page(pfn);
+ 
+-	if (!TestSetPageLocked(old_page)) {
++	if (PageAnon(old_page) && !TestSetPageLocked(old_page)) {
+ 		int reuse = can_share_swap_page(old_page);
+ 		unlock_page(old_page);
+ 		if (reuse) {

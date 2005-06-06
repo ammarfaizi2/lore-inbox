@@ -1,77 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbVFFXZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVFFXaY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261772AbVFFXZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 19:25:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261654AbVFFXW6
+	id S261777AbVFFXaY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 19:30:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261724AbVFFXTp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 19:22:58 -0400
-Received: from [213.228.0.44] ([213.228.0.44]:19652 "EHLO postfix3-1.free.fr")
-	by vger.kernel.org with ESMTP id S261777AbVFFXVe (ORCPT
+	Mon, 6 Jun 2005 19:19:45 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:30154 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261749AbVFFXIp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 19:21:34 -0400
-Message-ID: <1118072623.42a46f2f472fd@imp1-q.free.fr>
-Date: Mon,  6 Jun 2005 17:43:43 +0200
-From: castet.matthieu@free.fr
-To: Michael Tokarev <mjt@tls.msk.ru>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PNP parallel&serial ports: module reload fails (2.6.11)?
-References: <20050602222400.GA8083@mut38-1-82-67-62-65.fbx.proxad.net> <429FA1F3.9000001@tls.msk.ru> <42A2D37A.5050408@free.fr> <42A46551.9010707@tls.msk.ru>
-In-Reply-To: <42A46551.9010707@tls.msk.ru>
+	Mon, 6 Jun 2005 19:08:45 -0400
+Message-ID: <42A4D771.7080400@pobox.com>
+Date: Mon, 06 Jun 2005 19:08:33 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.5
-X-Originating-IP: 82.67.62.65
+To: Greg KH <gregkh@suse.de>
+CC: "David S. Miller" <davem@davemloft.net>, tom.l.nguyen@intel.com,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       roland@topspin.com
+Subject: Re: pci_enable_msi() for everyone?
+References: <20050603224551.GA10014@kroah.com> <20050605.124612.63111065.davem@davemloft.net> <20050606225548.GA11184@suse.de>
+In-Reply-To: <20050606225548.GA11184@suse.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Greg KH wrote:
+> Why would it matter?  The driver shouldn't care if the interrupts come
+> in via the standard interrupt way, or through MSI, right?  And if it
 
-Selon Michael Tokarev <mjt@tls.msk.ru>:
+It matters.
 
-> matthieu castet wrote:
-> > Michael Tokarev wrote:
-> >
+Not only the differences DaveM mentioned, but also simply that you may 
+assume your interrupt is not shared with anyone else.
 
-> In other message, you wrote:
->
-> > In your bios, which mode is your parport ?
-> >
-> > Could you try LPPR mode (or something like that ?)
->
-> Are you referring to ECP, EPP, Bi-Di etc modes?
-> (note there's serial port too, which has exactly the same prob
-> with (re)loading the driver).
->
-Yes, but I don't know which LPPR is : there is one mode that use 1 ioport and
-the other 2 ioports.
-Try EPP ?
+	Jeff
 
-> > Have you try the patches ?
->
-> Yes, tried the patches you sent last friday - from
-> http://bugme.osdl.org/attachment.cgi?id=4504&action=view
-> and from your message in this thread with MSGID = 429FF17C.9080902@free.fr
-> (this last patch depends on the first).  Makes no (visible) difference
-> on HP ML 150 box, the same stuff is shown in dmesg, and on reload neither
-> parallel nor serial ports works.
->
-> I'll try some more experiments later today (hopefully) when my co-workers
-> (who are using this box right now so I can't freely reboot it as I wish)
-> will go home... ;)
->
-try to post
- cat /sys/bus/pnp/drivers/parport_pc/*/{options,resources}
-and
-cat /sys/bus/pnp/drivers/serial/*/{options,resources}
 
-> BTW, looks like 8250_pnp module is also somewhat strange.  When loading
-> 8250 alone, it detects (at least some) standard serial ports just fine,
-> and when loading 8250_pnp, the same port is being "re-detected" again.
-> But when unloading 8250_pnp, even when 8250 module is still loaded,
-> that only port is disabled.  Looks somewhat.. assimetric to me, without
-> counting issue with re-enabling of a pnp device.
-yes there something strange...
-
-Matthieu
 

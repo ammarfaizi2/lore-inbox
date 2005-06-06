@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261426AbVFFNfZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261409AbVFFNm4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261426AbVFFNfZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 09:35:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261409AbVFFNfY
+	id S261409AbVFFNm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 09:42:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261414AbVFFNm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 09:35:24 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:49108 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261426AbVFFNdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 09:33:47 -0400
-Subject: RE: Stable 2.6.x.y kernel series...
-From: Arjan van de Ven <arjan@infradead.org>
-To: szonyi calin <caszonyi@yahoo.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, stable@kernel.org
-In-Reply-To: <20050606132550.59940.qmail@web52909.mail.yahoo.com>
-References: <20050606132550.59940.qmail@web52909.mail.yahoo.com>
-Content-Type: text/plain
-Date: Mon, 06 Jun 2005 15:33:33 +0200
-Message-Id: <1118064814.5652.33.camel@laptopd505.fenrus.org>
+	Mon, 6 Jun 2005 09:42:56 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:1189 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261409AbVFFNmy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 09:42:54 -0400
+Date: Mon, 6 Jun 2005 15:42:53 +0200
+From: Jan Kara <jack@suse.cz>
+To: Holger Kiehl <Holger.Kiehl@dwd.de>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.11.11 Assertion failure in journal_commit_transaction()
+Message-ID: <20050606134253.GB2130@atrey.karlin.mff.cuni.cz>
+References: <Pine.LNX.4.61.0506041304350.32405@diagnostix.dwd.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0506041304350.32405@diagnostix.dwd.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+  Hello,
 
-> They are making some people believe in word "stable" ;-)
-> It would be nice if they will be real stable (i.e. more fixes to
-> the kernel tree).
+> On a busy server (dual Xeon with 4GB ram) running plain 2.6.11.11 form
+> kernel.org (distribution is Fedora Core 2) I got the following error:
+> 
+> Jun  4 11:40:55 apollo kernel: Assertion failure in 
+> journal_commit_transaction() at fs/jbd/commit.c:768: 
+> "jh->b_next_transaction == ((void *)0)"
+> Jun  4 11:40:55 apollo kernel: ------------[ cut here ]------------
+> Jun  4 11:40:55 apollo kernel: kernel BUG at fs/jbd/commit.c:768!
+> Jun  4 11:40:55 apollo kernel: invalid operand: 0000 [#1]
+> Jun  4 11:45:07 apollo syslogd 1.4.1: restart.
+> 
+> The system bootet automatically, from the ipmi motherboard logs I can see
+> that the hardware watchdog has reset the system at 11:42:55.
+> It's using an ext3 on top of a software raid10 (three raid1 combined with
+> raid0 over 6 SCSI disks). None of the software raids needed to rebuild after
+> the crash.
+> 
+> Any idea why the kernel stopped? The system has been running stable for a
+> year now.
+  The kernel stopped because it detected a disk buffer in an unexpected
+state. 2.6.12-rc5 kernel should contain some more fixes than 2.6.11.11
+for similar problems so you can try that kernel. If you are able to see
+the same problem with 2.6.12-rc5 then let us know please.
 
+						Thanks for report
+								Honza
 
-this is a built in contradiction. to get more stable you want less
-patches (at least you want to be VERY careful with which kinds of
-patches you put in, which comes down to "less" generally)
-
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

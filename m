@@ -1,111 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261642AbVFFTwX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261650AbVFFT4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261642AbVFFTwX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 15:52:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVFFTt7
+	id S261650AbVFFT4f (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 15:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261639AbVFFTxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 15:49:59 -0400
-Received: from mailhost.somanetworks.com ([216.126.67.42]:60579 "EHLO
-	mail.somanetworks.com") by vger.kernel.org with ESMTP
-	id S261642AbVFFTsQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 15:48:16 -0400
-Date: Mon, 6 Jun 2005 15:48:04 -0400 (EDT)
-From: Scott Murray <scottm@somanetworks.com>
-X-X-Sender: scottm@rancor.yyz.somanetworks.com
-To: Greg K-H <greg@kroah.com>
-cc: Prarit Bhargava <prarit@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [PATCH] PCI Hotplug: more CPCI updates
-In-Reply-To: <Pine.LNX.4.58.0506012257120.32742@rancor.yyz.somanetworks.com>
-Message-ID: <Pine.LNX.4.58.0506061539380.19525@rancor.yyz.somanetworks.com>
-References: <11176025242587@kroah.com> <429E71CB.3010609@sgi.com>
- <429E7304.3060702@sgi.com> <Pine.LNX.4.58.0506012257120.32742@rancor.yyz.somanetworks.com>
+	Mon, 6 Jun 2005 15:53:10 -0400
+Received: from bay-bridge.veritas.com ([143.127.3.10]:51926 "EHLO
+	MTVMIME03.enterprise.veritas.com") by vger.kernel.org with ESMTP
+	id S261650AbVFFTvX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 15:51:23 -0400
+Date: Mon, 6 Jun 2005 20:52:22 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@goblin.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Nikita Danilov <nikita@clusterfs.com>, linux-kernel@vger.kernel.org
+Subject: [PATCH] bad_page: clear reclaim and slab
+Message-ID: <Pine.LNX.4.61.0506062051100.5000@goblin.wat.veritas.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset="us-ascii"
+X-OriginalArrivalTime: 06 Jun 2005 19:51:21.0980 (UTC) 
+    FILETIME=[1D280BC0:01C56AD1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 1 Jun 2005, Scott Murray wrote:
+Since free_pages_check complains if PG_reclaim or PG_slab is set, bad_page
+ought to clear them to avoid repetitive reports (Nikita noticed this too).
+Let prep_new_page check page_count and PG_slab as free_pages_check does.
 
-> On Wed, 1 Jun 2005, Prarit Bhargava wrote:
-> 
-> > Prarit Bhargava wrote:
-> > > Greg KH wrote:
-> > > 
-> > >> [PATCH] PCI Hotplug: more CPCI updates
-> > > 
-> > > 
-> > >> - Switch to pci_get_slot instead of deprecated pci_find_slot.
-> > >> - A bunch of CodingStyle fixes.
-> > > 
-> > > 
-> > >> -            }
-> > >> +        dev = pci_get_slot(slot->bus, PCI_DEVFN(slot->number, 0));
-> > >> +        if (dev) {
-> > >> +            if (update_adapter_status(slot->hotplug_slot, 1))
-> > >> +                warn("failure to update adapter file");
-> > >> +            if (update_latch_status(slot->hotplug_slot, 1))
-> > >> +                warn("failure to update latch file");
-> > >> +            slot->dev = dev;
-> > >>          }
-> > >>      }
-> > > 
-> > > 
-> > > I don't claim to know the code as well as Scott or Greg does, but I 
-> > > don't see a pci_put_dev for the slot->dev to clean up the usage count?
-> > 
-> > s/pci_put_dev/pci_dev_put/g
-> 
-> Sorry Prarit, when you suggested I switch over to pci_get_slot in your 
-> previous comments to me, I didn't look that closely and missed the 
-> reference counting.  Greg, I think the required fix is just a couple of 
-> lines in my hotplug slot release function, I'll code it up and test it 
-> ASAP tomorrow with an eye on getting a patch off by early afternoon EDT.
+Signed-off-by: Hugh Dickins <hugh@veritas.com>
+---
 
-Greg, sorry for the delay, here's a patch that fixes up the pci_dev 
-refcounting in the CPCI code.  I've done some testing against it and it 
-seems fine here.
+ mm/page_alloc.c |   15 ++++++++++-----
+ 1 files changed, 10 insertions(+), 5 deletions(-)
 
- cpci_hotplug_core.c |    2 ++
- cpci_hotplug_pci.c  |    5 ++++-
- 2 files changed, 6 insertions(+), 1 deletion(-)
-
-Signed-Off-By: scottm@somanetworks.com
-
-diff -Nur --exclude=RCS --exclude=CVS --exclude=SCCS --exclude=BitKeeper --exclude=ChangeSet --exclude=SOMA linux-2.6/drivers/pci/hotplug/cpci_hotplug_core.c linux-2.6-cpci/drivers/pci/hotplug/cpci_hotplug_core.c
---- linux-2.6/drivers/pci/hotplug/cpci_hotplug_core.c	2005-06-02 15:10:19.000000000 -0400
-+++ linux-2.6-cpci/drivers/pci/hotplug/cpci_hotplug_core.c	2005-06-02 15:18:40.000000000 -0400
-@@ -217,6 +217,8 @@
- 	kfree(slot->hotplug_slot->info);
- 	kfree(slot->hotplug_slot->name);
- 	kfree(slot->hotplug_slot);
-+	if (slot->dev)
-+		pci_dev_put(slot->dev);
- 	kfree(slot);
- }
- 
-diff -Nur --exclude=RCS --exclude=CVS --exclude=SCCS --exclude=BitKeeper --exclude=ChangeSet --exclude=SOMA linux-2.6/drivers/pci/hotplug/cpci_hotplug_pci.c linux-2.6-cpci/drivers/pci/hotplug/cpci_hotplug_pci.c
---- linux-2.6/drivers/pci/hotplug/cpci_hotplug_pci.c	2005-06-02 15:10:19.000000000 -0400
-+++ linux-2.6-cpci/drivers/pci/hotplug/cpci_hotplug_pci.c	2005-06-02 15:22:12.000000000 -0400
-@@ -315,9 +315,12 @@
- 				    PCI_DEVFN(PCI_SLOT(slot->devfn), i));
- 		if (dev) {
- 			pci_remove_bus_device(dev);
--			slot->dev = NULL;
-+			pci_dev_put(dev);
- 		}
- 	}
-+	pci_dev_put(slot->dev);
-+	slot->dev = NULL;
-+
- 	dbg("%s - exit", __FUNCTION__);
- 	return 0;
- }
-
-
--- 
-Scott Murray
-SOMA Networks, Inc.
-Toronto, Ontario
-e-mail: scottm@somanetworks.com
+--- 2.6.12-rc6/mm/page_alloc.c	2005-05-25 18:09:21.000000000 +0100
++++ linux/mm/page_alloc.c	2005-06-04 20:41:55.000000000 +0100
+@@ -105,11 +105,13 @@ static void bad_page(const char *functio
+ 	printk(KERN_EMERG "Backtrace:\n");
+ 	dump_stack();
+ 	printk(KERN_EMERG "Trying to fix it up, but a reboot is needed\n");
+-	page->flags &= ~(1 << PG_private	|
++	page->flags &= ~(1 << PG_lru	|
++			1 << PG_private |
+ 			1 << PG_locked	|
+-			1 << PG_lru	|
+ 			1 << PG_active	|
+ 			1 << PG_dirty	|
++			1 << PG_reclaim |
++			1 << PG_slab    |
+ 			1 << PG_swapcache |
+ 			1 << PG_writeback);
+ 	set_page_count(page, 0);
+@@ -440,14 +442,17 @@ void set_page_refs(struct page *page, in
+  */
+ static void prep_new_page(struct page *page, int order)
+ {
+-	if (page->mapping || page_mapcount(page) ||
+-	    (page->flags & (
++	if (	page_mapcount(page) ||
++		page->mapping != NULL ||
++		page_count(page) != 0 ||
++		(page->flags & (
++			1 << PG_lru	|
+ 			1 << PG_private	|
+ 			1 << PG_locked	|
+-			1 << PG_lru	|
+ 			1 << PG_active	|
+ 			1 << PG_dirty	|
+ 			1 << PG_reclaim	|
++			1 << PG_slab    |
+ 			1 << PG_swapcache |
+ 			1 << PG_writeback )))
+ 		bad_page(__FUNCTION__, page);

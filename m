@@ -1,88 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbVFFXrZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbVFFXnD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261724AbVFFXrZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 19:47:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261720AbVFFXpF
+	id S261781AbVFFXnD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 19:43:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261770AbVFFXSc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 19:45:05 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:41856 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S261738AbVFFXoX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 19:44:23 -0400
-Date: Mon, 6 Jun 2005 15:43:26 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ashok Raj <ashok.raj@intel.com>, linux-kernel@vger.kernel.org,
-       zwane@arm.linux.org.uk, vatsa@in.ibm.com, discuss@x86-64.org,
-       rusty@rustycorp.com.au
-Subject: Re: [patch 2/5] try2: x86_64: CPU hotplug support.
-Message-ID: <20050606154325.A18480@unix-os.sc.intel.com>
-References: <20050606191433.104273000@araj-em64t> <20050606192113.044405000@araj-em64t> <20050606151156.7b26167f.akpm@osdl.org>
+	Mon, 6 Jun 2005 19:18:32 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:45654 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261269AbVFFW6d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 18:58:33 -0400
+Date: Mon, 6 Jun 2005 15:58:26 -0700
+From: Greg KH <gregkh@suse.de>
+To: Roland Dreier <roland@topspin.com>
+Cc: tom.l.nguyen@intel.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, davem@davemloft.net
+Subject: Re: pci_enable_msi() for everyone?
+Message-ID: <20050606225826.GB11184@suse.de>
+References: <20050603224551.GA10014@kroah.com> <524qcft3m6.fsf@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050606151156.7b26167f.akpm@osdl.org>; from akpm@osdl.org on Mon, Jun 06, 2005 at 03:11:56PM -0700
+In-Reply-To: <524qcft3m6.fsf@topspin.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 06, 2005 at 03:11:56PM -0700, Andrew Morton wrote:
-> Ashok Raj <ashok.raj@intel.com> wrote:
-> >
-> > Experimental CPU hotplug patch for x86_64
+On Fri, Jun 03, 2005 at 04:36:17PM -0700, Roland Dreier wrote:
+>     Greg> In talking with a few people about the MSI kernel code, they
+>     Greg> asked why we can't just do the pci_enable_msi() call for
+>     Greg> every pci device in the system (at somewhere like
+>     Greg> pci_enable_device() time or so).  That would let all drivers
+>     Greg> and devices get the MSI functionality without changing their
+>     Greg> code, and probably make the api a whole lot simpler.
 > 
-> What does "experimental" mean?
-
-Well, stictly since these sections are still under CONFIG_EXPERIMENTAL
-in arch/x86_64/Kconfig. Evolving... ? 
-
+>     Greg> Now I know the e1000 driver would have to specifically
+>     Greg> disable MSI for some of their broken versions, and possibly
+>     Greg> some other drivers might need this, but the downside seems
+>     Greg> quite small.
 > 
-> > +
-> > +	if (!keventd_up() || current_is_keventd())
-> > +		work.func(work.data);
-> > +	else {
-> > +		schedule_work(&work);
-> > +		wait_for_completion(&c_idle.done);
-> > +	}
-> 
-> This shouldn't be diddling with workqueue internals.  Why is this code
-> here?  If the workqueue API is inadequate then we should prefer to extend
-> it rather than working around any shortcoming.
+> This was discussed the first time around when MSI patches were first
+> posted, and the consensus then was that it should be an "opt in"
+> system for drivers.  However, perhaps things has matured enough now
+> with PCI Express catching on, etc.
 
-This has been around for ages.. even in ia64 code. For forking idle threads
-we want to do them in clean state so we dont acquire state from threads
-from where the cpu_up is being invoked. Hence we want them to start from
-keventd() threads. But when system boot is happening, there is no keventd()
-yet, hence we need to create them right away.
+Yeah, that's what I'm trying to find out.
 
-the other problem we ran into was ACPI code that handles physical cpu hotplug
-also queues to keventd(), this becomes permanently blocking when called from
-code already running in kevend(). 
+> I think the number of devices truly compliant with the MSI spec is
+> quite tiny.  Probably just about every driver for a device that
+> actually has an MSI capability in its PCI header will need code to
+> work around some breakage, or will just end up disabling MSI entirely
+> because it never works.  Also I don't know how many PCI host bridges
+> implement MSI correctly.  For example we have a quirk for AMD 8131,
+> but who knows how many other chipsets are broken (and some bugs may be
+> much more subtle than the way the AMD 8131 breaks, which is to never
+> deliver interrupts).
 
-> > +		Dprintk ("do_boot_cpu %d Already started\n", cpu);
-> 
-> Please try to adopt a consistent coding style.
+Motherboard quirks are one thing.  Broken devices are a totally
+different thing.  If there are too many of them, then the current
+situation is acceptable to me.  Does ib have devices that will break
+with MSI?
 
-I was actually trying to be consistent :-), rest of the debug code 
-was under Dprintk() hence didnt want to use a new style. Not sure
-what you need here exactly. Do you want to convert the rest of the code to 
-not use Dprintk()? or just leave this with a printk? I dont have a 
-particular preference here... i would rather leave it with Dprintk() as the
-rest of the debug code.
-> 
-> Using printk("%s", __FUNCTION__); is preferred, as it will still work if
-> someone later refactors this code into a new function.  (It can increase
-> code size.  Or decrease it if the string gets shared.  But that's moot if
-> the code is inside a normally-disabled macro like Dprintk.  Whatever that
-> is.)
-> 
-> > +static void
-> > +remove_siblinginfo(int cpu)
-> 
-> Unneeded newline here.
+> Also, there needs to be a way for drivers to ask for multiple MSI-X
+> vectors.  For example the mthca InfiniBand driver gets a nice
+> performance boost by using separate interrupts for different types of
+> events.  I'm also planning on adding support for having one completion
+> interrupt per CPU, to help SMP scalability.
 
-I can remove.. when iam inside the file, iam used to search for fn;s from 
-start of line.. no biggie.. can revert.
+In looking at that, I don't see a way to get rid of the msix stuff.  So
+that's probably just going to stay the same.
 
-Cheers,
-ashok
+thanks,
+
+greg k-h

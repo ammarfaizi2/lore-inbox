@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261672AbVFFUhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261651AbVFFUiJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261672AbVFFUhX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 16:37:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbVFFUhW
+	id S261651AbVFFUiJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 16:38:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261679AbVFFUhy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 16:37:22 -0400
-Received: from mail.kroah.org ([69.55.234.183]:15029 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261672AbVFFUfn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 16:35:43 -0400
-Date: Mon, 6 Jun 2005 13:35:29 -0700
-From: Greg KH <greg@kroah.com>
-To: Abhay_Salunke@Dell.com
-Cc: marcel@holtmann.org, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Matt_Domsch@Dell.com
-Subject: Re: [patch 2.6.12-rc3] dell_rbu: Resubmitting patch for new DellBIOS update driver
-Message-ID: <20050606203528.GA9205@kroah.com>
-References: <367215741E167A4CA813C8F12CE0143B3ED3AE@ausx2kmpc115.aus.amer.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <367215741E167A4CA813C8F12CE0143B3ED3AE@ausx2kmpc115.aus.amer.dell.com>
-User-Agent: Mutt/1.5.8i
+	Mon, 6 Jun 2005 16:37:54 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:18327 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261651AbVFFUgz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 16:36:55 -0400
+Date: Mon, 6 Jun 2005 15:36:39 -0500 (CDT)
+From: Brent Casavant <bcasavan@sgi.com>
+Reply-To: Brent Casavant <bcasavan@sgi.com>
+To: Hugh Dickins <hugh@veritas.com>
+cc: Andrew Morton <akpm@osdl.org>, Christoph Rohland <cr@sap.com>,
+       Robin Holt <holt@sgi.com>, "Adam J. Richter" <adam@yggdrasil.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] shmem: restore superblock info
+In-Reply-To: <Pine.LNX.4.61.0506062122500.5122@goblin.wat.veritas.com>
+Message-ID: <20050606153515.H19925@chenjesu.americas.sgi.com>
+References: <Pine.LNX.4.61.0506062043470.5000@goblin.wat.veritas.com>    
+ <20050606150742.F19925@chenjesu.americas.sgi.com>
+ <Pine.LNX.4.61.0506062122500.5122@goblin.wat.veritas.com>
+Organization: "Silicon Graphics, Inc."
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 06, 2005 at 03:22:45PM -0500, Abhay_Salunke@Dell.com wrote:
-> > > > I was assuming that this would wait forever, and is why I pointed you in
-> > > > this direction.  Sorry about the confusion here.
-> > > >
-> > > I guess the earlier method of request_firmware would work out as is with
-> > > the only disadvantage of the user having to depend on hotplug mechanism
-> > > and echoing firmware name.
-> > > Let me know if that is acceptable till we find a solution to wait for
-> > > ever without using hotplug stuff.
+On Mon, 6 Jun 2005, Hugh Dickins wrote:
+
+> On Mon, 6 Jun 2005, Brent Casavant wrote:
+> > On Mon, 6 Jun 2005, Hugh Dickins wrote:
 > > 
-> > Why not fix the firmware_class.c code now?  :)
+> > > @@ -1607,15 +1582,17 @@ static int shmem_statfs(struct super_blo
+> > > -	if (sbinfo) {
+> > > -		spin_lock(&sbinfo->stat_lock);
+> > > +	spin_lock(&sbinfo->stat_lock);
+> ...
 > > 
-> I can sure submit a patch later but for now please accept it in the
-> tree. 
+> > This is the only change I'm at all concerned about.
+> 
+> Thanks for noticing, I hadn't really considered that.
+> 
+> > I'm not sure how frequent statfs operations occur in practice (I suspect
+> > infrequently),
+> 
+> Infrequently, yes.  I think infrequently to the point of never in
+> the case that concerns you: correct if I'm wrong, someone, but I think
+> there's actually no handle by which user can statfs shm's internal mount.
 
-Heh, um, no.
+Ah, that's an even better point, which I had failed to consider.  Consider
+my concerns duly nullified. :)
 
-> Due to scheduling issues it may not be possible for me to fix this now.
+Thanks for CC'ing me on the change.
 
-Please realize that we do not know, nor care about your scheduling
-issues :)
+Brent
 
-For more details on "things you should never say on the Linux kernel
-mailing list", see Randy Dunlap's very good presentation on kernel
-development at:
-	http://www.madrone.org/mentor/linux-mentoring.pdf
-
-thanks,
-
-greg k-h
+-- 
+Brent Casavant                          If you had nothing to fear,
+bcasavan@sgi.com                        how then could you be brave?
+Silicon Graphics, Inc.                    -- Queen Dama, Source Wars

@@ -1,51 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261968AbVFGTZH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbVFGT1o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261968AbVFGTZH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 15:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbVFGTZH
+	id S261969AbVFGT1o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 15:27:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbVFGT1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 15:25:07 -0400
-Received: from fire.osdl.org ([65.172.181.4]:57735 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261966AbVFGTYx (ORCPT
+	Tue, 7 Jun 2005 15:27:44 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:49870 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261969AbVFGT12 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 15:24:53 -0400
-Date: Tue, 7 Jun 2005 12:24:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, ak@muc.de
-Subject: Re: 2.6.12?
-Message-Id: <20050607122422.612759e4.akpm@osdl.org>
-In-Reply-To: <971250000.1118168167@flay>
-References: <42A0D88E.7070406@pobox.com>
-	<20050603163843.1cf5045d.akpm@osdl.org>
-	<394120000.1117895039@[10.10.2.4]>
-	<20050604151120.46b51901.akpm@osdl.org>
-	<418760000.1117983740@[10.10.2.4]>
-	<971250000.1118168167@flay>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 7 Jun 2005 15:27:28 -0400
+Message-ID: <42A5F51B.5060909@pobox.com>
+Date: Tue, 07 Jun 2005 15:27:23 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.12-rc6-mm1 & Chelsio driver
+References: <20050607181300.GL2369@mail.muni.cz> <42A5EC7C.4020202@pobox.com> <20050607185845.GM2369@mail.muni.cz>
+In-Reply-To: <20050607185845.GM2369@mail.muni.cz>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@mbligh.org> wrote:
->
-> > --Andrew Morton <akpm@osdl.org> wrote (on Saturday, June 04, 2005 15:11:20 -0700):
-> > 
-> >> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
-> >>> 
-> >>> The one that worries me is that my x86_64 box won't boot since -rc3
-> >>>  See:
-> >>> 
-> >>>  http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/regression_matrix.html
+Lukas Hejtmanek wrote:
+> On Tue, Jun 07, 2005 at 02:50:36PM -0400, Jeff Garzik wrote:
 > 
-> HA. Found it. binary search reveals it's patch 182 out of 2.6.12-rc2-mm2.
-> And the winner is .... <drum roll please> ....
+>>>should chelsio 10GE driver work in this kernel? If I do modprobe cxgb, 
+>>>then it
+>>>silently returns. No messages in log (dmesg) nor terminal and no new ethX 
+>>>device is discoverred.
+>>
+>>I suppose you have Chelsio hardware?
 > 
-> x86_64-use-the-e820-hole-to-map-the-iommu-agp-aperture.patch
 > 
+> Yes :) 
+> 
+> Bus  2, device   3, function  0:
+>     Ethernet controller: PCI device 1425:0006 (ASIC Designers Inc) (rev 0).
+>       IRQ 24.
+>       Master Capable.  Latency=248.  
+>       Non-prefetchable 64 bit memory at 0xf6042000 [0xf6042fff].
+> 
+> 
+> kernel 2.6.6 and driver from web site:
+> Chelsio TOE Network Driver - version 2.1.0
+> eth0: Chelsio T110 1x10GBaseX TOE (rev 1), PCIX 100MHz/64-bit
+> eth0: 512MB SDRAM, 128MB FCRAM
 
-hrm.  No useful messages in dmesg?
+I can't help much beyond this then :(  There should be Chelsio email 
+addresses in the driver...
 
-Andi, do we revert it?
+	Jeff
+
+

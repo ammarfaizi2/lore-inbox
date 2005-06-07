@@ -1,73 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVFGL4p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbVFGMGe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261835AbVFGL4p (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 07:56:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261839AbVFGL4p
+	id S261839AbVFGMGe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 08:06:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261841AbVFGMGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 07:56:45 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:31617 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S261835AbVFGL4m
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 07:56:42 -0400
-Message-ID: <1118145394.42a58b728a15a@imap.linux.ibm.com>
-Date: Tue,  7 Jun 2005 07:56:34 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: greg@kroah.com, linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       Morton Andrew Morton <akpm@osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Bodo Eggert <7eggert@gmx.de>, Dipankar Sarma <dipankar@in.ibm.com>,
-       stern@rowland.harvard.edu, awilliam@fc.hp.com, bjorn.helgaas@hp.com
-Subject: Re: [RFC/PATCH] Kdump: Disabling PCI interrupts in capture kernel
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.7
-X-Originating-IP: 9.184.230.205
+	Tue, 7 Jun 2005 08:06:34 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:17128 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261839AbVFGMGa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 08:06:30 -0400
+Date: Tue, 7 Jun 2005 14:05:51 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.47-20
+Message-ID: <20050607120551.GA26481@elte.hu>
+References: <20050607110409.GA14613@elte.hu> <42A58A3A.4080002@stud.feec.vutbr.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42A58A3A.4080002@stud.feec.vutbr.cz>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Grant Grundler <grundler@parisc-linux.org>:
 
-> On Mon, Jun 06, 2005 at 11:07:17PM -0400, Vivek Goyal wrote:
-> >   So even if interrupts are disabled on PCI-PCI bridge, interrupts
-> generated
-> >   by PCI devices on secondary bus are not blocked and I hope device
-> should
-> >   be working fine.
+* Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
+
+> Ingo Molnar wrote:
+> >i have released the -V0.7.47-20 Real-Time Preemption patch, which can be 
+> >downloaded from the usual place:
 > 
-> How did you plan on disabling interrupts?
-> Did you see the MSI discussion that going on now in linux-pci mailing list?
+> It doesn't build with CONFIG_RT_DEADLOCK_DETECT:
+>    CC      arch/i386/kernel/cpu/mtrr/main.o
+> arch/i386/kernel/cpu/mtrr/main.c:52: error: syntax error at '#' token
+> arch/i386/kernel/cpu/mtrr/main.c:52: error: `lockname' undeclared here 
 
-I am following the discussion now. Thanks. 
+thanks, applied and i have released the -25 patch with this fix 
+includes.
 
-I am planning to disable only leagacy shared interrupts (irq pin assertion/INTx
-emulation) because shared interrupts are a problem. MSI are
-not shared but I am not sure can they lead to any other problem.
-
-> 
-> > But at the same time kdump kernels are not supposed to
-> > do a great deal except capture and save the dump.
-> 
-> I'd think you want to stop DMA for all devices.
-> Just to prevent them from messing more with memory
-> that you want to dump - ie get a consistent snapshot.
-> Leaving VGA devices alone should be safe.
-> 
-
-May be at some point of time. 
-
-> > Disabling interrupts at PCI level should increase the reliability of
-> capturing
-> > the dump on newer machines with hardware compliant with PCI 2.3 or higher.
-> 
-> 
-> *lots* of PCI devices predate PCI2.3. Possibly even the majority.
-
-
-Ya, Some other solution is needed for hardware predating PCI2.3. May be Eric's
-suggestion of polling the hardware.
-
-Thanks
-Vivek
+	Ingo

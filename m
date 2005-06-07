@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262011AbVFGWQ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262013AbVFGWRW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262011AbVFGWQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 18:16:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbVFGWQ6
+	id S262013AbVFGWRW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 18:17:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262012AbVFGWRW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 18:16:58 -0400
-Received: from titan.genwebhost.com ([209.9.226.66]:48583 "EHLO
-	titan.genwebhost.com") by vger.kernel.org with ESMTP
-	id S262011AbVFGWQ4 convert rfc822-to-8bit (ORCPT
+	Tue, 7 Jun 2005 18:17:22 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:39887 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262013AbVFGWRO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 18:16:56 -0400
-Date: Tue, 7 Jun 2005 15:16:49 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: Hanno =?ISO-8859-1?B?QvZjaw==?= <mail@hboeck.de>
-Cc: acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       julien.lerouge@free.fr
-Subject: Re: [ACPI] Re: Kernel oops with asus_acpi module
-Message-Id: <20050607151649.4feaa50a.rdunlap@xenotime.net>
-In-Reply-To: <200506071946.20843.mail@hboeck.de>
-References: <200506052340.41074.mail@hboeck.de>
-	<200506062347.10582.mail@hboeck.de>
-	<20050606222151.GB65@hell.org.pl>
-	<200506071946.20843.mail@hboeck.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - titan.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Tue, 7 Jun 2005 18:17:14 -0400
+Message-ID: <42A61CDE.6090906@pobox.com>
+Date: Tue, 07 Jun 2005 18:17:02 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>
+CC: "David S. Miller" <davem@davemloft.net>, tom.l.nguyen@intel.com,
+       roland@topspin.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi()
+ for drivers - take 2
+References: <20050607002045.GA12849@suse.de> <20050607202129.GB18039@kroah.com>
+In-Reply-To: <20050607202129.GB18039@kroah.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Jun 2005 19:46:17 +0200 Hanno Böck wrote:
+Greg KH wrote:
+> @@ -6047,7 +6046,7 @@
+>  		if (!(tp->tg3_flags & TG3_FLAG_TAGGED_STATUS)) {
+>  			printk(KERN_WARNING PFX "%s: MSI without TAGGED? "
+>  			       "Not using MSI.\n", tp->dev->name);
+> -		} else if (pci_enable_msi(tp->pdev) == 0) {
+> +		} else if (pci_in_msi_mode(tp->pdev)) {
+>  			u32 msi_mode;
+>  
+>  			msi_mode = tr32(MSGINT_MODE);
+> @@ -6063,15 +6062,12 @@
+>  		if (tp->tg3_flags & TG3_FLAG_TAGGED_STATUS)
+>  			fn = tg3_interrupt_tagged;
+>  
+> +		pci_disable_msi(tp->pdev);
+>  		err = request_irq(tp->pdev->irq, fn,
+>  				  SA_SHIRQ | SA_SAMPLE_RANDOM, dev->name, dev);
+>  	}
+>  
+>  	if (err) {
+> -		if (tp->tg3_flags2 & TG3_FLG2_USING_MSI) {
+> -			pci_disable_msi(tp->pdev);
+> -			tp->tg3_flags2 &= ~TG3_FLG2_USING_MSI;
+> -		}
+>  		tg3_free_consistent(tp);
+>  		return err;
+>  	}
 
-| Am Dienstag, 7. Juni 2005 00:21 schrieb Karol Kozimor:
-| > Thanks. This might also help:
-| Doesn't help (randys fix also didn't).
 
-were there any additional kernel log messages?
-there should have been.
+If the driver has to _undo_ something that it did not do, that's pretty 
+lame.  Non-orthogonal.
 
-| > But I'd like to get the full oops with the matching asus_acpi.o file also
-| > (might be off the list).
+Also, it looks like all the PCI MSI drivers need touching for this 
+scheme -- which defeats the original intention.  At this rate, the best 
+API is the one we've already got.
 
-Karol, did you see the beginning of the thread?
-http://lkml.org/lkml/2005/6/5/101
-
-| Can you tell me what a full oops is, how I generate it? Then I can do so (I'm 
-| not a kernel-dev).
+	Jeff
 
 
----
-~Randy

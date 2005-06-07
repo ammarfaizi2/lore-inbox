@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261806AbVFGD0H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVFGDeU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261806AbVFGD0H (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 23:26:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVFGD0H
+	id S261568AbVFGDeU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 23:34:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVFGDeU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 23:26:07 -0400
-Received: from ms-smtp-01.nyroc.rr.com ([24.24.2.55]:64255 "EHLO
-	ms-smtp-01.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261806AbVFGD0E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 23:26:04 -0400
-Subject: Re: [PATCH] MAX_USER_RT_PRIO and MAX_RT_PRIO are wrong!
-From: Steven Rostedt <rostedt@goodmis.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Ingo Molnar <mingo@elte.hu>, anton.wilson@camotion.com,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1118112390.4533.10.camel@localhost.localdomain>
-References: <1118112390.4533.10.camel@localhost.localdomain>
+	Mon, 6 Jun 2005 23:34:20 -0400
+Received: from gate.crashing.org ([63.228.1.57]:61583 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261568AbVFGDeR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 23:34:17 -0400
+Subject: Re: [PATCH] fix tulip suspend/resume
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Adam Belay <abelay@novell.com>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+       Karsten Keil <kkeil@suse.de>
+In-Reply-To: <20050607025710.GD3289@neo.rr.com>
+References: <20050606224645.GA23989@pingi3.kke.suse.de>
+	 <1118110545.6850.31.camel@gaston>  <20050607025710.GD3289@neo.rr.com>
 Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Mon, 06 Jun 2005 23:25:49 -0400
-Message-Id: <1118114749.4533.15.camel@localhost.localdomain>
+Date: Tue, 07 Jun 2005 13:32:03 +1000
+Message-Id: <1118115123.6850.43.camel@gaston>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-06-06 at 22:46 -0400, Steven Rostedt wrote:
-
-> This makes it look like the priority goes as follows:
+> > It should probably test for message state, it's not worth doing
+> > pci_set_power_state(D3) if PMSG_FREEZE is passed... (just slows down
+> > suspend to disk)
 > 
-> prio: 0 .. MAX_RT_PRIO .. MAX_USER_RT_PRIO .. MAX_PRIO
-> 
-> where 0 is of highest priority
+> Yeah, I added pci_choose_state in my last email.  This will at least help
+> avoid powering off.  Still, I agree this needs to be handled specifically.
+> Currently, I don't think many drivers support PMSG_FREEZE.
 
-I'm correcting my own post :-)
+Nope, but I've been improving swsusp support on macs lately and have
+already a bunch of driver fixes waiting.
 
-What we really want is:
+Now I need to get Pavel, Patrick and I to agree about the PM toplevel
+core changes before I can send all that stuff to Andrew :)
 
-prio: 0 .. [MAX_RT_PRIO - MAX_USER_RT_PRIO] .. MAX_RT_PRIO .. MAX_PRIO
-
-                                                    |---- nice -------|
-                         |------ user RT prio ------|
-      |------------ kernel RT prio -----------------|
-
-Remember, 0 is of highest priority.
-
-
--- Steve
+Ben.
 
 

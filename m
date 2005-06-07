@@ -1,37 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261945AbVFGRqp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261944AbVFGRuK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261945AbVFGRqp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 13:46:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261949AbVFGRqp
+	id S261944AbVFGRuK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 13:50:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261943AbVFGRuJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 13:46:45 -0400
-Received: from schokokeks.org ([193.201.54.11]:773 "EHLO a.mx.schokokeks.org")
-	by vger.kernel.org with ESMTP id S261945AbVFGRpi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 13:45:38 -0400
-From: Hanno =?utf-8?q?B=C3=B6ck?= <mail@hboeck.de>
-To: randy_dunlap <rdunlap@xenotime.net>, acpi-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, julien.lerouge@free.fr
-Subject: Re: [ACPI] Re: Kernel oops with asus_acpi module
-Date: Tue, 7 Jun 2005 19:46:17 +0200
-User-Agent: KMail/1.8.1
-References: <200506052340.41074.mail@hboeck.de> <200506062347.10582.mail@hboeck.de> <20050606222151.GB65@hell.org.pl>
-In-Reply-To: <20050606222151.GB65@hell.org.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Jun 2005 13:50:09 -0400
+Received: from fmr23.intel.com ([143.183.121.15]:8594 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261942AbVFGRuF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 13:50:05 -0400
+Date: Tue, 7 Jun 2005 10:50:02 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: Bill Davidsen <davidsen@tmr.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Pentium-D support
+Message-ID: <20050607105001.A27234@unix-os.sc.intel.com>
+References: <42A5B80A.4040709@tmr.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506071946.20843.mail@hboeck.de>
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <42A5B80A.4040709@tmr.com>; from davidsen@tmr.com on Tue, Jun 07, 2005 at 11:06:50AM -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Dienstag, 7. Juni 2005 00:21 schrieb Karol Kozimor:
-> Thanks. This might also help:
-Doesn't help (randys fix also didn't).
+On Tue, Jun 07, 2005 at 11:06:50AM -0400, Bill Davidsen wrote:
+> Is there any reason to think that 
+> the scheduler would get confused by the CPU, such as thinking it was HT 
+> or some such?
 
-> But I'd like to get the full oops with the matching asus_acpi.o file also
-> (might be off the list).
+2.6.12-rc5 has the Intel dual core detection patches. With those, kernel
+can distinguish between cores and HT logical siblings.
 
-Can you tell me what a full oops is, how I generate it? Then I can do so (I'm 
-not a kernel-dev).
+thanks,
+suresh

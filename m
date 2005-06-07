@@ -1,81 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261877AbVFGStr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261953AbVFGSuh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261877AbVFGStr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 14:49:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261880AbVFGStr
+	id S261953AbVFGSuh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 14:50:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVFGSuh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 14:49:47 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:9131 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S261877AbVFGStn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 14:49:43 -0400
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: Morton Andrew Morton <akpm@osdl.org>, awilliam@fc.hp.com, greg@kroah.com,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Bodo Eggert <7eggert@gmx.de>, stern@rowland.harvard.edu,
-       bjorn.helgaas@hp.com
-Subject: Re: [Fastboot] Re: [RFC/PATCH] Kdump: Disabling PCI interrupts in capture kernel
-References: <1118113637.42a50f65773eb@imap.linux.ibm.com>
-	<20050607050727.GB12781@colo.lackof.org>
-	<m1slzuwkqx.fsf@ebiederm.dsl.xmission.com>
-	<20050607162143.GE29220@colo.lackof.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 07 Jun 2005 12:42:42 -0600
-In-Reply-To: <20050607162143.GE29220@colo.lackof.org>
-Message-ID: <m1acm2vwil.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Tue, 7 Jun 2005 14:50:37 -0400
+Received: from fire.osdl.org ([65.172.181.4]:47085 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261953AbVFGSu3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 14:50:29 -0400
+Date: Tue, 7 Jun 2005 11:50:11 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: Nick Craig-Wood <nick@craig-wood.com>
+Cc: linux-kernel@vger.kernel.org, Frank Sorenson <frank@tuxrocks.com>
+Subject: Re: Stable 2.6.x.y kernel series...
+Message-ID: <20050607185011.GB9153@shell0.pdx.osdl.net>
+References: <4cHDt-8gT-7@gated-at.bofh.it> <4cHDt-8gT-9@gated-at.bofh.it> <4cHDt-8gT-5@gated-at.bofh.it> <4cOly-5Va-35@gated-at.bofh.it> <20050607165906.7CB653FF9A@irishsea.home.craig-wood.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050607165906.7CB653FF9A@irishsea.home.craig-wood.com>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Grundler <grundler@parisc-linux.org> writes:
-
-> On Tue, Jun 07, 2005 at 03:59:18AM -0600, Eric W. Biederman wrote:
-> > > *lots* of PCI devices predate PCI2.3. Possibly even the majority.
+* Nick Craig-Wood (nick@craig-wood.com) wrote:
+> In linux.kernel, Frank Sorenson wrote:
+> >  Nick Craig-Wood wrote:
+> > > The next hurdle for 2.6.11-stable is to make sure that everything that
+> > > went into it goes into 2.6.12.  Is there a procedure for that?
 > > 
-> > In general generic hardware bits for disabling DMA, disabling interrupts
-> > and the like are all advisory.  With the current architecture things
-> > will work properly even if you don't manage to disable DMA (assuming
-> > you don't reassign IOMMU entries at least).
+> >  Other way around.  In order to be accepted into -stable, it needs to
+> >  already have been accepted into mainline.  More information at
+> >  http://kerneltrap.org/node/4827/54751
 > 
-> ISTR, pSeries (IBM), some alpha, some sparc64, and parisc (64-bit) require
-> use of the IOMMU for *any* DMA. ie IOMMU entries need to be programmed.
-> Probably want to make a choice to ignore those arches for now
-> or sort out how to deal with an IOMMU.
-
-The howto deal with an IOMMU has been sorted out but so far no one 
-has actually done it.  What has been discussed previously is simply
-reserving a handful of IOMMU entries, and then only using those
-in the crash recover kernel.  This is essentially what we do with DMA
-on architectures that don't have an IOMMU and it seems quite safe
-enough there.
-
-> > Shared interrupts are an interesting case.  The simplest solution I can
-> > think of for a crash dump capture kernel is to periodically poll
-> > the hardware, as if all interrupts are shared.  At that level
-> > I think we could get away with ignoring all hardware interrupt sources.
+> It doesn't actually say that on the above web page.  I remember it
+> being discussed, but it isn't on that page (unless I've missed it of
+> course ;-)
 > 
-> Yes, that's perfectly ok. We are no longer in a multitasking env.
+> It wouldn't always be appropriate either - a -stable patch might
+> disable something which has a huge security hole in, wheras that sort
+> of patch wouldn't get accepted in mainline.
 
-Well we are at least capable of multitasking but that is no longer the
-primary focus.  Having polling as at least an option should make
-debugging easier.  Last I looked Andrews kernel hand an irqpoll option
-to do something very like this.
-
-> > Does anyone know of a anything that would break by always polling
-> > the hardware?  I guess there could be a problem with drivers
-> > that don't understand shared interrupts, are there enough of those
-> > to be an issue.
-> 
-> PCI requires drivers support Shared IRQs.
-> A few oddballs might be broken but I expect networking/mass storage
-> drivers get this right.
-
-Agreed.  Which means any drivers we really need for dumping the system
-should be fine.  If the drivers don't work in that mode at least the
-concept of fixing it won't be controversial.
-
-
-Eric
+There's lot of grey areas, those are guidelines for acceptance.  And,
+per your earlier comment, we do push patches to Linus where appropriate.
+Typically, we prefer to see them upstream, helps add much credibility
+to the stability of the patch.

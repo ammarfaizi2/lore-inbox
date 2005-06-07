@@ -1,51 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbVFGTeB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261872AbVFGTl3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261911AbVFGTeB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 15:34:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbVFGTeA
+	id S261872AbVFGTl3 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 15:41:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbVFGTl3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 15:34:00 -0400
-Received: from mailfe02.swip.net ([212.247.154.33]:14770 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261872AbVFGTdh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 15:33:37 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: oops 2.6.11 and 2.6.12-rc6
-From: Alexander Nyberg <alexn@telia.com>
-To: Lawrence Walton <lawrence@the-penguin.otak.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050607182329.GA3950@the-penguin.otak.com>
-References: <20050607182329.GA3950@the-penguin.otak.com>
-Content-Type: text/plain
-Date: Tue, 07 Jun 2005 21:33:29 +0200
-Message-Id: <1118172809.956.6.camel@localhost.localdomain>
+	Tue, 7 Jun 2005 15:41:29 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:37002 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261872AbVFGTl1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 15:41:27 -0400
+Date: Tue, 7 Jun 2005 20:41:23 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: christoph <christoph@scalex86.org>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Move some more structures into "mostly_readonly"
+Message-ID: <20050607194123.GA16637@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	christoph <christoph@scalex86.org>, akpm@osdl.org,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.62.0506071128220.22950@ScMPusgw>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0506071128220.22950@ScMPusgw>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tis 2005-06-07 klockan 11:23 -0700 skrev Lawrence Walton:
-> Hello!
-> 
-> I have a production server that has not booted any kernel I've tried sense
-> 2.6.10.
-> I captured this oops by *hand* this morning when trying to boot 2.6.12-rc6.
-> 
-> I've included the decoded oops, lspci -vvv, .config and ver_linux information.
-> 
-> Unlike most cases this is a prodution machine and I have limited time to test patches. :(
-> 
+On Tue, Jun 07, 2005 at 11:30:03AM -0700, christoph wrote:
+> Move syscall table, timer_hpet and the boot_cpu_data into the "mostly_readonly" section.
 
-Unfortunately the oops text you sent cannot be used for debugging.
-Please send the oops that 2.6.12-rc6 produces to the list (ksymoops is
-not necessary on 2.6.x kernels and should not be used!). 
-Depending on how early the oops happens you can definately use
-Documentation/serial-console.txt and maybe the somewhat simpler
-Documentation/networking/netconsole.txt
-
-Please send the non-ksymoopsed oops you wrote off the screen when
-booting 2.6.12-rc6
-
-Thanks
+the syscall table should be completely readonly.
 

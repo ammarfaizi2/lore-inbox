@@ -1,100 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261808AbVFGGQJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261802AbVFGGTH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261808AbVFGGQJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 02:16:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261802AbVFGGQJ
+	id S261802AbVFGGTH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 02:19:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261809AbVFGGTH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 02:16:09 -0400
-Received: from fmr18.intel.com ([134.134.136.17]:64465 "EHLO
-	orsfmr003.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261808AbVFGGQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 02:16:03 -0400
-Subject: S3 test tool (was : Re: Bizarre oops after suspend to RAM (was:
-	Re: [ACPI] Resume from Suspend to RAM))
-From: Shaohua Li <shaohua.li@intel.com>
-To: stefandoesinger@gmx.at
-Cc: acpi-dev <acpi-devel@lists.sourceforge.net>,
-       Matthew Garrett <mjg59@srcf.ucam.org>,
-       lkml <linux-kernel@vger.kernel.org>, Pavel Machek <pavel@ucw.cz>
-In-Reply-To: <200506061531.41132.stefandoesinger@gmx.at>
-References: <200506061531.41132.stefandoesinger@gmx.at>
-Content-Type: text/plain
-Date: Tue, 07 Jun 2005 14:23:30 +0800
-Message-Id: <1118125410.3828.12.camel@linux-hp.sh.intel.com>
+	Tue, 7 Jun 2005 02:19:07 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:29356 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261802AbVFGGTF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 02:19:05 -0400
+Date: Tue, 7 Jun 2005 08:18:31 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Voluspa <lista1@telia.com>
+Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>
+Subject: Re: Linux v2.6.12-rc6
+Message-ID: <20050607061831.GA6957@elte.hu>
+References: <20050607081116.65c10190.lista1@telia.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050607081116.65c10190.lista1@telia.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2005-06-06 at 23:31 +0800, stefandoesinger@gmx.at wrote:
-> Am Montag, 6. Juni 2005 11:06 schrieb Matthew Garrett: 
-> > Whoops. May have been a bit too hasty there. I'm not sure why that 
-> > doesn't reset it, but we've now got the following (really rather
-> odd) 
-> > serial output. Does anyone have any idea what might be triggering
-> this? 
-> > Shell builtins work fine, but anything else seems to explode very 
-> > messily. Memory corruption of some description?
-> 
-> <snip> 
-> So it does reach the kernel, right? I don't know if I remembered that
-> call  
-> correctly, but "lcall $0xffff,$0" should call the real mode BIOS
-> reset  
-> code... 
-> Anyone else who can correct me here?
-> 
-> Perhaps the disk driver is going mad? Has anyone tried to boot a
-> kernel  
-> without any disk drivers with a minimal root system on an initrd?
-For those who suffer from strange S3 resume problem such as resume hang,
-could you please try this debug patch.
-It uses machine_real_restart to switch to real mode, and soon jump to
-the S3 wakeup address. So it simulates how BIOS resume a system from S3,
-but completely bypasses BIOS. If the system lives after S3 with the
-patch, at least we can know the suspend/resume code path is ok and it's
-not a Linux driver issue.
 
-Thanks,
-Shaohua
+* Voluspa <lista1@telia.com> wrote:
 
---- a/drivers/acpi/hardware/hwsleep.c	2005-06-07 13:45:04.088273424 +0800
-+++ b/drivers/acpi/hardware/hwsleep.c	2005-06-07 13:49:31.858566152 +0800
-@@ -242,6 +242,19 @@ acpi_enter_sleep_state_prep (
-  *              THIS FUNCTION MUST BE CALLED WITH INTERRUPTS DISABLED
-  *
-  ******************************************************************************/
-+#define S3_DEBUG
-+#ifdef S3_DEBUG
-+#include <asm/io.h>
-+extern void machine_real_restart(unsigned char *code, int length);
-+static unsigned char jump_to_pm [] =
-+{
-+	0xea,
-+	0x00,
-+	0x00,
-+	0x00,
-+	0x00		/*    ljmp  $0x0000,$0x0000  */
-+};
-+#endif
- 
- acpi_status asmlinkage
- acpi_enter_sleep_state (
-@@ -315,6 +328,14 @@ acpi_enter_sleep_state (
- 	PM1Acontrol |= (acpi_gbl_sleep_type_a << sleep_type_reg_info->bit_position);
- 	PM1Bcontrol |= (acpi_gbl_sleep_type_b << sleep_type_reg_info->bit_position);
- 
-+#ifdef S3_DEBUG
-+	if (sleep_state == ACPI_STATE_S3) {
-+		*((short *)&jump_to_pm[3]) =
-+			(short)(virt_to_phys((void *)acpi_wakeup_address)) >> 4;
-+		/* Directly jump to acpi_wakeup_address */
-+		machine_real_restart(jump_to_pm, sizeof(jump_to_pm));
-+	}
-+#endif
- 	/*
- 	 * We split the writes of SLP_TYP and SLP_EN to workaround
- 	 * poorly implemented hardware.
+>   CC      arch/x86_64/kernel/irq.o
+>   CC      arch/x86_64/kernel/ptrace.o
+> arch/x86_64/kernel/ptrace.c: In function `putreg':
+> arch/x86_64/kernel/ptrace.c:285: error: duplicate case value
+> arch/x86_64/kernel/ptrace.c:280: error: previously used here
+> make[1]: *** [arch/x86_64/kernel/ptrace.o] Error 1
+> make: *** [arch/x86_64/kernel] Error 2
 
+builds fine here - and i cannot see how those case values could be 
+duplicate. Are you sure your build is completely clean?
 
+	Ingo

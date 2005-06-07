@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261691AbVFGHcg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVFGHoD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261691AbVFGHcg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 03:32:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbVFGHcg
+	id S261449AbVFGHoD (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 03:44:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261589AbVFGHoD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 03:32:36 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:45034 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261691AbVFGHc0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 03:32:26 -0400
-Subject: Re: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi()
-	for drivers
-From: Arjan van de Ven <arjan@infradead.org>
-To: Greg KH <gregkh@suse.de>
-Cc: Andrew Vasquez <andrew.vasquez@qlogic.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "David S. Miller" <davem@davemloft.net>, tom.l.nguyen@intel.com,
-       roland@topspin.com, linux-pci@atrey.karlin.mff.cuni.cz,
+	Tue, 7 Jun 2005 03:44:03 -0400
+Received: from rproxy.gmail.com ([64.233.170.200]:6772 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261449AbVFGHoA convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 03:44:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ZiG5HDc6J5C6EjBxCzbpgDJXV4YjU2+VUouGDoylqa4mD+yMsOz5BV4c7Rw63tPaRlT/d8UfbBGgr/z4rpXLSltE/pXtzQTW2WpDXHhhXCWVdUaxmKUkbotxPkuf9xsUGAT7/BDBUZfC8ZluZiKRydhnUHsYg/+f0R9K53HRLIs=
+Message-ID: <21d7e997050607004411bfa36b@mail.gmail.com>
+Date: Tue, 7 Jun 2005 17:44:00 +1000
+From: Dave Airlie <airlied@gmail.com>
+Reply-To: Dave Airlie <airlied@gmail.com>
+To: Grant Coady <grant_lkml@dodo.com.au>
+Subject: Re: Linux v2.6.12-rc6
+Cc: Voluspa <lista1@telia.com>, Ingo Molnar <mingo@elte.hu>,
        linux-kernel@vger.kernel.org, ak@suse.de
-In-Reply-To: <20050607051551.GA17734@suse.de>
-References: <20050607002045.GA12849@suse.de>
-	 <20050607010911.GA9869@plap.qlogic.org>  <20050607051551.GA17734@suse.de>
-Content-Type: text/plain
-Date: Tue, 07 Jun 2005 09:31:39 +0200
-Message-Id: <1118129500.5497.16.camel@laptopd505.fenrus.org>
+In-Reply-To: <2lhaa112u32htehrvnmqg6vh2kl8puesj8@4ax.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050607081116.65c10190.lista1@telia.com>
+	 <20050607061831.GA6957@elte.hu>
+	 <20050607083731.5edfd276.lista1@telia.com>
+	 <2lhaa112u32htehrvnmqg6vh2kl8puesj8@4ax.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> On Tue, 7 Jun 2005 08:37:31 +0200, Voluspa <lista1@telia.com> wrote:
+> >Ah, sorry about the noise... I've been away from kernel testing too
+> >long. I patched a 2.6.11.11 tree without noticing all the rejects (this
+> >new machine is fast). But from what I remember, it was decided to do
+> >the -rc patches against the latest stable codebase, in this case .11
+> >Shrug.
+> I dunno what the change was, patch didn't apply cleanly to 2.6.11,
+> (no idea if bad .bz2, finger trouble), so I download whole thing
+> instead, now running on three x86 boxen.
 
-> > * What if the driver writer does not want MSI enabled for their
-> >   hardware (even though there is an MSI capabilities entry)?  Reasons
-> >   include: overhead involved in initiating the MSI; no support in some
-> >   versions of firmware (QLogic hardware).
-> 
-> Yes, a very good point.  I guess I should keep the pci_enable_msi() and
-> pci_disable_msi() functions exported for this reason.
-> 
+It was explicitly stated by Linus way back 2.6.8.1 time that
+subsequent patches are against the base of the previous release, so
+-rcs are against 2.6.x not 2.6.x.y.. which all makes great sense if
+development is happening in parallel... I'm not sure I've ever heard
+anything else stated to oppose this, but apparently some people have..
 
-well... only pci_disable_msi() is needed for this ;)
-
-
+Dave.

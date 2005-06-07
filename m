@@ -1,84 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261365AbVFFMkj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261381AbVFFMlN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261365AbVFFMkj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 08:40:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261366AbVFFMkj
+	id S261381AbVFFMlN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 08:41:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261383AbVFFMlM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 08:40:39 -0400
-Received: from artax.karlin.mff.cuni.cz ([195.113.31.125]:41140 "EHLO
-	artax.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261365AbVFFMkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 08:40:24 -0400
-Date: Mon, 6 Jun 2005 14:40:19 +0200 (CEST)
-From: Mikulas Patocka <mikulas@artax.karlin.mff.cuni.cz>
-To: Pawel Sikora <pluto@agmk.net>
+	Mon, 6 Jun 2005 08:41:12 -0400
+Received: from zeus2.kernel.org ([204.152.191.36]:39146 "EHLO zeus2.kernel.org")
+	by vger.kernel.org with ESMTP id S261366AbVFFMlC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 08:41:02 -0400
+Message-Id: <200506061240.j56CekqH015970@zeus2.kernel.org>
+Date: Mon, 06 Jun 2005 23:37:19 -0600
+From: "Ydh.Chan@comcast.net" <Nyv.Macias@comcast.net>
+To: linux-kernel-announce@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.11.12] oops in scheduler_tick
-In-Reply-To: <200506060805.38799.pluto@agmk.net>
-Message-ID: <Pine.LNX.4.58.0506061436520.17981@artax.karlin.mff.cuni.cz>
-References: <200506060805.38799.pluto@agmk.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Subject: Pre-approved Application #0371239IBT Mon, 06 Jun 2005 21:45:19 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Microsoft Office Outlook, Build 11.0.6353
+Message-Id: <2.20020816120021.01316aNyv.Macias@comcast.net>
 
-Pls disassemble the function do_wait, that was interrupted
-(with objdump -d exit.o) and post it.
+Hello,
 
-Mikulas
+We sent you an email a while ago, because you now qualify
+for a much lower rate based on the biggest rate drop in years.
 
-On Mon, 6 Jun 2005, Pawel Sikora wrote:
+You can now get $327,000 for as little as $617 a month!
+Bad credit? Doesn't matter, ^low rates are fixed no matter what!
 
-> Oops: 0002 [#1]
-> Modules linked in:
-> CPU:    0
-> EIP:    0060:[<c0112e1f>]    Not tainted VLI
-> EFLAGS: 00010013   (2.6.11.11-2.1)
-> EIP is at scheduler_tick+0x3a/0x233
-> eax: 00000000   ebx: d0063500   ecx: 00000000   edx: 000f41fb
-> esi: 00000000   edi: 00000000   ebp: d0137eb0   esp: d0137e9c
-> ds: 007b   es: 007b   ss: 0068
-> Process  (pid: 24947, threadinfo=d0136000 task=d0063500)
-> Stack:
-> d0137f14 d0137f14 d0137f14 00000000 00000000 d0137ec4
-> c0106ebf 00000000 c02a7000 00000000 d0137eec c01292ed
-> 00000000 00000000 d0137f14 d0137f14 00000000 c031ea80
-> 00000000 c02a7000 d0137f04 c01293a7 d0137f14 d0063500
-> Call Trace:
->  [<c0103fdd>] show_stack+0x78/0x83
->  [<c01040f3>] show_registers+0xf1/0x15d
->  [<c0104290>] die+0xac/0x120
->  [<c01113aa>] do_page_fault+0x44a/0x5d9
->  [<c0103c1f>] error_code+0x4f/0x60
->  [<c0106ebf>] timer_interrupt+0x47/0xeb
->  [<c01292ed>] handle_IRQ_event+0x26/0x56
->  [<c01293a7>] __do_IRQ+0x8a/0xc7
->  [<c0104fec>] do_IRQ+0x1c/0x28
->  [<c0103b2a>] common_interrupt+0x1a/0x20
->  [<c0117d80>] do_wait+0x75/0x364
->  [<c01180fb>] sys_wait4+0x28/0x2d
->  [<c0118113>] sys_waitpid+0x13/0x15
->  [<c0102ac7>] syscall_call+0x7/0xb
-> Code:
-> 8b 18 e8 02 85 ff ff a3 34 27 36 c0 89 15 38 27 36 c0 3b 1d 40
-> 27 36 c0 0f 84 fe 01 00 00 a1 48 27 36 c0 39 43 28 74 0d 8b 43
-> 04 <0f> ba 68 08 03 e9 e7 01 00 00 8b 43 18 89 45 f0 83 f8 63 7f 43
->    ^^^^^^^^^^^^^
->    btsl $0x3,0x8(%eax)
->    ^^^^^^^^^^^^
->    set_bit(...) inlined form of set_tsk_need_resched(p)
->
->  <0>Kernel panic - not syncing: Fatal exception in interrupt
->
-> --
-> The only thing necessary for the triumph of evil
->   is for good men to do nothing.
->                                            - Edmund Burke
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Follow this link to process your application and a 24 hour approval:
+
+http://www.warefi.net
+
+Best Regards,
+Morton Miner
+
+
+http://www.warefi.net/book.php

@@ -1,70 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261817AbVFGLEy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261813AbVFGLJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261817AbVFGLEy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 07:04:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVFGLEy
+	id S261813AbVFGLJg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 07:09:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261828AbVFGLJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 07:04:54 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:58846 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261817AbVFGLEv (ORCPT
+	Tue, 7 Jun 2005 07:09:36 -0400
+Received: from ozlabs.org ([203.10.76.45]:58527 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261813AbVFGLJb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 07:04:51 -0400
-Date: Tue, 7 Jun 2005 13:04:09 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: linux-kernel@vger.kernel.org
-Subject: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.47-20
-Message-ID: <20050607110409.GA14613@elte.hu>
-Mime-Version: 1.0
+	Tue, 7 Jun 2005 07:09:31 -0400
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Transfer-Encoding: 7bit
+Message-ID: <17061.32867.182516.172901@cargo.ozlabs.ibm.com>
+Date: Tue, 7 Jun 2005 21:09:23 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: torvalds@osdl.org, akpm@osdl.org
+CC: linux-kernel@vger.kernel.org, anton@samba.org, ananth@in.ibm.com
+Subject: [PATCH 1/2] ppc64 kprobes: correct kprobe registration return values
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
 
-i have released the -V0.7.47-20 Real-Time Preemption patch, which can be 
-downloaded from the usual place:
+Add stricter checks during kprobe registration. Return correct error value
+so insmod doesn't succeed. Also printk reason for registration failure.
 
-    http://redhat.com/~mingo/realtime-preempt/
+Signed-off-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
+---
 
-i've implemented two new features:
-
- - new debugging feature: CONFIG_DEBUG_RT_LOCKING_MODE, which
-   adds the /proc/sys/kernel/preempt_locks flag (default: 0). This way
-   the 'locking model' can be switched runtime - very useful for
-   debugging and profiling. Value 0 means that all spinlocks and rwlocks
-   are implemented via raw spinlocks/rwlocks. (which disable preemption,
-   increase latency, but improve throughput) Value 1 means the kernel 
-   will fully preempt all locks again. (NOTE: the only safe runtime 
-   switching of the locking model can be done while the system is idle, 
-   so i've implemented the flag via two flags where the idle thread 
-   propagates the new value from the user-flag to the kernel-flag. You 
-   should put a "sleep 1" into scripts that switch the locking mode, to 
-   guarantee that the new flag value is picked up.)
-
- - performance feature: i've implemented a new scheduler feature called 
-   'delayed preemption', which turns sync wakeups into guaranteed 
-   wakeups, while preserving their workload-batching properties. A 
-   delayed preemption request is implemented via the 
-   TIF_NEED_RESCHED_DELAYED flag, which runs in parallel to the 
-   "immediate preemption" TIF_NEED_RESCHED flag. If this works out fine 
-   then it will be a suitable replacement for the upstream sync-wakeups 
-   facility as well.
-
-delayed preemption already improved the performance of 'hackbench' under 
-PREEMPT_RT quite signifiantly.
-
-to build a -V0.7.47-20 tree, the following patches have to be applied:
-
-   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.11.tar.bz2
-   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.12-rc6.bz2
-   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.12-rc6-V0.7.47-20
-
-	Ingo
+Index: linux-2.6.12-rc5/arch/ppc64/kernel/kprobes.c
+===================================================================
+--- linux-2.6.12-rc5.orig/arch/ppc64/kernel/kprobes.c	2005-05-27 14:35:12.000000000 -0400
++++ linux-2.6.12-rc5/arch/ppc64/kernel/kprobes.c	2005-05-27 14:40:42.000000000 -0400
+@@ -45,12 +45,17 @@ static kprobe_opcode_t stepped_insn;
+ 
+ int arch_prepare_kprobe(struct kprobe *p)
+ {
++	int ret = 0;
+ 	kprobe_opcode_t insn = *p->addr;
+ 
+-	if (IS_MTMSRD(insn) || IS_RFID(insn))
+-		/* cannot put bp on RFID/MTMSRD */
+-		return 1;
+-	return 0;
++	if ((unsigned long)p->addr & 0x03) {
++		printk("Attempt to register kprobe at an unaligned address\n");
++		ret = -EINVAL;
++	} else if (IS_MTMSRD(insn) || IS_RFID(insn)) {
++		printk("Cannot register a kprobe on rfid or mtmsrd\n");
++		ret = -EINVAL;
++	}
++	return ret;
+ }
+ 
+ void arch_copy_kprobe(struct kprobe *p)

@@ -1,43 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262020AbVFGWrb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262024AbVFGWy7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262020AbVFGWrb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 18:47:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262027AbVFGWpc
+	id S262024AbVFGWy7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 18:54:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262025AbVFGWy6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 18:45:32 -0400
-Received: from mail-in-02.arcor-online.net ([151.189.21.42]:14733 "EHLO
-	mail-in-02.arcor-online.net") by vger.kernel.org with ESMTP
-	id S262029AbVFGWpO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 18:45:14 -0400
-From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
-Subject: Re: Bizarre oops after suspend to RAM (was: Re: [ACPI] Resume from Suspend to RAM)
-To: Stefan =?ISO-8859-1?Q?D=F6singer?= <stefandoesinger@gmx.at>,
-       acpi-devel@lists.sourceforge.net, Matthew Garrett <mjg59@srcf.ucam.org>,
-       linux-kernel@vger.kernel.org
-Reply-To: 7eggert@gmx.de
-Date: Tue, 07 Jun 2005 03:06:08 +0200
-References: <4cnEB-7Y5-13@gated-at.bofh.it> <4cnEB-7Y5-19@gated-at.bofh.it> <4cnEB-7Y5-11@gated-at.bofh.it> <4cpZW-1yL-13@gated-at.bofh.it>
-User-Agent: KNode/0.7.2
+	Tue, 7 Jun 2005 18:54:58 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.82]:4323 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S262024AbVFGWy5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 18:54:57 -0400
+From: Jeremy Maitin-Shepard <jbms@cmu.edu>
+To: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Move some more structures into "mostly_readonly"
+References: <Pine.LNX.4.62.0506071128220.22950@ScMPusgw>
+	<20050607194123.GA16637@infradead.org>
+	<Pine.LNX.4.62.0506071258450.2850@ScMPusgw>
+	<1118177949.5497.44.camel@laptopd505.fenrus.org>
+	<42A61227.9090402@didntduck.org>
+	<Pine.LNX.4.62.0506071519470.19659@ScMPusgw>
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-1: winter into spring
+Date: Tue, 07 Jun 2005 18:54:57 -0400
+In-Reply-To: <Pine.LNX.4.62.0506071519470.19659@ScMPusgw>
+	(christoph@scalex86.org's message of "Tue, 7 Jun 2005 15:23:01 -0700
+	(PDT)")
+Message-ID: <87hdg9eq0u.fsf@jbms.ath.cx>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8Bit
-Message-Id: <E1DfSXh-0006lI-39@be1.7eggert.dyndns.org>
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stefan Dösinger <stefandoesinger@gmx.at> wrote:
+christoph <christoph@scalex86.org> writes:
 
-> So it does reach the kernel, right? I don't know if I remembered that call
-> correctly, but "lcall $0xffff,$0" should call the real mode BIOS reset
-> code...
-> Anyone else who can correct me here?
+> On Tue, 7 Jun 2005, Brian Gerst wrote:
+>> It doesn't really matter.  .rodata isn't actually mapped read-only. Doing so
+>> would break up the large pages used to map the kernel.
 
-If it's realmode, it should do a jump to the boot entry point of the BIOS.
-This does not imply a reset, some machines will just hang. Especially after
-messing with the interrupts or mapping some RAM over the lower half of the
-BIOS, where the boot code is expected.
+> In that case.... here is a patch that moves the table into rodata.
 
-Good (== long gone) old times with DOS.
+AFS writes to the system call table.  If as Brian says, .rodata isn't
+actually mapped read-only, then users of AFS could use this syscall
+table patch without problems, but it is nonetheless pointless and
+misleading.
+
 -- 
-Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
-verbreiteten Lügen zu sabotieren.
+Jeremy Maitin-Shepard

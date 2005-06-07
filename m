@@ -1,42 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261951AbVFGSBk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbVFGSMz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261951AbVFGSBk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 14:01:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261932AbVFGSBk
+	id S261932AbVFGSMz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 14:12:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbVFGSMz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 14:01:40 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:52918 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261926AbVFGSBg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 14:01:36 -0400
-Subject: Re: [PROBLEM] aic7xxx: DV failed to configure device
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Denis Zaitsev <zzz@anda.ru>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-In-Reply-To: <20050607191646.A30496@ward.six>
-References: <20050606141638.A28532@ward.six>
-	 <1118045986.5652.21.camel@laptopd505.fenrus.org>
-	 <20050606150321.A817@ward.six> <1118068477.5045.27.camel@mulgrave>
-	 <20050607191646.A30496@ward.six>
-Content-Type: text/plain
-Date: Tue, 07 Jun 2005 12:37:03 -0400
-Message-Id: <1118162223.4813.40.camel@mulgrave>
+	Tue, 7 Jun 2005 14:12:55 -0400
+Received: from anubis.fi.muni.cz ([147.251.54.96]:23570 "EHLO
+	anubis.fi.muni.cz") by vger.kernel.org with ESMTP id S261932AbVFGSMy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 14:12:54 -0400
+Date: Tue, 7 Jun 2005 20:13:00 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel 2.6.12-rc6-mm1 & Chelsio driver
+Message-ID: <20050607181300.GL2369@mail.muni.cz>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-06-07 at 19:16 +0600, Denis Zaitsev wrote:
-> It seems that things are in order, do I understand right?  So, why and
-> how the low-level format affects the old driver's behaviour?
+Hello,
 
-I can't answer that ... part of the reason for ditching the in-driver
-aic7xxx DV is that it was where an astonishing number of bugs kept
-turning up.
+should chelsio 10GE driver work in this kernel? If I do modprobe cxgb, then it
+silently returns. No messages in log (dmesg) nor terminal and no new ethX 
+device is discoverred.
 
-James
-
-
+-- 
+Luká¹ Hejtmánek

@@ -1,51 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261988AbVFGV1M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262001AbVFGV3a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261988AbVFGV1M (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 17:27:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261990AbVFGV1L
+	id S262001AbVFGV3a (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 17:29:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261991AbVFGV3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 17:27:11 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:44561 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261988AbVFGV1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 17:27:08 -0400
-Date: Tue, 7 Jun 2005 23:27:06 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: linux-kernel@vger.kernel.org
-Cc: reiserfs-dev@namesys.com
-Subject: RFC: i386: kill !4KSTACKS
-Message-ID: <20050607212706.GB7962@stusta.de>
+	Tue, 7 Jun 2005 17:29:22 -0400
+Received: from nproxy.gmail.com ([64.233.182.192]:28202 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261990AbVFGV2I convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 17:28:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=hKlOjNRzcCHrm3TVdT/J2d5XwOwW0YXTdXwQEgZHTdgkQDNfHSt5PvV2qevBRkSsaTpwtnsco5O4V/QYzIjgJchDrPmAEDRtebhv+L2+OTrcX2knY6KQesXs8cne6O3qDcQNyHLF1/62kMYPBJdEzE/TihDpOGgGZg44rCS80YI=
+Message-ID: <4ad99e050506071428278c3018@mail.gmail.com>
+Date: Tue, 7 Jun 2005 23:28:07 +0200
+From: Lars Roland <lroland@gmail.com>
+Reply-To: Lars Roland <lroland@gmail.com>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Subject: Fusion MPT driver version 3.01.20 VS. version 2.03.00
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-4Kb kernel stacks are the future on i386, and it seems the problems it 
-initially caused are now sorted out.
+Hi 
 
-I'd like to:
-- get a patch into the next -mm that unconditionally enables 4KSTACKS
-- if there won't be new reports of breakages, send a patch to
-  completely remove !4KSTACKS for 2.6.13 or 2.6.14
+We have a bunch of IBM 335/336 used as email (anti-virus/spam)
+gateways. Recently our admin changed the kernel version from version
+2.4.24 to 2.6.8.1 - this resulted in a massive performance
+degradation. The old system could handle 60.000 emails pr. hour the
+new one could only handle about 30.000 emails (this was tested by
+sampling 60.000 emails and sending them to the server).
 
-The only drawback is that REISER4_FS does still depend on !4KSTACKS.
-I told Hans back in March that this has to be changed.
+After poking a bit around (changing hardware and upgrading bios's) I
+realized that the time spend for writing the files to the disk have
+gone up (multiple small writes seams to kill it): A hdparm test gives:
 
-Is there any ETA until that all issues with 4Kb kernel stacks in Reiser4 
-will be resolved?
+----------------------------
+kernel 2.6.8.1 (MPT version : 3.01.09)
+hdparm -t /dev/sda
 
-If not people using Reiser4 might have to decide whether to switch the 
-filesystem or the architecture...
+/dev/sda:
+ Timing buffered disk reads:  64 MB in  3.03 seconds = 21.12 MB/sec
 
-cu
-Adrian
 
--- 
+kernel 2.4.24 (MPT version: 2.03.00)
+hdparm -t /dev/sda
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+/dev/sda:
+ Timing buffered disk reads:  64 MB in  1.19 seconds = 53.78 MB/sec
+----------------------------
 
+Next I tried upgrading the kernel to 2.6.12-rc5 to see if there was
+any improvements but there was none.
+
+----------------------------
+kernel 2.6.12-rc5 (MPT version : 3.01.20)
+hdparm -t /dev/sda
+
+/dev/sda:
+ Timing buffered disk reads:  64 MB in  3.03 seconds = 21.12 MB/sec
+----------------------------
+
+I have also tried building the driver from kernel 2.6.12-rc5 in the
+kernel instead of a module, this also changed nothing. The driver in
+the old kernel is 2.03.00 the new one is 3.01.20. On both kernel 2.6
+and 2.4 /proc/scsi/scsi gives me
+
+----------------------------
+Attached devices:
+Host: scsi0 Channel: 00 Id: 00 Lun: 00
+  Vendor: IBM-ESXS Model: CBR036C31210ESFN Rev: DFQ8
+  Type:   Direct-Access                    ANSI SCSI revision: 04
+Host: scsi0 Channel: 00 Id: 08 Lun: 00
+  Vendor: IBM      Model: 25P3495a S320  1 Rev: 1
+  Type:   Processor                        ANSI SCSI revision: 02
+----------------------------
+
+
+Regards.
+
+Lars Roland

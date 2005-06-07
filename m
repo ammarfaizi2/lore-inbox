@@ -1,39 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbVFGOjp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261881AbVFGOnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261882AbVFGOjp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 10:39:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVFGOjo
+	id S261881AbVFGOnV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 10:43:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbVFGOnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 10:39:44 -0400
-Received: from ns2.suse.de ([195.135.220.15]:35796 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261886AbVFGOje (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 10:39:34 -0400
-Date: Tue, 7 Jun 2005 16:39:33 +0200
-From: Andi Kleen <ak@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] mbind: check_range use standard ptwalk
-Message-ID: <20050607143933.GG23831@wotan.suse.de>
-References: <Pine.LNX.4.61.0506062046590.5000@goblin.wat.veritas.com> <Pine.LNX.4.61.0506062048430.5000@goblin.wat.veritas.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0506062048430.5000@goblin.wat.veritas.com>
+	Tue, 7 Jun 2005 10:43:21 -0400
+Received: from pilet.ens-lyon.fr ([140.77.167.16]:12929 "EHLO
+	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
+	id S261881AbVFGOnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 10:43:17 -0400
+Message-ID: <42A5B27F.60204@ens-lyon.org>
+Date: Tue, 07 Jun 2005 16:43:11 +0200
+From: Brice Goglin <Brice.Goglin@ens-lyon.org>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: sylvain.meyer@worldonline.fr, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12?
+References: <42A0D88E.7070406@pobox.com>	<20050603163843.1cf5045d.akpm@osdl.org>	<42A0F05A.8010901@ens-lyon.org> <20050603182125.3735f0c7.akpm@osdl.org>
+In-Reply-To: <20050603182125.3735f0c7.akpm@osdl.org>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 06, 2005 at 08:49:38PM +0100, Hugh Dickins wrote:
-> Strict mbind's check for currently mapped pages being on node has been
-> using a slow loop which re-evaluates pgd, pud, pmd, pte for each entry:
-> replace that by a standard four-level page table walk like others in mm.
-> Since mmap_sem is held for writing, page_table_lock can be taken at the
-> inner level to limit latency.
+Andrew Morton a écrit :
+> Brice Goglin <Brice.Goglin@ens-lyon.org> wrote:
+> 
+>>Andrew Morton a écrit :
+>>
+>>>Lots of USB problems, quite a few input problems.  fbdev, ACPI, ATAPI.  All
+>>>the usual suspects.
+>>>
+>>>Subject: intelfb crash on i845
+>>>Subject: Re: [Linux-fbdev-devel] intelfb crash on i845
+>>
+>>These two entries seem to be the same one, from me.
+>>Sylvain Meyer was working on it. And I've recently seen some patches
+>>from him on the mm-commit list. I didn't have time to test them but I
+>>should be able to try next week (especially if a new -mm is released
+>>soon).
 
-I doubt you will be able to benchmark a difference since the inner loop
-should be normally memory bound anyways, giving the CPU plenty
-of time to do some cache accesses. But ok.
+Hi Andrew,
 
--Andi
+I just tried with rc6-mm1 and the problem is still present:
+when the onboard video memory is set to 1MB in the BIOS, switching from
+X to VT1 gives a dirty framebuffer console (no text, just wrong colors).
+Setting memory to 8MB in the BIOS makes all this work.
 
+Brice

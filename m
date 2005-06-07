@@ -1,141 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVFGDOi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261776AbVFGDRn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261614AbVFGDOi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 23:14:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVFGDOh
+	id S261776AbVFGDRn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 23:17:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVFGDRn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 23:14:37 -0400
-Received: from mail.renesas.com ([202.234.163.13]:50319 "EHLO
-	mail01.idc.renesas.com") by vger.kernel.org with ESMTP
-	id S261614AbVFGDOV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 23:14:21 -0400
-Date: Tue, 07 Jun 2005 12:14:14 +0900 (JST)
-Message-Id: <20050607.121414.137821416.takata.hirokazu@renesas.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH 2.6.12-rc5] m32r: Use asm-generic/div64.h
-From: Hirokazu Takata <takata@linux-m32r.org>
-Cc: linux-kernel@vger.kernel.org, hitoshiy@isl.melco.co.jp,
-       takata@linux-m32r.org
-X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
+	Mon, 6 Jun 2005 23:17:43 -0400
+Received: from holomorphy.com ([66.93.40.71]:52458 "EHLO holomorphy.com")
+	by vger.kernel.org with ESMTP id S261776AbVFGDRa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 23:17:30 -0400
+Date: Mon, 6 Jun 2005 20:13:55 -0700
+From: William Lee Irwin III <wli@holomorphy.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Jan Dittmer <jdittmer@ppp0.net>, spyro@f2s.com, zippel@linux-m68k.org,
+       starvik@axis.com, linux-kernel@vger.kernel.org,
+       kbuild-devel@lists.sourceforge.net, dev-etrax@axis.com,
+       sparclinux@vger.kernel.org
+Subject: Re: select of non-existing I2C* symbols
+Message-ID: <20050607031355.GB2621@holomorphy.com>
+References: <20050304105247.B3932@flint.arm.linux.org.uk> <20050304032632.0a729d11.akpm@osdl.org> <20050304113626.E3932@flint.arm.linux.org.uk> <20050506235842.A23651@flint.arm.linux.org.uk> <427C9DBD.1030905@ppp0.net> <20050507122622.C11839@flint.arm.linux.org.uk> <427CC082.4000603@ppp0.net> <20050507144135.GL3590@stusta.de> <20050511143010.GF9304@holomorphy.com> <20050511225057.GK6884@stusta.de>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050511225057.GK6884@stusta.de>
+Organization: The Domain of Holomorphy
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, May 11, 2005 at 07:30:10AM -0700, William Lee Irwin III wrote:
+>> You're telling me I have to futz with the i2c Kconfig just to cope with
+>> it not existing?
 
-The current include/asm-m32r/div64.h of 2.6.12-rc5 looks buggy.
-Here is a patch for updating it to use asm-generic/div64.h for m32r
-like other architectures.
+On Thu, May 12, 2005 at 12:50:57AM +0200, Adrian Bunk wrote:
+> What happens if a user selects one of the options that do themself 
+> select one or more of the I2C* options?
+> This might be solved differently (e.g. via some kind of 
+> ARCH_SUPPORTS_I2C), but it should be solved.
 
-Please apply.
+I've got a patch to convert arch/sparc/Kconfig to sourcing drivers/Kconfig.
+I've checked that defconfig comes out largely the same (the difference
+seems to be order and comments) but haven't really checked thoroughly.
 
-Symptoms: for example
-- idle time information of /proc/uptime is incorrect.
-- "top" command sometimes reports incorrect cpu states like this:
-> top - 14:05:01 up 5 min,  2 users,  load average: 0.15, 0.14, 0.07
-> Tasks:  28 total,   3 running,  25 sleeping,   0 stopped,   0 zombie
-> Cpu(s): 2500.0% us, 12800.0% sy,  0.0% ni, 2200.0% id, -28100.0% wa,  0.0% hi, 
-> Mem:     26748k total,    22484k used,     4264k free,        0k buffers
-> Swap:        0k total,        0k used,        0k free,    14656k cached
+Maybe if others (e.g. sparc32 users) could look and complain if
+something goes wrong that would help.
 
-Thanks,
-
-From: Bernardo Innocenti (bernie@develer.com)
-Subject: [PATCH] Kill div64.h dupes, parenthesize do_div() macro params
-Date: Tue Jul 01 2003 - 19:32:20 EST
->  - move the 64/32bit do_div() macro to a new asm-generic/div64.h
->    header;
-> 
->  - kill multiple copies of the generic version in architecture
->    specific subdirs. Most copies were either buggy or subtly
->    different from each other;
-> 
->  - ensure all surviving instances of do_div() have their parameters
->    correctly parenthesized to avoid funny results;
-> 
-> Note that the arm26, cris, m68knommu, sh, sparc and v850 architectures
-> are silently clipping 64bit dividend to 32bit! This patch doesn't try
-> to fix this because I can't test on all architectures.
-> 
-> Patch submitted by Bernardo Innocenti <bernie@develer.com>
-> 
-> Applies to 2.5.73. Backporting to 2.4.21 is trivial.
-> 
-> FOOT NOTE: what's the point with do_div()? Isn't gcc's long long
-> arithmetic support good enough on all platforms? If not, why
-> doesn't that get fixed in libgcc instead of polluting the kernel
-> with silly (and sometimes bogus) implementations?
-> 
->  asm-alpha/div64.h | 15 +--------------
->  asm-arm26/div64.h | 15 +--------------
->  asm-cris/div64.h | 17 +----------------
->  asm-generic/div64.h | 13 +++++++++++++
->  asm-h8300/div64.h | 14 +-------------
->  asm-ia64/div64.h | 21 +--------------------
->  asm-m68k/div64.h | 9 ---------
->  asm-m68knommu/div64.h | 14 +-------------
->  asm-mips64/div64.h | 20 +-------------------
->  asm-parisc/div64.h | 36 ++++++++++--------------------------
->  asm-ppc64/div64.h | 19 +------------------
->  asm-s390/div64.h | 8 +-------
->  asm-sh/div64.h | 11 +----------
->  asm-sparc/div64.h | 12 +-----------
->  asm-sparc64/div64.h | 15 +--------------
->  asm-v850/div64.h | 12 +-----------
->  asm-x86_64/div64.h | 15 +--------------
->  17 files changed, 37 insertions(+), 229 deletions(-) 
+vs. 2.6.12-rc5-mm2
 
 
-Signed-off-by: Hitoshi Yamamoto <hitoshiy@isl.melco.co.jp>
-Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
----
+-- wli
 
-diff -ruNp a/include/asm-m32r/div64.h b/include/asm-m32r/div64.h
---- a/include/asm-m32r/div64.h	2004-12-25 06:33:49.000000000 +0900
-+++ b/include/asm-m32r/div64.h	2005-05-31 19:49:38.000000000 +0900
-@@ -1,38 +1 @@
--#ifndef _ASM_M32R_DIV64
--#define _ASM_M32R_DIV64
+Index: mm2-2.6.12-rc5/arch/sparc/Kconfig
+===================================================================
+--- mm2-2.6.12-rc5.orig/arch/sparc/Kconfig	2005-06-06 13:45:32.000000000 -0700
++++ mm2-2.6.12-rc5/arch/sparc/Kconfig	2005-06-06 16:08:36.859702935 -0700
+@@ -264,7 +264,11 @@
+ 	  want to run SunOS binaries on an Ultra you must also say Y to
+ 	  "Kernel support for 32-bit a.out binaries" above.
+ 
+-source "drivers/parport/Kconfig"
++source "mm/Kconfig"
++
++endmenu
++
++source "drivers/Kconfig"
+ 
+ config PRINTER
+ 	tristate "Parallel printer support"
+@@ -291,41 +295,10 @@
+ 	  If you have more than 8 printers, you need to increase the LP_NO
+ 	  macro in lp.c and the PARPORT_MAX macro in parport.h.
+ 
+-source "mm/Kconfig"
 -
--/* $Id$ */
+-endmenu
 -
--/* unsigned long long division.
-- * Input:
-- *  unsigned long long  n
-- *  unsigned long  base
-- * Output:
-- *  n = n / base;
-- *  return value = n % base;
-- */
--#define do_div(n, base)						\
--({								\
--	unsigned long _res, _high, _mid, _low;			\
--								\
--	_low = (n) & 0xffffffffUL;				\
--	_high = (n) >> 32;					\
--	if (_high) {						\
--		_mid = (_high % (unsigned long)(base)) << 16;	\
--		_high = _high / (unsigned long)(base);		\
--		_mid += _low >> 16;				\
--		_low &= 0x0000ffffUL;				\
--		_low += (_mid % (unsigned long)(base)) << 16;	\
--		_mid = _mid / (unsigned long)(base);		\
--		_res = _low % (unsigned long)(base);		\
--		_low = _low / (unsigned long)(base);		\
--		n = _low + ((long long)_mid << 16) +		\
--			((long long)_high << 32);		\
--	} else {						\
--		_res = _low % (unsigned long)(base);		\
--		n = (_low / (unsigned long)(base));		\
--	}							\
--	_res;							\
--})
+-source "drivers/base/Kconfig"
 -
--#endif  /* _ASM_M32R_DIV64 */
-+#include <asm-generic/div64.h>
-
---
-Hirokazu Takata <takata@linux-m32r.org>
-Linux/M32R Project:  http://www.linux-m32r.org/
+-source "drivers/video/Kconfig"
+-
+-source "drivers/mtd/Kconfig"
+-
+-source "drivers/serial/Kconfig"
+-
+ if !SUN4
+ source "drivers/sbus/char/Kconfig"
+ endif
+ 
+-source "drivers/block/Kconfig"
+-
+-# Don't frighten a common SBus user
+-if PCI
+-
+-source "drivers/ide/Kconfig"
+-
+-endif
+-
+-source "drivers/isdn/Kconfig"
+-
+-source "drivers/scsi/Kconfig"
+-
+-source "drivers/fc4/Kconfig"
+-
+-source "drivers/md/Kconfig"
+-
+-source "net/Kconfig"
+-
+ # This one must be before the filesystem configs. -DaveM
+ 
+ menu "Unix98 PTY support"
+@@ -374,18 +347,8 @@
+ 
+ endmenu
+ 
+-source "drivers/input/Kconfig"
+-
+ source "fs/Kconfig"
+ 
+-source "sound/Kconfig"
+-
+-source "drivers/usb/Kconfig"
+-
+-source "drivers/infiniband/Kconfig"
+-
+-source "drivers/char/watchdog/Kconfig"
+-
+ source "arch/sparc/Kconfig.debug"
+ 
+ source "security/Kconfig"

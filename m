@@ -1,66 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVFGTIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbVFGTKq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261959AbVFGTIm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 15:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVFGTIm
+	id S261961AbVFGTKq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 15:10:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbVFGTKq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 15:08:42 -0400
-Received: from fire.osdl.org ([65.172.181.4]:14469 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261959AbVFGTIf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 15:08:35 -0400
-Date: Tue, 7 Jun 2005 12:08:11 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Wilck <martin.wilck@fujitsu-siemens.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC for 2.6: avoid OOM at bounce buffer storm
-Message-Id: <20050607120811.6527a9ff.akpm@osdl.org>
-In-Reply-To: <42A5AD4A.6080100@fujitsu-siemens.com>
-References: <42A07BAA.4050303@fujitsu-siemens.com>
-	<20050603160629.2acc4558.akpm@osdl.org>
-	<42A5AD4A.6080100@fujitsu-siemens.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+	Tue, 7 Jun 2005 15:10:46 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:16266 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261962AbVFGTKg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 15:10:36 -0400
+Date: Tue, 7 Jun 2005 14:10:01 -0500
+From: Dean Nelson <dcn@sgi.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: mingo@elte.hu, linux-ia64@vger.kernel.org, linux-altix@sgi.com,
+       edwardsg@sgi.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       anton.wilson@camotion.com
+Subject: Re: [PATCH] MAX_USER_RT_PRIO and MAX_RT_PRIO are wrong!
+Message-ID: <20050607191001.GA8768@sgi.com>
+References: <1118112390.4533.10.camel@localhost.localdomain> <20050607053306.GA16181@elte.hu> <1118143504.4533.21.camel@localhost.localdomain> <20050607154846.GA1253@sgi.com> <1118165519.5667.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1118165519.5667.3.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Wilck <martin.wilck@fujitsu-siemens.com> wrote:
->
-> > It might be neater to do this at the mempool level: that way we're adding
->  > general-purpose infrastructure and then just using it, rather than
->  > special-casing the bounce code.
->  > 
->  > See below a (n untested) patch against the latest devel tree.  It won't be
->  > stunningly scalable on big SMP, but the overhead of bouncing will probably
->  > hide that.
+On Tue, Jun 07, 2005 at 01:31:59PM -0400, Steven Rostedt wrote:
+> On Tue, 2005-06-07 at 10:48 -0500, Dean Nelson wrote:
+> > You are correct xpc_activating() needs to be changed to use MAX_RT_PRIO.
+> > So please do add that change to your patch.
 > 
->  I don't quite understand your patch. You introduce a "limit" field but 
->  you never actually use it. You also don't count the allocated pages.
->  Are you using the semaphore for slowing things down on purpose?
+> I haven't tested this patch, I just used the previous patch (which I did
+> test) and added your change.
 
-The semaphore is initialised with the limit level, so once it has been
-down()ed more than `limit' times, processes will block until someone does
-up().
+I just built and tested a kernel and xp/xpc/xpnet modules with your patch
+applied. It ran fine. The priorities of the xpc kthreads were correct.
 
->  (Note that the problem is not in the mempool allocation itself but in 
->  the "normal" allocation path (page_pool_alloc() -> alloc_page()))
+Looks good to me.
 
-yup.  The semaphore will prevent more than `limit' pages being allocated at
-any point in time.
+Thanks,
+Dean
 
->  Anyway, I think could figure out your patch but with 2.6.12-rc5-mm2 I 
->  couldn't reproduce the problem any more.
-
-Oh bugger.
-
-> It appears to run much more 
->  smoothly now, perhaps because wakeup_bdflush() isn't called any more. 
->  Are you still interested in more data?
-
-Perhaps the newer kernel has writeback thresholding fixes so it's not
-possible to dirty as much memory with write().
-
-You can probably trigger the same problem if the memory is instead dirtied
-with mmap(MAP_SHARED).

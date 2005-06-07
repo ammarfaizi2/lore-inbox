@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbVFGPAr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261788AbVFGPHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261906AbVFGPAr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 11:00:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbVFGPAr
+	id S261788AbVFGPHY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 11:07:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVFGPHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 11:00:47 -0400
-Received: from ms-smtp-02.texas.rr.com ([24.93.47.41]:15258 "EHLO
-	ms-smtp-02-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S261896AbVFGOvJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 10:51:09 -0400
-Message-Id: <200506071450.j57Eo5e1010741@ms-smtp-02-eri0.texas.rr.com>
+	Tue, 7 Jun 2005 11:07:24 -0400
+Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:60405 "EHLO
+	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S261895AbVFGOvG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 10:51:06 -0400
+Message-Id: <200506071450.j57Eo1RZ029796@ms-smtp-03-eri0.texas.rr.com>
 From: ericvh@gmail.com
-Date: Tue,  7 Jun 2005 09:49:43 -0500
+Date: Tue,  7 Jun 2005 09:49:40 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 6/7] v9fs: transport modules (2.0)
+Subject: [PATCH 5/7] v9fs: 9P protocol implementation (2.0)
 Cc: v9fs-developer@lists.sourceforge.net, akpm@osdl.org,
        viro@parcelfarce.linux.theplanet.co.uk, linux-fsdevel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is part [6/7] of the v9fs-2.0 patch against Linux 2.6.
+This is part [5/7] of the v9fs-2.0 patch against Linux 2.6.
 
-This part of the patch contains transport routines.
+This part of the patch contains the 9P protocol functions.
 
 Signed-off-by: Eric Van Hensbergen <ericvh@gmail.com>
 
 
  ----------
 
- mux.c        |  452 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- mux.h        |   37 ++++
- trans_sock.c |  272 +++++++++++++++++++++++++++++++++++
- transport.h  |   43 +++++
- 4 files changed, 804 insertions(+)
+ 9p.c   |  357 ++++++++++++++++++++++++++++++++
+ 9p.h   |  339 ++++++++++++++++++++++++++++++
+ conv.c |  725 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ conv.h |   34 +++
+ 4 files changed, 1455 insertions(+)
 
  ----------
 
 --- /dev/null
-+++ b/fs/9p/mux.h
-@@ -0,0 +1,37 @@
++++ b/fs/9p/9p.h
+@@ -0,0 +1,339 @@
 +/*
-+ * linux/fs/9p/mux.h
++ * linux/fs/9p/9p.h
 + *
-+ * Multiplexer Definitions
++ * 9P protocol definitions.
 + *
 + *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
++ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
 + *
 + *  This program is free software; you can redistribute it and/or modify
 + *  it under the terms of the GNU General Public License as published by
@@ -62,32 +63,333 @@ Signed-off-by: Eric Van Hensbergen <ericvh@gmail.com>
 + *
 + */
 +
-+/* structure to manage each RPC transaction */
-+
-+struct v9fs_rpcreq {
-+	struct v9fs_fcall *tcall;
-+	struct v9fs_fcall *rcall;
-+
-+	/* XXX - could we put scatter/gather buffers here? */
-+
-+	struct list_head next;
++/* Message Types */
++enum {
++	TVERSION = 100,
++	RVERSION,
++	TAUTH = 102,
++	RAUTH,
++	TATTACH = 104,
++	RATTACH,
++	TERROR = 106,
++	RERROR,
++	TFLUSH = 108,
++	RFLUSH,
++	TWALK = 110,
++	RWALK,
++	TOPEN = 112,
++	ROPEN,
++	TCREATE = 114,
++	RCREATE,
++	TREAD = 116,
++	RREAD,
++	TWRITE = 118,
++	RWRITE,
++	TCLUNK = 120,
++	RCLUNK,
++	TREMOVE = 122,
++	RREMOVE,
++	TSTAT = 124,
++	RSTAT,
++	TWSTAT = 126,
++	RWSTAT,
 +};
 +
-+int v9fs_mux_init(struct v9fs_session_info *v9ses, const char *dev_name);
-+long v9fs_mux_rpc(struct v9fs_session_info *v9ses,
-+		  struct v9fs_fcall *tcall, struct v9fs_fcall **rcall);
-diff --git a/fs/9p/trans_sock.c b/fs/9p/trans_sock.c
++/* modes */
++enum {
++	V9FS_OREAD = 0x00,
++	V9FS_OWRITE = 0x01,
++	V9FS_ORDWR = 0x02,
++	V9FS_OEXEC = 0x03,
++	V9FS_OEXCL = 0x04,
++	V9FS_OTRUNC = 0x10,
++	V9FS_OREXEC = 0x20,
++	V9FS_ORCLOSE = 0x40,
++	V9FS_OAPPEND = 0x80,
++};
++
++/* permissions */
++enum {
++	V9FS_DMDIR = 0x80000000,
++	V9FS_DMAPPEND = 0x40000000,
++	V9FS_DMEXCL = 0x20000000,
++	V9FS_DMMOUNT = 0x10000000,
++	V9FS_DMAUTH = 0x08000000,
++	V9FS_DMTMP = 0x04000000,
++	V9FS_DMSYMLINK = 0x02000000,
++	V9FS_DMLINK = 0x01000000,
++	/* 9P2000.u extensions */
++	V9FS_DMDEVICE = 0x00800000,
++	V9FS_DMNAMEDPIPE = 0x00200000,
++	V9FS_DMSOCKET = 0x00100000,
++	V9FS_DMSETUID = 0x00080000,
++	V9FS_DMSETGID = 0x00040000,
++};
++
++/* qid.types */
++enum {
++	V9FS_QTDIR = 0x80,
++	V9FS_QTAPPEND = 0x40,
++	V9FS_QTEXCL = 0x20,
++	V9FS_QTMOUNT = 0x10,
++	V9FS_QTAUTH = 0x08,
++	V9FS_QTTMP = 0x04,
++	V9FS_QTSYMLINK = 0x02,
++	V9FS_QTLINK = 0x01,
++	V9FS_QTFILE = 0x00,
++};
++
++/* ample room for Twrite/Rread header (iounit) */
++#define V9FS_IOHDRSZ	24
++
++/* qids are the unique ID for a file (like an inode */
++struct v9fs_qid {
++	u8 type;
++	u32 version;
++	u64 path;
++};
++
++/* Plan 9 file metadata (stat) structure */
++struct v9fs_stat {
++	u16 size;
++	u16 type;
++	u32 dev;
++	struct v9fs_qid qid;
++	u32 mode;
++	u32 atime;
++	u32 mtime;
++	u64 length;
++	char *name;
++	char *uid;
++	char *gid;
++	char *muid;
++	char *extension;	/* 9p2000.u extensions */
++	u32 n_uid;		/* 9p2000.u extensions */
++	u32 n_gid;		/* 9p2000.u extensions */
++	u32 n_muid;		/* 9p2000.u extensions */
++	char data[0];
++};
++
++/* Structures for Protocol Operations */
++
++struct Tversion {
++	u32 msize;
++	char *version;
++};
++
++struct Rversion {
++	u32 msize;
++	char *version;
++};
++
++struct Tauth {
++	u32 afid;
++	char *uname;
++	char *aname;
++};
++
++struct Rauth {
++	struct v9fs_qid qid;
++};
++
++struct Rerror {
++	char *error;
++	u32 errno;		/* 9p2000.u extension */
++};
++
++struct Tflush {
++	u32 oldtag;
++};
++
++struct Rflush {
++};
++
++struct Tattach {
++	u32 fid;
++	u32 afid;
++	char *uname;
++	char *aname;
++};
++
++struct Rattach {
++	struct v9fs_qid qid;
++};
++
++struct Twalk {
++	u32 fid;
++	u32 newfid;
++	u32 nwname;
++	char **wnames;
++};
++
++struct Rwalk {
++	u32 nwqid;
++	struct v9fs_qid *wqids;
++};
++
++struct Topen {
++	u32 fid;
++	u8 mode;
++};
++
++struct Ropen {
++	struct v9fs_qid qid;
++	u32 iounit;
++};
++
++struct Tcreate {
++	u32 fid;
++	char *name;
++	u32 perm;
++	u8 mode;
++};
++
++struct Rcreate {
++	struct v9fs_qid qid;
++	u32 iounit;
++};
++
++struct Tread {
++	u32 fid;
++	u64 offset;
++	u32 count;
++};
++
++struct Rread {
++	u32 count;
++	u8 *data;
++};
++
++struct Twrite {
++	u32 fid;
++	u64 offset;
++	u32 count;
++	u8 *data;
++};
++
++struct Rwrite {
++	u32 count;
++};
++
++struct Tclunk {
++	u32 fid;
++};
++
++struct Rclunk {
++};
++
++struct Tremove {
++	u32 fid;
++};
++
++struct Rremove {
++};
++
++struct Tstat {
++	u32 fid;
++};
++
++struct Rstat {
++	struct v9fs_stat *stat;
++};
++
++struct Twstat {
++	u32 fid;
++	struct v9fs_stat *stat;
++};
++
++struct Rwstat {
++};
++
++/*
++  * fcall is the primary packet structure
++  *
++  */
++
++struct v9fs_fcall {
++	u32 size;
++	u8 id;
++	u16 tag;
++
++	union {
++		struct Tversion tversion;
++		struct Rversion rversion;
++		struct Tauth tauth;
++		struct Rauth rauth;
++		struct Rerror rerror;
++		struct Tflush tflush;
++		struct Rflush rflush;
++		struct Tattach tattach;
++		struct Rattach rattach;
++		struct Twalk twalk;
++		struct Rwalk rwalk;
++		struct Topen topen;
++		struct Ropen ropen;
++		struct Tcreate tcreate;
++		struct Rcreate rcreate;
++		struct Tread tread;
++		struct Rread rread;
++		struct Twrite twrite;
++		struct Rwrite rwrite;
++		struct Tclunk tclunk;
++		struct Rclunk rclunk;
++		struct Tremove tremove;
++		struct Rremove rremove;
++		struct Tstat tstat;
++		struct Rstat rstat;
++		struct Twstat twstat;
++		struct Rwstat rwstat;
++	} params;
++};
++
++#define FCALL_ERROR(fcall) (fcall ? fcall->params.rerror.error : "")
++
++int v9fs_t_version(struct v9fs_session_info *v9ses, u32 msize,
++		   char *version, struct v9fs_fcall **rcall);
++
++int v9fs_t_attach(struct v9fs_session_info *v9ses, char *uname, char *aname,
++		  u32 fid, u32 afid, struct v9fs_fcall **rcall);
++
++int v9fs_t_clunk(struct v9fs_session_info *v9ses, u32 fid,
++		 struct v9fs_fcall **rcall);
++
++int v9fs_t_flush(struct v9fs_session_info *v9ses, u16 oldtag);
++
++int v9fs_t_stat(struct v9fs_session_info *v9ses, u32 fid,
++		struct v9fs_fcall **rcall);
++
++int v9fs_t_wstat(struct v9fs_session_info *v9ses, u32 fid,
++		 struct v9fs_stat *stat, struct v9fs_fcall **rcall);
++
++int v9fs_t_walk(struct v9fs_session_info *v9ses, u32 fid, u32 newfid,
++		char *name, struct v9fs_fcall **rcall);
++
++int v9fs_t_open(struct v9fs_session_info *v9ses, u32 fid, u8 mode,
++		struct v9fs_fcall **rcall);
++
++int v9fs_t_remove(struct v9fs_session_info *v9ses, u32 fid,
++		  struct v9fs_fcall **rcall);
++
++int v9fs_t_create(struct v9fs_session_info *v9ses, u32 fid, char *name,
++		  u32 perm, u8 mode, struct v9fs_fcall **rcall);
++
++int v9fs_t_read(struct v9fs_session_info *v9ses, u32 fid,
++		u64 offset, u32 count, struct v9fs_fcall **rcall);
++
++int v9fs_t_write(struct v9fs_session_info *v9ses, u32 fid, u64 offset,
++		 u32 count, void *data, struct v9fs_fcall **rcall);
+diff --git a/fs/9p/Makefile b/fs/9p/Makefile
 new file mode 100644
 --- /dev/null
-+++ b/fs/9p/mux.c
-@@ -0,0 +1,452 @@
++++ b/fs/9p/9p.c
+@@ -0,0 +1,357 @@
 +/*
-+ * linux/fs/9p/mux.c
++ *  linux/fs/9p/9p.c
 + *
-+ * Protocol Multiplexer
++ *  This file contains functions 9P2000 functions
 + *
 + *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
-+ *  Copyright (C) 2004 by Latchesar Ionkov <lucho@ionkov.net>
++ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
 + *
 + *  This program is free software; you can redistribute it and/or modify
 + *  it under the terms of the GNU General Public License as published by
@@ -109,441 +411,347 @@ new file mode 100644
 +#include <linux/module.h>
 +#include <linux/errno.h>
 +#include <linux/fs.h>
-+#include <linux/kthread.h>
 +
 +#include "debug.h"
 +#include "idpool.h"
 +#include "v9fs.h"
 +#include "9p.h"
-+#include "transport.h"
-+#include "conv.h"
 +#include "mux.h"
 +
 +/**
-+ * dprintcond - print condition of session info
-+ * @v9ses: session info structure
-+ * @req: RPC request structure 
++ * v9fs_t_version - negotiate protocol parameters with sever
++ * @v9ses: 9P2000 session information
++ * @msize: requested max size packet
++ * @version: requested version.extension string
++ * @fcall: pointer to response fcall pointer
 + *
 + */
 +
-+static inline int
-+dprintcond(struct v9fs_session_info *v9ses, struct v9fs_rpcreq *req)
++int
++v9fs_t_version(struct v9fs_session_info *v9ses, u32 msize,
++	       char *version, struct v9fs_fcall **fcall)
 +{
-+	dprintk(DEBUG_MUX, "condition: %d, %p\n", v9ses->transport->status,
-+		req->rcall);
-+	return 0;
++	struct v9fs_fcall msg;
++
++	dprintk(DEBUG_9P, "msize: %d version: %s\n", msize, version);
++	msg.id = TVERSION;
++	msg.params.tversion.msize = msize;
++	msg.params.tversion.version = version;
++
++	return v9fs_mux_rpc(v9ses, &msg, fcall);
 +}
 +
 +/**
-+ * xread - force read of a certain number of bytes
-+ * @v9ses: session info structure
-+ * @ptr: pointer to buffer
-+ * @sz: number of bytes to read
++ * v9fs_t_attach - mount the server
++ * @v9ses: 9P2000 session information
++ * @uname: user name doing the attach
++ * @aname: remote name being attached to
++ * @fid: mount fid to attatch to root node
++ * @afid: authentication fid (in this case result key)
++ * @fcall: pointer to response fcall pointer
 + *
-+ * Chuck Cranor CS-533 project1
 + */
 +
-+static int xread(struct v9fs_session_info *v9ses, void *ptr, unsigned long sz)
++int
++v9fs_t_attach(struct v9fs_session_info *v9ses, char *uname, char *aname,
++	      u32 fid, u32 afid, struct v9fs_fcall **fcall)
 +{
-+	int rd = 0;
-+	int ret = 0;
-+	while (rd < sz) {
-+		ret = v9ses->transport->read(v9ses->transport, ptr, sz - rd);
-+		if (ret <= 0) {
-+			dprintk(DEBUG_ERROR, "xread errno %d\n", ret);
-+			return ret;
-+		}
-+		rd += ret;
-+		ptr += ret;
-+	}
-+	return (rd);
++	struct v9fs_fcall msg;
++
++	dprintk(DEBUG_9P, "uname '%s' aname '%s' fid %d afid %d\n", uname,
++		aname, fid, afid);
++	msg.id = TATTACH;
++	msg.params.tattach.fid = fid;
++	msg.params.tattach.afid = afid;
++	msg.params.tattach.uname = uname;
++	msg.params.tattach.aname = aname;
++
++	return v9fs_mux_rpc(v9ses, &msg, fcall);
 +}
 +
 +/**
-+ * read_message - read a full 9P2000 fcall packet
-+ * @v9ses: session info structure
-+ * @rcall: fcall structure to read into
-+ * @rcalllen: size of fcall buffer
++ * v9fs_t_clunk - release a fid (finish a transaction)
++ * @v9ses: 9P2000 session information
++ * @fid: fid to release
++ * @fcall: pointer to response fcall pointer
 + *
 + */
 +
-+static int
-+read_message(struct v9fs_session_info *v9ses,
-+	     struct v9fs_fcall *rcall, int rcalllen)
++int
++v9fs_t_clunk(struct v9fs_session_info *v9ses, u32 fid,
++	     struct v9fs_fcall **fcall)
 +{
-+	unsigned char buf[4];
-+	void *data;
-+	int size = 0;
-+	int res = 0;
++	struct v9fs_fcall msg;
 +
-+	res = xread(v9ses, buf, sizeof(buf));
-+	if (res < 0) {
-+		dprintk(DEBUG_ERROR,
-+			"Reading of count field failed returned: %d\n", res);
-+		return res;
-+	}
++	dprintk(DEBUG_9P, "fid %d\n", fid);
++	msg.id = TCLUNK;
++	msg.params.tclunk.fid = fid;
 +
-+	if (res < 4) {
-+		dprintk(DEBUG_ERROR,
-+			"Reading of count field failed returned: %d\n", res);
-+		return -EIO;
-+	}
-+
-+	size = buf[0] | (buf[1] << 8) | (buf[2] << 16) | (buf[3] << 24);
-+	dprintk(DEBUG_MUX, "got a packet count: %d\n", size);	
-+
-+	/* adjust for the four bytes of size */
-+	size -= 4;
-+
-+	if (size > v9ses->maxdata) {
-+		dprintk(DEBUG_ERROR, "packet too big: %d\n", size);
-+		return -E2BIG;
-+	}
-+
-+	data = kmalloc(size, GFP_KERNEL);
-+	if (!data) {
-+		eprintk(KERN_WARNING, "out of memory\n");
-+		return -ENOMEM;
-+	}
-+
-+	res = xread(v9ses, data, size);
-+	if (res < size) {
-+		dprintk(DEBUG_ERROR, "Reading of fcall failed returned: %d\n",
-+			res);
-+		kfree(data);
-+		return res;
-+	}
-+
-+	/* we now have an in-memory string that is the reply. 
-+	 * deserialize it. There is very little to go wrong at this point
-+	 * save for v9fs_alloc errors. 
-+	 */
-+	res = v9fs_deserialize_fcall(v9ses, size, data, v9ses->maxdata,
-+				     rcall, rcalllen);
-+
-+	kfree(data);
-+
-+	if (res < 0)
-+		return res;
-+
-+	return 0;
++	return v9fs_mux_rpc(v9ses, &msg, fcall);
 +}
 +
 +/**
-+ * v9fs_recv - receive an RPC response for a particular tag
-+ * @v9ses: session info structure
-+ * @req: RPC request structure
++ * v9fs_v9fs_t_flush - flush a pending transaction
++ * @v9ses: 9P2000 session information
++ * @tag: tid to release
 + *
 + */
 +
-+static int v9fs_recv(struct v9fs_session_info *v9ses, struct v9fs_rpcreq *req)
++int v9fs_t_flush(struct v9fs_session_info *v9ses, u16 tag)
 +{
-+	int ret = 0;
++	struct v9fs_fcall msg;
 +
-+	dprintk(DEBUG_MUX, "waiting for response: %d\n", req->tcall->tag);
-+	ret = wait_event_interruptible_timeout(v9ses->read_wait,
-+		       ((v9ses->transport->status != Connected) || 
-+			(req->rcall != 0) || dprintcond(v9ses, req)),
-+		       msecs_to_jiffies(v9ses->timeout));
++	dprintk(DEBUG_9P, "oldtag %d\n", tag);
++	msg.id = TFLUSH;
++	msg.params.tflush.oldtag = tag;
++	return v9fs_mux_rpc(v9ses, &msg, NULL);
++}
 +
-+	dprintk(DEBUG_MUX, "got it: rcall %p\n", req->rcall);
-+	if (v9ses->transport->status == Disconnected)
-+		return -ECONNRESET;
++/**
++ * v9fs_t_stat - read a file's meta-data
++ * @v9ses: 9P2000 session information
++ * @fid: fid pointing to file or directory to get info about
++ * @fcall: pointer to response fcall
++ *
++ */
 +
-+	if (ret >= 0) {
-+		spin_lock(&v9ses->muxlock);
-+		list_del(&req->next);
-+		spin_unlock(&v9ses->muxlock);
-+	}
-+	if (ret == 0) {		/* timeout */
-+		dprintk(DEBUG_MUX, "Connection timeout after %u (%u)\n",
-+			v9ses->timeout,
-+			(unsigned int)msecs_to_jiffies(v9ses->timeout));
-+		v9ses->session_hung = 1;
-+		v9ses->transport->status = Hung;
-+		return -ETIMEDOUT;
++int
++v9fs_t_stat(struct v9fs_session_info *v9ses, u32 fid, struct v9fs_fcall **fcall)
++{
++	struct v9fs_fcall msg;
++
++	dprintk(DEBUG_9P, "fid %d\n", fid);
++	if (fcall)
++		*fcall = NULL;
++
++	msg.id = TSTAT;
++	msg.params.tstat.fid = fid;
++	return v9fs_mux_rpc(v9ses, &msg, fcall);
++}
++
++/**
++ * v9fs_t_wstat - write a file's meta-data
++ * @v9ses: 9P2000 session information
++ * @fid: fid pointing to file or directory to write info about
++ * @stat: metadata
++ * @fcall: pointer to response fcall
++ *
++ */
++
++int
++v9fs_t_wstat(struct v9fs_session_info *v9ses, u32 fid,
++	     struct v9fs_stat *stat, struct v9fs_fcall **fcall)
++{
++	struct v9fs_fcall msg;
++
++	dprintk(DEBUG_9P, "fid %d length %d\n", fid, (int)stat->length);
++	msg.id = TWSTAT;
++	msg.params.twstat.fid = fid;
++	msg.params.twstat.stat = stat;
++
++	return v9fs_mux_rpc(v9ses, &msg, fcall);
++}
++
++/**
++ * v9fs_t_walk - walk a fid to a new file or directory
++ * @v9ses: 9P2000 session information
++ * @fid: fid to walk
++ * @newfid: new fid (for clone operations)
++ * @name: path to walk fid to
++ * @fcall: pointer to response fcall
++ *
++ */
++
++/* TODO: support multiple walk */
++
++int
++v9fs_t_walk(struct v9fs_session_info *v9ses, u32 fid, u32 newfid,
++	    char *name, struct v9fs_fcall **fcall)
++{
++	struct v9fs_fcall msg;
++
++	dprintk(DEBUG_9P, "fid %d newfid %d wname '%s'\n", fid, newfid, name);
++	msg.id = TWALK;
++	msg.params.twalk.fid = fid;
++	msg.params.twalk.newfid = newfid;
++
++	if (name) {
++		msg.params.twalk.nwname = 1;
++		msg.params.twalk.wnames = &name;
 +	} else {
-+		ret = 0;	/* reset return code */
++		msg.params.twalk.nwname = 0;
 +	}
 +
-+	return ret;
++	return v9fs_mux_rpc(v9ses, &msg, fcall);
 +}
 +
 +/**
-+ * v9fs_send - send a 9P request
-+ * @v9ses: session info structure
-+ * @req: RPC request to send
++ * v9fs_t_open - open a file
++ *
++ * @v9ses - 9P2000 session information
++ * @fid - fid to open
++ * @mode - mode to open file (R, RW, etc)
++ * @fcall - pointer to response fcall
 + *
 + */
 +
-+static int v9fs_send(struct v9fs_session_info *v9ses, struct v9fs_rpcreq *req)
++int
++v9fs_t_open(struct v9fs_session_info *v9ses, u32 fid, u8 mode,
++	    struct v9fs_fcall **fcall)
 +{
-+	int ret = -1;
-+	void *data = NULL;
-+	struct v9fs_fcall *tcall = req->tcall;
++	struct v9fs_fcall msg;
++	long errorno = -1;
 +
-+	data = kmalloc(v9ses->maxdata + V9FS_IOHDRSZ, GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
++	dprintk(DEBUG_9P, "fid %d mode %d\n", fid, mode);
++	msg.id = TOPEN;
++	msg.params.topen.fid = fid;
++	msg.params.topen.mode = mode;
 +
-+	tcall->size = 0;	/* enforce size recalculation */
-+	ret =
-+	    v9fs_serialize_fcall(v9ses, tcall, data,
-+				 v9ses->maxdata + V9FS_IOHDRSZ);
-+	if (ret < 0) 
-+		goto free_data;
++	errorno = v9fs_mux_rpc(v9ses, &msg, fcall);
 +
-+	spin_lock(&v9ses->muxlock);
-+	list_add(&req->next, &v9ses->mux_fcalls);
-+	spin_unlock(&v9ses->muxlock);
-+
-+	dprintk(DEBUG_MUX, "sending message: tag %d size %d\n", tcall->tag,
-+		tcall->size);
-+	ret = v9ses->transport->write(v9ses->transport, data, tcall->size);
-+
-+	if (ret != tcall->size) {
-+		spin_lock(&v9ses->muxlock);
-+		list_del(&req->next);
-+		kfree(req->rcall);
-+
-+		spin_unlock(&v9ses->muxlock);
-+		if (ret >= 0)
-+			ret = -EREMOTEIO;
-+	} else
-+		ret = 0;
-+
-+      free_data:
-+	kfree(data);
-+	return ret;
++	return errorno;
 +}
 +
 +/**
-+ * v9fs_mux_rpc - send a request, receive a response
-+ * @v9ses: session info structure
-+ * @tcall: fcall to send
-+ * @rcall: buffer to place response into
++ * v9fs_t_remove - remove a file or directory
++ * @v9ses: 9P2000 session information
++ * @fid: fid to remove
++ * @fcall: pointer to response fcall
 + *
 + */
 +
-+long
-+v9fs_mux_rpc(struct v9fs_session_info *v9ses, struct v9fs_fcall *tcall,
-+	     struct v9fs_fcall **rcall)
++int
++v9fs_t_remove(struct v9fs_session_info *v9ses, u32 fid,
++	      struct v9fs_fcall **fcall)
 +{
-+	int tid = -1;
-+	struct v9fs_fcall *fcall = NULL;
-+	struct v9fs_rpcreq req;
-+	int ret = -1;
++	struct v9fs_fcall msg;
 +
-+	if (!v9ses)
-+		return -EINVAL;
++	dprintk(DEBUG_9P, "fid %d\n", fid);
++	msg.id = TREMOVE;
++	msg.params.tremove.fid = fid;
++	return v9fs_mux_rpc(v9ses, &msg, fcall);
++}
 +
-+	if (rcall)
-+		*rcall = NULL;
++/**
++ * v9fs_t_create - create a file or directory
++ * @v9ses: 9P2000 session information
++ * @fid: fid to create
++ * @name: name of the file or directory to create
++ * @perm: permissions to create with
++ * @mode: mode to open file (R, RW, etc)
++ * @fcall: pointer to response fcall
++ *
++ */
 +
-+	if (tcall->id != TVERSION) {
-+		tid = v9fs_get_idpool(&v9ses->tidpool);
-+		if (tid < 0)
-+			return -ENOMEM;
++int
++v9fs_t_create(struct v9fs_session_info *v9ses, u32 fid, char *name,
++	      u32 perm, u8 mode, struct v9fs_fcall **fcall)
++{
++	struct v9fs_fcall msg;
++
++	dprintk(DEBUG_9P, "fid %d name '%s' perm %x mode %d\n",
++		fid, name, perm, mode);
++
++	msg.id = TCREATE;
++	msg.params.tcreate.fid = fid;
++	msg.params.tcreate.name = name;
++	msg.params.tcreate.perm = perm;
++	msg.params.tcreate.mode = mode;
++
++	return v9fs_mux_rpc(v9ses, &msg, fcall);
++}
++
++/**
++ * v9fs_t_read - read data
++ * @v9ses: 9P2000 session information
++ * @fid: fid to read from
++ * @offset: offset to start read at
++ * @count: how many bytes to read
++ * @fcall: pointer to response fcall (with data)
++ *
++ */
++
++int
++v9fs_t_read(struct v9fs_session_info *v9ses, u32 fid, u64 offset,
++	    u32 count, struct v9fs_fcall **fcall)
++{
++	struct v9fs_fcall msg;
++	struct v9fs_fcall *rc = NULL;
++	long errorno = -1;
++
++	dprintk(DEBUG_9P, "fid %d offset 0x%lx count 0x%x\n", fid,
++		(long unsigned int)offset, count);
++	msg.id = TREAD;
++	msg.params.tread.fid = fid;
++	msg.params.tread.offset = offset;
++	msg.params.tread.count = count;
++	errorno = v9fs_mux_rpc(v9ses, &msg, &rc);
++
++	if (!errorno) {
++		errorno = rc->params.rread.count;
++		dump_data(rc->params.rread.data, rc->params.rread.count);
 +	}
 +
-+	tcall->tag = tid;
-+
-+	req.tcall = tcall;
-+	req.rcall = NULL;
-+
-+	ret = v9fs_send(v9ses, &req);
-+
-+	if (ret < 0) {
-+		v9fs_put_idpool(tid, &v9ses->tidpool);
-+		dprintk(DEBUG_MUX, "error %d\n", ret);
-+		return ret;
-+	}
-+
-+	ret = v9fs_recv(v9ses, &req);
-+
-+	fcall = req.rcall;
-+
-+	dprintk(DEBUG_MUX, "received: tag=%x, ret=%d\n", tcall->tag, ret);
-+	if (ret == -ERESTARTSYS) {
-+		if (v9ses->transport->status != Disconnected
-+		    && tcall->id != TFLUSH) {
-+			unsigned long flags;
-+
-+			dprintk(DEBUG_MUX, "flushing the tag: %d\n",
-+				tcall->tag);
-+			clear_thread_flag(TIF_SIGPENDING);
-+			v9fs_t_flush(v9ses, tcall->tag);
-+			spin_lock_irqsave(&current->sighand->siglock, flags);
-+			recalc_sigpending();
-+			spin_unlock_irqrestore(&current->sighand->siglock,
-+					       flags);
-+			dprintk(DEBUG_MUX, "flushing done\n");
-+		}
-+
-+		goto release_req;
-+	} else if (ret < 0)
-+		goto release_req;
-+
-+	if (!fcall)
-+		ret = -EIO;
-+	else {
-+		if (fcall->id == RERROR) {
-+			ret = v9fs_errstr2errno(fcall->params.rerror.error);
-+			if (ret == 0) {	/* string match failed */
-+				if (fcall->params.rerror.errno)
-+					ret = -(fcall->params.rerror.errno);
-+				else
-+					ret = -ESERVERFAULT;
-+			}
-+		} else if (fcall->id != tcall->id + 1) {
-+			dprintk(DEBUG_ERROR,
-+				"fcall mismatch: expected %d, got %d\n",
-+				tcall->id + 1, fcall->id);
-+			ret = -EIO;
-+		}
-+	}
-+
-+      release_req:
-+	v9fs_put_idpool(tid, &v9ses->tidpool);
-+	if (rcall)
-+		*rcall = fcall;
++	if (fcall)
++		*fcall = rc;
 +	else
-+		kfree(fcall);
++		kfree(rc);
 +
-+	return ret;
++	return errorno;
 +}
 +
 +/**
-+ * v9fs_recvproc - kproc to handle demultiplexing responses
-+ * @data: session info structure
++ * v9fs_t_write - write data
++ * @v9ses: 9P2000 session information
++ * @fid: fid to write to
++ * @offset: offset to start write at
++ * @count: how many bytes to write
++ * @fcall: pointer to response fcall
 + *
 + */
 +
-+static int v9fs_recvproc(void *data)
++int
++v9fs_t_write(struct v9fs_session_info *v9ses, u32 fid,
++	     u64 offset, u32 count, void *data, struct v9fs_fcall **fcall)
 +{
-+	struct v9fs_session_info *v9ses = (struct v9fs_session_info *)data;
-+	struct v9fs_fcall *rcall = NULL;
-+	struct list_head *rptr;
-+	struct list_head *rrptr;
-+	struct v9fs_rpcreq *req = NULL;
-+	int err = 0;
++	struct v9fs_fcall msg;
++	struct v9fs_fcall *rc = NULL;
++	long errorno = -1;
 +
-+	allow_signal(SIGKILL);
-+	set_current_state(TASK_INTERRUPTIBLE);
-+	complete(&v9ses->proccmpl);
-+	while (!kthread_should_stop() && err >= 0) {
-+		rcall = kmalloc(v9ses->maxdata + V9FS_IOHDRSZ, GFP_KERNEL);
-+		if(!rcall) {
-+			eprintk(KERN_ERR, "no memory for buffers\n");
-+			break;
-+		}
-+			
-+		dprintk(DEBUG_MUX, "waiting for message\n");
-+		err = read_message(v9ses, rcall, v9ses->maxdata + V9FS_IOHDRSZ);
-+		if (err < 0) {
-+			kfree(rcall);
-+			break;
-+		}
++	dprintk(DEBUG_9P, "fid %d offset 0x%llx count 0x%x\n", fid,
++		(unsigned long long)offset, count);
++	dump_data(data, count);
 +
-+		spin_lock(&v9ses->muxlock);
-+		list_for_each_safe(rptr, rrptr, &v9ses->mux_fcalls) {
-+			struct v9fs_rpcreq *rreq =
-+			    list_entry(rptr, struct v9fs_rpcreq, next);
++	msg.id = TWRITE;
++	msg.params.twrite.fid = fid;
++	msg.params.twrite.offset = offset;
++	msg.params.twrite.count = count;
++	msg.params.twrite.data = data;
 +
-+			if (rreq->tcall->tag == rcall->tag) {
-+				req = rreq;
-+				req->rcall = rcall;
-+				break;
-+			}
-+		}
++	errorno = v9fs_mux_rpc(v9ses, &msg, &rc);
 +
-+		if (req && (req->tcall->id == TFLUSH)) {
-+			list_for_each_safe(rptr, rrptr, &v9ses->mux_fcalls) {
-+				struct v9fs_rpcreq *treq =
-+				    list_entry(rptr, struct v9fs_rpcreq, next);
++	if (!errorno)
++		errorno = rc->params.rwrite.count;
 +
-+				if (treq->tcall->tag ==
-+				    req->tcall->params.tflush.oldtag) {
-+					list_del(rptr);
-+					kfree(treq->rcall);
-+					break;
-+				}
-+			}
-+		}
++	if (fcall)
++		*fcall = rc;
++	else
++		kfree(rc);
 +
-+		spin_unlock(&v9ses->muxlock);
-+
-+		if (!req) {
-+			dprintk(DEBUG_ERROR,
-+				"unexpected response: id %d tag %d\n",
-+				rcall->id, rcall->tag);
-+
-+			kfree(rcall);
-+		}
-+
-+		wake_up_all(&v9ses->read_wait);
-+		set_current_state(TASK_INTERRUPTIBLE);
-+	}
-+
-+	/* Inform all pending processes about the failure */
-+	wake_up_all(&v9ses->read_wait);
-+
-+	if (signal_pending(current))
-+		complete(&v9ses->proccmpl);
-+
-+	dprintk(DEBUG_MUX, "recvproc: end\n");
-+	v9ses->recvproc = NULL;
-+
-+	return err >= 0;
++	return errorno;
 +}
-+
-+/**
-+ * v9fs_mux_init - initialize multiplexer (spawn kproc)
-+ * @v9ses: session info structure
-+ * @dev_name: mount device information (to create unique kproc)
-+ * 
-+ */
-+
-+int v9fs_mux_init(struct v9fs_session_info *v9ses, const char *dev_name)
-+{
-+	char procname[60];
-+
-+	strncpy(procname, dev_name, sizeof(procname));
-+	procname[sizeof(procname) - 1] = 0;
-+
-+	init_waitqueue_head(&v9ses->read_wait);
-+	init_completion(&v9ses->fcread);
-+	init_completion(&v9ses->proccmpl);
-+	spin_lock_init(&v9ses->muxlock);
-+	INIT_LIST_HEAD(&v9ses->mux_fcalls);
-+	v9ses->recvproc = NULL;
-+	v9ses->curfcall = NULL;
-+
-+	v9ses->recvproc = kthread_create(v9fs_recvproc, v9ses,
-+					 "v9fs_recvproc %s", procname);
-+
-+	if (IS_ERR(v9ses->recvproc)) {
-+		eprintk(KERN_ERR, "cannot create receiving thread\n");
-+		v9fs_session_close(v9ses);
-+		return -ECONNABORTED;
-+	}
-+
-+	wake_up_process(v9ses->recvproc);
-+	wait_for_completion(&v9ses->proccmpl);
-+
-+	return 0;
-+}
-diff --git a/fs/9p/mux.h b/fs/9p/mux.h
+diff --git a/fs/9p/9p.h b/fs/9p/9p.h
 new file mode 100644
 --- /dev/null
-+++ b/fs/9p/transport.h
-@@ -0,0 +1,43 @@
++++ b/fs/9p/conv.h
+@@ -0,0 +1,34 @@
 +/*
-+ * linux/fs/9p/transport.h
++ * linux/fs/9p/conv.h
 + *
-+ * Transport Definition
++ * 9P protocol conversion definitions
 + *
 + *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
++ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
 + *
 + *  This program is free software; you can redistribute it and/or modify
 + *  it under the terms of the GNU General Public License as published by
@@ -561,39 +769,28 @@ new file mode 100644
 + *
 + */
 +
-+enum v9fs_transport_status {
-+	Connected,
-+	Disconnected,
-+	Hung,
-+};
++int v9fs_deserialize_stat(struct v9fs_session_info *, void *buf,
++			  u32 buflen, struct v9fs_stat *stat, u32 statlen);
++int v9fs_serialize_fcall(struct v9fs_session_info *, struct v9fs_fcall *tcall,
++			 void *buf, u32 buflen);
++int v9fs_deserialize_fcall(struct v9fs_session_info *, u32 msglen,
++			   void *buf, u32 buflen, struct v9fs_fcall *rcall,
++			   int rcalllen);
 +
-+struct v9fs_transport {
-+	enum v9fs_transport_status status;
-+	struct semaphore writelock;
-+	struct semaphore readlock;
-+	void *priv;
-+
-+	int (*init) (struct v9fs_session_info *, const char *, char *);
-+	int (*write) (struct v9fs_transport *, void *, int);
-+	int (*read) (struct v9fs_transport *, void *, int);
-+	void (*close) (struct v9fs_transport *);
-+};
-+
-+extern struct v9fs_transport v9fs_trans_tcp;
-+extern struct v9fs_transport v9fs_trans_unix;
-diff --git a/fs/9p/v9fs.c b/fs/9p/v9fs.c
++/* this one is actually in error.c right now */
++int v9fs_errstr2errno(char *errstr);
+diff --git a/fs/9p/debug.h b/fs/9p/debug.h
 new file mode 100644
 --- /dev/null
-+++ b/fs/9p/trans_sock.c
-@@ -0,0 +1,272 @@
++++ b/fs/9p/conv.c
+@@ -0,0 +1,725 @@
 +/*
-+ * linux/fs/9p/trans_socket.c
++ * linux/fs/9p/conv.c
 + *
-+ * Socket Transport Layer
++ * 9P protocol conversion functions
 + *
 + *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
-+ *  Copyright (C) 1997-2002 by Ron Minnich <rminnich@sarnoff.com>
-+ *  Copyright (C) 1995, 1996 by Olaf Kirch <okir@monad.swb.de>
++ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
 + *
 + *  This program is free software; you can redistribute it and/or modify
 + *  it under the terms of the GNU General Public License as published by
@@ -613,248 +810,702 @@ new file mode 100644
 +
 +#include <linux/config.h>
 +#include <linux/module.h>
-+#include <linux/net.h>
-+#include <linux/ipv6.h>
 +#include <linux/errno.h>
-+#include <linux/kernel.h>
-+#include <linux/un.h>
-+#include <asm/uaccess.h>
-+#include <linux/inet.h>
++#include <linux/fs.h>
 +
 +#include "debug.h"
 +#include "idpool.h"
 +#include "v9fs.h"
-+#include "transport.h"
++#include "9p.h"
++#include "conv.h"
 +
-+#define V9FS_PORT 564
-+
-+struct v9fs_trans_sock {
-+	struct socket *s;
++/*
++ * Buffer to help with string parsing 
++ */
++struct cbuf {
++	unsigned char *sp;
++	unsigned char *p;
++	unsigned char *ep;
 +};
 +
-+/**
-+ * v9fs_sock_recv - receive from a socket
-+ * @v9ses: session information 
-+ * @v: buffer to receive data into
-+ * @len: size of receive buffer
-+ *
-+ */
-+
-+static int v9fs_sock_recv(struct v9fs_transport *trans, void *v, int len)
++static inline void buf_init(struct cbuf *buf, void *data, int datalen)
 +{
-+	struct msghdr msg;
-+	struct kvec iov;
-+	int result;
-+	mm_segment_t oldfs;
-+	struct v9fs_trans_sock *ts = trans ? trans->priv : NULL;
++	buf->sp = buf->p = data;
++	buf->ep = data + datalen;
++}
 +
-+	if (trans->status == Disconnected)
-+		return -EREMOTEIO;
++static inline int buf_check_overflow(struct cbuf *buf)
++{
++	return buf->p > buf->ep;
++}
 +
-+	result = -EINVAL;
++#define buf_check_sizep(buf, len) \
++	if (buf->p+len > buf->ep) { \
++		if (buf->p < buf->ep) { \
++			eprintk(KERN_ERR, "buffer overflow\n"); \
++			buf->p = buf->ep + 1; \
++		} \
++		return NULL; \
++	} \
 +
-+	oldfs = get_fs();
-+	set_fs(get_ds());
 +
-+	iov.iov_base = v;
-+	iov.iov_len = len;
-+	msg.msg_name = NULL;
-+	msg.msg_namelen = 0;
-+	msg.msg_iovlen = 1;
-+	msg.msg_control = NULL;
-+	msg.msg_controllen = 0;
-+	msg.msg_namelen = 0;
-+	msg.msg_flags = MSG_NOSIGNAL;
++#define buf_check_size(buf, len) \
++	if (buf->p+len > buf->ep) { \
++		if (buf->p < buf->ep) { \
++			eprintk(KERN_ERR, "buffer overflow\n"); \
++			buf->p = buf->ep + 1; \
++		} \
++		return 0; \
++	} \
 +
-+	result = kernel_recvmsg(ts->s, &msg, &iov, 1, len, 0);
++#define buf_check_sizev(buf, len) \
++	if (buf->p+len > buf->ep) { \
++		if (buf->p < buf->ep) { \
++			eprintk(KERN_ERR, "buffer overflow\n"); \
++			buf->p = buf->ep + 1; \
++		} \
++		return; \
++	} \
 +
-+	dprintk(DEBUG_TRANS, "socket state %d\n", ts->s->state);
-+	set_fs(oldfs);
++static inline void *buf_alloc(struct cbuf *buf, int len)
++{
++	void *ret = NULL;
 +
-+	if (result <= 0) {
-+		if (result != -ERESTARTSYS)
-+			trans->status = Disconnected;
++	buf_check_sizep(buf, len);
++	ret = buf->p;
++	buf->p += len;
++
++	return ret;
++}
++
++static inline void buf_put_int8(struct cbuf *buf, u8 val)
++{
++	buf_check_sizev(buf, 1);
++
++	buf->p[0] = val;
++	buf->p++;
++}
++
++static inline void buf_put_int16(struct cbuf *buf, u16 val)
++{
++	buf_check_sizev(buf, 2);
++
++	buf->p[0] = val;
++	buf->p[1] = val >> 8;
++	buf->p += 2;
++}
++
++static inline void buf_put_int32(struct cbuf *buf, u32 val)
++{
++	buf_check_sizev(buf, 4);
++
++	buf->p[0] = val;
++	buf->p[1] = val >> 8;
++	buf->p[2] = val >> 16;
++	buf->p[3] = val >> 24;
++	buf->p += 4;
++}
++
++static inline void buf_put_int64(struct cbuf *buf, u64 val)
++{
++	buf_check_sizev(buf, 8);
++
++	buf->p[0] = val;
++	buf->p[1] = val >> 8;
++	buf->p[2] = val >> 16;
++	buf->p[3] = val >> 24;
++	buf->p[4] = val >> 32;
++	buf->p[5] = val >> 40;
++	buf->p[6] = val >> 48;
++	buf->p[7] = val >> 56;
++	buf->p += 8;
++}
++
++static inline void buf_put_stringn(struct cbuf *buf, const char *s, u16 slen)
++{
++	buf_check_sizev(buf, slen + 2);
++
++	buf_put_int16(buf, slen);
++	memcpy(buf->p, s, slen);
++	buf->p += slen;
++}
++
++static inline void buf_put_string(struct cbuf *buf, const char *s)
++{
++	buf_put_stringn(buf, s, strlen(s));
++}
++
++static inline void buf_put_data(struct cbuf *buf, void *data, u32 datalen)
++{
++	buf_check_sizev(buf, datalen);
++
++	memcpy(buf->p, data, datalen);
++	buf->p += datalen;
++}
++
++static inline u8 buf_get_int8(struct cbuf *buf)
++{
++	u8 ret = 0;
++
++	buf_check_size(buf, 1);
++	ret = buf->p[0];
++
++	buf->p++;
++
++	return ret;
++}
++
++static inline u16 buf_get_int16(struct cbuf *buf)
++{
++	u16 ret = 0;
++
++	buf_check_size(buf, 2);
++	ret = buf->p[0] | (buf->p[1] << 8);
++
++	buf->p += 2;
++
++	return ret;
++}
++
++static inline u32 buf_get_int32(struct cbuf *buf)
++{
++	u32 ret = 0;
++
++	buf_check_size(buf, 4);
++	ret =
++	    buf->p[0] | (buf->p[1] << 8) | (buf->p[2] << 16) | (buf->
++								p[3] << 24);
++
++	buf->p += 4;
++
++	return ret;
++}
++
++static inline u64 buf_get_int64(struct cbuf *buf)
++{
++	u64 ret = 0;
++
++	buf_check_size(buf, 8);
++	ret = (u64) buf->p[0] | ((u64) buf->p[1] << 8) |
++	    ((u64) buf->p[2] << 16) | ((u64) buf->p[3] << 24) |
++	    ((u64) buf->p[4] << 32) | ((u64) buf->p[5] << 40) |
++	    ((u64) buf->p[6] << 48) | ((u64) buf->p[7] << 56);
++
++	buf->p += 8;
++
++	return ret;
++}
++
++static inline int
++buf_get_string(struct cbuf *buf, char *data, unsigned int datalen)
++{
++
++	u16 len = buf_get_int16(buf);
++	buf_check_size(buf, len);
++	if (len + 1 > datalen)
++		return 0;
++
++	memcpy(data, buf->p, len);
++	data[len] = 0;
++	buf->p += len;
++
++	return len + 1;
++}
++
++static inline char *buf_get_stringb(struct cbuf *buf, struct cbuf *sbuf)
++{
++	char *ret = NULL;
++	int n = buf_get_string(buf, sbuf->p, sbuf->ep - sbuf->p);
++
++	if (n > 0) {
++		ret = sbuf->p;
++		sbuf->p += n;
 +	}
 +
-+	return result;
++	return ret;
++}
++
++static inline int buf_get_data(struct cbuf *buf, void *data, int datalen)
++{
++	buf_check_size(buf, datalen);
++
++	memcpy(data, buf->p, datalen);
++	buf->p += datalen;
++
++	return datalen;
++}
++
++static inline void *buf_get_datab(struct cbuf *buf, struct cbuf *dbuf,
++				  int datalen)
++{
++	char *ret = NULL;
++	int n = 0;
++
++	buf_check_sizep(dbuf, datalen);
++
++	n = buf_get_data(buf, dbuf->p, datalen);
++
++	if (n > 0) {
++		ret = dbuf->p;
++		dbuf->p += n;
++	}
++
++	return ret;
 +}
 +
 +/**
-+ * v9fs_sock_send - send to a socket
-+ * @v9ses: session information 
-+ * @v: buffer to send data from
-+ * @len: size of send buffer
-+ *
-+ */
-+
-+static int v9fs_sock_send(struct v9fs_transport *trans, void *v, int len)
-+{
-+	struct kvec iov;
-+	struct msghdr msg;
-+	int result = -1;
-+	mm_segment_t oldfs;
-+	struct v9fs_trans_sock *ts = trans ? trans->priv : NULL;
-+
-+	dprintk(DEBUG_TRANS, "Sending packet size %d (%x)\n", len, len);
-+	dump_data(v, len);
-+
-+	down(&trans->writelock);
-+
-+	oldfs = get_fs();
-+	set_fs(get_ds());
-+	iov.iov_base = v;
-+	iov.iov_len = len;
-+	msg.msg_name = NULL;
-+	msg.msg_namelen = 0;
-+	msg.msg_iovlen = 1;
-+	msg.msg_control = NULL;
-+	msg.msg_controllen = 0;
-+	msg.msg_namelen = 0;
-+	msg.msg_flags = MSG_NOSIGNAL;
-+	result = kernel_sendmsg(ts->s, &msg, &iov, 1, len);
-+	set_fs(oldfs);
-+
-+	if (result < 0) {
-+		if (result != -ERESTARTSYS)
-+			trans->status = Disconnected;
-+	}
-+
-+	up(&trans->writelock);
-+	return result;
-+}
-+
-+/**
-+ * v9fs_tcp_init - initialize TCP socket
-+ * @v9ses: session information 
-+ * @addr: address of server to mount
-+ * @data: mount options
-+ *
-+ */
-+
-+static int
-+v9fs_tcp_init(struct v9fs_session_info *v9ses, const char *addr, char *data)
-+{
-+	struct socket *csocket = NULL;
-+	struct sockaddr_in sin_server;
-+	int rc = 0;
-+	struct v9fs_trans_sock *ts = NULL;
-+	struct v9fs_transport *trans = v9ses->transport;
-+
-+	sema_init(&trans->writelock, 1);
-+	sema_init(&trans->readlock, 1);
-+
-+	ts = kmalloc(sizeof(struct v9fs_trans_sock), GFP_KERNEL);
-+
-+	if (!ts)
-+		return -ENOMEM;
-+
-+	trans->priv = ts;
-+	ts->s = NULL;
-+
-+	if (!addr)
-+		return -EINVAL;
-+
-+	dprintk(DEBUG_TRANS, "Connecting to %s\n", addr);
-+
-+	sin_server.sin_family = AF_INET;
-+	sin_server.sin_addr.s_addr = in_aton(addr);
-+	sin_server.sin_port = htons(v9ses->port);
-+	sock_create_kern(PF_INET, SOCK_STREAM, IPPROTO_TCP, &csocket);
-+	rc = csocket->ops->connect(csocket,
-+				   (struct sockaddr *)&sin_server,
-+				   sizeof(struct sockaddr_in), 0);
-+	if (rc < 0) {
-+		eprintk(KERN_ERR,
-+			"v9fs_trans_tcp: problem connecting socket to %s\n",
-+			addr);
-+		return rc;
-+	}
-+	csocket->sk->sk_allocation = GFP_NOIO;
-+	ts->s = csocket;
-+	trans->status = Connected;
-+
-+	return 0;
-+}
-+
-+/**
-+ * v9fs_unix_init - initialize UNIX domain socket
++ * v9fs_size_stat - calculate the size of a variable length stat struct
 + * @v9ses: session information
-+ * @dev_name: path to named pipe
-+ * @data: mount options
++ * @stat: metadata (stat) structure
++ *
++ */
++
++static int v9fs_size_stat(struct v9fs_session_info *v9ses,
++			  struct v9fs_stat *stat)
++{
++	int size = 0;
++
++	if (stat == NULL) {
++		eprintk(KERN_ERR, "v9fs_size_stat: got a NULL stat pointer\n");
++		return 0;
++	}
++
++	size =			/* 2 + *//* size[2] */
++	    2 +			/* type[2] */
++	    4 +			/* dev[4] */
++	    1 +			/* qid.type[1] */
++	    4 +			/* qid.vers[4] */
++	    8 +			/* qid.path[8] */
++	    4 +			/* mode[4] */
++	    4 +			/* atime[4] */
++	    4 +			/* mtime[4] */
++	    8 +			/* length[8] */
++	    8;			/* minimum sum of string lengths */
++
++	if (stat->name)
++		size += strlen(stat->name);
++	if (stat->uid)
++		size += strlen(stat->uid);
++	if (stat->gid)
++		size += strlen(stat->gid);
++	if (stat->muid)
++		size += strlen(stat->muid);
++
++	if (v9ses->extended) {
++		size += 4 +	/* n_uid[4] */
++		    4 +		/* n_gid[4] */
++		    4 +		/* n_muid[4] */
++		    2;		/* string length of extension[4] */
++		if (stat->extension)
++			size += strlen(stat->extension);
++	}
++
++	return size;
++}
++
++/**
++ * serialize_stat - safely format a stat structure for transmission
++ * @v9ses: session info
++ * @stat: metadata (stat) structure
++ * @bufp: buffer to serialize structure into
 + *
 + */
 +
 +static int
-+v9fs_unix_init(struct v9fs_session_info *v9ses, const char *dev_name,
-+	       char *data)
++serialize_stat(struct v9fs_session_info *v9ses, struct v9fs_stat *stat,
++	       struct cbuf *bufp)
 +{
-+	struct socket *csocket = NULL;
-+	struct sockaddr_un sun_server;
-+	struct v9fs_transport *trans = v9ses->transport;
-+	int rc = 0;
++	buf_put_int16(bufp, stat->size);
++	buf_put_int16(bufp, stat->type);
++	buf_put_int32(bufp, stat->dev);
++	buf_put_int8(bufp, stat->qid.type);
++	buf_put_int32(bufp, stat->qid.version);
++	buf_put_int64(bufp, stat->qid.path);
++	buf_put_int32(bufp, stat->mode);
++	buf_put_int32(bufp, stat->atime);
++	buf_put_int32(bufp, stat->mtime);
++	buf_put_int64(bufp, stat->length);
 +
-+	struct v9fs_trans_sock *ts =
-+	    kmalloc(sizeof(struct v9fs_trans_sock), GFP_KERNEL);
++	buf_put_string(bufp, stat->name);
++	buf_put_string(bufp, stat->uid);
++	buf_put_string(bufp, stat->gid);
++	buf_put_string(bufp, stat->muid);
 +
-+	if (!ts)
-+		return -ENOMEM;
-+
-+	trans->priv = ts;
-+	ts->s = NULL;
-+
-+	sema_init(&trans->writelock, 1);
-+	sema_init(&trans->readlock, 1);
-+
-+	sun_server.sun_family = PF_UNIX;
-+	strcpy(sun_server.sun_path, dev_name);
-+	sock_create_kern(PF_UNIX, SOCK_STREAM, 0, &csocket);
-+	rc = csocket->ops->connect(csocket,
-+				   (struct sockaddr *)&sun_server,
-+				   sizeof(struct sockaddr_un), 0);
-+	if (rc < 0) {
-+		eprintk(KERN_ERR,
-+			"v9fs_trans_unix: problem connecting socket: %s: %d\n",
-+			dev_name, rc);
-+		return rc;
++	if (v9ses->extended) {
++		buf_put_string(bufp, stat->extension);
++		buf_put_int32(bufp, stat->n_uid);
++		buf_put_int32(bufp, stat->n_gid);
++		buf_put_int32(bufp, stat->n_muid);
 +	}
-+	csocket->sk->sk_allocation = GFP_NOIO;
-+	ts->s = csocket;
-+	trans->status = Connected;
 +
-+	return 0;
++	if (buf_check_overflow(bufp))
++		return 0;
++
++	return stat->size;
 +}
 +
 +/**
-+ * v9fs_sock_close - shutdown socket
-+ * @trans: private socket structure
++ * deserialize_stat - safely decode a recieved metadata (stat) structure
++ * @v9ses: session info
++ * @bufp: buffer to deserialize 
++ * @stat: metadata (stat) structure
++ * @dbufp: buffer to deserialize variable strings into
 + *
 + */
 +
-+static void v9fs_sock_close(struct v9fs_transport *trans)
++static inline int
++deserialize_stat(struct v9fs_session_info *v9ses, struct cbuf *bufp,
++		 struct v9fs_stat *stat, struct cbuf *dbufp)
 +{
-+	struct v9fs_trans_sock *ts = trans ? trans->priv : NULL;
 +
-+	if ((ts) && (ts->s)) {
-+		dprintk(DEBUG_TRANS, "closing the socket %p\n", ts->s);
-+		sock_release(ts->s);
-+		ts->s = NULL;
-+		trans->status = Disconnected;
-+		dprintk(DEBUG_TRANS, "socket closed\n");
++	stat->size = buf_get_int16(bufp);
++	stat->type = buf_get_int16(bufp);
++	stat->dev = buf_get_int32(bufp);
++	stat->qid.type = buf_get_int8(bufp);
++	stat->qid.version = buf_get_int32(bufp);
++	stat->qid.path = buf_get_int64(bufp);
++	stat->mode = buf_get_int32(bufp);
++	stat->atime = buf_get_int32(bufp);
++	stat->mtime = buf_get_int32(bufp);
++	stat->length = buf_get_int64(bufp);
++	stat->name = buf_get_stringb(bufp, dbufp);
++	stat->uid = buf_get_stringb(bufp, dbufp);
++	stat->gid = buf_get_stringb(bufp, dbufp);
++	stat->muid = buf_get_stringb(bufp, dbufp);
++
++	if (v9ses->extended) {
++		stat->extension = buf_get_stringb(bufp, dbufp);
++		stat->n_uid = buf_get_int32(bufp);
++		stat->n_gid = buf_get_int32(bufp);
++		stat->n_muid = buf_get_int32(bufp);
 +	}
 +
-+	kfree(ts);
++	if (buf_check_overflow(bufp) || buf_check_overflow(dbufp))
++		return 0;
++
++	return stat->size + 2;
 +}
 +
-+struct v9fs_transport v9fs_trans_tcp = {
-+	.init = v9fs_tcp_init,
-+	.write = v9fs_sock_send,
-+	.read = v9fs_sock_recv,
-+	.close = v9fs_sock_close,
-+};
++/**
++ * deserialize_statb - wrapper for decoding a received metadata structure
++ * @v9ses: session info
++ * @bufp: buffer to deserialize 
++ * @dbufp: buffer to deserialize variable strings into
++ *
++ */
 +
-+struct v9fs_transport v9fs_trans_unix = {
-+	.init = v9fs_unix_init,
-+	.write = v9fs_sock_send,
-+	.read = v9fs_sock_recv,
-+	.close = v9fs_sock_close,
-+};
++static inline struct v9fs_stat *deserialize_statb(struct v9fs_session_info
++						  *v9ses, struct cbuf *bufp,
++						  struct cbuf *dbufp)
++{
++	struct v9fs_stat *ret = buf_alloc(dbufp, sizeof(struct v9fs_stat));
++
++	if (ret) {
++		int n = deserialize_stat(v9ses, bufp, ret, dbufp);
++		if (n <= 0)
++			return NULL;
++	}
++
++	return ret;
++}
++
++/**
++ * v9fs_deserialize_stat - decode a received metadata structure
++ * @v9ses: session info
++ * @buf: buffer to deserialize 
++ * @buflen: length of received buffer
++ * @stat: metadata structure to decode into
++ * @statlen: length of destination metadata structure 
++ *
++ */
++
++int
++v9fs_deserialize_stat(struct v9fs_session_info *v9ses, void *buf,
++		      u32 buflen, struct v9fs_stat *stat, u32 statlen)
++{
++	struct cbuf buffer;
++	struct cbuf *bufp = &buffer;
++	struct cbuf dbuffer;
++	struct cbuf *dbufp = &dbuffer;
++
++	buf_init(bufp, buf, buflen);
++	buf_init(dbufp, (char *)stat + sizeof(struct v9fs_stat),
++		 statlen - sizeof(struct v9fs_stat));
++
++	return deserialize_stat(v9ses, bufp, stat, dbufp);
++}
++
++static inline int
++v9fs_size_fcall(struct v9fs_session_info *v9ses, struct v9fs_fcall *fcall)
++{
++	int size = 4 + 1 + 2;	/* size[4] msg[1] tag[2] */
++	int i = 0;
++
++	switch (fcall->id) {
++	default:
++		eprintk(KERN_ERR, "bad msg type %d\n", fcall->id);
++		return 0;
++	case TVERSION:		/* msize[4] version[s] */
++		size += 4 + 2 + strlen(fcall->params.tversion.version);
++		break;
++	case TAUTH:		/* afid[4] uname[s] aname[s] */
++		size += 4 + 2 + strlen(fcall->params.tauth.uname) +
++		    2 + strlen(fcall->params.tauth.aname);
++		break;
++	case TFLUSH:		/* oldtag[2] */
++		size += 2;
++		break;
++	case TATTACH:		/* fid[4] afid[4] uname[s] aname[s] */
++		size += 4 + 4 + 2 + strlen(fcall->params.tattach.uname) +
++		    2 + strlen(fcall->params.tattach.aname);
++		break;
++	case TWALK:		/* fid[4] newfid[4] nwname[2] nwname*(wname[s]) */
++		size += 4 + 4 + 2;
++		/* now compute total for the array of names */
++		for (i = 0; i < fcall->params.twalk.nwname; i++)
++			size += 2 + strlen(fcall->params.twalk.wnames[i]);
++		break;
++	case TOPEN:		/* fid[4] mode[1] */
++		size += 4 + 1;
++		break;
++	case TCREATE:		/* fid[4] name[s] perm[4] mode[1] */
++		size += 4 + 2 + strlen(fcall->params.tcreate.name) + 4 + 1;
++		break;
++	case TREAD:		/* fid[4] offset[8] count[4] */
++		size += 4 + 8 + 4;
++		break;
++	case TWRITE:		/* fid[4] offset[8] count[4] data[count] */
++		size += 4 + 8 + 4 + fcall->params.twrite.count;
++		break;
++	case TCLUNK:		/* fid[4] */
++		size += 4;
++		break;
++	case TREMOVE:		/* fid[4] */
++		size += 4;
++		break;
++	case TSTAT:		/* fid[4] */
++		size += 4;
++		break;
++	case TWSTAT:		/* fid[4] stat[n] */
++		fcall->params.twstat.stat->size =
++		    v9fs_size_stat(v9ses, fcall->params.twstat.stat);
++		size += 4 + 2 + 2 + fcall->params.twstat.stat->size;
++	}
++	return size;
++}
++
++/*
++ * v9fs_serialize_fcall - marshall fcall struct into a packet
++ * @v9ses: session information
++ * @fcall: structure to convert
++ * @data: buffer to serialize fcall into 
++ * @datalen: length of buffer to serialize fcall into
++ *
++ */
++
++int
++v9fs_serialize_fcall(struct v9fs_session_info *v9ses, struct v9fs_fcall *fcall,
++		     void *data, u32 datalen)
++{
++	int i = 0;
++	struct v9fs_stat *stat = NULL;
++	struct cbuf buffer;
++	struct cbuf *bufp = &buffer;
++
++	buf_init(bufp, data, datalen);
++
++	if (!fcall) {
++		eprintk(KERN_ERR, "no fcall\n");
++		return -EINVAL;
++	}
++
++	fcall->size = v9fs_size_fcall(v9ses, fcall);
++
++	buf_put_int32(bufp, fcall->size);
++	buf_put_int8(bufp, fcall->id);
++	buf_put_int16(bufp, fcall->tag);
++
++	dprintk(DEBUG_CONV, "size %d id %d tag %d\n", fcall->size, fcall->id,
++		fcall->tag);
++
++	/* now encode it */
++	switch (fcall->id) {
++	default:
++		eprintk(KERN_ERR, "bad msg type: %d\n", fcall->id);
++		return -EPROTO;
++	case TVERSION:
++		buf_put_int32(bufp, fcall->params.tversion.msize);
++		buf_put_string(bufp, fcall->params.tversion.version);
++		break;
++	case TAUTH:
++		buf_put_int32(bufp, fcall->params.tauth.afid);
++		buf_put_string(bufp, fcall->params.tauth.uname);
++		buf_put_string(bufp, fcall->params.tauth.aname);
++		break;
++	case TFLUSH:
++		buf_put_int16(bufp, fcall->params.tflush.oldtag);
++		break;
++	case TATTACH:
++		buf_put_int32(bufp, fcall->params.tattach.fid);
++		buf_put_int32(bufp, fcall->params.tattach.afid);
++		buf_put_string(bufp, fcall->params.tattach.uname);
++		buf_put_string(bufp, fcall->params.tattach.aname);
++		break;
++	case TWALK:
++		buf_put_int32(bufp, fcall->params.twalk.fid);
++		buf_put_int32(bufp, fcall->params.twalk.newfid);
++		buf_put_int16(bufp, fcall->params.twalk.nwname);
++		for (i = 0; i < fcall->params.twalk.nwname; i++)
++			buf_put_string(bufp, fcall->params.twalk.wnames[i]);
++		break;
++	case TOPEN:
++		buf_put_int32(bufp, fcall->params.topen.fid);
++		buf_put_int8(bufp, fcall->params.topen.mode);
++		break;
++	case TCREATE:
++		buf_put_int32(bufp, fcall->params.tcreate.fid);
++		buf_put_string(bufp, fcall->params.tcreate.name);
++		buf_put_int32(bufp, fcall->params.tcreate.perm);
++		buf_put_int8(bufp, fcall->params.tcreate.mode);
++		break;
++	case TREAD:
++		buf_put_int32(bufp, fcall->params.tread.fid);
++		buf_put_int64(bufp, fcall->params.tread.offset);
++		buf_put_int32(bufp, fcall->params.tread.count);
++		break;
++	case TWRITE:
++		buf_put_int32(bufp, fcall->params.twrite.fid);
++		buf_put_int64(bufp, fcall->params.twrite.offset);
++		buf_put_int32(bufp, fcall->params.twrite.count);
++		buf_put_data(bufp, fcall->params.twrite.data,
++			     fcall->params.twrite.count);
++		break;
++	case TCLUNK:
++		buf_put_int32(bufp, fcall->params.tclunk.fid);
++		break;
++	case TREMOVE:
++		buf_put_int32(bufp, fcall->params.tremove.fid);
++		break;
++	case TSTAT:
++		buf_put_int32(bufp, fcall->params.tstat.fid);
++		break;
++	case TWSTAT:
++		buf_put_int32(bufp, fcall->params.twstat.fid);
++		stat = fcall->params.twstat.stat;
++
++		buf_put_int16(bufp, stat->size + 2);
++		serialize_stat(v9ses, stat, bufp);
++		break;
++	}
++
++	if (buf_check_overflow(bufp))
++		return -EIO;
++
++	return fcall->size;
++}
++
++/**
++ * deserialize_fcall - unmarshal a response
++ * @v9ses: session information
++ * @msgsize: size of rcall message
++ * @buf: recieved buffer
++ * @buflen: length of received buffer
++ * @rcall: fcall structure to populate
++ * @rcalllen: length of fcall structure to populate
++ *
++ */
++
++int
++v9fs_deserialize_fcall(struct v9fs_session_info *v9ses, u32 msgsize,
++		       void *buf, u32 buflen, struct v9fs_fcall *rcall,
++		       int rcalllen)
++{
++
++	struct cbuf buffer;
++	struct cbuf *bufp = &buffer;
++	struct cbuf dbuffer;
++	struct cbuf *dbufp = &dbuffer;
++	int i = 0;
++
++	buf_init(bufp, buf, buflen);
++	buf_init(dbufp, (char *)rcall + sizeof(struct v9fs_fcall),
++		 rcalllen - sizeof(struct v9fs_fcall));
++
++	rcall->size = msgsize;
++	rcall->id = buf_get_int8(bufp);
++	rcall->tag = buf_get_int16(bufp);
++
++	dprintk(DEBUG_CONV, "size %d id %d tag %d\n", rcall->size, rcall->id,
++		rcall->tag);
++	switch (rcall->id) {
++	default:
++		eprintk(KERN_ERR, "unknown message type: %d\n", rcall->id);
++		return -EPROTO;
++	case RVERSION:
++		rcall->params.rversion.msize = buf_get_int32(bufp);
++		rcall->params.rversion.version = buf_get_stringb(bufp, dbufp);
++		break;
++	case RFLUSH:
++		break;
++	case RATTACH:
++		rcall->params.rattach.qid.type = buf_get_int8(bufp);
++		rcall->params.rattach.qid.version = buf_get_int32(bufp);
++		rcall->params.rattach.qid.path = buf_get_int64(bufp);
++		break;
++	case RWALK:
++		rcall->params.rwalk.nwqid = buf_get_int16(bufp);
++		rcall->params.rwalk.wqids = buf_alloc(bufp,
++		      rcall->params.rwalk.nwqid * sizeof(struct v9fs_qid));
++		if (rcall->params.rwalk.wqids)
++			for (i = 0; i < rcall->params.rwalk.nwqid; i++) {
++				rcall->params.rwalk.wqids[i].type =
++				    buf_get_int8(bufp);
++				rcall->params.rwalk.wqids[i].version =
++				    buf_get_int16(bufp);
++				rcall->params.rwalk.wqids[i].path =
++				    buf_get_int64(bufp);
++			}
++		break;
++	case ROPEN:
++		rcall->params.ropen.qid.type = buf_get_int8(bufp);
++		rcall->params.ropen.qid.version = buf_get_int32(bufp);
++		rcall->params.ropen.qid.path = buf_get_int64(bufp);
++		rcall->params.ropen.iounit = buf_get_int32(bufp);
++		break;
++	case RCREATE:
++		rcall->params.rcreate.qid.type = buf_get_int8(bufp);
++		rcall->params.rcreate.qid.version = buf_get_int32(bufp);
++		rcall->params.rcreate.qid.path = buf_get_int64(bufp);
++		rcall->params.rcreate.iounit = buf_get_int32(bufp);
++		break;
++	case RREAD:
++		rcall->params.rread.count = buf_get_int32(bufp);
++		rcall->params.rread.data = buf_get_datab(bufp, dbufp,
++			rcall->params.rread.count);
++		break;
++	case RWRITE:
++		rcall->params.rwrite.count = buf_get_int32(bufp);
++		break;
++	case RCLUNK:
++		break;
++	case RREMOVE:
++		break;
++	case RSTAT:
++		buf_get_int16(bufp);
++		rcall->params.rstat.stat =
++		    deserialize_statb(v9ses, bufp, dbufp);
++		break;
++	case RWSTAT:
++		break;
++	case RERROR:
++		rcall->params.rerror.error = buf_get_stringb(bufp, dbufp);
++		if (v9ses->extended)
++			rcall->params.rerror.errno = buf_get_int16(bufp);
++		break;
++	}
++
++	if (buf_check_overflow(bufp) || buf_check_overflow(dbufp))
++		return -EIO;
++
++	return rcall->size;
++}

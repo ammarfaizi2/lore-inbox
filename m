@@ -1,77 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261797AbVFGNFp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbVFGNJI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261797AbVFGNFp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 09:05:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261811AbVFGNFp
+	id S261811AbVFGNJI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 09:09:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261853AbVFGNJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 09:05:45 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:20051 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S261797AbVFGNFg (ORCPT
+	Tue, 7 Jun 2005 09:09:08 -0400
+Received: from [217.19.149.7] ([217.19.149.7]:31758 "HELO mail.netline.it")
+	by vger.kernel.org with SMTP id S261811AbVFGNJE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 09:05:36 -0400
-Date: Tue, 7 Jun 2005 15:05:35 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux v2.6.12-rc6
-Message-ID: <20050607130535.GD16602@harddisk-recovery.com>
-References: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org>
+	Tue, 7 Jun 2005 09:09:04 -0400
+Date: Tue, 7 Jun 2005 15:09:00 +0200
+From: Domenico Andreoli <cavok@libero.it>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [SATA] libata-dev queue updated
+Message-ID: <20050607130900.GA32582@raptus.dandreoli.com>
+Mail-Followup-To: Jeff Garzik <jgarzik@pobox.com>,
+	linux-kernel@vger.kernel.org
+References: <42A14541.6020209@pobox.com> <87vf4ujgmj.fsf@stark.xeocode.com> <42A47376.80203@rtr.ca> <87u0kbhqsz.fsf@stark.xeocode.com> <42A6B191.3050706@rtr.ca>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org>
-Organization: Harddisk-recovery.com
+In-Reply-To: <42A6B191.3050706@rtr.ca>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 06, 2005 at 11:08:25AM -0700, Linus Torvalds wrote:
+On Wed, Jun 08, 2005 at 04:51:29AM -0400, Mark Lord wrote:
+> 
+> Sure, I (and everyone else on the planet) could do the 15-gadzillion steps
+> to download and install the piecemeal git stuff, but that shouldn't be
+> necessary for non-developers to do.
+> 
+> Is there a cumulative libata-dev patch for 2.6.12 available somewhere?
 
-Over here the script can get the  correct information from git
-branches:
+yes please, provide such patch. i'd like to try it but given the burden
+of git i continue to postpone all the required work. BTW, is it in
+2.6.12-rc6? will it be in 2.6.12? many thanks.
 
-> Jeff Garzik:
->   Automatic merge of /spare/repo/netdev-2.6 branch r8169-fix
+cheers
+domenico
 
-But for your own changes it seems to fail:
-
-> Linus Torvalds:
->   Linux 2.6.12-rc6
->   Automatic merge of 'misc-fixes' branch from
-
-... from what?
-
->   Automatic merge of rsync://www.parisc-linux.org/~jejb/git/scsi-for-linus-2.6
->   Automatic merge of rsync://rsync.kernel.org/.../davem/net-2.6
-
-And this again works.
-
->   Merge of 'docs' branch from
->   Merge of master.kernel.org:/.../aegl/linux-2.6
->   Automatic merge of rsync://rsync.kernel.org/.../sfrench/cifs-2.6
->   Automatic merge of rsync://rsync.kernel.org/.../davem/net-2.6
->   Automatic merge of rsync://rsync.kernel.org/.../davem/sparc-2.6
->   Automatic merge of rsync://rsync.kernel.org/.../gregkh/usb-2.6
->   Automatic merge of rsync://rsync.kernel.org/.../gregkh/i2c-2.6
->   Automatic merge of rsync://rsync.kernel.org/.../gregkh/pci-2.6
->   Automatic merge of rsync://rsync.kernel.org/.../aegl/linux-2.6
->   Merge of rsync://rsync.kernel.org/.../davem/tg3-2.6
->   Automatic merge of 'misc-fixes' branch from
->   Automatic merge of 'for-linus' branch from
->   Automatic merge of rsync://rsync.kernel.org/.../hch/xfs-2.6
->   ide-cd: revert DMA mask test change
->   Automatic merge of rsync://rsync.kernel.org/.../davem/net-2.6
->   Automatic merge of 'for-linus' branch from
->   Merge of 'misc-fixes' branch from
->   Merge of rsync://rsync.kernel.org/.../davem/sparc-2.6
->   Merge of 'new-ids' branch from
->   Merge of 'for-linus' branch from
-
-I don't see what's going wrong, maybe you can figure out.
-
-
-Erik
-
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+-----[ Domenico Andreoli, aka cavok
+ --[ http://people.debian.org/~cavok/gpgkey.asc
+   ---[ 3A0F 2F80 F79C 678A 8936  4FEE 0677 9033 A20E BC50

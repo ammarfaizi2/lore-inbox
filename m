@@ -1,41 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261884AbVFGOa7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261430AbVFGOiN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261884AbVFGOa7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 10:30:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVFGOa7
+	id S261430AbVFGOiN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 10:38:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVFGOiM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 10:30:59 -0400
-Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:6404 "EHLO
-	mail.rtr.ca") by vger.kernel.org with ESMTP id S261878AbVFGOaz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 10:30:55 -0400
-Message-ID: <42A6C8C9.7090106@rtr.ca>
-Date: Wed, 08 Jun 2005 06:30:33 -0400
-From: Mark Lord <liml@rtr.ca>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
-X-Accept-Language: en, en-us
-MIME-Version: 1.0
-To: Greg Stark <gsstark@mit.edu>
-Cc: Jeff Garzik <jgarzik@pobox.com>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>,
-       James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: [SATA] libata-dev queue updated
-References: <42A14541.6020209@pobox.com> <87vf4ujgmj.fsf@stark.xeocode.com>	<42A47376.80203@rtr.ca> <87u0kbhqsz.fsf@stark.xeocode.com>	<42A6AE3E.7070401@rtr.ca> <87is0qi8bo.fsf@stark.xeocode.com>
-In-Reply-To: <87is0qi8bo.fsf@stark.xeocode.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Jun 2005 10:38:12 -0400
+Received: from mx2.suse.de ([195.135.220.15]:23508 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S261430AbVFGOiL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 10:38:11 -0400
+Date: Tue, 7 Jun 2005 16:38:06 +0200
+From: Andi Kleen <ak@suse.de>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] mbind: fix verify_pages pte_page
+Message-ID: <20050607143806.GF23831@wotan.suse.de>
+References: <Pine.LNX.4.61.0506062046590.5000@goblin.wat.veritas.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0506062046590.5000@goblin.wat.veritas.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg Stark wrote:
->
-> It's 2.6.11-bk6-libata-dev1.patch which I appear to have downloaded May 15th.
-> (Sorry I guess "latest" wasn't very precise)
+On Mon, Jun 06, 2005 at 08:48:27PM +0100, Hugh Dickins wrote:
+> Strict mbind's check that pages already mapped are on right node has been
+> using pte_page without checking if pfn_valid, and without page_table_lock
+> to prevent spurious failures when try_to_unmap_one intervenes between the
+> pte_present and the pte_page.
 
-Mmm.. the relevant ioctl's look identical to the 02-Mar-2005
-libata-dev1.patch that I am using here, so if that is what you
-really are using, then smartctl should be working.
+Thanks. Looks good.
 
-???
+-Andi

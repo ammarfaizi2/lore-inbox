@@ -1,37 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261855AbVFGTbH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbVFGTdA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261855AbVFGTbH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 15:31:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261629AbVFGTbH
+	id S261629AbVFGTdA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 15:33:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbVFGTdA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 15:31:07 -0400
-Received: from boxa.alphawave.net ([207.218.5.130]:34230 "EHLO
-	box.alphawave.net") by vger.kernel.org with ESMTP id S261855AbVFGTbB
+	Tue, 7 Jun 2005 15:33:00 -0400
+Received: from hell.sks3.muni.cz ([147.251.210.30]:38417 "EHLO
+	anubis.fi.muni.cz") by vger.kernel.org with ESMTP id S261629AbVFGTcz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 15:31:01 -0400
-Date: Tue, 7 Jun 2005 20:30:58 +0100
-From: Nick Craig-Wood <nick@craig-wood.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Frank Sorenson <frank@tuxrocks.com>
-Subject: Re: Stable 2.6.x.y kernel series...
-Message-ID: <20050607193058.GA11180@craig-wood.com>
-References: <4cHDt-8gT-7@gated-at.bofh.it> <4cHDt-8gT-9@gated-at.bofh.it> <4cHDt-8gT-5@gated-at.bofh.it> <4cOly-5Va-35@gated-at.bofh.it> <20050607165906.7CB653FF9A@irishsea.home.craig-wood.com> <20050607185011.GB9153@shell0.pdx.osdl.net>
+	Tue, 7 Jun 2005 15:32:55 -0400
+Date: Tue, 7 Jun 2005 21:33:05 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.12-rc6-mm1 & Chelsio driver
+Message-ID: <20050607193305.GN2369@mail.muni.cz>
+References: <20050607181300.GL2369@mail.muni.cz> <42A5EC7C.4020202@pobox.com> <20050607185845.GM2369@mail.muni.cz> <42A5F51B.5060909@pobox.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-In-Reply-To: <20050607185011.GB9153@shell0.pdx.osdl.net>
-User-Agent: Mutt/1.5.6+20040907i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <42A5F51B.5060909@pobox.com>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 07, 2005 at 11:50:11AM -0700, Chris Wright wrote:
-> There's lot of grey areas, those are guidelines for acceptance.  And,
-> per your earlier comment, we do push patches to Linus where appropriate.
-> Typically, we prefer to see them upstream, helps add much credibility
-> to the stability of the patch.
+On Tue, Jun 07, 2005 at 03:27:23PM -0400, Jeff Garzik wrote:
+> >Bus  2, device   3, function  0:
+> >    Ethernet controller: PCI device 1425:0006 (ASIC Designers Inc) (rev 0).
+> >      IRQ 24.
+> >      Master Capable.  Latency=248.  
+> >      Non-prefetchable 64 bit memory at 0xf6042000 [0xf6042fff].
+> >
+> >
+> >kernel 2.6.6 and driver from web site:
+> >Chelsio TOE Network Driver - version 2.1.0
+> >eth0: Chelsio T110 1x10GBaseX TOE (rev 1), PCIX 100MHz/64-bit
+> >eth0: 512MB SDRAM, 128MB FCRAM
+> 
+> I can't help much beyond this then :(  There should be Chelsio email 
+> addresses in the driver...
 
-Good!  I'd just hate to see all that hard work go missing when 2.6.12
-is released.
+I'am afraid that they oficially support only 2.6.6 kernel :(
+
+I wonder whether this driver works for someone. If not, it should be removed.
+
+And also, who does it maintain?
 
 -- 
-Nick Craig-Wood <nick@craig-wood.com> -- http://www.craig-wood.com/nick
+Luká¹ Hejtmánek

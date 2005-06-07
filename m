@@ -1,53 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261853AbVFGNN3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261857AbVFGNPS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261853AbVFGNN3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 09:13:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbVFGNN3
+	id S261857AbVFGNPS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 09:15:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261856AbVFGNPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 09:13:29 -0400
-Received: from zproxy.gmail.com ([64.233.162.198]:34649 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261853AbVFGNN0 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 09:13:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WHyu3rC+XVWLkeZJwnQIm3PvQzBBzokIyPSZB8Sj7J+DQKZh8+n4o1NDry78tEdBHqLbUj8C87raWicAw0kolmUOG33/dgopgt8grRZgmQGS22TstkFZ6NYKrJrsPXgDeBrsxema/AwIrShkvHgmE0arXM3Y9RnRlc/fQqt7Woc=
-Message-ID: <9a87484905060706136a8780b5@mail.gmail.com>
-Date: Tue, 7 Jun 2005 15:13:25 +0200
-From: Jesper Juhl <jesper.juhl@gmail.com>
-Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Subject: Re: Resend: [PATCH] crypto: don't check for NULL before kfree(), it's redundant.
-Cc: jmorris@intercode.com.au, akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <E1DfTul-0002H4-00@gondolin.me.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <9a8748490506061650477c8b7@mail.gmail.com>
-	 <E1DfTul-0002H4-00@gondolin.me.apana.org.au>
+	Tue, 7 Jun 2005 09:15:18 -0400
+Received: from wasp.net.au ([203.190.192.17]:9679 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S261855AbVFGNOz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 09:14:55 -0400
+Message-ID: <42A59DD9.5090903@wasp.net.au>
+Date: Tue, 07 Jun 2005 17:15:05 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050115)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Mark Lord <liml@rtr.ca>
+CC: Greg Stark <gsstark@mit.edu>, Jeff Garzik <jgarzik@pobox.com>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: [SATA] libata-dev queue updated
+References: <42A14541.6020209@pobox.com> <87vf4ujgmj.fsf@stark.xeocode.com>	<42A47376.80203@rtr.ca> <87u0kbhqsz.fsf@stark.xeocode.com> <42A58307.3080906@wasp.net.au> <42A6AD46.5090200@rtr.ca>
+In-Reply-To: <42A6AD46.5090200@rtr.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/7/05, Herbert Xu <herbert@gondor.apana.org.au> wrote:
-> Jesper Juhl <jesper.juhl@gmail.com> wrote:
-> >
-> > Here's a resend of a patch originally for 2.6.12-rc1-mm4. It still
-> > applies to 2.6.12-rc6
-> >
-> > The patch removes redundant checks of NULL before kfree() in crypto/ .
-> >
-> > Patch attached as well as inline since I don't know how well gmail
-> > handles inline patches.
+Mark Lord wrote:
+> Brad Campbell wrote:
 > 
-> I've already merged your patch.  It will be pushed upstream after
-> 2.6.12 is released.
+> 
+> That's weird.  So, is your /dev/sda a (S)ATA drive?
 
-Ohh, ok. Thanks.  I need to keep better track of what patches people
-have already merged.
+Yep.. I have 28 Maxtor Maxline-II drives on Promise SATA150TX4's
+They all show up under /dev/scsi/host??
 
+> 
+> Maybe there's something screwy with true SATA drives and libata (doubtful)?
+
+Not that I know of.. it has been working great here for months now.. (bar the odd oops)
+
+> I also have "smartctl -data" working with SATA drives through the
+> qstor driver (the non-libata version) without any issues, so we know
+> the drives themselves are happy with it.
+> 
+>> smartctl -d ata -a /dev/sda
+
+> Same thing as "-data".  Either works.
+> 
+
+So it does..
+
+I'm still using a 2.6.10-bk10 kernel here with the libata-dev patches and some minor md patches.. 
+It's stable unless one of the drives throws an error, whereapon libata oops and stops talking to the 
+other drives (and then it gets really messy).. Have not had time to reproduce/upgrade to see if it's 
+fixed though.
+
+Regards,
+Brad
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+"Human beings, who are almost unique in having the ability
+to learn from the experience of others, are also remarkable
+for their apparent disinclination to do so." -- Douglas Adams

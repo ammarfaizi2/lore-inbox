@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261961AbVFGTKq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261965AbVFGTXb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261961AbVFGTKq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 15:10:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261960AbVFGTKq
+	id S261965AbVFGTXb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 15:23:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261964AbVFGTXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 15:10:46 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:16266 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261962AbVFGTKg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 15:10:36 -0400
-Date: Tue, 7 Jun 2005 14:10:01 -0500
-From: Dean Nelson <dcn@sgi.com>
-To: Steven Rostedt <rostedt@goodmis.org>
+	Tue, 7 Jun 2005 15:23:31 -0400
+Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:9372 "EHLO
+	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261963AbVFGTX0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 15:23:26 -0400
+Subject: Re: [PATCH] MAX_USER_RT_PRIO and MAX_RT_PRIO are wrong!
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Dean Nelson <dcn@sgi.com>
 Cc: mingo@elte.hu, linux-ia64@vger.kernel.org, linux-altix@sgi.com,
        edwardsg@sgi.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
        anton.wilson@camotion.com
-Subject: Re: [PATCH] MAX_USER_RT_PRIO and MAX_RT_PRIO are wrong!
-Message-ID: <20050607191001.GA8768@sgi.com>
-References: <1118112390.4533.10.camel@localhost.localdomain> <20050607053306.GA16181@elte.hu> <1118143504.4533.21.camel@localhost.localdomain> <20050607154846.GA1253@sgi.com> <1118165519.5667.3.camel@localhost.localdomain>
+In-Reply-To: <20050607191001.GA8768@sgi.com>
+References: <1118112390.4533.10.camel@localhost.localdomain>
+	 <20050607053306.GA16181@elte.hu>
+	 <1118143504.4533.21.camel@localhost.localdomain>
+	 <20050607154846.GA1253@sgi.com>
+	 <1118165519.5667.3.camel@localhost.localdomain>
+	 <20050607191001.GA8768@sgi.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Tue, 07 Jun 2005 15:23:02 -0400
+Message-Id: <1118172182.4972.4.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1118165519.5667.3.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 07, 2005 at 01:31:59PM -0400, Steven Rostedt wrote:
-> On Tue, 2005-06-07 at 10:48 -0500, Dean Nelson wrote:
-> > You are correct xpc_activating() needs to be changed to use MAX_RT_PRIO.
-> > So please do add that change to your patch.
+On Tue, 2005-06-07 at 14:10 -0500, Dean Nelson wrote:
+
+> I just built and tested a kernel and xp/xpc/xpnet modules with your patch
+> applied. It ran fine. The priorities of the xpc kthreads were correct.
 > 
-> I haven't tested this patch, I just used the previous patch (which I did
-> test) and added your change.
+> Looks good to me.
 
-I just built and tested a kernel and xp/xpc/xpnet modules with your patch
-applied. It ran fine. The priorities of the xpc kthreads were correct.
+Dean, 
 
-Looks good to me.
+If you can do me a favor, the way you really want to test this is by
+changing MAX_USER_RT_PRIO to 99 and MAX_RT_PRIO to 
+(MAX_USER_RT_PRIO+1).  This will make sure that the patch is working.
+Your kernel thread should still run at priority 99. 
+
+Check it with:  ps -eo pid,rtprio,comm
+
+And grep for your thread name.
 
 Thanks,
-Dean
+
+-- Steve
+
 

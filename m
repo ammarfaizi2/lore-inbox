@@ -1,100 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbVFGPgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbVFGPnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261914AbVFGPgp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 11:36:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbVFGP04
+	id S261892AbVFGPnq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 11:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261156AbVFGPno
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 11:26:56 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:17818 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S261904AbVFGOyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 10:54:33 -0400
-Date: Tue, 7 Jun 2005 09:54:31 -0500
-From: Jack Steiner <steiner@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: linux-kernel@vger.kernel.org, John Hawkes <hawkes@sgi.com>
-Subject: Re: Hang in sched_balance_self()
-Message-ID: <20050607145431.GA7452@sgi.com>
-References: <20050603225544.GA8499@sgi.com> <42A5AA85.60709@yahoo.com.au>
+	Tue, 7 Jun 2005 11:43:44 -0400
+Received: from fmr23.intel.com ([143.183.121.15]:58065 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261892AbVFGPlj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 11:41:39 -0400
+Date: Tue, 7 Jun 2005 08:40:32 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: Shaohua Li <shaohua.li@intel.com>
+Cc: Ashok Raj <ashok.raj@intel.com>, akpm <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       Srivattsa Vaddagiri <vatsa@in.ibm.com>, x86-64 <discuss@x86-64.org>,
+       Rusty Russell <rusty@rustycorp.com.au>, ak <ak@muc.de>
+Subject: Re: [patch 4/5] try2: x86_64: Dont use broadcast shortcut to make it cpu hotplug safe.
+Message-ID: <20050607084031.A26067@unix-os.sc.intel.com>
+References: <20050606191433.104273000@araj-em64t> <20050606192113.307745000@araj-em64t> <1118128410.3949.3.camel@linux-hp.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42A5AA85.60709@yahoo.com.au>
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <1118128410.3949.3.camel@linux-hp.sh.intel.com>; from shaohua.li@intel.com on Tue, Jun 07, 2005 at 03:13:30PM +0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 08, 2005 at 12:09:09AM +1000, Nick Piggin wrote:
-> Jack Steiner wrote:
-> >Nick -
-> >
-> >The latest 2.6.12-rc5-mm2 tree fails to boot on some of the 64p
-> >SGI systems. The system hangs immediately after printing:
-> >
-> >	...
-> >	Inode-cache hash table entries: 8388608 (order: 12, 67108864 bytes)
-> >	Mount-cache hash table entries: 1024
-> >	Boot processor id 0x0/0x0
-> >	Brought up 64 CPUs
-> >	Total of 64 processors activated (118415.36 BogoMIPS).
-> >
-> >
-> >I have isolated the failure to cpu 0 hanging in sched_balance_self() during
-> >a fork (or clone).  The "while" loop at the end of function never 
-> >terminates, ie. sd is never NULL.
-> >
-> >Is this a problem that you have seen before. If not, I'll do some
-> >more digging & isolate the problem.
-> >
+On Tue, Jun 07, 2005 at 03:13:30PM +0800, Shaohua Li wrote:
+> With the patch. smp_call_function still has race. It accesses
+> cpu_online_map twice. First calculate online cpu counter and second,
+> send the ipi, so it's not atomic. We should do something like this:
 > 
-> Hi Jack,
-> I haven't completely got to the bottom of this yet, but I was able
-> to reproduce on a 64-way Altix, and something like the attached patch
-> seems to 'fix' the problem.
-
-The fix works for me. 
-
-I'll send you notes that I collected. They may help explain
-what is going wrong. (I learned a lot about scheduler domains...:-)
-
-
-> 
-> I didn't have time to find what's gone wrong tonight, but I'll get
-> to that tomorrow.
-> 
-> -- 
-> SUSE Labs, Novell Inc.
+> Thanks,
+> Shaohua
 > 
 
-> Index: linux-2.6/kernel/sched.c
-> ===================================================================
-> --- linux-2.6.orig/kernel/sched.c	2005-06-08 00:01:53.000000000 +1000
-> +++ linux-2.6/kernel/sched.c	2005-06-08 00:02:47.000000000 +1000
-> @@ -1113,6 +1113,7 @@ static int sched_balance_self(int cpu, i
->  		cpumask_t span;
->  		struct sched_group *group;
->  		int new_cpu;
-> +		int weight;
->  
->  		span = sd->span;
->  		group = find_idlest_group(sd, t, cpu);
-> @@ -1127,8 +1128,9 @@ static int sched_balance_self(int cpu, i
->  		cpu = new_cpu;
->  nextlevel:
->  		sd = NULL;
-> +		weight = cpus_weight(span);
->  		for_each_domain(cpu, tmp) {
-> -			if (cpus_subset(span, tmp->span))
-> +			if (weight <= cpus_weight(tmp->span))
->  				break;
->  			if (tmp->flags & flag)
->  				sd = tmp;
+Correct, i though this was taken care earlier because i was holding call_lock
+but i forgot that i just removed it based on zwane's feedback.
 
+I re-introduced that with the comment so i dont forget the purpose.
 
--- 
-Thanks
+attached patch should fix that by holding call_lock before setting, so 
+we exclude current upcomming cpu from on-going smp_call_function() 
+transactions.
 
-Jack Steiner (steiner@sgi.com)          651-683-5302
-Principal Engineer                      SGI - Silicon Graphics, Inc.
+x86_64-hold-call-lock-when-setting-online-map:
 
+Need to hold call_lock when setting cpu_online_map for a new cpu. 
+__smp_call_function() reads num_cpus_online() to find out how many consumers 
+to wait. These counts are done at different times, and unless we keep 
+writes off cpu_online_map gaurded, these counts could be different. Worst
+case a new cpu would also participate, this basically keeps the new cpu off
+currently ongoing smp_call_functions().
 
+Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+---------------------------------------------------
+ arch/x86_64/kernel/smp.c     |   10 ++++++++++
+ arch/x86_64/kernel/smpboot.c |   12 ++++++++++++
+ include/asm-x86_64/smp.h     |    2 ++
+ 3 files changed, 24 insertions(+)
+
+Index: linux-2.6.12-rc6-mm1/arch/x86_64/kernel/smp.c
+===================================================================
+--- linux-2.6.12-rc6-mm1.orig/arch/x86_64/kernel/smp.c
++++ linux-2.6.12-rc6-mm1/arch/x86_64/kernel/smp.c
+@@ -283,6 +283,16 @@ struct call_data_struct {
+ 
+ static struct call_data_struct * call_data;
+ 
++void lock_ipi_call_lock(void)
++{
++	spin_lock_irq(&call_lock);
++}
++
++void unlock_ipi_call_lock(void)
++{
++	spin_unlock_irq(&call_lock);
++}
++
+ /*
+  * this function sends a 'generic call function' IPI to all other CPUs
+  * in the system.
+Index: linux-2.6.12-rc6-mm1/arch/x86_64/kernel/smpboot.c
+===================================================================
+--- linux-2.6.12-rc6-mm1.orig/arch/x86_64/kernel/smpboot.c
++++ linux-2.6.12-rc6-mm1/arch/x86_64/kernel/smpboot.c
+@@ -448,9 +448,21 @@ void __cpuinit start_secondary(void)
+ 	enable_APIC_timer();
+ 
+ 	/*
++	 * We need to hold call_lock, so there is no inconsistency
++	 * between the time smp_call_function() determines number of
++	 * IPI receipients, and the time when the determination is made
++	 * for which cpus receive the IPI in genapic_flat.c. Holding this
++	 * lock helps us to not include this cpu in a currently in progress
++	 * smp_call_function().
++	 */
++	lock_ipi_call_lock();
++
++	/*
+ 	 * Allow the master to continue.
+ 	 */
+ 	cpu_set(smp_processor_id(), cpu_online_map);
++	unlock_ipi_call_lock();
++
+ 	mb();
+ 
+ 	/* Wait for TSC sync to not schedule things before.
+Index: linux-2.6.12-rc6-mm1/include/asm-x86_64/smp.h
+===================================================================
+--- linux-2.6.12-rc6-mm1.orig/include/asm-x86_64/smp.h
++++ linux-2.6.12-rc6-mm1/include/asm-x86_64/smp.h
+@@ -43,6 +43,8 @@ extern cpumask_t cpu_callout_map;
+ extern void smp_alloc_memory(void);
+ extern volatile unsigned long smp_invalidate_needed;
+ extern int pic_mode;
++extern void lock_ipi_call_lock(void);
++extern void unlock_ipi_call_lock(void);
+ extern int smp_num_siblings;
+ extern void smp_flush_tlb(void);
+ extern void smp_message_irq(int cpl, void *dev_id, struct pt_regs *regs);

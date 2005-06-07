@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261629AbVFGTdA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261911AbVFGTeB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261629AbVFGTdA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 15:33:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261872AbVFGTdA
+	id S261911AbVFGTeB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 15:34:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbVFGTeA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 15:33:00 -0400
-Received: from hell.sks3.muni.cz ([147.251.210.30]:38417 "EHLO
-	anubis.fi.muni.cz") by vger.kernel.org with ESMTP id S261629AbVFGTcz
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 15:32:55 -0400
-Date: Tue, 7 Jun 2005 21:33:05 +0200
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.12-rc6-mm1 & Chelsio driver
-Message-ID: <20050607193305.GN2369@mail.muni.cz>
-References: <20050607181300.GL2369@mail.muni.cz> <42A5EC7C.4020202@pobox.com> <20050607185845.GM2369@mail.muni.cz> <42A5F51B.5060909@pobox.com>
+	Tue, 7 Jun 2005 15:34:00 -0400
+Received: from mailfe02.swip.net ([212.247.154.33]:14770 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261872AbVFGTdh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 15:33:37 -0400
+X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
+Subject: Re: oops 2.6.11 and 2.6.12-rc6
+From: Alexander Nyberg <alexn@telia.com>
+To: Lawrence Walton <lawrence@the-penguin.otak.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050607182329.GA3950@the-penguin.otak.com>
+References: <20050607182329.GA3950@the-penguin.otak.com>
+Content-Type: text/plain
+Date: Tue, 07 Jun 2005 21:33:29 +0200
+Message-Id: <1118172809.956.6.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <42A5F51B.5060909@pobox.com>
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 07, 2005 at 03:27:23PM -0400, Jeff Garzik wrote:
-> >Bus  2, device   3, function  0:
-> >    Ethernet controller: PCI device 1425:0006 (ASIC Designers Inc) (rev 0).
-> >      IRQ 24.
-> >      Master Capable.  Latency=248.  
-> >      Non-prefetchable 64 bit memory at 0xf6042000 [0xf6042fff].
-> >
-> >
-> >kernel 2.6.6 and driver from web site:
-> >Chelsio TOE Network Driver - version 2.1.0
-> >eth0: Chelsio T110 1x10GBaseX TOE (rev 1), PCIX 100MHz/64-bit
-> >eth0: 512MB SDRAM, 128MB FCRAM
+tis 2005-06-07 klockan 11:23 -0700 skrev Lawrence Walton:
+> Hello!
 > 
-> I can't help much beyond this then :(  There should be Chelsio email 
-> addresses in the driver...
+> I have a production server that has not booted any kernel I've tried sense
+> 2.6.10.
+> I captured this oops by *hand* this morning when trying to boot 2.6.12-rc6.
+> 
+> I've included the decoded oops, lspci -vvv, .config and ver_linux information.
+> 
+> Unlike most cases this is a prodution machine and I have limited time to test patches. :(
+> 
 
-I'am afraid that they oficially support only 2.6.6 kernel :(
+Unfortunately the oops text you sent cannot be used for debugging.
+Please send the oops that 2.6.12-rc6 produces to the list (ksymoops is
+not necessary on 2.6.x kernels and should not be used!). 
+Depending on how early the oops happens you can definately use
+Documentation/serial-console.txt and maybe the somewhat simpler
+Documentation/networking/netconsole.txt
 
-I wonder whether this driver works for someone. If not, it should be removed.
+Please send the non-ksymoopsed oops you wrote off the screen when
+booting 2.6.12-rc6
 
-And also, who does it maintain?
+Thanks
 
--- 
-Luká¹ Hejtmánek

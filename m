@@ -1,47 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261868AbVFGOZO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbVFGO1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261868AbVFGOZO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 10:25:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbVFGOZO
+	id S261883AbVFGO1y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 10:27:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261882AbVFGO1x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 10:25:14 -0400
-Received: from unicorn.rentec.com ([216.223.240.9]:31997 "EHLO
-	unicorn.rentec.com") by vger.kernel.org with ESMTP id S261868AbVFGOZJ
+	Tue, 7 Jun 2005 10:27:53 -0400
+Received: from mail.parknet.co.jp ([210.171.160.6]:38924 "EHLO
+	mail.parknet.co.jp") by vger.kernel.org with ESMTP id S261878AbVFGO1b
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 10:25:09 -0400
-X-Rentec: external
-Message-ID: <42A5AE2D.6020100@rentec.com>
-Date: Tue, 07 Jun 2005 10:24:45 -0400
-From: Wolfgang Wander <wwc@rentec.com>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041209)
-X-Accept-Language: en-us, en
+	Tue, 7 Jun 2005 10:27:31 -0400
+To: Manfred Spraul <manfred@colorfullife.com>
+Cc: Oleg <graycardinal@pisem.net>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: PROBLEM: kmem_cache_create: duplicate cache fat_cache
+References: <200505181217.29904.graycardinal@pisem.net>
+	<87br779jen.fsf@devron.myhome.or.jp>
+	<42A4A77A.5060101@colorfullife.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Tue, 07 Jun 2005 23:26:47 +0900
+In-Reply-To: <42A4A77A.5060101@colorfullife.com> (Manfred Spraul's message of "Mon, 06 Jun 2005 21:43:54 +0200")
+Message-ID: <87d5qyjl94.fsf@devron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-Subject: Re: 2.6.12-rc6-mm1
-References: <20050607042931.23f8f8e0.akpm@osdl.org>
-In-Reply-To: <20050607042931.23f8f8e0.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Logged: Logged by unicorn.rentec.com as j57EOkgg024486 at Tue Jun  7 10:24:48 2005
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Manfred Spraul <manfred@colorfullife.com> writes:
 
-> +avoiding-mmap-fragmentation-revert-unneeded-64-bit-changes-vs-x86_64-task_size-fixes-for-compatibility-mode-processes.patch
+> OGAWA Hirofumi wrote:
+>
+>>Ummm... why is this normal situation? Didn't you run the
+>>modules_install after changed .config?  Anyway, this patch returns
+>>NULL instead of calling BUG().  This case seems to also happen with
+>>user error.
+>>
+> Either return NULL or ignore the collision. I don't know what's the
+> better solution.
+>
+> I'm open to either approach - it depends on what the
+> kmem_cache_create() caller expects.
 
-As a heads-up.
+> --- 2.6/mm/slab.c	2005-06-05 17:29:01.000000000 +0200
+> +++ build-2.6/mm/slab.c	2005-06-06 21:34:38.000000000 +0200
+> @@ -1480,9 +1480,14 @@
+>  			} 	
+>  			if (!strcmp(pc->name,name)) { 
+>  				printk("kmem_cache_create: duplicate cache %s\n",name); 
+> -				up(&cache_chain_sem); 
+> -				unlock_cpu_hotplug();
+> -				BUG(); 
+> +				/* This is a severe bug, because it breaks
+> +				 * tuning by writing to /proc/slabinfo.
+> +				 * But everything else works, and since
+> +				 * duplicate caches typically happen if
+> +				 * someone inserts a module twice, we'll
+> +				 * continue.
+> +				 */
+> +				WARN_ON(1); 
+>  			}	
+>  		}
+>  		set_fs(old_fs);
 
-This one breaks the fragmentation reduction patch in 32 bit emulation mode.
-Our test case shows the standard 17 fragmented regions in /proc/self/maps (as in
-the 2.6 standard kernel) vs the 2 regions in 2.6.12-rc5-mm2 (and before).
+Ah, I see. I think this is friendly to developers and probably more
+proper than my patch for this problem.
 
-Somehow the new way of detecting 32 bit remulation mode seems to fail here.
-
-I'll try to figure out a fix.
-
-               Wolfgang
-
-
-
+Thanks.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

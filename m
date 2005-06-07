@@ -1,66 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261860AbVFGN01@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbVFGNeE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261860AbVFGN01 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 09:26:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbVFGN01
+	id S261862AbVFGNeE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 09:34:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbVFGNeD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 09:26:27 -0400
-Received: from gw.anda.ru ([83.146.86.58]:13070 "EHLO mail.ward.six")
-	by vger.kernel.org with ESMTP id S261860AbVFGN0X (ORCPT
+	Tue, 7 Jun 2005 09:34:03 -0400
+Received: from [151.97.230.9] ([151.97.230.9]:28617 "EHLO ssc.unict.it")
+	by vger.kernel.org with ESMTP id S261862AbVFGNdc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 09:26:23 -0400
-Date: Tue, 7 Jun 2005 19:16:46 +0600
-From: Denis Zaitsev <zzz@anda.ru>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>
-Subject: Re: [PROBLEM] aic7xxx: DV failed to configure device
-Message-ID: <20050607191646.A30496@ward.six>
-Mail-Followup-To: James Bottomley <James.Bottomley@SteelEye.com>,
-	Arjan van de Ven <arjan@infradead.org>,
-	Linux Kernel <linux-kernel@vger.kernel.org>,
-	SCSI Mailing List <linux-scsi@vger.kernel.org>
-References: <20050606141638.A28532@ward.six> <1118045986.5652.21.camel@laptopd505.fenrus.org> <20050606150321.A817@ward.six> <1118068477.5045.27.camel@mulgrave>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1118068477.5045.27.camel@mulgrave>; from James.Bottomley@SteelEye.com on Mon, Jun 06, 2005 at 09:34:37AM -0500
+	Tue, 7 Jun 2005 09:33:32 -0400
+Subject: [patch 2/2] uml: make hw_controller_type->release exist only for archs needing it
+To: akpm@osdl.org
+Cc: jdike@addtoit.com, linux-kernel@vger.kernel.org,
+       user-mode-linux-devel@lists.sourceforge.net, cw@f00f.org,
+       mingo@redhat.com, blaisorblade@yahoo.it
+From: blaisorblade@yahoo.it
+Date: Tue, 07 Jun 2005 02:42:19 +0200
+Message-Id: <20050607004221.5CC9BEB33@zion.home.lan>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 06, 2005 at 09:34:37AM -0500, James Bottomley wrote:
-> On Mon, 2005-06-06 at 15:03 +0600, Denis Zaitsev wrote:
-> > Yes, I'm sorry.  2.6.10.
-> 
-> That particular code was completely changed for 2.6.12-rc5; could you
-> see what that kernel makes of this, please?
 
-Ok, 2.6.12-rc5:
+From: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>, Chris Wedgwood <cw@f00f.org>
+CC: Ingo Molnar <mingo@redhat.com>
 
+As suggested by Chris, we can make the "just added" method ->release
+conditional to UML only (better: to archs requesting it, i.e. only UML
+currently), so that other archs don't get this unneeded crud, and if UML won't
+need it any more we can kill this.
 
-scsi0 : Adaptec AIC7XXX EISA/VLB/PCI SCSI HBA DRIVER, Rev 6.2.36
-        <Adaptec 29160 Ultra160 SCSI adapter>
-        aic7892: Ultra160 Wide Channel A, SCSI Id=7, 32/253 SCBs
+Signed-off-by: Paolo 'Blaisorblade' Giarrusso <blaisorblade@yahoo.it>
+---
 
-  Vendor: IBM       Model: DDYS-T09170N      Rev: S80D
-  Type:   Direct-Access                      ANSI SCSI revision: 03
-scsi0:A:0:0: Tagged Queuing enabled.  Depth 32
- target0:0:0: Beginning Domain Validation
-WIDTH IS 1
-(scsi0:A:0): 6.600MB/s transfers (16bit)
- target0:0:0: Domain Validation skipping write tests
-(scsi0:A:0): 160.000MB/s transfers (80.000MHz DT, offset 63, 16bit)
- target0:0:0: Ending Domain Validation
-SCSI device sda: 17916240 512-byte hdwr sectors (9173 MB)
-SCSI device sda: drive cache: write back
-SCSI device sda: 17916240 512-byte hdwr sectors (9173 MB)
-SCSI device sda: drive cache: write back
- sda: unknown partition table
-Attached scsi disk sda at scsi0, channel 0, id 0, lun 0
+ linux-2.6.git-paolo/arch/um/Kconfig     |    5 +++++
+ linux-2.6.git-paolo/include/linux/irq.h |    3 +++
+ linux-2.6.git-paolo/kernel/irq/manage.c |    4 ++++
+ 3 files changed, 12 insertions(+)
 
-
-It seems that things are in order, do I understand right?  So, why and
-how the low-level format affects the old driver's behaviour?
-
-Thanks in advance.
+diff -puN arch/um/Kconfig~uml-gen-irq-conditionalize arch/um/Kconfig
+--- linux-2.6.git/arch/um/Kconfig~uml-gen-irq-conditionalize	2005-06-07 02:25:25.000000000 +0200
++++ linux-2.6.git-paolo/arch/um/Kconfig	2005-06-07 02:25:25.000000000 +0200
+@@ -35,6 +35,11 @@ config GENERIC_CALIBRATE_DELAY
+ 	bool
+ 	default y
+ 
++# Used in kernel/irq/manage.c and include/linux/irq.h
++config IRQ_RELEASE_METHOD
++	bool
++	default y
++
+ menu "UML-specific options"
+ 
+ config MODE_TT
+diff -puN kernel/irq/manage.c~uml-gen-irq-conditionalize kernel/irq/manage.c
+--- linux-2.6.git/kernel/irq/manage.c~uml-gen-irq-conditionalize	2005-06-07 02:25:25.000000000 +0200
++++ linux-2.6.git-paolo/kernel/irq/manage.c	2005-06-07 02:25:25.000000000 +0200
+@@ -6,6 +6,7 @@
+  * This file contains driver APIs to the irq subsystem.
+  */
+ 
++#include <linux/config.h>
+ #include <linux/irq.h>
+ #include <linux/module.h>
+ #include <linux/random.h>
+@@ -256,8 +257,11 @@ void free_irq(unsigned int irq, void *de
+ 			/* Found it - now remove it from the list of entries */
+ 			*pp = action->next;
+ 
++			/* Currently used only by UML, might disappear one day.*/
++#ifdef CONFIG_IRQ_RELEASE_METHOD
+ 			if (desc->handler->release)
+ 				desc->handler->release(irq, dev_id);
++#endif
+ 
+ 			if (!desc->action) {
+ 				desc->status |= IRQ_DISABLED;
+diff -puN include/linux/irq.h~uml-gen-irq-conditionalize include/linux/irq.h
+--- linux-2.6.git/include/linux/irq.h~uml-gen-irq-conditionalize	2005-06-07 02:25:25.000000000 +0200
++++ linux-2.6.git-paolo/include/linux/irq.h	2005-06-07 02:25:25.000000000 +0200
+@@ -47,7 +47,10 @@ struct hw_interrupt_type {
+ 	void (*ack)(unsigned int irq);
+ 	void (*end)(unsigned int irq);
+ 	void (*set_affinity)(unsigned int irq, cpumask_t dest);
++	/* Currently used only by UML, might disappear one day.*/
++#ifdef CONFIG_IRQ_RELEASE_METHOD
+ 	void (*release)(unsigned int irq, void *dev_id);
++#endif
+ };
+ 
+ typedef struct hw_interrupt_type  hw_irq_controller;
+_

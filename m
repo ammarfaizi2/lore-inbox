@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262030AbVFGXJf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262031AbVFGXM1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262030AbVFGXJf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 19:09:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262031AbVFGXJf
+	id S262031AbVFGXM1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 19:12:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262032AbVFGXM1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 19:09:35 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:55247 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262030AbVFGXJd (ORCPT
+	Tue, 7 Jun 2005 19:12:27 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:2502 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262031AbVFGXMZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 19:09:33 -0400
-Message-ID: <42A62929.4080902@pobox.com>
-Date: Tue, 07 Jun 2005 19:09:29 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Andy Whitcroft <apw@shadowen.org>, Adam Litke <agl@us.ibm.com>,
-       Enrique Gaona <egaona@us.ibm.com>
-Subject: Re: [ANNOUNCE] automated linux kernel testing results
-References: <531740000.1117749798@flay> <997150000.1118185253@flay>
-In-Reply-To: <997150000.1118185253@flay>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 7 Jun 2005 19:12:25 -0400
+Subject: Re: [Trivial PATCH] new timeofday: move time sources into arch
+	subdirectories
+From: john stultz <johnstul@us.ibm.com>
+To: tglx@linutronix.de
+Cc: LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1118181331.20785.547.camel@tglx.tec.linutronix.de>
+References: <1118181331.20785.547.camel@tglx.tec.linutronix.de>
+Content-Type: text/plain
+Date: Tue, 07 Jun 2005 16:12:15 -0700
+Message-Id: <1118185935.5191.6.camel@leatherman>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin J. Bligh wrote:
-> OK, there's performance graphs out there for tbench, dbench, kernbench,
-> and reaim now.
+On Tue, 2005-06-07 at 23:55 +0200, Thomas Gleixner wrote:
+> The patch moves the x86(_64) speficic timesources into
+> drivers/timesource/x86.
 > 
-> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/perf/perf_matrix.html
+> Reason: When other architectures start to move their TOD implementations
+> to the new design, the timesource directory will become an unstructured
+> collection of timesources within no time. Especially the embedded SoC
+> world tends to produce zillions of variants.
+> 
+> The base directory should only contain generic architecture independent
+> timesource drivers IMHO.
 
+Hey! Thanks for the feedback! I'm trying to encourage architectures to
+share timesource drivers, so for now I'm not so worried if we end up
+with something that looks like drivers/net/. 
 
-Very nice.  All this stuff is helpful, thanks much.
+So unless you strenuously object, I say lets put it off until the need
+becomes a bit more apparent. Although its likely I'll agree with you
+once I've started working on converting ARM. :)
 
-	Jeff
+thanks
+-john
 
 

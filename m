@@ -1,70 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261997AbVFGWi3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262023AbVFGWlt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261997AbVFGWi3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 18:38:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbVFGWi3
+	id S262023AbVFGWlt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 18:41:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262020AbVFGWlt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 18:38:29 -0400
-Received: from relay.nsnoc.com ([195.69.95.145]:56983 "EHLO vs145.ukvs.net")
-	by vger.kernel.org with ESMTP id S261997AbVFGWh5 (ORCPT
+	Tue, 7 Jun 2005 18:41:49 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:63963 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262023AbVFGWld convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 18:37:57 -0400
-Message-ID: <42A621BC.7040607@a-wing.co.uk>
-Date: Tue, 07 Jun 2005 23:37:48 +0100
-From: Andrew Hutchings <info@a-wing.co.uk>
-Reply-To: info@a-wing.co.uk
-Organization: A-Wing Internet Services
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Tue, 7 Jun 2005 18:41:33 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: sis5513.c patch
-Content-Type: multipart/mixed;
- boundary="------------080308080006050202010106"
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi() for drivers - take 2
+Date: Tue, 7 Jun 2005 15:40:48 -0700
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E502408D8D13F@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi() for drivers - take 2
+Thread-Index: AcVrnoZ9Izc1KbcYTBa4St+p/3sh5gAEuxdQ
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Greg KH" <gregkh@suse.de>, "Jeff Garzik" <jgarzik@pobox.com>,
+       "David S. Miller" <davem@davemloft.net>, <roland@topspin.com>
+Cc: <linux-pci@atrey.karlin.mff.cuni.cz>, <linux-kernel@vger.kernel.org>,
+       <ak@suse.de>, "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+X-OriginalArrivalTime: 07 Jun 2005 22:40:49.0883 (UTC) FILETIME=[F41CAAB0:01C56BB1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080308080006050202010106
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tuesday, June 07, 2005 1:21 PM Greg KH wrote:
+> However, now that I've messed around with the MSI-X logic in the IB
+> driver, I'm thinking that this whole thing is just pointless, and I
+> should just drop it and we should stick with the current way of
+enabling
+> MSI only if the driver wants it.  If you look at the logic in the
+mthca
+> driver you'll see what I mean.
+>
+>So, anyone else think this is a good idea?  Votes for me to just drop
+it
+>and go back to hacking on the driver core instead?
 
-Hi,
+I vote "no change".
 
-I'm not sure if a similar patch has been submitted or not, but here is a 
-patch to get DMA working on ASUS K8S-MX with a SiS 760GX/SiS 965L 
-chipset combo.
+> Oh, and in looking at the drivers/pci/msi.c file, it could use some
+> cleanups to make it smaller and a bit less complex.  I've also seen
+some
+> complaints that it is very arch specific (x86 based).  But as no other
+> arches seem to want to support MSI, I don't really see any need to
+split
+> it up.  Any comments about this?
 
-I'm looking at trying to revive the old sis190.c net driver for this 
-board too, this does depend on my boss giving me some development time.
+Agree.
 
-Anyway, this is my first kernel patch so I hope it helps.
+Thanks,
+Long
 
-Regards
-Andrew
--- 
-Andrew Hutchings (A-Wing)
-Linux Guru - Netserve Consultants Ltd. - http://www.domaincity.co.uk/
-Admin - North Wales Linux User Group - http://www.nwlug.org.uk/
-BOFH excuse 183: filesystem not big enough for Jumbo Kernel Patch
-
---------------080308080006050202010106
-Content-Type: text/x-patch;
- name="SiS5513.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="SiS5513.patch"
-
-diff -u -r linux-2.6.11.11.orig/drivers/ide/pci/sis5513.c linux-2.6.11.11/drivers/ide/pci/sis5513.c
---- linux-2.6.11.11.orig/drivers/ide/pci/sis5513.c	2005-05-27 06:06:46.000000000 +0100
-+++ linux-2.6.11.11/drivers/ide/pci/sis5513.c	2005-06-07 22:14:25.000000000 +0100
-@@ -112,6 +112,7 @@
- 	{ "SiS5596",	PCI_DEVICE_ID_SI_5596,	ATA_16   },
- 	{ "SiS5571",	PCI_DEVICE_ID_SI_5571,	ATA_16   },
- 	{ "SiS551x",	PCI_DEVICE_ID_SI_5511,	ATA_16   },
-+	{ "SiS5513",	PCI_DEVICE_ID_SI_5513,	ATA_133	 },
- };
- 
- /* Cycle time bits and values vary across chip dma capabilities
-
---------------080308080006050202010106--

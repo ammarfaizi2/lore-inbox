@@ -1,144 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVFGK4I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261817AbVFGLEy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261602AbVFGK4I (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 06:56:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVFGK4I
+	id S261817AbVFGLEy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 07:04:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261813AbVFGLEy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 06:56:08 -0400
-Received: from ns2.suse.de ([195.135.220.15]:2995 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S261602AbVFGKzz (ORCPT
+	Tue, 7 Jun 2005 07:04:54 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:58846 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261817AbVFGLEv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 06:55:55 -0400
-Date: Tue, 7 Jun 2005 12:55:52 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: Adam Belay <ambx1@neo.rr.com>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fix tulip suspend/resume
-Message-ID: <20050607105552.GA27496@pingi3.kke.suse.de>
-Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Jeff Garzik <jgarzik@pobox.com>,
-	Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <20050606224645.GA23989@pingi3.kke.suse.de> <Pine.LNX.4.58.0506061702430.1876@ppc970.osdl.org> <20050607025054.GC3289@neo.rr.com>
+	Tue, 7 Jun 2005 07:04:51 -0400
+Date: Tue, 7 Jun 2005 13:04:09 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: linux-kernel@vger.kernel.org
+Subject: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.47-20
+Message-ID: <20050607110409.GA14613@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050607025054.GC3289@neo.rr.com>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.8-24.10-default i686
-User-Agent: Mutt/1.5.6i
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 06, 2005 at 10:50:55PM -0400, Adam Belay wrote:
-> On Mon, Jun 06, 2005 at 05:04:07PM -0700, Linus Torvalds wrote:
-> > 
-> > Jeff, 
-> >  this looks ok, but I'll leave the decision to you. Things like this often 
-> > break.
-> > 
-> > Andrew, maybe at least a few days in -mm to see if there's some outcry?
-> > 
-> > 		Linus
-> 
-> This patch is an improvement, but there may still be some issues.
-> Specifically, it looks to me like the the interrupt handler remains
-> registered.  This could cause some problems when another device is sharing
-> the interrupt because the tulip driver must read from a hardware register
-> to determine if it triggered the interrupt. When the hardware has been
-> physically powered off, things might not go well.
 
-No, I also looked into this, it is not needed for the tulip driver, it
-detects that it has no access to the hardware (reading 0xffffffff) in the
-interrupt functions.
+i have released the -V0.7.47-20 Real-Time Preemption patch, which can be 
+downloaded from the usual place:
 
-> 
-> I can't comment on the netdev class aspect of this routine, but following
-> a similar strategy to its original author, a fix might look like this:
-> 
-> --- a/drivers/net/tulip/tulip_core.c	2005-05-27 22:06:00.000000000 -0400
-> +++ b/drivers/net/tulip/tulip_core.c	2005-06-06 22:14:25.850846400 -0400
-> @@ -1759,7 +1759,12 @@
->  	if (dev && netif_running (dev) && netif_device_present (dev)) {
->  		netif_device_detach (dev);
->  		tulip_down (dev);
-> -		/* pci_power_off(pdev, -1); */
-> +
-> +		pci_save_state(pdev);
-> +
-> +		free_irq(dev->irq, dev);
-> +		pci_disable_device(pdev);
-> +		pci_set_power_state(pdev, pci_choose_state(pdev, state));
->  	}
->  	return 0;
->  }
+    http://redhat.com/~mingo/realtime-preempt/
 
-Pavel told me, that pci_choose_state is not always safe, some cards maybe
-do only work with PCI_D3hot properly, so it's better to use this now.
-For my hardware it also seems to work with pci_choose_state.
+i've implemented two new features:
 
-> @@ -1768,12 +1773,19 @@
->  static int tulip_resume(struct pci_dev *pdev)
->  {
->  	struct net_device *dev = pci_get_drvdata(pdev);
-> +	int retval;
->  
->  	if (dev && netif_running (dev) && !netif_device_present (dev)) {
-> -#if 1
-> -		pci_enable_device (pdev);
-> -#endif
-> -		/* pci_power_on(pdev); */
-> +		pci_set_power_state(pdev, PCI_D0);
-> +		pci_restore_state(pdev);
-> +
+ - new debugging feature: CONFIG_DEBUG_RT_LOCKING_MODE, which
+   adds the /proc/sys/kernel/preempt_locks flag (default: 0). This way
+   the 'locking model' can be switched runtime - very useful for
+   debugging and profiling. Value 0 means that all spinlocks and rwlocks
+   are implemented via raw spinlocks/rwlocks. (which disable preemption,
+   increase latency, but improve throughput) Value 1 means the kernel 
+   will fully preempt all locks again. (NOTE: the only safe runtime 
+   switching of the locking model can be done while the system is idle, 
+   so i've implemented the flag via two flags where the idle thread 
+   propagates the new value from the user-flag to the kernel-flag. You 
+   should put a "sleep 1" into scripts that switch the locking mode, to 
+   guarantee that the new flag value is picked up.)
 
-I think restoring the PCI config should be done always, not only if the
-device was in the up state, also powerup should be done.
-If not you will run into problems to use the device later.
+ - performance feature: i've implemented a new scheduler feature called 
+   'delayed preemption', which turns sync wakeups into guaranteed 
+   wakeups, while preserving their workload-batching properties. A 
+   delayed preemption request is implemented via the 
+   TIF_NEED_RESCHED_DELAYED flag, which runs in parallel to the 
+   "immediate preemption" TIF_NEED_RESCHED flag. If this works out fine 
+   then it will be a suitable replacement for the upstream sync-wakeups 
+   facility as well.
 
-> +		pci_enable_device(pdev);
-> +
-> +		if ((retval = request_irq(dev->irq, &tulip_interrupt, SA_SHIRQ, dev->name, dev))) {
-> +			printk (KERN_ERR "tulip: request_irq failed in resume\n");
-> +			return retval;
-> +		}
-> +		
->  		tulip_up (dev);
->  		netif_device_attach (dev);
->  	}
-> 
-> I don't have this hardware, so any testing would be appreciated.
-> 
-> Thanks,
-> Adam
-> 
-> 
-> P.S.: I noticed this function in the tulip driver:
-> 
-> static void tulip_set_power_state (struct tulip_private *tp,
-> 				   int sleep, int snooze)
-> {
-> 	if (tp->flags & HAS_ACPI) {
-> 		u32 tmp, newtmp;
-> 		pci_read_config_dword (tp->pdev, CFDD, &tmp);
-> 		newtmp = tmp & ~(CFDD_Sleep | CFDD_Snooze);
-> 		if (sleep)
-> 			newtmp |= CFDD_Sleep;
-> 		else if (snooze)
-> 			newtmp |= CFDD_Snooze;
-> 		if (tmp != newtmp)
-> 			pci_write_config_dword (tp->pdev, CFDD, newtmp);
-> 	}
-> 
-> }
-> 
-> Currently we aren't using CFDD_Sleep.  Should we call this in suspend?  It
-> could be important if the hardware doesn't support PCI PM.  I don't really
-> have any specifications or information about the hardware, so I'm at a loss
-> here.
+delayed preemption already improved the performance of 'hackbench' under 
+PREEMPT_RT quite signifiantly.
 
--- 
-Karsten Keil
-SuSE Labs
-ISDN development
+to build a -V0.7.47-20 tree, the following patches have to be applied:
+
+   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.11.tar.bz2
+   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.12-rc6.bz2
+   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.12-rc6-V0.7.47-20
+
+	Ingo

@@ -1,69 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261967AbVFGUMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261947AbVFGUR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261967AbVFGUMK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 16:12:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbVFGUMJ
+	id S261947AbVFGUR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 16:17:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261948AbVFGUR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 16:12:09 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:11484 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261947AbVFGULu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 16:11:50 -0400
-Date: Tue, 7 Jun 2005 22:08:20 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.12-rc6-mm1 & Chelsio driver
-Message-ID: <20050607200820.GA25546@electric-eye.fr.zoreil.com>
-References: <20050607181300.GL2369@mail.muni.cz> <42A5EC7C.4020202@pobox.com> <20050607185845.GM2369@mail.muni.cz> <42A5F51B.5060909@pobox.com> <20050607193305.GN2369@mail.muni.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050607193305.GN2369@mail.muni.cz>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+	Tue, 7 Jun 2005 16:17:26 -0400
+Received: from smtp1.rz.uni-karlsruhe.de ([129.13.185.217]:19869 "EHLO
+	smtp1.rz.uni-karlsruhe.de") by vger.kernel.org with ESMTP
+	id S261947AbVFGURW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 16:17:22 -0400
+Message-ID: <42A600CD.6090408@web.de>
+Date: Tue, 07 Jun 2005 22:17:17 +0200
+From: Christian Trefzer <ctrefzer@web.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050514)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: fdomain SCSI driver broken in 2.6 series?
+References: <429AFA40.3010705@web.de> <1118161118.26661.19.camel@localhost.localdomain>
+In-Reply-To: <1118161118.26661.19.camel@localhost.localdomain>
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lukas Hejtmanek <xhejtman@mail.muni.cz> :
-[...]
-> > >    Ethernet controller: PCI device 1425:0006 (ASIC Designers Inc) (rev 0).
-> > >      IRQ 24.
-> > >      Master Capable.  Latency=248.  
-> > >      Non-prefetchable 64 bit memory at 0xf6042000 [0xf6042fff].
+Alan Cox wrote:
+> I did a bit of cleanup on it during 2.5 to get it to compile and look
+> right, and it did work for a while when I had the card, but the scsi
+> changed a lot after that. You are the first fdomain user I've seen in
+> years so I suspect you are on your own for fixing it too tho I can try
+> and help a bit.
+> 
+Guess I'm the only person insane enough to try and build a DSL router 
+based on 2.6 with ancient SCSI disks on an ISA controller, but I just 
+can't live without some of the features anymore which 2.4 still lacks.
 
-/me greps in -mm
+In the meantime, I worked around the Oops by using a tiny disk on the 
+onboard IDE controller, but I wouldn't quite call removing the card a 
+fix for the problem.
 
-#define CH_DEVICE(devid, ssid, idx) \
-	{ PCI_VENDOR_ID_CHELSIO, devid, PCI_ANY_ID, ssid, 0, 0, idx }
-[...]
-enum {
-       CH_BRD_N110_1F,
-       CH_BRD_N210_1F,
-       CH_BRD_T210_1F,
-};
-[...]
-struct pci_device_id t1_pci_tbl[] = {
-	CH_DEVICE(7, 0, CH_BRD_N110_1F),
-	CH_DEVICE(10, 1, CH_BRD_N210_1F),
-	{ 0, }
-};
+The thing is, I have no real experience in C programming, although I 
+sometimes read a little kernel source code and stuff. Right now I have a 
+bit of trouble with my studies, but once that's settled I can do some 
+reading about SCSI, Linux, the works. Doesn't seem to be anyone using 
+2.6 with Future Domain cards anyway, so I'm not in a hurry. But just for 
+completeness, it would be nice to have that driver cleaned up. It's in 
+Linux' tree, after all. I'll build a testing box with ISA bus some time 
+soon and try some debugging.
 
--> it does not match your 0006 revision. No wonder nothing gets detected.
-
-As a quick hack, one could cross fingers and add a
-CH_DEVICE(6, 0, CH_BRD_N110_1F)
-
-or, if it does not work:
-
-CH_DEVICE(6, 1, CH_BRD_N210_1F)
-
-(the drivers code suggests some deep differences between CH_BRD_N210_1F
-and CH_BRD_N110_1F wrt irq management for instance)
-
-If it does not work at all, someone will have to dissect the whole
-thing. Please fill an entry at bugzilla.kernel.org, add it your lspci info
-and make it link the 2.6.6 driver from Chelsio's website.
-
---
-Ueimor
+Thanks for your time : )

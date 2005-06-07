@@ -1,73 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261334AbVFGCUS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVFGCXh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261334AbVFGCUS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 22:20:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVFGCTf
+	id S261389AbVFGCXh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 22:23:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbVFGCXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 22:19:35 -0400
-Received: from gate.crashing.org ([63.228.1.57]:20367 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261349AbVFGCRu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 22:17:50 -0400
-Subject: Re: [PATCH] fix tulip suspend/resume
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Karsten Keil <kkeil@suse.de>
-Cc: akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20050606224645.GA23989@pingi3.kke.suse.de>
-References: <20050606224645.GA23989@pingi3.kke.suse.de>
-Content-Type: text/plain
-Date: Tue, 07 Jun 2005 12:15:44 +1000
-Message-Id: <1118110545.6850.31.camel@gaston>
+	Mon, 6 Jun 2005 22:23:37 -0400
+Received: from lakshmi.addtoit.com ([198.99.130.6]:8709 "EHLO
+	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261438AbVFGCXG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 22:23:06 -0400
+Date: Mon, 6 Jun 2005 22:00:00 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Blaisorblade <blaisorblade@yahoo.it>,
+       user-mode-linux-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] [PATCH 3/5] UML - Clean up tt mode remapping of UML binary
+Message-ID: <20050607020000.GA13739@ccure.user-mode-linux.org>
+References: <200506062008.j56K89YA008957@ccure.user-mode-linux.org> <200506070105.20422.blaisorblade@yahoo.it> <20050606235321.GJ29811@parcelfarce.linux.theplanet.co.uk> <200506070256.43104.blaisorblade@yahoo.it> <20050607005958.GK29811@parcelfarce.linux.theplanet.co.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050607005958.GK29811@parcelfarce.linux.theplanet.co.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-06-07 at 00:46 +0200, Karsten Keil wrote:
-> Hi,
+On Tue, Jun 07, 2005 at 01:59:58AM +0100, Al Viro wrote:
+> > P.S: is it only me or you've sent about 20 copies of your last message?
 > 
-> following patch fix the suspend/resume for tulip based
-> cards, so suspend on disk work now for me and tulip based
-> cardbus cards.
-> 
-> 
-> Signed-off-by: Karsten Keil <kkeil@suse.de>
-> 
-> --- linux/drivers/net/tulip/tulip_core.c.orig	2005-03-23 23:54:43.000000000 +0100
-> +++ linux/drivers/net/tulip/tulip_core.c	2005-05-26 17:29:14.000000000 +0200
-> @@ -1755,12 +1755,16 @@
->  static int tulip_suspend (struct pci_dev *pdev, pm_message_t state)
->  {
->  	struct net_device *dev = pci_get_drvdata(pdev);
-> +	int err;
->  
-> +	pci_save_state(pdev);
->  	if (dev && netif_running (dev) && netif_device_present (dev)) {
->  		netif_device_detach (dev);
->  		tulip_down (dev);
->  		/* pci_power_off(pdev, -1); */
->  	}
-> +	if ((err = pci_set_power_state(pdev, PCI_D3hot)))
-> +		printk(KERN_ERR "%s: pci_set_power_state D3hot return %d\n", dev->name, err);
->  	return 0;
->  }
+> Headers?
 
-It should probably test for message state, it's not worth doing
-pci_set_power_state(D3) if PMSG_FREEZE is passed... (just slows down
-suspend to disk)
+I got 18 copies.
 
-> @@ -1768,7 +1772,11 @@
->  static int tulip_resume(struct pci_dev *pdev)
->  {
->  	struct net_device *dev = pci_get_drvdata(pdev);
-> +	int err;
->  
-> +	if ((err = pci_set_power_state(pdev, PCI_D0)))
-> +		printk(KERN_ERR "%s: pci_set_power_state D0 return %d\n", dev->name, err);
-> +	pci_restore_state(pdev);
->  	if (dev && netif_running (dev) && !netif_device_present (dev)) {
->  #if 1
->  		pci_enable_device (pdev);
-> 
+Something horrible happened at Intel:
 
+Received: from orsfmr005.jf.intel.com (fmr20.intel.com [134.134.136.19])
+        by saraswathi.solana.com (8.13.1/8.13.1) with ESMTP id j570cDAU017960 
+        for <jdike@addtoit.com>; Mon, 6 Jun 2005 20:38:18 -0400
+Received: from orsfmr101.jf.intel.com (orsfmr101.jf.intel.com [10.7.209.17])
+        by orsfmr005.jf.intel.com (8.12.10/8.12.10/d: major-outer.mc,v 1.1
++2004/09/17 17:50:56 root Exp $) with ESMTP id j570c60S009128;
+        Tue, 7 Jun 2005 00:38:06 GMT
+Received: from orsmsxvs041.jf.intel.com (orsmsxvs041.jf.intel.com
++[192.168.65.54])
+        by orsfmr101.jf.intel.com (8.12.10/8.12.10/d: major-inner.mc,v 1.2
++2004/09/17 18:05:01 root Exp $) with SMTP id j570c6OK009846;
+        Tue, 7 Jun 2005 00:38:06 GMT
+Received: from orsmsx332.amr.corp.intel.com ([192.168.65.60])
+ by orsmsxvs041.jf.intel.com (SAVSMTP 3.1.7.47) with SMTP id
++M2005060617380513306
+ ; Mon, 06 Jun 2005 17:38:05 -0700
+Received: from mail pickup service by orsmsx332.amr.corp.intel.com with
++Microsoft SMTPSVC;
+         Mon, 6 Jun 2005 17:38:04 -0700
+Received: from orsmsxvs041.jf.intel.com ([192.168.65.54]) by
++orsmsx332.amr.corp.intel.com with Microsoft SMTPSVC(6.0.3790.211);
+         Mon, 6 Jun 2005 17:11:02 -0700
+Received: from orsfmr100.jf.intel.com ([10.7.209.16])
+ by orsmsxvs041.jf.intel.com (SAVSMTP 3.1.7.47) with SMTP id
++M2005060617110210382
+ for <suresh.b.siddha@intel.com>; Mon, 06 Jun 2005 17:11:02 -0700
+Received: from orsfmr004.jf.intel.com (orsfmr004.jf.intel.com [10.7.208.20])
+        by orsfmr100.jf.intel.com (8.12.10/8.12.10/d: major-inner.mc,v 1.2
++2004/09/17 18:05:01 root Exp $) with ESMTP id j570B2qr012933
+        for <suresh.b.siddha@intel.com>; Tue, 7 Jun 2005 00:11:02 GMT
+Received: from vger.kernel.org (vger.kernel.org [12.107.209.244])
+        by orsfmr004.jf.intel.com (8.12.10/8.12.10/d: major-outer.mc,v 1.1
++2004/09/17 17:50:56 root Exp $) with ESMTP id j570AlTq014175
+        for <suresh.b.siddha@intel.com>; Tue, 7 Jun 2005 00:11:01 GMT
+
+This looks like it was intended for Suresh (hi!), but Intel forwarded it
+back to my server.
+
+The others are the same, except they involve different Intel people, some
+of whom I know, some I don't :-)
+
+				Jeff

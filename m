@@ -1,45 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261798AbVFGGHz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261583AbVFGGL0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261798AbVFGGHz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 02:07:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbVFGGHy
+	id S261583AbVFGGL0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 02:11:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261808AbVFGGL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 02:07:54 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:57274 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261798AbVFGGHu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 02:07:50 -0400
-Date: Tue, 7 Jun 2005 08:07:13 +0200
-From: Ingo Molnar <mingo@elte.hu>
+	Tue, 7 Jun 2005 02:11:26 -0400
+Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:58837 "EHLO
+	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S261583AbVFGGLV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 02:11:21 -0400
+Date: Tue, 7 Jun 2005 08:11:16 +0200
+From: Voluspa <lista1@telia.com>
 To: linux-kernel@vger.kernel.org
-Subject: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.47-19
-Message-ID: <20050607060713.GA6295@elte.hu>
+Subject: Re: Linux v2.6.12-rc6
+Message-Id: <20050607081116.65c10190.lista1@telia.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-i have released the -V0.7.47-19 Real-Time Preemption patch, which can be 
-downloaded from the usual place:
+  CC      arch/x86_64/kernel/irq.o
+  CC      arch/x86_64/kernel/ptrace.o
+arch/x86_64/kernel/ptrace.c: In function `putreg':
+arch/x86_64/kernel/ptrace.c:285: error: duplicate case value
+arch/x86_64/kernel/ptrace.c:280: error: previously used here
+make[1]: *** [arch/x86_64/kernel/ptrace.o] Error 1
+make: *** [arch/x86_64/kernel] Error 2
 
-    http://redhat.com/~mingo/realtime-preempt/
+real    0m5.524s
+user    0m4.227s
+sys     0m0.724s
 
-this release is a merge to 2.6.12-rc6.
-
-to build a -V0.7.47-19 tree, the following patches have to be applied:
-
-   http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.11.tar.bz2
-   http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.12-rc6.bz2
-   http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.12-rc6-V0.7.47-19
-
-	Ingo
+Mvh
+Mats Johannesson
+--

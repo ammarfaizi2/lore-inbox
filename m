@@ -1,69 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261974AbVFGUbm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261975AbVFGUfm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261974AbVFGUbm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 16:31:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261975AbVFGUbm
+	id S261975AbVFGUfm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 16:35:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261977AbVFGUfm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 16:31:42 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:44785 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261974AbVFGUbi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 16:31:38 -0400
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.47-29
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Steven Rostedt <rostedt@goodmis.org>
-In-Reply-To: <20050607194119.GA11185@elte.hu>
-References: <20050607194119.GA11185@elte.hu>
-Content-Type: text/plain
-Organization: MontaVista
-Date: Tue, 07 Jun 2005 13:31:30 -0700
-Message-Id: <1118176290.18629.29.camel@dhcp153.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Jun 2005 16:35:42 -0400
+Received: from smtp2.poczta.interia.pl ([213.25.80.232]:47449 "EHLO
+	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
+	id S261975AbVFGUf3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 16:35:29 -0400
+Message-ID: <42A604AA.2090907@poczta.fm>
+Date: Tue, 07 Jun 2005 22:33:46 +0200
+From: Lukasz Stelmach <stlman@poczta.fm>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: moreau francis <francis_moreau2000@yahoo.fr>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+Subject: Re: Advices for a lcd driver design. (suite)
+References: <20050607080404.96919.qmail@web25804.mail.ukl.yahoo.com>
+In-Reply-To: <20050607080404.96919.qmail@web25804.mail.ukl.yahoo.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigEA230CE970F21A97A5ABBDC2"
+X-EMID: 106b1138
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-06-07 at 21:41 +0200, Ingo Molnar wrote:
-> ere are more microoptimizations to the spin_lock/unlock hotpath:
-> 
->  - the caching of mutex_getprio() priority in p->normal_prio
-> 
->  - the mutex lock/unlock paths are now all fall-through. (Found a gcc
->    bug, it mishandles __builtin_expect() in certain cases and produces 
->    correct but suboptimal code - we are working it around now.)
-> 
->  - reduced the amount of recursive preemption-counter bumps via the use 
->    of raw spinlocks
-> 
->  - rely on the preemption-counter instead of IRQs-off sections
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigEA230CE970F21A97A5ABBDC2
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-There is a local_irq_enable missing someplace in UP ..
+moreau francis napisa=C5=82(a):
 
-BUG: scheduling with irqs disabled: khelper/0x00000000/5
-caller is __down_mutex+0x276/0x440
- [<c03a88d6>] __down_mutex+0x276/0x440 (4)
- [<c03a75cc>] schedule+0xec/0x100 (4)
- [<c03a88d6>] __down_mutex+0x276/0x440 (12)
- [<c012b290>] remove_wait_queue+0x10/0x40 (64)
- [<c0130e02>] __spin_lock+0x22/0x40 (32)
- [<c012b290>] remove_wait_queue+0x10/0x40 (8)
- [<c0130e8c>] _spin_lock_irqsave+0xc/0x20 (12)
- [<c012b290>] remove_wait_queue+0x10/0x40 (8)
- [<c012b290>] remove_wait_queue+0x10/0x40 (4)
- [<c0126a2b>] worker_thread+0x14b/0x280 (20)
- [<c01265a0>] __call_usermodehelper+0x0/0x60 (16)
- [<c0112d20>] default_wake_function+0x0/0x40 (28)
- [<c0112d20>] default_wake_function+0x0/0x40 (32)
- [<c01268e0>] worker_thread+0x0/0x280 (36)
- [<c012af24>] kthread+0x84/0xc0 (4)
- [<c012aea0>] kthread+0x0/0xc0 (20)
- [<c010132d>] kernel_thread_helper+0x5/0x18 (16)
+>>>I posted an email 1 month ago because I was looking for advices to des=
+ign
+>>>a driver for a lcd device (128x64 pixels) with a t6963c controller.
+>>
+>>Ugh, whats wrong with standard handling via framebuffer?
+>>
+> well I already looked at framebuffers and choose to not use them becaus=
+e
+> t6963c controller does not have a frame buffer memory that can be acces=
+sed
+> by using mmap.
+[...]
+> am I wrong in my choice ?
+
+I think the "buffer" could be shadowed in kernel and updated periodically=
+=2E
+
+>>>So I wrote another small driver that can be accessed through "/dev/lcd=
+". It
+>>>drives the lcd only in graphical mode. That means that a=20
+>> "echo foo > /dev/lcd"
+>>
+>>>command won't work as expected.
+>>
+>>Look at framebuffer, that's what you want. See for example vesafb.
+>=20
+> Does frame buffer have such mechanism ? if so could you point me the co=
+de that
+> handles it ?
+
+Yes and no. No because framebuffer is about drawing graphics not text
+and yest for there is fbcon console driver on top of the framebuffer. At
+least AFAIK.
+
+BTW, have you seen these
+http://www.skippari.net/lcd/t6963c_prog.html
+http://wwwthep.physik.uni-mainz.de/~frink/lcd-t6963c-0.1/README.html
+
+--=20
+By=C5=82o mi bardzo mi=C5=82o.                    Trzecia pospolita kl=C4=
+=99ska, [...]
+>=C5=81ukasz<                      Ju=C5=BC nie katolicka lecz z=C5=82odz=
+iejska.  (c)PP
 
 
+--------------enigEA230CE970F21A97A5ABBDC2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
 
+iD8DBQFCpgTFNdzY8sm9K9wRAnKEAJ9fnA/qV4DwBZq9GIAsXIw0RouakwCfRRZ8
+RdqWGVIQ+Wy+M66SAmIUEQk=
+=S6O4
+-----END PGP SIGNATURE-----
+
+--------------enigEA230CE970F21A97A5ABBDC2--

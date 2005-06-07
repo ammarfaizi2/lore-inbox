@@ -1,40 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261543AbVFGCcT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261591AbVFGCgM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261543AbVFGCcT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 22:32:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVFGC32
+	id S261591AbVFGCgM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 22:36:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261797AbVFGCgL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 22:29:28 -0400
-Received: from webmail.topspin.com ([12.162.17.3]:26808 "EHLO
-	exch-1.topspincom.com") by vger.kernel.org with ESMTP
-	id S261454AbVFGC27 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 22:28:59 -0400
-To: Greg KH <gregkh@suse.de>
-Cc: "David S. Miller" <davem@davemloft.net>, tom.l.nguyen@intel.com,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: pci_enable_msi() for everyone?
-X-Message-Flag: Warning: May contain useful information
-References: <20050603224551.GA10014@kroah.com>
-	<20050605.124612.63111065.davem@davemloft.net>
-	<20050606225548.GA11184@suse.de>
-From: Roland Dreier <roland@topspin.com>
-Date: Mon, 06 Jun 2005 17:18:49 -0700
-In-Reply-To: <20050606225548.GA11184@suse.de> (Greg KH's message of "Mon, 6
- Jun 2005 15:55:49 -0700")
-Message-ID: <52ekbfj9xy.fsf@topspin.com>
-User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 07 Jun 2005 02:28:53.0996 (UTC) FILETIME=[A610DAC0:01C56B08]
+	Mon, 6 Jun 2005 22:36:11 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:59141 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261591AbVFGCej
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 22:34:39 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Subject: Re: Resend: [PATCH] crypto: don't check for NULL before kfree(), it's redundant.
+Cc: jmorris@intercode.com.au, akpm@osdl.org, linux-kernel@vger.kernel.org
+Organization: Core
+In-Reply-To: <9a8748490506061650477c8b7@mail.gmail.com>
+X-Newsgroups: apana.lists.os.linux.kernel
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1DfTul-0002H4-00@gondolin.me.apana.org.au>
+Date: Tue, 07 Jun 2005 12:34:03 +1000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Greg> That's fine to disable msi, I don't have an issue with that.
-    Greg> I'm just getting pushback from some vendors as to why MSI
-    Greg> isn't explicitly enabled by default and I don't have any
-    Greg> solid answers.
+Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> 
+> Here's a resend of a patch originally for 2.6.12-rc1-mm4. It still
+> applies to 2.6.12-rc6
+> 
+> The patch removes redundant checks of NULL before kfree() in crypto/ .
+> 
+> Patch attached as well as inline since I don't know how well gmail
+> handles inline patches.
 
-Why don't those vendors push back on their own behalf, on public
-mailing lists?
-
- - R.
+I've already merged your patch.  It will be pushed upstream after
+2.6.12 is released.
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

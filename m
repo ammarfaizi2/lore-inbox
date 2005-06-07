@@ -1,47 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261723AbVFGFWZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261726AbVFGFiJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261723AbVFGFWZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 01:22:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbVFGFWZ
+	id S261726AbVFGFiJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 01:38:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261725AbVFGFiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 01:22:25 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:2150 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261723AbVFGFWL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 01:22:11 -0400
-Date: Mon, 6 Jun 2005 22:22:03 -0700
-From: Greg KH <gregkh@suse.de>
-To: Roland Dreier <roland@topspin.com>
-Cc: Dave Jones <davej@redhat.com>, Grant Grundler <grundler@parisc-linux.org>,
-       tom.l.nguyen@intel.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, davem@davemloft.net
-Subject: Re: pci_enable_msi() for everyone?
-Message-ID: <20050607052202.GD17734@suse.de>
-References: <20050603224551.GA10014@kroah.com> <20050604013112.GB16999@colo.lackof.org> <20050604064821.GC13238@suse.de> <20050604070537.GB8230@colo.lackof.org> <20050604071803.GA13684@suse.de> <20050604072348.GA28293@redhat.com> <20050606230118.GD11184@suse.de> <5264wrj9l3.fsf@topspin.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5264wrj9l3.fsf@topspin.com>
-User-Agent: Mutt/1.5.8i
+	Tue, 7 Jun 2005 01:38:09 -0400
+Received: from lakermmtao07.cox.net ([68.230.240.32]:63656 "EHLO
+	lakermmtao07.cox.net") by vger.kernel.org with ESMTP
+	id S261726AbVFGFiA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 01:38:00 -0400
+From: "Steve Lee" <steve@tuxsoft.com>
+To: "'Dmitry Torokhov'" <dtor_core@ameritech.net>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: RE: Linux v2.6.12-rc6 mouse wheel not working
+Date: Tue, 7 Jun 2005 00:36:13 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+In-Reply-To: <200506062140.48723.dtor_core@ameritech.net>
+Thread-Index: AcVrAn/opERfD+LnSF6voJjEoCvByAAH21QA
+Message-Id: <20050607053759.BJXU28809.lakermmtao07.cox.net@saturn>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 06, 2005 at 05:26:32PM -0700, Roland Dreier wrote:
-> 
->     davej> What if MSI support has been disabled in the bridge due to
->     davej> some quirk (like the recent AMD 8111 quirk) ?  Maybe the
->     davej> above function should check pci_msi_enable as well ?
-> 
->     Greg> Yes, you are correct.  I said it wasn't tested :)
-> 
-> Huh?  If a host bridge doesn't support MSI, and a device below it has
-> its MSI capability enabled, we're in big trouble.  Because that device
-> is going to send interrupt messages whether the bridge likes it or
-> not.
+Here is how the mouse is detected under 2.6.11.11 and 2.6.12-rc6:
 
-No, that device would never get MSI enabled on it.  See the patch I
-posted to make sure I didn't get it wrong...
+Linux-2.6.11.11
 
-thanks,
+I: Bus=0011 Vendor=0002 Product=0006 Version=000f
+N: Name="ImExPS/2 Logitech Explorer Mouse"
+P: Phys=isa0060/serio1/input0
+H: Handlers=mouse0 event2
+B: EV=7
+B: KEY=1f0000 0 0 0 0 0 0 0 0
+B: REL=103
 
-greg k-h
+Linux-2.6.12-rc6
+
+I: Bus=0011 Vendor=0002 Product=0002 Version=000f
+N: Name="PS2++ Logitech MX Mouse"
+P: Phys=isa0060/serio1/input0
+H: Handlers=mouse1 event2 
+B: EV=7 
+B: KEY=ff0000 0 0 0 0 0 0 0 0 
+B: REL=143 
+
+With the patch you provided, the mouse is once again detected the same as
+2.6.11.11 and it works as expected.  I guess my question at this point is,
+how do I get the new code to work correctly?
+
+Thanks,
+Steve
+
+
+
+-----Original Message-----
+From: Dmitry Torokhov [mailto:dtor_core@ameritech.net] 
+Sent: Monday, June 06, 2005 9:41 PM
+To: linux-kernel@vger.kernel.org
+Cc: Steve Lee
+Subject: Re: Linux v2.6.12-rc6 mouse wheel not working
+
+On Monday 06 June 2005 20:11, Steve Lee wrote:
+> I've been using 2.6.11.11 just fine, but I thought I'd give 2.6.12-rc6 a
+> test run.  With 2.6.11.11, my mouse works as expected (wheel works fine),
+> however, 2.6.12-rc6 this is not true.  I saw there were some changes with
+> regards to the mouse, and it's apparent these changes have affected my
+> system in a negative way.  I have the Logitech MX 1000 connected to a
+Belkin
+> OnmiCube switch via PS2.  Please CC me as I'm not a subscriber to this
+list.
+> I'd be more than happy to test any possible fixes.  Oh, this is on a Linux
+> From Scratch 6.0 (w/BLFS updates) system with dual athlon MPs.
+>
+
+Is there a difference in how kernel identifies your mouse? MX 1000-specific
+support was introduced in 2.6.12...  
+
+Does it help if you revert the following patch:
+
+http://linux.bkbits.net:8080/linux-2.5/gnupatch%4042038820Zbz0cXacn-y2xfuPP_
+JqIw
+ 
+-- 
+Dmitry
+
+
+
+

@@ -1,75 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261269AbVFGAbm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261771AbVFGAmV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261269AbVFGAbm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 20:31:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261771AbVFGAbm
+	id S261771AbVFGAmV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 20:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbVFGAmV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 20:31:42 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:64703 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S261269AbVFGAbj (ORCPT
+	Mon, 6 Jun 2005 20:42:21 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:51416 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261771AbVFGAmQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 20:31:39 -0400
-Subject: Re: [PATCH] mtime attribute is not being updated on client
-From: Linda Dunaphant <linda.dunaphant@ccur.com>
-Reply-To: linda.dunaphant@ccur.com
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1113009804.7459.9.camel@lindad>
-References: <1112921570.6182.16.camel@lindad>
-	 <1112965872.15565.34.camel@lade.trondhjem.org>
-	 <1112993686.7459.4.camel@lindad>  <1113009804.7459.9.camel@lindad>
-Content-Type: text/plain
-Organization: CCUR
-Message-Id: <1118104107.13894.20.camel@lindad>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
-Date: Mon, 06 Jun 2005 20:28:27 -0400
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 07 Jun 2005 00:28:27.0570 (UTC) FILETIME=[D2C7C120:01C56AF7]
+	Mon, 6 Jun 2005 20:42:16 -0400
+Message-ID: <42A4ED65.2020403@us.ibm.com>
+Date: Mon, 06 Jun 2005 17:42:13 -0700
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       "Bligh, Martin J." <mbligh@aracnet.com>
+Subject: Fix send_IPI_mask_sequence warning
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------090209010105070200020005"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Trond,
+This is a multi-part message in MIME format.
+--------------090209010105070200020005
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-After running for awhile with the mtime related changes that I made to
-nfs_refresh_inode() on 4/8/05, I noticed that I would sometimes see
-stale file data on an an NFS client if the file had been updated but
-it's new filesize was the same as the old filesize. The clients were
-seeing the correct mtime for the file, but the data was stale.
+I get the following warning building 2.6.12-rc5-mm2 on my NUMA-Q box:
 
-In my previous change for mtime in nfs_refresh_inode(), the inode was
-being marked invalid, but the data was not. In the following patch, if
-the mtime is updated and the data_unstable flag is not true, the inode
-and the data will both be marked invalid. These changes solved the
-original mtime issue as well as the stale data problem that I was
-seeing.
+In file included from arch/i386/kernel/smp.c:235:
+include/asm-i386/mach-numaq/mach_ipi.h:4: warning: `send_IPI_mask_sequence'
+declared inline after its definition
 
-Linda
 
-The following patch is for 2.6.12-rc2:
+This patch silences the warning.
 
-diff -Nrau base/fs/nfs/inode.c new/fs/nfs/inode.c
---- base/fs/nfs/inode.c	2005-04-07 16:04:40.000000000 -0400
-+++ new/fs/nfs/inode.c	2005-04-18 21:48:28.000000000 -0400
-@@ -1176,9 +1176,17 @@
- 	}
+-Matt
+
+--------------090209010105070200020005
+Content-Type: text/x-patch;
+ name="fix-send_IPI_mask_sequence-warning.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="fix-send_IPI_mask_sequence-warning.patch"
+
+--- linux-2.6.12-rc5-mm2/include/asm-i386/mach-numaq/mach_ipi.h	2005-06-01 11:13:31.000000000 -0700
++++ linux-2.6.12-rc5-mm2/include/asm-i386/mach-numaq/mach_ipi.h.fixed	2005-06-06 17:02:30.490310944 -0700
+@@ -1,7 +1,7 @@
+ #ifndef __ASM_MACH_IPI_H
+ #define __ASM_MACH_IPI_H
  
- 	/* Verify a few of the more important attributes */
-+	if (!timespec_equal(&inode->i_mtime, &fattr->mtime)) {
-+		memcpy(&inode->i_mtime, &fattr->mtime, sizeof(inode->i_mtime));
-+#ifdef NFS_DEBUG_VERBOSE
-+		printk(KERN_DEBUG "NFS: mtime change on %s/%ld\n", inode->i_sb->s_id, inode->i_ino);
-+#endif
-+		if (!data_unstable)
-+			nfsi->flags |= NFS_INO_INVALID_ATTR|NFS_INO_INVALID_DATA;
-+	}
-+
- 	if (!data_unstable) {
--		if (!timespec_equal(&inode->i_mtime, &fattr->mtime)
--				|| cur_size != new_isize)
-+		if (cur_size != new_isize)
- 			nfsi->flags |= NFS_INO_INVALID_ATTR;
- 	} else if (S_ISREG(inode->i_mode) && new_isize > cur_size)
- 			nfsi->flags |= NFS_INO_INVALID_ATTR;
+-inline void send_IPI_mask_sequence(cpumask_t, int vector);
++void send_IPI_mask_sequence(cpumask_t, int vector);
+ 
+ static inline void send_IPI_mask(cpumask_t mask, int vector)
+ {
 
-
+--------------090209010105070200020005--

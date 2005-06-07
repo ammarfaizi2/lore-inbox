@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261969AbVFGT1o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261964AbVFGT2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261969AbVFGT1o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 15:27:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261967AbVFGT1o
+	id S261964AbVFGT2r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 15:28:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261966AbVFGT2q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 15:27:44 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:49870 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261969AbVFGT12 (ORCPT
+	Tue, 7 Jun 2005 15:28:46 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:55495 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261964AbVFGT2l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 15:27:28 -0400
-Message-ID: <42A5F51B.5060909@pobox.com>
-Date: Tue, 07 Jun 2005 15:27:23 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.12-rc6-mm1 & Chelsio driver
-References: <20050607181300.GL2369@mail.muni.cz> <42A5EC7C.4020202@pobox.com> <20050607185845.GM2369@mail.muni.cz>
-In-Reply-To: <20050607185845.GM2369@mail.muni.cz>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+	Tue, 7 Jun 2005 15:28:41 -0400
+Date: Tue, 7 Jun 2005 21:25:09 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.47-20
+Message-ID: <20050607192509.GA8315@elte.hu>
+References: <20050607110409.GA14613@elte.hu> <42A5EF2D.5030905@stud.feec.vutbr.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42A5EF2D.5030905@stud.feec.vutbr.cz>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lukas Hejtmanek wrote:
-> On Tue, Jun 07, 2005 at 02:50:36PM -0400, Jeff Garzik wrote:
-> 
->>>should chelsio 10GE driver work in this kernel? If I do modprobe cxgb, 
->>>then it
->>>silently returns. No messages in log (dmesg) nor terminal and no new ethX 
->>>device is discoverred.
->>
->>I suppose you have Chelsio hardware?
-> 
-> 
-> Yes :) 
-> 
-> Bus  2, device   3, function  0:
->     Ethernet controller: PCI device 1425:0006 (ASIC Designers Inc) (rev 0).
->       IRQ 24.
->       Master Capable.  Latency=248.  
->       Non-prefetchable 64 bit memory at 0xf6042000 [0xf6042fff].
-> 
-> 
-> kernel 2.6.6 and driver from web site:
-> Chelsio TOE Network Driver - version 2.1.0
-> eth0: Chelsio T110 1x10GBaseX TOE (rev 1), PCIX 100MHz/64-bit
-> eth0: 512MB SDRAM, 128MB FCRAM
 
-I can't help much beyond this then :(  There should be Chelsio email 
-addresses in the driver...
+* Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
 
-	Jeff
+> Ingo Molnar wrote:
+> > - performance feature: i've implemented a new scheduler feature called 
+> >   'delayed preemption', [...]
+> 
+> So far it's only for i386. On x84_64 the kernel doesn't compile.
+> Attached is my attempt to make it work on x86_64.
+> The diff is against RT-V0.7.47-26.
+> 
+> Warning: I don't know what I'm doing! But at least it compiles and boots 
+> for me.
 
+i'd not have done it differently :) The most important bits are the 
+entry.S changes: to correctly update bit-tests to mask-tests and to 
+extend any byte-test to a word-test (because bit 9 falls outside of the 
+low byte) - you've done that all correctly. I've applied your patch and 
+have uploaded the -47-28 release. Boots fine on my x64 box too.
 
+	Ingo

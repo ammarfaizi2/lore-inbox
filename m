@@ -1,79 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261785AbVFGA7T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261780AbVFGA7J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261785AbVFGA7T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 20:59:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbVFGA7S
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 20:59:18 -0400
-Received: from nulgw1.unisys.co.jp ([202.233.47.71]:32395 "EHLO
-	nulgw1.unisys.co.jp") by vger.kernel.org with ESMTP id S261785AbVFGA7J
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S261780AbVFGA7J (ORCPT <rfc822;willy@w.ods.org>);
 	Mon, 6 Jun 2005 20:59:09 -0400
-From: Hideki.Takahashi@uniadex.co.jp
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-2022-jp"
-Content-Transfer-Encoding: 7bit
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6375.0
-Subject: Dump analysis tool Alicia is released
-Date: Tue, 7 Jun 2005 09:59:48 +0900
-Message-ID: <034D06CB98C3DA48A82AC64141B6604E0596ACEF@AA02S1MB01.nthq01.unisys.co.jp>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Dump analysis tool Alicia is released
-Thread-Index: AcVq/DLCU+sv4AKjTJanixtzlh/kKg==
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 07 Jun 2005 00:59:48.0735 (UTC) FILETIME=[340AC0F0:01C56AFC]
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261788AbVFGA7J
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 6 Jun 2005 20:59:09 -0400
+Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:13975 "EHLO
+	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
+	id S261780AbVFGA7H (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 20:59:07 -0400
+Date: Tue, 7 Jun 2005 01:59:58 +0100
+From: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+To: Blaisorblade <blaisorblade@yahoo.it>
+Cc: user-mode-linux-devel@lists.sourceforge.net, Jeff Dike <jdike@addtoit.com>,
+       akpm@osdl.org, torvalds@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [uml-devel] [PATCH 3/5] UML - Clean up tt mode remapping of UML binary
+Message-ID: <20050607005958.GK29811@parcelfarce.linux.theplanet.co.uk>
+References: <200506062008.j56K89YA008957@ccure.user-mode-linux.org> <200506070105.20422.blaisorblade@yahoo.it> <20050606235321.GJ29811@parcelfarce.linux.theplanet.co.uk> <200506070256.43104.blaisorblade@yahoo.it>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200506070256.43104.blaisorblade@yahoo.it>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear all,
+On Tue, Jun 07, 2005 at 02:56:36AM +0200, Blaisorblade wrote:
+> > Per-subarch - perhaps not.  Per-glibc-type - definitely needed.
+> No, because the setup for NPTL glibc works also on non-NPTL one. Actually, to 
+> be exact, I've tested it *only* on normal glibc. I'm still waiting to get 
+> some testing in NPTL environments, but I expect it to work.
 
-We are pleased to announce releasing a new dump analysis tool,
-Alicia (Advanced LInux Crash-dump Interactive Analyzer).
+Now, that is interesting.  Which script are you using for i386 and which
+libc version does it work with?
 
----
-The development of this program is partly supported by IPA
-(Information-Technology Promotion Agency, Japan).
+> P.S: is it only me or you've sent about 20 copies of your last message?
 
----
-
-Alicia is a program that provides effective dump analysis environment
-with power of Perl language. Alicia provides common access method to
-kernel by wrapping the existing tool crash/lcrash and provides 
-"scripting" function for saving and reusing the dump analysis procedures.
-User can use existing crash/lcrash commands in addition to Alicia
-commands. The command result can be saved as a variable and it can
-be used as a parameter of another command. 
-Please use this tool and give us some comments.
-
-The following software is necessary for the compilation and the
-execution of Alicia.
- - crash 3.8.5 or higher
- - Perl 5.8.0 or higher
- - Perl module Term::ReadKey 2.21 or higher
- - Perl module Term::ReadLine::Perl 1.0203 or higer
-
----
-Alicia source code and documents are available in the following site,
-http://sourceforge.net/projects/alicia/
-http://alicia.sourceforge.net/
-
-We prepared a mailing list written below in order to let users know
-update of Alicia.
-alicia-users@lists.sourceforge.net
-
-And if you have any comments, please send to the above list, or to
-another mailing-list written below.
-alicia-devel@lists.sourceforge.net
-
-Best regards,
-All of the Alicia developers
-
------------------
-Hideki Takahashi
-Uniadex,Ltd., Software Product Support
-E-mail: Hideki.Takahashi@uniadex.co.jp
-
--
+Headers?

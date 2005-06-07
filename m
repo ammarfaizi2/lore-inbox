@@ -1,53 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261881AbVFGOnV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261885AbVFGOoA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261881AbVFGOnV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 10:43:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261885AbVFGOnV
+	id S261885AbVFGOoA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 10:44:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261886AbVFGOoA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 10:43:21 -0400
-Received: from pilet.ens-lyon.fr ([140.77.167.16]:12929 "EHLO
-	relaissmtp.ens-lyon.fr") by vger.kernel.org with ESMTP
-	id S261881AbVFGOnR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 10:43:17 -0400
-Message-ID: <42A5B27F.60204@ens-lyon.org>
-Date: Tue, 07 Jun 2005 16:43:11 +0200
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: sylvain.meyer@worldonline.fr, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12?
-References: <42A0D88E.7070406@pobox.com>	<20050603163843.1cf5045d.akpm@osdl.org>	<42A0F05A.8010901@ens-lyon.org> <20050603182125.3735f0c7.akpm@osdl.org>
-In-Reply-To: <20050603182125.3735f0c7.akpm@osdl.org>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
+	Tue, 7 Jun 2005 10:44:00 -0400
+Received: from az33egw01.freescale.net ([192.88.158.102]:38062 "EHLO
+	az33egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S261885AbVFGOn6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 10:43:58 -0400
+Mime-Version: 1.0 (Apple Message framework v619.2)
+Content-Transfer-Encoding: 7bit
+Message-Id: <10d4b7cd189d7b661a84e765ab8cce93@freescale.com>
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+From: Kumar Gala <kumar.gala@freescale.com>
+Subject: stupid SATA questions
+Date: Tue, 7 Jun 2005 09:43:56 -0500
+X-Mailer: Apple Mail (2.619.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton a écrit :
-> Brice Goglin <Brice.Goglin@ens-lyon.org> wrote:
-> 
->>Andrew Morton a écrit :
->>
->>>Lots of USB problems, quite a few input problems.  fbdev, ACPI, ATAPI.  All
->>>the usual suspects.
->>>
->>>Subject: intelfb crash on i845
->>>Subject: Re: [Linux-fbdev-devel] intelfb crash on i845
->>
->>These two entries seem to be the same one, from me.
->>Sylvain Meyer was working on it. And I've recently seen some patches
->>from him on the mm-commit list. I didn't have time to test them but I
->>should be able to try next week (especially if a new -mm is released
->>soon).
+These questions were posed to me and I was hoping someone would have 
+better knowledge about the works and usage of SATA then I do.  All of 
+these questions are around understanding how important the performance 
+of PIO mode is.
 
-Hi Andrew,
+How often would one run in PIO mode?  Why would one run in PIO mode?
 
-I just tried with rc6-mm1 and the problem is still present:
-when the onboard video memory is set to 1MB in the BIOS, switching from
-X to VT1 gives a dirty framebuffer console (no text, just wrong colors).
-Setting memory to 8MB in the BIOS makes all this work.
+Thanks
 
-Brice
+- kumar
+

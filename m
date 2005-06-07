@@ -1,1457 +1,455 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261871AbVFGPWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbVFGPYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261871AbVFGPWh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 11:22:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVFGPWh
+	id S261894AbVFGPYU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 11:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVFGPYQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 11:22:37 -0400
-Received: from ms-smtp-03.texas.rr.com ([24.93.47.42]:52980 "EHLO
-	ms-smtp-03-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S261891AbVFGOur (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 10:50:47 -0400
-Message-Id: <200506071449.j57EnpRZ029602@ms-smtp-03-eri0.texas.rr.com>
+	Tue, 7 Jun 2005 11:24:16 -0400
+Received: from ms-smtp-05.texas.rr.com ([24.93.47.44]:54980 "EHLO
+	ms-smtp-05-eri0.texas.rr.com") by vger.kernel.org with ESMTP
+	id S261894AbVFGOuO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 10:50:14 -0400
+Message-Id: <200506071449.j57EnbRh017061@ms-smtp-05-eri0.texas.rr.com>
 From: ericvh@gmail.com
-Date: Tue,  7 Jun 2005 09:49:31 -0500
+Date: Tue,  7 Jun 2005 09:49:17 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 3/7] v9fs: VFS inode operations (2.0)
+Subject: [PATCH 0/7] v9fs: Plan 9 resource sharing protocol (2.0)
 Cc: v9fs-developer@lists.sourceforge.net, akpm@osdl.org,
        viro@parcelfarce.linux.theplanet.co.uk, linux-fsdevel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is part [3/7] of the v9fs-2.0 patch against Linux 2.6.
+This is part [0/7] of the v9fs-2.0 patch against Linux 2.6.
 
-This part of the patch contains the VFS inode interfaces.
+Hi everyone, we're proud to announce v2.0 of our 9P2000 file system 
+driver support for Linux.
 
-Signed-off-by: Eric Van Hensbergen <ericvh@gmail.com>
+OVERVIEW
+
+V9FS is a distributed file system for Linux which provides an 
+implementation of the Plan 9 resource sharing protocol 9P.  It can be
+used to share all sorts of resources: static files, synthetic file servers
+(such as /proc or /sys), devices, and application file servers (such as
+FUSE).  
+
+BACKGROUND
+
+Plan 9 (http://plan9.bell-labs.com/plan9) is a research operating
+system and associated applications suite developed by the Computing
+Science Research Center of AT&T Bell Laboratories (now a part of
+Lucent Technologies), the same group that developed UNIX , C, and C++.
+Plan 9 was initially released in 1993 to universities, and then made
+generally available in 1995. Its core operating systems code laid the
+foundation for the Inferno Operating System released as a product by
+Lucent Bell-Labs in 1997. The Inferno venture was the only commercial
+embodiment of Plan 9 and is currently maintained as a product by Vita
+Nuova (http://www.vitanuova.com). After updated releases in 2000 and
+2002, Plan 9 was open-sourced under the OSI approved Lucent Public
+License in 2003.
+
+The Plan 9 project was started by Ken Thompson and Rob Pike in 1985.
+Their intent was to explore potential solutions to some of the
+shortcomings of UNIX in the face of the widespread use of high-speed
+networks to connect machines. In UNIX, networking was an afterthought
+and UNIX clusters became little more than a network of stand-alone
+systems. Plan 9 was designed from first principles as a seamless
+distributed system with integrated secure network resource sharing.
+Applications and services were architected in such a way as to allow
+for implicit distribution across a cluster of systems. Configuring an
+environment to use remote application components or services in place
+of their local equivalent could be achieved with a few simple command
+line instructions. For the most part, application implementations
+operated independent of the location of their actual resources.
+
+Commercial operating systems haven't changed much in the 20 years
+since Plan 9 was conceived. Network and distributed systems support is
+provided by a patchwork of middle-ware, with an endless number of
+packages supplying pieces of the puzzle. Matters are complicated by
+the use of different complicated protocols for individual services,
+and separate implementations for kernel and application resources.  
+The V9FS project (http://v9fs.sourceforge.net) is an attempt to bring
+Plan 9's unified approach to resource sharing to Linux and other
+operating systems via support for the 9P2000 resource sharing
+protocol.
+
+V9FS HISTORY
+
+V9FS was originally developed by Ron Minnich and Maya Gokhale at Los
+Alamos National Labs (LANL) in 1997.  In November of 2001, Greg Watson
+setup a SourceForge project as a public repository for the code which
+supported the Linux 2.4 kernel.
+
+About a year ago, I picked up the initial attempt Ron Minnich had
+made to provide 2.6 support and got the code integrated into a 2.6.5
+kernel.   I then went through a line-for-line re-write attempting to
+clean-up the code while more closely following the Linux Kernel style
+guidelines.  I co-authored a paper with Ron Minnich on the V9FS Linux
+support including performance comparisons to NFSv3 using Bonnie and
+PostMark - this paper appeared at the USENIX/FREENIX 2005
+conference in April 2005:
+( http://www.usenix.org/events/usenix05/tech/freenix/hensbergen.html ).
+
+STATUS
+
+The code is reasonably stable, although there are no doubt corner cases
+our regression tests haven't discovered yet.  It is in regular use by several 
+of the developers and has been tested on x86 and PowerPC 
+(32-bit and 64-bit) in both small and large (LANL cluster) deployments.
+Our current regression tests include fsx, bonnie, and postmark.
+
+It was our intention to keep things as simple as possible for this
+release -- trying to focus on correctness within the core of the
+protocol support versus a rich set of features.  For example: a more
+complete security model and cache layer are in the road map, but
+excluded from this release.   Additionally, we have removed support for
+mmap operations at Al Viro's request.
+
+PERFORMANCE
+
+Detailed performance numbers and analysis are included in the FREENIX
+paper, but we show comparable performance to NFSv3 for large file
+operations based on the Bonnie benchmark, and superior performance for
+many small file operations based on the PostMark benchmark.   Somewhat
+preliminary graphs (from the FREENIX paper) are available
+(http://v9fs.sourceforge.net/perf/index.html).
+
+RESOURCES
+
+The source code is available in a few different forms:
+
+tarballs: http://v9fs.sf.net
+CVSweb: http://cvs.sourceforge.net/viewcvs.py/v9fs/linux-9p/
+CVS: :pserver:anonymous@cvs.sourceforge.net:/cvsroot/v9fs/linux-9p
+Git: rsync://v9fs.graverobber.org/v9fs (webgit: http://v9fs.graverobber.org)
+9P: tcp!v9fs.graverobber.org!6564
+
+The user-level server is available from either the Plan 9 distribution
+or from http://v9fs.sf.net
+Other support applications are still being developed, but preliminary
+version can be downloaded from sourceforge.
+
+Documentation on the protocol has historically been the Plan 9 Man
+pages (http://plan9.bell-labs.com/sys/man/5/INDEX.html), but there is
+an effort under way to write a more complete Internet-Draft style
+specification (http://v9fs.sf.net/rfc).
+
+There are a couple of mailing lists supporting v9fs, but the most used
+is v9fs-developer@lists.sourceforge.net -- please direct/cc your
+comments there so the other v9fs contributors can participate in the
+conversation.  There is also an IRC channel: irc://freenode.net/#v9fs
+
+       -Eric Van Hensbergen
+         V9FS Project
 
 
  ----------
 
- vfs_inode.c | 1418 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- vfs_super.c |    0 
- 2 files changed, 1418 insertions(+)
+====== 06/07/2005 - ericvh ===
+ * Change hardcoded dirread size to negotiated packet size
+
+====== 06/06/2005 - ericvh ===
+ * Fix umount NULL references (from Pekka)
+ * Code cleanups suggested by Alexy Dobriyan
+
+====== 06/03/2005 - ericvh ===
+ * Fix bogus v9ses->transport assignment & free
+ * Add request timeout code to help with hung servers
+ * fix umount of hung/disconnected servers
+
+====== 06/02/2005 - ericvh ===
+ * convert to u64 types (from Pekka)
+ * fix buffer overflow in conv (from Pekka)
+ * fix dev initialization (from Ron)
+ * fix rookie errors in mux and remove sed injected whitespace
+
+====== 06/01/2005 - ericvh ===
+ * split dentry routines out to vfs_dentry to reduce vfs_inode size
+ * some new error codes from ron
+ * release v9fs-2.0-rc7
+
+====== 05/31/2005 - ericvh ===
+ * get rid of dynamic rpc struct allocation and associated slab
+ * get rid of vestigial address_space_operations (from Pekka)
+ * fix type name convention to Linux kernel standard (from Pekka)
+
+====== 05/27/2005 - ericvh ====
+ * remove potential slab leak in init_v9fs
+ * modify QID to prevent inodes of 0 or 1
+
+====== 05/25/2005 - ericvh ====
+ * more LKML suggested cleanups
+ * change packet and mistruct slab alloc to kmalloc
+
+====== 05/24/2005 - ericvh ====
+ * remove BUG() statements in OOM cases
+ * clean up more bogus kfree checks
+ * clean up error cases and redundant assignments in vfs_inode
+ * change the way aname (remotename) is specified and allocated
+
+====== 05/23/2005 - ericvh ====
+ * release 2.0-rc6
+ * Fix some style screwups
+
+====== 05/20/2005 - ericvh ====
+ * Fix multi-user bug reported by Ron & Ollie
+ * change /usr/src/linux to KDIR in CVS makefile 
+ * fix bogus copy_to_user error messages
+
+====== 05/16/2005 - ericvh ====
+ * release 2.0-rc5
+ * Adrian Bunk style corrections
+       - add statics where appropriate
+       - remove unused procedures
+       - pay attention to copy_from_user and copy_to_user return codes
+
+====== 05/05/2005 - ericvh ====
+ * additional cleanup of free null checks throughout code
+ * fix slab leaks
+
+====== 05/04/2005 - ericvh ====
+ * release 2.0-rc3
+ * use hash table in error mapping routines instead of linear search
+ * added all errors from fossil, vacfs, and u9fs - now we need to trim down
+
+====== 05/03/2005 - ericvh ====
+ * switch to using lib/parser.c for command line parsing
+ * change default user to nobody
+ * re-enable slabs and remove slab debug
+ * enable kernel slab debug options and fix corrupts slab names\
+ * rework slab from session based to msize based
+
+====== 05/02/2005 - ericvh ====
+ * clean up trans_sock a bit more
+ * eliminate normal allocation/free leak detection code from mainline
+ * fix double-free in t_flush code
+
+====== 04/30/2005 - ericvh ====
+ * remove mmap support - support available in mmap branch (unmaintained)
+ * clean up error paths in get_sb
+
+====== 04/29/2005 - ericvh ====
+ * protocol field shifting for lucho - make sure you update u9fs too
+ * remove transient clunks from lookup (broke linux semantics)
+ * whole mess of sparse cleanup changes - multithreaded broken for now
+
+====== 04/28/2005 - ericvh ====
+ * fix memory leaks in transport and session_init
+
+====== 04/27/2005 - ericvh ====
+ * fix t_version tid (to -1) so we work with Plan 9 servers
+ * change to C99 initializers
+ * CHANGE KCONFIG option to 9P_FS from 9P (will require BK change outside CVS)
+
+====== 04/25/2005 - ericvh ====
+ * release 2.0-rc2
+
+====== 04/23/2005 - ericvh ====
+ 
+ * fix mount segfault problem
+
+====== 04/22/2005 - ericvh ====
+
+ Linux-Kernel Mentor Comments responded to:
+ * clean-up Documentation (and remove/move in patch/BK)
+       * move README to Documentation/v9fs/v9fs.txt
+       * integrate AUTHORS into MAINTAINERS
+       * remove COPYING, TODO, INSTALL and CHANGELOG
+       * get rid of pointless comments in Makefile
+ * clean up debug statements and legacy version hacks
+       * put debug defines in do {} while(0) loops
+       * make sure all printks have a KERN_
+       * get rid of redundant/pointless macros
+ * style cleanup 
+       * fix function comments to match kernel_doc style
+       * remove { } on single line if statements
+       * get rid of big inlines
+       * get rid of global rpc slab
+       * return negative on error, 0 on success uniformly
+       * fit entire prototype on line when possible
+ * prefix all globals with v9fs_
+ * 
+
+====== 04/18/2005 - ericvh ====
+
+ * fix atomic while sleeping warning (thanks Lucho)
+ * move inline functions to top of vfs_inode to fix build warning (thanks Lucho)
+
+====== 04/13/2005 - ericvh ====
+
+ * fix 9p2000.u Rerror marshalling to match RFC (thanks Russ)
+ * release 2.0-rc1
+
+====== 04/12/2005 - ericvh ====
+ 
+ * fix clunk behavior
+ * fix oops during mount problems
+
+====== 03/25/2005 - ericvh =====
+
+ * add extended flag
+ * add nodevmap flag
+ * add then remove nosuid/nosgid flag (done implicitly)
+
+====== 03/24/2005 - ericvh =====
+
+ * split debug prints into debugs and errors
+ * add checks for extended mode with link operations
+ * allow override of extended mode with a mount option
+
+====== 03/23/2005 - ericvh =====
+
+ * Code cleanup
+ * Make debug level settable at mount time
+
+====== 03/22/2005 - ericvh ======
+
+ * fix various problems with mmap support
+ * We now pass fsx!
+
+====== 03/20/2005 - ericvh ======
+
+ * add mmap addr operation support
+
+====== 03/19/2005 - ericvh ======
+
+ * add support for hard links
+ * mknod file (PIPES, SOCKETS, DEVICES) support
+
+====== 03/17/2005 - ericvh ======
+
+ * fix open modes so we actually do truncate and append correctly
+ * code cleanup, do a better job of conditionalizing extensions
+
+====== 03/16/2005 - ericvh ====
+
+ * add support for readlink and followlink
+ * add support for creation of symlinks
+
+====== 03/14/2005 - ericvh ====
+ 
+ * revert setattr to using (no-change) values in stat structure
+ * revert rename to using (no-change) values in stat structure
+ * fix rename bug (was trying to rename parent directory, not sub-dir)
+ * fix bug with chown that wouldn't set uid right
+   (wasn't setting string name, only n_uid and u9fs was favoring string name)
+
+====== 03/11/2005 - ericvh ====
+
+ * fix setuid and setgid
+
+ ====== 03/03/2005 - ericvh ====
+ * rearrange dir structure to make parsing a bit easier
+ * debug numeric id and unix[n] extension
+ NOTICE: make sure you use a new u9fs, or thing will break
+
+ ====== 03/02/2005 - ericvh ====
+
+ * Add 9P2000.u error semantics
+ * Add 9P2000.u numeric ids to directory structures
+ * Provision for variable length extension string (unix[n])
+
+ ====== 03/01/2005 - ericvh ====
+
+ * add version check for definition of vfs_permission versus generic_permission
+ * add new 9P2000.u changes to 9p.h
+
+ ====== 02/25/2005 - ericvh =====
+
+ * fix t_wstat in set_attr so chmod & chown works
+ * fix t_wstat implementation in rename (but u9fs still broken for rename)
+
+ ====== 02/23/2005 - ericvh =====
+
+ Fixed some permissions bugs associated with mounting actual
+ Plan 9 file servers.  Also fixed a bug which crept into 
+ attach where we were sending server address as the aname.
+ We need to start doing a better job about keeping this file
+ up-to-date.
+ 
+ ====== 12/15/2004 - ericvh =====
+
+ Some updates (mostly from lucho) which fix up the re-write.
+ Seems to pass bonnie and postmark versus u9fs server with
+ same performance as before the rewrite.
+
+ ====== 12/03/2004 - ericvh =====
+
+ WARNING: CVS TIP IS UNSTABLE - use test3 if you want some level of 
+          stability
+
+ * line for line rewrite
+ * major source reorganization
+ * move to using slab allocators for several structures (fcall, pkts, mistat)
+ * removal of all cacheing operations including addr_ops (required for mmap)
+
+ Sorry for making a somewhat unstable commit.  Didn't want to hold up others
+ from making progress with the code while I fixed up the rewrite.  Code should
+ be much more approachable now and closer to LKML guidelines.
+ 
+ ====== 11/21/2004 - lucho (via patch to ericvh) ====
+
+ * add info to 9P debug prints
+
+ * move socket receive processing to a kernel thread
+
+ * send t_flush in response to user-interrupted transactions
+
+ ====== 11/09/2004 - ericvh ========
+
+ * restructure debug prints
+
+   removed a bunch of noisy debug prints and restructured with a 
+   more simple set of sections.  Disabled logging as it appears to 
+   have some form of corruption, may remove immediately soon.
+
+ * Big Kernel Locks
+ 
+   Intended to remove these, but they seem to still be necessary to
+   guarentee serialization.  Ended up adding more - will work hard
+   to get rid of these in the next round of changes.
+
+ * Sleep/Wakeup in p9client was causing multithreaded problems.  Sprinkled
+   liberally with wakeup calls which seems to unwedge threads (assuming
+   BKLs in place).  At the very least it passes Bonnie now
 
  ----------
 
---- /dev/null
-+++ b/fs/9p/vfs_inode.c
-@@ -0,0 +1,1418 @@
-+/*
-+ *  linux/fs/9p/vfs_inode.c
-+ *
-+ * This file contians vfs inode ops for the 9P2000 protocol.
-+ *
-+ *  Copyright (C) 2004 by Eric Van Hensbergen <ericvh@gmail.com>
-+ *  Copyright (C) 2002 by Ron Minnich <rminnich@lanl.gov>
-+ *
-+ *  This program is free software; you can redistribute it and/or modify
-+ *  it under the terms of the GNU General Public License as published by
-+ *  the Free Software Foundation; either version 2 of the License, or
-+ *  (at your option) any later version.
-+ *
-+ *  This program is distributed in the hope that it will be useful,
-+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ *  GNU General Public License for more details.
-+ *
-+ *  You should have received a copy of the GNU General Public License
-+ *  along with this program; if not, write to the Free Software
-+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-+ *
-+ */
-+
-+#include <linux/module.h>
-+#include <linux/errno.h>
-+#include <linux/fs.h>
-+#include <linux/file.h>
-+#include <linux/pagemap.h>
-+#include <linux/stat.h>
-+#include <linux/string.h>
-+#include <linux/smp_lock.h>
-+#include <linux/inet.h>
-+#include <linux/namei.h>
-+
-+#include "debug.h"
-+#include "idpool.h"
-+#include "v9fs.h"
-+#include "9p.h"
-+#include "v9fs_vfs.h"
-+#include "conv.h"
-+#include "fid.h"
-+
-+static struct inode_operations v9fs_dir_inode_operations;
-+static struct inode_operations v9fs_file_inode_operations;
-+static struct inode_operations v9fs_symlink_inode_operations;
-+
-+/**
-+ * unixmode2p9mode - convert unix mode bits to plan 9
-+ * @v9ses: v9fs session information
-+ * @mode: mode to convert
-+ *
-+ */
-+
-+static inline int unixmode2p9mode(struct v9fs_session_info *v9ses, int mode)
-+{
-+	int res;
-+	res = mode & 0777;
-+	if (S_ISDIR(mode))
-+		res |= V9FS_DMDIR;
-+	if (v9ses->extended) {
-+		if (S_ISLNK(mode))
-+			res |= V9FS_DMSYMLINK;
-+		if (v9ses->nodev == 0) {
-+			if (S_ISSOCK(mode))
-+				res |= V9FS_DMSOCKET;
-+			if (S_ISFIFO(mode))
-+				res |= V9FS_DMNAMEDPIPE;
-+			if (S_ISBLK(mode))
-+				res |= V9FS_DMDEVICE;
-+			if (S_ISCHR(mode))
-+				res |= V9FS_DMDEVICE;
-+		}
-+
-+		if ((mode & S_ISUID) == S_ISUID)
-+			res |= V9FS_DMSETUID;
-+		if ((mode & S_ISGID) == S_ISGID)
-+			res |= V9FS_DMSETGID;
-+		if ((mode & V9FS_DMLINK))
-+			res |= V9FS_DMLINK;
-+	}
-+
-+	return res;
-+}
-+
-+/**
-+ * p9mode2unixmode- convert plan9 mode bits to unix mode bits
-+ * @v9ses: v9fs session information
-+ * @mode: mode to convert
-+ *
-+ */
-+
-+static inline int p9mode2unixmode(struct v9fs_session_info *v9ses, int mode)
-+{
-+	int res;
-+
-+	res = mode & 0777;
-+
-+	if ((mode & V9FS_DMDIR) == V9FS_DMDIR)
-+		res |= S_IFDIR;
-+	else if ((mode & V9FS_DMSYMLINK) && (v9ses->extended))
-+		res |= S_IFLNK;
-+	else if ((mode & V9FS_DMSOCKET) && (v9ses->extended)
-+		 && (v9ses->nodev == 0))
-+		res |= S_IFSOCK;
-+	else if ((mode & V9FS_DMNAMEDPIPE) && (v9ses->extended)
-+		 && (v9ses->nodev == 0))
-+		res |= S_IFIFO;
-+	else if ((mode & V9FS_DMDEVICE) && (v9ses->extended)
-+		 && (v9ses->nodev == 0))
-+		res |= S_IFBLK;
-+	else
-+		res |= S_IFREG;
-+
-+	if (v9ses->extended) {
-+		if ((mode & V9FS_DMSETUID) == V9FS_DMSETUID)
-+			res |= S_ISUID;
-+
-+		if ((mode & V9FS_DMSETGID) == V9FS_DMSETGID)
-+			res |= S_ISGID;
-+	}
-+
-+	return res;
-+}
-+
-+/**
-+ * v9fs_blank_mistat - helper function to setup a 9P stat structure
-+ * @v9ses: 9P session info (for determining extended mode)
-+ * @mistat: structure to initialize
-+ *
-+ */
-+
-+static inline void
-+v9fs_blank_mistat(struct v9fs_session_info *v9ses, struct v9fs_stat *mistat)
-+{
-+	mistat->type = ~0;
-+	mistat->dev = ~0;
-+	mistat->qid.type = ~0;
-+	mistat->qid.version = ~0;
-+	*((long long *)&mistat->qid.path) = ~0;
-+	mistat->mode = ~0;
-+	mistat->atime = ~0;
-+	mistat->mtime = ~0;
-+	mistat->length = ~0;
-+	mistat->name = mistat->data;
-+	mistat->uid = mistat->data;
-+	mistat->gid = mistat->data;
-+	mistat->muid = mistat->data;
-+	if (v9ses->extended) {
-+		mistat->n_uid = ~0;
-+		mistat->n_gid = ~0;
-+		mistat->n_muid = ~0;
-+		mistat->extension = mistat->data;
-+	}
-+	*mistat->data = 0;
-+}
-+
-+/**
-+ * v9fs_mistat2unix - convert mistat to unix stat
-+ * @mistat: Plan 9 metadata (mistat) structure
-+ * @stat: unix metadata (stat) structure to populate 
-+ * @sb: superblock
-+ *
-+ */
-+
-+static void
-+v9fs_mistat2unix(struct v9fs_stat *mistat, struct stat *buf,
-+		 struct super_block *sb)
-+{
-+	struct v9fs_session_info *v9ses = sb ? sb->s_fs_info : NULL;
-+
-+	buf->st_nlink = 1;
-+
-+	buf->st_atime = mistat->atime;
-+	buf->st_mtime = mistat->mtime;
-+	buf->st_ctime = mistat->mtime;
-+
-+	if (v9ses && v9ses->extended) {
-+		/* TODO: string to uid mapping via user-space daemon */
-+		buf->st_uid = mistat->n_uid;
-+		buf->st_gid = mistat->n_gid;
-+
-+		sscanf(mistat->uid, "%x", (unsigned int *)&buf->st_uid);
-+		sscanf(mistat->gid, "%x", (unsigned int *)&buf->st_gid);
-+	} else {
-+		buf->st_uid = v9ses->uid;
-+		buf->st_gid = v9ses->gid;
-+	}
-+
-+	buf->st_uid = (unsigned short)-1;
-+	buf->st_gid = (unsigned short)-1;
-+
-+	if (v9ses && v9ses->extended) {
-+		if (mistat->n_uid != -1)
-+			sscanf(mistat->uid, "%x", (unsigned int *)&buf->st_uid);
-+
-+		if (mistat->n_gid != -1)
-+			sscanf(mistat->gid, "%x", (unsigned int *)&buf->st_gid);
-+	}
-+
-+	if (buf->st_uid == (unsigned short)-1)
-+		buf->st_uid = v9ses->uid;
-+	if (buf->st_gid == (unsigned short)-1)
-+		buf->st_gid = v9ses->gid;
-+
-+	buf->st_mode = p9mode2unixmode(v9ses, mistat->mode);
-+	if ((S_ISBLK(buf->st_mode)) || (S_ISCHR(buf->st_mode))) {
-+		char type = 0;
-+		int major = -1;
-+		int minor = -1;
-+		sscanf(mistat->extension, "%c %u %u", &type, &major, &minor);
-+		switch (type) {
-+		case 'c':
-+			buf->st_mode &= ~S_IFBLK;
-+			buf->st_mode |= S_IFCHR;
-+			break;
-+		case 'b':
-+			break;
-+		default:
-+			dprintk(DEBUG_ERROR, "Unknown special type %c (%s)\n",
-+				type, mistat->extension);
-+		};
-+		buf->st_rdev = MKDEV(major, minor);
-+	} else
-+		buf->st_rdev = 0;
-+
-+	buf->st_size = mistat->length;
-+
-+	buf->st_blksize = sb->s_blocksize;
-+	buf->st_blocks =
-+	    (buf->st_size + buf->st_blksize - 1) >> sb->s_blocksize_bits;
-+}
-+
-+/**
-+ * v9fs_get_inode - helper function to setup an inode
-+ * @sb: superblock
-+ * @mode: mode to setup inode with
-+ *
-+ */
-+
-+struct inode *v9fs_get_inode(struct super_block *sb, int mode)
-+{
-+	struct inode *inode = NULL;
-+
-+	dprintk(DEBUG_VFS, "super block: %p mode: %o\n", sb, mode);
-+
-+	inode = new_inode(sb);
-+	if (inode) {
-+		inode->i_mode = mode;
-+		inode->i_uid = current->fsuid;
-+		inode->i_gid = current->fsgid;
-+		inode->i_blksize = sb->s_blocksize;
-+		inode->i_blocks = 0;
-+		inode->i_rdev = 0;
-+		inode->i_atime = inode->i_mtime = inode->i_ctime = CURRENT_TIME;
-+
-+		switch (mode & S_IFMT) {
-+		case S_IFIFO:
-+		case S_IFBLK:
-+		case S_IFCHR:
-+		case S_IFSOCK:
-+		case S_IFREG:
-+			inode->i_op = &v9fs_file_inode_operations;
-+			inode->i_fop = &v9fs_file_operations;
-+			break;
-+		case S_IFDIR:
-+			inode->i_nlink++;
-+			inode->i_op = &v9fs_dir_inode_operations;
-+			inode->i_fop = &v9fs_dir_operations;
-+			break;
-+		case S_IFLNK:
-+			inode->i_op = &v9fs_symlink_inode_operations;
-+			break;
-+		default:
-+			dprintk(DEBUG_ERROR, "BAD mode 0x%x S_IFMT 0x%x\n",
-+				mode, mode & S_IFMT);
-+			sb->s_op->put_inode(inode);
-+			return ERR_PTR(-EINVAL);
-+		}
-+	} else {
-+		eprintk(KERN_WARNING, "Problem allocating inode\n");
-+		return ERR_PTR(-ENOMEM);
-+	}
-+	return inode;
-+}
-+
-+/**
-+ * v9fs_create - helper function to create files and directories
-+ * @dir: directory inode file is being created in
-+ * @file_dentry: dentry file is being created in 
-+ * @perm: permissions file is being created with
-+ * @open_mode: resulting open mode for file ???
-+ * 
-+ */
-+
-+static int
-+v9fs_create(struct inode *dir,
-+	    struct dentry *file_dentry,
-+	    unsigned int perm, unsigned int open_mode)
-+{
-+	struct v9fs_session_info *v9ses = v9fs_inode2v9ses(dir);
-+	struct super_block *sb = dir->i_sb;
-+	struct v9fs_fid *dirfid =
-+	    v9fs_fid_lookup(file_dentry->d_parent, FID_WALK);
-+	struct v9fs_fid *fid = NULL;
-+	struct inode *file_inode = NULL;
-+	struct v9fs_fcall *fcall = NULL;
-+	struct v9fs_qid qid;
-+	struct stat newstat;
-+	int dirfidnum = -1;
-+	long newfid = -1;
-+	int result = 0;
-+	unsigned int iounit = 0;
-+
-+	perm = unixmode2p9mode(v9ses, perm);
-+
-+	dprintk(DEBUG_VFS, "dir: %p dentry: %p perm: %o mode: %o\n", dir,
-+		file_dentry, perm, open_mode);
-+
-+	if (!dirfid)
-+		return -EBADF;
-+
-+	dirfidnum = dirfid->fid;
-+	if (dirfidnum < 0) {
-+		dprintk(DEBUG_ERROR, "No fid for the directory #%lu\n",
-+			dir->i_ino);
-+		return -EBADF;
-+	}
-+
-+	if (file_dentry->d_inode) {
-+		dprintk(DEBUG_ERROR,
-+			"Odd. There is an inode for dir %lu, name :%s:\n",
-+			dir->i_ino, file_dentry->d_name.name);
-+		return -EEXIST;
-+	}
-+
-+	newfid = v9fs_get_idpool(&v9ses->fidpool);
-+	if (newfid < 0) {
-+		eprintk(KERN_WARNING, "no free fids available\n");
-+		return -ENOSPC;
-+	}
-+
-+	result = v9fs_t_walk(v9ses, dirfidnum, newfid, NULL, &fcall);
-+	if (result < 0) {
-+		dprintk(DEBUG_ERROR, "clone error: %s\n", FCALL_ERROR(fcall));
-+		v9fs_put_idpool(newfid, &v9ses->fidpool);
-+		newfid = 0;
-+		goto CleanUpFid;
-+	}
-+
-+	kfree(fcall);
-+
-+	result = v9fs_t_create(v9ses, newfid, (char *)file_dentry->d_name.name,
-+			       perm, open_mode, &fcall);
-+	if (result < 0) {
-+		dprintk(DEBUG_ERROR, "create fails: %s(%d)\n",
-+			FCALL_ERROR(fcall), result);
-+
-+		goto CleanUpFid;
-+	}
-+
-+	iounit = fcall->params.rcreate.iounit;
-+	qid = fcall->params.rcreate.qid;
-+	kfree(fcall);
-+
-+	fid = v9fs_fid_create(file_dentry);
-+	if (!fid) {
-+		result = -ENOMEM;
-+		goto CleanUpFid;
-+	}
-+
-+	fid->fid = newfid;
-+	fid->fidopen = 0;
-+	fid->fidcreate = 1;
-+	fid->qid = qid;
-+	fid->iounit = iounit;
-+	fid->rdir_pos = 0;
-+	fid->rdir_fcall = NULL;
-+	fid->v9ses = v9ses;
-+
-+	if ((perm & V9FS_DMSYMLINK) || (perm & V9FS_DMLINK) ||
-+	    (perm & V9FS_DMNAMEDPIPE) || (perm & V9FS_DMSOCKET) ||
-+	    (perm & V9FS_DMDEVICE))
-+		return 0;
-+
-+	result = v9fs_t_stat(v9ses, newfid, &fcall);
-+	if (result < 0) {
-+		dprintk(DEBUG_ERROR, "stat error: %s(%d)\n", FCALL_ERROR(fcall),
-+			result);
-+		goto CleanUpFid;
-+	}
-+
-+	v9fs_mistat2unix(fcall->params.rstat.stat, &newstat, sb);
-+
-+	file_inode = v9fs_get_inode(sb, newstat.st_mode);
-+	if ((!file_inode) || IS_ERR(file_inode)) {
-+		dprintk(DEBUG_ERROR, "create inode failed\n");
-+		result = -EBADF;
-+		goto CleanUpFid;
-+	}
-+
-+	v9fs_mistat2inode(fcall->params.rstat.stat, file_inode, sb);
-+	kfree(fcall);
-+	d_instantiate(file_dentry, file_inode);
-+
-+	if (perm & V9FS_DMDIR) {
-+		if (v9fs_t_clunk(v9ses, newfid, &fcall))
-+			dprintk(DEBUG_ERROR, "clunk for mkdir failed: %s\n",
-+				FCALL_ERROR(fcall));
-+
-+		v9fs_put_idpool(newfid, &v9ses->fidpool);
-+		kfree(fcall);
-+		fid->fidopen = 0;
-+		fid->fidcreate = 0;
-+		d_drop(file_dentry);
-+	}
-+
-+	return 0;
-+
-+      CleanUpFid:
-+	kfree(fcall);
-+
-+	if (newfid) {
-+		if (v9fs_t_clunk(v9ses, newfid, &fcall))
-+			dprintk(DEBUG_ERROR, "clunk failed: %s\n",
-+				FCALL_ERROR(fcall));
-+
-+		v9fs_put_idpool(newfid, &v9ses->fidpool);
-+		kfree(fcall);
-+	}
-+	return result;
-+}
-+
-+/**
-+ * v9fs_remove - helper function to remove files and directories
-+ * @inode: directory inode that is being deleted
-+ * @dentry:  dentry that is being deleted
-+ * @rmdir: where we are a file or a directory
-+ *
-+ */
-+
-+static int v9fs_remove(struct inode *dir, struct dentry *file, int rmdir)
-+{
-+	struct v9fs_fcall *fcall = NULL;
-+	struct super_block *sb = NULL;
-+	struct v9fs_session_info *v9ses = NULL;
-+	struct v9fs_fid *v9fid = NULL;
-+	struct inode *file_inode = NULL;
-+	int fid = -1;
-+	int result = 0;
-+
-+	dprintk(DEBUG_VFS, "inode: %p dentry: %p rmdir: %d\n", dir, file,
-+		rmdir);
-+
-+	if (!dir || !S_ISDIR(dir->i_mode)) {
-+		dprintk(DEBUG_ERROR, "dir inode is NULL or not a directory\n");
-+		return -ENOENT;
-+	}
-+
-+	if (!file) {
-+		dprintk(DEBUG_ERROR, "NO dentry for file to remove\n");
-+		return -EBADF;
-+	}
-+
-+	if (!file->d_inode) {
-+		dprintk(DEBUG_ERROR,
-+			"dentry %p NO INODE for file to remove!\n", file);
-+		return -EBADF;
-+	}
-+
-+	file_inode = file->d_inode;
-+	sb = file_inode->i_sb;
-+	v9ses = v9fs_inode2v9ses(file_inode);
-+	v9fid = v9fs_fid_lookup(file, FID_OP);
-+
-+	if (!sb || !v9ses || !v9fid) {
-+		dprintk(DEBUG_ERROR,
-+			"no superblock or v9session or v9fs_fid\n");
-+		return -EBADF;
-+	}
-+
-+	fid = v9fid->fid;
-+	if (fid < 0) {
-+		dprintk(DEBUG_ERROR, "inode #%lu, no fid!\n",
-+			file_inode->i_ino);
-+		return -EBADF;
-+	}
-+
-+	if (rmdir && (!S_ISDIR(file_inode->i_mode))) {
-+		dprintk(DEBUG_ERROR, "trying to remove non-directory\n");
-+		return -ENOTDIR;
-+	} else if ((!rmdir) && S_ISDIR(file_inode->i_mode)) {
-+		dprintk(DEBUG_ERROR, "trying to remove directory\n");
-+		return -EISDIR;
-+	}
-+
-+	result = v9fs_t_remove(v9ses, fid, &fcall);
-+	if (result < 0)
-+		dprintk(DEBUG_ERROR, "remove of file fails: %s(%d)\n",
-+			FCALL_ERROR(fcall), result);
-+	else {
-+		v9fs_put_idpool(fid, &v9ses->fidpool);
-+		v9fs_fid_destroy(v9fid);
-+	}
-+
-+	kfree(fcall);
-+
-+	return result;
-+}
-+
-+/**
-+ * v9fs_vfs_create - VFS hook to create files
-+ * @inode: directory inode that is being deleted
-+ * @dentry:  dentry that is being deleted
-+ * @perm: create permissions
-+ * @nd: path information
-+ *
-+ */
-+
-+static int
-+v9fs_vfs_create(struct inode *inode, struct dentry *dentry, int perm,
-+		struct nameidata *nd)
-+{
-+	return v9fs_create(inode, dentry, perm, O_RDWR);
-+}
-+
-+/**
-+ * v9fs_vfs_mkdir - VFS mkdir hook to create a directory
-+ * @i:  inode that is being unlinked
-+ * @dentry: dentry that is being unlinked
-+ * @mode: mode for new directory
-+ *
-+ */
-+
-+static int v9fs_vfs_mkdir(struct inode *inode, struct dentry *dentry, int mode)
-+{
-+	return v9fs_create(inode, dentry, mode | S_IFDIR, O_RDONLY);
-+}
-+
-+/**
-+ * v9fs_vfs_lookup - VFS lookup hook to "walk" to a new inode
-+ * @dir:  inode that is being walked from
-+ * @dentry: dentry that is being walked to?
-+ * @nameidata: path data
-+ *
-+ */
-+
-+static struct dentry *v9fs_vfs_lookup(struct inode *dir, struct dentry *dentry,
-+				      struct nameidata *nameidata)
-+{
-+	struct super_block *sb;
-+	struct v9fs_session_info *v9ses;
-+	struct v9fs_fid *dirfid;
-+	struct v9fs_fid *fid;
-+	struct inode *inode;
-+	struct v9fs_fcall *fcall = NULL;
-+	struct stat newstat;
-+	int dirfidnum = -1;
-+	int newfid = -1;
-+	int result = 0;
-+
-+	dprintk(DEBUG_VFS, "dir: %p dentry: (%s) %p nameidata: %p\n",
-+		dir, dentry->d_iname, dentry, nameidata);
-+
-+	if (!dir) {
-+		dprintk(DEBUG_ERROR, "no dir inode\n");
-+		return ERR_PTR(-EINVAL);
-+	}
-+
-+	sb = dir->i_sb;
-+	v9ses = v9fs_inode2v9ses(dir);
-+	dirfid = v9fs_fid_lookup(dentry->d_parent, FID_WALK);
-+
-+	if (!sb || !v9ses || !dirfid) {
-+		dprintk(DEBUG_ERROR, "no superblock, v9ses, or dirfid\n");
-+		return ERR_PTR(-EINVAL);
-+	}
-+
-+	dirfidnum = dirfid->fid;
-+
-+	if (dirfidnum < 0) {
-+		dprintk(DEBUG_ERROR, "no dirfid for inode %p, #%lu\n",
-+			dir, dir->i_ino);
-+		return ERR_PTR(-EBADF);
-+	}
-+
-+	newfid = v9fs_get_idpool(&v9ses->fidpool);
-+	if (newfid < 0) {
-+		eprintk(KERN_WARNING, "newfid fails!\n");
-+		return ERR_PTR(-ENOSPC);
-+	}
-+
-+	result =
-+	    v9fs_t_walk(v9ses, dirfidnum, newfid, (char *)dentry->d_name.name,
-+			NULL);
-+	if (result < 0) {
-+		v9fs_put_idpool(newfid, &v9ses->fidpool);
-+		if (result == -ENOENT) {
-+			d_add(dentry, NULL);
-+			dprintk(DEBUG_ERROR,
-+				"Return negative dentry %p count %d\n",
-+				dentry, atomic_read(&dentry->d_count));
-+			return NULL;
-+		}
-+		dprintk(DEBUG_ERROR, "walk error:%d\n", result);
-+		goto FreeFcall;
-+	}
-+
-+	result = v9fs_t_stat(v9ses, newfid, &fcall);
-+	if (result < 0) {
-+		dprintk(DEBUG_ERROR, "stat error\n");
-+		goto FreeFcall;
-+	}
-+
-+	v9fs_mistat2unix(fcall->params.rstat.stat, &newstat, sb);
-+	inode = v9fs_get_inode(sb, newstat.st_mode);
-+
-+	if (IS_ERR(inode) && (PTR_ERR(inode) == -ENOSPC)) {
-+		eprintk(KERN_WARNING, "inode alloc failes, returns %ld\n",
-+			PTR_ERR(inode));
-+
-+		result = -ENOSPC;
-+		goto FreeFcall;
-+	}
-+
-+	inode->i_ino = v9fs_qid2ino(&fcall->params.rstat.stat->qid);
-+
-+	fid = v9fs_fid_create(dentry);
-+	if (fid == NULL) {
-+		dprintk(DEBUG_ERROR, "couldn't insert\n");
-+		result = -ENOMEM;
-+		goto FreeFcall;
-+	}
-+
-+	fid->fid = newfid;
-+	fid->fidopen = 0;
-+	fid->v9ses = v9ses;
-+	fid->qid = fcall->params.rstat.stat->qid;
-+
-+	dentry->d_op = &v9fs_dentry_operations;
-+	v9fs_mistat2inode(fcall->params.rstat.stat, inode, inode->i_sb);
-+
-+	d_add(dentry, inode);
-+	kfree(fcall);
-+
-+	return NULL;
-+
-+      FreeFcall:
-+	kfree(fcall);
-+	return ERR_PTR(result);
-+}
-+
-+/**
-+ * v9fs_vfs_unlink - VFS unlink hook to delete an inode
-+ * @i:  inode that is being unlinked
-+ * @dentry: dentry that is being unlinked
-+ *
-+ */
-+
-+static int v9fs_vfs_unlink(struct inode *i, struct dentry *d)
-+{
-+	return v9fs_remove(i, d, 0);
-+}
-+
-+/**
-+ * v9fs_vfs_rmdir - VFS unlink hook to delete a directory
-+ * @i:  inode that is being unlinked
-+ * @dentry: dentry that is being unlinked
-+ *
-+ */
-+
-+static int v9fs_vfs_rmdir(struct inode *i, struct dentry *d)
-+{
-+	return v9fs_remove(i, d, 1);
-+}
-+
-+/**
-+ * v9fs_vfs_rename - VFS hook to rename an inode
-+ * @old_dir:  old dir inode
-+ * @old_dentry: old dentry
-+ * @new_dir: new dir inode
-+ * @new_dentry: new dentry
-+ * 
-+ */
-+
-+static int
-+v9fs_vfs_rename(struct inode *old_dir, struct dentry *old_dentry,
-+		struct inode *new_dir, struct dentry *new_dentry)
-+{
-+	struct inode *old_inode = old_dentry->d_inode;
-+	struct v9fs_session_info *v9ses = v9fs_inode2v9ses(old_inode);
-+	struct v9fs_fid *oldfid = v9fs_fid_lookup(old_dentry, FID_WALK);
-+	struct v9fs_fid *olddirfid =
-+	    v9fs_fid_lookup(old_dentry->d_parent, FID_WALK);
-+	struct v9fs_fid *newdirfid =
-+	    v9fs_fid_lookup(new_dentry->d_parent, FID_WALK);
-+	struct v9fs_stat *mistat = kmalloc(v9ses->maxdata, GFP_KERNEL);
-+	struct v9fs_fcall *fcall = NULL;
-+	int fid = -1;
-+	int olddirfidnum = -1;
-+	int newdirfidnum = -1;
-+	int retval = 0;
-+
-+	dprintk(DEBUG_VFS, "\n");
-+
-+	if ((!oldfid) || (!olddirfid) || (!newdirfid)) {
-+		dprintk(DEBUG_ERROR, "problem with arguments\n");
-+		return -EBADF;
-+	}
-+
-+	/* 9P can only handle file rename in the same directory */
-+	if (memcmp(&olddirfid->qid, &newdirfid->qid, sizeof(newdirfid->qid))) {
-+		dprintk(DEBUG_ERROR, "old dir and new dir are different\n");
-+		retval = -EPERM;
-+		goto FreeFcallnBail;
-+	}
-+
-+	fid = oldfid->fid;
-+	olddirfidnum = olddirfid->fid;
-+	newdirfidnum = newdirfid->fid;
-+
-+	if (fid < 0) {
-+		dprintk(DEBUG_ERROR, "no fid for old file #%lu\n",
-+			old_inode->i_ino);
-+		retval = -EBADF;
-+		goto FreeFcallnBail;
-+	}
-+
-+	v9fs_blank_mistat(v9ses, mistat);
-+
-+	strcpy(mistat->data + 1, v9ses->name);
-+	mistat->name = mistat->data + 1 + strlen(v9ses->name);
-+
-+	if (new_dentry->d_name.len >
-+	    (v9ses->maxdata - strlen(v9ses->name) - sizeof(struct v9fs_stat))) {
-+		dprintk(DEBUG_ERROR, "new name too long\n");
-+		goto FreeFcallnBail;
-+	}
-+
-+	strcpy(mistat->name, new_dentry->d_name.name);
-+	retval = v9fs_t_wstat(v9ses, fid, mistat, &fcall);
-+
-+      FreeFcallnBail:
-+	kfree(mistat);
-+
-+	if (retval < 0)
-+		dprintk(DEBUG_ERROR, "v9fs_t_wstat error: %s\n",
-+			FCALL_ERROR(fcall));
-+
-+	kfree(fcall);
-+	return retval;
-+}
-+
-+/**
-+ * v9fs_vfs_getattr - retreive file metadata
-+ * @mnt - mount information
-+ * @dentry - file to get attributes on
-+ * @stat - metadata structure to populate
-+ *
-+ */
-+
-+static int
-+v9fs_vfs_getattr(struct vfsmount *mnt, struct dentry *dentry,
-+		 struct kstat *stat)
-+{
-+	struct v9fs_fcall *fcall = NULL;
-+	struct v9fs_session_info *v9ses = v9fs_inode2v9ses(dentry->d_inode);
-+	struct v9fs_fid *fid = v9fs_fid_lookup(dentry, FID_OP);
-+	int err = -EPERM;
-+
-+	dprintk(DEBUG_VFS, "dentry: %p\n", dentry);
-+	if (!fid) {
-+		dprintk(DEBUG_ERROR,
-+			"couldn't find fid associated with dentry\n");
-+		return -EBADF;
-+	}
-+
-+	err = v9fs_t_stat(v9ses, fid->fid, &fcall);
-+
-+	if (err < 0)
-+		dprintk(DEBUG_ERROR, "stat error\n");
-+	else {
-+		v9fs_mistat2inode(fcall->params.rstat.stat, dentry->d_inode,
-+				  dentry->d_inode->i_sb);
-+		generic_fillattr(dentry->d_inode, stat);
-+	}
-+
-+	kfree(fcall);
-+	return err;
-+}
-+
-+/**
-+ * v9fs_vfs_setattr - set file metadata
-+ * @dentry: file whose metadata to set
-+ * @iattr: metadata assignment structure
-+ *
-+ */
-+
-+static int v9fs_vfs_setattr(struct dentry *dentry, struct iattr *iattr)
-+{
-+	struct v9fs_session_info *v9ses = v9fs_inode2v9ses(dentry->d_inode);
-+	struct v9fs_fid *fid = v9fs_fid_lookup(dentry, FID_OP);
-+	struct v9fs_stat *mistat = kmalloc(v9ses->maxdata, GFP_KERNEL);
-+	struct v9fs_fcall *fcall = NULL;
-+	int res = -EPERM;
-+
-+	dprintk(DEBUG_VFS, "\n");
-+	if (!fid) {
-+		dprintk(DEBUG_ERROR,
-+			"Couldn't find fid associated with dentry\n");
-+		return -EBADF;
-+	}
-+
-+	if (!mistat)
-+		return -ENOMEM;
-+
-+	v9fs_blank_mistat(v9ses, mistat);
-+	if (iattr->ia_valid & ATTR_MODE)
-+		mistat->mode = unixmode2p9mode(v9ses, iattr->ia_mode);
-+
-+	if (iattr->ia_valid & ATTR_MTIME)
-+		mistat->mtime = iattr->ia_mtime.tv_sec;
-+
-+	if (iattr->ia_valid & ATTR_ATIME)
-+		mistat->atime = iattr->ia_atime.tv_sec;
-+
-+	if (iattr->ia_valid & ATTR_SIZE)
-+		mistat->length = iattr->ia_size;
-+
-+	if (v9ses->extended) {
-+		char *uid = kmalloc(strlen(mistat->uid), GFP_KERNEL);
-+		char *gid = kmalloc(strlen(mistat->gid), GFP_KERNEL);
-+		char *muid = kmalloc(strlen(mistat->muid), GFP_KERNEL);
-+		char *name = kmalloc(strlen(mistat->name), GFP_KERNEL);
-+		char *extension = kmalloc(strlen(mistat->extension),
-+					  GFP_KERNEL);
-+
-+		if ((!uid) || (!gid) || (!muid) || (!name) || (!extension)) {
-+			kfree(uid);
-+			kfree(gid);
-+			kfree(muid);
-+			kfree(name);
-+			kfree(extension);
-+
-+			return -ENOMEM;
-+		}
-+
-+		strcpy(uid, mistat->uid);
-+		strcpy(gid, mistat->gid);
-+		strcpy(muid, mistat->muid);
-+		strcpy(name, mistat->name);
-+		strcpy(extension, mistat->extension);
-+
-+		if (iattr->ia_valid & ATTR_UID) {
-+			if (strlen(uid) != 8) {
-+				dprintk(DEBUG_ERROR, "uid strlen is %u not 8\n",
-+					(unsigned int)strlen(uid));
-+				sprintf(uid, "%08x", iattr->ia_uid);
-+			} else {
-+				kfree(uid);
-+				uid = kmalloc(9, GFP_KERNEL);
-+			}
-+
-+			sprintf(uid, "%08x", iattr->ia_uid);
-+			mistat->n_uid = iattr->ia_uid;
-+		}
-+
-+		if (iattr->ia_valid & ATTR_GID) {
-+			if (strlen(gid) != 8)
-+				dprintk(DEBUG_ERROR, "gid strlen is %u not 8\n",
-+					(unsigned int)strlen(gid));
-+			else {
-+				kfree(gid);
-+				gid = kmalloc(9, GFP_KERNEL);
-+			}
-+
-+			sprintf(gid, "%08x", iattr->ia_gid);
-+			mistat->n_gid = iattr->ia_gid;
-+		}
-+
-+		mistat->uid = mistat->data;
-+		strcpy(mistat->uid, uid);
-+		mistat->gid = mistat->data + strlen(uid) + 1;
-+		strcpy(mistat->gid, gid);
-+		mistat->muid = mistat->gid + strlen(gid) + 1;
-+		strcpy(mistat->muid, muid);
-+		mistat->name = mistat->muid + strlen(muid) + 1;
-+		strcpy(mistat->name, name);
-+		mistat->extension = mistat->name + strlen(name) + 1;
-+		strcpy(mistat->extension, extension);
-+
-+		kfree(uid);
-+		kfree(gid);
-+		kfree(muid);
-+		kfree(name);
-+		kfree(extension);
-+	}
-+
-+	res = v9fs_t_wstat(v9ses, fid->fid, mistat, &fcall);
-+
-+	if (res < 0)
-+		dprintk(DEBUG_ERROR, "wstat error: %s\n", FCALL_ERROR(fcall));
-+
-+	kfree(mistat);
-+	kfree(fcall);
-+
-+	if (res >= 0)
-+		res = inode_setattr(dentry->d_inode, iattr);
-+
-+	return res;
-+}
-+
-+/**
-+ * v9fs_mistat2inode - populate an inode structure with mistat info
-+ * @mistat: Plan 9 metadata (mistat) structure
-+ * @inode: inode to populate
-+ * @sb: superblock of filesystem
-+ *
-+ */
-+
-+void
-+v9fs_mistat2inode(struct v9fs_stat *mistat, struct inode *inode,
-+		  struct super_block *sb)
-+{
-+	struct v9fs_session_info *v9ses = sb ? sb->s_fs_info : NULL;
-+
-+	inode->i_nlink = 1;
-+
-+	inode->i_atime.tv_sec = mistat->atime;
-+	inode->i_mtime.tv_sec = mistat->mtime;
-+	inode->i_ctime.tv_sec = mistat->mtime;
-+
-+	inode->i_uid = -1;
-+	inode->i_gid = -1;
-+
-+	if (v9ses && v9ses->extended) {
-+		/* TODO: string to uid mapping via user-space daemon */
-+		inode->i_uid = mistat->n_uid;
-+		inode->i_gid = mistat->n_gid;
-+
-+		if (mistat->n_uid == -1)
-+			sscanf(mistat->uid, "%x", &inode->i_uid);
-+
-+		if (mistat->n_gid == -1)
-+			sscanf(mistat->gid, "%x", &inode->i_gid);
-+	}
-+
-+	if (inode->i_uid == -1)
-+		inode->i_uid = v9ses->uid;
-+	if (inode->i_gid == -1)
-+		inode->i_gid = v9ses->gid;
-+
-+	inode->i_mode = p9mode2unixmode(v9ses, mistat->mode);
-+	if ((S_ISBLK(inode->i_mode)) || (S_ISCHR(inode->i_mode))) {
-+		char type = 0;
-+		int major = -1;
-+		int minor = -1;
-+		sscanf(mistat->extension, "%c %u %u", &type, &major, &minor);
-+		switch (type) {
-+		case 'c':
-+			inode->i_mode &= ~S_IFBLK;
-+			inode->i_mode |= S_IFCHR;
-+			break;
-+		case 'b':
-+			break;
-+		default:
-+			dprintk(DEBUG_ERROR, "Unknown special type %c (%s)\n",
-+				type, mistat->extension);
-+		};
-+		inode->i_rdev = MKDEV(major, minor);
-+	} else
-+		inode->i_rdev = 0;
-+
-+	inode->i_size = mistat->length;
-+
-+	inode->i_blksize = sb->s_blocksize;
-+	inode->i_blocks =
-+	    (inode->i_size + inode->i_blksize - 1) >> sb->s_blocksize_bits;
-+}
-+
-+/**
-+ * v9fs_qid2ino - convert qid into inode number
-+ * @qid: qid to hash
-+ *
-+ * BUG: potential for inode number collisions?
-+ */
-+
-+ino_t v9fs_qid2ino(struct v9fs_qid *qid)
-+{
-+	u64 path = qid->path + 2;
-+	ino_t i = 0;
-+
-+	if (sizeof(ino_t) == sizeof(path))
-+		memcpy(&i, &path, sizeof(ino_t));
-+	else
-+		i = (ino_t) (path ^ (path >> 32));
-+
-+	return i;
-+}
-+
-+/**
-+ * v9fs_vfs_symlink - helper function to create symlinks
-+ * @dir: directory inode containing symlink
-+ * @dentry: dentry for symlink
-+ * @symname: symlink data
-+ * 
-+ * See 9P2000.u RFC for more information
-+ *
-+ */
-+
-+static int
-+v9fs_vfs_symlink(struct inode *dir, struct dentry *dentry, const char *symname)
-+{
-+	int retval = -EPERM;
-+	struct v9fs_fid *newfid;
-+	struct v9fs_session_info *v9ses = v9fs_inode2v9ses(dir);
-+	struct super_block *sb = dir ? dir->i_sb : NULL;
-+	struct v9fs_fcall *fcall = NULL;
-+	struct v9fs_stat *mistat = kmalloc(v9ses->maxdata, GFP_KERNEL);
-+
-+	dprintk(DEBUG_VFS, " %lu,%s,%s\n", dir->i_ino, dentry->d_name.name,
-+		symname);
-+
-+	if ((!dentry) || (!sb) || (!v9ses)) {
-+		dprintk(DEBUG_ERROR, "problem with arguments\n");
-+		return -EBADF;
-+	}
-+
-+	if (!v9ses->extended) {
-+		dprintk(DEBUG_ERROR, "not extended\n");
-+		goto FreeFcall;
-+	}
-+
-+	/* issue a create */
-+	retval = v9fs_create(dir, dentry, S_IFLNK, 0);
-+	if (retval != 0)
-+		goto FreeFcall;
-+
-+	newfid = v9fs_fid_lookup(dentry, FID_OP);
-+
-+	/* issue a twstat */
-+	v9fs_blank_mistat(v9ses, mistat);
-+	strcpy(mistat->data + 1, symname);
-+	mistat->extension = mistat->data + 1;
-+	retval = v9fs_t_wstat(v9ses, newfid->fid, mistat, &fcall);
-+	if (retval < 0) {
-+		dprintk(DEBUG_ERROR, "v9fs_t_wstat error: %s\n",
-+			FCALL_ERROR(fcall));
-+		goto FreeFcall;
-+	}
-+
-+	/* need to update dcache so we show up */
-+	kfree(fcall);
-+	fcall = NULL;
-+
-+	if (v9fs_t_clunk(v9ses, newfid->fid, &fcall)) {
-+		dprintk(DEBUG_ERROR, "clunk for symlink failed: %s\n",
-+			FCALL_ERROR(fcall));
-+		goto FreeFcall;
-+	}
-+
-+	d_drop(dentry);		/* FID - will this also clunk? */
-+
-+      FreeFcall:
-+	kfree(mistat);
-+	kfree(fcall);
-+
-+	return retval;
-+}
-+
-+/**
-+ * v9fs_readlink - read a symlink's location (internal version)
-+ * @dentry: dentry for symlink
-+ * @buf: buffer to load symlink location into
-+ * @buflen: length of buffer
-+ * 
-+ */
-+
-+static int v9fs_readlink(struct dentry *dentry, char *buffer, int buflen)
-+{
-+	int retval = -EPERM;
-+
-+	struct v9fs_fcall *fcall = NULL;
-+	struct v9fs_session_info *v9ses = v9fs_inode2v9ses(dentry->d_inode);
-+	struct v9fs_fid *fid = v9fs_fid_lookup(dentry, FID_OP);
-+
-+	if (!fid) {
-+		dprintk(DEBUG_ERROR, "could not resolve fid from dentry\n");
-+		retval = -EBADF;
-+		goto FreeFcall;
-+	}
-+
-+	if (!v9ses->extended) {
-+		retval = -EBADF;
-+		dprintk(DEBUG_ERROR, "not extended\n");
-+		goto FreeFcall;
-+	}
-+
-+	dprintk(DEBUG_VFS, " %s\n", dentry->d_name.name);
-+	retval = v9fs_t_stat(v9ses, fid->fid, &fcall);
-+
-+	if (retval < 0) {
-+		dprintk(DEBUG_ERROR, "stat error\n");
-+		goto FreeFcall;
-+	}
-+
-+	if (!fcall)
-+		return -EIO;
-+
-+	if (!(fcall->params.rstat.stat->mode & V9FS_DMSYMLINK)) {
-+		retval = -EINVAL;
-+		goto FreeFcall;
-+	}
-+
-+	/* copy extension buffer into buffer */
-+	if (strlen(fcall->params.rstat.stat->extension) < buflen)
-+		buflen = strlen(fcall->params.rstat.stat->extension);
-+
-+	memcpy(buffer, fcall->params.rstat.stat->extension, buflen + 1);
-+
-+	retval = buflen;
-+
-+      FreeFcall:
-+	kfree(fcall);
-+
-+	return retval;
-+}
-+
-+/**
-+ * v9fs_vfs_readlink - read a symlink's location
-+ * @dentry: dentry for symlink
-+ * @buf: buffer to load symlink location into
-+ * @buflen: length of buffer
-+ * 
-+ */
-+
-+static int v9fs_vfs_readlink(struct dentry *dentry, char __user * buffer,
-+			     int buflen)
-+{
-+	int retval;
-+	int ret;
-+	char *link = __getname();
-+
-+	if (strlen(link) < buflen)
-+		buflen = strlen(link);
-+
-+	dprintk(DEBUG_VFS, " dentry: %s (%p)\n", dentry->d_iname, dentry);
-+
-+	retval = v9fs_readlink(dentry, link, buflen);
-+
-+	if (retval > 0) {
-+		if ((ret = copy_to_user(buffer, link, retval)) != 0) {
-+			dprintk(DEBUG_ERROR, "problem copying to user: %d\n",
-+				ret);
-+			retval = ret;
-+		}
-+	}
-+
-+	putname(link);
-+	return retval;
-+}
-+
-+/**
-+ * v9fs_vfs_follow_link - follow a symlink path
-+ * @dentry: dentry for symlink
-+ * @nd: nameidata
-+ * 
-+ */
-+
-+static int v9fs_vfs_follow_link(struct dentry *dentry, struct nameidata *nd)
-+{
-+	int len = 0;
-+	char *link = __getname();
-+
-+	dprintk(DEBUG_VFS, "%s n", dentry->d_name.name);
-+
-+	if (!link)
-+		link = ERR_PTR(-ENOMEM);
-+	else {
-+		len = v9fs_readlink(dentry, link, strlen(link));
-+
-+		if (len < 0) {
-+			putname(link);
-+			link = ERR_PTR(len);
-+		} else
-+			link[len] = 0;
-+	}
-+	nd_set_link(nd, link);
-+
-+	return 0;
-+}
-+
-+/**
-+ * v9fs_vfs_put_link - release a symlink path
-+ * @dentry: dentry for symlink
-+ * @nd: nameidata
-+ * 
-+ */
-+
-+static void v9fs_vfs_put_link(struct dentry *dentry, struct nameidata *nd)
-+{
-+	char *s = nd_get_link(nd);
-+
-+	dprintk(DEBUG_VFS, " %s %s\n", dentry->d_name.name, s);
-+	if (!IS_ERR(s))
-+		putname(s);
-+}
-+
-+/**
-+ * v9fs_vfs_link - create a hardlink
-+ * @old_dentry: dentry for file to link to
-+ * @dir: inode destination for new link
-+ * @new_dentry: dentry for link
-+ * 
-+ */
-+
-+/* XXX - lots of code dup'd from symlink and creates, 
-+ * figure out a better reuse strategy 
-+ */
-+
-+static int
-+v9fs_vfs_link(struct dentry *old_dentry, struct inode *dir,
-+	      struct dentry *dentry)
-+{
-+	int retval = -EPERM;
-+	struct v9fs_session_info *v9ses = v9fs_inode2v9ses(dir);
-+	struct super_block *sb = dir ? dir->i_sb : NULL;
-+	struct v9fs_fcall *fcall = NULL;
-+	struct v9fs_stat *mistat = kmalloc(v9ses->maxdata, GFP_KERNEL);
-+	struct v9fs_fid *oldfid = v9fs_fid_lookup(old_dentry, FID_OP);
-+	struct v9fs_fid *newfid = NULL;
-+	char *symname = __getname();
-+
-+	dprintk(DEBUG_VFS, " %lu,%s,%s\n", dir->i_ino, dentry->d_name.name,
-+		old_dentry->d_name.name);
-+
-+	if ((!dentry) || (!sb) || (!v9ses) || (!oldfid)) {
-+		dprintk(DEBUG_ERROR, "problem with arguments\n");
-+		retval = -EBADF;
-+		goto FreeMem;
-+	}
-+
-+	if (!v9ses->extended) {
-+		dprintk(DEBUG_ERROR, "not extended\n");
-+		goto FreeMem;
-+	}
-+
-+	/* get fid of old_dentry */
-+	sprintf(symname, "hardlink(%d)\n", oldfid->fid);
-+
-+	/* issue a create */
-+	retval = v9fs_create(dir, dentry, V9FS_DMLINK, 0);
-+	if (retval != 0)
-+		goto FreeMem;
-+
-+	newfid = v9fs_fid_lookup(dentry, FID_OP);
-+	if (!newfid) {
-+		dprintk(DEBUG_ERROR, "couldn't resolve fid from dentry\n");
-+		goto FreeMem;
-+	}
-+
-+	/* issue a twstat */
-+	v9fs_blank_mistat(v9ses, mistat);
-+	strcpy(mistat->data + 1, symname);
-+	mistat->extension = mistat->data + 1;
-+	retval = v9fs_t_wstat(v9ses, newfid->fid, mistat, &fcall);
-+	if (retval < 0) {
-+		dprintk(DEBUG_ERROR, "v9fs_t_wstat error: %s\n",
-+			FCALL_ERROR(fcall));
-+		goto FreeMem;
-+	}
-+
-+	/* need to update dcache so we show up */
-+	kfree(fcall);
-+	fcall = NULL;
-+
-+	if (v9fs_t_clunk(v9ses, newfid->fid, &fcall)) {
-+		dprintk(DEBUG_ERROR, "clunk for symlink failed: %s\n",
-+			FCALL_ERROR(fcall));
-+		goto FreeMem;
-+	}
-+
-+	d_drop(dentry);		/* FID - will this also clunk? */
-+
-+	kfree(fcall);
-+	fcall = NULL;
-+
-+      FreeMem:
-+	kfree(mistat);
-+	kfree(fcall);
-+	putname(symname);
-+	return retval;
-+}
-+
-+/**
-+ * v9fs_vfs_mknod - create a special file
-+ * @dir: inode destination for new link
-+ * @dentry: dentry for file
-+ * @mode: mode for creation
-+ * @dev_t: device associated with special file
-+ * 
-+ */
-+
-+static int
-+v9fs_vfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t rdev)
-+{
-+	int retval = -EPERM;
-+	struct v9fs_fid *newfid;
-+	struct v9fs_session_info *v9ses = v9fs_inode2v9ses(dir);
-+	struct super_block *sb = dir ? dir->i_sb : NULL;
-+	struct v9fs_fcall *fcall = NULL;
-+	struct v9fs_stat *mistat = kmalloc(v9ses->maxdata, GFP_KERNEL);
-+	char *symname = __getname();
-+
-+	dprintk(DEBUG_VFS, " %lu,%s mode: %x MAJOR: %u MINOR: %u\n", dir->i_ino,
-+		dentry->d_name.name, mode, MAJOR(rdev), MINOR(rdev));
-+
-+	if (!new_valid_dev(rdev)) {
-+		retval = -EINVAL;
-+		goto FreeMem;
-+	}
-+
-+	if ((!dentry) || (!sb) || (!v9ses)) {
-+		dprintk(DEBUG_ERROR, "problem with arguments\n");
-+		retval = -EBADF;
-+		goto FreeMem;
-+	}
-+
-+	if (!v9ses->extended) {
-+		dprintk(DEBUG_ERROR, "not extended\n");
-+		goto FreeMem;
-+	}
-+
-+	/* issue a create */
-+	retval = v9fs_create(dir, dentry, mode, 0);
-+
-+	if (retval != 0)
-+		goto FreeMem;
-+
-+	newfid = v9fs_fid_lookup(dentry, FID_OP);
-+	if (!newfid) {
-+		dprintk(DEBUG_ERROR, "coudn't resove fid from dentry\n");
-+		retval = -EINVAL;
-+		goto FreeMem;
-+	}
-+
-+	/* build extension */
-+	if (S_ISBLK(mode))
-+		sprintf(symname, "b %u %u", MAJOR(rdev), MINOR(rdev));
-+	else if (S_ISCHR(mode))
-+		sprintf(symname, "c %u %u", MAJOR(rdev), MINOR(rdev));
-+	else if (S_ISFIFO(mode)) ;	/* DO NOTHING */
-+	else {
-+		retval = -EINVAL;
-+		goto FreeMem;
-+	}
-+
-+	if (!S_ISFIFO(mode)) {
-+		/* issue a twstat */
-+		v9fs_blank_mistat(v9ses, mistat);
-+		strcpy(mistat->data + 1, symname);
-+		mistat->extension = mistat->data + 1;
-+		retval = v9fs_t_wstat(v9ses, newfid->fid, mistat, &fcall);
-+		if (retval < 0) {
-+			dprintk(DEBUG_ERROR, "v9fs_t_wstat error: %s\n",
-+				FCALL_ERROR(fcall));
-+			goto FreeMem;
-+		}
-+
-+		kfree(fcall);
-+	}
-+
-+	/* need to update dcache so we show up */
-+	kfree(fcall);
-+
-+	if (v9fs_t_clunk(v9ses, newfid->fid, &fcall)) {
-+		dprintk(DEBUG_ERROR, "clunk for symlink failed: %s\n",
-+			FCALL_ERROR(fcall));
-+		goto FreeMem;
-+	}
-+
-+	d_drop(dentry);		/* FID - will this also clunk? */
-+
-+      FreeMem:
-+	kfree(mistat);
-+	kfree(fcall);
-+	putname(symname);
-+
-+	return retval;
-+}
-+
-+static struct inode_operations v9fs_dir_inode_operations = {
-+	.create = v9fs_vfs_create,
-+	.lookup = v9fs_vfs_lookup,
-+	.symlink = v9fs_vfs_symlink,
-+	.link = v9fs_vfs_link,
-+	.unlink = v9fs_vfs_unlink,
-+	.mkdir = v9fs_vfs_mkdir,
-+	.rmdir = v9fs_vfs_rmdir,
-+	.mknod = v9fs_vfs_mknod,
-+	.rename = v9fs_vfs_rename,
-+	.readlink = v9fs_vfs_readlink,
-+	.getattr = v9fs_vfs_getattr,
-+	.setattr = v9fs_vfs_setattr,
-+};
-+
-+static struct inode_operations v9fs_file_inode_operations = {
-+	.getattr = v9fs_vfs_getattr,
-+	.setattr = v9fs_vfs_setattr,
-+};
-+
-+static struct inode_operations v9fs_symlink_inode_operations = {
-+	.readlink = v9fs_vfs_readlink,
-+	.follow_link = v9fs_vfs_follow_link,
-+	.put_link = v9fs_vfs_put_link,
-+	.getattr = v9fs_vfs_getattr,
-+	.setattr = v9fs_vfs_setattr,
-+};
+v9fs-2.0-final
+
+---
+commit ac45b5118f193193aba4c328fa7afebcaa19bd9c
+tree 6f6b5048e0ff1d1d2e04c9af2790dc0ea93f9956
+parent 7cef5677ef3a8084f2588ce0a129dc95d65161f6
+author <ericvh@ericvhG5.(none)> Tue, 07 Jun 2005 09:08:03 -0500
+committer <ericvh@ericvhG5.(none)> Tue, 07 Jun 2005 09:08:03 -0500
+
+ Documentation/filesystems/v9fs.txt |   88 ++
+ MAINTAINERS                        |   11 
+ fs/9p/9p.c                         |  357 +++++++++
+ fs/9p/9p.h                         |  339 +++++++++
+ fs/9p/Makefile                     |   17 
+ fs/9p/conv.c                       |  725 ++++++++++++++++++
+ fs/9p/conv.h                       |   34 +
+ fs/9p/debug.h                      |   68 ++
+ fs/9p/error.c                      |   92 ++
+ fs/9p/error.h                      |  176 ++++
+ fs/9p/fid.c                        |  233 ++++++
+ fs/9p/fid.h                        |   55 +
+ fs/9p/idpool.c                     |  150 ++++
+ fs/9p/idpool.h                     |   40 +
+ fs/9p/mux.c                        |  452 +++++++++++
+ fs/9p/mux.h                        |   37 +
+ fs/9p/trans_sock.c                 |  272 +++++++
+ fs/9p/transport.h                  |   43 +
+ fs/9p/v9fs.c                       |  408 ++++++++++
+ fs/9p/v9fs.h                       |   86 ++
+ fs/9p/v9fs_vfs.h                   |   51 +
+ fs/9p/vfs_dentry.c                 |  139 ++++
+ fs/9p/vfs_dir.c                    |  240 ++++++
+ fs/9p/vfs_file.c                   |  420 +++++++++++
+ fs/9p/vfs_inode.c                  | 1418 ++++++++++++++++++++++++++++++++++++
+ fs/9p/vfs_super.c                  |  259 +++++++
+ fs/Kconfig                         |   11 
+ fs/Makefile                        |    1 
+ 28 files changed, 6222 insertions(+), 0 deletions(-)
+

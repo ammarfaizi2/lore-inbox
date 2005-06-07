@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261953AbVFGSuh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261954AbVFGSv7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261953AbVFGSuh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 14:50:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261954AbVFGSuh
+	id S261954AbVFGSv7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 14:51:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261956AbVFGSv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 14:50:37 -0400
-Received: from fire.osdl.org ([65.172.181.4]:47085 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261953AbVFGSu3 (ORCPT
+	Tue, 7 Jun 2005 14:51:58 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:41166 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261954AbVFGSul (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 14:50:29 -0400
-Date: Tue, 7 Jun 2005 11:50:11 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Nick Craig-Wood <nick@craig-wood.com>
-Cc: linux-kernel@vger.kernel.org, Frank Sorenson <frank@tuxrocks.com>
-Subject: Re: Stable 2.6.x.y kernel series...
-Message-ID: <20050607185011.GB9153@shell0.pdx.osdl.net>
-References: <4cHDt-8gT-7@gated-at.bofh.it> <4cHDt-8gT-9@gated-at.bofh.it> <4cHDt-8gT-5@gated-at.bofh.it> <4cOly-5Va-35@gated-at.bofh.it> <20050607165906.7CB653FF9A@irishsea.home.craig-wood.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050607165906.7CB653FF9A@irishsea.home.craig-wood.com>
-User-Agent: Mutt/1.5.6i
+	Tue, 7 Jun 2005 14:50:41 -0400
+Message-ID: <42A5EC7C.4020202@pobox.com>
+Date: Tue, 07 Jun 2005 14:50:36 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.12-rc6-mm1 & Chelsio driver
+References: <20050607181300.GL2369@mail.muni.cz>
+In-Reply-To: <20050607181300.GL2369@mail.muni.cz>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Nick Craig-Wood (nick@craig-wood.com) wrote:
-> In linux.kernel, Frank Sorenson wrote:
-> >  Nick Craig-Wood wrote:
-> > > The next hurdle for 2.6.11-stable is to make sure that everything that
-> > > went into it goes into 2.6.12.  Is there a procedure for that?
-> > 
-> >  Other way around.  In order to be accepted into -stable, it needs to
-> >  already have been accepted into mainline.  More information at
-> >  http://kerneltrap.org/node/4827/54751
+Lukas Hejtmanek wrote:
+> Hello,
 > 
-> It doesn't actually say that on the above web page.  I remember it
-> being discussed, but it isn't on that page (unless I've missed it of
-> course ;-)
-> 
-> It wouldn't always be appropriate either - a -stable patch might
-> disable something which has a huge security hole in, wheras that sort
-> of patch wouldn't get accepted in mainline.
+> should chelsio 10GE driver work in this kernel? If I do modprobe cxgb, then it
+> silently returns. No messages in log (dmesg) nor terminal and no new ethX 
+> device is discoverred.
 
-There's lot of grey areas, those are guidelines for acceptance.  And,
-per your earlier comment, we do push patches to Linus where appropriate.
-Typically, we prefer to see them upstream, helps add much credibility
-to the stability of the patch.
+I suppose you have Chelsio hardware?
+
+	Jeff
+
+
+

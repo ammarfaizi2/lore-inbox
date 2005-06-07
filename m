@@ -1,68 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261778AbVFGAqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261779AbVFGAxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261778AbVFGAqm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 20:46:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261800AbVFGAqm
+	id S261779AbVFGAxx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 20:53:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261780AbVFGAxw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 20:46:42 -0400
-Received: from rproxy.gmail.com ([64.233.170.197]:37323 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261778AbVFGApS convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 20:45:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=ARoK6lWh+9cQapZZBWYHA7EDNS6Xxa1Ysv5dVKEcFHGOxChid53GnUpqTwQFavdxXzBtm1KJnsTd/Ii8BbWrPCs5ts/ff2KQzG+bjRd7yjIbu5twxcZyPg6RxfyHwTtnRuq9LGytYGS70+EfeWSFy0a6O9ByLIlZw3W9x7C24GE=
-Message-ID: <75052be70506061745478abdf5@mail.gmail.com>
-Date: Tue, 7 Jun 2005 08:45:15 +0800
-From: Skywind <gnuwind@gmail.com>
-Reply-To: Skywind <gnuwind@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Is kernel 2.6.11 adjust tcp_max_syn_backlog incorrectly?
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Mon, 6 Jun 2005 20:53:52 -0400
+Received: from smtp003.mail.ukl.yahoo.com ([217.12.11.34]:36694 "HELO
+	smtp003.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261779AbVFGAxu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 20:53:50 -0400
+From: Blaisorblade <blaisorblade@yahoo.it>
+To: user-mode-linux-devel@lists.sourceforge.net
+Subject: Re: [uml-devel] [PATCH 3/5] UML - Clean up tt mode remapping of UML binary
+Date: Tue, 7 Jun 2005 02:56:36 +0200
+User-Agent: KMail/1.7.2
+Cc: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
+       Jeff Dike <jdike@addtoit.com>, akpm@osdl.org, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org
+References: <200506062008.j56K89YA008957@ccure.user-mode-linux.org> <200506070105.20422.blaisorblade@yahoo.it> <20050606235321.GJ29811@parcelfarce.linux.theplanet.co.uk>
+In-Reply-To: <20050606235321.GJ29811@parcelfarce.linux.theplanet.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200506070256.43104.blaisorblade@yahoo.it>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any one know the reason?
-
-I think the subject may change to 
-"Is kernel 2.6.11 havn't set /proc network variable"
-or
-"Kernel 2.6.11 havn't set /proc network variable correctly by mem size"
-
-
-> Is kernel 2.6.11 adjust tcp_max_syn_backlog incorrectly?
+On Tuesday 07 June 2005 01:53, Al Viro wrote:
+> On Tue, Jun 07, 2005 at 01:05:19AM +0200, Blaisorblade wrote:
+> > On Monday 06 June 2005 22:08, Jeff Dike wrote:
+> > > From Al Viro - this turns the tt mode remapping of the binary into arch
+> > > code.
+> >
+> > NACK at all, definitely, don't apply this one please. This patch:
+> >
+> > 1) On i386 does not fix the problem it was supposed to fix when I
+> > originately sent the first version (i.e. avoiding to create a
+> > .thread_private section to allow linking against NPTL glibc). It's done
+> > on x86_64 and forgot on i386.
 >
-> Test Backgroud:
-> CPU: Intel P4
-> Mem: 512Mb
-> The /etc/sysctl.conf and other haven't touch anything.
+> True.  i386 still assumes non-NPTL (as it is on the box I'm working on -
+> such setups *do* exist).
+Yes, it's the most common one, and it's even the setup for my box currently.
+> > 2) Splitting the linker script for subarchs is definitely not needed.
 >
-> I found a strange question: when I use kernel 2.6.11, the value of
-> /proc/sys/net/ipv4/tcp_max_syn_backlog is 256,
-> while kernel 2.6.10 on same computer the value is 1024.
->
-> So I check the net/ipv4/[tcp.c, tcp_ipv4.c] and know when Mem >= 256Mb
-> the tcp_max_syn_backlog will be set to 1024,
-> but it is 256 in my test above.
+> Per-subarch - perhaps not.  Per-glibc-type - definitely needed.
+No, because the setup for NPTL glibc works also on non-NPTL one. Actually, to 
+be exact, I've tested it *only* on normal glibc. I'm still waiting to get 
+some testing in NPTL environments, but I expect it to work.
+> > 3) This removes the fix (done through objcopy -G switcheroo) to a link
+> > time conflict happening on some weird glibc combinations.
 
-> Some other variables that should be adjust all together with
-> tcp_max_syn_backlog are:
-> ip_local_port_range
-> tcp_max_tw_buckets
-> tcp_max_orphans
-> But they don't be adjust to correctly value(refer to net/ipv4/tcp.c) all.
->
-> It seems that kernel don't adjust these value automatic, is this a bug?
->
-> I guess the mechanism of tcp.c in 2.6.11 have some changes(between
-> 2.6.10), and it conduce to this result,
-> Is this guess correctly?
+> *What* link-time conflict?  We don't link libc into switcheroo anymore.
+Hmm, yes, I noted this... and maybe it could even be good (it makes sense, at 
+least). Probably you are right on this, too.
 
+P.S: is it only me or you've sent about 20 copies of your last message?
+-- 
+Inform me of my mistakes, so I can keep imitating Homer Simpson's "Doh!".
+Paolo Giarrusso, aka Blaisorblade (Skype ID "PaoloGiarrusso", ICQ 215621894)
+http://www.user-mode-linux.org/~blaisorblade
 
+	
 
-> Xu Gang (Skywind)
-> 2005/06/06
+	
+		
+___________________________________ 
+Yahoo! Mail: gratis 1GB per i messaggi e allegati da 10MB 
+http://mail.yahoo.it

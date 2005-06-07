@@ -1,79 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261389AbVFGCXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261402AbVFGC07@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261389AbVFGCXh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 22:23:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261372AbVFGCXh
+	id S261402AbVFGC07 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 22:26:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261368AbVFGC07
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 22:23:37 -0400
-Received: from lakshmi.addtoit.com ([198.99.130.6]:8709 "EHLO
-	lakshmi.solana.com") by vger.kernel.org with ESMTP id S261438AbVFGCXG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 22:23:06 -0400
-Date: Mon, 6 Jun 2005 22:00:00 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: Blaisorblade <blaisorblade@yahoo.it>,
-       user-mode-linux-devel@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [uml-devel] [PATCH 3/5] UML - Clean up tt mode remapping of UML binary
-Message-ID: <20050607020000.GA13739@ccure.user-mode-linux.org>
-References: <200506062008.j56K89YA008957@ccure.user-mode-linux.org> <200506070105.20422.blaisorblade@yahoo.it> <20050606235321.GJ29811@parcelfarce.linux.theplanet.co.uk> <200506070256.43104.blaisorblade@yahoo.it> <20050607005958.GK29811@parcelfarce.linux.theplanet.co.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050607005958.GK29811@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.2.1i
+	Mon, 6 Jun 2005 22:26:59 -0400
+Received: from zproxy.gmail.com ([64.233.162.194]:5027 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261402AbVFGC0W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 22:26:22 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=qJa/v4YxL8GxzAylvxPRgeqrL7dXW1JDNsDKY4u5wFFv7sgg3+rfIr6H4/sYMn+VuiWDIXRK9RuPNWosbpPexGZ9VfOJLH6JI4iTFiO96/HQgn549uhTXdY81v6f2hcrEWgg+/OspCHg1Pjy89QFJr98vSPmuy7kG/yhRL0n2w4=
+Message-ID: <42A505C2.6030206@gmail.com>
+Date: Tue, 07 Jun 2005 11:26:10 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+CC: Jeff Garzik <jgarzik@pobox.com>, axboe@suse.de,
+       James.Bottomley@steeleye.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH Linux 2.6.12-rc5-mm2 08/09] blk: update IDE to use the
+ new blk_ordered.
+References: <20050605055337.6301E65A@htj.dyndns.org>	 <20050605055337.ADD601D4@htj.dyndns.org> <42A2A00F.9050402@pobox.com> <58cb370e050605071472e95465@mail.gmail.com>
+In-Reply-To: <58cb370e050605071472e95465@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 07, 2005 at 01:59:58AM +0100, Al Viro wrote:
-> > P.S: is it only me or you've sent about 20 copies of your last message?
+
+  Hello, Jeff.
+  Hello, Bartlomiej.
+
+Bartlomiej Zolnierkiewicz wrote:
+> On 6/5/05, Jeff Garzik <jgarzik@pobox.com> wrote:
 > 
-> Headers?
+>>Tejun Heo wrote:
+>>
+>>>@@ -176,6 +176,18 @@ static ide_startstop_t __ide_do_rw_disk(
+>>>                      lba48 = 0;
+>>>      }
+>>>
+>>>+     if (blk_fua_rq(rq) &&
+>>>+         (!rq_data_dir(rq) || !drive->select.b.lba || !lba48)) {
+>>>+             if (!rq_data_dir(rq))
+>>>+                     printk(KERN_WARNING "%s: FUA READ unsupported\n",
+>>>+                            drive->name);
+>>>+             else
+>>>+                     printk(KERN_WARNING "%s: FUA request received but "
+>>>+                            "cannot use LBA48\n", drive->name);
+>>>+             ide_end_request(drive, 0, 0);
+>>>+             return ide_stopped;
+>>>+     }
+>>>+
+>>
+>>
+>>Does this string of tests really need to be added to the main fast path?
+>>
+>>It would be better to simply guarantee that this check need never exist
+>>in the IDE driver, by guaranteeing that the block layer will never send
+>>a FUA-READ command to a driver that does not wish it.
+>>
+>>        Jeff
 
-I got 18 copies.
+  I am not particulary proud of the way I've modified the IDE driver 
+but, to defend my ass a bit, the structure of __ide_do_rw_disk() was a 
+little bit awkward to add FUA support as it first loads all address 
+registers and then looks what to execute, and I didn't want to load 
+taskfile registers only to abort the command.
 
-Something horrible happened at Intel:
+  Currently none issues FUA READs, so the rq_data_dir() test can go away 
+but I think it's just nice to have it there for completeness.  As the 
+whole test is invoked only when blk_fua_rq() is true, I don't think the 
+overhead will be anything accountable (or reducible).  And for the 
+following select.b.lba and lba48 tests, we actually only need the lba48 
+test but I wasn't really sure whether lba48 implies select.b.lba.  It 
+seems it currently does but I couldn't find anything that guarantees it 
+by design.  Bartlomiej, is it safe to skip select.b.lba test?
 
-Received: from orsfmr005.jf.intel.com (fmr20.intel.com [134.134.136.19])
-        by saraswathi.solana.com (8.13.1/8.13.1) with ESMTP id j570cDAU017960 
-        for <jdike@addtoit.com>; Mon, 6 Jun 2005 20:38:18 -0400
-Received: from orsfmr101.jf.intel.com (orsfmr101.jf.intel.com [10.7.209.17])
-        by orsfmr005.jf.intel.com (8.12.10/8.12.10/d: major-outer.mc,v 1.1
-+2004/09/17 17:50:56 root Exp $) with ESMTP id j570c60S009128;
-        Tue, 7 Jun 2005 00:38:06 GMT
-Received: from orsmsxvs041.jf.intel.com (orsmsxvs041.jf.intel.com
-+[192.168.65.54])
-        by orsfmr101.jf.intel.com (8.12.10/8.12.10/d: major-inner.mc,v 1.2
-+2004/09/17 18:05:01 root Exp $) with SMTP id j570c6OK009846;
-        Tue, 7 Jun 2005 00:38:06 GMT
-Received: from orsmsx332.amr.corp.intel.com ([192.168.65.60])
- by orsmsxvs041.jf.intel.com (SAVSMTP 3.1.7.47) with SMTP id
-+M2005060617380513306
- ; Mon, 06 Jun 2005 17:38:05 -0700
-Received: from mail pickup service by orsmsx332.amr.corp.intel.com with
-+Microsoft SMTPSVC;
-         Mon, 6 Jun 2005 17:38:04 -0700
-Received: from orsmsxvs041.jf.intel.com ([192.168.65.54]) by
-+orsmsx332.amr.corp.intel.com with Microsoft SMTPSVC(6.0.3790.211);
-         Mon, 6 Jun 2005 17:11:02 -0700
-Received: from orsfmr100.jf.intel.com ([10.7.209.16])
- by orsmsxvs041.jf.intel.com (SAVSMTP 3.1.7.47) with SMTP id
-+M2005060617110210382
- for <suresh.b.siddha@intel.com>; Mon, 06 Jun 2005 17:11:02 -0700
-Received: from orsfmr004.jf.intel.com (orsfmr004.jf.intel.com [10.7.208.20])
-        by orsfmr100.jf.intel.com (8.12.10/8.12.10/d: major-inner.mc,v 1.2
-+2004/09/17 18:05:01 root Exp $) with ESMTP id j570B2qr012933
-        for <suresh.b.siddha@intel.com>; Tue, 7 Jun 2005 00:11:02 GMT
-Received: from vger.kernel.org (vger.kernel.org [12.107.209.244])
-        by orsfmr004.jf.intel.com (8.12.10/8.12.10/d: major-outer.mc,v 1.1
-+2004/09/17 17:50:56 root Exp $) with ESMTP id j570AlTq014175
-        for <suresh.b.siddha@intel.com>; Tue, 7 Jun 2005 00:11:01 GMT
+  I'll try to make it look better.  If you have any ideas, please let me 
+know.
 
-This looks like it was intended for Suresh (hi!), but Intel forwarded it
-back to my server.
+> 
+> 
+> Seconded, plus please use <linux/ata.h> instead of <linux/hdreg.h>
+> for adding new opcodes.
 
-The others are the same, except they involve different Intel people, some
-of whom I know, some I don't :-)
+  will do.
 
-				Jeff
+  Thank you a lot.
+
+-- 
+tejun

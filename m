@@ -1,133 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261565AbVFGDHz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261614AbVFGDOi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261565AbVFGDHz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 23:07:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261664AbVFGDHz
+	id S261614AbVFGDOi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 23:14:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261764AbVFGDOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 23:07:55 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:54000 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261565AbVFGDHh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 23:07:37 -0400
-Message-ID: <1118113637.42a50f65773eb@imap.linux.ibm.com>
-Date: Mon,  6 Jun 2005 23:07:17 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: greg@kroah.com
-Cc: linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       Morton Andrew Morton <akpm@osdl.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Bodo Eggert <7eggert@gmx.de>, Dipankar Sarma <dipankar@in.ibm.com>,
-       Grant Grundler <grundler@parisc-linux.org>, stern@rowland.harvard.edu,
-       awilliam@fc.hp.com, bjorn.helgaas@hp.com
-Subject: Re: [RFC/PATCH] Kdump: Disabling PCI interrupts in capture kernel
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-User-Agent: Internet Messaging Program (IMP) 3.2.7
-X-Originating-IP: 9.182.62.224
+	Mon, 6 Jun 2005 23:14:37 -0400
+Received: from mail.renesas.com ([202.234.163.13]:50319 "EHLO
+	mail01.idc.renesas.com") by vger.kernel.org with ESMTP
+	id S261614AbVFGDOV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 23:14:21 -0400
+Date: Tue, 07 Jun 2005 12:14:14 +0900 (JST)
+Message-Id: <20050607.121414.137821416.takata.hirokazu@renesas.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [PATCH 2.6.12-rc5] m32r: Use asm-generic/div64.h
+From: Hirokazu Takata <takata@linux-m32r.org>
+Cc: linux-kernel@vger.kernel.org, hitoshiy@isl.melco.co.jp,
+       takata@linux-m32r.org
+X-Mailer: Mew version 3.3 on XEmacs 21.4.17 (Jumbo Shrimp)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Quoting Alan Stern <stern@rowland.harvard.edu>:
+Hi,
 
-> On Sat, 4 Jun 2005, Vivek Goyal wrote:
+The current include/asm-m32r/div64.h of 2.6.12-rc5 looks buggy.
+Here is a patch for updating it to use asm-generic/div64.h for m32r
+like other architectures.
+
+Please apply.
+
+Symptoms: for example
+- idle time information of /proc/uptime is incorrect.
+- "top" command sometimes reports incorrect cpu states like this:
+> top - 14:05:01 up 5 min,  2 users,  load average: 0.15, 0.14, 0.07
+> Tasks:  28 total,   3 running,  25 sleeping,   0 stopped,   0 zombie
+> Cpu(s): 2500.0% us, 12800.0% sy,  0.0% ni, 2200.0% id, -28100.0% wa,  0.0% hi, 
+> Mem:     26748k total,    22484k used,     4264k free,        0k buffers
+> Swap:        0k total,        0k used,        0k free,    14656k cached
+
+Thanks,
+
+From: Bernardo Innocenti (bernie@develer.com)
+Subject: [PATCH] Kill div64.h dupes, parenthesize do_div() macro params
+Date: Tue Jul 01 2003 - 19:32:20 EST
+>  - move the 64/32bit do_div() macro to a new asm-generic/div64.h
+>    header;
 > 
-> > Hi Alan, I know very little about consoles and their working.
-> > I had a question. Even if console is being managed by platform firmware,
-> in
-> > initial states of booting, does it require interrupts to be enabled at 
-> > VGA contorller (at least for the simple text mode). I was quickly
-> browsing
-> > through drivers/video/console/vgacon.c and did not look like that this
-> > console driver needed interrupts to be enabled at the controller.
+>  - kill multiple copies of the generic version in architecture
+>    specific subdirs. Most copies were either buggy or subtly
+>    different from each other;
 > 
-> This isn't an issue for VGA, as far as I know.  It applies to
-> architectures like PPC-64 and perhaps Alpha or PA-Risc.  And I don't know
-> the details; ask Grant Grundler.
+>  - ensure all surviving instances of do_div() have their parameters
+>    correctly parenthesized to avoid funny results;
 > 
-> > Anyway, looks like serial consoles will always work. So at least this can
-> be
-> > done for kdump case (CONFIG_CRASH_DUMP) and not generic kernel. Or, as I
-> > mentioned in previous mail, while pre-loading capture kernel, pass a
-> command
-> > line parameter containing pci dev id of console and capture kernel does not
+> Note that the arm26, cris, m68knommu, sh, sparc and v850 architectures
+> are silently clipping 64bit dividend to 32bit! This patch doesn't try
+> to fix this because I can't test on all architectures.
 > 
-> > disable interrupts on this console.  
+> Patch submitted by Bernardo Innocenti <bernie@develer.com>
 > 
-> I suspect you're right that implementing this only in kdump kernels will 
-> work okay.
+> Applies to 2.5.73. Backporting to 2.4.21 is trivial.
 > 
-> For people interesting in reading some old threads on the subject, here 
-> are some pointers:
+> FOOT NOTE: what's the point with do_div()? Isn't gcc's long long
+> arithmetic support good enough on all platforms? If not, why
+> doesn't that get fixed in libgcc instead of polluting the kernel
+> with silly (and sometimes bogus) implementations?
 > 
-> http://marc.theaimsgroup.com/?l=linux-usb-devel&m=111055702309788&w=2
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=98383052711171&w=2
-
-I browsed through the discussion threads quickly. Previous proposal included
-disabling the DMA as well from the devices. Currently, for kdump, we are not 
-looking at disabling the DMA from the devices. So far have not run into 
-any problems due to ongoing DMA (Need to look into IOMMU reprogramming aspect
-though). Following is a snippet from one of the discussion threads.
-
-
-|List:       linux-usb-devel
-|Subject:    [linux-usb-devel] Re: PCI device initialization and USB
-early-handoff
-|From:       Grant Grundler <grundler () parisc-linux ! org>
-|Date:       2005-03-11 18:12:57
-|Message-ID: <20050311181257.GB15070 () colo ! lackof ! org>
-|[Download message RAW]
-.....
-
-|> > Is it feasible to have the PCI device initialization sequence disable DMA
-|> > and IRQs from the device?  This could solve the problems we've been seeing
-|> > with non-quiescent devices sharing an IRQ line at startup.
-
-|two potential issues here:
-|o ISTR VGA devices may not like disabling Bus Master bit in the command reg.
-| But I'm blissfully ignorant of all the issues around VGA and someone
-| else will have to comment on that.
-|
-|o platform devices (e.g. bridges) that don't have PCI drivers to re-enable
-|  them later. "transperent" Bridges are the only example I can come up with
-|  now but expect more to come out of the woodwork as this gets widely
-|  tested. Trolling through PCI quirks might flag some of the known ones.
-|  I would expect a few more to show up with this change.
-
-|hth,
-|grant
+>  asm-alpha/div64.h | 15 +--------------
+>  asm-arm26/div64.h | 15 +--------------
+>  asm-cris/div64.h | 17 +----------------
+>  asm-generic/div64.h | 13 +++++++++++++
+>  asm-h8300/div64.h | 14 +-------------
+>  asm-ia64/div64.h | 21 +--------------------
+>  asm-m68k/div64.h | 9 ---------
+>  asm-m68knommu/div64.h | 14 +-------------
+>  asm-mips64/div64.h | 20 +-------------------
+>  asm-parisc/div64.h | 36 ++++++++++--------------------------
+>  asm-ppc64/div64.h | 19 +------------------
+>  asm-s390/div64.h | 8 +-------
+>  asm-sh/div64.h | 11 +----------
+>  asm-sparc/div64.h | 12 +-----------
+>  asm-sparc64/div64.h | 15 +--------------
+>  asm-v850/div64.h | 12 +-----------
+>  asm-x86_64/div64.h | 15 +--------------
+>  17 files changed, 37 insertions(+), 229 deletions(-) 
 
 
-o Bus Master bit is not being disabled, only interrupt generation will be 
-  disabled and looks like at least VGA and serial consoles are not impacted 
-  due to disabling of interrupt. Any other consoles which require interrupt
-  to be enabled for their working????
+Signed-off-by: Hitoshi Yamamoto <hitoshiy@isl.melco.co.jp>
+Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+---
 
-o As per pci-to-pci bridge architecture specification revision 1.2, 
-  interrupt disable bit in PCI-PCI bridge is optional and if implemented,
-  it will disable interrupt generation from bridge but will have no effect
-  on interrupts that the bridge forwards from the PCI devices on the 
-  secondary bus.
+diff -ruNp a/include/asm-m32r/div64.h b/include/asm-m32r/div64.h
+--- a/include/asm-m32r/div64.h	2004-12-25 06:33:49.000000000 +0900
++++ b/include/asm-m32r/div64.h	2005-05-31 19:49:38.000000000 +0900
+@@ -1,38 +1 @@
+-#ifndef _ASM_M32R_DIV64
+-#define _ASM_M32R_DIV64
+-
+-/* $Id$ */
+-
+-/* unsigned long long division.
+- * Input:
+- *  unsigned long long  n
+- *  unsigned long  base
+- * Output:
+- *  n = n / base;
+- *  return value = n % base;
+- */
+-#define do_div(n, base)						\
+-({								\
+-	unsigned long _res, _high, _mid, _low;			\
+-								\
+-	_low = (n) & 0xffffffffUL;				\
+-	_high = (n) >> 32;					\
+-	if (_high) {						\
+-		_mid = (_high % (unsigned long)(base)) << 16;	\
+-		_high = _high / (unsigned long)(base);		\
+-		_mid += _low >> 16;				\
+-		_low &= 0x0000ffffUL;				\
+-		_low += (_mid % (unsigned long)(base)) << 16;	\
+-		_mid = _mid / (unsigned long)(base);		\
+-		_res = _low % (unsigned long)(base);		\
+-		_low = _low / (unsigned long)(base);		\
+-		n = _low + ((long long)_mid << 16) +		\
+-			((long long)_high << 32);		\
+-	} else {						\
+-		_res = _low % (unsigned long)(base);		\
+-		n = (_low / (unsigned long)(base));		\
+-	}							\
+-	_res;							\
+-})
+-
+-#endif  /* _ASM_M32R_DIV64 */
++#include <asm-generic/div64.h>
 
-  So even if interrupts are disabled on PCI-PCI bridge, interrupts generated
-  by PCI devices on secondary bus are not blocked and I hope device should
-  be working fine.
-
-
-The whole idea is that currently this change is kdump specific. Ofcourse there
-shall be issues which are not known yet and more devices might not
-work for kdump kernels. But at the same time kdump kernels are not supposed to
-do a great deal except capture and save the dump. So this change might not
-be of a big concern even if some devices don't work as long as kdump kernel
-can boot. 
-
-Disabling interrupts at PCI level should increase the reliability of capturing
-the dump on newer machines with hardware compliant with PCI 2.3 or higher. 
-Booting a kdump kernel with reduced functionality should always be better than 
-not booting at all. 
-
-Thanks
-Vivek
-
+--
+Hirokazu Takata <takata@linux-m32r.org>
+Linux/M32R Project:  http://www.linux-m32r.org/

@@ -1,53 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261826AbVFGLOO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261827AbVFGLUe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261826AbVFGLOO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 07:14:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261827AbVFGLOO
+	id S261827AbVFGLUe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 07:20:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbVFGLUe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 07:14:14 -0400
-Received: from ozlabs.org ([203.10.76.45]:64671 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261826AbVFGLOK (ORCPT
+	Tue, 7 Jun 2005 07:20:34 -0400
+Received: from wasp.net.au ([203.190.192.17]:10446 "EHLO wasp.net.au")
+	by vger.kernel.org with ESMTP id S261827AbVFGLU2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 07:14:10 -0400
+	Tue, 7 Jun 2005 07:20:28 -0400
+Message-ID: <42A58307.3080906@wasp.net.au>
+Date: Tue, 07 Jun 2005 15:20:39 +0400
+From: Brad Campbell <brad@wasp.net.au>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050115)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Greg Stark <gsstark@mit.edu>
+CC: Mark Lord <liml@rtr.ca>, Jeff Garzik <jgarzik@pobox.com>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>,
+       James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: [SATA] libata-dev queue updated
+References: <42A14541.6020209@pobox.com> <87vf4ujgmj.fsf@stark.xeocode.com>	<42A47376.80203@rtr.ca> <87u0kbhqsz.fsf@stark.xeocode.com>
+In-Reply-To: <87u0kbhqsz.fsf@stark.xeocode.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17061.33146.809450.784765@cargo.ozlabs.ibm.com>
-Date: Tue, 7 Jun 2005 21:14:02 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: torvalds@osdl.org, akpm@osdl.org
-CC: linux-kernel@vger.kernel.org, anton@samba.org, ananth@in.ibm.com
-Subject: [PATCH 2/2] ppc64 kprobes: remove spurious MSR_SE masking
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
+Greg Stark wrote:
+> Mark Lord <liml@rtr.ca> writes:
 
-Remove spurious MSR_SE reset during kprobe processing. single_step_exception()
-already does it for us. Reset it to be safe when executing the fault_handler.
+>>Eg.  smartctl -data -a /dev/sda
+> 
+> 
+> Uh, this is 2.6.12-rc4 with the latest libata-dev patch from Garzik's web
+> site:
+> 
+>  bash-3.00$ smartctl -data -a /dev/sda
 
-Signed-off-by: Ananth N Mavinakayanahalli <ananth@in.ibm.com>
-Signed-off-by: Paul Mackerras <paulus@samba.org>
----
+smartctl -d ata -a /dev/sda
 
-diff -urN linux-2.6/arch/ppc64/kernel/kprobes.c g5-ppc64/arch/ppc64/kernel/kprobes.c
---- linux-2.6/arch/ppc64/kernel/kprobes.c	2005-04-26 15:37:55.000000000 +1000
-+++ g5-ppc64/arch/ppc64/kernel/kprobes.c	2005-06-07 21:06:38.000000000 +1000
-@@ -177,8 +177,6 @@
- 	ret = emulate_step(regs, p->ainsn.insn[0]);
- 	if (ret == 0)
- 		regs->nip = (unsigned long)p->addr + 4;
--
--	regs->msr &= ~MSR_SE;
- }
- 
- static inline int post_kprobe_handler(struct pt_regs *regs)
-@@ -215,6 +213,7 @@
- 
- 	if (kprobe_status & KPROBE_HIT_SS) {
- 		resume_execution(current_kprobe, regs);
-+		regs->msr &= ~MSR_SE;
- 		regs->msr |= kprobe_saved_msr;
- 
- 		unlock_kprobes();
+Regards,
+Brad
+-- 
+"Human beings, who are almost unique in having the ability
+to learn from the experience of others, are also remarkable
+for their apparent disinclination to do so." -- Douglas Adams

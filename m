@@ -1,46 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261949AbVFGSAm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261907AbVFGSCc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261949AbVFGSAm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 14:00:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261950AbVFGSAm
+	id S261907AbVFGSCc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 14:02:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261878AbVFGSC0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 14:00:42 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:24270 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261949AbVFGSAi (ORCPT
+	Tue, 7 Jun 2005 14:02:26 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:25806 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261907AbVFGSCH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 14:00:38 -0400
-Message-ID: <42A5E0BF.8000103@pobox.com>
-Date: Tue, 07 Jun 2005 14:00:31 -0400
+	Tue, 7 Jun 2005 14:02:07 -0400
+Message-ID: <42A5E117.9050605@pobox.com>
+Date: Tue, 07 Jun 2005 14:01:59 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Kumar Gala <kumar.gala@freescale.com>
-CC: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: stupid SATA questions
-References: <10d4b7cd189d7b661a84e765ab8cce93@freescale.com>
-In-Reply-To: <10d4b7cd189d7b661a84e765ab8cce93@freescale.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Krzysztof Oledzki <olel@ans.pl>
+CC: linux-kernel@vger.kernel.org,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: SATA passthru (SMART)
+References: <Pine.LNX.4.62.0506071224550.22317@bizon.gios.gov.pl>
+In-Reply-To: <Pine.LNX.4.62.0506071224550.22317@bizon.gios.gov.pl>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kumar Gala wrote:
-> These questions were posed to me and I was hoping someone would have 
-> better knowledge about the works and usage of SATA then I do.  All of 
-> these questions are around understanding how important the performance 
-> of PIO mode is.
+Krzysztof Oledzki wrote:
+> Hello,
 > 
-> How often would one run in PIO mode?  Why would one run in PIO mode?
+> Where can I found new version of the libata-dev1 patches required for 
+> SMART on SATA? They used to be avaliable from 
+> http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/ but it 
+> seems it is no longer true. Or, is it possible to extract such patches 
+> somehow from the http://www.kernel.org/git?
 
-Never.  No idea.  :)
-
-Unless you have a broken device, or a command that cannot work with DMA 
-(such as IDENTIFY DEVICE), PIO mode is quite pointless.  It is emulated 
-under SATA, turned into FIS's on the SATA bus.
+Need to get it out of git.
 
 	Jeff
-
 
 

@@ -1,455 +1,203 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261894AbVFGPYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261890AbVFGPZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261894AbVFGPYU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 11:24:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVFGPYQ
+	id S261890AbVFGPZr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 11:25:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261893AbVFGPZe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 11:24:16 -0400
-Received: from ms-smtp-05.texas.rr.com ([24.93.47.44]:54980 "EHLO
-	ms-smtp-05-eri0.texas.rr.com") by vger.kernel.org with ESMTP
-	id S261894AbVFGOuO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 10:50:14 -0400
-Message-Id: <200506071449.j57EnbRh017061@ms-smtp-05-eri0.texas.rr.com>
+	Tue, 7 Jun 2005 11:25:34 -0400
+Received: from ms-smtp-04.texas.rr.com ([24.93.47.43]:65482 "EHLO
+	ms-smtp-04.texas.rr.com") by vger.kernel.org with ESMTP
+	id S261890AbVFGOuF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 10:50:05 -0400
+Message-Id: <200506071449.j57EnggJ007130@ms-smtp-04.texas.rr.com>
 From: ericvh@gmail.com
-Date: Tue,  7 Jun 2005 09:49:17 -0500
+Date: Tue,  7 Jun 2005 09:49:21 -0500
 To: linux-kernel@vger.kernel.org
-Subject: [PATCH 0/7] v9fs: Plan 9 resource sharing protocol (2.0)
+Subject: [PATCH 1/7] v9fs: Documentation, Makefiles, Configuration (2.0)
 Cc: v9fs-developer@lists.sourceforge.net, akpm@osdl.org,
        viro@parcelfarce.linux.theplanet.co.uk, linux-fsdevel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is part [0/7] of the v9fs-2.0 patch against Linux 2.6.
+This is part [1/7] of the v9fs-2.0 patch against Linux 2.6
 
-Hi everyone, we're proud to announce v2.0 of our 9P2000 file system 
-driver support for Linux.
+This part of the patch contains Documentation, Makefiles, 
+and configuration file changes.
 
-OVERVIEW
-
-V9FS is a distributed file system for Linux which provides an 
-implementation of the Plan 9 resource sharing protocol 9P.  It can be
-used to share all sorts of resources: static files, synthetic file servers
-(such as /proc or /sys), devices, and application file servers (such as
-FUSE).  
-
-BACKGROUND
-
-Plan 9 (http://plan9.bell-labs.com/plan9) is a research operating
-system and associated applications suite developed by the Computing
-Science Research Center of AT&T Bell Laboratories (now a part of
-Lucent Technologies), the same group that developed UNIX , C, and C++.
-Plan 9 was initially released in 1993 to universities, and then made
-generally available in 1995. Its core operating systems code laid the
-foundation for the Inferno Operating System released as a product by
-Lucent Bell-Labs in 1997. The Inferno venture was the only commercial
-embodiment of Plan 9 and is currently maintained as a product by Vita
-Nuova (http://www.vitanuova.com). After updated releases in 2000 and
-2002, Plan 9 was open-sourced under the OSI approved Lucent Public
-License in 2003.
-
-The Plan 9 project was started by Ken Thompson and Rob Pike in 1985.
-Their intent was to explore potential solutions to some of the
-shortcomings of UNIX in the face of the widespread use of high-speed
-networks to connect machines. In UNIX, networking was an afterthought
-and UNIX clusters became little more than a network of stand-alone
-systems. Plan 9 was designed from first principles as a seamless
-distributed system with integrated secure network resource sharing.
-Applications and services were architected in such a way as to allow
-for implicit distribution across a cluster of systems. Configuring an
-environment to use remote application components or services in place
-of their local equivalent could be achieved with a few simple command
-line instructions. For the most part, application implementations
-operated independent of the location of their actual resources.
-
-Commercial operating systems haven't changed much in the 20 years
-since Plan 9 was conceived. Network and distributed systems support is
-provided by a patchwork of middle-ware, with an endless number of
-packages supplying pieces of the puzzle. Matters are complicated by
-the use of different complicated protocols for individual services,
-and separate implementations for kernel and application resources.  
-The V9FS project (http://v9fs.sourceforge.net) is an attempt to bring
-Plan 9's unified approach to resource sharing to Linux and other
-operating systems via support for the 9P2000 resource sharing
-protocol.
-
-V9FS HISTORY
-
-V9FS was originally developed by Ron Minnich and Maya Gokhale at Los
-Alamos National Labs (LANL) in 1997.  In November of 2001, Greg Watson
-setup a SourceForge project as a public repository for the code which
-supported the Linux 2.4 kernel.
-
-About a year ago, I picked up the initial attempt Ron Minnich had
-made to provide 2.6 support and got the code integrated into a 2.6.5
-kernel.   I then went through a line-for-line re-write attempting to
-clean-up the code while more closely following the Linux Kernel style
-guidelines.  I co-authored a paper with Ron Minnich on the V9FS Linux
-support including performance comparisons to NFSv3 using Bonnie and
-PostMark - this paper appeared at the USENIX/FREENIX 2005
-conference in April 2005:
-( http://www.usenix.org/events/usenix05/tech/freenix/hensbergen.html ).
-
-STATUS
-
-The code is reasonably stable, although there are no doubt corner cases
-our regression tests haven't discovered yet.  It is in regular use by several 
-of the developers and has been tested on x86 and PowerPC 
-(32-bit and 64-bit) in both small and large (LANL cluster) deployments.
-Our current regression tests include fsx, bonnie, and postmark.
-
-It was our intention to keep things as simple as possible for this
-release -- trying to focus on correctness within the core of the
-protocol support versus a rich set of features.  For example: a more
-complete security model and cache layer are in the road map, but
-excluded from this release.   Additionally, we have removed support for
-mmap operations at Al Viro's request.
-
-PERFORMANCE
-
-Detailed performance numbers and analysis are included in the FREENIX
-paper, but we show comparable performance to NFSv3 for large file
-operations based on the Bonnie benchmark, and superior performance for
-many small file operations based on the PostMark benchmark.   Somewhat
-preliminary graphs (from the FREENIX paper) are available
-(http://v9fs.sourceforge.net/perf/index.html).
-
-RESOURCES
-
-The source code is available in a few different forms:
-
-tarballs: http://v9fs.sf.net
-CVSweb: http://cvs.sourceforge.net/viewcvs.py/v9fs/linux-9p/
-CVS: :pserver:anonymous@cvs.sourceforge.net:/cvsroot/v9fs/linux-9p
-Git: rsync://v9fs.graverobber.org/v9fs (webgit: http://v9fs.graverobber.org)
-9P: tcp!v9fs.graverobber.org!6564
-
-The user-level server is available from either the Plan 9 distribution
-or from http://v9fs.sf.net
-Other support applications are still being developed, but preliminary
-version can be downloaded from sourceforge.
-
-Documentation on the protocol has historically been the Plan 9 Man
-pages (http://plan9.bell-labs.com/sys/man/5/INDEX.html), but there is
-an effort under way to write a more complete Internet-Draft style
-specification (http://v9fs.sf.net/rfc).
-
-There are a couple of mailing lists supporting v9fs, but the most used
-is v9fs-developer@lists.sourceforge.net -- please direct/cc your
-comments there so the other v9fs contributors can participate in the
-conversation.  There is also an IRC channel: irc://freenode.net/#v9fs
-
-       -Eric Van Hensbergen
-         V9FS Project
+Signed-off-by: Eric Van Hensbergen <ericvh@gmail.com>
 
 
  ----------
 
-====== 06/07/2005 - ericvh ===
- * Change hardcoded dirread size to negotiated packet size
-
-====== 06/06/2005 - ericvh ===
- * Fix umount NULL references (from Pekka)
- * Code cleanups suggested by Alexy Dobriyan
-
-====== 06/03/2005 - ericvh ===
- * Fix bogus v9ses->transport assignment & free
- * Add request timeout code to help with hung servers
- * fix umount of hung/disconnected servers
-
-====== 06/02/2005 - ericvh ===
- * convert to u64 types (from Pekka)
- * fix buffer overflow in conv (from Pekka)
- * fix dev initialization (from Ron)
- * fix rookie errors in mux and remove sed injected whitespace
-
-====== 06/01/2005 - ericvh ===
- * split dentry routines out to vfs_dentry to reduce vfs_inode size
- * some new error codes from ron
- * release v9fs-2.0-rc7
-
-====== 05/31/2005 - ericvh ===
- * get rid of dynamic rpc struct allocation and associated slab
- * get rid of vestigial address_space_operations (from Pekka)
- * fix type name convention to Linux kernel standard (from Pekka)
-
-====== 05/27/2005 - ericvh ====
- * remove potential slab leak in init_v9fs
- * modify QID to prevent inodes of 0 or 1
-
-====== 05/25/2005 - ericvh ====
- * more LKML suggested cleanups
- * change packet and mistruct slab alloc to kmalloc
-
-====== 05/24/2005 - ericvh ====
- * remove BUG() statements in OOM cases
- * clean up more bogus kfree checks
- * clean up error cases and redundant assignments in vfs_inode
- * change the way aname (remotename) is specified and allocated
-
-====== 05/23/2005 - ericvh ====
- * release 2.0-rc6
- * Fix some style screwups
-
-====== 05/20/2005 - ericvh ====
- * Fix multi-user bug reported by Ron & Ollie
- * change /usr/src/linux to KDIR in CVS makefile 
- * fix bogus copy_to_user error messages
-
-====== 05/16/2005 - ericvh ====
- * release 2.0-rc5
- * Adrian Bunk style corrections
-       - add statics where appropriate
-       - remove unused procedures
-       - pay attention to copy_from_user and copy_to_user return codes
-
-====== 05/05/2005 - ericvh ====
- * additional cleanup of free null checks throughout code
- * fix slab leaks
-
-====== 05/04/2005 - ericvh ====
- * release 2.0-rc3
- * use hash table in error mapping routines instead of linear search
- * added all errors from fossil, vacfs, and u9fs - now we need to trim down
-
-====== 05/03/2005 - ericvh ====
- * switch to using lib/parser.c for command line parsing
- * change default user to nobody
- * re-enable slabs and remove slab debug
- * enable kernel slab debug options and fix corrupts slab names\
- * rework slab from session based to msize based
-
-====== 05/02/2005 - ericvh ====
- * clean up trans_sock a bit more
- * eliminate normal allocation/free leak detection code from mainline
- * fix double-free in t_flush code
-
-====== 04/30/2005 - ericvh ====
- * remove mmap support - support available in mmap branch (unmaintained)
- * clean up error paths in get_sb
-
-====== 04/29/2005 - ericvh ====
- * protocol field shifting for lucho - make sure you update u9fs too
- * remove transient clunks from lookup (broke linux semantics)
- * whole mess of sparse cleanup changes - multithreaded broken for now
-
-====== 04/28/2005 - ericvh ====
- * fix memory leaks in transport and session_init
-
-====== 04/27/2005 - ericvh ====
- * fix t_version tid (to -1) so we work with Plan 9 servers
- * change to C99 initializers
- * CHANGE KCONFIG option to 9P_FS from 9P (will require BK change outside CVS)
-
-====== 04/25/2005 - ericvh ====
- * release 2.0-rc2
-
-====== 04/23/2005 - ericvh ====
- 
- * fix mount segfault problem
-
-====== 04/22/2005 - ericvh ====
-
- Linux-Kernel Mentor Comments responded to:
- * clean-up Documentation (and remove/move in patch/BK)
-       * move README to Documentation/v9fs/v9fs.txt
-       * integrate AUTHORS into MAINTAINERS
-       * remove COPYING, TODO, INSTALL and CHANGELOG
-       * get rid of pointless comments in Makefile
- * clean up debug statements and legacy version hacks
-       * put debug defines in do {} while(0) loops
-       * make sure all printks have a KERN_
-       * get rid of redundant/pointless macros
- * style cleanup 
-       * fix function comments to match kernel_doc style
-       * remove { } on single line if statements
-       * get rid of big inlines
-       * get rid of global rpc slab
-       * return negative on error, 0 on success uniformly
-       * fit entire prototype on line when possible
- * prefix all globals with v9fs_
- * 
-
-====== 04/18/2005 - ericvh ====
-
- * fix atomic while sleeping warning (thanks Lucho)
- * move inline functions to top of vfs_inode to fix build warning (thanks Lucho)
-
-====== 04/13/2005 - ericvh ====
-
- * fix 9p2000.u Rerror marshalling to match RFC (thanks Russ)
- * release 2.0-rc1
-
-====== 04/12/2005 - ericvh ====
- 
- * fix clunk behavior
- * fix oops during mount problems
-
-====== 03/25/2005 - ericvh =====
-
- * add extended flag
- * add nodevmap flag
- * add then remove nosuid/nosgid flag (done implicitly)
-
-====== 03/24/2005 - ericvh =====
-
- * split debug prints into debugs and errors
- * add checks for extended mode with link operations
- * allow override of extended mode with a mount option
-
-====== 03/23/2005 - ericvh =====
-
- * Code cleanup
- * Make debug level settable at mount time
-
-====== 03/22/2005 - ericvh ======
-
- * fix various problems with mmap support
- * We now pass fsx!
-
-====== 03/20/2005 - ericvh ======
-
- * add mmap addr operation support
-
-====== 03/19/2005 - ericvh ======
-
- * add support for hard links
- * mknod file (PIPES, SOCKETS, DEVICES) support
-
-====== 03/17/2005 - ericvh ======
-
- * fix open modes so we actually do truncate and append correctly
- * code cleanup, do a better job of conditionalizing extensions
-
-====== 03/16/2005 - ericvh ====
-
- * add support for readlink and followlink
- * add support for creation of symlinks
-
-====== 03/14/2005 - ericvh ====
- 
- * revert setattr to using (no-change) values in stat structure
- * revert rename to using (no-change) values in stat structure
- * fix rename bug (was trying to rename parent directory, not sub-dir)
- * fix bug with chown that wouldn't set uid right
-   (wasn't setting string name, only n_uid and u9fs was favoring string name)
-
-====== 03/11/2005 - ericvh ====
-
- * fix setuid and setgid
-
- ====== 03/03/2005 - ericvh ====
- * rearrange dir structure to make parsing a bit easier
- * debug numeric id and unix[n] extension
- NOTICE: make sure you use a new u9fs, or thing will break
-
- ====== 03/02/2005 - ericvh ====
-
- * Add 9P2000.u error semantics
- * Add 9P2000.u numeric ids to directory structures
- * Provision for variable length extension string (unix[n])
-
- ====== 03/01/2005 - ericvh ====
-
- * add version check for definition of vfs_permission versus generic_permission
- * add new 9P2000.u changes to 9p.h
-
- ====== 02/25/2005 - ericvh =====
-
- * fix t_wstat in set_attr so chmod & chown works
- * fix t_wstat implementation in rename (but u9fs still broken for rename)
-
- ====== 02/23/2005 - ericvh =====
-
- Fixed some permissions bugs associated with mounting actual
- Plan 9 file servers.  Also fixed a bug which crept into 
- attach where we were sending server address as the aname.
- We need to start doing a better job about keeping this file
- up-to-date.
- 
- ====== 12/15/2004 - ericvh =====
-
- Some updates (mostly from lucho) which fix up the re-write.
- Seems to pass bonnie and postmark versus u9fs server with
- same performance as before the rewrite.
-
- ====== 12/03/2004 - ericvh =====
-
- WARNING: CVS TIP IS UNSTABLE - use test3 if you want some level of 
-          stability
-
- * line for line rewrite
- * major source reorganization
- * move to using slab allocators for several structures (fcall, pkts, mistat)
- * removal of all cacheing operations including addr_ops (required for mmap)
-
- Sorry for making a somewhat unstable commit.  Didn't want to hold up others
- from making progress with the code while I fixed up the rewrite.  Code should
- be much more approachable now and closer to LKML guidelines.
- 
- ====== 11/21/2004 - lucho (via patch to ericvh) ====
-
- * add info to 9P debug prints
-
- * move socket receive processing to a kernel thread
-
- * send t_flush in response to user-interrupted transactions
-
- ====== 11/09/2004 - ericvh ========
-
- * restructure debug prints
-
-   removed a bunch of noisy debug prints and restructured with a 
-   more simple set of sections.  Disabled logging as it appears to 
-   have some form of corruption, may remove immediately soon.
-
- * Big Kernel Locks
- 
-   Intended to remove these, but they seem to still be necessary to
-   guarentee serialization.  Ended up adding more - will work hard
-   to get rid of these in the next round of changes.
-
- * Sleep/Wakeup in p9client was causing multithreaded problems.  Sprinkled
-   liberally with wakeup calls which seems to unwedge threads (assuming
-   BKLs in place).  At the very least it passes Bonnie now
+ b/Documentation/filesystems/v9fs.txt |   88 +++++++++++++++++++++++++++++++++++
+ b/MAINTAINERS                        |   11 ++++
+ b/fs/9p/Makefile                     |   17 ++++++
+ b/fs/9p/conv.c                       |    0 
+ b/fs/Makefile                        |    1 
+ fs/Kconfig                           |   11 ++++
+ 6 files changed, 128 insertions(+)
 
  ----------
 
-v9fs-2.0-final
-
----
-commit ac45b5118f193193aba4c328fa7afebcaa19bd9c
-tree 6f6b5048e0ff1d1d2e04c9af2790dc0ea93f9956
-parent 7cef5677ef3a8084f2588ce0a129dc95d65161f6
-author <ericvh@ericvhG5.(none)> Tue, 07 Jun 2005 09:08:03 -0500
-committer <ericvh@ericvhG5.(none)> Tue, 07 Jun 2005 09:08:03 -0500
-
- Documentation/filesystems/v9fs.txt |   88 ++
- MAINTAINERS                        |   11 
- fs/9p/9p.c                         |  357 +++++++++
- fs/9p/9p.h                         |  339 +++++++++
- fs/9p/Makefile                     |   17 
- fs/9p/conv.c                       |  725 ++++++++++++++++++
- fs/9p/conv.h                       |   34 +
- fs/9p/debug.h                      |   68 ++
- fs/9p/error.c                      |   92 ++
- fs/9p/error.h                      |  176 ++++
- fs/9p/fid.c                        |  233 ++++++
- fs/9p/fid.h                        |   55 +
- fs/9p/idpool.c                     |  150 ++++
- fs/9p/idpool.h                     |   40 +
- fs/9p/mux.c                        |  452 +++++++++++
- fs/9p/mux.h                        |   37 +
- fs/9p/trans_sock.c                 |  272 +++++++
- fs/9p/transport.h                  |   43 +
- fs/9p/v9fs.c                       |  408 ++++++++++
- fs/9p/v9fs.h                       |   86 ++
- fs/9p/v9fs_vfs.h                   |   51 +
- fs/9p/vfs_dentry.c                 |  139 ++++
- fs/9p/vfs_dir.c                    |  240 ++++++
- fs/9p/vfs_file.c                   |  420 +++++++++++
- fs/9p/vfs_inode.c                  | 1418 ++++++++++++++++++++++++++++++++++++
- fs/9p/vfs_super.c                  |  259 +++++++
- fs/Kconfig                         |   11 
- fs/Makefile                        |    1 
- 28 files changed, 6222 insertions(+), 0 deletions(-)
-
+--- /dev/null
++++ b/Documentation/filesystems/v9fs.txt
+@@ -0,0 +1,88 @@
++			V9FS: 9P2000 for Linux
++			======================
++
++ABOUT
++=====
++
++v9fs is a Unix implementation of the Plan 9 9p remote filesystem protocol. 
++
++This software was originally developed by Ron Minnich <rminnich@lanl.gov>
++and Maya Gokhale <maya@lanl.gov>.  Additional development by Greg Watson 
++<gwatson@lanl.gov> and most recently Eric Van Hensbergen 
++<ericvh@gmail.com> and Latchesar Ionkov <lucho@ionkov.net>.
++
++USAGE
++=====
++
++For remote file server:
++
++	mount -t 9P 10.10.1.2 /mnt/9
++
++For Plan 9 From User Space applications (http://swtch.com/plan9)
++
++	mount -t 9P /tmp/ns.root.:0/acme/acme /mnt/9 proto=unix,name=$USER
++
++OPTIONS
++=======
++
++  proto=name	select an alternative transport.  Valid options are 
++  		currently either unix (specifying a named pipe mount
++		point) or tcp (specifying a normal TCP/IP connection)
++  
++  name=name	user name to attempt mount as on the remote server.  The
++  		server may override or ignore this value.  Certain user
++		names may require authentication.
++
++  aname=name	aname specifies the file tree to access when the server is
++  		offering several exported file systems.
++
++  debug=n	specifies debug level.  The debug level is a bitmask.
++  			0x01 = display verbose error messages
++			0x02 = developer debug (DEBUG_CURRENT)
++			0x04 = display 9P trace
++			0x08 = display VFS trace
++			0x10 = display Marshalling debug
++			0x20 = display RPC debug
++			0x40 = display transport debug
++			0x80 = display allocation debug
++
++  maxdata=n	the number of bytes to use for 9P packet payload (msize)
++
++  port=n	port to connect to on the remote server
++
++  timeout=n	request timeouts (in ms) (default 60000ms)
++
++  noextend	force legacy mode (no 9P2000.u semantics)
++
++  uid		attempt to mount as a particular uid
++
++  gid		attempt to mount with a particular gid
++
++  afid		security channel - used by Plan 9 authentication protocols
++
++  nodevmap	do not map special files - represent them as normal files.
++  		This can be used to share devices/named pipes/sockets between
++		hosts.  This functionality will be expanded in later versions.
++
++RESOURCES
++=========
++
++The Linux version of the 9P server, along with some client-side utilities 
++can be found at http://v9fs.sf.net (along with a CVS repository of the 
++development branch of this module).  There are user and developer mailing
++lists here, as well as a bug-tracker.
++
++For more information on the Plan 9 Operating System check out
++http://plan9.bell-labs.com/plan9
++
++For information on Plan 9 from User Space (Plan 9 applications and libraries
++ported to Linux/BSD/OSX/etc) check out http://swtch.com/plan9
++
++
++STATUS
++======
++
++The 2.6 kernel support is working on PPC and x86.  
++
++PLEASE USE THE SOURCEFORGE BUG-TRACKER TO REPORT PROBLEMS.
++
+diff --git a/MAINTAINERS b/MAINTAINERS
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -2595,6 +2595,17 @@ L:	rio500-users@lists.sourceforge.net
+ W:	http://rio500.sourceforge.net
+ S:	Maintained
+ 
++V9FS FILE SYSTEM
++P:      Eric Van Hensbergen
++M:      ericvh@gmail.com
++P:      Ron Minnich
++M:      rminnich@lanl.gov
++P:      Latchesar Ionkov
++M:      lucho@ionkov.net 
++L:      v9fs-developer@lists.sourceforge.net
++W:      http://v9fs.sf.net
++S:      Maintained
++
+ VIDEO FOR LINUX
+ P:	Gerd Knorr
+ M:	kraxel@bytesex.org
+diff --git a/fs/9p/9p.c b/fs/9p/9p.c
+new file mode 100644
+--- a/fs/Kconfig
++++ b/fs/Kconfig
+@@ -1715,6 +1715,17 @@ config AFS_FS
+ config RXRPC
+ 	tristate
+ 
++config 9P_FS 
++	tristate "Plan 9 Resource Sharing Support (9P2000) (Experimental)"
++	depends on INET && EXPERIMENTAL
++	help 
++	  If you say Y here, you will get experimental support for
++	  Plan 9 resource sharing via the 9P2000 protocol.
++
++	  See <http://v9fs.sf.net> for more information.
++
++	  If unsure, say N.
++
+ endmenu
+ 
+ menu "Partition Types"
+diff --git a/fs/Makefile b/fs/Makefile
+--- a/fs/Makefile
++++ b/fs/Makefile
+@@ -95,3 +95,4 @@ obj-$(CONFIG_BEFS_FS)		+= befs/
+ obj-$(CONFIG_HOSTFS)		+= hostfs/
+ obj-$(CONFIG_HPPFS)		+= hppfs/
+ obj-$(CONFIG_DEBUG_FS)		+= debugfs/
++obj-$(CONFIG_9P_FS)		+= 9p/
+--- /dev/null
++++ b/fs/9p/Makefile
+@@ -0,0 +1,17 @@
++obj-$(CONFIG_9P_FS) := 9p2000.o
++
++9p2000-objs := \
++	vfs_super.o \
++	vfs_inode.o \
++	vfs_file.o \
++	vfs_dir.o \
++	vfs_dentry.o \
++	idpool.o \
++	error.o \
++	mux.o \
++	trans_sock.o \
++	9p.o \
++	conv.o \
++	v9fs.o \
++	fid.o
++

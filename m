@@ -1,1338 +1,434 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261981AbVFGV56@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262009AbVFGWAH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261981AbVFGV56 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 17:57:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261997AbVFGV56
+	id S262009AbVFGWAH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 18:00:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVFGWAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 17:57:58 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:45205
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S261981AbVFGVyw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 17:54:52 -0400
-Subject: [Trivial PATCH] new timeofday: move time sources into arch
-	subdirectories
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: john stultz <johnstul@us.ibm.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Content-Type: multipart/mixed; boundary="=-zuM8c4M85YTC/nveiBaA"
-Organization: linutronix
-Date: Tue, 07 Jun 2005 23:55:31 +0200
-Message-Id: <1118181331.20785.547.camel@tglx.tec.linutronix.de>
+	Tue, 7 Jun 2005 18:00:06 -0400
+Received: from fire.osdl.org ([65.172.181.4]:48308 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261997AbVFGV6W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 17:58:22 -0400
+Date: Tue, 7 Jun 2005 14:59:03 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Christian Leber <christian@leber.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] lzma support: decompression lib, initrd support
+Message-Id: <20050607145903.4b2ac9bf.akpm@osdl.org>
+In-Reply-To: <20050607213204.GA2645@core.home>
+References: <20050607213204.GA2645@core.home>
+X-Mailer: Sylpheed version 1.0.0 (GTK+ 1.2.10; i386-vine-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Christian Leber <christian@leber.de> wrote:
+>
+> This patch is against 2.6.12-rc6.
+> 
+> This patch adds the possibility to compress a initrd with lzma, you
+> need ths CONFIG_BLK_DEV_RAM_LZMA build option to make use of lzma
+> compressed initrds.
+> (Device Drivers -> Block devices)
+> 
+> For example the debian installer initrd:
+> -rw-r--r--  1 ijuz ijuz 2870355 Mar  5 20:00 initrd.gz
+> -rw-r--r--  1 ijuz ijuz 2158769 May  8 02:09 initrd.lzma
+> 
 
---=-zuM8c4M85YTC/nveiBaA
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+Well that's a nice improvement.
 
-Hi John,
+> +	switch (nblocks) {
+> +		case CRAMDISK_LZMA :     /* lzma image found */
+> +			#ifdef CONFIG_BLK_DEV_RAM_LZMA
+> +			if(lzma_load(in_fd, out_fd) == 0)
+> +				goto successful_load;
+> +			#else
+> +			printk(KERN_ALERT "RAMDISK: you don't have CONFIG_BLK_DEV_RAM_LZMA\n");
+> +			#endif
+> +			break;
+> +		case CRAMDISK_GZ :      /* gzip image found */
+> +			#ifdef CONFIG_BLK_DEV_RAM_GZ
+> +			if(gz_load(in_fd, out_fd) == 0)
+> +				goto successful_load;
+> +			#else
+> +			printk(KERN_ALERT "RAMDISK: you don't have CONFIG_BLK_DEV_RAM_GZ\n");
+> +			#endif
+> +			break;
+> +		default :
+> +			break;
 
-The patch moves the x86(_64) speficic timesources into
-drivers/timesource/x86.
+Oh gack.  The #ifdefs start in column zero, please.
 
-Reason: When other architectures start to move their TOD implementations
-to the new design, the timesource directory will become an unstructured
-collection of timesources within no time. Especially the embedded SoC
-world tends to produce zillions of variants.
+> +#define _LZMA_IN_CB  // neccessary
+> +#define _LZMA_OUT_READ // neccessary
 
-The base directory should only contain generic architecture independent
-timesource drivers IMHO.
+What strange comments.
 
-tglx
+> +#ifndef UInt32
+> +#define UInt32 uint32_t
+> +#endif
 
+Kill it.  Use u32 or __u32.
 
+> +#include <../lib/LzmaDecode.h>
+> +#include <../lib/LzmaDecode.c>
 
+lower-case filenames please.
 
---=-zuM8c4M85YTC/nveiBaA
-Content-Disposition: attachment; filename=timesource.diff
-Content-Type: text/x-patch; name=timesource.diff; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 7bit
+> +typedef struct _CBuffer
+> +{
+> +	ILzmaInCallback InCallback;
+> +	unsigned char *Buffer;
+> +	int lzma_read_fd;
+> +} CBuffer; 
 
-diff -urN 2.6.12-rc5/drivers/timesource/Makefile 2.6.12-rc5-work/drivers/timesource/Makefile
---- 2.6.12-rc5/drivers/timesource/Makefile	2005-06-07 22:01:32.000000000 +0200
-+++ 2.6.12-rc5-work/drivers/timesource/Makefile	2005-06-07 22:50:13.000000000 +0200
-@@ -1,8 +1,2 @@
- obj-y += jiffies.o
--
--obj-$(CONFIG_X86) += tsc.o
--obj-$(CONFIG_X86) += i386_pit.o
--obj-$(CONFIG_X86) += tsc-interp.o
--obj-$(CONFIG_X86_CYCLONE_TIMER) += cyclone.o
--obj-$(CONFIG_X86_PM_TIMER) += acpi_pm.o
--obj-$(CONFIG_HPET_TIMER) += hpet.o
-+obj-y += x86/
-diff -urN 2.6.12-rc5/drivers/timesource/acpi_pm.c 2.6.12-rc5-work/drivers/timesource/acpi_pm.c
---- 2.6.12-rc5/drivers/timesource/acpi_pm.c	2005-06-07 22:01:32.000000000 +0200
-+++ 2.6.12-rc5-work/drivers/timesource/acpi_pm.c	1970-01-01 01:00:00.000000000 +0100
-@@ -1,140 +0,0 @@
--/*
-- * linux/drivers/timesource/acpi_pm.c
-- *
-- * This file contains the ACPI PM based time source.
-- *
-- * This code was largely moved from the i386 timer_pm.c file
-- * which was (C) Dominik Brodowski <linux@brodo.de> 2003
-- * and contained the following comments:
-- *
-- * Driver to use the Power Management Timer (PMTMR) available in some
-- * southbridges as primary timing source for the Linux kernel.
-- *
-- * Based on parts of linux/drivers/acpi/hardware/hwtimer.c, timer_pit.c,
-- * timer_hpet.c, and on Arjan van de Ven's implementation for 2.4.
-- *
-- * This file is licensed under the GPL v2.
-- */
--
--
--#include <linux/timesource.h>
--#include <linux/errno.h>
--#include <linux/init.h>
--#include <asm/io.h>
--
--/* Number of PMTMR ticks expected during calibration run */
--#define PMTMR_TICKS_PER_SEC 3579545
--
--#if (CONFIG_X86 && (!CONFIG_X86_64))
--#include "mach_timer.h"
--#define PMTMR_EXPECTED_RATE \
--  ((CALIBRATE_LATCH * (PMTMR_TICKS_PER_SEC >> 10)) / (CLOCK_TICK_RATE>>10))
--#endif
--
--/* The I/O port the PMTMR resides at.
-- * The location is detected during setup_arch(),
-- * in arch/i386/acpi/boot.c */
--u32 pmtmr_ioport = 0;
--
--#define ACPI_PM_MASK 0xFFFFFF /* limit it to 24 bits */
--
--static inline u32 read_pmtmr(void)
--{
--	u32 v1=0,v2=0,v3=0;
--	/* It has been reported that because of various broken
--	 * chipsets (ICH4, PIIX4 and PIIX4E) where the ACPI PM time
--	 * source is not latched, so you must read it multiple
--	 * times to insure a safe value is read.
--	 */
--	do {
--		v1 = inl(pmtmr_ioport);
--		v2 = inl(pmtmr_ioport);
--		v3 = inl(pmtmr_ioport);
--	} while ((v1 > v2 && v1 < v3) || (v2 > v3 && v2 < v1)
--			|| (v3 > v1 && v3 < v2));
--
--	/* mask the output to 24 bits */
--	return v2 & ACPI_PM_MASK;
--}
--
--
--static cycle_t acpi_pm_read(void)
--{
--	return (cycle_t)read_pmtmr();
--}
--
--struct timesource_t timesource_acpi_pm = {
--	.name = "acpi_pm",
--	.priority = 200,
--	.type = TIMESOURCE_FUNCTION,
--	.read_fnct = acpi_pm_read,
--	.mask = (cycle_t)ACPI_PM_MASK,
--	.mult = 0, /*to be caluclated*/
--	.shift = 22,
--};
--
--#if (CONFIG_X86 && (!CONFIG_X86_64))
--/*
-- * Some boards have the PMTMR running way too fast. We check
-- * the PMTMR rate against PIT channel 2 to catch these cases.
-- */
--static int __init verify_pmtmr_rate(void)
--{
--	u32 value1, value2;
--	unsigned long count, delta;
--
--	mach_prepare_counter();
--	value1 = read_pmtmr();
--	mach_countup(&count);
--	value2 = read_pmtmr();
--	delta = (value2 - value1) & ACPI_PM_MASK;
--
--	/* Check that the PMTMR delta is within 5% of what we expect */
--	if (delta < (PMTMR_EXPECTED_RATE * 19) / 20 ||
--	    delta > (PMTMR_EXPECTED_RATE * 21) / 20) {
--		printk(KERN_INFO "PM-Timer running at invalid rate: %lu%% of normal - aborting.\n", 100UL * delta / PMTMR_EXPECTED_RATE);
--		return -1;
--	}
--
--	return 0;
--}
--#else
--#define verify_pmtmr_rate() (0)
--#endif
--
--static int __init init_acpi_pm_timesource(void)
--{
--	u32 value1, value2;
--	unsigned int i;
--
--	if (!pmtmr_ioport)
--		return -ENODEV;
--
--	timesource_acpi_pm.mult = timesource_hz2mult(PMTMR_TICKS_PER_SEC,
--									timesource_acpi_pm.shift);
--
--	/* "verify" this timing source */
--	value1 = read_pmtmr();
--	for (i = 0; i < 10000; i++) {
--		value2 = read_pmtmr();
--		if (value2 == value1)
--			continue;
--		if (value2 > value1)
--			goto pm_good;
--		if ((value2 < value1) && ((value2) < 0xFFF))
--			goto pm_good;
--		printk(KERN_INFO "PM-Timer had inconsistent results: 0x%#x, 0x%#x - aborting.\n", value1, value2);
--		return -EINVAL;
--	}
--	printk(KERN_INFO "PM-Timer had no reasonable result: 0x%#x - aborting.\n", value1);
--	return -ENODEV;
--
--pm_good:
--	if (verify_pmtmr_rate() != 0)
--		return -ENODEV;
--
--	register_timesource(&timesource_acpi_pm);
--	return 0;
--}
--
--module_init(init_acpi_pm_timesource);
-diff -urN 2.6.12-rc5/drivers/timesource/cyclone.c 2.6.12-rc5-work/drivers/timesource/cyclone.c
---- 2.6.12-rc5/drivers/timesource/cyclone.c	2005-06-07 22:01:32.000000000 +0200
-+++ 2.6.12-rc5-work/drivers/timesource/cyclone.c	1970-01-01 01:00:00.000000000 +0100
-@@ -1,135 +0,0 @@
--#include <linux/timesource.h>
--#include <linux/errno.h>
--#include <linux/string.h>
--#include <linux/timex.h>
--#include <linux/init.h>
--
--#include <asm/io.h>
--#include <asm/pgtable.h>
--#include "mach_timer.h"
--
--#define CYCLONE_CBAR_ADDR 0xFEB00CD0		/* base address ptr*/
--#define CYCLONE_PMCC_OFFSET 0x51A0		/* offset to control register */
--#define CYCLONE_MPCS_OFFSET 0x51A8		/* offset to select register */
--#define CYCLONE_MPMC_OFFSET 0x51D0		/* offset to count register */
--#define CYCLONE_TIMER_FREQ 100000000
--#define CYCLONE_TIMER_MASK (0xFFFFFFFF) /* 32 bit mask */
--
--int use_cyclone = 0;
--
--struct timesource_t timesource_cyclone = {
--	.name = "cyclone",
--	.priority = 100,
--	.type = TIMESOURCE_MMIO_32,
--	.mmio_ptr = NULL, /* to be set */
--	.mask = (cycle_t)CYCLONE_TIMER_MASK,
--	.mult = 10,
--	.shift = 0,
--};
--
--static unsigned long __init calibrate_cyclone(void)
--{
--	unsigned long start, end, delta;
--	unsigned long i, count;
--	unsigned long cyclone_freq_khz;
--
--	/* repeat 3 times to make sure the cache is warm */
--	for(i=0; i < 3; i++) {
--		mach_prepare_counter();
--		start = readl(timesource_cyclone.mmio_ptr);
--		mach_countup(&count);
--		end = readl(timesource_cyclone.mmio_ptr);
--	}
--
--	delta = end - start;
--	printk("cyclone delta: %lu\n", delta);
--	delta *= (ACTHZ/1000)>>8;
--	printk("delta*hz = %lu\n", delta);
--	cyclone_freq_khz = delta/CALIBRATE_ITERATION;
--	printk("calculated cyclone_freq: %lu khz\n", cyclone_freq_khz);
--	return cyclone_freq_khz;
--}
--
--static int __init init_cyclone_timesource(void)
--{
--	unsigned long base;	/* saved value from CBAR */
--	unsigned long offset;
--	u32 __iomem* reg;
--	u32 __iomem* volatile cyclone_timer;	/* Cyclone MPMC0 register */
--	unsigned long khz;
--	int i;
--
--	/*make sure we're on a summit box*/
--	if (!use_cyclone) return -ENODEV;
--
--	printk(KERN_INFO "Summit chipset: Starting Cyclone Counter.\n");
--
--	/* find base address */
--	offset = CYCLONE_CBAR_ADDR;
--	reg = ioremap_nocache(offset, sizeof(reg));
--	if(!reg){
--		printk(KERN_ERR "Summit chipset: Could not find valid CBAR register.\n");
--		return -ENODEV;
--	}
--	/* even on 64bit systems, this is only 32bits */
--	base = readl(reg);
--	if(!base){
--		printk(KERN_ERR "Summit chipset: Could not find valid CBAR value.\n");
--		return -ENODEV;
--	}
--	iounmap(reg);
--
--	/* setup PMCC */
--	offset = base + CYCLONE_PMCC_OFFSET;
--	reg = ioremap_nocache(offset, sizeof(reg));
--	if(!reg){
--		printk(KERN_ERR "Summit chipset: Could not find valid PMCC register.\n");
--		return -ENODEV;
--	}
--	writel(0x00000001,reg);
--	iounmap(reg);
--
--	/* setup MPCS */
--	offset = base + CYCLONE_MPCS_OFFSET;
--	reg = ioremap_nocache(offset, sizeof(reg));
--	if(!reg){
--		printk(KERN_ERR "Summit chipset: Could not find valid MPCS register.\n");
--		return -ENODEV;
--	}
--	writel(0x00000001,reg);
--	iounmap(reg);
--
--	/* map in cyclone_timer */
--	offset = base + CYCLONE_MPMC_OFFSET;
--	cyclone_timer = ioremap_nocache(offset, sizeof(u64));
--	if(!cyclone_timer){
--		printk(KERN_ERR "Summit chipset: Could not find valid MPMC register.\n");
--		return -ENODEV;
--	}
--
--	/*quick test to make sure its ticking*/
--	for(i=0; i<3; i++){
--		u32 old = readl(cyclone_timer);
--		int stall = 100;
--		while(stall--) barrier();
--		if(readl(cyclone_timer) == old){
--			printk(KERN_ERR "Summit chipset: Counter not counting! DISABLED\n");
--			iounmap(cyclone_timer);
--			cyclone_timer = NULL;
--			return -ENODEV;
--		}
--	}
--	timesource_cyclone.mmio_ptr = cyclone_timer;
--
--	/* sort out mult/shift values */
--	khz = calibrate_cyclone();
--	timesource_cyclone.shift = 22;
--	timesource_cyclone.mult = timesource_khz2mult(khz,
--									timesource_cyclone.shift);
--
--	register_timesource(&timesource_cyclone);
--
--	return 0;
--}
--
--module_init(init_cyclone_timesource);
-diff -urN 2.6.12-rc5/drivers/timesource/hpet.c 2.6.12-rc5-work/drivers/timesource/hpet.c
---- 2.6.12-rc5/drivers/timesource/hpet.c	2005-06-07 22:01:32.000000000 +0200
-+++ 2.6.12-rc5-work/drivers/timesource/hpet.c	1970-01-01 01:00:00.000000000 +0100
-@@ -1,59 +0,0 @@
--#include <linux/timesource.h>
--#include <linux/hpet.h>
--#include <linux/errno.h>
--#include <linux/init.h>
--#include <asm/io.h>
--#include <asm/hpet.h>
--
--#define HPET_MASK (0xFFFFFFFF)
--#define HPET_SHIFT 22
--
--/* FSEC = 10^-15 NSEC = 10^-9 */
--#define FSEC_PER_NSEC 1000000
--
--struct timesource_t timesource_hpet = {
--	.name = "hpet",
--	.priority = 300,
--	.type = TIMESOURCE_MMIO_32,
--	.mmio_ptr = NULL,
--	.mask = (cycle_t)HPET_MASK,
--	.mult = 0, /* set below */
--	.shift = HPET_SHIFT,
--};
--
--static int __init init_hpet_timesource(void)
--{
--	unsigned long hpet_period;
--	void __iomem* hpet_base;
--	u64 tmp;
--
--	if (!hpet_address)
--		return -ENODEV;
--
--	/* calculate the hpet address */
--	hpet_base =
--		(void __iomem*)ioremap_nocache(hpet_address, HPET_MMAP_SIZE);
--	timesource_hpet.mmio_ptr = hpet_base + HPET_COUNTER;
--
--	/* calculate the frequency */
--	hpet_period = readl(hpet_base + HPET_PERIOD);
--
--
--	/* hpet period is in femto seconds per cycle
--	 * so we need to convert this to ns/cyc units
--	 * aproximated by mult/2^shift
--	 *
--	 *  fsec/cyc * 1nsec/1000000fsec = nsec/cyc = mult/2^shift
--	 *  fsec/cyc * 1ns/1000000fsec * 2^shift = mult
--	 *  fsec/cyc * 2^shift * 1nsec/1000000fsec = mult
--	 *  (fsec/cyc << shift)/1000000 = mult
--	 *  (hpet_period << shift)/FSEC_PER_NSEC = mult
--	 */
--	tmp = (u64)hpet_period << HPET_SHIFT;
--	do_div(tmp, FSEC_PER_NSEC);
--	timesource_hpet.mult = (u32)tmp;
--
--	register_timesource(&timesource_hpet);
--	return 0;
--}
--module_init(init_hpet_timesource);
-diff -urN 2.6.12-rc5/drivers/timesource/i386_pit.c 2.6.12-rc5-work/drivers/timesource/i386_pit.c
---- 2.6.12-rc5/drivers/timesource/i386_pit.c	2005-06-07 22:01:32.000000000 +0200
-+++ 2.6.12-rc5-work/drivers/timesource/i386_pit.c	1970-01-01 01:00:00.000000000 +0100
-@@ -1,64 +0,0 @@
--#include <linux/timesource.h>
--#include <linux/jiffies.h>
--#include <linux/init.h>
--/* pit timesource does not build on x86-64 */
--#ifndef CONFIG_X86_64
--#include <asm/io.h>
--#include "io_ports.h"
--
--extern spinlock_t i8253_lock;
--
--/* Since the PIT overflows every tick, its not very useful
-- * to just read by itself. So use jiffies to emulate a free
-- * running counter.
-- */
--
--static cycle_t pit_read(void)
--{
--	unsigned long flags, seq;
--	int count;
--	u64 jifs;
--
--	do {
--		seq = read_seqbegin(&xtime_lock);
--
--		spin_lock_irqsave(&i8253_lock, flags);
--
--		outb_p(0x00, PIT_MODE);	/* latch the count ASAP */
--		count = inb_p(PIT_CH0);	/* read the latched count */
--		count |= inb_p(PIT_CH0) << 8;
--
--		/* VIA686a test code... reset the latch if count > max + 1 */
--		if (count > LATCH) {
--			outb_p(0x34, PIT_MODE);
--			outb_p(LATCH & 0xff, PIT_CH0);
--			outb(LATCH >> 8, PIT_CH0);
--			count = LATCH - 1;
--		}
--		spin_unlock_irqrestore(&i8253_lock, flags);
--		jifs = get_jiffies_64() - INITIAL_JIFFIES;
--	} while (read_seqretry(&xtime_lock, seq));
--
--	count = (LATCH-1) - count;
--
--	return (cycle_t)(jifs * LATCH) + count;
--}
--
--static struct timesource_t timesource_pit = {
--	.name = "pit",
--	.priority = 0,
--	.type = TIMESOURCE_FUNCTION,
--	.read_fnct = pit_read,
--	.mask = (cycle_t)-1,
--	.mult = 0,
--	.shift = 20,
--};
--
--static int __init init_pit_timesource(void)
--{
--	timesource_pit.mult = timesource_hz2mult(CLOCK_TICK_RATE, 20);
--	register_timesource(&timesource_pit);
--	return 0;
--}
--module_init(init_pit_timesource);
--#endif
-diff -urN 2.6.12-rc5/drivers/timesource/tsc-interp.c 2.6.12-rc5-work/drivers/timesource/tsc-interp.c
---- 2.6.12-rc5/drivers/timesource/tsc-interp.c	2005-06-07 22:01:32.000000000 +0200
-+++ 2.6.12-rc5-work/drivers/timesource/tsc-interp.c	1970-01-01 01:00:00.000000000 +0100
-@@ -1,112 +0,0 @@
--/* TSC-Jiffies Interpolation timesource
--	Example interpolation timesource.
--TODO:
--	o per-cpu TSC offsets
--*/
--#include <linux/timesource.h>
--#include <linux/timer.h>
--#include <linux/timex.h>
--#include <linux/init.h>
--#include <linux/jiffies.h>
--#include <linux/threads.h>
--#include <linux/smp.h>
--
--static unsigned long current_cpu_khz = 0;
--
--static seqlock_t tsc_interp_lock = SEQLOCK_UNLOCKED;
--static cycle_t tsc_then;
--static cycle_t jiffies_then;
--struct timer_list tsc_interp_timer;
--
--static unsigned long mult, shift;
--
--#define NSEC_PER_JIFFY ((((unsigned long long)NSEC_PER_SEC)<<8)/ACTHZ)
--#define SHIFT_VAL 22
--
--static cycle_t read_tsc_interp(void);
--static void tsc_interp_update_callback(void);
--
--static struct timesource_t timesource_tsc_interp = {
--	.name = "tsc-interp",
--	.priority = 20,
--	.type = TIMESOURCE_FUNCTION,
--	.read_fnct = read_tsc_interp,
--	.mask = (cycle_t)-1,
--	.mult = 1<<SHIFT_VAL,
--	.shift = SHIFT_VAL,
--	.update_callback = tsc_interp_update_callback,
--};
--
--static void tsc_interp_sync(unsigned long unused)
--{
--	cycle_t tsc_now;
--	u64 jiffies_now;
--
--	do {
--		jiffies_now = get_jiffies_64() - INITIAL_JIFFIES;
--		rdtscll(tsc_now);
--	} while (jiffies_now != (get_jiffies_64() - INITIAL_JIFFIES));
--
--	write_seqlock(&tsc_interp_lock);
--	jiffies_then = jiffies_now;
--	tsc_then = tsc_now;
--	write_sequnlock(&tsc_interp_lock);
--
--	mod_timer(&tsc_interp_timer, jiffies+1);
--}
--
--
--static cycle_t read_tsc_interp(void)
--{
--	cycle_t ret;
--	cycle_t now, then;
--	u64 jiffs_now, jiffs_then;
--	unsigned long seq;
--
--	do {
--		seq = read_seqbegin(&tsc_interp_lock);
--
--		jiffs_now = get_jiffies_64() - INITIAL_JIFFIES;
--		jiffs_then = jiffies_then;
--		then = tsc_then;
--
--	} while (read_seqretry(&tsc_interp_lock, seq));
--
--	rdtscll(now);
--	ret = jiffs_then * NSEC_PER_JIFFY;
--	if (jiffs_then == jiffs_now)
--		ret += min((cycle_t)NSEC_PER_JIFFY,(cycle_t)((now - then)*mult)>> shift);
--	else
--		ret += (jiffs_now - jiffs_then)*NSEC_PER_JIFFY;
--
--	return ret;
--}
--
--static void tsc_interp_update_callback(void)
--{
--	/* only update if cpu_khz has changed */
--	if (current_cpu_khz != cpu_khz){
--		current_cpu_khz = cpu_khz;
--		mult = timesource_khz2mult(current_cpu_khz, shift);
--	}
--}
--
--
--static int __init init_tsc_interp_timesource(void)
--{
--	/* TSC initialization is done in arch/i386/kernel/tsc.c */
--	if (cpu_has_tsc && cpu_khz) {
--		current_cpu_khz = cpu_khz;
--		shift = SHIFT_VAL;
--		mult = timesource_khz2mult(current_cpu_khz, shift);
--		/* setup periodic soft-timer */
--		init_timer(&tsc_interp_timer);
--		tsc_interp_timer.function = tsc_interp_sync;
--		tsc_interp_timer.expires = jiffies;
--		add_timer(&tsc_interp_timer);
--
--		register_timesource(&timesource_tsc_interp);
--	}
--	return 0;
--}
--module_init(init_tsc_interp_timesource);
-diff -urN 2.6.12-rc5/drivers/timesource/tsc.c 2.6.12-rc5-work/drivers/timesource/tsc.c
---- 2.6.12-rc5/drivers/timesource/tsc.c	2005-06-07 22:01:32.000000000 +0200
-+++ 2.6.12-rc5-work/drivers/timesource/tsc.c	1970-01-01 01:00:00.000000000 +0100
-@@ -1,95 +0,0 @@
--/* TODO:
-- *		o better calibration
-- */
--
--#include <linux/timesource.h>
--#include <linux/timex.h>
--#include <linux/init.h>
--
--static unsigned long current_cpu_khz = 0;
--static cycle_t tsc_c3_offset;
--
--static cycle_t read_safe_tsc(void);
--static void tsc_update_callback(void);
--
--static struct timesource_t timesource_safe_tsc = {
--	.name = "c3tsc",
--	.priority = 26,
--	.type = TIMESOURCE_FUNCTION,
--	.read_fnct = read_safe_tsc,
--	.mask = (cycle_t)-1,
--	.mult = 0, /* to be set */
--	.shift = 22,
--	.update_callback = tsc_update_callback,
--};
--
--static struct timesource_t timesource_raw_tsc = {
--	.name = "tsc",
--	.priority = 25,
--	.type = TIMESOURCE_CYCLES,
--	.mask = (cycle_t)-1,
--	.mult = 0, /* to be set */
--	.shift = 22,
--	.update_callback = tsc_update_callback,
--};
--
--static struct timesource_t timesource_tsc;
--
--static int use_safe_tsc = 0;
--
--static cycle_t read_safe_tsc(void)
--{
--	cycle_t ret;
--	rdtscll(ret);
--	return ret + tsc_c3_offset;
--}
--
--void tsc_c3_compensate(unsigned long usecs)
--{
--	u64 nsecs = (u64)usecs * 1000;
--	cycle_t offset = nsecs << timesource_tsc.shift;
--
--	if (!timesource_tsc.mult)
--		return;
--
--	if(!use_safe_tsc)
--		use_safe_tsc = 1;
--
--	do_div(offset, timesource_tsc.mult);
--	tsc_c3_offset += offset;
--}
--
--
--static void tsc_update_callback(void)
--{
--	/* check to see if we should switch to the safe timesource */
--	if (use_safe_tsc &&
--		strncmp(timesource_tsc.name, "c3tsc", 5)) {
--		printk("Falling back to C3 safe TSC\n");
--		timesource_safe_tsc.mult = timesource_tsc.mult;
--		timesource_tsc = timesource_safe_tsc;
--	}
--
--	/* only update if cpu_khz has changed */
--	if (current_cpu_khz != cpu_khz){
--		current_cpu_khz = cpu_khz;
--		timesource_tsc.mult = timesource_khz2mult(current_cpu_khz,
--							timesource_tsc.shift);
--	}
--}
--
--static int __init init_tsc_timesource(void)
--{
--	timesource_tsc = timesource_raw_tsc;
--	/* TSC initialization is done in arch/i386/kernel/tsc.c */
--	if (cpu_has_tsc && cpu_khz) {
--		current_cpu_khz = cpu_khz;
--		timesource_tsc.mult = timesource_khz2mult(current_cpu_khz,
--							timesource_tsc.shift);
--		register_timesource(&timesource_tsc);
--	}
--	return 0;
--}
--
--module_init(init_tsc_timesource);
--
-diff -urN 2.6.12-rc5/drivers/timesource/x86/Makefile 2.6.12-rc5-work/drivers/timesource/x86/Makefile
---- 2.6.12-rc5/drivers/timesource/x86/Makefile	1970-01-01 01:00:00.000000000 +0100
-+++ 2.6.12-rc5-work/drivers/timesource/x86/Makefile	2005-06-07 22:50:43.000000000 +0200
-@@ -0,0 +1,6 @@
-+obj-$(CONFIG_X86) += tsc.o
-+obj-$(CONFIG_X86) += i386_pit.o
-+obj-$(CONFIG_X86) += tsc-interp.o
-+obj-$(CONFIG_X86_CYCLONE_TIMER) += cyclone.o
-+obj-$(CONFIG_X86_PM_TIMER) += acpi_pm.o
-+obj-$(CONFIG_HPET_TIMER) += hpet.o
-diff -urN 2.6.12-rc5/drivers/timesource/x86/acpi_pm.c 2.6.12-rc5-work/drivers/timesource/x86/acpi_pm.c
---- 2.6.12-rc5/drivers/timesource/x86/acpi_pm.c	1970-01-01 01:00:00.000000000 +0100
-+++ 2.6.12-rc5-work/drivers/timesource/x86/acpi_pm.c	2005-06-07 22:44:59.000000000 +0200
-@@ -0,0 +1,140 @@
-+/*
-+ * linux/drivers/timesource/acpi_pm.c
-+ *
-+ * This file contains the ACPI PM based time source.
-+ *
-+ * This code was largely moved from the i386 timer_pm.c file
-+ * which was (C) Dominik Brodowski <linux@brodo.de> 2003
-+ * and contained the following comments:
-+ *
-+ * Driver to use the Power Management Timer (PMTMR) available in some
-+ * southbridges as primary timing source for the Linux kernel.
-+ *
-+ * Based on parts of linux/drivers/acpi/hardware/hwtimer.c, timer_pit.c,
-+ * timer_hpet.c, and on Arjan van de Ven's implementation for 2.4.
-+ *
-+ * This file is licensed under the GPL v2.
-+ */
-+
-+
-+#include <linux/timesource.h>
-+#include <linux/errno.h>
-+#include <linux/init.h>
-+#include <asm/io.h>
-+
-+/* Number of PMTMR ticks expected during calibration run */
-+#define PMTMR_TICKS_PER_SEC 3579545
-+
-+#if (CONFIG_X86 && (!CONFIG_X86_64))
-+#include "mach_timer.h"
-+#define PMTMR_EXPECTED_RATE \
-+  ((CALIBRATE_LATCH * (PMTMR_TICKS_PER_SEC >> 10)) / (CLOCK_TICK_RATE>>10))
-+#endif
-+
-+/* The I/O port the PMTMR resides at.
-+ * The location is detected during setup_arch(),
-+ * in arch/i386/acpi/boot.c */
-+u32 pmtmr_ioport = 0;
-+
-+#define ACPI_PM_MASK 0xFFFFFF /* limit it to 24 bits */
-+
-+static inline u32 read_pmtmr(void)
-+{
-+	u32 v1=0,v2=0,v3=0;
-+	/* It has been reported that because of various broken
-+	 * chipsets (ICH4, PIIX4 and PIIX4E) where the ACPI PM time
-+	 * source is not latched, so you must read it multiple
-+	 * times to insure a safe value is read.
-+	 */
-+	do {
-+		v1 = inl(pmtmr_ioport);
-+		v2 = inl(pmtmr_ioport);
-+		v3 = inl(pmtmr_ioport);
-+	} while ((v1 > v2 && v1 < v3) || (v2 > v3 && v2 < v1)
-+			|| (v3 > v1 && v3 < v2));
-+
-+	/* mask the output to 24 bits */
-+	return v2 & ACPI_PM_MASK;
-+}
-+
-+
-+static cycle_t acpi_pm_read(void)
-+{
-+	return (cycle_t)read_pmtmr();
-+}
-+
-+struct timesource_t timesource_acpi_pm = {
-+	.name = "acpi_pm",
-+	.priority = 200,
-+	.type = TIMESOURCE_FUNCTION,
-+	.read_fnct = acpi_pm_read,
-+	.mask = (cycle_t)ACPI_PM_MASK,
-+	.mult = 0, /*to be caluclated*/
-+	.shift = 22,
-+};
-+
-+#if (CONFIG_X86 && (!CONFIG_X86_64))
-+/*
-+ * Some boards have the PMTMR running way too fast. We check
-+ * the PMTMR rate against PIT channel 2 to catch these cases.
-+ */
-+static int __init verify_pmtmr_rate(void)
-+{
-+	u32 value1, value2;
-+	unsigned long count, delta;
-+
-+	mach_prepare_counter();
-+	value1 = read_pmtmr();
-+	mach_countup(&count);
-+	value2 = read_pmtmr();
-+	delta = (value2 - value1) & ACPI_PM_MASK;
-+
-+	/* Check that the PMTMR delta is within 5% of what we expect */
-+	if (delta < (PMTMR_EXPECTED_RATE * 19) / 20 ||
-+	    delta > (PMTMR_EXPECTED_RATE * 21) / 20) {
-+		printk(KERN_INFO "PM-Timer running at invalid rate: %lu%% of normal - aborting.\n", 100UL * delta / PMTMR_EXPECTED_RATE);
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-+#else
-+#define verify_pmtmr_rate() (0)
-+#endif
-+
-+static int __init init_acpi_pm_timesource(void)
-+{
-+	u32 value1, value2;
-+	unsigned int i;
-+
-+	if (!pmtmr_ioport)
-+		return -ENODEV;
-+
-+	timesource_acpi_pm.mult = timesource_hz2mult(PMTMR_TICKS_PER_SEC,
-+									timesource_acpi_pm.shift);
-+
-+	/* "verify" this timing source */
-+	value1 = read_pmtmr();
-+	for (i = 0; i < 10000; i++) {
-+		value2 = read_pmtmr();
-+		if (value2 == value1)
-+			continue;
-+		if (value2 > value1)
-+			goto pm_good;
-+		if ((value2 < value1) && ((value2) < 0xFFF))
-+			goto pm_good;
-+		printk(KERN_INFO "PM-Timer had inconsistent results: 0x%#x, 0x%#x - aborting.\n", value1, value2);
-+		return -EINVAL;
-+	}
-+	printk(KERN_INFO "PM-Timer had no reasonable result: 0x%#x - aborting.\n", value1);
-+	return -ENODEV;
-+
-+pm_good:
-+	if (verify_pmtmr_rate() != 0)
-+		return -ENODEV;
-+
-+	register_timesource(&timesource_acpi_pm);
-+	return 0;
-+}
-+
-+module_init(init_acpi_pm_timesource);
-diff -urN 2.6.12-rc5/drivers/timesource/x86/cyclone.c 2.6.12-rc5-work/drivers/timesource/x86/cyclone.c
---- 2.6.12-rc5/drivers/timesource/x86/cyclone.c	1970-01-01 01:00:00.000000000 +0100
-+++ 2.6.12-rc5-work/drivers/timesource/x86/cyclone.c	2005-06-07 22:44:59.000000000 +0200
-@@ -0,0 +1,135 @@
-+#include <linux/timesource.h>
-+#include <linux/errno.h>
-+#include <linux/string.h>
-+#include <linux/timex.h>
-+#include <linux/init.h>
-+
-+#include <asm/io.h>
-+#include <asm/pgtable.h>
-+#include "mach_timer.h"
-+
-+#define CYCLONE_CBAR_ADDR 0xFEB00CD0		/* base address ptr*/
-+#define CYCLONE_PMCC_OFFSET 0x51A0		/* offset to control register */
-+#define CYCLONE_MPCS_OFFSET 0x51A8		/* offset to select register */
-+#define CYCLONE_MPMC_OFFSET 0x51D0		/* offset to count register */
-+#define CYCLONE_TIMER_FREQ 100000000
-+#define CYCLONE_TIMER_MASK (0xFFFFFFFF) /* 32 bit mask */
-+
-+int use_cyclone = 0;
-+
-+struct timesource_t timesource_cyclone = {
-+	.name = "cyclone",
-+	.priority = 100,
-+	.type = TIMESOURCE_MMIO_32,
-+	.mmio_ptr = NULL, /* to be set */
-+	.mask = (cycle_t)CYCLONE_TIMER_MASK,
-+	.mult = 10,
-+	.shift = 0,
-+};
-+
-+static unsigned long __init calibrate_cyclone(void)
-+{
-+	unsigned long start, end, delta;
-+	unsigned long i, count;
-+	unsigned long cyclone_freq_khz;
-+
-+	/* repeat 3 times to make sure the cache is warm */
-+	for(i=0; i < 3; i++) {
-+		mach_prepare_counter();
-+		start = readl(timesource_cyclone.mmio_ptr);
-+		mach_countup(&count);
-+		end = readl(timesource_cyclone.mmio_ptr);
-+	}
-+
-+	delta = end - start;
-+	printk("cyclone delta: %lu\n", delta);
-+	delta *= (ACTHZ/1000)>>8;
-+	printk("delta*hz = %lu\n", delta);
-+	cyclone_freq_khz = delta/CALIBRATE_ITERATION;
-+	printk("calculated cyclone_freq: %lu khz\n", cyclone_freq_khz);
-+	return cyclone_freq_khz;
-+}
-+
-+static int __init init_cyclone_timesource(void)
-+{
-+	unsigned long base;	/* saved value from CBAR */
-+	unsigned long offset;
-+	u32 __iomem* reg;
-+	u32 __iomem* volatile cyclone_timer;	/* Cyclone MPMC0 register */
-+	unsigned long khz;
-+	int i;
-+
-+	/*make sure we're on a summit box*/
-+	if (!use_cyclone) return -ENODEV;
-+
-+	printk(KERN_INFO "Summit chipset: Starting Cyclone Counter.\n");
-+
-+	/* find base address */
-+	offset = CYCLONE_CBAR_ADDR;
-+	reg = ioremap_nocache(offset, sizeof(reg));
-+	if(!reg){
-+		printk(KERN_ERR "Summit chipset: Could not find valid CBAR register.\n");
-+		return -ENODEV;
-+	}
-+	/* even on 64bit systems, this is only 32bits */
-+	base = readl(reg);
-+	if(!base){
-+		printk(KERN_ERR "Summit chipset: Could not find valid CBAR value.\n");
-+		return -ENODEV;
-+	}
-+	iounmap(reg);
-+
-+	/* setup PMCC */
-+	offset = base + CYCLONE_PMCC_OFFSET;
-+	reg = ioremap_nocache(offset, sizeof(reg));
-+	if(!reg){
-+		printk(KERN_ERR "Summit chipset: Could not find valid PMCC register.\n");
-+		return -ENODEV;
-+	}
-+	writel(0x00000001,reg);
-+	iounmap(reg);
-+
-+	/* setup MPCS */
-+	offset = base + CYCLONE_MPCS_OFFSET;
-+	reg = ioremap_nocache(offset, sizeof(reg));
-+	if(!reg){
-+		printk(KERN_ERR "Summit chipset: Could not find valid MPCS register.\n");
-+		return -ENODEV;
-+	}
-+	writel(0x00000001,reg);
-+	iounmap(reg);
-+
-+	/* map in cyclone_timer */
-+	offset = base + CYCLONE_MPMC_OFFSET;
-+	cyclone_timer = ioremap_nocache(offset, sizeof(u64));
-+	if(!cyclone_timer){
-+		printk(KERN_ERR "Summit chipset: Could not find valid MPMC register.\n");
-+		return -ENODEV;
-+	}
-+
-+	/*quick test to make sure its ticking*/
-+	for(i=0; i<3; i++){
-+		u32 old = readl(cyclone_timer);
-+		int stall = 100;
-+		while(stall--) barrier();
-+		if(readl(cyclone_timer) == old){
-+			printk(KERN_ERR "Summit chipset: Counter not counting! DISABLED\n");
-+			iounmap(cyclone_timer);
-+			cyclone_timer = NULL;
-+			return -ENODEV;
-+		}
-+	}
-+	timesource_cyclone.mmio_ptr = cyclone_timer;
-+
-+	/* sort out mult/shift values */
-+	khz = calibrate_cyclone();
-+	timesource_cyclone.shift = 22;
-+	timesource_cyclone.mult = timesource_khz2mult(khz,
-+									timesource_cyclone.shift);
-+
-+	register_timesource(&timesource_cyclone);
-+
-+	return 0;
-+}
-+
-+module_init(init_cyclone_timesource);
-diff -urN 2.6.12-rc5/drivers/timesource/x86/hpet.c 2.6.12-rc5-work/drivers/timesource/x86/hpet.c
---- 2.6.12-rc5/drivers/timesource/x86/hpet.c	1970-01-01 01:00:00.000000000 +0100
-+++ 2.6.12-rc5-work/drivers/timesource/x86/hpet.c	2005-06-07 22:44:59.000000000 +0200
-@@ -0,0 +1,59 @@
-+#include <linux/timesource.h>
-+#include <linux/hpet.h>
-+#include <linux/errno.h>
-+#include <linux/init.h>
-+#include <asm/io.h>
-+#include <asm/hpet.h>
-+
-+#define HPET_MASK (0xFFFFFFFF)
-+#define HPET_SHIFT 22
-+
-+/* FSEC = 10^-15 NSEC = 10^-9 */
-+#define FSEC_PER_NSEC 1000000
-+
-+struct timesource_t timesource_hpet = {
-+	.name = "hpet",
-+	.priority = 300,
-+	.type = TIMESOURCE_MMIO_32,
-+	.mmio_ptr = NULL,
-+	.mask = (cycle_t)HPET_MASK,
-+	.mult = 0, /* set below */
-+	.shift = HPET_SHIFT,
-+};
-+
-+static int __init init_hpet_timesource(void)
-+{
-+	unsigned long hpet_period;
-+	void __iomem* hpet_base;
-+	u64 tmp;
-+
-+	if (!hpet_address)
-+		return -ENODEV;
-+
-+	/* calculate the hpet address */
-+	hpet_base =
-+		(void __iomem*)ioremap_nocache(hpet_address, HPET_MMAP_SIZE);
-+	timesource_hpet.mmio_ptr = hpet_base + HPET_COUNTER;
-+
-+	/* calculate the frequency */
-+	hpet_period = readl(hpet_base + HPET_PERIOD);
-+
-+
-+	/* hpet period is in femto seconds per cycle
-+	 * so we need to convert this to ns/cyc units
-+	 * aproximated by mult/2^shift
-+	 *
-+	 *  fsec/cyc * 1nsec/1000000fsec = nsec/cyc = mult/2^shift
-+	 *  fsec/cyc * 1ns/1000000fsec * 2^shift = mult
-+	 *  fsec/cyc * 2^shift * 1nsec/1000000fsec = mult
-+	 *  (fsec/cyc << shift)/1000000 = mult
-+	 *  (hpet_period << shift)/FSEC_PER_NSEC = mult
-+	 */
-+	tmp = (u64)hpet_period << HPET_SHIFT;
-+	do_div(tmp, FSEC_PER_NSEC);
-+	timesource_hpet.mult = (u32)tmp;
-+
-+	register_timesource(&timesource_hpet);
-+	return 0;
-+}
-+module_init(init_hpet_timesource);
-diff -urN 2.6.12-rc5/drivers/timesource/x86/i386_pit.c 2.6.12-rc5-work/drivers/timesource/x86/i386_pit.c
---- 2.6.12-rc5/drivers/timesource/x86/i386_pit.c	1970-01-01 01:00:00.000000000 +0100
-+++ 2.6.12-rc5-work/drivers/timesource/x86/i386_pit.c	2005-06-07 22:44:59.000000000 +0200
-@@ -0,0 +1,64 @@
-+#include <linux/timesource.h>
-+#include <linux/jiffies.h>
-+#include <linux/init.h>
-+/* pit timesource does not build on x86-64 */
-+#ifndef CONFIG_X86_64
-+#include <asm/io.h>
-+#include "io_ports.h"
-+
-+extern spinlock_t i8253_lock;
-+
-+/* Since the PIT overflows every tick, its not very useful
-+ * to just read by itself. So use jiffies to emulate a free
-+ * running counter.
-+ */
-+
-+static cycle_t pit_read(void)
-+{
-+	unsigned long flags, seq;
-+	int count;
-+	u64 jifs;
-+
-+	do {
-+		seq = read_seqbegin(&xtime_lock);
-+
-+		spin_lock_irqsave(&i8253_lock, flags);
-+
-+		outb_p(0x00, PIT_MODE);	/* latch the count ASAP */
-+		count = inb_p(PIT_CH0);	/* read the latched count */
-+		count |= inb_p(PIT_CH0) << 8;
-+
-+		/* VIA686a test code... reset the latch if count > max + 1 */
-+		if (count > LATCH) {
-+			outb_p(0x34, PIT_MODE);
-+			outb_p(LATCH & 0xff, PIT_CH0);
-+			outb(LATCH >> 8, PIT_CH0);
-+			count = LATCH - 1;
-+		}
-+		spin_unlock_irqrestore(&i8253_lock, flags);
-+		jifs = get_jiffies_64() - INITIAL_JIFFIES;
-+	} while (read_seqretry(&xtime_lock, seq));
-+
-+	count = (LATCH-1) - count;
-+
-+	return (cycle_t)(jifs * LATCH) + count;
-+}
-+
-+static struct timesource_t timesource_pit = {
-+	.name = "pit",
-+	.priority = 0,
-+	.type = TIMESOURCE_FUNCTION,
-+	.read_fnct = pit_read,
-+	.mask = (cycle_t)-1,
-+	.mult = 0,
-+	.shift = 20,
-+};
-+
-+static int __init init_pit_timesource(void)
-+{
-+	timesource_pit.mult = timesource_hz2mult(CLOCK_TICK_RATE, 20);
-+	register_timesource(&timesource_pit);
-+	return 0;
-+}
-+module_init(init_pit_timesource);
-+#endif
-diff -urN 2.6.12-rc5/drivers/timesource/x86/tsc-interp.c 2.6.12-rc5-work/drivers/timesource/x86/tsc-interp.c
---- 2.6.12-rc5/drivers/timesource/x86/tsc-interp.c	1970-01-01 01:00:00.000000000 +0100
-+++ 2.6.12-rc5-work/drivers/timesource/x86/tsc-interp.c	2005-06-07 22:44:59.000000000 +0200
-@@ -0,0 +1,112 @@
-+/* TSC-Jiffies Interpolation timesource
-+	Example interpolation timesource.
-+TODO:
-+	o per-cpu TSC offsets
-+*/
-+#include <linux/timesource.h>
-+#include <linux/timer.h>
-+#include <linux/timex.h>
-+#include <linux/init.h>
-+#include <linux/jiffies.h>
-+#include <linux/threads.h>
-+#include <linux/smp.h>
-+
-+static unsigned long current_cpu_khz = 0;
-+
-+static seqlock_t tsc_interp_lock = SEQLOCK_UNLOCKED;
-+static cycle_t tsc_then;
-+static cycle_t jiffies_then;
-+struct timer_list tsc_interp_timer;
-+
-+static unsigned long mult, shift;
-+
-+#define NSEC_PER_JIFFY ((((unsigned long long)NSEC_PER_SEC)<<8)/ACTHZ)
-+#define SHIFT_VAL 22
-+
-+static cycle_t read_tsc_interp(void);
-+static void tsc_interp_update_callback(void);
-+
-+static struct timesource_t timesource_tsc_interp = {
-+	.name = "tsc-interp",
-+	.priority = 20,
-+	.type = TIMESOURCE_FUNCTION,
-+	.read_fnct = read_tsc_interp,
-+	.mask = (cycle_t)-1,
-+	.mult = 1<<SHIFT_VAL,
-+	.shift = SHIFT_VAL,
-+	.update_callback = tsc_interp_update_callback,
-+};
-+
-+static void tsc_interp_sync(unsigned long unused)
-+{
-+	cycle_t tsc_now;
-+	u64 jiffies_now;
-+
-+	do {
-+		jiffies_now = get_jiffies_64() - INITIAL_JIFFIES;
-+		rdtscll(tsc_now);
-+	} while (jiffies_now != (get_jiffies_64() - INITIAL_JIFFIES));
-+
-+	write_seqlock(&tsc_interp_lock);
-+	jiffies_then = jiffies_now;
-+	tsc_then = tsc_now;
-+	write_sequnlock(&tsc_interp_lock);
-+
-+	mod_timer(&tsc_interp_timer, jiffies+1);
-+}
-+
-+
-+static cycle_t read_tsc_interp(void)
-+{
-+	cycle_t ret;
-+	cycle_t now, then;
-+	u64 jiffs_now, jiffs_then;
-+	unsigned long seq;
-+
-+	do {
-+		seq = read_seqbegin(&tsc_interp_lock);
-+
-+		jiffs_now = get_jiffies_64() - INITIAL_JIFFIES;
-+		jiffs_then = jiffies_then;
-+		then = tsc_then;
-+
-+	} while (read_seqretry(&tsc_interp_lock, seq));
-+
-+	rdtscll(now);
-+	ret = jiffs_then * NSEC_PER_JIFFY;
-+	if (jiffs_then == jiffs_now)
-+		ret += min((cycle_t)NSEC_PER_JIFFY,(cycle_t)((now - then)*mult)>> shift);
-+	else
-+		ret += (jiffs_now - jiffs_then)*NSEC_PER_JIFFY;
-+
-+	return ret;
-+}
-+
-+static void tsc_interp_update_callback(void)
-+{
-+	/* only update if cpu_khz has changed */
-+	if (current_cpu_khz != cpu_khz){
-+		current_cpu_khz = cpu_khz;
-+		mult = timesource_khz2mult(current_cpu_khz, shift);
-+	}
-+}
-+
-+
-+static int __init init_tsc_interp_timesource(void)
-+{
-+	/* TSC initialization is done in arch/i386/kernel/tsc.c */
-+	if (cpu_has_tsc && cpu_khz) {
-+		current_cpu_khz = cpu_khz;
-+		shift = SHIFT_VAL;
-+		mult = timesource_khz2mult(current_cpu_khz, shift);
-+		/* setup periodic soft-timer */
-+		init_timer(&tsc_interp_timer);
-+		tsc_interp_timer.function = tsc_interp_sync;
-+		tsc_interp_timer.expires = jiffies;
-+		add_timer(&tsc_interp_timer);
-+
-+		register_timesource(&timesource_tsc_interp);
-+	}
-+	return 0;
-+}
-+module_init(init_tsc_interp_timesource);
-diff -urN 2.6.12-rc5/drivers/timesource/x86/tsc.c 2.6.12-rc5-work/drivers/timesource/x86/tsc.c
---- 2.6.12-rc5/drivers/timesource/x86/tsc.c	1970-01-01 01:00:00.000000000 +0100
-+++ 2.6.12-rc5-work/drivers/timesource/x86/tsc.c	2005-06-07 22:44:59.000000000 +0200
-@@ -0,0 +1,95 @@
-+/* TODO:
-+ *		o better calibration
-+ */
-+
-+#include <linux/timesource.h>
-+#include <linux/timex.h>
-+#include <linux/init.h>
-+
-+static unsigned long current_cpu_khz = 0;
-+static cycle_t tsc_c3_offset;
-+
-+static cycle_t read_safe_tsc(void);
-+static void tsc_update_callback(void);
-+
-+static struct timesource_t timesource_safe_tsc = {
-+	.name = "c3tsc",
-+	.priority = 26,
-+	.type = TIMESOURCE_FUNCTION,
-+	.read_fnct = read_safe_tsc,
-+	.mask = (cycle_t)-1,
-+	.mult = 0, /* to be set */
-+	.shift = 22,
-+	.update_callback = tsc_update_callback,
-+};
-+
-+static struct timesource_t timesource_raw_tsc = {
-+	.name = "tsc",
-+	.priority = 25,
-+	.type = TIMESOURCE_CYCLES,
-+	.mask = (cycle_t)-1,
-+	.mult = 0, /* to be set */
-+	.shift = 22,
-+	.update_callback = tsc_update_callback,
-+};
-+
-+static struct timesource_t timesource_tsc;
-+
-+static int use_safe_tsc = 0;
-+
-+static cycle_t read_safe_tsc(void)
-+{
-+	cycle_t ret;
-+	rdtscll(ret);
-+	return ret + tsc_c3_offset;
-+}
-+
-+void tsc_c3_compensate(unsigned long usecs)
-+{
-+	u64 nsecs = (u64)usecs * 1000;
-+	cycle_t offset = nsecs << timesource_tsc.shift;
-+
-+	if (!timesource_tsc.mult)
-+		return;
-+
-+	if(!use_safe_tsc)
-+		use_safe_tsc = 1;
-+
-+	do_div(offset, timesource_tsc.mult);
-+	tsc_c3_offset += offset;
-+}
-+
-+
-+static void tsc_update_callback(void)
-+{
-+	/* check to see if we should switch to the safe timesource */
-+	if (use_safe_tsc &&
-+		strncmp(timesource_tsc.name, "c3tsc", 5)) {
-+		printk("Falling back to C3 safe TSC\n");
-+		timesource_safe_tsc.mult = timesource_tsc.mult;
-+		timesource_tsc = timesource_safe_tsc;
-+	}
-+
-+	/* only update if cpu_khz has changed */
-+	if (current_cpu_khz != cpu_khz){
-+		current_cpu_khz = cpu_khz;
-+		timesource_tsc.mult = timesource_khz2mult(current_cpu_khz,
-+							timesource_tsc.shift);
-+	}
-+}
-+
-+static int __init init_tsc_timesource(void)
-+{
-+	timesource_tsc = timesource_raw_tsc;
-+	/* TSC initialization is done in arch/i386/kernel/tsc.c */
-+	if (cpu_has_tsc && cpu_khz) {
-+		current_cpu_khz = cpu_khz;
-+		timesource_tsc.mult = timesource_khz2mult(current_cpu_khz,
-+							timesource_tsc.shift);
-+		register_timesource(&timesource_tsc);
-+	}
-+	return 0;
-+}
-+
-+module_init(init_tsc_timesource);
-+
+Nuke the StudlyCaps.
 
---=-zuM8c4M85YTC/nveiBaA--
+> +int LzmaReadCompressed(void *object, unsigned char **buffer, unsigned int *size)
+
+All over the place.
+
+> +{ 
+> +	CBuffer *bo = (CBuffer *)object;
+
+Unneeded typecast.
+
+> +	int read_size;
+> +	/* try to read _LZMA_READ_COMPRESSED_BUFFER_SIZE bytes */
+> +	read_size = sys_read(bo->lzma_read_fd,bo->Buffer,_LZMA_READ_COMPRESSED_BUFFER_SIZE);
+
+Add a single space after the commas and try to fit code into an 80-col
+xterm.
+
+> +	UInt32 nowPos, dictionarySize  = 0;
+> +	unsigned char *dictionary, *out_buffer=0;
+
+Place a single space before and after the "=".
+
+> +
+> +	if(sys_read(in_fd, (unsigned char *)&properties, 5) == 0) {
+
+and after "if"
+
+> +		printk(KERN_ERR "RAMDISK: ran out of compressed data");
+
+newline?
+
+> +		return -1;
+> +	}
+> +
+> +	outSize = 0;
+> +	for (i_for = 0; i_for < 4; i_for++) {
+
+"i"
+
+> +		unsigned char b;
+> +		if(sys_read(in_fd, &b, sizeof(b)) == 0) {
+
+"if ("
+
+> +			printk(KERN_ERR "RAMDISK: ran out of compressed data");
+
+newline?
+
+> +	for (i_for = 0; i_for < 4; i_for++) {
+> +		unsigned char b;
+> +		if(sys_read(in_fd, &b, sizeof(b)) == 0) {
+
+etc...
+
+> +	for (pb = 0; prop0 >= (9 * 5); pb++, prop0 -= (9 * 5));
+> +	for (lp = 0; prop0 >= 9; lp++, prop0 -= 9);
+
+Put the ";" on a line of its own.
+
+I'd have thought the above could be done arithmetically?
+
+> +	lc = prop0;
+> +
+> +	lzmaInternalSize = (LZMA_BASE_SIZE + (LZMA_LIT_SIZE << (lc + lp)))* sizeof(CProb);
+
+One space before and after the multiplication symbol.
+
+80-cols.
+
+> +	lzmaInternalSize += 100; // because we are using _LZMA_OUT_READ
+> +	
+> +	lzmaInternalData = kmalloc(lzmaInternalSize, GFP_KERNEL);
+> +	if(lzmaInternalData == 0) { 
+> +		printk(KERN_ERR "RAMDISK: failed to get space for lzmaInternalData");
+> +		return -1;
+> +	}
+> +
+> +	bo.InCallback.Read = LzmaReadCompressed;
+> +	bo.lzma_read_fd = in_fd;
+> +	bo.Buffer = kmalloc(_LZMA_READ_COMPRESSED_BUFFER_SIZE, GFP_KERNEL);
+> +	if(bo.Buffer == 0) { 
+
+"if (".
+
+This patch adds trailing whitespace.
+
+> +		printk(KERN_ERR "RAMDISK: failed to get space for bo.Buffer");
+> +		return -1;
+
+It just leaked `lzmaInternalData'.
+
+> +	}
+> +
+> +	for (i_for = 0; i_for < 4; i_for++)
+> +		dictionarySize += (UInt32)(properties[1 + i_for]) << (i_for * 8);
+
+Is the cast needed?
+
+> +	if (dictionarySize == 0)
+> +		dictionarySize = 1; /* LZMA decoder can not work with dictionarySize = 0 */
+> +	dictionary = (unsigned char *)vmalloc(dictionarySize);
+
+vmalloc() returns void*
+
+> +	if(dictionary == 0) { 
+> +		printk(KERN_ERR "RAMDISK: failed to get space for dictionary");
+> +		return -1;
+> +	}
+> +	res = LzmaDecoderInit((unsigned char *)lzmaInternalData, lzmaInternalSize,
+> +		lc, lp, pb,
+> +		dictionary, dictionarySize,
+> +		&bo.InCallback);
+> +
+> +	if (res == 0)
+> +	for (nowPos = 0; nowPos < outSize;) {
+
+Broken indenting.
+
+> +		out_buffer = kmalloc(_LZMA_WRITE_BUFFER_SIZE,GFP_KERNEL);
+> +		if(out_buffer == 0) { 
+> +			printk(KERN_ERR "RAMDISK: failed to get space for out_buffer");
+> +			return -1;
+> +		}
+
+More leaking.
+
+> +		
+> +		res = LzmaDecode((unsigned char *)lzmaInternalData,
+> +			out_buffer, _LZMA_WRITE_BUFFER_SIZE, &outSizeProcessed);
+> +		if (res != 0)
+> +			break;
+> +		if (outSizeProcessed == 0) {
+> +			outSize = nowPos;
+> +			break;
+> +		}
+> +		nowPos += outSizeProcessed;
+> +		res = sys_write(out_fd,out_buffer,outSizeProcessed);
+> +		if(res!=outSizeProcessed) {
+> +			printk(KERN_ERR "can't write everything");
+> +		}
+
+Unneeded braces.
+
+> --- linux-2.6.12-rc6.orig/lib/LzmaDecode.c	1970-01-01 01:00:00.000000000 +0100
+> +++ linux-2.6.12-rc6/lib/LzmaDecode.c	2005-06-07 21:33:34.000000000 +0200
+> ...
+> +
+> +#define RC_INIT2 Code = 0; Range = 0xFFFFFFFF; \
+> +  { int i; for(i = 0; i < 5; i++) { RC_TEST; Code = (Code << 8) | RC_READ_BYTE; }}
+> ...
+> +
+> +#define RC_TEST { if (Buffer == BufferLim) \
+> +  { UInt32 size; int result = InCallback->Read(InCallback, &Buffer, &size); if (result != LZMA_RESULT_OK) return result; \
+> +  BufferLim = Buffer + size; if (size == 0) return LZMA_RESULT_DATA_ERROR; }}
+> +
+> +#define RC_INIT Buffer = BufferLim = 0; RC_INIT2
+> +
+> +#else
+> +
+> +#define RC_TEST { if (Buffer == BufferLim) return LZMA_RESULT_DATA_ERROR; }
+> +
+> +#define RC_INIT(buffer, bufferSize) Buffer = buffer; BufferLim = buffer + bufferSize; RC_INIT2
+> + 
+> +#endif
+> +
+> +#define RC_NORMALIZE if (Range < kTopValue) { RC_TEST; Range <<= 8; Code = (Code << 8) | RC_READ_BYTE; }
+> +
+> +#define IfBit0(p) RC_NORMALIZE; bound = (Range >> kNumBitModelTotalBits) * *(p); if (Code < bound)
+> +#define UpdateBit0(p) Range = bound; *(p) += (kBitModelTotal - *(p)) >> kNumMoveBits;
+> +#define UpdateBit1(p) Range -= bound; Code -= bound; *(p) -= (*(p)) >> kNumMoveBits;
+> +
+> +#define RC_GET_BIT2(p, mi, A0, A1) IfBit0(p) \
+> +  { UpdateBit0(p); mi <<= 1; A0; } else \
+> +  { UpdateBit1(p); mi = (mi + mi) + 1; A1; } 
+> +  
+> +#define RC_GET_BIT(p, mi) RC_GET_BIT2(p, mi, ; , ;)               
+> +
+> +#define RangeDecoderBitTreeDecode(probs, numLevels, res) \
+> +  { int i = numLevels; res = 1; \
+> +  do { CProb *p = probs + res; RC_GET_BIT(p, res) } while(--i != 0); \
+> +  res -= (1 << numLevels); }
+
+Ugh.  Can we remove all this macro magic?
+
+> +
+> +#define kNumPosBitsMax 4
+> +#define kNumPosStatesMax (1 << kNumPosBitsMax)
+> +
+> +#define kLenNumLowBits 3
+> +#define kLenNumLowSymbols (1 << kLenNumLowBits)
+> +#define kLenNumMidBits 3
+> +#define kLenNumMidSymbols (1 << kLenNumMidBits)
+> +#define kLenNumHighBits 8
+> +#define kLenNumHighSymbols (1 << kLenNumHighBits)
+> +
+> +#define LenChoice 0
+> +#define LenChoice2 (LenChoice + 1)
+> +#define LenLow (LenChoice2 + 1)
+> +#define LenMid (LenLow + (kNumPosStatesMax << kLenNumLowBits))
+> +#define LenHigh (LenMid + (kNumPosStatesMax << kLenNumMidBits))
+> +#define kNumLenProbs (LenHigh + kLenNumHighSymbols) 
+> +
+> +
+> +#define kNumStates 12
+> +#define kNumLitStates 7
+> +
+> +#define kStartPosModelIndex 4
+> +#define kEndPosModelIndex 14
+> +#define kNumFullDistances (1 << (kEndPosModelIndex >> 1))
+> +
+> +#define kNumPosSlotBits 6
+> +#define kNumLenToPosStates 4
+> +
+> +#define kNumAlignBits 4
+> +#define kAlignTableSize (1 << kNumAlignBits)
+> +
+> +#define kMatchMinLen 2
+> +
+> +#define IsMatch 0
+> +#define IsRep (IsMatch + (kNumStates << kNumPosBitsMax))
+> +#define IsRepG0 (IsRep + kNumStates)
+> +#define IsRepG1 (IsRepG0 + kNumStates)
+> +#define IsRepG2 (IsRepG1 + kNumStates)
+> +#define IsRep0Long (IsRepG2 + kNumStates)
+> +#define PosSlot (IsRep0Long + (kNumStates << kNumPosBitsMax))
+> +#define SpecPos (PosSlot + (kNumLenToPosStates << kNumPosSlotBits))
+> +#define Align (SpecPos + kNumFullDistances - kEndPosModelIndex)
+> +#define LenCoder (Align + kAlignTableSize)
+> +#define RepLenCoder (LenCoder + kNumLenProbs)
+> +#define Literal (RepLenCoder + kNumLenProbs)
+
+And this?
+
+> +#if Literal != LZMA_BASE_SIZE
+> +StopCompilingDueBUG
+> +#endif
+
+eh?
+
+> +#ifdef _LZMA_OUT_READ
+> +
+> +typedef struct _LzmaVarState
+> +{
+> +  Byte *Buffer;
+> +  Byte *BufferLim;
+> +  UInt32 Range;
+> +  UInt32 Code;
+> +  #ifdef _LZMA_IN_CB
+> +  ILzmaInCallback *InCallback;
+> +  #endif
+> +  Byte *Dictionary;
+> +  UInt32 DictionarySize;
+> +  UInt32 DictionaryPos;
+> +  UInt32 GlobalPos;
+> +  UInt32 Reps[4];
+> +  int lc;
+> +  int lp;
+> +  int pb;
+> +  int State;
+> +  int RemainLen;
+> +  Byte TempDictionary[4];
+> +} LzmaVarState;
+> +
+> +int LzmaDecoderInit(
+> +    unsigned char *buffer, UInt32 bufferSize,
+> +    int lc, int lp, int pb,
+> +    unsigned char *dictionary, UInt32 dictionarySize,
+> +    #ifdef _LZMA_IN_CB
+> +    ILzmaInCallback *InCallback
+> +    #else
+> +    unsigned char *inStream, UInt32 inSize
+> +    #endif
+> +    )
+
+My eyes!
+
+> +{
+> +  Byte *Buffer;
+> +  Byte *BufferLim;
+> +  UInt32 Range;
+> +  UInt32 Code;
+> +  LzmaVarState *vs = (LzmaVarState *)buffer;
+> +  CProb *p = (CProb *)(buffer + sizeof(LzmaVarState));
+> +  UInt32 numProbs = Literal + ((UInt32)LZMA_LIT_SIZE << (lc + lp));
+> +  UInt32 i;
+> +  if (bufferSize < numProbs * sizeof(CProb) + sizeof(LzmaVarState))
+> +    return LZMA_RESULT_NOT_ENOUGH_MEM;
+> +  vs->Dictionary = dictionary;
+> +  vs->DictionarySize = dictionarySize;
+> +  vs->DictionaryPos = 0;
+> +  vs->GlobalPos = 0;
+> +  vs->Reps[0] = vs->Reps[1] = vs->Reps[2] = vs->Reps[3] = 1;
+> +  vs->lc = lc;
+> +  vs->lp = lp;
+> +  vs->pb = pb;
+> +  vs->State = 0;
+> +  vs->RemainLen = 0;
+> +  dictionary[dictionarySize - 1] = 0;
+> +  for (i = 0; i < numProbs; i++)
+> +    p[i] = kBitModelTotal >> 1; 
+> +
+> +  #ifdef _LZMA_IN_CB
+> +  RC_INIT;
+> +  #else
+> +  RC_INIT(inStream, inSize);
+> +  #endif
+> +  vs->Buffer = Buffer;
+> +  vs->BufferLim = BufferLim;
+> +  vs->Range = Range;
+> +  vs->Code = Code;
+> +  #ifdef _LZMA_IN_CB
+> +  vs->InCallback = InCallback;
+> +  #endif
+> +
+> +  return LZMA_RESULT_OK;
+> +}
+
+Dude.  I ain't putting stuff like that in our kernel!
+
+> +int LzmaDecode(unsigned char *buffer, 
+> +    unsigned char *outStream, UInt32 outSize,
+> +    UInt32 *outSizeProcessed)
+> +{
+> +  LzmaVarState *vs = (LzmaVarState *)buffer;
+> +  Byte *Buffer = vs->Buffer;
+> +  Byte *BufferLim = vs->BufferLim;
+> +  UInt32 Range = vs->Range;
+> +  UInt32 Code = vs->Code;
+> +  #ifdef _LZMA_IN_CB
+> +  ILzmaInCallback *InCallback = vs->InCallback;
+> +  #endif
+> +  CProb *p = (CProb *)(buffer + sizeof(LzmaVarState));
+> +  int state = vs->State;
+> +  Byte previousByte;
+> +  UInt32 rep0 = vs->Reps[0], rep1 = vs->Reps[1], rep2 = vs->Reps[2], rep3 = vs->Reps[3];
+> +  UInt32 nowPos = 0;
+> +  UInt32 posStateMask = (1 << (vs->pb)) - 1;
+> +  UInt32 literalPosMask = (1 << (vs->lp)) - 1;
+> +  int lc = vs->lc;
+> +  int len = vs->RemainLen;
+> +  UInt32 globalPos = vs->GlobalPos;
+
+Sigh.  I can see an argument for keeping the in-kernel code in sync with
+Igor's upstream code, but this is lunch-losing stuff :(
+
 

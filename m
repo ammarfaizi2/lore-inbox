@@ -1,86 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261812AbVFGSbs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261873AbVFGSqe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261812AbVFGSbs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 14:31:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261855AbVFGSbs
+	id S261873AbVFGSqe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 14:46:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261877AbVFGSqe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 14:31:48 -0400
-Received: from serv01.siteground.net ([70.85.91.68]:44996 "EHLO
-	serv01.siteground.net") by vger.kernel.org with ESMTP
-	id S261812AbVFGSbS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 14:31:18 -0400
-Date: Tue, 7 Jun 2005 11:30:03 -0700 (PDT)
-From: christoph <christoph@scalex86.org>
-X-X-Sender: christoph@ScMPusgw
-To: akpm@osdl.org
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] Move some more structures into "mostly_readonly"
-Message-ID: <Pine.LNX.4.62.0506071128220.22950@ScMPusgw>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - serv01.siteground.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+	Tue, 7 Jun 2005 14:46:34 -0400
+Received: from smtp-102-tuesday.noc.nerim.net ([62.4.17.102]:37896 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S261873AbVFGSqb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 14:46:31 -0400
+Date: Tue, 7 Jun 2005 20:47:33 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Linux v2.6.12-rc6
+Message-Id: <20050607204733.1a48e5dc.khali@linux-fr.org>
+In-Reply-To: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Move syscall table, timer_hpet and the boot_cpu_data into the "mostly_readonly" section.
+Hi all,
 
-Signed-off-by: Alok N Kataria <alokk@calsoftinc.com>
-Signed-off-by: Shai Fultheim <shai@scalex86.org>
-Signed-off-by: Christoph Lameter <christoph@scalex86.org>
+> Alan Cox:
+>   remove non-cleanroom pwc driver compression
 
-Index: linux-2.6.12-rc6-mm1/arch/i386/kernel/entry.S
-===================================================================
---- linux-2.6.12-rc6-mm1.orig/arch/i386/kernel/entry.S	2005-06-07 11:15:43.000000000 -0700
-+++ linux-2.6.12-rc6-mm1/arch/i386/kernel/entry.S	2005-06-07 11:26:36.000000000 -0700
-@@ -680,6 +680,8 @@ ENTRY(spurious_interrupt_bug)
- 	pushl $do_spurious_interrupt_bug
- 	jmp error_code
+This one triggers a compilation warning. Proposed fix:
+
+Signed-off-by: Jean Delvare <khali@linux-fr.org>
+
+ drivers/usb/media/pwc/pwc-uncompress.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+--- linux-2.6.12-rc6.orig/drivers/usb/media/pwc/pwc-uncompress.c	2005-06-07 07:14:50.000000000 +0200
++++ linux-2.6.12-rc6/drivers/usb/media/pwc/pwc-uncompress.c	2005-06-07 20:35:12.000000000 +0200
+@@ -120,7 +120,6 @@
  
-+.section .data.mostly_readonly,"a"
- #include "syscall_table.S"
- 
- syscall_table_size=(.-sys_call_table)
-+.previous
-Index: linux-2.6.12-rc6-mm1/arch/i386/kernel/setup.c
-===================================================================
---- linux-2.6.12-rc6-mm1.orig/arch/i386/kernel/setup.c	2005-06-07 11:15:43.000000000 -0700
-+++ linux-2.6.12-rc6-mm1/arch/i386/kernel/setup.c	2005-06-07 11:27:48.000000000 -0700
-@@ -82,7 +82,8 @@ EXPORT_SYMBOL(efi_enabled);
- /* cpu data as detected by the assembly code in head.S */
- struct cpuinfo_x86 new_cpu_data __initdata = { 0, 0, 0, 0, -1, 1, 0, 0, -1 };
- /* common cpu data for all cpus */
--struct cpuinfo_x86 boot_cpu_data = { 0, 0, 0, 0, -1, 1, 0, 0, -1 };
-+struct cpuinfo_x86 boot_cpu_data __cacheline_aligned_mostly_readonly
-+		= { 0, 0, 0, 0, -1, 1, 0, 0, -1 };
- EXPORT_SYMBOL(boot_cpu_data);
- 
- unsigned long mmu_cr4_features;
-Index: linux-2.6.12-rc6-mm1/arch/i386/kernel/syscall_table.S
-===================================================================
---- linux-2.6.12-rc6-mm1.orig/arch/i386/kernel/syscall_table.S	2005-06-07 11:15:43.000000000 -0700
-+++ linux-2.6.12-rc6-mm1/arch/i386/kernel/syscall_table.S	2005-06-07 11:26:36.000000000 -0700
-@@ -1,4 +1,3 @@
--.data
- ENTRY(sys_call_table)
- 	.long sys_restart_syscall	/* 0 - old "setup()" system call, used for restarting */
- 	.long sys_exit
-Index: linux-2.6.12-rc6-mm1/arch/i386/kernel/timers/timer_hpet.c
-===================================================================
---- linux-2.6.12-rc6-mm1.orig/arch/i386/kernel/timers/timer_hpet.c	2005-06-07 11:15:43.000000000 -0700
-+++ linux-2.6.12-rc6-mm1/arch/i386/kernel/timers/timer_hpet.c	2005-06-07 11:26:36.000000000 -0700
-@@ -180,7 +180,7 @@ static int __init init_hpet(char* overri
- /************************************************************/
- 
- /* tsc timer_opts struct */
--static struct timer_opts timer_hpet = {
-+static struct timer_opts timer_hpet __cacheline_aligned_mostly_readonly = {
- 	.name = 		"hpet",
- 	.mark_offset =		mark_offset_hpet,
- 	.get_offset =		get_offset_hpet,
+ 		switch (pdev->type)
+ 		 {
+-#if 0		 
+ 		  case 675:
+ 		  case 680:
+ 		  case 690:
+@@ -128,15 +127,16 @@
+ 		  case 730:
+ 		  case 740:
+ 		  case 750:
++#if 0
+ 		    pwc_dec23_decompress(&pdev->image, &pdev->view, &pdev->offset,
+ 				yuv, image,
+ 				flags,
+ 				pdev->decompress_data, pdev->vbandlength);
+ 		    break;
++#endif
+ 		  case 645:
+ 		  case 646:
+ 		    /* TODO & FIXME */
+-#endif		    
+ 		    return -ENXIO; /* No such device or address: missing decompressor */
+ 		    break;
+ 		 }
+
+
+-- 
+Jean Delvare

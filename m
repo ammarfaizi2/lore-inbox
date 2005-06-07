@@ -1,89 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261901AbVFGPiR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbVFGPgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261901AbVFGPiR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 11:38:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261923AbVFGPhb
+	id S261914AbVFGPgp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 11:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261913AbVFGP04
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 11:37:31 -0400
-Received: from fire.osdl.org ([65.172.181.4]:59321 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261904AbVFGP1G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 11:27:06 -0400
-Date: Tue, 7 Jun 2005 08:28:45 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Erik Mouw <erik@harddisk-recovery.com>
-cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: Linux v2.6.12-rc6
-In-Reply-To: <20050607130535.GD16602@harddisk-recovery.com>
-Message-ID: <Pine.LNX.4.58.0506070820170.2286@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org>
- <20050607130535.GD16602@harddisk-recovery.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 7 Jun 2005 11:26:56 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:17818 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S261904AbVFGOyd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 10:54:33 -0400
+Date: Tue, 7 Jun 2005 09:54:31 -0500
+From: Jack Steiner <steiner@sgi.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org, John Hawkes <hawkes@sgi.com>
+Subject: Re: Hang in sched_balance_self()
+Message-ID: <20050607145431.GA7452@sgi.com>
+References: <20050603225544.GA8499@sgi.com> <42A5AA85.60709@yahoo.com.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42A5AA85.60709@yahoo.com.au>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Tue, 7 Jun 2005, Erik Mouw wrote:
+On Wed, Jun 08, 2005 at 12:09:09AM +1000, Nick Piggin wrote:
+> Jack Steiner wrote:
+> >Nick -
+> >
+> >The latest 2.6.12-rc5-mm2 tree fails to boot on some of the 64p
+> >SGI systems. The system hangs immediately after printing:
+> >
+> >	...
+> >	Inode-cache hash table entries: 8388608 (order: 12, 67108864 bytes)
+> >	Mount-cache hash table entries: 1024
+> >	Boot processor id 0x0/0x0
+> >	Brought up 64 CPUs
+> >	Total of 64 processors activated (118415.36 BogoMIPS).
+> >
+> >
+> >I have isolated the failure to cpu 0 hanging in sched_balance_self() during
+> >a fork (or clone).  The "while" loop at the end of function never 
+> >terminates, ie. sd is never NULL.
+> >
+> >Is this a problem that you have seen before. If not, I'll do some
+> >more digging & isolate the problem.
+> >
 > 
-> Over here the script can get the  correct information from git
-> branches:
+> Hi Jack,
+> I haven't completely got to the bottom of this yet, but I was able
+> to reproduce on a 64-way Altix, and something like the attached patch
+> seems to 'fix' the problem.
+
+The fix works for me. 
+
+I'll send you notes that I collected. They may help explain
+what is going wrong. (I learned a lot about scheduler domains...:-)
+
+
 > 
-> > Jeff Garzik:
-> >   Automatic merge of /spare/repo/netdev-2.6 branch r8169-fix
+> I didn't have time to find what's gone wrong tonight, but I'll get
+> to that tomorrow.
 > 
-> But for your own changes it seems to fail:
+> -- 
+> SUSE Labs, Novell Inc.
 > 
-> > Linus Torvalds:
-> >   Linux 2.6.12-rc6
-> >   Automatic merge of 'misc-fixes' branch from
-> 
-> ... from what?
 
-Yeah, I guess I need to redo my merge messages. Or alternatively, I should 
-just remove merges from the shortlog.
+> Index: linux-2.6/kernel/sched.c
+> ===================================================================
+> --- linux-2.6.orig/kernel/sched.c	2005-06-08 00:01:53.000000000 +1000
+> +++ linux-2.6/kernel/sched.c	2005-06-08 00:02:47.000000000 +1000
+> @@ -1113,6 +1113,7 @@ static int sched_balance_self(int cpu, i
+>  		cpumask_t span;
+>  		struct sched_group *group;
+>  		int new_cpu;
+> +		int weight;
+>  
+>  		span = sd->span;
+>  		group = find_idlest_group(sd, t, cpu);
+> @@ -1127,8 +1128,9 @@ static int sched_balance_self(int cpu, i
+>  		cpu = new_cpu;
+>  nextlevel:
+>  		sd = NULL;
+> +		weight = cpus_weight(span);
+>  		for_each_domain(cpu, tmp) {
+> -			if (cpus_subset(span, tmp->span))
+> +			if (weight <= cpus_weight(tmp->span))
+>  				break;
+>  			if (tmp->flags & flag)
+>  				sd = tmp;
 
-The merge message that goes along with that shortlog entry is
 
-	Author: Linus Torvalds <torvalds@ppc970.osdl.org>
-	Date:   Sat Jun 4 08:18:39 2005 -0700
+-- 
+Thanks
 
-	    Automatic merge of 'misc-fixes' branch from
-    
-	        rsync://rsync.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev-2.6
+Jack Steiner (steiner@sgi.com)          651-683-5302
+Principal Engineer                      SGI - Silicon Graphics, Inc.
 
-which is pretty readable in the long format, but causes the shortlog to 
-pick up just the partial (largely uninteresing) first line.
 
-Removing merges from the shortlog is actually likely the _right_ thing to 
-do, since we already miss a lot of merges: any truly trivial merge (ie no 
-parallellism) is invisible anyway, except that the committer changed. 
-Besides, it's what the old BK changelogs did.
-
-So I guess I'll leave the merge message as is (unless somebody can suggest 
-a more readable format), and just update my release scripts to not include 
-merge messages.
-
-(Using Jeff's syntax for merge messages isn't very good, since with remote
-repositories the names of the repos get so long that the message gets 
-unwieldly..)
-
-> >   Automatic merge of rsync://www.parisc-linux.org/~jejb/git/scsi-for-linus-2.6
-> >   Automatic merge of rsync://rsync.kernel.org/.../davem/net-2.6
-> 
-> And this again works.
-
-That's because they don't have branches - when I take the HEAD of the 
-repostitory, the changelog entry ends up being just a one-liner again.
-
-Do a "git log" if you have the git tree (or just look at the full 
-ChangeLog, which is just the output of that), you'll see what's up.
-
-(Btw, Jeff, I think the git-shortlog script is slightly buggered, it
-doesn't do the nice word-wrap, and it _only_ takes the first line, even
-from a multi-line header. I think it should stop at the first empty line
-in the commit, not just take the first one).
-
-		Linus

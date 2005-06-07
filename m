@@ -1,68 +1,191 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262006AbVFGWIq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262008AbVFGWLE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262006AbVFGWIq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 18:08:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262008AbVFGWIq
+	id S262008AbVFGWLE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 18:11:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262010AbVFGWLE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 18:08:46 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:15284 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S262006AbVFGWIn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 18:08:43 -0400
-Date: Tue, 7 Jun 2005 15:08:32 -0700
-From: Greg KH <gregkh@suse.de>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Andrew Vasquez <andrew.vasquez@qlogic.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "David S. Miller" <davem@davemloft.net>, tom.l.nguyen@intel.com,
-       roland@topspin.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi() for drivers
-Message-ID: <20050607220832.GA19173@suse.de>
-References: <20050607002045.GA12849@suse.de> <20050607010911.GA9869@plap.qlogic.org> <20050607051551.GA17734@suse.de> <1118129500.5497.16.camel@laptopd505.fenrus.org> <20050607161029.GB15345@suse.de> <1118176872.5497.38.camel@laptopd505.fenrus.org>
+	Tue, 7 Jun 2005 18:11:04 -0400
+Received: from mail.ccur.com ([208.248.32.212]:58567 "EHLO flmx.iccur.com")
+	by vger.kernel.org with ESMTP id S262008AbVFGWKI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 18:10:08 -0400
+Subject: Re: NFS: NFS3 lookup fails if creating a file with O_EXCL &
+	multiple mountpoints in pathname
+From: Linda Dunaphant <linda.dunaphant@ccur.com>
+Reply-To: linda.dunaphant@ccur.com
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <1118151674.11440.39.camel@lade.trondhjem.org>
+References: <1112921570.6182.16.camel@lindad>
+	 <1112965872.15565.34.camel@lade.trondhjem.org>
+	 <1112993686.7459.4.camel@lindad>  <1113009804.7459.9.camel@lindad>
+	 <1118104107.13894.20.camel@lindad>  <1118111348.13894.29.camel@lindad>
+	 <1118151674.11440.39.camel@lade.trondhjem.org>
+Content-Type: text/plain; charset=UTF-8
+Organization: CCUR
+Message-Id: <1118182204.15127.5.camel@lindad>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1118176872.5497.38.camel@laptopd505.fenrus.org>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Tue, 07 Jun 2005 18:10:04 -0400
+Content-Transfer-Encoding: 8BIT
+X-OriginalArrivalTime: 07 Jun 2005 22:10:05.0047 (UTC) FILETIME=[A8810870:01C56BAD]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 07, 2005 at 10:41:12PM +0200, Arjan van de Ven wrote:
-> On Tue, 2005-06-07 at 09:10 -0700, Greg KH wrote:
-> > On Tue, Jun 07, 2005 at 09:31:39AM +0200, Arjan van de Ven wrote:
-> > > 
-> > > > > * What if the driver writer does not want MSI enabled for their
-> > > > >   hardware (even though there is an MSI capabilities entry)?  Reasons
-> > > > >   include: overhead involved in initiating the MSI; no support in some
-> > > > >   versions of firmware (QLogic hardware).
-> > > > 
-> > > > Yes, a very good point.  I guess I should keep the pci_enable_msi() and
-> > > > pci_disable_msi() functions exported for this reason.
-> > > > 
-> > > 
-> > > well... only pci_disable_msi() is needed for this ;)
-> > 
-> > I thought so too, until I looked at the IB driver :(
-> > 
-> > The issue is, if pci_enable_msix() fails, we want to fall back to MSI,
-> > so you need to call pci_enable_msi() for that (after calling
-> > pci_disable_msi() before calling pci_enable_msix(), what a mess...)
+Hi Trond,
+
+Thank you so much for looking into this further!
+
+I duplicated the original problem using the unpatched 2.6.12-rc6. I then
+applied your patch to 2.6.12-rc6 and retested. The original problem was
+fixed by your patch. 
+
+I now need to backfit your patch to the older kernel that I am working
+with.
+
+Thanks again very much for your help!
+
+Cheers!
+Linda
+
+On Tue, 2005-06-07 at 09:41, Trond Myklebust wrote:
+> må den 06.06.2005 Klokka 22:29 (-0400) skreiv Linda Dunaphant:
+> > I changed the nfs_is_exclusive_create() to use the LOOKUP_PARENT
+> > flag instead of the LOOKUP_CONTINUE flag. I found that LOOKUP_PARENT
+> > stays set until you get to the very last pathname level, which is
+> > the correct point for it to check whether it is an exclusive create.
 > 
-> if the core enables msi.. shouldn't the core also do msix ?
+> The intent information as it stands today should really only be applied
+> if we're looking up the very last path component of an open()/create()
+> or access() call. When we're walking the path doing lookups, that rule
+> basically boils down to: never apply the intent if either
+> LOOKUP_CONTINUE or LOOKUP_PARENT are set.
+> 
+> It therefore turns out that your patch is in fact a valid fix in the
+> case of nfs_is_exclusive_create() since the VFS is guaranteed to always
+> call LOOKUP_PARENT first (my apologies).
+> However, when hunting through the NFS lookup code, I found several other
+> cases where we check for an intent and where we do need the more general
+> test. To avoid confusion, I'd therefore prefer to introduce a helper
+> that _always_ returns the correct intent information for the component
+> that is being looked up.
+> 
+> Could you therefore check if this patch works for you?
+> 
+> Cheers,
+>   Trond
+> 
+> 
+> ______________________________________________________________________
+> [NFS] Fix lookup intent handling
+> 
+>  We should never apply a lookup intent to the path component of a
+>  LOOKUP_PARENT call.
+>  Introduce nd_lookup_intent() which always returns zero if LOOKUP_CONTINUE
+>  or LOOKUP_PARENT is set, and otherwise returns the intent flags.
+> 
+>  Problem noticed by Linda Dunaphant <linda.dunaphant@ccur.com>
+>  Signed-off-by: Trond Myklebust <Trond.Myklebust@netapp.com>
+> ---
+>  dir.c |   49 +++++++++++++++++++++++++++++++++++--------------
+>  1 files changed, 35 insertions(+), 14 deletions(-)
+> 
+> Index: linux-2.6.12-rc6/fs/nfs/dir.c
+> ===================================================================
+> --- linux-2.6.12-rc6.orig/fs/nfs/dir.c
+> +++ linux-2.6.12-rc6/fs/nfs/dir.c
+> @@ -528,19 +528,39 @@ static inline void nfs_renew_times(struc
+>  	dentry->d_time = jiffies;
+>  }
+>  
+> +/*
+> + * Return the intent data that applies to this particular path component
+> + *
+> + * Note that the current set of intents only apply to the very last
+> + * component of the path.
+> + * We check for this using LOOKUP_CONTINUE and LOOKUP_PARENT.
+> + */
+> +static inline unsigned int lookup_check_intent(struct nameidata *nd, unsigned int mask)
+> +{
+> +	if (nd->flags & (LOOKUP_CONTINUE|LOOKUP_PARENT))
+> +		return 0;
+> +	return nd->flags & mask;
+> +}
+> +
+> +/*
+> + * Inode and filehandle revalidation for lookups.
+> + *
+> + * We force revalidation in the cases where the VFS sets LOOKUP_REVAL,
+> + * or if the intent information indicates that we're about to open this
+> + * particular file and the "nocto" mount flag is not set.
+> + *
+> + */
+>  static inline
+>  int nfs_lookup_verify_inode(struct inode *inode, struct nameidata *nd)
+>  {
+>  	struct nfs_server *server = NFS_SERVER(inode);
+>  
+>  	if (nd != NULL) {
+> -		int ndflags = nd->flags;
+>  		/* VFS wants an on-the-wire revalidation */
+> -		if (ndflags & LOOKUP_REVAL)
+> +		if (nd->flags & LOOKUP_REVAL)
+>  			goto out_force;
+>  		/* This is an open(2) */
+> -		if ((ndflags & LOOKUP_OPEN) &&
+> -				!(ndflags & LOOKUP_CONTINUE) &&
+> +		if (lookup_check_intent(nd, LOOKUP_OPEN) != 0 &&
+>  				!(server->flags & NFS_MOUNT_NOCTO))
+>  			goto out_force;
+>  	}
+> @@ -560,12 +580,8 @@ static inline
+>  int nfs_neg_need_reval(struct inode *dir, struct dentry *dentry,
+>  		       struct nameidata *nd)
+>  {
+> -	int ndflags = 0;
+> -
+> -	if (nd)
+> -		ndflags = nd->flags;
+>  	/* Don't revalidate a negative dentry if we're creating a new file */
+> -	if ((ndflags & LOOKUP_CREATE) && !(ndflags & LOOKUP_CONTINUE))
+> +	if (nd != NULL && lookup_check_intent(nd, LOOKUP_CREATE) != 0)
+>  		return 0;
+>  	return !nfs_check_verifier(dir, dentry);
+>  }
+> @@ -700,12 +716,16 @@ struct dentry_operations nfs_dentry_oper
+>  	.d_iput		= nfs_dentry_iput,
+>  };
+>  
+> +/*
+> + * Use intent information to check whether or not we're going to do
+> + * an O_EXCL create using this path component.
+> + */
+>  static inline
+>  int nfs_is_exclusive_create(struct inode *dir, struct nameidata *nd)
+>  {
+>  	if (NFS_PROTO(dir)->version == 2)
+>  		return 0;
+> -	if (!nd || (nd->flags & LOOKUP_CONTINUE) || !(nd->flags & LOOKUP_CREATE))
+> +	if (nd == NULL || lookup_check_intent(nd, LOOKUP_CREATE) == 0)
+>  		return 0;
+>  	return (nd->intent.open.flags & O_EXCL) != 0;
+>  }
+> @@ -772,12 +792,13 @@ struct dentry_operations nfs4_dentry_ope
+>  	.d_iput		= nfs_dentry_iput,
+>  };
+>  
+> +/*
+> + * Use intent information to determine whether we need to substitute
+> + * the NFSv4-style stateful OPEN for the LOOKUP call
+> + */
+>  static int is_atomic_open(struct inode *dir, struct nameidata *nd)
+>  {
+> -	if (!nd)
+> -		return 0;
+> -	/* Check that we are indeed trying to open this file */
+> -	if ((nd->flags & LOOKUP_CONTINUE) || !(nd->flags & LOOKUP_OPEN))
+> +	if (nd == NULL || lookup_check_intent(nd, LOOKUP_OPEN) == 0)
+>  		return 0;
+>  	/* NFS does not (yet) have a stateful open for directories */
+>  	if (nd->flags & LOOKUP_DIRECTORY)
 
-Damm, I knew someone was going to say that :)
-
-Yeah, problem is, the driver provides the msix entries for the core to
-fill in.  I could just move that to the pci structure itself if no one
-minds, and just use the max number of entries as the default.
-
-Hm, or does it really help for the driver to specify different numbers
-of msi-x vectors?
-
-Roland, any ideas here?  You seem to be the only one who has actually
-used the msix code so far.
-
-thanks,
-
-greg k-h

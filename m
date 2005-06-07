@@ -1,76 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261934AbVFGRcq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261941AbVFGRoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261934AbVFGRcq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 13:32:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261940AbVFGRcp
+	id S261941AbVFGRoI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 13:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261942AbVFGRoH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 13:32:45 -0400
-Received: from ms-smtp-02.nyroc.rr.com ([24.24.2.56]:35015 "EHLO
-	ms-smtp-02.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261934AbVFGRcd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 13:32:33 -0400
-Subject: Re: [PATCH] MAX_USER_RT_PRIO and MAX_RT_PRIO are wrong!
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Dean Nelson <dcn@SGI.com>
-Cc: mingo@elte.hu, linux-ia64@vger.kernel.org, linux-altix@SGI.com,
-       edwardsg@SGI.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       anton.wilson@camotion.com
-In-Reply-To: <20050607154846.GA1253@sgi.com>
-References: <1118112390.4533.10.camel@localhost.localdomain>
-	 <20050607053306.GA16181@elte.hu>
-	 <1118143504.4533.21.camel@localhost.localdomain>
-	 <20050607154846.GA1253@sgi.com>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Tue, 07 Jun 2005 13:31:59 -0400
-Message-Id: <1118165519.5667.3.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Tue, 7 Jun 2005 13:44:07 -0400
+Received: from prgy-npn1.prodigy.com ([207.115.54.37]:61455 "EHLO
+	oddball.prodigy.com") by vger.kernel.org with ESMTP id S261941AbVFGRn6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 13:43:58 -0400
+Message-ID: <42A5DD47.5090000@tmr.com>
+Date: Tue, 07 Jun 2005 13:45:43 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050319
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Michael Thonke <iogl64nx@gmail.com>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Pentium-D support
+References: <42A5B80A.4040709@tmr.com> <42A5C8A3.2090202@gmail.com>
+In-Reply-To: <42A5C8A3.2090202@gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-06-07 at 10:48 -0500, Dean Nelson wrote:
-> You are correct xpc_activating() needs to be changed to use MAX_RT_PRIO.
-> So please do add that change to your patch.
+Michael Thonke wrote:
+> Bill Davidsen schrieb:
+> 
+> 
+>>Since this is really a question in several areas I'll put it here. Now
+>>that the Pentium-D processors are available at reasonable prices and
+>>for quick delivery, can anyone speak to the ACPI issues? The available
+>>boards use the 945 and 955 chipset. Is there any reason to think that
+>>the scheduler would get confused by the CPU, such as thinking it was
+>>HT or some such?
+> 
+> 
+> There are only issues with CPUFREQ/speedstep and some ACPI related
+> things on Intel 955X chipset I have. So I use a ASUS P5WD2-Premium.
+> The Pentium D will reach me in few days so I only guess and  I think the
+> kernel know how to handle Physical Cores and SMT/HT Processors.
+> 
+> 
+>>The specs indicate that 64 bit is supported, is there any actualy
+>>Linux support for the Intel 64 bit stuff in gcc and the kernel? One of
+>>the people I work with reports that the distro he runs on his Athlon64
+>>lock solid after reading the boot sector, so obviously this isn't
+>>Athlon compatable.
+>>
+> 
+> Yes the 64bit support of the Intel CPUs are well supported, I use a
+> Intel Pentium 4 640 and 64bit compiled system (Gentoo 2005)
+> I have no problems everything is working nearly perfect better as my
+> AMD64 system.
+> 
+> For GCC 3.4.x or 4.0.x you only need the compile switch -march=nocona as
+> the name of the XEON..but its the same piece of technologie
 
-I haven't tested this patch, I just used the previous patch (which I did
-test) and added your change.
+Okay, unless I can find an Intel-64 build of Fedora I'll have to do it 
+myself, but now that I know what option to use it's possible. Trust 
+Intel to have a 64 bit standard which isn't Itanium and isn't ..quite.. 
+AMD compatible.
+> 
+> 
+>>The price is lower than a dual Xeon setup if you have an application
+>>which needs SMP, and initial power values make it look like a lower
+>>power solution overall.
+> 
+> 
+> Cheep and good performance.
 
--- Steve
-
---- linux-2.6.12-rc6/kernel/sched.c.orig	2005-06-07 13:22:33.000000000 -0400
-+++ linux-2.6.12-rc6/kernel/sched.c	2005-06-07 13:22:37.000000000 -0400
-@@ -3347,7 +3347,7 @@
- 	p->policy = policy;
- 	p->rt_priority = prio;
- 	if (policy != SCHED_NORMAL)
--		p->prio = MAX_USER_RT_PRIO-1 - p->rt_priority;
-+		p->prio = MAX_RT_PRIO-1 - p->rt_priority;
- 	else
- 		p->prio = p->static_prio;
- }
-@@ -3379,7 +3379,8 @@
- 	 * 1..MAX_USER_RT_PRIO-1, valid priority for SCHED_NORMAL is 0.
- 	 */
- 	if (param->sched_priority < 0 ||
--	    param->sched_priority > MAX_USER_RT_PRIO-1)
-+	    (p->mm &&  param->sched_priority > MAX_USER_RT_PRIO-1) ||
-+	    (!p->mm && param->sched_priority > MAX_RT_PRIO-1))
- 		return -EINVAL;
- 	if ((policy == SCHED_NORMAL) != (param->sched_priority == 0))
- 		return -EINVAL;
---- linux-2.6.12-rc6/arch/ia64/sn/kernel/xpc_main.c.orig	2005-06-07 13:23:26.000000000 -0400
-+++ linux-2.6.12-rc6/arch/ia64/sn/kernel/xpc_main.c	2005-06-07 13:23:43.000000000 -0400
-@@ -420,7 +420,7 @@
- 	partid_t partid = (u64) __partid;
- 	struct xpc_partition *part = &xpc_partitions[partid];
- 	unsigned long irq_flags;
--	struct sched_param param = { sched_priority: MAX_USER_RT_PRIO - 1 };
-+	struct sched_param param = { sched_priority: MAX_RT_PRIO - 1 };
- 	int ret;
- 
- 
-
-
-
+Thanks for the pointer!
+-- 
+    -bill davidsen (davidsen@tmr.com)
+"The secret to procrastination is to put things off until the
+  last possible moment - but no longer"  -me

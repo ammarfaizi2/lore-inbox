@@ -1,61 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261717AbVFGFQH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261719AbVFGFQj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261717AbVFGFQH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 01:16:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261719AbVFGFQH
+	id S261719AbVFGFQj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 01:16:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbVFGFQj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 01:16:07 -0400
-Received: from lyle.provo.novell.com ([137.65.81.174]:45157 "EHLO
-	lyle.provo.novell.com") by vger.kernel.org with ESMTP
-	id S261717AbVFGFQD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 01:16:03 -0400
-Date: Mon, 6 Jun 2005 22:15:51 -0700
-From: Greg KH <gregkh@suse.de>
-To: Andrew Vasquez <andrew.vasquez@qlogic.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@davemloft.net>,
-       tom.l.nguyen@intel.com, roland@topspin.com,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       ak@suse.de
-Subject: Re: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi() for drivers
-Message-ID: <20050607051551.GA17734@suse.de>
-References: <20050607002045.GA12849@suse.de> <20050607010911.GA9869@plap.qlogic.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050607010911.GA9869@plap.qlogic.org>
-User-Agent: Mutt/1.5.8i
+	Tue, 7 Jun 2005 01:16:39 -0400
+Received: from fsmlabs.com ([168.103.115.128]:33180 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261719AbVFGFQa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 01:16:30 -0400
+Date: Mon, 6 Jun 2005 23:19:50 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Matt Porter <mporter@kernel.crashing.org>
+cc: linux-kernel@vger.kernel.org, gregkh@kroah.com,
+       linuxppc-embedded@ozlabs.org
+Subject: Re: [PATCH][3/5] RapidIO support: core enum
+In-Reply-To: <11180976151713@foobar.com>
+Message-ID: <Pine.LNX.4.61.0506062302440.10441@montezuma.fsmlabs.com>
+References: <11180976151713@foobar.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 06, 2005 at 06:09:11PM -0700, Andrew Vasquez wrote:
-> On Mon, 06 Jun 2005, Greg KH wrote:
-> 
-> > 
-> > Ok, as it seems there is a bit of confusion, here's real code that
-> > should help explain what I am proposing.  This works on my desktop, but
-> > I don't think it supports MSI :)
-> > 
-> > I'll go dig out an old 4-way AMD box that has MSI to see if this still
-> > works properly, but comments are welcome.
-> 
-> 
-> Thanks for posting some sample code.  Some comments though:
-> 
-> * What if the driver writer does not want MSI enabled for their
->   hardware (even though there is an MSI capabilities entry)?  Reasons
->   include: overhead involved in initiating the MSI; no support in some
->   versions of firmware (QLogic hardware).
+On Mon, 6 Jun 2005, Matt Porter wrote:
 
-Yes, a very good point.  I guess I should keep the pci_enable_msi() and
-pci_disable_msi() functions exported for this reason.
+> +spinlock_t rio_global_list_lock = SPIN_LOCK_UNLOCKED;
 
-> * A device (notably, our 4gb PCIe fibre-channel products) can support
->   both MSI and MSI-X.  Since the driver has no way of 'disabling' MSI,
->   how would it enable MSI-X?
+spin_lock_init?
 
-Agreed, let me respin the patches again, because I think I got the logic
-wrong on some of these drivers because of this...
+> +extern struct rio_route_ops __start_rio_route_ops[];
+> +extern struct rio_route_ops __end_rio_route_ops[];
 
-thanks,
+rio.h?
 
-greg k-h
+> +static void
+> +rio_set_device_id(struct rio_mport *port, u16 destid, u8 hopcount, u16 did)
+
+Shouldn't those be on the same line?
+
+> +static int rio_device_has_destid(struct rio_mport *port, int src_ops,
+> +				 int dst_ops)
+> +{
+> +	if (((src_ops & RIO_SRC_OPS_READ) ||
+> +	     (src_ops & RIO_SRC_OPS_WRITE) ||
+> +	     (src_ops & RIO_SRC_OPS_ATOMIC_TST_SWP) ||
+> +	     (src_ops & RIO_SRC_OPS_ATOMIC_INC) ||
+> +	     (src_ops & RIO_SRC_OPS_ATOMIC_DEC) ||
+> +	     (src_ops & RIO_SRC_OPS_ATOMIC_SET) ||
+> +	     (src_ops & RIO_SRC_OPS_ATOMIC_CLR)) &&
+> +	    ((dst_ops & RIO_DST_OPS_READ) ||
+> +	     (dst_ops & RIO_DST_OPS_WRITE) ||
+> +	     (dst_ops & RIO_DST_OPS_ATOMIC_TST_SWP) ||
+> +	     (dst_ops & RIO_DST_OPS_ATOMIC_INC) ||
+> +	     (dst_ops & RIO_DST_OPS_ATOMIC_DEC) ||
+> +	     (dst_ops & RIO_DST_OPS_ATOMIC_SET) ||
+> +	     (dst_ops & RIO_DST_OPS_ATOMIC_CLR))) {
+> +		return 1;
+
+Why not just;
+
+mask = (RIO_DST_OPS_READ | RIO_DST_OPS_WRITE....)
+return !!((dst_ops & mask) && (src_ops & mask))
+
+
+> +	rdev->dev.dma_mask = (u64 *) 0xffffffff;
+> +	rdev->dev.coherent_dma_mask = 0xffffffffULL;
+
+Shouldn't that be dma_set_mask?
+
+	Zwane
+

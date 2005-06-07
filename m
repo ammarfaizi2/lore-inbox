@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVFGQRu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbVFGQSt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbVFGQRu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 12:17:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261926AbVFGQRu
+	id S261927AbVFGQSt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 12:18:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261936AbVFGQSt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 12:17:50 -0400
-Received: from rproxy.gmail.com ([64.233.170.192]:43616 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261925AbVFGQRm (ORCPT
+	Tue, 7 Jun 2005 12:18:49 -0400
+Received: from colo.lackof.org ([198.49.126.79]:31937 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S261927AbVFGQSL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 12:17:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:user-agent:x-accept-language:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding:from;
-        b=F0/0UZdo4ODZSXc8wy++ikxxgfRPFx0+f0qkefaJEgTzkwAjoWyt3nmLTKT7bSaJ6eFUXnqsiexUS+qACrohgTX0jBqypw0MeOsuT08M2fR/wXCBjQ+ObBUaVhMIKS077vt7UNR6hTKz3um5X1CqorPBKGYHUlggS4YQYN+8Sjc=
-Message-ID: <42A5C8A3.2090202@gmail.com>
-Date: Tue, 07 Jun 2005 18:17:39 +0200
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050523)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: Bill Davidsen <davidsen@tmr.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Pentium-D support
-References: <42A5B80A.4040709@tmr.com>
-In-Reply-To: <42A5B80A.4040709@tmr.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-From: Michael Thonke <iogl64nx@gmail.com>
+	Tue, 7 Jun 2005 12:18:11 -0400
+Date: Tue, 7 Jun 2005 10:21:43 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Grant Grundler <grundler@parisc-linux.org>,
+       Vivek Goyal <vgoyal@in.ibm.com>, greg@kroah.com,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       Morton Andrew Morton <akpm@osdl.org>, Bodo Eggert <7eggert@gmx.de>,
+       Dipankar Sarma <dipankar@in.ibm.com>, stern@rowland.harvard.edu,
+       awilliam@fc.hp.com, bjorn.helgaas@hp.com
+Subject: Re: [RFC/PATCH] Kdump: Disabling PCI interrupts in capture kernel
+Message-ID: <20050607162143.GE29220@colo.lackof.org>
+References: <1118113637.42a50f65773eb@imap.linux.ibm.com> <20050607050727.GB12781@colo.lackof.org> <m1slzuwkqx.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1slzuwkqx.fsf@ebiederm.dsl.xmission.com>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bill Davidsen schrieb:
+On Tue, Jun 07, 2005 at 03:59:18AM -0600, Eric W. Biederman wrote:
+> > *lots* of PCI devices predate PCI2.3. Possibly even the majority.
+> 
+> In general generic hardware bits for disabling DMA, disabling interrupts
+> and the like are all advisory.  With the current architecture things
+> will work properly even if you don't manage to disable DMA (assuming
+> you don't reassign IOMMU entries at least).
 
-> Since this is really a question in several areas I'll put it here. Now
-> that the Pentium-D processors are available at reasonable prices and
-> for quick delivery, can anyone speak to the ACPI issues? The available
-> boards use the 945 and 955 chipset. Is there any reason to think that
-> the scheduler would get confused by the CPU, such as thinking it was
-> HT or some such?
+ISTR, pSeries (IBM), some alpha, some sparc64, and parisc (64-bit) require
+use of the IOMMU for *any* DMA. ie IOMMU entries need to be programmed.
+Probably want to make a choice to ignore those arches for now
+or sort out how to deal with an IOMMU.
 
-There are only issues with CPUFREQ/speedstep and some ACPI related
-things on Intel 955X chipset I have. So I use a ASUS P5WD2-Premium.
-The Pentium D will reach me in few days so I only guess and  I think the
-kernel know how to handle Physical Cores and SMT/HT Processors.
+> Shared interrupts are an interesting case.  The simplest solution I can
+> think of for a crash dump capture kernel is to periodically poll
+> the hardware, as if all interrupts are shared.  At that level
+> I think we could get away with ignoring all hardware interrupt sources.
 
->
-> The specs indicate that 64 bit is supported, is there any actualy
-> Linux support for the Intel 64 bit stuff in gcc and the kernel? One of
-> the people I work with reports that the distro he runs on his Athlon64
-> lock solid after reading the boot sector, so obviously this isn't
-> Athlon compatable.
->
-Yes the 64bit support of the Intel CPUs are well supported, I use a
-Intel Pentium 4 640 and 64bit compiled system (Gentoo 2005)
-I have no problems everything is working nearly perfect better as my
-AMD64 system.
+Yes, that's perfectly ok. We are no longer in a multitasking env.
 
-For GCC 3.4.x or 4.0.x you only need the compile switch -march=nocona as
-the name of the XEON..but its the same piece of technologie
+> Does anyone know of a anything that would break by always polling
+> the hardware?  I guess there could be a problem with drivers
+> that don't understand shared interrupts, are there enough of those
+> to be an issue.
 
-> The price is lower than a dual Xeon setup if you have an application
-> which needs SMP, and initial power values make it look like a lower
-> power solution overall.
+PCI requires drivers support Shared IRQs.
+A few oddballs might be broken but I expect networking/mass storage
+drivers get this right.
 
-Cheep and good performance.
-
-Greets
-Best regards
-    Michael
+grant

@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261978AbVFGUg1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261979AbVFGUlo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261978AbVFGUg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 16:36:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261979AbVFGUgZ
+	id S261979AbVFGUlo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 16:41:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261981AbVFGUlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 16:36:25 -0400
-Received: from vena.lwn.net ([206.168.112.25]:12483 "HELO lwn.net")
-	by vger.kernel.org with SMTP id S261978AbVFGUgP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 16:36:15 -0400
-Message-ID: <20050607203614.3932.qmail@lwn.net>
-To: Tony Lindgren <tony@atomide.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Dynamic tick for x86 version 050602-1 
-From: corbet@lwn.net (Jonathan Corbet)
-In-reply-to: Your message of "Wed, 01 Jun 2005 18:36:41 PDT."
-             <20050602013641.GL21597@atomide.com> 
-Date: Tue, 07 Jun 2005 14:36:14 -0600
+	Tue, 7 Jun 2005 16:41:44 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:53131 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261979AbVFGUlj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 16:41:39 -0400
+Subject: Re: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi()
+	for drivers
+From: Arjan van de Ven <arjan@infradead.org>
+To: Greg KH <gregkh@suse.de>
+Cc: Andrew Vasquez <andrew.vasquez@qlogic.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       "David S. Miller" <davem@davemloft.net>, tom.l.nguyen@intel.com,
+       roland@topspin.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, ak@suse.de
+In-Reply-To: <20050607161029.GB15345@suse.de>
+References: <20050607002045.GA12849@suse.de>
+	 <20050607010911.GA9869@plap.qlogic.org> <20050607051551.GA17734@suse.de>
+	 <1118129500.5497.16.camel@laptopd505.fenrus.org>
+	 <20050607161029.GB15345@suse.de>
+Content-Type: text/plain
+Date: Tue, 07 Jun 2005 22:41:12 +0200
+Message-Id: <1118176872.5497.38.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tony Lindgren <tony@atomide.com> wrote:
+On Tue, 2005-06-07 at 09:10 -0700, Greg KH wrote:
+> On Tue, Jun 07, 2005 at 09:31:39AM +0200, Arjan van de Ven wrote:
+> > 
+> > > > * What if the driver writer does not want MSI enabled for their
+> > > >   hardware (even though there is an MSI capabilities entry)?  Reasons
+> > > >   include: overhead involved in initiating the MSI; no support in some
+> > > >   versions of firmware (QLogic hardware).
+> > > 
+> > > Yes, a very good point.  I guess I should keep the pci_enable_msi() and
+> > > pci_disable_msi() functions exported for this reason.
+> > > 
+> > 
+> > well... only pci_disable_msi() is needed for this ;)
+> 
+> I thought so too, until I looked at the IB driver :(
+> 
+> The issue is, if pci_enable_msix() fails, we want to fall back to MSI,
+> so you need to call pci_enable_msi() for that (after calling
+> pci_disable_msi() before calling pci_enable_msix(), what a mess...)
 
-> --- linux-dev.orig/arch/i386/kernel/irq.c	2005-06-01 17:51:36.000000000 -0700
-> +++ linux-dev/arch/i386/kernel/irq.c	2005-06-01 17:54:32.000000000 -0700
-> [...]
-> @@ -102,6 +103,12 @@ fastcall unsigned int do_IRQ(struct pt_r
->  		);
->  	} else
->  #endif
-> +
-> +#ifdef CONFIG_NO_IDLE_HZ
-> +	if (dyn_tick->state & (DYN_TICK_ENABLED | DYN_TICK_SKIPPING) && irq != 0)
-> +		dyn_tick->interrupt(irq, NULL, regs);
-> +#endif
-> +
->  		__do_IRQ(irq, regs);
+if the core enables msi.. shouldn't the core also do msix ?
 
-Forgive me if I'm being obtuse (again...), but this hunk doesn't look
-like it would work well in the 4K stacks case.  When 4K stacks are being
-used, dyn_tick->interrupt() will only get called in the nested interrupt
-case, when the interrupt stack is already in use.  This change also
-pushes the non-assembly __do_IRQ() call out of the else branch, meaning
-that, when the switch is made to the interrupt stack (most of the time),
-__do_IRQ() will be called twice for the same interrupt.
-
-It looks to me like you want to put your #ifdef chunk *after* the call
-to __do_IRQ(), unless you have some reason for needing it to happen
-before the regular interrupt handler is invoked.
-
-What am I missing?
-
-jon
-
-Jonathan Corbet
-Executive editor, LWN.net
-corbet@lwn.net

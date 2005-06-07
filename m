@@ -1,53 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261958AbVFGTFo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261959AbVFGTIm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261958AbVFGTFo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 15:05:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261959AbVFGTFn
+	id S261959AbVFGTIm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 15:08:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261961AbVFGTIm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 15:05:43 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:43706 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261958AbVFGTFi (ORCPT
+	Tue, 7 Jun 2005 15:08:42 -0400
+Received: from fire.osdl.org ([65.172.181.4]:14469 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261959AbVFGTIf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 15:05:38 -0400
-Date: Tue, 7 Jun 2005 21:05:06 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+	Tue, 7 Jun 2005 15:08:35 -0400
+Date: Tue, 7 Jun 2005 12:08:11 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Wilck <martin.wilck@fujitsu-siemens.com>
 Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.47-20
-Message-ID: <20050607190506.GB9904@elte.hu>
-References: <20050607110409.GA14613@elte.hu> <Pine.OSF.4.05.10506071638130.28240-100000@da410.phys.au.dk> <20050607160400.GA9904@elte.hu> <1118165405.13708.57.camel@twins>
+Subject: Re: RFC for 2.6: avoid OOM at bounce buffer storm
+Message-Id: <20050607120811.6527a9ff.akpm@osdl.org>
+In-Reply-To: <42A5AD4A.6080100@fujitsu-siemens.com>
+References: <42A07BAA.4050303@fujitsu-siemens.com>
+	<20050603160629.2acc4558.akpm@osdl.org>
+	<42A5AD4A.6080100@fujitsu-siemens.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1118165405.13708.57.camel@twins>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
-
-> On Tue, 2005-06-07 at 18:04 +0200, Ingo Molnar wrote:
+Martin Wilck <martin.wilck@fujitsu-siemens.com> wrote:
+>
+> > It might be neater to do this at the mempool level: that way we're adding
+>  > general-purpose infrastructure and then just using it, rather than
+>  > special-casing the bounce code.
+>  > 
+>  > See below a (n untested) patch against the latest devel tree.  It won't be
+>  > stunningly scalable on big SMP, but the overhead of bouncing will probably
+>  > hide that.
 > 
-> > thanks - i've applied it and have released the -47-27 patch with this 
-> > fix included.
-> 
-> In how bad a shape is ALL_TASKS_PI in that patch?
+>  I don't quite understand your patch. You introduce a "limit" field but 
+>  you never actually use it. You also don't count the allocated pages.
+>  Are you using the semaphore for slowing things down on purpose?
 
-it hasnt been used with the plist code at all.
+The semaphore is initialised with the limit level, so once it has been
+down()ed more than `limit' times, processes will block until someone does
+up().
 
-> And is your TASK_NONINTERACTIVE patch needed with -RT kernels?; it 
-> doesn't apply cleanly but I guess I can manage to get it in; it's only 
-> a few lines of code anyway ;-)
+>  (Note that the problem is not in the mempool allocation itself but in 
+>  the "normal" allocation path (page_pool_alloc() -> alloc_page()))
 
-the delayed-preemption feature in the -RT kernel has a similar effect, 
-so it should not be needed.
+yup.  The semaphore will prevent more than `limit' pages being allocated at
+any point in time.
 
-	Ingo
+>  Anyway, I think could figure out your patch but with 2.6.12-rc5-mm2 I 
+>  couldn't reproduce the problem any more.
+
+Oh bugger.
+
+> It appears to run much more 
+>  smoothly now, perhaps because wakeup_bdflush() isn't called any more. 
+>  Are you still interested in more data?
+
+Perhaps the newer kernel has writeback thresholding fixes so it's not
+possible to dirty as much memory with write().
+
+You can probably trigger the same problem if the memory is instead dirtied
+with mmap(MAP_SHARED).

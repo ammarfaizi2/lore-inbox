@@ -1,119 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261163AbVFGCqt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbVFGCyh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261163AbVFGCqt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 6 Jun 2005 22:46:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVFGCqt
+	id S261487AbVFGCyh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 6 Jun 2005 22:54:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261490AbVFGCyh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 6 Jun 2005 22:46:49 -0400
-Received: from ms-smtp-04.nyroc.rr.com ([24.24.2.58]:38813 "EHLO
-	ms-smtp-04.nyroc.rr.com") by vger.kernel.org with ESMTP
-	id S261163AbVFGCqn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 6 Jun 2005 22:46:43 -0400
-Subject: [PATCH] MAX_USER_RT_PRIO and MAX_RT_PRIO are wrong!
-From: Steven Rostedt <rostedt@goodmis.org>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, anton.wilson@camotion.com,
-       Ingo Molnar <mingo@elte.hu>
-Content-Type: text/plain
-Organization: Kihon Technologies
-Date: Mon, 06 Jun 2005 22:46:30 -0400
-Message-Id: <1118112390.4533.10.camel@localhost.localdomain>
+	Mon, 6 Jun 2005 22:54:37 -0400
+Received: from cpe-24-93-172-51.neo.res.rr.com ([24.93.172.51]:9602 "EHLO
+	neo.rr.com") by vger.kernel.org with ESMTP id S261487AbVFGCyX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 6 Jun 2005 22:54:23 -0400
+Date: Mon, 6 Jun 2005 22:50:55 -0400
+From: Adam Belay <ambx1@neo.rr.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Karsten Keil <kkeil@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix tulip suspend/resume
+Message-ID: <20050607025054.GC3289@neo.rr.com>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Linus Torvalds <torvalds@osdl.org>, Karsten Keil <kkeil@suse.de>,
+	Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050606224645.GA23989@pingi3.kke.suse.de> <Pine.LNX.4.58.0506061702430.1876@ppc970.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0506061702430.1876@ppc970.osdl.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-According to the comments in include/linux/sched.h
+On Mon, Jun 06, 2005 at 05:04:07PM -0700, Linus Torvalds wrote:
+> 
+> Jeff, 
+>  this looks ok, but I'll leave the decision to you. Things like this often 
+> break.
+> 
+> Andrew, maybe at least a few days in -mm to see if there's some outcry?
+> 
+> 		Linus
 
-/*
-* Priority of a process goes from 0..MAX_PRIO-1, valid RT
-* priority is 0..MAX_RT_PRIO-1, and SCHED_NORMAL tasks are
-* in the range MAX_RT_PRIO..MAX_PRIO-1. Priority values
-* are inverted: lower p->prio value means higher priority.
-*
-* The MAX_USER_RT_PRIO value allows the actual maximum
-* RT priority to be separate from the value exported to
-* user-space.  This allows kernel threads to set their
-* priority to a value higher than any user task. Note:
-* MAX_RT_PRIO must not be smaller than MAX_USER_RT_PRIO.
-*/
+This patch is an improvement, but there may still be some issues.
+Specifically, it looks to me like the the interrupt handler remains
+registered.  This could cause some problems when another device is sharing
+the interrupt because the tulip driver must read from a hardware register
+to determine if it triggered the interrupt. When the hardware has been
+physically powered off, things might not go well.
 
-This makes it look like the priority goes as follows:
+I can't comment on the netdev class aspect of this routine, but following
+a similar strategy to its original author, a fix might look like this:
 
-prio: 0 .. MAX_RT_PRIO .. MAX_USER_RT_PRIO .. MAX_PRIO
+--- a/drivers/net/tulip/tulip_core.c	2005-05-27 22:06:00.000000000 -0400
++++ b/drivers/net/tulip/tulip_core.c	2005-06-06 22:14:25.850846400 -0400
+@@ -1759,7 +1759,12 @@
+ 	if (dev && netif_running (dev) && netif_device_present (dev)) {
+ 		netif_device_detach (dev);
+ 		tulip_down (dev);
+-		/* pci_power_off(pdev, -1); */
++
++		pci_save_state(pdev);
++
++		free_irq(dev->irq, dev);
++		pci_disable_device(pdev);
++		pci_set_power_state(pdev, pci_choose_state(pdev, state));
+ 	}
+ 	return 0;
+ }
+@@ -1768,12 +1773,19 @@
+ static int tulip_resume(struct pci_dev *pdev)
+ {
+ 	struct net_device *dev = pci_get_drvdata(pdev);
++	int retval;
+ 
+ 	if (dev && netif_running (dev) && !netif_device_present (dev)) {
+-#if 1
+-		pci_enable_device (pdev);
+-#endif
+-		/* pci_power_on(pdev); */
++		pci_set_power_state(pdev, PCI_D0);
++		pci_restore_state(pdev);
++
++		pci_enable_device(pdev);
++
++		if ((retval = request_irq(dev->irq, &tulip_interrupt, SA_SHIRQ, dev->name, dev))) {
++			printk (KERN_ERR "tulip: request_irq failed in resume\n");
++			return retval;
++		}
++		
+ 		tulip_up (dev);
+ 		netif_device_attach (dev);
+ 	}
 
-where 0 is of highest priority
+I don't have this hardware, so any testing would be appreciated.
 
-but in reality we have:
+Thanks,
+Adam
 
-prio: 0 .. MAX_USER_RT_PRIO .. MAX_RT_PRIO .. MAX_PRIO
 
-The comments say that MAX_RT_PRIO must not be smaller than
-MAX_USER_RT_PRIO, but if it is bigger (thinking bigger means greater
-than) then the system will crash on a SMP machine.
+P.S.: I noticed this function in the tulip driver:
 
-Here's how it works.  The migration_thread sets the priority of its
-thread to MAX_RT_PRIO-1 via:
-
-__setscheduler(p, SCHED_FIFO, MAX_RT_PRIO-1);
-
-Now looking at __setscheduler
-
-static void __setscheduler(struct task_struct *p, int policy, int prio)
+static void tulip_set_power_state (struct tulip_private *tp,
+				   int sleep, int snooze)
 {
-        BUG_ON(p->array);
-        p->policy = policy;
-        p->rt_priority = prio;
-        if (policy != SCHED_NORMAL)
-                p->prio = MAX_USER_RT_PRIO-1 - p->rt_priority;
-        else
-                p->prio = p->static_prio;
+	if (tp->flags & HAS_ACPI) {
+		u32 tmp, newtmp;
+		pci_read_config_dword (tp->pdev, CFDD, &tmp);
+		newtmp = tmp & ~(CFDD_Sleep | CFDD_Snooze);
+		if (sleep)
+			newtmp |= CFDD_Sleep;
+		else if (snooze)
+			newtmp |= CFDD_Snooze;
+		if (tmp != newtmp)
+			pci_write_config_dword (tp->pdev, CFDD, newtmp);
+	}
+
 }
 
-If we have MAX_USER_RT_PRIO = 99 and MAX_RT_PRIO = 100 then we would get
-
-  p->prio = 99-1 - 100-1 = -1;
-
-This would be very bad when it comes time to schedule.  Not to mention
-that kstop_machine uses MAX_RT_PRIO and then calls
-sys_sched_setscheduler, which would fail if MAX_RT_PRIO >
-MAX_USER_RT_PRIO. Below is a patch that makes MAX_RT_PRIO work if it is
-greater than MAX_USER_RT_PRIO on a SMP machine.  The p->mm is to allow
-kstop_machine to work and any other kernel threads.
-
-I tested the patch on an SMP machine where MAX_RT_PRIO = 100 and
-MAX_USER_RT_PRIO = 99. Without the patch, the system crashes with a
-reboot.
-
-Funny, back in July 2002, this was noticed by an Anton Wilson and he was
-just lost in the noise!
-http://seclists.org/lists/linux-kernel/2002/Jul/1695.html
-
-
--- Steve
-
-diff -u linux-2.6.12-rc5.orig/kernel/sched.c linux-2.6.12-rc5/kernel/sched.c
---- linux-2.6.12-rc5.orig/kernel/sched.c	2005-06-06 22:37:15.000000000 -0400
-+++ linux-2.6.12-rc5/kernel/sched.c	2005-06-06 21:58:39.000000000 -0400
-@@ -3347,7 +3347,7 @@
- 	p->policy = policy;
- 	p->rt_priority = prio;
- 	if (policy != SCHED_NORMAL)
--		p->prio = MAX_USER_RT_PRIO-1 - p->rt_priority;
-+		p->prio = MAX_RT_PRIO-1 - p->rt_priority;
- 	else
- 		p->prio = p->static_prio;
- }
-@@ -3379,7 +3379,8 @@
- 	 * 1..MAX_USER_RT_PRIO-1, valid priority for SCHED_NORMAL is 0.
- 	 */
- 	if (param->sched_priority < 0 ||
--	    param->sched_priority > MAX_USER_RT_PRIO-1)
-+	    (p->mm &&  param->sched_priority > MAX_USER_RT_PRIO-1) ||
-+	    (!p->mm && param->sched_priority > MAX_RT_PRIO-1))
- 		return -EINVAL;
- 	if ((policy == SCHED_NORMAL) != (param->sched_priority == 0))
- 		return -EINVAL;
-
-
+Currently we aren't using CFDD_Sleep.  Should we call this in suspend?  It
+could be important if the hardware doesn't support PCI PM.  I don't really
+have any specifications or information about the hardware, so I'm at a loss
+here.

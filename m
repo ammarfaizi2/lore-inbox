@@ -1,52 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261707AbVFGFCx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261711AbVFGFEL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261707AbVFGFCx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 01:02:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261711AbVFGFCx
+	id S261711AbVFGFEL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 01:04:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261712AbVFGFEL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 01:02:53 -0400
-Received: from web33314.mail.mud.yahoo.com ([68.142.206.129]:54153 "HELO
-	web33314.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S261707AbVFGFCv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 01:02:51 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=q8jy9e6gXvv6PmtHlld5Sd8wI6Auv97xGqQo7+PeFnJ8/Fp+u4Lgxd5KMzFvgkMcFtGjXch1m2s39HjTGsKG2dMa3LJELk7M4mOjf8SDJVdMblKx9DJPNU/YvTAf8EmwoA9x3TEffbhCeZ1djwRY8+dd4nCKQhzD1lfXyUXL4f8=  ;
-Message-ID: <20050607050248.9586.qmail@web33314.mail.mud.yahoo.com>
-Date: Mon, 6 Jun 2005 22:02:48 -0700 (PDT)
-From: li nux <lnxluv@yahoo.com>
-Subject: 2.6 Kernel statistics collection
-To: linux <linux-kernel@vger.kernel.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Tue, 7 Jun 2005 01:04:11 -0400
+Received: from colo.lackof.org ([198.49.126.79]:46006 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S261711AbVFGFDw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 01:03:52 -0400
+Date: Mon, 6 Jun 2005 23:07:27 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Vivek Goyal <vgoyal@in.ibm.com>
+Cc: greg@kroah.com, linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       Morton Andrew Morton <akpm@osdl.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Bodo Eggert <7eggert@gmx.de>, Dipankar Sarma <dipankar@in.ibm.com>,
+       Grant Grundler <grundler@parisc-linux.org>, stern@rowland.harvard.edu,
+       awilliam@fc.hp.com, bjorn.helgaas@hp.com
+Subject: Re: [RFC/PATCH] Kdump: Disabling PCI interrupts in capture kernel
+Message-ID: <20050607050727.GB12781@colo.lackof.org>
+References: <1118113637.42a50f65773eb@imap.linux.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1118113637.42a50f65773eb@imap.linux.ibm.com>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Jun 06, 2005 at 11:07:17PM -0400, Vivek Goyal wrote:
+>   So even if interrupts are disabled on PCI-PCI bridge, interrupts generated
+>   by PCI devices on secondary bus are not blocked and I hope device should
+>   be working fine.
 
-I have a requirement where I need to collect 2.6
-kernel statistics in the following areas, Please tell
-me any other utilities tools other than which I have
-listed:
+How did you plan on disabling interrupts?
+Did you see the MSI discussion that going on now in linux-pci mailing list?
 
-Kernel code path tracing - ?
-n/w and tcp/ip       - sar, tcpdump
-i/o        - iostat
-FileSystem - ?? (what can be useful statistics say for
-ext3, iSCSI, nfs)
-Threads/Process - ??
-Scheduler - ?? (Something which can give scheduler
-latency, average wait time spent in runqueue)
-CPU - ?? (Some Load Balancing statistics in smp,
-hyperthreading in uniprocessor)
+> But at the same time kdump kernels are not supposed to
+> do a great deal except capture and save the dump.
 
-many thanks.
+I'd think you want to stop DMA for all devices.
+Just to prevent them from messing more with memory
+that you want to dump - ie get a consistent snapshot.
+Leaving VGA devices alone should be safe.
 
+> Disabling interrupts at PCI level should increase the reliability of capturing
+> the dump on newer machines with hardware compliant with PCI 2.3 or higher. 
 
-		
-__________________________________ 
-Discover Yahoo! 
-Stay in touch with email, IM, photo sharing and more. Check it out! 
-http://discover.yahoo.com/stayintouch.html
+*lots* of PCI devices predate PCI2.3. Possibly even the majority.
+
+hth,
+grant

@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261743AbVFGFkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261746AbVFGFlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261743AbVFGFkM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 01:40:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVFGFkL
+	id S261746AbVFGFlm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 01:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261753AbVFGFll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 01:40:11 -0400
-Received: from twilight.ucw.cz ([81.30.235.3]:35754 "EHLO suse.cz")
-	by vger.kernel.org with ESMTP id S261743AbVFGFji (ORCPT
+	Tue, 7 Jun 2005 01:41:41 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:51368 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261746AbVFGFkR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 01:39:38 -0400
-Date: Tue, 7 Jun 2005 07:39:43 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Zoltan Boszormenyi <zboszor@freemail.hu>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Mousedev or hiddev problem, was: Re: USB mice do not work on 2.6.12-rc5-git9, -rc5-mm1, -rc5-mm2
-Message-ID: <20050607053943.GA1778@ucw.cz>
-References: <42A2A0B2.7020003@freemail.hu> <42A2A657.9060803@freemail.hu> <20050605001001.3e441076.akpm@osdl.org> <42A2BC4B.5060605@freemail.hu> <42A2CF27.8000806@freemail.hu> <42A3176F.9030307@freemail.hu> <42A4B328.1010400@freemail.hu> <42A4C85F.2040509@freemail.hu>
+	Tue, 7 Jun 2005 01:40:17 -0400
+Date: Tue, 7 Jun 2005 07:33:06 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       anton.wilson@camotion.com
+Subject: Re: [PATCH] MAX_USER_RT_PRIO and MAX_RT_PRIO are wrong!
+Message-ID: <20050607053306.GA16181@elte.hu>
+References: <1118112390.4533.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <42A4C85F.2040509@freemail.hu>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1118112390.4533.10.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9, BAYES_00 -4.90,
+	UPPERCASE_25_50 0.00
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 07, 2005 at 12:04:15AM +0200, Zoltan Boszormenyi wrote:
-> Hi,
-> 
-> Zoltan Boszormenyi írta:
-> >All the -bk7+ kernels I tried produced the same strange bug
-> >on my system: after gpm started I was able to move the
-> >pointer on the screen but when X started up, it's pointer froze.
-> 
-> it turned out that there is nothing wrong with USB on my system.
-> 
-> But someone broke the /dev/input/mouseX <-> USB mouse interaction
-> in 2.6.11-bk7 and my two-headed system with two X servers were
-> manually set up to use the distinct mouse devices so the two heads
-> do not interfere.
-> 
-> No wonder gpm works, it reads /dev/input/mice. Starting only
-> one X and using /dev/input/mice I found no problems. Setting it
-> back to /dev/input/mouse0, the mouse pointer is dead again.
-> 
-> Someone deserves a mousebite...
- 
-Most likely it's because the keyboards are now identified as having
-mouse capabilities, too, and changing the numbers. Check
-/proc/bus/input/devices.
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+* Steven Rostedt <rostedt@goodmis.org> wrote:
+
+> I tested the patch on an SMP machine where MAX_RT_PRIO = 100 and 
+> MAX_USER_RT_PRIO = 99. Without the patch, the system crashes with a 
+> reboot.
+
+Acked-by: Ingo Molnar <mingo@elte.hu>
+
+	Ingo

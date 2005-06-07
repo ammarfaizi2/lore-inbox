@@ -1,83 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261824AbVFGKjU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261825AbVFGKpp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261824AbVFGKjU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 06:39:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261825AbVFGKjU
+	id S261825AbVFGKpp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 06:45:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261826AbVFGKpp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 06:39:20 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:1443 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S261824AbVFGKjN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 06:39:13 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [linux-pm] Re: swsusp: Not enough free pages
-Date: Tue, 7 Jun 2005 12:39:09 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-pm@lists.osdl.org, "Yu, Luming" <luming.yu@intel.com>,
-       Andrew Morton <akpm@zip.com.au>,
-       ACPI devel <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <3ACA40606221794F80A5670F0AF15F84041AC1A8@pdsmsx403> <200506062346.09503.rjw@sisk.pl> <20050606215815.GO2230@elf.ucw.cz>
-In-Reply-To: <20050606215815.GO2230@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Jun 2005 06:45:45 -0400
+Received: from postfix4-2.free.fr ([213.228.0.176]:8122 "EHLO
+	postfix4-2.free.fr") by vger.kernel.org with ESMTP id S261825AbVFGKpj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 06:45:39 -0400
+Date: Tue, 7 Jun 2005 12:45:45 +0200
+From: Christophe Varoqui <christophe.varoqui@free.fr>
+To: linux-kernel@vger.kernel.org
+Subject: bdev resize
+Message-ID: <20050607104545.GA5286@averon.dyndns.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506071239.10125.rjw@sisk.pl>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello,
 
-On Monday, 6 of June 2005 23:58, Pavel Machek wrote:
-> Hi!
-> 
-> > > No, I see it on i386, too. Try patch below; if it frees some after
-> > > first pass, you have that problem, too.
-> > 
-> > I've run it once and the result is this:
-> > 
-> > Freeing memory... done (75876 pages freed)
-> > Freeing memory... done (1536 pages freed)
-> > Freeing memory... done (0 pages freed)
-> > Freeing memory... done (1792 pages freed)
-> > Freeing memory... done (0 pages freed)
-> > 
-> > It does free some pages after the first pass, but this is only a small fraction
-> > of all pages freed.  I wouldn't call it a bad result ...
-> 
-> Well, it still did not free all memory it should have freed, and you
-> were lucky.
+it is now a common feature for modern storage controlers to allow online volume resizing.
+The Linux kernel SCSI subsystem seems to handle this pretty well through /sys/block/*/device/rescan :
 
-This is a reproducible behavior.  Here goes the result for another suspend:
+# cat /sys/block/sda/size
+41943040
 
-Freeing memory... done (136611 pages freed)
-Freeing memory... done (200 pages freed)
-Freeing memory... done (128 pages freed)
-Freeing memory... done (0 pages freed)
-Freeing memory... done (2353 pages freed)
+<reconfigure the volume>
 
-and it is always like that.  It usually frees more than 100000 pages
-in the first pass and about 5% more in the next passes together.
+# echo 1>/sys/block/sda/device/rescan
+# cat /sys/block/sda/size
+52428800
+# dmseg|tail -2
+SCSI device sda: 52428800 512-byte hdwr sectors (26844 MB)
+SCSI device sda: drive cache: write through
 
-> Apparently for some people it does not that well (and that 
-> includes me, I see 0 in first pass quite often).
+Still there's something going wrong : in the previous sample, sda had a mounted filesystem on it and BLKGETSIZE still reports the previous size.
 
-On 2.6.12-rc3+ I have never seen 0 in the first pass.  In fact, with X running
-I have never seen less than 60000. :-)
+If I umount the fs, this ioctl gives the new size, but mount -o remount does not work the same.
+Hence, fully online resize is not possible.
 
-Perhaps there's a bug that does not hit x86-64 for some reason.  I'll try to
-run it on my second box later today and see what happens.
+Does someone is aware of this, and is it being worked on ?
 
-Anyway, I think we need to collect some statistics.
-
-Greets,
-Rafael
-
-
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+Best regards,
+cvaroqui

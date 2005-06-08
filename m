@@ -1,51 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262065AbVFHC3j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262056AbVFHCj5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262065AbVFHC3j (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 22:29:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVFHC3j
+	id S262056AbVFHCj5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 22:39:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262074AbVFHCj4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 22:29:39 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:37280 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262065AbVFHC2Y convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 22:28:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=qKJqp6oke+errO1SUMa1Dcp5e/xU6BfPPtSkn06WZcEhrorPGDGC8U2BRMf5aY/G/sWvX+FjC1Bt6KvxIFI+Pyj0rqrmeqKnvT7zszSfM+LHnhkaT38EJKive+GfEvMrMooCS4zvEZm3hcpMtrWv9/XWqVbx31BphXMsxEU+S7Y=
-Message-ID: <d73ab4d005060719283c175e34@mail.gmail.com>
-Date: Wed, 8 Jun 2005 10:28:23 +0800
-From: Blah Blah <gourke@gmail.com>
-Reply-To: Blah Blah <gourke@gmail.com>
-To: mkrufky@m1k.net
-Subject: Re: boot
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <42A6537B.9000805@m1k.net>
+	Tue, 7 Jun 2005 22:39:56 -0400
+Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:6022 "HELO
+	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262056AbVFHCjy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 22:39:54 -0400
+Subject: Re: BUG: Slowdown on 3000 socket-machines tracked down
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+To: Christian Schmid <webmaster@rapidforum.com>
+Cc: Ben Greear <greearb@candelatech.com>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <42A65759.8050507@rapidforum.com>
+References: <4229E805.3050105@rapidforum.com>
+	 <422BAAC6.6040705@candelatech.com>	<422BB548.1020906@rapidforum.com>
+	 <422BC303.9060907@candelatech.com>	<422BE33D.5080904@yahoo.com.au>
+	 <422C1D57.9040708@candelatech.com>	<422C1EC0.8050106@yahoo.com.au>
+	 <422D468C.7060900@candelatech.com>	<422DD5A3.7060202@rapidforum.com>
+	 <422F8A8A.8010606@candelatech.com>	<422F8C58.4000809@rapidforum.com>
+	 <422F9259.2010003@candelatech.com>	<422F93CE.3060403@rapidforum.com>
+	 <20050309211730.24b4fc93.akpm@osdl.org> <4231B95B.6020209@rapidforum.com>
+	 <4231ED18.2050804@candelatech.com>  <4231F112.60403@rapidforum.com>
+	 <1110775215.5131.17.camel@npiggin-nld.site> <423518C7.10207@rapidforum.com>
+	 <1110776689.5131.37.camel@npiggin-nld.site>
+	 <42A65759.8050507@rapidforum.com>
+Content-Type: text/plain
+Date: Wed, 08 Jun 2005 12:39:46 +1000
+Message-Id: <1118198386.5104.60.camel@npiggin-nld.site>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <d73ab4d00506071902172591ad@mail.gmail.com>
-	 <42A6537B.9000805@m1k.net>
+X-Mailer: Evolution 2.0.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I mean something like 
-http://www.faqs.org/docs/kernel_2_4/
+On Wed, 2005-06-08 at 04:26 +0200, Christian Schmid wrote:
+> This makes me seriously to despair.... the bug/lock/freeze is still there in 2.6.12rc6 ...
+> 
+
+Unfortunately yes, because we weren't able to track it down, and
+nobody else has hit the problem.
+
+I'm fairly busy for the next week, but I'll get back to you and
+try to help after that.
+
+You know, it would be *really* useful if you could provide some
+code or point to some packages that can be used to reproduce the
+problem. IIRC you hadn't been able to do that?
 
 
-On 6/8/05, Michael Krufky <mkrufky@m1k.net> wrote:
-> Blah Blah wrote:
-> 
-> >another is where's the latest document for 2.6.* kernel? the faq's only 2.4.*
-> >If you know about it,please tell me.
-> >
-> >
-> Documentation for the kernel is located within the source.  Go download
-> the sources from www.kernel.org and check out the Documentation/
-> directory within the sources.
-> 
-> --
-> Michael Krufky
-> 
->
+Nick
+
+-- 
+SUSE Labs, Novell Inc.
+
+
+
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

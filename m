@@ -1,42 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261385AbVFHQXd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261347AbVFHQ0C@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261385AbVFHQXd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 12:23:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVFHQV4
+	id S261347AbVFHQ0C (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 12:26:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261386AbVFHQXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 12:21:56 -0400
-Received: from relais.videotron.ca ([24.201.245.36]:32339 "EHLO
-	relais.videotron.ca") by vger.kernel.org with ESMTP id S261374AbVFHQU6
+	Wed, 8 Jun 2005 12:23:45 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:30108
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S261347AbVFHQWx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 12:20:58 -0400
-Date: Wed, 08 Jun 2005 12:20:57 -0400 (EDT)
-From: Nicolas Pitre <nico@cam.org>
-Subject: Re: Linux v2.6.12-rc6
-In-reply-to: <Pine.LNX.4.58.0506070820170.2286@ppc970.osdl.org>
-X-X-Sender: nico@localhost.localdomain
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>
-Message-id: <Pine.LNX.4.63.0506081216110.5370@localhost.localdomain>
-MIME-version: 1.0
-Content-type: TEXT/PLAIN; charset=US-ASCII
-Content-transfer-encoding: 7BIT
-References: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org>
- <20050607130535.GD16602@harddisk-recovery.com>
- <Pine.LNX.4.58.0506070820170.2286@ppc970.osdl.org>
+	Wed, 8 Jun 2005 12:22:53 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Daniel Walker <dwalker@mvista.com>, kus Kusche Klaus <kus@keba.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050608155049.GA7160@elte.hu>
+References: <AAD6DA242BC63C488511C611BD51F367323235@MAILIT.keba.co.at>
+	 <Pine.LNX.4.10.10506080847590.28001-100000@godzilla.mvista.com>
+	 <20050608155049.GA7160@elte.hu>
+Content-Type: text/plain
+Organization: linutronix
+Date: Wed, 08 Jun 2005 18:23:42 +0200
+Message-Id: <1118247822.20785.634.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Jun 2005, Linus Torvalds wrote:
+On Wed, 2005-06-08 at 17:50 +0200, Ingo Molnar wrote:
+> > So it's pretty much on hold until someone bring ARM into the generic 
+> > IRQ world.
+> 
+> Thomas and me already did that - i think Thomas could send a patch for 
+> review?
 
-> (Btw, Jeff, I think the git-shortlog script is slightly buggered, it
-> doesn't do the nice word-wrap, and it _only_ takes the first line, even
-> from a multi-line header. I think it should stop at the first empty line
-> in the commit, not just take the first one).
+I have to bring it forward to -rc6. 
 
-Also if the lists of commits could be shown in chronological order (like 
-the bk shortlog script did) that would be nice.  Right now the list is 
-reversed.
+tglx
 
 
-Nicolas

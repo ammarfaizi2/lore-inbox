@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261447AbVFHRaS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261466AbVFHRfn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261447AbVFHRaS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 13:30:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbVFHRaS
+	id S261466AbVFHRfn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 13:35:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261464AbVFHRfn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 13:30:18 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:55031 "EHLO
-	godzilla.mvista.com") by vger.kernel.org with ESMTP id S261447AbVFHR3a
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 13:29:30 -0400
-Date: Wed, 8 Jun 2005 10:29:23 -0700 (PDT)
-From: Daniel Walker <dwalker@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-cc: kus Kusche Klaus <kus@keba.com>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-In-Reply-To: <20050608155049.GA7160@elte.hu>
-Message-ID: <Pine.LNX.4.10.10506081028140.28001-100000@godzilla.mvista.com>
+	Wed, 8 Jun 2005 13:35:43 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:5805 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261398AbVFHRfW convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 13:35:22 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [Penance PATCH] PCI: clean up the MSI code a bit
+Date: Wed, 8 Jun 2005 10:34:10 -0700
+Message-ID: <C7AB9DA4D0B1F344BF2489FA165E502408D8DB89@orsmsx404.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Penance PATCH] PCI: clean up the MSI code a bit
+Thread-Index: AcVsTQ2W6ZYujb+bTUyeSqdsTTQzXQAAHQXg
+From: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
+To: "Grant Grundler" <grundler@parisc-linux.org>, "Andi Kleen" <ak@suse.de>
+Cc: "Greg KH" <gregkh@suse.de>, <linux-pci@atrey.karlin.mff.cuni.cz>,
+       <linux-kernel@vger.kernel.org>, "Roland Dreier" <roland@topspin.com>,
+       "Arjan van de Ven" <arjan@infradead.org>,
+       "Andrew Vasquez" <andrew.vasquez@qlogic.com>,
+       "Jeff Garzik" <jgarzik@pobox.com>,
+       "David S. Miller" <davem@davemloft.net>
+X-OriginalArrivalTime: 08 Jun 2005 17:34:12.0521 (UTC) FILETIME=[48D7C190:01C56C50]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wednesday, June 08, 2005 10:15 AM Grant Grundler wrote:
+> > I disagree it should stay as it is. Basically you are trading
+> > a bit less complexity in Infiniband now for a lot of code
+everywhere.
+>
+>It's not just infiniband. It's tg3 and e1000 as well.
 
+MSI-X will outpace MSI in future. In my opinion, enabling MSI by default
+is a short-term solution. Again, this is just my opinion.
 
-On Wed, 8 Jun 2005, Ingo Molnar wrote:
-
-> 
-> * Daniel Walker <dwalker@mvista.com> wrote:
-> 
-> > > > i have released the -V0.7.48-00 Real-Time Preemption patch, 
-> > > [snip]
-> > > > be affected that much (besides possible build issues). Non-x86 arches
-> > > > wont build. Some regressions might happen, so take care..
-> > > 
-> > > What arches are likely to work in the near future?
-> > > I've seen that "Kconfig.RT" is sourced for i386, x86_64, ppc, 
-> > > and mips, but not for arm.
-> > > 
-> > > arm is one of the platforms we are interested in, any chances?
-> > 
-> > I can make it work, but Ingo isn't accepting non-generic IRQ arches .. 
-> > So it's pretty much on hold until someone bring ARM into the generic 
-> > IRQ world.
-> 
-> Thomas and me already did that - i think Thomas could send a patch for 
-> review?
-
-
-Well, making it is one thing, getting Russell to accept it is a whole
-other issue.. Are you still willing to make the RT patch a sandbox for
-this?
-
-
-Daniel
-
+Thanks,
+Long

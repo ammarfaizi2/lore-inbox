@@ -1,78 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262005AbVFHVqT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262007AbVFHVr1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262005AbVFHVqT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 17:46:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbVFHVqS
+	id S262007AbVFHVr1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 17:47:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262029AbVFHVr1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 17:46:18 -0400
-Received: from fmr19.intel.com ([134.134.136.18]:47843 "EHLO
-	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
-	id S262005AbVFHVqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 17:46:15 -0400
-Message-ID: <42A76719.2060700@linux.intel.com>
-Date: Wed, 08 Jun 2005 16:46:01 -0500
-From: James Ketrenos <jketreno@linux.intel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050519
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: Jeff Garzik <jgarzik@pobox.com>, Netdev list <netdev@oss.sgi.com>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>
-Subject: Re: ipw2100: firmware problem
-References: <20050608142310.GA2339@elf.ucw.cz> <42A723D3.3060001@linux.intel.com> <20050608212707.GA2535@elf.ucw.cz>
-In-Reply-To: <20050608212707.GA2535@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 8 Jun 2005 17:47:27 -0400
+Received: from fire.osdl.org ([65.172.181.4]:59851 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262007AbVFHVrA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 17:47:00 -0400
+Date: Wed, 8 Jun 2005 14:46:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Wilck <martin.wilck@fujitsu-siemens.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: RFC for 2.6: avoid OOM at bounce buffer storm
+Message-Id: <20050608144630.6d167813.akpm@osdl.org>
+In-Reply-To: <42A73ED8.9040505@fujitsu-siemens.com>
+References: <42A07BAA.4050303@fujitsu-siemens.com>
+	<20050603160629.2acc4558.akpm@osdl.org>
+	<42A5AD4A.6080100@fujitsu-siemens.com>
+	<20050607120811.6527a9ff.akpm@osdl.org>
+	<42A73ED8.9040505@fujitsu-siemens.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
+Martin Wilck <martin.wilck@fujitsu-siemens.com> wrote:
+>
+> Hello Andrew,
+> 
+> > The semaphore is initialised with the limit level, so once it has been
+> > down()ed more than `limit' times, processes will block until someone does
+> > up().
+> 
+> Oh - of course. Neat.
+> 
+> >>It appears to run much more 
+> >> smoothly now, perhaps because wakeup_bdflush() isn't called any more. 
+> >> Are you still interested in more data?
+> > 
+> > Perhaps the newer kernel has writeback thresholding fixes so it's not
+> > possible to dirty as much memory with write().
+> 
+> I have collected more data and the behavior with 2.6.12-rc5-mm2 is 
+> flawless, there is a continuous writeback flow close to the maximum rate 
+> possible, and the bounce buffer usage never gets anywhere near the limit 
+> where it'd become dangerous. At least not in my test setup. The latest 
+> fedora kernel 2.6.11-1.27 also behaves ok, although it doesn't adapt to 
+> changing io load as smoothly as 2.6.12-rc5-mm2 does, and the writeback 
+> rate is oscillating more strongly.
+> 
+> The kernels where I observe the problem are 2.6.9 kernels from RedHat 
+> EL4. I have posted this here because I saw that the highmem bounce 
+> buffer/memory pool implementation was identical between the 2.6.9 kernel 
+> and all but the very latest development kernels, and I concluded 
+> prematurely that the behavior under my scenario must also be the same -- 
+> which it wasn't. I apologize for not having looked more closely.
+> 
+> Many thanks for looking into this anyway. From a theoretical point of 
+> view, I still think I had a valid point :-/.
+> 
+> Your patch sure looks good to me.
 
->>We've been looking into whether the initrd can have the firmware affixed
->>to the end w/ some magic bytes to identify it.  If it works, enhancing
->>the request_firmware to support both hotplug and an initrd approach may
->>be reasonable.
->>    
->>
->
->That seems pretty ugly to me... imagine more than one driver does this
->:-(.
->  
->
-Not ideal, but not *that bad* if there is a standard way to stick the
-data on the initrd image.  Its annoying to have to do it, but it does
-enable the most usage models and allows the network to be brought up as
-early as possible--which other components in the system may be relying on.
+Well.  As I said, I think what you're seeing here is recent changes to
+mm/page-writeback.c which reduce the amount of memory which we'll permit to
+be dirtied due to write() calls.  You'll probably find that the bounce
+buffer problem is also fixable by reducing /proc/sys/vm/dirty_ratio in
+2.6.9, for the same reasons.
 
->Having a parameter to control this seems a bit too complex to me.
->
->How is 
->
->insmod ipw2100 enable=1
->
->different from
->
->insmod ipw2100
->iwconfig eth1 start_scanning_or_whatever
->
->?
->  
->
-It defaults to enabled, so you just need to do:
-
-    insmod ipw2100
-
-and it will auto associate with an open network.  For the use case where
-users want the device to load but not initialize, they can use
-
-    insmod ipw2100 disable=1
-
-If hotplug and firmware loading worked early in the init sequence, no
-one would have issue with the current model; it works as users expect it
-to work.  It magically finds and associates to networks, and your
-network scripts can then kick off DHCP, all with little to no special
-crafting or utility interfacing. 
-
-James
+What concerns me is that there are other ways of dirtying lots of memory
+apart from write(): namely mmap(MAP_SHARED).  If someone dirties 90% of all
+memory via mmap() then we might again get into bounce buffer starvation.
 

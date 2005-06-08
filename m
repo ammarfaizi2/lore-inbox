@@ -1,50 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261213AbVFHNfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261215AbVFHNiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261213AbVFHNfS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 09:35:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbVFHNfR
+	id S261215AbVFHNiu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 09:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261244AbVFHNiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 09:35:17 -0400
-Received: from cantor.suse.de ([195.135.220.2]:17614 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261213AbVFHNfE (ORCPT
+	Wed, 8 Jun 2005 09:38:20 -0400
+Received: from unthought.net ([212.97.129.88]:45759 "EHLO unthought.net")
+	by vger.kernel.org with ESMTP id S261242AbVFHNhw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 09:35:04 -0400
-Date: Wed, 8 Jun 2005 15:35:03 +0200
-From: Andi Kleen <ak@suse.de>
-To: Andrew Grover <andy.grover@gmail.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Greg KH <gregkh@suse.de>,
-       "David S. Miller" <davem@davemloft.net>, tom.l.nguyen@intel.com,
-       roland@topspin.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi() for drivers - take 2
-Message-ID: <20050608133503.GT23831@wotan.suse.de>
-References: <20050607002045.GA12849@suse.de> <20050607202129.GB18039@kroah.com> <42A61CDE.6090906@pobox.com> <c0a09e5c05060722558a86ac8@mail.gmail.com>
+	Wed, 8 Jun 2005 09:37:52 -0400
+Date: Wed, 8 Jun 2005 15:37:48 +0200
+From: Jakob Oestergaard <jakob@unthought.net>
+To: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: segfaults suddenly appearing
+Message-ID: <20050608133748.GJ422@unthought.net>
+Mail-Followup-To: Jakob Oestergaard <jakob@unthought.net>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <c0a09e5c05060722558a86ac8@mail.gmail.com>
+In-Reply-To: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 07, 2005 at 10:55:27PM -0700, Andrew Grover wrote:
-> On 6/7/05, Jeff Garzik <jgarzik@pobox.com> wrote:
-> > If the driver has to _undo_ something that it did not do, that's pretty
-> > lame.  Non-orthogonal.
+On Mon, Jun 06, 2005 at 11:08:25AM -0700, Linus Torvalds wrote:
 > 
-> I would think the number of MSI and MSI-X capable devices is going to
-> explode over the next five years. I'm not sure it's right to make all
-> these device's drivers pay a complexity cost because some of the first
-> attempted MSI implementations were buggy.
+> It's being uploaded right now, the git tree is already up-to-date, and by 
+> the time this hits the mailing list the mirroring of the tar-ball will 
+> hopefully be done too.
+...
 
-Exactly. Couldnt agree more.
-> 
-> > Also, it looks like all the PCI MSI drivers need touching for this
-> > scheme -- which defeats the original intention.  At this rate, the best
-> > API is the one we've already got.
-> 
-> For now...but I'm bringing this up again in five years!! *sets egg timer*
+Guys, here's a (yes I know, fairly vague) error report - I'm just
+beginning to narrow this down.  Any suggestions would be greatly
+appreciated.
 
-I think we should have the right (default MSI) API by default.
-If we wait 5 years we end up with lots of mess in the drivers.
+Dual opteron (Sun Fire v20z), 2G RAM, untainted x86_64 kernels (no
+preempt or other fancy stuff, just plain and simple K8 NUMA ACPI
+configs);
 
--Andi
+Problem with 2.6.11.11:  Machine hangs during backup (amanda) - right
+after the estimates are done the box will freeze hard, nothing on
+console.
+
+Tried 2.6.12-rc6 in the hope that it would at least print out a panic or
+oops for me:  Haven't tried the backup yet, but I got the following in
+the logs which I've never seen before:
+
+gcc[18818]: segfault at 00000000332c8e54 rip 000000005555a0a8 rsp 00000000ffffba4c error 6
+klogd[3116]: segfault at 000000003ef1b373 rip 000000000804a3b3 rsp 00000000ffffbbe0 error 4
+gcc[18857]: segfault at 00000000332c8e54 rip 000000005555a0a8 rsp 00000000ffffbedc error 6
+gcc[19049]: segfault at 00000000332c8e54 rip 000000005555a0a8 rsp 00000000ffffaefc error 6
+gcc[19097]: segfault at 00000000332c8e54 rip 000000005555a0a8 rsp 00000000ffffb1fc error 6
+gcc[19251]: segfault at 00000000332c8e54 rip 000000005555a0a8 rsp 00000000ffffc9dc error 6
+gcc[19272]: segfault at 00000000332c8e54 rip 000000005555a0a8 rsp 00000000ffffb1bc error 6
+gcc[1569]: segfault at 00000000332c8e54 rip 000000005555a0a8 rsp 00000000ffffb56c error 6
+gcc[16458]: segfault at 00000000332c8e54 rip 000000005555a0a8 rsp 00000000ffffc9ac error 6
+
+So, with 2.6.12-rc6 all of the sudden klogd and gcc starts
+segfaulting...
+
+No ECC errors or other anormalities reported via the service processor.
+
+Anything you want me to try?  Need more information?
+
+-- 
+
+ / jakob
+

@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262168AbVFHLIj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262164AbVFHLMR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262168AbVFHLIj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 07:08:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262169AbVFHLIj
+	id S262164AbVFHLMR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 07:12:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262170AbVFHLMR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 07:08:39 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:26248 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S262168AbVFHLId convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 07:08:33 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Wakko Warner <wakko@animx.eu.org>
-Subject: Re: kaweth fails to work on 2.6.12-rc[56]
-Date: Wed, 8 Jun 2005 13:08:39 +0200
-User-Agent: KMail/1.8
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20050608021140.GA28524@animx.eu.org> <200506080859.27857.oliver@neukum.org> <20050608104217.GA29490@animx.eu.org>
-In-Reply-To: <20050608104217.GA29490@animx.eu.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Wed, 8 Jun 2005 07:12:17 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:7435 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S262164AbVFHLMC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 07:12:02 -0400
+Date: Wed, 8 Jun 2005 13:12:00 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Denis Vlasenko <vda@ilport.com.ua>
+Cc: Alexander Nyberg <alexn@telia.com>, linux-kernel@vger.kernel.org,
+       reiserfs-dev@namesys.com
+Subject: Re: RFC: i386: kill !4KSTACKS
+Message-ID: <20050608111200.GG3641@stusta.de>
+References: <20050607212706.GB7962@stusta.de> <1118180858.956.27.camel@localhost.localdomain> <200506081339.57012.vda@ilport.com.ua>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506081308.39450.oliver@neukum.org>
+In-Reply-To: <200506081339.57012.vda@ilport.com.ua>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Mittwoch, 8. Juni 2005 12:42 schrieb Wakko Warner:
-> > have you tried recompiling with debug enabled?
-> > It does show the status codes in the interrupt handler.
-> 
-> I have not.  My keyboard and mouse (on a hub) are plugged in beside the
-> kaweth device so they would be on the same interrupt.
+On Wed, Jun 08, 2005 at 01:39:56PM +0300, Denis Vlasenko wrote:
+>...
+> NB: gcc 3.4.3 can use excessive stack in degenerate cases, so please
+> include gcc version in your reports.
 
-Sorry, I should be more specific. It will print out the error codes
-internal to the USB layer which are meaningful even if interrupts are shared.
-Also, are you seeing tx errors in the error count?
+But this can't occur in the kernel.
+We are working aroung the possible problems in SuSE gcc 3.3 and
+GNU gcc 3.4 and 4.0 by always disabling unit-at-a-time in the kernel
+on i386.
 
-	Regards
-		Oliver
+> vda
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

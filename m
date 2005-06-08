@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262078AbVFHE5s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262105AbVFHE6x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262078AbVFHE5s (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 00:57:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262101AbVFHE5s
+	id S262105AbVFHE6x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 00:58:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262103AbVFHE6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 00:57:48 -0400
-Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:3216 "EHLO
-	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S262078AbVFHE5q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 00:57:46 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.12-rc6-mm1: cardmgr fails, 2.6.12-rc6 okay
-Date: Wed, 08 Jun 2005 14:57:38 +1000
-Organization: <http://scatter.mine.nu/>
-Message-ID: <b0uca1d7s5g5a4scln4a26q7ms5ismq67a@4ax.com>
-X-Mailer: Forte Agent 2.0/32.652
-MIME-Version: 1.0
+	Wed, 8 Jun 2005 00:58:42 -0400
+Received: from colo.lackof.org ([198.49.126.79]:50127 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S262101AbVFHE6e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 00:58:34 -0400
+Date: Tue, 7 Jun 2005 23:02:12 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Greg KH <gregkh@suse.de>
+Cc: Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@davemloft.net>,
+       tom.l.nguyen@intel.com, roland@topspin.com,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       ak@suse.de
+Subject: Re: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi() for drivers - take 2
+Message-ID: <20050608050212.GD21060@colo.lackof.org>
+References: <20050607002045.GA12849@suse.de> <20050607202129.GB18039@kroah.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20050607202129.GB18039@kroah.com>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there,
+On Tue, Jun 07, 2005 at 01:21:29PM -0700, Greg KH wrote:
+> So, anyone else think this is a good idea? Votes for me to just drop it
+> and go back to hacking on the driver core instead?
 
-Toshiba 2210XCDS laptop, Celeron Coppermine, 440ZX, PIIX4E.
+I'd rather you dropped it or treated MSI/MSI-X more alike.
 
-2.6.12-rc6-mm1 cardmgr fails, from /var/log/debug:
+> Oh, and in looking at the drivers/pci/msi.c file, it could use some
+> cleanups to make it smaller and a bit less complex.
 
-Jun  8 13:05:41 tosh kernel: ACPI: PCI Interrupt Link [LNKA] enabled at IRQ 11
-Jun  8 13:05:42 tosh kernel: PCI: Failed to allocate mem resource #1:800@10100000 for 0000:02:00.0
-Jun  8 13:05:42 tosh kernel: PCI: Failed to allocate mem resource #2:800@10100000 for 0000:02:00.0
-Jun  8 13:05:42 tosh kernel: PCI: Failed to allocate I/O resource #0:80@2000 for 0000:02:00.0
-Jun  8 13:05:42 tosh cardmgr[641]: could not adjust resource: IO ports 0xc00-0xcff: Input/output error
-Jun  8 13:05:42 tosh cardmgr[641]: could not adjust resource: IO ports 0x820-0x8ff: Input/output error
-Jun  8 13:05:42 tosh cardmgr[641]: could not adjust resource: IO ports 0x800-0x80f: Input/output error
-Jun  8 13:05:42 tosh cardmgr[641]: could not adjust resource: IO ports 0x3e0-0x4ff: Input/output error
-Jun  8 13:05:42 tosh cardmgr[641]: could not adjust resource: IO ports 0x100-0x3af: Input/output error
-Jun  8 13:05:42 tosh cardmgr[641]: could not adjust resource: memory 0xc0000-0xfffff: Input/output error
-Jun  8 13:05:42 tosh cardmgr[641]: could not adjust resource: memory 0x60000000-0x60ffffff: Input/output error
-Jun  8 13:05:42 tosh cardmgr[641]: could not adjust resource: memory 0xa0000000-0xa0ffffff: Input/output error
-Jun  8 13:05:42 tosh cardmgr[641]: could not adjust resource: IO ports 0xa00-0xaff: Input/output error
-Jun  8 13:05:42 tosh kernel: PCI: Device 0000:02:00.0 not available because of resource collisions
+Just do it. :^)
 
-See: http://scatter.mine.nu/test/boxen/tosh/  for relevant dmesg, 
-debug, syslog, 'grep = .config' and other info.
+> I've also seen some
+> complaints that it is very arch specific (x86 based).  But as no other
+> arches seem to want to support MSI, I don't really see any need to split
+> it up.  Any comments about this?
 
-Apart from no network, laptop worked okay to copy dmesg and 
-nicely reboot to different kernel.  'lapic' boot option made 
-no difference.  More info, testing on request.
+IA64 supports MSI/MSI-X. Roland, didn't PPC as well?
 
---Grant.
+I don't think it's *that* x86 specific.  The base address of the
+Processor interrupt Block (IIRC 0xfee0000) is implemented
+the same on several arches AFAIK. Even on some parisc chipsets.
+I been constantly chasing other basic issues on parisc and just
+haven't had time to implement it in the past 3 years.
 
+
+I also see one minor weakness in the assumption that CPU Vectors
+are global. Both IA64/PARISC can support per-CPU Vector tables.
+I thought some other arches could too but can't remember the details.
+Ie the same vector can be directed at different CPUs depending on
+which address the transaction targets. This vastly increases
+the number of unique vectors available on 2 or 4-way boxes.
+This is interesting if drivers start consuming multiple MSI-X
+vectors per card instance.
+
+grant

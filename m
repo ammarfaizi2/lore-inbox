@@ -1,51 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVFHTEo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261547AbVFHTNk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261546AbVFHTEo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 15:04:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVFHTEo
+	id S261547AbVFHTNk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 15:13:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVFHTNj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 15:04:44 -0400
-Received: from fmr22.intel.com ([143.183.121.14]:18357 "EHLO
-	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261546AbVFHTE3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 15:04:29 -0400
-Date: Wed, 8 Jun 2005 12:03:26 -0700
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-To: lk <linux_kernel@patni.com>
-Cc: helen monte <hzmonte@hotmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: How does 2.6 SMP scheduler initially assign a thread to a run queue?
-Message-ID: <20050608120325.A5554@unix-os.sc.intel.com>
-References: <BAY102-F24530D3EE13EBCA2B13336A0FA0@phx.gbl> <000e01c56c27$765c4510$5e91a8c0@patni.com>
+	Wed, 8 Jun 2005 15:13:39 -0400
+Received: from apollo.tuxdriver.com ([24.172.12.2]:16901 "EHLO
+	apollo.tuxdriver.com") by vger.kernel.org with ESMTP
+	id S261549AbVFHTMF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 15:12:05 -0400
+Date: Wed, 8 Jun 2005 15:11:57 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Cc: jgarzik@pobox.com
+Subject: [patch 2.6.12-rc6] b44: check link state during open
+Message-ID: <20050608191156.GA28376@tuxdriver.com>
+Mail-Followup-To: linux-kernel@vger.kernel.org, netdev@oss.sgi.com,
+	jgarzik@pobox.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <000e01c56c27$765c4510$5e91a8c0@patni.com>; from linux_kernel@patni.com on Wed, Jun 08, 2005 at 06:11:55PM +0530
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 08, 2005 at 06:11:55PM +0530, lk wrote:
-> > In the 2.6 kernel, there is one run queue per CPU, in case of an SMP.
-> > After a thread is created, how does the scheduler determine which run
-> > queue it goes to?  
-> 
-> First it forked process (child) gets the same CPU as that of parent.
-> forking a child gets the same CPU and later part of fork will call 
-> wake_up_new_task () to fetch the run-queue of the CPU and 
-> __activate_task () is called to move task into run-queue. 
-> Later rescheduling of the process may move process to another
-> run-queues.
+Check the link state during b44_open.  This closes a 1 HZ window
+that existed after b44_open ran but before the b44_timer handler ran,
+during which ethtool would report "Link detected: yes" no matter what
+the link state actually was.
 
-In -mm kernels, Nick has recently added balance on exec/fork.
+Signed-off-by: John W. Linville <linville@tuxdriver.com>
+---
 
-> > By the way, in an SMT/hyperthreading processor, does the latest kernel
-> > version assign one run queue per physical CPU, or per virtual 
-> > processor?
-> > 
-> 
-> one run-queue per physical CPU
+ drivers/net/b44.c |    3 +++
+ 1 files changed, 3 insertions(+)
 
-No. Each logical processor has its own runqueue.
-
-thanks,
-suresh
+--- linux-2.6.12-rc6/drivers/net/b44.c.orig	2005-06-08 14:52:35.000000000 -0400
++++ linux-2.6.12-rc6/drivers/net/b44.c	2005-06-08 14:52:43.000000000 -0400
+@@ -1285,6 +1285,9 @@ static int b44_open(struct net_device *d
+ 	b44_init_hw(bp);
+ 	bp->flags |= B44_FLAG_INIT_COMPLETE;
+ 
++	netif_carrier_off(dev);
++	b44_check_phy(bp);
++
+ 	spin_unlock_irq(&bp->lock);
+ 
+ 	init_timer(&bp->timer);
+-- 
+John W. Linville
+linville@tuxdriver.com

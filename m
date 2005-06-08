@@ -1,77 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261434AbVFHRIb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVFHRNQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261434AbVFHRIb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 13:08:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbVFHRHW
+	id S261428AbVFHRNQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 13:13:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbVFHRNC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 13:07:22 -0400
-Received: from rproxy.gmail.com ([64.233.170.199]:35436 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261386AbVFHRGp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 13:06:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iDNCYr+wNXIwKrKE2FLv5IV1WimW0S02jRWPmYma4PMg06mqLmi58N6jsUhYTHWS94CIMaG78TnOs/bNEciJodxrqetohPeFQf5jNLWb3DYgvyhoXMqhlMzlLpe3TEd+KlOS0DUe1aBF5YFAQTPLaVgKB1zwF0GaOo9JJDjbmRY=
-Message-ID: <d120d5000506081006340052a1@mail.gmail.com>
-Date: Wed, 8 Jun 2005 12:06:43 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Greg KH <greg@kroah.com>
-Subject: Re: [patch 2.6.12-rc3] modifications in firmware_class.c to support nohotplug
-Cc: Abhay_Salunke@dell.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Matt_Domsch@dell.com, ranty@debian.org
-In-Reply-To: <20050608162632.GA1588@kroah.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <367215741E167A4CA813C8F12CE0143B3ED3B6@ausx2kmpc115.aus.amer.dell.com>
-	 <20050608162632.GA1588@kroah.com>
+	Wed, 8 Jun 2005 13:13:02 -0400
+Received: from fmr20.intel.com ([134.134.136.19]:28069 "EHLO
+	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
+	id S261428AbVFHRLm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 13:11:42 -0400
+Message-ID: <42A7268D.9020402@linux.intel.com>
+Date: Wed, 08 Jun 2005 12:10:37 -0500
+From: James Ketrenos <jketreno@linux.intel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050519
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Denis Vlasenko <vda@ilport.com.ua>
+CC: Pavel Machek <pavel@ucw.cz>, Jeff Garzik <jgarzik@pobox.com>,
+       Netdev list <netdev@oss.sgi.com>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>
+Subject: Re: ipw2100: firmware problem
+References: <20050608142310.GA2339@elf.ucw.cz> <200506081744.20687.vda@ilport.com.ua>
+In-Reply-To: <200506081744.20687.vda@ilport.com.ua>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/8/05, Greg KH <greg@kroah.com> wrote:
-> On Wed, Jun 08, 2005 at 11:23:30AM -0500, Abhay_Salunke@Dell.com wrote:
-> >
-> >
-> > > -----Original Message-----
-> > > From: Greg KH [mailto:greg@kroah.com]
-> > > Sent: Wednesday, June 08, 2005 11:10 AM
-> > > To: Salunke, Abhay
-> > > Cc: dtor_core@ameritech.net; linux-kernel@vger.kernel.org;
-> > akpm@osdl.org;
-> > > Domsch, Matt; ranty@debian.org
-> > > Subject: Re: [patch 2.6.12-rc3] modifications in firmware_class.c to
-> > > support nohotplug
-> > >
-> > > On Wed, Jun 08, 2005 at 11:04:09AM -0500, Abhay_Salunke@Dell.com
-> > wrote:
-> > > > > I think it would be better if you just have request_firmware and
-> > > > > request_firmware_nowait accept timeout parameter that would
-> > override
-> > > > > default timeout in firmware_class. 0 would mean use default,
-> > > > > MAX_SCHED_TIMEOUT - wait indefinitely.
-> > > >
-> > > > But we still need to avoid hotplug being invoked as we need it be a
-> > > > manual process.
-> > >
-> > > No, hotplug can happen just fine (it happens loads of times today for
-> > > things that people don't care about.)
-> > >
-> > If hotplug happens the complete function is called which makes the
-> > request_firmware return with a failure.
-> 
-> If this was true, then the current code would not work at all.
-> 
+Denis Vlasenko wrote:
 
-What Abhay is trying to say is that default firmware.agent when it
-does not find requested firmware file writes -1 (abort) to "loading"
-attribute causing firmware_request to fail.
+>My position is that wifi drivers must start up in an "OFF" mode.
+>Do not send anything. Do not join APs or start IBSS.
+>Thus, no need to load fw in early boot.
+>  
+>
+This should be an option for the user if that is the desired behavior. 
+We support that with the ipw2100 and ipw2200 projects via module
+parameters to disable the radio during module load.  Having a standard
+module parameter for wireless drivers would be nice.
 
-I think it should be fixed in firmware.agent though, not in kernel -
-the agent shoudl just recognoze that sometimes not having firmware
-file is ok.
+My approach is to make the driver so it supports as many usage models as
+possible, leaving policy to other components of the system.  If the user
+wants it to scan and associate immediately, that should be supported. 
+Likewise if they want the module to be loaded w/ the radio off, they can
+do that as well.
 
--- 
-Dmitry
+Since most (if not all) laptops support an RF kill switch, I tend to
+defer to the physical switch as the user's point of control and set the
+driver defaults to try and use the radio if it is enabled.
+
+James
+

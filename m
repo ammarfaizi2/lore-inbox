@@ -1,76 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262180AbVFHLf1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262184AbVFHLhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262180AbVFHLf1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 07:35:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262177AbVFHLf1
+	id S262184AbVFHLhY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 07:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262183AbVFHLhW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 07:35:27 -0400
-Received: from vms046pub.verizon.net ([206.46.252.46]:2454 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S262180AbVFHLfR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 07:35:17 -0400
-Date: Wed, 08 Jun 2005 07:35:15 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.47-29
-In-reply-to: <20050608074847.GB13452@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>, Daniel Walker <dwalker@mvista.com>,
-       Esben Nielsen <simlo@phys.au.dk>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Steven Rostedt <rostedt@goodmis.org>
-Message-id: <200506080735.15530.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <20050607194119.GA11185@elte.hu> <20050608074254.GA13452@elte.hu>
- <20050608074847.GB13452@elte.hu>
-User-Agent: KMail/1.7
+	Wed, 8 Jun 2005 07:37:22 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:21485 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S262177AbVFHLgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 07:36:37 -0400
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [PATCH] SATA NCQ #4
+Date: Wed, 08 Jun 2005 21:36:24 +1000
+Organization: <http://scatter.mine.nu/>
+Message-ID: <qrjda1h0sbohfdi5t57rqpp581avqcslir@4ax.com>
+References: <20050608102857.GC18490@suse.de>
+In-Reply-To: <20050608102857.GC18490@suse.de>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 June 2005 03:48, Ingo Molnar wrote:
->* Ingo Molnar <mingo@elte.hu> wrote:
->> * Ingo Molnar <mingo@elte.hu> wrote:
->> > > There is a local_irq_enable missing someplace in UP ..
->> > >
->> > > BUG: scheduling with irqs disabled: khelper/0x00000000/5
->> > > caller is __down_mutex+0x276/0x440
->> > >  [<c03a88d6>] __down_mutex+0x276/0x440 (4)
->> >
->> > .config please.
->>
->> ok, managed to reproduce.
+Hi Jens,
+On Wed, 8 Jun 2005 12:28:59 +0200, Jens Axboe <axboe@suse.de> wrote:
 >
->ok, fixed it and uploaded the -47-30 patch with the fix.
->
-> Ingo
+>This should be pretty final, at least only minor stuff left. Changes:
 
-I just built this one, with RT but without the statistical stuff 
-enabled.  While rc6 works fine with tvtime-0.99, this gives a no 
-video blue screen, audio ok.
+Fell over here, on http://scatter.mine.nu/test/boxen/sempro/
 
-Its also found a phantom usb-serial-audio device and fouled up kmix 
-with two devices to control.  This causes a slash thru the icon for 
-kmix on the toolbar.  The lsusb -v output is many pages in length for 
-this mis-identified device as I believe thats the vendor:product for 
-a labtec webcam that is plugged in.  100% el-cheapo model.
+No logged info, just scrolling heaps junk on screen --> libata 
+I could see and I think 8 digit hex in [] on left.  
 
-config, dmesg saved if you'd like to see them.
+Hit RESET to reboot, no apparent filesystem damage :)  Sorry so 
+little info.  patched 2.6.12-rc6 cleanly  seemed to go stupid 
+during mount reiserfs partitions, about that stage of boot.
 
->-
->To unsubscribe from this list: send the line "unsubscribe
-> linux-kernel" in the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+Being a sucker for punishment, I recompiled with 8KB stacks, highmem 
+off (box has 1GB mem) and it go stupid when touch HDD, but USB started 
+okay while it stupid, saw USB messages and mouse lit up.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+Hit RESET to reboot...  Again, box safely back in 2.6.11.11 land :)
+
+--Grant.
+

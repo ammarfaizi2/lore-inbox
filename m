@@ -1,45 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261571AbVFHTgS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261574AbVFHTjr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261571AbVFHTgS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 15:36:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261573AbVFHTgR
+	id S261574AbVFHTjr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 15:39:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbVFHThE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 15:36:17 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:34002 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261571AbVFHTgA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 15:36:00 -0400
-Date: Wed, 8 Jun 2005 15:35:56 -0400
-From: Dave Jones <davej@redhat.com>
-To: Nick Warne <nick@linicks.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mtrr question
-Message-ID: <20050608193556.GI876@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Nick Warne <nick@linicks.net>, linux-kernel@vger.kernel.org
-References: <200506081917.09873.nick@linicks.net> <20050608192335.GG876@redhat.com> <200506082031.59987.nick@linicks.net>
-Mime-Version: 1.0
+	Wed, 8 Jun 2005 15:37:04 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:25790 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S261573AbVFHTgn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 15:36:43 -0400
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Jens Axboe <axboe@suse.de>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [PATCH] SATA NCQ #4
+Date: Thu, 09 Jun 2005 05:36:28 +1000
+Organization: <http://scatter.mine.nu/>
+Message-ID: <tbgea15ls0a5kovgnsr62fkhtgnspmjfeg@4ax.com>
+References: <20050608102857.GC18490@suse.de> <qrjda1h0sbohfdi5t57rqpp581avqcslir@4ax.com> <20050608114150.GE18490@suse.de> <20050608114526.GF18490@suse.de>
+In-Reply-To: <20050608114526.GF18490@suse.de>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506082031.59987.nick@linicks.net>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 08, 2005 at 08:31:59PM +0100, Nick Warne wrote:
+On Wed, 8 Jun 2005 13:45:26 +0200, Jens Axboe <axboe@suse.de> wrote:
+>
+>Any chance you can log the boot process when it fails, using serial
+>console or something similar? At least write down the EIP of where it
+>fails :-)
 
- > Ummm.  I see from boot logs that mtrr isn't detected like it is on my other 
- > (Dell) boxes.
+Guess what?  I switched box on this morning with monitor off and 
+the boot completed, 'cos I'd logged in much time later ssh.  Didn't 
+give it enough time yesterday :(
 
-Hmm, that sounds like it isn't compiled in. Though that doesn't make
-sense why you still have a /proc/mtrr
- 
- > This looks like my BIOS settings are wonky then.  What would it be 'called' to 
- > enable/disable mtrr on an AGP slot?
+I have one very large syslog... 139MB
 
-Its typically not a setting, just something the BIOS does as part
-of its CPU initialisation.  I've never encountered a BIOS that had
-it configurable.
+How much of that would you like :)
 
-		Dave
- 
+Jun  9 04:27:45 sempro kernel:  [<c0100ad3>] default_idle+0x23/0x30
+Jun  9 04:27:45 sempro kernel:  [<c0100b58>] cpu_idle+0x48/0x60
+Jun  9 04:27:45 sempro kernel:  [<c04867b8>] start_kernel+0x148/0x170
+Jun  9 04:27:45 sempro kernel:  [<c04863a0>] unknown_bootoption+0x0/0x1b0
+Jun  9 04:27:45 sempro kernel: Badness in __ata_qc_complete at drivers/scsi/libata-core.c:3062
+Jun  9 04:27:45 sempro kernel:  [<c02ae908>] __ata_qc_complete+0x38/0x120
+Jun  9 04:27:45 sempro kernel:  [<c02b0d9b>] ata_scsi_qc_complete+0x2b/0x50
+Jun  9 04:27:45 sempro kernel:  [<c02aeac6>] ata_qc_complete+0x46/0xc0
+Jun  9 04:27:45 sempro kernel:  [<c02af13d>] ata_interrupt+0xcd/0x110
+Jun  9 04:27:45 sempro kernel:  [<c01308e0>] handle_IRQ_event+0x30/0x70
+Jun  9 04:27:45 sempro kernel:  [<c01309c2>] __do_IRQ+0xa2/0xe0
+Jun  9 04:27:45 sempro kernel:  [<c0105059>] do_IRQ+0x19/0x30
+Jun  9 04:27:45 sempro kernel:  [<c0103492>] common_interrupt+0x1a/0x20
+Jun  9 04:27:45 sempro kernel:  [<c0100ab0>] default_idle+0x0/0x30
+Jun  9 04:27:45 sempro kernel:  [<c0100ad3>] default_idle+0x23/0x30
+Jun  9 04:27:45 sempro kernel:  [<c0100b58>] cpu_idle+0x48/0x60
+Jun  9 04:27:45 sempro kernel:  [<c04867b8>] start_kernel+0x148/0x170
+Jun  9 04:27:45 sempro kernel:  [<c04863a0>] unknown_bootoption+0x0/0x1b0
+Jun  9 04:27:45 sempro kernel: Badness in __ata_qc_complete at drivers/scsi/libata-core.c:3062
+
+--Grant.
+

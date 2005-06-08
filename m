@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbVFHSiD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261501AbVFHSrC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261488AbVFHSiD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 14:38:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbVFHSiD
+	id S261501AbVFHSrC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 14:47:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVFHSrC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 14:38:03 -0400
-Received: from stargate.chelsio.com ([64.186.171.138]:30772 "EHLO
-	stargate.chelsio.com") by vger.kernel.org with ESMTP
-	id S261488AbVFHSh5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 14:37:57 -0400
-Message-ID: <42A73C5F.7070706@chelsio.com>
-Date: Wed, 08 Jun 2005 11:43:43 -0700
-From: Scott Bardone <sbardone@chelsio.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>
-CC: Lukas Hejtmanek <xhejtman@mail.muni.cz>,
-       Francois Romieu <romieu@fr.zoreil.com>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.12-rc6-mm1 & Chelsio driver
-References: <20050607181300.GL2369@mail.muni.cz> <42A5EC7C.4020202@pobox.com> <20050607185845.GM2369@mail.muni.cz> <42A5F51B.5060909@pobox.com> <20050607193305.GN2369@mail.muni.cz> <20050607200820.GA25546@electric-eye.fr.zoreil.com> <20050607211048.GO2369@mail.muni.cz> <42A655C2.3030406@chelsio.com> <20050608174640.GA14954@infradead.org>
-In-Reply-To: <20050608174640.GA14954@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Jun 2005 18:35:51.0173 (UTC) FILETIME=[E5694350:01C56C58]
+	Wed, 8 Jun 2005 14:47:02 -0400
+Received: from [194.90.237.34] ([194.90.237.34]:63047 "EHLO
+	mtlex01.yok.mtl.com") by vger.kernel.org with ESMTP id S261501AbVFHSq6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 14:46:58 -0400
+Date: Wed, 8 Jun 2005 21:47:22 +0300
+From: "Michael S. Tsirkin" <mst@mellanox.co.il>
+To: Greg KH <gregkh@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
+       "David S. Miller" <davem@davemloft.net>, tom.l.nguyen@intel.com,
+       roland@topspin.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, ak@suse.de
+Subject: Re: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi() for drivers - take 2
+Message-ID: <20050608184722.GA11380@mellanox.co.il>
+Reply-To: "Michael S. Tsirkin" <mst@mellanox.co.il>
+References: <20050608060242.GA8035@mellanox.co.il>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050607002045.GA12849@suse.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We modify the existing Linux TCP stack to add "hooks" so that our card can 
-perform TCP offload and HW based checksum, thus making it possible to see high 
-throughput with multiple connections and low CPU utilization.
+> So, anyone else think this is a good idea?  Votes for me to just drop it
+> and go back to hacking on the driver core instead?
 
-We add 2 source files to the kernel, toedev.c and offload.c. We also modify 
-neighbor.c, tcp.c, tcp_diag.c, tcp_ipv4.c, tcp_timer.c to add functions for our 
-TOE capabilities so that the offloaded packet can be sent to our hardware 
-(offload) path instead of going through the software (TCP stack) path.
+OT, what I'd like see changed with current MSI/MSI-X code is
+the masking/unmasking of vectors currently performed on each interrupt.
 
-Our processing engine is an ASIC with a HW based TCP stack which processes 
-packets with Chelsio's CPL messages (Chelsio Protocol Language). I would not 
-consider it a derived work.
+Note that in MSI some devices dont support per-vector masking,
+while in MSI-X the masking is performed by means of PCI write with no flush,
+which might not yet reach the device by the time the handler is called.
 
--Scott
+IMHO, its better to have helper functions for drivers to mask/unmask vectors
+if/when they need to, removing some overhead for drivers that dont need this
+masking, and giving drivers the ability to combine the masking write with
+read to actually mask interrupts if they do need it.
 
+Does this make sense to anyone?
 
-Christoph Hellwig wrote:
-> On Tue, Jun 07, 2005 at 07:19:46PM -0700, Scott Bardone wrote:
-> 
->>We currently don't have the TOE API in the Linux kernel so the TOE 
->>functionality does not exist, therefore you can only use the Chelsio 
->>modified 2.6.6 kernel for TOE.
-> 
-> 
-> Care to explain what modifications you do, and whether or not you consider
-> your card firmware a derived work of the TCP stack because of them?
-> 
+MST

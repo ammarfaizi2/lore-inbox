@@ -1,85 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261401AbVFHQaQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261375AbVFHQXd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261401AbVFHQaQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 12:30:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261395AbVFHQ2g
+	id S261375AbVFHQXd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 12:23:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVFHQWZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 12:28:36 -0400
-Received: from mail2.utc.com ([192.249.46.191]:21758 "EHLO mail2.utc.com")
-	by vger.kernel.org with ESMTP id S261333AbVFHQ0t (ORCPT
+	Wed, 8 Jun 2005 12:22:25 -0400
+Received: from mail.kroah.org ([69.55.234.183]:22415 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261355AbVFHQTW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 12:26:49 -0400
-Message-ID: <42A71C3C.9020707@cybsft.com>
-Date: Wed, 08 Jun 2005 11:26:36 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "K.R. Foley" <kr@cybsft.com>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-References: <20050608112801.GA31084@elte.hu> <42A7135C.5010704@cybsft.com> <42A717E1.5050505@cybsft.com>
-In-Reply-To: <42A717E1.5050505@cybsft.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Jun 2005 12:19:22 -0400
+Date: Wed, 8 Jun 2005 09:19:10 -0700
+From: Greg KH <greg@kroah.com>
+To: dtor_core@ameritech.net
+Cc: Abhay Salunke <Abhay_Salunke@dell.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, matt_domsch@dell.com,
+       Manuel Estrada Sainz <ranty@debian.org>
+Subject: Re: [patch 2.6.12-rc3] modifications in firmware_class.c to support nohotplug
+Message-ID: <20050608161909.GC1122@kroah.com>
+References: <20050608151744.GA12180@littleblue.us.dell.com> <d120d50005060808565a7944f2@mail.gmail.com> <20050608160244.GA1122@kroah.com> <d120d5000506080909c17e973@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d5000506080909c17e973@mail.gmail.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-K.R. Foley wrote:
-> K.R. Foley wrote:
+On Wed, Jun 08, 2005 at 11:09:53AM -0500, Dmitry Torokhov wrote:
+> On 6/8/05, Greg KH <greg@kroah.com> wrote:
+> > On Wed, Jun 08, 2005 at 10:56:19AM -0500, Dmitry Torokhov wrote:
+> > > On 6/8/05, Abhay Salunke <Abhay_Salunke@dell.com> wrote:
+> > > > @@ -364,6 +364,7 @@ fw_setup_class_device(struct firmware *f
+> > > >                printk(KERN_ERR "%s: class_device_create_file failed\n",
+> > > >                       __FUNCTION__);
+> > > >                goto error_unreg;
+> > > > +r
+> > >
+> > > What is this?
+> > 
+> > Proof he didn't test the code :(
+> > 
+> > > I think it would be better if you just have request_firmware and
+> > > request_firmware_nowait accept timeout parameter that would override
+> > > default timeout in firmware_class. 0 would mean use default,
+> > > MAX_SCHED_TIMEOUT - wait indefinitely.
+> > 
+> > Yes and no.  Yes in that we should have a timeout value.  No in that 0
+> > should be "forever" and we #define the current 10 second value.
+> > 
 > 
->> Ingo Molnar wrote:
->>
->>> i have released the -V0.7.48-00 Real-Time Preemption patch, which can 
->>> be downloaded from the usual place:
->>>
->>>     http://redhat.com/~mingo/realtime-preempt/
->>>
->>> this release includes an improved version of Daniel Walker's soft 
->>> irq-flag (hardirq-disable removal) feature. It is an unconditional part
->>> of the PREEMPT_RT preemption model - other preemption models should not
->>> be affected that much (besides possible build issues). Non-x86 arches
->>> wont build. Some regressions might happen, so take care..
->>>
->>> Changes since -47-29:
->>>
->>>  - soft IRQ flag support (Daniel Walker)
->>>
->>>  - fix race in usbnet.c (Eugeny S. Mints)
->>>
->>>  - further improvements to the soft IRQ flag code
->>>
->>> to build a -V0.7.48-00 tree, the following patches should to be applied:
->>>
->>>    http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.11.tar.bz2
->>>    http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.12-rc6.bz2
->>>    
->>> http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.12-rc6-V0.7.48-00 
->>>
->>>
->>>     Ingo
->>
->>
->>
->> Ingo,
->>
->> I can't get any version of RT-preempt applied to 2.6.12-rc6 up to and 
->> including 48-01 to boot on any of my SMP systems. I get no log because 
->> it dies right after the "Uncompressing kernel" message. 2.6.12-rc6 
->> boots fine.  I am attaching my config. Am I missing something obvious? 
->> I am building 48-01 with voluntary-preempt now to try that.
->>
->>
-> 
-> Just confirmed that CONFIG_PREEMPT_VOLUNTARY works OK. Building 
-> CONFIG_PREEMPT_DESKTOP=y now.
-> 
-This too, works OK. Ideas?
+> Are you saying that we should rip out of the firmware_class current
+> timeout attribute?
 
--- 
-    kr
+Change it from being a global to local to the firmware device?
+
+> I thought it was a nice to have system-wide defult that can be
+> adjusted by operator w/o need to recompile anything.
+
+But (as recent udev bugs have proven) no one ever changes that default
+value :(
+
+In the end, I don't really care either way.  All I would like to see is
+for there to be a timeout value for the function calls like you state
+above.
+
+thanks,
+
+greg k-h

@@ -1,76 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262141AbVFHIYN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262128AbVFHImd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262141AbVFHIYN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 04:24:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262144AbVFHIYM
+	id S262128AbVFHImd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 04:42:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262144AbVFHImd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 04:24:12 -0400
-Received: from relay.nsnoc.com ([195.69.95.145]:52135 "EHLO vs145.ukvs.net")
-	by vger.kernel.org with ESMTP id S262141AbVFHIYG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 04:24:06 -0400
-Message-ID: <42A6AB1B.8000800@a-wing.co.uk>
-Date: Wed, 08 Jun 2005 09:23:55 +0100
-From: Andrew Hutchings <info@a-wing.co.uk>
-Reply-To: info@a-wing.co.uk
-Organization: A-Wing Internet Services
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Wed, 8 Jun 2005 04:42:33 -0400
+Received: from web25805.mail.ukl.yahoo.com ([217.12.10.190]:40085 "HELO
+	web25805.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262128AbVFHIm2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 04:42:28 -0400
+Message-ID: <20050608084224.53355.qmail@web25805.mail.ukl.yahoo.com>
+Date: Wed, 8 Jun 2005 10:42:24 +0200 (CEST)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Re: Advices for a lcd driver design. (suite)
+To: Lukasz Stelmach <stlman@poczta.fm>
+Cc: Pavel Machek <pavel@ucw.cz>, linux-kernel@vger.kernel.org
+In-Reply-To: <42A604AA.2090907@poczta.fm>
 MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: sis5513.c patch
-References: <42A621BC.7040607@a-wing.co.uk> <58cb370e05060800276f3fc29c@mail.gmail.com>
-In-Reply-To: <58cb370e05060800276f3fc29c@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> On 6/8/05, Andrew Hutchings <info@a-wing.co.uk> wrote:
+
+--- Lukasz Stelmach <stlman@poczta.fm> a écrit :
+
+> moreau francis napisaÅ‚(a):
 > 
->>Hi,
+> > well I already looked at framebuffers and choose to not use them because
+> > t6963c controller does not have a frame buffer memory that can be accessed
+> > by using mmap.
+> [...]
+> > am I wrong in my choice ?
 > 
+> I think the "buffer" could be shadowed in kernel and updated periodically.
+>
+
+Ok I can try using frame buffer, but I'm afraid to use such code for such
+small graphic device. Maybe for the start I can forget use "mmap" and use only
+"write" method ?
+Do you know if I can find an example in kernel code for such implementation ?
+ 
 > 
-> Hi,
+> Yes and no. No because framebuffer is about drawing graphics not text
+> and yest for there is fbcon console driver on top of the framebuffer. At
+> least AFAIK.
 > 
 
-Hi again,
+does that mean once there is fbcon console driver set up on top of framebuffer
+I can't use anymore /dev/fb for drawing graphics ?
 
+> BTW, have you seen these
+> http://www.skippari.net/lcd/t6963c_prog.html
+> http://wwwthep.physik.uni-mainz.de/~frink/lcd-t6963c-0.1/README.html
 > 
->>I'm not sure if a similar patch has been submitted or not, but here is a
->>patch to get DMA working on ASUS K8S-MX with a SiS 760GX/SiS 965L
->>chipset combo.
-> 
-> 
-> This patch is incorrect, it adds PCI ID of SiS IDE controller (this ID 
-> is common for almost all SiS IDE controllers and is already present in 
-> sis5513_pci_tbl[]) to the table of SiS Host PCI IDs.  As a result driver 
-> will try to use ATA_133 on all _unknown_ IDE controllers.  You need
-> to add PCI ID of the Host chipset (lspci should reveal it) instead.
 
-Unless I am reading the following wrong 5513 is the PCI ID:
+yeah, but there's only one driver that uses text console implementation
+and it can't be accessed for drawing graphics.
 
-00:02.5 Class 0101: 1039:5513 (rev 01) (prog-if 80 [Master])
-	Subsystem: 1043:8139
-	Flags: bus master, medium devsel, latency 128
-	I/O ports at <unassigned>
-	I/O ports at <unassigned>
-	I/O ports at <unassigned>
-	I/O ports at <unassigned>
-	I/O ports at ffa0 [size=16]
-	Capabilities: [58] Power Management version 2
+thanks
 
-> 
-> Thanks,
-> Bartlomiej
+           Francis
 
-Regards
-Andrew
--- 
-Andrew Hutchings (A-Wing)
-Linux Guru - Netserve Consultants Ltd. - http://www.domaincity.co.uk/
-Admin - North Wales Linux User Group - http://www.nwlug.org.uk/
-BOFH excuse 424: operation failed because: there is no message for this 
-error (#1014)
+
+	
+
+	
+		
+_____________________________________________________________________________ 
+Découvrez le nouveau Yahoo! Mail : 1 Go d'espace de stockage pour vos mails, photos et vidéos ! 
+Créez votre Yahoo! Mail sur http://fr.mail.yahoo.com

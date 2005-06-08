@@ -1,66 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262003AbVFHVmH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262005AbVFHVqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262003AbVFHVmH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 17:42:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262004AbVFHVmH
+	id S262005AbVFHVqT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 17:46:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262007AbVFHVqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 17:42:07 -0400
-Received: from grendel.digitalservice.pl ([217.67.200.140]:64747 "HELO
-	mail.digitalservice.pl") by vger.kernel.org with SMTP
-	id S262003AbVFHVmC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 17:42:02 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pavel Machek <pavel@suse.cz>
-Subject: Re: [linux-pm] Re: swsusp: Not enough free pages
-Date: Wed, 8 Jun 2005 23:42:13 +0200
-User-Agent: KMail/1.8.1
-Cc: linux-pm@lists.osdl.org, "Yu, Luming" <luming.yu@intel.com>,
-       Andrew Morton <akpm@zip.com.au>,
-       ACPI devel <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-References: <3ACA40606221794F80A5670F0AF15F84041AC1A8@pdsmsx403> <200506081702.53349.rjw@sisk.pl> <20050608162728.GA3969@openzaurus.ucw.cz>
-In-Reply-To: <20050608162728.GA3969@openzaurus.ucw.cz>
+	Wed, 8 Jun 2005 17:46:18 -0400
+Received: from fmr19.intel.com ([134.134.136.18]:47843 "EHLO
+	orsfmr004.jf.intel.com") by vger.kernel.org with ESMTP
+	id S262005AbVFHVqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 17:46:15 -0400
+Message-ID: <42A76719.2060700@linux.intel.com>
+Date: Wed, 08 Jun 2005 16:46:01 -0500
+From: James Ketrenos <jketreno@linux.intel.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050519
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Pavel Machek <pavel@ucw.cz>
+CC: Jeff Garzik <jgarzik@pobox.com>, Netdev list <netdev@oss.sgi.com>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>
+Subject: Re: ipw2100: firmware problem
+References: <20050608142310.GA2339@elf.ucw.cz> <42A723D3.3060001@linux.intel.com> <20050608212707.GA2535@elf.ucw.cz>
+In-Reply-To: <20050608212707.GA2535@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506082342.14420.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Pavel Machek wrote:
 
-On Wednesday, 8 of June 2005 18:27, Pavel Machek wrote:
-> Hi!
-> 
-]--snip--[
-> > 
-> > This is the worst result from the second box:
-> > 
-> > Freeing memory...  done (54641 pages freed)
-> > Freeing memory...  done (0 pages freed)
-> > Freeing memory...  done (5120 pages freed)
-> > Freeing memory...  done (1952 pages freed)
-> > Freeing memory...  done (2304 pages freed)
-> > 
-> > Still, there are 5x more pages freed in the first pass (80% of RAM was
-> > empty anyway before suspend), and usually it is 10-20x more or so.
-> 
-> I have seen 0 freed on i386 machine with preempt -rc6-mm1, today...
-> Something is definitely wrong there.
+>>We've been looking into whether the initrd can have the firmware affixed
+>>to the end w/ some magic bytes to identify it.  If it works, enhancing
+>>the request_firmware to support both hotplug and an initrd approach may
+>>be reasonable.
+>>    
+>>
+>
+>That seems pretty ugly to me... imagine more than one driver does this
+>:-(.
+>  
+>
+Not ideal, but not *that bad* if there is a standard way to stick the
+data on the initrd image.  Its annoying to have to do it, but it does
+enable the most usage models and allows the network to be brought up as
+early as possible--which other components in the system may be relying on.
 
-Well, I have compiled the kernel with preempt and retested (on -rc6) but it
-doesn't want to get worse. :-)
+>Having a parameter to control this seems a bit too complex to me.
+>
+>How is 
+>
+>insmod ipw2100 enable=1
+>
+>different from
+>
+>insmod ipw2100
+>iwconfig eth1 start_scanning_or_whatever
+>
+>?
+>  
+>
+It defaults to enabled, so you just need to do:
 
-The problem seems to be arch-dependent or at least configuration-dependent ... 
+    insmod ipw2100
 
-Hm, how much RAM is there in your box?
+and it will auto associate with an open network.  For the use case where
+users want the device to load but not initialize, they can use
 
-Rafael
+    insmod ipw2100 disable=1
 
+If hotplug and firmware loading worked early in the init sequence, no
+one would have issue with the current model; it works as users expect it
+to work.  It magically finds and associates to networks, and your
+network scripts can then kick off DHCP, all with little to no special
+crafting or utility interfacing. 
 
--- 
-- Would you tell me, please, which way I ought to go from here?
-- That depends a good deal on where you want to get to.
-		-- Lewis Carroll "Alice's Adventures in Wonderland"
+James
+

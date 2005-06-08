@@ -1,75 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261369AbVFHQJM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261382AbVFHQV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261369AbVFHQJM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 12:09:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVFHQIg
+	id S261382AbVFHQV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 12:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVFHQJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 12:08:36 -0400
-Received: from fed1rmmtao03.cox.net ([68.230.241.36]:5512 "EHLO
-	fed1rmmtao03.cox.net") by vger.kernel.org with ESMTP
-	id S261339AbVFHQBG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 12:01:06 -0400
-Date: Wed, 8 Jun 2005 09:01:03 -0700
-From: Matt Porter <mporter@kernel.crashing.org>
-To: Kumar Gala <kumar.gala@freescale.com>
-Cc: linux-kernel@vger.kernel.org, linuxppc-embedded@ozlabs.org
-Subject: Re: [PATCH][4/5] RapidIO support: ppc32
-Message-ID: <20050608090103.A32468@cox.net>
-References: <20050607225210.A28898@cox.net> <609b05dd2d9806d7d1cd68696b1f49e2@freescale.com>
+	Wed, 8 Jun 2005 12:09:12 -0400
+Received: from mail.kroah.org ([69.55.234.183]:34953 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261355AbVFHQC4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 12:02:56 -0400
+Date: Wed, 8 Jun 2005 09:02:44 -0700
+From: Greg KH <greg@kroah.com>
+To: dtor_core@ameritech.net
+Cc: Abhay Salunke <Abhay_Salunke@dell.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, matt_domsch@dell.com,
+       Manuel Estrada Sainz <ranty@debian.org>
+Subject: Re: [patch 2.6.12-rc3] modifications in firmware_class.c to support nohotplug
+Message-ID: <20050608160244.GA1122@kroah.com>
+References: <20050608151744.GA12180@littleblue.us.dell.com> <d120d50005060808565a7944f2@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <609b05dd2d9806d7d1cd68696b1f49e2@freescale.com>; from kumar.gala@freescale.com on Wed, Jun 08, 2005 at 10:34:03AM -0500
+In-Reply-To: <d120d50005060808565a7944f2@mail.gmail.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 08, 2005 at 10:34:03AM -0500, Kumar Gala wrote:
+On Wed, Jun 08, 2005 at 10:56:19AM -0500, Dmitry Torokhov wrote:
+> On 6/8/05, Abhay Salunke <Abhay_Salunke@dell.com> wrote:
+> > @@ -364,6 +364,7 @@ fw_setup_class_device(struct firmware *f
+> >                printk(KERN_ERR "%s: class_device_create_file failed\n",
+> >                       __FUNCTION__);
+> >                goto error_unreg;
+> > +r
 > 
-> On Jun 8, 2005, at 12:52 AM, Matt Porter wrote:
-> 
-> > On Tue, Jun 07, 2005 at 11:43:26PM -0500, Kumar Gala wrote:
-> >> Two questions:
-> >> 1. how well does will all of this handle > 32-bit phys addr?
-> >
-> > It does and it doesn't handle > 32-bit phys addr. It depends on which
-> > configuration you are talking about.  If you are talking about I/O
-> >> 32-bit, it's no problem.  If you are talking about handling DMA
-> >> 32-bit,
-> > then we need to handle a 64-bit DMA addr in the ppc32 implementations
-> > and
-> > also extend the arch messaging interface to let callers know when an
-> > implementation can handle high DMA (system memory >4GB). This is all
-> > pretty easy to handle once we need to support such a processor. So
-> > far, nothing is available publicly. :)
-> 
-> Well 8548 is semi-public :)
+> What is this?
 
-Heh, well my definition is when Fscale has the reference manual
-downloadable from the main website...as of last night that wasn't
-the case for 8548. :)
+Proof he didn't test the code :(
 
-<snip>
+> I think it would be better if you just have request_firmware and
+> request_firmware_nowait accept timeout parameter that would override
+> default timeout in firmware_class. 0 would mean use default,
+> MAX_SCHED_TIMEOUT - wait indefinitely.
 
-> >> I would prefer if we could have the memory offsets and irq's not be
-> >> straight from the #define's
-> >
-> > I think this and #2 are separate issues. We can pass the mpc85xx
-> > rio init code some parameters to abstract things to different
-> > parts. This is similar to how we init different SoC's PCI host
-> > bridges with some common code on PPC32 (marvell, 85xx, etc).
-> >
-> > I was just looking at doing this to support RIO on the 8548. At
-> > the time I wrote this 85xx support there wasn't any info on the
-> > 8548 available, but it's an easy thing to extend.
-> 
-> Agreed, they are separate issues, I'm cool on waiting to see what 
-> happens with RIO <-> PCIE bridges in the future.  For now if you can 
-> look at abstracting the offset, irq info that would be good (especially 
-> since 8548 does msg'g a bit differently).
+Yes and no.  Yes in that we should have a timeout value.  No in that 0
+should be "forever" and we #define the current 10 second value.
 
-No problem. The first "ppc85xx_rio.c" was only intended to work on
-the 8540/8560 stuff where I had hardware. From my look at 8548, it
-shouldn't take much work.
+thanks,
 
--Matt
+greg k-h

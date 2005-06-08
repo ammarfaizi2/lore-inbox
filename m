@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261428AbVFHRNQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVFHRNd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261428AbVFHRNQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 13:13:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbVFHRNC
+	id S261443AbVFHRNd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 13:13:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbVFHRNR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 13:13:02 -0400
-Received: from fmr20.intel.com ([134.134.136.19]:28069 "EHLO
-	orsfmr005.jf.intel.com") by vger.kernel.org with ESMTP
-	id S261428AbVFHRLm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 13:11:42 -0400
-Message-ID: <42A7268D.9020402@linux.intel.com>
-Date: Wed, 08 Jun 2005 12:10:37 -0500
-From: James Ketrenos <jketreno@linux.intel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050519
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Denis Vlasenko <vda@ilport.com.ua>
-CC: Pavel Machek <pavel@ucw.cz>, Jeff Garzik <jgarzik@pobox.com>,
-       Netdev list <netdev@oss.sgi.com>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>
-Subject: Re: ipw2100: firmware problem
-References: <20050608142310.GA2339@elf.ucw.cz> <200506081744.20687.vda@ilport.com.ua>
-In-Reply-To: <200506081744.20687.vda@ilport.com.ua>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Jun 2005 13:13:17 -0400
+Received: from colo.lackof.org ([198.49.126.79]:58333 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S261386AbVFHRLA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 13:11:00 -0400
+Date: Wed, 8 Jun 2005 11:14:40 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Greg KH <gregkh@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, Roland Dreier <roland@topspin.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Andrew Vasquez <andrew.vasquez@qlogic.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       "David S. Miller" <davem@davemloft.net>, tom.l.nguyen@intel.com
+Subject: Re: [Penance PATCH] PCI: clean up the MSI code a bit
+Message-ID: <20050608171440.GD5908@colo.lackof.org>
+References: <20050608063559.GA22869@suse.de> <20050608134109.GW23831@wotan.suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050608134109.GW23831@wotan.suse.de>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Denis Vlasenko wrote:
+On Wed, Jun 08, 2005 at 03:41:09PM +0200, Andi Kleen wrote:
+> I disagree it should stay as it is. Basically you are trading
+> a bit less complexity in Infiniband now for a lot of code everywhere.
 
->My position is that wifi drivers must start up in an "OFF" mode.
->Do not send anything. Do not join APs or start IBSS.
->Thus, no need to load fw in early boot.
->  
->
-This should be an option for the user if that is the desired behavior. 
-We support that with the ipw2100 and ipw2200 projects via module
-parameters to disable the radio during module load.  Having a standard
-module parameter for wireless drivers would be nice.
+It's not just infiniband. It's tg3 and e1000 as well.
 
-My approach is to make the driver so it supports as many usage models as
-possible, leaving policy to other components of the system.  If the user
-wants it to scan and associate immediately, that should be supported. 
-Likewise if they want the module to be loaded w/ the radio off, they can
-do that as well.
-
-Since most (if not all) laptops support an RF kill switch, I tend to
-defer to the physical switch as the user's point of control and set the
-driver defaults to try and use the radio if it is enabled.
-
-James
-
+grant

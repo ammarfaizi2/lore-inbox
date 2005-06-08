@@ -1,99 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261367AbVFHW5w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVFHXDD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261367AbVFHW5w (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 18:57:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261418AbVFHW5v
+	id S261351AbVFHXDD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 19:03:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbVFHXDD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 18:57:51 -0400
-Received: from CPE00095b3131a0-CM0011ae8cd564.cpe.net.cable.rogers.com ([70.29.53.229]:28032
-	"EHLO kenichi") by vger.kernel.org with ESMTP id S261367AbVFHW4z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 18:56:55 -0400
-From: Andrew James Wade 
-	<ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: BUG in i2c_detach_client
-Date: Wed, 8 Jun 2005 18:56:44 -0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, Jean Delvare <khali@linux-fr.org>,
-       Greg KH <greg@kroah.com>
-References: <20050607042931.23f8f8e0.akpm@osdl.org> <200506081033.12445.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com> <20050608142631.7e956792.akpm@osdl.org>
-In-Reply-To: <20050608142631.7e956792.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 8 Jun 2005 19:03:03 -0400
+Received: from gate.crashing.org ([63.228.1.57]:2471 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S261351AbVFHXC5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 19:02:57 -0400
+Subject: Re: [PATCH] fix tulip suspend/resume
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Adam Belay <abelay@novell.com>, greg@kroah.com,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Karsten Keil <kkeil@suse.de>
+In-Reply-To: <20050608122320.GC1898@elf.ucw.cz>
+References: <20050606224645.GA23989@pingi3.kke.suse.de>
+	 <Pine.LNX.4.58.0506061702430.1876@ppc970.osdl.org>
+	 <20050607025054.GC3289@neo.rr.com>
+	 <20050607105552.GA27496@pingi3.kke.suse.de>
+	 <20050607205800.GB8300@neo.rr.com> <1118190373.6850.85.camel@gaston>
+	 <1118196980.3245.68.camel@localhost.localdomain>
+	 <20050608122320.GC1898@elf.ucw.cz>
+Content-Type: text/plain
+Date: Thu, 09 Jun 2005 09:00:04 +1000
+Message-Id: <1118271605.6850.137.camel@gaston>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506081856.45334.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On June 8, 2005 05:26 pm, Andrew Morton wrote:
-> Were there no interesting printks before this BUG hit?
-Nope :-(
 
-> It's due to the kernel running list_del() on a list_head which isn't on a list.
+> > I think we should also use the pm_message_t defines.  We will need to
+> > add PMSG_FREEZE eventually.  I decided to default to the current state
+> > rather than panic.  Does this patch look ok?
 > 
-> Seems there is an error-path bug in that driver, but I don' thtink the fix
-> will fix it.  Please test?
-Will do. But I don't think that's it. I've been adding printks to determine the
-execution path and it goes through the ERROR3 path in asb100_detect(), which means
-AFACT that the error path in asb100_detect_subclients() isn't taken:
+> No.
 
-ERROR3:
-        i2c_detach_client(data->lm75[0]);
-        kfree(data->lm75[1]);
-        kfree(data->lm75[0]);
-ERROR2:
-        i2c_detach_client(new_client); // <--- BUG() in here.
-ERROR1:
-        kfree(data);
-ERROR0:
-        return err;
+Hrm... I don't follow you anymore here ...
 
-But the ERROR2 path does work despite the location of the bug. If I apply:
+>         case PM_EVENT_ON:
+>                 return PCI_D0;
+>         case PM_EVENT_FREEZE:
+>         case PM_EVENT_SUSPEND:
+>                 return PCI_D3hot;
 
---- 2.6.12-rc6-mm1/drivers/i2c/chips/asb100.c   2005-06-08 17:46:02.123864000 -0400
-+++ linux/drivers/i2c/chips/asb100.c    2005-06-08 17:59:21.461819500 -0400
-@@ -811,6 +811,7 @@ static int asb100_detect(struct i2c_adap
-        if ((err = i2c_attach_client(new_client)))
-                goto ERROR1;
+What are these new PM_EVENT_* things ? I though we defined PMSG_* ?
 
-+        goto ERROR2;
-        /* Attach secondary lm75 clients */
-        if ((err = asb100_detect_subclients(adapter, address, kind,
-                        new_client)))
-@@ -874,7 +875,6 @@ static int asb100_detach_client(struct i
- {
-        int err;
+> You passed invalid argument; I see no reason why you should paper over
+> it and risk continuing. This happens during system suspend; it is
+> quite possible that user will not see your printk when machine powers
+> off just after that; and remember that it will not be in syslog after
+> resume.
 
--       hwmon_device_unregister(client->class_dev);
+Crap. I don't think a BUG() makes any useful help neither in this place,
+and when I locally turn PMSG_FREEZE to something sane I suddenly blow up
+in there (and I wonder in how many other places).
 
-        if ((err = i2c_detach_client(client))) {
-                dev_err(&client->dev, "client deregistration failed; "
+Ben.
 
-No bug(). But the ERROR3 path doesn't:
---- 2.6.12-rc6-mm1/drivers/i2c/chips/asb100.c   2005-06-08 17:46:02.123864000 -0400
-+++ linux/drivers/i2c/chips/asb100.c    2005-06-08 17:58:15.749712750 -0400
-@@ -815,6 +815,7 @@ static int asb100_detect(struct i2c_adap
-        if ((err = asb100_detect_subclients(adapter, address, kind,
-                        new_client)))
-                goto ERROR2;
-+        goto ERROR3;
 
-        /* Initialize the chip */
-        asb100_init_client(new_client);
-@@ -874,7 +875,6 @@ static int asb100_detach_client(struct i
- {
-        int err;
-
--       hwmon_device_unregister(client->class_dev);
-
-        if ((err = i2c_detach_client(client))) {
-                dev_err(&client->dev, "client deregistration failed; "
-
-causes a BUG(). I've yet to track the problem down further. Unfortunately
-I have no more time today, I'll play with it again tomorrow.
-
-Regards,
-Andrew

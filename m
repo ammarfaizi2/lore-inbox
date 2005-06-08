@@ -1,93 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVFHQnD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261353AbVFHQnC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261358AbVFHQnD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 12:43:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbVFHQlA
+	id S261353AbVFHQnC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 12:43:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261358AbVFHQlX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 12:41:00 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:10505 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S261392AbVFHQfU convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 12:35:20 -0400
-X-IronPort-AV: i="3.93,183,1115010000"; 
-   d="scan'208"; a="252057667:sNHT24176994"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch 2.6.12-rc3] modifications in firmware_class.c to support nohotplug
-Date: Wed, 8 Jun 2005 11:35:05 -0500
-Message-ID: <367215741E167A4CA813C8F12CE0143B3ED3B7@ausx2kmpc115.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 2.6.12-rc3] modifications in firmware_class.c to support nohotplug
-Thread-Index: AcVsRwEhFOl84AqzQnKeWIvRRjgRwgAAAwKA
-From: <Abhay_Salunke@Dell.com>
-To: <greg@kroah.com>
-Cc: <dtor_core@ameritech.net>, <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
-       <Matt_Domsch@Dell.com>, <ranty@debian.org>
-X-OriginalArrivalTime: 08 Jun 2005 16:35:17.0735 (UTC) FILETIME=[0DF23770:01C56C48]
+	Wed, 8 Jun 2005 12:41:23 -0400
+Received: from smtp-103-wednesday.noc.nerim.net ([62.4.17.103]:32016 "EHLO
+	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
+	id S261371AbVFHQVz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 12:21:55 -0400
+Date: Wed, 8 Jun 2005 18:21:52 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: Andrew James Wade 
+	<ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: BUG in i2c_detach_client
+Message-Id: <20050608182152.17dfe9a2.khali@linux-fr.org>
+In-Reply-To: <200506081033.12445.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
+References: <20050607042931.23f8f8e0.akpm@osdl.org>
+	<200506081033.12445.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Andrew,
 
+> 2.6.12-rc5-mm1 didn't crash.
+> 
+> kernel BUG at include/linux/list.h:166!
+> invalid operand: 0000 [#1]
+> PREEMPT
+> CPU:    0
+> EIP:    0060:[<c0319cd4>]    Not tainted VLI
+> EFLAGS: 00010a83   (2.6.12-rc6-mm1)
+> EIP is at i2c_detach_client+0xb4/0x110
+> eax: dfc0bcc0   ebx: c15fc26c   ecx: c15fc264   edx: c04378d0
+> esi: c15fc14c   edi: c0437720   ebp: 00000000   esp: dff81f10
+> ds: 007b   es: 007b   ss: 0068
+> Process swapper (pid: 1, threadinfo=dff80000 task=c14dca00)
+> Stack: dfff6110 dfc0bdb4 00000286 00000286 c15fc26c c15fc14c c15fc160
+> ffffffed
+>        c031d512 c15fc160 c03edac1 c15fc26c 00000000 0000002d 00000001
+>        0000002d c0437720 00000000 c0437c5c 00000001 00000000 c031b100
+>        00000000 00000000
+> Call Trace:
+>  [<c031d512>] asb100_detect+0x442/0x520
+>  [<c031b100>] i2c_detect+0x240/0x380
+>  [<c031d0d0>] asb100_detect+0x0/0x520
+>  [<c0319889>] i2c_add_driver+0x89/0xc0
 
-> -----Original Message-----
-> From: Greg KH [mailto:greg@kroah.com]
-> Sent: Wednesday, June 08, 2005 11:27 AM
-> To: Salunke, Abhay
-> Cc: dtor_core@ameritech.net; linux-kernel@vger.kernel.org;
-akpm@osdl.org;
-> Domsch, Matt; ranty@debian.org
-> Subject: Re: [patch 2.6.12-rc3] modifications in firmware_class.c to
-> support nohotplug
-> 
-> On Wed, Jun 08, 2005 at 11:23:30AM -0500, Abhay_Salunke@Dell.com
-wrote:
-> >
-> >
-> > > -----Original Message-----
-> > > From: Greg KH [mailto:greg@kroah.com]
-> > > Sent: Wednesday, June 08, 2005 11:10 AM
-> > > To: Salunke, Abhay
-> > > Cc: dtor_core@ameritech.net; linux-kernel@vger.kernel.org;
-> > akpm@osdl.org;
-> > > Domsch, Matt; ranty@debian.org
-> > > Subject: Re: [patch 2.6.12-rc3] modifications in firmware_class.c
-to
-> > > support nohotplug
-> > >
-> > > On Wed, Jun 08, 2005 at 11:04:09AM -0500, Abhay_Salunke@Dell.com
-> > wrote:
-> > > > > I think it would be better if you just have request_firmware
-and
-> > > > > request_firmware_nowait accept timeout parameter that would
-> > override
-> > > > > default timeout in firmware_class. 0 would mean use default,
-> > > > > MAX_SCHED_TIMEOUT - wait indefinitely.
-> > > >
-> > > > But we still need to avoid hotplug being invoked as we need it
-be a
-> > > > manual process.
-> > >
-> > > No, hotplug can happen just fine (it happens loads of times today
-for
-> > > things that people don't care about.)
-> > >
-> > If hotplug happens the complete function is called which makes the
-> > request_firmware return with a failure.
-> 
-> If this was true, then the current code would not work at all.
-Why not? Can't we avoid hotplug from running by not calling
-kobject_hotplug()?
-If hotplug does not happen we can do the stuff done by hotplug script
-manually. And also the current code skips add_timer so not timeouts
-irrespective of the timeout specified in /sys/class/firmware/timeout
-thus preventing from breaking other's who are using timeout.
+I suspect you didn't "make oldconfig" before compiling 2.6.12-rc6-mm1.
+You should have CONFIG_HWMON=Y in .config, and I don't see it. Note that
+I can't explain why it results in the BUG right above, but it must be
+related.
+
+If "make oldconfig" doesn't help, try reverting:
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc6/2.6.12-rc6-mm1/broken-out/gregkh-i2c-hwmon-03.patch
 
 Thanks,
-Abhay
-
+-- 
+Jean Delvare

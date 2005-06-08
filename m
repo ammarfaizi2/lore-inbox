@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVFHONh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261253AbVFHOPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbVFHONh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 10:13:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261231AbVFHONh
+	id S261253AbVFHOPu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 10:15:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261251AbVFHOPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 10:13:37 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:23963
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S261202AbVFHONc
+	Wed, 8 Jun 2005 10:15:50 -0400
+Received: from yue.linux-ipv6.org ([203.178.140.15]:15886 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S261231AbVFHOPZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 10:13:32 -0400
-Subject: RE: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: kus Kusche Klaus <kus@keba.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Daniel Walker <dwalker@mvista.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <AAD6DA242BC63C488511C611BD51F367323235@MAILIT.keba.co.at>
-References: <AAD6DA242BC63C488511C611BD51F367323235@MAILIT.keba.co.at>
-Content-Type: text/plain
-Organization: linutronix
-Date: Wed, 08 Jun 2005 16:14:20 +0200
-Message-Id: <1118240060.20785.630.camel@tglx.tec.linutronix.de>
+	Wed, 8 Jun 2005 10:15:25 -0400
+Date: Wed, 08 Jun 2005 23:15:31 +0900 (JST)
+Message-Id: <20050608.231531.126041907.yoshfuji@linux-ipv6.org>
+To: tglx@linutronix.de
+Cc: mingo@elte.hu, linux-kernel@vger.kernel.org, yoshfuji@linux-ipv6.org
+Subject: Re: [PATCH -RT] Softirq splitting
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <1118239409.20785.628.camel@tglx.tec.linutronix.de>
+References: <1118239409.20785.628.camel@tglx.tec.linutronix.de>
+Organization: USAGI Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-08 at 16:02 +0200, kus Kusche Klaus wrote:
-> > i have released the -V0.7.48-00 Real-Time Preemption patch, 
-> [snip]
-> > be affected that much (besides possible build issues). Non-x86 arches
-> > wont build. Some regressions might happen, so take care..
-> 
-> What arches are likely to work in the near future?
-> I've seen that "Kconfig.RT" is sourced for i386, x86_64, ppc, 
-> and mips, but not for arm.
-> 
-> arm is one of the platforms we are interested in, any chances?
+In article <1118239409.20785.628.camel@tglx.tec.linutronix.de> (at Wed, 08 Jun 2005 16:03:29 +0200), Thomas Gleixner <tglx@linutronix.de> says:
 
-We have a working version for ARM based on a primary patch which
-integrates ARM into the generic irq handling
+> diff --exclude='*~' -urN linux-2.6.12-rc6-rt/include/linux/interrupt.h linux-2.6.12-rc6-rt-work/include/linux/interrupt.h
+> --- linux-2.6.12-rc6-rt/include/linux/interrupt.h	2005-06-08 00:38:35.000000000 +0200
+> +++ linux-2.6.12-rc6-rt-work/include/linux/interrupt.h	2005-06-08 15:31:48.000000000 +0200
+> @@ -113,6 +113,8 @@
+>  	NET_RX_SOFTIRQ,
+>  	SCSI_SOFTIRQ,
+>  	TASKLET_SOFTIRQ
+> +	/* Entries after this are ignored in the split softirq mode */
+> +	MAX_SOFTIRQ,
+>  };
+>  
 
-tglx
+Hey, have you ever compiled?
+You need comma after TASKLET_SOFTIRQ.
 
-
-
+--yoshfuji

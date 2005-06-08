@@ -1,156 +1,337 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261405AbVFHQiz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261403AbVFHQkQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261405AbVFHQiz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 12:38:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVFHQgu
+	id S261403AbVFHQkQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 12:40:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261361AbVFHQIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 12:36:50 -0400
-Received: from vms040pub.verizon.net ([206.46.252.40]:55247 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261353AbVFHQes (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 12:34:48 -0400
-Date: Wed, 08 Jun 2005 12:34:46 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.47-29
-In-reply-to: <20050608145922.GA32309@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>, Daniel Walker <dwalker@mvista.com>,
-       Esben Nielsen <simlo@phys.au.dk>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Steven Rostedt <rostedt@goodmis.org>
-Message-id: <200506081234.46429.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <20050607194119.GA11185@elte.hu>
- <200506081054.50001.gene.heskett@verizon.net> <20050608145922.GA32309@elte.hu>
-User-Agent: KMail/1.7
+	Wed, 8 Jun 2005 12:08:05 -0400
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:12468 "EHLO
+	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
+	id S261346AbVFHQAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 12:00:09 -0400
+X-IronPort-AV: i="3.93,183,1115010000"; 
+   d="scan'208"; a="270665989:sNHT28621596"
+Date: Wed, 8 Jun 2005 10:56:41 -0500
+From: Abhay Salunke <Abhay_Salunke@dell.com>
+To: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Cc: abhay_salunke@dell.com, matt_domsch@dell.com, Greg KH <greg@kroah.com>,
+       Manuel Estrada Sainz <ranty@debian.org>
+Subject: [patch 2.6.12-rc3] modifications in firmware_class.c to support nohotplug
+Message-ID: <20050608155641.GA12206@littleblue.us.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 June 2005 10:59, Ingo Molnar wrote:
->* Gene Heskett <gene.heskett@verizon.net> wrote:
->> [root@coyote linux-2.6.12-rc6-RT-V0.7.47-30]# grep PREEMPT .config
->> # CONFIG_PREEMPT_NONE is not set
->> CONFIG_PREEMPT_VOLUNTARY=y
->> # CONFIG_PREEMPT_DESKTOP is not set
->> # CONFIG_PREEMPT_RT is not set
->> CONFIG_PREEMPT_SOFTIRQS=y
->> CONFIG_PREEMPT_HARDIRQS=y
->> # CONFIG_PREEMPT_BKL is not set
->>
->> Now, I note that going to the #2 mode (voluntary) turned off
->> threaded RCU's, so I'm going to leave that off and try a mode 3
->> again. BRB.
->
->please try mode 3 and disable softirq/hardirq threading. If that
-> fixes things, could you check which of the two options
->(CONFIG_PREEMPT_SOFTIRQS or CONFIG_PREEMPT_HARDIRQS) causes which
-> type of regression?
+>> @@ -364,6 +364,7 @@ fw_setup_class_device(struct firmware *f
+>>  		printk(KERN_ERR "%s: class_device_create_file failed\n",
+>>  		       __FUNCTION__);
+>>  		goto error_unreg;
+>> +r
+>>  	}
 
-Ok, they are both off, mode 3 and no RCU threading:
+> Broken?
 
-[root@coyote linux-2.6.12-rc6-RT-V0.7.47-30]# grep PREEMPT .config
-# CONFIG_PREEMPT_NONE is not set
-# CONFIG_PREEMPT_VOLUNTARY is not set
-CONFIG_PREEMPT_DESKTOP=y
-# CONFIG_PREEMPT_RT is not set
-CONFIG_PREEMPT=y
-# CONFIG_PREEMPT_SOFTIRQS is not set
-# CONFIG_PREEMPT_HARDIRQS is not set
-# CONFIG_PREEMPT_RCU is not set
-CONFIG_PREEMPT_BKL=y
-CONFIG_DEBUG_PREEMPT=y
-CONFIG_PREEMPT_TRACE=y
-# CONFIG_CRITICAL_PREEMPT_TIMING is not set
+Oh! yes, fixed in the following patch 
 
+By making a contribution to this project, I certify that:
+The contribution was created in whole or in part by me and I have the
+right to submit it under the open source license indicated in the file.
+Resubmitting after cleaning up spaces/tabs etc...
 
-And tvtime seems normal.  However, when the video works (and this is a 
-known seperate problem with the cx88 driver) then the audio is highly 
-'aliased' making for very tinny sound until an internal restart with 
-new stds (or 3, sometimes it comes back after a few seconds) is done.  
-There is a cx88_video.c patch that went by a few days ago, but even 
-thats not 100% "bulletproof" :-)
+Signed-off-by: Abhay Salunke <Abhay_Salunke@dell.com>
 
->> And that makes tvtime's video fail with a blue screen, audio ok..
->>
->> Mode 2, FWIW, makes for quite jerky card motions while playing
->> AisleRiot, the solitaire game.
->
->this doesnt happen on PREEMPT_DESKTOP or PREEMPT_RT?
+Thanks,
+Abhay Salunke
+Software Engineer.
+DELL Inc
 
-Its subjectively better, but plain old rc6 is the best in this regard.  
-And I note that as I play with the soft & hard irq threading off, in 
-mode 3, it improves to be equ to rc6 after about 5 or 6 moves.  Like 
-the cfq scheduler is dynamicly adjusting priorities or something.  
-Thats my default scheduler for the last 2-3 months, should I be 
-retrying the others?
-
-On to make one with softirq threading turned on, BRB.
-With this:
-[root@coyote linux-2.6.12-rc6-RT-V0.7.47-30]# grep PREEMPT .config
-# CONFIG_PREEMPT_NONE is not set
-# CONFIG_PREEMPT_VOLUNTARY is not set
-CONFIG_PREEMPT_DESKTOP=y
-# CONFIG_PREEMPT_RT is not set
-CONFIG_PREEMPT=y
-CONFIG_PREEMPT_SOFTIRQS=y
-# CONFIG_PREEMPT_HARDIRQS is not set
-# CONFIG_PREEMPT_RCU is not set
-CONFIG_PREEMPT_BKL=y
-CONFIG_DEBUG_PREEMPT=y
-CONFIG_PREEMPT_TRACE=y
-# CONFIG_CRITICAL_PREEMPT_TIMING is not set
-
-tvtime seems normal.  So for the next build, turn on 
-CONFIG_PREEMPT_RCU=y for effects since I note that its turned on 
-along with hardirq threading by CONFIG_PREEMPT_RT=y.  BRB (well, 15 
-minutes by the time I reboot).
-
-Speaking of reboot, I saw a 'failed to contact something' message go 
-flying by in the shutdown phase the last time around this loop.
-
-With:
-[root@coyote linux-2.6.12-rc6-RT-V0.7.47-30]# grep PREEMPT .config
-# CONFIG_PREEMPT_NONE is not set
-# CONFIG_PREEMPT_VOLUNTARY is not set
-CONFIG_PREEMPT_DESKTOP=y
-# CONFIG_PREEMPT_RT is not set
-CONFIG_PREEMPT=y
-CONFIG_PREEMPT_SOFTIRQS=y
-# CONFIG_PREEMPT_HARDIRQS is not set
-CONFIG_PREEMPT_RCU=y
-CONFIG_PREEMPT_BKL=y
-CONFIG_DEBUG_PREEMPT=y
-CONFIG_PREEMPT_TRACE=y
-# CONFIG_CRITICAL_PREEMPT_TIMING is not set
-
-tvtime works ok with RCU threading on.
-
-But a "service ntpd restart" which failed during the boot, failed the 
-2nd time befrore I did the startx, and here's the 3rd restart:
-[root@coyote linux-2.6.12-rc6-RT-V0.7.47-30]# service ntpd restart
-Shutting down ntpd:                                        [  OK  ]
-ntpd: Synchronizing with time server:                      [FAILED]
-Starting ntpd:  -U ntp -p /var/run/ntpd.pid -g             [  OK  ]
-
-According to the lights on the router, it pounded on the server about 
-10 times at 1 second intervals before it output the failed message.
-
-So we are flushing out some bugs here.  The missus just came back, 
-she's been out to the sawbones with her emphesema so my playtime 
-today is about used up.  Many thanks for the quick responses.
->
-> Ingo
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+diff -uprN /usr/src/linux-2.6.11.11.ORIG/drivers/base/firmware_class.c /usr/src/linux-2.6.11.11/drivers/base/firmware_class.c
+--- /usr/src/linux-2.6.11.11.ORIG/drivers/base/firmware_class.c	2005-06-08 09:49:57.874162352 -0500
++++ /usr/src/linux-2.6.11.11/drivers/base/firmware_class.c	2005-06-08 10:32:35.581331760 -0500
+@@ -87,7 +87,7 @@ static struct class firmware_class = {
+ 	.name		= "firmware",
+ 	.hotplug	= firmware_class_hotplug,
+ 	.release	= fw_class_dev_release,
+-};
++};  
+ 
+ int
+ firmware_class_hotplug(struct class_device *class_dev, char **envp,
+@@ -376,6 +376,65 @@ out:
+ 	return retval;
+ }
+ 
++static int
++_request_firmware(const struct firmware **firmware_p, const char *name,
++                 struct device *device, int fw_hotplug)
++{
++        struct class_device *class_dev;
++        struct firmware_priv *fw_priv;
++        struct firmware *firmware;
++        int retval;
++
++        if (!firmware_p)
++               return -EINVAL;
++
++        *firmware_p = firmware = kmalloc(sizeof (struct firmware), GFP_KERNEL);
++        if (!firmware) {
++                printk(KERN_ERR "%s: kmalloc(struct firmware) failed\n",
++                       __FUNCTION__);
++                retval = -ENOMEM;
++                goto out;
++        }
++        memset(firmware, 0, sizeof (*firmware));
++
++        retval = fw_setup_class_device(firmware, &class_dev, name, device);
++        if (retval)
++                goto error_kfree_fw;
++
++        fw_priv = class_get_devdata(class_dev);
++
++	if ( fw_hotplug == FW_DO_HOTPLUG) {
++	        if (loading_timeout) {
++        	        fw_priv->timeout.expires = 
++				jiffies + loading_timeout * HZ;
++                	add_timer(&fw_priv->timeout);
++        	}
++	       	kobject_hotplug(&class_dev->kobj, KOBJ_ADD);
++	}
++
++        wait_for_completion(&fw_priv->completion);
++        set_bit(FW_STATUS_DONE, &fw_priv->status);
++
++        del_timer_sync(&fw_priv->timeout);
++
++        down(&fw_lock);
++        if (!fw_priv->fw->size || test_bit(FW_STATUS_ABORT, &fw_priv->status)) {
++                retval = -ENOENT;
++                release_firmware(fw_priv->fw);
++                *firmware_p = NULL;
++        }
++        fw_priv->fw = NULL;
++        up(&fw_lock);
++        class_device_unregister(class_dev);
++        goto out;
++
++error_kfree_fw:
++        kfree(firmware);
++        *firmware_p = NULL;
++out:
++        return retval;
++}
++
+ /**
+  * request_firmware: - request firmware to hotplug and wait for it
+  * Description:
+@@ -392,56 +451,7 @@ int
+ request_firmware(const struct firmware **firmware_p, const char *name,
+ 		 struct device *device)
+ {
+-	struct class_device *class_dev;
+-	struct firmware_priv *fw_priv;
+-	struct firmware *firmware;
+-	int retval;
+-
+-	if (!firmware_p)
+-		return -EINVAL;
+-
+-	*firmware_p = firmware = kmalloc(sizeof (struct firmware), GFP_KERNEL);
+-	if (!firmware) {
+-		printk(KERN_ERR "%s: kmalloc(struct firmware) failed\n",
+-		       __FUNCTION__);
+-		retval = -ENOMEM;
+-		goto out;
+-	}
+-	memset(firmware, 0, sizeof (*firmware));
+-
+-	retval = fw_setup_class_device(firmware, &class_dev, name, device);
+-	if (retval)
+-		goto error_kfree_fw;
+-
+-	fw_priv = class_get_devdata(class_dev);
+-
+-	if (loading_timeout) {
+-		fw_priv->timeout.expires = jiffies + loading_timeout * HZ;
+-		add_timer(&fw_priv->timeout);
+-	}
+-
+-	kobject_hotplug(&class_dev->kobj, KOBJ_ADD);
+-	wait_for_completion(&fw_priv->completion);
+-	set_bit(FW_STATUS_DONE, &fw_priv->status);
+-
+-	del_timer_sync(&fw_priv->timeout);
+-
+-	down(&fw_lock);
+-	if (!fw_priv->fw->size || test_bit(FW_STATUS_ABORT, &fw_priv->status)) {
+-		retval = -ENOENT;
+-		release_firmware(fw_priv->fw);
+-		*firmware_p = NULL;
+-	}
+-	fw_priv->fw = NULL;
+-	up(&fw_lock);
+-	class_device_unregister(class_dev);
+-	goto out;
+-
+-error_kfree_fw:
+-	kfree(firmware);
+-	*firmware_p = NULL;
+-out:
+-	return retval;
++	return _request_firmware(firmware_p, name, device, FW_DO_HOTPLUG);
+ }
+ 
+ /**
+@@ -472,14 +482,15 @@ register_firmware(const char *name, cons
+ 	 * decide if firmware caching is reasonable just leave it as a
+ 	 * noop */
+ }
+-
++ 
+ /* Async support */
+ struct firmware_work {
+ 	struct work_struct work;
+-	struct module *module;
++ 	struct module *module;
+ 	const char *name;
+ 	struct device *device;
+ 	void *context;
++	int hotplug;
+ 	void (*cont)(const struct firmware *fw, void *context);
+ };
+ 
+@@ -493,7 +504,7 @@ request_firmware_work_func(void *arg)
+ 		return 0;
+ 	}
+ 	daemonize("%s/%s", "firmware", fw_work->name);
+-	request_firmware(&fw, fw_work->name, fw_work->device);
++	_request_firmware(&fw, fw_work->name, fw_work->device, fw_work->hotplug);
+ 	fw_work->cont(fw, fw_work->context);
+ 	release_firmware(fw);
+ 	module_put(fw_work->module);
+@@ -501,23 +512,9 @@ request_firmware_work_func(void *arg)
+ 	return 0;
+ }
+ 
+-/**
+- * request_firmware_nowait:
+- *
+- * Description:
+- *	Asynchronous variant of request_firmware() for contexts where
+- *	it is not possible to sleep.
+- *
+- *	@cont will be called asynchronously when the firmware request is over.
+- *
+- *	@context will be passed over to @cont.
+- *
+- *	@fw may be %NULL if firmware request fails.
+- *
+- **/
+-int
+-request_firmware_nowait(
+-	struct module *module,
++static int
++_request_firmware_nowait(
++	struct module *module, int fw_hotplug,
+ 	const char *name, struct device *device, void *context,
+ 	void (*cont)(const struct firmware *fw, void *context))
+ {
+@@ -528,7 +525,7 @@ request_firmware_nowait(
+ 	if (!fw_work)
+ 		return -ENOMEM;
+ 	if (!try_module_get(module)) {
+-		kfree(fw_work);
++ 		kfree(fw_work);
+ 		return -EFAULT;
+ 	}
+ 
+@@ -538,6 +535,7 @@ request_firmware_nowait(
+ 		.device = device,
+ 		.context = context,
+ 		.cont = cont,
++		.hotplug = fw_hotplug,
+ 	};
+ 
+ 	ret = kernel_thread(request_firmware_work_func, fw_work,
+@@ -550,6 +548,41 @@ request_firmware_nowait(
+ 	return 0;
+ }
+ 
++/**
++ * request_firmware_nowait:
++ *
++ * Description:
++ *	Asynchronous variant of request_firmware() for contexts where
++ *	it is not possible to sleep.
++ *
++ *	@cont will be called asynchronously when the firmware request is over.
++ *
++ *	@context will be passed over to @cont.
++ *
++ *	@fw may be %NULL if firmware request fails.
++ *
++ **/
++int
++request_firmware_nowait(
++	struct module *module,
++	const char *name, struct device *device, void *context,
++	void (*cont)(const struct firmware *fw, void *context))
++{
++	return _request_firmware_nowait(module, FW_DO_HOTPLUG, name, 
++					device, context, cont);
++}
++
++int
++request_firmware_nohotplug(
++	struct module *module,
++        const char *name, struct device *device,void *context,
++        void (*cont)(const struct firmware *fw, void *context))
++{
++	return _request_firmware_nowait(module, FW_NO_HOTPLUG_NO_TIMEOUT, 
++					name, device, context, cont);
++}
++
++
+ static int __init
+ firmware_class_init(void)
+ {
+@@ -568,6 +601,7 @@ firmware_class_init(void)
+ 	return error;
+ 
+ }
++
+ static void __exit
+ firmware_class_exit(void)
+ {
+@@ -581,3 +615,5 @@ EXPORT_SYMBOL(release_firmware);
+ EXPORT_SYMBOL(request_firmware);
+ EXPORT_SYMBOL(request_firmware_nowait);
+ EXPORT_SYMBOL(register_firmware);
++EXPORT_SYMBOL(request_firmware_nohotplug);
++
+diff -uprN /usr/src/linux-2.6.11.11.ORIG/include/linux/firmware.h /usr/src/linux-2.6.11.11/include/linux/firmware.h
+--- /usr/src/linux-2.6.11.11.ORIG/include/linux/firmware.h	2005-06-08 09:49:57.711187128 -0500
++++ /usr/src/linux-2.6.11.11/include/linux/firmware.h	2005-06-08 09:50:41.714497608 -0500
+@@ -3,6 +3,8 @@
+ #include <linux/module.h>
+ #include <linux/types.h>
+ #define FIRMWARE_NAME_MAX 30 
++#define FW_DO_HOTPLUG (0)
++#define FW_NO_HOTPLUG_NO_TIMEOUT (1)
+ struct firmware {
+ 	size_t size;
+ 	u8 *data;
+@@ -15,6 +17,11 @@ int request_firmware_nowait(
+ 	const char *name, struct device *device, void *context,
+ 	void (*cont)(const struct firmware *fw, void *context));
+ 
++int request_firmware_nohotplug(
++	struct module *module,
++	const char *name, struct device *device, void *context,
++	void (*cont)(const struct firmware *fw, void *context));
++
+ void release_firmware(const struct firmware *fw);
+ void register_firmware(const char *name, const u8 *data, size_t size);
+ #endif

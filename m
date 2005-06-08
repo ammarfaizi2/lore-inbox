@@ -1,49 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261480AbVFHS34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261488AbVFHSiD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261480AbVFHS34 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 14:29:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbVFHS3z
+	id S261488AbVFHSiD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 14:38:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261493AbVFHSiD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 14:29:55 -0400
-Received: from wproxy.gmail.com ([64.233.184.204]:17881 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261480AbVFHS14 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 14:27:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=iwGaW4B47PTQjkL2nXhRf5vPyiSdTKtqPbyjBj/CGDuNXlq+QMqPR/yLXo5y/cRN7xpaVNHEJm3d8U8vYaCwTBhGPFVuaiohmKJhHwVV3vAsWSnkL2ms6QcnXjQnX9pCbb+MypjklXq+n+hP5CUdL7RHm1gqMr96pSTautx4UEo=
-Message-ID: <c775eb9b0506081127406f241@mail.gmail.com>
-Date: Wed, 8 Jun 2005 14:27:55 -0400
-From: Bharath Ramesh <krosswindz@gmail.com>
-Reply-To: Bharath Ramesh <krosswindz@gmail.com>
-To: Duncan Sands <baldrick@free.fr>
-Subject: Re: USB errors causes system to become unresponsive
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1118252287.8844.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <c775eb9b0506081027d0cc6b9@mail.gmail.com>
-	 <1118252287.8844.7.camel@localhost.localdomain>
+	Wed, 8 Jun 2005 14:38:03 -0400
+Received: from stargate.chelsio.com ([64.186.171.138]:30772 "EHLO
+	stargate.chelsio.com") by vger.kernel.org with ESMTP
+	id S261488AbVFHSh5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 14:37:57 -0400
+Message-ID: <42A73C5F.7070706@chelsio.com>
+Date: Wed, 08 Jun 2005 11:43:43 -0700
+From: Scott Bardone <sbardone@chelsio.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Hellwig <hch@infradead.org>
+CC: Lukas Hejtmanek <xhejtman@mail.muni.cz>,
+       Francois Romieu <romieu@fr.zoreil.com>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.12-rc6-mm1 & Chelsio driver
+References: <20050607181300.GL2369@mail.muni.cz> <42A5EC7C.4020202@pobox.com> <20050607185845.GM2369@mail.muni.cz> <42A5F51B.5060909@pobox.com> <20050607193305.GN2369@mail.muni.cz> <20050607200820.GA25546@electric-eye.fr.zoreil.com> <20050607211048.GO2369@mail.muni.cz> <42A655C2.3030406@chelsio.com> <20050608174640.GA14954@infradead.org>
+In-Reply-To: <20050608174640.GA14954@infradead.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Jun 2005 18:35:51.0173 (UTC) FILETIME=[E5694350:01C56C58]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/8/05, Duncan Sands <baldrick@free.fr> wrote:
-> > I am running the 2.6 kernel and I notice that every now and then my
-> > system stops responding but is still accessible remotely through ssh.
-> > I can not work on the console. The only way out is to reboot either
-> > remotely or by hitting the reset button. When the system comes up
-> > again I get the following message in my dmesg and I need to actually
-> > reboot it once or twice before this error goes. of I get a spew of
-> > following messages. These messages don't stop till I reboot the
-> > machine.
-> >
-> > drivers/usb/input/hid-core.c: input irq status -75 received
-> 
-> What usb devices do you have plugged in?
-> 
+We modify the existing Linux TCP stack to add "hooks" so that our card can 
+perform TCP offload and HW based checksum, thus making it possible to see high 
+throughput with multiple connections and low CPU utilization.
 
-I forgot to add that I am using Microsoft Wireless Desktop Keyboard
-and Mice as the USB device. Sorry I forgot to mention that.
+We add 2 source files to the kernel, toedev.c and offload.c. We also modify 
+neighbor.c, tcp.c, tcp_diag.c, tcp_ipv4.c, tcp_timer.c to add functions for our 
+TOE capabilities so that the offloaded packet can be sent to our hardware 
+(offload) path instead of going through the software (TCP stack) path.
+
+Our processing engine is an ASIC with a HW based TCP stack which processes 
+packets with Chelsio's CPL messages (Chelsio Protocol Language). I would not 
+consider it a derived work.
+
+-Scott
+
+
+Christoph Hellwig wrote:
+> On Tue, Jun 07, 2005 at 07:19:46PM -0700, Scott Bardone wrote:
+> 
+>>We currently don't have the TOE API in the Linux kernel so the TOE 
+>>functionality does not exist, therefore you can only use the Chelsio 
+>>modified 2.6.6 kernel for TOE.
+> 
+> 
+> Care to explain what modifications you do, and whether or not you consider
+> your card firmware a derived work of the TCP stack because of them?
+> 

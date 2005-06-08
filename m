@@ -1,108 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261417AbVFHRGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261434AbVFHRIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261417AbVFHRGc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 13:06:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261390AbVFHREq
+	id S261434AbVFHRIb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 13:08:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbVFHRHW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 13:04:46 -0400
-Received: from holly.csn.ul.ie ([136.201.105.4]:3482 "EHLO holly.csn.ul.ie")
-	by vger.kernel.org with ESMTP id S261418AbVFHRDU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 13:03:20 -0400
-Date: Wed, 8 Jun 2005 18:03:16 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, jschopp@austin.ibm.com,
-       linux-mm@kvack.org, lkml <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: Avoiding external fragmentation with a placement policy Version
- 12
-In-Reply-To: <370550000.1117807258@[10.10.2.4]>
-Message-ID: <Pine.LNX.4.58.0506081734480.10706@skynet>
-References: <20050531112048.D2511E57A@skynet.csn.ul.ie> 
- <429E20B6.2000907@austin.ibm.com><429E4023.2010308@yahoo.com.au> 
- <423970000.1117668514@flay><429E483D.8010106@yahoo.com.au> 
- <434510000.1117670555@flay><429E50B8.1060405@yahoo.com.au> 
- <429F2B26.9070509@austin.ibm.com><1117770488.5084.25.camel@npiggin-nld.site>
- <Pine.LNX.4.58.0506031349280.10779@skynet> <370550000.1117807258@[10.10.2.4]>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 8 Jun 2005 13:07:22 -0400
+Received: from rproxy.gmail.com ([64.233.170.199]:35436 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261386AbVFHRGp convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 13:06:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iDNCYr+wNXIwKrKE2FLv5IV1WimW0S02jRWPmYma4PMg06mqLmi58N6jsUhYTHWS94CIMaG78TnOs/bNEciJodxrqetohPeFQf5jNLWb3DYgvyhoXMqhlMzlLpe3TEd+KlOS0DUe1aBF5YFAQTPLaVgKB1zwF0GaOo9JJDjbmRY=
+Message-ID: <d120d5000506081006340052a1@mail.gmail.com>
+Date: Wed, 8 Jun 2005 12:06:43 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Greg KH <greg@kroah.com>
+Subject: Re: [patch 2.6.12-rc3] modifications in firmware_class.c to support nohotplug
+Cc: Abhay_Salunke@dell.com, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Matt_Domsch@dell.com, ranty@debian.org
+In-Reply-To: <20050608162632.GA1588@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <367215741E167A4CA813C8F12CE0143B3ED3B6@ausx2kmpc115.aus.amer.dell.com>
+	 <20050608162632.GA1588@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 3 Jun 2005, Martin J. Bligh wrote:
-
-> > Does it need more documentation? If so, I'll write up a detailed blurb on
-> > how it works and drop it into Documentation/
+On 6/8/05, Greg KH <greg@kroah.com> wrote:
+> On Wed, Jun 08, 2005 at 11:23:30AM -0500, Abhay_Salunke@Dell.com wrote:
 > >
-> >> Although I can't argue that a buddy allocator is no good without
-> >> being able to satisfy higher order allocations.
 > >
-> > Unfortunately, it is a fundemental flaw of the buddy allocator that it
-> > fragments badly. The thing is, other allocators that do not fragment are
-> > also slower.
->
-> Do we care? 99.9% of allocations are fronted by the hot/cold page cache
-> now anyway ...
+> > > -----Original Message-----
+> > > From: Greg KH [mailto:greg@kroah.com]
+> > > Sent: Wednesday, June 08, 2005 11:10 AM
+> > > To: Salunke, Abhay
+> > > Cc: dtor_core@ameritech.net; linux-kernel@vger.kernel.org;
+> > akpm@osdl.org;
+> > > Domsch, Matt; ranty@debian.org
+> > > Subject: Re: [patch 2.6.12-rc3] modifications in firmware_class.c to
+> > > support nohotplug
+> > >
+> > > On Wed, Jun 08, 2005 at 11:04:09AM -0500, Abhay_Salunke@Dell.com
+> > wrote:
+> > > > > I think it would be better if you just have request_firmware and
+> > > > > request_firmware_nowait accept timeout parameter that would
+> > override
+> > > > > default timeout in firmware_class. 0 would mean use default,
+> > > > > MAX_SCHED_TIMEOUT - wait indefinitely.
+> > > >
+> > > > But we still need to avoid hotplug being invoked as we need it be a
+> > > > manual process.
+> > >
+> > > No, hotplug can happen just fine (it happens loads of times today for
+> > > things that people don't care about.)
+> > >
+> > If hotplug happens the complete function is called which makes the
+> > request_firmware return with a failure.
+> 
+> If this was true, then the current code would not work at all.
+> 
 
-Very true, but only for order-0 allocations. As it is, higher order
-allocations are a lot less important because Linux has always avoided them
-unless absolutely necessary. I would like to reach the point where we can
-reliably allocate large blocks of memory so we do not have to split large
-amounts of data into page-sized chunks all the time.
+What Abhay is trying to say is that default firmware.agent when it
+does not find requested firmware file writes -1 (abort) to "loading"
+attribute causing firmware_request to fail.
 
-> and yes, I realise that things popping in/out of that
-> obviously aren't going into the "defrag" pool, but still, it should help.
-> I suppose all we're slowing down is higher order allocs anyway, which
-> is the uncommon case, but ... worth thinking about.
->
-
-I did measure it and there is a slow-down on high order allocations which
-is not very surprising. The following is the result of a micro-benchmark
-comparing the standard and modified allocator for 1500 order-5
-allocations.
-
-Standard
-     Average          Max          Min       Allocs
-     -------          ---          ---       ------
-        0.73         1.09         0.53         1476
-        1.33         1.87         1.10           23
-        2.10         2.10         2.10            1
-
-Modified
-     Average          Max          Min       Allocs
-     -------          ---          ---       ------
-        0.82         1.23         0.60         1440
-        1.36         1.96         1.23           57
-        2.42         2.92         2.09            3
-
-The average, max and min are in 1000's of clock cycles for an allocation
-so there is not a massive difference between the two allocators. Aim9
-still shows that overall, the modified allocator is as fast as the normal
-allocator.
-
-High order allocations do slow down a lot when under memory pressure and
-neither allocator performs very well although the modified allocator
-probably performs worse as it has more lists to search. In the case of the
-placement policy though, I can work on the linear scanning patch to avoid
-using a blunderbuss on memory. With the standard allocator, linear scanning
-will not help significantly because non-reclaimable memory is scattered
-all over the place.
-
-I have also found that the modified allocator can fairly reliably allocate
-memory on a desktop system which has been running a full day where the
-standard allocator cannot. However, that experience is subjective and
-benchmarks based on loads like kernel compiles will not be anything like a
-desktop system. At the very least, kernel compiles, while they load the
-system, will not pin memory used for PTEs like a desktop running
-long-lived applications would.
-
-I'll work on reproducing scenarios that show where the standard allocator
-fails to allocate large blocks of memory without paging everything out
-that the placement policy works with.
+I think it should be fixed in firmware.agent though, not in kernel -
+the agent shoudl just recognoze that sometimes not having firmware
+file is ok.
 
 -- 
-Mel Gorman
-Part-time Phd Student                          Java Applications Developer
-University of Limerick                         IBM Dublin Software Lab
+Dmitry

@@ -1,70 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbVFHKhC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262159AbVFHKjw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262162AbVFHKhC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 06:37:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVFHKhC
+	id S262159AbVFHKjw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 06:39:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbVFHKj3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 06:37:02 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:47514 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262162AbVFHKfs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 06:35:48 -0400
-Subject: Re: [PATCH] Move some more structures into "mostly_readonly"
-From: Arjan van de Ven <arjan@infradead.org>
-To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-Cc: Brian Gerst <bgerst@didntduck.org>, christoph <christoph@scalex86.org>,
-       Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20050608102053.GC331@wohnheim.fh-wedel.de>
-References: <Pine.LNX.4.62.0506071128220.22950@ScMPusgw>
-	 <20050607194123.GA16637@infradead.org>
-	 <Pine.LNX.4.62.0506071258450.2850@ScMPusgw>
-	 <1118177949.5497.44.camel@laptopd505.fenrus.org>
-	 <42A61227.9090402@didntduck.org>
-	 <20050608100056.GA331@wohnheim.fh-wedel.de>
-	 <1118225246.5655.16.camel@laptopd505.fenrus.org>
-	 <20050608102053.GC331@wohnheim.fh-wedel.de>
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 08 Jun 2005 12:35:33 +0200
-Message-Id: <1118226933.5655.19.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: 3.7 (+++)
-X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
-	Content analysis details:   (3.7 points, 5.0 required)
-	pts rule name              description
-	---- ---------------------- --------------------------------------------------
-	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
-	[<http://dsbl.org/listing?80.57.133.107>]
-	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
-	[80.57.133.107 listed in dnsbl.sorbs.net]
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 8 Jun 2005 06:39:29 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:47531 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S262159AbVFHKhH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 06:37:07 -0400
+To: Grant Grundler <grundler@parisc-linux.org>
+Cc: Morton Andrew Morton <akpm@osdl.org>, Bodo Eggert <7eggert@gmx.de>,
+       stern@rowland.harvard.edu, awilliam@fc.hp.com, greg@kroah.com,
+       Fastboot mailing list <fastboot@lists.osdl.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       bjorn.helgaas@hp.com
+Subject: Re: [Fastboot] Re: [RFC/PATCH] Kdump: Disabling PCI interrupts in capture kernel
+References: <1118113637.42a50f65773eb@imap.linux.ibm.com>
+	<20050607050727.GB12781@colo.lackof.org>
+	<m1slzuwkqx.fsf@ebiederm.dsl.xmission.com>
+	<20050607162143.GE29220@colo.lackof.org>
+	<m1acm2vwil.fsf@ebiederm.dsl.xmission.com>
+	<20050608040253.GA21060@colo.lackof.org>
+From: ebiederm@xmission.com (Eric W. Biederman)
+Date: 07 Jun 2005 22:38:36 -0600
+In-Reply-To: <20050608040253.GA21060@colo.lackof.org>
+Message-ID: <m1mzq1v4xf.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-08 at 12:20 +0200, Jörn Engel wrote:
-> On Wed, 8 June 2005 12:07:25 +0200, Arjan van de Ven wrote:
-> > On Wed, 2005-06-08 at 12:00 +0200, Jörn Engel wrote:
-> > > On Tue, 7 June 2005 17:31:19 -0400, Brian Gerst wrote:
-> > > > 
-> > > > It doesn't really matter.  .rodata isn't actually mapped read-only. 
-> > > > Doing so would break up the large pages used to map the kernel.
-> > > 
-> > > Can you confirm that for every architecture?  Or just i386?
-> > 
-> > does it matter? it's supposed to be read only, only sometimes that's not
->                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-> > enforced unfortunately.
+Grant Grundler <grundler@parisc-linux.org> writes:
+
+> On Tue, Jun 07, 2005 at 12:42:42PM -0600, Eric W. Biederman wrote:
+> > The howto deal with an IOMMU has been sorted out but so far no one 
+> > has actually done it.  What has been discussed previously is simply
+> > reserving a handful of IOMMU entries,
 > 
-> I agree.  What I don't agree with is "It doesn't really matter" - not
-> after debugging the occasional memory corruptions.
+> How? with dma_alloc_consistent() or some special hook?
+> I'm just curious.
 
-I agree, and it would be very useful to have a debug option in the
-kernel that say checksums rodata (and probably the kernel text which is
-also read only) periodically and raises an alarm if the checksum
-changes. 
+We didn't get that far but I believe the idea was a special hook.
 
+> ...
+> >  and then only using those
+> > in the crash recover kernel.  This is essentially what we do with DMA
+> > on architectures that don't have an IOMMU and it seems quite safe
+> > enough there.
+> 
+> Yeah, in general that should be feasible.
+> 
+> One might be able to trivially allocate a small, seperate IO PDIR
+> just for KDUMP and switch to that. Key thing is it be physically
+> contiguous in memory. Very little code is involved with IO Pdir
+> setup for both parisc and IA64. I can't speak for Alpha/sparc/ppc/et al.
+
+Cool.
+ 
+> ...
+> > Well we are at least capable of multitasking but that is no longer the
+> > primary focus.  Having polling as at least an option should make
+> > debugging easier.  Last I looked Andrews kernel hand an irqpoll option
+> > to do something very like this.
+> 
+> You could run the itimer but I don't see why you should.
+> Kdump is essentially an embedded linux kernel. It really
+> doesn't need to be premptive multitasking either.
+
+It is mostly a matter of minimizing differences from the norm.
+
+> Anyway, sounds like you guys are on the right track.
+
+Thanks.   It just takes a while for the simple solutions to
+get there.
+
+Eric

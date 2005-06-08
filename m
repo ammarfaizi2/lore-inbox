@@ -1,69 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVFHUd1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVFHUgk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261603AbVFHUd1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 16:33:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVFHUd1
+	id S261598AbVFHUgk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 16:36:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261662AbVFHUgk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 16:33:27 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:55500 "EHLO
-	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261603AbVFHUdD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 16:33:03 -0400
-Date: Wed, 8 Jun 2005 18:29:48 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Jirka Bohac <jbohac@suse.cz>
-Cc: Denis Vlasenko <vda@ilport.com.ua>, Pavel Machek <pavel@ucw.cz>,
-       Jeff Garzik <jgarzik@pobox.com>, Netdev list <netdev@oss.sgi.com>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ipw2100: firmware problem
-Message-ID: <20050608162947.GB3969@openzaurus.ucw.cz>
-References: <20050608142310.GA2339@elf.ucw.cz> <200506081744.20687.vda@ilport.com.ua> <20050608145653.GA8844@dwarf.suse.cz>
+	Wed, 8 Jun 2005 16:36:40 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:63740 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261598AbVFHUdo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 16:33:44 -0400
+Subject: Re: [PATCH] local_irq_disable removal
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, sdietrich@mvista.com
+In-Reply-To: <20050608112119.GA28703@elte.hu>
+References: <1118214519.4759.17.camel@dhcp153.mvista.com>
+	 <20050608112119.GA28703@elte.hu>
+Content-Type: text/plain
+Organization: MontaVista
+Date: Wed, 08 Jun 2005 13:33:38 -0700
+Message-Id: <1118262818.30686.8.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050608145653.GA8844@dwarf.suse.cz>
-User-Agent: Mutt/1.3.27i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Great.
 
-> > Do you want to associate to an AP when your kernel boots,
-> > _before_ any iwconfig had a chance to configure anything?
-> > That's strange.
-> > 
-> > My position is that wifi drivers must start up in an "OFF" mode.
-> > Do not send anything. Do not join APs or start IBSS.
+On Wed, 2005-06-08 at 13:21 +0200, Ingo Molnar wrote:
+>
+> i've attached below the delta relative to your patch. The changes are:
 > 
-> Agreed.
+>  - fixed a soft-local_irq_restore() bug: it didnt re-disable the IRQ 
+>    flag if the flags passed in had it set.
+> 
+>  - fixed SMP support - both the scheduler and the lowlevel SMP code was 
+>    not fully converted to the soft flag assumptions. The PREEMPT_RT 
+>    kernel now boots fine on a 2-way/4-way x86 box.
+> 
+>  - fixed the APIC code
+> 
+>  - fixed irq-latency tracing and other tracing assumptions
+> 
+>  - fixed DEBUG_RT_DEADLOCK_DETECT - we checked for the wrong irq flags
+> 
+>  - added debug code to find IRQ flag mismatches: mixing the CPU and soft 
+>    flags is lethal, but detectable.
+> 
+>  - simplified the code which should thus also be faster: introduced the
+>    mask_preempt_count/unmask_preempt_count primitives and made the 
+>    soft-flag code use it.
+> 
+>  - cleaned up the interdependencies of the soft-flag functions - they 
+>    now dont call each other anymore, they all use inlined code for 
+>    maximum performance.
 
-Me too ;-).
+Should be macro's one day ...
 
-> > Thus, no need to load fw in early boot.
+>  - made the soft IRQ flag an unconditional feature of PREEMPT_RT: once 
+>    it works properly there's no reason to ever disable it under 
+>    PREEMPT_RT.
+>
+>  - renamed hard_ to raw_, to bring it in line with other constructs in 
+>    PREEMPT_RT.
 > 
-> I don't think this is true. Loading the firmware on the first
-> "ifconfig up" is problematic. Often, people want to rename the
-> device from ethX/wlanX/... to something stable. This is usually
-> based on the adapter's MAC address, which is not visible until
-> the firmware is loaded.
+>  - cleaned up the system.h impact by creating linux/rt_irq.h. Made the 
+>    naming consistent all across.
 > 
-> Prism54 does it this way and it really sucks. You need to bring
-> the adapter up to load the firmware, then bring it back down,
-> rename it, and bring it up again.
+>  - cleaned up the preempt.h impact and updated the comments.
 > 
-> Denis: any plans for this to be fixed?
+>  - fixed smp_processor_id() debugging: we have to check for the CPU irq 
+>    flag too.
 > 
-> I agree that drivers should initialize the adapter in the OFF
-> state, but the firmware needs to be loaded earlier than the
-> first ifconfig up.
-> 
-> How about loading the firmware when the first ioctl touches the
-> device? This way, it would get loaded just before the MAC address
-> is retrieved.
 
-Thats really ugly :-(.
 
-				Pavel
--- 
-64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
+Excellent .. I have one fix related to preempt_schedule_irq() below.
+There needs to be an ifdef , cause when PREEPMT_RT is off you would end
+up with interrupts enabled when exiting preempt_schedule_irq() ..
+
+
+Index: linux-2.6.11/kernel/sched.c
+===================================================================
+--- linux-2.6.11.orig/kernel/sched.c	2005-06-08 20:25:00.000000000 +0000
++++ linux-2.6.11/kernel/sched.c	2005-06-08 20:24:37.000000000 +0000
+@@ -3245,7 +3245,9 @@ need_resched:
+ 	__schedule();
+ 
+ 	raw_local_irq_disable();
++#ifdef CONFIG_PREEMPT_RT
+ 	local_irq_enable_noresched();
++#endif
+ 
+ #ifdef CONFIG_PREEMPT_BKL
+ 	task->lock_depth = saved_lock_depth;
+
+
 

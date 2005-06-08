@@ -1,70 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262096AbVFHEjJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262099AbVFHEjN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262096AbVFHEjJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 00:39:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbVFHEjI
+	id S262099AbVFHEjN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 00:39:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262097AbVFHEjN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 00:39:08 -0400
-Received: from linux.dunaweb.hu ([62.77.196.1]:22978 "EHLO linux.dunaweb.hu")
-	by vger.kernel.org with ESMTP id S262096AbVFHEjD (ORCPT
+	Wed, 8 Jun 2005 00:39:13 -0400
+Received: from colo.lackof.org ([198.49.126.79]:22991 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S262099AbVFHEjF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 00:39:03 -0400
-Message-ID: <42A67A2B.50600@freemail.hu>
-Date: Wed, 08 Jun 2005 06:55:07 +0200
-From: Zoltan Boszormenyi <zboszor@freemail.hu>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: hu-hu, hu, en-us, en
-MIME-Version: 1.0
-To: Vojtech Pavlik <vojtech@suse.cz>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Mousedev or hiddev problem, was: Re: USB mice do not work on
- 2.6.12-rc5-git9, -rc5-mm1, -rc5-mm2
-References: <42A2A0B2.7020003@freemail.hu> <42A2A657.9060803@freemail.hu> <20050605001001.3e441076.akpm@osdl.org> <42A2BC4B.5060605@freemail.hu> <42A2CF27.8000806@freemail.hu> <42A3176F.9030307@freemail.hu> <42A4B328.1010400@freemail.hu> <42A4C85F.2040509@freemail.hu> <20050607053943.GA1778@ucw.cz>
-In-Reply-To: <20050607053943.GA1778@ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Wed, 8 Jun 2005 00:39:05 -0400
+Date: Tue, 7 Jun 2005 22:42:44 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: Roland Dreier <roland@topspin.com>
+Cc: Greg KH <gregkh@suse.de>, Arjan van de Ven <arjan@infradead.org>,
+       Andrew Vasquez <andrew.vasquez@qlogic.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       "David S. Miller" <davem@davemloft.net>, tom.l.nguyen@intel.com,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       ak@suse.de
+Subject: Re: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi() for drivers
+Message-ID: <20050608044244.GC21060@colo.lackof.org>
+References: <20050607002045.GA12849@suse.de> <20050607010911.GA9869@plap.qlogic.org> <20050607051551.GA17734@suse.de> <1118129500.5497.16.camel@laptopd505.fenrus.org> <20050607161029.GB15345@suse.de> <1118176872.5497.38.camel@laptopd505.fenrus.org> <20050607220832.GA19173@suse.de> <52ekbdg53q.fsf@topspin.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <52ekbdg53q.fsf@topspin.com>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vojtech Pavlik írta:
-> On Tue, Jun 07, 2005 at 12:04:15AM +0200, Zoltan Boszormenyi wrote:
-> 
->>Hi,
->>
->>Zoltan Boszormenyi írta:
->>
->>>All the -bk7+ kernels I tried produced the same strange bug
->>>on my system: after gpm started I was able to move the
->>>pointer on the screen but when X started up, it's pointer froze.
->>
->>it turned out that there is nothing wrong with USB on my system.
->>
->>But someone broke the /dev/input/mouseX <-> USB mouse interaction
->>in 2.6.11-bk7 and my two-headed system with two X servers were
->>manually set up to use the distinct mouse devices so the two heads
->>do not interfere.
->>
->>No wonder gpm works, it reads /dev/input/mice. Starting only
->>one X and using /dev/input/mice I found no problems. Setting it
->>back to /dev/input/mouse0, the mouse pointer is dead again.
->>
->>Someone deserves a mousebite...
-> 
->  
-> Most likely it's because the keyboards are now identified as having
-> mouse capabilities, too, and changing the numbers. Check
-> /proc/bus/input/devices.
+On Tue, Jun 07, 2005 at 03:43:53PM -0700, Roland Dreier wrote:
+> I'm sure other MSI-X capable devices can slice and dice things differently.
 
-Thanks for the enlightenment, now I have to use /dev/input/mouse2 and
-mouse3 for the two X servers.
+Yes. Need to talk to Neterion about MSI-X support for their 10Gige
+product. I expect Intel's 10Gige also can make use of MSI-X.
 
-BTW, where is it documented? Was it this changeset?
+One of the key things MSI-X was expected to do was distribute
+seperate TX/RX "queues" (aka descriptor rings) across CPUs.
+As such, each CPU would "own" a set of queues.
 
-<vojtech@suse.cz>
-         input: Fix keyboard scrollwheel support, add horizontal
-                wheel support, and enable both by default.
+I don't know if the 10GigE cards were in fact able to implement
+this functionality. But I would like to know if they did/do.
 
-         Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
-
-Best regards,
-Zoltán Böszörményi
+thanks
+grant

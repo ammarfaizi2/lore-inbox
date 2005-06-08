@@ -1,46 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbVFHTXp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261563AbVFHTZz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261559AbVFHTXp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 15:23:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVFHTXp
+	id S261563AbVFHTZz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 15:25:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261561AbVFHTZz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 15:23:45 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:24779 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261562AbVFHTXh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 15:23:37 -0400
-Date: Wed, 8 Jun 2005 15:23:35 -0400
-From: Dave Jones <davej@redhat.com>
-To: Nick Warne <nick@linicks.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mtrr question
-Message-ID: <20050608192335.GG876@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Nick Warne <nick@linicks.net>, linux-kernel@vger.kernel.org
-References: <200506081917.09873.nick@linicks.net>
+	Wed, 8 Jun 2005 15:25:55 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:507 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S261563AbVFHTZq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 15:25:46 -0400
+Subject: Re: How does 2.6 SMP scheduler initially assign a thread to a run
+	queue?
+From: Steven Rostedt <rostedt@goodmis.org>
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Cc: linux-kernel@vger.kernel.org, helen monte <hzmonte@hotmail.com>,
+       lk <linux_kernel@patni.com>
+In-Reply-To: <20050608120325.A5554@unix-os.sc.intel.com>
+References: <BAY102-F24530D3EE13EBCA2B13336A0FA0@phx.gbl>
+	 <000e01c56c27$765c4510$5e91a8c0@patni.com>
+	 <20050608120325.A5554@unix-os.sc.intel.com>
+Content-Type: text/plain
+Organization: Kihon Technologies
+Date: Wed, 08 Jun 2005 15:25:22 -0400
+Message-Id: <1118258722.4482.2.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506081917.09873.nick@linicks.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 08, 2005 at 07:17:09PM +0100, Nick Warne wrote:
- > Hello everybody,
- > 
- > Dumb question here.
- > 
- > I have an Athlon-thunderbird (1.2Ghz) on kernel 2.4.31 with mttr configured 
- > and a nVidia Geforce4.  /proc/mtrr is empty.
+On Wed, 2005-06-08 at 12:03 -0700, Siddha, Suresh B wrote:
 
-That's odd. you should at least have write-back entries for your system memory.
-(Usually set up by the system BIOS)
+> > > By the way, in an SMT/hyperthreading processor, does the latest kernel
+> > > version assign one run queue per physical CPU, or per virtual 
+> > > processor?
+> > > 
+> > 
+> > one run-queue per physical CPU
+> 
+> No. Each logical processor has its own runqueue.
 
- > Does/is setting up mtrr per the old 1999 Docs/mtrr.txt still relevant 
- > nowadays?  I can't seem to find a definitive answer using Google.
+I think it is also worth mentioning that the sched domains are used to
+help keep processes on the same physical CPU. Little cost associated to
+moving a process from one logical CPU to a sibling, where as there is a
+big cost in moving it to another physical CPU.
 
-Yes, though the X driver should set them up itself on startup.
+-- Steve
 
-		Dave
 

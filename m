@@ -1,75 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261340AbVFHQNb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261377AbVFHQNb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261340AbVFHQNb (ORCPT <rfc822;willy@w.ods.org>);
+	id S261377AbVFHQNb (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 8 Jun 2005 12:13:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261374AbVFHQLV
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261379AbVFHQLf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 12:11:21 -0400
-Received: from fmr24.intel.com ([143.183.121.16]:18620 "EHLO
-	scsfmr004.sc.intel.com") by vger.kernel.org with ESMTP
-	id S261379AbVFHQKm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 12:10:42 -0400
-Date: Wed, 8 Jun 2005 09:09:44 -0700
-From: Ashok Raj <ashok.raj@intel.com>
-To: Andi Kleen <ak@suse.de>
-Cc: Grant Grundler <grundler@parisc-linux.org>, Greg KH <gregkh@suse.de>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "David S. Miller" <davem@davemloft.net>,
-       "Nguyen, Tom L" <tom.l.nguyen@intel.com>, roland@topspin.com,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi() for drivers - take 2
-Message-ID: <20050608090944.A4147@unix-os.sc.intel.com>
-References: <20050608133226.GR23831@wotan.suse.de>
+	Wed, 8 Jun 2005 12:11:35 -0400
+Received: from mail.kroah.org ([69.55.234.183]:14476 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261345AbVFHQKJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 12:10:09 -0400
+Date: Wed, 8 Jun 2005 09:09:54 -0700
+From: Greg KH <greg@kroah.com>
+To: Abhay_Salunke@Dell.com
+Cc: dtor_core@ameritech.net, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Matt_Domsch@Dell.com, ranty@debian.org
+Subject: Re: [patch 2.6.12-rc3] modifications in firmware_class.c to support nohotplug
+Message-ID: <20050608160954.GB1122@kroah.com>
+References: <367215741E167A4CA813C8F12CE0143B0283F1FC@ausx2kmpc115.aus.amer.dell.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050608133226.GR23831@wotan.suse.de>; from ak@suse.de on Wed, Jun 08, 2005 at 06:32:26AM -0700
+In-Reply-To: <367215741E167A4CA813C8F12CE0143B0283F1FC@ausx2kmpc115.aus.amer.dell.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 08, 2005 at 06:32:26AM -0700, Andi Kleen wrote:
+On Wed, Jun 08, 2005 at 11:04:09AM -0500, Abhay_Salunke@Dell.com wrote:
+> > I think it would be better if you just have request_firmware and
+> > request_firmware_nowait accept timeout parameter that would override
+> > default timeout in firmware_class. 0 would mean use default,
+> > MAX_SCHED_TIMEOUT - wait indefinitely.
 > 
->    > I also see one minor weakness in the assumption that CPU Vectors
->    > are global. Both IA64/PARISC can support per-CPU Vector tables.
+> But we still need to avoid hotplug being invoked as we need it be a
+> manual process.
 
-One thing to keep in mind is that since now we have support for CPU hotplug
-we need to factor in cases when cpu is removed, the per-cpu vectors would
-require migrating to a new cpu far interrupt target. Which would 
-possibly require vector-sharing support as well in case the vector is used 
-in all other cpus.
+No, hotplug can happen just fine (it happens loads of times today for
+things that people don't care about.)
 
-Possibly irq balancer might need to be revisited as well, and potentially
-might trigger some sharing needs.
+thanks,
 
-A combination of 
- - Not allocating IRQs to pins not used (Which Natalie from Unisys
-   submitted) 
-   http://marc.theaimsgroup.com/?l=linux-kernel&m=111656957923038&w=2
- - per-cpu vector tables (long back i remember seeing some post from sgi
-   on the topic, possibly under intr domains etc.. not too sure)
- - vector sharing
-
-> 
->    x86-64 will eventually too, I definitely plan for it at some point.
->    We need it for very big machines where 255 interrupt vectors
->    are not enough. And as you say with MSI-X it becomes even more
->    important.
-> 
->    -Andi
->    -
->    To   unsubscribe   from   this   list:   send  the  line  "unsubscribe
->    linux-kernel" in
->    the body of a message to majordomo@vger.kernel.org
->    More majordomo info at  [1]http://vger.kernel.org/majordomo-info.html
->    Please read the FAQ at  [2]http://www.tux.org/lkml/
-> 
-> References
-> 
->    1. http://vger.kernel.org/majordomo-info.html
->    2. http://www.tux.org/lkml/
-
--- 
-Cheers,
-Ashok Raj
-- Open Source Technology Center
+greg k-h

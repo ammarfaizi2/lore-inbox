@@ -1,53 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261791AbVFHV0o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261998AbVFHV1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261791AbVFHV0o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 17:26:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261799AbVFHV0o
+	id S261998AbVFHV1d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 17:27:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261902AbVFHV1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 17:26:44 -0400
-Received: from polyester.arl.wustl.edu ([128.252.153.32]:27850 "EHLO
-	polyester.arl.wustl.edu") by vger.kernel.org with ESMTP
-	id S261791AbVFHV0m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 17:26:42 -0400
-Date: Wed, 8 Jun 2005 16:26:33 -0500 (CDT)
-From: Manfred Georg <mgeorg@arl.wustl.edu>
-To: Alexander Nyberg <alexn@telia.com>
-cc: gregkh@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] capabilities not inherited
-In-Reply-To: <1118263314.969.3.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.62.0506081612490.11409@polyester.arl.wustl.edu>
-References: <Pine.GSO.4.58.0506081513340.22095@chewbacca.arl.wustl.edu>
- <1118263314.969.3.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 8 Jun 2005 17:27:33 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:49071 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S261998AbVFHV1Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 17:27:24 -0400
+Date: Wed, 8 Jun 2005 23:27:07 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: James Ketrenos <jketreno@linux.intel.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Netdev list <netdev@oss.sgi.com>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>
+Subject: Re: ipw2100: firmware problem
+Message-ID: <20050608212707.GA2535@elf.ucw.cz>
+References: <20050608142310.GA2339@elf.ucw.cz> <42A723D3.3060001@linux.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42A723D3.3060001@linux.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-On Wed, 8 Jun 2005, Alexander Nyberg wrote:
+> >I'm fighting with firmware problem: if ipw2100 is compiled into
+> >kernel, it is loaded while kernel boots and firmware loader is not yet
+> >available. That leads to uninitialized (=> useless) adapter.
+> >  
+> >
+> We've been looking into whether the initrd can have the firmware affixed
+> to the end w/ some magic bytes to identify it.  If it works, enhancing
+> the request_firmware to support both hotplug and an initrd approach may
+> be reasonable.
 
-> ons 2005-06-08 klockan 15:27 -0500 skrev Manfred Georg:
->> I was working with passing capabilities through an exec and it
->> didn't do what I expected it to.  That is, if I set a bit in
->> the inherited capabilities, it is not "inherited" after an
->> exec().  After going through the code many times, and still not
->> understanding it, I hacked together this patch.  It probably
->> has unforseen side effects and there was probably some
->> reason it was not done in the first place.
->
-> Please read the thread at
-> http://www.ussg.iu.edu/hypermail/linux/kernel/0503.1/1571.html
->
-> Basically it says that because a broken interface was accepted from the
-> beginning it can't be changed due to the security aspect.
+That seems pretty ugly to me... imagine more than one driver does this
+:-(.
 
-Ok, that's what I figured, however, there seems to be some framework
-for configuring different security modules.  Why isn't there one
-that enables the non-broken interface?  feature creep?
+> >What's the prefered way to solve this one? Only load firmware when
+> >user does ifconfig eth1 up? [It is wifi, it looks like it would be
+> >better to start firmware sooner so that it can associate to the
+> >AP...].
+> >  
+> >
+> The debate goes back and forth on whether devices should come up only
+> after they are told, or initialize and start looking for a network as
+> soon as the module is loaded.
+> 
+> I lean more toward having the driver just do what it is told, defaulting
+> to trying to scan and associate so link is ready as soon as possible. 
+> We've added module parameters to change that behavior (disable and
+> associate for the ipw2100).
 
-> The whole thing sucks, sorry.
-yep. :(
-Especially since the current functionality doesn't make the
-system any more secure.
+Having a parameter to control this seems a bit too complex to me.
 
-Manfred
+How is 
+
+insmod ipw2100 enable=1
+
+different from
+
+insmod ipw2100
+iwconfig eth1 start_scanning_or_whatever
+
+?
+
+								Pavel

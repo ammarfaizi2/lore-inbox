@@ -1,73 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261998AbVFHV1d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261902AbVFHV2x@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261998AbVFHV1d (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 17:27:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261902AbVFHV1d
+	id S261902AbVFHV2x (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 17:28:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262000AbVFHV2x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 17:27:33 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:49071 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S261998AbVFHV1Y (ORCPT
+	Wed, 8 Jun 2005 17:28:53 -0400
+Received: from fire.osdl.org ([65.172.181.4]:26822 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261902AbVFHV15 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 17:27:24 -0400
-Date: Wed, 8 Jun 2005 23:27:07 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: James Ketrenos <jketreno@linux.intel.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Netdev list <netdev@oss.sgi.com>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>
-Subject: Re: ipw2100: firmware problem
-Message-ID: <20050608212707.GA2535@elf.ucw.cz>
-References: <20050608142310.GA2339@elf.ucw.cz> <42A723D3.3060001@linux.intel.com>
+	Wed, 8 Jun 2005 17:27:57 -0400
+Date: Wed, 8 Jun 2005 14:26:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andrew James Wade 
+	<ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
+Cc: linux-kernel@vger.kernel.org, Jean Delvare <khali@linux-fr.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: BUG in i2c_detach_client
+Message-Id: <20050608142631.7e956792.akpm@osdl.org>
+In-Reply-To: <200506081033.12445.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
+References: <20050607042931.23f8f8e0.akpm@osdl.org>
+	<200506081033.12445.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42A723D3.3060001@linux.intel.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> >I'm fighting with firmware problem: if ipw2100 is compiled into
-> >kernel, it is loaded while kernel boots and firmware loader is not yet
-> >available. That leads to uninitialized (=> useless) adapter.
-> >  
-> >
-> We've been looking into whether the initrd can have the firmware affixed
-> to the end w/ some magic bytes to identify it.  If it works, enhancing
-> the request_firmware to support both hotplug and an initrd approach may
-> be reasonable.
-
-That seems pretty ugly to me... imagine more than one driver does this
-:-(.
-
-> >What's the prefered way to solve this one? Only load firmware when
-> >user does ifconfig eth1 up? [It is wifi, it looks like it would be
-> >better to start firmware sooner so that it can associate to the
-> >AP...].
-> >  
-> >
-> The debate goes back and forth on whether devices should come up only
-> after they are told, or initialize and start looking for a network as
-> soon as the module is loaded.
+Andrew James Wade <ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com> wrote:
+>
+> 2.6.12-rc5-mm1 didn't crash.
 > 
-> I lean more toward having the driver just do what it is told, defaulting
-> to trying to scan and associate so link is ready as soon as possible. 
-> We've added module parameters to change that behavior (disable and
-> associate for the ipw2100).
+>  kernel BUG at include/linux/list.h:166!
+>  invalid operand: 0000 [#1]
+>  PREEMPT
+>  CPU:    0
+>  EIP:    0060:[<c0319cd4>]    Not tainted VLI
+>  EFLAGS: 00010a83   (2.6.12-rc6-mm1)
+>  EIP is at i2c_detach_client+0xb4/0x110
+>  eax: dfc0bcc0   ebx: c15fc26c   ecx: c15fc264   edx: c04378d0
+>  esi: c15fc14c   edi: c0437720   ebp: 00000000   esp: dff81f10
+>  ds: 007b   es: 007b   ss: 0068
+>  Process swapper (pid: 1, threadinfo=dff80000 task=c14dca00)
+>  Stack: dfff6110 dfc0bdb4 00000286 00000286 c15fc26c c15fc14c c15fc160 ffffffed
+>         c031d512 c15fc160 c03edac1 c15fc26c 00000000 0000002d 00000001 0000002d
+>         c0437720 00000000 c0437c5c 00000001 00000000 c031b100 00000000 00000000
+>  Call Trace:
+>   [<c031d512>] asb100_detect+0x442/0x520
 
-Having a parameter to control this seems a bit too complex to me.
+Were there no interesting printks before this BUG hit?
 
-How is 
+It's due to the kernel running list_del() on a list_head which isn't on a list.
 
-insmod ipw2100 enable=1
+Seems there is an error-path bug in that driver, but I don' thtink the fix
+will fix it.  Please test?
 
-different from
 
-insmod ipw2100
-iwconfig eth1 start_scanning_or_whatever
+From: Andrew Morton <akpm@osdl.org>
 
-?
+Fix error backing-out code in asb100.c
 
-								Pavel
+Cc: Greg KH <greg@kroah.com>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ drivers/i2c/chips/asb100.c |    6 ++++--
+ 1 files changed, 4 insertions(+), 2 deletions(-)
+
+diff -puN drivers/i2c/chips/asb100.c~asb100-fix drivers/i2c/chips/asb100.c
+--- 25/drivers/i2c/chips/asb100.c~asb100-fix	2005-06-08 14:23:52.000000000 -0700
++++ 25-akpm/drivers/i2c/chips/asb100.c	2005-06-08 14:24:13.000000000 -0700
+@@ -690,18 +690,20 @@ static int asb100_detect_subclients(stru
+ 	if ((err = i2c_attach_client(data->lm75[0]))) {
+ 		dev_err(&new_client->dev, "subclient %d registration "
+ 			"at address 0x%x failed.\n", i, data->lm75[0]->addr);
+-		goto ERROR_SC_2;
++		goto ERROR_SC_3;
+ 	}
+ 
+ 	if ((err = i2c_attach_client(data->lm75[1]))) {
+ 		dev_err(&new_client->dev, "subclient %d registration "
+ 			"at address 0x%x failed.\n", i, data->lm75[1]->addr);
+-		goto ERROR_SC_3;
++		goto ERROR_SC_4;
+ 	}
+ 
+ 	return 0;
+ 
+ /* Undo inits in case of errors */
++ERROR_SC_4:
++	i2c_detach_client(data->lm75[1]);
+ ERROR_SC_3:
+ 	i2c_detach_client(data->lm75[0]);
+ ERROR_SC_2:
+_
+

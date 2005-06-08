@@ -1,50 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262149AbVFHKRH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262151AbVFHKRb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262149AbVFHKRH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 06:17:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262151AbVFHKRH
+	id S262151AbVFHKRb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 06:17:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbVFHKRb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 06:17:07 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:24474 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S262149AbVFHKRE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 06:17:04 -0400
-Date: Wed, 8 Jun 2005 11:16:58 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: "Eugeny S. Mints" <emints@ru.mvista.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel <linux-kernel@vger.kernel.org>,
-       David Brownell <david-b@pacbell.net>
-Subject: Re: race in usbnet.c in full RT
-Message-ID: <20050608101658.GA3303@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	"Eugeny S. Mints" <emints@ru.mvista.com>,
-	Ingo Molnar <mingo@elte.hu>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	David Brownell <david-b@pacbell.net>
-References: <42A6C6B3.2000303@ru.mvista.com>
+	Wed, 8 Jun 2005 06:17:31 -0400
+Received: from wproxy.gmail.com ([64.233.184.195]:59062 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262151AbVFHKR1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 06:17:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=f7sr6u6e8z6SqEYungELzsQ1J9EKaBUph4FsTRfZtpxqi7kvMewMmdStNPeZZCcq6kjOdCP5Is6RFtHmaNBLilvSDztYrzTQO4Slb+wSeGOLQSQ5H2ybTB1HB1vGQAcZZdL52uctzfSUrFc2pFKsehq49uZiI3Jfw1fqlYwsUcY=
+Message-ID: <58cb370e050608031763ee7176@mail.gmail.com>
+Date: Wed, 8 Jun 2005 12:17:27 +0200
+From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+To: li nux <lnxluv@yahoo.com>
+Subject: Re: oops on using io_submit
+Cc: linux <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050608075441.97875.qmail@web33315.mail.mud.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <42A6C6B3.2000303@ru.mvista.com>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+References: <20050608075441.97875.qmail@web33315.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 08, 2005 at 02:21:39PM +0400, Eugeny S. Mints wrote:
-> in non-RT case spin_lock_irqsave (&dev->txq.lock, flags) disables 
-> interrupts and thus code from usb_submit_urb() call upto 
-> __skb_queue_tail (&dev->txq, skb) executes atomically. But in RT case 
-> interrupts are not disabled and usb_submit_urb() triggers an interrupt 
-> which may cause tx_complete() execution before __skb_queue_tail () call. 
-> And since skb->list gets initialized just at __skb_queue_tail(), call to 
-> tx_complete() (via defer_bh() which thus executes before 
-> __skb_queue_tail) dereferences NULL (skb->list) pointer.
-> 
-> Thus looks tx_complete() and usbnet_start_xmit() require a 
-> serialization. Please find proposed fix attached though not sure the 
-> patch will apply cleanly to the latest kernel.
+On 6/8/05, li nux <lnxluv@yahoo.com> wrote:
+> I am getting kernel oops on using io_submit in my
+> application, trying to read 500Mb files.
+> sometimes the system freezes.
+> any idea why this is happening ?
+> I am using sles9.
 
-Please fix whatever patch you use for "full RT mode" to not break valid
-assupmtions in drivers.
+* report bug to SuSE/Novell :)
+* retry with the latest kernel.org kernel (2.6.12-rc6)
+  and see if this bug still happens (please report this)
+
+Bartlomiej

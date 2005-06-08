@@ -1,98 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261306AbVFHQKw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261345AbVFHQNa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261306AbVFHQKw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 12:10:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261376AbVFHQKL
+	id S261345AbVFHQNa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 12:13:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261377AbVFHQLw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 12:10:11 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:6797 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S261340AbVFHQFL convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 12:05:11 -0400
-X-IronPort-AV: i="3.93,183,1115010000"; 
-   d="scan'208"; a="252043287:sNHT25687950"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch 2.6.12-rc3] modifications in firmware_class.c to support nohotplug
-Date: Wed, 8 Jun 2005 11:04:09 -0500
-Message-ID: <367215741E167A4CA813C8F12CE0143B0283F1FC@ausx2kmpc115.aus.amer.dell.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 2.6.12-rc3] modifications in firmware_class.c to support nohotplug
-Thread-Index: AcVsQrhUpUFRjboMQ/S95aqI0cqDpgAAHXzw
-From: <Abhay_Salunke@Dell.com>
-To: <dtor_core@ameritech.net>
-Cc: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>, <Matt_Domsch@Dell.com>,
-       <greg@kroah.com>, <ranty@debian.org>
-X-OriginalArrivalTime: 08 Jun 2005 16:04:30.0438 (UTC) FILETIME=[C0DF1060:01C56C43]
+	Wed, 8 Jun 2005 12:11:52 -0400
+Received: from rproxy.gmail.com ([64.233.170.203]:65092 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261375AbVFHQJ4 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 12:09:56 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=fSJV5aguxG9mffcfGxpvzCr6A/RMAWTce2zO115I7rnIC+V1rsxR0bFiqEJR72ETdcsgBpbBNfmu758QGkQh8oguk2NrqSKhXaN5gGgpgTWUzKFaOz64pM1NDyDlT4emS4gcWJsPw6y2OqatGUTye/KQZ8BReB3I+MqbXiV9/Xo=
+Message-ID: <d120d5000506080909c17e973@mail.gmail.com>
+Date: Wed, 8 Jun 2005 11:09:53 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Greg KH <greg@kroah.com>
+Subject: Re: [patch 2.6.12-rc3] modifications in firmware_class.c to support nohotplug
+Cc: Abhay Salunke <Abhay_Salunke@dell.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, matt_domsch@dell.com,
+       Manuel Estrada Sainz <ranty@debian.org>
+In-Reply-To: <20050608160244.GA1122@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050608151744.GA12180@littleblue.us.dell.com>
+	 <d120d50005060808565a7944f2@mail.gmail.com>
+	 <20050608160244.GA1122@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> -----Original Message-----
-> From: Dmitry Torokhov [mailto:dmitry.torokhov@gmail.com]
-> Sent: Wednesday, June 08, 2005 10:56 AM
-> To: Salunke, Abhay
-> Cc: linux-kernel@vger.kernel.org; Andrew Morton; Salunke, Abhay;
-Domsch,
-> Matt; Greg KH; Manuel Estrada Sainz
-> Subject: Re: [patch 2.6.12-rc3] modifications in firmware_class.c to
-> support nohotplug
+On 6/8/05, Greg KH <greg@kroah.com> wrote:
+> On Wed, Jun 08, 2005 at 10:56:19AM -0500, Dmitry Torokhov wrote:
+> > On 6/8/05, Abhay Salunke <Abhay_Salunke@dell.com> wrote:
+> > > @@ -364,6 +364,7 @@ fw_setup_class_device(struct firmware *f
+> > >                printk(KERN_ERR "%s: class_device_create_file failed\n",
+> > >                       __FUNCTION__);
+> > >                goto error_unreg;
+> > > +r
+> >
+> > What is this?
 > 
-> On 6/8/05, Abhay Salunke <Abhay_Salunke@dell.com> wrote:
-> > This is a patch with modifications in firmware_class.c to have no
-> hotplug
-> > support.
-> ...
+> Proof he didn't test the code :(
 > 
-> > @@ -87,7 +87,7 @@ static struct class firmware_class = {
-> >        .name           = "firmware",
-> >        .hotplug        = firmware_class_hotplug,
-> >        .release        = fw_class_dev_release,
-> > -};
-> > +};
+> > I think it would be better if you just have request_firmware and
+> > request_firmware_nowait accept timeout parameter that would override
+> > default timeout in firmware_class. 0 would mean use default,
+> > MAX_SCHED_TIMEOUT - wait indefinitely.
 > 
-> Adds trailing whitespace.
-> > @@ -364,6 +364,7 @@ fw_setup_class_device(struct firmware *f
-> >                printk(KERN_ERR "%s: class_device_create_file
-failed\n",
-> >                       __FUNCTION__);
-> >                goto error_unreg;
-> > +r
+> Yes and no.  Yes in that we should have a timeout value.  No in that 0
+> should be "forever" and we #define the current 10 second value.
 > 
-> What is this?
-> > -out:
-> > -       return retval;
-> > +       return _request_firmware(firmware_p, name, device,
-> FW_DO_HOTPLUG);
-> >  }
-> 
-> Tab vs. space identation.
-> 
-> >  /* Async support */
-> >  struct firmware_work {
-> >        struct work_struct work;
-> > -       struct module *module;
-> > +       struct module *module;
-> >        const char *name;
-> >        struct device *device;
-> >        void *context;
-> > +       int hotplug;
-> >        void (*cont)(const struct firmware *fw, void *context);
-> >  };
-Will fix it all.
-> 
-> I think it would be better if you just have request_firmware and
-> request_firmware_nowait accept timeout parameter that would override
-> default timeout in firmware_class. 0 would mean use default,
-> MAX_SCHED_TIMEOUT - wait indefinitely.
 
-But we still need to avoid hotplug being invoked as we need it be a
-manual process.
+Are you saying that we should rip out of the firmware_class current
+timeout attribute? I thought it was a nice to have system-wide defult
+that can be adjusted by operator w/o need to recompile anything.
 
-Thanks
-Abhay
+-- 
+Dmitry

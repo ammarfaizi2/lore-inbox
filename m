@@ -1,93 +1,201 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262150AbVFHJ3O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262144AbVFHJ43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262150AbVFHJ3O (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 05:29:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262151AbVFHJ3O
+	id S262144AbVFHJ43 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 05:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262149AbVFHJ43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 05:29:14 -0400
-Received: from relay.nsnoc.com ([195.69.95.145]:32441 "EHLO vs145.ukvs.net")
-	by vger.kernel.org with ESMTP id S262150AbVFHJ3G (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 05:29:06 -0400
-Message-ID: <42A6BA59.3010207@a-wing.co.uk>
-Date: Wed, 08 Jun 2005 10:28:57 +0100
-From: Andrew Hutchings <info@a-wing.co.uk>
-Reply-To: info@a-wing.co.uk
-Organization: A-Wing Internet Services
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: sis5513.c patch
-References: <42A621BC.7040607@a-wing.co.uk>	 <58cb370e05060800276f3fc29c@mail.gmail.com>	 <42A6AB1B.8000800@a-wing.co.uk>	 <58cb370e05060801585b49020e@mail.gmail.com> <58cb370e05060802149b2f530@mail.gmail.com>
-In-Reply-To: <58cb370e05060802149b2f530@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 8 Jun 2005 05:56:29 -0400
+Received: from peabody.ximian.com ([130.57.169.10]:18869 "EHLO
+	peabody.ximian.com") by vger.kernel.org with ESMTP id S262144AbVFHJ4K
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 05:56:10 -0400
+Subject: Re: PNP parallel&serial ports: module reload fails (2.6.11)?
+From: Adam Belay <ambx1@neo.rr.com>
+To: Michael Tokarev <mjt@tls.msk.ru>
+Cc: matthieu castet <castet.matthieu@free.fr>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <42A4D1AB.3090508@tls.msk.ru>
+References: <20050602222400.GA8083@mut38-1-82-67-62-65.fbx.proxad.net>
+	 <429FA1F3.9000001@tls.msk.ru> <42A2D37A.5050408@free.fr>
+	 <42A46551.9010707@tls.msk.ru> <20050606211855.GA3289@neo.rr.com>
+	 <42A4D1AB.3090508@tls.msk.ru>
+Content-Type: text/plain
+Date: Wed, 08 Jun 2005 05:52:13 -0400
+Message-Id: <1118224334.3245.89.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Bartlomiej Zolnierkiewicz wrote:
-> [ Andrew, please remove this patch from -mm queue. ]
+On Tue, 2005-06-07 at 02:43 +0400, Michael Tokarev wrote:
+> Adam Belay wrote:
 > 
-> On 6/8/05, Bartlomiej Zolnierkiewicz <bzolnier@gmail.com> wrote:
-> 
->>On 6/8/05, Andrew Hutchings <info@a-wing.co.uk> wrote:
->>
->>>Bartlomiej Zolnierkiewicz wrote:
->>>
->>>>On 6/8/05, Andrew Hutchings <info@a-wing.co.uk> wrote:
->>>>
->>>>
->>>>>Hi,
->>>>
->>>>
->>>>Hi,
->>>>
->>>
->>>Hi again,
->>>
->>>
->>>>>I'm not sure if a similar patch has been submitted or not, but here is a
->>>>>patch to get DMA working on ASUS K8S-MX with a SiS 760GX/SiS 965L
->>>>>chipset combo.
->>>>
->>>>
->>>>This patch is incorrect, it adds PCI ID of SiS IDE controller (this ID
->>>>is common for almost all SiS IDE controllers and is already present in
->>>>sis5513_pci_tbl[]) to the table of SiS Host PCI IDs.  As a result driver
->>>>will try to use ATA_133 on all _unknown_ IDE controllers.  You need
->>>>to add PCI ID of the Host chipset (lspci should reveal it) instead.
-> 
-> 
-> Second look into sis5513.c and another problem turns out - patch breaks 
-> support for IDE controllers integrated into 961 and 961B South Bridges
-> (ATA_133 is used instead of ATA_100 and ATA133a).
-> 
-> For unknown Host Bridges driver checks for presence of 961/961B/962/963
-> South Bridges by checking true device ID (please see sis5513.c for details) 
-> and assigns 'chipset_family' accordingly (ATA_100/ATA_133a or ATA_133).
-> 
-> You have 965L South Bridge so probably it has newer true device ID 
-> and  may also require different programming sequence.
-> 
+> Hmm.. Strange I haven't received your email.  Looking at our
+> maillog, looks like your host is listed in SORBS DUHL --
+> cpe-24-93-172-51.neo.res.rr.com[24.93.172.51].  Is it really
+> dynamic IP?  I'm sorry for the noise, but it's a real PITA
+> to handle email and spam properly nowadays... ;)
 
-Ah, you see this is what happens when I enter the scary world of driver 
-patching, I'll will stick to patching/developing apps in future I think ;)
+Yeah, it was a dynamic IP :).  I'm sending from a different server this
+time.
 
 > 
->>Could you please send full lspci -vvv output?
+> > On Mon, Jun 06, 2005 at 07:01:37PM +0400, Michael Tokarev wrote:
+> > 
+> []
+> >>[ it's in http://www.corpit.ru/mjt/hpml310.dsdt - apache ships it
+> >>  as Content-Type: text/plain, for some reason.  I grabbed iasl
+> >>  and converted that stuff into .dsls, available at:
+> >>  http://www.corpit.ru/mjt/hpml310.dsl and
+> >>  http://www.corpit.ru/mjt/hpml150.dsl ]
+> >>
+> []
+> > I've been looking into the parport issue.
+> > 
+> > Your ACPI _PRS method does look a little unusual (and possibly broken), but
+> > it might work if we assume that all of the other resources not mentioned are
+> > to be disabled.
 > 
-> 
-> and lspci -xxx
-> 
-> Bartlomiej
-> 
+> Broken - is it a broken bios (so I will ask HP for an update),
+> or is it just how things works? ;)
 
-I'm just installing another one of those boards now ready to go into our 
-racks later today, I'll give you the output from that shortly.
--- 
-Andrew Hutchings (A-Wing)
-Linux Guru - Netserve Consultants Ltd. - http://www.domaincity.co.uk/
-Admin - North Wales Linux User Group - http://www.nwlug.org.uk/
-BOFH excuse 24: network packets travelling uphill (use a carrier pigeon)
+Hi,
+
+I'm sorry for the delayed response, as this bug is very difficult to
+track down.  The information you provided was helpful and I appreciate
+it.  I have a theory as to what is going on, and the patch below might
+solve your problem.  If not, it will at least give us some more
+information.
+
+The following would be useful:
+
+1.) a complete dmesg after initial boot with the patch
+2.) kernel message output after "rmmod parport_pc" and "modprobe
+parport_pc" with the patch
+
+I designed this patch to fix both "hpml150.dsl" and "hpml310.dsl".  If
+you have time, could you test it on both platforms?  This is a hack, so
+if it works, I'll give a more complete explanation and an official fix.
+
+Thanks,
+Adam
+
+--- a/drivers/pnp/pnpacpi/rsparser.c	2005-05-27 22:06:02.000000000 -0400
++++ b/drivers/pnp/pnpacpi/rsparser.c	2005-06-08 05:36:57.410599288 -0400
+@@ -178,6 +178,8 @@
+ 		if (res->data.dma.number_of_channels > 0)
+ 			pnpacpi_parse_allocated_dmaresource(res_table, 
+ 					res->data.dma.channels[0]);
++		else
++			printk(KERN_INFO "pnp: skipping dma from _CRS\n");
+ 		break;
+ 	case ACPI_RSTYPE_IO:
+ 		pnpacpi_parse_allocated_ioresource(res_table, 
+@@ -242,8 +244,10 @@
+ 	int i;
+ 	struct pnp_dma * dma;
+ 
+-	if (p->number_of_channels == 0)
++	if (p->number_of_channels == 0) {
++		printk(KERN_INFO "pnp: broken dma code, fix me\n");
+ 		return;
++	}
+ 	dma = pnpacpi_kmalloc(sizeof(struct pnp_dma), GFP_KERNEL);
+ 	if (!dma)
+ 		return;
+@@ -298,8 +302,10 @@
+ 	int i;
+ 	struct pnp_irq * irq;
+ 	
+-	if (p->number_of_interrupts == 0)
++	if (p->number_of_interrupts == 0) {
++		printk(KERN_INFO "pnp: broken irq code, fix me\n");
+ 		return;
++	}
+ 	irq = pnpacpi_kmalloc(sizeof(struct pnp_irq), GFP_KERNEL);
+ 	if (!irq)
+ 		return;
+@@ -625,7 +631,12 @@
+ 	struct resource *p)
+ {
+ 	int edge_level, active_high_low;
+-	
++
++	if (p->flags & IORESOURCE_UNSET) {
++		printk(KERN_INFO "bug squashed - irq\n");
++		return;
++	}
++
+ 	decode_irq_flags(p->flags & IORESOURCE_BITS, &edge_level, 
+ 		&active_high_low);
+ 	resource->id = ACPI_RSTYPE_IRQ;
+@@ -636,6 +647,18 @@
+ 		resource->data.irq.shared_exclusive = ACPI_EXCLUSIVE;
+ 	else
+ 		resource->data.irq.shared_exclusive = ACPI_SHARED;
++
++	if (ACPI_EDGE_SENSITIVE == resource->data.irq.edge_level &&
++		ACPI_ACTIVE_HIGH == resource->data.irq.active_high_low &&
++		ACPI_EXCLUSIVE == resource->data.irq.shared_exclusive) {
++		printk(KERN_INFO "pnp: irq flags are correct\n");
++	} else {
++		printk(KERN_INFO "pnp: attempting to fix irq flags\n");
++		resource->data.irq.edge_level = ACPI_EDGE_SENSITIVE;
++		resource->data.irq.active_high_low = ACPI_ACTIVE_HIGH;
++		resource->data.irq.shared_exclusive = ACPI_EXCLUSIVE;
++	}
++
+ 	resource->data.irq.number_of_interrupts = 1;
+ 	resource->data.irq.interrupts[0] = p->start;
+ }
+@@ -644,6 +667,11 @@
+ 	struct resource *p)
+ {
+ 	int edge_level, active_high_low;
++
++	if (p->flags & IORESOURCE_UNSET) {
++		printk(KERN_INFO "bug squashed - irq_ext\n");
++		return;
++	}
+ 	
+ 	decode_irq_flags(p->flags & IORESOURCE_BITS, &edge_level, 
+ 		&active_high_low);
+@@ -663,6 +691,11 @@
+ static void pnpacpi_encode_dma(struct acpi_resource *resource,
+ 	struct resource *p)
+ {
++	if (p->flags & IORESOURCE_UNSET) {
++		printk(KERN_INFO "bug squashed - dma \n");
++		return;
++	}
++
+ 	resource->id = ACPI_RSTYPE_DMA;
+ 	resource->length = sizeof(struct acpi_resource);
+ 	/* Note: pnp_assign_dma will copy pnp_dma->flags into p->flags */
+@@ -695,7 +728,6 @@
+ 		ACPI_DECODE_16 : ACPI_DECODE_10; 
+ 	resource->data.io.min_base_address = p->start;
+ 	resource->data.io.max_base_address = p->end;
+-	resource->data.io.alignment = 0; /* Correct? */
+ 	resource->data.io.range_length = p->end - p->start + 1;
+ }
+ 
+@@ -719,7 +751,6 @@
+ 		ACPI_READ_WRITE_MEMORY : ACPI_READ_ONLY_MEMORY;
+ 	resource->data.memory24.min_base_address = p->start;
+ 	resource->data.memory24.max_base_address = p->end;
+-	resource->data.memory24.alignment = 0;
+ 	resource->data.memory24.range_length = p->end - p->start + 1;
+ }
+ 
+@@ -733,7 +764,6 @@
+ 		ACPI_READ_WRITE_MEMORY : ACPI_READ_ONLY_MEMORY;
+ 	resource->data.memory32.min_base_address = p->start;
+ 	resource->data.memory32.max_base_address = p->end;
+-	resource->data.memory32.alignment = 0;
+ 	resource->data.memory32.range_length = p->end - p->start + 1;
+ }
+ 
+
+

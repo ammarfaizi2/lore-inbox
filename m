@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262087AbVFHV7f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262092AbVFHWCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262087AbVFHV7f (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 17:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbVFHV7f
+	id S262092AbVFHWCR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 18:02:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbVFHWCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 17:59:35 -0400
-Received: from fire.osdl.org ([65.172.181.4]:35536 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262087AbVFHV7d (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 17:59:33 -0400
-Date: Wed, 8 Jun 2005 14:59:04 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Alexander Nyberg <alexn@telia.com>
-Cc: Chris Wright <chrisw@osdl.org>, Manfred Georg <mgeorg@arl.wustl.edu>,
-       gregkh@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] capabilities not inherited
-Message-ID: <20050608215904.GE13152@shell0.pdx.osdl.net>
-References: <Pine.GSO.4.58.0506081513340.22095@chewbacca.arl.wustl.edu> <20050608204430.GC9153@shell0.pdx.osdl.net> <1118265642.969.12.camel@localhost.localdomain>
+	Wed, 8 Jun 2005 18:02:17 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:47653 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S262092AbVFHWCP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 18:02:15 -0400
+X-IronPort-AV: i="3.93,184,1115010000"; 
+   d="scan'208"; a="252199580:sNHT35527660"
+Date: Wed, 8 Jun 2005 17:02:14 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Jon Smirl <jonsmirl@gmail.com>
+Cc: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: Dell BIOS and HPET timer support
+Message-ID: <20050608220214.GE21704@lists.us.dell.com>
+References: <9e47339105060813115d01282@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1118265642.969.12.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <9e47339105060813115d01282@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alexander Nyberg (alexn@telia.com) wrote:
-> btw since the last discussion was about not changing the existing
-> interface and thus exposing security flaws, what about introducing
-> another prctrl that says maybe PRCTRL_ACROSS_EXECVE?
+On Wed, Jun 08, 2005 at 04:11:39PM -0400, Jon Smirl wrote:
+> After several communications with Dell support I have determined that
+> most Dell BIOSs don't include the ACPI entry for the HPET timer. The
+> official reason for this is that no version of Windows uses the HPET
+> and adding the ACPI entry might cause compatibility problems.
 
-It's not ideal (as you mention, mess upon mess), but maybe it is the
-sanest way to go forward.
+What platform/BIOS version please?  PowerEdge x8xx servers certainly
+do have HPET enabled in their ACPI tables.
 
-> Any new user-space applications must understand the implications of
-> using it so it's safe in that aspect. Yes?
+Thanks,
+Matt
 
-At least less-likely to surprise ;-)
-
-thanks,
--chris
 -- 
-Linux Security Modules     http://lsm.immunix.org     http://lsm.bkbits.net
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

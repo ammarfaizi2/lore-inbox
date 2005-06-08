@@ -1,69 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVFHPY2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261316AbVFHP03@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261314AbVFHPY2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 11:24:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbVFHPY1
+	id S261316AbVFHP03 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 11:26:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261315AbVFHP02
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 11:24:27 -0400
-Received: from mail.ocs.com.au ([202.147.117.210]:34244 "EHLO mail.ocs.com.au")
-	by vger.kernel.org with ESMTP id S261314AbVFHPYS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 11:24:18 -0400
-X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
-From: Keith Owens <kaos@ocs.com.au>
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Cc: Paulo Marques <pmarques@grupopie.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00 
-In-reply-to: Your message of "Wed, 08 Jun 2005 17:04:23 +0200."
-             <42A708F7.9000803@stud.feec.vutbr.cz> 
+	Wed, 8 Jun 2005 11:26:28 -0400
+Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:37131 "EHLO
+	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP id S261321AbVFHPYj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 11:24:39 -0400
+Date: Wed, 8 Jun 2005 17:24:42 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ipw2100: firmware problem
+Message-ID: <20050608152442.GA7773@irc.pl>
+Mail-Followup-To: kernel list <linux-kernel@vger.kernel.org>
+References: <20050608142310.GA2339@elf.ucw.cz> <200506081744.20687.vda@ilport.com.ua> <20050608145653.GA8844@dwarf.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Thu, 09 Jun 2005 01:23:50 +1000
-Message-ID: <8116.1118244230@ocs3.ocs.com.au>
+Content-Disposition: inline
+In-Reply-To: <20050608145653.GA8844@dwarf.suse.cz>
+User-Agent: Mutt/1.5.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 08 Jun 2005 17:04:23 +0200, 
-Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
->Paulo Marques wrote:
->> This is probably just bad luck and a known problem that I'm trying to 
->> fix (but hadn't have much time lately).
->> 
->> Can you try to change the line:
->> 
->> #define WORKING_SET        1024
->> 
->> in scripts/kallsyms.c to:
->> 
->> #define WORKING_SET        65536
->> 
->> and disable CONFIG_KALLSYMS_EXTRA_PASS, to see if the problem goes away?
->
->Yes, this helps.
->
->> It it does go away, then it is the same problem, and I'm working on it...
+On Wed, Jun 08, 2005 at 04:56:53PM +0200, Jirka Bohac wrote:
+> I don't think this is true. Loading the firmware on the first
+> "ifconfig up" is problematic. Often, people want to rename the
+> device from ethX/wlanX/... to something stable. This is usually
+> based on the adapter's MAC address, which is not visible until
+> the firmware is loaded.
+ 
+> I agree that drivers should initialize the adapter in the OFF
+> state, but the firmware needs to be loaded earlier than the
+> first ifconfig up.
+> 
+> How about loading the firmware when the first ioctl touches the
+> device? This way, it would get loaded just before the MAC address
+> is retrieved.
 
-Not the same problem.  The significant difference in the maps is :-
+ Best way to rename network adapter is to use udev. So MAC must be
+available (and present in /sysfs) when hotplug event for adapter is
+generated.
 
---- .tmp_map1   2005-06-09 01:14:50.303658655 +1000
-+++ .tmp_map2   2005-06-09 01:14:52.829274854 +1000
-@@ -8326,8 +8326,8 @@
- c02b93b0 T ipv6_skip_exthdr
- c02b9500 T sha_transform
- c02b96e0 T sha_init
--c02b970f T __sched_text_start
- c02b9710 t __compat_down
-+c02b9710 T __sched_text_start
- c02b9810 t __compat_down_interruptible
- c02b9948 T __compat_down_failed
- c02b9958 T __compat_down_failed_interruptible
-
-__sched_text_start has moved up by 1 byte between pass 1 and 2.  Text
-addresses are not allowed to move between kallsyms passes, kallsyms
-only adds data, it never touches the text segment.  Paulo's change to
-the working set hides this peculiarity, rather than fixing the real
-cause.  This looks like a toolchain bug, it is moving symbols for no
-good reason.
+-- 
+Tomasz Torcz               RIP is irrevelant. Spoofing is futile.
+zdzichu@irc.-nie.spam-.pl     Your routes will be aggreggated. -- Alex Yuriev
 

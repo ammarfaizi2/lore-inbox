@@ -1,60 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVFHU12@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVFHUdQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261597AbVFHU12 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 16:27:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVFHU12
+	id S261601AbVFHUdQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 16:33:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVFHUdQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 16:27:28 -0400
-Received: from chewbacca.arl.wustl.edu ([128.252.153.149]:23173 "EHLO
-	chewbacca.arl.wustl.edu") by vger.kernel.org with ESMTP
-	id S261597AbVFHU1X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 16:27:23 -0400
-Date: Wed, 8 Jun 2005 15:27:15 -0500 (CDT)
-From: Manfred Georg <mgeorg@arl.wustl.edu>
-To: gregkh@suse.de
-cc: linux-kernel@vger.kernel.org
-Subject: [PATCH] capabilities not inherited
-Message-ID: <Pine.GSO.4.58.0506081513340.22095@chewbacca.arl.wustl.edu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 8 Jun 2005 16:33:16 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:55244 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261601AbVFHUdD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 16:33:03 -0400
+Date: Wed, 8 Jun 2005 18:27:28 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Pavel Machek <pavel@suse.cz>, linux-pm@lists.osdl.org,
+       "Yu, Luming" <luming.yu@intel.com>, Andrew Morton <akpm@zip.com.au>,
+       ACPI devel <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] Re: swsusp: Not enough free pages
+Message-ID: <20050608162728.GA3969@openzaurus.ucw.cz>
+References: <3ACA40606221794F80A5670F0AF15F84041AC1A8@pdsmsx403> <20050606215815.GO2230@elf.ucw.cz> <200506071239.10125.rjw@sisk.pl> <200506081702.53349.rjw@sisk.pl>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200506081702.53349.rjw@sisk.pl>
+User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-I was working with passing capabilities through an exec and it
-didn't do what I expected it to.  That is, if I set a bit in
-the inherited capabilities, it is not "inherited" after an
-exec().  After going through the code many times, and still not
-understanding it, I hacked together this patch.  It probably
-has unforseen side effects and there was probably some
-reason it was not done in the first place.
+> > > > > No, I see it on i386, too. Try patch below; if it frees some after
+> > > > > first pass, you have that problem, too.
+> > > > 
+> > > > I've run it once and the result is this:
+> > > > 
+> > > > Freeing memory... done (75876 pages freed)
+> > > > Freeing memory... done (1536 pages freed)
+> > > > Freeing memory... done (0 pages freed)
+> > > > Freeing memory... done (1792 pages freed)
+> > > > Freeing memory... done (0 pages freed)
+> > > > 
+> > > > It does free some pages after the first pass, but this is only a small fraction
+> > > > of all pages freed.  I wouldn't call it a bad result ...
+> > > 
+> > > Well, it still did not free all memory it should have freed, and you
+> > > were lucky.
+> > 
+> > This is a reproducible behavior.  Here goes the result for another suspend:
+> > 
+> > Freeing memory... done (136611 pages freed)
+> > Freeing memory... done (200 pages freed)
+> > Freeing memory... done (128 pages freed)
+> > Freeing memory... done (0 pages freed)
+> > Freeing memory... done (2353 pages freed)
+> > 
+> > and it is always like that.  It usually frees more than 100000 pages
+> > in the first pass and about 5% more in the next passes together.
+> > 
+> > > Apparently for some people it does not that well (and that 
+> > > includes me, I see 0 in first pass quite often).
+> > 
+> > On 2.6.12-rc3+ I have never seen 0 in the first pass.  In fact, with X running
+> > I have never seen less than 60000. :-)
+> > 
+> > Perhaps there's a bug that does not hit x86-64 for some reason.  I'll try to
+> > run it on my second box later today and see what happens.
+> 
+> This is the worst result from the second box:
+> 
+> Freeing memory...  done (54641 pages freed)
+> Freeing memory...  done (0 pages freed)
+> Freeing memory...  done (5120 pages freed)
+> Freeing memory...  done (1952 pages freed)
+> Freeing memory...  done (2304 pages freed)
+> 
+> Still, there are 5x more pages freed in the first pass (80% of RAM was
+> empty anyway before suspend), and usually it is 10-20x more or so.
 
-Thanks for the kernel, I have a new found appreciation for it.
-
-Manfred
-
-Patch against 2.6.12-rc6:
-
-Signed-off-by: Manfred Georg <mgeorg@arl.wustl.edu>
-
-diff -uprN -X dontdiff linux-2.6.12-rc6/security/commoncap.c linux/security/commoncap.c
---- linux-2.6.12-rc6/security/commoncap.c	2005-03-02 01:38:07.000000000 -0600
-+++ linux/security/commoncap.c	2005-06-08 14:02:21.000000000 -0500
-@@ -113,10 +113,11 @@ int cap_bprm_set_security (struct linux_
- {
- 	/* Copied from fs/exec.c:prepare_binprm. */
-
--	/* We don't have VFS support for capabilities yet */
--	cap_clear (bprm->cap_inheritable);
--	cap_clear (bprm->cap_permitted);
--	cap_clear (bprm->cap_effective);
-+	bprm->cap_inheritable = current->cap_inheritable;
-+	bprm->cap_permitted = cap_intersect(current->cap_inheritable,
-+	                                    current->cap_permitted);
-+	bprm->cap_effective = cap_intersect(bprm->cap_permitted,
-+	                                    current->cap_effective);
-
- 	/*  To support inheritance of root-permissions and suid-root
- 	 *  executables under compatibility mode, we raise all three
+I have seen 0 freed on i386 machine with preempt -rc6-mm1, today...
+Something is definitely wrong there.
+				Pavel
+-- 
+64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         
 

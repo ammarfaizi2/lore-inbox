@@ -1,51 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262165AbVFHKoJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262163AbVFHKqw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262165AbVFHKoJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 06:44:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVFHKoJ
+	id S262163AbVFHKqw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 06:46:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262156AbVFHKqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 06:44:09 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:4038 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262165AbVFHKnI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 06:43:08 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Ian Kent <raven@themaw.net>, Adrian Bunk <bunk@stusta.de>
-Subject: Re: RFC: i386: kill !4KSTACKS
-Date: Wed, 8 Jun 2005 13:42:53 +0300
-User-Agent: KMail/1.5.4
-Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-References: <20050607212706.GB7962@stusta.de> <Pine.LNX.4.58.0506080948540.29656@wombat.indigo.net.au>
-In-Reply-To: <Pine.LNX.4.58.0506080948540.29656@wombat.indigo.net.au>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Jun 2005 06:46:52 -0400
+Received: from animx.eu.org ([216.98.75.249]:14267 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S262158AbVFHKqk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 06:46:40 -0400
+Date: Wed, 8 Jun 2005 06:42:17 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Oliver Neukum <oliver@neukum.org>
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: kaweth fails to work on 2.6.12-rc[56]
+Message-ID: <20050608104217.GA29490@animx.eu.org>
+Mail-Followup-To: Oliver Neukum <oliver@neukum.org>,
+	linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20050608021140.GA28524@animx.eu.org> <20050608031101.GA28735@animx.eu.org> <200506080859.27857.oliver@neukum.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506081342.53864.vda@ilport.com.ua>
+In-Reply-To: <200506080859.27857.oliver@neukum.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 June 2005 04:52, Ian Kent wrote:
-> On Tue, 7 Jun 2005, Adrian Bunk wrote:
-> 
-> > 4Kb kernel stacks are the future on i386, and it seems the problems it 
-> > initially caused are now sorted out.
+Oliver Neukum wrote:
+> Am Mittwoch, 8. Juni 2005 05:11 schrieb Wakko Warner:
+> > Wakko Warner wrote:
+> > > Seems that it is unable to send packets however I can see packets coming in.
+> > > I downgraded to 2.6.12-rc2 which works.
+> > > 
+> > > I have not tested rc3 or rc4 yet. ?I am preparing to try rc4.
 > > 
-> > I'd like to:
-> > - get a patch into the next -mm that unconditionally enables 4KSTACKS
-> > - if there won't be new reports of breakages, send a patch to
-> >   completely remove !4KSTACKS for 2.6.13 or 2.6.14
-> > 
-> > The only drawback is that REISER4_FS does still depend on !4KSTACKS.
-> > I told Hans back in March that this has to be changed.
+> > Just finished testing.
+> > rc2 works
+> > rc3 works (fails on aic7xxx with my scsi hardware but rc5 works with my
+> > ????????scsi hardware)
+> > rc4 through rc6 do not work.
 > 
-> What about ndiswrapper?
-> Why is it so important to make this happen unconditionally?
+> Hi,
+> 
+> have you tried recompiling with debug enabled?
+> It does show the status codes in the interrupt handler.
 
-Number of folks using ndiswrapper for acx100/acx111
-while acx team needs help on native driver debugging
-worries me.
---
-vda
+I have not.  My keyboard and mouse (on a hub) are plugged in beside the
+kaweth device so they would be on the same interrupt.
 
+I did notice that the kaweth file itself hasn't changed, but something is
+different between rc3 and rc4.
+
+Someone else asked what host controllers.  I tried it on 2 systems.  The
+device itself is USB1.  One machine running rc5 used Intel 440bx chipset. 
+I'm not sure what controller it has but I was using the onboard USB which
+uses uhci.  I don't have that machine anymore, it was temporary.  I'm
+currently using this on an Intel E7505 chipset which uses both ehci and uhci
+(loaded in that order)
+
+I used the same configfile from rc2 when I compiled rc3 and rc4 (doing make
+old config of course).  I'll see about testing this later on.  I don't have
+time this morning to look at this.
+
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

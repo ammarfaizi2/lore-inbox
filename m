@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262185AbVFHMAf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262181AbVFHMCx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262185AbVFHMAf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 08:00:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262188AbVFHMAe
+	id S262181AbVFHMCx (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 08:02:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262189AbVFHMCx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 08:00:34 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:35016 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S262185AbVFHMA3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 08:00:29 -0400
-Date: Wed, 8 Jun 2005 13:59:56 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>,
-       Esben Nielsen <simlo@phys.au.dk>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.47-29
-Message-ID: <20050608115956.GA7652@elte.hu>
-References: <20050607194119.GA11185@elte.hu> <20050608074254.GA13452@elte.hu> <20050608074847.GB13452@elte.hu> <200506080735.15530.gene.heskett@verizon.net>
+	Wed, 8 Jun 2005 08:02:53 -0400
+Received: from thebsh.namesys.com ([212.16.7.65]:16787 "HELO
+	thebsh.namesys.com") by vger.kernel.org with SMTP id S262188AbVFHMAh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 08:00:37 -0400
+Subject: Re: RFC: i386: kill !4KSTACKS
+From: Vladimir Saveliev <vs@namesys.com>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "reiserfs-dev@namesys.com" <reiserfs-dev@namesys.com>
+In-Reply-To: <20050607212706.GB7962@stusta.de>
+References: <20050607212706.GB7962@stusta.de>
+Content-Type: text/plain
+Message-Id: <1118232016.3176.72.camel@tribesman.namesys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506080735.15530.gene.heskett@verizon.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Ximian Evolution 1.4.4 
+Date: Wed, 08 Jun 2005 16:00:16 +0400
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hello
 
-* Gene Heskett <gene.heskett@verizon.net> wrote:
+On Wed, 2005-06-08 at 01:27, Adrian Bunk wrote:
+> 4Kb kernel stacks are the future on i386, and it seems the problems it 
+> initially caused are now sorted out.
+> 
+> I'd like to:
+> - get a patch into the next -mm that unconditionally enables 4KSTACKS
+> - if there won't be new reports of breakages, send a patch to
+>   completely remove !4KSTACKS for 2.6.13 or 2.6.14
+> 
+> The only drawback is that REISER4_FS does still depend on !4KSTACKS.
+> I told Hans back in March that this has to be changed.
+> Is there any ETA until that all issues with 4Kb kernel stacks in Reiser4 
+> will be resolved?
+> 
 
-> I just built this one, with RT but without the statistical stuff 
-> enabled.  While rc6 works fine with tvtime-0.99, this gives a no video 
-> blue screen, audio ok.
+yes, it should be ready to the end of this week.
 
-could you check PREEMPT_DESKTOP too, with softirq/hardirq threading 
-enabled/disabled?
 
-	Ingo
+> If not people using Reiser4 might have to decide whether to switch the 
+> filesystem or the architecture...
+> 
+> cu
+> Adrian
+

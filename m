@@ -1,80 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261346AbVFHQnC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261358AbVFHQnD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261346AbVFHQnC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 12:43:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261353AbVFHQln
+	id S261358AbVFHQnD (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 12:43:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261413AbVFHQlA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 12:41:43 -0400
-Received: from mail1.utc.com ([192.249.46.190]:4537 "EHLO mail1.utc.com")
-	by vger.kernel.org with ESMTP id S261346AbVFHQIN (ORCPT
+	Wed, 8 Jun 2005 12:41:00 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:10505 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S261392AbVFHQfU convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 12:08:13 -0400
-Message-ID: <42A717E1.5050505@cybsft.com>
-Date: Wed, 08 Jun 2005 11:08:01 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
+	Wed, 8 Jun 2005 12:35:20 -0400
+X-IronPort-AV: i="3.93,183,1115010000"; 
+   d="scan'208"; a="252057667:sNHT24176994"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: "K.R. Foley" <kr@cybsft.com>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-References: <20050608112801.GA31084@elte.hu> <42A7135C.5010704@cybsft.com>
-In-Reply-To: <42A7135C.5010704@cybsft.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch 2.6.12-rc3] modifications in firmware_class.c to support nohotplug
+Date: Wed, 8 Jun 2005 11:35:05 -0500
+Message-ID: <367215741E167A4CA813C8F12CE0143B3ED3B7@ausx2kmpc115.aus.amer.dell.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch 2.6.12-rc3] modifications in firmware_class.c to support nohotplug
+Thread-Index: AcVsRwEhFOl84AqzQnKeWIvRRjgRwgAAAwKA
+From: <Abhay_Salunke@Dell.com>
+To: <greg@kroah.com>
+Cc: <dtor_core@ameritech.net>, <linux-kernel@vger.kernel.org>, <akpm@osdl.org>,
+       <Matt_Domsch@Dell.com>, <ranty@debian.org>
+X-OriginalArrivalTime: 08 Jun 2005 16:35:17.0735 (UTC) FILETIME=[0DF23770:01C56C48]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-K.R. Foley wrote:
-> Ingo Molnar wrote:
-> 
->> i have released the -V0.7.48-00 Real-Time Preemption patch, which can 
->> be downloaded from the usual place:
->>
->>     http://redhat.com/~mingo/realtime-preempt/
->>
->> this release includes an improved version of Daniel Walker's soft 
->> irq-flag (hardirq-disable removal) feature. It is an unconditional part
->> of the PREEMPT_RT preemption model - other preemption models should not
->> be affected that much (besides possible build issues). Non-x86 arches
->> wont build. Some regressions might happen, so take care..
->>
->> Changes since -47-29:
->>
->>  - soft IRQ flag support (Daniel Walker)
->>
->>  - fix race in usbnet.c (Eugeny S. Mints)
->>
->>  - further improvements to the soft IRQ flag code
->>
->> to build a -V0.7.48-00 tree, the following patches should to be applied:
->>
->>    http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.11.tar.bz2
->>    http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.12-rc6.bz2
->>    
->> http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.12-rc6-V0.7.48-00 
->>
->>
->>     Ingo
-> 
-> 
-> Ingo,
-> 
-> I can't get any version of RT-preempt applied to 2.6.12-rc6 up to and 
-> including 48-01 to boot on any of my SMP systems. I get no log because 
-> it dies right after the "Uncompressing kernel" message. 2.6.12-rc6 boots 
-> fine.  I am attaching my config. Am I missing something obvious? I am 
-> building 48-01 with voluntary-preempt now to try that.
-> 
-> 
 
-Just confirmed that CONFIG_PREEMPT_VOLUNTARY works OK. Building 
-CONFIG_PREEMPT_DESKTOP=y now.
 
--- 
-    kr
+> -----Original Message-----
+> From: Greg KH [mailto:greg@kroah.com]
+> Sent: Wednesday, June 08, 2005 11:27 AM
+> To: Salunke, Abhay
+> Cc: dtor_core@ameritech.net; linux-kernel@vger.kernel.org;
+akpm@osdl.org;
+> Domsch, Matt; ranty@debian.org
+> Subject: Re: [patch 2.6.12-rc3] modifications in firmware_class.c to
+> support nohotplug
+> 
+> On Wed, Jun 08, 2005 at 11:23:30AM -0500, Abhay_Salunke@Dell.com
+wrote:
+> >
+> >
+> > > -----Original Message-----
+> > > From: Greg KH [mailto:greg@kroah.com]
+> > > Sent: Wednesday, June 08, 2005 11:10 AM
+> > > To: Salunke, Abhay
+> > > Cc: dtor_core@ameritech.net; linux-kernel@vger.kernel.org;
+> > akpm@osdl.org;
+> > > Domsch, Matt; ranty@debian.org
+> > > Subject: Re: [patch 2.6.12-rc3] modifications in firmware_class.c
+to
+> > > support nohotplug
+> > >
+> > > On Wed, Jun 08, 2005 at 11:04:09AM -0500, Abhay_Salunke@Dell.com
+> > wrote:
+> > > > > I think it would be better if you just have request_firmware
+and
+> > > > > request_firmware_nowait accept timeout parameter that would
+> > override
+> > > > > default timeout in firmware_class. 0 would mean use default,
+> > > > > MAX_SCHED_TIMEOUT - wait indefinitely.
+> > > >
+> > > > But we still need to avoid hotplug being invoked as we need it
+be a
+> > > > manual process.
+> > >
+> > > No, hotplug can happen just fine (it happens loads of times today
+for
+> > > things that people don't care about.)
+> > >
+> > If hotplug happens the complete function is called which makes the
+> > request_firmware return with a failure.
+> 
+> If this was true, then the current code would not work at all.
+Why not? Can't we avoid hotplug from running by not calling
+kobject_hotplug()?
+If hotplug does not happen we can do the stuff done by hotplug script
+manually. And also the current code skips add_timer so not timeouts
+irrespective of the timeout specified in /sys/class/firmware/timeout
+thus preventing from breaking other's who are using timeout.
+
+Thanks,
+Abhay
+

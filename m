@@ -1,65 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261351AbVFHXDD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261418AbVFHXFT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261351AbVFHXDD (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 19:03:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbVFHXDD
+	id S261418AbVFHXFT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 19:05:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261419AbVFHXFS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 19:03:03 -0400
-Received: from gate.crashing.org ([63.228.1.57]:2471 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S261351AbVFHXC5 (ORCPT
+	Wed, 8 Jun 2005 19:05:18 -0400
+Received: from dvhart.com ([64.146.134.43]:44712 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S261418AbVFHXFF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 19:02:57 -0400
-Subject: Re: [PATCH] fix tulip suspend/resume
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Adam Belay <abelay@novell.com>, greg@kroah.com,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Karsten Keil <kkeil@suse.de>
-In-Reply-To: <20050608122320.GC1898@elf.ucw.cz>
-References: <20050606224645.GA23989@pingi3.kke.suse.de>
-	 <Pine.LNX.4.58.0506061702430.1876@ppc970.osdl.org>
-	 <20050607025054.GC3289@neo.rr.com>
-	 <20050607105552.GA27496@pingi3.kke.suse.de>
-	 <20050607205800.GB8300@neo.rr.com> <1118190373.6850.85.camel@gaston>
-	 <1118196980.3245.68.camel@localhost.localdomain>
-	 <20050608122320.GC1898@elf.ucw.cz>
-Content-Type: text/plain
-Date: Thu, 09 Jun 2005 09:00:04 +1000
-Message-Id: <1118271605.6850.137.camel@gaston>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
+	Wed, 8 Jun 2005 19:05:05 -0400
+Date: Wed, 08 Jun 2005 16:04:56 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, matt_domsch@dell.com
+Subject: Re: 2.6.12?
+Message-ID: <1046820000.1118271896@flay>
+In-Reply-To: <549770000.1118260074@[10.10.2.4]>
+References: <42A0D88E.7070406@pobox.com> <20050603163843.1cf5045d.akpm@osdl.org> <394120000.1117895039@[10.10.2.4]> <20050604151120.46b51901.akpm@osdl.org> <418760000.1117983740@[10.10.2.4]> <971250000.1118168167@flay> <20050607122422.612759e4.akpm@osdl.org> <20050608125637.GL1683@muc.de> <549770000.1118260074@[10.10.2.4]>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> > I think we should also use the pm_message_t defines.  We will need to
-> > add PMSG_FREEZE eventually.  I decided to default to the current state
-> > rather than panic.  Does this patch look ok?
+>>> > >>> The one that worries me is that my x86_64 box won't boot since -rc3
+>>> > >>>  See:
+>>> > >>> 
+>>> > >>>  http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/regression_matrix.html
+>>> > 
+>>> > HA. Found it. binary search reveals it's patch 182 out of 2.6.12-rc2-mm2.
+>>> > And the winner is .... <drum roll please> ....
+>>> > 
+>>> > x86_64-use-the-e820-hole-to-map-the-iommu-agp-aperture.patch
+>>> > 
+>>> 
+>>> hrm.  No useful messages in dmesg?
+>>> 
+>>> Andi, do we revert it?
+>> 
+>> Ok. For now. 
+>> 
+>> Actually it fixes some other bugs (e.g. one from Matt D.), but they are not
+>> very high priority.
+>> 
+>> I would like to debug it, but I am not sure I will still make it this week.
+>> But Martin, can you please send me the dmesg again? Maybe it is something
+>> stupid.
 > 
-> No.
+> All the logs are linked off here:
+> 
+> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/regression_matrix.html
+> 
+> Just click on the ABORT messages in hte left column. But I'm thinking maybe
+> I'm off by one, and it might be:
 
-Hrm... I don't follow you anymore here ...
+Nope, I was correct, just one of my scrawled notes was wrong. backing out
 
->         case PM_EVENT_ON:
->                 return PCI_D0;
->         case PM_EVENT_FREEZE:
->         case PM_EVENT_SUSPEND:
->                 return PCI_D3hot;
+x86_64-use-the-e820-hole-to-map-the-iommu-agp-aperture.patch
 
-What are these new PM_EVENT_* things ? I though we defined PMSG_* ?
+does indeed fix it.
 
-> You passed invalid argument; I see no reason why you should paper over
-> it and risk continuing. This happens during system suspend; it is
-> quite possible that user will not see your printk when machine powers
-> off just after that; and remember that it will not be in syslog after
-> resume.
-
-Crap. I don't think a BUG() makes any useful help neither in this place,
-and when I locally turn PMSG_FREEZE to something sane I suddenly blow up
-in there (and I wonder in how many other places).
-
-Ben.
-
+M.
 

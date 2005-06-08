@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbVFHTEv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261546AbVFHTEo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261544AbVFHTEv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 15:04:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVFHTEu
+	id S261546AbVFHTEo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 15:04:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVFHTEo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 15:04:50 -0400
-Received: from stargate.chelsio.com ([64.186.171.138]:12328 "EHLO
-	stargate.chelsio.com") by vger.kernel.org with ESMTP
-	id S261544AbVFHTEn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 15:04:43 -0400
-Message-ID: <42A742FF.2020706@chelsio.com>
-Date: Wed, 08 Jun 2005 12:11:59 -0700
-From: Scott Bardone <sbardone@chelsio.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-CC: Francois Romieu <romieu@fr.zoreil.com>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.12-rc6-mm1 & Chelsio driver
-References: <8A71B368A89016469F72CD08050AD3340255F0@maui.asicdesigners.com> <20050608184933.GC2369@mail.muni.cz>
-In-Reply-To: <20050608184933.GC2369@mail.muni.cz>
-Content-Type: text/plain; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 08 Jun 2005 19:04:06.0990 (UTC) FILETIME=[D83266E0:01C56C5C]
+	Wed, 8 Jun 2005 15:04:44 -0400
+Received: from fmr22.intel.com ([143.183.121.14]:18357 "EHLO
+	scsfmr002.sc.intel.com") by vger.kernel.org with ESMTP
+	id S261546AbVFHTE3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 15:04:29 -0400
+Date: Wed, 8 Jun 2005 12:03:26 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: lk <linux_kernel@patni.com>
+Cc: helen monte <hzmonte@hotmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: How does 2.6 SMP scheduler initially assign a thread to a run queue?
+Message-ID: <20050608120325.A5554@unix-os.sc.intel.com>
+References: <BAY102-F24530D3EE13EBCA2B13336A0FA0@phx.gbl> <000e01c56c27$765c4510$5e91a8c0@patni.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <000e01c56c27$765c4510$5e91a8c0@patni.com>; from linux_kernel@patni.com on Wed, Jun 08, 2005 at 06:11:55PM +0530
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lukas,
-
-You would need to use the cxgb-2.1.1 driver (NIC only). It is near the bottom of 
-the webpage, under "Chelsio N210 / N110 10Gb Ethernet Server Adapter",  Chelsio 
-N210 / N110 Linux Driver - Version 2.1.1 (05/17/2005).
-<https://service.chelsio.com/drivers/linux/n210/cxgb-2.1.1.tar.gz>
-Use the above driver for the T110 in NIC mode. This driver will work for the 
-T110 and T210 but only in NIC mode.
-
-The NIC driver does not have CONFIG_CHELSIO_T1_OFFLOAD, so the card will work in 
-  NIC only mode.
-
-You would not have success in trying to modify the TOE driver (cxgbtoe-2.1.1) 
-because this requires a lot of modifications to the TOM (TCP Offload Module) and 
-the TOE API in order to work with a newer kernel.
-
-In the future, we plan on trying to get our TOE API into the Linux kernel, but 
-this requires a lot of work and acceptance of TOE by the community first.
-
--Scott
-
-Lukas Hejtmanek wrote:
-> On Wed, Jun 08, 2005 at 10:33:09AM -0700, Scott Bardone wrote:
+On Wed, Jun 08, 2005 at 06:11:55PM +0530, lk wrote:
+> > In the 2.6 kernel, there is one run queue per CPU, in case of an SMP.
+> > After a thread is created, how does the scheduler determine which run
+> > queue it goes to?  
 > 
->>You can download the N210/N110 (ver 2.1.1) from the Chelsio website and use
->>that driver for the T110 with a newer kernel. I have tested that driver up to
->>the 2.6.11 kernel release. It will provide you NIC mode functinoality on your
->>T110 TOE card, you can use it as a module, or try to patch it into a later
->>kernel. If patching it into a kernel, you may need to modify the patch a bit.
+> First it forked process (child) gets the same CPU as that of parent.
+> forking a child gets the same CPU and later part of fork will call 
+> wake_up_new_task () to fetch the run-queue of the CPU and 
+> __activate_task () is called to move task into run-queue. 
+> Later rescheduling of the process may move process to another
+> run-queues.
+
+In -mm kernels, Nick has recently added balance on exec/fork.
+
+> > By the way, in an SMT/hyperthreading processor, does the latest kernel
+> > version assign one run queue per physical CPU, or per virtual 
+> > processor?
+> > 
 > 
-> 
-> Thanks, however, without CONFIG_CHELSIO_T1_OFFLOAD card is not detected (no
-> wonder, driver enables T110 card only if offload is used). I do not need TCP
-> offload engine. With T1 Offload it cannot be compiled - it reject
-> cxgbtoe-2.1.1-linux-2.6.6-toe_api.patch
-> 
-> So, do I really need Offloading in kernel or should it work with just enableing
-> card in sources even without Offloading?
-> 
+> one run-queue per physical CPU
+
+No. Each logical processor has its own runqueue.
+
+thanks,
+suresh

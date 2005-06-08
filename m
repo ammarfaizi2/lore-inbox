@@ -1,69 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262103AbVFHFZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262101AbVFHF1a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262103AbVFHFZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 01:25:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbVFHFZ5
+	id S262101AbVFHF1a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 01:27:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262104AbVFHF13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 01:25:57 -0400
-Received: from omta05sl.mx.bigpond.com ([144.140.93.195]:53833 "EHLO
-	omta05sl.mx.bigpond.com") by vger.kernel.org with ESMTP
-	id S262103AbVFHFZs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 01:25:48 -0400
-Message-ID: <42A68159.9050808@bigpond.net.au>
-Date: Wed, 08 Jun 2005 15:25:45 +1000
-From: Peter Williams <pwil3058@bigpond.net.au>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
-X-Accept-Language: en-us, en
+	Wed, 8 Jun 2005 01:27:29 -0400
+Received: from ozlabs.org ([203.10.76.45]:24270 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S262101AbVFHF06 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 01:26:58 -0400
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-CC: Chris Han <xiphux@gmail.com>, Con Kolivas <kernel@kolivas.org>,
-       William Lee Irwin III <wli@holomorphy.com>
-Subject: [ANNOUNCE][RFC] PlugSched-5.1 for 2.6.12-rc6 and 2.6.12-rc6-mm1
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta05sl.mx.bigpond.com from [147.10.132.202] using ID pwil3058@bigpond.net.au at Wed, 8 Jun 2005 05:25:45 +0000
+Message-ID: <17062.32288.345218.748743@cargo.ozlabs.ibm.com>
+Date: Wed, 8 Jun 2005 15:12:00 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: torvalds@osdl.org, akpm@osdl.org
+CC: anton@samba.org, linux-kernel@vger.kernel.org, olh@suse.de
+Subject: [PATCH] ppc64: print negative numbers correctly in boot wrapper
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The patch of PlugSched-5.1 for 2.6.12-rc5 applies cleanly to 2.6.12-rc6 
-and is available at:
+From: Olaf Hering <olh@suse.de>
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-5.1-for-2.6.12-rc5.patch?download>
+if num has a value of -1, accessing the digits[] array will fail and the
+format string will be printed in funny way, or not at all. This happens if
+one prints negative numbers.
+Just change the code to match lib/vsprintf.c
+asm/div64.h cant be used because u64 maps to u32 for this build.
 
-A (new) patch for 2.6.12-rc6-mm1 is available at:
+Signed-off-by: Olaf Hering <olh@suse.de>
+Signed-off-by: Paul Mackerras <paulus@samba.org>
 
-<http://prdownloads.sourceforge.net/cpuse/plugsched-5.1-for-2.6.12-rc6-mm1.patch?download>
-
-Very Brief Documentation:
-
-You can select a default scheduler at kernel build time.  If you wish to
-boot with a scheduler other than the default it can be selected at boot
-time by adding:
-
-cpusched=<scheduler>
-
-to the boot command line where <scheduler> is one of: ingosched,
-nicksched, staircase, spa_no_frills or zaphod.  If you don't change the
-default when you build the kernel the default scheduler will be
-ingosched (which is the normal scheduler).
-
-The scheduler in force on a running system can be determined by the
-contents of:
-
-/proc/scheduler
-
-Control parameters for the scheduler can be read/set via files in:
-
-/sys/cpusched/<scheduler>/
-
-Peter
--- 
-Peter Williams                                   pwil3058@bigpond.net.au
-
-"Learning, n. The kind of ignorance distinguishing the studious."
-  -- Ambrose Bierce
--
-To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-the body of a message to majordomo@vger.kernel.org
-More majordomo info at  http://vger.kernel.org/majordomo-info.html
-Please read the FAQ at  http://www.tux.org/lkml/
+Index: linux-2.6.12-rc4-olh/arch/ppc64/boot/prom.c
+===================================================================
+--- linux-2.6.12-rc4-olh.orig/arch/ppc64/boot/prom.c
++++ linux-2.6.12-rc4-olh/arch/ppc64/boot/prom.c
+@@ -11,6 +11,23 @@
+ #include <linux/string.h>
+ #include <linux/ctype.h>
+ 
++extern __u32 __div64_32(unsigned long long *dividend, __u32 divisor);
++
++/* The unnecessary pointer compare is there
++ * to check for type safety (n must be 64bit)
++ */
++# define do_div(n,base) ({				\
++	__u32 __base = (base);			\
++	__u32 __rem;					\
++	(void)(((typeof((n)) *)0) == ((unsigned long long *)0));	\
++	if (((n) >> 32) == 0) {			\
++		__rem = (__u32)(n) % __base;		\
++		(n) = (__u32)(n) / __base;		\
++	} else 						\
++		__rem = __div64_32(&(n), __base);	\
++	__rem;						\
++ })
++
+ int (*prom)(void *);
+ 
+ void *chosen_handle;
+@@ -352,7 +369,7 @@ static int skip_atoi(const char **s)
+ #define SPECIAL	32		/* 0x */
+ #define LARGE	64		/* use 'ABCDEF' instead of 'abcdef' */
+ 
+-static char * number(char * str, long num, int base, int size, int precision, int type)
++static char * number(char * str, unsigned long long num, int base, int size, int precision, int type)
+ {
+ 	char c,sign,tmp[66];
+ 	const char *digits="0123456789abcdefghijklmnopqrstuvwxyz";
+@@ -367,9 +384,9 @@ static char * number(char * str, long nu
+ 	c = (type & ZEROPAD) ? '0' : ' ';
+ 	sign = 0;
+ 	if (type & SIGN) {
+-		if (num < 0) {
++		if ((signed long long)num < 0) {
+ 			sign = '-';
+-			num = -num;
++			num = - (signed long long)num;
+ 			size--;
+ 		} else if (type & PLUS) {
+ 			sign = '+';
+@@ -389,8 +406,7 @@ static char * number(char * str, long nu
+ 	if (num == 0)
+ 		tmp[i++]='0';
+ 	else while (num != 0) {
+-		tmp[i++] = digits[num % base];
+-		num /= base;
++		tmp[i++] = digits[do_div(num, base)];
+ 	}
+ 	if (i > precision)
+ 		precision = i;
+@@ -426,7 +442,7 @@ int sprintf(char * buf, const char *fmt,
+ int vsprintf(char *buf, const char *fmt, va_list args)
+ {
+ 	int len;
+-	unsigned long num;
++	unsigned long long num;
+ 	int i, base;
+ 	char * str;
+ 	const char *s;

@@ -1,74 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262138AbVFHIMf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262139AbVFHIVe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262138AbVFHIMf (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 04:12:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262139AbVFHIMf
+	id S262139AbVFHIVe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 04:21:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262141AbVFHIVe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 04:12:35 -0400
-Received: from [24.199.11.214] ([24.199.11.214]:17642 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S262138AbVFHIMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 04:12:31 -0400
-Message-ID: <42A64556.4060405@cyte.com>
-Date: Tue, 07 Jun 2005 18:09:42 -0700
-From: Jeff Wiegley <jeffw@cyte.com>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050402)
-X-Accept-Language: en-us, en
+	Wed, 8 Jun 2005 04:21:34 -0400
+Received: from hrz-ws39.hrz.uni-kassel.de ([141.51.12.239]:16266 "EHLO
+	hrz-ws39.hrz.uni-kassel.de") by vger.kernel.org with ESMTP
+	id S262139AbVFHIVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 04:21:32 -0400
+Message-ID: <42A6AAFF.2020605@uni-kassel.de>
+Date: Wed, 08 Jun 2005 10:23:27 +0200
+From: Michael Zapf <Michael.Zapf@uni-kassel.de>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: de-DE, de, en-us, en
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org
-Subject: amd64 cdrom access locks system
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Problems with USB on x86_64
+X-Enigmail-Version: 0.90.0.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
 Content-Transfer-Encoding: 7bit
+X-UniK-SMTP-MailScanner-Information: 
+X-UniK-SMTP-MailScanner: Found to be clean
+X-UniK-SMTP-MailScanner-SpamCheck: 
+X-MailScanner-From: michael.zapf@uni-kassel.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been having this problem in 2.6.12-rc2 and 2.6.12-rc6.
+Hi all,
 
-Any continued access to /dev/hda causes a complete and total
-lock up of the system. Nothing is logged to /var/log/kernel
-or /var/log/messages. Just a solid freeze.
+I have some trouble using a memory stick of LG in my Athlon64 system. 
+When I plug it in, dmesg gives messages like this:
 
-This happens with at least cdparanoia and cdrecord as well.
+ehci_hcd 0000:00:02.2: port 6 reset error -110
+hub 1-0:1.0: hub_port_status failed (err = -32)
+ehci_hcd 0000:00:02.2: port 6 reset error -110
+hub 1-0:1.0: hub_port_status failed (err = -32)
+hub 1-0:1.0: Cannot enable port 6.  Maybe the USB cable is bad?
 
-The machine is an AMD64 FX55 CPU running in a shuttle
-ST20G5 chassis.
 
-The specs for the chipset say:
-   ATi RADEON XPRESS 200 + ULi 1573 chipset
+and the stick cannot be mounted. It took some time of experimenting with 
+different kernels to find out that
 
-lspci produces (but doesn't say anything about the spec'ed chips):
-0000:00:00.0 Host bridge: ATI Technologies Inc: Unknown device 5950 (rev 01)
-0000:00:01.0 PCI bridge: ATI Technologies Inc: Unknown device 5a3f
-0000:00:06.0 PCI bridge: ATI Technologies Inc: Unknown device 5a38
-0000:00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 NorthBridge
-0000:00:19.0 PCI bridge: ALi Corporation M5249 HTT to PCI Bridge
-0000:00:1c.0 USB Controller: ALi Corporation USB 1.1 Controller (rev 03)
-0000:00:1c.1 USB Controller: ALi Corporation USB 1.1 Controller (rev 03)
-0000:00:1c.2 USB Controller: ALi Corporation USB 1.1 Controller (rev 03)
-0000:00:1c.3 USB Controller: ALi Corporation USB 2.0 Controller (rev 01)
-0000:00:1d.0 0403: ALi Corporation: Unknown device 5461
-0000:00:1e.0 ISA bridge: ALi Corporation: Unknown device 1573 (rev 31)
-0000:00:1e.1 Bridge: ALi Corporation M7101 Power Management Controller [PMU]
-0000:00:1f.0 IDE interface: ALi Corporation M5229 IDE (rev c7)
-0000:00:1f.1 RAID bus controller: ALi Corporation: Unknown device 5287 
-(rev 02)
-0000:01:05.0 VGA compatible controller: ATI Technologies Inc: Unknown 
-device 5954
-0000:02:00.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5751 
-Gigabit Ethernet PCI Express (rev 01)
-0000:03:15.0 FireWire (IEEE 1394): VIA Technologies, Inc. IEEE 1394 Host 
-Controller (rev 80)
-0000:03:16.0 Serial controller: NetMos Technology PCI 9835 Multi-I/O 
-Controller(rev 01)
+* using the 32-bit version of 2.6.8 or 2.6.11, the stick works fine, no 
+error output!
+* using the 64-bit version of 2.6.8 or 2.6.11, the problems occur as 
+mentioned.
 
-Any ideas? I would really like to see this go away before 2.6.12
-comes out. But it's been present for quite a while.
+(2.6.8 as given by SuSE 9.2, 2.6.11 as by SuSE 9.3; both distributions 
+offer a 32 and a 64-bit installation)
+I also tried a Kubuntu 5.04 with 2.6.10, same result for 64 bit.
 
--- 
-Jeff Wiegley, PhD
-Cyte.Com, LLC
-(ignore:cea2d3a38843531c7def1deff59114de)
+Does anybody have a good theory on what is happening here? Could this be 
+a hardware problem?
+
+Thanks for any hint,
+
+Michael
+
 

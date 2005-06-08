@@ -1,48 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262161AbVFHKfW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262162AbVFHKhC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262161AbVFHKfW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 06:35:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVFHKfW
+	id S262162AbVFHKhC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 06:37:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262159AbVFHKhC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 06:35:22 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:44710 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262161AbVFHKfQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 06:35:16 -0400
-Date: Wed, 8 Jun 2005 12:34:40 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Eugeny S. Mints" <emints@ru.mvista.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       David Brownell <david-b@pacbell.net>
-Subject: Re: race in usbnet.c in full RT
-Message-ID: <20050608103440.GA18380@elte.hu>
-References: <42A6C6B3.2000303@ru.mvista.com>
+	Wed, 8 Jun 2005 06:37:02 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:47514 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262162AbVFHKfs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 06:35:48 -0400
+Subject: Re: [PATCH] Move some more structures into "mostly_readonly"
+From: Arjan van de Ven <arjan@infradead.org>
+To: =?ISO-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: Brian Gerst <bgerst@didntduck.org>, christoph <christoph@scalex86.org>,
+       Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050608102053.GC331@wohnheim.fh-wedel.de>
+References: <Pine.LNX.4.62.0506071128220.22950@ScMPusgw>
+	 <20050607194123.GA16637@infradead.org>
+	 <Pine.LNX.4.62.0506071258450.2850@ScMPusgw>
+	 <1118177949.5497.44.camel@laptopd505.fenrus.org>
+	 <42A61227.9090402@didntduck.org>
+	 <20050608100056.GA331@wohnheim.fh-wedel.de>
+	 <1118225246.5655.16.camel@laptopd505.fenrus.org>
+	 <20050608102053.GC331@wohnheim.fh-wedel.de>
+Content-Type: text/plain; charset=UTF-8
+Date: Wed, 08 Jun 2005 12:35:33 +0200
+Message-Id: <1118226933.5655.19.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42A6C6B3.2000303@ru.mvista.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: 3.7 (+++)
+X-Spam-Report: SpamAssassin version 2.63 on pentafluge.infradead.org summary:
+	Content analysis details:   (3.7 points, 5.0 required)
+	pts rule name              description
+	---- ---------------------- --------------------------------------------------
+	1.1 RCVD_IN_DSBL           RBL: Received via a relay in list.dsbl.org
+	[<http://dsbl.org/listing?80.57.133.107>]
+	2.5 RCVD_IN_DYNABLOCK      RBL: Sent directly from dynamic IP address
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+	0.1 RCVD_IN_SORBS          RBL: SORBS: sender is listed in SORBS
+	[80.57.133.107 listed in dnsbl.sorbs.net]
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2005-06-08 at 12:20 +0200, Jörn Engel wrote:
+> On Wed, 8 June 2005 12:07:25 +0200, Arjan van de Ven wrote:
+> > On Wed, 2005-06-08 at 12:00 +0200, Jörn Engel wrote:
+> > > On Tue, 7 June 2005 17:31:19 -0400, Brian Gerst wrote:
+> > > > 
+> > > > It doesn't really matter.  .rodata isn't actually mapped read-only. 
+> > > > Doing so would break up the large pages used to map the kernel.
+> > > 
+> > > Can you confirm that for every architecture?  Or just i386?
+> > 
+> > does it matter? it's supposed to be read only, only sometimes that's not
+>                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+> > enforced unfortunately.
+> 
+> I agree.  What I don't agree with is "It doesn't really matter" - not
+> after debugging the occasional memory corruptions.
 
-* Eugeny S. Mints <emints@ru.mvista.com> wrote:
+I agree, and it would be very useful to have a debug option in the
+kernel that say checksums rodata (and probably the kernel text which is
+also read only) periodically and raises an alarm if the checksum
+changes. 
 
-> seems there is a race in drivers/net/usbnet.c in full RT mode. To be 
-> honest I haven't hardly checked this on the latest kernel and latest 
-> RT patch but just took a look at usbnet.c and latest RT patch and 
-> haven't observed any related changes.
-
-thanks, i've applied your patch to my tree. Note that your patch is 
-specific to the -RT kernel (both in terms of semantics and in term of 
-API dependence), so it does not make any sense to apply it upstream.  
-David, please ignore it.
-
-	Ingo

@@ -1,145 +1,165 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262119AbVFHGjX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262120AbVFHGkE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262119AbVFHGjX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 02:39:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbVFHGjX
+	id S262120AbVFHGkE (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 02:40:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbVFHGkD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 02:39:23 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.131]:50671 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262119AbVFHGiu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 02:38:50 -0400
-Date: Wed, 8 Jun 2005 12:08:40 +0530
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Grant Grundler <grundler@parisc-linux.org>,
-       Morton Andrew Morton <akpm@osdl.org>, Bodo Eggert <7eggert@gmx.de>,
-       stern@rowland.harvard.edu, awilliam@fc.hp.com, greg@kroah.com,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       bjorn.helgaas@hp.com
-Subject: Re: [Fastboot] Re: [RFC/PATCH] Kdump: Disabling PCI interrupts in capture kernel
-Message-ID: <20050608063840.GA4082@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <1118113637.42a50f65773eb@imap.linux.ibm.com> <20050607050727.GB12781@colo.lackof.org> <m1slzuwkqx.fsf@ebiederm.dsl.xmission.com> <20050607162143.GE29220@colo.lackof.org> <m1acm2vwil.fsf@ebiederm.dsl.xmission.com>
+	Wed, 8 Jun 2005 02:40:03 -0400
+Received: from mx2.suse.de ([195.135.220.15]:21703 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262120AbVFHGjn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 02:39:43 -0400
+Date: Wed, 8 Jun 2005 08:39:40 +0200
+From: Karsten Keil <kkeil@suse.de>
+To: Adam Belay <ambx1@neo.rr.com>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fix tulip suspend/resume
+Message-ID: <20050608063940.GA31237@pingi3.kke.suse.de>
+Mail-Followup-To: Adam Belay <ambx1@neo.rr.com>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Jeff Garzik <jgarzik@pobox.com>,
+	Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20050606224645.GA23989@pingi3.kke.suse.de> <Pine.LNX.4.58.0506061702430.1876@ppc970.osdl.org> <20050607025054.GC3289@neo.rr.com> <20050607105552.GA27496@pingi3.kke.suse.de> <20050607205800.GB8300@neo.rr.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <m1acm2vwil.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <20050607205800.GB8300@neo.rr.com>
+Organization: SuSE Linux AG
+X-Operating-System: Linux 2.6.8-24.10-default i686
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 07, 2005 at 12:42:42PM -0600, Eric W. Biederman wrote:
-> Grant Grundler <grundler@parisc-linux.org> writes:
-> 
-> > On Tue, Jun 07, 2005 at 03:59:18AM -0600, Eric W. Biederman wrote:
-> > > > *lots* of PCI devices predate PCI2.3. Possibly even the majority.
+On Tue, Jun 07, 2005 at 04:58:00PM -0400, Adam Belay wrote:
+> On Tue, Jun 07, 2005 at 12:55:52PM +0200, Karsten Keil wrote:
+> > On Mon, Jun 06, 2005 at 10:50:55PM -0400, Adam Belay wrote:
+> > > On Mon, Jun 06, 2005 at 05:04:07PM -0700, Linus Torvalds wrote:
+> > > > 
+> > > > Jeff, 
+> > > >  this looks ok, but I'll leave the decision to you. Things like this often 
+> > > > break.
+> > > > 
+> > > > Andrew, maybe at least a few days in -mm to see if there's some outcry?
+> > > > 
+> > > > 		Linus
 > > > 
-> > > In general generic hardware bits for disabling DMA, disabling interrupts
-> > > and the like are all advisory.  With the current architecture things
-> > > will work properly even if you don't manage to disable DMA (assuming
-> > > you don't reassign IOMMU entries at least).
+> > > This patch is an improvement, but there may still be some issues.
+> > > Specifically, it looks to me like the the interrupt handler remains
+> > > registered.  This could cause some problems when another device is sharing
+> > > the interrupt because the tulip driver must read from a hardware register
+> > > to determine if it triggered the interrupt. When the hardware has been
+> > > physically powered off, things might not go well.
 > > 
-> > ISTR, pSeries (IBM), some alpha, some sparc64, and parisc (64-bit) require
-> > use of the IOMMU for *any* DMA. ie IOMMU entries need to be programmed.
-> > Probably want to make a choice to ignore those arches for now
-> > or sort out how to deal with an IOMMU.
+> > No, I also looked into this, it is not needed for the tulip driver, it
+> > detects that it has no access to the hardware (reading 0xffffffff) in the
+> > interrupt functions.
 > 
-> The howto deal with an IOMMU has been sorted out but so far no one 
-> has actually done it.  What has been discussed previously is simply
-> reserving a handful of IOMMU entries, and then only using those
-> in the crash recover kernel.  This is essentially what we do with DMA
-> on architectures that don't have an IOMMU and it seems quite safe
-> enough there.
+> Hmm, doesn't look like it:
 > 
-> > > Shared interrupts are an interesting case.  The simplest solution I can
-> > > think of for a crash dump capture kernel is to periodically poll
-> > > the hardware, as if all interrupts are shared.  At that level
-> > > I think we could get away with ignoring all hardware interrupt sources.
+> >	/* Let's see whether the interrupt really is for us */
+> >	csr5 = ioread32(ioaddr + CSR5);
+> >
+> >	if (tp->flags & HAS_PHY_IRQ) 
+> >	        handled = phy_interrupt (dev);
+> >    
+> >	if ((csr5 & (NormalIntr|AbnormalIntr)) == 0)
+> >		return IRQ_RETVAL(handled);
+> 
+> Upon reading the value 0xffffffff for csr5, the if statement would be false.
+> Maybe it bails out later or something, but really why risk it?  As Ben noted,
+> it's easy to have race conditions between power off and interrupt handler
+> routines.  Also, there is a transition delay between D0 and D3.  I prefer to
+> play it safe and call free_irq().
+
+Yes it test later for 0xffffffff, but you are right, freeing the IRQ would
+be safer.
+...
 > > 
-> > Yes, that's perfectly ok. We are no longer in a multitasking env.
+> > I think restoring the PCI config should be done always, not only if the
+> > device was in the up state, also powerup should be done.
+> > If not you will run into problems to use the device later.
 > 
-> Well we are at least capable of multitasking but that is no longer the
-> primary focus.  Having polling as at least an option should make
-> debugging easier.  Last I looked Andrews kernel hand an irqpoll option
-> to do something very like this.
+> Yeah, I think you're right.
 > 
+> Also, after looking at some other netdev suspend routines, it appears that
+> "netif_device_present" isn't necessary.  Jeff, is this correct?
+> 
+> Thanks,
+> Adam
+> 
+> 
+> How does this patch look:
 
-If I understand this right, the idea is that let all irqs be masked (except
-timer one) and invoke all the irq handlers whenever a timer interrupt occurs.
-This will automatcally be equivalent to drivers polling their devices for
-any interrupt.
+Looks OK and also work on my HW.
 
-As you mentioned that irqpoll option comes close. If enabled, it invokes
-all the irq handlers on every timer interrupt (IRQ0). The only difference is 
-that irqs are not masked (until and unless kernel masks these due to excessive
-unhandled interrupts). 
+Andrew, can you please take this updated version, it is much cleaner and
+safer, because it handle the IRQ correctly.
 
-I tried booting kdump kernel with irqpoll option. It seems to be going 
-little bit ahead than previous point of failure (boot without irqpoll) but
-panics later. Following is the stack trace.
+> 
+> --- a/drivers/net/tulip/tulip_core.c	2005-05-27 22:06:00.000000000 -0400
+> +++ b/drivers/net/tulip/tulip_core.c	2005-06-07 16:34:13.641177456 -0400
+> @@ -1756,11 +1756,19 @@
+>  {
+>  	struct net_device *dev = pci_get_drvdata(pdev);
+>  
+> -	if (dev && netif_running (dev) && netif_device_present (dev)) {
+> -		netif_device_detach (dev);
+> -		tulip_down (dev);
+> -		/* pci_power_off(pdev, -1); */
+> -	}
+> +	if (!dev)
+> +		return -EINVAL;
+> +
+> +	if (netif_running(dev))
+> +		tulip_down(dev);
+> +
+> +	netif_device_detach(dev);
+> +	pci_save_state(pdev);
+> +
+> +	free_irq(dev->irq, dev);
+> +	pci_disable_device(pdev);
+> +	pci_set_power_state(pdev, pci_choose_state(pdev, state));
+> +
+>  	return 0;
+>  }
+>  
+> @@ -1768,15 +1776,26 @@
+>  static int tulip_resume(struct pci_dev *pdev)
+>  {
+>  	struct net_device *dev = pci_get_drvdata(pdev);
+> +	int retval;
+>  
+> -	if (dev && netif_running (dev) && !netif_device_present (dev)) {
+> -#if 1
+> -		pci_enable_device (pdev);
+> -#endif
+> -		/* pci_power_on(pdev); */
+> -		tulip_up (dev);
+> -		netif_device_attach (dev);
+> +	if (!dev)
+> +		return -EINVAL;
+> +
+> +	pci_set_power_state(pdev, PCI_D0);
+> +	pci_restore_state(pdev);
+> +
+> +	pci_enable_device(pdev);
+> +
+> +	if ((retval = request_irq(dev->irq, &tulip_interrupt, SA_SHIRQ, dev->name, dev))) {
+> +		printk (KERN_ERR "tulip: request_irq failed in resume\n");
+> +		return retval;
+>  	}
+> +
+> +	netif_device_attach(dev);
+> +
+> +	if (netif_running(dev))
+> +		tulip_up(dev);
+> +
+>  	return 0;
+>  }
+>  
 
-mptbase: Initiating ioc0 bringup
-Unable to handle kernel NULL pointer dereference at virtual address 00000608
- printing eip:
-c11e1b73
-*pde = 00000000
-Oops: 0000 [#1]
-Modules linked in:
-CPU:    0
-EIP:    0060:[<c11e1b73>]    Not tainted VLI
-EFLAGS: 00010006   (2.6.12-rc6-mm1-16M)
-EIP is at mptscsih_io_done+0x23/0x350
-eax: c1778400   ebx: 00000000   ecx: 00000600   edx: 00000250
-esi: 00000000   edi: 0000000e   ebp: 00000001   esp: c15efcbc
-ds: 007b   es: 007b   ss: 0068
-Process swapper (pid: 1, threadinfo=c15ee000 task=c147fa00)
-Stack: c15f02d1 c1116cfd c1116d60 c15df660 00000000 0000006c 00000250 00000000
-       00000000 0000000e 00000001 c11db9ea c1778400 00000600 00000000 00000000
-       00000600 c1788aa0 c1410e80 00000009 00000001 c1039e7c 00000009 c1778400
-Call Trace:
- [<c1116cfd>] acpi_ev_gpe_detect+0x83/0x10f
- [<c1116d60>] acpi_ev_gpe_detect+0xe6/0x10f
- [<c11db9ea>] mpt_interrupt+0xfa/0x1e0
- [<c1039e7c>] misrouted_irq+0xec/0x100
- [<c103a007>] note_interrupt+0xb7/0xf0
- [<c10399c4>] __do_IRQ+0xe4/0xf0
- [<c1004e09>] do_IRQ+0x19/0x30
- [<c1003246>] common_interrupt+0x1a/0x20
- [<c1018d8f>] release_console_sem+0x3f/0xa0
- [<c1018c27>] vprintk+0x177/0x220
- [<c126ecbd>] pci_read+0x3d/0x50
- [<c1101a0a>] kobject_get+0x1a/0x30
- [<c116b676>] get_device+0x16/0x30
- [<c110b95a>] pci_dev_get+0x1a/0x30
- [<c1018aa7>] printk+0x17/0x20
- [<c11dcbeb>] mpt_do_ioc_recovery+0x4b/0x540
- [<c11dc4ff>] mpt_attach+0x2ef/0x690
- [<c11e6e03>] mptspi_probe+0x23/0x3e0
- [<c110b4f2>] pci_device_probe_static+0x52/0x70
- [<c110b54c>] __pci_device_probe+0x3c/0x50
- [<c110b58f>] pci_device_probe+0x2f/0x50
- [<c116cb68>] driver_probe_device+0x38/0xb0
- [<c116cc60>] __driver_attach+0x0/0x50
- [<c116cca7>] __driver_attach+0x47/0x50
- [<c116c229>] bus_for_each_dev+0x69/0x80
- [<c116ccd6>] driver_attach+0x26/0x30
- [<c116cc60>] __driver_attach+0x0/0x50
- [<c116c6d8>] bus_add_driver+0x88/0xc0
- [<c110b6d0>] pci_device_shutdown+0x0/0x30
- [<c110b857>] pci_register_driver+0x67/0x90
- [<c142a890>] mptspi_init+0xa0/0xb0
- [<c11e37a0>] mptscsih_ioc_reset+0x0/0x170
- [<c141483c>] do_initcalls+0x2c/0xc0
- [<c142d5fa>] sock_init+0x2a/0x40
- [<c1000290>] init+0x0/0x100
- [<c10002b5>] init+0x25/0x100
- [<c10013a0>] kernel_thread_helper+0x0/0x10
- [<c10013a5>] kernel_thread_helper+0x5/0x10
-Code: 00 8d bc 27 00 00 00 00 55 57 56 53 83 ec 1c 8b 44 24 30 8b 4c 24 34 8b 7
- <0>Kernel panic - not syncing: Fatal exception in interrupt
-
-
-Thanks
-Vivek
+-- 
+Karsten Keil
+SuSE Labs
+ISDN development

@@ -1,89 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261320AbVFHPeQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVFHPgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261320AbVFHPeQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 11:34:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261321AbVFHPeQ
+	id S261277AbVFHPgq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 11:36:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261323AbVFHPgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 11:34:16 -0400
-Received: from az33egw01.freescale.net ([192.88.158.102]:23187 "EHLO
-	az33egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S261320AbVFHPeI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 11:34:08 -0400
-In-Reply-To: <20050607225210.A28898@cox.net>
-References: <20050607225210.A28898@cox.net>
-Mime-Version: 1.0 (Apple Message framework v619.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <609b05dd2d9806d7d1cd68696b1f49e2@freescale.com>
-Content-Transfer-Encoding: 7bit
-Cc: <linux-kernel@vger.kernel.org>, <linuxppc-embedded@ozlabs.org>
-From: Kumar Gala <kumar.gala@freescale.com>
-Subject: Re: [PATCH][4/5] RapidIO support: ppc32
-Date: Wed, 8 Jun 2005 10:34:03 -0500
-To: "Matt Porter" <mporter@kernel.crashing.org>
-X-Mailer: Apple Mail (2.619.2)
+	Wed, 8 Jun 2005 11:36:45 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:3765 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S261277AbVFHPgS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 11:36:18 -0400
+Date: Wed, 8 Jun 2005 17:36:15 +0200
+From: Jan Kara <jack@suse.cz>
+To: Frank Elsner <frank@moltke28.B.Shuttle.DE>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.11:   kernel BUG at fs/jbd/checkpoint.c:247!
+Message-ID: <20050608153615.GA27540@atrey.karlin.mff.cuni.cz>
+References: <E1DeJTR-00026k-5j@moltke28.B.Shuttle.DE>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1DeJTR-00026k-5j@moltke28.B.Shuttle.DE>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> I'm not a kernel hacker. Maybe some of you knows what happened :-)
+  Looks like a bug in the kernel :). Can you please try 2.6.12-rc5 or
+newer? It should contain several fixes in this area.
 
-On Jun 8, 2005, at 12:52 AM, Matt Porter wrote:
+						Thanks for report
+								Honza
 
-> On Tue, Jun 07, 2005 at 11:43:26PM -0500, Kumar Gala wrote:
->> Two questions:
->> 1. how well does will all of this handle > 32-bit phys addr?
->
-> It does and it doesn't handle > 32-bit phys addr. It depends on which
-> configuration you are talking about.  If you are talking about I/O
->> 32-bit, it's no problem.  If you are talking about handling DMA
->> 32-bit,
-> then we need to handle a 64-bit DMA addr in the ppc32 implementations
-> and
-> also extend the arch messaging interface to let callers know when an
-> implementation can handle high DMA (system memory >4GB). This is all
-> pretty easy to handle once we need to support such a processor. So
-> far, nothing is available publicly. :)
-
-Well 8548 is semi-public :)
-
-> For RIO MMIO purposes (which is functionality I'm working on now),
-> it has the similar issues that PCI memory space has on processors with
-> I/O above 4GB.  However, on RIO our resources hold a bus address since
-> a physical address doesn't make sense since address spaces our
-> per-device.
-> If we ever support a 66-bit address space device on 32-bit processor, 
-> we
-> might need a u64 resource.
-
-I assume you mean 36-bit, what would one do with 66-bit addresses :)
-
->> 2. can we make any of this a platform driver?
->
-> Hrm, so you would rather see RIO host bridges look like a driver
-> on another "bus"?  I have seen them as a component just like PCI
-> host bridges.  That is, they are instantiated by arch-code and
-> then initialized by a subsys initcall. This does mean that we
-> will be enumerating much later (during driver initcalls), but
-> it might be a better model if we ever see a rumored PCIE->RIO
-> bridge. Supporting that as a RIO master port would require driver
-> time init of the RIO fabric. There's some ordering issues that we'd
-> have to see about working out. None of this is needed right now,
-> though.
->
->> I would prefer if we could have the memory offsets and irq's not be
->> straight from the #define's
->
-> I think this and #2 are separate issues. We can pass the mpc85xx
-> rio init code some parameters to abstract things to different
-> parts. This is similar to how we init different SoC's PCI host
-> bridges with some common code on PPC32 (marvell, 85xx, etc).
->
-> I was just looking at doing this to support RIO on the 8548. At
-> the time I wrote this 85xx support there wasn't any info on the
-> 8548 available, but it's an easy thing to extend.
-
-Agreed, they are separate issues, I'm cool on waiting to see what 
-happens with RIO <-> PCIE bridges in the future.  For now if you can 
-look at abstracting the offset, irq info that would be good (especially 
-since 8548 does msg'g a bit differently).
-
-- kumar
-
+> Jun  3 04:04:54 seymour kernel: kernel BUG at fs/jbd/checkpoint.c:247!
+> Jun  3 04:04:54 seymour kernel: invalid operand: 0000 [#1]
+> Jun  3 04:04:54 seymour kernel: PREEMPT SMP 
+> Jun  3 04:04:54 seymour kernel: Modules linked in: radeon nfsd exportfs lockd pa
+> rport_pc lp parport tun autofs4 sunrpc ipt_REJECT ipt_LOG ipt_state iptable_filt
+> er iptable_nat ip_conntrack ip_tables vfat fat video button battery ac uhci_hcd 
+> ehci_hcd snd_emu10k1 snd_rawmidi snd_ac97_codec snd_pcm_oss snd_mixer_oss snd_pc
+> m snd_timer snd_page_alloc snd_util_mem snd_hwdep snd soundcore natsemi sym53c8x
+> x scsi_transport_spi
+> Jun  3 04:04:54 seymour kernel: CPU:    1
+> Jun  3 04:04:54 seymour kernel: EIP:    0060:[<c019c730>]    Not tainted VLI
+> Jun  3 04:04:54 seymour kernel: EFLAGS: 00010296   (2.6.11) 
+> Jun  3 04:04:54 seymour kernel: EIP is at __flush_buffer+0xfa/0x157
+> Jun  3 04:04:54 seymour kernel: eax: 0000005a   ebx: d0d968cc   ecx: c0331714   
+> edx: 00000206
+> Jun  3 04:04:54 seymour kernel: esi: e8fbdd30   edi: 00000000   ebp: e8fbdd34   
+> esp: e8fbdcd8
+> Jun  3 04:04:54 seymour kernel: ds: 007b   es: 007b   ss: 0068
+> Jun  3 04:04:54 seymour kernel: Process updatedb (pid: 18466, threadinfo=e8fbc00
+> 0 task=f7496550)
+> Jun  3 04:04:54 seymour kernel: Stack: c02f6ad4 c02e16a3 c02f56ce 000000f7 c02f5
+> 6e2 f7cdc000 ed7876ec d0d968cc 
+> Jun  3 04:04:54 seymour kernel:        ed78771c f7cdc000 c019c832 e8fbdd2c e8fbd
+> d30 c1808060 c011a74b c1808060 
+> Jun  3 04:04:54 seymour kernel:        f7cdc0e4 e8fbc000 0006c901 f0a4de9c f6d9d
+> b80 0000003c 00000001 d0d968cc 
+> Jun  3 04:04:54 seymour kernel: Call Trace:
+> Jun  3 04:04:54 seymour kernel:  [<c019c832>] log_do_checkpoint+0xa5/0x1be
+> Jun  3 04:04:54 seymour kernel:  [<c011a74b>] finish_task_switch+0x30/0x6d
+> Jun  3 04:04:54 seymour kernel:  [<c019c334>] __log_wait_for_space+0x90/0xaa
+> Jun  3 04:04:54 seymour kernel:  [<c0197c44>] start_this_handle+0xec/0x371
+> Jun  3 04:04:54 seymour kernel:  [<c01b8284>] copy_to_user+0x2b/0x3d
+> Jun  3 04:04:54 seymour kernel:  [<c018a9c2>] call_filldir+0x6c/0xaf
+> Jun  3 04:04:54 seymour kernel:  [<c016893e>] filldir64+0x0/0xd0
+> Jun  3 04:04:54 seymour kernel:  [<c018ab0e>] ext3_dx_readdir+0x109/0x1b5
+> Jun  3 04:04:54 seymour kernel:  [<c016893e>] filldir64+0x0/0xd0
+> Jun  3 04:04:54 seymour kernel:  [<c0197f8b>] journal_start+0x8f/0xb1
+> Jun  3 04:04:54 seymour kernel:  [<c0160893>] cp_new_stat64+0xf0/0x102
+> Jun  3 04:04:54 seymour kernel:  [<c018f572>] ext3_dirty_inode+0x27/0x82
+> Jun  3 04:04:54 seymour kernel:  [<c01765cf>] __mark_inode_dirty+0xaf/0x1c3
+> Jun  3 04:04:54 seymour kernel:  [<c0124086>] current_fs_time+0x50/0x5a
+> Jun  3 04:04:54 seymour kernel:  [<c016f666>] update_atime+0x57/0x97
+> Jun  3 04:04:54 seymour kernel:  [<c016870e>] vfs_readdir+0x66/0x68
+> Jun  3 04:04:54 seymour kernel:  [<c0168a7a>] sys_getdents64+0x6c/0xbe
+> Jun  3 04:04:54 seymour kernel:  [<c0103dc5>] sysenter_past_esp+0x52/0x75
+> Jun  3 04:04:54 seymour kernel: Code: 44 24 10 e2 56 2f c0 c7 44 24 0c f7 00 00 
+> 00 c7 44 24 08 ce 56 2f c0 c7 44 24 04 a3 16 2e c0 c7 04 24 d4 6a 2f c0 e8 d7 35
+>  f8 ff <0f> 0b f7 00 ce 56 2f c0 e9 3b ff ff ff c7 44 24 10 4c 8f 2f c0 
+> Jun  3 04:04:54 seymour kernel:  <6>note: updatedb[18466] exited with preempt_co
+> unt 2
+> 
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

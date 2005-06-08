@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261201AbVFHKBO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262157AbVFHKEB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261201AbVFHKBO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 06:01:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262151AbVFHKBN
+	id S262157AbVFHKEB (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 06:04:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262154AbVFHKEB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 06:01:13 -0400
-Received: from mail.fh-wedel.de ([213.39.232.198]:6275 "EHLO
+	Wed, 8 Jun 2005 06:04:01 -0400
+Received: from mail.fh-wedel.de ([213.39.232.198]:23171 "EHLO
 	moskovskaya.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S261201AbVFHKBJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 06:01:09 -0400
-Date: Wed, 8 Jun 2005 12:00:56 +0200
+	id S262157AbVFHKDl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 06:03:41 -0400
+Date: Wed, 8 Jun 2005 12:03:48 +0200
 From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Brian Gerst <bgerst@didntduck.org>
-Cc: Arjan van de Ven <arjan@infradead.org>, christoph <christoph@scalex86.org>,
-       Christoph Hellwig <hch@infradead.org>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Move some more structures into "mostly_readonly"
-Message-ID: <20050608100056.GA331@wohnheim.fh-wedel.de>
-References: <Pine.LNX.4.62.0506071128220.22950@ScMPusgw> <20050607194123.GA16637@infradead.org> <Pine.LNX.4.62.0506071258450.2850@ScMPusgw> <1118177949.5497.44.camel@laptopd505.fenrus.org> <42A61227.9090402@didntduck.org>
+To: Alexander Nyberg <alexn@telia.com>
+Cc: Adrian Bunk <bunk@stusta.de>, linux-kernel@vger.kernel.org,
+       reiserfs-dev@namesys.com
+Subject: Re: RFC: i386: kill !4KSTACKS
+Message-ID: <20050608100348.GB331@wohnheim.fh-wedel.de>
+References: <20050607212706.GB7962@stusta.de> <1118180858.956.27.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <42A61227.9090402@didntduck.org>
+In-Reply-To: <1118180858.956.27.camel@localhost.localdomain>
 User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 June 2005 17:31:19 -0400, Brian Gerst wrote:
+On Tue, 7 June 2005 23:47:38 +0200, Alexander Nyberg wrote:
+> tis 2005-06-07 klockan 23:27 +0200 skrev Adrian Bunk:
+> > 4Kb kernel stacks are the future on i386, and it seems the problems it 
+> > initially caused are now sorted out.
+> > 
+> > I'd like to:
+> > - get a patch into the next -mm that unconditionally enables 4KSTACKS
+> > - if there won't be new reports of breakages, send a patch to
+> >   completely remove !4KSTACKS for 2.6.13 or 2.6.14
+> > 
 > 
-> It doesn't really matter.  .rodata isn't actually mapped read-only. 
-> Doing so would break up the large pages used to map the kernel.
+> Combinations of IDE/SCSI with MD/DM (maybe even stacking them ontop of
+> eachother), NFS and a filesystem in there breaks 4KSTACKS which is a
+> known issue so you can't just remove it leaving users with no choice.
+> 
+> This was not even difficult to trigger a while ago and I haven't seen
+> any stack reduction patches in these areas.
 
-Can you confirm that for every architecture?  Or just i386?
+Can you send me a backtrace for one such dump?  I'd like to use that
+for some pessimistic checker runs.
 
 Jörn
 
 -- 
-There is no worse hell than that provided by the regrets
-for wasted opportunities.
--- Andre-Louis Moreau in Scarabouche
+Good warriors cause others to come to them and do not go to others.
+-- Sun Tzu

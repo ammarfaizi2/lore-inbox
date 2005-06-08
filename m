@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262147AbVFHWel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262177AbVFHWgG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262147AbVFHWel (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 18:34:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262197AbVFHWek
+	id S262177AbVFHWgG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 18:36:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262190AbVFHWgG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 18:34:40 -0400
-Received: from wproxy.gmail.com ([64.233.184.207]:49742 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262147AbVFHWea convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 18:34:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=LbZPKSgfGAKBAh0S9pHg6AzqiOGOyVRSP0d9oZEwQm9xwT2npN9KCnvmfMPTf4t7C1NWJDKFgBdmv/3A3sK4pcGC86K97CER9MRozKELR1QwX01dFo/JjwPzq1pZAax0EyflNTddT2EEs8pTt2qpkHGCGHJYQmg9w8VX6/XNX6s=
-Message-ID: <9e47339105060815343eaa6c31@mail.gmail.com>
-Date: Wed, 8 Jun 2005 18:34:24 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Matt Domsch <Matt_Domsch@dell.com>
-Subject: Re: Dell BIOS and HPET timer support
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050608220214.GE21704@lists.us.dell.com>
+	Wed, 8 Jun 2005 18:36:06 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19598 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262177AbVFHWfz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 18:35:55 -0400
+Date: Thu, 9 Jun 2005 00:34:37 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: James Ketrenos <jketreno@linux.intel.com>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Netdev list <netdev@oss.sgi.com>,
+       kernel list <linux-kernel@vger.kernel.org>,
+       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>
+Subject: Re: ipw2100: firmware problem
+Message-ID: <20050608223437.GB2614@elf.ucw.cz>
+References: <20050608142310.GA2339@elf.ucw.cz> <42A723D3.3060001@linux.intel.com> <20050608212707.GA2535@elf.ucw.cz> <42A76719.2060700@linux.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <9e47339105060813115d01282@mail.gmail.com>
-	 <20050608220214.GE21704@lists.us.dell.com>
+In-Reply-To: <42A76719.2060700@linux.intel.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/8/05, Matt Domsch <Matt_Domsch@dell.com> wrote:
-> On Wed, Jun 08, 2005 at 04:11:39PM -0400, Jon Smirl wrote:
-> > After several communications with Dell support I have determined that
-> > most Dell BIOSs don't include the ACPI entry for the HPET timer. The
-> > official reason for this is that no version of Windows uses the HPET
-> > and adding the ACPI entry might cause compatibility problems.
+Hi!
+
+> >Having a parameter to control this seems a bit too complex to me.
+> >
+> >How is 
+> >
+> >insmod ipw2100 enable=1
+> >
+> >different from
+> >
+> >insmod ipw2100
+> >iwconfig eth1 start_scanning_or_whatever
+> >
+> >?
+> It defaults to enabled, so you just need to do:
 > 
-> What platform/BIOS version please?  PowerEdge x8xx servers certainly
-> do have HPET enabled in their ACPI tables.
+>     insmod ipw2100
+> 
+> and it will auto associate with an open network.  For the use case where
+> users want the device to load but not initialize, they can use
+> 
+>     insmod ipw2100 disable=1
+> 
+> If hotplug and firmware loading worked early in the init sequence, no
+> one would have issue with the current model; it works as users expect it
+> to work.  It magically finds and associates to networks, and your
+> network scripts can then kick off DHCP, all with little to no special
+> crafting or utility interfacing. 
 
-All Dell PE400SC, Dim8300, Precision360 for sure. From my talk with
-them none of the desktops have it enabled. They acknowledge that it is
-on for some server boxes but not for most other systems.
+Actually it would still transmit when user did not want it to. I
+believe that staying "quiet" is right thing, long-term. And it could
+solve firmware-loading problems, short-term...
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+How long does association with AP take? Anyway it should be easy to
+tell driver to associate ASAP, just after the insmod...
+								Pavel

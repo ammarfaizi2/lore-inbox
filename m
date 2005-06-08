@@ -1,37 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261212AbVFHNcg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261224AbVFHNec@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261212AbVFHNcg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 09:32:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbVFHNcg
+	id S261224AbVFHNec (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 09:34:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261215AbVFHNe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 09:32:36 -0400
-Received: from cantor.suse.de ([195.135.220.2]:63181 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261212AbVFHNc1 (ORCPT
+	Wed, 8 Jun 2005 09:34:29 -0400
+Received: from ns.suse.de ([195.135.220.2]:11214 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261213AbVFHNeU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 09:32:27 -0400
-Date: Wed, 8 Jun 2005 15:32:26 +0200
+	Wed, 8 Jun 2005 09:34:20 -0400
+Date: Wed, 8 Jun 2005 15:34:12 +0200
 From: Andi Kleen <ak@suse.de>
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: Greg KH <gregkh@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
+To: Roland Dreier <roland@topspin.com>
+Cc: Greg KH <gregkh@suse.de>, Arjan van de Ven <arjan@infradead.org>,
+       Andrew Vasquez <andrew.vasquez@qlogic.com>,
+       Jeff Garzik <jgarzik@pobox.com>,
        "David S. Miller" <davem@davemloft.net>, tom.l.nguyen@intel.com,
-       roland@topspin.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi() for drivers - take 2
-Message-ID: <20050608133226.GR23831@wotan.suse.de>
-References: <20050607002045.GA12849@suse.de> <20050607202129.GB18039@kroah.com> <20050608050212.GD21060@colo.lackof.org>
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       ak@suse.de
+Subject: Re: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi() for drivers
+Message-ID: <20050608133412.GS23831@wotan.suse.de>
+References: <20050607002045.GA12849@suse.de> <20050607010911.GA9869@plap.qlogic.org> <20050607051551.GA17734@suse.de> <1118129500.5497.16.camel@laptopd505.fenrus.org> <20050607161029.GB15345@suse.de> <1118176872.5497.38.camel@laptopd505.fenrus.org> <20050607220832.GA19173@suse.de> <52ekbdg53q.fsf@topspin.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050608050212.GD21060@colo.lackof.org>
+In-Reply-To: <52ekbdg53q.fsf@topspin.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I also see one minor weakness in the assumption that CPU Vectors
-> are global. Both IA64/PARISC can support per-CPU Vector tables.
+> Yes, I think that the driver definitely needs to be in control of how
+> many MSI-X interrupts it gets.  The current mthca driver knows that it
+> has three different event queues -- one for firmware command events,
+> one for async events such as link up/down, and one for actual tx/rx
+> completions -- and uses a separate MSI-X message for each one.
 
-x86-64 will eventually too, I definitely plan for it at some point.
-We need it for very big machines where 255 interrupt vectors 
-are not enough. And as you say with MSI-X it becomes even more
-important.
+The idea was always to have MSI by default and if the driver 
+wants MSI-X it turns off standard MSI and does its own thing
+completely.
 
 -Andi

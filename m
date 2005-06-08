@@ -1,35 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261451AbVFHXXg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261329AbVFHX0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261451AbVFHXXg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 19:23:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbVFHXXg
+	id S261329AbVFHX0m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 19:26:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261364AbVFHX0m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 19:23:36 -0400
-Received: from fire.osdl.org ([65.172.181.4]:640 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261451AbVFHXXe (ORCPT
+	Wed, 8 Jun 2005 19:26:42 -0400
+Received: from fire.osdl.org ([65.172.181.4]:57216 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261329AbVFHX0l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 19:23:34 -0400
-Date: Wed, 8 Jun 2005 16:22:47 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: apw@shadowen.org, pazke@donpac.ru, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc6-mm1
-Message-Id: <20050608162247.2c8f00f0.akpm@osdl.org>
-In-Reply-To: <1051200000.1118272473@flay>
-References: <20050607042931.23f8f8e0.akpm@osdl.org>
-	<42A6FF41.5040109@shadowen.org>
-	<20050608130117.341fa4ff.akpm@osdl.org>
-	<1051200000.1118272473@flay>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Jun 2005 19:26:41 -0400
+Date: Wed, 8 Jun 2005 16:28:36 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Paul Mackerras <paulus@samba.org>
+cc: akpm@osdl.org, anton@samba.org, linux-kernel@vger.kernel.org,
+       jk@blackdown.de
+Subject: Re: [PATCH] ppc64: Fix PER_LINUX32 behaviour
+In-Reply-To: <17063.31568.618739.165823@cargo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.58.0506081624390.2286@ppc970.osdl.org>
+References: <17062.56723.535978.961340@cargo.ozlabs.ibm.com>
+ <Pine.LNX.4.58.0506081022030.2286@ppc970.osdl.org>
+ <17063.31568.618739.165823@cargo.ozlabs.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Martin J. Bligh" <mbligh@mbligh.org> wrote:
->
-> alt+sysrq+p does wierd stuff (is that new patch in your tree Andrew?
->  doesn't seem to inter-react with the other NMI code well)
 
-What patch?
+
+On Thu, 9 Jun 2005, Paul Mackerras wrote:
+> 
+> Interestingly, PER_LINUX32 has nothing whatsoever to do with whether a
+> process is running in 32-bit or 64-bit mode.  In fact, the *only*
+> thing that PER_LINUX32 affects is the machine name reported by uname.
+> So you can have a 32-bit process without PER_LINUX32, and a 64-bit
+> process with PER_LINUX32.
+
+Ok, I stand corrected. I was assuming it got set automatically for 32-bit 
+processes, without checking.
+
+		Linus

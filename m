@@ -1,66 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262093AbVFHD42@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262098AbVFHD7c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262093AbVFHD42 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 23:56:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbVFHD42
+	id S262098AbVFHD7c (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 23:59:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbVFHD7X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 23:56:28 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:45025 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S262094AbVFHD4Z (ORCPT
+	Tue, 7 Jun 2005 23:59:23 -0400
+Received: from colo.lackof.org ([198.49.126.79]:44493 "EHLO colo.lackof.org")
+	by vger.kernel.org with ESMTP id S262092AbVFHD7P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 23:56:25 -0400
-Date: Wed, 8 Jun 2005 09:38:05 +0530 (IST)
-From: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
-X-X-Sender: tomar@localhost.localdomain
-Reply-To: "Tomar, Nagendra" <nagendra_tomar@adaptec.com>
-To: Peter Staubach <staubach@redhat.com>
-cc: "Tomar, Nagendra" <nagendra_tomar@adaptec.com>,
-       <linux-kernel@vger.kernel.org>,
-       <linux-arm-kernel@lists.arm.linux.org.uk>
-Subject: Re: Zeroed pages returned for heap
-In-Reply-To: <42A5C3D2.9010209@redhat.com>
-Message-ID: <Pine.LNX.4.44.0506080934440.4569-100000@localhost.localdomain>
-Organization: Adaptec
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 08 Jun 2005 03:55:59.0499 (UTC) FILETIME=[FB1F15B0:01C56BDD]
+	Tue, 7 Jun 2005 23:59:15 -0400
+Date: Tue, 7 Jun 2005 22:02:53 -0600
+From: Grant Grundler <grundler@parisc-linux.org>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Grant Grundler <grundler@parisc-linux.org>,
+       Morton Andrew Morton <akpm@osdl.org>, awilliam@fc.hp.com,
+       greg@kroah.com, Fastboot mailing list <fastboot@lists.osdl.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>,
+       Bodo Eggert <7eggert@gmx.de>, stern@rowland.harvard.edu,
+       bjorn.helgaas@hp.com
+Subject: Re: [Fastboot] Re: [RFC/PATCH] Kdump: Disabling PCI interrupts in capture kernel
+Message-ID: <20050608040253.GA21060@colo.lackof.org>
+References: <1118113637.42a50f65773eb@imap.linux.ibm.com> <20050607050727.GB12781@colo.lackof.org> <m1slzuwkqx.fsf@ebiederm.dsl.xmission.com> <20050607162143.GE29220@colo.lackof.org> <m1acm2vwil.fsf@ebiederm.dsl.xmission.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m1acm2vwil.fsf@ebiederm.dsl.xmission.com>
+X-Home-Page: http://www.parisc-linux.org/
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Jun 2005, Peter Staubach wrote:
+On Tue, Jun 07, 2005 at 12:42:42PM -0600, Eric W. Biederman wrote:
+> The howto deal with an IOMMU has been sorted out but so far no one 
+> has actually done it.  What has been discussed previously is simply
+> reserving a handful of IOMMU entries,
 
-> Nagendra Singh Tomar wrote:
-> 
-> >Hi all,
-> >	The short version first.
-> >Is it OK for an application (a C library implementing malloc/calloc is 
-> >also an application) to assume that the pages returned by the OS for heap 
-> >allocation (either directly thru brk() or thru mmap(MAP_ANONYMOUS)) will 
-> >be zero filled. 
-> >
-> 
-> An application which makes assumptions about the contents of newly allocated
-> memory would seem to be making very dangerous assumptions.
+How? with dma_alloc_consistent() or some special hook?
+I'm just curious.
 
-Thats what glibc does. Ulrich confirmed that. I would say thats not a bad 
-optimization on glibc's part as it does not really make sense to zero out 
-a memory again in user space if we know for sure that new heap memory that 
-kernel hands over to us will be zeroed. I'm not sure though whether this 
-is a documented kernel ABI.
+...
+>  and then only using those
+> in the crash recover kernel.  This is essentially what we do with DMA
+> on architectures that don't have an IOMMU and it seems quite safe
+> enough there.
 
-> 
-> Ignoring that, would it not be considered to be a security violation to hand
-> pieces of memory to applications without erasing the old contents of the 
-> pages?
+Yeah, in general that should be feasible.
 
-I understand that for a desktop/server running Linux but not for an 
-embedded box where all the applications that run on the box is controlled 
-by you.
+One might be able to trivially allocate a small, seperate IO PDIR
+just for KDUMP and switch to that. Key thing is it be physically
+contiguous in memory. Very little code is involved with IO Pdir
+setup for both parisc and IA64. I can't speak for Alpha/sparc/ppc/et al.
 
-Thanx,
-Tomar
+...
+> Well we are at least capable of multitasking but that is no longer the
+> primary focus.  Having polling as at least an option should make
+> debugging easier.  Last I looked Andrews kernel hand an irqpoll option
+> to do something very like this.
 
+You could run the itimer but I don't see why you should.
+Kdump is essentially an embedded linux kernel. It really
+doesn't need to be premptive multitasking either.
 
--- You have moved the mouse. Windows must be restarted for the 
-   changes to take effect.
+Anyway, sounds like you guys are on the right track.
 
+thanks,
+grant

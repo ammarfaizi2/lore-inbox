@@ -1,72 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261305AbVFHPLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261311AbVFHPSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261305AbVFHPLR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 11:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261306AbVFHPLR
+	id S261311AbVFHPSv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 11:18:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261312AbVFHPSv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 11:11:17 -0400
-Received: from styx.suse.cz ([82.119.242.94]:38303 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261305AbVFHPKs (ORCPT
+	Wed, 8 Jun 2005 11:18:51 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:13017 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S261311AbVFHPSs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 11:10:48 -0400
-Date: Wed, 8 Jun 2005 16:56:53 +0200
-From: Jirka Bohac <jbohac@suse.cz>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: Pavel Machek <pavel@ucw.cz>, Jeff Garzik <jgarzik@pobox.com>,
-       Netdev list <netdev@oss.sgi.com>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: ipw2100: firmware problem
-Message-ID: <20050608145653.GA8844@dwarf.suse.cz>
-References: <20050608142310.GA2339@elf.ucw.cz> <200506081744.20687.vda@ilport.com.ua>
-Mime-Version: 1.0
+	Wed, 8 Jun 2005 11:18:48 -0400
+Message-ID: <42A70C50.3070507@adaptec.com>
+Date: Wed, 08 Jun 2005 11:18:40 -0400
+From: Luben Tuikov <luben_tuikov@adaptec.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <gregkh@suse.de>
+CC: Jeff Garzik <jgarzik@pobox.com>, "David S. Miller" <davem@davemloft.net>,
+       tom.l.nguyen@intel.com, roland@topspin.com,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       ak@suse.de
+Subject: Re: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi()
+ for drivers - take 2
+References: <20050607002045.GA12849@suse.de> <20050607202129.GB18039@kroah.com>
+In-Reply-To: <20050607202129.GB18039@kroah.com>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506081744.20687.vda@ilport.com.ua>
-User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Jun 2005 15:18:22.0311 (UTC) FILETIME=[4EF06770:01C56C3D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 08, 2005 at 05:44:20PM +0300, Denis Vlasenko wrote:
-> On Wednesday 08 June 2005 17:23, Pavel Machek wrote:
-> > What's the prefered way to solve this one? Only load firmware when
-> > user does ifconfig eth1 up? [It is wifi, it looks like it would be
-> > better to start firmware sooner so that it can associate to the
-> > AP...].
+On 06/07/05 16:21, Greg KH wrote:
+> Hm, here's an updated patch that should have fixed the errors I had in
+> my previous one where I wasn't disabling MSI for the devices that did
+> not want it enabled (note, my patch skips the hotplug and pcie driver
+> for now, those would have to be fixed if this patch goes on.)
 > 
-> Do you want to associate to an AP when your kernel boots,
-> _before_ any iwconfig had a chance to configure anything?
-> That's strange.
-> 
-> My position is that wifi drivers must start up in an "OFF" mode.
-> Do not send anything. Do not join APs or start IBSS.
+> However, now that I've messed around with the MSI-X logic in the IB
+> driver, I'm thinking that this whole thing is just pointless, and I
 
 Agreed.
 
-> Thus, no need to load fw in early boot.
+> should just drop it and we should stick with the current way of enabling
+> MSI only if the driver wants it.  If you look at the logic in the mthca
 
-I don't think this is true. Loading the firmware on the first
-"ifconfig up" is problematic. Often, people want to rename the
-device from ethX/wlanX/... to something stable. This is usually
-based on the adapter's MAC address, which is not visible until
-the firmware is loaded.
+Agreed.
 
-Prism54 does it this way and it really sucks. You need to bring
-the adapter up to load the firmware, then bring it back down,
-rename it, and bring it up again.
+> driver you'll see what I mean.
+> 
+> So, anyone else think this is a good idea?  Votes for me to just drop it
+> and go back to hacking on the driver core instead?
 
-Denis: any plans for this to be fixed?
+Drop it.  Yes.
 
-I agree that drivers should initialize the adapter in the OFF
-state, but the firmware needs to be loaded earlier than the
-first ifconfig up.
+> Oh, and in looking at the drivers/pci/msi.c file, it could use some
+> cleanups to make it smaller and a bit less complex.  I've also seen some
+> complaints that it is very arch specific (x86 based).  But as no other
+> arches seem to want to support MSI, I don't really see any need to split
+> it up.  Any comments about this?
 
-How about loading the firmware when the first ioctl touches the
-device? This way, it would get loaded just before the MAC address
-is retrieved.
+It's up to you.
 
-regards,
-
--- 
-Jirka Bohac <jbohac@suse.cz>
-SUSE Labs, SUSE CR
-
+	Luben

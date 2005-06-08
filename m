@@ -1,67 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261452AbVFHR4x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261444AbVFHR4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261452AbVFHR4x (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 13:56:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVFHR4x
+	id S261444AbVFHR4R (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 13:56:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVFHR4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 13:56:53 -0400
-Received: from mail.kroah.org ([69.55.234.183]:60340 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261452AbVFHR4m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 13:56:42 -0400
-Date: Wed, 8 Jun 2005 10:56:02 -0700
-From: Greg KH <gregkh@suse.de>
-To: Andi Kleen <ak@suse.de>
-Cc: Greg KH <gregkh@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
-       "David S. Miller" <davem@davemloft.net>, tom.l.nguyen@intel.com,
-       roland@topspin.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi() for drivers - take 2
-Message-ID: <20050608175602.GA3846@kroah.com>
-References: <20050607002045.GA12849@suse.de> <20050607202129.GB18039@kroah.com> <20050608133109.GQ23831@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050608133109.GQ23831@wotan.suse.de>
-User-Agent: Mutt/1.5.8i
+	Wed, 8 Jun 2005 13:56:17 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.82]:61159 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261444AbVFHR4I
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 13:56:08 -0400
+From: Jeremy Maitin-Shepard <jbms@cmu.edu>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Move some more structures into "mostly_readonly"
+References: <Pine.LNX.4.62.0506071128220.22950@ScMPusgw>
+	<20050607194123.GA16637@infradead.org>
+	<Pine.LNX.4.62.0506071258450.2850@ScMPusgw>
+	<1118177949.5497.44.camel@laptopd505.fenrus.org>
+	<42A61227.9090402@didntduck.org>
+	<Pine.LNX.4.62.0506071519470.19659@ScMPusgw> <87hdg9eq0u.fsf@jbms.ath.cx>
+	<1118212178.5655.0.camel@laptopd505.fenrus.org>
+X-Habeas-SWE-9: mark in spam to <http://www.habeas.com/report/>.
+X-Habeas-SWE-8: Message (HCM) and not spam. Please report use of this
+X-Habeas-SWE-7: warrant mark warrants that this is a Habeas Compliant
+X-Habeas-SWE-6: email in exchange for a license for this Habeas
+X-Habeas-SWE-5: Sender Warranted Email (SWE) (tm). The sender of this
+X-Habeas-SWE-4: Copyright 2002 Habeas (tm)
+X-Habeas-SWE-3: like Habeas SWE (tm)
+X-Habeas-SWE-2: brightly anticipated
+X-Habeas-SWE-1: winter into spring
+Date: Wed, 08 Jun 2005 13:56:00 -0400
+In-Reply-To: <1118212178.5655.0.camel@laptopd505.fenrus.org> (Arjan van de
+	Ven's message of "Wed, 08 Jun 2005 08:29:38 +0200")
+Message-ID: <87mzq0d973.fsf@jbms.ath.cx>
+User-Agent: Gnus/5.110003 (No Gnus v0.3) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 08, 2005 at 03:31:09PM +0200, Andi Kleen wrote:
-> On Tue, Jun 07, 2005 at 01:21:29PM -0700, Greg KH wrote:
-> > Hm, here's an updated patch that should have fixed the errors I had in
-> > my previous one where I wasn't disabling MSI for the devices that did
-> > not want it enabled (note, my patch skips the hotplug and pcie driver
-> > for now, those would have to be fixed if this patch goes on.)
-> > 
-> > However, now that I've messed around with the MSI-X logic in the IB
-> > driver, I'm thinking that this whole thing is just pointless, and I
-> > should just drop it and we should stick with the current way of enabling
-> > MSI only if the driver wants it.  If you look at the logic in the mthca
-> > driver you'll see what I mean.
-> 
-> The problem is then that we have to go through all drivers and
-> add the ugly logic there. Isnt it better to do it by default?
+Arjan van de Ven <arjan@infradead.org> writes:
 
-No, the logic to enable MSI in a driver today is simple, and
-straight-forward.  A single call to pci_enable_msi().  If instead the
-driver wants to enable MSI-X, they call pci_enable_msix().  Contrast
-that with the logic of:
-	- if MSI is enabled, disable it for some devices.
-	- if driver wants to enable MSI-X, do:
-		pci_disable_msi();
-		e = pci_enable_msix();	// which I think some people
-					// said will always fail anyway
-					// due to MSI being enabled
-					// already.
-		if (e)
-			pci_enable_msi();
+> On Tue, 2005-06-07 at 18:54 -0400, Jeremy Maitin-Shepard wrote:
+>> AFS writes to the system call table.  
 
-So, we do that, MSI-X is now more complex and harder to enable (and
-that's the future for PCI devices from what people are saying.)
+> afaik they stopped doing that for 2.6 now that the syscall table isn't
+> exported.
 
-Anyway, I'm just repeating myself now...
+I believe it is still done in 2.6; the syscall table is first located
+using various heuristics.
 
-thanks,
-
-greg k-h
+-- 
+Jeremy Maitin-Shepard

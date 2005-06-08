@@ -1,62 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262111AbVFHGPh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262115AbVFHGRj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262111AbVFHGPh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 02:15:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262115AbVFHGPh
+	id S262115AbVFHGRj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 02:17:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262116AbVFHGRj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 02:15:37 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:48336 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262111AbVFHGPa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 02:15:30 -0400
-Message-ID: <42A68CBF.6040001@pobox.com>
-Date: Wed, 08 Jun 2005 02:14:23 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Wed, 8 Jun 2005 02:17:39 -0400
+Received: from smtp805.mail.sc5.yahoo.com ([66.163.168.184]:21931 "HELO
+	smtp805.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
+	id S262115AbVFHGRY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 02:17:24 -0400
+From: Dmitry Torokhov <dtor_core@ameritech.net>
+To: linux-kernel@vger.kernel.org, Adam Morley <adam.morley@gmail.com>,
+       Vojtech Pavlik <vojtech@suse.cz>
+Subject: Re: psmouse doesn't seem to reinitialize after mem suspend (acpi) when using i8042 on ALi M1553 ISA bridge with 2.6.11.11 or 2.6.12-rc5?
+Date: Wed, 8 Jun 2005 01:17:20 -0500
+User-Agent: KMail/1.8.1
+References: <b70d73800506051924546c8931@mail.gmail.com> <200506072252.40120.dtor_core@ameritech.net> <b70d738005060721584aa25e71@mail.gmail.com>
+In-Reply-To: <b70d738005060721584aa25e71@mail.gmail.com>
 MIME-Version: 1.0
-To: Andrew Grover <andy.grover@gmail.com>
-CC: Greg KH <gregkh@suse.de>, "David S. Miller" <davem@davemloft.net>,
-       tom.l.nguyen@intel.com, roland@topspin.com,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       ak@suse.de
-Subject: Re: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi()
- for drivers - take 2
-References: <20050607002045.GA12849@suse.de> <20050607202129.GB18039@kroah.com>	 <42A61CDE.6090906@pobox.com> <c0a09e5c05060722558a86ac8@mail.gmail.com>
-In-Reply-To: <c0a09e5c05060722558a86ac8@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Disposition: inline
+Message-Id: <200506080117.20803.dtor_core@ameritech.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Grover wrote:
-> On 6/7/05, Jeff Garzik <jgarzik@pobox.com> wrote:
->>Also, it looks like all the PCI MSI drivers need touching for this
->>scheme -- which defeats the original intention.  At this rate, the best
->>API is the one we've already got.
+On Tuesday 07 June 2005 23:58, Adam Morley wrote:
+> On 6/7/05, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> > On Monday 06 June 2005 02:28, Adam Morley wrote:
+> > > Hi Dimitry,
+> > >
+> > > On 6/5/05, Dmitry Torokhov <dtor_core@ameritech.net> wrote:
+> > > > On Sunday 05 June 2005 21:24, Adam Morley wrote:
+> > > >  > When I do a mem suspend (echo mem > /sys/power/state), either through
+> > > > > a lid switch ACPI action, or manually echo'ing the parameter, the
+> > > > > mouse doesn't work after un-suspending.  It seems like it is no longer
+> > > > > detected/initialized.  cat'ing the device file doesn't produce output,
+> > > > > and gpm and X don't get mouse inputs.
+> > > >
+> > > > Could you please try booting 2.6.12-rc5 with "i8042.debug" on the kernel
+> > > > command line; suspend, resume and post your dmesg?
+> > >
+> > > Sure.  Here it is.  Suspend was done using acpid using a lid action.
+> > > psmouse was modprobe -r'ed before suspend and modprobe'ed back in
+> > > after resume.
+> > >
+> > 
+> > We are trying to resume but KBC signals timeout condition every time we
+> > ping AUX port:
+> > 
+> > > drivers/input/serio/i8042.c: 60 -> i8042 (command) [220701]
+> > > drivers/input/serio/i8042.c: 47 -> i8042 (parameter) [220701]
+> > > drivers/input/serio/i8042.c: d4 -> i8042 (command) [220703]
+> > > drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [220703]
+> > > drivers/input/serio/i8042.c: fe <- i8042 (interrupt, AUX, 12, timeout) [220725]
+> > > drivers/input/serio/i8042.c: d4 -> i8042 (command) [220726]
+> > > drivers/input/serio/i8042.c: ed -> i8042 (parameter) [220726]
+> > > drivers/input/serio/i8042.c: fe <- i8042 (interrupt, AUX, 12, timeout) [220747]
+> > > drivers/input/serio/i8042.c: 60 -> i8042 (command) [220748]
+> > > drivers/input/serio/i8042.c: 45 -> i8042 (parameter) [220748]
+> > > drivers/input/serio/i8042.c: 60 -> i8042 (command) [220943]
+> > > drivers/input/serio/i8042.c: 47 -> i8042 (parameter) [220943]
+> > > drivers/input/serio/i8042.c: d4 -> i8042 (command) [220943]
+> > > drivers/input/serio/i8042.c: f2 -> i8042 (parameter) [220943]
+> > > drivers/input/serio/i8042.c: fe <- i8042 (interrupt, AUX, 12, timeout) [220965]
+> > 
+> > Could you please try the patch below?
 > 
+> Ok, patch applied (against 2.6.12-rc5, clean, offset 2 lines for both
+> hunk 3 and 4).  Mouse still doesn't work on resume.  dmesg
+> w/i8042.debug set on kernel command line attached covering one
+> suspend/resume.
 > 
-> For now...but I'm bringing this up again in five years!! *sets egg timer*
 
+OK, that did not work... Could you try compiling without support for EC
+(Embedded Controller) and also try enabling PNP support.
 
-Re-read the start of the thread :)
+CCing Vojtech - maybe he has some ideas... 
 
-My suggestion...
-
-short term:  do nothing
-
-long term:  move drivers to a new pci_enable()/pci_disable() API which 
-makes it easy for us to roll a lot of these singleton function calls, 
-repeated over and over again in PCI drivers, into generic code.
-
-Then just let evolution happen.  That way, progress occurs, but no 
-existing drivers are broken by a sudden pci_enable_device() behavior change.
-
-Since we're in a "rolling stable series" that might be a better path to 
-take.  If evolution goes as expected, maybe there will no longer be any 
-public users of pci_enable_msi()...
-
-	Jeff
-
-
+-- 
+Dmitry

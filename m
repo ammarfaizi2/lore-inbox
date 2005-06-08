@@ -1,74 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261534AbVFHSyw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261544AbVFHTEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261534AbVFHSyw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 14:54:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261532AbVFHSyd
+	id S261544AbVFHTEv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 15:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261545AbVFHTEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 14:54:33 -0400
-Received: from dgate1.fujitsu-siemens.com ([217.115.66.35]:5781 "EHLO
-	dgate1.fujitsu-siemens.com") by vger.kernel.org with ESMTP
-	id S261531AbVFHSyU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 14:54:20 -0400
-X-SBRSScore: None
-X-IronPort-AV: i="3.93,183,1114984800"; 
-   d="scan'208"; a="10621956:sNHT28803836"
-Message-ID: <42A73ED8.9040505@fujitsu-siemens.com>
-Date: Wed, 08 Jun 2005 20:54:16 +0200
-From: Martin Wilck <martin.wilck@fujitsu-siemens.com>
-Organization: Fujitsu Siemens Computers
-User-Agent: Mozilla Thunderbird 0.5 (X11/20040208)
-X-Accept-Language: de, en-us, en
+	Wed, 8 Jun 2005 15:04:50 -0400
+Received: from stargate.chelsio.com ([64.186.171.138]:12328 "EHLO
+	stargate.chelsio.com") by vger.kernel.org with ESMTP
+	id S261544AbVFHTEn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 15:04:43 -0400
+Message-ID: <42A742FF.2020706@chelsio.com>
+Date: Wed, 08 Jun 2005 12:11:59 -0700
+From: Scott Bardone <sbardone@chelsio.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: RFC for 2.6: avoid OOM at bounce buffer storm
-References: <42A07BAA.4050303@fujitsu-siemens.com>	<20050603160629.2acc4558.akpm@osdl.org>	<42A5AD4A.6080100@fujitsu-siemens.com> <20050607120811.6527a9ff.akpm@osdl.org>
-In-Reply-To: <20050607120811.6527a9ff.akpm@osdl.org>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+CC: Francois Romieu <romieu@fr.zoreil.com>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.12-rc6-mm1 & Chelsio driver
+References: <8A71B368A89016469F72CD08050AD3340255F0@maui.asicdesigners.com> <20050608184933.GC2369@mail.muni.cz>
+In-Reply-To: <20050608184933.GC2369@mail.muni.cz>
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 08 Jun 2005 19:04:06.0990 (UTC) FILETIME=[D83266E0:01C56C5C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andrew,
+Lukas,
 
-> The semaphore is initialised with the limit level, so once it has been
-> down()ed more than `limit' times, processes will block until someone does
-> up().
+You would need to use the cxgb-2.1.1 driver (NIC only). It is near the bottom of 
+the webpage, under "Chelsio N210 / N110 10Gb Ethernet Server Adapter",  Chelsio 
+N210 / N110 Linux Driver - Version 2.1.1 (05/17/2005).
+<https://service.chelsio.com/drivers/linux/n210/cxgb-2.1.1.tar.gz>
+Use the above driver for the T110 in NIC mode. This driver will work for the 
+T110 and T210 but only in NIC mode.
 
-Oh - of course. Neat.
+The NIC driver does not have CONFIG_CHELSIO_T1_OFFLOAD, so the card will work in 
+  NIC only mode.
 
->>It appears to run much more 
->> smoothly now, perhaps because wakeup_bdflush() isn't called any more. 
->> Are you still interested in more data?
+You would not have success in trying to modify the TOE driver (cxgbtoe-2.1.1) 
+because this requires a lot of modifications to the TOM (TCP Offload Module) and 
+the TOE API in order to work with a newer kernel.
+
+In the future, we plan on trying to get our TOE API into the Linux kernel, but 
+this requires a lot of work and acceptance of TOE by the community first.
+
+-Scott
+
+Lukas Hejtmanek wrote:
+> On Wed, Jun 08, 2005 at 10:33:09AM -0700, Scott Bardone wrote:
 > 
-> Perhaps the newer kernel has writeback thresholding fixes so it's not
-> possible to dirty as much memory with write().
-
-I have collected more data and the behavior with 2.6.12-rc5-mm2 is 
-flawless, there is a continuous writeback flow close to the maximum rate 
-possible, and the bounce buffer usage never gets anywhere near the limit 
-where it'd become dangerous. At least not in my test setup. The latest 
-fedora kernel 2.6.11-1.27 also behaves ok, although it doesn't adapt to 
-changing io load as smoothly as 2.6.12-rc5-mm2 does, and the writeback 
-rate is oscillating more strongly.
-
-The kernels where I observe the problem are 2.6.9 kernels from RedHat 
-EL4. I have posted this here because I saw that the highmem bounce 
-buffer/memory pool implementation was identical between the 2.6.9 kernel 
-and all but the very latest development kernels, and I concluded 
-prematurely that the behavior under my scenario must also be the same -- 
-which it wasn't. I apologize for not having looked more closely.
-
-Many thanks for looking into this anyway. From a theoretical point of 
-view, I still think I had a valid point :-/.
-
-Your patch sure looks good to me.
-
-Regards
-Martin
-
--- 
-Martin Wilck                Phone: +49 5251 8 15113
-Fujitsu Siemens Computers   Fax:   +49 5251 8 20409
-Heinz-Nixdorf-Ring 1        mailto:Martin.Wilck@Fujitsu-Siemens.com
-D-33106 Paderborn           http://www.fujitsu-siemens.com/primergy
+>>You can download the N210/N110 (ver 2.1.1) from the Chelsio website and use
+>>that driver for the T110 with a newer kernel. I have tested that driver up to
+>>the 2.6.11 kernel release. It will provide you NIC mode functinoality on your
+>>T110 TOE card, you can use it as a module, or try to patch it into a later
+>>kernel. If patching it into a kernel, you may need to modify the patch a bit.
+> 
+> 
+> Thanks, however, without CONFIG_CHELSIO_T1_OFFLOAD card is not detected (no
+> wonder, driver enables T110 card only if offload is used). I do not need TCP
+> offload engine. With T1 Offload it cannot be compiled - it reject
+> cxgbtoe-2.1.1-linux-2.6.6-toe_api.patch
+> 
+> So, do I really need Offloading in kernel or should it work with just enableing
+> card in sources even without Offloading?
+> 

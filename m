@@ -1,85 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261431AbVFHR1o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261421AbVFHRbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261431AbVFHR1o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 13:27:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbVFHR1o
+	id S261421AbVFHRbN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 13:31:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261442AbVFHRbI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 13:27:44 -0400
-Received: from mail1.utc.com ([192.249.46.190]:17059 "EHLO mail1.utc.com")
-	by vger.kernel.org with ESMTP id S261406AbVFHR1A (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 13:27:00 -0400
-Message-ID: <42A72A53.5050809@cybsft.com>
-Date: Wed, 08 Jun 2005 12:26:43 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "K.R. Foley" <kr@cybsft.com>
-CC: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-References: <20050608112801.GA31084@elte.hu> <42A7135C.5010704@cybsft.com>
-In-Reply-To: <42A7135C.5010704@cybsft.com>
-X-Enigmail-Version: 0.89.5.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Jun 2005 13:31:08 -0400
+Received: from wproxy.gmail.com ([64.233.184.205]:38930 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261406AbVFHR1q convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 13:27:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=VW+wcwAuksIN3aDi/WKg+B5cT5HE4OTon5tblsne/t037pE906iLDjyS6M4U/h9I83CJiPtqzX3pUNXhBkPjF+Ih6NrthqSlyoPWyv5h/RoZiXHC6ECsNBtQWEFfJtQWncpivE1zkj+5J5AqkpKs1qBSTmZ1FClXzCRP9GsdjLw=
+Message-ID: <c775eb9b0506081027d0cc6b9@mail.gmail.com>
+Date: Wed, 8 Jun 2005 13:27:42 -0400
+From: Bharath Ramesh <krosswindz@gmail.com>
+Reply-To: Bharath Ramesh <krosswindz@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: USB errors causes system to become unresponsive
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-K.R. Foley wrote:
-> Ingo Molnar wrote:
-> 
->> i have released the -V0.7.48-00 Real-Time Preemption patch, which can 
->> be downloaded from the usual place:
->>
->>     http://redhat.com/~mingo/realtime-preempt/
->>
->> this release includes an improved version of Daniel Walker's soft 
->> irq-flag (hardirq-disable removal) feature. It is an unconditional part
->> of the PREEMPT_RT preemption model - other preemption models should not
->> be affected that much (besides possible build issues). Non-x86 arches
->> wont build. Some regressions might happen, so take care..
->>
->> Changes since -47-29:
->>
->>  - soft IRQ flag support (Daniel Walker)
->>
->>  - fix race in usbnet.c (Eugeny S. Mints)
->>
->>  - further improvements to the soft IRQ flag code
->>
->> to build a -V0.7.48-00 tree, the following patches should to be applied:
->>
->>    http://kernel.org/pub/linux/kernel/v2.6/linux-2.6.11.tar.bz2
->>    http://kernel.org/pub/linux/kernel/v2.6/testing/patch-2.6.12-rc6.bz2
->>    
->> http://redhat.com/~mingo/realtime-preempt/realtime-preempt-2.6.12-rc6-V0.7.48-00 
->>
->>
->>     Ingo
-> 
-> 
-> Ingo,
-> 
-> I can't get any version of RT-preempt applied to 2.6.12-rc6 up to and 
-> including 48-01 to boot on any of my SMP systems. I get no log because 
-> it dies right after the "Uncompressing kernel" message. 2.6.12-rc6 boots 
-> fine.  I am attaching my config. Am I missing something obvious? I am 
-> building 48-01 with voluntary-preempt now to try that.
-> 
-> 
+I am running the 2.6 kernel and I notice that every now and then my
+system stops responding but is still accessible remotely through ssh.
+I can not work on the console. The only way out is to reboot either
+remotely or by hitting the reset button. When the system comes up
+again I get the following message in my dmesg and I need to actually
+reboot it once or twice before this error goes. of I get a spew of
+following messages. These messages don't stop till I reboot the
+machine.
 
-Well crap. Perhaps I should have tried this first. If I disable the 
-runtime selectable locking
-
-# CONFIG_DEBUG_RT_LOCKING_MODE is not set
-
-it seems to work fine. With the above enabled it hangs on both of my SMP 
-systems as described above. :-/
-
--- 
-    kr
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received
+drivers/usb/input/hid-core.c: input irq status -75 received

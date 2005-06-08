@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261595AbVFHUMg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVFHU12@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261595AbVFHUMg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 16:12:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261586AbVFHUMg
+	id S261597AbVFHU12 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 16:27:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVFHU12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 16:12:36 -0400
-Received: from mail.linicks.net ([217.204.244.146]:56581 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S261595AbVFHUMa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 16:12:30 -0400
-From: Nick Warne <nick@linicks.net>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: mtrr question
-Date: Wed, 8 Jun 2005 21:12:20 +0100
-User-Agent: KMail/1.8.1
-References: <200506081917.09873.nick@linicks.net> <200506082047.13914.nick@linicks.net> <20050608195336.GL876@redhat.com>
-In-Reply-To: <20050608195336.GL876@redhat.com>
+	Wed, 8 Jun 2005 16:27:28 -0400
+Received: from chewbacca.arl.wustl.edu ([128.252.153.149]:23173 "EHLO
+	chewbacca.arl.wustl.edu") by vger.kernel.org with ESMTP
+	id S261597AbVFHU1X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 16:27:23 -0400
+Date: Wed, 8 Jun 2005 15:27:15 -0500 (CDT)
+From: Manfred Georg <mgeorg@arl.wustl.edu>
+To: gregkh@suse.de
+cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] capabilities not inherited
+Message-ID: <Pine.GSO.4.58.0506081513340.22095@chewbacca.arl.wustl.edu>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506082112.20194.nick@linicks.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 June 2005 20:53, Dave Jones wrote:
-> Maybe. I don't use non-free drivers, so I have no idea
-> what nvidia are/aren't doing in their driver.
->
-> I'd suggest trying the nvidia forums.
+Hi,
 
-No need ;-).  You helped me pinpoint it... I went for it and ran manually:
+I was working with passing capabilities through an exec and it
+didn't do what I expected it to.  That is, if I set a bit in
+the inherited capabilities, it is not "inherited" after an
+exec().  After going through the code many times, and still not
+understanding it, I hacked together this patch.  It probably
+has unforseen side effects and there was probably some
+reason it was not done in the first place.
 
-bash-2.05b# echo "base=0xD0000000 size=0x4000000 type=write-combining" 
->| /proc/mtrr
+Thanks for the kernel, I have a new found appreciation for it.
 
-bash-2.05b# cat /proc/mtrr
-reg00: base=0x00000000 (   0MB), size=1024MB: write-back, count=1
-reg01: base=0x40000000 (1024MB), size= 256MB: write-back, count=1
-reg02: base=0xd0000000 (3328MB), size=  64MB: write-combining, count=1
-reg05: base=0xc0000000 (3072MB), size= 256MB: write-combining, count=1
+Manfred
 
-Thanks for help Dave... very much appreciated.  I will look back and use Linux 
-kernel module next build - I want things be nice and free too.
+Patch against 2.6.12-rc6:
 
-Nick
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+Signed-off-by: Manfred Georg <mgeorg@arl.wustl.edu>
+
+diff -uprN -X dontdiff linux-2.6.12-rc6/security/commoncap.c linux/security/commoncap.c
+--- linux-2.6.12-rc6/security/commoncap.c	2005-03-02 01:38:07.000000000 -0600
++++ linux/security/commoncap.c	2005-06-08 14:02:21.000000000 -0500
+@@ -113,10 +113,11 @@ int cap_bprm_set_security (struct linux_
+ {
+ 	/* Copied from fs/exec.c:prepare_binprm. */
+
+-	/* We don't have VFS support for capabilities yet */
+-	cap_clear (bprm->cap_inheritable);
+-	cap_clear (bprm->cap_permitted);
+-	cap_clear (bprm->cap_effective);
++	bprm->cap_inheritable = current->cap_inheritable;
++	bprm->cap_permitted = cap_intersect(current->cap_inheritable,
++	                                    current->cap_permitted);
++	bprm->cap_effective = cap_intersect(bprm->cap_permitted,
++	                                    current->cap_effective);
+
+ 	/*  To support inheritance of root-permissions and suid-root
+ 	 *  executables under compatibility mode, we raise all three
+

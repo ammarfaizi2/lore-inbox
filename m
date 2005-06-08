@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261313AbVFHPX5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261314AbVFHPY2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261313AbVFHPX5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 11:23:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261314AbVFHPX5
+	id S261314AbVFHPY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 11:24:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261316AbVFHPY1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 11:23:57 -0400
-Received: from styx.suse.cz ([82.119.242.94]:3744 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261313AbVFHPXq (ORCPT
+	Wed, 8 Jun 2005 11:24:27 -0400
+Received: from mail.ocs.com.au ([202.147.117.210]:34244 "EHLO mail.ocs.com.au")
+	by vger.kernel.org with ESMTP id S261314AbVFHPYS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 11:23:46 -0400
-Date: Wed, 8 Jun 2005 17:23:45 +0200
-From: Jiri Benc <jbenc@suse.cz>
-To: <abonilla@linuxwireless.org>
-Cc: "'Denis Vlasenko'" <vda@ilport.com.ua>, "'Pavel Machek'" <pavel@ucw.cz>,
-       "'Jeff Garzik'" <jgarzik@pobox.com>,
-       "'Netdev list'" <netdev@oss.sgi.com>,
-       "'kernel list'" <linux-kernel@vger.kernel.org>,
-       "'James P. Ketrenos'" <ipw2100-admin@linux.intel.com>
-Subject: Re: ipw2100: firmware problem
-Message-ID: <20050608172345.64613254@griffin.suse.cz>
-In-Reply-To: <002901c56c3b$8216cdd0$600cc60a@amer.sykes.com>
-References: <200506081744.20687.vda@ilport.com.ua>
-	<002901c56c3b$8216cdd0$600cc60a@amer.sykes.com>
-X-Mailer: Sylpheed-Claws 1.0.4a (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
+	Wed, 8 Jun 2005 11:24:18 -0400
+X-Mailer: exmh version 2.6.3_20040314 03/14/2004 with nmh-1.0.4
+From: Keith Owens <kaos@ocs.com.au>
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Cc: Paulo Marques <pmarques@grupopie.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00 
+In-reply-to: Your message of "Wed, 08 Jun 2005 17:04:23 +0200."
+             <42A708F7.9000803@stud.feec.vutbr.cz> 
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Date: Thu, 09 Jun 2005 01:23:50 +1000
+Message-ID: <8116.1118244230@ocs3.ocs.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 8 Jun 2005 09:05:27 -0600, Alejandro Bonilla wrote:
-> 	I might be lost here but... How is the firmware loaded when using the
-> ipw2100-1.0.0/patches Kernel patch?
+On Wed, 08 Jun 2005 17:04:23 +0200, 
+Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
+>Paulo Marques wrote:
+>> This is probably just bad luck and a known problem that I'm trying to 
+>> fix (but hadn't have much time lately).
+>> 
+>> Can you try to change the line:
+>> 
+>> #define WORKING_SET        1024
+>> 
+>> in scripts/kallsyms.c to:
+>> 
+>> #define WORKING_SET        65536
+>> 
+>> and disable CONFIG_KALLSYMS_EXTRA_PASS, to see if the problem goes away?
+>
+>Yes, this helps.
+>
+>> It it does go away, then it is the same problem, and I'm working on it...
 
-It is loaded by request_firmware() during initialization of the adapter.
-That doesn't work, as at that time no hotplug binary can be executed (we
-are talking about ipw2100 built in the kernel, not built as a module).
+Not the same problem.  The significant difference in the maps is :-
 
-> Currently, when we install the driver, it associates to any open network on
-> boot. This is good, cause we don't want to be typing the commands all the
-> time just to associate. It works this way now and is pretty nice.
+--- .tmp_map1   2005-06-09 01:14:50.303658655 +1000
++++ .tmp_map2   2005-06-09 01:14:52.829274854 +1000
+@@ -8326,8 +8326,8 @@
+ c02b93b0 T ipv6_skip_exthdr
+ c02b9500 T sha_transform
+ c02b96e0 T sha_init
+-c02b970f T __sched_text_start
+ c02b9710 t __compat_down
++c02b9710 T __sched_text_start
+ c02b9810 t __compat_down_interruptible
+ c02b9948 T __compat_down_failed
+ c02b9958 T __compat_down_failed_interruptible
 
-It sounds very dangerous to me.
+__sched_text_start has moved up by 1 byte between pass 1 and 2.  Text
+addresses are not allowed to move between kallsyms passes, kallsyms
+only adds data, it never touches the text segment.  Paulo's change to
+the working set hides this peculiarity, rather than fixing the real
+cause.  This looks like a toolchain bug, it is moving symbols for no
+good reason.
 
-> So, to scan a network, I would have to do ifconfig eth1 up ; iwlist eth1
-> scan?
-
-No. Driver should request the firmware when it is told to perform a scan.
-
-> When moving from modes with the firmwares, would I have to do ifconfig eth1
-> up ; iwconfig eth1 mode monitor? or would the firmware be loaded with
-> iwconfig? Does it have that function?
-
-Firmware can be loaded automatically by the driver when there is some
-request from userspace and the firmware has not been loaded yet.
-
-
--- 
-Jiri Benc
-SUSE Labs

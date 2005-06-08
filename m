@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261443AbVFHRNd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261441AbVFHRRd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261443AbVFHRNd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 13:13:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261421AbVFHRNR
+	id S261441AbVFHRRd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 13:17:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261446AbVFHRRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 13:13:17 -0400
-Received: from colo.lackof.org ([198.49.126.79]:58333 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S261386AbVFHRLA (ORCPT
+	Wed, 8 Jun 2005 13:17:32 -0400
+Received: from fire.osdl.org ([65.172.181.4]:63710 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261441AbVFHRJu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 13:11:00 -0400
-Date: Wed, 8 Jun 2005 11:14:40 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Andi Kleen <ak@suse.de>
-Cc: Greg KH <gregkh@suse.de>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, Roland Dreier <roland@topspin.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Andrew Vasquez <andrew.vasquez@qlogic.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "David S. Miller" <davem@davemloft.net>, tom.l.nguyen@intel.com
-Subject: Re: [Penance PATCH] PCI: clean up the MSI code a bit
-Message-ID: <20050608171440.GD5908@colo.lackof.org>
-References: <20050608063559.GA22869@suse.de> <20050608134109.GW23831@wotan.suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050608134109.GW23831@wotan.suse.de>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+	Wed, 8 Jun 2005 13:09:50 -0400
+Date: Wed, 8 Jun 2005 10:11:33 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Paul Mackerras <paulus@samba.org>
+cc: Erik Mouw <erik@harddisk-recovery.com>,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: Linux v2.6.12-rc6
+In-Reply-To: <17062.21286.601768.751853@cargo.ozlabs.ibm.com>
+Message-ID: <Pine.LNX.4.58.0506081009540.2286@ppc970.osdl.org>
+References: <Pine.LNX.4.58.0506061104190.1876@ppc970.osdl.org>
+ <20050607130535.GD16602@harddisk-recovery.com> <Pine.LNX.4.58.0506070820170.2286@ppc970.osdl.org>
+ <17062.21286.601768.751853@cargo.ozlabs.ibm.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 08, 2005 at 03:41:09PM +0200, Andi Kleen wrote:
-> I disagree it should stay as it is. Basically you are trading
-> a bit less complexity in Infiniband now for a lot of code everywhere.
 
-It's not just infiniband. It's tg3 and e1000 as well.
 
-grant
+On Wed, 8 Jun 2005, Paul Mackerras wrote:
+> 
+> This also affects gitk, which takes the first line of the commit
+> message as the headline.  I could make gitk take the first paragraph
+> (i.e. until the first blank line) as the headline but even that
+> wouldn't help since you put a blank line between the "Automatic merge"
+> line and the actual URL.  Could you leave out that blank line in
+> future, or do you have a better suggestion?
+
+I'll just make future messages much denser. They should now be just
+
+	Merge repo
+
+or
+
+	Merge 'name' branch of <repo>
+
+(and I may decide to replace "branch of" with "from" to make it even 
+denser.)
+
+		Linus

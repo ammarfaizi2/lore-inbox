@@ -1,83 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262090AbVFHES1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262096AbVFHEjJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262090AbVFHES1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 00:18:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262092AbVFHES1
+	id S262096AbVFHEjJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 00:39:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262100AbVFHEjI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 00:18:27 -0400
-Received: from fire.osdl.org ([65.172.181.4]:11668 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262090AbVFHESU (ORCPT
+	Wed, 8 Jun 2005 00:39:08 -0400
+Received: from linux.dunaweb.hu ([62.77.196.1]:22978 "EHLO linux.dunaweb.hu")
+	by vger.kernel.org with ESMTP id S262096AbVFHEjD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 00:18:20 -0400
-Date: Tue, 7 Jun 2005 21:18:04 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Lars Roland <lroland@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Fusion MPT driver version 3.01.20 VS. version 2.03.00
-Message-Id: <20050607211804.5763993b.akpm@osdl.org>
-In-Reply-To: <4ad99e050506071428278c3018@mail.gmail.com>
-References: <4ad99e050506071428278c3018@mail.gmail.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Jun 2005 00:39:03 -0400
+Message-ID: <42A67A2B.50600@freemail.hu>
+Date: Wed, 08 Jun 2005 06:55:07 +0200
+From: Zoltan Boszormenyi <zboszor@freemail.hu>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
+X-Accept-Language: hu-hu, hu, en-us, en
+MIME-Version: 1.0
+To: Vojtech Pavlik <vojtech@suse.cz>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Mousedev or hiddev problem, was: Re: USB mice do not work on
+ 2.6.12-rc5-git9, -rc5-mm1, -rc5-mm2
+References: <42A2A0B2.7020003@freemail.hu> <42A2A657.9060803@freemail.hu> <20050605001001.3e441076.akpm@osdl.org> <42A2BC4B.5060605@freemail.hu> <42A2CF27.8000806@freemail.hu> <42A3176F.9030307@freemail.hu> <42A4B328.1010400@freemail.hu> <42A4C85F.2040509@freemail.hu> <20050607053943.GA1778@ucw.cz>
+In-Reply-To: <20050607053943.GA1778@ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lars Roland <lroland@gmail.com> wrote:
->
->  We have a bunch of IBM 335/336 used as email (anti-virus/spam)
->  gateways. Recently our admin changed the kernel version from version
->  2.4.24 to 2.6.8.1 - this resulted in a massive performance
->  degradation. The old system could handle 60.000 emails pr. hour the
->  new one could only handle about 30.000 emails (this was tested by
->  sampling 60.000 emails and sending them to the server).
+Vojtech Pavlik írta:
+> On Tue, Jun 07, 2005 at 12:04:15AM +0200, Zoltan Boszormenyi wrote:
 > 
->  After poking a bit around (changing hardware and upgrading bios's) I
->  realized that the time spend for writing the files to the disk have
->  gone up (multiple small writes seams to kill it)
+>>Hi,
+>>
+>>Zoltan Boszormenyi írta:
+>>
+>>>All the -bk7+ kernels I tried produced the same strange bug
+>>>on my system: after gpm started I was able to move the
+>>>pointer on the screen but when X started up, it's pointer froze.
+>>
+>>it turned out that there is nothing wrong with USB on my system.
+>>
+>>But someone broke the /dev/input/mouseX <-> USB mouse interaction
+>>in 2.6.11-bk7 and my two-headed system with two X servers were
+>>manually set up to use the distinct mouse devices so the two heads
+>>do not interfere.
+>>
+>>No wonder gpm works, it reads /dev/input/mice. Starting only
+>>one X and using /dev/input/mice I found no problems. Setting it
+>>back to /dev/input/mouse0, the mouse pointer is dead again.
+>>
+>>Someone deserves a mousebite...
+> 
+>  
+> Most likely it's because the keyboards are now identified as having
+> mouse capabilities, too, and changing the numbers. Check
+> /proc/bus/input/devices.
 
-The driver was broken for a while in a way which caused it to run slowly if
-it was linked into the kernel image, but it runs OK if loaded as a module.
+Thanks for the enlightenment, now I have to use /dev/input/mouse2 and
+mouse3 for the two X servers.
 
-<digs around>
+BTW, where is it documented? Was it this changeset?
 
-Here's a minimal patch - it fixes it, but iirc, this isn't what was merged.
-(Or you could just use 2.6.12-rc6).
+<vojtech@suse.cz>
+         input: Fix keyboard scrollwheel support, add horizontal
+                wheel support, and enable both by default.
 
---- 25/drivers/message/fusion/mptscsih.c~mpt-fusion-speedup	2005-03-22 02:43:24.000000000 -0800
-+++ 25-akpm/drivers/message/fusion/mptscsih.c	2005-03-22 02:43:24.000000000 -0800
-@@ -96,7 +96,6 @@ MODULE_AUTHOR(MODULEAUTHOR);
- MODULE_DESCRIPTION(my_NAME);
- MODULE_LICENSE("GPL");
- 
--#ifdef MODULE
- static int dv = MPTSCSIH_DOMAIN_VALIDATION;
- module_param(dv, int, 0);
- MODULE_PARM_DESC(dv, "DV Algorithm: enhanced = 1, basic = 0 (default=MPTSCSIH_DOMAIN_VALIDATION=1)");
-@@ -112,7 +111,6 @@ MODULE_PARM_DESC(factor, "Min Sync Facto
- static int saf_te = MPTSCSIH_SAF_TE;
- module_param(saf_te, int, 0);
- MODULE_PARM_DESC(saf_te, "Force enabling SEP Processor: (default=MPTSCSIH_SAF_TE=0)");
--#endif
- 
- /*=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=*/
- 
-@@ -1477,7 +1475,6 @@ mptscsih_init(void)
- 		  ": Registered for IOC reset notifications\n"));
- 	}
- 
--#ifdef MODULE
- 	dinitprintk((KERN_INFO MYNAM
- 		": Command Line Args: dv=%d max_width=%d "
- 		"factor=0x%x saf_te=%d\n",
-@@ -1487,7 +1484,6 @@ mptscsih_init(void)
- 	driver_setup.max_width = (width) ? 1 : 0;
- 	driver_setup.min_sync_factor = factor;
- 	driver_setup.saf_te = (saf_te) ? 1 : 0;;
--#endif
- 
- 	if(mpt_device_driver_register(&mptscsih_driver,
- 	  MPTSCSIH_DRIVER) != 0 ) {
-_
+         Signed-off-by: Vojtech Pavlik <vojtech@suse.cz>
 
+Best regards,
+Zoltán Böszörményi

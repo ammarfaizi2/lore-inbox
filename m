@@ -1,46 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261517AbVFHSuH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261529AbVFHSwk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261517AbVFHSuH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 14:50:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVFHSuH
+	id S261529AbVFHSwk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 14:52:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261527AbVFHSwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 14:50:07 -0400
-Received: from hell.sks3.muni.cz ([147.251.210.30]:31248 "EHLO
-	anubis.fi.muni.cz") by vger.kernel.org with ESMTP id S261517AbVFHStb
+	Wed, 8 Jun 2005 14:52:40 -0400
+Received: from cpu1185.adsl.bellglobal.com ([207.236.110.166]:25604 "EHLO
+	mail.rtr.ca") by vger.kernel.org with ESMTP id S261522AbVFHSwc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 14:49:31 -0400
-Date: Wed, 8 Jun 2005 20:49:33 +0200
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
-To: Scott Bardone <sbardone@chelsio.com>
-Cc: Francois Romieu <romieu@fr.zoreil.com>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.12-rc6-mm1 & Chelsio driver
-Message-ID: <20050608184933.GC2369@mail.muni.cz>
-References: <8A71B368A89016469F72CD08050AD3340255F0@maui.asicdesigners.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <8A71B368A89016469F72CD08050AD3340255F0@maui.asicdesigners.com>
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.9i
+	Wed, 8 Jun 2005 14:52:32 -0400
+Message-ID: <42A73E6E.80808@rtr.ca>
+Date: Wed, 08 Jun 2005 14:52:30 -0400
+From: Mark Lord <liml@rtr.ca>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.7) Gecko/20050420 Debian/1.7.7-2
+X-Accept-Language: en, en-us
+MIME-Version: 1.0
+To: Greg Stark <gsstark@mit.edu>
+Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: SMART support for libata
+References: <87y8g8r4y6.fsf@stark.xeocode.com> <41B7EFA3.8000007@pobox.com> <87br6g6ayr.fsf@stark.xeocode.com>
+In-Reply-To: <87br6g6ayr.fsf@stark.xeocode.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 08, 2005 at 10:33:09AM -0700, Scott Bardone wrote:
-> You can download the N210/N110 (ver 2.1.1) from the Chelsio website and use
-> that driver for the T110 with a newer kernel. I have tested that driver up to
-> the 2.6.11 kernel release. It will provide you NIC mode functinoality on your
-> T110 TOE card, you can use it as a module, or try to patch it into a later
-> kernel. If patching it into a kernel, you may need to modify the patch a bit.
+Greg Stark wrote:
+>
+> getting really hot so I put it to sleep with "hdparm -Y".
+> 
+> Now whenever smartd probes that drive my system freezes for a few seconds and
+> I get this in my syslog:
+> 
+> Jun  8 12:49:36 stark kernel: hda: status timeout: status=0xd0 { Busy }
+> Jun  8 12:49:36 stark kernel: 
+> Jun  8 12:49:36 stark kernel: ide: failed opcode was: 0xe5
 
-Thanks, however, without CONFIG_CHELSIO_T1_OFFLOAD card is not detected (no
-wonder, driver enables T110 card only if offload is used). I do not need TCP
-offload engine. With T1 Offload it cannot be compiled - it reject
-cxgbtoe-2.1.1-linux-2.6.6-toe_api.patch
+That is normal and expected behaviour.
+A "sleeping" drive never responds to commands
+until woken with a reset.
 
-So, do I really need Offloading in kernel or should it work with just enableing
-card in sources even without Offloading?
+You should be using "-y" (standby) instead of "-Y" (sleep).
 
--- 
-Luká¹ Hejtmánek
+Cheers

@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262132AbVFHH1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262133AbVFHH3y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262132AbVFHH1K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 03:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbVFHH1K
+	id S262133AbVFHH3y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 03:29:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262134AbVFHH3y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 03:27:10 -0400
-Received: from wproxy.gmail.com ([64.233.184.196]:24409 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262132AbVFHH1H convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 03:27:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YlvkR9K6BwqloAnYMQZ7BwTVIKoI4puVTwMyCCE6BQsbGVn0nT/YGNL3lFrURhqrNipPegdgIUMUJ1YTu+AkIVKSroAhbsC2hoog4sKRmXzgSQSM00r6kfwIJ6ItwFz78Ou5nZGiKrspJSR3crq6glmEsdPeLF/txX4JEkajBpU=
-Message-ID: <58cb370e05060800276f3fc29c@mail.gmail.com>
-Date: Wed, 8 Jun 2005 09:27:07 +0200
-From: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-Reply-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-To: info@a-wing.co.uk
-Subject: Re: sis5513.c patch
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <42A621BC.7040607@a-wing.co.uk>
+	Wed, 8 Jun 2005 03:29:54 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:18823 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262133AbVFHH3q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 03:29:46 -0400
+Date: Wed, 8 Jun 2005 09:28:55 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: linux-kernel@vger.kernel.org, Esben Nielsen <simlo@phys.au.dk>,
+       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
+       Steven Rostedt <rostedt@goodmis.org>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.47-29
+Message-ID: <20050608072855.GA8900@elte.hu>
+References: <20050607194119.GA11185@elte.hu> <1118176290.18629.29.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <42A621BC.7040607@a-wing.co.uk>
+In-Reply-To: <1118176290.18629.29.camel@dhcp153.mvista.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/8/05, Andrew Hutchings <info@a-wing.co.uk> wrote:
-> Hi,
 
-Hi,
+* Daniel Walker <dwalker@mvista.com> wrote:
 
-> I'm not sure if a similar patch has been submitted or not, but here is a
-> patch to get DMA working on ASUS K8S-MX with a SiS 760GX/SiS 965L
-> chipset combo.
+> >  - rely on the preemption-counter instead of IRQs-off sections
+> 
+> There is a local_irq_enable missing someplace in UP ..
+> 
+> BUG: scheduling with irqs disabled: khelper/0x00000000/5
+> caller is __down_mutex+0x276/0x440
+>  [<c03a88d6>] __down_mutex+0x276/0x440 (4)
 
-This patch is incorrect, it adds PCI ID of SiS IDE controller (this ID 
-is common for almost all SiS IDE controllers and is already present in 
-sis5513_pci_tbl[]) to the table of SiS Host PCI IDs.  As a result driver 
-will try to use ATA_133 on all _unknown_ IDE controllers.  You need
-to add PCI ID of the Host chipset (lspci should reveal it) instead.
+.config please.
 
-Thanks,
-Bartlomiej
+	Ingo

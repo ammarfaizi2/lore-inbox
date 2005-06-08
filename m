@@ -1,41 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbVFHRjU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261406AbVFHRkN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261465AbVFHRjU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 13:39:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVFHRjT
+	id S261406AbVFHRkN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 13:40:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261478AbVFHRjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 13:39:19 -0400
-Received: from [217.170.8.20] ([217.170.8.20]:18199 "EHLO
-	mail.research.newtrade.nl") by vger.kernel.org with ESMTP
-	id S261456AbVFHRiJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 13:38:09 -0400
-Subject: Re: USB errors causes system to become unresponsive
-From: Duncan Sands <baldrick@free.fr>
-To: Bharath Ramesh <krosswindz@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <c775eb9b0506081027d0cc6b9@mail.gmail.com>
-References: <c775eb9b0506081027d0cc6b9@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 08 Jun 2005 19:38:07 +0200
-Message-Id: <1118252287.8844.7.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Jun 2005 13:39:53 -0400
+Received: from stargate.chelsio.com ([64.186.171.138]:33148 "EHLO
+	stargate.chelsio.com") by vger.kernel.org with ESMTP
+	id S261452AbVFHRhq convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 13:37:46 -0400
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.6944.0
+Subject: RE: Kernel 2.6.12-rc6-mm1 & Chelsio driver
+Date: Wed, 8 Jun 2005 10:33:09 -0700
+Message-ID: <8A71B368A89016469F72CD08050AD3340255F0@maui.asicdesigners.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Kernel 2.6.12-rc6-mm1 & Chelsio driver
+Thread-Index: AcVr9pTys51bBt7IQ4Se9tazsRAv7wAWY5Tt
+From: "Scott Bardone" <sbardone@chelsio.com>
+To: "Lukas Hejtmanek" <xhejtman@mail.muni.cz>
+Cc: "Francois Romieu" <romieu@fr.zoreil.com>,
+       "Jeff Garzik" <jgarzik@pobox.com>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am running the 2.6 kernel and I notice that every now and then my
-> system stops responding but is still accessible remotely through ssh.
-> I can not work on the console. The only way out is to reboot either
-> remotely or by hitting the reset button. When the system comes up
-> again I get the following message in my dmesg and I need to actually
-> reboot it once or twice before this error goes. of I get a spew of
-> following messages. These messages don't stop till I reboot the
-> machine.
+Lukas,
+
+You can download the N210/N110 (ver 2.1.1) from the Chelsio website and use that driver for the T110 with a newer kernel. I have tested that driver up to the 2.6.11 kernel release. It will provide you NIC mode functinoality on your T110 TOE card, you can use it as a module, or try to patch it into a later kernel. If patching it into a kernel, you may need to modify the patch a bit.
+
+-Scott
+
+
+-----Original Message-----
+From: Lukas Hejtmanek [mailto:xhejtman@mail.muni.cz]
+Sent: Tue 6/7/2005 11:50 PM
+To: Scott Bardone
+Cc: Francois Romieu; Jeff Garzik; linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.12-rc6-mm1 & Chelsio driver
+ 
+On Tue, Jun 07, 2005 at 07:19:46PM -0700, Scott Bardone wrote:
+> It looks like you have a T110 card (10Gb TOE) by the device ID 0006.
+> The Chelsio driver which is in the 2.6 mm tree only supports the NIC model 
+> cards (N110 & N210).
 > 
-> drivers/usb/input/hid-core.c: input irq status -75 received
+> We currently don't have the TOE API in the Linux kernel so the TOE 
+> functionality does not exist, therefore you can only use the Chelsio 
+> modified 2.6.6 kernel for TOE.
+> 
+> You will need to download the driver from Chelsio's website for the T110. 
+> Please send me an email if you don't have a login.
 
-What usb devices do you have plugged in?
+Thanks, we have an account. But I wonder whether T110 card could be used in
+newer kernel (as 2.6.6 is rather old and cat /proc/iomap segfaults in kernel).
 
-D.
+We do not need TOE functionality, UDP transfer is just fine.
+
+-- 
+Lukás Hejtmánek
+
+
 

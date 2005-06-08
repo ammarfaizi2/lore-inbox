@@ -1,41 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261551AbVFHTUI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261559AbVFHTXp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261551AbVFHTUI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 15:20:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261555AbVFHTUH
+	id S261559AbVFHTXp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 15:23:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261556AbVFHTXp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 15:20:07 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:25319
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S261551AbVFHTUD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 15:20:03 -0400
-Date: Wed, 08 Jun 2005 12:19:50 -0700 (PDT)
-Message-Id: <20050608.121950.104038734.davem@davemloft.net>
-To: arnd@arndb.de
-Cc: torvalds@osdl.org, paulus@samba.org, akpm@osdl.org, anton@samba.org,
-       linux-kernel@vger.kernel.org, jk@blackdown.de
-Subject: Re: [PATCH] ppc64: Fix PER_LINUX32 behaviour
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200506082049.51707.arnd@arndb.de>
-References: <17062.56723.535978.961340@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.58.0506081022030.2286@ppc970.osdl.org>
-	<200506082049.51707.arnd@arndb.de>
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 8 Jun 2005 15:23:45 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:24779 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S261562AbVFHTXh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 15:23:37 -0400
+Date: Wed, 8 Jun 2005 15:23:35 -0400
+From: Dave Jones <davej@redhat.com>
+To: Nick Warne <nick@linicks.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: mtrr question
+Message-ID: <20050608192335.GG876@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Nick Warne <nick@linicks.net>, linux-kernel@vger.kernel.org
+References: <200506081917.09873.nick@linicks.net>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200506081917.09873.nick@linicks.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Wed, 8 Jun 2005 20:49:48 +0200
+On Wed, Jun 08, 2005 at 07:17:09PM +0100, Nick Warne wrote:
+ > Hello everybody,
+ > 
+ > Dumb question here.
+ > 
+ > I have an Athlon-thunderbird (1.2Ghz) on kernel 2.4.31 with mttr configured 
+ > and a nVidia Geforce4.  /proc/mtrr is empty.
 
-> With the LINUX32 personality, you can build 32 bit binaries through
-> autoconf, rpmbuild, or the kernel without pretending to be
-> cross-compiling. It may not be the best solution, but people seem to
-> rely on it and the patch brings ppc64 in line with how it works on
-> the other architectures.
+That's odd. you should at least have write-back entries for your system memory.
+(Usually set up by the system BIOS)
 
-I totally agree, this has a large precedence on many platforms
-and there are even gcc frontends that check the uname output
-to decide what code model to output by default.
+ > Does/is setting up mtrr per the old 1999 Docs/mtrr.txt still relevant 
+ > nowadays?  I can't seem to find a definitive answer using Google.
+
+Yes, though the X driver should set them up itself on startup.
+
+		Dave
+

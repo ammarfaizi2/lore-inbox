@@ -1,79 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262159AbVFHKjw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262166AbVFHKlh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262159AbVFHKjw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 06:39:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262168AbVFHKj3
+	id S262166AbVFHKlh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 06:41:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262165AbVFHKlh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 06:39:29 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:47531 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S262159AbVFHKhH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 06:37:07 -0400
-To: Grant Grundler <grundler@parisc-linux.org>
-Cc: Morton Andrew Morton <akpm@osdl.org>, Bodo Eggert <7eggert@gmx.de>,
-       stern@rowland.harvard.edu, awilliam@fc.hp.com, greg@kroah.com,
-       Fastboot mailing list <fastboot@lists.osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       bjorn.helgaas@hp.com
-Subject: Re: [Fastboot] Re: [RFC/PATCH] Kdump: Disabling PCI interrupts in capture kernel
-References: <1118113637.42a50f65773eb@imap.linux.ibm.com>
-	<20050607050727.GB12781@colo.lackof.org>
-	<m1slzuwkqx.fsf@ebiederm.dsl.xmission.com>
-	<20050607162143.GE29220@colo.lackof.org>
-	<m1acm2vwil.fsf@ebiederm.dsl.xmission.com>
-	<20050608040253.GA21060@colo.lackof.org>
-From: ebiederm@xmission.com (Eric W. Biederman)
-Date: 07 Jun 2005 22:38:36 -0600
-In-Reply-To: <20050608040253.GA21060@colo.lackof.org>
-Message-ID: <m1mzq1v4xf.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Wed, 8 Jun 2005 06:41:37 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:20449 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262156AbVFHKkb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 06:40:31 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: Alexander Nyberg <alexn@telia.com>, Adrian Bunk <bunk@stusta.de>
+Subject: Re: RFC: i386: kill !4KSTACKS
+Date: Wed, 8 Jun 2005 13:39:56 +0300
+User-Agent: KMail/1.5.4
+Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
+References: <20050607212706.GB7962@stusta.de> <1118180858.956.27.camel@localhost.localdomain>
+In-Reply-To: <1118180858.956.27.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="koi8-r"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506081339.57012.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Grant Grundler <grundler@parisc-linux.org> writes:
-
-> On Tue, Jun 07, 2005 at 12:42:42PM -0600, Eric W. Biederman wrote:
-> > The howto deal with an IOMMU has been sorted out but so far no one 
-> > has actually done it.  What has been discussed previously is simply
-> > reserving a handful of IOMMU entries,
+On Wednesday 08 June 2005 00:47, Alexander Nyberg wrote:
+> tis 2005-06-07 klockan 23:27 +0200 skrev Adrian Bunk:
+> > 4Kb kernel stacks are the future on i386, and it seems the problems it 
+> > initially caused are now sorted out.
+> > 
+> > I'd like to:
+> > - get a patch into the next -mm that unconditionally enables 4KSTACKS
+> > - if there won't be new reports of breakages, send a patch to
+> >   completely remove !4KSTACKS for 2.6.13 or 2.6.14
+> > 
 > 
-> How? with dma_alloc_consistent() or some special hook?
-> I'm just curious.
-
-We didn't get that far but I believe the idea was a special hook.
-
-> ...
-> >  and then only using those
-> > in the crash recover kernel.  This is essentially what we do with DMA
-> > on architectures that don't have an IOMMU and it seems quite safe
-> > enough there.
+> Combinations of IDE/SCSI with MD/DM (maybe even stacking them ontop of
+> eachother), NFS and a filesystem in there breaks 4KSTACKS which is a
+> known issue so you can't just remove it leaving users with no choice.
 > 
-> Yeah, in general that should be feasible.
-> 
-> One might be able to trivially allocate a small, seperate IO PDIR
-> just for KDUMP and switch to that. Key thing is it be physically
-> contiguous in memory. Very little code is involved with IO Pdir
-> setup for both parisc and IA64. I can't speak for Alpha/sparc/ppc/et al.
+> This was not even difficult to trigger a while ago and I haven't seen
+> any stack reduction patches in these areas.
 
-Cool.
- 
-> ...
-> > Well we are at least capable of multitasking but that is no longer the
-> > primary focus.  Having polling as at least an option should make
-> > debugging easier.  Last I looked Andrews kernel hand an irqpoll option
-> > to do something very like this.
-> 
-> You could run the itimer but I don't see why you should.
-> Kdump is essentially an embedded linux kernel. It really
-> doesn't need to be premptive multitasking either.
+Not true. NFS patches were.
 
-It is mostly a matter of minimizing differences from the norm.
+Do you have any stack overflow traces? Also "make checkstack" is your friend
+in looking for suspect functions.
 
-> Anyway, sounds like you guys are on the right track.
+NB: gcc 3.4.3 can use excessive stack in degenerate cases, so please
+include gcc version in your reports.
+--
+vda
 
-Thanks.   It just takes a while for the simple solutions to
-get there.
-
-Eric

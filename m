@@ -1,62 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262139AbVFHIVe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262141AbVFHIYN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262139AbVFHIVe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 04:21:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262141AbVFHIVe
+	id S262141AbVFHIYN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 04:24:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262144AbVFHIYM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 04:21:34 -0400
-Received: from hrz-ws39.hrz.uni-kassel.de ([141.51.12.239]:16266 "EHLO
-	hrz-ws39.hrz.uni-kassel.de") by vger.kernel.org with ESMTP
-	id S262139AbVFHIVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 04:21:32 -0400
-Message-ID: <42A6AAFF.2020605@uni-kassel.de>
-Date: Wed, 08 Jun 2005 10:23:27 +0200
-From: Michael Zapf <Michael.Zapf@uni-kassel.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: de-DE, de, en-us, en
+	Wed, 8 Jun 2005 04:24:12 -0400
+Received: from relay.nsnoc.com ([195.69.95.145]:52135 "EHLO vs145.ukvs.net")
+	by vger.kernel.org with ESMTP id S262141AbVFHIYG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 04:24:06 -0400
+Message-ID: <42A6AB1B.8000800@a-wing.co.uk>
+Date: Wed, 08 Jun 2005 09:23:55 +0100
+From: Andrew Hutchings <info@a-wing.co.uk>
+Reply-To: info@a-wing.co.uk
+Organization: A-Wing Internet Services
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Problems with USB on x86_64
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: sis5513.c patch
+References: <42A621BC.7040607@a-wing.co.uk> <58cb370e05060800276f3fc29c@mail.gmail.com>
+In-Reply-To: <58cb370e05060800276f3fc29c@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-UniK-SMTP-MailScanner-Information: 
-X-UniK-SMTP-MailScanner: Found to be clean
-X-UniK-SMTP-MailScanner-SpamCheck: 
-X-MailScanner-From: michael.zapf@uni-kassel.de
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+Bartlomiej Zolnierkiewicz wrote:
+> On 6/8/05, Andrew Hutchings <info@a-wing.co.uk> wrote:
+> 
+>>Hi,
+> 
+> 
+> Hi,
+> 
 
-I have some trouble using a memory stick of LG in my Athlon64 system. 
-When I plug it in, dmesg gives messages like this:
+Hi again,
 
-ehci_hcd 0000:00:02.2: port 6 reset error -110
-hub 1-0:1.0: hub_port_status failed (err = -32)
-ehci_hcd 0000:00:02.2: port 6 reset error -110
-hub 1-0:1.0: hub_port_status failed (err = -32)
-hub 1-0:1.0: Cannot enable port 6.  Maybe the USB cable is bad?
+> 
+>>I'm not sure if a similar patch has been submitted or not, but here is a
+>>patch to get DMA working on ASUS K8S-MX with a SiS 760GX/SiS 965L
+>>chipset combo.
+> 
+> 
+> This patch is incorrect, it adds PCI ID of SiS IDE controller (this ID 
+> is common for almost all SiS IDE controllers and is already present in 
+> sis5513_pci_tbl[]) to the table of SiS Host PCI IDs.  As a result driver 
+> will try to use ATA_133 on all _unknown_ IDE controllers.  You need
+> to add PCI ID of the Host chipset (lspci should reveal it) instead.
 
+Unless I am reading the following wrong 5513 is the PCI ID:
 
-and the stick cannot be mounted. It took some time of experimenting with 
-different kernels to find out that
+00:02.5 Class 0101: 1039:5513 (rev 01) (prog-if 80 [Master])
+	Subsystem: 1043:8139
+	Flags: bus master, medium devsel, latency 128
+	I/O ports at <unassigned>
+	I/O ports at <unassigned>
+	I/O ports at <unassigned>
+	I/O ports at <unassigned>
+	I/O ports at ffa0 [size=16]
+	Capabilities: [58] Power Management version 2
 
-* using the 32-bit version of 2.6.8 or 2.6.11, the stick works fine, no 
-error output!
-* using the 64-bit version of 2.6.8 or 2.6.11, the problems occur as 
-mentioned.
+> 
+> Thanks,
+> Bartlomiej
 
-(2.6.8 as given by SuSE 9.2, 2.6.11 as by SuSE 9.3; both distributions 
-offer a 32 and a 64-bit installation)
-I also tried a Kubuntu 5.04 with 2.6.10, same result for 64 bit.
-
-Does anybody have a good theory on what is happening here? Could this be 
-a hardware problem?
-
-Thanks for any hint,
-
-Michael
-
-
+Regards
+Andrew
+-- 
+Andrew Hutchings (A-Wing)
+Linux Guru - Netserve Consultants Ltd. - http://www.domaincity.co.uk/
+Admin - North Wales Linux User Group - http://www.nwlug.org.uk/
+BOFH excuse 424: operation failed because: there is no message for this 
+error (#1014)

@@ -1,67 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262055AbVFHAtR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262059AbVFHA76@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262055AbVFHAtR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 20:49:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262056AbVFHAtQ
+	id S262059AbVFHA76 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 20:59:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262060AbVFHA76
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 20:49:16 -0400
-Received: from smtp201.mail.sc5.yahoo.com ([216.136.129.91]:19819 "HELO
-	smtp201.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S262055AbVFHAtL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 20:49:11 -0400
-Subject: Re: [PATCH 2.6.12-rc6-mm1] add allowed CPUs check into
-	find_idlest_{group|cpu}()
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-To: "M.Baris Demiray" <baris@labristeknoloji.com>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <42A66485.8010208@labristeknoloji.com>
-References: <42A66485.8010208@labristeknoloji.com>
-Content-Type: text/plain
-Date: Wed, 08 Jun 2005 10:49:04 +1000
-Message-Id: <1118191744.5104.49.camel@npiggin-nld.site>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 7 Jun 2005 20:59:58 -0400
+Received: from femail.waymark.net ([206.176.148.84]:58555 "EHLO
+	femail.waymark.net") by vger.kernel.org with ESMTP id S262059AbVFHA74 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 20:59:56 -0400
+Date: 8 Jun 2005 00:59:42 GMT
+From: Kenneth Parrish <Kenneth.Parrish@family-bbs.org>
+Subject: [ACPI] acpi_processor_set_power_policy
+To: linux-kernel@vger.kernel.org
+Message-ID: <a03f9a.c79f75@family-bbs.org>
+Organization: FamilyNet HQ
+X-Mailer: BBBS/NT v4.01 Flag-5
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-08 at 03:22 +0000, M.Baris Demiray wrote:
-> Hello Nick,
-> a new patch related with recent thread is appended.
-> 
+# readprofile -r ; sleep 1 ; readprofile -m /boot/System.map | sort -nr
 
-Hi,
+    527 total                                      0.0003
+    502 acpi_processor_set_power_policy            2.6989
+      7 sort                                       0.0208
+      7 release_task                               0.0208
+      4 zone_watermark_ok                          0.0208
+      3 do_page_fault                              0.0021
+      1 unmap_page_range                           0.0057
+      1 show_free_areas                            0.0013
+      1 do_file_page                               0.0048
+      1 buffered_rmqueue                           0.0020
 
-> I check for CPUs only, ie. not for intersection, in find_idlest_cpu()
-> since there should be one-to-one comparison when finding CPU. But I
-> take intersection of group's CPUs and current task's allowed CPUs in
-> find_allowed_group(). Comments?
-> 
+Should acpi_processor_set_power_policy be called this often?
 
-Getting better. Thanks.
+Kernel: 2.6.12-rc5-git9  # define HZ    500  <include/asm-i386/param.h>
+Computer: Cyrix MII and VIA MVP3, e-machines '99
+dmesg..
+Kernel command line: BOOT_IMAGE=2.6.12-rc5-git9 ro root=301 clock=tsc elevator=
+ deadline lpj=376832 profile=2
+ kernel profiling enabled (shift: 2)
 
-By taking the intersection in find_idlest_cpu, I don't mean checking
-whether or not they intersect as in find_idlest_group. I mean doing
-this:
+More information and at request.
 
-
-    cpumask_t tmp;
-
-    /* Find the intersection */
-    cpus_and(tmp, group->cpumask, p->cpus_allowed);
-
-    for_each_cpu_mask(i, tmp) {
-
-Right? That is effectively the same as what you've got in your patch,
-but it means we don't need to do the cpumask comparison every time
-around the loop (aside from being an extra branch, the actual operation
-itself gets a little costly with huge cpu masks).
-
-Nick
-
--- 
-SUSE Labs, Novell Inc.
-
-
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+...  A:  6-1/2" x 6-1/2" x 2"   Q: How big is the Mac Mini?
+--- MultiMail/Linux v0.46  [currently BlueWave packet type]

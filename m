@@ -1,90 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261338AbVFHQBS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVFHQA0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261338AbVFHQBS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 12:01:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261351AbVFHQBR
+	id S261337AbVFHQA0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 12:00:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVFHQAY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 12:01:17 -0400
-Received: from reserv5.univ-lille1.fr ([193.49.225.19]:17383 "EHLO
-	reserv5.univ-lille1.fr") by vger.kernel.org with ESMTP
-	id S261338AbVFHP43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 11:56:29 -0400
-Message-ID: <42A714B7.8010105@lifl.fr>
-Date: Wed, 08 Jun 2005 17:54:31 +0200
-From: Eric Piel <Eric.Piel@lifl.fr>
-User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
-X-Accept-Language: fr, en
-MIME-Version: 1.0
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-CC: linux-kernel@vger.kernel.org, bhuey@lnxw.com, andrea@suse.de,
-       tglx@linutronix.de, karim@opersys.com, mingo@elte.hu,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org
-Subject: Re: Attempted summary of "RT patch acceptance" thread
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-USTL-MailScanner-Information: Please contact the ISP for more information
-X-USTL-MailScanner: Found to be clean
-X-MailScanner-From: eric.piel@lifl.fr
+	Wed, 8 Jun 2005 12:00:24 -0400
+Received: from rproxy.gmail.com ([64.233.170.204]:17424 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261337AbVFHP4V convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 11:56:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Qts33ELIR9aBLa+94mOI2XmHji/tH79O/TmwlOQQ9sOsyh7D44BKdcR1FdVXk0NSCd0wY8qRZY8CZEEX12X57mX2x73Euu8yDaOE857AEMuGMySr3j+ZAfRr802ibuXNsUi34Sk8SV6Al5F8LxW7/3jPg7YjnredhIqJZ+NEfKs=
+Message-ID: <d120d50005060808565a7944f2@mail.gmail.com>
+Date: Wed, 8 Jun 2005 10:56:19 -0500
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Reply-To: dtor_core@ameritech.net
+To: Abhay Salunke <Abhay_Salunke@dell.com>
+Subject: Re: [patch 2.6.12-rc3] modifications in firmware_class.c to support nohotplug
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       abhay_salunke@dell.com, matt_domsch@dell.com, Greg KH <greg@kroah.com>,
+       Manuel Estrada Sainz <ranty@debian.org>
+In-Reply-To: <20050608151744.GA12180@littleblue.us.dell.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050608151744.GA12180@littleblue.us.dell.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul E. McKenney said:
-> Hello!
-> 
-> Midway through the recent "RT patch acceptance" thread, someone mentioned
-> that it might be good to summarize the various approaches.  The following
-> is an attempt to do just this, with an eye to providing a reasonable
-> framework for future discussion.
-> 
-> Thoughts?  Errors?  Omissions?
+On 6/8/05, Abhay Salunke <Abhay_Salunke@dell.com> wrote:
+> This is a patch with modifications in firmware_class.c to have no hotplug
+> support.
+...
 
-Hi Paul,
+> @@ -87,7 +87,7 @@ static struct class firmware_class = {
+>        .name           = "firmware",
+>        .hotplug        = firmware_class_hotplug,
+>        .release        = fw_class_dev_release,
+> -};
+> +};
 
-I haven't yet gone through all your email in detail but it seems very 
-well documented and precise.
+Adds trailing whitespace.
+> @@ -364,6 +364,7 @@ fw_setup_class_device(struct firmware *f
+>                printk(KERN_ERR "%s: class_device_create_file failed\n",
+>                       __FUNCTION__);
+>                goto error_unreg;
+> +r
 
-I'd like to add some information about your section "7.  Migration 
-Within OS". I've now been working for more than a year on a project 
-called ARTiS which precisely implements this approach. A announced was 
-recently posted on the LKML :-) . You can find more information in this 
-tread : http://lkml.org/lkml/2005/5/3/50 as well on our webpage 
-www.lifl.fr/west/artis .
+What is this?
+> -out:
+> -       return retval;
+> +       return _request_firmware(firmware_p, name, device, FW_DO_HOTPLUG);
+>  }
 
-Concerning the QoS, we have been able to obtain hard realtime, at least 
-very firm real-time. Tests were conducted over 8 hours on IA-64 and x86 
-and gave respectively 105µs and 40µs of maximum latency. Not as good as 
-you have mentioned but mostly of the same order :-)
+Tab vs. space identation.
 
-Concerning the "e. fault isolation", on our implementation, holding a 
-lock, mutex or semaphore will automatically migrate the task, therefore 
-it's not a problem. Of course, some parts of the kernel that cannot be 
-migrated might take a lock, namely the scheduler. For the scheduler, we 
-modified most of the data structures requiring a lock so that they can 
-be accessed locklessly (it's the hardest part of the implementation).
+>  /* Async support */
+>  struct firmware_work {
+>        struct work_struct work;
+> -       struct module *module;
+> +       struct module *module;
+>        const char *name;
+>        struct device *device;
+>        void *context;
+> +       int hotplug;
+>        void (*cont)(const struct firmware *fw, void *context);
+>  };
 
-Concerning the weaknesses, one point that you didn't mention is the 
-difficulty to fully load the realtime dedicated CPUs. Tasks tends to 
-migrate more away from the RT CPUs than they come back. In ARTiS, a 
-modification of the load-balancer permits to keep most of the power but 
-there is still probably some loss. Concerning the migration overhead, 
-there must be some, but it's not very big and quite difficult to 
-measure. Actually, the migration itself is light in CPU usage, the 
-problem is that it unschedules the task so that it might take some time 
-before the task is scheduled again (but if there is enough load on the 
-computer, we lose mostly nothing).
+I think it would be better if you just have request_firmware and
+request_firmware_nowait accept timeout parameter that would override
+default timeout in firmware_class. 0 would mean use default,
+MAX_SCHED_TIMEOUT - wait indefinitely.
 
-Finally, as you pointed out, one major requirement is obiously to have 
-several CPUs. Luckily, SMT and dual core processors are more and more 
-common (ARTiS was succesfully tested on Pentium HT). Still, in the 
-embedded market this is not so usual, so that's a weakeness point if you 
-target very devices. Our implementation is oriented toward big 
-applications that requires both RT properties and high performance 
-(that's why it was developped on IA-64).
-
-That's my 2 cents for your summary :-)
-
-Eric
-
-PS: please CC me when replying to the lkml.
+-- 
+Dmitry

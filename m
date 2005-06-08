@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261542AbVFHTcb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261548AbVFHTcl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261542AbVFHTcb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 15:32:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbVFHTca
+	id S261548AbVFHTcl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 15:32:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261571AbVFHTcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 15:32:30 -0400
-Received: from mail.linicks.net ([217.204.244.146]:59410 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S261542AbVFHTcO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 15:32:14 -0400
-From: Nick Warne <nick@linicks.net>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: mtrr question
-Date: Wed, 8 Jun 2005 20:31:59 +0100
-User-Agent: KMail/1.8.1
-References: <200506081917.09873.nick@linicks.net> <20050608192335.GG876@redhat.com>
-In-Reply-To: <20050608192335.GG876@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Jun 2005 15:32:41 -0400
+Received: from hell.sks3.muni.cz ([147.251.210.30]:54280 "EHLO
+	anubis.fi.muni.cz") by vger.kernel.org with ESMTP id S261548AbVFHTcU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 15:32:20 -0400
+Date: Wed, 8 Jun 2005 21:32:15 +0200
+From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+To: Scott Bardone <sbardone@chelsio.com>
+Cc: Francois Romieu <romieu@fr.zoreil.com>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.12-rc6-mm1 & Chelsio driver
+Message-ID: <20050608193215.GF2369@mail.muni.cz>
+References: <8A71B368A89016469F72CD08050AD3340255F0@maui.asicdesigners.com> <20050608184933.GC2369@mail.muni.cz> <42A742FF.2020706@chelsio.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
 Content-Disposition: inline
-Message-Id: <200506082031.59987.nick@linicks.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <42A742FF.2020706@chelsio.com>
+X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 June 2005 20:23, Dave Jones wrote:
+On Wed, Jun 08, 2005 at 12:11:59PM -0700, Scott Bardone wrote:
+> You would need to use the cxgb-2.1.1 driver (NIC only). It is near the 
+> bottom of the webpage, under "Chelsio N210 / N110 10Gb Ethernet Server 
+> Adapter",  Chelsio N210 / N110 Linux Driver - Version 2.1.1 (05/17/2005).
+> <https://service.chelsio.com/drivers/linux/n210/cxgb-2.1.1.tar.gz>
+> Use the above driver for the T110 in NIC mode. This driver will work for 
+> the T110 and T210 but only in NIC mode.
 
-> That's odd. you should at least have write-back entries for your system
-> memory. (Usually set up by the system BIOS)
->
->  > Does/is setting up mtrr per the old 1999 Docs/mtrr.txt still relevant
->  > nowadays?  I can't seem to find a definitive answer using Google.
->
-> Yes, though the X driver should set them up itself on startup.
+Unfortunately, this driver does not contain 
+CH_DEVICE(6, 0|1.. )
 
-Yes, I read that, and did wonder...
+Should I just add it?
 
-Ummm.  I see from boot logs that mtrr isn't detected like it is on my other 
-(Dell) boxes.
-
-This looks like my BIOS settings are wonky then.  What would it be 'called' to 
-enable/disable mtrr on an AGP slot?
-
-Thanks,
-
-Nick
 -- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+Luká¹ Hejtmánek

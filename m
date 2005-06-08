@@ -1,84 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261601AbVFHUdQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261603AbVFHUd1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261601AbVFHUdQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 16:33:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVFHUdQ
+	id S261603AbVFHUd1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 16:33:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261598AbVFHUd1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 16:33:16 -0400
-Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:55244 "EHLO
+	Wed, 8 Jun 2005 16:33:27 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:55500 "EHLO
 	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
-	id S261601AbVFHUdD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S261603AbVFHUdD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 8 Jun 2005 16:33:03 -0400
-Date: Wed, 8 Jun 2005 18:27:28 +0200
+Date: Wed, 8 Jun 2005 18:29:48 +0200
 From: Pavel Machek <pavel@suse.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Pavel Machek <pavel@suse.cz>, linux-pm@lists.osdl.org,
-       "Yu, Luming" <luming.yu@intel.com>, Andrew Morton <akpm@zip.com.au>,
-       ACPI devel <acpi-devel@lists.sourceforge.net>,
-       Linux Kernel List <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] Re: swsusp: Not enough free pages
-Message-ID: <20050608162728.GA3969@openzaurus.ucw.cz>
-References: <3ACA40606221794F80A5670F0AF15F84041AC1A8@pdsmsx403> <20050606215815.GO2230@elf.ucw.cz> <200506071239.10125.rjw@sisk.pl> <200506081702.53349.rjw@sisk.pl>
+To: Jirka Bohac <jbohac@suse.cz>
+Cc: Denis Vlasenko <vda@ilport.com.ua>, Pavel Machek <pavel@ucw.cz>,
+       Jeff Garzik <jgarzik@pobox.com>, Netdev list <netdev@oss.sgi.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: ipw2100: firmware problem
+Message-ID: <20050608162947.GB3969@openzaurus.ucw.cz>
+References: <20050608142310.GA2339@elf.ucw.cz> <200506081744.20687.vda@ilport.com.ua> <20050608145653.GA8844@dwarf.suse.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200506081702.53349.rjw@sisk.pl>
+In-Reply-To: <20050608145653.GA8844@dwarf.suse.cz>
 User-Agent: Mutt/1.3.27i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> > > > > No, I see it on i386, too. Try patch below; if it frees some after
-> > > > > first pass, you have that problem, too.
-> > > > 
-> > > > I've run it once and the result is this:
-> > > > 
-> > > > Freeing memory... done (75876 pages freed)
-> > > > Freeing memory... done (1536 pages freed)
-> > > > Freeing memory... done (0 pages freed)
-> > > > Freeing memory... done (1792 pages freed)
-> > > > Freeing memory... done (0 pages freed)
-> > > > 
-> > > > It does free some pages after the first pass, but this is only a small fraction
-> > > > of all pages freed.  I wouldn't call it a bad result ...
-> > > 
-> > > Well, it still did not free all memory it should have freed, and you
-> > > were lucky.
+> > Do you want to associate to an AP when your kernel boots,
+> > _before_ any iwconfig had a chance to configure anything?
+> > That's strange.
 > > 
-> > This is a reproducible behavior.  Here goes the result for another suspend:
-> > 
-> > Freeing memory... done (136611 pages freed)
-> > Freeing memory... done (200 pages freed)
-> > Freeing memory... done (128 pages freed)
-> > Freeing memory... done (0 pages freed)
-> > Freeing memory... done (2353 pages freed)
-> > 
-> > and it is always like that.  It usually frees more than 100000 pages
-> > in the first pass and about 5% more in the next passes together.
-> > 
-> > > Apparently for some people it does not that well (and that 
-> > > includes me, I see 0 in first pass quite often).
-> > 
-> > On 2.6.12-rc3+ I have never seen 0 in the first pass.  In fact, with X running
-> > I have never seen less than 60000. :-)
-> > 
-> > Perhaps there's a bug that does not hit x86-64 for some reason.  I'll try to
-> > run it on my second box later today and see what happens.
+> > My position is that wifi drivers must start up in an "OFF" mode.
+> > Do not send anything. Do not join APs or start IBSS.
 > 
-> This is the worst result from the second box:
-> 
-> Freeing memory...  done (54641 pages freed)
-> Freeing memory...  done (0 pages freed)
-> Freeing memory...  done (5120 pages freed)
-> Freeing memory...  done (1952 pages freed)
-> Freeing memory...  done (2304 pages freed)
-> 
-> Still, there are 5x more pages freed in the first pass (80% of RAM was
-> empty anyway before suspend), and usually it is 10-20x more or so.
+> Agreed.
 
-I have seen 0 freed on i386 machine with preempt -rc6-mm1, today...
-Something is definitely wrong there.
+Me too ;-).
+
+> > Thus, no need to load fw in early boot.
+> 
+> I don't think this is true. Loading the firmware on the first
+> "ifconfig up" is problematic. Often, people want to rename the
+> device from ethX/wlanX/... to something stable. This is usually
+> based on the adapter's MAC address, which is not visible until
+> the firmware is loaded.
+> 
+> Prism54 does it this way and it really sucks. You need to bring
+> the adapter up to load the firmware, then bring it back down,
+> rename it, and bring it up again.
+> 
+> Denis: any plans for this to be fixed?
+> 
+> I agree that drivers should initialize the adapter in the OFF
+> state, but the firmware needs to be loaded earlier than the
+> first ifconfig up.
+> 
+> How about loading the firmware when the first ioctl touches the
+> device? This way, it would get loaded just before the MAC address
+> is retrieved.
+
+Thats really ugly :-(.
+
 				Pavel
 -- 
 64 bytes from 195.113.31.123: icmp_seq=28 ttl=51 time=448769.1 ms         

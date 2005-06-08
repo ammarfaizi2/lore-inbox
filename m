@@ -1,399 +1,175 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261352AbVFHQxl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261232AbVFHQ7D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261352AbVFHQxl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 12:53:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261344AbVFHQuc
+	id S261232AbVFHQ7D (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 12:59:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261339AbVFHQ7C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 12:50:32 -0400
-Received: from zproxy.gmail.com ([64.233.162.195]:16348 "EHLO zproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261374AbVFHQo3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 12:44:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=UQ1fQaIoW4ebZ3oDP9LFEl+BxXylK84MidX2Edy/gHlFYc5WHdsLV+JQvrlclDQ7Zixq9/G1qZrliLxY0PJ3eQDZMVGbFjJI1tMlVq4FOFABIPdjJLnWTzo8Io277kumAc3jCPdTQJTK3liBa18/6HDegVmV5D9a9/cw8Lcy40g=
-From: Alexey Dobriyan <adobriyan@gmail.com>
-To: ericvh@gmail.com
-Subject: Re: [PATCH 3/7] v9fs: VFS inode operations (2.0)
-Date: Wed, 8 Jun 2005 20:48:49 +0400
-User-Agent: KMail/1.7.2
-Cc: linux-kernel@vger.kernel.org, v9fs-developer@lists.sourceforge.net,
-       akpm@osdl.org, viro@parcelfarce.linux.theplanet.co.uk,
-       linux-fsdevel@vger.kernel.org
-References: <200506071449.j57EnpRZ029602@ms-smtp-03-eri0.texas.rr.com>
-In-Reply-To: <200506071449.j57EnpRZ029602@ms-smtp-03-eri0.texas.rr.com>
+	Wed, 8 Jun 2005 12:59:02 -0400
+Received: from mailgate1b.savvis.net ([216.91.182.6]:21956 "EHLO
+	mailgate1b.savvis.net") by vger.kernel.org with ESMTP
+	id S261232AbVFHQ6t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 12:58:49 -0400
+From: "Dan A. Dickey" <dan.dickey@savvis.net>
+Reply-To: dan.dickey@savvis.net
+Organization: WAM!NET a Division of SAVVIS, Inc.
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: System state too high for too long...
+Date: Wed, 8 Jun 2005 11:58:40 -0500
+User-Agent: KMail/1.8
+Cc: linux-kernel@vger.kernel.org
+References: <200506071125.41543.dan.dickey@savvis.net> <20050607211310.7f6ee27e.akpm@osdl.org>
+In-Reply-To: <20050607211310.7f6ee27e.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200506082048.50244.adobriyan@gmail.com>
+Message-Id: <200506081158.40461.dan.dickey@savvis.net>
+X-OriginalArrivalTime: 08 Jun 2005 16:58:40.0496 (UTC) FILETIME=[520E8F00:01C56C4B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 07 June 2005 18:49, ericvh@gmail.com wrote:
-> This is part [3/7] of the v9fs-2.0 patch against Linux 2.6.
-> 
-> This part of the patch contains the VFS inode interfaces.
-
-More findings at the micro level.
-
-> --- /dev/null
-> +++ b/fs/9p/vfs_inode.c
-
-> + * This file contians vfs inode ops for the 9P2000 protocol.
-
-contains
-
-> +static inline int unixmode2p9mode(struct v9fs_session_info *v9ses, int mode)
-> +{
-> +	int res;
-> +	res = mode & 0777;
-> +	if (S_ISDIR(mode))
-> +		res |= V9FS_DMDIR;
-> +	if (v9ses->extended) {
-> +		if (S_ISLNK(mode))
-> +			res |= V9FS_DMSYMLINK;
-> +		if (v9ses->nodev == 0) {
-> +			if (S_ISSOCK(mode))
-> +				res |= V9FS_DMSOCKET;
-> +			if (S_ISFIFO(mode))
-> +				res |= V9FS_DMNAMEDPIPE;
-> +			if (S_ISBLK(mode))
-> +				res |= V9FS_DMDEVICE;
-> +			if (S_ISCHR(mode))
-> +				res |= V9FS_DMDEVICE;
-> +		}
-> +
-> +		if ((mode & S_ISUID) == S_ISUID)
-> +			res |= V9FS_DMSETUID;
-> +		if ((mode & S_ISGID) == S_ISGID)
-> +			res |= V9FS_DMSETGID;
-> +		if ((mode & V9FS_DMLINK))
-> +			res |= V9FS_DMLINK;
-> +	}
-> +
-> +	return res;
-> +}
-
-> +static inline int p9mode2unixmode(struct v9fs_session_info *v9ses, int mode)
-> +{
-> +	int res;
-> +
-> +	res = mode & 0777;
-> +
-> +	if ((mode & V9FS_DMDIR) == V9FS_DMDIR)
-> +		res |= S_IFDIR;
-> +	else if ((mode & V9FS_DMSYMLINK) && (v9ses->extended))
-> +		res |= S_IFLNK;
-> +	else if ((mode & V9FS_DMSOCKET) && (v9ses->extended)
-> +		 && (v9ses->nodev == 0))
-> +		res |= S_IFSOCK;
-> +	else if ((mode & V9FS_DMNAMEDPIPE) && (v9ses->extended)
-> +		 && (v9ses->nodev == 0))
-> +		res |= S_IFIFO;
-> +	else if ((mode & V9FS_DMDEVICE) && (v9ses->extended)
-> +		 && (v9ses->nodev == 0))
-> +		res |= S_IFBLK;
-> +	else
-> +		res |= S_IFREG;
-> +
-> +	if (v9ses->extended) {
-> +		if ((mode & V9FS_DMSETUID) == V9FS_DMSETUID)
-> +			res |= S_ISUID;
-> +
-> +		if ((mode & V9FS_DMSETGID) == V9FS_DMSETGID)
-> +			res |= S_ISGID;
-> +	}
-> +
-> +	return res;
-> +}
-
-> +static inline void
-> +v9fs_blank_mistat(struct v9fs_session_info *v9ses, struct v9fs_stat *mistat)
-> +{
-> +	mistat->type = ~0;
-> +	mistat->dev = ~0;
-> +	mistat->qid.type = ~0;
-> +	mistat->qid.version = ~0;
-> +	*((long long *)&mistat->qid.path) = ~0;
-> +	mistat->mode = ~0;
-> +	mistat->atime = ~0;
-> +	mistat->mtime = ~0;
-> +	mistat->length = ~0;
-> +	mistat->name = mistat->data;
-> +	mistat->uid = mistat->data;
-> +	mistat->gid = mistat->data;
-> +	mistat->muid = mistat->data;
-> +	if (v9ses->extended) {
-> +		mistat->n_uid = ~0;
-> +		mistat->n_gid = ~0;
-> +		mistat->n_muid = ~0;
-> +		mistat->extension = mistat->data;
-> +	}
-> +	*mistat->data = 0;
-> +}
-
-Approximately 178, 150 and 122 bytes of object code, respectively. Do you
-really want them to be inlined?
-
-> +/**
-> + * v9fs_mistat2unix - convert mistat to unix stat
-> + * @mistat: Plan 9 metadata (mistat) structure
-> + * @stat: unix metadata (stat) structure to populate 
-> + * @sb: superblock
-> + *
-> + */
-> +
-> +static void
-> +v9fs_mistat2unix(struct v9fs_stat *mistat, struct stat *buf,
-> +		 struct super_block *sb)
-
-Comments and arguments don't match.
-
-> +{
-
-> +	if (v9ses && v9ses->extended) {
-> +		/* TODO: string to uid mapping via user-space daemon */
-> +		buf->st_uid = mistat->n_uid;
-> +		buf->st_gid = mistat->n_gid;
-> +
-> +		sscanf(mistat->uid, "%x", (unsigned int *)&buf->st_uid);
-> +		sscanf(mistat->gid, "%x", (unsigned int *)&buf->st_gid);
-> +	} else {
-> +		buf->st_uid = v9ses->uid;
-> +		buf->st_gid = v9ses->gid;
-> +	}
-
-??? st_uid and st_gid will be overwritten.
-
-> +	buf->st_uid = (unsigned short)-1;
-> +	buf->st_gid = (unsigned short)-1;
-> +
-> +	if (v9ses && v9ses->extended) {
-> +		if (mistat->n_uid != -1)
-> +			sscanf(mistat->uid, "%x", (unsigned int *)&buf->st_uid);
-> +
-> +		if (mistat->n_gid != -1)
-> +			sscanf(mistat->gid, "%x", (unsigned int *)&buf->st_gid);
-> +	}
-> +
-> +	if (buf->st_uid == (unsigned short)-1)
-> +		buf->st_uid = v9ses->uid;
-> +	if (buf->st_gid == (unsigned short)-1)
-> +		buf->st_gid = v9ses->gid;
-
-> +/**
-> + * v9fs_create - helper function to create files and directories
-
-> + * @open_mode: resulting open mode for file ???
-
-You're not sure?
-
-> +/**
-> + * v9fs_remove - helper function to remove files and directories
-> + * @inode: directory inode that is being deleted
-> + * @dentry:  dentry that is being deleted
-> + * @rmdir: where we are a file or a directory
-> + *
-> + */
-> +
-> +static int v9fs_remove(struct inode *dir, struct dentry *file, int rmdir)
-
-Comment and arguments don't match.
-
-> +/**
-> + * v9fs_vfs_mkdir - VFS mkdir hook to create a directory
-> + * @i:  inode that is being unlinked
-
-@inode
-
-> + * @dentry: dentry that is being unlinked
-> + * @mode: mode for new directory
-
-> +static int v9fs_vfs_mkdir(struct inode *inode, struct dentry *dentry, int mode)
-
-> +/**
-> + * v9fs_vfs_unlink - VFS unlink hook to delete an inode
-> + * @i:  inode that is being unlinked
-> + * @dentry: dentry that is being unlinked
-> + *
-> + */
-> +
-> +static int v9fs_vfs_unlink(struct inode *i, struct dentry *d)
-
-Comment and arguments don't match.
-
-> +/**
-> + * v9fs_vfs_rmdir - VFS unlink hook to delete a directory
-> + * @i:  inode that is being unlinked
-> + * @dentry: dentry that is being unlinked
-> + *
-> + */
-> +
-> +static int v9fs_vfs_rmdir(struct inode *i, struct dentry *d)
-
-Comment and arguments don't match.
-
-> +static int
-> +v9fs_vfs_rename(struct inode *old_dir, struct dentry *old_dentry,
-> +		struct inode *new_dir, struct dentry *new_dentry)
-> +{
-
-> +	struct v9fs_stat *mistat = kmalloc(v9ses->maxdata, GFP_KERNEL);
-
-Unchecked kmalloc.
-
-> +static int v9fs_vfs_setattr(struct dentry *dentry, struct iattr *iattr)
-> +{
-
-> +	struct v9fs_stat *mistat = kmalloc(v9ses->maxdata, GFP_KERNEL);
-
-Better move right before !mistat check.
-
-> +	struct v9fs_fcall *fcall = NULL;
-> +	int res = -EPERM;
-> +
-> +	dprintk(DEBUG_VFS, "\n");
-> +	if (!fid) {
-> +		dprintk(DEBUG_ERROR,
-> +			"Couldn't find fid associated with dentry\n");
-> +		return -EBADF;
-> +	}
-> +
-> +	if (!mistat)
-> +		return -ENOMEM;
-
-> +	if (v9ses->extended) {
-> +		char *uid = kmalloc(strlen(mistat->uid), GFP_KERNEL);
-> +		char *gid = kmalloc(strlen(mistat->gid), GFP_KERNEL);
-> +		char *muid = kmalloc(strlen(mistat->muid), GFP_KERNEL);
-> +		char *name = kmalloc(strlen(mistat->name), GFP_KERNEL);
-> +		char *extension = kmalloc(strlen(mistat->extension),
-> +					  GFP_KERNEL);
-> +
-> +		if ((!uid) || (!gid) || (!muid) || (!name) || (!extension)) {
-> +			kfree(uid);
-> +			kfree(gid);
-> +			kfree(muid);
-> +			kfree(name);
-> +			kfree(extension);
-> +
-> +			return -ENOMEM;
-
-kfree(mistat);
-
-> +		if (iattr->ia_valid & ATTR_UID) {
-> +			if (strlen(uid) != 8) {
-> +				dprintk(DEBUG_ERROR, "uid strlen is %u not 8\n",
-> +					(unsigned int)strlen(uid));
-> +				sprintf(uid, "%08x", iattr->ia_uid);
-> +			} else {
-> +				kfree(uid);
-> +				uid = kmalloc(9, GFP_KERNEL);
-
-Unchecked kmalloc.
-
-> +			}
-> +
-> +			sprintf(uid, "%08x", iattr->ia_uid);
-
-Double sprintf.
-
-> +			mistat->n_uid = iattr->ia_uid;
-> +		}
-> +
-> +		if (iattr->ia_valid & ATTR_GID) {
-> +			if (strlen(gid) != 8)
-> +				dprintk(DEBUG_ERROR, "gid strlen is %u not 8\n",
-> +					(unsigned int)strlen(gid));
-> +			else {
-> +				kfree(gid);
-> +				gid = kmalloc(9, GFP_KERNEL);
-> +			}
-> +
-> +			sprintf(gid, "%08x", iattr->ia_gid);
-> +			mistat->n_gid = iattr->ia_gid;
-> +		}
-
-See uid.
-
-> +static int
-> +v9fs_vfs_symlink(struct inode *dir, struct dentry *dentry, const char *symname)
-> +{
-> +	struct v9fs_stat *mistat = kmalloc(v9ses->maxdata, GFP_KERNEL);
-
-Unchecked kmalloc.
-
-> +	v9fs_blank_mistat(v9ses, mistat);
-
-> +/**
-> + * v9fs_readlink - read a symlink's location (internal version)
-
-> + * @buf: buffer to load symlink location into
-
-@buffer
-
-> +static int v9fs_readlink(struct dentry *dentry, char *buffer, int buflen)
-
-> +/**
-> + * v9fs_vfs_link - create a hardlink
-
-> + * @new_dentry: dentry for link
-
-@dentry. Or new_dentry in the code.
-
-> +static int
-> +v9fs_vfs_link(struct dentry *old_dentry, struct inode *dir,
-> +	      struct dentry *dentry)
-> +{
-
-> +	struct v9fs_stat *mistat = kmalloc(v9ses->maxdata, GFP_KERNEL);
-
-Unchecked kmalloc.
-
-> +/**
-> + * v9fs_vfs_mknod - create a special file
-
-> + * @dev_t: device associated with special file
-
-@rdev
-
-> +static int
-> +v9fs_vfs_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t rdev)
-> +{
-
-> +	struct v9fs_stat *mistat = kmalloc(v9ses->maxdata, GFP_KERNEL);
-
-Guess what? :-)
-
-> +	else if (S_ISFIFO(mode)) ;	/* DO NOTHING */
-> +	else {
-
-	else if (S_ISFIFO(mode))
-		;
-	else {
-
-means "do nothing" perfectly.
-
-> +	if (!S_ISFIFO(mode)) {
-> +		/* issue a twstat */
-> +		v9fs_blank_mistat(v9ses, mistat);
-> +		strcpy(mistat->data + 1, symname);
-> +		mistat->extension = mistat->data + 1;
-> +		retval = v9fs_t_wstat(v9ses, newfid->fid, mistat, &fcall);
-> +		if (retval < 0) {
-> +			dprintk(DEBUG_ERROR, "v9fs_t_wstat error: %s\n",
-> +				FCALL_ERROR(fcall));
-> +			goto FreeMem;
-> +		}
-> +
-> +		kfree(fcall);
-
-Will be freed in a line.
-
-> +	}
-> +
-> +	/* need to update dcache so we show up */
-> +	kfree(fcall);
+On Tuesday 07 June 2005 23:13, Andrew Morton wrote:
+> "Dan A. Dickey" <dan.dickey@savvis.net> wrote:
+> > This problem has now been persistent enough in the last few
+> > kernels I've run that I've subscribed (once again) to the
+> > linux-kernel list and would like to report it.
+> >  I'm using gentoo-sources-2.6.11-r9.
+
+Switched to vanilla-sources 2.6.12-rc6 just to rule out
+the possible influence of patches...
+
+> >  When the system is compiling something, the state typically
+> >  stays at about 85-95% system time.  This just really does not
+> >  seem right for my workload, and additionally only appeared
+> >  a few releases ago (sorry, I didn't bother to track it - I
+> > thought it might go away in a release or two; but it has not).
+...
+> >   1  0  12752  62284  57348 211268    0    0     4    53 1087  
+> > 807 17 83  0  0
+> >   1  0  12752  59400  57356 211328    0    0     0    34 1222 
+> > 1919 17 83  0  0
+>
+> (grr, wordwrapping.)
+
+Yeah; sorry - my email gui is doing that.  I turned it off.
+Don't know why I had it on in the first place.
+
+> - Check that your disks are running in DMA mode (if they're IDE)
+> (with hdparm)
+
+It looks to me like it is:
+# hdparm -I /dev/hda
+
+/dev/hda:
+
+ATA device, with non-removable media
+        Model Number:       WDC WD400BB-75DEA0
+        Serial Number:      WD-WMAD16857838
+        Firmware Revision:  05.03E05
+Standards:
+        Supported: 5 4 3 2
+        Likely used: 6
+Configuration:
+        Logical         max     current
+        cylinders       16383   16383
+        heads           16      16
+        sectors/track   63      63
+        --
+        CHS current addressable sectors:   16514064
+        LBA    user addressable sectors:   78165360
+        device size with M = 1024*1024:       38166 MBytes
+        device size with M = 1000*1000:       40020 MBytes (40 GB)
+Capabilities:
+        LBA, IORDY(can be disabled)
+        bytes avail on r/w long: 40     Queue depth: 1
+        Standby timer values: spec'd by Standard, with device specific minimum
+        R/W multiple sector transfer: Max = 16  Current = 16
+        Recommended acoustic management value: 128, current value: 254
+        DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5
+             Cycle time: min=120ns recommended=120ns
+        PIO: pio0 pio1 pio2 pio3 pio4
+             Cycle time: no flow control=120ns  IORDY flow control=120ns
+Commands/features:
+        Enabled Supported:
+           *    READ BUFFER cmd
+           *    WRITE BUFFER cmd
+           *    Host Protected Area feature set
+           *    Look-ahead
+           *    Write cache
+           *    Power Management feature set
+           *    SMART feature set
+           *    Device Configuration Overlay feature set
+           *    Automatic Acoustic Management feature set
+                SET MAX security extension
+           *    DOWNLOAD MICROCODE cmd
+           *    SMART self-test
+           *    SMART error logging
+HW reset results:
+        CBLID- above Vih
+        Device num = 0 determined by CSEL
+Checksum: correct
+
+> - See what `time make' says
+
+It says:
+real    9m51.034s
+user    1m43.371s
+sys     6m2.018s
+
+> - Generate a kernel profile (See Documentation/basic_profiling.txt)
+
+How much of it is useful?  I used readprofile; here is what to me looks
+like the most relevant portion of it.
+# sort -nr +2 < captured_profile | head -n 40
+281609 kmem_cache_free                          2448.7739
+ 25158 default_idle                             535.2766
+  8704 kernel_map_pages                          93.5914
+  3870 sock_poll                                 86.0000
+  6133 poison_obj                                80.6974
+  8846 kfree                                     60.5890
+  2784 _atomic_dec_and_lock                      30.2609
+   696 fput                                      27.8400
+  2824 change_page_attr                          24.9912
+  2483 fget                                      22.9907
+  9986 buffered_rmqueue                          18.6306
+  2086 sysenter_past_esp                         17.8291
+  1091 sub_preempt_count                         17.3175
+  5607 __d_lookup                                14.9920
+  1295 strncpy_from_user                         11.6667
+   568 add_preempt_count                         11.3600
+  1597 vfs_getattr                               10.9384
+  3672 tcp_poll                                  10.2857
+  1270 __copy_to_user_ll                         10.0794
+  1323 __do_softirq                               9.4500
+   902 kmap_atomic                                7.9823
+   290 dbg_redzone1                               6.9048
+   731 __get_zone_counts                          6.7064
+   417 path_release                               6.6190
+   277 kmem_flagcheck                             6.2955
+   136 __mod_page_state                           6.1818
+    84 obj_reallen                                6.0000
+   947 kmem_cache_alloc                           5.9937
+   995 getname                                    5.5587
+   182 kunmap_atomic                              5.2000
+   139 get_offset_tsc                             5.1481
+    65 ide_outbsync                               5.0000
+  1824 path_lookup                                4.9973
+   410 find_get_page                              4.6591
+   429 find_vma                                   4.5638
+   749 __might_sleep                              4.4850
+  4216 do_wp_page                                 4.4756
+   245 sys_lstat64                                4.3750
+   553 follow_mount                               3.6867
+   623 page_address                               3.4611
+
+If more of this would help, let me know and I can get
+it to whomever can help.  Thanks!
+	-Dan
+
+-- 
+Dan A. Dickey
+dan.dickey@savvis.net
+
+SAVVIS
+Transforming Information Technology

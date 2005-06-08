@@ -1,49 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262062AbVFHBrp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262064AbVFHB6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262062AbVFHBrp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 21:47:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbVFHBrp
+	id S262064AbVFHB6r (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 7 Jun 2005 21:58:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262063AbVFHB6r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 21:47:45 -0400
-Received: from wombat.indigo.net.au ([202.0.185.19]:36361 "EHLO
-	wombat.indigo.net.au") by vger.kernel.org with ESMTP
-	id S262062AbVFHBrl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 21:47:41 -0400
-Date: Wed, 8 Jun 2005 09:52:16 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-X-X-Sender: raven@wombat.indigo.net.au
-To: Adrian Bunk <bunk@stusta.de>
-cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com
-Subject: Re: RFC: i386: kill !4KSTACKS
-In-Reply-To: <20050607212706.GB7962@stusta.de>
-Message-ID: <Pine.LNX.4.58.0506080948540.29656@wombat.indigo.net.au>
-References: <20050607212706.GB7962@stusta.de>
+	Tue, 7 Jun 2005 21:58:47 -0400
+Received: from wproxy.gmail.com ([64.233.184.204]:6707 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262064AbVFHB6l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 7 Jun 2005 21:58:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=ISmyyOkdQV8+i56Ewfeil9FJ3isYRg6cIUQN8VdDwYtElnYKmH/2KqT2oFwm5EPp4dH6aXvMSEyAgnjJC3Ol1nRtcZG18fu7oJNLfSjqfjExOwkYIoU3eTxoaL69um7+4yvBSG7Yo5+Gd25CHvkRriXx7XjcYGsrO4u34kz6tPc=
+From: =?iso-8859-1?q?S=F8ren_Lott?= <soren3@gmail.com>
+To: Andrew Morton <akpm@osdl.org>, gregkh@suse.de
+Subject: Re: 2.6.12-rc6-mm1
+Date: Tue, 7 Jun 2005 22:59:52 -0300
+User-Agent: letmego
+Cc: linux-kernel@vger.kernel.org
+References: <20050607042931.23f8f8e0.akpm@osdl.org>
+In-Reply-To: <20050607042931.23f8f8e0.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-MailScanner: Found to be clean
-X-MailScanner-SpamCheck: not spam, SpamAssassin (score=-102.5, required 8,
-	EMAIL_ATTRIBUTION, IN_REP_TO, QUOTED_EMAIL_TEXT, REFERENCES,
-	REPLY_WITH_QUOTES, USER_AGENT_PINE, USER_IN_WHITELIST)
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506072259.52848.soren3@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 7 Jun 2005, Adrian Bunk wrote:
+On Tuesday 07 June 2005 08:29, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.12-rc6/2.
+>6.12-rc6-mm1/
 
-> 4Kb kernel stacks are the future on i386, and it seems the problems it 
-> initially caused are now sorted out.
-> 
-> I'd like to:
-> - get a patch into the next -mm that unconditionally enables 4KSTACKS
-> - if there won't be new reports of breakages, send a patch to
->   completely remove !4KSTACKS for 2.6.13 or 2.6.14
-> 
-> The only drawback is that REISER4_FS does still depend on !4KSTACKS.
-> I told Hans back in March that this has to be changed.
+[snip]
 
-What about ndiswrapper?
-Why is it so important to make this happen unconditionally?
+> +gregkh-i2c-i2c-Kconfig-update.patch
+> +gregkh-i2c-i2c-pcf8574-cleanup.patch
+> +gregkh-i2c-i2c-adm9240-docs.patch
+> +gregkh-i2c-i2c-device-attr-lm90.patch
+> +gregkh-i2c-i2c-device-attr-lm83.patch
+> +gregkh-i2c-i2c-device-attr-lm63.patch
+> +gregkh-i2c-i2c-device-attr-it87.patch
+> +gregkh-i2c-hwmon-01.patch
+> +gregkh-i2c-hwmon-02.patch
+> +gregkh-i2c-hwmon-03.patch
+>
+>  i2c tree updates
+>
+> +i2c-chips-need-hwmon.patch
+> +gregkh-i2c-hwmon-02-sparc64-fix.patch
+>
+>  Fix a few things in the i2c tree
 
-Will you maintain a patch for those of us that need it?
+[snip]
 
-Ian
+after those changes i don't get entries in /sys for my W83627THF chip. 
+(p4c800-D, i875,ICH5)
 
+relevant config parts:
+
+CONFIG_HWMON=y
+CONFIG_I2C=y
+CONFIG_I2C_ISA=y
+CONFIG_I2C_SENSOR=y
+CONFIG_SENSORS_W83627HF=y
+
+thanks.
+
+-SL

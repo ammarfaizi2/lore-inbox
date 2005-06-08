@@ -1,51 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261569AbVFHTr1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261572AbVFHTtS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261569AbVFHTr1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 15:47:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261572AbVFHTr1
+	id S261572AbVFHTtS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 15:49:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261579AbVFHTtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 15:47:27 -0400
-Received: from mail.linicks.net ([217.204.244.146]:50188 "EHLO
-	linux233.linicks.net") by vger.kernel.org with ESMTP
-	id S261569AbVFHTrT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 15:47:19 -0400
-From: Nick Warne <nick@linicks.net>
-To: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-Subject: Re: mtrr question
-Date: Wed, 8 Jun 2005 20:47:13 +0100
-User-Agent: KMail/1.8.1
-References: <200506081917.09873.nick@linicks.net> <200506082031.59987.nick@linicks.net> <20050608193556.GI876@redhat.com>
-In-Reply-To: <20050608193556.GI876@redhat.com>
+	Wed, 8 Jun 2005 15:49:17 -0400
+Received: from dvhart.com ([64.146.134.43]:39848 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S261572AbVFHTrx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 15:47:53 -0400
+Date: Wed, 08 Jun 2005 12:47:55 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>
+Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org, matt_domsch@dell.com
+Subject: Re: 2.6.12?
+Message-ID: <549770000.1118260074@[10.10.2.4]>
+In-Reply-To: <20050608125637.GL1683@muc.de>
+References: <42A0D88E.7070406@pobox.com> <20050603163843.1cf5045d.akpm@osdl.org> <394120000.1117895039@[10.10.2.4]> <20050604151120.46b51901.akpm@osdl.org> <418760000.1117983740@[10.10.2.4]> <971250000.1118168167@flay> <20050607122422.612759e4.akpm@osdl.org> <20050608125637.GL1683@muc.de>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200506082047.13914.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 June 2005 20:35, Dave Jones wrote:
-> On Wed, Jun 08, 2005 at 08:31:59PM +0100, Nick Warne wrote:
->  > Ummm.  I see from boot logs that mtrr isn't detected like it is on my
->  > other (Dell) boxes.
->
-> Hmm, that sounds like it isn't compiled in. Though that doesn't make
-> sense why you still have a /proc/mtrr
 
-OK, ignore my previous comment (too many Linux boxes here).  The one I am 
-investigating is my main Desktop, and dmesg confirms.  mtrr is detected as 
-'Intel' which is right as per the Docs (even though I have an AMD).
 
-I also forgot to say I use the nVidia agp module (works better for me in 
-Quake2 for some reason)... but searching their docs doesn't even mention 
-mtrr.
+--Andi Kleen <ak@muc.de> wrote (on Wednesday, June 08, 2005 14:56:37 +0200):
 
-Could it be that?  If so, I am wasting you guys time.
+> On Tue, Jun 07, 2005 at 12:24:22PM -0700, Andrew Morton wrote:
+>> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
+>> > 
+>> > > --Andrew Morton <akpm@osdl.org> wrote (on Saturday, June 04, 2005 15:11:20 -0700):
+>> > > 
+>> > >> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
+>> > >>> 
+>> > >>> The one that worries me is that my x86_64 box won't boot since -rc3
+>> > >>>  See:
+>> > >>> 
+>> > >>>  http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/regression_matrix.html
+>> > 
+>> > HA. Found it. binary search reveals it's patch 182 out of 2.6.12-rc2-mm2.
+>> > And the winner is .... <drum roll please> ....
+>> > 
+>> > x86_64-use-the-e820-hole-to-map-the-iommu-agp-aperture.patch
+>> > 
+>> 
+>> hrm.  No useful messages in dmesg?
+>> 
+>> Andi, do we revert it?
+> 
+> 
+> Ok. For now. 
+> 
+> 
+> Actually it fixes some other bugs (e.g. one from Matt D.), but they are not
+> very high priority.
+> 
+> I would like to debug it, but I am not sure I will still make it this week.
+> But Martin, can you please send me the dmesg again? Maybe it is something
+> stupid.
 
-Thanks,
+All the logs are linked off here:
 
-Nick
--- 
-"When you're chewing on life's gristle,
-Don't grumble, Give a whistle..."
+http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/regression_matrix.html
+
+Just click on the ABORT messages in hte left column. But I'm thinking maybe
+I'm off by one, and it might be:
+
+x86_64-port-over-e820-gap-detection-from-i386.patch
+
+I'm double checking right now. Even once it's we get back to a point where
+it boots, it seems to consistently hang every time in the same place, which
+seems to be caused, AFAICS by
+
+x86_64-use-a-common-function-to-find-code-segment-bases-fix.patch
+
+I'll double check that too before anyone shoots it ... gimme a few hours.
+
+M.
+
+
+

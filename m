@@ -1,64 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVFHPAC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261302AbVFHPC4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261283AbVFHPAC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 11:00:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261291AbVFHPAC
+	id S261302AbVFHPC4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 11:02:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261298AbVFHPC4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 11:00:02 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:18561 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261283AbVFHO76 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 10:59:58 -0400
-Date: Wed, 8 Jun 2005 16:59:22 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>,
-       Esben Nielsen <simlo@phys.au.dk>,
-       Michal Schmidt <xschmi00@stud.feec.vutbr.cz>,
-       Steven Rostedt <rostedt@goodmis.org>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.47-29
-Message-ID: <20050608145922.GA32309@elte.hu>
-References: <20050607194119.GA11185@elte.hu> <200506080735.15530.gene.heskett@verizon.net> <20050608115956.GA7652@elte.hu> <200506081054.50001.gene.heskett@verizon.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 8 Jun 2005 11:02:56 -0400
+Received: from grendel.digitalservice.pl ([217.67.200.140]:10206 "HELO
+	mail.digitalservice.pl") by vger.kernel.org with SMTP
+	id S261291AbVFHPCq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 11:02:46 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@suse.cz>
+Subject: Re: [linux-pm] Re: swsusp: Not enough free pages
+Date: Wed, 8 Jun 2005 17:02:52 +0200
+User-Agent: KMail/1.8.1
+Cc: linux-pm@lists.osdl.org, "Yu, Luming" <luming.yu@intel.com>,
+       Andrew Morton <akpm@zip.com.au>,
+       ACPI devel <acpi-devel@lists.sourceforge.net>,
+       Linux Kernel List <linux-kernel@vger.kernel.org>
+References: <3ACA40606221794F80A5670F0AF15F84041AC1A8@pdsmsx403> <20050606215815.GO2230@elf.ucw.cz> <200506071239.10125.rjw@sisk.pl>
+In-Reply-To: <200506071239.10125.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200506081054.50001.gene.heskett@verizon.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9, BAYES_00 -4.90,
-	UPPERCASE_25_50 0.00
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+Message-Id: <200506081702.53349.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Gene Heskett <gene.heskett@verizon.net> wrote:
-
-> [root@coyote linux-2.6.12-rc6-RT-V0.7.47-30]# grep PREEMPT .config
-> # CONFIG_PREEMPT_NONE is not set
-> CONFIG_PREEMPT_VOLUNTARY=y
-> # CONFIG_PREEMPT_DESKTOP is not set
-> # CONFIG_PREEMPT_RT is not set
-> CONFIG_PREEMPT_SOFTIRQS=y
-> CONFIG_PREEMPT_HARDIRQS=y
-> # CONFIG_PREEMPT_BKL is not set
+On Tuesday, 7 of June 2005 12:39, Rafael J. Wysocki wrote: 
+> On Monday, 6 of June 2005 23:58, Pavel Machek wrote:
+> > Hi!
+> > 
+> > > > No, I see it on i386, too. Try patch below; if it frees some after
+> > > > first pass, you have that problem, too.
+> > > 
+> > > I've run it once and the result is this:
+> > > 
+> > > Freeing memory... done (75876 pages freed)
+> > > Freeing memory... done (1536 pages freed)
+> > > Freeing memory... done (0 pages freed)
+> > > Freeing memory... done (1792 pages freed)
+> > > Freeing memory... done (0 pages freed)
+> > > 
+> > > It does free some pages after the first pass, but this is only a small fraction
+> > > of all pages freed.  I wouldn't call it a bad result ...
+> > 
+> > Well, it still did not free all memory it should have freed, and you
+> > were lucky.
 > 
-> Now, I note that going to the #2 mode (voluntary) turned off threaded 
-> RCU's, so I'm going to leave that off and try a mode 3 again. BRB.
+> This is a reproducible behavior.  Here goes the result for another suspend:
+> 
+> Freeing memory... done (136611 pages freed)
+> Freeing memory... done (200 pages freed)
+> Freeing memory... done (128 pages freed)
+> Freeing memory... done (0 pages freed)
+> Freeing memory... done (2353 pages freed)
+> 
+> and it is always like that.  It usually frees more than 100000 pages
+> in the first pass and about 5% more in the next passes together.
+> 
+> > Apparently for some people it does not that well (and that 
+> > includes me, I see 0 in first pass quite often).
+> 
+> On 2.6.12-rc3+ I have never seen 0 in the first pass.  In fact, with X running
+> I have never seen less than 60000. :-)
+> 
+> Perhaps there's a bug that does not hit x86-64 for some reason.  I'll try to
+> run it on my second box later today and see what happens.
 
-please try mode 3 and disable softirq/hardirq threading. If that fixes 
-things, could you check which of the two options 
-(CONFIG_PREEMPT_SOFTIRQS or CONFIG_PREEMPT_HARDIRQS) causes which type 
-of regression?
+This is the worst result from the second box:
 
-> And that makes tvtime's video fail with a blue screen, audio ok..
->
-> Mode 2, FWIW, makes for quite jerky card motions while playing 
-> AisleRiot, the solitaire game.
+Freeing memory...  done (54641 pages freed)
+Freeing memory...  done (0 pages freed)
+Freeing memory...  done (5120 pages freed)
+Freeing memory...  done (1952 pages freed)
+Freeing memory...  done (2304 pages freed)
 
-this doesnt happen on PREEMPT_DESKTOP or PREEMPT_RT?
+Still, there are 5x more pages freed in the first pass (80% of RAM was
+empty anyway before suspend), and usually it is 10-20x more or so.
 
-	Ingo
+AFAICT, on x86-64 shrink_all_memory(10000) is good enough.
+
+Greets,
+Rafael
+
+
+-- 
+- Would you tell me, please, which way I ought to go from here?
+- That depends a good deal on where you want to get to.
+		-- Lewis Carroll "Alice's Adventures in Wonderland"

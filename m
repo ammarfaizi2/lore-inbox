@@ -1,79 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261337AbVFHQA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261360AbVFHQEU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261337AbVFHQA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 12:00:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261355AbVFHQAY
+	id S261360AbVFHQEU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 12:04:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261356AbVFHQCH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 12:00:24 -0400
-Received: from rproxy.gmail.com ([64.233.170.204]:17424 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261337AbVFHP4V convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 11:56:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Qts33ELIR9aBLa+94mOI2XmHji/tH79O/TmwlOQQ9sOsyh7D44BKdcR1FdVXk0NSCd0wY8qRZY8CZEEX12X57mX2x73Euu8yDaOE857AEMuGMySr3j+ZAfRr802ibuXNsUi34Sk8SV6Al5F8LxW7/3jPg7YjnredhIqJZ+NEfKs=
-Message-ID: <d120d50005060808565a7944f2@mail.gmail.com>
-Date: Wed, 8 Jun 2005 10:56:19 -0500
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Reply-To: dtor_core@ameritech.net
-To: Abhay Salunke <Abhay_Salunke@dell.com>
-Subject: Re: [patch 2.6.12-rc3] modifications in firmware_class.c to support nohotplug
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       abhay_salunke@dell.com, matt_domsch@dell.com, Greg KH <greg@kroah.com>,
-       Manuel Estrada Sainz <ranty@debian.org>
-In-Reply-To: <20050608151744.GA12180@littleblue.us.dell.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <20050608151744.GA12180@littleblue.us.dell.com>
+	Wed, 8 Jun 2005 12:02:07 -0400
+Received: from webmail.topspin.com ([12.162.17.3]:55132 "EHLO
+	exch-1.topspincom.com") by vger.kernel.org with ESMTP
+	id S261345AbVFHP5X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 11:57:23 -0400
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Grover <andy.grover@gmail.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Greg KH <gregkh@suse.de>, "David S. Miller" <davem@davemloft.net>,
+       tom.l.nguyen@intel.com, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi()
+ for drivers - take 2
+X-Message-Flag: Warning: May contain useful information
+References: <20050607002045.GA12849@suse.de>
+	<20050607202129.GB18039@kroah.com> <42A61CDE.6090906@pobox.com>
+	<c0a09e5c05060722558a86ac8@mail.gmail.com>
+	<20050608133503.GT23831@wotan.suse.de>
+From: Roland Dreier <roland@topspin.com>
+Date: Wed, 08 Jun 2005 08:57:22 -0700
+In-Reply-To: <20050608133503.GT23831@wotan.suse.de> (Andi Kleen's message of
+ "Wed, 8 Jun 2005 15:35:03 +0200")
+Message-ID: <52k6l4et99.fsf@topspin.com>
+User-Agent: Gnus/5.1006 (Gnus v5.10.6) XEmacs/21.4 (Jumbo Shrimp, linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 08 Jun 2005 15:57:22.0753 (UTC) FILETIME=[C1F38310:01C56C42]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/8/05, Abhay Salunke <Abhay_Salunke@dell.com> wrote:
-> This is a patch with modifications in firmware_class.c to have no hotplug
-> support.
-...
+    Andi> I think we should have the right (default MSI) API by
+    Andi> default.  If we wait 5 years we end up with lots of mess in
+    Andi> the drivers.
 
-> @@ -87,7 +87,7 @@ static struct class firmware_class = {
->        .name           = "firmware",
->        .hotplug        = firmware_class_hotplug,
->        .release        = fw_class_dev_release,
-> -};
-> +};
+I agree that we should get the API correct as soon as we can.  However
+I would argue that one property of the correct API would be that
+changing the default from MSI turned off to MSI turned on should not
+affect the API.
 
-Adds trailing whitespace.
-> @@ -364,6 +364,7 @@ fw_setup_class_device(struct firmware *f
->                printk(KERN_ERR "%s: class_device_create_file failed\n",
->                       __FUNCTION__);
->                goto error_unreg;
-> +r
+I like Jeff's suggestion of rolling more common code into
+pci_enable_device().  However I'm not sure if this fixes the MSI mess
+completely -- there may be some devices where the driver wants to test
+interrupt generation and disable MSI if it fails.  However this may be
+enough of a special case that we can just add a flag to those
+particular drivers so that users can manually control the use of MSI.
 
-What is this?
-> -out:
-> -       return retval;
-> +       return _request_firmware(firmware_p, name, device, FW_DO_HOTPLUG);
->  }
+ - R.
 
-Tab vs. space identation.
-
->  /* Async support */
->  struct firmware_work {
->        struct work_struct work;
-> -       struct module *module;
-> +       struct module *module;
->        const char *name;
->        struct device *device;
->        void *context;
-> +       int hotplug;
->        void (*cont)(const struct firmware *fw, void *context);
->  };
-
-I think it would be better if you just have request_firmware and
-request_firmware_nowait accept timeout parameter that would override
-default timeout in firmware_class. 0 would mean use default,
-MAX_SCHED_TIMEOUT - wait indefinitely.
-
--- 
-Dmitry

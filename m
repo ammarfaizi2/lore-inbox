@@ -1,68 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261590AbVFHUDh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261593AbVFHUMP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261590AbVFHUDh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 16:03:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261584AbVFHUDA
+	id S261593AbVFHUMP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 16:12:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261595AbVFHUMP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 16:03:00 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:52162 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261590AbVFHUCU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 16:02:20 -0400
-X-Mailer: Lotus Notes Release 6.5.3 September 14, 2004
-MIME-Version: 1.0
-Subject: [ANNOUNCE] June Release of LTP available
-To: <linux-kernel@vger.kernel.org>, <ltp-list@lists.sf.net>,
-       <ltp-announce@lists.sf.net>
-Message-ID: <OF5E131C2E.49F79ABF-ON8525701A.006D7BDE-8625701A.006E0D09@us.ibm.com>
-From: Marty Ridgeway <mridge@us.ibm.com>
-Date: Wed, 8 Jun 2005 15:02:09 -0500
-X-MIMETrack: Serialize by Router on D01ML072/01/M/IBM(Release 6.53IBM1 HF14|April 18, 2005) at
- 06/08/2005 16:02:13,
-	Serialize complete at 06/08/2005 16:02:13
-Content-type: text/plain; charset=US-ASCII
+	Wed, 8 Jun 2005 16:12:15 -0400
+Received: from wproxy.gmail.com ([64.233.184.207]:60398 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261593AbVFHUML convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 16:12:11 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=IXjPeqd6F4s8CoPfhCcgCWSJuaXu+tjyR18LnWdGqogBkJeQNS5rDHr/rhyLRkgR69NqL2eWyHK07SYuF9Y+mFVQdg+QValRlalgo13LEQNC1os0g2mo3FAXfErIzbYgD32znS/8Jc1hxd7pnCkJWZtP5iiBwvIiP0czI0T9d3w=
+Message-ID: <9e47339105060813115d01282@mail.gmail.com>
+Date: Wed, 8 Jun 2005 16:11:39 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Dell BIOS and HPET timer support
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+After several communications with Dell support I have determined that
+most Dell BIOSs don't include the ACPI entry for the HPET timer. The
+official reason for this is that no version of Windows uses the HPET
+and adding the ACPI entry might cause compatibility problems.
 
+So I added this to force the HPET on:
+   extern unsigned long hpet_address;
+   hpet_address = 0xfed00000ULL;
 
+Now my HPET seems to be working:
+hpet0: at MMIO 0xfed00000, IRQs 2, 8, 0
+hpet0: 0ns tick, 3 64-bit timers
+Using HPET for base-timer
+Using HPET for gettimeofday
 
+What does the 0ns tick mean, is this bad? Is there any way to verify
+my HPET is working correctly? My date/time is advancing.
 
-LTP-20050608
-- Added test for getcontext()
-- Added additional test for mlockall().
-- Added getdtablesize() test.
-- Added pselect01 test.
-- Added new fcntl tests to scenario.
-- fs_inod - Raised the maximum file size for the random setting to 500Mb.
-- upgrade disktest to version 1.2.8
-- Clearify the comment explaining the second call to alarm() in
-  testcases/kernel/syscalls/alarm/alarm06.c
-- Corrected a bug in fcntl24.c and added new tests fcntl25, fcntl26, and
-fcntl27.
-- Change to 1024 default if IO_BITMAP_BITS not defined
-- Applied fix for conditions where ENOMEM test scenarios were failing.
-- mlockall03 is a Test for checking basic error conditions for mlockall(2)
-  starting from linux 2.6.9
-- NGROUPS_MAX defined in limits.h is not the max number of groups in the
-  system, it the max number guaranteed.  Thus, if the system actually
-  allows more, the test case doesn't produce the expected failure.
-- test3 in setrlimit02.c:Test attempts to increase hard limit of
-RLIMIT_NOFILE resource.
-  The rlim_max used by setrlimit() is expected to be greater than current
-hard limit to get EPERM.
-- nfsstress - Corrected so the test can find gettid()'s definition.
-- PTS Version 1.5.1 Released
-- Removed old version of Open POSIX Test Suite (OPTS).
-- Updated the open_posix_testsuite:
+If my HPET is working correctly is it ok to add a probe to find the timer?
 
-Marty Ridgeway
-Linux Test Project
-Linux Technology Center
-IBM Corporation
-
-Internet E-Mail : mridge@us.ibm.com
-IBM, 11501 Burnet Rd, Austin, TX  78758
-Phone (512) 838-1356 - T/L 678-1356 - Bldg. 908/1C005
-Austin, TX.
-
+-- 
+Jon Smirl
+jonsmirl@gmail.com

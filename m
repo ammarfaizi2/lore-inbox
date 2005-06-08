@@ -1,67 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262098AbVFHD7c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262083AbVFHENb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262098AbVFHD7c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 7 Jun 2005 23:59:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262094AbVFHD7X
+	id S262083AbVFHENb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 00:13:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262090AbVFHENb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 7 Jun 2005 23:59:23 -0400
-Received: from colo.lackof.org ([198.49.126.79]:44493 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S262092AbVFHD7P (ORCPT
+	Wed, 8 Jun 2005 00:13:31 -0400
+Received: from fire.osdl.org ([65.172.181.4]:4499 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262083AbVFHENZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 7 Jun 2005 23:59:15 -0400
-Date: Tue, 7 Jun 2005 22:02:53 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Grant Grundler <grundler@parisc-linux.org>,
-       Morton Andrew Morton <akpm@osdl.org>, awilliam@fc.hp.com,
-       greg@kroah.com, Fastboot mailing list <fastboot@lists.osdl.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Bodo Eggert <7eggert@gmx.de>, stern@rowland.harvard.edu,
-       bjorn.helgaas@hp.com
-Subject: Re: [Fastboot] Re: [RFC/PATCH] Kdump: Disabling PCI interrupts in capture kernel
-Message-ID: <20050608040253.GA21060@colo.lackof.org>
-References: <1118113637.42a50f65773eb@imap.linux.ibm.com> <20050607050727.GB12781@colo.lackof.org> <m1slzuwkqx.fsf@ebiederm.dsl.xmission.com> <20050607162143.GE29220@colo.lackof.org> <m1acm2vwil.fsf@ebiederm.dsl.xmission.com>
+	Wed, 8 Jun 2005 00:13:25 -0400
+Date: Tue, 7 Jun 2005 21:13:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: dan.dickey@savvis.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: System state too high for too long...
+Message-Id: <20050607211310.7f6ee27e.akpm@osdl.org>
+In-Reply-To: <200506071125.41543.dan.dickey@savvis.net>
+References: <200506071125.41543.dan.dickey@savvis.net>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <m1acm2vwil.fsf@ebiederm.dsl.xmission.com>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Jun 07, 2005 at 12:42:42PM -0600, Eric W. Biederman wrote:
-> The howto deal with an IOMMU has been sorted out but so far no one 
-> has actually done it.  What has been discussed previously is simply
-> reserving a handful of IOMMU entries,
+"Dan A. Dickey" <dan.dickey@savvis.net> wrote:
+>
+> This problem has now been persistent enough in the last few kernels
+>  I've run that I've subscribed (once again) to the linux-kernel list
+>  and would like to report it.
+>  I'm using gentoo-sources-2.6.11-r9.
+> 
+>  When the system is compiling something, the state typically
+>  stays at about 85-95% system time.  This just really does not
+>  seem right for my workload, and additionally only appeared
+>  a few releases ago (sorry, I didn't bother to track it - I thought
+>  it might go away in a release or two; but it has not).
+> 
+>  Here is a little output of 'vmstat 5' when this is happening:
+>  procs -----------memory---------- ---swap-- -----io---- --system-- 
+>  ----cpu----
+>   r  b   swpd   free   buff  cache   si   so    bi    bo   in    cs us 
+>  sy id wa
+>   1  0  12752  61548  57252 211092    0    0     2    50 1083   810 11 
+>  89  0  0
+>   1  0  12752  57572  57320 211160    0    0     0    63 1089   683  9 
+>  91  0  0
+>   1  0  12752  63288  57328 211220    0    0     8    39 1084   765 11 
+>  89  0  0
+>   1  0  12752  60648  57348 211200    0    0     0    56 1086   647  6 
+>  94  0  0
+>   1  0  12752  54972  57348 211200    0    0     0     3 1079   659  8 
+>  92  0  0
+>   1  0  12752  62284  57348 211268    0    0     4    53 1087   807 17 
+>  83  0  0
+>   1  0  12752  59400  57356 211328    0    0     0    34 1222  1919 17 
+>  83  0  0
 
-How? with dma_alloc_consistent() or some special hook?
-I'm just curious.
+(grr, wordwrapping.)
 
-...
->  and then only using those
-> in the crash recover kernel.  This is essentially what we do with DMA
-> on architectures that don't have an IOMMU and it seems quite safe
-> enough there.
+- Check that your disks are running in DMA mode (if they're IDE) (with hdparm)
 
-Yeah, in general that should be feasible.
+- See what `time make' says
 
-One might be able to trivially allocate a small, seperate IO PDIR
-just for KDUMP and switch to that. Key thing is it be physically
-contiguous in memory. Very little code is involved with IO Pdir
-setup for both parisc and IA64. I can't speak for Alpha/sparc/ppc/et al.
+- Generate a kernel profile (See Documentation/basic_profiling.txt)
 
-...
-> Well we are at least capable of multitasking but that is no longer the
-> primary focus.  Having polling as at least an option should make
-> debugging easier.  Last I looked Andrews kernel hand an irqpoll option
-> to do something very like this.
 
-You could run the itimer but I don't see why you should.
-Kdump is essentially an embedded linux kernel. It really
-doesn't need to be premptive multitasking either.
-
-Anyway, sounds like you guys are on the right track.
-
-thanks,
-grant

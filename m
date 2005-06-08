@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261270AbVFHOpC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261272AbVFHOsM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261270AbVFHOpC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 10:45:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261261AbVFHOpC
+	id S261272AbVFHOsM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 10:48:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbVFHOsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 10:45:02 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:41154 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S261283AbVFHOog (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 10:44:36 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Pavel Machek <pavel@ucw.cz>, Jeff Garzik <jgarzik@pobox.com>,
-       Netdev list <netdev@oss.sgi.com>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>
-Subject: Re: ipw2100: firmware problem
-Date: Wed, 8 Jun 2005 17:44:20 +0300
-User-Agent: KMail/1.5.4
-References: <20050608142310.GA2339@elf.ucw.cz>
-In-Reply-To: <20050608142310.GA2339@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Jun 2005 10:48:11 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:18926 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S261272AbVFHOr6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 10:47:58 -0400
+Date: Wed, 8 Jun 2005 07:47:53 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: linux-kernel@vger.kernel.org, bhuey@lnxw.com, andrea@suse.de,
+       tglx@linutronix.de, mingo@elte.hu, pmarques@grupopie.com,
+       bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au, ak@muc.de,
+       sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org
+Subject: Re: Attempted summary of "RT patch acceptance" thread
+Message-ID: <20050608144753.GA1295@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20050608022646.GA3158@us.ibm.com> <42A65F42.1060505@opersys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506081744.20687.vda@ilport.com.ua>
+In-Reply-To: <42A65F42.1060505@opersys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 June 2005 17:23, Pavel Machek wrote:
-> Hi!
+On Tue, Jun 07, 2005 at 11:00:18PM -0400, Karim Yaghmour wrote:
 > 
-> I'm fighting with firmware problem: if ipw2100 is compiled into
-> kernel, it is loaded while kernel boots and firmware loader is not yet
-> available. That leads to uninitialized (=> useless) adapter.
+> Paul E. McKenney wrote:
+> > [Quickly donning the asbestos suit with tungsten pinstripes...]
 > 
-> What's the prefered way to solve this one? Only load firmware when
-> user does ifconfig eth1 up? [It is wifi, it looks like it would be
-> better to start firmware sooner so that it can associate to the
-> AP...].
+> Haven't started going through it yet ... but I've just abandonned
+> my usual surroundings and quickly ran into my 10-feet-thick led
+> bunker ;)
 
-Do you want to associate to an AP when your kernel boots,
-_before_ any iwconfig had a chance to configure anything?
-That's strange.
+Goes to show how naive I am -- I was only expecting the usual flamage,
+not WMDs.  ;-)
 
-My position is that wifi drivers must start up in an "OFF" mode.
-Do not send anything. Do not join APs or start IBSS.
-Thus, no need to load fw in early boot.
-
-Driver may load firmware and start actively doing something
-only when iwconfig gets executed and thus driver is
-instructed what to do.
-
-Some drivers currently do not act this way, and thus
-less advanced users may unknowingly run a wireless STA
-(or worse, an AP!) on their notebook for years, interfering
-with neighbors and/or violating local regulations (there are
-countrles where 802.11 use needs licensing).
---
-vda
-
-
-
+						Thanx, Paul

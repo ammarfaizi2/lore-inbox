@@ -1,54 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261580AbVFHTx7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261582AbVFHT6r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261580AbVFHTx7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 15:53:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261581AbVFHTx7
+	id S261582AbVFHT6r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 15:58:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261567AbVFHT6q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 15:53:59 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:55519 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261580AbVFHTxk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 15:53:40 -0400
-Date: Wed, 8 Jun 2005 15:53:36 -0400
-From: Dave Jones <davej@redhat.com>
-To: Nick Warne <nick@linicks.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: mtrr question
-Message-ID: <20050608195336.GL876@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Nick Warne <nick@linicks.net>, linux-kernel@vger.kernel.org
-References: <200506081917.09873.nick@linicks.net> <200506082031.59987.nick@linicks.net> <20050608193556.GI876@redhat.com> <200506082047.13914.nick@linicks.net>
+	Wed, 8 Jun 2005 15:58:46 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:1532 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261582AbVFHT6X
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 15:58:23 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+From: Daniel Walker <dwalker@mvista.com>
+Reply-To: dwalker@mvista.com
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "Eugeny S. Mints" <emints@ru.mvista.com>
+In-Reply-To: <20050608112801.GA31084@elte.hu>
+References: <20050608112801.GA31084@elte.hu>
+Content-Type: text/plain
+Organization: MontaVista
+Date: Wed, 08 Jun 2005 12:58:15 -0700
+Message-Id: <1118260695.30686.2.camel@dhcp153.mvista.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506082047.13914.nick@linicks.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 08, 2005 at 08:47:13PM +0100, Nick Warne wrote:
- > On Wednesday 08 June 2005 20:35, Dave Jones wrote:
- > > On Wed, Jun 08, 2005 at 08:31:59PM +0100, Nick Warne wrote:
- > >  > Ummm.  I see from boot logs that mtrr isn't detected like it is on my
- > >  > other (Dell) boxes.
- > >
- > > Hmm, that sounds like it isn't compiled in. Though that doesn't make
- > > sense why you still have a /proc/mtrr
- > 
- > OK, ignore my previous comment (too many Linux boxes here).  The one I am 
- > investigating is my main Desktop, and dmesg confirms.  mtrr is detected as 
- > 'Intel' which is right as per the Docs (even though I have an AMD).
- > 
- > I also forgot to say I use the nVidia agp module (works better for me in 
- > Quake2 for some reason)... but searching their docs doesn't even mention 
- > mtrr.
- > 
- > Could it be that?  If so, I am wasting you guys time.
+On Wed, 2005-06-08 at 13:28 +0200, Ingo Molnar wrote:
 
-Maybe. I don't use non-free drivers, so I have no idea
-what nvidia are/aren't doing in their driver.
+>  - fix race in usbnet.c (Eugeny S. Mints)
 
-I'd suggest trying the nvidia forums.
 
-		Dave
+--- linux/drivers/usb/net/usbnet.c.orig
++++ linux/drivers/usb/net/usbnet.c
+@@ -3490,6 +3490,8 @@ static void tx_complete (struct urb *urb
+ 
+ 	urb->dev = NULL;
+ 	entry->state = tx_done;
++	spin_lock_rt(&dev->txq.lock);
++	spin_unlock_rt(&dev->txq.lock);
+ 	defer_bh (dev, skb);
+ }
+
+
+What are these lines fixing again ? It seems rather odd that locking and
+then unlocking a mutex could fix anything ..
+
+Daniel
 

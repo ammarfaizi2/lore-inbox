@@ -1,103 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261440AbVFHWO5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262146AbVFHW00@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261440AbVFHWO5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 18:14:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262121AbVFHWO5
+	id S262146AbVFHW00 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 18:26:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262143AbVFHW00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 18:14:57 -0400
-Received: from fmr14.intel.com ([192.55.52.68]:34690 "EHLO
-	fmsfmr002.fm.intel.com") by vger.kernel.org with ESMTP
-	id S261440AbVFHWOn convert rfc822-to-8bit (ORCPT
+	Wed, 8 Jun 2005 18:26:26 -0400
+Received: from palrel12.hp.com ([156.153.255.237]:58263 "EHLO palrel12.hp.com")
+	by vger.kernel.org with ESMTP id S262129AbVFHW0T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 18:14:43 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="US-ASCII"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [PATCH] Dynamic tick for x86 version 050602-1 
-Date: Wed, 8 Jun 2005 15:14:39 -0700
-Message-ID: <88056F38E9E48644A0F562A38C64FB6004EBD10C@scsmsx403.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] Dynamic tick for x86 version 050602-1 
-Thread-Index: AcVroO7W9tYoXQlETi+O6m9wNoSAPQA1gHBg
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Jonathan Corbet" <corbet@lwn.net>, "Tony Lindgren" <tony@atomide.com>
-Cc: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 08 Jun 2005 22:14:03.0061 (UTC) FILETIME=[60C8D650:01C56C77]
+	Wed, 8 Jun 2005 18:26:19 -0400
+Date: Wed, 8 Jun 2005 14:59:46 -0700
+From: Stephane Eranian <eranian@hpl.hp.com>
+To: perfmon@napali.hpl.hp.com
+Cc: linux-ia64@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: perfmon2 new code base Update 1
+Message-ID: <20050608215945.GH21554@frankl.hpl.hp.com>
+Reply-To: eranian@hpl.hp.com
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: eranian@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org 
->[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
->Jonathan Corbet
->Sent: Tuesday, June 07, 2005 1:36 PM
->To: Tony Lindgren
->Cc: linux-kernel@vger.kernel.org
->Subject: Re: [PATCH] Dynamic tick for x86 version 050602-1 
->
->Tony Lindgren <tony@atomide.com> wrote:
->
->> --- linux-dev.orig/arch/i386/kernel/irq.c	2005-06-01 
->17:51:36.000000000 -0700
->> +++ linux-dev/arch/i386/kernel/irq.c	2005-06-01 
->17:54:32.000000000 -0700
->> [...]
->> @@ -102,6 +103,12 @@ fastcall unsigned int do_IRQ(struct pt_r
->>  		);
->>  	} else
->>  #endif
->> +
->> +#ifdef CONFIG_NO_IDLE_HZ
->> +	if (dyn_tick->state & (DYN_TICK_ENABLED | 
->DYN_TICK_SKIPPING) && irq != 0)
->> +		dyn_tick->interrupt(irq, NULL, regs);
->> +#endif
->> +
->>  		__do_IRQ(irq, regs);
->
->Forgive me if I'm being obtuse (again...), but this hunk doesn't look
->like it would work well in the 4K stacks case.  When 4K stacks 
->are being
->used, dyn_tick->interrupt() will only get called in the nested 
->interrupt
->case, when the interrupt stack is already in use.  This change also
->pushes the non-assembly __do_IRQ() call out of the else branch, meaning
->that, when the switch is made to the interrupt stack (most of 
->the time),
->__do_IRQ() will be called twice for the same interrupt.
->
->It looks to me like you want to put your #ifdef chunk *after* the call
->to __do_IRQ(), unless you have some reason for needing it to happen
->before the regular interrupt handler is invoked.
->
+I am happy to announce an updated version of the code for
+the new perfmon code base. This update fixes several important
+problems and incorporates many cleanups. I would like to thank
+all the people who have provided feedback and I certainly
+welcome more of it.
 
-Good catch. This indeed looks like a bug. 
-With 050602-1 version I am seeing double the number of calls to 
-timer_interrupt routine than expected. Say, when all CPUs are fully
-busy, 
-I see 2*HZ timer interrupt count in /proc/interrupts
+This update is relative to 2.6.12-rc6. Here is an excerpt
+of the ChangeLog:
+	* fixed Pentium M counter width to 40 (from invalid 32)
+	* fixed in-flight overflow handling for non IA-64
+	* fixed timeout-based set switching from non IA-64
+	* removed unused pfm_arch_ callbacks
+	* reformatted code to 80 column wherever possible
+	* reformatted if/then/else
+	* fixed pfm_arch_monitoring_is_active() for non IA-64
+	* fixed race condition in pfm_do_interrupt_handler()
+	* added generic carta_random32() routine
+	* regrouped IA-64 old perfmon2 compatbility code in perfmon_compat.c
+	* updated pfm_ovfl_msg_t with new fields for user level sampling
+	* use custom nopage handler to remap kernel level sampling buffer
 
-And things look normal once I change this hunk as below
+Again this is not for production nor mainline at this point. This is
+for OS and tools developers. There are some known bugs on Pentium M
+in particular and some features are still incomplete.
 
->>  	} else
->>  #endif
->> +
-   + {
->> +#ifdef CONFIG_NO_IDLE_HZ
->> +	if (dyn_tick->state & (DYN_TICK_ENABLED | 
->DYN_TICK_SKIPPING) && irq != 0)
->> +		dyn_tick->interrupt(irq, NULL, regs);
->> +#endif
->> +
->>  		__do_IRQ(irq, regs);
-   + }
+You can grab the package at:
+	ftp://ftp.hpl.hp.com/pub/linux-ia64/perfmon-new-base-050608.tar.gz
+	MD5SUM: b608274d1211c43b65c662136a0e6d1f
 
+Enjoy,
 
-
-Thanks,
-Venki
+-- 
+-Stephane

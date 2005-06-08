@@ -1,49 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261415AbVFHRkQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261455AbVFHRot@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261415AbVFHRkQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 13:40:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261475AbVFHRkC
+	id S261455AbVFHRot (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 13:44:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261445AbVFHRos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 13:40:02 -0400
-Received: from 203-217-18-197.perm.iinet.net.au ([203.217.18.197]:29880 "EHLO
-	localhost.localdomain") by vger.kernel.org with ESMTP
-	id S261406AbVFHRfw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 13:35:52 -0400
-Message-ID: <42A72C70.3070802@knobbits.org>
-Date: Thu, 09 Jun 2005 03:35:44 +1000
-From: "Michael (Micksa) Slade" <micksa@knobbits.org>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050524 Debian/1.7.8-1ubuntu2
-X-Accept-Language: en
+	Wed, 8 Jun 2005 13:44:48 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:18386 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S261463AbVFHRnv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 13:43:51 -0400
+Message-ID: <42A72E4F.4040700@pobox.com>
+Date: Wed, 08 Jun 2005 13:43:43 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Mark Lord <lkml@rtr.ca>, linux-kernel@vger.kernel.org
-Subject: Re: Inspiron 6000 / ACPI S3 / PCI-X problems?
-References: <42A4969D.9070500@knobbits.org> <42A6B7B8.90000@rtr.ca>
-In-Reply-To: <42A6B7B8.90000@rtr.ca>
+To: Robert White <rwhite@casabyte.com>
+CC: Kumar Gala <kumar.gala@freescale.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: stupid SATA questions
+References: <10d4b7cd189d7b661a84e765ab8cce93@freescale.com> <42A5E0BF.8000103@pobox.com> <42A711FE.2080004@casabyte.com>
+In-Reply-To: <42A711FE.2080004@casabyte.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mark Lord wrote:
+Robert White wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> 
+> 
+> Since the title of the thread applies...
+> 
+> What command (or whatever) does one use to do things like set the power
+> controls on a libata-controlled SATA drive?  hdparm doesn't seem to do
+> anything but complain when I try to use the various features.
 
-> The i6000 is very similar internally (identical?) to the i9300.
-> I have a Dell Inspiron 9300 and *everything* is working perfectly with 
-> Linux,
-> except for the SD-slot (no driver, no datasheets).
->
-> Try my suspend script and other (K)Ubuntu changes:  
-> http://rtr.ca/dell_i9300/
->
-Thanks.  No dice :(  Apparently the models have some differences 
-internally :/
+You need "ATA passthru" (SMART support) in order for hdparm to work.
 
-Do me a favor?  Grab lcpsi output under normal conditions, and also just 
-between the resume and the "vbetool post"?
 
-Whose job should it be to restore the PCI config? (assuming that's the 
-problem)  Which code should I start hacking?
+> hdparm /dev/sda
+> /dev/sda:
+>  IO_support   =  0 (default 16-bit)
+>  ...
+> 
+> Does the "16-bit" mean anything or is it just a bogon?
 
-I'll bluddy well scoff the PCIe spec if I have to!
+This is hardcoded.  I doubt you will ever be able to change this.
 
-Mick.
+	Jeff
+
 

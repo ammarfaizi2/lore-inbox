@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261461AbVFHReo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261465AbVFHRjU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261461AbVFHReo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 13:34:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261456AbVFHRea
+	id S261465AbVFHRjU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 13:39:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261451AbVFHRjT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 13:34:30 -0400
-Received: from umbar.esa.informatik.tu-darmstadt.de ([130.83.163.30]:9088 "EHLO
-	umbar.esa.informatik.tu-darmstadt.de") by vger.kernel.org with ESMTP
-	id S261398AbVFHReO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 13:34:14 -0400
-Date: Wed, 8 Jun 2005 19:34:09 +0200
-From: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>
-To: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-Cc: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>,
-       Linus Torvalds <torvalds@osdl.org>, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, gregkh@suse.de
-Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
-Message-ID: <20050608173409.GA32004@erebor.esa.informatik.tu-darmstadt.de>
-References: <20050603232828.GA29860@erebor.esa.informatik.tu-darmstadt.de> <Pine.LNX.4.58.0506031706450.1876@ppc970.osdl.org> <20050604013311.GA30151@erebor.esa.informatik.tu-darmstadt.de> <Pine.LNX.4.58.0506031851220.1876@ppc970.osdl.org> <20050604022600.GA8221@erebor.esa.informatik.tu-darmstadt.de> <Pine.LNX.4.58.0506032149130.1876@ppc970.osdl.org> <20050604155742.GA14384@erebor.esa.informatik.tu-darmstadt.de> <20050605204645.A28422@jurassic.park.msu.ru> <20050606002739.GA943@erebor.esa.informatik.tu-darmstadt.de> <20050606184335.A30338@jurassic.park.msu.ru>
+	Wed, 8 Jun 2005 13:39:19 -0400
+Received: from [217.170.8.20] ([217.170.8.20]:18199 "EHLO
+	mail.research.newtrade.nl") by vger.kernel.org with ESMTP
+	id S261456AbVFHRiJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 13:38:09 -0400
+Subject: Re: USB errors causes system to become unresponsive
+From: Duncan Sands <baldrick@free.fr>
+To: Bharath Ramesh <krosswindz@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <c775eb9b0506081027d0cc6b9@mail.gmail.com>
+References: <c775eb9b0506081027d0cc6b9@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 08 Jun 2005 19:38:07 +0200
+Message-Id: <1118252287.8844.7.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050606184335.A30338@jurassic.park.msu.ru>
-User-Agent: Mutt/1.5.8i
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think the correct behaviour of pcibios_allocate_bus_resources()
-> (arch/i386/pci/i386.c) should be as follows:
-> if some bridge resource cannot be allocated for whatever reason,
-> don't allow any child resource assignments in that range. Just
-> clear the resource flags - this prevents building an inconsistent
-> resource tree.
->
-> pci_assign_unassigned_resources() should correctly configure bridge 1
-> and all subordinate stuff then.
+> I am running the 2.6 kernel and I notice that every now and then my
+> system stops responding but is still accessible remotely through ssh.
+> I can not work on the console. The only way out is to reboot either
+> remotely or by hitting the reset button. When the system comes up
+> again I get the following message in my dmesg and I need to actually
+> reboot it once or twice before this error goes. of I get a spew of
+> following messages. These messages don't stop till I reboot the
+> machine.
+> 
+> drivers/usb/input/hid-core.c: input irq status -75 received
 
-I just found the time to test your latest patch (sorry for the delay).
-However, it doesn't seem to help.
+What usb devices do you have plugged in?
 
-First of all, I verified that your code is indeed being called. That
-does occur.  Specifically, resources cannot be allocated for the
-following bridges and regions:
+D.
 
-  0000:00:01.0, region #10
-  0000:00:1c.0, regions #7,8,9,10
-  0000:00:1c.1, regions #7,8,9,10
-  0000:00:1c.2, regions #7,8,9,10
-  0000:02:00.0, regions #7,8,9,10
-  0000:03:05.0, regions #7,8,9,10
-  0000:00:1e.0, regions #7,8,9,10
-  0000:06:09.0, regions #7,8,9,10
-  0000:06:09.1, regions #7,8,9,10
-  0000:06:09.3, regions #7,8,9,10
-
-However, after pci_assign_unassigned_resources() has been called, the
-MEM and PREFETCH regions of the bridge 0000:00:1e.0 (bridge 1) _remain_
-invalid at 0x00000000.
-
-The boot hangs (as before) when attempting to start the CardBus
-controller in the dock.
-
-If you need further info, please let me know.
-
-Andreas

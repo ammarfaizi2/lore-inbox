@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262210AbVFIXze@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbVFIX7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262210AbVFIXze (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 19:55:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVFIXzd
+	id S261628AbVFIX7A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 19:59:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVFIX7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 19:55:33 -0400
-Received: from mail.timesys.com ([65.117.135.102]:41639 "EHLO
-	exchange.timesys.com") by vger.kernel.org with ESMTP
-	id S262210AbVFIXyE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 19:54:04 -0400
-Message-ID: <42A8D630.3030008@timesys.com>
-Date: Thu, 09 Jun 2005 19:52:16 -0400
-From: john cooper <john.cooper@timesys.com>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
-X-Accept-Language: en-us, en
+	Thu, 9 Jun 2005 19:59:00 -0400
+Received: from dvhart.com ([64.146.134.43]:61352 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S261628AbVFIX5E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 19:57:04 -0400
+Date: Thu, 09 Jun 2005 16:56:56 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Andrew Morton <akpm@osdl.org>, Christoph Lameter <clameter@engr.sgi.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.12-rc6-mm1
+Message-ID: <1100910000.1118361416@flay>
+In-Reply-To: <20050607170853.3f81007a.akpm@osdl.org>
+References: <1004450000.1118188239@flay><20050607165656.2517b417.akpm@osdl.org><Pine.LNX.4.62.0506071659580.30849@schroedinger.engr.sgi.com> <20050607170853.3f81007a.akpm@osdl.org>
+X-Mailer: Mulberry/2.1.2 (Linux/x86)
 MIME-Version: 1.0
-To: george@mvista.com
-CC: Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Olaf Kirch <okir@suse.de>,
-       john cooper <john.cooper@timesys.com>
-Subject: Re: RT and Cascade interrupts
-References: <42974F08.1C89CF2A@tv-sign.ru> <4297AF39.4070304@timesys.com>	 <42983135.C521F1C8@tv-sign.ru> <4298AED8.8000408@timesys.com>	 <1117312557.10746.6.camel@lade.trondhjem.org>	 <4299332F.6090900@timesys.com>	 <1117352410.10788.29.camel@lade.trondhjem.org>	 <429B8678.1000706@timesys.com> <429DC4A8.BFF69FB3@tv-sign.ru>	 <429DF8DE.7060008@timesys.com>	 <1117650718.10733.65.camel@lade.trondhjem.org>	 <429E0A86.7000507@timesys.com>	 <1117657267.10733.106.camel@lade.trondhjem.org>	 <429E21B8.2070404@timesys.com>	 <1117666319.10822.17.camel@lade.trondhjem.org>	 <429E7D91.9000808@timesys.com> <1117686367.10822.104.camel@lade.trondhjem.org> <42A8CE19.1000807@mvista.com>
-In-Reply-To: <42A8CE19.1000807@mvista.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 09 Jun 2005 23:46:53.0843 (UTC) FILETIME=[83A47630:01C56D4D]
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-George Anzinger wrote:
-> Excuse me for interrupting this thread, but have you seen:
+
+
+--On Tuesday, June 07, 2005 17:08:53 -0700 Andrew Morton <akpm@osdl.org> wrote:
+
+> Christoph Lameter <clameter@engr.sgi.com> wrote:
+>> 
+>> On Tue, 7 Jun 2005, Andrew Morton wrote:
+>> 
+>> > > Diffprofile is wacko (HZ seems to be defaulting to 250 in -mm).
+>> > 
+>> > Oh crap, so it does.  That's wrong.
+>> 
+>> Email by you and Linus indicated that 250 should be the default.
 > 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=111717961227508&w=2
+> Oh, OK. hrm.
 > 
-> I think this will fix your problem.
+> Martin, it would be useful if you could determine whether the kernbench
+> slowdown was due to the 1000Hz->250Hz change, thanks.
+> 
+> I'm assuming it was the CPU scheduler patches.  There are 36 of them ;)
 
-That was touched on earlier in the thread.  It did not
-fix the problem I was chasing in 40-04.
+Backed them all out ... performance thunks down to earth again, and is actually
+the best I've seen it ever (probably 250Hz is helping, I used to run 100 in 
+-mjb for better benefit).
 
-I'll revisit this issue once I've moved to a more current
-version of the patch should it still exist.
+the +5081 item is the one to look at
+http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/perf/kernbench.moe.png
 
--john
+Patch I used was here:
 
+http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/patches/nosched
 
--- 
-john.cooper@timesys.com
+But it was just everything under the "CPU scheduler" section of your series
+file.
+
+M.
+

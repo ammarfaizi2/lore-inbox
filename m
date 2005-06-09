@@ -1,35 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262319AbVFIHTx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262304AbVFIH2U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262319AbVFIHTx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 03:19:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262317AbVFIHTx
+	id S262304AbVFIH2U (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 03:28:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262317AbVFIH2U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 03:19:53 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:57554 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262318AbVFIHTt (ORCPT
+	Thu, 9 Jun 2005 03:28:20 -0400
+Received: from mail.kroah.org ([69.55.234.183]:9154 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262304AbVFIH2Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 03:19:49 -0400
-Date: Thu, 9 Jun 2005 09:20:48 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Grant Coady <grant_lkml@dodo.com.au>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SATA NCQ #4
-Message-ID: <20050609072047.GH5140@suse.de>
-References: <20050608102857.GC18490@suse.de> <qrjda1h0sbohfdi5t57rqpp581avqcslir@4ax.com> <20050608114150.GE18490@suse.de> <20050608114526.GF18490@suse.de> <tbgea15ls0a5kovgnsr62fkhtgnspmjfeg@4ax.com> <20050609062338.GC5140@suse.de> <20050609064031.GF5140@suse.de> <42A7E52E.5040101@pobox.com> <42A7E7DF.6040903@pobox.com>
+	Thu, 9 Jun 2005 03:28:16 -0400
+Date: Thu, 9 Jun 2005 00:15:23 -0700
+From: Greg KH <greg@kroah.com>
+To: Rui Sousa <rui.sousa@laposte.net>
+Cc: "Mark M. Hoffman" <mhoffman@lightlink.com>,
+       dmitry pervushin <dpervushin@ru.mvista.com>,
+       linux-kernel@vger.kernel.org, lm-sensors <lm-sensors@lm-sensors.org>
+Subject: Re: [RFC] SPI core
+Message-ID: <20050609071523.GE22729@kroah.com>
+References: <1117555756.4715.17.camel@diimka.dev.rtsoft.ru> <20050531233215.GB23881@kroah.com> <20050602040655.GE4906@jupiter.solarsys.private> <20050602045145.GA7838@kroah.com> <1117717356.5794.9.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42A7E7DF.6040903@pobox.com>
+In-Reply-To: <1117717356.5794.9.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 09 2005, Jeff Garzik wrote:
-> Actually I wound up removing the WARN_ON(), since it broke my CONFIG_SMP 
-> build here :)
+On Thu, Jun 02, 2005 at 03:02:35PM +0200, Rui Sousa wrote:
+> Hi Greg,
+> 
+> On Wed, 2005-06-01 at 21:51 -0700, Greg KH wrote:
+> > On Thu, Jun 02, 2005 at 12:06:55AM -0400, Mark M. Hoffman wrote:
+> > > * Greg KH <greg@kroah.com> [2005-05-31 16:32:15 -0700]:
+> > > > This code is _very_ close to just a copy of the i2c core code.  Why
+> > > > duplicate it and not work with the i2c people instead?
+> > > 
+> > > It was discussed briefly on the lm-sensors mailing list [1].  I didn't 
+> > > reply at the time, but I do agree that SPI and I2C/SMBus are different
+> > > enough to warrant independent subsystems.
+> > 
+> > Independant is fine.  But direct copies, including making the same
+> > mistakes (i2c dev interface, i2c driver model mess) isn't :)
+> 
+> I have also worked on a(nother) SPI layer implementation. Like Dmitry, I
+> ended up following closely the i2c implementation, so, I'm curious to
+> know more details on what you call "i2c driver model mess".
 
-Good choice :-)
+The fact that the i2c drivers are not really true "drivers" in the
+driver model.  We bind them by hand to the device and then register the
+device with the core.  That isn't a nice thing to do...
 
--- 
-Jens Axboe
+Also the sysfs representation of the sensor stuff is tied to the i2c
+sysfs code very tightly, which isn't good for other types of sensors.
+It should be in the class portion of sysfs, and the recent hwmon patches
+are moving it in that direction.
 
+thanks,
+
+greg k-h

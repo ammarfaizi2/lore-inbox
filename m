@@ -1,75 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262333AbVFIJdR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261307AbVFIJgg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262333AbVFIJdR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 05:33:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261307AbVFIJdQ
+	id S261307AbVFIJgg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 05:36:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262337AbVFIJgg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 05:33:16 -0400
-Received: from p-mail1.rd.francetelecom.com ([195.101.245.15]:61445 "EHLO
-	p-mail1.rd.francetelecom.com") by vger.kernel.org with ESMTP
-	id S262333AbVFIJcj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 05:32:39 -0400
-Message-ID: <42A80C5A.1030908@cr0.org>
-Date: Thu, 09 Jun 2005 11:31:06 +0200
-From: Julien TINNES <julien-lkml@cr0.org>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-Newsgroups: gmane.linux.kernel
-To: Marcelo Tosatti <marcelo.tosatti@cyclades.com>
-CC: Alexey Dobriyan <adobriyan@gmail.com>, akpm@osdl.org,
-       julien.tinnes@francetelecom.com, linux-kernel@vger.kernel.org
-Subject: Re: potential-null-pointer-dereference-in-amiga-serial-driver.patch
- added to -mm tree
-References: <200505310909.j4V98xBR008727@shell0.pdx.osdl.net> <200505311949.15449.adobriyan@gmail.com> <20050531122215.GA5108@logos.cnet> <20050602052108.GA8042@kroah.com> <20050603075816.GA9922@logos.cnet>
-In-Reply-To: <20050603075816.GA9922@logos.cnet>
-Content-Type: multipart/mixed;
- boundary="------------050702000108090309070905"
-X-OriginalArrivalTime: 09 Jun 2005 09:31:29.0918 (UTC) FILETIME=[043301E0:01C56CD6]
+	Thu, 9 Jun 2005 05:36:36 -0400
+Received: from mailfe07.swip.net ([212.247.154.193]:55233 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S261307AbVFIJga convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 05:36:30 -0400
+X-T2-Posting-ID: k1c2aGMK8Lj9Cnpb+Eju4eOhqUzXuhsckJNC9B9P7R8=
+Date: Thu, 9 Jun 2005 11:36:42 +0200
+From: Frederik Deweerdt <dev.deweerdt@laposte.net>
+To: moreau francis <francis_moreau2000@yahoo.fr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [TTY] exclusive mode question
+Message-ID: <20050609093642.GA507@gilgamesh.home.res>
+Mail-Followup-To: moreau francis <francis_moreau2000@yahoo.fr>,
+	linux-kernel@vger.kernel.org
+References: <20050609084908.82923.qmail@web25805.mail.ukl.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20050609084908.82923.qmail@web25805.mail.ukl.yahoo.com>
+User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------050702000108090309070905
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Le 09/06/05 10:49 +0200, moreau francis écrivit:
+> Hi
+> 
+> When a process open a tty in exclusive mode (using ioctl(X, TIOCEXCL)), can the
+> process be sure to be the only one using this tty ?
+> If so I can't find in kernel code any checks in "tty_open" method for verifying
+> that the tty has not been opened previously by another process when
+> "TTY_EXCLUSIVE" flag is set.
+> 
+I've just greped and I found :
 
+if (!retval && test_bit(TTY_EXCLUSIVE, &tty->flags) && !capable(CAP_SYS_ADMIN))
+	retval = -EBUSY;
+in drivers/char/tty_io.c:tty_open
 
-> OK - so better just remove the check. Julien, care to follow Greg's 
-> recommendation and refresh the patch? 
+Which sources are you looking at?
 
-Here it is.
+Regards,
+Frederik Deweerdt
 
-
--- 
-Julien TINNES
-
---------------050702000108090309070905
-Content-Type: text/x-patch;
- name="2.6-amiserial-nocheck.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.6-amiserial-nocheck.patch"
-
---- linux-2.6.11.orig/drivers/char/amiserial.c	2005-05-17 10:55:03.000000000 +0200
-+++ linux-2.6.11/drivers/char/amiserial.c	2005-06-09 11:29:04.000000000 +0200
-@@ -867,7 +867,7 @@
- 	if (serial_paranoia_check(info, tty->name, "rs_put_char"))
- 		return;
- 
--	if (!tty || !info->xmit.buf)
-+	if (!info->xmit.buf)
- 		return;
- 
- 	local_irq_save(flags);
-@@ -916,7 +916,7 @@
- 	if (serial_paranoia_check(info, tty->name, "rs_write"))
- 		return 0;
- 
--	if (!tty || !info->xmit.buf || !tmp_buf)
-+	if (!info->xmit.buf || !tmp_buf)
- 		return 0;
- 
- 	local_save_flags(flags);
-
---------------050702000108090309070905--

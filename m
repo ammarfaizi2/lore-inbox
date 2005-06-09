@@ -1,54 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262344AbVFIK4j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262346AbVFILGC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262344AbVFIK4j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 06:56:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262345AbVFIK4j
+	id S262346AbVFILGC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 07:06:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262347AbVFILGC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 06:56:39 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:39348 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262344AbVFIK4h (ORCPT
+	Thu, 9 Jun 2005 07:06:02 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:34484 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S262346AbVFILFz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 06:56:37 -0400
-Date: Thu, 9 Jun 2005 12:56:19 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Zhu Yi <yi.zhu@intel.com>
-Cc: James Ketrenos <jketreno@linux.intel.com>, Jeff Garzik <jgarzik@pobox.com>,
-       Netdev list <netdev@oss.sgi.com>,
-       kernel list <linux-kernel@vger.kernel.org>,
-       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>
-Subject: Re: ipw2100: firmware problem
-Message-ID: <20050609105619.GH3169@elf.ucw.cz>
-References: <20050608142310.GA2339@elf.ucw.cz> <42A723D3.3060001@linux.intel.com> <20050608212707.GA2535@elf.ucw.cz> <42A76719.2060700@linux.intel.com> <20050608223437.GB2614@elf.ucw.cz> <1118287990.10234.114.camel@debian.sh.intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 9 Jun 2005 07:05:55 -0400
+From: Andrew James Wade 
+	<ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
+To: "Jean Delvare" <khali@linux-fr.org>
+Subject: Re: BUG in i2c_detach_client
+Date: Thu, 9 Jun 2005 07:05:21 -0400
+User-Agent: KMail/1.7.2
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, "Greg KH" <greg@kroah.com>,
+       "Mark M. Hoffman" <mhoffman@lightlink.com>
+References: <JctXv2LZ.1118303243.5186830.khali@localhost>
+In-Reply-To: <JctXv2LZ.1118303243.5186830.khali@localhost>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1118287990.10234.114.camel@debian.sh.intel.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+Message-Id: <200506090705.22196.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On June 9, 2005 03:47 am, Jean Delvare wrote:
+> The reason why the bug triggered on Andrew (James Wade) is probably that
+> hwmon_device_register() failed, due to an order problem in a Makefile.
+> See http://lkml.org/lkml/2005/6/8/338, which has an explanation and a
+> patch fixing it (I think).
+Yup, the kernel now boots.
 
-> > Actually it would still transmit when user did not want it to. I
-> > believe that staying "quiet" is right thing, long-term. And it could
-> > solve firmware-loading problems, short-term...
-> 
-> If ipw2100 is built into kernel, you can disable it by kernel parameter
-> ipw2100.disable=1. Then you can enable it with:
-> 
-> $ echo 0 > /sys/bus/pci/drivers/ipw2100/*/rf_kill
-> 
-> > How long does association with AP take? Anyway it should be easy to
-> > tell driver to associate ASAP, just after the insmod...
-> 
-> Are you suggesting by default it is disabled for built into kernel but
-> enabled as a module?
+> This still doesn't explain why the error path triggers the BUG(), and
+> although applying the aforementioned patch will probably get the driver
+> working, I'd really like to understand what's going on there.
+Ok, I'll keep playing around with the kernel to see what I can find out.
 
-I'm suggesting that by default it is disabled (in kernel or as a
-module) and its automatically enabled during ifconfig up.
+(and I'll take a look at
+http://www.zip.com.au/~akpm/linux/patches/stuff/x.bz2 as Andrew Morton
+suggested)
 
-That way we can drop the kernel parameter and always do the right
-thing.
-
-								Pavel
+Thanks,
+Andrew

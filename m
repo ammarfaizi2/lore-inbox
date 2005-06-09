@@ -1,60 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVFILjo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262091AbVFILlX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261505AbVFILjo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 07:39:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbVFILjn
+	id S262091AbVFILlX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 07:41:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262173AbVFILlX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 07:39:43 -0400
-Received: from zombie.ncsc.mil ([144.51.88.131]:27528 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S261505AbVFILjk (ORCPT
+	Thu, 9 Jun 2005 07:41:23 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:60066 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S262352AbVFILk4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 07:39:40 -0400
-Subject: Re: IPv6 related BUG (./net/ipv6/exthdrs_core.c:ipv6_skip_exthdr())
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20050609103052.GU19479@lug-owl.de>
-References: <20050609103052.GU19479@lug-owl.de>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Thu, 09 Jun 2005 07:30:05 -0400
-Message-Id: <1118316605.30110.8.camel@moss-spartans.epoch.ncsc.mil>
+	Thu, 9 Jun 2005 07:40:56 -0400
+Date: Thu, 9 Jun 2005 13:39:16 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel@vger.kernel.org, "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+Message-ID: <20050609113916.GA8904@elte.hu>
+References: <20050608112801.GA31084@elte.hu> <42A7135C.5010704@cybsft.com> <42A72A53.5050809@cybsft.com> <20050608191848.GA3411@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-16) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050608191848.GA3411@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2005-06-09 at 12:30 +0200, Jan-Benedict Glaw wrote:
-> Hi!
+
+* Ingo Molnar <mingo@elte.hu> wrote:
+
+> > # CONFIG_DEBUG_RT_LOCKING_MODE is not set
+> > 
+> > it seems to work fine. With the above enabled it hangs on both of my 
+> > SMP systems as described above. :-/
 > 
-> My bind wasn't working and this showed up in dmesg:
-> 
->  ------------[ cut here ]------------
-> kernel BUG at net/ipv6/exthdrs_core.c:80!
-> invalid operand: 0000 [#1]
-> SMP 
-> Modules linked in: sd_mod capability commoncap ipt_REJECT iptable_filter ip_tables e100 floppy dm_mod pcspkr psmouse genrtc unix
-> CPU:    1
-> EIP:    0060:[<c02f8556>]    Not tainted VLI
-> EFLAGS: 00010246   (2.6.11.10lug-owl) 
-> EIP is at ipv6_skip_exthdr+0x116/0x148
-> eax: fffffff2   ebx: 00000000   ecx: 0000005c   edx: dabf3a4c
-> esi: 00000080   edi: 00000082   ebp: cb9a63e0   esp: dabf3a40
-> ds: 007b   es: 007b   ss: 0068
-> Process named (pid: 11120, threadinfo=dabf2000 task=e706a5a0)
-> Stack: 00000002 00296b00 dabf3a77 c03a4e40 00000028 cb9a63e0 f6fe6e00 dabf3b1c 
->        c01d7189 00000014 00000000 f6fe6210 ce3263c0 003263c0 c03a4e40 c0296876 
->        c03a4e40 00000000 c0296b00 80000000 c042f010 ce3263c0 c03aadec c042f020 
-> Call Trace:
->  [<c01d7189>] selinux_parse_skb_ipv6+0x89/0x150
+> ahh ... i'll try to reproduce it that way.
 
-Known bug in SELinux.  The upstream fix for 2.6.12 was:
-http://marc.theaimsgroup.com/?l=bk-commits-head&m=111444145104674&w=2
-A more minimal fix that might be more appropriate for 2.6.11.x was:
-http://marc.theaimsgroup.com/?l=linux-net&m=111417845723966&w=2
+found the bug - it was the incorrect initialization of 
+debug_slock/rwlock. I've uploaded -48-02 with the fix. This release also 
+includes a new debugging feature: CONFIG_DETECT_SOFTLOCKUP, which works 
+similar to the NMI watchdog but detects soft (==no reschedules) lockups.  
+I've also converted a few more local_irq_*() calls to raw_local_irq_*() 
+calls.
 
--- 
-Stephen Smalley
-National Security Agency
-
+	Ingo

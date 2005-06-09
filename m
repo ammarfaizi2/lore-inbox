@@ -1,32 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262408AbVFIORd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVFIOWV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262408AbVFIORd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 10:17:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262409AbVFIORc
+	id S261335AbVFIOWV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 10:22:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVFIOWV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 10:17:32 -0400
-Received: from mx2.suse.de ([195.135.220.15]:10638 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S262408AbVFIOR3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 10:17:29 -0400
-Date: Thu, 9 Jun 2005 16:17:24 +0200
-From: Andi Kleen <ak@suse.de>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Lee Revell <rlrevell@joe-job.com>, Andi Kleen <ak@suse.de>,
-       Parag Warudkar <kernel-stuff@comcast.net>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
-Message-ID: <20050609141724.GG23831@wotan.suse.de>
-References: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net> <200506051015.33723.kernel-stuff@comcast.net> <20050606092925.GA23831@wotan.suse.de> <200506060746.23047.kernel-stuff@comcast.net> <20050608135138.GX23831@wotan.suse.de> <1118281635.6247.42.camel@mindpipe> <1118283133.5754.41.camel@cog.beaverton.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1118283133.5754.41.camel@cog.beaverton.ibm.com>
+	Thu, 9 Jun 2005 10:22:21 -0400
+Received: from smtpout03-04.mesa1.secureserver.net ([64.202.165.74]:16771 "HELO
+	smtpout03-04.mesa1.secureserver.net") by vger.kernel.org with SMTP
+	id S261335AbVFIOWT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 10:22:19 -0400
+Message-ID: <42A85065.4000108@coyotegulch.com>
+Date: Thu, 09 Jun 2005 10:21:25 -0400
+From: Scott Robert Ladd <lkml@coyotegulch.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050512)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Has anyone had problems with GCC 4.0 and the kernel?
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Wahzuntme! :)  Well, I'd be very interested if my patches were to blame,
-> but I believe Parag said it happened with or without my patches.
+Hello,
 
-Yes, he said it happened with plain rc5.
--Andi
+I've had several inquiries recently in regard to compiling the kernel
+with GCC 4.0. It seems folk are having problems, do a Google search, and
+find my capsule review of GCC 4.0 at:
+
+http://www.coyotegulch.com/reviews/gcc4/index.html
+
+I'm not running a GCC 4.0-created kernel, but I had no problems
+compiling it and running one a few weeks ago. Before I start looking
+into this further, has anyone here had problems with GCC 4? Maybe I just
+hallucinated that it compiled and booted... ;)
+
+..Scott

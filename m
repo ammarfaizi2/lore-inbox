@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261522AbVFICJH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261578AbVFICMU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261522AbVFICJH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 22:09:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261578AbVFICJH
+	id S261578AbVFICMU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 22:12:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262004AbVFICMU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 22:09:07 -0400
-Received: from wproxy.gmail.com ([64.233.184.200]:57321 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261522AbVFICJB convert rfc822-to-8bit
+	Wed, 8 Jun 2005 22:12:20 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:48609 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S261578AbVFICMR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 22:09:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=So1Mbm6b5iC2dkSYYLse3BOK8OHStEgAN2xui+sE7dVN44iPQK0e4uEHkoPKT2EK+P5nRyuN7qAG2o+zdLcNxrYBBo0j3mLnghrEM/XPBEK5RLZ7V2S2mwlUkHohtjfg15JH5+fUOxeQ6Px+avCAUSLygoRJhi6qs/JcpLw8G5A=
-Message-ID: <9e4733910506081909560e368c@mail.gmail.com>
-Date: Wed, 8 Jun 2005 22:09:01 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Subject: Re: Dell BIOS and HPET timer support
-Cc: Lee Revell <rlrevell@joe-job.com>, lkml <linux-kernel@vger.kernel.org>,
-       Bob Picco <Robert.Picco@hp.com>
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB6004EF3629@scsmsx403.amr.corp.intel.com>
+	Wed, 8 Jun 2005 22:12:17 -0400
+Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
+From: john stultz <johnstul@us.ibm.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Andi Kleen <ak@suse.de>, Parag Warudkar <kernel-stuff@comcast.net>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1118281635.6247.42.camel@mindpipe>
+References: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net>
+	 <200506051015.33723.kernel-stuff@comcast.net>
+	 <20050606092925.GA23831@wotan.suse.de>
+	 <200506060746.23047.kernel-stuff@comcast.net>
+	 <20050608135138.GX23831@wotan.suse.de>  <1118281635.6247.42.camel@mindpipe>
+Content-Type: text/plain
+Date: Wed, 08 Jun 2005 19:12:13 -0700
+Message-Id: <1118283133.5754.41.camel@cog.beaverton.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <88056F38E9E48644A0F562A38C64FB6004EF3629@scsmsx403.amr.corp.intel.com>
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/8/05, Pallipadi, Venkatesh <venkatesh.pallipadi@intel.com> wrote:
+On Wed, 2005-06-08 at 21:47 -0400, Lee Revell wrote:
+> On Wed, 2005-06-08 at 15:51 +0200, Andi Kleen wrote:
+> > On Mon, Jun 06, 2005 at 07:46:22AM -0400, Parag Warudkar wrote:
+> > > On Monday 06 June 2005 05:29, Andi Kleen wrote:
+> > > > And does it work with nopmtimer ?
+> > > >
+> > > > -Andi
+> > > 
+> > > Thanks for trimming the CC list. 
+> > > 
+> > > No it doesn't work with nopmtimer - music still plays fast. I have to go back 
+> > > to 2.6.11 to get it to play at right speed. 
+> > 
+> > Then it is something else, not the pmtimer.
+> > 
+> > I dont know what it could be. Do a binary search? 
 > 
+> XMMS has a long history of buggy ALSA support, which has improved
+> lately.  Make sure you're using the latest version.
 > 
-> I think do_div expects a 64 bit 1st argument. Can you change ns to
-> unsigneld long long and try...
+> Also try 2.6.11 with ALSA 1.0.9, maybe it's an interaction between ALSA
+> and the new gettimeofday patches.
 
-I already posted a patch. The field is 32 bits so a long is correct.
-The do_div() is just wrong, it should have been /.
+Wahzuntme! :)  Well, I'd be very interested if my patches were to blame,
+but I believe Parag said it happened with or without my patches.
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Parag: If I'm incorrect and the issue goes away without my patches,
+please let me know as I want to get to the bottom of it. 
+
+thanks
+-john
+
+

@@ -1,144 +1,149 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262227AbVFICY6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262260AbVFIC2l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262227AbVFICY6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 22:24:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbVFICY6
+	id S262260AbVFIC2l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 22:28:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbVFIC2g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 22:24:58 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:16612 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S262227AbVFICYv (ORCPT
+	Wed, 8 Jun 2005 22:28:36 -0400
+Received: from nproxy.gmail.com ([64.233.182.195]:53173 "EHLO nproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261604AbVFIC1m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 22:24:51 -0400
-Date: Wed, 8 Jun 2005 19:25:12 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: linux-kernel@vger.kernel.org, bhuey@lnxw.com, andrea@suse.de,
-       tglx@linutronix.de, mingo@elte.hu, pmarques@grupopie.com,
-       bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au, ak@muc.de,
-       sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, Philippe Gerum <rpm@xenomai.org>,
-       RTAI-Users <rtai@rtai.org>
-Subject: Re: Attempted summary of "RT patch acceptance" thread
-Message-ID: <20050609022512.GH1295@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050608022646.GA3158@us.ibm.com> <42A721F9.2070608@opersys.com>
+	Wed, 8 Jun 2005 22:27:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:references;
+        b=ezWFkhQs4M25FpjKaxyUTTnKl8eFNExjgWLoSPxqAN75hVoOakAjk8c+Mka0vXro3HJd21ykNuEuDSW1HPCVAH5JvKhpncl4+niDoD0jimrZx6y1ONOZqtjRYvBF7Wy0Qu/KtsjHOTfIvg8SgnXSX9sdLuIUAm0gblpmkcUkqYw=
+Message-ID: <b70d738005060819274653fd8@mail.gmail.com>
+Date: Wed, 8 Jun 2005 19:27:41 -0700
+From: Adam Morley <adam.morley@gmail.com>
+Reply-To: Adam Morley <adam.morley@gmail.com>
+To: dtor_core@ameritech.net
+Subject: Re: psmouse doesn't seem to reinitialize after mem suspend (acpi) when using i8042 on ALi M1553 ISA bridge with 2.6.11.11 or 2.6.12-rc5?
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <b70d7380050608093138eb42df@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42A721F9.2070608@opersys.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_11044_33501529.1118284061522"
+References: <b70d73800506051924546c8931@mail.gmail.com>
+	 <200506072252.40120.dtor_core@ameritech.net>
+	 <b70d738005060721584aa25e71@mail.gmail.com>
+	 <200506080117.20803.dtor_core@ameritech.net>
+	 <b70d73800506080009c20eeff@mail.gmail.com>
+	 <d120d50005060808273707bb8@mail.gmail.com>
+	 <b70d7380050608093138eb42df@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 08, 2005 at 12:51:05PM -0400, Karim Yaghmour wrote:
-> 
-> Paul,
-> 
-> I've finished reading your summary and I must say that it's excellent.
-> I don't remember ever reading a non-partisan comparison of this level
-> on the issue of real-time and Linux. Thanks for writing _and_ having
-> the guts to post it :)
+------=_Part_11044_33501529.1118284061522
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Thank you for the kind words!  But who needs guts when you have
-senility?  ;-)
+On 6/8/05, Adam Morley <adam.morley@gmail.com> wrote:
+> Hi Dimitry,
+>=20
+> On 6/8/05, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+> > On 6/8/05, Adam Morley <adam.morley@gmail.com> wrote:
+> > > Hi Dmitry,
+> > >
+> > > By Embedded Controller, do you mean CONFIG_ACPI_EC?  Because I can't
+> > > disable it w/o disable a bunch of ACPI modules, I think.
+> >
+> > As far as I remember EC is only required for smart battery supports.
+> > For testing purposes it is OK to not have it.
+>=20
+> It seems that even when I set it to "# CONFIG_ACPI_EC is not set", it
+> gets re-enabled by make at some point.  I twiddled a couple of ACPI
+> modules off (save button), and it was still re-enabled.  I think I'd
+> have to disable ACPI.  I will play around with it some more though.
 
-> There is only one issue I would like to further highlight.
-> 
-> Note: None of the following should be in any way controversial, I'm
-> just providing further background.
+I'm still poking around trying to figure out how to disable
+CONFIG_ACPI_EC.  Once I get that done, I will post results.  Yeah, I
+can't get that to stay unset.  Every time I run make, I end up with it
+set to Y, even if I've disabled it before.
 
-;-)  ;-)  ;-)
+>=20
+> >
+> > > I did enable all the PnP options:
+> > >
+> > > CONFIG_PNP=3Dy
+> > > CONFIG_PNP_DEBUG=3Dy
+> > > CONFIG_ISAPNP=3Dy
+> > > CONFIG_PNPBIOS=3Dy
+> > > CONFIG_PNPBIOS_PROC_FS=3Dy
+> > > CONFIG_PNPACPI=3Dy
+> > >
+> >
+> > If you boot this kernel please check attributes in
+> > /sys/bus/pnp/devices/* after resuming and see if any marked
+> > "disabled".
+>=20
+> Ok.  I will try this tonight, as I have to go to work.
 
-> Paul E. McKenney wrote:
-> > the corresponding approach's strengths and weaknesses.  I do not address
-> > "strength of community", even though this may well be the decisive factor.
-> 
-> Indeed what you state here is entirely true. While Adeos and RTAI
-> development has been very active for quite a few years now, it must
-> be said that this development has largely gone unnoticed to LKML
-> participants -- as was obvious by the amount of surprise caused by
-> the realization of the existence of key Adeos and RTAI features.
-> 
-> Part of this is historical. 10 years ago, Linux's state was such
-> that those who were interested in doing rt with it realized that
-> it wasn't about to become rt-capable any time soon. Hence, they
-> "went away" and did their own little thing. They had their mailing
-> lists, their own flame-wars, their own conferences, and there was
-> very little common shared with the mainstream LKML community.
-> 
-> In fact, for a very long time, most kernel developers I spoke to
-> about real-time would refer back to a single project, RTLinux. To
-> this day, actually, if you look in the MAINTAINERS file, it still
-> says:
-> > RTLINUX  REALTIME  LINUX
-> > P:      Victor Yodaiken
-> > M:      yodaiken@fsmlabs.com
-> > L:      rtl@rtlinux.org
-> > W:      www.rtlinux.org
-> > S:      Maintained
-> Yet, the days where RTLinux was _the_ real-time Linux extension
-> are long gone and www.rtlinux.org has been a redirect to a .com
-> site for quite some time now -- I've suggested in the past that
-> this entry be replaced by RTAI, but I was told that neither should
-> in fact be in there, which is fair-enough, but nothing came of
-> this suggestion and the entry is still in the maintainers file.
-> 
-> This state of things remained until May 2002 when I picked up on
-> a post by Andrea to point out a "few" problems the RTAI community
-> saw with the RTLinux project. The ensuing thread was remarkably
-> intense -- not for the faint of heart. Here's the root of it if
-> you're ever interested in reading a huge flame-fest:
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=102227589127072&w=2
-> While that discussion did serve to put RTAI on the map for some
-> developers, it also highlighted problems with the RTAI project
-> that needed to be solved.
-> 
-> Part of the issues was the patent problem, and that was solved
-> with the introduction of Adeos. However, with this and other
-> problems solved, the RTAI developers went back the way they came
-> from: to their own separate mailing lists.
-> 
-> In the past few years, though, a new bread of real-time developers
-> have become interested in making Linux fit for real-time
-> applications. Unlike the previous generation, though, these folks
-> have concentrated their efforts on working within the framework
-> already agreed upon by existing kernel developers: the LKML. And
-> in that, they have achieved a level of awareness amongst the kernel
-> crowd that I think RTAI and Adeos have not yet reached.
-> 
-> I've tried to remedy to this situation as best I can, by pointing
-> out what was obvious to me when appropriate. However, it must be
-> said that I haven't been actively involved with either Adeos or
-> RTAI in quite some time. So while I did play a part in the
-> history of both projects, there are others that are in a much
-> better position than I am to present to the LKML the work done
-> by the RTAI and Adeos communities.
-> 
-> In essence, therefore, what I have to say is this:
-> - To those who are actively involved in the development of RTAI
-> and Adeos, now is the time to drop the historical tendency of
-> acting as an entirely separate community and to start sharing
-> your work on the LKML.
-> - To those who are actively involved in finding solutions to the
-> real-time issues in Linux, do not be fooled by the apparent lack
-> of activity in the Adeos or RTAI projects, they are both very
-> active and warrant consideration.
-> 
-> As you correctly state, "strength of community" is likely a decisive
-> factor. What is important here is not to confuse "apparent" strength
-> of community -- or lack thereof -- with "actual" strength of
-> community -- or lack thereof.
+In /sys/bus/pnp/drivers/i8042 aux/00:05, resources says "state =3D active"
 
-All good points!  I added a few sentences encouraging realtime folks to
-participate in LKML discussions.
+in /sys/bus/pnp/devices/*, I have a bunch of directories.  See the
+attached "output.txt" for the output of:
 
-						Thanx, Paul
+(pwd ; for file in * ; do echo $file ; cat $file/resources; echo "" ;
+done) > /var/tmp/output.txt
 
-> Thanks again for a great piece.
-> 
-> Karim Yaghmour
-> -- 
-> Author, Speaker, Developer, Consultant
-> Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-> http://www.opersys.com || karim@opersys.com || 1-866-677-4546
-> 
+(the same timeouts for AUX, irq 12 are still happening.  and the mouse
+doesn't work)
+
+--=20
+adam
+
+------=_Part_11044_33501529.1118284061522
+Content-Type: text/plain; name=output.txt; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment; filename="output.txt"
+
+/sys/bus/pnp/devices
+00:00
+state = active
+io 0x72-0x73
+io 0x80-0x80
+io 0x92-0x92
+io 0xb0-0xb3
+io 0xea-0xeb
+io 0x40b-0x40b
+io 0x480-0x48f
+io 0x4d0-0x4d1
+
+00:01
+state = active
+io 0x0-0xf
+io 0x81-0x8f
+io 0xc0-0xdf
+dma 4
+
+00:02
+state = active
+io 0xf0-0xfe
+irq 13
+
+00:03
+state = active
+io 0x70-0x71
+irq 8
+
+00:04
+state = active
+io 0x61-0x61
+
+00:05
+state = active
+irq 12
+
+00:06
+state = active
+io 0x60-0x60
+io 0x64-0x64
+irq 1
+
+00:07
+state = active
+
+
+------=_Part_11044_33501529.1118284061522--

@@ -1,39 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261322AbVFILbn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261505AbVFILjo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261322AbVFILbn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 07:31:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261505AbVFILbn
+	id S261505AbVFILjo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 07:39:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262091AbVFILjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 07:31:43 -0400
-Received: from nproxy.gmail.com ([64.233.182.199]:56742 "EHLO nproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261322AbVFILbm convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 07:31:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=S0v6BmTIdZzoJODND0QgwXPAwWhkM+CmPHfRpMxB5rn8LkRWl6ApAqDcJ3sINtOOYNb6sC2+RfqVKCBUpb1pvkfmhtyUXmCbi809W+mjuVOilWnOuplLQ3AHJBkleDNTz0iD8BAb+/KsRIcv275a2HwdFl9Ys6xzL/FCEx7pQE0=
-Message-ID: <2cd57c90050609043125bd3e1f@mail.gmail.com>
-Date: Thu, 9 Jun 2005 19:31:41 +0800
-From: Coywolf Qi Hunt <coywolf@gmail.com>
-Reply-To: Coywolf Qi Hunt <coywolf@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: unexport and static __mntput()
-Cc: bunk@stusta.de
+	Thu, 9 Jun 2005 07:39:43 -0400
+Received: from zombie.ncsc.mil ([144.51.88.131]:27528 "EHLO jazzdrum.ncsc.mil")
+	by vger.kernel.org with ESMTP id S261505AbVFILjk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 07:39:40 -0400
+Subject: Re: IPv6 related BUG (./net/ipv6/exthdrs_core.c:ipv6_skip_exthdr())
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050609103052.GU19479@lug-owl.de>
+References: <20050609103052.GU19479@lug-owl.de>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Thu, 09 Jun 2005 07:30:05 -0400
+Message-Id: <1118316605.30110.8.camel@moss-spartans.epoch.ncsc.mil>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+X-Mailer: Evolution 2.0.2 (2.0.2-16) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, 2005-06-09 at 12:30 +0200, Jan-Benedict Glaw wrote:
+> Hi!
+> 
+> My bind wasn't working and this showed up in dmesg:
+> 
+>  ------------[ cut here ]------------
+> kernel BUG at net/ipv6/exthdrs_core.c:80!
+> invalid operand: 0000 [#1]
+> SMP 
+> Modules linked in: sd_mod capability commoncap ipt_REJECT iptable_filter ip_tables e100 floppy dm_mod pcspkr psmouse genrtc unix
+> CPU:    1
+> EIP:    0060:[<c02f8556>]    Not tainted VLI
+> EFLAGS: 00010246   (2.6.11.10lug-owl) 
+> EIP is at ipv6_skip_exthdr+0x116/0x148
+> eax: fffffff2   ebx: 00000000   ecx: 0000005c   edx: dabf3a4c
+> esi: 00000080   edi: 00000082   ebp: cb9a63e0   esp: dabf3a40
+> ds: 007b   es: 007b   ss: 0068
+> Process named (pid: 11120, threadinfo=dabf2000 task=e706a5a0)
+> Stack: 00000002 00296b00 dabf3a77 c03a4e40 00000028 cb9a63e0 f6fe6e00 dabf3b1c 
+>        c01d7189 00000014 00000000 f6fe6210 ce3263c0 003263c0 c03a4e40 c0296876 
+>        c03a4e40 00000000 c0296b00 80000000 c042f010 ce3263c0 c03aadec c042f020 
+> Call Trace:
+>  [<c01d7189>] selinux_parse_skb_ipv6+0x89/0x150
 
-I don't see any reasons that modules should call __mntput.
-And it's only called by mntput(). Or anyone knows any outer code depends on it?
-
-Adrian, a patch unexport and static it?
+Known bug in SELinux.  The upstream fix for 2.6.12 was:
+http://marc.theaimsgroup.com/?l=bk-commits-head&m=111444145104674&w=2
+A more minimal fix that might be more appropriate for 2.6.11.x was:
+http://marc.theaimsgroup.com/?l=linux-net&m=111417845723966&w=2
 
 -- 
-Coywolf Qi Hunt
-http://ahbl.org/~coywolf/
+Stephen Smalley
+National Security Agency
+

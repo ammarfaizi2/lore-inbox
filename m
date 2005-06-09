@@ -1,43 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262301AbVFIGQN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262295AbVFIGSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262301AbVFIGQN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 02:16:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262285AbVFIGO0
+	id S262295AbVFIGSv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 02:18:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262297AbVFIGSu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 02:14:26 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:50854
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S262246AbVFIGN1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 02:13:27 -0400
-Date: Wed, 08 Jun 2005 23:13:19 -0700 (PDT)
-Message-Id: <20050608.231319.95056824.davem@davemloft.net>
-To: jgarzik@pobox.com
-Cc: jketreno@linux.intel.com, vda@ilport.com.ua, pavel@ucw.cz,
+	Thu, 9 Jun 2005 02:18:50 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:11239 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262294AbVFIGSE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 02:18:04 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: "David S. Miller" <davem@davemloft.net>
+Subject: Re: ipw2100: firmware problem
+Date: Thu, 9 Jun 2005 09:17:23 +0300
+User-Agent: KMail/1.5.4
+Cc: jketreno@linux.intel.com, pavel@ucw.cz, jgarzik@pobox.com,
        netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
        ipw2100-admin@linux.intel.com
-Subject: Re: ipw2100: firmware problem
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <42A7DC4D.7000008@pobox.com>
-References: <42A7268D.9020402@linux.intel.com>
-	<20050608.124332.85408883.davem@davemloft.net>
-	<42A7DC4D.7000008@pobox.com>
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+References: <42A7268D.9020402@linux.intel.com> <200506090903.49295.vda@ilport.com.ua> <20050608.231045.48808548.davem@davemloft.net>
+In-Reply-To: <20050608.231045.48808548.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506090917.23853.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jeff Garzik <jgarzik@pobox.com>
-Date: Thu, 09 Jun 2005 02:06:05 -0400
+On Thursday 09 June 2005 09:10, David S. Miller wrote:
+> From: Denis Vlasenko <vda@ilport.com.ua>
+> Date: Thu, 9 Jun 2005 09:03:49 +0300
+> 
+> > You practically cannot avoid having initrd because you are very likely
+> > to need to do some wifi config (at least ESSID and mode).
+> 
+> I need neither at home.  It comes up by default just fine with
+> ifconfig.
+> 
+> Your points are valid, but they do not detract from the fact that
+> pieced up drivers, half in the kernel half somewhere else, is total
+> madness.  It is a lose for the user.
 
-> Therefore, the easiest way to make things work today is to poke Intel to 
-> fix their firmware license so that we can distribute it with the kernel :)
+Here I am totally agree. I would like to not have to mess with
+separate firmware files. I even don't want binary firmware, gimme
+the source!
 
-Seperate firmware from the in-kernel driver is a big headache for
-users.  As DaveJ has stated, people make mistakes and try to match up
-the wrong firmware version with the driver and stuff like that.  And
-he should know as he has to deal sift through bogus bug reports from
-people running into this problem.
+Sadly, realities are such that we have to live somehow
+with closed-source firmware. Worse, sometimes it even isn't freely
+redistributable (vendor did not explicitly allowed that),
+and thus we have to ship driver, but users must obtain
+firmware elsewhere themself.
 
-If it's integrated, there are no problems like this.
+Thus so far we cannot avoid having split drivers.
+--
+vda
+

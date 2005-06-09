@@ -1,53 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262108AbVFIGbt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262281AbVFIGd7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262108AbVFIGbt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 02:31:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVFIGbs
+	id S262281AbVFIGd7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 02:33:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbVFIGcJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 02:31:48 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:18082 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262303AbVFIGap (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 02:30:45 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
+	Thu, 9 Jun 2005 02:32:09 -0400
+Received: from mail.dvmed.net ([216.237.124.58]:32212 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S262280AbVFIG3y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 02:29:54 -0400
+Message-ID: <42A7E1D6.3070509@pobox.com>
+Date: Thu, 09 Jun 2005 02:29:42 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
 To: "David S. Miller" <davem@davemloft.net>
-Subject: Re: ipw2100: firmware problem
-Date: Thu, 9 Jun 2005 09:30:22 +0300
-User-Agent: KMail/1.5.4
-Cc: jketreno@linux.intel.com, pavel@ucw.cz, jgarzik@pobox.com,
+CC: jketreno@linux.intel.com, vda@ilport.com.ua, pavel@ucw.cz,
        netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
        ipw2100-admin@linux.intel.com
-References: <200506090903.49295.vda@ilport.com.ua> <200506090917.23853.vda@ilport.com.ua> <20050608.232020.115912376.davem@davemloft.net>
-In-Reply-To: <20050608.232020.115912376.davem@davemloft.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Subject: Re: ipw2100: firmware problem
+References: <42A7268D.9020402@linux.intel.com>	<20050608.124332.85408883.davem@davemloft.net>	<42A7DC4D.7000008@pobox.com> <20050608.231319.95056824.davem@davemloft.net>
+In-Reply-To: <20050608.231319.95056824.davem@davemloft.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506090930.22274.vda@ilport.com.ua>
+X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 09 June 2005 09:20, David S. Miller wrote:
-> From: Denis Vlasenko <vda@ilport.com.ua>
-> Date: Thu, 9 Jun 2005 09:17:23 +0300
+David S. Miller wrote:
+> From: Jeff Garzik <jgarzik@pobox.com>
+> Date: Thu, 09 Jun 2005 02:06:05 -0400
 > 
-> > Sadly, realities are such that we have to live somehow
-> > with closed-source firmware.
 > 
-> You have a choice, buy products from friendly vendors.
+>>Therefore, the easiest way to make things work today is to poke Intel to 
+>>fix their firmware license so that we can distribute it with the kernel :)
+> 
+> 
+> Seperate firmware from the in-kernel driver is a big headache for
+> users.  As DaveJ has stated, people make mistakes and try to match up
+> the wrong firmware version with the driver and stuff like that.  And
+> he should know as he has to deal sift through bogus bug reports from
+> people running into this problem.
+> 
+> If it's integrated, there are no problems like this.
 
-I am trying! So far, I have Prism2.5, Prism54
-and acx111 cards, and all of them require closed binary fw.
+Early userspace is (a) shipped with the kernel source tree and (b) 
+linked into vmlinux.  That's integrated.
 
-> I use prism54 cards in my laptops for this reason.
+The firmware images will be separate from the .c files (as they should 
+be), but the kernel hacker still controls what gets loaded, and when.
 
-?! As far as I remember, it needs a fw and fw is not open...
-did that change recently?
- 
-> If you like a vendor's products who aren't friendly, try
-> to voice intelligently your opinion to them as to why users
-> will benefit from them fixing the firmware situation.
---
-vda
+But like I said, that's where we're going, not where we are now.
+
+	Jeff
+
 

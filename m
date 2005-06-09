@@ -1,551 +1,610 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262156AbVFIArO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262209AbVFIAu5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262156AbVFIArO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 20:47:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbVFIArO
+	id S262209AbVFIAu5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 20:50:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262199AbVFIAu5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 20:47:14 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8642 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262251AbVFIAE4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 20:04:56 -0400
-Date: Thu, 9 Jun 2005 02:04:02 +0200
-From: Pavel Machek <pavel@suse.cz>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Adam Belay <abelay@novell.com>, greg@kroah.com,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Karsten Keil <kkeil@suse.de>
-Subject: Re: [PATCH] fix tulip suspend/resume
-Message-ID: <20050609000402.GA2694@elf.ucw.cz>
-References: <20050606224645.GA23989@pingi3.kke.suse.de> <Pine.LNX.4.58.0506061702430.1876@ppc970.osdl.org> <20050607025054.GC3289@neo.rr.com> <20050607105552.GA27496@pingi3.kke.suse.de> <20050607205800.GB8300@neo.rr.com> <1118190373.6850.85.camel@gaston> <1118196980.3245.68.camel@localhost.localdomain> <20050608122320.GC1898@elf.ucw.cz> <1118271605.6850.137.camel@gaston>
+	Wed, 8 Jun 2005 20:50:57 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:39316 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262210AbVFHX6T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 19:58:19 -0400
+Date: Wed, 8 Jun 2005 19:02:55 -0500
+From: serue@us.ibm.com
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       James Morris <jmorris@redhat.com>
+Subject: [patch 9/11] lsm stacking: selinux: remove secondary support
+Message-ID: <20050609000255.GI27314@serge.austin.ibm.com>
+References: <20050608235505.GA27298@serge.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1118271605.6850.137.camel@gaston>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20050608235505.GA27298@serge.austin.ibm.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Remove the SELinux support for secondary modules.  This is no longer necessary
+as SELinux can now be simply stacked with the cap-stack module.
 
-> > > I think we should also use the pm_message_t defines.  We will need to
-> > > add PMSG_FREEZE eventually.  I decided to default to the current state
-> > > rather than panic.  Does this patch look ok?
-> > 
-> > No.
-> 
-> Hrm... I don't follow you anymore here ...
-> 
-> >         case PM_EVENT_ON:
-> >                 return PCI_D0;
-> >         case PM_EVENT_FREEZE:
-> >         case PM_EVENT_SUSPEND:
-> >                 return PCI_D3hot;
-> 
-> What are these new PM_EVENT_* things ? I though we defined PMSG_* ?
-
-PMSG_* are for struct; you can't case on struct.
-
-> > You passed invalid argument; I see no reason why you should paper over
-> > it and risk continuing. This happens during system suspend; it is
-> > quite possible that user will not see your printk when machine powers
-> > off just after that; and remember that it will not be in syslog after
-> > resume.
-> 
-> Crap. I don't think a BUG() makes any useful help neither in this place,
-> and when I locally turn PMSG_FREEZE to something sane I suddenly blow up
-> in there (and I wonder in how many other places).
-
-At least you can see & report that error... That would not be a case
-for simple printk.
-
-This is the patch I'd like to go in. I hope it makes it
-clear... Please base your development on top of this one...
-									Pavel
-
+Signed-off-by: Serge Hallyn <serue@us.ibm.com>
 ---
+ security/selinux/hooks.c |  266 ++++++-----------------------------------------
+ 1 files changed, 34 insertions(+), 232 deletions(-)
 
-Turn pm_message_t into struct, so that it is typechecked properly (and
-so that we can add flags field in future). This should not go in
-before 2.6.12.
-
-Note: this rejects against -mm tree. Some rejects are caused by
-	state_store getting more arguments, and some by added hook
-	in pci_choose_state. I still do not like that pci_choose_state
-	hook, it really should return pci_power_t, not int.
-
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-
----
-commit a249072c4e0ef136c27c9e59d664e5be0d677ddc
-tree 24a21ff5302734d40e08c400b14c0c1624cceded
-parent f4bed68f59d9f32a4460288f40bb7f2af463babd
-author <pavel@amd.(none)> Tue, 31 May 2005 11:57:50 +0200
-committer <pavel@amd.(none)> Tue, 31 May 2005 11:57:50 +0200
-
- drivers/base/power/resume.c    |    8 ++++----
- drivers/base/power/runtime.c   |    8 ++++----
- drivers/base/power/suspend.c   |   12 ++++++------
- drivers/base/power/sysfs.c     |    8 ++++----
- drivers/ide/ide.c              |    4 ++--
- drivers/pci/pci.c              |   14 +++++++-------
- drivers/serial/pmac_zilog.c    |    2 +-
- drivers/usb/core/hub.c         |   18 +++++++++---------
- drivers/usb/core/usb.c         |    2 +-
- drivers/usb/host/ehci-dbg.c    |    2 +-
- drivers/usb/host/ohci-dbg.c    |    2 +-
- drivers/usb/host/sl811-hcd.c   |    6 +++---
- drivers/video/aty/atyfb_base.c |    4 ++--
- drivers/video/aty/radeon_pm.c  |   12 ++++++------
- drivers/video/i810/i810_main.c |    6 +++---
- include/linux/pm.h             |   14 ++++++++++----
- 16 files changed, 64 insertions(+), 58 deletions(-)
-
-Index: drivers/base/power/resume.c
+Index: linux-2.6.12-rc6/security/selinux/hooks.c
 ===================================================================
---- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/base/power/resume.c  (mode:100644)
-+++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/base/power/resume.c  (mode:100644)
-@@ -23,11 +23,11 @@
- int resume_device(struct device * dev)
- {
- 	if (dev->power.pm_parent
--			&& dev->power.pm_parent->power.power_state) {
-+			&& dev->power.pm_parent->power.power_state.event) {
- 		dev_err(dev, "PM: resume from %d, parent %s still %d\n",
--			dev->power.power_state,
-+			dev->power.power_state.event,
- 			dev->power.pm_parent->bus_id,
--			dev->power.pm_parent->power.power_state);
-+			dev->power.pm_parent->power.power_state.event);
- 	}
- 	if (dev->bus && dev->bus->resume) {
- 		dev_dbg(dev,"resuming\n");
-@@ -50,7 +50,7 @@
- 		list_add_tail(entry, &dpm_active);
+--- linux-2.6.12-rc6.orig/security/selinux/hooks.c
++++ linux-2.6.12-rc6/security/selinux/hooks.c
+@@ -80,6 +80,8 @@
+ extern unsigned int policydb_loaded_version;
+ extern int selinux_nlmsg_lookup(u16 sclass, u16 nlmsg_type, u32 *perm);
  
- 		up(&dpm_list_sem);
--		if (!dev->power.prev_state)
-+		if (!dev->power.prev_state.event)
- 			resume_device(dev);
- 		down(&dpm_list_sem);
- 		put_device(dev);
-Index: drivers/base/power/runtime.c
-===================================================================
---- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/base/power/runtime.c  (mode:100644)
-+++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/base/power/runtime.c  (mode:100644)
-@@ -13,10 +13,10 @@
- static void runtime_resume(struct device * dev)
- {
- 	dev_dbg(dev, "resuming\n");
--	if (!dev->power.power_state)
-+	if (!dev->power.power_state.event)
- 		return;
- 	if (!resume_device(dev))
--		dev->power.power_state = 0;
-+		dev->power.power_state = PMSG_ON;
- }
- 
- 
-@@ -49,10 +49,10 @@
- 	int error = 0;
- 
- 	down(&dpm_sem);
--	if (dev->power.power_state == state)
-+	if (dev->power.power_state.event == state.event)
- 		goto Done;
- 
--	if (dev->power.power_state)
-+	if (dev->power.power_state.event)
- 		runtime_resume(dev);
- 
- 	if (!(error = suspend_device(dev, state)))
-Index: drivers/base/power/suspend.c
-===================================================================
---- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/base/power/suspend.c  (mode:100644)
-+++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/base/power/suspend.c  (mode:100644)
-@@ -39,22 +39,22 @@
- {
- 	int error = 0;
- 
--	if (dev->power.power_state) {
-+	if (dev->power.power_state.event) {
- 		dev_dbg(dev, "PM: suspend %d-->%d\n",
--			dev->power.power_state, state);
-+			dev->power.power_state.event, state.event);
- 	}
- 	if (dev->power.pm_parent
--			&& dev->power.pm_parent->power.power_state) {
-+			&& dev->power.pm_parent->power.power_state.event) {
- 		dev_err(dev,
- 			"PM: suspend %d->%d, parent %s already %d\n",
--			dev->power.power_state, state,
-+			dev->power.power_state.event, state.event,
- 			dev->power.pm_parent->bus_id,
--			dev->power.pm_parent->power.power_state);
-+			dev->power.pm_parent->power.power_state.event);
- 	}
- 
- 	dev->power.prev_state = dev->power.power_state;
- 
--	if (dev->bus && dev->bus->suspend && !dev->power.power_state) {
-+	if (dev->bus && dev->bus->suspend && !dev->power.power_state.event) {
- 		dev_dbg(dev, "suspending\n");
- 		error = dev->bus->suspend(dev, state);
- 	}
-Index: drivers/base/power/sysfs.c
-===================================================================
---- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/base/power/sysfs.c  (mode:100644)
-+++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/base/power/sysfs.c  (mode:100644)
-@@ -26,19 +26,19 @@
- 
- static ssize_t state_show(struct device * dev, char * buf)
- {
--	return sprintf(buf, "%u\n", dev->power.power_state);
-+	return sprintf(buf, "%u\n", dev->power.power_state.event);
- }
- 
- static ssize_t state_store(struct device * dev, const char * buf, size_t n)
- {
--	u32 state;
-+	pm_message_t state;
- 	char * rest;
- 	int error = 0;
- 
--	state = simple_strtoul(buf, &rest, 10);
-+	state.event = simple_strtoul(buf, &rest, 10);
- 	if (*rest)
- 		return -EINVAL;
--	if (state)
-+	if (state.event)
- 		error = dpm_runtime_suspend(dev, state);
- 	else
- 		dpm_runtime_resume(dev);
-Index: drivers/ide/ide.c
-===================================================================
---- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/ide/ide.c  (mode:100644)
-+++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/ide/ide.c  (mode:100644)
-@@ -1385,7 +1385,7 @@
- 	rq.special = &args;
- 	rq.pm = &rqpm;
- 	rqpm.pm_step = ide_pm_state_start_suspend;
--	rqpm.pm_state = state;
-+	rqpm.pm_state = state.event;
- 
- 	return ide_do_drive_cmd(drive, &rq, ide_wait);
- }
-@@ -1404,7 +1404,7 @@
- 	rq.special = &args;
- 	rq.pm = &rqpm;
- 	rqpm.pm_step = ide_pm_state_start_resume;
--	rqpm.pm_state = 0;
-+	rqpm.pm_state = PM_EVENT_ON;
- 
- 	return ide_do_drive_cmd(drive, &rq, ide_head_wait);
- }
-Index: drivers/pci/pci.c
-===================================================================
---- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/pci/pci.c  (mode:100644)
-+++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/pci/pci.c  (mode:100644)
-@@ -316,14 +316,14 @@
- 
- pci_power_t pci_choose_state(struct pci_dev *dev, pm_message_t state)
- {
--	if (!pci_find_capability(dev, PCI_CAP_ID_PM))
-+	switch (state.event) {
-+	case PM_EVENT_ON:
- 		return PCI_D0;
--
--	switch (state) {
--	case 0: return PCI_D0;
--	case 3: return PCI_D3hot;
--	default:
--		printk("They asked me for state %d\n", state);
-+	case PM_EVENT_FREEZE:
-+	case PM_EVENT_SUSPEND:
-+		return PCI_D3hot;
-+	default: 
-+		printk("They asked me for state %d\n", state.event);
- 		BUG();
- 	}
- 	return PCI_D0;
-Index: drivers/serial/pmac_zilog.c
-===================================================================
---- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/serial/pmac_zilog.c  (mode:100644)
-+++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/serial/pmac_zilog.c  (mode:100644)
-@@ -1601,7 +1601,7 @@
- 		return 0;
- 	}
- 
--	if (pm_state == mdev->ofdev.dev.power.power_state || pm_state < 2)
-+	if (pm_state.event == mdev->ofdev.dev.power.power_state.event)
- 		return 0;
- 
- 	pmz_debug("suspend, switching to state %d\n", pm_state);
-Index: drivers/usb/core/hub.c
-===================================================================
---- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/usb/core/hub.c  (mode:100644)
-+++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/usb/core/hub.c  (mode:100644)
-@@ -1564,7 +1564,7 @@
- 			struct usb_driver	*driver;
- 
- 			intf = udev->actconfig->interface[i];
--			if (state <= intf->dev.power.power_state)
-+			if (state.event <= intf->dev.power.power_state.event)
- 				continue;
- 			if (!intf->dev.driver)
- 				continue;
-@@ -1572,11 +1572,11 @@
- 
- 			if (driver->suspend) {
- 				status = driver->suspend(intf, state);
--				if (intf->dev.power.power_state != state
-+				if (intf->dev.power.power_state.event != state.event
- 						|| status)
- 					dev_err(&intf->dev,
- 						"suspend %d fail, code %d\n",
--						state, status);
-+						state.event, status);
- 			}
- 
- 			/* only drivers with suspend() can ever resume();
-@@ -1589,7 +1589,7 @@
- 			 * since we know every driver's probe/disconnect works
- 			 * even for drivers that can't suspend.
- 			 */
--			if (!driver->suspend || state > PM_SUSPEND_MEM) {
-+			if (!driver->suspend || state.event > PM_EVENT_FREEZE) {
- #if 1
- 				dev_warn(&intf->dev, "resume is unsafe!\n");
- #else
-@@ -1610,7 +1610,7 @@
- 	 * policies (when HNP doesn't apply) once we have mechanisms to
- 	 * turn power back on!  (Likely not before 2.7...)
- 	 */
--	if (state > PM_SUSPEND_MEM) {
-+	if (state.event > PM_EVENT_FREEZE) {
- 		dev_warn(&udev->dev, "no poweroff yet, suspending instead\n");
- 	}
- 
-@@ -1727,7 +1727,7 @@
- 			struct usb_driver	*driver;
- 
- 			intf = udev->actconfig->interface[i];
--			if (intf->dev.power.power_state == PMSG_SUSPEND)
-+			if (intf->dev.power.power_state.event == PM_EVENT_ON)
- 				continue;
- 			if (!intf->dev.driver) {
- 				/* FIXME maybe force to alt 0 */
-@@ -1741,11 +1741,11 @@
- 
- 			/* can we do better than just logging errors? */
- 			status = driver->resume(intf);
--			if (intf->dev.power.power_state != PMSG_ON
-+			if (intf->dev.power.power_state.event != PM_EVENT_ON
- 					|| status)
- 				dev_dbg(&intf->dev,
- 					"resume fail, state %d code %d\n",
--					intf->dev.power.power_state, status);
-+					intf->dev.power.power_state.event, status);
- 		}
- 		status = 0;
- 
-@@ -1928,7 +1928,7 @@
- 	unsigned		port1;
- 	int			status;
- 
--	if (intf->dev.power.power_state == PM_SUSPEND_ON)
-+	if (intf->dev.power.power_state.event == PM_EVENT_ON)
- 		return 0;
- 
- 	for (port1 = 1; port1 <= hdev->maxchild; port1++) {
-Index: drivers/usb/core/usb.c
-===================================================================
---- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/usb/core/usb.c  (mode:100644)
-+++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/usb/core/usb.c  (mode:100644)
-@@ -1389,7 +1389,7 @@
- 	driver = to_usb_driver(dev->driver);
- 
- 	/* there's only one USB suspend state */
--	if (intf->dev.power.power_state)
-+	if (intf->dev.power.power_state.event)
- 		return 0;
- 
- 	if (driver->suspend)
-Index: drivers/usb/host/ehci-dbg.c
-===================================================================
---- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/usb/host/ehci-dbg.c  (mode:100644)
-+++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/usb/host/ehci-dbg.c  (mode:100644)
-@@ -641,7 +641,7 @@
- 
- 	spin_lock_irqsave (&ehci->lock, flags);
- 
--	if (bus->controller->power.power_state) {
-+	if (bus->controller->power.power_state.event) {
- 		size = scnprintf (next, size,
- 			"bus %s, device %s (driver " DRIVER_VERSION ")\n"
- 			"SUSPENDED (no register access)\n",
-Index: drivers/usb/host/ohci-dbg.c
-===================================================================
---- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/usb/host/ohci-dbg.c  (mode:100644)
-+++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/usb/host/ohci-dbg.c  (mode:100644)
-@@ -631,7 +631,7 @@
- 		hcd->product_desc,
- 		hcd_name);
- 
--	if (bus->controller->power.power_state) {
-+	if (bus->controller->power.power_state.event) {
- 		size -= scnprintf (next, size,
- 			"SUSPENDED (no register access)\n");
- 		goto done;
-Index: drivers/usb/host/sl811-hcd.c
-===================================================================
---- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/usb/host/sl811-hcd.c  (mode:100644)
-+++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/usb/host/sl811-hcd.c  (mode:100644)
-@@ -1781,9 +1781,9 @@
- 	if (phase != SUSPEND_POWER_DOWN)
- 		return retval;
- 
--	if (state <= PM_SUSPEND_MEM)
-+	if (state.event == PM_EVENT_FREEZE)
- 		retval = sl811h_hub_suspend(hcd);
--	else
-+	else if (state.event == PM_EVENT_SUSPEND)
- 		port_power(sl811, 0);
- 	if (retval == 0)
- 		dev->power.power_state = state;
-@@ -1802,7 +1802,7 @@
- 	/* with no "check to see if VBUS is still powered" board hook,
- 	 * let's assume it'd only be powered to enable remote wakeup.
- 	 */
--	if (dev->power.power_state > PM_SUSPEND_MEM
-+	if (dev->power.power_state.event == PM_EVENT_SUSPEND
- 			|| !hcd->can_wakeup) {
- 		sl811->port1 = 0;
- 		port_power(sl811, 1);
-Index: drivers/video/aty/atyfb_base.c
-===================================================================
---- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/video/aty/atyfb_base.c  (mode:100644)
-+++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/video/aty/atyfb_base.c  (mode:100644)
-@@ -2071,12 +2071,12 @@
- 	struct fb_info *info = pci_get_drvdata(pdev);
- 	struct atyfb_par *par = (struct atyfb_par *) info->par;
- 
--	if (pdev->dev.power.power_state == 0)
-+	if (pdev->dev.power.power_state.event == PM_EVENT_ON)
- 		return 0;
- 
- 	acquire_console_sem();
- 
--	if (pdev->dev.power.power_state == 2)
-+	if (pdev->dev.power.power_state.event == 2)
- 		aty_power_mgmt(0, par);
- 	par->asleep = 0;
- 
-Index: drivers/video/aty/radeon_pm.c
-===================================================================
---- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/video/aty/radeon_pm.c  (mode:100644)
-+++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/video/aty/radeon_pm.c  (mode:100644)
-@@ -2526,18 +2526,18 @@
-         struct radeonfb_info *rinfo = info->par;
- 	int i;
- 
--	if (state == pdev->dev.power.power_state)
-+	if (state.event == pdev->dev.power.power_state.event)
- 		return 0;
- 
- 	printk(KERN_DEBUG "radeonfb (%s): suspending to state: %d...\n",
--	       pci_name(pdev), state);
-+	       pci_name(pdev), state.event);
- 
- 	/* For suspend-to-disk, we cheat here. We don't suspend anything and
- 	 * let fbcon continue drawing until we are all set. That shouldn't
- 	 * really cause any problem at this point, provided that the wakeup
- 	 * code knows that any state in memory may not match the HW
- 	 */
--	if (state != PM_SUSPEND_MEM)
-+	if (state.event == PM_EVENT_FREEZE)
- 		goto done;
- 
- 	acquire_console_sem();
-@@ -2616,7 +2616,7 @@
-         struct radeonfb_info *rinfo = info->par;
- 	int rc = 0;
- 
--	if (pdev->dev.power.power_state == 0)
-+	if (pdev->dev.power.power_state.event == PM_EVENT_ON)
- 		return 0;
- 
- 	if (rinfo->no_schedule) {
-@@ -2626,7 +2626,7 @@
- 		acquire_console_sem();
- 
- 	printk(KERN_DEBUG "radeonfb (%s): resuming from state: %d...\n",
--	       pci_name(pdev), pdev->dev.power.power_state);
-+	       pci_name(pdev), pdev->dev.power.power_state.event);
- 
- 
- 	if (pci_enable_device(pdev)) {
-@@ -2637,7 +2637,7 @@
- 	}
- 	pci_set_master(pdev);
- 
--	if (pdev->dev.power.power_state == PM_SUSPEND_MEM) {
-+	if (pdev->dev.power.power_state.event == PM_EVENT_SUSPEND) {
- 		/* Wakeup chip. Check from config space if we were powered off
- 		 * (todo: additionally, check CLK_PIN_CNTL too)
- 		 */
-Index: drivers/video/i810/i810_main.c
-===================================================================
---- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/video/i810/i810_main.c  (mode:100644)
-+++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/video/i810/i810_main.c  (mode:100644)
-@@ -1506,12 +1506,12 @@
- 	struct i810fb_par *par = (struct i810fb_par *) info->par;
- 	int blank = 0, prev_state = par->cur_state;
- 
--	if (state == prev_state)
-+	if (state.event == prev_state)
- 		return 0;
- 
--	par->cur_state = state;
-+	par->cur_state = state.event;
- 
--	switch (state) {
-+	switch (state.event) {
- 	case 1:
- 		blank = VESA_VSYNC_SUSPEND;
- 		break;
-Index: include/linux/pm.h
-===================================================================
---- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/include/linux/pm.h  (mode:100644)
-+++ 24a21ff5302734d40e08c400b14c0c1624cceded/include/linux/pm.h  (mode:100644)
-@@ -185,7 +185,9 @@
- 
- struct device;
- 
--typedef u32 __bitwise pm_message_t;
-+typedef struct pm_message {
-+	int event;
-+} pm_message_t;
- 
- /*
-  * There are 4 important states driver can be in:
-@@ -205,9 +207,13 @@
-  * or something similar soon.
-  */
- 
--#define PMSG_FREEZE	((__force pm_message_t) 3)
--#define PMSG_SUSPEND	((__force pm_message_t) 3)
--#define PMSG_ON		((__force pm_message_t) 0)
-+#define PM_EVENT_ON 0
-+#define PM_EVENT_FREEZE 1
-+#define PM_EVENT_SUSPEND 2
++static int secondary;  /* how were we registered? */
 +
-+#define PMSG_FREEZE	({struct pm_message m; m.event = PM_EVENT_FREEZE; m; })
-+#define PMSG_SUSPEND	({struct pm_message m; m.event = PM_EVENT_SUSPEND; m; })
-+#define PMSG_ON		({struct pm_message m; m.event = PM_EVENT_ON; m; })
+ #ifdef CONFIG_SECURITY_SELINUX_DEVELOP
+ int selinux_enforcing = 0;
  
- struct dev_pm_info {
- 	pm_message_t		power_state;
-
+@@ -102,15 +104,6 @@ static int __init selinux_enabled_setup(
+ __setup("selinux=", selinux_enabled_setup);
+ #endif
+ 
+-/* Original (dummy) security module. */
+-static struct security_operations *original_ops = NULL;
+-
+-/* Minimal support for a secondary security module,
+-   just to allow the use of the dummy or capability modules.
+-   The owlsm module can alternatively be used as a secondary
+-   module as long as CONFIG_OWLSM_FD is not enabled. */
+-static struct security_operations *secondary_ops = NULL;
+-
+ /* Lists of inode and superblock security structures initialized
+    before the policy was loaded. */
+ static LIST_HEAD(superblock_security_head);
+@@ -1399,9 +1392,6 @@ static int selinux_ptrace(struct task_st
+ 	struct task_security_struct *csec;
+ 	int rc;
+ 
+-	rc = secondary_ops->ptrace(parent,child);
+-	if (rc)
+-		return rc;
+ 	psec = security_get_value_type(&parent->security, SELINUX_LSM_ID,
+ 		struct task_security_struct);
+ 	csec = security_get_value_type(&child->security, SELINUX_LSM_ID,
+@@ -1417,41 +1407,17 @@ static int selinux_ptrace(struct task_st
+ static int selinux_capget(struct task_struct *target, kernel_cap_t *effective,
+                           kernel_cap_t *inheritable, kernel_cap_t *permitted)
+ {
+-	int error;
+-
+-	error = task_has_perm(current, target, PROCESS__GETCAP);
+-	if (error)
+-		return error;
+-
+-	return secondary_ops->capget(target, effective, inheritable, permitted);
++	return task_has_perm(current, target, PROCESS__GETCAP);
+ }
+ 
+ static int selinux_capset_check(struct task_struct *target, kernel_cap_t *effective,
+                                 kernel_cap_t *inheritable, kernel_cap_t *permitted)
+ {
+-	int error;
+-
+-	error = secondary_ops->capset_check(target, effective, inheritable, permitted);
+-	if (error)
+-		return error;
+-
+ 	return task_has_perm(current, target, PROCESS__SETCAP);
+ }
+ 
+-static void selinux_capset_set(struct task_struct *target, kernel_cap_t *effective,
+-                               kernel_cap_t *inheritable, kernel_cap_t *permitted)
+-{
+-	secondary_ops->capset_set(target, effective, inheritable, permitted);
+-}
+-
+ static int selinux_capable(struct task_struct *tsk, int cap)
+ {
+-	int rc;
+-
+-	rc = secondary_ops->capable(tsk, cap);
+-	if (rc)
+-		return rc;
+-
+ 	return task_has_capability(tsk,cap);
+ }
+ 
+@@ -1463,10 +1429,6 @@ static int selinux_sysctl(ctl_table *tab
+ 	u32 tsid;
+ 	int rc;
+ 
+-	rc = secondary_ops->sysctl(table, op);
+-	if (rc)
+-		return rc;
+-
+ 	tsec = security_get_value_type(&current->security, SELINUX_LSM_ID,
+ 		struct task_security_struct);
+ 
+@@ -1534,11 +1496,7 @@ static int selinux_quota_on(struct dentr
+ 
+ static int selinux_syslog(int type)
+ {
+-	int rc;
+-
+-	rc = secondary_ops->syslog(type);
+-	if (rc)
+-		return rc;
++	int rc = 0;
+ 
+ 	switch (type) {
+ 		case 3:         /* Read last kernel messages */
+@@ -1562,36 +1520,6 @@ static int selinux_syslog(int type)
+ 	return rc;
+ }
+ 
+-/*
+- * Check that a process has enough memory to allocate a new virtual
+- * mapping. 0 means there is enough memory for the allocation to
+- * succeed and -ENOMEM implies there is not.
+- *
+- * Note that secondary_ops->capable and task_has_perm_noaudit return 0
+- * if the capability is granted, but __vm_enough_memory requires 1 if
+- * the capability is granted.
+- *
+- * Do not audit the selinux permission check, as this is applied to all
+- * processes that allocate mappings.
+- */
+-static int selinux_vm_enough_memory(long pages)
+-{
+-	int rc, cap_sys_admin = 0;
+-	struct task_security_struct *tsec = current->security;
+-
+-	rc = secondary_ops->capable(current, CAP_SYS_ADMIN);
+-	if (rc == 0)
+-		rc = avc_has_perm_noaudit(tsec->sid, tsec->sid,
+-					SECCLASS_CAPABILITY,
+-					CAP_TO_MASK(CAP_SYS_ADMIN),
+-					NULL);
+-
+-	if (rc == 0)
+-		cap_sys_admin = 1;
+-
+-	return __vm_enough_memory(pages, cap_sys_admin);
+-}
+-
+ /* binprm security operations */
+ 
+ static int selinux_bprm_alloc_security(struct linux_binprm *bprm)
+@@ -1621,10 +1549,6 @@ static int selinux_bprm_set_security(str
+ 	struct avc_audit_data ad;
+ 	int rc;
+ 
+-	rc = secondary_ops->bprm_set_security(bprm);
+-	if (rc)
+-		return rc;
+-
+ 	bsec = security_get_value_type(&bprm->security, SELINUX_LSM_ID,
+ 		struct bprm_security_struct);
+ 
+@@ -1689,12 +1613,6 @@ static int selinux_bprm_set_security(str
+ 	return 0;
+ }
+ 
+-static int selinux_bprm_check_security (struct linux_binprm *bprm)
+-{
+-	return secondary_ops->bprm_check_security(bprm);
+-}
+-
+-
+ static int selinux_bprm_secureexec (struct linux_binprm *bprm)
+ {
+ 	struct task_security_struct *tsec;
+@@ -1711,7 +1629,7 @@ static int selinux_bprm_secureexec (stru
+ 					 PROCESS__NOATSECURE, NULL);
+ 	}
+ 
+-	return (atsecure || secondary_ops->bprm_secureexec(bprm));
++	return atsecure;
+ }
+ 
+ static void selinux_bprm_free_security(struct linux_binprm *bprm)
+@@ -1815,8 +1733,6 @@ static void selinux_bprm_apply_creds(str
+ 	u32 sid;
+ 	int rc;
+ 
+-	secondary_ops->bprm_apply_creds(bprm, unsafe);
+-
+ 	tsec = security_get_value_type(&current->security, SELINUX_LSM_ID,
+ 		struct task_security_struct);
+ 	bsec = security_get_value_type(&bprm->security, SELINUX_LSM_ID,
+@@ -2041,12 +1957,6 @@ static int selinux_mount(char * dev_name
+                          unsigned long flags,
+                          void * data)
+ {
+-	int rc;
+-
+-	rc = secondary_ops->sb_mount(dev_name, nd, type, flags, data);
+-	if (rc)
+-		return rc;
+-
+ 	if (flags & MS_REMOUNT)
+ 		return superblock_has_perm(current, nd->mnt->mnt_sb,
+ 		                           FILESYSTEM__REMOUNT, NULL);
+@@ -2057,12 +1967,6 @@ static int selinux_mount(char * dev_name
+ 
+ static int selinux_umount(struct vfsmount *mnt, int flags)
+ {
+-	int rc;
+-
+-	rc = secondary_ops->sb_umount(mnt, flags);
+-	if (rc)
+-		return rc;
+-
+ 	return superblock_has_perm(current,mnt->mnt_sb,
+ 	                           FILESYSTEM__UNMOUNT,NULL);
+ }
+@@ -2091,11 +1995,6 @@ static void selinux_inode_post_create(st
+ 
+ static int selinux_inode_link(struct dentry *old_dentry, struct inode *dir, struct dentry *new_dentry)
+ {
+-	int rc;
+-
+-	rc = secondary_ops->inode_link(old_dentry,dir,new_dentry);
+-	if (rc)
+-		return rc;
+ 	return may_link(dir, old_dentry, MAY_LINK);
+ }
+ 
+@@ -2106,11 +2005,6 @@ static void selinux_inode_post_link(stru
+ 
+ static int selinux_inode_unlink(struct inode *dir, struct dentry *dentry)
+ {
+-	int rc;
+-
+-	rc = secondary_ops->inode_unlink(dir, dentry);
+-	if (rc)
+-		return rc;
+ 	return may_link(dir, dentry, MAY_UNLINK);
+ }
+ 
+@@ -2141,12 +2035,6 @@ static int selinux_inode_rmdir(struct in
+ 
+ static int selinux_inode_mknod(struct inode *dir, struct dentry *dentry, int mode, dev_t dev)
+ {
+-	int rc;
+-
+-	rc = secondary_ops->inode_mknod(dir, dentry, mode, dev);
+-	if (rc)
+-		return rc;
+-
+ 	return may_create(dir, dentry, inode_mode_to_security_class(mode));
+ }
+ 
+@@ -2174,23 +2062,12 @@ static int selinux_inode_readlink(struct
+ 
+ static int selinux_inode_follow_link(struct dentry *dentry, struct nameidata *nameidata)
+ {
+-	int rc;
+-
+-	rc = secondary_ops->inode_follow_link(dentry,nameidata);
+-	if (rc)
+-		return rc;
+ 	return dentry_has_perm(current, NULL, dentry, FILE__READ);
+ }
+ 
+ static int selinux_inode_permission(struct inode *inode, int mask,
+ 				    struct nameidata *nd)
+ {
+-	int rc;
+-
+-	rc = secondary_ops->inode_permission(inode, mask, nd);
+-	if (rc)
+-		return rc;
+-
+ 	if (!mask) {
+ 		/* No permission to check.  Existence test. */
+ 		return 0;
+@@ -2202,12 +2079,6 @@ static int selinux_inode_permission(stru
+ 
+ static int selinux_inode_setattr(struct dentry *dentry, struct iattr *iattr)
+ {
+-	int rc;
+-
+-	rc = secondary_ops->inode_setattr(dentry, iattr);
+-	if (rc)
+-		return rc;
+-
+ 	if (iattr->ia_valid & ATTR_FORCE)
+ 		return 0;
+ 
+@@ -2529,12 +2400,6 @@ static int file_map_prot_check(struct fi
+ static int selinux_file_mmap(struct file *file, unsigned long reqprot,
+ 			     unsigned long prot, unsigned long flags)
+ {
+-	int rc;
+-
+-	rc = secondary_ops->file_mmap(file, reqprot, prot, flags);
+-	if (rc)
+-		return rc;
+-
+ 	if (selinux_checkreqprot)
+ 		prot = reqprot;
+ 
+@@ -2546,12 +2411,6 @@ static int selinux_file_mprotect(struct 
+ 				 unsigned long reqprot,
+ 				 unsigned long prot)
+ {
+-	int rc;
+-
+-	rc = secondary_ops->file_mprotect(vma, reqprot, prot);
+-	if (rc)
+-		return rc;
+-
+ 	if (selinux_checkreqprot)
+ 		prot = reqprot;
+ 
+@@ -2669,12 +2528,6 @@ static int selinux_file_receive(struct f
+ 
+ static int selinux_task_create(unsigned long clone_flags)
+ {
+-	int rc;
+-
+-	rc = secondary_ops->task_create(clone_flags);
+-	if (rc)
+-		return rc;
+-
+ 	return task_has_perm(current, current, PROCESS__FORK);
+ }
+ 
+@@ -2723,11 +2576,6 @@ static int selinux_task_setuid(uid_t id0
+ 	return 0;
+ }
+ 
+-static int selinux_task_post_setuid(uid_t id0, uid_t id1, uid_t id2, int flags)
+-{
+-	return secondary_ops->task_post_setuid(id0,id1,id2,flags);
+-}
+-
+ static int selinux_task_setgid(gid_t id0, gid_t id1, gid_t id2, int flags)
+ {
+ 	/* See the comment for setuid above. */
+@@ -2757,24 +2605,12 @@ static int selinux_task_setgroups(struct
+ 
+ static int selinux_task_setnice(struct task_struct *p, int nice)
+ {
+-	int rc;
+-
+-	rc = secondary_ops->task_setnice(p, nice);
+-	if (rc)
+-		return rc;
+-
+ 	return task_has_perm(current,p, PROCESS__SETSCHED);
+ }
+ 
+ static int selinux_task_setrlimit(unsigned int resource, struct rlimit *new_rlim)
+ {
+ 	struct rlimit *old_rlim = current->signal->rlim + resource;
+-	int rc;
+-
+-	rc = secondary_ops->task_setrlimit(resource, new_rlim);
+-	if (rc)
+-		return rc;
+-
+ 	/* Control the ability to change the hard limit (whether
+ 	   lowering or raising it), so that the hard limit can
+ 	   later be used as a safe reset point for the soft limit
+@@ -2798,11 +2634,6 @@ static int selinux_task_getscheduler(str
+ static int selinux_task_kill(struct task_struct *p, struct siginfo *info, int sig)
+ {
+ 	u32 perm;
+-	int rc;
+-
+-	rc = secondary_ops->task_kill(p, info, sig);
+-	if (rc)
+-		return rc;
+ 
+ 	if (info && ((unsigned long)info == 1 ||
+ 	             (unsigned long)info == 2 || SI_FROMKERNEL(info)))
+@@ -2841,8 +2672,6 @@ static void selinux_task_reparent_to_ini
+ {
+   	struct task_security_struct *tsec;
+ 
+-	secondary_ops->task_reparent_to_init(p);
+-
+ 	tsec = security_get_value_type(&p->security, SELINUX_LSM_ID,
+ 		struct task_security_struct);
+ 	tsec->osid = tsec->sid;
+@@ -3306,10 +3135,6 @@ static int selinux_socket_unix_stream_co
+ 	struct avc_audit_data ad;
+ 	int err;
+ 
+-	err = secondary_ops->unix_stream_connect(sock, other, newsk);
+-	if (err)
+-		return err;
+-
+ 	isec = security_get_value_type(&SOCK_INODE(sock)->i_security,
+ 		SELINUX_LSM_ID, struct inode_security_struct);
+ 	other_isec = security_get_value_type(&SOCK_INODE(other)->i_security,
+@@ -3693,11 +3518,7 @@ static int selinux_netlink_send(struct s
+ {
+ 	struct task_security_struct *tsec;
+ 	struct av_decision avd;
+-	int err;
+-
+-	err = secondary_ops->netlink_send(sk, skb);
+-	if (err)
+-		return err;
++	int err = 0;
+ 
+ 	tsec = security_get_value_type(&current->security,
+ 		SELINUX_LSM_ID, struct task_security_struct);
+@@ -3713,13 +3534,6 @@ static int selinux_netlink_send(struct s
+ 	return err;
+ }
+ 
+-static int selinux_netlink_recv(struct sk_buff *skb)
+-{
+-	if (!cap_raised(NETLINK_CB(skb).eff_cap, CAP_NET_ADMIN))
+-		return -EPERM;
+-	return 0;
+-}
+-
+ static int ipc_alloc_security(struct task_struct *task,
+ 			      struct kern_ipc_perm *perm,
+ 			      u16 sclass)
+@@ -4057,11 +3871,6 @@ static int selinux_shm_shmat(struct shmi
+ 			     char __user *shmaddr, int shmflg)
+ {
+ 	u32 perms;
+-	int rc;
+-
+-	rc = secondary_ops->shm_shmat(shp, shmaddr, shmflg);
+-	if (rc)
+-		return rc;
+ 
+ 	if (shmflg & SHM_RDONLY)
+ 		perms = SHM__READ;
+@@ -4197,32 +4006,12 @@ static int selinux_ipc_permission(struct
+ /* module stacking operations */
+ static int selinux_register_security (const char *name, struct security_operations *ops)
+ {
+-	if (secondary_ops != original_ops) {
+-		printk(KERN_INFO "%s:  There is already a secondary security "
+-		       "module registered.\n", __FUNCTION__);
+-		return -EINVAL;
+- 	}
+-
+-	secondary_ops = ops;
+-
+-	printk(KERN_INFO "%s:  Registering secondary module %s\n",
+-	       __FUNCTION__,
+-	       name);
+-
+-	return 0;
++	return -EINVAL;
+ }
+ 
+ static int selinux_unregister_security (const char *name, struct security_operations *ops)
+ {
+-	if (ops != secondary_ops) {
+-		printk (KERN_INFO "%s:  trying to unregister a security module "
+-		        "that is not registered.\n", __FUNCTION__);
+-		return -EINVAL;
+-	}
+-
+-	secondary_ops = original_ops;
+-
+-	return 0;
++	return -EINVAL;
+ }
+ 
+ static void selinux_d_instantiate (struct dentry *dentry, struct inode *inode)
+@@ -4385,23 +4174,19 @@ static struct security_operations selinu
+ 	.ptrace =			selinux_ptrace,
+ 	.capget =			selinux_capget,
+ 	.capset_check =			selinux_capset_check,
+-	.capset_set =			selinux_capset_set,
+ 	.sysctl =			selinux_sysctl,
+ 	.capable =			selinux_capable,
+ 	.quotactl =			selinux_quotactl,
+ 	.quota_on =			selinux_quota_on,
+ 	.syslog =			selinux_syslog,
+-	.vm_enough_memory =		selinux_vm_enough_memory,
+ 
+ 	.netlink_send =			selinux_netlink_send,
+-        .netlink_recv =			selinux_netlink_recv,
+ 
+ 	.bprm_alloc_security =		selinux_bprm_alloc_security,
+ 	.bprm_free_security =		selinux_bprm_free_security,
+ 	.bprm_apply_creds =		selinux_bprm_apply_creds,
+ 	.bprm_post_apply_creds =	selinux_bprm_post_apply_creds,
+ 	.bprm_set_security =		selinux_bprm_set_security,
+-	.bprm_check_security =		selinux_bprm_check_security,
+ 	.bprm_secureexec =		selinux_bprm_secureexec,
+ 
+ 	.sb_alloc_security =		selinux_sb_alloc_security,
+@@ -4458,7 +4243,6 @@ static struct security_operations selinu
+ 	.task_alloc_security =		selinux_task_alloc_security,
+ 	.task_free_security =		selinux_task_free_security,
+ 	.task_setuid =			selinux_task_setuid,
+-	.task_post_setuid =		selinux_task_post_setuid,
+ 	.task_setgid =			selinux_task_setgid,
+ 	.task_setpgid =			selinux_task_setpgid,
+ 	.task_getpgid =			selinux_task_getpgid,
+@@ -4530,10 +4314,12 @@ static struct security_operations selinu
+ #endif
+ };
+ 
++#define MY_NAME "selinux"
+ static __init int selinux_init(void)
+ {
+ 	struct task_security_struct *tsec;
+ 
++	secondary = 0;
+ 	if (!selinux_enabled) {
+ 		printk(KERN_INFO "SELinux:  Disabled at boot.\n");
+ 		return 0;
+@@ -4544,22 +4330,30 @@ static __init int selinux_init(void)
+ 	/* Set the security state for the initial task. */
+ 	if (task_alloc_security(current))
+ 		panic("SELinux:  Failed to initialize initial task.\n");
+-	tsec = current->security;
++	tsec = security_get_value_type(&current->security, SELINUX_LSM_ID,
++		struct task_security_struct);
+ 	tsec->osid = tsec->sid = SECINITSID_KERNEL;
+ 
+ 	avc_init();
+ 
+-	original_ops = secondary_ops = security_ops;
+-	if (!secondary_ops)
+-		panic ("SELinux: No initial security operations\n");
+-	if (register_security (&selinux_ops))
+-		panic("SELinux: Unable to register with kernel.\n");
++	if (register_security (&selinux_ops)) {
++		if (mod_reg_security( MY_NAME, &selinux_ops)) {
++			printk(KERN_ERR "%s: Failed to register with primary LSM.\n",
++				__FUNCTION__);
++			panic("SELinux: Unable to register with kernel.\n");
++		} else {
++			printk(KERN_ERR "%s: registered with primary LSM.\n",
++				__FUNCTION__);
++		}
++		secondary = 1;
++	}
+ 
+ 	if (selinux_enforcing) {
+ 		printk(KERN_INFO "SELinux:  Starting in enforcing mode\n");
+ 	} else {
+ 		printk(KERN_INFO "SELinux:  Starting in permissive mode\n");
+ 	}
++
+ 	return 0;
+ }
+ 
+@@ -4669,6 +4463,7 @@ int selinux_disable(void)
+ {
+ 	extern void exit_sel_fs(void);
+ 	static int selinux_disabled = 0;
++	int ret;
+ 
+ 	if (ss_initialized) {
+ 		/* Not permitted after initial policy load. */
+@@ -4684,8 +4479,15 @@ int selinux_disable(void)
+ 
+ 	selinux_disabled = 1;
+ 
+-	/* Reset security_ops to the secondary module, dummy or capability. */
+-	security_ops = secondary_ops;
++	if (secondary)
++		ret = mod_unreg_security(MY_NAME, &selinux_ops);
++	else
++		ret = unregister_security(&selinux_ops);
++
++	if (ret)
++		printk(KERN_INFO "Failure unregistering selinux.\n");
++	else
++		printk(KERN_INFO "Unregistered selinux.\n");
+ 
+ 	/* Unregister netfilter hooks. */
+ 	selinux_nf_ip_exit();

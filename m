@@ -1,113 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262457AbVFITwT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262459AbVFITxv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262457AbVFITwT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 15:52:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbVFITwT
+	id S262459AbVFITxv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 15:53:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262458AbVFITxu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 15:52:19 -0400
-Received: from smtp805.mail.ukl.yahoo.com ([217.12.12.195]:2150 "HELO
-	smtp805.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262457AbVFITwL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 15:52:11 -0400
-Message-ID: <42A8ABDB.6080804@unixtrix.com>
-Date: Thu, 09 Jun 2005 20:51:39 +0000
-From: Alastair Poole <alastair@unixtrix.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: BUG: Unusual TCP Connect() results.
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 9 Jun 2005 15:53:50 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:27068
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S262460AbVFITxl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 15:53:41 -0400
+Date: Thu, 09 Jun 2005 12:53:24 -0700 (PDT)
+Message-Id: <20050609.125324.88476545.davem@davemloft.net>
+To: pavel@ucw.cz
+Cc: vda@ilport.com.ua, abonilla@linuxwireless.org, jgarzik@pobox.com,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
+       ipw2100-admin@linux.intel.com
+Subject: Re: ipw2100: firmware problem
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050609104205.GD3169@elf.ucw.cz>
+References: <200506090909.55889.vda@ilport.com.ua>
+	<20050608.231657.59660080.davem@davemloft.net>
+	<20050609104205.GD3169@elf.ucw.cz>
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have tested various kernels including 2.6.11.10 2.6.11.11 and 
-2.6.12-rc6 and am having unusual results regarding connect().  Earlier 
-kernels do not return the same strange results.
+From: Pavel Machek <pavel@ucw.cz>
+Date: Thu, 9 Jun 2005 12:42:05 +0200
 
-I have tested numerous basic port scanners, including my own, and 
-strangely ports which are NOT open are being reported as open.  I have 
-checked these ports by various means -- to be certain they are NOT open 
--- and in various runlevels; the results are the same.
+> I'm not saying it should not work automagically. But it is wrong to
+> start transmitting on wireless as soon as kernel boots. It should stay
+> quiet in the radio until it is either told to talk or until interface
+> is upped.
 
-The number of ports listed changes in size and they appear to be 
-random.  For example, on one scan ports 22, 3455, 4532 and 6236 will 
-appear open; on another scan it might be 22, 3567, 3879, 3889, 6589 and 
-7374. 
+I agree.
 
-However, ports which ARE open do also appear as open alongside these 
-"rogue" ports.  I have also tested this on another system with the same 
-results.  It is also interesting to note that a basic TCP nmap scan does 
-not return these unusual results.
+There is a similar problem in the Acenic driver, it brings the
+link up and receives broadcast packets as soon as the driver
+is loaded.  Mostly this is because the driver inits the chip
+and registers the IRQ handler at probe time, whereas nearly
+every other driver does this at ->open() time.
 
-Enclosed is example code that produces these results on the named 
-kernels and systems.
-
-sincerely
-
-Alastair Poole
-
-########################################################################
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <errno.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <time.h>
-#include <string.h>
-
-int
-main (int argc, char **argv)
-{
-  int sd, result, server_port;
-  *struct* hostent *he;
-  *struct* sockaddr_in servaddr;
-
-  printf ("Test TCP/IP port scanner:\n");
-
-  *if* (argc != 2)
-    {
-      printf ("Usage: %s host\n", argv[0]);
-      exit (1);
-    }
-
-  *if* ((he = gethostbyname (argv[1])) == NULL)
-    {
-      perror ("gethostbyname()");
-      exit (1);
-    }
-
-  printf ("Scanning %s\n", argv[1]);
-
-  *for* (server_port = 0; server_port < 65536; server_port++)
-    {
-      *if* ((sd = socket (PF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1)
-	{
-	  perror ("socket()");
-	  exit (1);
-	}
-
-      bzero (&servaddr, *sizeof* servaddr);
-      servaddr.sin_family = AF_INET;
-      servaddr.sin_port = htons (server_port);
-      servaddr.sin_addr = *((*struct* in_addr *) he->h_addr);
-
-      result = connect (sd, (*struct* sockaddr *) &servaddr, *sizeof* servaddr);
-
-      *if* (result != -1)
-	{
-	  printf ("open port:  %d\n",server_port);
-	}
-      close (sd);
-    }
-  *return* result;
-}
-
-
-########################################################################

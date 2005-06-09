@@ -1,55 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262424AbVFIXWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262429AbVFIXdU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262424AbVFIXWh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 19:22:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262417AbVFIXWh
+	id S262429AbVFIXdU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 19:33:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262438AbVFIXdU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 19:22:37 -0400
-Received: from smtp06.auna.com ([62.81.186.16]:30880 "EHLO smtp06.retemail.es")
-	by vger.kernel.org with ESMTP id S262424AbVFIXTw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 19:19:52 -0400
-Date: Thu, 09 Jun 2005 23:19:49 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Problems with usb and digital camera
-To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
-X-Mailer: Balsa 2.3.3
-Message-Id: <1118359189l.15128l.0l@werewolf.able.es>
-MIME-Version: 1.0
+	Thu, 9 Jun 2005 19:33:20 -0400
+Received: from fmr21.intel.com ([143.183.121.13]:43997 "EHLO
+	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262429AbVFIXdH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 19:33:07 -0400
+Date: Thu, 9 Jun 2005 16:32:16 -0700
+From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Wiegley <jeffw@cyte.com>, linux-kernel@vger.kernel.org,
+       john stultz <johnstul@us.ibm.com>, Andi Kleen <ak@muc.de>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Subject: Re: amd64 cdrom access locks system
+Message-ID: <20050609163216.A18636@unix-os.sc.intel.com>
+References: <42A64556.4060405@cyte.com> <20050608052354.7b70052c.akpm@osdl.org> <42A861F8.9000301@cyte.com> <20050609160045.69c579d2.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-X-Auth-Info: Auth:LOGIN IP:[83.138.215.85] Login:jamagallon@able.es Fecha:Fri, 10 Jun 2005 01:19:50 +0200
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050609160045.69c579d2.akpm@osdl.org>; from akpm@osdl.org on Thu, Jun 09, 2005 at 04:00:45PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi...
+On Thu, Jun 09, 2005 at 04:00:45PM -0700, Andrew Morton wrote:
+> Jeff Wiegley <jeffw@cyte.com> wrote:
+> >
+> > warning: many lost ticks.
+> > Your time source seems to be instable or some driver is hogging interupts
+> > rip default_idle+0x24/0x30
+> > Falling back to HPET
+> > divide error: 0000 [1] PREEMPT
+> > ...
+> > RIP: 0010:[<ffffffff80112704>] <ffffffff80112704>{timer_interrupt+244}
+> 
+> The timer code got confused, fell back to the HPET timer and then got a
+> divide-by-zero in timer_interrupt().  Probably because variable hpet_tick
+> is zero.
+> 
+> - It's probably a bug that the cdrom code is holding interrupts off for
+>   too long.
+> 
+>   Use hdparm and dmesg to see whether the driver is using DMA.  If it
+>   isn't, fiddle with it until it is.
+> 
+> - It's possibly a bug that we're falling back to HPET mode just because
+>   the cdrom driver is being transiently silly.
+> 
+> - It's surely a bug that hpet_tick is zero after we've switched to HPET mode.
+> 
+> 
+> 
+> 
+> Please test this workaround:
+> 
 
-I have a Canon Powershot A70 and it used to work nicely with linux and
-gnome. But now it has stopped working.
+Only reason I can see for hpet_tick to be zero is when there was some error 
+in hpet_init(), and we start using PIT. But, later we try to fallback to an 
+uninitilized HPET. 
 
-When I plug the camera, gthumb pops and try to import photos. But I get a
-window with this message:
+Can you look at your dmesg before the hang and check what timer is getting used?
+The dmesg line will look something like this...
 
-An error occurred in the io-library ('Error updating the port settings'): Could not set config 0/1 (Device or resource busy)
+time.c: Using ______ MHz ___ timer.
 
-syslog shows this:
-
-Jun  6 23:43:04 werewolf kernel: usb 5-2: new full speed USB device using uhci_hcd and address 6
-Jun  6 23:45:38 werewolf kernel: usb 5-2: usbfs: interface 0 claimed by usbfs while 'gthumb' sets config #1
-
-I have now 2.6.12-rc6-mm1. My USB pendrive works nicely.
-
-Are you aware of any strange behaviour of USB in this kernel ?
-What means the syslog message ? The kernel grabs the device to show in usbfs
-and nobody can open it ?
-
-TIA
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandriva Linux release 2006.0 (Cooker) for i586
-Linux 2.6.11-jam23 (gcc 4.0.0 (4.0.0-3mdk for Mandriva Linux release 2006.0))
-
+Thanks,
+Venki
 

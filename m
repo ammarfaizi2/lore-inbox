@@ -1,37 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262294AbVFIG3r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262108AbVFIGbt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262294AbVFIG3r (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 02:29:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbVFIG3q
+	id S262108AbVFIGbt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 02:31:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262298AbVFIGbs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 02:29:46 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:10720
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S262294AbVFIG2d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 02:28:33 -0400
-Date: Wed, 08 Jun 2005 23:28:18 -0700 (PDT)
-Message-Id: <20050608.232818.31644993.davem@davemloft.net>
-To: vda@ilport.com.ua
-Cc: abonilla@linuxwireless.org, pavel@ucw.cz, jgarzik@pobox.com,
+	Thu, 9 Jun 2005 02:31:48 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:18082 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262303AbVFIGap (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 02:30:45 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: "David S. Miller" <davem@davemloft.net>
+Subject: Re: ipw2100: firmware problem
+Date: Thu, 9 Jun 2005 09:30:22 +0300
+User-Agent: KMail/1.5.4
+Cc: jketreno@linux.intel.com, pavel@ucw.cz, jgarzik@pobox.com,
        netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
        ipw2100-admin@linux.intel.com
-Subject: Re: ipw2100: firmware problem
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200506090925.07495.vda@ilport.com.ua>
-References: <200506090909.55889.vda@ilport.com.ua>
-	<20050608.231657.59660080.davem@davemloft.net>
-	<200506090925.07495.vda@ilport.com.ua>
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+References: <200506090903.49295.vda@ilport.com.ua> <200506090917.23853.vda@ilport.com.ua> <20050608.232020.115912376.davem@davemloft.net>
+In-Reply-To: <20050608.232020.115912376.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506090930.22274.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Denis Vlasenko <vda@ilport.com.ua>
-Date: Thu, 9 Jun 2005 09:25:07 +0300
+On Thursday 09 June 2005 09:20, David S. Miller wrote:
+> From: Denis Vlasenko <vda@ilport.com.ua>
+> Date: Thu, 9 Jun 2005 09:17:23 +0300
+> 
+> > Sadly, realities are such that we have to live somehow
+> > with closed-source firmware.
+> 
+> You have a choice, buy products from friendly vendors.
 
-> You need to up interface? And surely you need ip addr? That's a knob also! :)
+I am trying! So far, I have Prism2.5, Prism54
+and acx111 cards, and all of them require closed binary fw.
 
-There's this thing called DHCP which takes care of this for me.
-With IPV6, even less configuration can be necessary.
+> I use prism54 cards in my laptops for this reason.
+
+?! As far as I remember, it needs a fw and fw is not open...
+did that change recently?
+ 
+> If you like a vendor's products who aren't friendly, try
+> to voice intelligently your opinion to them as to why users
+> will benefit from them fixing the firmware situation.
+--
+vda
+

@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262465AbVFIXvT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262446AbVFIXum@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262465AbVFIXvT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 19:51:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVFIXvF
+	id S262446AbVFIXum (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 19:50:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262505AbVFIXug
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 19:51:05 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:41983 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262504AbVFIXuQ
+	Thu, 9 Jun 2005 19:50:36 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:42233 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262446AbVFIXsu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 19:50:16 -0400
-Date: Thu, 9 Jun 2005 16:50:26 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Tim Bird <tim.bird@am.sony.com>
-Cc: linux-kernel@vger.kernel.org, bhuey@lnxw.com, andrea@suse.de,
-       tglx@linutronix.de, karim@opersys.com, mingo@elte.hu,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org
-Subject: Re: Attempted summary of "RT patch acceptance" thread
-Message-ID: <20050609235026.GE1297@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050608022646.GA3158@us.ibm.com> <42A8D1F3.8070408@am.sony.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42A8D1F3.8070408@am.sony.com>
-User-Agent: Mutt/1.4.1i
+	Thu, 9 Jun 2005 19:48:50 -0400
+Message-ID: <42A8D52C.701@mvista.com>
+Date: Thu, 09 Jun 2005 16:47:56 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Pavel Fedin <sonic_amiga@rambler.ru>, linux-kernel@vger.kernel.org,
+       linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH] Full NLS support for HFS (classic) filesystem
+References: <429B1E35.2040905@rambler.ru> <Pine.LNX.4.61.0505301337040.3743@scrub.home>
+In-Reply-To: <Pine.LNX.4.61.0505301337040.3743@scrub.home>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 09, 2005 at 04:34:11PM -0700, Tim Bird wrote:
-> Paul E. McKenney wrote:
-> > Hello!
-> > 
-> > Midway through the recent "RT patch acceptance" thread, someone mentioned
-> > that it might be good to summarize the various approaches.  The following
-> > is an attempt to do just this, with an eye to providing a reasonable
-> > framework for future discussion.
-> > 
-> > Thoughts?  Errors?  Omissions?
+Roman Zippel wrote:
+> Hi,
 > 
-> I haven't finished it, but it looks great so far.  Are you planning to
-> repost it to LKML, or otherwise publish it somewhere, after incorporating
-> feedback?
+> On Mon, 30 May 2005, Pavel Fedin wrote:
+> 
+> 
 
-Glad you like it!
+> (BTW please try to inline the patch otherwise it's rather difficult to 
+> quote from it.)
 
-I figured on sending out an update sometime next week, after incorporating
-feedback.
+I, for one, fine the attachment better.  Especially as he has a signature mark 
+at the end of his comments.  On my mailer (Mozilla) the attachment is inlined 
+after the message and comes up in the reply window.  If it is inlined after the 
+signature mark it is both half bright in the original message and does NOT come 
+up in the reply.  So confusing as to how and which mailer to use...
 
-> If you don't mind, I would like to put a copy on the CELF wiki.  But
-> if it's going to have a home elsewhere, I don't want to create a
-> duplicate copy.
-
-As long as questions, comments, and suggestions get pointed back to me,
-feel free!  I may do a more formal writeup in a couple of months, if there
-is enough added content of interest.
-
-							Thanx, Paul
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

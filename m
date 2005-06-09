@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262251AbVFICsd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261223AbVFIDC2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262251AbVFICsd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 22:48:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262245AbVFICsd
+	id S261223AbVFIDC2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 23:02:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262255AbVFIDC2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 22:48:33 -0400
-Received: from b3162.static.pacific.net.au ([203.143.238.98]:27012 "EHLO
-	cunningham.myip.net.au") by vger.kernel.org with ESMTP
-	id S262251AbVFICs3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 22:48:29 -0400
-Subject: Re: [PATCH] fix tulip suspend/resume
-From: Nigel Cunningham <ncunningham@cyclades.com>
-Reply-To: ncunningham@cyclades.com
-To: Pavel Machek <pavel@suse.cz>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Adam Belay <abelay@novell.com>, Greg KH <greg@kroah.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>, Karsten Keil <kkeil@suse.de>
-In-Reply-To: <20050609000402.GA2694@elf.ucw.cz>
-References: <20050606224645.GA23989@pingi3.kke.suse.de>
-	 <Pine.LNX.4.58.0506061702430.1876@ppc970.osdl.org>
-	 <20050607025054.GC3289@neo.rr.com>
-	 <20050607105552.GA27496@pingi3.kke.suse.de>
-	 <20050607205800.GB8300@neo.rr.com> <1118190373.6850.85.camel@gaston>
-	 <1118196980.3245.68.camel@localhost.localdomain>
-	 <20050608122320.GC1898@elf.ucw.cz> <1118271605.6850.137.camel@gaston>
-	 <20050609000402.GA2694@elf.ucw.cz>
-Content-Type: text/plain
-Organization: Cycades
-Message-Id: <1118285390.25506.74.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6-1mdk 
-Date: Thu, 09 Jun 2005 12:49:50 +1000
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Jun 2005 23:02:28 -0400
+Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:6660 "EHLO
+	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S261223AbVFIDCX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 23:02:23 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@taverner.cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: [PATCH] capabilities not inherited
+Date: Thu, 9 Jun 2005 02:59:19 +0000 (UTC)
+Organization: University of California, Berkeley
+Distribution: isaac
+Message-ID: <d88ba7$hck$1@abraham.cs.berkeley.edu>
+References: <Pine.GSO.4.58.0506081513340.22095@chewbacca.arl.wustl.edu> <20050608204430.GC9153@shell0.pdx.osdl.net> <1118265642.969.12.camel@localhost.localdomain>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: abraham.cs.berkeley.edu 1118285959 17812 128.32.168.222 (9 Jun 2005 02:59:19 GMT)
+X-Complaints-To: usenet@abraham.cs.berkeley.edu
+NNTP-Posting-Date: Thu, 9 Jun 2005 02:59:19 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Alexander Nyberg  wrote:
+>btw since the last discussion was about not changing the existing
+>interface and thus exposing security flaws, what about introducing
+>another prctrl that says maybe PRCTRL_ACROSS_EXECVE?
 
-On Thu, 2005-06-09 at 10:04, Pavel Machek wrote:
-> PMSG_* are for struct; you can't case on struct.
+Not sure if I understand the semantics you are proposing.
 
-switch (state.event)
+I remember that the sendmail attack involved the attacker clearing
+its SETUID capability bit, then execing sendmail.  Sendmail, the victim,
+got executed with fewer capabilities than it expected, and this caused it
+to fail (in particular, sendmail's attempt to drop privileges silently
+failed) -- leading to a security hole.  Will your proposal prevent such
+attacks?  I'm worried.
 
-Regards,
+>Any new user-space applications must understand the implications of
+>using it so it's safe in that aspect. Yes?
 
-Nigel
+Not clear.  Suppose Alice exec()s Bob.  
 
+Does your scheme protect Alice against a malicious Bob?  Yes, because
+Alice has to know about PRCTRL_ACROSS_EXECVE to use it.
+
+Does your scheme protect Bob against a malicious Alice?  Not clear.
+If Alice is the only who has to set PRCTRL_ACROSS_EXECVE, then Bob might
+not know about this flag and thus might be surprised by the implicatiohns
+of this flag.  Consequently, I can imagine this flag might allow Alice
+to attack Bob by exec()ing Bob with a different set of capabilities than
+Bob was expecting.  Does this sound right?
+
+But maybe I'm not thinking clearly enough about this.  This is tricky
+stuff.

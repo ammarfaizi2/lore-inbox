@@ -1,53 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262435AbVFISOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261251AbVFISYE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262435AbVFISOM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 14:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262437AbVFISOM
+	id S261251AbVFISYE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 14:24:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261407AbVFISYE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 14:14:12 -0400
-Received: from stark.xeocode.com ([216.58.44.227]:43741 "EHLO
-	stark.xeocode.com") by vger.kernel.org with ESMTP id S262435AbVFISOG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 14:14:06 -0400
-To: Mark Lord <liml@rtr.ca>
-Cc: Greg Stark <gsstark@mit.edu>, linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: SMART support for libata
-References: <87y8g8r4y6.fsf@stark.xeocode.com> <41B7EFA3.8000007@pobox.com>
-	<87br6g6ayr.fsf@stark.xeocode.com> <42A73E6E.80808@rtr.ca>
-	<873brs5ir8.fsf@stark.xeocode.com> <42A85F5E.10208@rtr.ca>
-In-Reply-To: <42A85F5E.10208@rtr.ca>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 09 Jun 2005 14:13:57 -0400
-Message-ID: <87u0k74cuy.fsf@stark.xeocode.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Thu, 9 Jun 2005 14:24:04 -0400
+Received: from ee.oulu.fi ([130.231.61.23]:43465 "EHLO ee.oulu.fi")
+	by vger.kernel.org with ESMTP id S261251AbVFISYA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 14:24:00 -0400
+Date: Thu, 9 Jun 2005 21:23:53 +0300
+From: Sami Tapio <flexy@ee.oulu.fi>
+To: "David S. Miller" <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       dwm@maxeymade.com
+Subject: Re: tcp_output.c BUG in 2.6.12-rc6-mm1 report
+Message-ID: <20050609182353.GA25840@ee.oulu.fi>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-Mark Lord <liml@rtr.ca> writes:
-
-> Greg Stark wrote:
-> ..
-> >>You should be using "-y" (standby) instead of "-Y" (sleep).
-> > I'll try that. But that's not going to make it spin up when it gets a SMART
-> > query is it?
+On Thu, Jun 09, 2005 at 01:09:32PM -0500, Doug Maxey wrote:
 > 
-> Depends on what SMART items are being queried.
+> On Thu, 09 Jun 2005 20:58:59 +0300, Sami Tapio wrote:
+> >On Wed, Jun 08, 2005 at 12:46:26PM -0700, David S. Miller wrote:
+> >> 
+> >> Just remove the BUG_ON() statement in tcp_tso_should_defer(), the
+> >> assertion is just incorrect.
+> >
+> >Well, don't know if it is incorrect or not, but my machine just 
+> >hard locked again, no reaction to SysRQ SUB sequence, no reaction 
+> >to anything else either, not answer to ping, nor ssh. Power off, 
+> >power on was the only method to get the machine alive again. 
+> >
+> >Only thing in the logs is the bug I've allready reported 2 times. 
+> >Don't know if that bug is real or not, but the problem is real 
+> >for sure.
+> >
 > 
-> Actually, what you should *really* be using is "hdparm -S"
-> with a suitable timeout value (say, 30 or larger).
+> I see these on a ICH5 based system.  Are you running wine by chance?
+> 
 
-Not really since the drive will just spin up ever few seconds as bdflush (or
-whatever it's called these days) dribbles out pages.
+I have wine installed, but no, I've not been running it in months.
 
-What I should *really* be using is the noflushd daemon. That's been on hold
-since I found it didn't work with SATA drives. But I wonder if it would work
-these days.
 
--- 
-greg
+Sami
 

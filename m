@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262421AbVFIRlJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262423AbVFIRr1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262421AbVFIRlJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 13:41:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262422AbVFIRlJ
+	id S262423AbVFIRr1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 13:47:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262427AbVFIRr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 13:41:09 -0400
-Received: from palrel12.hp.com ([156.153.255.237]:22509 "EHLO palrel12.hp.com")
-	by vger.kernel.org with ESMTP id S262421AbVFIRlD (ORCPT
+	Thu, 9 Jun 2005 13:47:26 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:43690 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262423AbVFIRrW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 13:41:03 -0400
-From: David Mosberger <davidm@napali.hpl.hp.com>
+	Thu, 9 Jun 2005 13:47:22 -0400
+Date: Thu, 9 Jun 2005 10:49:09 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Greg KH <gregkh@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [GIT PATCH] USB bugfixes and a PCI one too for 2.6.12-rc6
+In-Reply-To: <20050609164345.GA9538@kroah.com>
+Message-ID: <Pine.LNX.4.58.0506091045590.2286@ppc970.osdl.org>
+References: <20050609164345.GA9538@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17064.32552.507932.62892@napali.hpl.hp.com>
-Date: Thu, 9 Jun 2005 10:40:56 -0700
-To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org, Linas Vepstas <linas@austin.ibm.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       long <tlnguyen@snoqualmie.dp.intel.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
-Subject: Re: [PATCH 07/10] IOCHK interface for I/O error handling/detecting
-In-Reply-To: <42A83CF2.90304@jp.fujitsu.com>
-References: <42A8386F.2060100@jp.fujitsu.com>
-	<42A83CF2.90304@jp.fujitsu.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-Reply-To: davidm@hpl.hp.com
-X-URL: http://www.hpl.hp.com/personal/David_Mosberger/
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hidetoshi,
 
->>>>> On Thu, 09 Jun 2005 21:58:26 +0900, Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com> said:
 
-  Hidetoshi> +/*
-  Hidetoshi> + * Some I/O bridges may poison the data read, instead of
-  Hidetoshi> + * signaling a BERR.  The consummation of poisoned data
-  Hidetoshi> + * triggers a local, imprecise MCA.
-  Hidetoshi> + * Note that the read operation by itself does not consume
-  Hidetoshi> + * the bad data, you have to do something with it, e.g.:
-  Hidetoshi> + *
-  Hidetoshi> + *	ld.8	r9=[r10];;	// r10 == I/O address
-  Hidetoshi> + *	add.8	r8=r9,r9;;	// fake operation
-  Hidetoshi> + */
-  Hidetoshi> +#define ia64_poison_check(val)					\
-  Hidetoshi> +{	register unsigned long gr8 asm("r8");			\
-  Hidetoshi> +	asm volatile ("add %0=%1,r0" : "=r"(gr8) : "r"(val)); }
-  Hidetoshi> +
-  Hidetoshi> #endif /* CONFIG_IOMAP_CHECK  */
+On Thu, 9 Jun 2005, Greg KH wrote:
+> 
+> Please pull from:
+> 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
+> 
+>  drivers/block/ub.c                      |   10 -
+>  drivers/pci/hotplug/cpci_hotplug_core.c |    4 
+>  drivers/pci/hotplug/cpci_hotplug_pci.c  |   10 +
+>  drivers/usb/serial/ftdi_sio.c           |  236 ++++++++++++++++++++++++--------
+>  4 files changed, 198 insertions(+), 62 deletions(-)
 
-I have only looked that this briefly and I didn't see off hand where you get
-the "r9=[r10]" sequence from --- I hope you're not relying on the compiler
-happening to generate this sequence!
+Hmm.. I see the three commits you mention, but this doesn't match what I
+get:
 
-More importantly: please avoid inline "asm" and use the intrinsics
-defined by gcc_intrin.h instead (if you need something new, we can add
-that), but I think ia64_getreg() will do much of what you want already.
+	 drivers/block/ub.c                      |    4 +
+	 drivers/pci/hotplug/cpci_hotplug_core.c |    2 +
+	 drivers/pci/hotplug/cpci_hotplug_pci.c  |    5 +
+	 drivers/usb/serial/ftdi_sio.c           |  118 ++++++++++++++++++++++++-------
+	 4 files changed, 99 insertions(+), 30 deletions(-)
 
-Thanks,
+whazzup?
 
-	--david
-
+		Linus

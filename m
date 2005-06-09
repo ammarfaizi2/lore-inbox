@@ -1,59 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262010AbVFIPog@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262153AbVFIPvf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262010AbVFIPog (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 11:44:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261986AbVFIPoe
+	id S262153AbVFIPvf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 11:51:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262021AbVFIPvf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 11:44:34 -0400
-Received: from bizon.gios.gov.pl ([212.244.124.8]:48870 "EHLO
-	bizon.gios.gov.pl") by vger.kernel.org with ESMTP id S261973AbVFIPoO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 11:44:14 -0400
-Date: Thu, 9 Jun 2005 17:31:20 +0200 (CEST)
-From: Krzysztof Oledzki <olel@ans.pl>
-X-X-Sender: olel@bizon.gios.gov.pl
-To: Jeff Garzik <jgarzik@pobox.com>
-cc: linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: SATA passthru (SMART)
-In-Reply-To: <42A5E117.9050605@pobox.com>
-Message-ID: <Pine.LNX.4.62.0506091729090.30603@bizon.gios.gov.pl>
-References: <Pine.LNX.4.62.0506071224550.22317@bizon.gios.gov.pl>
- <42A5E117.9050605@pobox.com>
+	Thu, 9 Jun 2005 11:51:35 -0400
+Received: from smtpout02-04.prod.mesa1.secureserver.net ([64.202.165.194]:53719
+	"HELO smtpout02-04.prod.mesa1.secureserver.net") by vger.kernel.org
+	with SMTP id S262206AbVFIPve (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 11:51:34 -0400
+Message-ID: <42A8654F.1020500@coyotegulch.com>
+Date: Thu, 09 Jun 2005 11:50:39 -0400
+From: Scott Robert Ladd <lkml@coyotegulch.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050512)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-187430788-1627234249-1118331080=:30603"
+To: Mikael Pettersson <mikpe@csd.uu.se>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Has anyone had problems with GCC 4.0 and the kernel?
+References: <42A85065.4000108@coyotegulch.com> <17064.22132.219886.207366@alkaid.it.uu.se>
+In-Reply-To: <17064.22132.219886.207366@alkaid.it.uu.se>
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+Mikael Pettersson wrote:
+> gcc-4.0.0 vanilla is broken and miscompiles some ipv4/sysctl stuff.
+> More recent 4.0.1 snapshots are OK.
 
----187430788-1627234249-1118331080=:30603
-Content-Type: TEXT/PLAIN; charset=ISO-8859-2; format=flowed
-Content-Transfer-Encoding: QUOTED-PRINTABLE
+They're rolling release candidates for GCC 4.0.1 at the moment, so I
+expect it to be out early next week. I'll simply recommend people wait
+for the 4.0.1 release.
 
+I get 2-3 messages per day, steadily, from people with various kernel
+and GCC problems. Since I'm not exactly a kernel developer, I wonder why
+they think *I* have answers.
 
+Must be Google's fault... ;)
 
-On Tue, 7 Jun 2005, Jeff Garzik wrote:
-
-> Krzysztof Oledzki wrote:
->> Hello,
->>=20
->> Where can I found new version of the libata-dev1 patches required for SM=
-ART=20
->> on SATA? They used to be avaliable from=20
->> http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/ but it see=
-ms=20
->> it is no longer true. Or, is it possible to extract such patches somehow=
-=20
->> from the http://www.kernel.org/git?
->
-> Need to get it out of git.
-
-No plans for resurrecting /pub/linux/kernel/people/jgarzik/libata,=20
-please?
-
-Best regards,
-
- =09=09=09=09Krzysztof Ol=EAdzki
----187430788-1627234249-1118331080=:30603--
+..Scott

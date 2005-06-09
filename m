@@ -1,55 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262482AbVFIXtz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262210AbVFIXze@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262482AbVFIXtz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 19:49:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbVFIXsG
+	id S262210AbVFIXze (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 19:55:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVFIXzd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 19:48:06 -0400
-Received: from hqemgate03.nvidia.com ([216.228.112.143]:38946 "EHLO
-	HQEMGATE03.nvidia.com") by vger.kernel.org with ESMTP
-	id S262497AbVFIXrl convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 19:47:41 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Thu, 9 Jun 2005 19:55:33 -0400
+Received: from mail.timesys.com ([65.117.135.102]:41639 "EHLO
+	exchange.timesys.com") by vger.kernel.org with ESMTP
+	id S262210AbVFIXyE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 19:54:04 -0400
+Message-ID: <42A8D630.3030008@timesys.com>
+Date: Thu, 09 Jun 2005 19:52:16 -0400
+From: john cooper <john.cooper@timesys.com>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040913)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: [PATCH] [2.4.31] Increase MAX_MP_BUSSES for i386 kernel
-Date: Thu, 9 Jun 2005 16:47:36 -0700
-Message-ID: <8E5ACAE05E6B9E44A2903C693A5D4E8A091D15AE@hqemmail02.nvidia.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] [2.4.31] Increase MAX_MP_BUSSES for i386 kernel
-thread-index: AcVtTZ1Bu0De0jB3SPWYyl8hCKxLoA==
-From: "Andy Currid" <ACurrid@nvidia.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 09 Jun 2005 23:47:37.0199 (UTC) FILETIME=[9D7C0FF0:01C56D4D]
+To: george@mvista.com
+CC: Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Oleg Nesterov <oleg@tv-sign.ru>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, Olaf Kirch <okir@suse.de>,
+       john cooper <john.cooper@timesys.com>
+Subject: Re: RT and Cascade interrupts
+References: <42974F08.1C89CF2A@tv-sign.ru> <4297AF39.4070304@timesys.com>	 <42983135.C521F1C8@tv-sign.ru> <4298AED8.8000408@timesys.com>	 <1117312557.10746.6.camel@lade.trondhjem.org>	 <4299332F.6090900@timesys.com>	 <1117352410.10788.29.camel@lade.trondhjem.org>	 <429B8678.1000706@timesys.com> <429DC4A8.BFF69FB3@tv-sign.ru>	 <429DF8DE.7060008@timesys.com>	 <1117650718.10733.65.camel@lade.trondhjem.org>	 <429E0A86.7000507@timesys.com>	 <1117657267.10733.106.camel@lade.trondhjem.org>	 <429E21B8.2070404@timesys.com>	 <1117666319.10822.17.camel@lade.trondhjem.org>	 <429E7D91.9000808@timesys.com> <1117686367.10822.104.camel@lade.trondhjem.org> <42A8CE19.1000807@mvista.com>
+In-Reply-To: <42A8CE19.1000807@mvista.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 09 Jun 2005 23:46:53.0843 (UTC) FILETIME=[83A47630:01C56D4D]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+George Anzinger wrote:
+> Excuse me for interrupting this thread, but have you seen:
+> 
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=111717961227508&w=2
+> 
+> I think this will fix your problem.
 
-Increase the size of MAX_MP_BUSSES to allow 2.4 i386 SMP kernel to boot
-on machines that have PCI bus numbers above 31.
+That was touched on earlier in the thread.  It did not
+fix the problem I was chasing in 40-04.
 
-Signed-off-by: Andy Currid <acurrid@nvidia.com>
+I'll revisit this issue once I've moved to a more current
+version of the patch should it still exist.
 
----
+-john
 
-diff -pur linux-2.4.31/include/asm-i386/mpspec.h
-patch-2.4.31/include/asm-i386
---- linux-2.4.31/include/asm-i386/mpspec.h	2004-11-17
-03:54:22.000000000 -0800
-+++ patch-2.4.31/include/asm-i386/mpspec.h	2005-06-09
-18:08:52.385352384 -0700
-@@ -191,7 +191,7 @@ struct mpc_config_translation
- #define MAX_IRQ_SOURCES 256
- #endif /* CONFIG_MULTIQUAD */
- 
--#define MAX_MP_BUSSES 32
-+#define MAX_MP_BUSSES 256
- enum mp_bustype {
- 	MP_BUS_ISA = 1,
- 	MP_BUS_EISA,
 
+-- 
+john.cooper@timesys.com

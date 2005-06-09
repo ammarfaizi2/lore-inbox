@@ -1,36 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262289AbVFIGzj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262300AbVFIHCd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262289AbVFIGzj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 02:55:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262304AbVFIGzj
+	id S262300AbVFIHCd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 03:02:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262311AbVFIHCd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 02:55:39 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:40404 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262289AbVFIGzg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 02:55:36 -0400
-Message-ID: <42A7E7DF.6040903@pobox.com>
-Date: Thu, 09 Jun 2005 02:55:27 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
+	Thu, 9 Jun 2005 03:02:33 -0400
+Received: from smtp.blackdown.de ([213.239.206.42]:1164 "EHLO
+	smtp.blackdown.de") by vger.kernel.org with ESMTP id S262300AbVFIHCa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 03:02:30 -0400
+Message-ID: <42A7E973.5080603@blackdown.de>
+Date: Thu, 09 Jun 2005 09:02:11 +0200
+From: Juergen Kreileder <jk@blackdown.de>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>
-CC: Grant Coady <grant_lkml@dodo.com.au>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] SATA NCQ #4
-References: <20050608102857.GC18490@suse.de> <qrjda1h0sbohfdi5t57rqpp581avqcslir@4ax.com> <20050608114150.GE18490@suse.de> <20050608114526.GF18490@suse.de> <tbgea15ls0a5kovgnsr62fkhtgnspmjfeg@4ax.com> <20050609062338.GC5140@suse.de> <20050609064031.GF5140@suse.de> <42A7E52E.5040101@pobox.com>
-In-Reply-To: <42A7E52E.5040101@pobox.com>
+To: Andreas Schwab <schwab@suse.de>
+CC: Linus Torvalds <torvalds@osdl.org>, Paul Mackerras <paulus@samba.org>,
+       akpm@osdl.org, anton@samba.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ppc64: Fix PER_LINUX32 behaviour
+References: <17062.56723.535978.961340@cargo.ozlabs.ibm.com>	<Pine.LNX.4.58.0506081022030.2286@ppc970.osdl.org>	<jey89kbmsc.fsf@sykes.suse.de> <87u0k8k1s6.fsf@blackdown.de> <jed5qwbhfw.fsf@sykes.suse.de>
+In-Reply-To: <jed5qwbhfw.fsf@sykes.suse.de>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Actually I wound up removing the WARN_ON(), since it broke my CONFIG_SMP 
-build here :)
+Andreas Schwab wrote:
+> Juergen Kreileder <jk@blackdown.de> writes:
+>>The current code doesn't work like intended, on my G5 both 'linux32
+>>uname -m' and 'linux32 sh -c "uname -m"' return 'ppc64' without the
+>>patch.
+> 
+> You appear to be using some very old version of glibc.  I can't reproduce
+> that here.  Are you sure you aren't using syscall 109 (__NR_olduname)
+> instead of 122 (__NR_uname)?
 
-	Jeff
+Debian unstable's glibc isn't exactly new but it isn't that old.
+
+I guess others have the seen the problem too, otherwise anybody would
+have ignored my bug report and the original patch.
 
 
-
+        Juergen

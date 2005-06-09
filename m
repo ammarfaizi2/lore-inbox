@@ -1,59 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262399AbVFIXTZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262424AbVFIXWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262399AbVFIXTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 19:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262417AbVFIXTZ
+	id S262424AbVFIXWh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 19:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262417AbVFIXWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 19:19:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:49811 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262399AbVFIXTN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 19:19:13 -0400
-Date: Thu, 9 Jun 2005 16:20:59 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>
-cc: Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       gregkh@suse.de
-Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
-In-Reply-To: <20050609223835.GB26023@erebor.esa.informatik.tu-darmstadt.de>
-Message-ID: <Pine.LNX.4.58.0506091617130.2286@ppc970.osdl.org>
-References: <Pine.LNX.4.58.0506032149130.1876@ppc970.osdl.org>
- <20050604155742.GA14384@erebor.esa.informatik.tu-darmstadt.de>
- <20050605204645.A28422@jurassic.park.msu.ru>
- <20050606002739.GA943@erebor.esa.informatik.tu-darmstadt.de>
- <20050606184335.A30338@jurassic.park.msu.ru>
- <20050608173409.GA32004@erebor.esa.informatik.tu-darmstadt.de>
- <20050609023639.A7067@jurassic.park.msu.ru> <1118289850.6850.164.camel@gaston>
- <20050609175441.C9187@jurassic.park.msu.ru>
- <20050609175429.GA26023@erebor.esa.informatik.tu-darmstadt.de>
- <20050609223835.GB26023@erebor.esa.informatik.tu-darmstadt.de>
+	Thu, 9 Jun 2005 19:22:37 -0400
+Received: from smtp06.auna.com ([62.81.186.16]:30880 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S262424AbVFIXTw convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 19:19:52 -0400
+Date: Thu, 09 Jun 2005 23:19:49 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Problems with usb and digital camera
+To: Lista Linux-Kernel <linux-kernel@vger.kernel.org>
+X-Mailer: Balsa 2.3.3
+Message-Id: <1118359189l.15128l.0l@werewolf.able.es>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+X-Auth-Info: Auth:LOGIN IP:[83.138.215.85] Login:jamagallon@able.es Fecha:Fri, 10 Jun 2005 01:19:50 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi...
+
+I have a Canon Powershot A70 and it used to work nicely with linux and
+gnome. But now it has stopped working.
+
+When I plug the camera, gthumb pops and try to import photos. But I get a
+window with this message:
+
+An error occurred in the io-library ('Error updating the port settings'): Could not set config 0/1 (Device or resource busy)
+
+syslog shows this:
+
+Jun  6 23:43:04 werewolf kernel: usb 5-2: new full speed USB device using uhci_hcd and address 6
+Jun  6 23:45:38 werewolf kernel: usb 5-2: usbfs: interface 0 claimed by usbfs while 'gthumb' sets config #1
+
+I have now 2.6.12-rc6-mm1. My USB pendrive works nicely.
+
+Are you aware of any strange behaviour of USB in this kernel ?
+What means the syslog message ? The kernel grabs the device to show in usbfs
+and nobody can open it ?
+
+TIA
+
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandriva Linux release 2006.0 (Cooker) for i586
+Linux 2.6.11-jam23 (gcc 4.0.0 (4.0.0-3mdk for Mandriva Linux release 2006.0))
 
 
-On Fri, 10 Jun 2005, Andreas Koch wrote:
->
-> I did some more experimentation, and to my great the surprise, the
-> serial port on the dock _is_ functioning, even when the rest of the
-> dock is dead.
-
-I wonder whether the bridge is effectively a negative decode thing, and 
-the only "real" problem is that because the kernel doesn't know that, it 
-doesn't know that it can allocate just about any resource at all on the 
-other end..
-
-It would be pretty strange, since the PCI spec (afaik, and for pretty
-obvious reasons) disallows two negative bridges on the same bus (and you
-already have the other mobile bridge there), but it's technically possible
-if they just have different priorities for how fast they react to a PCI
-address cycle and claim it.
-
-Ivan, can you cook up some silly patch that just marks that one device 
-transparent, and see if that "just fixes it".
-
-		Linus

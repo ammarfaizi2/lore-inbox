@@ -1,113 +1,157 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262276AbVFIFVw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261333AbVFIFnp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262276AbVFIFVw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 01:21:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262277AbVFIFVw
+	id S261333AbVFIFnp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 01:43:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261540AbVFIFnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 01:21:52 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:32928 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262276AbVFIFVl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 01:21:41 -0400
-Date: Thu, 9 Jun 2005 10:54:04 +0530
-From: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-To: akpm@osdl.org, ak@muc.de, davem@davemloft.net
-Cc: linux-kernel@vger.kernel.org, systemtap@sources.redhat.com
-Subject: [PATCH] Kprobes: move aggregate probe handlers and few return probe routines to static
-Message-ID: <20050609052404.GA2220@in.ibm.com>
-Reply-To: prasanna@in.ibm.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4i
+	Thu, 9 Jun 2005 01:43:45 -0400
+Received: from de01egw01.freescale.net ([192.88.165.102]:10168 "EHLO
+	de01egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S261333AbVFIFnh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 01:43:37 -0400
+Date: Thu, 9 Jun 2005 00:43:23 -0500 (CDT)
+From: Kumar Gala <galak@freescale.com>
+X-X-Sender: galak@nylon.am.freescale.net
+To: Andrew Morton <akpm@osdl.org>
+cc: linux-kernel@vger.kernel.org,
+       linuxppc-embedded <linuxppc-embedded@ozlabs.org>
+Subject: [PATCH] ppc32: Clean up NUM_TLBCAMS usage for Freescale Book-E PPC's
+Message-ID: <Pine.LNX.4.61.0506090042560.22020@nylon.am.freescale.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Made the number of TLB CAM entries private and converted the board consumers
+to use num_tlbcam_entries which is setup at boot time from configuration
+registers.  This way the only consumers of the #define NUM_TLBCAMS are the
+arrays used to manage the TLB.
 
-This patch moves kprobes aggregate probe handlers and few return probe routines
-to static.
-
-Thanks
-Prasanna
-
-Several aggregate kprobe handlers and return probe routines were unnecessarily
-made global. This patch moves several global routines to static.
-
-Signed-off-by: Prasanna S Panchamukhi <prasanna@in.ibm.com>
-
+Signed-off-by: Kumar Gala <kumar.gala@freescale.com>
 
 ---
+commit 24e4731a8b0b74af65f39fa11cc3a520e52f0a63
+tree 89a18636e8eab485757cb89ee0645bc3ca27f1de
+parent d754db8e39a79ae9a159f747511889647e46748a
+author Kumar K. Gala <kumar.gala@freescale.com> Thu, 09 Jun 2005 00:41:46 -0500
+committer Kumar K. Gala <kumar.gala@freescale.com> Thu, 09 Jun 2005 00:41:46 -0500
 
- linux-2.6.12-rc6-mm1-prasanna/kernel/kprobes.c |   15 ++++++++-------
- 1 files changed, 8 insertions(+), 7 deletions(-)
+ arch/ppc/mm/fsl_booke_mmu.c                  |    2 ++
+ arch/ppc/mm/mmu_decl.h                       |    2 ++
+ arch/ppc/mm/pgtable.c                        |    1 -
+ arch/ppc/platforms/85xx/mpc8540_ads.c        |    4 ++--
+ arch/ppc/platforms/85xx/mpc85xx_cds_common.c |    4 ++--
+ arch/ppc/platforms/85xx/sbc8560.c            |    4 ++--
+ include/asm-ppc/pgtable.h                    |    2 --
+ 7 files changed, 10 insertions(+), 9 deletions(-)
 
-diff -puN kernel/kprobes.c~move-aggr-kprobe-handlers-to-static kernel/kprobes.c
---- linux-2.6.12-rc6-mm1/kernel/kprobes.c~move-aggr-kprobe-handlers-to-static	2005-06-08 15:14:52.000000000 +0530
-+++ linux-2.6.12-rc6-mm1-prasanna/kernel/kprobes.c	2005-06-08 15:24:21.000000000 +0530
-@@ -82,7 +82,7 @@ struct kprobe *get_kprobe(void *addr)
-  * Aggregate handlers for multiple kprobes support - these handlers
-  * take care of invoking the individual kprobe handlers on p->list
+diff --git a/arch/ppc/mm/fsl_booke_mmu.c b/arch/ppc/mm/fsl_booke_mmu.c
+--- a/arch/ppc/mm/fsl_booke_mmu.c
++++ b/arch/ppc/mm/fsl_booke_mmu.c
+@@ -64,6 +64,8 @@ extern unsigned long total_lowmem;
+ extern unsigned long __max_low_memory;
+ #define MAX_LOW_MEM	CONFIG_LOWMEM_SIZE
+ 
++#define NUM_TLBCAMS	(16)
++
+ struct tlbcam {
+    	u32	MAS0;
+ 	u32	MAS1;
+diff --git a/arch/ppc/mm/mmu_decl.h b/arch/ppc/mm/mmu_decl.h
+--- a/arch/ppc/mm/mmu_decl.h
++++ b/arch/ppc/mm/mmu_decl.h
+@@ -43,6 +43,8 @@ extern int mem_init_done;
+ extern PTE *Hash, *Hash_end;
+ extern unsigned long Hash_size, Hash_mask;
+ 
++extern unsigned int num_tlbcam_entries;
++
+ /* ...and now those things that may be slightly different between processor
+  * architectures.  -- Dan
   */
--int aggr_pre_handler(struct kprobe *p, struct pt_regs *regs)
-+static int aggr_pre_handler(struct kprobe *p, struct pt_regs *regs)
- {
- 	struct kprobe *kp;
+diff --git a/arch/ppc/mm/pgtable.c b/arch/ppc/mm/pgtable.c
+--- a/arch/ppc/mm/pgtable.c
++++ b/arch/ppc/mm/pgtable.c
+@@ -66,7 +66,6 @@ void setbat(int index, unsigned long vir
  
-@@ -97,8 +97,8 @@ int aggr_pre_handler(struct kprobe *p, s
- 	return 0;
- }
+ #ifdef HAVE_TLBCAM
+ extern unsigned int tlbcam_index;
+-extern unsigned int num_tlbcam_entries;
+ extern unsigned long v_mapped_by_tlbcam(unsigned long va);
+ extern unsigned long p_mapped_by_tlbcam(unsigned long pa);
+ #else /* !HAVE_TLBCAM */
+diff --git a/arch/ppc/platforms/85xx/mpc8540_ads.c b/arch/ppc/platforms/85xx/mpc8540_ads.c
+--- a/arch/ppc/platforms/85xx/mpc8540_ads.c
++++ b/arch/ppc/platforms/85xx/mpc8540_ads.c
+@@ -88,7 +88,7 @@ mpc8540ads_setup_arch(void)
+ #ifdef CONFIG_SERIAL_TEXT_DEBUG
+ 	/* Invalidate the entry we stole earlier the serial ports
+ 	 * should be properly mapped */
+-	invalidate_tlbcam_entry(NUM_TLBCAMS - 1);
++	invalidate_tlbcam_entry(num_tlbcam_entries - 1);
+ #endif
  
--void aggr_post_handler(struct kprobe *p, struct pt_regs *regs,
--		unsigned long flags)
-+static void aggr_post_handler(struct kprobe *p, struct pt_regs *regs,
-+			      unsigned long flags)
- {
- 	struct kprobe *kp;
+ 	/* setup the board related information for the enet controllers */
+@@ -150,7 +150,7 @@ platform_init(unsigned long r3, unsigned
+ 		struct uart_port p;
  
-@@ -112,7 +112,8 @@ void aggr_post_handler(struct kprobe *p,
- 	return;
- }
+ 		/* Use the last TLB entry to map CCSRBAR to allow access to DUART regs */
+-		settlbcam(NUM_TLBCAMS - 1, binfo->bi_immr_base,
++		settlbcam(num_tlbcam_entries - 1, binfo->bi_immr_base,
+ 			  binfo->bi_immr_base, MPC85xx_CCSRBAR_SIZE, _PAGE_IO, 0);
  
--int aggr_fault_handler(struct kprobe *p, struct pt_regs *regs, int trapnr)
-+static int aggr_fault_handler(struct kprobe *p, struct pt_regs *regs,
-+			      int trapnr)
- {
- 	/*
- 	 * if we faulted "during" the execution of a user specified
-@@ -153,7 +154,7 @@ struct kretprobe_instance *get_free_rp_i
- 	return NULL;
- }
+ 		memset(&p, 0, sizeof (p));
+diff --git a/arch/ppc/platforms/85xx/mpc85xx_cds_common.c b/arch/ppc/platforms/85xx/mpc85xx_cds_common.c
+--- a/arch/ppc/platforms/85xx/mpc85xx_cds_common.c
++++ b/arch/ppc/platforms/85xx/mpc85xx_cds_common.c
+@@ -446,7 +446,7 @@ mpc85xx_cds_setup_arch(void)
+ #ifdef CONFIG_SERIAL_TEXT_DEBUG
+ 	/* Invalidate the entry we stole earlier the serial ports
+ 	 * should be properly mapped */
+-	invalidate_tlbcam_entry(NUM_TLBCAMS - 1);
++	invalidate_tlbcam_entry(num_tlbcam_entries - 1);
+ #endif
  
--struct kretprobe_instance *get_used_rp_inst(struct kretprobe *rp)
-+static struct kretprobe_instance *get_used_rp_inst(struct kretprobe *rp)
- {
- 	struct hlist_node *node;
- 	struct kretprobe_instance *ri;
-@@ -252,7 +253,7 @@ void kprobe_flush_task(struct task_struc
-  * This kprobe pre_handler is registered with every kretprobe. When probe
-  * hits it will set up the return probe.
-  */
--int pre_handler_kretprobe(struct kprobe *p, struct pt_regs *regs)
-+static int pre_handler_kretprobe(struct kprobe *p, struct pt_regs *regs)
- {
- 	struct kretprobe *rp = container_of(p, struct kretprobe, kp);
+ 	/* setup the board related information for the enet controllers */
+@@ -528,7 +528,7 @@ platform_init(unsigned long r3, unsigned
+ 		struct uart_port p;
  
-@@ -261,7 +262,7 @@ int pre_handler_kretprobe(struct kprobe 
- 	return 0;
- }
+ 		/* Use the last TLB entry to map CCSRBAR to allow access to DUART regs */
+-		settlbcam(NUM_TLBCAMS - 1, binfo->bi_immr_base,
++		settlbcam(num_tlbcam_entries - 1, binfo->bi_immr_base,
+ 				binfo->bi_immr_base, MPC85xx_CCSRBAR_SIZE, _PAGE_IO, 0);
  
--inline void free_rp_inst(struct kretprobe *rp)
-+static inline void free_rp_inst(struct kretprobe *rp)
- {
- 	struct kretprobe_instance *ri;
- 	while ((ri = get_free_rp_inst(rp)) != NULL) {
-
-_
--- 
-
-Prasanna S Panchamukhi
-Linux Technology Center
-India Software Labs, IBM Bangalore
-Ph: 91-80-25044636
-<prasanna@in.ibm.com>
+ 		memset(&p, 0, sizeof (p));
+diff --git a/arch/ppc/platforms/85xx/sbc8560.c b/arch/ppc/platforms/85xx/sbc8560.c
+--- a/arch/ppc/platforms/85xx/sbc8560.c
++++ b/arch/ppc/platforms/85xx/sbc8560.c
+@@ -125,7 +125,7 @@ sbc8560_setup_arch(void)
+ #ifdef CONFIG_SERIAL_TEXT_DEBUG
+ 	/* Invalidate the entry we stole earlier the serial ports
+ 	 * should be properly mapped */ 
+-	invalidate_tlbcam_entry(NUM_TLBCAMS - 1);
++	invalidate_tlbcam_entry(num_tlbcam_entries - 1);
+ #endif
+ 
+ 	/* setup the board related information for the enet controllers */
+@@ -176,7 +176,7 @@ platform_init(unsigned long r3, unsigned
+ 
+ #ifdef CONFIG_SERIAL_TEXT_DEBUG
+ 	/* Use the last TLB entry to map CCSRBAR to allow access to DUART regs */
+-	settlbcam(NUM_TLBCAMS - 1, UARTA_ADDR,
++	settlbcam(num_tlbcam_entries - 1, UARTA_ADDR,
+ 		  UARTA_ADDR, 0x1000, _PAGE_IO, 0);
+ #endif
+ 
+diff --git a/include/asm-ppc/pgtable.h b/include/asm-ppc/pgtable.h
+--- a/include/asm-ppc/pgtable.h
++++ b/include/asm-ppc/pgtable.h
+@@ -267,8 +267,6 @@ extern unsigned long ioremap_bot, iorema
+ #define _PMD_PRESENT_MASK (PAGE_MASK)
+ #define _PMD_BAD	(~PAGE_MASK)
+ 
+-#define NUM_TLBCAMS	(16)
+-
+ #elif defined(CONFIG_8xx)
+ /* Definitions for 8xx embedded chips. */
+ #define _PAGE_PRESENT	0x0001	/* Page is valid */

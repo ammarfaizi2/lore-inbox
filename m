@@ -1,54 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262248AbVFIALV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262237AbVFIAN7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262248AbVFIALV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 20:11:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262247AbVFIAFb
+	id S262237AbVFIAN7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 20:13:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262236AbVFIAMH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 20:05:31 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:35810 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S262234AbVFIAAx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 20:00:53 -0400
-Subject: Re: [PATCH] capabilities not inherited
-From: Lee Revell <rlrevell@joe-job.com>
-To: Chris Wright <chrisw@osdl.org>
-Cc: Alexander Nyberg <alexn@telia.com>, Manfred Georg <mgeorg@arl.wustl.edu>,
-       gregkh@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20050608215904.GE13152@shell0.pdx.osdl.net>
-References: <Pine.GSO.4.58.0506081513340.22095@chewbacca.arl.wustl.edu>
-	 <20050608204430.GC9153@shell0.pdx.osdl.net>
-	 <1118265642.969.12.camel@localhost.localdomain>
-	 <20050608215904.GE13152@shell0.pdx.osdl.net>
-Content-Type: text/plain
-Date: Wed, 08 Jun 2005 19:49:25 -0400
-Message-Id: <1118274566.4539.28.camel@mindpipe>
+	Wed, 8 Jun 2005 20:12:07 -0400
+Received: from fire.osdl.org ([65.172.181.4]:25480 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262244AbVFIAFQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 20:05:16 -0400
+Date: Wed, 8 Jun 2005 17:04:08 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: linux-kernel@vger.kernel.org, stable@kernel.org
+Cc: Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Chuck Wolber <chuckw@quantumlinux.com>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk, ak@suse.de
+Subject: [patch 04/09] x86_64: avoid SMP boot up race
+Message-ID: <20050609000408.GK13152@shell0.pdx.osdl.net>
+References: <20050608234637.GG13152@shell0.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050608234637.GG13152@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2005-06-08 at 14:59 -0700, Chris Wright wrote:
-> * Alexander Nyberg (alexn@telia.com) wrote:
-> > btw since the last discussion was about not changing the existing
-> > interface and thus exposing security flaws, what about introducing
-> > another prctrl that says maybe PRCTRL_ACROSS_EXECVE?
-> 
-> It's not ideal (as you mention, mess upon mess), but maybe it is the
-> sanest way to go forward.
-> 
-> > Any new user-space applications must understand the implications of
-> > using it so it's safe in that aspect. Yes?
-> 
-> At least less-likely to surprise ;-)
+Keep interrupts disabled during smp bootup
 
-Any new user-space application developers that think about using
-capabilities for anything should run away screaming.  When the JACK
-developers proposed extending the mechanism to meet our needs, we were
-basically told the capabilities subsystem is deeply broken and that we'd
-have to rewrite the subsystem to do anything useful.  We ended up
-shoehorning LSM and finally rlimits into doing what we need.  Please see
-various "realtime LSM" threads for more (a LOT more) on the topic.
+This avoids a race that breaks SMP bootup on some machines.
+The race is not fully plugged (that is only done with much
+more changes in 2.6.12), but should be good enough
+for most people.
 
-Lee
+Keeping the interrupts disabled here is ok because we
+don't rely on the timer interrupt for local APIC
+timer setup, but always read the timer registers
+directly.
+
+(originally from Rusty Russell iirc) 
+
+Signed-off-by: ak@suse.de
+Signed-off-by: Chris Wright <chrisw@osdl.org>
+
+diff -u linux/arch/x86_64/kernel/apic.c-o linux/arch/x86_64/kernel/apic.c
+--- linux/arch/x86_64/kernel/apic.c-o	2005-05-31 16:40:01.000000000 +0200
++++ linux/arch/x86_64/kernel/apic.c	2005-05-31 16:44:05.000000000 +0200
+@@ -775,9 +775,7 @@
+ 
+ void __init setup_secondary_APIC_clock(void)
+ {
+-	local_irq_disable(); /* FIXME: Do we need this? --RR */
+ 	setup_APIC_timer(calibration_result);
+-	local_irq_enable();
+ }
+ 
+ void __init disable_APIC_timer(void)
+diff -u linux/arch/x86_64/kernel/smpboot.c-o linux-2.6.11/arch/x86_64/kernel/smpboot.c
+--- linux/arch/x86_64/kernel/smpboot.c-o	2005-03-21 14:04:11.000000000 +0100
++++ linux/arch/x86_64/kernel/smpboot.c	2005-05-31 16:44:07.000000000 +0200
+@@ -309,8 +309,6 @@
+ 	Dprintk("CALLIN, before setup_local_APIC().\n");
+ 	setup_local_APIC();
+ 
+-	local_irq_enable();
+-
+ 	/*
+ 	 * Get our bogomips.
+ 	 */
+@@ -324,8 +322,6 @@
+ 	 */
+  	smp_store_cpu_info(cpuid);
+ 
+-	local_irq_disable();
+-
+ 	/*
+ 	 * Allow the master to continue.
+ 	 */
 

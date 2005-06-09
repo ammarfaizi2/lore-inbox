@@ -1,42 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262224AbVFIAgC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262233AbVFIAka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262224AbVFIAgC (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 20:36:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbVFIAez
+	id S262233AbVFIAka (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 20:40:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262209AbVFHX6I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 20:34:55 -0400
-Received: from wproxy.gmail.com ([64.233.184.196]:52589 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262224AbVFIAei convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 20:34:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=gcptyTnILtGJqHW1tLNxrQzLyebiOxqtFyquKJaNVAESxsRCO2zrFxmDzKtZTcoeiI/armkZ7KjO8HsNBhupMh4cgqa47OGDkULLACj7hsy19rMNpMTMIUwuEK839eRrL53ZDAPcZLKxx1LQ5G9ueU2+V4XV5R2zNKT5CeBvoZ4=
-Message-ID: <9e47339105060817342bdd2dd@mail.gmail.com>
-Date: Wed, 8 Jun 2005 20:34:34 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Subject: Re: Dell BIOS and HPET timer support
-Cc: lkml <linux-kernel@vger.kernel.org>, Bob Picco <Robert.Picco@hp.com>
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB6004EBD1B0@scsmsx403.amr.corp.intel.com>
+	Wed, 8 Jun 2005 19:58:08 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:62148 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262208AbVFHX5D (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 19:57:03 -0400
+Date: Wed, 8 Jun 2005 19:01:33 -0500
+From: serue@us.ibm.com
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
+       James Morris <jmorris@redhat.com>
+Subject: [patch 7/11] lsm stacking: selinux: update ->security structs
+Message-ID: <20050609000133.GG27314@serge.austin.ibm.com>
+References: <20050608235505.GA27298@serge.austin.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <88056F38E9E48644A0F562A38C64FB6004EBD1B0@scsmsx403.amr.corp.intel.com>
+In-Reply-To: <20050608235505.GA27298@serge.austin.ibm.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/8/05, Pallipadi, Venkatesh <venkatesh.pallipadi@intel.com> wrote:
-> But, this will not affect normal kernel functioning. This will only
-> affect is someone wants to use /dev/hpet interface.
+Add the struct security_list lsm_list; to each structure which SELinux will be
+appending to a kernel object.
 
-I tried the little demo program in Documentation/hpet.txt It seems to work fine.
+Signed-off-by: Serge Hallyn <serue@us.ibm.com>
+---
+ security/selinux/include/objsec.h |   19 +++++++++++--------
+ 1 files changed, 11 insertions(+), 8 deletions(-)
 
-Still not sure what 0ns tick signifies. This is an Intel ICH5 chipset.
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Index: linux-2.6.12-rc2-stack/security/selinux/include/objsec.h
+===================================================================
+--- linux-2.6.12-rc2-stack.orig/security/selinux/include/objsec.h	2005-04-13 14:17:33.000000000 -0500
++++ linux-2.6.12-rc2-stack/security/selinux/include/objsec.h	2005-04-13 14:38:41.000000000 -0500
+@@ -23,11 +23,14 @@
+ #include <linux/fs.h>
+ #include <linux/binfmts.h>
+ #include <linux/in.h>
++#include <linux/security.h>
+ #include "flask.h"
+ #include "avc.h"
+ 
++#define SELINUX_LSM_ID 0xB65
++
+ struct task_security_struct {
+-        unsigned long magic;           /* magic number for this module */
++	struct security_list lsm_list; /* chained security objects */
+ 	struct task_struct *task;      /* back pointer to task object */
+ 	u32 osid;            /* SID prior to last execve */
+ 	u32 sid;             /* current SID */
+@@ -37,7 +40,7 @@ struct task_security_struct {
+ };
+ 
+ struct inode_security_struct {
+-	unsigned long magic;           /* magic number for this module */
++	struct security_list lsm_list; /* chained security objects */
+         struct inode *inode;           /* back pointer to inode object */
+ 	struct list_head list;         /* list of inode_security_struct */
+ 	u32 task_sid;        /* SID of creating task */
+@@ -49,14 +52,14 @@ struct inode_security_struct {
+ };
+ 
+ struct file_security_struct {
+-	unsigned long magic;            /* magic number for this module */
++	struct security_list lsm_list; /* chained security objects */
+ 	struct file *file;              /* back pointer to file object */
+ 	u32 sid;              /* SID of open file description */
+ 	u32 fown_sid;         /* SID of file owner (for SIGIO) */
+ };
+ 
+ struct superblock_security_struct {
+-	unsigned long magic;            /* magic number for this module */
++	struct security_list lsm_list; /* chained security objects */
+ 	struct super_block *sb;         /* back pointer to sb object */
+ 	struct list_head list;          /* list of superblock_security_struct */
+ 	u32 sid;              /* SID of file system */
+@@ -70,20 +73,20 @@ struct superblock_security_struct {
+ };
+ 
+ struct msg_security_struct {
+-        unsigned long magic;		/* magic number for this module */
++ 	struct security_list lsm_list; /* chained security objects */
+ 	struct msg_msg *msg;		/* back pointer */
+ 	u32 sid;              /* SID of message */
+ };
+ 
+ struct ipc_security_struct {
+-        unsigned long magic;		/* magic number for this module */
++ 	struct security_list lsm_list; /* chained security objects */
+ 	struct kern_ipc_perm *ipc_perm; /* back pointer */
+ 	u16 sclass;	/* security class of this object */
+ 	u32 sid;              /* SID of IPC resource */
+ };
+ 
+ struct bprm_security_struct {
+-	unsigned long magic;           /* magic number for this module */
++	struct security_list lsm_list; /* chained security objects */
+ 	struct linux_binprm *bprm;     /* back pointer to bprm object */
+ 	u32 sid;                       /* SID for transformed process */
+ 	unsigned char set;
+@@ -102,7 +105,7 @@ struct netif_security_struct {
+ };
+ 
+ struct sk_security_struct {
+-	unsigned long magic;		/* magic number for this module */
++	struct security_list lsm_list; /* chained security objects */
+ 	struct sock *sk;		/* back pointer to sk object */
+ 	u32 peer_sid;			/* SID of peer */
+ };

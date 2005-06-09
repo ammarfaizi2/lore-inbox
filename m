@@ -1,110 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262258AbVFIE1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262264AbVFIEpY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262258AbVFIE1S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 00:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262261AbVFIE1S
+	id S262264AbVFIEpY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 00:45:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262265AbVFIEpY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 00:27:18 -0400
-Received: from relay.rost.ru ([80.254.111.11]:37612 "EHLO relay.rost.ru")
-	by vger.kernel.org with ESMTP id S262258AbVFIE1K (ORCPT
+	Thu, 9 Jun 2005 00:45:24 -0400
+Received: from dvhart.com ([64.146.134.43]:50600 "EHLO localhost.localdomain")
+	by vger.kernel.org with ESMTP id S262264AbVFIEpI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 00:27:10 -0400
-Date: Thu, 9 Jun 2005 08:27:05 +0400
-From: Andrey Panin <pazke@donpac.ru>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc6-mm1
-Message-ID: <20050609042705.GA19180@pazke>
-Mail-Followup-To: Andy Whitcroft <apw@shadowen.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050607042931.23f8f8e0.akpm@osdl.org> <42A6FF41.5040109@shadowen.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="i0/AhcQY5QxfSsSZ"
+	Thu, 9 Jun 2005 00:45:08 -0400
+Date: Wed, 08 Jun 2005 21:44:41 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
+To: Andi Kleen <ak@muc.de>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>
+Subject: Re: 2.6.12?
+Message-ID: <563780000.1118292280@[10.10.2.4]>
+In-Reply-To: <1046820000.1118271896@flay>
+References: <42A0D88E.7070406@pobox.com> <20050603163843.1cf5045d.akpm@osdl.org> <394120000.1117895039@[10.10.2.4]> <20050604151120.46b51901.akpm@osdl.org> <418760000.1117983740@[10.10.2.4]> <971250000.1118168167@flay> <20050607122422.612759e4.akpm@osdl.org> <20050608125637.GL1683@muc.de> <549770000.1118260074@[10.10.2.4]> <1046820000.1118271896@flay>
+X-Mailer: Mulberry/2.2.1 (Linux/x86)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <42A6FF41.5040109@shadowen.org>
-X-Uname: Linux 2.6.11-pazke i686
-User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---i0/AhcQY5QxfSsSZ
-Content-Type: multipart/mixed; boundary="NzB8fVQJ5HfG6fxh"
-Content-Disposition: inline
+
+--"Martin J. Bligh" <mbligh@mbligh.org> wrote (on Wednesday, June 08, 2005 16:04:57 -0700):
+
+>>>> > >>> The one that worries me is that my x86_64 box won't boot since -rc3
+>>>> > >>>  See:
+>>>> > >>> 
+>>>> > >>>  http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/regression_matrix.html
+>>>> > 
+>>>> > HA. Found it. binary search reveals it's patch 182 out of 2.6.12-rc2-mm2.
+>>>> > And the winner is .... <drum roll please> ....
+>>>> > 
+>>>> > x86_64-use-the-e820-hole-to-map-the-iommu-agp-aperture.patch
+>>>> > 
+>>>> 
+>>>> hrm.  No useful messages in dmesg?
+>>>> 
+>>>> Andi, do we revert it?
+>>> 
+>>> Ok. For now. 
+>>> 
+>>> Actually it fixes some other bugs (e.g. one from Matt D.), but they are not
+>>> very high priority.
+>>> 
+>>> I would like to debug it, but I am not sure I will still make it this week.
+>>> But Martin, can you please send me the dmesg again? Maybe it is something
+>>> stupid.
+>> 
+>> All the logs are linked off here:
+>> 
+>> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/regression_matrix.html
+>> 
+>> Just click on the ABORT messages in hte left column. But I'm thinking maybe
+>> I'm off by one, and it might be:
+> 
+> Nope, I was correct, just one of my scrawled notes was wrong. backing out
+> 
+> x86_64-use-the-e820-hole-to-map-the-iommu-agp-aperture.patch
+
+OK, here's the patch to fix the boot problem, for reference (just the above
+reversed).
+
+http://mbligh.org/abat/no_hole
+
+Now what's REALLY, REALLY wierd is that this fixes my hang problem
+whilst trying to run kernbench:
+
+http://mbligh.org/abat/no_hang
+
+which is just reverting:
+
+x86_64-use-a-common-function-to-find-code-segment-bases-fix.patch
+
+But the patch is tiny, and it makes NO sense at all for this to fix
+anything. All it does is:
+
+diff -purN -X /home/mbligh/.diff.exclude 2.6.12-rc2-mm2/include/asm-x86_64/ptrace.h 2.6.12-rc2-mm2-no_hang/include/asm-x86_64/ptrace.h
+--- 2.6.12-rc2-mm2/include/asm-x86_64/ptrace.h	2005-04-08 23:41:41.000000000 -0700
++++ 2.6.12-rc2-mm2-no_hang/include/asm-x86_64/ptrace.h	2005-06-08 16:25:01.000000000 -0700
+@@ -86,8 +86,6 @@ struct pt_regs {
+ extern unsigned long profile_pc(struct pt_regs *regs);
+ void signal_fault(struct pt_regs *regs, void __user *frame, char *where);
+ 
+-struct task_struct;
+-
+ extern unsigned long
+ convert_rip_to_linear(struct task_struct *child, struct pt_regs *regs);
 
 
---NzB8fVQJ5HfG6fxh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+How the hell can that possibly fix it? Boggle. But it does. I checked.
+I ran a whole damned sequence of patches from your tree against the box,
+then extracted the one where the failover started and retested it with
+just that and the no_hole one. There's even a little green box to 
+prove it about 4 down on the left here:
 
-On 159, 06 08, 2005 at 03:22:57 +0100, Andy Whitcroft wrote:
-> We've been seeing an early boot hang on IBM x-series (at least on an
-> x440) with -rc6-mm1.  Finally got hold of a box to go search for this
-> and it seems that backing out the three patches below fixes it.
->=20
->  515  dmi-move-acpi-boot-quirk.patch
->  516  dmi-move-acpi-sleep-quirk.patch
->  517  dmi-remove-central-blacklist.patch
->=20
-> I am pretty sure it is actually the first one (thats where my bisection
-> search pointed) but I had to drop the other two to back it out.  Anyhow,
-> 2.6.12-rc6-mm1 boots on an x440 with these backed out.
+http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/regression_matrix.html
 
-Yeah, probably brown paper bag time... Please try the attached patch.
+My brain is now a small piece of silly-putty smushed against the far
+wall of my study. Anything you can do to help me scrape up the remains
+would be splendid. I can only speculate it's some wierd side-effect,
+because I have no other explaination at all.
 
---=20
-Andrey Panin		| Linux and UNIX system administrator
-pazke@donpac.ru		| PGP key: wwwkeys.pgp.net
+Humpf.
 
---NzB8fVQJ5HfG6fxh
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename=patch-stupid-dmi-bug
-Content-Transfer-Encoding: quoted-printable
+M.
 
-diff -urdpNX /usr/share/dontdiff linux-2.6.12-rc6-mm1.vanilla/arch/i386/ker=
-nel/acpi/boot.c linux-2.6.12-rc6-mm1/arch/i386/kernel/acpi/boot.c
---- linux-2.6.12-rc6-mm1.vanilla/arch/i386/kernel/acpi/boot.c	2005-06-09 08=
-:02:06.000000000 +0400
-+++ linux-2.6.12-rc6-mm1/arch/i386/kernel/acpi/boot.c	2005-06-09 08:24:01.0=
-00000000 +0400
-@@ -1040,6 +1040,7 @@ static struct dmi_system_id __initdata a
- 		},
- 	},
- #endif
-+	{ }
- };
-=20
- #endif	/* __i386__ */
-diff -urdpNX /usr/share/dontdiff linux-2.6.12-rc6-mm1.vanilla/arch/i386/ker=
-nel/acpi/sleep.c linux-2.6.12-rc6-mm1/arch/i386/kernel/acpi/sleep.c
---- linux-2.6.12-rc6-mm1.vanilla/arch/i386/kernel/acpi/sleep.c	2005-06-09 0=
-8:02:06.000000000 +0400
-+++ linux-2.6.12-rc6-mm1/arch/i386/kernel/acpi/sleep.c	2005-06-09 08:24:15.=
-000000000 +0400
-@@ -108,6 +108,7 @@ static __initdata struct dmi_system_id a
- 			DMI_MATCH(DMI_PRODUCT_NAME, "S4030CDT/4.3"),
- 		},
- 	},
-+	{ }
- };
-=20
- static int __init acpisleep_dmi_init(void)
-
---NzB8fVQJ5HfG6fxh--
-
---i0/AhcQY5QxfSsSZ
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.5 (GNU/Linux)
-
-iD8DBQFCp8UZR2OTnxNuAyMRAmJ5AJ40d3rGwGAisC/tbV0EurR1/UIMcACeMPri
-X6T3c5+uYr8QZihq6tyJltc=
-=Rll1
------END PGP SIGNATURE-----
-
---i0/AhcQY5QxfSsSZ--

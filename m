@@ -1,54 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262438AbVFIXeD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262427AbVFIXbx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262438AbVFIXeD (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 19:34:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbVFIXeD
+	id S262427AbVFIXbx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 19:31:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262429AbVFIXbx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 19:34:03 -0400
-Received: from hockin.org ([66.35.79.110]:24985 "EHLO www.hockin.org")
-	by vger.kernel.org with ESMTP id S262438AbVFIXdd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 19:33:33 -0400
-Date: Thu, 9 Jun 2005 16:33:12 -0700
-From: Tim Hockin <thockin@hockin.org>
-To: mj@ucw.cz, pciids-devel@lists.sourceforge.net
-Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: PCI IDs for NVida nForce
-Message-ID: <20050609233312.GA3089@hockin.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2i
+	Thu, 9 Jun 2005 19:31:53 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:45042 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S262427AbVFIXbq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 19:31:46 -0400
+Message-ID: <42A8D12C.7080308@mvista.com>
+Date: Thu, 09 Jun 2005 16:30:52 -0700
+From: George Anzinger <george@mvista.com>
+Reply-To: george@mvista.com
+Organization: MontaVista Software
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Daniel Walker <dwalker@mvista.com>
+CC: linux-kernel@vger.kernel.org, tglx@linutronix.de
+Subject: Re: RT and timers
+References: <Pine.LNX.4.44.0506091520210.11001-100000@dhcp153.mvista.com>
+In-Reply-To: <Pine.LNX.4.44.0506091520210.11001-100000@dhcp153.mvista.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Info from a CK804 (nForce4, nForce Pro, etc) board:
+Daniel Walker wrote:
+> George, 
+> 
+> 	I wanted to show you the code below, from the RT patch. I think 
+> it's possible that, if the code isn't changed in the way below, the 
+> while() loop could run forever. If jiffies is very fast moving , and the 
+> softirqd is low priority. Do you have any comments on this?
 
-Signed-off-by: Tim Hockin <thockin@hockin.org>
+What you are saying is that it is possible that the kernel will not be able to 
+keep up the timer list if we lower its priority.  Making this change just allows 
+softirqd to do other things and come right back to this code.  If we care at all 
+about timers, we should do a better job of setting priorities.
+
+In the end, I think we will want to go to a system where timers are just moved 
+to an expired list on the jiffie interrupt (this is very fast except for the 
+cascade, as the whole list is moved in one operation).  The expired list would 
+then be processed by a dedicated timer delivery thread that shifts its priority 
+to match the priority of the highest priority pending timer.
+
+Thomas Gleixner (added to the cc) is currently working on just such a change.
+
+So, in short, I don't see the point to the suggested change.  If the kernel is 
+late, it is best to let it catch up as fast as it can by looping here.  The only 
+counter argument that makes sense to me it that in this case we are starving 
+other softirqd driven tasks, but that should, if any thing, lighten the timer 
+load and let this complete faster.
+
+George
+-- 
 
 
---- old/drivers/pci/pci.ids	2005-06-09 16:29:08.000000000 -0700
-+++ new/drivers/pci/pci.ids	2005-05-11 19:37:07.000000000 -0700
-@@ -3116,6 +3116,22 @@
- 	002e  NV6 [Vanta]
- 	002f  NV6 [Vanta]
- 	0041  NV40 OS1RT00B30
-+	0050  nForce Professional ISA Bridge (LPC)
-+	0051  nForce Professional ISA Bridge (LPC)
-+	0052  nForce Professional SMBus Controller
-+	0053  nForce Professional IDE Controller
-+	0054  nForce Professional SATA Controller
-+	0055  nForce Professional SATA Controller
-+	0056  nForce Professional Ethernet Controller
-+	0057  nForce Professional Ethernet Controller
-+	0058  nForce Professional AC'97 Modem Codec
-+	0059  nForce Professional AC'97 Audio Codec
-+	005a  nForce Professional USB 1.1 Controller
-+	005b  nForce Professional USB 2.0 Controller
-+	005c  nForce Professional PCI Bridge
-+	005d  nForce Professional PCI Express Port
-+	005e  nForce Professional HyperTransport Bridge
-+	005f  nForce Professional Memory Controller
- 	0060  nForce2 ISA Bridge
- 		1043 80ad  A7N8X Mainboard
- 	0064  nForce2 SMBus (MCP)
+> 
+> Daniel
+> 
+> 
+> @@ -436,13 +437,30 @@ static int cascade(tvec_base_t *base, tv
+>  static inline void __run_timers(tvec_base_t *base)
+>  {
+>         struct timer_list *timer;
+> +       unsigned long jiffies_sample = jiffies;
+> 
+>         spin_lock_irq(&base->lock);
+> -       while (time_after_eq(jiffies, base->timer_jiffies)) {
+> +       while (time_after_eq(jiffies_sample, base->timer_jiffies)) {
+>                 struct list_head work_list = LIST_HEAD_INIT(work_list);
+>                 struct list_head *head = &work_list;
+>                 int index = base->timer_jiffies & TVR_MASK;
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
+
+-- 
+George Anzinger   george@mvista.com
+HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/

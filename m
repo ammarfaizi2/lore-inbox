@@ -1,120 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262228AbVFICU4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262227AbVFICY6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262228AbVFICU4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 22:20:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262227AbVFICU4
+	id S262227AbVFICY6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 22:24:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262231AbVFICY6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 22:20:56 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:55494 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262228AbVFICUj
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 22:20:39 -0400
-Date: Wed, 8 Jun 2005 19:20:41 -0700
+	Wed, 8 Jun 2005 22:24:58 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:16612 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S262227AbVFICYv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 22:24:51 -0400
+Date: Wed, 8 Jun 2005 19:25:12 -0700
 From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Eric Piel <Eric.Piel@lifl.fr>
+To: Karim Yaghmour <karim@opersys.com>
 Cc: linux-kernel@vger.kernel.org, bhuey@lnxw.com, andrea@suse.de,
-       tglx@linutronix.de, karim@opersys.com, mingo@elte.hu,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org
+       tglx@linutronix.de, mingo@elte.hu, pmarques@grupopie.com,
+       bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au, ak@muc.de,
+       sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, Philippe Gerum <rpm@xenomai.org>,
+       RTAI-Users <rtai@rtai.org>
 Subject: Re: Attempted summary of "RT patch acceptance" thread
-Message-ID: <20050609022041.GG1295@us.ibm.com>
+Message-ID: <20050609022512.GH1295@us.ibm.com>
 Reply-To: paulmck@us.ibm.com
-References: <42A714B7.8010105@lifl.fr>
+References: <20050608022646.GA3158@us.ibm.com> <42A721F9.2070608@opersys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <42A714B7.8010105@lifl.fr>
+In-Reply-To: <42A721F9.2070608@opersys.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 08, 2005 at 05:54:31PM +0200, Eric Piel wrote:
-> Paul E. McKenney said:
-> >Hello!
-> >
-> >Midway through the recent "RT patch acceptance" thread, someone mentioned
-> >that it might be good to summarize the various approaches.  The following
-> >is an attempt to do just this, with an eye to providing a reasonable
-> >framework for future discussion.
-> >
-> >Thoughts?  Errors?  Omissions?
+On Wed, Jun 08, 2005 at 12:51:05PM -0400, Karim Yaghmour wrote:
 > 
-> Hi Paul,
+> Paul,
 > 
-> I haven't yet gone through all your email in detail but it seems very 
-> well documented and precise.
+> I've finished reading your summary and I must say that it's excellent.
+> I don't remember ever reading a non-partisan comparison of this level
+> on the issue of real-time and Linux. Thanks for writing _and_ having
+> the guts to post it :)
 
-Thank you, glad you like it!
+Thank you for the kind words!  But who needs guts when you have
+senility?  ;-)
 
-> I'd like to add some information about your section "7.  Migration 
-> Within OS". I've now been working for more than a year on a project 
-> called ARTiS which precisely implements this approach. A announced was 
-> recently posted on the LKML :-) . You can find more information in this 
-> tread : http://lkml.org/lkml/2005/5/3/50 as well on our webpage 
-> www.lifl.fr/west/artis .
+> There is only one issue I would like to further highlight.
+> 
+> Note: None of the following should be in any way controversial, I'm
+> just providing further background.
 
-Aaack!!!  Don't know how I missed this, will review it and update the
-document.  Hmmm...  Checking the date, I plead near-terminal jet lag.
+;-)  ;-)  ;-)
 
-> Concerning the QoS, we have been able to obtain hard realtime, at least 
-> very firm real-time. Tests were conducted over 8 hours on IA-64 and x86 
-> and gave respectively 105µs and 40µs of maximum latency. Not as good as 
-> you have mentioned but mostly of the same order :-)
+> Paul E. McKenney wrote:
+> > the corresponding approach's strengths and weaknesses.  I do not address
+> > "strength of community", even though this may well be the decisive factor.
+> 
+> Indeed what you state here is entirely true. While Adeos and RTAI
+> development has been very active for quite a few years now, it must
+> be said that this development has largely gone unnoticed to LKML
+> participants -- as was obvious by the amount of surprise caused by
+> the realization of the existence of key Adeos and RTAI features.
+> 
+> Part of this is historical. 10 years ago, Linux's state was such
+> that those who were interested in doing rt with it realized that
+> it wasn't about to become rt-capable any time soon. Hence, they
+> "went away" and did their own little thing. They had their mailing
+> lists, their own flame-wars, their own conferences, and there was
+> very little common shared with the mainstream LKML community.
+> 
+> In fact, for a very long time, most kernel developers I spoke to
+> about real-time would refer back to a single project, RTLinux. To
+> this day, actually, if you look in the MAINTAINERS file, it still
+> says:
+> > RTLINUX  REALTIME  LINUX
+> > P:      Victor Yodaiken
+> > M:      yodaiken@fsmlabs.com
+> > L:      rtl@rtlinux.org
+> > W:      www.rtlinux.org
+> > S:      Maintained
+> Yet, the days where RTLinux was _the_ real-time Linux extension
+> are long gone and www.rtlinux.org has been a redirect to a .com
+> site for quite some time now -- I've suggested in the past that
+> this entry be replaced by RTAI, but I was told that neither should
+> in fact be in there, which is fair-enough, but nothing came of
+> this suggestion and the entry is still in the maintainers file.
+> 
+> This state of things remained until May 2002 when I picked up on
+> a post by Andrea to point out a "few" problems the RTAI community
+> saw with the RTLinux project. The ensuing thread was remarkably
+> intense -- not for the faint of heart. Here's the root of it if
+> you're ever interested in reading a huge flame-fest:
+> http://marc.theaimsgroup.com/?l=linux-kernel&m=102227589127072&w=2
+> While that discussion did serve to put RTAI on the map for some
+> developers, it also highlighted problems with the RTAI project
+> that needed to be solved.
+> 
+> Part of the issues was the patent problem, and that was solved
+> with the introduction of Adeos. However, with this and other
+> problems solved, the RTAI developers went back the way they came
+> from: to their own separate mailing lists.
+> 
+> In the past few years, though, a new bread of real-time developers
+> have become interested in making Linux fit for real-time
+> applications. Unlike the previous generation, though, these folks
+> have concentrated their efforts on working within the framework
+> already agreed upon by existing kernel developers: the LKML. And
+> in that, they have achieved a level of awareness amongst the kernel
+> crowd that I think RTAI and Adeos have not yet reached.
+> 
+> I've tried to remedy to this situation as best I can, by pointing
+> out what was obvious to me when appropriate. However, it must be
+> said that I haven't been actively involved with either Adeos or
+> RTAI in quite some time. So while I did play a part in the
+> history of both projects, there are others that are in a much
+> better position than I am to present to the LKML the work done
+> by the RTAI and Adeos communities.
+> 
+> In essence, therefore, what I have to say is this:
+> - To those who are actively involved in the development of RTAI
+> and Adeos, now is the time to drop the historical tendency of
+> acting as an entirely separate community and to start sharing
+> your work on the LKML.
+> - To those who are actively involved in finding solutions to the
+> real-time issues in Linux, do not be fooled by the apparent lack
+> of activity in the Adeos or RTAI projects, they are both very
+> active and warrant consideration.
+> 
+> As you correctly state, "strength of community" is likely a decisive
+> factor. What is important here is not to confuse "apparent" strength
+> of community -- or lack thereof -- with "actual" strength of
+> community -- or lack thereof.
 
-Quite impressive!  So, does this qualify as "ruby hard", or is it only
-"metal hard"?  ;-)
-
-The service measured was process scheduling, right?
-
-> Concerning the "e. fault isolation", on our implementation, holding a 
-> lock, mutex or semaphore will automatically migrate the task, therefore 
-> it's not a problem. Of course, some parts of the kernel that cannot be 
-> migrated might take a lock, namely the scheduler. For the scheduler, we 
-> modified most of the data structures requiring a lock so that they can 
-> be accessed locklessly (it's the hardest part of the implementation).
-
-Are the non-migrateable portions of the scheduler small enough that
-one could do a worst-case timing analysis?  Preferably aided by some
-automation...
-
-> Concerning the weaknesses, one point that you didn't mention is the 
-> difficulty to fully load the realtime dedicated CPUs. Tasks tends to 
-> migrate more away from the RT CPUs than they come back. In ARTiS, a 
-> modification of the load-balancer permits to keep most of the power but 
-> there is still probably some loss. Concerning the migration overhead, 
-> there must be some, but it's not very big and quite difficult to 
-> measure. Actually, the migration itself is light in CPU usage, the 
-> problem is that it unschedules the task so that it might take some time 
-> before the task is scheduled again (but if there is enough load on the 
-> computer, we lose mostly nothing).
-
-One approach would be to mark the migrated task so that it returns
-to the realtime CPU as soon as it completes the realtime-unsafe
-operation.
-
-> Finally, as you pointed out, one major requirement is obiously to have 
-> several CPUs. Luckily, SMT and dual core processors are more and more 
-> common (ARTiS was succesfully tested on Pentium HT). Still, in the 
-> embedded market this is not so usual, so that's a weakeness point if you 
-> target very devices. Our implementation is oriented toward big 
-> applications that requires both RT properties and high performance 
-> (that's why it was developped on IA-64).
-
-Another approach is to insert a virtualization layer (think in terms of
-a very cut-down variant of Xen) that tells the OS that there are two CPUs.
-This layer then gives realtime service to one, but not to the other.
-That way, the OS thinks that it has two CPUs, and can still do the
-migration tricks despite having only one real CPU.
-
-Anyway, interesting approach!
+All good points!  I added a few sentences encouraging realtime folks to
+participate in LKML discussions.
 
 						Thanx, Paul
 
-> That's my 2 cents for your summary :-)
+> Thanks again for a great piece.
 > 
-> Eric
-> 
-> PS: please CC me when replying to the lkml.
+> Karim Yaghmour
+> -- 
+> Author, Speaker, Developer, Consultant
+> Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+> http://www.opersys.com || karim@opersys.com || 1-866-677-4546
 > 

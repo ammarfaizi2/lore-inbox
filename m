@@ -1,64 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262364AbVFIMLr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262366AbVFIMOL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262364AbVFIMLr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 08:11:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262366AbVFIMLq
+	id S262366AbVFIMOL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 08:14:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262367AbVFIMOK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 08:11:46 -0400
-Received: from relay.nsnoc.com ([195.69.95.145]:26082 "EHLO vs145.ukvs.net")
-	by vger.kernel.org with ESMTP id S262364AbVFIML0 (ORCPT
+	Thu, 9 Jun 2005 08:14:10 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:8867 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S262366AbVFIMOB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 08:11:26 -0400
-Message-ID: <42A831E3.5080607@a-wing.co.uk>
-Date: Thu, 09 Jun 2005 13:11:15 +0100
-From: Andrew Hutchings <info@a-wing.co.uk>
-Reply-To: info@a-wing.co.uk
-Organization: A-Wing Internet Services
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Bartlomiej Zolnierkiewicz <bzolnier@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: sis5513.c patch take 2
-Content-Type: multipart/mixed;
- boundary="------------040509030302010108060403"
+	Thu, 9 Jun 2005 08:14:01 -0400
+Date: Thu, 9 Jun 2005 14:13:26 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Cc: linux-kernel@vger.kernel.org, "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+Message-ID: <20050609121326.GB17414@elte.hu>
+References: <20050608112801.GA31084@elte.hu> <42A73023.4040707@stud.feec.vutbr.cz> <20050609114510.GA10969@elte.hu> <42A8316E.6000104@stud.feec.vutbr.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42A8316E.6000104@stud.feec.vutbr.cz>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040509030302010108060403
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
 
-Hi,
+* Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
 
-Is this patch safer?  I am burn-in testing it now and it seems work fine 
-with UDMA transfers.  I added the PCI ID of the northbridge as suggested.
+> Ingo Molnar wrote:
+> >thanks - i have added it to my tree and have uploaded the -48-03 release 
+> >with your patch included.
+> 
+> This hunk should not be in the patch:
 
-Regards
-Andrew
--- 
-Andrew Hutchings (A-Wing)
-Linux Guru - Netserve Consultants Ltd. - http://www.domaincity.co.uk/
-Admin - North Wales Linux User Group - http://www.nwlug.org.uk/
-BOFH excuse 348: We're on Token Ring, and it looks like the token got loose.
+indeed - new patch uploaded.
 
---------------040509030302010108060403
-Content-Type: text/x-patch;
- name="sis5513-new.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="sis5513-new.patch"
-
---- linux-2.6.12-rc6/drivers/ide/pci/sis5513.c	2005-06-06 16:22:29.000000000 +0100
-+++ linux-2.6.12-rc6.new/drivers/ide/pci/sis5513.c	2005-06-09 17:41:07.000000000 +0100
-@@ -87,6 +87,7 @@
- 	u8 chipset_family;
- 	u8 flags;
- } SiSHostChipInfo[] = {
-+	{ "SiS760",	PCI_DEVICE_ID_SI_760,	ATA_133	 },
- 	{ "SiS745",	PCI_DEVICE_ID_SI_745,	ATA_100  },
- 	{ "SiS735",	PCI_DEVICE_ID_SI_735,	ATA_100  },
- 	{ "SiS733",	PCI_DEVICE_ID_SI_733,	ATA_100  },
-
---------------040509030302010108060403--
+	Ingo

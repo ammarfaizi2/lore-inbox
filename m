@@ -1,48 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261556AbVFIBYQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261379AbVFIBem@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261556AbVFIBYQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 21:24:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262211AbVFIBYQ
+	id S261379AbVFIBem (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 21:34:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262211AbVFIBee
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 21:24:16 -0400
-Received: from easyspace.ezspl.net ([216.74.109.141]:6539 "EHLO
-	easyspace.ezspl.net") by vger.kernel.org with ESMTP id S261556AbVFIBYN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 21:24:13 -0400
-Message-ID: <20050608212425.8951j70kxbwpcs8c@www.nucleodyne.com>
-Date: Wed, 08 Jun 2005 21:24:25 -0400
-From: kallol@nucleodyne.com
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Performance figure for sx8 driver
+	Wed, 8 Jun 2005 21:34:34 -0400
+Received: from fsmlabs.com ([168.103.115.128]:33943 "EHLO fsmlabs.com")
+	by vger.kernel.org with ESMTP id S261379AbVFIBe1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 21:34:27 -0400
+Date: Wed, 8 Jun 2005 19:37:19 -0600 (MDT)
+From: Zwane Mwaikambo <zwane@arm.linux.org.uk>
+To: Ashok Raj <ashok.raj@intel.com>
+cc: Andi Kleen <ak@suse.de>, Grant Grundler <grundler@parisc-linux.org>,
+       Greg KH <gregkh@suse.de>, Jeff Garzik <jgarzik@pobox.com>,
+       "David S. Miller" <davem@davemloft.net>,
+       "Nguyen, Tom L" <tom.l.nguyen@intel.com>, roland@topspin.com,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi()
+ for drivers - take 2
+In-Reply-To: <20050608090944.A4147@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.61.0506081915140.22613@montezuma.fsmlabs.com>
+References: <20050608133226.GR23831@wotan.suse.de> <20050608090944.A4147@unix-os.sc.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=ISO-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) H3 (4.0)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - easyspace.ezspl.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [32001 32003] / [47 12]
-X-AntiAbuse: Sender Address Domain - nucleodyne.com
-X-Source: /usr/local/cpanel/3rdparty/bin/php
-X-Source-Args: /usr/local/cpanel/3rdparty/bin/php /usr/local/cpanel/base/horde/imp/compose.php 
-X-Source-Dir: :/base/horde/imp
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Does anyone have performace figure for sx8 driver which is for promise SATAII150
-8 port PCI-X adapter?
+On Wed, 8 Jun 2005, Ashok Raj wrote:
 
-Someone reports that on a platform with sx8 driver, multiple hdparms on
-different disks those are connected to the same adapter (there are 8 ports) can
-not get more than 45MB/sec in total, whereas a SCSI based driver for the same
-adapter gets around 150MB/sec.
+> On Wed, Jun 08, 2005 at 06:32:26AM -0700, Andi Kleen wrote:
+> > 
+> >    > I also see one minor weakness in the assumption that CPU Vectors
+> >    > are global. Both IA64/PARISC can support per-CPU Vector tables.
+> 
+> One thing to keep in mind is that since now we have support for CPU hotplug
+> we need to factor in cases when cpu is removed, the per-cpu vectors would
+> require migrating to a new cpu far interrupt target. Which would 
+> possibly require vector-sharing support as well in case the vector is used 
+> in all other cpus.
+> 
+> Possibly irq balancer might need to be revisited as well, and potentially
+> might trigger some sharing needs.
+> 
+> A combination of 
+>  - Not allocating IRQs to pins not used (Which Natalie from Unisys
+>    submitted) 
+>    http://marc.theaimsgroup.com/?l=linux-kernel&m=111656957923038&w=2
+>  - per-cpu vector tables (long back i remember seeing some post from sgi
+>    on the topic, possibly under intr domains etc.. not too sure)
 
-Any comment on this?
+I did something for i386 which setup per node vector tables, i resurrected 
+it for newer systems (ES7000) but haven't fixed MSI support yet. But that 
+may not be what you're referring to ;)
 
+>  - vector sharing
 
-Kallol Biswas
-www.nucleodyne.com
-kallol@nucleodyne.com
+This might be simpler if we did IRQ handling domains and setup a group of 
+processors with the same vector tables. That way we just migrate onto one 
+of the other cpus in the IRQ handling domain. This should also leave 
+plenty of room for many devices per IRQ handling domain (my reference is 
+a 4 processor per IRQ domain).
+
+Thanks,
+	Zwane
+

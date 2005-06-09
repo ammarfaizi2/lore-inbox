@@ -1,59 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262486AbVFIWOj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262488AbVFIWVs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262486AbVFIWOj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 18:14:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262488AbVFIWOj
+	id S262488AbVFIWVs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 18:21:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262489AbVFIWVs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 18:14:39 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:38133 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S262486AbVFIWOg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 18:14:36 -0400
-Message-ID: <42A8BF18.80706@mvista.com>
-Date: Thu, 09 Jun 2005 15:13:44 -0700
-From: George Anzinger <george@mvista.com>
-Reply-To: george@mvista.com
-Organization: MontaVista Software
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050323 Fedora/1.7.6-1.3.2
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, dwalker@mvista.com
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc4-V0.7.47-00
-References: <20050509073702.GA13615@elte.hu> <427FBFE1.5020204@mvista.com> <20050524075927.GA20462@elte.hu> <429339CC.1080705@mvista.com> <20050527072119.GA7267@elte.hu>
-In-Reply-To: <20050527072119.GA7267@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Jun 2005 18:21:48 -0400
+Received: from mail.kroah.org ([69.55.234.183]:60617 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262488AbVFIWVn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 18:21:43 -0400
+Date: Thu, 9 Jun 2005 15:20:33 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       nsankar@broadcom.com
+Subject: [GIT PATCH] Another PCI fix for 2.6.12-rc6
+Message-ID: <20050609222033.GA12580@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * George Anzinger <george@mvista.com> wrote:
-> 
-> 
->>Ingo Molnar wrote:
->>
->>>* George Anzinger <george@mvista.com> wrote:
->>>
->>>
->>>
->>>>Also, I think that del_timer_sync and friends need to be turned on if 
->>>>soft_irq is preemptable.
->>>
->>>
->>>you mean the #ifdef CONFIG_SMP should be:
->>>
->>>	#if defined(CONFIG_SMP) || defined(CONFIG_PREEMPT_SOFTIRQS)
->>>
->>>?
->>
->>Yes, exactly.
-> 
-> 
-> i have done this in -47-09 and it seems to work fine - is it sufficient?
+Narendra from Broadcom pointed out that the following patch had not made
+it into your tree (it was in mine for a long time, along with the -mm
+releases).  It is needed for 2.6.12 because:
+	"Broadcom already submitted the bnx2 driver for the 5706 gigabit
+	driver which enables MSI on all systems that support PCI-X. That
+	patch has already gone into 2.6.12-rc6. So if the MSI disable
+	patch does not get into 2.6.12, anyone who uses the 5706 on the
+	Serverworks chipset platform, will have interrupt failures."
 
-I think so.  Time will tell...
+Please pull from:
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
 
--- 
-George Anzinger   george@mvista.com
-HRT (High-res-timers):  http://sourceforge.net/projects/high-res-timers/
+The full patch will be sent to the linux-kernel and linux-pci mailing
+lists, if anyone wants to see them.
+
+thanks,
+
+greg k-h
+
+ drivers/pci/quirks.c |    6 ++++++
+ 1 files changed, 6 insertions(+)
+
+-----
+
+Narendra Sankar:
+  PCI: MSI functionality broken on Serverworks GC chipset
+

@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261621AbVFIF7n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261586AbVFIGEL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261621AbVFIF7n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 01:59:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbVFIF7m
+	id S261586AbVFIGEL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 02:04:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262279AbVFIGEK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 01:59:42 -0400
-Received: from mail.kroah.org ([69.55.234.183]:27546 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262281AbVFIF7Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 01:59:24 -0400
-Date: Wed, 8 Jun 2005 22:26:08 -0700
-From: Greg KH <gregkh@suse.de>
-To: Stefan Smietanowski <stesmi@stesmi.com>
-Cc: Greg KH <gregkh@suse.de>, Arjan van de Ven <arjan@infradead.org>,
-       Andrew Vasquez <andrew.vasquez@qlogic.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "David S. Miller" <davem@davemloft.net>, tom.l.nguyen@intel.com,
-       roland@topspin.com, linux-pci@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi() for drivers
-Message-ID: <20050609052608.GA21618@kroah.com>
-References: <20050607002045.GA12849@suse.de> <20050607010911.GA9869@plap.qlogic.org> <20050607051551.GA17734@suse.de> <1118129500.5497.16.camel@laptopd505.fenrus.org> <20050607161029.GB15345@suse.de> <42A7CB87.40706@stesmi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 9 Jun 2005 02:04:10 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:27577 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S261586AbVFIGEH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 02:04:07 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: "David S. Miller" <davem@davemloft.net>, jketreno@linux.intel.com
+Subject: Re: ipw2100: firmware problem
+Date: Thu, 9 Jun 2005 09:03:49 +0300
+User-Agent: KMail/1.5.4
+Cc: pavel@ucw.cz, jgarzik@pobox.com, netdev@oss.sgi.com,
+       linux-kernel@vger.kernel.org, ipw2100-admin@linux.intel.com
+References: <20050608142310.GA2339@elf.ucw.cz> <42A7268D.9020402@linux.intel.com> <20050608.124332.85408883.davem@davemloft.net>
+In-Reply-To: <20050608.124332.85408883.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <42A7CB87.40706@stesmi.com>
-User-Agent: Mutt/1.5.8i
+Message-Id: <200506090903.49295.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 09, 2005 at 06:54:31AM +0200, Stefan Smietanowski wrote:
-> > 
-> > The issue is, if pci_enable_msix() fails, we want to fall back to MSI,
-> > so you need to call pci_enable_msi() for that (after calling
-> > pci_disable_msi() before calling pci_enable_msix(), what a mess...)
-> > 
-> > So we still need both functions, and for MSI-X, the logic involved in
-> > enabling it is horrible.  Let me see if this can be made saner...
+On Wednesday 08 June 2005 22:43, David S. Miller wrote:
+> From: James Ketrenos <jketreno@linux.intel.com>
+> Date: Wed, 08 Jun 2005 12:10:37 -0500
 > 
-> Why not make pci_switch_to_msix() (yeah, horrible name) instead?
+> > My approach is to make the driver so it supports as many usage models as
+> > possible, leaving policy to other components of the system.
 > 
-> pci_switch_to_msix(dev)
-> {
->   pci_disable_msi(dev);
->   if (!psi_enable_msix(dev))
->     pci_enable_msi(dev);
-> }
-> 
-> And it can naturally inform the caller if it failed or not.
+> I don't see how this kind of firmware load setup handles something
+> like an NFS root over such a device that requires firmware.
 
-Yes, that would work, if you want to go down that path :)
+You practically cannot avoid having initrd because you are very likely
+to need to do some wifi config (at least ESSID and mode).
+Well, you can, but it gets more arcane with each turn
+(essid=,mode= module parameters - in each and every wifi driver!
+and what if you need to set basic rates? Yet another parameter?).
 
-After trying this all out, I'm convinced that we should just stick with
-what we have.
+It's analogous to DHCP+NFS_root boot - we do have ugly hack
+of kernelspace dhcp client, but IIRC it is agreed that the Right Thing
+is to do such things in userspace (if needed, via initrd/initramfs).
 
-thanks,
+It simply allows for way more options what you can do in early boot
+if you have early userspace.
+--
+vda
 
-greg k-h

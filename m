@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262207AbVFHX5J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262204AbVFIAB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262207AbVFHX5J (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 19:57:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262205AbVFHX4m
+	id S262204AbVFIAB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 20:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262244AbVFIABR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 19:56:42 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:64474 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261408AbVFHXyK
+	Wed, 8 Jun 2005 20:01:17 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.131]:36291 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S262204AbVFHX4U
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 19:54:10 -0400
-Date: Wed, 8 Jun 2005 18:58:39 -0500
+	Wed, 8 Jun 2005 19:56:20 -0400
+Date: Wed, 8 Jun 2005 19:00:48 -0500
 From: serue@us.ibm.com
 To: lkml <linux-kernel@vger.kernel.org>
 Cc: Chris Wright <chrisw@osdl.org>, Stephen Smalley <sds@epoch.ncsc.mil>,
        James Morris <jmorris@redhat.com>
-Subject: [patch 3/11] lsm stacking: introduce security_*_value API
-Message-ID: <20050608235839.GC27314@serge.austin.ibm.com>
+Subject: [patch 6/11] lsm stacking: introduce stackable capabilities lsm
+Message-ID: <20050609000048.GF27314@serge.austin.ibm.com>
 References: <20050608235505.GA27298@serge.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,195 +25,181 @@ User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Define the functions to be used by LSMs to add, retrieve, and remove
-elements to the kernel object ->security hlists.
+This patch adds a version of the capability module which is safe to
+stack with SELinux.  It notably does not define the inode_setxattr
+and inode_removexattr hooks, as these otherwise prevent selinux from
+saving file types to disk.
 
 Signed-off-by: Serge Hallyn <serue@us.ibm.com>
 ---
- include/linux/security-stack.h |   51 +++++++++++++++++++++++++++
- include/linux/security.h       |   29 +++++++++++++++
- security/security.c            |   75 +++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 155 insertions(+)
+ security/Kconfig         |   21 +++++++++
+ security/Makefile        |    1 
+ security/cap_stack.c     |  101 +++++++++++++++++++++++++++++++++++++++++++++++
+ security/selinux/Kconfig |    2 
+ 4 files changed, 124 insertions(+), 1 deletion(-)
 
-Index: linux-2.6.12-rc6/include/linux/security-stack.h
+Index: linux-2.6.12-rc6/security/Kconfig
+===================================================================
+--- linux-2.6.12-rc6.orig/security/Kconfig
++++ linux-2.6.12-rc6/security/Kconfig
+@@ -56,10 +56,29 @@ config SECURITY_NETWORK
+ config SECURITY_CAPABILITIES
+ 	tristate "Default Linux Capabilities"
+ 	depends on SECURITY
++	depends on SECURITY_SELINUX=n && SECURITY_CAP_STACK=n
+ 	help
+-	  This enables the "default" Linux capabilities functionality.
++	  This enables the default Linux capabilities functionality.
++	  This module may not be used in conjunction with the stackable
++	  capabilities or SELinux modules.
++
+ 	  If you are unsure how to answer this question, answer Y.
+ 
++	  If you are using SELinux, answer N here and look at the
++	  Stackable Linux Capabilities instead.
++
++config SECURITY_CAP_STACK
++	tristate "Stackable Linux Capabilities"
++	depends on SECURITY
++	help
++	  This enables the "stackable" Linux capabilities functionality.
++
++	  If you are using SELinux, this option will be automatically
++	  enabled.
++	  
++	  If you are not using any other LSMs, answer N here and see above
++	  for the Default Linux Capabilities.
++
+ config SECURITY_ROOTPLUG
+ 	tristate "Root Plug Support"
+ 	depends on USB && SECURITY
+Index: linux-2.6.12-rc6/security/Makefile
+===================================================================
+--- linux-2.6.12-rc6.orig/security/Makefile
++++ linux-2.6.12-rc6/security/Makefile
+@@ -16,5 +16,6 @@ obj-$(CONFIG_SECURITY)			+= security.o d
+ # Must precede capability.o in order to stack properly.
+ obj-$(CONFIG_SECURITY_SELINUX)		+= selinux/built-in.o
+ obj-$(CONFIG_SECURITY_CAPABILITIES)	+= commoncap.o capability.o
++obj-$(CONFIG_SECURITY_CAP_STACK)	+= commoncap.o cap_stack.o
+ obj-$(CONFIG_SECURITY_ROOTPLUG)		+= commoncap.o root_plug.o
+ obj-$(CONFIG_SECURITY_SECLVL)		+= seclvl.o
+Index: linux-2.6.12-rc6/security/cap_stack.c
 ===================================================================
 --- /dev/null
-+++ linux-2.6.12-rc6/include/linux/security-stack.h
-@@ -0,0 +1,51 @@
++++ linux-2.6.12-rc6/security/cap_stack.c
+@@ -0,0 +1,101 @@
 +/*
-+ * security-stack.h
++ *  Capabilities Linux Security Module
 + *
-+ * Contains function prototypes or inline definitions for the
-+ * function which manipulate kernel object security annotations.
++ *	This program is free software; you can redistribute it and/or modify
++ *	it under the terms of the GNU General Public License as published by
++ *	the Free Software Foundation; either version 2 of the License, or
++ *	(at your option) any later version.
 + *
-+ * If stacker is compiled in, then we use the full functions as
-+ * defined in security/security.c.  Otherwise we use the #defines
-+ * here.
 + */
 +
-+#ifdef CONFIG_SECURITY_STACKER
-+extern struct security_list *security_get_value(struct hlist_head *head,
-+			int security_id);
++#include <linux/config.h>
++#include <linux/module.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/security.h>
++#include <linux/file.h>
++#include <linux/mm.h>
++#include <linux/mman.h>
++#include <linux/pagemap.h>
++#include <linux/swap.h>
++#include <linux/smp_lock.h>
++#include <linux/skbuff.h>
++#include <linux/netlink.h>
++#include <linux/ptrace.h>
++#include <linux/moduleparam.h>
 +
-+extern struct security_list *security_set_value(struct hlist_head *head,
-+			int security_id, struct security_list *obj_node);
-+extern struct security_list *security_add_value(struct hlist_head *head,
-+			int security_id, struct security_list *obj_node);
-+extern struct security_list *security_del_value(struct hlist_head *head,
-+			int security_id);
-+#else
-+static inline struct security_list *
-+security_get_value(struct hlist_head *head, int security_id)
-+{
-+	struct hlist_node *tmp = head->first;
-+	return tmp ? hlist_entry(tmp, struct security_list, list) : NULL;
-+}
++static struct security_operations capability_ops = {
++	.ptrace =			cap_ptrace,
++	.capget =			cap_capget,
++	.capset_check =			cap_capset_check,
++	.capset_set =			cap_capset_set,
++	.capable =			cap_capable,
++	.settime =			cap_settime,
++	.netlink_send =			cap_netlink_send,
++	.netlink_recv =			cap_netlink_recv,
 +
-+static inline struct security_list *
-+security_set_value(struct hlist_head *head, int security_id,
-+	struct security_list *obj_node)
-+{
-+	head->first = &obj_node->list;
-+}
++	.bprm_apply_creds =		cap_bprm_apply_creds,
++	.bprm_set_security =		cap_bprm_set_security,
++	.bprm_secureexec =		cap_bprm_secureexec,
 +
-+static inline struct security_list *
-+security_add_value(struct hlist_head *head, int security_id,
-+	struct security_list *obj_node)
-+{
-+	head->first = &obj_node->list;
-+}
++	.task_post_setuid =		cap_task_post_setuid,
++	.task_reparent_to_init =	cap_task_reparent_to_init,
 +
-+static inline struct security_list *
-+security_del_value(struct hlist_head *head, int security_id)
-+{
-+	struct hlist_node *tmp = head->first;
-+	head->first = NULL;
-+	return tmp ? hlist_entry(tmp, struct security_list, list) : NULL;
-+}
-+#endif
-Index: linux-2.6.12-rc6/include/linux/security.h
-===================================================================
---- linux-2.6.12-rc6.orig/include/linux/security.h
-+++ linux-2.6.12-rc6/include/linux/security.h
-@@ -34,6 +34,35 @@
- struct ctl_table;
- 
- /*
-+ * structure to be embedded at top of each LSM's security
-+ * objects.
-+ */
-+struct security_list {
-+	struct hlist_node list;
-+	int security_id;
++	.syslog =                       cap_syslog,
++
++	.vm_enough_memory =             cap_vm_enough_memory,
 +};
 +
++#define MY_NAME __stringify(KBUILD_MODNAME)
 +
-+/*
-+ * These #defines present more convenient interfaces to
-+ * LSMs for using the security{g,d,s}et_value functions.
-+ */
-+#define security_get_value_type(head, id, type) ( { \
-+	struct security_list *v = security_get_value(head, id); \
-+	v ? hlist_entry(v, type, lsm_list) : NULL; } )
++/* flag to keep track of how we were registered */
++static int secondary;
 +
-+#define security_set_value_type(head, id, value) \
-+	security_set_value(head, id, &value->lsm_list);
++static int capability_disable;
++module_param_named(disable, capability_disable, int, 0);
++MODULE_PARM_DESC(disable, "To disable capabilities module set disable = 1");
 +
-+#define security_add_value_type(head, id, value) \
-+	security_add_value(head, id, &value->lsm_list);
++static int __init capability_init (void)
++{
++	if (capability_disable) {
++		printk(KERN_INFO "Capabilities disabled at initialization\n");
++		return 0;
++	}
++	/* register ourselves with the security framework */
++	if (register_security (&capability_ops)) {
++		/* try registering with primary module */
++		if (mod_reg_security (MY_NAME, &capability_ops)) {
++			printk (KERN_INFO "Failure registering capabilities "
++				"with primary security module.\n");
++			return -EINVAL;
++		}
++		secondary = 1;
++	}
++	printk (KERN_INFO "Capability LSM initialized%s\n",
++		secondary ? " as secondary" : "");
++	return 0;
++}
 +
-+#define security_del_value_type(head, id, type) ( { \
-+	struct security_list *v; \
-+	v = security_del_value(head, id); \
-+	v ? hlist_entry(v, type, lsm_list) : NULL; } )
++static void __exit capability_exit (void)
++{
++	if (capability_disable)
++		return;
++	/* remove ourselves from the security framework */
++	if (secondary) {
++		if (mod_unreg_security (MY_NAME, &capability_ops))
++			printk (KERN_INFO "Failure unregistering capabilities "
++				"with primary module.\n");
++		return;
++	}
 +
-+/*
-  * These functions are in security/capability.c and are used
-  * as the default capabilities functions
-  */
-Index: linux-2.6.12-rc6/security/security.c
++	if (unregister_security (&capability_ops)) {
++		printk (KERN_INFO
++			"Failure unregistering capabilities with the kernel\n");
++	}
++}
++
++security_initcall (capability_init);
++module_exit (capability_exit);
++
++MODULE_DESCRIPTION("Standard Linux Capabilities Security Module");
++MODULE_LICENSE("GPL");
+Index: linux-2.6.12-rc6/security/selinux/Kconfig
 ===================================================================
---- linux-2.6.12-rc6.orig/security/security.c
-+++ linux-2.6.12-rc6/security/security.c
-@@ -20,6 +20,81 @@
- 
- #define SECURITY_FRAMEWORK_VERSION	"1.0.0"
- 
-+#ifdef CONFIG_SECURITY_STACKER
-+fastcall struct security_list *
-+security_get_value(struct hlist_head *head, int security_id)
-+{
-+	struct security_list *e, *ret = NULL;
-+	struct hlist_node *tmp;
-+
-+	rcu_read_lock();
-+	for (tmp = head->first; tmp;
-+			 tmp = rcu_dereference(tmp->next)) {
-+		e = hlist_entry(tmp, struct security_list, list);
-+		if (e->security_id == security_id) {
-+			ret = e;
-+			goto out;
-+		}
-+	}
-+
-+out:
-+	rcu_read_unlock();
-+	return ret;
-+}
-+
-+fastcall void
-+security_set_value(struct hlist_head *head, int security_id,
-+	struct security_list *obj_node)
-+{
-+
-+	obj_node->security_id = security_id;
-+	hlist_add_head(&obj_node->list, head);
-+}
-+
-+static DEFINE_SPINLOCK(stacker_value_spinlock);
-+
-+fastcall void
-+security_add_value(struct hlist_head *head, int security_id,
-+	struct security_list *obj_node)
-+{
-+
-+	spin_lock(&stacker_value_spinlock);
-+	obj_node->security_id = security_id;
-+	hlist_add_head_rcu(&obj_node->list, head);
-+	spin_unlock(&stacker_value_spinlock);
-+}
-+
-+/*
-+ * XXX Serge: is it possible to add a security_del_value_locked(),
-+ * which waits for a full rcu read cycle before returning an object
-+ * to be deleted, so that it would be safe to use along with racing
-+ * security_get_value()?
-+ */
-+
-+/* No locking needed: only called during object_destroy */
-+fastcall struct security_list *
-+security_del_value(struct hlist_head *head, int security_id)
-+{
-+	struct security_list *e;
-+	struct hlist_node *tmp;
-+
-+	for (tmp = head->first; tmp; tmp = tmp->next) {
-+		e = hlist_entry(tmp, struct security_list, list);
-+		if (e->security_id == security_id) {
-+			hlist_del(&e->list);
-+			return e;
-+		}
-+	}
-+
-+	return NULL;
-+}
-+
-+EXPORT_SYMBOL_GPL(security_get_value);
-+EXPORT_SYMBOL_GPL(security_set_value);
-+EXPORT_SYMBOL_GPL(security_add_value);
-+EXPORT_SYMBOL_GPL(security_del_value);
-+#endif
-+
- /* things that live in dummy.c */
- extern struct security_operations dummy_security_ops;
- extern void security_fixup_ops(struct security_operations *ops);
+--- linux-2.6.12-rc6.orig/security/selinux/Kconfig
++++ linux-2.6.12-rc6/security/selinux/Kconfig
+@@ -2,6 +2,8 @@ config SECURITY_SELINUX
+ 	bool "NSA SELinux Support"
+ 	depends on SECURITY && NET && INET
+ 	default n
++	select SECURITY_CAP_STACK
++	select SECURITY_STACKER
+ 	help
+ 	  This selects NSA Security-Enhanced Linux (SELinux).
+ 	  You will also need a policy configuration and a labeled filesystem.

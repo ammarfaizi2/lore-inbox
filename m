@@ -1,67 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVFIPR2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261849AbVFIPX6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261891AbVFIPR2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 11:17:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVFIPR2
+	id S261849AbVFIPX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 11:23:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVFIPX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 11:17:28 -0400
-Received: from styx.suse.cz ([82.119.242.94]:30153 "EHLO mail.suse.cz")
-	by vger.kernel.org with ESMTP id S261891AbVFIPRV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 11:17:21 -0400
-Date: Thu, 9 Jun 2005 17:17:16 +0200
-From: Vojtech Pavlik <vojtech@suse.cz>
-To: Andrew Hutchings <info@a-wing.co.uk>
-Cc: Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
-Subject: Re: sis5513.c patch
-Message-ID: <20050609151716.GA15597@ucw.cz>
-References: <42A621BC.7040607@a-wing.co.uk> <20050607225755.GB30023@electric-eye.fr.zoreil.com> <42A62BD0.7090709@a-wing.co.uk>
+	Thu, 9 Jun 2005 11:23:58 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:57355 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S261849AbVFIPXx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 11:23:53 -0400
+Message-Id: <200506091523.j59FNmsr008443@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.1-RC3
+To: "David S. Miller" <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: tcp_bic (was Re: 2.6.12-rc6-mm1 OOPS in tcp_push_one() 
+In-Reply-To: Your message of "Wed, 08 Jun 2005 22:58:17 PDT."
+             <20050608.225817.112619139.davem@davemloft.net> 
+From: Valdis.Kletnieks@vt.edu
+References: <200506090423.j594NWts004829@turing-police.cc.vt.edu>
+            <20050608.225817.112619139.davem@davemloft.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42A62BD0.7090709@a-wing.co.uk>
-User-Agent: Mutt/1.5.6i
+Content-Type: multipart/signed; boundary="==_Exmh_1118330628_3931P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Thu, 09 Jun 2005 11:23:48 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 08, 2005 at 12:20:48AM +0100, Andrew Hutchings wrote:
-> Francois Romieu wrote:
-> >Andrew Hutchings <info@a-wing.co.uk> :
-> >[...]
-> >
-> >>I'm looking at trying to revive the old sis190.c net driver for this 
-> >>board too, this does depend on my boss giving me some development time.
-> >
-> >
-> >If you don't mind scary crashes, you can take a look at:
-> >http://www.fr.zoreil.com/people/francois/misc/sis190-000.patch
-> >
-> >I have not been able to find a K8S-MX at the local retailers. It does
-> >not help testing nor does it suggest that there is a strong need.
-> >
+--==_Exmh_1118330628_3931P
+Content-Type: text/plain; charset="us-ascii"
+Content-Id: <8426.1118330609.1@turing-police.cc.vt.edu>
+
+On Wed, 08 Jun 2005 22:58:17 PDT, "David S. Miller" said:
+> From: Valdis.Kletnieks@vt.edu
+> Date: Thu, 09 Jun 2005 00:23:32 -0400
 > 
-> Unfortunately I have been lumbered with 5 of these (insert rude word 
-> here) boards and have had problems with pretty much every driver.  SATA 
-> had to be download from SiS's website, PATA is as my patch (no idea why 
-> a sis5513 driver wasn't coded to detect a sis5513).
-
-Because your device definitely is not a 5513. 5513 is a very old chip
-from the early pentium era and isn't produced anymore. SiS just didn't
-bother to change the PCI IDs since then ...
-
-That's why the driver does quite complex probing for the real type of
-the chip.
-
-> I used rev1.1 of 
-> the sis190.c driver along with a guy from India, he says it works, I say 
-> it doesn't (but it may be because my test network is 10Meg Half-Duplex). 
-> Thank the heavens I am using this as a headless server, sound and 
-> video are a nightmare as well apparently.
+> > (On a related note, how did tcp_bic get loaded? I requested all the new
+> > congestion stuff be built as modules, didn't specifically request any of
+> > them to actually be loaded....
 > 
-> Many thanks for the link, boss is going on holiday next week so as long 
-> as none of the servers melt down then I should be able to work on this.
+> It's the default algorithm, so when you open the first TCP
+> socket it tries to load it.
+
+Ahh.. I was reading the Kconfig, which says this:
+
+menu "TCP congestion control"
+# TCP Reno is builtin (required as fallback)
+        
+config TCP_CONG_BIC
+        tristate "Binary Increase Congestion (BIC) control"
+        depends on INET
+        default y
+
+and I built with:
+
+CONFIG_TCP_CONG_BIC=m
+CONFIG_TCP_CONG_WESTWOOD=m
+CONFIG_TCP_CONG_HTCP=m
+CONFIG_TCP_CONG_HSTCP=m
+CONFIG_TCP_CONG_HYBLA=m
+CONFIG_TCP_CONG_VEGAS=m
+CONFIG_TCP_CONG_SCALABLE=m
+
+so what I *expected* was a kernel with Reno built-in, and the others as
+modules if I got ambitious and loaded one or another.
+
+How do people feel about this:
+
+--- linux-2.6.12-rc6-mm1/net/ipv4/Kconfig.bic	2005-06-07 12:55:41.000000000 -0400
++++ linux-2.6.12-rc6-mm1/net/ipv4/Kconfig	2005-06-09 11:12:26.000000000 -0400
+@@ -425,6 +425,10 @@ config TCP_CONG_BIC
+ 	increase provides TCP friendliness.
+ 	See http://www.csc.ncsu.edu/faculty/rhee/export/bitcp/
+ 
++	This is the default TCP congestion control and the kernel will
++	attempt to load it if possible.  If it is unable to initialize
++	tcp_bic, the TCP Reno algorithms will be used as a fallback.
++
+ config TCP_CONG_WESTWOOD
+ 	tristate "TCP Westwood+"
+ 	select IP_TCPDIAG
+
+(although that *still* doesn't document what's really going on with
+the tcp_init_congestion_control() function, and how that sysctl value
+interacts with things....
 
 
--- 
-Vojtech Pavlik
-SuSE Labs, SuSE CR
+
+
+--==_Exmh_1118330628_3931P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFCqF8EcC3lWbTT17ARAk5GAKCzjeGzsCyi0hBWcMQo9FK4k0sytgCg5TDe
+uwHHr63Nw5oH4/5oVZuQ+RE=
+=AB5D
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1118330628_3931P--

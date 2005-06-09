@@ -1,66 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262372AbVFIMQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262369AbVFIMQy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262372AbVFIMQq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 08:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262369AbVFIMQo
+	id S262369AbVFIMQy (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 08:16:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262368AbVFIMQx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 08:16:44 -0400
-Received: from web25805.mail.ukl.yahoo.com ([217.12.10.190]:9621 "HELO
-	web25805.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262368AbVFIMQV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 08:16:21 -0400
-Message-ID: <20050609121613.43867.qmail@web25805.mail.ukl.yahoo.com>
-Date: Thu, 9 Jun 2005 14:16:13 +0200 (CEST)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: Re: [TTY] exclusive mode question
-To: Frederik Deweerdt <dev.deweerdt@laposte.net>
+	Thu, 9 Jun 2005 08:16:53 -0400
+Received: from mailfe06.swip.net ([212.247.154.161]:710 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S262370AbVFIMQd convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 08:16:33 -0400
+X-T2-Posting-ID: k1c2aGMK8Lj9Cnpb+Eju4eOhqUzXuhsckJNC9B9P7R8=
+Date: Thu, 9 Jun 2005 14:16:38 +0200
+From: Frederik Deweerdt <dev.deweerdt@laposte.net>
+To: moreau francis <francis_moreau2000@yahoo.fr>
 Cc: Frederik Deweerdt <dev.deweerdt@laposte.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <20050609104140.GB507@gilgamesh.home.res>
-MIME-Version: 1.0
+Subject: Re: [TTY] exclusive mode question
+Message-ID: <20050609121638.GD507@gilgamesh.home.res>
+Mail-Followup-To: moreau francis <francis_moreau2000@yahoo.fr>,
+	Frederik Deweerdt <dev.deweerdt@laposte.net>,
+	linux-kernel@vger.kernel.org
+References: <20050609104140.GB507@gilgamesh.home.res> <20050609114149.60315.qmail@web25807.mail.ukl.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Disposition: inline
+In-Reply-To: <20050609114149.60315.qmail@web25807.mail.ukl.yahoo.com>
+User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Frederik Deweerdt <dev.deweerdt@laposte.net> a écrit :
-
-> Le 09/06/05 11:59 +0200, moreau francis écrivit:
-> > 
-> > --- Frederik Deweerdt <dev.deweerdt@laposte.net> a écrit :
-> > 
-> > > I've just greped and I found :
-> > > 
-> > > if (!retval && test_bit(TTY_EXCLUSIVE, &tty->flags) &&
-> > > !capable(CAP_SYS_ADMIN))
-> > > 	retval = -EBUSY;
-> > > in drivers/char/tty_io.c:tty_open
-> > > 
-> > > Which sources are you looking at?
-> > > 
-> > 
-> > same source code but if another process has previously open the tty, how
-> does
-> > this source code detect it ?
-> > 
-> Sorry I misunderstood your question, there's no check on previous opens:
-> from man tty_ioctl:
+Le 09/06/05 13:41 +0200, moreau francis écrivit:
 > 
->        TIOCEXCL  void
->               Put the tty into exclusive mode.  No _further_ open(2)
-> operations  on  the  terminal  are  permitted.
->               (They will fail with EBUSY, except for root.)
+> oh ok...sorry I misunderstood TIOEXCL meaning ;)
+> Do you know how I could implement such exclusive mode (the one I described) ?
 > 
-
-BTW, I don't see any use of this mode since it can't ensure that nothing is
-using the tty...Do you know what kind of purpose it is for ?
-
-               Francis
-
-
-	
-	
-		
-_____________________________________________________________________________ 
-Découvrez le nouveau Yahoo! Mail : 1 Go d'espace de stockage pour vos mails, photos et vidéos ! 
-Créez votre Yahoo! Mail sur http://fr.mail.yahoo.com/
+This is handled through lock files, google for LCK..ttyS0
+Regards,
+Frederik Deweerdt

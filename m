@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261535AbVFIPMd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261891AbVFIPR2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261535AbVFIPMd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 11:12:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbVFIPMd
+	id S261891AbVFIPR2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 11:17:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261898AbVFIPR2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 11:12:33 -0400
-Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11788 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S261535AbVFIPMa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 11:12:30 -0400
-Date: Thu, 9 Jun 2005 16:12:25 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: moreau francis <francis_moreau2000@yahoo.fr>
-Cc: Frederik Deweerdt <dev.deweerdt@laposte.net>, linux-kernel@vger.kernel.org
-Subject: Re: [TTY] exclusive mode question
-Message-ID: <20050609161225.A14513@flint.arm.linux.org.uk>
-Mail-Followup-To: moreau francis <francis_moreau2000@yahoo.fr>,
-	Frederik Deweerdt <dev.deweerdt@laposte.net>,
-	linux-kernel@vger.kernel.org
-References: <20050609121638.GD507@gilgamesh.home.res> <20050609142250.80926.qmail@web25804.mail.ukl.yahoo.com>
+	Thu, 9 Jun 2005 11:17:28 -0400
+Received: from styx.suse.cz ([82.119.242.94]:30153 "EHLO mail.suse.cz")
+	by vger.kernel.org with ESMTP id S261891AbVFIPRV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 11:17:21 -0400
+Date: Thu, 9 Jun 2005 17:17:16 +0200
+From: Vojtech Pavlik <vojtech@suse.cz>
+To: Andrew Hutchings <info@a-wing.co.uk>
+Cc: Francois Romieu <romieu@fr.zoreil.com>, linux-kernel@vger.kernel.org
+Subject: Re: sis5513.c patch
+Message-ID: <20050609151716.GA15597@ucw.cz>
+References: <42A621BC.7040607@a-wing.co.uk> <20050607225755.GB30023@electric-eye.fr.zoreil.com> <42A62BD0.7090709@a-wing.co.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050609142250.80926.qmail@web25804.mail.ukl.yahoo.com>; from francis_moreau2000@yahoo.fr on Thu, Jun 09, 2005 at 04:22:49PM +0200
+In-Reply-To: <42A62BD0.7090709@a-wing.co.uk>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 09, 2005 at 04:22:49PM +0200, moreau francis wrote:
-> --- Frederik Deweerdt <dev.deweerdt@laposte.net> a écrit :
-> > Le 09/06/05 13:41 +0200, moreau francis écrivit:
-> > > 
-> > > oh ok...sorry I misunderstood TIOEXCL meaning ;)
-> > > Do you know how I could implement such exclusive mode (the one I described)
-> > ?
-> > > 
-> > This is handled through lock files, google for LCK..ttyS0
+On Wed, Jun 08, 2005 at 12:20:48AM +0100, Andrew Hutchings wrote:
+> Francois Romieu wrote:
+> >Andrew Hutchings <info@a-wing.co.uk> :
+> >[...]
+> >
+> >>I'm looking at trying to revive the old sis190.c net driver for this 
+> >>board too, this does depend on my boss giving me some development time.
+> >
+> >
+> >If you don't mind scary crashes, you can take a look at:
+> >http://www.fr.zoreil.com/people/francois/misc/sis190-000.patch
+> >
+> >I have not been able to find a K8S-MX at the local retailers. It does
+> >not help testing nor does it suggest that there is a strong need.
 > >
 > 
-> This lock mechanism is a convention but nothing prevent a user application to
-> issue a "echo foo > /dev/ttyS0" command while "LCK..ttyS0" file exists...
+> Unfortunately I have been lumbered with 5 of these (insert rude word 
+> here) boards and have had problems with pretty much every driver.  SATA 
+> had to be download from SiS's website, PATA is as my patch (no idea why 
+> a sis5513 driver wasn't coded to detect a sis5513).
 
-Which is absolutely necessary to work if you think about an application
-like minicom and its file transfer helpers, which may need to re-open
-the serial port.
+Because your device definitely is not a 5513. 5513 is a very old chip
+from the early pentium era and isn't produced anymore. SiS just didn't
+bother to change the PCI IDs since then ...
 
-TTY locking is done via lock files only, and all non-helper applications
-must coordinate their access via the lock files.  There is no other
-mechanism.
+That's why the driver does quite complex probing for the real type of
+the chip.
+
+> I used rev1.1 of 
+> the sis190.c driver along with a guy from India, he says it works, I say 
+> it doesn't (but it may be because my test network is 10Meg Half-Duplex). 
+> Thank the heavens I am using this as a headless server, sound and 
+> video are a nightmare as well apparently.
+> 
+> Many thanks for the link, boss is going on holiday next week so as long 
+> as none of the servers melt down then I should be able to work on this.
+
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Vojtech Pavlik
+SuSE Labs, SuSE CR

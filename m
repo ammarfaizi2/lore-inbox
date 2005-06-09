@@ -1,48 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261514AbVFIB6v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261414AbVFICGa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261514AbVFIB6v (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 21:58:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262004AbVFIB6v
+	id S261414AbVFICGa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 22:06:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261522AbVFICGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 21:58:51 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:36737 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261514AbVFIB6j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 21:58:39 -0400
-Subject: Re: 2.6.12-rc6-mm1
-From: Lee Revell <rlrevell@joe-job.com>
-To: Christoph Lameter <clameter@engr.sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.62.0506071659580.30849@schroedinger.engr.sgi.com>
-References: <1004450000.1118188239@flay>
-	 <20050607165656.2517b417.akpm@osdl.org>
-	 <Pine.LNX.4.62.0506071659580.30849@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Date: Wed, 08 Jun 2005 21:58:56 -0400
-Message-Id: <1118282337.6247.48.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Jun 2005 22:06:30 -0400
+Received: from fmr16.intel.com ([192.55.52.70]:709 "EHLO
+	fmsfmr006.fm.intel.com") by vger.kernel.org with ESMTP
+	id S261414AbVFICG1 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 22:06:27 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Dell BIOS and HPET timer support
+Date: Wed, 8 Jun 2005 19:06:25 -0700
+Message-ID: <88056F38E9E48644A0F562A38C64FB6004EF3629@scsmsx403.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Dell BIOS and HPET timer support
+Thread-Index: AcVsk+I3bCW5S+LkRWuwJ6uOfyBUoQAA9mYg
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Jon Smirl" <jonsmirl@gmail.com>, "Lee Revell" <rlrevell@joe-job.com>
+Cc: "lkml" <linux-kernel@vger.kernel.org>, "Bob Picco" <Robert.Picco@hp.com>
+X-OriginalArrivalTime: 09 Jun 2005 02:06:22.0974 (UTC) FILETIME=[D59EC1E0:01C56C97]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2005-06-07 at 17:02 -0700, Christoph Lameter wrote:
-> On Tue, 7 Jun 2005, Andrew Morton wrote:
-> 
-> > > Diffprofile is wacko (HZ seems to be defaulting to 250 in -mm).
-> > 
-> > Oh crap, so it does.  That's wrong.
-> 
-> Email by you and Linus indicated that 250 should be the default.
 
-Wait, does that mean the default HZ is going to be changed in the 2.6.x
-timeframe?  That's a big user-visible regression, as it makes the
-sleep() resolution worse, and would force apps with tight timing
-requirements to go back to using the RTC like on 2.4.
 
-Unless, of course, the plan is to merge the high-res timers patch at the
-same time.
+I think do_div expects a 64 bit 1st argument. Can you change ns to
+unsigneld long long and try...
 
-Lee
+Thanks,
+Venki 
 
+>-----Original Message-----
+>From: Jon Smirl [mailto:jonsmirl@gmail.com] 
+>Sent: Wednesday, June 08, 2005 6:38 PM
+>To: Lee Revell
+>Cc: Pallipadi, Venkatesh; lkml; Bob Picco
+>Subject: Re: Dell BIOS and HPET timer support
+>
+>On 6/8/05, Lee Revell <rlrevell@joe-job.com> wrote:
+>> Check the source, it's self-explanatory.  See hpet_alloc().
+>
+>What is going on with do_div()? 
+>0x0429b17f /100000 = 69.8 in my caculator. It comes back as 0 
+>from do_div().
+>
+>[jonsmirl@jonsmirl ~]$ dmesg | grep HPET
+>HPET: cap 0429b17f8086a201 period 0429b17f
+>HPET: period 0429b17f ns 0429b17f
+>HPET: period 0429b17f ns 00000000
+>Using HPET for base-timer
+>Using HPET for gettimeofday
+>[jonsmirl@jonsmirl ~]$
+>
+>
+>	hpetp->hp_period = (cap & HPET_COUNTER_CLK_PERIOD_MASK) >>
+>	    HPET_COUNTER_CLK_PERIOD_SHIFT;
+>printk(KERN_ERR "HPET: cap %016llx period %08lx\n", cap, 
+>hpetp->hp_period);
+>
+>	ns = hpetp->hp_period;	/* femptoseconds, 10^-15 */
+>printk(KERN_ERR "HPET: period %08lx ns %08lx \n", 
+>hpetp->hp_period, ns);
+>	do_div(ns, 1000000);	/* convert to nanoseconds, 10^-9 */
+>printk(KERN_ERR "HPET: period %08lx ns %08lx \n", 
+>hpetp->hp_period, ns);
+>	printk(KERN_INFO "hpet%d: %ldns tick, %d %d-bit timers\n",
+>		hpetp->hp_which, ns, hpetp->hp_ntimer,
+>		cap & HPET_COUNTER_SIZE_MASK ? 64 : 32);
+>-- 
+>Jon Smirl
+>jonsmirl@gmail.com
+>

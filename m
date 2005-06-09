@@ -1,102 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262211AbVFIBtn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262220AbVFIBvw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262211AbVFIBtn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 21:49:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbVFIBtn
+	id S262220AbVFIBvw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 21:51:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262228AbVFIBvw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 21:49:43 -0400
-Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:14281 "EHLO
-	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S262211AbVFIBt0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 21:49:26 -0400
-X-ORBL: [67.117.73.34]
-Date: Wed, 8 Jun 2005 18:40:33 -0700
-From: Tony Lindgren <tony@atomide.com>
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Dynamic tick for x86 version 050602-1
-Message-ID: <20050609014033.GA30827@atomide.com>
-References: <88056F38E9E48644A0F562A38C64FB6004EBD10C@scsmsx403.amr.corp.intel.com>
+	Wed, 8 Jun 2005 21:51:52 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:61568 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262220AbVFIBvj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 21:51:39 -0400
+Subject: Re: [PATCH 3/4] new timeofday x86-64 arch specific changes (v. B1)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Parag Warudkar <kernel-stuff@comcast.net>, johnstul@us.ibm.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20050608135138.GX23831@wotan.suse.de>
+References: <060220051827.15835.429F4FA6000DF9D700003DDB220588617200009A9B9CD3040A029D0A05@comcast.net>
+	 <200506051015.33723.kernel-stuff@comcast.net>
+	 <20050606092925.GA23831@wotan.suse.de>
+	 <200506060746.23047.kernel-stuff@comcast.net>
+	 <20050608135138.GX23831@wotan.suse.de>
+Content-Type: text/plain
+Date: Wed, 08 Jun 2005 21:47:15 -0400
+Message-Id: <1118281635.6247.42.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <88056F38E9E48644A0F562A38C64FB6004EBD10C@scsmsx403.amr.corp.intel.com>
-User-Agent: Mutt/1.5.6+20040907i
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Pallipadi, Venkatesh <venkatesh.pallipadi@intel.com> [050608 15:14]:
+On Wed, 2005-06-08 at 15:51 +0200, Andi Kleen wrote:
+> On Mon, Jun 06, 2005 at 07:46:22AM -0400, Parag Warudkar wrote:
+> > On Monday 06 June 2005 05:29, Andi Kleen wrote:
+> > > And does it work with nopmtimer ?
+> > >
+> > > -Andi
+> > 
+> > Thanks for trimming the CC list. 
+> > 
+> > No it doesn't work with nopmtimer - music still plays fast. I have to go back 
+> > to 2.6.11 to get it to play at right speed. 
 > 
-> >-----Original Message-----
-> >From: linux-kernel-owner@vger.kernel.org 
-> >[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
-> >Jonathan Corbet
-> >Sent: Tuesday, June 07, 2005 1:36 PM
-> >To: Tony Lindgren
-> >Cc: linux-kernel@vger.kernel.org
-> >Subject: Re: [PATCH] Dynamic tick for x86 version 050602-1 
-> >
-> >Tony Lindgren <tony@atomide.com> wrote:
-> >
-> >> --- linux-dev.orig/arch/i386/kernel/irq.c	2005-06-01 
-> >17:51:36.000000000 -0700
-> >> +++ linux-dev/arch/i386/kernel/irq.c	2005-06-01 
-> >17:54:32.000000000 -0700
-> >> [...]
-> >> @@ -102,6 +103,12 @@ fastcall unsigned int do_IRQ(struct pt_r
-> >>  		);
-> >>  	} else
-> >>  #endif
-> >> +
-> >> +#ifdef CONFIG_NO_IDLE_HZ
-> >> +	if (dyn_tick->state & (DYN_TICK_ENABLED | 
-> >DYN_TICK_SKIPPING) && irq != 0)
-> >> +		dyn_tick->interrupt(irq, NULL, regs);
-> >> +#endif
-> >> +
-> >>  		__do_IRQ(irq, regs);
-> >
-> >Forgive me if I'm being obtuse (again...), but this hunk doesn't look
-> >like it would work well in the 4K stacks case.  When 4K stacks 
-> >are being
-> >used, dyn_tick->interrupt() will only get called in the nested 
-> >interrupt
-> >case, when the interrupt stack is already in use.  This change also
-> >pushes the non-assembly __do_IRQ() call out of the else branch, meaning
-> >that, when the switch is made to the interrupt stack (most of 
-> >the time),
-> >__do_IRQ() will be called twice for the same interrupt.
-> >
-> >It looks to me like you want to put your #ifdef chunk *after* the call
-> >to __do_IRQ(), unless you have some reason for needing it to happen
-> >before the regular interrupt handler is invoked.
-> >
+> Then it is something else, not the pmtimer.
 > 
-> Good catch. This indeed looks like a bug. 
-> With 050602-1 version I am seeing double the number of calls to 
-> timer_interrupt routine than expected. Say, when all CPUs are fully
-> busy, 
-> I see 2*HZ timer interrupt count in /proc/interrupts
-> 
-> And things look normal once I change this hunk as below
-> 
-> >>  	} else
-> >>  #endif
-> >> +
->    + {
-> >> +#ifdef CONFIG_NO_IDLE_HZ
-> >> +	if (dyn_tick->state & (DYN_TICK_ENABLED | 
-> >DYN_TICK_SKIPPING) && irq != 0)
-> >> +		dyn_tick->interrupt(irq, NULL, regs);
-> >> +#endif
-> >> +
-> >>  		__do_IRQ(irq, regs);
->    + }
+> I dont know what it could be. Do a binary search? 
 
-Cool. Sorry for not responding earlier, my hard drive crashed yesterday
-morning... I also managed to fry my spare computer's motherboard
-while trying to recover some data from the broken disk :)
+XMMS has a long history of buggy ALSA support, which has improved
+lately.  Make sure you're using the latest version.
 
-I'll try to post an updated patch tomorrow.
+Also try 2.6.11 with ALSA 1.0.9, maybe it's an interaction between ALSA
+and the new gettimeofday patches.
 
-Tony
+Lee
+

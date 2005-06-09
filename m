@@ -1,56 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262282AbVFIQMw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262391AbVFIQO4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262282AbVFIQMw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 12:12:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262284AbVFIQMw
+	id S262391AbVFIQO4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 12:14:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262388AbVFIQO4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 12:12:52 -0400
-Received: from mailgate1b.savvis.net ([216.91.182.6]:45522 "EHLO
-	mailgate1b.savvis.net") by vger.kernel.org with ESMTP
-	id S262282AbVFIQMq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 12:12:46 -0400
-From: "Dan A. Dickey" <dan.dickey@savvis.net>
-Reply-To: dan.dickey@savvis.net
-Organization: WAM!NET a Division of SAVVIS, Inc.
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: System state too high for too long...
-Date: Thu, 9 Jun 2005 11:12:34 -0500
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org
-References: <200506071125.41543.dan.dickey@savvis.net> <200506081158.40461.dan.dickey@savvis.net> <20050608143501.791edfd2.akpm@osdl.org>
-In-Reply-To: <20050608143501.791edfd2.akpm@osdl.org>
+	Thu, 9 Jun 2005 12:14:56 -0400
+Received: from zproxy.gmail.com ([64.233.162.199]:21056 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262391AbVFIQOn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 12:14:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=OUjVokry4xqeiOJy+IY1zWSxL6Vk4zZP+uYCvMTeoRztO6+m2qvdgc2FFQwDcTx7/OLoOdpWI59gWF19AYxa4BHj+v6aYTKMDiDer7rZwRexalK0iE+8Wp1gaIHQmQHMMTQtc8fFRxT9rljnuByiKBLIvYm3oEkGFWQ8jJt22pY=
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Pekka Enberg <penberg@gmail.com>
+Subject: Re: [RFC] SPI core
+Date: Thu, 9 Jun 2005 20:19:50 +0400
+User-Agent: KMail/1.7.2
+Cc: dpervushin@ru.mvista.com, linux-kernel@vger.kernel.org
+References: <1117555756.4715.17.camel@diimka.dev.rtsoft.ru> <84144f020506090533b00b823@mail.gmail.com>
+In-Reply-To: <84144f020506090533b00b823@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200506091112.34425.dan.dickey@savvis.net>
-X-OriginalArrivalTime: 09 Jun 2005 16:12:34.0520 (UTC) FILETIME=[0BD1DD80:01C56D0E]
+Message-Id: <200506092019.50210.adobriyan@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 08 June 2005 16:35, Andrew Morton wrote:
-> "Dan A. Dickey" <dan.dickey@savvis.net> wrote:
-> >
-> >    8704 kernel_map_pages                          93.5914
+On Thursday 09 June 2005 16:33, Pekka Enberg wrote:
+> On 5/31/05, dmitry pervushin <dpervushin@ru.mvista.com> wrote:
+> > +EXPORT_SYMBOL(spi_add_adapter);
+> > +EXPORT_SYMBOL(spi_del_adapter);
+> > +EXPORT_SYMBOL(spi_get_adapter);
+> > +EXPORT_SYMBOL(spi_put_adapter);
+> > +
+> > +EXPORT_SYMBOL(spi_add_driver);
+> > +EXPORT_SYMBOL(spi_del_driver);
+> > +EXPORT_SYMBOL(spi_get_driver);
+> > +EXPORT_SYMBOL(spi_put_driver);
+> > +
+> > +EXPORT_SYMBOL(spi_attach_client);
+> > +EXPORT_SYMBOL(spi_detach_client);
+> > +
+> > +EXPORT_SYMBOL(spi_transfer);
+> > +EXPORT_SYMBOL(spi_write);
+> > +EXPORT_SYMBOL(spi_read);
 > 
-> Ah.  CONFIG_DEBUG_PAGEALLOC can be most expensive.  Please disable it and
-> try again.
+> Preferred location for EXPORT_SYMBOLs is immediately after the function
+> definition.
 
-Andrew,
-Thank you very much!  That appears to have been it.
-I think it may have crept into my config way back when
-when I enabled kernel debugging so I could get the
-Alt-SysRq stuff enabled.  I didn't realize I had enabled
-other things to be turned on as well.  This certainly
-taught me to take a closer look at my config when
-changing it.  Thanks again.
-My system is much more speedy at compiles now!
-	-Dan
-
--- 
-Dan A. Dickey
-dan.dickey@savvis.net
-
-SAVVIS
-Transforming Information Technology
+New files can choose any style.

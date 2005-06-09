@@ -1,63 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262223AbVFIBiQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262211AbVFIBtn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262223AbVFIBiQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 21:38:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbVFIBiQ
+	id S262211AbVFIBtn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 21:49:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262220AbVFIBtn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 21:38:16 -0400
-Received: from wproxy.gmail.com ([64.233.184.206]:9834 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262223AbVFIBiH convert rfc822-to-8bit
+	Wed, 8 Jun 2005 21:49:43 -0400
+Received: from ylpvm12-ext.prodigy.net ([207.115.57.43]:14281 "EHLO
+	ylpvm12.prodigy.net") by vger.kernel.org with ESMTP id S262211AbVFIBt0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 21:38:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=XNUs4qjxryByDGNGGM0+UqKaep1L+tcabcQe0tWCsgPs3tGxTSGnVWRghCkMeBaUigosaRq7AN3+OPOuWaKkicyav1m3mYh5d1VxkxNFd+DukC7eUgJrVtwpoZv/LV+USdUDmxtf1lt0lcTuBVR1snXnRcG47/Gc2e6j4xEV/Sc=
-Message-ID: <9e47339105060818383e2311f@mail.gmail.com>
-Date: Wed, 8 Jun 2005 21:38:04 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: Dell BIOS and HPET timer support
-Cc: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       lkml <linux-kernel@vger.kernel.org>, Bob Picco <Robert.Picco@hp.com>
-In-Reply-To: <1118278673.6247.32.camel@mindpipe>
+	Wed, 8 Jun 2005 21:49:26 -0400
+X-ORBL: [67.117.73.34]
+Date: Wed, 8 Jun 2005 18:40:33 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: Jonathan Corbet <corbet@lwn.net>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Dynamic tick for x86 version 050602-1
+Message-ID: <20050609014033.GA30827@atomide.com>
+References: <88056F38E9E48644A0F562A38C64FB6004EBD10C@scsmsx403.amr.corp.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <88056F38E9E48644A0F562A38C64FB6004EBD1B0@scsmsx403.amr.corp.intel.com>
-	 <9e47339105060817342bdd2dd@mail.gmail.com>
-	 <1118278673.6247.32.camel@mindpipe>
+In-Reply-To: <88056F38E9E48644A0F562A38C64FB6004EBD10C@scsmsx403.amr.corp.intel.com>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/8/05, Lee Revell <rlrevell@joe-job.com> wrote:
-> Check the source, it's self-explanatory.  See hpet_alloc().
+* Pallipadi, Venkatesh <venkatesh.pallipadi@intel.com> [050608 15:14]:
+> 
+> >-----Original Message-----
+> >From: linux-kernel-owner@vger.kernel.org 
+> >[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
+> >Jonathan Corbet
+> >Sent: Tuesday, June 07, 2005 1:36 PM
+> >To: Tony Lindgren
+> >Cc: linux-kernel@vger.kernel.org
+> >Subject: Re: [PATCH] Dynamic tick for x86 version 050602-1 
+> >
+> >Tony Lindgren <tony@atomide.com> wrote:
+> >
+> >> --- linux-dev.orig/arch/i386/kernel/irq.c	2005-06-01 
+> >17:51:36.000000000 -0700
+> >> +++ linux-dev/arch/i386/kernel/irq.c	2005-06-01 
+> >17:54:32.000000000 -0700
+> >> [...]
+> >> @@ -102,6 +103,12 @@ fastcall unsigned int do_IRQ(struct pt_r
+> >>  		);
+> >>  	} else
+> >>  #endif
+> >> +
+> >> +#ifdef CONFIG_NO_IDLE_HZ
+> >> +	if (dyn_tick->state & (DYN_TICK_ENABLED | 
+> >DYN_TICK_SKIPPING) && irq != 0)
+> >> +		dyn_tick->interrupt(irq, NULL, regs);
+> >> +#endif
+> >> +
+> >>  		__do_IRQ(irq, regs);
+> >
+> >Forgive me if I'm being obtuse (again...), but this hunk doesn't look
+> >like it would work well in the 4K stacks case.  When 4K stacks 
+> >are being
+> >used, dyn_tick->interrupt() will only get called in the nested 
+> >interrupt
+> >case, when the interrupt stack is already in use.  This change also
+> >pushes the non-assembly __do_IRQ() call out of the else branch, meaning
+> >that, when the switch is made to the interrupt stack (most of 
+> >the time),
+> >__do_IRQ() will be called twice for the same interrupt.
+> >
+> >It looks to me like you want to put your #ifdef chunk *after* the call
+> >to __do_IRQ(), unless you have some reason for needing it to happen
+> >before the regular interrupt handler is invoked.
+> >
+> 
+> Good catch. This indeed looks like a bug. 
+> With 050602-1 version I am seeing double the number of calls to 
+> timer_interrupt routine than expected. Say, when all CPUs are fully
+> busy, 
+> I see 2*HZ timer interrupt count in /proc/interrupts
+> 
+> And things look normal once I change this hunk as below
+> 
+> >>  	} else
+> >>  #endif
+> >> +
+>    + {
+> >> +#ifdef CONFIG_NO_IDLE_HZ
+> >> +	if (dyn_tick->state & (DYN_TICK_ENABLED | 
+> >DYN_TICK_SKIPPING) && irq != 0)
+> >> +		dyn_tick->interrupt(irq, NULL, regs);
+> >> +#endif
+> >> +
+> >>  		__do_IRQ(irq, regs);
+>    + }
 
-What is going on with do_div()? 
-0x0429b17f /100000 = 69.8 in my caculator. It comes back as 0 from do_div().
+Cool. Sorry for not responding earlier, my hard drive crashed yesterday
+morning... I also managed to fry my spare computer's motherboard
+while trying to recover some data from the broken disk :)
 
-[jonsmirl@jonsmirl ~]$ dmesg | grep HPET
-HPET: cap 0429b17f8086a201 period 0429b17f
-HPET: period 0429b17f ns 0429b17f
-HPET: period 0429b17f ns 00000000
-Using HPET for base-timer
-Using HPET for gettimeofday
-[jonsmirl@jonsmirl ~]$
+I'll try to post an updated patch tomorrow.
 
-
-	hpetp->hp_period = (cap & HPET_COUNTER_CLK_PERIOD_MASK) >>
-	    HPET_COUNTER_CLK_PERIOD_SHIFT;
-printk(KERN_ERR "HPET: cap %016llx period %08lx\n", cap, hpetp->hp_period);
-
-	ns = hpetp->hp_period;	/* femptoseconds, 10^-15 */
-printk(KERN_ERR "HPET: period %08lx ns %08lx \n", hpetp->hp_period, ns);
-	do_div(ns, 1000000);	/* convert to nanoseconds, 10^-9 */
-printk(KERN_ERR "HPET: period %08lx ns %08lx \n", hpetp->hp_period, ns);
-	printk(KERN_INFO "hpet%d: %ldns tick, %d %d-bit timers\n",
-		hpetp->hp_which, ns, hpetp->hp_ntimer,
-		cap & HPET_COUNTER_SIZE_MASK ? 64 : 32);
--- 
-Jon Smirl
-jonsmirl@gmail.com
+Tony

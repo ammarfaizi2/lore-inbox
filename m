@@ -1,72 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262341AbVFIKdG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262343AbVFIKjh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262341AbVFIKdG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 06:33:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbVFIKdG
+	id S262343AbVFIKjh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 06:39:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbVFIKjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 06:33:06 -0400
-Received: from mailfe07.swip.net ([212.247.154.193]:3056 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S262341AbVFIKc6 (ORCPT
+	Thu, 9 Jun 2005 06:39:36 -0400
+Received: from n1.cetrtapot.si ([212.30.80.17]:3309 "EHLO n1.cetrtapot.si")
+	by vger.kernel.org with ESMTP id S262343AbVFIKjb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 06:32:58 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: [PATCH] capabilities not inherited
-From: Alexander Nyberg <alexn@telia.com>
-To: David Wagner <daw-usenet@taverner.cs.berkeley.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <d88ba7$hck$1@abraham.cs.berkeley.edu>
-References: <Pine.GSO.4.58.0506081513340.22095@chewbacca.arl.wustl.edu>
-	 <20050608204430.GC9153@shell0.pdx.osdl.net>
-	 <1118265642.969.12.camel@localhost.localdomain>
-	 <d88ba7$hck$1@abraham.cs.berkeley.edu>
-Content-Type: text/plain
-Date: Thu, 09 Jun 2005 12:32:47 +0200
-Message-Id: <1118313167.970.15.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Thu, 9 Jun 2005 06:39:31 -0400
+Message-ID: <42A81C56.1070602@cetrtapot.si>
+Date: Thu, 09 Jun 2005 12:39:18 +0200
+From: Hinko Kocevar <hinko.kocevar@cetrtapot.si>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+Cc: Rui Sousa <rui.sousa@laposte.net>,
+       "Mark M. Hoffman" <mhoffman@lightlink.com>,
+       dmitry pervushin <dpervushin@ru.mvista.com>,
+       linux-kernel@vger.kernel.org, lm-sensors <lm-sensors@lm-sensors.org>
+Subject: Re: [RFC] SPI core
+References: <1117555756.4715.17.camel@diimka.dev.rtsoft.ru> <20050531233215.GB23881@kroah.com> <20050602040655.GE4906@jupiter.solarsys.private> <20050602045145.GA7838@kroah.com> <1117717356.5794.9.camel@localhost.localdomain> <20050609071523.GE22729@kroah.com>
+In-Reply-To: <20050609071523.GE22729@kroah.com>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tor 2005-06-09 klockan 02:59 +0000 skrev David Wagner:
-> Alexander Nyberg  wrote:
-> >btw since the last discussion was about not changing the existing
-> >interface and thus exposing security flaws, what about introducing
-> >another prctrl that says maybe PRCTRL_ACROSS_EXECVE?
+Greg KH wrote:
+
 > 
-> Not sure if I understand the semantics you are proposing.
-> 
-> I remember that the sendmail attack involved the attacker clearing
-> its SETUID capability bit, then execing sendmail.  Sendmail, the victim,
-> got executed with fewer capabilities than it expected, and this caused it
-> to fail (in particular, sendmail's attempt to drop privileges silently
-> failed) -- leading to a security hole.  Will your proposal prevent such
-> attacks?  I'm worried.
+> The fact that the i2c drivers are not really true "drivers" in the
+> driver model.  We bind them by hand to the device and then register the
+> device with the core.  That isn't a nice thing to do...
 
-I'll look this up but it sounds very weird and I don't see how this
-would happen with this change.
+And introduces alot of code do simple stuff that SPI is supposed to do. I also 
+ported i2c-core,i2c-dev, i2c-bit-algo and parport bus to work with SPI device. 
+Resulting SPI code base was huge and I was confused in the begining why, and 
+later wondered if there is need for such a design.
 
-> >Any new user-space applications must understand the implications of
-> >using it so it's safe in that aspect. Yes?
-> 
-> Not clear.  Suppose Alice exec()s Bob.  
-> 
-> Does your scheme protect Alice against a malicious Bob?  Yes, because
-> Alice has to know about PRCTRL_ACROSS_EXECVE to use it.
+I dumped evrything and created three functions : spi_access, spi_transfer and 
+spi_release. First and last functions only assert/deassert CS line, 
+respectevely. Spi_transfer is the core function and is more-or-less different 
+on every CPU (if not using bit-banging). As every CPU has different approach in 
+handling SPI interface is almost neccesary to write CPU dependent SPI part for 
+each CPU out there (at least transfer function). Also you can use CPUs 
+synchronous serial interface (if one supports it) or just use bit-bang algo to 
+get bits in and out.
 
-Yeah but for capabilities to be useful it needs to be recursive too, ie.
-Alice runs Bob that in turn runs Joe. Joe should now have the
-capabilities that Alice had if Alice had set PCRTL_ACROSS_EXECVE and Bob
-did not drop the PRCTL flag nor zeroed the inheritable mask.
+I have two devices on SPI and I drive them both by bit-banging bits in and out. 
+While I was using I2C-like-SPI model I wanted to make it base for all other SPI 
+devices my board would/could hold. Sad thing is that every manufacturer and/or 
+device (let it be serial flash, audio codec, A/D converter, ...) has its own 
+concept of accessing and transfering data to and from the SPI device. I 
+experienced this a short while ago while trying to make tsc2301 audio codec and 
+datakey spi serial flash to use common SPI code. I ended up duplicating the 
+three aforementioned functions in the each driver and still SPI code is ~10-15 
+times smaller than initial I2C-to-SPI port I did.
 
-> Does your scheme protect Bob against a malicious Alice?  Not clear.
-> If Alice is the only who has to set PRCTRL_ACROSS_EXECVE, then Bob might
-> not know about this flag and thus might be surprised by the implicatiohns
-> of this flag.  Consequently, I can imagine this flag might allow Alice
-> to attack Bob by exec()ing Bob with a different set of capabilities than
-> Bob was expecting.  Does this sound right?
+I would also like to see SPI core in linux driver model, but nothing like I2C 
+stuff. SPI is far to simple (and yet so diverse) that much more simple concept 
+could be used.
 
-That would require Alice to already have the capabilities. No extra
-capabilities are gained by exec'ing, it's only about inheriting the
-existing ones.
+just my .2 €
 
+regards,
+hinko k
+
+-- 
+..because under Linux "if something is possible in principle,
+then it is already implemented or somebody is working on it".
+
+					--LKI

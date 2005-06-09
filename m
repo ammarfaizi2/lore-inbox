@@ -1,72 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262429AbVFIXdU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262438AbVFIXeD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262429AbVFIXdU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 19:33:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262438AbVFIXdU
+	id S262438AbVFIXeD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 19:34:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262439AbVFIXeD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 19:33:20 -0400
-Received: from fmr21.intel.com ([143.183.121.13]:43997 "EHLO
-	scsfmr001.sc.intel.com") by vger.kernel.org with ESMTP
-	id S262429AbVFIXdH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 19:33:07 -0400
-Date: Thu, 9 Jun 2005 16:32:16 -0700
-From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jeff Wiegley <jeffw@cyte.com>, linux-kernel@vger.kernel.org,
-       john stultz <johnstul@us.ibm.com>, Andi Kleen <ak@muc.de>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Subject: Re: amd64 cdrom access locks system
-Message-ID: <20050609163216.A18636@unix-os.sc.intel.com>
-References: <42A64556.4060405@cyte.com> <20050608052354.7b70052c.akpm@osdl.org> <42A861F8.9000301@cyte.com> <20050609160045.69c579d2.akpm@osdl.org>
+	Thu, 9 Jun 2005 19:34:03 -0400
+Received: from hockin.org ([66.35.79.110]:24985 "EHLO www.hockin.org")
+	by vger.kernel.org with ESMTP id S262438AbVFIXdd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 19:33:33 -0400
+Date: Thu, 9 Jun 2005 16:33:12 -0700
+From: Tim Hockin <thockin@hockin.org>
+To: mj@ucw.cz, pciids-devel@lists.sourceforge.net
+Cc: Linux Kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: PCI IDs for NVida nForce
+Message-ID: <20050609233312.GA3089@hockin.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20050609160045.69c579d2.akpm@osdl.org>; from akpm@osdl.org on Thu, Jun 09, 2005 at 04:00:45PM -0700
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 09, 2005 at 04:00:45PM -0700, Andrew Morton wrote:
-> Jeff Wiegley <jeffw@cyte.com> wrote:
-> >
-> > warning: many lost ticks.
-> > Your time source seems to be instable or some driver is hogging interupts
-> > rip default_idle+0x24/0x30
-> > Falling back to HPET
-> > divide error: 0000 [1] PREEMPT
-> > ...
-> > RIP: 0010:[<ffffffff80112704>] <ffffffff80112704>{timer_interrupt+244}
-> 
-> The timer code got confused, fell back to the HPET timer and then got a
-> divide-by-zero in timer_interrupt().  Probably because variable hpet_tick
-> is zero.
-> 
-> - It's probably a bug that the cdrom code is holding interrupts off for
->   too long.
-> 
->   Use hdparm and dmesg to see whether the driver is using DMA.  If it
->   isn't, fiddle with it until it is.
-> 
-> - It's possibly a bug that we're falling back to HPET mode just because
->   the cdrom driver is being transiently silly.
-> 
-> - It's surely a bug that hpet_tick is zero after we've switched to HPET mode.
-> 
-> 
-> 
-> 
-> Please test this workaround:
-> 
+Info from a CK804 (nForce4, nForce Pro, etc) board:
 
-Only reason I can see for hpet_tick to be zero is when there was some error 
-in hpet_init(), and we start using PIT. But, later we try to fallback to an 
-uninitilized HPET. 
+Signed-off-by: Tim Hockin <thockin@hockin.org>
 
-Can you look at your dmesg before the hang and check what timer is getting used?
-The dmesg line will look something like this...
 
-time.c: Using ______ MHz ___ timer.
-
-Thanks,
-Venki
-
+--- old/drivers/pci/pci.ids	2005-06-09 16:29:08.000000000 -0700
++++ new/drivers/pci/pci.ids	2005-05-11 19:37:07.000000000 -0700
+@@ -3116,6 +3116,22 @@
+ 	002e  NV6 [Vanta]
+ 	002f  NV6 [Vanta]
+ 	0041  NV40 OS1RT00B30
++	0050  nForce Professional ISA Bridge (LPC)
++	0051  nForce Professional ISA Bridge (LPC)
++	0052  nForce Professional SMBus Controller
++	0053  nForce Professional IDE Controller
++	0054  nForce Professional SATA Controller
++	0055  nForce Professional SATA Controller
++	0056  nForce Professional Ethernet Controller
++	0057  nForce Professional Ethernet Controller
++	0058  nForce Professional AC'97 Modem Codec
++	0059  nForce Professional AC'97 Audio Codec
++	005a  nForce Professional USB 1.1 Controller
++	005b  nForce Professional USB 2.0 Controller
++	005c  nForce Professional PCI Bridge
++	005d  nForce Professional PCI Express Port
++	005e  nForce Professional HyperTransport Bridge
++	005f  nForce Professional Memory Controller
+ 	0060  nForce2 ISA Bridge
+ 		1043 80ad  A7N8X Mainboard
+ 	0064  nForce2 SMBus (MCP)

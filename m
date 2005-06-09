@@ -1,145 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262257AbVFIMsi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262198AbVFIMtN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262257AbVFIMsi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 08:48:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVFIMsi
+	id S262198AbVFIMtN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 08:49:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVFIMtM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 08:48:38 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:59593 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S261335AbVFIMrb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 08:47:31 -0400
-Message-ID: <42A83B0D.7040701@jp.fujitsu.com>
-Date: Thu, 09 Jun 2005 21:50:21 +0900
-From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+	Thu, 9 Jun 2005 08:49:12 -0400
+Received: from tron.kn.vutbr.cz ([147.229.191.152]:9223 "EHLO tron.kn.vutbr.cz")
+	by vger.kernel.org with ESMTP id S262198AbVFIMsY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 08:48:24 -0400
+Message-ID: <42A83A85.6090503@stud.feec.vutbr.cz>
+Date: Thu, 09 Jun 2005 14:48:05 +0200
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Debian Thunderbird 1.0.2 (X11/20050603)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       linux-ia64@vger.kernel.org
-Cc: Linas Vepstas <linas@austin.ibm.com>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       long <tlnguyen@snoqualmie.dp.intel.com>,
-       linux-pci@atrey.karlin.mff.cuni.cz,
-       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
-Subject: [PATCH 02/10] IOCHK interface for I/O error handling/detecting
-References: <42A8386F.2060100@jp.fujitsu.com>
-In-Reply-To: <42A8386F.2060100@jp.fujitsu.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: Ingo Molnar <mingo@elte.hu>
+CC: linux-kernel@vger.kernel.org, "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+References: <20050608112801.GA31084@elte.hu> <42A73023.4040707@stud.feec.vutbr.cz> <20050609114510.GA10969@elte.hu> <42A8316E.6000104@stud.feec.vutbr.cz> <20050609121326.GB17414@elte.hu>
+In-Reply-To: <20050609121326.GB17414@elte.hu>
+Content-Type: multipart/mixed;
+ boundary="------------090808050600010805080202"
+X-Spam-Flag: NO
+X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
+  tested this incoming email. See other headers to know if the email
+  has beed identified as possible spam.  The original message
+  has been attached to this so you can view it (if it isn't spam) or block
+  similar future email.  If you have any questions, see
+  the administrator of that system for details.
+  ____
+  Content analysis details:   (-4.2 points, 6.0 required)
+  ____
+   pts rule name              description
+  ---- ---------------------- --------------------------------------------
+   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
+  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
+                              [score: 0.0000]
+  ____
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[This is 2 of 10 patches, "iochk-02-ia64.patch"]
+This is a multi-part message in MIME format.
+--------------090808050600010805080202
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-- Add "config IOMAP_CHECK" to change definitions from generic
-   to specific.
+Ingo Molnar wrote:
+> indeed - new patch uploaded.
 
-- Defines ia64 version of:
-     iochk_clear, iochk_read, iochk_init, and iocookie
-   But they are no-ops yet. See next patch (3 of 10).
+The attached patch against V0.7.48-04 replaces some more local_irq_* 
+operation with their raw variants on x86_64. It should be the equivalent 
+of your changes done for i386 in -V0.7.48-02.
 
-Signed-off-by: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Michal
 
----
+--------------090808050600010805080202
+Content-Type: text/plain;
+ name="rt-x86_64-more-local_irqs.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="rt-x86_64-more-local_irqs.diff"
 
-  arch/ia64/Kconfig           |   13 +++++++++++++
-  arch/ia64/lib/Makefile      |    1 +
-  arch/ia64/lib/iomap_check.c |   30 ++++++++++++++++++++++++++++++
-  include/asm-ia64/io.h       |   11 +++++++++++
-  4 files changed, 55 insertions(+)
+diff -Nurp -X linux-RT/Documentation/dontdiff linux-RT/arch/x86_64/kernel/io_apic.c linux-RT.mich/arch/x86_64/kernel/io_apic.c
+--- linux-RT/arch/x86_64/kernel/io_apic.c	2005-06-09 14:16:53.563982208 +0200
++++ linux-RT.mich/arch/x86_64/kernel/io_apic.c	2005-06-09 14:22:20.326306784 +0200
+@@ -1218,7 +1218,7 @@ static int __init timer_irq_works(void)
+ {
+ 	unsigned long t1 = jiffies;
+ 
+-	local_irq_enable();
++	raw_local_irq_enable();
+ 	/* Let ten ticks pass... */
+ 	mdelay((10 * 1000) / HZ);
+ 
+diff -Nurp -X linux-RT/Documentation/dontdiff linux-RT/arch/x86_64/kernel/nmi.c linux-RT.mich/arch/x86_64/kernel/nmi.c
+--- linux-RT/arch/x86_64/kernel/nmi.c	2005-06-09 14:16:53.566981752 +0200
++++ linux-RT.mich/arch/x86_64/kernel/nmi.c	2005-06-09 14:25:17.092434248 +0200
+@@ -128,7 +128,7 @@ void __init nmi_watchdog_default(void)
+ static __init void nmi_cpu_busy(void *data)
+ {
+ 	volatile int *endflag = data;
+-	local_irq_enable();
++	raw_local_irq_enable();
+ 	/* Intentionally don't use cpu_relax here. This is
+ 	   to make sure that the performance counter really ticks,
+ 	   even if there is a simulator or similar that catches the
+@@ -157,7 +157,7 @@ int __init check_nmi_watchdog (void)
+ 
+ 	for (cpu = 0; cpu < NR_CPUS; cpu++)
+ 		counts[cpu] = cpu_pda[cpu].__nmi_count; 
+-	local_irq_enable();
++	raw_local_irq_enable();
+ 	mdelay((10*1000)/nmi_hz); // wait 10 ticks
+ 
+ 	for (cpu = 0; cpu < NR_CPUS; cpu++) {
+diff -Nurp -X linux-RT/Documentation/dontdiff linux-RT/arch/x86_64/kernel/reboot.c linux-RT.mich/arch/x86_64/kernel/reboot.c
+--- linux-RT/arch/x86_64/kernel/reboot.c	2005-03-02 08:38:25.000000000 +0100
++++ linux-RT.mich/arch/x86_64/kernel/reboot.c	2005-06-09 14:29:06.181607400 +0200
+@@ -114,12 +114,12 @@ void machine_restart(char * __unused)
+ #endif
+ 
+ 	if (!reboot_force) {
+-		local_irq_disable();
++		raw_local_irq_disable();
+ #ifndef CONFIG_SMP
+ 		disable_local_APIC();
+ #endif
+ 		disable_IO_APIC();
+-		local_irq_enable();
++		raw_local_irq_enable();
+ 	}
+ 	
+ 	/* Tell the BIOS if we want cold or warm reboot */
 
-Index: linux-2.6.11.11/arch/ia64/lib/Makefile
-===================================================================
---- linux-2.6.11.11.orig/arch/ia64/lib/Makefile
-+++ linux-2.6.11.11/arch/ia64/lib/Makefile
-@@ -16,6 +16,7 @@ lib-$(CONFIG_MCKINLEY)	+= copy_page_mck.
-  lib-$(CONFIG_PERFMON)	+= carta_random.o
-  lib-$(CONFIG_MD_RAID5)	+= xor.o
-  lib-$(CONFIG_HAVE_DEC_LOCK) += dec_and_lock.o
-+lib-$(CONFIG_IOMAP_CHECK) += iomap_check.o
-
-  AFLAGS___divdi3.o	=
-  AFLAGS___udivdi3.o	= -DUNSIGNED
-Index: linux-2.6.11.11/arch/ia64/Kconfig
-===================================================================
---- linux-2.6.11.11.orig/arch/ia64/Kconfig
-+++ linux-2.6.11.11/arch/ia64/Kconfig
-@@ -381,6 +381,19 @@ config PCI_DOMAINS
-  	bool
-  	default PCI
-
-+config IOMAP_CHECK
-+	bool "Support iochk interfaces for IO error detection."
-+	depends on PCI && EXPERIMENTAL
-+	---help---
-+	  Saying Y provides iochk infrastructure for "RAS-aware" drivers
-+	  to detect and recover some IO errors, which strongly required by
-+	  some of very-high-reliable systems.
-+	  The implementation of this infrastructure is highly depend on arch,
-+	  bus system, chipset and so on.
-+	  Currentry, very few drivers on few arch actually implements this.
-+
-+	  If you don't know what to do here, say N.
-+
-  source "drivers/pci/Kconfig"
-
-  source "drivers/pci/hotplug/Kconfig"
-Index: linux-2.6.11.11/arch/ia64/lib/iomap_check.c
-===================================================================
---- /dev/null
-+++ linux-2.6.11.11/arch/ia64/lib/iomap_check.c
-@@ -0,0 +1,30 @@
-+/*
-+ * File:    iomap_check.c
-+ * Purpose: Implement the IA64 specific iomap recovery interfaces
-+ */
-+
-+#include <linux/pci.h>
-+
-+void iochk_init(void);
-+void iochk_clear(iocookie *cookie, struct pci_dev *dev);
-+int  iochk_read(iocookie *cookie);
-+
-+void iochk_init(void)
-+{
-+	/* setup */
-+}
-+
-+void iochk_clear(iocookie *cookie, struct pci_dev *dev)
-+{
-+	/* register device etc. */
-+}
-+
-+int iochk_read(iocookie *cookie)
-+{
-+	/* check error etc. */
-+
-+	return 0;
-+}
-+
-+EXPORT_SYMBOL(iochk_read);
-+EXPORT_SYMBOL(iochk_clear);
-Index: linux-2.6.11.11/include/asm-ia64/io.h
-===================================================================
---- linux-2.6.11.11.orig/include/asm-ia64/io.h
-+++ linux-2.6.11.11/include/asm-ia64/io.h
-@@ -70,6 +70,17 @@ extern unsigned int num_io_spaces;
-  #include <asm/machvec.h>
-  #include <asm/page.h>
-  #include <asm/system.h>
-+
-+#ifdef CONFIG_IOMAP_CHECK
-+
-+/* definition of ia64 iocookie */
-+typedef unsigned long iocookie;
-+
-+/* enable ia64 iochk - See arch/ia64/lib/iomap_check.c */
-+#define HAVE_ARCH_IOMAP_CHECK
-+
-+#endif /* CONFIG_IOMAP_CHECK  */
-+
-  #include <asm-generic/iomap.h>
-
-  /*
-
+--------------090808050600010805080202--

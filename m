@@ -1,56 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262283AbVFIGJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262291AbVFIGLC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262283AbVFIGJk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 02:09:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262282AbVFIGJk
+	id S262291AbVFIGLC (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 02:11:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262288AbVFIGK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 02:09:40 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:28372 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S262280AbVFIGJb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 02:09:31 -0400
-Message-ID: <42A7DD18.50004@pobox.com>
-Date: Thu, 09 Jun 2005 02:09:28 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
+	Thu, 9 Jun 2005 02:10:29 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:12256 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262285AbVFIGKJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 02:10:09 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: <abonilla@linuxwireless.org>, "'Pavel Machek'" <pavel@ucw.cz>,
+       "'Jeff Garzik'" <jgarzik@pobox.com>,
+       "'Netdev list'" <netdev@oss.sgi.com>,
+       "'kernel list'" <linux-kernel@vger.kernel.org>,
+       "'James P. Ketrenos'" <ipw2100-admin@linux.intel.com>
+Subject: Re: ipw2100: firmware problem
+Date: Thu, 9 Jun 2005 09:09:55 +0300
+User-Agent: KMail/1.5.4
+References: <002901c56c3b$8216cdd0$600cc60a@amer.sykes.com>
+In-Reply-To: <002901c56c3b$8216cdd0$600cc60a@amer.sykes.com>
 MIME-Version: 1.0
-To: kallol@nucleodyne.com
-CC: linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: Performance figure for sx8 driver
-References: <20050608212425.8951j70kxbwpcs8c@www.nucleodyne.com>
-In-Reply-To: <20050608212425.8951j70kxbwpcs8c@www.nucleodyne.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+Content-Disposition: inline
+Message-Id: <200506090909.55889.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-kallol@nucleodyne.com wrote:
-> Does anyone have performace figure for sx8 driver which is for promise SATAII150
-> 8 port PCI-X adapter?
+On Wednesday 08 June 2005 18:05, Alejandro Bonilla wrote:
 > 
-> Someone reports that on a platform with sx8 driver, multiple hdparms on
-> different disks those are connected to the same adapter (there are 8 ports) can
-> not get more than 45MB/sec in total, whereas a SCSI based driver for the same
-> adapter gets around 150MB/sec.
+> > On Wednesday 08 June 2005 17:23, Pavel Machek wrote:
+> > > Hi!
+> > >
+> > > I'm fighting with firmware problem: if ipw2100 is compiled into
+> > > kernel, it is loaded while kernel boots and firmware loader
+> > is not yet
+> > > available. That leads to uninitialized (=> useless) adapter.
 > 
-> Any comment on this?
+> Pavel,
+> 
+> 	I might be lost here but... How is the firmware loaded when using the
+> ipw2100-1.0.0/patches Kernel patch?
+> 
+> That patch normally works fine. It might not be the way you kernel
+> developers would like it, but maybe that could work the same way?
+> 
+> 
+> > >
+> > > What's the prefered way to solve this one? Only load firmware when
+> > > user does ifconfig eth1 up? [It is wifi, it looks like it would be
+> > > better to start firmware sooner so that it can associate to the
+> > > AP...].
+> >
+> > Do you want to associate to an AP when your kernel boots,
+> > _before_ any iwconfig had a chance to configure anything?
+> > That's strange.
+> 
+> Currently, when we install the driver, it associates to any open network on
+> boot. This is good, cause we don't want to be typing the commands all the
+> time just to associate. It works this way now and is pretty nice.
 
-Known.  Early firmwares for SX8 had problems that forced the driver to 
-limit the number of outstanding requests, for all ports, to _one_.
+What is so nice about this? That Linux novice user with his new lappie
+will join a neighbor's network every time he powers up the lappie,
+even without knowing that?
 
-Later firmwares have fixed this, but the driver has not been updated to 
-detect newer(fixed) firmwares.
+That will be analogous to me plugging ethernet cable into the switch and
+wanting it to work, without any IP addr config, even without DHCP client.
+Just power up the box (or modprobe an eth module) and it works! Cool, eh?
 
-You may update drivers/block/sx8.c as such:
-
-- CARM_MAX_Q              = 1,               /* one command at a time */
-+ CARM_MAX_Q              = 30,              /* 30 commands at a time */
-
-if you have a newer firmware, to obtain much better performance.
-
-	Jeff
-
+For some reason, we do not do this for wired nets. Why should wireless
+be different?
+--
+vda
 

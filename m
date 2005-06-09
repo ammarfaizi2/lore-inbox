@@ -1,40 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261335AbVFIOWV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262386AbVFIOXB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261335AbVFIOWV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 10:22:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261539AbVFIOWV
+	id S262386AbVFIOXB (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 10:23:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262385AbVFIOXB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 10:22:21 -0400
-Received: from smtpout03-04.mesa1.secureserver.net ([64.202.165.74]:16771 "HELO
-	smtpout03-04.mesa1.secureserver.net") by vger.kernel.org with SMTP
-	id S261335AbVFIOWT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 10:22:19 -0400
-Message-ID: <42A85065.4000108@coyotegulch.com>
-Date: Thu, 09 Jun 2005 10:21:25 -0400
-From: Scott Robert Ladd <lkml@coyotegulch.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050512)
-X-Accept-Language: en-us, en
+	Thu, 9 Jun 2005 10:23:01 -0400
+Received: from web25804.mail.ukl.yahoo.com ([217.12.10.189]:17547 "HELO
+	web25804.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262386AbVFIOWv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 10:22:51 -0400
+Message-ID: <20050609142250.80926.qmail@web25804.mail.ukl.yahoo.com>
+Date: Thu, 9 Jun 2005 16:22:49 +0200 (CEST)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Re: [TTY] exclusive mode question
+To: Frederik Deweerdt <dev.deweerdt@laposte.net>
+Cc: Frederik Deweerdt <dev.deweerdt@laposte.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <20050609121638.GD507@gilgamesh.home.res>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Has anyone had problems with GCC 4.0 and the kernel?
-X-Enigmail-Version: 0.90.2.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I've had several inquiries recently in regard to compiling the kernel
-with GCC 4.0. It seems folk are having problems, do a Google search, and
-find my capsule review of GCC 4.0 at:
+--- Frederik Deweerdt <dev.deweerdt@laposte.net> a écrit :
 
-http://www.coyotegulch.com/reviews/gcc4/index.html
+> Le 09/06/05 13:41 +0200, moreau francis écrivit:
+> > 
+> > oh ok...sorry I misunderstood TIOEXCL meaning ;)
+> > Do you know how I could implement such exclusive mode (the one I described)
+> ?
+> > 
+> This is handled through lock files, google for LCK..ttyS0
+>
 
-I'm not running a GCC 4.0-created kernel, but I had no problems
-compiling it and running one a few weeks ago. Before I start looking
-into this further, has anyone here had problems with GCC 4? Maybe I just
-hallucinated that it compiled and booted... ;)
+This lock mechanism is a convention but nothing prevent a user application to
+issue a "echo foo > /dev/ttyS0" command while "LCK..ttyS0" file exists...
 
-..Scott
+            Francis
+
+
+	
+	
+		
+___________________________________________________________________________ 
+Appel audio GRATUIT partout dans le monde avec le nouveau Yahoo! Messenger 
+Téléchargez cette version sur http://fr.messenger.yahoo.com

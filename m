@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262383AbVFIMkY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262241AbVFIMph@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262383AbVFIMkY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 08:40:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262382AbVFIMjw
+	id S262241AbVFIMph (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 08:45:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262222AbVFIMph
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 08:39:52 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:50654 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S262374AbVFIMgt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 08:36:49 -0400
-Message-ID: <42A8386F.2060100@jp.fujitsu.com>
-Date: Thu, 09 Jun 2005 21:39:11 +0900
+	Thu, 9 Jun 2005 08:45:37 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:25032 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S261539AbVFIMpB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 08:45:01 -0400
+Message-ID: <42A83A8F.9020503@jp.fujitsu.com>
+Date: Thu, 09 Jun 2005 21:48:15 +0900
 From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
 User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 X-Accept-Language: en-us, en
@@ -22,128 +22,104 @@ Cc: Linas Vepstas <linas@austin.ibm.com>,
        long <tlnguyen@snoqualmie.dp.intel.com>,
        linux-pci@atrey.karlin.mff.cuni.cz,
        linuxppc64-dev <linuxppc64-dev@ozlabs.org>
-Subject: [PATCH 00/10] IOCHK interface for I/O error handling/detecting
+Subject: [PATCH 01/10] IOCHK interface for I/O error handling/detecting
+References: <42A8386F.2060100@jp.fujitsu.com>
+In-Reply-To: <42A8386F.2060100@jp.fujitsu.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, long time no see :-D
+[This is 1 of 10 patches, "iochk-01-generic.patch"]
 
-This is a continuation of previous post quite a while ago:
-"[PATCH/RFC] I/O-check interface for driver's error handling"
+- It defines:
+     a pair of function  : iochk_clear and iochk_read
+     a function for init : iochk_init
+     type of control var : iocookie
+   and describe "no-ops" as its "generic" action.
 
-Reflecting every comments, I brushed up my patch for generic part.
-So today I'll post it again, and also post "ia64 part", which
-surely implements ia64-arch specific error checking. I think
-latter will be a sample of basic implement for other arch.
+- HAVE_ARCH_IOMAP_CHECK allows us to change whole definition
+   of these functions and type from generic one to specific one.
+   See next patch (2 of 10).
 
-The patch is divided into 10 parts, as patch series:
-	iochk-01-generic.patch
-	iochk-02-ia64.patch
-	iochk-03-register.patch
-	iochk-04-register_bridge.patch
-	iochk-05-check_bridge.patch
-	iochk-06-mcanotify.patch
-	iochk-07-poison.patch
-	iochk-08-mcadrv.patch
-	iochk-09-cpeh.patch
-	iochk-10-rwlock.patch
+Signed-off-by: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
 
-Only "01" is for generic, and rest 9 parts are for ia64.
-Since parts from 02 to 05 are used to construct basic pci-based
-checking, they are not so arch-specific even they in /arch/ia64.
+---
 
-I think the generic part is almost completed. No matter if only
-"01" is accepted, because it will mean a good start for other
-arch where interested in I/O error recovery infrastructures.
-Of course, I'd appreciate it if all of them could be accepted.
+  drivers/pci/pci.c           |    2 ++
+  include/asm-generic/iomap.h |   16 ++++++++++++++++
+  lib/iomap.c                 |   26 ++++++++++++++++++++++++++
+  3 files changed, 44 insertions(+)
 
-I feel need of comments, especially against ia64 parts.
-Every comments are welcome.
+Index: linux-2.6.11.11/lib/iomap.c
+===================================================================
+--- linux-2.6.11.11.orig/lib/iomap.c
++++ linux-2.6.11.11/lib/iomap.c
+@@ -210,3 +210,29 @@ void pci_iounmap(struct pci_dev *dev, vo
+  }
+  EXPORT_SYMBOL(pci_iomap);
+  EXPORT_SYMBOL(pci_iounmap);
++
++/*
++ * Clear/Read iocookie to check IO error while using iomap.
++ *
++ * Note that default iochk_clear-read pair interfaces don't have
++ * any effective error check, but some high-reliable platforms
++ * would provide useful information to you.
++ * And note that some action may be limited (ex. irq-unsafe)
++ * between the pair depend on the facility of the platform.
++ */
++#ifndef HAVE_ARCH_IOMAP_CHECK
++void iochk_init(void) { ; }
++
++void iochk_clear(iocookie *cookie, struct pci_dev *dev)
++{
++	/* no-ops */
++}
++
++int iochk_read(iocookie *cookie)
++{
++	/* no-ops */
++	return 0;
++}
++EXPORT_SYMBOL(iochk_clear);
++EXPORT_SYMBOL(iochk_read);
++#endif /* HAVE_ARCH_IOMAP_CHECK */
+Index: linux-2.6.11.11/include/asm-generic/iomap.h
+===================================================================
+--- linux-2.6.11.11.orig/include/asm-generic/iomap.h
++++ linux-2.6.11.11/include/asm-generic/iomap.h
+@@ -60,4 +60,20 @@ struct pci_dev;
+  extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long max);
+  extern void pci_iounmap(struct pci_dev *dev, void __iomem *);
 
-Thanks,
-H.Seto
-
------
-
-* ...followings are "abstract" copied from my previous post.
-   If you know skip it:
-
------
-
-Currently, I/O error is not a leading cause of system failure.
-However, since Linux nowadays is making great progress on its
-scalability, and ever larger number of PCI devices are being
-connected to a single high-performance server, the risk of the
-I/O error is increasing day by day.
-
-For example, PCI parity error is one of the most common errors
-in the hardware world. However, the major cause of parity error
-is not hardware's error but software's - low voltage, humidity,
-natural radiation... etc. Even though, some platforms are nervous
-to parity error enough to shutdown the system immediately on such
-error. So if device drivers can retry its transaction once results
-as an error, we can reduce the risk of I/O errors.
-
-So I'd like to suggest new interfaces that enable drivers to
-check - detect error and retry their I/O transaction easily.
-
-Previously I had post two prototypes to LKML:
-1) readX_check() interface
-    Added new kin of basic readX(), which returns its result of
-    I/O. But, it would not make sense that device driver have to
-    check and react after each of I/Os.
-2) clear/read_pci_errors() interface
-    Added new pair-interface to sandwich I/Os. It makes sense that
-    device driver can adjust the number of checking I/Os and can
-    react all of them at once. However, this was not generalized,
-    so I thought that more expandable design would be required.
-
-Today's patch is 3rd one - iochk_clear/read() interface.
-- This also adds pair-interface, but not to sandwich only readX().
-   Depends on platform, starting with ioreadX(), inX(), writeX()
-   if possible... and so on could be target of error checking.
-- Additionally adds special token - abstract "iocookie" structure
-   to control/identifies/manage I/Os, by passing it to OS.
-   Actual type of "iocookie" could be arch-specific. Device drivers
-   could use the iocookie structure without knowing its detail.
-
-Expected usage(sample) is:
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-#include <linux/pci.h>
-#include <asm/io.h>
-
-int sample_read_with_iochk(struct pci_dev *dev, u32 *buf, int words)
-{
-     unsigned long ofs = pci_resource_start(dev, 0) + DATA_OFFSET;
-     int i;
-
-     /* Create magical cookie on the stack */
-     iocookie cookie;
-
-     /* Critical section start */
-     iochk_clear(&dev, &cookie);
-     {
-         /* Get the whole packet of data */
-         for (i = 0; i < words; i++)
-             *buf++ = ioread32(dev, ofs);
-     }
-     /* Critical section end. Did we have any trouble? */
-     if ( iochk_read(&cookie) ) return -1;
-
-     /* OK, all system go. */
-     return 0;
-}
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If arch doesn't(or cannot) have its io-checking strategy,
-these interfaces don't do anything, so driver maintainer can write
-their driver code with these interfaces for all arch, even where
-checking is not implemented.
-
-
-
-
-
++/*
++ * IOMAP_CHECK provides additional interfaces for drivers to detect
++ * some IO errors, supports drivers having ability to recover errors.
++ *
++ * All works around iomap-check depends on the design of "iocookie"
++ * structure. Every architecture owning its iomap-check is free to
++ * define the actual design of iocookie to fit its special style.
++ */
++#ifndef HAVE_ARCH_IOMAP_CHECK
++typedef unsigned long iocookie;
++#endif
++
++extern void iochk_init(void);
++extern void iochk_clear(iocookie *cookie, struct pci_dev *dev);
++extern int  iochk_read(iocookie *cookie);
++
+  #endif
+Index: linux-2.6.11.11/drivers/pci/pci.c
+===================================================================
+--- linux-2.6.11.11.orig/drivers/pci/pci.c
++++ linux-2.6.11.11/drivers/pci/pci.c
+@@ -782,6 +782,8 @@ static int __devinit pci_init(void)
+  	while ((dev = pci_get_device(PCI_ANY_ID, PCI_ANY_ID, dev)) != NULL) {
+  		pci_fixup_device(pci_fixup_final, dev);
+  	}
++
++	iochk_init();
+  	return 0;
+  }
 

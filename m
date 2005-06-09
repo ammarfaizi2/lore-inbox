@@ -1,75 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262343AbVFIKjh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262339AbVFIKli@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262343AbVFIKjh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 06:39:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262342AbVFIKjg
+	id S262339AbVFIKli (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 06:41:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262344AbVFIKli
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 06:39:36 -0400
-Received: from n1.cetrtapot.si ([212.30.80.17]:3309 "EHLO n1.cetrtapot.si")
-	by vger.kernel.org with ESMTP id S262343AbVFIKjb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 06:39:31 -0400
-Message-ID: <42A81C56.1070602@cetrtapot.si>
-Date: Thu, 09 Jun 2005 12:39:18 +0200
-From: Hinko Kocevar <hinko.kocevar@cetrtapot.si>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-Cc: Rui Sousa <rui.sousa@laposte.net>,
-       "Mark M. Hoffman" <mhoffman@lightlink.com>,
-       dmitry pervushin <dpervushin@ru.mvista.com>,
-       linux-kernel@vger.kernel.org, lm-sensors <lm-sensors@lm-sensors.org>
-Subject: Re: [RFC] SPI core
-References: <1117555756.4715.17.camel@diimka.dev.rtsoft.ru> <20050531233215.GB23881@kroah.com> <20050602040655.GE4906@jupiter.solarsys.private> <20050602045145.GA7838@kroah.com> <1117717356.5794.9.camel@localhost.localdomain> <20050609071523.GE22729@kroah.com>
-In-Reply-To: <20050609071523.GE22729@kroah.com>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
+	Thu, 9 Jun 2005 06:41:38 -0400
+Received: from mailfe05.swip.net ([212.247.154.129]:47274 "EHLO swip.net")
+	by vger.kernel.org with ESMTP id S262342AbVFIKl1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 06:41:27 -0400
+X-T2-Posting-ID: k1c2aGMK8Lj9Cnpb+Eju4eOhqUzXuhsckJNC9B9P7R8=
+Date: Thu, 9 Jun 2005 12:41:40 +0200
+From: Frederik Deweerdt <dev.deweerdt@laposte.net>
+To: moreau francis <francis_moreau2000@yahoo.fr>
+Cc: Frederik Deweerdt <dev.deweerdt@laposte.net>, linux-kernel@vger.kernel.org
+Subject: Re: [TTY] exclusive mode question
+Message-ID: <20050609104140.GB507@gilgamesh.home.res>
+Mail-Followup-To: moreau francis <francis_moreau2000@yahoo.fr>,
+	Frederik Deweerdt <dev.deweerdt@laposte.net>,
+	linux-kernel@vger.kernel.org
+References: <20050609093642.GA507@gilgamesh.home.res> <20050609095927.59628.qmail@web25803.mail.ukl.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20050609095927.59628.qmail@web25803.mail.ukl.yahoo.com>
+User-Agent: Mutt/1.5.6i
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-
+Le 09/06/05 11:59 +0200, moreau francis écrivit:
 > 
-> The fact that the i2c drivers are not really true "drivers" in the
-> driver model.  We bind them by hand to the device and then register the
-> device with the core.  That isn't a nice thing to do...
+> --- Frederik Deweerdt <dev.deweerdt@laposte.net> a écrit :
+> 
+> > I've just greped and I found :
+> > 
+> > if (!retval && test_bit(TTY_EXCLUSIVE, &tty->flags) &&
+> > !capable(CAP_SYS_ADMIN))
+> > 	retval = -EBUSY;
+> > in drivers/char/tty_io.c:tty_open
+> > 
+> > Which sources are you looking at?
+> > 
+> 
+> same source code but if another process has previously open the tty, how does
+> this source code detect it ?
+> 
+Sorry I misunderstood your question, there's no check on previous opens:
+from man tty_ioctl:
 
-And introduces alot of code do simple stuff that SPI is supposed to do. I also 
-ported i2c-core,i2c-dev, i2c-bit-algo and parport bus to work with SPI device. 
-Resulting SPI code base was huge and I was confused in the begining why, and 
-later wondered if there is need for such a design.
+       TIOCEXCL  void
+              Put the tty into exclusive mode.  No _further_ open(2) operations  on  the  terminal  are  permitted.
+              (They will fail with EBUSY, except for root.)
 
-I dumped evrything and created three functions : spi_access, spi_transfer and 
-spi_release. First and last functions only assert/deassert CS line, 
-respectevely. Spi_transfer is the core function and is more-or-less different 
-on every CPU (if not using bit-banging). As every CPU has different approach in 
-handling SPI interface is almost neccesary to write CPU dependent SPI part for 
-each CPU out there (at least transfer function). Also you can use CPUs 
-synchronous serial interface (if one supports it) or just use bit-bang algo to 
-get bits in and out.
-
-I have two devices on SPI and I drive them both by bit-banging bits in and out. 
-While I was using I2C-like-SPI model I wanted to make it base for all other SPI 
-devices my board would/could hold. Sad thing is that every manufacturer and/or 
-device (let it be serial flash, audio codec, A/D converter, ...) has its own 
-concept of accessing and transfering data to and from the SPI device. I 
-experienced this a short while ago while trying to make tsc2301 audio codec and 
-datakey spi serial flash to use common SPI code. I ended up duplicating the 
-three aforementioned functions in the each driver and still SPI code is ~10-15 
-times smaller than initial I2C-to-SPI port I did.
-
-I would also like to see SPI core in linux driver model, but nothing like I2C 
-stuff. SPI is far to simple (and yet so diverse) that much more simple concept 
-could be used.
-
-just my .2 €
-
-regards,
-hinko k
-
--- 
-..because under Linux "if something is possible in principle,
-then it is already implemented or somebody is working on it".
-
-					--LKI
+Emphasis mine.
+Regards,
+Frederik Deweerdt

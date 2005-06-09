@@ -1,69 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262021AbVFIP5n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262206AbVFIQAi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262021AbVFIP5n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 11:57:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262206AbVFIP5n
+	id S262206AbVFIQAi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 12:00:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262208AbVFIQAi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 11:57:43 -0400
-Received: from smtp-104-thursday.noc.nerim.net ([62.4.17.104]:14596 "EHLO
-	mallaury.noc.nerim.net") by vger.kernel.org with ESMTP
-	id S262021AbVFIP5k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 11:57:40 -0400
-Date: Thu, 9 Jun 2005 17:57:44 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Andrew James Wade 
-	<ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Greg KH" <greg@kroah.com>, "Mark M. Hoffman" <mhoffman@lightlink.com>
-Subject: Re: BUG in i2c_detach_client
-Message-Id: <20050609175744.6f950b4f.khali@linux-fr.org>
-In-Reply-To: <200506090932.59679.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
-References: <JctXv2LZ.1118303243.5186830.khali@localhost>
-	<200506090932.59679.ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Thu, 9 Jun 2005 12:00:38 -0400
+Received: from fmr23.intel.com ([143.183.121.15]:23446 "EHLO
+	scsfmr003.sc.intel.com") by vger.kernel.org with ESMTP
+	id S262206AbVFIQAT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 12:00:19 -0400
+Date: Thu, 9 Jun 2005 08:58:31 -0700
+From: Ashok Raj <ashok.raj@intel.com>
+To: Andi Kleen <ak@suse.de>
+Cc: Ashok Raj <ashok.raj@intel.com>,
+       Grant Grundler <grundler@parisc-linux.org>, Greg KH <gregkh@suse.de>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       "David S. Miller" <davem@davemloft.net>,
+       "Nguyen, Tom L" <tom.l.nguyen@intel.com>, roland@topspin.com,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: Re: [RFC PATCH] PCI: remove access to pci_[enable|disable]_msi() for drivers - take 2
+Message-ID: <20050609085831.A14739@unix-os.sc.intel.com>
+References: <20050608133226.GR23831@wotan.suse.de> <20050608090944.A4147@unix-os.sc.intel.com> <20050609141134.GE23831@wotan.suse.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050609141134.GE23831@wotan.suse.de>; from ak@suse.de on Thu, Jun 09, 2005 at 04:11:34PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Andrew,
-
-> Mystery solved.
+On Thu, Jun 09, 2005 at 04:11:34PM +0200, Andi Kleen wrote:
+> On Wed, Jun 08, 2005 at 09:09:44AM -0700, Ashok Raj wrote:
+> > On Wed, Jun 08, 2005 at 06:32:26AM -0700, Andi Kleen wrote:
+> > > 
+> > >    > I also see one minor weakness in the assumption that CPU Vectors
+> > >    > are global. Both IA64/PARISC can support per-CPU Vector tables.
+> > 
+> > One thing to keep in mind is that since now we have support for CPU hotplug
+> > we need to factor in cases when cpu is removed, the per-cpu vectors would
+> > require migrating to a new cpu far interrupt target. Which would 
+> > possibly require vector-sharing support as well in case the vector is used 
+> > in all other cpus.
 > 
-> ERROR3:
-> 	i2c_detach_client(data->lm75[1]); <-- HERE
-> 	i2c_detach_client(data->lm75[0]);
-> 	kfree(data->lm75[1]);
-> 	kfree(data->lm75[0]);
 > 
-> The missing i2c_detach_client call meant that data->lm75[1] was still
-> on the list of i2c devices when it was freed. This was corrupting the
-> list. The ERROR3 path now works on my kernel.
+> Yes, it would need require vector migration. I suppose the way to 
+> do this would be to not offline a CPU as long as there are devices
+> that have interrupts refering to a CPU. And perhaps have some /sys
+> file that prevents allocating new vectors to a specific CPU.
+> 
+> User space could then do:
+> 
+> 	Set sys file to prevent new vectors allocated to cpu FOO
+> 	Read /proc/interrupts and unload all drivers who have vectors on CPU foo.
+> 	Reload drivers. 
+> 	Offline CPU.
 
-Oh my, I had it right under my nose and didn't see it ;) Thanks for the
-clarification.
+Sounds way too complicated approach!
 
-Greg, please apply the following patch on top of the hwmon patches until
-Mark submits an updated version of the whole thing.
+In current scheme we do in fixup_irqs() if a irq is bound to a cpu
+we migrate it to another online cpu. 
 
-----------------------------------
+disable(), reprogram new cpu destination (i.e new vector), and then re-enable
 
-Fix a broken error path in the asb100 driver.
+Even for MSI we do this via config cycle access, if set_msi_affinity()
+works, then the re-program should work as well.
 
-Signed-off-by: Jean Delvare <khali@linux-fr.org>
+If you want to unload drivers, then apps would need to stop... this sounds
+more like a M$ solution :-(, we are far better off to reboot in that case?
+> 
+> 
+> BTW I suppose in many machines the problem would not occur
+> because they do hotplug not on inidividual CPUs, but nodes
+> which consist of CPUs,PCI busses etc.  On those you could
+> fully avoid it by just making sure the devices on the PCI
+> busses of a node only allocate interrupts on the local CPUs.
+> Then to off line you would need to hot unplug the devices
+> before offlining the CPUs anyways.
+> From a NUMA optimization perspective that is a worthy
+> goal anyways to avoid cross node traffic.
+> 	
+>
 
---- linux-2.6.12-rc6/drivers/i2c/chips/asb100.c.orig	Wed Jun  8 09:47:53 2005
-+++ linux-2.6.12-rc6/drivers/i2c/chips/asb100.c	Thu Jun  9 11:58:34 2005
-@@ -859,6 +859,7 @@
- 	return 0;
- 
- ERROR3:
-+	i2c_detach_client(data->lm75[1]);
- 	i2c_detach_client(data->lm75[0]);
- 	kfree(data->lm75[1]);
- 	kfree(data->lm75[0]);
+But if your entire Node needs to be offlined because a failure is happening
+and you need to replace that node, you could offline all the cpu's which would
+require irqs to go off node anyway until the node is replaced.
 
+If its just a failing cpu, and you want to keep that off execution path, then 
+with intr domains, and the 4-cpus in that node forming a domain, 
+fixup_irqs() could pick another cpu within the same domain for that irq.
+
+more like what zwane had proposed, but would require reprogramming msi's at
+devices anyway. 
+
+> > 
+> >    on the topic, possibly under intr domains etc.. not too sure)
+> 
+> That is the plan.
+> 
+> >  - vector sharing
+> 
+> That doesnt help in the general case again I think.
+> 
+> e.g. to fully cover offlining of all CPus you would need to 
+> share all vectors over all CPUs of all devices. But that totally
+> defeats the original goal to get more than 255 vectors.
+
+I could be wrong, but the idea is if you end up all vectors are used in
+any other domain, then we could use vector sharing. Agreed sharing has 
+performance issues, since we would end up sharing IRQS's, and chained intr
+calls, but it might be the best you can do for RAS reasons. If downtime
+is not preferred. (Longer term, maybe we could have some policy from
+user space that could honor such requests and be able to customize..)
 
 -- 
-Jean Delvare
+Cheers,
+Ashok Raj
+- Open Source Technology Center

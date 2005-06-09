@@ -1,42 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262293AbVFIGMR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262292AbVFIGMn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262293AbVFIGMR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 02:12:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262292AbVFIGLK
+	id S262292AbVFIGMn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 02:12:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262303AbVFIGMf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 02:11:10 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:24466
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S262289AbVFIGK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 02:10:58 -0400
-Date: Wed, 08 Jun 2005 23:10:45 -0700 (PDT)
-Message-Id: <20050608.231045.48808548.davem@davemloft.net>
-To: vda@ilport.com.ua
-Cc: jketreno@linux.intel.com, pavel@ucw.cz, jgarzik@pobox.com,
-       netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-       ipw2100-admin@linux.intel.com
-Subject: Re: ipw2100: firmware problem
-From: "David S. Miller" <davem@davemloft.net>
-In-Reply-To: <200506090903.49295.vda@ilport.com.ua>
-References: <42A7268D.9020402@linux.intel.com>
-	<20050608.124332.85408883.davem@davemloft.net>
-	<200506090903.49295.vda@ilport.com.ua>
-X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 9 Jun 2005 02:12:35 -0400
+Received: from sccrmhc14.comcast.net ([204.127.202.59]:61392 "EHLO
+	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S262294AbVFIGL1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 02:11:27 -0400
+Subject: Re: Performance figure for sx8 driver -- More information
+From: Kallol Biswas <kallol@nucleodyne.com>
+Reply-To: kallol@nucleodyne.com
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050608212425.8951j70kxbwpcs8c@www.nucleodyne.com>
+References: <20050608212425.8951j70kxbwpcs8c@www.nucleodyne.com>
+Content-Type: text/plain
+Organization: NucleoDyne Systems Inc.
+Message-Id: <1118297512.9632.2.camel@driver>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 08 Jun 2005 23:11:52 -0700
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Denis Vlasenko <vda@ilport.com.ua>
-Date: Thu, 9 Jun 2005 09:03:49 +0300
+The linux driver from Promise gets much better performance than sx8
+on 2.6.6 (back port) kernel. The 2.6 Promise driver uses SCSI framework.
 
-> You practically cannot avoid having initrd because you are very likely
-> to need to do some wifi config (at least ESSID and mode).
+On Wed, 2005-06-08 at 18:24, kallol@nucleodyne.com wrote:
+> Does anyone have performace figure for sx8 driver which is for promise SATAII150
+> 8 port PCI-X adapter?
+> 
+> Someone reports that on a platform with sx8 driver, multiple hdparms on
+> different disks those are connected to the same adapter (there are 8 ports) can
+> not get more than 45MB/sec in total, whereas a SCSI based driver for the same
+> adapter gets around 150MB/sec.
+> 
+> Any comment on this?
+> 
+> 
+> Kallol Biswas
+> www.nucleodyne.com
+> kallol@nucleodyne.com
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-I need neither at home.  It comes up by default just fine with
-ifconfig.
-
-Your points are valid, but they do not detract from the fact that
-pieced up drivers, half in the kernel half somewhere else, is total
-madness.  It is a lose for the user.

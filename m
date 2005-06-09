@@ -1,43 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262218AbVFIA1a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262224AbVFIAgC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262218AbVFIA1a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 20:27:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262225AbVFIA0h
+	id S262224AbVFIAgC (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 20:36:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262217AbVFIAez
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 20:26:37 -0400
-Received: from smtp204.mail.sc5.yahoo.com ([216.136.130.127]:59009 "HELO
-	smtp204.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261408AbVFIAYH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 20:24:07 -0400
-Message-ID: <42A78C23.70303@yahoo.com.au>
-Date: Thu, 09 Jun 2005 10:24:03 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "M.Baris Demiray" <baris@labristeknoloji.com>
-CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.12-rc6-mm1] add allowed CPUs check into	find_idlest_{group|cpu}()
-References: <42A66485.8010208@labristeknoloji.com> <1118191744.5104.49.camel@npiggin-nld.site> <42A75E1A.8030803@labristeknoloji.com>
-In-Reply-To: <42A75E1A.8030803@labristeknoloji.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 8 Jun 2005 20:34:55 -0400
+Received: from wproxy.gmail.com ([64.233.184.196]:52589 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262224AbVFIAei convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 20:34:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=gcptyTnILtGJqHW1tLNxrQzLyebiOxqtFyquKJaNVAESxsRCO2zrFxmDzKtZTcoeiI/armkZ7KjO8HsNBhupMh4cgqa47OGDkULLACj7hsy19rMNpMTMIUwuEK839eRrL53ZDAPcZLKxx1LQ5G9ueU2+V4XV5R2zNKT5CeBvoZ4=
+Message-ID: <9e47339105060817342bdd2dd@mail.gmail.com>
+Date: Wed, 8 Jun 2005 20:34:34 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Subject: Re: Dell BIOS and HPET timer support
+Cc: lkml <linux-kernel@vger.kernel.org>, Bob Picco <Robert.Picco@hp.com>
+In-Reply-To: <88056F38E9E48644A0F562A38C64FB6004EBD1B0@scsmsx403.amr.corp.intel.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <88056F38E9E48644A0F562A38C64FB6004EBD1B0@scsmsx403.amr.corp.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M.Baris Demiray wrote:
-> 
+On 6/8/05, Pallipadi, Venkatesh <venkatesh.pallipadi@intel.com> wrote:
+> But, this will not affect normal kernel functioning. This will only
+> affect is someone wants to use /dev/hpet interface.
 
-> 
-> You're right, I got it. Updated version is appended.
-> 
+I tried the little demo program in Documentation/hpet.txt It seems to work fine.
 
-Looks good, thanks. I'll test it here and queue it up to
-send to Andrew. Will you send me a Signed-off-by: line to
-go with that?
-
+Still not sure what 0ns tick signifies. This is an Intel ICH5 chipset.
 
 -- 
-SUSE Labs, Novell Inc.
-
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Jon Smirl
+jonsmirl@gmail.com

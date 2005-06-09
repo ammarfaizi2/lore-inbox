@@ -1,162 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262470AbVFIVI0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262468AbVFIVLq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262470AbVFIVI0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 17:08:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262472AbVFIVI0
+	id S262468AbVFIVLq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 17:11:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262472AbVFIVLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 17:08:26 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:56917 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S262470AbVFIVHz (ORCPT
+	Thu, 9 Jun 2005 17:11:46 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:43675 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S262468AbVFIVLX convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 17:07:55 -0400
-Message-ID: <42A8AFA5.3090703@tls.msk.ru>
-Date: Fri, 10 Jun 2005 01:07:49 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050331)
-X-Accept-Language: en-us, en
+	Thu, 9 Jun 2005 17:11:23 -0400
+X-IronPort-AV: i="3.93,187,1115010000"; 
+   d="scan'208"; a="252623957:sNHT77372772"
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Adam Belay <ambx1@neo.rr.com>
-CC: matthieu castet <castet.matthieu@free.fr>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: PNP parallel&serial ports: module reload fails (2.6.11)?
-References: <20050602222400.GA8083@mut38-1-82-67-62-65.fbx.proxad.net>	 <429FA1F3.9000001@tls.msk.ru> <42A2D37A.5050408@free.fr>	 <42A46551.9010707@tls.msk.ru> <20050606211855.GA3289@neo.rr.com>	 <42A4D1AB.3090508@tls.msk.ru>	 <1118224334.3245.89.camel@localhost.localdomain>	 <42A75525.3050704@tls.msk.ru> <1118274762.29855.2.camel@localhost.localdomain>
-In-Reply-To: <1118274762.29855.2.camel@localhost.localdomain>
-Content-Type: text/plain; charset=KOI8-R; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [patch 2.6.12-rc3] modifications in firmware_class.c to support nohotplug
+Date: Thu, 9 Jun 2005 16:11:08 -0500
+Message-ID: <367215741E167A4CA813C8F12CE0143B0283F204@ausx2kmpc115.aus.amer.dell.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [patch 2.6.12-rc3] modifications in firmware_class.c to support nohotplug
+Thread-Index: AcVsTHu6pXOc5sF6T2+92wDymh/IQgA6wHiA
+From: <Abhay_Salunke@Dell.com>
+To: <dtor_core@ameritech.net>, <greg@kroah.com>
+Cc: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>, <Matt_Domsch@Dell.com>,
+       <ranty@debian.org>
+X-OriginalArrivalTime: 09 Jun 2005 21:11:19.0781 (UTC) FILETIME=[C81BA150:01C56D37]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adam Belay wrote:
-> On Thu, Jun 09, 2005 at 12:29:25AM +0400, Michael Tokarev wrote:
+> > > > On Wed, Jun 08, 2005 at 11:04:09AM -0500, Abhay_Salunke@Dell.com
+> > > wrote:
+> > > > > > I think it would be better if you just have request_firmware
+and
+> > > > > > request_firmware_nowait accept timeout parameter that would
+> > > override
+> > > > > > default timeout in firmware_class. 0 would mean use default,
+> > > > > > MAX_SCHED_TIMEOUT - wait indefinitely.
+> > > > >
+> > > > > But we still need to avoid hotplug being invoked as we need it
+be
+> a
+> > > > > manual process.
+> > > >
+> > > > No, hotplug can happen just fine (it happens loads of times
+today
+> for
+> > > > things that people don't care about.)
+> > > >
+> > > If hotplug happens the complete function is called which makes the
+> > > request_firmware return with a failure.
+> >
+> > If this was true, then the current code would not work at all.
+> >
 > 
->>Adam Belay wrote:
->>[]
->>
->>>>>>[ it's in http://www.corpit.ru/mjt/hpml310.dsdt - apache ships it
->>>>>>as Content-Type: text/plain, for some reason.  I grabbed iasl
->>>>>>and converted that stuff into .dsls, available at:
->>>>>>http://www.corpit.ru/mjt/hpml310.dsl and
->>>>>>http://www.corpit.ru/mjt/hpml150.dsl ]
-[]
->>>1.) a complete dmesg after initial boot with the patch
->>>2.) kernel message output after "rmmod parport_pc" and "modprobe
->>>parport_pc" with the patch
+> What Abhay is trying to say is that default firmware.agent when it
+> does not find requested firmware file writes -1 (abort) to "loading"
+> attribute causing firmware_request to fail.
+> 
+> I think it should be fixed in firmware.agent though, not in kernel -
+> the agent shoudl just recognoze that sometimes not having firmware
+> file is ok.
+> 
+Greg, any inputs on whether we change firmware.agent or we patch
+firmware_class.c?
 
-Hello again.  This whole conversation seems to be a bit...
-slow, probably due to $TZ differences and the fact that
-I can do experiments only at evenings, because the test
-machine (and non-test one too) are busy during work hours.
-
-Adam, I built 2.6.12-rc6 with your last patch, and tried it on
-both ML150 and ML310 machines.  And in both cases, the whole
-thing worked.
-
-Dmesg from HPML150:
-
-[modprobe parport_pc]
-parport: PnPBIOS parport detected.
-parport0: PC-style at 0x378, irq 7 [PCSPP]
-[rmmod parport_pc]
-pnp: Device 00:07 disabled.
-[modprobe parport_pc]
-pnp: building resource template
-pnp: encoding resources
-pnp: attempting to fix irq flags
-bug squashed - dma
-pnp: setting resources
-pnp: _SRS worked correctly
-pnp: Device 00:07 activated.
-parport: PnPBIOS parport detected.
-parport0: PC-style at 0x378, irq 7 [PCSPP]
-
-The same applies to 8250_pnp module:
-
-[modprobe 8250_pnp]
-Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing enabled
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-[rmmod 8250_pnp]
-pnp: Device 00:06 disabled.
-[modprobe 8250_pnp]
-pnp: building resource template
-pnp: encoding resources
-pnp: attempting to fix irq flags
-bug squashed - dma
-pnp: setting resources
-pnp: _SRS worked correctly
-pnp: Device 00:06 activated.
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-
-
-And HP ML 310 box:
-
-[modprobe parport_pc]
-parport: PnPBIOS parport detected.
-parport0: PC-style at 0x378, irq 7 [PCSPP,TRISTATE]
-[rmmod parport_pc]
-pnp: Device 00:06 disabled.
-[modprobe parport_pc]
-pnp: building resource template
-pnp: encoding resources
-pnp: attempting to fix irq flags
-pnp: setting resources
-pnp: _SRS worked correctly
-pnp: Device 00:06 activated.
-parport: PnPBIOS parport detected.
-parport0: PC-style at 0x378, irq 7 [PCSPP,TRISTATE]
-
-[modprobe 8250_pnp]
-Serial: 8250/16550 driver $Revision: 1.90 $ 8 ports, IRQ sharing enabled
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-[rmmod 8250_pnp]
-pnp: Device 00:07 disabled.
-pnp: Device 00:08 disabled.
-[modprobe 8250_pnp]
-pnp: building resource template
-pnp: encoding resources
-pnp: attempting to fix irq flags
-pnp: setting resources
-pnp: _SRS worked correctly
-pnp: Device 00:07 activated.
-ttyS0 at I/O 0x3f8 (irq = 4) is a 16550A
-pnp: building resource template
-pnp: encoding resources
-pnp: attempting to fix irq flags
-pnp: setting resources
-pnp: _SRS worked correctly
-pnp: Device 00:08 activated.
-ttyS1 at I/O 0x2f8 (irq = 3) is a 16550A
-
-There are two questions still.
-
-First of all, why disable the device on module unload?
-If it was enabled initially, before any module has been
-loaded, why it needs to be disabled, why not leave it
-enabled and all, just like it has been before?
-
-And this 8250 vs 8250_pnp (and 8250_pci etc, but
-especially 8250_pnp as it is the most interesting one).
-When loading 8250 alone (note that 8250_pnp depends
-on 8250, so 8250 gets loaded first), it detects standard
-serial port(s) just fine.  8250_pnp "redetects" them again
-(see first `modprobe 8250_pnp' above: each ttySN line
-gets repeated twice). But when unloading 8250_pnp, both
-standard ttySNs are deactivated, even when 8250 is still
-here.  More, when unloading both 8250_pnp and 8250, and
-loading *only* 8250 after that, no standard ports gets
-detected until 8250_pnp will be loaded (as the devices
-are disabled, and 8250_pnp re-enables them).  Ie, this
-whole stuff does not look right.  Probably a nitpicking,
-but a bit.. strange.  Probably if 8250_pnp will stop
-deactivating the devices (as per above), everything will
-look ok here too.  Or, maybe it's a good idea to just
-combine 8250 and 8250_pnp modules (and maybe 8250_serial
-too), esp, since the latter is very small anyway ?
-
-Thank you!
-
-/mjt
+Thanks
+Abhay

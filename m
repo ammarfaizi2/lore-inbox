@@ -1,70 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262302AbVFIGYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262285AbVFIG1q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262302AbVFIGYy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 02:24:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262299AbVFIGXa
+	id S262285AbVFIG1q (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 02:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262289AbVFIG1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 02:23:30 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:53943 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262300AbVFIGWh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 02:22:37 -0400
-Date: Thu, 9 Jun 2005 08:23:39 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Grant Coady <grant_lkml@dodo.com.au>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [PATCH] SATA NCQ #4
-Message-ID: <20050609062338.GC5140@suse.de>
-References: <20050608102857.GC18490@suse.de> <qrjda1h0sbohfdi5t57rqpp581avqcslir@4ax.com> <20050608114150.GE18490@suse.de> <20050608114526.GF18490@suse.de> <tbgea15ls0a5kovgnsr62fkhtgnspmjfeg@4ax.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 9 Jun 2005 02:27:46 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:3508 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262285AbVFIGZs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 02:25:48 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: "David S. Miller" <davem@davemloft.net>
+Subject: Re: ipw2100: firmware problem
+Date: Thu, 9 Jun 2005 09:25:07 +0300
+User-Agent: KMail/1.5.4
+Cc: abonilla@linuxwireless.org, pavel@ucw.cz, jgarzik@pobox.com,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
+       ipw2100-admin@linux.intel.com
+References: <002901c56c3b$8216cdd0$600cc60a@amer.sykes.com> <200506090909.55889.vda@ilport.com.ua> <20050608.231657.59660080.davem@davemloft.net>
+In-Reply-To: <20050608.231657.59660080.davem@davemloft.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <tbgea15ls0a5kovgnsr62fkhtgnspmjfeg@4ax.com>
+Message-Id: <200506090925.07495.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 09 2005, Grant Coady wrote:
-> On Wed, 8 Jun 2005 13:45:26 +0200, Jens Axboe <axboe@suse.de> wrote:
-> >
-> >Any chance you can log the boot process when it fails, using serial
-> >console or something similar? At least write down the EIP of where it
-> >fails :-)
+On Thursday 09 June 2005 09:16, David S. Miller wrote:
+> From: Denis Vlasenko <vda@ilport.com.ua>
+> Date: Thu, 9 Jun 2005 09:09:55 +0300
 > 
-> Guess what?  I switched box on this morning with monitor off and 
-> the boot completed, 'cos I'd logged in much time later ssh.  Didn't 
-> give it enough time yesterday :(
+> > On Wednesday 08 June 2005 18:05, Alejandro Bonilla wrote:
+> > > Currently, when we install the driver, it associates to any open network on
+> > > boot. This is good, cause we don't want to be typing the commands all the
+> > > time just to associate. It works this way now and is pretty nice.
+> > 
+> > What is so nice about this? That Linux novice user with his new lappie
+> > will join a neighbor's network every time he powers up the lappie,
+> > even without knowing that?
 > 
-> I have one very large syslog... 139MB
+> I love this behavior, because it means that I don't have to do
+> anything special to get my setup at home working.
 > 
-> How much of that would you like :)
+> Me caveman
+> Me plug in wireless router
+> Me watch pretty lights
+> Me turn on computer
+> Me up interface
+
+You need to up interface? And surely you need ip addr? That's a knob also! :)
+
+> Computer work
+> Me no care other cavemen use wireless link
 > 
-> Jun  9 04:27:45 sempro kernel:  [<c0100ad3>] default_idle+0x23/0x30
-> Jun  9 04:27:45 sempro kernel:  [<c0100b58>] cpu_idle+0x48/0x60
-> Jun  9 04:27:45 sempro kernel:  [<c04867b8>] start_kernel+0x148/0x170
-> Jun  9 04:27:45 sempro kernel:  [<c04863a0>] unknown_bootoption+0x0/0x1b0
-> Jun  9 04:27:45 sempro kernel: Badness in __ata_qc_complete at drivers/scsi/libata-core.c:3062
+> Configuration knobs are _madness_.  Things should work with minimal
+> intervention and configuration.
 
-Ah duh, I never tested on UP, you have to use assert_spin_locked() there
-not the direct spin_is_locked().
-
-So your system was functioning just fine, you just got a warning for
-every completed request slowing it down a lot :)
-
-This should fix it. Jeff, can you apply that incremental to the ncq
-branch? Thanks!
-
---- linux-2.6/drivers/scsi/libata-core.c~	2005-06-09 08:20:34.000000000 +0200
-+++ linux-2.6/drivers/scsi/libata-core.c	2005-06-09 08:22:24.000000000 +0200
-@@ -3059,7 +3059,7 @@
- 	struct ata_port *ap = qc->ap;
- 	unsigned int tag, do_clear = 0;
- 
--	WARN_ON(!spin_is_locked(&ap->host_set->lock));
-+	WARN_ON(!assert_spin_locked(&ap->host_set->lock));
- 
- 	if (likely(qc->flags & ATA_QCFLAG_ACTIVE)) {
- 		assert(ap->queue_depth);
-
--- 
-Jens Axboe
+Sure. I consider "iwconfig essid MyCave mode managed" a minimal intervention,
+just like I consider "ip a a dev eth0 123.123.123.2/24 brd +; ip l set dev eth0 up"
+a miniman interventian if I need IP configured.
+--
+vda
 

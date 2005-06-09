@@ -1,371 +1,551 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262217AbVFIAoU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262156AbVFIArO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262217AbVFIAoU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 8 Jun 2005 20:44:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262219AbVFIAnQ
+	id S262156AbVFIArO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 8 Jun 2005 20:47:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261627AbVFIArO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 20:43:16 -0400
-Received: from mail12.syd.optusnet.com.au ([211.29.132.193]:54492 "EHLO
-	mail12.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262217AbVFIAjz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 20:39:55 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: Peter Williams <pwil3058@bigpond.net.au>
-Subject: Re: [ANNOUNCE][RFC] PlugSched-5.1 for 2.6.12-rc6 and 2.6.12-rc6-mm1
-Date: Thu, 9 Jun 2005 10:42:19 +1000
-User-Agent: KMail/1.8.1
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Chris Han <xiphux@gmail.com>,
-       William Lee Irwin III <wli@holomorphy.com>
-References: <42A68159.9050808@bigpond.net.au>
-In-Reply-To: <42A68159.9050808@bigpond.net.au>
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_rB5pCbUq19r8XzI"
-Message-Id: <200506091042.19987.kernel@kolivas.org>
+	Wed, 8 Jun 2005 20:47:14 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8642 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262251AbVFIAE4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 8 Jun 2005 20:04:56 -0400
+Date: Thu, 9 Jun 2005 02:04:02 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Adam Belay <abelay@novell.com>, greg@kroah.com,
+       Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, Karsten Keil <kkeil@suse.de>
+Subject: Re: [PATCH] fix tulip suspend/resume
+Message-ID: <20050609000402.GA2694@elf.ucw.cz>
+References: <20050606224645.GA23989@pingi3.kke.suse.de> <Pine.LNX.4.58.0506061702430.1876@ppc970.osdl.org> <20050607025054.GC3289@neo.rr.com> <20050607105552.GA27496@pingi3.kke.suse.de> <20050607205800.GB8300@neo.rr.com> <1118190373.6850.85.camel@gaston> <1118196980.3245.68.camel@localhost.localdomain> <20050608122320.GC1898@elf.ucw.cz> <1118271605.6850.137.camel@gaston>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1118271605.6850.137.camel@gaston>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_rB5pCbUq19r8XzI
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Hi!
 
-On Wed, 8 Jun 2005 03:25 pm, Peter Williams wrote:
-> The patch of PlugSched-5.1 for 2.6.12-rc5 applies cleanly to 2.6.12-rc6
-> and is available at:
+> > > I think we should also use the pm_message_t defines.  We will need to
+> > > add PMSG_FREEZE eventually.  I decided to default to the current state
+> > > rather than panic.  Does this patch look ok?
+> > 
+> > No.
+> 
+> Hrm... I don't follow you anymore here ...
+> 
+> >         case PM_EVENT_ON:
+> >                 return PCI_D0;
+> >         case PM_EVENT_FREEZE:
+> >         case PM_EVENT_SUSPEND:
+> >                 return PCI_D3hot;
+> 
+> What are these new PM_EVENT_* things ? I though we defined PMSG_* ?
 
-Hi Peter
+PMSG_* are for struct; you can't case on struct.
 
-The recent fix that Ingo posted for the changes to pipe code affects 
-significantly the behaviour of the mainline scheduler and should be 
-incorporated as soon as possible. Staircase has undergone substantial 
-revision in response to this change, fortunately to its advantage removing 
-all that extra code I added to your last plugsched version. Anyway here is a 
-patch committing Ingo's pipe signalling changes, and the update to staircase 
-11.3 in line with those changes. None of this changes the way the other cpu 
-schedulers behave but it may be worth investigating how the pipe changes 
-affect the behaviour of the ones you maintain.
+> > You passed invalid argument; I see no reason why you should paper over
+> > it and risk continuing. This happens during system suspend; it is
+> > quite possible that user will not see your printk when machine powers
+> > off just after that; and remember that it will not be in syslog after
+> > resume.
+> 
+> Crap. I don't think a BUG() makes any useful help neither in this place,
+> and when I locally turn PMSG_FREEZE to something sane I suddenly blow up
+> in there (and I wonder in how many other places).
 
-Cheers,
-Con
+At least you can see & report that error... That would not be a case
+for simple printk.
 
---Boundary-00=_rB5pCbUq19r8XzI
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="plugsched5.1-s11.2_s11.3.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
-	filename="plugsched5.1-s11.2_s11.3.diff"
+This is the patch I'd like to go in. I hope it makes it
+clear... Please base your development on top of this one...
+									Pavel
 
-Index: linux-2.6.12-rc6-plugsched/fs/pipe.c
+---
+
+Turn pm_message_t into struct, so that it is typechecked properly (and
+so that we can add flags field in future). This should not go in
+before 2.6.12.
+
+Note: this rejects against -mm tree. Some rejects are caused by
+	state_store getting more arguments, and some by added hook
+	in pci_choose_state. I still do not like that pci_choose_state
+	hook, it really should return pci_power_t, not int.
+
+Signed-off-by: Pavel Machek <pavel@suse.cz>
+
+---
+commit a249072c4e0ef136c27c9e59d664e5be0d677ddc
+tree 24a21ff5302734d40e08c400b14c0c1624cceded
+parent f4bed68f59d9f32a4460288f40bb7f2af463babd
+author <pavel@amd.(none)> Tue, 31 May 2005 11:57:50 +0200
+committer <pavel@amd.(none)> Tue, 31 May 2005 11:57:50 +0200
+
+ drivers/base/power/resume.c    |    8 ++++----
+ drivers/base/power/runtime.c   |    8 ++++----
+ drivers/base/power/suspend.c   |   12 ++++++------
+ drivers/base/power/sysfs.c     |    8 ++++----
+ drivers/ide/ide.c              |    4 ++--
+ drivers/pci/pci.c              |   14 +++++++-------
+ drivers/serial/pmac_zilog.c    |    2 +-
+ drivers/usb/core/hub.c         |   18 +++++++++---------
+ drivers/usb/core/usb.c         |    2 +-
+ drivers/usb/host/ehci-dbg.c    |    2 +-
+ drivers/usb/host/ohci-dbg.c    |    2 +-
+ drivers/usb/host/sl811-hcd.c   |    6 +++---
+ drivers/video/aty/atyfb_base.c |    4 ++--
+ drivers/video/aty/radeon_pm.c  |   12 ++++++------
+ drivers/video/i810/i810_main.c |    6 +++---
+ include/linux/pm.h             |   14 ++++++++++----
+ 16 files changed, 64 insertions(+), 58 deletions(-)
+
+Index: drivers/base/power/resume.c
 ===================================================================
---- linux-2.6.12-rc6-plugsched.orig/fs/pipe.c	2005-06-07 09:09:06.000000000 +1000
-+++ linux-2.6.12-rc6-plugsched/fs/pipe.c	2005-06-09 10:03:08.000000000 +1000
-@@ -39,7 +39,11 @@ void pipe_wait(struct inode * inode)
+--- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/base/power/resume.c  (mode:100644)
++++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/base/power/resume.c  (mode:100644)
+@@ -23,11 +23,11 @@
+ int resume_device(struct device * dev)
  {
- 	DEFINE_WAIT(wait);
- 
--	prepare_to_wait(PIPE_WAIT(*inode), &wait, TASK_INTERRUPTIBLE);
-+	/*
-+	 * Pipes are system-local resources, so sleeping on them
-+	 * is considered a noninteractive wait:
-+	 */
-+	prepare_to_wait(PIPE_WAIT(*inode), &wait, TASK_INTERRUPTIBLE|TASK_NONINTERACTIVE);
- 	up(PIPE_SEM(*inode));
- 	schedule();
- 	finish_wait(PIPE_WAIT(*inode), &wait);
-Index: linux-2.6.12-rc6-plugsched/include/linux/sched.h
-===================================================================
---- linux-2.6.12-rc6-plugsched.orig/include/linux/sched.h	2005-06-09 09:51:28.000000000 +1000
-+++ linux-2.6.12-rc6-plugsched/include/linux/sched.h	2005-06-09 10:02:29.000000000 +1000
-@@ -112,6 +112,7 @@ extern unsigned long nr_iowait(void);
- #define TASK_TRACED		8
- #define EXIT_ZOMBIE		16
- #define EXIT_DEAD		32
-+#define TASK_NONINTERACTIVE	64
- 
- #define __set_task_state(tsk, state_value)		\
- 	do { (tsk)->state = (state_value); } while (0)
-Index: linux-2.6.12-rc6-plugsched/include/linux/sched_drv.h
-===================================================================
---- linux-2.6.12-rc6-plugsched.orig/include/linux/sched_drv.h	2005-06-09 09:51:28.000000000 +1000
-+++ linux-2.6.12-rc6-plugsched/include/linux/sched_drv.h	2005-06-09 09:55:37.000000000 +1000
-@@ -27,7 +27,6 @@ struct sched_drv {
- 	int (*move_tasks)(runqueue_t *, int, runqueue_t *, unsigned long,
- 		 struct sched_domain *, enum idle_type);
- #endif
--	void (*systime_hook)(runqueue_t *, cputime_t);
- 	void (*tick)(struct task_struct*, struct runqueue *, unsigned long long);
- #ifdef CONFIG_SCHED_SMT
- 	struct task_struct *(*head_of_queue)(union runqueue_queue *);
-Index: linux-2.6.12-rc6-plugsched/include/linux/sched_runq.h
-===================================================================
---- linux-2.6.12-rc6-plugsched.orig/include/linux/sched_runq.h	2005-06-09 09:51:28.000000000 +1000
-+++ linux-2.6.12-rc6-plugsched/include/linux/sched_runq.h	2005-06-09 09:55:50.000000000 +1000
-@@ -41,7 +41,6 @@ struct staircase_runqueue_queue {
- 	struct list_head queue[STAIRCASE_NUM_PRIO_SLOTS - 1];
- 	unsigned int cache_ticks;
- 	unsigned int preempted;
--	unsigned long systime_centile;
- };
- #endif
- 
-Index: linux-2.6.12-rc6-plugsched/kernel/ingosched.c
-===================================================================
---- linux-2.6.12-rc6-plugsched.orig/kernel/ingosched.c	2005-06-09 09:51:28.000000000 +1000
-+++ linux-2.6.12-rc6-plugsched/kernel/ingosched.c	2005-06-09 10:19:08.000000000 +1000
-@@ -388,6 +388,16 @@ static void ingo_wake_up_task(struct tas
+ 	if (dev->power.pm_parent
+-			&& dev->power.pm_parent->power.power_state) {
++			&& dev->power.pm_parent->power.power_state.event) {
+ 		dev_err(dev, "PM: resume from %d, parent %s still %d\n",
+-			dev->power.power_state,
++			dev->power.power_state.event,
+ 			dev->power.pm_parent->bus_id,
+-			dev->power.pm_parent->power.power_state);
++			dev->power.pm_parent->power.power_state.event);
  	}
+ 	if (dev->bus && dev->bus->resume) {
+ 		dev_dbg(dev,"resuming\n");
+@@ -50,7 +50,7 @@
+ 		list_add_tail(entry, &dpm_active);
  
- 	/*
-+	 * Tasks that have marked their sleep as noninteractive get
-+	 * woken up without updating their sleep average. (i.e. their
-+	 * sleep is handled in a priority-neutral manner, no priority
-+	 * boost and no penalty.)
-+	 */
-+	if (old_state & TASK_NONINTERACTIVE)
-+		__activate_task(p, rq);
-+	else
-+		activate_task(p, rq, same_cpu);
-+	/*
- 	 * Sync wakeups (i.e. those types of wakeups where the waker
- 	 * has indicated that it will leave the CPU in short order)
- 	 * don't trigger a preemption, if the woken up task will run on
-@@ -395,7 +405,6 @@ static void ingo_wake_up_task(struct tas
- 	 * the waker guarantees that the freshly woken up task is going
- 	 * to be considered on this CPU.)
- 	 */
--	activate_task(p, rq, same_cpu);
- 	if (!sync || !same_cpu) {
- 		if (TASK_PREEMPTS_CURR(p, rq))
- 			resched_task(rq->curr);
-@@ -1148,7 +1157,6 @@ const struct sched_drv ingo_sched_drv = 
- #ifdef CONFIG_SMP
- 	.move_tasks = ingo_move_tasks,
- #endif
--	.systime_hook = blank_systime_hook,
- 	.tick = ingo_tick,
- #ifdef CONFIG_SCHED_SMT
- 	.head_of_queue = ingo_head_of_queue,
-Index: linux-2.6.12-rc6-plugsched/kernel/nicksched.c
+ 		up(&dpm_list_sem);
+-		if (!dev->power.prev_state)
++		if (!dev->power.prev_state.event)
+ 			resume_device(dev);
+ 		down(&dpm_list_sem);
+ 		put_device(dev);
+Index: drivers/base/power/runtime.c
 ===================================================================
---- linux-2.6.12-rc6-plugsched.orig/kernel/nicksched.c	2005-06-09 09:51:28.000000000 +1000
-+++ linux-2.6.12-rc6-plugsched/kernel/nicksched.c	2005-06-09 09:56:29.000000000 +1000
-@@ -965,7 +965,6 @@ const struct sched_drv nick_sched_drv = 
- #ifdef CONFIG_SMP
- 	.move_tasks = nick_move_tasks,
- #endif
--	.systime_hook = blank_systime_hook,
- 	.tick = nick_tick,
- #ifdef CONFIG_SCHED_SMT
- 	.head_of_queue = nick_head_of_queue,
-Index: linux-2.6.12-rc6-plugsched/kernel/sched.c
-===================================================================
---- linux-2.6.12-rc6-plugsched.orig/kernel/sched.c	2005-06-09 09:51:28.000000000 +1000
-+++ linux-2.6.12-rc6-plugsched/kernel/sched.c	2005-06-09 09:56:43.000000000 +1000
-@@ -1401,7 +1401,6 @@ void account_system_time(struct task_str
- 	acct_update_integrals(p);
- 	/* Update rss highwater mark */
- 	update_mem_hiwater(p);
--	sched_drvp->systime_hook(rq, cputime);
- }
- 
- /*
-Index: linux-2.6.12-rc6-plugsched/kernel/sched_drv.c
-===================================================================
---- linux-2.6.12-rc6-plugsched.orig/kernel/sched_drv.c	2005-06-09 09:51:28.000000000 +1000
-+++ linux-2.6.12-rc6-plugsched/kernel/sched_drv.c	2005-06-09 09:57:52.000000000 +1000
-@@ -135,10 +135,3 @@ void __init sched_drv_sysfs_init(void)
- 		(void)kobject_register(&sched_drv_kobj);
-  	}
- }
--
--/*
-- * Dummy functions
-- */
--void blank_systime_hook(runqueue_t *rq, cputime_t cputime)
--{
--}
-Index: linux-2.6.12-rc6-plugsched/kernel/sched_spa.c
-===================================================================
---- linux-2.6.12-rc6-plugsched.orig/kernel/sched_spa.c	2005-06-09 09:51:28.000000000 +1000
-+++ linux-2.6.12-rc6-plugsched/kernel/sched_spa.c	2005-06-09 09:57:03.000000000 +1000
-@@ -1498,7 +1498,6 @@ const struct sched_drv spa_nf_sched_drv 
- #ifdef CONFIG_SMP
- 	.move_tasks = spa_move_tasks,
- #endif
--	.systime_hook = blank_systime_hook,
- 	.tick = spa_tick,
- #ifdef CONFIG_SCHED_SMT
- 	.head_of_queue = spa_head_of_queue,
-@@ -1545,7 +1544,6 @@ const struct sched_drv zaphod_sched_drv 
- 	.head_of_queue = spa_head_of_queue,
- 	.dependent_sleeper_trumps = spa_dependent_sleeper_trumps,
- #endif
--	.systime_hook = blank_systime_hook,
- 	.schedule = spa_schedule,
- 	.set_normal_task_nice = spa_set_normal_task_nice,
- 	.setscheduler = spa_setscheduler,
-Index: linux-2.6.12-rc6-plugsched/kernel/staircase.c
-===================================================================
---- linux-2.6.12-rc6-plugsched.orig/kernel/staircase.c	2005-06-09 09:51:28.000000000 +1000
-+++ linux-2.6.12-rc6-plugsched/kernel/staircase.c	2005-06-09 10:20:05.000000000 +1000
-@@ -2,8 +2,8 @@
-  *  kernel/staircase.c
-  *  Copyright (C) 1991-2005  Linus Torvalds
-  *
-- * 2005-05-26 Staircase scheduler by Con Kolivas
-- *            Staircase v11.2
-+ * 2005-06-07 Staircase scheduler by Con Kolivas
-+ *            Staircase v11.3
-  */
- #include <linux/sched.h>
- #include <linux/init.h>
-@@ -17,9 +17,8 @@
- /*
-  * Unique staircase process flags used by scheduler.
-  */
--#define SF_FORKED	0x00000001	/* I have just forked */
-+#define SF_NONSLEEP	0x00000001	/* Waiting on in kernel activity */
- #define SF_YIELDED	0x00000002	/* I have just yielded */
--#define SF_UISLEEP	0x00000004	/* Uninterruptible sleep */
- 
- #define task_is_queued(p) (!list_empty(&(p)->run_list))
- 
-@@ -263,31 +262,29 @@ static void continue_slice(task_t *p)
-  * slice instead of starting a new one at high priority.
-  */
- static inline void recalc_task_prio(task_t *p, unsigned long long now,
--	unsigned long rq_systime, unsigned long rq_running)
-+	unsigned long rq_running)
+--- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/base/power/runtime.c  (mode:100644)
++++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/base/power/runtime.c  (mode:100644)
+@@ -13,10 +13,10 @@
+ static void runtime_resume(struct device * dev)
  {
- 	unsigned long sleep_time = ns_diff(now, p->timestamp);
- 
- 	/*
- 	 * Priority is elevated back to best by amount of sleep_time.
--	 * sleep_time is scaled down by in-kernel system time and by
--	 * number of tasks currently running.
-+	 * sleep_time is scaled down by number of tasks currently running.
- 	 */
--	sleep_time /= rq_running + 1;
--	if (rq_systime)
--		sleep_time = sleep_time / 200 * (100 - rq_systime);
-+	if (rq_running > 1)
-+		sleep_time /= rq_running;
- 
- 	p->sdu.staircase.totalrun += p->sdu.staircase.runtime;
- 	if (NS_TO_JIFFIES(p->sdu.staircase.totalrun) >=
- 		p->sdu.staircase.slice && NS_TO_JIFFIES(sleep_time) <
- 		p->sdu.staircase.slice) {
--			p->sdu.staircase.sflags &= ~SF_FORKED;
-+			p->sdu.staircase.sflags &= ~SF_NONSLEEP;
- 			dec_burst(p);
- 			goto new_slice;
- 	}
- 
--	if (p->sdu.staircase.sflags & SF_FORKED) {
-+	if (p->sdu.staircase.sflags & SF_NONSLEEP) {
- 		continue_slice(p);
--		p->sdu.staircase.sflags &= ~SF_FORKED;
-+		p->sdu.staircase.sflags &= ~SF_NONSLEEP;
+ 	dev_dbg(dev, "resuming\n");
+-	if (!dev->power.power_state)
++	if (!dev->power.power_state.event)
  		return;
- 	}
- 
-@@ -297,7 +294,7 @@ static inline void recalc_task_prio(task
- 	}
- 
- 	if (sleep_time >= p->sdu.staircase.totalrun) {
--		if (!(p->sdu.staircase.sflags & SF_UISLEEP))
-+		if (!(p->sdu.staircase.sflags & SF_NONSLEEP))
- 			inc_burst(p);
- 		goto new_slice;
- 	}
-@@ -330,9 +327,8 @@ static void activate_task(task_t *p, run
- #endif
- 	p->sdu.staircase.slice = slice(p);
- 	p->sdu.staircase.time_slice = rr_interval(p);
--	recalc_task_prio(p, now, rq->qu.staircase.systime_centile / 100,
--		rq->nr_running);
--	p->sdu.staircase.sflags &= ~SF_UISLEEP;
-+	recalc_task_prio(p, now, rq->nr_running);
-+	p->sdu.staircase.sflags &= ~SF_NONSLEEP;
- 	p->prio = effective_prio(p);
- 	p->timestamp = now;
- 	__activate_task(p, rq);
-@@ -387,6 +383,13 @@ static void staircase_wake_up_task(struc
- 		rq->nr_uninterruptible--;
- 
- 	/*
-+	 * Tasks that have marked their sleep as noninteractive get
-+	 * woken up without their sleep counting.
-+	 */
-+	if (old_state & TASK_NONINTERACTIVE)
-+		p->sdu.staircase.sflags |= SF_NONSLEEP;
-+
-+	/*
- 	 * Sync wakeups (i.e. those types of wakeups where the waker
- 	 * has indicated that it will leave the CPU in short order)
- 	 * don't trigger a preemption, if the woken up task will run on
-@@ -432,7 +435,7 @@ static void staircase_wake_up_new_task(t
- 	p->sdu.staircase.burst = 0;
- 
- 	if (likely(cpu == this_cpu)) {
--		current->sdu.staircase.sflags |= SF_FORKED;
-+		current->sdu.staircase.sflags |= SF_NONSLEEP;
- 		activate_task(p, rq, 1);
- 		if (!(clone_flags & CLONE_VM))
- 			/*
-@@ -467,7 +470,7 @@ static void staircase_wake_up_new_task(t
- 		 */
- 		task_rq_unlock(rq, &flags);
- 		this_rq = task_rq_lock(current, &flags);
--		current->sdu.staircase.sflags |= SF_FORKED;
-+		current->sdu.staircase.sflags |= SF_NONSLEEP;
- 	}
- 
- 	task_rq_unlock(this_rq, &flags);
-@@ -582,12 +585,6 @@ static void time_slice_expired(task_t *p
- 	enqueue_task(p, rqq);
+ 	if (!resume_device(dev))
+-		dev->power.power_state = 0;
++		dev->power.power_state = PMSG_ON;
  }
  
--static void staircase_systime_hook(runqueue_t *rq, cputime_t cputime)
--{
--	/* For calculating rolling percentage of sys time per runqueue */
--	rq->qu.staircase.systime_centile += cputime * 100;
--}
--
- /*
-  * This function gets called by the timer code, with HZ frequency.
-  * We call it with interrupts disabled.
-@@ -598,10 +595,6 @@ static void staircase_tick(struct task_s
- 	int cpu = smp_processor_id();
- 	unsigned long debit, expired_balance = rq->nr_running;
  
--	/* Rolling percentage systime per runqueue */
--	rq->qu.staircase.systime_centile = rq->qu.staircase.systime_centile *
--		99 / 100;
+@@ -49,10 +49,10 @@
+ 	int error = 0;
+ 
+ 	down(&dpm_sem);
+-	if (dev->power.power_state == state)
++	if (dev->power.power_state.event == state.event)
+ 		goto Done;
+ 
+-	if (dev->power.power_state)
++	if (dev->power.power_state.event)
+ 		runtime_resume(dev);
+ 
+ 	if (!(error = suspend_device(dev, state)))
+Index: drivers/base/power/suspend.c
+===================================================================
+--- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/base/power/suspend.c  (mode:100644)
++++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/base/power/suspend.c  (mode:100644)
+@@ -39,22 +39,22 @@
+ {
+ 	int error = 0;
+ 
+-	if (dev->power.power_state) {
++	if (dev->power.power_state.event) {
+ 		dev_dbg(dev, "PM: suspend %d-->%d\n",
+-			dev->power.power_state, state);
++			dev->power.power_state.event, state.event);
+ 	}
+ 	if (dev->power.pm_parent
+-			&& dev->power.pm_parent->power.power_state) {
++			&& dev->power.pm_parent->power.power_state.event) {
+ 		dev_err(dev,
+ 			"PM: suspend %d->%d, parent %s already %d\n",
+-			dev->power.power_state, state,
++			dev->power.power_state.event, state.event,
+ 			dev->power.pm_parent->bus_id,
+-			dev->power.pm_parent->power.power_state);
++			dev->power.pm_parent->power.power_state.event);
+ 	}
+ 
+ 	dev->power.prev_state = dev->power.power_state;
+ 
+-	if (dev->bus && dev->bus->suspend && !dev->power.power_state) {
++	if (dev->bus && dev->bus->suspend && !dev->power.power_state.event) {
+ 		dev_dbg(dev, "suspending\n");
+ 		error = dev->bus->suspend(dev, state);
+ 	}
+Index: drivers/base/power/sysfs.c
+===================================================================
+--- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/base/power/sysfs.c  (mode:100644)
++++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/base/power/sysfs.c  (mode:100644)
+@@ -26,19 +26,19 @@
+ 
+ static ssize_t state_show(struct device * dev, char * buf)
+ {
+-	return sprintf(buf, "%u\n", dev->power.power_state);
++	return sprintf(buf, "%u\n", dev->power.power_state.event);
+ }
+ 
+ static ssize_t state_store(struct device * dev, const char * buf, size_t n)
+ {
+-	u32 state;
++	pm_message_t state;
+ 	char * rest;
+ 	int error = 0;
+ 
+-	state = simple_strtoul(buf, &rest, 10);
++	state.event = simple_strtoul(buf, &rest, 10);
+ 	if (*rest)
+ 		return -EINVAL;
+-	if (state)
++	if (state.event)
+ 		error = dpm_runtime_suspend(dev, state);
+ 	else
+ 		dpm_runtime_resume(dev);
+Index: drivers/ide/ide.c
+===================================================================
+--- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/ide/ide.c  (mode:100644)
++++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/ide/ide.c  (mode:100644)
+@@ -1385,7 +1385,7 @@
+ 	rq.special = &args;
+ 	rq.pm = &rqpm;
+ 	rqpm.pm_step = ide_pm_state_start_suspend;
+-	rqpm.pm_state = state;
++	rqpm.pm_state = state.event;
+ 
+ 	return ide_do_drive_cmd(drive, &rq, ide_wait);
+ }
+@@ -1404,7 +1404,7 @@
+ 	rq.special = &args;
+ 	rq.pm = &rqpm;
+ 	rqpm.pm_step = ide_pm_state_start_resume;
+-	rqpm.pm_state = 0;
++	rqpm.pm_state = PM_EVENT_ON;
+ 
+ 	return ide_do_drive_cmd(drive, &rq, ide_head_wait);
+ }
+Index: drivers/pci/pci.c
+===================================================================
+--- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/pci/pci.c  (mode:100644)
++++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/pci/pci.c  (mode:100644)
+@@ -316,14 +316,14 @@
+ 
+ pci_power_t pci_choose_state(struct pci_dev *dev, pm_message_t state)
+ {
+-	if (!pci_find_capability(dev, PCI_CAP_ID_PM))
++	switch (state.event) {
++	case PM_EVENT_ON:
+ 		return PCI_D0;
 -
- 	if (p == rq->idle) {
- 		if (wake_priority_sleeper(rq))
- 			goto out;
-@@ -711,7 +704,7 @@ static void staircase_schedule(void)
- 		else {
- 			if (prev->state == TASK_UNINTERRUPTIBLE) {
- 				rq->nr_uninterruptible++;
--				prev->sdu.staircase.sflags |= SF_UISLEEP;
-+				prev->sdu.staircase.sflags |= SF_NONSLEEP;
+-	switch (state) {
+-	case 0: return PCI_D0;
+-	case 3: return PCI_D3hot;
+-	default:
+-		printk("They asked me for state %d\n", state);
++	case PM_EVENT_FREEZE:
++	case PM_EVENT_SUSPEND:
++		return PCI_D3hot;
++	default: 
++		printk("They asked me for state %d\n", state.event);
+ 		BUG();
+ 	}
+ 	return PCI_D0;
+Index: drivers/serial/pmac_zilog.c
+===================================================================
+--- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/serial/pmac_zilog.c  (mode:100644)
++++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/serial/pmac_zilog.c  (mode:100644)
+@@ -1601,7 +1601,7 @@
+ 		return 0;
+ 	}
+ 
+-	if (pm_state == mdev->ofdev.dev.power.power_state || pm_state < 2)
++	if (pm_state.event == mdev->ofdev.dev.power.power_state.event)
+ 		return 0;
+ 
+ 	pmz_debug("suspend, switching to state %d\n", pm_state);
+Index: drivers/usb/core/hub.c
+===================================================================
+--- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/usb/core/hub.c  (mode:100644)
++++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/usb/core/hub.c  (mode:100644)
+@@ -1564,7 +1564,7 @@
+ 			struct usb_driver	*driver;
+ 
+ 			intf = udev->actconfig->interface[i];
+-			if (state <= intf->dev.power.power_state)
++			if (state.event <= intf->dev.power.power_state.event)
+ 				continue;
+ 			if (!intf->dev.driver)
+ 				continue;
+@@ -1572,11 +1572,11 @@
+ 
+ 			if (driver->suspend) {
+ 				status = driver->suspend(intf, state);
+-				if (intf->dev.power.power_state != state
++				if (intf->dev.power.power_state.event != state.event
+ 						|| status)
+ 					dev_err(&intf->dev,
+ 						"suspend %d fail, code %d\n",
+-						state, status);
++						state.event, status);
  			}
- 			deactivate_task(prev, rq);
+ 
+ 			/* only drivers with suspend() can ever resume();
+@@ -1589,7 +1589,7 @@
+ 			 * since we know every driver's probe/disconnect works
+ 			 * even for drivers that can't suspend.
+ 			 */
+-			if (!driver->suspend || state > PM_SUSPEND_MEM) {
++			if (!driver->suspend || state.event > PM_EVENT_FREEZE) {
+ #if 1
+ 				dev_warn(&intf->dev, "resume is unsafe!\n");
+ #else
+@@ -1610,7 +1610,7 @@
+ 	 * policies (when HNP doesn't apply) once we have mechanisms to
+ 	 * turn power back on!  (Likely not before 2.7...)
+ 	 */
+-	if (state > PM_SUSPEND_MEM) {
++	if (state.event > PM_EVENT_FREEZE) {
+ 		dev_warn(&udev->dev, "no poweroff yet, suspending instead\n");
+ 	}
+ 
+@@ -1727,7 +1727,7 @@
+ 			struct usb_driver	*driver;
+ 
+ 			intf = udev->actconfig->interface[i];
+-			if (intf->dev.power.power_state == PMSG_SUSPEND)
++			if (intf->dev.power.power_state.event == PM_EVENT_ON)
+ 				continue;
+ 			if (!intf->dev.driver) {
+ 				/* FIXME maybe force to alt 0 */
+@@ -1741,11 +1741,11 @@
+ 
+ 			/* can we do better than just logging errors? */
+ 			status = driver->resume(intf);
+-			if (intf->dev.power.power_state != PMSG_ON
++			if (intf->dev.power.power_state.event != PM_EVENT_ON
+ 					|| status)
+ 				dev_dbg(&intf->dev,
+ 					"resume fail, state %d code %d\n",
+-					intf->dev.power.power_state, status);
++					intf->dev.power.power_state.event, status);
  		}
-@@ -1014,7 +1007,6 @@ const struct sched_drv staircase_sched_d
- #ifdef CONFIG_SMP
- 	.move_tasks = staircase_move_tasks,
- #endif
--	.systime_hook = staircase_systime_hook,
- 	.tick = staircase_tick,
- #ifdef CONFIG_SCHED_SMT
- 	.head_of_queue = staircase_head_of_queue,
+ 		status = 0;
+ 
+@@ -1928,7 +1928,7 @@
+ 	unsigned		port1;
+ 	int			status;
+ 
+-	if (intf->dev.power.power_state == PM_SUSPEND_ON)
++	if (intf->dev.power.power_state.event == PM_EVENT_ON)
+ 		return 0;
+ 
+ 	for (port1 = 1; port1 <= hdev->maxchild; port1++) {
+Index: drivers/usb/core/usb.c
+===================================================================
+--- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/usb/core/usb.c  (mode:100644)
++++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/usb/core/usb.c  (mode:100644)
+@@ -1389,7 +1389,7 @@
+ 	driver = to_usb_driver(dev->driver);
+ 
+ 	/* there's only one USB suspend state */
+-	if (intf->dev.power.power_state)
++	if (intf->dev.power.power_state.event)
+ 		return 0;
+ 
+ 	if (driver->suspend)
+Index: drivers/usb/host/ehci-dbg.c
+===================================================================
+--- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/usb/host/ehci-dbg.c  (mode:100644)
++++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/usb/host/ehci-dbg.c  (mode:100644)
+@@ -641,7 +641,7 @@
+ 
+ 	spin_lock_irqsave (&ehci->lock, flags);
+ 
+-	if (bus->controller->power.power_state) {
++	if (bus->controller->power.power_state.event) {
+ 		size = scnprintf (next, size,
+ 			"bus %s, device %s (driver " DRIVER_VERSION ")\n"
+ 			"SUSPENDED (no register access)\n",
+Index: drivers/usb/host/ohci-dbg.c
+===================================================================
+--- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/usb/host/ohci-dbg.c  (mode:100644)
++++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/usb/host/ohci-dbg.c  (mode:100644)
+@@ -631,7 +631,7 @@
+ 		hcd->product_desc,
+ 		hcd_name);
+ 
+-	if (bus->controller->power.power_state) {
++	if (bus->controller->power.power_state.event) {
+ 		size -= scnprintf (next, size,
+ 			"SUSPENDED (no register access)\n");
+ 		goto done;
+Index: drivers/usb/host/sl811-hcd.c
+===================================================================
+--- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/usb/host/sl811-hcd.c  (mode:100644)
++++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/usb/host/sl811-hcd.c  (mode:100644)
+@@ -1781,9 +1781,9 @@
+ 	if (phase != SUSPEND_POWER_DOWN)
+ 		return retval;
+ 
+-	if (state <= PM_SUSPEND_MEM)
++	if (state.event == PM_EVENT_FREEZE)
+ 		retval = sl811h_hub_suspend(hcd);
+-	else
++	else if (state.event == PM_EVENT_SUSPEND)
+ 		port_power(sl811, 0);
+ 	if (retval == 0)
+ 		dev->power.power_state = state;
+@@ -1802,7 +1802,7 @@
+ 	/* with no "check to see if VBUS is still powered" board hook,
+ 	 * let's assume it'd only be powered to enable remote wakeup.
+ 	 */
+-	if (dev->power.power_state > PM_SUSPEND_MEM
++	if (dev->power.power_state.event == PM_EVENT_SUSPEND
+ 			|| !hcd->can_wakeup) {
+ 		sl811->port1 = 0;
+ 		port_power(sl811, 1);
+Index: drivers/video/aty/atyfb_base.c
+===================================================================
+--- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/video/aty/atyfb_base.c  (mode:100644)
++++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/video/aty/atyfb_base.c  (mode:100644)
+@@ -2071,12 +2071,12 @@
+ 	struct fb_info *info = pci_get_drvdata(pdev);
+ 	struct atyfb_par *par = (struct atyfb_par *) info->par;
+ 
+-	if (pdev->dev.power.power_state == 0)
++	if (pdev->dev.power.power_state.event == PM_EVENT_ON)
+ 		return 0;
+ 
+ 	acquire_console_sem();
+ 
+-	if (pdev->dev.power.power_state == 2)
++	if (pdev->dev.power.power_state.event == 2)
+ 		aty_power_mgmt(0, par);
+ 	par->asleep = 0;
+ 
+Index: drivers/video/aty/radeon_pm.c
+===================================================================
+--- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/video/aty/radeon_pm.c  (mode:100644)
++++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/video/aty/radeon_pm.c  (mode:100644)
+@@ -2526,18 +2526,18 @@
+         struct radeonfb_info *rinfo = info->par;
+ 	int i;
+ 
+-	if (state == pdev->dev.power.power_state)
++	if (state.event == pdev->dev.power.power_state.event)
+ 		return 0;
+ 
+ 	printk(KERN_DEBUG "radeonfb (%s): suspending to state: %d...\n",
+-	       pci_name(pdev), state);
++	       pci_name(pdev), state.event);
+ 
+ 	/* For suspend-to-disk, we cheat here. We don't suspend anything and
+ 	 * let fbcon continue drawing until we are all set. That shouldn't
+ 	 * really cause any problem at this point, provided that the wakeup
+ 	 * code knows that any state in memory may not match the HW
+ 	 */
+-	if (state != PM_SUSPEND_MEM)
++	if (state.event == PM_EVENT_FREEZE)
+ 		goto done;
+ 
+ 	acquire_console_sem();
+@@ -2616,7 +2616,7 @@
+         struct radeonfb_info *rinfo = info->par;
+ 	int rc = 0;
+ 
+-	if (pdev->dev.power.power_state == 0)
++	if (pdev->dev.power.power_state.event == PM_EVENT_ON)
+ 		return 0;
+ 
+ 	if (rinfo->no_schedule) {
+@@ -2626,7 +2626,7 @@
+ 		acquire_console_sem();
+ 
+ 	printk(KERN_DEBUG "radeonfb (%s): resuming from state: %d...\n",
+-	       pci_name(pdev), pdev->dev.power.power_state);
++	       pci_name(pdev), pdev->dev.power.power_state.event);
+ 
+ 
+ 	if (pci_enable_device(pdev)) {
+@@ -2637,7 +2637,7 @@
+ 	}
+ 	pci_set_master(pdev);
+ 
+-	if (pdev->dev.power.power_state == PM_SUSPEND_MEM) {
++	if (pdev->dev.power.power_state.event == PM_EVENT_SUSPEND) {
+ 		/* Wakeup chip. Check from config space if we were powered off
+ 		 * (todo: additionally, check CLK_PIN_CNTL too)
+ 		 */
+Index: drivers/video/i810/i810_main.c
+===================================================================
+--- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/drivers/video/i810/i810_main.c  (mode:100644)
++++ 24a21ff5302734d40e08c400b14c0c1624cceded/drivers/video/i810/i810_main.c  (mode:100644)
+@@ -1506,12 +1506,12 @@
+ 	struct i810fb_par *par = (struct i810fb_par *) info->par;
+ 	int blank = 0, prev_state = par->cur_state;
+ 
+-	if (state == prev_state)
++	if (state.event == prev_state)
+ 		return 0;
+ 
+-	par->cur_state = state;
++	par->cur_state = state.event;
+ 
+-	switch (state) {
++	switch (state.event) {
+ 	case 1:
+ 		blank = VESA_VSYNC_SUSPEND;
+ 		break;
+Index: include/linux/pm.h
+===================================================================
+--- cdda23a10f60ce0fce85bd8b8667e7c7cf022118/include/linux/pm.h  (mode:100644)
++++ 24a21ff5302734d40e08c400b14c0c1624cceded/include/linux/pm.h  (mode:100644)
+@@ -185,7 +185,9 @@
+ 
+ struct device;
+ 
+-typedef u32 __bitwise pm_message_t;
++typedef struct pm_message {
++	int event;
++} pm_message_t;
+ 
+ /*
+  * There are 4 important states driver can be in:
+@@ -205,9 +207,13 @@
+  * or something similar soon.
+  */
+ 
+-#define PMSG_FREEZE	((__force pm_message_t) 3)
+-#define PMSG_SUSPEND	((__force pm_message_t) 3)
+-#define PMSG_ON		((__force pm_message_t) 0)
++#define PM_EVENT_ON 0
++#define PM_EVENT_FREEZE 1
++#define PM_EVENT_SUSPEND 2
++
++#define PMSG_FREEZE	({struct pm_message m; m.event = PM_EVENT_FREEZE; m; })
++#define PMSG_SUSPEND	({struct pm_message m; m.event = PM_EVENT_SUSPEND; m; })
++#define PMSG_ON		({struct pm_message m; m.event = PM_EVENT_ON; m; })
+ 
+ struct dev_pm_info {
+ 	pm_message_t		power_state;
 
---Boundary-00=_rB5pCbUq19r8XzI--

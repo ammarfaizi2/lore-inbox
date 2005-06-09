@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261156AbVFIOr1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261424AbVFIOtd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261156AbVFIOr1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 10:47:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261424AbVFIOr1
+	id S261424AbVFIOtd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 10:49:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261432AbVFIOtc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 10:47:27 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:4483 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261156AbVFIOrX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 10:47:23 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17064.22132.219886.207366@alkaid.it.uu.se>
-Date: Thu, 9 Jun 2005 16:47:16 +0200
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: Scott Robert Ladd <lkml@coyotegulch.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Has anyone had problems with GCC 4.0 and the kernel?
-In-Reply-To: <42A85065.4000108@coyotegulch.com>
-References: <42A85065.4000108@coyotegulch.com>
-X-Mailer: VM 7.17 under Emacs 20.7.1
+	Thu, 9 Jun 2005 10:49:32 -0400
+Received: from wproxy.gmail.com ([64.233.184.203]:60907 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261424AbVFIOt1 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 10:49:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Fp82jui6VxfMjYwFJ7W0AnVPTp8OfPU47+VH6j8FbumWPDNZrzdPbknBDIun+sUFhS1auw0Bh+h99u2gWTFS2FxZ7TpBcRU/XRWZ9IxVu3oDXqvhsv8sHuAGNT27GiLaGy2bl217ubnOtZEG1h/RVHO97AMc1RPB0PVoX4N6Wi0=
+Message-ID: <396a6e000506090749265a5066@mail.gmail.com>
+Date: Thu, 9 Jun 2005 17:49:26 +0300
+From: kenoti maembe <kenotimaembe@gmail.com>
+Reply-To: kenoti maembe <kenotimaembe@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Fwd: Virtual Terminal switching problem with a 2.6.10 kernel with a ruby patch
+In-Reply-To: <396a6e00050608091524b97479@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <396a6e00050608091524b97479@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Scott Robert Ladd writes:
- > Hello,
- > 
- > I've had several inquiries recently in regard to compiling the kernel
- > with GCC 4.0. It seems folk are having problems, do a Google search, and
- > find my capsule review of GCC 4.0 at:
- > 
- > http://www.coyotegulch.com/reviews/gcc4/index.html
- > 
- > I'm not running a GCC 4.0-created kernel, but I had no problems
- > compiling it and running one a few weeks ago. Before I start looking
- > into this further, has anyone here had problems with GCC 4? Maybe I just
- > hallucinated that it compiled and booted... ;)
+Am working on a dual head project for my final year project at the
+university of nairobi in kenya and come across a discussion where it
+was stated that the linux kernel (by then 2.4) does not allow for two
+or more virtual terminals to exist concurrently..I have a few
+questions I would like to ask
+1.  Is this still the case with the 2.6 kernel? Thought of working
+through these by creating a new XFree86 and using the XFree86
+prefbusid patch from.from http://www.ltn.lv/~aivils/ bt still only one
+vt works at a time.
+2. Have tried to assign devices to the different vts but cant seemt to
+get a way to assign the usb keyboard.All input device modules and usb
+modules are load in the kernel so dont understand what the issue is.
 
-gcc-4.0.0 vanilla is broken and miscompiles some ipv4/sysctl stuff.
-More recent 4.0.1 snapshots are OK.
+CPU: Athlon 1200+
+RAM: 384Mb
+Videocards: NVIDIA GeForce4 MX 440 (AGP), S3 Tio (PCI)
+Motherboard: Via
+Keyboards: one PS/2 keyboards, one USB keyboard
+Mice: one serial, one USB
+Monitors: 17'', 15''
+on a mandrake 10.0
 
-I've been using gcc4 for 2.6 and 2.4 kernels since late January,
-for both desktops and servers, and for i386/x86-64/ppc/ppc64.
-Recent 2.6 kernels should work as-is, except perhaps in poorly
-maintained drivers. The 2.4 kernels need fair amounts of patching,
-99% of which is to prevent compile-time errors. These patches
-are not yet merged into the standard 2.4 tree and may never be.
+Thank you all.

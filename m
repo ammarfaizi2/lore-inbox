@@ -1,45 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261795AbVFIO6p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261535AbVFIPMd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261795AbVFIO6p (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 10:58:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbVFIO6p
+	id S261535AbVFIPMd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 11:12:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261830AbVFIPMd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 10:58:45 -0400
-Received: from abraham.CS.Berkeley.EDU ([128.32.37.170]:64271 "EHLO
-	abraham.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S261795AbVFIO6n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 10:58:43 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@taverner.cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [PATCH] capabilities not inherited
-Date: Thu, 9 Jun 2005 14:55:38 +0000 (UTC)
-Organization: University of California, Berkeley
-Distribution: isaac
-Message-ID: <d89l9a$d3i$1@abraham.cs.berkeley.edu>
-References: <Pine.GSO.4.58.0506081513340.22095@chewbacca.arl.wustl.edu> <1118265642.969.12.camel@localhost.localdomain> <d88ba7$hck$1@abraham.cs.berkeley.edu> <1118313167.970.15.camel@localhost.localdomain>
-Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: abraham.cs.berkeley.edu 1118328938 13426 128.32.168.222 (9 Jun 2005 14:55:38 GMT)
-X-Complaints-To: usenet@abraham.cs.berkeley.edu
-NNTP-Posting-Date: Thu, 9 Jun 2005 14:55:38 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+	Thu, 9 Jun 2005 11:12:33 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:11788 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S261535AbVFIPMa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 11:12:30 -0400
+Date: Thu, 9 Jun 2005 16:12:25 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: moreau francis <francis_moreau2000@yahoo.fr>
+Cc: Frederik Deweerdt <dev.deweerdt@laposte.net>, linux-kernel@vger.kernel.org
+Subject: Re: [TTY] exclusive mode question
+Message-ID: <20050609161225.A14513@flint.arm.linux.org.uk>
+Mail-Followup-To: moreau francis <francis_moreau2000@yahoo.fr>,
+	Frederik Deweerdt <dev.deweerdt@laposte.net>,
+	linux-kernel@vger.kernel.org
+References: <20050609121638.GD507@gilgamesh.home.res> <20050609142250.80926.qmail@web25804.mail.ukl.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050609142250.80926.qmail@web25804.mail.ukl.yahoo.com>; from francis_moreau2000@yahoo.fr on Thu, Jun 09, 2005 at 04:22:49PM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alexander Nyberg  wrote:
->tor 2005-06-09 klockan 02:59 +0000 skrev David Wagner:
->> [...] the sendmail attack [...]
->
->I'll look this up but it sounds very weird and I don't see how this
->would happen with this change.
+On Thu, Jun 09, 2005 at 04:22:49PM +0200, moreau francis wrote:
+> --- Frederik Deweerdt <dev.deweerdt@laposte.net> a écrit :
+> > Le 09/06/05 13:41 +0200, moreau francis écrivit:
+> > > 
+> > > oh ok...sorry I misunderstood TIOEXCL meaning ;)
+> > > Do you know how I could implement such exclusive mode (the one I described)
+> > ?
+> > > 
+> > This is handled through lock files, google for LCK..ttyS0
+> >
+> 
+> This lock mechanism is a convention but nothing prevent a user application to
+> issue a "echo foo > /dev/ttyS0" command while "LCK..ttyS0" file exists...
 
-Yup, it was a weird one indeed -- which is part of why I'm concerned.
-Take a look at the attack again, then re-read my message.  Maybe my
-concerns will make more sense once you refresh your memory about the
-setuid capabilities attack?  If not, feel free to ask again, and I'll
-try to elaborate.  Here is a pointer to one description of that attack:
-    http://www.cs.berkeley.edu/~daw/papers/setuid-usenix02.pdf
-    (jump straight to Section 7.1) 
+Which is absolutely necessary to work if you think about an application
+like minicom and its file transfer helpers, which may need to re-open
+the serial port.
+
+TTY locking is done via lock files only, and all non-helper applications
+must coordinate their access via the lock files.  There is no other
+mechanism.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

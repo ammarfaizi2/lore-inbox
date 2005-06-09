@@ -1,118 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262198AbVFIMtN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262380AbVFIMwg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262198AbVFIMtN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 08:49:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261335AbVFIMtM
+	id S262380AbVFIMwg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 08:52:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262379AbVFIMwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 08:49:12 -0400
-Received: from tron.kn.vutbr.cz ([147.229.191.152]:9223 "EHLO tron.kn.vutbr.cz")
-	by vger.kernel.org with ESMTP id S262198AbVFIMsY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 08:48:24 -0400
-Message-ID: <42A83A85.6090503@stud.feec.vutbr.cz>
-Date: Thu, 09 Jun 2005 14:48:05 +0200
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Debian Thunderbird 1.0.2 (X11/20050603)
+	Thu, 9 Jun 2005 08:52:34 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:38859 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S262199AbVFIMuH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 08:50:07 -0400
+Message-ID: <42A83BC8.2010500@jp.fujitsu.com>
+Date: Thu, 09 Jun 2005 21:53:28 +0900
+From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: linux-kernel@vger.kernel.org, "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-References: <20050608112801.GA31084@elte.hu> <42A73023.4040707@stud.feec.vutbr.cz> <20050609114510.GA10969@elte.hu> <42A8316E.6000104@stud.feec.vutbr.cz> <20050609121326.GB17414@elte.hu>
-In-Reply-To: <20050609121326.GB17414@elte.hu>
-Content-Type: multipart/mixed;
- boundary="------------090808050600010805080202"
-X-Spam-Flag: NO
-X-Spam-Report: Spam detection software, running on the system "tron.kn.vutbr.cz", has
-  tested this incoming email. See other headers to know if the email
-  has beed identified as possible spam.  The original message
-  has been attached to this so you can view it (if it isn't spam) or block
-  similar future email.  If you have any questions, see
-  the administrator of that system for details.
-  ____
-  Content analysis details:   (-4.2 points, 6.0 required)
-  ____
-   pts rule name              description
-  ---- ---------------------- --------------------------------------------
-   0.7 FROM_ENDS_IN_NUMS      From: ends in numbers
-  -4.9 BAYES_00               BODY: Bayesian spam probability is 0 to 1%
-                              [score: 0.0000]
-  ____
+To: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org
+Cc: Linas Vepstas <linas@austin.ibm.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       long <tlnguyen@snoqualmie.dp.intel.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
+Subject: [PATCH 04/10] IOCHK interface for I/O error handling/detecting
+References: <42A8386F.2060100@jp.fujitsu.com>
+In-Reply-To: <42A8386F.2060100@jp.fujitsu.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------090808050600010805080202
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+[This is 4 of 10 patches, "iochk-04-register_bridge.patch"]
 
-Ingo Molnar wrote:
-> indeed - new patch uploaded.
+- Since there could be a (PCI-)bus-error, some kind of error
+   cannot detected on the device but on its hosting bridge.
+   So, it is also required to check the bridge's register.
 
-The attached patch against V0.7.48-04 replaces some more local_irq_* 
-operation with their raw variants on x86_64. It should be the equivalent 
-of your changes done for i386 in -V0.7.48-02.
+   In other words, to check a bus-error correctly, we need to
+   check both end of the bus, device and its host bridge.
 
-Michal
+OK, but often bridges are shared by multiple devices, right?
+So we need care to handle it... Yes, see next (5 of 10).
 
---------------090808050600010805080202
-Content-Type: text/plain;
- name="rt-x86_64-more-local_irqs.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="rt-x86_64-more-local_irqs.diff"
+Signed-off-by: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
 
-diff -Nurp -X linux-RT/Documentation/dontdiff linux-RT/arch/x86_64/kernel/io_apic.c linux-RT.mich/arch/x86_64/kernel/io_apic.c
---- linux-RT/arch/x86_64/kernel/io_apic.c	2005-06-09 14:16:53.563982208 +0200
-+++ linux-RT.mich/arch/x86_64/kernel/io_apic.c	2005-06-09 14:22:20.326306784 +0200
-@@ -1218,7 +1218,7 @@ static int __init timer_irq_works(void)
- {
- 	unsigned long t1 = jiffies;
- 
--	local_irq_enable();
-+	raw_local_irq_enable();
- 	/* Let ten ticks pass... */
- 	mdelay((10 * 1000) / HZ);
- 
-diff -Nurp -X linux-RT/Documentation/dontdiff linux-RT/arch/x86_64/kernel/nmi.c linux-RT.mich/arch/x86_64/kernel/nmi.c
---- linux-RT/arch/x86_64/kernel/nmi.c	2005-06-09 14:16:53.566981752 +0200
-+++ linux-RT.mich/arch/x86_64/kernel/nmi.c	2005-06-09 14:25:17.092434248 +0200
-@@ -128,7 +128,7 @@ void __init nmi_watchdog_default(void)
- static __init void nmi_cpu_busy(void *data)
- {
- 	volatile int *endflag = data;
--	local_irq_enable();
-+	raw_local_irq_enable();
- 	/* Intentionally don't use cpu_relax here. This is
- 	   to make sure that the performance counter really ticks,
- 	   even if there is a simulator or similar that catches the
-@@ -157,7 +157,7 @@ int __init check_nmi_watchdog (void)
- 
- 	for (cpu = 0; cpu < NR_CPUS; cpu++)
- 		counts[cpu] = cpu_pda[cpu].__nmi_count; 
--	local_irq_enable();
-+	raw_local_irq_enable();
- 	mdelay((10*1000)/nmi_hz); // wait 10 ticks
- 
- 	for (cpu = 0; cpu < NR_CPUS; cpu++) {
-diff -Nurp -X linux-RT/Documentation/dontdiff linux-RT/arch/x86_64/kernel/reboot.c linux-RT.mich/arch/x86_64/kernel/reboot.c
---- linux-RT/arch/x86_64/kernel/reboot.c	2005-03-02 08:38:25.000000000 +0100
-+++ linux-RT.mich/arch/x86_64/kernel/reboot.c	2005-06-09 14:29:06.181607400 +0200
-@@ -114,12 +114,12 @@ void machine_restart(char * __unused)
- #endif
- 
- 	if (!reboot_force) {
--		local_irq_disable();
-+		raw_local_irq_disable();
- #ifndef CONFIG_SMP
- 		disable_local_APIC();
- #endif
- 		disable_IO_APIC();
--		local_irq_enable();
-+		raw_local_irq_enable();
- 	}
- 	
- 	/* Tell the BIOS if we want cold or warm reboot */
+---
 
---------------090808050600010805080202--
+  arch/ia64/lib/iomap_check.c |   19 ++++++++++++++++++-
+  include/asm-ia64/io.h       |    1 +
+  2 files changed, 19 insertions(+), 1 deletion(-)
+
+Index: linux-2.6.11.11/arch/ia64/lib/iomap_check.c
+===================================================================
+--- linux-2.6.11.11.orig/arch/ia64/lib/iomap_check.c
++++ linux-2.6.11.11/arch/ia64/lib/iomap_check.c
+@@ -14,6 +14,7 @@ int  iochk_read(iocookie *cookie);
+  struct list_head iochk_devices;
+  DEFINE_SPINLOCK(iochk_lock);	/* all works are excluded on this lock */
+
++static struct pci_dev *search_host_bridge(struct pci_dev *dev);
+  static int have_error(struct pci_dev *dev);
+
+  void iochk_init(void)
+@@ -29,6 +30,7 @@ void iochk_clear(iocookie *cookie, struc
+  	INIT_LIST_HEAD(&(cookie->list));
+
+  	cookie->dev = dev;
++	cookie->host = search_host_bridge(dev);
+
+  	spin_lock_irqsave(&iochk_lock, flag);
+  	list_add(&cookie->list, &iochk_devices);
+@@ -43,7 +45,8 @@ int iochk_read(iocookie *cookie)
+  	int ret = 0;
+
+  	spin_lock_irqsave(&iochk_lock, flag);
+-	if( cookie->error || have_error(cookie->dev) )
++	if( cookie->error || have_error(cookie->dev)
++		|| (cookie->host && have_error(cookie->host)) )
+  		ret = 1;
+  	list_del(&cookie->list);
+  	spin_unlock_irqrestore(&iochk_lock, flag);
+@@ -51,6 +54,20 @@ int iochk_read(iocookie *cookie)
+  	return ret;
+  }
+
++struct pci_dev *search_host_bridge(struct pci_dev *dev)
++{
++	struct pci_bus *pbus;
++
++	/* there is no bridge */
++	if (!dev->bus->self) return NULL;
++
++	/* find root bus bridge */
++	for (pbus = dev->bus; pbus->parent && pbus->parent->self;
++		pbus = pbus->parent);
++
++	return pbus->self;
++}
++
+  static int have_error(struct pci_dev *dev)
+  {
+  	u16 status;
+Index: linux-2.6.11.11/include/asm-ia64/io.h
+===================================================================
+--- linux-2.6.11.11.orig/include/asm-ia64/io.h
++++ linux-2.6.11.11/include/asm-ia64/io.h
+@@ -78,6 +78,7 @@ extern unsigned int num_io_spaces;
+  struct __iocookie {
+  	struct list_head	list;
+  	struct pci_dev		*dev;	/* targeting device */
++	struct pci_dev		*host;	/* hosting bridge */
+  	unsigned long		error;	/* error flag */
+  };
+  typedef struct __iocookie iocookie;
+

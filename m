@@ -1,125 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262403AbVFIQuB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262404AbVFIQye@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262403AbVFIQuB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 12:50:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261916AbVFIQt1
+	id S262404AbVFIQye (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 12:54:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262398AbVFIQyd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 12:49:27 -0400
-Received: from mail.kroah.org ([69.55.234.183]:30133 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S262273AbVFIQpE convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 12:45:04 -0400
-Cc: scottm@somanetworks.com
-Subject: [PATCH] PCI Hotplug: fix CPCI reference counting bug
-In-Reply-To: <20050609164345.GA9538@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Thu, 9 Jun 2005 09:44:53 -0700
-Message-Id: <11183354931589@kroah.com>
+	Thu, 9 Jun 2005 12:54:33 -0400
+Received: from mail.kroah.org ([69.55.234.183]:60088 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S262208AbVFIQyC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 12:54:02 -0400
+Date: Thu, 9 Jun 2005 09:53:53 -0700
+From: Greg KH <greg@kroah.com>
+To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       linux-ia64@vger.kernel.org, Linas Vepstas <linas@austin.ibm.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       long <tlnguyen@snoqualmie.dp.intel.com>,
+       linux-pci@atrey.karlin.mff.cuni.cz,
+       linuxppc64-dev <linuxppc64-dev@ozlabs.org>
+Subject: Re: [PATCH 01/10] IOCHK interface for I/O error handling/detecting
+Message-ID: <20050609165353.GB9597@kroah.com>
+References: <42A8386F.2060100@jp.fujitsu.com> <42A83A8F.9020503@jp.fujitsu.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42A83A8F.9020503@jp.fujitsu.com>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[PATCH] PCI Hotplug: fix CPCI reference counting bug
+On Thu, Jun 09, 2005 at 09:48:15PM +0900, Hidetoshi Seto wrote:
+> --- linux-2.6.11.11.orig/lib/iomap.c
+> +++ linux-2.6.11.11/lib/iomap.c
+> @@ -210,3 +210,29 @@ void pci_iounmap(struct pci_dev *dev, vo
+>  }
+>  EXPORT_SYMBOL(pci_iomap);
+>  EXPORT_SYMBOL(pci_iounmap);
+> +
+> +/*
+> + * Clear/Read iocookie to check IO error while using iomap.
+> + *
+> + * Note that default iochk_clear-read pair interfaces don't have
+> + * any effective error check, but some high-reliable platforms
+> + * would provide useful information to you.
+> + * And note that some action may be limited (ex. irq-unsafe)
+> + * between the pair depend on the facility of the platform.
+> + */
+> +#ifndef HAVE_ARCH_IOMAP_CHECK
+> +void iochk_init(void) { ; }
+> +
+> +void iochk_clear(iocookie *cookie, struct pci_dev *dev)
+> +{
+> +	/* no-ops */
+> +}
 
-Here's a patch that fixes up the pci_dev refcounting in the CPCI code.
-I've done some testing against it and it seems fine here.
+A bit of a coding style difference between the two functions, yet they
+do the same thing :)
 
-Signed-off-by: Scott Murray <scottm@somanetworks.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> +
+> +int iochk_read(iocookie *cookie)
+> +{
+> +	/* no-ops */
+> +	return 0;
+> +}
 
----
-commit 03e49d40ea3436cae0fe43708f11584130ee4a0c
-tree acaa11b11c0ff1d4c9f743c0d8df2bc5a865a440
-parent 5273a00d9c763108397658d440618f7ac3e40f83
-author Scott Murray <scottm@somanetworks.com> Mon, 06 Jun 2005 15:48:04 -0400
-committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 09 Jun 2005 01:37:59 -0700
+Why not just return the cookie?  Can this ever fail?
 
- drivers/pci/hotplug/cpci_hotplug_core.c |    2 ++
- drivers/pci/hotplug/cpci_hotplug_pci.c  |    5 ++++-
- 2 files changed, 6 insertions(+), 1 deletions(-)
+Shouldn't these go into a .h file and be made "static inline" so they
+just compile away to nothing?
 
-diff --git a/drivers/pci/hotplug/cpci_hotplug_core.c b/drivers/pci/hotplug/cpci_hotplug_core.c
---- a/drivers/pci/hotplug/cpci_hotplug_core.c
-+++ b/drivers/pci/hotplug/cpci_hotplug_core.c
-@@ -217,6 +217,8 @@ static void release_slot(struct hotplug_
- 	kfree(slot->hotplug_slot->info);
- 	kfree(slot->hotplug_slot->name);
- 	kfree(slot->hotplug_slot);
-+	if (slot->dev)
-+		pci_dev_put(slot->dev);
- 	kfree(slot);
- }
- 
-diff --git a/drivers/pci/hotplug/cpci_hotplug_pci.c b/drivers/pci/hotplug/cpci_hotplug_pci.c
---- a/drivers/pci/hotplug/cpci_hotplug_pci.c
-+++ b/drivers/pci/hotplug/cpci_hotplug_pci.c
-@@ -315,9 +315,12 @@ int cpci_unconfigure_slot(struct slot* s
- 				    PCI_DEVFN(PCI_SLOT(slot->devfn), i));
- 		if (dev) {
- 			pci_remove_bus_device(dev);
--			slot->dev = NULL;
-+			pci_dev_put(dev);
- 		}
- 	}
-+	pci_dev_put(slot->dev);
-+	slot->dev = NULL;
-+
- 	dbg("%s - exit", __FUNCTION__);
- 	return 0;
- }
-scottm@somanetworks.com
-[PATCH] PCI Hotplug: fix CPCI reference counting bug
-[PATCH] PCI Hotplug: fix CPCI reference counting bug
+> +EXPORT_SYMBOL(iochk_clear);
+> +EXPORT_SYMBOL(iochk_read);
 
-Here's a patch that fixes up the pci_dev refcounting in the CPCI code.
-I've done some testing against it and it seems fine here.
+EXPORT_SYMBOL_GPL() perhaps?
 
-Signed-off-by: Scott Murray <scottm@somanetworks.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> +#endif /* HAVE_ARCH_IOMAP_CHECK */
+> Index: linux-2.6.11.11/include/asm-generic/iomap.h
+> ===================================================================
+> --- linux-2.6.11.11.orig/include/asm-generic/iomap.h
+> +++ linux-2.6.11.11/include/asm-generic/iomap.h
+> @@ -60,4 +60,20 @@ struct pci_dev;
+>  extern void __iomem *pci_iomap(struct pci_dev *dev, int bar, unsigned long 
+>  max);
+>  extern void pci_iounmap(struct pci_dev *dev, void __iomem *);
+> 
+> +/*
+> + * IOMAP_CHECK provides additional interfaces for drivers to detect
+> + * some IO errors, supports drivers having ability to recover errors.
+> + *
+> + * All works around iomap-check depends on the design of "iocookie"
+> + * structure. Every architecture owning its iomap-check is free to
+> + * define the actual design of iocookie to fit its special style.
+> + */
+> +#ifndef HAVE_ARCH_IOMAP_CHECK
+> +typedef unsigned long iocookie;
+> +#endif
 
----
-commit 03e49d40ea3436cae0fe43708f11584130ee4a0c
-tree acaa11b11c0ff1d4c9f743c0d8df2bc5a865a440
-parent 5273a00d9c763108397658d440618f7ac3e40f83
-author Scott Murray <scottm@somanetworks.com> Mon, 06 Jun 2005 15:48:04 -0400
-committer Greg Kroah-Hartman <gregkh@suse.de> Thu, 09 Jun 2005 01:37:59 -0700
+Why typedef this if it isn't specified?
 
- drivers/pci/hotplug/cpci_hotplug_core.c |    2 ++
- drivers/pci/hotplug/cpci_hotplug_pci.c  |    5 ++++-
- 2 files changed, 6 insertions(+), 1 deletions(-)
+thanks,
 
-diff --git a/drivers/pci/hotplug/cpci_hotplug_core.c b/drivers/pci/hotplug/cpci_hotplug_core.c
---- a/drivers/pci/hotplug/cpci_hotplug_core.c
-+++ b/drivers/pci/hotplug/cpci_hotplug_core.c
-@@ -217,6 +217,8 @@ static void release_slot(struct hotplug_
- 	kfree(slot->hotplug_slot->info);
- 	kfree(slot->hotplug_slot->name);
- 	kfree(slot->hotplug_slot);
-+	if (slot->dev)
-+		pci_dev_put(slot->dev);
- 	kfree(slot);
- }
- 
-diff --git a/drivers/pci/hotplug/cpci_hotplug_pci.c b/drivers/pci/hotplug/cpci_hotplug_pci.c
---- a/drivers/pci/hotplug/cpci_hotplug_pci.c
-+++ b/drivers/pci/hotplug/cpci_hotplug_pci.c
-@@ -315,9 +315,12 @@ int cpci_unconfigure_slot(struct slot* s
- 				    PCI_DEVFN(PCI_SLOT(slot->devfn), i));
- 		if (dev) {
- 			pci_remove_bus_device(dev);
--			slot->dev = NULL;
-+			pci_dev_put(dev);
- 		}
- 	}
-+	pci_dev_put(slot->dev);
-+	slot->dev = NULL;
-+
- 	dbg("%s - exit", __FUNCTION__);
- 	return 0;
- }
-
+greg k-h

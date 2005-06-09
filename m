@@ -1,42 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262431AbVFIR7I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262432AbVFISDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262431AbVFIR7I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 13:59:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262432AbVFIR7I
+	id S262432AbVFISDv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 14:03:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262434AbVFISDv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 13:59:08 -0400
-Received: from ee.oulu.fi ([130.231.61.23]:1728 "EHLO ee.oulu.fi")
-	by vger.kernel.org with ESMTP id S262431AbVFIR7D (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 13:59:03 -0400
-Date: Thu, 9 Jun 2005 20:58:59 +0300
-From: Sami Tapio <flexy@ee.oulu.fi>
-To: "David S. Miller" <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: tcp_output.c BUG in 2.6.12-rc6-mm1 report
-Message-ID: <20050609175859.GA22182@ee.oulu.fi>
-References: <20050604195352.GA192@ee.oulu.fi> <20050608182638.GA13553@ee.oulu.fi> <20050608.124626.95058471.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050608.124626.95058471.davem@davemloft.net>
+	Thu, 9 Jun 2005 14:03:51 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.133]:18161 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S262432AbVFISDs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 14:03:48 -0400
+Message-ID: <42A8847E.4020302@us.ibm.com>
+Date: Thu, 09 Jun 2005 11:03:42 -0700
+From: Matthew Dobson <colpatch@us.ibm.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050404)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>,
+       "Bligh, Martin J." <Martin.Bligh@us.ibm.com>
+Subject: Fix warning in kernel/module.c
+X-Enigmail-Version: 0.90.2.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/mixed;
+ boundary="------------030802020802090900000401"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Jun 08, 2005 at 12:46:26PM -0700, David S. Miller wrote:
-> 
-> Just remove the BUG_ON() statement in tcp_tso_should_defer(), the
-> assertion is just incorrect.
+This is a multi-part message in MIME format.
+--------------030802020802090900000401
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Well, don't know if it is incorrect or not, but my machine just 
-hard locked again, no reaction to SysRQ SUB sequence, no reaction 
-to anything else either, not answer to ping, nor ssh. Power off, 
-power on was the only method to get the machine alive again. 
+I get this warning compiling 2.6.12-rc6-mm1:
 
-Only thing in the logs is the bug I've allready reported 2 times. 
-Don't know if that bug is real or not, but the problem is real 
-for sure.
+kernel/module.c:404: warning: `modinfo_attrs' defined but not used
 
-BR,
+The attached patch fixes the warning, which I guess was sort of caused by
+me.  I was having compilation problems on -rc5-mm2 and I sent a patch to
+move some definitions outside an ifdef.  Now the code only uses those
+definitions INSIDE appropriately ifdef'd sections, so we get a warning
+about not using them.  Bah.  This should (hopefully) end this.
 
-Sami
+-Matt
+
+--------------030802020802090900000401
+Content-Type: text/x-patch;
+ name="modinfo_attrs-fix2.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="modinfo_attrs-fix2.patch"
+
+--- linux-2.6.12-rc6-mm1/kernel/module.c	2005-06-08 15:22:43.995409432 -0700
++++ linux-2.6.12-rc6-mm1/kernel/module.c.fixed	2005-06-08 15:21:55.286814264 -0700
+@@ -370,6 +370,7 @@ static inline void percpu_modcopy(void *
+ }
+ #endif /* CONFIG_SMP */
+ 
++#ifdef CONFIG_MODULE_UNLOAD
+ #define MODINFO_ATTR(field)	\
+ static void setup_modinfo_##field(struct module *mod, const char *s)  \
+ {                                                                     \
+@@ -407,7 +408,6 @@ static struct module_attribute *modinfo_
+ 	NULL,
+ };
+ 
+-#ifdef CONFIG_MODULE_UNLOAD
+ /* Init the unload section of the module. */
+ static void module_unload_init(struct module *mod)
+ {
+
+--------------030802020802090900000401--

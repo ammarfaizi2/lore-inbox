@@ -1,35 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262607AbVFJRCG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262608AbVFJRVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262607AbVFJRCG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 13:02:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262608AbVFJRCG
+	id S262608AbVFJRVv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 13:21:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262610AbVFJRVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 13:02:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13197 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262607AbVFJRCC (ORCPT
+	Fri, 10 Jun 2005 13:21:51 -0400
+Received: from colin.muc.de ([193.149.48.1]:11535 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S262608AbVFJRVu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 13:02:02 -0400
-Date: Fri, 10 Jun 2005 10:01:55 -0700
-From: Chris Wright <chrisw@osdl.org>
-To: Yuri Shirman <shirman@lanl.gov>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: computer/kernel lockup
-Message-ID: <20050610170155.GE9153@shell0.pdx.osdl.net>
-References: <1118421862.6161.0.camel@gaugino.lanl.gov>
+	Fri, 10 Jun 2005 13:21:50 -0400
+Date: 10 Jun 2005 19:21:49 +0200
+Date: Fri, 10 Jun 2005 19:21:49 +0200
+From: Andi Kleen <ak@muc.de>
+To: Shaohua Li <shaohua.li@intel.com>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       Ashok Raj <ashok.raj@intel.com>, Zwane Mwaikambo <zwane@linuxpower.ca>
+Subject: Re: [PATCH]x86-x86_64 flush cache for CPU hotplug
+Message-ID: <20050610172149.GP1683@muc.de>
+References: <1118374208.7510.6.camel@linux-hp.sh.intel.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1118421862.6161.0.camel@gaugino.lanl.gov>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1118374208.7510.6.camel@linux-hp.sh.intel.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Yuri Shirman (shirman@lanl.gov) wrote:
-> I do not have an easy way to redirect this output somewhere through the
-> serial port.
-> 
-> I would appreciate any help in either capturing the output of Alt-SysRq
-> or more generally diagnosing the problem. I will recompile the kernel
-> if needed for diagnostics.
+On Fri, Jun 10, 2005 at 11:30:08AM +0800, Shaohua Li wrote:
+> Hi,
+> We should flush cache at CPU hotplug. An error has been observed data is
+> corrupted after CPU hotplug in CPUs with bigger cache.
 
-Try netconsole.
+Did you see that with actual hardware CPU hotplug? With software
+for testing only hotplug it should not make any difference.
+
+/Andi

@@ -1,65 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261628AbVFIX7A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261830AbVFJAKt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261628AbVFIX7A (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 19:59:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVFIX7A
+	id S261830AbVFJAKt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 20:10:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262318AbVFJAKt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 19:59:00 -0400
-Received: from dvhart.com ([64.146.134.43]:61352 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261628AbVFIX5E (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 19:57:04 -0400
-Date: Thu, 09 Jun 2005 16:56:56 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Andrew Morton <akpm@osdl.org>, Christoph Lameter <clameter@engr.sgi.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc6-mm1
-Message-ID: <1100910000.1118361416@flay>
-In-Reply-To: <20050607170853.3f81007a.akpm@osdl.org>
-References: <1004450000.1118188239@flay><20050607165656.2517b417.akpm@osdl.org><Pine.LNX.4.62.0506071659580.30849@schroedinger.engr.sgi.com> <20050607170853.3f81007a.akpm@osdl.org>
-X-Mailer: Mulberry/2.1.2 (Linux/x86)
+	Thu, 9 Jun 2005 20:10:49 -0400
+Received: from omta01ps.mx.bigpond.com ([144.140.82.153]:29358 "EHLO
+	omta01ps.mx.bigpond.com") by vger.kernel.org with ESMTP
+	id S261830AbVFJAKl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 9 Jun 2005 20:10:41 -0400
+Message-ID: <42A8DA7E.8010908@bigpond.net.au>
+Date: Fri, 10 Jun 2005 10:10:38 +1000
+From: Peter Williams <pwil3058@bigpond.net.au>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.2 (X11/20050324)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Con Kolivas <kernel@kolivas.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Chris Han <xiphux@gmail.com>,
+       William Lee Irwin III <wli@holomorphy.com>
+Subject: Re: [ANNOUNCE][RFC] PlugSched-5.1 for 2.6.12-rc6 and 2.6.12-rc6-mm1
+References: <42A68159.9050808@bigpond.net.au> <200506091042.19987.kernel@kolivas.org>
+In-Reply-To: <200506091042.19987.kernel@kolivas.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Authentication-Info: Submitted using SMTP AUTH PLAIN at omta01ps.mx.bigpond.com from [147.10.132.202] using ID pwil3058@bigpond.net.au at Fri, 10 Jun 2005 00:10:39 +0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
---On Tuesday, June 07, 2005 17:08:53 -0700 Andrew Morton <akpm@osdl.org> wrote:
-
-> Christoph Lameter <clameter@engr.sgi.com> wrote:
->> 
->> On Tue, 7 Jun 2005, Andrew Morton wrote:
->> 
->> > > Diffprofile is wacko (HZ seems to be defaulting to 250 in -mm).
->> > 
->> > Oh crap, so it does.  That's wrong.
->> 
->> Email by you and Linus indicated that 250 should be the default.
+Con Kolivas wrote:
+> On Wed, 8 Jun 2005 03:25 pm, Peter Williams wrote:
 > 
-> Oh, OK. hrm.
+>>The patch of PlugSched-5.1 for 2.6.12-rc5 applies cleanly to 2.6.12-rc6
+>>and is available at:
 > 
-> Martin, it would be useful if you could determine whether the kernbench
-> slowdown was due to the 1000Hz->250Hz change, thanks.
 > 
-> I'm assuming it was the CPU scheduler patches.  There are 36 of them ;)
+> Hi Peter
+> 
+> The recent fix that Ingo posted for the changes to pipe code affects 
+> significantly the behaviour of the mainline scheduler and should be 
+> incorporated as soon as possible. Staircase has undergone substantial 
+> revision in response to this change, fortunately to its advantage removing 
+> all that extra code I added to your last plugsched version. Anyway here is a 
+> patch committing Ingo's pipe signalling changes, and the update to staircase 
+> 11.3 in line with those changes. None of this changes the way the other cpu 
+> schedulers behave but it may be worth investigating how the pipe changes 
+> affect the behaviour of the ones you maintain.
+> 
 
-Backed them all out ... performance thunks down to earth again, and is actually
-the best I've seen it ever (probably 250Hz is helping, I used to run 100 in 
--mjb for better benefit).
+Thanks.  I've incorporated this patch plus some modifications to the 
+Zaphod scheduler to take advantage of the TASK_NONINTERACTIVE flag into 
+v-5.2 of PlugSched for 2.6.11, 2.6.12-rc6 and 2.6.12-rc6-mm1 kernels. 
+Patches to upgrade v-5.1 to v-5.2 are available at:
 
-the +5081 item is the one to look at
-http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/perf/kernbench.moe.png
+<http://prdownloads.sourceforge.net/cpuse/plugsched-5.1-to-5.2-for-2.6.11.patch?download>
+<http://prdownloads.sourceforge.net/cpuse/plugsched-5.1-to-5.2-for-2.6.12-rc6.patch?download>
+<http://prdownloads.sourceforge.net/cpuse/plugsched-5.1-to-5.2-for-2.6.12-rc6-mm1.patch?download>
 
-Patch I used was here:
+I noticed when doing this conversion that I had botched the propagation 
+of your staircase 11.2 patches into the 2.6.12-rc6-mm1 kernel and anyone 
+using the staircase scheduler in that kernel is advised to upgrade to 
+this patch.
 
-http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/patches/nosched
+Peter
+-- 
+Peter Williams                                   pwil3058@bigpond.net.au
 
-But it was just everything under the "CPU scheduler" section of your series
-file.
-
-M.
-
+"Learning, n. The kind of ignorance distinguishing the studious."
+  -- Ambrose Bierce

@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262575AbVFJPly@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262576AbVFJPlz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262575AbVFJPly (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 11:41:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262576AbVFJPkr
+	id S262576AbVFJPlz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 11:41:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262588AbVFJPkk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 11:40:47 -0400
-Received: from stark.xeocode.com ([216.58.44.227]:39397 "EHLO
-	stark.xeocode.com") by vger.kernel.org with ESMTP id S262575AbVFJPgH
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 11:36:07 -0400
-To: Jens Axboe <axboe@suse.de>
-Cc: Greg Stark <gsstark@mit.edu>, Mark Lord <liml@rtr.ca>,
-       linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: SMART support for libata
-References: <87y8g8r4y6.fsf@stark.xeocode.com> <41B7EFA3.8000007@pobox.com>
-	<87br6g6ayr.fsf@stark.xeocode.com> <42A73E6E.80808@rtr.ca>
-	<873brs5ir8.fsf@stark.xeocode.com> <42A85F5E.10208@rtr.ca>
-	<87u0k74cuy.fsf@stark.xeocode.com> <20050610063858.GN5140@suse.de>
-In-Reply-To: <20050610063858.GN5140@suse.de>
-From: Greg Stark <gsstark@mit.edu>
-Organization: The Emacs Conspiracy; member since 1992
-Date: 10 Jun 2005 11:35:44 -0400
-Message-ID: <87oeae4433.fsf@stark.xeocode.com>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
+	Fri, 10 Jun 2005 11:40:40 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:51161 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S262576AbVFJPfK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 11:35:10 -0400
+Date: Fri, 10 Jun 2005 16:35:06 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: li nux <lnxluv@yahoo.com>
+Cc: linux <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6: problem with module tainting the kernel
+Message-ID: <20050610153506.GA8118@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	li nux <lnxluv@yahoo.com>, linux <linux-kernel@vger.kernel.org>
+References: <20050610152450.82261.qmail@web33315.mail.mud.yahoo.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050610152450.82261.qmail@web33315.mail.mud.yahoo.com>
+User-Agent: Mutt/1.4.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe <axboe@suse.de> writes:
-
-> > > Greg Stark wrote:
-> > 
-> > What I should *really* be using is the noflushd daemon. That's been on hold
-> > since I found it didn't work with SATA drives. But I wonder if it would work
-> > these days.
+On Fri, Jun 10, 2005 at 08:24:50AM -0700, li nux wrote:
+> In 2.6 kernels how to assure that on inserting our own
+> module, it doesn't throw the warning:
 > 
-> noflushd is ancient, have you tried playing with laptop mode?
+> "unsupported module, tainting kernel"
 
-Where do I find more about this?
-
--- 
-greg
+There's no place in the kernel that produces this message.  Are you
+using some odd vendor tree?
 

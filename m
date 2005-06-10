@@ -1,64 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262601AbVFJQXB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262602AbVFJQZO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262601AbVFJQXB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 12:23:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbVFJQXB
+	id S262602AbVFJQZO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 12:25:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262600AbVFJQZO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 12:23:01 -0400
-Received: from rproxy.gmail.com ([64.233.170.206]:8224 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262601AbVFJQWn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 12:22:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=SnutmlpcllIWRCz8OcxyOpcgZeRkflI8BpgB1IfmDLvWhExh2MZFCt+t9KKhk3/qNgFb3lu6t2YObTz1usrOgHgVeMOWe4PHILGM6uf+gxSUSa8bLBncuZTyA7QQ2q4RW6PjmQh4NalXqyZCkMU2KftZDQG9f7RLZ/l5R/DlRCw=
-Message-ID: <a728f9f9050610092254dd8e87@mail.gmail.com>
-Date: Fri, 10 Jun 2005 12:22:41 -0400
-From: Alex Deucher <alexdeucher@gmail.com>
-Reply-To: Alex Deucher <alexdeucher@gmail.com>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Subject: Re: [Jfs-discussion] fsck.jfs segfaults on x86_64
-Cc: jfs-discussion@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, ag@m-cam.com
-In-Reply-To: <1118420190.21406.4.camel@localhost>
+	Fri, 10 Jun 2005 12:25:14 -0400
+Received: from caramon.arm.linux.org.uk ([212.18.232.186]:64012 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S262602AbVFJQY1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 12:24:27 -0400
+Date: Fri, 10 Jun 2005 17:24:20 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: moreau francis <francis_moreau2000@yahoo.fr>
+Cc: Denis Vlasenko <vda@ilport.com.ua>,
+       Frederik Deweerdt <dev.deweerdt@laposte.net>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [TTY] exclusive mode question
+Message-ID: <20050610172420.B18927@flint.arm.linux.org.uk>
+Mail-Followup-To: moreau francis <francis_moreau2000@yahoo.fr>,
+	Denis Vlasenko <vda@ilport.com.ua>,
+	Frederik Deweerdt <dev.deweerdt@laposte.net>,
+	linux-kernel@vger.kernel.org
+References: <200506101003.24835.vda@ilport.com.ua> <20050610093654.94565.qmail@web25806.mail.ukl.yahoo.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-References: <a728f9f90506100700107976f0@mail.gmail.com>
-	 <1118412882.7944.6.camel@localhost>
-	 <a728f9f905061007216c38cf4c@mail.gmail.com>
-	 <a728f9f905061009097081c0a6@mail.gmail.com>
-	 <1118420190.21406.4.camel@localhost>
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20050610093654.94565.qmail@web25806.mail.ukl.yahoo.com>; from francis_moreau2000@yahoo.fr on Fri, Jun 10, 2005 at 11:36:54AM +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/10/05, Dave Kleikamp <shaggy@austin.ibm.com> wrote:
-> On Fri, 2005-06-10 at 12:09 -0400, Alex Deucher wrote:
+On Fri, Jun 10, 2005 at 11:36:54AM +0200, moreau francis wrote:
 > 
-> > 1.1.8 segfaulted as well.
+> --- Denis Vlasenko <vda@ilport.com.ua> a écrit :
 > 
-> Hmm.  This bothers me.
+> > On Thursday 09 June 2005 18:12, Russell King wrote:
+> > > On Thu, Jun 09, 2005 at 04:22:49PM +0200, moreau francis wrote:
+> > > > --- Frederik Deweerdt <dev.deweerdt@laposte.net> a écrit :
+> > > > > Le 09/06/05 13:41 +0200, moreau francis écrivit:
+> > > > > > 
+> > > > > > oh ok...sorry I misunderstood TIOEXCL meaning ;)
+> > > > > > Do you know how I could implement such exclusive mode (the one I
+> > described)
+> > > > > ?
+> > > > > > 
+> > > > > This is handled through lock files, google for LCK..ttyS0
+> > > > >
+> > > > 
+> > > > This lock mechanism is a convention but nothing prevent a user
+> > application to
+> > > > issue a "echo foo > /dev/ttyS0" command while "LCK..ttyS0" file exists...
+> > > 
+> > > Which is absolutely necessary to work if you think about an application
+> > > like minicom and its file transfer helpers, which may need to re-open
+> > > the serial port.
+> > > 
+> > > TTY locking is done via lock files only, and all non-helper applications
+> > > must coordinate their access via the lock files.  There is no other
+> > > mechanism.
+> > 
+> > I think original reporter is saying that TIOEXCL is nearly useless then.
+> >
+> 
+> Why not using mandatory locks instead of this "weak" user lock mechanism ?
 
-let me know if there's anythign else you need me to test.  I suppose
-it must have been something odd in the journal because it hadn't ever
-segfaulted on any previous runs before that last SAN failure.
+As I've already said - helper applications.
 
-> 
-> > running fsck.jfs --omit_journal_replay did the trick!  thanks,
-> 
-> Well, at least it got you going again.  :^)
+There's another case as well.  Consider the following:
 
-Thanks for your help!
+- getty is listening on the serial port for an incoming modem call
+  (eg, mgetty)
+- you want to make an outgoing call (eg, minicom)
 
-Alex
+Both have to co-operate with each other via the lock files to ensure
+that they don't stomp on each other - and the point at which they claim
+the lock is most definitely not at serial port open time.
 
-> 
-> Thanks,
-> Shaggy
-> --
-> David Kleikamp
-> IBM Linux Technology Center
-> 
->
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

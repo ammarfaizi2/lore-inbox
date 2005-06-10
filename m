@@ -1,164 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261187AbVFJTpq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261193AbVFJTtZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261187AbVFJTpq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 15:45:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261193AbVFJTpq
+	id S261193AbVFJTtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 15:49:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261194AbVFJTtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 15:45:46 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:51105 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S261187AbVFJTpX convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 15:45:23 -0400
-X-IronPort-AV: i="3.93,190,1115010000"; 
-   d="scan'208"; a="252994226:sNHT26205692"
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
+	Fri, 10 Jun 2005 15:49:25 -0400
+Received: from amdext4.amd.com ([163.181.251.6]:60858 "EHLO amdext4.amd.com")
+	by vger.kernel.org with ESMTP id S261193AbVFJTtM convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 15:49:12 -0400
+X-Server-Uuid: 8C3DB987-180B-4465-9446-45C15473FD3E
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [patch 2.6.12-rc3] modifications in firmware_class.c to support nohotplug
-Date: Fri, 10 Jun 2005 14:45:22 -0500
-Message-ID: <367215741E167A4CA813C8F12CE0143B3ED3BC@ausx2kmpc115.aus.amer.dell.com>
+Subject: RE: [discuss] [OOPS] powernow on smp dual core amd64
+Date: Fri, 10 Jun 2005 14:48:58 -0500
+Message-ID: <84EA05E2CA77634C82730353CBE3A84301CFC134@SAUSEXMB1.amd.com>
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 2.6.12-rc3] modifications in firmware_class.c to support nohotplug
-Thread-Index: AcVsTHu6pXOc5sF6T2+92wDymh/IQgBprSrg
-From: <Abhay_Salunke@Dell.com>
-To: <dtor_core@ameritech.net>, <greg@kroah.com>
-Cc: <linux-kernel@vger.kernel.org>, <akpm@osdl.org>, <Matt_Domsch@Dell.com>,
-       <ranty@debian.org>
-X-OriginalArrivalTime: 10 Jun 2005 19:45:22.0634 (UTC) FILETIME=[F09F32A0:01C56DF4]
+Thread-Topic: [discuss] [OOPS] powernow on smp dual core amd64
+Thread-Index: AcVt7P9dWtFZMGMUQZ2KKOOeG1aghgAB1wOQ
+From: "Langsdorf, Mark" <mark.langsdorf@amd.com>
+To: "Tom Duffy" <tduffy@sun.com>, "Andi Kleen" <ak@suse.de>
+cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
+X-WSS-ID: 6EB731212UO7030789-01-01
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > > > -----Original Message-----
-> > > > From: Greg KH [mailto:greg@kroah.com]
-> > > > Sent: Wednesday, June 08, 2005 11:10 AM
-> > > > To: Salunke, Abhay
-> > > > Cc: dtor_core@ameritech.net; linux-kernel@vger.kernel.org;
-> > > akpm@osdl.org;
-> > > > Domsch, Matt; ranty@debian.org
-> > > > Subject: Re: [patch 2.6.12-rc3] modifications in
-firmware_class.c to
-> > > > support nohotplug
-> > > >
-> > > > On Wed, Jun 08, 2005 at 11:04:09AM -0500, Abhay_Salunke@Dell.com
-> > > wrote:
-> > > > > > I think it would be better if you just have request_firmware
-and
-> > > > > > request_firmware_nowait accept timeout parameter that would
-> > > override
-> > > > > > default timeout in firmware_class. 0 would mean use default,
-> > > > > > MAX_SCHED_TIMEOUT - wait indefinitely.
-> > > > >
-> > > > > But we still need to avoid hotplug being invoked as we need it
-be
-> a
-> > > > > manual process.
-> > > >
-> > > > No, hotplug can happen just fine (it happens loads of times
-today
-> for
-> > > > things that people don't care about.)
-> > > >
-> > > If hotplug happens the complete function is called which makes the
-> > > request_firmware return with a failure.
-> >
-> > If this was true, then the current code would not work at all.
-> >
+It looks like the crash is caused by an invalid
+pointer dereference in 
+query_current_values_with_pending_wait(), which
+implies that powernowk8_get() was called with an
+invalid CPU number.
+
+Andi, what will happen if you do
+set_cpus_allowed(current, cpumask_of_cpu(cpu)) when
+cpu isn't in the range of online CPUs?  There's
+supposed to be a check to prevent an invalid
+pointer access from happening but it's failing for 
+some reason.
+
+-Mark Langsdorf
+AMD, Inc.
+
+> -----Original Message-----
+> From: Tom Duffy [mailto:tduffy@sun.com] 
+> Sent: Friday, June 10, 2005 1:47 PM
+> To: Andi Kleen
+> Cc: discuss@x86-64.org; linux-kernel@vger.kernel.org
+> Subject: Re: [discuss] [OOPS] powernow on smp dual core amd64
 > 
-> What Abhay is trying to say is that default firmware.agent when it
-> does not find requested firmware file writes -1 (abort) to "loading"
-> attribute causing firmware_request to fail.
 > 
-> I think it should be fixed in firmware.agent though, not in kernel -
-> the agent shoudl just recognoze that sometimes not having firmware
-> file is ok.
+> On Fri, 2005-06-10 at 18:53 +0200, Andi Kleen wrote:
+> > On Thu, Jun 09, 2005 at 04:46:19PM -0700, Tom Duffy wrote:
+> > > Got this panic when I recently upgraded my BIOS so that 
+> it supports 
+> > > k8 powernow on SMP dual-core.
+> > 
+> > 2.6.12-rc has a dual core aware powernow k8 driver.
 > 
-I tired to do the following 
-1. echo 0 > /sys/class/firmware/timeout
-2. modify the firmware.agent by commenting echo -1 when file is not
-present as below.
-
-    if [ -f "$FIRMWARE_DIR/$FIRMWARE" ]; then
-        echo 1 > $SYSFS/$DEVPATH/loading
-        cp "$FIRMWARE_DIR/$FIRMWARE" $SYSFS/$DEVPATH/data
-        echo 0 > $SYSFS/$DEVPATH/loading
-    else
-   #     echo -1 > $SYSFS/$DEVPATH/loading
-    Fi
-3. load the dell_rbu driver : see dell_rbu code snipped below
-
-device_initialize(&rbu_device);
-
-strncpy(rbu_device.bus_id,"dell_rbu", BUS_ID_SIZE);
-
-rc = request_firmware_nowait(THIS_MODULE,
-		"dell_rbu", &rbu_device,
-		&context,
-		callbackfn);
-	if(rc) {
-		printk(KERN_ERR 
-			"dcdrbu_init:"
-			" request_firmware_nowait failed %d\n", rc);
-	}
-
-But this created a kernel Oops message as follows. Also note that
-uncomment the line in firmware.agents fixed the Oops message.
-
-Jun 10 19:29:39 localhost kernel: Unable to handle kernel NULL pointer
-dereference at virtual address 00000000
-Jun 10 19:29:39 localhost kernel:  printing eip:
-Jun 10 19:29:39 localhost kernel: c0188b71
-Jun 10 19:29:39 localhost kernel: *pde = 1fabe001
-Jun 10 19:29:39 localhost kernel: Oops: 0000 [#2]
-Jun 10 19:29:39 localhost kernel: SMP
-Jun 10 19:29:39 localhost kernel: Modules linked in: dell_rbu(U) smbfs
-parport_pc lp parport autofs4 sunrpc ipt_REJECT ipt_state ip_conntrack
-iptable_filter ip_tables button battery ac md5 ipv6 ohci_hcd tg3 floppy
-sg dm_snapshot dm_zero dm_mirror ext3 jbd dm_mod mptscsih mptbase sd_mod
-scsi_mod
-Jun 10 19:29:39 localhost kernel: CPU:    1
-Jun 10 19:29:39 localhost kernel: EIP:    0060:[<c0188b71>]    Not
-tainted VLI
-Jun 10 19:29:39 localhost kernel: EFLAGS: 00010286   (2.6.9-5.ELsmp)
-Jun 10 19:29:39 localhost kernel: EIP is at object_path_length+0x10/0x25
-Jun 10 19:29:39 localhost kernel: eax: 00000000   ebx: 00000001   ecx:
-ffffffff   edx: e0a8fb24
-Jun 10 19:29:39 localhost kernel: esi: de3c089c   edi: 00000000   ebp:
-dde2b000   esp: d7a3fe4c
-Jun 10 19:29:40 localhost kernel: ds: 007b   es: 007b   ss: 0068
-Jun 10 19:29:40 localhost kernel: Process bash (pid: 2825,
-threadinfo=d7a3f000 task=d739e630)
-Jun 10 19:29:40 localhost kernel: Stack: 00000003 e0a8fb24 c0188cf8
-e0a8fb24 c031fdc0 de3c089c e0a8fb24 de1ff188
-Jun 10 19:29:40 localhost kernel:        c0188dfa dde2b000 dde2b000
-fffffff4 de3c089c d7a3ff0c c0188e47 d7a3f000
-Jun 10 19:29:40 localhost kernel:        00000000 de3c089c d7a3ff0c
-c0161400 dfe84b00 de3c089c 00000000 dfe84b00
-Jun 10 19:29:40 localhost kernel: Call Trace:
-Jun 10 19:29:40 localhost kernel:  [<c0188cf8>]
-sysfs_get_target_path+0x19/0x59
-Jun 10 19:29:40 localhost kernel:  [<c0188dfa>] sysfs_getlink+0xc2/0xe9
-Jun 10 19:29:40 localhost kernel:  [<c0188e47>]
-sysfs_follow_link+0x26/0x3e
-Jun 10 19:29:40 localhost kernel:  [<c0161400>]
-link_path_walk+0x8fa/0xba9
-Jun 10 19:29:40 localhost kernel:  [<c01619c2>] path_lookup+0x144/0x174
-Jun 10 19:29:40 localhost kernel:  [<c0161b06>] __user_walk+0x21/0x51
-Jun 10 19:29:40 localhost kernel:  [<c015d0ad>] vfs_stat+0x14/0x3a
-Jun 10 19:29:40 localhost kernel:  [<c015d6b6>] sys_stat64+0xf/0x23
-Jun 10 19:29:40 localhost kernel:  [<c02c62a3>] syscall_call+0x7/0xb
-Jun 10 19:29:40 localhost kernel: Code: fe ff ff e8 82 b1 13 00 e9 3a ff
-ff ff 90 31 d2 8b 40 24 42 85 c0 75 f8 89 d0 c3 57 89 c2 53 bb 01 00 00
-00 8b 3a 31 c0 83 c9 ff <f2> ae f7 d1 49 8b 52 24 8d 5c 0b 01 85 d2 75
-e9 89 d8 5b 5f c3
-
-I guess we need to modify the firmware_class.c code to fix it.
-Please let me know your opinions.
-
-Thanks
-Abhay
+> Despite the name of kernel, it is based off of 2.6.12-rc6.
+> 
+> Here is the panic on bootup.
+> 
+> Unable to handle kernel NULL pointer dereference at 
+> 0000000000000024 RIP: 
+> <ffffffff8011dadc>{query_current_values_with_pending_wait+60}
+> PGD 3f255067 PUD 7fe7e067 PMD 0
+> Oops: 0002 [1] SMP
+> CPU 1
+> Modules linked in: mptscsih(U) mptbase(U) sd_mod scsi_mod
+> Pid: 33, comm: events/7 Not tainted 2.6.11-1.1381_FC5smp
+> RIP: 0010:[<ffffffff8011dadc>]  sdb1 sdb2 
+> <ffffffff8011dadc>{query_current_values_with_pending_wait+60}
+> RSP: 0018:ffff81007fd9fdc8  EFLAGS: 00010202
+> RAX: 000000000000000e RBX: 0000000000000000 RCX: 00000000c0010042
+> RDX: 0000000000000008 RSI: 0000000000000001 RDI: 0000000000000000
+> RBP: 0000000000000000 R08: ffff81007fd9e000 R09: 0000000000000001
+> R10: 0000000000000000 R11: 0000000000000000 R12: 0000000000000080
+> R13: 0000000000000000 R14: 0000000000000292 R15: ffffffff80112950
+> FS:  00000000005a5858(0000) GS:ffffffff8050ec00(0000) 
+> knlGS:0000000000000000
+> CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+> CR2: 0000000000000024 CR3: 000000007fd76000 CR4: 
+> 00000000000006e0 Process events/7 (pid: 33, threadinfo 
+> ffff81007fd9e000, task ffff81007fd43070)
+> Stack: 0000000000000000 ffffffff8011e0b1 0000000000000001 
+> ffff81007fa02d10
+>        ffff81007fa02d40 ffffffff802e6f23 0000000000000000 
+> 0000000000000003
+>        0000000000000001 0000000000000020
+> Call Trace:<ffffffff8011e0b1>{powernowk8_get+129} 
+> <ffffffff802e6f23>{cpufreq_get+115}
+>        <ffffffff8011298a>{handle_cpufreq_delayed_get+58} 
+> <ffffffff8014b9dc>{worker_thread+476}
+>        <ffffffff80134710>{default_wake_function+0} 
+> <ffffffff801326a3>{__wake_up_common+67}
+>        <ffffffff8014b800>{worker_thread+0} 
+> <ffffffff80150469>{kthread+217}
+>        <ffffffff80135c90>{schedule_tail+64} 
+> <ffffffff8010f76b>{child_rip+8}
+>        <ffffffff8011d680>{flat_send_IPI_mask+0} 
+> <ffffffff80150390>{kthread+0}
+>        <ffffffff8010f763>{child_rip+0}
+> 
+> Code: 89 47 24 89 57 20 31 c0 48 83 c4 08 c3 66 66 66 90 66 
+> 66 90 RIP 
+> <ffffffff8011dadc>{query_current_values_with_pending_wait+60} 
+> RSP <ffff81007fd9fdc8>
+> CR2: 0000000000000024
+>  <3>Debug: sleeping function called from invalid context at 
+> include/linux/rwsem.h:43 in_atomic():0, irqs_disabled():1
+> 
+> Call Trace:<ffffffff8013abc5>{profile_task_exit+21} 
+> <ffffffff8013bfe2>{do_exit+34}
+>        <ffffffff80267378>{do_unblank_screen+40} 
+> <ffffffff80124286>{do_page_fault+1926}
+>        <ffffffff8035c032>{thread_return+0} 
+> <ffffffff8035c084>{thread_return+82}
+>        <ffffffff8013433d>{activate_task+141} 
+> <ffffffff80112950>{handle_cpufreq_delayed_get+0}
+>        <ffffffff8010f5b5>{error_exit+0} 
+> <ffffffff80112950>{handle_cpufreq_delayed_get+0}
+>        <ffffffff8011dadc>{query_current_values_with_pending_wait+60}
+>        <ffffffff8011e0b1>{powernowk8_get+129} 
+> <ffffffff802e6f23>{cpufreq_get+115}
+>        <ffffffff8011298a>{handle_cpufreq_delayed_get+58} 
+> <ffffffff8014b9dc>{worker_thread+476}
+>        <ffffffff80134710>{default_wake_function+0} 
+> <ffffffff801326a3>{__wake_up_common+67}
+>        <ffffffff8014b800>{worker_thread+0} 
+> <ffffffff80150469>{kthread+217}
+>        <ffffffff80135c90>{schedule_tail+64} 
+> <ffffffff8010f76b>{child_rip+8}
+>        <ffffffff8011d680>{flat_send_IPI_mask+0} 
+> <ffffffff80150390>{kthread+0}
+>        <ffffffff8010f763>{child_rip+0}
+> 
+> -tduffy
+> 
 

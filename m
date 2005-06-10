@@ -1,73 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262197AbVFJG4q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262235AbVFJHD7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262197AbVFJG4q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 02:56:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262235AbVFJG4q
+	id S262235AbVFJHD7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 03:03:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbVFJHD7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 02:56:46 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:11404 "HELO
+	Fri, 10 Jun 2005 03:03:59 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:8902 "HELO
 	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262197AbVFJG4n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 02:56:43 -0400
+	id S262235AbVFJHD5 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 03:03:57 -0400
 From: Denis Vlasenko <vda@ilport.com.ua>
-To: <abonilla@linuxwireless.org>, "'Pavel Machek'" <pavel@ucw.cz>,
-       "'Jeff Garzik'" <jgarzik@pobox.com>,
-       "'Netdev list'" <netdev@oss.sgi.com>,
-       "'kernel list'" <linux-kernel@vger.kernel.org>,
-       "'James P. Ketrenos'" <ipw2100-admin@linux.intel.com>
-Subject: Re: ipw2100: firmware problem
-Date: Fri, 10 Jun 2005 09:56:16 +0300
+To: Russell King <rmk+lkml@arm.linux.org.uk>,
+       moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Re: [TTY] exclusive mode question
+Date: Fri, 10 Jun 2005 10:03:24 +0300
 User-Agent: KMail/1.5.4
-References: <002a01c56cff$fb64ba70$600cc60a@amer.sykes.com>
-In-Reply-To: <002a01c56cff$fb64ba70$600cc60a@amer.sykes.com>
+Cc: Frederik Deweerdt <dev.deweerdt@laposte.net>, linux-kernel@vger.kernel.org
+References: <20050609121638.GD507@gilgamesh.home.res> <20050609142250.80926.qmail@web25804.mail.ukl.yahoo.com> <20050609161225.A14513@flint.arm.linux.org.uk>
+In-Reply-To: <20050609161225.A14513@flint.arm.linux.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200506100956.16031.vda@ilport.com.ua>
+Message-Id: <200506101003.24835.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 09 June 2005 17:31, Alejandro Bonilla wrote:
+On Thursday 09 June 2005 18:12, Russell King wrote:
+> On Thu, Jun 09, 2005 at 04:22:49PM +0200, moreau francis wrote:
+> > --- Frederik Deweerdt <dev.deweerdt@laposte.net> a écrit :
+> > > Le 09/06/05 13:41 +0200, moreau francis écrivit:
+> > > > 
+> > > > oh ok...sorry I misunderstood TIOEXCL meaning ;)
+> > > > Do you know how I could implement such exclusive mode (the one I described)
+> > > ?
+> > > > 
+> > > This is handled through lock files, google for LCK..ttyS0
+> > >
+> > 
+> > This lock mechanism is a convention but nothing prevent a user application to
+> > issue a "echo foo > /dev/ttyS0" command while "LCK..ttyS0" file exists...
 > 
-> > What is so nice about this? That Linux novice user with his new lappie
-> > will join a neighbor's network every time he powers up the lappie,
-> > even without knowing that?
-> >
-> > That will be analogous to me plugging ethernet cable into the
-> > switch and
-> > wanting it to work, without any IP addr config, even without
-> > DHCP client.
-> > Just power up the box (or modprobe an eth module) and it
-> > works! Cool, eh?
-> >
+> Which is absolutely necessary to work if you think about an application
+> like minicom and its file transfer helpers, which may need to re-open
+> the serial port.
 > 
-> You want things one way, I like them in another way. Whoever makes this
-> decision should just know that we would like to have an option to make it
-> load with or without the ASSOC on.
+> TTY locking is done via lock files only, and all non-helper applications
+> must coordinate their access via the lock files.  There is no other
+> mechanism.
 
-But you already _have_ the option to associate. Just issue
-appropriate iwconfig command (or embed one in startup script).
-
-> James already said to use the options ipw2100 disable=1 if you don't want it
-> to associate everytime on boot.
-
-Do we have to add such option to each and every wireless driver now?
-That would be wrong since iwconfig already exists.
-
-> At the end, who decides this?
-
-User. As I said, with no automatic assoc at module load user still
-may easily attain that with iwconfig.
-
-Adding kernel level wireless autoconfiguration duplicates the effort.
-Since I am not going to give up a requirement to be able to stay radio
-silent at boot (me too wants freedom, not only you), you need to add
-disable=1 module parameter to each driver, which adds to the mess.
-
-ALSA does the Right Thing. Sound is completely muted out at module load.
-It's a user freedom to set desired volume level after that.
+I think original reporter is saying that TIOEXCL is nearly useless then.
 --
 vda
 

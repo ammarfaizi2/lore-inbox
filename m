@@ -1,49 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261427AbVFJXXV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261411AbVFJX2g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261427AbVFJXXV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 19:23:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261389AbVFJXXU
+	id S261411AbVFJX2g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 19:28:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261399AbVFJX2f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 19:23:20 -0400
-Received: from wproxy.gmail.com ([64.233.184.205]:24125 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261427AbVFJXVp convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 19:21:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=nFBtfGt2TyCNHqsCbJQk/3mDnHOEm4anQagFU0K6o0yRQA+vKo62n+TBhC3aNRgZguCBGchVzQBBU4ww3qdoPTOCt4g8v1QZZ5JIxTbEjT4Jdlwc4lfpsVrC0VNOVBToU1ZVlm+zQU/MP5nyWd9ilRAw9D6JVOwVP0yUueiUL+E=
-Message-ID: <9e47339105061016213195fb86@mail.gmail.com>
-Date: Fri, 10 Jun 2005 19:21:44 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: fbdev <linux-fbdev-devel@lists.sourceforge.net>,
-       "Antonino A. Daplas" <adaplas@hotpop.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Typo in fbdev sysfs support, virtual_size
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+	Fri, 10 Jun 2005 19:28:35 -0400
+Received: from reserv6.univ-lille1.fr ([193.49.225.20]:14748 "EHLO
+	reserv6.univ-lille1.fr") by vger.kernel.org with ESMTP
+	id S261411AbVFJXY3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 19:24:29 -0400
+Message-ID: <42AA20F6.9030606@lifl.fr>
+Date: Sat, 11 Jun 2005 01:23:34 +0200
+From: Eric Piel <Eric.Piel@lifl.fr>
+User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: paulmck@us.ibm.com
+CC: Chris Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org,
+       bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de, karim@opersys.com,
+       mingo@elte.hu, pmarques@grupopie.com, bruce@andrew.cmu.edu,
+       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
+       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org
+Subject: Re: Attempted summary of "RT patch acceptance" thread
+References: <20050608022646.GA3158@us.ibm.com> <42A73D15.6080201@nortel.com> <20050608192853.GE1295@us.ibm.com> <42AA133D.1050102@lifl.fr> <20050610230433.GI1300@us.ibm.com>
+In-Reply-To: <20050610230433.GI1300@us.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-USTL-MailScanner-Information: Please contact the ISP for more information
+X-USTL-MailScanner: Found to be clean
+X-MailScanner-From: eric.piel@lifl.fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It prints out x,x instead of x,y.
+06/11/2005 01:04 AM, Paul E. McKenney wrote/a écrit:
+>>Just a small change to "1 - QoS":
+>>
+>>
+>>>b.	For each service:
+>>>
+>>>	i.	Probability of missing a deadline due to software,
+>>>		ranging from 0 to 1, with the value of 1 corresponding
+>>>		to the hardest possible hard realtime.
+>>
+>>I think it should be (by reference to how you define probability at the 
+>>beginning of the section):
+>>Probability of not missing any deadline due to software
+> 
+> 
+> Good catch!  How about the following?
+> 
+> 	i.      Probability of meeting a deadline due to software,
+> 		ranging from 0 to 1, with the value of 1 corresponding
+> 		to the hardest possible hard realtime.
+> 
+> Changing "missing" in the original to "meeting".
 
-Signed-off-by: jonsmirl@gmail.com <Jon Smirl>
-diff --git a/drivers/video/fbsysfs.c b/drivers/video/fbsysfs.c
---- a/drivers/video/fbsysfs.c
-+++ b/drivers/video/fbsysfs.c
-@@ -241,7 +241,7 @@ static ssize_t show_virtual(struct class
- 	struct fb_info *fb_info =
- 		(struct fb_info *)class_get_devdata(class_device);
- 	return snprintf(buf, PAGE_SIZE, "%d,%d\n", fb_info->var.xres_virtual,
--			fb_info->var.xres_virtual);
-+			fb_info->var.yres_virtual);
- }
- 
- static ssize_t store_cmap(struct class_device *class_device, const char * buf,
+It sounds strange to me (but english is not my mother tongue), it's like 
+hardware was not so good but software helped to recover the situation 
+and, eventually, the deadline was met ;-)
 
--- 
-Jon Smirl
-jonsmirl@gmail.com
+What about using the way you wrote it at the beginning of the section:
+"Probability of missing a deadline only because of a hardware failure"
+
+Eric

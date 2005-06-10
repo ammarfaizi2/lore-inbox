@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262502AbVFJGiG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262414AbVFJGmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262502AbVFJGiG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 02:38:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbVFJGiG
+	id S262414AbVFJGmz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 02:42:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262495AbVFJGmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 02:38:06 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:47503 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262414AbVFJGh6 (ORCPT
+	Fri, 10 Jun 2005 02:42:54 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4325 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262414AbVFJGmx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 02:37:58 -0400
-Date: Fri, 10 Jun 2005 08:38:59 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Greg Stark <gsstark@mit.edu>
-Cc: Mark Lord <liml@rtr.ca>, linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: SMART support for libata
-Message-ID: <20050610063858.GN5140@suse.de>
-References: <87y8g8r4y6.fsf@stark.xeocode.com> <41B7EFA3.8000007@pobox.com> <87br6g6ayr.fsf@stark.xeocode.com> <42A73E6E.80808@rtr.ca> <873brs5ir8.fsf@stark.xeocode.com> <42A85F5E.10208@rtr.ca> <87u0k74cuy.fsf@stark.xeocode.com>
+	Fri, 10 Jun 2005 02:42:53 -0400
+Date: Thu, 9 Jun 2005 23:42:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
+Cc: axboe@suse.de, andrea@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: Real-time problem due to IO congestion.
+Message-Id: <20050609234231.42a10763.akpm@osdl.org>
+In-Reply-To: <42A91D36.8090506@lab.ntt.co.jp>
+References: <42A91D36.8090506@lab.ntt.co.jp>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87u0k74cuy.fsf@stark.xeocode.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 09 2005, Greg Stark wrote:
+Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp> wrote:
+>
+> There are 2 type processes in test environment.
+>  1. The real-time needed process (run on with high static priority)
+>      The process wake up every 10ms, and wake up, write some log (the
+>  test case is current CPU clock via tsc) to the file.
 > 
-> Mark Lord <liml@rtr.ca> writes:
+>  2. The process which make IO load
+>      The process have large memory size, and kill the process with dumping.
+>      The process's memory area exceeds 70% of whole physical
+>  RAM.(Actually 1.5GB memory area while whole RAM is 2GB)
 > 
-> > Greg Stark wrote:
-> > ..
-> > >>You should be using "-y" (standby) instead of "-Y" (sleep).
-> > > I'll try that. But that's not going to make it spin up when it gets a SMART
-> > > query is it?
-> > 
-> > Depends on what SMART items are being queried.
-> > 
-> > Actually, what you should *really* be using is "hdparm -S"
-> > with a suitable timeout value (say, 30 or larger).
-> 
-> Not really since the drive will just spin up ever few seconds as bdflush (or
-> whatever it's called these days) dribbles out pages.
-> 
-> What I should *really* be using is the noflushd daemon. That's been on hold
-> since I found it didn't work with SATA drives. But I wonder if it would work
-> these days.
+>  Whenever during dumping, the real-time needed process sometimes stop for
+>  long time during write system call. (sometimes exceeds 1000ms)
 
-noflushd is ancient, have you tried playing with laptop mode?
+The writeback code does attempt to give some preference to realtime tasks
+(in get_dirty_limits()), but it can only work up to a point.
 
--- 
-Jens Axboe
-
+Frankly, your application is poorly designed.  If you want sub-10ms
+responsiveness you shouldn't be doing disk I/O.  The realtime task should
+hand the data off to a non-realtime task for writeout, with suitable
+amounts of buffering in between.

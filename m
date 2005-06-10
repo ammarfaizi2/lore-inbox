@@ -1,169 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262550AbVFJOUQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262567AbVFJOVt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262550AbVFJOUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 10:20:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262556AbVFJOUQ
+	id S262567AbVFJOVt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 10:21:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262568AbVFJOVt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 10:20:16 -0400
-Received: from mail12.syd.optusnet.com.au ([211.29.132.193]:57578 "EHLO
-	mail12.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S262550AbVFJOTw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 10:19:52 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc6-mm1
-Date: Sat, 11 Jun 2005 00:19:10 +1000
-User-Agent: KMail/1.8.1
-Cc: Ingo Molnar <mingo@elte.hu>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Andrew Morton <akpm@osdl.org>,
-       Christoph Lameter <clameter@engr.sgi.com>,
-       Nick Piggin <piggin@cyberone.com.au>
-References: <20050607170853.3f81007a.akpm@osdl.org> <20050610070214.GA31323@elte.hu> <200506102203.15909.kernel@kolivas.org>
-In-Reply-To: <200506102203.15909.kernel@kolivas.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2076837.1ro9eiF1GH";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200506110019.13204.kernel@kolivas.org>
+	Fri, 10 Jun 2005 10:21:49 -0400
+Received: from rproxy.gmail.com ([64.233.170.197]:12007 "EHLO rproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262567AbVFJOVY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 10:21:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ayG5Tz5t0ZKSVUy8nXO9+YHcPsNuGftMkH0Q9GggmoaBovcZgG6SGicd1gudGTLWPrxJSkyuICfvYmsGYZjZukxQ1CQljy5c2OeoO5HLeo3VcHDprB/rq9Vmt6CSWhFR5VizXIQ17BJowrTPRDHNuGnSyhpB0NYs6KlUdv2hAW0=
+Message-ID: <a728f9f905061007216c38cf4c@mail.gmail.com>
+Date: Fri, 10 Jun 2005 10:21:19 -0400
+From: Alex Deucher <alexdeucher@gmail.com>
+Reply-To: Alex Deucher <alexdeucher@gmail.com>
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+Subject: Re: [Jfs-discussion] fsck.jfs segfaults on x86_64
+Cc: jfs-discussion@lists.sourceforge.net,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, ag@m-cam.com
+In-Reply-To: <1118412882.7944.6.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <a728f9f90506100700107976f0@mail.gmail.com>
+	 <1118412882.7944.6.camel@localhost>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2076837.1ro9eiF1GH
-Content-Type: multipart/mixed;
-  boundary="Boundary-01=_fFaqCAaj3soaRO7"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
---Boundary-01=_fFaqCAaj3soaRO7
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-On Fri, 10 Jun 2005 22:03, Con Kolivas wrote:
-> On Fri, 10 Jun 2005 17:02, Ingo Molnar wrote:
-> > * Martin J. Bligh <mbligh@mbligh.org> wrote:
-> > > > I'm assuming it was the CPU scheduler patches.  There are 36 of them
-> > > > ;)
-
-> > So the=20
-> > candidates for the regression are:
+On 6/10/05, Dave Kleikamp <shaggy@austin.ibm.com> wrote:
+> On Fri, 2005-06-10 at 10:00 -0400, Alex Deucher wrote:
+> > We have a large lvm2 logical volume (6.91T) which contains a JFS
+> > filesystem. The volumes accessed via emulex FC HBAs connected to a
+> > nexsan SAN.  There was a bug in the SAN firmware that caused the
+> > primary controller to lose sync with the other controller and go down.
+> >  Normally when this happens we are able to reboot the SAN and the
+> > server and then run fsck on the volume, and everything is fine (on a
+> > side note, we have updated the SAN firmware to fix the sync problem).
+> > however, fsck now segfaults and the volume is dirty so it can't be
+> > mounted. lvdisplay and vgdisplay seem to work fine displaying the
+> > correct info.  Does anyone know what may be causing the problem or how
+> > we can fix it?  If possible I'd like to save the data on the volumes.
 > >
-> >  sched-implement-nice-support-across-physical-cpus-on-smp.patch
-> >  sched-change_prio_bias_only_if_queued.patch
-> >  sched-account_rt_tasks_in_prio_bias.patch
-> >  consolidate-preempt-options-into-kernel-kconfigpreempt.patch
-> >  enable-preempt_bkl-on-preemptsmp-too.patch
-> >  sched-tweak-idle-thread-setup-semantics.patch
-> >  sched-voluntary-kernel-preemption.patch
-> >  sched-smp-nice-bias-busy-queues-on-idle-rebalance.patch
-> >  sched-task_noninteractive.patch
-> >  sched-run-sched_normal-tasks-with-real-time-tasks-on-smt-siblings.patch
+> > #> time fsck.jfs /dev/vg00/lvol0
+> > fsck.jfs version 1.1.4, 30-Oct-2003
+> 
+> 1.1.4 is quite old.  Can you try a recent version of jfsutils?
+> http://jfs.sourceforge.net/project/pub/jfsutils-1.1.8.tar.gz
 
-> These tend to run together so just try adding my four patches together. In
-> retrospect I guess they're likely candidates because they also change the
-> _ratio_ of balance which they should not so they are buggy as a group
-> currently. Easy enough to fix but it will make it easy to pinpoint the
-> problem if they're responsible.
+sorry, I should have mentioned that.  we also tried 1.1.7 with the
+same result.  I can try 1.1.8 too.
+
+> 
+> If that doesn't work, you can try running "fsck.jfs
+> --omit_journal_replay", since it is trapping while replaying the
+> journal.  If all else fails, you should be able to mount it read-only
+> (mount -oro) to recover the data.
+
+cool I'll give that a try.
+
+Thanks!
+
+Alex
+
+> 
+> Thanks,
+> Shaggy
+> --
+> David Kleikamp
+> IBM Linux Technology Center
+> 
 >
-> sched-implement-nice-support-across-physical-cpus-on-smp.patch
-> sched-change_prio_bias_only_if_queued.patch
-> sched-account_rt_tasks_in_prio_bias.patch
-> sched-smp-nice-bias-busy-queues-on-idle-rebalance.patch
-
-By the way it has already been decided to remove these patches from -mm=20
-pending the completion of current scheduler work. If they turn out to be=20
-responsible for this regression I apologise profusely :-|.=20
-
-It is clearer to me now that I have made a mistake with the priority biasin=
-g,=20
-and the following patch corrects it to the planned behaviour. This is=20
-academic at this stage as we won't be looking at this particular feature=20
-again in earnest until the other 32 scheduler patches (and any followups) g=
-o=20
-upstream.=20
-
-It's already known that schedstats data will be off without further code to=
-=20
-understand smp nice as well (thanks Nick for pointing out the data)... more=
-=20
-academic stuff but obviously something to consider when/if we get there.
-
-Cheers,
-Con
-
---Boundary-01=_fFaqCAaj3soaRO7
-Content-Type: text/x-diff;
-  charset="iso-8859-1";
-  name="sched-correct_smp_nice_bias.patch"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline;
-	filename="sched-correct_smp_nice_bias.patch"
-
-The priority biasing was off by mutliplying the total load by the total=20
-priority bias and this ruins the ratio of loads between runqueues. This
-patch should correct the ratios of loads between runqueues to be proportion=
-al
-to overall load.
-
-Signed-off-by: Con Kolivas <kernel@kolivas.org>
-
-Index: linux-2.6.12-rc6-mm1/kernel/sched.c
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-=2D-- linux-2.6.12-rc6-mm1.orig/kernel/sched.c	2005-06-10 23:56:56.00000000=
-0 +1000
-+++ linux-2.6.12-rc6-mm1/kernel/sched.c	2005-06-10 23:59:57.000000000 +1000
-@@ -978,7 +978,7 @@ static inline unsigned long __source_loa
- 	else
- 		source_load =3D min(cpu_load, load_now);
-=20
-=2D	if (idle =3D=3D NOT_IDLE || rq->nr_running > 1)
-+	if (idle =3D=3D NOT_IDLE || rq->nr_running > 1) {
- 		/*
- 		 * If we are busy rebalancing the load is biased by
- 		 * priority to create 'nice' support across cpus. When
-@@ -987,7 +987,10 @@ static inline unsigned long __source_loa
- 		 * prevent idle rebalance from trying to pull tasks from a
- 		 * queue with only one running task.
- 		 */
-=2D		source_load *=3D rq->prio_bias;
-+		unsigned long prio_bias =3D rq->prio_bias / rq->nr_running;
-+
-+		source_load *=3D prio_bias;
-+	}
-=20
- 	return source_load;
- }
-@@ -1011,8 +1014,11 @@ static inline unsigned long __target_loa
- 	else
- 		target_load =3D max(cpu_load, load_now);
-=20
-=2D	if (idle =3D=3D NOT_IDLE || rq->nr_running > 1)
-=2D		target_load *=3D rq->prio_bias;
-+	if (idle =3D=3D NOT_IDLE || rq->nr_running > 1) {
-+		unsigned long prio_bias =3D rq->prio_bias / rq->nr_running;
-+
-+		target_load *=3D prio_bias;
-+	}
-=20
- 	return target_load;
- }
-
---Boundary-01=_fFaqCAaj3soaRO7--
-
---nextPart2076837.1ro9eiF1GH
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCqaFhZUg7+tp6mRURAiffAJ9EEqfKWLqCyP4m3KWlrRJGF0AkPgCgjdKt
-wv70+cASTYtiRfYLjOkBnXY=
-=N/pE
------END PGP SIGNATURE-----
-
---nextPart2076837.1ro9eiF1GH--

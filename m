@@ -1,52 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261449AbVFJXrT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261477AbVFJXrm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261449AbVFJXrT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 19:47:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVFJXrS
+	id S261477AbVFJXrm (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 19:47:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVFJXrl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 19:47:18 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:4786 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261482AbVFJXq1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 19:46:27 -0400
-Subject: Re: Attempted summary of "RT patch acceptance" thread
-From: Lee Revell <rlrevell@joe-job.com>
-To: Bill Huey <bhuey@lnxw.com>
-Cc: Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Andrea Arcangeli <andrea@suse.de>, Tim Bird <tim.bird@am.sony.com>,
-       linux-kernel@vger.kernel.org, tglx@linutronix.de, karim@opersys.com,
-       mingo@elte.hu, pmarques@grupopie.com, bruce@andrew.cmu.edu,
-       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
-       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org
-In-Reply-To: <20050610234133.GB24111@nietzsche.lynx.com>
-References: <20050608022646.GA3158@us.ibm.com>
-	 <42A8D1F3.8070408@am.sony.com> <20050609235026.GE1297@us.ibm.com>
-	 <1118372388.32270.6.camel@mindpipe> <20050610154745.GA1300@us.ibm.com>
-	 <20050610173728.GA6564@g5.random> <1118436338.6423.48.camel@mindpipe>
-	 <20050610231647.GK1300@us.ibm.com>
-	 <20050610232628.GA23512@nietzsche.lynx.com>
-	 <Pine.LNX.4.61.0506101735290.19405@montezuma.fsmlabs.com>
-	 <20050610234133.GB24111@nietzsche.lynx.com>
-Content-Type: text/plain
-Date: Fri, 10 Jun 2005 19:46:11 -0400
-Message-Id: <1118447173.6423.148.camel@mindpipe>
+	Fri, 10 Jun 2005 19:47:41 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:56023 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261477AbVFJXqZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 19:46:25 -0400
+Date: Sat, 11 Jun 2005 01:41:47 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Andrew Hutchings <info@a-wing.co.uk>
+Cc: linux-kernel@vger.kernel.org, vinay kumar <b4uvin@yahoo.co.in>,
+       jgarzik@pobox.com, pascal.chapperon@wanadoo.fr
+Subject: Re: sis190
+Message-ID: <20050610234147.GA5062@electric-eye.fr.zoreil.com>
+References: <42A621BC.7040607@a-wing.co.uk> <20050607225755.GB30023@electric-eye.fr.zoreil.com> <42A62BD0.7090709@a-wing.co.uk> <20050608225157.GA16107@electric-eye.fr.zoreil.com> <42A82FE3.3080603@a-wing.co.uk> <20050609211843.GA5630@electric-eye.fr.zoreil.com> <42A99BCD.8000901@a-wing.co.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42A99BCD.8000901@a-wing.co.uk>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-06-10 at 16:41 -0700, Bill Huey wrote:
-> On Fri, Jun 10, 2005 at 05:36:10PM -0600, Zwane Mwaikambo wrote:
-> > What's wrong with the memory controller on the G5?
-> 
-> DMA starvation
+Andrew Hutchings <info@a-wing.co.uk> :
+[...]
+> Something went wrong on build.  Getting 'syntax error before '}' token' 
+> on every line there is _msleep(1);
 
-DMA starvation has also been observed with some PC chipsets during
-PREEMPT_RT development and the cause was traced to the UDMA133
-controller.  The symptom is latency traces that seem to go in extreme
-"slow motion".  Check the archives for the hardware affected.
+I have checked it again and the patch applies and compiles correctly
+against 2.6.12-rc6. So does the updated patch of the day:
 
-Lee 
+http://www.fr.zoreil.com/people/francois/misc/20050611-2.6.12-rc-sis190-test.patch
 
+No need to use SIS190_NO_DELAY so far. The media negotiation process has
+been changed. It is now allowed to take longer to complete (it should help).
+
+dmesg and ifconfig output will be welcome.
+
+--
+Ueimor

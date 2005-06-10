@@ -1,34 +1,39 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262243AbVFIC2t (ORCPT <rfc822;ralf@linux-mips.org>);
-	Wed, 8 Jun 2005 22:28:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261604AbVFIC2n
+	id S261567AbVFJKV0 (ORCPT <rfc822;ralf@linux-mips.org>);
+	Fri, 10 Jun 2005 06:21:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262306AbVFJKV0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 8 Jun 2005 22:28:43 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:49588 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S262244AbVFIC17 (ORCPT
+	Fri, 10 Jun 2005 06:21:26 -0400
+Received: from 200-32-8-125.dup.prima.net.ar ([200.32.8.125]:41393 "EHLO
+	box01.hotwaynet.com.ar") by vger.kernel.org with ESMTP
+	id S261567AbVFJKVX convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 8 Jun 2005 22:27:59 -0400
-Date: Wed, 08 Jun 2005 19:27:57 -0700
-Message-ID: <NDBBKCEHCLEF15246642AA.humberto@uole.com>
-From: "Honey" <pczoztrgsp@gmail.com>
-To: <linux-ppp@vger.kernel.org>, <2239@vger.kernel.org>,
-	<linux-kernel@vger.kernel.org>
-Subject: Meet locals who just want sex
-X-Mailer: Mailman v2.0.2
-In-Reply-To: <3.0.6.32.20020816120021.01316apczoztrgsp@gmail.com>
+	Fri, 10 Jun 2005 06:21:23 -0400
+Message-ID: <416-22005651010041609@ricky>
+To: "p a r t y p e o p l e" <ricky.ryan@gmail.com>
+From: "RiCKY RYAN" <ricky.ryan@gmail.com>
+Subject: LiSTAS FREE !!! HOY @ SUPERCLUB presents FEEDBACK BOOKiNGS [R.Ryan+M.Lamelas+...
+Date: Fri, 10 Jun 2005 07:00:41 -0300
+MIME-Version: 1.0
+Content-type: text/plain; charset=windows-1252
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S262243AbVFIC2t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S261567AbVFJKV0@vger.kernel.org>
 
+E-FLYER:
+http://feedback-bookings.com/Superclub/superclub.htm
 
-There is this free date site filled with a bunch of nymphos.
+Enviar nombres para LiSTAS FREE de FEEDBACK !!!
 
-No flowers, no walk on the beach, just meet up for sex :)
+ESTA NOCHE @ SUPERCLUB Araoz
 
-There are also some people who want serious relationships though
-So if you want a long-termer, or a one-nighter, you got it ;)
+Ricky Ryan + Martin Lamelas + Hernan Cerbello
+Leonardo Donato + Lucas Abadi + Paul Dolan
 
-Whatever floats your boat pretty much! 
+INTERNATIONAL Guest Djs soon... :)))
+------------------------------------------------------------------
 
+TENGO ENTRADAS PARA EL EVENTO DE PERSONAL !!!
+20hs <> Ricky Ryan + Martin Lamelas (Feedback Djs)
 
-http://www.get-laid-easy.com/

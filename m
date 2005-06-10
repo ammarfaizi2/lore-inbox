@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVFJSm6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261167AbVFJSnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261179AbVFJSm6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 14:42:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbVFJSmz
+	id S261167AbVFJSnT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 14:43:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261169AbVFJSnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 14:42:55 -0400
-Received: from karma.reboot.ca ([67.15.48.17]:60549 "EHLO karma.reboot.ca")
-	by vger.kernel.org with ESMTP id S261169AbVFJSmq (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 14:42:46 -0400
-X-ClientAddr: 70.67.196.121
-Message-ID: <00fb01c56dec$91f0e440$6702a8c0@niro>
-From: "Andre" <andre@rocklandocean.com>
-To: <linux-kernel@vger.kernel.org>
-Subject: ZFx86 support broken?
-Date: Fri, 10 Jun 2005 11:45:27 -0700
+	Fri, 10 Jun 2005 14:43:19 -0400
+Received: from mail.inter-page.com ([207.42.84.180]:15116 "EHLO
+	mail.inter-page.com") by vger.kernel.org with ESMTP id S261167AbVFJSnP
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 14:43:15 -0400
+From: "Robert White" <rwhite@casabyte.com>
+To: "'Jeff Garzik'" <jgarzik@pobox.com>
+Cc: "'Kumar Gala'" <kumar.gala@freescale.com>,
+       "'Linux Kernel list'" <linux-kernel@vger.kernel.org>
+Subject: RE: stupid SATA questions
+Date: Fri, 10 Jun 2005 11:51:26 -0700
+Organization: Casabyte, Inc.
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAujDVGqnqiEuiX8MD6j5uVwEAAAAA@casabyte.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-	charset="iso-8859-1"
+	charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
+X-Priority: 3 (Normal)
 X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-X-Reboot-MailScanner-Information: Please contact the ISP for more information
-X-Reboot-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
-X-Reboot-MailScanner-SpamCheck: not spam, SpamAssassin (score=-0.728,
-	required 5, autolearn=spam, AWL -0.12, BAYES_00 -2.60,
-	RCVD_IN_SORBS_DUL 1.99)
-X-MailScanner-From: andre@rocklandocean.com
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+In-Reply-To: <42A72E4F.4040700@pobox.com>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am trying to boot LFS6.0.1 livecd which has 2.6.8.1, but the kernel hangs
-at:
-Freeing unused kernel memory: 456k freed
 
-My system is a pc/104 board based on ZFx86 with 64M ram
-I also found this posting:
-http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-03/5939.html
-Looking at the console output, the cpu gets recognized as 486, whereas
-2.4.22 detects the cpu as Cyrix Cx486DX4
+Howdy,
 
-Looking at the kernel source, it seems to get stuck after the call to
-free_initmem and when I tried to specify init=/bin/sh it still got stuck at
-the same place so I figured it doesn't even get to the run_init_process
-calls in ..../init/main.c. Could the call to unlock_kernel get stuck?
+I cannot find the ATA passthru or SMART option in the 2.6.11.10 kernel anywhere near
+the SCSI or ATA .  Is it somewhere obscure, has it been renamed, or am I looking in
+totally the wrong place? (e.g. is this an option when building hdparm or something?)
+
+Rob.
+
+-----Original Message-----
+From: Jeff Garzik [mailto:jgarzik@pobox.com] 
+Sent: Wednesday, June 08, 2005 10:44 AM
+
+You need "ATA passthru" (SMART support) in order for hdparm to work.
+
+

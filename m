@@ -1,56 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVFJU7K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261219AbVFJVAg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261245AbVFJU7K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 16:59:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVFJU7J
+	id S261219AbVFJVAg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 17:00:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261174AbVFJVAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 16:59:09 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:21140 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261241AbVFJU7D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 16:59:03 -0400
-Subject: Re: DMA mapping (was Re: [PATCH] cciss 2.6; replaces DMA masks
-	with kernel defines)
-From: Lee Revell <rlrevell@joe-job.com>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: alsa-devel <alsa-devel@lists.sourceforge.net>,
-       Jeff Garzik <jgarzik@pobox.com>, mike.miller@hp.com, akpm@osdl.org,
-       axboe@suse.de, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <1118436306.5272.37.camel@laptopd505.fenrus.org>
-References: <20050610143453.GA26476@beardog.cca.cpqcorp.net>
-	 <42A9C60E.3080604@pobox.com>  <1118436000.6423.42.camel@mindpipe>
-	 <1118436306.5272.37.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Date: Fri, 10 Jun 2005 16:59:55 -0400
-Message-Id: <1118437196.6423.60.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.3.1 
+	Fri, 10 Jun 2005 17:00:36 -0400
+Received: from linuxwireless.org.ve.carpathiahost.net ([66.117.45.234]:48772
+	"EHLO linuxwireless.org.ve.carpathiahost.net") by vger.kernel.org
+	with ESMTP id S261219AbVFJVAV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 17:00:21 -0400
+Reply-To: <abonilla@linuxwireless.org>
+From: "Alejandro Bonilla" <abonilla@linuxwireless.org>
+To: "'Lee Revell'" <rlrevell@joe-job.com>
+Cc: "'Netdev list'" <netdev@oss.sgi.com>,
+       "'kernel list'" <linux-kernel@vger.kernel.org>
+Subject: RE: ipw2100: firmware problem
+Date: Fri, 10 Jun 2005 15:00:13 -0600
+Message-ID: <003001c56dff$662fe4b0$600cc60a@amer.sykes.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook CWS, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <1118435188.6423.26.camel@mindpipe>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1478
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-06-10 at 22:45 +0200, Arjan van de Ven wrote:
-> On Fri, 2005-06-10 at 16:39 -0400, Lee Revell wrote:
-> > On Fri, 2005-06-10 at 12:55 -0400, Jeff Garzik wrote:
-> > > mike.miller@hp.com wrote:
-> > > > This patch removes our homegrown DMA masks and uses the ones defined in
-> > > > the kernel instead.
-> > > > Thanks to Jens Axboe for the code. Please consider this for inclusion.
-> > > > 
-> > > > Signed-off-by: Mike Miller <mike.miller@hp.com>
-> > > 
-> > > You need to add '#include <linux/dma-mapping.h>'
-> > > 
-> > 
-> > Why doesn't this file define 29, 30, 31 bit DMA masks, required by many
-> > devices?  I know of at least 2 soundcards that need a 29 bit DMA mask.
-> 
-> your mail unfortunately was not in diff -u form ;)
-> I'm pretty sure that such constants are welcome
 
-Which reminds me, the SBLive has a 29 bit mask in the OSS driver but 31
-in the ALSA driver.  I'm going to preserve the discrepancy, it seems
-pointless to change the behavior of a deprecated driver.
+> > It thing of Mute in ALSA is stupid. If you want Sound, you
+> install the Sound
+> > and enable it. Why would it make you google for more things
+> to do? ALSA mute
+> > on install is WAY way, not OK.
+>
+> It took you 10 minutes of googling before you thought to try
+> the mixer?
+> Sorry dude, this is PEBKAC.
+>
+> Lee
 
-Lee
+Riiiight. It could be. Or it could be that no where in the world I have seen
+something where the device would be disabled by default without notifying
+the user. Why would you Mute the driver? Is the driver that bad, that the
+developers would rather Mute the sound card, just in case if the sound cards
+starts making noises and shit when the driver is loaded?
+
+You are moving to another topic. Let's drop it.
+
+.Alejandro
 

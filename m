@@ -1,65 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262574AbVFJP1Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262585AbVFJPer@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262574AbVFJP1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 11:27:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262575AbVFJP1Z
+	id S262585AbVFJPer (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 11:34:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262577AbVFJPe3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 11:27:25 -0400
-Received: from fest.stud.feec.vutbr.cz ([147.229.72.16]:20722 "EHLO
-	fest.stud.feec.vutbr.cz") by vger.kernel.org with ESMTP
-	id S262574AbVFJP1T (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 11:27:19 -0400
-Message-ID: <42A9B193.1020602@stud.feec.vutbr.cz>
-Date: Fri, 10 Jun 2005 17:28:19 +0200
-From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alastair Poole <alastair@unixtrix.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: BUG: Unusual TCP Connect() results.
-References: <42A8ABDB.6080804@unixtrix.com>
-In-Reply-To: <42A8ABDB.6080804@unixtrix.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Jun 2005 11:34:29 -0400
+Received: from palrel13.hp.com ([156.153.255.238]:55697 "EHLO palrel13.hp.com")
+	by vger.kernel.org with ESMTP id S262575AbVFJPeU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 11:34:20 -0400
+Date: Fri, 10 Jun 2005 09:34:53 -0500
+From: mike.miller@hp.com
+To: akpm@osdl.org, axboe@suse.de
+Cc: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: [PATCH] cciss 2.6; replaces DMA masks with kernel defines
+Message-ID: <20050610143453.GA26476@beardog.cca.cpqcorp.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alastair Poole wrote:
-> I have tested various kernels including 2.6.11.10 2.6.11.11 and 
-> 2.6.12-rc6 and am having unusual results regarding connect().  Earlier 
-> kernels do not return the same strange results.
+This patch removes our homegrown DMA masks and uses the ones defined in
+the kernel instead.
+Thanks to Jens Axboe for the code. Please consider this for inclusion.
 
-What is the last version that works as expected for you?
+Signed-off-by: Mike Miller <mike.miller@hp.com>
 
-> I have tested numerous basic port scanners, including my own, and 
-> strangely ports which are NOT open are being reported as open.  I have 
-> checked these ports by various means -- to be certain they are NOT open 
-> -- and in various runlevels; the results are the same.
-> 
-> The number of ports listed changes in size and they appear to be 
-> random.  For example, on one scan ports 22, 3455, 4532 and 6236 will 
-> appear open; on another scan it might be 22, 3567, 3879, 3889, 6589 and 
-> 7374.
-> However, ports which ARE open do also appear as open alongside these 
-> "rogue" ports.  I have also tested this on another system with the same 
-> results.  It is also interesting to note that a basic TCP nmap scan does 
-> not return these unusual results.
+ cciss.c |    6 ++----
+ 1 files changed, 2 insertions(+), 4 deletions(-)
 
-Are you testing your scanner only on localhost? Maybe you are just lucky 
-and connect your TCP socket to itself.
-
-> Enclosed is example code that produces these results on the named 
-> kernels and systems.
-> [...]
-> int
-> main (int argc, char **argv)
-> {
->  int sd, result, server_port;
->  *struct* hostent *he;
->  *struct* sockaddr_in servaddr;
-
-What are these asterisks doing there? Next time when you copy&paste 
-code, please make sure you don't mangle it.
-
-Michal
+--------------------------------------------------------------------------------
+diff -burNp lx2612-rc6.orig/drivers/block/cciss.c lx2612-rc6/drivers/block/cciss.c
+--- lx2612-rc6.orig/drivers/block/cciss.c	2005-06-10 08:43:05.516957392 -0500
++++ lx2612-rc6/drivers/block/cciss.c	2005-06-10 08:56:44.302483072 -0500
+@@ -126,8 +126,6 @@ static struct board_type products[] = {
+ #define MAX_CTLR_ORIG 	8
+ 
+ 
+-#define CCISS_DMA_MASK	0xFFFFFFFF	/* 32 bit DMA */
+-
+ static ctlr_info_t *hba[MAX_CTLR];
+ 
+ static void do_cciss_request(request_queue_t *q);
+@@ -2747,9 +2745,9 @@ static int __devinit cciss_init_one(stru
+ 	hba[i]->pdev = pdev;
+ 
+ 	/* configure PCI DMA stuff */
+-	if (!pci_set_dma_mask(pdev, 0xffffffffffffffffULL))
++	if (!pci_set_dma_mask(pdev, DMA_64BIT_MASK))
+ 		printk("cciss: using DAC cycles\n");
+-	else if (!pci_set_dma_mask(pdev, 0xffffffff))
++	else if (!pci_set_dma_mask(pdev, DMA_32BIT_MASK))
+ 		printk("cciss: not using DAC cycles\n");
+ 	else {
+ 		printk("cciss: no suitable DMA available\n");

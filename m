@@ -1,47 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261209AbVFJVGX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVFJVJu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261209AbVFJVGX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 17:06:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVFJVGW
+	id S261236AbVFJVJu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 17:09:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVFJVJu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 17:06:22 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:42562
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S261209AbVFJVGT
+	Fri, 10 Jun 2005 17:09:50 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:31448 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261236AbVFJVJI
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 17:06:19 -0400
-Date: Fri, 10 Jun 2005 23:06:14 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, Tim Bird <tim.bird@am.sony.com>,
-       linux-kernel@vger.kernel.org, bhuey@lnxw.com, tglx@linutronix.de,
-       karim@opersys.com, mingo@elte.hu, pmarques@grupopie.com,
-       bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au, ak@muc.de,
-       sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org
-Subject: Re: Attempted summary of "RT patch acceptance" thread
-Message-ID: <20050610210614.GD6564@g5.random>
-References: <20050608022646.GA3158@us.ibm.com> <42A8D1F3.8070408@am.sony.com> <20050609235026.GE1297@us.ibm.com> <1118372388.32270.6.camel@mindpipe> <20050610154745.GA1300@us.ibm.com> <20050610173728.GA6564@g5.random> <1118436338.6423.48.camel@mindpipe>
+	Fri, 10 Jun 2005 17:09:08 -0400
+Date: Fri, 10 Jun 2005 23:09:00 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Gabor MICSKO <gmicsko@szintezis.hu>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+Subject: Re: hackbench: 2.6.12-rc6 vs.  2.6.12-rc6-RT-V0.7.48-06
+In-Reply-To: <1118436975.1702.11.camel@alderaan.trey.hu>
+Message-Id: <Pine.OSF.4.05.10506102306360.5042-100000@da410.phys.au.dk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1118436338.6423.48.camel@mindpipe>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
-User-Agent: Mutt/1.5.9i
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 10, 2005 at 04:45:38PM -0400, Lee Revell wrote:
-> AFAICT even RTAI would be affected, because X lets userspace drivers
-> talk directly to the hardware including wedging the PCI bus.
+On Fri, 10 Jun 2005, Gabor MICSKO wrote:
 
-Yes, I made the usb example exactly to show how latency bugs can be
-longstanding in the kernel too without requiring X or hardware bugs
-(this usb thing breaks kernel latency for years and yet nobody fixed it
-simply because it just works fine in practice, I noticed because
-apparently my PIT or tsc goes out of sync over time, and in turn my
-system time was going into the future pretty quick with HZ=1000, or I
-would have never noticed, of course I'm compiling the kernel with HZ=100
-on that system to work around it). Those latency issues can showup in
-random drivers all the time, and this one was of an extreme magnitude in
-the millisecond range. The smaller the magnitude of the latency impact,
-the more frequently you should find it in drivers.
+> Hi!
+> 
+> I made some test with 2.6.12-rc6-RT-V0.7.48-06 and 2.6.12-rc6 kernels.
+> Here is my results:
+> 
+> 2.6.12-rc6-RT-V0.7.48-0			       2.6.12-rc6
+> ------------------------------------			    ----------------	
+> 
+> ./hackbench 30
+> 
+> 1st run:  6.139					    5.110	
+> 2nd run: 6.119					   4.946
+> 3rd run: 6.135					    5.168
+> 
+> ./hackbench 100
+> 
+> 1st run:  23.254				   16.603	
+> 2nd run: 23.481					  16.478
+> 3rd run:  23.790				   16.387
+> 
+> ./hackbench 130
+> 
+> 1st run:  33.395				   21.731	
+> 2nd run: 32.652					  21.821
+> 3rd run:  32.517				   21.698
+> 
+> ./hackbench 150
+> 
+> 1st run:  89.100				   47.862	
+> 2nd run: 39.308					  25.121
+> 3rd run:  90.157				   25.125
+> 
+> It seems to me 2.6.12-rc faster than 2.6.12-rc6-RT-V0.7.48-0. It is
+> normal? 
+
+Depends on the configuration options. If you used the same configs they 
+should be the same but if you activated PREEMPT_RT it should slow things
+down due to the overhead of irq-threading and  mutexes instead of
+spinlocks - although I am surprised the factor is _that_ big!
+
+Esben
+
+> 
+> thanks,
+> 
+> -
+> mg
+> 
+

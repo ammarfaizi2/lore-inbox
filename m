@@ -1,60 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261557AbVFJMdV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262261AbVFJMsL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261557AbVFJMdV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 08:33:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbVFJMdU
+	id S262261AbVFJMsL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 08:48:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbVFJMsL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 08:33:20 -0400
-Received: from hazard.jcu.cz ([160.217.1.6]:23976 "EHLO hazard.jcu.cz")
-	by vger.kernel.org with ESMTP id S261557AbVFJMdQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 08:33:16 -0400
-Date: Fri, 10 Jun 2005 14:33:16 +0200
-From: Jan Marek <linux@hazard.jcu.cz>
-To: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-Cc: Mark Haverkamp <markh@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: PROBLEM: Adaptec RAID 2010S hang-up under heavy load
-Message-ID: <20050610123315.GB28099@hazard.jcu.cz>
-References: <60807403EABEB443939A5A7AA8A7458B0147C0D5@otce2k01.adaptec.com> <20050610122638.GA28099@hazard.jcu.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050610122638.GA28099@hazard.jcu.cz>
-User-Agent: Mutt/1.5.9i
+	Fri, 10 Jun 2005 08:48:11 -0400
+Received: from the-doors.enix.org ([213.254.251.80]:32531 "EHLO
+	the-doors.enix.org") by vger.kernel.org with ESMTP id S262261AbVFJMsE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 08:48:04 -0400
+Message-ID: <42A98BF3.10504@enix.org>
+Date: Fri, 10 Jun 2005 14:47:47 +0200
+From: Thomas Petazzoni <thomas.petazzoni@enix.org>
+User-Agent: Mozilla Thunderbird 0.8 (X11/20040923)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Libre Software Meeting // Operating Systems
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello once more,
+The Libre Software Meeting (LSM) is a yearly event that has been
+organized since the year 2000 by the French Free Software Community. LSM
+will take place this year in Dijon, from July 5th to July 9th.  It
+gathers people from various regions of the world, and comprises both
+technical conferences where Free Software developers meet and discuss,
+and societal talks about ethical and legal issues relevant to the Free
+Software Movement.  Access to the conference is free (as in "free
+speech") and free (as in "free beer").  More information is available
+from the LSM website:
 
-On Fri, Jun 10, 2005 at 02:26:38PM +0200, Jan Marek wrote:
-> Hello Mark,
-> 
-> On Thu, Jun 09, 2005 at 01:51:44PM -0400, Salyzyn, Mark wrote:
-> > The 2010S uses the dpt_i2o driver. You must be using a different aacraid
-> > based card. I can not determine which aacraid based card you are using
-> > from the logs. The 2120S perhaps? The 2120S is the single channel cousin
-> > of the 2200S and MarkH's advise should be taken (update to latest
-> > Firmware).
-> 
-> I'm very sorry about that: it's really 2200S. And it has firmware 6011
-> from asr2200s_fw_up_b6011.exe. Is somewhere a newest one?
+   http://libresoftwaremeeting.org/
 
-I'm sorry, I have found firmware 7349. I will try it.
+The "Operating System Design and Implementation" topic this year will
+gather a wide range of developers and researchers in this area.  A full
+program is available online:
 
-Thank you very much.
+   http://libresoftwaremeeting.org/sections/conference/noyau_et_systeme/
+   http://thomas.enix.org/pub/rmll2005/rmll2005-os-program-en.pdf
 
-> 
-> > 
-> > Sincerely -- Mark Salyzyn
-> 
-> Sincerely
-> Jan Marek
+The topics that will be discussed include:
 
-Sincerely
-Jan Marek
+   o the design of flexible OSes, namely the GNU Hurd (by Gaël le
+     Mignot), Plan 9 (by Charles Forsyth) and the THINK framework (by
+     Juraj Polakovic);
+
+   o improving OS security by design, in EROS (by Jonathan Shapiro, Johns
+     Hopkins University) and in the port of the GNU Hurd to the L4
+     microkernel (by Marcus Brinkmann);
+
+   o dependability, using open proofs in Coyotos (by Jonathan Shapiro) or
+     through device driver isolation (by Joshua LeVasseur, Universität
+     Karlsruhe);
+
+   o resource management, in particular a novel approach for the GNU Hurd
+     on L4 (by Neal Walfield), an evaluation of the Linux memory
+     management subsystem (by Mel Gorman), and the "scheduler activation"
+     abstraction as a foundation for user-level parallelism (by Vincent
+     Danjean);
+
+   o virtualization with User-Mode-Linux (by Jeff Dike);
+
+   o distributed OSes, namely Kerrighed (by Christine Morin, Renaud
+     Lottiaux and Pascal Gallard) and openMosix (by Moshe Bar);
+
+   o the use of high-level and special-purpose programming languages in
+     OSes (by Julia Lawall, Ewout Prangsma, Frode Vatvedt Fjeld, Jérémy
+     Bobbio and Xavier Grave);
+
+   o the implementation of an OS step-by-step (by David Decotigny and
+     Thomas Petazzoni).
+
+
+Proceedings will be available online after the conference.  For more
+information, please email us at <thomas.petazzoni@enix.org> and
+<ludovic.courtes@laas.fr>.
 -- 
-Ing. Jan Marek
-University of South Bohemia
-Academic Computer Centre
-Phone: +420-38-7772080
+Thomas Petazzoni
+thomas.petazzoni@enix.org

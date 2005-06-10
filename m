@@ -1,82 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262261AbVFJMsL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261238AbVFJNBD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262261AbVFJMsL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 08:48:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbVFJMsL
+	id S261238AbVFJNBD (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 09:01:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261280AbVFJNBC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 08:48:11 -0400
-Received: from the-doors.enix.org ([213.254.251.80]:32531 "EHLO
-	the-doors.enix.org") by vger.kernel.org with ESMTP id S262261AbVFJMsE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 08:48:04 -0400
-Message-ID: <42A98BF3.10504@enix.org>
-Date: Fri, 10 Jun 2005 14:47:47 +0200
-From: Thomas Petazzoni <thomas.petazzoni@enix.org>
-User-Agent: Mozilla Thunderbird 0.8 (X11/20040923)
-X-Accept-Language: en-us, en
+	Fri, 10 Jun 2005 09:01:02 -0400
+Received: from mxsf22.cluster1.charter.net ([209.225.28.222]:10443 "EHLO
+	mxsf22.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S261238AbVFJNA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 09:00:59 -0400
+X-IronPort-AV: i="3.93,189,1115006400"; 
+   d="scan'208"; a="989869222:sNHT707798202"
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Libre Software Meeting // Operating Systems
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17065.36616.214742.580727@smtp.charter.net>
+Date: Fri, 10 Jun 2005 09:00:56 -0400
+From: "John Stoffel" <john@stoffel.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Alejandro Bonilla <abonilla@linuxwireless.org>,
+       Jeff Garzik <jgarzik@pobox.com>,
+       James Ketrenos <jketreno@linux.intel.com>,
+       "David S. Miller" <davem@davemloft.net>, vda@ilport.com.ua,
+       netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
+       ipw2100-admin@linux.intel.com
+Subject: Re: ipw2100: firmware problem
+In-Reply-To: <20050610090022.GF4173@elf.ucw.cz>
+References: <200506090909.55889.vda@ilport.com.ua>
+	<20050608.231657.59660080.davem@davemloft.net>
+	<20050609104205.GD3169@elf.ucw.cz>
+	<20050609.125324.88476545.davem@davemloft.net>
+	<42A8AE2A.4080104@linux.intel.com>
+	<42A8F758.2060008@pobox.com>
+	<42A8FF03.3010508@linuxwireless.org>
+	<20050610090022.GF4173@elf.ucw.cz>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The Libre Software Meeting (LSM) is a yearly event that has been
-organized since the year 2000 by the French Free Software Community. LSM
-will take place this year in Dijon, from July 5th to July 9th.  It
-gathers people from various regions of the world, and comprises both
-technical conferences where Free Software developers meet and discuss,
-and societal talks about ethical and legal issues relevant to the Free
-Software Movement.  Access to the conference is free (as in "free
-speech") and free (as in "free beer").  More information is available
-from the LSM website:
 
-   http://libresoftwaremeeting.org/
+I'd like to chime in here and say that from my point of view, not
+enabling the wireless network adaptor until asked by userspace is the
+way to go. 
 
-The "Operating System Design and Implementation" topic this year will
-gather a wide range of developers and researchers in this area.  A full
-program is available online:
+It reduces power requirements, and it pushes the configuration details
+out to userspace, where they can be handled according to the policy
+setup by the distro/user.
 
-   http://libresoftwaremeeting.org/sections/conference/noyau_et_systeme/
-   http://thomas.enix.org/pub/rmll2005/rmll2005-os-program-en.pdf
+Having my latop bootup and turn on the wireless card and join an AP
+without my explicity asking is a bad thing to have happen.  
 
-The topics that will be discussed include:
-
-   o the design of flexible OSes, namely the GNU Hurd (by Gaël le
-     Mignot), Plan 9 (by Charles Forsyth) and the THINK framework (by
-     Juraj Polakovic);
-
-   o improving OS security by design, in EROS (by Jonathan Shapiro, Johns
-     Hopkins University) and in the port of the GNU Hurd to the L4
-     microkernel (by Marcus Brinkmann);
-
-   o dependability, using open proofs in Coyotos (by Jonathan Shapiro) or
-     through device driver isolation (by Joshua LeVasseur, Universität
-     Karlsruhe);
-
-   o resource management, in particular a novel approach for the GNU Hurd
-     on L4 (by Neal Walfield), an evaluation of the Linux memory
-     management subsystem (by Mel Gorman), and the "scheduler activation"
-     abstraction as a foundation for user-level parallelism (by Vincent
-     Danjean);
-
-   o virtualization with User-Mode-Linux (by Jeff Dike);
-
-   o distributed OSes, namely Kerrighed (by Christine Morin, Renaud
-     Lottiaux and Pascal Gallard) and openMosix (by Moshe Bar);
-
-   o the use of high-level and special-purpose programming languages in
-     OSes (by Julia Lawall, Ewout Prangsma, Frode Vatvedt Fjeld, Jérémy
-     Bobbio and Xavier Grave);
-
-   o the implementation of an OS step-by-step (by David Decotigny and
-     Thomas Petazzoni).
-
-
-Proceedings will be available online after the conference.  For more
-information, please email us at <thomas.petazzoni@enix.org> and
-<ludovic.courtes@laas.fr>.
--- 
-Thomas Petazzoni
-thomas.petazzoni@enix.org
+John

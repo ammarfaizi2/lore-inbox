@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261402AbVFJXPk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261410AbVFJXTW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261402AbVFJXPk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 19:15:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261449AbVFJXPQ
+	id S261410AbVFJXTW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 19:19:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261458AbVFJXTV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 19:15:16 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.130]:13481 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S261430AbVFJXMg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 19:12:36 -0400
-Date: Fri, 10 Jun 2005 16:12:58 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
-       bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de, karim@opersys.com,
-       mingo@elte.hu, pmarques@grupopie.com, bruce@andrew.cmu.edu,
-       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
-       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org
-Subject: Re: Attempted summary of "RT patch acceptance" thread
-Message-ID: <20050610231258.GJ1300@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050608022646.GA3158@us.ibm.com> <42A8D1F3.8070408@am.sony.com> <20050609235026.GE1297@us.ibm.com> <1118372388.32270.6.camel@mindpipe> <20050610154745.GA1300@us.ibm.com> <1118435904.6423.40.camel@mindpipe>
+	Fri, 10 Jun 2005 19:19:21 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:10669 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261411AbVFJXQR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 19:16:17 -0400
+Subject: Re: DMA mapping (was Re: [PATCH] cciss 2.6; replaces DMA masks
+	with kernel defines)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Arjan van de Ven <arjan@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
+       mike.miller@hp.com, akpm@osdl.org, axboe@suse.de,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <20050610213003.GI24611@parcelfarce.linux.theplanet.co.uk>
+References: <20050610143453.GA26476@beardog.cca.cpqcorp.net>
+	 <42A9C60E.3080604@pobox.com> <1118436000.6423.42.camel@mindpipe>
+	 <1118436306.5272.37.camel@laptopd505.fenrus.org>
+	 <1118438253.6423.72.camel@mindpipe>
+	 <20050610213003.GI24611@parcelfarce.linux.theplanet.co.uk>
+Content-Type: text/plain
+Date: Fri, 10 Jun 2005 19:17:13 -0400
+Message-Id: <1118445434.6423.133.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1118435904.6423.40.camel@mindpipe>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 10, 2005 at 04:38:24PM -0400, Lee Revell wrote:
-> On Fri, 2005-06-10 at 08:47 -0700, Paul E. McKenney wrote:
-> > > Does the LTP include an RT latency test yet?
-> > 
-> > Not as far as I know.  I believe that LTP contains primarily pass-fail
-> > rather than performance tests, but regardless of where RT latency
-> > tests live, I believe that there needs to be a good home for them.
+On Fri, 2005-06-10 at 22:30 +0100, Matthew Wilcox wrote:
+> On Fri, Jun 10, 2005 at 05:17:32PM -0400, Lee Revell wrote:
+> > OK, this covers the drivers I know.  I didn't make any attempt to check
+> > them all.
 > 
-> Maybe I didn't mean LTP, I'm thinking of whatever that popular benchmark
-> suite is that people use to identify performance regressions.  OSDL
-> something or other?
+> I know of two others ...
 > 
-> The canonical test is "rtc_wakeup", it just sets up a stream of
-> interrupts from the RTC, polls on it and measures the delay.  Check the
-> list archives for the URL.
+> sym2 has:
+> #define DMA_DAC_MASK    0x000000ffffffffffULL /* 40-bit */
+> 
+> and aic7xxx has:
+>         const uint64_t   mask_39bit = 0x7FFFFFFFFFULL;
+> 
+> Would you mind respinning your patch to include these?
+> 
 
-OK, http://affenbande.org/~tapas/rtc_wakeup/ is the URL, right?
+I'm grepping the drivers, and what a mess.  This will be a nice cleanup.
 
-And LTP might well be a good home for it, I honestly don't know.
+Why would someone use 0xFFFFffff?
 
-I am checking to see if this can be added to the set of tests run
-in Martin's automated testing.  If you haven't looked at this, check
-out:
+Lee
 
-http://www.kernel.org/pub/linux/kernel/people/mbligh/abat/regression_matrix.html
-
-This doesn't cover all the various RT variants of Linux, but might
-focus some attention on mainline latency issues.
-
-						Thanx, Paul

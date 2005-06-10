@@ -1,83 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261536AbVFJNFl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261632AbVFJNR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261536AbVFJNFl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 09:05:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262520AbVFJNFl
+	id S261632AbVFJNR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 09:17:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262307AbVFJNRZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 09:05:41 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:59827 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S261536AbVFJNFY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 09:05:24 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: Re: Bug in error recovery in fs/buffer.c::__block_prepare_write()
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: fsdevel <linux-fsdevel@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1118408464.31710.54.camel@imp.csi.cam.ac.uk>
-References: <1118408464.31710.54.camel@imp.csi.cam.ac.uk>
-Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Fri, 10 Jun 2005 14:05:15 +0100
-Message-Id: <1118408715.31710.62.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
+	Fri, 10 Jun 2005 09:17:25 -0400
+Received: from smtp808.mail.ukl.yahoo.com ([217.12.12.198]:46985 "HELO
+	smtp808.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S261632AbVFJNRP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 09:17:15 -0400
+Message-ID: <42A9A0C0.5030802@unixtrix.com>
+Date: Fri, 10 Jun 2005 14:16:32 +0000
+From: Alastair Poole <alastair@unixtrix.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: BUG: Major TCP connect() errors, don't release as stable.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here is the second patch (patch B).
+I have tested various kernels including 2.6.11.10 2.6.11.11 and
+2.6.12-rc6 and am having unusual results regarding connect().  Earlier
+kernels do not return the same strange results.
 
-On Fri, 2005-06-10 at 14:01 +0100, Anton Altaparmakov wrote:
-[snip]
-> B) If we cannot safely allow buffer_new buffers to "leak out" of
-> __block_prepare_write(), then we simply would need to run a quick loop
-> over the buffers clearing buffer_new on each of them if it is set just
-> before returning "success" to the caller of __block_prepare_write().
-[snip]
+I have tested numerous basic port scanners, including my own, and
+strangely ports which are NOT open are being reported as open.  I have
+checked these ports by various means -- to be certain they are NOT open
+-- and in various runlevels; the results are the same.  There are no TCP 
+daemons running, nor RPC services.  This is definately kerenl related.
 
-The patch for this is simple, too (it is below).
+The number of ports listed changes in size and they appear to be
+random.  For example, on one scan ports 22, 3455, 4532 and 6236 will
+appear open; on another scan it might be 22, 3567, 3879, 3889, 6589 and
+7374.
 
-> Andrew/Linus, I would suggest that you apply at least A and perhaps B if
-> you deem it necessary or want to be on the safe side.
-> 
-> Having had a look at the code it would seem perfectly safe to leave
-> buffer_new() set and ignore patch B but I may be wrong which is why I
-> did both.
+However, ports which ARE open do also appear as open alongside these
+"rogue" ports.  I have also tested this on another system with the same
+results.  It is also interesting to note that a basic TCP nmap scan of 
+all ports does not return these unusual results.
 
-Signed-off-by: Anton Altaparmakov <aia21@cantab.net>
+I was initially told that the problem was not kernel related.  However, 
+I have now reconfirmed with three seperate sources.  This is, indeed, 
+quite a serious kernel related bug.  Please take this seriously.
 
-Best regards,
+Enclosed is example code that produces these results on the named
+kernels and systems.
 
-        Anton
--- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+sincerely
 
---- linux-2.6.git/fs/buffer.c.old2	2005-06-10 13:35:03.000000000 +0100
-+++ linux-2.6.git/fs/buffer.c	2005-06-10 13:38:14.000000000 +0100
-@@ -1992,9 +1992,14 @@ static int __block_prepare_write(struct 
- 		if (!buffer_uptodate(*wait_bh))
- 			err = -EIO;
- 	}
--	if (!err)
-+	if (!err) {
-+		bh = head;
-+		do {
-+			if (buffer_new(bh))
-+				clear_buffer_new(bh);
-+		} while ((bh = bh->b_this_page) != head);
- 		return err;
--
-+	}
- 	/* Error case: */
- 	/*
- 	 * Zero out any newly allocated blocks to avoid exposing stale
+Alastair Poole
 
+########################################################################
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <time.h>
+#include <string.h>
+
+int
+main (int argc, char **argv)
+{
+  int sd, result, server_port;
+  *struct* hostent *he;
+  *struct* sockaddr_in servaddr;
+
+  printf ("Test TCP/IP port scanner:\n");
+
+  *if* (argc != 2)
+    {
+      printf ("Usage: %s host\n", argv[0]);
+      exit (1);
+    }
+
+  *if* ((he = gethostbyname (argv[1])) == NULL)
+    {
+      perror ("gethostbyname()");
+      exit (1);
+    }
+
+  printf ("Scanning %s\n", argv[1]);
+
+  *for* (server_port = 0; server_port < 65536; server_port++)
+    {
+      *if* ((sd = socket (PF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1)
+	{
+	  perror ("socket()");
+	  exit (1);
+	}
+
+      bzero (&servaddr, *sizeof* servaddr);
+      servaddr.sin_family = AF_INET;
+      servaddr.sin_port = htons (server_port);
+      servaddr.sin_addr = *((*struct* in_addr *) he->h_addr);
+
+      result = connect (sd, (*struct* sockaddr *) &servaddr, *sizeof* 
+servaddr);
+
+      *if* (result != -1)
+	{
+	  printf ("open port:  %d\n",server_port);
+	}
+      close (sd);
+    }
+  *return* result;
+}
+
+
+########################################################################
 

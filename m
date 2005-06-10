@@ -1,57 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262526AbVFJOOs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262551AbVFJOPd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262526AbVFJOOs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 10:14:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262522AbVFJOOr
+	id S262551AbVFJOPd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 10:15:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbVFJOPd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 10:14:47 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.132]:25023 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S262565AbVFJOOp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 10:14:45 -0400
-Subject: Re: [Jfs-discussion] fsck.jfs segfaults on x86_64
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Alex Deucher <alexdeucher@gmail.com>
-Cc: jfs-discussion@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, ag@m-cam.com
-In-Reply-To: <a728f9f90506100700107976f0@mail.gmail.com>
-References: <a728f9f90506100700107976f0@mail.gmail.com>
+	Fri, 10 Jun 2005 10:15:33 -0400
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:26755 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S262522AbVFJOPS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 10:15:18 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Subject: Re: Bug in error recovery in fs/buffer.c::__block_prepare_write()
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       fsdevel <linux-fsdevel@vger.kernel.org>,
+       lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1118408715.31710.62.camel@imp.csi.cam.ac.uk>
+References: <1118408464.31710.54.camel@imp.csi.cam.ac.uk>
+	 <1118408715.31710.62.camel@imp.csi.cam.ac.uk>
 Content-Type: text/plain
-Date: Fri, 10 Jun 2005 09:14:42 -0500
-Message-Id: <1118412882.7944.6.camel@localhost>
+Organization: Computing Service, University of Cambridge, UK
+Date: Fri, 10 Jun 2005 15:15:06 +0100
+Message-Id: <1118412906.31710.74.camel@imp.csi.cam.ac.uk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-06-10 at 10:00 -0400, Alex Deucher wrote:
-> We have a large lvm2 logical volume (6.91T) which contains a JFS
-> filesystem. The volumes accessed via emulex FC HBAs connected to a
-> nexsan SAN.  There was a bug in the SAN firmware that caused the
-> primary controller to lose sync with the other controller and go down.
->  Normally when this happens we are able to reboot the SAN and the
-> server and then run fsck on the volume, and everything is fine (on a
-> side note, we have updated the SAN firmware to fix the sync problem). 
-> however, fsck now segfaults and the volume is dirty so it can't be
-> mounted. lvdisplay and vgdisplay seem to work fine displaying the
-> correct info.  Does anyone know what may be causing the problem or how
-> we can fix it?  If possible I'd like to save the data on the volumes.
+On Fri, 2005-06-10 at 14:05 +0100, Anton Altaparmakov wrote:
+> Here is the second patch (patch B).
 > 
-> #> time fsck.jfs /dev/vg00/lvol0 
-> fsck.jfs version 1.1.4, 30-Oct-2003
+> On Fri, 2005-06-10 at 14:01 +0100, Anton Altaparmakov wrote:
+> [snip]
+> > B) If we cannot safely allow buffer_new buffers to "leak out" of
+> > __block_prepare_write(), then we simply would need to run a quick loop
+> > over the buffers clearing buffer_new on each of them if it is set just
+> > before returning "success" to the caller of __block_prepare_write().
+> [snip]
+> 
+> The patch for this is simple, too (it is below).
+> 
+> > Andrew/Linus, I would suggest that you apply at least A and perhaps B if
+> > you deem it necessary or want to be on the safe side.
+> > 
+> > Having had a look at the code it would seem perfectly safe to leave
+> > buffer_new() set and ignore patch B but I may be wrong which is why I
+> > did both.
 
-1.1.4 is quite old.  Can you try a recent version of jfsutils?
-http://jfs.sourceforge.net/project/pub/jfsutils-1.1.8.tar.gz
+I have changed my mind having had a look at the code some more.  Patch B
+is definitely needed.
 
-If that doesn't work, you can try running "fsck.jfs
---omit_journal_replay", since it is trapping while replaying the
-journal.  If all else fails, you should be able to mount it read-only
-(mount -oro) to recover the data.
+Otherwise you can get a situation where an allocating write followed by
+an erring write to the same location would cause uptodate and already
+written out buffers to be zeroed & written out thus overwritting
+existing data with zero.
 
-Thanks,
-Shaggy
+This could be worked around differently (e.g. by being more picky which
+buffer_new buffers get zeroed&written in the error handling) it is
+definitely safest to just apply patch B.
+
+Best regards,
+
+        Anton
 -- 
-David Kleikamp
-IBM Linux Technology Center
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
 

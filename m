@@ -1,65 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVFJDzH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261604AbVFJEDu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262453AbVFJDzH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 23:55:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbVFJDzH
+	id S261604AbVFJEDu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 00:03:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbVFJEDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 23:55:07 -0400
-Received: from magic.adaptec.com ([216.52.22.17]:38366 "EHLO magic.adaptec.com")
-	by vger.kernel.org with ESMTP id S262453AbVFJDyd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 23:54:33 -0400
-Date: Fri, 10 Jun 2005 09:36:09 +0530 (IST)
-From: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
-X-X-Sender: tomar@localhost.localdomain
-Reply-To: "Tomar, Nagendra" <nagendra_tomar@adaptec.com>
-To: "Richard B. Johnson" <linux-os@analogic.com>
-cc: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>,
-       Peter Staubach <staubach@redhat.com>, <linux-kernel@vger.kernel.org>,
-       <linux-arm-kernel@lists.arm.linux.org.uk>
-Subject: Re: Zeroed pages returned for heap
-In-Reply-To: <Pine.LNX.4.53.0506090605190.8306@chaos.analogic.com>
-Message-ID: <Pine.LNX.4.44.0506100931490.19027-100000@localhost.localdomain>
-Organization: Adaptec
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 10 Jun 2005 03:54:03.0174 (UTC) FILETIME=[0A9CCC60:01C56D70]
+	Fri, 10 Jun 2005 00:03:50 -0400
+Received: from ylpvm15-ext.prodigy.net ([207.115.57.46]:53461 "EHLO
+	ylpvm15.prodigy.net") by vger.kernel.org with ESMTP id S261604AbVFJEDr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 00:03:47 -0400
+X-ORBL: [67.117.73.34]
+Date: Thu, 9 Jun 2005 21:03:30 -0700
+From: Tony Lindgren <tony@atomide.com>
+To: Christian Hesse <mail@earthworm.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Dynamic tick for x86 version 050602-2
+Message-ID: <20050610040330.GA18103@atomide.com>
+References: <20050602013641.GL21597@atomide.com> <200506030808.12903.mail@earthworm.de> <20050603173940.GA18025@atomide.com> <200506041451.14518.mail@earthworm.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200506041451.14518.mail@earthworm.de>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 9 Jun 2005, Richard B. Johnson wrote:
-
-> On Wed, 8 Jun 2005, Nagendra Singh Tomar wrote:
+* Christian Hesse <mail@earthworm.de> [050604 05:51]:
+> On Friday 03 June 2005 19:39, Tony Lindgren wrote:
+> [ ... ]
+> > > Software suspend still does not work, it hangs on resume. Any ideas what
+> > > could be the cause? I've applied these patches on top of 2.6.12-rc5:
+> > >
+> > > 2.6.12-rc4-ck1
+> > > software suspend 2.1.8.10
+> > > reiser from 2.6.12-rc5-mm1
+> > > ieee802.11 stack and ipw2100 1.1.0
+> > > hostap 0.3.7
+> > > shfs 0.35
+> > > fbsplash 0.9.2-r2
+> > > dyn-tick
+> >
+> > I don't think it's the dyn-tick patch that causes it. Does the
+> > resume work properly without the dyn-tick patch?
 > 
-> The user code can't assume anything about any memory allocated
-> by malloc(). The first time a buffer is allocated, it may be
-> zero-filled because of the zeroed pages allocated by the kernel
-> when the new break address is set. After that, all bets are off
-> because once you free a buffer and allocate another one, it
-> will probably contain data from malloc()'s previous allocation.
+> I've simply disabled CONFIG_NO_IDLE_HZ, recompiled the kernel and resume works 
+> perfectly.
+
+Weird, it suspend and resume works fine for me. Or worked on my small laptop
+until I fried it's mobo few days ago...
+
+> But I found another drawback. ping -f reports lots of these errors (though it 
+> still works):
 > 
-> Even the very first time malloc() returns a pointer, doesn't
-> guarantee that the memory will all be cleared. This is because
-> many malloc()s use just-obtained memory (via brk) to do some
-> house-keeping which may result in some "strange" numbers in
-> the memory at some places.
-> 
-> It is extremely bad coding practice to assume a buffer is
-> zero filled when writing user-mode code. That's why we have
-> calloc().
+> Warning: time of day goes back (0.122us), taking countermeasures.
 
-My original question was for glibc (as an application) assuming that 
-memory it gets from brk()/MAP_ANON is zero filled, and _not_ for an 
-application calling malloc() assuming that. glibc does assume that brk() 
-memory is zero filled thats why the glibc calloc() implementation does 
-_not_ zero it again in user space (Ulrich conformed this). This is what 
-was disturbing to me as I  was trying to disable zero-filling for brk() 
-pages and to my unpleasant  surprise few applications like gcc/awk were 
-breaking. 
+I haven't seen this one either. Maybe try the patch I'll post shortly.
 
-Thanx,
-Tomar
-
--- You have moved the mouse. Windows must be restarted for the 
-   changes to take effect.
-
+Tony

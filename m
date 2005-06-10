@@ -1,54 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261570AbVFJO1S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262560AbVFJOac@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261570AbVFJO1S (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 10:27:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262560AbVFJO1S
+	id S262560AbVFJOac (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 10:30:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbVFJOac
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 10:27:18 -0400
-Received: from apollo.tuxdriver.com ([24.172.12.2]:9734 "EHLO
-	apollo.tuxdriver.com") by vger.kernel.org with ESMTP
-	id S261570AbVFJO1O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 10:27:14 -0400
-Date: Fri, 10 Jun 2005 10:27:02 -0400
-From: "John W. Linville" <linville@tuxdriver.com>
-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, jgarzik@pobox.com
-Subject: [patch 2.6.12-rc6] 3c59x: remove superfluous vortex_debug test from boomerang_start_xmit
-Message-ID: <20050610142702.GC10449@tuxdriver.com>
-Mail-Followup-To: netdev@oss.sgi.com, linux-kernel@vger.kernel.org,
-	akpm@osdl.org, jgarzik@pobox.com
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 10 Jun 2005 10:30:32 -0400
+Received: from easyspace.ezspl.net ([216.74.109.141]:18898 "EHLO
+	easyspace.ezspl.net") by vger.kernel.org with ESMTP id S262560AbVFJOaT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 10:30:19 -0400
+Message-ID: <20050610103022.ajs6633qyv400sw4@www.nucleodyne.com>
+Date: Fri, 10 Jun 2005 10:30:22 -0400
+From: kallol@nucleodyne.com
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: Performance figure for sx8 driver
+References: <20050608212425.8951j70kxbwpcs8c@www.nucleodyne.com>
+	<42A7DD18.50004@pobox.com>
+In-Reply-To: <42A7DD18.50004@pobox.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset=ISO-8859-1;
+	format="flowed"
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) H3 (4.0)
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - easyspace.ezspl.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [32001 32003] / [47 12]
+X-AntiAbuse: Sender Address Domain - nucleodyne.com
+X-Source: /usr/local/cpanel/3rdparty/bin/php
+X-Source-Args: /usr/local/cpanel/3rdparty/bin/php /usr/local/cpanel/base/horde/imp/compose.php 
+X-Source-Dir: :/base/horde/imp
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Remove the superfluous test of "if (vortex_debug > 3)" inside the
-"if (vortex_debug > 6)" clause early in boomerang_start_xmit.
+Hello Jeff,
+           Changing CARM_MAX_Q to 30 and upgrading the firmware to
+firmware(BIOS-1.00.0.37, Firmware-1.3.19) does not help.
 
-Signed-off-by: John W. Linville <linville@tuxdriver.com>
----
-I stumbled across this while looking at something else...
+Anything else to try?
 
- drivers/net/3c59x.c |    5 ++---
- 1 files changed, 2 insertions(+), 3 deletions(-)
+Kallol
 
-diff --git a/drivers/net/3c59x.c b/drivers/net/3c59x.c
---- a/drivers/net/3c59x.c
-+++ b/drivers/net/3c59x.c
-@@ -2202,9 +2202,8 @@ boomerang_start_xmit(struct sk_buff *skb
- 
- 	if (vortex_debug > 6) {
- 		printk(KERN_DEBUG "boomerang_start_xmit()\n");
--		if (vortex_debug > 3)
--			printk(KERN_DEBUG "%s: Trying to send a packet, Tx index %d.\n",
--				   dev->name, vp->cur_tx);
-+		printk(KERN_DEBUG "%s: Trying to send a packet, Tx index %d.\n",
-+			   dev->name, vp->cur_tx);
- 	}
- 
- 	if (vp->cur_tx - vp->dirty_tx >= TX_RING_SIZE) {
--- 
-John W. Linville
-linville@tuxdriver.com
+Quoting Jeff Garzik <jgarzik@pobox.com>:
+
+> kallol@nucleodyne.com wrote:
+>> Does anyone have performace figure for sx8 driver which is for 
+>> promise SATAII150
+>> 8 port PCI-X adapter?
+>>
+>> Someone reports that on a platform with sx8 driver, multiple hdparms on
+>> different disks those are connected to the same adapter (there are 8 
+>> ports) can
+>> not get more than 45MB/sec in total, whereas a SCSI based driver for 
+>> the same
+>> adapter gets around 150MB/sec.
+>>
+>> Any comment on this?
+>
+> Known.  Early firmwares for SX8 had problems that forced the driver to
+> limit the number of outstanding requests, for all ports, to _one_.
+>
+> Later firmwares have fixed this, but the driver has not been updated to
+> detect newer(fixed) firmwares.
+>
+> You may update drivers/block/sx8.c as such:
+>
+> - CARM_MAX_Q              = 1,               /* one command at a time */
+> + CARM_MAX_Q              = 30,              /* 30 commands at a time */
+>
+> if you have a newer firmware, to obtain much better performance.
+>
+> 	Jeff
+>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>
+
+
+

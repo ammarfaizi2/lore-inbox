@@ -1,102 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262313AbVFJJfp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262315AbVFJJiH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262313AbVFJJfp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 05:35:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262536AbVFJJfp
+	id S262315AbVFJJiH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 05:38:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVFJJiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 05:35:45 -0400
-Received: from wproxy.gmail.com ([64.233.184.201]:51935 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262313AbVFJJfb convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 05:35:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=G86Mntliv50wfvXUoNTiIu7dKugHvJzek0tCiGqQ+5gkBV2hS227gn/j9JYN5U5+8z4WXkzQZNcJNgP8BqvduMOHJ2/Lg0F2/OW4Rk1NebSDvDNj/QGJOrvu/bouUGNWjQHwmhNjNQqwNAw10sNB5kncPshuaTqyqdXAsPqAP6w=
-Message-ID: <98df96d305061002356359441b@mail.gmail.com>
-Date: Fri, 10 Jun 2005 18:35:31 +0900
-From: Hiro Yoshioka <lkml.hyoshiok@gmail.com>
-Reply-To: hyoshiok@miraclelinux.com
-To: Hideki.Takahashi@uniadex.co.jp
-Subject: Re: Dump analysis tool Alicia is released
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <034D06CB98C3DA48A82AC64141B6604E0596ACEF@AA02S1MB01.nthq01.unisys.co.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
-References: <034D06CB98C3DA48A82AC64141B6604E0596ACEF@AA02S1MB01.nthq01.unisys.co.jp>
+	Fri, 10 Jun 2005 05:38:07 -0400
+Received: from web25806.mail.ukl.yahoo.com ([217.12.10.191]:27746 "HELO
+	web25806.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262315AbVFJJgz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 05:36:55 -0400
+Message-ID: <20050610093654.94565.qmail@web25806.mail.ukl.yahoo.com>
+Date: Fri, 10 Jun 2005 11:36:54 +0200 (CEST)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Re: [TTY] exclusive mode question
+To: Denis Vlasenko <vda@ilport.com.ua>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Frederik Deweerdt <dev.deweerdt@laposte.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <200506101003.24835.vda@ilport.com.ua>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-The development of alicia is partly supported by IPA and the following is an
-information of the activities.
+--- Denis Vlasenko <vda@ilport.com.ua> a écrit :
 
-http://www.ipa.go.jp/software/open/forum/NEAforum.html
-
-http://www.ipa.go.jp/software/open/forum/Contents/DevInfraWG/Alicia_Ev01.pdf
-
-The WG1 did run Web/DB/OS benchmarks and develop Alicia/LKST/DAV tools.
-
-Enjoy,
-  Hiro
-
-On 6/7/05, Hideki.Takahashi@uniadex.co.jp
-<Hideki.Takahashi@uniadex.co.jp> wrote:
-> Dear all,
+> On Thursday 09 June 2005 18:12, Russell King wrote:
+> > On Thu, Jun 09, 2005 at 04:22:49PM +0200, moreau francis wrote:
+> > > --- Frederik Deweerdt <dev.deweerdt@laposte.net> a écrit :
+> > > > Le 09/06/05 13:41 +0200, moreau francis écrivit:
+> > > > > 
+> > > > > oh ok...sorry I misunderstood TIOEXCL meaning ;)
+> > > > > Do you know how I could implement such exclusive mode (the one I
+> described)
+> > > > ?
+> > > > > 
+> > > > This is handled through lock files, google for LCK..ttyS0
+> > > >
+> > > 
+> > > This lock mechanism is a convention but nothing prevent a user
+> application to
+> > > issue a "echo foo > /dev/ttyS0" command while "LCK..ttyS0" file exists...
+> > 
+> > Which is absolutely necessary to work if you think about an application
+> > like minicom and its file transfer helpers, which may need to re-open
+> > the serial port.
+> > 
+> > TTY locking is done via lock files only, and all non-helper applications
+> > must coordinate their access via the lock files.  There is no other
+> > mechanism.
 > 
-> We are pleased to announce releasing a new dump analysis tool,
-> Alicia (Advanced LInux Crash-dump Interactive Analyzer).
-> 
-> ---
-> The development of this program is partly supported by IPA
-> (Information-Technology Promotion Agency, Japan).
-> 
-> ---
-> 
-> Alicia is a program that provides effective dump analysis environment
-> with power of Perl language. Alicia provides common access method to
-> kernel by wrapping the existing tool crash/lcrash and provides 
-> "scripting" function for saving and reusing the dump analysis procedures.
-> User can use existing crash/lcrash commands in addition to Alicia
-> commands. The command result can be saved as a variable and it can
-> be used as a parameter of another command. 
-> Please use this tool and give us some comments.
-> 
-> The following software is necessary for the compilation and the
-> execution of Alicia.
->  - crash 3.8.5 or higher
->  - Perl 5.8.0 or higher
->  - Perl module Term::ReadKey 2.21 or higher
->  - Perl module Term::ReadLine::Perl 1.0203 or higer
-> 
-> ---
-> Alicia source code and documents are available in the following site,
-> http://sourceforge.net/projects/alicia/
-> http://alicia.sourceforge.net/
-> 
-> We prepared a mailing list written below in order to let users know
-> update of Alicia.
-> alicia-users@lists.sourceforge.net
-> 
-> And if you have any comments, please send to the above list, or to
-> another mailing-list written below.
-> alicia-devel@lists.sourceforge.net
-> 
-> Best regards,
-> All of the Alicia developers
-> 
-> -----------------
-> Hideki Takahashi
-> Uniadex,Ltd., Software Product Support
-> E-mail: Hideki.Takahashi@uniadex.co.jp
-> 
-> -
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> I think original reporter is saying that TIOEXCL is nearly useless then.
 >
+
+Why not using mandatory locks instead of this "weak" user lock mechanism ?
+
+              Francis
+
+
+	
+	
+		
+___________________________________________________________________________ 
+Appel audio GRATUIT partout dans le monde avec le nouveau Yahoo! Messenger 
+Téléchargez cette version sur http://fr.messenger.yahoo.com

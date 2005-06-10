@@ -1,65 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261161AbVFJRoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261159AbVFJRxd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261161AbVFJRoo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 13:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261159AbVFJRon
+	id S261159AbVFJRxd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 13:53:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261162AbVFJRxc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 13:44:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:58009 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261154AbVFJRoX (ORCPT
+	Fri, 10 Jun 2005 13:53:32 -0400
+Received: from [63.81.117.10] ([63.81.117.10]:17361 "EHLO mail00hq.adic.com")
+	by vger.kernel.org with ESMTP id S261159AbVFJRx0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 13:44:23 -0400
-Date: Fri, 10 Jun 2005 10:44:14 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Alastair Poole <alastair@unixtrix.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: BUG: Major TCP connect() errors, don't release as stable.
-Message-ID: <20050610104414.40fea891@router.routing.pdx.osdl.net>
-In-Reply-To: <42A9A0C0.5030802@unixtrix.com>
-References: <42A9A0C0.5030802@unixtrix.com>
-Organization: Open Source Development Lab
-X-Mailer: Sylpheed-Claws 1.0.4 (GTK+ 1.2.10; x86_64-unknown-linux-gnu)
-X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
- /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 10 Jun 2005 13:53:26 -0400
+Message-ID: <42A9D393.6010701@xfs.org>
+Date: Fri, 10 Jun 2005 12:53:23 -0500
+From: Steve Lord <lord@xfs.org>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Christoph Lameter <christoph@lameter.com>
+CC: "Martin J. Bligh" <mbligh@mbligh.org>, Mel Gorman <mel@csn.ul.ie>,
+       Nick Piggin <nickpiggin@yahoo.com.au>, jschopp@austin.ibm.com,
+       linux-mm@kvack.org, lkml <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: Avoiding external fragmentation with a placement policy Version
+ 12
+References: <20050531112048.D2511E57A@skynet.csn.ul.ie> <429E20B6.2000907@austin.ibm.com><429E4023.2010308@yahoo.com.au> <423970000.1117668514@flay><429E483D.8010106@yahoo.com.au> <434510000.1117670555@flay><429E50B8.1060405@yahoo.com.au> <429F2B26.9070509@austin.ibm.com><1117770488.5084.25.camel@npiggin-nld.site><Pine.LNX.4.58.0506031349280.10779@skynet> <370550000.1117807258@[10.10.2.4]> <Pine.LNX.4.58.0506081734480.10706@skynet> <537960000.1118251081@[10.10.2.4]> <Pine.LNX.4.62.0506100918460.10707@graphe.net>
+In-Reply-To: <Pine.LNX.4.62.0506100918460.10707@graphe.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 10 Jun 2005 17:53:24.0724 (UTC) FILETIME=[4C6F7B40:01C56DE5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Jun 2005 14:16:32 +0000
-Alastair Poole <alastair@unixtrix.com> wrote:
+Christoph Lameter wrote:
+> On Wed, 8 Jun 2005, Martin J. Bligh wrote:
+> 
+> 
+>>Right. I agree that large allocs should be reliable. Whether we care so
+>>much about if they're performant or not, I don't know ... is an interesting
+>>question. I think the answer is maybe not, within reason. The cost of
+>>fishing in the allocator might well be irrelevant compared to the cost
+>>of freeing the necessary memory area?
+> 
+> 
+> Large consecutive page allocation is important for I/O. Lots of drivers 
+> are able to issue transfer requests spanning multiple pages which is only 
+> possible if the pages are in sequence. If memory is fragmented then this 
+> is no longer possible.
 
-> I have tested various kernels including 2.6.11.10 2.6.11.11 and
-> 2.6.12-rc6 and am having unusual results regarding connect().  Earlier
-> kernels do not return the same strange results.
-> 
-> I have tested numerous basic port scanners, including my own, and
-> strangely ports which are NOT open are being reported as open.  I have
-> checked these ports by various means -- to be certain they are NOT open
-> -- and in various runlevels; the results are the same.  There are no TCP 
-> daemons running, nor RPC services.  This is definately kerenl related.
-> 
-> The number of ports listed changes in size and they appear to be
-> random.  For example, on one scan ports 22, 3455, 4532 and 6236 will
-> appear open; on another scan it might be 22, 3567, 3879, 3889, 6589 and
-> 7374.
-> 
-> However, ports which ARE open do also appear as open alongside these
-> "rogue" ports.  I have also tested this on another system with the same
-> results.  It is also interesting to note that a basic TCP nmap scan of 
-> all ports does not return these unusual results.
-> 
-> I was initially told that the problem was not kernel related.  However, 
-> I have now reconfirmed with three seperate sources.  This is, indeed, 
-> quite a serious kernel related bug.  Please take this seriously.
-> 
-> Enclosed is example code that produces these results on the named
-> kernels and systems.
-> 
-> sincerely
-> 
-> Alastair Poole
+Which I think is one of the reasons Mel set off down this path
+in the first place. Scatter gather only gets you so far, and
+it makes the DMA engine work harder. We have seen cases where
+Windows can get more bandwidth out of fiber channel raids than
+can Linux, Windows was using fewer and larger size scsi commands
+too. Keep a Linux box busy for a few days and its memory map gets
+very fragmented, requests to the scsi layer which could have been
+larger tend to get limited by the maximum number of scatter gather
+elements a device can handle. Some less powerful raids (Apple Xraids
+for example) can become cpu bound when you do this rather than I/O bound.
 
-Looks like a simple interaction of "connect to self" allowed by RFC 793
-to handle simultaneous connection and the TCP port randomization of ephemeral ports.
+In this case what tends to help is if processes get given their
+address space in large physically contiguous chunks of pages.
+
+Steve
+

@@ -1,67 +1,200 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262315AbVFJJiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262533AbVFJJvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262315AbVFJJiH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 05:38:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262538AbVFJJiH
+	id S262533AbVFJJvM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 05:51:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbVFJJvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 05:38:07 -0400
-Received: from web25806.mail.ukl.yahoo.com ([217.12.10.191]:27746 "HELO
-	web25806.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262315AbVFJJgz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 05:36:55 -0400
-Message-ID: <20050610093654.94565.qmail@web25806.mail.ukl.yahoo.com>
-Date: Fri, 10 Jun 2005 11:36:54 +0200 (CEST)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: Re: [TTY] exclusive mode question
-To: Denis Vlasenko <vda@ilport.com.ua>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Frederik Deweerdt <dev.deweerdt@laposte.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <200506101003.24835.vda@ilport.com.ua>
+	Fri, 10 Jun 2005 05:51:12 -0400
+Received: from mail1003.centrum.cz ([213.29.7.172]:44161 "EHLO
+	mail1003.centrum.cz") by vger.kernel.org with ESMTP id S262533AbVFJJvD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 05:51:03 -0400
+Date: Fri, 10 Jun 2005 11:50:59 +0200
+From: "Milan Svoboda" <milan.svoboda@centrum.cz>
+To: <xschmi00@stud.feec.vutbr.cz>
+Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
+X-Mailer: Centrum Mail 1.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+X-Priority: 3
+Message-ID: <200506101150.6364@centrum.cz>
+Subject: Re: bug in Real-Time Preemption
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---- Denis Vlasenko <vda@ilport.com.ua> a écrit :
-
-> On Thursday 09 June 2005 18:12, Russell King wrote:
-> > On Thu, Jun 09, 2005 at 04:22:49PM +0200, moreau francis wrote:
-> > > --- Frederik Deweerdt <dev.deweerdt@laposte.net> a écrit :
-> > > > Le 09/06/05 13:41 +0200, moreau francis écrivit:
-> > > > > 
-> > > > > oh ok...sorry I misunderstood TIOEXCL meaning ;)
-> > > > > Do you know how I could implement such exclusive mode (the one I
-> described)
-> > > > ?
-> > > > > 
-> > > > This is handled through lock files, google for LCK..ttyS0
-> > > >
-> > > 
-> > > This lock mechanism is a convention but nothing prevent a user
-> application to
-> > > issue a "echo foo > /dev/ttyS0" command while "LCK..ttyS0" file exists...
-> > 
-> > Which is absolutely necessary to work if you think about an application
-> > like minicom and its file transfer helpers, which may need to re-open
-> > the serial port.
-> > 
-> > TTY locking is done via lock files only, and all non-helper applications
-> > must coordinate their access via the lock files.  There is no other
-> > mechanism.
+> Milan Svoboda wrote:
+> > under non RT preempt:
+> > (these results are expected)
+> > > ./a.out
+> > Flag: 0, Dif:11714
+> > ./a.out
+> > Flag: 0, Dif:11678
+> > > under full RT preempt:
+> > ./a.out
+> > Flag: 1, Dif:582536
+> > ./a.out
+> > Flag: 1, Dif:579791
+> > > This shows that thread with bigger priority was
+> > blocked by the thread with lower priority!
 > 
-> I think original reporter is saying that TIOEXCL is nearly useless then.
->
+> Can you retry with RT-V0.7.48-05 and this patch applied?
+> 
+> Michal
+> 
 
-Why not using mandatory locks instead of this "weak" user lock mechanism ?
+I didn't help. Results are the same.
 
-              Francis
+./a.out
+Flag: 1, Dif: 598910
+
+uname -a
+Linux 2.6.12-rc6-RT-V0.7.48-05 #4 Fri Jun 10 11:26:38 CEST 2005 i686 i686 i386 GNU/Linux
 
 
-	
-	
-		
-___________________________________________________________________________ 
-Appel audio GRATUIT partout dans le monde avec le nouveau Yahoo! Messenger 
-Téléchargez cette version sur http://fr.messenger.yahoo.com
+BTW: I cannot compile this version with RT disabled:
+
+-rc6-RT-V0.7.48-05
+
+  CC      lib/radix-tree.o
+  CC      lib/rbtree.o
+  CC      lib/rwsem.o
+lib/rwsem.c: In function `__rwsem_do_wake':
+lib/rwsem.c:57: warning: implicit declaration of function `rwsem_atomic_update'
+lib/rwsem.c:57: error: `RWSEM_ACTIVE_BIAS' undeclared (first use in this function)
+lib/rwsem.c:57: error: (Each undeclared identifier is reported only once
+lib/rwsem.c:57: error: for each function it appears in.)
+lib/rwsem.c:59: error: `RWSEM_ACTIVE_MASK' undeclared (first use in this function)
+lib/rwsem.c:62: error: structure has no member named `wait_list'
+lib/rwsem.c:85: error: structure has no member named `wait_list'
+lib/rwsem.c:99: error: structure has no member named `wait_list'
+lib/rwsem.c:108: error: `RWSEM_WAITING_BIAS' undeclared (first use in this function)
+lib/rwsem.c:113: warning: implicit declaration of function `rwsem_atomic_add'
+lib/rwsem.c:115: error: structure has no member named `wait_list'
+lib/rwsem.c:126: error: structure has no member named `wait_list'
+lib/rwsem.c:127: error: structure has no member named `wait_list'
+lib/rwsem.c: In function `rwsem_down_failed_common':
+lib/rwsem.c:153: error: structure has no member named `wait_lock'
+lib/rwsem.c:153: warning: type defaults to `int' in declaration of `type name'
+lib/rwsem.c:153: error: structure has no member named `wait_lock'
+lib/rwsem.c:153: error: structure has no member named `wait_lock'
+lib/rwsem.c:153: warning: type defaults to `int' in declaration of `type name'
+lib/rwsem.c:153: error: structure has no member named `wait_lock'
+lib/rwsem.c:157: error: structure has no member named `wait_list'
+lib/rwsem.c:163: error: `RWSEM_ACTIVE_MASK' undeclared (first use in this function)
+lib/rwsem.c:166: error: structure has no member named `wait_lock'
+lib/rwsem.c:166: warning: type defaults to `int' in declaration of `type name'
+lib/rwsem.c:166: error: structure has no member named `wait_lock'
+lib/rwsem.c:166: error: structure has no member named `wait_lock'
+lib/rwsem.c:166: warning: type defaults to `int' in declaration of `type name'
+lib/rwsem.c:166: error: structure has no member named `wait_lock'
+lib/rwsem.c: In function `rwsem_down_read_failed':
+lib/rwsem.c:193: error: `RWSEM_WAITING_BIAS' undeclared (first use in this function)
+lib/rwsem.c:193: error: `RWSEM_ACTIVE_BIAS' undeclared (first use in this function)
+lib/rwsem.c: In function `rwsem_down_write_failed':
+lib/rwsem.c:210: error: `RWSEM_ACTIVE_BIAS' undeclared (first use in this function)
+lib/rwsem.c: In function `rwsem_wake':
+lib/rwsem.c:226: error: structure has no member named `wait_lock'
+lib/rwsem.c:226: warning: type defaults to `int' in declaration of `type name'
+lib/rwsem.c:226: error: structure has no member named `wait_lock'
+lib/rwsem.c:226: error: structure has no member named `wait_lock'
+lib/rwsem.c:226: warning: type defaults to `int' in declaration of `type name'
+lib/rwsem.c:226: error: structure has no member named `wait_lock'
+lib/rwsem.c:229: error: structure has no member named `wait_list'
+lib/rwsem.c:232: error: structure has no member named `wait_lock'
+lib/rwsem.c:232: warning: type defaults to `int' in declaration of `type name'
+lib/rwsem.c:232: error: structure has no member named `wait_lock'
+lib/rwsem.c:232: error: structure has no member named `wait_lock'
+lib/rwsem.c:232: warning: type defaults to `int' in declaration of `type name'
+lib/rwsem.c:232: error: structure has no member named `wait_lock'
+lib/rwsem.c: In function `rwsem_downgrade_wake':
+lib/rwsem.c:250: error: structure has no member named `wait_lock'
+lib/rwsem.c:250: warning: type defaults to `int' in declaration of `type name'
+lib/rwsem.c:250: error: structure has no member named `wait_lock'
+lib/rwsem.c:250: error: structure has no member named `wait_lock'
+lib/rwsem.c:250: warning: type defaults to `int' in declaration of `type name'
+lib/rwsem.c:250: error: structure has no member named `wait_lock'
+lib/rwsem.c:253: error: structure has no member named `wait_list'
+lib/rwsem.c:256: error: structure has no member named `wait_lock'
+lib/rwsem.c:256: warning: type defaults to `int' in declaration of `type name'
+lib/rwsem.c:256: error: structure has no member named `wait_lock'
+lib/rwsem.c:256: error: structure has no member named `wait_lock'
+lib/rwsem.c:256: warning: type defaults to `int' in declaration of `type name'
+lib/rwsem.c:256: error: structure has no member named `wait_lock'
+make[1]: *** [lib/rwsem.o] Error 1
+
+Relevant .config:
+
+#
+# Processor type and features
+#
+CONFIG_X86_PC=y
+# CONFIG_X86_ELAN is not set
+# CONFIG_X86_VOYAGER is not set
+# CONFIG_X86_NUMAQ is not set
+# CONFIG_X86_SUMMIT is not set
+# CONFIG_X86_BIGSMP is not set
+# CONFIG_X86_VISWS is not set
+# CONFIG_X86_GENERICARCH is not set
+# CONFIG_X86_ES7000 is not set
+# CONFIG_M386 is not set
+# CONFIG_M486 is not set
+# CONFIG_M586 is not set
+# CONFIG_M586TSC is not set
+# CONFIG_M586MMX is not set
+CONFIG_M686=y
+# CONFIG_MPENTIUMII is not set
+# CONFIG_MPENTIUMIII is not set
+# CONFIG_MPENTIUMM is not set
+# CONFIG_MPENTIUM4 is not set
+# CONFIG_MK6 is not set
+# CONFIG_MK7 is not set
+# CONFIG_MK8 is not set
+# CONFIG_MCRUSOE is not set
+# CONFIG_MEFFICEON is not set
+# CONFIG_MWINCHIPC6 is not set
+# CONFIG_MWINCHIP2 is not set
+# CONFIG_MWINCHIP3D is not set
+# CONFIG_MGEODEGX1 is not set
+# CONFIG_MCYRIXIII is not set
+# CONFIG_MVIAC3_2 is not set
+CONFIG_X86_GENERIC=y
+CONFIG_X86_CMPXCHG=y
+CONFIG_X86_XADD=y
+CONFIG_X86_L1_CACHE_SHIFT=7
+CONFIG_GENERIC_CALIBRATE_DELAY=y
+CONFIG_X86_PPRO_FENCE=y
+CONFIG_X86_WP_WORKS_OK=y
+CONFIG_X86_INVLPG=y
+CONFIG_X86_BSWAP=y
+CONFIG_X86_POPAD_OK=y
+CONFIG_X86_GOOD_APIC=y
+CONFIG_X86_INTEL_USERCOPY=y
+CONFIG_X86_USE_PPRO_CHECKSUM=y
+CONFIG_HPET_TIMER=y
+CONFIG_HPET_EMULATE_RTC=y
+# CONFIG_SMP is not set
+CONFIG_PREEMPT_NONE=y
+# CONFIG_PREEMPT_VOLUNTARY is not set
+# CONFIG_PREEMPT_DESKTOP is not set
+# CONFIG_PREEMPT_RT is not set
+# CONFIG_PREEMPT_SOFTIRQS is not set
+# CONFIG_PREEMPT_HARDIRQS is not set
+# CONFIG_PREEMPT_BKL is not set
+CONFIG_ASM_SEMAPHORES=y
+CONFIG_RWSEM_XCHGADD_ALGORITHM=y
+CONFIG_X86_UP_APIC=y
+CONFIG_X86_UP_IOAPIC=y
+CONFIG_X86_LOCAL_APIC=y
+CONFIG_X86_IO_APIC=y
+CONFIG_X86_TSC=y
+CONFIG_X86_MCE=y
+# CONFIG_X86_MCE_NONFATAL is not set
+# CONFIG_X86_MCE_P4THERMAL is not set
+# CONFIG_TOSHIBA is not set
+# CONFIG_I8K is not set
+# CONFIG_X86_REBOOTFIXUPS is not set
+# CONFIG_MICROCODE is not set
+# CONFIG_X86_MSR is not set
+CONFIG_X86_CPUID=m
+

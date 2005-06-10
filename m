@@ -1,200 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262533AbVFJJvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262535AbVFJKEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262533AbVFJJvM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 05:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262535AbVFJJvM
+	id S262535AbVFJKEP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 06:04:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262537AbVFJKEP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 05:51:12 -0400
-Received: from mail1003.centrum.cz ([213.29.7.172]:44161 "EHLO
-	mail1003.centrum.cz") by vger.kernel.org with ESMTP id S262533AbVFJJvD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 05:51:03 -0400
-Date: Fri, 10 Jun 2005 11:50:59 +0200
-From: "Milan Svoboda" <milan.svoboda@centrum.cz>
-To: <xschmi00@stud.feec.vutbr.cz>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>
-X-Mailer: Centrum Mail 1.0
-MIME-Version: 1.0
-X-Priority: 3
-Message-ID: <200506101150.6364@centrum.cz>
-Subject: Re: bug in Real-Time Preemption
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 10 Jun 2005 06:04:15 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:21194 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S262535AbVFJKEL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 06:04:11 -0400
+From: Marcus Meissner <meissner@suse.de>
+To: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org
+Subject: Re: Problems with usb and digital camera
+In-Reply-To: <20050610085033.GA16936@kroah.com.suse.lists.linux.kernel>
+X-Newsgroups: suse.lists.linux.kernel
+User-Agent: tin/1.6.2-20030910 ("Pabbay") (UNIX) (Linux/2.6.11.10-3-ppc64 (ppc64))
+Message-Id: <20050610100409.E28FC7E0A9@grape.suse.de>
+Date: Fri, 10 Jun 2005 12:04:09 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Milan Svoboda wrote:
-> > under non RT preempt:
-> > (these results are expected)
-> > > ./a.out
-> > Flag: 0, Dif:11714
-> > ./a.out
-> > Flag: 0, Dif:11678
-> > > under full RT preempt:
-> > ./a.out
-> > Flag: 1, Dif:582536
-> > ./a.out
-> > Flag: 1, Dif:579791
-> > > This shows that thread with bigger priority was
-> > blocked by the thread with lower priority!
+In article <20050610085033.GA16936@kroah.com.suse.lists.linux.kernel> you wrote:
+>> I have a Canon Powershot A70 and it used to work nicely with linux and
+>> gnome. But now it has stopped working.
+
+>> When I plug the camera, gthumb pops and try to import photos. But I get a
+>> window with this message:
+>> 
+>> 
+>> Jun  6 23:43:04 werewolf kernel: usb 5-2: new full speed USB device using uhci_hcd and address 6
+>> Jun  6 23:45:38 werewolf kernel: usb 5-2: usbfs: interface 0 claimed by usbfs while 'gthumb' sets config #1
 > 
-> Can you retry with RT-V0.7.48-05 and this patch applied?
+> That looks fine.
 > 
-> Michal
+>> I have now 2.6.12-rc6-mm1. My USB pendrive works nicely.
+>> 
+>> Are you aware of any strange behaviour of USB in this kernel ?
 > 
+> Nope :)
 
-I didn't help. Results are the same.
+This was a bug (?) in libgphoto2 which is fixed with 2.1.6rc2 or 
+later.
 
-./a.out
-Flag: 1, Dif: 598910
+Please download libgphoto2-2.1.6rc2 from sf.net/projects/gphoto 
+and it will be fixed.
 
-uname -a
-Linux 2.6.12-rc6-RT-V0.7.48-05 #4 Fri Jun 10 11:26:38 CEST 2005 i686 i686 i386 GNU/Linux
+The technical problem was that that the libusb call
+usb_set_configuration() could only be called with the USB interface
+released via usb_release_interface() before.
 
+I do not know why this is necessary, but we fixed it neithertheless.
 
-BTW: I cannot compile this version with RT disabled:
-
--rc6-RT-V0.7.48-05
-
-  CC      lib/radix-tree.o
-  CC      lib/rbtree.o
-  CC      lib/rwsem.o
-lib/rwsem.c: In function `__rwsem_do_wake':
-lib/rwsem.c:57: warning: implicit declaration of function `rwsem_atomic_update'
-lib/rwsem.c:57: error: `RWSEM_ACTIVE_BIAS' undeclared (first use in this function)
-lib/rwsem.c:57: error: (Each undeclared identifier is reported only once
-lib/rwsem.c:57: error: for each function it appears in.)
-lib/rwsem.c:59: error: `RWSEM_ACTIVE_MASK' undeclared (first use in this function)
-lib/rwsem.c:62: error: structure has no member named `wait_list'
-lib/rwsem.c:85: error: structure has no member named `wait_list'
-lib/rwsem.c:99: error: structure has no member named `wait_list'
-lib/rwsem.c:108: error: `RWSEM_WAITING_BIAS' undeclared (first use in this function)
-lib/rwsem.c:113: warning: implicit declaration of function `rwsem_atomic_add'
-lib/rwsem.c:115: error: structure has no member named `wait_list'
-lib/rwsem.c:126: error: structure has no member named `wait_list'
-lib/rwsem.c:127: error: structure has no member named `wait_list'
-lib/rwsem.c: In function `rwsem_down_failed_common':
-lib/rwsem.c:153: error: structure has no member named `wait_lock'
-lib/rwsem.c:153: warning: type defaults to `int' in declaration of `type name'
-lib/rwsem.c:153: error: structure has no member named `wait_lock'
-lib/rwsem.c:153: error: structure has no member named `wait_lock'
-lib/rwsem.c:153: warning: type defaults to `int' in declaration of `type name'
-lib/rwsem.c:153: error: structure has no member named `wait_lock'
-lib/rwsem.c:157: error: structure has no member named `wait_list'
-lib/rwsem.c:163: error: `RWSEM_ACTIVE_MASK' undeclared (first use in this function)
-lib/rwsem.c:166: error: structure has no member named `wait_lock'
-lib/rwsem.c:166: warning: type defaults to `int' in declaration of `type name'
-lib/rwsem.c:166: error: structure has no member named `wait_lock'
-lib/rwsem.c:166: error: structure has no member named `wait_lock'
-lib/rwsem.c:166: warning: type defaults to `int' in declaration of `type name'
-lib/rwsem.c:166: error: structure has no member named `wait_lock'
-lib/rwsem.c: In function `rwsem_down_read_failed':
-lib/rwsem.c:193: error: `RWSEM_WAITING_BIAS' undeclared (first use in this function)
-lib/rwsem.c:193: error: `RWSEM_ACTIVE_BIAS' undeclared (first use in this function)
-lib/rwsem.c: In function `rwsem_down_write_failed':
-lib/rwsem.c:210: error: `RWSEM_ACTIVE_BIAS' undeclared (first use in this function)
-lib/rwsem.c: In function `rwsem_wake':
-lib/rwsem.c:226: error: structure has no member named `wait_lock'
-lib/rwsem.c:226: warning: type defaults to `int' in declaration of `type name'
-lib/rwsem.c:226: error: structure has no member named `wait_lock'
-lib/rwsem.c:226: error: structure has no member named `wait_lock'
-lib/rwsem.c:226: warning: type defaults to `int' in declaration of `type name'
-lib/rwsem.c:226: error: structure has no member named `wait_lock'
-lib/rwsem.c:229: error: structure has no member named `wait_list'
-lib/rwsem.c:232: error: structure has no member named `wait_lock'
-lib/rwsem.c:232: warning: type defaults to `int' in declaration of `type name'
-lib/rwsem.c:232: error: structure has no member named `wait_lock'
-lib/rwsem.c:232: error: structure has no member named `wait_lock'
-lib/rwsem.c:232: warning: type defaults to `int' in declaration of `type name'
-lib/rwsem.c:232: error: structure has no member named `wait_lock'
-lib/rwsem.c: In function `rwsem_downgrade_wake':
-lib/rwsem.c:250: error: structure has no member named `wait_lock'
-lib/rwsem.c:250: warning: type defaults to `int' in declaration of `type name'
-lib/rwsem.c:250: error: structure has no member named `wait_lock'
-lib/rwsem.c:250: error: structure has no member named `wait_lock'
-lib/rwsem.c:250: warning: type defaults to `int' in declaration of `type name'
-lib/rwsem.c:250: error: structure has no member named `wait_lock'
-lib/rwsem.c:253: error: structure has no member named `wait_list'
-lib/rwsem.c:256: error: structure has no member named `wait_lock'
-lib/rwsem.c:256: warning: type defaults to `int' in declaration of `type name'
-lib/rwsem.c:256: error: structure has no member named `wait_lock'
-lib/rwsem.c:256: error: structure has no member named `wait_lock'
-lib/rwsem.c:256: warning: type defaults to `int' in declaration of `type name'
-lib/rwsem.c:256: error: structure has no member named `wait_lock'
-make[1]: *** [lib/rwsem.o] Error 1
-
-Relevant .config:
-
-#
-# Processor type and features
-#
-CONFIG_X86_PC=y
-# CONFIG_X86_ELAN is not set
-# CONFIG_X86_VOYAGER is not set
-# CONFIG_X86_NUMAQ is not set
-# CONFIG_X86_SUMMIT is not set
-# CONFIG_X86_BIGSMP is not set
-# CONFIG_X86_VISWS is not set
-# CONFIG_X86_GENERICARCH is not set
-# CONFIG_X86_ES7000 is not set
-# CONFIG_M386 is not set
-# CONFIG_M486 is not set
-# CONFIG_M586 is not set
-# CONFIG_M586TSC is not set
-# CONFIG_M586MMX is not set
-CONFIG_M686=y
-# CONFIG_MPENTIUMII is not set
-# CONFIG_MPENTIUMIII is not set
-# CONFIG_MPENTIUMM is not set
-# CONFIG_MPENTIUM4 is not set
-# CONFIG_MK6 is not set
-# CONFIG_MK7 is not set
-# CONFIG_MK8 is not set
-# CONFIG_MCRUSOE is not set
-# CONFIG_MEFFICEON is not set
-# CONFIG_MWINCHIPC6 is not set
-# CONFIG_MWINCHIP2 is not set
-# CONFIG_MWINCHIP3D is not set
-# CONFIG_MGEODEGX1 is not set
-# CONFIG_MCYRIXIII is not set
-# CONFIG_MVIAC3_2 is not set
-CONFIG_X86_GENERIC=y
-CONFIG_X86_CMPXCHG=y
-CONFIG_X86_XADD=y
-CONFIG_X86_L1_CACHE_SHIFT=7
-CONFIG_GENERIC_CALIBRATE_DELAY=y
-CONFIG_X86_PPRO_FENCE=y
-CONFIG_X86_WP_WORKS_OK=y
-CONFIG_X86_INVLPG=y
-CONFIG_X86_BSWAP=y
-CONFIG_X86_POPAD_OK=y
-CONFIG_X86_GOOD_APIC=y
-CONFIG_X86_INTEL_USERCOPY=y
-CONFIG_X86_USE_PPRO_CHECKSUM=y
-CONFIG_HPET_TIMER=y
-CONFIG_HPET_EMULATE_RTC=y
-# CONFIG_SMP is not set
-CONFIG_PREEMPT_NONE=y
-# CONFIG_PREEMPT_VOLUNTARY is not set
-# CONFIG_PREEMPT_DESKTOP is not set
-# CONFIG_PREEMPT_RT is not set
-# CONFIG_PREEMPT_SOFTIRQS is not set
-# CONFIG_PREEMPT_HARDIRQS is not set
-# CONFIG_PREEMPT_BKL is not set
-CONFIG_ASM_SEMAPHORES=y
-CONFIG_RWSEM_XCHGADD_ALGORITHM=y
-CONFIG_X86_UP_APIC=y
-CONFIG_X86_UP_IOAPIC=y
-CONFIG_X86_LOCAL_APIC=y
-CONFIG_X86_IO_APIC=y
-CONFIG_X86_TSC=y
-CONFIG_X86_MCE=y
-# CONFIG_X86_MCE_NONFATAL is not set
-# CONFIG_X86_MCE_P4THERMAL is not set
-# CONFIG_TOSHIBA is not set
-# CONFIG_I8K is not set
-# CONFIG_X86_REBOOTFIXUPS is not set
-# CONFIG_MICROCODE is not set
-# CONFIG_X86_MSR is not set
-CONFIG_X86_CPUID=m
-
+Ciao, Marcus

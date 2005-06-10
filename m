@@ -1,139 +1,126 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262579AbVFJPxY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262587AbVFJP4m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262579AbVFJPxY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 11:53:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262590AbVFJPxX
+	id S262587AbVFJP4m (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 11:56:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262588AbVFJP4m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 11:53:23 -0400
-Received: from 1-1-10-11a.has.sth.bostream.se ([82.182.131.18]:43730 "EHLO
-	DeepSpaceNine.stesmi.com") by vger.kernel.org with ESMTP
-	id S262579AbVFJPwv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 11:52:51 -0400
-Message-ID: <42A9B80C.4030308@stesmi.com>
-Date: Fri, 10 Jun 2005 17:55:56 +0200
-From: Stefan Smietanowski <stesmi@stesmi.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
+	Fri, 10 Jun 2005 11:56:42 -0400
+Received: from smtp813.mail.ukl.yahoo.com ([217.12.12.203]:18099 "HELO
+	smtp813.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262587AbVFJP4N (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 11:56:13 -0400
+Message-ID: <42A9C607.4030209@unixtrix.com>
+Date: Fri, 10 Jun 2005 16:55:35 +0000
+From: Alastair Poole <alastair@unixtrix.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Nguyen, Tom L" <tom.l.nguyen@intel.com>
-CC: Andi Kleen <ak@suse.de>, Greg KH <gregkh@suse.de>,
-       Grant Grundler <grundler@parisc-linux.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
-       Roland Dreier <roland@topspin.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Andrew Vasquez <andrew.vasquez@qlogic.com>,
-       Jeff Garzik <jgarzik@pobox.com>,
-       "David S. Miller" <davem@davemloft.net>
-Subject: Re: [Penance PATCH] PCI: clean up the MSI code a bit
-References: <C7AB9DA4D0B1F344BF2489FA165E502408DF0142@orsmsx404.amr.corp.intel.com>
-In-Reply-To: <C7AB9DA4D0B1F344BF2489FA165E502408DF0142@orsmsx404.amr.corp.intel.com>
-X-Enigmail-Version: 0.91.0.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-X-AntiVirus: checked by Vexira Milter 1.0.7; VAE 6.29.0.5; VDF 6.29.0.100
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BUG: Unusual TCP Connect() results.
+References: <42A8ABDB.6080804@unixtrix.com> <42A9B193.1020602@stud.feec.vutbr.cz>
+In-Reply-To: <42A9B193.1020602@stud.feec.vutbr.cz>
+Content-Type: multipart/mixed;
+ boundary="------------080605000103080900020202"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+This is a multi-part message in MIME format.
+--------------080605000103080900020202
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Hi Tom.
+Michal Schmidt wrote:
 
->>pci_enable_msix(dev)
->>{
->> if (is_dev_msi(dev))
->>   pci_disable_msi(dev);
->> else if (is_dev_msix(dev))
->>   return(ALREADY_MSIX);
->> else
->>   return(MSIX_NOT_AVAILABLE);
->> if (!__pci_enable_msix(dev))
->>   pci_enable_msi(dev);
->>}
+>>> What is the last version that works as expected for you?
 >>
->>That way noone needs to explicitly turn off msi as it's done
->>automatically instead and the device will after this call
->>always be in either MSIX, MSI or NORMAL IRQ mode, and
->>always in the "best" mode the device, motherboard, bios, NB,
->>whatever combination is available.
-> 
-> 
-> Your logic does not work because existing MSI/MSI-X code does not allow
-> a driver to switch back and forth between MSI mode and MSI-X mode. A
-> driver can switch interrupt mode between NORMAL IRQ mode and MSI mode or
-> between NORMAL IRQ mode and MSI-X mode but NOT between MSI mode and
-> MSI-X mode. A device driver should know well which MSI mode or MSI-X
-> mode it wants to run when its device supports both MSI and MSI-X
-> capability structures. Please read MSI-HOWTO before any attempt. If you
-> like to continue this path, then think of a better policy of how to
-> manage vector sources for MSI and MSI-X allocation before making
-> changes.
+Kernel 2.6.11, though I can't check others due to bandwidth 
+restrictions.  2.6.11.10 through 2.6.12-rc6 all have the same issue.
 
-I know about the different capability structures, but the function
-as listed above really "only" makes a few changes.
+>>> Are you testing your scanner only on localhost? Maybe you are just 
+>>> lucky and connect your TCP socket to itself.
+>>
+This problem only occurs on localhost.  I don't think it is mere luck, 
+these are too frequent and strange for this.
 
-Currently, with legacy irq mode, the driver calls
-pci_enable_msix(dev, .., ..);
-and that's it.
+>>>
+>>> What are these asterisks doing there? Next time when you copy&paste 
+>>> code, please make sure you don't mangle it.
+>>>
+I apologise for this, included this time is an attatchment in the hope 
+you are able to reproduce the strange results I and others have been 
+able to.  Try testing multiple times, I find that 18 out of 20 runs 
+produces the same type of results.
 
-If we default to MSI mode, then that is replaced by
-pci_disable_msi(dev); pci_enable_msix(dev, .., ..);
-with any error checking required, etc.
+sincerely
 
-If we implement an error code for each of the cases, so that
-the driver KNOWS which mode it's in after pci_enable_msix() is called
-I don't see a difference. I'm not an expert on the subject and likely
-missing things but ..
+Alastair Poole
 
-If we could successfully change from msi to msix mode we get a normal
-zero return code from pci_enable_msix(), however if we ended up in
-msi mode we could have a new return code indicating that we're now in
-msi mode and if we ended up with legacy IRQ mode we have another one
-telling us that. The problem as I see it is that we then don't get the
-other error codes from pci_enable_msix(). Takes some thinking I guess.
-Only solution I see, if we want to be able to pass the error code as
-well as which mode we ended up in (if not msix), is either another
-argument to pci_enable_msix, changing
-int pci_enable_msix(struct pci_dev *dev, u32 *entries, int nvec)
-to
-int pci_enable_msix(struct pci_dev *dev, u32 *entries, int nvec, int *mode)
-where mode is for instance 0 for msix, 1 for msi and 2 for legacy irq.
-We could also have "mode" be a mask of what we support at all.
+--------------080605000103080900020202
+Content-Type: text/plain;
+ name="scan.c"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="scan.c"
 
-for instance the device driver would do:
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <netdb.h>
+#include <time.h>
+#include <string.h>
 
-mode = MSIX|LEGACY_IRQ;
-pci_enable_msix(dev, entries, nvec, &mode);
-where mode would be overwritten with the mode we ended up in.
+int
+main (int argc, char **argv)
+{
+ int sd, result, server_port;
+ struct hostent *he;
+ struct sockaddr_in servaddr;
 
-Tell me I'm missing something here. This doesn't feel like too different
-to the logic the driver must ALREADY have, since it ALREADY must know
-how to fall back to legacy irq mode.
+ printf ("Test TCP/IP port scanner:\n");
 
-if (pci_enable_msix(dev, entries, nvec) < 0) {
-  if (pci_enable_msi(dev) < 0)
-   ...
-  ...
+ if (argc != 2)
+   {
+     printf ("Usage: %s host\n", argv[0]);
+     exit (1);
+   }
+
+ if ((he = gethostbyname (argv[1])) == NULL)
+   {
+     perror ("gethostbyname()");
+     exit (1);
+   }
+
+ printf ("Scanning %s\n", argv[1]);
+
+ for (server_port = 0; server_port < 65536; server_port++)
+   {
+     if ((sd = socket (PF_INET, SOCK_STREAM, IPPROTO_TCP)) == -1)
+    {
+      perror ("socket()");
+      exit (1);
+    }
+
+     bzero (&servaddr, sizeof servaddr);
+     servaddr.sin_family = AF_INET;
+     servaddr.sin_port = htons (server_port);
+     servaddr.sin_addr = *((struct in_addr *) he->h_addr);
+
+     result = connect (sd, (struct sockaddr *) &servaddr, sizeof servaddr);
+
+     if (result != -1)
+    {
+      printf ("open port:  %d\n",server_port);
+    }
+     close (sd);
+   }
+ return result;
 }
-This is all changed to
 
-if (pci_enable_msix(dev, entries, nvec, mode) < 0) {
-  if (mode==MSI)
-    ..
-  else if (mode==LEGACY_IRQ)
-    ..
-}
 
-Or am I really not thinking straight?
-
-The logic should be already there in the driver beforehand, so it's just
-slightly different way of knowing it.
-
-// Stefan
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (MingW32)
-
-iD8DBQFCqbgMBrn2kJu9P78RArWwAKCPk+xZcqhMfFybHztNUqwvSrOJagCgn0O2
-EhWG6p+wb/b1cKtPLJU1vzc=
-=AgYC
------END PGP SIGNATURE-----
+--------------080605000103080900020202--

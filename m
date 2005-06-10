@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261435AbVFJCNz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262367AbVFJCXl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261435AbVFJCNz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 22:13:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbVFJCNz
+	id S262367AbVFJCXl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 22:23:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262410AbVFJCXl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 22:13:55 -0400
-Received: from mail.dvmed.net ([216.237.124.58]:63448 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S261435AbVFJCNy (ORCPT
+	Thu, 9 Jun 2005 22:23:41 -0400
+Received: from smtpout.mac.com ([17.250.248.73]:1754 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S262367AbVFJCXj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 22:13:54 -0400
-Message-ID: <42A8F758.2060008@pobox.com>
-Date: Thu, 09 Jun 2005 22:13:44 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Mozilla Thunderbird 1.0.2-6 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: James Ketrenos <jketreno@linux.intel.com>
-CC: "David S. Miller" <davem@davemloft.net>, pavel@ucw.cz, vda@ilport.com.ua,
-       abonilla@linuxwireless.org, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org, ipw2100-admin@linux.intel.com
-Subject: Re: ipw2100: firmware problem
-References: <200506090909.55889.vda@ilport.com.ua>	<20050608.231657.59660080.davem@davemloft.net>	<20050609104205.GD3169@elf.ucw.cz> <20050609.125324.88476545.davem@davemloft.net> <42A8AE2A.4080104@linux.intel.com>
-In-Reply-To: <42A8AE2A.4080104@linux.intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 9 Jun 2005 22:23:39 -0400
+In-Reply-To: <42A8ABDB.6080804@unixtrix.com>
+References: <42A8ABDB.6080804@unixtrix.com>
+Mime-Version: 1.0 (Apple Message framework v728)
+Content-Type: text/plain; charset=US-ASCII; format=flowed
+Message-Id: <A0454426-3FE0-42F4-BA87-8B0BE18DFEAC@mac.com>
+Cc: linux-kernel@vger.kernel.org
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: 0.0 (/)
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: [OT] Re: BUG: Unusual TCP Connect() results.
+Date: Thu, 9 Jun 2005 22:23:31 -0400
+To: Alastair Poole <alastair@unixtrix.com>
+X-Mailer: Apple Mail (2.728)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James Ketrenos wrote:
-> I don't know if all the distributions have moved away from this model. 
-> If they have and the devices are brought up regardless of link, then
-> going back to delaying radio initialization until the open() is called
-> is workable. 
+On Jun 9, 2005, at 16:51:39, Alastair Poole wrote:
+> The number of ports listed changes in size and they appear to be
+> random.  For example, on one scan ports
 
+> 22, 3455, 4532 and 6236
 
-When the interface is not up, we ideally want the device to be as 
-passive as possible.
+SSH and 3 RPC-based services, I would guess.  This is not a kernel
+bug, there are probably userspace applications which are opening
+those ports, even something as simple as an FTP client in active
+mode would do it.  Please run "netstat -lp" to determine which
+processes have opened each port.
 
-Most net drivers shut down as much as possible at dev->close() time, and 
-it would really be good if wireless drivers followed suit.
+> It is also interesting to note that a basic TCP nmap scan does not
+> return these unusual results.
 
-	Jeff
+nmap doesn't scan higher-numbered ports by default, because those
+ports are generally allocated dynamically by the kernel when user
+programs indicate they do not care what port they are bound on.
 
-
+Cheers,
+Kyle Moffett

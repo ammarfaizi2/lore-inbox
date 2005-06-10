@@ -1,81 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262327AbVFJJPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262534AbVFJJgB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262327AbVFJJPn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 05:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbVFJJPn
+	id S262534AbVFJJgB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 05:36:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbVFJJgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 05:15:43 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:11211 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S262327AbVFJJPd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 05:15:33 -0400
-Date: Fri, 10 Jun 2005 11:15:15 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Tony Lindgren <tony@atomide.com>
-Cc: Christian Hesse <mail@earthworm.de>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Dynamic tick for x86 version 050602-2
-Message-ID: <20050610091515.GH4173@elf.ucw.cz>
-References: <20050602013641.GL21597@atomide.com> <200506021030.50585.mail@earthworm.de> <20050602174219.GC21363@atomide.com> <20050603223758.GA2227@elf.ucw.cz> <20050610041706.GC18103@atomide.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050610041706.GC18103@atomide.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.9i
+	Fri, 10 Jun 2005 05:36:01 -0400
+Received: from smtp2.poczta.interia.pl ([213.25.80.232]:8972 "EHLO
+	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
+	id S262534AbVFJJfk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 05:35:40 -0400
+Message-ID: <42A95EE2.4030107@poczta.fm>
+Date: Fri, 10 Jun 2005 11:35:30 +0200
+From: Lukasz Stelmach <stlman@poczta.fm>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
+X-Accept-Language: pl, en-us, en
+MIME-Version: 1.0
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: framebuffer driver for an LCD display
+References: <20050609082003.74895.qmail@web25805.mail.ukl.yahoo.com>
+In-Reply-To: <20050609082003.74895.qmail@web25805.mail.ukl.yahoo.com>
+X-Enigmail-Version: 0.90.1.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig9CB069562F96C3B9BFB428F3"
+X-EMID: c60b1138
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig9CB069562F96C3B9BFB428F3
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-> > > +#define NS_TICK_LEN		((1 * 1000000000)/HZ)
-> > > +#define DYN_TICK_MIN_SKIP	2
-> > > +
-> > > +#ifdef CONFIG_NO_IDLE_HZ
-> > > +
-> > > +extern unsigned long dyn_tick_reprogram_timer(void);
-> > > +
-> > > +#else
-> > > +
-> > > +#define arch_has_safe_halt()		0
-> > > +#define dyn_tick_reprogram_timer()	{}
-> > 
-> > do {} while (0)
-> > 
-> > , else you are preparing trap for someone.
-> 
-> Can you please explain what the difference between these two are?
-> Some compiler version specific thing?
+moreau francis napisa=C5=82(a):
+> --- Lukasz Stelmach <stlman@poczta.fm> a =C3=A9crit :
+>=20
+>>Try to find something in:
+>>/usr/src/linux/drivers/video/console/fbcon.c
+>=20
+> hmm I already looked at it...and I can't find out an answer to my initi=
+al
+> question: can a process which is using a fb console prevent another pro=
+cess
+> for accessing /dev/fb ?
 
-It took me quite some remembering. Problem is that with your macros,
-someone can write
+I don't know.
 
-	dyn_tick_reprogram_timer()
-	printk();
+If I understand it correctly thie situation can be described like this
 
-[notice missing ; at first line], and still get it compile. If you
-replace {} with do {} while (0), he'll get compile error as he should.
 
-> > > Index: linux-dev/kernel/dyn-tick.c
-> > > ===================================================================
-> > > --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> > > +++ linux-dev/kernel/dyn-tick.c	2005-06-02 10:37:12.000000000 -0700
-> > > @@ -0,0 +1,235 @@
-> > > +/*
-> > > + * linux/arch/i386/kernel/dyn-tick.c
-> > > + *
-> > > + * Beginnings of generic dynamic tick timer support
-> > > + *
-> > > + * Copyright (C) 2004 Nokia Corporation
-> > > + * Written by Tony Lindgen <tony@atomide.com> and
-> > > + * Tuukka Tikkanen <tuukka.tikkanen@elektrobit.com>
-> > > + *
-> > 
-> > Heh, you work for Nokia? Can I get one of those nokia 770 toys? I
-> > should have 100 euros somewhere here :-).
-> 
-> Yes, we did dyntick originally for ARM OMAP and 770. I don't think
-> I have any power who Nokia will be giving the discount developer
-> 770's for though :) I think you have to apply on some webpage...
+      GFX hardware
+      -----+------
+           |
+        ---+---
+           fb
+       +-------+
+       |       |
+    fbcon     mplayer
+    /   \
+  vcs1  vcs2
+  tty1
+  bash
 
-Thanks for the info (and for the ARM work).
-								Pavel 
+So I belive there might be no way for bash to prevent mplayer from
+running. Please someone who knows more about framebuffer divers
+correct me because quite probably I'am wrong.
+
+--=20
+By=C5=82o mi bardzo mi=C5=82o.                    Trzecia pospolita kl=C4=
+=99ska, [...]
+>=C5=81ukasz<                      Ju=C5=BC nie katolicka lecz z=C5=82odz=
+iejska.  (c)PP
+
+
+--------------enig9CB069562F96C3B9BFB428F3
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.0 (GNU/Linux)
+Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
+
+iD8DBQFCqV7mNdzY8sm9K9wRArWZAJ0T6lF3H4fj/ywlFYCJcTeBsxAK3gCcCUq4
+E6DccDnNemLX44sMQb67R1k=
+=HpOx
+-----END PGP SIGNATURE-----
+
+--------------enig9CB069562F96C3B9BFB428F3--

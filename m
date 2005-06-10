@@ -1,74 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262551AbVFJOPd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262544AbVFJOTZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262551AbVFJOPd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 10:15:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262544AbVFJOPd
+	id S262544AbVFJOTZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 10:19:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262550AbVFJOTZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 10:15:33 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:26755 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S262522AbVFJOPS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 10:15:18 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: Re: Bug in error recovery in fs/buffer.c::__block_prepare_write()
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Al Viro <viro@parcelfarce.linux.theplanet.co.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       fsdevel <linux-fsdevel@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <1118408715.31710.62.camel@imp.csi.cam.ac.uk>
-References: <1118408464.31710.54.camel@imp.csi.cam.ac.uk>
-	 <1118408715.31710.62.camel@imp.csi.cam.ac.uk>
+	Fri, 10 Jun 2005 10:19:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:18129 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S262544AbVFJOTU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 10:19:20 -0400
+Subject: Re: PROBLEM: Adaptec RAID 2010S hang-up under heavy load
+From: Mark Haverkamp <markh@osdl.org>
+To: Jan Marek <linux@hazard.jcu.cz>
+Cc: Mark Salyzyn <mark_salyzyn@adaptec.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050610123315.GB28099@hazard.jcu.cz>
+References: <60807403EABEB443939A5A7AA8A7458B0147C0D5@otce2k01.adaptec.com>
+	 <20050610122638.GA28099@hazard.jcu.cz>
+	 <20050610123315.GB28099@hazard.jcu.cz>
 Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Fri, 10 Jun 2005 15:15:06 +0100
-Message-Id: <1118412906.31710.74.camel@imp.csi.cam.ac.uk>
+Date: Fri, 10 Jun 2005 07:19:15 -0700
+Message-Id: <1118413155.21188.0.camel@markh1.pdx.osdl.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-06-10 at 14:05 +0100, Anton Altaparmakov wrote:
-> Here is the second patch (patch B).
+On Fri, 2005-06-10 at 14:33 +0200, Jan Marek wrote:
+> Hello once more,
 > 
-> On Fri, 2005-06-10 at 14:01 +0100, Anton Altaparmakov wrote:
-> [snip]
-> > B) If we cannot safely allow buffer_new buffers to "leak out" of
-> > __block_prepare_write(), then we simply would need to run a quick loop
-> > over the buffers clearing buffer_new on each of them if it is set just
-> > before returning "success" to the caller of __block_prepare_write().
-> [snip]
-> 
-> The patch for this is simple, too (it is below).
-> 
-> > Andrew/Linus, I would suggest that you apply at least A and perhaps B if
-> > you deem it necessary or want to be on the safe side.
+> On Fri, Jun 10, 2005 at 02:26:38PM +0200, Jan Marek wrote:
+> > Hello Mark,
 > > 
-> > Having had a look at the code it would seem perfectly safe to leave
-> > buffer_new() set and ignore patch B but I may be wrong which is why I
-> > did both.
+> > On Thu, Jun 09, 2005 at 01:51:44PM -0400, Salyzyn, Mark wrote:
+> > > The 2010S uses the dpt_i2o driver. You must be using a different aacraid
+> > > based card. I can not determine which aacraid based card you are using
+> > > from the logs. The 2120S perhaps? The 2120S is the single channel cousin
+> > > of the 2200S and MarkH's advise should be taken (update to latest
+> > > Firmware).
+> > 
+> > I'm very sorry about that: it's really 2200S. And it has firmware 6011
+> > from asr2200s_fw_up_b6011.exe. Is somewhere a newest one?
+> 
+> I'm sorry, I have found firmware 7349. I will try it.
 
-I have changed my mind having had a look at the code some more.  Patch B
-is definitely needed.
+7349 is what I have running on my cards now and it has fixed the timeout
+problems.
 
-Otherwise you can get a situation where an allocating write followed by
-an erring write to the same location would cause uptodate and already
-written out buffers to be zeroed & written out thus overwritting
-existing data with zero.
+Good luck.
 
-This could be worked around differently (e.g. by being more picky which
-buffer_new buffers get zeroed&written in the error handling) it is
-definitely safest to just apply patch B.
+Mark.
 
-Best regards,
 
-        Anton
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://linux-ntfs.sf.net/ & http://www-stu.christs.cam.ac.uk/~aia21/
+Mark Haverkamp <markh@osdl.org>
 

@@ -1,260 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261162AbVFJVro@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVFJV7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261162AbVFJVro (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 17:47:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261256AbVFJVro
+	id S261258AbVFJV7t (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 17:59:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbVFJV7s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 17:47:44 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:5052 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261162AbVFJVrW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 17:47:22 -0400
-Subject: [GIT PATCH] cifs fix for out of memory case that can cause write
-	at wrong offset
-From: Steve French <smfltc@us.ibm.com>
-To: torvalds@osdl.org, linux-kernel@vger.kernel.org
-Content-Type: multipart/mixed; boundary="=-GNaQjk/V3PDRX1ZOBm0m"
-Organization: IBM - Linux Technology Center
-Message-Id: <1118439854.5448.67.camel@stevef95.austin.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.3 
-Date: 10 Jun 2005 16:44:14 -0500
+	Fri, 10 Jun 2005 17:59:48 -0400
+Received: from reserv6.univ-lille1.fr ([193.49.225.20]:9863 "EHLO
+	reserv6.univ-lille1.fr") by vger.kernel.org with ESMTP
+	id S261258AbVFJV7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 17:59:44 -0400
+Message-ID: <42AA0D03.2090505@lifl.fr>
+Date: Fri, 10 Jun 2005 23:58:27 +0200
+From: Eric Piel <Eric.Piel@lifl.fr>
+User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
+X-Accept-Language: fr, en
+MIME-Version: 1.0
+To: paulmck@us.ibm.com
+CC: linux-kernel@vger.kernel.org, bhuey@lnxw.com, andrea@suse.de,
+       tglx@linutronix.de, karim@opersys.com, mingo@elte.hu,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org
+Subject: Re: Attempted summary of "RT patch acceptance" thread
+References: <42A714B7.8010105@lifl.fr> <20050609022041.GG1295@us.ibm.com>
+In-Reply-To: <20050609022041.GG1295@us.ibm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-USTL-MailScanner-Information: Please contact the ISP for more information
+X-USTL-MailScanner: Found to be clean
+X-MailScanner-From: eric.piel@lifl.fr
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+06/09/2005 04:20 AM, Paul E. McKenney wrote/a écrit:
+ >>Concerning the QoS, we have been able to obtain hard realtime, at least
+ >>very firm real-time. Tests were conducted over 8 hours on IA-64 and x86
+ >>and gave respectively 105µs and 40µs of maximum latency. Not as good as
+ >>you have mentioned but mostly of the same order :-)
+ >
+ >
+ > Quite impressive!  So, does this qualify as "ruby hard", or is it only
+ > "metal hard"?  ;-)
+Well, you have to consider that this is still full Linux running. All 
+the best we can do is to not make it crash or hung more than the vanilla 
+kernel, it's still vulnerable to any bug of any driver :-/ In addition, 
+I highly doubt this approach can ever have an implementation were the 
+maximum latency is theoritically proven. The best we have is just 
+measurements of the system running with high loads during very long time.
 
---=-GNaQjk/V3PDRX1ZOBm0m
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+ >
+ > The service measured was process scheduling, right?
+Yes, on IA64, from the hardware IRQ fireing to process scheduling (on 
+x86 it's from kernel IRQ handling to process scheduling).
 
-Linus,
-
-Please pull from:
-     
-rsync://rsync.kernel.org/pub/scm/linux/kernel/git/sfrench/cifs-2.6.git/HEAD
-
-The files changed are:
-
- CHANGES  |    3 ++-
- cifsfs.h |    2 +-
- file.c   |    2 ++
- inode.c  |   34 +++++++++++++++++-----------------
- 4 files changed, 22 insertions(+), 19 deletions(-)
-
-commit 3079ca621e9e09f4593c20a9a2f24237c355f683
-tree 0eb2e22cb0fa382cde357f9e6125043d1cdd3758
-parent 0b68177ccd12866d9f19cafad212b861c9d02a8c
-author Steve French <sfrench@hera.kernel.org> Thu, 09 Jun 2005 14:44:07
--0700
-committer Steve French <sfrench@hera.kernel.org> Thu, 09 Jun 2005
-14:44:07 -0700
-
-    [CIFS] Fix cifs update of page cache. Write at correct offset when
-    out of memory and add_to_page_cache fails.
-
-    Thanks to Shaggy for pointing out the fix.
-
-    Signed-off-by: Steve French (sfrench@us.ibm.com)
-    Signed-off-by: Shaggy (shaggy@us.ibm.com)
-
-commit d0d2f2df65ddea9a30ddd117f769bfff65d3fc56
-tree 43d7f695330199f8b384da4b78c5652aa06aeff3
-parent 467ca22d3371f132ee225a5591a1ed0cd518cb3d
-author Steve French <sfrench@hera.kernel.org> Thu, 02 Jun 2005 15:12:36
--0700
-committer Steve French <sfrench@hera.kernel.org> Thu, 02 Jun 2005
-15:12:36 -0700
-
-    [CIFS] Update cifs version number and fix whitespace
-    (addressing 
-
-    Signed-off-by: Steve French (sfrench@us.ibm.com)
+ >>Concerning the "e. fault isolation", on our implementation, holding a
+ >>lock, mutex or semaphore will automatically migrate the task, therefore
+ >>it's not a problem. Of course, some parts of the kernel that cannot be
+ >>migrated might take a lock, namely the scheduler. For the scheduler, we
+ >>modified most of the data structures requiring a lock so that they can
+ >>be accessed locklessly (it's the hardest part of the implementation).
+ >
+ >
+ > Are the non-migrateable portions of the scheduler small enough that
+ > one could do a worst-case timing analysis?  Preferably aided by some
+ > automation...
+Well, ARTiS only modifies the schedule() function but there is probably 
+too much possible interaction to really be able to prove anything (the 
+fact that it's a SMP system doesn't help!).
 
 
-Change is also attached.
+ > One approach would be to mark the migrated task so that it returns
+ > to the realtime CPU as soon as it completes the realtime-unsafe
+ > operation.
+We use a different approach: keep (small) statistics of the task doing 
+often lock and the one that are more "computational". Then we migrate in 
+priority the tasks that don't do locks. Your suggestion could be used 
+at the same time but it might not be so efficient anymore. Additionally, 
+in the current implementation, it's not so easy to know when a task 
+which is running can go back to a RT CPU.
 
---=-GNaQjk/V3PDRX1ZOBm0m
-Content-Disposition: attachment; filename=cifs.diff
-Content-Type: text/plain; name=cifs.diff; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
 
-Index: fs/cifs/CHANGES
-===================================================================
---- c4f9e1d25e876e5b8fb302292c21b22edd6cf1dd/fs/cifs/CHANGES  (mode:100644)
-+++ uncommitted/fs/cifs/CHANGES  (mode:100644)
-@@ -6,7 +6,8 @@
- recommended, unmount and rmmod cifs will kill them when they are
- no longer needed).  Fix readdir to ASCII servers (ie older servers
- which do not support Unicode) and also require asterik.
--
-+Fix out of memory case in which data could be written one page
-+off in the page cache.
- 
- Version 1.33
- ------------
-Index: fs/cifs/cifsfs.h
-===================================================================
---- c4f9e1d25e876e5b8fb302292c21b22edd6cf1dd/fs/cifs/cifsfs.h  (mode:100644)
-+++ uncommitted/fs/cifs/cifsfs.h  (mode:100644)
-@@ -96,5 +96,5 @@
- extern ssize_t	cifs_listxattr(struct dentry *, char *, size_t);
- extern int cifs_ioctl (struct inode * inode, struct file * filep,
- 		       unsigned int command, unsigned long arg);
--#define CIFS_VERSION   "1.34"
-+#define CIFS_VERSION   "1.35"
- #endif				/* _CIFSFS_H */
-Index: fs/cifs/file.c
-===================================================================
---- c4f9e1d25e876e5b8fb302292c21b22edd6cf1dd/fs/cifs/file.c  (mode:100644)
-+++ uncommitted/fs/cifs/file.c  (mode:100644)
-@@ -1352,6 +1352,8 @@
- 				      GFP_KERNEL)) {
- 			page_cache_release(page);
- 			cFYI(1, ("Add page cache failed"));
-+			data += PAGE_CACHE_SIZE;
-+			bytes_read -= PAGE_CACHE_SIZE;
- 			continue;
- 		}
- 
-Index: fs/cifs/inode.c
-===================================================================
---- c4f9e1d25e876e5b8fb302292c21b22edd6cf1dd/fs/cifs/inode.c  (mode:100644)
-+++ uncommitted/fs/cifs/inode.c  (mode:100644)
-@@ -82,12 +82,12 @@
- 		/* get new inode */
- 		if (*pinode == NULL) {
- 			*pinode = new_inode(sb);
--			if(*pinode == NULL) 
-+			if (*pinode == NULL) 
- 				return -ENOMEM;
- 			/* Is an i_ino of zero legal? */
- 			/* Are there sanity checks we can use to ensure that
- 			   the server is really filling in that field? */
--			if(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SERVER_INUM) {
-+			if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SERVER_INUM) {
- 				(*pinode)->i_ino =
- 					(unsigned long)findData.UniqueId;
- 			} /* note ino incremented to unique num in new_inode */
-@@ -134,7 +134,7 @@
- 		inode->i_gid = le64_to_cpu(findData.Gid);
- 		inode->i_nlink = le64_to_cpu(findData.Nlinks);
- 
--		if(is_size_safe_to_change(cifsInfo)) {
-+		if (is_size_safe_to_change(cifsInfo)) {
- 		/* can not safely change the file size here if the
- 		   client is writing to it due to potential races */
- 
-@@ -162,7 +162,7 @@
- 		if (S_ISREG(inode->i_mode)) {
- 			cFYI(1, (" File inode "));
- 			inode->i_op = &cifs_file_inode_ops;
--			if(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_DIRECT_IO)
-+			if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_DIRECT_IO)
- 				inode->i_fop = &cifs_file_direct_ops;
- 			else
- 				inode->i_fop = &cifs_file_ops;
-@@ -198,17 +198,17 @@
- 	pTcon = cifs_sb->tcon;
- 	cFYI(1,("Getting info on %s ", search_path));
- 
--	if((pfindData == NULL) && (*pinode != NULL)) {
--		if(CIFS_I(*pinode)->clientCanCacheRead) {
-+	if ((pfindData == NULL) && (*pinode != NULL)) {
-+		if (CIFS_I(*pinode)->clientCanCacheRead) {
- 			cFYI(1,("No need to revalidate cached inode sizes"));
- 			return rc;
- 		}
- 	}
- 
- 	/* if file info not passed in then get it from server */
--	if(pfindData == NULL) {
-+	if (pfindData == NULL) {
- 		buf = kmalloc(sizeof(FILE_ALL_INFO), GFP_KERNEL);
--		if(buf == NULL)
-+		if (buf == NULL)
- 			return -ENOMEM;
- 		pfindData = (FILE_ALL_INFO *)buf;
- 		/* could do find first instead but this returns more info */
-@@ -268,7 +268,7 @@
- 			   IndexNumber field is not guaranteed unique? */
- 
- #ifdef CONFIG_CIFS_EXPERIMENTAL		
--			if(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SERVER_INUM){
-+			if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SERVER_INUM){
- 				int rc1 = 0;
- 				__u64 inode_num;
- 
-@@ -277,7 +277,7 @@
- 					cifs_sb->local_nls,
- 					cifs_sb->mnt_cifs_flags &
- 						CIFS_MOUNT_MAP_SPECIAL_CHR);
--				if(rc1) {
-+				if (rc1) {
- 					cFYI(1,("GetSrvInodeNum rc %d", rc1));
- 					/* BB EOPNOSUPP disable SERVER_INUM? */
- 				} else /* do we need cast or hash to ino? */
-@@ -355,7 +355,7 @@
- 		if (S_ISREG(inode->i_mode)) {
- 			cFYI(1, (" File inode "));
- 			inode->i_op = &cifs_file_inode_ops;
--			if(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_DIRECT_IO)
-+			if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_DIRECT_IO)
- 				inode->i_fop = &cifs_file_direct_ops;
- 			else
- 				inode->i_fop = &cifs_file_ops;
-@@ -422,7 +422,7 @@
- 			cifs_sb->mnt_cifs_flags & CIFS_MOUNT_MAP_SPECIAL_CHR);
- 
- 	if (!rc) {
--		if(direntry->d_inode)
-+		if (direntry->d_inode)
- 			direntry->d_inode->i_nlink--;
- 	} else if (rc == -ENOENT) {
- 		d_drop(direntry);
-@@ -441,7 +441,7 @@
- 					      cifs_sb->mnt_cifs_flags & 
- 						CIFS_MOUNT_MAP_SPECIAL_CHR);
- 			CIFSSMBClose(xid, pTcon, netfid);
--			if(direntry->d_inode)
-+			if (direntry->d_inode)
- 				direntry->d_inode->i_nlink--;
- 		}
- 	} else if (rc == -EACCES) {
-@@ -496,7 +496,7 @@
- 					    cifs_sb->mnt_cifs_flags & 
- 						CIFS_MOUNT_MAP_SPECIAL_CHR);
- 			if (!rc) {
--				if(direntry->d_inode)
-+				if (direntry->d_inode)
- 					direntry->d_inode->i_nlink--;
- 			} else if (rc == -ETXTBSY) {
- 				int oplock = FALSE;
-@@ -517,14 +517,14 @@
- 						cifs_sb->mnt_cifs_flags &
- 						    CIFS_MOUNT_MAP_SPECIAL_CHR);
- 					CIFSSMBClose(xid, pTcon, netfid);
--					if(direntry->d_inode)
-+					if (direntry->d_inode)
- 			                        direntry->d_inode->i_nlink--;
- 				}
- 			/* BB if rc = -ETXTBUSY goto the rename logic BB */
- 			}
- 		}
- 	}
--	if(direntry->d_inode) {
-+	if (direntry->d_inode) {
- 		cifsInode = CIFS_I(direntry->d_inode);
- 		cifsInode->time = 0;	/* will force revalidate to get info
- 					   when needed */
-@@ -582,7 +582,7 @@
- 		if (direntry->d_inode)
- 			direntry->d_inode->i_nlink = 2;
- 		if (cifs_sb->tcon->ses->capabilities & CAP_UNIX)
--			if(cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SET_UID) {
-+			if (cifs_sb->mnt_cifs_flags & CIFS_MOUNT_SET_UID) {
- 				CIFSSMBUnixSetPerms(xid, pTcon, full_path,
- 						    mode,
- 						    (__u64)current->euid,
 
---=-GNaQjk/V3PDRX1ZOBm0m--
+ > Another approach is to insert a virtualization layer (think in terms of
+ > a very cut-down variant of Xen) that tells the OS that there are two 
+CPUs.
+ > This layer then gives realtime service to one, but not to the other.
+ > That way, the OS thinks that it has two CPUs, and can still do the
+ > migration tricks despite having only one real CPU.
+Simulation of an SMP on a UP? This sounds quite heavy but it might be 
+interesting to try :-)
 
+
+ >
+ > Anyway, interesting approach!
+Thanks,
+
+Eric

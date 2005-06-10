@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261154AbVFJSZm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261179AbVFJSm6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261154AbVFJSZm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 14:25:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261163AbVFJSZm
+	id S261179AbVFJSm6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 14:42:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261182AbVFJSmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 14:25:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:34721 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S261154AbVFJSZf (ORCPT
+	Fri, 10 Jun 2005 14:42:55 -0400
+Received: from karma.reboot.ca ([67.15.48.17]:60549 "EHLO karma.reboot.ca")
+	by vger.kernel.org with ESMTP id S261169AbVFJSmq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 14:25:35 -0400
-Date: Fri, 10 Jun 2005 11:25:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Stephen Lord <lord@xfs.org>
-Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: Race condition in module load causing undefined symbols
-Message-Id: <20050610112515.691dcb6e.akpm@osdl.org>
-In-Reply-To: <42A99D9D.7080900@xfs.org>
-References: <42A99D9D.7080900@xfs.org>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 10 Jun 2005 14:42:46 -0400
+X-ClientAddr: 70.67.196.121
+Message-ID: <00fb01c56dec$91f0e440$6702a8c0@niro>
+From: "Andre" <andre@rocklandocean.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: ZFx86 support broken?
+Date: Fri, 10 Jun 2005 11:45:27 -0700
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1106
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
+X-Reboot-MailScanner-Information: Please contact the ISP for more information
+X-Reboot-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
+X-Reboot-MailScanner-SpamCheck: not spam, SpamAssassin (score=-0.728,
+	required 5, autolearn=spam, AWL -0.12, BAYES_00 -2.60,
+	RCVD_IN_SORBS_DUL 1.99)
+X-MailScanner-From: andre@rocklandocean.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Lord <lord@xfs.org> wrote:
->
-> I am having troubles getting any recent kernel to boot successfully
->  on one of my machines, a generic 2.6GHz P4 box with HT enabled
->  running an updated Fedora Core 3 distro. This is present in
->  2.6.12-rc6. It does not manifest itself with the Fedora Core
->  kernels which have identical initrd contents as far as the
->  init script and the set of modules included goes.
-> 
->  The problem manifests itself as various undefined symbols from
->  module loads.
+I am trying to boot LFS6.0.1 livecd which has 2.6.8.1, but the kernel hangs
+at:
+Freeing unused kernel memory: 456k freed
 
-Peculiar.  Module loading is all synchronous, isn't it?
+My system is a pc/104 board based on ZFx86 with 64M ram
+I also found this posting:
+http://linux.derkeiler.com/Mailing-Lists/Kernel/2004-03/5939.html
+Looking at the console output, the cpu gets recognized as 486, whereas
+2.4.22 detects the cpu as Cyrix Cx486DX4
 
-> ...
->  The failures are different on different boots, sometimes the ata_piix
->  module cannot find symbols from libata, sometimes ext3 cannot find jbd
->  symbols, sometimes dm modules cannot find things from dm-mod, usually
->  it is a combination of these. End result is a panic when it cannot
->  find the root device.
-> 
->   From the behavior, it appears that a module load is returning
->  control to user space before the previous one has got its symbols
->  loaded.
-
-I wonder if rather than the intermittency being time-based, it is
-load-address-based?  For example, suppose there's a bug in the symbol
-lookup code?
-
-Have you tried using a different gcc version?
+Looking at the kernel source, it seems to get stuck after the call to
+free_initmem and when I tried to specify init=/bin/sh it still got stuck at
+the same place so I figured it doesn't even get to the run_init_process
+calls in ..../init/main.c. Could the call to unlock_kernel get stuck?

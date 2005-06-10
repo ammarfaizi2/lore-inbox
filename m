@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261194AbVFJT5M@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261197AbVFJUB5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261194AbVFJT5M (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 15:57:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261196AbVFJT5M
+	id S261197AbVFJUB5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 16:01:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261198AbVFJUB5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 15:57:12 -0400
-Received: from karma.reboot.ca ([67.15.48.17]:11399 "EHLO karma.reboot.ca")
-	by vger.kernel.org with ESMTP id S261194AbVFJT5K (ORCPT
+	Fri, 10 Jun 2005 16:01:57 -0400
+Received: from mx1.suse.de ([195.135.220.2]:20894 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261197AbVFJUBz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 15:57:10 -0400
-X-ClientAddr: 70.67.196.121
-Message-ID: <018801c56df6$ef130270$6702a8c0@niro>
-From: "Andre" <andre@rocklandocean.com>
-To: "Zwane Mwaikambo" <zwane@arm.linux.org.uk>
-Cc: <linux-kernel@vger.kernel.org>
-References: <00fb01c56dec$91f0e440$6702a8c0@niro> <Pine.LNX.4.61.0506101304520.31175@montezuma.fsmlabs.com>
-Subject: Re: ZFx86 support broken?
-Date: Fri, 10 Jun 2005 12:59:38 -0700
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1106
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1106
-X-Reboot-MailScanner-Information: Please contact the ISP for more information
-X-Reboot-MailScanner: Not scanned: please contact your Internet E-Mail Service Provider for details
-X-Reboot-MailScanner-SpamCheck: not spam, SpamAssassin (score=-0.728,
-	required 5, autolearn=spam, AWL -0.12, BAYES_00 -2.60,
-	RCVD_IN_SORBS_DUL 1.99)
-X-MailScanner-From: andre@rocklandocean.com
+	Fri, 10 Jun 2005 16:01:55 -0400
+Date: Fri, 10 Jun 2005 22:01:54 +0200
+From: Andi Kleen <ak@suse.de>
+To: "Langsdorf, Mark" <mark.langsdorf@amd.com>
+Cc: Tom Duffy <tduffy@sun.com>, Andi Kleen <ak@suse.de>, discuss@x86-64.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [discuss] [OOPS] powernow on smp dual core amd64
+Message-ID: <20050610200153.GO23831@wotan.suse.de>
+References: <84EA05E2CA77634C82730353CBE3A84301CFC134@SAUSEXMB1.amd.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <84EA05E2CA77634C82730353CBE3A84301CFC134@SAUSEXMB1.amd.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It looks like it may be having trouble with userspace, try confirming
-> that it is indeed mounting root and doing run_init_process.
+On Fri, Jun 10, 2005 at 02:48:58PM -0500, Langsdorf, Mark wrote:
+> It looks like the crash is caused by an invalid
+> pointer dereference in 
+> query_current_values_with_pending_wait(), which
+> implies that powernowk8_get() was called with an
+> invalid CPU number.
+> 
+> Andi, what will happen if you do
+> set_cpus_allowed(current, cpumask_of_cpu(cpu)) when
+> cpu isn't in the range of online CPUs?  There's
 
-How can I confirm this? I am booting off a livecd and I have tried to see
-whether the 'debug' bootprompt option would give more info, but no such
-luck.
-My current system is based on 2.4.27 (gcc 3.3.1).and I haven't found any
-clear info yet on how to upgrade to 2.6 otherwise I would just try to
-upgrade to 2.6 and build a kernel with some printk's.
+It just returns with -EINVAL.
 
+Also it really shouldnt happen. 
+
+> supposed to be a check to prevent an invalid
+> pointer access from happening but it's failing for 
+> some reason.
+-Andi

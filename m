@@ -1,48 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262414AbVFJGmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262197AbVFJG4q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262414AbVFJGmz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 02:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262495AbVFJGmy
+	id S262197AbVFJG4q (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 02:56:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262235AbVFJG4q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 02:42:54 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:4325 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S262414AbVFJGmx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 02:42:53 -0400
-Date: Thu, 9 Jun 2005 23:42:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
-Cc: axboe@suse.de, andrea@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: Real-time problem due to IO congestion.
-Message-Id: <20050609234231.42a10763.akpm@osdl.org>
-In-Reply-To: <42A91D36.8090506@lab.ntt.co.jp>
-References: <42A91D36.8090506@lab.ntt.co.jp>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 10 Jun 2005 02:56:46 -0400
+Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:11404 "HELO
+	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
+	id S262197AbVFJG4n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 02:56:43 -0400
+From: Denis Vlasenko <vda@ilport.com.ua>
+To: <abonilla@linuxwireless.org>, "'Pavel Machek'" <pavel@ucw.cz>,
+       "'Jeff Garzik'" <jgarzik@pobox.com>,
+       "'Netdev list'" <netdev@oss.sgi.com>,
+       "'kernel list'" <linux-kernel@vger.kernel.org>,
+       "'James P. Ketrenos'" <ipw2100-admin@linux.intel.com>
+Subject: Re: ipw2100: firmware problem
+Date: Fri, 10 Jun 2005 09:56:16 +0300
+User-Agent: KMail/1.5.4
+References: <002a01c56cff$fb64ba70$600cc60a@amer.sykes.com>
+In-Reply-To: <002a01c56cff$fb64ba70$600cc60a@amer.sykes.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506100956.16031.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp> wrote:
->
-> There are 2 type processes in test environment.
->  1. The real-time needed process (run on with high static priority)
->      The process wake up every 10ms, and wake up, write some log (the
->  test case is current CPU clock via tsc) to the file.
+On Thursday 09 June 2005 17:31, Alejandro Bonilla wrote:
 > 
->  2. The process which make IO load
->      The process have large memory size, and kill the process with dumping.
->      The process's memory area exceeds 70% of whole physical
->  RAM.(Actually 1.5GB memory area while whole RAM is 2GB)
+> > What is so nice about this? That Linux novice user with his new lappie
+> > will join a neighbor's network every time he powers up the lappie,
+> > even without knowing that?
+> >
+> > That will be analogous to me plugging ethernet cable into the
+> > switch and
+> > wanting it to work, without any IP addr config, even without
+> > DHCP client.
+> > Just power up the box (or modprobe an eth module) and it
+> > works! Cool, eh?
+> >
 > 
->  Whenever during dumping, the real-time needed process sometimes stop for
->  long time during write system call. (sometimes exceeds 1000ms)
+> You want things one way, I like them in another way. Whoever makes this
+> decision should just know that we would like to have an option to make it
+> load with or without the ASSOC on.
 
-The writeback code does attempt to give some preference to realtime tasks
-(in get_dirty_limits()), but it can only work up to a point.
+But you already _have_ the option to associate. Just issue
+appropriate iwconfig command (or embed one in startup script).
 
-Frankly, your application is poorly designed.  If you want sub-10ms
-responsiveness you shouldn't be doing disk I/O.  The realtime task should
-hand the data off to a non-realtime task for writeout, with suitable
-amounts of buffering in between.
+> James already said to use the options ipw2100 disable=1 if you don't want it
+> to associate everytime on boot.
+
+Do we have to add such option to each and every wireless driver now?
+That would be wrong since iwconfig already exists.
+
+> At the end, who decides this?
+
+User. As I said, with no automatic assoc at module load user still
+may easily attain that with iwconfig.
+
+Adding kernel level wireless autoconfiguration duplicates the effort.
+Since I am not going to give up a requirement to be able to stay radio
+silent at boot (me too wants freedom, not only you), you need to add
+disable=1 module parameter to each driver, which adds to the mess.
+
+ALSA does the Right Thing. Sound is completely muted out at module load.
+It's a user freedom to set desired volume level after that.
+--
+vda
+

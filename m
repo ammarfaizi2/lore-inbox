@@ -1,51 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262590AbVFJQB5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262591AbVFJQFf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262590AbVFJQB5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 12:01:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262591AbVFJQB5
+	id S262591AbVFJQFf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 12:05:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262592AbVFJQFf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 12:01:57 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:22470 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S262590AbVFJQBz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 12:01:55 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Subject: Re: PNP parallel&serial ports: module reload fails (2.6.11)?
-Date: Fri, 10 Jun 2005 10:01:40 -0600
-User-Agent: KMail/1.8
-Cc: Michael Tokarev <mjt@tls.msk.ru>, Adam Belay <ambx1@neo.rr.com>,
-       matthieu castet <castet.matthieu@free.fr>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20050602222400.GA8083@mut38-1-82-67-62-65.fbx.proxad.net> <42A8AFA5.3090703@tls.msk.ru> <20050609221657.C14513@flint.arm.linux.org.uk>
-In-Reply-To: <20050609221657.C14513@flint.arm.linux.org.uk>
+	Fri, 10 Jun 2005 12:05:35 -0400
+Received: from fest.stud.feec.vutbr.cz ([147.229.72.16]:1217 "EHLO
+	fest.stud.feec.vutbr.cz") by vger.kernel.org with ESMTP
+	id S262591AbVFJQFa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 12:05:30 -0400
+Message-ID: <42A9BA87.4010600@stud.feec.vutbr.cz>
+Date: Fri, 10 Jun 2005 18:06:31 +0200
+From: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Alastair Poole <alastair@unixtrix.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: BUG: Unusual TCP Connect() results.
+References: <42A8ABDB.6080804@unixtrix.com> <42A9B193.1020602@stud.feec.vutbr.cz> <42A9C607.4030209@unixtrix.com>
+In-Reply-To: <42A9C607.4030209@unixtrix.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506101001.40980.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 09 June 2005 3:16 pm, Russell King wrote:
-> The reason that 8250 first detects your ports is that they're found
-> via the legacy method which is independent of PnP.  As you correctly
-> sumise, when you unload 8250_pnp, it disables the device so when you
-> re-load 8250, it's unable to detect your ports using the legacy method.
-> 
-> But the legacy method needs to continue to exist for systems which
-> don't have PnP enabled.
+Alastair Poole wrote:
+> This problem only occurs on localhost.  I don't think it is mere luck, 
+> these are too frequent and strange for this.
 
-But shouldn't we someday move the legacy probing from 8250
-into an 8250_platform and only do it if we don't have 8250_pnp?
+I tried the scanning program on localhost. I modified it to wait for the 
+user to press Enter when it encounters an open port.
+On my system I normally have listening TCP ports 25, 631 and 1024.
+And yes, the scanning program sometimes finds other open ports.
+This is netstat output when it happens:
 
-I think David Woodhouse suggested something like this a while
-back, but I can't find a great reference for it.  Here's a
-thread (unfortunately split into sections by the archive)
-that mentions it:
+michich@michichnb:~> LC_ALL=C netstat -ntp | grep scan
+(Not all processes could be identified, non-owned process info
+  will not be shown, you would have to be root to see it all.)
+tcp  0  0  127.0.0.1:1774   127.0.0.1:1774     ESTABLISHED 17510/scan
 
-http://www.ussg.iu.edu/hypermail/linux/kernel/0409.3/1545.html
-http://www.ussg.iu.edu/hypermail/linux/kernel/0410.0/0084.html
-http://www.ussg.iu.edu/hypermail/linux/kernel/0411.0/0127.html
 
+The TCP socket connected to itself. I don't know if it's expected 
+behaviour. It agree it is strange, because we didn't call listen() on 
+the socket.
+
+Michal

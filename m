@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262505AbVFJHWB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262497AbVFJHZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262505AbVFJHWB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 03:22:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262497AbVFJHWA
+	id S262497AbVFJHZX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 03:25:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261511AbVFJHZV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 03:22:00 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:17574 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262505AbVFJHUj (ORCPT
+	Fri, 10 Jun 2005 03:25:21 -0400
+Received: from cncln.online.ln.cn ([218.25.172.144]:9221 "HELO mail.fc-cn.com")
+	by vger.kernel.org with SMTP id S262516AbVFJHX1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 03:20:39 -0400
-Date: Fri, 10 Jun 2005 09:21:30 +0200
-From: Jens Axboe <axboe@suse.de>
-To: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
-Cc: Andrew Morton <akpm@osdl.org>, andrea@suse.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: Real-time problem due to IO congestion.
-Message-ID: <20050610072130.GC29591@suse.de>
-References: <42A91D36.8090506@lab.ntt.co.jp> <20050609234231.42a10763.akpm@osdl.org> <42A93D85.4060005@lab.ntt.co.jp>
+	Fri, 10 Jun 2005 03:23:27 -0400
+Date: Fri, 10 Jun 2005 15:23:44 +0800
+From: Coywolf Qi Hunt <qiyong@fc-cn.com>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org
+Subject: [patch] next_mnt() cleanup
+Message-ID: <20050610072344.GA6629@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42A93D85.4060005@lab.ntt.co.jp>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+hello,
 
-(please don't top post)
+This is an obvious cleanup to next_mnt() by making use of list_empty().
 
-On Fri, Jun 10 2005, Takashi Ikebe wrote:
-> 
-> I see.
-> The program which I tested is just sample, and I wanted to know the 
-> phenomena is spec or bug.
-> I also understand that this problem is spec, and need to apply some 
-> buffering to such applications.
 
-Additionally, following up on Andrew, even with prioritized request
-allocations you could get equally long stuck if you just had lots of
-high prio allocaters queueing io. So rethinking the setup is definitely
-good advice.
+Signed-off-by: Coywolf Qi Hunt <coywolf@lovecn.org>
 
--- 
-Jens Axboe
-
+--- linux-2.6.12-rc5-mm2/fs/namespace.c	2005-06-06 09:24:44.000000000 +0800
++++ linux-2.6.12-rc5-mm2-cy/fs/namespace.c	2005-06-10 14:56:47.000000000 +0800
+@@ -133,8 +133,7 @@ static void attach_mnt(struct vfsmount *
+ 
+ static struct vfsmount *next_mnt(struct vfsmount *p, struct vfsmount *root)
+ {
+-	struct list_head *next = p->mnt_mounts.next;
+-	if (next == &p->mnt_mounts) {
++	if (list_empty(&p->mnt_mounts)) {
+ 		while (1) {
+ 			if (p == root)
+ 				return NULL;

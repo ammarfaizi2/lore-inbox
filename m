@@ -1,60 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261685AbVFKLYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261687AbVFKLqy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261685AbVFKLYy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 07:24:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261686AbVFKLYy
+	id S261687AbVFKLqy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 07:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbVFKLqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 07:24:54 -0400
-Received: from one.firstfloor.org ([213.235.205.2]:34720 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261685AbVFKLYw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 07:24:52 -0400
-To: "David S. Miller" <davem@davemloft.net>
-Cc: torvalds@osdl.org, akpm@osdl.org, anton@samba.org,
-       linux-kernel@vger.kernel.org, jk@blackdown.de
-Subject: Re: [PATCH] ppc64: Fix PER_LINUX32 behaviour
-References: <17062.56723.535978.961340@cargo.ozlabs.ibm.com>
-	<Pine.LNX.4.58.0506081022030.2286@ppc970.osdl.org>
-	<17063.31568.618739.165823@cargo.ozlabs.ibm.com>
-	<20050608.161633.55509444.davem@davemloft.net>
-From: Andi Kleen <ak@muc.de>
-Date: Sat, 11 Jun 2005 13:24:50 +0200
-In-Reply-To: <20050608.161633.55509444.davem@davemloft.net> (David S.
- Miller's message of "Wed, 08 Jun 2005 16:16:33 -0700 (PDT)")
-Message-ID: <m1slzpcf0d.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+	Sat, 11 Jun 2005 07:46:54 -0400
+Received: from wproxy.gmail.com ([64.233.184.206]:1517 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261687AbVFKLqu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 07:46:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:x-accept-language:mime-version:to:cc:subject:x-enigmail-version:x-enigmail-supports:content-type:content-transfer-encoding;
+        b=uGxzFfRhzG5rNwQ2v4VyIImETpDPGoI1Kimp/zLRutBJG4WpStxJGS6oB2v5Cj+AUe3dOONINsvICzXJCPBKCYcCUi6UtwzDniK1Q6kOt2DJaeS3gcU8hQYU3aaLRC4jJkVPz6Ipz/UMCfT9/RxT+TXoHD1OYCQuRvsK8u7hN1k=
+Message-ID: <42A9C2E0.30002@gmail.com>
+Date: Fri, 10 Jun 2005 16:42:08 +0000
+From: Luca Falavigna <dktrkranz@gmail.com>
+User-Agent: Mozilla Thunderbird 1.0.2 (X11/20050317)
+X-Accept-Language: it, it-it, en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: mingo@elte.hu
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Real-Time Preemption, using msecs_to_jiffies() instead of
+ HZ
+X-Enigmail-Version: 0.89.5.0
+X-Enigmail-Supports: pgp-inline, pgp-mime
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"David S. Miller" <davem@davemloft.net> writes:
+Hi,
 
-> From: Paul Mackerras <paulus@samba.org>
-> Date: Thu, 9 Jun 2005 09:12:16 +1000
->
->> There is still a point of difference between ppc64 and x86_64: on
->> ppc64 (and on sparc64), if the personality is PER_LINUX32, the
->> personality(0xffffffffUL) system call returns PER_LINUX, and attempts
->> to set the personality to PER_LINUX don't change the personality
->> (i.e. it stays set to PER_LINUX32), for both 32-bit and 64-bit
->> processes.  On x86_64 this is true for 32-bit processes but not for
->> 64-bit processes AFAICT.  Does anyone know why we do this at all, and
->> whether doing it for 64-bit processes makes sense?
-5A>
-> We do this because, at least when this code was written,
-> glibc would do a personality(PER_LINUX) call (either via
-> the dynamic linker or via some other libc startup code)
-> and this would undo the PER_LINUX32 setting.
->
-> Therefore, it makes sense to do this for all cases, not
-> just for 32-bit processes.  The x86_64 code ought to be
-> fixed, I think.
+I was looking at kernel/softlookup.c when I noticed you used HZ in order to get
+a 10-second delay:
 
-I have never seen a report of such a case (glibc undoing linux32).
-Do you have details? 
+void softlockup_tick(struct pt_regs *regs)
+{
+	...
+	if (time_after(jiffies, timestamp + 10*HZ)) {
+	...
+}
 
-But I agree 64bit should be consistent to 32bit. Will fix.
+I created this small patch (built against version 2.6.12-rc6-V0.7.48-05) which
+does use of msecs_to_jiffies() to get a correct behaviour with every platform.
+Similarly I modified function watchdog and kernel/irq/autoprobe.c file
+(probe_irq_on function).
 
--Andi
+Here is the patch:
+
+--- ./rtp-2.6.12-rc6-V0.7.48-05.orig	2005-06-10 16:27:48.000000000 +0000
++++ ./rtp-2.6.12-rc6-V0.7.48-05		2005-06-10 16:30:18.000000000 +0000
+@@ -7425,7 +7425,7 @@
+ +	/*
+ +	 * Wait for longstanding interrupts to trigger, 20 msec delay:
+ +	 */
+-+	msleep(HZ/50);
+++	msleep(msecs_to_jiffies(20));
+
+  	/*
+  	 * enable any unassigned irqs
+@@ -7452,7 +7452,7 @@
+  	 */
+ -	for (delay = jiffies + HZ/10; time_after(delay, jiffies); )
+ -		/* about 100ms delay */ barrier();
+-+	msleep(HZ/10);
+++	msleep(msecs_to_jiffies(100));
+
+  	/*
+  	 * Now filter out any obviously spurious interrupts
+@@ -10712,7 +10712,7 @@
+ +	if (did_panic)
+ +		return;
+ +
+-+	if (time_after(jiffies, timestamp + 10*HZ)) {
+++	if (time_after(jiffies, timestamp + msecs_to_jiffies(10000))) {
+ +		per_cpu(print_timestamp, this_cpu) = timestamp;
+ +
+ +		spin_lock(&print_lock);
+@@ -10748,7 +10748,7 @@
+ +	 */
+ +	while (!kthread_should_stop()) {
+ +		set_current_state(TASK_INTERRUPTIBLE);
+-+		msleep_interruptible(HZ);
+++		msleep_interruptible(msecs_to_jiffies(1000));
+ +		touch_softlockup_watchdog();
+ +	}
+ +	__set_current_state(TASK_RUNNING);
+
+
+
+Regards,
+
+-- 
+					Luca
+
+
 

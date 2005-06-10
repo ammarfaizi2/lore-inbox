@@ -1,87 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262592AbVFJQJu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262595AbVFJQQe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262592AbVFJQJu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 12:09:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262596AbVFJQJu
+	id S262595AbVFJQQe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 12:16:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbVFJQQe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 12:09:50 -0400
-Received: from rproxy.gmail.com ([64.233.170.196]:14835 "EHLO rproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S262592AbVFJQJr convert rfc822-to-8bit
+	Fri, 10 Jun 2005 12:16:34 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.129]:20930 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262595AbVFJQQc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 12:09:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PMeN62i07VYEDYTg4s8Dii2DBTQ3CYTh1RrW82jANbLG1uEdEv3E8mOHgOzSdvO3dRhH2xV4v/t6DnsYD788XjZ55QVF75JQdSuiAAuig7mxRAA2lTZzAGPRVStfCeVgceJDQyL0B/iXfQSrNP+dtp++Dnirb6uWYfLfZDlWPmg=
-Message-ID: <a728f9f905061009097081c0a6@mail.gmail.com>
-Date: Fri, 10 Jun 2005 12:09:44 -0400
-From: Alex Deucher <alexdeucher@gmail.com>
-Reply-To: Alex Deucher <alexdeucher@gmail.com>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
+	Fri, 10 Jun 2005 12:16:32 -0400
 Subject: Re: [Jfs-discussion] fsck.jfs segfaults on x86_64
+From: Dave Kleikamp <shaggy@austin.ibm.com>
+To: Alex Deucher <alexdeucher@gmail.com>
 Cc: jfs-discussion@lists.sourceforge.net,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, ag@m-cam.com
-In-Reply-To: <a728f9f905061007216c38cf4c@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Content-Disposition: inline
+In-Reply-To: <a728f9f905061009097081c0a6@mail.gmail.com>
 References: <a728f9f90506100700107976f0@mail.gmail.com>
 	 <1118412882.7944.6.camel@localhost>
 	 <a728f9f905061007216c38cf4c@mail.gmail.com>
+	 <a728f9f905061009097081c0a6@mail.gmail.com>
+Content-Type: text/plain
+Date: Fri, 10 Jun 2005 11:16:30 -0500
+Message-Id: <1118420190.21406.4.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/10/05, Alex Deucher <alexdeucher@gmail.com> wrote:
-> On 6/10/05, Dave Kleikamp <shaggy@austin.ibm.com> wrote:
-> > On Fri, 2005-06-10 at 10:00 -0400, Alex Deucher wrote:
-> > > We have a large lvm2 logical volume (6.91T) which contains a JFS
-> > > filesystem. The volumes accessed via emulex FC HBAs connected to a
-> > > nexsan SAN.  There was a bug in the SAN firmware that caused the
-> > > primary controller to lose sync with the other controller and go down.
-> > >  Normally when this happens we are able to reboot the SAN and the
-> > > server and then run fsck on the volume, and everything is fine (on a
-> > > side note, we have updated the SAN firmware to fix the sync problem).
-> > > however, fsck now segfaults and the volume is dirty so it can't be
-> > > mounted. lvdisplay and vgdisplay seem to work fine displaying the
-> > > correct info.  Does anyone know what may be causing the problem or how
-> > > we can fix it?  If possible I'd like to save the data on the volumes.
-> > >
-> > > #> time fsck.jfs /dev/vg00/lvol0
-> > > fsck.jfs version 1.1.4, 30-Oct-2003
-> >
-> > 1.1.4 is quite old.  Can you try a recent version of jfsutils?
-> > http://jfs.sourceforge.net/project/pub/jfsutils-1.1.8.tar.gz
-> 
-> sorry, I should have mentioned that.  we also tried 1.1.7 with the
-> same result.  I can try 1.1.8 too.
-> 
+On Fri, 2005-06-10 at 12:09 -0400, Alex Deucher wrote:
 
-1.1.8 segfaulted as well.
+> 1.1.8 segfaulted as well.
 
-> >
-> > If that doesn't work, you can try running "fsck.jfs
-> > --omit_journal_replay", since it is trapping while replaying the
-> > journal.  If all else fails, you should be able to mount it read-only
-> > (mount -oro) to recover the data.
-> 
-> cool I'll give that a try.
+Hmm.  This bothers me.
 
-running fsck.jfs --omit_journal_replay did the trick!  thanks,
+> running fsck.jfs --omit_journal_replay did the trick!  thanks,
 
-Alex
+Well, at least it got you going again.  :^)
 
-> 
-> Thanks!
-> 
-> Alex
-> 
-> >
-> > Thanks,
-> > Shaggy
-> > --
-> > David Kleikamp
-> > IBM Linux Technology Center
-> >
-> >
->
+Thanks,
+Shaggy
+-- 
+David Kleikamp
+IBM Linux Technology Center
+

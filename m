@@ -1,96 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261840AbVFJPLg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262484AbVFJPR0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261840AbVFJPLg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 11:11:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261847AbVFJPLg
+	id S262484AbVFJPR0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 11:17:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262566AbVFJPR0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 11:11:36 -0400
-Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:42683 "EHLO
-	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S261840AbVFJPL1
+	Fri, 10 Jun 2005 11:17:26 -0400
+Received: from ylpvm01-ext.prodigy.net ([207.115.57.32]:29125 "EHLO
+	ylpvm01.prodigy.net") by vger.kernel.org with ESMTP id S262484AbVFJPRV
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 11:11:27 -0400
-Date: Fri, 10 Jun 2005 08:10:58 -0700
+	Fri, 10 Jun 2005 11:17:21 -0400
+Date: Fri, 10 Jun 2005 08:17:07 -0700
 From: Tony Lindgren <tony@atomide.com>
 To: Pavel Machek <pavel@ucw.cz>
-Cc: linux-kernel@vger.kernel.org,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Jonathan Corbet <corbet@lwn.net>,
-       Bernard Blackham <b-lkml@blackham.com.au>,
-       Christian Hesse <mail@earthworm.de>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>
-Subject: Re: [PATCH] Dynamic tick for x86 version 050609-2
-Message-ID: <20050610151058.GA7858@atomide.com>
-References: <88056F38E9E48644A0F562A38C64FB6004EBD10C@scsmsx403.amr.corp.intel.com> <20050609014033.GA30827@atomide.com> <20050610043018.GE18103@atomide.com> <20050610091008.GG4173@elf.ucw.cz>
+Cc: Christian Hesse <mail@earthworm.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] Dynamic tick for x86 version 050602-2
+Message-ID: <20050610151707.GB7858@atomide.com>
+References: <20050602013641.GL21597@atomide.com> <200506021030.50585.mail@earthworm.de> <20050602174219.GC21363@atomide.com> <20050603223758.GA2227@elf.ucw.cz> <20050610041706.GC18103@atomide.com> <20050610091515.GH4173@elf.ucw.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050610091008.GG4173@elf.ucw.cz>
+In-Reply-To: <20050610091515.GH4173@elf.ucw.cz>
 User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Pavel Machek <pavel@ucw.cz> [050610 02:10]:
+* Pavel Machek <pavel@ucw.cz> [050610 02:15]:
 > Hi!
 > 
-> Some more nitpicking...
-
-Great!
-
-> > +/*
-> > + * ---------------------------------------------------------------------------
-> > + * Command line options
-> > + * ---------------------------------------------------------------------------
-> > + */
-> > +static int __initdata dyntick_autoenable = 0;
-> > +static int __initdata dyntick_useapic = 0;
-> > +
-> > +/*
-> > + * dyntick=[enable|disable],[forceapic]
-> > + */ 
-> > +static int __init dyntick_setup(char *options)
-> > +{
-> > +	if (!options)
-> > +		return 0;
-> > +
-> > +	if (strstr(options, "enable"))
-> > +		dyntick_autoenable = 1;
-> > +
-> > +	if (strstr(options, "forceapic"))
-> > +		dyntick_useapic = 1;
-> > +
-> > +	return 0;
-> > +}
-> > +
-> > +__setup("dyntick=", dyntick_setup);
+> > > > +#define NS_TICK_LEN		((1 * 1000000000)/HZ)
+> > > > +#define DYN_TICK_MIN_SKIP	2
+> > > > +
+> > > > +#ifdef CONFIG_NO_IDLE_HZ
+> > > > +
+> > > > +extern unsigned long dyn_tick_reprogram_timer(void);
+> > > > +
+> > > > +#else
+> > > > +
+> > > > +#define arch_has_safe_halt()		0
+> > > > +#define dyn_tick_reprogram_timer()	{}
+> > > 
+> > > do {} while (0)
+> > > 
+> > > , else you are preparing trap for someone.
+> > 
+> > Can you please explain what the difference between these two are?
+> > Some compiler version specific thing?
 > 
+> It took me quite some remembering. Problem is that with your macros,
+> someone can write
 > 
-> Well, your parsing is little too simplistic. If I pass
-> dyntick=do_not_dare_to_enable_it, it still enables :-).
-
-OK, I'll change that to test that enable is the first option.
-
-> > +/*
-> > + * ---------------------------------------------------------------------------
-> > + * Sysfs interface
-> > + * ---------------------------------------------------------------------------
-> > + */
-> > +
-> > +extern struct sys_device device_timer;
-> > +
-> > +static ssize_t show_dyn_tick_state(struct sys_device *dev, char *buf)
-> > +{
-> > +	return sprintf(buf, "suitable:\t%i\n"
-> > +		       "enabled:\t%i\n"
-> > +		       "using APIC:\t%i\n",
-> > +		       dyn_tick->state & DYN_TICK_SUITABLE,
-> > +		       (dyn_tick->state & DYN_TICK_ENABLED) >> 1,
-> > +		       (dyn_tick->state & DYN_TICK_USE_APIC) >> 3);
+> 	dyn_tick_reprogram_timer()
+> 	printk();
 > 
-> You basically hardcode values of DYN_TICK_* here. Why not use !!() and
-> loose dependency?
-> 
-> 								Pavel
+> [notice missing ; at first line], and still get it compile. If you
+> replace {} with do {} while (0), he'll get compile error as he should.
 
-OK, thanks.
+Thanks for clarifying, I'll change it.
 
 Tony

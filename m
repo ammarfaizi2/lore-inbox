@@ -1,98 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261258AbVFJV7t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261274AbVFJWOG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261258AbVFJV7t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 17:59:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261262AbVFJV7s
+	id S261274AbVFJWOG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 18:14:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261276AbVFJWOG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 17:59:48 -0400
-Received: from reserv6.univ-lille1.fr ([193.49.225.20]:9863 "EHLO
-	reserv6.univ-lille1.fr") by vger.kernel.org with ESMTP
-	id S261258AbVFJV7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 17:59:44 -0400
-Message-ID: <42AA0D03.2090505@lifl.fr>
-Date: Fri, 10 Jun 2005 23:58:27 +0200
-From: Eric Piel <Eric.Piel@lifl.fr>
-User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
-X-Accept-Language: fr, en
+	Fri, 10 Jun 2005 18:14:06 -0400
+Received: from mail-in-08.arcor-online.net ([151.189.21.48]:36324 "EHLO
+	mail-in-08.arcor-online.net") by vger.kernel.org with ESMTP
+	id S261274AbVFJWOA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 18:14:00 -0400
+From: Bodo Eggert <harvested.in.lkml@posting.7eggert.dyndns.org>
+Subject: Re: slow directory listing
+To: Ron Peterson <rpeterso@mtholyoke.edu>, linux-kernel@vger.kernel.org
+Reply-To: 7eggert@gmx.de
+Date: Sat, 11 Jun 2005 00:12:52 +0200
+References: <4dSQ6-1vz-27@gated-at.bofh.it> <4dTCx-2d8-21@gated-at.bofh.it>
+User-Agent: KNode/0.7.2
 MIME-Version: 1.0
-To: paulmck@us.ibm.com
-CC: linux-kernel@vger.kernel.org, bhuey@lnxw.com, andrea@suse.de,
-       tglx@linutronix.de, karim@opersys.com, mingo@elte.hu,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org
-Subject: Re: Attempted summary of "RT patch acceptance" thread
-References: <42A714B7.8010105@lifl.fr> <20050609022041.GG1295@us.ibm.com>
-In-Reply-To: <20050609022041.GG1295@us.ibm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-USTL-MailScanner-Information: Please contact the ISP for more information
-X-USTL-MailScanner: Found to be clean
-X-MailScanner-From: eric.piel@lifl.fr
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8Bit
+Message-Id: <E1DgrkL-00029X-HW@be1.7eggert.dyndns.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-06/09/2005 04:20 AM, Paul E. McKenney wrote/a Ã©crit:
- >>Concerning the QoS, we have been able to obtain hard realtime, at least
- >>very firm real-time. Tests were conducted over 8 hours on IA-64 and x86
- >>and gave respectively 105Âµs and 40Âµs of maximum latency. Not as good as
- >>you have mentioned but mostly of the same order :-)
- >
- >
- > Quite impressive!  So, does this qualify as "ruby hard", or is it only
- > "metal hard"?  ;-)
-Well, you have to consider that this is still full Linux running. All 
-the best we can do is to not make it crash or hung more than the vanilla 
-kernel, it's still vulnerable to any bug of any driver :-/ In addition, 
-I highly doubt this approach can ever have an implementation were the 
-maximum latency is theoritically proven. The best we have is just 
-measurements of the system running with high loads during very long time.
+Ron Peterson <rpeterso@mtholyoke.edu> wrote:
+> On Fri, Jun 10, 2005 at 10:37:20AM -0400, rpeterso wrote:
 
- >
- > The service measured was process scheduling, right?
-Yes, on IA64, from the hardware IRQ fireing to process scheduling (on 
-x86 it's from kernel IRQ handling to process scheduling).
+>> I'm setting up a new mail server, and am testing/tweaking IO.  I have
+>> two directories: /test/a which contains 750 mbox files totalling 8GB,
+>> and /test/a2, which contains the exact same number of files, same names,
+>> all zero length.
+>> ...
+>> The times taken to do a directory listing are significantly different.
+> 
+> I've become more confused, if that's possible.  I was just editing some
+> test script in emacs.  As part of the script creation process I used the
+> M-! command to pipe the output of 'ls /test/a' into a buffer.  It
+> snapped back almost instantly.
 
- >>Concerning the "e. fault isolation", on our implementation, holding a
- >>lock, mutex or semaphore will automatically migrate the task, therefore
- >>it's not a problem. Of course, some parts of the kernel that cannot be
- >>migrated might take a lock, namely the scheduler. For the scheduler, we
- >>modified most of the data structures requiring a lock so that they can
- >>be accessed locklessly (it's the hardest part of the implementation).
- >
- >
- > Are the non-migrateable portions of the scheduler small enough that
- > one could do a worst-case timing analysis?  Preferably aided by some
- > automation...
-Well, ARTiS only modifies the schedule() function but there is probably 
-too much possible interaction to really be able to prove anything (the 
-fact that it's a SMP system doesn't help!).
-
-
- > One approach would be to mark the migrated task so that it returns
- > to the realtime CPU as soon as it completes the realtime-unsafe
- > operation.
-We use a different approach: keep (small) statistics of the task doing 
-often lock and the one that are more "computational". Then we migrate in 
-priority the tasks that don't do locks. Your suggestion could be used 
-at the same time but it might not be so efficient anymore. Additionally, 
-in the current implementation, it's not so easy to know when a task 
-which is running can go back to a RT CPU.
-
-
-
- > Another approach is to insert a virtualization layer (think in terms of
- > a very cut-down variant of Xen) that tells the OS that there are two 
-CPUs.
- > This layer then gives realtime service to one, but not to the other.
- > That way, the OS thinks that it has two CPUs, and can still do the
- > migration tricks despite having only one real CPU.
-Simulation of an SMP on a UP? This sounds quite heavy but it might be 
-interesting to try :-)
-
-
- >
- > Anyway, interesting approach!
-Thanks,
-
-Eric
+Try ls|cat and take a look at $LS_OPTIONS and $LS_COLORS. I suspect your
+ls tries to use some magic on the files to determine the color.
+-- 
+Ich danke GMX dafür, die Verwendung meiner Adressen mittels per SPF
+verbreiteten Lügen zu sabotieren.

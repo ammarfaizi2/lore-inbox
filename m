@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262452AbVFJDx5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262453AbVFJDzH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262452AbVFJDx5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 9 Jun 2005 23:53:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262453AbVFJDx5
+	id S262453AbVFJDzH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 9 Jun 2005 23:55:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262461AbVFJDzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 9 Jun 2005 23:53:57 -0400
-Received: from atpro.com ([12.161.0.3]:32517 "EHLO atpro.com")
-	by vger.kernel.org with ESMTP id S262452AbVFJDxy (ORCPT
+	Thu, 9 Jun 2005 23:55:07 -0400
+Received: from magic.adaptec.com ([216.52.22.17]:38366 "EHLO magic.adaptec.com")
+	by vger.kernel.org with ESMTP id S262453AbVFJDyd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 9 Jun 2005 23:53:54 -0400
-Date: Thu, 9 Jun 2005 23:51:28 -0400
-From: Jim Crilly <jim@why.dont.jablowme.net>
-To: Denis Vlasenko <vda@ilport.com.ua>
-Cc: "David S. Miller" <davem@davemloft.net>, jketreno@linux.intel.com,
-       pavel@ucw.cz, jgarzik@pobox.com, netdev@oss.sgi.com,
-       linux-kernel@vger.kernel.org, ipw2100-admin@linux.intel.com
-Subject: Re: ipw2100: firmware problem
-Message-ID: <20050610035127.GH1637@mail>
-Mail-Followup-To: Denis Vlasenko <vda@ilport.com.ua>,
-	"David S. Miller" <davem@davemloft.net>, jketreno@linux.intel.com,
-	pavel@ucw.cz, jgarzik@pobox.com, netdev@oss.sgi.com,
-	linux-kernel@vger.kernel.org, ipw2100-admin@linux.intel.com
-References: <200506090903.49295.vda@ilport.com.ua> <200506090917.23853.vda@ilport.com.ua> <20050608.232020.115912376.davem@davemloft.net> <200506090930.22274.vda@ilport.com.ua>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506090930.22274.vda@ilport.com.ua>
-User-Agent: Mutt/1.5.9i
+	Thu, 9 Jun 2005 23:54:33 -0400
+Date: Fri, 10 Jun 2005 09:36:09 +0530 (IST)
+From: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>
+X-X-Sender: tomar@localhost.localdomain
+Reply-To: "Tomar, Nagendra" <nagendra_tomar@adaptec.com>
+To: "Richard B. Johnson" <linux-os@analogic.com>
+cc: Nagendra Singh Tomar <nagendra_tomar@adaptec.com>,
+       Peter Staubach <staubach@redhat.com>, <linux-kernel@vger.kernel.org>,
+       <linux-arm-kernel@lists.arm.linux.org.uk>
+Subject: Re: Zeroed pages returned for heap
+In-Reply-To: <Pine.LNX.4.53.0506090605190.8306@chaos.analogic.com>
+Message-ID: <Pine.LNX.4.44.0506100931490.19027-100000@localhost.localdomain>
+Organization: Adaptec
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 10 Jun 2005 03:54:03.0174 (UTC) FILETIME=[0A9CCC60:01C56D70]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 06/09/05 09:30:22AM +0300, Denis Vlasenko wrote:
-> On Thursday 09 June 2005 09:20, David S. Miller wrote:
-> > From: Denis Vlasenko <vda@ilport.com.ua>
-> > Date: Thu, 9 Jun 2005 09:17:23 +0300
-> > 
-> > > Sadly, realities are such that we have to live somehow
-> > > with closed-source firmware.
-> > 
-> > You have a choice, buy products from friendly vendors.
+On Thu, 9 Jun 2005, Richard B. Johnson wrote:
+
+> On Wed, 8 Jun 2005, Nagendra Singh Tomar wrote:
 > 
-> I am trying! So far, I have Prism2.5, Prism54
-> and acx111 cards, and all of them require closed binary fw.
-
-Ralink cards don't require any binary firmware. I got one of the Hawking
-Tech pcmcia cards off the shelf at a local CompUSA store and the card 
-was a good $20 cheaper than a Linksys card. So far I haven't had any
-problems with the card or the driver.
-
-A list of Ralink hardware and drivers can be found at
-http://ralink.rapla.net/ 
-
-> vda
+> The user code can't assume anything about any memory allocated
+> by malloc(). The first time a buffer is allocated, it may be
+> zero-filled because of the zeroed pages allocated by the kernel
+> when the new break address is set. After that, all bets are off
+> because once you free a buffer and allocate another one, it
+> will probably contain data from malloc()'s previous allocation.
 > 
+> Even the very first time malloc() returns a pointer, doesn't
+> guarantee that the memory will all be cleared. This is because
+> many malloc()s use just-obtained memory (via brk) to do some
+> house-keeping which may result in some "strange" numbers in
+> the memory at some places.
+> 
+> It is extremely bad coding practice to assume a buffer is
+> zero filled when writing user-mode code. That's why we have
+> calloc().
 
-Jim.
+My original question was for glibc (as an application) assuming that 
+memory it gets from brk()/MAP_ANON is zero filled, and _not_ for an 
+application calling malloc() assuming that. glibc does assume that brk() 
+memory is zero filled thats why the glibc calloc() implementation does 
+_not_ zero it again in user space (Ulrich conformed this). This is what 
+was disturbing to me as I  was trying to disable zero-filling for brk() 
+pages and to my unpleasant  surprise few applications like gcc/awk were 
+breaking. 
+
+Thanx,
+Tomar
+
+-- You have moved the mouse. Windows must be restarted for the 
+   changes to take effect.
+

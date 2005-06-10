@@ -1,85 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261239AbVFJU4f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261245AbVFJU7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261239AbVFJU4f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 16:56:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261241AbVFJU4f
+	id S261245AbVFJU7K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 16:59:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261246AbVFJU7J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 16:56:35 -0400
-Received: from koris.mail.t-online.hu ([195.228.240.90]:2007 "EHLO
-	koris.mail.t-online.hu") by vger.kernel.org with ESMTP
-	id S261239AbVFJU4W (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 16:56:22 -0400
-Subject: hackbench: 2.6.12-rc6 vs.  2.6.12-rc6-RT-V0.7.48-06
-From: Gabor MICSKO <gmicsko@szintezis.hu>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-vMdI8F2v+vPmt8YWlRE+"
-Date: Fri, 10 Jun 2005 22:56:15 +0200
-Message-Id: <1118436975.1702.11.camel@alderaan.trey.hu>
+	Fri, 10 Jun 2005 16:59:09 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:21140 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261241AbVFJU7D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 16:59:03 -0400
+Subject: Re: DMA mapping (was Re: [PATCH] cciss 2.6; replaces DMA masks
+	with kernel defines)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: alsa-devel <alsa-devel@lists.sourceforge.net>,
+       Jeff Garzik <jgarzik@pobox.com>, mike.miller@hp.com, akpm@osdl.org,
+       axboe@suse.de, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <1118436306.5272.37.camel@laptopd505.fenrus.org>
+References: <20050610143453.GA26476@beardog.cca.cpqcorp.net>
+	 <42A9C60E.3080604@pobox.com>  <1118436000.6423.42.camel@mindpipe>
+	 <1118436306.5272.37.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Fri, 10 Jun 2005 16:59:55 -0400
+Message-Id: <1118437196.6423.60.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 
-X-VBMilter: scanned
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2005-06-10 at 22:45 +0200, Arjan van de Ven wrote:
+> On Fri, 2005-06-10 at 16:39 -0400, Lee Revell wrote:
+> > On Fri, 2005-06-10 at 12:55 -0400, Jeff Garzik wrote:
+> > > mike.miller@hp.com wrote:
+> > > > This patch removes our homegrown DMA masks and uses the ones defined in
+> > > > the kernel instead.
+> > > > Thanks to Jens Axboe for the code. Please consider this for inclusion.
+> > > > 
+> > > > Signed-off-by: Mike Miller <mike.miller@hp.com>
+> > > 
+> > > You need to add '#include <linux/dma-mapping.h>'
+> > > 
+> > 
+> > Why doesn't this file define 29, 30, 31 bit DMA masks, required by many
+> > devices?  I know of at least 2 soundcards that need a 29 bit DMA mask.
+> 
+> your mail unfortunately was not in diff -u form ;)
+> I'm pretty sure that such constants are welcome
 
---=-vMdI8F2v+vPmt8YWlRE+
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+Which reminds me, the SBLive has a 29 bit mask in the OSS driver but 31
+in the ALSA driver.  I'm going to preserve the discrepancy, it seems
+pointless to change the behavior of a deprecated driver.
 
-Hi!
-
-I made some test with 2.6.12-rc6-RT-V0.7.48-06 and 2.6.12-rc6 kernels.
-Here is my results:
-
-2.6.12-rc6-RT-V0.7.48-0			       2.6.12-rc6
-------------------------------------			    ----------------=09
-
-./hackbench 30
-
-1st run:  6.139					    5.110=09
-2nd run: 6.119					   4.946
-3rd run: 6.135					    5.168
-
-./hackbench 100
-
-1st run:  23.254				   16.603=09
-2nd run: 23.481					  16.478
-3rd run:  23.790				   16.387
-
-./hackbench 130
-
-1st run:  33.395				   21.731=09
-2nd run: 32.652					  21.821
-3rd run:  32.517				   21.698
-
-./hackbench 150
-
-1st run:  89.100				   47.862=09
-2nd run: 39.308					  25.121
-3rd run:  90.157				   25.125
-
-It seems to me 2.6.12-rc faster than 2.6.12-rc6-RT-V0.7.48-0. It is
-normal?=20
-
-thanks,
-
--
-mg
-
---=-vMdI8F2v+vPmt8YWlRE+
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Ez az =?ISO-8859-1?Q?=FCzenetr=E9sz?=
-	=?ISO-8859-1?Q?_digit=E1lis?= =?ISO-8859-1?Q?_al=E1=EDr=E1ssal?= van
-	=?ISO-8859-1?Q?ell=E1tva?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCqf5vo75Oas+VX1ARAtNcAJ4ig99PO2m8Bt1oDUYytX/A0zqMwQCeMTtk
-UdhcNQKTHb4eojISt2bV4Iw=
-=i16q
------END PGP SIGNATURE-----
-
---=-vMdI8F2v+vPmt8YWlRE+--
+Lee
 

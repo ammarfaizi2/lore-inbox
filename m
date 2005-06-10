@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261220AbVFJUjT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261222AbVFJUos@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261220AbVFJUjT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 16:39:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261221AbVFJUjT
+	id S261222AbVFJUos (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 16:44:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261225AbVFJUos
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 16:39:19 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:61072 "HELO
+	Fri, 10 Jun 2005 16:44:48 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:55697 "HELO
 	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S261220AbVFJUjH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 16:39:07 -0400
-Subject: DMA mapping (was Re: [PATCH] cciss 2.6; replaces DMA masks with
-	kernel defines)
+	id S261222AbVFJUoq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 16:44:46 -0400
+Subject: Re: Attempted summary of "RT patch acceptance" thread
 From: Lee Revell <rlrevell@joe-job.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: mike.miller@hp.com, akpm@osdl.org, axboe@suse.de,
-       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-In-Reply-To: <42A9C60E.3080604@pobox.com>
-References: <20050610143453.GA26476@beardog.cca.cpqcorp.net>
-	 <42A9C60E.3080604@pobox.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, Tim Bird <tim.bird@am.sony.com>,
+       linux-kernel@vger.kernel.org, bhuey@lnxw.com, tglx@linutronix.de,
+       karim@opersys.com, mingo@elte.hu, pmarques@grupopie.com,
+       bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au, ak@muc.de,
+       sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org
+In-Reply-To: <20050610173728.GA6564@g5.random>
+References: <20050608022646.GA3158@us.ibm.com>
+	 <42A8D1F3.8070408@am.sony.com> <20050609235026.GE1297@us.ibm.com>
+	 <1118372388.32270.6.camel@mindpipe> <20050610154745.GA1300@us.ibm.com>
+	 <20050610173728.GA6564@g5.random>
 Content-Type: text/plain
-Date: Fri, 10 Jun 2005 16:39:59 -0400
-Message-Id: <1118436000.6423.42.camel@mindpipe>
+Date: Fri, 10 Jun 2005 16:45:38 -0400
+Message-Id: <1118436338.6423.48.camel@mindpipe>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.3.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-06-10 at 12:55 -0400, Jeff Garzik wrote:
-> mike.miller@hp.com wrote:
-> > This patch removes our homegrown DMA masks and uses the ones defined in
-> > the kernel instead.
-> > Thanks to Jens Axboe for the code. Please consider this for inclusion.
-> > 
-> > Signed-off-by: Mike Miller <mike.miller@hp.com>
-> 
-> You need to add '#include <linux/dma-mapping.h>'
-> 
+On Fri, 2005-06-10 at 19:37 +0200, Andrea Arcangeli wrote:
+> You don't need to add it to the document, but as a further pratical
+> example of troublesome hardware besides VGA (could be a software issue
+> and not hardware issue though)  
 
-Why doesn't this file define 29, 30, 31 bit DMA masks, required by many
-devices?  I know of at least 2 soundcards that need a 29 bit DMA mask.
+The VGA problems were due to (X, not kernel!) driver bugs.  Recent
+versions of X are thought to be OK.
+
+It's the exact same issue described in this paper, scroll down to
+section 4.5.
+
+http://www.cs.utah.edu/~regehr/papers/hotos7/hotos7.html
+
+There's absolutely nothing the kernel or PREEMPT_RT can do about this,
+AFAICT even RTAI would be affected, because X lets userspace drivers
+talk directly to the hardware including wedging the PCI bus.
 
 Lee
 

@@ -1,74 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261236AbVFJVJu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261249AbVFJVQr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261236AbVFJVJu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 17:09:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261227AbVFJVJu
+	id S261249AbVFJVQr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 17:16:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261255AbVFJVQr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 17:09:50 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:31448 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261236AbVFJVJI
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 17:09:08 -0400
-Date: Fri, 10 Jun 2005 23:09:00 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Gabor MICSKO <gmicsko@szintezis.hu>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: hackbench: 2.6.12-rc6 vs.  2.6.12-rc6-RT-V0.7.48-06
-In-Reply-To: <1118436975.1702.11.camel@alderaan.trey.hu>
-Message-Id: <Pine.OSF.4.05.10506102306360.5042-100000@da410.phys.au.dk>
+	Fri, 10 Jun 2005 17:16:47 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:8601 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S261249AbVFJVQi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 17:16:38 -0400
+Subject: Re: DMA mapping (was Re: [PATCH] cciss 2.6; replaces DMA masks
+	with kernel defines)
+From: Lee Revell <rlrevell@joe-job.com>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, mike.miller@hp.com, akpm@osdl.org,
+       axboe@suse.de, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+In-Reply-To: <1118436306.5272.37.camel@laptopd505.fenrus.org>
+References: <20050610143453.GA26476@beardog.cca.cpqcorp.net>
+	 <42A9C60E.3080604@pobox.com>  <1118436000.6423.42.camel@mindpipe>
+	 <1118436306.5272.37.camel@laptopd505.fenrus.org>
+Content-Type: text/plain
+Date: Fri, 10 Jun 2005 17:17:32 -0400
+Message-Id: <1118438253.6423.72.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Evolution 2.3.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Jun 2005, Gabor MICSKO wrote:
+On Fri, 2005-06-10 at 22:45 +0200, Arjan van de Ven wrote:
+> On Fri, 2005-06-10 at 16:39 -0400, Lee Revell wrote:
+> > On Fri, 2005-06-10 at 12:55 -0400, Jeff Garzik wrote:
+> > > mike.miller@hp.com wrote:
+> > > > This patch removes our homegrown DMA masks and uses the ones defined in
+> > > > the kernel instead.
+> > > > Thanks to Jens Axboe for the code. Please consider this for inclusion.
+> > > > 
+> > > > Signed-off-by: Mike Miller <mike.miller@hp.com>
+> > > 
+> > > You need to add '#include <linux/dma-mapping.h>'
+> > > 
+> > 
+> > Why doesn't this file define 29, 30, 31 bit DMA masks, required by many
+> > devices?  I know of at least 2 soundcards that need a 29 bit DMA mask.
+> 
+> your mail unfortunately was not in diff -u form ;)
+> I'm pretty sure that such constants are welcome
+> 
 
-> Hi!
-> 
-> I made some test with 2.6.12-rc6-RT-V0.7.48-06 and 2.6.12-rc6 kernels.
-> Here is my results:
-> 
-> 2.6.12-rc6-RT-V0.7.48-0			       2.6.12-rc6
-> ------------------------------------			    ----------------	
-> 
-> ./hackbench 30
-> 
-> 1st run:  6.139					    5.110	
-> 2nd run: 6.119					   4.946
-> 3rd run: 6.135					    5.168
-> 
-> ./hackbench 100
-> 
-> 1st run:  23.254				   16.603	
-> 2nd run: 23.481					  16.478
-> 3rd run:  23.790				   16.387
-> 
-> ./hackbench 130
-> 
-> 1st run:  33.395				   21.731	
-> 2nd run: 32.652					  21.821
-> 3rd run:  32.517				   21.698
-> 
-> ./hackbench 150
-> 
-> 1st run:  89.100				   47.862	
-> 2nd run: 39.308					  25.121
-> 3rd run:  90.157				   25.125
-> 
-> It seems to me 2.6.12-rc faster than 2.6.12-rc6-RT-V0.7.48-0. It is
-> normal? 
+OK, this covers the drivers I know.  I didn't make any attempt to check
+them all.
 
-Depends on the configuration options. If you used the same configs they 
-should be the same but if you activated PREEMPT_RT it should slow things
-down due to the overhead of irq-threading and  mutexes instead of
-spinlocks - although I am surprised the factor is _that_ big!
 
-Esben
+According to Robert Love's book there's at least one device than can
+only DMA into a 24 bit address space, maybe the PCI NE2K?
 
-> 
-> thanks,
-> 
-> -
-> mg
-> 
+Sommary: Add mask defines for some devices that can't DMA into full
+32/64 bit address space.
+
+Signed-Off-By: Lee Revell <rlrevell@joe-job.com>
+
+--- linux-2.6.12-rc5-k7/include/linux/dma-mapping.h~	2005-03-02 02:38:25.000000000 -0500
++++ linux-2.6.12-rc5-k7/include/linux/dma-mapping.h	2005-06-10 17:10:12.000000000 -0400
+@@ -15,6 +15,8 @@
+ 
+ #define DMA_64BIT_MASK	0xffffffffffffffffULL
+ #define DMA_32BIT_MASK	0x00000000ffffffffULL
++#define DMA_31BIT_MASK	0x000000007fffffffULL
++#define DMA_29BIT_MASK	0x000000001fffffffULL
+ 
+ #include <asm/dma-mapping.h>
+ 
+
 

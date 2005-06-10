@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261366AbVFJWpC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261341AbVFJWqW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261366AbVFJWpC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 18:45:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261388AbVFJWpB
+	id S261341AbVFJWqW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 18:46:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261370AbVFJWpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 18:45:01 -0400
-Received: from zeus1.kernel.org ([204.152.191.4]:35050 "EHLO zeus1.kernel.org")
-	by vger.kernel.org with ESMTP id S261370AbVFJWoP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 18:44:15 -0400
-Date: Fri, 10 Jun 2005 16:22:52 -0500
-To: linux-kernel@vger.kernel.org
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, greg@kroah.com, akpm@osdl.org,
-       linuxppc64-dev@ozlabs.org
-Subject: [PATCH] Fix PCI BAR size interpretation on 64-bit arches
-Message-ID: <20050610212252.GA28655@austin.ibm.com>
+	Fri, 10 Jun 2005 18:45:13 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:36313
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S261341AbVFJWm6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 18:42:58 -0400
+Date: Fri, 10 Jun 2005 15:42:48 -0700 (PDT)
+Message-Id: <20050610.154248.130848042.davem@davemloft.net>
+To: willy@w.ods.org
+Cc: xschmi00@stud.feec.vutbr.cz, alastair@unixtrix.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: BUG: Unusual TCP Connect() results.
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050610222645.GA1317@pcw.home.local>
+References: <42A9C607.4030209@unixtrix.com>
+	<42A9BA87.4010600@stud.feec.vutbr.cz>
+	<20050610222645.GA1317@pcw.home.local>
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.6+20040907i
-From: Olof Johansson <olof@lixom.net>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+From: Willy TARREAU <willy@w.ods.org>
+Date: Sat, 11 Jun 2005 00:26:45 +0200
 
-On 64-bit machines, PCI_BASE_ADDRESS_MEM_MASK and other mask constants
-passed to pci_size() are 64-bit (for example ~0x0fUL). However, pci_size
-does comparisons between the u32 arguments and the mask, which will fail
-even though any result from pci_size is still just 32-bit.
+> It is documented in RFC793 (p30) as the simultaneous connection initation
+> from 2 clients, although this mode has never been implemented by any
+> mainline OS (to my knowledge) as it has no real use and poses security
+> problems (eases spoofing a lot).
 
-Changing the mask argument to u32 seems the obvious thing to do, since
-all arithmetic in the function is 32-bit and having a larger mask makes
-no sense.
+BSD (and thus BSD derivatives) and Linux have has it since
+day one.  I guess it depends upon your definition of
+"mainline OS". :-)
 
-This triggered on a PPC64 system here where an adapter (VGA, as it
-happened) had a memory region base of 0xfe000000 and a sz of the same,
-matching the if (max == maxbase ...) test at the bottom of pci_size
-but failing the mask comparison. Quite a corner case which I guess
-explains why we haven't seen it until now.
-
-
-Signed-off-by: Olof Johansson <olof@lixom.net>
-
-Index: 2.6/drivers/pci/probe.c
-===================================================================
---- 2.6.orig/drivers/pci/probe.c	2005-06-10 15:09:37.000000000 -0500
-+++ 2.6/drivers/pci/probe.c	2005-06-10 15:43:36.000000000 -0500
-@@ -125,7 +125,7 @@ static inline unsigned int pci_calc_reso
- /*
-  * Find the extent of a PCI decode..
-  */
--static u32 pci_size(u32 base, u32 maxbase, unsigned long mask)
-+static u32 pci_size(u32 base, u32 maxbase, u32 mask)
- {
- 	u32 size = mask & maxbase;	/* Find the significant bits */
- 	if (!size)
+This is not a new feature.

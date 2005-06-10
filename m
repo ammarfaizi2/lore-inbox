@@ -1,99 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262310AbVFJHJq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262495AbVFJHLr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262310AbVFJHJq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 03:09:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262495AbVFJHJc
+	id S262495AbVFJHLr (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 03:11:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbVFJHLq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 03:09:32 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:28841 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S262310AbVFJHJX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 03:09:23 -0400
-Date: Fri, 10 Jun 2005 09:02:14 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Andrew Morton <akpm@osdl.org>, Christoph Lameter <clameter@engr.sgi.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.12-rc6-mm1
-Message-ID: <20050610070214.GA31323@elte.hu>
-References: <20050607170853.3f81007a.akpm@osdl.org> <1100910000.1118361416@flay>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1100910000.1118361416@flay>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Fri, 10 Jun 2005 03:11:46 -0400
+Received: from web25805.mail.ukl.yahoo.com ([217.12.10.190]:6259 "HELO
+	web25805.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S262495AbVFJHL0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 03:11:26 -0400
+Message-ID: <20050610071121.88587.qmail@web25805.mail.ukl.yahoo.com>
+Date: Fri, 10 Jun 2005 09:11:21 +0200 (CEST)
+From: moreau francis <francis_moreau2000@yahoo.fr>
+Subject: Re: [TTY] exclusive mode question
+To: Denis Vlasenko <vda@ilport.com.ua>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Frederik Deweerdt <dev.deweerdt@laposte.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <200506101003.24835.vda@ilport.com.ua>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Martin J. Bligh <mbligh@mbligh.org> wrote:
+--- Denis Vlasenko <vda@ilport.com.ua> a écrit :
 
-> > I'm assuming it was the CPU scheduler patches.  There are 36 of them ;)
+> On Thursday 09 June 2005 18:12, Russell King wrote:
+> > On Thu, Jun 09, 2005 at 04:22:49PM +0200, moreau francis wrote:
+> > > --- Frederik Deweerdt <dev.deweerdt@laposte.net> a écrit :
+> > > > Le 09/06/05 13:41 +0200, moreau francis écrivit:
+> > > > > 
+> > > > > oh ok...sorry I misunderstood TIOEXCL meaning ;)
+> > > > > Do you know how I could implement such exclusive mode (the one I
+> described)
+> > > > ?
+> > > > > 
+> > > > This is handled through lock files, google for LCK..ttyS0
+> > > >
+> > > 
+> > > This lock mechanism is a convention but nothing prevent a user
+> application to
+> > > issue a "echo foo > /dev/ttyS0" command while "LCK..ttyS0" file exists...
+> > 
+> > Which is absolutely necessary to work if you think about an application
+> > like minicom and its file transfer helpers, which may need to re-open
+> > the serial port.
+> > 
+> > TTY locking is done via lock files only, and all non-helper applications
+> > must coordinate their access via the lock files.  There is no other
+> > mechanism.
 > 
-> Backed them all out ... performance thunks down to earth again, and is 
-> actually the best I've seen it ever (probably 250Hz is helping, I used 
-> to run 100 in -mjb for better benefit).
-> 
-> the +5081 item is the one to look at
-> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/perf/kernbench.moe.png
-> 
-> Patch I used was here:
-> 
-> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/patches/nosched
-> 
-> But it was just everything under the "CPU scheduler" section of your 
-> series file.
+> I think original reporter is saying that TIOEXCL is nearly useless then.
+> --
 
-we know from Nick's testing that the patches up to and including 
-dynamic-sched-domains-ia64-changes.patch are probably OK. So the 
-candidates for the regression are:
+yes it is what I was trying to say....
 
- sched-implement-nice-support-across-physical-cpus-on-smp.patch
- sched-change_prio_bias_only_if_queued.patch
- sched-account_rt_tasks_in_prio_bias.patch
- consolidate-preempt-options-into-kernel-kconfigpreempt.patch
- enable-preempt_bkl-on-preemptsmp-too.patch
- sched-tweak-idle-thread-setup-semantics.patch
- sched-voluntary-kernel-preemption.patch
- sched-smp-nice-bias-busy-queues-on-idle-rebalance.patch
- sched-task_noninteractive.patch
- sched-run-sched_normal-tasks-with-real-time-tasks-on-smt-siblings.patch
 
-there are two feature patches in this:
 
- enable-preempt_bkl-on-preemptsmp-too.patch
- sched-voluntary-kernel-preemption.patch
-
-so make sure you have PREEMPT_BKL and PREEMPT_VOLUNTARY disabled.
-
-these ones should not impact your workload's functionality (unless they 
-are buggy):
-
- sched-account_rt_tasks_in_prio_bias.patch
- consolidate-preempt-options-into-kernel-kconfigpreempt.patch
- sched-tweak-idle-thread-setup-semantics.patch
- sched-run-sched_normal-tasks-with-real-time-tasks-on-smt-siblings.patch
-
-and unless you are using separate nice levels, this one shouldnt make a 
-difference in theory:
-
- sched-implement-nice-support-across-physical-cpus-on-smp.patch
-
-which leaves the following 3 likely candidates:
-
- sched-change_prio_bias_only_if_queued.patch
- sched-smp-nice-bias-busy-queues-on-idle-rebalance.patch
- sched-task_noninteractive.patch
-
-so if you could do a run with all 3 of the above unapplied, that would 
-be a good starting point. (But any of the others might be it too, if 
-they contain some sort of bug.)
-
-	Ingo
+	
+	
+		
+___________________________________________________________________________ 
+Appel audio GRATUIT partout dans le monde avec le nouveau Yahoo! Messenger 
+Téléchargez cette version sur http://fr.messenger.yahoo.com

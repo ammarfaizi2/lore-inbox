@@ -1,66 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262495AbVFJHLr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262506AbVFJHSK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262495AbVFJHLr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 03:11:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262501AbVFJHLq
+	id S262506AbVFJHSK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 03:18:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262507AbVFJHSK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 03:11:46 -0400
-Received: from web25805.mail.ukl.yahoo.com ([217.12.10.190]:6259 "HELO
-	web25805.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
-	id S262495AbVFJHL0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 03:11:26 -0400
-Message-ID: <20050610071121.88587.qmail@web25805.mail.ukl.yahoo.com>
-Date: Fri, 10 Jun 2005 09:11:21 +0200 (CEST)
-From: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: Re: [TTY] exclusive mode question
-To: Denis Vlasenko <vda@ilport.com.ua>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Frederik Deweerdt <dev.deweerdt@laposte.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <200506101003.24835.vda@ilport.com.ua>
+	Fri, 10 Jun 2005 03:18:10 -0400
+Received: from zone4.gcu-squad.org ([213.91.10.50]:3016 "EHLO
+	zone4.gcu-squad.org") by vger.kernel.org with ESMTP id S262506AbVFJHSG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 03:18:06 -0400
+Date: Fri, 10 Jun 2005 09:08:27 +0200 (CEST)
+To: greg@kroah.com
+Subject: Re: BUG in i2c_detach_client
+X-IlohaMail-Blah: khali@localhost
+X-IlohaMail-Method: mail() [mem]
+X-IlohaMail-Dummy: moo
+X-Mailer: IlohaMail/0.8.14 (On: webmail.gcu.info)
+Message-ID: <nAod2h83.1118387307.3144940.khali@localhost>
+In-Reply-To: <20050610055854.GB15873@kroah.com>
+From: "Jean Delvare" <khali@linux-fr.org>
+Bounce-To: "Jean Delvare" <khali@linux-fr.org>
+CC: "Andrew James Wade" 
+	<ajwade@cpe00095b3131a0-cm0011ae8cd564.cpe.net.cable.rogers.com>,
+       "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       "Mark M. Hoffman" <mhoffman@lightlink.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---- Denis Vlasenko <vda@ilport.com.ua> a écrit :
+Hi Greg,
 
-> On Thursday 09 June 2005 18:12, Russell King wrote:
-> > On Thu, Jun 09, 2005 at 04:22:49PM +0200, moreau francis wrote:
-> > > --- Frederik Deweerdt <dev.deweerdt@laposte.net> a écrit :
-> > > > Le 09/06/05 13:41 +0200, moreau francis écrivit:
-> > > > > 
-> > > > > oh ok...sorry I misunderstood TIOEXCL meaning ;)
-> > > > > Do you know how I could implement such exclusive mode (the one I
-> described)
-> > > > ?
-> > > > > 
-> > > > This is handled through lock files, google for LCK..ttyS0
-> > > >
-> > > 
-> > > This lock mechanism is a convention but nothing prevent a user
-> application to
-> > > issue a "echo foo > /dev/ttyS0" command while "LCK..ttyS0" file exists...
-> > 
-> > Which is absolutely necessary to work if you think about an application
-> > like minicom and its file transfer helpers, which may need to re-open
-> > the serial port.
-> > 
-> > TTY locking is done via lock files only, and all non-helper applications
-> > must coordinate their access via the lock files.  There is no other
-> > mechanism.
-> 
-> I think original reporter is saying that TIOEXCL is nearly useless then.
-> --
+> > --- linux-2.6.12-rc6/drivers/i2c/chips/asb100.c.orig
+> > +++ linux-2.6.12-rc6/drivers/i2c/chips/asb100.c
+> > @@ -859,6 +859,7 @@
+> >  	return 0;
+> >
+> >  ERROR3:
+> > +	i2c_detach_client(data->lm75[1]);
+> >  	i2c_detach_client(data->lm75[0]);
+> >  	kfree(data->lm75[1]);
+> >  	kfree(data->lm75[0]);
+>
+> Hm, what tree is this against?  Am I missing some inbetween patch here?
 
-yes it is what I was trying to say....
+2.6.12-rc6-mm1, but that was a fix to Mark's hwmon patches, which you
+just backed out from your tree - so this fix is no more needed (and
+should unsurprisingly fail to apply).
 
-
-
-	
-	
-		
-___________________________________________________________________________ 
-Appel audio GRATUIT partout dans le monde avec le nouveau Yahoo! Messenger 
-Téléchargez cette version sur http://fr.messenger.yahoo.com
+Thanks,
+--
+Jean Delvare

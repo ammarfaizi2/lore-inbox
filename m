@@ -1,155 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261469AbVFJXbO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261458AbVFJXcA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261469AbVFJXbO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 19:31:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261454AbVFJX30
+	id S261458AbVFJXcA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 19:32:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbVFJXb7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 19:29:26 -0400
-Received: from smtp04.auna.com ([62.81.186.14]:12213 "EHLO smtp04.retemail.es")
-	by vger.kernel.org with ESMTP id S261389AbVFJX1h convert rfc822-to-8bit
+	Fri, 10 Jun 2005 19:31:59 -0400
+Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:29210
+	"EHLO g5.random") by vger.kernel.org with ESMTP id S261458AbVFJXaB
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 19:27:37 -0400
-Date: Fri, 10 Jun 2005 23:14:20 +0000
-From: "J.A. Magallon" <jamagallon@able.es>
-Subject: Re: 2.6.12-rc6-mm1
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       Christoph Lameter <clameter@engr.sgi.com>,
-       Nick Piggin <piggin@cyberone.com.au>
-References: <20050607170853.3f81007a.akpm@osdl.org>
-	<20050610070214.GA31323@elte.hu> <200506102203.15909.kernel@kolivas.org>
-	<200506110019.13204.kernel@kolivas.org>
-X-Mailer: Balsa 2.3.3
-Message-Id: <1118445260l.7785l.0l@werewolf.able.es>
-MIME-Version: 1.0
+	Fri, 10 Jun 2005 19:30:01 -0400
+Date: Sat, 11 Jun 2005 01:29:55 +0200
+From: Andrea Arcangeli <andrea@suse.de>
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Karim Yaghmour <karim@opersys.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Lee Revell <rlrevell@joe-job.com>, Tim Bird <tim.bird@am.sony.com>,
+       linux-kernel@vger.kernel.org, tglx@linutronix.de, mingo@elte.hu,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org
+Subject: Re: Attempted summary of "RT patch acceptance" thread
+Message-ID: <20050610232955.GH6564@g5.random>
+References: <42A8D1F3.8070408@am.sony.com> <20050609235026.GE1297@us.ibm.com> <1118372388.32270.6.camel@mindpipe> <20050610154745.GA1300@us.ibm.com> <20050610173728.GA6564@g5.random> <20050610193926.GA19568@nietzsche.lynx.com> <42A9F788.2040107@opersys.com> <20050610223724.GA20853@nietzsche.lynx.com> <20050610225231.GF6564@g5.random> <20050610230836.GD21618@nietzsche.lynx.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-X-Auth-Info: Auth:LOGIN IP:[83.138.215.85] Login:jamagallon@able.es Fecha:Sat, 11 Jun 2005 01:14:20 +0200
+In-Reply-To: <20050610230836.GD21618@nietzsche.lynx.com>
+X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On 06.10, Con Kolivas wrote:
-
-> The priority biasing was off by mutliplying the total load by the total 
-> priority bias and this ruins the ratio of loads between runqueues. This
-> patch should correct the ratios of loads between runqueues to be proportional
-> to overall load.
+On Fri, Jun 10, 2005 at 04:08:36PM -0700, Bill Huey wrote:
+> On Sat, Jun 11, 2005 at 12:52:31AM +0200, Andrea Arcangeli wrote:
+> > Just tell me how can you go to a customer and tell him that your
+> > linux-RTOS has a guaranteed worst case latency of 50usec.  How can you
+> > tell that? Did you exercise all possible scheduler paths with cache
+> > disabled and calculated the worst case latency with rdtsc + math?
 > 
+> Ask Ingo. I'm through with this track and your misinformed comments
 
-2.6.12-rc6-mm1 + this patch just oopses nicely on boot.
-I did not had a digital camera handy, but the first oops that fit in the
-screen was this call chain:
+You didn't provide an answer yourself, and you fallback on somebody else
+cause there's no valid answer to this question. All I've seen so far are
+measurements backed by some statistical significance, that's very far
+from the meaning I give to the word _guarantee_.
 
-kernel_thread_helper
-init
-init
-do:base_setup
-usermodehelper_init
-__create_workqueue
-EIP in try_to_wake_up
+I fully acknowledge there are some problems that aren't more equally
+easily solved with full userland code, for those problems keeping things
+simpler by making the kernel more RT aware has a value.
 
-After this, there was another with some do_div_error calls...
+I fully acknowledge that simulating infinite cpus has a value too in
+discovering race conditions too ;).
 
-Something looks un-initialized the first time, or the integer arithmetic
-is wrong. I really dont like a*(b/c), I really prefer (a*b)/c. It is more
-common b/c == 0 (because b<c), than the possibility of overflowing (a*b).
+But I personally dislike all things that works by luck, preempt-RT that
+aims to provide guarantees about worst case latencies is no exception,
+so you shoudln't be surprised if I'm not a RTOS backer for problems that
+can be more easily solved with ruby-hard RT designs like RTAI and
+rtlinux. I don't care how things have worked in the past on non-linux
+OS. Most of the time even current not-RT linux will work fine if it's
+idle as it would be on some embedded usages like the printer example.
 
-So I tried both. With this, it boots again:
+This even ignoring the fact all those context switch will not be cheap,
+kernel can execute a lot more hard-irqs than context switches per
+second, and this is another fact. On a 4ghz cpu it doesn't matter, but
+on a embedded it can matter, so the more reliable solution is obviously
+higher performant too. Of the 50usec it takes to such project on
+linuxdevices to execute probably a 10% of that is wasted in the irq
+handling itself (ioapic hardware proper stuff).
 
---- linux-2.6.11-jam24/kernel/sched.c.orig	2005-06-11 00:59:44.000000000 +0200
-+++ linux-2.6.11-jam24/kernel/sched.c	2005-06-11 01:03:32.000000000 +0200
-@@ -987,9 +987,10 @@
- 		 * prevent idle rebalance from trying to pull tasks from a
- 		 * queue with only one running task.
- 		 */
--		unsigned long prio_bias = rq->prio_bias / rq->nr_running;
-+		unsigned long prio_scale = (rq->nr_running > 0 ? 
-+										rq->nr_running : 1);
- 
--		source_load *= prio_bias;
-+		source_load = (source_load*rq->prio_bias) / prio_scale;
- 	}
- 
- 	return source_load;
-@@ -1015,9 +1016,10 @@
- 		target_load = max(cpu_load, load_now);
- 
- 	if (idle == NOT_IDLE || rq->nr_running > 1) {
--		unsigned long prio_bias = rq->prio_bias / rq->nr_running;
-+		unsigned long prio_scale = (rq->nr_running > 0 ? 
-+										rq->nr_running : 1);
- 
--		target_load *= prio_bias;
-+		target_load = (target_load*rq->prio_bias) / prio_scale;
- 	}
- 
- 	return target_load;
-
-
-Perhaps this:
-
-	if (idle == NOT_IDLE || rq->nr_running > 1)
-
-should be
-
-	if (idle == NOT_IDLE && rq->nr_running > 1)
-
-???
-
-Hope this helps, thanks.
-
-> Signed-off-by: Con Kolivas <kernel@kolivas.org>
-> 
-> Index: linux-2.6.12-rc6-mm1/kernel/sched.c
-> ===================================================================
-> --- linux-2.6.12-rc6-mm1.orig/kernel/sched.c	2005-06-10 23:56:56.000000000 +1000
-> +++ linux-2.6.12-rc6-mm1/kernel/sched.c	2005-06-10 23:59:57.000000000 +1000
-> @@ -978,7 +978,7 @@ static inline unsigned long __source_loa
->  	else
->  		source_load = min(cpu_load, load_now);
->  
-> -	if (idle == NOT_IDLE || rq->nr_running > 1)
-> +	if (idle == NOT_IDLE || rq->nr_running > 1) {
->  		/*
->  		 * If we are busy rebalancing the load is biased by
->  		 * priority to create 'nice' support across cpus. When
-> @@ -987,7 +987,10 @@ static inline unsigned long __source_loa
->  		 * prevent idle rebalance from trying to pull tasks from a
->  		 * queue with only one running task.
->  		 */
-> -		source_load *= rq->prio_bias;
-> +		unsigned long prio_bias = rq->prio_bias / rq->nr_running;
-> +
-> +		source_load *= prio_bias;
-> +	}
->  
->  	return source_load;
->  }
-> @@ -1011,8 +1014,11 @@ static inline unsigned long __target_loa
->  	else
->  		target_load = max(cpu_load, load_now);
->  
-> -	if (idle == NOT_IDLE || rq->nr_running > 1)
-> -		target_load *= rq->prio_bias;
-> +	if (idle == NOT_IDLE || rq->nr_running > 1) {
-> +		unsigned long prio_bias = rq->prio_bias / rq->nr_running;
-> +
-> +		target_load *= prio_bias;
-> +	}
->  
->  	return target_load;
->  }
-> 
-
---
-J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
-werewolf!able!es                         \         It's better when it's free
-Mandriva Linux release 2006.0 (Cooker) for i586
-Linux 2.6.11-jam24 (gcc 4.0.0 (4.0.0-3mdk for Mandriva Linux release 2006.0))
-
-
-
-
+Anyway I've more fun things to do on than to talk about hard-RT, which
+I'm doing just with the aim to provide my little contribution in form of
+IMHO valid criticism that you clearly don't appreciate.

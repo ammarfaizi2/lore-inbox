@@ -1,92 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262534AbVFJJgB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262313AbVFJJfp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262534AbVFJJgB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 05:36:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262315AbVFJJgB
+	id S262313AbVFJJfp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 05:35:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262536AbVFJJfp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 05:36:01 -0400
-Received: from smtp2.poczta.interia.pl ([213.25.80.232]:8972 "EHLO
-	smtp.poczta.interia.pl") by vger.kernel.org with ESMTP
-	id S262534AbVFJJfk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 05:35:40 -0400
-Message-ID: <42A95EE2.4030107@poczta.fm>
-Date: Fri, 10 Jun 2005 11:35:30 +0200
-From: Lukasz Stelmach <stlman@poczta.fm>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: pl, en-us, en
-MIME-Version: 1.0
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: moreau francis <francis_moreau2000@yahoo.fr>
-Subject: framebuffer driver for an LCD display
-References: <20050609082003.74895.qmail@web25805.mail.ukl.yahoo.com>
-In-Reply-To: <20050609082003.74895.qmail@web25805.mail.ukl.yahoo.com>
-X-Enigmail-Version: 0.90.1.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig9CB069562F96C3B9BFB428F3"
-X-EMID: c60b1138
+	Fri, 10 Jun 2005 05:35:45 -0400
+Received: from wproxy.gmail.com ([64.233.184.201]:51935 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262313AbVFJJfb convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 05:35:31 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=G86Mntliv50wfvXUoNTiIu7dKugHvJzek0tCiGqQ+5gkBV2hS227gn/j9JYN5U5+8z4WXkzQZNcJNgP8BqvduMOHJ2/Lg0F2/OW4Rk1NebSDvDNj/QGJOrvu/bouUGNWjQHwmhNjNQqwNAw10sNB5kncPshuaTqyqdXAsPqAP6w=
+Message-ID: <98df96d305061002356359441b@mail.gmail.com>
+Date: Fri, 10 Jun 2005 18:35:31 +0900
+From: Hiro Yoshioka <lkml.hyoshiok@gmail.com>
+Reply-To: hyoshiok@miraclelinux.com
+To: Hideki.Takahashi@uniadex.co.jp
+Subject: Re: Dump analysis tool Alicia is released
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <034D06CB98C3DA48A82AC64141B6604E0596ACEF@AA02S1MB01.nthq01.unisys.co.jp>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <034D06CB98C3DA48A82AC64141B6604E0596ACEF@AA02S1MB01.nthq01.unisys.co.jp>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig9CB069562F96C3B9BFB428F3
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+Hi,
 
-moreau francis napisa=C5=82(a):
-> --- Lukasz Stelmach <stlman@poczta.fm> a =C3=A9crit :
->=20
->>Try to find something in:
->>/usr/src/linux/drivers/video/console/fbcon.c
->=20
-> hmm I already looked at it...and I can't find out an answer to my initi=
-al
-> question: can a process which is using a fb console prevent another pro=
-cess
-> for accessing /dev/fb ?
+The development of alicia is partly supported by IPA and the following is an
+information of the activities.
 
-I don't know.
+http://www.ipa.go.jp/software/open/forum/NEAforum.html
 
-If I understand it correctly thie situation can be described like this
+http://www.ipa.go.jp/software/open/forum/Contents/DevInfraWG/Alicia_Ev01.pdf
 
+The WG1 did run Web/DB/OS benchmarks and develop Alicia/LKST/DAV tools.
 
-      GFX hardware
-      -----+------
-           |
-        ---+---
-           fb
-       +-------+
-       |       |
-    fbcon     mplayer
-    /   \
-  vcs1  vcs2
-  tty1
-  bash
+Enjoy,
+  Hiro
 
-So I belive there might be no way for bash to prevent mplayer from
-running. Please someone who knows more about framebuffer divers
-correct me because quite probably I'am wrong.
-
---=20
-By=C5=82o mi bardzo mi=C5=82o.                    Trzecia pospolita kl=C4=
-=99ska, [...]
->=C5=81ukasz<                      Ju=C5=BC nie katolicka lecz z=C5=82odz=
-iejska.  (c)PP
-
-
---------------enig9CB069562F96C3B9BFB428F3
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.0 (GNU/Linux)
-Comment: Using GnuPG with Thunderbird - http://enigmail.mozdev.org
-
-iD8DBQFCqV7mNdzY8sm9K9wRArWZAJ0T6lF3H4fj/ywlFYCJcTeBsxAK3gCcCUq4
-E6DccDnNemLX44sMQb67R1k=
-=HpOx
------END PGP SIGNATURE-----
-
---------------enig9CB069562F96C3B9BFB428F3--
+On 6/7/05, Hideki.Takahashi@uniadex.co.jp
+<Hideki.Takahashi@uniadex.co.jp> wrote:
+> Dear all,
+> 
+> We are pleased to announce releasing a new dump analysis tool,
+> Alicia (Advanced LInux Crash-dump Interactive Analyzer).
+> 
+> ---
+> The development of this program is partly supported by IPA
+> (Information-Technology Promotion Agency, Japan).
+> 
+> ---
+> 
+> Alicia is a program that provides effective dump analysis environment
+> with power of Perl language. Alicia provides common access method to
+> kernel by wrapping the existing tool crash/lcrash and provides 
+> "scripting" function for saving and reusing the dump analysis procedures.
+> User can use existing crash/lcrash commands in addition to Alicia
+> commands. The command result can be saved as a variable and it can
+> be used as a parameter of another command. 
+> Please use this tool and give us some comments.
+> 
+> The following software is necessary for the compilation and the
+> execution of Alicia.
+>  - crash 3.8.5 or higher
+>  - Perl 5.8.0 or higher
+>  - Perl module Term::ReadKey 2.21 or higher
+>  - Perl module Term::ReadLine::Perl 1.0203 or higer
+> 
+> ---
+> Alicia source code and documents are available in the following site,
+> http://sourceforge.net/projects/alicia/
+> http://alicia.sourceforge.net/
+> 
+> We prepared a mailing list written below in order to let users know
+> update of Alicia.
+> alicia-users@lists.sourceforge.net
+> 
+> And if you have any comments, please send to the above list, or to
+> another mailing-list written below.
+> alicia-devel@lists.sourceforge.net
+> 
+> Best regards,
+> All of the Alicia developers
+> 
+> -----------------
+> Hideki Takahashi
+> Uniadex,Ltd., Software Product Support
+> E-mail: Hideki.Takahashi@uniadex.co.jp
+> 
+> -
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

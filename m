@@ -1,70 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262492AbVFJGXu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262502AbVFJGiG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262492AbVFJGXu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 02:23:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbVFJGXu
+	id S262502AbVFJGiG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 02:38:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262310AbVFJGiG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 02:23:50 -0400
-Received: from ns.virtualhost.dk ([195.184.98.160]:42378 "EHLO virtualhost.dk")
-	by vger.kernel.org with ESMTP id S262492AbVFJGXr (ORCPT
+	Fri, 10 Jun 2005 02:38:06 -0400
+Received: from ns.virtualhost.dk ([195.184.98.160]:47503 "EHLO virtualhost.dk")
+	by vger.kernel.org with ESMTP id S262414AbVFJGh6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 02:23:47 -0400
-Date: Fri, 10 Jun 2005 08:24:53 +0200
+	Fri, 10 Jun 2005 02:37:58 -0400
+Date: Fri, 10 Jun 2005 08:38:59 +0200
 From: Jens Axboe <axboe@suse.de>
-To: Takashi Ikebe <ikebe.takashi@lab.ntt.co.jp>
-Cc: andrea@suse.de, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Real-time problem due to IO congestion.
-Message-ID: <20050610062452.GK5140@suse.de>
-References: <42A91D36.8090506@lab.ntt.co.jp>
+To: Greg Stark <gsstark@mit.edu>
+Cc: Mark Lord <liml@rtr.ca>, linux-kernel@vger.kernel.org,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: SMART support for libata
+Message-ID: <20050610063858.GN5140@suse.de>
+References: <87y8g8r4y6.fsf@stark.xeocode.com> <41B7EFA3.8000007@pobox.com> <87br6g6ayr.fsf@stark.xeocode.com> <42A73E6E.80808@rtr.ca> <873brs5ir8.fsf@stark.xeocode.com> <42A85F5E.10208@rtr.ca> <87u0k74cuy.fsf@stark.xeocode.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42A91D36.8090506@lab.ntt.co.jp>
+In-Reply-To: <87u0k74cuy.fsf@stark.xeocode.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 10 2005, Takashi Ikebe wrote:
-> Hello,
-> I have been encountering big real-time problem due to IO congestion, and
-> I want some advices.
+On Thu, Jun 09 2005, Greg Stark wrote:
 > 
-> -The problem description-
-> There are 2 type processes in test environment.
-> 1. The real-time needed process (run on with high static priority)
->     The process wake up every 10ms, and wake up, write some log (the
-> test case is current CPU clock via tsc) to the file.
+> Mark Lord <liml@rtr.ca> writes:
 > 
-> 2. The process which make IO load
->     The process have large memory size, and kill the process with dumping.
->     The process's memory area exceeds 70% of whole physical
-> RAM.(Actually 1.5GB memory area while whole RAM is 2GB)
+> > Greg Stark wrote:
+> > ..
+> > >>You should be using "-y" (standby) instead of "-Y" (sleep).
+> > > I'll try that. But that's not going to make it spin up when it gets a SMART
+> > > query is it?
+> > 
+> > Depends on what SMART items are being queried.
+> > 
+> > Actually, what you should *really* be using is "hdparm -S"
+> > with a suitable timeout value (say, 30 or larger).
 > 
-> Whenever during dumping, the real-time needed process sometimes stop for
-> long time during write system call. (sometimes exceeds 1000ms)
-> I tested every IO scheduler but the same problem occurs.
-> I also seek this problem into the code, and find that the stops are
-> mainly occurring on blk_congestion_wait/get_request/get_request_wait
-> functions located on drivers/block/ll_rw_blk.c.
+> Not really since the drive will just spin up ever few seconds as bdflush (or
+> whatever it's called these days) dribbles out pages.
 > 
-> -My assumption-
-> The design of IO(read/write) queue and queuing is not well match to
-> real-time needed processes.
-> If there are many IO requests by low priority processes already, then
-> the IO request by high priority process should wait until queue goes
-> clean, and this cause some kind of priority inversions.
-> 
-> -My suggestion-
-> Add the new IO scheduler or change current IO scheduler to reflect
-> process's priority on queuing.
-> 
-> I don't know my assumption and suggestion are correct and you like,
-> would you give me some advices?
+> What I should *really* be using is the noflushd daemon. That's been on hold
+> since I found it didn't work with SATA drives. But I wonder if it would work
+> these days.
 
-This basically needs io priorities to work, so that request allocation
-is prioritized as well. I didn't actually add request allocation groups
-in the cfq-ts posted with priority support, however I have some patches
-from years ago that did so. I'll see if I can find the time to brush
-those off.
+noflushd is ancient, have you tried playing with laptop mode?
 
 -- 
 Jens Axboe

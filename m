@@ -1,63 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262527AbVFJJG4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262530AbVFJJLT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262527AbVFJJG4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 05:06:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262528AbVFJJG4
+	id S262530AbVFJJLT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 05:11:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262532AbVFJJLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 05:06:56 -0400
-Received: from hrz-ws39.hrz.uni-kassel.de ([141.51.12.239]:47772 "EHLO
-	hrz-ws39.hrz.uni-kassel.de") by vger.kernel.org with ESMTP
-	id S262527AbVFJJGy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 05:06:54 -0400
-Message-ID: <42A958AF.5010507@uni-kassel.de>
-Date: Fri, 10 Jun 2005 11:09:03 +0200
-From: Michael Zapf <Michael.Zapf@uni-kassel.de>
-User-Agent: Mozilla Thunderbird 1.0 (X11/20041206)
-X-Accept-Language: de-DE, de, en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Fixed the prob (was: Re: Problems with USB on x86_64)
-References: <42A6AAFF.2020605@uni-kassel.de>
-In-Reply-To: <42A6AAFF.2020605@uni-kassel.de>
-X-Enigmail-Version: 0.90.0.0
-X-Enigmail-Supports: pgp-inline, pgp-mime
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 8bit
-X-UniK-SMTP-MailScanner-Information: 
-X-UniK-SMTP-MailScanner: Found to be clean
-X-UniK-SMTP-MailScanner-SpamCheck: 
-X-MailScanner-From: michael.zapf@uni-kassel.de
+	Fri, 10 Jun 2005 05:11:19 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:42696 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S262537AbVFJJKo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 05:10:44 -0400
+Date: Fri, 10 Jun 2005 11:10:08 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Tony Lindgren <tony@atomide.com>
+Cc: linux-kernel@vger.kernel.org,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Jonathan Corbet <corbet@lwn.net>,
+       Bernard Blackham <b-lkml@blackham.com.au>,
+       Christian Hesse <mail@earthworm.de>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>
+Subject: Re: [PATCH] Dynamic tick for x86 version 050609-2
+Message-ID: <20050610091008.GG4173@elf.ucw.cz>
+References: <88056F38E9E48644A0F562A38C64FB6004EBD10C@scsmsx403.amr.corp.intel.com> <20050609014033.GA30827@atomide.com> <20050610043018.GE18103@atomide.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050610043018.GE18103@atomide.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Zapf schrieb:
+Hi!
 
-> I have some trouble using a memory stick of LG in my Athlon64 system. 
-> When I plug it in, dmesg gives messages like this:
->
-> ehci_hcd 0000:00:02.2: port 6 reset error -110
-> hub 1-0:1.0: hub_port_status failed (err = -32)
-> ehci_hcd 0000:00:02.2: port 6 reset error -110
-> hub 1-0:1.0: hub_port_status failed (err = -32)
-> hub 1-0:1.0: Cannot enable port 6.  Maybe the USB cable is bad?
+Some more nitpicking...
 
-just minutes before starting to pack my barebone to send it to service, 
-it seems that I solved the issue with the USB stick by patching the 
-ehci-hub.c file.
+> +/*
+> + * ---------------------------------------------------------------------------
+> + * Command line options
+> + * ---------------------------------------------------------------------------
+> + */
+> +static int __initdata dyntick_autoenable = 0;
+> +static int __initdata dyntick_useapic = 0;
+> +
+> +/*
+> + * dyntick=[enable|disable],[forceapic]
+> + */ 
+> +static int __init dyntick_setup(char *options)
+> +{
+> +	if (!options)
+> +		return 0;
+> +
+> +	if (strstr(options, "enable"))
+> +		dyntick_autoenable = 1;
+> +
+> +	if (strstr(options, "forceapic"))
+> +		dyntick_useapic = 1;
+> +
+> +	return 0;
+> +}
+> +
+> +__setup("dyntick=", dyntick_setup);
 
-Actually, the messages in the log file
 
-ehci_hcd 0000:00:02.2: port 6 reset error -110
+Well, your parsing is little too simplistic. If I pass
+dyntick=do_not_dare_to_enable_it, it still enables :-).
 
-showed that I had a timeout problem (110=ETIMEOUT). I found a call to a 
-function "handshake" in ehci-hub.c which set the timeout to 500µs.
+> +/*
+> + * ---------------------------------------------------------------------------
+> + * Sysfs interface
+> + * ---------------------------------------------------------------------------
+> + */
+> +
+> +extern struct sys_device device_timer;
+> +
+> +static ssize_t show_dyn_tick_state(struct sys_device *dev, char *buf)
+> +{
+> +	return sprintf(buf, "suitable:\t%i\n"
+> +		       "enabled:\t%i\n"
+> +		       "using APIC:\t%i\n",
+> +		       dyn_tick->state & DYN_TICK_SUITABLE,
+> +		       (dyn_tick->state & DYN_TICK_ENABLED) >> 1,
+> +		       (dyn_tick->state & DYN_TICK_USE_APIC) >> 3);
 
-Increasing this timeout to 600µs allows the onboard hub to complete the 
-reset. The stick is correctly mounted afterwards. (I tried 550, but this 
-was still not enough.)
+You basically hardcode values of DYN_TICK_* here. Why not use !!() and
+loose dependency?
 
-Any chance to have this included in future patches and versions? I guess 
-there could be other people around with such a problem. The increase of 
-the timeout should not hurt too much, should it?
-
-Michael
+								Pavel

@@ -1,46 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262595AbVFJQQe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262597AbVFJQUP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262595AbVFJQQe (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 12:16:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262597AbVFJQQe
+	id S262597AbVFJQUP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 12:20:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbVFJQUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 12:16:34 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.129]:20930 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S262595AbVFJQQc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 12:16:32 -0400
-Subject: Re: [Jfs-discussion] fsck.jfs segfaults on x86_64
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Alex Deucher <alexdeucher@gmail.com>
-Cc: jfs-discussion@lists.sourceforge.net,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, ag@m-cam.com
-In-Reply-To: <a728f9f905061009097081c0a6@mail.gmail.com>
-References: <a728f9f90506100700107976f0@mail.gmail.com>
-	 <1118412882.7944.6.camel@localhost>
-	 <a728f9f905061007216c38cf4c@mail.gmail.com>
-	 <a728f9f905061009097081c0a6@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 10 Jun 2005 11:16:30 -0500
-Message-Id: <1118420190.21406.4.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Jun 2005 12:20:14 -0400
+Received: from graphe.net ([209.204.138.32]:48050 "EHLO graphe.net")
+	by vger.kernel.org with ESMTP id S262597AbVFJQUK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 12:20:10 -0400
+Date: Fri, 10 Jun 2005 09:20:00 -0700 (PDT)
+From: Christoph Lameter <christoph@lameter.com>
+X-X-Sender: christoph@graphe.net
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+cc: Mel Gorman <mel@csn.ul.ie>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       jschopp@austin.ibm.com, linux-mm@kvack.org,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: Avoiding external fragmentation with a placement policy Version
+ 12
+In-Reply-To: <537960000.1118251081@[10.10.2.4]>
+Message-ID: <Pine.LNX.4.62.0506100918460.10707@graphe.net>
+References: <20050531112048.D2511E57A@skynet.csn.ul.ie>
+ <429E20B6.2000907@austin.ibm.com><429E4023.2010308@yahoo.com.au>
+ <423970000.1117668514@flay><429E483D.8010106@yahoo.com.au>
+ <434510000.1117670555@flay><429E50B8.1060405@yahoo.com.au>
+ <429F2B26.9070509@austin.ibm.com><1117770488.5084.25.camel@npiggin-nld.site><Pine.LNX.4.58.0506031349280.10779@skynet>
+ <370550000.1117807258@[10.10.2.4]> <Pine.LNX.4.58.0506081734480.10706@skynet>
+ <537960000.1118251081@[10.10.2.4]>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Score: -5.9
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-06-10 at 12:09 -0400, Alex Deucher wrote:
+On Wed, 8 Jun 2005, Martin J. Bligh wrote:
 
-> 1.1.8 segfaulted as well.
+> Right. I agree that large allocs should be reliable. Whether we care so
+> much about if they're performant or not, I don't know ... is an interesting
+> question. I think the answer is maybe not, within reason. The cost of
+> fishing in the allocator might well be irrelevant compared to the cost
+> of freeing the necessary memory area?
 
-Hmm.  This bothers me.
-
-> running fsck.jfs --omit_journal_replay did the trick!  thanks,
-
-Well, at least it got you going again.  :^)
-
-Thanks,
-Shaggy
--- 
-David Kleikamp
-IBM Linux Technology Center
-
+Large consecutive page allocation is important for I/O. Lots of drivers 
+are able to issue transfer requests spanning multiple pages which is only 
+possible if the pages are in sequence. If memory is fragmented then this 
+is no longer possible.

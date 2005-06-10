@@ -1,88 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262560AbVFJOac@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262563AbVFJOd5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262560AbVFJOac (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 10:30:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262563AbVFJOac
+	id S262563AbVFJOd5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 10:33:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262564AbVFJOd5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 10:30:32 -0400
-Received: from easyspace.ezspl.net ([216.74.109.141]:18898 "EHLO
-	easyspace.ezspl.net") by vger.kernel.org with ESMTP id S262560AbVFJOaT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 10:30:19 -0400
-Message-ID: <20050610103022.ajs6633qyv400sw4@www.nucleodyne.com>
-Date: Fri, 10 Jun 2005 10:30:22 -0400
-From: kallol@nucleodyne.com
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: Performance figure for sx8 driver
-References: <20050608212425.8951j70kxbwpcs8c@www.nucleodyne.com>
-	<42A7DD18.50004@pobox.com>
-In-Reply-To: <42A7DD18.50004@pobox.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=ISO-8859-1;
-	format="flowed"
+	Fri, 10 Jun 2005 10:33:57 -0400
+Received: from umbar.esa.informatik.tu-darmstadt.de ([130.83.163.30]:22656
+	"EHLO umbar.esa.informatik.tu-darmstadt.de") by vger.kernel.org
+	with ESMTP id S262563AbVFJOd4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 10:33:56 -0400
+Date: Fri, 10 Jun 2005 16:33:55 +0200
+From: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andreas Koch <koch@esa.informatik.tu-darmstadt.de>,
+       Ivan Kokshaysky <ink@jurassic.park.msu.ru>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org,
+       gregkh@suse.de
+Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
+Message-ID: <20050610143355.GE29454@erebor.esa.informatik.tu-darmstadt.de>
+References: <20050605204645.A28422@jurassic.park.msu.ru> <20050606002739.GA943@erebor.esa.informatik.tu-darmstadt.de> <20050606184335.A30338@jurassic.park.msu.ru> <20050608173409.GA32004@erebor.esa.informatik.tu-darmstadt.de> <20050609023639.A7067@jurassic.park.msu.ru> <1118289850.6850.164.camel@gaston> <20050609175441.C9187@jurassic.park.msu.ru> <20050609175429.GA26023@erebor.esa.informatik.tu-darmstadt.de> <20050609223835.GB26023@erebor.esa.informatik.tu-darmstadt.de> <Pine.LNX.4.58.0506091617130.2286@ppc970.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) H3 (4.0)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - easyspace.ezspl.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [32001 32003] / [47 12]
-X-AntiAbuse: Sender Address Domain - nucleodyne.com
-X-Source: /usr/local/cpanel/3rdparty/bin/php
-X-Source-Args: /usr/local/cpanel/3rdparty/bin/php /usr/local/cpanel/base/horde/imp/compose.php 
-X-Source-Dir: :/base/horde/imp
+In-Reply-To: <Pine.LNX.4.58.0506091617130.2286@ppc970.osdl.org>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Jeff,
-           Changing CARM_MAX_Q to 30 and upgrading the firmware to
-firmware(BIOS-1.00.0.37, Firmware-1.3.19) does not help.
+On Thu, Jun 09, 2005 at 04:20:59PM -0700, Linus Torvalds wrote:
+> 
+> 
+> On Fri, 10 Jun 2005, Andreas Koch wrote:
+> >
+> > I did some more experimentation, and to my great the surprise, the
+> > serial port on the dock _is_ functioning, even when the rest of the
+> > dock is dead.
 
-Anything else to try?
+Note that, after further checking, I discovered that the very
+low-speed ports on the dock (serial, PS/2, parallel) are _not_
+interfaced via PCI Express (as the USB and FireWire ports are).  Thus,
+the fact they do work does not help us in deducing the cause of the
+bridging issues.
 
-Kallol
-
-Quoting Jeff Garzik <jgarzik@pobox.com>:
-
-> kallol@nucleodyne.com wrote:
->> Does anyone have performace figure for sx8 driver which is for 
->> promise SATAII150
->> 8 port PCI-X adapter?
->>
->> Someone reports that on a platform with sx8 driver, multiple hdparms on
->> different disks those are connected to the same adapter (there are 8 
->> ports) can
->> not get more than 45MB/sec in total, whereas a SCSI based driver for 
->> the same
->> adapter gets around 150MB/sec.
->>
->> Any comment on this?
->
-> Known.  Early firmwares for SX8 had problems that forced the driver to
-> limit the number of outstanding requests, for all ports, to _one_.
->
-> Later firmwares have fixed this, but the driver has not been updated to
-> detect newer(fixed) firmwares.
->
-> You may update drivers/block/sx8.c as such:
->
-> - CARM_MAX_Q              = 1,               /* one command at a time */
-> + CARM_MAX_Q              = 30,              /* 30 commands at a time */
->
-> if you have a newer firmware, to obtain much better performance.
->
-> 	Jeff
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
-
+Andreas

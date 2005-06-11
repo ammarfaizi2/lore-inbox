@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVFKKlr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbVFKKqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261677AbVFKKlr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 06:41:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVFKKlr
+	id S261680AbVFKKqp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 06:46:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbVFKKqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 06:41:47 -0400
-Received: from one.firstfloor.org ([213.235.205.2]:31648 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261677AbVFKKlp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 06:41:45 -0400
-To: martin@cs.uga.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM:  OOPSes in PREEMPT SMP for AMD Opteron Dual-Core with
- Memhole Mapping (non tainted kernel)
-References: <200506071836.12076.martin@cs.uga.edu>
-From: Andi Kleen <ak@muc.de>
-Date: Sat, 11 Jun 2005 12:41:44 +0200
-In-Reply-To: <200506071836.12076.martin@cs.uga.edu> (Jacob Martin's message
- of "Tue, 7 Jun 2005 18:36:12 -0400")
-Message-ID: <m1wtp1ch07.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Sat, 11 Jun 2005 06:46:45 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:4580 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261680AbVFKKqo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 06:46:44 -0400
+Date: Sat, 11 Jun 2005 12:37:07 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Kristian Benoit <kbenoit@opersys.com>
+Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com, bhuey@lnxw.com,
+       andrea@suse.de, tglx@linutronix.de, karim@opersys.com,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org
+Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
+Message-ID: <20050611103707.GA8799@elte.hu>
+References: <42AA6A6B.5040907@opersys.com> <20050611070845.GA4609@elte.hu>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050611070845.GA4609@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jacob Martin <martin@cs.uga.edu> writes:
 
-> On second thought, the MTRR stuff may not have anything to do with this.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-I think it has or the strange software memhole (what is that?)
- 
->
->
-> I think this is a bug in the preemptable kernel (I was warned, but didn't listen :).  
+> could you send me the .config you used for the PREEMPT_RT tests? Also, 
+> you used -47-08, which was well prior the current round of performance 
+> improvements, so you might want to re-run with something like -48-06 
+> or better.
 
-You could verify that by disabling PREEMPT. Butactually it should
-not be that bad.
+make that -48-10 or better.
 
->From your oopses i more suspect it is hardware actually:
-
-> Jun  7 14:11:27 optimator Unable to handle kernel paging request at 00000000000025b0 RIP: 
-> Jun  7 14:11:27 optimator <ffffffff8016797a>{pte_alloc_map+170}
-
-It crashes on first accessing newly allocated memory for page tables.
-
-Most likely something is wrong with your memory or memory map.
-Maybe it is related to your "discrete mtrr mapping" or your "software
-memhole" whatever they are? I would suggest to try without these.
-
--Andi
- 
+	Ingo

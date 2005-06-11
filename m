@@ -1,77 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261491AbVFKAV2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261487AbVFKAca@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261491AbVFKAV2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 20:21:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261487AbVFKAV2
+	id S261487AbVFKAca (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 20:32:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261494AbVFKAc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 20:21:28 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:34298 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261491AbVFKAVC
+	Fri, 10 Jun 2005 20:32:29 -0400
+Received: from smtp06.auna.com ([62.81.186.16]:17286 "EHLO smtp06.retemail.es")
+	by vger.kernel.org with ESMTP id S261487AbVFKAcY convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 20:21:02 -0400
-Subject: Re: [PATCH] local_irq_disable removal
-From: Daniel Walker <dwalker@mvista.com>
-Reply-To: dwalker@mvista.com
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, sdietrich@mvista.com
-In-Reply-To: <Pine.OSF.4.05.10506110117180.5042-100000@da410.phys.au.dk>
-References: <Pine.OSF.4.05.10506110117180.5042-100000@da410.phys.au.dk>
-Content-Type: text/plain
-Organization: MontaVista
-Date: Fri, 10 Jun 2005 17:20:47 -0700
-Message-Id: <1118449247.27756.47.camel@dhcp153.mvista.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
-Content-Transfer-Encoding: 7bit
+	Fri, 10 Jun 2005 20:32:24 -0400
+Date: Sat, 11 Jun 2005 00:32:22 +0000
+From: "J.A. Magallon" <jamagallon@able.es>
+Subject: Re: 2.6.12-rc6-mm1
+To: Con Kolivas <kernel@kolivas.org>
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       Christoph Lameter <clameter@engr.sgi.com>,
+       Nick Piggin <piggin@cyberone.com.au>
+References: <20050607170853.3f81007a.akpm@osdl.org>
+	<200506110019.13204.kernel@kolivas.org>
+	<1118445260l.7785l.0l@werewolf.able.es>
+	<200506110959.53614.kernel@kolivas.org>
+In-Reply-To: <200506110959.53614.kernel@kolivas.org> (from
+	kernel@kolivas.org on Sat Jun 11 01:59:50 2005)
+X-Mailer: Balsa 2.3.3
+Message-Id: <1118449942l.11603l.0l@werewolf.able.es>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+X-Auth-Info: Auth:LOGIN IP:[83.138.215.85] Login:jamagallon@able.es Fecha:Sat, 11 Jun 2005 02:32:23 +0200
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-06-11 at 01:37 +0200, Esben Nielsen wrote:
-> I am sorry, Daniel, but this patch doesn't make much sense to me.
-> As far as I can see you effectlively turned local_irq_disable() into a
-> preempt_disable(). I.e. it gives no improvement to task latency. As all
-> interrupts are threaded it will not improve irq-latency either....
 
-It does turn local_irq_disable() into a preempt_disable() . My
-definition of IRQ latency is the longest period that interrupts are
-disabled. So my patch does reduce interrupt latency.
+On 06.11, Con Kolivas wrote:
+> 
+> Here is what the patch _should_ have been. (*same warnings with this patch 
+> about math demonstration and untested as should have been posted with the 
+> earlier one*)
+> 
+> +	if (idle == NOT_IDLE || rq->nr_running > 1) {
+> +		unsigned long prio_bias = 1;
+> +		if (rq->nr_running)
+> +			prio_bias = rq->prio_bias / rq->nr_running;
+> +		source_load *= prio_bias;
+> +	}
+>  
 
-> I hope it is just me who have misunderstood the patch, but as far as I see
-> it
->  taks->preempt_count
-> is non-zero in a local_irq_disable() region. That means preempt_schedule()
-> wont schedule.
+Again... sorry, I don't try to be picky, just want to know if its worth or
+not...
 
-True.
+Would not be better something like:
 
-> What is the problem you wanted to fix in the first place?
-> Drivers and subsystems using local_irq_disable()/enable() as a lock -
-> which is valid for !PREEMPT_RT to protect per-cpu variables but not a good
-> idea when we want determnistic realtime. Thus these regions needs to be
-> made preemptive, such any RT events can come through even though you have
-> enabled a non-RT subsystem  where local_irq_disable()/enable() haven't
-> been removed. 
+	if (idle == NOT_IDLE || rq->nr_running > 1) {
+		if (rq->nr_running)
+			source_load = (source_load*rq->prio_bias) / rq->nr_running;
+	}
+  
+wrt the integer math ? Think of
 
-My patch gives a set upper bound on interrupt latency that doesn't
-change depending on config. You can also measure all these disable
-sections. Your missing the relevance of the SA_NODELAY flag. If you have
-a specific interrupt that you want to be low latency you would flag it
-SA_NODELAY .
+100*( 5/5) vs  500/5
+100*( 6/5) vs  600/5
+100*( 7/5) vs  700/5
+100*( 8/5) vs  800/5
+100*( 9/5) vs  900/5
+100*(10/5) vs 1000/5
 
-> As far as I can see the only solution is to replace them with a per-cpu
-> mutex. Such a mutex can be the rt_mutex for now, but someone may want to
-> make a more optimized per-cpu version where a raw_spin_lock isn't used.
-> That would make it nearly as cheap as cli()/sti() when there is no
-> congestion. One doesn't need PI for this region either as the RT
-> subsystems will not hit it anyway.
-
-I don't like this solution mainly because it's so expensive. cli/sti may
-take a few cycles at most, what your suggesting may take 50 times that,
-which would similar in speed to put linux under adeos.. Plus take into
-account that the average interrupt disable section is very small .. I
-also think it's possible to extend my version to allow those section to
-be preemptible but keep the cost equally low.
-
-Daniel
+--
+J.A. Magallon <jamagallon()able!es>     \               Software is like sex:
+werewolf!able!es                         \         It's better when it's free
+Mandriva Linux release 2006.0 (Cooker) for i586
+Linux 2.6.11-jam24 (gcc 4.0.0 (4.0.0-3mdk for Mandriva Linux release 2006.0))
 
 

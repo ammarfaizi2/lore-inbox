@@ -1,61 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261722AbVFKOk2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261716AbVFKOmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261722AbVFKOk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 10:40:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVFKOk1
+	id S261716AbVFKOmR (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 10:42:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261717AbVFKOko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 10:40:27 -0400
-Received: from mail1.kontent.de ([81.88.34.36]:47299 "EHLO Mail1.KONTENT.De")
-	by vger.kernel.org with ESMTP id S261717AbVFKOjZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 10:39:25 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: Wakko Warner <wakko@animx.eu.org>
-Subject: Re: kaweth fails to work on 2.6.12-rc[56]
-Date: Sat, 11 Jun 2005 16:39:17 +0200
-User-Agent: KMail/1.8
-Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-References: <20050608021140.GA28524@animx.eu.org> <200506111313.14756.oliver@neukum.org> <20050611125239.GA6252@animx.eu.org>
-In-Reply-To: <20050611125239.GA6252@animx.eu.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 11 Jun 2005 10:40:44 -0400
+Received: from lyle.provo.novell.com ([137.65.81.174]:26476 "EHLO
+	lyle.provo.novell.com") by vger.kernel.org with ESMTP
+	id S261716AbVFKOjK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 10:39:10 -0400
+Date: Sat, 11 Jun 2005 07:39:04 -0700
+From: Greg KH <gregkh@suse.de>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Patch series to remove devfs [00/22]
+Message-ID: <20050611143904.GA30612@suse.de>
+References: <20050611074327.GA27785@kroah.com> <20050611102133.GA3770@stusta.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506111639.18034.oliver@neukum.org>
+In-Reply-To: <20050611102133.GA3770@stusta.de>
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Samstag, 11. Juni 2005 14:52 schrieb Wakko Warner:
-> Oliver Neukum wrote:
-> > Am Samstag, 11. Juni 2005 06:11 schrieb Wakko Warner:
-> > > Oliver Neukum wrote:
-> > > > Sorry, I should be more specific. It will print out the error codes
-> > > > internal to the USB layer which are meaningful even if interrupts are shared.
-> > > > Also, are you seeing tx errors in the error count?
-> > > 
-> > > Unless I did something wrong, it's apparently not in the USB subsystem.
-> > > 
-> > > I have 2.6.12-rc3 and rc4 compiled.  Same config file on a test system.
-> > > again, rc3 works, rc4 does not.  I booted rc3 and force loaded the usb
-> > > modules from rc4 into rc3.  It tainted the kernel, but it worked.
-> > > 
-> > > I booted into rc4.  I do have ACPI compiled so I added acpi=off.  This did
-> > > not work, same problem as before.  I left a ping running, the usb controller
-> > > was on IRQ 9.  The test system is an old NEC notebook with an Intel chipset
-> > > (thus uhci-hcd usb1.1).  I plugged in a Belkin USB2.0 cardbus card (USB1.1
-> > > is serviced by ohci-hcd) and plugged the ethernet adapter into that.  Same
-> > > problem.
-> > 
-> > Do you see tx errors?
+On Sat, Jun 11, 2005 at 12:21:34PM +0200, Adrian Bunk wrote:
+> On Sat, Jun 11, 2005 at 12:43:27AM -0700, Greg KH wrote:
+> >...
+> > Comments welcome.
+> >...
 > 
-> No.  Oh oops I forgot to say the ping caused the interrupts to increase.
-> ifconfig showed 1 packet sent but never went up.
+> Please don't remove the !CONFIG_DEVFS_FS dummies from devfs_fs_kernel.h.
+> 
+> I'm sure some driver maintainers will want to keep the functions in 
+> their code because they share their drivers between 2.4 and 2.6 .
 
-This might very well indicate that the queue is not reenabled.
-The interrupt handler should do that. If you enable debug in kaweth.c,
-you'll learn more. If it doesn't help, I'll send you a patch which produces
-more output.
+All drivers should be in the mainline kernel tree, so why would they
+need this?  Remember, out-of-the-tree drivers are on their own...
 
-	Regards
-		Oliver
+thanks,
+
+greg k-h

@@ -1,49 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261661AbVFKQY1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261725AbVFKQ0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261661AbVFKQY1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 12:24:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261688AbVFKQY1
+	id S261725AbVFKQ0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 12:26:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261726AbVFKQ0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 12:24:27 -0400
-Received: from linux01.gwdg.de ([134.76.13.21]:58320 "EHLO linux01.gwdg.de")
-	by vger.kernel.org with ESMTP id S261661AbVFKQYX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 12:24:23 -0400
-Date: Sat, 11 Jun 2005 18:24:22 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Assuming NULL
-Message-ID: <Pine.LNX.4.61.0506111823440.19223@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 11 Jun 2005 12:26:25 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:56036 "EHLO
+	pd4mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S261725AbVFKQ0J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 12:26:09 -0400
+Date: Sat, 11 Jun 2005 10:25:31 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: 'hello world' module
+In-reply-to: <4egz4-2tj-15@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <42AB107B.3030203@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=UTF-8
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <4egz4-2tj-15@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi developers,
+Nick Warne wrote:
+> 2.4.31, GCC 3.4.4
+> 
+> Build like:
+> 
+> gcc -D__KERNEL__ -I/usr/src/linux/include -DMODULE -Wall -O2 -c hello.c -o 
+> hello.o
 
+That compilation method will not work on 2.6. You have to use the kernel 
+makefiles to build the module. See:
 
+http://linuxdevices.com/articles/AT4389927951.html
 
-some places in fs/*.c have conditions like
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-(namei.c, 238, in "int permission()"):
-        if(inode->i_op && inode->i_op->permission)
-
-Others just have
-(namei.c, 813, in "int fastcall link_path_walk()"):
-        if(!inode->i_op->lookup)
-
-My question is: Which one is right wrt the case "i_op ==/!= NULL"?
-There are two ways:
-
-- the kernel assumes i_op (and similar) is always non-NULL
-  => then we can remove a lot of checks, like the first example above
-
-- the kernel does not assume...
-  => then we need some extra checks, like in the second example above
-
-
-
-Jan Engelhardt                                                               
---                                                                            
-| Gesellschaft fuer Wissenschaftliche Datenverarbeitung Goettingen,
-| Am Fassberg, 37077 Goettingen, www.gwdg.de

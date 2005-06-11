@@ -1,72 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVFKCSj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVFKCce@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261164AbVFKCSj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 22:18:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVFKCSj
+	id S261600AbVFKCce (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 22:32:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVFKCce
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 22:18:39 -0400
-Received: from agminet04.oracle.com ([141.146.126.231]:2413 "EHLO
-	agminet04.oracle.com") by vger.kernel.org with ESMTP
-	id S261164AbVFKCSa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 22:18:30 -0400
-Date: Fri, 10 Jun 2005 19:18:05 -0700
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
-Cc: torvalds@osdl.org, akpm@osdl.org, viro@parcelfarce.linux.theplanet.co.uk
-Subject: [PATCH] export generic_drop_inode()
-Message-ID: <20050611021805.GM1153@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.9i
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
+	Fri, 10 Jun 2005 22:32:34 -0400
+Received: from www.portafree.com ([216.250.209.9]:38619 "EHLO ns2.porta.net")
+	by vger.kernel.org with ESMTP id S261600AbVFKCc0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 22:32:26 -0400
+Date: Fri, 10 Jun 2005 21:30:15 -0500 (GMT+5)
+Message-Id: <200506110230.j5B2UFB24877@ns2.porta.net>
+From: "Jonathan Zuma" <jmzuma@sify.com>
+Reply-To: jmzuma@sify.com
+Subject: Greetings From South Africa
+X-Mailer: PortaFree 2.0
+X-IPAddress: 82.128.1.54
+MIME-Version: 1.0
+Content-Type: text/plain
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-        OCFS2 wants to mark an inode which has been orphaned by another node
-so that during final iput it takes the correct path through the VFS and can
-pass through the OCFS2 delete_inode callback. Since i_nlink can get out of
-date with other nodes, the best way I see to accomplish this is by clearing
-i_nlink on those inodes at drop_inode time. Other than this small amount of
-work, nothing different needs to happen, so I think it would be cleanest to
-be able to just call generic_drop_inode at the end of the OCFS2 drop_inode
-callback.
-
-Signed-off-by: Mark Fasheh <mark.fasheh@oracle.com>
-
-diff -aru linux-2.6.12-rc6.orig/fs/inode.c linux-2.6.12-rc6/fs/inode.c
---- linux-2.6.12-rc6.orig/fs/inode.c	2005-06-06 08:22:29.000000000 -0700
-+++ linux-2.6.12-rc6/fs/inode.c	2005-06-10 18:27:07.000000000 -0700
-@@ -1048,7 +1048,7 @@
-  * inode when the usage count drops to zero, and
-  * i_nlink is zero.
-  */
--static void generic_drop_inode(struct inode *inode)
-+void generic_drop_inode(struct inode *inode)
- {
- 	if (!inode->i_nlink)
- 		generic_delete_inode(inode);
-@@ -1056,6 +1056,8 @@
- 		generic_forget_inode(inode);
- }
+A very good day to you.
  
-+EXPORT_SYMBOL(generic_drop_inode);
-+
- /*
-  * Called when we're dropping the last reference
-  * to an inode. 
-diff -aru linux-2.6.12-rc6.orig/include/linux/fs.h linux-2.6.12-rc6/include/linux/fs.h
---- linux-2.6.12-rc6.orig/include/linux/fs.h	2005-06-06 08:22:29.000000000 -0700
-+++ linux-2.6.12-rc6/include/linux/fs.h	2005-06-10 17:13:18.000000000 -0700
-@@ -1411,6 +1411,7 @@
- extern ino_t iunique(struct super_block *, ino_t);
- extern int inode_needs_sync(struct inode *inode);
- extern void generic_delete_inode(struct inode *inode);
-+extern void generic_drop_inode(struct inode *inode);
+I am Mr. Jonathan Mwari Zuma, an accountant and principal overseer 
+with 
+
+the South African Mining Corporation. I got your contact through a 
+friend 
+
+in my local chamber of commerce in collaboration with the  American 
+
+Consulate here in South Africa. This is in line with my quest for a 
+
+reliable and reputable person/company to handle a very confidential 
+
+transaction, which involves transfer of fund to a foreign account.
  
- extern struct inode *ilookup5(struct super_block *sb, unsigned long hashval,
- 		int (*test)(struct inode *, void *), void *data);
+This said fund (US$20.5m) Twenty million, five hundred thousand United 
+
+Statesdollars, is reportedly made to be a variation and accumulation 
+of 
+
+equity investment made in the South African Mining corporation in the 
+
+period of 1983-1987. This redeemable investment interest, has now 
+matured 
+
+and has long been cleared for disbursement but with no apparent 
+knowledge 
+
+of who the investors are,  as most of the investors then, were corrupt 
+
+government officials and their cronies under the obnoxious apartheid 
+
+regime who used pseudo names and aliases in the transactions, and 
+could 
+
+not come up for claims under the present political setting in South 
+
+Africa.
+ 
+After due consultative sessions with my colleagues in the account 
+
+department at the mining corporation, I discovered that none of them 
+
+knows about the funds. So  I decided to confiscate the funds and 
+placed 
+
+it in a private trust company for safe keeping, awaiting further 
+transfer 
+
+to 
+a foreign account for further business ventures. I cannot handle this 
+
+transaction on my name because we were not allowed to operate an 
+offshore 
+
+account while still in service. What I need now is a foreign national 
+who 
+
+can assist me in the transfer of this fund, and also to help invest 
+the 
+
+fund in a risk free venture. if you are wi! lling to assist me in this 
+
+transfer, I have agreed to compensate y ou with a certain percentage
+(20%) 
+
+of the total sum (US$20.5m) through mutual negotiations. Your 
+specialty 
+
+is not a barrier to this transaction as I have mapped out strategies 
+to 
+
+effectively actualize this transaction.
+ 
+Thank you for your anticipated co-operation, and I hope to hear from 
+you 
+
+soon, to enable me give you full details of the transactions.  And 
+also 
+
+remember to maintain absolute confidentiality as any leakage of 
+
+information may jeopardize our chance of receiving this money.
+ 
+Best regards,
+Jonathan Mwari Zuma
+SAMC P.ACC
+

@@ -1,62 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261653AbVFKIoo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261216AbVFKIxu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261653AbVFKIoo (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 04:44:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261226AbVFKImp
+	id S261216AbVFKIxu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 04:53:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261658AbVFKIxu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 04:42:45 -0400
-Received: from mail.kroah.org ([69.55.234.183]:7108 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261653AbVFKHsy convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 03:48:54 -0400
-Subject: [PATCH] Remove the scsi_disk devfs_name field as it's no longer needed
-In-Reply-To: <11184761123233@kroah.com>
-X-Mailer: gregkh_patchbomb
-Date: Sat, 11 Jun 2005 00:48:32 -0700
-Message-Id: <11184761122195@kroah.com>
+	Sat, 11 Jun 2005 04:53:50 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:47065 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261216AbVFKIQ5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 04:16:57 -0400
+Date: Sat, 11 Jun 2005 10:10:36 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
+Cc: linux-kernel@vger.kernel.org, "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+Message-ID: <20050611081036.GA16392@elte.hu>
+References: <20050608112801.GA31084@elte.hu> <42A8B390.2060400@stud.feec.vutbr.cz> <20050611073208.GA8279@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Reply-To: Greg K-H <greg@kroah.com>
-To: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7BIT
-From: Greg KH <gregkh@suse.de>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050611073208.GA8279@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Also fixes all drivers that set this field.
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+> > The attached patch fixes seems to fix it for me. It is against 
+> > V0.7.48-05.
+> 
+> thanks, applied - but this does not end all of the reschedule problems 
+> that the latest patches have. More on that later.
 
----
- drivers/scsi/scsi_scan.c   |    6 +-----
- include/scsi/scsi_device.h |    1 -
- 2 files changed, 1 insertion(+), 6 deletions(-)
+one problem was that the WORK_MASK definitions in thread_info.h were not 
+updated - neither the word-sized tests in entry.S. This meant we missed 
+delayed-preemption on return-from-kernel. But we've got one free bit in 
+the first by - bit 6, so i moved the DELAYED bit there. Another bug was 
+that the idle thread did not check for delayed preemption. I fixed these 
+in the -48-07 patch.
 
---- gregkh-2.6.orig/drivers/scsi/scsi_scan.c	2005-06-10 23:28:57.000000000 -0700
-+++ gregkh-2.6/drivers/scsi/scsi_scan.c	2005-06-10 23:37:25.000000000 -0700
-@@ -666,12 +666,8 @@
- 	if (inq_result[7] & 0x10)
- 		sdev->sdtr = 1;
- 
--	sprintf(sdev->devfs_name, "scsi/host%d/bus%d/target%d/lun%d",
--				sdev->host->host_no, sdev->channel,
--				sdev->id, sdev->lun);
--
- 	/*
--	 * End driverfs/devfs code.
-+	 * End driverfs code.
- 	 */
- 
- 	if ((sdev->scsi_level >= SCSI_2) && (inq_result[7] & 2) &&
---- gregkh-2.6.orig/include/scsi/scsi_device.h	2005-06-10 23:28:57.000000000 -0700
-+++ gregkh-2.6/include/scsi/scsi_device.h	2005-06-10 23:37:25.000000000 -0700
-@@ -64,7 +64,6 @@
- 	unsigned sector_size;	/* size in bytes */
- 
- 	void *hostdata;		/* available to low-level driver */
--	char devfs_name[256];	/* devfs junk */
- 	char type;
- 	char scsi_level;
- 	char inq_periph_qual;	/* PQ from INQUIRY data */	
-
+	Ingo

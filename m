@@ -1,51 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261787AbVFKTTy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261789AbVFKTZm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261787AbVFKTTy (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 15:19:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261786AbVFKTTy
+	id S261789AbVFKTZm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 15:25:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261790AbVFKTZm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 15:19:54 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:26525 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261787AbVFKTTl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 15:19:41 -0400
-Date: Sat, 11 Jun 2005 21:14:48 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Kristian Benoit <kbenoit@opersys.com>
-Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com, bhuey@lnxw.com,
-       andrea@suse.de, tglx@linutronix.de, karim@opersys.com,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
-Message-ID: <20050611191448.GA24152@elte.hu>
-References: <42AA6A6B.5040907@opersys.com>
+	Sat, 11 Jun 2005 15:25:42 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:26374 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261789AbVFKTZe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 15:25:34 -0400
+Date: Sat, 11 Jun 2005 21:25:31 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Greg Stark <gsstark@mit.edu>
+Cc: Jens Axboe <axboe@suse.de>, Mark Lord <liml@rtr.ca>,
+       linux-kernel@vger.kernel.org,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: SMART support for libata
+Message-ID: <20050611192531.GG3770@stusta.de>
+References: <87y8g8r4y6.fsf@stark.xeocode.com> <41B7EFA3.8000007@pobox.com> <87br6g6ayr.fsf@stark.xeocode.com> <42A73E6E.80808@rtr.ca> <873brs5ir8.fsf@stark.xeocode.com> <42A85F5E.10208@rtr.ca> <87u0k74cuy.fsf@stark.xeocode.com> <20050610063858.GN5140@suse.de> <87oeae4433.fsf@stark.xeocode.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42AA6A6B.5040907@opersys.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <87oeae4433.fsf@stark.xeocode.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Kristian Benoit <kbenoit@opersys.com> wrote:
-
-> In the following, interrupts are triggered by the logger at every 1ms. 
-> It would be interesting to redo such tests with shorter trigger times. 
-> However, we wanted to keep the logger as "off-the-shelf" as possible.
+On Fri, Jun 10, 2005 at 11:35:44AM -0400, Greg Stark wrote:
+> Jens Axboe <axboe@suse.de> writes:
 > 
-> Interrupt response times (all in micro-seconds):
+> > > > Greg Stark wrote:
+> > > 
+> > > What I should *really* be using is the noflushd daemon. That's been on hold
+> > > since I found it didn't work with SATA drives. But I wonder if it would work
+> > > these days.
+> > 
+> > noflushd is ancient, have you tried playing with laptop mode?
+> 
+> Where do I find more about this?
 
-how were interrupt response times measured, precisely? What did the 
-target (measured) system have to do to respond to an interrupt? Did you 
-use the RTC to measure IRQ latencies?
+Documentation/laptop-mode.txt
 
-	Ingo
+> greg
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

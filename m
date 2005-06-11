@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVFKK1Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261677AbVFKKlr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261678AbVFKK1Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 06:27:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVFKK1X
+	id S261677AbVFKKlr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 06:41:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVFKKlr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 06:27:23 -0400
-Received: from jurassic.park.msu.ru ([195.208.223.243]:31636 "EHLO
-	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
-	id S261677AbVFKK1O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 06:27:14 -0400
-Date: Sat, 11 Jun 2005 14:26:58 +0400
-From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
-To: linux@horizon.com
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       torvalds@osdl.org
-Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
-Message-ID: <20050611142658.A4952@jurassic.park.msu.ru>
-References: <20050611053331.9203.qmail@science.horizon.com>
-Mime-Version: 1.0
+	Sat, 11 Jun 2005 06:41:47 -0400
+Received: from one.firstfloor.org ([213.235.205.2]:31648 "EHLO
+	one.firstfloor.org") by vger.kernel.org with ESMTP id S261677AbVFKKlp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 06:41:45 -0400
+To: martin@cs.uga.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM:  OOPSes in PREEMPT SMP for AMD Opteron Dual-Core with
+ Memhole Mapping (non tainted kernel)
+References: <200506071836.12076.martin@cs.uga.edu>
+From: Andi Kleen <ak@muc.de>
+Date: Sat, 11 Jun 2005 12:41:44 +0200
+In-Reply-To: <200506071836.12076.martin@cs.uga.edu> (Jacob Martin's message
+ of "Tue, 7 Jun 2005 18:36:12 -0400")
+Message-ID: <m1wtp1ch07.fsf@muc.de>
+User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.2.5i
-In-Reply-To: <20050611053331.9203.qmail@science.horizon.com>; from linux@horizon.com on Sat, Jun 11, 2005 at 05:33:31AM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 11, 2005 at 05:33:31AM -0000, linux@horizon.com wrote:
-> Actually, that's not possible, because no difference is permitted.
+Jacob Martin <martin@cs.uga.edu> writes:
 
-Not possible on only on _real_ PCI bus.
+> On second thought, the MTRR stuff may not have anything to do with this.
 
-Example: virtually every laptop has mobile bridge and ISA/LPC/whatever
-bridge on the same bus segment. Both are subtractive decode devices -
-impossible situation from classic PCI point of view. But it's just
-happens because it's _not_ PCI but some proprietary bus, even if it looks
-like PCI from software point of view. And sort of priority decode is
-certainly takes place there.
+I think it has or the strange software memhole (what is that?)
+ 
+>
+>
+> I think this is a bug in the preemptable kernel (I was warned, but didn't listen :).  
 
-Ivan.
+You could verify that by disabling PREEMPT. Butactually it should
+not be that bad.
+
+>From your oopses i more suspect it is hardware actually:
+
+> Jun  7 14:11:27 optimator Unable to handle kernel paging request at 00000000000025b0 RIP: 
+> Jun  7 14:11:27 optimator <ffffffff8016797a>{pte_alloc_map+170}
+
+It crashes on first accessing newly allocated memory for page tables.
+
+Most likely something is wrong with your memory or memory map.
+Maybe it is related to your "discrete mtrr mapping" or your "software
+memhole" whatever they are? I would suggest to try without these.
+
+-Andi
+ 

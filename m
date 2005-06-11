@@ -1,58 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVFKBiR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261516AbVFKBjv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261509AbVFKBiR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 21:38:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261510AbVFKBiR
+	id S261516AbVFKBjv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 21:39:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261512AbVFKBj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 21:38:17 -0400
-Received: from mf00.sitadelle.com ([212.94.174.79]:44153 "EHLO
-	smtp.cegetel.net") by vger.kernel.org with ESMTP id S261509AbVFKBiL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 21:38:11 -0400
-Message-ID: <42AA407C.2070104@lifl.fr>
-Date: Sat, 11 Jun 2005 03:38:04 +0200
-From: Eric Piel <Eric.Piel@lifl.fr>
-Organization: LIFL
-User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
-X-Accept-Language: en, fr, ja, es
+	Fri, 10 Jun 2005 21:39:26 -0400
+Received: from babingka.lava.net ([64.65.64.26]:5840 "EHLO babingka.lava.net")
+	by vger.kernel.org with ESMTP id S261510AbVFKBjS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 21:39:18 -0400
+Date: Fri, 10 Jun 2005 15:39:15 -1000 (HST)
+From: Tim Newsham <newsham@lava.net>
+To: linux-kernel@vger.kernel.org
+Subject: Source Routing - bug?
+Message-ID: <Pine.BSI.4.61.0506101536100.11929@malasada.lava.net>
 MIME-Version: 1.0
-To: paulmck@us.ibm.com
-Cc: Chris Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org,
-       bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de, karim@opersys.com,
-       mingo@elte.hu, pmarques@grupopie.com, bruce@andrew.cmu.edu,
-       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
-       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org
-Subject: Re: Attempted summary of "RT patch acceptance" thread
-References: <20050608022646.GA3158@us.ibm.com> <42A73D15.6080201@nortel.com> <20050608192853.GE1295@us.ibm.com> <42AA133D.1050102@lifl.fr> <20050610230433.GI1300@us.ibm.com> <42AA20F6.9030606@lifl.fr> <20050611005934.GM1300@us.ibm.com>
-In-Reply-To: <20050611005934.GM1300@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-11.06.2005 02:59, Paul E. McKenney wrote/a écrit:
-> On Sat, Jun 11, 2005 at 01:23:34AM +0200, Eric Piel wrote:
->>What about using the way you wrote it at the beginning of the section:
->>"Probability of missing a deadline only because of a hardware failure"
-> 
-> 
-> Good point, I may just need to invert the whole thing, so that it
-> becomes something like:
-> 
-> 	i.	Probability of missing a deadline due to software,
-> 		ranging from 0 to 1, with the value of 0 corresponding
-> 		to the hardest possible hard realtime.
-> 
-> But then the "p^n" becomes "1-(1-p)^n".  Bleah.
-Yes, it seems language doesn't fit well with mathematics ;-)
+Hi,  I posted a question about a possible bug to the linux-net
+group.  After a small amount of discussion it seems the consensus
+is that it is a bug.  I'm posting it here because the discussion
+was rather sparse and no solutions have been proposed.
 
-> 
-> OK, how about the following?
-> 
-> 	i.	Probability of meeting a deadline in absence of hardware
-> 		failure, ranging from 0 to 1, with the value of 1
-> 		corresponding to the hardest possible hard realtime.
-> 
-Sounds good!
+The original question is at:
+http://marc.theaimsgroup.com/?l=linux-net&m=111810624427984&w=2
 
-Eric
+and the thread can be found at:
+http://marc.theaimsgroup.com/?t=111810627600005&r=1&w=2
+
+The short of it is that source routing does not appear to be
+working properly.  When I try to source route through an
+address on the local machine before routing out to other machines
+the packets seem to drop into the bit bucket.  I've turned on
+forwarding and source routing and tried with rp_filter set
+off (as well as on).  Similar tests work fine from BSD (and
+when targetted to linux machines).  See the referenced postings
+for more details.
+
+Tim Newsham
+http://www.lava.net/~newsham/

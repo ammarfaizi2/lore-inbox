@@ -1,64 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261796AbVFKTjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261811AbVFKTpC@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261796AbVFKTjt (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 15:39:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbVFKTgq
+	id S261811AbVFKTpC (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 15:45:02 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261783AbVFKTob
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 15:36:46 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:53966 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S261803AbVFKTfB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 15:35:01 -0400
-Date: Sat, 11 Jun 2005 15:35:00 -0400
-From: Neil Horman <nhorman@redhat.com>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Neil Horman <nhorman@redhat.com>, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [Patch][RFC] fcntl: add ability to stop monitored processes
-Message-ID: <20050611193500.GC1097@devserv.devel.redhat.com>
-References: <20050611000548.GA6549@hmsendeavour.rdu.redhat.com> <20050611180715.GK24611@parcelfarce.linux.theplanet.co.uk>
+	Sat, 11 Jun 2005 15:44:31 -0400
+Received: from zproxy.gmail.com ([64.233.162.193]:45544 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261803AbVFKTno convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 15:43:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EcJubBH4ZWfXZ4M/JiDDoMtORAvTAbPpPRRzppV8UJHNcLgIR5zQUIZ5Cdx67Zn0O8f81xfrY5kYY4KOzns9DJm7ALGlK1oSsqCc6YjHGjH2td5/cNpMvrNyQwnXE8WM9cqxPdhi/cKfuC28JpRwPbx1faSyZGZOAhkHPAo7/sU=
+Message-ID: <9a8748490506111243314d811@mail.gmail.com>
+Date: Sat, 11 Jun 2005 21:43:40 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: "Ilan S." <ilan_sk@netvision.net.il>
+Subject: Re: 'hello world' module
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <200506111511.02581.ilan_sk@netvision.net.il>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050611180715.GK24611@parcelfarce.linux.theplanet.co.uk>
-User-Agent: Mutt/1.4.1i
+References: <200506111511.02581.ilan_sk@netvision.net.il>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 11, 2005 at 07:07:15PM +0100, Matthew Wilcox wrote:
-> On Fri, Jun 10, 2005 at 08:05:48PM -0400, Neil Horman wrote:
-> > Hey there!
-> > 	I've recently developed this patch in pursuit of an ability to trap
-> > proceses making modifcations to monitored directories, and I thought It would be
-> > a nice feature to add to the mainline kernel.  It basically adds a flag to the
-> > F_NOTIFY fcntl which optionally sends a SIGSTOP to the process making the
-> > flagged modifications to the monitored directories, and passes the pid of the
-> > stopped process to the monitoring process.  I've tested it, and it works quite
-> > well for me.  Looking for comments/approvial/incorporation.
+On 6/11/05, Ilan S. <ilan_sk@netvision.net.il> wrote:
+> Hello dear professionals!
 > 
-> What stops me from setting a DN_STOPSND on /lib and preventing any new
-> tasks from starting up?
+> I would be very thankful if anybody prompt me what's wrong.
+> I'm trying to build the "Hello world" module from O'Reilly's "Linux device
+> drivers" and that is what I get:
 > 
-Good point.  Would it be sufficient to limit this ability to root owned
-processes only?  Does it seem like a beneficial feature otherwise?
+I don't have that book, so I can't really say, but here's an example
+from "Linux Kernel Development, 2ed" by rml
+(http://rlove.org/kernel_book/)
 
-Thanks and Regards
-Neil
 
-> -- 
-> "Next the statesmen will invent cheap lies, putting the blame upon 
-> the nation that is attacked, and every man will be glad of those
-> conscience-soothing falsities, and will diligently study them, and refuse
-> to examine any refutations of them; and thus he will by and by convince 
-> himself that the war is just, and will thank God for the better sleep 
-> he enjoys after this process of grotesque self-deception." -- Mark Twain
+/*
+ * hello.c - Hello, World! As a Kernel Module
+ */
+
+#include <linux/init.h>
+#include <linux/module.h>
+#include <linux/kernel.h>
+
+/*
+ * hello_init - the init function, called when the module is loaded.
+ * Returns zero if successfully loaded, nonzero otherwise.
+ */
+static int hello_init(void)
+{
+        printk(KERN_ALERT "I bear a charmed life.\n");
+        return 0;
+}
+
+/*
+ * hello_exit - the exit function, called when the module is removed.
+ */
+static void hello_exit(void)
+{
+        printk("KERN_ALERT "out, out, brief candle!\n");
+}
+
+module_init(hello_init);
+module_exit(hello_exit);
+
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("Shakespeare");
+
+
+To build the module above, make a Makefile in the same dir with this
+line in it :
+
+obj-m := hello.o
+
+
+Then build like this:
+
+make -C /kernel/source/location SUBDIRS=$PWD modules
+
+
+Works for me :)
+
+Of course there's lots of additional info in the book. Robert wrote a
+rather good one, it's well worth checking out if you ask me.
+
 
 -- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *Red Hat, Inc.
- *nhorman@redhat.com
- *gpg keyid: 1024D / 0x92A74FA1
- *http://pgp.mit.edu
- ***************************************************/
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

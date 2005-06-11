@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261630AbVFKP7K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVFKQD0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261630AbVFKP7K (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 11:59:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbVFKP7K
+	id S261602AbVFKQD0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 12:03:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261631AbVFKQDZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 11:59:10 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:39940 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261630AbVFKP7G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 11:59:06 -0400
-Date: Sat, 11 Jun 2005 17:59:04 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Christoph Hellwig <hch@infradead.org>, Greg KH <gregkh@suse.de>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Patch series to remove devfs [00/22]
-Message-ID: <20050611155904.GD3770@stusta.de>
-References: <20050611074327.GA27785@kroah.com> <20050611102133.GA3770@stusta.de> <20050611143904.GA30612@suse.de> <20050611153656.GB3770@stusta.de> <20050611154107.GA32149@infradead.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050611154107.GA32149@infradead.org>
-User-Agent: Mutt/1.5.9i
+	Sat, 11 Jun 2005 12:03:25 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:10973 "EHLO
+	pd2mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S261602AbVFKQDW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 12:03:22 -0400
+Date: Sat, 11 Jun 2005 10:02:38 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: amd64 cdrom access locks system
+In-reply-to: <4dJWr-38Z-33@gated-at.bofh.it>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Message-id: <42AB0B1E.5070806@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; format=flowed; charset=ISO-8859-1
+Content-transfer-encoding: 7bit
+X-Accept-Language: en-us, en
+References: <4d3Xi-33s-31@gated-at.bofh.it> <4d7Rk-6fq-49@gated-at.bofh.it>
+ <4dE0F-77V-17@gated-at.bofh.it> <4dEk0-7ua-1@gated-at.bofh.it>
+ <4dJWr-38Z-33@gated-at.bofh.it>
+User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 11, 2005 at 04:41:07PM +0100, Christoph Hellwig wrote:
-> On Sat, Jun 11, 2005 at 05:36:56PM +0200, Adrian Bunk wrote:
-> > Yes, there are many places where 2.4 and 2.6 are not source compatible 
-> > for good reasons. But if the effort for maintaining compatibility 
-> > between 2.4 and 2.6 in one area is as easy as keeping a header file with 
-> > some dummy funtions it's worth considering.
-> 
-> The devfs calls for 2.4 and 2.6 are totally incompatible.
->...
+Jeff Wiegley wrote:
+>    cdrecord -v -eject -dao dev=ATAPI:/dev/hda something.iso
+> cdrecord comes up and spits out:
+> ...
+>   Warning: Using ATA Packet interface.
+>   Warning: The related Linux kernel interface code seems to be 
+> unmaintained.
+>   Warning: There is absolutely NO DMA, operations thus are slow.
 
-OK, it seems I've missed how much devfs changed during 2.5 times...
-
-Simply discard my emails in this thread.
-
-cu
-Adrian
+I don't think this is the interface option you want to be using - try 
+just dev=/dev/hda. I don't know if this is why you were getting errors 
+though.
 
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

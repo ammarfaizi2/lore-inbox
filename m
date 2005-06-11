@@ -1,75 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVFKQqa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261735AbVFKQqp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261380AbVFKQqa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 12:46:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbVFKQqa
+	id S261735AbVFKQqp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 12:46:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261736AbVFKQqp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 12:46:30 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:19135 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261380AbVFKQq1
+	Sat, 11 Jun 2005 12:46:45 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:47601 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261735AbVFKQqj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 12:46:27 -0400
-Date: Sat, 11 Jun 2005 18:46:07 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       sdietrich@mvista.com
+	Sat, 11 Jun 2005 12:46:39 -0400
 Subject: Re: [PATCH] local_irq_disable removal
-In-Reply-To: <Pine.LNX.4.10.10506110920250.27294-100000@godzilla.mvista.com>
-Message-Id: <Pine.OSF.4.05.10506111832130.2917-100000@da410.phys.au.dk>
+From: Sven-Thorsten Dietrich <sdietrich@mvista.com>
+To: Mika =?ISO-8859-1?Q?Penttil=E4?= <mika.penttila@kolumbus.fi>
+Cc: Ingo Molnar <mingo@elte.hu>, Esben Nielsen <simlo@phys.au.dk>,
+       Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <42AAFC75.7090601@kolumbus.fi>
+References: <1118449247.27756.47.camel@dhcp153.mvista.com>
+	 <Pine.OSF.4.05.10506111455240.2917-100000@da410.phys.au.dk>
+	 <20050611135111.GB31025@elte.hu>  <42AAFC75.7090601@kolumbus.fi>
+Content-Type: text/plain; charset=UTF-8
+Date: Sat, 11 Jun 2005 09:45:23 -0700
+Message-Id: <1118508323.9519.84.camel@sdietrich-xp.vilm.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Sat, 11 Jun 2005, Daniel Walker wrote:
-
+On Sat, 2005-06-11 at 18:00 +0300, Mika Penttilä wrote:
+> Ingo Molnar wrote:
 > 
-> 
-> On Sat, 11 Jun 2005, Ingo Molnar wrote:
-> 
-> > - for raw spinlocks i've reintroduced raw_local_irq primitives again.
-> >   This helped get rid of some grossness in sched.c, and the raw
-> >   spinlocks disable preemption anyway. It's also safer to just assume
-> >   that if a raw spinlock is used together with the IRQ flag that the
-> >   real IRQ flag has to be disabled.
-> 
-> I don't know about this one .. That grossness was there so people aren't
-> able to easily add new disable sections. 
-> 
-> Could we add a new raw_raw_spinlock_t that really disable interrupt , then
-> investigate each one . There are really only two that need it, runqueue
-> lock , and the irq descriptor lock . If you add it back for all raw types
-> you just add back more un-needed disable sections. The only way a raw lock
-> needs to disable interrupts is if it's possible to enter that region from
-> interrupt context .
-> 
-> 
-> Daniel
-> 
->
+> >i've done two more things in the latest patches:
+> >
+> >- decoupled the 'soft IRQ flag' from the hard IRQ flag. There's
+> >  basically no need for the hard IRQ state to follow the soft IRQ state. 
+> >  This makes the hard IRQ disable primitives a bit faster.
+> >
+> >- for raw spinlocks i've reintroduced raw_local_irq primitives again.
+> >  This helped get rid of some grossness in sched.c, and the raw
+> >  spinlocks disable preemption anyway. It's also safer to just assume
+> >  that if a raw spinlock is used together with the IRQ flag that the
+> >  real IRQ flag has to be disabled.
+> >
+> >these changes dont really impact scheduling/preemption behavior, they 
+> >are cleanup/robustization changes.
+> >
+> >	Ingo
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
+> >  
+> >
+> With the soft IRQ flag local_irq_disable() doesn't seem to protect 
+> against soft interrupts (via SA_NODELAY interrupt-> invoke_softirq()). 
+> Could this be a problem?
 
-We must assume the !PREEMPT_RT writer never uses raw. If he starts to do
-that RT will be broken no matter what.
+Only if you run SOFT IRQs as SA_NODELAY, which is going to KILL all your
+preemption gains with the first arriving network packet.
 
-What is it you want to obtain anyway?
-As far as I understand it comes from the discussion about 
-local_irq_disable() in random driver X made for !PREEMPT_RT can destroy
-RT because the author used local_irq_disable() around a large,
-non-deterministic section of the code.
+And that is, if you don't get buried in "scheduling while atomic" printk
+messages first.
 
-That only has one solution:
-Disallow local_irq_disable() when PREEMPT_RT is on and make some easy
-alternatives. Many of them could be turned into raw_local_irq_disable(),
-others into regular locks.
+SA_NODELAY is not generally allowed in PREEMPT_RT, except for code
+designed to take advantage of the IRQ void that has been created. 
 
-If you want extremely low interrupt latencies I say it is better to use a
-sub-kernel - which might be a very, very simple interrupt-dispatcher. 
+This code must follow a new set of rules, which people who design RT
+apps are really happy to accet, they have to accept worse compromises
+with the alternatives (subkernel or ANOTHER OS (ugh))
 
-I think the PREEMPT_RT should go for deterministic task-latencies. Very
-low interrupt, special perpose latencies is a whole other issue which I
-think should be posponed - and at least should be made obtional.
+Sven
 
-Esben
 

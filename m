@@ -1,141 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261730AbVFKQm6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261380AbVFKQqa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261730AbVFKQm6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 12:42:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261734AbVFKQm6
+	id S261380AbVFKQqa (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 12:46:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261735AbVFKQqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 12:42:58 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:46844 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261730AbVFKQmv
+	Sat, 11 Jun 2005 12:46:30 -0400
+Received: from lirs02.phys.au.dk ([130.225.28.43]:19135 "EHLO
+	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261380AbVFKQq1
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 12:42:51 -0400
+	Sat, 11 Jun 2005 12:46:27 -0400
+Date: Sat, 11 Jun 2005 18:46:07 +0200 (METDST)
+From: Esben Nielsen <simlo@phys.au.dk>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       sdietrich@mvista.com
 Subject: Re: [PATCH] local_irq_disable removal
-From: Sven-Thorsten Dietrich <sdietrich@mvista.com>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Ingo Molnar <mingo@elte.hu>, Daniel Walker <dwalker@mvista.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.OSF.4.05.10506111612070.2917-100000@da410.phys.au.dk>
-References: <Pine.OSF.4.05.10506111612070.2917-100000@da410.phys.au.dk>
-Content-Type: text/plain
-Date: Sat, 11 Jun 2005 09:41:38 -0700
-Message-Id: <1118508098.9519.80.camel@sdietrich-xp.vilm.net>
+In-Reply-To: <Pine.LNX.4.10.10506110920250.27294-100000@godzilla.mvista.com>
+Message-Id: <Pine.OSF.4.05.10506111832130.2917-100000@da410.phys.au.dk>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-06-11 at 16:32 +0200, Esben Nielsen wrote:
 
+On Sat, 11 Jun 2005, Daniel Walker wrote:
 
-> > > The more I think about it the more dangerous I think it is. What does 
-> > > local_irq_disable() protect against? All local threads as well as 
-> > > irq-handlers. If these sections keeped mutual exclusive but preemtible 
-> > > we will not have protected against a irq-handler.
-> > 
-
-The more Dangerous you perieve it to be. Can you point to real damage?
-After all this is experimental code.
-
-> That is exactly my point: We can't make a per-cpu mutex to replace
-> local_irq_disable(). We have to make real lock for each subsystem now
-> relying on local_irq_disable(). A global lock will not work. We could have
-> a temporary lock all non-RT can share but that would be a hack similar to
-> BKL.
 > 
-
-Why do we need any of this?
-
-> The current soft-irq states only gives us better hard-irq latency but
-> nothing else. I think the overhead runtime and the complication of the
-> code is way too big for gaining only that. 
-
-
-Real numbers please, not speculation! Science, not religion.
-
-> What is the aim of PREEMPT_RT? Low irq-latency, low task latency or
-> determnistic task latency? The soft irq-state helps on the first but
-> harms the two others indirectly by introducing extra overhead. To be
-> honest I think that approach should be abandoned.
-
-The purpose of the irq fix is deterministic interrupt response at a low
-cost.
-
-Quite honestly, if it does get abandoned in the community, Daniel and I
-will continue to maintain it.
-
->  
-> > what seems a better is to rewrite per-CPU-local-irq-disable users to 
-> > make use of the DEFINE_PER_CPU_LOCKED/per_cpu_locked/get_cpu_lock 
-> > primitives to use preemptible per-CPU data structures. In this case 
-> > these sections would be truly preemptible. I've done this for a couple 
-> > of cases already, where it was unavoidable for lock-dependency reasons.
-> >
 > 
-> I'll continue that work then but in a way where !PREEMPT_RT will make it
-> back into local-irq-disable such it wont hurt performance there.
->  
-> I.e. I will try to make a macro system, and try to turn references to
-> local_irq_disable() into these - or raw_local_irq_disable().
+> On Sat, 11 Jun 2005, Ingo Molnar wrote:
+> 
+> > - for raw spinlocks i've reintroduced raw_local_irq primitives again.
+> >   This helped get rid of some grossness in sched.c, and the raw
+> >   spinlocks disable preemption anyway. It's also safer to just assume
+> >   that if a raw spinlock is used together with the IRQ flag that the
+> >   real IRQ flag has to be disabled.
+> 
+> I don't know about this one .. That grossness was there so people aren't
+> able to easily add new disable sections. 
+> 
+> Could we add a new raw_raw_spinlock_t that really disable interrupt , then
+> investigate each one . There are really only two that need it, runqueue
+> lock , and the irq descriptor lock . If you add it back for all raw types
+> you just add back more un-needed disable sections. The only way a raw lock
+> needs to disable interrupts is if it's possible to enter that region from
+> interrupt context .
+> 
+> 
+> Daniel
+> 
+>
 
-Esben, are there any bugs you are finding, or do you just dislike the
-overhead?
+We must assume the !PREEMPT_RT writer never uses raw. If he starts to do
+that RT will be broken no matter what.
 
-Your argument is identical to the one that people made (and still make)
-about preemption in the first place. 
+What is it you want to obtain anyway?
+As far as I understand it comes from the discussion about 
+local_irq_disable() in random driver X made for !PREEMPT_RT can destroy
+RT because the author used local_irq_disable() around a large,
+non-deterministic section of the code.
 
-A lot of issues were raised about simple preempt disable that was
-necessary to make the kernel preemptable outside critical sections with
-preemption, even though the concept was easy to understand from an SMP
-POV. A lot of FUD is STILL floating around from that, 5 YEARS AGO.
+That only has one solution:
+Disallow local_irq_disable() when PREEMPT_RT is on and make some easy
+alternatives. Many of them could be turned into raw_local_irq_disable(),
+others into regular locks.
 
-A lot of discussion has been taking place about the constant overhead
-necessary to improve preemption down to the level where we are now, in
-PREEMPT_RT (with or without the IRQ relief you are concerned about)
+If you want extremely low interrupt latencies I say it is better to use a
+sub-kernel - which might be a very, very simple interrupt-dispatcher. 
 
-The overhead of the mutex, which IS somewhat significant.
+I think the PREEMPT_RT should go for deterministic task-latencies. Very
+low interrupt, special perpose latencies is a whole other issue which I
+think should be posponed - and at least should be made obtional.
 
-The people who need the preemption response-time absolutely don't care
-about the overhead, because the cost of the CPUs required to make
-vanilla Linux (with its high preemption latency) perform at latencies as
-low as RT, is much higher, than the cost of a middle-of-the-road-
-upgrade, to mask the constant mutex overhead.
-
-In other words, the people who need RT preemption are willing to accept
-the overhead absolutely, because it still saves them money, time, power,
-whatever.
-
-Daniel has now gone another step, very similar to the first step in
-preemption, but taking advantage of a new environment, IRQs in threads.
-
-The price here isn't that high, and the gain is astronomical, in terms
-of the confidence in the interrupt subsystem that can be established
-with this.
-
-In a similar context as the argument I made above, people who need this
-level of performance, will be real happy that they can leverage it, and
-they WILL accept the overhead.
-
-Daniel made this configurable, which is conventional in add-on patches.
-Ingo removed that, and I do not disagree with either approach. I am just
-glad that some folks understand the value of this concept, which Daniel
-and I have been digesting since we opensourced the Mutex concept in the
-first place.
-
-I would prefer REAL performance data on the overhead you are suggesting,
-rather than pages and pages of speculation, that make me question if you
-have fully digested what is being done here.
-
-I will be producing those ASAP, but I am REALLY busy with people who are
-excited about the new era in Linux development that we are
-(collectively) introducing. We are not expecting everyone to understand
-it or agree with it.
-
-But this is scientific, and we do need scientific approaches to
-analysis.
-
-Thanks,
-
-Sven
-
+Esben
 

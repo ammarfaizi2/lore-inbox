@@ -1,55 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261774AbVFKSa5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261777AbVFKSdG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261774AbVFKSa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 14:30:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbVFKSa5
+	id S261777AbVFKSdG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 14:33:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261776AbVFKSdG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 14:30:57 -0400
-Received: from mxsf13.cluster1.charter.net ([209.225.28.213]:30641 "EHLO
-	mxsf13.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S261774AbVFKSaw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 14:30:52 -0400
-X-IronPort-AV: i="3.93,191,1115006400"; 
-   d="scan'208"; a="365393795:sNHT16069140"
-From: Jacob Martin <martin@cs.uga.edu>
-Reply-To: martin@cs.uga.edu
-Organization: University of Georgia
-To: Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM:  OOPSes in PREEMPT SMP for AMD Opteron Dual-Core with Memhole Mapping (non tainted kernel)
-Date: Sat, 11 Jun 2005 14:31:52 +0000
-User-Agent: KMail/1.8
-References: <200506071836.12076.martin@cs.uga.edu> <m1wtp1ch07.fsf@muc.de>
-In-Reply-To: <m1wtp1ch07.fsf@muc.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 11 Jun 2005 14:33:06 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:16516 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S261775AbVFKSc4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 14:32:56 -0400
+Date: Sat, 11 Jun 2005 19:32:46 +0100
+From: jgarzik@pentafluge.infradead.org
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Arjan van de Ven <arjan@infradead.org>, Jeff Garzik <jgarzik@pobox.com>,
+       mike.miller@hp.com, akpm@osdl.org, axboe@suse.de,
+       linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Re: DMA mapping (was Re: [PATCH] cciss 2.6; replaces DMA masks with kernel defines)
+Message-ID: <20050611183246.GA3019@pentafluge.infradead.org>
+References: <20050610143453.GA26476@beardog.cca.cpqcorp.net> <42A9C60E.3080604@pobox.com> <1118436000.6423.42.camel@mindpipe> <1118436306.5272.37.camel@laptopd505.fenrus.org> <1118436589.6423.51.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506111431.52944.martin@cs.uga.edu>
+In-Reply-To: <1118436589.6423.51.camel@mindpipe>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I think it has or the strange software memhole (what is that?)
-> From your oopses i more suspect it is hardware actually:
-> > Jun  7 14:11:27 optimator Unable to handle kernel paging request at
-> > 00000000000025b0 RIP: Jun  7 14:11:27 optimator
-> > <ffffffff8016797a>{pte_alloc_map+170}
->
-> It crashes on first accessing newly allocated memory for page tables.
+On Fri, Jun 10, 2005 at 04:49:48PM -0400, Lee Revell wrote:
+> On Fri, 2005-06-10 at 22:45 +0200, Arjan van de Ven wrote: 
+> > > Why doesn't this file define 29, 30, 31 bit DMA masks, required by many
+> > > devices?  I know of at least 2 soundcards that need a 29 bit DMA mask.
+> > 
+> > your mail unfortunately was not in diff -u form ;)
+> > I'm pretty sure that such constants are welcome
+> > 
+> 
+> OK, I just wanted to see if there was a reason before posting it.
+> 
+> Anyone know of hardware that needs less than a 29 bit mask?
 
-> Most likely something is wrong with your memory or memory map.
-> Maybe it is related to your "discrete mtrr mapping" or your "software
-> memhole" whatever they are? I would suggest to try without these.
+ALS2000 sound device, which is basically an ISA SB chip on a PCI board.
+
+	Jeff
 
 
-	There are three options for Memhole mapping in my BIOS:  Disabled, Hardware, 
-and Software.  I really don't know why there would be a "software" option, or 
-what it does.  Also, I'm not sure what the difference between continuous and 
-discrete MTRR mapping is.  The BIOS says it has to do with some linux 
-kernels, but I haven't found any reliable information about it.
 
-I disabled Memhole mapping and PREEMPT entirely.  I'll try to stress test out 
-some more oopses.  I'll also memtest86 all of the memory.
-
-Thanks for the help,
-Jake Martin

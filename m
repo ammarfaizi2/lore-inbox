@@ -1,44 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261407AbVFKCGY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261164AbVFKCSj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261407AbVFKCGY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 22:06:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVFKCGY
+	id S261164AbVFKCSj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 22:18:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261558AbVFKCSj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 22:06:24 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:9393 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261407AbVFKCGU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 22:06:20 -0400
-Date: Fri, 10 Jun 2005 19:06:43 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Andrea Arcangeli <andrea@suse.de>, Bill Huey <bhuey@lnxw.com>,
-       Lee Revell <rlrevell@joe-job.com>, Tim Bird <tim.bird@am.sony.com>,
-       linux-kernel@vger.kernel.org, tglx@linutronix.de, mingo@elte.hu,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org
-Subject: Re: Attempted summary of "RT patch acceptance" thread
-Message-ID: <20050611020642.GT1300@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20050610154745.GA1300@us.ibm.com> <20050610173728.GA6564@g5.random> <20050610193926.GA19568@nietzsche.lynx.com> <42A9F788.2040107@opersys.com> <20050610223724.GA20853@nietzsche.lynx.com> <20050610225231.GF6564@g5.random> <20050610230836.GD21618@nietzsche.lynx.com> <20050610232955.GH6564@g5.random> <20050611014133.GO1300@us.ibm.com> <42AA437F.80104@opersys.com>
+	Fri, 10 Jun 2005 22:18:39 -0400
+Received: from agminet04.oracle.com ([141.146.126.231]:2413 "EHLO
+	agminet04.oracle.com") by vger.kernel.org with ESMTP
+	id S261164AbVFKCSa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 22:18:30 -0400
+Date: Fri, 10 Jun 2005 19:18:05 -0700
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org
+Cc: torvalds@osdl.org, akpm@osdl.org, viro@parcelfarce.linux.theplanet.co.uk
+Subject: [PATCH] export generic_drop_inode()
+Message-ID: <20050611021805.GM1153@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42AA437F.80104@opersys.com>
-User-Agent: Mutt/1.4.1i
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.9i
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 10, 2005 at 09:50:55PM -0400, Karim Yaghmour wrote:
-> 
-> Paul E. McKenney wrote:
-> > [Hey, Karim!!!  Any extra room in that bunker of yours?]
-> 
-> If you bring your own doritos and coffee, there just might be some room
-> to sleep beneath the computer-controlled mechanical saw bench I've set
-> up to evaluate the real-time responsiveness of Linux ...
+Hi,
+        OCFS2 wants to mark an inode which has been orphaned by another node
+so that during final iput it takes the correct path through the VFS and can
+pass through the OCFS2 delete_inode callback. Since i_nlink can get out of
+date with other nodes, the best way I see to accomplish this is by clearing
+i_nlink on those inodes at drop_inode time. Other than this small amount of
+work, nothing different needs to happen, so I think it would be cleanest to
+be able to just call generic_drop_inode at the end of the OCFS2 drop_inode
+callback.
 
-Cool!  I will bring a few packages of hot dogs!!!
+Signed-off-by: Mark Fasheh <mark.fasheh@oracle.com>
 
-						Thanx, Paul
+diff -aru linux-2.6.12-rc6.orig/fs/inode.c linux-2.6.12-rc6/fs/inode.c
+--- linux-2.6.12-rc6.orig/fs/inode.c	2005-06-06 08:22:29.000000000 -0700
++++ linux-2.6.12-rc6/fs/inode.c	2005-06-10 18:27:07.000000000 -0700
+@@ -1048,7 +1048,7 @@
+  * inode when the usage count drops to zero, and
+  * i_nlink is zero.
+  */
+-static void generic_drop_inode(struct inode *inode)
++void generic_drop_inode(struct inode *inode)
+ {
+ 	if (!inode->i_nlink)
+ 		generic_delete_inode(inode);
+@@ -1056,6 +1056,8 @@
+ 		generic_forget_inode(inode);
+ }
+ 
++EXPORT_SYMBOL(generic_drop_inode);
++
+ /*
+  * Called when we're dropping the last reference
+  * to an inode. 
+diff -aru linux-2.6.12-rc6.orig/include/linux/fs.h linux-2.6.12-rc6/include/linux/fs.h
+--- linux-2.6.12-rc6.orig/include/linux/fs.h	2005-06-06 08:22:29.000000000 -0700
++++ linux-2.6.12-rc6/include/linux/fs.h	2005-06-10 17:13:18.000000000 -0700
+@@ -1411,6 +1411,7 @@
+ extern ino_t iunique(struct super_block *, ino_t);
+ extern int inode_needs_sync(struct inode *inode);
+ extern void generic_delete_inode(struct inode *inode);
++extern void generic_drop_inode(struct inode *inode);
+ 
+ extern struct inode *ilookup5(struct super_block *sb, unsigned long hashval,
+ 		int (*test)(struct inode *, void *), void *data);

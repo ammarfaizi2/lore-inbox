@@ -1,78 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbVFKK6f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261683AbVFKLN0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261681AbVFKK6f (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 06:58:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVFKK6c
+	id S261683AbVFKLN0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 07:13:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261685AbVFKLN0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 06:58:32 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:5523 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S261681AbVFKK6Z
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 06:58:25 -0400
-Date: Sat, 11 Jun 2005 12:56:57 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Pascal CHAPPERON <pascal.chapperon@wanadoo.fr>
-Cc: Andrew Hutchings <info@a-wing.co.uk>, linux-kernel@vger.kernel.org,
-       vinay kumar <b4uvin@yahoo.co.in>, jgarzik@pobox.com
-Subject: Re: sis190
-Message-ID: <20050611105657.GA16351@electric-eye.fr.zoreil.com>
-References: <33440948.1118482760126.JavaMail.www@wwinf0903>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 11 Jun 2005 07:13:26 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:19107 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S261683AbVFKLNW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 07:13:22 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Wakko Warner <wakko@animx.eu.org>
+Subject: Re: kaweth fails to work on 2.6.12-rc[56]
+Date: Sat, 11 Jun 2005 13:13:14 +0200
+User-Agent: KMail/1.8
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20050608021140.GA28524@animx.eu.org> <200506081308.39450.oliver@neukum.org> <20050611041136.GA5617@animx.eu.org>
+In-Reply-To: <20050611041136.GA5617@animx.eu.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <33440948.1118482760126.JavaMail.www@wwinf0903>
-User-Agent: Mutt/1.4.1i
-X-Organisation: Land of Sunshine Inc.
+Message-Id: <200506111313.14756.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pascal CHAPPERON <pascal.chapperon@wanadoo.fr> :
-[...]
-> Sorry, but it does not compile correctly if you define CONFIG_SIS190_NO_DELAY.
-
-The safe choice is to not define it. I did not make it clear enough.
-
-[...]
-> I compared sis190_rx_interrupt() in old and new driver, and i tried :
->  diff -puN /usr/src/linux/drivers/net/sis190.c sis190.c
-> --- /usr/src/linux/drivers/net/sis190.c 2005-06-11 09:16:41.000000000 +0200
-> +++ sis190.c    2005-06-11 10:20:01.000000000 +0200
-> @@ -478,7 +478,7 @@ static int sis190_rx_interrupt(struct ne
->                 rmb();
->                 status = le32_to_cpu(desc->PSize);
+Am Samstag, 11. Juni 2005 06:11 schrieb Wakko Warner:
+> Oliver Neukum wrote:
+> > Am Mittwoch, 8. Juni 2005 12:42 schrieb Wakko Warner:
+> > > > have you tried recompiling with debug enabled?
+> > > > It does show the status codes in the interrupt handler.
+> > > 
+> > > I have not. ?My keyboard and mouse (on a hub) are plugged in beside the
+> > > kaweth device so they would be on the same interrupt.
+> > 
+> > Sorry, I should be more specific. It will print out the error codes
+> > internal to the USB layer which are meaningful even if interrupts are shared.
+> > Also, are you seeing tx errors in the error count?
 > 
-> -               if (status & OWNbit)
-> +               if (desc->status & OWNbit)
->                         break;
+> Unless I did something wrong, it's apparently not in the USB subsystem.
 > 
->                 if (status & RxCRC) {
-
-Good catch.
-
-[...]
-> I also tried without dhcp :
-> # ifconfig
-> eth0      Link encap:Ethernet  HWaddr 00:11:2F:E9:42:70
->           inet addr:10.169.21.20  Bcast:10.169.23.255  Mask:255.255.252.0
->           inet6 addr: fe80::211:2fff:fee9:4270/64 Scope:Link
->           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
->           RX packets:59 errors:0 dropped:0 overruns:0 frame:0
->           TX packets:43 errors:0 dropped:0 overruns:0 carrier:0
->           collisions:0 txqueuelen:1000
->           RX bytes:4148 (4.0 KiB)  TX bytes:1806 (1.7 KiB)
->           Interrupt:10 Base address:0xbeef
+> I have 2.6.12-rc3 and rc4 compiled.  Same config file on a test system.
+> again, rc3 works, rc4 does not.  I booted rc3 and force loaded the usb
+> modules from rc4 into rc3.  It tainted the kernel, but it worked.
 > 
-> ping failed both sides, though RX and TX counters were incremented.
+> I booted into rc4.  I do have ACPI compiled so I added acpi=off.  This did
+> not work, same problem as before.  I left a ping running, the usb controller
+> was on IRQ 9.  The test system is an old NEC notebook with an Intel chipset
+> (thus uhci-hcd usb1.1).  I plugged in a Belkin USB2.0 cardbus card (USB1.1
+> is serviced by ohci-hcd) and plugged the ethernet adapter into that.  Same
+> problem.
 
-Can you reproduce the tests (dhcp/no dhcp) with the patch linked below and
-add a tcpdump -x output taken at the server as an addition to the usual
-information ?
+Do you see tx errors?
 
-http://www.fr.zoreil.com/people/francois/misc/20050611a-2.6.12-rc-sis190-test.patch
-
-If you are in a hurry and have any output, I'll look at it today (~18h).
-
-Thanks.
-
---
-Ueimor
+	Regards
+		Oliver

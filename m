@@ -1,48 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261680AbVFKKqp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261681AbVFKK6f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261680AbVFKKqp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 06:46:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261681AbVFKKqp
+	id S261681AbVFKK6f (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 06:58:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261683AbVFKK6c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 06:46:45 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:4580 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261680AbVFKKqo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 06:46:44 -0400
-Date: Sat, 11 Jun 2005 12:37:07 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Kristian Benoit <kbenoit@opersys.com>
-Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com, bhuey@lnxw.com,
-       andrea@suse.de, tglx@linutronix.de, karim@opersys.com,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
-Message-ID: <20050611103707.GA8799@elte.hu>
-References: <42AA6A6B.5040907@opersys.com> <20050611070845.GA4609@elte.hu>
+	Sat, 11 Jun 2005 06:58:32 -0400
+Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:5523 "EHLO
+	fr.zoreil.com") by vger.kernel.org with ESMTP id S261681AbVFKK6Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 06:58:25 -0400
+Date: Sat, 11 Jun 2005 12:56:57 +0200
+From: Francois Romieu <romieu@fr.zoreil.com>
+To: Pascal CHAPPERON <pascal.chapperon@wanadoo.fr>
+Cc: Andrew Hutchings <info@a-wing.co.uk>, linux-kernel@vger.kernel.org,
+       vinay kumar <b4uvin@yahoo.co.in>, jgarzik@pobox.com
+Subject: Re: sis190
+Message-ID: <20050611105657.GA16351@electric-eye.fr.zoreil.com>
+References: <33440948.1118482760126.JavaMail.www@wwinf0903>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050611070845.GA4609@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+In-Reply-To: <33440948.1118482760126.JavaMail.www@wwinf0903>
+User-Agent: Mutt/1.4.1i
+X-Organisation: Land of Sunshine Inc.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Pascal CHAPPERON <pascal.chapperon@wanadoo.fr> :
+[...]
+> Sorry, but it does not compile correctly if you define CONFIG_SIS190_NO_DELAY.
 
-* Ingo Molnar <mingo@elte.hu> wrote:
+The safe choice is to not define it. I did not make it clear enough.
 
-> could you send me the .config you used for the PREEMPT_RT tests? Also, 
-> you used -47-08, which was well prior the current round of performance 
-> improvements, so you might want to re-run with something like -48-06 
-> or better.
+[...]
+> I compared sis190_rx_interrupt() in old and new driver, and i tried :
+>  diff -puN /usr/src/linux/drivers/net/sis190.c sis190.c
+> --- /usr/src/linux/drivers/net/sis190.c 2005-06-11 09:16:41.000000000 +0200
+> +++ sis190.c    2005-06-11 10:20:01.000000000 +0200
+> @@ -478,7 +478,7 @@ static int sis190_rx_interrupt(struct ne
+>                 rmb();
+>                 status = le32_to_cpu(desc->PSize);
+> 
+> -               if (status & OWNbit)
+> +               if (desc->status & OWNbit)
+>                         break;
+> 
+>                 if (status & RxCRC) {
 
-make that -48-10 or better.
+Good catch.
 
-	Ingo
+[...]
+> I also tried without dhcp :
+> # ifconfig
+> eth0      Link encap:Ethernet  HWaddr 00:11:2F:E9:42:70
+>           inet addr:10.169.21.20  Bcast:10.169.23.255  Mask:255.255.252.0
+>           inet6 addr: fe80::211:2fff:fee9:4270/64 Scope:Link
+>           UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+>           RX packets:59 errors:0 dropped:0 overruns:0 frame:0
+>           TX packets:43 errors:0 dropped:0 overruns:0 carrier:0
+>           collisions:0 txqueuelen:1000
+>           RX bytes:4148 (4.0 KiB)  TX bytes:1806 (1.7 KiB)
+>           Interrupt:10 Base address:0xbeef
+> 
+> ping failed both sides, though RX and TX counters were incremented.
+
+Can you reproduce the tests (dhcp/no dhcp) with the patch linked below and
+add a tcpdump -x output taken at the server as an addition to the usual
+information ?
+
+http://www.fr.zoreil.com/people/francois/misc/20050611a-2.6.12-rc-sis190-test.patch
+
+If you are in a hurry and have any output, I'll look at it today (~18h).
+
+Thanks.
+
+--
+Ueimor

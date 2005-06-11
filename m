@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261720AbVFKO6P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVFKO7g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261720AbVFKO6P (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 10:58:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVFKO6O
+	id S261728AbVFKO7g (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 10:59:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbVFKO7g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 10:58:14 -0400
-Received: from opersys.com ([64.40.108.71]:42756 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261720AbVFKO6K (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 10:58:10 -0400
-Message-ID: <42AAFAB0.3070409@opersys.com>
-Date: Sat, 11 Jun 2005 10:52:32 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Sat, 11 Jun 2005 10:59:36 -0400
+Received: from mail-gw.turkuamk.fi ([195.148.208.32]:13702 "EHLO
+	mail-gw.turkuamk.fi") by vger.kernel.org with ESMTP id S261721AbVFKO6T
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 10:58:19 -0400
+Message-ID: <42AAFC75.7090601@kolumbus.fi>
+Date: Sat, 11 Jun 2005 18:00:05 +0300
+From: =?UTF-8?B?TWlrYSBQZW50dGlsw6Q=?= <mika.penttila@kolumbus.fi>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-1.3.1
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Ingo Molnar <mingo@elte.hu>
-CC: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com, bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
-References: <42AA6A6B.5040907@opersys.com> <20050611070845.GA4609@elte.hu> <42AAF5CE.9080607@opersys.com> <20050611145240.GA10881@elte.hu>
-In-Reply-To: <20050611145240.GA10881@elte.hu>
-Content-Type: text/plain; charset=us-ascii
+Cc: Esben Nielsen <simlo@phys.au.dk>, Daniel Walker <dwalker@mvista.com>,
+       linux-kernel@vger.kernel.org, sdietrich@mvista.com
+Subject: Re: [PATCH] local_irq_disable removal
+References: <1118449247.27756.47.camel@dhcp153.mvista.com> <Pine.OSF.4.05.10506111455240.2917-100000@da410.phys.au.dk> <20050611135111.GB31025@elte.hu>
+In-Reply-To: <20050611135111.GB31025@elte.hu>
+X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.13a
+  |April 8, 2004) at 11.06.2005 17:58:16,
+	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 6.5.4|March
+ 27, 2005) at 11.06.2005 17:58:17,
+	Serialize complete at 11.06.2005 17:58:17
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 Ingo Molnar wrote:
-> could you send me your PREEMPT_RT .config? (whichever version you have 
-> handy) That's the easiest way i can tell you which options to watch out 
-> for.
 
-I'll see what I can do ... this being the weekend, it's a little bit more
-trouble to get stuff off machines at the office ...
+>i've done two more things in the latest patches:
+>
+>- decoupled the 'soft IRQ flag' from the hard IRQ flag. There's
+>  basically no need for the hard IRQ state to follow the soft IRQ state. 
+>  This makes the hard IRQ disable primitives a bit faster.
+>
+>- for raw spinlocks i've reintroduced raw_local_irq primitives again.
+>  This helped get rid of some grossness in sched.c, and the raw
+>  spinlocks disable preemption anyway. It's also safer to just assume
+>  that if a raw spinlock is used together with the IRQ flag that the
+>  real IRQ flag has to be disabled.
+>
+>these changes dont really impact scheduling/preemption behavior, they 
+>are cleanup/robustization changes.
+>
+>	Ingo
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+>the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
+>
+>  
+>
+With the soft IRQ flag local_irq_disable() doesn't seem to protect 
+against soft interrupts (via SA_NODELAY interrupt-> invoke_softirq()). 
+Could this be a problem?
 
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+--Mika
+

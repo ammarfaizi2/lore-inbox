@@ -1,65 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261728AbVFKO7g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261724AbVFKPCP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261728AbVFKO7g (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 10:59:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbVFKO7g
+	id S261724AbVFKPCP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 11:02:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261723AbVFKPCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 10:59:36 -0400
-Received: from mail-gw.turkuamk.fi ([195.148.208.32]:13702 "EHLO
-	mail-gw.turkuamk.fi") by vger.kernel.org with ESMTP id S261721AbVFKO6T
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 10:58:19 -0400
-Message-ID: <42AAFC75.7090601@kolumbus.fi>
-Date: Sat, 11 Jun 2005 18:00:05 +0300
-From: =?UTF-8?B?TWlrYSBQZW50dGlsw6Q=?= <mika.penttila@kolumbus.fi>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20050513 Fedora/1.7.8-1.3.1
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Esben Nielsen <simlo@phys.au.dk>, Daniel Walker <dwalker@mvista.com>,
-       linux-kernel@vger.kernel.org, sdietrich@mvista.com
-Subject: Re: [PATCH] local_irq_disable removal
-References: <1118449247.27756.47.camel@dhcp153.mvista.com> <Pine.OSF.4.05.10506111455240.2917-100000@da410.phys.au.dk> <20050611135111.GB31025@elte.hu>
-In-Reply-To: <20050611135111.GB31025@elte.hu>
-X-MIMETrack: Itemize by SMTP Server on marconi.hallinto.turkuamk.fi/TAMK(Release 5.0.13a
-  |April 8, 2004) at 11.06.2005 17:58:16,
-	Serialize by Router on notes.hallinto.turkuamk.fi/TAMK(Release 6.5.4|March
- 27, 2005) at 11.06.2005 17:58:17,
-	Serialize complete at 11.06.2005 17:58:17
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Sat, 11 Jun 2005 11:02:14 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:30343 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261736AbVFKPCC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 11:02:02 -0400
+Date: Sat, 11 Jun 2005 16:56:20 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Kristian Benoit <kbenoit@opersys.com>
+Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com, bhuey@lnxw.com,
+       andrea@suse.de, tglx@linutronix.de, Karim Yaghmour <karim@opersys.com>,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org
+Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
+Message-ID: <20050611145620.GA13726@elte.hu>
+References: <42AA6A6B.5040907@opersys.com> <20050611070845.GA4609@elte.hu> <20050611103707.GA8799@elte.hu> <1118499800.5786.24.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1118499800.5786.24.camel@localhost>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
 
->i've done two more things in the latest patches:
->
->- decoupled the 'soft IRQ flag' from the hard IRQ flag. There's
->  basically no need for the hard IRQ state to follow the soft IRQ state. 
->  This makes the hard IRQ disable primitives a bit faster.
->
->- for raw spinlocks i've reintroduced raw_local_irq primitives again.
->  This helped get rid of some grossness in sched.c, and the raw
->  spinlocks disable preemption anyway. It's also safer to just assume
->  that if a raw spinlock is used together with the IRQ flag that the
->  real IRQ flag has to be disabled.
->
->these changes dont really impact scheduling/preemption behavior, they 
->are cleanup/robustization changes.
->
->	Ingo
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
->
->  
->
-With the soft IRQ flag local_irq_disable() doesn't seem to protect 
-against soft interrupts (via SA_NODELAY interrupt-> invoke_softirq()). 
-Could this be a problem?
+* Kristian Benoit <kbenoit@opersys.com> wrote:
 
---Mika
+> > one has to make sure the default debug options are disabled.  
+> > (DEADLOCK_DETECT, PREEMPT_DEBUG, etc.)
+> 
+> Can you tell me the exact list of option where talking about ?
 
+just send me a .config and i'll review it for PREEMPT_RT latency 
+performance. There can be many things depending on whether it's UP or 
+SMP, etc.
+
+	Ingo

@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261804AbVFKUE7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261803AbVFKUKW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261804AbVFKUE7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 16:04:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbVFKUE7
+	id S261803AbVFKUKW (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 16:10:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261806AbVFKUKW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 16:04:59 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:14497 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261806AbVFKUEf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 16:04:35 -0400
-Date: Sat, 11 Jun 2005 22:03:52 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Esben Nielsen <simlo@phys.au.dk>
-Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       sdietrich@mvista.com
-Subject: Re: [PATCH] local_irq_disable removal
-Message-ID: <20050611200352.GA1477@elte.hu>
-References: <20050611191654.GA22301@elte.hu> <Pine.OSF.4.05.10506112123260.2917-100000@da410.phys.au.dk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.OSF.4.05.10506112123260.2917-100000@da410.phys.au.dk>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	autolearn=not spam, BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sat, 11 Jun 2005 16:10:22 -0400
+Received: from relay01.roc.ny.frontiernet.net ([66.133.182.164]:34184 "EHLO
+	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S261803AbVFKUJY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 16:09:24 -0400
+Message-ID: <000a01c56ec1$75f437d0$6401a8c0@adic.com>
+From: "Steve Lord" <lord@xfs.org>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: <pozsy@uhulinux.hu>, <linux-kernel@vger.kernel.org>,
+       <rusty@rustcorp.com.au>
+References: <42A99D9D.7080900@xfs.org><20050610112515.691dcb6e.akpm@osdl.org><20050611082642.GB17639@ojjektum.uhulinux.hu><42AAE5C8.9060609@xfs.org><20050611150525.GI17639@ojjektum.uhulinux.hu><42AB25E7.5000405@xfs.org> <20050611120040.084942ed.akpm@osdl.org>
+Subject: Re: Race condition in module load causing undefined symbols
+Date: Sat, 11 Jun 2005 15:09:08 -0500
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
+Content-Transfer-Encoding: 7bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Well, the bizarre part is that I think this has been around for a while, but 
+it
+does not exhibit itself in redhat kernels which postdate the earliest
+recolloction of me seeing it. 2.6.11-rc1 is the earliest I remember,
+but I am not religious about updating the kernel on this box so
+my samples are spotty.
 
-* Esben Nielsen <simlo@phys.au.dk> wrote:
+The difference between the two may be that I recompile for a P4
+while redhat uses a lowest common denominator cpu type.
 
-> > the jury is still out on the accuracy of those numbers. The test had 
-> > RT_DEADLOCK_DETECT (and other -RT debugging features) turned on, which 
-> > mostly work with interrupts disabled. The other question is how were 
-> > interrupt response times measured.
-> > 
-> You would accept a patch where I made this stuff optional?
+If I get a chance this weekend I will try some other kernels and
+report back. Maybe just start out by dumbing down my cpu
+type.
 
-I'm not sure why. The soft-flag based local_irq_disable() should in fact 
-be a tiny bit faster than the cli based approach, on a fair number of 
-CPUs. But it should definitely not be slower in any measurable way.
+Steve
 
-	Ingo
+> Stephen Lord <lord@xfs.org> wrote:
+>>
+>>  I disabled hyperthreading and things started working, so are there any
+>>  HT related scheduling bugs right now?
+>
+> There haven't been any scheduler changes for some time.  There have been a
+> few low-level SMT changes I think.
+>
+> Are you able to identify which kernel version broke it?
+>
+> 
+

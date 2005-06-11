@@ -1,60 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261679AbVFKKZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261678AbVFKK1Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261679AbVFKKZS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 06:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261677AbVFKKZS
+	id S261678AbVFKK1Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 06:27:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261680AbVFKK1X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 06:25:18 -0400
-Received: from one.firstfloor.org ([213.235.205.2]:29856 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S261676AbVFKKZJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 06:25:09 -0400
-To: Skywind <gnuwind@gmail.com>
-Cc: davem@davemloft.net, casavan@sgi.com, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: Is kernel 2.6.11 adjust tcp_max_syn_backlog incorrectly?
-References: <75052be7050606070691c302d@mail.gmail.com>
-	<75052be705060607106a6c0882@mail.gmail.com>
-From: Andi Kleen <ak@muc.de>
-Date: Sat, 11 Jun 2005 12:25:08 +0200
-In-Reply-To: <75052be705060607106a6c0882@mail.gmail.com> (gnuwind@gmail.com's
- message of "Mon, 6 Jun 2005 22:10:17 +0800")
-Message-ID: <m11x79dwcb.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Sat, 11 Jun 2005 06:27:23 -0400
+Received: from jurassic.park.msu.ru ([195.208.223.243]:31636 "EHLO
+	jurassic.park.msu.ru") by vger.kernel.org with ESMTP
+	id S261677AbVFKK1O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 06:27:14 -0400
+Date: Sat, 11 Jun 2005 14:26:58 +0400
+From: Ivan Kokshaysky <ink@jurassic.park.msu.ru>
+To: linux@horizon.com
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       torvalds@osdl.org
+Subject: Re: PROBLEM: Devices behind PCI Express-to-PCI bridge not mapped
+Message-ID: <20050611142658.A4952@jurassic.park.msu.ru>
+References: <20050611053331.9203.qmail@science.horizon.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.2.5i
+In-Reply-To: <20050611053331.9203.qmail@science.horizon.com>; from linux@horizon.com on Sat, Jun 11, 2005 at 05:33:31AM -0000
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Skywind <gnuwind@gmail.com> writes:
->
-> It seems that kernel don't adjust these value automatic, is this a bug?
->
-> I guess the mechanism of tcp.c in 2.6.11 have some changes(between
-> 2.6.10), and it conduce to this result,
-> Is this guess correctly?
+On Sat, Jun 11, 2005 at 05:33:31AM -0000, linux@horizon.com wrote:
+> Actually, that's not possible, because no difference is permitted.
 
-Yes, there were some changes here when it was converted to a common
-function for all hash tables (alloc_large_system_hash - the function
-with the argument list from hell).  Anyways, here's a quick fix.
+Not possible on only on _real_ PCI bus.
 
-DaveM for your consideration.
+Example: virtually every laptop has mobile bridge and ISA/LPC/whatever
+bridge on the same bus segment. Both are subtractive decode devices -
+impossible situation from classic PCI point of view. But it's just
+happens because it's _not_ PCI but some proprietary bus, even if it looks
+like PCI from software point of view. And sort of priority decode is
+certainly takes place there.
 
-Adjust TCP mem order check to new alloc_large_system_hash
-
-Signed-off-by: Andi Kleen <ak@suse.de>
-
---- linux-2.6.11-work/net/ipv4/tcp.c~	2005-03-02 08:37:51.000000000 +0100
-+++ linux-2.6.11-work/net/ipv4/tcp.c	2005-06-11 12:16:22.000000000 +0200
-@@ -2337,7 +2337,7 @@
- 			(tcp_bhash_size * sizeof(struct tcp_bind_hashbucket));
- 			order++)
- 		;
--	if (order > 4) {
-+	if (order >= 4) {
- 		sysctl_local_port_range[0] = 32768;
- 		sysctl_local_port_range[1] = 61000;
- 		sysctl_tcp_max_tw_buckets = 180000;
-
-
-
+Ivan.

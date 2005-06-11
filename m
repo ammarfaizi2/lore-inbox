@@ -1,68 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261155AbVFKHl0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261482AbVFKHny@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261155AbVFKHl0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 03:41:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261482AbVFKHl0
+	id S261482AbVFKHny (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 03:43:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261636AbVFKHny
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 03:41:26 -0400
-Received: from mx1.elte.hu ([157.181.1.137]:11479 "EHLO mx1.elte.hu")
-	by vger.kernel.org with ESMTP id S261155AbVFKHlV (ORCPT
+	Sat, 11 Jun 2005 03:43:54 -0400
+Received: from mail.kroah.org ([69.55.234.183]:26050 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261482AbVFKHnv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 03:41:21 -0400
-Date: Sat, 11 Jun 2005 09:32:08 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Michal Schmidt <xschmi00@stud.feec.vutbr.cz>
-Cc: linux-kernel@vger.kernel.org, "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-Message-ID: <20050611073208.GA8279@elte.hu>
-References: <20050608112801.GA31084@elte.hu> <42A8B390.2060400@stud.feec.vutbr.cz>
+	Sat, 11 Jun 2005 03:43:51 -0400
+Date: Sat, 11 Jun 2005 00:43:27 -0700
+From: Greg KH <gregkh@suse.de>
+To: linux-kernel@vger.kernel.org
+Subject: [RFC] Patch series to remove devfs [00/22]
+Message-ID: <20050611074327.GA27785@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42A8B390.2060400@stud.feec.vutbr.cz>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+User-Agent: Mutt/1.5.8i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+As everyone knows[1], devfs is going to be removed from the kernel soon.
+To accomplish this, here is a series of patches (22 in all) that do just
+that.  Surprisingly enough, devfs was almost everywhere in the kernel,
+that's why it takes so many patches :)
 
-* Michal Schmidt <xschmi00@stud.feec.vutbr.cz> wrote:
+Anyway, here's the whole series against 2.6.12-rc6-git4.  If some of
+them don't make it through to lkml (due to size restrictions, or just
+failing on a "taste" filter), you can find them all at:
+	http://www.kernel.org/pub/linux/kernel/people/gregkh/gregkh-2.6/gregkh-05-devfs/
+along with a quilt series file to apply them with.
 
-> Hi Ingo,
-> 
-> Since the introduction of the delayed preemption feature in V0.7.47-20 
-> my KDE desktop has been jerky. The sound from artsd often skips. The 
-> mouse pointer jumps when I compile anything the background and try to 
-> browse the web with Firefox.
+Andrew, please do not pick these up for your -mm tree.  Odds are it will
+just cause too many conflicts to make it worth your while :)
 
-yeah.
+Comments welcome.
 
-> I think that try_to_wake_up is broken for the !sync case. We have:
-> 
-> 		__activate_task(p, rq);
->                 if (TASK_PREEMPTS_CURR(p, rq)) {
->                         if (sync)
->                                 set_tsk_need_resched_delayed(rq->curr);
->                         else
->                                 resched_task(rq->curr);
->                 }
-> 
-> Shouldn't we call the full activate_task(...) instead of 
-> __activate_task(...) in the !sync case?
+Oh, and the best part?  Here's the summary of the diffstat:
 
-indeed.
+  222 files changed, 112 insertions(+), 8545 deletions(-)
 
-> The attached patch fixes seems to fix it for me. It is against 
-> V0.7.48-05.
+It's nice to remove code from the kernel for a change...
 
-thanks, applied - but this does not end all of the reschedule problems 
-that the latest patches have. More on that later.
+thanks,
 
-	Ingo
+greg k-h
+
+[1] What?  You don't know this?  Didn't you get the memo[2]?  Did you
+    miss the huge flame war almost a year ago[3]?  Are you living under
+    a rock[4]?
+[2] http://lxr.linux.no/source/Documentation/feature-removal-schedule.txt
+[3] http://thread.gmane.org/gmane.linux.kernel/219278
+[4] http://www.balloonplanet.com/shop/images/products/product_1788_small.jpg

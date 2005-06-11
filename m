@@ -1,110 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261609AbVFKGSR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261568AbVFKGY3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261609AbVFKGSR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 02:18:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVFKGSQ
+	id S261568AbVFKGY3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 02:24:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261577AbVFKGY3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 02:18:16 -0400
-Received: from easyspace.ezspl.net ([216.74.109.141]:6087 "EHLO
-	easyspace.ezspl.net") by vger.kernel.org with ESMTP id S261553AbVFKGSC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 02:18:02 -0400
-Message-ID: <20050611021814.riaatwh8ztskw4g4@www.nucleodyne.com>
-Date: Sat, 11 Jun 2005 02:18:14 -0400
-From: kallol@nucleodyne.com
-To: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
-Subject: Fwd: Re: Performance figure for sx8 driver
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset=ISO-8859-1
+	Sat, 11 Jun 2005 02:24:29 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:16908 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261568AbVFKGYV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 02:24:21 -0400
+Date: Sat, 11 Jun 2005 08:24:13 +0200
+From: Willy TARREAU <willy@w.ods.org>
+To: "David S. Miller" <davem@davemloft.net>
+Cc: xschmi00@stud.feec.vutbr.cz, alastair@unixtrix.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: BUG: Unusual TCP Connect() results.
+Message-ID: <20050611062413.GA1324@pcw.home.local>
+References: <42A9C607.4030209@unixtrix.com> <42A9BA87.4010600@stud.feec.vutbr.cz> <20050610222645.GA1317@pcw.home.local> <20050610.154248.130848042.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-User-Agent: Internet Messaging Program (IMP) H3 (4.0)
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - easyspace.ezspl.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [32001 32003] / [47 12]
-X-AntiAbuse: Sender Address Domain - nucleodyne.com
-X-Source: /usr/local/cpanel/3rdparty/bin/php
-X-Source-Args: /usr/local/cpanel/3rdparty/bin/php /usr/local/cpanel/base/horde/imp/compose.php 
-X-Source-Dir: :/base/horde/imp
+In-Reply-To: <20050610.154248.130848042.davem@davemloft.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi David,
+
+On Fri, Jun 10, 2005 at 03:42:48PM -0700, David S. Miller wrote:
+> From: Willy TARREAU <willy@w.ods.org>
+> Date: Sat, 11 Jun 2005 00:26:45 +0200
+> 
+> > It is documented in RFC793 (p30) as the simultaneous connection initation
+> > from 2 clients, although this mode has never been implemented by any
+> > mainline OS (to my knowledge) as it has no real use and poses security
+> > problems (eases spoofing a lot).
+> 
+> BSD (and thus BSD derivatives) and Linux have has it since
+> day one.
+
+Indeed, I've just managed to reproduce the full test with two different
+addresses as it's described in p30. I never succeeded to do it before,
+perhaps I did not try it the right way. To achieve this, I had to run two
+programs doing while(connect()<0). I agree that on high latency networks,
+it may make sense to support the feature (eg: mars-earth file transfers).
+
+But on regular uses, I think it's more a problem than a feature, because
+it allows any third party to prevent a normal connection establishment
+by only knowing the source and destination, which are sometimes easily
+guessable (eg: BGP between routers) :
+
+  | A connects to B, C tries to block them by sending lots of SYN at
+  | intervals smaller than the latency between A and B, eg 200/s for
+  | a 10 ms latency.
+
+  A                                       B (or C)
+  ---------------+--------------------------------
+
+                  <- SYN(SEQ=200)         (C sends blind SYN)
+                  <- SYN(SEQ=200)         (C sends blind SYN)
+  SYN(SEQ=100) -> ...
+                  <- SYN(SEQ=200)         (C sends blind SYN)
+  SYN(SEQ=101,ACK=201) ->                 (A acknowledges C's SYN)
+                  <- SYN(SEQ=300,ACK=101) (B acknowledges A's SYN)
+  RST(SEQ=102,ACK=301) ->                 (A rejects B's SYN/ACK)
+                  <- RST(SEQ=201,ACK=102) (B rejects A's SYN/ACK)
 
 
+Maybe it would be useful to have a sysctl option allowing us to disable
+this behaviour when it can haev security implications ?
 
-Hello Jeff,
-           How did you verify that performance improved making the
-changes those
-you suggested?
+Also, I often test firewalls for such features and never found any one
+which allows this. To be more precise, only a previous implementation of
+the tcp-window-tracking in Netfilter allowed this but it opened a security
+breach that we had to resolve with Jozsef, as it allowed the client to
+establish a session by sending the SYN-SYN/ACK-ACK itself...
 
-hdparm does not show it.
+> I guess it depends upon your definition of
+> "mainline OS". :-)
 
-Regards,
-Kallol
+It does not depend on my definition, but on my knowledge, as I put the
+condition in the initial mail that you quoted above :-)
 
-Quoting kallol@nucleodyne.com:
-
-> Hello Jeff,
->            Changing CARM_MAX_Q to 30 and upgrading the firmware to
-> firmware(BIOS-1.00.0.37, Firmware-1.3.19) does not help.
->
-> Anything else to try?
->
-> Kallol
->
-> Quoting Jeff Garzik <jgarzik@pobox.com>:
->
->> kallol@nucleodyne.com wrote:
->>> Does anyone have performace figure for sx8 driver which is for
->>> promise SATAII150
->>> 8 port PCI-X adapter?
->>>
->>> Someone reports that on a platform with sx8 driver, multiple hdparms on
->>> different disks those are connected to the same adapter (there are
->>> 8 ports) can
->>> not get more than 45MB/sec in total, whereas a SCSI based driver
->>> for the same
->>> adapter gets around 150MB/sec.
->>>
->>> Any comment on this?
->>
->> Known.  Early firmwares for SX8 had problems that forced the driver to
->> limit the number of outstanding requests, for all ports, to _one_.
->>
->> Later firmwares have fixed this, but the driver has not been updated to
->> detect newer(fixed) firmwares.
->>
->> You may update drivers/block/sx8.c as such:
->>
->> - CARM_MAX_Q              = 1,               /* one command at a time */
->> + CARM_MAX_Q              = 30,              /* 30 commands at a time */
->>
->> if you have a newer firmware, to obtain much better performance.
->>
->> 	Jeff
->>
->>
->> -
->> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
->> the body of a message to majordomo@vger.kernel.org
->> More majordomo info at  http://vger.kernel.org/majordomo-info.html
->> Please read the FAQ at  http://www.tux.org/lkml/
->>
->
->
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
-
-
-
-
-
------ End forwarded message -----
+Cheers,
+Willy
 

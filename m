@@ -1,64 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261772AbVFKTfq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261780AbVFKTk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261772AbVFKTfq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 15:35:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261794AbVFKTfo
+	id S261780AbVFKTk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 15:40:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbVFKTk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 15:35:44 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:22986 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261772AbVFKTeb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 15:34:31 -0400
-Date: Sat, 11 Jun 2005 21:34:13 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Daniel Walker <dwalker@mvista.com>, linux-kernel@vger.kernel.org,
-       sdietrich@mvista.com
-Subject: Re: [PATCH] local_irq_disable removal
-In-Reply-To: <20050611191654.GA22301@elte.hu>
-Message-Id: <Pine.OSF.4.05.10506112123260.2917-100000@da410.phys.au.dk>
+	Sat, 11 Jun 2005 15:40:27 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:35334 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261783AbVFKThb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 15:37:31 -0400
+Date: Sat, 11 Jun 2005 21:37:29 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: John covici <covici@ccs.covici.com>
+Cc: linux-kernel@vger.kernel.org, cramerj@intel.com, john.ronciak@intel.com,
+       ganesh.venkatesan@intel.com, netdev@oss.sgi.com
+Subject: Re: e1000 not working using 2.6.11
+Message-ID: <20050611193729.GJ3770@stusta.de>
+References: <17064.41290.461755.920152@ccs.covici.com>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <17064.41290.461755.920152@ccs.covici.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Jun 2005, Ingo Molnar wrote:
+On Thu, Jun 09, 2005 at 04:06:34PM -0400, John covici wrote:
 
+> Hi.  I am not getting good results on a box I have which uses an Intel
+> Pro gigabit Ethernet driver for its network connection.  What happens
+> is that I get messages like watchdog xmit timeout and lots of errors
+> out of ifconfig.  Here is the listpci entry for that card.  It works
+> under the other OS, so I imagine the hardware is OK.
 > 
-> * Daniel Walker <dwalker@mvista.com> wrote:
+> 0000:01:0b.0 Ethernet controller: Intel Corp. 82540EM Gigabit Ethernet Controller (rev 02)
+>         Subsystem: Intel Corp.: Unknown device 3013
+>         Flags: bus master, 66MHz, medium devsel, latency 32, IRQ 19
+>         Memory at e7000000 (64-bit, non-prefetchable) [size=128K]
+>         Memory at e7020000 (64-bit, non-prefetchable) [size=64K]
+>         I/O ports at b400 [size=64]
+>         Capabilities: [dc] Power Management version 2
+>         Capabilities: [e4] PCI-X non-bridge device.
+>         Capabilities: [f0] Message Signalled Interrupts: 64bit+ Queue=0/0 Enable-
 > 
-> > > The current soft-irq states only gives us better hard-irq latency but
-> > > nothing else. I think the overhead runtime and the complication of the
-> > > code is way too big for gaining only that. 
-> > 
-> > Interrupt response is massive, check the adeos vs. RT numbers . They 
-> > did one test which was just interrupt latency.
 > 
-> the jury is still out on the accuracy of those numbers. The test had 
-> RT_DEADLOCK_DETECT (and other -RT debugging features) turned on, which 
-> mostly work with interrupts disabled. The other question is how were 
-> interrupt response times measured.
-> 
-You would accept a patch where I made this stuff optional?
+> Any assistance would be appreciated.
 
-I have another problem:
-I can't hide that my aim is to make task-latencies deterministic.
-The worry is local_irq_disable() (and preempt_disable()). I can undefine
-it and therefore find where it is used. I can then look at the code, make
-it into raw_local_irq_disable() or try to make a lock.
-In many cases the raw-irq disable is the best and simplest when I am only
-worried about task-latencies. But now Daniel and Sven wants to use the
-distingtion between raw_local_irq_disable() and local_irq_disable() to
-make irqs fast. 
-We do have a clash of notations. Any idea what to do? I mentioned
- local_
- raw_local_
- hard_local_
+Does 2.6.12-rc6 work?
 
-Would that work?
+If not, the maintainers of this driver (Cc'ed) might be able to help 
+you.
 
+>          John Covici
 
-> 	Ingo
+cu
+Adrian
 
-Esben
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

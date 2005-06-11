@@ -1,72 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261755AbVFKR2d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261761AbVFKRcZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261755AbVFKR2d (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 13:28:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbVFKR1z
+	id S261761AbVFKRcZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 13:32:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261757AbVFKRbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 13:27:55 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:54965
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S261755AbVFKRZx
+	Sat, 11 Jun 2005 13:31:20 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:18422 "EHLO
+	godzilla.mvista.com") by vger.kernel.org with ESMTP id S261765AbVFKRa4 convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 13:25:53 -0400
+	Sat, 11 Jun 2005 13:30:56 -0400
+Date: Sat, 11 Jun 2005 10:30:41 -0700 (PDT)
+From: Daniel Walker <dwalker@mvista.com>
+To: =?UTF-8?B?TWlrYSBQZW50dGlsw6Q=?= <mika.penttila@kolumbus.fi>
+cc: Sven-Thorsten Dietrich <sdietrich@mvista.com>, Ingo Molnar <mingo@elte.hu>,
+       Esben Nielsen <simlo@phys.au.dk>, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH] local_irq_disable removal
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Esben Nielsen <simlo@phys.au.dk>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, sdietrich@mvista.com
-In-Reply-To: <Pine.LNX.4.10.10506110930050.27294-100000@godzilla.mvista.com>
-References: <Pine.LNX.4.10.10506110930050.27294-100000@godzilla.mvista.com>
-Content-Type: text/plain
-Organization: linutronix
-Date: Sat, 11 Jun 2005 19:26:57 +0200
-Message-Id: <1118510817.13312.88.camel@tglx.tec.linutronix.de>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <42AB1F8D.30104@kolumbus.fi>
+Message-ID: <Pine.LNX.4.10.10506111029290.27294-100000@godzilla.mvista.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-06-11 at 09:36 -0700, Daniel Walker wrote:
+
+
+On Sat, 11 Jun 2005, [UTF-8] Mika Penttilä wrote:
+
+> ok, so maybe the safe way is to enforce threaded softirq with the soft 
+> irq flag.
 > 
-> On Sat, 11 Jun 2005, Esben Nielsen wrote:
-> 
-> > For me it is perfectly ok if RCU code, buffer caches etc use
-> > raw_local_irq_disable(). I consider that code to be "core" code.
-> 
-> This distinction seem completly baseless to me. Core code doesn't
-> carry any weight . The question is , can the code be called from real
-> interrupt context ? If not then don't protect it.
-> 
-> > 
-> > The current soft-irq states only gives us better hard-irq latency but
-> > nothing else. I think the overhead runtime and the complication of the
-> > code is way too big for gaining only that. 
-> 
-> Interrupt response is massive, check the adeos vs. RT numbers . They did
-> one test which was just interrupt latency.
 
-Performance on RT systems is more than IRQ latencies. 
+That's already handled, my changes are used only when you turn on
+PREEMPT_RT , and PREEMPT_RT forces softirq threading.
 
-The wide spread misbelief that 
-  "Realtime == As fast as possible" 
-
-seems to be still stuck in peoples mind.
-
-  "Realtime == As fast as specified"
-is the correct equation.
-
-There is always a tradeoff between interrupt latencies and other
-performance values, as you have to invent new mechanisms to protect
-critical sections. In the end, they can be less effective than the gain
-on irq latencies.
-
-While working on high resolution timers on top of RT, I can prove that
-changing a couple of shortheld spinlocks  into raw locks (with hardirq
-disable), results in 50-80% latency improvement of the scheduled tasks
-but increases the interrupt latency by only 5-10%. The differrent
-numbers are related to different CPUs (x86/PPC,ARM). 
-
-tglx
-
+Daniel
 

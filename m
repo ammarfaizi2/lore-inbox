@@ -1,72 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261721AbVFKQcM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261727AbVFKQfj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261721AbVFKQcM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 12:32:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261727AbVFKQcM
+	id S261727AbVFKQfj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 12:35:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261729AbVFKQfi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 12:32:12 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:29630 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261721AbVFKQcB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 12:32:01 -0400
-Date: Sat, 11 Jun 2005 18:31:42 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, sdietrich@mvista.com
-Subject: Re: [PATCH] local_irq_disable removal
-In-Reply-To: <Pine.LNX.4.10.10506110904100.27294-100000@godzilla.mvista.com>
-Message-Id: <Pine.OSF.4.05.10506111819170.2917-100000@da410.phys.au.dk>
+	Sat, 11 Jun 2005 12:35:38 -0400
+Received: from amsfep13-int.chello.nl ([213.46.243.23]:35167 "EHLO
+	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261727AbVFKQfW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 12:35:22 -0400
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+In-Reply-To: <20050608112801.GA31084@elte.hu>
+References: <20050608112801.GA31084@elte.hu>
+Content-Type: text/plain
+Date: Sat, 11 Jun 2005 18:35:20 +0200
+Message-Id: <1118507720.12860.8.camel@twins>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Mailer: Evolution 2.2.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 11 Jun 2005, Daniel Walker wrote:
+Hi Ingo,
 
-> 
-> 
-> On Sat, 11 Jun 2005, Esben Nielsen wrote:
-> 
-> > On Fri, 10 Jun 2005, Daniel Walker wrote:
-> > 
-> > > On Sat, 2005-06-11 at 01:37 +0200, Esben Nielsen wrote:
-> > > [...]
-> > > > As far as I can see the only solution is to replace them with a per-cpu
-> > > > mutex. Such a mutex can be the rt_mutex for now, but someone may want to
-> > > > make a more optimized per-cpu version where a raw_spin_lock isn't used.
-> > > > That would make it nearly as cheap as cli()/sti() when there is no
-> > > > congestion. One doesn't need PI for this region either as the RT
-> > > > subsystems will not hit it anyway.
-> > > 
-> > > I don't like this solution mainly because it's so expensive. cli/sti may
-> > > take a few cycles at most, what your suggesting may take 50 times that,
-> > > which would similar in speed to put linux under adeos.. 
-> > 
-> > We are only talking about the local_irq_disable()/enable() in drivers, not
-> > the core system, right? Therefore making it into a mutex will not be that
-> > expensive overall.
-> 
-> No, core system . We're talking about everything, including
-> raw_spinlock_t.
->
-I think that is a really bad idea then. It only helps on irq-latency. The
-rest of the system will see lower performance. It should certainly not be
-on as a default thing with PREEMPT_RT. Such low latencies are rarely
-needed.
+I'm having some difficulty with your latest patches; more specifically
+linux-2.6.12-rc6-git4-RT-V0.7.48-10 floods me with BUGs like these:
 
-I think extremely low irq-latencies can better obtained with other 
-solutions closer to the sub-kernel approach, i.e. taking it completely 
-away from the scheduler such that the whole kernel - including the
-scheduler, raw_spinlock etc. - runs with irqs enabled.
+BUG: sleeping function called from invalid context ksoftirqd/1(7) at kernel/rt.c:1657
+in_atomic():0 [20000000], irqs_disabled():536870912
+ [<c01041c3>] dump_stack+0x23/0x30 (20)
+ [<c011c981>] __might_sleep+0xe1/0x100 (36)
+ [<c013dbe8>] __spin_lock+0x38/0x60 (24)
+ [<c013dc2d>] _spin_lock+0x1d/0x20 (16)
+ [<c02c627f>] rh_report_status+0x2f/0x110 (36)
+ [<c012a754>] run_timer_softirq+0x1e4/0x3f0 (64)
+ [<c0125c7f>] ___do_softirq+0x7f/0x140 (48)
+ [<c0125df7>] _do_softirq+0x27/0x30 (8)
+ [<c0126431>] ksoftirqd+0xb1/0x150 (28)
+ [<c0137426>] kthread+0xb6/0xf0 (48)
+ [<c0101149>] kernel_thread_helper+0x5/0xc (268648476)
+---------------------------
+| preempt count: 20000001 ]
+| 1-level deep critical section nesting:
+----------------------------------------
+.. [<c0141bdb>] .... print_traces+0x1b/0x60
+.....[<c01041c3>] ..   ( <= dump_stack+0x23/0x30)
 
-Actually, I think there should be 3 "levels" of irq-macroes:
- local_irq_disable()      should not compile under PREEMPT_RT (!!)
- raw_local_irq_disable()  should be used within the core kernel code.
- hard_local_irq_disable() for the very low latency interrupt systems.
-Under normal circumstances raw_local and hard_local should refer to the
-hardware but raw_local can be made into a soft-interrupt state close to
-the sub-kernel approach such that one or two very special interupts can
-come through.
+I gather these are because of:
 
-Esben
+drivers/usb/code/hcd.c:rh_report_status
+
+static void rh_report_status (unsigned long ptr)
+{
+	struct urb	*urb;
+	struct usb_hcd	*hcd;
+	int		length = 0;
+	unsigned long	flags;
+
+	urb = (struct urb *) ptr;
+	local_irq_save (flags);
+	spin_lock (&urb->lock);
+
+
+	...
+}
+
+where local_irq_save() would disable pre-emption while spin_lock(); the
+urb->lock is not a raw lock; can sleep.
+
+I'm not well versed in that code; do you have a suggestion?
+
+On another note; X seems to have trouble getting up. It consumes a full
+CPU right after mode switching (afaict) without getting any progress.
+I'll try and get a nice trace of X using sysrq-t.
+
+-- 
+Peter Zijlstra <a.p.zijlstra@chello.nl>
+
 

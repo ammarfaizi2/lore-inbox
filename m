@@ -1,113 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261600AbVFKCce@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbVFKDLS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261600AbVFKCce (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 22:32:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261602AbVFKCce
+	id S261168AbVFKDLS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 23:11:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbVFKDLS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 22:32:34 -0400
-Received: from www.portafree.com ([216.250.209.9]:38619 "EHLO ns2.porta.net")
-	by vger.kernel.org with ESMTP id S261600AbVFKCc0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 22:32:26 -0400
-Date: Fri, 10 Jun 2005 21:30:15 -0500 (GMT+5)
-Message-Id: <200506110230.j5B2UFB24877@ns2.porta.net>
-From: "Jonathan Zuma" <jmzuma@sify.com>
-Reply-To: jmzuma@sify.com
-Subject: Greetings From South Africa
-X-Mailer: PortaFree 2.0
-X-IPAddress: 82.128.1.54
-MIME-Version: 1.0
-Content-Type: text/plain
-To: unlisted-recipients:; (no To-header on input)
+	Fri, 10 Jun 2005 23:11:18 -0400
+Received: from titan.genwebhost.com ([209.9.226.66]:36486 "EHLO
+	titan.genwebhost.com") by vger.kernel.org with ESMTP
+	id S261168AbVFKDLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 23:11:15 -0400
+Date: Fri, 10 Jun 2005 20:11:07 -0700
+From: randy_dunlap <rdunlap@xenotime.net>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: lnxluv@yahoo.com, linux-kernel@vger.kernel.org
+Subject: Re: 2.6: problem with module tainting the kernel
+Message-Id: <20050610201107.60a8c3ae.rdunlap@xenotime.net>
+In-Reply-To: <20050610153506.GA8118@infradead.org>
+References: <20050610152450.82261.qmail@web33315.mail.mud.yahoo.com>
+	<20050610153506.GA8118@infradead.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - titan.genwebhost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - xenotime.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A very good day to you.
- 
-I am Mr. Jonathan Mwari Zuma, an accountant and principal overseer 
-with 
+On Fri, 10 Jun 2005 16:35:06 +0100 Christoph Hellwig wrote:
 
-the South African Mining Corporation. I got your contact through a 
-friend 
+| On Fri, Jun 10, 2005 at 08:24:50AM -0700, li nux wrote:
+| > In 2.6 kernels how to assure that on inserting our own
+| > module, it doesn't throw the warning:
+| > 
+| > "unsupported module, tainting kernel"
+| 
+| There's no place in the kernel that produces this message.  Are you
+| using some odd vendor tree?
 
-in my local chamber of commerce in collaboration with the  American 
+to put it another way, show us all of the kernel
+messages from when you try to load the module.
 
-Consulate here in South Africa. This is in line with my quest for a 
-
-reliable and reputable person/company to handle a very confidential 
-
-transaction, which involves transfer of fund to a foreign account.
- 
-This said fund (US$20.5m) Twenty million, five hundred thousand United 
-
-Statesdollars, is reportedly made to be a variation and accumulation 
-of 
-
-equity investment made in the South African Mining corporation in the 
-
-period of 1983-1987. This redeemable investment interest, has now 
-matured 
-
-and has long been cleared for disbursement but with no apparent 
-knowledge 
-
-of who the investors are,  as most of the investors then, were corrupt 
-
-government officials and their cronies under the obnoxious apartheid 
-
-regime who used pseudo names and aliases in the transactions, and 
-could 
-
-not come up for claims under the present political setting in South 
-
-Africa.
- 
-After due consultative sessions with my colleagues in the account 
-
-department at the mining corporation, I discovered that none of them 
-
-knows about the funds. So  I decided to confiscate the funds and 
-placed 
-
-it in a private trust company for safe keeping, awaiting further 
-transfer 
-
-to 
-a foreign account for further business ventures. I cannot handle this 
-
-transaction on my name because we were not allowed to operate an 
-offshore 
-
-account while still in service. What I need now is a foreign national 
-who 
-
-can assist me in the transfer of this fund, and also to help invest 
-the 
-
-fund in a risk free venture. if you are wi! lling to assist me in this 
-
-transfer, I have agreed to compensate y ou with a certain percentage
-(20%) 
-
-of the total sum (US$20.5m) through mutual negotiations. Your 
-specialty 
-
-is not a barrier to this transaction as I have mapped out strategies 
-to 
-
-effectively actualize this transaction.
- 
-Thank you for your anticipated co-operation, and I hope to hear from 
-you 
-
-soon, to enable me give you full details of the transactions.  And 
-also 
-
-remember to maintain absolute confidentiality as any leakage of 
-
-information may jeopardize our chance of receiving this money.
- 
-Best regards,
-Jonathan Mwari Zuma
-SAMC P.ACC
-
+---
+~Randy

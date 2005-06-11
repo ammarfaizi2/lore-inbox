@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261696AbVFKNNk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbVFKNRJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261696AbVFKNNk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 09:13:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVFKNNk
+	id S261693AbVFKNRJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 09:17:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVFKNRJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 09:13:40 -0400
-Received: from lirs02.phys.au.dk ([130.225.28.43]:29870 "EHLO
-	lirs02.phys.au.dk") by vger.kernel.org with ESMTP id S261696AbVFKNNh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 09:13:37 -0400
-Date: Sat, 11 Jun 2005 15:13:20 +0200 (METDST)
-From: Esben Nielsen <simlo@phys.au.dk>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu, sdietrich@mvista.com
-Subject: Re: [PATCH] local_irq_disable removal
-In-Reply-To: <1118449247.27756.47.camel@dhcp153.mvista.com>
-Message-Id: <Pine.OSF.4.05.10506111455240.2917-100000@da410.phys.au.dk>
+	Sat, 11 Jun 2005 09:17:09 -0400
+Received: from hell.org.pl ([62.233.239.4]:47119 "HELO hell.org.pl")
+	by vger.kernel.org with SMTP id S261693AbVFKNRH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 09:17:07 -0400
+Date: Sat, 11 Jun 2005 14:17:01 +0200
+From: Karol Kozimor <sziwan@hell.org.pl>
+To: randy_dunlap <rdunlap@xenotime.net>
+Cc: Hanno =?iso-8859-2?Q?B=F6ck?= <mail@hboeck.de>,
+       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       julien.lerouge@free.fr
+Subject: Re: [ACPI] Re: Kernel oops with asus_acpi module
+Message-ID: <20050611121701.GA20873@hell.org.pl>
+Mail-Followup-To: randy_dunlap <rdunlap@xenotime.net>,
+	Hanno =?iso-8859-2?Q?B=F6ck?= <mail@hboeck.de>,
+	acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+	julien.lerouge@free.fr
+References: <200506052340.41074.mail@hboeck.de> <200506062347.10582.mail@hboeck.de> <20050606222151.GB65@hell.org.pl> <200506071946.20843.mail@hboeck.de> <20050607151649.4feaa50a.rdunlap@xenotime.net>
 Mime-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+In-Reply-To: <20050607151649.4feaa50a.rdunlap@xenotime.net>
+User-Agent: Mutt/1.4.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Jun 2005, Daniel Walker wrote:
-
-> On Sat, 2005-06-11 at 01:37 +0200, Esben Nielsen wrote:
-> [...]
-> > As far as I can see the only solution is to replace them with a per-cpu
-> > mutex. Such a mutex can be the rt_mutex for now, but someone may want to
-> > make a more optimized per-cpu version where a raw_spin_lock isn't used.
-> > That would make it nearly as cheap as cli()/sti() when there is no
-> > congestion. One doesn't need PI for this region either as the RT
-> > subsystems will not hit it anyway.
+Thus wrote randy_dunlap:
+> | > But I'd like to get the full oops with the matching asus_acpi.o file also
+> | > (might be off the list).
 > 
-> I don't like this solution mainly because it's so expensive. cli/sti may
-> take a few cycles at most, what your suggesting may take 50 times that,
-> which would similar in speed to put linux under adeos.. 
-
-We are only talking about the local_irq_disable()/enable() in drivers, not
-the core system, right? Therefore making it into a mutex will not be that
-expensive overall.
-
-> Plus take into
-> account that the average interrupt disable section is very small .. I
-> also think it's possible to extend my version to allow those section to
-> be preemptible but keep the cost equally low.
+> Karol, did you see the beginning of the thread?
+> http://lkml.org/lkml/2005/6/5/101
 > 
 
-The more I think about it the more dangerous I think it is. What does
-local_irq_disable() protect against? All local threads as well as
-irq-handlers. If these sections keeped mutual exclusive but preemtible we
-will not have protected against a irq-handler.
+Yeah, but I didn't get the .o file :)
+Please don't trim the Cc: list, or I'll be slow to respond.
+Best regards,
 
-I will start to play around with the following:
-1) Make local_irq_disable() stop compiling to see how many we are really
-talking about.
-2) Make local_cpu_lock, which on PREEMPT_RT is a rt_mutex and on
-!PREEMPT_RT turns into local_irq_disable()/enable() pairs. To introduce
-this will demand some code-analyzing for each case but I am afraid there
-is no general one-size solution to all the places.
-
-> Daniel
-> 
-> 
-
-Esben
-
-
+-- 
+Karol 'sziwan' Kozimor
+sziwan@hell.org.pl

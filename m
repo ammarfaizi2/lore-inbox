@@ -1,45 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261256AbVFKPQ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261185AbVFKPhD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261256AbVFKPQ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 11:16:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261721AbVFKPQ5
+	id S261185AbVFKPhD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 11:37:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261363AbVFKPhD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 11:16:57 -0400
-Received: from ppp-217-133-42-200.cust-adsl.tiscali.it ([217.133.42.200]:54107
-	"EHLO g5.random") by vger.kernel.org with ESMTP id S261256AbVFKPQ4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 11:16:56 -0400
-Date: Sat, 11 Jun 2005 17:16:46 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-Cc: Bill Huey <bhuey@lnxw.com>, Lee Revell <rlrevell@joe-job.com>,
-       Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
-       tglx@linutronix.de, karim@opersys.com, mingo@elte.hu,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org
-Subject: Re: Attempted summary of "RT patch acceptance" thread
-Message-ID: <20050611151646.GA5796@g5.random>
-References: <20050608022646.GA3158@us.ibm.com> <42A8D1F3.8070408@am.sony.com> <20050609235026.GE1297@us.ibm.com> <1118372388.32270.6.camel@mindpipe> <20050610154745.GA1300@us.ibm.com> <20050610173728.GA6564@g5.random> <1118436338.6423.48.camel@mindpipe> <20050610231647.GK1300@us.ibm.com> <20050610232628.GA23512@nietzsche.lynx.com> <20050611010755.GN1300@us.ibm.com>
+	Sat, 11 Jun 2005 11:37:03 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:26372 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S261185AbVFKPg6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 11:36:58 -0400
+Date: Sat, 11 Jun 2005 17:36:56 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Patch series to remove devfs [00/22]
+Message-ID: <20050611153656.GB3770@stusta.de>
+References: <20050611074327.GA27785@kroah.com> <20050611102133.GA3770@stusta.de> <20050611143904.GA30612@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050611010755.GN1300@us.ibm.com>
-X-GPG-Key: 1024D/68B9CB43 13D9 8355 295F 4823 7C49  C012 DFA1 686E 68B9 CB43
+In-Reply-To: <20050611143904.GA30612@suse.de>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 10, 2005 at 06:07:55PM -0700, Paul E. McKenney wrote:
-> 	f.	Any code that manipulates hardware that can stall the
-> 		bus, delay interrupts, or otherwise interfere with
-> 		forward progress.  Note that it is also necessary to
-> 		inspect user-level code that directly manipulates such
-> 		hardware.
+On Sat, Jun 11, 2005 at 07:39:04AM -0700, Greg KH wrote:
+> On Sat, Jun 11, 2005 at 12:21:34PM +0200, Adrian Bunk wrote:
+> > On Sat, Jun 11, 2005 at 12:43:27AM -0700, Greg KH wrote:
+> > >...
+> > > Comments welcome.
+> > >...
+> > 
+> > Please don't remove the !CONFIG_DEVFS_FS dummies from devfs_fs_kernel.h.
+> > 
+> > I'm sure some driver maintainers will want to keep the functions in 
+> > their code because they share their drivers between 2.4 and 2.6 .
 > 
-> I added point "f".  Does that cover it?
+> All drivers should be in the mainline kernel tree, so why would they
+> need this?  Remember, out-of-the-tree drivers are on their own...
 
-Yes. F is really a bad problem if it really can cause DMA starvation on
-the memory bus on some arch as stated on this thread. Hopefully
-measurements are good enough to rule it out and there will be no corner
-cases triggering once in a while.
+I'm talking about drivers in the mainline kernel tree.
+
+In some cases the driver author supports both 2.4 and 2.6 and prefers to 
+support them in one file. Sometimes he submits the latest version of his 
+driver to Marcelo or Linus.
+
+If you remove the global function dummies, you force every driver 
+maintainer who works this way to add the function dummies to their 
+drivers.
+
+Yes, there are many places where 2.4 and 2.6 are not source compatible 
+for good reasons. But if the effort for maintaining compatibility 
+between 2.4 and 2.6 in one area is as easy as keeping a header file with 
+some dummy funtions it's worth considering.
+
+And keeping the compatibility stuff in one file instead of spreaded 
+through the kernel sources makes the cleanup to remove the last 
+occurences a few years from now easier.
+
+> thanks,
+> 
+> greg k-h
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

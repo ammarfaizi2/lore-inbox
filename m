@@ -1,55 +1,1112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261833AbVFKUcB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261821AbVFKUnz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261833AbVFKUcB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 16:32:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261829AbVFKUcA
+	id S261821AbVFKUnz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 16:43:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261823AbVFKUnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 16:32:00 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:60322 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261821AbVFKUbk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 16:31:40 -0400
-Date: Sat, 11 Jun 2005 13:32:01 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Andrea Arcangeli <andrea@suse.de>
-Cc: Bill Huey <bhuey@lnxw.com>, Lee Revell <rlrevell@joe-job.com>,
-       Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
-       tglx@linutronix.de, karim@opersys.com, mingo@elte.hu,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org
-Subject: Re: Attempted summary of "RT patch acceptance" thread
-Message-ID: <20050611203201.GB1299@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <42A8D1F3.8070408@am.sony.com> <20050609235026.GE1297@us.ibm.com> <1118372388.32270.6.camel@mindpipe> <20050610154745.GA1300@us.ibm.com> <20050610173728.GA6564@g5.random> <1118436338.6423.48.camel@mindpipe> <20050610231647.GK1300@us.ibm.com> <20050610232628.GA23512@nietzsche.lynx.com> <20050611010755.GN1300@us.ibm.com> <20050611151646.GA5796@g5.random>
+	Sat, 11 Jun 2005 16:43:55 -0400
+Received: from wproxy.gmail.com ([64.233.184.193]:46224 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261821AbVFKUmJ convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 16:42:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=SsrpqPeNLGtbsXj3nvQd0S2BDAUO+dBSop2Easkd3gYncKcgykqn/5XD+bxJlGkrkfrUfVeM4UKa9yMrRD8SGjDTyHChAKCq6/JShbw7RCjm6yzIXgrj59dSxXrxDdYjZ1kKKwTJIkiy45/7KN+5aGJ2juTBLx4uAXMewDVtsdw=
+Message-ID: <a7fe805f05061113426c86ba92@mail.gmail.com>
+Date: Sat, 11 Jun 2005 22:42:08 +0200
+From: =?ISO-8859-1?Q?Remy_B=F6hmer?= <remy.bohmer@gmail.com>
+Reply-To: =?ISO-8859-1?Q?Remy_B=F6hmer?= <remy.bohmer@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH] bigphysarea for 2.6.10 en 2.6.11
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Content-Disposition: inline
-In-Reply-To: <20050611151646.GA5796@g5.random>
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 11, 2005 at 05:16:46PM +0200, Andrea Arcangeli wrote:
-> On Fri, Jun 10, 2005 at 06:07:55PM -0700, Paul E. McKenney wrote:
-> > 	f.	Any code that manipulates hardware that can stall the
-> > 		bus, delay interrupts, or otherwise interfere with
-> > 		forward progress.  Note that it is also necessary to
-> > 		inspect user-level code that directly manipulates such
-> > 		hardware.
-> > 
-> > I added point "f".  Does that cover it?
-> 
-> Yes. F is really a bad problem if it really can cause DMA starvation on
-> the memory bus on some arch as stated on this thread. Hopefully
-> measurements are good enough to rule it out and there will be no corner
-> cases triggering once in a while.
+I have pulled the bigphysarea patch (as posted by Nick Martin for
+kernel 2.6.9) towards the kernels 2.6.10 and 2.6.11.
+Maybe there is somebody out there who can use it.
 
-Agreed!
+(it only suits the i386 kernel, I have not done this job for other platforms.)
+First the 2.6.10 version is listed below, after this the 2.6.11 version
 
-But who knows?  Maybe we can convince some HW manufacturers to make
-their memory and I/O systems better.  So it might also be good to have
-tests that forced the conditions as well as tests that avoid them.
-Though such tests do sound horribly hardware dependent...
+Have fun with it!
 
-						Thanx, Paul
+Remy
+
+---------------------------------------------------------------
+The 2.6.10 version
+---------------------------------------------------------------
+ diff -urN linux-2.6.10.orig/Documentation/bigphysarea.txt
+linux-2.6.10.bigphys/Documentation/bigphysarea.txt
+--- linux-2.6.10.orig/Documentation/bigphysarea.txt      Wed Dec 31
+19:00:00 1969
++++ linux-2.6.10.bigphys/Documentation/bigphysarea.txt   Mon Nov 15
+15:34:58 2004
+@@ -0,0 +1,64 @@
++Bigphysarea
++===========
++
++This set of functions give you the ability to allocate big
++contineous (DMAable) memory for the entire runtime of Linux.
++Big meaning here more than 128KB, the maximum allocation
++limit of kmalloc(). Due to fragmentation reasons kmalloc()
++is unable to garantee allocs of this order during a prolonged
++run of the kernel. This new pool of memory blob can be used
++during the initialization or use of soundcards of framegrabbers
++which are designed without DMA scatter-gatter capabilities.
++
++For a sample use, see the zoran driver in drivers/char/zr36120_mem.c
++
++Enjoy,
++  Pauline Middelink
++
++How to start
++============
++First add bigphysarea=<number of pages to alloc> to the
++commandline of your kernel. Either do this by adding an
++append= line to your /etc/lilo/conf setup or use some
++magic marker...
++After booting the new kernel there should be a /proc/bigphysarea
++file telling your how many blocks/bytes are available.
++
++The interface description
++=========================
++The big physical area is mainly managed by two functions. The first one,
++
++caddr_t bigphysarea_alloc_pages(int count, int align, int priority)
++
++allocates 'count' pages. The pages are aligned so that there base
++address is a multiple of 'PAGE_SIZE * align'. If you don't need more
++than page alignment, set 'align' to 0 or 1. 'priority' has the same
++meaning as in kmalloc, it can be GFP_ATOMIC (for calls from interrupt
++handlers) or GFP_KERNEL (for usual calls). The base address of the
++allocated area is returned.
++
++Allocation can fail for two reasons, in both cases NULL is
++returned. First, the physical area is scattered too much or there is
++not enough memory, second it is not possible to allocate some memory
++with kmalloc for administration of the physical area (very unlikely).
++
++To free an allocated area, just call
++
++void bigphysarea_free_pages(caddr_t base)
++
++with 'base' set to the value returned by 'bigphysarea_alloc_pages'. 
++
++An example how to use this functions can be found in 'module.c'.
++
++There is still the old interface introduced by M. Welsh:
++
++caddr_t bigphysarea_alloc(int size)
++void bigphysarea_free(caddr_t addr, int size)
++
++The first function allocates 'size' bytes physically continous
++memory. To free the area, bigphysarea_free with a pointer to the area
++and its size has to be called. Due to a new allocation algorithm, the
++size parameter is no longer really needed when freeing an area.
++
++In the current version it is not safe to call any of the functions
++from an interrupt handler.
+diff -urN linux-2.6.10.orig/Makefile linux-2.6.10.bigphys/Makefile
+--- linux-2.6.10.orig/Makefile   Mon Oct 18 17:54:38 2004
++++ linux-2.6.10.bigphys/Makefile        Mon Nov 15 15:34:58 2004
+@@ -6,2 +6,4 @@
+
++EXTRAVERSION += -bigphys
++ 
+ # *DOCUMENTATION*
+diff -urN linux-2.6.10.orig/arch/i386/Kconfig
+linux-2.6.10.bigphys/arch/i386/Kconfig
+--- linux-2.6.10.orig/arch/i386/Kconfig  Mon Oct 18 17:53:22 2004
++++ linux-2.6.10.bigphys/arch/i386/Kconfig       Mon Nov 15 15:46:59 2004
+@@ -822,6 +822,18 @@
+ 
+          See <file:Documentation/mtrr.txt> for more information.
+ 
++config BIGPHYS_AREA
++       bool "Big Physical Area"
++        ---help---
++          Enables kernel support for reserving large areas of physical
++          memory at boot-time for use by certain device drivers (such as
++          video framegrabbers, etc.) which require it. To use this
++          feature, boot the kernel with the boot-time option
++          'bigphysarea=nnn' where 'nnn' is the number of pages (a page
++          is usually 4K) to reserve.
++
++          See <file:Documentation/bigphysarea.txt> for more information.
++
+ config EFI
+        bool "Boot from EFI support (EXPERIMENTAL)"
+        depends on ACPI
+diff -urN linux-2.6.10.orig/arch/i386/defconfig
+linux-2.6.10.bigphys/arch/i386/defconfig
+--- linux-2.6.10.orig/arch/i386/defconfig        Mon Oct 18 17:54:38 2004
++++ linux-2.6.10.bigphys/arch/i386/defconfig     Mon Nov 15 15:34:58 2004
+@@ -116,6 +116,8 @@
+ # CONFIG_HIGHMEM64G is not set
+ # CONFIG_MATH_EMULATION is not set
+ CONFIG_MTRR=y
++CONFIG_BIGPHYS_AREA=y
++
+ # CONFIG_EFI is not set
+ CONFIG_IRQBALANCE=y
+ CONFIG_HAVE_DEC_LOCK=y
+diff -urN linux-2.6.10.orig/include/linux/bigphysarea.h
+linux-2.6.10.bigphys/include/linux/bigphysarea.h
+--- linux-2.6.10.orig/include/linux/bigphysarea.h        Wed Dec 31
+19:00:00 1969
++++ linux-2.6.10.bigphys/include/linux/bigphysarea.h     Mon Nov 15
+15:45:22 2004
+@@ -0,0 +1,33 @@
++/* linux/mm/bigphysarea.h, M. Welsh (mdw@cs.cornell.edu)
++ * Copyright (c) 1996 by Matt Welsh.
++ * Extended by Roger Butenuth (butenuth@uni-paderborn.de), October 1997
++ * Extended for linux-2.1.121 till 2.4.0 (June 2000)
++ *     by Pauline Middelink <middelink@polyware.nl>
++ * Extended for linux-2.6.9 (November 2004)
++ *     by Nick Martin <nim@mit.edu>
++ * Extended for linux-2.6.10 (June 2005)
++ *     by Remy Bohmer <remy.bohmer@gmail.com>
++ *
++ * This is a set of routines which allow you to reserve a large (?)
++ * amount of physical memory at boot-time, which can be allocated/deallocated
++ * by drivers. This memory is intended to be used for devices such as
++ * video framegrabbers which need a lot of physical RAM (above the amount
++ * allocated by kmalloc). This is by no means efficient or recommended;
++ * to be used only in extreme circumstances.
++ *
++ */
++
++#ifndef __LINUX_BIGPHYSAREA_H
++#define __LINUX_BIGPHYSAREA_H
++
++#include <linux/types.h>
++
++/* original interface */
++extern caddr_t bigphysarea_alloc(int size);
++extern void    bigphysarea_free(caddr_t addr, int size);
++
++/* new interface */
++extern caddr_t bigphysarea_alloc_pages(int count, int align, int priority);
++extern void    bigphysarea_free_pages(caddr_t base);
++
++#endif // __LINUX_BIGPHYSAREA_H
+diff -urN linux-2.6.10.orig/mm/Makefile linux-2.6.10.bigphys/mm/Makefile
+--- linux-2.6.10.orig/mm/Makefile        Mon Oct 18 17:54:37 2004
++++ linux-2.6.10.bigphys/mm/Makefile     Mon Nov 15 15:34:58 2004
+@@ -17,4 +17,5 @@
+ obj-$(CONFIG_NUMA)     += mempolicy.o
+ obj-$(CONFIG_SHMEM) += shmem.o
+ obj-$(CONFIG_TINY_SHMEM) += tiny-shmem.o
++obj-$(CONFIG_BIGPHYS_AREA) += bigphysarea.o
+ 
+diff -urN linux-2.6.10.orig/mm/bigphysarea.c
+linux-2.6.10.bigphys/mm/bigphysarea.c
+--- linux-2.6.10.orig/mm/bigphysarea.c   Wed Dec 31 19:00:00 1969
++++ linux-2.6.10.bigphys/mm/bigphysarea.c        Mon Nov 15 15:49:01 2004
+@@ -0,0 +1,355 @@
++/* linux/mm/bigphysarea.c, M. Welsh (mdw@cs.cornell.edu)
++ * Copyright (c) 1996 by Matt Welsh.
++ * Extended by Roger Butenuth (butenuth@uni-paderborn.de), October 1997
++ * Extended for linux-2.1.121 till 2.4.0 (June 2000)
++ *     by Pauline Middelink <middelink@polyware.nl>
++ * Extended for linux-2.6.9 (November 2004)
++ *     by Nick Martin <nim@mit.edu>
++ * Extended for linux-2.6.10 (June 2005)
++ *     by Remy Bohmer <remy.bohmer@gmail.com>
++ *
++ * This is a set of routines which allow you to reserve a large (?) 
++ * amount of physical memory at boot-time, which can be allocated/deallocated
++ * by drivers. This memory is intended to be used for devices such as 
++ * video framegrabbers which need a lot of physical RAM (above the amount
++ * allocated by kmalloc). This is by no means efficient or recommended;
++ * to be used only in extreme circumstances.
++ *
++ *   This program is free software; you can redistribute it and/or modify
++ *   it under the terms of the GNU General Public License as published by
++ *   the Free Software Foundation; either version 2 of the License, or
++ *   (at your option) any later version.
++ * 
++ *   This program is distributed in the hope that it will be useful,
++ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *   GNU General Public License for more details.
++ *
++ *   You should have received a copy of the GNU General Public License
++ *   along with this program; if not, write to the Free Software
++ *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ */
++
++#include <linux/config.h>
++#include <linux/ptrace.h>
++#include <linux/types.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/pci.h>
++#include <linux/proc_fs.h>
++#include <linux/string.h>
++#include <linux/mm.h>
++#include <linux/bootmem.h>
++#include <linux/errno.h>
++#include <linux/bigphysarea.h>
++
++static int get_info(char* buf, char**, off_t, int);
++
++typedef struct range_struct {
++       struct range_struct *next;
++       caddr_t base;                   /* base of allocated block */
++       size_t  size;                   /* size in bytes */
++} range_t;
++
++/*
++ * 0: nothing initialized
++ * 1: bigphysarea_pages initialized
++ * 2: free list initialized
++ */
++static int     init_level = 0;
++static int     bigphysarea_pages = 0;
++static caddr_t bigphysarea = 0;
++static range_t *free_list = NULL;
++static range_t *used_list = NULL;
++static struct resource mem_resource = { "Bigphysarea", 0, 0,
+IORESOURCE_MEM|IORESOURCE_BUSY };
++
++static
++int __init bigphysarea_init(void)
++{
++       if (bigphysarea_pages == 0 || bigphysarea == 0)
++               return -EINVAL;
++
++       /* create to /proc entry for it */
++       if (!create_proc_info_entry("bigphysarea",0444,NULL,get_info)) {
++               // ohoh, no way to free the allocated memory!
++               // continue without proc support, it not fatal in itself
++//             free_bootmem((unsigned
+long)bigphysarea>>PAGE_SHIFT,bigphysarea_pages<<PAGE_SHIFT);
++//             bigphysarea = 0;
++//             return -ENOMEM;
++       }
++
++       init_level = 1;
++
++       printk(KERN_INFO "bigphysarea: Allocated %d pages at 0x%p.\n",
++              bigphysarea_pages, bigphysarea);
++
++       return 0;
++}
++
++__initcall(bigphysarea_init);
++
++/*
++ * call when 'bigphysarea=' is given on the commandline.
++ *
++ * Strangely, bootmem is still active during this call, but
++ * during the processing of the initcalls it isn't anymore!
++ * So we alloc the needed memory here instead of bigphysarea_init().
++ */
++static
++int __init bigphysarea_setup(char *str)
++{
++       int par;
++       if (get_option(&str,&par)) {
++               bigphysarea_pages = par;
++               // Alloc the memory
++               bigphysarea =
+alloc_bootmem_low_pages(bigphysarea_pages<<PAGE_SHIFT);
++               if (!bigphysarea) {
++                       printk(KERN_CRIT "bigphysarea: not enough
+memory for %d pages\n",bigphysarea_pages);
++                       return -ENOMEM;
++               }
++
++               // register the resource for it
++               mem_resource.start = bigphysarea;
++               mem_resource.end = mem_resource.start +
+(bigphysarea_pages<<PAGE_SHIFT);
++               request_resource(&iomem_resource, &mem_resource);
++       }
++       return 1;
++}
++
++__setup("bigphysarea=", bigphysarea_setup);
++
++/*
++ * When we have pages but don't have a freelist, put all pages in
++ * one free list entry. Return 0 on success, 1 on error.
++ */
++static
++int init2(int priority)
++{
++       if (init_level == 1) {
++               free_list = kmalloc(sizeof(range_t), priority);
++               if (free_list != NULL) {
++                       free_list->next = NULL;
++                       free_list->base = bigphysarea;
++                       free_list->size = bigphysarea_pages * PAGE_SIZE;
++                       init_level = 2;
++                       return 0;
++               }
++       }
++       return 1;
++}
++
++
++/*
++ * Allocate `count' pages from the big physical area. Pages are aligned to
++ * a multiple of `align'. `priority' has the same meaning in kmalloc, it
++ * is needed for management information.
++ * This function may not be called from an interrupt!
++ */
++caddr_t bigphysarea_alloc_pages(int count, int align, int priority)
++{
++       range_t *range, **range_ptr, *new_range, *align_range;
++       caddr_t aligned_base;
++
++       if (init_level < 2)
++               if (init2(priority))
++                       return 0;
++       new_range   = NULL;
++       align_range = NULL;
++
++       if (align == 0)
++               align = PAGE_SIZE;
++       else
++               align = align * PAGE_SIZE;
++       /*
++        * Search a free block which is large enough, even with alignment.
++        */
++       range_ptr = &free_list;
++       while (*range_ptr != NULL) {
++               range = *range_ptr;
++               aligned_base =
++                 (caddr_t)((((unsigned long)range->base + align - 1)
+/ align) * align);
++               if (aligned_base + count * PAGE_SIZE <= 
++                   range->base + range->size)
++                       break;
++            range_ptr = &range->next;
++       }
++       if (*range_ptr == NULL)
++               return 0;
++       range = *range_ptr;
++       /*
++        * When we have to align, the pages needed for alignment can
++        * be put back to the free pool.
++        * We check here if we need a second range data structure later
++        * and allocate it now, so that we don't have to check for a
++        * failed kmalloc later.
++        */
++       if (aligned_base - range->base + count * PAGE_SIZE < range->size) {
++               new_range = kmalloc(sizeof(range_t), priority);
++               if (new_range == NULL)
++                       return NULL;
++       }
++       if (aligned_base != range->base) {
++               align_range = kmalloc(sizeof(range_t), priority);
++               if (align_range == NULL) {
++                       if (new_range != NULL)
++                               kfree(new_range);
++                       return NULL;
++               }
++               align_range->base = range->base;
++               align_range->size = aligned_base - range->base;
++               range->base = aligned_base;
++               range->size -= align_range->size;
++               align_range->next = range;
++               *range_ptr = align_range;
++               range_ptr = &align_range->next;
++       }
++       if (new_range != NULL) {
++               /*
++                * Range is larger than needed, create a new list element for
++                * the used list and shrink the element in the free list.
++                */
++               new_range->base        = range->base;
++               new_range->size        = count * PAGE_SIZE;
++               range->base = new_range->base + new_range->size;
++               range->size = range->size - new_range->size;
++       } else {
++               /*
++                * Range fits perfectly, remove it from free list.
++                */
++               *range_ptr = range->next;
++               new_range = range;
++       }
++       /*
++        * Insert block into used list
++        */
++       new_range->next = used_list;
++       used_list = new_range;
++
++       return new_range->base;
++}
++EXPORT_SYMBOL(bigphysarea_alloc_pages);
++
++/*
++ * Free pages allocated with `bigphysarea_alloc_pages'. `base' must be an
++ * address returned by `bigphysarea_alloc_pages'.
++ * This function my not be called from an interrupt!
++ */
++void bigphysarea_free_pages(caddr_t base)
++{
++       range_t *prev, *next, *range, **range_ptr;
++  
++       /*
++        * Search the block in the used list.
++        */
++       for (range_ptr = &used_list;
++            *range_ptr != NULL;
++            range_ptr = &(*range_ptr)->next)
++               if ((*range_ptr)->base == base)
++                       break;
++       if (*range_ptr == NULL) {
++               printk("bigphysarea_free_pages(0x%08x), not allocated!\n",
++                      (unsigned)base);
++               return;
++       }
++       range = *range_ptr;
++       /*
++        * Remove range from the used list:
++        */
++       *range_ptr = (*range_ptr)->next;
++       /*
++        * The free-list is sorted by address, search insertion point
++        * and insert block in free list.
++        */
++       for (range_ptr = &free_list, prev = NULL;
++            *range_ptr != NULL;
++            prev = *range_ptr, range_ptr = &(*range_ptr)->next)
++               if ((*range_ptr)->base >= base)
++                       break;
++       range->next  = *range_ptr;
++       *range_ptr   = range;
++       /*
++        * Concatenate free range with neighbors, if possible.
++        * Try for upper neighbor (next in list) first, then
++        * for lower neighbor (predecessor in list).
++        */
++       if (range->next != NULL &&
++           range->base + range->size == range->next->base) {
++               next = range->next;
++               range->size += range->next->size;
++               range->next = next->next;
++               kfree(next);
++       }
++       if (prev != NULL &&
++           prev->base + prev->size == range->base) {
++               prev->size += prev->next->size;
++               prev->next = range->next;
++               kfree(range);
++       }
++}
++EXPORT_SYMBOL(bigphysarea_free_pages);
++
++caddr_t bigphysarea_alloc(int size)
++{
++       int pages = (size + PAGE_SIZE - 1) / PAGE_SIZE;
++
++       return bigphysarea_alloc_pages(pages, 1, GFP_KERNEL);
++}
++EXPORT_SYMBOL(bigphysarea_alloc);
++
++
++void bigphysarea_free(caddr_t addr, int size)
++{
++       (void)size;
++       bigphysarea_free_pages(addr);
++}
++EXPORT_SYMBOL(bigphysarea_free);
++
++static
++int get_info(char *buf, char **a, off_t b, int c)
++{
++       char    *p = buf;
++       range_t *ptr;
++       int     free_count, free_total, free_max;
++       int     used_count, used_total, used_max;
++
++       if (init_level == 1)
++         init2(GFP_KERNEL);
++
++       free_count = 0;
++       free_total = 0;
++       free_max   = 0;
++       for (ptr = free_list; ptr != NULL; ptr = ptr->next) {
++               free_count++;
++               free_total += ptr->size;
++               if (ptr->size > free_max)
++                       free_max = ptr->size;
++       }
++
++       used_count = 0;
++       used_total = 0;
++       used_max   = 0;
++       for (ptr = used_list; ptr != NULL; ptr = ptr->next) {
++               used_count++;
++               used_total += ptr->size;
++               if (ptr->size > used_max)
++                       used_max = ptr->size;
++       }
++
++       if (bigphysarea_pages == 0) {
++               p += sprintf(p, "No big physical area allocated!\n");
++               return  p - buf;
++       }
++         
++       p += sprintf(p, "Big physical area, size %ld kB\n",
++                    bigphysarea_pages * PAGE_SIZE / 1024);
++       p += sprintf(p, "                       free list:            
+used list:\n");
++       p += sprintf(p, "number of blocks:      %8d               %8d\n",
++                    free_count, used_count);
++       p += sprintf(p, "size of largest block: %8d kB            %8d kB\n",
++                    free_max / 1024, used_max / 1024);
++       p += sprintf(p, "total:                 %8d kB            %8d kB\n",
++                    free_total / 1024, used_total /1024);
++
++       return  p - buf;
++}
+-
+---------------------------------------------------------------
+The 2.6.11 version
+---------------------------------------------------------------
+ diff -urN linux-2.6.11.orig/Documentation/bigphysarea.txt
+linux-2.6.11.bigphys/Documentation/bigphysarea.txt
+--- linux-2.6.11.orig/Documentation/bigphysarea.txt      Wed Dec 31
+19:00:00 1969
++++ linux-2.6.11.bigphys/Documentation/bigphysarea.txt   Mon Nov 15
+15:34:58 2004
+@@ -0,0 +1,64 @@
++Bigphysarea
++===========
++
++This set of functions give you the ability to allocate big
++contineous (DMAable) memory for the entire runtime of Linux.
++Big meaning here more than 128KB, the maximum allocation
++limit of kmalloc(). Due to fragmentation reasons kmalloc()
++is unable to garantee allocs of this order during a prolonged
++run of the kernel. This new pool of memory blob can be used
++during the initialization or use of soundcards of framegrabbers
++which are designed without DMA scatter-gatter capabilities.
++
++For a sample use, see the zoran driver in drivers/char/zr36120_mem.c
++
++Enjoy,
++  Pauline Middelink
++
++How to start
++============
++First add bigphysarea=<number of pages to alloc> to the
++commandline of your kernel. Either do this by adding an
++append= line to your /etc/lilo/conf setup or use some
++magic marker...
++After booting the new kernel there should be a /proc/bigphysarea
++file telling your how many blocks/bytes are available.
++
++The interface description
++=========================
++The big physical area is mainly managed by two functions. The first one,
++
++caddr_t bigphysarea_alloc_pages(int count, int align, int priority)
++
++allocates 'count' pages. The pages are aligned so that there base
++address is a multiple of 'PAGE_SIZE * align'. If you don't need more
++than page alignment, set 'align' to 0 or 1. 'priority' has the same
++meaning as in kmalloc, it can be GFP_ATOMIC (for calls from interrupt
++handlers) or GFP_KERNEL (for usual calls). The base address of the
++allocated area is returned.
++
++Allocation can fail for two reasons, in both cases NULL is
++returned. First, the physical area is scattered too much or there is
++not enough memory, second it is not possible to allocate some memory
++with kmalloc for administration of the physical area (very unlikely).
++
++To free an allocated area, just call
++
++void bigphysarea_free_pages(caddr_t base)
++
++with 'base' set to the value returned by 'bigphysarea_alloc_pages'. 
++
++An example how to use this functions can be found in 'module.c'.
++
++There is still the old interface introduced by M. Welsh:
++
++caddr_t bigphysarea_alloc(int size)
++void bigphysarea_free(caddr_t addr, int size)
++
++The first function allocates 'size' bytes physically continous
++memory. To free the area, bigphysarea_free with a pointer to the area
++and its size has to be called. Due to a new allocation algorithm, the
++size parameter is no longer really needed when freeing an area.
++
++In the current version it is not safe to call any of the functions
++from an interrupt handler.
+diff -urN linux-2.6.11.orig/Makefile linux-2.6.11.bigphys/Makefile
+--- linux-2.6.11.orig/Makefile   Mon Oct 18 17:54:38 2004
++++ linux-2.6.11.bigphys/Makefile        Mon Nov 15 15:34:58 2004
+@@ -6,2 +6,4 @@
+
++EXTRAVERSION += -bigphys
++ 
+ # *DOCUMENTATION*
+diff -urN linux-2.6.11.orig/arch/i386/Kconfig
+linux-2.6.11.bigphys/arch/i386/Kconfig
+--- linux-2.6.11.orig/arch/i386/Kconfig  Mon Oct 18 17:53:22 2004
++++ linux-2.6.11.bigphys/arch/i386/Kconfig       Mon Nov 15 15:46:59 2004
+@@ -837,6 +837,18 @@
+ 
+          See <file:Documentation/mtrr.txt> for more information.
+ 
++config BIGPHYS_AREA
++       bool "Big Physical Area"
++        ---help---
++          Enables kernel support for reserving large areas of physical
++          memory at boot-time for use by certain device drivers (such as
++          video framegrabbers, etc.) which require it. To use this
++          feature, boot the kernel with the boot-time option
++          'bigphysarea=nnn' where 'nnn' is the number of pages (a page
++          is usually 4K) to reserve.
++
++          See <file:Documentation/bigphysarea.txt> for more information.
++
+ config EFI
+        bool "Boot from EFI support (EXPERIMENTAL)"
+        depends on ACPI
+diff -urN linux-2.6.11.orig/arch/i386/defconfig
+linux-2.6.11.bigphys/arch/i386/defconfig
+--- linux-2.6.11.orig/arch/i386/defconfig        Mon Oct 18 17:54:38 2004
++++ linux-2.6.11.bigphys/arch/i386/defconfig     Mon Nov 15 15:34:58 2004
+@@ -116,6 +116,8 @@
+ # CONFIG_HIGHMEM64G is not set
+ # CONFIG_MATH_EMULATION is not set
+ CONFIG_MTRR=y
++CONFIG_BIGPHYS_AREA=y
++
+ # CONFIG_EFI is not set
+ CONFIG_IRQBALANCE=y
+ CONFIG_HAVE_DEC_LOCK=y
+diff -urN linux-2.6.11.orig/include/linux/bigphysarea.h
+linux-2.6.11.bigphys/include/linux/bigphysarea.h
+--- linux-2.6.11.orig/include/linux/bigphysarea.h        Wed Dec 31
+19:00:00 1969
++++ linux-2.6.11.bigphys/include/linux/bigphysarea.h     Mon Nov 15
+15:45:22 2004
+@@ -0,0 +1,33 @@
++/* linux/mm/bigphysarea.h, M. Welsh (mdw@cs.cornell.edu)
++ * Copyright (c) 1996 by Matt Welsh.
++ * Extended by Roger Butenuth (butenuth@uni-paderborn.de), October 1997
++ * Extended for linux-2.1.121 till 2.4.0 (June 2000)
++ *     by Pauline Middelink <middelink@polyware.nl>
++ * Extended for linux-2.6.9 (November 2004)
++ *     by Nick Martin <nim@mit.edu>
++ * Extended for linux-2.6.11 (June 2005)
++ *     by Remy Bohmer <remy.bohmer@gmail.com>
++ *
++ * This is a set of routines which allow you to reserve a large (?)
++ * amount of physical memory at boot-time, which can be allocated/deallocated
++ * by drivers. This memory is intended to be used for devices such as
++ * video framegrabbers which need a lot of physical RAM (above the amount
++ * allocated by kmalloc). This is by no means efficient or recommended;
++ * to be used only in extreme circumstances.
++ *
++ */
++
++#ifndef __LINUX_BIGPHYSAREA_H
++#define __LINUX_BIGPHYSAREA_H
++
++#include <linux/types.h>
++
++/* original interface */
++extern caddr_t bigphysarea_alloc(int size);
++extern void    bigphysarea_free(caddr_t addr, int size);
++
++/* new interface */
++extern caddr_t bigphysarea_alloc_pages(int count, int align, int priority);
++extern void    bigphysarea_free_pages(caddr_t base);
++
++#endif // __LINUX_BIGPHYSAREA_H
+diff -urN linux-2.6.11.orig/mm/Makefile linux-2.6.11.bigphys/mm/Makefile
+--- linux-2.6.11.orig/mm/Makefile        Mon Oct 18 17:54:37 2004
++++ linux-2.6.11.bigphys/mm/Makefile     Mon Nov 15 15:34:58 2004
+@@ -17,4 +17,5 @@
+ obj-$(CONFIG_NUMA)     += mempolicy.o
+ obj-$(CONFIG_SHMEM) += shmem.o
+ obj-$(CONFIG_TINY_SHMEM) += tiny-shmem.o
++obj-$(CONFIG_BIGPHYS_AREA) += bigphysarea.o
+ 
+diff -urN linux-2.6.11.orig/mm/bigphysarea.c
+linux-2.6.11.bigphys/mm/bigphysarea.c
+--- linux-2.6.11.orig/mm/bigphysarea.c   Wed Dec 31 19:00:00 1969
++++ linux-2.6.11.bigphys/mm/bigphysarea.c        Mon Nov 15 15:49:01 2004
+@@ -0,0 +1,355 @@
++/* linux/mm/bigphysarea.c, M. Welsh (mdw@cs.cornell.edu)
++ * Copyright (c) 1996 by Matt Welsh.
++ * Extended by Roger Butenuth (butenuth@uni-paderborn.de), October 1997
++ * Extended for linux-2.1.121 till 2.4.0 (June 2000)
++ *     by Pauline Middelink <middelink@polyware.nl>
++ * Extended for linux-2.6.9 (November 2004)
++ *     by Nick Martin <nim@mit.edu>
++ * Extended for linux-2.6.11 (June 2005)
++ *     by Remy Bohmer <remy.bohmer@gmail.com>
++ *
++ * This is a set of routines which allow you to reserve a large (?) 
++ * amount of physical memory at boot-time, which can be allocated/deallocated
++ * by drivers. This memory is intended to be used for devices such as 
++ * video framegrabbers which need a lot of physical RAM (above the amount
++ * allocated by kmalloc). This is by no means efficient or recommended;
++ * to be used only in extreme circumstances.
++ *
++ *   This program is free software; you can redistribute it and/or modify
++ *   it under the terms of the GNU General Public License as published by
++ *   the Free Software Foundation; either version 2 of the License, or
++ *   (at your option) any later version.
++ * 
++ *   This program is distributed in the hope that it will be useful,
++ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
++ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ *   GNU General Public License for more details.
++ *
++ *   You should have received a copy of the GNU General Public License
++ *   along with this program; if not, write to the Free Software
++ *   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
++ *
++ */
++
++#include <linux/config.h>
++#include <linux/ptrace.h>
++#include <linux/types.h>
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/pci.h>
++#include <linux/proc_fs.h>
++#include <linux/string.h>
++#include <linux/mm.h>
++#include <linux/bootmem.h>
++#include <linux/errno.h>
++#include <linux/bigphysarea.h>
++
++static int get_info(char* buf, char**, off_t, int);
++
++typedef struct range_struct {
++       struct range_struct *next;
++       caddr_t base;                   /* base of allocated block */
++       size_t  size;                   /* size in bytes */
++} range_t;
++
++/*
++ * 0: nothing initialized
++ * 1: bigphysarea_pages initialized
++ * 2: free list initialized
++ */
++static int     init_level = 0;
++static int     bigphysarea_pages = 0;
++static caddr_t bigphysarea = 0;
++static range_t *free_list = NULL;
++static range_t *used_list = NULL;
++static struct resource mem_resource = { "Bigphysarea", 0, 0,
+IORESOURCE_MEM|IORESOURCE_BUSY };
++
++static
++int __init bigphysarea_init(void)
++{
++       if (bigphysarea_pages == 0 || bigphysarea == 0)
++               return -EINVAL;
++
++       /* create to /proc entry for it */
++       if (!create_proc_info_entry("bigphysarea",0444,NULL,get_info)) {
++               // ohoh, no way to free the allocated memory!
++               // continue without proc support, it not fatal in itself
++//             free_bootmem((unsigned
+long)bigphysarea>>PAGE_SHIFT,bigphysarea_pages<<PAGE_SHIFT);
++//             bigphysarea = 0;
++//             return -ENOMEM;
++       }
++
++       init_level = 1;
++
++       printk(KERN_INFO "bigphysarea: Allocated %d pages at 0x%p.\n",
++              bigphysarea_pages, bigphysarea);
++
++       return 0;
++}
++
++__initcall(bigphysarea_init);
++
++/*
++ * call when 'bigphysarea=' is given on the commandline.
++ *
++ * Strangely, bootmem is still active during this call, but
++ * during the processing of the initcalls it isn't anymore!
++ * So we alloc the needed memory here instead of bigphysarea_init().
++ */
++static
++int __init bigphysarea_setup(char *str)
++{
++       int par;
++       if (get_option(&str,&par)) {
++               bigphysarea_pages = par;
++               // Alloc the memory
++               bigphysarea =
+alloc_bootmem_low_pages(bigphysarea_pages<<PAGE_SHIFT);
++               if (!bigphysarea) {
++                       printk(KERN_CRIT "bigphysarea: not enough
+memory for %d pages\n",bigphysarea_pages);
++                       return -ENOMEM;
++               }
++
++               // register the resource for it
++               mem_resource.start = bigphysarea;
++               mem_resource.end = mem_resource.start +
+(bigphysarea_pages<<PAGE_SHIFT);
++               request_resource(&iomem_resource, &mem_resource);
++       }
++       return 1;
++}
++
++__setup("bigphysarea=", bigphysarea_setup);
++
++/*
++ * When we have pages but don't have a freelist, put all pages in
++ * one free list entry. Return 0 on success, 1 on error.
++ */
++static
++int init2(int priority)
++{
++       if (init_level == 1) {
++               free_list = kmalloc(sizeof(range_t), priority);
++               if (free_list != NULL) {
++                       free_list->next = NULL;
++                       free_list->base = bigphysarea;
++                       free_list->size = bigphysarea_pages * PAGE_SIZE;
++                       init_level = 2;
++                       return 0;
++               }
++       }
++       return 1;
++}
++
++
++/*
++ * Allocate `count' pages from the big physical area. Pages are aligned to
++ * a multiple of `align'. `priority' has the same meaning in kmalloc, it
++ * is needed for management information.
++ * This function may not be called from an interrupt!
++ */
++caddr_t bigphysarea_alloc_pages(int count, int align, int priority)
++{
++       range_t *range, **range_ptr, *new_range, *align_range;
++       caddr_t aligned_base;
++
++       if (init_level < 2)
++               if (init2(priority))
++                       return 0;
++       new_range   = NULL;
++       align_range = NULL;
++
++       if (align == 0)
++               align = PAGE_SIZE;
++       else
++               align = align * PAGE_SIZE;
++       /*
++        * Search a free block which is large enough, even with alignment.
++        */
++       range_ptr = &free_list;
++       while (*range_ptr != NULL) {
++               range = *range_ptr;
++               aligned_base =
++                 (caddr_t)((((unsigned long)range->base + align - 1)
+/ align) * align);
++               if (aligned_base + count * PAGE_SIZE <= 
++                   range->base + range->size)
++                       break;
++            range_ptr = &range->next;
++       }
++       if (*range_ptr == NULL)
++               return 0;
++       range = *range_ptr;
++       /*
++        * When we have to align, the pages needed for alignment can
++        * be put back to the free pool.
++        * We check here if we need a second range data structure later
++        * and allocate it now, so that we don't have to check for a
++        * failed kmalloc later.
++        */
++       if (aligned_base - range->base + count * PAGE_SIZE < range->size) {
++               new_range = kmalloc(sizeof(range_t), priority);
++               if (new_range == NULL)
++                       return NULL;
++       }
++       if (aligned_base != range->base) {
++               align_range = kmalloc(sizeof(range_t), priority);
++               if (align_range == NULL) {
++                       if (new_range != NULL)
++                               kfree(new_range);
++                       return NULL;
++               }
++               align_range->base = range->base;
++               align_range->size = aligned_base - range->base;
++               range->base = aligned_base;
++               range->size -= align_range->size;
++               align_range->next = range;
++               *range_ptr = align_range;
++               range_ptr = &align_range->next;
++       }
++       if (new_range != NULL) {
++               /*
++                * Range is larger than needed, create a new list element for
++                * the used list and shrink the element in the free list.
++                */
++               new_range->base        = range->base;
++               new_range->size        = count * PAGE_SIZE;
++               range->base = new_range->base + new_range->size;
++               range->size = range->size - new_range->size;
++       } else {
++               /*
++                * Range fits perfectly, remove it from free list.
++                */
++               *range_ptr = range->next;
++               new_range = range;
++       }
++       /*
++        * Insert block into used list
++        */
++       new_range->next = used_list;
++       used_list = new_range;
++
++       return new_range->base;
++}
++EXPORT_SYMBOL(bigphysarea_alloc_pages);
++
++/*
++ * Free pages allocated with `bigphysarea_alloc_pages'. `base' must be an
++ * address returned by `bigphysarea_alloc_pages'.
++ * This function my not be called from an interrupt!
++ */
++void bigphysarea_free_pages(caddr_t base)
++{
++       range_t *prev, *next, *range, **range_ptr;
++  
++       /*
++        * Search the block in the used list.
++        */
++       for (range_ptr = &used_list;
++            *range_ptr != NULL;
++            range_ptr = &(*range_ptr)->next)
++               if ((*range_ptr)->base == base)
++                       break;
++       if (*range_ptr == NULL) {
++               printk("bigphysarea_free_pages(0x%08x), not allocated!\n",
++                      (unsigned)base);
++               return;
++       }
++       range = *range_ptr;
++       /*
++        * Remove range from the used list:
++        */
++       *range_ptr = (*range_ptr)->next;
++       /*
++        * The free-list is sorted by address, search insertion point
++        * and insert block in free list.
++        */
++       for (range_ptr = &free_list, prev = NULL;
++            *range_ptr != NULL;
++            prev = *range_ptr, range_ptr = &(*range_ptr)->next)
++               if ((*range_ptr)->base >= base)
++                       break;
++       range->next  = *range_ptr;
++       *range_ptr   = range;
++       /*
++        * Concatenate free range with neighbors, if possible.
++        * Try for upper neighbor (next in list) first, then
++        * for lower neighbor (predecessor in list).
++        */
++       if (range->next != NULL &&
++           range->base + range->size == range->next->base) {
++               next = range->next;
++               range->size += range->next->size;
++               range->next = next->next;
++               kfree(next);
++       }
++       if (prev != NULL &&
++           prev->base + prev->size == range->base) {
++               prev->size += prev->next->size;
++               prev->next = range->next;
++               kfree(range);
++       }
++}
++EXPORT_SYMBOL(bigphysarea_free_pages);
++
++caddr_t bigphysarea_alloc(int size)
++{
++       int pages = (size + PAGE_SIZE - 1) / PAGE_SIZE;
++
++       return bigphysarea_alloc_pages(pages, 1, GFP_KERNEL);
++}
++EXPORT_SYMBOL(bigphysarea_alloc);
++
++
++void bigphysarea_free(caddr_t addr, int size)
++{
++       (void)size;
++       bigphysarea_free_pages(addr);
++}
++EXPORT_SYMBOL(bigphysarea_free);
++
++static
++int get_info(char *buf, char **a, off_t b, int c)
++{
++       char    *p = buf;
++       range_t *ptr;
++       int     free_count, free_total, free_max;
++       int     used_count, used_total, used_max;
++
++       if (init_level == 1)
++         init2(GFP_KERNEL);
++
++       free_count = 0;
++       free_total = 0;
++       free_max   = 0;
++       for (ptr = free_list; ptr != NULL; ptr = ptr->next) {
++               free_count++;
++               free_total += ptr->size;
++               if (ptr->size > free_max)
++                       free_max = ptr->size;
++       }
++
++       used_count = 0;
++       used_total = 0;
++       used_max   = 0;
++       for (ptr = used_list; ptr != NULL; ptr = ptr->next) {
++               used_count++;
++               used_total += ptr->size;
++               if (ptr->size > used_max)
++                       used_max = ptr->size;
++       }
++
++       if (bigphysarea_pages == 0) {
++               p += sprintf(p, "No big physical area allocated!\n");
++               return  p - buf;
++       }
++         
++       p += sprintf(p, "Big physical area, size %ld kB\n",
++                    bigphysarea_pages * PAGE_SIZE / 1024);
++       p += sprintf(p, "                       free list:            
+used list:\n");
++       p += sprintf(p, "number of blocks:      %8d               %8d\n",
++                    free_count, used_count);
++       p += sprintf(p, "size of largest block: %8d kB            %8d kB\n",
++                    free_max / 1024, used_max / 1024);
++       p += sprintf(p, "total:                 %8d kB            %8d kB\n",
++                    free_total / 1024, used_total /1024);
++
++       return  p - buf;
++}
+-
+---------------------------------------------------------------
+The End
+---------------------------------------------------------------

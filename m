@@ -1,65 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261525AbVFKJaP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261659AbVFKJav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261525AbVFKJaP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 05:30:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVFKJaO
+	id S261659AbVFKJav (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 05:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261660AbVFKJaV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 05:30:14 -0400
-Received: from shamrock.dyndns.org ([213.146.117.139]:9489 "EHLO
-	shamrock.taprogge.wh") by vger.kernel.org with ESMTP
-	id S261525AbVFKJ36 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 05:29:58 -0400
-Date: Sat, 11 Jun 2005 11:29:49 +0200
-From: Jens Taprogge <jlt_kernel@shamrock.dyndns.org>
-To: Kylene Jo Hall <kjhall@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, trusted linux <tcimpl2005@yahoo.com>
-Subject: Re: TPM on Thinkpad T43
-Message-ID: <20050611092949.GA4507@ranger.taprogge.wh>
-Mail-Followup-To: Jens Taprogge <jlt_kernel@shamrock.dyndns.org>,
-	Kylene Jo Hall <kjhall@us.ibm.com>, linux-kernel@vger.kernel.org,
-	trusted linux <tcimpl2005@yahoo.com>
-References: <20050610193802.GA27033@ranger.taprogge.wh> <1118432646.7200.24.camel@localhost.localdomain>
+	Sat, 11 Jun 2005 05:30:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:50916 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261659AbVFKJaK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 05:30:10 -0400
+Date: Sat, 11 Jun 2005 02:29:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: spaminos-ker@yahoo.com
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: cfq misbehaving on 2.6.11-1.14_FC3
+Message-Id: <20050611022959.3954ff6b.akpm@osdl.org>
+In-Reply-To: <20050610225443.75162.qmail@web30704.mail.mud.yahoo.com>
+References: <20050610225443.75162.qmail@web30704.mail.mud.yahoo.com>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1118432646.7200.24.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.9i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 10, 2005 at 02:44:06PM -0500, Kylene Jo Hall wrote:
-> Jens, Gang,
+<spaminos-ker@yahoo.com> wrote:
+>
+> Hello, I am running into a very bad problem on one of my production servers.
 > 
-> Thanks, for your very helpful reports.  I have received access to a
-> machine with this type and am currently working to get it working.  Jens
-> you do have an NSC part but its seems that more has changed.  If you
-> want to try further testing for me you can set TPM_NSC_BASE to 0x378 or
-> use the version in the -mm patch that reads this value automatically
-> instead of setting the value.  Also try removing all calls to
-> tpm_write_index in the tpm_nsc_init function.  Either way I'll get back
-> to you when we have something working.
+>  * the config
+>  Linux Fedora core 3 latest everything, kernel 2.6.11-1.14_FC3
+>  AMD Opteron 2 GHz, 1 G RAM, 80 GB Hard drive (IDE, Western Digital)
+> 
+>  I have a log processor running in the background, it's using sqlite for storing
+>  the information it finds in the logs. It takes a few hours to complete a run.
+>  It's clearly I/O bound (SleepAVG = 98%, according to /proc/pid/status).
+>  I have to use the cfq scheduler because it's the only scheduler that is fair
+>  between processes (or should be, keep reading).
+> 
+>  * the problem
+>  Now, after an hour or so of processing, the machine becomes very unresponsive
+>  when trying to do new disk operations. I say new because existing processes
+>  that stream data to disk don't seem to suffer so much.
 
-
-Hello Kylie,
-
-2.6.12-rc6-mm1 with the additional PCI IDs gives the following
-debugging output (I have added some and made the driver ignore the wrong
-SID INDEX):
-	tpm_nsc 0000:00:1f.0: NSC TPM base=0xffff
-	tpm_nsc 0000:00:1f.0: NSC TPM SID INDEX 0xff
-	tpm_nsc 0000:00:1f.0: NSC TPM detected
-	tpm_nsc 0000:00:1f.0: NSC LDN 0xff, SID 0xff, SRID 0xff
-	tpm_nsc 0000:00:1f.0: NSC SIOCF1 0xff SIOCF5 0xff SIOCF6 0xff SIOCF8 0xff
-	tpm_nsc 0000:00:1f.0: NSC IO Base0 0xffff
-	tpm_nsc 0000:00:1f.0: NSC IO Base1 0xffff
-	tpm_nsc 0000:00:1f.0: NSC Interrupt number and wakeup 0xff
-	tpm_nsc 0000:00:1f.0: NSC IRQ type select 0xff
-	tpm_nsc 0000:00:1f.0: NSC DMA channel select0 0xff, select1 0xff
-	tpm_nsc 0000:00:1f.0: NSC Config 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff 0xff
-	tpm_nsc 0000:00:1f.0: NSC PC21100 TPM revision 31
-
-If can be of further assistance tracking down the problem, please let me
-know.
-
-Best Regards
-Jens
+It might be useful to test 2.6.12-rc6-mm1 - it has a substantially
+rewritten CFQ implementation.

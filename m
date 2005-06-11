@@ -1,62 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261540AbVFKWUe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVFKWdl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261540AbVFKWUe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 18:20:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261684AbVFKWUc
+	id S261684AbVFKWdl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 18:33:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbVFKWdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 18:20:32 -0400
-Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:46467 "EHLO
-	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261540AbVFKWU0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 18:20:26 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Subject: Re: 2.6.12-rc6-mm1
-Date: Sun, 12 Jun 2005 08:20:05 +1000
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>,
-       Christoph Lameter <clameter@engr.sgi.com>,
-       Nick Piggin <piggin@cyberone.com.au>
-References: <20050607170853.3f81007a.akpm@osdl.org> <200506111522.30765.kernel@kolivas.org> <672740000.1118520822@[10.10.2.4]>
-In-Reply-To: <672740000.1118520822@[10.10.2.4]>
+	Sat, 11 Jun 2005 18:33:41 -0400
+Received: from opersys.com ([64.40.108.71]:54534 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261684AbVFKWdi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 18:33:38 -0400
+Message-ID: <42AB656E.6000104@opersys.com>
+Date: Sat, 11 Jun 2005 18:27:58 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Ingo Molnar <mingo@elte.hu>
+CC: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
+       paulmck@us.ibm.com, bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org
+Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
+References: <42AA6A6B.5040907@opersys.com> <20050611070845.GA4609@elte.hu> <42AAF5CE.9080607@opersys.com> <20050611145240.GA10881@elte.hu> <42AB2209.9080006@opersys.com> <20050611181528.GA15019@elte.hu> <20050611183411.GA16503@elte.hu>
+In-Reply-To: <20050611183411.GA16503@elte.hu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506120820.05627.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Jun 2005 06:13, Martin J. Bligh wrote:
-> --Con Kolivas <kernel@kolivas.org> wrote (on Saturday, June 11, 2005 > > 
-Great thanks. Here are rolled up all the reconsidered changes that apply
-> > directly to 2.6.12-rc6-mm1 -purely for testing purposes-. I'd be very
-> > grateful to see how this performed; it has been boot and stress tested at
-> > this end. If it shows detriment I'll have to make the smp nice changes
-> > more complex.
->
-> It's much better ... but still a degredation - see point p5181 on:
->
-> http://ftp.kernel.org/pub/linux/kernel/people/mbligh/abat/perf/kernbench.mo
->e.png
->
-> Only really seems to hurt the NUMA box (the x440 one ... elm3b67 ... is
-> still trying to find it's ass with both hands). I'm not necessarily saying
-> it's a problem ... not sure what the benefits of the patch are, but it's a
-> data point, at least ?
 
-Thanks a lot!
+Ingo Molnar wrote:
+> find below your .config adopted to the latest -RT patch 
+> (2.6.12-rc6-RT-V0.7.48-11).
 
-Just checking the numbering of the test runs with you. This is the blue line 
-order as plotted on the graph:
+OK thanks, we'll try to use this as-is and also use an as-close-as-possible
+version for the Adeos tests that we have something comparable.
 
-5181 is with this patch
-4947 is mm1?
-5150 is mm1 with the 4 patches backed out
-5081 is mm1 with the 4 patches backed out and Hz changed to 100?
-5169 is ?
-
-Cheers,
-Con
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546

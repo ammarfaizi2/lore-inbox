@@ -1,63 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbVFKDSU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261615AbVFKDaw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261558AbVFKDSU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 23:18:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbVFKDSU
+	id S261615AbVFKDaw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 23:30:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261617AbVFKDav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 23:18:20 -0400
-Received: from titan.genwebhost.com ([209.9.226.66]:22937 "EHLO
-	titan.genwebhost.com") by vger.kernel.org with ESMTP
-	id S261558AbVFKDSQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 23:18:16 -0400
-Date: Fri, 10 Jun 2005 20:18:12 -0700
-From: randy_dunlap <rdunlap@xenotime.net>
-To: li nux <lnxluv@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6: problem with module tainting the kernel
-Message-Id: <20050610201812.037b6a01.rdunlap@xenotime.net>
-In-Reply-To: <20050610152450.82261.qmail@web33315.mail.mud.yahoo.com>
-References: <20050610152450.82261.qmail@web33315.mail.mud.yahoo.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 10 Jun 2005 23:30:51 -0400
+Received: from relay01.roc.ny.frontiernet.net ([66.133.182.164]:64746 "EHLO
+	relay01.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S261615AbVFKDal (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 23:30:41 -0400
+Message-ID: <42AA5AE6.4040102@xfs.org>
+Date: Fri, 10 Jun 2005 22:30:46 -0500
+From: Stephen Lord <lord@xfs.org>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: Race condition in module load causing undefined symbols
+References: <42A99D9D.7080900@xfs.org> <20050610112515.691dcb6e.akpm@osdl.org>
+In-Reply-To: <20050610112515.691dcb6e.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - titan.genwebhost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - xenotime.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Jun 2005 08:24:50 -0700 (PDT) li nux wrote:
+Andrew Morton wrote:
+> Stephen Lord <lord@xfs.org> wrote:
+> 
+>>I am having troubles getting any recent kernel to boot successfully
+>> on one of my machines, a generic 2.6GHz P4 box with HT enabled
+>> running an updated Fedora Core 3 distro. This is present in
+>> 2.6.12-rc6. It does not manifest itself with the Fedora Core
+>> kernels which have identical initrd contents as far as the
+>> init script and the set of modules included goes.
+>>
+>> The problem manifests itself as various undefined symbols from
+>> module loads.
+> 
+> 
+> Peculiar.  Module loading is all synchronous, isn't it?
+> 
 
-| In 2.6 kernels how to assure that on inserting our own
-| module, it doesn't throw the warning:
-| 
-| "unsupported module, tainting kernel"
+Well, things are getting more bizarre, adding sleeps between
+module loads cures the problem with missing symbols. I then
+run into a problem with device mapper/lvm which seems to be
+having problems setting up devices. In this section of
+the init script:
 
-That string is not in the kernel source code that I can see.
-Be more precise, please.
+umount /sys
+echo Mounting root filesystem
+mount -o defaults --ro -t ext3 /dev/root /sysroot
+mount -t tmpfs --bind /dev /sysroot/dev
+echo Switching to new root
+switchroot /sysroot
+umount /initrd/dev
 
+The correct number of volumes are found, but adding a showlabels
+command to the init script fails to display them, it spits out
+errors about readdir failures in /dev/Volume00
 
-| what tainting depends on apart from the license string ?
+The umount of /sys fails, the root mount fails and obviously, the
+switchroot then fails.
 
-load:
+I tried using the same config options as the redhat supplied
+kernel without any success, this still has module symbol
+problems.
 
-- CONFIG_MODVERSIONS is set but some symbol does not have
-  version info
+I am baffled, but it looks like it is not a symbol table problem.
 
-- a license that is not GPL-compatible
+Steve
 
-- no version magic info for the module
-
-unload:
-
-- forcefully unloading a module
-
----
-~Randy

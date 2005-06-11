@@ -1,84 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261852AbVFKXri@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261853AbVFKXue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261852AbVFKXri (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 19:47:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261853AbVFKXri
+	id S261853AbVFKXue (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 19:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbVFKXue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 19:47:38 -0400
-Received: from mail24.syd.optusnet.com.au ([211.29.133.165]:5572 "EHLO
-	mail24.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261852AbVFKXrd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 19:47:33 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Subject: Re: 2.6.12-rc6-mm1
-Date: Sun, 12 Jun 2005 09:47:08 +1000
-User-Agent: KMail/1.8.1
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>,
-       Christoph Lameter <clameter@engr.sgi.com>,
-       Nick Piggin <piggin@cyberone.com.au>
-References: <20050607170853.3f81007a.akpm@osdl.org> <200506120820.05627.kernel@kolivas.org> <674540000.1118532454@[10.10.2.4]>
-In-Reply-To: <674540000.1118532454@[10.10.2.4]>
+	Sat, 11 Jun 2005 19:50:34 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:5370 "EHLO
+	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S261853AbVFKXua
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 19:50:30 -0400
+Date: Sat, 11 Jun 2005 16:50:14 -0700 (PDT)
+From: Daniel Walker <dwalker@mvista.com>
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Ingo Molnar <mingo@elte.hu>, Esben Nielsen <simlo@phys.au.dk>,
+       <linux-kernel@vger.kernel.org>, <sdietrich@mvista.com>
+Subject: Re: [PATCH] local_irq_disable removal
+In-Reply-To: <1118533485.13312.91.camel@tglx.tec.linutronix.de>
+Message-ID: <Pine.LNX.4.44.0506111649380.29241-100000@dhcp153.mvista.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1774366.JH50LUvJSv";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200506120947.13709.kernel@kolivas.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1774366.JH50LUvJSv
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Sun, 12 Jun 2005, Thomas Gleixner wrote:
 
-On Sun, 12 Jun 2005 09:27, Martin J. Bligh wrote:
-> >> not sure what the benefits of the patch are,=20
+> On Sat, 2005-06-11 at 13:51 -0700, Daniel Walker wrote:
+> > On Sat, 11 Jun 2005, Ingo Molnar wrote:
+> 
+> > Interesting .. So "cli" takes 7 cycles , "sti" takes 7 cycles. The current 
+> > method does "lea" which takes 1 cycle, and "or" which takes 1 cycle. I'm 
+> > not sure if there is any function call overhead .. So the soft replacment 
+> > of cli/sti is 70% faster on a per instruction level .. So it's at least 
+> > not any slower .. Does everyone agree on that?
+> 
+> No, because x86 is not the whole universe
 
-I should have answered this. Since we moved to one runqueue per cpu with th=
-e=20
-current scheduler, 'nice' levels basically fall apart on SMP. Balancing ten=
-ds=20
-to group together all the wrong tasks to have any meaningful 'nice' support=
-=20
-where often on a 2 cpu machine if we run 4 tasks, 2 nice 0 and 2 nice 19 we=
-=20
-end up with:
+It's only implemented on x86 . 
 
-cpu 1: nice 19 + nice 19
-cpu 2: nice 0 + nice 0
+Daniel
 
-which means each nice 19 task gets half a cpu and each nice 0 task gets hal=
-f a=20
-cpu which is lousy fairness.=20
-
-The smp nice patches should end up with
-cpu 1: nice 0 + nice 19
-cpu 2: nice 0 + nice 19
-
-so that the nice 0 tasks get 95% of a cpu and nice 19 tasks get 5% of a cpu.
-
-The patches should balance things as fairly as possible according to nice=20
-levels across cpus. As you can see this is clearly a bug in behaviour and h=
-as=20
-been a showstopper for many trying to move from 2.4.
-
-Cheers,
-Con
-
---nextPart1774366.JH50LUvJSv
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCq3gBZUg7+tp6mRURAklkAJ9pl8lKSqHbs10DnopmLxEHhV0t6gCeKPvG
-r8oguv5LFQEnZ+Y7TYJ+aM8=
-=8AB5
------END PGP SIGNATURE-----
-
---nextPart1774366.JH50LUvJSv--

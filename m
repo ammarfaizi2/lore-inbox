@@ -1,70 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261500AbVFKBRP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261509AbVFKBiR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261500AbVFKBRP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 21:17:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261503AbVFKBRP
+	id S261509AbVFKBiR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 21:38:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261510AbVFKBiR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 21:17:15 -0400
-Received: from www.portafree.com ([216.250.209.9]:3991 "EHLO ns2.porta.net")
-	by vger.kernel.org with ESMTP id S261500AbVFKBRJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 21:17:09 -0400
-Date: Fri, 10 Jun 2005 19:52:42 -0500 (GMT+5)
-Message-Id: <200506110052.j5B0qgD10682@ns2.porta.net>
-From: "Jonathan Zuma" <jmzuma@sify.com>
-Reply-To: jmzuma@sify.com
-Subject: Greetings From South Africa
-X-Mailer: PortaFree 2.0
-X-IPAddress: 82.128.1.144
+	Fri, 10 Jun 2005 21:38:17 -0400
+Received: from mf00.sitadelle.com ([212.94.174.79]:44153 "EHLO
+	smtp.cegetel.net") by vger.kernel.org with ESMTP id S261509AbVFKBiL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 21:38:11 -0400
+Message-ID: <42AA407C.2070104@lifl.fr>
+Date: Sat, 11 Jun 2005 03:38:04 +0200
+From: Eric Piel <Eric.Piel@lifl.fr>
+Organization: LIFL
+User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
+X-Accept-Language: en, fr, ja, es
 MIME-Version: 1.0
-Content-Type: text/plain
-To: unlisted-recipients:; (no To-header on input)
+To: paulmck@us.ibm.com
+Cc: Chris Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org,
+       bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de, karim@opersys.com,
+       mingo@elte.hu, pmarques@grupopie.com, bruce@andrew.cmu.edu,
+       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
+       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org
+Subject: Re: Attempted summary of "RT patch acceptance" thread
+References: <20050608022646.GA3158@us.ibm.com> <42A73D15.6080201@nortel.com> <20050608192853.GE1295@us.ibm.com> <42AA133D.1050102@lifl.fr> <20050610230433.GI1300@us.ibm.com> <42AA20F6.9030606@lifl.fr> <20050611005934.GM1300@us.ibm.com>
+In-Reply-To: <20050611005934.GM1300@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A very good day to you.
- 
-I am Mr. Jonathan Mwari Zuma, an accountant and principal overseer 
-with the South African Mining Corporation. I got your contact through 
-a friend in my local chamber of commerce in collaboration with the  
-American Consulate here in South Africa. This is in line with my quest 
-for a reliable and reputable person/company to handle a very 
-confidential transaction, which involves transfer of fund to a foreign 
-account.
- 
-This said fund (US$20.5m) Twenty million, five hundred thousand United 
-Statesdollars, is reportedly made to be a variation and accumulation 
-of equity investment made in the South African Mining corporation in 
-the period of 1983-1987. This redeemable investment interest, has now 
-matured and has long been cleared for disbursement but with no 
-apparent knowledge of who the investors are,  as most of the investors 
-then, were corrupt government officials and their cronies under the 
-obnoxious apartheid regime who used pseudo names and aliases in the 
-transactions, and could not come up for claims under the present 
-political setting in South Africa.
- 
-After due consultative sessions with my colleagues in the account 
-department at the mining corporation, I discovered that none of them 
-knows about the funds. So  I decided to confiscate the funds and 
-placed it in a private trust company for safe keeping, awaiting 
-further transfer to 
-a foreign account for further business ventures. I cannot handle this 
-transaction on my name because we were not allowed to operate an 
-offshore account while still in service. What I need now is a foreign 
-national who can assist me in the transfer of this fund, and also to 
-help invest the fund in a risk free venture. if you are wi! lling to 
-assist me in this transfer, I have agreed to compensate y ou with a 
-certain percentage(20%) of the total sum (US$20.5m) through mutual 
-negotiations. Your specialty is not a barrier to this transaction as I 
-have mapped out strategies to effectively actualize this transaction.
- 
-Thank you for your anticipated co-operation, and I hope to hear from 
-you soon, to enable me give you full details of the transactions.  And 
-also remember to maintain absolute confidentiality as any leakage of 
-information may jeopardize our chance of receiving this money.
- 
-Best regards,
-Jonathan Mwari Zuma
-SAMC P.ACC
+11.06.2005 02:59, Paul E. McKenney wrote/a écrit:
+> On Sat, Jun 11, 2005 at 01:23:34AM +0200, Eric Piel wrote:
+>>What about using the way you wrote it at the beginning of the section:
+>>"Probability of missing a deadline only because of a hardware failure"
+> 
+> 
+> Good point, I may just need to invert the whole thing, so that it
+> becomes something like:
+> 
+> 	i.	Probability of missing a deadline due to software,
+> 		ranging from 0 to 1, with the value of 0 corresponding
+> 		to the hardest possible hard realtime.
+> 
+> But then the "p^n" becomes "1-(1-p)^n".  Bleah.
+Yes, it seems language doesn't fit well with mathematics ;-)
 
+> 
+> OK, how about the following?
+> 
+> 	i.	Probability of meeting a deadline in absence of hardware
+> 		failure, ranging from 0 to 1, with the value of 1
+> 		corresponding to the hardest possible hard realtime.
+> 
+Sounds good!
 
+Eric

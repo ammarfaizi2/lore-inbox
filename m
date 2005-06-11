@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261848AbVFKXjL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261850AbVFKXnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261848AbVFKXjL (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 19:39:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261850AbVFKXjL
+	id S261850AbVFKXnq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 19:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261851AbVFKXnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 19:39:11 -0400
-Received: from mailfe04.swip.net ([212.247.154.97]:40076 "EHLO swip.net")
-	by vger.kernel.org with ESMTP id S261848AbVFKXjH convert rfc822-to-8bit
+	Sat, 11 Jun 2005 19:43:46 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:59063
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S261850AbVFKXno
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 19:39:07 -0400
-X-T2-Posting-ID: jLUmkBjoqvly7NM6d2gdCg==
-Subject: Re: VmallocTotal meminfo
-From: Alexander Nyberg <alexn@telia.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0506112225330.2372@yvahk01.tjqt.qr>
-References: <Pine.LNX.4.61.0506112225330.2372@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Sun, 12 Jun 2005 01:39:04 +0200
-Message-Id: <1118533144.968.5.camel@localhost.localdomain>
+	Sat, 11 Jun 2005 19:43:44 -0400
+Subject: Re: [PATCH] local_irq_disable removal
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Esben Nielsen <simlo@phys.au.dk>,
+       linux-kernel@vger.kernel.org, sdietrich@mvista.com
+In-Reply-To: <Pine.LNX.4.44.0506111345400.12084-100000@dhcp153.mvista.com>
+References: <Pine.LNX.4.44.0506111345400.12084-100000@dhcp153.mvista.com>
+Content-Type: text/plain
+Organization: linutronix
+Date: Sun, 12 Jun 2005 01:44:45 +0200
+Message-Id: <1118533485.13312.91.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lör 2005-06-11 klockan 22:27 +0200 skrev Jan Engelhardt:
-> Hi,
-> 
-> 
-> /proc/meminfo:
-> MemTotal:       256656 kB
-> MemFree:         32480 kB
-> ...
-> LowTotal:       256656 kB
-> LowFree:         32480 kB
-> SwapTotal:      530136 kB
-> SwapFree:       530136 kB
-> ...
-> VmallocTotal:   778164 kB
-> VmallocUsed:     22468 kB
-> VmallocChunk:   755404 kB
-> 
-> What's the VmallocTotal telling me? How is it calculated?
-> I ask because running a surprisingly modern Linux on a surprisingly ancient 
-> machine results in VmallocTotal being somewhere in the 1-gigabyte range, which 
-> can _never_ ever be.
+On Sat, 2005-06-11 at 13:51 -0700, Daniel Walker wrote:
+> On Sat, 11 Jun 2005, Ingo Molnar wrote:
 
-The kernel has one gigabyte to map on x86. In your case 256M is used for
-RAM and the most of the rest can go to vmalloc. VmallocTotal merely
-indicates the amount of virtual memory that can be used for vmalloc'ed
-(non-contigous) mappings. There's not much more fun to do with the
-remaining kernel virtual memory so...
+> Interesting .. So "cli" takes 7 cycles , "sti" takes 7 cycles. The current 
+> method does "lea" which takes 1 cycle, and "or" which takes 1 cycle. I'm 
+> not sure if there is any function call overhead .. So the soft replacment 
+> of cli/sti is 70% faster on a per instruction level .. So it's at least 
+> not any slower .. Does everyone agree on that?
 
-There's really not much to it.
+No, because x86 is not the whole universe
+
+tglx
+
+
 

@@ -1,53 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261703AbVFKNxS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261702AbVFKN7w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261703AbVFKNxS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 09:53:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbVFKNxS
+	id S261702AbVFKN7w (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 09:59:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261704AbVFKN7w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 09:53:18 -0400
-Received: from parcelfarce.linux.theplanet.co.uk ([195.92.249.252]:36585 "EHLO
-	parcelfarce.linux.theplanet.co.uk") by vger.kernel.org with ESMTP
-	id S261701AbVFKNxO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 09:53:14 -0400
-Date: Sat, 11 Jun 2005 14:54:11 +0100
-From: Matthew Wilcox <matthew@wil.cx>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Matthew Wilcox <matthew@wil.cx>, Arjan van de Ven <arjan@infradead.org>,
-       Jeff Garzik <jgarzik@pobox.com>, mike.miller@hp.com, akpm@osdl.org,
-       axboe@suse.de, linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
-Subject: Re: DMA mapping (was Re: [PATCH] cciss 2.6; replaces DMA masks with kernel defines)
-Message-ID: <20050611135411.GJ24611@parcelfarce.linux.theplanet.co.uk>
-References: <20050610143453.GA26476@beardog.cca.cpqcorp.net> <42A9C60E.3080604@pobox.com> <1118436000.6423.42.camel@mindpipe> <1118436306.5272.37.camel@laptopd505.fenrus.org> <1118438253.6423.72.camel@mindpipe> <20050610213003.GI24611@parcelfarce.linux.theplanet.co.uk> <1118444891.6423.130.camel@mindpipe>
+	Sat, 11 Jun 2005 09:59:52 -0400
+Received: from opersys.com ([64.40.108.71]:27155 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261702AbVFKN7v (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 09:59:51 -0400
+Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
+From: Kristian Benoit <kbenoit@opersys.com>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com, bhuey@lnxw.com,
+       andrea@suse.de, tglx@linutronix.de, Karim Yaghmour <karim@opersys.com>,
+       mingo@elte.hu, pmarques@grupopie.com, bruce@andrew.cmu.edu, ak@muc.de,
+       sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org
+In-Reply-To: <42AA812D.2060701@yahoo.com.au>
+References: <42AA6A6B.5040907@opersys.com>  <42AA812D.2060701@yahoo.com.au>
+Content-Type: text/plain
+Date: Sat, 11 Jun 2005 09:57:54 -0400
+Message-Id: <1118498274.5786.2.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1118444891.6423.130.camel@mindpipe>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.4 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Jun 10, 2005 at 07:08:11PM -0400, Lee Revell wrote:
-> b44 needs 30 bit:
-> 
-> #define B44_DMA_MASK 0x3fffffff
-> 
-> These seem to be all over the place.  I guess it saves a tiny bit of
-> silicon.  Don't these all violate the PCI spec?
+On Sat, 2005-06-11 at 16:14 +1000, Nick Piggin wrote:
+> This is wonderful data, thanks very much for putting in the work.
+> I hope this thread and future threads on this topic can be steered
+> more towards technical facts and numbers, as that is the only way
+> to make sane choices.
 
-No, it's permitted.  What would violate the PCI spec would be failing
-to decode the full 32/64 bit address and creating aliases (like 10-bit
-ISA cards did).  This is just a reestriction on which parts of memory
-a card can DMA to.
+Glad you like it.
 
-> Should I just add everything from 24 to 63?
-
-Actually, it'd be useful to have a central list of what DMA masks devices
-really take.  It might provide some arguments for changing the zone allocater.
-
--- 
-"Next the statesmen will invent cheap lies, putting the blame upon 
-the nation that is attacked, and every man will be glad of those
-conscience-soothing falsities, and will diligently study them, and refuse
-to examine any refutations of them; and thus he will by and by convince 
-himself that the war is just, and will thank God for the better sleep 
-he enjoys after this process of grotesque self-deception." -- Mark Twain

@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261693AbVFKNRJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVFKNXs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261693AbVFKNRJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 09:17:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261697AbVFKNRJ
+	id S261699AbVFKNXs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 09:23:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbVFKNXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 09:17:09 -0400
-Received: from hell.org.pl ([62.233.239.4]:47119 "HELO hell.org.pl")
-	by vger.kernel.org with SMTP id S261693AbVFKNRH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 09:17:07 -0400
-Date: Sat, 11 Jun 2005 14:17:01 +0200
-From: Karol Kozimor <sziwan@hell.org.pl>
-To: randy_dunlap <rdunlap@xenotime.net>
-Cc: Hanno =?iso-8859-2?Q?B=F6ck?= <mail@hboeck.de>,
-       acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       julien.lerouge@free.fr
-Subject: Re: [ACPI] Re: Kernel oops with asus_acpi module
-Message-ID: <20050611121701.GA20873@hell.org.pl>
-Mail-Followup-To: randy_dunlap <rdunlap@xenotime.net>,
-	Hanno =?iso-8859-2?Q?B=F6ck?= <mail@hboeck.de>,
-	acpi-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-	julien.lerouge@free.fr
-References: <200506052340.41074.mail@hboeck.de> <200506062347.10582.mail@hboeck.de> <20050606222151.GB65@hell.org.pl> <200506071946.20843.mail@hboeck.de> <20050607151649.4feaa50a.rdunlap@xenotime.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-In-Reply-To: <20050607151649.4feaa50a.rdunlap@xenotime.net>
-User-Agent: Mutt/1.4.2i
+	Sat, 11 Jun 2005 09:23:48 -0400
+Received: from relay04.roc.ny.frontiernet.net ([66.133.182.167]:36002 "EHLO
+	relay04.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
+	id S261699AbVFKNXq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 09:23:46 -0400
+Message-ID: <42AAE5C8.9060609@xfs.org>
+Date: Sat, 11 Jun 2005 08:23:20 -0500
+From: Steve Lord <lord@xfs.org>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: =?ISO-8859-1?Q?Pozs=E1r_Bal=E1zs?= <pozsy@uhulinux.hu>,
+       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: Race condition in module load causing undefined symbols
+References: <42A99D9D.7080900@xfs.org> <20050610112515.691dcb6e.akpm@osdl.org> <20050611082642.GB17639@ojjektum.uhulinux.hu>
+In-Reply-To: <20050611082642.GB17639@ojjektum.uhulinux.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thus wrote randy_dunlap:
-> | > But I'd like to get the full oops with the matching asus_acpi.o file also
-> | > (might be off the list).
+Pozsár Balázs wrote:
+> On Fri, Jun 10, 2005 at 11:25:15AM -0700, Andrew Morton wrote:
 > 
-> Karol, did you see the beginning of the thread?
-> http://lkml.org/lkml/2005/6/5/101
+>>I wonder if rather than the intermittency being time-based, it is
+>>load-address-based?  For example, suppose there's a bug in the symbol
+>>lookup code?
 > 
+> 
+> Just a data point: I met the same problem with 2.6.12-rc5, using
+> gcc 3.3.4.
+> I think it's time-based issue, because I was playing around with the 
+> initscripts, and the bug shows up when there are lots of modprobes in a 
+> short time.
+> 
+>
 
-Yeah, but I didn't get the .o file :)
-Please don't trim the Cc: list, or I'll be slow to respond.
-Best regards,
+I think this is not actually module loading itself, but a problem
+between the fork/exec/wait code in nash and the kernel. The
+commands which have problems are the ones which are not built
+into nash. So this looks more like a problem with wait. This
+would explain sleep fixing it and the fact that I have device
+issues after module load.
 
--- 
-Karol 'sziwan' Kozimor
-sziwan@hell.org.pl
+Steve

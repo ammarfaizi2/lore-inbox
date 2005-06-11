@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261655AbVFKIgY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261673AbVFKIk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261655AbVFKIgY (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 04:36:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbVFKIgX
+	id S261673AbVFKIk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 04:40:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261652AbVFKIjo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 04:36:23 -0400
-Received: from mail.kroah.org ([69.55.234.183]:4548 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S261658AbVFKHsw convert rfc822-to-8bit
+	Sat, 11 Jun 2005 04:39:44 -0400
+Received: from mail.kroah.org ([69.55.234.183]:6596 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261660AbVFKHsx convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 03:48:52 -0400
-Subject: [PATCH] Remove the devfs_fs_kernel.h file from the tree
-In-Reply-To: <11184761113825@kroah.com>
+	Sat, 11 Jun 2005 03:48:53 -0400
+Subject: [PATCH] Remove devfs_mk_dir() function from the kernel tree
+In-Reply-To: <1118476111192@kroah.com>
 X-Mailer: gregkh_patchbomb
 Date: Sat, 11 Jun 2005 00:48:31 -0700
-Message-Id: <11184761113852@kroah.com>
+Message-Id: <11184761113507@kroah.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Reply-To: Greg K-H <greg@kroah.com>
@@ -24,1062 +24,605 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Also fixes up all files that #include it.
+Removes the devfs_mk_dir() function and all callers of it.
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
----
- arch/sparc64/solaris/socksys.c          |    1 -
- arch/um/drivers/line.c                  |    1 -
- arch/um/drivers/mmapper_kern.c          |    1 -
- arch/um/drivers/ubd_kern.c              |    1 -
- drivers/block/acsi_slm.c                |    1 -
- drivers/block/cpqarray.c                |    1 -
- drivers/block/floppy.c                  |    1 -
- drivers/block/loop.c                    |    1 -
- drivers/block/nbd.c                     |    2 --
- drivers/block/paride/pg.c               |    1 -
- drivers/block/paride/pt.c               |    1 -
- drivers/block/rd.c                      |    1 -
- drivers/block/swim3.c                   |    1 -
- drivers/block/sx8.c                     |    1 -
- drivers/block/ub.c                      |    1 -
- drivers/cdrom/cdu31a.c                  |    1 -
- drivers/cdrom/cm206.c                   |    1 -
- drivers/cdrom/mcdx.c                    |    1 -
- drivers/cdrom/sbpcd.c                   |    1 -
- drivers/char/dsp56k.c                   |    1 -
- drivers/char/dtlk.c                     |    1 -
- drivers/char/ftape/zftape/zftape-init.c |    1 -
- drivers/char/ip2main.c                  |    1 -
- drivers/char/ipmi/ipmi_devintf.c        |    1 -
- drivers/char/istallion.c                |    1 -
- drivers/char/lp.c                       |    1 -
- drivers/char/mem.c                      |    1 -
- drivers/char/misc.c                     |    1 -
- drivers/char/mmtimer.c                  |    1 -
- drivers/char/ppdev.c                    |    1 -
- drivers/char/pty.c                      |    1 -
- drivers/char/raw.c                      |    1 -
- drivers/char/stallion.c                 |    1 -
- drivers/char/tipar.c                    |    1 -
- drivers/char/tty_io.c                   |    1 -
- drivers/char/vc_screen.c                |    1 -
- drivers/char/viotape.c                  |    1 -
- drivers/char/vt.c                       |    1 -
- drivers/i2c/i2c-dev.c                   |    1 -
- drivers/ide/ide-probe.c                 |    1 -
- drivers/ide/ide-tape.c                  |    1 -
- drivers/ide/ide.c                       |    1 -
- drivers/ieee1394/ieee1394_core.h        |    1 -
- drivers/ieee1394/raw1394.c              |    1 -
- drivers/ieee1394/video1394.c            |    1 -
- drivers/input/evdev.c                   |    1 -
- drivers/input/input.c                   |    1 -
- drivers/input/joydev.c                  |    1 -
- drivers/input/mousedev.c                |    1 -
- drivers/input/serio/serio_raw.c         |    1 -
- drivers/input/tsdev.c                   |    1 -
- drivers/isdn/capi/capi.c                |    1 -
- drivers/isdn/hardware/eicon/divamnt.c   |    1 -
- drivers/isdn/hardware/eicon/divasi.c    |    1 -
- drivers/isdn/hardware/eicon/divasmain.c |    1 -
- drivers/macintosh/adb.c                 |    1 -
- drivers/md/dm-ioctl.c                   |    1 -
- drivers/md/md.c                         |    1 -
- drivers/media/dvb/dvb-core/dvbdev.h     |    1 -
- drivers/media/dvb/ttpci/av7110.h        |    4 ----
- drivers/media/video/arv.c               |    1 -
- drivers/media/video/videodev.c          |    1 -
- drivers/mmc/mmc_block.c                 |    1 -
- drivers/mtd/mtd_blkdevs.c               |    1 -
- drivers/net/ppp_generic.c               |    1 -
- drivers/net/wan/cosa.c                  |    1 -
- drivers/s390/block/dasd_int.h           |    1 -
- drivers/s390/block/xpram.c              |    1 -
- drivers/s390/net/ctctty.c               |    1 -
- drivers/sbus/char/bpp.c                 |    1 -
- drivers/sbus/char/vfc.h                 |    2 --
- drivers/scsi/osst.c                     |    1 -
- drivers/scsi/scsi.c                     |    1 -
- drivers/scsi/sg.c                       |    1 -
- drivers/scsi/st.c                       |    1 -
- drivers/telephony/phonedev.c            |    1 -
- drivers/usb/core/file.c                 |    1 -
- drivers/usb/input/hiddev.c              |    1 -
- drivers/video/fbmem.c                   |    1 -
- fs/block_dev.c                          |    1 -
- fs/char_dev.c                           |    1 -
- fs/coda/psdev.c                         |    1 -
- fs/partitions/check.c                   |    1 -
- include/asm-ppc/ocp.h                   |    1 -
- include/linux/devfs_fs_kernel.h         |   10 ----------
- include/linux/fb.h                      |    1 -
- init/do_mounts.h                        |    1 -
- init/main.c                             |    1 -
- mm/shmem.c                              |    1 -
- mm/tiny-shmem.c                         |    1 -
- net/irda/irnet/irnet.h                  |    1 -
- sound/core/info.c                       |    1 -
- sound/core/sound.c                      |    1 -
- sound/oss/soundcard.c                   |    1 -
- sound/sound_core.c                      |    1 -
- 95 files changed, 109 deletions(-)
 
---- gregkh-2.6.orig/include/asm-ppc/ocp.h	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/include/asm-ppc/ocp.h	2005-06-10 23:37:21.000000000 -0700
-@@ -27,7 +27,6 @@
- #include <linux/init.h>
- #include <linux/list.h>
- #include <linux/config.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/device.h>
+---
+ arch/um/drivers/ubd_kern.c          |    2 --
+ drivers/block/acsi_slm.c            |    1 -
+ drivers/block/floppy.c              |    2 --
+ drivers/block/loop.c                |    2 --
+ drivers/block/nbd.c                 |    1 -
+ drivers/block/paride/pg.c           |    1 -
+ drivers/block/paride/pt.c           |    1 -
+ drivers/block/rd.c                  |    2 --
+ drivers/block/swim3.c               |    2 --
+ drivers/block/sx8.c                 |    2 --
+ drivers/block/ub.c                  |    1 -
+ drivers/cdrom/sbpcd.c               |    2 --
+ drivers/char/ipmi/ipmi_devintf.c    |    2 --
+ drivers/char/istallion.c            |    1 -
+ drivers/char/lp.c                   |    1 -
+ drivers/char/ppdev.c                |    1 -
+ drivers/char/pty.c                  |    1 -
+ drivers/char/stallion.c             |    1 -
+ drivers/char/tipar.c                |    3 ---
+ drivers/i2c/i2c-dev.c               |    2 --
+ drivers/ide/ide.c                   |    1 -
+ drivers/ieee1394/amdtp.c            |    2 --
+ drivers/ieee1394/dv1394.c           |    5 -----
+ drivers/ieee1394/ieee1394_core.c    |    8 --------
+ drivers/ieee1394/video1394.c        |    2 --
+ drivers/input/input.c               |    9 ---------
+ drivers/md/dm-ioctl.c               |    1 -
+ drivers/md/md.c                     |    1 -
+ drivers/media/dvb/dvb-core/dvbdev.c |    3 ---
+ drivers/mmc/mmc_block.c             |    1 -
+ drivers/mtd/mtd_blkdevs.c           |    2 --
+ drivers/mtd/mtdchar.c               |    1 -
+ drivers/net/wan/cosa.c              |    1 -
+ drivers/s390/block/dasd.c           |    3 ---
+ drivers/s390/block/xpram.c          |    2 --
+ drivers/sbus/char/bpp.c             |    1 -
+ drivers/sbus/char/vfc_dev.c         |    1 -
+ drivers/scsi/scsi.c                 |    1 -
+ drivers/usb/core/file.c             |    2 --
+ drivers/usb/input/hiddev.c          |    1 -
+ drivers/video/fbmem.c               |    1 -
+ fs/coda/psdev.c                     |    1 -
+ include/linux/devfs_fs_kernel.h     |    4 ----
+ mm/shmem.c                          |    4 +---
+ mm/tiny-shmem.c                     |    3 ---
+ sound/core/sound.c                  |    1 -
+ sound/sound_core.c                  |    1 -
+ 47 files changed, 1 insertion(+), 93 deletions(-)
+
+--- gregkh-2.6.orig/drivers/usb/core/file.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/usb/core/file.c	2005-06-10 23:38:18.000000000 -0700
+@@ -88,8 +88,6 @@
+ 		goto out;
+ 	}
  
- #include <asm/mmu.h>
---- gregkh-2.6.orig/include/linux/fb.h	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/include/linux/fb.h	2005-06-10 23:37:21.000000000 -0700
-@@ -363,7 +363,6 @@
- #include <linux/tty.h>
- #include <linux/device.h>
- #include <linux/workqueue.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/notifier.h>
- #include <linux/list.h>
- #include <asm/io.h>
---- gregkh-2.6.orig/init/do_mounts.h	2005-06-10 23:36:41.000000000 -0700
-+++ gregkh-2.6/init/do_mounts.h	2005-06-10 23:37:21.000000000 -0700
-@@ -1,6 +1,5 @@
- #include <linux/config.h>
- #include <linux/kernel.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/init.h>
- #include <linux/syscalls.h>
- #include <linux/unistd.h>
---- gregkh-2.6.orig/net/irda/irnet/irnet.h	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/net/irda/irnet/irnet.h	2005-06-10 23:37:21.000000000 -0700
-@@ -244,7 +244,6 @@
- #include <linux/skbuff.h>
- #include <linux/tty.h>
- #include <linux/proc_fs.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/netdevice.h>
- #include <linux/miscdevice.h>
- #include <linux/poll.h>
---- gregkh-2.6.orig/init/main.c	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/init/main.c	2005-06-10 23:37:21.000000000 -0700
-@@ -15,7 +15,6 @@
- #include <linux/types.h>
- #include <linux/module.h>
- #include <linux/proc_fs.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/kernel.h>
- #include <linux/syscalls.h>
- #include <linux/string.h>
---- gregkh-2.6.orig/mm/shmem.c	2005-06-10 23:37:16.000000000 -0700
-+++ gregkh-2.6/mm/shmem.c	2005-06-10 23:37:21.000000000 -0700
-@@ -26,7 +26,6 @@
- #include <linux/config.h>
- #include <linux/module.h>
- #include <linux/init.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/fs.h>
- #include <linux/mm.h>
- #include <linux/mman.h>
---- gregkh-2.6.orig/mm/tiny-shmem.c	2005-06-10 23:37:16.000000000 -0700
-+++ gregkh-2.6/mm/tiny-shmem.c	2005-06-10 23:37:21.000000000 -0700
-@@ -12,7 +12,6 @@
- 
- #include <linux/fs.h>
- #include <linux/init.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/vfs.h>
- #include <linux/mount.h>
- #include <linux/file.h>
---- gregkh-2.6.orig/sound/core/info.c	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/sound/core/info.c	2005-06-10 23:37:21.000000000 -0700
-@@ -29,7 +29,6 @@
- #include <sound/info.h>
- #include <sound/version.h>
- #include <linux/proc_fs.h>
--#include <linux/devfs_fs_kernel.h>
- #include <stdarg.h>
- 
- /*
---- gregkh-2.6.orig/sound/core/sound.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/sound/core/sound.c	2005-06-10 23:37:21.000000000 -0700
-@@ -31,7 +31,6 @@
- #include <sound/control.h>
- #include <sound/initval.h>
- #include <linux/kmod.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/device.h>
- 
- #define SNDRV_OS_MINORS 256
---- gregkh-2.6.orig/sound/oss/soundcard.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/sound/oss/soundcard.c	2005-06-10 23:37:21.000000000 -0700
-@@ -38,7 +38,6 @@
- #include <linux/wait.h>
- #include <linux/slab.h>
- #include <linux/ioport.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/major.h>
- #include <linux/delay.h>
- #include <linux/proc_fs.h>
---- gregkh-2.6.orig/sound/sound_core.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/sound/sound_core.c	2005-06-10 23:37:21.000000000 -0700
-@@ -44,7 +44,6 @@
- #include <linux/sound.h>
- #include <linux/major.h>
- #include <linux/kmod.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/device.h>
- 
- #define SOUND_STEP 16
---- gregkh-2.6.orig/arch/sparc64/solaris/socksys.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/arch/sparc64/solaris/socksys.c	2005-06-10 23:37:21.000000000 -0700
-@@ -26,7 +26,6 @@
- #include <linux/slab.h>
- #include <linux/syscalls.h>
- #include <linux/in.h>
--#include <linux/devfs_fs_kernel.h>
- 
- #include <net/sock.h>
- 
---- gregkh-2.6.orig/arch/um/drivers/line.c	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/arch/um/drivers/line.c	2005-06-10 23:37:50.000000000 -0700
-@@ -8,7 +8,6 @@
- #include "linux/list.h"
- #include "linux/kd.h"
- #include "linux/interrupt.h"
--#include "linux/devfs_fs_kernel.h"
- #include "asm/uaccess.h"
- #include "chan_kern.h"
- #include "irq_user.h"
---- gregkh-2.6.orig/arch/um/drivers/mmapper_kern.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/arch/um/drivers/mmapper_kern.c	2005-06-10 23:37:21.000000000 -0700
-@@ -12,7 +12,6 @@
- #include <linux/types.h>
- #include <linux/kdev_t.h>
- #include <linux/time.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/module.h>
- #include <linux/mm.h> 
- #include <linux/slab.h>
---- gregkh-2.6.orig/arch/um/drivers/ubd_kern.c	2005-06-10 23:37:17.000000000 -0700
-+++ gregkh-2.6/arch/um/drivers/ubd_kern.c	2005-06-10 23:38:05.000000000 -0700
-@@ -25,7 +25,6 @@
- #include "linux/blkdev.h"
- #include "linux/hdreg.h"
- #include "linux/init.h"
--#include "linux/devfs_fs_kernel.h"
- #include "linux/cdrom.h"
- #include "linux/proc_fs.h"
- #include "linux/ctype.h"
---- gregkh-2.6.orig/drivers/video/fbmem.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/video/fbmem.c	2005-06-10 23:37:21.000000000 -0700
-@@ -31,7 +31,6 @@
- #ifdef CONFIG_KMOD
- #include <linux/kmod.h>
- #endif
--#include <linux/devfs_fs_kernel.h>
- #include <linux/err.h>
- #include <linux/kernel.h>
- #include <linux/device.h>
---- gregkh-2.6.orig/fs/block_dev.c	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/fs/block_dev.c	2005-06-10 23:37:21.000000000 -0700
-@@ -12,7 +12,6 @@
- #include <linux/slab.h>
- #include <linux/kmod.h>
- #include <linux/major.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/smp_lock.h>
- #include <linux/highmem.h>
- #include <linux/blkdev.h>
---- gregkh-2.6.orig/fs/char_dev.c	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/fs/char_dev.c	2005-06-10 23:37:21.000000000 -0700
-@@ -14,7 +14,6 @@
- #include <linux/errno.h>
- #include <linux/module.h>
- #include <linux/smp_lock.h>
--#include <linux/devfs_fs_kernel.h>
- 
- #include <linux/kobject.h>
- #include <linux/kobj_map.h>
---- gregkh-2.6.orig/fs/coda/psdev.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/fs/coda/psdev.c	2005-06-10 23:37:21.000000000 -0700
-@@ -28,7 +28,6 @@
- #include <linux/delay.h>
- #include <linux/skbuff.h>
- #include <linux/proc_fs.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/vmalloc.h>
- #include <linux/fs.h>
- #include <linux/file.h>
---- gregkh-2.6.orig/fs/partitions/check.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/fs/partitions/check.c	2005-06-10 23:37:21.000000000 -0700
-@@ -18,7 +18,6 @@
- #include <linux/fs.h>
- #include <linux/kmod.h>
- #include <linux/ctype.h>
--#include <linux/devfs_fs_kernel.h>
- 
- #include "check.h"
- 
---- gregkh-2.6.orig/drivers/block/acsi_slm.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/block/acsi_slm.c	2005-06-10 23:37:21.000000000 -0700
-@@ -63,7 +63,6 @@
- #include <linux/time.h>
- #include <linux/mm.h>
- #include <linux/slab.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/smp_lock.h>
- 
- #include <asm/pgtable.h>
---- gregkh-2.6.orig/drivers/block/cpqarray.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/block/cpqarray.c	2005-06-10 23:38:05.000000000 -0700
-@@ -33,7 +33,6 @@
- #include <linux/blkpg.h>
- #include <linux/timer.h>
- #include <linux/proc_fs.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/init.h>
- #include <linux/hdreg.h>
- #include <linux/spinlock.h>
---- gregkh-2.6.orig/drivers/block/floppy.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/block/floppy.c	2005-06-10 23:37:21.000000000 -0700
-@@ -176,7 +176,6 @@
- #include <linux/ioport.h>
- #include <linux/interrupt.h>
- #include <linux/init.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/device.h>
- #include <linux/buffer_head.h>	/* for invalidate_buffers() */
- 
---- gregkh-2.6.orig/drivers/block/loop.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/block/loop.c	2005-06-10 23:38:05.000000000 -0700
-@@ -63,7 +63,6 @@
- #include <linux/blkdev.h>
- #include <linux/blkpg.h>
- #include <linux/init.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/smp_lock.h>
- #include <linux/swap.h>
- #include <linux/slab.h>
---- gregkh-2.6.orig/drivers/block/nbd.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/block/nbd.c	2005-06-10 23:38:05.000000000 -0700
-@@ -56,8 +56,6 @@
- #include <linux/ioctl.h>
- #include <net/sock.h>
- 
--#include <linux/devfs_fs_kernel.h>
+-	devfs_mk_dir("usb");
 -
- #include <asm/uaccess.h>
- #include <asm/types.h>
+ out:
+ 	return error;
+ }
+--- gregkh-2.6.orig/drivers/usb/input/hiddev.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/usb/input/hiddev.c	2005-06-10 23:38:15.000000000 -0700
+@@ -833,7 +833,6 @@
  
---- gregkh-2.6.orig/drivers/block/paride/pg.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/block/paride/pg.c	2005-06-10 23:37:21.000000000 -0700
-@@ -156,7 +156,6 @@
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/fs.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/delay.h>
- #include <linux/slab.h>
- #include <linux/mtio.h>
---- gregkh-2.6.orig/drivers/block/paride/pt.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/block/paride/pt.c	2005-06-10 23:37:21.000000000 -0700
-@@ -141,7 +141,6 @@
- #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/fs.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/delay.h>
- #include <linux/slab.h>
- #include <linux/mtio.h>
---- gregkh-2.6.orig/drivers/block/rd.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/block/rd.c	2005-06-10 23:38:05.000000000 -0700
-@@ -50,7 +50,6 @@
- #include <linux/module.h>
- #include <linux/moduleparam.h>
- #include <linux/init.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/pagemap.h>
- #include <linux/blkdev.h>
- #include <linux/genhd.h>
---- gregkh-2.6.orig/drivers/block/swim3.c	2005-06-10 23:37:16.000000000 -0700
-+++ gregkh-2.6/drivers/block/swim3.c	2005-06-10 23:38:05.000000000 -0700
-@@ -25,7 +25,6 @@
- #include <linux/fd.h>
- #include <linux/ioctl.h>
- #include <linux/blkdev.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/interrupt.h>
- #include <linux/module.h>
- #include <asm/io.h>
---- gregkh-2.6.orig/drivers/block/sx8.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/block/sx8.c	2005-06-10 23:38:05.000000000 -0700
-@@ -18,7 +18,6 @@
- #include <linux/spinlock.h>
- #include <linux/blkdev.h>
- #include <linux/sched.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/interrupt.h>
- #include <linux/compiler.h>
- #include <linux/workqueue.h>
---- gregkh-2.6.orig/drivers/block/ub.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/block/ub.c	2005-06-10 23:38:05.000000000 -0700
-@@ -28,7 +28,6 @@
- #include <linux/module.h>
- #include <linux/usb.h>
- #include <linux/blkdev.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/timer.h>
- #include <scsi/scsi.h>
+ int __init hiddev_init(void)
+ {
+-	devfs_mk_dir("usb/hid");
+ 	return usb_register(&hiddev_driver);
+ }
  
---- gregkh-2.6.orig/drivers/ide/ide-probe.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/ide/ide-probe.c	2005-06-10 23:37:54.000000000 -0700
-@@ -47,7 +47,6 @@
- #include <linux/slab.h>
- #include <linux/delay.h>
- #include <linux/ide.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/spinlock.h>
- #include <linux/kmod.h>
- #include <linux/pci.h>
---- gregkh-2.6.orig/drivers/ide/ide-tape.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/ide/ide-tape.c	2005-06-10 23:37:21.000000000 -0700
-@@ -434,7 +434,6 @@
- #include <linux/mm.h>
- #include <linux/interrupt.h>
- #include <linux/major.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/errno.h>
- #include <linux/genhd.h>
- #include <linux/slab.h>
---- gregkh-2.6.orig/drivers/ide/ide.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/ide/ide.c	2005-06-10 23:37:54.000000000 -0700
-@@ -147,7 +147,6 @@
- #include <linux/pci.h>
- #include <linux/delay.h>
- #include <linux/ide.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/completion.h>
- #include <linux/reboot.h>
- #include <linux/cdrom.h>
---- gregkh-2.6.orig/drivers/input/evdev.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/input/evdev.c	2005-06-10 23:37:21.000000000 -0700
-@@ -20,7 +20,6 @@
- #include <linux/major.h>
- #include <linux/smp_lock.h>
- #include <linux/device.h>
--#include <linux/devfs_fs_kernel.h>
+--- gregkh-2.6.orig/drivers/block/floppy.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/block/floppy.c	2005-06-10 23:38:20.000000000 -0700
+@@ -4241,8 +4241,6 @@
+ 		motor_off_timer[dr].function = motor_off_callback;
+ 	}
  
- struct evdev {
- 	int exist;
---- gregkh-2.6.orig/drivers/input/input.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/input/input.c	2005-06-10 23:37:21.000000000 -0700
-@@ -22,7 +22,6 @@
- #include <linux/interrupt.h>
- #include <linux/poll.h>
- #include <linux/device.h>
--#include <linux/devfs_fs_kernel.h>
+-	devfs_mk_dir("floppy");
+-
+ 	err = register_blkdev(FLOPPY_MAJOR, "fd");
+ 	if (err)
+ 		goto out_devfs_remove;
+--- gregkh-2.6.orig/drivers/block/loop.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/block/loop.c	2005-06-10 23:38:15.000000000 -0700
+@@ -1270,8 +1270,6 @@
+ 			goto out_mem3;
+ 	}
  
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@suse.cz>");
- MODULE_DESCRIPTION("Input core");
---- gregkh-2.6.orig/drivers/input/joydev.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/input/joydev.c	2005-06-10 23:37:21.000000000 -0700
-@@ -26,7 +26,6 @@
- #include <linux/init.h>
- #include <linux/smp_lock.h>
- #include <linux/device.h>
--#include <linux/devfs_fs_kernel.h>
+-	devfs_mk_dir("loop");
+-
+ 	for (i = 0; i < max_loop; i++) {
+ 		struct loop_device *lo = &loop_dev[i];
+ 		struct gendisk *disk = disks[i];
+--- gregkh-2.6.orig/drivers/block/nbd.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/block/nbd.c	2005-06-10 23:38:15.000000000 -0700
+@@ -679,7 +679,6 @@
+ 	printk(KERN_INFO "nbd: registered device at major %d\n", NBD_MAJOR);
+ 	dprintk(DBG_INIT, "nbd: debugflags=0x%x\n", debugflags);
  
- MODULE_AUTHOR("Vojtech Pavlik <vojtech@ucw.cz>");
- MODULE_DESCRIPTION("Joystick device interfaces");
---- gregkh-2.6.orig/drivers/input/mousedev.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/input/mousedev.c	2005-06-10 23:37:21.000000000 -0700
-@@ -24,7 +24,6 @@
- #include <linux/random.h>
- #include <linux/major.h>
- #include <linux/device.h>
--#include <linux/devfs_fs_kernel.h>
- #ifdef CONFIG_INPUT_MOUSEDEV_PSAUX
- #include <linux/miscdevice.h>
- #endif
---- gregkh-2.6.orig/drivers/input/serio/serio_raw.c	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/drivers/input/serio/serio_raw.c	2005-06-10 23:37:21.000000000 -0700
-@@ -16,7 +16,6 @@
- #include <linux/init.h>
- #include <linux/major.h>
- #include <linux/device.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/miscdevice.h>
- #include <linux/wait.h>
+-	devfs_mk_dir("nbd");
+ 	for (i = 0; i < nbds_max; i++) {
+ 		struct gendisk *disk = nbd_dev[i].disk;
+ 		nbd_dev[i].file = NULL;
+--- gregkh-2.6.orig/drivers/block/sx8.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/block/sx8.c	2005-06-10 23:38:15.000000000 -0700
+@@ -1667,8 +1667,6 @@
+ 	if (host->flags & FL_DYN_MAJOR)
+ 		host->major = rc;
  
---- gregkh-2.6.orig/drivers/input/tsdev.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/input/tsdev.c	2005-06-10 23:37:21.000000000 -0700
-@@ -53,7 +53,6 @@
- #include <linux/random.h>
- #include <linux/time.h>
- #include <linux/device.h>
--#include <linux/devfs_fs_kernel.h>
+-	devfs_mk_dir(DRV_NAME);
+-
+ 	rc = carm_init_disks(host);
+ 	if (rc)
+ 		goto err_out_blkdev_disks;
+--- gregkh-2.6.orig/drivers/block/ub.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/block/ub.c	2005-06-10 23:38:15.000000000 -0700
+@@ -2315,7 +2315,6 @@
  
- #ifndef CONFIG_INPUT_TSDEV_SCREEN_X
- #define CONFIG_INPUT_TSDEV_SCREEN_X	240
---- gregkh-2.6.orig/drivers/char/dsp56k.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/char/dsp56k.c	2005-06-10 23:37:21.000000000 -0700
-@@ -33,7 +33,6 @@
- #include <linux/fs.h>
- #include <linux/mm.h>
- #include <linux/init.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/smp_lock.h>
- #include <linux/device.h>
+ 	if ((rc = register_blkdev(UB_MAJOR, DRV_NAME)) != 0)
+ 		goto err_regblkdev;
+-	devfs_mk_dir(DEVFS_NAME);
  
---- gregkh-2.6.orig/drivers/char/dtlk.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/char/dtlk.c	2005-06-10 23:37:21.000000000 -0700
-@@ -62,7 +62,6 @@
- #include <linux/init.h>		/* for __init, module_{init,exit} */
- #include <linux/poll.h>		/* for POLLIN, etc. */
- #include <linux/dtlk.h>		/* local header file for DoubleTalk values */
--#include <linux/devfs_fs_kernel.h>
- #include <linux/smp_lock.h>
+ 	if ((rc = usb_register(&ub_driver)) != 0)
+ 		goto err_register;
+--- gregkh-2.6.orig/drivers/block/acsi_slm.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/block/acsi_slm.c	2005-06-10 23:38:18.000000000 -0700
+@@ -1007,7 +1007,6 @@
+ 	BufferP = SLMBuffer;
+ 	SLMState = IDLE;
+ 	
+-	devfs_mk_dir("slm");
+ 	for (i = 0; i < MAX_SLM; i++) {
+ 		devfs_mk_cdev(MKDEV(ACSI_MAJOR, i),
+ 				S_IFCHR|S_IRUSR|S_IWUSR, "slm/%d", i);
+--- gregkh-2.6.orig/drivers/block/rd.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/block/rd.c	2005-06-10 23:38:15.000000000 -0700
+@@ -441,8 +441,6 @@
+ 		goto out;
+ 	}
  
- #ifdef TRACING
---- gregkh-2.6.orig/drivers/char/lp.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/char/lp.c	2005-06-10 23:37:21.000000000 -0700
-@@ -120,7 +120,6 @@
- #include <linux/major.h>
- #include <linux/sched.h>
- #include <linux/smp_lock.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/slab.h>
- #include <linux/fcntl.h>
- #include <linux/delay.h>
---- gregkh-2.6.orig/drivers/char/mem.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/char/mem.c	2005-06-10 23:37:21.000000000 -0700
-@@ -20,7 +20,6 @@
- #include <linux/tty.h>
- #include <linux/capability.h>
- #include <linux/smp_lock.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/ptrace.h>
- #include <linux/device.h>
- #include <linux/backing-dev.h>
---- gregkh-2.6.orig/drivers/char/pty.c	2005-06-10 23:37:16.000000000 -0700
-+++ gregkh-2.6/drivers/char/pty.c	2005-06-10 23:37:44.000000000 -0700
-@@ -24,7 +24,6 @@
- #include <linux/major.h>
- #include <linux/mm.h>
- #include <linux/init.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/sysctl.h>
+-	devfs_mk_dir("rd");
+-
+ 	for (i = 0; i < CONFIG_BLK_DEV_RAM_COUNT; i++) {
+ 		struct gendisk *disk = rd_disks[i];
  
- #include <asm/uaccess.h>
---- gregkh-2.6.orig/drivers/char/vc_screen.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/char/vc_screen.c	2005-06-10 23:37:21.000000000 -0700
-@@ -26,7 +26,6 @@
- #include <linux/major.h>
- #include <linux/errno.h>
- #include <linux/tty.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/sched.h>
- #include <linux/interrupt.h>
- #include <linux/mm.h>
---- gregkh-2.6.orig/drivers/i2c/i2c-dev.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/i2c/i2c-dev.c	2005-06-10 23:37:21.000000000 -0700
-@@ -34,7 +34,6 @@
- #include <linux/fs.h>
- #include <linux/slab.h>
- #include <linux/smp_lock.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/init.h>
- #include <linux/i2c.h>
- #include <linux/i2c-dev.h>
---- gregkh-2.6.orig/drivers/media/dvb/dvb-core/dvbdev.h	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/drivers/media/dvb/dvb-core/dvbdev.h	2005-06-10 23:37:21.000000000 -0700
-@@ -27,7 +27,6 @@
- #include <linux/poll.h>
- #include <linux/fs.h>
- #include <linux/list.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/smp_lock.h>
+--- gregkh-2.6.orig/drivers/block/swim3.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/block/swim3.c	2005-06-10 23:38:12.000000000 -0700
+@@ -1015,8 +1015,6 @@
+ 	int err = -ENOMEM;
+ 	int i;
  
- #define DVB_MAJOR 212
---- gregkh-2.6.orig/drivers/media/dvb/ttpci/av7110.h	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/drivers/media/dvb/ttpci/av7110.h	2005-06-10 23:37:21.000000000 -0700
-@@ -6,10 +6,6 @@
- #include <linux/netdevice.h>
- #include <linux/i2c.h>
+-	devfs_mk_dir("floppy");
+-
+ 	swim = find_devices("floppy");
+ 	while (swim && (floppy_count < MAX_FLOPPIES))
+ 	{
+--- gregkh-2.6.orig/drivers/char/ipmi/ipmi_devintf.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/char/ipmi/ipmi_devintf.c	2005-06-10 23:38:18.000000000 -0700
+@@ -572,8 +572,6 @@
+ 		ipmi_major = rv;
+ 	}
  
--#ifdef CONFIG_DEVFS_FS
--#include <linux/devfs_fs_kernel.h>
+-	devfs_mk_dir(DEVICE_NAME);
+-
+ 	rv = ipmi_smi_watcher_register(&smi_watcher);
+ 	if (rv) {
+ 		unregister_chrdev(ipmi_major, DEVICE_NAME);
+--- gregkh-2.6.orig/drivers/char/istallion.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/char/istallion.c	2005-06-10 23:38:18.000000000 -0700
+@@ -5241,7 +5241,6 @@
+ 		printk(KERN_ERR "STALLION: failed to register serial memory "
+ 				"device\n");
+ 
+-	devfs_mk_dir("staliomem");
+ 	istallion_class = class_create(THIS_MODULE, "staliomem");
+ 	for (i = 0; i < 4; i++) {
+ 		devfs_mk_cdev(MKDEV(STL_SIOMEMMAJOR, i),
+--- gregkh-2.6.orig/drivers/char/lp.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/char/lp.c	2005-06-10 23:38:18.000000000 -0700
+@@ -906,7 +906,6 @@
+ 		return -EIO;
+ 	}
+ 
+-	devfs_mk_dir("printers");
+ 	lp_class = class_create(THIS_MODULE, "printer");
+ 	if (IS_ERR(lp_class)) {
+ 		err = PTR_ERR(lp_class);
+--- gregkh-2.6.orig/drivers/char/ppdev.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/char/ppdev.c	2005-06-10 23:38:18.000000000 -0700
+@@ -781,7 +781,6 @@
+ 		err = PTR_ERR(ppdev_class);
+ 		goto out_chrdev;
+ 	}
+-	devfs_mk_dir("parports");
+ 	for (i = 0; i < PARPORT_MAX; i++) {
+ 		devfs_mk_cdev(MKDEV(PP_MAJOR, i),
+ 				S_IFCHR | S_IRUGO | S_IWUGO, "parports/%d", i);
+--- gregkh-2.6.orig/drivers/char/pty.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/char/pty.c	2005-06-10 23:38:12.000000000 -0700
+@@ -352,7 +352,6 @@
+ 
+ static void __init unix98_pty_init(void)
+ {
+-	devfs_mk_dir("pts");
+ 	ptm_driver = alloc_tty_driver(NR_UNIX98_PTY_MAX);
+ 	if (!ptm_driver)
+ 		panic("Couldn't allocate Unix98 ptm driver");
+--- gregkh-2.6.orig/drivers/char/stallion.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/char/stallion.c	2005-06-10 23:38:18.000000000 -0700
+@@ -3088,7 +3088,6 @@
+  */
+ 	if (register_chrdev(STL_SIOMEMMAJOR, "staliomem", &stl_fsiomem))
+ 		printk("STALLION: failed to register serial board device\n");
+-	devfs_mk_dir("staliomem");
+ 
+ 	stallion_class = class_create(THIS_MODULE, "staliomem");
+ 	for (i = 0; i < 4; i++) {
+--- gregkh-2.6.orig/drivers/char/tipar.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/char/tipar.c	2005-06-10 23:38:18.000000000 -0700
+@@ -502,9 +502,6 @@
+ 		goto out;
+ 	}
+ 
+-	/* Use devfs with tree: /dev/ticables/par/[0..2] */
+-	devfs_mk_dir("ticables/par");
+-
+ 	tipar_class = class_create(THIS_MODULE, "ticables");
+ 	if (IS_ERR(tipar_class)) {
+ 		err = PTR_ERR(tipar_class);
+--- gregkh-2.6.orig/drivers/ieee1394/dv1394.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/ieee1394/dv1394.c	2005-06-10 23:38:18.000000000 -0700
+@@ -2364,9 +2364,6 @@
+ 	class_device_create(hpsb_protocol_class, MKDEV(
+ 		IEEE1394_MAJOR,	IEEE1394_MINOR_BLOCK_DV1394 * 16 + (id<<2)), 
+ 		NULL, "dv1394-%d", id);
+-	devfs_mk_dir("ieee1394/dv/host%d", id);
+-	devfs_mk_dir("ieee1394/dv/host%d/NTSC", id);
+-	devfs_mk_dir("ieee1394/dv/host%d/PAL", id);
+ 
+ 	dv1394_init(ohci, DV1394_NTSC, MODE_RECEIVE);
+ 	dv1394_init(ohci, DV1394_NTSC, MODE_TRANSMIT);
+@@ -2642,8 +2639,6 @@
+ 		return ret;
+ 	}
+ 
+-	devfs_mk_dir("ieee1394/dv");
+-
+ 	hpsb_register_highlevel(&dv1394_highlevel);
+ 
+ 	ret = hpsb_register_protocol(&dv1394_driver);
+--- gregkh-2.6.orig/sound/core/sound.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/sound/core/sound.c	2005-06-10 23:38:18.000000000 -0700
+@@ -340,7 +340,6 @@
+ 		INIT_LIST_HEAD(&snd_minors_hash[card]);
+ 	if ((err = snd_oss_init_module()) < 0)
+ 		return err;
+-	devfs_mk_dir("snd");
+ 	if (register_chrdev(major, "alsa", &snd_fops)) {
+ 		snd_printk(KERN_ERR "unable to register native major device number %d\n", major);
+ 		devfs_remove("snd");
+--- gregkh-2.6.orig/sound/sound_core.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/sound/sound_core.c	2005-06-10 23:38:18.000000000 -0700
+@@ -571,7 +571,6 @@
+ 		printk(KERN_ERR "soundcore: sound device already in use.\n");
+ 		return -EBUSY;
+ 	}
+-	devfs_mk_dir ("sound");
+ 	sound_class = class_create(THIS_MODULE, "sound");
+ 	if (IS_ERR(sound_class))
+ 		return PTR_ERR(sound_class);
+--- gregkh-2.6.orig/arch/um/drivers/ubd_kern.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/arch/um/drivers/ubd_kern.c	2005-06-10 23:38:22.000000000 -0700
+@@ -816,7 +816,6 @@
+ {
+         int i;
+ 
+-	devfs_mk_dir("ubd");
+ 	if (register_blkdev(MAJOR_NR, "ubd"))
+ 		return -1;
+ 
+@@ -830,7 +829,6 @@
+ 		char name[sizeof("ubd_nnn\0")];
+ 
+ 		snprintf(name, sizeof(name), "ubd_%d", fake_major);
+-		devfs_mk_dir(name);
+ 		if (register_blkdev(fake_major, "ubd"))
+ 			return -1;
+ 	}
+--- gregkh-2.6.orig/drivers/block/paride/pg.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/block/paride/pg.c	2005-06-10 23:38:18.000000000 -0700
+@@ -671,7 +671,6 @@
+ 		err = PTR_ERR(pg_class);
+ 		goto out_chrdev;
+ 	}
+-	devfs_mk_dir("pg");
+ 	for (unit = 0; unit < PG_UNITS; unit++) {
+ 		struct pg *dev = &devices[unit];
+ 		if (dev->present) {
+--- gregkh-2.6.orig/drivers/block/paride/pt.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/block/paride/pt.c	2005-06-10 23:38:18.000000000 -0700
+@@ -969,7 +969,6 @@
+ 		goto out_chrdev;
+ 	}
+ 
+-	devfs_mk_dir("pt");
+ 	for (unit = 0; unit < PT_UNITS; unit++)
+ 		if (pt[unit].present) {
+ 			class_device_create(pt_class, MKDEV(major, unit),
+--- gregkh-2.6.orig/drivers/cdrom/sbpcd.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/cdrom/sbpcd.c	2005-06-10 23:38:15.000000000 -0700
+@@ -5813,8 +5813,6 @@
+ 		return -ENOMEM;
+ 	}
+ 
+-	devfs_mk_dir("sbp");
+-
+ 	for (j=0;j<NR_SBPCD;j++)
+ 	{
+ 		struct cdrom_device_info * sbpcd_infop;
+--- gregkh-2.6.orig/drivers/input/input.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/input/input.c	2005-06-10 23:38:15.000000000 -0700
+@@ -719,17 +719,8 @@
+ 		remove_proc_entry("handlers", proc_bus_input_dir);
+ 		remove_proc_entry("input", proc_bus);
+ 		class_destroy(input_class);
+-		return retval;
+ 	}
+ 
+-	retval = devfs_mk_dir("input");
+-	if (retval) {
+-		remove_proc_entry("devices", proc_bus_input_dir);
+-		remove_proc_entry("handlers", proc_bus_input_dir);
+-		remove_proc_entry("input", proc_bus);
+-		unregister_chrdev(INPUT_MAJOR, "input");
+-		class_destroy(input_class);
+-	}
+ 	return retval;
+ }
+ 
+--- gregkh-2.6.orig/drivers/md/md.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/md/md.c	2005-06-10 23:38:20.000000000 -0700
+@@ -3631,7 +3631,6 @@
+ 		unregister_blkdev(MAJOR_NR, "md");
+ 		return -1;
+ 	}
+-	devfs_mk_dir("md");
+ 	blk_register_region(MKDEV(MAJOR_NR, 0), MAX_MD_DEVS, THIS_MODULE,
+ 				md_probe, NULL, NULL);
+ 	blk_register_region(MKDEV(mdp_major, 0), MAX_MD_DEVS<<MdpMinorShift, THIS_MODULE,
+--- gregkh-2.6.orig/mm/shmem.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/mm/shmem.c	2005-06-10 23:38:12.000000000 -0700
+@@ -2219,9 +2219,7 @@
+ 		printk(KERN_ERR "Could not register tmpfs\n");
+ 		goto out2;
+ 	}
+-#ifdef CONFIG_TMPFS
+-	devfs_mk_dir("shm");
 -#endif
++
+ 	shm_mnt = do_kern_mount(tmpfs_fs_type.name, MS_NOUSER,
+ 				tmpfs_fs_type.name, NULL);
+ 	if (IS_ERR(shm_mnt)) {
+--- gregkh-2.6.orig/mm/tiny-shmem.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/mm/tiny-shmem.c	2005-06-10 23:38:12.000000000 -0700
+@@ -32,9 +32,6 @@
+ static int __init init_tmpfs(void)
+ {
+ 	register_filesystem(&tmpfs_fs_type);
+-#ifdef CONFIG_TMPFS
+-	devfs_mk_dir("shm");
+-#endif
+ 	shm_mnt = kern_mount(&tmpfs_fs_type);
+ 	return 0;
+ }
+--- gregkh-2.6.orig/drivers/i2c/i2c-dev.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/i2c/i2c-dev.c	2005-06-10 23:38:18.000000000 -0700
+@@ -521,8 +521,6 @@
+ 	if (res)
+ 		goto out_unreg_class;
+ 
+-	devfs_mk_dir("i2c");
 -
- #include <linux/dvb/video.h>
- #include <linux/dvb/audio.h>
- #include <linux/dvb/dmx.h>
---- gregkh-2.6.orig/drivers/media/video/arv.c	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/drivers/media/video/arv.c	2005-06-10 23:37:21.000000000 -0700
-@@ -20,7 +20,6 @@
+ 	return 0;
  
- #include <linux/config.h>
- #include <linux/init.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/module.h>
- #include <linux/version.h>
- #include <linux/delay.h>
---- gregkh-2.6.orig/drivers/media/video/videodev.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/media/video/videodev.c	2005-06-10 23:37:57.000000000 -0700
-@@ -26,7 +26,6 @@
- #include <linux/init.h>
- #include <linux/kmod.h>
- #include <linux/slab.h>
--#include <linux/devfs_fs_kernel.h>
- #include <asm/uaccess.h>
- #include <asm/system.h>
- #include <asm/semaphore.h>
---- gregkh-2.6.orig/drivers/net/ppp_generic.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/net/ppp_generic.c	2005-06-10 23:37:21.000000000 -0700
-@@ -28,7 +28,6 @@
- #include <linux/kmod.h>
- #include <linux/init.h>
- #include <linux/list.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/netdevice.h>
- #include <linux/poll.h>
- #include <linux/ppp_defs.h>
---- gregkh-2.6.orig/drivers/net/wan/cosa.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/net/wan/cosa.c	2005-06-10 23:37:21.000000000 -0700
-@@ -85,7 +85,6 @@
- #include <linux/slab.h>
- #include <linux/poll.h>
- #include <linux/fs.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/interrupt.h>
- #include <linux/delay.h>
- #include <linux/errno.h>
---- gregkh-2.6.orig/drivers/s390/block/dasd_int.h	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/drivers/s390/block/dasd_int.h	2005-06-10 23:37:21.000000000 -0700
-@@ -54,7 +54,6 @@
- #include <linux/module.h>
- #include <linux/wait.h>
- #include <linux/blkdev.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/genhd.h>
- #include <linux/hdreg.h>
- #include <linux/interrupt.h>
---- gregkh-2.6.orig/drivers/s390/block/xpram.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/s390/block/xpram.c	2005-06-10 23:38:05.000000000 -0700
-@@ -36,7 +36,6 @@
- #include <linux/hdreg.h>  /* HDIO_GETGEO */
- #include <linux/sysdev.h>
- #include <linux/bio.h>
--#include <linux/devfs_fs_kernel.h>
- #include <asm/uaccess.h>
+ out_unreg_class:
+--- gregkh-2.6.orig/drivers/media/dvb/dvb-core/dvbdev.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/media/dvb/dvb-core/dvbdev.c	2005-06-10 23:38:18.000000000 -0700
+@@ -302,7 +302,6 @@
  
- #define XPRAM_NAME	"xpram"
---- gregkh-2.6.orig/drivers/s390/net/ctctty.c	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/drivers/s390/net/ctctty.c	2005-06-10 23:37:44.000000000 -0700
-@@ -29,7 +29,6 @@
- #include <linux/interrupt.h>
- #include <linux/delay.h>
- #include <asm/uaccess.h>
--#include <linux/devfs_fs_kernel.h>
- #include "ctctty.h"
- #include "ctcdbug.h"
+ 	printk ("DVB: registering new adapter (%s).\n", name);
  
---- gregkh-2.6.orig/drivers/char/ftape/zftape/zftape-init.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/char/ftape/zftape/zftape-init.c	2005-06-10 23:37:21.000000000 -0700
-@@ -33,7 +33,6 @@
- #endif
- #include <linux/fcntl.h>
- #include <linux/smp_lock.h>
--#include <linux/devfs_fs_kernel.h>
+-	devfs_mk_dir("dvb/adapter%d", num);
+ 	adap->num = num;
+ 	adap->name = name;
+ 	adap->module = module;
+@@ -409,8 +408,6 @@
+ 		goto error;
+ 	}
  
- #include <linux/zftape.h>
- #include <linux/init.h>
---- gregkh-2.6.orig/drivers/char/ip2main.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/char/ip2main.c	2005-06-10 23:37:44.000000000 -0700
-@@ -91,7 +91,6 @@
- #include <linux/module.h>
- #include <linux/signal.h>
- #include <linux/sched.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/timer.h>
- #include <linux/interrupt.h>
- #include <linux/pci.h>
---- gregkh-2.6.orig/drivers/char/ipmi/ipmi_devintf.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/char/ipmi/ipmi_devintf.c	2005-06-10 23:37:21.000000000 -0700
-@@ -40,7 +40,6 @@
- #include <linux/poll.h>
- #include <linux/spinlock.h>
- #include <linux/slab.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/ipmi.h>
- #include <asm/semaphore.h>
- #include <linux/init.h>
---- gregkh-2.6.orig/drivers/char/istallion.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/char/istallion.c	2005-06-10 23:37:21.000000000 -0700
-@@ -39,7 +39,6 @@
- #include <linux/ioport.h>
- #include <linux/delay.h>
- #include <linux/init.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/device.h>
- #include <linux/wait.h>
- 
---- gregkh-2.6.orig/drivers/char/misc.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/char/misc.c	2005-06-10 23:38:09.000000000 -0700
-@@ -44,7 +44,6 @@
- #include <linux/slab.h>
- #include <linux/proc_fs.h>
- #include <linux/seq_file.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/stat.h>
- #include <linux/init.h>
- #include <linux/device.h>
---- gregkh-2.6.orig/drivers/char/mmtimer.c	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/drivers/char/mmtimer.c	2005-06-10 23:38:09.000000000 -0700
-@@ -25,7 +25,6 @@
- #include <linux/init.h>
- #include <linux/errno.h>
- #include <linux/mm.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/mmtimer.h>
- #include <linux/miscdevice.h>
- #include <linux/posix-timers.h>
---- gregkh-2.6.orig/drivers/char/ppdev.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/char/ppdev.c	2005-06-10 23:37:21.000000000 -0700
-@@ -60,7 +60,6 @@
- #include <linux/init.h>
- #include <linux/sched.h>
- #include <linux/device.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/ioctl.h>
- #include <linux/parport.h>
- #include <linux/ctype.h>
---- gregkh-2.6.orig/drivers/char/raw.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/char/raw.c	2005-06-10 23:37:21.000000000 -0700
-@@ -10,7 +10,6 @@
- 
- #include <linux/init.h>
- #include <linux/fs.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/major.h>
- #include <linux/blkdev.h>
- #include <linux/module.h>
---- gregkh-2.6.orig/drivers/char/stallion.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/char/stallion.c	2005-06-10 23:37:44.000000000 -0700
-@@ -40,7 +40,6 @@
- #include <linux/ioport.h>
- #include <linux/init.h>
- #include <linux/smp_lock.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/device.h>
- #include <linux/delay.h>
- 
---- gregkh-2.6.orig/drivers/char/tipar.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/char/tipar.c	2005-06-10 23:37:21.000000000 -0700
-@@ -56,7 +56,6 @@
- #include <linux/ioport.h>
- #include <asm/io.h>
- #include <linux/bitops.h>
--#include <linux/devfs_fs_kernel.h>	/* DevFs support */
- #include <linux/parport.h>		/* Our code depend on parport */
- #include <linux/device.h>
- 
---- gregkh-2.6.orig/drivers/char/tty_io.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/char/tty_io.c	2005-06-10 23:37:36.000000000 -0700
-@@ -101,7 +101,6 @@
- #include <linux/kbd_kern.h>
- #include <linux/vt_kern.h>
- #include <linux/selection.h>
--#include <linux/devfs_fs_kernel.h>
- 
- #include <linux/kmod.h>
- 
---- gregkh-2.6.orig/drivers/char/viotape.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/char/viotape.c	2005-06-10 23:37:21.000000000 -0700
-@@ -44,7 +44,6 @@
- #include <linux/dma-mapping.h>
- #include <linux/fs.h>
- #include <linux/cdev.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/major.h>
- #include <linux/completion.h>
- #include <linux/proc_fs.h>
---- gregkh-2.6.orig/drivers/char/vt.c	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/drivers/char/vt.c	2005-06-10 23:37:44.000000000 -0700
-@@ -79,7 +79,6 @@
- #include <linux/mm.h>
- #include <linux/console.h>
- #include <linux/init.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/vt_kern.h>
- #include <linux/selection.h>
- #include <linux/tiocl.h>
---- gregkh-2.6.orig/drivers/isdn/capi/capi.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/isdn/capi/capi.c	2005-06-10 23:37:44.000000000 -0700
-@@ -39,7 +39,6 @@
- #include <linux/init.h>
- #include <linux/device.h>
- #include <linux/moduleparam.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/isdn/capiutil.h>
- #include <linux/isdn/capicmd.h>
- #if defined(CONFIG_ISDN_CAPI_CAPIFS) || defined(CONFIG_ISDN_CAPI_CAPIFS_MODULE)
---- gregkh-2.6.orig/drivers/isdn/hardware/eicon/divamnt.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/isdn/hardware/eicon/divamnt.c	2005-06-10 23:37:21.000000000 -0700
-@@ -17,7 +17,6 @@
- #include <linux/sched.h>
- #include <linux/smp_lock.h>
- #include <linux/poll.h>
--#include <linux/devfs_fs_kernel.h>
- #include <asm/uaccess.h>
- 
- #include "platform.h"
---- gregkh-2.6.orig/drivers/isdn/hardware/eicon/divasi.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/isdn/hardware/eicon/divasi.c	2005-06-10 23:37:21.000000000 -0700
-@@ -19,7 +19,6 @@
- #include <linux/poll.h>
- #include <linux/proc_fs.h>
- #include <linux/skbuff.h>
--#include <linux/devfs_fs_kernel.h>
- #include <asm/uaccess.h>
- 
- #include "platform.h"
---- gregkh-2.6.orig/drivers/isdn/hardware/eicon/divasmain.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/isdn/hardware/eicon/divasmain.c	2005-06-10 23:37:21.000000000 -0700
-@@ -14,7 +14,6 @@
- #include <linux/init.h>
- #include <linux/kernel.h>
- #include <linux/sched.h>
--#include <linux/devfs_fs_kernel.h>
- #include <asm/uaccess.h>
- #include <asm/io.h>
- #include <linux/ioport.h>
---- gregkh-2.6.orig/drivers/scsi/osst.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/scsi/osst.c	2005-06-10 23:38:05.000000000 -0700
-@@ -48,7 +48,6 @@
- #include <linux/vmalloc.h>
- #include <linux/blkdev.h>
- #include <linux/moduleparam.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/delay.h>
- #include <asm/uaccess.h>
- #include <asm/dma.h>
---- gregkh-2.6.orig/drivers/scsi/scsi.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/scsi/scsi.c	2005-06-10 23:37:21.000000000 -0700
-@@ -48,7 +48,6 @@
- #include <linux/delay.h>
- #include <linux/init.h>
- #include <linux/completion.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/unistd.h>
- #include <linux/spinlock.h>
- #include <linux/kmod.h>
---- gregkh-2.6.orig/drivers/scsi/sg.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/scsi/sg.c	2005-06-10 23:37:21.000000000 -0700
-@@ -44,7 +44,6 @@
- #include <linux/poll.h>
- #include <linux/smp_lock.h>
- #include <linux/moduleparam.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/cdev.h>
- #include <linux/seq_file.h>
- #include <linux/blkdev.h>
---- gregkh-2.6.orig/drivers/scsi/st.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/scsi/st.c	2005-06-10 23:38:05.000000000 -0700
-@@ -34,7 +34,6 @@
- #include <linux/spinlock.h>
- #include <linux/blkdev.h>
- #include <linux/moduleparam.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/cdev.h>
- #include <linux/delay.h>
- 
---- gregkh-2.6.orig/drivers/usb/core/file.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/usb/core/file.c	2005-06-10 23:37:39.000000000 -0700
-@@ -17,7 +17,6 @@
- 
- #include <linux/config.h>
- #include <linux/module.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/spinlock.h>
- #include <linux/errno.h>
- 
---- gregkh-2.6.orig/drivers/usb/input/hiddev.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/usb/input/hiddev.c	2005-06-10 23:37:39.000000000 -0700
-@@ -35,7 +35,6 @@
- #include <linux/usb.h>
- #include "hid.h"
- #include <linux/hiddev.h>
--#include <linux/devfs_fs_kernel.h>
- 
- #ifdef CONFIG_USB_DYNAMIC_MINORS
- #define HIDDEV_MINOR_BASE	0
---- gregkh-2.6.orig/drivers/cdrom/cdu31a.c	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/drivers/cdrom/cdu31a.c	2005-06-10 23:37:21.000000000 -0700
-@@ -161,7 +161,6 @@
- #include <linux/hdreg.h>
- #include <linux/genhd.h>
- #include <linux/ioport.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/string.h>
- #include <linux/slab.h>
- #include <linux/init.h>
---- gregkh-2.6.orig/drivers/cdrom/cm206.c	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/drivers/cdrom/cm206.c	2005-06-10 23:37:21.000000000 -0700
-@@ -187,7 +187,6 @@
- #include <linux/interrupt.h>
- #include <linux/timer.h>
- #include <linux/cdrom.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/ioport.h>
- #include <linux/mm.h>
- #include <linux/slab.h>
---- gregkh-2.6.orig/drivers/cdrom/mcdx.c	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/drivers/cdrom/mcdx.c	2005-06-10 23:37:21.000000000 -0700
-@@ -74,7 +74,6 @@
- #include <linux/major.h>
- #define MAJOR_NR MITSUMI_X_CDROM_MAJOR
- #include <linux/blkdev.h>
--#include <linux/devfs_fs_kernel.h>
- 
- #include "mcdx.h"
- 
---- gregkh-2.6.orig/drivers/cdrom/sbpcd.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/cdrom/sbpcd.c	2005-06-10 23:38:05.000000000 -0700
-@@ -371,7 +371,6 @@
- #include <linux/kernel.h>
- #include <linux/cdrom.h>
- #include <linux/ioport.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/major.h>
- #include <linux/string.h>
- #include <linux/vmalloc.h>
---- gregkh-2.6.orig/drivers/ieee1394/ieee1394_core.h	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/drivers/ieee1394/ieee1394_core.h	2005-06-10 23:37:21.000000000 -0700
-@@ -3,7 +3,6 @@
- #define _IEEE1394_CORE_H
- 
- #include <linux/slab.h>
--#include <linux/devfs_fs_kernel.h>
- #include <asm/atomic.h>
- #include <asm/semaphore.h>
- #include "hosts.h"
---- gregkh-2.6.orig/drivers/ieee1394/raw1394.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/ieee1394/raw1394.c	2005-06-10 23:37:21.000000000 -0700
-@@ -41,7 +41,6 @@
- #include <linux/cdev.h>
- #include <asm/uaccess.h>
- #include <asm/atomic.h>
--#include <linux/devfs_fs_kernel.h>
- 
- #include "csr1212.h"
- #include "ieee1394.h"
---- gregkh-2.6.orig/drivers/ieee1394/video1394.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/ieee1394/video1394.c	2005-06-10 23:37:21.000000000 -0700
-@@ -54,7 +54,6 @@
- #include <linux/poll.h>
- #include <linux/smp_lock.h>
- #include <linux/delay.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/bitops.h>
- #include <linux/types.h>
- #include <linux/vmalloc.h>
---- gregkh-2.6.orig/drivers/macintosh/adb.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/macintosh/adb.c	2005-06-10 23:37:21.000000000 -0700
-@@ -36,7 +36,6 @@
- #include <linux/spinlock.h>
- #include <linux/completion.h>
- #include <linux/device.h>
--#include <linux/devfs_fs_kernel.h>
- 
- #include <asm/uaccess.h>
- #include <asm/semaphore.h>
---- gregkh-2.6.orig/drivers/md/dm-ioctl.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/md/dm-ioctl.c	2005-06-10 23:38:09.000000000 -0700
-@@ -13,7 +13,6 @@
- #include <linux/init.h>
- #include <linux/wait.h>
- #include <linux/slab.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/dm-ioctl.h>
- 
- #include <asm/uaccess.h>
---- gregkh-2.6.orig/drivers/md/md.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/md/md.c	2005-06-10 23:38:05.000000000 -0700
-@@ -34,7 +34,6 @@
- #include <linux/linkage.h>
- #include <linux/raid/md.h>
- #include <linux/sysctl.h>
--#include <linux/devfs_fs_kernel.h>
- #include <linux/buffer_head.h> /* for invalidate_bdev */
- #include <linux/suspend.h>
- 
---- gregkh-2.6.orig/drivers/mmc/mmc_block.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/mmc/mmc_block.c	2005-06-10 23:38:05.000000000 -0700
-@@ -27,7 +27,6 @@
- #include <linux/hdreg.h>
- #include <linux/kdev_t.h>
- #include <linux/blkdev.h>
--#include <linux/devfs_fs_kernel.h>
- 
- #include <linux/mmc/card.h>
- #include <linux/mmc/protocol.h>
---- gregkh-2.6.orig/drivers/mtd/mtd_blkdevs.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/mtd/mtd_blkdevs.c	2005-06-10 23:38:05.000000000 -0700
-@@ -21,7 +21,6 @@
- #include <linux/init.h>
- #include <asm/semaphore.h>
- #include <asm/uaccess.h>
--#include <linux/devfs_fs_kernel.h>
- 
- static LIST_HEAD(blktrans_majors);
- 
---- gregkh-2.6.orig/drivers/sbus/char/bpp.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/sbus/char/bpp.c	2005-06-10 23:37:21.000000000 -0700
-@@ -20,7 +20,6 @@
- #include <linux/timer.h>
- #include <linux/ioport.h>
- #include <linux/major.h>
--#include <linux/devfs_fs_kernel.h>
- 
- #include <asm/uaccess.h>
- #include <asm/io.h>
---- gregkh-2.6.orig/drivers/sbus/char/vfc.h	2005-06-10 23:29:02.000000000 -0700
-+++ gregkh-2.6/drivers/sbus/char/vfc.h	2005-06-10 23:37:21.000000000 -0700
-@@ -1,8 +1,6 @@
- #ifndef _LINUX_VFC_H_
- #define _LINUX_VFC_H_
- 
--#include <linux/devfs_fs_kernel.h>
+-	devfs_mk_dir("dvb");
 -
- /*
-  * The control register for the vfc is at offset 0x4000
-  * The first field ram bank is located at offset 0x5000
---- gregkh-2.6.orig/drivers/telephony/phonedev.c	2005-06-10 23:37:20.000000000 -0700
-+++ gregkh-2.6/drivers/telephony/phonedev.c	2005-06-10 23:37:21.000000000 -0700
-@@ -28,7 +28,6 @@
+ 	dvb_class = class_create(THIS_MODULE, "dvb");
+ 	if (IS_ERR(dvb_class)) {
+ 		retval = PTR_ERR(dvb_class);
+--- gregkh-2.6.orig/drivers/net/wan/cosa.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/net/wan/cosa.c	2005-06-10 23:38:18.000000000 -0700
+@@ -393,7 +393,6 @@
+ 		err = -ENODEV;
+ 		goto out;
+ 	}
+-	devfs_mk_dir("cosa");
+ 	cosa_class = class_create(THIS_MODULE, "cosa");
+ 	if (IS_ERR(cosa_class)) {
+ 		err = PTR_ERR(cosa_class);
+--- gregkh-2.6.orig/drivers/s390/block/dasd.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/s390/block/dasd.c	2005-06-10 23:38:15.000000000 -0700
+@@ -1995,9 +1995,6 @@
  
- #include <linux/kmod.h>
- #include <linux/sem.h>
--#include <linux/devfs_fs_kernel.h>
+ 	dasd_diag_discipline_pointer = NULL;
  
- #define PHONE_NUM_DEVICES	256
+-	rc = devfs_mk_dir("dasd");
+-	if (rc)
+-		goto failed;
+ 	rc = dasd_devmap_init();
+ 	if (rc)
+ 		goto failed;
+--- gregkh-2.6.orig/drivers/s390/block/xpram.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/s390/block/xpram.c	2005-06-10 23:38:15.000000000 -0700
+@@ -443,8 +443,6 @@
+ 	if (rc < 0)
+ 		goto out;
  
---- gregkh-2.6.orig/include/linux/devfs_fs_kernel.h	2005-06-10 23:37:20.000000000 -0700
-+++ /dev/null	1970-01-01 00:00:00.000000000 +0000
-@@ -1,10 +0,0 @@
--#ifndef _LINUX_DEVFS_FS_KERNEL_H
--#define _LINUX_DEVFS_FS_KERNEL_H
+-	devfs_mk_dir("slram");
 -
--#include <linux/fs.h>
--#include <linux/config.h>
--#include <linux/spinlock.h>
--#include <linux/types.h>
--#include <asm/semaphore.h>
+ 	/*
+ 	 * Assign the other needed values: make request function, sizes and
+ 	 * hardsect size. All the minor devices feature the same value.
+--- gregkh-2.6.orig/drivers/scsi/scsi.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/scsi/scsi.c	2005-06-10 23:38:15.000000000 -0700
+@@ -1335,7 +1335,6 @@
+ 	for (i = 0; i < NR_CPUS; i++)
+ 		INIT_LIST_HEAD(&per_cpu(scsi_done_q, i));
+ 
+-	devfs_mk_dir("scsi");
+ 	open_softirq(SCSI_SOFTIRQ, scsi_softirq, NULL);
+ 	register_scsi_cpu();
+ 	printk(KERN_NOTICE "SCSI subsystem initialized\n");
+--- gregkh-2.6.orig/drivers/video/fbmem.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/video/fbmem.c	2005-06-10 23:38:18.000000000 -0700
+@@ -1193,7 +1193,6 @@
+ {
+ 	create_proc_read_entry("fb", 0, NULL, fbmem_read_proc, NULL);
+ 
+-	devfs_mk_dir("fb");
+ 	if (register_chrdev(FB_MAJOR,"fb",&fb_fops))
+ 		printk("unable to get major %d for fb devs\n", FB_MAJOR);
+ 
+--- gregkh-2.6.orig/drivers/ide/ide.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/ide/ide.c	2005-06-10 23:38:15.000000000 -0700
+@@ -1920,7 +1920,6 @@
+ static int __init ide_init(void)
+ {
+ 	printk(KERN_INFO "Uniform Multi-Platform E-IDE driver " REVISION "\n");
+-	devfs_mk_dir("ide");
+ 	system_bus_speed = ide_system_bus_speed();
+ 
+ 	bus_register(&ide_bus_type);
+--- gregkh-2.6.orig/drivers/ieee1394/amdtp.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/ieee1394/amdtp.c	2005-06-10 23:38:18.000000000 -0700
+@@ -1277,8 +1277,6 @@
+  		return -EIO;
+  	}
+ 
+-	devfs_mk_dir("amdtp");
 -
--#endif				/*  _LINUX_DEVFS_FS_KERNEL_H  */
+ 	hpsb_register_highlevel(&amdtp_highlevel);
+ 
+ 	HPSB_INFO("Loaded AMDTP driver");
+--- gregkh-2.6.orig/drivers/ieee1394/ieee1394_core.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/ieee1394/ieee1394_core.c	2005-06-10 23:38:15.000000000 -0700
+@@ -1092,13 +1092,6 @@
+ 		goto exit_release_kernel_thread;
+ 	}
+ 
+-	/* actually this is a non-fatal error */
+-	ret = devfs_mk_dir("ieee1394");
+-	if (ret < 0) {
+-		HPSB_ERR("unable to make devfs dir for device major %d!\n", IEEE1394_MAJOR);
+-		goto release_chrdev;
+-	}
+-
+ 	ret = bus_register(&ieee1394_bus_type);
+ 	if (ret < 0) {
+ 		HPSB_INFO("bus register failed");
+@@ -1168,7 +1161,6 @@
+ 	bus_unregister(&ieee1394_bus_type);
+ release_devfs:
+ 	devfs_remove("ieee1394");
+-release_chrdev:
+ 	unregister_chrdev_region(IEEE1394_CORE_DEV, 256);
+ exit_release_kernel_thread:
+ 	if (khpsbpkt_pid >= 0) {
+--- gregkh-2.6.orig/drivers/ieee1394/video1394.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/ieee1394/video1394.c	2005-06-10 23:38:18.000000000 -0700
+@@ -1551,8 +1551,6 @@
+ 		return ret;
+         }
+ 
+-	devfs_mk_dir(VIDEO1394_DRIVER_NAME);
+-
+ 	hpsb_register_highlevel(&video1394_highlevel);
+ 
+ 	ret = hpsb_register_protocol(&video1394_driver);
+--- gregkh-2.6.orig/drivers/md/dm-ioctl.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/md/dm-ioctl.c	2005-06-10 23:38:20.000000000 -0700
+@@ -66,7 +66,6 @@
+ {
+ 	init_buckets(_name_buckets);
+ 	init_buckets(_uuid_buckets);
+-	devfs_mk_dir(DM_DIR);
+ 	return 0;
+ }
+ 
+--- gregkh-2.6.orig/drivers/mmc/mmc_block.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/mmc/mmc_block.c	2005-06-10 23:38:15.000000000 -0700
+@@ -488,7 +488,6 @@
+ 	if (major == 0)
+ 		major = res;
+ 
+-	devfs_mk_dir("mmc");
+ 	return mmc_register_driver(&mmc_driver);
+ 
+  out:
+--- gregkh-2.6.orig/drivers/mtd/mtd_blkdevs.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/mtd/mtd_blkdevs.c	2005-06-10 23:38:15.000000000 -0700
+@@ -411,8 +411,6 @@
+ 		return ret;
+ 	} 
+ 
+-	devfs_mk_dir(tr->name);
+-
+ 	INIT_LIST_HEAD(&tr->devs);
+ 	list_add(&tr->list, &blktrans_majors);
+ 
+--- gregkh-2.6.orig/drivers/mtd/mtdchar.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/mtd/mtdchar.c	2005-06-10 23:38:18.000000000 -0700
+@@ -45,7 +45,6 @@
+ 
+ static inline void mtdchar_devfs_init(void)
+ {
+-	devfs_mk_dir("mtd");
+ 	register_mtd_user(&notifier);
+ }
+ 
+--- gregkh-2.6.orig/drivers/sbus/char/bpp.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/sbus/char/bpp.c	2005-06-10 23:38:18.000000000 -0700
+@@ -1048,7 +1048,6 @@
+ 		instances[idx].opened = 0;
+ 		probeLptPort(idx);
+ 	}
+-	devfs_mk_dir("bpp");
+ 	for (idx = 0; idx < BPP_NO; idx++) {
+ 		devfs_mk_cdev(MKDEV(BPP_MAJOR, idx),
+ 				S_IFCHR | S_IRUSR | S_IWUSR, "bpp/%d", idx);
+--- gregkh-2.6.orig/drivers/sbus/char/vfc_dev.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/drivers/sbus/char/vfc_dev.c	2005-06-10 23:38:18.000000000 -0700
+@@ -678,7 +678,6 @@
+ 		kfree(vfc_dev_lst);
+ 		return -EIO;
+ 	}
+-	devfs_mk_dir("vfc");
+ 	instance = 0;
+ 	for_all_sbusdev(sdev, sbus) {
+ 		if (strcmp(sdev->prom_name, "vfc") == 0) {
+--- gregkh-2.6.orig/fs/coda/psdev.c	2005-06-10 23:29:07.000000000 -0700
++++ gregkh-2.6/fs/coda/psdev.c	2005-06-10 23:38:18.000000000 -0700
+@@ -368,7 +368,6 @@
+ 		err = PTR_ERR(coda_psdev_class);
+ 		goto out_chrdev;
+ 	}		
+-	devfs_mk_dir ("coda");
+ 	for (i = 0; i < MAX_CODADEVS; i++) {
+ 		class_device_create(coda_psdev_class, MKDEV(CODA_PSDEV_MAJOR,i),
+ 				NULL, "cfs%d", i);
+--- gregkh-2.6.orig/include/linux/devfs_fs_kernel.h	2005-06-10 23:37:16.000000000 -0700
++++ gregkh-2.6/include/linux/devfs_fs_kernel.h	2005-06-10 23:38:22.000000000 -0700
+@@ -19,10 +19,6 @@
+ {
+ 	return 0;
+ }
+-static inline int devfs_mk_dir(const char *fmt, ...)
+-{
+-	return 0;
+-}
+ static inline void devfs_remove(const char *fmt, ...)
+ {
+ }
 

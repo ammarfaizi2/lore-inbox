@@ -1,48 +1,140 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261636AbVFKHoq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261638AbVFKHuA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261636AbVFKHoq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 03:44:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261638AbVFKHoq
+	id S261638AbVFKHuA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 03:50:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261640AbVFKHuA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 03:44:46 -0400
-Received: from smtp202.mail.sc5.yahoo.com ([216.136.129.92]:1663 "HELO
-	smtp202.mail.sc5.yahoo.com") by vger.kernel.org with SMTP
-	id S261636AbVFKHom (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 03:44:42 -0400
-Message-ID: <42AA9651.4050404@yahoo.com.au>
-Date: Sat, 11 Jun 2005 17:44:17 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.6) Gecko/20050324 Debian/1.7.6-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com, bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de,
-       karim@opersys.com, pmarques@grupopie.com, bruce@andrew.cmu.edu,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
-References: <42AA6A6B.5040907@opersys.com> <20050611070845.GA4609@elte.hu>
-In-Reply-To: <20050611070845.GA4609@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 11 Jun 2005 03:50:00 -0400
+Received: from mail.kroah.org ([69.55.234.183]:63427 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S261638AbVFKHsi convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 03:48:38 -0400
+Subject: [PATCH] Last little devfs cleanups throughout the kernel tree.
+In-Reply-To: <1118476112352@kroah.com>
+X-Mailer: gregkh_patchbomb
+Date: Sat, 11 Jun 2005 00:48:33 -0700
+Message-Id: <111847611361@kroah.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Reply-To: Greg K-H <greg@kroah.com>
+To: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7BIT
+From: Greg KH <gregkh@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> could you send me the .config you used for the PREEMPT_RT tests? Also, 
-> you used -47-08, which was well prior the current round of performance 
-> improvements, so you might want to re-run with something like -48-06 or 
-> better.
-> 
 
-The other thing that would be really interesting is to test latencies
-of various other kernel functionalities in the RT kernel (eg. message
-passing, maybe pipe or localhost read/write, signals, fork/clone/exit,
-mmap/munmap, faulting in shared memory, or whatever else is important
-to the RT crowd).
+Just removes a few unused #defines and fixes some comments due to
+devfs now being gone.
 
--- 
-SUSE Labs, Novell Inc.
+Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+
+---
+ drivers/block/viodasd.c                           |    1 -
+ drivers/cdrom/viocd.c                             |    1 -
+ drivers/md/dm.c                                   |    2 +-
+ drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c |   11 -----------
+ drivers/serial/dz.c                               |    4 ----
+ drivers/serial/serial_core.c                      |    2 +-
+ drivers/usb/usb-skeleton.c                        |    4 ++--
+ 7 files changed, 4 insertions(+), 21 deletions(-)
+
+--- gregkh-2.6.orig/drivers/block/viodasd.c	2005-06-10 23:37:22.000000000 -0700
++++ gregkh-2.6/drivers/block/viodasd.c	2005-06-10 23:37:27.000000000 -0700
+@@ -59,7 +59,6 @@
+  * numbers 0-255 we get a maximum of 32 disks.
+  */
+ #define VIOD_GENHD_NAME		"iseries/vd"
+-#define VIOD_GENHD_DEVFS_NAME	"iseries/disc"
+ 
+ #define VIOD_VERS		"1.64"
+ 
+--- gregkh-2.6.orig/drivers/cdrom/viocd.c	2005-06-10 23:37:22.000000000 -0700
++++ gregkh-2.6/drivers/cdrom/viocd.c	2005-06-10 23:37:27.000000000 -0700
+@@ -51,7 +51,6 @@
+ #include <asm/iSeries/vio.h>
+ 
+ #define VIOCD_DEVICE			"iseries/vcd"
+-#define VIOCD_DEVICE_DEVFS		"iseries/vcd"
+ 
+ #define VIOCD_VERS "1.06"
+ 
+--- gregkh-2.6.orig/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c	2005-06-10 23:28:55.000000000 -0700
++++ gregkh-2.6/drivers/media/dvb/ttusb-budget/dvb-ttusb-budget.c	2005-06-10 23:37:27.000000000 -0700
+@@ -123,10 +123,6 @@
+ 
+ 	int revision;
+ 
+-#if 0
+-	devfs_handle_t stc_devfs_handle;
+-#endif
+-
+ 	struct dvb_frontend* fe;
+ };
+ 
+@@ -1529,13 +1525,6 @@
+ 		return -ENODEV;
+ 	}
+ 
+-#if 0
+-	ttusb->stc_devfs_handle =
+-	    devfs_register(ttusb->adapter->devfs_handle, TTUSB_BUDGET_NAME,
+-			   DEVFS_FL_DEFAULT, 0, 192,
+-			   S_IFCHR | S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP
+-			   | S_IROTH | S_IWOTH, &stc_fops, ttusb);
+-#endif
+ 	usb_set_intfdata(intf, (void *) ttusb);
+ 
+ 	frontend_init(ttusb);
+--- gregkh-2.6.orig/drivers/serial/dz.c	2005-06-10 23:28:55.000000000 -0700
++++ gregkh-2.6/drivers/serial/dz.c	2005-06-10 23:37:27.000000000 -0700
+@@ -771,11 +771,7 @@
+ static struct uart_driver dz_reg = {
+ 	.owner			= THIS_MODULE,
+ 	.driver_name		= "serial",
+-#ifdef CONFIG_DEVFS
+-	.dev_name		= "tts/%d",
+-#else
+ 	.dev_name		= "ttyS%d",
+-#endif
+ 	.major			= TTY_MAJOR,
+ 	.minor			= 64,
+ 	.nr			= DZ_NB_PORT,
+--- gregkh-2.6.orig/drivers/md/dm.c	2005-06-10 23:28:55.000000000 -0700
++++ gregkh-2.6/drivers/md/dm.c	2005-06-10 23:37:27.000000000 -0700
+@@ -150,7 +150,7 @@
+ 	bioset_free(dm_set);
+ 
+ 	if (unregister_blkdev(_major, _name) < 0)
+-		DMERR("devfs_unregister_blkdev failed");
++		DMERR("unregister_blkdev failed");
+ 
+ 	_major = 0;
+ 
+--- gregkh-2.6.orig/drivers/serial/serial_core.c	2005-06-10 23:37:26.000000000 -0700
++++ gregkh-2.6/drivers/serial/serial_core.c	2005-06-10 23:37:27.000000000 -0700
+@@ -2218,7 +2218,7 @@
+ 	down(&port_sem);
+ 
+ 	/*
+-	 * Remove the devices from devfs
++	 * Remove the devices from sysfs
+ 	 */
+ 	tty_unregister_device(drv->tty_driver, port->line);
+ 
+--- gregkh-2.6.orig/drivers/usb/usb-skeleton.c	2005-06-10 23:37:26.000000000 -0700
++++ gregkh-2.6/drivers/usb/usb-skeleton.c	2005-06-10 23:37:27.000000000 -0700
+@@ -218,9 +218,9 @@
+ 	.release =	skel_release,
+ };
+ 
+-/* 
++/*
+  * usb class driver info in order to get a minor number from the usb core,
+- * and to have the device registered with devfs and the driver core
++ * and to have the device registered with sysfs.
+  */
+ static struct usb_class_driver skel_class = {
+ 	.name =		"skel%d",
+

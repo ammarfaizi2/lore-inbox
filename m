@@ -1,50 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261794AbVFKUCh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261808AbVFKUEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261794AbVFKUCh (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 16:02:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261803AbVFKUCh
+	id S261808AbVFKUEv (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 16:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261804AbVFKUEZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 16:02:37 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:45318 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261794AbVFKUCf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 16:02:35 -0400
-Date: Sat, 11 Jun 2005 22:02:32 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: gerg@uclinux.org, davidm@snapgear.com, jeff@uclinux.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [2.6 patch] MAINTAINERS: document that uclinux-dev@uclinux.org is subscribers-only
-Message-ID: <20050611200232.GK3770@stusta.de>
+	Sat, 11 Jun 2005 16:04:25 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:27130 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261803AbVFKUEQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 16:04:16 -0400
+Subject: Re: [PATCH] local_irq_disable removal
+From: Sven-Thorsten Dietrich <sdietrich@mvista.com>
+To: Esben Nielsen <simlo@phys.au.dk>
+Cc: Ingo Molnar <mingo@elte.hu>, Daniel Walker <dwalker@mvista.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.OSF.4.05.10506111851240.2917-100000@da410.phys.au.dk>
+References: <Pine.OSF.4.05.10506111851240.2917-100000@da410.phys.au.dk>
+Content-Type: text/plain
+Date: Sat, 11 Jun 2005 13:02:59 -0700
+Message-Id: <1118520182.5593.31.camel@sdietrich-xp.vilm.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Adrian Bunk <bunk@stusta.de>
+> > 
+> Well, isn't enough to see that the code contains more instructions and
+> looks somewhat more complicated?
+> 
 
---- linux-2.6.12-rc6-mm1-full/MAINTAINERS.old	2005-06-11 22:00:07.000000000 +0200
-+++ linux-2.6.12-rc6-mm1-full/MAINTAINERS	2005-06-11 22:00:44.000000000 +0200
-@@ -2614,19 +2614,19 @@
- UCLINUX (AND M68KNOMMU)
- P:	Greg Ungerer
- M:	gerg@uclinux.org
- M:	gerg@snapgear.com
- P:	David McCullough
- M:	davidm@snapgear.com
- P:	D. Jeff Dionne (created first uClinux port)
- M:	jeff@uclinux.org
- W:	http://www.uclinux.org/
--L:	uclinux-dev@uclinux.org
-+L:	uclinux-dev@uclinux.org  (subscribers-only)
- S:	Maintained
- 
- UCLINUX FOR NEC V850
- P:	Miles Bader
- M:	uclinux-v850@lsi.nec.co.jp
- W:	http://www.ic.nec.co.jp/micro/uclinux/eng/
- W:	http://www.ee.nec.de/uclinux/
- S:	Supported
- 
+And - another thing:
+
+Not all instructions take the same amount of time to execute.
+
+Think about the cli operation. This can take real time on highly
+pipelined processors, when compared to a simple increment by one
+operation.
+
+So the more complex-looking code, might make things faster.
+
+I'm going to say it one last time.
+
+Do the analysis scientifically, and use numbers to get your answers.
+
+This stuff is profound. 
+
+Think it through, and when you find a real problem, then we can take a
+look together, and see if it requires a bug fix. 
+
+And consider this - 
+
+There are robots walking around today, that use this concept in Linux
+2.4, and they can help you carry a 20 foot long plank across rugged
+terrain. In addition, they will stand it up against a wall for you...
+
+So be careful when you say it can't be done in 2.6.
+
+Sven
+
+
 

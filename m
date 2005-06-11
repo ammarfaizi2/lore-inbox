@@ -1,37 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261748AbVFKRNr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261744AbVFKRNm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261748AbVFKRNr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 13:13:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261749AbVFKRNq
+	id S261744AbVFKRNm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 13:13:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261748AbVFKRNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 13:13:46 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:62714 "EHLO
-	godzilla.mvista.com") by vger.kernel.org with ESMTP id S261748AbVFKRNo convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 13:13:44 -0400
-Date: Sat, 11 Jun 2005 10:13:27 -0700 (PDT)
-From: Daniel Walker <dwalker@mvista.com>
-To: =?UTF-8?B?TWlrYSBQZW50dGlsw6Q=?= <mika.penttila@kolumbus.fi>
-cc: Sven-Thorsten Dietrich <sdietrich@mvista.com>, Ingo Molnar <mingo@elte.hu>,
-       Esben Nielsen <simlo@phys.au.dk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] local_irq_disable removal
-In-Reply-To: <42AB1712.3080301@kolumbus.fi>
-Message-ID: <Pine.LNX.4.10.10506111011470.27294-100000@godzilla.mvista.com>
+	Sat, 11 Jun 2005 13:13:42 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:27604 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261744AbVFKRNl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 13:13:41 -0400
+Date: Sat, 11 Jun 2005 19:13:39 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: mini_fo-0.6.0 overlay file system
+Message-ID: <Pine.LNX.4.61.0506111909520.22504@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=X-UNKNOWN
-Content-Transfer-Encoding: 8BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
 
-On Sat, 11 Jun 2005, [UTF-8] Mika Penttilä wrote:
-> The timer irq is run as NODELAY, so soft irqs are run against 
-> local_irq_disable sections all the time.
+just looked at kerneltraffic to catch up on the past month's dev. Someone also 
+mentioned the keyword "unionfs" (
+http://marc.theaimsgroup.com/?l=linux-kernel&m=111601844402446&w=2
+) in one point, but:
 
-Softirq's are run in threads . The wake_up_process() path is protected,
-and used by the timer interrupt .
+I might point out that there is already a full fledged overlay filesystem
+at http://www.fsl.cs.sunysb.edu/project-unionfs.html
+It's not really leightweight (approx 120 KB when compiled) but "it's there".
 
 
-Daniel
-
+Jan Engelhardt                                                               
+--                                                                            
+| Gesellschaft fuer Wissenschaftliche Datenverarbeitung Goettingen,
+| Am Fassberg, 37077 Goettingen, www.gwdg.de

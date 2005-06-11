@@ -1,65 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261363AbVFKPou@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261422AbVFKPxl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261363AbVFKPou (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 11:44:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261422AbVFKPot
+	id S261422AbVFKPxl (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 11:53:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261481AbVFKPxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 11:44:49 -0400
-Received: from soundwarez.org ([217.160.171.123]:36558 "EHLO soundwarez.org")
-	by vger.kernel.org with ESMTP id S261363AbVFKPoZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 11:44:25 -0400
-Date: Sat, 11 Jun 2005 17:44:21 +0200
-From: Kay Sievers <kay.sievers@vrfy.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Patch series to remove devfs [00/22]
-Message-ID: <20050611154421.GA20373@vrfy.org>
-References: <20050611074327.GA27785@kroah.com> <20050611102133.GA3770@stusta.de> <20050611143904.GA30612@suse.de> <20050611153656.GB3770@stusta.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 11 Jun 2005 11:53:41 -0400
+Received: from mail.linicks.net ([217.204.244.146]:23051 "EHLO
+	linux233.linicks.net") by vger.kernel.org with ESMTP
+	id S261422AbVFKPxh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 11:53:37 -0400
+From: Nick Warne <nick@linicks.net>
+To: linux-kernel@vger.kernel.org, ilan_sk@netvision.net.il
+Subject: Re: 'hello world' module
+Date: Sat, 11 Jun 2005 16:53:34 +0100
+User-Agent: KMail/1.8.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20050611153656.GB3770@stusta.de>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200506111653.34161.nick@linicks.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 11, 2005 at 05:36:56PM +0200, Adrian Bunk wrote:
-> On Sat, Jun 11, 2005 at 07:39:04AM -0700, Greg KH wrote:
-> > On Sat, Jun 11, 2005 at 12:21:34PM +0200, Adrian Bunk wrote:
-> > > On Sat, Jun 11, 2005 at 12:43:27AM -0700, Greg KH wrote:
-> > > >...
-> > > > Comments welcome.
-> > > >...
-> > > 
-> > > Please don't remove the !CONFIG_DEVFS_FS dummies from devfs_fs_kernel.h.
-> > > 
-> > > I'm sure some driver maintainers will want to keep the functions in 
-> > > their code because they share their drivers between 2.4 and 2.6 .
-> > 
-> > All drivers should be in the mainline kernel tree, so why would they
-> > need this?  Remember, out-of-the-tree drivers are on their own...
-> 
-> I'm talking about drivers in the mainline kernel tree.
-> 
-> In some cases the driver author supports both 2.4 and 2.6 and prefers to 
-> support them in one file. Sometimes he submits the latest version of his 
-> driver to Marcelo or Linus.
-> 
-> If you remove the global function dummies, you force every driver 
-> maintainer who works this way to add the function dummies to their 
-> drivers.
-> 
-> Yes, there are many places where 2.4 and 2.6 are not source compatible 
-> for good reasons. But if the effort for maintaining compatibility 
-> between 2.4 and 2.6 in one area is as easy as keeping a header file with 
-> some dummy funtions it's worth considering.
-> 
-> And keeping the compatibility stuff in one file instead of spreaded 
-> through the kernel sources makes the cleanup to remove the last 
-> occurences a few years from now easier.
+Hi Ilan,
 
-How do these 2.4+2.6 drivers integrate with sysfs? Without proper
-2.6-driver-core integration they will not work anyway.
+I don't know about the Oh Really! version, but this one taken from 'Beginning 
+Linux Programming' (forward by Alan Cox!) ISBN 1-861002-97-1 worked OK for 
+me.
 
-Kay
+2.4.31, GCC 3.4.4
+
+Build like:
+
+gcc -D__KERNEL__ -I/usr/src/linux/include -DMODULE -Wall -O2 -c hello.c -o 
+hello.o
+
+Edit hello.c to suit:
+
+
+
+#include <linux/module.h>
+
+#if defined(CONFIG_SMP)
+#define __SMP__
+#endif
+
+#if defined(CONFIG_MODVERSIONS)
+#define MODVERSIONS
+#include <linux/modversions.h>
+#endif
+
+#include <linux/kernel.h>
+
+MODULE_AUTHOR ("Nick Warne <nick@linicks.net>");
+MODULE_DESCRIPTION ("Hello Kernel! module");
+MODULE_LICENSE("GPL");
+
+int init_module(void)
+{
+        printk(KERN_DEBUG "Hello, kernel!\n");
+        return 0;
+}
+
+void cleanup_module(void)
+{
+        printk(KERN_DEBUG "Good-bye, kernel!\n");
+}
+
+
+
+bash-2.05b# insmod hello.o
+bash-2.05b# dmesg | tail -n1
+Hello, kernel!
+
+bash-2.05b# lsmod
+Module                  Size  Used by    Tainted: P
+hello                    320   0  (unused)
+
+bash-2.05b# rmmod hello
+bash-2.05b# dmesg | tail -n1
+Good-bye, kernel!
+
+
+
+Hope that helps.
+
+Nick
+-- 
+"When you're chewing on life's gristle,
+Don't grumble, Give a whistle..."

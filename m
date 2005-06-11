@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261781AbVFKTcs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261800AbVFKTgL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261781AbVFKTcs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 15:32:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261775AbVFKTcr
+	id S261800AbVFKTgL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 15:36:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261798AbVFKTgI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 15:32:47 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:31494 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S261781AbVFKTc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 15:32:28 -0400
-Date: Sat, 11 Jun 2005 21:32:22 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Nick Warne <nick@linicks.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Has anyone had problems with GCC 4.0 and the kernel?
-Message-ID: <20050611193222.GI3770@stusta.de>
-References: <200506092220.12973.nick@linicks.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200506092220.12973.nick@linicks.net>
-User-Agent: Mutt/1.5.9i
+	Sat, 11 Jun 2005 15:36:08 -0400
+Received: from goliath.apana.org.au ([202.12.88.44]:15790 "EHLO
+	goliath.apana.org.au") by vger.kernel.org with ESMTP
+	id S261783AbVFKTc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 15:32:59 -0400
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: willy@w.ods.org (Willy Tarreau)
+Subject: Re: [PATCH] fix small DoS on connect() (was Re: BUG: Unusual TCP Connect() results.)
+Cc: davem@davemloft.net, xschmi00@stud.feec.vutbr.cz, alastair@unixtrix.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Organization: Core
+In-Reply-To: <20050611074350.GD28759@alpha.home.local>
+X-Newsgroups: apana.lists.os.linux.kernel,apana.lists.os.linux.netdev
+User-Agent: tin/1.7.4-20040225 ("Benbecula") (UNIX) (Linux/2.4.27-hx-1-686-smp (i686))
+Message-Id: <E1DhBic-0005dp-00@gondolin.me.apana.org.au>
+Date: Sun, 12 Jun 2005 05:32:34 +1000
+X-SA-Exim-Connect-IP: 203.14.152.115
+X-SA-Exim-Mail-From: herbert@gondor.apana.org.au
+X-SA-Exim-Scanned: No (on goliath.apana.org.au); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Jun 09, 2005 at 10:20:12PM +0100, Nick Warne wrote:
-> > The 2.4 kernels need fair amounts of patching,
-> > 99% of which is to prevent compile-time errors. These patches
-> > are not yet merged into the standard 2.4 tree and may never be.
+Willy Tarreau <willy@w.ods.org> wrote:
 > 
-> So does this mean GCC 4.x is a no-go for people still using kernel 2.4.x?
+> During this, the client cannot connect to www.kernel.org from this port
+> anymore :
+>  wks$ printf "HEAD / HTTP/1.0\r\n\r\n" | nc -p 10000 204.152.191.5 80; echo "ret=$?"
+>  ret=1
 
-AFAIR Mikael wanted to provide his patches for compiling kernel 2.4 with 
-gcc 4.0 somewhere.
-
-But they will most likely never go into into the official 2.4 kernel.
-
-> Nick
-
-cu
-Adrian
-
+What if you let the client connect from a random port which is what it
+should do?
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

@@ -1,52 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261699AbVFKNXs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261700AbVFKNga@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261699AbVFKNXs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 09:23:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261700AbVFKNXs
+	id S261700AbVFKNga (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 09:36:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261701AbVFKNga
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 09:23:48 -0400
-Received: from relay04.roc.ny.frontiernet.net ([66.133.182.167]:36002 "EHLO
-	relay04.roc.ny.frontiernet.net") by vger.kernel.org with ESMTP
-	id S261699AbVFKNXq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 09:23:46 -0400
-Message-ID: <42AAE5C8.9060609@xfs.org>
-Date: Sat, 11 Jun 2005 08:23:20 -0500
-From: Steve Lord <lord@xfs.org>
-User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: =?ISO-8859-1?Q?Pozs=E1r_Bal=E1zs?= <pozsy@uhulinux.hu>,
-       linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: Race condition in module load causing undefined symbols
-References: <42A99D9D.7080900@xfs.org> <20050610112515.691dcb6e.akpm@osdl.org> <20050611082642.GB17639@ojjektum.uhulinux.hu>
-In-Reply-To: <20050611082642.GB17639@ojjektum.uhulinux.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+	Sat, 11 Jun 2005 09:36:30 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:10628 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261700AbVFKNg0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 09:36:26 -0400
+Date: Sat, 11 Jun 2005 15:32:46 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Luca Falavigna <dktrkranz@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Real-Time Preemption, using msecs_to_jiffies() instead of HZ
+Message-ID: <20050611133246.GA29414@elte.hu>
+References: <42A9C2E0.30002@gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42A9C2E0.30002@gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pozsár Balázs wrote:
-> On Fri, Jun 10, 2005 at 11:25:15AM -0700, Andrew Morton wrote:
-> 
->>I wonder if rather than the intermittency being time-based, it is
->>load-address-based?  For example, suppose there's a bug in the symbol
->>lookup code?
-> 
-> 
-> Just a data point: I met the same problem with 2.6.12-rc5, using
-> gcc 3.3.4.
-> I think it's time-based issue, because I was playing around with the 
-> initscripts, and the bug shows up when there are lots of modprobes in a 
-> short time.
-> 
->
 
-I think this is not actually module loading itself, but a problem
-between the fork/exec/wait code in nash and the kernel. The
-commands which have problems are the ones which are not built
-into nash. So this looks more like a problem with wait. This
-would explain sleep fixing it and the fact that I have device
-issues after module load.
+* Luca Falavigna <dktrkranz@gmail.com> wrote:
 
-Steve
+> I was looking at kernel/softlookup.c when I noticed you used HZ in order to get
+> a 10-second delay:
+> 
+> void softlockup_tick(struct pt_regs *regs)
+> {
+> 	...
+> 	if (time_after(jiffies, timestamp + 10*HZ)) {
+> 	...
+> }
+
+oops, indeed. (i've also forwarded your patch to akpm, as the softlockup 
+patch is included in -mm too)
+
+> I created this small patch (built against version 
+> 2.6.12-rc6-V0.7.48-05) which does use of msecs_to_jiffies() to get a 
+> correct behaviour with every platform. Similarly I modified function 
+> watchdog and kernel/irq/autoprobe.c file (probe_irq_on function).
+> 
+> Here is the patch:
+
+> ++	msleep(msecs_to_jiffies(20));
+> ++	msleep(msecs_to_jiffies(100));
+> ++		msleep_interruptible(msecs_to_jiffies(1000));
+
+actually, this should be msleep(20/100/1000). I've fixed these in my 
+tree.
+
+	Ingo

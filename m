@@ -1,16 +1,16 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261684AbVFKWdl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261839AbVFKWgw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261684AbVFKWdl (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 18:33:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbVFKWdl
+	id S261839AbVFKWgw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 18:36:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261838AbVFKWgv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 18:33:41 -0400
-Received: from opersys.com ([64.40.108.71]:54534 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261684AbVFKWdi (ORCPT
+	Sat, 11 Jun 2005 18:36:51 -0400
+Received: from opersys.com ([64.40.108.71]:59398 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261839AbVFKWgr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 18:33:38 -0400
-Message-ID: <42AB656E.6000104@opersys.com>
-Date: Sat, 11 Jun 2005 18:27:58 -0400
+	Sat, 11 Jun 2005 18:36:47 -0400
+Message-ID: <42AB662B.4010104@opersys.com>
+Date: Sat, 11 Jun 2005 18:31:07 -0400
 From: Karim Yaghmour <karim@opersys.com>
 Reply-To: karim@opersys.com
 Organization: Opersys inc.
@@ -24,8 +24,8 @@ CC: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
        ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
        akpm@osdl.org, rpm@xenomai.org
 Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
-References: <42AA6A6B.5040907@opersys.com> <20050611070845.GA4609@elte.hu> <42AAF5CE.9080607@opersys.com> <20050611145240.GA10881@elte.hu> <42AB2209.9080006@opersys.com> <20050611181528.GA15019@elte.hu> <20050611183411.GA16503@elte.hu>
-In-Reply-To: <20050611183411.GA16503@elte.hu>
+References: <42AA6A6B.5040907@opersys.com> <20050611191448.GA24152@elte.hu>
+In-Reply-To: <20050611191448.GA24152@elte.hu>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
@@ -33,11 +33,18 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 Ingo Molnar wrote:
-> find below your .config adopted to the latest -RT patch 
-> (2.6.12-rc6-RT-V0.7.48-11).
+> how were interrupt response times measured, precisely? What did the 
+> target (measured) system have to do to respond to an interrupt? Did you 
+> use the RTC to measure IRQ latencies?
 
-OK thanks, we'll try to use this as-is and also use an as-close-as-possible
-version for the Adeos tests that we have something comparable.
+The logger used two TSC values. One prior to shooting the interrupt to the
+target, and one when receiving the response. Responding to an interrupt
+meant that a driver was hooked to the target's parallel port interrupt and
+simply acted by toggling an output pin on the parallel port, which in turn
+was hooked onto the logger's parallel port in a similar fashion. We'll
+post the code for all components (both logger and target) for everyone to
+review. There's no validity in any tests if others can't analyze/criticize/
+duplicate.
 
 Karim
 -- 

@@ -1,23 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261168AbVFKDLS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261558AbVFKDSU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261168AbVFKDLS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 23:11:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261614AbVFKDLS
+	id S261558AbVFKDSU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 23:18:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261615AbVFKDSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 23:11:18 -0400
-Received: from titan.genwebhost.com ([209.9.226.66]:36486 "EHLO
+	Fri, 10 Jun 2005 23:18:20 -0400
+Received: from titan.genwebhost.com ([209.9.226.66]:22937 "EHLO
 	titan.genwebhost.com") by vger.kernel.org with ESMTP
-	id S261168AbVFKDLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 23:11:15 -0400
-Date: Fri, 10 Jun 2005 20:11:07 -0700
+	id S261558AbVFKDSQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 10 Jun 2005 23:18:16 -0400
+Date: Fri, 10 Jun 2005 20:18:12 -0700
 From: randy_dunlap <rdunlap@xenotime.net>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: lnxluv@yahoo.com, linux-kernel@vger.kernel.org
+To: li nux <lnxluv@yahoo.com>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: 2.6: problem with module tainting the kernel
-Message-Id: <20050610201107.60a8c3ae.rdunlap@xenotime.net>
-In-Reply-To: <20050610153506.GA8118@infradead.org>
+Message-Id: <20050610201812.037b6a01.rdunlap@xenotime.net>
+In-Reply-To: <20050610152450.82261.qmail@web33315.mail.mud.yahoo.com>
 References: <20050610152450.82261.qmail@web33315.mail.mud.yahoo.com>
-	<20050610153506.GA8118@infradead.org>
 Organization: YPO4
 X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
@@ -34,19 +33,31 @@ X-Source-Dir:
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 10 Jun 2005 16:35:06 +0100 Christoph Hellwig wrote:
+On Fri, 10 Jun 2005 08:24:50 -0700 (PDT) li nux wrote:
 
-| On Fri, Jun 10, 2005 at 08:24:50AM -0700, li nux wrote:
-| > In 2.6 kernels how to assure that on inserting our own
-| > module, it doesn't throw the warning:
-| > 
-| > "unsupported module, tainting kernel"
+| In 2.6 kernels how to assure that on inserting our own
+| module, it doesn't throw the warning:
 | 
-| There's no place in the kernel that produces this message.  Are you
-| using some odd vendor tree?
+| "unsupported module, tainting kernel"
 
-to put it another way, show us all of the kernel
-messages from when you try to load the module.
+That string is not in the kernel source code that I can see.
+Be more precise, please.
+
+
+| what tainting depends on apart from the license string ?
+
+load:
+
+- CONFIG_MODVERSIONS is set but some symbol does not have
+  version info
+
+- a license that is not GPL-compatible
+
+- no version magic info for the module
+
+unload:
+
+- forcefully unloading a module
 
 ---
 ~Randy

@@ -1,82 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261497AbVFKA7V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261496AbVFKBHl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261497AbVFKA7V (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 10 Jun 2005 20:59:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbVFKA7V
+	id S261496AbVFKBHl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 10 Jun 2005 21:07:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261498AbVFKBHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 10 Jun 2005 20:59:21 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:28645 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261497AbVFKA7M (ORCPT
+	Fri, 10 Jun 2005 21:07:41 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:22659 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261496AbVFKBHd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 10 Jun 2005 20:59:12 -0400
-Date: Fri, 10 Jun 2005 17:59:35 -0700
+	Fri, 10 Jun 2005 21:07:33 -0400
+Date: Fri, 10 Jun 2005 18:07:55 -0700
 From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Eric Piel <Eric.Piel@lifl.fr>
-Cc: Chris Friesen <cfriesen@nortel.com>, linux-kernel@vger.kernel.org,
-       bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de, karim@opersys.com,
-       mingo@elte.hu, pmarques@grupopie.com, bruce@andrew.cmu.edu,
-       nickpiggin@yahoo.com.au, ak@muc.de, sdietrich@mvista.com,
-       dwalker@mvista.com, hch@infradead.org, akpm@osdl.org
+To: Bill Huey <bhuey@lnxw.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, Andrea Arcangeli <andrea@suse.de>,
+       Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de, karim@opersys.com, mingo@elte.hu,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org
 Subject: Re: Attempted summary of "RT patch acceptance" thread
-Message-ID: <20050611005934.GM1300@us.ibm.com>
+Message-ID: <20050611010755.GN1300@us.ibm.com>
 Reply-To: paulmck@us.ibm.com
-References: <20050608022646.GA3158@us.ibm.com> <42A73D15.6080201@nortel.com> <20050608192853.GE1295@us.ibm.com> <42AA133D.1050102@lifl.fr> <20050610230433.GI1300@us.ibm.com> <42AA20F6.9030606@lifl.fr>
+References: <20050608022646.GA3158@us.ibm.com> <42A8D1F3.8070408@am.sony.com> <20050609235026.GE1297@us.ibm.com> <1118372388.32270.6.camel@mindpipe> <20050610154745.GA1300@us.ibm.com> <20050610173728.GA6564@g5.random> <1118436338.6423.48.camel@mindpipe> <20050610231647.GK1300@us.ibm.com> <20050610232628.GA23512@nietzsche.lynx.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <42AA20F6.9030606@lifl.fr>
+In-Reply-To: <20050610232628.GA23512@nietzsche.lynx.com>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 11, 2005 at 01:23:34AM +0200, Eric Piel wrote:
-> 06/11/2005 01:04 AM, Paul E. McKenney wrote/a écrit:
-> >>Just a small change to "1 - QoS":
-> >>
-> >>
-> >>>b.	For each service:
-> >>>
-> >>>	i.	Probability of missing a deadline due to software,
-> >>>		ranging from 0 to 1, with the value of 1 corresponding
-> >>>		to the hardest possible hard realtime.
-> >>
-> >>I think it should be (by reference to how you define probability at the 
-> >>beginning of the section):
-> >>Probability of not missing any deadline due to software
-> >
-> >
-> >Good catch!  How about the following?
-> >
-> >	i.      Probability of meeting a deadline due to software,
-> >		ranging from 0 to 1, with the value of 1 corresponding
-> >		to the hardest possible hard realtime.
-> >
-> >Changing "missing" in the original to "meeting".
+On Fri, Jun 10, 2005 at 04:26:28PM -0700, Bill Huey wrote:
+> On Fri, Jun 10, 2005 at 04:16:47PM -0700, Paul E. McKenney wrote:
+> > Sounds like I need to add "antisocial hardware" to the list of
+> > things that need to be inspected to validate realtime latencies.
 > 
-> It sounds strange to me (but english is not my mother tongue), it's like 
-> hardware was not so good but software helped to recover the situation 
-> and, eventually, the deadline was met ;-)
+> And anti-social memory controllers (cough G5 Macs)
 
-Hmmm...  It would appear that English's being my mother tongue is not
-helping me as much as one might hope.  ;-)
+OK, the list now reads:
 
-> What about using the way you wrote it at the beginning of the section:
-> "Probability of missing a deadline only because of a hardware failure"
+	Each of the following categories of code might need to be
+	inspected:
 
-Good point, I may just need to invert the whole thing, so that it
-becomes something like:
+	a.	The low-level interrupt-handing code.
 
-	i.	Probability of missing a deadline due to software,
-		ranging from 0 to 1, with the value of 0 corresponding
-		to the hardest possible hard realtime.
+	b.	The realtime process scheduler.
 
-But then the "p^n" becomes "1-(1-p)^n".  Bleah.
+	c.	Any code that disables interrupts.
 
-OK, how about the following?
+	d.	Any code that disables preemption.
 
-	i.	Probability of meeting a deadline in absence of hardware
-		failure, ranging from 0 to 1, with the value of 1
-		corresponding to the hardest possible hard realtime.
+	e.	Any code that holds a lock, mutex, semaphore, or other
+		resource that is needed by the code implementing your
+		new feature.
 
-							Thanx, Paul
+	f.	Any code that manipulates hardware that can stall the
+		bus, delay interrupts, or otherwise interfere with
+		forward progress.  Note that it is also necessary to
+		inspect user-level code that directly manipulates such
+		hardware.
+
+I added point "f".  Does that cover it?
+
+						Thanx, Paul

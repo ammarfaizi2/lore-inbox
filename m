@@ -1,53 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbVFLI2I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261914AbVFLIec@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261892AbVFLI2I (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 04:28:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbVFLI2I
+	id S261914AbVFLIec (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 04:34:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261915AbVFLIeb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 04:28:08 -0400
-Received: from vms044pub.verizon.net ([206.46.252.44]:34547 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261892AbVFLI2E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 04:28:04 -0400
-Date: Sun, 12 Jun 2005 04:28:02 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: [PATCH4/4] Synchronize patch for documentation
-In-reply-to: <42ABC011.1030307@brturbo.com.br>
-To: linux-kernel@vger.kernel.org
-Message-id: <200506120428.03124.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <42ABC011.1030307@brturbo.com.br>
-User-Agent: KMail/1.7
+	Sun, 12 Jun 2005 04:34:31 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:24844 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261914AbVFLIe2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 04:34:28 -0400
+Date: Sun, 12 Jun 2005 10:34:09 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: davem@davemloft.net, xschmi00@stud.feec.vutbr.cz, alastair@unixtrix.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] fix small DoS on connect() (was Re: BUG: Unusual TCP Connect() results.)
+Message-ID: <20050612083409.GA8220@alpha.home.local>
+References: <20050611074350.GD28759@alpha.home.local> <E1DhBic-0005dp-00@gondolin.me.apana.org.au> <20050611195144.GF28759@alpha.home.local> <20050612081327.GA24384@gondor.apana.org.au>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050612081327.GA24384@gondor.apana.org.au>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 12 June 2005 00:54, Mauro Carvalho Chehab wrote:
->Syncronizing V4L documentation and including V4L2 API.
->
->Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
->Signed-off-by: Michael Krufky <mkrufky@m1k.net>
->Signed-off-by: cybercide@f2s.com <cybercide@f2s.com>
->Signed-off-by: Catalin Climov <catalin@climov.com>
->Signed-off-by: Nickolay V Shmyrev <nshmyrev@yandex.ru>
->Signed-off-by: Fabrice Aeschbacher <fabrice.aeschbacher@laposte.net>
->Signed-off-by: Hermann Pitton <hermann.pitton@onlinehome.de>
->Signed-off-by: Fred Gleason <fredg@wava.com>
->Signed-off-by: Bill Dirks <bdirks@pacbell.net>
->Signed-off-by: Michael H. Schimek <mschimek@gmx.at>
->Signed-off-by: *Justin Schoeman*
+On Sun, Jun 12, 2005 at 06:13:27PM +1000, Herbert Xu wrote:
+> On Sat, Jun 11, 2005 at 09:51:44PM +0200, Willy Tarreau wrote:
+> > 
+> > Please note that if I only called it "small DoS", it's clearly because
+> > I don't consider this critical, but I think that most people involved
+> > in security will find that DoSes based on port guessing should be
+> > addressed when possible.
+> 
+> Sorry but this patch is pointless.  If I wanted to prevent you from
+> connecting to www.kernel.org 80 and I knew your source port number
+> I'd be directly sending you fake SYN-ACK packets which will kill
+> your connection immediately.
 
-This patch never got attached.
+Only if your ACK was within my SEQ window, which adds about 20 bits of
+random when my initial window is 5840. You would then need to send one
+million times more packets to achieve the same goal.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+> If you want reliability and security you really should be using IPsec.
+> There is no other way.
+
+I agree with you on the fact that people who need security must use
+secure protocols. I had the same words last year when people discovered
+that a TCP RST could kill a BGP session, and the end of the internet was
+announced. Hey, if someone needs secure BGP, he must use MD5 sums from
+the start.
+
+I'm not meaning to make TCP as secure as IPsec, but I think that when
+supporting a feature (simultaneous connect) that nobody uses and many
+OSes do not even support introduces a weakness, we could at least make
+it optional. It could also rely on a #if CONFIG_TCP_SIMULT which will
+slightly reduce kernel size for people who know they don't want it.
+
+Cheers,
+Willy
+

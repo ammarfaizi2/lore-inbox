@@ -1,65 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVFLUaR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVFLUgj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261151AbVFLUaR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 16:30:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVFLUaQ
+	id S261210AbVFLUgj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 16:36:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVFLUgj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 16:30:16 -0400
-Received: from wproxy.gmail.com ([64.233.184.202]:65510 "EHLO wproxy.gmail.com")
-	by vger.kernel.org with ESMTP id S261151AbVFLUaK convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 16:30:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NVRrsEum7+8mSrwFCTAgKObLCv5JbLyGsZxLZg/3VN2c/u5pzVqoRdgK//IJ2118XC76GgJfJdf9F+/SNtcsc9iCb8LJrK9bV/512ZOiu9Pw2iiSu+jr6bhJBr0OxlsYt07LX5A16PkFdh2Ev00R2fkdApCREZ4k9mliX8D0fKY=
-Message-ID: <9e473391050612133036fe2902@mail.gmail.com>
-Date: Sun, 12 Jun 2005 16:30:09 -0400
-From: Jon Smirl <jonsmirl@gmail.com>
-Reply-To: Jon Smirl <jonsmirl@gmail.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: MMC ioctl or sysfs interface?
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>, Chris Wedgwood <cw@f00f.org>,
-       LKML <linux-kernel@vger.kernel.org>,
-       Russell King <rmk+lkml@arm.linux.org.uk>
-In-Reply-To: <1118600720.9949.99.camel@localhost.localdomain>
+	Sun, 12 Jun 2005 16:36:39 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:32739 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S261210AbVFLUgh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 16:36:37 -0400
+Date: Sun, 12 Jun 2005 13:36:59 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
+       bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de, mingo@elte.hu,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org
+Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
+Message-ID: <20050612203659.GA1340@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <42AA6A6B.5040907@opersys.com> <20050611201422.GA1299@us.ibm.com> <42AB66D1.20205@opersys.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <42A83F59.7090509@drzeus.cx>
-	 <101040.57feb9cd101d268ffd2ffe2d314867d3.ANY@taniwha.stupidest.org>
-	 <42A9FF79.1010003@drzeus.cx>
-	 <1118444435.5213.72.camel@localhost.localdomain>
-	 <42AC7BD4.9040906@drzeus.cx>
-	 <1118600720.9949.99.camel@localhost.localdomain>
+In-Reply-To: <42AB66D1.20205@opersys.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 6/12/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> On Sul, 2005-06-12 at 19:15, Pierre Ossman wrote:
-> > Alan Cox wrote:
-> > I wasn't aware that you could do ioctl on sysfs nodes. I guess I'll have
-> > to dig a bit deeper in the documentation/code.
+On Sat, Jun 11, 2005 at 06:33:53PM -0400, Karim Yaghmour wrote:
 > 
-> You can add support, but you'll need a device node one day anyway so you
-> might as well give up on the sysfs only game - it doesn't IMHO work.
+> Paul E. McKenney wrote:
+> > My guess is that there will end up being more than one benchmark, given
+> > the large variety of RT apps out there, but who knows?
+> 
+> I don't doubt. We just wanted to get people's attention to such aspects.
+> We believe that the framework we've built is general enough that others
+> will find it simple to graft their own tests on top and otherwise extend
+> it to their needs.
+> 
+> In any case, having more serious benchmarks published will certainly do
+> no harm.
 
-I have a sysfs interface for fbdev in the kernel -
-/sys/class/graphics/fb0/*  It is working well for me and it's the only
-interface EGL uses to access fbdev. It's all controllable with strings
-that can be scripted if you want. If you play with it some of the
-attributes are broken, there are fixes for them in the pipeline.
+Sounds good, agreed!
 
-I also have DRM loaded for the same hardware. I'd have to think about
-it for a while to see if DRM could go sysfs only. I'm using DRM to map
-the framebuffer instead of fbdev.
-
-One big difference is that a device node can carry session state. If
-you open the device the file handle can track things belonging to the
-session. With sysfs sessions are more of a mess. fbdev works cleanly
-because there is no session state.
-
--- 
-Jon Smirl
-jonsmirl@gmail.com
+						Thanx, Paul

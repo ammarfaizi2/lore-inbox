@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261553AbVFLIOJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261892AbVFLI2I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261553AbVFLIOJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 04:14:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261892AbVFLIOJ
+	id S261892AbVFLI2I (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 04:28:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261910AbVFLI2I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 04:14:09 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:46597 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261553AbVFLIOG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 04:14:06 -0400
-Date: Sun, 12 Jun 2005 18:13:27 +1000
-To: Willy Tarreau <willy@w.ods.org>
-Cc: davem@davemloft.net, xschmi00@stud.feec.vutbr.cz, alastair@unixtrix.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] fix small DoS on connect() (was Re: BUG: Unusual TCP Connect() results.)
-Message-ID: <20050612081327.GA24384@gondor.apana.org.au>
-References: <20050611074350.GD28759@alpha.home.local> <E1DhBic-0005dp-00@gondolin.me.apana.org.au> <20050611195144.GF28759@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050611195144.GF28759@alpha.home.local>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Sun, 12 Jun 2005 04:28:08 -0400
+Received: from vms044pub.verizon.net ([206.46.252.44]:34547 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261892AbVFLI2E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 04:28:04 -0400
+Date: Sun, 12 Jun 2005 04:28:02 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [PATCH4/4] Synchronize patch for documentation
+In-reply-to: <42ABC011.1030307@brturbo.com.br>
+To: linux-kernel@vger.kernel.org
+Message-id: <200506120428.03124.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <42ABC011.1030307@brturbo.com.br>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 11, 2005 at 09:51:44PM +0200, Willy Tarreau wrote:
-> 
-> Please note that if I only called it "small DoS", it's clearly because
-> I don't consider this critical, but I think that most people involved
-> in security will find that DoSes based on port guessing should be
-> addressed when possible.
+On Sunday 12 June 2005 00:54, Mauro Carvalho Chehab wrote:
+>Syncronizing V4L documentation and including V4L2 API.
+>
+>Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+>Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+>Signed-off-by: cybercide@f2s.com <cybercide@f2s.com>
+>Signed-off-by: Catalin Climov <catalin@climov.com>
+>Signed-off-by: Nickolay V Shmyrev <nshmyrev@yandex.ru>
+>Signed-off-by: Fabrice Aeschbacher <fabrice.aeschbacher@laposte.net>
+>Signed-off-by: Hermann Pitton <hermann.pitton@onlinehome.de>
+>Signed-off-by: Fred Gleason <fredg@wava.com>
+>Signed-off-by: Bill Dirks <bdirks@pacbell.net>
+>Signed-off-by: Michael H. Schimek <mschimek@gmx.at>
+>Signed-off-by: *Justin Schoeman*
 
-Sorry but this patch is pointless.  If I wanted to prevent you from
-connecting to www.kernel.org 80 and I knew your source port number
-I'd be directly sending you fake SYN-ACK packets which will kill
-your connection immediately.
+This patch never got attached.
 
-If you want reliability and security you really should be using IPsec.
-There is no other way.
-
-Cheers,
 -- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

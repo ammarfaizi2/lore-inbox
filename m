@@ -1,67 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262598AbVFLOZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261896AbVFLOoI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262598AbVFLOZM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 10:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262612AbVFLOYc
+	id S261896AbVFLOoI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 10:44:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbVFLOoI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 10:24:32 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:38668 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262598AbVFLOYU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 10:24:20 -0400
-Date: Sun, 12 Jun 2005 16:24:01 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: davem@davemloft.net, xschmi00@stud.feec.vutbr.cz, alastair@unixtrix.com,
+	Sun, 12 Jun 2005 10:44:08 -0400
+Received: from postel.suug.ch ([195.134.158.23]:55494 "EHLO postel.suug.ch")
+	by vger.kernel.org with ESMTP id S261896AbVFLOoF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 10:44:05 -0400
+Date: Sun, 12 Jun 2005 16:44:26 +0200
+From: Thomas Graf <tgraf@suug.ch>
+To: Willy Tarreau <willy@w.ods.org>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
+       xschmi00@stud.feec.vutbr.cz, alastair@unixtrix.com,
        linux-kernel@vger.kernel.org, netdev@oss.sgi.com
 Subject: Re: [PATCH] fix small DoS on connect() (was Re: BUG: Unusual TCP Connect() results.)
-Message-ID: <20050612142401.GA10772@alpha.home.local>
-References: <20050612081327.GA24384@gondor.apana.org.au> <20050612083409.GA8220@alpha.home.local> <20050612103020.GA25111@gondor.apana.org.au> <20050612114039.GI28759@alpha.home.local> <20050612120627.GA5858@gondor.apana.org.au> <20050612123253.GK28759@alpha.home.local> <20050612131323.GA10188@gondor.apana.org.au> <20050612133349.GA6279@gondor.apana.org.au> <20050612134725.GB8951@alpha.home.local> <20050612135018.GA10910@gondor.apana.org.au>
+Message-ID: <20050612144426.GC22463@postel.suug.ch>
+References: <E1DhBic-0005dp-00@gondolin.me.apana.org.au> <20050611195144.GF28759@alpha.home.local> <20050612081327.GA24384@gondor.apana.org.au> <20050612083409.GA8220@alpha.home.local> <20050612103020.GA25111@gondor.apana.org.au> <20050612114039.GI28759@alpha.home.local> <20050612120627.GA5858@gondor.apana.org.au> <20050612123253.GK28759@alpha.home.local> <20050612131323.GA10188@gondor.apana.org.au> <20050612133654.GA8951@alpha.home.local>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050612135018.GA10910@gondor.apana.org.au>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20050612133654.GA8951@alpha.home.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 12, 2005 at 11:50:18PM +1000, Herbert Xu wrote:
-> On Sun, Jun 12, 2005 at 03:47:25PM +0200, Willy Tarreau wrote:
-> > 
-> > Yes, but only if there's an ACK and the ACK is exactly equal to snd_next,
-> > so the connection will survive.
+* Willy Tarreau <20050612133654.GA8951@alpha.home.local> 2005-06-12 15:36
+> > The RST packet is sent by client A using its sequence numbers.  Therefore
+> > it will pass the sequence number check on server B.
+> >
+> > 4) server B resets the connection.
 > 
-> Sorry I wasn't thinking straight.
-> 
-> > 
-> > > My point is that there are many ways to kill TCP connections in ways
-> > > similar to what you proposed initially so it isn't that special.
-> > 
-> > No, there are plenty of ways to kill TCP connections when you can guess
-> > the window (which is more and more easy thanks to window scaling). But
-> > I have yet found no way to kill a TCP session without this info, except
-> > by exploiting the simultaneous connect feature.
-> 
-> I still stand by this point though.  The most obvious thing I can think
-> of right now is to change your attack to simply connect to kernel.org's
-> webserver first from source port 10000.  That will cause the real SYN
-> packet to fail the sequence number check.
+> No, precisely the RST sent by A will take its SEQ from C's ACK number.
+> This is why B will *not* reset the connection (again, tested) if C's ACK
+> was not within B's window.
 
-This case is interesting, but it will be resolved in two possible ways :
-1) no firewall in front of A
-  - C spoofs A and sends a fake SYN to B
-  - B responds to A with a SYN-ACK
-  - A sends an RST to B, which clears the session
-  - A wants to connect and sends its SYN to B which accepts it.
+Absolutely but it relies on the other stack being correctly implemented.
+The attack would work perfectly fine if there wasn't the rule that a RST
+must not be sent in response to another RST. The attack has been
+successful and still is because some firewalls are configured to send
+RSTs without respecting this rule.
 
-2) A behind a firewall
-  - C spoofs A and sends a fake SYN to B
-  - B responds to A with a SYN-ACK, which does not reach A (firewall, etc...)
-  - A tries to connect to B and sends its SYN with a different SEQ
-  - B responds to A with only an ACK (no SYN) indicating the expected SEQ.
-  - A responds to B's ACK with an RST and B flushes its session too.
-  - A resends its SYN to B which accepts it.
- 
-Cheers,
-Willy
-
+I like your patch and the idea behind it, it can successfully defeat the
+most simple method of preventing connections being established.

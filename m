@@ -1,59 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbVFLAZj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbVFLA1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261862AbVFLAZj (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 20:25:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVFLAZj
+	id S261863AbVFLA1y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 20:27:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbVFLA1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 20:25:39 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:34041 "EHLO
-	av.mvista.com") by vger.kernel.org with ESMTP id S261862AbVFLAZa
+	Sat, 11 Jun 2005 20:27:54 -0400
+Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:26552
+	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S261863AbVFLA1g
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 20:25:30 -0400
+	Sat, 11 Jun 2005 20:27:36 -0400
 Subject: Re: [PATCH] local_irq_disable removal
-From: Sven-Thorsten Dietrich <sdietrich@mvista.com>
-To: tglx@linutronix.de
-Cc: Daniel Walker <dwalker@mvista.com>, Esben Nielsen <simlo@phys.au.dk>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-In-Reply-To: <1118535737.13312.120.camel@tglx.tec.linutronix.de>
-References: <Pine.LNX.4.10.10506110930050.27294-100000@godzilla.mvista.com>
-	 <1118510817.13312.88.camel@tglx.tec.linutronix.de>
-	 <1118515236.9519.92.camel@sdietrich-xp.vilm.net>
-	 <1118534842.13312.111.camel@tglx.tec.linutronix.de>
-	 <1118535360.5593.180.camel@sdietrich-xp.vilm.net>
-	 <1118535737.13312.120.camel@tglx.tec.linutronix.de>
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Sven-Thorsten Dietrich <sdietrich@mvista.com>
+Cc: Daniel Walker <dwalker@mvista.com>, Ingo Molnar <mingo@elte.hu>,
+       Esben Nielsen <simlo@phys.au.dk>, linux-kernel@vger.kernel.org
+In-Reply-To: <1118534993.5593.175.camel@sdietrich-xp.vilm.net>
+References: <Pine.LNX.4.44.0506111345400.12084-100000@dhcp153.mvista.com>
+	 <1118533485.13312.91.camel@tglx.tec.linutronix.de>
+	 <1118534993.5593.175.camel@sdietrich-xp.vilm.net>
 Content-Type: text/plain
-Date: Sat, 11 Jun 2005 17:24:14 -0700
-Message-Id: <1118535855.5593.186.camel@sdietrich-xp.vilm.net>
+Organization: linutronix
+Date: Sun, 12 Jun 2005 02:28:39 +0200
+Message-Id: <1118536119.13312.129.camel@tglx.tec.linutronix.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+X-Mailer: Evolution 2.2.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2005-06-12 at 02:22 +0200, Thomas Gleixner wrote:
-> On Sat, 2005-06-11 at 17:15 -0700, Sven-Thorsten Dietrich wrote:
-> > On Sun, 2005-06-12 at 02:07 +0200, Thomas Gleixner wrote:
-> > > > 
-> > > > This is too complex to argue about here.
-> > > 
-> > > Whats too complex? Are you asserting that other people e.g. me, are too
-> > > dumb to understand that ?
-> > > 
-> > 
-> > No, I said HERE, not FOR YOU. 
+On Sat, 2005-06-11 at 17:09 -0700, Sven-Thorsten Dietrich wrote:
+> Even if there is a case of minimal expansion in the overhead on some
+> architecture, it may justify the effort for a certain class of
+> applications which require known interrupt response latencies.
+
+Nobody denied that. I'm just cautious about arguments which count
+instruction cylces on a given CPU.
+
+> The concept model here is, that you will have all interrupts running in
+> threads, EXCEPT one or more SA_NODELAY real-time IRQs. Those RT-IRQs may
+> be required to track satellites, manage I/O for a QOS or RF protocol
+> stack, shut down a SAW, or a variety of RT-related services.
 > 
-> So where do you suggest to discuss this ?
+> The IRQ-disable-removal allows that the RT-IRQ encounters minimal
+> delay. 
+> 
+> Often, that IRQ will also wake up a process, and that process may have
+> some response-time constraints on it, as well.
+> 
+> SO that's one model that is helped by this design.
 
-Thomas,
+No problem with that. I have done this already and know about the pro
+and cons. 
 
-I think this is intense high-performance scheduling theory, that is
-beyond the scope of what people need to have in their mailbox.
+As I pointed out before, speed is not always the measure.
 
-We can use ext-rt-dev@mvista.com if everyone agrees.
+The point is configurability of features, but OTH you _cannot_ implement
+a CONFIG option for each particular spinlock. You have to come down to a
+certain set of config options by experimentation or by analysing ofcode
+paths. Lot of work to be done though.
 
-Its a public subscription list, let me know, and I'll dig up the
-subscribe info.
+tglx
 
-Sven
+
 
 

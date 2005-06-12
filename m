@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261928AbVFLJaO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVFLJbU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261928AbVFLJaO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 05:30:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbVFLJ16
+	id S261929AbVFLJbU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 05:31:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbVFLJae
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 05:27:58 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:146 "EHLO
+	Sun, 12 Jun 2005 05:30:34 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:2194 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261923AbVFLJ1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 05:27:46 -0400
-Date: Sun, 12 Jun 2005 10:27:37 +0100
+	id S261923AbVFLJ25 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 05:28:57 -0400
+Date: Sun, 12 Jun 2005 10:28:56 +0100
 From: Christoph Hellwig <hch@infradead.org>
-To: Geert Uytterhoeven <geert@linux-m68k.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Ian Molton <spyro@f2s.com>, Russell King <rmk@arm.linux.org.uk>,
-       Christoph Hellwig <hch@infradead.org>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-arm-kernel@lists.arm.linux.org.uk
-Subject: Re: [PATCH] Remove obsolete HAVE_ARCH_GET_SIGNAL_TO_DELIVER?
-Message-ID: <20050612092737.GA1206@infradead.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Christoph Hellwig <hch@infradead.org>, Daniel Walker <dwalker@mvista.com>,
+       linux-kernel@vger.kernel.org, sdietrich@mvista.com
+Subject: Re: [PATCH] local_irq_disable removal
+Message-ID: <20050612092856.GB1206@infradead.org>
 Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-	Ian Molton <spyro@f2s.com>, Russell King <rmk@arm.linux.org.uk>,
-	Linux Kernel Development <linux-kernel@vger.kernel.org>,
-	linux-arm-kernel@lists.arm.linux.org.uk
-References: <Pine.LNX.4.62.0506121051360.29300@anakin>
+	Ingo Molnar <mingo@elte.hu>, Daniel Walker <dwalker@mvista.com>,
+	linux-kernel@vger.kernel.org, sdietrich@mvista.com
+References: <1118214519.4759.17.camel@dhcp153.mvista.com> <20050611165115.GA1012@infradead.org> <20050612062350.GB4554@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.62.0506121051360.29300@anakin>
+In-Reply-To: <20050612062350.GB4554@elte.hu>
 User-Agent: Mutt/1.4.1i
 X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
 	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 12, 2005 at 10:56:26AM +0200, Geert Uytterhoeven wrote:
+On Sun, Jun 12, 2005 at 08:23:50AM +0200, Ingo Molnar wrote:
 > 
-> Now m68k no longer sets HAVE_ARCH_GET_SIGNAL_TO_DELIVER, can it be removed
-> completely? Or may ARM26 still need it? Note that its usage was removed from
-> kernel/signal.c about 2 months ago.
+> * Christoph Hellwig <hch@infradead.org> wrote:
+> 
+> > folks, can you please take this RT stuff of lkml?  And with that I
+> > don't mean the highlevel discussions what makes sense, but specific
+> > patches that aren't related to anything near mainline. [...]
+> 
+> this is a misconception - there's been a few dozen patches steadily 
+> trickling into mainline that were all started in the PREEMPT_RT 
+> patchset, so this "RT stuff", both the generic arguments and the details 
+> are very much relevant. I wouldnt be doing it if it wasnt relevant to 
+> the mainline kernel. The discussions are well concentrated into 2-3 
+> subjects so you can plonk those threads if you are not interested.
 
-oops, I missed the signal.h occurange.  arm26 should definitly not use it,
-duplicating that much of the signal code is always a bad idea.
+Then send patches when you think they're ready.  Everything directly
+related to PREEPT_RT except the highlevel discussion is defintly offotpic.
+Just create your preempt-rt mailinglist and get interested parties there,
+lkml is for _general_ kernel discussion - even most subsystems that are
+in mainline have their own lists.
 

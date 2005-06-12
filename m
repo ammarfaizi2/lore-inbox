@@ -1,65 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261925AbVFLJZ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261927AbVFLJ1s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261925AbVFLJZ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 05:25:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbVFLJZ5
+	id S261927AbVFLJ1s (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 05:27:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbVFLJ10
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 05:25:57 -0400
-Received: from amsfep13-int.chello.nl ([213.46.243.23]:38178 "EHLO
-	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261921AbVFLJZq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 05:25:46 -0400
-Date: Sun, 12 Jun 2005 11:25:42 +0200
-Message-Id: <200506120925.j5C9Pgnm004328@anakin.of.borg>
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       James.Bottomley@SteelEye.com
-Cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>
-Subject: [PATCH 550] M68k: Mark Sun-3 NCR5380 SCSI broken
+	Sun, 12 Jun 2005 05:27:26 -0400
+Received: from web33308.mail.mud.yahoo.com ([68.142.206.123]:30134 "HELO
+	web33308.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S261923AbVFLJZw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 05:25:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=mVcFcJjFgi75lTkEqxSg95uqbIoR47KJZtztVN5ILrwCbScF0H+oYkBs7VVP8ERXnCeHk0OIaP9Y+D7bhWPuIPYdE8sOLybPPc+g2WhyRaYMjI76ZH2CvYh414q8zoRfgc4ZYAIM3tcW5bmfoZXsTuxWPNCKxgQsEHFQAPaF69k=  ;
+Message-ID: <20050612092544.25913.qmail@web33308.mail.mud.yahoo.com>
+Date: Sun, 12 Jun 2005 02:25:44 -0700 (PDT)
+From: li nux <lnxluv@yahoo.com>
+Subject: Re: 2.6: problem with module tainting the kernel
+To: randy_dunlap <rdunlap@xenotime.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050610201812.037b6a01.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-M68k: Mark Sun-3 NCR5380 SCSI broken until NCR5380_abort() and
-NCR5380_bus_reset() are replaced with real new-style EH routines (the old EH
-SCSI constants were removed in 2.6.12-rc3).
+Thanks to Randy and everyone who replied.
+Yes, I am using SuSE kernel.
+On building the module it successfully generates
+hello.ko.
+Here is the message I get on doing a insmod of
+hello.ko:
 
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+"Jun 12 14:47:56 myhost kernel: hello: unsupported
+module, tainting kernel."
 
----
- arch/m68k/configs/sun3_defconfig |    1 -
- drivers/scsi/Kconfig             |    2 +-
- 2 files changed, 1 insertion(+), 2 deletions(-)
+Here is the code
 
---- linux-2.6.12-rc6/arch/m68k/configs/sun3_defconfig	2005-04-21 07:39:24.000000000 +0200
-+++ linux-m68k-2.6.12-rc6/arch/m68k/configs/sun3_defconfig	2005-06-07 20:35:02.000000000 +0200
-@@ -171,7 +171,6 @@ CONFIG_SCSI_CONSTANTS=y
- #
- # CONFIG_SCSI_SATA is not set
- # CONFIG_SCSI_DEBUG is not set
--CONFIG_SUN3_SCSI=y
- 
- #
- # Multi-device support (RAID and LVM)
---- linux-2.6.12-rc6/drivers/scsi/Kconfig	2005-05-07 10:56:52.000000000 +0200
-+++ linux-m68k-2.6.12-rc6/drivers/scsi/Kconfig	2005-05-07 16:33:02.000000000 +0200
-@@ -1752,7 +1752,7 @@ config SCSI_NCR53C7xx_FAST
- 
- config SUN3_SCSI
- 	tristate "Sun3 NCR5380 SCSI"
--	depends on SUN3 && SCSI
-+	depends on SUN3 && SCSI && BROKEN
- 	help
- 	  This option will enable support for the OBIO (onboard io) NCR5380
- 	  SCSI controller found in the Sun 3/50 and 3/60, as well as for
+#include <linux/kernel.h>
+#include <linux/module.h>
+#include <linux/init.h>
+#include <linux/version.h>
+#include <linux/vermagic.h>
 
-Gr{oetje,eeting}s,
+static int __init hello_init (void)
+{
+        printk("module hello loading");
+        return 0;
+}
 
-						Geert
+static void __exit hello_exit (void)
+{
+        printk("module hello exiting");
+}
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+module_init(hello_init);
+module_exit(hello_exit);
+MODULE_LICENSE ("GPL");
 
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+--- randy_dunlap <rdunlap@xenotime.net> wrote:
+
+> On Fri, 10 Jun 2005 08:24:50 -0700 (PDT) li nux
+> wrote:
+> 
+> | In 2.6 kernels how to assure that on inserting our
+> own
+> | module, it doesn't throw the warning:
+> | 
+> | "unsupported module, tainting kernel"
+> 
+> That string is not in the kernel source code that I
+> can see.
+> Be more precise, please.
+> 
+> 
+> | what tainting depends on apart from the license
+> string ?
+> 
+> load:
+> 
+> - CONFIG_MODVERSIONS is set but some symbol does not
+> have
+>   version info
+> 
+> - a license that is not GPL-compatible
+> 
+> - no version magic info for the module
+> 
+> unload:
+> 
+> - forcefully unloading a module
+> 
+> ---
+> ~Randy
+> 
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

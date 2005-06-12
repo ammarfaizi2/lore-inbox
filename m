@@ -1,291 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261899AbVFLGYy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVFLGbJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261899AbVFLGYy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 02:24:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261835AbVFLGYg
+	id S261165AbVFLGbJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 02:31:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbVFLGaO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 02:24:36 -0400
-Received: from smtp3.brturbo.com.br ([200.199.201.164]:44929 "EHLO
-	smtp3.brturbo.com.br") by vger.kernel.org with ESMTP
-	id S261881AbVFLFNx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 01:13:53 -0400
-Message-ID: <42ABC49E.8020303@brturbo.com.br>
-Date: Sun, 12 Jun 2005 02:14:06 -0300
-From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
-X-Accept-Language: pt-br, pt, es, en-us, en
+	Sun, 12 Jun 2005 02:30:14 -0400
+Received: from loopy.telegraphics.com.au ([202.45.126.152]:57774 "EHLO
+	loopy.telegraphics.com.au") by vger.kernel.org with ESMTP
+	id S261165AbVFLGFe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 02:05:34 -0400
+Date: Sun, 12 Jun 2005 16:05:30 +1000 (EST)
+From: Finn Thain <fthain@telegraphics.com.au>
+To: Ralf Baechle <ralf@linux-mips.org>
+Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Jeff Garzik <jgarzik@pobox.com>,
+       Linux/m68k <linux-m68k@vger.kernel.org>,
+       Linux/m68k on Mac <linux-mac68k@mac.linux-m68k.org>,
+       Linux MIPS <linux-mips@vger.kernel.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: Re: [PATCH] Jazzsonic driver updates
+In-Reply-To: <20050323100139.GB8813@linux-mips.org>
+Message-ID: <Pine.LNX.4.61.0506121454410.1470@loopy.telegraphics.com.au>
+References: <200503070210.j272ARii023023@hera.kernel.org>
+ <Pine.LNX.4.62.0503221807160.20753@numbat.sonytel.be> <20050323100139.GB8813@linux-mips.org>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>,
-       Linux and Kernel Video <video4linux-list@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: [patch5/5] BTTV corrections
-X-Enigmail-Version: 0.91.0.0
-Content-Type: multipart/mixed;
- boundary="------------010200010907000003090703"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------010200010907000003090703
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
-
-Corrects RTV24 support.
-
-Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
-Signed-off-by: Michael Henson <mhenson@clarityvi.com>
-Signed-off-by: Nickolay V Shmyrev <nshmyrev@yandex.ru>
 
 
---------------010200010907000003090703
-Content-Type: text/x-patch;
- name="patch05.patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch05.patch"
+On Wed, 23 Mar 2005, Ralf Baechle wrote:
 
-diff -u linux-2.6.12/drivers/media/video/bttv.h linux/drivers/media/video/bttv.h
---- linux-2.6.12/drivers/media/video/bttv.h	2005-06-07 15:39:55.000000000 -0300
-+++ linux/drivers/media/video/bttv.h	2005-06-12 02:04:02.000000000 -0300
-@@ -1,5 +1,5 @@
- /*
-- * $Id: bttv.h,v 1.17 2005/02/22 14:06:32 kraxel Exp $
-+ * $Id: bttv.h,v 1.18 2005/05/24 23:41:42 nsh Exp $
-  *
-  *  bttv - Bt848 frame grabber driver
-  *
-@@ -135,7 +135,7 @@
- #define BTTV_DVICO_DVBT_LITE  0x80
- #define BTTV_TIBET_CS16  0x83
- #define BTTV_KODICOM_4400R  0x84
--#define BTTV_ADLINK_RTV24   0x86
-+#define BTTV_ADLINK_RTV24   0x85
- 
- /* i2c address list */
- #define I2C_TSA5522        0xc2
-diff -u linux-2.6.12/drivers/media/video/bttvp.h linux/drivers/media/video/bttvp.h
---- linux-2.6.12/drivers/media/video/bttvp.h	2005-06-07 15:38:09.000000000 -0300
-+++ linux/drivers/media/video/bttvp.h	2005-06-12 02:04:02.000000000 -0300
-@@ -229,6 +229,7 @@
- /* our devices */
- #define BTTV_MAX 16
- extern unsigned int bttv_num;
-+extern struct bttv bttvs[BTTV_MAX];
- 
- #define BTTV_MAX_FBUF   0x208000
- #define VBIBUF_SIZE     (2048*VBI_MAXLINES*2)
-@@ -375,7 +376,6 @@
- 	unsigned int users;
- 	struct bttv_fh init;
- };
--extern struct bttv bttvs[BTTV_MAX];
- 
- /* private ioctls */
- #define BTTV_VERSION            _IOR('v' , BASE_VIDIOCPRIVATE+6, int)
-diff -u linux-2.6.12/drivers/media/video/bttv-driver.c linux/drivers/media/video/bttv-driver.c
---- linux-2.6.12/drivers/media/video/bttv-driver.c	2005-06-07 15:38:09.000000000 -0300
-+++ linux/drivers/media/video/bttv-driver.c	2005-06-12 02:04:02.000000000 -0300
-@@ -1,5 +1,5 @@
- /*
--    $Id: bttv-driver.c,v 1.37 2005/02/21 13:57:59 kraxel Exp $
-+    $Id: bttv-driver.c,v 1.38 2005/06/10 17:20:24 mchehab Exp $
- 
-     bttv - Bt848 frame grabber driver
- 
-diff -u linux-2.6.12/drivers/media/video/bttv-cards.c linux/drivers/media/video/bttv-cards.c
---- linux-2.6.12/drivers/media/video/bttv-cards.c	2005-06-07 15:39:55.000000000 -0300
-+++ linux/drivers/media/video/bttv-cards.c	2005-06-12 02:04:02.000000000 -0300
-@@ -1,5 +1,5 @@
- /*
--    $Id: bttv-cards.c,v 1.47 2005/02/22 14:06:32 kraxel Exp $
-+    $Id: bttv-cards.c,v 1.49 2005/06/10 17:20:24 mchehab Exp $
- 
-     bttv-cards.c
- 
-@@ -2254,17 +2254,18 @@
- 	.muxsel_hook	= kodicom4400r_muxsel,
- },
- {
--	/* ---- card 0x86---------------------------------- */
--	/* Michael Henson <mhenson@clarityvi.com> */
--	/* Adlink RTV24 with special unlock codes */
--	.name           = "Adlink RTV24",
--	.video_inputs   = 4,
--	.audio_inputs   = 1,
--	.tuner          = 0,
--	.svhs           = 2,
--	.muxsel         = { 2, 3, 1, 0},
--	.tuner_type     = -1,
--	.pll            = PLL_28,
-+        /* ---- card 0x85---------------------------------- */
-+        /* Michael Henson <mhenson@clarityvi.com> */
-+        /* Adlink RTV24 with special unlock codes */
-+        .name           = "Adlink RTV24",
-+        .video_inputs   = 4,
-+        .audio_inputs   = 1,
-+        .tuner          = 0,
-+        .svhs           = 2,
-+        .muxsel         = { 2, 3, 1, 0},
-+        .tuner_type     = -1,
-+        .pll            = PLL_28,
-+ 
- }};
- 
- static const unsigned int bttv_num_tvcards = ARRAY_SIZE(bttv_tvcards);
-@@ -2650,6 +2651,10 @@
- 	case BTTV_AVDVBT_771:
- 		btv->use_i2c_hw = 1;
- 		break;
-+        case BTTV_ADLINK_RTV24:
-+                init_RTV24( btv );
-+                break;
-+
- 	}
- 	if (!bttv_tvcards[btv->c.type].has_dvb)
- 		bttv_reset_audio(btv);
-@@ -2762,9 +2767,6 @@
- 	case BTTV_KODICOM_4400R:
- 		kodicom4400r_init(btv);
- 		break;
--        case BTTV_ADLINK_RTV24:
--                init_RTV24(btv);
--                break;
- 	}
- 
- 	/* pll configuration */
-@@ -2801,6 +2803,8 @@
-         }
- 	btv->pll.pll_current = -1;
- 
-+	bttv_reset_audio(btv);
-+
- 	/* tuner configuration (from card list / autodetect / insmod option) */
-  	if (UNSET != bttv_tvcards[btv->c.type].tuner_type)
- 		if(UNSET == btv->tuner_type)
-@@ -3320,6 +3324,8 @@
- 	printk(KERN_INFO "PXC200 Initialised.\n");
- }
- 
-+
-+
- /* ----------------------------------------------------------------------- */
- /*
-  *  The Adlink RTV-24 (aka Angelo) has some special initialisation to unlock
-@@ -3348,49 +3354,54 @@
-  *                error. ERROR_CPLD_Check_Failed.
-  */
- /* ----------------------------------------------------------------------- */
--void init_RTV24(struct bttv *btv)
-+void
-+init_RTV24 (struct bttv *btv)
- {
--	u32 dataread;
--	const long watchdog_value = 0x0E;
-+	uint32_t dataRead = 0;
-+	long watchdog_value = 0x0E;
- 
--	printk(KERN_INFO "bttv%d: Adlink RTV-24 initialisation in progress\n",
-+	printk (KERN_INFO
-+		"bttv%d: Adlink RTV-24 initialisation in progress ...\n",
- 		btv->c.nr);
- 
--	btwrite(0x00c3feff, BT848_GPIO_OUT_EN);
-+	btwrite (0x00c3feff, BT848_GPIO_OUT_EN);
-+
-+	btwrite (0 + watchdog_value, BT848_GPIO_DATA);
-+	msleep (1);
-+	btwrite (0x10 + watchdog_value, BT848_GPIO_DATA);
-+	msleep (10);
-+	btwrite (0 + watchdog_value, BT848_GPIO_DATA);
-+
-+	dataRead = btread (BT848_GPIO_DATA);
-+
-+	if ((((dataRead >> 18) & 0x01) != 0) || (((dataRead >> 19) & 0x01) != 1)) {
-+		printk (KERN_INFO
-+			"bttv%d: Adlink RTV-24 initialisation(1) ERROR_CPLD_Check_Failed (read %d)\n",
-+			btv->c.nr, dataRead);
-+	}
-+
-+	btwrite (0x4400 + watchdog_value, BT848_GPIO_DATA);
-+	msleep (10);
-+	btwrite (0x4410 + watchdog_value, BT848_GPIO_DATA);
-+	msleep (1);
-+	btwrite (watchdog_value, BT848_GPIO_DATA);
-+	msleep (1);
-+	dataRead = btread (BT848_GPIO_DATA);
-+
-+	if ((((dataRead >> 18) & 0x01) != 0) || (((dataRead >> 19) & 0x01) != 0)) {
-+		printk (KERN_INFO
-+			"bttv%d: Adlink RTV-24 initialisation(2) ERROR_CPLD_Check_Failed (read %d)\n",
-+			btv->c.nr, dataRead);
- 
--	btwrite(0 + watchdog_value, BT848_GPIO_DATA);
--	msleep(1);
--	btwrite(0x10 + watchdog_value, BT848_GPIO_DATA);
--	msleep( 10 );
--	btwrite(0 + watchdog_value, BT848_GPIO_DATA);
--
--	dataread = btread(BT848_GPIO_DATA);
--
--	if (((dataread >> 18) & 0x01) != 0 || ((dataread >> 19) & 0x01) != 1) {
--		printk(KERN_INFO "bttv%d: Adlink RTV-24 initialisation(1) "
--				"ERROR_CPLD_Check_Failed (read %d)\n",
--				btv->c.nr, dataread);
--	}
--
--	btwrite(0x4400 + watchdog_value, BT848_GPIO_DATA);
--	msleep(10);
--	btwrite(0x4410 + watchdog_value, BT848_GPIO_DATA);
--	msleep(1);
--	btwrite(watchdog_value, BT848_GPIO_DATA);
--	msleep(1);
--	dataread = btread(BT848_GPIO_DATA);
--
--	if (((dataread >> 18) & 0x01) != 0 || ((dataread >> 19) & 0x01) != 0) {
--		printk(KERN_INFO "bttv%d: Adlink RTV-24 initialisation(2) "
--				"ERROR_CPLD_Check_Failed (read %d)\n",
--				btv->c.nr, dataread);
- 		return;
- 	}
- 
--	printk(KERN_INFO "bttv%d: Adlink RTV-24 initialisation complete.\n",
--			btv->c.nr);
-+	printk (KERN_INFO
-+		"bttv%d: Adlink RTV-24 initialisation complete.\n", btv->c.nr);
- }
- 
-+
-+
- /* ----------------------------------------------------------------------- */
- /* Miro Pro radio stuff -- the tea5757 is connected to some GPIO ports     */
- /*
-@@ -4079,7 +4090,7 @@
- 			       unsigned char yaddr,
- 			       unsigned char data) {
- 	unsigned int udata;
--
-+	
- 	udata = (data << 7) | ((yaddr&3) << 4) | (xaddr&0xf);
- 	gpio_bits(0x1ff, udata);		/* write ADDR and DAT */
- 	gpio_bits(0x1ff, udata | (1 << 8));	/* strobe high */
-@@ -4100,7 +4111,7 @@
- 	int xaddr, yaddr;
- 	struct bttv *mctlr;
- 	static unsigned char map[4] = {3, 0, 2, 1};
--
-+	
- 	mctlr = master[btv->c.nr];
- 	if (mctlr == NULL) {	/* ignore if master not yet detected */
- 		return;
-diff -u linux-2.6.12/drivers/media/video/bttv-i2c.c linux/drivers/media/video/bttv-i2c.c
---- linux-2.6.12/drivers/media/video/bttv-i2c.c	2005-06-07 15:38:09.000000000 -0300
-+++ linux/drivers/media/video/bttv-i2c.c	2005-06-12 02:04:02.000000000 -0300
-@@ -1,5 +1,5 @@
- /*
--    $Id: bttv-i2c.c,v 1.18 2005/02/16 12:14:10 kraxel Exp $
-+    $Id: bttv-i2c.c,v 1.21 2005/06/10 17:20:24 mchehab Exp $
- 
-     bttv-i2c.c  --  all the i2c code is here
- 
+> On Tue, Mar 22, 2005 at 06:13:17PM +0100, Geert Uytterhoeven wrote:
+> 
+> > On Fri, 28 Jan 2005, Linux Kernel Mailing List wrote:
+> > > ChangeSet 1.1986, 2005/01/28 00:12:28-05:00, ralf@linux-mips.org
+> > > 
+> > > 	[PATCH] Jazzsonic driver updates
+> > > 	
+> > > 	 o Resurrect the Jazz SONIC driver after years of it not having been tested
+> > > 	 o Convert from Space.c initialization to module_init / platform device.
+> > > 	
+> > > 	Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
+> > 
+> > > --- a/drivers/net/sonic.c	2005-03-06 18:10:39 -08:00
+> > > +++ b/drivers/net/sonic.c	2005-03-06 18:10:39 -08:00
+> > > @@ -116,7 +116,7 @@
+> > >  	/*
+> > >  	 * Map the packet data into the logical DMA address space
+> > >  	 */
+> > > -	if ((laddr = vdma_alloc(PHYSADDR(skb->data), skb->len)) == ~0UL) {
+> > > +	if ((laddr = vdma_alloc(CPHYSADDR(skb->data), skb->len)) == ~0UL) {
+> >                                 ^^^^^^^^^
+> > This part broke compilation for Mac/m68k.
+> > 
+> > >  		printk("%s: no VDMA entry for transmit available.\n",
+> > >  		       dev->name);
+> > >  		dev_kfree_skb(skb);
+> 
+> Oh funny.  vdma_alloc() was created 10 years ago as an internal API for
+> the Jazz machines.  Didn't realize m68k had cloned it :-)  If anything
+> it seems this should be converted to the modern DMA API.
 
---------------010200010907000003090703--
+I've just started merging my Mac sonic work into 2.6.12-rc6. m68k doesn't 
+yet implement the modern DMA API, but it is easy to fake it for a while 
+for macsonic.c. So I don't mind converting macsonic, jazzsonic and the 
+shared sonic driver core to the new API.
+
+But, I knowing nothing about the Jazz DMA controller. I need some help 
+from the MIPS people:
+
+Would I be right to say that vdma_{alloc,free}() can be changed to 
+dma_{,un}map_single? The other Jazz specific routine that sonic uses is 
+vdma_log2phys, and I don't know if that has a better alternative.
+
+-f
+
+>   Ralf
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-m68k" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> 

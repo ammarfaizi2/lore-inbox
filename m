@@ -1,65 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261917AbVFLI4h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbVFLI6B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261917AbVFLI4h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 04:56:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261918AbVFLI4h
+	id S261918AbVFLI6B (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 04:58:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVFLI6A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 04:56:37 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:36949 "EHLO
-	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261917AbVFLI4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 04:56:34 -0400
-Date: Sun, 12 Jun 2005 10:56:26 +0200 (CEST)
+	Sun, 12 Jun 2005 04:58:00 -0400
+Received: from amsfep14-int.chello.nl ([213.46.243.21]:1835 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S261918AbVFLI5o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 04:57:44 -0400
+Date: Sun, 12 Jun 2005 10:57:40 +0200 (CEST)
 From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Ian Molton <spyro@f2s.com>, Russell King <rmk@arm.linux.org.uk>,
-       Christoph Hellwig <hch@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
 cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       linux-arm-kernel@lists.arm.linux.org.uk
-Subject: [PATCH] Remove obsolete HAVE_ARCH_GET_SIGNAL_TO_DELIVER?
-Message-ID: <Pine.LNX.4.62.0506121051360.29300@anakin>
+       irda-users@lists.sourceforge.net
+Subject: [PATCH] IrDA: IrDA: Fix CONFIG_VIA_FIR typo (double `those')
+Message-ID: <Pine.LNX.4.62.0506121056560.29365@anakin>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Now m68k no longer sets HAVE_ARCH_GET_SIGNAL_TO_DELIVER, can it be removed
-completely? Or may ARM26 still need it? Note that its usage was removed from
-kernel/signal.c about 2 months ago.
+IrDA: Fix CONFIG_VIA_FIR typo (double `those')
 
 Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
 ---
- asm-arm26/signal.h |    3 ---
- linux/signal.h     |    2 --
- 2 files changed, 5 deletions(-)
+ Kconfig |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
 
---- linux-2.6.12-rc6/include/asm-arm26/signal.h	2005-05-07 09:50:54.000000000 +0200
-+++ linux-m68k-2.6.12-rc6/include/asm-arm26/signal.h	2005-05-07 18:23:23.000000000 +0200
-@@ -166,9 +166,6 @@ typedef struct sigaltstack {
- #include <asm/sigcontext.h>
- 
- #define sigmask(sig)	(1UL << ((sig) - 1))
--//FIXME!!!
--//#define HAVE_ARCH_GET_SIGNAL_TO_DELIVER
--
- #endif
- 
- 
---- linux-2.6.12-rc6/include/linux/signal.h	2005-05-07 09:51:06.000000000 +0200
-+++ linux-m68k-2.6.12-rc6/include/linux/signal.h	2005-05-07 11:01:49.000000000 +0200
-@@ -231,10 +231,8 @@ extern int __group_send_sig_info(int, st
- extern long do_sigpending(void __user *, unsigned long);
- extern int sigprocmask(int, sigset_t *, sigset_t *);
- 
--#ifndef HAVE_ARCH_GET_SIGNAL_TO_DELIVER
- struct pt_regs;
- extern int get_signal_to_deliver(siginfo_t *info, struct k_sigaction *return_ka, struct pt_regs *regs, void *cookie);
--#endif
- 
- #endif /* __KERNEL__ */
- 
+--- linux-2.6.12-rc5/drivers/net/irda/Kconfig	2005-05-07 09:50:36.000000000 +0200
++++ linux-m68k-2.6.12-rc5/drivers/net/irda/Kconfig	2005-05-07 11:01:31.000000000 +0200
+@@ -389,7 +389,7 @@ config VIA_FIR
+ 	help
+ 	  Say Y here if you want to build support for the VIA VT8231
+ 	  and VIA VT1211 IrDA controllers, found on the motherboards using
+-	  those those VIA chipsets. To use this controller, you will need
++	  those VIA chipsets. To use this controller, you will need
+ 	  to plug a specific 5 pins FIR IrDA dongle in the specific
+ 	  motherboard connector. The driver provides support for SIR, MIR
+ 	  and FIR (4Mbps) speeds.
 
 Gr{oetje,eeting}s,
 

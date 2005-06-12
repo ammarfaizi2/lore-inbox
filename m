@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261888AbVFLGvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261889AbVFLG6Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261888AbVFLGvM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 02:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbVFLGvM
+	id S261889AbVFLG6Q (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 02:58:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261890AbVFLG6Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 02:51:12 -0400
-Received: from web30704.mail.mud.yahoo.com ([68.142.200.137]:3688 "HELO
-	web30704.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S261888AbVFLGu5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 02:50:57 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=t2b8EWhwHDLbRUM3NIX211syt+qUHoer9TsWqRUIiodi/eLV/dFmDXw9q1J3jUKyBOGR+8IP+fqj4RWC+GlKXOa9PNnIeEF/7GPbnuuvB+F7BN6wgZmVeyQwkjWG+e+pwui7bkhz35KDx/42TKjeN97JBZQPuxug9wxGcem8A2s=  ;
-Message-ID: <20050612065050.99998.qmail@web30704.mail.mud.yahoo.com>
-Date: Sat, 11 Jun 2005 23:50:50 -0700 (PDT)
-From: subbie subbie <subbie_subbie@yahoo.com>
-Subject: optional delay after partition detection at boot time
-To: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 12 Jun 2005 02:58:16 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:30915 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261889AbVFLG6N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 02:58:13 -0400
+Date: Sun, 12 Jun 2005 08:57:33 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Thomas Gleixner <tglx@linutronix.de>
+Cc: Daniel Walker <dwalker@mvista.com>, Esben Nielsen <simlo@phys.au.dk>,
+       linux-kernel@vger.kernel.org, sdietrich@mvista.com
+Subject: Re: [PATCH] local_irq_disable removal
+Message-ID: <20050612065733.GA6997@elte.hu>
+References: <Pine.LNX.4.44.0506111345400.12084-100000@dhcp153.mvista.com> <1118533485.13312.91.camel@tglx.tec.linutronix.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1118533485.13312.91.camel@tglx.tec.linutronix.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
- I'm sure some of you have come across this annoying
-issue, the kernel messages scroll way too fast for a
-human to be able to read them (let alone vgrep them).
+* Thomas Gleixner <tglx@linutronix.de> wrote:
 
- I'm proposing two features;
+> On Sat, 2005-06-11 at 13:51 -0700, Daniel Walker wrote:
+> > On Sat, 11 Jun 2005, Ingo Molnar wrote:
+> 
+> > Interesting .. So "cli" takes 7 cycles , "sti" takes 7 cycles. The current 
+> > method does "lea" which takes 1 cycle, and "or" which takes 1 cycle. I'm 
+> > not sure if there is any function call overhead .. So the soft replacment 
+> > of cli/sti is 70% faster on a per instruction level .. So it's at least 
+> > not any slower .. Does everyone agree on that?
+> 
+> No, because x86 is not the whole universe
 
- 1. a configurable (boot time, via kernel command
-line) delay between each and every print -- kind of
-overkill, but may be useful sometimes. 
- 
- 2. a configurable (boot time, via kernel command
-line) delay after partition detection, so that a
-humble system administrator would be able to actually
-find out which partition he should specify at boot
-time in order to boot his system.   This is especially
-annoying on newer SATA systems where sometimes disks
-are detected as SCSI and sometimes as standard ATA
-(depending on BIOS settings), I'm sure though that it
-could be useful in a number of other cases.
+x86 is actually a 'worst-case', because it has one of the cheapest CPU 
+level cli/sti implementations. Usually it's the hard-local_irq_disable() 
+overhead on non-x86 platforms that is a problem. (ARM iirc) So in this 
+sense the soft-flag should be a win on most sane architectures.
 
- Let the flames begin
-
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+	Ingo

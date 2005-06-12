@@ -1,61 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261822AbVFLKoJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbVFLKrz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261822AbVFLKoJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 06:44:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbVFLKoJ
+	id S261688AbVFLKrz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 06:47:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbVFLKrz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 06:44:09 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:17360 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261822AbVFLKoF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 06:44:05 -0400
-Date: Sun, 12 Jun 2005 12:39:13 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Zoltan Boszormenyi <zboszor@freemail.hu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-Message-ID: <20050612103913.GB10808@elte.hu>
-References: <42AC0084.50502@freemail.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <42AC0084.50502@freemail.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+	Sun, 12 Jun 2005 06:47:55 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.81]:59058 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261688AbVFLKry
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 06:47:54 -0400
+Message-ID: <38010.210.137.194.5.1118573221.squirrel@210.137.194.5>
+In-Reply-To: <20050611181528.GA15019@elte.hu>
+References: <42AA6A6B.5040907@opersys.com> <20050611070845.GA4609@elte.hu>
+    <42AAF5CE.9080607@opersys.com> <20050611145240.GA10881@elte.hu>
+    <42AB2209.9080006@opersys.com> <20050611181528.GA15019@elte.hu>
+Date: Sun, 12 Jun 2005 06:47:01 -0400 (EDT)
+Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
+From: "James R Bruce" <bruce@andrew.cmu.edu>
+To: "Ingo Molnar" <mingo@elte.hu>
+Cc: "Karim Yaghmour" <karim@opersys.com>,
+       "Kristian Benoit" <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
+       paulmck@us.ibm.com, bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de,
+       pmarques@grupopie.com, nickpiggin@yahoo.com.au, ak@muc.de,
+       sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org
+User-Agent: SquirrelMail/1.5.1 [CVS]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo, if you could document the right options required for decent performace somewhere it would be quite helpful (maybe in Documentation/rt-preempt?).  My first test of Preempt-RT showed unexpectedly high overhead for a fairly benign network load (120 UDP packets/sec), but that was likely the result of leaving some debugging options on.
 
-* Zoltan Boszormenyi <zboszor@freemail.hu> wrote:
+I'll try to run an updated test in the near future and see if there are still issues.  In the meantime I'll be saving your email to make sure I get the config options right.
 
-> >does -48-13 work any better?
-> >
-> >	Ingo
-> 
-> x86-64 needs the attached patch to compile.
+ - Jim
 
-(patch MIA)
-
-> Some drivers also fail to compile because of
-> SPIN_LOCK_UNLOCKED changes, e.g. softdog and
-> four files under net/atm. [...]
-
-i'll fix those up.
-
-> A question, though: why do you comment out the DMPS timer in 
-> drivers/char/vt.c? Does it cause any problems? I applied the -RT tree 
-> after the multiconsole patch and I had to modify those four chunks 
-> manually.
-
-this is a quick hack. The timer code is fully preemptible, but for 
-debugging one wants to have a working printk from hardirq contexts too.  
-I.e. the mod_timer()/del_timer() would print warnings on PREEMPT_RT. 
-We'll need some other approach to solve this cleanly.
-
-	Ingo

@@ -1,48 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261906AbVFLGkL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVFLGtI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261906AbVFLGkL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 02:40:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbVFLGgU
+	id S261478AbVFLGtI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 02:49:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261888AbVFLGtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 02:36:20 -0400
-Received: from mx2.elte.hu ([157.181.151.9]:26306 "EHLO mx2.elte.hu")
-	by vger.kernel.org with ESMTP id S261894AbVFLGfP (ORCPT
+	Sun, 12 Jun 2005 02:49:08 -0400
+Received: from ozlabs.org ([203.10.76.45]:59336 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S261478AbVFLGtE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 02:35:15 -0400
-Date: Sun, 12 Jun 2005 08:23:50 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Christoph Hellwig <hch@infradead.org>, Daniel Walker <dwalker@mvista.com>,
-       linux-kernel@vger.kernel.org, sdietrich@mvista.com
-Subject: Re: [PATCH] local_irq_disable removal
-Message-ID: <20050612062350.GB4554@elte.hu>
-References: <1118214519.4759.17.camel@dhcp153.mvista.com> <20050611165115.GA1012@infradead.org>
+	Sun, 12 Jun 2005 02:49:04 -0400
+Subject: Re: Race condition in module load causing undefined symbols
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Stephen Lord <lord@xfs.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <42A99D9D.7080900@xfs.org>
+References: <42A99D9D.7080900@xfs.org>
+Content-Type: text/plain
+Date: Sun, 12 Jun 2005 16:49:02 +1000
+Message-Id: <1118558942.31631.10.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050611165115.GA1012@infradead.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
-X-ELTE-VirusStatus: clean
-X-ELTE-SpamCheck: no
-X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
-	BAYES_00 -4.90
-X-ELTE-SpamLevel: 
-X-ELTE-SpamScore: -4
+X-Mailer: Evolution 2.2.2 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 2005-06-10 at 09:03 -0500, Stephen Lord wrote:
+> Hi,
+> 
+> I am having troubles getting any recent kernel to boot successfully
+> on one of my machines, a generic 2.6GHz P4 box with HT enabled
+> running an updated Fedora Core 3 distro. This is present in
+> 2.6.12-rc6. It does not manifest itself with the Fedora Core
+> kernels which have identical initrd contents as far as the
+> init script and the set of modules included goes.
+> 
+> The problem manifests itself as various undefined symbols from
+> module loads.  Here is the relevant section from the init script
 
-* Christoph Hellwig <hch@infradead.org> wrote:
+Module loading is synchronous.  All I can think of is that a module is
+pulling in another module which requires it asynchronously (you need to
+do this because your own module symbols are not available until *after*
+init succeeds), or a hotplug interaction (hotplug is async, too).
 
-> folks, can you please take this RT stuff of lkml?  And with that I
-> don't mean the highlevel discussions what makes sense, but specific
-> patches that aren't related to anything near mainline. [...]
+Rusty.
+-- 
+A bad analogy is like a leaky screwdriver -- Richard Braakman
 
-this is a misconception - there's been a few dozen patches steadily 
-trickling into mainline that were all started in the PREEMPT_RT 
-patchset, so this "RT stuff", both the generic arguments and the details 
-are very much relevant. I wouldnt be doing it if it wasnt relevant to 
-the mainline kernel. The discussions are well concentrated into 2-3 
-subjects so you can plonk those threads if you are not interested.
-
-	Ingo

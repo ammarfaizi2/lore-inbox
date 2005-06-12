@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262531AbVFLN2T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVFLN3z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262531AbVFLN2T (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 09:28:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVFLN2S
+	id S261190AbVFLN3z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 09:29:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262532AbVFLN3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 09:28:18 -0400
-Received: from ppp-6-84.mtl.aei.ca ([206.123.6.84]:4846 "EHLO aeimail.aei.ca")
-	by vger.kernel.org with ESMTP id S262531AbVFLN2Q convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 09:28:16 -0400
-From: Ed Tomlinson <tomlins@cam.org>
-Organization: me
-To: Armin Schindler <armin@melware.de>
-Subject: Re: [PATCH] Remove devfs_mk_cdev() function from the kernel tree
-Date: Sun, 12 Jun 2005 09:29:02 -0400
-User-Agent: KMail/1.7.2
-Cc: Greg K-H <greg@kroah.com>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-References: <11184761113499@kroah.com> <Pine.LNX.4.61.0506121042420.30907@phoenix.one.melware.de>
-In-Reply-To: <Pine.LNX.4.61.0506121042420.30907@phoenix.one.melware.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Sun, 12 Jun 2005 09:29:55 -0400
+Received: from ns.suse.de ([195.135.220.2]:11726 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S261190AbVFLN3u (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 09:29:50 -0400
+Date: Sun, 12 Jun 2005 15:29:43 +0200
+From: Andi Kleen <ak@suse.de>
+To: Mikael Pettersson <mikpe@csd.uu.se>
+Cc: marcelo.tosatti@cyclades.com, ak@suse.de, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.4.31 6/9] gcc4: fix x86_64 sys_iopl() bug
+Message-ID: <20050612132943.GS23831@wotan.suse.de>
+References: <200506121120.j5CBKZH1019741@harpo.it.uu.se>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200506120929.03212.tomlins@cam.org>
+In-Reply-To: <200506121120.j5CBKZH1019741@harpo.it.uu.se>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 12 June 2005 04:44, Armin Schindler wrote:
-> It didn't follow the development, is devfs now obsolete in kernel?
-> If not, these funktions still makes sense.
-> 
-Armin,
+> @@ -113,9 +113,18 @@ quiet_ni_syscall:
+>  	PTREGSCALL stub32_fork, sys32_fork
+>  	PTREGSCALL stub32_clone, sys32_clone
+>  	PTREGSCALL stub32_vfork, sys32_vfork
+> -	PTREGSCALL stub32_iopl, sys_iopl
+>  	PTREGSCALL stub32_rt_sigsuspend, sys_rt_sigsuspend
+>  
+> +	.macro PTREGSCALL3 label, func, arg
 
->From Documentation/feature-removal-schedule.txt
+PTREGSCALL3? I'm sure that is not in 2.6. How about just changing
+PTREGSCALL globally? 
 
-What:   devfs
-When:   July 2005
-Files:  fs/devfs/*, include/linux/devfs_fs*.h and assorted devfs
-        function calls throughout the kernel tree
-Why:    It has been unmaintained for a number of years, has unfixable
-        races, contains a naming policy within the kernel that is
-        against the LSB, and can be replaced by using udev.
-Who:    Greg Kroah-Hartman <greg@kroah.com>
+iirc the other ptregs syscalls were safe, but I still changed them in 2.6
+to use a pointer argument.
 
-This should not a surprise to anyone...
 
-Ed Tomlinson
+-Andi

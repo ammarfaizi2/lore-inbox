@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261267AbVFLK1c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVFLK1w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261267AbVFLK1c (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 06:27:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbVFLK1b
+	id S261273AbVFLK1w (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 06:27:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbVFLK1w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 06:27:31 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:25100 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S261267AbVFLK12 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 06:27:28 -0400
-Date: Sun, 12 Jun 2005 12:27:26 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: subbie subbie <subbie_subbie@yahoo.com>
-Cc: linux-kernel@vger.kernel.org
+	Sun, 12 Jun 2005 06:27:52 -0400
+Received: from witte.sonytel.be ([80.88.33.193]:2965 "EHLO witte.sonytel.be")
+	by vger.kernel.org with ESMTP id S261273AbVFLK1r (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 06:27:47 -0400
+Date: Sun, 12 Jun 2005 12:27:36 +0200 (CEST)
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+To: Willy Tarreau <willy@w.ods.org>
+cc: subbie subbie <subbie_subbie@yahoo.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
 Subject: Re: optional delay after partition detection at boot time
-Message-ID: <20050612102726.GA8470@alpha.home.local>
-References: <20050612071213.GG28759@alpha.home.local> <20050612101514.81433.qmail@web30707.mail.mud.yahoo.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050612101514.81433.qmail@web30707.mail.mud.yahoo.com>
-User-Agent: Mutt/1.4i
+In-Reply-To: <20050612071213.GG28759@alpha.home.local>
+Message-ID: <Pine.LNX.4.62.0506121225170.11197@numbat.sonytel.be>
+References: <20050612065050.99998.qmail@web30704.mail.mud.yahoo.com>
+ <20050612071213.GG28759@alpha.home.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 12, 2005 at 03:15:14AM -0700, subbie subbie wrote:
-> Willy,
->  
->  This is for a one-time use option, when the the admin
-> is having a hard time finding the root partition, let
-> alone the device NAME to boot the system ... proc is
-> not even mounted at that point yet.
+On Sun, 12 Jun 2005, Willy Tarreau wrote:
+> On Sat, Jun 11, 2005 at 11:50:50PM -0700, subbie subbie wrote:
+> >  I'm sure some of you have come across this annoying
+> > issue, the kernel messages scroll way too fast for a
+> > human to be able to read them (let alone vgrep them).
+> > 
+> >  I'm proposing two features;
+> > 
+> >  1. a configurable (boot time, via kernel command
+> > line) delay between each and every print -- kind of
+> > overkill, but may be useful sometimes. 
+> >  
+> >  2. a configurable (boot time, via kernel command
+> > line) delay after partition detection, so that a
+> > humble system administrator would be able to actually
+> > find out which partition he should specify at boot
+> > time in order to boot his system.   This is especially
+> > annoying on newer SATA systems where sometimes disks
+> > are detected as SCSI and sometimes as standard ATA
+> > (depending on BIOS settings), I'm sure though that it
+> > could be useful in a number of other cases.
+> 
+> What's the problem with "cat /proc/partitions" or "dmesg" ?
+> You seem to want to slow down *every* boot just to identify
+> a partition you need to find *once*. This seems overkill.
 
-There are two alternatives at boot :
+Or make the kernel print /proc/partitions when it is unable to mount root?
 
-  - either you know the root device, and everything is
-    OK (mount /proc; cat /proc/partitions)
+Gr{oetje,eeting}s,
 
-  - you don't know the root device, so the kernel will
-    panic at boot because it cannot find the root device.
-    In this case, you have the partition list still on
-    the screen as it's among the latest things in the
-    boot order. And if your kernel reboots upon panic,
-    just boot it with panic=30 so get 30 seconds to read
-    the partition table.
+						Geert
 
-> I can try booting ten times finding the correct scsi
-> device and partition number, but that's hairy
-> especially in situations where kernel config and BIOS
-> settings affect device detection.
+--
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
 
-I too know that it's sometimes hard to read SCSI devices
-names on screen during the boot, but I'm not sure that
-introducing a delay will be more useful than the full
-pause provided by the panic. I may be wrong, though.
- 
-> This is not for slowing everything down, let's say
-> just until root is mounted from then on, as you say,
-> dmesg and the system logs are available.
-
-OK.
-
-Regards,
-willy
-
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+							    -- Linus Torvalds

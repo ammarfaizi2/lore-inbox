@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262619AbVFLNyv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262596AbVFLN6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262619AbVFLNyv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 09:54:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262620AbVFLNyu
+	id S262596AbVFLN6m (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 09:58:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262613AbVFLN6l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 09:54:50 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:40179 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S262613AbVFLNvc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 09:51:32 -0400
-Date: Sun, 12 Jun 2005 15:51:19 +0200 (CEST)
-From: Armin Schindler <armin@melware.de>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: Greg K-H <greg@kroah.com>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove devfs_mk_cdev() function from the kernel tree
-In-Reply-To: <200506120929.03212.tomlins@cam.org>
-Message-ID: <Pine.LNX.4.61.0506121543200.15593@phoenix.one.melware.de>
-References: <11184761113499@kroah.com> <Pine.LNX.4.61.0506121042420.30907@phoenix.one.melware.de>
- <200506120929.03212.tomlins@cam.org>
-Organization: Cytronics & Melware
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:4f0aeee4703bc17a8237042c4702a75a
+	Sun, 12 Jun 2005 09:58:41 -0400
+Received: from wproxy.gmail.com ([64.233.184.196]:25402 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262596AbVFLN4Y convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 09:56:24 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rhfD/+7fGe1Y5aVeaoRiByTn7CXWm7zPz034B8vLvLMJO0nejWx9RAyEpjHUUSbotpR7yiHJ8L4F1lkzBcf4NTCm/kok/pLUal1BYdph83c/Ef0T4tgyv/kp5D7fwOdXQPfr8ug4lSuHFZEJBzZNR2ClBklZZrgM5bf9nRenGo8=
+Message-ID: <2ff2162805061206564e7f1dc7@mail.gmail.com>
+Date: Sun, 12 Jun 2005 15:56:23 +0200
+From: Abhijit Bhopatkar <bainonline@gmail.com>
+Reply-To: Abhijit Bhopatkar <bainonline@gmail.com>
+To: "jgarzik@pentafluge.infradead.org" <jgarzik@pentafluge.infradead.org>
+Subject: Re: stupid SATA questions
+Cc: Robert White <rwhite@casabyte.com>, Jeff Garzik <jgarzik@pobox.com>,
+       Kumar Gala <kumar.gala@freescale.com>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <20050611184746.GC3019@pentafluge.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <42A72E4F.4040700@pobox.com>
+	 <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA2ZSI4XW+fk25FhAf9BqjtMKAAAAQAAAAujDVGqnqiEuiX8MD6j5uVwEAAAAA@casabyte.com>
+	 <20050611184746.GC3019@pentafluge.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Jun 2005, Ed Tomlinson wrote:
-> On Sunday 12 June 2005 04:44, Armin Schindler wrote:
-> > It didn't follow the development, is devfs now obsolete in kernel?
-> > If not, these funktions still makes sense.
-> > 
-> Armin,
+On 6/11/05, jgarzik@pentafluge.infradead.org
+<jgarzik@pentafluge.infradead.org> wrote:
+> On Fri, Jun 10, 2005 at 11:51:26AM -0700, Robert White wrote:
+> > I cannot find the ATA passthru or SMART option in the 2.6.11.10 kernel anywhere near
+> > the SCSI or ATA .  Is it somewhere obscure, has it been renamed, or am I looking in
+> > totally the wrong place? (e.g. is this an option when building hdparm or something?)
 > 
-> From Documentation/feature-removal-schedule.txt
-> 
-> What:   devfs
-> When:   July 2005
-> Files:  fs/devfs/*, include/linux/devfs_fs*.h and assorted devfs
->         function calls throughout the kernel tree
-> Why:    It has been unmaintained for a number of years, has unfixable
->         races, contains a naming policy within the kernel that is
->         against the LSB, and can be replaced by using udev.
-> Who:    Greg Kroah-Hartman <greg@kroah.com>
-> 
-> This should not a surprise to anyone...
+> It requires an additional patch; it has not been mergedsinceit still
+> has a few problems.
 
-I know the status of devfs, but I never thought the removal will be
-done in the middle of a stable line...
+Can somebody please point me to the latest patches?
+ATA pass thru should be a good thing to play with
+I am waiting for SATA ATAPI support so that finally i can start
+playing DVDs again under linux.
 
-Armin
+I have ICH6M chipset with DVD/CD-RW drive on my laptop. So if you need
+some testing on that i am willing to do that.
+
+Currently i am running on 2.6.11 with JG's 
+"2.6.11-libata-dev1.patch.bz2 " patch and ATAPI tunred on in libata.h,
+but apparently it still is not in working condition, are there
+experimental patches which have atleast half working ATAPI in libata?
+
+Or should i just wait for some more time ?.....
+Thanks and reagards,
+
+BAIN

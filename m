@@ -1,67 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261863AbVFLA1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261865AbVFLAqV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261863AbVFLA1y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 20:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbVFLA1y
+	id S261865AbVFLAqV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 20:46:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261866AbVFLAqV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 20:27:54 -0400
-Received: from 213-239-205-147.clients.your-server.de ([213.239.205.147]:26552
-	"EHLO mail.tglx.de") by vger.kernel.org with ESMTP id S261863AbVFLA1g
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 20:27:36 -0400
-Subject: Re: [PATCH] local_irq_disable removal
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Sven-Thorsten Dietrich <sdietrich@mvista.com>
-Cc: Daniel Walker <dwalker@mvista.com>, Ingo Molnar <mingo@elte.hu>,
-       Esben Nielsen <simlo@phys.au.dk>, linux-kernel@vger.kernel.org
-In-Reply-To: <1118534993.5593.175.camel@sdietrich-xp.vilm.net>
-References: <Pine.LNX.4.44.0506111345400.12084-100000@dhcp153.mvista.com>
-	 <1118533485.13312.91.camel@tglx.tec.linutronix.de>
-	 <1118534993.5593.175.camel@sdietrich-xp.vilm.net>
-Content-Type: text/plain
-Organization: linutronix
-Date: Sun, 12 Jun 2005 02:28:39 +0200
-Message-Id: <1118536119.13312.129.camel@tglx.tec.linutronix.de>
+	Sat, 11 Jun 2005 20:46:21 -0400
+Received: from animx.eu.org ([216.98.75.249]:25793 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S261865AbVFLAqP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 20:46:15 -0400
+Date: Sat, 11 Jun 2005 20:41:36 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Problem found: kaweth fails to work on 2.6.12-rc[456]
+Message-ID: <20050612004136.GA8107@animx.eu.org>
+Mail-Followup-To: linux-usb-devel@lists.sourceforge.net,
+	linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2005-06-11 at 17:09 -0700, Sven-Thorsten Dietrich wrote:
-> Even if there is a case of minimal expansion in the overhead on some
-> architecture, it may justify the effort for a certain class of
-> applications which require known interrupt response latencies.
+After doing some testing, I believe a patch that went into rc4 broke kaweth.
+The kaweth driver itself did not change from rc2 through rc6.
 
-Nobody denied that. I'm just cautious about arguments which count
-instruction cylces on a given CPU.
+As a test, I reverted a patch that went into rc4 which modified
+net/core/link_watch.c.  Once I compiled the kernel, my netgear EA101 works
+again.
 
-> The concept model here is, that you will have all interrupts running in
-> threads, EXCEPT one or more SA_NODELAY real-time IRQs. Those RT-IRQs may
-> be required to track satellites, manage I/O for a QOS or RF protocol
-> stack, shut down a SAW, or a variety of RT-related services.
-> 
-> The IRQ-disable-removal allows that the RT-IRQ encounters minimal
-> delay. 
-> 
-> Often, that IRQ will also wake up a process, and that process may have
-> some response-time constraints on it, as well.
-> 
-> SO that's one model that is helped by this design.
+The following is the patch that caused it to stop working:
+--- BEGIN PATCH ---
+diff -urN linux-2.6.12-rc3/net/core/link_watch.c linux-2.6.12-rc4/net/core/link_watch.c
+--- linux-2.6.12-rc3/net/core/link_watch.c	2005-03-01 23:37:30.000000000 -0800
++++ linux-2.6.12-rc4/net/core/link_watch.c	2005-05-06 22:59:27.439802792 -0700
+@@ -74,6 +75,12 @@
+ 		clear_bit(__LINK_STATE_LINKWATCH_PENDING, &dev->state);
+ 
+ 		if (dev->flags & IFF_UP) {
++			if (netif_carrier_ok(dev)) {
++				WARN_ON(dev->qdisc_sleeping == &noop_qdisc);
++				dev_activate(dev);
++			} else
++				dev_deactivate(dev);
++
+ 			netdev_state_change(dev);
+ 		}
+ 
+--- END PATCH ---
+The above is not cut'n'paste.  There was 1 other addition (an include) that
+I removed from the patch inorder to revert it.  The patch above was applied
+to 2.6.12-rc6 using -Rp1.  This is why I believe that kaweth is broken. 
+With my limited understanding of the kernel, it would appear that kaweth
+doesn't support netif_carrier_ok properly.  
+Anyway, I found what caused it to break, but at this point, I do not have
+the required knowledge to do a proper fix.
 
-No problem with that. I have done this already and know about the pro
-and cons. 
-
-As I pointed out before, speed is not always the measure.
-
-The point is configurability of features, but OTH you _cannot_ implement
-a CONFIG option for each particular spinlock. You have to come down to a
-certain set of config options by experimentation or by analysing ofcode
-paths. Lot of work to be done though.
-
-tglx
-
-
-
-
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals

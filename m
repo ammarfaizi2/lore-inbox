@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261265AbVFLWvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261270AbVFLXE6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261265AbVFLWvM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 18:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbVFLWvM
+	id S261270AbVFLXE6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 19:04:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261278AbVFLXE6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 18:51:12 -0400
-Received: from clock-tower.bc.nu ([81.2.110.250]:37076 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S261265AbVFLWvK
+	Sun, 12 Jun 2005 19:04:58 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:19184 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261270AbVFLXE5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 18:51:10 -0400
-Subject: Re: Add pselect, ppoll system calls.
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       torvalds@osdl.org, drepper@redhat.com
-In-Reply-To: <1118444314.4823.81.camel@localhost.localdomain>
-References: <1118444314.4823.81.camel@localhost.localdomain>
+	Sun, 12 Jun 2005 19:04:57 -0400
+Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
+From: Sven-Thorsten Dietrich <sdietrich@mvista.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: Karim Yaghmour <karim@opersys.com>, Ingo Molnar <mingo@elte.hu>,
+       Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
+       paulmck@us.ibm.com, bhuey@lnxw.com, tglx@linutronix.de,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, dwalker@mvista.com, hch@infradead.org, akpm@osdl.org,
+       rpm@xenomai.org
+In-Reply-To: <20050612222011.GG5796@g5.random>
+References: <42AA6A6B.5040907@opersys.com> <20050611191448.GA24152@elte.hu>
+	 <42AB662B.4010104@opersys.com>  <20050612222011.GG5796@g5.random>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Message-Id: <1118616499.9949.103.camel@localhost.localdomain>
+Date: Sun, 12 Jun 2005 16:03:41 -0700
+Message-Id: <1118617421.12889.71.camel@sdietrich-xp.vilm.net>
 Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.4.6 (1.4.6-2) 
-Date: Sun, 12 Jun 2005 23:48:22 +0100
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Gwe, 2005-06-10 at 23:58, David Woodhouse wrote:
-> The idea of pselect is that if one wants to wait for an event, either a
-> signal  or  something on a file descriptor, an atomic test is needed to
-> prevent race conditions. (Suppose the signal handler sets a global flag
-> and  returns.  Then  a  test  of this global flag followed by a call of
-> select() could hang indefinitely if the signal arrived just  after  the
-> test but just before the call. On the other hand, pselect allows one to
+On Mon, 2005-06-13 at 00:20 +0200, Andrea Arcangeli wrote:
+> On Sat, Jun 11, 2005 at 06:31:07PM -0400, Karim Yaghmour wrote:
+> > The logger used two TSC values. One prior to shooting the interrupt to the
+> > target, and one when receiving the response. Responding to an interrupt
+> 
+> Real life RT apps would run the second rdtsc in user space and not
+> kernel space, right?
+> 
+> And thanks for your benchmarking efforts!
 
-See sleep(), going back to oh V7 unix. It has this avoided nicely in
-user space using setjmp (nowdays using sigsetjmp).
+Real-life RT apps are not benchmarks!
 
-If glibc has a race why not just fix glibc ?
+There is not requirement for them to run in user space or in kernel
+space.
+
+The choice is left to the application designer.
+
 

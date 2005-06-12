@@ -1,48 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261882AbVFLE4D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261303AbVFLEzz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261882AbVFLE4D (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 00:56:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261792AbVFLE4C
+	id S261303AbVFLEzz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 00:55:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261881AbVFLEzz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 00:56:02 -0400
-Received: from gateway-1237.mvista.com ([12.44.186.158]:47862 "EHLO
-	dhcp153.mvista.com") by vger.kernel.org with ESMTP id S261907AbVFLEzd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 00:55:33 -0400
-Date: Sat, 11 Jun 2005 21:55:18 -0700 (PDT)
-From: Daniel Walker <dwalker@mvista.com>
-To: Karim Yaghmour <karim@opersys.com>
-cc: Ingo Molnar <mingo@elte.hu>, Esben Nielsen <simlo@phys.au.dk>,
-       <linux-kernel@vger.kernel.org>, <sdietrich@mvista.com>,
-       Philippe Gerum <rpm@xenomai.org>
-Subject: Re: [PATCH] local_irq_disable removal
-In-Reply-To: <42ABC089.8080100@opersys.com>
-Message-ID: <Pine.LNX.4.44.0506112151090.24837-100000@dhcp153.mvista.com>
+	Sun, 12 Jun 2005 00:55:55 -0400
+Received: from smtp3.brturbo.com.br ([200.199.201.164]:40320 "EHLO
+	smtp3.brturbo.com.br") by vger.kernel.org with ESMTP
+	id S261303AbVFLEy1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 00:54:27 -0400
+Message-ID: <42ABC011.1030307@brturbo.com.br>
+Date: Sun, 12 Jun 2005 01:54:41 -0300
+From: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+User-Agent: Mozilla Thunderbird 1.0.2-3mdk (X11/20050322)
+X-Accept-Language: pt-br, pt, es, en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>,
+       Linux and Kernel Video <video4linux-list@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH4/4] Synchronize patch for documentation
+X-Enigmail-Version: 0.91.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Jun 2005, Karim Yaghmour wrote:
- 
- 
-> This is why I have a hard time understanding the statement that
-> "It would be Linux and Adeos, but never just Linux." In this case,
-> it would be Linux with an ipipe. Said ipipe can then be left
-> unpopulated, and then we get back to what you guys have just
-> implemented. Or a driver can use it to obtain hard-rt. Or
-> additional Adeos components can hook onto the ipipe to provide
-> services enabling RTAI to run side-by-side with Linux.
+Syncronizing V4L documentation and including V4L2 API.
 
-My reasoning is that Linux doesn't run in ring 0 . That to me makes linux 
-and ADEOS two different entities. That's my way of looking at it. 
-
-> May I suggest getting a copy of a recent Adeos patch and looking
-> through it? I'm sure it would make things much simpler to
-> understand.
-
-I haven't looked at the code, I would like to . I have read about 
-the ADEOS implementation .
-
-Daniel
-
+Signed-off-by: Mauro Carvalho Chehab <mchehab@brturbo.com.br>
+Signed-off-by: Michael Krufky <mkrufky@m1k.net>
+Signed-off-by: cybercide@f2s.com <cybercide@f2s.com>
+Signed-off-by: Catalin Climov <catalin@climov.com>
+Signed-off-by: Nickolay V Shmyrev <nshmyrev@yandex.ru>
+Signed-off-by: Fabrice Aeschbacher <fabrice.aeschbacher@laposte.net>
+Signed-off-by: Hermann Pitton <hermann.pitton@onlinehome.de>
+Signed-off-by: Fred Gleason <fredg@wava.com>
+Signed-off-by: Bill Dirks <bdirks@pacbell.net>
+Signed-off-by: Michael H. Schimek <mschimek@gmx.at>
+Signed-off-by: *Justin Schoeman*

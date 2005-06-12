@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262471AbVFLNOZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262479AbVFLNRb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262471AbVFLNOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 09:14:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbVFLNOY
+	id S262479AbVFLNRb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 09:17:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbVFLNRa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 09:14:24 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:51718 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262471AbVFLNOE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 09:14:04 -0400
-Date: Sun, 12 Jun 2005 23:13:23 +1000
-To: Willy Tarreau <willy@w.ods.org>
-Cc: davem@davemloft.net, xschmi00@stud.feec.vutbr.cz, alastair@unixtrix.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] fix small DoS on connect() (was Re: BUG: Unusual TCP Connect() results.)
-Message-ID: <20050612131323.GA10188@gondor.apana.org.au>
-References: <20050611074350.GD28759@alpha.home.local> <E1DhBic-0005dp-00@gondolin.me.apana.org.au> <20050611195144.GF28759@alpha.home.local> <20050612081327.GA24384@gondor.apana.org.au> <20050612083409.GA8220@alpha.home.local> <20050612103020.GA25111@gondor.apana.org.au> <20050612114039.GI28759@alpha.home.local> <20050612120627.GA5858@gondor.apana.org.au> <20050612123253.GK28759@alpha.home.local>
+	Sun, 12 Jun 2005 09:17:30 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:32780 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S262479AbVFLNRL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 09:17:11 -0400
+Date: Sun, 12 Jun 2005 15:17:01 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: Andi Kleen <ak@muc.de>
+Cc: "Dr. David Alan Gilbert" <dave@treblig.org>,
+       Geert Uytterhoeven <geert@linux-m68k.org>,
+       subbie subbie <subbie_subbie@yahoo.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: optional delay after partition detection at boot time
+Message-ID: <20050612131701.GA8907@alpha.home.local>
+References: <20050612065050.99998.qmail@web30704.mail.mud.yahoo.com> <20050612071213.GG28759@alpha.home.local> <Pine.LNX.4.62.0506121225170.11197@numbat.sonytel.be> <20050612110539.GA9765@gallifrey> <20050612111659.GH28759@alpha.home.local> <20050612125447.GD9765@gallifrey> <m1fyvnd8kc.fsf@muc.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20050612123253.GK28759@alpha.home.local>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+In-Reply-To: <m1fyvnd8kc.fsf@muc.de>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 12, 2005 at 02:32:53PM +0200, Willy Tarreau wrote:
->
-> but it's not the case (although the naming is not clear). So if the remote
-> end was the one which sent the SYN-ACK, it will clear its session. If it has
-> been spoofed, it will ignore the RST because in turn, the SEQ will not be
-> within its window.
+On Sun, Jun 12, 2005 at 03:10:59PM +0200, Andi Kleen wrote:
+> "Dr. David Alan Gilbert" <dave@treblig.org> writes:
+> >
+> > 1) could be cured by not actually panic'ing.
+> 
+> Actually one thing I always wanted was to make sysrq still work 
+> after panic. Then you could add a key to page through the dmesg
+> there too and the problem would be solved.
 
-This is what should happen:
+Well, that's why I wrote kmsgdump several years ago :-) You could even print
+the messages on a parallel printer or save them to a floppy disk.
 
-1) client A sends SYN to server B.
-2) attcker C sends spoofed SYN-ACK to client A purporting to be server B.
-3) client A sends RST to server B.
+> It would be extremly useful to reset remote servers when panic=timeout
+> is not set, but something went wrong with mounting /.
 
-The RST packet is sent by client A using its sequence numbers.  Therefore
-it will pass the sequence number check on server B.
+I think that more generally, we should reset if there's no panic=timeout,
+because the reasons for a panic are multiple and in case of remote servers,
+it's always a nightmare to know that may be you will lose access after one
+risky operation.
 
-4) server B resets the connection.
+Willy
 
-Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

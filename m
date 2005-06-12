@@ -1,66 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVFLJCJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261920AbVFLJNI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261226AbVFLJCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 05:02:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVFLJCI
+	id S261920AbVFLJNI (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 05:13:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbVFLJNH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 05:02:08 -0400
-Received: from vms042pub.verizon.net ([206.46.252.42]:30159 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S261226AbVFLJCD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 05:02:03 -0400
-Date: Sun, 12 Jun 2005 05:02:01 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
+	Sun, 12 Jun 2005 05:13:07 -0400
+Received: from linux.dunaweb.hu ([62.77.196.1]:25575 "EHLO linux.dunaweb.hu")
+	by vger.kernel.org with ESMTP id S261920AbVFLJNC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 05:13:02 -0400
+Message-ID: <42AC0084.50502@freemail.hu>
+Date: Sun, 12 Jun 2005 11:29:40 +0200
+From: Zoltan Boszormenyi <zboszor@freemail.hu>
+User-Agent: Mozilla Thunderbird 1.0.2-1.3.3 (X11/20050513)
+X-Accept-Language: hu-hu, hu, en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org
 Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
-In-reply-to: <20050612064939.GB4897@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
-       "Eugeny S. Mints" <emints@ru.mvista.com>,
-       Daniel Walker <dwalker@mvista.com>
-Message-id: <200506120502.01752.gene.heskett@verizon.net>
-Organization: None, usuallly detectable by casual observers
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <20050608112801.GA31084@elte.hu>
- <200506112140.36352.gene.heskett@verizon.net> <20050612064939.GB4897@elte.hu>
-User-Agent: KMail/1.7
+Content-Type: multipart/mixed;
+ boundary="------------070905090301060109060902"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 12 June 2005 02:49, Ingo Molnar wrote:
->* Gene Heskett <gene.heskett@verizon.net> wrote:
->> >   * clears out immediately (and will be freed).
->> >-
->>
->> I just tried to build the V0.7.48-12 version, preempt mode 3, no
->> hardirq's, and got this:
->
->does -48-13 work any better?
->
-> Ingo
+This is a multi-part message in MIME format.
+--------------070905090301060109060902
+Content-Type: text/plain; charset=ISO-8859-2; format=flowed
+Content-Transfer-Encoding: 8bit
 
-Dunno, twasn't there till I looked just now.  And it made it past that 
-little roadblock ok.  Gonna be slow, logrotate & updatedb are running 
-as its just past 4am local.  Like any good geek, I had to check my 
-email when I got up to p. :-)
+> does -48-13 work any better?
+> 
+> 	Ingo
 
-Yes, it built, and I'm rebooted to it.  Feels rather normal so far. A 
-quick game of klondike lagged for the first 3 or 4 moves but smoothed 
-right up.
+x86-64 needs the attached patch to compile.
+Some drivers also fail to compile because of
+SPIN_LOCK_UNLOCKED changes, e.g. softdog and
+four files under net/atm. Just take the x86-64 UP
+config from FC3's latest errata kernel.
+I haven't booted it yet.
 
-Glitch reports as they develop of course.
+A question, though: why do you comment out the
+DMPS timer in drivers/char/vt.c?
+Does it cause any problems? I applied the -RT tree
+after the multiconsole patch and I had to modify
+those four chunks manually.
 
-Q:  Whats the diff between turning on hardirq's in mode 3, and mode 4?
+Best regards,
+Zoltán Böszörményi
 
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-99.35% setiathome rank, not too shabby for a WV hillbilly
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2005 by Maurice Eugene Heskett, all rights reserved.
+--------------070905090301060109060902
+Content-Type: text/x-patch;
+ name="01-x86_64-INIT_FILES-fix.patch"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="01-x86_64-INIT_FILES-fix.patch"
+
+--- arch/x86_64/kernel/init_task.c.old	2005-06-12 10:51:21.716609376 +0200
++++ arch/x86_64/kernel/init_task.c	2005-06-12 10:51:33.889758776 +0200
+@@ -11,7 +11,7 @@
+ #include <asm/desc.h>
+ 
+ static struct fs_struct init_fs = INIT_FS;
+-static struct files_struct init_files = INIT_FILES;
++static struct files_struct init_files = INIT_FILES(init_files);
+ static struct signal_struct init_signals = INIT_SIGNALS(init_signals);
+ static struct sighand_struct init_sighand = INIT_SIGHAND(init_sighand);
+ struct mm_struct init_mm = INIT_MM(init_mm);
+
+--------------070905090301060109060902--

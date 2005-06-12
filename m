@@ -1,48 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261835AbVFLGYz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261881AbVFLGY4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261835AbVFLGYz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 02:24:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261894AbVFLGYo
+	id S261881AbVFLGY4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 02:24:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261895AbVFLGYu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 02:24:44 -0400
-Received: from opersys.com ([64.40.108.71]:23817 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S261887AbVFLFQs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 01:16:48 -0400
-Message-ID: <42ABC7AE.2090408@opersys.com>
-Date: Sun, 12 Jun 2005 01:27:10 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
-X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+	Sun, 12 Jun 2005 02:24:50 -0400
+Received: from mail23.syd.optusnet.com.au ([211.29.133.164]:58070 "EHLO
+	mail23.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261279AbVFLFUG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 01:20:06 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Subject: Re: 2.6.12-rc6-mm1
+Date: Sun, 12 Jun 2005 15:19:44 +1000
+User-Agent: KMail/1.8.1
+Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
+       Andrew Morton <akpm@osdl.org>,
+       Christoph Lameter <clameter@engr.sgi.com>,
+       Nick Piggin <piggin@cyberone.com.au>
+References: <20050607170853.3f81007a.akpm@osdl.org> <200506120947.13709.kernel@kolivas.org> <675380000.1118535797@[10.10.2.4]>
+In-Reply-To: <675380000.1118535797@[10.10.2.4]>
 MIME-Version: 1.0
-To: Daniel Walker <dwalker@mvista.com>
-CC: Ingo Molnar <mingo@elte.hu>, Esben Nielsen <simlo@phys.au.dk>,
-       linux-kernel@vger.kernel.org, sdietrich@mvista.com,
-       Philippe Gerum <rpm@xenomai.org>
-Subject: Re: [PATCH] local_irq_disable removal
-References: <Pine.LNX.4.44.0506112212510.24837-100000@dhcp153.mvista.com>
-In-Reply-To: <Pine.LNX.4.44.0506112212510.24837-100000@dhcp153.mvista.com>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200506121519.44808.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 12 Jun 2005 10:23, Martin J. Bligh wrote:
+> --Con Kolivas <kernel@kolivas.org> wrote (on Sunday, June 12, 2005 09:47:08 
++1000):
+> > The patches should balance things as fairly as possible according to nice
+> > levels across cpus. As you can see this is clearly a bug in behaviour and
+> > has been a showstopper for many trying to move from 2.4.
+>
+> Oh, right. that makes a lot of sense ... maybe just let it have an error
+> factor when migrating cross numa nodes (ie not be as strict)? Not sure
+> that's really the problem, as I doubt anything in my test is actually
+> niced anyway (assuming you're meaning static prio, not dynamic). In that
+> case, your changes should have no effect, right (from explanation, not
+> looking at the code ;-))
 
-Daniel Walker wrote:
-> Might want to consider changing the links on the ADEOS website, cause 
-> that's where I went to get information on it. 
+The balancing code is not really aware that the loads being returned are being 
+altered and it was not clear whether this would be needed or not as it 
+usually bases its decisions on ratios of load rather than absolute amounts. 
+The tricky part is idle balancing where we don't want to try and pull from a 
+queue that only has one running task and the patch has a "if single task 
+running and idle balancing tell it only one task running and don't bias" 
+feature. This may cause slight performance effects on numa as I guess the 
+other nodes suddenly seem much more loaded and we normally wouldn't try 
+balancing between nodes until there was a larger load discrepancy than 
+between cpus. I'll think on this and see how much more nice-aware the 
+balancing code needs to be for this to not have any effect.
 
-That's actually a good point. I've only got myself to blame about
-the continued misconceptions on Adeos. I'll make sure the papers
-are put somewhere where they are clearly labeled as *PRELIMNARY*
-design documents.
-
-Sorry for the confusion,
-
-Karim
--- 
-Author, Speaker, Developer, Consultant
-Pushing Embedded and Real-Time Linux Systems Beyond the Limits
-http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+Cheers,
+Con

@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261478AbVFLGtI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261888AbVFLGvM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261478AbVFLGtI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 02:49:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261888AbVFLGtI
+	id S261888AbVFLGvM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 02:51:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261889AbVFLGvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 02:49:08 -0400
-Received: from ozlabs.org ([203.10.76.45]:59336 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S261478AbVFLGtE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 02:49:04 -0400
-Subject: Re: Race condition in module load causing undefined symbols
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Stephen Lord <lord@xfs.org>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <42A99D9D.7080900@xfs.org>
-References: <42A99D9D.7080900@xfs.org>
-Content-Type: text/plain
-Date: Sun, 12 Jun 2005 16:49:02 +1000
-Message-Id: <1118558942.31631.10.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 
-Content-Transfer-Encoding: 7bit
+	Sun, 12 Jun 2005 02:51:12 -0400
+Received: from web30704.mail.mud.yahoo.com ([68.142.200.137]:3688 "HELO
+	web30704.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S261888AbVFLGu5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 02:50:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=t2b8EWhwHDLbRUM3NIX211syt+qUHoer9TsWqRUIiodi/eLV/dFmDXw9q1J3jUKyBOGR+8IP+fqj4RWC+GlKXOa9PNnIeEF/7GPbnuuvB+F7BN6wgZmVeyQwkjWG+e+pwui7bkhz35KDx/42TKjeN97JBZQPuxug9wxGcem8A2s=  ;
+Message-ID: <20050612065050.99998.qmail@web30704.mail.mud.yahoo.com>
+Date: Sat, 11 Jun 2005 23:50:50 -0700 (PDT)
+From: subbie subbie <subbie_subbie@yahoo.com>
+Subject: optional delay after partition detection at boot time
+To: linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2005-06-10 at 09:03 -0500, Stephen Lord wrote:
-> Hi,
-> 
-> I am having troubles getting any recent kernel to boot successfully
-> on one of my machines, a generic 2.6GHz P4 box with HT enabled
-> running an updated Fedora Core 3 distro. This is present in
-> 2.6.12-rc6. It does not manifest itself with the Fedora Core
-> kernels which have identical initrd contents as far as the
-> init script and the set of modules included goes.
-> 
-> The problem manifests itself as various undefined symbols from
-> module loads.  Here is the relevant section from the init script
+Hello,
 
-Module loading is synchronous.  All I can think of is that a module is
-pulling in another module which requires it asynchronously (you need to
-do this because your own module symbols are not available until *after*
-init succeeds), or a hotplug interaction (hotplug is async, too).
+ I'm sure some of you have come across this annoying
+issue, the kernel messages scroll way too fast for a
+human to be able to read them (let alone vgrep them).
 
-Rusty.
--- 
-A bad analogy is like a leaky screwdriver -- Richard Braakman
+ I'm proposing two features;
 
+ 1. a configurable (boot time, via kernel command
+line) delay between each and every print -- kind of
+overkill, but may be useful sometimes. 
+ 
+ 2. a configurable (boot time, via kernel command
+line) delay after partition detection, so that a
+humble system administrator would be able to actually
+find out which partition he should specify at boot
+time in order to boot his system.   This is especially
+annoying on newer SATA systems where sometimes disks
+are detected as SCSI and sometimes as standard ATA
+(depending on BIOS settings), I'm sure though that it
+could be useful in a number of other cases.
+
+ Let the flames begin
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

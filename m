@@ -1,85 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbVFLNWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262494AbVFLNZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261854AbVFLNWA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 09:22:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbVFLNV7
+	id S262494AbVFLNZr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 09:25:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262531AbVFLNZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 09:21:59 -0400
-Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:28808 "EHLO
-	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S261854AbVFLNVp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 09:21:45 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: ck list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.6.11-ck10
-Date: Sun, 12 Jun 2005 23:21:39 +1000
-User-Agent: KMail/1.8.1
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2213989.RsBQGizy9i";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200506122321.41894.kernel@kolivas.org>
+	Sun, 12 Jun 2005 09:25:47 -0400
+Received: from zproxy.gmail.com ([64.233.162.196]:56236 "EHLO zproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S262494AbVFLNZn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 09:25:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=TRAoQzu2w1bgfcnumI5Qvp12moP4J+Pjzw/BWpQ5VeJHIb6WA1AsWGBQgzyz4xDy5HI/vO/nPgi61J0Erenpg9xNAlVwtDjMRCzjPGH7nbKCGN4lY7uF2JCcjixZjiDqqyw6w3sou39IUCtn8WK2HLy8uOvT57cDyZRffYMxWtY=
+Message-ID: <9a87484905061206252d2f2ce9@mail.gmail.com>
+Date: Sun, 12 Jun 2005 15:25:42 +0200
+From: Jesper Juhl <jesper.juhl@gmail.com>
+Reply-To: Jesper Juhl <jesper.juhl@gmail.com>
+To: subbie subbie <subbie_subbie@yahoo.com>
+Subject: Re: optional delay after partition detection at boot time
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20050612065050.99998.qmail@web30704.mail.mud.yahoo.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <20050612065050.99998.qmail@web30704.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2213989.RsBQGizy9i
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On 6/12/05, subbie subbie <subbie_subbie@yahoo.com> wrote:
+> Hello,
+> 
+>  I'm sure some of you have come across this annoying
+> issue, the kernel messages scroll way too fast for a
+> human to be able to read them (let alone vgrep them).
+> 
 
-These are patches designed to improve system responsiveness and interactivi=
-ty.=20
-It is configurable to any workload but the default ck* patch is aimed at th=
-e=20
-desktop and ck*-server is available with more emphasis on serverspace.
+If you need to pause the messages during boot, just press the  Scroll
+Lock  key (or is it the  Pause  key, can't recall, but one of them
+works).
 
-Apply to 2.6.11 (this includes all the patches from 2.6.11.12):
-http://ck.kolivas.org/patches/2.6/2.6.11/2.6.11-ck10/patch-2.6.11-ck10.bz2
-or
-http://ck.kolivas.org/patches/2.6/2.6.11/2.6.11-ck10/patch-2.6.11-ck10-serv=
-er.bz2
-
-web:
-http://kernel.kolivas.org
-all patches:
-http://ck.kolivas.org/patches/
-Split patches available.
-
-
-Changes since 2.6.11-ck9:
-=2Dpatch-2.6.11.11
-+patch-2.6.11.12
- Latest stable version
-
-+2611ck9-smpnice-fix1.diff
- A fix for smp nice calculations
-
-+s11.2_s11.3.diff
- Update the staircase cpu scheduler to the latest version which includes th=
-e=20
-interactivity fix for recent changes in pipe behaviour
-
-=2D2611ck9-version.diff
-+2611ck10-version.diff
- Version
-
-
-Cheers,
-Con
-
---nextPart2213989.RsBQGizy9i
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQBCrDblZUg7+tp6mRURApTSAJ9VUU9Kd2npddHYL0JEeuZzGpmrSwCcDhm6
-FDmxtpEFtuxKxfj5XxXtbWQ=
-=gPDf
------END PGP SIGNATURE-----
-
---nextPart2213989.RsBQGizy9i--
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

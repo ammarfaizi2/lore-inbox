@@ -1,38 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261640AbVFLOMK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261666AbVFLOXi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261640AbVFLOMK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 10:12:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261666AbVFLOMK
+	id S261666AbVFLOXi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 10:23:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262598AbVFLOXi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 10:12:10 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:33186 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S261640AbVFLOMH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 10:12:07 -0400
-Date: Sun, 12 Jun 2005 16:11:49 +0200 (MEST)
-Message-Id: <200506121411.j5CEBnUr020043@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: ak@suse.de
-Subject: Re: [PATCH 2.4.31 6/9] gcc4: fix x86_64 sys_iopl() bug
-Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+	Sun, 12 Jun 2005 10:23:38 -0400
+Received: from vms044pub.verizon.net ([206.46.252.44]:18848 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261666AbVFLOXg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 10:23:36 -0400
+Date: Sun, 12 Jun 2005 10:23:23 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+In-reply-to: <20050612134907.GA17467@elte.hu>
+To: linux-kernel@vger.kernel.org
+Message-id: <200506121023.23862.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20050608112801.GA31084@elte.hu>
+ <200506120940.11698.gene.heskett@verizon.net> <20050612134907.GA17467@elte.hu>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi wrote:
-> > @@ -113,9 +113,18 @@ quiet_ni_syscall:
-> >  	PTREGSCALL stub32_fork, sys32_fork
-> >  	PTREGSCALL stub32_clone, sys32_clone
-> >  	PTREGSCALL stub32_vfork, sys32_vfork
-> > -	PTREGSCALL stub32_iopl, sys_iopl
-> >  	PTREGSCALL stub32_rt_sigsuspend, sys_rt_sigsuspend
-> >  
-> > +	.macro PTREGSCALL3 label, func, arg
-> 
-> PTREGSCALL3? I'm sure that is not in 2.6. How about just changing
-> PTREGSCALL globally? 
+On Sunday 12 June 2005 09:49, Ingo Molnar wrote:
+>* Gene Heskett <gene.heskett@verizon.net> wrote:
+>> I think I see.  Do you have a swag as to how much runtime overhead
+>> using softirq's only might cause? [...]
+>
+>should be barely measurable for desktop workloads. For servers it
+> might be significant, depending on the amount of IRQ traffic. For
+> any box doing less than 2000-3000 irqs/sec it should be very small.
+>
+> Ingo
 
-Well I renamed it so that I could use it _only_ for the required
-syscalls, i.e. sys_iopl(). I can change all of them if you feel
-that's more appropriate.
+Chuckle, for me that would be a 'mox nix' using the english 
+spelling. :-)  And seti made a liar out of me, it did do 7 units 
+yesterday.
 
-/Mikael
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

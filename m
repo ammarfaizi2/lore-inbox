@@ -1,35 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261283AbVFLTau@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261180AbVFLTay@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261283AbVFLTau (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 15:30:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261277AbVFLTaG
+	id S261180AbVFLTay (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 15:30:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261282AbVFLTaP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 15:30:06 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:27661 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S261151AbVFLTQY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 15:16:24 -0400
-Date: Sun, 12 Jun 2005 21:17:38 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: "Ilan S." <ilan_sk@netvision.net.il>, linux-kernel@vger.kernel.org
-Subject: Re: 'hello world' module
-Message-ID: <20050612191737.GA8215@mars.ravnborg.org>
-References: <200506111511.02581.ilan_sk@netvision.net.il> <20050611181753.GA17310@mars.ravnborg.org> <Pine.LNX.4.61.0506112225040.2372@yvahk01.tjqt.qr>
-Mime-Version: 1.0
+	Sun, 12 Jun 2005 15:30:15 -0400
+Received: from opersys.com ([64.40.108.71]:39436 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S261180AbVFLTSc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 15:18:32 -0400
+Message-ID: <42AC8D00.4030809@opersys.com>
+Date: Sun, 12 Jun 2005 15:29:04 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040805 Netscape/7.2
+X-Accept-Language: en-us, en, fr, fr-be, fr-ca, fr-fr
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
+       paulmck@us.ibm.com, bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org
+Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
+References: <42AA6A6B.5040907@opersys.com> <20050611191448.GA24152@elte.hu> <42AB662B.4010104@opersys.com> <20050612061108.GA4554@elte.hu>
+In-Reply-To: <20050612061108.GA4554@elte.hu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0506112225040.2372@yvahk01.tjqt.qr>
-User-Agent: Mutt/1.5.8i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 11, 2005 at 10:25:30PM +0200, Jan Engelhardt wrote:
-> 
-> >> [ilanso@Netvision Kernel]$ make -C /home/ilanso/src/linux-2.6.11.11 M=`pwd`
-> 
-> Try adding "modules" at the end?
 
-In 2.6 thats implicit when using M=... syntax.
+Ingo Molnar wrote:
+> ok, this method should work fine. I suspect you increased the parport 
+> IRQ's priority to the maximum on the PREEMPT_RT kernel, correct? Was 
+> there any userspace thread on the target system (receiving the parport 
+> request and sending the reply), or was it all done in a kernelspace 
+> parport driver?
 
-	Sam
+This is all done in kernelspace. I'll check with Kristian for the
+rest. In the mean time, let me know if you have any recommendations
+based on the fact that it's indeed in the kernel.
+
+Karim
+-- 
+Author, Speaker, Developer, Consultant
+Pushing Embedded and Real-Time Linux Systems Beyond the Limits
+http://www.opersys.com || karim@opersys.com || 1-866-677-4546
+

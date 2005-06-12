@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261210AbVFLUgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261203AbVFLUvR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261210AbVFLUgj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 16:36:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVFLUgj
+	id S261203AbVFLUvR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 16:51:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261212AbVFLUvR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 16:36:39 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:32739 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S261210AbVFLUgh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 16:36:37 -0400
-Date: Sun, 12 Jun 2005 13:36:59 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de, mingo@elte.hu,
-       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
-       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
-Message-ID: <20050612203659.GA1340@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <42AA6A6B.5040907@opersys.com> <20050611201422.GA1299@us.ibm.com> <42AB66D1.20205@opersys.com>
+	Sun, 12 Jun 2005 16:51:17 -0400
+Received: from willy.net1.nerim.net ([62.212.114.60]:44556 "EHLO
+	willy.net1.nerim.net") by vger.kernel.org with ESMTP
+	id S261203AbVFLUvN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 16:51:13 -0400
+Date: Sun, 12 Jun 2005 22:49:55 +0200
+From: Willy Tarreau <willy@w.ods.org>
+To: DJ.CnX@phreaker.net
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: execve-bug ...
+Message-ID: <20050612204955.GC8907@alpha.home.local>
+References: <20050612212306.7383a6bd.DJ.CnX@phreaker.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <42AB66D1.20205@opersys.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20050612212306.7383a6bd.DJ.CnX@phreaker.net>
+User-Agent: Mutt/1.4i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Jun 11, 2005 at 06:33:53PM -0400, Karim Yaghmour wrote:
+On Sun, Jun 12, 2005 at 09:23:06PM +0200, DJ.CnX@phreaker.net wrote:
+ 
+> shell# nasm -f elf -o new.o new.asm 
+> shell# ld -o new new.o
+> shell# ./new
+> Segmentation Fault.
 > 
-> Paul E. McKenney wrote:
-> > My guess is that there will end up being more than one benchmark, given
-> > the large variety of RT apps out there, but who knows?
 > 
-> I don't doubt. We just wanted to get people's attention to such aspects.
-> We believe that the framework we've built is general enough that others
-> will find it simple to graft their own tests on top and otherwise extend
-> it to their needs.
 > 
-> In any case, having more serious benchmarks published will certainly do
-> no harm.
+> i even tried to execute the binary i've compiled on 2.6.5.x but it didnt
+> work : Segmentation Fault. So i think its a bug in the "execve"-function. 
 
-Sounds good, agreed!
+well, fortunately this is not the case or you would have some difficulties
+executing your tools. You should find litterature about all the options
+you have to pass to 'ld' to use it this way, or simpler : use gcc as the
+linker and keep 'main' as your program's entry point, it WILL work.
 
-						Thanx, Paul
+You should have tried 'strace -i ./new', it would have showed you that
+the program pointer is invalid (I see b7f63fae here), while on older
+kernels it was still 8048080. This does not necessarily mean there's a
+bug in execve(), but most probably that this code would have worked
+before because of a side effect and that this side effect has been
+closed now.
+
+For instance, you can check asmutils which still works. But please,
+don't post newbie asm problems here, this definitely is not the right
+list.
+
+Regards,
+Willy
+

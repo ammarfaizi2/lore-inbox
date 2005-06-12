@@ -1,64 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261273AbVFLK1w@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261933AbVFLKbG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261273AbVFLK1w (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 06:27:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261921AbVFLK1w
+	id S261933AbVFLKbG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 06:31:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVFLKbG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 06:27:52 -0400
-Received: from witte.sonytel.be ([80.88.33.193]:2965 "EHLO witte.sonytel.be")
-	by vger.kernel.org with ESMTP id S261273AbVFLK1r (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 06:27:47 -0400
-Date: Sun, 12 Jun 2005 12:27:36 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+	Sun, 12 Jun 2005 06:31:06 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:6406 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261933AbVFLKax
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 06:30:53 -0400
+Date: Sun, 12 Jun 2005 20:30:20 +1000
 To: Willy Tarreau <willy@w.ods.org>
-cc: subbie subbie <subbie_subbie@yahoo.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: optional delay after partition detection at boot time
-In-Reply-To: <20050612071213.GG28759@alpha.home.local>
-Message-ID: <Pine.LNX.4.62.0506121225170.11197@numbat.sonytel.be>
-References: <20050612065050.99998.qmail@web30704.mail.mud.yahoo.com>
- <20050612071213.GG28759@alpha.home.local>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Cc: davem@davemloft.net, xschmi00@stud.feec.vutbr.cz, alastair@unixtrix.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] fix small DoS on connect() (was Re: BUG: Unusual TCP Connect() results.)
+Message-ID: <20050612103020.GA25111@gondor.apana.org.au>
+References: <20050611074350.GD28759@alpha.home.local> <E1DhBic-0005dp-00@gondolin.me.apana.org.au> <20050611195144.GF28759@alpha.home.local> <20050612081327.GA24384@gondor.apana.org.au> <20050612083409.GA8220@alpha.home.local>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050612083409.GA8220@alpha.home.local>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Jun 2005, Willy Tarreau wrote:
-> On Sat, Jun 11, 2005 at 11:50:50PM -0700, subbie subbie wrote:
-> >  I'm sure some of you have come across this annoying
-> > issue, the kernel messages scroll way too fast for a
-> > human to be able to read them (let alone vgrep them).
-> > 
-> >  I'm proposing two features;
-> > 
-> >  1. a configurable (boot time, via kernel command
-> > line) delay between each and every print -- kind of
-> > overkill, but may be useful sometimes. 
-> >  
-> >  2. a configurable (boot time, via kernel command
-> > line) delay after partition detection, so that a
-> > humble system administrator would be able to actually
-> > find out which partition he should specify at boot
-> > time in order to boot his system.   This is especially
-> > annoying on newer SATA systems where sometimes disks
-> > are detected as SCSI and sometimes as standard ATA
-> > (depending on BIOS settings), I'm sure though that it
-> > could be useful in a number of other cases.
+On Sun, Jun 12, 2005 at 10:34:09AM +0200, Willy Tarreau wrote:
+>
+> > Sorry but this patch is pointless.  If I wanted to prevent you from
+> > connecting to www.kernel.org 80 and I knew your source port number
+> > I'd be directly sending you fake SYN-ACK packets which will kill
+> > your connection immediately.
 > 
-> What's the problem with "cat /proc/partitions" or "dmesg" ?
-> You seem to want to slow down *every* boot just to identify
-> a partition you need to find *once*. This seems overkill.
+> Only if your ACK was within my SEQ window, which adds about 20 bits of
+> random when my initial window is 5840. You would then need to send one
+> million times more packets to achieve the same goal.
 
-Or make the kernel print /proc/partitions when it is unable to mount root?
-
-Gr{oetje,eeting}s,
-
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+Nope, no sequence validity check is made on the SYN-ACK.
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

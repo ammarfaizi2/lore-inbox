@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261247AbVFLT3X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261277AbVFLTa5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261247AbVFLT3X (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 15:29:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261252AbVFLT2a
+	id S261277AbVFLTa5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 15:30:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261272AbVFLTaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 15:28:30 -0400
-Received: from moutng.kundenserver.de ([212.227.126.177]:23264 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S261589AbVFLScL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 14:32:11 -0400
-Date: Sun, 12 Jun 2005 20:32:05 +0200 (CEST)
-From: Armin Schindler <armin@melware.de>
-To: Ed Tomlinson <tomlins@cam.org>
-Cc: Greg K-H <greg@kroah.com>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove devfs_mk_cdev() function from the kernel tree
-In-Reply-To: <200506121136.35511.tomlins@cam.org>
-Message-ID: <Pine.LNX.4.61.0506122026400.20430@phoenix.one.melware.de>
-References: <11184761113499@kroah.com> <200506120929.03212.tomlins@cam.org>
- <Pine.LNX.4.61.0506121543200.15593@phoenix.one.melware.de>
- <200506121136.35511.tomlins@cam.org>
-Organization: Cytronics & Melware
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:4f0aeee4703bc17a8237042c4702a75a
+	Sun, 12 Jun 2005 15:30:00 -0400
+Received: from mx1.elte.hu ([157.181.1.137]:17540 "EHLO mx1.elte.hu")
+	by vger.kernel.org with ESMTP id S261812AbVFLTJp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 15:09:45 -0400
+Date: Sun, 12 Jun 2005 21:02:41 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Zwane Mwaikambo <zwane@fsmlabs.com>
+Cc: Daniel Walker <dwalker@mvista.com>, Esben Nielsen <simlo@phys.au.dk>,
+       Linux Kernel <linux-kernel@vger.kernel.org>, sdietrich@mvista.com
+Subject: Re: [PATCH] local_irq_disable removal
+Message-ID: <20050612190241.GA29708@elte.hu>
+References: <Pine.LNX.4.44.0506111345400.12084-100000@dhcp153.mvista.com> <Pine.LNX.4.61.0506120926331.15684@montezuma.fsmlabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0506120926331.15684@montezuma.fsmlabs.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Jun 2005, Ed Tomlinson wrote:
-> On Sunday 12 June 2005 09:51, Armin Schindler wrote:
-> > On Sun, 12 Jun 2005, Ed Tomlinson wrote:
-> > > On Sunday 12 June 2005 04:44, Armin Schindler wrote:
-> > > > It didn't follow the development, is devfs now obsolete in kernel?
-> > > > If not, these funktions still makes sense.
-> > > > 
-> > > Armin,
-> > > 
-> > > From Documentation/feature-removal-schedule.txt
-> > > 
-> > > What:   devfs
-> > > When:   July 2005
-> > > Files:  fs/devfs/*, include/linux/devfs_fs*.h and assorted devfs
-> > >         function calls throughout the kernel tree
-> > > Why:    It has been unmaintained for a number of years, has unfixable
-> > >         races, contains a naming policy within the kernel that is
-> > >         against the LSB, and can be replaced by using udev.
-> > > Who:    Greg Kroah-Hartman <greg@kroah.com>
-> > > 
-> > > This should not a surprise to anyone...
-> > 
-> > I know the status of devfs, but I never thought the removal will be
-> > done in the middle of a stable line...
+
+* Zwane Mwaikambo <zwane@fsmlabs.com> wrote:
+
+> > Interesting .. So "cli" takes 7 cycles , "sti" takes 7 cycles. The current 
+> > method does "lea" which takes 1 cycle, and "or" which takes 1 cycle. I'm 
+> > not sure if there is any function call overhead .. So the soft replacment 
+> > of cli/sti is 70% faster on a per instruction level .. So it's at least 
+> > not any slower .. Does everyone agree on that?
 > 
-> Armin,
-> 
-> Its all the same in 2.6 - the 2.odd.x development, 2.even.x stable model is no longer
-> being used.  The current Linus kernel is 2.6.11.12, where the last .12 is the latest 
-> 2.6.11 kernel with VIF (very important fixes) applied.
+> Well you also have to take into account the memory access, so it's not 
+> always that straightforward.
 
-Yes, I know and I like this new model. But I didn't get the idea of changing 
-'major' things from e.g. 2.6.11 to 2.6.12.
+preempt_count resides in the first cacheline of 'current thread info' 
+and is almost always cached. It's the same cacheline that 'current', 
+'smp_processor_id()' are using.
 
-Thanks for the explanation.
-
-Armin
+	Ingo

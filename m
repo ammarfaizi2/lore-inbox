@@ -1,45 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261896AbVFLOoI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261886AbVFLOsJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261896AbVFLOoI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 10:44:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262614AbVFLOoI
+	id S261886AbVFLOsJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 10:48:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262615AbVFLOsJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 10:44:08 -0400
-Received: from postel.suug.ch ([195.134.158.23]:55494 "EHLO postel.suug.ch")
-	by vger.kernel.org with ESMTP id S261896AbVFLOoF (ORCPT
+	Sun, 12 Jun 2005 10:48:09 -0400
+Received: from [62.206.217.67] ([62.206.217.67]:64452 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S261886AbVFLOsH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 10:44:05 -0400
-Date: Sun, 12 Jun 2005 16:44:26 +0200
-From: Thomas Graf <tgraf@suug.ch>
-To: Willy Tarreau <willy@w.ods.org>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
-       xschmi00@stud.feec.vutbr.cz, alastair@unixtrix.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] fix small DoS on connect() (was Re: BUG: Unusual TCP Connect() results.)
-Message-ID: <20050612144426.GC22463@postel.suug.ch>
-References: <E1DhBic-0005dp-00@gondolin.me.apana.org.au> <20050611195144.GF28759@alpha.home.local> <20050612081327.GA24384@gondor.apana.org.au> <20050612083409.GA8220@alpha.home.local> <20050612103020.GA25111@gondor.apana.org.au> <20050612114039.GI28759@alpha.home.local> <20050612120627.GA5858@gondor.apana.org.au> <20050612123253.GK28759@alpha.home.local> <20050612131323.GA10188@gondor.apana.org.au> <20050612133654.GA8951@alpha.home.local>
-Mime-Version: 1.0
+	Sun, 12 Jun 2005 10:48:07 -0400
+Message-ID: <42AC4B12.2080508@trash.net>
+Date: Sun, 12 Jun 2005 16:47:46 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.8) Gecko/20050514 Debian/1.7.8-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Juergen Kreileder <jk@blackdown.de>
+CC: Andrew Morton <akpm@osdl.org>, Stephen Frost <sfrost@snowman.net>,
+       netfilter-devel@lists.netfilter.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ipt_recent fixes
+References: <87ll6o1pbi.fsf@blackdown.de>
+In-Reply-To: <87ll6o1pbi.fsf@blackdown.de>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050612133654.GA8951@alpha.home.local>
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Willy Tarreau <20050612133654.GA8951@alpha.home.local> 2005-06-12 15:36
-> > The RST packet is sent by client A using its sequence numbers.  Therefore
-> > it will pass the sequence number check on server B.
-> >
-> > 4) server B resets the connection.
+Juergen Kreileder wrote:
+> I've had some ipt_recent rules acting strangely after an uptime of
+> about 25 days.  The broken behavior is reproducible in the 5 minutes
+> before the first jiffies roll-over right after booting too.
 > 
-> No, precisely the RST sent by A will take its SEQ from C's ACK number.
-> This is why B will *not* reset the connection (again, tested) if C's ACK
-> was not within B's window.
+> The cause of the problem is the jiffies comparision which doesn't work
+> like intended if one of the last hits was more than LONG_MAX seconds
+> ago or if the table of last hits contains empty slots and jiffies
+> is > LONG_MAX.
+> 
+> This patch fixes the problem by using get_seconds() instead of
+> jiffies.  It also fixes some 64-bit issues.
 
-Absolutely but it relies on the other stack being correctly implemented.
-The attack would work perfectly fine if there wasn't the rule that a RST
-must not be sent in response to another RST. The attack has been
-successful and still is because some firewalls are configured to send
-RSTs without respecting this rule.
-
-I like your patch and the idea behind it, it can successfully defeat the
-most simple method of preventing connections being established.
+Thanks, I've added it to my 2.6.13 tree.

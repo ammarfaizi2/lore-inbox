@@ -1,41 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261688AbVFLKrz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261786AbVFLLEj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261688AbVFLKrz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 06:47:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbVFLKrz
+	id S261786AbVFLLEj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 07:04:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbVFLLEj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 06:47:55 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.81]:59058 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP id S261688AbVFLKry
+	Sun, 12 Jun 2005 07:04:39 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:14783 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S261786AbVFLLEi
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 06:47:54 -0400
-Message-ID: <38010.210.137.194.5.1118573221.squirrel@210.137.194.5>
-In-Reply-To: <20050611181528.GA15019@elte.hu>
-References: <42AA6A6B.5040907@opersys.com> <20050611070845.GA4609@elte.hu>
-    <42AAF5CE.9080607@opersys.com> <20050611145240.GA10881@elte.hu>
-    <42AB2209.9080006@opersys.com> <20050611181528.GA15019@elte.hu>
-Date: Sun, 12 Jun 2005 06:47:01 -0400 (EDT)
-Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
-From: "James R Bruce" <bruce@andrew.cmu.edu>
-To: "Ingo Molnar" <mingo@elte.hu>
-Cc: "Karim Yaghmour" <karim@opersys.com>,
-       "Kristian Benoit" <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com, bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de,
-       pmarques@grupopie.com, nickpiggin@yahoo.com.au, ak@muc.de,
-       sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
-       akpm@osdl.org, rpm@xenomai.org
-User-Agent: SquirrelMail/1.5.1 [CVS]
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-Priority: 3 (Normal)
-Importance: Normal
+	Sun, 12 Jun 2005 07:04:38 -0400
+Date: Sun, 12 Jun 2005 12:05:39 +0100
+From: "Dr. David Alan Gilbert" <dave@treblig.org>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: Willy Tarreau <willy@w.ods.org>, subbie subbie <subbie_subbie@yahoo.com>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>
+Subject: Re: optional delay after partition detection at boot time
+Message-ID: <20050612110539.GA9765@gallifrey>
+References: <20050612065050.99998.qmail@web30704.mail.mud.yahoo.com> <20050612071213.GG28759@alpha.home.local> <Pine.LNX.4.62.0506121225170.11197@numbat.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0506121225170.11197@numbat.sonytel.be>
+User-Agent: Mutt/1.4.1i
+X-Chocolate: 70 percent or better cocoa solids preferably
+X-Operating-System: Linux/2.6.11-1.14_FC3smp (i686)
+X-Uptime: 12:04:45 up 59 days, 10:33, 28 users,  load average: 0.00, 0.00, 0.00
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo, if you could document the right options required for decent performace somewhere it would be quite helpful (maybe in Documentation/rt-preempt?).  My first test of Preempt-RT showed unexpectedly high overhead for a fairly benign network load (120 UDP packets/sec), but that was likely the result of leaving some debugging options on.
+* Geert Uytterhoeven (geert@linux-m68k.org) wrote:
 
-I'll try to run an updated test in the near future and see if there are still issues.  In the meantime I'll be saving your email to make sure I get the config options right.
+> Or make the kernel print /proc/partitions when it is unable to mount root?
 
- - Jim
+I posted a patch in February to do this:
 
+http://marc.theaimsgroup.com/?l=linux-kernel&m=110946077026065&w=2
+
+Dave
+--
+ -----Open up your eyes, open up your mind, open up your code -------   
+/ Dr. David Alan Gilbert    | Running GNU/Linux on Alpha,68K| Happy  \ 
+\ gro.gilbert @ treblig.org | MIPS,x86,ARM,SPARC,PPC & HPPA | In Hex /
+ \ _________________________|_____ http://www.treblig.org   |_______/

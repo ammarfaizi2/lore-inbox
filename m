@@ -1,55 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262554AbVFLNhV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262570AbVFLNkc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262554AbVFLNhV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 09:37:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262570AbVFLNhV
+	id S262570AbVFLNkc (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 09:40:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262596AbVFLNkc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 09:37:21 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:35596 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262554AbVFLNhM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 09:37:12 -0400
-Date: Sun, 12 Jun 2005 15:36:54 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: davem@davemloft.net, xschmi00@stud.feec.vutbr.cz, alastair@unixtrix.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] fix small DoS on connect() (was Re: BUG: Unusual TCP Connect() results.)
-Message-ID: <20050612133654.GA8951@alpha.home.local>
-References: <20050611074350.GD28759@alpha.home.local> <E1DhBic-0005dp-00@gondolin.me.apana.org.au> <20050611195144.GF28759@alpha.home.local> <20050612081327.GA24384@gondor.apana.org.au> <20050612083409.GA8220@alpha.home.local> <20050612103020.GA25111@gondor.apana.org.au> <20050612114039.GI28759@alpha.home.local> <20050612120627.GA5858@gondor.apana.org.au> <20050612123253.GK28759@alpha.home.local> <20050612131323.GA10188@gondor.apana.org.au>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050612131323.GA10188@gondor.apana.org.au>
-User-Agent: Mutt/1.4i
+	Sun, 12 Jun 2005 09:40:32 -0400
+Received: from vms044pub.verizon.net ([206.46.252.44]:37291 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S262570AbVFLNkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 09:40:24 -0400
+Date: Sun, 12 Jun 2005 09:40:11 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+In-reply-to: <20050612103513.GA10808@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@elte.hu>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+Message-id: <200506120940.11698.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20050608112801.GA31084@elte.hu>
+ <200506120502.01752.gene.heskett@verizon.net> <20050612103513.GA10808@elte.hu>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 12, 2005 at 11:13:23PM +1000, Herbert Xu wrote:
-> On Sun, Jun 12, 2005 at 02:32:53PM +0200, Willy Tarreau wrote:
-> >
-> > but it's not the case (although the naming is not clear). So if the remote
-> > end was the one which sent the SYN-ACK, it will clear its session. If it has
-> > been spoofed, it will ignore the RST because in turn, the SEQ will not be
-> > within its window.
-> 
-> This is what should happen:
-> 
-> 1) client A sends SYN to server B.
-> 2) attcker C sends spoofed SYN-ACK to client A purporting to be server B.
-> 3) client A sends RST to server B.
-
-Agreed till here.
-
-> The RST packet is sent by client A using its sequence numbers.  Therefore
-> it will pass the sequence number check on server B.
+On Sunday 12 June 2005 06:35, Ingo Molnar wrote:
+>* Gene Heskett <gene.heskett@verizon.net> wrote:
+>> Glitch reports as they develop of course.
+>>
+>> Q: Whats the diff between turning on hardirq's in mode 3, and mode
+>> 4?
 >
-> 4) server B resets the connection.
+>well, "mode 3" is PREEMPT_DESKTOP - normal CONFIG_PREEMPT on the
+>mainstream kernel. If you turn on hardirq/softirq threading then you
+> can e.g. chprio your sound IRQ to have better audio latencies. It
+> will cause runtime overhead though. On "mode 4" (PREEMPT_RT)
+> hardirq/softirq threading is mandatory (due to the processing
+> model).
+>
+> Ingo
 
-No, precisely the RST sent by A will take its SEQ from C's ACK number.
-This is why B will *not* reset the connection (again, tested) if C's ACK
-was not within B's window.
+I think I see.  Do you have a swag as to how much runtime overhead 
+using softirq's only might cause?  My normal seti production is about 
+7 per day, and it seems to have dropped to about 6 while running the 
+RT versions.
 
-Cheers,
-Willy
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

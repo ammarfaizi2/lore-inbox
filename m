@@ -1,96 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261252AbVFLTdv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261294AbVFLTaz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261252AbVFLTdv (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 15:33:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261202AbVFLTcQ
+	id S261294AbVFLTaz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 15:30:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261265AbVFLT3w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 15:32:16 -0400
-Received: from rly-ip03.mx.aol.com ([64.12.138.7]:63427 "EHLO
-	rly-ip03.mx.aol.com") by vger.kernel.org with ESMTP id S261212AbVFLTXn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 15:23:43 -0400
-Date: Sun, 12 Jun 2005 21:23:06 +0200
-From: DJ.CnX@phreaker.net
-To: linux-kernel@vger.kernel.org
-Subject: execve-bug ...
-Message-Id: <20050612212306.7383a6bd.DJ.CnX@phreaker.net>
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
+	Sun, 12 Jun 2005 15:29:52 -0400
+Received: from smtp.lnxw.com ([207.21.185.24]:20497 "EHLO smtp.lnxw.com")
+	by vger.kernel.org with ESMTP id S262657AbVFLTG0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 15:06:26 -0400
+Date: Sun, 12 Jun 2005 12:12:02 -0700
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Andrea Arcangeli <andrea@suse.de>, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Bill Huey <bhuey@lnxw.com>, Karim Yaghmour <karim@opersys.com>,
+       Tim Bird <tim.bird@am.sony.com>, linux-kernel@vger.kernel.org,
+       tglx@linutronix.de, mingo@elte.hu, pmarques@grupopie.com,
+       bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au, ak@muc.de,
+       sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org
+Subject: Re: Attempted summary of "RT patch acceptance" thread
+Message-ID: <20050612191202.GA27706@nietzsche.lynx.com>
+References: <42A9F788.2040107@opersys.com> <20050610223724.GA20853@nietzsche.lynx.com> <20050610225231.GF6564@g5.random> <20050610230836.GD21618@nietzsche.lynx.com> <20050610232955.GH6564@g5.random> <20050611014133.GO1300@us.ibm.com> <20050611155459.GB5796@g5.random> <20050611210417.GC1299@us.ibm.com> <20050612170147.GE5796@g5.random> <1118601783.20671.8.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-AOL-IP: 195.93.61.17
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1118601783.20671.8.camel@mindpipe>
+User-Agent: Mutt/1.5.9i
+From: Bill Huey (hui) <bhuey@lnxw.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux rrlf 2.6.5-7.151-default #1 Fri Mar 18 11:31:21 UTC 2005 i686 i686 i386 GNU/Linux
+On Sun, Jun 12, 2005 at 02:43:02PM -0400, Lee Revell wrote:
+> Nforce4 chipsets have some problems that look like DMA starvation too,
+> the RME people claim to have traced it to the SATA controller.
+> 
+> http://www.rme-audio.de/english/techinfo/nforce4_tests.htm
+> 
+> Basically these all fall under common sense engineering, you don't use
+> buggy/unproved hardware for an RT or any mission critical system.  
 
------------------ new.asm -------------------------
-bits 32
-section .text
+How did folks work around that ? by using another SATA PCI-e card ?
 
-global _start
-
-msg db "och bin",0x0
-msg_len equ $-msg 
-
-_start:
-           pusha
-	   mov eax,4
-	   mov ebx,1
-	   mov ecx,msg
-	   mov edx,msg_len
-	   int 0x80
-	   
-	   popa
-	   xor eax,eax
-	   inc eax
-	   int 0x80
----------------------------------------------------	   
-
-
-shell# nasm -f elf -o new.o new.asm
-shell# ld -o new new.o
-shell# ./new
-och binshell#
-
-
-
-
-
-
-
-Linux rrlf 2.6.11 #2 Thu May 12 15:46:31 CEST 2005 i686 i686 i386 GNU/Linux
-
--------------- new.asm ----------------------------
-bits 32
-section .text
-
-global _start
-
-msg db "och bin",0x0
-msg_len equ $-msg 
-
-_start:
-           pusha
-	   mov eax,4
-	   mov ebx,1
-	   mov ecx,msg
-	   mov edx,msg_len
-	   int 0x80
-	   
-	   popa
-	   xor eax,eax
-	   inc eax
-	   int 0x80
-----------------------------------------------------
-
-shell# nasm -f elf -o new.o new.asm 
-shell# ld -o new new.o
-shell# ./new
-Segmentation Fault.
-
-
-
-i even tried to execute the binary i've compiled on 2.6.5.x but it didnt
-work : Segmentation Fault. So i think its a bug in the "execve"-function. 
+bill
 

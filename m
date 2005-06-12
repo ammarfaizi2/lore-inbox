@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261933AbVFLKbG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261932AbVFLKco@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261933AbVFLKbG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 06:31:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261935AbVFLKbG
+	id S261932AbVFLKco (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 06:32:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261934AbVFLKco
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 06:31:06 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:6406 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S261933AbVFLKax
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 06:30:53 -0400
-Date: Sun, 12 Jun 2005 20:30:20 +1000
+	Sun, 12 Jun 2005 06:32:44 -0400
+Received: from linux01.gwdg.de ([134.76.13.21]:17602 "EHLO linux01.gwdg.de")
+	by vger.kernel.org with ESMTP id S261932AbVFLKci (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 06:32:38 -0400
+Date: Sun, 12 Jun 2005 12:32:36 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
 To: Willy Tarreau <willy@w.ods.org>
-Cc: davem@davemloft.net, xschmi00@stud.feec.vutbr.cz, alastair@unixtrix.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] fix small DoS on connect() (was Re: BUG: Unusual TCP Connect() results.)
-Message-ID: <20050612103020.GA25111@gondor.apana.org.au>
-References: <20050611074350.GD28759@alpha.home.local> <E1DhBic-0005dp-00@gondolin.me.apana.org.au> <20050611195144.GF28759@alpha.home.local> <20050612081327.GA24384@gondor.apana.org.au> <20050612083409.GA8220@alpha.home.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050612083409.GA8220@alpha.home.local>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+cc: subbie subbie <subbie_subbie@yahoo.com>, linux-kernel@vger.kernel.org
+Subject: Re: optional delay after partition detection at boot time
+In-Reply-To: <20050612102726.GA8470@alpha.home.local>
+Message-ID: <Pine.LNX.4.61.0506121232080.18963@yvahk01.tjqt.qr>
+References: <20050612071213.GG28759@alpha.home.local>
+ <20050612101514.81433.qmail@web30707.mail.mud.yahoo.com>
+ <20050612102726.GA8470@alpha.home.local>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 12, 2005 at 10:34:09AM +0200, Willy Tarreau wrote:
 >
-> > Sorry but this patch is pointless.  If I wanted to prevent you from
-> > connecting to www.kernel.org 80 and I knew your source port number
-> > I'd be directly sending you fake SYN-ACK packets which will kill
-> > your connection immediately.
-> 
-> Only if your ACK was within my SEQ window, which adds about 20 bits of
-> random when my initial window is 5840. You would then need to send one
-> million times more packets to achieve the same goal.
+>  - you don't know the root device, so the kernel will
+>    panic at boot because it cannot find the root device.
+>    In this case, you have the partition list still on
+>    the screen as it's among the latest things in the
+>    boot order. And if your kernel reboots upon panic,
+>    just boot it with panic=30 so get 30 seconds to read
+>    the partition table.
 
-Nope, no sequence validity check is made on the SYN-ACK.
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+And, I might add, boot with vga=6 to get a *BIG* screen, so you won't miss any 
+messages.
+
+
+
+Jan Engelhardt                                                               
+--                                                                            
+| Gesellschaft fuer Wissenschaftliche Datenverarbeitung Goettingen,
+| Am Fassberg, 37077 Goettingen, www.gwdg.de

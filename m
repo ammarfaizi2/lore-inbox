@@ -1,46 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262308AbVFLNLI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262471AbVFLNOZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262308AbVFLNLI (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 09:11:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262471AbVFLNLI
+	id S262471AbVFLNOZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 09:14:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262479AbVFLNOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 09:11:08 -0400
-Received: from one.firstfloor.org ([213.235.205.2]:17635 "EHLO
-	one.firstfloor.org") by vger.kernel.org with ESMTP id S262308AbVFLNLB
+	Sun, 12 Jun 2005 09:14:24 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:51718 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262471AbVFLNOE
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 09:11:01 -0400
-To: "Dr. David Alan Gilbert" <dave@treblig.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>,
-       subbie subbie <subbie_subbie@yahoo.com>,
-       Linux Kernel Development <linux-kernel@vger.kernel.org>
-Subject: Re: optional delay after partition detection at boot time
-References: <20050612065050.99998.qmail@web30704.mail.mud.yahoo.com>
-	<20050612071213.GG28759@alpha.home.local>
-	<Pine.LNX.4.62.0506121225170.11197@numbat.sonytel.be>
-	<20050612110539.GA9765@gallifrey>
-	<20050612111659.GH28759@alpha.home.local>
-	<20050612125447.GD9765@gallifrey>
-From: Andi Kleen <ak@muc.de>
-Date: Sun, 12 Jun 2005 15:10:59 +0200
-In-Reply-To: <20050612125447.GD9765@gallifrey> (David Alan Gilbert's message
- of "Sun, 12 Jun 2005 13:54:47 +0100")
-Message-ID: <m1fyvnd8kc.fsf@muc.de>
-User-Agent: Gnus/5.110002 (No Gnus v0.2) Emacs/21.3 (gnu/linux)
-MIME-Version: 1.0
+	Sun, 12 Jun 2005 09:14:04 -0400
+Date: Sun, 12 Jun 2005 23:13:23 +1000
+To: Willy Tarreau <willy@w.ods.org>
+Cc: davem@davemloft.net, xschmi00@stud.feec.vutbr.cz, alastair@unixtrix.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] fix small DoS on connect() (was Re: BUG: Unusual TCP Connect() results.)
+Message-ID: <20050612131323.GA10188@gondor.apana.org.au>
+References: <20050611074350.GD28759@alpha.home.local> <E1DhBic-0005dp-00@gondolin.me.apana.org.au> <20050611195144.GF28759@alpha.home.local> <20050612081327.GA24384@gondor.apana.org.au> <20050612083409.GA8220@alpha.home.local> <20050612103020.GA25111@gondor.apana.org.au> <20050612114039.GI28759@alpha.home.local> <20050612120627.GA5858@gondor.apana.org.au> <20050612123253.GK28759@alpha.home.local>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050612123253.GK28759@alpha.home.local>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Dr. David Alan Gilbert" <dave@treblig.org> writes:
+On Sun, Jun 12, 2005 at 02:32:53PM +0200, Willy Tarreau wrote:
 >
-> 1) could be cured by not actually panic'ing.
+> but it's not the case (although the naming is not clear). So if the remote
+> end was the one which sent the SYN-ACK, it will clear its session. If it has
+> been spoofed, it will ignore the RST because in turn, the SEQ will not be
+> within its window.
 
-Actually one thing I always wanted was to make sysrq still work 
-after panic. Then you could add a key to page through the dmesg
-there too and the problem would be solved.
+This is what should happen:
 
-It would be extremly useful to reset remote servers when panic=timeout
-is not set, but something went wrong with mounting /.
+1) client A sends SYN to server B.
+2) attcker C sends spoofed SYN-ACK to client A purporting to be server B.
+3) client A sends RST to server B.
 
--Andi
+The RST packet is sent by client A using its sequence numbers.  Therefore
+it will pass the sequence number check on server B.
 
+4) server B resets the connection.
+
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261190AbVFLN3z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262532AbVFLNeQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261190AbVFLN3z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 09:29:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262532AbVFLN3z
+	id S262532AbVFLNeQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 09:34:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262548AbVFLNeQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 09:29:55 -0400
-Received: from ns.suse.de ([195.135.220.2]:11726 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S261190AbVFLN3u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 09:29:50 -0400
-Date: Sun, 12 Jun 2005 15:29:43 +0200
-From: Andi Kleen <ak@suse.de>
-To: Mikael Pettersson <mikpe@csd.uu.se>
-Cc: marcelo.tosatti@cyclades.com, ak@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.4.31 6/9] gcc4: fix x86_64 sys_iopl() bug
-Message-ID: <20050612132943.GS23831@wotan.suse.de>
-References: <200506121120.j5CBKZH1019741@harpo.it.uu.se>
+	Sun, 12 Jun 2005 09:34:16 -0400
+Received: from arnor.apana.org.au ([203.14.152.115]:60422 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262532AbVFLNeM
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 09:34:12 -0400
+Date: Sun, 12 Jun 2005 23:33:49 +1000
+To: Willy Tarreau <willy@w.ods.org>
+Cc: davem@davemloft.net, xschmi00@stud.feec.vutbr.cz, alastair@unixtrix.com,
+       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
+Subject: Re: [PATCH] fix small DoS on connect() (was Re: BUG: Unusual TCP Connect() results.)
+Message-ID: <20050612133349.GA6279@gondor.apana.org.au>
+References: <20050611074350.GD28759@alpha.home.local> <E1DhBic-0005dp-00@gondolin.me.apana.org.au> <20050611195144.GF28759@alpha.home.local> <20050612081327.GA24384@gondor.apana.org.au> <20050612083409.GA8220@alpha.home.local> <20050612103020.GA25111@gondor.apana.org.au> <20050612114039.GI28759@alpha.home.local> <20050612120627.GA5858@gondor.apana.org.au> <20050612123253.GK28759@alpha.home.local> <20050612131323.GA10188@gondor.apana.org.au>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200506121120.j5CBKZH1019741@harpo.it.uu.se>
+In-Reply-To: <20050612131323.GA10188@gondor.apana.org.au>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> @@ -113,9 +113,18 @@ quiet_ni_syscall:
->  	PTREGSCALL stub32_fork, sys32_fork
->  	PTREGSCALL stub32_clone, sys32_clone
->  	PTREGSCALL stub32_vfork, sys32_vfork
-> -	PTREGSCALL stub32_iopl, sys_iopl
->  	PTREGSCALL stub32_rt_sigsuspend, sys_rt_sigsuspend
->  
-> +	.macro PTREGSCALL3 label, func, arg
+On Sun, Jun 12, 2005 at 11:13:23PM +1000, herbert wrote:
+> On Sun, Jun 12, 2005 at 02:32:53PM +0200, Willy Tarreau wrote:
+> >
+> > but it's not the case (although the naming is not clear). So if the remote
+> > end was the one which sent the SYN-ACK, it will clear its session. If it has
+> > been spoofed, it will ignore the RST because in turn, the SEQ will not be
+> > within its window.
+> 
+> This is what should happen:
 
-PTREGSCALL3? I'm sure that is not in 2.6. How about just changing
-PTREGSCALL globally? 
+Sorry, you're right.  The SEQ check should catch this.
 
-iirc the other ptregs syscalls were safe, but I still changed them in 2.6
-to use a pointer argument.
+However, a few lines down in that same function there is a th->rst
+check which will kill the connection just as effectively.
 
+My point is that there are many ways to kill TCP connections in ways
+similar to what you proposed initially so it isn't that special.
 
--Andi
+Cheers,
+-- 
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

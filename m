@@ -1,85 +1,319 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261165AbVFLGbJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261883AbVFLG1o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261165AbVFLGbJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 02:31:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261901AbVFLGaO
+	id S261883AbVFLG1o (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 02:27:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261887AbVFLG0S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 02:30:14 -0400
-Received: from loopy.telegraphics.com.au ([202.45.126.152]:57774 "EHLO
-	loopy.telegraphics.com.au") by vger.kernel.org with ESMTP
-	id S261165AbVFLGFe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 02:05:34 -0400
-Date: Sun, 12 Jun 2005 16:05:30 +1000 (EST)
-From: Finn Thain <fthain@telegraphics.com.au>
-To: Ralf Baechle <ralf@linux-mips.org>
-Cc: Geert Uytterhoeven <geert@linux-m68k.org>, Jeff Garzik <jgarzik@pobox.com>,
-       Linux/m68k <linux-m68k@vger.kernel.org>,
-       Linux/m68k on Mac <linux-mac68k@mac.linux-m68k.org>,
-       Linux MIPS <linux-mips@vger.kernel.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: Re: [PATCH] Jazzsonic driver updates
-In-Reply-To: <20050323100139.GB8813@linux-mips.org>
-Message-ID: <Pine.LNX.4.61.0506121454410.1470@loopy.telegraphics.com.au>
-References: <200503070210.j272ARii023023@hera.kernel.org>
- <Pine.LNX.4.62.0503221807160.20753@numbat.sonytel.be> <20050323100139.GB8813@linux-mips.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 12 Jun 2005 02:26:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:46792 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S261712AbVFLFmh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 01:42:37 -0400
+Date: Sat, 11 Jun 2005 22:42:28 -0700
+From: Chris Wright <chrisw@osdl.org>
+To: linux-kernel@vger.kernel.org, torvalds@osdl.org, akpm@osdl.org,
+       stable@kernel.org
+Subject: Re: Linux 2.6.11.12
+Message-ID: <20050612054228.GK9046@shell0.pdx.osdl.net>
+References: <20050612053939.GJ9046@shell0.pdx.osdl.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20050612053939.GJ9046@shell0.pdx.osdl.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 23 Mar 2005, Ralf Baechle wrote:
-
-> On Tue, Mar 22, 2005 at 06:13:17PM +0100, Geert Uytterhoeven wrote:
-> 
-> > On Fri, 28 Jan 2005, Linux Kernel Mailing List wrote:
-> > > ChangeSet 1.1986, 2005/01/28 00:12:28-05:00, ralf@linux-mips.org
-> > > 
-> > > 	[PATCH] Jazzsonic driver updates
-> > > 	
-> > > 	 o Resurrect the Jazz SONIC driver after years of it not having been tested
-> > > 	 o Convert from Space.c initialization to module_init / platform device.
-> > > 	
-> > > 	Signed-off-by: Jeff Garzik <jgarzik@pobox.com>
-> > 
-> > > --- a/drivers/net/sonic.c	2005-03-06 18:10:39 -08:00
-> > > +++ b/drivers/net/sonic.c	2005-03-06 18:10:39 -08:00
-> > > @@ -116,7 +116,7 @@
-> > >  	/*
-> > >  	 * Map the packet data into the logical DMA address space
-> > >  	 */
-> > > -	if ((laddr = vdma_alloc(PHYSADDR(skb->data), skb->len)) == ~0UL) {
-> > > +	if ((laddr = vdma_alloc(CPHYSADDR(skb->data), skb->len)) == ~0UL) {
-> >                                 ^^^^^^^^^
-> > This part broke compilation for Mac/m68k.
-> > 
-> > >  		printk("%s: no VDMA entry for transmit available.\n",
-> > >  		       dev->name);
-> > >  		dev_kfree_skb(skb);
-> 
-> Oh funny.  vdma_alloc() was created 10 years ago as an internal API for
-> the Jazz machines.  Didn't realize m68k had cloned it :-)  If anything
-> it seems this should be converted to the modern DMA API.
-
-I've just started merging my Mac sonic work into 2.6.12-rc6. m68k doesn't 
-yet implement the modern DMA API, but it is easy to fake it for a while 
-for macsonic.c. So I don't mind converting macsonic, jazzsonic and the 
-shared sonic driver core to the new API.
-
-But, I knowing nothing about the Jazz DMA controller. I need some help 
-from the MIPS people:
-
-Would I be right to say that vdma_{alloc,free}() can be changed to 
-dma_{,un}map_single? The other Jazz specific routine that sonic uses is 
-vdma_log2phys, and I don't know if that has a better alternative.
-
--f
-
->   Ralf
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-m68k" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+diff --git a/Makefile b/Makefile
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ VERSION = 2
+ PATCHLEVEL = 6
+ SUBLEVEL = 11
+-EXTRAVERSION = .11
++EXTRAVERSION = .12
+ NAME=Woozy Beaver
+ 
+ # *DOCUMENTATION*
+diff --git a/arch/x86_64/kernel/apic.c b/arch/x86_64/kernel/apic.c
+--- a/arch/x86_64/kernel/apic.c
++++ b/arch/x86_64/kernel/apic.c
+@@ -775,9 +775,7 @@ void __init setup_boot_APIC_clock (void)
+ 
+ void __init setup_secondary_APIC_clock(void)
+ {
+-	local_irq_disable(); /* FIXME: Do we need this? --RR */
+ 	setup_APIC_timer(calibration_result);
+-	local_irq_enable();
+ }
+ 
+ void __init disable_APIC_timer(void)
+diff --git a/arch/x86_64/kernel/ptrace.c b/arch/x86_64/kernel/ptrace.c
+--- a/arch/x86_64/kernel/ptrace.c
++++ b/arch/x86_64/kernel/ptrace.c
+@@ -252,7 +252,7 @@ asmlinkage long sys_ptrace(long request,
+ 			break;
+ 
+ 		switch (addr) { 
+-		case 0 ... sizeof(struct user_regs_struct):
++		case 0 ... sizeof(struct user_regs_struct) - sizeof(long):
+ 			tmp = getreg(child, addr);
+ 			break;
+ 		case offsetof(struct user, u_debugreg[0]):
+@@ -297,7 +297,7 @@ asmlinkage long sys_ptrace(long request,
+ 			break;
+ 
+ 		switch (addr) { 
+-		case 0 ... sizeof(struct user_regs_struct): 
++		case 0 ... sizeof(struct user_regs_struct) - sizeof(long):
+ 			ret = putreg(child, addr, data);
+ 			break;
+ 		/* Disallows to set a breakpoint into the vsyscall */
+diff --git a/arch/x86_64/kernel/smpboot.c b/arch/x86_64/kernel/smpboot.c
+--- a/arch/x86_64/kernel/smpboot.c
++++ b/arch/x86_64/kernel/smpboot.c
+@@ -309,8 +309,6 @@ void __init smp_callin(void)
+ 	Dprintk("CALLIN, before setup_local_APIC().\n");
+ 	setup_local_APIC();
+ 
+-	local_irq_enable();
+-
+ 	/*
+ 	 * Get our bogomips.
+ 	 */
+@@ -324,8 +322,6 @@ void __init smp_callin(void)
+ 	 */
+  	smp_store_cpu_info(cpuid);
+ 
+-	local_irq_disable();
+-
+ 	/*
+ 	 * Allow the master to continue.
+ 	 */
+diff --git a/drivers/media/video/bttv-cards.c b/drivers/media/video/bttv-cards.c
+--- a/drivers/media/video/bttv-cards.c
++++ b/drivers/media/video/bttv-cards.c
+@@ -1939,7 +1939,6 @@ struct tvcard bttv_tvcards[] = {
+         .no_tda9875     = 1,
+         .no_tda7432     = 1,
+         .tuner_type     = TUNER_ABSENT,
+-        .no_video       = 1,
+ 	.pll            = PLL_28,
+ },{
+ 	.name           = "Teppro TEV-560/InterVision IV-560",
+diff --git a/fs/hfs/mdb.c b/fs/hfs/mdb.c
+--- a/fs/hfs/mdb.c
++++ b/fs/hfs/mdb.c
+@@ -333,6 +333,8 @@ void hfs_mdb_close(struct super_block *s
+  * Release the resources associated with the in-core MDB.  */
+ void hfs_mdb_put(struct super_block *sb)
+ {
++	if (!HFS_SB(sb))
++		return;
+ 	/* free the B-trees */
+ 	hfs_btree_close(HFS_SB(sb)->ext_tree);
+ 	hfs_btree_close(HFS_SB(sb)->cat_tree);
+@@ -340,4 +342,7 @@ void hfs_mdb_put(struct super_block *sb)
+ 	/* free the buffers holding the primary and alternate MDBs */
+ 	brelse(HFS_SB(sb)->mdb_bh);
+ 	brelse(HFS_SB(sb)->alt_mdb_bh);
++
++	kfree(HFS_SB(sb));
++	sb->s_fs_info = NULL;
+ }
+diff --git a/fs/hfs/super.c b/fs/hfs/super.c
+--- a/fs/hfs/super.c
++++ b/fs/hfs/super.c
+@@ -263,7 +263,7 @@ static int hfs_fill_super(struct super_b
+ 	res = -EINVAL;
+ 	if (!parse_options((char *)data, sbi)) {
+ 		hfs_warn("hfs_fs: unable to parse mount options.\n");
+-		goto bail3;
++		goto bail;
+ 	}
+ 
+ 	sb->s_op = &hfs_super_operations;
+@@ -276,7 +276,7 @@ static int hfs_fill_super(struct super_b
+ 			hfs_warn("VFS: Can't find a HFS filesystem on dev %s.\n",
+ 				hfs_mdb_name(sb));
+ 		res = -EINVAL;
+-		goto bail2;
++		goto bail;
+ 	}
+ 
+ 	/* try to get the root inode */
+@@ -306,10 +306,8 @@ bail_iput:
+ 	iput(root_inode);
+ bail_no_root:
+ 	hfs_warn("hfs_fs: get root inode failed.\n");
++bail:
+ 	hfs_mdb_put(sb);
+-bail2:
+-bail3:
+-	kfree(sbi);
+ 	return res;
+ }
+ 
+diff --git a/fs/hfsplus/super.c b/fs/hfsplus/super.c
+--- a/fs/hfsplus/super.c
++++ b/fs/hfsplus/super.c
+@@ -207,7 +207,9 @@ static void hfsplus_write_super(struct s
+ static void hfsplus_put_super(struct super_block *sb)
+ {
+ 	dprint(DBG_SUPER, "hfsplus_put_super\n");
+-	if (!(sb->s_flags & MS_RDONLY)) {
++	if (!sb->s_fs_info)
++		return;
++	if (!(sb->s_flags & MS_RDONLY) && HFSPLUS_SB(sb).s_vhdr) {
+ 		struct hfsplus_vh *vhdr = HFSPLUS_SB(sb).s_vhdr;
+ 
+ 		vhdr->modify_date = hfsp_now2mt();
+@@ -223,6 +225,8 @@ static void hfsplus_put_super(struct sup
+ 	iput(HFSPLUS_SB(sb).alloc_file);
+ 	iput(HFSPLUS_SB(sb).hidden_dir);
+ 	brelse(HFSPLUS_SB(sb).s_vhbh);
++	kfree(sb->s_fs_info);
++	sb->s_fs_info = NULL;
+ }
+ 
+ static int hfsplus_statfs(struct super_block *sb, struct kstatfs *buf)
+diff --git a/fs/jbd/checkpoint.c b/fs/jbd/checkpoint.c
+--- a/fs/jbd/checkpoint.c
++++ b/fs/jbd/checkpoint.c
+@@ -339,8 +339,10 @@ int log_do_checkpoint(journal_t *journal
+ 			}
+ 		} while (jh != last_jh && !retry);
+ 
+-		if (batch_count)
++		if (batch_count) {
+ 			__flush_batch(journal, bhs, &batch_count);
++			retry = 1;
++		}
+ 
+ 		/*
+ 		 * If someone cleaned up this transaction while we slept, we're
+diff --git a/mm/rmap.c b/mm/rmap.c
+--- a/mm/rmap.c
++++ b/mm/rmap.c
+@@ -641,7 +641,7 @@ static void try_to_unmap_cluster(unsigne
+ 	pgd_t *pgd;
+ 	pud_t *pud;
+ 	pmd_t *pmd;
+-	pte_t *pte;
++	pte_t *pte, *original_pte;
+ 	pte_t pteval;
+ 	struct page *page;
+ 	unsigned long address;
+@@ -673,7 +673,7 @@ static void try_to_unmap_cluster(unsigne
+ 	if (!pmd_present(*pmd))
+ 		goto out_unlock;
+ 
+-	for (pte = pte_offset_map(pmd, address);
++	for (original_pte = pte = pte_offset_map(pmd, address);
+ 			address < end; pte++, address += PAGE_SIZE) {
+ 
+ 		if (!pte_present(*pte))
+@@ -710,7 +710,7 @@ static void try_to_unmap_cluster(unsigne
+ 		(*mapcount)--;
+ 	}
+ 
+-	pte_unmap(pte);
++	pte_unmap(original_pte);
+ 
+ out_unlock:
+ 	spin_unlock(&mm->page_table_lock);
+diff --git a/net/bridge/br_input.c b/net/bridge/br_input.c
+--- a/net/bridge/br_input.c
++++ b/net/bridge/br_input.c
+@@ -54,6 +54,9 @@ int br_handle_frame_finish(struct sk_buf
+ 	struct net_bridge_fdb_entry *dst;
+ 	int passedup = 0;
+ 
++	/* insert into forwarding database after filtering to avoid spoofing */
++	br_fdb_insert(p->br, p, eth_hdr(skb)->h_source, 0);
++
+ 	if (br->dev->flags & IFF_PROMISC) {
+ 		struct sk_buff *skb2;
+ 
+@@ -108,8 +111,7 @@ int br_handle_frame(struct net_bridge_po
+ 	if (eth_hdr(skb)->h_source[0] & 1)
+ 		goto err;
+ 
+-	if (p->state == BR_STATE_LEARNING ||
+-	    p->state == BR_STATE_FORWARDING)
++	if (p->state == BR_STATE_LEARNING)
+ 		br_fdb_insert(p->br, p, eth_hdr(skb)->h_source, 0);
+ 
+ 	if (p->br->stp_enabled &&
+diff --git a/net/bridge/br_stp_bpdu.c b/net/bridge/br_stp_bpdu.c
+--- a/net/bridge/br_stp_bpdu.c
++++ b/net/bridge/br_stp_bpdu.c
+@@ -140,6 +140,9 @@ int br_stp_handle_bpdu(struct sk_buff *s
+ 	struct net_bridge *br = p->br;
+ 	unsigned char *buf;
+ 
++	/* insert into forwarding database after filtering to avoid spoofing */
++	br_fdb_insert(p->br, p, eth_hdr(skb)->h_source, 0);
++
+ 	/* need at least the 802 and STP headers */
+ 	if (!pskb_may_pull(skb, sizeof(header)+1) ||
+ 	    memcmp(skb->data, header, sizeof(header)))
+diff --git a/net/ipv4/netfilter/ip_queue.c b/net/ipv4/netfilter/ip_queue.c
+--- a/net/ipv4/netfilter/ip_queue.c
++++ b/net/ipv4/netfilter/ip_queue.c
+@@ -3,6 +3,7 @@
+  * communicating with userspace via netlink.
+  *
+  * (C) 2000-2002 James Morris <jmorris@intercode.com.au>
++ * (C) 2003-2005 Netfilter Core Team <coreteam@netfilter.org>
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 as
+@@ -14,6 +15,7 @@
+  *             Zander).
+  * 2000-08-01: Added Nick Williams' MAC support.
+  * 2002-06-25: Code cleanup.
++ * 2005-05-26: local_bh_{disable,enable} around nf_reinject (Harald Welte)
+  *
+  */
+ #include <linux/module.h>
+@@ -66,7 +68,15 @@ static DECLARE_MUTEX(ipqnl_sem);
+ static void
+ ipq_issue_verdict(struct ipq_queue_entry *entry, int verdict)
+ {
++	/* TCP input path (and probably other bits) assume to be called
++	 * from softirq context, not from syscall, like ipq_issue_verdict is
++	 * called.  TCP input path deadlocks with locks taken from timer
++	 * softirq, e.g.  We therefore emulate this by local_bh_disable() */
++
++	local_bh_disable();
+ 	nf_reinject(entry->skb, entry->info, verdict);
++	local_bh_enable();
++
+ 	kfree(entry);
+ }
+ 
+diff --git a/net/sched/sch_netem.c b/net/sched/sch_netem.c
+--- a/net/sched/sch_netem.c
++++ b/net/sched/sch_netem.c
+@@ -184,10 +184,15 @@ static int netem_enqueue(struct sk_buff 
+ 	/* Random duplication */
+ 	if (q->duplicate && q->duplicate >= get_crandom(&q->dup_cor)) {
+ 		struct sk_buff *skb2 = skb_clone(skb, GFP_ATOMIC);
+-
+-		pr_debug("netem_enqueue: dup %p\n", skb2);
+-		if (skb2)
+-			delay_skb(sch, skb2);
++		if (skb2) {
++			struct Qdisc *rootq = sch->dev->qdisc;
++			u32 dupsave = q->duplicate;
++
++			/* prevent duplicating a dup... */
++			q->duplicate = 0;
++			rootq->enqueue(skb2, rootq);
++			q->duplicate = dupsave;
++		}
+ 	}
+ 
+ 	/* If doing simple delay then gap == 0 so all packets

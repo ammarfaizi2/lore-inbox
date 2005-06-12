@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261929AbVFLJbU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261319AbVFLKOv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261929AbVFLJbU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 05:31:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261924AbVFLJae
+	id S261319AbVFLKOv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 06:14:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261773AbVFLKOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 05:30:34 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:2194 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S261923AbVFLJ25 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 05:28:57 -0400
-Date: Sun, 12 Jun 2005 10:28:56 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Christoph Hellwig <hch@infradead.org>, Daniel Walker <dwalker@mvista.com>,
-       linux-kernel@vger.kernel.org, sdietrich@mvista.com
-Subject: Re: [PATCH] local_irq_disable removal
-Message-ID: <20050612092856.GB1206@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Ingo Molnar <mingo@elte.hu>, Daniel Walker <dwalker@mvista.com>,
-	linux-kernel@vger.kernel.org, sdietrich@mvista.com
-References: <1118214519.4759.17.camel@dhcp153.mvista.com> <20050611165115.GA1012@infradead.org> <20050612062350.GB4554@elte.hu>
+	Sun, 12 Jun 2005 06:14:50 -0400
+Received: from smtp-100-sunday.nerim.net ([62.4.16.100]:41992 "EHLO
+	kraid.nerim.net") by vger.kernel.org with ESMTP id S261319AbVFLKOs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 06:14:48 -0400
+Date: Sun, 12 Jun 2005 12:14:50 +0200
+From: Jean Delvare <khali@linux-fr.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: static struct initialization question
+Message-Id: <20050612121450.5fc277a6.khali@linux-fr.org>
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050612062350.GB4554@elte.hu>
-User-Agent: Mutt/1.4.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 12, 2005 at 08:23:50AM +0200, Ingo Molnar wrote:
-> 
-> * Christoph Hellwig <hch@infradead.org> wrote:
-> 
-> > folks, can you please take this RT stuff of lkml?  And with that I
-> > don't mean the highlevel discussions what makes sense, but specific
-> > patches that aren't related to anything near mainline. [...]
-> 
-> this is a misconception - there's been a few dozen patches steadily 
-> trickling into mainline that were all started in the PREEMPT_RT 
-> patchset, so this "RT stuff", both the generic arguments and the details 
-> are very much relevant. I wouldnt be doing it if it wasnt relevant to 
-> the mainline kernel. The discussions are well concentrated into 2-3 
-> subjects so you can plonk those threads if you are not interested.
+Hi all,
 
-Then send patches when you think they're ready.  Everything directly
-related to PREEPT_RT except the highlevel discussion is defintly offotpic.
-Just create your preempt-rt mailinglist and get interested parties there,
-lkml is for _general_ kernel discussion - even most subsystems that are
-in mainline have their own lists.
+I need to statically intialize a structure which looks like:
 
+struct items
+{
+	int first;
+	int *others;
+}
+
+Where "others" points to a 0-terminated list of ints.
+
+I plan to initialize it that way:
+
+static struct items s = {
+	.first = 1;
+	.others = (int[]) {
+		2,
+		3,
+		0
+	}
+};
+
+It works fine here with gcc 3.3.4. Question is, is this style allowed in
+the kernel? I think it's C99 standard. I only found such constructs in
+arch/ppc/syslib/mpc*.c and sound/usb/usbquirks.h.
+
+Thanks,
+-- 
+Jean Delvare

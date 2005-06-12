@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261233AbVFLT0h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261254AbVFLT3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261233AbVFLT0h (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 15:26:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261232AbVFLT0C
+	id S261254AbVFLT3W (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 15:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261247AbVFLT3C
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 15:26:02 -0400
-Received: from 167.imtp.Ilyichevsk.Odessa.UA ([195.66.192.167]:16302 "HELO
-	port.imtp.ilyichevsk.odessa.ua") by vger.kernel.org with SMTP
-	id S262647AbVFLRr0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 13:47:26 -0400
-From: Denis Vlasenko <vda@ilport.com.ua>
-To: Willy Tarreau <willy@w.ods.org>
-Subject: Re: [PATCH] fix small DoS on connect() (was Re: BUG: Unusual TCP Connect() results.)
-Date: Sun, 12 Jun 2005 20:47:07 +0300
-User-Agent: KMail/1.5.4
-Cc: "David S. Miller" <davem@davemloft.net>, xschmi00@stud.feec.vutbr.cz,
-       alastair@unixtrix.com, linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-References: <42A9C607.4030209@unixtrix.com> <200506122010.33075.vda@ilport.com.ua> <20050612173614.GA11157@alpha.home.local>
-In-Reply-To: <20050612173614.GA11157@alpha.home.local>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Sun, 12 Jun 2005 15:29:02 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:7395 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S262670AbVFLSlc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 14:41:32 -0400
+Subject: Re: Attempted summary of "RT patch acceptance" thread
+From: Lee Revell <rlrevell@joe-job.com>
+To: Andrea Arcangeli <andrea@suse.de>
+Cc: "Paul E. McKenney" <paulmck@us.ibm.com>, Bill Huey <bhuey@lnxw.com>,
+       Karim Yaghmour <karim@opersys.com>, Tim Bird <tim.bird@am.sony.com>,
+       linux-kernel@vger.kernel.org, tglx@linutronix.de, mingo@elte.hu,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org
+In-Reply-To: <20050612170147.GE5796@g5.random>
+References: <20050610173728.GA6564@g5.random>
+	 <20050610193926.GA19568@nietzsche.lynx.com> <42A9F788.2040107@opersys.com>
+	 <20050610223724.GA20853@nietzsche.lynx.com>
+	 <20050610225231.GF6564@g5.random>
+	 <20050610230836.GD21618@nietzsche.lynx.com>
+	 <20050610232955.GH6564@g5.random> <20050611014133.GO1300@us.ibm.com>
+	 <20050611155459.GB5796@g5.random> <20050611210417.GC1299@us.ibm.com>
+	 <20050612170147.GE5796@g5.random>
+Content-Type: text/plain
+Date: Sun, 12 Jun 2005 14:43:02 -0400
+Message-Id: <1118601783.20671.8.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.3.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200506122047.07257.vda@ilport.com.ua>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 12 June 2005 20:36, Willy Tarreau wrote:
-> On Sun, Jun 12, 2005 at 08:10:33PM +0300, Denis Vlasenko wrote:
-> > > Does it seem appropriate for mainline ? In this case, I would also backport
-> > > it to 2.4 and send it to you for inclusion.
-> > 
-> > It does not contain a comment why it is configurable.
-> 
-> You're right. Better with this ?
+On Sun, 2005-06-12 at 19:01 +0200, Andrea Arcangeli wrote:
+> I seriously hoped core things
+> like memory controller in the northbridge or embedded in the cpu would
+> not risk to generate any starvation. 
 
-Very nice. BTW, is there any real world applications which
-ever used this?
+Nforce4 chipsets have some problems that look like DMA starvation too,
+the RME people claim to have traced it to the SATA controller.
 
-> +	If you want backwards compatibility with every possible application,
-> +	you should set it to 1. If you prefer to enhance security on your
-> +	systems at the risk of breaking very rare specific applications, you'd
-> +	better let it to 0.
-> +	Default: 0
+http://www.rme-audio.de/english/techinfo/nforce4_tests.htm
 
-This text leaves an impression that they exist.
---
-vda
+Basically these all fall under common sense engineering, you don't use
+buggy/unproved hardware for an RT or any mission critical system.  
+
+Lee  
 

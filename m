@@ -1,54 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261918AbVFLI6B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261226AbVFLJCJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261918AbVFLI6B (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 04:58:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVFLI6A
+	id S261226AbVFLJCJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 05:02:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261920AbVFLJCI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 04:58:00 -0400
-Received: from amsfep14-int.chello.nl ([213.46.243.21]:1835 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S261918AbVFLI5o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 04:57:44 -0400
-Date: Sun, 12 Jun 2005 10:57:40 +0200 (CEST)
-From: Geert Uytterhoeven <geert@linux-m68k.org>
-To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-cc: Linux Kernel Development <linux-kernel@vger.kernel.org>,
-       irda-users@lists.sourceforge.net
-Subject: [PATCH] IrDA: IrDA: Fix CONFIG_VIA_FIR typo (double `those')
-Message-ID: <Pine.LNX.4.62.0506121056560.29365@anakin>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 12 Jun 2005 05:02:08 -0400
+Received: from vms042pub.verizon.net ([206.46.252.42]:30159 "EHLO
+	vms042pub.verizon.net") by vger.kernel.org with ESMTP
+	id S261226AbVFLJCD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 05:02:03 -0400
+Date: Sun, 12 Jun 2005 05:02:01 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: [patch] Real-Time Preemption, -RT-2.6.12-rc6-V0.7.48-00
+In-reply-to: <20050612064939.GB4897@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@elte.hu>, Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       "Eugeny S. Mints" <emints@ru.mvista.com>,
+       Daniel Walker <dwalker@mvista.com>
+Message-id: <200506120502.01752.gene.heskett@verizon.net>
+Organization: None, usuallly detectable by casual observers
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20050608112801.GA31084@elte.hu>
+ <200506112140.36352.gene.heskett@verizon.net> <20050612064939.GB4897@elte.hu>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 12 June 2005 02:49, Ingo Molnar wrote:
+>* Gene Heskett <gene.heskett@verizon.net> wrote:
+>> >   * clears out immediately (and will be freed).
+>> >-
+>>
+>> I just tried to build the V0.7.48-12 version, preempt mode 3, no
+>> hardirq's, and got this:
+>
+>does -48-13 work any better?
+>
+> Ingo
 
-IrDA: Fix CONFIG_VIA_FIR typo (double `those')
+Dunno, twasn't there till I looked just now.  And it made it past that 
+little roadblock ok.  Gonna be slow, logrotate & updatedb are running 
+as its just past 4am local.  Like any good geek, I had to check my 
+email when I got up to p. :-)
 
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Yes, it built, and I'm rebooted to it.  Feels rather normal so far. A 
+quick game of klondike lagged for the first 3 or 4 moves but smoothed 
+right up.
 
----
- Kconfig |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Glitch reports as they develop of course.
 
---- linux-2.6.12-rc5/drivers/net/irda/Kconfig	2005-05-07 09:50:36.000000000 +0200
-+++ linux-m68k-2.6.12-rc5/drivers/net/irda/Kconfig	2005-05-07 11:01:31.000000000 +0200
-@@ -389,7 +389,7 @@ config VIA_FIR
- 	help
- 	  Say Y here if you want to build support for the VIA VT8231
- 	  and VIA VT1211 IrDA controllers, found on the motherboards using
--	  those those VIA chipsets. To use this controller, you will need
-+	  those VIA chipsets. To use this controller, you will need
- 	  to plug a specific 5 pins FIR IrDA dongle in the specific
- 	  motherboard connector. The driver provides support for SIR, MIR
- 	  and FIR (4Mbps) speeds.
+Q:  Whats the diff between turning on hardirq's in mode 3, and mode 4?
 
-Gr{oetje,eeting}s,
 
-						Geert
-
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-							    -- Linus Torvalds
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+99.35% setiathome rank, not too shabby for a WV hillbilly
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2005 by Maurice Eugene Heskett, all rights reserved.

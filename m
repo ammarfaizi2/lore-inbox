@@ -1,66 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262620AbVFLPDG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262621AbVFLPGn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262620AbVFLPDG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 11:03:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262621AbVFLPDG
+	id S262621AbVFLPGn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 11:06:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262622AbVFLPGn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 11:03:06 -0400
-Received: from willy.net1.nerim.net ([62.212.114.60]:40460 "EHLO
-	willy.net1.nerim.net") by vger.kernel.org with ESMTP
-	id S262620AbVFLPDB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 11:03:01 -0400
-Date: Sun, 12 Jun 2005 17:02:39 +0200
-From: Willy Tarreau <willy@w.ods.org>
-To: Thomas Graf <tgraf@suug.ch>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
-       xschmi00@stud.feec.vutbr.cz, alastair@unixtrix.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] fix small DoS on connect() (was Re: BUG: Unusual TCP Connect() results.)
-Message-ID: <20050612150239.GA10865@alpha.home.local>
-References: <20050611195144.GF28759@alpha.home.local> <20050612081327.GA24384@gondor.apana.org.au> <20050612083409.GA8220@alpha.home.local> <20050612103020.GA25111@gondor.apana.org.au> <20050612114039.GI28759@alpha.home.local> <20050612120627.GA5858@gondor.apana.org.au> <20050612123253.GK28759@alpha.home.local> <20050612131323.GA10188@gondor.apana.org.au> <20050612133654.GA8951@alpha.home.local> <20050612144426.GC22463@postel.suug.ch>
-Mime-Version: 1.0
+	Sun, 12 Jun 2005 11:06:43 -0400
+Received: from [62.206.217.67] ([62.206.217.67]:28352 "EHLO kaber.coreworks.de")
+	by vger.kernel.org with ESMTP id S262621AbVFLPGi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 11:06:38 -0400
+Message-ID: <42AC4F5B.1040907@trash.net>
+Date: Sun, 12 Jun 2005 17:06:03 +0200
+From: Patrick McHardy <kaber@trash.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.8) Gecko/20050514 Debian/1.7.8-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Keir Fraser <Keir.Fraser@cl.cam.ac.uk>
+CC: Phil Oester <kernel@linuxace.com>, cedric@schieli.dyndns.org,
+       coreteam@netfilter.org, xen-devel@lists.xensource.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [netfilter-core] Re: [PATCH] Avoid unncessary checksum validation
+ in TCP/UDP netfilter
+References: <E1DbccR-00063Q-00@mta1.cl.cam.ac.uk>	<20050527112039.GA10084@linuxace.com> <875052371a3a7c5217e413d7250320f9@cl.cam.ac.uk>
+In-Reply-To: <875052371a3a7c5217e413d7250320f9@cl.cam.ac.uk>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050612144426.GC22463@postel.suug.ch>
-User-Agent: Mutt/1.4i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 12, 2005 at 04:44:26PM +0200, Thomas Graf wrote:
-> * Willy Tarreau <20050612133654.GA8951@alpha.home.local> 2005-06-12 15:36
-> > > The RST packet is sent by client A using its sequence numbers.  Therefore
-> > > it will pass the sequence number check on server B.
-> > >
-> > > 4) server B resets the connection.
-> > 
-> > No, precisely the RST sent by A will take its SEQ from C's ACK number.
-> > This is why B will *not* reset the connection (again, tested) if C's ACK
-> > was not within B's window.
+Keir Fraser wrote:
+> On 27 May 2005, at 12:20, Phil Oester wrote:
+>> On Fri, May 27, 2005 at 12:03:08PM +0100, Keir Fraser wrote:
+>>
+>>> The TCP/UDP connection-tracking code in netfilter validates the
+>>> checksum of incoming packets, to prevent nastier errors further down
+>>> the road. This check is unnecessary if the skb is marked as
+>>> CHECKSUM_UNNECESSARY.
+>>
+>> It seems at least part of this has already been merged in 2.6.12-rc
 > 
-> Absolutely but it relies on the other stack being correctly implemented.
-> The attack would work perfectly fine if there wasn't the rule that a RST
-> must not be sent in response to another RST.
+> It would be great if the UDP code also would observe
+> CHECKSUM_UNNECESSARY. I'll wait for 2.6.12 to appear and then submit a
+> new patch if UDP has been missed.
 
-Of course, if you target a buggy stack, you can expect anything.
+TCP was changed to fix a regression with loopback packets. I've added
+the UDP part of your patch to my 2.6.13 tree.
 
-> The attack has been successful and still is because some firewalls
-> are configured to send RSTs without respecting this rule.
-
-In fact, I voluntarily did not speak about firewalls because almost all
-of them are very sensible to TCP DoSes. First of all, all those which
-don't check sequence numbers will blindly kill a session when they
-receive an RST. And some of the other ones will not let certain ACK
-packets pass through, which will make other DoS described in this
-thread effective while it should not be, by not letting the server
-tell the client to reset its session when really needed.
-
-> I like your patch and the idea behind it, it can successfully defeat the
-> most simple method of preventing connections being established.
-
-That's what I thought, too. I have another one for 2.4.31 which only adds
-a CONFIG option to remove the associated code, which reduces the image by
-400 bytes.
-
-Cheers,
-Willy
-
+Regards
+Patrick

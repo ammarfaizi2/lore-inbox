@@ -1,46 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262476AbVFLNRN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261854AbVFLNWA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262476AbVFLNRN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 09:17:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbVFLNRM
+	id S261854AbVFLNWA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 09:22:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262494AbVFLNV7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 09:17:12 -0400
-Received: from arnor.apana.org.au ([203.14.152.115]:54278 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S262476AbVFLNQ5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 09:16:57 -0400
-Date: Sun, 12 Jun 2005 23:16:24 +1000
-To: Thomas Graf <tgraf@suug.ch>
-Cc: Willy Tarreau <willy@w.ods.org>, davem@davemloft.net,
-       xschmi00@stud.feec.vutbr.cz, alastair@unixtrix.com,
-       linux-kernel@vger.kernel.org, netdev@oss.sgi.com
-Subject: Re: [PATCH] fix small DoS on connect() (was Re: BUG: Unusual TCP Connect() results.)
-Message-ID: <20050612131624.GB10188@gondor.apana.org.au>
-References: <20050611074350.GD28759@alpha.home.local> <E1DhBic-0005dp-00@gondolin.me.apana.org.au> <20050611195144.GF28759@alpha.home.local> <20050612081327.GA24384@gondor.apana.org.au> <20050612083409.GA8220@alpha.home.local> <20050612103020.GA25111@gondor.apana.org.au> <20050612114039.GI28759@alpha.home.local> <20050612120627.GA5858@gondor.apana.org.au> <20050612122247.GB22463@postel.suug.ch>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20050612122247.GB22463@postel.suug.ch>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	Sun, 12 Jun 2005 09:21:59 -0400
+Received: from mail18.syd.optusnet.com.au ([211.29.132.199]:28808 "EHLO
+	mail18.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S261854AbVFLNVp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 09:21:45 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: ck list <ck@vds.kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.6.11-ck10
+Date: Sun, 12 Jun 2005 23:21:39 +1000
+User-Agent: KMail/1.8.1
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart2213989.RsBQGizy9i";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200506122321.41894.kernel@kolivas.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 12, 2005 at 02:22:47PM +0200, Thomas Graf wrote:
->
-> > Look at the first check inside th->ack in tcp_rcv_synsent_state_process.
-> 
-> Usually a continious flow of ACK+RST is used to prevent a connection
-> from being established, it's more reliable because even if you hit the
-> ISS+rcv_next window the connection attempt will still be reset.
+--nextPart2213989.RsBQGizy9i
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Sure.  My point is that there are a hundred and one ways to attack
-a TCP connection in a manner similar to the original method that
-started this thread.  So fixes like this are pretty pointless.
+These are patches designed to improve system responsiveness and interactivi=
+ty.=20
+It is configurable to any workload but the default ck* patch is aimed at th=
+e=20
+desktop and ck*-server is available with more emphasis on serverspace.
+
+Apply to 2.6.11 (this includes all the patches from 2.6.11.12):
+http://ck.kolivas.org/patches/2.6/2.6.11/2.6.11-ck10/patch-2.6.11-ck10.bz2
+or
+http://ck.kolivas.org/patches/2.6/2.6.11/2.6.11-ck10/patch-2.6.11-ck10-serv=
+er.bz2
+
+web:
+http://kernel.kolivas.org
+all patches:
+http://ck.kolivas.org/patches/
+Split patches available.
+
+
+Changes since 2.6.11-ck9:
+=2Dpatch-2.6.11.11
++patch-2.6.11.12
+ Latest stable version
+
++2611ck9-smpnice-fix1.diff
+ A fix for smp nice calculations
+
++s11.2_s11.3.diff
+ Update the staircase cpu scheduler to the latest version which includes th=
+e=20
+interactivity fix for recent changes in pipe behaviour
+
+=2D2611ck9-version.diff
++2611ck10-version.diff
+ Version
+
 
 Cheers,
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+Con
+
+--nextPart2213989.RsBQGizy9i
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBCrDblZUg7+tp6mRURApTSAJ9VUU9Kd2npddHYL0JEeuZzGpmrSwCcDhm6
+FDmxtpEFtuxKxfj5XxXtbWQ=
+=gPDf
+-----END PGP SIGNATURE-----
+
+--nextPart2213989.RsBQGizy9i--

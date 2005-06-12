@@ -1,66 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S262624AbVFLPMi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261492AbVFLPWY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S262624AbVFLPMi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 11:12:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S262623AbVFLPMi
+	id S261492AbVFLPWY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 11:22:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261842AbVFLPWY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 11:12:38 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:2319 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S262622AbVFLPMP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 11:12:15 -0400
-Date: Sun, 12 Jun 2005 17:12:07 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Armin Schindler <armin@melware.de>
-Cc: Ed Tomlinson <tomlins@cam.org>, Greg K-H <greg@kroah.com>,
-       Linux Kernel Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Remove devfs_mk_cdev() function from the kernel tree
-Message-ID: <20050612151207.GQ3770@stusta.de>
-References: <11184761113499@kroah.com> <Pine.LNX.4.61.0506121042420.30907@phoenix.one.melware.de> <200506120929.03212.tomlins@cam.org> <Pine.LNX.4.61.0506121543200.15593@phoenix.one.melware.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 12 Jun 2005 11:22:24 -0400
+Received: from mail1.kontent.de ([81.88.34.36]:37771 "EHLO Mail1.KONTENT.De")
+	by vger.kernel.org with ESMTP id S261492AbVFLPWS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 11:22:18 -0400
+From: Oliver Neukum <oliver@neukum.org>
+To: Wakko Warner <wakko@animx.eu.org>
+Subject: Re: Problem found: kaweth fails to work on 2.6.12-rc[456]
+Date: Sun, 12 Jun 2005 17:22:09 +0200
+User-Agent: KMail/1.8
+Cc: linux-usb-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+References: <20050612004136.GA8107@animx.eu.org> <200506120957.55214.oliver@neukum.org> <20050612130527.GB9401@animx.eu.org>
+In-Reply-To: <20050612130527.GB9401@animx.eu.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.61.0506121543200.15593@phoenix.one.melware.de>
-User-Agent: Mutt/1.5.9i
+Message-Id: <200506121722.09813.oliver@neukum.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Jun 12, 2005 at 03:51:19PM +0200, Armin Schindler wrote:
-> On Sun, 12 Jun 2005, Ed Tomlinson wrote:
-> > On Sunday 12 June 2005 04:44, Armin Schindler wrote:
-> > > It didn't follow the development, is devfs now obsolete in kernel?
-> > > If not, these funktions still makes sense.
+Am Sonntag, 12. Juni 2005 15:05 schrieb Wakko Warner:
+> Oliver Neukum wrote:
+> > Am Sonntag, 12. Juni 2005 02:41 schrieb Wakko Warner:
+> > > After doing some testing, I believe a patch that went into rc4 broke kaweth.
+> > > The kaweth driver itself did not change from rc2 through rc6.
 > > > 
-> > Armin,
+> > > As a test, I reverted a patch that went into rc4 which modified
+> > > net/core/link_watch.c.  Once I compiled the kernel, my netgear EA101 works
+> > > again.
+> > > 
+> > > The above is not cut'n'paste.  There was 1 other addition (an include) that
+> > > I removed from the patch inorder to revert it.  The patch above was applied
+> > > to 2.6.12-rc6 using -Rp1.  This is why I believe that kaweth is broken. 
+> > > With my limited understanding of the kernel, it would appear that kaweth
+> > > doesn't support netif_carrier_ok properly.  
+> > > Anyway, I found what caused it to break, but at this point, I do not have
+> > > the required knowledge to do a proper fix.
 > > 
-> > From Documentation/feature-removal-schedule.txt
-> > 
-> > What:   devfs
-> > When:   July 2005
-> > Files:  fs/devfs/*, include/linux/devfs_fs*.h and assorted devfs
-> >         function calls throughout the kernel tree
-> > Why:    It has been unmaintained for a number of years, has unfixable
-> >         races, contains a naming policy within the kernel that is
-> >         against the LSB, and can be replaced by using udev.
-> > Who:    Greg Kroah-Hartman <greg@kroah.com>
-> > 
-> > This should not a surprise to anyone...
+> > static void int_callback(struct urb *u, struct pt_regs *regs)
+> > is supposed to handle the link state. Maybe it fails in your case. Could you
+> > add a printk to this callback to check linkstate?
 > 
-> I know the status of devfs, but I never thought the removal will be
-> done in the middle of a stable line...
+> I don't believe my case is very specific.  I've tested this on 4 different
+> systems with totally different configs.  If it is at all specific, I believe
+> it would be with the network adapter itself.  I don't have any other usb
+> adapters that use kaweth.
+> 
+> Can you tell me where I need to add the printks?
 
-According to the current development model, 2.6 is a development 
-kernel...
+In static void int_callback(struct urb *u, struct pt_regs *regs):
 
-> Armin
+	/* we check the link state to report changes */
+	if (kaweth->linkstate != (act_state = ( kaweth->intbuffer[STATE_OFFSET] | STATE_MASK) >> STATE_SHIFT)) {
+<------- HERE please a printk for detecting a link state change
+		if (!act_state)
+			netif_carrier_on(kaweth->net);
+		else
+			netif_carrier_off(kaweth->net);
 
-cu
-Adrian
+		kaweth->linkstate = act_state;
+	}
 
--- 
+<----------- HERE the value of linkstate is important
+resubmit:
+	kaweth_resubmit_int_urb(kaweth, GFP_ATOMIC);
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+	Regards
+		Oliver

@@ -1,69 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261861AbVFLAXR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261862AbVFLAZj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261861AbVFLAXR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 11 Jun 2005 20:23:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261862AbVFLAXR
+	id S261862AbVFLAZj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 11 Jun 2005 20:25:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261863AbVFLAZj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 11 Jun 2005 20:23:17 -0400
-Received: from dvhart.com ([64.146.134.43]:50089 "EHLO localhost.localdomain")
-	by vger.kernel.org with ESMTP id S261861AbVFLAXO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 11 Jun 2005 20:23:14 -0400
-Date: Sat, 11 Jun 2005 17:23:18 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-Reply-To: "Martin J. Bligh" <mbligh@mbligh.org>
-To: Con Kolivas <kernel@kolivas.org>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       Andrew Morton <akpm@osdl.org>,
-       Christoph Lameter <clameter@engr.sgi.com>,
-       Nick Piggin <piggin@cyberone.com.au>
-Subject: Re: 2.6.12-rc6-mm1
-Message-ID: <675380000.1118535797@[10.10.2.4]>
-In-Reply-To: <200506120947.13709.kernel@kolivas.org>
-References: <20050607170853.3f81007a.akpm@osdl.org> <200506120820.05627.kernel@kolivas.org> <674540000.1118532454@[10.10.2.4]> <200506120947.13709.kernel@kolivas.org>
-X-Mailer: Mulberry/2.2.1 (Linux/x86)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 11 Jun 2005 20:25:39 -0400
+Received: from gateway-1237.mvista.com ([12.44.186.158]:34041 "EHLO
+	av.mvista.com") by vger.kernel.org with ESMTP id S261862AbVFLAZa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 11 Jun 2005 20:25:30 -0400
+Subject: Re: [PATCH] local_irq_disable removal
+From: Sven-Thorsten Dietrich <sdietrich@mvista.com>
+To: tglx@linutronix.de
+Cc: Daniel Walker <dwalker@mvista.com>, Esben Nielsen <simlo@phys.au.dk>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
+In-Reply-To: <1118535737.13312.120.camel@tglx.tec.linutronix.de>
+References: <Pine.LNX.4.10.10506110930050.27294-100000@godzilla.mvista.com>
+	 <1118510817.13312.88.camel@tglx.tec.linutronix.de>
+	 <1118515236.9519.92.camel@sdietrich-xp.vilm.net>
+	 <1118534842.13312.111.camel@tglx.tec.linutronix.de>
+	 <1118535360.5593.180.camel@sdietrich-xp.vilm.net>
+	 <1118535737.13312.120.camel@tglx.tec.linutronix.de>
+Content-Type: text/plain
+Date: Sat, 11 Jun 2005 17:24:14 -0700
+Message-Id: <1118535855.5593.186.camel@sdietrich-xp.vilm.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, 2005-06-12 at 02:22 +0200, Thomas Gleixner wrote:
+> On Sat, 2005-06-11 at 17:15 -0700, Sven-Thorsten Dietrich wrote:
+> > On Sun, 2005-06-12 at 02:07 +0200, Thomas Gleixner wrote:
+> > > > 
+> > > > This is too complex to argue about here.
+> > > 
+> > > Whats too complex? Are you asserting that other people e.g. me, are too
+> > > dumb to understand that ?
+> > > 
+> > 
+> > No, I said HERE, not FOR YOU. 
+> 
+> So where do you suggest to discuss this ?
 
+Thomas,
 
---Con Kolivas <kernel@kolivas.org> wrote (on Sunday, June 12, 2005 09:47:08 +1000):
+I think this is intense high-performance scheduling theory, that is
+beyond the scope of what people need to have in their mailbox.
 
-> On Sun, 12 Jun 2005 09:27, Martin J. Bligh wrote:
->> >> not sure what the benefits of the patch are, 
-> 
-> I should have answered this. Since we moved to one runqueue per cpu with the 
-> current scheduler, 'nice' levels basically fall apart on SMP. Balancing tends 
-> to group together all the wrong tasks to have any meaningful 'nice' support 
-> where often on a 2 cpu machine if we run 4 tasks, 2 nice 0 and 2 nice 19 we 
-> end up with:
-> 
-> cpu 1: nice 19 + nice 19
-> cpu 2: nice 0 + nice 0
-> 
-> which means each nice 19 task gets half a cpu and each nice 0 task gets half a 
-> cpu which is lousy fairness. 
-> 
-> The smp nice patches should end up with
-> cpu 1: nice 0 + nice 19
-> cpu 2: nice 0 + nice 19
-> 
-> so that the nice 0 tasks get 95% of a cpu and nice 19 tasks get 5% of a cpu.
-> 
-> The patches should balance things as fairly as possible according to nice 
-> levels across cpus. As you can see this is clearly a bug in behaviour and has 
-> been a showstopper for many trying to move from 2.4.
+We can use ext-rt-dev@mvista.com if everyone agrees.
 
-Oh, right. that makes a lot of sense ... maybe just let it have an error
-factor when migrating cross numa nodes (ie not be as strict)? Not sure 
-that's really the problem, as I doubt anything in my test is actually 
-niced anyway (assuming you're meaning static prio, not dynamic). In that
-case, your changes should have no effect, right (from explanation, not
-looking at the code ;-))
+Its a public subscription list, let me know, and I'll dig up the
+subscribe info.
 
-M.
+Sven
+
 

@@ -1,47 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261202AbVFLUDS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261151AbVFLUaR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261202AbVFLUDS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 12 Jun 2005 16:03:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261213AbVFLTXI
+	id S261151AbVFLUaR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 12 Jun 2005 16:30:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261176AbVFLUaQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 12 Jun 2005 15:23:08 -0400
-Received: from aun.it.uu.se ([130.238.12.36]:8180 "EHLO aun.it.uu.se")
-	by vger.kernel.org with ESMTP id S262650AbVFLREJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 12 Jun 2005 13:04:09 -0400
-Date: Sun, 12 Jun 2005 19:03:53 +0200 (MEST)
-Message-Id: <200506121703.j5CH3rZs020503@harpo.it.uu.se>
-From: Mikael Pettersson <mikpe@csd.uu.se>
-To: vda@ilport.com.ua
-Subject: Re: [PATCH 2.4.31 9/9] gcc4: fix i386 struct_cpy() warnings
-Cc: linux-kernel@vger.kernel.org, marcelo.tosatti@cyclades.com
+	Sun, 12 Jun 2005 16:30:16 -0400
+Received: from wproxy.gmail.com ([64.233.184.202]:65510 "EHLO wproxy.gmail.com")
+	by vger.kernel.org with ESMTP id S261151AbVFLUaK convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 12 Jun 2005 16:30:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=NVRrsEum7+8mSrwFCTAgKObLCv5JbLyGsZxLZg/3VN2c/u5pzVqoRdgK//IJ2118XC76GgJfJdf9F+/SNtcsc9iCb8LJrK9bV/512ZOiu9Pw2iiSu+jr6bhJBr0OxlsYt07LX5A16PkFdh2Ev00R2fkdApCREZ4k9mliX8D0fKY=
+Message-ID: <9e473391050612133036fe2902@mail.gmail.com>
+Date: Sun, 12 Jun 2005 16:30:09 -0400
+From: Jon Smirl <jonsmirl@gmail.com>
+Reply-To: Jon Smirl <jonsmirl@gmail.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: MMC ioctl or sysfs interface?
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>, Chris Wedgwood <cw@f00f.org>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Russell King <rmk+lkml@arm.linux.org.uk>
+In-Reply-To: <1118600720.9949.99.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+References: <42A83F59.7090509@drzeus.cx>
+	 <101040.57feb9cd101d268ffd2ffe2d314867d3.ANY@taniwha.stupidest.org>
+	 <42A9FF79.1010003@drzeus.cx>
+	 <1118444435.5213.72.camel@localhost.localdomain>
+	 <42AC7BD4.9040906@drzeus.cx>
+	 <1118600720.9949.99.camel@localhost.localdomain>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 12 Jun 2005 19:43:03 +0300, Denis Vlasenko wrote:
-> > diff -rupN linux-2.4.31/include/asm-i386/string.h linux-2.4.31.gcc4-i386-struct_cpy-warnings/include/asm-i386/string.h
-> > --- linux-2.4.31/include/asm-i386/string.h	2001-08-12 11:35:53.000000000 +0200
-> > +++ linux-2.4.31.gcc4-i386-struct_cpy-warnings/include/asm-i386/string.h	2005-06-12 11:52:25.000000000 +0200
-> > @@ -337,7 +337,7 @@ extern void __struct_cpy_bug (void);
-> >  #define struct_cpy(x,y) 			\
-> >  ({						\
-> >  	if (sizeof(*(x)) != sizeof(*(y))) 	\
-> > -		__struct_cpy_bug;		\
-> > +		__struct_cpy_bug();		\
-> >  	memcpy(x, y, sizeof(*(x)));		\
-> >  })
+On 6/12/05, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> On Sul, 2005-06-12 at 19:15, Pierre Ossman wrote:
+> > Alan Cox wrote:
+> > I wasn't aware that you could do ioctl on sysfs nodes. I guess I'll have
+> > to dig a bit deeper in the documentation/code.
 > 
-> 1) Don't you need a void __struct_cpy_bug(void) declaration before this
->    (as a matter of style, not correctness)?
+> You can add support, but you'll need a device node one day anyway so you
+> might as well give up on the sysfs only game - it doesn't IMHO work.
 
-Not any more than would the original version with the variable.
-gcc4 doesn't complain.
+I have a sysfs interface for fbdev in the kernel -
+/sys/class/graphics/fb0/*  It is working well for me and it's the only
+interface EGL uses to access fbdev. It's all controllable with strings
+that can be scripted if you want. If you play with it some of the
+attributes are broken, there are fixes for them in the pipeline.
 
-> 2) Why __ ? It is not compiler- or library-special, why not
->    BUG_struct_cpy_different_sizes() or something like this?
+I also have DRM loaded for the same hardware. I'd have to think about
+it for a while to see if DRM could go sysfs only. I'm using DRM to map
+the framebuffer instead of fbdev.
 
-Ask the original author. I'm just following existing practise.
-(I only seek minimal changes to enable gcc4 support, I'm _not_
-on a mission to "clean up" code.)
+One big difference is that a device node can carry session state. If
+you open the device the file handle can track things belonging to the
+session. With sysfs sessions are more of a mess. fbdev works cleanly
+because there is no session state.
 
-/Mikael
+-- 
+Jon Smirl
+jonsmirl@gmail.com

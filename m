@@ -1,48 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261597AbVFMPAS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261598AbVFMPBh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261597AbVFMPAS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 11:00:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbVFMPAS
+	id S261598AbVFMPBh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 11:01:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261593AbVFMPBh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 11:00:18 -0400
-Received: from stat16.steeleye.com ([209.192.50.48]:54402 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S261598AbVFMPAF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 11:00:05 -0400
-Subject: Re: What breaks aic7xxx in post 2.6.12-rc2 ?
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: =?ISO-8859-1?Q?Gr=E9goire?= Favre <gregoire.favre@gmail.com>
-Cc: dino@in.ibm.com, Andrew Morton <akpm@osdl.org>,
-       SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20050613145000.GA12057@gmail.com>
-References: <20050526173518.GA9132@gmail.com>
-	 <1117463938.4913.3.camel@mulgrave> <20050530150950.GA14351@gmail.com>
-	 <1117467248.4913.9.camel@mulgrave> <20050530160147.GD14351@gmail.com>
-	 <1117477040.4913.12.camel@mulgrave> <20050530190716.GA9239@gmail.com>
-	 <1118081857.5045.49.camel@mulgrave> <20050607085710.GB9230@gmail.com>
-	 <1118590709.4967.6.camel@mulgrave>  <20050613145000.GA12057@gmail.com>
-Content-Type: text/plain
-Date: Mon, 13 Jun 2005 09:59:43 -0500
-Message-Id: <1118674783.5079.9.camel@mulgrave>
+	Mon, 13 Jun 2005 11:01:37 -0400
+Received: from mx2.elte.hu ([157.181.151.9]:64914 "EHLO mx2.elte.hu")
+	by vger.kernel.org with ESMTP id S261590AbVFMPBb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 11:01:31 -0400
+Date: Mon, 13 Jun 2005 17:00:21 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Kristian Benoit <kbenoit@opersys.com>, linux-kernel@vger.kernel.org,
+       paulmck@us.ibm.com, bhuey@lnxw.com, andrea@suse.de, tglx@linutronix.de,
+       pmarques@grupopie.com, bruce@andrew.cmu.edu, nickpiggin@yahoo.com.au,
+       ak@muc.de, sdietrich@mvista.com, dwalker@mvista.com, hch@infradead.org,
+       akpm@osdl.org, rpm@xenomai.org, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: PREEMPT_RT vs ADEOS: the numbers, part 1
+Message-ID: <20050613150021.GA5891@elte.hu>
+References: <42AA6A6B.5040907@opersys.com> <20050611191448.GA24152@elte.hu> <42AB662B.4010104@opersys.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <42AB662B.4010104@opersys.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamVersion: MailScanner 4.31.6-itk1 (ELTE 1.2) SpamAssassin 2.63 ClamAV 0.73
+X-ELTE-VirusStatus: clean
+X-ELTE-SpamCheck: no
+X-ELTE-SpamCheck-Details: score=-4.9, required 5.9,
+	autolearn=not spam, BAYES_00 -4.90
+X-ELTE-SpamLevel: 
+X-ELTE-SpamScore: -4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Hello, I have applied your two patches against 2.6.12-rc6 (the 
-> http://parisc-linux.org/~jejb/scsi_diffs/scsi-misc-2.6.diff and the last
-> one you sent per email) and I get this now :
 
-Actually, the kernel appears to be wrong:
+* Karim Yaghmour <karim@opersys.com> wrote:
 
-> Linux version 2.6.12-rc5 (root@gregoire) (gcc version 3.4.3 20041125 (Gentoo Linux 3.4.3-r1, ssp-3.4.3-0, pie-8.7.7)) #4 Mon Jun 6 20:29:04 CEST 2005
-                      ^^^^
+> Ingo Molnar wrote:
+> > how were interrupt response times measured, precisely? What did the 
+> > target (measured) system have to do to respond to an interrupt? Did you 
+> > use the RTC to measure IRQ latencies?
+> 
+> The logger used two TSC values. One prior to shooting the interrupt to 
+> the target, and one when receiving the response. Responding to an 
+> interrupt meant that a driver was hooked to the target's parallel port 
+> interrupt and simply acted by toggling an output pin on the parallel 
+> port, which in turn was hooked onto the logger's parallel port in a 
+> similar fashion. [...]
 
-It's also not showing any of the debugging information in the patch, so
-I think you might not be booted on the correct kernel.
+FYI, there's a new feature in the -V0.7.48-25 (and later) -RT patches 
+that implements this: CONFIG_LPPTEST. It is a simple standalone driver 
+and userspace utility from Thomas Gleixner that can be used to measure 
+the IRQ-latency of the system over a null-modem-parallel-cable.
 
-James
+to use it, enable CONFIG_LPPEST in the .config [disable CONFIG_PARPORT 
+first], boot the kernel on both the target and the host systems, and 
+then run the scripts/testlpp utility on the host system which will 
+measure latencies and will do a maximum-search.
 
+(the driver assumes normal LPT1 PC layout - 0x378/IRQ7)
 
+	Ingo

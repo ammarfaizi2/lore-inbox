@@ -1,95 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261535AbVFMXUl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S261602AbVFMXZF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S261535AbVFMXUl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 13 Jun 2005 19:20:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261622AbVFMXSp
+	id S261602AbVFMXZF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 13 Jun 2005 19:25:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S261519AbVFMXX3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 13 Jun 2005 19:18:45 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:17414 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP id S261632AbVFMXRE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 13 Jun 2005 19:17:04 -0400
-Message-ID: <42AE13EF.8060105@vmware.com>
-Date: Mon, 13 Jun 2005 16:17:03 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.2) Gecko/20040803
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Tom Duffy <tduffy@sun.com>
-Cc: "Langsdorf, Mark" <mark.langsdorf@amd.com>, discuss@x86-64.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [discuss] [OOPS] powernow on smp dual core amd64
-References: <84EA05E2CA77634C82730353CBE3A84301CFC14C@SAUSEXMB1.amd.com> <1118701245.9114.23.camel@duffman>
-In-Reply-To: <1118701245.9114.23.camel@duffman>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 13 Jun 2005 19:23:29 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:23427
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S261635AbVFMXVp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 13 Jun 2005 19:21:45 -0400
+Date: Mon, 13 Jun 2005 16:20:52 -0700 (PDT)
+Message-Id: <20050613.162052.41635836.davem@davemloft.net>
+To: herbert@gondor.apana.org.au
+Cc: jesper.juhl@gmail.com, mru@inprovide.com, rommer@active.by,
+       bernd@firmix.at, linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: udp.c
+From: "David S. Miller" <davem@davemloft.net>
+In-Reply-To: <20050613230422.GA7269@gondor.apana.org.au>
+References: <E1Dhwho-0001mn-00@gondolin.me.apana.org.au>
+	<20050613.145716.88477054.davem@davemloft.net>
+	<20050613230422.GA7269@gondor.apana.org.au>
+X-Mailer: Mew version 3.3 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 13 Jun 2005 23:17:03.0078 (UTC) FILETIME=[01EA6860:01C5706E]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tom Duffy wrote:
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Date: Tue, 14 Jun 2005 09:04:22 +1000
 
->On Mon, 2005-06-13 at 16:47 -0500, Langsdorf, Mark wrote:
->  
->
->>Okay, I think I have figured this out.  During initialization,
->>the cpufreq infrastruture only initializes the first core of
->>each processor.  When a request comes into the second core,
->>it's data structre is unitialized and we get the null point
->>dereference.
->>
->>The solution is to assign the pointer to the data structure for
->>the first core to all the other cores.
->>
->>Tom, could you try this patch and see if it helps?
->>    
->>
->
->Yes!  It fixed the panic.  I get much further.
->
->Thanks!
->
->Unfortunately, after starting cpuspeed daemon, I get this:
->
->Starting cpuspeed: [  OK  ]
->Starting pcmcia:  Starting PCMCIA services:
->CPU 6: Machine Check Exception:                4 Bank 4: b200000000070f0f
->TSC 4129a3d70d
->Kernel panic - not syncing: Machine check
-> <1>Unable to handle kernel NULL pointer dereference at 00000000000000ff RIP:
->[<00000000000000ff>]
->  
->
+> On Mon, Jun 13, 2005 at 02:57:16PM -0700, David S. Miller wrote:
+> > From: Herbert Xu <herbert@gondor.apana.org.au>
+> > Date: Tue, 14 Jun 2005 07:42:52 +1000
+> > 
+> > > It'll dump the stack anyway if we just make it a NULL pointer.
+> > 
+> > Some platforms don't handle that very cleanly, for example
+> > it may be necessary to have something mapped at page zero
+> > for one reason or another.
+> 
+> Are there any existing platforms that do that in kernel mode?
 
-asmlinkage void smp_call_function_interrupt(void)
-{
-        void (*func) (void *info) = call_data->func;
-        void *info = call_data->info;
-        int wait = call_data->wait;
+X86 did, especially during bootup, for a long time.
 
-        ack_APIC_irq();
-        /*
-         * Notify initiating CPU that I've grabbed the data and am
-         * about to execute the function
-         */
-        mb();
-        atomic_inc(&call_data->started);
-        /*
-         * At this point the info structure may be out of scope unless 
-wait==1
-         */
-        irq_enter();
-        (*func)(info);  <--- passed bogus data
-
-Looks like you jumped through a bogus function pointer.  I'm guessing it 
-has something to do with an unitialized IRQ vector for the CPU speed on 
-one of the cores (simply because it seems somewhat plausible):
-
-extern u8 irq_vector[NR_IRQ_VECTORS];
-#define IO_APIC_VECTOR(irq)     (irq_vector[irq])
-#define AUTO_ASSIGN             -1
-
-So irq_vector[AUTO_ASSIGN] = 0xff which could have somehow made it into 
-your function pointer.
-
-Just a theory.
+I know the highly optimized sparc64 instruction TLB miss handler
+doesn't handle this properly and this usually hangs the machine.
+I've put some checks in there that tries to handle it properly,
+but there are still some cases that pass through.
